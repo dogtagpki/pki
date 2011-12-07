@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-
 import java.io.IOException;
 import java.util.Locale;
 
@@ -43,7 +42,7 @@ public class MainPageServlet extends CMSServlet {
      *
      */
     private static final long serialVersionUID = 2425301522251239666L;
-    private static final String PROP_AUTHORITY_ID="authorityId";
+    private static final String PROP_AUTHORITY_ID = "authorityId";
     private String mAuthorityId = null;
     private String mFormPath = null;
 
@@ -75,12 +74,12 @@ public class MainPageServlet extends CMSServlet {
             form = getTemplate(mFormPath, request, locale);
         } catch (IOException e) {
             CMS.debug("MainPageServlet process: cant locate the form");
-/*
-            log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", e.toString()));
-            throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
-*/
+            /*
+             * log(ILogger.LL_FAILURE,
+             * CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", e.toString())); throw
+             * new ECMSGWException(
+             * CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+             */
         }
 
         process(argSet, header, ctx, request, response);
@@ -90,21 +89,22 @@ public class MainPageServlet extends CMSServlet {
             ServletOutputStream out = response.getOutputStream();
 
             cmsReq.setStatus(CMSRequest.SUCCESS);
-			response.setContentType("text/html");
-			form.renderOutput(out, argSet);
+            response.setContentType("text/html");
+            form.renderOutput(out, argSet);
         } catch (IOException e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("CMSGW_ERR_OUT_STREAM_TEMPLATE", e.toString()));
+                    CMS.getLogMessage("CMSGW_ERR_OUT_STREAM_TEMPLATE",
+                            e.toString()));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
     }
 
     private void process(CMSTemplateParams argSet, IArgBlock header,
-      IArgBlock ctx, HttpServletRequest req, HttpServletResponse resp)
-      throws EBaseException {
+            IArgBlock ctx, HttpServletRequest req, HttpServletResponse resp)
+            throws EBaseException {
 
-        int num = 0;        
+        int num = 0;
         IArgBlock rarg = null;
         IConfigStore cs = CMS.getConfigStore();
         int state = 0;
@@ -125,8 +125,8 @@ public class MainPageServlet extends CMSServlet {
             rarg = CMS.createArgBlock();
             rarg.addStringValue("type", "admin");
             rarg.addStringValue("prefix", "http");
-            rarg.addIntegerValue("port", 
-              Integer.valueOf(CMS.getEENonSSLPort()).intValue());
+            rarg.addIntegerValue("port", Integer.valueOf(CMS.getEENonSSLPort())
+                    .intValue());
             rarg.addStringValue("host", host);
             rarg.addStringValue("uri", adminInterface);
             argSet.addRepeatRecord(rarg);
@@ -136,8 +136,8 @@ public class MainPageServlet extends CMSServlet {
                 rarg = CMS.createArgBlock();
                 rarg.addStringValue("type", "ee");
                 rarg.addStringValue("prefix", "https");
-                rarg.addIntegerValue("port", 
-                  Integer.valueOf(CMS.getEESSLPort()).intValue());
+                rarg.addIntegerValue("port", Integer
+                        .valueOf(CMS.getEESSLPort()).intValue());
                 rarg.addStringValue("host", host);
                 rarg.addStringValue("uri", eeInterface);
                 argSet.addRepeatRecord(rarg);
@@ -147,8 +147,8 @@ public class MainPageServlet extends CMSServlet {
                 rarg = CMS.createArgBlock();
                 rarg.addStringValue("type", "agent");
                 rarg.addStringValue("prefix", "https");
-                rarg.addIntegerValue("port", 
-                  Integer.valueOf(CMS.getAgentPort()).intValue());
+                rarg.addIntegerValue("port", Integer
+                        .valueOf(CMS.getAgentPort()).intValue());
                 rarg.addStringValue("host", host);
                 rarg.addStringValue("uri", agentInterface);
                 argSet.addRepeatRecord(rarg);

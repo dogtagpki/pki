@@ -17,15 +17,11 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.base;
 
-
-
-
 /**
- * An interface represents an authentication context. This
- * is an entity that encapsulates the authentication
- * information of a service requestor. For example, CMS
- * user needs to authenticate to CMS using SSL. The
- * client certificate is expressed in authenticated context.
+ * An interface represents an authentication context. This is an entity that
+ * encapsulates the authentication information of a service requestor. For
+ * example, CMS user needs to authenticate to CMS using SSL. The client
+ * certificate is expressed in authenticated context.
  * <P>
  * 
  * @version $Revision$, $Date$

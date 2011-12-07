@@ -17,14 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.common;
 
-
 import java.util.ListResourceBundle;
-
 
 /**
  * A class represents a resource bundle for cms gateway.
  * <P>
- *
+ * 
  * @version $Revision$, $Date$
  * @see java.util.ListResourceBundle
  */
@@ -38,8 +36,7 @@ public class CMSGWResources extends ListResourceBundle {
     }
 
     /*
-     * Constants. The suffix represents the number of
-     * possible parameters.
+     * Constants. The suffix represents the number of possible parameters.
      */
 
     static final Object[][] contents = {};

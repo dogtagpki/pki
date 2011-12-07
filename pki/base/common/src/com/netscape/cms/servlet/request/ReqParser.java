@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.request;
 
-
 import java.util.Locale;
 
 import com.netscape.certsrv.base.EBaseException;
@@ -26,11 +25,10 @@ import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 
-
 /**
  * A class representing a request parser.
  * <P>
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class ReqParser implements IReqParser {
@@ -50,30 +48,28 @@ public class ReqParser implements IReqParser {
     /**
      * Maps request object into argument block.
      */
-    public void fillRequestIntoArg(Locale l, IRequest req, CMSTemplateParams argSet, IArgBlock arg)
-        throws EBaseException {
+    public void fillRequestIntoArg(Locale l, IRequest req,
+            CMSTemplateParams argSet, IArgBlock arg) throws EBaseException {
         arg.addStringValue(TYPE, req.getRequestType());
-        arg.addLongValue("seqNum", 
-            Long.parseLong(req.getRequestId().toString()));
-        arg.addStringValue(STATUS, 
-            req.getRequestStatus().toString());
-        arg.addLongValue(CREATE_ON, 
-            req.getCreationTime().getTime() / 1000);
-        arg.addLongValue(UPDATE_ON, 
-            req.getModificationTime().getTime() / 1000);
+        arg.addLongValue("seqNum",
+                Long.parseLong(req.getRequestId().toString()));
+        arg.addStringValue(STATUS, req.getRequestStatus().toString());
+        arg.addLongValue(CREATE_ON, req.getCreationTime().getTime() / 1000);
+        arg.addLongValue(UPDATE_ON, req.getModificationTime().getTime() / 1000);
         String updatedBy = req.getExtDataInString(IRequest.UPDATED_BY);
 
-        if (updatedBy == null) updatedBy = "";
+        if (updatedBy == null)
+            updatedBy = "";
         arg.addStringValue(UPDATE_BY, updatedBy);
 
         SessionContext ctx = SessionContext.getContext();
-        String id = (String) ctx.get(SessionContext.USER_ID); 
+        String id = (String) ctx.get(SessionContext.USER_ID);
 
         arg.addStringValue("callerName", id);
-		
+
         String owner = req.getRequestOwner();
 
-        if (owner != null) 
+        if (owner != null)
             arg.addStringValue("assignedTo", owner);
     }
 }

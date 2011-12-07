@@ -30,7 +30,7 @@ import netscape.security.util.DerValue;
 
 /**
  * This class defines the SerialNumber attribute for the Certificate.
- *
+ * 
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  * @version 1.6
@@ -38,8 +38,8 @@ import netscape.security.util.DerValue;
  */
 public class CertificateSerialNumber implements CertAttrSet {
     /**
-     * Identifier for this attribute, to be used with the
-     * get, set, delete methods of Certificate, x509 type.
+     * Identifier for this attribute, to be used with the get, set, delete
+     * methods of Certificate, x509 type.
      */
     public static final String IDENT = "x509.info.serialNumber";
 
@@ -49,29 +49,29 @@ public class CertificateSerialNumber implements CertAttrSet {
     public static final String NAME = "serialNumber";
     public static final String NUMBER = "number";
 
-    private SerialNumber	serial;
+    private SerialNumber serial;
 
     /**
      * Default constructor for the certificate attribute.
-     *
+     * 
      * @param serial the serial number for the certificate.
      */
     public CertificateSerialNumber(BigInteger num) {
-      this.serial = new SerialNumber(num);
+        this.serial = new SerialNumber(num);
     }
 
     /**
      * Default constructor for the certificate attribute.
-     *
+     * 
      * @param serial the serial number for the certificate.
      */
     public CertificateSerialNumber(int num) {
-      this.serial = new SerialNumber(num);
+        this.serial = new SerialNumber(num);
     }
 
     /**
      * Create the object, decoding the values from the passed DER stream.
-     *
+     * 
      * @param in the DerInputStream to read the serial number from.
      * @exception IOException on decoding errors.
      */
@@ -81,7 +81,7 @@ public class CertificateSerialNumber implements CertAttrSet {
 
     /**
      * Create the object, decoding the values from the passed stream.
-     *
+     * 
      * @param in the InputStream to read the serial number from.
      * @exception IOException on decoding errors.
      */
@@ -91,7 +91,7 @@ public class CertificateSerialNumber implements CertAttrSet {
 
     /**
      * Create the object, decoding the values from the passed DerValue.
-     *
+     * 
      * @param val the DER encoded value.
      * @exception IOException on decoding errors.
      */
@@ -103,13 +103,14 @@ public class CertificateSerialNumber implements CertAttrSet {
      * Return the serial number as user readable string.
      */
     public String toString() {
-        if (serial == null) return "";
+        if (serial == null)
+            return "";
         return (serial.toString());
     }
 
     /**
      * Encode the serial number in DER form to the stream.
-     *
+     * 
      * @param out the DerOutputStream to marshal the contents to.
      * @exception IOException on errors.
      */
@@ -122,7 +123,7 @@ public class CertificateSerialNumber implements CertAttrSet {
 
     /**
      * Decode the serial number in DER form from the stream.
-     *
+     * 
      * @param in the InputStream to marshal the contents from.
      * @exception IOException on errors.
      */
@@ -139,10 +140,10 @@ public class CertificateSerialNumber implements CertAttrSet {
             throw new IOException("Attribute must be of type SerialNumber.");
         }
         if (name.equalsIgnoreCase(NUMBER)) {
-            serial = (SerialNumber)obj;
+            serial = (SerialNumber) obj;
         } else {
-            throw new IOException("Attribute name not recognized by " +
-                                "CertAttrSet:CertificateSerialNumber.");
+            throw new IOException("Attribute name not recognized by "
+                    + "CertAttrSet:CertificateSerialNumber.");
         }
     }
 
@@ -153,8 +154,8 @@ public class CertificateSerialNumber implements CertAttrSet {
         if (name.equalsIgnoreCase(NUMBER)) {
             return (serial);
         } else {
-            throw new IOException("Attribute name not recognized by " +
-                                "CertAttrSet:CertificateSerialNumber.");
+            throw new IOException("Attribute name not recognized by "
+                    + "CertAttrSet:CertificateSerialNumber.");
         }
     }
 
@@ -165,8 +166,8 @@ public class CertificateSerialNumber implements CertAttrSet {
         if (name.equalsIgnoreCase(NUMBER)) {
             serial = null;
         } else {
-            throw new IOException("Attribute name not recognized by " +
-                                "CertAttrSet:CertificateSerialNumber.");
+            throw new IOException("Attribute name not recognized by "
+                    + "CertAttrSet:CertificateSerialNumber.");
         }
     }
 
@@ -177,10 +178,10 @@ public class CertificateSerialNumber implements CertAttrSet {
     public Enumeration<String> getElements() {
         Vector<String> elements = new Vector<String>();
         elements.addElement(NUMBER);
- 
+
         return (elements.elements());
     }
- 
+
     /**
      * Return the name of this attribute.
      */

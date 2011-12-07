@@ -17,9 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.ldap;
 
-
 import java.util.ListResourceBundle;
-
 
 /**
  * A resource bundle for ldap subsystem.
@@ -36,8 +34,7 @@ public class LdapResources extends ListResourceBundle {
     }
 
     /**
-     * Constants. The suffix represents the number of 
-     * possible parameters.
+     * Constants. The suffix represents the number of possible parameters.
      */
 
     static final Object[][] contents = {};

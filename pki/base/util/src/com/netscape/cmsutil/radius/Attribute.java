@@ -17,13 +17,11 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmsutil.radius;
 
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-
 public abstract class Attribute {
-    public static final int USER_NAME = 1; 
+    public static final int USER_NAME = 1;
     public static final int USER_PASSWORD = 2;
     public static final int CHAP_PASSWORD = 3;
     public static final int NAS_IP_ADDRESS = 4;
@@ -81,12 +79,10 @@ public abstract class Attribute {
         return _t;
     }
 
-    public abstract byte[] getValue() 
-        throws IOException;
+    public abstract byte[] getValue() throws IOException;
 
-    public byte[] getData() 
-        throws IOException {
-        ByteArrayOutputStream attrOS = new ByteArrayOutputStream();		
+    public byte[] getData() throws IOException {
+        ByteArrayOutputStream attrOS = new ByteArrayOutputStream();
 
         attrOS.write(_t); // type
         byte value[] = getValue();

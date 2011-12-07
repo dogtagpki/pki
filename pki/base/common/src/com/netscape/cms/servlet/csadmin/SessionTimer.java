@@ -28,8 +28,7 @@ import com.netscape.certsrv.logging.ILogger;
 public class SessionTimer extends TimerTask {
     private ISecurityDomainSessionTable m_sessiontable = null;
     private ILogger mSignedAuditLogger = CMS.getSignedAuditLogger();
-    private final static String LOGGING_SIGNED_AUDIT_SECURITY_DOMAIN_UPDATE =
-        "LOGGING_SIGNED_AUDIT_SECURITY_DOMAIN_UPDATE_1";
+    private final static String LOGGING_SIGNED_AUDIT_SECURITY_DOMAIN_UPDATE = "LOGGING_SIGNED_AUDIT_SECURITY_DOMAIN_UPDATE_1";
 
     public SessionTimer(ISecurityDomainSessionTable table) {
         super();
@@ -39,32 +38,27 @@ public class SessionTimer extends TimerTask {
     public void run() {
         Enumeration keys = m_sessiontable.getSessionIds();
         while (keys.hasMoreElements()) {
-            String sessionId = (String)keys.nextElement();
+            String sessionId = (String) keys.nextElement();
             long beginTime = m_sessiontable.getBeginTime(sessionId);
             Date nowDate = new Date();
             long nowTime = nowDate.getTime();
             long timeToLive = m_sessiontable.getTimeToLive();
-            if ((nowTime-beginTime) > timeToLive) {
+            if ((nowTime - beginTime) > timeToLive) {
                 m_sessiontable.removeEntry(sessionId);
                 CMS.debug("SessionTimer run: successfully remove the session id entry from the table.");
-                
+
                 // audit message
-                String auditParams = "operation;;expire_token+token;;" + sessionId;
+                String auditParams = "operation;;expire_token+token;;"
+                        + sessionId;
                 String auditMessage = CMS.getLogMessage(
-                                         LOGGING_SIGNED_AUDIT_SECURITY_DOMAIN_UPDATE,
-                                         "system",
-                                         ILogger.SUCCESS,
-                                         auditParams);
+                        LOGGING_SIGNED_AUDIT_SECURITY_DOMAIN_UPDATE, "system",
+                        ILogger.SUCCESS, auditParams);
 
-                mSignedAuditLogger.log(ILogger.EV_SIGNED_AUDIT,
-                                       null,
-                                       ILogger.S_SIGNED_AUDIT,
-                                       ILogger.LL_SECURITY,
-                                       auditMessage);
+                mSignedAuditLogger.log(ILogger.EV_SIGNED_AUDIT, null,
+                        ILogger.S_SIGNED_AUDIT, ILogger.LL_SECURITY,
+                        auditMessage);
 
-                
             }
         }
     }
 }
-

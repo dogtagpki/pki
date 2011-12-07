@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-
 import java.io.IOException;
 
 import javax.servlet.ServletConfig;
@@ -36,19 +35,19 @@ import com.netscape.cms.servlet.wizard.WizardServlet;
 
 public class ImportCAChainPanel extends WizardPanelBase {
 
-    public ImportCAChainPanel() {}
+    public ImportCAChainPanel() {
+    }
 
     /**
      * Initializes this panel.
      */
-    public void init(ServletConfig config, int panelno) 
-        throws ServletException {
+    public void init(ServletConfig config, int panelno) throws ServletException {
         setPanelNo(panelno);
         setName("Import CA's Certificate Chain");
     }
 
-    public void init(WizardServlet servlet, ServletConfig config, int panelno, String id)
-        throws ServletException {
+    public void init(WizardServlet servlet, ServletConfig config, int panelno,
+            String id) throws ServletException {
         setPanelNo(panelno);
         setName("Import CA's Certificate Chain");
         setId(id);
@@ -75,8 +74,7 @@ public class ImportCAChainPanel extends WizardPanelBase {
      * Display the panel.
      */
     public void display(HttpServletRequest request,
-            HttpServletResponse response,
-            Context context) {
+            HttpServletResponse response, Context context) {
         CMS.debug("ImportCACertChain: display");
         context.put("errorString", "");
         context.put("title", "Import CA's Certificate Chain");
@@ -89,8 +87,9 @@ public class ImportCAChainPanel extends WizardPanelBase {
             context.put("https_port", cs.getString("pkicreate.ee_secure_port"));
             context.put("http_port", cs.getString("pkicreate.unsecure_port"));
         } catch (EBaseException e) {
-            CMS.debug("ImportCACertChain:display: Exception: " + e.toString()); 
-            context.put("errorString", "Error loading values for Import CA Certificate Panel");
+            CMS.debug("ImportCACertChain:display: Exception: " + e.toString());
+            context.put("errorString",
+                    "Error loading values for Import CA Certificate Panel");
         }
 
         ISubsystem ca = (ISubsystem) CMS.getSubsystem("ca");
@@ -107,18 +106,15 @@ public class ImportCAChainPanel extends WizardPanelBase {
      * Checks if the given parameters are valid.
      */
     public void validate(HttpServletRequest request,
-            HttpServletResponse response,
-            Context context) throws IOException {
+            HttpServletResponse response, Context context) throws IOException {
     }
 
     /**
      * Commit parameter changes
      */
     public void update(HttpServletRequest request,
-            HttpServletResponse response,
-            Context context) throws IOException {
+            HttpServletResponse response, Context context) throws IOException {
         IConfigStore cs = CMS.getConfigStore();
-
 
         context.put("errorString", "");
         context.put("title", "Import CA's Certificate Chain");
@@ -130,8 +126,7 @@ public class ImportCAChainPanel extends WizardPanelBase {
      * If validiate() returns false, this method will be called.
      */
     public void displayError(HttpServletRequest request,
-            HttpServletResponse response,
-            Context context) {
+            HttpServletResponse response, Context context) {
 
         /* This should never be called */
         IConfigStore cs = CMS.getConfigStore();
@@ -141,6 +136,7 @@ public class ImportCAChainPanel extends WizardPanelBase {
             context.put("http_port", cs.getString("pkicreate.unsecure_port"));
             context.put("title", "Import CA's Certificate Chain");
             context.put("panel", "admin/console/config/importcachainpanel.vm");
-        } catch (EBaseException e) {}
+        } catch (EBaseException e) {
+        }
     }
 }

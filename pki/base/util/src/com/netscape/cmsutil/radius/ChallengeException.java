@@ -17,9 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmsutil.radius;
 
-
-
-
 public class ChallengeException extends Exception {
     /**
      *
@@ -36,10 +33,12 @@ public class ChallengeException extends Exception {
     }
 
     public String getState() {
-        return ((StateAttribute) (_res.getAttributeSet().getAttributeByType(Attribute.STATE))).getString();
+        return ((StateAttribute) (_res.getAttributeSet()
+                .getAttributeByType(Attribute.STATE))).getString();
     }
 
     public String getReplyMessage() {
-        return ((ReplyMessageAttribute) (_res.getAttributeSet().getAttributeByType(Attribute.REPLY_MESSAGE))).getString();
+        return ((ReplyMessageAttribute) (_res.getAttributeSet()
+                .getAttributeByType(Attribute.REPLY_MESSAGE))).getString();
     }
 }

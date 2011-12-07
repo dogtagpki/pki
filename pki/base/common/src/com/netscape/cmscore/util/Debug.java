@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.util;
 
-
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -30,29 +29,27 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.cmsutil.util.Utils;
 
-
-public class Debug
-    implements ISubsystem {
+public class Debug implements ISubsystem {
 
     private static Debug mInstance = new Debug();
     private static boolean mShowCaller = false;
 
-
-	/* This dateformatter is used to put the date on each
-	   debug line. But the DateFormatter is not thread safe,
-	   so I create a thread-local DateFormatter for each thread
-	 */
+    /*
+     * This dateformatter is used to put the date on each debug line. But the
+     * DateFormatter is not thread safe, so I create a thread-local
+     * DateFormatter for each thread
+     */
     private static String DATE_PATTERN = "dd/MMM/yyyy:HH:mm:ss";
     private static ThreadLocal mFormatObject = new ThreadLocal() {
-			protected synchronized Object initialValue() {
-				return new SimpleDateFormat(DATE_PATTERN);
-			}
-	}; 
+        protected synchronized Object initialValue() {
+            return new SimpleDateFormat(DATE_PATTERN);
+        }
+    };
 
-	/* the dateformatter should be accessed with this function */
-	private static SimpleDateFormat getDateFormatter() {
-		return ((SimpleDateFormat)(mFormatObject.get()));
-	}
+    /* the dateformatter should be accessed with this function */
+    private static SimpleDateFormat getDateFormatter() {
+        return ((SimpleDateFormat) (mFormatObject.get()));
+    }
 
     public static final boolean ON = false;
     public static final int OBNOXIOUS = 10;
@@ -62,10 +59,10 @@ public class Debug
     // the difference between this and 'ON' is that this is always
     // guaranteed to log to 'mOut', whereas other parts of the server
     // may do:
-    //  if (Debug.ON) {
-    //     System.out.println("..");
-    //	}
-    // I want to make sure that any Debug.trace() is not logged to 
+    // if (Debug.ON) {
+    // System.out.println("..");
+    // }
+    // I want to make sure that any Debug.trace() is not logged to
     // System.out if the server is running under watchdog
 
     private static boolean TRACE_ON = false;
@@ -73,7 +70,7 @@ public class Debug
     private static int mDebugLevel = VERBOSE;
 
     private static PrintStream mOut = null;
-	private static Hashtable mHK = null;
+    private static Hashtable mHK = null;
 
     static {
         if (TRACE_ON == true) {
@@ -88,98 +85,112 @@ public class Debug
     /**
      * Output a debug message at the output stream sepcified in the init()
      * method. This method is very lightweight if debugging is turned off, since
-     *   it will return immediately. However, the caller should be aware that
-     *   if the argument to Debug.trace() is an object whose toString() is
-     *   expensive, that this toString() will still be called in any case.
-     *   In such a case, it is wise to wrap the Debug.trace like this: <pre>
-     *   if (Debug.on()) { Debug.trace("obj is: "+obj); }
-     *   </pre>
+     * it will return immediately. However, the caller should be aware that if
+     * the argument to Debug.trace() is an object whose toString() is expensive,
+     * that this toString() will still be called in any case. In such a case, it
+     * is wise to wrap the Debug.trace like this:
+     * 
+     * <pre>
+     * if (Debug.on()) {
+     *     Debug.trace(&quot;obj is: &quot; + obj);
+     * }
+     * </pre>
+     * 
      * @param level the message level. If this is >= than the currently set
-     *    level (set with setLevel() ), the message is printed
+     *            level (set with setLevel() ), the message is printed
      * @param t the message to print
-     * @param ignoreStack when walking the stack to determine the
-     *   location of the method that called the trace() method,
-     *   ignore any classes with this string in. Can be null
-     * @param printCaller if true, (and if static mShowCaller is true)
-     *    dump caller information in this format:
-     *    (source-file:line) methodname():
+     * @param ignoreStack when walking the stack to determine the location of
+     *            the method that called the trace() method, ignore any classes
+     *            with this string in. Can be null
+     * @param printCaller if true, (and if static mShowCaller is true) dump
+     *            caller information in this format: (source-file:line)
+     *            methodname():
      */
-    public static void trace(int level, String t, String ignoreStack, boolean printCaller) {
-		String callerinfo = "";
-        if (!TRACE_ON) return;
+    public static void trace(int level, String t, String ignoreStack,
+            boolean printCaller) {
+        String callerinfo = "";
+        if (!TRACE_ON)
+            return;
         if (level >= mDebugLevel) {
             if (mShowCaller && printCaller) {
                 String method = "";
                 String fileAndLine = "";
 
                 try {
-					Throwable tr = new Throwable();
-					StackTraceElement ste[] = tr.getStackTrace();
-					int i=0;
-					while ((i < ste.length) && 
-						(ste[i].getMethodName().toLowerCase().indexOf("debug") >-1) ||
-						(ste[i].getMethodName().toLowerCase().indexOf("hashkey") >-1) ||
-						(ste[i].getClassName().toLowerCase().indexOf("propconfigstore") >-1) ||
-						(ste[i].getClassName().toLowerCase().indexOf("argblock") >-1) ||
-						(ste[i].getClassName().toLowerCase().indexOf("debug") >-1) ||
-						(ste[i].getMethodName().toLowerCase().indexOf("trace") >-1)) i++;
+                    Throwable tr = new Throwable();
+                    StackTraceElement ste[] = tr.getStackTrace();
+                    int i = 0;
+                    while ((i < ste.length)
+                            && (ste[i].getMethodName().toLowerCase()
+                                    .indexOf("debug") > -1)
+                            || (ste[i].getMethodName().toLowerCase()
+                                    .indexOf("hashkey") > -1)
+                            || (ste[i].getClassName().toLowerCase()
+                                    .indexOf("propconfigstore") > -1)
+                            || (ste[i].getClassName().toLowerCase()
+                                    .indexOf("argblock") > -1)
+                            || (ste[i].getClassName().toLowerCase()
+                                    .indexOf("debug") > -1)
+                            || (ste[i].getMethodName().toLowerCase()
+                                    .indexOf("trace") > -1))
+                        i++;
 
-					if (i < ste.length) {
-						fileAndLine = ste[i].getFileName()+":"+
-							ste[i].getLineNumber();
-						method = ste[i].getMethodName()+"()";
-					}
+                    if (i < ste.length) {
+                        fileAndLine = ste[i].getFileName() + ":"
+                                + ste[i].getLineNumber();
+                        method = ste[i].getMethodName() + "()";
+                    }
 
-					callerinfo = fileAndLine +":"+ method + " ";
+                    callerinfo = fileAndLine + ":" + method + " ";
                 } catch (Exception f) {
                 }
             }
-		
-			outputTraceMessage(callerinfo + t);
+
+            outputTraceMessage(callerinfo + t);
         }
     }
-	
-	private static void outputTraceMessage(String t)
-	{
-        if (!TRACE_ON) return;
-		SimpleDateFormat d = getDateFormatter();
-        if (mOut != null && d != null) {
-            mOut.println("[" + d.format(new Date()) + "][" + Thread.currentThread().getName() + "]: " + t);
-            mOut.flush();
-            }
-	}
 
-	private static boolean hkdotype(String type)
-	{
-		if (mHK!= null && mHK.get(type) != null) {
-			return true;
-		} else {
-			return false;
-		}
-	}
+    private static void outputTraceMessage(String t) {
+        if (!TRACE_ON)
+            return;
+        SimpleDateFormat d = getDateFormatter();
+        if (mOut != null && d != null) {
+            mOut.println("[" + d.format(new Date()) + "]["
+                    + Thread.currentThread().getName() + "]: " + t);
+            mOut.flush();
+        }
+    }
+
+    private static boolean hkdotype(String type) {
+        if (mHK != null && mHK.get(type) != null) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     public static void traceHashKey(String type, String key) {
-		if (hkdotype(type)) {
-           	trace("GET r=" + type+ ",k=" + key);
+        if (hkdotype(type)) {
+            trace("GET r=" + type + ",k=" + key);
         }
     }
 
     public static void traceHashKey(String type, String key, String val) {
-		if (hkdotype(type)) {
-            trace("GET r=" + type+ ",k=" + key + ",v=" + val);
+        if (hkdotype(type)) {
+            trace("GET r=" + type + ",k=" + key + ",v=" + val);
         }
     }
 
-    public static void traceHashKey(String type, String key, String val, String def) {
-		if (hkdotype(type)) {
-            trace("GET r=" + type+ ",k=" +
-					 key + ",v=" + val +",d="+def);
+    public static void traceHashKey(String type, String key, String val,
+            String def) {
+        if (hkdotype(type)) {
+            trace("GET r=" + type + ",k=" + key + ",v=" + val + ",d=" + def);
         }
-	}
+    }
 
     public static void putHashKey(String type, String key, String value) {
-		if (hkdotype(type)) {
-            outputTraceMessage("PUT r=" + type+ ",k=" + key + ",v=" + value);
+        if (hkdotype(type)) {
+            outputTraceMessage("PUT r=" + type + ",k=" + key + ",v=" + value);
         }
     }
 
@@ -188,7 +199,8 @@ public class Debug
     }
 
     public static void print(int level, String t) {
-        if (!TRACE_ON) return;
+        if (!TRACE_ON)
+            return;
         if (mOut != null) {
             if (level >= mDebugLevel)
                 mOut.print(t);
@@ -200,24 +212,30 @@ public class Debug
     }
 
     private static void printNybble(byte b) {
-        if (mOut == null) return;
-        if (b < 10) mOut.write('0' + b);
-        else mOut.write('a' + b - 10);
+        if (mOut == null)
+            return;
+        if (b < 10)
+            mOut.write('0' + b);
+        else
+            mOut.write('a' + b - 10);
     }
 
     /**
-     * If tracing enabled, dump a byte array to debugging printstream
-     * as hex, colon-seperated bytes, 16 bytes to a line
+     * If tracing enabled, dump a byte array to debugging printstream as hex,
+     * colon-seperated bytes, 16 bytes to a line
      */
     public static void print(byte[] b) {
-        if (!TRACE_ON) return;
-        if (mOut == null) return;
+        if (!TRACE_ON)
+            return;
+        if (mOut == null)
+            return;
 
         for (int i = 0; i < b.length; i++) {
             printNybble((byte) ((b[i] & 0xf0) >> 4));
             printNybble((byte) (b[i] & 0x0f));
             mOut.print(" ");
-            if (((i % 16) == 15) && i != b.length) mOut.println("");
+            if (((i % 16) == 15) && i != b.length)
+                mOut.println("");
         }
         mOut.println("");
         mOut.flush();
@@ -227,29 +245,35 @@ public class Debug
      * Print the current stack trace to the debug printstream
      */
     public static void printStackTrace() {
-        if (!TRACE_ON) return;
+        if (!TRACE_ON)
+            return;
         Exception e = new Exception("Debug");
 
         printStackTrace(e);
     }
 
     /**
-     * Print the stack trace of the named exception 
-     * to the debug printstream
+     * Print the stack trace of the named exception to the debug printstream
      */
     public static void printStackTrace(Throwable e) {
-        if (!TRACE_ON) return;
-        if (mOut == null) return;
+        if (!TRACE_ON)
+            return;
+        if (mOut == null)
+            return;
 
         e.printStackTrace(mOut);
     }
 
     /**
-     * Set the current debugging level. You can use: <pre>
+     * Set the current debugging level. You can use:
+     * 
+     * <pre>
      * OBNOXIOUS = 10
      * VERBOSE   = 5
      * INFORM    = 1
-     * </pre> Or another value
+     * </pre>
+     * 
+     * Or another value
      */
 
     public static void setLevel(int level) {
@@ -263,15 +287,15 @@ public class Debug
     /**
      * Test if debugging is on. Do NOT write to System.out in your debug code
      */
-    public static boolean on() { 
+    public static boolean on() {
         return TRACE_ON;
     }
 
-    /*  ISubsystem methods: */
+    /* ISubsystem methods: */
 
     public static String ID = "debug";
     private static IConfigStore mConfig = null;
-	
+
     public String getId() {
         return ID;
     }
@@ -288,8 +312,10 @@ public class Debug
     private static final String PROP_APPEND = "append";
 
     /**
-     * Debug subsystem initialization. This subsystem is usually
-     * given the following parameters: <pre>
+     * Debug subsystem initialization. This subsystem is usually given the
+     * following parameters:
+     * 
+     * <pre>
      * debug.enabled   : (true|false) default false
      * debug.filename  : can be a pathname, or STDOUT
      * debug.hashkeytypes: comma-separated list of hashkey types
@@ -301,7 +327,7 @@ public class Debug
         mConfig = config;
         String filename = null;
         String hashkeytypes = null;
-		boolean append=true;
+        boolean append = true;
 
         try {
             TRACE_ON = mConfig.getBoolean(PROP_ENABLED, false);
@@ -318,32 +344,32 @@ public class Debug
                 if (filename.equals("STDOUT")) {
                     mOut = System.out;
                 } else {
-                    if( !Utils.isNT() ) {
+                    if (!Utils.isNT()) {
                         // Always insure that a physical file exists!
-                        Utils.exec( "touch " + filename );
-                        Utils.exec( "chmod 00640 " + filename );
+                        Utils.exec("touch " + filename);
+                        Utils.exec("chmod 00640 " + filename);
                     }
                     OutputStream os = new FileOutputStream(filename, append);
-                    mOut = new PrintStream(os, true);  /* true == autoflush */
+                    mOut = new PrintStream(os, true); /* true == autoflush */
                 }
                 if (hashkeytypes != null) {
-					StringTokenizer st = new StringTokenizer(hashkeytypes,
-							",", false);
-					mHK = new Hashtable();
-					while (st.hasMoreElements()) {
-						String hkr = st.nextToken();
-						mHK.put(hkr, "true");
-					}
+                    StringTokenizer st = new StringTokenizer(hashkeytypes, ",",
+                            false);
+                    mHK = new Hashtable();
+                    while (st.hasMoreElements()) {
+                        String hkr = st.nextToken();
+                        mHK.put(hkr, "true");
+                    }
                 }
             }
-			outputTraceMessage("============================================");
-			outputTraceMessage("=====  DEBUG SUBSYSTEM INITIALIZED   =======");
-			outputTraceMessage("============================================");
+            outputTraceMessage("============================================");
+            outputTraceMessage("=====  DEBUG SUBSYSTEM INITIALIZED   =======");
+            outputTraceMessage("============================================");
             int level = mConfig.getInteger(PROP_LEVEL, VERBOSE);
             setLevel(level);
         } catch (Exception e) {
             // Don't do anything. Logging is not set up yet, and
-            // we can't write to STDOUT. 
+            // we can't write to STDOUT.
         }
     }
 
@@ -364,4 +390,3 @@ public class Debug
     }
 
 }
-

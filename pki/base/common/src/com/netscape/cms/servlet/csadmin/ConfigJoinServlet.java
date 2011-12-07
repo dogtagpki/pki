@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -30,7 +29,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
-
 public class ConfigJoinServlet extends ConfigBaseServlet {
 
     /**
@@ -39,8 +37,7 @@ public class ConfigJoinServlet extends ConfigBaseServlet {
     private static final long serialVersionUID = -5848083581083497909L;
 
     public boolean isDisplayMode(HttpServletRequest request,
-            HttpServletResponse response,
-            Context context) {
+            HttpServletResponse response, Context context) {
         String cert = request.getParameter("cert");
 
         if (cert == null) {
@@ -52,12 +49,13 @@ public class ConfigJoinServlet extends ConfigBaseServlet {
 
     public boolean isPanelModified() {
         IConfigStore config = CMS.getConfigStore();
-      
+
         String cert = null;
 
         try {
             cert = config.getString("preop.join.cert", null);
-        } catch (EBaseException e) {}
+        } catch (EBaseException e) {
+        }
         if (cert == null || cert.equals("")) {
             return false;
         } else {
@@ -69,15 +67,14 @@ public class ConfigJoinServlet extends ConfigBaseServlet {
      * Displays panel.
      */
     public void display(HttpServletRequest request,
-            HttpServletResponse response, 
-            Context context) {
+            HttpServletResponse response, Context context) {
         IConfigStore config = CMS.getConfigStore();
 
         try {
-            String pubKeyModulus = config.getString(
-                    "preop.keysize.pubKeyModulus");
-            String pubKeyPublicExponent = config.getString(
-                    "preop.keysize.pubKeyPublicExponent");
+            String pubKeyModulus = config
+                    .getString("preop.keysize.pubKeyModulus");
+            String pubKeyPublicExponent = config
+                    .getString("preop.keysize.pubKeyPublicExponent");
             String dn = config.getString("preop.name.dn");
             String priKeyID = config.getString("preop.keysize.priKeyID");
             String pkcs10 = CryptoUtil.getPKCS10FromKey(dn,
@@ -85,7 +82,8 @@ public class ConfigJoinServlet extends ConfigBaseServlet {
                     CryptoUtil.string2byte(pubKeyPublicExponent),
                     CryptoUtil.string2byte(priKeyID));
             context.put("certreq", pkcs10);
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
 
         String select = "auto";
         boolean select_manual = true;
@@ -94,8 +92,8 @@ public class ConfigJoinServlet extends ConfigBaseServlet {
             try {
                 select = config.getString("preop.join.select", null);
             } catch (EBaseException e) {
-                CMS.debug( "ConfigJoinServlet::display() - "
-                         + "Exception="+e.toString() );
+                CMS.debug("ConfigJoinServlet::display() - " + "Exception="
+                        + e.toString());
                 return;
             }
             if (select.equals("auto")) {
@@ -109,12 +107,13 @@ public class ConfigJoinServlet extends ConfigBaseServlet {
                     String cert = config.getString("preop.join.cert", "");
 
                     context.put("cert", cert);
-                } catch (EBaseException e) {}
+                } catch (EBaseException e) {
+                }
             }
         } else {
             context.put("cert", "");
         }
-        if (select_manual) { 
+        if (select_manual) {
             context.put("check_manual", "checked");
             context.put("check_auto", "");
         } else {
@@ -128,8 +127,7 @@ public class ConfigJoinServlet extends ConfigBaseServlet {
      * Updates panel.
      */
     public void update(HttpServletRequest request,
-            HttpServletResponse response, 
-            Context context) {
+            HttpServletResponse response, Context context) {
         CMS.debug("JoinServlet: update");
         IConfigStore config = CMS.getConfigStore();
         String select = request.getParameter("choice");
@@ -155,22 +153,21 @@ public class ConfigJoinServlet extends ConfigBaseServlet {
                 config.putString("preop.join.pwd", pwd);
 
                 /* XXX - submit request to the CA, and import it automatically */
-                config.putString(
-                        "preop.join.cert", ""); /* store the chain */
+                config.putString("preop.join.cert", ""); /* store the chain */
             }
             config.putString("preop.join.select", select);
             config.commit(false);
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
     }
-                                                                                
+
     public Template getTemplate(HttpServletRequest request,
-            HttpServletResponse response,
-            Context context) {
+            HttpServletResponse response, Context context) {
         Template template = null;
 
         try {
-            template = Velocity.getTemplate(
-                    "admin/console/config/config_join.vm");
+            template = Velocity
+                    .getTemplate("admin/console/config/config_join.vm");
         } catch (Exception e) {
             System.err.println("Exception caught: " + e.getMessage());
         }

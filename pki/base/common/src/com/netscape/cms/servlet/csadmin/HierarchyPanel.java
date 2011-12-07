@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-
 import java.io.IOException;
 
 import javax.servlet.ServletConfig;
@@ -36,19 +35,19 @@ import com.netscape.cms.servlet.wizard.WizardServlet;
 
 public class HierarchyPanel extends WizardPanelBase {
 
-    public HierarchyPanel() {}
+    public HierarchyPanel() {
+    }
 
     /**
      * Initializes this panel.
      */
-    public void init(ServletConfig config, int panelno) 
-        throws ServletException {
+    public void init(ServletConfig config, int panelno) throws ServletException {
         setPanelNo(panelno);
         setName("PKI Hierarchy");
     }
 
-    public void init(WizardServlet servlet, ServletConfig config, int panelno, String id)
-        throws ServletException {
+    public void init(WizardServlet servlet, ServletConfig config, int panelno,
+            String id) throws ServletException {
         setPanelNo(panelno);
         setName("PKI Hierarchy");
         setId(id);
@@ -56,16 +55,15 @@ public class HierarchyPanel extends WizardPanelBase {
 
     public boolean shouldSkip() {
 
-        // we dont need to ask the hierachy if we are 
+        // we dont need to ask the hierachy if we are
         // setting up a clone
         try {
             IConfigStore c = CMS.getConfigStore();
-            String s = c.getString("preop.subsystem.select",
-                    null);
+            String s = c.getString("preop.subsystem.select", null);
             if (s != null && s.equals("clone")) {
                 // mark this panel as done
-                c.putString("preop.hierarchy.select","root");
-                c.putString("hierarchy.select","Clone");
+                c.putString("preop.hierarchy.select", "root");
+                c.putString("hierarchy.select", "Clone");
                 return true;
             }
         } catch (EBaseException e) {
@@ -89,15 +87,16 @@ public class HierarchyPanel extends WizardPanelBase {
             } else {
                 return true;
             }
-        } catch (EBaseException e) {}
+        } catch (EBaseException e) {
+        }
         return false;
     }
 
     public PropertySet getUsage() {
         PropertySet set = new PropertySet();
-                                                                                
+
         /* XXX */
-                                                                                
+
         return set;
     }
 
@@ -105,8 +104,7 @@ public class HierarchyPanel extends WizardPanelBase {
      * Display the panel.
      */
     public void display(HttpServletRequest request,
-            HttpServletResponse response,
-            Context context) {
+            HttpServletResponse response, Context context) {
         context.put("title", "PKI Hierarchy");
         IConfigStore config = CMS.getConfigStore();
 
@@ -117,7 +115,7 @@ public class HierarchyPanel extends WizardPanelBase {
                 if (s.equals("root")) {
                     context.put("check_root", "checked");
                 } else if (s.equals("join")) {
-                    context.put("check_join", "checked"); 
+                    context.put("check_join", "checked");
                 }
             } catch (Exception e) {
                 CMS.debug(e.toString());
@@ -134,16 +132,14 @@ public class HierarchyPanel extends WizardPanelBase {
      * Checks if the given parameters are valid.
      */
     public void validate(HttpServletRequest request,
-            HttpServletResponse response,
-            Context context) throws IOException {
+            HttpServletResponse response, Context context) throws IOException {
     }
 
     /**
      * Commit parameter changes
      */
     public void update(HttpServletRequest request,
-            HttpServletResponse response,
-            Context context) throws IOException {
+            HttpServletResponse response, Context context) throws IOException {
         IConfigStore config = CMS.getConfigStore();
         try {
             String cstype = config.getString("preop.subsystem.select", "");
@@ -163,16 +159,17 @@ public class HierarchyPanel extends WizardPanelBase {
         }
 
         if (select.equals("root")) {
-            config.putString("preop.hierarchy.select", "root"); 
-            config.putString("hierarchy.select", "Root"); 
+            config.putString("preop.hierarchy.select", "root");
+            config.putString("hierarchy.select", "Root");
             config.putString("preop.ca.type", "sdca");
             try {
                 config.commit(false);
-            } catch (EBaseException e) {}
+            } catch (EBaseException e) {
+            }
         } else if (select.equals("join")) {
             config.putString(PCERT_PREFIX + "signing.type", "remote");
             config.putString("preop.hierarchy.select", "join");
-            config.putString("hierarchy.select", "Subordinate"); 
+            config.putString("hierarchy.select", "Subordinate");
         } else {
             config.putString(PCERT_PREFIX + "signing.type", "remote");
             CMS.debug("HierarchyPanel: invalid choice " + select);
@@ -186,6 +183,6 @@ public class HierarchyPanel extends WizardPanelBase {
      * If validiate() returns false, this method will be called.
      */
     public void displayError(HttpServletRequest request,
-            HttpServletResponse response,
-            Context context) {}
+            HttpServletResponse response, Context context) {
+    }
 }

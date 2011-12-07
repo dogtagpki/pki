@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.usrgrp;
 
-
 import java.security.cert.X509Certificate;
 
 import netscape.ldap.LDAPException;
@@ -30,13 +29,11 @@ import com.netscape.certsrv.usrgrp.ICertUserLocator;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 
-
 /**
- * This interface defines a strategy on how to match
- * the incoming certificate(s) with the certificate(s)
- * in the scope.  It matches the "certdn" field which contains
- * the subject dn of the certificate
- *
+ * This interface defines a strategy on how to match the incoming certificate(s)
+ * with the certificate(s) in the scope. It matches the "certdn" field which
+ * contains the subject dn of the certificate
+ * 
  * @author cfu
  * @version $Revision$, $Date$
  */
@@ -54,16 +51,16 @@ public class CertDNCertUserLocator implements ICertUserLocator {
      * Retrieves description.
      */
     public String getDescription() {
-        return "A subject is authenticated if its first" + 
-            " certificate can be matched with one of the" +
-            " certificate in the scope";
+        return "A subject is authenticated if its first"
+                + " certificate can be matched with one of the"
+                + " certificate in the scope";
     }
 
     /**
      * Do the cert-user mapping
      */
-    public IUser locateUser(Certificates certs) throws
-            EUsrGrpException, LDAPException, ELdapException {
+    public IUser locateUser(Certificates certs) throws EUsrGrpException,
+            LDAPException, ELdapException {
         mUG = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
 
         X509Certificate certificates[] = certs.getCertificates();
@@ -71,8 +68,7 @@ public class CertDNCertUserLocator implements ICertUserLocator {
         if (certificates == null)
             return null;
 
-        String filter = LDAP_ATTR_CERTDN + "=" +
-            certificates[0].getSubjectDN();
+        String filter = LDAP_ATTR_CERTDN + "=" + certificates[0].getSubjectDN();
 
         return mUG.findUsersByCert(filter);
     }

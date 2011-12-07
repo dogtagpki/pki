@@ -17,11 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmsutil.radius;
 
-
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-
 
 public class UserPasswordAttribute extends Attribute {
     private Authenticator _ra = null;
@@ -32,7 +30,8 @@ public class UserPasswordAttribute extends Attribute {
         //
     }
 
-    public UserPasswordAttribute(Authenticator ra, String secret, String password) {
+    public UserPasswordAttribute(Authenticator ra, String secret,
+            String password) {
         super(USER_PASSWORD);
         _ra = ra;
         _secret = secret;
@@ -43,7 +42,7 @@ public class UserPasswordAttribute extends Attribute {
         MessageDigest md5 = null;
 
         try {
-            md5 = MessageDigest.getInstance("MD5"); 
+            md5 = MessageDigest.getInstance("MD5");
         } catch (NoSuchAlgorithmException e) {
             throw new IOException(e.getMessage());
         }
@@ -57,7 +56,7 @@ public class UserPasswordAttribute extends Attribute {
 
         for (int i = 0; i < ret.length; i++) {
             if ((i % 16) == 0) {
-                md5.reset();	
+                md5.reset();
                 md5.update(_secret.getBytes());
             }
             if (i < up.length) {

@@ -17,16 +17,13 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.kra;
 
-
 import com.netscape.certsrv.base.EBaseException;
 
-
 /**
- * A class represents a KRA exception. This is the base
- * exception for all the KRA specific exceptions. It is
- * associated with <CODE>KRAResources</CODE>.
+ * A class represents a KRA exception. This is the base exception for all the
+ * KRA specific exceptions. It is associated with <CODE>KRAResources</CODE>.
  * <P>
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class EKRAException extends EBaseException {
@@ -39,11 +36,12 @@ public class EKRAException extends EBaseException {
      * KRA resource class name.
      * <P>
      */
-    private static final String KRA_RESOURCES = KRAResources.class.getName();		
+    private static final String KRA_RESOURCES = KRAResources.class.getName();
 
     /**
      * Constructs a KRA exception.
      * <P>
+     * 
      * @param msgFormat constant from KRAResources.
      */
     public EKRAException(String msgFormat) {
@@ -53,6 +51,7 @@ public class EKRAException extends EBaseException {
     /**
      * Constructs a KRA exception.
      * <P>
+     * 
      * @param msgFormat constant from KRAResources.
      * @param param additional parameters to the message.
      */
@@ -63,6 +62,7 @@ public class EKRAException extends EBaseException {
     /**
      * Constructs a KRA exception.
      * <P>
+     * 
      * @param msgFormat constant from KRAResources.
      * @param e embedded exception.
      */
@@ -73,6 +73,7 @@ public class EKRAException extends EBaseException {
     /**
      * Constructs a KRA exception.
      * <P>
+     * 
      * @param msgFormat constant from KRAResources.
      * @param params additional parameters to the message.
      */
@@ -83,6 +84,7 @@ public class EKRAException extends EBaseException {
     /**
      * Returns the bundle file name.
      * <P>
+     * 
      * @return name of bundle class associated with this exception.
      */
     protected String getBundleName() {

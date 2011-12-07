@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -64,7 +63,7 @@ import com.netscape.cmsutil.ldap.LDAPUtil;
 public class DatabasePanel extends WizardPanelBase {
 
     private static final String HOST = "localhost";
-    private static final String CLONE_HOST="Enter FQDN here";
+    private static final String CLONE_HOST = "Enter FQDN here";
     private static final String PORT = "389";
     private static final String BASEDN = "o=netscapeCertificateServer";
     private static final String BINDDN = "cn=Directory Manager";
@@ -74,19 +73,19 @@ public class DatabasePanel extends WizardPanelBase {
 
     private WizardServlet mServlet = null;
 
-    public DatabasePanel() {}
+    public DatabasePanel() {
+    }
 
     /**
      * Initializes this panel.
      */
-    public void init(ServletConfig config, int panelno) 
-        throws ServletException {
+    public void init(ServletConfig config, int panelno) throws ServletException {
         setPanelNo(panelno);
         setName("Internal Database");
     }
 
-    public void init(WizardServlet servlet, ServletConfig config, int panelno, String id)
-        throws ServletException {
+    public void init(WizardServlet servlet, ServletConfig config, int panelno,
+            String id) throws ServletException {
         setPanelNo(panelno);
         setName("Internal Database");
         setId(id);
@@ -101,15 +100,15 @@ public class DatabasePanel extends WizardPanelBase {
     public boolean isPanelDone() {
         IConfigStore cs = CMS.getConfigStore();
         try {
-            boolean s = cs.getBoolean("preop.Database.done",
-                    false);
+            boolean s = cs.getBoolean("preop.Database.done", false);
 
             if (s != true) {
                 return false;
             } else {
                 return true;
             }
-        } catch (EBaseException e) {}
+        } catch (EBaseException e) {
+        }
 
         return false;
     }
@@ -120,7 +119,7 @@ public class DatabasePanel extends WizardPanelBase {
                 "Host name");
 
         set.add("hostname", hostDesc);
-      
+
         Descriptor portDesc = new Descriptor(IDescriptor.INTEGER, null, null,
                 "Port");
 
@@ -130,19 +129,19 @@ public class DatabasePanel extends WizardPanelBase {
                 "Base DN");
 
         set.add("basedn", basednDesc);
- 
+
         Descriptor binddnDesc = new Descriptor(IDescriptor.STRING, null, null,
                 "Bind DN");
 
         set.add("binddn", binddnDesc);
 
-        Descriptor bindpwdDesc = new Descriptor(IDescriptor.PASSWORD, null, null,
-                "Bind Password"); 
+        Descriptor bindpwdDesc = new Descriptor(IDescriptor.PASSWORD, null,
+                null, "Bind Password");
 
         set.add("bindpwd", bindpwdDesc);
 
-        Descriptor databaseDesc = new Descriptor(IDescriptor.STRING, null, null,
-                "Database");
+        Descriptor databaseDesc = new Descriptor(IDescriptor.STRING, null,
+                null, "Database");
 
         set.add("database", databaseDesc);
 
@@ -153,8 +152,7 @@ public class DatabasePanel extends WizardPanelBase {
      * Display the panel.
      */
     public void display(HttpServletRequest request,
-            HttpServletResponse response,
-            Context context) {
+            HttpServletResponse response, Context context) {
         CMS.debug("DatabasePanel: display()");
         context.put("title", "Internal Database");
         context.put("firsttime", "false");
@@ -187,8 +185,9 @@ public class DatabasePanel extends WizardPanelBase {
                 basedn = cs.getString("internaldb.basedn", "");
                 binddn = cs.getString("internaldb.ldapauth.bindDN", "");
                 database = cs.getString("internaldb.database", "");
-            	secure =  cs.getString("internaldb.ldapconn.secureConn", "");
-            	cloneStartTLS =  cs.getString("internaldb.ldapconn.cloneStartTLS", "");
+                secure = cs.getString("internaldb.ldapconn.secureConn", "");
+                cloneStartTLS = cs.getString(
+                        "internaldb.ldapconn.cloneStartTLS", "");
                 errorString = cs.getString("preop.database.errorString", "");
             } catch (Exception e) {
                 CMS.debug("DatabasePanel display: " + e.toString());
@@ -199,12 +198,12 @@ public class DatabasePanel extends WizardPanelBase {
             try {
                 basedn = cs.getString("internaldb.basedn", "");
             } catch (Exception e) {
-                CMS.debug( "DatabasePanel::display() - "
-                         + "Exception="+e.toString() );
+                CMS.debug("DatabasePanel::display() - " + "Exception="
+                        + e.toString());
                 return;
             }
             binddn = BINDDN;
-            database = basedn.substring(basedn.lastIndexOf('=')+1);
+            database = basedn.substring(basedn.lastIndexOf('=') + 1);
             CMS.debug("Clone: database=" + database);
         } else {
             hostname = HOST;
@@ -223,11 +222,10 @@ public class DatabasePanel extends WizardPanelBase {
             boolean multipleEnable = false;
             try {
                 multipleEnable = cs.getBoolean(
-                  "internaldb.multipleSuffix.enable", false);
+                        "internaldb.multipleSuffix.enable", false);
             } catch (Exception e) {
             }
-      
-        
+
             if (multipleEnable)
                 basedn = "ou=" + instanceId + "," + suffix;
             else
@@ -243,15 +241,15 @@ public class DatabasePanel extends WizardPanelBase {
         context.put("binddn", binddn);
         context.put("bindpwd", bindpwd);
         context.put("database", database);
-        context.put("secureConn", (secure.equals("true")? "on":"off"));
-        context.put("cloneStartTLS", (cloneStartTLS.equals("true")? "on":"off"));
+        context.put("secureConn", (secure.equals("true") ? "on" : "off"));
+        context.put("cloneStartTLS", (cloneStartTLS.equals("true") ? "on"
+                : "off"));
         context.put("panel", "admin/console/config/databasepanel.vm");
         context.put("errorString", errorString);
     }
 
     public void initParams(HttpServletRequest request, Context context)
-                   throws IOException
-    {
+            throws IOException {
         IConfigStore config = CMS.getConfigStore();
         String select = "";
         try {
@@ -271,8 +269,7 @@ public class DatabasePanel extends WizardPanelBase {
      * Checks if the given parameters are valid.
      */
     public void validate(HttpServletRequest request,
-            HttpServletResponse response,
-            Context context) throws IOException {
+            HttpServletResponse response, Context context) throws IOException {
 
         IConfigStore cs = CMS.getConfigStore();
         context.put("firsttime", "false");
@@ -317,13 +314,15 @@ public class DatabasePanel extends WizardPanelBase {
             String masterport = "";
             String masterbasedn = "";
             try {
-                masterhost = cs.getString("preop.internaldb.master.hostname", "");
+                masterhost = cs.getString("preop.internaldb.master.hostname",
+                        "");
                 masterport = cs.getString("preop.internaldb.master.port", "");
-                masterbasedn = cs.getString("preop.internaldb.master.basedn", "");
+                masterbasedn = cs.getString("preop.internaldb.master.basedn",
+                        "");
             } catch (Exception e) {
             }
 
-            //get the real host name
+            // get the real host name
             String realhostname = "";
             if (hostname.equals("localhost")) {
                 try {
@@ -333,12 +332,14 @@ public class DatabasePanel extends WizardPanelBase {
             }
             if (masterhost.equals(realhostname) && masterport.equals(portStr)) {
                 context.put("updateStatus", "validate-failure");
-                throw new IOException("Master and clone must not share the same internal database");
+                throw new IOException(
+                        "Master and clone must not share the same internal database");
             }
 
             if (!masterbasedn.equals(basedn)) {
                 context.put("updateStatus", "validate-failure");
-                throw new IOException("Master and clone should have the same base DN");
+                throw new IOException(
+                        "Master and clone should have the same base DN");
             }
         }
 
@@ -365,13 +366,15 @@ public class DatabasePanel extends WizardPanelBase {
         }
 
         if (basedn == null || basedn.length() == 0) {
-            cs.putString("preop.database.errorString", "Base DN is empty string");
+            cs.putString("preop.database.errorString",
+                    "Base DN is empty string");
             context.put("updateStatus", "validate-failure");
             throw new IOException("Base DN is empty string");
         }
 
         if (binddn == null || binddn.length() == 0) {
-            cs.putString("preop.database.errorString", "Bind DN is empty string");
+            cs.putString("preop.database.errorString",
+                    "Bind DN is empty string");
             context.put("updateStatus", "validate-failure");
             throw new IOException("Bind DN is empty string");
         }
@@ -395,8 +398,7 @@ public class DatabasePanel extends WizardPanelBase {
     }
 
     private LDAPConnection getLocalLDAPConn(Context context, String secure)
-                throws IOException
-    {
+            throws IOException {
         IConfigStore cs = CMS.getConfigStore();
 
         String host = "";
@@ -409,7 +411,7 @@ public class DatabasePanel extends WizardPanelBase {
             host = cs.getString("internaldb.ldapconn.host");
             port = cs.getString("internaldb.ldapconn.port");
             binddn = cs.getString("internaldb.ldapauth.bindDN");
-            pwd = (String) context.get("bindpwd");    
+            pwd = (String) context.get("bindpwd");
             security = cs.getString("internaldb.ldapconn.secureConn");
         } catch (Exception e) {
             CMS.debug("DatabasePanel populateDB: " + e.toString());
@@ -428,12 +430,12 @@ public class DatabasePanel extends WizardPanelBase {
 
         LDAPConnection conn = null;
         if (security.equals("true")) {
-          CMS.debug("DatabasePanel populateDB: creating secure (SSL) connection for internal ldap");
-          conn = new LDAPConnection(CMS.getLdapJssSSLSocketFactory());
-	} else {
-          CMS.debug("DatabasePanel populateDB: creating non-secure (non-SSL) connection for internal ldap");
-          conn = new LDAPConnection();
-	}
+            CMS.debug("DatabasePanel populateDB: creating secure (SSL) connection for internal ldap");
+            conn = new LDAPConnection(CMS.getLdapJssSSLSocketFactory());
+        } else {
+            CMS.debug("DatabasePanel populateDB: creating non-secure (non-SSL) connection for internal ldap");
+            conn = new LDAPConnection();
+        }
 
         CMS.debug("DatabasePanel connecting to " + host + ":" + p);
         try {
@@ -443,81 +445,80 @@ public class DatabasePanel extends WizardPanelBase {
             throw new IOException("Failed to connect to the internal database.");
         }
 
-      return conn;
+        return conn;
     }
 
-    private boolean deleteDir(File dir) 
-    {
+    private boolean deleteDir(File dir) {
         if (dir.isDirectory()) {
             String[] children = dir.list();
-            for (int i=0; i<children.length; i++) {
+            for (int i = 0; i < children.length; i++) {
                 boolean success = deleteDir(new File(dir, children[i]));
                 if (!success) {
                     return false;
                 }
             }
         }
-    
+
         // The directory is now empty so delete it
         return dir.delete();
-    } 
+    }
 
-    private void cleanupDB(LDAPConnection conn, String baseDN, String database) 
-    {
+    private void cleanupDB(LDAPConnection conn, String baseDN, String database) {
         String[] entries = {};
         String filter = "objectclass=*";
         LDAPSearchConstraints cons = null;
         String[] attrs = null;
-        String dn="";
+        String dn = "";
         try {
             CMS.debug("Deleting baseDN: " + baseDN);
-            LDAPSearchResults res = conn.search(baseDN, LDAPConnection.SCOPE_BASE, filter,
-                attrs, true, cons);
-            if (res != null) 
-            	deleteEntries(res, conn, baseDN, entries);
+            LDAPSearchResults res = conn.search(baseDN,
+                    LDAPConnection.SCOPE_BASE, filter, attrs, true, cons);
+            if (res != null)
+                deleteEntries(res, conn, baseDN, entries);
+        } catch (LDAPException e) {
         }
-        catch (LDAPException e) {}
-        
+
         try {
-           dn="cn=mapping tree, cn=config";
-           filter = "nsslapd-backend=" + database;
-           LDAPSearchResults res = conn.search(dn, LDAPConnection.SCOPE_ONE, filter,
-              attrs, true, cons);
-          if (res != null) {
-              while (res.hasMoreElements()) {
-                  dn = res.next().getDN();
-                  filter = "objectclass=*";
-                  LDAPSearchResults res2 = conn.search(dn, LDAPConnection.SCOPE_BASE, filter,
-                      attrs, true, cons);
-                  if (res2 != null) 
-              	      deleteEntries(res2, conn, dn, entries);
-              }
-          }
+            dn = "cn=mapping tree, cn=config";
+            filter = "nsslapd-backend=" + database;
+            LDAPSearchResults res = conn.search(dn, LDAPConnection.SCOPE_ONE,
+                    filter, attrs, true, cons);
+            if (res != null) {
+                while (res.hasMoreElements()) {
+                    dn = res.next().getDN();
+                    filter = "objectclass=*";
+                    LDAPSearchResults res2 = conn.search(dn,
+                            LDAPConnection.SCOPE_BASE, filter, attrs, true,
+                            cons);
+                    if (res2 != null)
+                        deleteEntries(res2, conn, dn, entries);
+                }
+            }
+        } catch (LDAPException e) {
         }
-        catch (LDAPException e) {}
 
         try {
             dn = "cn=" + database + ",cn=ldbm database, cn=plugins, cn=config";
-            LDAPSearchResults res = conn.search(dn, LDAPConnection.SCOPE_BASE, filter,
-                attrs, true, cons);
+            LDAPSearchResults res = conn.search(dn, LDAPConnection.SCOPE_BASE,
+                    filter, attrs, true, cons);
             if (res != null) {
                 deleteEntries(res, conn, dn, entries);
-                String dbdir = getInstanceDir(conn) + "/db/" + database; 
-                if (dbdir != null) { 
-            	    CMS.debug(" Deleting dbdir " + dbdir);
+                String dbdir = getInstanceDir(conn) + "/db/" + database;
+                if (dbdir != null) {
+                    CMS.debug(" Deleting dbdir " + dbdir);
                     boolean success = deleteDir(new File(dbdir));
                     if (!success) {
-                        CMS.debug("Unable to delete database directory " + dbdir);
+                        CMS.debug("Unable to delete database directory "
+                                + dbdir);
                     }
                 }
             }
+        } catch (LDAPException e) {
         }
-        catch (LDAPException e) {}
     }
 
-
-    private void populateDB(HttpServletRequest request, Context context, String secure) 
-        throws IOException {
+    private void populateDB(HttpServletRequest request, Context context,
+            String secure) throws IOException {
         IConfigStore cs = CMS.getConfigStore();
 
         String baseDN = "";
@@ -542,50 +543,53 @@ public class DatabasePanel extends WizardPanelBase {
         boolean foundDatabase = false;
         try {
             LDAPEntry entry = conn.read(baseDN);
-            if (entry != null) foundBaseDN = true;
+            if (entry != null)
+                foundBaseDN = true;
         } catch (LDAPException e) {
-            switch( e.getLDAPResultCode() ) {
-                case LDAPException.NO_SUCH_OBJECT:
-                    break;
-                default:
-                    CMS.debug("DatabasePanel update: LDAPException " + e.toString());
-                    throw new IOException("Failed to create the database");
+            switch (e.getLDAPResultCode()) {
+            case LDAPException.NO_SUCH_OBJECT:
+                break;
+            default:
+                CMS.debug("DatabasePanel update: LDAPException " + e.toString());
+                throw new IOException("Failed to create the database");
             }
         }
 
         try {
             dn = "cn=" + database + ",cn=ldbm database, cn=plugins, cn=config";
             LDAPEntry entry = conn.read(dn);
-            if (entry != null) foundDatabase = true;
+            if (entry != null)
+                foundDatabase = true;
         } catch (LDAPException e) {
-            switch( e.getLDAPResultCode() ) {
-                case LDAPException.NO_SUCH_OBJECT:
-                    break;
-                default:
-                    CMS.debug("DatabasePanel update: LDAPException " + e.toString());
-                    throw new IOException("Failed to create the database");
+            switch (e.getLDAPResultCode()) {
+            case LDAPException.NO_SUCH_OBJECT:
+                break;
+            default:
+                CMS.debug("DatabasePanel update: LDAPException " + e.toString());
+                throw new IOException("Failed to create the database");
             }
         }
         try {
             dn = "cn=\"" + baseDN + "\",cn=mapping tree, cn=config";
             LDAPEntry entry = conn.read(dn);
-            if (entry != null) foundDatabase = true;
+            if (entry != null)
+                foundDatabase = true;
         } catch (LDAPException e) {
-            switch( e.getLDAPResultCode() ) {
-                case LDAPException.NO_SUCH_OBJECT:
-                    break;
-                default:
-                    CMS.debug("DatabasePanel update: LDAPException " + e.toString());
-                    throw new IOException("Failed to create the database");
+            switch (e.getLDAPResultCode()) {
+            case LDAPException.NO_SUCH_OBJECT:
+                break;
+            default:
+                CMS.debug("DatabasePanel update: LDAPException " + e.toString());
+                throw new IOException("Failed to create the database");
             }
         }
 
         if (foundDatabase) {
             CMS.debug("DatabasePanel update: This database has already been used.");
             if (remove == null) {
-                throw new IOException("This database has already been used. Select the checkbox below to remove all data and reuse this database");
-            }
-            else {
+                throw new IOException(
+                        "This database has already been used. Select the checkbox below to remove all data and reuse this database");
+            } else {
                 CMS.debug("DatabasePanel update: Deleting existing DB and reusing base DN");
                 cleanupDB(conn, baseDN, database);
                 foundBaseDN = false;
@@ -596,9 +600,11 @@ public class DatabasePanel extends WizardPanelBase {
         if (foundBaseDN) {
             CMS.debug("DatabasePanel update: This base DN has already been used.");
             if (remove == null) {
-                throw new IOException("This base DN ("+baseDN+") has already been used. Select the checkbox below to remove all data and reuse this base DN");
-            }
-            else {
+                throw new IOException(
+                        "This base DN ("
+                                + baseDN
+                                + ") has already been used. Select the checkbox below to remove all data and reuse this base DN");
+            } else {
                 CMS.debug("DatabasePanel update: Deleting existing DB and reusing base DN");
                 cleanupDB(conn, baseDN, database);
                 foundBaseDN = false;
@@ -609,7 +615,7 @@ public class DatabasePanel extends WizardPanelBase {
         // create database
         try {
             LDAPAttributeSet attrs = new LDAPAttributeSet();
-            String oc[] = { "top", "extensibleObject", "nsBackendInstance"};
+            String oc[] = { "top", "extensibleObject", "nsBackendInstance" };
             attrs.add(new LDAPAttribute("objectClass", oc));
             attrs.add(new LDAPAttribute("cn", database));
             attrs.add(new LDAPAttribute("nsslapd-suffix", baseDN));
@@ -623,7 +629,7 @@ public class DatabasePanel extends WizardPanelBase {
 
         try {
             LDAPAttributeSet attrs = new LDAPAttributeSet();
-            String oc2[] = { "top", "extensibleObject", "nsMappingTree"};
+            String oc2[] = { "top", "extensibleObject", "nsMappingTree" };
             attrs.add(new LDAPAttribute("objectClass", oc2));
             attrs.add(new LDAPAttribute("cn", baseDN));
             attrs.add(new LDAPAttribute("nsslapd-backend", database));
@@ -632,7 +638,8 @@ public class DatabasePanel extends WizardPanelBase {
             LDAPEntry entry = new LDAPEntry(dn, attrs);
             conn.add(entry);
         } catch (Exception e) {
-            CMS.debug("Warning: database mapping tree creation error - " + e.toString());
+            CMS.debug("Warning: database mapping tree creation error - "
+                    + e.toString());
             throw new IOException("Failed to create the database.");
         }
 
@@ -644,19 +651,19 @@ public class DatabasePanel extends WizardPanelBase {
             String n = st.nextToken();
             String v = st.nextToken();
             LDAPAttributeSet attrs = new LDAPAttributeSet();
-            String oc3[] = { "top", "domain"};
+            String oc3[] = { "top", "domain" };
             if (n.equals("o")) {
-              oc3[1] = "organization";
+                oc3[1] = "organization";
             } else if (n.equals("ou")) {
-              oc3[1] = "organizationalUnit";
-            } 
+                oc3[1] = "organizationalUnit";
+            }
             attrs.add(new LDAPAttribute("objectClass", oc3));
             attrs.add(new LDAPAttribute(n, v));
             LDAPEntry entry = new LDAPEntry(baseDN, attrs);
             conn.add(entry);
         } catch (Exception e) {
             CMS.debug("Warning: suffix creation error - " + e.toString());
-            throw new IOException("Failed to create the base DN: "+baseDN);
+            throw new IOException("Failed to create the base DN: " + baseDN);
         }
 
         // check to see if the base dn exists
@@ -666,19 +673,23 @@ public class DatabasePanel extends WizardPanelBase {
             LDAPEntry entry = conn.read(baseDN);
 
             if (entry != null) {
-                foundBaseDN = true; 
+                foundBaseDN = true;
             }
-        } catch (LDAPException e) {}
+        } catch (LDAPException e) {
+        }
         boolean createBaseDN = true;
 
         boolean testing = false;
         try {
             testing = cs.getBoolean("internaldb.multipleSuffix.enable", false);
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
 
         if (!foundBaseDN) {
             if (!testing) {
-                context.put("errorString", "Base DN was not found. Please make sure to create the suffix in the internal database.");
+                context.put(
+                        "errorString",
+                        "Base DN was not found. Please make sure to create the suffix in the internal database.");
                 throw new IOException("Base DN not found");
             }
 
@@ -697,7 +708,7 @@ public class DatabasePanel extends WizardPanelBase {
                 // support only one level creation - create new entry
                 // right under the suffix
                 LDAPAttributeSet attrs = new LDAPAttributeSet();
-                String oc[] = { "top", "organizationalUnit"};
+                String oc[] = { "top", "organizationalUnit" };
 
                 attrs.add(new LDAPAttribute("objectClass", oc));
                 attrs.add(new LDAPAttribute("ou", dns2[0]));
@@ -705,7 +716,7 @@ public class DatabasePanel extends WizardPanelBase {
 
                 try {
                     conn.add(entry);
-                    foundBaseDN = true; 
+                    foundBaseDN = true;
                     CMS.debug("DatabasePanel added " + baseDN);
                 } catch (LDAPException e) {
                     throw new IOException("Failed to create " + baseDN);
@@ -723,39 +734,41 @@ public class DatabasePanel extends WizardPanelBase {
         }
 
         if (select.equals("clone")) {
-          // if this is clone, add index before replication
-          // don't put in the schema or bad things will happen
-          
-          importLDIFS("preop.internaldb.ldif", conn);
-          importLDIFS("preop.internaldb.index_ldif", conn);
-        } else {
-          // data will be replicated from the master to the clone
-          // so clone does not need the data
-          //
+            // if this is clone, add index before replication
+            // don't put in the schema or bad things will happen
 
-          importLDIFS("preop.internaldb.schema.ldif", conn);         
-          importLDIFS("preop.internaldb.ldif", conn); 
-          importLDIFS("preop.internaldb.data_ldif", conn);
-          importLDIFS("preop.internaldb.index_ldif", conn);
+            importLDIFS("preop.internaldb.ldif", conn);
+            importLDIFS("preop.internaldb.index_ldif", conn);
+        } else {
+            // data will be replicated from the master to the clone
+            // so clone does not need the data
+            //
+
+            importLDIFS("preop.internaldb.schema.ldif", conn);
+            importLDIFS("preop.internaldb.ldif", conn);
+            importLDIFS("preop.internaldb.data_ldif", conn);
+            importLDIFS("preop.internaldb.index_ldif", conn);
         }
 
         try {
             conn.disconnect();
-        } catch (LDAPException e) {}
+        } catch (LDAPException e) {
+        }
     }
 
-    private void importLDIFS(String param, LDAPConnection conn) throws IOException {
+    private void importLDIFS(String param, LDAPConnection conn)
+            throws IOException {
         IConfigStore cs = CMS.getConfigStore();
         String v = null;
 
         CMS.debug("DatabasePanel populateDB param=" + param);
         try {
             v = cs.getString(param);
-        } catch (EBaseException e) {  
+        } catch (EBaseException e) {
             CMS.debug("DatabasePanel populateDB: " + e.toString());
             throw new IOException("Cant find ldif files.");
         }
- 
+
         StringTokenizer tokenizer = new StringTokenizer(v, ",");
         String baseDN = null;
         String database = null;
@@ -770,9 +783,8 @@ public class DatabasePanel extends WizardPanelBase {
             database = cs.getString("internaldb.database");
             CMS.debug("DatabasePanel update: database=" + database);
         } catch (EBaseException e) {
-            CMS.debug(
-                    "DatabasePanel update: Failed to get database name. Exception: "
-                            + e.toString());
+            CMS.debug("DatabasePanel update: Failed to get database name. Exception: "
+                    + e.toString());
             database = "userRoot";
         }
 
@@ -787,13 +799,12 @@ public class DatabasePanel extends WizardPanelBase {
         String instanceId = null;
 
         try {
-            instanceId = cs.getString("instanceId"); 
+            instanceId = cs.getString("instanceId");
         } catch (EBaseException e) {
             throw new IOException("instanceId is missing");
         }
 
-
-        String configDir = instancePath + File.separator + "conf"; 
+        String configDir = instancePath + File.separator + "conf";
 
         while (tokenizer.hasMoreTokens()) {
             String token = tokenizer.nextToken().trim();
@@ -807,7 +818,8 @@ public class DatabasePanel extends WizardPanelBase {
             CMS.debug("DatabasePanel importLDIFS: ldif file = " + token);
             String filename = configDir + File.separator + name;
 
-            CMS.debug("DatabasePanel importLDIFS: ldif file copy to " + filename);
+            CMS.debug("DatabasePanel importLDIFS: ldif file copy to "
+                    + filename);
             PrintStream ps = null;
             BufferedReader in = null;
 
@@ -846,14 +858,14 @@ public class DatabasePanel extends WizardPanelBase {
                         if (!endOfline) {
                             ps.println(s);
                         }
-                    } 
+                    }
                 }
                 in.close();
                 ps.close();
-            } catch (Exception e) { 
+            } catch (Exception e) {
                 CMS.debug("DBSubsystem popuateDB: " + e.toString());
-                throw new IOException(
-                        "Problem of copying ldif file: " + filename);
+                throw new IOException("Problem of copying ldif file: "
+                        + filename);
             }
 
             LDAPUtil.importLDIF(conn, filename);
@@ -864,10 +876,9 @@ public class DatabasePanel extends WizardPanelBase {
      * Commit parameter changes
      */
     public void update(HttpServletRequest request,
-            HttpServletResponse response,
-            Context context) throws IOException {
+            HttpServletResponse response, Context context) throws IOException {
         IConfigStore cs = CMS.getConfigStore();
-	boolean hasErr = false;
+        boolean hasErr = false;
 
         boolean firsttime = false;
         context.put("firsttime", "false");
@@ -903,17 +914,20 @@ public class DatabasePanel extends WizardPanelBase {
         cs.putString("internaldb.ldapauth.bindDN", binddn);
         cs.putString("internaldb.database", database2);
         String secure = HttpInput.getCheckbox(request, "secureConn");
-        cs.putString("internaldb.ldapconn.secureConn", (secure.equals("on")?"true":"false"));
+        cs.putString("internaldb.ldapconn.secureConn",
+                (secure.equals("on") ? "true" : "false"));
         String cloneStartTLS = HttpInput.getCheckbox(request, "cloneStartTLS");
-        cs.putString("internaldb.ldapconn.cloneStartTLS", (cloneStartTLS.equals("on")?"true":"false"));
+        cs.putString("internaldb.ldapconn.cloneStartTLS",
+                (cloneStartTLS.equals("on") ? "true" : "false"));
 
         String remove = HttpInput.getID(request, "removeData");
         if (isPanelDone() && (remove == null || remove.equals(""))) {
-             /* if user submits the same data, they just want to skip 
-                to the next panel, no database population is required. */
-            if (hostname1.equals(hostname2) && 
-                portStr1.equals(portStr2) && 
-                database1.equals(database2)) {
+            /*
+             * if user submits the same data, they just want to skip to the next
+             * panel, no database population is required.
+             */
+            if (hostname1.equals(hostname2) && portStr1.equals(portStr2)
+                    && database1.equals(database2)) {
                 context.put("updateStatus", "success");
                 return;
             }
@@ -921,15 +935,17 @@ public class DatabasePanel extends WizardPanelBase {
 
         mServlet.cleanUpFromPanel(mServlet.getPanelNo(request));
 
-
         try {
-            populateDB(request, context, (secure.equals("on")?"true":"false"));
+            populateDB(request, context, (secure.equals("on") ? "true"
+                    : "false"));
         } catch (IOException e) {
-            CMS.debug("DatabasePanel update: populateDB Exception: "+e.toString());
+            CMS.debug("DatabasePanel update: populateDB Exception: "
+                    + e.toString());
             context.put("updateStatus", "failure");
             throw e;
         } catch (Exception e) {
-            CMS.debug("DatabasePanel update: populateDB Exception: "+e.toString());
+            CMS.debug("DatabasePanel update: populateDB Exception: "
+                    + e.toString());
             context.put("errorString", e.toString());
             cs.putString("preop.database.errorString", e.toString());
             context.put("updateStatus", "failure");
@@ -950,11 +966,11 @@ public class DatabasePanel extends WizardPanelBase {
         } catch (Exception e) {
             CMS.debug("ConfigDatabaseServlet update: " + e.toString());
             context.put("updateStatus", "failure");
-            throw new IOException( e.toString() );
+            throw new IOException(e.toString());
         }
         psStore.putString("internaldb", bindpwd);
         psStore.putString("replicationdb", replicationpwd);
-        cs.putString("preop.internaldb.replicationpwd" , replicationpwd);
+        cs.putString("preop.internaldb.replicationpwd", replicationpwd);
         cs.putString("preop.database.removeData", "false");
 
         try {
@@ -983,57 +999,65 @@ public class DatabasePanel extends WizardPanelBase {
 
         // always populate the index the last
         try {
-          CMS.debug("Populating local indexes");
-          LDAPConnection conn = getLocalLDAPConn(context, 
-                            (secure.equals("on")?"true":"false"));
-          importLDIFS("preop.internaldb.post_ldif", conn);
+            CMS.debug("Populating local indexes");
+            LDAPConnection conn = getLocalLDAPConn(context,
+                    (secure.equals("on") ? "true" : "false"));
+            importLDIFS("preop.internaldb.post_ldif", conn);
 
-          /* For vlvtask, we need to check if the task has 
-             been completed or not.  Presence of nsTaskExitCode means task is complete
-           */
-          String wait_dn = cs.getString("preop.internaldb.wait_dn", "");
-          if (!wait_dn.equals("")) {
-            int i = 0;
-            LDAPEntry task = null;
-            boolean taskComplete = false;
-            CMS.debug("Checking wait_dn " + wait_dn);
-            do {
-              Thread.sleep(1000);
-              try {
-                task = conn.read(wait_dn, (String[])null);
-                if (task != null) {
-                   LDAPAttribute attr = task.getAttribute("nsTaskExitCode");
-                   if (attr != null) {
-                       taskComplete = true;
-                       String val = (String) attr.getStringValues().nextElement();
-                       if (val.compareTo("0") != 0) {
-                           CMS.debug("Error in populating local indexes: nsTaskExitCode=" + val);
-                       } 
-                   } 
+            /*
+             * For vlvtask, we need to check if the task has been completed or
+             * not. Presence of nsTaskExitCode means task is complete
+             */
+            String wait_dn = cs.getString("preop.internaldb.wait_dn", "");
+            if (!wait_dn.equals("")) {
+                int i = 0;
+                LDAPEntry task = null;
+                boolean taskComplete = false;
+                CMS.debug("Checking wait_dn " + wait_dn);
+                do {
+                    Thread.sleep(1000);
+                    try {
+                        task = conn.read(wait_dn, (String[]) null);
+                        if (task != null) {
+                            LDAPAttribute attr = task
+                                    .getAttribute("nsTaskExitCode");
+                            if (attr != null) {
+                                taskComplete = true;
+                                String val = (String) attr.getStringValues()
+                                        .nextElement();
+                                if (val.compareTo("0") != 0) {
+                                    CMS.debug("Error in populating local indexes: nsTaskExitCode="
+                                            + val);
+                                }
+                            }
+                        }
+                    } catch (LDAPException le) {
+                        CMS.debug("Still checking wait_dn '" + wait_dn + "' ("
+                                + le.toString() + ")");
+                    } catch (Exception e) {
+                        CMS.debug("Still checking wait_dn '" + wait_dn + "' ("
+                                + e.toString() + ").");
+                    }
+                } while ((!taskComplete) && (i < 20));
+                if (i < 20) {
+                    CMS.debug("Done checking wait_dn " + wait_dn);
+                } else {
+                    CMS.debug("Done checking wait_dn " + wait_dn
+                            + " due to timeout.");
                 }
-              } catch (LDAPException le) {
-                CMS.debug("Still checking wait_dn '" + wait_dn + "' (" + le.toString() + ")");
-              } catch (Exception e) {
-                CMS.debug("Still checking wait_dn '" + wait_dn + "' (" + e.toString() + ").");
-              }
-            } while ((!taskComplete) && (i < 20));
-            if (i < 20) {
-              CMS.debug("Done checking wait_dn " + wait_dn);
-            } else {
-              CMS.debug("Done checking wait_dn " + wait_dn + " due to timeout.");
             }
-          }
 
-          conn.disconnect();
-          CMS.debug("Done populating local indexes");
+            conn.disconnect();
+            CMS.debug("Done populating local indexes");
         } catch (Exception e) {
-          CMS.debug("Populating index failure - " + e);
+            CMS.debug("Populating index failure - " + e);
         }
 
         // setup replication after indexes have been created
         if (select.equals("clone")) {
             CMS.debug("Start setting up replication.");
-            setupReplication(request, context, (secure.equals("on")?"true":"false"), (cloneStartTLS.equals("on")?"true":"false"));
+            setupReplication(request, context, (secure.equals("on") ? "true"
+                    : "false"), (cloneStartTLS.equals("on") ? "true" : "false"));
             CMS.debug("Finish setting up replication.");
 
             try {
@@ -1048,25 +1072,23 @@ public class DatabasePanel extends WizardPanelBase {
             }
         }
 
-
         if (hasErr == false) {
-          cs.putBoolean("preop.Database.done", true);
-          try {
-            cs.commit(false);
-          } catch (EBaseException e) { 
-            CMS.debug(
-                  "DatabasePanel: update() Exception caught at config commit: "
-                            + e.toString());
-	  }
-	}
+            cs.putBoolean("preop.Database.done", true);
+            try {
+                cs.commit(false);
+            } catch (EBaseException e) {
+                CMS.debug("DatabasePanel: update() Exception caught at config commit: "
+                        + e.toString());
+            }
+        }
         context.put("updateStatus", "success");
     }
 
-    private void setupReplication(HttpServletRequest request,
-				  Context context, String secure, String cloneStartTLS) throws IOException {
+    private void setupReplication(HttpServletRequest request, Context context,
+            String secure, String cloneStartTLS) throws IOException {
         String bindpwd = HttpInput.getPassword(request, "__bindpwd");
         IConfigStore cs = CMS.getConfigStore();
- 
+
         String cstype = "";
         String machinename = "";
         String instanceId = "";
@@ -1078,13 +1100,14 @@ public class DatabasePanel extends WizardPanelBase {
         } catch (Exception e) {
         }
 
-
-        //setup replication agreement
-        String masterAgreementName = "masterAgreement1-"+machinename+"-"+instanceId;
+        // setup replication agreement
+        String masterAgreementName = "masterAgreement1-" + machinename + "-"
+                + instanceId;
         cs.putString("internaldb.replication.master", masterAgreementName);
-        String cloneAgreementName = "cloneAgreement1-"+machinename+"-"+instanceId;
+        String cloneAgreementName = "cloneAgreement1-" + machinename + "-"
+                + instanceId;
         cs.putString("internaldb.replication.consumer", cloneAgreementName);
- 
+
         try {
             cs.commit(false);
         } catch (Exception e) {
@@ -1097,11 +1120,14 @@ public class DatabasePanel extends WizardPanelBase {
         String master1_replicationpwd = "";
 
         try {
-            master1_hostname = cs.getString("preop.internaldb.master.hostname", "");
+            master1_hostname = cs.getString("preop.internaldb.master.hostname",
+                    "");
             master1_port = cs.getInteger("preop.internaldb.master.port", -1);
             master1_binddn = cs.getString("preop.internaldb.master.binddn", "");
-            master1_bindpwd = cs.getString("preop.internaldb.master.bindpwd", "");
-            master1_replicationpwd = cs.getString("preop.internaldb.master.replicationpwd", "");
+            master1_bindpwd = cs.getString("preop.internaldb.master.bindpwd",
+                    "");
+            master1_replicationpwd = cs.getString(
+                    "preop.internaldb.master.replicationpwd", "");
         } catch (Exception e) {
         }
 
@@ -1116,21 +1142,22 @@ public class DatabasePanel extends WizardPanelBase {
             master2_port = cs.getInteger("internaldb.ldapconn.port", -1);
             master2_binddn = cs.getString("internaldb.ldapauth.bindDN", "");
             master2_bindpwd = bindpwd;
-            master2_replicationpwd = cs.getString("preop.internaldb.replicationpwd", "");
+            master2_replicationpwd = cs.getString(
+                    "preop.internaldb.replicationpwd", "");
         } catch (Exception e) {
         }
-  
+
         LDAPConnection conn1 = null;
         LDAPConnection conn2 = null;
         if (secure.equals("true")) {
-          CMS.debug("DatabasePanel setupReplication: creating secure (SSL) connections for internal ldap");
-          conn1 = new LDAPConnection(CMS.getLdapJssSSLSocketFactory());
-          conn2 = new LDAPConnection(CMS.getLdapJssSSLSocketFactory());
-	} else {
-          CMS.debug("DatabasePanel setupreplication: creating non-secure (non-SSL) connections for internal ldap");
-          conn1 = new LDAPConnection();
-          conn2 = new LDAPConnection();
-	}
+            CMS.debug("DatabasePanel setupReplication: creating secure (SSL) connections for internal ldap");
+            conn1 = new LDAPConnection(CMS.getLdapJssSSLSocketFactory());
+            conn2 = new LDAPConnection(CMS.getLdapJssSSLSocketFactory());
+        } else {
+            CMS.debug("DatabasePanel setupreplication: creating non-secure (non-SSL) connections for internal ldap");
+            conn1 = new LDAPConnection();
+            conn2 = new LDAPConnection();
+        }
 
         String basedn = "";
         try {
@@ -1140,19 +1167,23 @@ public class DatabasePanel extends WizardPanelBase {
 
         try {
             conn1.connect(master1_hostname, master1_port, master1_binddn,
-              master1_bindpwd);
+                    master1_bindpwd);
             conn2.connect(master2_hostname, master2_port, master2_binddn,
-              master2_bindpwd);
+                    master2_bindpwd);
             String suffix = cs.getString("internaldb.basedn", "");
 
-            String replicadn = "cn=replica,cn=\""+suffix+"\",cn=mapping tree,cn=config";
-            CMS.debug("DatabasePanel setupReplication: replicadn="+replicadn);
+            String replicadn = "cn=replica,cn=\"" + suffix
+                    + "\",cn=mapping tree,cn=config";
+            CMS.debug("DatabasePanel setupReplication: replicadn=" + replicadn);
 
-            String masterBindUser = "Replication Manager " + masterAgreementName;
+            String masterBindUser = "Replication Manager "
+                    + masterAgreementName;
             String cloneBindUser = "Replication Manager " + cloneAgreementName;
 
-            createReplicationManager(conn1, masterBindUser, master1_replicationpwd);
-            createReplicationManager(conn2, cloneBindUser, master2_replicationpwd);
+            createReplicationManager(conn1, masterBindUser,
+                    master1_replicationpwd);
+            createReplicationManager(conn2, cloneBindUser,
+                    master2_replicationpwd);
 
             String dir1 = getInstanceDir(conn1);
             createChangeLog(conn1, dir1 + "/changelogs");
@@ -1162,36 +1193,43 @@ public class DatabasePanel extends WizardPanelBase {
 
             int replicaId = cs.getInteger("dbs.beginReplicaNumber", 1);
 
-            replicaId = enableReplication(replicadn, conn1, masterBindUser, basedn, replicaId);
-            replicaId = enableReplication(replicadn, conn2, cloneBindUser, basedn, replicaId);
+            replicaId = enableReplication(replicadn, conn1, masterBindUser,
+                    basedn, replicaId);
+            replicaId = enableReplication(replicadn, conn2, cloneBindUser,
+                    basedn, replicaId);
             cs.putString("dbs.beginReplicaNumber", Integer.toString(replicaId));
 
             CMS.debug("DatabasePanel setupReplication: Finished enabling replication");
 
-            createReplicationAgreement(replicadn, conn1, masterAgreementName, 
-              master2_hostname, master2_port, master2_replicationpwd, basedn, cloneBindUser, secure, cloneStartTLS);
+            createReplicationAgreement(replicadn, conn1, masterAgreementName,
+                    master2_hostname, master2_port, master2_replicationpwd,
+                    basedn, cloneBindUser, secure, cloneStartTLS);
 
-            createReplicationAgreement(replicadn, conn2, cloneAgreementName, 
-              master1_hostname, master1_port, master1_replicationpwd, basedn, masterBindUser, secure, cloneStartTLS);
+            createReplicationAgreement(replicadn, conn2, cloneAgreementName,
+                    master1_hostname, master1_port, master1_replicationpwd,
+                    basedn, masterBindUser, secure, cloneStartTLS);
 
             // initialize consumer
             initializeConsumer(replicadn, conn1, masterAgreementName);
 
-            while (! replicationDone(replicadn, conn1, masterAgreementName)) {
+            while (!replicationDone(replicadn, conn1, masterAgreementName)) {
                 CMS.debug("DatabasePanel setupReplication: Waiting for replication to complete");
                 Thread.sleep(1000);
             }
 
-            String status = replicationStatus(replicadn, conn1, masterAgreementName);
+            String status = replicationStatus(replicadn, conn1,
+                    masterAgreementName);
             if (!status.startsWith("0 ")) {
-                CMS.debug("DatabasePanel setupReplication: consumer initialization failed. " +
-                    status);
-                throw new IOException("consumer initialization failed. " + status);
-            } 
+                CMS.debug("DatabasePanel setupReplication: consumer initialization failed. "
+                        + status);
+                throw new IOException("consumer initialization failed. "
+                        + status);
+            }
 
         } catch (Exception e) {
-            CMS.debug("DatabasePanel setupReplication: "+e.toString());
-            throw new IOException("Failed to setup the replication for cloning.");
+            CMS.debug("DatabasePanel setupReplication: " + e.toString());
+            throw new IOException(
+                    "Failed to setup the replication for cloning.");
         }
     }
 
@@ -1199,27 +1237,26 @@ public class DatabasePanel extends WizardPanelBase {
      * If validiate() returns false, this method will be called.
      */
     public void displayError(HttpServletRequest request,
-            HttpServletResponse response,
-            Context context) {
+            HttpServletResponse response, Context context) {
 
         try {
-          initParams(request, context);
-        } catch (IOException e) { 
+            initParams(request, context);
+        } catch (IOException e) {
         }
         context.put("title", "Database");
         context.put("panel", "admin/console/config/databasepanel.vm");
     }
 
     private boolean isAgreementExist(String replicadn, LDAPConnection conn,
-      String name) {
-        String dn = "cn="+name+","+replicadn;
-        String filter = "(cn="+name+")";
-        String[] attrs = {"cn"};
+            String name) {
+        String dn = "cn=" + name + "," + replicadn;
+        String filter = "(cn=" + name + ")";
+        String[] attrs = { "cn" };
         try {
             LDAPSearchResults results = conn.search(dn, LDAPv3.SCOPE_SUB,
-              filter, attrs, false);
+                    filter, attrs, false);
             while (results.hasMoreElements())
-                return true; 
+                return true;
         } catch (LDAPException e) {
             return false;
         }
@@ -1227,8 +1264,8 @@ public class DatabasePanel extends WizardPanelBase {
         return false;
     }
 
-    private void createReplicationManager(LDAPConnection conn, String bindUser, String pwd)
-      throws LDAPException {
+    private void createReplicationManager(LDAPConnection conn, String bindUser,
+            String pwd) throws LDAPException {
         LDAPAttributeSet attrs = null;
         LDAPEntry entry = null;
         String dn = "cn=" + bindUser + ",cn=config";
@@ -1248,11 +1285,13 @@ public class DatabasePanel extends WizardPanelBase {
                     conn.delete(dn);
                     conn.add(entry);
                 } catch (LDAPException ee) {
-                    CMS.debug("DatabasePanel createReplicationManager: "+ee.toString());
+                    CMS.debug("DatabasePanel createReplicationManager: "
+                            + ee.toString());
                 }
                 return;
             } else {
-                CMS.debug("DatabasePanel createReplicationManager: Failed to create replication manager. Exception: "+e.toString());
+                CMS.debug("DatabasePanel createReplicationManager: Failed to create replication manager. Exception: "
+                        + e.toString());
                 throw e;
             }
         }
@@ -1261,7 +1300,7 @@ public class DatabasePanel extends WizardPanelBase {
     }
 
     private void createChangeLog(LDAPConnection conn, String dir)
-      throws LDAPException {
+            throws LDAPException {
         LDAPAttributeSet attrs = null;
         LDAPEntry entry = null;
         String dn = "cn=changelog5,cn=config";
@@ -1276,17 +1315,16 @@ public class DatabasePanel extends WizardPanelBase {
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.ENTRY_ALREADY_EXISTS) {
                 CMS.debug("DatabasePanel createChangeLog: Changelog entry has already used");
-/* leave it, dont delete it because it will have operation error
-                try {
-                    conn.delete(dn);
-                    conn.add(entry);
-                } catch (LDAPException ee) {
-                    CMS.debug("DatabasePanel createChangeLog: "+ee.toString());
-                }
-*/
+                /*
+                 * leave it, dont delete it because it will have operation error
+                 * try { conn.delete(dn); conn.add(entry); } catch
+                 * (LDAPException ee) {
+                 * CMS.debug("DatabasePanel createChangeLog: "+ee.toString()); }
+                 */
                 return;
             } else {
-                CMS.debug("DatabasePanel createChangeLog: Failed to create changelog entry. Exception: "+e.toString());
+                CMS.debug("DatabasePanel createChangeLog: Failed to create changelog entry. Exception: "
+                        + e.toString());
                 throw e;
             }
         }
@@ -1294,9 +1332,9 @@ public class DatabasePanel extends WizardPanelBase {
         CMS.debug("DatabasePanel createChangeLog: Successfully create change log entry");
     }
 
-    private int enableReplication(String replicadn, LDAPConnection conn, String bindUser, String basedn, int id)
-      throws LDAPException {
-        CMS.debug("DatabasePanel enableReplication: replicadn: "+replicadn);
+    private int enableReplication(String replicadn, LDAPConnection conn,
+            String bindUser, String basedn, int id) throws LDAPException {
+        CMS.debug("DatabasePanel enableReplication: replicadn: " + replicadn);
         LDAPAttributeSet attrs = null;
         LDAPEntry entry = null;
         try {
@@ -1306,8 +1344,8 @@ public class DatabasePanel extends WizardPanelBase {
             attrs.add(new LDAPAttribute("objectclass", "extensibleobject"));
             attrs.add(new LDAPAttribute("nsDS5ReplicaRoot", basedn));
             attrs.add(new LDAPAttribute("nsDS5ReplicaType", "3"));
-            attrs.add(new LDAPAttribute("nsDS5ReplicaBindDN",
-              "cn=" + bindUser + ",cn=config"));
+            attrs.add(new LDAPAttribute("nsDS5ReplicaBindDN", "cn=" + bindUser
+                    + ",cn=config"));
             attrs.add(new LDAPAttribute("cn", "replica"));
             attrs.add(new LDAPAttribute("nsDS5ReplicaId", Integer.toString(id)));
             attrs.add(new LDAPAttribute("nsds5flags", "1"));
@@ -1315,49 +1353,57 @@ public class DatabasePanel extends WizardPanelBase {
             conn.add(entry);
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.ENTRY_ALREADY_EXISTS) {
-                /* BZ 470918 -we cant just add the new dn.  We need to do a replace instead 
-                 * until the DS code is fixed */
-                CMS.debug("DatabasePanel enableReplication: "+replicadn+" has already been used");
-                
+                /*
+                 * BZ 470918 -we cant just add the new dn. We need to do a
+                 * replace instead until the DS code is fixed
+                 */
+                CMS.debug("DatabasePanel enableReplication: " + replicadn
+                        + " has already been used");
+
                 try {
                     entry = conn.read(replicadn);
-                    LDAPAttribute attr = entry.getAttribute("nsDS5ReplicaBindDN");
-                    attr.addValue( "cn=" + bindUser + ",cn=config");
-                    LDAPModification mod = new LDAPModification(LDAPModification.REPLACE, attr);
+                    LDAPAttribute attr = entry
+                            .getAttribute("nsDS5ReplicaBindDN");
+                    attr.addValue("cn=" + bindUser + ",cn=config");
+                    LDAPModification mod = new LDAPModification(
+                            LDAPModification.REPLACE, attr);
                     conn.modify(replicadn, mod);
                 } catch (LDAPException ee) {
-                    CMS.debug("DatabasePanel enableReplication: Failed to modify " 
-                        +replicadn+" entry. Exception: "+e.toString());
+                    CMS.debug("DatabasePanel enableReplication: Failed to modify "
+                            + replicadn + " entry. Exception: " + e.toString());
                 }
                 return id;
             } else {
-                CMS.debug("DatabasePanel enableReplication: Failed to create "+replicadn+" entry. Exception: "+e.toString());
+                CMS.debug("DatabasePanel enableReplication: Failed to create "
+                        + replicadn + " entry. Exception: " + e.toString());
                 return id;
             }
         }
 
-        CMS.debug("DatabasePanel enableReplication: Successfully create "+replicadn+" entry.");
+        CMS.debug("DatabasePanel enableReplication: Successfully create "
+                + replicadn + " entry.");
         return id + 1;
     }
 
-    private void createReplicationAgreement(String replicadn, 
-      LDAPConnection conn, String name, String replicahost, int replicaport, 
-      String replicapwd, String basedn, String bindUser, String secure, String cloneStartTLS) throws LDAPException {
-        String dn = "cn="+name+","+replicadn;
-        CMS.debug("DatabasePanel createReplicationAgreement: dn: "+dn);
+    private void createReplicationAgreement(String replicadn,
+            LDAPConnection conn, String name, String replicahost,
+            int replicaport, String replicapwd, String basedn, String bindUser,
+            String secure, String cloneStartTLS) throws LDAPException {
+        String dn = "cn=" + name + "," + replicadn;
+        CMS.debug("DatabasePanel createReplicationAgreement: dn: " + dn);
         LDAPEntry entry = null;
         LDAPAttributeSet attrs = null;
         try {
             attrs = new LDAPAttributeSet();
             attrs.add(new LDAPAttribute("objectclass", "top"));
             attrs.add(new LDAPAttribute("objectclass",
-              "nsds5replicationagreement"));
+                    "nsds5replicationagreement"));
             attrs.add(new LDAPAttribute("cn", name));
             attrs.add(new LDAPAttribute("nsDS5ReplicaRoot", basedn));
             attrs.add(new LDAPAttribute("nsDS5ReplicaHost", replicahost));
-            attrs.add(new LDAPAttribute("nsDS5ReplicaPort", ""+replicaport));
-            attrs.add(new LDAPAttribute("nsDS5ReplicaBindDN",
-              "cn=" + bindUser + ",cn=config"));
+            attrs.add(new LDAPAttribute("nsDS5ReplicaPort", "" + replicaport));
+            attrs.add(new LDAPAttribute("nsDS5ReplicaBindDN", "cn=" + bindUser
+                    + ",cn=config"));
             attrs.add(new LDAPAttribute("nsDS5ReplicaBindMethod", "Simple"));
             attrs.add(new LDAPAttribute("nsds5replicacredentials", replicapwd));
 
@@ -1368,50 +1414,58 @@ public class DatabasePanel extends WizardPanelBase {
             }
 
             CMS.debug("About to set description attr to " + name);
-            attrs.add(new LDAPAttribute("description",name));
+            attrs.add(new LDAPAttribute("description", name));
 
             entry = new LDAPEntry(dn, attrs);
             conn.add(entry);
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.ENTRY_ALREADY_EXISTS) {
-                CMS.debug("DatabasePanel createReplicationAgreement: "+dn+" has already used");
+                CMS.debug("DatabasePanel createReplicationAgreement: " + dn
+                        + " has already used");
                 try {
                     conn.delete(dn);
                 } catch (LDAPException ee) {
-                    CMS.debug("DatabasePanel createReplicationAgreement: "+ee.toString());
+                    CMS.debug("DatabasePanel createReplicationAgreement: "
+                            + ee.toString());
                     throw ee;
                 }
 
                 try {
                     conn.add(entry);
                 } catch (LDAPException ee) {
-                    CMS.debug("DatabasePanel createReplicationAgreement: "+ee.toString());
+                    CMS.debug("DatabasePanel createReplicationAgreement: "
+                            + ee.toString());
                     throw ee;
                 }
             } else {
-                CMS.debug("DatabasePanel createReplicationAgreement: Failed to create "+dn+" entry. Exception: "+e.toString());
+                CMS.debug("DatabasePanel createReplicationAgreement: Failed to create "
+                        + dn + " entry. Exception: " + e.toString());
                 throw e;
             }
         }
 
-        CMS.debug("DatabasePanel createReplicationAgreement: Successfully create replication agreement "+name);
+        CMS.debug("DatabasePanel createReplicationAgreement: Successfully create replication agreement "
+                + name);
     }
 
-    private void initializeConsumer(String replicadn, LDAPConnection conn, 
-      String name) {
-        String dn = "cn="+name+","+replicadn;
-        CMS.debug("DatabasePanel initializeConsumer: initializeConsumer dn: "+dn);
-        CMS.debug("DatabasePanel initializeConsumer: initializeConsumer host: "+conn.getHost() + " port: " + conn.getPort());
+    private void initializeConsumer(String replicadn, LDAPConnection conn,
+            String name) {
+        String dn = "cn=" + name + "," + replicadn;
+        CMS.debug("DatabasePanel initializeConsumer: initializeConsumer dn: "
+                + dn);
+        CMS.debug("DatabasePanel initializeConsumer: initializeConsumer host: "
+                + conn.getHost() + " port: " + conn.getPort());
         try {
             LDAPAttribute attr = new LDAPAttribute("nsds5beginreplicarefresh",
-              "start");
+                    "start");
             LDAPModification mod = new LDAPModification(
-              LDAPModification.REPLACE, attr);
+                    LDAPModification.REPLACE, attr);
             CMS.debug("DatabasePanel initializeConsumer: start modifying");
             conn.modify(dn, mod);
             CMS.debug("DatabasePanel initializeConsumer: Finish modification.");
         } catch (LDAPException e) {
-            CMS.debug("DatabasePanel initializeConsumer: Failed to modify "+dn+" entry. Exception: "+e.toString());
+            CMS.debug("DatabasePanel initializeConsumer: Failed to modify "
+                    + dn + " entry. Exception: " + e.toString());
             return;
         } catch (Exception e) {
             CMS.debug("DatabasePanel initializeConsumer: exception " + e);
@@ -1422,33 +1476,35 @@ public class DatabasePanel extends WizardPanelBase {
             Thread.sleep(5000);
             CMS.debug("DatabasePanel initializeConsumer: finish sleeping.");
         } catch (InterruptedException ee) {
-            CMS.debug("DatabasePanel initializeConsumer: exception: "+ee.toString());
+            CMS.debug("DatabasePanel initializeConsumer: exception: "
+                    + ee.toString());
         }
 
         CMS.debug("DatabasePanel initializeConsumer: Successfully initialize consumer");
     }
 
-    private boolean replicationDone(String replicadn, LDAPConnection conn, String name) 
-      throws IOException {
-        String dn = "cn="+name+","+replicadn;
+    private boolean replicationDone(String replicadn, LDAPConnection conn,
+            String name) throws IOException {
+        String dn = "cn=" + name + "," + replicadn;
         String filter = "(objectclass=*)";
-        String[] attrs = {"nsds5beginreplicarefresh"};
+        String[] attrs = { "nsds5beginreplicarefresh" };
 
-        CMS.debug("DatabasePanel replicationDone: dn: "+dn);
+        CMS.debug("DatabasePanel replicationDone: dn: " + dn);
         try {
-            LDAPSearchResults results = conn.search(dn, LDAPConnection.SCOPE_BASE, filter,
-              attrs, true);
+            LDAPSearchResults results = conn.search(dn,
+                    LDAPConnection.SCOPE_BASE, filter, attrs, true);
 
             int count = results.getCount();
             if (count < 1) {
                 throw new IOException("Replication entry not found");
-            } 
-           
+            }
+
             LDAPEntry entry = results.next();
-            LDAPAttribute refresh = entry.getAttribute("nsds5beginreplicarefresh");
+            LDAPAttribute refresh = entry
+                    .getAttribute("nsds5beginreplicarefresh");
             if (refresh == null) {
                 return true;
-            } 
+            }
             return false;
         } catch (Exception e) {
             CMS.debug("DatabasePanel replicationDone: exception " + e);
@@ -1456,31 +1512,33 @@ public class DatabasePanel extends WizardPanelBase {
         }
     }
 
-    private String replicationStatus(String replicadn, LDAPConnection conn, String name) 
-      throws IOException {
-        String dn = "cn="+name+","+replicadn;
+    private String replicationStatus(String replicadn, LDAPConnection conn,
+            String name) throws IOException {
+        String dn = "cn=" + name + "," + replicadn;
         String filter = "(objectclass=*)";
-        String[] attrs = {"nsds5replicalastinitstatus"};
+        String[] attrs = { "nsds5replicalastinitstatus" };
         String status = null;
 
-        CMS.debug("DatabasePanel replicationStatus: dn: "+dn);
+        CMS.debug("DatabasePanel replicationStatus: dn: " + dn);
         try {
-            LDAPSearchResults results = conn.search(dn, LDAPConnection.SCOPE_BASE, filter,
-              attrs, false);
+            LDAPSearchResults results = conn.search(dn,
+                    LDAPConnection.SCOPE_BASE, filter, attrs, false);
 
             int count = results.getCount();
             if (count < 1) {
                 throw new IOException("Replication entry not found");
-            } 
+            }
 
             LDAPEntry entry = results.next();
-            LDAPAttribute attr = entry.getAttribute("nsds5replicalastinitstatus");
+            LDAPAttribute attr = entry
+                    .getAttribute("nsds5replicalastinitstatus");
             if (attr != null) {
                 Enumeration valsInAttr = attr.getStringValues();
                 if (valsInAttr.hasMoreElements()) {
-                    return  (String)valsInAttr.nextElement();
+                    return (String) valsInAttr.nextElement();
                 } else {
-                    throw new IOException("No value returned for nsds5replicalastinitstatus");
+                    throw new IOException(
+                            "No value returned for nsds5replicalastinitstatus");
                 }
             } else {
                 throw new IOException("nsDS5ReplicaLastInitStatus is null.");
@@ -1492,35 +1550,42 @@ public class DatabasePanel extends WizardPanelBase {
     }
 
     private String getInstanceDir(LDAPConnection conn) {
-        String instancedir="";
+        String instancedir = "";
         try {
             String filter = "(objectclass=*)";
-            String[] attrs = {"nsslapd-directory"};
-            LDAPSearchResults results = conn.search("cn=config,cn=ldbm database,cn=plugins,cn=config", LDAPv3.SCOPE_SUB,
-              filter, attrs, false);
+            String[] attrs = { "nsslapd-directory" };
+            LDAPSearchResults results = conn.search(
+                    "cn=config,cn=ldbm database,cn=plugins,cn=config",
+                    LDAPv3.SCOPE_SUB, filter, attrs, false);
 
             while (results.hasMoreElements()) {
                 LDAPEntry entry = results.next();
                 String dn = entry.getDN();
-                CMS.debug("DatabasePanel getInstanceDir: DN for storing nsslapd-directory: "+dn);
+                CMS.debug("DatabasePanel getInstanceDir: DN for storing nsslapd-directory: "
+                        + dn);
                 LDAPAttributeSet entryAttrs = entry.getAttributeSet();
                 Enumeration attrsInSet = entryAttrs.getAttributes();
                 while (attrsInSet.hasMoreElements()) {
-                    LDAPAttribute nextAttr = (LDAPAttribute)attrsInSet.nextElement();
+                    LDAPAttribute nextAttr = (LDAPAttribute) attrsInSet
+                            .nextElement();
                     String attrName = nextAttr.getName();
-                    CMS.debug("DatabasePanel getInstanceDir: attribute name: "+attrName);
+                    CMS.debug("DatabasePanel getInstanceDir: attribute name: "
+                            + attrName);
                     Enumeration valsInAttr = nextAttr.getStringValues();
-                    while ( valsInAttr.hasMoreElements() ) {
-                        String nextValue = (String)valsInAttr.nextElement();
+                    while (valsInAttr.hasMoreElements()) {
+                        String nextValue = (String) valsInAttr.nextElement();
                         if (attrName.equalsIgnoreCase("nsslapd-directory")) {
-                            CMS.debug("DatabasePanel getInstanceDir: instanceDir="+nextValue);
-                            return nextValue.substring(0,nextValue.lastIndexOf("/db"));
+                            CMS.debug("DatabasePanel getInstanceDir: instanceDir="
+                                    + nextValue);
+                            return nextValue.substring(0,
+                                    nextValue.lastIndexOf("/db"));
                         }
                     }
                 }
             }
         } catch (LDAPException e) {
-            CMS.debug("DatabasePanel getInstanceDir: Error in retrieving the instance directory. Exception: "+e.toString());
+            CMS.debug("DatabasePanel getInstanceDir: Error in retrieving the instance directory. Exception: "
+                    + e.toString());
         }
 
         return instancedir;

@@ -17,10 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.client.connection;
 
-
 /**
  * An interface represents authentiator.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public interface IAuthenticator {

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.authorization;
 
-
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -38,11 +37,10 @@ import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cmscore.util.Debug;
 
-
 /**
  * Default authorization subsystem
  * <P>
- *
+ * 
  * @author cfu
  * @version $Revision$, $Date$
  */
@@ -70,14 +68,15 @@ public class AuthzSubsystem implements IAuthzSubsystem {
     }
 
     /**
-     * Initializes the authorization subsystem from the config store.
-     * Load Authorization manager plugins, create and initialize
-     * initialize authorization manager instances. 
+     * Initializes the authorization subsystem from the config store. Load
+     * Authorization manager plugins, create and initialize initialize
+     * authorization manager instances.
+     * 
      * @param owner The owner of this module.
      * @param config The configuration store.
      */
     public void init(ISubsystem owner, IConfigStore config)
-        throws EBaseException {
+            throws EBaseException {
         try {
             mLogger = CMS.getLogger();
             mConfig = config;
@@ -90,7 +89,7 @@ public class AuthzSubsystem implements IAuthzSubsystem {
             while (mImpls.hasMoreElements()) {
                 String id = (String) mImpls.nextElement();
                 String pluginPath = c.getString(id + "." + PROP_CLASS);
-			
+
                 AuthzMgrPlugin plugin = new AuthzMgrPlugin(id, pluginPath);
 
                 mAuthzMgrPlugins.put(id, plugin);
@@ -107,16 +106,18 @@ public class AuthzSubsystem implements IAuthzSubsystem {
             while (instances.hasMoreElements()) {
                 String insName = (String) instances.nextElement();
                 String implName = c.getString(insName + "." + PROP_PLUGIN);
-                AuthzMgrPlugin plugin = 
-                    (AuthzMgrPlugin) mAuthzMgrPlugins.get(implName);
+                AuthzMgrPlugin plugin = (AuthzMgrPlugin) mAuthzMgrPlugins
+                        .get(implName);
 
                 if (plugin == null) {
-                    log(ILogger.LL_FAILURE, 
-                        CMS.getLogMessage("CMSCORE_AUTHZ_PLUGIN_NOT_FOUND", implName));
-                    throw new EAuthzMgrPluginNotFound(CMS.getUserMessage("CMS_AUTHORIZATION_AUTHZMGR_PLUGIN_NOT_FOUND", implName));
+                    log(ILogger.LL_FAILURE, CMS.getLogMessage(
+                            "CMSCORE_AUTHZ_PLUGIN_NOT_FOUND", implName));
+                    throw new EAuthzMgrPluginNotFound(CMS.getUserMessage(
+                            "CMS_AUTHORIZATION_AUTHZMGR_PLUGIN_NOT_FOUND",
+                            implName));
                 } else {
-                    CMS.debug(
-                        CMS.getLogMessage("CMSCORE_AUTHZ_PLUGIN_FOUND", implName));
+                    CMS.debug(CMS.getLogMessage("CMSCORE_AUTHZ_PLUGIN_FOUND",
+                            implName));
                 }
 
                 String className = plugin.getClassPath();
@@ -126,50 +127,58 @@ public class AuthzSubsystem implements IAuthzSubsystem {
                 IAuthzManager authzMgrInst = null;
 
                 try {
-                    authzMgrInst = (IAuthzManager) 
-                        Class.forName(className).newInstance();
+                    authzMgrInst = (IAuthzManager) Class.forName(className)
+                            .newInstance();
                     IConfigStore authzMgrConfig = c.getSubStore(insName);
 
                     authzMgrInst.init(insName, implName, authzMgrConfig);
                     isEnable = true;
 
-                    log(ILogger.LL_INFO, 
-                        CMS.getLogMessage("CMSCORE_AUTHZ_INSTANCE_ADDED", insName));
+                    log(ILogger.LL_INFO, CMS.getLogMessage(
+                            "CMSCORE_AUTHZ_INSTANCE_ADDED", insName));
                 } catch (ClassNotFoundException e) {
                     String errMsg = "AuthzSubsystem:: init()-" + e.toString();
 
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", errMsg));
-                    throw new
-                        EAuthzException(CMS.getUserMessage("CMS_AUTHORIZATION_LOAD_CLASS_FAIL", className));
+                    log(ILogger.LL_FAILURE,
+                            CMS.getLogMessage("OPERATION_ERROR", errMsg));
+                    throw new EAuthzException(CMS.getUserMessage(
+                            "CMS_AUTHORIZATION_LOAD_CLASS_FAIL", className));
                 } catch (IllegalAccessException e) {
                     String errMsg = "AuthzSubsystem:: init()-" + e.toString();
 
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", errMsg));
-                    throw new
-                        EAuthzException(CMS.getUserMessage("CMS_AUTHORIZATION_LOAD_CLASS_FAIL", className));
+                    log(ILogger.LL_FAILURE,
+                            CMS.getLogMessage("OPERATION_ERROR", errMsg));
+                    throw new EAuthzException(CMS.getUserMessage(
+                            "CMS_AUTHORIZATION_LOAD_CLASS_FAIL", className));
                 } catch (InstantiationException e) {
                     String errMsg = "AuthzSubsystem: init()-" + e.toString();
 
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", errMsg));
-                    throw new
-                        EAuthzException(CMS.getUserMessage("CMS_AUTHORIZATION_LOAD_CLASS_FAIL", className));
+                    log(ILogger.LL_FAILURE,
+                            CMS.getLogMessage("OPERATION_ERROR", errMsg));
+                    throw new EAuthzException(CMS.getUserMessage(
+                            "CMS_AUTHORIZATION_LOAD_CLASS_FAIL", className));
                 } catch (EBaseException e) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTHZ_PLUGIN_INIT_FAILED", insName, e.toString()));
+                    log(ILogger.LL_FAILURE, CMS.getLogMessage(
+                            "CMSCORE_AUTHZ_PLUGIN_INIT_FAILED", insName,
+                            e.toString()));
                     // it is mis-configurated. This give
                     // administrator another chance to
                     // fix the problem via console
                 } catch (Throwable e) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTHZ_PLUGIN_INIT_FAILED", insName, e.toString()));
+                    log(ILogger.LL_FAILURE, CMS.getLogMessage(
+                            "CMSCORE_AUTHZ_PLUGIN_INIT_FAILED", insName,
+                            e.toString()));
                     // Skip the authorization instance if
                     // it is mis-configurated. This give
                     // administrator another chance to
                     // fix the problem via console
                 }
                 // add manager instance to list.
-                mAuthzMgrInsts.put(insName, new 
-                    AuthzManagerProxy(isEnable, authzMgrInst));
+                mAuthzMgrInsts.put(insName, new AuthzManagerProxy(isEnable,
+                        authzMgrInst));
                 if (Debug.ON) {
-                    Debug.trace("loaded authz instance " + insName + " impl " + implName);
+                    Debug.trace("loaded authz instance " + insName + " impl "
+                            + implName);
                 }
             }
         } catch (EBaseException ee) {
@@ -182,27 +191,33 @@ public class AuthzSubsystem implements IAuthzSubsystem {
     }
 
     /**
-     * authMgrzAccessInit is for servlets who want to initialize their
-     * own authorization information before full operation.  It is supposed
-     * to be called during the init() method of a servlet.
+     * authMgrzAccessInit is for servlets who want to initialize their own
+     * authorization information before full operation. It is supposed to be
+     * called during the init() method of a servlet.
+     * 
      * @param authzMgrName The authorization manager name
-     * @param accessInfo the access information to be initialized.  currently it's acl string in the format specified in the authorization manager
+     * @param accessInfo the access information to be initialized. currently
+     *            it's acl string in the format specified in the authorization
+     *            manager
      */
     public void authzMgrAccessInit(String authzMgrInstName, String accessInfo)
-        throws EAuthzMgrNotFound, EBaseException {
-        AuthzManagerProxy proxy = (AuthzManagerProxy)
-            mAuthzMgrInsts.get(authzMgrInstName);
+            throws EAuthzMgrNotFound, EBaseException {
+        AuthzManagerProxy proxy = (AuthzManagerProxy) mAuthzMgrInsts
+                .get(authzMgrInstName);
 
         if (proxy == null) {
-            throw new EAuthzMgrNotFound(CMS.getUserMessage("CMS_AUTHORIZATION_AUTHZMGR_NOT_FOUND", authzMgrInstName));
+            throw new EAuthzMgrNotFound(CMS.getUserMessage(
+                    "CMS_AUTHORIZATION_AUTHZMGR_NOT_FOUND", authzMgrInstName));
         }
         if (!proxy.isEnable()) {
-            throw new EAuthzMgrNotFound(CMS.getUserMessage("CMS_AUTHORIZATION_AUTHZMGR_NOT_FOUND", authzMgrInstName));
+            throw new EAuthzMgrNotFound(CMS.getUserMessage(
+                    "CMS_AUTHORIZATION_AUTHZMGR_NOT_FOUND", authzMgrInstName));
         }
         IAuthzManager authzMgrInst = proxy.getAuthzManager();
 
         if (authzMgrInst == null) {
-            throw new EAuthzMgrNotFound(CMS.getUserMessage("CMS_AUTHORIZATION_AUTHZMGR_NOT_FOUND", authzMgrInstName));
+            throw new EAuthzMgrNotFound(CMS.getUserMessage(
+                    "CMS_AUTHORIZATION_AUTHZMGR_NOT_FOUND", authzMgrInstName));
         }
 
         authzMgrInst.accessInit(accessInfo);
@@ -210,71 +225,78 @@ public class AuthzSubsystem implements IAuthzSubsystem {
 
     /**
      * Authorization to the named authorization manager instance
+     * 
      * @param authzMgrName The authorization manager name
      * @param authToken the authenticaton token associated with a user
      * @param resource the resource protected by the authorization system
-     * @param operation the operation for resource protected by the authoriz
-     n system
+     * @param operation the operation for resource protected by the authoriz n
+     *            system
      * @exception EBaseException If an error occurs during authorization.
      * @return a authorization token.
      */
-    public AuthzToken authorize(
-        String authzMgrInstName, IAuthToken authToken,
-        String resource, String operation)
-        throws EAuthzMgrNotFound, EBaseException {
+    public AuthzToken authorize(String authzMgrInstName, IAuthToken authToken,
+            String resource, String operation) throws EAuthzMgrNotFound,
+            EBaseException {
 
-        AuthzManagerProxy proxy = (AuthzManagerProxy)
-            mAuthzMgrInsts.get(authzMgrInstName);
+        AuthzManagerProxy proxy = (AuthzManagerProxy) mAuthzMgrInsts
+                .get(authzMgrInstName);
 
         if (proxy == null) {
-            throw new EAuthzMgrNotFound(CMS.getUserMessage("CMS_AUTHORIZATION_AUTHZMGR_NOT_FOUND", authzMgrInstName));
+            throw new EAuthzMgrNotFound(CMS.getUserMessage(
+                    "CMS_AUTHORIZATION_AUTHZMGR_NOT_FOUND", authzMgrInstName));
         }
         if (!proxy.isEnable()) {
-            throw new EAuthzMgrNotFound(CMS.getUserMessage("CMS_AUTHORIZATION_AUTHZMGR_NOT_FOUND", authzMgrInstName));
+            throw new EAuthzMgrNotFound(CMS.getUserMessage(
+                    "CMS_AUTHORIZATION_AUTHZMGR_NOT_FOUND", authzMgrInstName));
         }
         IAuthzManager authzMgrInst = proxy.getAuthzManager();
 
         if (authzMgrInst == null) {
-            throw new EAuthzMgrNotFound(CMS.getUserMessage("CMS_AUTHORIZATION_AUTHZMGR_NOT_FOUND", authzMgrInstName));
+            throw new EAuthzMgrNotFound(CMS.getUserMessage(
+                    "CMS_AUTHORIZATION_AUTHZMGR_NOT_FOUND", authzMgrInstName));
         }
         return (authzMgrInst.authorize(authToken, resource, operation));
     }
 
-    public AuthzToken authorize(
-        String authzMgrInstName, IAuthToken authToken, String exp) 
-        throws EAuthzMgrNotFound, EBaseException {
+    public AuthzToken authorize(String authzMgrInstName, IAuthToken authToken,
+            String exp) throws EAuthzMgrNotFound, EBaseException {
 
-        AuthzManagerProxy proxy = (AuthzManagerProxy)
-            mAuthzMgrInsts.get(authzMgrInstName);
+        AuthzManagerProxy proxy = (AuthzManagerProxy) mAuthzMgrInsts
+                .get(authzMgrInstName);
 
         if (proxy == null) {
-            throw new EAuthzMgrNotFound(CMS.getUserMessage("CMS_AUTHORIZATION_AUTHZMGR_NOT_FOUND", authzMgrInstName));
-        } 
+            throw new EAuthzMgrNotFound(CMS.getUserMessage(
+                    "CMS_AUTHORIZATION_AUTHZMGR_NOT_FOUND", authzMgrInstName));
+        }
         if (!proxy.isEnable()) {
-            throw new EAuthzMgrNotFound(CMS.getUserMessage("CMS_AUTHORIZATION_AUTHZMGR_NOT_FOUND", authzMgrInstName));
+            throw new EAuthzMgrNotFound(CMS.getUserMessage(
+                    "CMS_AUTHORIZATION_AUTHZMGR_NOT_FOUND", authzMgrInstName));
         }
         IAuthzManager authzMgrInst = proxy.getAuthzManager();
 
         if (authzMgrInst == null) {
-            throw new EAuthzMgrNotFound(CMS.getUserMessage("CMS_AUTHORIZATION_AUTHZMGR_NOT_FOUND", authzMgrInstName));
+            throw new EAuthzMgrNotFound(CMS.getUserMessage(
+                    "CMS_AUTHORIZATION_AUTHZMGR_NOT_FOUND", authzMgrInstName));
         }
         return (authzMgrInst.authorize(authToken, exp));
     }
 
     /**
-     * Gets configuration parameters for the given 
-     * authorization manager plugin.
+     * Gets configuration parameters for the given authorization manager plugin.
+     * 
      * @param implName Name of the authorization plugin.
      * @return Hashtable of required parameters.
      */
     public String[] getConfigParams(String implName)
-        throws EAuthzMgrPluginNotFound, EBaseException {
+            throws EAuthzMgrPluginNotFound, EBaseException {
         // is this a registered implname?
         AuthzMgrPlugin plugin = (AuthzMgrPlugin) mAuthzMgrPlugins.get(implName);
 
         if (plugin == null) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTHZ_PLUGIN_NOT_FOUND", implName));
-            throw new EAuthzMgrPluginNotFound(CMS.getUserMessage("CMS_AUTHORIZATION_AUTHZMGR_PLUGIN_NOT_FOUND", implName));
+            log(ILogger.LL_FAILURE, CMS.getLogMessage(
+                    "CMSCORE_AUTHZ_PLUGIN_NOT_FOUND", implName));
+            throw new EAuthzMgrPluginNotFound(CMS.getUserMessage(
+                    "CMS_AUTHORIZATION_AUTHZMGR_PLUGIN_NOT_FOUND", implName));
         }
 
         // a temporary instance
@@ -282,26 +304,33 @@ public class AuthzSubsystem implements IAuthzSubsystem {
         String className = plugin.getClassPath();
 
         try {
-            authzMgrInst = (IAuthzManager)
-                    Class.forName(className).newInstance();
+            authzMgrInst = (IAuthzManager) Class.forName(className)
+                    .newInstance();
             return (authzMgrInst.getConfigParams());
         } catch (InstantiationException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTHZ_PLUGIN_NOT_CREATED", e.toString()));
-            throw new 
-                EAuthzException(CMS.getUserMessage("CMS_AUTHORIZATION_LOAD_CLASS_FAIL", className));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_AUTHZ_PLUGIN_NOT_CREATED",
+                            e.toString()));
+            throw new EAuthzException(CMS.getUserMessage(
+                    "CMS_AUTHORIZATION_LOAD_CLASS_FAIL", className));
         } catch (ClassNotFoundException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTHZ_PLUGIN_NOT_CREATED", e.toString()));
-            throw new 
-                EAuthzException(CMS.getUserMessage("CMS_AUTHORIZATION_LOAD_CLASS_FAIL", className));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_AUTHZ_PLUGIN_NOT_CREATED",
+                            e.toString()));
+            throw new EAuthzException(CMS.getUserMessage(
+                    "CMS_AUTHORIZATION_LOAD_CLASS_FAIL", className));
         } catch (IllegalAccessException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTHZ_PLUGIN_NOT_CREATED", e.toString()));
-            throw new 
-                EAuthzException(CMS.getUserMessage("CMS_AUTHORIZATION_LOAD_CLASS_FAIL", className));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_AUTHZ_PLUGIN_NOT_CREATED",
+                            e.toString()));
+            throw new EAuthzException(CMS.getUserMessage(
+                    "CMS_AUTHORIZATION_LOAD_CLASS_FAIL", className));
         }
     }
 
     /**
      * Add an authorization manager instance.
+     * 
      * @param name name of the authorization manager instance
      * @param authzMgr the authorization manager instance to be added
      */
@@ -311,6 +340,7 @@ public class AuthzSubsystem implements IAuthzSubsystem {
 
     /*
      * Removes a authorization manager instance.
+     * 
      * @param name name of the authorization manager
      */
     public void delete(String name) {
@@ -319,6 +349,7 @@ public class AuthzSubsystem implements IAuthzSubsystem {
 
     /**
      * Gets the authorization manager instance of the specified name.
+     * 
      * @param name name of the authorization manager instance
      * @return the named authorization manager instance
      */
@@ -362,9 +393,9 @@ public class AuthzSubsystem implements IAuthzSubsystem {
     }
 
     /**
-     * Retrieve a single authz manager instance 
+     * Retrieve a single authz manager instance
      */
-    
+
     /* getconfigparams above should be recoded to use this func */
     public IAuthzManager getAuthzManagerPlugin(String name) {
         AuthzMgrPlugin plugin = (AuthzMgrPlugin) mAuthzMgrPlugins.get(name);
@@ -372,26 +403,31 @@ public class AuthzSubsystem implements IAuthzSubsystem {
         IAuthzManager authzMgrInst = null;
 
         try {
-            authzMgrInst = (IAuthzManager) Class.forName(classpath).newInstance();
+            authzMgrInst = (IAuthzManager) Class.forName(classpath)
+                    .newInstance();
             return (authzMgrInst);
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTHZ_PLUGIN_NOT_CREATED", e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_AUTHZ_PLUGIN_NOT_CREATED",
+                            e.toString()));
             return null;
         }
     }
 
     /**
      * Retrieves id (name) of this subsystem.
+     * 
      * @return name of the authorization subsystem
      */
     public String getId() {
         return (mId);
     }
-  
+
     /**
      * Sets id string to this subsystem.
      * <p>
-     * Use with caution.  Should not do it when sharing with others
+     * Use with caution. Should not do it when sharing with others
+     * 
      * @param id name to be applied to an authorization sybsystem
      */
     public void setId(String id) throws EBaseException {
@@ -402,25 +438,24 @@ public class AuthzSubsystem implements IAuthzSubsystem {
      * registers the administration servlet with the administration subsystem.
      */
     public void startup() throws EBaseException {
-        //remove the log since it's already logged from S_ADMIN
-        //String infoMsg = "Authz subsystem administration Servlet registered";
-        //log(ILogger.LL_INFO, infoMsg);
+        // remove the log since it's already logged from S_ADMIN
+        // String infoMsg = "Authz subsystem administration Servlet registered";
+        // log(ILogger.LL_INFO, infoMsg);
     }
 
     /**
-     * shuts down authorization managers one by one. 
+     * shuts down authorization managers one by one.
      * <P>
      */
     public void shutdown() {
-        for (Enumeration e = mAuthzMgrInsts.keys();
-            e.hasMoreElements();) {
+        for (Enumeration e = mAuthzMgrInsts.keys(); e.hasMoreElements();) {
 
             IAuthzManager mgr = (IAuthzManager) get((String) e.nextElement());
 
-            String infoMsg = 
-                "Shutting down authz manager instance " + mgr.getName();
+            String infoMsg = "Shutting down authz manager instance "
+                    + mgr.getName();
 
-            //log(ILogger.LL_INFO, infoMsg);
+            // log(ILogger.LL_INFO, infoMsg);
 
             mgr.shutdown();
         }
@@ -441,7 +476,7 @@ public class AuthzSubsystem implements IAuthzSubsystem {
     /**
      * Returns the root configuration storage of this system.
      * <P>
-     *
+     * 
      * @return configuration store of this subsystem
      */
     public IConfigStore getConfigStore() {
@@ -450,6 +485,7 @@ public class AuthzSubsystem implements IAuthzSubsystem {
 
     /**
      * gets the named authorization manager
+     * 
      * @param name of the authorization manager
      * @return the named authorization manager
      */
@@ -463,8 +499,8 @@ public class AuthzSubsystem implements IAuthzSubsystem {
     public void log(int level, String msg) {
         if (mLogger == null)
             return;
-        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_AUTHORIZATION,
-            level, msg);
+        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_AUTHORIZATION, level,
+                msg);
     }
 
 }

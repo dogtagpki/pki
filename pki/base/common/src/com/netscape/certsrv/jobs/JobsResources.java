@@ -17,14 +17,11 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.jobs;
 
-
 import java.util.ListResourceBundle;
 
-
 /**
- * A class represents a resource bundle for the 
- * Jobs package
- *
+ * A class represents a resource bundle for the Jobs package
+ * 
  * @version $Revision$, $Date$
  */
 public class JobsResources extends ListResourceBundle {
@@ -37,8 +34,7 @@ public class JobsResources extends ListResourceBundle {
     }
 
     /**
-     * Constants. The suffix represents the number of
-     * possible parameters.
+     * Constants. The suffix represents the number of possible parameters.
      */
 
     static final Object[][] contents = {};

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-
 import java.io.IOException;
 import java.security.cert.CertificateEncodingException;
 import java.util.Locale;
@@ -63,6 +62,7 @@ public class GetTransportCert extends CMSServlet {
 
     /**
      * initialize the servlet.
+     * 
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -72,7 +72,7 @@ public class GetTransportCert extends CMSServlet {
     }
 
     /**
-     * Process the HTTP request. 
+     * Process the HTTP request.
      */
     protected void process(CMSRequest cmsReq) throws EBaseException {
         CMS.debug("UpdateUpdater: processing...");
@@ -86,9 +86,9 @@ public class GetTransportCert extends CMSServlet {
             CMS.debug("GetTransportCert authentication successful.");
         } catch (Exception e) {
             CMS.debug("GetTransportCert: authentication failed.");
-            log(ILogger.LL_FAILURE, 
+            log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSGW_ERR_BAD_SERV_OUT_STREAM", "",
-                    e.toString()));
+                            e.toString()));
             outputError(httpResp, AUTH_FAILURE, "Error: Not authenticated");
             return;
         }
@@ -101,19 +101,19 @@ public class GetTransportCert extends CMSServlet {
 
         AuthzToken authzToken = null;
         try {
-            authzToken = authorize(mAclMethod, authToken, mAuthzResourceName, 
-              "read");
+            authzToken = authorize(mAclMethod, authToken, mAuthzResourceName,
+                    "read");
             CMS.debug("GetTransportCert authorization successful.");
         } catch (EAuthzAccessDenied e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
             outputError(httpResp, "Error: Not authorized");
             return;
         } catch (Exception e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
             outputError(httpResp,
-                "Error: Encountered problem during authorization.");
+                    "Error: Encountered problem during authorization.");
             return;
         }
 
@@ -124,19 +124,19 @@ public class GetTransportCert extends CMSServlet {
 
         IConfigStore cs = CMS.getConfigStore();
 
-        IKeyRecoveryAuthority kra =
-                (IKeyRecoveryAuthority) mAuthority;
-            ITransportKeyUnit tu = kra.getTransportKeyUnit();
-            org.mozilla.jss.crypto.X509Certificate transportCert =
-                tu.getCertificate();
+        IKeyRecoveryAuthority kra = (IKeyRecoveryAuthority) mAuthority;
+        ITransportKeyUnit tu = kra.getTransportKeyUnit();
+        org.mozilla.jss.crypto.X509Certificate transportCert = tu
+                .getCertificate();
 
-            String mime64 = "";
+        String mime64 = "";
         try {
             mime64 = CMS.BtoA(transportCert.getEncoded());
-            mime64 = com.netscape.cmsutil.util.Cert.normalizeCertStrAndReq(mime64);
-         } catch (CertificateEncodingException eee) {
+            mime64 = com.netscape.cmsutil.util.Cert
+                    .normalizeCertStrAndReq(mime64);
+        } catch (CertificateEncodingException eee) {
             CMS.debug("GetTransportCert: Failed to encode certificate");
-         }
+        }
 
         // send success status back to the requestor
         try {
@@ -154,14 +154,22 @@ public class GetTransportCert extends CMSServlet {
         }
     }
 
-    protected void setDefaultTemplates(ServletConfig sc) {}
+    protected void setDefaultTemplates(ServletConfig sc) {
+    }
 
-    protected void renderTemplate(
-            CMSRequest cmsReq, String templateName, ICMSTemplateFiller filler)
-        throws IOException {// do nothing
-    } 
+    protected void renderTemplate(CMSRequest cmsReq, String templateName,
+            ICMSTemplateFiller filler) throws IOException {// do nothing
+    }
 
-    protected void renderResult(CMSRequest cmsReq) throws IOException {// do nothing, ie, it will not return the default javascript.
+    protected void renderResult(CMSRequest cmsReq) throws IOException {// do
+                                                                       // nothing,
+                                                                       // ie, it
+                                                                       // will
+                                                                       // not
+                                                                       // return
+                                                                       // the
+                                                                       // default
+                                                                       // javascript.
     }
 
     /**

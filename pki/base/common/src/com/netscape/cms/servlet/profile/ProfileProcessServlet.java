@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.profile;
 
-
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.Date;
@@ -63,10 +62,9 @@ import com.netscape.certsrv.template.ArgSet;
 import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cms.servlet.common.CMSRequest;
 
-
 /**
  * This servlet approves profile-based request.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class ProfileProcessServlet extends ProfileServlet {
@@ -78,10 +76,8 @@ public class ProfileProcessServlet extends ProfileServlet {
     private String mAuthorityId = null;
     private Nonces mNonces = null;
 
-    private final static String SIGNED_AUDIT_CERT_REQUEST_REASON =
-        "requestNotes";
-    private final static String LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED =
-        "LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED_5";
+    private final static String SIGNED_AUDIT_CERT_REQUEST_REASON = "requestNotes";
+    private final static String LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED = "LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED_5";
 
     public ProfileProcessServlet() {
     }
@@ -103,9 +99,9 @@ public class ProfileProcessServlet extends ProfileServlet {
         HttpServletRequest request = cmsReq.getHttpReq();
         HttpServletResponse response = cmsReq.getHttpResp();
 
-        IStatsSubsystem statsSub = (IStatsSubsystem)CMS.getSubsystem("stats");
+        IStatsSubsystem statsSub = (IStatsSubsystem) CMS.getSubsystem("stats");
         if (statsSub != null) {
-          statsSub.startTiming("approval", true /* main action */);
+            statsSub.startTiming("approval", true /* main action */);
         }
 
         IAuthToken authToken = null;
@@ -119,13 +115,14 @@ public class ProfileProcessServlet extends ProfileServlet {
             } catch (EBaseException e) {
                 CMS.debug("ProfileProcessServlet: " + e.toString());
                 log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
-                args.set(ARG_ERROR_CODE, "1"); 
-                args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale, 
-                        "CMS_AUTHENTICATION_ERROR"));
+                        CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE",
+                                e.toString()));
+                args.set(ARG_ERROR_CODE, "1");
+                args.set(ARG_ERROR_REASON,
+                        CMS.getUserMessage(locale, "CMS_AUTHENTICATION_ERROR"));
                 outputTemplate(request, response, args);
                 if (statsSub != null) {
-                  statsSub.endTiming("approval");
+                    statsSub.endTiming("approval");
                 }
                 return;
             }
@@ -134,23 +131,23 @@ public class ProfileProcessServlet extends ProfileServlet {
         AuthzToken authzToken = null;
 
         try {
-            authzToken = authorize(mAclMethod, authToken,
-                        mAuthzResourceName, "approve");
+            authzToken = authorize(mAclMethod, authToken, mAuthzResourceName,
+                    "approve");
         } catch (EAuthzAccessDenied e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
         } catch (Exception e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
         }
 
         if (authzToken == null) {
             args.set(ARG_ERROR_CODE, "1");
-            args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
-                    "CMS_AUTHORIZATION_ERROR"));
+            args.set(ARG_ERROR_REASON,
+                    CMS.getUserMessage(locale, "CMS_AUTHORIZATION_ERROR"));
             outputTemplate(request, response, args);
             if (statsSub != null) {
-              statsSub.endTiming("approval");
+                statsSub.endTiming("approval");
             }
             return;
         }
@@ -164,18 +161,19 @@ public class ProfileProcessServlet extends ProfileServlet {
                 X509Certificate cert2 = getSSLClientCertificate(request);
                 if (cert1 == null) {
                     CMS.debug("ProfileProcessServlet:  Unknown nonce");
-                } else if (cert1 != null && cert2 != null && cert1.equals(cert2)) {
+                } else if (cert1 != null && cert2 != null
+                        && cert1.equals(cert2)) {
                     nonceVerified = true;
                     mNonces.removeNonce(nonce);
                 }
             } else {
                 CMS.debug("ProfileProcessServlet:  Missing nonce");
             }
-            CMS.debug("ProfileProcessServlet:  nonceVerified="+nonceVerified);
+            CMS.debug("ProfileProcessServlet:  nonceVerified=" + nonceVerified);
             if (!nonceVerified) {
                 args.set(ARG_ERROR_CODE, "1");
-                args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
-                        "CMS_AUTHORIZATION_ERROR"));
+                args.set(ARG_ERROR_REASON,
+                        CMS.getUserMessage(locale, "CMS_AUTHORIZATION_ERROR"));
                 outputTemplate(request, response, args);
                 if (statsSub != null) {
                     statsSub.endTiming("approval");
@@ -193,17 +191,17 @@ public class ProfileProcessServlet extends ProfileServlet {
             mProfileSubId = IProfileSubsystem.ID;
         }
         CMS.debug("ProfileProcessServlet: SubId=" + mProfileSubId);
-        IProfileSubsystem ps = (IProfileSubsystem)
-            CMS.getSubsystem(mProfileSubId);
+        IProfileSubsystem ps = (IProfileSubsystem) CMS
+                .getSubsystem(mProfileSubId);
 
         if (ps == null) {
             CMS.debug("ProfileProcessServlet: ProfileSubsystem not found");
             args.set(ARG_ERROR_CODE, "1");
-            args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
-                    "CMS_INTERNAL_ERROR"));
+            args.set(ARG_ERROR_REASON,
+                    CMS.getUserMessage(locale, "CMS_INTERNAL_ERROR"));
             outputTemplate(request, response, args);
             if (statsSub != null) {
-              statsSub.endTiming("approval");
+                statsSub.endTiming("approval");
             }
             return;
         }
@@ -212,28 +210,28 @@ public class ProfileProcessServlet extends ProfileServlet {
         IAuthority authority = (IAuthority) CMS.getSubsystem(mAuthorityId);
 
         if (authority == null) {
-            CMS.debug("ProfileProcessServlet: Authority " + mAuthorityId +
-                " not found");
+            CMS.debug("ProfileProcessServlet: Authority " + mAuthorityId
+                    + " not found");
             args.set(ARG_ERROR_CODE, "1");
-            args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
-                    "CMS_INTERNAL_ERROR"));
+            args.set(ARG_ERROR_REASON,
+                    CMS.getUserMessage(locale, "CMS_INTERNAL_ERROR"));
             outputTemplate(request, response, args);
             if (statsSub != null) {
-              statsSub.endTiming("approval");
+                statsSub.endTiming("approval");
             }
             return;
         }
         IRequestQueue queue = authority.getRequestQueue();
 
         if (queue == null) {
-            CMS.debug("ProfileProcessServlet: Request Queue of " +
-                mAuthorityId + " not found");
+            CMS.debug("ProfileProcessServlet: Request Queue of " + mAuthorityId
+                    + " not found");
             args.set(ARG_ERROR_CODE, "1");
-            args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
-                    "CMS_INTERNAL_ERROR"));
+            args.set(ARG_ERROR_REASON,
+                    CMS.getUserMessage(locale, "CMS_INTERNAL_ERROR"));
             outputTemplate(request, response, args);
             if (statsSub != null) {
-              statsSub.endTiming("approval");
+                statsSub.endTiming("approval");
             }
             return;
         }
@@ -243,11 +241,11 @@ public class ProfileProcessServlet extends ProfileServlet {
         if (requestId == null || requestId.equals("")) {
             CMS.debug("ProfileProcessServlet: Request Id not found");
             args.set(ARG_ERROR_CODE, "1");
-            args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
-                    "CMS_REQUEST_ID_NOT_FOUND"));
+            args.set(ARG_ERROR_REASON,
+                    CMS.getUserMessage(locale, "CMS_REQUEST_ID_NOT_FOUND"));
             outputTemplate(request, response, args);
             if (statsSub != null) {
-              statsSub.endTiming("approval");
+                statsSub.endTiming("approval");
             }
             return;
         }
@@ -259,8 +257,8 @@ public class ProfileProcessServlet extends ProfileServlet {
             req = queue.findRequest(new RequestId(requestId));
         } catch (EBaseException e) {
             // request not found
-            CMS.debug("ProfileProcessServlet: request not found requestId=" + 
-                requestId + " " + e.toString());
+            CMS.debug("ProfileProcessServlet: request not found requestId="
+                    + requestId + " " + e.toString());
         }
         if (req == null) {
             args.set(ARG_ERROR_CODE, "1");
@@ -268,12 +266,12 @@ public class ProfileProcessServlet extends ProfileServlet {
                     "CMS_REQUEST_NOT_FOUND", requestId));
             outputTemplate(request, response, args);
             if (statsSub != null) {
-              statsSub.endTiming("approval");
+                statsSub.endTiming("approval");
             }
             return;
         }
 
-	// check if the request is in one of the terminal states
+        // check if the request is in one of the terminal states
         if (!req.getRequestStatus().equals(RequestStatus.PENDING)) {
             args.set(ARG_ERROR_CODE, "1");
             args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
@@ -281,7 +279,7 @@ public class ProfileProcessServlet extends ProfileServlet {
             args.set(ARG_REQUEST_ID, requestId);
             outputTemplate(request, response, args);
             if (statsSub != null) {
-              statsSub.endTiming("approval");
+                statsSub.endTiming("approval");
             }
             return;
         }
@@ -292,11 +290,11 @@ public class ProfileProcessServlet extends ProfileServlet {
         if (profileId == null || profileId.equals("")) {
             CMS.debug("ProfileProcessServlet: Profile Id not found");
             args.set(ARG_ERROR_CODE, "1");
-            args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
-                    "CMS_PROFILE_ID_NOT_FOUND"));
+            args.set(ARG_ERROR_REASON,
+                    CMS.getUserMessage(locale, "CMS_PROFILE_ID_NOT_FOUND"));
             outputTemplate(request, response, args);
             if (statsSub != null) {
-              statsSub.endTiming("approval");
+                statsSub.endTiming("approval");
             }
             return;
         }
@@ -305,15 +303,14 @@ public class ProfileProcessServlet extends ProfileServlet {
         if (op == null) {
             CMS.debug("ProfileProcessServlet: No op found");
             args.set(ARG_ERROR_CODE, "1");
-            args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
-                    "CMS_OP_NOT_FOUND"));
+            args.set(ARG_ERROR_REASON,
+                    CMS.getUserMessage(locale, "CMS_OP_NOT_FOUND"));
             outputTemplate(request, response, args);
             if (statsSub != null) {
-              statsSub.endTiming("approval");
+                statsSub.endTiming("approval");
             }
             return;
         }
-
 
         IProfile profile = null;
 
@@ -321,8 +318,8 @@ public class ProfileProcessServlet extends ProfileServlet {
             profile = ps.getProfile(profileId);
         } catch (EProfileException e) {
             // profile not found
-            CMS.debug("ProfileProcessServlet: profile not found " + 
-                " " + " profileId=" + profileId + " " + e.toString());
+            CMS.debug("ProfileProcessServlet: profile not found " + " "
+                    + " profileId=" + profileId + " " + e.toString());
         }
         if (profile == null) {
             args.set(ARG_ERROR_CODE, "1");
@@ -330,7 +327,7 @@ public class ProfileProcessServlet extends ProfileServlet {
                     "CMS_PROFILE_NOT_FOUND", profileId));
             outputTemplate(request, response, args);
             if (statsSub != null) {
-              statsSub.endTiming("approval");
+                statsSub.endTiming("approval");
             }
             return;
         }
@@ -344,15 +341,14 @@ public class ProfileProcessServlet extends ProfileServlet {
             args.set(ARG_REQUEST_TYPE, req.getRequestType());
             args.set(ARG_PROFILE_ID, profileId);
             args.set(ARG_ERROR_CODE, "1");
-            args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
-                    "CMS_PROFILE_ID_NOT_ENABLED"));
+            args.set(ARG_ERROR_REASON,
+                    CMS.getUserMessage(locale, "CMS_PROFILE_ID_NOT_ENABLED"));
             outputTemplate(request, response, args);
             if (statsSub != null) {
-              statsSub.endTiming("approval");
+                statsSub.endTiming("approval");
             }
             return;
         }
-
 
         args.set(ARG_ERROR_CODE, "0");
         args.set(ARG_ERROR_REASON, "");
@@ -361,21 +357,23 @@ public class ProfileProcessServlet extends ProfileServlet {
             if (op.equals("assign")) {
                 String owner = req.getRequestOwner();
 
-                // assigned owner 
+                // assigned owner
                 if (owner != null && owner.length() > 0) {
                     if (!grantPermission(req, authToken)) {
                         CMS.debug("ProfileProcessServlet: Permission not granted to assign request.");
                         args.set(ARG_OP, op);
                         args.set(ARG_REQUEST_ID, req.getRequestId().toString());
-                        args.set(ARG_REQUEST_STATUS, req.getRequestStatus().toString());
+                        args.set(ARG_REQUEST_STATUS, req.getRequestStatus()
+                                .toString());
                         args.set(ARG_REQUEST_TYPE, req.getRequestType());
                         args.set(ARG_PROFILE_ID, profileId);
                         args.set(ARG_PROFILE_ID, profileId);
                         args.set(ARG_ERROR_CODE, "1");
-                        args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale, "CMS_PROFILE_DENY_OPERATION"));
+                        args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
+                                "CMS_PROFILE_DENY_OPERATION"));
                         outputTemplate(request, response, args);
                         if (statsSub != null) {
-                          statsSub.endTiming("approval");
+                            statsSub.endTiming("approval");
                         }
                         return;
                     }
@@ -387,13 +385,16 @@ public class ProfileProcessServlet extends ProfileServlet {
                         checkProfileVersion(profile, req, locale);
                         updateValues(request, req, queue, profile, locale);
                         updateNotes(request, req);
-                        approveRequest(request, args, req, queue, profile, locale);
+                        approveRequest(request, args, req, queue, profile,
+                                locale);
                     } else if (op.equals("reject")) {
                         updateNotes(request, req);
-                        rejectRequest(request, args, req, queue, profile, locale);
+                        rejectRequest(request, args, req, queue, profile,
+                                locale);
                     } else if (op.equals("cancel")) {
                         updateNotes(request, req);
-                        cancelRequest(request, args, req, queue, profile, locale);
+                        cancelRequest(request, args, req, queue, profile,
+                                locale);
                     } else if (op.equals("update")) {
                         checkProfileVersion(profile, req, locale);
                         updateValues(request, req, queue, profile, locale);
@@ -401,27 +402,30 @@ public class ProfileProcessServlet extends ProfileServlet {
                     } else if (op.equals("validate")) {
                         updateValues(request, req, queue, profile, locale);
                     } else if (op.equals("unassign")) {
-                        unassignRequest(request, args, req, queue, profile, locale);
+                        unassignRequest(request, args, req, queue, profile,
+                                locale);
                     }
                 } else {
                     CMS.debug("ProfileProcessServlet: Permission not granted to approve/reject/cancel/update/validate/unassign request.");
                     args.set(ARG_OP, op);
                     args.set(ARG_REQUEST_ID, req.getRequestId().toString());
-                    args.set(ARG_REQUEST_STATUS, req.getRequestStatus().toString());
+                    args.set(ARG_REQUEST_STATUS, req.getRequestStatus()
+                            .toString());
                     args.set(ARG_REQUEST_TYPE, req.getRequestType());
                     args.set(ARG_PROFILE_ID, profileId);
                     args.set(ARG_ERROR_CODE, "1");
-                    args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale, "CMS_PROFILE_DENY_OPERATION"));
+                    args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
+                            "CMS_PROFILE_DENY_OPERATION"));
                     outputTemplate(request, response, args);
                     if (statsSub != null) {
-                      statsSub.endTiming("approval");
+                        statsSub.endTiming("approval");
                     }
                     return;
                 }
             }
 
             // commit request to the storage
-            if (!op.equals("validate")) { 
+            if (!op.equals("validate")) {
                 try {
                     if (op.equals("approve")) {
                         queue.markAsServiced(req);
@@ -429,43 +433,47 @@ public class ProfileProcessServlet extends ProfileServlet {
                         queue.updateRequest(req);
                     }
                 } catch (EBaseException e) {
-                    CMS.debug("ProfileProcessServlet: Request commit error " + 
-                        e.toString());
+                    CMS.debug("ProfileProcessServlet: Request commit error "
+                            + e.toString());
                     // save request to disk
                     args.set(ARG_ERROR_CODE, "1");
-                    args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
-                            "CMS_INTERNAL_ERROR"));
+                    args.set(ARG_ERROR_REASON,
+                            CMS.getUserMessage(locale, "CMS_INTERNAL_ERROR"));
                     outputTemplate(request, response, args);
                     if (statsSub != null) {
-                      statsSub.endTiming("approval");
+                        statsSub.endTiming("approval");
                     }
                     return;
                 }
             }
         } catch (ERejectException e) {
-            CMS.debug("ProfileProcessServlet: execution rejected " + 
-                e.toString());
+            CMS.debug("ProfileProcessServlet: execution rejected "
+                    + e.toString());
             args.set(ARG_ERROR_CODE, "1");
-            args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
-                    "CMS_PROFILE_REJECTED", e.toString()));
+            args.set(
+                    ARG_ERROR_REASON,
+                    CMS.getUserMessage(locale, "CMS_PROFILE_REJECTED",
+                            e.toString()));
         } catch (EDeferException e) {
-            CMS.debug("ProfileProcessServlet: execution defered " + 
-                e.toString());
+            CMS.debug("ProfileProcessServlet: execution defered "
+                    + e.toString());
             args.set(ARG_ERROR_CODE, "1");
-            args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
-                    "CMS_PROFILE_DEFERRED", e.toString()));
+            args.set(
+                    ARG_ERROR_REASON,
+                    CMS.getUserMessage(locale, "CMS_PROFILE_DEFERRED",
+                            e.toString()));
         } catch (EPropertyException e) {
-            CMS.debug("ProfileProcessServlet: execution error " + 
-                e.toString());
+            CMS.debug("ProfileProcessServlet: execution error " + e.toString());
             args.set(ARG_ERROR_CODE, "1");
-            args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
-                    "CMS_PROFILE_PROPERTY_ERROR", e.toString()));
+            args.set(
+                    ARG_ERROR_REASON,
+                    CMS.getUserMessage(locale, "CMS_PROFILE_PROPERTY_ERROR",
+                            e.toString()));
         } catch (EProfileException e) {
-            CMS.debug("ProfileProcessServlet: execution error " + 
-                e.toString());
+            CMS.debug("ProfileProcessServlet: execution error " + e.toString());
             args.set(ARG_ERROR_CODE, "1");
-            args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
-                    "CMS_INTERNAL_ERROR"));
+            args.set(ARG_ERROR_REASON,
+                    CMS.getUserMessage(locale, "CMS_INTERNAL_ERROR"));
         }
 
         args.set(ARG_OP, op);
@@ -475,15 +483,15 @@ public class ProfileProcessServlet extends ProfileServlet {
         args.set(ARG_PROFILE_ID, profileId);
         outputTemplate(request, response, args);
         if (statsSub != null) {
-          statsSub.endTiming("approval");
+            statsSub.endTiming("approval");
         }
     }
- 
+
     public boolean grantPermission(IRequest req, IAuthToken token) {
 
         try {
-            boolean enable = CMS.getConfigStore().getBoolean("request.assignee.enable",
-              false);
+            boolean enable = CMS.getConfigStore().getBoolean(
+                    "request.assignee.enable", false);
             if (!enable)
                 return true;
             String owner = req.getRequestOwner();
@@ -496,32 +504,32 @@ public class ProfileProcessServlet extends ProfileServlet {
                 return true;
         } catch (Exception e) {
         }
-   
+
         return false;
     }
 
     /**
-     * Check if the request creation time is older than the profile
-     * lastModified attribute. 
+     * Check if the request creation time is older than the profile lastModified
+     * attribute.
      */
-    protected void checkProfileVersion(IProfile profile, IRequest req, 
-        Locale locale) throws EProfileException {
+    protected void checkProfileVersion(IProfile profile, IRequest req,
+            Locale locale) throws EProfileException {
         IConfigStore profileConfig = profile.getConfigStore();
         if (profileConfig != null) {
             String lastModified = null;
             try {
-              lastModified = profileConfig.getString("lastModified","");
+                lastModified = profileConfig.getString("lastModified", "");
             } catch (EBaseException e) {
-              CMS.debug(e.toString());
-              throw new EProfileException( e.toString() );
+                CMS.debug(e.toString());
+                throw new EProfileException(e.toString());
             }
             if (!lastModified.equals("")) {
                 Date profileModifiedAt = new Date(Long.parseLong(lastModified));
-                CMS.debug("ProfileProcessServlet: Profile Last Modified=" + 
-                  profileModifiedAt);
+                CMS.debug("ProfileProcessServlet: Profile Last Modified="
+                        + profileModifiedAt);
                 Date reqCreatedAt = req.getCreationTime();
-                CMS.debug("ProfileProcessServlet: Request Created At=" + 
-                   reqCreatedAt);
+                CMS.debug("ProfileProcessServlet: Request Created At="
+                        + reqCreatedAt);
                 if (profileModifiedAt.after(reqCreatedAt)) {
                     CMS.debug("Profile Newer Than Request");
                     throw new ERejectException("Profile Newer Than Request");
@@ -531,18 +539,16 @@ public class ProfileProcessServlet extends ProfileServlet {
     }
 
     protected void assignRequest(ServletRequest request, ArgSet args,
-        IRequest req, 
-        IRequestQueue queue, IProfile profile, Locale locale)
-        throws EProfileException {
+            IRequest req, IRequestQueue queue, IProfile profile, Locale locale)
+            throws EProfileException {
 
         String id = auditSubjectID();
         req.setRequestOwner(id);
     }
 
     protected void unassignRequest(ServletRequest request, ArgSet args,
-        IRequest req, 
-        IRequestQueue queue, IProfile profile, Locale locale)
-        throws EProfileException {
+            IRequest req, IRequestQueue queue, IProfile profile, Locale locale)
+            throws EProfileException {
 
         req.setRequestOwner("");
     }
@@ -552,13 +558,14 @@ public class ProfileProcessServlet extends ProfileServlet {
      * <P>
      * 
      * (Certificate Request Processed - a manual "agent" profile based cert
-     *  cancellation)
+     * cancellation)
      * <P>
      * 
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED used when a
      * certificate request has just been through the approval process
      * </ul>
+     * 
      * @param request the servlet request
      * @param args argument set
      * @param req the certificate request
@@ -566,12 +573,11 @@ public class ProfileProcessServlet extends ProfileServlet {
      * @param profile this profile
      * @param locale the system locale
      * @exception EProfileException an error related to this profile has
-     * occurred
+     *                occurred
      */
     protected void cancelRequest(ServletRequest request, ArgSet args,
-        IRequest req, 
-        IRequestQueue queue, IProfile profile, Locale locale)
-        throws EProfileException {
+            IRequest req, IRequestQueue queue, IProfile profile, Locale locale)
+            throws EProfileException {
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = auditRequesterID(req);
@@ -582,25 +588,22 @@ public class ProfileProcessServlet extends ProfileServlet {
 
         // store a message in the signed audit log file
         auditMessage = CMS.getLogMessage(
-                    LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
-                    auditSubjectID,
-                    ILogger.SUCCESS,
-                    auditRequesterID,
-                    ILogger.SIGNED_AUDIT_CANCELLATION,
-                    auditInfoValue);
+                LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED, auditSubjectID,
+                ILogger.SUCCESS, auditRequesterID,
+                ILogger.SIGNED_AUDIT_CANCELLATION, auditInfoValue);
 
         audit(auditMessage);
         // } catch( EProfileException eAudit1 ) {
-        //     // store a message in the signed audit log file
-        //     auditMessage = CMS.getLogMessage(
-        //                        LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
-        //                        auditSubjectID,
-        //                        ILogger.FAILURE,
-        //                        auditRequesterID,
-        //                        ILogger.SIGNED_AUDIT_CANCELLATION,
-        //                        auditInfoValue );
+        // // store a message in the signed audit log file
+        // auditMessage = CMS.getLogMessage(
+        // LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
+        // auditSubjectID,
+        // ILogger.FAILURE,
+        // auditRequesterID,
+        // ILogger.SIGNED_AUDIT_CANCELLATION,
+        // auditInfoValue );
         //
-        //     audit( auditMessage );
+        // audit( auditMessage );
         // }
     }
 
@@ -609,13 +612,14 @@ public class ProfileProcessServlet extends ProfileServlet {
      * <P>
      * 
      * (Certificate Request Processed - a manual "agent" profile based cert
-     *  rejection)
+     * rejection)
      * <P>
      * 
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED used when a
      * certificate request has just been through the approval process
      * </ul>
+     * 
      * @param request the servlet request
      * @param args argument set
      * @param req the certificate request
@@ -623,12 +627,11 @@ public class ProfileProcessServlet extends ProfileServlet {
      * @param profile this profile
      * @param locale the system locale
      * @exception EProfileException an error related to this profile has
-     * occurred
+     *                occurred
      */
     protected void rejectRequest(ServletRequest request, ArgSet args,
-        IRequest req, 
-        IRequestQueue queue, IProfile profile, Locale locale) 
-        throws EProfileException {
+            IRequest req, IRequestQueue queue, IProfile profile, Locale locale)
+            throws EProfileException {
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = auditRequesterID(req);
@@ -639,25 +642,22 @@ public class ProfileProcessServlet extends ProfileServlet {
 
         // store a message in the signed audit log file
         auditMessage = CMS.getLogMessage(
-                    LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
-                    auditSubjectID,
-                    ILogger.SUCCESS,
-                    auditRequesterID,
-                    ILogger.SIGNED_AUDIT_REJECTION,
-                    auditInfoValue);
+                LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED, auditSubjectID,
+                ILogger.SUCCESS, auditRequesterID,
+                ILogger.SIGNED_AUDIT_REJECTION, auditInfoValue);
 
         audit(auditMessage);
         // } catch( EProfileException eAudit1 ) {
-        //     // store a message in the signed audit log file
-        //     auditMessage = CMS.getLogMessage(
-        //                        LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
-        //                        auditSubjectID,
-        //                        ILogger.FAILURE,
-        //                        auditRequesterID,
-        //                        ILogger.SIGNED_AUDIT_REJECTION,
-        //                        auditInfoValue );
+        // // store a message in the signed audit log file
+        // auditMessage = CMS.getLogMessage(
+        // LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
+        // auditSubjectID,
+        // ILogger.FAILURE,
+        // auditRequesterID,
+        // ILogger.SIGNED_AUDIT_REJECTION,
+        // auditInfoValue );
         //
-        //     audit( auditMessage );
+        // audit( auditMessage );
         // }
     }
 
@@ -666,13 +666,14 @@ public class ProfileProcessServlet extends ProfileServlet {
      * <P>
      * 
      * (Certificate Request Processed - a manual "agent" profile based cert
-     *  acceptance)
+     * acceptance)
      * <P>
      * 
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED used when a
      * certificate request has just been through the approval process
      * </ul>
+     * 
      * @param request the servlet request
      * @param args argument set
      * @param req the certificate request
@@ -680,12 +681,11 @@ public class ProfileProcessServlet extends ProfileServlet {
      * @param profile this profile
      * @param locale the system locale
      * @exception EProfileException an error related to this profile has
-     * occurred
+     *                occurred
      */
-    protected void approveRequest(ServletRequest request, ArgSet args, 
-        IRequest req, 
-        IRequestQueue queue, IProfile profile, Locale locale) 
-        throws EProfileException {
+    protected void approveRequest(ServletRequest request, ArgSet args,
+            IRequest req, IRequestQueue queue, IProfile profile, Locale locale)
+            throws EProfileException {
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = auditRequesterID(req);
@@ -700,42 +700,40 @@ public class ProfileProcessServlet extends ProfileServlet {
             if (outputIds != null) {
                 while (outputIds.hasMoreElements()) {
                     String outputId = (String) outputIds.nextElement();
-                    IProfileOutput profileOutput = profile.getProfileOutput(
-                            outputId);
+                    IProfileOutput profileOutput = profile
+                            .getProfileOutput(outputId);
 
                     Enumeration outputNames = profileOutput.getValueNames();
 
                     if (outputNames != null) {
                         while (outputNames.hasMoreElements()) {
                             ArgSet outputset = new ArgSet();
-                            String outputName = (String)
-                                outputNames.nextElement();
-                            IDescriptor outputDesc =
-                                profileOutput.getValueDescriptor(locale,
-                                    outputName);
+                            String outputName = (String) outputNames
+                                    .nextElement();
+                            IDescriptor outputDesc = profileOutput
+                                    .getValueDescriptor(locale, outputName);
 
                             if (outputDesc == null)
                                 continue;
                             String outputSyntax = outputDesc.getSyntax();
-                            String outputConstraint =
-                                outputDesc.getConstraint();
-                            String outputValueName =
-                                outputDesc.getDescription(locale);
+                            String outputConstraint = outputDesc
+                                    .getConstraint();
+                            String outputValueName = outputDesc
+                                    .getDescription(locale);
                             String outputValue = null;
 
                             try {
                                 outputValue = profileOutput.getValue(
-                                            outputName, 
-                                            locale, req);
+                                        outputName, locale, req);
                             } catch (EProfileException e) {
-                                CMS.debug("ProfileSubmitServlet: " +
-                                    e.toString());
+                                CMS.debug("ProfileSubmitServlet: "
+                                        + e.toString());
                             }
 
                             outputset.set(ARG_OUTPUT_ID, outputName);
                             outputset.set(ARG_OUTPUT_SYNTAX, outputSyntax);
                             outputset.set(ARG_OUTPUT_CONSTRAINT,
-                                outputConstraint);
+                                    outputConstraint);
                             outputset.set(ARG_OUTPUT_NAME, outputValueName);
                             outputset.set(ARG_OUTPUT_VAL, outputValue);
                             outputlist.add(outputset);
@@ -746,42 +744,37 @@ public class ProfileProcessServlet extends ProfileServlet {
             args.set(ARG_OUTPUT_LIST, outputlist);
 
             // retrieve the certificate
-            X509CertImpl theCert = req.getExtDataInCert(
-                    IEnrollProfile.REQUEST_ISSUED_CERT);
+            X509CertImpl theCert = req
+                    .getExtDataInCert(IEnrollProfile.REQUEST_ISSUED_CERT);
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
-                        auditSubjectID,
-                        ILogger.SUCCESS,
-                        auditRequesterID,
-                        ILogger.SIGNED_AUDIT_ACCEPTANCE,
-                        auditInfoCertValue(theCert));
+                    LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
+                    auditSubjectID, ILogger.SUCCESS, auditRequesterID,
+                    ILogger.SIGNED_AUDIT_ACCEPTANCE,
+                    auditInfoCertValue(theCert));
 
             audit(auditMessage);
 
         } catch (EProfileException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
-                        auditSubjectID,
-                        ILogger.FAILURE,
-                        auditRequesterID,
-                        ILogger.SIGNED_AUDIT_ACCEPTANCE,
-                        ILogger.SIGNED_AUDIT_EMPTY_VALUE);
+                    LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
+                    auditSubjectID, ILogger.FAILURE, auditRequesterID,
+                    ILogger.SIGNED_AUDIT_ACCEPTANCE,
+                    ILogger.SIGNED_AUDIT_EMPTY_VALUE);
 
             audit(auditMessage);
 
             CMS.debug("ProfileProcessServlet: about to throw EProfileException because of bad profile execute.");
             throw new EProfileException(eAudit1.toString());
 
-            
         }
     }
 
-    protected void updateValues(ServletRequest request, IRequest req, 
-        IRequestQueue queue, IProfile profile, Locale locale)
-        throws ERejectException, EDeferException, EPropertyException {
+    protected void updateValues(ServletRequest request, IRequest req,
+            IRequestQueue queue, IProfile profile, Locale locale)
+            throws ERejectException, EDeferException, EPropertyException {
         String profileSetId = req.getExtDataInString("profileSetId");
 
         Enumeration policies = profile.getProfilePolicies(profileSetId);
@@ -813,17 +806,16 @@ public class ProfileProcessServlet extends ProfileServlet {
         }
     }
 
-    protected void validate(Locale locale, int count, 
-        IProfilePolicy policy, IRequest req, ServletRequest request) 
-        throws ERejectException, EDeferException {
+    protected void validate(Locale locale, int count, IProfilePolicy policy,
+            IRequest req, ServletRequest request) throws ERejectException,
+            EDeferException {
         IPolicyConstraint con = policy.getConstraint();
 
         con.validate(req);
     }
 
-    protected void setValue(Locale locale, int count, 
-        IProfilePolicy policy, IRequest req, ServletRequest request) 
-        throws EPropertyException {
+    protected void setValue(Locale locale, int count, IProfilePolicy policy,
+            IRequest req, ServletRequest request) throws EPropertyException {
         // handle default policy
         IPolicyDefault def = policy.getDefault();
         Enumeration defNames = def.getValueNames();
@@ -838,11 +830,11 @@ public class ProfileProcessServlet extends ProfileServlet {
 
     /**
      * Signed Audit Log Requester ID
-     *
-     * This method is called to obtain the "RequesterID" for
-     * a signed audit log message.
+     * 
+     * This method is called to obtain the "RequesterID" for a signed audit log
+     * message.
      * <P>
-     *
+     * 
      * @param request the actual request
      * @return id string containing the signed audit log message RequesterID
      */
@@ -868,11 +860,11 @@ public class ProfileProcessServlet extends ProfileServlet {
 
     /**
      * Signed Audit Log Info Value
-     *
-     * This method is called to obtain the "reason" for
-     * a signed audit log message.
+     * 
+     * This method is called to obtain the "reason" for a signed audit log
+     * message.
      * <P>
-     *
+     * 
      * @param request the actual request
      * @return reason string containing the signed audit log message reason
      */
@@ -886,8 +878,8 @@ public class ProfileProcessServlet extends ProfileServlet {
 
         if (request != null) {
             // overwrite "reason" if and only if "info" != null
-            String info =
-                request.getExtDataInString(SIGNED_AUDIT_CERT_REQUEST_REASON);
+            String info = request
+                    .getExtDataInString(SIGNED_AUDIT_CERT_REQUEST_REASON);
 
             if (info != null) {
                 reason = info.trim();
@@ -904,11 +896,11 @@ public class ProfileProcessServlet extends ProfileServlet {
 
     /**
      * Signed Audit Log Info Certificate Value
-     *
+     * 
      * This method is called to obtain the certificate from the passed in
      * "X509CertImpl" for a signed audit log message.
      * <P>
-     *
+     * 
      * @param x509cert an X509CertImpl
      * @return cert string containing the certificate
      */
@@ -941,7 +933,7 @@ public class ProfileProcessServlet extends ProfileServlet {
             // extract all line separators from the "base64Data"
             StringBuffer sb = new StringBuffer();
             for (int i = 0; i < base64Data.length(); i++) {
-                  if (!Character.isWhitespace(base64Data.charAt(i))) {
+                if (!Character.isWhitespace(base64Data.charAt(i))) {
                     sb.append(base64Data.charAt(i));
                 }
             }
@@ -961,4 +953,3 @@ public class ProfileProcessServlet extends ProfileServlet {
         }
     }
 }
-

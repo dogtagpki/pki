@@ -17,14 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.def;
 
-
-
-
 /**
- * This class implements an enrollment extension 
- * default policy that extension into the certificate
- * template.
- *
+ * This class implements an enrollment extension default policy that extension
+ * into the certificate template.
+ * 
  * @version $Revision$, $Date$
  */
 public abstract class EnrollExtDefault extends EnrollDefault {

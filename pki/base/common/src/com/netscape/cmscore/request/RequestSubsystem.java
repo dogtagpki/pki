@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.request;
 
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -32,24 +31,21 @@ import com.netscape.certsrv.request.IRequestSubsystem;
 import com.netscape.certsrv.request.IService;
 import com.netscape.cmscore.dbs.DBSubsystem;
 
-
 /**
  * RequestSubsystem
  * <p>
- * This class is reponsible for managing storage of request objects
- * in the local database.
+ * This class is reponsible for managing storage of request objects in the local
+ * database.
  * <p>
- * TODO: review this
- * It provides:
- *   + registration of LDAP/JAVA mapping classes with the DBSubsystem
- *   + creation of RequestQueue storage in the database
- *   + retrieval of existing RequestQueue objects from the database
+ * TODO: review this It provides: + registration of LDAP/JAVA mapping classes
+ * with the DBSubsystem + creation of RequestQueue storage in the database +
+ * retrieval of existing RequestQueue objects from the database
  * <p>
+ * 
  * @author thayes
  * @version $Revision$, $Date$
  */
-public class RequestSubsystem
-    implements IRequestSubsystem, ISubsystem {
+public class RequestSubsystem implements IRequestSubsystem, ISubsystem {
 
     public final static String ID = IRequestSubsystem.SUB_ID;
 
@@ -67,49 +63,49 @@ public class RequestSubsystem
     // end singleton enforcement.
 
     //
-    // Create a new request queue.  The LDAP DN for the entry
+    // Create a new request queue. The LDAP DN for the entry
     // in the database is supplied by the caller.
     //
-    public void createRequestQueue(String name)
-        throws EBaseException {
+    public void createRequestQueue(String name) throws EBaseException {
 
         /*
-         String dbName = makeQueueName(name);
-         IDBSSession dbs = createDBSSession();
-
-         // Create Repository record here
-
-        dbs.add(dbName, r);
-        */
+         * String dbName = makeQueueName(name); IDBSSession dbs =
+         * createDBSSession();
+         * 
+         * // Create Repository record here
+         * 
+         * dbs.add(dbName, r);
+         */
     }
 
-    public IRequestQueue
-    getRequestQueue(String name, int increment, IPolicy p, IService s, INotify n)
-        throws EBaseException {
+    public IRequestQueue getRequestQueue(String name, int increment, IPolicy p,
+            IService s, INotify n) throws EBaseException {
         return getRequestQueue(name, increment, p, s, n, null);
     }
 
-    public IRequestQueue
-    getRequestQueue(String name, int increment, IPolicy p, IService s, INotify n,
-        INotify pendingNotifier)
-        throws EBaseException {
-        RequestQueue rq = new RequestQueue(name, increment, p, s, n, pendingNotifier);
+    public IRequestQueue getRequestQueue(String name, int increment, IPolicy p,
+            IService s, INotify n, INotify pendingNotifier)
+            throws EBaseException {
+        RequestQueue rq = new RequestQueue(name, increment, p, s, n,
+                pendingNotifier);
 
         // can't do this here because the service depends on getting rq
-        // (to get request) and since this method hasn't returned it's rq is null. 
-        //rq.recover();
+        // (to get request) and since this method hasn't returned it's rq is
+        // null.
+        // rq.recover();
 
         return rq;
     }
 
     //
     // ISubsystem methods:
-    //   getId, setId, init, startup, shutdown, getConfigStore
+    // getId, setId, init, startup, shutdown, getConfigStore
     //
 
     /**
      * Implements ISubsystem.getId
      * <p>
+     * 
      * @see ISubsystem#getId
      */
     public String getId() {
@@ -117,8 +113,7 @@ public class RequestSubsystem
     }
 
     // ISubsystem.setId
-    public void setId(String id)
-        throws EBaseException {
+    public void setId(String id) throws EBaseException {
         mId = id;
     }
 
@@ -127,18 +122,18 @@ public class RequestSubsystem
         mParent = parent;
         mConfig = config;
     }
-   
+
     /**
      * Implements ISubsystem.startup
      * <p>
+     * 
      * @see ISubsystem#startup
      */
-    public void startup()
-        throws EBaseException {
+    public void startup() throws EBaseException {
         mLogger = CMS.getLogger();
 
         mLogger.log(ILogger.EV_SYSTEM, ILogger.S_REQQUEUE, ILogger.LL_INFO,
-            "Request subsystem started");
+                "Request subsystem started");
     }
 
     public void shutdown() {
@@ -146,7 +141,7 @@ public class RequestSubsystem
 
         if (mLogger != null) {
             mLogger.log(ILogger.EV_SYSTEM, ILogger.S_REQQUEUE, ILogger.LL_INFO,
-                "Request subsystem stopped");
+                    "Request subsystem stopped");
         }
     }
 
@@ -165,8 +160,7 @@ public class RequestSubsystem
     // Create a database session in the default database
     // system.
     //
-    protected IDBSSession createDBSSession()
-        throws EBaseException {
+    protected IDBSSession createDBSSession() throws EBaseException {
         return getDBSubsystem().createSession();
     }
 
@@ -186,6 +180,5 @@ public class RequestSubsystem
     private String mId = IRequestSubsystem.SUB_ID;
     private IRequestQueue mRequestQueue;
 
-    protected ILogger mLogger; 
+    protected ILogger mLogger;
 }
-

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-
 import java.io.IOException;
 
 import javax.servlet.ServletConfig;
@@ -35,13 +34,14 @@ import com.netscape.cms.servlet.wizard.WizardServlet;
 
 public class WelcomePanel extends WizardPanelBase {
 
-    public WelcomePanel() {}
+    public WelcomePanel() {
+    }
 
     /**
      * Initializes this panel.
      */
-    public void init(WizardServlet servlet, ServletConfig config, int panelno, String id) 
-        throws ServletException {
+    public void init(WizardServlet servlet, ServletConfig config, int panelno,
+            String id) throws ServletException {
         setPanelNo(panelno);
         setName("Welcome");
         setId(id);
@@ -52,19 +52,20 @@ public class WelcomePanel extends WizardPanelBase {
         cs.putBoolean("preop.welcome.done", false);
     }
 
-    public boolean isPanelDone() { 
+    public boolean isPanelDone() {
         IConfigStore cs = CMS.getConfigStore();
         try {
             return cs.getBoolean("preop.welcome.done");
-        } catch (EBaseException e) {}
+        } catch (EBaseException e) {
+        }
         return false;
     }
 
     public PropertySet getUsage() {
         PropertySet set = new PropertySet();
-                                                                                
+
         /* XXX */
-                                                                                
+
         return set;
     }
 
@@ -72,25 +73,21 @@ public class WelcomePanel extends WizardPanelBase {
      * Display the panel.
      */
     public void display(HttpServletRequest request,
-            HttpServletResponse response,
-            Context context) {
+            HttpServletResponse response, Context context) {
         IConfigStore cs = CMS.getConfigStore();
         CMS.debug("WelcomePanel: display()");
         context.put("title", "Welcome");
         try {
             context.put("cstype", cs.getString("cs.type"));
             context.put("wizardname", cs.getString("preop.wizard.name"));
-            context.put("panelname", 
-                    cs.getString("preop.system.fullname") + " Configuration Wizard");
-            context.put("systemname",
-                    cs.getString("preop.system.name"));
-            context.put("fullsystemname",
-                    cs.getString("preop.system.fullname"));
-            context.put("productname",
-                    cs.getString("preop.product.name"));
-            context.put("productversion",
-                    cs.getString("preop.product.version"));
-        } catch (EBaseException e) {}
+            context.put("panelname", cs.getString("preop.system.fullname")
+                    + " Configuration Wizard");
+            context.put("systemname", cs.getString("preop.system.name"));
+            context.put("fullsystemname", cs.getString("preop.system.fullname"));
+            context.put("productname", cs.getString("preop.product.name"));
+            context.put("productversion", cs.getString("preop.product.version"));
+        } catch (EBaseException e) {
+        }
         context.put("panel", "admin/console/config/welcomepanel.vm");
     }
 
@@ -98,27 +95,29 @@ public class WelcomePanel extends WizardPanelBase {
      * Checks if the given parameters are valid.
      */
     public void validate(HttpServletRequest request,
-            HttpServletResponse response,
-            Context context) throws IOException {
+            HttpServletResponse response, Context context) throws IOException {
     }
 
     /**
      * Commit parameter changes
      */
     public void update(HttpServletRequest request,
-            HttpServletResponse response,
-            Context context) throws IOException {
+            HttpServletResponse response, Context context) throws IOException {
         IConfigStore cs = CMS.getConfigStore();
         try {
             cs.putBoolean("preop.welcome.done", true);
             cs.commit(false);
-        } catch (EBaseException e) {}
+        } catch (EBaseException e) {
+        }
     }
 
     /**
      * If validiate() returns false, this method will be called.
      */
     public void displayError(HttpServletRequest request,
-            HttpServletResponse response,
-            Context context) {/* This should never be called */}
+            HttpServletResponse response, Context context) {/*
+                                                             * This should never
+                                                             * be called
+                                                             */
+    }
 }

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.policy.constraints;
 
-
 import java.util.Locale;
 import java.util.Vector;
 
@@ -30,22 +29,21 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cms.policy.APolicyRule;
 
-
 /**
- * This is the default revocation policy. Currently this does
- * nothing. We can later add checks like whether or not to
- * revoke expired certs ..etc here.
+ * This is the default revocation policy. Currently this does nothing. We can
+ * later add checks like whether or not to revoke expired certs ..etc here.
  * <P>
+ * 
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- *
+ * 
  * @deprecated
  * @version $Revision$, $Date$
  */
-public class DefaultRevocation extends APolicyRule
-    implements IRevocationPolicy, IExtendedPluginInfo {
+public class DefaultRevocation extends APolicyRule implements
+        IRevocationPolicy, IExtendedPluginInfo {
     public DefaultRevocation() {
         NAME = "DefaultRevocation";
         DESC = "Default Revocation Policy";
@@ -54,24 +52,25 @@ public class DefaultRevocation extends APolicyRule
     /**
      * Initializes this policy rule.
      * <P>
-     *
+     * 
      * The entries may be of the form:
-     *
-     *      ra.Policy.rule.<ruleName>.implName=DefaultRevocation
-     *      ra.Policy.rule.<ruleName>.enable=true
-     *      ra.Policy.rule.<ruleName>.predicate= ou == engineering AND o == netscape.com
-     *
-     * @param config	The config store reference
+     * 
+     * ra.Policy.rule.<ruleName>.implName=DefaultRevocation
+     * ra.Policy.rule.<ruleName>.enable=true
+     * ra.Policy.rule.<ruleName>.predicate= ou == engineering AND o ==
+     * netscape.com
+     * 
+     * @param config The config store reference
      */
     public void init(ISubsystem owner, IConfigStore config)
-        throws EPolicyException {
+            throws EPolicyException {
     }
 
     /**
      * Applies the policy on the given Request.
      * <P>
-     *
-     * @param req	The request on which to apply policy.
+     * 
+     * @param req The request on which to apply policy.
      * @return The policy result object.
      */
     public PolicyResult apply(IRequest req) {
@@ -80,7 +79,7 @@ public class DefaultRevocation extends APolicyRule
 
     /**
      * Return configured parameters for a policy rule instance.
-     *
+     * 
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector getInstanceParams() {
@@ -89,7 +88,7 @@ public class DefaultRevocation extends APolicyRule
 
     /**
      * Return default parameters for a policy implementation.
-     *
+     * 
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector getDefaultParams() {
@@ -97,11 +96,9 @@ public class DefaultRevocation extends APolicyRule
     }
 
     public String[] getExtendedPluginInfo(Locale locale) {
-        String[] params = {
-                IExtendedPluginInfo.HELP_TOKEN + ";configuration-policyrules-defaultrevocation"
-            };
+        String[] params = { IExtendedPluginInfo.HELP_TOKEN
+                + ";configuration-policyrules-defaultrevocation" };
 
         return params;
     }
 }
-

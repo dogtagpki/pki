@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.usrgrp;
 
-
 import java.security.cert.X509Certificate;
 import java.util.Enumeration;
 import java.util.Vector;
@@ -27,10 +26,9 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.certsrv.usrgrp.IUsrGrp;
 
-
 /**
  * A class represents a user.
- *
+ * 
  * @author cfu
  * @version $Revision$, $Date$
  */
@@ -61,7 +59,7 @@ public class User implements IUser {
         mNames.addElement(ATTR_PASSWORD);
         mNames.addElement(ATTR_STATE);
         mNames.addElement(ATTR_EMAIL);
-        //		mNames.addElement(ATTR_PHONENUMBER);
+        // mNames.addElement(ATTR_PHONENUMBER);
         mNames.addElement(ATTR_X509_CERTIFICATES);
         mNames.addElement(ATTR_USERTYPE);
     }
@@ -78,7 +76,7 @@ public class User implements IUser {
      * Retrieves the name of this identity.
      */
     public String getName() {
-        //		return mScope.getId() + "://" + mUserid;
+        // return mScope.getId() + "://" + mUserid;
         return mUserid;
     }
 
@@ -172,9 +170,11 @@ public class User implements IUser {
 
     public void set(String name, Object object) throws EBaseException {
         if (name.equals(ATTR_NAME)) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
+            throw new EBaseException(CMS.getUserMessage(
+                    "CMS_BASE_INVALID_ATTRIBUTE", name));
         } else if (name.equals(ATTR_ID)) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
+            throw new EBaseException(CMS.getUserMessage(
+                    "CMS_BASE_INVALID_ATTRIBUTE", name));
         } else if (name.equals(ATTR_FULLNAME)) {
             setFullName((String) object);
         } else if (name.equals(ATTR_STATE)) {
@@ -186,10 +186,11 @@ public class User implements IUser {
         } else if (name.equals(ATTR_USERTYPE)) {
             setUserType((String) object);
         } else {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
+            throw new EBaseException(CMS.getUserMessage(
+                    "CMS_BASE_INVALID_ATTRIBUTE", name));
         }
     }
-	
+
     public Object get(String name) throws EBaseException {
         if (name.equals(ATTR_NAME)) {
             return getName();
@@ -206,12 +207,14 @@ public class User implements IUser {
         } else if (name.equals(ATTR_USERTYPE)) {
             return getUserType();
         } else {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
+            throw new EBaseException(CMS.getUserMessage(
+                    "CMS_BASE_INVALID_ATTRIBUTE", name));
         }
     }
 
     public void delete(String name) throws EBaseException {
-        throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
+        throw new EBaseException(CMS.getUserMessage(
+                "CMS_BASE_INVALID_ATTRIBUTE", name));
     }
 
     public Enumeration getElements() {

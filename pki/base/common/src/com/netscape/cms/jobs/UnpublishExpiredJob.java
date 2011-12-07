@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.jobs;
 
-
 import java.security.cert.X509Certificate;
 import java.text.DateFormat;
 import java.util.Date;
@@ -46,60 +45,41 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 
-
 /**
- * a job for the Jobs Scheduler.  This job checks in the internal ldap
- * db for certs that have expired and remove them from the ldap
- * publishing directory.
+ * a job for the Jobs Scheduler. This job checks in the internal ldap db for
+ * certs that have expired and remove them from the ldap publishing directory.
  * <p>
  * the $TOKENS that are available for the this jobs's summary outer form are:<br>
  * <UL>
- * $Status
- * $InstanceID
- * $SummaryItemList
- * $SummaryTotalNum
- * $SummaryTotalSuccess
- * $SummaryTotalfailure
- * $ExecutionTime
+ * $Status $InstanceID $SummaryItemList $SummaryTotalNum $SummaryTotalSuccess
+ * $SummaryTotalfailure $ExecutionTime
  * </UL>
  * and for the inner list items:
  * <UL>
- * $SerialNumber
- * $IssuerDN
- * $SubjectDN
- * $NotAfter
- * $NotBefore
- * $RequestorEmail
+ * $SerialNumber $IssuerDN $SubjectDN $NotAfter $NotBefore $RequestorEmail
  * $CertType
  * </UL>
- *
+ * 
  * @version $Revision$, $Date$
  */
-public class UnpublishExpiredJob extends AJobBase
-    implements IJob, Runnable, IExtendedPluginInfo {
-	
+public class UnpublishExpiredJob extends AJobBase implements IJob, Runnable,
+        IExtendedPluginInfo {
+
     ICertificateAuthority mCa = null;
     IRequestQueue mReqQ = null;
     ICertificateRepository mRepository = null;
     IPublisherProcessor mPublisherProcessor = null;
     private boolean mSummary = false;
 
-    /* Holds configuration parameters accepted by this implementation.
-     * This list is passed to the configuration console so configuration
-     * for instances of this implementation can be configured through the
-     * console.
+    /*
+     * Holds configuration parameters accepted by this implementation. This list
+     * is passed to the configuration console so configuration for instances of
+     * this implementation can be configured through the console.
      */
-    protected static String[] mConfigParams =
-        new String[] { 
-            "enabled",
-            "cron",
-            "summary.enabled",
-            "summary.emailSubject",
-            "summary.emailTemplate",
-            "summary.itemTemplate",
-            "summary.senderEmail",
-            "summary.recipientEmail"
-        };
+    protected static String[] mConfigParams = new String[] { "enabled", "cron",
+            "summary.enabled", "summary.emailSubject", "summary.emailTemplate",
+            "summary.itemTemplate", "summary.senderEmail",
+            "summary.recipientEmail" };
 
     /* Vector of extendedPluginInfo strings */
     protected static Vector mExtendedPluginInfo = null;
@@ -109,26 +89,25 @@ public class UnpublishExpiredJob extends AJobBase
 
     public String[] getExtendedPluginInfo(Locale locale) {
         String s[] = {
-                IExtendedPluginInfo.HELP_TEXT +
-                "; A job that checks for expired certificates in the " +
-                "database, and removes them from the publishing " +
-                "directory",
-                "cron;string;Format: minute hour dayOfMonth month " +
-                "dayOfWeek. Use '*' for 'every'. For dayOfWeek, 0 is Sunday",
-                "summary.senderEmail;string;Specify the address to be used " +
-                "as the email's 'sender'. Bounces go to this address.",
+                IExtendedPluginInfo.HELP_TEXT
+                        + "; A job that checks for expired certificates in the "
+                        + "database, and removes them from the publishing "
+                        + "directory",
+                "cron;string;Format: minute hour dayOfMonth month "
+                        + "dayOfWeek. Use '*' for 'every'. For dayOfWeek, 0 is Sunday",
+                "summary.senderEmail;string;Specify the address to be used "
+                        + "as the email's 'sender'. Bounces go to this address.",
                 "summary.recipientEmail;string;Who should receive summaries",
                 "enabled;boolean;Enable this plugin",
-                "summary.enabled;boolean;Enable the summary. You must enabled " +
-                "this for the job to work.",
+                "summary.enabled;boolean;Enable the summary. You must enabled "
+                        + "this for the job to work.",
                 "summary.emailSubject;string;Subject of summary email",
-                "summary.emailTemplate;string;Fully qualified pathname of " +
-                "template file of email to be sent",
-                "summary.itemTemplate;string;Fully qualified pathname of " +
-                "file containing template for each item",
-                IExtendedPluginInfo.HELP_TOKEN +
-                ";configuration-jobrules-unpublishexpiredjobs",
-            };
+                "summary.emailTemplate;string;Fully qualified pathname of "
+                        + "template file of email to be sent",
+                "summary.itemTemplate;string;Fully qualified pathname of "
+                        + "file containing template for each item",
+                IExtendedPluginInfo.HELP_TOKEN
+                        + ";configuration-jobrules-unpublishexpiredjobs", };
 
         return s;
     }
@@ -136,14 +115,13 @@ public class UnpublishExpiredJob extends AJobBase
     /**
      * initialize from the configuration file
      */
-    public void init(ISubsystem owner, String id, String implName, IConfigStore config) throws
-            EBaseException {
+    public void init(ISubsystem owner, String id, String implName,
+            IConfigStore config) throws EBaseException {
         mConfig = config;
         mId = id;
         mImplName = implName;
 
-        mCa = (ICertificateAuthority)
-                CMS.getSubsystem("ca");
+        mCa = (ICertificateAuthority) CMS.getSubsystem("ca");
         if (mCa == null) {
             return;
         }
@@ -151,13 +129,13 @@ public class UnpublishExpiredJob extends AJobBase
         mReqQ = mCa.getRequestQueue();
         mRepository = (ICertificateRepository) mCa.getCertificateRepository();
         mPublisherProcessor = mCa.getPublisherProcessor();
-		
+
         // read from the configuration file
         mCron = mConfig.getString(IJobCron.PROP_CRON);
         if (mCron == null) {
             return;
         }
-		
+
         // parse cron string into a JobCron class
         IJobsScheduler scheduler = (IJobsScheduler) owner;
 
@@ -179,16 +157,14 @@ public class UnpublishExpiredJob extends AJobBase
     }
 
     /**
-     * look in the internal db for certificateRecords that are
-     * expired.
-     * remove them from ldap publishing directory
-     * if remove successfully, mark <i>false</i> on the
-     *		 <b>InLdapPublishDir</b> flag,
-     *    else, if remove unsuccessfully, log it
+     * look in the internal db for certificateRecords that are expired. remove
+     * them from ldap publishing directory if remove successfully, mark
+     * <i>false</i> on the <b>InLdapPublishDir</b> flag, else, if remove
+     * unsuccessfully, log it
      */
     public void run() {
-        //		System.out.println("in ExpiredUnpublishJob "+
-        //						   getId()+ " : run()");
+        // System.out.println("in ExpiredUnpublishJob "+
+        // getId()+ " : run()");
         // get time now..."now" is before the loop
         Date date = CMS.getCurrentDate();
         long now = date.getTime();
@@ -196,12 +172,11 @@ public class UnpublishExpiredJob extends AJobBase
         String nowString = dateFormat.format(date);
 
         // form filter
-        String filter = "(&(x509Cert.notAfter<=" + now +
-            ")(!(x509Cert.notAfter=" + now + "))" +
-            "(" + "certMetainfo=" + ICertRecord.META_LDAPPUBLISH +
-            ":true))";
+        String filter = "(&(x509Cert.notAfter<=" + now
+                + ")(!(x509Cert.notAfter=" + now + "))" + "(" + "certMetainfo="
+                + ICertRecord.META_LDAPPUBLISH + ":true))";
         // a test for without CertRecord.META_LDAPPUBLISH
-        //String filter = "(x509Cert.notAfter<="+ now +")";
+        // String filter = "(x509Cert.notAfter<="+ now +")";
 
         Enumeration expired = null;
 
@@ -209,13 +184,14 @@ public class UnpublishExpiredJob extends AJobBase
             expired = mRepository.findCertRecs(filter);
             // bug 399150
             /*
-             CertRecordList list = null;
-             list = mRepository.findCertRecordsInList(filter,  null, "serialno", 5);
-             int size = list.getSize();
-             expired = list.getCertRecords(0, size - 1);
+             * CertRecordList list = null; list =
+             * mRepository.findCertRecordsInList(filter, null, "serialno", 5);
+             * int size = list.getSize(); expired = list.getCertRecords(0, size
+             * - 1);
              */
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("OPERATION_ERROR", e.toString()));
         }
 
         int count = 0; // how many have been unpublished successfully
@@ -233,13 +209,14 @@ public class UnpublishExpiredJob extends AJobBase
         while (expired != null && expired.hasMoreElements()) {
             ICertRecord rec = (ICertRecord) expired.nextElement();
 
-            if (rec == null) break;
+            if (rec == null)
+                break;
             X509CertImpl cert = rec.getCertificate();
 
             if (mSummary == true)
                 buildItemParams(cert);
 
-                // get request id from cert record MetaInfo
+            // get request id from cert record MetaInfo
             MetaInfo minfo = null;
 
             try {
@@ -248,42 +225,39 @@ public class UnpublishExpiredJob extends AJobBase
                 negCount += 1;
                 if (mSummary == true)
                     buildItemParams(IEmailFormProcessor.TOKEN_STATUS,
-                        STATUS_FAILURE);
-                log(ILogger.LL_FAILURE,					
-                    CMS.getLogMessage("JOBS_META_INFO_ERROR",
-                        cert.getSerialNumber().toString(16) +
-                        e.toString()));
+                            STATUS_FAILURE);
+                log(ILogger.LL_FAILURE,
+                        CMS.getLogMessage("JOBS_META_INFO_ERROR", cert
+                                .getSerialNumber().toString(16) + e.toString()));
             }
 
             String ridString = null;
 
             try {
                 if (minfo != null)
-                    ridString = (String) minfo.get(ICertRecord.META_REQUEST_ID); 
+                    ridString = (String) minfo.get(ICertRecord.META_REQUEST_ID);
             } catch (EBaseException e) {
                 negCount += 1;
                 if (mSummary == true)
                     buildItemParams(IEmailFormProcessor.TOKEN_STATUS,
-                        STATUS_FAILURE);
-                log(ILogger.LL_FAILURE,					
-                    CMS.getLogMessage("JOBS_META_REQUEST_ERROR",
-                        cert.getSerialNumber().toString(16) +
-                        e.toString()));
+                            STATUS_FAILURE);
+                log(ILogger.LL_FAILURE,
+                        CMS.getLogMessage("JOBS_META_REQUEST_ERROR", cert
+                                .getSerialNumber().toString(16) + e.toString()));
             } catch (NullPointerException e) {
                 // no requestId in MetaInfo...skip to next record
                 negCount += 1;
                 if (mSummary == true)
                     buildItemParams(IEmailFormProcessor.TOKEN_STATUS,
-                        STATUS_FAILURE);
-                log(ILogger.LL_FAILURE,					
-                    CMS.getLogMessage("JOBS_META_REQUEST_ERROR",
-                        cert.getSerialNumber().toString(16) +
-                        e.toString()));
+                            STATUS_FAILURE);
+                log(ILogger.LL_FAILURE,
+                        CMS.getLogMessage("JOBS_META_REQUEST_ERROR", cert
+                                .getSerialNumber().toString(16) + e.toString()));
             }
 
             if (ridString != null) {
                 RequestId rid = new RequestId(ridString);
-				
+
                 // get request from request id
                 IRequest req = null;
 
@@ -297,19 +271,21 @@ public class UnpublishExpiredJob extends AJobBase
                     negCount += 1;
                     if (mSummary == true)
                         buildItemParams(IEmailFormProcessor.TOKEN_STATUS,
-                            STATUS_FAILURE);
-                    log(ILogger.LL_FAILURE,					
-                        CMS.getLogMessage("JOBS_FIND_REQUEST_ERROR",
-                            cert.getSerialNumber().toString(16) +
-                            e.toString()));
+                                STATUS_FAILURE);
+                    log(ILogger.LL_FAILURE,
+                            CMS.getLogMessage(
+                                    "JOBS_FIND_REQUEST_ERROR",
+                                    cert.getSerialNumber().toString(16)
+                                            + e.toString()));
                 }
                 try {
-                    if ((mPublisherProcessor != null) &&
-                        mPublisherProcessor.enabled()) { 
-                        mPublisherProcessor.unpublishCert((X509Certificate) cert, req);
+                    if ((mPublisherProcessor != null)
+                            && mPublisherProcessor.enabled()) {
+                        mPublisherProcessor.unpublishCert(
+                                (X509Certificate) cert, req);
                         if (mSummary == true)
                             buildItemParams(IEmailFormProcessor.TOKEN_STATUS,
-                                STATUS_SUCCESS);
+                                    STATUS_SUCCESS);
                         count += 1;
                     } else {
                         negCount += 1;
@@ -318,21 +294,23 @@ public class UnpublishExpiredJob extends AJobBase
                     negCount += 1;
                     if (mSummary == true)
                         buildItemParams(IEmailFormProcessor.TOKEN_STATUS,
-                            STATUS_FAILURE);
-                    log(ILogger.LL_FAILURE,					
-                        CMS.getLogMessage("JOBS_UNPUBLISH_ERROR",
-                            cert.getSerialNumber().toString(16) +
-                            e.toString()));
+                                STATUS_FAILURE);
+                    log(ILogger.LL_FAILURE,
+                            CMS.getLogMessage(
+                                    "JOBS_UNPUBLISH_ERROR",
+                                    cert.getSerialNumber().toString(16)
+                                            + e.toString()));
                 }
             } // ridString != null
             else {
                 try {
-                    if ((mPublisherProcessor != null) &&
-                        mPublisherProcessor.enabled()) { 
-                        mPublisherProcessor.unpublishCert((X509Certificate) cert, null);
+                    if ((mPublisherProcessor != null)
+                            && mPublisherProcessor.enabled()) {
+                        mPublisherProcessor.unpublishCert(
+                                (X509Certificate) cert, null);
                         if (mSummary == true)
                             buildItemParams(IEmailFormProcessor.TOKEN_STATUS,
-                                STATUS_SUCCESS);
+                                    STATUS_SUCCESS);
                         count += 1;
                     } else {
                         negCount += 1;
@@ -341,11 +319,12 @@ public class UnpublishExpiredJob extends AJobBase
                     negCount += 1;
                     if (mSummary == true)
                         buildItemParams(IEmailFormProcessor.TOKEN_STATUS,
-                            STATUS_FAILURE);
-                    log(ILogger.LL_FAILURE,					
-                        CMS.getLogMessage("JOBS_UNPUBLISH_ERROR",
-                            cert.getSerialNumber().toString(16) +
-                            e.toString()));
+                                STATUS_FAILURE);
+                    log(ILogger.LL_FAILURE,
+                            CMS.getLogMessage(
+                                    "JOBS_UNPUBLISH_ERROR",
+                                    cert.getSerialNumber().toString(16)
+                                            + e.toString()));
                 }
             } // ridString == null
 
@@ -354,8 +333,8 @@ public class UnpublishExpiredJob extends AJobBase
 
             // if summary is enabled, form the item content
             if (mSummary) {
-                IEmailFormProcessor emailItemFormProcessor =
-                    CMS.getEmailFormProcessor();
+                IEmailFormProcessor emailItemFormProcessor = CMS
+                        .getEmailFormProcessor();
                 String c = emailItemFormProcessor.getEmailContent(itemForm,
                         mItemParams);
 
@@ -370,37 +349,35 @@ public class UnpublishExpiredJob extends AJobBase
 
         // time for summary
         if (mSummary == true) {
-            buildContentParams(IEmailFormProcessor.TOKEN_ID,
-                mId);
+            buildContentParams(IEmailFormProcessor.TOKEN_ID, mId);
             buildContentParams(IEmailFormProcessor.TOKEN_SUMMARY_ITEM_LIST,
-                itemListContent);
+                    itemListContent);
             buildContentParams(IEmailFormProcessor.TOKEN_SUMMARY_TOTAL_NUM,
-                String.valueOf(count + negCount));
+                    String.valueOf(count + negCount));
             buildContentParams(IEmailFormProcessor.TOKEN_SUMMARY_SUCCESS_NUM,
-                String.valueOf(count));
+                    String.valueOf(count));
             buildContentParams(IEmailFormProcessor.TOKEN_SUMMARY_FAILURE_NUM,
-                String.valueOf(negCount));
+                    String.valueOf(negCount));
             buildContentParams(IEmailFormProcessor.TOKEN_EXECUTION_TIME,
-                nowString);
+                    nowString);
 
-            IEmailFormProcessor emailFormProcessor = CMS.getEmailFormProcessor();
-            String mailContent =
-                emailFormProcessor.getEmailContent(contentForm,
-                    mContentParams);
+            IEmailFormProcessor emailFormProcessor = CMS
+                    .getEmailFormProcessor();
+            String mailContent = emailFormProcessor.getEmailContent(
+                    contentForm, mContentParams);
 
             mailSummary(mailContent);
         }
     }
 
     /**
-     * Returns a list of configuration parameter names. 
-     * The list is passed to the configuration console so instances of 
-     * this implementation can be configured through the console.
-     *
+     * Returns a list of configuration parameter names. The list is passed to
+     * the configuration console so instances of this implementation can be
+     * configured through the console.
+     * 
      * @return String array of configuration parameter names.
      */
     public String[] getConfigParams() {
         return (mConfigParams);
     }
 }
-

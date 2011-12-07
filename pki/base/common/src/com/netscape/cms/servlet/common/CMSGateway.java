@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.common;
 
-
 import java.io.File;
 import java.io.IOException;
 import java.security.cert.X509Certificate;
@@ -41,10 +40,9 @@ import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.logging.ILogger;
 
-
 /**
  * This class is to hold some general method for servlets.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class CMSGateway {
@@ -52,8 +50,7 @@ public class CMSGateway {
     private final static String PROP_ENABLE_ADMIN_ENROLL = "enableAdminEnroll";
 
     private final static String PROP_SERVER_XML = "server.xml";
-    public static final String CERT_ATTR = 
-        "javax.servlet.request.X509Certificate";
+    public static final String CERT_ATTR = "javax.servlet.request.X509Certificate";
 
     protected static CMSFileLoader mFileLoader = new CMSFileLoader();
 
@@ -68,11 +65,11 @@ public class CMSGateway {
         mEnableFileServing = true;
         mConfig = CMS.getConfigStore().getSubStore(PROP_CMSGATEWAY);
         try {
-            mEnableAdminEnroll = 
-                    mConfig.getBoolean(PROP_ENABLE_ADMIN_ENROLL, false);
+            mEnableAdminEnroll = mConfig.getBoolean(PROP_ENABLE_ADMIN_ENROLL,
+                    false);
         } catch (EBaseException e) {
-            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER, ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSGW_BAD_CONFIG_PARAM"));
+            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSGW_BAD_CONFIG_PARAM"));
         }
     }
 
@@ -88,7 +85,7 @@ public class CMSGateway {
 
             httpReqHash.put(name, req.getParameter(name));
         }
-        
+
         String ip = req.getRemoteAddr();
         if (ip != null)
             httpReqHash.put("clientHost", ip);
@@ -99,11 +96,11 @@ public class CMSGateway {
         return mEnableAdminEnroll;
     }
 
-    public static void setEnableAdminEnroll(boolean enableAdminEnroll) 
-        throws EBaseException {
+    public static void setEnableAdminEnroll(boolean enableAdminEnroll)
+            throws EBaseException {
         IConfigStore mainConfig = CMS.getConfigStore();
 
-        //!!! Is it thread safe? xxxx
+        // !!! Is it thread safe? xxxx
         mEnableAdminEnroll = enableAdminEnroll;
         mConfig.putBoolean(PROP_ENABLE_ADMIN_ENROLL, enableAdminEnroll);
         mainConfig.commit(true);
@@ -112,9 +109,9 @@ public class CMSGateway {
     public static void disableAdminEnroll() throws EBaseException {
         setEnableAdminEnroll(false);
 
-        /* need to do this in web.xml and restart ws
-         removeServlet("/ca/adminEnroll", "AdminEnroll");
-         initGateway();
+        /*
+         * need to do this in web.xml and restart ws
+         * removeServlet("/ca/adminEnroll", "AdminEnroll"); initGateway();
          */
     }
 
@@ -122,18 +119,19 @@ public class CMSGateway {
      * construct a authentication credentials to pass into authentication
      * manager.
      */
-    public static AuthCredentials getAuthCreds(
-        IAuthManager authMgr, IArgBlock argBlock, X509Certificate clientCert)
-        throws EBaseException {
+    public static AuthCredentials getAuthCreds(IAuthManager authMgr,
+            IArgBlock argBlock, X509Certificate clientCert)
+            throws EBaseException {
         // get credentials from http parameters.
         if (authMgr == null)
-          return null;
+            return null;
         String[] reqCreds = authMgr.getRequiredCreds();
         AuthCredentials creds = new AuthCredentials();
-        
+
         if (clientCert instanceof java.security.cert.X509Certificate) {
             try {
-                clientCert = new netscape.security.x509.X509CertImpl(clientCert.getEncoded());
+                clientCert = new netscape.security.x509.X509CertImpl(
+                        clientCert.getEncoded());
             } catch (Exception e) {
                 CMS.debug("CMSGateway: getAuthCreds " + e.toString());
             }
@@ -144,8 +142,7 @@ public class CMSGateway {
 
             if (reqCred.equals(IAuthManager.CRED_SSL_CLIENT_CERT)) {
                 // cert could be null;
-                creds.set(reqCred, new X509Certificate[] { clientCert}
-                );
+                creds.set(reqCred, new X509Certificate[] { clientCert });
             } else {
                 String value = argBlock.getValueAsString(reqCred);
 
@@ -162,62 +159,57 @@ public class CMSGateway {
 
     protected final static String AUTHMGR_PARAM = "authenticator";
 
-    public static AuthToken checkAuthManager(
-        HttpServletRequest httpReq, IArgBlock httpParams, 
-        X509Certificate cert, String authMgrName)
-        throws EBaseException {
+    public static AuthToken checkAuthManager(HttpServletRequest httpReq,
+            IArgBlock httpParams, X509Certificate cert, String authMgrName)
+            throws EBaseException {
         IArgBlock httpArgs = httpParams;
 
         if (httpArgs == null)
             httpArgs = CMS.createArgBlock(toHashtable(httpReq));
 
-        IAuthSubsystem authSub = (IAuthSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);
+        IAuthSubsystem authSub = (IAuthSubsystem) CMS
+                .getSubsystem(CMS.SUBSYSTEM_AUTH);
 
-        String authMgr_http = httpArgs.getValueAsString(
-                AUTHMGR_PARAM, null);
+        String authMgr_http = httpArgs.getValueAsString(AUTHMGR_PARAM, null);
 
         if (authMgr_http != null) {
             authMgrName = authMgr_http;
         }
 
         if (authMgrName == null || authMgrName.length() == 0) {
-            throw new EBaseException(CMS.getLogMessage("BASE_INTERNAL_ERROR_1", 
-                        CMS.getLogMessage("CMSGW_AUTH_MAN_EXPECTED")));
+            throw new EBaseException(CMS.getLogMessage("BASE_INTERNAL_ERROR_1",
+                    CMS.getLogMessage("CMSGW_AUTH_MAN_EXPECTED")));
         }
-		
-        IAuthManager authMgr = 
-            authSub.getAuthManager(IAuthSubsystem.CERTUSERDB_AUTHMGR_ID);
+
+        IAuthManager authMgr = authSub
+                .getAuthManager(IAuthSubsystem.CERTUSERDB_AUTHMGR_ID);
 
         authMgr = authSub.getAuthManager(authMgrName);
         if (authMgr == null)
             return null;
-        IAuthCredentials creds = 
-            getAuthCreds(authMgr, CMS.createArgBlock(toHashtable(httpReq)), cert);
+        IAuthCredentials creds = getAuthCreds(authMgr,
+                CMS.createArgBlock(toHashtable(httpReq)), cert);
         AuthToken authToken = null;
 
         try {
-            authToken = (AuthToken) authMgr.authenticate(creds);	
+            authToken = (AuthToken) authMgr.authenticate(creds);
         } catch (EBaseException e) {
             throw e;
         } catch (Exception e) {
             CMS.debug("CMSGateway: " + e);
             // catch all errors from authentication manager.
-            throw new ECMSGWException(CMS.getLogMessage("CMSGW_AUTH_ERROR_2", 
-                        e.toString(), e.getMessage()));
+            throw new ECMSGWException(CMS.getLogMessage("CMSGW_AUTH_ERROR_2",
+                    e.toString(), e.getMessage()));
         }
         return authToken;
     }
 
-    public static void renderTemplate(
-        String templateName, 
-        HttpServletRequest req, 
-        HttpServletResponse resp,
-        ServletConfig servletConfig, 
-        CMSFileLoader fileLoader)
-        throws EBaseException, IOException {
-        CMSTemplate template = 
-            getTemplate(templateName, req, 
-                servletConfig, fileLoader, new Locale[1]);
+    public static void renderTemplate(String templateName,
+            HttpServletRequest req, HttpServletResponse resp,
+            ServletConfig servletConfig, CMSFileLoader fileLoader)
+            throws EBaseException, IOException {
+        CMSTemplate template = getTemplate(templateName, req, servletConfig,
+                fileLoader, new Locale[1]);
         ServletOutputStream out = resp.getOutputStream();
 
         template.renderOutput(out, new CMSTemplateParams(null, null));
@@ -239,9 +231,8 @@ public class CMSGateway {
      * @param realpathFile the file to get.
      * @param locale array of at least one to be filled with locale found.
      */
-    public static File getLangFile(
-        HttpServletRequest req, File realpathFile, Locale[] locale)
-        throws IOException {
+    public static File getLangFile(HttpServletRequest req, File realpathFile,
+            Locale[] locale) throws IOException {
         File file = null;
         String acceptLang = req.getHeader("accept-language");
 
@@ -258,7 +249,7 @@ public class CMSGateway {
                 }
                 String name = realpathFile.getName();
 
-                if (name == null) {  // filename should never be null.
+                if (name == null) { // filename should never be null.
                     throw new IOException("file has no name");
                 }
                 int i;
@@ -286,9 +277,8 @@ public class CMSGateway {
                         break;
                     }
 
-                    String langfilepath =
-                        parent + File.separatorChar +
-                        lang + File.separatorChar + name;
+                    String langfilepath = parent + File.separatorChar + lang
+                            + File.separatorChar + name;
 
                     file = new File(langfilepath);
                     if (file.exists()) {
@@ -311,54 +301,52 @@ public class CMSGateway {
     }
 
     /**
-     * get a template 
+     * get a template
      */
-    protected static CMSTemplate getTemplate(
-        String templateName, 
-        HttpServletRequest httpReq, 
-        ServletConfig servletConfig, 
-        CMSFileLoader fileLoader, 
-        Locale[] locale)
-        throws EBaseException, IOException {
+    protected static CMSTemplate getTemplate(String templateName,
+            HttpServletRequest httpReq, ServletConfig servletConfig,
+            CMSFileLoader fileLoader, Locale[] locale) throws EBaseException,
+            IOException {
         // this converts to system dependent file seperator char.
         if (servletConfig == null) {
-	        CMS.debug( "CMSGateway:getTemplate() - servletConfig is null!" );
+            CMS.debug("CMSGateway:getTemplate() - servletConfig is null!");
             return null;
         }
         if (servletConfig.getServletContext() == null) {
         }
         if (templateName == null) {
         }
-        String realpath = 
-            servletConfig.getServletContext().getRealPath("/" + templateName);
+        String realpath = servletConfig.getServletContext().getRealPath(
+                "/" + templateName);
         File realpathFile = new File(realpath);
-        File templateFile = 
-            getLangFile(httpReq, realpathFile, locale);
-        CMSTemplate template = 
-            //(CMSTemplate)fileLoader.getCMSFile(templateFile);
-            (CMSTemplate) fileLoader.getCMSFile(templateFile, httpReq.getCharacterEncoding());
+        File templateFile = getLangFile(httpReq, realpathFile, locale);
+        CMSTemplate template =
+        // (CMSTemplate)fileLoader.getCMSFile(templateFile);
+        (CMSTemplate) fileLoader.getCMSFile(templateFile,
+                httpReq.getCharacterEncoding());
 
         return template;
     }
 
     /**
-     * Get the If-Modified-Since header and compare it to the millisecond
-     * epoch value passed in.  If there is no header, or there is a problem
-     * parsing the value, or if the file has been modified this will return 
-     * true, indicating the file has changed.
-     *
+     * Get the If-Modified-Since header and compare it to the millisecond epoch
+     * value passed in. If there is no header, or there is a problem parsing the
+     * value, or if the file has been modified this will return true, indicating
+     * the file has changed.
+     * 
      * @param lastModified The time value in milliseconds past the epoch to
-     * compare the If-Modified-Since header to.
+     *            compare the If-Modified-Since header to.
      */
-    public static boolean modifiedSince(HttpServletRequest req, long lastModified) {
+    public static boolean modifiedSince(HttpServletRequest req,
+            long lastModified) {
         long ifModSinceStr;
 
         try {
             ifModSinceStr = req.getDateHeader("If-Modified-Since");
-        }catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             return true;
         }
-			
+
         if (ifModSinceStr < 0) {
             return true;
         }
@@ -371,4 +359,3 @@ public class CMSGateway {
     }
 
 }
-

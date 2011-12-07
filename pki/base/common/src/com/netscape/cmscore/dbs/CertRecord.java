@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.dbs;
 
-
 import java.math.BigInteger;
 import java.security.cert.Certificate;
 import java.util.Date;
@@ -34,12 +33,11 @@ import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
 
-
 /**
  * A class represents a serializable certificate record.
  * <P>
- *
- * @author  thomask
+ * 
+ * @author thomask
  * @version $Revision$, $Date$
  */
 public class CertRecord implements IDBObj, ICertRecord {
@@ -83,8 +81,7 @@ public class CertRecord implements IDBObj, ICertRecord {
     }
 
     /**
-     * Constructs certiificate record with certificate 
-     * and meta info.
+     * Constructs certiificate record with certificate and meta info.
      */
     public CertRecord(BigInteger id, Certificate cert, MetaInfo meta) {
         mId = id;
@@ -124,7 +121,8 @@ public class CertRecord implements IDBObj, ICertRecord {
         } else if (name.equalsIgnoreCase(ATTR_REVOKED_ON)) {
             mRevokedOn = (Date) obj;
         } else {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
+            throw new EBaseException(CMS.getUserMessage(
+                    "CMS_BASE_INVALID_ATTRIBUTE", name));
         }
     }
 
@@ -155,7 +153,8 @@ public class CertRecord implements IDBObj, ICertRecord {
         } else if (name.equalsIgnoreCase(ATTR_REVOKED_ON)) {
             return mRevokedOn;
         } else {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
+            throw new EBaseException(CMS.getUserMessage(
+                    "CMS_BASE_INVALID_ATTRIBUTE", name));
         }
     }
 
@@ -163,7 +162,8 @@ public class CertRecord implements IDBObj, ICertRecord {
      * Deletes attribute from this record.
      */
     public void delete(String name) throws EBaseException {
-        throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
+        throw new EBaseException(CMS.getUserMessage(
+                "CMS_BASE_INVALID_ATTRIBUTE", name));
     }
 
     public Enumeration getElements() {
@@ -205,14 +205,13 @@ public class CertRecord implements IDBObj, ICertRecord {
     /**
      * Retrieves revocation information.
      */
-    public IRevocationInfo getRevocationInfo() { 
-        return mRevocationInfo; 
+    public IRevocationInfo getRevocationInfo() {
+        return mRevocationInfo;
     }
 
     /**
-     * Retrieves serial number of this record. Usually,
-     * it is the same of the serial number of the
-     * associated certificate.
+     * Retrieves serial number of this record. Usually, it is the same of the
+     * serial number of the associated certificate.
      */
     public BigInteger getSerialNumber() {
         return mId;
@@ -271,7 +270,7 @@ public class CertRecord implements IDBObj, ICertRecord {
     public Date getModifyTime() {
         return mModifyTime;
     }
-	
+
     /**
      * String representation
      */

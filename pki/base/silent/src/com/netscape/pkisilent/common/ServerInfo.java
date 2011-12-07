@@ -1,4 +1,5 @@
 package com.netscape.pkisilent.common;
+
 // --- BEGIN COPYRIGHT BLOCK ---
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -23,32 +24,36 @@ import java.io.FileReader;
 import java.net.InetAddress;
 import java.util.StringTokenizer;
 
-
 /**
- * CMS Test framework .
- * This class fetches all the necssary ServerInformation to run the test . For example AdminServer information linke port , hsotname, Config LDAP server port, CMS servers Agentport,AdminPort, EESSL port, EE port etc..
+ * CMS Test framework . This class fetches all the necssary ServerInformation to
+ * run the test . For example AdminServer information linke port , hsotname,
+ * Config LDAP server port, CMS servers Agentport,AdminPort, EESSL port, EE port
+ * etc..
  */
-
 
 public class ServerInfo {
 
     public String serverRoot, instanceRoot, instanceID;
-    public String ldapPort, ldapHost, ldapSSLPort, ldapBaseSuffix, adminPort, admDN, admDNPW, singleSignOnPWD, domain;
-    public String caSigningCertNickName, raSigningCertNickName, ocspSigningCertNickName, kraTransportCertNickName;
+    public String ldapPort, ldapHost, ldapSSLPort, ldapBaseSuffix, adminPort,
+            admDN, admDNPW, singleSignOnPWD, domain;
+    public String caSigningCertNickName, raSigningCertNickName,
+            ocspSigningCertNickName, kraTransportCertNickName;
     public String ServerCertNickName, CertAuthority;
     public String CMSAgentPort, CMSEESSLPort, CMSEEPort, CMSAdminPort, IDBPort;
 
     public static CMSProperties props = null;
     public static CMSProperties CMSprops = null;
 
-    // Private variables 
+    // Private variables
     private int i;
     public String CMSConfigFile, AdminConfigFile;
 
-    public ServerInfo() {}
+    public ServerInfo() {
+    }
 
     /**
-     * Constructor. Takes Server root as parameter for example ( /export/qa). Reads and collects information about adminserver and Config LDAP server.
+     * Constructor. Takes Server root as parameter for example ( /export/qa).
+     * Reads and collects information about adminserver and Config LDAP server.
      */
     public ServerInfo(String sroot) {
         serverRoot = sroot;
@@ -58,9 +63,10 @@ public class ServerInfo {
     }
 
     /**
-     * Constructor. Takes Serverroot ( /export/qa) and instanceRoot (/export/qa/cert-jupiter2) as parameters . Reads and collects information about Admin Server , Config LDAP server and CMS server .
+     * Constructor. Takes Serverroot ( /export/qa) and instanceRoot
+     * (/export/qa/cert-jupiter2) as parameters . Reads and collects information
+     * about Admin Server , Config LDAP server and CMS server .
      */
-
 
     public ServerInfo(String sroot, String instRoot) {
         serverRoot = sroot;
@@ -82,10 +88,10 @@ public class ServerInfo {
         return ldapPort;
     }
 
-    public String GetHostName() { 
+    public String GetHostName() {
         if (domain.indexOf(".") > 0) {
             return domain.substring(0, domain.indexOf("."));
-        } else { 
+        } else {
             return domain;
         }
     }
@@ -98,8 +104,8 @@ public class ServerInfo {
         return CMSConfigFile;
     }
 
-    public String GetDomainName() { 
-        return ldapHost.substring(ldapHost.indexOf(".") + 1); 
+    public String GetDomainName() {
+        return ldapHost.substring(ldapHost.indexOf(".") + 1);
     }
 
     public String GetAgentPort() {
@@ -148,15 +154,15 @@ public class ServerInfo {
         readCMSConfig();
     }
 
-    // Private functions 
+    // Private functions
     private void SystemInfo() {
         try {
-            domain = InetAddress.getLocalHost().getHostName(); 
+            domain = InetAddress.getLocalHost().getHostName();
             System.out.println("Debu:SystemInfo " + domain);
         } catch (Exception e) {
             System.out.println("Exception InetAddress : " + e.getMessage());
         }
- 
+
     }
 
     private void parseServerXML() {
@@ -165,7 +171,7 @@ public class ServerInfo {
         int EE_SSL = 3;
         int EE_NON_SSL = 4;
         int IP = 5;
-        int PORT = 6; 
+        int PORT = 6;
         BufferedReader in = null;
 
         try {
@@ -209,11 +215,12 @@ public class ServerInfo {
                         } else if (token.equals(" port=")) {
                             index2 = PORT;
                         }
-                        
-                        if (index1 != 5 && index2 == IP && !token.equals(" ip=")) {
+
+                        if (index1 != 5 && index2 == IP
+                                && !token.equals(" ip=")) {
                             String ip = token;
                         } else if (index2 == PORT && !token.equals(" port=")) {
-                            
+
                             switch (index1) {
                             case 1:
                                 CMSAgentPort = token;
@@ -232,7 +239,7 @@ public class ServerInfo {
                                 break;
 
                             default:
-                                break; 
+                                break;
 
                             }
 
@@ -247,10 +254,11 @@ public class ServerInfo {
             if (in != null) {
                 try {
                     in.close();
-                } catch (Exception ex) {}
+                } catch (Exception ex) {
+                }
             }
         }
-    } 
+    }
 
     private void getProperties(String filePath) throws Exception {
         try {
@@ -274,7 +282,7 @@ public class ServerInfo {
             if ((s.charAt(i) == ' ')) {
                 i++;
                 continue;
-            } else {  
+            } else {
                 val += s.charAt(i);
             }
         }
@@ -294,7 +302,7 @@ public class ServerInfo {
             if (fis.read(b) != b.length) {
                 System.out.println("Could not read ");
 
-            } else {  
+            } else {
                 String tmpstr = new String(b, 0, b.length);
                 int ret;
 
@@ -312,14 +320,14 @@ public class ServerInfo {
                     // System.out.println(ldapPort);
                 }
                 if ((ret = tmpstr.indexOf(adminPortStr)) > -1) {
-                    adminPort = tmpstr.substring(ret + adminPortStr.length() + 1,
-                            tmpstr.indexOf("ldapStart", ret) - 1);
+                    adminPort = tmpstr.substring(ret + adminPortStr.length()
+                            + 1, tmpstr.indexOf("ldapStart", ret) - 1);
                     adminPort = stripSpace(adminPort);
                     // System.out.println(adminPort);
                 }
 
             }
- 
+
             fis.close();
         } catch (Exception e) {
             System.out.println("exception " + e.getMessage());
@@ -337,17 +345,17 @@ public class ServerInfo {
             System.out.println("Reading CMS Config file successful");
             CertAuthority = CMSprops.getProperty("subsystem.0.id");
             if (CertAuthority.equals("ca")) {
-                caSigningCertNickName = CMSprops.getProperty(
-                        "ca.signing.cacertnickname");
+                caSigningCertNickName = CMSprops
+                        .getProperty("ca.signing.cacertnickname");
                 ServerCertNickName = "Server-Cert cert-" + instanceID;
             }
             if (CertAuthority.equals("ra")) {
-                raSigningCertNickName = CMSprops.getProperty(
-                        "ra.signing.cacertnickname");
+                raSigningCertNickName = CMSprops
+                        .getProperty("ra.signing.cacertnickname");
                 ServerCertNickName = "Server-Cert cert-" + instanceID;
             }
             IDBPort = CMSprops.getProperty("internaldb.ldapconn.port");
-        	
+
             fis.close();
         } catch (Exception e) {
             System.out.println("exception " + e.getMessage());
@@ -361,18 +369,18 @@ public class ServerInfo {
         System.out.println(" Admin Port : " + s.GetAdminPort());
         System.out.println(" LDAP Port : " + s.GetConfigLDAPPort());
         System.out.println("Hostname " + s.GetHostName());
-        System.out.println("InstanceID" + s.GetInstanceID());   
-        System.out.println(" doamin name : " + s.GetDomainName()); 
+        System.out.println("InstanceID" + s.GetInstanceID());
+        System.out.println(" doamin name : " + s.GetDomainName());
         System.out.println("AgentPort " + s.GetAgentPort());
         System.out.println("EESSLPort " + s.GetEESSLPort());
         System.out.println("EEPort " + s.GetEEPort());
-        System.out.println("CMSAdminPort :" + s.GetCMSAdminPort()); 
+        System.out.println("CMSAdminPort :" + s.GetCMSAdminPort());
         System.out.println("CAAuthority : " + s.GetCertAuthority());
         System.out.println("CASigningCert:" + s.GetCASigningCert());
         System.out.println("RASigningCert:" + s.GetRASigningCert());
         System.out.println("ServerCert" + s.GetServerCertNickName());
- 
+
     }// end of function main
 
-} // end of class 
+} // end of class
 

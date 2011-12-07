@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -27,7 +26,6 @@ import org.apache.velocity.context.Context;
 
 import com.netscape.certsrv.apps.CMS;
 
-
 public class ModuleServlet extends BaseServlet {
 
     /**
@@ -36,19 +34,16 @@ public class ModuleServlet extends BaseServlet {
     private static final long serialVersionUID = 6518965840466227888L;
 
     /**
-     * Collect information on where keys are to be generated.
-     * Once collected, write to CS.cfg:
-     *    "preop.module=soft"
-     *      or
-     *    "preop.module=hard"
-     *
+     * Collect information on where keys are to be generated. Once collected,
+     * write to CS.cfg: "preop.module=soft" or "preop.module=hard"
+     * 
      * <ul>
-     * <li>http.param selection "soft" or "hard" for software token or hardware token
+     * <li>http.param selection "soft" or "hard" for software token or hardware
+     * token
      * </ul>
      */
     public Template process(HttpServletRequest request,
-            HttpServletResponse response,
-            Context context) {
+            HttpServletResponse response, Context context) {
 
         Template template = null;
 
@@ -76,7 +71,7 @@ public class ModuleServlet extends BaseServlet {
                     CMS.debug("ModuleServlet: illegal selection: " + selection);
                     context.put("error", "failed selection");
                 }
-		
+
             } else {
                 CMS.debug("ModuleServlet: no selection");
             }

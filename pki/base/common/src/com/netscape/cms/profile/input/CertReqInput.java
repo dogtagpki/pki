@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.input;
 
-
 import java.util.Locale;
 
 import netscape.security.pkcs.PKCS10;
@@ -38,23 +37,19 @@ import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.common.EnrollProfile;
 
-
 /**
- * This class implements the certificate request input.
- * This input populates 2 main fields to the enrollment page:
- * 1/ Certificate Request Type, 2/ Certificate Request
+ * This class implements the certificate request input. This input populates 2
+ * main fields to the enrollment page: 1/ Certificate Request Type, 2/
+ * Certificate Request
  * <p>
  * 
- * This input usually is used by an enrollment profile for
- * certificate requests.
- *
+ * This input usually is used by an enrollment profile for certificate requests.
+ * 
  * @version $Revision$, $Date$
  */
-public class CertReqInput extends EnrollInput implements IProfileInput { 
-    public static final String VAL_CERT_REQUEST_TYPE = 
-        EnrollProfile.CTX_CERT_REQUEST_TYPE;
-    public static final String VAL_CERT_REQUEST =
-        EnrollProfile.CTX_CERT_REQUEST;
+public class CertReqInput extends EnrollInput implements IProfileInput {
+    public static final String VAL_CERT_REQUEST_TYPE = EnrollProfile.CTX_CERT_REQUEST_TYPE;
+    public static final String VAL_CERT_REQUEST = EnrollProfile.CTX_CERT_REQUEST;
 
     public EnrollProfile mEnrollProfile = null;
 
@@ -67,7 +62,7 @@ public class CertReqInput extends EnrollInput implements IProfileInput {
      * Initializes this default policy.
      */
     public void init(IProfile profile, IConfigStore config)
-        throws EProfileException {
+            throws EProfileException {
         super.init(profile, config);
 
         mEnrollProfile = (EnrollProfile) profile;
@@ -91,97 +86,97 @@ public class CertReqInput extends EnrollInput implements IProfileInput {
      * Populates the request with this policy default.
      */
     public void populate(IProfileContext ctx, IRequest request)
-        throws EProfileException {
+            throws EProfileException {
         String cert_request_type = ctx.get(VAL_CERT_REQUEST_TYPE);
         String cert_request = ctx.get(VAL_CERT_REQUEST);
-        X509CertInfo info =
-            request.getExtDataInCertInfo(EnrollProfile.REQUEST_CERTINFO);
+        X509CertInfo info = request
+                .getExtDataInCertInfo(EnrollProfile.REQUEST_CERTINFO);
 
         if (cert_request_type == null) {
-            CMS.debug("CertReqInput: populate - invalid cert request type " + 
-                "");
-            throw new EProfileException(
-                    CMS.getUserMessage(getLocale(request), 
-                        "CMS_PROFILE_UNKNOWN_CERT_REQ_TYPE", 
-                        ""));
+            CMS.debug("CertReqInput: populate - invalid cert request type "
+                    + "");
+            throw new EProfileException(CMS.getUserMessage(getLocale(request),
+                    "CMS_PROFILE_UNKNOWN_CERT_REQ_TYPE", ""));
         }
 
         if (cert_request_type.equals(EnrollProfile.REQ_TYPE_PKCS10)) {
-            PKCS10 pkcs10 = mEnrollProfile.parsePKCS10(getLocale(request), cert_request);
+            PKCS10 pkcs10 = mEnrollProfile.parsePKCS10(getLocale(request),
+                    cert_request);
 
             if (pkcs10 == null) {
                 throw new EProfileException(CMS.getUserMessage(
-                            getLocale(request), "CMS_PROFILE_NO_CERT_REQ"));
+                        getLocale(request), "CMS_PROFILE_NO_CERT_REQ"));
             }
 
-            mEnrollProfile.fillPKCS10(getLocale(request), pkcs10, info, request);	
+            mEnrollProfile
+                    .fillPKCS10(getLocale(request), pkcs10, info, request);
         } else if (cert_request_type.startsWith(EnrollProfile.REQ_TYPE_KEYGEN)) {
-            DerInputStream keygen = mEnrollProfile.parseKeyGen(getLocale(request), cert_request);
+            DerInputStream keygen = mEnrollProfile.parseKeyGen(
+                    getLocale(request), cert_request);
 
             if (keygen == null) {
                 throw new EProfileException(CMS.getUserMessage(
-                            getLocale(request), "CMS_PROFILE_NO_CERT_REQ"));
+                        getLocale(request), "CMS_PROFILE_NO_CERT_REQ"));
             }
 
-            mEnrollProfile.fillKeyGen(getLocale(request), keygen, info, request);
+            mEnrollProfile
+                    .fillKeyGen(getLocale(request), keygen, info, request);
         } else if (cert_request_type.startsWith(EnrollProfile.REQ_TYPE_CRMF)) {
-            CertReqMsg msgs[] = mEnrollProfile.parseCRMF(getLocale(request), cert_request);
+            CertReqMsg msgs[] = mEnrollProfile.parseCRMF(getLocale(request),
+                    cert_request);
 
             if (msgs == null) {
                 throw new EProfileException(CMS.getUserMessage(
-                            getLocale(request), "CMS_PROFILE_NO_CERT_REQ"));
+                        getLocale(request), "CMS_PROFILE_NO_CERT_REQ"));
             }
             for (int x = 0; x < msgs.length; x++) {
                 verifyPOP(getLocale(request), msgs[x]);
             }
             // This profile only handle the first request in CRMF
-            Integer seqNum = request.getExtDataInInteger(EnrollProfile.REQUEST_SEQ_NUM);
+            Integer seqNum = request
+                    .getExtDataInInteger(EnrollProfile.REQUEST_SEQ_NUM);
 
-            mEnrollProfile.fillCertReqMsg(getLocale(request), msgs[seqNum.intValue()], info, request
-            );
+            mEnrollProfile.fillCertReqMsg(getLocale(request),
+                    msgs[seqNum.intValue()], info, request);
         } else if (cert_request_type.startsWith(EnrollProfile.REQ_TYPE_CMC)) {
-            TaggedRequest msgs[] = mEnrollProfile.parseCMC(getLocale(request), cert_request);
+            TaggedRequest msgs[] = mEnrollProfile.parseCMC(getLocale(request),
+                    cert_request);
 
             if (msgs == null) {
                 throw new EProfileException(CMS.getUserMessage(
-                            getLocale(request), "CMS_PROFILE_NO_CERT_REQ"));
+                        getLocale(request), "CMS_PROFILE_NO_CERT_REQ"));
             }
             // This profile only handle the first request in CRMF
-            Integer seqNum = request.getExtDataInInteger(EnrollProfile.REQUEST_SEQ_NUM);
-            if (seqNum == null) { 
-                throw new EProfileException( 
-                   CMS.getUserMessage(getLocale(request), 
-                   "CMS_PROFILE_UNKNOWN_SEQ_NUM")); 
+            Integer seqNum = request
+                    .getExtDataInInteger(EnrollProfile.REQUEST_SEQ_NUM);
+            if (seqNum == null) {
+                throw new EProfileException(CMS.getUserMessage(
+                        getLocale(request), "CMS_PROFILE_UNKNOWN_SEQ_NUM"));
             }
 
-            mEnrollProfile.fillTaggedRequest(getLocale(request), msgs[seqNum.intValue()], info, request);
+            mEnrollProfile.fillTaggedRequest(getLocale(request),
+                    msgs[seqNum.intValue()], info, request);
         } else {
             // error
-            CMS.debug("CertReqInput: populate - invalid cert request type " + 
-                cert_request_type);
-            throw new EProfileException(
-                    CMS.getUserMessage(getLocale(request), 
-                        "CMS_PROFILE_UNKNOWN_CERT_REQ_TYPE", 
-                        cert_request_type));
+            CMS.debug("CertReqInput: populate - invalid cert request type "
+                    + cert_request_type);
+            throw new EProfileException(CMS.getUserMessage(getLocale(request),
+                    "CMS_PROFILE_UNKNOWN_CERT_REQ_TYPE", cert_request_type));
         }
         request.setExtData(EnrollProfile.REQUEST_CERTINFO, info);
     }
 
     /**
-     * Retrieves the descriptor of the given value
-     * parameter by name.
+     * Retrieves the descriptor of the given value parameter by name.
      */
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         if (name.equals(VAL_CERT_REQUEST_TYPE)) {
-            return new Descriptor(IDescriptor.CERT_REQUEST_TYPE, null,
-                    null,
+            return new Descriptor(IDescriptor.CERT_REQUEST_TYPE, null, null,
                     CMS.getUserMessage(locale,
-                        "CMS_PROFILE_INPUT_CERT_REQ_TYPE"));
+                            "CMS_PROFILE_INPUT_CERT_REQ_TYPE"));
         } else if (name.equals(VAL_CERT_REQUEST)) {
-            return new Descriptor(IDescriptor.CERT_REQUEST, null,
-                    null,
-                    CMS.getUserMessage(locale,
-                        "CMS_PROFILE_INPUT_CERT_REQ"));
+            return new Descriptor(IDescriptor.CERT_REQUEST, null, null,
+                    CMS.getUserMessage(locale, "CMS_PROFILE_INPUT_CERT_REQ"));
         }
         return null;
     }

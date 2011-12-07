@@ -17,14 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.logging;
 
-
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 
-
 /**
  * Define audit log message format
- *
+ * 
  * @author mzhao
  * @version $Revision$, $Date$
  */
@@ -43,68 +41,54 @@ public class AuditFormat {
     /**
      * initiative: the event is from agent
      */
-    public static final String FROMAGENT = "fromAgent";        
+    public static final String FROMAGENT = "fromAgent";
 
     /**
      * initiative: the event is from router
      */
-    public static final String FROMROUTER = "fromRouter";  
+    public static final String FROMROUTER = "fromRouter";
 
     /**
      * initiative: the event is from remote authority
      */
     public static final String FROMRA = "fromRemoteAuthority";
-      
+
     /**
      * authentication module: no Authentication manager
      */
     public static final String NOAUTH = "noAuthManager";
 
     // for ProcessCertReq.java ,kra
-    /* 0: request type
-     1: request ID
-     2: initiative
-     3: auth module
-     4: status
-     5: cert dn
-     6: other info. eg cert serial number, violation policies
+    /*
+     * 0: request type 1: request ID 2: initiative 3: auth module 4: status 5:
+     * cert dn 6: other info. eg cert serial number, violation policies
      */
-    public static final String FORMAT = 
-        "{0} reqID {1} {2} authenticated by {3} is {4} DN requested: {5} {6}";
-    public static final  String NODNFORMAT = 
-        "{0} reqID {1} {2} authenticated by {3} is {4}";
+    public static final String FORMAT = "{0} reqID {1} {2} authenticated by {3} is {4} DN requested: {5} {6}";
+    public static final String NODNFORMAT = "{0} reqID {1} {2} authenticated by {3} is {4}";
 
-    public static final String ENROLLMENTFORMAT = 
-        IRequest.ENROLLMENT_REQUEST + " reqID {0} {1} authenticated by {2} is {3}. DN requested: {4} {5}";
-    public static final String RENEWALFORMAT = 
-        IRequest.RENEWAL_REQUEST + " reqID {0} {1} authenticated by {2} is {3}. DN requested: {4} old serial number: 0x{5} {6}";
-    public static final String REVOCATIONFORMAT = 
-        IRequest.REVOCATION_REQUEST + " reqID {0} {1} authenticated by {2} is {3}. DN requested: {4} serial number: 0x{5} revocation reason: {6} {7}";
+    public static final String ENROLLMENTFORMAT = IRequest.ENROLLMENT_REQUEST
+            + " reqID {0} {1} authenticated by {2} is {3}. DN requested: {4} {5}";
+    public static final String RENEWALFORMAT = IRequest.RENEWAL_REQUEST
+            + " reqID {0} {1} authenticated by {2} is {3}. DN requested: {4} old serial number: 0x{5} {6}";
+    public static final String REVOCATIONFORMAT = IRequest.REVOCATION_REQUEST
+            + " reqID {0} {1} authenticated by {2} is {3}. DN requested: {4} serial number: 0x{5} revocation reason: {6} {7}";
 
     // 1: fromAgent AgentID: xxx authenticated by xxx
-    public static final String DOREVOKEFORMAT = 
-        IRequest.REVOCATION_REQUEST + " reqID {0} {1} is {2}. DN requested: {3} serial number: 0x{4} revocation reason: {5}";
+    public static final String DOREVOKEFORMAT = IRequest.REVOCATION_REQUEST
+            + " reqID {0} {1} is {2}. DN requested: {3} serial number: 0x{4} revocation reason: {5}";
     // 1: fromAgent AgentID: xxx authenticated by xxx
-    public static final String DOUNREVOKEFORMAT = 
-        IRequest.UNREVOCATION_REQUEST + " reqID {0} {1} is {2}. DN requested: {3} serial number: 0x{4}";
+    public static final String DOUNREVOKEFORMAT = IRequest.UNREVOCATION_REQUEST
+            + " reqID {0} {1} is {2}. DN requested: {3} serial number: 0x{4}";
 
     // 0:initiative
-    public static final String CRLUPDATEFORMAT = 
-        "CRLUpdate request {0} authenticated by {1} is {2}. Id: {3}\ncrl Number: {4} last update time: {5} next update time: {6} number of entries in the CRL: {7}";
+    public static final String CRLUPDATEFORMAT = "CRLUpdate request {0} authenticated by {1} is {2}. Id: {3}\ncrl Number: {4} last update time: {5} next update time: {6} number of entries in the CRL: {7}";
 
     // audit user/group
-    public static final String ADDUSERFORMAT =
-        "Admin UID: {0} added User UID: {1}";
-    public static final String REMOVEUSERFORMAT =
-        "Admin UID: {0} removed User UID: {1} ";
-    public static final String MODIFYUSERFORMAT =
-        "Admin UID: {0} modified User UID: {1}";
-    public static final String ADDUSERCERTFORMAT =
-        "Admin UID: {0} added cert for User UID: {1}. cert DN: {2} serial number: 0x{3}";
-    public static final String REMOVEUSERCERTFORMAT =
-        "Admin UID: {0} removed cert of User UID: {1}. cert DN: {2} serial number: 0x{3}";
-    public static final String ADDUSERGROUPFORMAT =
-        "Admin UID: {0} added User UID: {1} to group: {2}";
-    public static final String REMOVEUSERGROUPFORMAT =
-        "Admin UID: {0} removed User UID: {1} from group: {2}";
+    public static final String ADDUSERFORMAT = "Admin UID: {0} added User UID: {1}";
+    public static final String REMOVEUSERFORMAT = "Admin UID: {0} removed User UID: {1} ";
+    public static final String MODIFYUSERFORMAT = "Admin UID: {0} modified User UID: {1}";
+    public static final String ADDUSERCERTFORMAT = "Admin UID: {0} added cert for User UID: {1}. cert DN: {2} serial number: 0x{3}";
+    public static final String REMOVEUSERCERTFORMAT = "Admin UID: {0} removed cert of User UID: {1}. cert DN: {2} serial number: 0x{3}";
+    public static final String ADDUSERGROUPFORMAT = "Admin UID: {0} added User UID: {1} to group: {2}";
+    public static final String REMOVEUSERGROUPFORMAT = "Admin UID: {0} removed User UID: {1} from group: {2}";
 }

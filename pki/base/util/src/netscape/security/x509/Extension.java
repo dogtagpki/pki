@@ -25,27 +25,29 @@ import netscape.security.util.DerOutputStream;
 import netscape.security.util.DerValue;
 import netscape.security.util.ObjectIdentifier;
 
-
 /**
  * Represent a X509 Extension Attribute.
- *
- * <p>Extensions are addiitonal attributes which can be inserted in a X509
- * v3 certificate. For example a "Driving License Certificate" could have
- * the driving license number as a extension.
- *
- * <p>Extensions are represented as a sequence of the extension identifier
- * (Object Identifier), a boolean flag stating whether the extension is to
- * be treated as being critical and the extension value itself (this is again
- * a DER encoding of the extension value).
+ * 
+ * <p>
+ * Extensions are addiitonal attributes which can be inserted in a X509 v3
+ * certificate. For example a "Driving License Certificate" could have the
+ * driving license number as a extension.
+ * 
+ * <p>
+ * Extensions are represented as a sequence of the extension identifier (Object
+ * Identifier), a boolean flag stating whether the extension is to be treated as
+ * being critical and the extension value itself (this is again a DER encoding
+ * of the extension value).
+ * 
  * <pre>
  * ASN.1 definition of Extension:
  * Extension ::= SEQUENCE {
- *	ExtensionId	OBJECT IDENTIFIER,
- *	critical	BOOLEAN DEFAULT FALSE,
- *	extensionValue	OCTET STRING
+ * ExtensionId	OBJECT IDENTIFIER,
+ * critical	BOOLEAN DEFAULT FALSE,
+ * extensionValue	OCTET STRING
  * }
  * </pre>
- *
+ * 
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  * @version 1.9
@@ -55,14 +57,15 @@ public class Extension implements Serializable {
      *
      */
     private static final long serialVersionUID = -643549610716024753L;
-    protected ObjectIdentifier	extensionId = null;
-    protected boolean		critical = false;
-    protected byte[]		extensionValue = null;
+    protected ObjectIdentifier extensionId = null;
+    protected boolean critical = false;
+    protected byte[] extensionValue = null;
 
     /**
-     * Default constructor.  Used only by sub-classes.
+     * Default constructor. Used only by sub-classes.
      */
-    public Extension() { }
+    public Extension() {
+    }
 
     /**
      * Constructs an extension from a DER encoded array of bytes.
@@ -97,7 +100,7 @@ public class Extension implements Serializable {
      * @param extensionValue the DER encoded octet string of the value.
      */
     public Extension(ObjectIdentifier extensionId, boolean critical,
-                     byte[] extensionValue) throws IOException {
+            byte[] extensionValue) throws IOException {
         this.extensionId = extensionId;
         this.critical = critical;
         // passed in a DER encoded octet string, strip off the tag
@@ -107,8 +110,8 @@ public class Extension implements Serializable {
     }
 
     /**
-     * Constructs an Extension from another extension. To be used for
-     * creating decoded subclasses.
+     * Constructs an Extension from another extension. To be used for creating
+     * decoded subclasses.
      * 
      * @param ext the extension to create from.
      */
@@ -120,7 +123,7 @@ public class Extension implements Serializable {
 
     /**
      * Write the extension to the DerOutputStream.
-     *
+     * 
      * @param out the DerOutputStream to write the extension to.
      * @exception IOException on encoding errors
      */
@@ -134,7 +137,7 @@ public class Extension implements Serializable {
         if (critical)
             bytes.putBoolean(critical);
         if (extensionValue != null)
-        bytes.putOctetString(extensionValue);
+            bytes.putOctetString(extensionValue);
 
         out.write(DerValue.tag_Sequence, bytes);
     }
@@ -147,11 +150,11 @@ public class Extension implements Serializable {
     }
 
     public void setCritical(boolean c) {
-	critical = c;
+        critical = c;
     }
 
     public void clearValue() {
-	extensionValue = null;
+        extensionValue = null;
     }
 
     /**
@@ -162,13 +165,13 @@ public class Extension implements Serializable {
     }
 
     public void setExtensionId(ObjectIdentifier oid) {
-         extensionId = oid;
+        extensionId = oid;
     }
 
     /**
      * Returns the extension value as an byte array for further processing.
-     * Note, this is the raw DER value of the extension, not the DER
-     * encoded octet string which is in the certificate.
+     * Note, this is the raw DER value of the extension, not the DER encoded
+     * octet string which is in the certificate.
      */
     public byte[] getExtensionValue() {
         if (extensionValue == null)

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.notification;
 
-
 import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateParsingException;
@@ -44,12 +43,12 @@ import com.netscape.certsrv.notification.IEmailResolver;
 import com.netscape.certsrv.notification.IEmailResolverKeys;
 import com.netscape.certsrv.request.IRequest;
 
-
 /**
- * An email resolver that first checks the request email, if none,
- * then follows by checking the subjectDN of the certificate, if none,
- * then follows by checking the subjectalternatename extension
+ * An email resolver that first checks the request email, if none, then follows
+ * by checking the subjectDN of the certificate, if none, then follows by
+ * checking the subjectalternatename extension
  * <p>
+ * 
  * @author cfu
  * @version $Revision$, $Date$
  */
@@ -60,18 +59,19 @@ public class ReqCertSANameEmailResolver implements IEmailResolver {
     public static final String KEY_CERT = IEmailResolverKeys.KEY_CERT;
 
     // required keys for this resolver to figure out the email address
-    //	protected static String[] mRequiredKeys = {KEY_REQUEST, KEY_CERT};
+    // protected static String[] mRequiredKeys = {KEY_REQUEST, KEY_CERT};
 
     public ReqCertSANameEmailResolver() {
     }
 
     /**
-     * returns an email address by using the resolver keys.  The
-     *	 return value can possibly be null
+     * returns an email address by using the resolver keys. The return value can
+     * possibly be null
+     * 
      * @param keys list of keys used for resolving the email address
      */
-    public String getEmail(IEmailResolverKeys keys) 
-        throws EBaseException, ENotificationException {
+    public String getEmail(IEmailResolverKeys keys) throws EBaseException,
+            ENotificationException {
         IRequest req = (IRequest) keys.get(KEY_REQUEST);
 
         String mEmail = null;
@@ -99,33 +99,32 @@ public class ReqCertSANameEmailResolver implements IEmailResolver {
 
         if (request instanceof RevokedCertImpl) {
             RevokedCertImpl revCert = (RevokedCertImpl) request;
-            ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem(CMS.SUBSYSTEM_CA);
+            ICertificateAuthority ca = (ICertificateAuthority) CMS
+                    .getSubsystem(CMS.SUBSYSTEM_CA);
             ICertificateRepository certDB = ca.getCertificateRepository();
 
             cert = certDB.getX509Certificate(revCert.getSerialNumber());
-        }else
+        } else
             cert = (X509Certificate) request;
-        
+
         X500Name subjectDN = null;
 
         if (cert != null) {
-            subjectDN =
-                    (X500Name) cert.getSubjectDN();
-			
+            subjectDN = (X500Name) cert.getSubjectDN();
+
             try {
                 mEmail = subjectDN.getEmail();
                 if (mEmail != null) {
                     if (!mEmail.equals("")) {
-                        log(ILogger.LL_INFO, "cert subjectDN E=" +
-                            mEmail);
+                        log(ILogger.LL_INFO, "cert subjectDN E=" + mEmail);
                     }
                 } else {
                     log(ILogger.LL_INFO, "no E component in subjectDN ");
                 }
             } catch (IOException e) {
                 System.out.println("X500Name getEmail failed");
-                throw new ENotificationException (
-                        CMS.getUserMessage("CMS_NOTIFICATION_EMAIL_RESOLVE_FAILED",
+                throw new ENotificationException(CMS.getUserMessage(
+                        "CMS_NOTIFICATION_EMAIL_RESOLVE_FAILED",
                         subjectDN.toString()));
             }
 
@@ -135,34 +134,35 @@ public class ReqCertSANameEmailResolver implements IEmailResolver {
 
                 CMS.debug("about to try subjectalternatename");
                 try {
-                    certInfo = (X509CertInfo)
-                            ((X509CertImpl) cert).get(
-                                X509CertImpl.NAME + "." + X509CertImpl.INFO);
+                    certInfo = (X509CertInfo) ((X509CertImpl) cert)
+                            .get(X509CertImpl.NAME + "." + X509CertImpl.INFO);
                 } catch (CertificateParsingException ex) {
                     log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_NOTIFY_NO_CERTINFO"));
-                    throw new ENotificationException (
-                            CMS.getUserMessage("CMS_NOTIFICATION_EMAIL_RESOLVE_FAILED",
+                            CMS.getLogMessage("CMSCORE_NOTIFY_NO_CERTINFO"));
+                    throw new ENotificationException(CMS.getUserMessage(
+                            "CMS_NOTIFICATION_EMAIL_RESOLVE_FAILED",
                             "subjectDN= " + subjectDN.toString()));
                 }
 
                 CertificateExtensions exts;
 
                 try {
-                    exts = (CertificateExtensions)
-                            certInfo.get(CertificateExtensions.NAME);
+                    exts = (CertificateExtensions) certInfo
+                            .get(CertificateExtensions.NAME);
                 } catch (IOException e) {
                     log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_NOTIFY_GET_EXT", e.toString()));
-                    throw new ENotificationException (
-                            CMS.getUserMessage("CMS_NOTIFICATION_EMAIL_RESOLVE_FAILED",
+                            CMS.getLogMessage("CMSCORE_NOTIFY_GET_EXT",
+                                    e.toString()));
+                    throw new ENotificationException(CMS.getUserMessage(
+                            "CMS_NOTIFICATION_EMAIL_RESOLVE_FAILED",
                             "subjectDN= " + subjectDN.toString()));
 
                 } catch (CertificateException e) {
                     log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_NOTIFY_GET_EXT", e.toString()));
-                    throw new ENotificationException (
-                            CMS.getUserMessage("CMS_NOTIFICATION_EMAIL_RESOLVE_FAILED",
+                            CMS.getLogMessage("CMSCORE_NOTIFY_GET_EXT",
+                                    e.toString()));
+                    throw new ENotificationException(CMS.getUserMessage(
+                            "CMS_NOTIFICATION_EMAIL_RESOLVE_FAILED",
                             "subjectDN= " + subjectDN.toString()));
                 }
 
@@ -170,44 +170,42 @@ public class ReqCertSANameEmailResolver implements IEmailResolver {
                     SubjectAlternativeNameExtension ext;
 
                     try {
-                        ext = 
-                                (SubjectAlternativeNameExtension)
-                                exts.get(SubjectAlternativeNameExtension.NAME);
+                        ext = (SubjectAlternativeNameExtension) exts
+                                .get(SubjectAlternativeNameExtension.NAME);
                     } catch (IOException e) {
                         log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CMSCORE_NOTIFY_GET_EXT", e.toString()));
-                        throw new ENotificationException (
-                                CMS.getUserMessage("CMS_NOTIFICATION_EMAIL_RESOLVE_FAILED",
+                                CMS.getLogMessage("CMSCORE_NOTIFY_GET_EXT",
+                                        e.toString()));
+                        throw new ENotificationException(CMS.getUserMessage(
+                                "CMS_NOTIFICATION_EMAIL_RESOLVE_FAILED",
                                 "subjectDN= " + subjectDN.toString()));
-						
+
                     }
 
                     try {
                         if (ext != null) {
-                            GeneralNames gn =
-                                (GeneralNames) ext.get(SubjectAlternativeNameExtension.SUBJECT_NAME);
+                            GeneralNames gn = (GeneralNames) ext
+                                    .get(SubjectAlternativeNameExtension.SUBJECT_NAME);
 
                             Enumeration e = gn.elements();
 
                             while (e.hasMoreElements()) {
                                 Object g = (Object) e.nextElement();
 
-                                GeneralName gni =
-                                    (GeneralName) g;
+                                GeneralName gni = (GeneralName) g;
 
-                                if (gni.getType() ==
-                                    GeneralNameInterface.NAME_RFC822) {
+                                if (gni.getType() == GeneralNameInterface.NAME_RFC822) {
                                     CMS.debug("got an subjectalternatename email");
 
                                     String nameString = g.toString();
 
                                     // "RFC822Name: " + name
-                                    mEmail =
-                                            nameString.substring(nameString.indexOf(' ') + 1);
+                                    mEmail = nameString.substring(nameString
+                                            .indexOf(' ') + 1);
                                     log(ILogger.LL_INFO,
-                                        "subjectalternatename email used:" +
-                                        mEmail);
-									
+                                            "subjectalternatename email used:"
+                                                    + mEmail);
+
                                     break;
                                 } else {
                                     CMS.debug("not an subjectalternatename email");
@@ -216,42 +214,40 @@ public class ReqCertSANameEmailResolver implements IEmailResolver {
                         }
                     } catch (IOException e) {
                         log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CMSCORE_NOTIFY_SUBJECTALTNAME"));
+                                CMS.getLogMessage("CMSCORE_NOTIFY_SUBJECTALTNAME"));
                     }
                 }
             }
         } else {
             log(ILogger.LL_INFO, "cert null in keys");
         }
-    
+
         // log it
         if (mEmail == null) {
             if (cert != null) {
                 log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_NOTIFY_NO_EMAIL", subjectDN.toString()));
-                CMS.debug(
-                    "no email resolved, throwing NotificationResources.EMAIL_RESOLVE_FAILED_1 for " +
-                    subjectDN.toString());
-                throw new ENotificationException (
-                        CMS.getUserMessage("CMS_NOTIFICATION_EMAIL_RESOLVE_FAILED",
-                        "subjectDN= " + subjectDN.toString()));
+                        CMS.getLogMessage("CMSCORE_NOTIFY_NO_EMAIL",
+                                subjectDN.toString()));
+                CMS.debug("no email resolved, throwing NotificationResources.EMAIL_RESOLVE_FAILED_1 for "
+                        + subjectDN.toString());
+                throw new ENotificationException(CMS.getUserMessage(
+                        "CMS_NOTIFICATION_EMAIL_RESOLVE_FAILED", "subjectDN= "
+                                + subjectDN.toString()));
             } else if (req != null) {
-                log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_NOTIFY_NO_EMAIL_ID",
-                        req.getRequestId().toString()));
-                CMS.debug(
-                    "no email resolved, throwing NotificationResources.EMAIL_RESOLVE_FAILED_1 for request id =" +
-                    req.getRequestId().toString());
-                throw new ENotificationException (
-                        CMS.getUserMessage("CMS_NOTIFICATION_EMAIL_RESOLVE_FAILED",
-                        "requestId= " + req.getRequestId().toString()));
+                log(ILogger.LL_FAILURE, CMS.getLogMessage(
+                        "CMSCORE_NOTIFY_NO_EMAIL_ID", req.getRequestId()
+                                .toString()));
+                CMS.debug("no email resolved, throwing NotificationResources.EMAIL_RESOLVE_FAILED_1 for request id ="
+                        + req.getRequestId().toString());
+                throw new ENotificationException(CMS.getUserMessage(
+                        "CMS_NOTIFICATION_EMAIL_RESOLVE_FAILED", "requestId= "
+                                + req.getRequestId().toString()));
             } else {
                 log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_NOTIFY_NO_EMAIL_REQUEST"));
-                CMS.debug(
-                    "no email resolved, throwing NotificationResources.EMAIL_RESOLVE_FAILED_1.  No request id or cert info found");
-                throw new ENotificationException (
-                        CMS.getUserMessage("CMS_NOTIFICATION_EMAIL_RESOLVE_FAILED",
+                        CMS.getLogMessage("CMSCORE_NOTIFY_NO_EMAIL_REQUEST"));
+                CMS.debug("no email resolved, throwing NotificationResources.EMAIL_RESOLVE_FAILED_1.  No request id or cert info found");
+                throw new ENotificationException(CMS.getUserMessage(
+                        "CMS_NOTIFICATION_EMAIL_RESOLVE_FAILED",
                         ": No request id or cert info found"));
             }
         } else {
@@ -263,18 +259,19 @@ public class ReqCertSANameEmailResolver implements IEmailResolver {
 
     /**
      * Returns array of required keys for this email resolver
+     * 
      * @return Array of required keys.
      */
-    
-    /*	public String[] getRequiredKeys() {
-     return mRequiredKeys;
-     }*/
+
+    /*
+     * public String[] getRequiredKeys() { return mRequiredKeys; }
+     */
 
     private void log(int level, String msg) {
         if (mLogger == null)
             return;
-        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_OTHER,
-            level, "ReqCertSANameEmailResolver: " + msg);
+        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_OTHER, level,
+                "ReqCertSANameEmailResolver: " + msg);
     }
 
 }

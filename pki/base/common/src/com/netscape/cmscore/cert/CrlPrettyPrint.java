@@ -17,20 +17,18 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.cert;
 
-
 import netscape.security.x509.X509CRLImpl;
 
 import com.netscape.certsrv.base.ICRLPrettyPrint;
 
-
 /**
- * This class will display the certificate content in predefined
- * format.
- *
+ * This class will display the certificate content in predefined format.
+ * 
  * @author Andrew Wnuk
  * @version $Revision$, $Date$
  */
-public class CrlPrettyPrint extends netscape.security.util.CrlPrettyPrint implements ICRLPrettyPrint {
+public class CrlPrettyPrint extends netscape.security.util.CrlPrettyPrint
+        implements ICRLPrettyPrint {
 
     public CrlPrettyPrint(X509CRLImpl crl) {
         super(crl);

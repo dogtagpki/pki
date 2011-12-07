@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.policy.extensions;
 
-
 import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.util.Locale;
@@ -43,22 +42,21 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cms.policy.APolicyRule;
 
-
 /**
- * Policy Mappings Extension Policy
- * Adds the Policy Mappings extension to a (CA) certificate. 
- * Filtering of CA certificates is done through predicates.
+ * Policy Mappings Extension Policy Adds the Policy Mappings extension to a (CA)
+ * certificate. Filtering of CA certificates is done through predicates.
  * <P>
+ * 
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- *
+ * 
  * @deprecated
  * @version $Revision$, $Date$
  */
-public class PolicyMappingsExt extends APolicyRule
-    implements IEnrollmentPolicy, IExtendedPluginInfo {
+public class PolicyMappingsExt extends APolicyRule implements
+        IEnrollmentPolicy, IExtendedPluginInfo {
     protected static final String PROP_CRITICAL = "critical";
     protected static final String PROP_NUM_POLICYMAPPINGS = "numPolicyMappings";
 
@@ -85,53 +83,47 @@ public class PolicyMappingsExt extends APolicyRule
     /**
      * Initializes this policy rule.
      * <P>
-     *
+     * 
      * The entries may be of the form:
-     *
-     *      ca.Policy.rule.<ruleName>.predicate=certType==ca
-     *      ca.Policy.rule.<ruleName>.implName=
-     *      ca.Policy.rule.<ruleName>.enable=true
-     *
-     * @param config	The config store reference
+     * 
+     * ca.Policy.rule.<ruleName>.predicate=certType==ca
+     * ca.Policy.rule.<ruleName>.implName= ca.Policy.rule.<ruleName>.enable=true
+     * 
+     * @param config The config store reference
      */
     public void init(ISubsystem owner, IConfigStore config)
-        throws EBaseException {
+            throws EBaseException {
         mConfig = config;
 
-        // XXX should do do this ? 
-        // if CA does not allow subordinate CAs by way of basic constraints, 
-        // this policy always rejects 
+        // XXX should do do this ?
+        // if CA does not allow subordinate CAs by way of basic constraints,
+        // this policy always rejects
         /*****
-         ICertAuthority certAuthority = (ICertAuthority)
-         ((IPolicyProcessor)owner).getAuthority();
-         if (certAuthority instanceof ICertificateAuthority) {
-         CertificateChain caChain = certAuthority.getCACertChain();
-         X509Certificate caCert = null;
-         // Note that in RA the chain could be null if CA was not up when
-         // RA was started. In that case just set the length to -1 and let
-         // CA reject if it does not allow any subordinate CA certs.
-         if (caChain != null) {
-         caCert = caChain.getFirstCertificate();
-         if (caCert != null) 
-         mCAPathLen = caCert.getBasicConstraints();
-         }
-         }
+         * ICertAuthority certAuthority = (ICertAuthority)
+         * ((IPolicyProcessor)owner).getAuthority(); if (certAuthority
+         * instanceof ICertificateAuthority) { CertificateChain caChain =
+         * certAuthority.getCACertChain(); X509Certificate caCert = null; //
+         * Note that in RA the chain could be null if CA was not up when // RA
+         * was started. In that case just set the length to -1 and let // CA
+         * reject if it does not allow any subordinate CA certs. if (caChain !=
+         * null) { caCert = caChain.getFirstCertificate(); if (caCert != null)
+         * mCAPathLen = caCert.getBasicConstraints(); } }
          ****/
 
-        mEnabled = mConfig.getBoolean(
-                    IPolicyProcessor.PROP_ENABLE, false);
+        mEnabled = mConfig.getBoolean(IPolicyProcessor.PROP_ENABLE, false);
         mCritical = mConfig.getBoolean(PROP_CRITICAL, DEF_CRITICAL);
 
-        mNumPolicyMappings = mConfig.getInteger(
-                    PROP_NUM_POLICYMAPPINGS, DEF_NUM_POLICYMAPPINGS);
+        mNumPolicyMappings = mConfig.getInteger(PROP_NUM_POLICYMAPPINGS,
+                DEF_NUM_POLICYMAPPINGS);
         if (mNumPolicyMappings < 1) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("BASE_INVALID_ATTR_VALUE_2", NAME, ""));
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE",
-                        PROP_NUM_POLICYMAPPINGS,
-                        "value must be greater than or equal to 1"));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("BASE_INVALID_ATTR_VALUE_2", NAME, ""));
+            throw new EBaseException(CMS.getUserMessage(
+                    "CMS_BASE_INVALID_ATTR_VALUE", PROP_NUM_POLICYMAPPINGS,
+                    "value must be greater than or equal to 1"));
         }
 
-        // init Policy Mappings, check values if enabled. 
+        // init Policy Mappings, check values if enabled.
         mPolicyMaps = new PolicyMap[mNumPolicyMappings];
         for (int i = 0; i < mNumPolicyMappings; i++) {
             String subtreeName = PROP_POLICYMAP + i;
@@ -139,8 +131,11 @@ public class PolicyMappingsExt extends APolicyRule
             try {
                 mPolicyMaps[i] = new PolicyMap(subtreeName, mConfig, mEnabled);
             } catch (EBaseException e) {
-                log(ILogger.LL_FAILURE, NAME + ": " +
-                    CMS.getLogMessage("POLICY_ERROR_CREATE_MAP", e.toString()));
+                log(ILogger.LL_FAILURE,
+                        NAME
+                                + ": "
+                                + CMS.getLogMessage("POLICY_ERROR_CREATE_MAP",
+                                        e.toString()));
                 throw e;
             }
         }
@@ -151,22 +146,22 @@ public class PolicyMappingsExt extends APolicyRule
                 Vector certPolicyMaps = new Vector();
 
                 for (int j = 0; j < mNumPolicyMappings; j++) {
-                    certPolicyMaps.addElement(
-                        mPolicyMaps[j].mCertificatePolicyMap);
+                    certPolicyMaps
+                            .addElement(mPolicyMaps[j].mCertificatePolicyMap);
                 }
-                mPolicyMappingsExtension = 
-                        new PolicyMappingsExtension(mCritical, certPolicyMaps);
+                mPolicyMappingsExtension = new PolicyMappingsExtension(
+                        mCritical, certPolicyMaps);
             } catch (IOException e) {
-                throw new EBaseException(
-                        CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR",
-                            "Error initializing " + NAME + " Error: " + e));
+                throw new EBaseException(CMS.getUserMessage(
+                        "CMS_BASE_INTERNAL_ERROR", "Error initializing " + NAME
+                                + " Error: " + e));
             }
         }
 
-        // form instance params 
+        // form instance params
         mInstanceParams.addElement(PROP_CRITICAL + "=" + mCritical);
-        mInstanceParams.addElement(
-            PROP_NUM_POLICYMAPPINGS + "=" + mNumPolicyMappings);
+        mInstanceParams.addElement(PROP_NUM_POLICYMAPPINGS + "="
+                + mNumPolicyMappings);
         for (int i = 0; i < mNumPolicyMappings; i++) {
             mPolicyMaps[i].getInstanceParams(mInstanceParams);
         }
@@ -175,28 +170,27 @@ public class PolicyMappingsExt extends APolicyRule
     /**
      * Adds policy mappings Extension to a (CA) certificate.
      * 
-     * If a policy mappings Extension is already there, accept it if 
-     * it's been approved by agent, else replace it.
-     *
-     * @param req	The request on which to apply policy.
+     * If a policy mappings Extension is already there, accept it if it's been
+     * approved by agent, else replace it.
+     * 
+     * @param req The request on which to apply policy.
      * @return The policy result object.
      */
     public PolicyResult apply(IRequest req) {
-        // if extension hasn't been properly configured reject requests until 
+        // if extension hasn't been properly configured reject requests until
         // it has been resolved (or disabled).
         if (mPolicyMappingsExtension == null) {
-            //setError(req, PolicyResources.EXTENSION_NOT_INITED_1, NAME);
-            //return PolicyResult.REJECTED;
+            // setError(req, PolicyResources.EXTENSION_NOT_INITED_1, NAME);
+            // return PolicyResult.REJECTED;
             return PolicyResult.ACCEPTED;
         }
 
         // get certInfo from request.
-        X509CertInfo[] ci = 
-            req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
-		
+        X509CertInfo[] ci = req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
+
         if (ci == null || ci[0] == null) {
             setError(req, CMS.getUserMessage("CMS_POLICY_NO_CERT_INFO"), NAME);
-            return PolicyResult.REJECTED; 
+            return PolicyResult.REJECTED;
         }
 
         for (int i = 0; i < ci.length; i++) {
@@ -214,16 +208,16 @@ public class PolicyMappingsExt extends APolicyRule
         // else ignore.
         try {
             PolicyMappingsExtension policyMappingsExt = null;
-            CertificateExtensions extensions = (CertificateExtensions)
-                certInfo.get(X509CertInfo.EXTENSIONS);
+            CertificateExtensions extensions = (CertificateExtensions) certInfo
+                    .get(X509CertInfo.EXTENSIONS);
 
             try {
                 if (extensions != null) {
-                    policyMappingsExt = (PolicyMappingsExtension)
-                            extensions.get(PolicyMappingsExtension.NAME);
+                    policyMappingsExt = (PolicyMappingsExtension) extensions
+                            .get(PolicyMappingsExtension.NAME);
                 }
             } catch (IOException e) {
-                // extension isn't there. 
+                // extension isn't there.
             }
 
             if (policyMappingsExt != null) {
@@ -235,88 +229,93 @@ public class PolicyMappingsExt extends APolicyRule
             }
 
             if (extensions == null) {
-                certInfo.set(X509CertInfo.VERSION,
-                    new CertificateVersion(CertificateVersion.V3));
+                certInfo.set(X509CertInfo.VERSION, new CertificateVersion(
+                        CertificateVersion.V3));
                 extensions = new CertificateExtensions();
                 certInfo.set(X509CertInfo.EXTENSIONS, extensions);
             }
-            extensions.set(
-                PolicyMappingsExtension.NAME, mPolicyMappingsExtension);
+            extensions.set(PolicyMappingsExtension.NAME,
+                    mPolicyMappingsExtension);
             return PolicyResult.ACCEPTED;
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("POLICY_ERROR_PROCESS_POLICYMAP_EXT", e.getMessage()));
-            setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"), 
-                NAME, e.getMessage());
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("POLICY_ERROR_PROCESS_POLICYMAP_EXT",
+                            e.getMessage()));
+            setError(req,
+                    CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"),
+                    NAME, e.getMessage());
             return PolicyResult.REJECTED;
         } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CA_CERT_INFO_ERROR", e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CA_CERT_INFO_ERROR", e.toString()));
 
-            setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"), 
-                NAME, "Certificate Info Error");
+            setError(req,
+                    CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"),
+                    NAME, "Certificate Info Error");
             return PolicyResult.REJECTED;
         }
     }
 
     /**
      * Return configured parameters for a policy rule instance.
-     *
+     * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getInstanceParams() { 
+    public Vector getInstanceParams() {
         return mInstanceParams;
     }
 
     /**
-     * Default config parameters. 
-     * To add more permitted or excluded subtrees, 
-     * increase the num to greater than 0 and more configuration params 
-     * will show up in the console.
+     * Default config parameters. To add more permitted or excluded subtrees,
+     * increase the num to greater than 0 and more configuration params will
+     * show up in the console.
      */
     private static Vector mDefParams = new Vector();
     static {
         mDefParams.addElement(PROP_CRITICAL + "=" + DEF_CRITICAL);
-        mDefParams.addElement(
-            PROP_NUM_POLICYMAPPINGS + "=" + DEF_NUM_POLICYMAPPINGS);
+        mDefParams.addElement(PROP_NUM_POLICYMAPPINGS + "="
+                + DEF_NUM_POLICYMAPPINGS);
         String policyMap0Dot = PROP_POLICYMAP + "0.";
 
-        mDefParams.addElement(
-            policyMap0Dot + PolicyMap.PROP_ISSUER_DOMAIN_POLICY + "=" + "");
-        mDefParams.addElement(
-            policyMap0Dot + PolicyMap.PROP_SUBJECT_DOMAIN_POLICY + "=" + "");
+        mDefParams.addElement(policyMap0Dot
+                + PolicyMap.PROP_ISSUER_DOMAIN_POLICY + "=" + "");
+        mDefParams.addElement(policyMap0Dot
+                + PolicyMap.PROP_SUBJECT_DOMAIN_POLICY + "=" + "");
     }
 
     /**
      * Return default parameters for a policy implementation.
-     *
+     * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getDefaultParams() { 
+    public Vector getDefaultParams() {
         return mDefParams;
     }
 
     public String[] getExtendedPluginInfo(Locale locale) {
         Vector theparams = new Vector();
-		
-        theparams.addElement(PROP_CRITICAL + ";boolean;RFC 2459 recommendation: MUST be non-critical.");
-        theparams.addElement(PROP_NUM_POLICYMAPPINGS + ";number; Number of policy mappings. The value must be greater than or equal to 1");
 
-        String policyInfo = 
-            ";string;An object identifier in the form n.n.n.n";
+        theparams.addElement(PROP_CRITICAL
+                + ";boolean;RFC 2459 recommendation: MUST be non-critical.");
+        theparams
+                .addElement(PROP_NUM_POLICYMAPPINGS
+                        + ";number; Number of policy mappings. The value must be greater than or equal to 1");
+
+        String policyInfo = ";string;An object identifier in the form n.n.n.n";
 
         for (int k = 0; k < 5; k++) {
             String policyMapkDot = PROP_POLICYMAP + k + ".";
 
-            theparams.addElement(policyMapkDot +
-                PolicyMap.PROP_ISSUER_DOMAIN_POLICY + policyInfo);
-            theparams.addElement(policyMapkDot +
-                PolicyMap.PROP_SUBJECT_DOMAIN_POLICY + policyInfo);
+            theparams.addElement(policyMapkDot
+                    + PolicyMap.PROP_ISSUER_DOMAIN_POLICY + policyInfo);
+            theparams.addElement(policyMapkDot
+                    + PolicyMap.PROP_SUBJECT_DOMAIN_POLICY + policyInfo);
         }
 
-        theparams.addElement(IExtendedPluginInfo.HELP_TOKEN +
-            ";configuration-policyrules-policymappings");
-        theparams.addElement(IExtendedPluginInfo.HELP_TEXT +
-            ";Adds Policy Mappings Extension. See RFC 2459 (4.2.1.6)");
+        theparams.addElement(IExtendedPluginInfo.HELP_TOKEN
+                + ";configuration-policyrules-policymappings");
+        theparams.addElement(IExtendedPluginInfo.HELP_TEXT
+                + ";Adds Policy Mappings Extension. See RFC 2459 (4.2.1.6)");
 
         String[] params = new String[theparams.size()];
 
@@ -324,7 +323,6 @@ public class PolicyMappingsExt extends APolicyRule
         return params;
     }
 }
-
 
 class PolicyMap {
 
@@ -340,89 +338,89 @@ class PolicyMap {
 
     /**
      * forms policy map parameters.
+     * 
      * @param name name of this policy map, for example policyMap0
      * @param config parent's config from where we find this configuration.
      * @param enabled whether policy was enabled.
      */
-    protected PolicyMap(String name, IConfigStore config, boolean enabled) 
-        throws EBaseException {
+    protected PolicyMap(String name, IConfigStore config, boolean enabled)
+            throws EBaseException {
         mName = name;
         mConfig = config.getSubStore(mName);
         mNameDot = mName + ".";
 
-        if( mConfig == null ) {
-            CMS.debug( "PolicyMappingsExt::PolicyMap - mConfig is null!" );
+        if (mConfig == null) {
+            CMS.debug("PolicyMappingsExt::PolicyMap - mConfig is null!");
             return;
         }
 
         // if there's no configuration for this map put it there.
         if (mConfig.size() == 0) {
-            config.putString(mNameDot + PROP_ISSUER_DOMAIN_POLICY, ""); 
-            config.putString(mNameDot + PROP_SUBJECT_DOMAIN_POLICY, ""); 
+            config.putString(mNameDot + PROP_ISSUER_DOMAIN_POLICY, "");
+            config.putString(mNameDot + PROP_SUBJECT_DOMAIN_POLICY, "");
             mConfig = config.getSubStore(mName);
             if (mConfig == null || mConfig.size() == 0) {
-	            CMS.debug( "PolicyMappingsExt::PolicyMap - mConfig " +
-                           "is null or empty!" );
+                CMS.debug("PolicyMappingsExt::PolicyMap - mConfig "
+                        + "is null or empty!");
                 return;
             }
         }
 
         // get policy ids from configuration.
-        mIssuerDomainPolicy = 
-                mConfig.getString(PROP_ISSUER_DOMAIN_POLICY, null);
-        mSubjectDomainPolicy = 
-                mConfig.getString(PROP_SUBJECT_DOMAIN_POLICY, null);
+        mIssuerDomainPolicy = mConfig
+                .getString(PROP_ISSUER_DOMAIN_POLICY, null);
+        mSubjectDomainPolicy = mConfig.getString(PROP_SUBJECT_DOMAIN_POLICY,
+                null);
 
         // adjust for "" and console returning "null"
-        if (mIssuerDomainPolicy != null && 
-            (mIssuerDomainPolicy.length() == 0 || 
-                mIssuerDomainPolicy.equals("null"))) {
+        if (mIssuerDomainPolicy != null
+                && (mIssuerDomainPolicy.length() == 0 || mIssuerDomainPolicy
+                        .equals("null"))) {
             mIssuerDomainPolicy = null;
         }
-        if (mSubjectDomainPolicy != null && 
-            (mSubjectDomainPolicy.length() == 0 || 
-                mSubjectDomainPolicy.equals("null"))) {
+        if (mSubjectDomainPolicy != null
+                && (mSubjectDomainPolicy.length() == 0 || mSubjectDomainPolicy
+                        .equals("null"))) {
             mSubjectDomainPolicy = null;
         }
 
         // policy ids cannot be null if policy is enabled.
         String msg = "value cannot be null.";
 
-        if (mIssuerDomainPolicy == null && enabled) 
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE",
-                        mNameDot + PROP_ISSUER_DOMAIN_POLICY, msg));
-        if (mSubjectDomainPolicy == null && enabled) 
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE",
-                        mNameDot + PROP_SUBJECT_DOMAIN_POLICY, msg));
+        if (mIssuerDomainPolicy == null && enabled)
+            throw new EBaseException(CMS.getUserMessage(
+                    "CMS_BASE_INVALID_ATTR_VALUE", mNameDot
+                            + PROP_ISSUER_DOMAIN_POLICY, msg));
+        if (mSubjectDomainPolicy == null && enabled)
+            throw new EBaseException(CMS.getUserMessage(
+                    "CMS_BASE_INVALID_ATTR_VALUE", mNameDot
+                            + PROP_SUBJECT_DOMAIN_POLICY, msg));
 
-            // if a policy id is not null check that it is a valid OID.
+        // if a policy id is not null check that it is a valid OID.
         ObjectIdentifier issuerPolicyId = null;
         ObjectIdentifier subjectPolicyId = null;
 
-        if (mIssuerDomainPolicy != null) 
-            issuerPolicyId = CMS.checkOID(
-                        mNameDot + PROP_ISSUER_DOMAIN_POLICY, mIssuerDomainPolicy);
-        if (mSubjectDomainPolicy != null) 
-            subjectPolicyId = CMS.checkOID(
-                        mNameDot + PROP_SUBJECT_DOMAIN_POLICY, mSubjectDomainPolicy);
-		
-            // if enabled, form CertificatePolicyMap to be encoded in extension.
-            // policy ids should be all set.
+        if (mIssuerDomainPolicy != null)
+            issuerPolicyId = CMS.checkOID(mNameDot + PROP_ISSUER_DOMAIN_POLICY,
+                    mIssuerDomainPolicy);
+        if (mSubjectDomainPolicy != null)
+            subjectPolicyId = CMS.checkOID(mNameDot
+                    + PROP_SUBJECT_DOMAIN_POLICY, mSubjectDomainPolicy);
+
+        // if enabled, form CertificatePolicyMap to be encoded in extension.
+        // policy ids should be all set.
         if (enabled) {
             mCertificatePolicyMap = new CertificatePolicyMap(
-                        new CertificatePolicyId(issuerPolicyId),
-                        new CertificatePolicyId(subjectPolicyId));
+                    new CertificatePolicyId(issuerPolicyId),
+                    new CertificatePolicyId(subjectPolicyId));
         }
     }
 
     protected void getInstanceParams(Vector instanceParams) {
-        instanceParams.addElement(
-            mNameDot + PROP_ISSUER_DOMAIN_POLICY + "=" + (mIssuerDomainPolicy == null ? "" :
-                mIssuerDomainPolicy));
-        instanceParams.addElement(
-            mNameDot + PROP_SUBJECT_DOMAIN_POLICY + "=" + (mSubjectDomainPolicy == null ? "" :
-                mSubjectDomainPolicy));
+        instanceParams.addElement(mNameDot + PROP_ISSUER_DOMAIN_POLICY + "="
+                + (mIssuerDomainPolicy == null ? "" : mIssuerDomainPolicy));
+        instanceParams.addElement(mNameDot + PROP_SUBJECT_DOMAIN_POLICY + "="
+                + (mSubjectDomainPolicy == null ? "" : mSubjectDomainPolicy));
     }
 
 }
-

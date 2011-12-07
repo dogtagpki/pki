@@ -23,76 +23,70 @@ import netscape.security.util.DerOutputStream;
 import netscape.security.util.DerValue;
 import netscape.security.util.ObjectIdentifier;
 
-
 /**
  * Represent the PolicyQualifierInfo.
- *
- * policyQualifierInfo ::= SEQUENCE {
- *   policyQualifierId PolicyQualifierId
- *   qualifier ANY  DEFINED BY policyQualifierId
- * }
- *
+ * 
+ * policyQualifierInfo ::= SEQUENCE { policyQualifierId PolicyQualifierId
+ * qualifier ANY DEFINED BY policyQualifierId }
+ * 
  * @author Thomas Kwan
  */
-public class PolicyQualifierInfo  implements java.io.Serializable {
+public class PolicyQualifierInfo implements java.io.Serializable {
 
     /**
      *
      */
     private static final long serialVersionUID = -2930016944517192379L;
     public static final int OID_CPS[] = { 1, 3, 6, 1, 5, 5, 7, 2, 1 };
-    public static final ObjectIdentifier QT_CPS = new
-       ObjectIdentifier(OID_CPS);
+    public static final ObjectIdentifier QT_CPS = new ObjectIdentifier(OID_CPS);
 
     public static final int OID_UNOTICE[] = { 1, 3, 6, 1, 5, 5, 7, 2, 2 };
-    public static final ObjectIdentifier QT_UNOTICE = new
-       ObjectIdentifier(OID_UNOTICE);
+    public static final ObjectIdentifier QT_UNOTICE = new ObjectIdentifier(
+            OID_UNOTICE);
 
     private ObjectIdentifier mId = null;
     private Qualifier mQualifier = null;
 
     /**
      * Create a PolicyQualifierInfo
-     *
+     * 
      * @param id the ObjectIdentifier for the policy id.
      */
     public PolicyQualifierInfo(ObjectIdentifier id, Qualifier qualifier) {
-	mId = id;
-	mQualifier = qualifier;
+        mId = id;
+        mQualifier = qualifier;
     }
 
     /**
      * Create the object from its Der encoded value.
-     *
+     * 
      * @param val the DER encoded value for the same.
      */
     public PolicyQualifierInfo(DerValue val) throws IOException {
-       if (val.tag != DerValue.tag_Sequence) {
-          throw new IOException("Invalid encoding for PolicyQualifierInfo.");
-       }
+        if (val.tag != DerValue.tag_Sequence) {
+            throw new IOException("Invalid encoding for PolicyQualifierInfo.");
+        }
         DerValue did = val.data.getDerValue();
         mId = did.getOID();
-	if (val.data.available() != 0) {
-        DerValue qualifier = val.data.getDerValue();
-        if (qualifier.tag == DerValue.tag_IA5String) {
-		mQualifier = new CPSuri(qualifier);
-	} else {
-		mQualifier = new UserNotice(qualifier);
-	}
-	}
+        if (val.data.available() != 0) {
+            DerValue qualifier = val.data.getDerValue();
+            if (qualifier.tag == DerValue.tag_IA5String) {
+                mQualifier = new CPSuri(qualifier);
+            } else {
+                mQualifier = new UserNotice(qualifier);
+            }
+        }
     }
 
-    public ObjectIdentifier getId()
-    {
-      return mId;
+    public ObjectIdentifier getId() {
+        return mId;
     }
 
     /**
      * Returns object of type CPSuri or UserNotice.
      */
-    public Qualifier getQualifier() 
-    {
-      return mQualifier;
+    public Qualifier getQualifier() {
+        return mQualifier;
     }
 
     /**
@@ -108,14 +102,14 @@ public class PolicyQualifierInfo  implements java.io.Serializable {
 
     /**
      * Write the PolicyQualifier to the DerOutputStream.
-     *
+     * 
      * @param out the DerOutputStream to write the object to.
      * @exception IOException on errors.
      */
     public void encode(DerOutputStream out) throws IOException {
-       DerOutputStream tmp = new DerOutputStream();
-       tmp.putOID(mId);
-       mQualifier.encode(tmp);
-       out.write(DerValue.tag_Sequence,tmp);
+        DerOutputStream tmp = new DerOutputStream();
+        tmp.putOID(mId);
+        mQualifier.encode(tmp);
+        out.write(DerValue.tag_Sequence, tmp);
     }
 }

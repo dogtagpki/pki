@@ -16,7 +16,6 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.common;
- 
 
 import java.util.Enumeration;
 import java.util.Locale;
@@ -27,10 +26,9 @@ import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 
-
 /**
- * Default error template filler 
- *
+ * Default error template filler
+ * 
  * @version $Revision$, $Date$
  */
 public class GenErrorTemplateFiller implements ICMSTemplateFiller {
@@ -38,14 +36,15 @@ public class GenErrorTemplateFiller implements ICMSTemplateFiller {
     }
 
     /**
-     * fill error details and description if any. 
+     * fill error details and description if any.
+     * 
      * @param cmsReq the CMS Request.
      * @param authority the authority
      * @param locale the locale of template.
      * @param e unexpected error. ignored.
      */
-    public CMSTemplateParams getTemplateParams(
-        CMSRequest cmsReq, IAuthority authority, Locale locale, Exception e) {
+    public CMSTemplateParams getTemplateParams(CMSRequest cmsReq,
+            IAuthority authority, Locale locale, Exception e) {
         IArgBlock fixed = CMS.createArgBlock();
         CMSTemplateParams params = new CMSTemplateParams(null, fixed);
 
@@ -53,31 +52,33 @@ public class GenErrorTemplateFiller implements ICMSTemplateFiller {
         if (cmsReq != null) {
             Integer sts = cmsReq.getStatus();
 
-            if (sts != null) 
+            if (sts != null)
                 fixed.set(ICMSTemplateFiller.REQUEST_STATUS, sts.toString());
         } else {
-            CMS.debug( "GenErrorTemplateFiller::getTemplateParams() - " +
-                       "cmsReq is null!" );
+            CMS.debug("GenErrorTemplateFiller::getTemplateParams() - "
+                    + "cmsReq is null!");
             return null;
         }
-		
-        // error 
+
+        // error
         String ex = cmsReq.getError();
 
         // Changed by beomsuk
-        /*if (ex == null) 
-         ex = new EBaseException(CMS.getLogMessage("BASE_UNKNOWN_ERROR"));
-         fixed.set(ICMSTemplateFiller.ERROR, ex.toString(locale));
+        /*
+         * if (ex == null) ex = new
+         * EBaseException(CMS.getLogMessage("BASE_UNKNOWN_ERROR"));
+         * fixed.set(ICMSTemplateFiller.ERROR, ex.toString(locale));
          */
         if ((ex == null) && (cmsReq.getReason() == null))
-            ex = new EBaseException(CMS.getLogMessage("BASE_UNKNOWN_ERROR")).toString();
+            ex = new EBaseException(CMS.getLogMessage("BASE_UNKNOWN_ERROR"))
+                    .toString();
         else if (ex != null)
             fixed.set(ICMSTemplateFiller.ERROR, ex);
         else if (cmsReq.getReason() != null)
             fixed.set(ICMSTemplateFiller.ERROR, cmsReq.getReason());
-            // Change end
-        
-            // error description if any.
+        // Change end
+
+        // error description if any.
         Vector descr = cmsReq.getErrorDescr();
 
         if (descr != null) {
@@ -85,20 +86,17 @@ public class GenErrorTemplateFiller implements ICMSTemplateFiller {
 
             while (num.hasMoreElements()) {
                 String elem = (String) num.nextElement();
-                //System.out.println("Setting description "+elem.toString());
+                // System.out.println("Setting description "+elem.toString());
                 IArgBlock argBlock = CMS.createArgBlock();
 
-                argBlock.set(ICMSTemplateFiller.ERROR_DESCR, 
-                    elem);
+                argBlock.set(ICMSTemplateFiller.ERROR_DESCR, elem);
                 params.addRepeatRecord(argBlock);
             }
         }
 
         // this authority
-        if (authority != null) 
-            fixed.set(ICMSTemplateFiller.AUTHORITY, 
-                authority.getOfficialName());
+        if (authority != null)
+            fixed.set(ICMSTemplateFiller.AUTHORITY, authority.getOfficialName());
         return params;
     }
 }
-

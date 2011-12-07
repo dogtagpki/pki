@@ -17,15 +17,14 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.kra;
 
-
 import java.math.BigInteger;
 import java.util.Date;
-
 
 /**
  * An interface represents a proof of archival.
  * <P>
  * Here is the ASN1 definition of a proof of escrow:
+ * 
  * <PRE>
  * ProofOfArchival ::= SIGNED {
  *   SEQUENCE {
@@ -46,35 +45,35 @@ public interface IProofOfArchival {
 
     /**
      * Retrieves version of this proof.
-     *
+     * 
      * @return version
      */
     public BigInteger getVersion();
 
     /**
      * Retrieves the serial number.
-     *
+     * 
      * @return serial number
      */
     public BigInteger getSerialNumber();
 
     /**
      * Retrieves the subject name.
-     *
+     * 
      * @return subject name
      */
     public String getSubjectName();
 
     /**
      * Retrieves the issuer name.
-     *
+     * 
      * @return issuer name
      */
     public String getIssuerName();
 
     /**
      * Returns the beginning of the escrowed perioid.
-     *
+     * 
      * @return date of archival
      */
     public Date getDateOfArchival();

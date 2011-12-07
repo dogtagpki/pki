@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.request;
 
-
 //
 // The Schema class contains constant string values for
 // LDAP attribute and object class names used in this package
@@ -44,7 +43,7 @@ class Schema {
     public static final String LDAP_ATTR_EXT_ATTR = "extAttr";
 
     // Indicates a special state that may be searched for exactly
-    // such as requiresAgentService.  The idea is to reduce the space
+    // such as requiresAgentService. The idea is to reduce the space
     // used in indexes to optimize common queries.
     // NOT IMPLEMENTED
     public static final String LDAP_ATTR_REQUEST_FLAG = "requestFlag";

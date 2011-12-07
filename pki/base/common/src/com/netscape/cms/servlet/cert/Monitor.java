@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.cert;
 
-
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
@@ -51,10 +50,9 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 
-
 /**
  * Provide statistical queries of request and certificate records.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class Monitor extends CMSServlet {
@@ -83,8 +81,8 @@ public class Monitor extends CMSServlet {
 
     /**
      * initialize the servlet. This servlet uses the template file
-	 * 'monitor.template' to render the response.
-     *
+     * 'monitor.template' to render the response.
+     * 
      * @param sc servlet configuration, read from the web.xml file
      */
 
@@ -111,8 +109,8 @@ public class Monitor extends CMSServlet {
      * Process the HTTP request.
      * <ul>
      * <li>http.param startTime start of time period to query
-     * <li>http.param  endTime   end of time period to query
-     * <li>http.param interval  time between queries
+     * <li>http.param endTime end of time period to query
+     * <li>http.param interval time between queries
      * <li>http.param numberOfIntervals number of queries to run
      * <li>http.param maxResults =number
      * <li>http.param timeLimit =time
@@ -126,14 +124,14 @@ public class Monitor extends CMSServlet {
         AuthzToken authzToken = null;
 
         try {
-            authzToken = authorize(mAclMethod, authToken,
-                        mAuthzResourceName, "read");
+            authzToken = authorize(mAclMethod, authToken, mAuthzResourceName,
+                    "read");
         } catch (EAuthzAccessDenied e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
         } catch (Exception e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
         }
 
         if (authzToken == null) {
@@ -158,9 +156,11 @@ public class Monitor extends CMSServlet {
         try {
             form = getTemplate(mFormPath, req, locale);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()));
-            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath,
+                            e.toString()));
+            throw new ECMSGWException(
+                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
 
         try {
@@ -169,10 +169,11 @@ public class Monitor extends CMSServlet {
             interval = req.getParameter("interval");
             numberOfIntervals = req.getParameter("numberOfIntervals");
 
-            process(argSet, header, startTime, endTime, interval, numberOfIntervals, locale[0]);
+            process(argSet, header, startTime, endTime, interval,
+                    numberOfIntervals, locale[0]);
         } catch (EBaseException e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("CMSGW_ERR_PROCESSING_REQ", e.toString()));
+                    CMS.getLogMessage("CMSGW_ERR_PROCESSING_REQ", e.toString()));
             error = e;
         }
 
@@ -182,35 +183,34 @@ public class Monitor extends CMSServlet {
             if (error == null) {
                 String xmlOutput = req.getParameter("xml");
                 if (xmlOutput != null && xmlOutput.equals("true")) {
-                  outputXML(resp, argSet);
+                    outputXML(resp, argSet);
                 } else {
-                  resp.setContentType("text/html");
-                  form.renderOutput(out, argSet);
-                  cmsReq.setStatus(CMSRequest.SUCCESS);
+                    resp.setContentType("text/html");
+                    form.renderOutput(out, argSet);
+                    cmsReq.setStatus(CMSRequest.SUCCESS);
                 }
             } else {
                 cmsReq.setStatus(CMSRequest.ERROR);
                 cmsReq.setError(error);
             }
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE",
-                    e.toString()));
-            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+            log(ILogger.LL_FAILURE, CMS.getLogMessage(
+                    "CMSGW_ERR_STREAM_TEMPLATE", e.toString()));
+            throw new ECMSGWException(
+                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
     }
 
-    private void process(CMSTemplateParams argSet, IArgBlock header, 
-        String startTime, String endTime,
-        String interval, String numberOfIntervals,
-        Locale locale)
-        throws EBaseException {
+    private void process(CMSTemplateParams argSet, IArgBlock header,
+            String startTime, String endTime, String interval,
+            String numberOfIntervals, Locale locale) throws EBaseException {
         if (interval == null || interval.length() == 0) {
             header.addStringValue("error", "Invalid interval: " + interval);
             return;
         }
         if (numberOfIntervals == null || numberOfIntervals.length() == 0) {
-            header.addStringValue("error", "Invalid number of intervals: " + numberOfIntervals);
+            header.addStringValue("error", "Invalid number of intervals: "
+                    + numberOfIntervals);
             return;
         }
 
@@ -235,7 +235,8 @@ public class Monitor extends CMSServlet {
         try {
             iNumberOfIntervals = Integer.parseInt(numberOfIntervals);
         } catch (NumberFormatException nfe) {
-            header.addStringValue("error", "Invalid number of intervals: " + numberOfIntervals);
+            header.addStringValue("error", "Invalid number of intervals: "
+                    + numberOfIntervals);
             return;
         }
 
@@ -270,7 +271,7 @@ public class Monitor extends CMSServlet {
 
         return;
     }
-    
+
     Date nextDate(Date d, int seconds) {
         Date date = new Date((d.getTime()) + ((long) (seconds * 1000)));
 
@@ -288,7 +289,8 @@ public class Monitor extends CMSServlet {
 
             try {
                 if (mCertDB != null) {
-                    filter = Filter(ICertRecord.ATTR_CREATE_TIME, startTime, endTime);
+                    filter = Filter(ICertRecord.ATTR_CREATE_TIME, startTime,
+                            endTime);
 
                     Enumeration e = mCertDB.findCertRecs(filter);
 
@@ -306,18 +308,21 @@ public class Monitor extends CMSServlet {
                 }
 
                 if (mQueue != null) {
-                    filter = Filter(IRequestRecord.ATTR_CREATE_TIME, startTime, endTime);
+                    filter = Filter(IRequestRecord.ATTR_CREATE_TIME, startTime,
+                            endTime);
 
                     IRequestList reqList = mQueue.listRequestsByFilter(filter);
 
                     int count = 0;
 
                     while (reqList != null && reqList.hasMoreElements()) {
-                        IRequestRecord rec = (IRequestRecord) reqList.nextRequest();
+                        IRequestRecord rec = (IRequestRecord) reqList
+                                .nextRequest();
 
                         if (rec != null) {
                             if (count == 0) {
-                                arg.addStringValue("firstRequest", rec.getRequestId().toString());
+                                arg.addStringValue("firstRequest", rec
+                                        .getRequestId().toString());
                             }
                             count++;
                         }
@@ -326,20 +331,21 @@ public class Monitor extends CMSServlet {
                     mTotalReqs += count;
                 }
             } catch (Exception ex) {
-                return "Exception: " + ex; 
+                return "Exception: " + ex;
             }
 
             return null;
         } else {
-            return "Missing start or end date"; 
+            return "Missing start or end date";
         }
     }
 
     Date StringToDate(String z) {
         Date d = null;
 
-        if (z != null && (z.length() == 14 ||
-                z.length() == 15 && (z.charAt(14) == 'Z' || z.charAt(14) == 'z'))) {
+        if (z != null
+                && (z.length() == 14 || z.length() == 15
+                        && (z.charAt(14) == 'Z' || z.charAt(14) == 'z'))) {
             // 20020516132030Z or 20020516132030
             try {
                 int year = Integer.parseInt(z.substring(0, 4));
@@ -348,12 +354,12 @@ public class Monitor extends CMSServlet {
                 int hour = Integer.parseInt(z.substring(8, 10));
                 int minute = Integer.parseInt(z.substring(10, 12));
                 int second = Integer.parseInt(z.substring(12, 14));
-                Calendar calendar= Calendar.getInstance();
+                Calendar calendar = Calendar.getInstance();
                 calendar.set(year, month, date, hour, minute, second);
                 d = calendar.getTime();
             } catch (NumberFormatException nfe) {
             }
-        } else if (z != null && z.length() > 1 && z.charAt(0) == '-') {  // -5
+        } else if (z != null && z.length() > 1 && z.charAt(0) == '-') { // -5
             try {
                 int i = Integer.parseInt(z);
 
@@ -370,37 +376,42 @@ public class Monitor extends CMSServlet {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(d);
 
-
         String time = "" + (calendar.get(Calendar.YEAR));
         int i = calendar.get(Calendar.MONTH) + 1;
 
-        if (i < 10) time += "0";
+        if (i < 10)
+            time += "0";
         time += i;
-        i =  calendar.get(Calendar.DAY_OF_MONTH);
-        if (i < 10) time += "0";
+        i = calendar.get(Calendar.DAY_OF_MONTH);
+        if (i < 10)
+            time += "0";
         time += i;
         i = calendar.get(Calendar.HOUR_OF_DAY);
-        if (i < 10) time += "0";
+        if (i < 10)
+            time += "0";
         time += i;
         i = calendar.get(Calendar.MINUTE);
-        if (i < 10) time += "0";
+        if (i < 10)
+            time += "0";
         time += i;
         i = calendar.get(Calendar.SECOND);
-        if (i < 10) time += "0";
+        if (i < 10)
+            time += "0";
         time += i + "Z";
         return time;
     }
 
     String Filter(String name, String start, String end) {
-        String filter = "(&(" + name + ">=" + start + ")(" + name + "<=" + end + "))";
+        String filter = "(&(" + name + ">=" + start + ")(" + name + "<=" + end
+                + "))";
 
         return filter;
     }
 
     String uriFilter(String name, String start, String end) {
-        String filter = "(%26(" + name + "%3e%3d" + start + ")(" + name + "%3c%3d" + end + "))";
+        String filter = "(%26(" + name + "%3e%3d" + start + ")(" + name
+                + "%3c%3d" + end + "))";
 
         return filter;
     }
 }
-

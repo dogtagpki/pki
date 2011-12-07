@@ -17,19 +17,16 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.base;
 
-
 import java.util.Hashtable;
 
-
 /**
- * This class specifies the context object that includes
- * authentication environment and connection information.
- * This object is later used in access control evaluation.
- * This is a global object that can be accessible 
- * throughout the server. It is useful for passing 
- * global and per-thread infomration in methods.
+ * This class specifies the context object that includes authentication
+ * environment and connection information. This object is later used in access
+ * control evaluation. This is a global object that can be accessible throughout
+ * the server. It is useful for passing global and per-thread infomration in
+ * methods.
  * <P>
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class SessionContext extends Hashtable implements IAuthInfo {
@@ -67,7 +64,7 @@ public class SessionContext extends Hashtable implements IAuthInfo {
     /**
      * Group ID of the authenticated user in the current thread.
      */
-    public static final String GROUP_ID = "groupid"; //String
+    public static final String GROUP_ID = "groupid"; // String
 
     /**
      * ID of the processing request in the current thread.
@@ -94,10 +91,9 @@ public class SessionContext extends Hashtable implements IAuthInfo {
     }
 
     /**
-     * Creates a new context and associates it with
-     * the current thread. If the current thread is
-     * also associated with a old context, the old
-     * context will be replaced.
+     * Creates a new context and associates it with the current thread. If the
+     * current thread is also associated with a old context, the old context
+     * will be replaced.
      */
     private static SessionContext createContext() {
         SessionContext sc = new SessionContext();
@@ -107,12 +103,10 @@ public class SessionContext extends Hashtable implements IAuthInfo {
     }
 
     /**
-     * Sets the current context. This allows the 
-     * caller to associate a specific session context 
-     * with the current thread.
-     * This methods makes custom session context
-     * possible.
-     *
+     * Sets the current context. This allows the caller to associate a specific
+     * session context with the current thread. This methods makes custom
+     * session context possible.
+     * 
      * @param sc session context
      */
     public static void setContext(SessionContext sc) {
@@ -120,15 +114,14 @@ public class SessionContext extends Hashtable implements IAuthInfo {
     }
 
     /**
-     * Retrieves the session context associated with 
-     * the current thread. If no context is associated,
-     * a context is created.
-     *
+     * Retrieves the session context associated with the current thread. If no
+     * context is associated, a context is created.
+     * 
      * @return sesssion context
      */
     public static SessionContext getContext() {
-        SessionContext sc = (SessionContext) mContexts.get(
-                Thread.currentThread());
+        SessionContext sc = (SessionContext) mContexts.get(Thread
+                .currentThread());
 
         if (sc == null) {
             sc = createContext();
@@ -137,15 +130,14 @@ public class SessionContext extends Hashtable implements IAuthInfo {
     }
 
     /**
-     * Retrieves the session context associated with 
-     * the current thread. If no context is associated,
-     * null is returned.
-     *
+     * Retrieves the session context associated with the current thread. If no
+     * context is associated, null is returned.
+     * 
      * @return sesssion context
      */
     public static SessionContext getExistingContext() {
-        SessionContext sc = (SessionContext)
-            mContexts.get(Thread.currentThread());
+        SessionContext sc = (SessionContext) mContexts.get(Thread
+                .currentThread());
 
         if (sc == null) {
             return null;
@@ -158,8 +150,8 @@ public class SessionContext extends Hashtable implements IAuthInfo {
      * Releases the current session context.
      */
     public static void releaseContext() {
-        SessionContext sc = (SessionContext) mContexts.get(
-                Thread.currentThread());
+        SessionContext sc = (SessionContext) mContexts.get(Thread
+                .currentThread());
 
         if (sc != null) {
             mContexts.remove(Thread.currentThread());

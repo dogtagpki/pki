@@ -17,12 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.common;
 
-
 /**
- * This interface contains constants that are used 
- * in the protocol between the configuration daemon 
- * and UI configuration wizard.
- *
+ * This interface contains constants that are used in the protocol between the
+ * configuration daemon and UI configuration wizard.
+ * 
  * @version $Revision$, $Date$
  */
 public interface ConfigConstants {
@@ -30,8 +28,8 @@ public interface ConfigConstants {
     public static final String TRUE = "true";
     public static final String FALSE = "false";
     public static final String OPTYPE = "opType";
-    public static final String TASKID = "taskID";  
- 
+    public static final String TASKID = "taskID";
+
     // Stages
     public static final String STAGES = "stages";
     public static final String STAGE_INTERNAL_DB = "stageInternalDB";
@@ -135,7 +133,7 @@ public interface ConfigConstants {
     public static final String PR_EE_SECURE_PORT = "eeGateway.https.port";
     public static final String PR_AGENT_PORT = "agentGateway.https.port";
     public static final String PR_RADM_PORT = "radm.https.port";
-    public static final String PR_RADM_PORT_SETUP="radm.port";
+    public static final String PR_RADM_PORT_SETUP = "radm.port";
     public static final String PR_EE_PORT_ENABLE = "eeGateway.http.enable";
     public static final String PR_EE_PORTS_ENABLE = "eePortsEnable";
 
@@ -172,28 +170,21 @@ public interface ConfigConstants {
     public static final String PR_OUTPUT_PATH = "outputPath";
     public static final String PR_ADD_LDIF_PATH = "addLdifPath";
     public static final String PR_MOD_LDIF_PATH = "modLdifPath";
-    public static final String PR_SIGNING_KEY_MIGRATION_TOKEN =
-        "signingKeyMigrationToken";
-    public static final String PR_SSL_KEY_MIGRATION_TOKEN =
-        "sslKeyMigrationToken";
-    public static final String PR_SIGNING_KEY_MIGRATION_TOKEN_PASSWD =
-        "signingKeyMigrationTokenPasswd";
-    public static final String PR_SIGNING_KEY_MIGRATION_TOKEN_SOPPASSWD =
-        "signingKeyMigrationTokenSOPPasswd";
-    public static final String PR_SSL_KEY_MIGRATION_TOKEN_PASSWD =
-        "sslKeyMigrationTokenPasswd";
-    public static final String PR_SSL_KEY_MIGRATION_TOKEN_SOPPASSWD =
-        "sslKeyMigrationTokenSOPPasswd";
-    public static final String PR_NUM_MIGRATION_WARNINGS =
-        "numMigrationWarnings";
+    public static final String PR_SIGNING_KEY_MIGRATION_TOKEN = "signingKeyMigrationToken";
+    public static final String PR_SSL_KEY_MIGRATION_TOKEN = "sslKeyMigrationToken";
+    public static final String PR_SIGNING_KEY_MIGRATION_TOKEN_PASSWD = "signingKeyMigrationTokenPasswd";
+    public static final String PR_SIGNING_KEY_MIGRATION_TOKEN_SOPPASSWD = "signingKeyMigrationTokenSOPPasswd";
+    public static final String PR_SSL_KEY_MIGRATION_TOKEN_PASSWD = "sslKeyMigrationTokenPasswd";
+    public static final String PR_SSL_KEY_MIGRATION_TOKEN_SOPPASSWD = "sslKeyMigrationTokenSOPPasswd";
+    public static final String PR_NUM_MIGRATION_WARNINGS = "numMigrationWarnings";
     public static final String PR_MIGRATION_WARNING = "migrationWarning";
     public static final String PR_CA_KEY_TYPE = "caKeyType";
     public static final String PR_LDAP_PASSWORD = "ldapPassword";
     public static final String PR_MIGRATION_PASSWORD = "migrationPassword";
 
     // Key and Cert
-    public static final String PR_HARDWARE_SPLIT = "hardwareSplit";    
-    public static final String PR_TOKEN_LIST = "tokenList";    
+    public static final String PR_HARDWARE_SPLIT = "hardwareSplit";
+    public static final String PR_TOKEN_LIST = "tokenList";
     public static final String PR_TOKEN_NAME = "tokenName";
     public static final String PR_SUBJECT_NAME = "subjectName";
     public static final String PR_CA_SUBJECT_NAME = "caSubjectName";
@@ -269,7 +260,7 @@ public interface ConfigConstants {
     public static final String PR_RA_TOKEN = "raToken";
     public static final String PR_KRA_TOKEN = "kraToken";
     public static final String PR_SSL_TOKEN = "sslToken";
-    //public static final String PR_SUBSYSTEMS = "subsystems";
+    // public static final String PR_SUBSYSTEMS = "subsystems";
 
     // Key Length
     public static final String PR_RSA_MIN_KEYLENGTH = "RSAMinKeyLength";
@@ -293,8 +284,8 @@ public interface ConfigConstants {
     // CA serial number
     public static final String PR_CA_SERIAL_NUMBER = "caSerialNumber";
     public static final String PR_CA_ENDSERIAL_NUMBER = "caEndSerialNumber";
-    
-	// KRA number
+
+    // KRA number
     public static final String PR_REQUEST_NUMBER = "requestNumber";
     public static final String PR_ENDREQUEST_NUMBER = "endRequestNumber";
     public static final String PR_SERIAL_REQUEST_NUMBER = "serialRequestNumber";
@@ -331,4 +322,3 @@ public interface ConfigConstants {
     public static final String PR_AGREEMENT_NAME_2 = "agreementName2";
     public static final String PR_REPLICATION_MANAGER_PASSWD_2 = "replicationManagerPwd2";
 }
-

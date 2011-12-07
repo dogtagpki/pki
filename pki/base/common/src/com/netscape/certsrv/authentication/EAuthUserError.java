@@ -29,6 +29,7 @@ public class EAuthUserError extends EAuthException {
 
     /**
      * Constructs a exception for a Invalid attribute value
+     * 
      * @param errorString Detailed error message.
      */
     public EAuthUserError(String errorString) {

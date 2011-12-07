@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.constraint;
 
-
 import java.io.IOException;
 import java.util.Locale;
 
@@ -38,12 +37,10 @@ import com.netscape.cms.profile.def.NoDefault;
 import com.netscape.cms.profile.def.SubjectNameDefault;
 import com.netscape.cms.profile.def.UserSubjectNameDefault;
 
-
 /**
- * This class implements the subject name constraint.
- * It checks if the subject name in the certificate
- * template satisfies the criteria.
- *
+ * This class implements the subject name constraint. It checks if the subject
+ * name in the certificate template satisfies the criteria.
+ * 
  * @version $Revision$, $Date$
  */
 public class SubjectNameConstraint extends EnrollConstraint {
@@ -56,15 +53,15 @@ public class SubjectNameConstraint extends EnrollConstraint {
     }
 
     public void init(IProfile profile, IConfigStore config)
-        throws EProfileException {
+            throws EProfileException {
         super.init(profile, config);
     }
 
-    public IDescriptor getConfigDescriptor(Locale locale, String name) { 
-        if (name.equals(CONFIG_PATTERN)) { 
-            return new Descriptor(IDescriptor.STRING, 
-                    null, null,
-                    CMS.getUserMessage(locale, "CMS_PROFILE_SUBJECT_NAME_PATTERN"));
+    public IDescriptor getConfigDescriptor(Locale locale, String name) {
+        if (name.equals(CONFIG_PATTERN)) {
+            return new Descriptor(IDescriptor.STRING, null, null,
+                    CMS.getUserMessage(locale,
+                            "CMS_PROFILE_SUBJECT_NAME_PATTERN"));
         } else {
             return null;
         }
@@ -75,54 +72,48 @@ public class SubjectNameConstraint extends EnrollConstraint {
     }
 
     /**
-     * Validates the request. The request is not modified
-     * during the validation.
+     * Validates the request. The request is not modified during the validation.
      */
     public void validate(IRequest request, X509CertInfo info)
-        throws ERejectException {
+            throws ERejectException {
         CMS.debug("SubjectNameConstraint: validate start");
         CertificateSubjectName sn = null;
 
         try {
             sn = (CertificateSubjectName) info.get(X509CertInfo.SUBJECT);
-            CMS.debug("SubjectNameConstraint: validate cert subject ="+
-                         sn.toString());
+            CMS.debug("SubjectNameConstraint: validate cert subject ="
+                    + sn.toString());
         } catch (Exception e) {
-            throw new ERejectException(
-                    CMS.getUserMessage(getLocale(request), 
-                        "CMS_PROFILE_SUBJECT_NAME_NOT_FOUND"));
+            throw new ERejectException(CMS.getUserMessage(getLocale(request),
+                    "CMS_PROFILE_SUBJECT_NAME_NOT_FOUND"));
         }
         X500Name sn500 = null;
 
         try {
             sn500 = (X500Name) sn.get(CertificateSubjectName.DN_NAME);
         } catch (IOException e) {
-            throw new ERejectException(
-                    CMS.getUserMessage(getLocale(request), 
-                        "CMS_PROFILE_SUBJECT_NAME_NOT_FOUND"));
+            throw new ERejectException(CMS.getUserMessage(getLocale(request),
+                    "CMS_PROFILE_SUBJECT_NAME_NOT_FOUND"));
         }
         if (sn500 == null) {
             CMS.debug("SubjectNameConstraint: validate() - sn500 is null");
-            throw new ERejectException(
-                    CMS.getUserMessage(getLocale(request), 
-                        "CMS_PROFILE_SUBJECT_NAME_NOT_FOUND"));
+            throw new ERejectException(CMS.getUserMessage(getLocale(request),
+                    "CMS_PROFILE_SUBJECT_NAME_NOT_FOUND"));
         } else {
-            CMS.debug("SubjectNameConstraint: validate() - sn500 "+
-                  CertificateSubjectName.DN_NAME + " = "+
-                  sn500.toString()); 
+            CMS.debug("SubjectNameConstraint: validate() - sn500 "
+                    + CertificateSubjectName.DN_NAME + " = " + sn500.toString());
         }
         if (!sn500.toString().matches(getConfig(CONFIG_PATTERN))) {
-            CMS.debug("SubjectNameConstraint: validate() - sn500 not matching pattern "+ getConfig(CONFIG_PATTERN));
-            throw new ERejectException(
-                    CMS.getUserMessage(getLocale(request), 
-                        "CMS_PROFILE_SUBJECT_NAME_NOT_MATCHED", 
-                        sn500.toString()));
+            CMS.debug("SubjectNameConstraint: validate() - sn500 not matching pattern "
+                    + getConfig(CONFIG_PATTERN));
+            throw new ERejectException(CMS.getUserMessage(getLocale(request),
+                    "CMS_PROFILE_SUBJECT_NAME_NOT_MATCHED", sn500.toString()));
         }
     }
 
     public String getText(Locale locale) {
-        return CMS.getUserMessage(locale, 
-                "CMS_PROFILE_CONSTRAINT_SUBJECT_NAME_TEXT", 
+        return CMS.getUserMessage(locale,
+                "CMS_PROFILE_CONSTRAINT_SUBJECT_NAME_TEXT",
                 getConfig(CONFIG_PATTERN));
     }
 

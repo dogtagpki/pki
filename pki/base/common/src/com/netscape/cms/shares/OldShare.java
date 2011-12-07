@@ -23,45 +23,41 @@ import java.lang.reflect.Method;
 import com.netscape.certsrv.kra.IShare;
 
 /**
- * Use Java's reflection API to leverage CMS's
- * old Share and JoinShares implementations.
- *
+ * Use Java's reflection API to leverage CMS's old Share and JoinShares
+ * implementations.
+ * 
  * @deprecated
  * @version $Revision$ $Date$
  */
-public class OldShare implements IShare 
-{
+public class OldShare implements IShare {
     public Object mOldImpl = null;
 
-    public OldShare()
-    {
+    public OldShare() {
     }
 
-    public void initialize(byte[] secret, int threshold) throws Exception
-    {
-      try {
-        Class c = Class.forName("com.netscape.cmscore.shares.Share");
-        Class types[] = { secret.getClass(), int.class };
-        Constructor cs[] = c.getConstructors();
-        Constructor con = c.getConstructor(types);
-        Object params[] = {secret, Integer.valueOf(threshold)};
-        mOldImpl = con.newInstance(params);
-      } catch (Exception e) {
-      }
+    public void initialize(byte[] secret, int threshold) throws Exception {
+        try {
+            Class c = Class.forName("com.netscape.cmscore.shares.Share");
+            Class types[] = { secret.getClass(), int.class };
+            Constructor cs[] = c.getConstructors();
+            Constructor con = c.getConstructor(types);
+            Object params[] = { secret, Integer.valueOf(threshold) };
+            mOldImpl = con.newInstance(params);
+        } catch (Exception e) {
+        }
     }
 
-    public byte[] createShare(int sharenumber)
-    {
-      if (mOldImpl == null)
-        return null;
-      try {
-        Class types[] = { int.class };
-        Class c = mOldImpl.getClass();
-        Method method = c.getMethod("createShare", types);
-        Object params[] = {Integer.valueOf(sharenumber)};
-        return (byte[])method.invoke(mOldImpl, params);
-      } catch (Exception e) {
-        return null;
-      }
+    public byte[] createShare(int sharenumber) {
+        if (mOldImpl == null)
+            return null;
+        try {
+            Class types[] = { int.class };
+            Class c = mOldImpl.getClass();
+            Method method = c.getMethod("createShare", types);
+            Object params[] = { Integer.valueOf(sharenumber) };
+            return (byte[]) method.invoke(mOldImpl, params);
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

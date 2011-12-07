@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.admin;
 
-
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Locale;
@@ -39,13 +38,11 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.ocsp.IOCSPStore;
 
-
 /**
- * A class representings an administration servlet for Certificate
- * Authority. This servlet is responsible to serve OCSP 
- * administrative operations such as configuration parameter 
- * updates.
- *
+ * A class representings an administration servlet for Certificate Authority.
+ * This servlet is responsible to serve OCSP administrative operations such as
+ * configuration parameter updates.
+ * 
  * @version $Revision$, $Date$
  */
 public class OCSPAdminServlet extends AdminServlet {
@@ -59,8 +56,7 @@ public class OCSPAdminServlet extends AdminServlet {
 
     private final static String INFO = "OCSPAdminServlet";
 
-    private final static String LOGGING_SIGNED_AUDIT_CONFIG_OCSP_PROFILE =
-        "LOGGING_SIGNED_AUDIT_CONFIG_OCSP_PROFILE_3";
+    private final static String LOGGING_SIGNED_AUDIT_CONFIG_OCSP_PROFILE = "LOGGING_SIGNED_AUDIT_CONFIG_OCSP_PROFILE_3";
 
     private IOCSPAuthority mOCSP = null;
 
@@ -84,33 +80,32 @@ public class OCSPAdminServlet extends AdminServlet {
     }
 
     /**
-     * Serves HTTP request. Each request is authenticated to
-     * the authenticate manager.
+     * Serves HTTP request. Each request is authenticated to the authenticate
+     * manager.
      */
     public void service(HttpServletRequest req, HttpServletResponse resp)
-        throws ServletException, IOException {
+            throws ServletException, IOException {
         super.service(req, resp);
-			    
-        //get all operational flags
+
+        // get all operational flags
         String op = req.getParameter(Constants.OP_TYPE);
         String scope = req.getParameter(Constants.OP_SCOPE);
 
-        //check operational flags
+        // check operational flags
         if ((op == null) || (scope == null)) {
             sendResponse(1, "Invalid Protocol", null, resp);
             return;
-        }			    
+        }
 
         super.authenticate(req);
-		
+
         try {
             AUTHZ_RES_NAME = "certServer.ocsp.configuration";
             if (scope.equals(ScopeDef.SC_EXTENDED_PLUGIN_INFO)) {
                 mOp = "read";
                 if ((mToken = super.authorize(req)) == null) {
-                    sendResponse(ERROR,
-                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
-                        null, resp);
+                    sendResponse(ERROR, CMS.getUserMessage(getLocale(req),
+                            "CMS_ADMIN_SRVLT_AUTHZ_FAILED"), null, resp);
                     return;
                 }
                 try {
@@ -125,9 +120,8 @@ public class OCSPAdminServlet extends AdminServlet {
                 if (op.equals(OpDef.OP_MODIFY)) {
                     mOp = "modify";
                     if ((mToken = super.authorize(req)) == null) {
-                        sendResponse(ERROR,
-                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
-                            null, resp);
+                        sendResponse(ERROR, CMS.getUserMessage(getLocale(req),
+                                "CMS_ADMIN_SRVLT_AUTHZ_FAILED"), null, resp);
                         return;
                     }
                     setDefaultStore(req, resp);
@@ -138,9 +132,8 @@ public class OCSPAdminServlet extends AdminServlet {
             if (op.equals(OpDef.OP_READ)) {
                 mOp = "read";
                 if ((mToken = super.authorize(req)) == null) {
-                    sendResponse(ERROR,
-                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
-                        null, resp);
+                    sendResponse(ERROR, CMS.getUserMessage(getLocale(req),
+                            "CMS_ADMIN_SRVLT_AUTHZ_FAILED"), null, resp);
                     return;
                 }
                 if (scope.equals(ScopeDef.SC_GENERAL)) {
@@ -153,9 +146,8 @@ public class OCSPAdminServlet extends AdminServlet {
             } else if (op.equals(OpDef.OP_MODIFY)) {
                 mOp = "modify";
                 if ((mToken = super.authorize(req)) == null) {
-                    sendResponse(ERROR,
-                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
-                        null, resp);
+                    sendResponse(ERROR, CMS.getUserMessage(getLocale(req),
+                            "CMS_ADMIN_SRVLT_AUTHZ_FAILED"), null, resp);
                     return;
                 }
                 if (scope.equals(ScopeDef.SC_GENERAL)) {
@@ -168,9 +160,8 @@ public class OCSPAdminServlet extends AdminServlet {
             } else if (op.equals(OpDef.OP_SEARCH)) {
                 mOp = "read";
                 if ((mToken = super.authorize(req)) == null) {
-                    sendResponse(ERROR,
-                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
-                        null, resp);
+                    sendResponse(ERROR, CMS.getUserMessage(getLocale(req),
+                            "CMS_ADMIN_SRVLT_AUTHZ_FAILED"), null, resp);
                     return;
                 }
                 if (scope.equals(ScopeDef.SC_OCSPSTORES_RULES)) {
@@ -185,25 +176,26 @@ public class OCSPAdminServlet extends AdminServlet {
     }
 
     /**
-     * retrieve extended plugin info such as brief description,
-     * type info from CRL extensions
+     * retrieve extended plugin info such as brief description, type info from
+     * CRL extensions
      */
     private void getExtendedPluginInfo(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
-            IOException, EBaseException {
+            HttpServletResponse resp) throws ServletException, IOException,
+            EBaseException {
         String id = req.getParameter(Constants.RS_ID);
         int colon = id.indexOf(':');
 
         String implType = id.substring(0, colon);
         String implName = id.substring(colon + 1);
 
-        NameValuePairs params =
-            getExtendedPluginInfo(getLocale(req), implType, implName);
+        NameValuePairs params = getExtendedPluginInfo(getLocale(req), implType,
+                implName);
 
         sendResponse(SUCCESS, null, params, resp);
     }
 
-    private NameValuePairs getExtendedPluginInfo(Locale locale, String implType, String implName) {
+    private NameValuePairs getExtendedPluginInfo(Locale locale,
+            String implType, String implName) {
         IExtendedPluginInfo ext_info = null;
         Object impl = null;
 
@@ -219,7 +211,8 @@ public class OCSPAdminServlet extends AdminServlet {
         if (ext_info == null) {
             nvps = new NameValuePairs();
         } else {
-            nvps = convertStringArrayToNVPairs(ext_info.getExtendedPluginInfo(locale));
+            nvps = convertStringArrayToNVPairs(ext_info
+                    .getExtendedPluginInfo(locale));
         }
 
         return nvps;
@@ -229,12 +222,13 @@ public class OCSPAdminServlet extends AdminServlet {
     /**
      * Set default OCSP store
      * <P>
-     *
+     * 
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_OCSP_PROFILE used when
      * configuring OCSP profile (everything under Online Certificate Status
      * Manager)
      * </ul>
+     * 
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @exception ServletException a servlet error has occurred
@@ -242,8 +236,8 @@ public class OCSPAdminServlet extends AdminServlet {
      * @exception EBaseException an error has occurred
      */
     private void setDefaultStore(HttpServletRequest req,
-        HttpServletResponse resp)
-        throws ServletException, IOException, EBaseException {
+            HttpServletResponse resp) throws ServletException, IOException,
+            EBaseException {
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -253,15 +247,13 @@ public class OCSPAdminServlet extends AdminServlet {
             String id = req.getParameter(Constants.RS_ID);
 
             mOCSP.getConfigStore().putString(IOCSPAuthority.PROP_DEF_STORE_ID,
-                id);
+                    id);
             commit(true);
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_OCSP_PROFILE,
-                        auditSubjectID,
-                        ILogger.SUCCESS,
-                        auditParams(req));
+                    LOGGING_SIGNED_AUDIT_CONFIG_OCSP_PROFILE, auditSubjectID,
+                    ILogger.SUCCESS, auditParams(req));
 
             audit(auditMessage);
 
@@ -269,10 +261,8 @@ public class OCSPAdminServlet extends AdminServlet {
         } catch (EBaseException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_OCSP_PROFILE,
-                        auditSubjectID,
-                        ILogger.FAILURE,
-                        auditParams(req));
+                    LOGGING_SIGNED_AUDIT_CONFIG_OCSP_PROFILE, auditSubjectID,
+                    ILogger.FAILURE, auditParams(req));
 
             audit(auditMessage);
 
@@ -281,33 +271,31 @@ public class OCSPAdminServlet extends AdminServlet {
         } catch (IOException eAudit2) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_OCSP_PROFILE,
-                        auditSubjectID,
-                        ILogger.FAILURE,
-                        auditParams(req));
+                    LOGGING_SIGNED_AUDIT_CONFIG_OCSP_PROFILE, auditSubjectID,
+                    ILogger.FAILURE, auditParams(req));
 
             audit(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit2;
             // } catch( ServletException eAudit3 ) {
-            //     // store a message in the signed audit log file
-            //     auditMessage = CMS.getLogMessage(
-            //                        LOGGING_SIGNED_AUDIT_CONFIG_OCSP_PROFILE,
-            //                        auditSubjectID,
-            //                        ILogger.FAILURE,
-            //                        auditParams( req ) );
+            // // store a message in the signed audit log file
+            // auditMessage = CMS.getLogMessage(
+            // LOGGING_SIGNED_AUDIT_CONFIG_OCSP_PROFILE,
+            // auditSubjectID,
+            // ILogger.FAILURE,
+            // auditParams( req ) );
             //
-            //     audit( auditMessage );
+            // audit( auditMessage );
             //
-            //     // rethrow the specific exception to be handled later
-            //     throw eAudit3;
+            // // rethrow the specific exception to be handled later
+            // throw eAudit3;
         }
     }
 
     private void getOCSPStoresConfig(HttpServletRequest req,
-        HttpServletResponse resp)
-        throws ServletException, IOException, EBaseException {
+            HttpServletResponse resp) throws ServletException, IOException,
+            EBaseException {
         String id = req.getParameter(Constants.RS_ID);
 
         IOCSPStore store = mOCSP.getOCSPStore(id);
@@ -319,12 +307,13 @@ public class OCSPAdminServlet extends AdminServlet {
     /**
      * Set OCSP store configuration
      * <P>
-     *
+     * 
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_OCSP_PROFILE used when
      * configuring OCSP profile (everything under Online Certificate Status
      * Manager)
      * </ul>
+     * 
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @exception ServletException a servlet error has occurred
@@ -332,8 +321,8 @@ public class OCSPAdminServlet extends AdminServlet {
      * @exception EBaseException an error has occurred
      */
     private void setOCSPStoresConfig(HttpServletRequest req,
-        HttpServletResponse resp)
-        throws ServletException, IOException, EBaseException {
+            HttpServletResponse resp) throws ServletException, IOException,
+            EBaseException {
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -370,10 +359,8 @@ public class OCSPAdminServlet extends AdminServlet {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_OCSP_PROFILE,
-                        auditSubjectID,
-                        ILogger.SUCCESS,
-                        auditParams(req));
+                    LOGGING_SIGNED_AUDIT_CONFIG_OCSP_PROFILE, auditSubjectID,
+                    ILogger.SUCCESS, auditParams(req));
 
             audit(auditMessage);
 
@@ -381,10 +368,8 @@ public class OCSPAdminServlet extends AdminServlet {
         } catch (EBaseException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_OCSP_PROFILE,
-                        auditSubjectID,
-                        ILogger.FAILURE,
-                        auditParams(req));
+                    LOGGING_SIGNED_AUDIT_CONFIG_OCSP_PROFILE, auditSubjectID,
+                    ILogger.FAILURE, auditParams(req));
 
             audit(auditMessage);
 
@@ -393,33 +378,31 @@ public class OCSPAdminServlet extends AdminServlet {
         } catch (IOException eAudit2) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_OCSP_PROFILE,
-                        auditSubjectID,
-                        ILogger.FAILURE,
-                        auditParams(req));
+                    LOGGING_SIGNED_AUDIT_CONFIG_OCSP_PROFILE, auditSubjectID,
+                    ILogger.FAILURE, auditParams(req));
 
             audit(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit2;
             // } catch( ServletException eAudit3 ) {
-            //     // store a message in the signed audit log file
-            //     auditMessage = CMS.getLogMessage(
-            //                        LOGGING_SIGNED_AUDIT_CONFIG_OCSP_PROFILE,
-            //                        auditSubjectID,
-            //                        ILogger.FAILURE,
-            //                        auditParams( req ) );
+            // // store a message in the signed audit log file
+            // auditMessage = CMS.getLogMessage(
+            // LOGGING_SIGNED_AUDIT_CONFIG_OCSP_PROFILE,
+            // auditSubjectID,
+            // ILogger.FAILURE,
+            // auditParams( req ) );
             //
-            //     audit( auditMessage );
+            // audit( auditMessage );
             //
-            //     // rethrow the specific exception to be handled later
-            //     throw eAudit3;
+            // // rethrow the specific exception to be handled later
+            // throw eAudit3;
         }
     }
 
     private void listOCSPStoresConfig(HttpServletRequest req,
-        HttpServletResponse resp)
-        throws ServletException, IOException, EBaseException {
+            HttpServletResponse resp) throws ServletException, IOException,
+            EBaseException {
         NameValuePairs params = new NameValuePairs();
         IConfigStore config = mOCSP.getConfigStore();
         String defStore = config.getString(IOCSPAuthority.PROP_DEF_STORE_ID);
@@ -433,14 +416,15 @@ public class OCSPAdminServlet extends AdminServlet {
             if (storeName.equals(defStore)) {
                 storeEnabled = true;
             }
-            params.add(storeName, storeName + ";visible;" + ((storeEnabled) ? "enabled" : "disabled"));
+            params.add(storeName, storeName + ";visible;"
+                    + ((storeEnabled) ? "enabled" : "disabled"));
         }
         sendResponse(SUCCESS, null, params, resp);
     }
 
     private void getGeneralConfig(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
-            IOException, EBaseException {
+            HttpServletResponse resp) throws ServletException, IOException,
+            EBaseException {
 
         NameValuePairs params = new NameValuePairs();
 
@@ -450,8 +434,7 @@ public class OCSPAdminServlet extends AdminServlet {
     }
 
     private void getSigningAlgConfig(NameValuePairs params) {
-        params.add(Constants.PR_DEFAULT_ALGORITHM,
-            mOCSP.getDefaultAlgorithm());
+        params.add(Constants.PR_DEFAULT_ALGORITHM, mOCSP.getDefaultAlgorithm());
         String[] algorithms = mOCSP.getOCSPSigningAlgorithms();
         StringBuffer algorStr = new StringBuffer();
 
@@ -460,7 +443,7 @@ public class OCSPAdminServlet extends AdminServlet {
                 algorStr.append(algorithms[i]);
             else
                 algorStr.append(":");
-                algorStr.append(algorithms[i]);
+            algorStr.append(algorithms[i]);
         }
         params.add(Constants.PR_ALL_ALGORITHMS, algorStr.toString());
     }
@@ -468,12 +451,13 @@ public class OCSPAdminServlet extends AdminServlet {
     /**
      * Set general OCSP configuration
      * <P>
-     *
+     * 
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_OCSP_PROFILE used when
      * configuring OCSP profile (everything under Online Certificate Status
      * Manager)
      * </ul>
+     * 
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @exception ServletException a servlet error has occurred
@@ -481,8 +465,8 @@ public class OCSPAdminServlet extends AdminServlet {
      * @exception EBaseException an error has occurred
      */
     private void setGeneralConfig(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
-            IOException, EBaseException {
+            HttpServletResponse resp) throws ServletException, IOException,
+            EBaseException {
 
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
@@ -506,10 +490,8 @@ public class OCSPAdminServlet extends AdminServlet {
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_OCSP_PROFILE,
-                        auditSubjectID,
-                        ILogger.SUCCESS,
-                        auditParams(req));
+                    LOGGING_SIGNED_AUDIT_CONFIG_OCSP_PROFILE, auditSubjectID,
+                    ILogger.SUCCESS, auditParams(req));
 
             audit(auditMessage);
 
@@ -517,10 +499,8 @@ public class OCSPAdminServlet extends AdminServlet {
         } catch (EBaseException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_OCSP_PROFILE,
-                        auditSubjectID,
-                        ILogger.FAILURE,
-                        auditParams(req));
+                    LOGGING_SIGNED_AUDIT_CONFIG_OCSP_PROFILE, auditSubjectID,
+                    ILogger.FAILURE, auditParams(req));
 
             audit(auditMessage);
 
@@ -529,34 +509,32 @@ public class OCSPAdminServlet extends AdminServlet {
         } catch (IOException eAudit2) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CONFIG_OCSP_PROFILE,
-                        auditSubjectID,
-                        ILogger.FAILURE,
-                        auditParams(req));
+                    LOGGING_SIGNED_AUDIT_CONFIG_OCSP_PROFILE, auditSubjectID,
+                    ILogger.FAILURE, auditParams(req));
 
             audit(auditMessage);
 
             // rethrow the specific exception to be handled later
             throw eAudit2;
             // } catch( ServletException eAudit3 ) {
-            //     // store a message in the signed audit log file
-            //     auditMessage = CMS.getLogMessage(
-            //                        LOGGING_SIGNED_AUDIT_CONFIG_OCSP_PROFILE,
-            //                        auditSubjectID,
-            //                        ILogger.FAILURE,
-            //                        auditParams( req ) );
+            // // store a message in the signed audit log file
+            // auditMessage = CMS.getLogMessage(
+            // LOGGING_SIGNED_AUDIT_CONFIG_OCSP_PROFILE,
+            // auditSubjectID,
+            // ILogger.FAILURE,
+            // auditParams( req ) );
             //
-            //     audit( auditMessage );
+            // audit( auditMessage );
             //
-            //     // rethrow the specific exception to be handled later
-            //     throw eAudit3;
+            // // rethrow the specific exception to be handled later
+            // throw eAudit3;
         }
     }
 
     private void log(int level, String msg) {
         if (mLogger == null)
             return;
-        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_OTHER,
-            level, "CAAdminServlet: " + msg);
+        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_OTHER, level,
+                "CAAdminServlet: " + msg);
     }
-}    
+}

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.extensions;
 
-
 import java.io.IOException;
 
 import netscape.security.util.BigInt;
@@ -26,15 +25,13 @@ import netscape.security.util.DerValue;
 import netscape.security.x509.GeneralName;
 
 /**
- * This represents the CertificateScopeOfUse extension
- * as defined in draft-thayes-cert-scope-00
- *
- * CertificateScopeEntry ::= SEQUENCE {
- *   name GeneralName, -- pattern, as for NameConstraints
- *   portNumber INTEGER OPTIONAL
- * }
- * CertificateScopeOfUse ::= SEQUENCE OF CertificateScopeEntry
- *
+ * This represents the CertificateScopeOfUse extension as defined in
+ * draft-thayes-cert-scope-00
+ * 
+ * CertificateScopeEntry ::= SEQUENCE { name GeneralName, -- pattern, as for
+ * NameConstraints portNumber INTEGER OPTIONAL } CertificateScopeOfUse ::=
+ * SEQUENCE OF CertificateScopeEntry
+ * 
  * @author thomask
  * @version $Revision$, $Date$
  */

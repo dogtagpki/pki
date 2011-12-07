@@ -17,13 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.listeners;
 
-
-
-
 /**
  * This class represents a registered listener plugin.
  * <P>
- *
+ * 
  * @author stevep
  * @version $Revision$, $Date$
  */
@@ -34,16 +31,18 @@ public class ListenerPlugin {
 
     /**
      * Constructs a Listener plugin.
+     * 
      * @param id listener implementation name
      * @param classPath class path
      */
     public ListenerPlugin(String id, String classPath) {
-        //        if (id == null || classPath == null)
-        //           throw new AssertionException("Listener id or classpath can't be null");
+        // if (id == null || classPath == null)
+        // throw new
+        // AssertionException("Listener id or classpath can't be null");
         mId = id;
         mClassPath = classPath;
     }
-		
+
     public String getId() {
         return mId;
     }

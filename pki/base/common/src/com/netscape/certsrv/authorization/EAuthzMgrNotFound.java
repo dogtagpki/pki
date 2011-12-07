@@ -29,6 +29,7 @@ public class EAuthzMgrNotFound extends EAuthzException {
 
     /**
      * Constructs a exception for a missing required authorization manager
+     * 
      * @param errorString Detailed error message.
      */
     public EAuthzMgrNotFound(String errorString) {

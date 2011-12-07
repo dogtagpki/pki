@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.def;
 
-
 import java.io.IOException;
 import java.util.Locale;
 
@@ -35,12 +34,10 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 
-
 /**
- * This class implements an enrollment default policy
- * that populates Authority Key Identifier extension
- * into the certificate template.
- *
+ * This class implements an enrollment default policy that populates Authority
+ * Key Identifier extension into the certificate template.
+ * 
  * @version $Revision$, $Date$
  */
 public class AuthorityKeyIdentifierExtDefault extends CAEnrollDefault {
@@ -56,69 +53,62 @@ public class AuthorityKeyIdentifierExtDefault extends CAEnrollDefault {
     }
 
     public void init(IProfile profile, IConfigStore config)
-        throws EProfileException {
+            throws EProfileException {
         super.init(profile, config);
     }
 
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         if (name.equals(VAL_CRITICAL)) {
-            return new Descriptor(IDescriptor.STRING, 
-                    IDescriptor.READONLY, null, CMS.getUserMessage(locale,
-                        "CMS_PROFILE_CRITICAL"));
+            return new Descriptor(IDescriptor.STRING, IDescriptor.READONLY,
+                    null, CMS.getUserMessage(locale, "CMS_PROFILE_CRITICAL"));
         } else if (name.equals(VAL_KEY_ID)) {
-            return new Descriptor(IDescriptor.STRING, 
-                    IDescriptor.READONLY, null, CMS.getUserMessage(locale,
-                        "CMS_PROFILE_KEY_ID"));
+            return new Descriptor(IDescriptor.STRING, IDescriptor.READONLY,
+                    null, CMS.getUserMessage(locale, "CMS_PROFILE_KEY_ID"));
         } else {
             return null;
         }
     }
 
-    public void setValue(String name, Locale locale,
-        X509CertInfo info, String value)
-        throws EPropertyException {
-        if (name == null) { 
-            throw new EPropertyException(CMS.getUserMessage( 
-                        locale, "CMS_INVALID_PROPERTY", name));
+    public void setValue(String name, Locale locale, X509CertInfo info,
+            String value) throws EPropertyException {
+        if (name == null) {
+            throw new EPropertyException(CMS.getUserMessage(locale,
+                    "CMS_INVALID_PROPERTY", name));
         }
         if (name.equals(VAL_CRITICAL)) {
             // do nothing for read only value
         } else if (name.equals(VAL_KEY_ID)) {
             // do nothing for read only value
         } else {
-            throw new EPropertyException(CMS.getUserMessage( 
-                        locale, "CMS_INVALID_PROPERTY", name));
+            throw new EPropertyException(CMS.getUserMessage(locale,
+                    "CMS_INVALID_PROPERTY", name));
         }
     }
 
-    public String getValue(String name, Locale locale,
-        X509CertInfo info)
-        throws EPropertyException {
-        if (name == null) { 
-            throw new EPropertyException(CMS.getUserMessage( 
-                        locale, "CMS_INVALID_PROPERTY", name));
+    public String getValue(String name, Locale locale, X509CertInfo info)
+            throws EPropertyException {
+        if (name == null) {
+            throw new EPropertyException(CMS.getUserMessage(locale,
+                    "CMS_INVALID_PROPERTY", name));
         }
 
+        AuthorityKeyIdentifierExtension ext = (AuthorityKeyIdentifierExtension) getExtension(
+                PKIXExtensions.AuthorityKey_Id.toString(), info);
 
-        AuthorityKeyIdentifierExtension ext =
-                (AuthorityKeyIdentifierExtension) getExtension(
-                    PKIXExtensions.AuthorityKey_Id.toString(), info);
-
-        if(ext == null)
-        {
+        if (ext == null) {
             try {
-                populate(null,info);
+                populate(null, info);
 
             } catch (EProfileException e) {
-                CMS.debug("BasicConstraintsExtDefault: getValue " + e.toString());
-                 throw new EPropertyException(CMS.getUserMessage(
-                      locale, "CMS_INVALID_PROPERTY", name));
+                CMS.debug("BasicConstraintsExtDefault: getValue "
+                        + e.toString());
+                throw new EPropertyException(CMS.getUserMessage(locale,
+                        "CMS_INVALID_PROPERTY", name));
             }
 
         }
         if (name.equals(VAL_CRITICAL)) {
-             ext = 
-                (AuthorityKeyIdentifierExtension) getExtension(
+            ext = (AuthorityKeyIdentifierExtension) getExtension(
                     PKIXExtensions.AuthorityKey_Id.toString(), info);
 
             if (ext == null) {
@@ -130,8 +120,7 @@ public class AuthorityKeyIdentifierExtDefault extends CAEnrollDefault {
                 return "false";
             }
         } else if (name.equals(VAL_KEY_ID)) {
-            ext =
-                (AuthorityKeyIdentifierExtension) getExtension(
+            ext = (AuthorityKeyIdentifierExtension) getExtension(
                     PKIXExtensions.AuthorityKey_Id.toString(), info);
 
             if (ext == null) {
@@ -141,18 +130,18 @@ public class AuthorityKeyIdentifierExtDefault extends CAEnrollDefault {
             KeyIdentifier kid = null;
 
             try {
-                kid = (KeyIdentifier)
-                        ext.get(AuthorityKeyIdentifierExtension.KEY_ID);
+                kid = (KeyIdentifier) ext
+                        .get(AuthorityKeyIdentifierExtension.KEY_ID);
             } catch (IOException e) {
                 //
                 CMS.debug(e.toString());
             }
-            if (kid == null) 
+            if (kid == null)
                 return "";
             return toHexString(kid.getIdentifier());
         } else {
-            throw new EPropertyException(CMS.getUserMessage( 
-                        locale, "CMS_INVALID_PROPERTY", name));
+            throw new EPropertyException(CMS.getUserMessage(locale,
+                    "CMS_INVALID_PROPERTY", name));
         }
     }
 
@@ -164,7 +153,7 @@ public class AuthorityKeyIdentifierExtDefault extends CAEnrollDefault {
      * Populates the request with this policy default.
      */
     public void populate(IRequest request, X509CertInfo info)
-        throws EProfileException {
+            throws EProfileException {
         AuthorityKeyIdentifierExtension ext = createExtension(info);
 
         addExtension(PKIXExtensions.AuthorityKey_Id.toString(), ext, info);
@@ -174,9 +163,9 @@ public class AuthorityKeyIdentifierExtDefault extends CAEnrollDefault {
         KeyIdentifier kid = null;
         String localKey = getConfig("localKey");
         if (localKey != null && localKey.equals("true")) {
-          kid = getKeyIdentifier(info);
+            kid = getKeyIdentifier(info);
         } else {
-          kid = getCAKeyIdentifier();
+            kid = getCAKeyIdentifier();
         }
 
         if (kid == null)
@@ -186,8 +175,8 @@ public class AuthorityKeyIdentifierExtDefault extends CAEnrollDefault {
         try {
             ext = new AuthorityKeyIdentifierExtension(false, kid, null, null);
         } catch (IOException e) {
-            CMS.debug("AuthorityKeyIdentifierExtDefault: createExtension " + 
-                e.toString());
+            CMS.debug("AuthorityKeyIdentifierExtDefault: createExtension "
+                    + e.toString());
         }
         return ext;
     }

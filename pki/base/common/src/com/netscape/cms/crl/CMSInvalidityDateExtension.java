@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.crl;
 
-
 import java.io.IOException;
 import java.util.Date;
 import java.util.Locale;
@@ -33,37 +32,37 @@ import com.netscape.certsrv.ca.ICMSCRLExtension;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.ILogger;
 
-
 /**
  * This represents a invalidity date extension.
- *
+ * 
  * @version $Revision$, $Date$
  */
-public class CMSInvalidityDateExtension
-    implements ICMSCRLExtension, IExtendedPluginInfo {
+public class CMSInvalidityDateExtension implements ICMSCRLExtension,
+        IExtendedPluginInfo {
     private ILogger mLogger = CMS.getLogger();
 
     public CMSInvalidityDateExtension() {
     }
 
-    public Extension setCRLExtensionCriticality(Extension ext,
-        boolean critical) {
+    public Extension setCRLExtensionCriticality(Extension ext, boolean critical) {
         InvalidityDateExtension invalidityDateExt = null;
 
         try {
-            Date invalidityDate = ((InvalidityDateExtension) ext).getInvalidityDate();
+            Date invalidityDate = ((InvalidityDateExtension) ext)
+                    .getInvalidityDate();
 
-            invalidityDateExt = new InvalidityDateExtension(Boolean.valueOf(critical),
-                        invalidityDate);
+            invalidityDateExt = new InvalidityDateExtension(
+                    Boolean.valueOf(critical), invalidityDate);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_INVALIDITY_DATE_EXT", e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CRL_CREATE_INVALIDITY_DATE_EXT",
+                            e.toString()));
         }
         return invalidityDateExt;
     }
 
     public Extension getCRLExtension(IConfigStore config,
-        Object crlIssuingPoint,
-        boolean critical) {
+            Object crlIssuingPoint, boolean critical) {
         InvalidityDateExtension invalidityDateExt = null;
 
         return invalidityDateExt;
@@ -78,24 +77,23 @@ public class CMSInvalidityDateExtension
 
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
-                //"type;choice(CRLExtension,CRLEntryExtension);"+
-                //"CRL Entry Extension type. This field is not editable.",
+                // "type;choice(CRLExtension,CRLEntryExtension);"+
+                // "CRL Entry Extension type. This field is not editable.",
                 "enable;boolean;Check to enable Invalidity Date CRL entry extension.",
                 "critical;boolean;Set criticality for Invalidity Date CRL entry extension.",
-                IExtendedPluginInfo.HELP_TOKEN +
-                ";configuration-ca-edit-crlextension-invaliditydate",
-                IExtendedPluginInfo.HELP_TEXT +
-                ";The invalidity date is a non-critical CRL entry extension " +
-                "that provides the date on which it is known or suspected " +
-                "that the private key was compromised or that the certificate" +
-                " otherwise became invalid."
-            };
+                IExtendedPluginInfo.HELP_TOKEN
+                        + ";configuration-ca-edit-crlextension-invaliditydate",
+                IExtendedPluginInfo.HELP_TEXT
+                        + ";The invalidity date is a non-critical CRL entry extension "
+                        + "that provides the date on which it is known or suspected "
+                        + "that the private key was compromised or that the certificate"
+                        + " otherwise became invalid." };
 
         return params;
     }
 
     private void log(int level, String msg) {
         mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_CA, level,
-            "CMSInvalidityDateExtension - " + msg);
+                "CMSInvalidityDateExtension - " + msg);
     }
-} 
+}

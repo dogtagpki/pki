@@ -37,26 +37,30 @@ public class AgentApprovalsTest extends CMSBaseTestCase {
         Vector stringVector = agentApprovals.toStringVector();
         assertNotNull(stringVector);
         assertEquals(3, stringVector.size());
-        assertEquals(approval1.getDate().getTime() + ";" + approval1.getUserName(),
+        assertEquals(
+                approval1.getDate().getTime() + ";" + approval1.getUserName(),
                 stringVector.get(0));
-        assertEquals(approval2.getDate().getTime() + ";" + approval2.getUserName(),
+        assertEquals(
+                approval2.getDate().getTime() + ";" + approval2.getUserName(),
                 stringVector.get(1));
-        assertEquals(approval3.getDate().getTime() + ";" + approval3.getUserName(),
+        assertEquals(
+                approval3.getDate().getTime() + ";" + approval3.getUserName(),
                 stringVector.get(2));
 
-        AgentApprovals approvals = AgentApprovals.fromStringVector(stringVector);
+        AgentApprovals approvals = AgentApprovals
+                .fromStringVector(stringVector);
         assertNotNull(approvals);
         assertEquals(3, approvals.mVector.size());
 
-        AgentApproval approval = (AgentApproval)approvals.mVector.get(0);
+        AgentApproval approval = (AgentApproval) approvals.mVector.get(0);
         assertEquals(approval1.getUserName(), approval.getUserName());
         assertEquals(approval1.getDate(), approval.getDate());
 
-        approval = (AgentApproval)approvals.mVector.get(1);
+        approval = (AgentApproval) approvals.mVector.get(1);
         assertEquals(approval2.getUserName(), approval.getUserName());
         assertEquals(approval2.getDate(), approval.getDate());
 
-        approval = (AgentApproval)approvals.mVector.get(2);
+        approval = (AgentApproval) approvals.mVector.get(2);
         assertEquals(approval3.getUserName(), approval.getUserName());
         assertEquals(approval3.getDate(), approval.getDate());
 

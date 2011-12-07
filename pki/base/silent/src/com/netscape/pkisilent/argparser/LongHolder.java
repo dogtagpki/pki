@@ -1,4 +1,5 @@
 package com.netscape.pkisilent.argparser;
+
 // --- BEGIN COPYRIGHT BLOCK ---
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -18,38 +19,32 @@ package com.netscape.pkisilent.argparser;
 // --- END COPYRIGHT BLOCK ---
 
 /**
-  * Wrapper class which ``holds'' a long value,
-  * enabling methods to return long values through
-  * arguments.
-  */
-public class LongHolder implements java.io.Serializable
-{
-	/**
+ * Wrapper class which ``holds'' a long value, enabling methods to return long
+ * values through arguments.
+ */
+public class LongHolder implements java.io.Serializable {
+    /**
      *
      */
     private static final long serialVersionUID = 1559599139421340971L;
     /**
-	 * Value of the long, set and examined
-	 * by the application as needed.
-	 */
-	public long value;
+     * Value of the long, set and examined by the application as needed.
+     */
+    public long value;
 
-	/**
-	 * Constructs a new <code>LongHolder</code> with an initial
-	 * value of 0.
-	 */
-	public LongHolder ()
-	 { value = 0;
-	 }
+    /**
+     * Constructs a new <code>LongHolder</code> with an initial value of 0.
+     */
+    public LongHolder() {
+        value = 0;
+    }
 
-	/**
-	 * Constructs a new <code>LongHolder</code> with a
-	 * specific initial value.
-	 *
-	 * @param l Initial long value.
-	 */
-	public LongHolder (long l)
-	 { value = l;
-	 }
+    /**
+     * Constructs a new <code>LongHolder</code> with a specific initial value.
+     * 
+     * @param l Initial long value.
+     */
+    public LongHolder(long l) {
+        value = l;
+    }
 }
-

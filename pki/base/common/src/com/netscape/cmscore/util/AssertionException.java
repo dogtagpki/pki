@@ -17,10 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.util;
 
-
 /**
- * Assertion exceptions are thrown when assertion code is invoked
- * and fails to operate properly.
+ * Assertion exceptions are thrown when assertion code is invoked and fails to
+ * operate properly.
  */
 public class AssertionException extends Error {
     /**

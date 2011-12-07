@@ -48,7 +48,7 @@ public class AuthTokenTest extends CMSBaseTestCase {
         assertEquals("value", authToken.mAttrs.get("key"));
         assertEquals("value", authToken.getInString("key"));
 
-        assertFalse(authToken.set("key", (String)null));
+        assertFalse(authToken.set("key", (String) null));
     }
 
     public void testGetSetByteArray() {
@@ -62,7 +62,7 @@ public class AuthTokenTest extends CMSBaseTestCase {
         byte[] retval = authToken.getInByteArray("key");
         assertEquals(data, retval);
 
-        assertFalse(authToken.set("key2", (byte[])null));
+        assertFalse(authToken.set("key2", (byte[]) null));
     }
 
     public void testGetSetInteger() {
@@ -75,15 +75,12 @@ public class AuthTokenTest extends CMSBaseTestCase {
         authToken.set("key2", "value");
         assertNull(authToken.getInInteger("key2"));
 
-        assertFalse(authToken.set("key3", (Integer)null));
+        assertFalse(authToken.set("key3", (Integer) null));
     }
 
     public void testGetSetBigIntegerArray() {
-        BigInteger[] data = new BigInteger[] {
-                new BigInteger("111111111"),
-                new BigInteger("222222222"),
-                new BigInteger("333333333")
-        };
+        BigInteger[] data = new BigInteger[] { new BigInteger("111111111"),
+                new BigInteger("222222222"), new BigInteger("333333333") };
         authToken.set("key", data);
         assertEquals("111111111,222222222,333333333",
                 authToken.mAttrs.get("key"));
@@ -102,11 +99,11 @@ public class AuthTokenTest extends CMSBaseTestCase {
         assertNull(authToken.getInBigIntegerArray("key3"));
 
         // corner case test
-        authToken.set("key",",");
+        authToken.set("key", ",");
         retval = authToken.getInBigIntegerArray("key");
         assertNull(retval);
 
-        assertFalse(authToken.set("key4", (BigInteger[])null));
+        assertFalse(authToken.set("key4", (BigInteger[]) null));
     }
 
     public void testGetSetDate() {
@@ -123,13 +120,11 @@ public class AuthTokenTest extends CMSBaseTestCase {
         authToken.set("key3", "oops");
         assertNull(authToken.getInDate("key3"));
 
-        assertFalse(authToken.set("key4", (Date)null));
+        assertFalse(authToken.set("key4", (Date) null));
     }
 
     public void testGetSetStringArray() throws IOException {
-        String[] value = new String[] {
-                "eenie", "meenie", "miny", "moe"
-        };
+        String[] value = new String[] { "eenie", "meenie", "miny", "moe" };
 
         assertFalse(cmsStub.bToACalled);
         authToken.set("key", value);
@@ -145,16 +140,15 @@ public class AuthTokenTest extends CMSBaseTestCase {
         assertEquals(value[3], retval[3]);
 
         // illegal value parsing
-        authToken.set("key2", new byte[] { 1, 2, 3, 4});
+        authToken.set("key2", new byte[] { 1, 2, 3, 4 });
         assertNull(authToken.getInStringArray("key2"));
 
-        
         DerOutputStream out = new DerOutputStream();
         out.putPrintableString("testing");
         authToken.set("key3", out.toByteArray());
         assertNull(authToken.getInStringArray("key3"));
 
-        assertFalse(authToken.set("key4", (String[])null));
+        assertFalse(authToken.set("key4", (String[]) null));
     }
 
     public void testGetSetCert() throws CertificateException {
@@ -170,7 +164,7 @@ public class AuthTokenTest extends CMSBaseTestCase {
         assertNotNull(retval);
         assertEquals(cert, retval);
 
-        assertFalse(authToken.set("key2", (X509CertImpl)null));
+        assertFalse(authToken.set("key2", (X509CertImpl) null));
     }
 
     public void testGetSetCertExts() throws IOException {
@@ -191,13 +185,13 @@ public class AuthTokenTest extends CMSBaseTestCase {
         assertNotNull(retval);
         assertEquals(1, retval.size());
 
-        assertFalse(authToken.set("key3", (CertificateExtensions)null));
+        assertFalse(authToken.set("key3", (CertificateExtensions) null));
     }
 
     public void testGetSetCertificates() throws CertificateException {
         X509CertImpl cert1 = getFakeCert();
         X509CertImpl cert2 = getFakeCert();
-        X509CertImpl[] certArray = new X509CertImpl[] {cert1, cert2};
+        X509CertImpl[] certArray = new X509CertImpl[] { cert1, cert2 };
         Certificates certs = new Certificates(certArray);
 
         assertFalse(cmsStub.bToACalled);
@@ -214,15 +208,12 @@ public class AuthTokenTest extends CMSBaseTestCase {
         assertEquals(cert1, retCerts[0]);
         assertEquals(cert2, retCerts[1]);
 
-        assertFalse(authToken.set("key2", (Certificates)null));
+        assertFalse(authToken.set("key2", (Certificates) null));
     }
 
     public void testGetSetByteArrayArray() {
-        byte[][] value = new byte[][] {
-                new byte[] { 1, 2, 3, 4 },
-                new byte[] {12, 13, 14},
-                new byte[] { 50, -12, 0, 100}
-        };
+        byte[][] value = new byte[][] { new byte[] { 1, 2, 3, 4 },
+                new byte[] { 12, 13, 14 }, new byte[] { 50, -12, 0, 100 } };
 
         assertFalse(cmsStub.bToACalled);
         assertTrue(authToken.set("key", value));
@@ -240,15 +231,15 @@ public class AuthTokenTest extends CMSBaseTestCase {
             }
         }
 
-        assertFalse(authToken.set("key2", (byte[][])null));
+        assertFalse(authToken.set("key2", (byte[][]) null));
     }
 
     /**
      * CMSMemoryStub
-     *
+     * 
      * This class is used to help test methods that rely on setting and then
-     * getting a value out.  It assumes BtoA is always called first, stores
-     * the value passed in, and then returns that value for BtoA.
+     * getting a value out. It assumes BtoA is always called first, stores the
+     * value passed in, and then returns that value for BtoA.
      */
     class CMSMemoryStub extends CMSEngineDefaultStub {
         boolean bToACalled = false;

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.key;
 
-
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -45,10 +44,9 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 
-
 /**
  * Check to see if a Key Recovery Request has been approved
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class GetApprovalStatus extends CMSServlet {
@@ -79,9 +77,9 @@ public class GetApprovalStatus extends CMSServlet {
 
     /**
      * initialize the servlet. This servlet uses the template files
-     * "getApprovalStatus.template" and "finishRecovery.template"
-     * to process the response.
-     *
+     * "getApprovalStatus.template" and "finishRecovery.template" to process the
+     * response.
+     * 
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -95,8 +93,8 @@ public class GetApprovalStatus extends CMSServlet {
     /**
      * Returns serlvet information.
      */
-    public String getServletInfo() { 
-        return INFO; 
+    public String getServletInfo() {
+        return INFO;
     }
 
     /**
@@ -104,7 +102,7 @@ public class GetApprovalStatus extends CMSServlet {
      * <ul>
      * <li>http.param recoveryID request ID to check
      * </ul>
-     *
+     * 
      * @param cmsReq the object holding the request and response information
      */
     public void process(CMSRequest cmsReq) throws EBaseException {
@@ -117,8 +115,8 @@ public class GetApprovalStatus extends CMSServlet {
         AuthzToken authzToken = null;
 
         try {
-            authzToken = authorize(mAclMethod, authToken,
-                        mAuthzResourceName, "read");
+            authzToken = authorize(mAclMethod, authToken, mAuthzResourceName,
+                    "read");
         } catch (Exception e) {
             // do nothing for now
         }
@@ -147,54 +145,52 @@ public class GetApprovalStatus extends CMSServlet {
             Hashtable params = mService.getRecoveryParams(recoveryID);
 
             if (params == null) {
-                log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_NO_RECOVERY_TOKEN_FOUND_1", recoveryID));
-                throw new ECMSGWException(
-                  CMS.getUserMessage("CMS_GW_NO_RECOVERY_TOKEN_FOUND", recoveryID));
+                log(ILogger.LL_FAILURE, CMS.getLogMessage(
+                        "CMSGW_NO_RECOVERY_TOKEN_FOUND_1", recoveryID));
+                throw new ECMSGWException(CMS.getUserMessage(
+                        "CMS_GW_NO_RECOVERY_TOKEN_FOUND", recoveryID));
             }
-            header.addStringValue("serialNumber",
-                (String) params.get("keyID"));
+            header.addStringValue("serialNumber", (String) params.get("keyID"));
 
             int requiredNumber = mService.getNoOfRequiredAgents();
 
             header.addIntegerValue("noOfRequiredAgents", requiredNumber);
 
-            Vector dc = ((IKeyRecoveryAuthority) mService).getAppAgents(recoveryID);
+            Vector dc = ((IKeyRecoveryAuthority) mService)
+                    .getAppAgents(recoveryID);
             Enumeration agents = dc.elements();
 
             while (agents.hasMoreElements()) {
                 IArgBlock rarg = CMS.createArgBlock();
 
-                rarg.addStringValue("agentName", ((Credential) agents.nextElement()).getIdentifier());
+                rarg.addStringValue("agentName",
+                        ((Credential) agents.nextElement()).getIdentifier());
                 argSet.addRepeatRecord(rarg);
             }
             if (dc.size() >= requiredNumber) {
                 // got all approval, return pk12
-                byte pkcs12[] = ((IKeyRecoveryAuthority) mService).getPk12(recoveryID);
+                byte pkcs12[] = ((IKeyRecoveryAuthority) mService)
+                        .getPk12(recoveryID);
 
                 if (pkcs12 != null) {
                     rComplete = 1;
-                    header.addStringValue(OUT_STATUS, "complete");        
+                    header.addStringValue(OUT_STATUS, "complete");
 
                     /*
-                     mService.destroyRecoveryParams(recoveryID);
-                     try {
-                     resp.setContentType("application/x-pkcs12");
-                     resp.getOutputStream().write(pkcs12);
-                     return;
-                     } catch (IOException e) {
-                     header.addStringValue(OUT_ERROR,
-                     MessageFormatter.getLocalizedString(
-                     locale[0],
-                     BaseResources.class.getName(),
-                     BaseResources.INTERNAL_ERROR_1,
-                     e.toString()));
-                     }
+                     * mService.destroyRecoveryParams(recoveryID); try {
+                     * resp.setContentType("application/x-pkcs12");
+                     * resp.getOutputStream().write(pkcs12); return; } catch
+                     * (IOException e) { header.addStringValue(OUT_ERROR,
+                     * MessageFormatter.getLocalizedString( locale[0],
+                     * BaseResources.class.getName(),
+                     * BaseResources.INTERNAL_ERROR_1, e.toString())); }
                      */
-                } else if (((IKeyRecoveryAuthority) mService).getError(recoveryID) != null) {
-                    // error in recovery process 
-                    header.addStringValue(OUT_ERROR, 
-                        ((IKeyRecoveryAuthority) mService).getError(recoveryID));
+                } else if (((IKeyRecoveryAuthority) mService)
+                        .getError(recoveryID) != null) {
+                    // error in recovery process
+                    header.addStringValue(OUT_ERROR,
+                            ((IKeyRecoveryAuthority) mService)
+                                    .getError(recoveryID));
                     rComplete = 1;
                 } else {
                     // pk12 hasn't been created yet.
@@ -207,19 +203,21 @@ public class GetApprovalStatus extends CMSServlet {
 
         try {
             if (rComplete == 1) {
-                mFormPath = "/" + ((IAuthority) mService).getId() + "/" + TPL_FINISH;
+                mFormPath = "/" + ((IAuthority) mService).getId() + "/"
+                        + TPL_FINISH;
             } else {
-                mFormPath = "/" + ((IAuthority) mService).getId() + "/" + TPL_FILE;
-            }    
+                mFormPath = "/" + ((IAuthority) mService).getId() + "/"
+                        + TPL_FILE;
+            }
             if (mOutputTemplatePath != null)
                 mFormPath = mOutputTemplatePath;
             try {
                 form = getTemplate(mFormPath, req, locale);
             } catch (IOException e) {
-                log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()));
+                log(ILogger.LL_FAILURE, CMS.getLogMessage(
+                        "CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()));
                 throw new ECMSGWException(
-                  CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+                        CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
             }
 
             ServletOutputStream out = resp.getOutputStream();
@@ -227,10 +225,10 @@ public class GetApprovalStatus extends CMSServlet {
             resp.setContentType("text/html");
             form.renderOutput(out, argSet);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()));
+            log(ILogger.LL_FAILURE, CMS.getLogMessage(
+                    "CMSGW_ERR_STREAM_TEMPLATE", e.toString()));
             throw new ECMSGWException(
-                  CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
 
         cmsReq.setStatus(CMSRequest.SUCCESS);

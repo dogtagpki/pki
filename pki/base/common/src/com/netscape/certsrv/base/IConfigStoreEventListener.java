@@ -17,34 +17,32 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.base;
 
-
 import java.util.Hashtable;
- 
 
 /**
  * ConfigStore Parameters Event Notification.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public interface IConfigStoreEventListener {
 
     /**
      * Called to validate the config store parameters that changed
-     *
+     * 
      * @param action action
      * @param params configuration parameters changed
      * @exception EBaseException failed to validate
      */
-    public void validateConfigParams(String action, 
-        Hashtable params) throws EBaseException;
+    public void validateConfigParams(String action, Hashtable params)
+            throws EBaseException;
 
     /**
      * Validates the config store parameters that changed
-     *
+     * 
      * @param action action
      * @param params configuration parameters changed
      * @exception EBaseException failed to validate
      */
-    public void doConfigParams(String action, 
-        Hashtable params) throws EBaseException;
+    public void doConfigParams(String action, Hashtable params)
+            throws EBaseException;
 }

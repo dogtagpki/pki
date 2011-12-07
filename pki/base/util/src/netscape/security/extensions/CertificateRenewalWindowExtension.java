@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.extensions;
 
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -31,33 +30,31 @@ import netscape.security.util.ObjectIdentifier;
 import netscape.security.x509.CertAttrSet;
 import netscape.security.x509.Extension;
 
-
 /**
- * This represents the CertificateRenewalWindow extension
- * as defined in draft-thayes-cert-renewal-00
- *
- * CertificateRenewalWindow ::= SEQUENCE { 
- *     beginTime GeneralizedTime, 
- *     endTime GeneralizedTime OPTIONAL }
- *
+ * This represents the CertificateRenewalWindow extension as defined in
+ * draft-thayes-cert-renewal-00
+ * 
+ * CertificateRenewalWindow ::= SEQUENCE { beginTime GeneralizedTime, endTime
+ * GeneralizedTime OPTIONAL }
+ * 
  * @author thomask
  * @version $Revision$, $Date$
  */
-public class CertificateRenewalWindowExtension extends Extension 
-    implements CertAttrSet {
+public class CertificateRenewalWindowExtension extends Extension implements
+        CertAttrSet {
     /**
      *
      */
     private static final long serialVersionUID = 4470220533545299271L;
     public static final String NAME = "CertificateRenewalWindow";
-    public static final int OID[] = { 2, 16, 840, 1, 113730, 1, 15};
+    public static final int OID[] = { 2, 16, 840, 1, 113730, 1, 15 };
     public static final ObjectIdentifier ID = new ObjectIdentifier(OID);
 
     private Date mBeginTime = null;
     private Date mEndTime = null; // optional
 
     public CertificateRenewalWindowExtension(boolean critical, Date beginTime,
-        Date endTime) throws IOException {
+            Date endTime) throws IOException {
         this.extensionId = ID;
         this.critical = critical;
         mBeginTime = beginTime;
@@ -71,8 +68,8 @@ public class CertificateRenewalWindowExtension extends Extension
         this.extensionValue = null; // build this when encodeThis() is called
     }
 
-    public CertificateRenewalWindowExtension(Boolean critical, Object value) 
-        throws IOException {
+    public CertificateRenewalWindowExtension(Boolean critical, Object value)
+            throws IOException {
         this.extensionId = ID;
         this.critical = critical.booleanValue();
         this.extensionValue = (byte[]) ((byte[]) value).clone();
@@ -141,7 +138,8 @@ public class CertificateRenewalWindowExtension extends Extension
         DerValue val = new DerValue(this.extensionValue);
 
         if (val.tag != DerValue.tag_Sequence) {
-            throw new IOException("Invalid encoding of CertificateWindow extension");
+            throw new IOException(
+                    "Invalid encoding of CertificateWindow extension");
         }
         while (val.data.available() != 0) {
             if (mBeginTime == null) {
@@ -152,7 +150,7 @@ public class CertificateRenewalWindowExtension extends Extension
         }
     }
 
-    private void encodeThis() throws IOException {	
+    private void encodeThis() throws IOException {
         DerOutputStream seq = new DerOutputStream();
         DerOutputStream tmp = new DerOutputStream();
 
@@ -163,10 +161,10 @@ public class CertificateRenewalWindowExtension extends Extension
         seq.write(DerValue.tag_Sequence, tmp);
         this.extensionValue = seq.toByteArray();
     }
- 
+
     /**
      * Write the extension to the DerOutputStream.
-     *
+     * 
      * @param out the DerOutputStream to write the extension to.
      * @exception IOException on encoding errors.
      */

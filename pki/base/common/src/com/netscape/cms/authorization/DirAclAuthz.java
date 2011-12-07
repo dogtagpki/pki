@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.authorization;
 
-
 import java.util.Enumeration;
 
 import netscape.ldap.LDAPAttribute;
@@ -44,15 +43,14 @@ import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.logging.ILogger;
 
-
 /**
- * A class for ldap acls based authorization manager
- * The ldap server used for acls is the cms internal ldap db.
- *
+ * A class for ldap acls based authorization manager The ldap server used for
+ * acls is the cms internal ldap db.
+ * 
  * @version $Revision$, $Date$
  */
-public class DirAclAuthz extends AAclAuthz
-    implements IAuthzManager, IExtendedPluginInfo {
+public class DirAclAuthz extends AAclAuthz implements IAuthzManager,
+        IExtendedPluginInfo {
 
     // members
 
@@ -75,22 +73,23 @@ public class DirAclAuthz extends AAclAuthz
     private static boolean needsFlush = false;
 
     static {
-        mExtendedPluginInfo.add("ldap.ldapconn.host;string,required;" +
-            "LDAP host to connect to");
-        mExtendedPluginInfo.add("ldap.ldapconn.port;number,required;" +
-            "LDAP port number (use 389, or 636 if SSL)");
-        mExtendedPluginInfo.add("ldap.ldapconn.secureConn;boolean;" +
-            "Use SSL to connect to directory?");
-        mExtendedPluginInfo.add("ldap.ldapconn.version;choice(3,2);" +
-            "LDAP protocol version");
-        mExtendedPluginInfo.add("ldap.basedn;string,required;Base DN to start sarching " +
-            "under. If the ACL's DN is 'cn=resourceACL, o=NetscapeCertificateServer' you " +
-            "might want to use 'o=NetscapeCertificateServer' here");
-        mExtendedPluginInfo.add("ldap.minConns;number;number of connections " +
-            "to keep open to directory server. Default 5.");
-        mExtendedPluginInfo.add("ldap.maxConns;number;when needed, connection "
-            +
-            "pool can grow to this many (multiplexed) connections. Default 1000");
+        mExtendedPluginInfo.add("ldap.ldapconn.host;string,required;"
+                + "LDAP host to connect to");
+        mExtendedPluginInfo.add("ldap.ldapconn.port;number,required;"
+                + "LDAP port number (use 389, or 636 if SSL)");
+        mExtendedPluginInfo.add("ldap.ldapconn.secureConn;boolean;"
+                + "Use SSL to connect to directory?");
+        mExtendedPluginInfo.add("ldap.ldapconn.version;choice(3,2);"
+                + "LDAP protocol version");
+        mExtendedPluginInfo
+                .add("ldap.basedn;string,required;Base DN to start sarching "
+                        + "under. If the ACL's DN is 'cn=resourceACL, o=NetscapeCertificateServer' you "
+                        + "might want to use 'o=NetscapeCertificateServer' here");
+        mExtendedPluginInfo.add("ldap.minConns;number;number of connections "
+                + "to keep open to directory server. Default 5.");
+        mExtendedPluginInfo
+                .add("ldap.maxConns;number;when needed, connection "
+                        + "pool can grow to this many (multiplexed) connections. Default 1000");
     }
 
     /**
@@ -98,28 +97,23 @@ public class DirAclAuthz extends AAclAuthz
      */
     public DirAclAuthz() {
 
-        /* Holds configuration parameters accepted by this implementation.
-         * This list is passed to the configuration console so configuration
-         * for instances of this implementation can be configured through the
+        /*
+         * Holds configuration parameters accepted by this implementation. This
+         * list is passed to the configuration console so configuration for
+         * instances of this implementation can be configured through the
          * console.
          */
-        mConfigParams =
-                new String[] { 
-                    "ldap.ldapconn.host",
-                    "ldap.ldapconn.port",
-                    "ldap.ldapconn.secureConn",
-                    "ldap.ldapconn.version",
-                    "ldap.basedn",
-                    "ldap.minConns",
-                    "ldap.maxConns",
-                };
+        mConfigParams = new String[] { "ldap.ldapconn.host",
+                "ldap.ldapconn.port", "ldap.ldapconn.secureConn",
+                "ldap.ldapconn.version", "ldap.basedn", "ldap.minConns",
+                "ldap.maxConns", };
     }
 
     /**
      *
      */
     public void init(String name, String implName, IConfigStore config)
-        throws EBaseException {
+            throws EBaseException {
         mName = name;
         mImplName = implName;
         mConfig = config;
@@ -154,7 +148,7 @@ public class DirAclAuthz extends AAclAuthz
         CMS.debug("DirAclAuthz: about to ldap search aclResources");
         try {
             conn = getConn();
-            LDAPSearchResults res = conn.search(mBaseDN, LDAPv2.SCOPE_SUB, 
+            LDAPSearchResults res = conn.search(mBaseDN, LDAPv2.SCOPE_SUB,
                     "cn=aclResources", null, false);
 
             returnConn(conn);
@@ -175,10 +169,15 @@ public class DirAclAuthz extends AAclAuthz
         } catch (LDAPException e) {
             String errMsg = "init() -" + e.toString();
 
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("AUTHZ_EVALUATOR_INIT_ERROR", e.toString()));
-            throw new EACLsException(CMS.getUserMessage("CMS_ACL_CONNECT_LDAP_FAIL", mBaseDN));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("AUTHZ_EVALUATOR_INIT_ERROR",
+                            e.toString()));
+            throw new EACLsException(CMS.getUserMessage(
+                    "CMS_ACL_CONNECT_LDAP_FAIL", mBaseDN));
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("AUTHZ_EVALUATOR_INIT_ERROR", e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("AUTHZ_EVALUATOR_INIT_ERROR",
+                            e.toString()));
         }
 
         log(ILogger.LL_INFO, "initialization done");
@@ -199,28 +198,30 @@ public class DirAclAuthz extends AAclAuthz
     }
 
     /**
-     * check the authorization permission for the user associated with
-     * authToken on operation
+     * check the authorization permission for the user associated with authToken
+     * on operation
      * <p>
      * Example:
      * <p>
-     * For example, if UsrGrpAdminServlet needs to authorize the caller
-     * it would do be done in the following fashion:
+     * For example, if UsrGrpAdminServlet needs to authorize the caller it would
+     * do be done in the following fashion:
+     * 
      * <PRE>
-     *   try {
-     *     authzTok = mAuthz.authorize("DirAclAuthz", authToken, RES_GROUP, "read");
-     *   } catch (EBaseException e) {
-     *      log(ILogger.LL_FAILURE, "authorize call: "+ e.toString());
-     *   }
-     * </PRE> 
+     * try {
+     *     authzTok = mAuthz.authorize(&quot;DirAclAuthz&quot;, authToken, RES_GROUP, &quot;read&quot;);
+     * } catch (EBaseException e) {
+     *     log(ILogger.LL_FAILURE, &quot;authorize call: &quot; + e.toString());
+     * }
+     * </PRE>
+     * 
      * @param authToken the authToken associated with a user
      * @param resource - the protected resource name
      * @param operation - the protected resource operation name
      * @exception EBaseException If an internal error occurred.
      * @return authzToken
      */
-    public AuthzToken authorize(IAuthToken authToken, String resource, String operation)
-        throws EAuthzInternalError, EAuthzAccessDenied {
+    public AuthzToken authorize(IAuthToken authToken, String resource,
+            String operation) throws EAuthzInternalError, EAuthzAccessDenied {
         AuthzToken authzToken = new AuthzToken(this);
 
         try {
@@ -228,45 +229,49 @@ public class DirAclAuthz extends AAclAuthz
             // compose AuthzToken
             authzToken.set(AuthzToken.TOKEN_AUTHZ_RESOURCE, resource);
             authzToken.set(AuthzToken.TOKEN_AUTHZ_OPERATION, operation);
-            authzToken.set(AuthzToken.TOKEN_AUTHZ_STATUS, AuthzToken.AUTHZ_STATUS_SUCCESS);
+            authzToken.set(AuthzToken.TOKEN_AUTHZ_STATUS,
+                    AuthzToken.AUTHZ_STATUS_SUCCESS);
             CMS.debug("DirAclAuthz: authorization passed");
         } catch (EACLsException e) {
-            // audit here later 
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("AUTHZ_EVALUATOR_AUTHORIZATION_FAILED"));
-            String params[] = {resource, operation};
+            // audit here later
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("AUTHZ_EVALUATOR_AUTHORIZATION_FAILED"));
+            String params[] = { resource, operation };
 
-            throw new EAuthzAccessDenied(CMS.getUserMessage("CMS_AUTHORIZATION_AUTHZ_ACCESS_DENIED", params));
+            throw new EAuthzAccessDenied(CMS.getUserMessage(
+                    "CMS_AUTHORIZATION_AUTHZ_ACCESS_DENIED", params));
         }
-		
+
         return authzToken;
     }
 
     public AuthzToken authorize(IAuthToken authToken, String expression)
-      throws EAuthzAccessDenied {
+            throws EAuthzAccessDenied {
         if (evaluateACLs(authToken, expression)) {
             return (new AuthzToken(this));
         } else {
-            String params[] = {expression};
-            throw new EAuthzAccessDenied(CMS.getUserMessage("CMS_AUTHORIZATION_AUTHZ_ACCESS_DENIED", params));
+            String params[] = { expression };
+            throw new EAuthzAccessDenied(CMS.getUserMessage(
+                    "CMS_AUTHORIZATION_AUTHZ_ACCESS_DENIED", params));
         }
     }
 
     /**
-     * update acls.  when memory update is done, flush to ldap.
+     * update acls. when memory update is done, flush to ldap.
      * <p>
-     * Currently, it is possible that when the memory is updated
-     *	 successfully, and the ldap isn't, the memory upates lingers.
-     *	 The result is that the changes will only be done on ldap at the
-     *	 next update, or when the system shuts down, another flush will be
-     *	 attempted.
+     * Currently, it is possible that when the memory is updated successfully,
+     * and the ldap isn't, the memory upates lingers. The result is that the
+     * changes will only be done on ldap at the next update, or when the system
+     * shuts down, another flush will be attempted.
+     * 
      * @param id is the resource id
      * @param rights The allowable rights for this resource
-     * @param strACLs has the same format as a resourceACLs entry acis
-     *	 on the ldap server
+     * @param strACLs has the same format as a resourceACLs entry acis on the
+     *            ldap server
      * @param desc The description for this resource
      */
-    public void updateACLs(String id, String rights, String strACLs,
-        String desc) throws EACLsException {
+    public void updateACLs(String id, String rights, String strACLs, String desc)
+            throws EACLsException {
         try {
             super.updateACLs(id, rights, strACLs, desc);
             flushResourceACLs();
@@ -276,9 +281,11 @@ public class DirAclAuthz extends AAclAuthz
             needsFlush = true;
 
             String errMsg = "updateACLs: failed to flushResourceACLs(): "
-                + ex.toString();
+                    + ex.toString();
 
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("AUTHZ_EVALUATOR_FLUSH_RESOURCES", ex.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("AUTHZ_EVALUATOR_FLUSH_RESOURCES",
+                            ex.toString()));
 
             throw new EACLsException(CMS.getUserMessage("CMS_ACL_UPDATE_FAIL"));
         }
@@ -334,7 +341,7 @@ public class DirAclAuthz extends AAclAuthz
     }
 
     /**
-     * graceful shutdown 
+     * graceful shutdown
      */
     public void shutdown() {
         if (needsFlush) {
@@ -343,20 +350,25 @@ public class DirAclAuthz extends AAclAuthz
                 flushResourceACLs();
             } catch (EACLsException e) {
                 // flushing failed again...too bad
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("AUTHZ_EVALUATOR_FLUSH_ERROR", e.toString()));
+                log(ILogger.LL_FAILURE,
+                        CMS.getLogMessage("AUTHZ_EVALUATOR_FLUSH_ERROR",
+                                e.toString()));
             }
         }
 
         try {
             mLdapConnFactory.reset();
             mLdapConnFactory = null;
-        } catch (ELdapException e) { 
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("AUTHZ_EVALUATOR_LDAP_ERROR", e.toString()));
+        } catch (ELdapException e) {
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("AUTHZ_EVALUATOR_LDAP_ERROR",
+                            e.toString()));
         }
     }
 
     /**
      * Logs a message for this class in the system log file.
+     * 
      * @param level The log level.
      * @param msg The message to log.
      * @see com.netscape.certsrv.logging.ILogger
@@ -364,7 +376,7 @@ public class DirAclAuthz extends AAclAuthz
     protected void log(int level, String msg) {
         if (mLogger == null)
             return;
-        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_AUTHORIZATION,
-            level, msg);
+        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_AUTHORIZATION, level,
+                msg);
     }
 }

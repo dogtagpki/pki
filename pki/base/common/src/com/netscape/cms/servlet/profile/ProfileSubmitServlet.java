@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.profile;
 
-
 import java.math.BigInteger;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
@@ -72,10 +71,9 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cmsutil.util.Cert;
 import com.netscape.cmsutil.xml.XMLObject;
 
-
 /**
  * This servlet submits end-user request into the profile framework.
- *
+ * 
  * @author Christina Fu (renewal support)
  * @version $Revision$, $Date$
  */
@@ -97,34 +95,27 @@ public class ProfileSubmitServlet extends ProfileServlet {
     private String mReqType = null;
     private String mAuthorityId = null;
 
-    private final static String[]
-        SIGNED_AUDIT_AUTOMATED_REJECTION_REASON = new String[] {
-            
-            /* 0 */ "automated profile cert request rejection:  "
+    private final static String[] SIGNED_AUDIT_AUTOMATED_REJECTION_REASON = new String[] {
+
+    /* 0 */"automated profile cert request rejection:  "
             + "indeterminate reason for inability to process "
-            + "cert request due to an EBaseException"
-        };
-    private final static String LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED =
-        "LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED_5";
+            + "cert request due to an EBaseException" };
+    private final static String LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED = "LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED_5";
 
-
-     private final static String LOGGING_SIGNED_AUDIT_AUTH_FAIL =
-        "LOGGING_SIGNED_AUDIT_AUTH_FAIL_4";
-     private final static String LOGGING_SIGNED_AUDIT_AUTH_SUCCESS =
-        "LOGGING_SIGNED_AUDIT_AUTH_SUCCESS_3";
-
+    private final static String LOGGING_SIGNED_AUDIT_AUTH_FAIL = "LOGGING_SIGNED_AUDIT_AUTH_FAIL_4";
+    private final static String LOGGING_SIGNED_AUDIT_AUTH_SUCCESS = "LOGGING_SIGNED_AUDIT_AUTH_SUCCESS_3";
 
     public ProfileSubmitServlet() {
     }
 
     /**
-     * initialize the servlet. And instance of this servlet can 
-     * be set up to always issue certificates against a certain profile
-     * by setting the 'profileId' configuration in the servletConfig
-     * If not, the user must specify the profileID when submitting the request
+     * initialize the servlet. And instance of this servlet can be set up to
+     * always issue certificates against a certain profile by setting the
+     * 'profileId' configuration in the servletConfig If not, the user must
+     * specify the profileID when submitting the request
      * 
      * "ImportCert.template" to process the response.
-     *
+     * 
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -133,7 +124,8 @@ public class ProfileSubmitServlet extends ProfileServlet {
         mProfileId = sc.getInitParameter(PROP_PROFILE_ID);
     }
 
-    private void setInputsIntoContext(HttpServletRequest request, IProfile profile, IProfileContext ctx) {
+    private void setInputsIntoContext(HttpServletRequest request,
+            IProfile profile, IProfileContext ctx) {
         // passing inputs into context
         Enumeration inputIds = profile.getProfileInputIds();
 
@@ -146,9 +138,13 @@ public class ProfileSubmitServlet extends ProfileServlet {
                 while (inputNames.hasMoreElements()) {
                     String inputName = (String) inputNames.nextElement();
                     if (request.getParameter(inputName) != null) {
-                        // all subject name parameters start with sn_, no other input parameters do
+                        // all subject name parameters start with sn_, no other
+                        // input parameters do
                         if (inputName.matches("^sn_.*")) {
-                            ctx.set(inputName, escapeValueRfc1779(request.getParameter(inputName), false).toString());
+                            ctx.set(inputName,
+                                    escapeValueRfc1779(
+                                            request.getParameter(inputName),
+                                            false).toString());
                         } else {
                             ctx.set(inputName, request.getParameter(inputName));
                         }
@@ -159,12 +155,12 @@ public class ProfileSubmitServlet extends ProfileServlet {
 
     }
 
-    /* 
-     * fill input info from "request" to context.
-     * This is expected to be used by renewal where the request
-     * is retrieved from request record
+    /*
+     * fill input info from "request" to context. This is expected to be used by
+     * renewal where the request is retrieved from request record
      */
-    private void setInputsIntoContext(IRequest request, IProfile profile, IProfileContext ctx, Locale locale) {
+    private void setInputsIntoContext(IRequest request, IProfile profile,
+            IProfileContext ctx, Locale locale) {
         // passing inputs into context
         Enumeration inputIds = profile.getProfileInputIds();
 
@@ -177,15 +173,19 @@ public class ProfileSubmitServlet extends ProfileServlet {
                 while (inputNames.hasMoreElements()) {
                     String inputName = (String) inputNames.nextElement();
                     String inputValue = "";
-                    CMS.debug("ProfileSubmitServlet: setInputsIntoContext() getting input name= " + inputName);
+                    CMS.debug("ProfileSubmitServlet: setInputsIntoContext() getting input name= "
+                            + inputName);
                     try {
-                        inputValue = profileInput.getValue(inputName, locale, request);
+                        inputValue = profileInput.getValue(inputName, locale,
+                                request);
                     } catch (Exception e) {
-                        CMS.debug("ProfileSubmitServlet: setInputsIntoContext() getvalue() failed: " + e.toString());
+                        CMS.debug("ProfileSubmitServlet: setInputsIntoContext() getvalue() failed: "
+                                + e.toString());
                     }
 
                     if (inputValue != null) {
-                        CMS.debug("ProfileSubmitServlet: setInputsIntoContext() setting value in ctx:"+ inputValue);
+                        CMS.debug("ProfileSubmitServlet: setInputsIntoContext() setting value in ctx:"
+                                + inputValue);
                         ctx.set(inputName, inputValue);
                     } else {
                         CMS.debug("ProfileSubmitServlet: setInputsIntoContext() value null");
@@ -196,9 +196,8 @@ public class ProfileSubmitServlet extends ProfileServlet {
 
     }
 
-
-
-    private void setCredentialsIntoContext(HttpServletRequest request, IProfileAuthenticator authenticator, IProfileContext ctx) {
+    private void setCredentialsIntoContext(HttpServletRequest request,
+            IProfileAuthenticator authenticator, IProfileContext ctx) {
         Enumeration authIds = authenticator.getValueNames();
 
         if (authIds != null) {
@@ -206,8 +205,8 @@ public class ProfileSubmitServlet extends ProfileServlet {
             while (authIds.hasMoreElements()) {
                 String authName = (String) authIds.nextElement();
 
-                CMS.debug("ProfileSubmitServlet:setCredentialsIntoContext() authName:"+
-                      authName);
+                CMS.debug("ProfileSubmitServlet:setCredentialsIntoContext() authName:"
+                        + authName);
                 if (request.getParameter(authName) != null) {
                     CMS.debug("ProfileSubmitServlet:setCredentialsIntoContext() authName found in request");
                     ctx.set(authName, request.getParameter(authName));
@@ -232,7 +231,8 @@ public class ProfileSubmitServlet extends ProfileServlet {
             String n = t.substring(0, i);
             if (n.equalsIgnoreCase("uid")) {
                 String v = t.substring(i + 1);
-                CMS.debug("ProfileSubmitServlet:: getUidFromDN(): uid found:"+v);
+                CMS.debug("ProfileSubmitServlet:: getUidFromDN(): uid found:"
+                        + v);
                 return v;
             } else {
                 continue;
@@ -242,70 +242,74 @@ public class ProfileSubmitServlet extends ProfileServlet {
     }
 
     /*
-     *   authenticate for renewal - more to add necessary params/values
-     *   to the session context
+     * authenticate for renewal - more to add necessary params/values to the
+     * session context
      */
     public IAuthToken authenticate(IProfileAuthenticator authenticator,
-        HttpServletRequest request, IRequest origReq, SessionContext context)
-          throws EBaseException {
-                IAuthToken authToken = authenticate(authenticator, request);
-                // For renewal, fill in necessary params
-                if (authToken!= null) {
-                  String ouid = origReq.getExtDataInString("auth_token.uid");
-                  // if the orig cert was manually approved, then there was
-                  // no auth token uid.  Try to get the uid from the cert dn
-                  // itself, if possible
-                  if (ouid == null) {
-                      String sdn = (String) context.get("origSubjectDN");
-                      if (sdn != null) {
-                        ouid = getUidFromDN(sdn);
-                        if (ouid != null)
-                          CMS.debug("ProfileSubmitServlet: renewal: authToken original uid not found");
-                      }
-                  } else {
-                      CMS.debug("ProfileSubmitServlet: renewal: authToken original uid found in orig request auth_token");
-                  }
-                  String auid = authToken.getInString("uid");
-                  if (auid != null) { // not through ssl client auth
-                    CMS.debug("ProfileSubmitServlet: renewal: authToken uid found:"+auid);
-                    // authenticated with uid
-                    // put "orig_req.auth_token.uid" so that authz with
-                    // UserOrigReqAccessEvaluator will work
-                    if (ouid != null) {
-                      context.put("orig_req.auth_token.uid", ouid); 
-                      CMS.debug("ProfileSubmitServlet: renewal: authToken original uid found:"+ouid);
-                    } else {
-                      CMS.debug("ProfileSubmitServlet: renewal: authToken original uid not found");
-                    }
-                  } else { // through ssl client auth?
-                    CMS.debug("ProfileSubmitServlet: renewal: authToken uid not found:");
-                    // put in orig_req's uid
-                    if (ouid != null) {
-                      CMS.debug("ProfileSubmitServlet: renewal: origReq uid not null:" +ouid+". Setting authtoken");
-                      authToken.set("uid", ouid);
-                      context.put(SessionContext.USER_ID, ouid); 
-                    } else {
-                      CMS.debug("ProfileSubmitServlet: renewal: origReq uid not found");
-//                      throw new EBaseException("origReq uid not found");
-                    }
-                  }
-
-                  String userdn = origReq.getExtDataInString("auth_token.userdn");
-                  if (userdn != null) {
-                      CMS.debug("ProfileSubmitServlet: renewal: origReq userdn not null:"+userdn+". Setting authtoken");
-                      authToken.set("userdn", userdn);
-                  } else {
-                      CMS.debug("ProfileSubmitServlet: renewal: origReq userdn not found");
-//                      throw new EBaseException("origReq userdn not found");
-                  }
-                } else {
-                      CMS.debug("ProfileSubmitServlet: renewal: authToken null");
+            HttpServletRequest request, IRequest origReq, SessionContext context)
+            throws EBaseException {
+        IAuthToken authToken = authenticate(authenticator, request);
+        // For renewal, fill in necessary params
+        if (authToken != null) {
+            String ouid = origReq.getExtDataInString("auth_token.uid");
+            // if the orig cert was manually approved, then there was
+            // no auth token uid. Try to get the uid from the cert dn
+            // itself, if possible
+            if (ouid == null) {
+                String sdn = (String) context.get("origSubjectDN");
+                if (sdn != null) {
+                    ouid = getUidFromDN(sdn);
+                    if (ouid != null)
+                        CMS.debug("ProfileSubmitServlet: renewal: authToken original uid not found");
                 }
-            return authToken;
+            } else {
+                CMS.debug("ProfileSubmitServlet: renewal: authToken original uid found in orig request auth_token");
+            }
+            String auid = authToken.getInString("uid");
+            if (auid != null) { // not through ssl client auth
+                CMS.debug("ProfileSubmitServlet: renewal: authToken uid found:"
+                        + auid);
+                // authenticated with uid
+                // put "orig_req.auth_token.uid" so that authz with
+                // UserOrigReqAccessEvaluator will work
+                if (ouid != null) {
+                    context.put("orig_req.auth_token.uid", ouid);
+                    CMS.debug("ProfileSubmitServlet: renewal: authToken original uid found:"
+                            + ouid);
+                } else {
+                    CMS.debug("ProfileSubmitServlet: renewal: authToken original uid not found");
+                }
+            } else { // through ssl client auth?
+                CMS.debug("ProfileSubmitServlet: renewal: authToken uid not found:");
+                // put in orig_req's uid
+                if (ouid != null) {
+                    CMS.debug("ProfileSubmitServlet: renewal: origReq uid not null:"
+                            + ouid + ". Setting authtoken");
+                    authToken.set("uid", ouid);
+                    context.put(SessionContext.USER_ID, ouid);
+                } else {
+                    CMS.debug("ProfileSubmitServlet: renewal: origReq uid not found");
+                    // throw new EBaseException("origReq uid not found");
+                }
+            }
+
+            String userdn = origReq.getExtDataInString("auth_token.userdn");
+            if (userdn != null) {
+                CMS.debug("ProfileSubmitServlet: renewal: origReq userdn not null:"
+                        + userdn + ". Setting authtoken");
+                authToken.set("userdn", userdn);
+            } else {
+                CMS.debug("ProfileSubmitServlet: renewal: origReq userdn not found");
+                // throw new EBaseException("origReq userdn not found");
+            }
+        } else {
+            CMS.debug("ProfileSubmitServlet: renewal: authToken null");
+        }
+        return authToken;
     }
 
     public IAuthToken authenticate(IProfileAuthenticator authenticator,
-        HttpServletRequest request)  throws EBaseException {
+            HttpServletRequest request) throws EBaseException {
         AuthCredentials credentials = new AuthCredentials();
 
         // build credential
@@ -323,18 +327,19 @@ public class ProfileSubmitServlet extends ProfileServlet {
         IAuthToken authToken = authenticator.authenticate(credentials);
 
         SessionContext sc = SessionContext.getContext();
-        if (sc != null) { 
-          sc.put(SessionContext.AUTH_MANAGER_ID, authenticator.getName()); 
-          String userid = authToken.getInString(IAuthToken.USER_ID);
-          if (userid != null) { 
-            sc.put(SessionContext.USER_ID, userid); 
-          }
+        if (sc != null) {
+            sc.put(SessionContext.AUTH_MANAGER_ID, authenticator.getName());
+            String userid = authToken.getInString(IAuthToken.USER_ID);
+            if (userid != null) {
+                sc.put(SessionContext.USER_ID, userid);
+            }
         }
 
         return authToken;
     }
 
-    private void setInputsIntoRequest(HttpServletRequest request, IProfile profile, IRequest req) {
+    private void setInputsIntoRequest(HttpServletRequest request,
+            IProfile profile, IRequest req) {
         Enumeration inputIds = profile.getProfileInputIds();
 
         if (inputIds != null) {
@@ -348,11 +353,17 @@ public class ProfileSubmitServlet extends ProfileServlet {
                         String inputName = (String) inputNames.nextElement();
 
                         if (request.getParameter(inputName) != null) {
-                            // special characters in subject names parameters must be escaped
+                            // special characters in subject names parameters
+                            // must be escaped
                             if (inputName.matches("^sn_.*")) {
-                                req.setExtData(inputName, escapeValueRfc1779(request.getParameter(inputName), false).toString());
+                                req.setExtData(
+                                        inputName,
+                                        escapeValueRfc1779(
+                                                request.getParameter(inputName),
+                                                false).toString());
                             } else {
-                                req.setExtData(inputName, request.getParameter(inputName));
+                                req.setExtData(inputName,
+                                        request.getParameter(inputName));
                             }
                         }
                     }
@@ -361,12 +372,12 @@ public class ProfileSubmitServlet extends ProfileServlet {
         }
     }
 
-    /* 
-     * fill input info from orig request to the renew request.
-     * This is expected to be used by renewal where the request
-     * is retrieved from request record
+    /*
+     * fill input info from orig request to the renew request. This is expected
+     * to be used by renewal where the request is retrieved from request record
      */
-    private void setInputsIntoRequest(IRequest request, IProfile profile, IRequest req, Locale locale) {
+    private void setInputsIntoRequest(IRequest request, IProfile profile,
+            IRequest req, Locale locale) {
         // passing inputs into request
         Enumeration inputIds = profile.getProfileInputIds();
 
@@ -379,15 +390,19 @@ public class ProfileSubmitServlet extends ProfileServlet {
                 while (inputNames.hasMoreElements()) {
                     String inputName = (String) inputNames.nextElement();
                     String inputValue = "";
-                    CMS.debug("ProfileSubmitServlet: setInputsIntoRequest() getting input name= " + inputName);
+                    CMS.debug("ProfileSubmitServlet: setInputsIntoRequest() getting input name= "
+                            + inputName);
                     try {
-                        inputValue = profileInput.getValue(inputName, locale, request);
+                        inputValue = profileInput.getValue(inputName, locale,
+                                request);
                     } catch (Exception e) {
-                        CMS.debug("ProfileSubmitServlet: setInputsIntoRequest() getvalue() failed: " + e.toString());
+                        CMS.debug("ProfileSubmitServlet: setInputsIntoRequest() getvalue() failed: "
+                                + e.toString());
                     }
 
                     if (inputValue != null) {
-                        CMS.debug("ProfileSubmitServlet: setInputsIntoRequest() setting value in ctx:"+ inputValue);
+                        CMS.debug("ProfileSubmitServlet: setInputsIntoRequest() setting value in ctx:"
+                                + inputValue);
                         req.setExtData(inputName, inputValue);
                     } else {
                         CMS.debug("ProfileSubmitServlet: setInputsIntoRequest() value null");
@@ -398,13 +413,15 @@ public class ProfileSubmitServlet extends ProfileServlet {
 
     }
 
-    private void setOutputIntoArgs(IProfile profile, ArgList outputlist, Locale locale, IRequest req) {
+    private void setOutputIntoArgs(IProfile profile, ArgList outputlist,
+            Locale locale, IRequest req) {
         Enumeration outputIds = profile.getProfileOutputIds();
 
         if (outputIds != null) {
             while (outputIds.hasMoreElements()) {
                 String outputId = (String) outputIds.nextElement();
-                IProfileOutput profileOutput = profile.getProfileOutput(outputId);
+                IProfileOutput profileOutput = profile
+                        .getProfileOutput(outputId);
 
                 Enumeration outputNames = profileOutput.getValueNames();
 
@@ -412,19 +429,20 @@ public class ProfileSubmitServlet extends ProfileServlet {
                     while (outputNames.hasMoreElements()) {
                         ArgSet outputset = new ArgSet();
                         String outputName = (String) outputNames.nextElement();
-                        IDescriptor outputDesc = 
-                            profileOutput.getValueDescriptor(locale, outputName);
+                        IDescriptor outputDesc = profileOutput
+                                .getValueDescriptor(locale, outputName);
 
                         if (outputDesc == null)
                             continue;
                         String outputSyntax = outputDesc.getSyntax();
                         String outputConstraint = outputDesc.getConstraint();
-                        String outputValueName = outputDesc.getDescription(locale);
+                        String outputValueName = outputDesc
+                                .getDescription(locale);
                         String outputValue = null;
 
                         try {
-                            outputValue = profileOutput.getValue(outputName, 
-                                        locale, req);
+                            outputValue = profileOutput.getValue(outputName,
+                                    locale, req);
                         } catch (EProfileException e) {
                             CMS.debug("ProfileSubmitServlet: " + e.toString());
                         }
@@ -446,7 +464,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
      * <P>
      * 
      * (Certificate Request Processed - either an automated "EE" profile based
-     *  cert acceptance, or an automated "EE" profile based cert rejection)
+     * cert acceptance, or an automated "EE" profile based cert rejection)
      * <P>
      * 
      * <ul>
@@ -454,6 +472,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED used when a
      * certificate request has just been through the approval process
      * </ul>
+     * 
      * @param cmsReq the object holding the request and response information
      * @exception EBaseException an error has occurred
      */
@@ -476,9 +495,9 @@ public class ProfileSubmitServlet extends ProfileServlet {
             CMS.debug("xmlOutput false");
         }
 
-        IStatsSubsystem statsSub = (IStatsSubsystem)CMS.getSubsystem("stats");
+        IStatsSubsystem statsSub = (IStatsSubsystem) CMS.getSubsystem("stats");
         if (statsSub != null) {
-          statsSub.startTiming("enrollment", true /* main action */);
+            statsSub.startTiming("enrollment", true /* main action */);
         }
 
         long startTime = CMS.getCurrentDate().getTime();
@@ -492,30 +511,30 @@ public class ProfileSubmitServlet extends ProfileServlet {
             while (paramNames.hasMoreElements()) {
                 String paramName = (String) paramNames.nextElement();
                 // added this facility so that password can be hidden,
-                // all sensitive parameters should be prefixed with 
+                // all sensitive parameters should be prefixed with
                 // __ (double underscores); however, in the event that
                 // a security parameter slips through, we perform multiple
                 // additional checks to insure that it is NOT displayed
-                if( paramName.startsWith("__")                         ||
-                    paramName.endsWith("password")                     ||
-                    paramName.endsWith("passwd")                       ||
-                    paramName.endsWith("pwd")                          ||
-                    paramName.equalsIgnoreCase("admin_password_again") ||
-                    paramName.equalsIgnoreCase("directoryManagerPwd")  ||
-                    paramName.equalsIgnoreCase("bindpassword")         ||
-                    paramName.equalsIgnoreCase("bindpwd")              ||
-                    paramName.equalsIgnoreCase("passwd")               ||
-                    paramName.equalsIgnoreCase("password")             ||
-                    paramName.equalsIgnoreCase("pin")                  ||
-                    paramName.equalsIgnoreCase("pwd")                  ||
-                    paramName.equalsIgnoreCase("pwdagain")             ||
-                    paramName.equalsIgnoreCase("uPasswd") ) {
-                    CMS.debug("ProfileSubmitServlet Input Parameter " +
-                              paramName + "='(sensitive)'");
+                if (paramName.startsWith("__")
+                        || paramName.endsWith("password")
+                        || paramName.endsWith("passwd")
+                        || paramName.endsWith("pwd")
+                        || paramName.equalsIgnoreCase("admin_password_again")
+                        || paramName.equalsIgnoreCase("directoryManagerPwd")
+                        || paramName.equalsIgnoreCase("bindpassword")
+                        || paramName.equalsIgnoreCase("bindpwd")
+                        || paramName.equalsIgnoreCase("passwd")
+                        || paramName.equalsIgnoreCase("password")
+                        || paramName.equalsIgnoreCase("pin")
+                        || paramName.equalsIgnoreCase("pwd")
+                        || paramName.equalsIgnoreCase("pwdagain")
+                        || paramName.equalsIgnoreCase("uPasswd")) {
+                    CMS.debug("ProfileSubmitServlet Input Parameter "
+                            + paramName + "='(sensitive)'");
                 } else {
-                    CMS.debug("ProfileSubmitServlet Input Parameter " +
-                              paramName + "='" + 
-                              request.getParameter(paramName) + "'");
+                    CMS.debug("ProfileSubmitServlet Input Parameter "
+                            + paramName + "='"
+                            + request.getParameter(paramName) + "'");
                 }
             }
             CMS.debug("End of ProfileSubmitServlet Input Parameters");
@@ -527,44 +546,42 @@ public class ProfileSubmitServlet extends ProfileServlet {
             mProfileSubId = IProfileSubsystem.ID;
         }
         CMS.debug("ProfileSubmitServlet: SubId=" + mProfileSubId);
-        IProfileSubsystem ps = (IProfileSubsystem) 
-            CMS.getSubsystem(mProfileSubId); 
+        IProfileSubsystem ps = (IProfileSubsystem) CMS
+                .getSubsystem(mProfileSubId);
 
         if (ps == null) {
             CMS.debug("ProfileSubmitServlet: ProfileSubsystem not found");
             if (xmlOutput) {
-                outputError(response, CMS.getUserMessage(locale,
-                  "CMS_INTERNAL_ERROR"));
+                outputError(response,
+                        CMS.getUserMessage(locale, "CMS_INTERNAL_ERROR"));
             } else {
                 args.set(ARG_ERROR_CODE, "1");
-                args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
-                    "CMS_INTERNAL_ERROR"));
+                args.set(ARG_ERROR_REASON,
+                        CMS.getUserMessage(locale, "CMS_INTERNAL_ERROR"));
                 outputTemplate(request, response, args);
             }
             if (statsSub != null) {
-              statsSub.endTiming("enrollment");
+                statsSub.endTiming("enrollment");
             }
             return;
         }
 
         /*
          * Renewal - Renewal is retrofitted into the Profile Enrollment
-         * Framework.  The authentication and authorization are taken from
-         * the renewal profile, while the input (with requests)  and grace
-         * period constraint are taken from the original cert's request record.
+         * Framework. The authentication and authorization are taken from the
+         * renewal profile, while the input (with requests) and grace period
+         * constraint are taken from the original cert's request record.
          * 
-         * Things to note:
-         * * the renew request will contain the original profile instead
-         *   of the new
-         * * there is no request for system and admin certs generated at
-         *   time of installation configuration.
+         * Things to note: * the renew request will contain the original profile
+         * instead of the new * there is no request for system and admin certs
+         * generated at time of installation configuration.
          */
         String renewal = request.getParameter("renewal");
         boolean isRenewal = false;
-        if ((renewal!= null) && (renewal.equalsIgnoreCase("true"))) {
+        if ((renewal != null) && (renewal.equalsIgnoreCase("true"))) {
             CMS.debug("ProfileSubmitServlet: isRenewal true");
             isRenewal = true;
-            request.setAttribute("reqType", (Object)"renewal");
+            request.setAttribute("reqType", (Object) "renewal");
         } else {
             CMS.debug("ProfileSubmitServlet: isRenewal false");
         }
@@ -592,25 +609,25 @@ public class ProfileSubmitServlet extends ProfileServlet {
         if (isRenewal) {
             // dig up the original request to "clone"
             renewProfileId = profileId;
-            CMS.debug("ProfileSubmitServlet: renewProfileId ="+renewProfileId);
+            CMS.debug("ProfileSubmitServlet: renewProfileId =" + renewProfileId);
             IAuthority authority = (IAuthority) CMS.getSubsystem(mAuthorityId);
             if (authority == null) {
-                CMS.debug("ProfileSubmitServlet: renewal: Authority " + mAuthorityId +
-                    " not found");
+                CMS.debug("ProfileSubmitServlet: renewal: Authority "
+                        + mAuthorityId + " not found");
                 args.set(ARG_ERROR_CODE, "1");
-                args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
-                        "CMS_INTERNAL_ERROR"));
+                args.set(ARG_ERROR_REASON,
+                        CMS.getUserMessage(locale, "CMS_INTERNAL_ERROR"));
                 outputTemplate(request, response, args);
                 return;
             }
             IRequestQueue queue = authority.getRequestQueue();
 
             if (queue == null) {
-                CMS.debug("ProfileSubmitServlet: renewal: Request Queue of " +
-                    mAuthorityId + " not found");
+                CMS.debug("ProfileSubmitServlet: renewal: Request Queue of "
+                        + mAuthorityId + " not found");
                 args.set(ARG_ERROR_CODE, "1");
-                args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
-                        "CMS_INTERNAL_ERROR"));
+                args.set(ARG_ERROR_REASON,
+                        CMS.getUserMessage(locale, "CMS_INTERNAL_ERROR"));
                 outputTemplate(request, response, args);
                 return;
             }
@@ -618,7 +635,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
             String serial = request.getParameter("serial_num");
             BigInteger certSerial = null;
             // if serial number is sent with request, then the authentication
-            // method is not ssl client auth.  In this case, an alternative 
+            // method is not ssl client auth. In this case, an alternative
             // authentication method is used (default: ldap based)
             if (serial != null) {
                 CMS.debug("ProfileSubmitServlet: renewal: found serial_num");
@@ -630,14 +647,15 @@ public class ProfileSubmitServlet extends ProfileServlet {
                 // ssl client auth is to be used
                 // this is not authentication. Just use the cert to search
                 // for orig request and find the right profile
-                SSLClientCertProvider sslCCP = new SSLClientCertProvider(request);
+                SSLClientCertProvider sslCCP = new SSLClientCertProvider(
+                        request);
                 X509Certificate[] certs = sslCCP.getClientCertificateChain();
                 certSerial = null;
                 if (certs == null || certs.length == 0) {
                     CMS.debug("ProfileSubmitServlet: renewal: no ssl client cert chain");
                     args.set(ARG_ERROR_CODE, "1");
-                    args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
-                        "CMS_INTERNAL_ERROR"));
+                    args.set(ARG_ERROR_REASON,
+                            CMS.getUserMessage(locale, "CMS_INTERNAL_ERROR"));
                     outputTemplate(request, response, args);
                     return;
                 } else { // has ssl client cert
@@ -645,45 +663,46 @@ public class ProfileSubmitServlet extends ProfileServlet {
                     // shouldn't expect leaf cert to be always at the
                     // same location
                     X509Certificate clientCert = null;
-                    for (int i = 0; i< certs.length; i++) {
+                    for (int i = 0; i < certs.length; i++) {
                         clientCert = certs[i];
-                        byte [] extBytes = clientCert.getExtensionValue("2.5.29.19");
+                        byte[] extBytes = clientCert
+                                .getExtensionValue("2.5.29.19");
                         // try to see if this is a leaf cert
                         // look for BasicConstraint extension
                         if (extBytes == null) {
                             // found leaf cert
-                    CMS.debug("ProfileSubmitServlet: renewal: found leaf cert");
+                            CMS.debug("ProfileSubmitServlet: renewal: found leaf cert");
                             break;
                         } else {
-                          CMS.debug("ProfileSubmitServlet: renewal: found cert having BasicConstraints ext");
-                          // it's got BasicConstraints extension
-                          // so it's not likely to be a leaf cert,
-                          // however, check the isCA field regardless
-                          try {
-                            BasicConstraintsExtension bce =
-                              new BasicConstraintsExtension(true, extBytes);
-                            if (bce != null) {
-                                if (!(Boolean)bce.get("is_ca")) {
-                    CMS.debug("ProfileSubmitServlet: renewal: found CA cert in chain");
-                                  break;
-                                } // else found a ca cert, continue
+                            CMS.debug("ProfileSubmitServlet: renewal: found cert having BasicConstraints ext");
+                            // it's got BasicConstraints extension
+                            // so it's not likely to be a leaf cert,
+                            // however, check the isCA field regardless
+                            try {
+                                BasicConstraintsExtension bce = new BasicConstraintsExtension(
+                                        true, extBytes);
+                                if (bce != null) {
+                                    if (!(Boolean) bce.get("is_ca")) {
+                                        CMS.debug("ProfileSubmitServlet: renewal: found CA cert in chain");
+                                        break;
+                                    } // else found a ca cert, continue
+                                }
+                            } catch (Exception e) {
+                                CMS.debug("ProfileSubmitServlet: renewal: exception:"
+                                        + e.toString());
+                                args.set(ARG_ERROR_CODE, "1");
+                                args.set(ARG_ERROR_REASON, CMS.getUserMessage(
+                                        locale, "CMS_INTERNAL_ERROR"));
+                                outputTemplate(request, response, args);
+                                return;
                             }
-                          } catch (Exception e) {
-                    CMS.debug("ProfileSubmitServlet: renewal: exception:"+
-                                        e.toString());
-                               args.set(ARG_ERROR_CODE, "1");
-                               args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
-                                   "CMS_INTERNAL_ERROR"));
-                               outputTemplate(request, response, args);
-                               return;
-                          }
                         }
                     }
                     if (clientCert == null) {
                         CMS.debug("ProfileSubmitServlet: renewal: no client cert in chain");
                         args.set(ARG_ERROR_CODE, "1");
                         args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
-                            "CMS_INTERNAL_ERROR"));
+                                "CMS_INTERNAL_ERROR"));
                         outputTemplate(request, response, args);
                         return;
                     }
@@ -693,10 +712,11 @@ public class ProfileSubmitServlet extends ProfileServlet {
 
                         clientCert = new X509CertImpl(certEncoded);
                     } catch (Exception e) {
-                        CMS.debug("ProfileSubmitServlet: renewal: exception:"+e.toString());
+                        CMS.debug("ProfileSubmitServlet: renewal: exception:"
+                                + e.toString());
                         args.set(ARG_ERROR_CODE, "1");
                         args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
-                            "CMS_INTERNAL_ERROR"));
+                                "CMS_INTERNAL_ERROR"));
                         outputTemplate(request, response, args);
                         return;
                     }
@@ -705,96 +725,123 @@ public class ProfileSubmitServlet extends ProfileServlet {
                 }
             }
 
-            CMS.debug("ProfileSubmitServlet: renewal: serial number of cert to renew:"+ certSerial.toString());
+            CMS.debug("ProfileSubmitServlet: renewal: serial number of cert to renew:"
+                    + certSerial.toString());
 
             try {
                 ICertificateRepository certDB = null;
                 if (authority instanceof ICertificateAuthority) {
-                    certDB = ((ICertificateAuthority) authority).getCertificateRepository();
+                    certDB = ((ICertificateAuthority) authority)
+                            .getCertificateRepository();
                 }
                 if (certDB == null) {
                     args.set(ARG_ERROR_CODE, "1");
-                    args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
-                        "CMS_INTERNAL_ERROR"));
+                    args.set(ARG_ERROR_REASON,
+                            CMS.getUserMessage(locale, "CMS_INTERNAL_ERROR"));
                     outputTemplate(request, response, args);
                     return;
                 }
-                ICertRecord rec = (ICertRecord) certDB.readCertificateRecord(certSerial);
-                if (rec == null)  {
-                    CMS.debug("ProfileSubmitServlet: renewal cert record not found for serial number "+ certSerial.toString());
+                ICertRecord rec = (ICertRecord) certDB
+                        .readCertificateRecord(certSerial);
+                if (rec == null) {
+                    CMS.debug("ProfileSubmitServlet: renewal cert record not found for serial number "
+                            + certSerial.toString());
                     args.set(ARG_ERROR_CODE, "1");
-                    args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
-                        "CMS_INTERNAL_ERROR"));
+                    args.set(ARG_ERROR_REASON,
+                            CMS.getUserMessage(locale, "CMS_INTERNAL_ERROR"));
                     outputTemplate(request, response, args);
                     return;
                 } else {
-                    CMS.debug("ProfileSubmitServlet: renewal cert record found for serial number:"+ certSerial.toString());
+                    CMS.debug("ProfileSubmitServlet: renewal cert record found for serial number:"
+                            + certSerial.toString());
                     // check to see if the cert is revoked or revoked_expired
-                    if ((rec.getStatus().equals(ICertRecord.STATUS_REVOKED)) || (rec.getStatus().equals(ICertRecord.STATUS_REVOKED_EXPIRED))) {
-                      CMS.debug("ProfileSubmitServlet: renewal cert found to be revoked. Serial number = "+ certSerial.toString());
-                      args.set(ARG_ERROR_CODE, "1");
-                      args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
-                          "CMS_CA_CANNOT_RENEW_REVOKED_CERT", certSerial.toString()));
-                      outputTemplate(request, response, args);
-                      return;
+                    if ((rec.getStatus().equals(ICertRecord.STATUS_REVOKED))
+                            || (rec.getStatus()
+                                    .equals(ICertRecord.STATUS_REVOKED_EXPIRED))) {
+                        CMS.debug("ProfileSubmitServlet: renewal cert found to be revoked. Serial number = "
+                                + certSerial.toString());
+                        args.set(ARG_ERROR_CODE, "1");
+                        args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
+                                "CMS_CA_CANNOT_RENEW_REVOKED_CERT",
+                                certSerial.toString()));
+                        outputTemplate(request, response, args);
+                        return;
                     }
-                    MetaInfo metaInfo = (MetaInfo) rec.get(ICertRecord.ATTR_META_INFO);
+                    MetaInfo metaInfo = (MetaInfo) rec
+                            .get(ICertRecord.ATTR_META_INFO);
                     // note: CA's internal certs don't have request ids
                     // so some other way needs to be done
                     if (metaInfo != null) {
-                        String rid = (String) metaInfo.get(ICertRecord.META_REQUEST_ID);
+                        String rid = (String) metaInfo
+                                .get(ICertRecord.META_REQUEST_ID);
 
                         if (rid != null) {
                             origReq = queue.findRequest(new RequestId(rid));
                             if (origReq != null) {
-                                CMS.debug("ProfileSubmitServlet: renewal: found original enrollment request id:"+ rid);
+                                CMS.debug("ProfileSubmitServlet: renewal: found original enrollment request id:"
+                                        + rid);
                                 // debug: print the extData keys
                                 Enumeration en = origReq.getExtDataKeys();
-/*
-                                CMS.debug("ProfileSubmitServlet: renewal: origRequest extdata key print BEGINS");
-                                while (en.hasMoreElements()) {
-                                  String next = (String) en.nextElement();
-                                  CMS.debug("ProfileSubmitServlet: renewal: origRequest extdata key:"+ next);
-                                }
-                                CMS.debug("ProfileSubmitServlet: renewal: origRequest extdata key print ENDS");
-*/
-                                String requestorE = origReq.getExtDataInString("requestor_email");
-                                CMS.debug("ProfileSubmitServlet: renewal original requestor email="+requestorE);
-                                profileId = origReq.getExtDataInString("profileId");
+                                /*
+                                 * CMS.debug(
+                                 * "ProfileSubmitServlet: renewal: origRequest extdata key print BEGINS"
+                                 * ); while (en.hasMoreElements()) { String next
+                                 * = (String) en.nextElement(); CMS.debug(
+                                 * "ProfileSubmitServlet: renewal: origRequest extdata key:"
+                                 * + next); } CMS.debug(
+                                 * "ProfileSubmitServlet: renewal: origRequest extdata key print ENDS"
+                                 * );
+                                 */
+                                String requestorE = origReq
+                                        .getExtDataInString("requestor_email");
+                                CMS.debug("ProfileSubmitServlet: renewal original requestor email="
+                                        + requestorE);
+                                profileId = origReq
+                                        .getExtDataInString("profileId");
                                 if (profileId != null)
-                                  CMS.debug("ProfileSubmitServlet: renewal original profileId="+profileId);
+                                    CMS.debug("ProfileSubmitServlet: renewal original profileId="
+                                            + profileId);
                                 else {
-                                  CMS.debug("ProfileSubmitServlet: renewal original profileId not found");
-                                  args.set(ARG_ERROR_CODE, "1");
-                                  args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
-                                    "CMS_INTERNAL_ERROR"));
-                                  outputTemplate(request, response, args);
-                                  return;
+                                    CMS.debug("ProfileSubmitServlet: renewal original profileId not found");
+                                    args.set(ARG_ERROR_CODE, "1");
+                                    args.set(ARG_ERROR_REASON, CMS
+                                            .getUserMessage(locale,
+                                                    "CMS_INTERNAL_ERROR"));
+                                    outputTemplate(request, response, args);
+                                    return;
                                 }
-                                origSeqNum = origReq.getExtDataInInteger(IEnrollProfile.REQUEST_SEQ_NUM);
-                                
-                            } else { //if origReq
-                                CMS.debug("ProfileSubmitServlet: renewal original request not found for request id "+ rid);
+                                origSeqNum = origReq
+                                        .getExtDataInInteger(IEnrollProfile.REQUEST_SEQ_NUM);
+
+                            } else { // if origReq
+                                CMS.debug("ProfileSubmitServlet: renewal original request not found for request id "
+                                        + rid);
                                 args.set(ARG_ERROR_CODE, "1");
-                                args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
-                                    "CMS_INTERNAL_ERROR"));
+                                args.set(ARG_ERROR_REASON, CMS.getUserMessage(
+                                        locale, "CMS_INTERNAL_ERROR"));
                                 outputTemplate(request, response, args);
                                 return;
                             }
                         } else {
-                          CMS.debug("ProfileSubmitServlet: renewal: cert record locating request id in MetaInfo failed for serial number "+ certSerial.toString());
-                          CMS.debug("ProfileSubmitServlet: renewal: cert may be bootstrapped system cert during installation/configuration - no request record exists");
-                          args.set(ARG_ERROR_CODE, "1");
-                          args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
-                            "CMS_INTERNAL_ERROR"+": original request not found"));
-                          outputTemplate(request, response, args);
-                          return;
+                            CMS.debug("ProfileSubmitServlet: renewal: cert record locating request id in MetaInfo failed for serial number "
+                                    + certSerial.toString());
+                            CMS.debug("ProfileSubmitServlet: renewal: cert may be bootstrapped system cert during installation/configuration - no request record exists");
+                            args.set(ARG_ERROR_CODE, "1");
+                            args.set(
+                                    ARG_ERROR_REASON,
+                                    CMS.getUserMessage(
+                                            locale,
+                                            "CMS_INTERNAL_ERROR"
+                                                    + ": original request not found"));
+                            outputTemplate(request, response, args);
+                            return;
                         }
                     } else {
-                        CMS.debug("ProfileSubmitServlet: renewal: cert record locating MetaInfo failed for serial number "+ certSerial.toString());
+                        CMS.debug("ProfileSubmitServlet: renewal: cert record locating MetaInfo failed for serial number "
+                                + certSerial.toString());
                         args.set(ARG_ERROR_CODE, "1");
                         args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
-                            "CMS_INTERNAL_ERROR"));
+                                "CMS_INTERNAL_ERROR"));
                         outputTemplate(request, response, args);
                         return;
                     }
@@ -802,96 +849,101 @@ public class ProfileSubmitServlet extends ProfileServlet {
                     CMS.debug("ProfileSubmitServlet: renewal: before getting origNotAfter");
                     X509CertImpl origCert = rec.getCertificate();
                     origNotAfter = origCert.getNotAfter();
-                    CMS.debug("ProfileSubmitServlet: renewal: origNotAfter ="+
-                        origNotAfter.toString());
+                    CMS.debug("ProfileSubmitServlet: renewal: origNotAfter ="
+                            + origNotAfter.toString());
                     origSubjectDN = origCert.getSubjectDN().getName();
-                    CMS.debug("ProfileSubmitServlet: renewal: orig subj dn ="+
-                        origSubjectDN);
+                    CMS.debug("ProfileSubmitServlet: renewal: orig subj dn ="
+                            + origSubjectDN);
                 }
             } catch (Exception e) {
-                CMS.debug("ProfileSubmitServlet: renewal: exception:"+e.toString());
+                CMS.debug("ProfileSubmitServlet: renewal: exception:"
+                        + e.toString());
                 args.set(ARG_ERROR_CODE, "1");
-                args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
-                    "CMS_INTERNAL_ERROR"));
+                args.set(ARG_ERROR_REASON,
+                        CMS.getUserMessage(locale, "CMS_INTERNAL_ERROR"));
                 outputTemplate(request, response, args);
                 return;
             }
         } // end isRenewal
 
-        IProfile profile = null; 
+        IProfile profile = null;
         IProfile renewProfile = null;
 
-        try { 
-            profile = ps.getProfile(profileId); 
+        try {
+            profile = ps.getProfile(profileId);
             if (isRenewal) {
                 // in case of renew, "profile" is the orig profile
                 // while "renewProfile" is the current profile used for renewal
-                renewProfile = ps.getProfile(renewProfileId); 
+                renewProfile = ps.getProfile(renewProfileId);
             }
-        } catch (EProfileException e) { 
-            if(profile == null) {
-                CMS.debug("ProfileSubmitServlet: profile not found profileId " + 
-                    profileId + " " + e.toString());
+        } catch (EProfileException e) {
+            if (profile == null) {
+                CMS.debug("ProfileSubmitServlet: profile not found profileId "
+                        + profileId + " " + e.toString());
             }
             if (renewProfile == null) {
-                CMS.debug("ProfileSubmitServlet: profile not found renewProfileId " +
-                    renewProfileId + " " + e.toString());
+                CMS.debug("ProfileSubmitServlet: profile not found renewProfileId "
+                        + renewProfileId + " " + e.toString());
             }
         }
         if (profile == null) {
             if (xmlOutput) {
-                outputError(response, CMS.getUserMessage(locale,"CMS_PROFILE_NOT_FOUND", profileId));
+                outputError(response, CMS.getUserMessage(locale,
+                        "CMS_PROFILE_NOT_FOUND", profileId));
             } else {
                 args.set(ARG_ERROR_CODE, "1");
                 args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
-                    "CMS_PROFILE_NOT_FOUND", profileId));
+                        "CMS_PROFILE_NOT_FOUND", profileId));
                 outputTemplate(request, response, args);
             }
             return;
         }
         if (isRenewal && (renewProfile == null)) {
             if (xmlOutput) {
-                outputError(response, CMS.getUserMessage(locale,"CMS_PROFILE_NOT_FOUND", renewProfileId));
+                outputError(response, CMS.getUserMessage(locale,
+                        "CMS_PROFILE_NOT_FOUND", renewProfileId));
             } else {
                 args.set(ARG_ERROR_CODE, "1");
                 args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
-                    "CMS_PROFILE_NOT_FOUND", renewProfileId));
+                        "CMS_PROFILE_NOT_FOUND", renewProfileId));
                 outputTemplate(request, response, args);
             }
             return;
         }
 
         if (!ps.isProfileEnable(profileId)) {
-            CMS.debug("ProfileSubmitServlet: Profile " + profileId + 
-                " not enabled");
+            CMS.debug("ProfileSubmitServlet: Profile " + profileId
+                    + " not enabled");
             if (xmlOutput) {
-                outputError(response, CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND", profileId));
+                outputError(response, CMS.getUserMessage(locale,
+                        "CMS_PROFILE_NOT_FOUND", profileId));
             } else {
                 args.set(ARG_ERROR_CODE, "1");
                 args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
-                    "CMS_PROFILE_NOT_FOUND", profileId));
+                        "CMS_PROFILE_NOT_FOUND", profileId));
                 outputTemplate(request, response, args);
             }
             if (statsSub != null) {
-              statsSub.endTiming("enrollment");
+                statsSub.endTiming("enrollment");
             }
             return;
         }
 
         if (isRenewal) {
-          if (!ps.isProfileEnable(renewProfileId)) {
-            CMS.debug("ProfileSubmitServlet: renewal Profile " + renewProfileId + 
-                " not enabled");
-            if (xmlOutput) {
-                outputError(response, CMS.getUserMessage(locale, "CMS_PROFILE_NOT_FOUND", renewProfileId));
-            } else {
-                args.set(ARG_ERROR_CODE, "1");
-                args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
-                    "CMS_PROFILE_NOT_FOUND", renewProfileId));
-                outputTemplate(request, response, args);
+            if (!ps.isProfileEnable(renewProfileId)) {
+                CMS.debug("ProfileSubmitServlet: renewal Profile "
+                        + renewProfileId + " not enabled");
+                if (xmlOutput) {
+                    outputError(response, CMS.getUserMessage(locale,
+                            "CMS_PROFILE_NOT_FOUND", renewProfileId));
+                } else {
+                    args.set(ARG_ERROR_CODE, "1");
+                    args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
+                            "CMS_PROFILE_NOT_FOUND", renewProfileId));
+                    outputTemplate(request, response, args);
+                }
+                return;
             }
-            return;
-          }
         }
 
         IProfileContext ctx = profile.createContext();
@@ -908,40 +960,42 @@ public class ProfileSubmitServlet extends ProfileServlet {
             }
         } catch (EProfileException e) {
             // authenticator not installed correctly
-            CMS.debug("ProfileSubmitServlet: renewal: exception:"+e.toString());
+            CMS.debug("ProfileSubmitServlet: renewal: exception:"
+                    + e.toString());
             args.set(ARG_ERROR_CODE, "1");
-            args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
-                "CMS_INTERNAL_ERROR"));
+            args.set(ARG_ERROR_REASON,
+                    CMS.getUserMessage(locale, "CMS_INTERNAL_ERROR"));
             outputTemplate(request, response, args);
             return;
         }
         if (authenticator == null) {
             CMS.debug("ProfileSubmitServlet: authenticator not found");
         } else {
-            CMS.debug("ProfileSubmitServlet: authenticator " + 
-                authenticator.getName() + " found");
+            CMS.debug("ProfileSubmitServlet: authenticator "
+                    + authenticator.getName() + " found");
             setCredentialsIntoContext(request, authenticator, ctx);
         }
 
-        // for renewal, this will override or add auth info to the profile context
+        // for renewal, this will override or add auth info to the profile
+        // context
         if (isRenewal) {
-           if (origAuthenticator!= null) {
-               CMS.debug("ProfileSubmitServlet: for renewal, original authenticator " + 
-                 origAuthenticator.getName() + " found");
-               setCredentialsIntoContext(request, origAuthenticator, ctx);
-           } else {
-               CMS.debug("ProfileSubmitServlet: for renewal, original authenticator not found");
-           }
+            if (origAuthenticator != null) {
+                CMS.debug("ProfileSubmitServlet: for renewal, original authenticator "
+                        + origAuthenticator.getName() + " found");
+                setCredentialsIntoContext(request, origAuthenticator, ctx);
+            } else {
+                CMS.debug("ProfileSubmitServlet: for renewal, original authenticator not found");
+            }
         }
 
         CMS.debug("ProfileSubmistServlet: set Inputs into profile Context");
         if (isRenewal) {
-        // for renewal, input needs to be retrieved from the orig req record
+            // for renewal, input needs to be retrieved from the orig req record
             CMS.debug("ProfileSubmitServlet: set original Inputs into profile Context");
             setInputsIntoContext(origReq, profile, ctx, locale);
             ctx.set(IEnrollProfile.CTX_RENEWAL, "true");
             ctx.set("renewProfileId", renewProfileId);
-            ctx.set(IEnrollProfile.CTX_RENEWAL_SEQ_NUM, origSeqNum.toString()); 
+            ctx.set(IEnrollProfile.CTX_RENEWAL_SEQ_NUM, origSeqNum.toString());
         } else {
             setInputsIntoContext(request, profile, ctx);
         }
@@ -955,14 +1009,13 @@ public class ProfileSubmitServlet extends ProfileServlet {
         SessionContext context = SessionContext.getContext();
 
         // insert profile context so that input parameter can be retrieved
-        context.put("profileContext", ctx); 
-        context.put("sslClientCertProvider", 
-            new SSLClientCertProvider(request));
+        context.put("profileContext", ctx);
+        context.put("sslClientCertProvider", new SSLClientCertProvider(request));
         CMS.debug("ProfileSubmitServlet: set sslClientCertProvider");
         if ((isRenewal == true) && (origSubjectDN != null))
-          context.put("origSubjectDN", origSubjectDN); 
+            context.put("origSubjectDN", origSubjectDN);
         if (statsSub != null) {
-          statsSub.startTiming("profile_authentication");
+            statsSub.startTiming("profile_authentication");
         }
 
         if (authenticator != null) {
@@ -971,67 +1024,68 @@ public class ProfileSubmitServlet extends ProfileServlet {
             String uid_cred = "Unidentified";
             String uid_attempted_cred = "Unidentified";
             Enumeration authIds = authenticator.getValueNames();
-            //Attempt to possibly fetch attemped uid, may not always be available.
+            // Attempt to possibly fetch attemped uid, may not always be
+            // available.
             if (authIds != null) {
                 while (authIds.hasMoreElements()) {
                     String authName = (String) authIds.nextElement();
-                    String value = request.getParameter(authName); 
+                    String value = request.getParameter(authName);
                     if (value != null) {
-                          if (authName.equals("uid")) {
-                              uid_attempted_cred = value;
-                          }
+                        if (authName.equals("uid")) {
+                            uid_attempted_cred = value;
+                        }
                     }
                 }
             }
 
-            String authSubjectID =  auditSubjectID();
+            String authSubjectID = auditSubjectID();
 
-            String authMgrID = authenticator.getName(); 
-            String auditMessage = null; 
+            String authMgrID = authenticator.getName();
+            String auditMessage = null;
             try {
                 if (isRenewal) {
                     CMS.debug("ProfileSubmitServlet: renewal authenticate begins");
-                    authToken = authenticate(authenticator, request, origReq, context);
+                    authToken = authenticate(authenticator, request, origReq,
+                            context);
                     CMS.debug("ProfileSubmitServlet: renewal authenticate ends");
                 } else {
                     authToken = authenticate(authenticator, request);
                 }
             } catch (EBaseException e) {
-                CMS.debug("ProfileSubmitServlet: authentication error " + 
-                    e.toString());
+                CMS.debug("ProfileSubmitServlet: authentication error "
+                        + e.toString());
                 // authentication error
                 if (xmlOutput) {
-                    outputError(response, CMS.getUserMessage(locale, "CMS_AUTHENTICATION_ERROR"));
+                    outputError(response, CMS.getUserMessage(locale,
+                            "CMS_AUTHENTICATION_ERROR"));
                 } else {
                     args.set(ARG_ERROR_CODE, "1");
                     args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
-                        "CMS_AUTHENTICATION_ERROR"));
+                            "CMS_AUTHENTICATION_ERROR"));
                     outputTemplate(request, response, args);
                 }
                 if (statsSub != null) {
-                  statsSub.endTiming("authentication");
+                    statsSub.endTiming("authentication");
                 }
                 if (statsSub != null) {
-                  statsSub.endTiming("enrollment");
+                    statsSub.endTiming("enrollment");
                 }
 
-                //audit log our authentication failure
+                // audit log our authentication failure
 
                 authSubjectID += " : " + uid_cred;
                 auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_AUTH_FAIL,
-                        authSubjectID,
-                        ILogger.FAILURE,
-                        authMgrID,
-                        uid_attempted_cred);
+                        LOGGING_SIGNED_AUDIT_AUTH_FAIL, authSubjectID,
+                        ILogger.FAILURE, authMgrID, uid_attempted_cred);
                 audit(auditMessage);
 
                 return;
             }
 
-            //Log successful authentication
+            // Log successful authentication
 
-            //Attempt to get uid from authToken, most tokens respond to the "uid" cred.
+            // Attempt to get uid from authToken, most tokens respond to the
+            // "uid" cred.
             uid_cred = authToken.getInString("uid");
 
             if (uid_cred == null || uid_cred.length() == 0) {
@@ -1039,19 +1093,16 @@ public class ProfileSubmitServlet extends ProfileServlet {
             }
 
             authSubjectID = authSubjectID + " : " + uid_cred;
-             
+
             // store a message in the signed audit log file
-            auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_AUTH_SUCCESS,
-                        authSubjectID,
-                        ILogger.SUCCESS,
-                        authMgrID);
+            auditMessage = CMS.getLogMessage(LOGGING_SIGNED_AUDIT_AUTH_SUCCESS,
+                    authSubjectID, ILogger.SUCCESS, authMgrID);
 
             audit(auditMessage);
 
         }
         if (statsSub != null) {
-          statsSub.endTiming("profile_authentication");
+            statsSub.endTiming("profile_authentication");
         }
 
         // authentication success
@@ -1060,23 +1111,24 @@ public class ProfileSubmitServlet extends ProfileServlet {
             // do profile authorization
             String acl = null;
             if (isRenewal)
-              acl = renewProfile.getAuthzAcl();
+                acl = renewProfile.getAuthzAcl();
             else
-              acl = profile.getAuthzAcl();
-            CMS.debug("ProfileSubmitServlet: authz using acl: "+acl);
+                acl = profile.getAuthzAcl();
+            CMS.debug("ProfileSubmitServlet: authz using acl: " + acl);
             if (acl != null && acl.length() > 0) {
                 try {
                     String resource = profileId + ".authz.acl";
-                    AuthzToken authzToken = authorize(mAclMethod, resource, authToken, acl);
+                    AuthzToken authzToken = authorize(mAclMethod, resource,
+                            authToken, acl);
                 } catch (Exception e) {
-                    CMS.debug("ProfileSubmitServlet authorize: "+e.toString());
+                    CMS.debug("ProfileSubmitServlet authorize: " + e.toString());
                     if (xmlOutput) {
-                        outputError(response, CMS.getUserMessage(locale, 
-                          "CMS_AUTHORIZATION_ERROR"));
+                        outputError(response, CMS.getUserMessage(locale,
+                                "CMS_AUTHORIZATION_ERROR"));
                     } else {
                         args.set(ARG_ERROR_CODE, "1");
                         args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
-                            "CMS_AUTHORIZATION_ERROR"));
+                                "CMS_AUTHORIZATION_ERROR"));
                         outputTemplate(request, response, args);
                     }
 
@@ -1088,11 +1140,11 @@ public class ProfileSubmitServlet extends ProfileServlet {
         IRequest reqs[] = null;
 
         if (statsSub != null) {
-          statsSub.startTiming("request_population");
+            statsSub.startTiming("request_population");
         }
-        ///////////////////////////////////////////////
+        // /////////////////////////////////////////////
         // create request
-        ///////////////////////////////////////////////
+        // /////////////////////////////////////////////
         try {
             reqs = profile.createRequests(ctx, locale);
         } catch (EProfileException e) {
@@ -1106,50 +1158,52 @@ public class ProfileSubmitServlet extends ProfileServlet {
                 outputTemplate(request, response, args);
             }
             if (statsSub != null) {
-              statsSub.endTiming("request_population");
-              statsSub.endTiming("enrollment");
+                statsSub.endTiming("request_population");
+                statsSub.endTiming("enrollment");
             }
             return;
         } catch (Throwable e) {
             CMS.debug(e);
             CMS.debug("ProfileSubmitServlet: createRequests " + e.toString());
             if (xmlOutput) {
-                outputError(response, CMS.getUserMessage(locale, "CMS_INTERNAL_ERROR"));
+                outputError(response,
+                        CMS.getUserMessage(locale, "CMS_INTERNAL_ERROR"));
             } else {
                 args.set(ARG_ERROR_CODE, "1");
-                args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
-                    "CMS_INTERNAL_ERROR"));
+                args.set(ARG_ERROR_REASON,
+                        CMS.getUserMessage(locale, "CMS_INTERNAL_ERROR"));
                 outputTemplate(request, response, args);
             }
             if (statsSub != null) {
-              statsSub.endTiming("request_population");
-              statsSub.endTiming("enrollment");
+                statsSub.endTiming("request_population");
+                statsSub.endTiming("enrollment");
             }
             return;
         }
 
         String errorCode = null;
-        String errorReason = null; 
+        String errorReason = null;
 
-        ///////////////////////////////////////////////
+        // /////////////////////////////////////////////
         // populate request
-        ///////////////////////////////////////////////
+        // /////////////////////////////////////////////
         for (int k = 0; k < reqs.length; k++) {
             boolean fromRA = false;
             String uid = "";
 
             // adding parameters to request
             if (isRenewal) {
-              setInputsIntoRequest(origReq, profile, reqs[k], locale);
-              // set orig expiration date to be used in Validity constraint
-              reqs[k].setExtData("origNotAfter",
-                  BigInteger.valueOf(origNotAfter.getTime()));
-              // set subjectDN to be used in subject name default
-              reqs[k].setExtData(IProfileAuthenticator.AUTHENTICATED_NAME, origSubjectDN);
-              // set request type
-              reqs[k].setRequestType("renewal");
+                setInputsIntoRequest(origReq, profile, reqs[k], locale);
+                // set orig expiration date to be used in Validity constraint
+                reqs[k].setExtData("origNotAfter",
+                        BigInteger.valueOf(origNotAfter.getTime()));
+                // set subjectDN to be used in subject name default
+                reqs[k].setExtData(IProfileAuthenticator.AUTHENTICATED_NAME,
+                        origSubjectDN);
+                // set request type
+                reqs[k].setRequestType("renewal");
             } else
-              setInputsIntoRequest(request, profile, reqs[k]);
+                setInputsIntoRequest(request, profile, reqs[k]);
 
             // serial auth token into request
             if (authToken != null) {
@@ -1159,19 +1213,20 @@ public class ProfileSubmitServlet extends ProfileServlet {
                     String[] tokenVals = authToken.getInStringArray(tokenName);
                     if (tokenVals != null) {
                         for (int i = 0; i < tokenVals.length; i++) {
-                            reqs[k].setExtData(ARG_AUTH_TOKEN + "." +
-                                    tokenName + "[" + i + "]", tokenVals[i]);
+                            reqs[k].setExtData(ARG_AUTH_TOKEN + "." + tokenName
+                                    + "[" + i + "]", tokenVals[i]);
                         }
                     } else {
                         String tokenVal = authToken.getInString(tokenName);
                         if (tokenVal != null) {
-                            reqs[k].setExtData(ARG_AUTH_TOKEN + "." + tokenName,
-                                    tokenVal);
+                            reqs[k].setExtData(
+                                    ARG_AUTH_TOKEN + "." + tokenName, tokenVal);
                             // if RA agent, auto assign the request
                             if (tokenName.equals("uid"))
                                 uid = tokenVal;
-                            if (tokenName.equals("group") &&
-                                    tokenVal.equals("Registration Manager Agents")) {
+                            if (tokenName.equals("group")
+                                    && tokenVal
+                                            .equals("Registration Manager Agents")) {
                                 fromRA = true;
                             }
                         }
@@ -1180,7 +1235,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
             }
 
             if (fromRA) {
-                CMS.debug("ProfileSubmitServlet: request from RA: "+ uid);
+                CMS.debug("ProfileSubmitServlet: request from RA: " + uid);
                 reqs[k].setExtData(ARG_REQUEST_OWNER, uid);
             }
 
@@ -1188,7 +1243,8 @@ public class ProfileSubmitServlet extends ProfileServlet {
             reqs[k].setExtData(ARG_PROFILE, "true");
             reqs[k].setExtData(ARG_PROFILE_ID, profileId);
             if (isRenewal)
-                reqs[k].setExtData(ARG_RENEWAL_PROFILE_ID, request.getParameter("profileId"));
+                reqs[k].setExtData(ARG_RENEWAL_PROFILE_ID,
+                        request.getParameter("profileId"));
             reqs[k].setExtData(ARG_PROFILE_APPROVED_BY, profile.getApprovedBy());
             String setId = profile.getPolicySetId(reqs[k]);
 
@@ -1196,16 +1252,20 @@ public class ProfileSubmitServlet extends ProfileServlet {
                 // no profile set found
                 CMS.debug("ProfileSubmitServlet: no profile policy set found");
                 if (xmlOutput) {
-                    outputError(response, FAILED, CMS.getUserMessage("CMS_PROFILE_NO_POLICY_SET_FOUND"), reqs[k].getRequestId().toString());
+                    outputError(
+                            response,
+                            FAILED,
+                            CMS.getUserMessage("CMS_PROFILE_NO_POLICY_SET_FOUND"),
+                            reqs[k].getRequestId().toString());
                 } else {
                     args.set(ARG_ERROR_CODE, "1");
-                    args.set(ARG_ERROR_REASON, 
-                      CMS.getUserMessage("CMS_PROFILE_NO_POLICY_SET_FOUND"));
+                    args.set(ARG_ERROR_REASON, CMS
+                            .getUserMessage("CMS_PROFILE_NO_POLICY_SET_FOUND"));
                     outputTemplate(request, response, args);
                 }
                 if (statsSub != null) {
-                  statsSub.endTiming("request_population");
-                  statsSub.endTiming("enrollment");
+                    statsSub.endTiming("request_population");
+                    statsSub.endTiming("enrollment");
                 }
                 return;
             }
@@ -1215,13 +1275,13 @@ public class ProfileSubmitServlet extends ProfileServlet {
             reqs[k].setExtData(ARG_PROFILE_REMOTE_HOST, request.getRemoteHost());
             reqs[k].setExtData(ARG_PROFILE_REMOTE_ADDR, request.getRemoteAddr());
 
-            CMS.debug("ProfileSubmitServlet: request " + 
-                reqs[k].getRequestId().toString());
+            CMS.debug("ProfileSubmitServlet: request "
+                    + reqs[k].getRequestId().toString());
 
             try {
                 CMS.debug("ProfileSubmitServlet: populating request inputs");
                 // give authenticator a chance to populate the request
-                if (authenticator != null) { 
+                if (authenticator != null) {
                     authenticator.populate(authToken, reqs[k]);
                 }
                 profile.populateInput(ctx, reqs[k]);
@@ -1229,38 +1289,41 @@ public class ProfileSubmitServlet extends ProfileServlet {
             } catch (EProfileException e) {
                 CMS.debug("ProfileSubmitServlet: populate " + e.toString());
                 if (xmlOutput) {
-                    outputError(response, FAILED, e.toString(), reqs[k].getRequestId().toString());
+                    outputError(response, FAILED, e.toString(), reqs[k]
+                            .getRequestId().toString());
                 } else {
                     args.set(ARG_ERROR_CODE, "1");
                     args.set(ARG_ERROR_REASON, e.toString());
                     outputTemplate(request, response, args);
                 }
                 if (statsSub != null) {
-                  statsSub.endTiming("request_population");
-                  statsSub.endTiming("enrollment");
+                    statsSub.endTiming("request_population");
+                    statsSub.endTiming("enrollment");
                 }
                 return;
             } catch (Throwable e) {
                 CMS.debug("ProfileSubmitServlet: populate " + e.toString());
-                //  throw new IOException("Profile " + profileId + 
-                //          " cannot populate");
+                // throw new IOException("Profile " + profileId +
+                // " cannot populate");
                 if (xmlOutput) {
-                    outputError(response, FAILED, CMS.getUserMessage(locale, "CMS_INTERNAL_ERROR"), reqs[k].getRequestId().toString());
+                    outputError(response, FAILED,
+                            CMS.getUserMessage(locale, "CMS_INTERNAL_ERROR"),
+                            reqs[k].getRequestId().toString());
                 } else {
                     args.set(ARG_ERROR_CODE, "1");
-                    args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
-                        "CMS_INTERNAL_ERROR"));
+                    args.set(ARG_ERROR_REASON,
+                            CMS.getUserMessage(locale, "CMS_INTERNAL_ERROR"));
                     outputTemplate(request, response, args);
                 }
                 if (statsSub != null) {
-                  statsSub.endTiming("request_population");
-                  statsSub.endTiming("enrollment");
+                    statsSub.endTiming("request_population");
+                    statsSub.endTiming("enrollment");
                 }
                 return;
             }
         }
         if (statsSub != null) {
-          statsSub.endTiming("request_population");
+            statsSub.endTiming("request_population");
         }
 
         String auditMessage = null;
@@ -1269,9 +1332,9 @@ public class ProfileSubmitServlet extends ProfileServlet {
         String auditInfoCertValue = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
 
         try {
-            ///////////////////////////////////////////////
+            // /////////////////////////////////////////////
             // submit request
-            ///////////////////////////////////////////////
+            // /////////////////////////////////////////////
             String requestIds = ""; // deliminated with double space
             for (int k = 0; k < reqs.length; k++) {
                 try {
@@ -1280,15 +1343,16 @@ public class ProfileSubmitServlet extends ProfileServlet {
 
                     // print request debug
                     if (reqs[k] != null) {
-                      requestIds += "  "+reqs[k].getRequestId().toString();
-                      Enumeration reqKeys = reqs[k].getExtDataKeys();
-                      while (reqKeys.hasMoreElements()) {
-                        String reqKey = (String)reqKeys.nextElement();
-                        String reqVal = reqs[k].getExtDataInString(reqKey);
-                        if (reqVal != null) {
-                           CMS.debug("ProfileSubmitServlet: key=$request." + reqKey + "$ value=" + reqVal);
+                        requestIds += "  " + reqs[k].getRequestId().toString();
+                        Enumeration reqKeys = reqs[k].getExtDataKeys();
+                        while (reqKeys.hasMoreElements()) {
+                            String reqKey = (String) reqKeys.nextElement();
+                            String reqVal = reqs[k].getExtDataInString(reqKey);
+                            if (reqVal != null) {
+                                CMS.debug("ProfileSubmitServlet: key=$request."
+                                        + reqKey + "$ value=" + reqVal);
+                            }
                         }
-                      }
                     }
 
                     profile.submit(authToken, reqs[k]);
@@ -1298,16 +1362,16 @@ public class ProfileSubmitServlet extends ProfileServlet {
                     auditInfoCertValue = auditInfoCertValue(reqs[k]);
 
                     if (auditInfoCertValue != null) {
-                        if (!(auditInfoCertValue.equals(
-                                    ILogger.SIGNED_AUDIT_EMPTY_VALUE))) {
+                        if (!(auditInfoCertValue
+                                .equals(ILogger.SIGNED_AUDIT_EMPTY_VALUE))) {
                             // store a message in the signed audit log file
-                            auditMessage = CMS.getLogMessage(
-                                        LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
-                                        auditSubjectID,
-                                        ILogger.SUCCESS,
-                                        auditRequesterID,
-                                        ILogger.SIGNED_AUDIT_ACCEPTANCE,
-                                        auditInfoCertValue);
+                            auditMessage = CMS
+                                    .getLogMessage(
+                                            LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
+                                            auditSubjectID, ILogger.SUCCESS,
+                                            auditRequesterID,
+                                            ILogger.SIGNED_AUDIT_ACCEPTANCE,
+                                            auditInfoCertValue);
 
                             audit(auditMessage);
                         }
@@ -1316,53 +1380,50 @@ public class ProfileSubmitServlet extends ProfileServlet {
                     // return defer message to the user
                     reqs[k].setRequestStatus(RequestStatus.PENDING);
                     // need to notify
-                    INotify notify = profile.getRequestQueue().getPendingNotify();
+                    INotify notify = profile.getRequestQueue()
+                            .getPendingNotify();
                     if (notify != null) {
-                       notify.notify(reqs[k]);
+                        notify.notify(reqs[k]);
                     }
-                
+
                     CMS.debug("ProfileSubmitServlet: submit " + e.toString());
                     errorCode = "2";
                     errorReason = CMS.getUserMessage(locale,
-                                "CMS_PROFILE_DEFERRED",
-                                e.toString());
+                            "CMS_PROFILE_DEFERRED", e.toString());
                 } catch (ERejectException e) {
-                    // return error to the user 
+                    // return error to the user
                     reqs[k].setRequestStatus(RequestStatus.REJECTED);
                     CMS.debug("ProfileSubmitServlet: submit " + e.toString());
                     errorCode = "3";
                     errorReason = CMS.getUserMessage(locale,
-                                "CMS_PROFILE_REJECTED",
-                                e.toString());
+                            "CMS_PROFILE_REJECTED", e.toString());
                 } catch (Throwable e) {
                     // return error to the user
                     CMS.debug("ProfileSubmitServlet: submit " + e.toString());
                     errorCode = "1";
                     errorReason = CMS.getUserMessage(locale,
-                                "CMS_INTERNAL_ERROR");
+                            "CMS_INTERNAL_ERROR");
                 }
 
-                try { 
+                try {
                     if (errorCode == null) {
                         profile.getRequestQueue().markAsServiced(reqs[k]);
                     } else {
                         profile.getRequestQueue().updateRequest(reqs[k]);
                     }
                 } catch (EBaseException e) {
-                    CMS.debug("ProfileSubmitServlet: updateRequest " +
-                        e.toString());
+                    CMS.debug("ProfileSubmitServlet: updateRequest "
+                            + e.toString());
                 }
 
                 if (errorCode != null) {
                     if (errorCode.equals("1")) {
                         // store a message in the signed audit log file
                         auditMessage = CMS.getLogMessage(
-                                    LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
-                                    auditSubjectID,
-                                    ILogger.FAILURE,
-                                    auditRequesterID,
-                                    ILogger.SIGNED_AUDIT_REJECTION,
-                                    errorReason);
+                                LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
+                                auditSubjectID, ILogger.FAILURE,
+                                auditRequesterID,
+                                ILogger.SIGNED_AUDIT_REJECTION, errorReason);
 
                         audit(auditMessage);
                     } else if (errorCode.equals("2")) {
@@ -1372,12 +1433,10 @@ public class ProfileSubmitServlet extends ProfileServlet {
                     } else if (errorCode.equals("3")) {
                         // store a message in the signed audit log file
                         auditMessage = CMS.getLogMessage(
-                                    LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
-                                    auditSubjectID,
-                                    ILogger.FAILURE,
-                                    auditRequesterID,
-                                    ILogger.SIGNED_AUDIT_REJECTION,
-                                    errorReason);
+                                LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
+                                auditSubjectID, ILogger.FAILURE,
+                                auditRequesterID,
+                                ILogger.SIGNED_AUDIT_REJECTION, errorReason);
 
                         audit(auditMessage);
                     }
@@ -1394,8 +1453,8 @@ public class ProfileSubmitServlet extends ProfileServlet {
                     for (int k = 0; k < reqs.length; k++) {
                         ArgSet requestset = new ArgSet();
 
-                        requestset.set(ARG_REQUEST_ID,
-                            reqs[k].getRequestId().toString());
+                        requestset.set(ARG_REQUEST_ID, reqs[k].getRequestId()
+                                .toString());
                         requestlist.add(requestset);
                     }
                     args.set(ARG_REQUEST_LIST, requestlist);
@@ -1404,14 +1463,14 @@ public class ProfileSubmitServlet extends ProfileServlet {
                     outputTemplate(request, response, args);
                 }
                 if (statsSub != null) {
-                  statsSub.endTiming("enrollment");
+                    statsSub.endTiming("enrollment");
                 }
                 return;
             }
 
-            ///////////////////////////////////////////////
-            // output output list 
-            ///////////////////////////////////////////////
+            // /////////////////////////////////////////////
+            // output output list
+            // /////////////////////////////////////////////
             if (xmlOutput) {
                 xmlOutput(response, profile, locale, reqs);
             } else {
@@ -1429,8 +1488,8 @@ public class ProfileSubmitServlet extends ProfileServlet {
                 for (int k = 0; k < reqs.length; k++) {
                     ArgSet requestset = new ArgSet();
 
-                    requestset.set(ARG_REQUEST_ID,
-                        reqs[k].getRequestId().toString());
+                    requestset.set(ARG_REQUEST_ID, reqs[k].getRequestId()
+                            .toString());
                     requestlist.add(requestset);
                 }
                 args.set(ARG_REQUEST_LIST, requestlist);
@@ -1443,28 +1502,27 @@ public class ProfileSubmitServlet extends ProfileServlet {
             // store a message in the signed audit log file
             // (automated cert request processed - "rejected")
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
-                        auditSubjectID,
-                        ILogger.FAILURE,
-                        auditRequesterID,
-                        ILogger.SIGNED_AUDIT_REJECTION,
-                        SIGNED_AUDIT_AUTOMATED_REJECTION_REASON[0]);
+                    LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED,
+                    auditSubjectID, ILogger.FAILURE, auditRequesterID,
+                    ILogger.SIGNED_AUDIT_REJECTION,
+                    SIGNED_AUDIT_AUTOMATED_REJECTION_REASON[0]);
 
             audit(auditMessage);
 
             if (statsSub != null) {
-              statsSub.endTiming("enrollment");
+                statsSub.endTiming("enrollment");
             }
             throw eAudit1;
         } finally {
             SessionContext.releaseContext();
         }
         if (statsSub != null) {
-          statsSub.endTiming("enrollment");
+            statsSub.endTiming("enrollment");
         }
     }
 
-    private void xmlOutput(HttpServletResponse httpResp, IProfile profile, Locale locale, IRequest[] reqs) {
+    private void xmlOutput(HttpServletResponse httpResp, IProfile profile,
+            Locale locale, IRequest[] reqs) {
         try {
             XMLObject xmlObj = null;
             xmlObj = new XMLObject();
@@ -1472,51 +1530,68 @@ public class ProfileSubmitServlet extends ProfileServlet {
             Node root = xmlObj.createRoot("XMLResponse");
             xmlObj.addItemToContainer(root, "Status", SUCCESS);
             Node n = xmlObj.createContainer(root, "Requests");
-            CMS.debug("ProfileSubmitServlet xmlOutput: req len = " +reqs.length);
+            CMS.debug("ProfileSubmitServlet xmlOutput: req len = "
+                    + reqs.length);
 
-            for (int i=0; i<reqs.length; i++) {
+            for (int i = 0; i < reqs.length; i++) {
                 Node subnode = xmlObj.createContainer(n, "Request");
-                xmlObj.addItemToContainer(subnode, "Id", reqs[i].getRequestId().toString());
-                X509CertInfo certInfo =
-                    reqs[i].getExtDataInCertInfo(IEnrollProfile.REQUEST_CERTINFO);
+                xmlObj.addItemToContainer(subnode, "Id", reqs[i].getRequestId()
+                        .toString());
+                X509CertInfo certInfo = reqs[i]
+                        .getExtDataInCertInfo(IEnrollProfile.REQUEST_CERTINFO);
                 if (certInfo != null) {
-                  String subject = "";
-                  subject = (String) certInfo.get(X509CertInfo.SUBJECT).toString();
-                  xmlObj.addItemToContainer(subnode, "SubjectDN", subject);
+                    String subject = "";
+                    subject = (String) certInfo.get(X509CertInfo.SUBJECT)
+                            .toString();
+                    xmlObj.addItemToContainer(subnode, "SubjectDN", subject);
                 } else {
-                  CMS.debug("ProfileSubmitServlet xmlOutput: no certInfo found in request");
+                    CMS.debug("ProfileSubmitServlet xmlOutput: no certInfo found in request");
                 }
                 Enumeration outputIds = profile.getProfileOutputIds();
                 if (outputIds != null) {
                     while (outputIds.hasMoreElements()) {
                         String outputId = (String) outputIds.nextElement();
-                        IProfileOutput profileOutput = profile.getProfileOutput(outputId);
+                        IProfileOutput profileOutput = profile
+                                .getProfileOutput(outputId);
                         Enumeration outputNames = profileOutput.getValueNames();
                         if (outputNames != null) {
                             while (outputNames.hasMoreElements()) {
-                                String outputName = (String) outputNames.nextElement();
-                                if (!outputName.equals("b64_cert") && !outputName.equals("pkcs7"))
+                                String outputName = (String) outputNames
+                                        .nextElement();
+                                if (!outputName.equals("b64_cert")
+                                        && !outputName.equals("pkcs7"))
                                     continue;
                                 try {
-                                    String outputValue = profileOutput.getValue(outputName, locale, reqs[i]);
+                                    String outputValue = profileOutput
+                                            .getValue(outputName, locale,
+                                                    reqs[i]);
                                     if (outputName.equals("b64_cert")) {
-                                      String ss = Cert.normalizeCertStrAndReq(outputValue);
-                                      outputValue = Cert.stripBrackets(ss);
-                                      byte[] bcode = CMS.AtoB(outputValue);
-                                      X509CertImpl impl = new X509CertImpl(bcode);
-                                      xmlObj.addItemToContainer(subnode,
-                                        "serialno", impl.getSerialNumber().toString(16));
-                                      xmlObj.addItemToContainer(subnode, "b64", outputValue);
+                                        String ss = Cert
+                                                .normalizeCertStrAndReq(outputValue);
+                                        outputValue = Cert.stripBrackets(ss);
+                                        byte[] bcode = CMS.AtoB(outputValue);
+                                        X509CertImpl impl = new X509CertImpl(
+                                                bcode);
+                                        xmlObj.addItemToContainer(subnode,
+                                                "serialno", impl
+                                                        .getSerialNumber()
+                                                        .toString(16));
+                                        xmlObj.addItemToContainer(subnode,
+                                                "b64", outputValue);
                                     }// if b64_cert
                                     else if (outputName.equals("pkcs7")) {
-                                      String ss = Cert.normalizeCertStrAndReq(outputValue);
-                                      xmlObj.addItemToContainer(subnode, "pkcs7", ss);
+                                        String ss = Cert
+                                                .normalizeCertStrAndReq(outputValue);
+                                        xmlObj.addItemToContainer(subnode,
+                                                "pkcs7", ss);
                                     }
- 
+
                                 } catch (EProfileException e) {
-                                    CMS.debug("ProfileSubmitServlet xmlOutput: "+e.toString());
+                                    CMS.debug("ProfileSubmitServlet xmlOutput: "
+                                            + e.toString());
                                 } catch (Exception e) {
-                                    CMS.debug("ProfileSubmitServlet xmlOutput: "+e.toString());
+                                    CMS.debug("ProfileSubmitServlet xmlOutput: "
+                                            + e.toString());
                                 }
                             }
                         }
@@ -1533,11 +1608,11 @@ public class ProfileSubmitServlet extends ProfileServlet {
 
     /**
      * Signed Audit Log Requester ID
-     *
-     * This method is called to obtain the "RequesterID" for
-     * a signed audit log message.
+     * 
+     * This method is called to obtain the "RequesterID" for a signed audit log
+     * message.
      * <P>
-     *
+     * 
      * @param request the actual request
      * @return id string containing the signed audit log message RequesterID
      */
@@ -1563,11 +1638,11 @@ public class ProfileSubmitServlet extends ProfileServlet {
 
     /**
      * Signed Audit Log Info Certificate Value
-     *
+     * 
      * This method is called to obtain the certificate from the passed in
      * "X509CertImpl" for a signed audit log message.
      * <P>
-     *
+     * 
      * @param request request containing an X509CertImpl
      * @return cert string containing the certificate
      */
@@ -1577,8 +1652,8 @@ public class ProfileSubmitServlet extends ProfileServlet {
             return null;
         }
 
-        X509CertImpl x509cert = request.getExtDataInCert(
-                IEnrollProfile.REQUEST_ISSUED_CERT);
+        X509CertImpl x509cert = request
+                .getExtDataInCert(IEnrollProfile.REQUEST_ISSUED_CERT);
 
         if (x509cert == null) {
             return ILogger.SIGNED_AUDIT_EMPTY_VALUE;

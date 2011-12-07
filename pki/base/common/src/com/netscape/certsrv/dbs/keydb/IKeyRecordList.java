@@ -17,35 +17,33 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.dbs.keydb;
 
-
 import java.util.Enumeration;
 
 import com.netscape.certsrv.base.EBaseException;
 
-
 /**
  * A class represents a list of key records.
  * <P>
- *
+ * 
  * @version $Revision$, $Date$
  */
 public interface IKeyRecordList {
 
     /**
-     * Retrieves the size of key list. 
-     *
+     * Retrieves the size of key list.
+     * 
      * @return size of key list
      */
     public int getSize();
 
     /**
      * Retrieves key records.
-     *
+     * 
      * @param startidx start index
      * @param endidx end index
      * @return key records
      * @exception EBaseException failed to retrieve key records
      */
     public Enumeration getKeyRecords(int startidx, int endidx)
-        throws EBaseException;
+            throws EBaseException;
 }

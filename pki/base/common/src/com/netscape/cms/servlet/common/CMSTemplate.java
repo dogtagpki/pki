@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.common;
 
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -39,23 +38,21 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.logging.ILogger;
 
-
 /**
- * File templates. This implementation will take 
- * an HTML file with a special customer tag
- * &lt;CMS_TEMPLATE&gt; and replace the tag with
- * a series of javascript variable definitions
- * (depending on the servlet)
- *
+ * File templates. This implementation will take an HTML file with a special
+ * customer tag &lt;CMS_TEMPLATE&gt; and replace the tag with a series of
+ * javascript variable definitions (depending on the servlet)
+ * 
  * @version $Revision$, $Date$
  */
 public class CMSTemplate extends CMSFile {
 
     public static final String SUFFIX = ".template";
 
-    /*==========================================================
-     * variables
-     *==========================================================*/
+    /*
+     * ========================================================== variables
+     * ==========================================================
+     */
 
     /* private variables */
     private String mTemplateFileName = "";
@@ -68,29 +65,33 @@ public class CMSTemplate extends CMSFile {
     public static final String TEMPLATE_TAG = "<CMS_TEMPLATE>";
 
     /* Character set for i18n */
-    
+
     /* Will be set by CMSServlet.getTemplate() */
     private String mCharset = null;
 
-    /*==========================================================
-     * constructors
-     *==========================================================*/
+    /*
+     * ========================================================== constructors
+     * ==========================================================
+     */
 
     /**
      * Constructor
+     * 
      * @param file template file to load
      * @param charset character set
-	 * @throws IOException if the there was an error opening the file
+     * @throws IOException if the there was an error opening the file
      */
-    public CMSTemplate(File file, String charset) throws IOException, EBaseException {
+    public CMSTemplate(File file, String charset) throws IOException,
+            EBaseException {
         mCharset = charset;
         mAbsPath = file.getAbsolutePath();
         mLastModified = file.lastModified();
         try {
             init(file);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSGW_CANT_LOAD_TEMPLATE", mAbsPath, e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSGW_CANT_LOAD_TEMPLATE", mAbsPath,
+                            e.toString()));
             throw new ECMSGWException(
                     CMS.getLogMessage("CMSGW_ERROR_LOADING_TEMPLATE"));
         }
@@ -99,16 +100,17 @@ public class CMSTemplate extends CMSFile {
         mContent = content.getBytes(mCharset);
     }
 
-    /*==========================================================
-     * public methods
-     *==========================================================*/
+    /*
+     * ========================================================== public methods
+     * ==========================================================
+     */
 
     /* *
-     * Load the form from the file and setup the
-     * pre/post output buffer if it is a template
-     * file. Otherwise, only post output buffer is
-     * filled.
+     * Load the form from the file and setup the pre/post output buffer if it is
+     * a template file. Otherwise, only post output buffer is filled.
+     * 
      * @param template the template file to load
+     * 
      * @return true if successful
      */
     public boolean init(File template) throws EBaseException, IOException {
@@ -118,9 +120,10 @@ public class CMSTemplate extends CMSFile {
         String content = loadFile(template);
 
         if (content == null) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_TEMPLATE_EMPTY", mAbsPath));
-            throw new ECMSGWException(
-                    CMS.getLogMessage("CMSGW_TEMPLATE_NO_CONTENT_1", mAbsPath));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSGW_TEMPLATE_EMPTY", mAbsPath));
+            throw new ECMSGWException(CMS.getLogMessage(
+                    "CMSGW_TEMPLATE_NO_CONTENT_1", mAbsPath));
         }
 
         /* time stamp */
@@ -128,17 +131,17 @@ public class CMSTemplate extends CMSFile {
 
         mTimeStamp = now.getTime();
 
-        /* if template file, find template tag substring and set
-         * pre/post output string
+        /*
+         * if template file, find template tag substring and set pre/post output
+         * string
          */
         int location = content.indexOf(TEMPLATE_TAG);
 
         if (location == -1) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                    "CMSGW_TEMPLATE_MISSING", mAbsPath, TEMPLATE_TAG));
-            throw new ECMSGWException(
-                    CMS.getLogMessage("CMSGW_MISSING_TEMPLATE_TAG_2", 
-                        TEMPLATE_TAG, mAbsPath));
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_TEMPLATE_MISSING",
+                    mAbsPath, TEMPLATE_TAG));
+            throw new ECMSGWException(CMS.getLogMessage(
+                    "CMSGW_MISSING_TEMPLATE_TAG_2", TEMPLATE_TAG, mAbsPath));
         }
         mPreOutput = content.substring(0, location);
         mPostOutput = content.substring(TEMPLATE_TAG.length() + location);
@@ -146,14 +149,15 @@ public class CMSTemplate extends CMSFile {
         return true;
     }
 
-	/**
-	 * Write a javascript representation of 'input' 
-     * surrounded by SCRIPT tags to the outputstream
+    /**
+     * Write a javascript representation of 'input' surrounded by SCRIPT tags to
+     * the outputstream
+     * 
      * @param rout the outputstream to write to
      * @param input the parameters to write
      */
     public void renderOutput(OutputStream rout, CMSTemplateParams input)
-        throws IOException {
+            throws IOException {
         Enumeration e = null, q = null;
         IArgBlock r = null;
         boolean headerBlock = false, fixedBlock = false, queryBlock = false;
@@ -164,7 +168,7 @@ public class CMSTemplate extends CMSFile {
             http_out = new HTTPOutputStreamWriter(rout);
         else
             http_out = new HTTPOutputStreamWriter(rout, mCharset);
-        
+
         try {
             templateLine out = new templateLine();
 
@@ -178,7 +182,7 @@ public class CMSTemplate extends CMSFile {
             out.println("var recordSet = new Array;");
             out.println("var result = new Object();");
 
-            // hack 
+            // hack
             out.println("var httpParamsCount = 0;");
             out.println("var httpHeadersCount = 0;");
             out.println("var authTokenCount = 0;");
@@ -240,11 +244,11 @@ public class CMSTemplate extends CMSFile {
                 out.println("record.recordSet = recordSet;");
             }
 
-            //if (headerBlock)
+            // if (headerBlock)
             out.println("result.header = header;");
-            //if (fixedBlock)
+            // if (fixedBlock)
             out.println("result.fixed = fixed;");
-            //if (queryBlock)
+            // if (queryBlock)
             out.println("result.recordSet = recordSet;");
             out.println("</SCRIPT>");
             out.println(mPostOutput);
@@ -256,15 +260,14 @@ public class CMSTemplate extends CMSFile {
     }
 
     /**
-     * Ouput the pre-amble HTML Header including
-     * the pre-output buffer.
-     *
+     * Ouput the pre-amble HTML Header including the pre-output buffer.
+     * 
      * @param out output stream specified
      * @return success or error
      */
     public boolean outputProlog(PrintWriter out) {
 
-        //Debug.trace("FormCache:outputProlog");
+        // Debug.trace("FormCache:outputProlog");
 
         /* output pre-output buffer */
         out.print(mPreOutput);
@@ -278,9 +281,8 @@ public class CMSTemplate extends CMSFile {
     }
 
     /**
-     * Output the post HTML tags and post-output
-     * buffer.
-     *
+     * Output the post HTML tags and post-output buffer.
+     * 
      * @param out output stream specified
      * @return success or error
      */
@@ -299,11 +301,12 @@ public class CMSTemplate extends CMSFile {
         return mAbsPath;
     }
 
-    // inherit getabspath, getContent, get last access and set last access 
+    // inherit getabspath, getContent, get last access and set last access
 
-    /*==========================================================
-     * private methods
-     *==========================================================*/
+    /*
+     * ========================================================== private
+     * methods==========================================================
+     */
 
     /* load file into string */
     private String loadFile(File template) throws IOException {
@@ -312,7 +315,8 @@ public class CMSTemplate extends CMSFile {
 
         /* create input stream, can throw IOException */
         FileInputStream inStream = new FileInputStream(template);
-        InputStreamReader inReader = new InputStreamReader(inStream, mCharset);;
+        InputStreamReader inReader = new InputStreamReader(inStream, mCharset);
+        ;
         BufferedReader in = new BufferedReader(inReader);
         StringBuffer buf = new StringBuffer();
         String line;
@@ -325,8 +329,9 @@ public class CMSTemplate extends CMSFile {
             in.close();
             inStream.close();
         } catch (IOException e) {
-            log(ILogger.LL_WARN, 
-                CMS.getLogMessage("CMSGW_ERR_CLOSE_TEMPL_FILE", mAbsPath, e.getMessage()));
+            log(ILogger.LL_WARN,
+                    CMS.getLogMessage("CMSGW_ERR_CLOSE_TEMPL_FILE", mAbsPath,
+                            e.getMessage()));
         }
         return buf.toString();
     }
@@ -353,8 +358,8 @@ public class CMSTemplate extends CMSFile {
             }
         } else if (v instanceof BigInteger) {
             s = ((BigInteger) v).toString(10);
-        } else if (v instanceof Character && 
-            ((Character) v).equals(Character.valueOf((char) 0))) {
+        } else if (v instanceof Character
+                && ((Character) v).equals(Character.valueOf((char) 0))) {
             s = "null";
         } else {
             s = "\"" + v.toString() + "\"";
@@ -364,10 +369,10 @@ public class CMSTemplate extends CMSFile {
     }
 
     /**
-     * Escape the contents of src string in preparation to be enclosed in
-     * double quotes as a JavaScript String Literal within an <script>
-     * portion of an HTML document.
-     * stevep - performance improvements - about 4 times faster than before.
+     * Escape the contents of src string in preparation to be enclosed in double
+     * quotes as a JavaScript String Literal within an <script> portion of an
+     * HTML document. stevep - performance improvements - about 4 times faster
+     * than before.
      */
     public static String escapeJavaScriptString(String v) {
         int l = v.length();
@@ -380,25 +385,27 @@ public class CMSTemplate extends CMSFile {
         for (int i = 0; i < l; i++) {
             char c = in[i];
 
-            if ((c > 0x23) && (c!= 0x5c) && (c!= 0x3c) && (c!= 0x3e)) {
+            if ((c > 0x23) && (c != 0x5c) && (c != 0x3c) && (c != 0x3e)) {
                 out[j++] = c;
                 continue;
             }
 
-            if ((c == 0x5c) && ((i+1)<l) && (in[i+1] == 'n' ||
-                 in[i+1] == 'r' || in[i+1] == 'f' || in[i+1] == 't' ||
-                 in[i+1] == '<' || in[i+1] == '>' ||
-                 in[i+1] == '\"' || in[i+1] == '\'' || in[i+1] == '\\')) {
-                if (in[i+1] == 'x' && ((i+3)<l) && in[i+2] == '3' &&
-                    (in[i+3] == 'c' || in[i+3] == 'e')) {
+            if ((c == 0x5c)
+                    && ((i + 1) < l)
+                    && (in[i + 1] == 'n' || in[i + 1] == 'r'
+                            || in[i + 1] == 'f' || in[i + 1] == 't'
+                            || in[i + 1] == '<' || in[i + 1] == '>'
+                            || in[i + 1] == '\"' || in[i + 1] == '\'' || in[i + 1] == '\\')) {
+                if (in[i + 1] == 'x' && ((i + 3) < l) && in[i + 2] == '3'
+                        && (in[i + 3] == 'c' || in[i + 3] == 'e')) {
                     out[j++] = '\\';
-                    out[j++] = in[i+1];
-                    out[j++] = in[i+2];
-                    out[j++] = in[i+3];
+                    out[j++] = in[i + 1];
+                    out[j++] = in[i + 2];
+                    out[j++] = in[i + 3];
                     i += 3;
-                } else { 
+                } else {
                     out[j++] = '\\';
-                    out[j++] = in[i+1];
+                    out[j++] = in[i + 1];
                     i++;
                 }
                 continue;
@@ -456,9 +463,9 @@ public class CMSTemplate extends CMSFile {
         return new String(out, 0, j);
     }
 
-    /** 
-     * Like escapeJavaScriptString(String s) but also escape '[' for 
-     * HTML processing. 
+    /**
+     * Like escapeJavaScriptString(String s) but also escape '[' for HTML
+     * processing.
      */
     public static String escapeJavaScriptStringHTML(String v) {
         int l = v.length();
@@ -476,20 +483,22 @@ public class CMSTemplate extends CMSFile {
                 continue;
             }
 
-            if ((c == 0x5c) && ((i+1)<l) && (in[i+1] == 'n' ||
-                 in[i+1] == 'r' || in[i+1] == 'f' || in[i+1] == 't' ||
-                 in[i+1] == '<' || in[i+1] == '>' ||
-                 in[i+1] == '\"' || in[i+1] == '\'' || in[i+1] == '\\')) {
-                if (in[i+1] == 'x' && ((i+3)<l) && in[i+2] == '3' &&
-                    (in[i+3] == 'c' || in[i+3] == 'e')) {
+            if ((c == 0x5c)
+                    && ((i + 1) < l)
+                    && (in[i + 1] == 'n' || in[i + 1] == 'r'
+                            || in[i + 1] == 'f' || in[i + 1] == 't'
+                            || in[i + 1] == '<' || in[i + 1] == '>'
+                            || in[i + 1] == '\"' || in[i + 1] == '\'' || in[i + 1] == '\\')) {
+                if (in[i + 1] == 'x' && ((i + 3) < l) && in[i + 2] == '3'
+                        && (in[i + 3] == 'c' || in[i + 3] == 'e')) {
                     out[j++] = '\\';
-                    out[j++] = in[i+1];
-                    out[j++] = in[i+2];
-                    out[j++] = in[i+3];
+                    out[j++] = in[i + 1];
+                    out[j++] = in[i + 2];
+                    out[j++] = in[i + 3];
                     i += 3;
-                } else { 
+                } else {
                     out[j++] = '\\';
-                    out[j++] = in[i+1];
+                    out[j++] = in[i + 1];
                     i++;
                 }
                 continue;
@@ -549,32 +558,30 @@ public class CMSTemplate extends CMSFile {
     /**
      * for debugging, return contents that would've been outputed.
      */
-    public String getOutput(CMSTemplateParams input)
-        throws IOException {
+    public String getOutput(CMSTemplateParams input) throws IOException {
         debugOutputStream out = new debugOutputStream();
 
         renderOutput(out, input);
         return out.toString();
     }
 
-    private
-    class HTTPOutputStreamWriter extends OutputStreamWriter {
+    private class HTTPOutputStreamWriter extends OutputStreamWriter {
         public HTTPOutputStreamWriter(OutputStream out)
-            throws UnsupportedEncodingException {
+                throws UnsupportedEncodingException {
             super(out);
         }
-    
+
         public HTTPOutputStreamWriter(OutputStream out, String enc)
-            throws UnsupportedEncodingException {
+                throws UnsupportedEncodingException {
             super(out, enc);
         }
-    
+
         public void print(String s) throws IOException {
             write(s, 0, s.length());
             flush();
             return;
         }
-    
+
         public void println(String s) throws IOException {
             print(s);
             write('\n');
@@ -583,9 +590,9 @@ public class CMSTemplate extends CMSFile {
         }
     }
 
-
     private class templateLine {
         private StringBuffer s = new StringBuffer();
+
         void templateLine() {
         }
 
@@ -604,7 +611,6 @@ public class CMSTemplate extends CMSFile {
 
     }
 
-
     private static class debugOutputStream extends ServletOutputStream {
         private StringWriter mStringWriter = new StringWriter();
 
@@ -613,7 +619,7 @@ public class CMSTemplate extends CMSFile {
         }
 
         public void write(int b) throws IOException {
-            mStringWriter.write(b);			
+            mStringWriter.write(b);
         }
 
         public String toString() {

@@ -17,17 +17,14 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.profile;
 
-
 /**
- * This represents a profile specific exception. The 
- * framework raises this exception when a request is 
- * deferred. 
+ * This represents a profile specific exception. The framework raises this
+ * exception when a request is deferred.
  * <p>
- * A deferred request will not be processed
- * immediately. Manual approval is required for
- * processing the request again.
+ * A deferred request will not be processed immediately. Manual approval is
+ * required for processing the request again.
  * <p>
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class EDeferException extends EProfileException {
@@ -39,11 +36,9 @@ public class EDeferException extends EProfileException {
 
     /**
      * Creates a defer exception.
-     *
-     * @param msg localized message that will be 
-     *            displayed to end user. This message 
-     *            should indicate the reason why a request 
-     *            is deferred.
+     * 
+     * @param msg localized message that will be displayed to end user. This
+     *            message should indicate the reason why a request is deferred.
      */
     public EDeferException(String msg) {
         super(msg);

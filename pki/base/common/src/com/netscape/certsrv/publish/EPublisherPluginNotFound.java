@@ -17,13 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.publish;
 
-
 import com.netscape.certsrv.ldap.ELdapException;
 
-
 /**
- * Exception for Publisher Plugin not found.  Plugin implementation is required to actually publish.
- *
+ * Exception for Publisher Plugin not found. Plugin implementation is required
+ * to actually publish.
+ * 
  * @version $Revision$ $Date$
  */
 public class EPublisherPluginNotFound extends ELdapException {
@@ -35,10 +34,10 @@ public class EPublisherPluginNotFound extends ELdapException {
 
     /**
      * Constructs a exception for a missing publisher plugin.
+     * 
      * @param errorString Detailed error message.
      */
     public EPublisherPluginNotFound(String errorString) {
         super(errorString);
     }
 }
-

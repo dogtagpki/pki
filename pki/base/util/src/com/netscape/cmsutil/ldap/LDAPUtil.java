@@ -32,7 +32,8 @@ import netscape.ldap.util.LDIFModifyContent;
 import netscape.ldap.util.LDIFRecord;
 
 public class LDAPUtil {
-    public static void importLDIF(LDAPConnection conn, String filename) throws IOException {
+    public static void importLDIF(LDAPConnection conn, String filename)
+            throws IOException {
         LDIF ldif = new LDIF(filename);
         while (true) {
             try {
@@ -44,18 +45,18 @@ public class LDAPUtil {
                 LDIFContent content = record.getContent();
                 int type = content.getType();
                 if (type == LDIFContent.ATTRIBUTE_CONTENT) {
-                    LDIFAttributeContent c = (LDIFAttributeContent)content;
+                    LDIFAttributeContent c = (LDIFAttributeContent) content;
                     LDAPAttribute[] attrs = c.getAttributes();
                     LDAPAttributeSet myAttrs = new LDAPAttributeSet();
-                    for (int i=0; i<attrs.length; i++)
+                    for (int i = 0; i < attrs.length; i++)
                         myAttrs.add(attrs[i]);
                     LDAPEntry entry = new LDAPEntry(dn, myAttrs);
                     try {
                         conn.add(entry);
                     } catch (LDAPException ee) {
                     }
-               } else if (type == LDIFContent.MODIFICATION_CONTENT) {
-                    LDIFModifyContent c = (LDIFModifyContent)content;
+                } else if (type == LDIFContent.MODIFICATION_CONTENT) {
+                    LDIFModifyContent c = (LDIFModifyContent) content;
                     LDAPModification[] mods = c.getModifications();
                     try {
                         conn.modify(dn, mods);

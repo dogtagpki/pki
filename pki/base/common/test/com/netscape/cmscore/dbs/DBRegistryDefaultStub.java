@@ -17,15 +17,16 @@ import com.netscape.certsrv.dbs.IFilterConverter;
  */
 public class DBRegistryDefaultStub implements IDBRegistry {
 
-
-    public void registerObjectClass(String className, String ldapNames[]) throws EDBException {
+    public void registerObjectClass(String className, String ldapNames[])
+            throws EDBException {
     }
 
     public boolean isObjectClassRegistered(String className) {
         return false;
     }
 
-    public void registerAttribute(String ufName, IDBAttrMapper mapper) throws EDBException {
+    public void registerAttribute(String ufName, IDBAttrMapper mapper)
+            throws EDBException {
     }
 
     public boolean isAttributeRegistered(String ufName) {
@@ -39,18 +40,21 @@ public class DBRegistryDefaultStub implements IDBRegistry {
         return null;
     }
 
-    public String getFilter(String filter, IFilterConverter c) throws EBaseException {
+    public String getFilter(String filter, IFilterConverter c)
+            throws EBaseException {
         return null;
     }
 
-    public void mapObject(IDBObj parent, String name, Object obj, LDAPAttributeSet attrs) throws EBaseException {
+    public void mapObject(IDBObj parent, String name, Object obj,
+            LDAPAttributeSet attrs) throws EBaseException {
     }
 
     public String[] getLDAPAttributes(String attrs[]) throws EBaseException {
         return new String[0];
     }
 
-    public LDAPAttributeSet createLDAPAttributeSet(IDBObj obj) throws EBaseException {
+    public LDAPAttributeSet createLDAPAttributeSet(IDBObj obj)
+            throws EBaseException {
         return null;
     }
 
@@ -65,7 +69,8 @@ public class DBRegistryDefaultStub implements IDBRegistry {
     public void setId(String id) throws EBaseException {
     }
 
-    public void init(ISubsystem owner, IConfigStore config) throws EBaseException {
+    public void init(ISubsystem owner, IConfigStore config)
+            throws EBaseException {
     }
 
     public void startup() throws EBaseException {

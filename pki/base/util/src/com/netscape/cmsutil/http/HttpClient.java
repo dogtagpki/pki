@@ -30,9 +30,8 @@ import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 import com.netscape.cmsutil.net.ISocketFactory;
 
 /**
- * basic http client.
- * not optimized for performance.
- * handles only string content.
+ * basic http client. not optimized for performance. handles only string
+ * content.
  */
 public class HttpClient {
     protected ISocketFactory mFactory = null;
@@ -54,18 +53,19 @@ public class HttpClient {
         mFactory = factory;
     }
 
-    public HttpClient(ISocketFactory factory, SSLCertificateApprovalCallback certApprovalCallback) {
+    public HttpClient(ISocketFactory factory,
+            SSLCertificateApprovalCallback certApprovalCallback) {
         mFactory = factory;
         mCertApprovalCallback = certApprovalCallback;
     }
 
-    public void connect(String host, int port)
-        throws IOException {
+    public void connect(String host, int port) throws IOException {
         if (mFactory != null) {
             if (mCertApprovalCallback == null) {
                 mSocket = mFactory.makeSocket(host, port);
             } else {
-                mSocket = mFactory.makeSocket(host, port, mCertApprovalCallback, null);
+                mSocket = mFactory.makeSocket(host, port,
+                        mCertApprovalCallback, null);
             }
         } else {
             mSocket = new Socket(host, port);
@@ -76,7 +76,7 @@ public class HttpClient {
 
             throw e;
         }
-		
+
         mInputStream = mSocket.getInputStream();
         mOutputStream = mSocket.getOutputStream();
         mInputStreamReader = new InputStreamReader(mInputStream, "UTF8");
@@ -86,8 +86,7 @@ public class HttpClient {
     }
 
     // Inserted by beomsuk
-    public void connect(String host, int port, int timeout)
-        throws IOException {
+    public void connect(String host, int port, int timeout) throws IOException {
         if (mFactory != null) {
             mSocket = mFactory.makeSocket(host, port, timeout);
         } else {
@@ -99,7 +98,7 @@ public class HttpClient {
 
             throw e;
         }
-		
+
         mInputStream = mSocket.getInputStream();
         mOutputStream = mSocket.getOutputStream();
         mInputStreamReader = new InputStreamReader(mInputStream, "UTF8");
@@ -114,13 +113,10 @@ public class HttpClient {
     }
 
     /**
-     * Sends a request to http server. 
-     * Returns a http response. 
+     * Sends a request to http server. Returns a http response.
      */
-    public  HttpResponse send(HttpRequest request) 
-        throws IOException {
+    public HttpResponse send(HttpRequest request) throws IOException {
         HttpResponse resp = new HttpResponse();
-
 
         if (mOutputStream == null)
             throw new IOException("Output stream not initialized");
@@ -136,8 +132,7 @@ public class HttpClient {
         return resp;
     }
 
-    public void disconnect()
-        throws IOException {
+    public void disconnect() throws IOException {
         mSocket.close();
         mInputStream = null;
         mOutputStream = null;
@@ -171,8 +166,7 @@ public class HttpClient {
     /**
      * unit test
      */
-    public static void main(String args[])
-        throws Exception {
+    public static void main(String args[]) throws Exception {
         HttpClient c = new HttpClient();
         HttpRequest req = new HttpRequest();
         HttpResponse resp = null;
@@ -182,7 +176,7 @@ public class HttpClient {
 
         req.setMethod("GET");
         req.setURI(args[2]);
-        if (args.length >= 4) 
+        if (args.length >= 4)
             req.setHeader("Connection", args[3]);
         resp = c.send(req);
 
@@ -191,29 +185,30 @@ public class HttpClient {
         System.out.println("reason " + resp.getReasonPhrase());
         System.out.println("content " + resp.getContent());
 
-        //String lenstr = resp.getHeader("Content-Length");
-        //System.out.println("content len is "+lenstr);
-        //int length = Integer.parseInt(lenstr);
-        //char[] content = new char[length];
-        //c.mBufferedReader.read(content, 0, content.length);
-        //System.out.println(content);
+        // String lenstr = resp.getHeader("Content-Length");
+        // System.out.println("content len is "+lenstr);
+        // int length = Integer.parseInt(lenstr);
+        // char[] content = new char[length];
+        // c.mBufferedReader.read(content, 0, content.length);
+        // System.out.println(content);
 
         if (args.length >= 4 && args[3].equalsIgnoreCase("keep-alive")) {
             int len;
             char[] msgbody;
 
             for (int i = 0; i < 2; i++) {
-                if (i == 1) req.setHeader("Connection", "Close");
+                if (i == 1)
+                    req.setHeader("Connection", "Close");
                 resp = c.send(req);
                 System.out.println("version " + resp.getHttpVers());
                 System.out.println("status code " + resp.getStatusCode());
                 System.out.println("reason " + resp.getReasonPhrase());
                 System.out.println("content " + resp.getContent());
-                //len = Integer.parseInt(resp.getHeader("Content-Length"));
-                //System.out.println("content len is "+len);
-                //msgbody = new char[len];
-                //c.mBufferedReader.read(msgbody, 0, len);
-                //System.out.println(content);
+                // len = Integer.parseInt(resp.getHeader("Content-Length"));
+                // System.out.println("content len is "+len);
+                // msgbody = new char[len];
+                // c.mBufferedReader.read(msgbody, 0, len);
+                // System.out.println(content);
             }
         }
     }

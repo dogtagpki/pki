@@ -17,22 +17,20 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.request;
 
-
 import java.util.Enumeration;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.IDBObj;
 
-
 /**
- * A request record is the stored version of a request.
- * It has a set of attributes that are mapped into LDAP
- * attributes for actual directory operations.
+ * A request record is the stored version of a request. It has a set of
+ * attributes that are mapped into LDAP attributes for actual directory
+ * operations.
  * <p>
+ * 
  * @version $Revision$ $Date$
  */
-public interface IRequestRecord
-    extends IDBObj {
+public interface IRequestRecord extends IDBObj {
     //
     // The names of the attributes stored in this record
     //
@@ -57,28 +55,28 @@ public interface IRequestRecord
 
     public final static String ATTR_REQUEST_TYPE = "requestType";
 
-    // Placeholder for ExtAttr data.  this attribute is not in LDAP, but
+    // Placeholder for ExtAttr data. this attribute is not in LDAP, but
     // is used to trigger the ExtAttrDynMapper during conversion between LDAP
     // and the RequestRecord.
     public final static String ATTR_EXT_DATA = "requestExtData";
 
     /**
      * Gets the request id.
-     *
+     * 
      * @return request id
      */
     public RequestId getRequestId();
 
     /**
      * Gets attribute names of the request.
-     *
+     * 
      * @return list of attribute names
      */
     public Enumeration getAttrNames();
 
     /**
      * Gets the request attribute value by the name.
-     *
+     * 
      * @param name attribute name
      * @return attribute value
      */
@@ -86,7 +84,7 @@ public interface IRequestRecord
 
     /**
      * Sets new attribute for the request.
-     *
+     * 
      * @param name attribute name
      * @param o attribute value
      */
@@ -94,20 +92,19 @@ public interface IRequestRecord
 
     /**
      * Removes attribute from the request.
-     *
+     * 
      * @param name attribute name
      */
-    public void delete(String name)
-        throws EBaseException;
+    public void delete(String name) throws EBaseException;
 
     /**
      * Gets attribute list of the request.
-     *
+     * 
      * @return attribute list
      */
     public Enumeration getElements();
 
     // IDBObj.getSerializableAttrNames
-    //public Enumeration getSerializableAttrNames();
+    // public Enumeration getSerializableAttrNames();
 
 }

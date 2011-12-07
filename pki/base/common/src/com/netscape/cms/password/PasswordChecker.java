@@ -17,17 +17,15 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.password;
 
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.password.EPasswordCheckException;
 import com.netscape.certsrv.password.IConfigPasswordCheck;
 import com.netscape.certsrv.password.IPasswordCheck;
 
-
 /**
  * This class checks the given password if it meets the specific requirements.
- * For example, it can also specify the format of the password which has to 
- * be 8 characters long and must be in alphanumeric.
+ * For example, it can also specify the format of the password which has to be 8
+ * characters long and must be in alphanumeric.
  * <P>
  * 
  * @version $Revision$, $Date$
@@ -75,9 +73,10 @@ public class PasswordChecker implements IPasswordCheck, IConfigPasswordCheck {
     /**
      * Returns true if the given password meets the quality requirement;
      * otherwise returns false.
+     * 
      * @param mPassword The given password being checked.
      * @return true if the password meets the quality requirement; otherwise
-     * returns false.
+     *         returns false.
      */
     public boolean isGoodPassword(String mPassword) {
         if (mPassword == null || mPassword.length() == 0) {
@@ -96,7 +95,9 @@ public class PasswordChecker implements IPasswordCheck, IConfigPasswordCheck {
 
     /**
      * Returns a reason if the password doesnt meet the quality requirement.
-     * @return string as a reason if the password quality requirement is not met.
+     * 
+     * @return string as a reason if the password quality requirement is not
+     *         met.
      */
     public String getReason(String mPassword) {
         if (mPassword == null || mPassword.length() == 0) {
@@ -113,4 +114,3 @@ public class PasswordChecker implements IPasswordCheck, IConfigPasswordCheck {
         return null;
     }
 }
-

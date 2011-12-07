@@ -17,32 +17,28 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.request;
 
-
 import com.netscape.certsrv.base.EBaseException;
 
-
 /**
- * This interface defines how requests are serviced.
- * This covers certificate generation, revocation, renewals,
- * revocation checking, and much more.
+ * This interface defines how requests are serviced. This covers certificate
+ * generation, revocation, renewals, revocation checking, and much more.
  * <p>
+ * 
  * @version $Revision$, $Date$
  */
 public interface IService {
 
     /**
-     * Performs the service (such as certificate generation)
-     * represented by this request.
+     * Performs the service (such as certificate generation) represented by this
+     * request.
      * <p>
-     * @param request
-     *    The request that needs service.  The service may use
-     *    attributes stored in the request, and may update the
-     *    values, or store new ones.
-     * @return
-     *    an indication of whether this request is still pending.
-     *    'false' means the request will wait for further notification.
+     * 
+     * @param request The request that needs service. The service may use
+     *            attributes stored in the request, and may update the values,
+     *            or store new ones.
+     * @return an indication of whether this request is still pending. 'false'
+     *         means the request will wait for further notification.
      * @exception EBaseException indicates major processing failure.
      */
-    boolean serviceRequest(IRequest request)
-        throws EBaseException;
+    boolean serviceRequest(IRequest request) throws EBaseException;
 }

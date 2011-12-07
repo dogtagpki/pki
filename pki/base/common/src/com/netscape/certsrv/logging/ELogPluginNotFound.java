@@ -17,10 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.logging;
 
-
 /**
  * Exception for log plugin not found.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class ELogPluginNotFound extends ELogException {
@@ -32,10 +31,10 @@ public class ELogPluginNotFound extends ELogException {
 
     /**
      * Constructs a exception for a missing log plugin.
+     * 
      * @param errorString Detailed error message.
      */
     public ELogPluginNotFound(String errorString) {
         super(errorString);
     }
 }
-

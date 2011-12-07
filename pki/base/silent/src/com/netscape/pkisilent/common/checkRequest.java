@@ -1,4 +1,5 @@
 package com.netscape.pkisilent.common;
+
 // --- BEGIN COPYRIGHT BLOCK ---
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -17,7 +18,6 @@ package com.netscape.pkisilent.common;
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.FileOutputStream;
@@ -29,23 +29,23 @@ import java.util.GregorianCalendar;
 
 import org.mozilla.jss.ssl.SSLSocket;
 
-
-
 /**
- * CMS Test framework .
- * Submits a checkRequestStatus request to the server. parses the response from server and can import cert to the specified client database. 
- *<P>
+ * CMS Test framework . Submits a checkRequestStatus request to the server.
+ * parses the response from server and can import cert to the specified client
+ * database.
+ * <P>
  */
-
 
 public class checkRequest extends TestClient {
 
     private int i;
-    private String certfile, importcert = "false", certnickname, serialNumber, ldapformat;
+    private String certfile, importcert = "false", certnickname, serialNumber,
+            ldapformat;
 
     private String requestId;
     private String reqStatus = "false";
-    private String pkcsCert, baseCert, ACTION_STRING, issuer, subject, AUTH = "ca";
+    private String pkcsCert, baseCert, ACTION_STRING, issuer, subject,
+            AUTH = "ca";
     private int port;
     private boolean impStatus = false;
     private int type = 1;
@@ -57,32 +57,32 @@ public class checkRequest extends TestClient {
     private String tokenpwd;
     private String cdir;
 
-    // public methods 
+    // public methods
 
     /**
      * Constructor . Takes the parameter for Properties file name
      * <p>
-     * @param propfilename  name of the parameter file
+     * 
+     * @param propfilename name of the parameter file
      */
-
 
     public checkRequest(String pfile) {
         propfileName = pfile;
     }
 
     /**
-     * Constructor . Takes the parameter for hostname and EESSLportnumber 
+     * Constructor . Takes the parameter for hostname and EESSLportnumber
      * <p>
      */
 
     public checkRequest(String h, String p) {
         host = h;
         ports = p;
-    }
-    ;
+    };
 
     /**
-     * Constructor . Takes the parameter for hostname , EESSLportnumber , Requestnumber and  ImportCert ( true/false)
+     * Constructor . Takes the parameter for hostname , EESSLportnumber ,
+     * Requestnumber and ImportCert ( true/false)
      * <p>
      */
 
@@ -94,12 +94,14 @@ public class checkRequest extends TestClient {
     }
 
     /**
-     * Constructor . Takes the parameter for hostname , EESSLportnumber , certdbdir, certdbpassword, Requestnumber ,certnickname and  ImportCert ( true/false)
+     * Constructor . Takes the parameter for hostname , EESSLportnumber ,
+     * certdbdir, certdbpassword, Requestnumber ,certnickname and ImportCert (
+     * true/false)
      * <p>
      */
 
-
-    public checkRequest(String hs, String pt, String certdir, String certtokenpwd, String seqnum, String nickname, String impc) {
+    public checkRequest(String hs, String pt, String certdir,
+            String certtokenpwd, String seqnum, String nickname, String impc) {
         host = hs;
         ports = pt;
         cdir = certdir;
@@ -158,11 +160,10 @@ public class checkRequest extends TestClient {
     }
 
     /**
-     * returns the  hex serial number of the certificate 
+     * returns the hex serial number of the certificate
      **/
 
-
-    public String  getSerialNumberHex() {
+    public String getSerialNumberHex() {
         return serialNumber;
     }
 
@@ -170,7 +171,7 @@ public class checkRequest extends TestClient {
      * returns the serial number as interger
      **/
 
-    public int  getSerialNumber() {
+    public int getSerialNumber() {
         if (serialNumber != null) {
             Integer y = new Integer(Integer.parseInt(serialNumber, 16));
 
@@ -193,9 +194,9 @@ public class checkRequest extends TestClient {
         cCrypt.setTokenPWD(tokenpwd);
         cCrypt.setDebug(debug);
 
-        if (!cCrypt.loginDB()) { 
-            System.out.println("Error : Login certdb failed "); 
-            System.err.println("FAIL : Login certdb failed "); 
+        if (!cCrypt.loginDB()) {
+            System.out.println("Error : Login certdb failed ");
+            System.err.println("FAIL : Login certdb failed ");
             return false;
         }
 
@@ -247,11 +248,11 @@ public class checkRequest extends TestClient {
             System.out.println(query);
         }
         setStatusString("Congratulations, your certificate has been issued");
-        return(Send());
+        return (Send());
 
     }
 
-    // Private functions 
+    // Private functions
 
     private void setElapsedTime(long dif) {
         elapsedTime = dif;
@@ -285,12 +286,12 @@ public class checkRequest extends TestClient {
                     tmp = cCrypt.normalizeForLDAP(getCert());
                     if (debug) {
                         System.out.println(tmp);
-                    }	
+                    }
                     fos.write(("usercertificate:: ").getBytes());
                     fos.write(tmp.getBytes());
                     fos.close();
                 } else {
-                    String  tmp = cCrypt.normalize(getCert());
+                    String tmp = cCrypt.normalize(getCert());
 
                     if (debug) {
                         System.out.println(tmp);
@@ -299,21 +300,21 @@ public class checkRequest extends TestClient {
                     fos.close();
 
                 }
-         
+
             } catch (Exception e) {
-                System.out.println(
-                        "exception in writeCert2File: " + e.getMessage());
+                System.out.println("exception in writeCert2File: "
+                        + e.getMessage());
                 return false;
             }
 
-        }   
+        }
 
         return true;
     }
 
     private boolean importCert(String certpack) {
 
-        if (importcert.equals("false")) { 
+        if (importcert.equals("false")) {
             return true;
         }
 
@@ -329,8 +330,8 @@ public class checkRequest extends TestClient {
                         + "-----END CERTIFICATE-----";
 
                 if (debug) {
-                    System.out.println(
-                            "importing cert" + tmp + "certnick" + certnickname);
+                    System.out.println("importing cert" + tmp + "certnick"
+                            + certnickname);
                 }
                 s = tmp;
             }
@@ -343,8 +344,8 @@ public class checkRequest extends TestClient {
             return false;
 
         } catch (Exception e) {
-            System.out.println(
-                    "exception importing cert  crequest" + e.getMessage());
+            System.out.println("exception importing cert  crequest"
+                    + e.getMessage());
             return false;
         }
 
@@ -366,7 +367,8 @@ public class checkRequest extends TestClient {
         }
         if (line.indexOf("header.pkcs7ChainBase64 = ") != -1) {
             // if status is complete retrieve cert
-            pkcsCert = line.substring("header.pkcs7ChainBase64 = ".length() + 1,
+            pkcsCert = line.substring(
+                    "header.pkcs7ChainBase64 = ".length() + 1,
                     line.indexOf(";", 10) - 1);
         }
         if (line.indexOf("record.serialNumber=") != -1) {
@@ -393,9 +395,9 @@ public class checkRequest extends TestClient {
 
         boolean st = true;
 
-        String retriveStr[] = {
-            "record.base64Cert=", "record.certPrettyPrint=",
-            "header.certChainBase64 = ", "header.certPrettyPrint = "};
+        String retriveStr[] = { "record.base64Cert=",
+                "record.certPrettyPrint=", "header.certChainBase64 = ",
+                "header.certPrettyPrint = " };
         String baseCertStr, certPrettyprintStr;
 
         if (AUTH.equals("ra")) {
@@ -405,19 +407,19 @@ public class checkRequest extends TestClient {
             baseCertStr = retriveStr[2];
             certPrettyprintStr = retriveStr[3];
         }
-    
+
         if (line.indexOf(baseCertStr) != -1) {
 
             // if status is complete retrieve cert
             baseCert = line.substring(baseCertStr.length() + 1,
                     line.indexOf(";", 10) - 1);
             if (importcert.equals("true")) {
-                if (importCert(baseCert)) { 
+                if (importCert(baseCert)) {
                     st = true;
                 }
             } else {
                 st = true;
-            }	      
+            }
         }
 
         if (line.indexOf(certPrettyprintStr) != -1) {
@@ -478,8 +480,8 @@ public class checkRequest extends TestClient {
             ps.println("\r");
             ps.flush();
             os.flush();
-            BufferedReader stdin = new BufferedReader(
-                    new InputStreamReader(socket.getInputStream()));
+            BufferedReader stdin = new BufferedReader(new InputStreamReader(
+                    socket.getInputStream()));
 
             if (debug) {
                 System.out.println("Step 4: Received the page");
@@ -489,9 +491,9 @@ public class checkRequest extends TestClient {
 
             while ((line = stdin.readLine()) != null) {
                 switch (type) {
-                case 1:  
+                case 1:
                     RetrieveRequestDetail(line);
-                    st = true; 
+                    st = true;
                     break;
 
                 case 2:
@@ -502,7 +504,7 @@ public class checkRequest extends TestClient {
                     System.out.println("invalid format");
 
                 }
-					
+
             }
             stdin.close();
             socket.close();
@@ -531,9 +533,9 @@ public class checkRequest extends TestClient {
         if (debug) {
             System.out.println(serialNumber);
         }
- 
+
         return st;
- 
+
     }
 
     private void buildquery() {
@@ -541,7 +543,7 @@ public class checkRequest extends TestClient {
         StringBuffer queryStrBuf = new StringBuffer();
 
         if (type == 1) {
-            ACTION_STRING = "/checkRequest";	
+            ACTION_STRING = "/checkRequest";
             queryStrBuf.append("requestId=");
             queryStrBuf.append(requestId);
             queryStrBuf.append("&importCert=true");
@@ -574,8 +576,8 @@ public class checkRequest extends TestClient {
         try {
             getProperties(propfileName);
         } catch (Exception e) {
-            System.out.println(
-                    "exception reading Properties File " + e.getMessage());
+            System.out.println("exception reading Properties File "
+                    + e.getMessage());
             return false;
         }
 
@@ -606,23 +608,23 @@ public class checkRequest extends TestClient {
         }
 
         // Enroll using a pkscks10 request
-        return(checkRequestStatus());
+        return (checkRequestStatus());
     }
 
     public static void main(String args[]) {
         // Exit Status - (0) for error/Fail
         // - requestId Pass
         boolean st;
-  
+
         if (args.length < 1) {
             System.out.println("Usage : propertiesfile");
             System.exit(0);
-        }   
+        }
 
         checkRequest t = new checkRequest(args[0]);
 
         st = t.readProperties();
-        if (st) { 
+        if (st) {
             System.exit(t.getSerialNumber());
         } else {
 
@@ -633,5 +635,5 @@ public class checkRequest extends TestClient {
         }
     }// end of function main
 
-} // end of class 
+} // end of class
 

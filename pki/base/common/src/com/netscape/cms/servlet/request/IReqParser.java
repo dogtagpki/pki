@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.request;
 
-
 import java.util.Locale;
 
 import com.netscape.certsrv.base.EBaseException;
@@ -25,13 +24,11 @@ import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 
-
 /**
- * An interface representing a request parser which
- * converts Java request object into name value
- * pairs and vice versa.
+ * An interface representing a request parser which converts Java request object
+ * into name value pairs and vice versa.
  * <P>
- *
+ * 
  * @version $Revision$, $Date$
  */
 public interface IReqParser {
@@ -39,6 +36,6 @@ public interface IReqParser {
     /**
      * Maps request object into argument block.
      */
-    public void fillRequestIntoArg(Locale l, IRequest req, CMSTemplateParams argSet, IArgBlock arg)
-        throws EBaseException;
+    public void fillRequestIntoArg(Locale l, IRequest req,
+            CMSTemplateParams argSet, IArgBlock arg) throws EBaseException;
 }

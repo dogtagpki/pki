@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.connector;
 
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
@@ -28,7 +27,6 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cmsutil.http.JssSSLSocketFactory;
 import com.netscape.cmsutil.net.ISocketFactory;
 
-
 /**
  * Factory for getting HTTP Connections to a HTTPO server
  */
@@ -38,14 +36,14 @@ public class HttpConnFactory {
 
     private ILogger mLogger = CMS.getLogger();
 
-    private int mNumConns = 0;      // number of available conns in array
-    private int mTotal = 0;		// total num conns 
+    private int mNumConns = 0; // number of available conns in array
+    private int mTotal = 0; // total num conns
     private IHttpConnection mMasterConn = null; // master connection object.
     private IHttpConnection mConns[];
     private IAuthority mSource = null;
     private IRemoteAuthority mDest = null;
     private String mNickname = "";
-    private int    mTimeout = 0;
+    private int mTimeout = 0;
 
     /**
      * default value for the above at init time.
@@ -53,20 +51,22 @@ public class HttpConnFactory {
     private boolean mDefErrorIfDown = false;
 
     /**
-     * Constructor for initializing from the config store.
-     * must be followed by init(IConfigStore)
+     * Constructor for initializing from the config store. must be followed by
+     * init(IConfigStore)
      */
     public HttpConnFactory() {
     }
 
     /**
      * Constructor for HttpConnFactory
+     * 
      * @param minConns minimum number of connections to have available
-     * @param maxConns max number of connections to have available. This is 
+     * @param maxConns max number of connections to have available. This is
      * @param serverInfo server connection info - host, port, etc.
      */
-    public HttpConnFactory(int minConns, int maxConns, IAuthority source, IRemoteAuthority dest, String nickname, int timeout
-    ) throws EBaseException {
+    public HttpConnFactory(int minConns, int maxConns, IAuthority source,
+            IRemoteAuthority dest, String nickname, int timeout)
+            throws EBaseException {
 
         CMS.debug("In HttpConnFactory constructor mTimeout " + timeout);
         mSource = source;
@@ -78,21 +78,19 @@ public class HttpConnFactory {
     }
 
     /**
-     * initialize parameters obtained from either constructor or 
-     * config store
+     * initialize parameters obtained from either constructor or config store
+     * 
      * @param minConns minimum number of connection handls to have available.
      * @param maxConns maximum total number of connections to ever have.
      * @param connInfo ldap connection info.
      * @param authInfo ldap authentication info.
-     * @exception ELdapException if any error occurs. 
+     * @exception ELdapException if any error occurs.
      */
-    private void init(int minConns, int maxConns 
-    ) 
-        throws EBaseException {
+    private void init(int minConns, int maxConns) throws EBaseException {
 
         CMS.debug("min conns " + minConns + " maxConns " + maxConns);
         if (minConns <= 0 || maxConns <= 0 || minConns > maxConns) {
-            CMS.debug("bad values from CMS.cfg");   
+            CMS.debug("bad values from CMS.cfg");
 
         } else {
 
@@ -108,12 +106,11 @@ public class HttpConnFactory {
 
         CMS.debug("before makeConnection");
 
-        CMS.debug(
-            "initializing HttpConnFactory with mininum " + mMinConns + " and maximum " + mMaxConns +
-            " connections to ");
+        CMS.debug("initializing HttpConnFactory with mininum " + mMinConns
+                + " and maximum " + mMaxConns + " connections to ");
 
         // initalize minimum number of connection handles available.
-        //makeMinimum();
+        // makeMinimum();
 
         CMS.debug("leaving HttpConnFactory init.");
     }
@@ -126,21 +123,20 @@ public class HttpConnFactory {
 
         try {
             ISocketFactory tFactory = new JssSSLSocketFactory(mNickname);
-        
+
             if (mTimeout == 0) {
                 retConn = CMS.getHttpConnection(mDest, tFactory);
             } else {
                 retConn = CMS.getHttpConnection(mDest, tFactory, mTimeout);
             }
 
-        }  catch (Exception e) {
+        } catch (Exception e) {
 
             CMS.debug("can't make new Htpp Connection");
 
-            throw new EBaseException(
-                    "Can't create new Http Connection"); 
+            throw new EBaseException("Can't create new Http Connection");
         }
-       
+
         return retConn;
     }
 
@@ -159,8 +155,7 @@ public class HttpConnFactory {
             if (increment == 0)
                 return;
 
-            CMS.debug(
-                "increasing minimum connections by " + increment);
+            CMS.debug("increasing minimum connections by " + increment);
             for (int i = increment - 1; i >= 0; i--) {
                 mConns[i] = (IHttpConnection) createConnection();
             }
@@ -172,77 +167,69 @@ public class HttpConnFactory {
     }
 
     /**
-     * gets a conenction from this factory. 
-     * All connections obtained from the factory must be returned by 
-     * returnConn() method.
-     * The best thing to do is to put returnConn in a finally clause so it
-     * always gets called. For example, 
+     * gets a conenction from this factory. All connections obtained from the
+     * factory must be returned by returnConn() method. The best thing to do is
+     * to put returnConn in a finally clause so it always gets called. For
+     * example,
+     * 
      * <pre>
-     *	  IHttpConnection c = null;
-     *    try { 
-     *		c = factory.getConn();
-     * 		myclass.do_something_with_c(c);
-     *	  }
-     *    catch (EBaseException e) {
-     *		handle_error_here();
-     *	  }
-     *	  finally {
-     *		factory.returnConn(c);
-     *    }
+     * IHttpConnection c = null;
+     * try {
+     *     c = factory.getConn();
+     *     myclass.do_something_with_c(c);
+     * } catch (EBaseException e) {
+     *     handle_error_here();
+     * } finally {
+     *     factory.returnConn(c);
+     * }
      * </pre>
      */
-    public IHttpConnection getConn() 
-        throws EBaseException {
+    public IHttpConnection getConn() throws EBaseException {
         return getConn(true);
     }
 
     /**
-     * Returns a Http connection - a clone of the master connection.
-     * All connections should be returned to the factory using returnConn()
-     * to recycle connection objects.
-     * If not returned the limited max number is affected but if that 
-     * number is large not much harm is done.
-     * Returns null if maximum number of connections reached.
-     * The best thing to do is to put returnConn in a finally clause so it
-     * always gets called. For example, 
+     * Returns a Http connection - a clone of the master connection. All
+     * connections should be returned to the factory using returnConn() to
+     * recycle connection objects. If not returned the limited max number is
+     * affected but if that number is large not much harm is done. Returns null
+     * if maximum number of connections reached. The best thing to do is to put
+     * returnConn in a finally clause so it always gets called. For example,
+     * 
      * <pre>
-     *	  IHttpConnnection c = null;
-     *    try { 
-     *		c = factory.getConn();
-     * 		myclass.do_something_with_c(c);
-     *	  }
-     *    catch (EBaseException e) {
-     *		handle_error_here();
-     *	  }
-     *	  finally {
-     *		factory.returnConn(c);
-     *    }
+     * IHttpConnnection c = null;
+     * try {
+     *     c = factory.getConn();
+     *     myclass.do_something_with_c(c);
+     * } catch (EBaseException e) {
+     *     handle_error_here();
+     * } finally {
+     *     factory.returnConn(c);
+     * }
      * </pre>
-     */ 
-    public synchronized IHttpConnection getConn(boolean waitForConn) 
-        throws EBaseException {
+     */
+    public synchronized IHttpConnection getConn(boolean waitForConn)
+            throws EBaseException {
         boolean waited = false;
 
         CMS.debug("In HttpConnFactory.getConn");
-        if (mNumConns == 0) 
+        if (mNumConns == 0)
             makeMinimum();
         if (mNumConns == 0) {
             if (!waitForConn)
                 return null;
             try {
                 CMS.debug("getConn: out of http connections");
-                log(ILogger.LL_WARN, 
-                    "Ran out of http connections available " 
-                );
+                log(ILogger.LL_WARN, "Ran out of http connections available ");
                 waited = true;
                 CMS.debug("HttpConn:about to wait for a new http connection");
-                while (mNumConns == 0) 
+                while (mNumConns == 0)
                     wait();
 
                 CMS.debug("HttpConn:done waiting for new http connection");
             } catch (InterruptedException e) {
             }
-        } 
+        }
         mNumConns--;
         IHttpConnection conn = mConns[mNumConns];
 
@@ -250,9 +237,8 @@ public class HttpConnFactory {
 
         if (waited) {
             CMS.debug("HttpConn:had to wait for an available connection from pool");
-            log(ILogger.LL_WARN, 
-                "Http connections are available again in http connection pool " 
-            );
+            log(ILogger.LL_WARN,
+                    "Http connections are available again in http connection pool ");
         }
         CMS.debug("HttpgetConn: mNumConns now " + mNumConns);
 
@@ -260,22 +246,20 @@ public class HttpConnFactory {
     }
 
     /**
-     * Teturn connection to the factory. 
-     * This is mandatory after a getConn().
+     * Teturn connection to the factory. This is mandatory after a getConn().
      * The best thing to do is to put returnConn in a finally clause so it
-     * always gets called. For example, 
+     * always gets called. For example,
+     * 
      * <pre>
-     *	  IHttpConnection c = null;
-     *    try { 
-     *		c = factory.getConn();
-     * 		myclass.do_something_with_c(c);
-     *	  }
-     *    catch (EBaseException e) {
-     *		handle_error_here();
-     *	  }
-     *	  finally {
-     *		factory.returnConn(c);
-     *    }
+     * IHttpConnection c = null;
+     * try {
+     *     c = factory.getConn();
+     *     myclass.do_something_with_c(c);
+     * } catch (EBaseException e) {
+     *     handle_error_here();
+     * } finally {
+     *     factory.returnConn(c);
+     * }
      * </pre>
      */
     public synchronized void returnConn(IHttpConnection conn) {
@@ -288,8 +272,7 @@ public class HttpConnFactory {
 
         for (int i = 0; i < mNumConns; i++) {
             if (mConns[i] == conn) {
-                CMS.debug(
-                    "returnConn: previously returned connection. " + conn);
+                CMS.debug("returnConn: previously returned connection. " + conn);
 
             }
         }
@@ -303,11 +286,9 @@ public class HttpConnFactory {
      */
     private void log(int level, String msg) {
         mLogger.log(ILogger.EV_SYSTEM, ILogger.S_LDAP, level,
-            "In Http (bound) connection pool to" +
-            msg);
+                "In Http (bound) connection pool to" + msg);
     }
 
-    protected void finalize()
-        throws Exception {
+    protected void finalize() throws Exception {
     }
 }

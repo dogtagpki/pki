@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-
 import java.io.IOException;
 import java.util.Locale;
 import java.util.StringTokenizer;
@@ -42,19 +41,19 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
 public class CertPrettyPrintPanel extends WizardPanelBase {
     private Vector mCerts = null;
 
-    public CertPrettyPrintPanel() {}
+    public CertPrettyPrintPanel() {
+    }
 
     /**
      * Initializes this panel.
      */
-    public void init(ServletConfig config, int panelno) 
-        throws ServletException {
+    public void init(ServletConfig config, int panelno) throws ServletException {
         setPanelNo(panelno);
         setName("Certificates");
     }
 
-    public void init(WizardServlet servlet, ServletConfig config, int panelno, String id)
-        throws ServletException {
+    public void init(WizardServlet servlet, ServletConfig config, int panelno,
+            String id) throws ServletException {
         setPanelNo(panelno);
         setName("Certificates");
         setId(id);
@@ -63,7 +62,7 @@ public class CertPrettyPrintPanel extends WizardPanelBase {
     public PropertySet getUsage() {
         // expects no input from client
         PropertySet set = new PropertySet();
-                                                                                
+
         return set;
     }
 
@@ -75,15 +74,15 @@ public class CertPrettyPrintPanel extends WizardPanelBase {
     public boolean isPanelDone() {
         IConfigStore cs = CMS.getConfigStore();
         try {
-            boolean s = cs.getBoolean("preop.CertPrettyPrintPanel.done",
-                    false);
+            boolean s = cs.getBoolean("preop.CertPrettyPrintPanel.done", false);
 
             if (s != true) {
                 return false;
             } else {
                 return true;
             }
-        } catch (EBaseException e) {}
+        } catch (EBaseException e) {
+        }
 
         return false;
     }
@@ -93,8 +92,10 @@ public class CertPrettyPrintPanel extends WizardPanelBase {
         CMS.debug("CertPrettyPrintPanel: in getCert()");
         try {
             // String cert = config.getString(CONF_CA_CERT);
-            String subsystem = config.getString(PCERT_PREFIX + certTag + ".subsystem");
-            String certs = config.getString(subsystem + "." + certTag + ".cert");
+            String subsystem = config.getString(PCERT_PREFIX + certTag
+                    + ".subsystem");
+            String certs = config
+                    .getString(subsystem + "." + certTag + ".cert");
             byte[] certb = CryptoUtil.base64Decode(certs);
 
             if (cert != null) {
@@ -116,8 +117,7 @@ public class CertPrettyPrintPanel extends WizardPanelBase {
      * Display the panel.
      */
     public void display(HttpServletRequest request,
-            HttpServletResponse response,
-            Context context) {
+            HttpServletResponse response, Context context) {
 
         CMS.debug("CertPrettyPrintPanel: display()");
         context.put("title", "Certificates Pretty Print");
@@ -134,32 +134,30 @@ public class CertPrettyPrintPanel extends WizardPanelBase {
                 String certTag = st.nextToken();
 
                 try {
-                    String subsystem = config.getString(
-                            PCERT_PREFIX + certTag + ".subsystem");
+                    String subsystem = config.getString(PCERT_PREFIX + certTag
+                            + ".subsystem");
 
-                    String nickname = config.getString(
-                            subsystem + "." + certTag + ".nickname");
-                    String tokenname = config.getString(
-                            subsystem + "." + certTag + ".tokenname");
+                    String nickname = config.getString(subsystem + "."
+                            + certTag + ".nickname");
+                    String tokenname = config.getString(subsystem + "."
+                            + certTag + ".tokenname");
                     Cert c = new Cert(tokenname, nickname, certTag);
 
-                    String type = config.getString(
-                            PCERT_PREFIX + certTag + ".type");
+                    String type = config.getString(PCERT_PREFIX + certTag
+                            + ".type");
 
                     c.setType(type);
                     getCert(request, config, context, certTag, c);
 
                     mCerts.addElement(c);
                 } catch (Exception e) {
-                    CMS.debug(
-                            "CertPrettyPrintPanel: display() certTag " + certTag
-                            + " Exception caught: " + e.toString());
+                    CMS.debug("CertPrettyPrintPanel: display() certTag "
+                            + certTag + " Exception caught: " + e.toString());
                 }
             }
         } catch (Exception e) {
-            CMS.debug(
-                    "CertPrettyPrintPanel:display() Exception caught: "
-                            + e.toString());
+            CMS.debug("CertPrettyPrintPanel:display() Exception caught: "
+                    + e.toString());
             System.err.println("Exception caught: " + e.toString());
 
         } // try
@@ -175,25 +173,22 @@ public class CertPrettyPrintPanel extends WizardPanelBase {
      * Checks if the given parameters are valid.
      */
     public void validate(HttpServletRequest request,
-            HttpServletResponse response,
-            Context context) throws IOException {
+            HttpServletResponse response, Context context) throws IOException {
     }
 
     /**
      * Commit parameter changes
      */
     public void update(HttpServletRequest request,
-            HttpServletResponse response,
-            Context context) throws IOException {
+            HttpServletResponse response, Context context) throws IOException {
         CMS.debug("CertPrettyPrintPanel: in update()");
         IConfigStore config = CMS.getConfigStore();
         config.putBoolean("preop.CertPrettyPrintPanel.done", true);
         try {
             config.commit(false);
         } catch (EBaseException e) {
-            CMS.debug(
-                  "CertPrettyPrintPanel: update() Exception caught at config commit: "
-                            + e.toString());
+            CMS.debug("CertPrettyPrintPanel: update() Exception caught at config commit: "
+                    + e.toString());
         }
     }
 
@@ -201,8 +196,7 @@ public class CertPrettyPrintPanel extends WizardPanelBase {
      * If validiate() returns false, this method will be called.
      */
     public void displayError(HttpServletRequest request,
-            HttpServletResponse response,
-            Context context) {
+            HttpServletResponse response, Context context) {
         context.put("title", "Certificates Pretty Print");
         context.put("panel", "admin/console/config/certprettyprintpanel.vm");
     }

@@ -21,20 +21,23 @@ import java.security.Principal;
 
 /**
  * This class implements a group of principals.
+ * 
  * @author Satish Dharmaraj
  */
 public class WorldGroupImpl extends GroupImpl {
 
     public WorldGroupImpl(String s) {
-	super(s);
+        super(s);
     }
 
     /**
      * returns true for all passed principals
-     * @param member The principal whose membership must be checked in this Group.
+     * 
+     * @param member The principal whose membership must be checked in this
+     *            Group.
      * @return true always since this is the "world" group.
      */
     public boolean isMember(Principal member) {
-	return true;
+        return true;
     }
 }

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.request;
 
-
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Locale;
@@ -46,10 +45,9 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 
-
 /**
  * Show paged list of requests matching search criteria
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class QueryReq extends CMSServlet {
@@ -62,7 +60,7 @@ public class QueryReq extends CMSServlet {
     private final static String IN_SHOW_ALL = "showAll";
     private final static String IN_SHOW_WAITING = "showWaiting";
     private final static String IN_SHOW_IN_SERVICE = "showInService";
-    private final static String IN_SHOW_PENDING= "showPending";
+    private final static String IN_SHOW_PENDING = "showPending";
     private final static String IN_SHOW_CANCELLED = "showCancelled";
     private final static String IN_SHOW_REJECTED = "showRejected";
     private final static String IN_SHOW_COMPLETED = "showCompleted";
@@ -86,17 +84,16 @@ public class QueryReq extends CMSServlet {
     private final static String OUT_UPDATE_ON = "updatedOn";
     private final static String OUT_UPDATE_BY = "updatedBy";
     private final static String OUT_REQUESTING_USER = "requestingUser";
-    //keeps track of where to begin if page down
+    // keeps track of where to begin if page down
     private final static String OUT_FIRST_ENTRY_ON_PAGE = "firstEntryOnPage";
-    //keeps track of where to begin if page up
+    // keeps track of where to begin if page up
     private final static String OUT_LAST_ENTRY_ON_PAGE = "lastEntryOnPage";
     private final static String OUT_SUBJECT = "subject";
     private final static String OUT_REQUEST_TYPE = "requestType";
     private final static String OUT_COMMENTS = "requestorComments";
     private final static String OUT_SERIALNO = "serialNumber";
     private final static String OUT_OWNER_NAME = "ownerName";
-    private final static String OUT_PUBLIC_KEY_INFO = 
-        "subjectPublicKeyInfo";
+    private final static String OUT_PUBLIC_KEY_INFO = "subjectPublicKeyInfo";
     private final static String OUT_ERROR = "error";
     private final static String OUT_AUTHORITY_ID = "authorityid";
 
@@ -120,7 +117,7 @@ public class QueryReq extends CMSServlet {
     /**
      * initialize the servlet. This servlet uses the template file
      * "queryReq.template" to process the response.
-     *
+     * 
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -143,9 +140,9 @@ public class QueryReq extends CMSServlet {
                 mParser = CertReqParser.DETAIL_PARSER;
             else if (tmp.trim().equals("KeyReqParser.PARSER"))
                 mParser = KeyReqParser.PARSER;
-        }			
+        }
 
-        // override success and error templates to null - 
+        // override success and error templates to null -
         // handle templates locally.
         mTemplates.remove(CMSRequest.SUCCESS);
         mTemplates.remove(CMSRequest.ERROR);
@@ -153,7 +150,7 @@ public class QueryReq extends CMSServlet {
         if (mOutputTemplatePath != null)
             mFormPath = mOutputTemplatePath;
     }
-	
+
     private String getRequestType(String p) {
         String filter = "(requestType=*)";
 
@@ -213,150 +210,145 @@ public class QueryReq extends CMSServlet {
     /**
      * Process the HTTP request.
      * <ul>
-     * <li>http.param reqState request state
-	 *            (one of showAll, showWaiting, showInService, 
-	 *            showCancelled, showRejected, showCompleted)
+     * <li>http.param reqState request state (one of showAll, showWaiting,
+     * showInService, showCancelled, showRejected, showCompleted)
      * <li>http.param reqType
      * <li>http.param seqNumFromDown request ID to start at (decimal, or hex if
-     *           when paging down
-     *           seqNumFromDown starts with 0x)
+     * when paging down seqNumFromDown starts with 0x)
      * <li>http.param seqNumFromUp request ID to start at (decimal, or hex if
-     *           when paging up
-     *           seqNumFromUp starts with 0x)
+     * when paging up seqNumFromUp starts with 0x)
      * <li>http.param maxCount maximum number of records to show
      * <li>http.param totalCount total number of records in set of pages
      * <li>http.param direction "up", "down", "begin", or "end"
      * </ul>
-     *
+     * 
      * @param cmsReq the object holding the request and response information
      */
 
     public void process(CMSRequest cmsReq) throws EBaseException {
-    	CMS.debug("in QueryReq servlet");
-    	
-    	// Authentication / Authorization
+        CMS.debug("in QueryReq servlet");
 
-    	HttpServletRequest req = cmsReq.getHttpReq();
-    	IAuthToken authToken = authenticate(cmsReq);
-    	AuthzToken authzToken = null;
-    	
-    	try {
-    		authzToken = authorize(mAclMethod, authToken,
-    				mAuthzResourceName, "list");
-    	} catch (EAuthzAccessDenied e) {
-    		log(ILogger.LL_FAILURE,
-    				CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
-    	} catch (Exception e) {
-    		log(ILogger.LL_FAILURE,
-    				CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
-    	}
-    	if (authzToken == null) {
-    		cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
-    		return;
-    	}
-    	
+        // Authentication / Authorization
 
+        HttpServletRequest req = cmsReq.getHttpReq();
+        IAuthToken authToken = authenticate(cmsReq);
+        AuthzToken authzToken = null;
 
-    	  	
-    	CMSTemplate form = null;
-    	Locale[] locale = new Locale[1];
-    	
-    	try {
-    		// if get a EBaseException we just throw it. 
-    		form = getTemplate(mFormPath, req, locale);
-    	} catch (IOException e) {
-    		log(ILogger.LL_FAILURE,
-    				CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()));
-    		throw new ECMSGWException(
-    				CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
-    	}
-    	
-    	/** 
-    	 * WARNING:
-    	 * 
-    	 * PLEASE DO NOT TOUCH THE FILTER HERE. ALL FILTERS ARE INDEXED.
-    	 *
-    	 **/
-    	String filter = null;
-    	String reqState = req.getParameter("reqState");
-    	String reqType = req.getParameter("reqType");
-    	
-    	if (reqState == null || reqType == null) {
-    		filter = "(requeststate=*)";
-    	} else if (reqState.equals(IN_SHOW_ALL) && 
-    			reqType.equals(IN_SHOW_ALL)) {
-    		filter = "(requeststate=*)";
-    	} else if (reqState.equals(IN_SHOW_ALL)) {
-    		filter = getRequestType(reqType);
-    	} else if (reqType.equals(IN_SHOW_ALL)) {
-    		filter = getRequestState(reqState);
-    	} else {
-    		filter = "(&" + getRequestState(reqState) + 
-    		getRequestType(reqType) + ")";
-    	}
-    	
-    	String direction = "begin";
-    	if (req.getParameter("direction") != null) {
-    		direction = req.getParameter("direction").trim();
-    	}
-    	
-    	
-    	int top=0, bottom=0;
-    	
-    	try {
-    		String top_s = req.getParameter(OUT_FIRST_ENTRY_ON_PAGE);
-    		if (top_s == null) top_s = "0";
-    		
-    		String bottom_s = req.getParameter(OUT_LAST_ENTRY_ON_PAGE);
-    		if (bottom_s == null) bottom_s = "0";
-    		
-    		if (top_s.trim().startsWith("0x")) {
-    			top = Integer.parseInt(top_s.trim().substring(2), 16);
-    		} else {
-    			top = Integer.parseInt(top_s.trim());
-    		}
-    		if (bottom_s.trim().startsWith("0x")) {
-    			bottom = Integer.parseInt(bottom_s.trim().substring(2), 16);
-    		} else {
-    			bottom = Integer.parseInt(bottom_s.trim());
-    		}
-    		
-    	} catch (NumberFormatException e) {
+        try {
+            authzToken = authorize(mAclMethod, authToken, mAuthzResourceName,
+                    "list");
+        } catch (EAuthzAccessDenied e) {
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+        } catch (Exception e) {
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+        }
+        if (authzToken == null) {
+            cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
+            return;
+        }
 
-    	}
-    	
-    	// avoid NumberFormatException to the user interface
-    	int maxCount = 10;
-    	try {
-    		maxCount = Integer.parseInt(req.getParameter(IN_MAXCOUNT));
-    	} catch (Exception e) {
-    	}
+        CMSTemplate form = null;
+        Locale[] locale = new Locale[1];
+
+        try {
+            // if get a EBaseException we just throw it.
+            form = getTemplate(mFormPath, req, locale);
+        } catch (IOException e) {
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath,
+                            e.toString()));
+            throw new ECMSGWException(
+                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+        }
+
+        /**
+         * WARNING:
+         * 
+         * PLEASE DO NOT TOUCH THE FILTER HERE. ALL FILTERS ARE INDEXED.
+         * 
+         **/
+        String filter = null;
+        String reqState = req.getParameter("reqState");
+        String reqType = req.getParameter("reqType");
+
+        if (reqState == null || reqType == null) {
+            filter = "(requeststate=*)";
+        } else if (reqState.equals(IN_SHOW_ALL) && reqType.equals(IN_SHOW_ALL)) {
+            filter = "(requeststate=*)";
+        } else if (reqState.equals(IN_SHOW_ALL)) {
+            filter = getRequestType(reqType);
+        } else if (reqType.equals(IN_SHOW_ALL)) {
+            filter = getRequestState(reqState);
+        } else {
+            filter = "(&" + getRequestState(reqState) + getRequestType(reqType)
+                    + ")";
+        }
+
+        String direction = "begin";
+        if (req.getParameter("direction") != null) {
+            direction = req.getParameter("direction").trim();
+        }
+
+        int top = 0, bottom = 0;
+
+        try {
+            String top_s = req.getParameter(OUT_FIRST_ENTRY_ON_PAGE);
+            if (top_s == null)
+                top_s = "0";
+
+            String bottom_s = req.getParameter(OUT_LAST_ENTRY_ON_PAGE);
+            if (bottom_s == null)
+                bottom_s = "0";
+
+            if (top_s.trim().startsWith("0x")) {
+                top = Integer.parseInt(top_s.trim().substring(2), 16);
+            } else {
+                top = Integer.parseInt(top_s.trim());
+            }
+            if (bottom_s.trim().startsWith("0x")) {
+                bottom = Integer.parseInt(bottom_s.trim().substring(2), 16);
+            } else {
+                bottom = Integer.parseInt(bottom_s.trim());
+            }
+
+        } catch (NumberFormatException e) {
+
+        }
+
+        // avoid NumberFormatException to the user interface
+        int maxCount = 10;
+        try {
+            maxCount = Integer.parseInt(req.getParameter(IN_MAXCOUNT));
+        } catch (Exception e) {
+        }
         if (maxCount > mMaxReturns) {
-            CMS.debug("Resetting page size from " + maxCount + " to " + mMaxReturns);
+            CMS.debug("Resetting page size from " + maxCount + " to "
+                    + mMaxReturns);
             maxCount = mMaxReturns;
         }
 
-    	HttpServletResponse resp = cmsReq.getHttpResp(); 
-    	CMSTemplateParams argset = doSearch(locale[0],filter, maxCount, direction, top, bottom );
-	
-  
-        argset.getFixed().addStringValue("reqType",reqType);
+        HttpServletResponse resp = cmsReq.getHttpResp();
+        CMSTemplateParams argset = doSearch(locale[0], filter, maxCount,
+                direction, top, bottom);
+
+        argset.getFixed().addStringValue("reqType", reqType);
         argset.getFixed().addStringValue("reqState", reqState);
-        argset.getFixed().addIntegerValue("maxCount",maxCount);
-    	
-    	
-    	try {
-    		form.getOutput(argset);    		
-    		resp.setContentType("text/html");
-    		form.renderOutput(resp.getOutputStream(), argset);
-    	} catch (IOException e) {
-    		log(ILogger.LL_FAILURE,
-    				CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()));
-    		throw new ECMSGWException(
-    				CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
-    	}
-    	cmsReq.setStatus(CMSRequest.SUCCESS);
-    	return;
+        argset.getFixed().addIntegerValue("maxCount", maxCount);
+
+        try {
+            form.getOutput(argset);
+            resp.setContentType("text/html");
+            form.renderOutput(resp.getOutputStream(), argset);
+        } catch (IOException e) {
+            log(ILogger.LL_FAILURE, CMS.getLogMessage(
+                    "CMSGW_ERR_STREAM_TEMPLATE", e.toString()));
+            throw new ECMSGWException(
+                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+        }
+        cmsReq.setStatus(CMSRequest.SUCCESS);
+        return;
     }
 
     private static String makeRequestStatusEq(RequestStatus s) {
@@ -369,200 +361,197 @@ public class QueryReq extends CMSServlet {
 
     /**
      * Perform search based on direction button pressed
-     * @param filter ldap filter indicating which VLV to search through. This can be
-     * 'all requests', 'pending', etc
+     * 
+     * @param filter ldap filter indicating which VLV to search through. This
+     *            can be 'all requests', 'pending', etc
      * @param count the number of requests to show per page
-     * @param direction either 'begin', 'end', 'previous' or 'next' (defaults to end)
-     * @param top  the number of the request shown on at the top of the current page
-     * @param bottom the number of the request shown on at the bottom of the current page
-     * @return 
+     * @param direction either 'begin', 'end', 'previous' or 'next' (defaults to
+     *            end)
+     * @param top the number of the request shown on at the top of the current
+     *            page
+     * @param bottom the number of the request shown on at the bottom of the
+     *            current page
+     * @return
      */
-    
-    private CMSTemplateParams doSearch(Locale l, String filter,
-    		int count, String direction, int top, int bottom)
-    {
-    	CMSTemplateParams ctp = null;
-    	if (direction.equals("previous")) {
-    		ctp = doSearch(l, filter, -count, top-1);
-    	} else if (direction.equals("next")) {
-    		ctp = doSearch(l,filter, count, bottom+1);
-    	} else if (direction.equals("begin")) {
-    		ctp = doSearch(l,filter, count, 0);
-    	} else if (direction.equals("first")) {
-    		ctp = doSearch(l,filter, count, bottom);
-    	} else {  // if 'direction is 'end', default here
-    		ctp = doSearch(l,filter, -count, -1);
-    	}
-    	return ctp;
+
+    private CMSTemplateParams doSearch(Locale l, String filter, int count,
+            String direction, int top, int bottom) {
+        CMSTemplateParams ctp = null;
+        if (direction.equals("previous")) {
+            ctp = doSearch(l, filter, -count, top - 1);
+        } else if (direction.equals("next")) {
+            ctp = doSearch(l, filter, count, bottom + 1);
+        } else if (direction.equals("begin")) {
+            ctp = doSearch(l, filter, count, 0);
+        } else if (direction.equals("first")) {
+            ctp = doSearch(l, filter, count, bottom);
+        } else { // if 'direction is 'end', default here
+            ctp = doSearch(l, filter, -count, -1);
+        }
+        return ctp;
     }
-    
-    
 
-	/**
-	 * 
-	 * @param locale
-	 * @param filter the types of requests to return - this must match the VLV index
-	 * @param count maximum number of records to return
-	 * @param marker indication of the request ID where the page is anchored
-	 * @return
-	 */
+    /**
+     * 
+     * @param locale
+     * @param filter the types of requests to return - this must match the VLV
+     *            index
+     * @param count maximum number of records to return
+     * @param marker indication of the request ID where the page is anchored
+     * @return
+     */
 
-    private CMSTemplateParams doSearch(
-    		Locale locale,
-    		String filter,
-    		int count, 
-    		int marker) {
-    	
-    	IArgBlock header = CMS.createArgBlock();
-    	IArgBlock context = CMS.createArgBlock();
-    	CMSTemplateParams argset = new CMSTemplateParams(header, context);
-    	
-    	try {
-    		long startTime = CMS.getCurrentDate().getTime();
-    		// preserve the type of request that we are
-    		// requesting.
-    		
-    		header.addStringValue(OUT_AUTHORITY_ID, mAuthority.getId());
-    		header.addStringValue(OUT_REQUESTING_USER, "admin");
-    		
-    		
-    		boolean jumptoend = false;
-    		if (marker == -1) {
-    			marker = 0;       // I think this is inconsequential
-    			jumptoend = true; // override  to '99' during search 
-    		}
-    		
-    		RequestId id = new RequestId(Integer.toString(marker));
-    		IRequestVirtualList list =   mQueue.getPagedRequestsByFilter(
-    				id,
-    				jumptoend,
-    				filter, 
-    				count+1,
-    		"requestId");
-    		
-    		int totalCount = list.getSize() - list.getCurrentIndex();
-    		header.addIntegerValue(OUT_TOTALCOUNT, totalCount);
-    		header.addIntegerValue(OUT_CURRENTCOUNT, list.getSize());
-    		
-    		int numEntries = list.getSize() - list.getCurrentIndex();
-    		
-    		Vector v = fetchRecords(list,Math.abs(count));
-    		v = normalizeOrder(v);
-    		trim(v,id);
-    		
-    		
-    		int currentCount = 0;
-    		int curNum = 0;
-    		int firstNum = -1;
-    		Enumeration requests = v.elements();
-    		
-    		while (requests.hasMoreElements()) {
-    			IRequest request = null;
-    			try {
-    				request = (IRequest) requests.nextElement();
-    			} catch (Exception e) {
-    				CMS.debug("Error displaying request:"+e.getMessage());
-    				// handled below
-    			}
-    			if (request == null) {
-    				log(ILogger.LL_WARN, "Error display request on page");
-    				continue;
-    			}
-    			
-    			curNum = Integer.parseInt(
-    					request.getRequestId().toString());
-    			
-    			if (firstNum == -1) {
-    				firstNum = curNum; 
-    			}
-    			
-    			IArgBlock rec = CMS.createArgBlock();
-    			mParser.fillRequestIntoArg(locale, request, argset, rec);
-    			mQueue.releaseRequest(request);
-    			argset.addRepeatRecord(rec);
-    			
-    			currentCount++;
-    			
-    		}// while
-    		long endTime = CMS.getCurrentDate().getTime();
-    		
-    		header.addIntegerValue(OUT_CURRENTCOUNT, currentCount);
-    		header.addStringValue("time", Long.toString(endTime - startTime));
-    		header.addIntegerValue(OUT_FIRST_ENTRY_ON_PAGE, firstNum);
-    		header.addIntegerValue(OUT_LAST_ENTRY_ON_PAGE, curNum);
-    		
-    	} catch (EBaseException e) {
-    		header.addStringValue(OUT_ERROR, e.toString(locale));
-    	} catch (Exception e) {
-    	}
-    	return argset;
-    	
+    private CMSTemplateParams doSearch(Locale locale, String filter, int count,
+            int marker) {
+
+        IArgBlock header = CMS.createArgBlock();
+        IArgBlock context = CMS.createArgBlock();
+        CMSTemplateParams argset = new CMSTemplateParams(header, context);
+
+        try {
+            long startTime = CMS.getCurrentDate().getTime();
+            // preserve the type of request that we are
+            // requesting.
+
+            header.addStringValue(OUT_AUTHORITY_ID, mAuthority.getId());
+            header.addStringValue(OUT_REQUESTING_USER, "admin");
+
+            boolean jumptoend = false;
+            if (marker == -1) {
+                marker = 0; // I think this is inconsequential
+                jumptoend = true; // override to '99' during search
+            }
+
+            RequestId id = new RequestId(Integer.toString(marker));
+            IRequestVirtualList list = mQueue.getPagedRequestsByFilter(id,
+                    jumptoend, filter, count + 1, "requestId");
+
+            int totalCount = list.getSize() - list.getCurrentIndex();
+            header.addIntegerValue(OUT_TOTALCOUNT, totalCount);
+            header.addIntegerValue(OUT_CURRENTCOUNT, list.getSize());
+
+            int numEntries = list.getSize() - list.getCurrentIndex();
+
+            Vector v = fetchRecords(list, Math.abs(count));
+            v = normalizeOrder(v);
+            trim(v, id);
+
+            int currentCount = 0;
+            int curNum = 0;
+            int firstNum = -1;
+            Enumeration requests = v.elements();
+
+            while (requests.hasMoreElements()) {
+                IRequest request = null;
+                try {
+                    request = (IRequest) requests.nextElement();
+                } catch (Exception e) {
+                    CMS.debug("Error displaying request:" + e.getMessage());
+                    // handled below
+                }
+                if (request == null) {
+                    log(ILogger.LL_WARN, "Error display request on page");
+                    continue;
+                }
+
+                curNum = Integer.parseInt(request.getRequestId().toString());
+
+                if (firstNum == -1) {
+                    firstNum = curNum;
+                }
+
+                IArgBlock rec = CMS.createArgBlock();
+                mParser.fillRequestIntoArg(locale, request, argset, rec);
+                mQueue.releaseRequest(request);
+                argset.addRepeatRecord(rec);
+
+                currentCount++;
+
+            }// while
+            long endTime = CMS.getCurrentDate().getTime();
+
+            header.addIntegerValue(OUT_CURRENTCOUNT, currentCount);
+            header.addStringValue("time", Long.toString(endTime - startTime));
+            header.addIntegerValue(OUT_FIRST_ENTRY_ON_PAGE, firstNum);
+            header.addIntegerValue(OUT_LAST_ENTRY_ON_PAGE, curNum);
+
+        } catch (EBaseException e) {
+            header.addStringValue(OUT_ERROR, e.toString(locale));
+        } catch (Exception e) {
+        }
+        return argset;
+
     }
 
     /**
      * If the vector contains the marker element at the end, remove it.
-     * @param v  The vector to trim
-     * @param marker  the marker to look for.
+     * 
+     * @param v The vector to trim
+     * @param marker the marker to look for.
      */
-	private void trim(Vector v, RequestId marker) {
-		int i = v.size()-1;
-		if (((IRequest)v.elementAt(i)).getRequestId().equals(marker)) {
-			v.remove(i);
-		}
-		
-	}
+    private void trim(Vector v, RequestId marker) {
+        int i = v.size() - 1;
+        if (((IRequest) v.elementAt(i)).getRequestId().equals(marker)) {
+            v.remove(i);
+        }
 
-	/**
-	 * Sometimes the list comes back from LDAP in reverse order. This function makes
-	 * sure the results are in 'forward' order.
-	 * @param list
-	 * @return
-	 */
+    }
+
+    /**
+     * Sometimes the list comes back from LDAP in reverse order. This function
+     * makes sure the results are in 'forward' order.
+     * 
+     * @param list
+     * @return
+     */
     private Vector fetchRecords(IRequestVirtualList list, int maxCount) {
-    	
-    	Vector v = new Vector();
-    	int count = list.getSize();
-    	int c=0;
-    	for (int i=0; i<count; i++) {
-    		IRequest request = list.getElementAt(i);
-    		if (request != null) {
-    		   v.add(request);
-    		   c++;
-    		}
-    		if (c >= maxCount) break;
-    	}
-    	
-    	return v;
+
+        Vector v = new Vector();
+        int count = list.getSize();
+        int c = 0;
+        for (int i = 0; i < count; i++) {
+            IRequest request = list.getElementAt(i);
+            if (request != null) {
+                v.add(request);
+                c++;
+            }
+            if (c >= maxCount)
+                break;
+        }
+
+        return v;
 
     }
 
     /**
      * If the requests are in backwards order, reverse the list
+     * 
      * @param list
      * @return
      */
     private Vector normalizeOrder(Vector list) {
-    	
-    	int firstrequestnum = Integer.parseInt(((IRequest) list.elementAt(0))
-    			.getRequestId().toString());
-    	int lastrequestnum = Integer.parseInt(((IRequest) list.elementAt(list
-    			.size() - 1)).getRequestId().toString());
-    	boolean reverse = false;
-    	if (firstrequestnum > lastrequestnum) {
-    		reverse = true; // if the order is backwards, place items at the beginning
-    	}
-    	Vector v = new Vector();
-    	int count = list.size();
-    	for (int i = 0; i < count; i++) {
-    		Object request = list.elementAt(i);
-    		if (request != null) {
-    			if (reverse)
-    				v.add(0, request);
-    			else
-    				v.add(request);
-    		}
-    	}
-    	
-    	return v;
+
+        int firstrequestnum = Integer.parseInt(((IRequest) list.elementAt(0))
+                .getRequestId().toString());
+        int lastrequestnum = Integer.parseInt(((IRequest) list.elementAt(list
+                .size() - 1)).getRequestId().toString());
+        boolean reverse = false;
+        if (firstrequestnum > lastrequestnum) {
+            reverse = true; // if the order is backwards, place items at the
+                            // beginning
+        }
+        Vector v = new Vector();
+        int count = list.size();
+        for (int i = 0; i < count; i++) {
+            Object request = list.elementAt(i);
+            if (request != null) {
+                if (reverse)
+                    v.add(0, request);
+                else
+                    v.add(request);
+            }
+        }
+
+        return v;
     }
 }

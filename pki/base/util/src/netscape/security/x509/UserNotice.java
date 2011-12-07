@@ -22,15 +22,12 @@ import java.io.IOException;
 import netscape.security.util.DerOutputStream;
 import netscape.security.util.DerValue;
 
-
 /**
  * Represent the UserNotice Qualifier.
- *
- * UserNotice ::= SEQUENCE {
- *   noticeRef NoticeReference OPTIONAL,
- *   explicitText DisplayText OPTIONAL
- * }
- *
+ * 
+ * UserNotice ::= SEQUENCE { noticeRef NoticeReference OPTIONAL, explicitText
+ * DisplayText OPTIONAL }
+ * 
  * @author Thomas Kwan
  */
 public class UserNotice extends Qualifier {
@@ -43,28 +40,28 @@ public class UserNotice extends Qualifier {
     private DisplayText mDisplayText = null;
 
     public UserNotice(NoticeReference ref, DisplayText text) {
-      mNoticeReference = ref;
-      mDisplayText = text;
+        mNoticeReference = ref;
+        mDisplayText = text;
     }
 
     public UserNotice(DerValue val) throws IOException {
-       if (val.tag != DerValue.tag_Sequence) {
-           throw new IOException("Invalid encoding for UserNotice");
-       }
-       // case 0: no element
-       if (val.data.available() == 0)
-	 return;
-       // case 1: 1 element
-       DerValue inSeq = val.data.getDerValue();
-       if (inSeq.tag == DerValue.tag_Sequence) {
-         mNoticeReference = new NoticeReference(inSeq);
-       } else { 
-         mDisplayText = new DisplayText(inSeq);
-       }
-       if (val.data.available() == 0)
-	 return;
-       // case 2: 2 elements
-       mDisplayText = new DisplayText(val.data.getDerValue());
+        if (val.tag != DerValue.tag_Sequence) {
+            throw new IOException("Invalid encoding for UserNotice");
+        }
+        // case 0: no element
+        if (val.data.available() == 0)
+            return;
+        // case 1: 1 element
+        DerValue inSeq = val.data.getDerValue();
+        if (inSeq.tag == DerValue.tag_Sequence) {
+            mNoticeReference = new NoticeReference(inSeq);
+        } else {
+            mDisplayText = new DisplayText(inSeq);
+        }
+        if (val.data.available() == 0)
+            return;
+        // case 2: 2 elements
+        mDisplayText = new DisplayText(val.data.getDerValue());
     }
 
     public NoticeReference getNoticeReference() {
@@ -77,21 +74,21 @@ public class UserNotice extends Qualifier {
 
     /**
      * Write the UserNotice to the DerOutputStream.
-     *
+     * 
      * @param out the DerOutputStream to write the object to.
      * @exception IOException on errors.
      */
     public void encode(DerOutputStream out) throws IOException {
         DerOutputStream tmp = new DerOutputStream();
 
-	// OPTIONAL
-	if (mNoticeReference != null) {
-        	mNoticeReference.encode(tmp);
-	}
-	// OPTIONAL
-        if (mDisplayText != null) {
-                mDisplayText.encode(tmp);
+        // OPTIONAL
+        if (mNoticeReference != null) {
+            mNoticeReference.encode(tmp);
         }
-        out.write(DerValue.tag_Sequence,tmp);
+        // OPTIONAL
+        if (mDisplayText != null) {
+            mDisplayText.encode(tmp);
+        }
+        out.write(DerValue.tag_Sequence, tmp);
     }
 }

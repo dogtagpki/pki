@@ -22,10 +22,9 @@ import com.netscape.certsrv.base.EBaseException;
 /**
  * This represents a generic profile exception.
  * <p>
- * This is the base class for all profile-specific
- * exception.
+ * This is the base class for all profile-specific exception.
  * <p>
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class EProfileException extends EBaseException {
@@ -37,10 +36,9 @@ public class EProfileException extends EBaseException {
 
     /**
      * Creates a profile exception.
-     *
-     * @param msg additional message for the handler
-     *            of the exception. The message may
-     *            or may not be localized.
+     * 
+     * @param msg additional message for the handler of the exception. The
+     *            message may or may not be localized.
      */
     public EProfileException(String msg) {
         super(msg);

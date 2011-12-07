@@ -26,7 +26,7 @@ import com.netscape.certsrv.authentication.ISharedToken;
 public class SharedSecret implements ISharedToken {
 
     public SharedSecret() {
-    } 
+    }
 
     public String getSharedToken(PKIData cmcdata) {
         return "testing";

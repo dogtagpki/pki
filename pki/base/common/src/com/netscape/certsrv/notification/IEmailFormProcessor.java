@@ -17,17 +17,15 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.notification;
 
-
 import java.util.Hashtable;
 import java.util.Vector;
 
-
 /**
- * formulates the final email.  Escape character '\' is understood.
- * '$' is used preceeding a token name.  A token name should not be a
- * substring of any other token name
+ * formulates the final email. Escape character '\' is understood. '$' is used
+ * preceeding a token name. A token name should not be a substring of any other
+ * token name
  * <p>
- *
+ * 
  * @version $Revision$, $Date$
  */
 public interface IEmailFormProcessor {
@@ -58,16 +56,18 @@ public interface IEmailFormProcessor {
     public final static String TOKEN_REVOCATION_DATE = "RevocationDate";
 
     /*
-     * takes the form template, parse and replace all $tokens with the
-     *		 right values.  It handles escape character '\'
+     * takes the form template, parse and replace all $tokens with the right
+     * values. It handles escape character '\'
+     * 
      * @param form The locale specific form template,
-     * @param tok2vals a hashtable containing one to one mapping
-     *	 from $tokens used by the admins in the form template to the real
-     *	 values corresponding to the $tokens
+     * 
+     * @param tok2vals a hashtable containing one to one mapping from $tokens
+     * used by the admins in the form template to the real values corresponding
+     * to the $tokens
+     * 
      * @return mail content
      */
-    public String getEmailContent(String form,
-        Hashtable tok2vals);
+    public String getEmailContent(String form, Hashtable tok2vals);
 
     /**
      * takes a vector of strings and concatenate them
@@ -79,4 +79,3 @@ public interface IEmailFormProcessor {
      */
     public void log(int level, String msg);
 }
-

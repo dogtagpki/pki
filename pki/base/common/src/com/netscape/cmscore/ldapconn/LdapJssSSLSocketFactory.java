@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.ldapconn;
 
-
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -32,9 +31,9 @@ import org.mozilla.jss.ssl.SSLSocket;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.logging.ILogger;
 
-
 /**
  * Uses HCL ssl socket.
+ * 
  * @author Lily Hsiao lhsiao@netscape.com
  */
 public class LdapJssSSLSocketFactory implements LDAPSSLSocketFactoryExt {
@@ -56,7 +55,7 @@ public class LdapJssSSLSocketFactory implements LDAPSSLSocketFactoryExt {
             s = new SSLSocket(host, port);
             s.setUseClientMode(true);
             s.enableSSL2(false);
-            //TODO Do we really want to set the default each time?
+            // TODO Do we really want to set the default each time?
             SSLSocket.enableSSL2Default(false);
             s.enableV2CompatibleHello(false);
 
@@ -67,19 +66,19 @@ public class LdapJssSSLSocketFactory implements LDAPSSLSocketFactoryExt {
 
             if (mClientAuthCertNickname != null) {
                 mClientAuth = true;
-                CMS.debug(
-                    "LdapJssSSLSocket set client auth cert nickname" +
-                    mClientAuthCertNickname);
+                CMS.debug("LdapJssSSLSocket set client auth cert nickname"
+                        + mClientAuthCertNickname);
                 s.setClientCertNickname(mClientAuthCertNickname);
             }
             s.forceHandshake();
         } catch (UnknownHostException e) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSCORE_LDAPCONN_UNKNOWN_HOST"));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_LDAPCONN_UNKNOWN_HOST"));
             throw new LDAPException(
                     "Cannot Create JSS SSL Socket - Unknown host");
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_LDAPCONN_IO_ERROR", e.toString()));
+            log(ILogger.LL_FAILURE, CMS.getLogMessage(
+                    "CMSCORE_LDAPCONN_IO_ERROR", e.toString()));
             throw new LDAPException("IO Error creating JSS SSL Socket");
         }
         return s;
@@ -102,10 +101,9 @@ public class LdapJssSSLSocketFactory implements LDAPSSLSocketFactoryExt {
         public ClientHandshakeCB(Object sc) {
             this.sc = sc;
         }
-	 
+
         public void handshakeCompleted(SSLHandshakeCompletedEvent event) {
             CMS.debug("SSL handshake happened");
         }
     }
 }
-

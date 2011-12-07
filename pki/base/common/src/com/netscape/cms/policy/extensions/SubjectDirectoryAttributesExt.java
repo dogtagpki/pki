@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.policy.extensions;
 
-
 import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.util.Enumeration;
@@ -46,20 +45,20 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cms.policy.APolicyRule;
 
-
 /**
  * Policy to add the subject directory attributes extension.
  * <P>
+ * 
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- *
+ * 
  * @deprecated
  * @version $Revision$, $Date$
  */
-public class SubjectDirectoryAttributesExt extends APolicyRule 
-    implements IEnrollmentPolicy, IExtendedPluginInfo {
+public class SubjectDirectoryAttributesExt extends APolicyRule implements
+        IEnrollmentPolicy, IExtendedPluginInfo {
     protected static final String PROP_CRITICAL = "critical";
     protected static final String PROP_ATTRIBUTE = "attribute";
     protected static final String PROP_NUM_ATTRIBUTES = "numAttributes";
@@ -76,7 +75,7 @@ public class SubjectDirectoryAttributesExt extends APolicyRule
     protected SubjectDirAttributesExtension mExt = null;
 
     protected Vector mParams = new Vector();
-    private String[] mEPI = null;  			// extended plugin info
+    private String[] mEPI = null; // extended plugin info
     protected static Vector mDefParams = new Vector();
 
     static {
@@ -86,20 +85,21 @@ public class SubjectDirectoryAttributesExt extends APolicyRule
     public SubjectDirectoryAttributesExt() {
         NAME = "SubjectDirectoryAttributesExtPolicy";
         DESC = "Sets Subject Directory Attributes Extension in certificates.";
-        setExtendedPluginInfo();  
+        setExtendedPluginInfo();
     }
 
     public void init(ISubsystem owner, IConfigStore config)
-        throws EBaseException {
+            throws EBaseException {
         boolean enabled = config.getBoolean("enabled", false);
 
         mConfig = config;
 
-        mCritical = mConfig.getBoolean(PROP_CRITICAL, false);        
-        mNumAttributes = mConfig.getInteger(PROP_NUM_ATTRIBUTES, DEF_NUM_ATTRIBUTES);
+        mCritical = mConfig.getBoolean(PROP_CRITICAL, false);
+        mNumAttributes = mConfig.getInteger(PROP_NUM_ATTRIBUTES,
+                DEF_NUM_ATTRIBUTES);
         if (mNumAttributes < 1) {
-            EBaseException ex = new EBaseException(
-                    CMS.getUserMessage("CMS_BASE_MUST_BE_POSITIVE_NUMBER", PROP_NUM_ATTRIBUTES));
+            EBaseException ex = new EBaseException(CMS.getUserMessage(
+                    "CMS_BASE_MUST_BE_POSITIVE_NUMBER", PROP_NUM_ATTRIBUTES));
 
             log(ILogger.LL_FAILURE, NAME + " Error: " + ex.toString());
             throw ex;
@@ -111,14 +111,15 @@ public class SubjectDirectoryAttributesExt extends APolicyRule
 
             mAttributes[i] = new AttributeConfig(name, c, enabled);
         }
-        if (enabled) { 
+        if (enabled) {
             try {
                 mExt = formExt(null);
             } catch (IOException e) {
                 log(ILogger.LL_FAILURE, NAME + " Error: " + e.getMessage());
-                throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", 
-                            "Error forming Subject Directory Attributes Extension. " +
-                            "See log file for details."));
+                throw new EBaseException(CMS.getUserMessage(
+                        "CMS_BASE_INTERNAL_ERROR",
+                        "Error forming Subject Directory Attributes Extension. "
+                                + "See log file for details."));
             }
         }
         setInstanceParams();
@@ -126,8 +127,7 @@ public class SubjectDirectoryAttributesExt extends APolicyRule
 
     public PolicyResult apply(IRequest req) {
         PolicyResult res = PolicyResult.ACCEPTED;
-        X509CertInfo[] ci =
-            req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
+        X509CertInfo[] ci = req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
 
         if (ci == null || ci[0] == null) {
             setError(req, CMS.getUserMessage("CMS_POLICY_NO_CERT_INFO"), NAME);
@@ -137,7 +137,7 @@ public class SubjectDirectoryAttributesExt extends APolicyRule
         for (int i = 0; i < ci.length; i++) {
             PolicyResult r = applyCert(req, ci[i]);
 
-            if (r == PolicyResult.REJECTED) 
+            if (r == PolicyResult.REJECTED)
                 return r;
         }
         return PolicyResult.ACCEPTED;
@@ -149,18 +149,19 @@ public class SubjectDirectoryAttributesExt extends APolicyRule
 
         try {
             // get extension and remove if exists.
-            extensions = (CertificateExtensions)
-                    certInfo.get(X509CertInfo.EXTENSIONS);
+            extensions = (CertificateExtensions) certInfo
+                    .get(X509CertInfo.EXTENSIONS);
             if (extensions == null) {
                 extensions = new CertificateExtensions();
-                certInfo.set(X509CertInfo.VERSION,
-                    new CertificateVersion(CertificateVersion.V3));
+                certInfo.set(X509CertInfo.VERSION, new CertificateVersion(
+                        CertificateVersion.V3));
                 certInfo.set(X509CertInfo.EXTENSIONS, extensions);
             } else {
                 try {
                     extensions.delete(SubjectDirAttributesExtension.NAME);
                 } catch (IOException ee) {
-                    // if name is not found, try deleting the extension using the OID
+                    // if name is not found, try deleting the extension using
+                    // the OID
                     try {
                         extensions.delete("2.5.29.9");
                     } catch (IOException eee) {
@@ -174,22 +175,27 @@ public class SubjectDirectoryAttributesExt extends APolicyRule
             } else {
                 SubjectDirAttributesExtension ext = formExt(req);
 
-                if (ext != null) 
-                    extensions.set(SubjectDirAttributesExtension.NAME, formExt(req));
+                if (ext != null)
+                    extensions.set(SubjectDirAttributesExtension.NAME,
+                            formExt(req));
             }
             return PolicyResult.ACCEPTED;
         } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CA_CERT_INFO_ERROR", e.getMessage()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CA_CERT_INFO_ERROR", e.getMessage()));
 
-            setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"),
-                NAME, "Certificate Info Error");
+            setError(req,
+                    CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"),
+                    NAME, "Certificate Info Error");
             return PolicyResult.REJECTED; // unrecoverable error.
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("BASE_IO_ERROR", e.getMessage())); 
-            setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"),
-                NAME, "IOException Error");
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("BASE_IO_ERROR", e.getMessage()));
+            setError(req,
+                    CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"),
+                    NAME, "IOException Error");
             return PolicyResult.REJECTED;
-        } 
+        }
     }
 
     private Vector formValues(String val) {
@@ -197,7 +203,7 @@ public class SubjectDirectoryAttributesExt extends APolicyRule
         Vector v = new Vector();
 
         while (tokenizer.hasMoreElements()) {
-            String s = (String) tokenizer.nextElement();   
+            String s = (String) tokenizer.nextElement();
 
             v.addElement(s);
         }
@@ -213,12 +219,12 @@ public class SubjectDirectoryAttributesExt extends APolicyRule
     }
 
     public String[] getExtendedPluginInfo(Locale locale) {
-        return mEPI;  // inited in the constructor.
+        return mEPI; // inited in the constructor.
     }
 
     private void setInstanceParams() {
-        mParams.addElement(PROP_CRITICAL + "=" + mCritical); 
-        mParams.addElement(PROP_NUM_ATTRIBUTES + "=" + mNumAttributes); 
+        mParams.addElement(PROP_CRITICAL + "=" + mCritical);
+        mParams.addElement(PROP_NUM_ATTRIBUTES + "=" + mNumAttributes);
         for (int i = 0; i < mNumAttributes; i++) {
             mAttributes[i].getInstanceParams(mParams);
         }
@@ -229,8 +235,8 @@ public class SubjectDirectoryAttributesExt extends APolicyRule
     }
 
     private static void setDefaultParams() {
-        mDefParams.addElement(PROP_CRITICAL + "=" + DEF_CRITICAL); 
-        mDefParams.addElement(PROP_NUM_ATTRIBUTES + "=" + DEF_NUM_ATTRIBUTES); 
+        mDefParams.addElement(PROP_CRITICAL + "=" + DEF_CRITICAL);
+        mDefParams.addElement(PROP_NUM_ATTRIBUTES + "=" + DEF_NUM_ATTRIBUTES);
         for (int i = 0; i < DEF_NUM_ATTRIBUTES; i++) {
             AttributeConfig.getDefaultParams(PROP_ATTRIBUTE + i, mDefParams);
         }
@@ -239,33 +245,32 @@ public class SubjectDirectoryAttributesExt extends APolicyRule
     private void setExtendedPluginInfo() {
         Vector v = new Vector();
 
-        v.addElement(PROP_CRITICAL + ";boolean;" +
-            "RFC 2459 recommendation: MUST be non-critical.");
-        v.addElement(PROP_NUM_ATTRIBUTES + ";number;" +
-            "Number of Attributes in the extension.");
+        v.addElement(PROP_CRITICAL + ";boolean;"
+                + "RFC 2459 recommendation: MUST be non-critical.");
+        v.addElement(PROP_NUM_ATTRIBUTES + ";number;"
+                + "Number of Attributes in the extension.");
 
         for (int i = 0; i < MAX_NUM_ATTRIBUTES; i++) {
             AttributeConfig.getExtendedPluginInfo(PROP_ATTRIBUTE + i, v);
         }
 
-        v.addElement(IExtendedPluginInfo.HELP_TOKEN +
-            ";configuration-policyrules-subjectdirectoryattributes");
-        v.addElement(IExtendedPluginInfo.HELP_TEXT +
-            ";Adds Subject Directory Attributes extension. See RFC 2459 (4.2.1.9). It's not recommended as an essential part of the profile, but may be used in local environments.");
+        v.addElement(IExtendedPluginInfo.HELP_TOKEN
+                + ";configuration-policyrules-subjectdirectoryattributes");
+        v.addElement(IExtendedPluginInfo.HELP_TEXT
+                + ";Adds Subject Directory Attributes extension. See RFC 2459 (4.2.1.9). It's not recommended as an essential part of the profile, but may be used in local environments.");
 
         mEPI = com.netscape.cmsutil.util.Utils.getStringArrayFromVector(v);
     }
 
-    private SubjectDirAttributesExtension formExt(IRequest req) 
-        throws IOException {
+    private SubjectDirAttributesExtension formExt(IRequest req)
+            throws IOException {
         Vector attrs = new Vector();
 
         // if we're called from init and one attribute is from request attribute
         // the ext can't be formed yet.
         if (req == null) {
             for (int i = 0; i < mNumAttributes; i++) {
-                if (mAttributes[i].mWhereToGetValue == 
-                    AttributeConfig.USE_REQUEST_ATTR)
+                if (mAttributes[i].mWhereToGetValue == AttributeConfig.USE_REQUEST_ATTR)
                     return null;
             }
         }
@@ -277,23 +282,22 @@ public class SubjectDirectoryAttributesExt extends APolicyRule
                 // skip attribute if request attribute doesn't exist.
                 Attribute a = mAttributes[i].formAttr(req);
 
-                if (a == null) 
+                if (a == null)
                     continue;
                 attrs.addElement(a);
             }
         }
-        if (attrs.size() == 0) 
+        if (attrs.size() == 0)
             return null;
         Attribute[] attrList = new Attribute[attrs.size()];
 
         attrs.copyInto(attrList);
-        SubjectDirAttributesExtension ext = 
-            new SubjectDirAttributesExtension(attrList); 
+        SubjectDirAttributesExtension ext = new SubjectDirAttributesExtension(
+                attrList);
 
         return ext;
     }
 }
-
 
 class AttributeConfig {
 
@@ -317,50 +321,56 @@ class AttributeConfig {
     protected Attribute mAttribute = null;
 
     protected static final String ATTRIBUTE_NAME_INFO = "Attribute name.";
-    protected static final String WTG_VALUE_INFO = 
-        PROP_WTG_VALUE + ";choice(" + USE_REQUEST_ATTR + "," + USE_FIXED + ");" +
-        "Get value from a request attribute or use a fixed value specified below.";
-    protected static final String VALUE_INFO = 
-        PROP_VALUE + ";string;" +
-        "Request attribute name or a fixed value to put into the extension.";
+    protected static final String WTG_VALUE_INFO = PROP_WTG_VALUE
+            + ";choice("
+            + USE_REQUEST_ATTR
+            + ","
+            + USE_FIXED
+            + ");"
+            + "Get value from a request attribute or use a fixed value specified below.";
+    protected static final String VALUE_INFO = PROP_VALUE
+            + ";string;"
+            + "Request attribute name or a fixed value to put into the extension.";
 
-    public AttributeConfig(String name, IConfigStore config, boolean enabled) 
-        throws EBaseException {
+    public AttributeConfig(String name, IConfigStore config, boolean enabled)
+            throws EBaseException {
         X500NameAttrMap map = X500NameAttrMap.getDefault();
 
         mName = name;
         mConfig = config;
         if (enabled) {
-            mAttributeName = mConfig.getString(PROP_ATTRIBUTE_NAME);        
+            mAttributeName = mConfig.getString(PROP_ATTRIBUTE_NAME);
             mWhereToGetValue = mConfig.getString(PROP_WTG_VALUE);
             mValue = mConfig.getString(PROP_VALUE);
         } else {
             mAttributeName = mConfig.getString(PROP_ATTRIBUTE_NAME, "");
-            mWhereToGetValue = mConfig.getString(PROP_WTG_VALUE, USE_REQUEST_ATTR);
+            mWhereToGetValue = mConfig.getString(PROP_WTG_VALUE,
+                    USE_REQUEST_ATTR);
             mValue = mConfig.getString(PROP_VALUE, "");
         }
 
         if (mAttributeName.length() > 0) {
             mAttributeOID = map.getOid(mAttributeName);
-            if (mAttributeOID == null) 
-                throw new EBaseException(
-                        CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", mAttributeName));
+            if (mAttributeOID == null)
+                throw new EBaseException(CMS.getUserMessage(
+                        "CMS_BASE_INVALID_ATTRIBUTE", mAttributeName));
         }
 
         if (mWhereToGetValue.equalsIgnoreCase(USE_REQUEST_ATTR)) {
             mWhereToGetValue = USE_REQUEST_ATTR;
             if (enabled && mValue.length() == 0) {
-                throw new EBaseException(CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED", PROP_VALUE));
+                throw new EBaseException(CMS.getUserMessage(
+                        "CMS_BASE_GET_PROPERTY_FAILED", PROP_VALUE));
             }
             int dot = mValue.indexOf('.');
 
             if (dot != -1) {
                 mPrefix = mValue.substring(0, dot);
                 mReqAttr = mValue.substring(dot + 1);
-                if (mPrefix == null || mPrefix.length() == 0 || 
-                    mReqAttr == null || mReqAttr.length() == 0) {
-                    throw new EBaseException(
-                            CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", mValue));
+                if (mPrefix == null || mPrefix.length() == 0
+                        || mReqAttr == null || mReqAttr.length() == 0) {
+                    throw new EBaseException(CMS.getUserMessage(
+                            "CMS_BASE_INVALID_ATTRIBUTE", mValue));
                 }
             } else {
                 mPrefix = null;
@@ -369,18 +379,20 @@ class AttributeConfig {
         } else if (mWhereToGetValue.equalsIgnoreCase(USE_FIXED)) {
             mWhereToGetValue = USE_FIXED;
             if (mAttributeOID != null) {
-                try { 
-                    checkValue(mAttributeOID, mValue); 
-                    mAttribute = new Attribute(mAttributeOID, mValue); 
+                try {
+                    checkValue(mAttributeOID, mValue);
+                    mAttribute = new Attribute(mAttributeOID, mValue);
                 } catch (Exception e) {
-                    throw new EBaseException(
-                            CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE",
-                                mAttributeName, e.getMessage()));
+                    throw new EBaseException(CMS.getUserMessage(
+                            "CMS_BASE_INVALID_ATTR_VALUE", mAttributeName,
+                            e.getMessage()));
                 }
             }
         } else if (enabled || mWhereToGetValue.length() > 0) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_VALUE_FOR_TYPE", PROP_WTG_VALUE,  
-                        "Must be either '" + USE_REQUEST_ATTR + "' or '" + USE_FIXED + "'."));
+            throw new EBaseException(CMS.getUserMessage(
+                    "CMS_BASE_INVALID_VALUE_FOR_TYPE", PROP_WTG_VALUE,
+                    "Must be either '" + USE_REQUEST_ATTR + "' or '"
+                            + USE_FIXED + "'."));
         }
     }
 
@@ -396,8 +408,8 @@ class AttributeConfig {
         String nameDot = name + ".";
         String attrChoices = getAllNames();
 
-        v.addElement(nameDot + PROP_ATTRIBUTE_NAME + ";choice(" + attrChoices + ");" +
-            ATTRIBUTE_NAME_INFO);
+        v.addElement(nameDot + PROP_ATTRIBUTE_NAME + ";choice(" + attrChoices
+                + ");" + ATTRIBUTE_NAME_INFO);
         v.addElement(nameDot + WTG_VALUE_INFO);
         v.addElement(nameDot + VALUE_INFO);
     }
@@ -410,14 +422,13 @@ class AttributeConfig {
         v.addElement(nameDot + PROP_VALUE + "=" + mValue);
     }
 
-    public Attribute formAttr(IRequest req) 
-        throws IOException {
+    public Attribute formAttr(IRequest req) throws IOException {
         String val = req.getExtDataInString(mPrefix, mReqAttr);
 
         if (val == null || val.length() == 0) {
             return null;
         }
-        checkValue(mAttributeOID, val); 
+        checkValue(mAttributeOID, val);
         return new Attribute(mAttributeOID, val);
     }
 
@@ -433,9 +444,10 @@ class AttributeConfig {
         return sb.toString();
     }
 
-    private static void checkValue(ObjectIdentifier oid, String val) 
-        throws IOException {
-        AVAValueConverter c = X500NameAttrMap.getDefault().getValueConverter(oid);
+    private static void checkValue(ObjectIdentifier oid, String val)
+            throws IOException {
+        AVAValueConverter c = X500NameAttrMap.getDefault().getValueConverter(
+                oid);
         DerValue derval;
 
         derval = c.getValue(val); // errs encountered will get thrown.

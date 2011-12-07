@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.dbs;
 
-
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Vector;
@@ -32,15 +31,13 @@ import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBAttrMapper;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.logging.ILogger;
- 
 
 /**
- * A class represents ann attribute mapper that maps
- * a Java X500Name object into LDAP attribute,
- * and vice versa.
- *
+ * A class represents ann attribute mapper that maps a Java X500Name object into
+ * LDAP attribute, and vice versa.
+ * 
  * @author thomask
- * @version $Revision$, $Date$ 
+ * @version $Revision$, $Date$
  */
 public class X500NameMapper implements IDBAttrMapper {
 
@@ -67,47 +64,49 @@ public class X500NameMapper implements IDBAttrMapper {
     /**
      * Maps attribute value to ldap attributes.
      */
-    public void mapObjectToLDAPAttributeSet(IDBObj parent, 
-        String name, Object obj, LDAPAttributeSet attrs) 
-        throws EBaseException {
-        attrs.add(new LDAPAttribute(mLdapName, 
-                ((X500Name) obj).toString()));
+    public void mapObjectToLDAPAttributeSet(IDBObj parent, String name,
+            Object obj, LDAPAttributeSet attrs) throws EBaseException {
+        attrs.add(new LDAPAttribute(mLdapName, ((X500Name) obj).toString()));
     }
 
     /**
-     * Maps LDAP attributes into object, and put the object
-     * into 'parent'.
+     * Maps LDAP attributes into object, and put the object into 'parent'.
      */
-    public void mapLDAPAttributeSetToObject(LDAPAttributeSet attrs, 
-        String name, IDBObj parent) throws EBaseException {
+    public void mapLDAPAttributeSetToObject(LDAPAttributeSet attrs,
+            String name, IDBObj parent) throws EBaseException {
         LDAPAttribute attr = attrs.getAttribute(mLdapName);
 
         if (attr == null) {
             return;
         }
         try {
-            parent.set(name, new X500Name((String)
-                    attr.getStringValues().nextElement()));
+            parent.set(name, new X500Name((String) attr.getStringValues()
+                    .nextElement()));
         } catch (IOException e) {
 
-            /*LogDoc
-             *
+            /*
+             * LogDoc
+             * 
              * @phase Maps LDAP attributes into object
+             * 
              * @message X500NameMapper: <exception thrown>
              */
-            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_DB, ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSCORE_DBS_X500NAME_MAPPER_ERROR",
-                    e.toString()));
-            throw new EDBException(
-                    CMS.getUserMessage("CMS_DBS_DESERIALIZE_FAILED", name));
+            mLogger.log(
+                    ILogger.EV_SYSTEM,
+                    ILogger.S_DB,
+                    ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_DBS_X500NAME_MAPPER_ERROR",
+                            e.toString()));
+            throw new EDBException(CMS.getUserMessage(
+                    "CMS_DBS_DESERIALIZE_FAILED", name));
         }
     }
 
     /**
      * Maps search filters into LDAP search filter.
      */
-    public String mapSearchFilter(String name, String op, 
-        String value) throws EBaseException {
+    public String mapSearchFilter(String name, String op, String value)
+            throws EBaseException {
         return mLdapName + op + value;
     }
 }

@@ -23,10 +23,10 @@ import java.util.Hashtable;
 import com.netscape.certsrv.base.IArgBlock;
 
 /**
- * Authentication Credentials as input to the authMgr. It contains all the 
+ * Authentication Credentials as input to the authMgr. It contains all the
  * information required for authentication in the authMgr.
  * <P>
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class AuthCredentials implements IAuthCredentials {
@@ -36,7 +36,7 @@ public class AuthCredentials implements IAuthCredentials {
     private static final long serialVersionUID = 5862936214648594328L;
     private Hashtable authCreds = null;
     private IArgBlock argblk = null;
-    
+
     /**
      * Constructor
      */
@@ -45,7 +45,9 @@ public class AuthCredentials implements IAuthCredentials {
     }
 
     /**
-     * Sets an authentication credential with credential name and the credential object
+     * Sets an authentication credential with credential name and the credential
+     * object
+     * 
      * @param name credential name
      * @param cred credential object
      */
@@ -56,7 +58,8 @@ public class AuthCredentials implements IAuthCredentials {
 
     /**
      * Returns the credential to which the specified name is mapped in this
-     *	 credential set
+     * credential set
+     * 
      * @param name credential name
      * @return the authentication credential for the given name
      */
@@ -65,9 +68,10 @@ public class AuthCredentials implements IAuthCredentials {
     }
 
     /**
-     * Removes the name and its corresponding credential from this
-     *	 credential set.  This method does nothing if the named
-     *	 credential is not in the credential set.
+     * Removes the name and its corresponding credential from this credential
+     * set. This method does nothing if the named credential is not in the
+     * credential set.
+     * 
      * @param name credential name
      */
     public void delete(String name) {
@@ -75,29 +79,29 @@ public class AuthCredentials implements IAuthCredentials {
     }
 
     /**
-     * Returns an enumeration of the credentials in this credential
-     * set. Use the Enumeration methods on the returned object to
-     * fetch the elements sequentially.
+     * Returns an enumeration of the credentials in this credential set. Use the
+     * Enumeration methods on the returned object to fetch the elements
+     * sequentially.
+     * 
      * @return an enumeration of the values in this credential set
      */
     public Enumeration getElements() {
         return (authCreds.elements());
     }
-    
+
     /**
-     * Set the given argblock
-i    * @param blk the given argblock.
+     * Set the given argblock i * @param blk the given argblock.
      */
     public void setArgBlock(IArgBlock blk) {
         argblk = blk;
-    }        
+    }
 
     /**
      * Returns the argblock.
+     * 
      * @return the argblock.
      */
     public IArgBlock getArgBlock() {
         return argblk;
-    }        
+    }
 }
-

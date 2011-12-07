@@ -17,13 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.common;
 
-
 /**
- * This interface defines all the tasks used in
- * the configuration protocol between the
- * configuration wizard and the configuration
- * daemon.
- *
+ * This interface defines all the tasks used in the configuration protocol
+ * between the configuration wizard and the configuration daemon.
+ * 
  * @version $Revision$, $Date$
  */
 public interface TaskId {
@@ -66,7 +63,7 @@ public interface TaskId {
 
     // get information about all cryptotokens
     public final static String TASK_TOKEN_INFO = "tokenInfo";
-    
+
     // server get master or clone setting
     public final static String TASK_MASTER_OR_CLONE = "SetMasterOrClone";
     // single signon
@@ -100,17 +97,18 @@ public interface TaskId {
     // set CA starting serial number
     public final static String TASK_SET_CA_SERIAL = "setCASerial";
 
-     // set CA starting serial number
+    // set CA starting serial number
     public final static String TASK_SET_KRA_NUMBER = "setKRANumber";
 
-   // check key length
+    // check key length
     public final static String TASK_CHECK_KEYLENGTH = "checkKeyLength";
 
     // check certificate extension
     public final static String TASK_CHECK_EXTENSION = "checkExtension";
 
-    // check validity period: make sure the notAfterDate of the certificate 
-    // will not go beyond the notAfterDate of the CA cert which signs the certificate.
+    // check validity period: make sure the notAfterDate of the certificate
+    // will not go beyond the notAfterDate of the CA cert which signs the
+    // certificate.
     public final static String TASK_VALIDITY_PERIOD = "checkValidityPeriod";
 
     public final static String TASK_CLONING = "taskCloning";

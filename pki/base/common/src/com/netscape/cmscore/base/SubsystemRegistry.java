@@ -17,11 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.base;
 
-
 import java.util.Hashtable;
 
 import com.netscape.certsrv.base.ISubsystem;
-
 
 public class SubsystemRegistry extends Hashtable {
     /**

@@ -17,16 +17,13 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmsutil.http;
 
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 
-
 /**
- * Basic HTTP Response.
- * Set fields or parse from input.
- * Handles only text content.
+ * Basic HTTP Response. Set fields or parse from input. Handles only text
+ * content.
  */
 public class HttpResponse extends HttpMessage {
     protected String mStatusCode = null;
@@ -71,12 +68,11 @@ public class HttpResponse extends HttpMessage {
     /**
      * write the response out to the http client
      */
-    public void write(OutputStreamWriter writer)
-        throws IOException {
+    public void write(OutputStreamWriter writer) throws IOException {
         if (mStatusCode == null) {
             throw new HttpProtocolException("status code not set in response");
         }
-        // write status-line 
+        // write status-line
         mLine = Http.HttpVers + " " + mStatusCode + " ";
         if (mReasonPhrase != null)
             mLine += mReasonPhrase;
@@ -87,8 +83,7 @@ public class HttpResponse extends HttpMessage {
     /**
      * parse a http response from a http server
      */
-    public void parse(BufferedReader reader)
-        throws IOException {
+    public void parse(BufferedReader reader) throws IOException {
         mHttpVers = null;
         mStatusCode = null;
         mReasonPhrase = null;
@@ -102,8 +97,7 @@ public class HttpResponse extends HttpMessage {
             throw new HttpProtocolException("no Http version in response");
         }
         mHttpVers = mLine.substring(0, httpvers);
-        if (!mHttpVers.equals(Http.Vers1_0) && 
-            !mHttpVers.equals(Http.Vers1_1)) {
+        if (!mHttpVers.equals(Http.Vers1_0) && !mHttpVers.equals(Http.Vers1_1)) {
             reset();
             throw new HttpProtocolException("Bad Http version in response");
         }

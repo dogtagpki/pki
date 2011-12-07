@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.output;
 
-
 import java.io.ByteArrayOutputStream;
 import java.security.cert.X509Certificate;
 import java.util.Locale;
@@ -45,14 +44,13 @@ import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.common.EnrollProfile;
 
-
 /**
- * This class implements the output plugin that outputs
- * CMMF response for the issued certificate.
- *
+ * This class implements the output plugin that outputs CMMF response for the
+ * issued certificate.
+ * 
  * @version $Revision$, $Date$
  */
-public class CMMFOutput extends EnrollOutput implements IProfileOutput { 
+public class CMMFOutput extends EnrollOutput implements IProfileOutput {
 
     public static final String VAL_PRETTY_CERT = "pretty_cert";
     public static final String VAL_CMMF_RESPONSE = "cmmf_response";
@@ -66,7 +64,7 @@ public class CMMFOutput extends EnrollOutput implements IProfileOutput {
      * Initializes this default policy.
      */
     public void init(IProfile profile, IConfigStore config)
-        throws EProfileException {
+            throws EProfileException {
         super.init(profile, config);
     }
 
@@ -88,72 +86,66 @@ public class CMMFOutput extends EnrollOutput implements IProfileOutput {
      * Populates the request with this policy default.
      */
     public void populate(IProfileContext ctx, IRequest request)
-        throws EProfileException {
+            throws EProfileException {
     }
 
     /**
-     * Retrieves the descriptor of the given value
-     * parameter by name.
+     * Retrieves the descriptor of the given value parameter by name.
      */
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         if (name.equals(VAL_PRETTY_CERT)) {
-            return new Descriptor(IDescriptor.PRETTY_PRINT, null,
-                    null,
-                    CMS.getUserMessage(locale, 
-                        "CMS_PROFILE_OUTPUT_CERT_PP"));
+            return new Descriptor(IDescriptor.PRETTY_PRINT, null, null,
+                    CMS.getUserMessage(locale, "CMS_PROFILE_OUTPUT_CERT_PP"));
         } else if (name.equals(VAL_CMMF_RESPONSE)) {
-            return new Descriptor(IDescriptor.PRETTY_PRINT, null,
-                    null,
-                    CMS.getUserMessage(locale, 
-                        "CMS_PROFILE_OUTPUT_CMMF_B64"));
+            return new Descriptor(IDescriptor.PRETTY_PRINT, null, null,
+                    CMS.getUserMessage(locale, "CMS_PROFILE_OUTPUT_CMMF_B64"));
         }
         return null;
     }
 
     public String getValue(String name, Locale locale, IRequest request)
-        throws EProfileException {
+            throws EProfileException {
         if (name.equals(VAL_PRETTY_CERT)) {
-            X509CertImpl cert = request.getExtDataInCert(
-                    EnrollProfile.REQUEST_ISSUED_CERT);
-            ICertPrettyPrint prettyCert = CMS.getCertPrettyPrint(cert); 
+            X509CertImpl cert = request
+                    .getExtDataInCert(EnrollProfile.REQUEST_ISSUED_CERT);
+            ICertPrettyPrint prettyCert = CMS.getCertPrettyPrint(cert);
 
             return prettyCert.toString(locale);
         } else if (name.equals(VAL_CMMF_RESPONSE)) {
             try {
-              X509CertImpl cert = request.getExtDataInCert(
-                    EnrollProfile.REQUEST_ISSUED_CERT);
-              if (cert == null)
-                  return null;
-            
-              ICertificateAuthority ca = (ICertificateAuthority)
-                   CMS.getSubsystem("ca");
-              CertificateChain cachain = ca.getCACertChain(); 
-              X509Certificate[] cacerts = cachain.getChain();
+                X509CertImpl cert = request
+                        .getExtDataInCert(EnrollProfile.REQUEST_ISSUED_CERT);
+                if (cert == null)
+                    return null;
 
-              byte[][] caPubs = new byte[cacerts.length][];
+                ICertificateAuthority ca = (ICertificateAuthority) CMS
+                        .getSubsystem("ca");
+                CertificateChain cachain = ca.getCACertChain();
+                X509Certificate[] cacerts = cachain.getChain();
 
-              for (int j = 0; j < cacerts.length; j++)  {
-                caPubs[j] = ((X509CertImpl) cacerts[j]).getEncoded();
-              }   
+                byte[][] caPubs = new byte[cacerts.length][];
 
-              CertRepContent certRepContent = null;
-              certRepContent = new CertRepContent(caPubs);
+                for (int j = 0; j < cacerts.length; j++) {
+                    caPubs[j] = ((X509CertImpl) cacerts[j]).getEncoded();
+                }
 
-              PKIStatusInfo status = new PKIStatusInfo(PKIStatusInfo.granted); 
-              CertifiedKeyPair certifiedKP = 
-                new CertifiedKeyPair(new CertOrEncCert(cert.getEncoded())); 
-              CertResponse resp = 
-                new CertResponse(new INTEGER(request.getRequestId().toString()), 
-                 status, certifiedKP);
-              certRepContent.addCertResponse(resp);
+                CertRepContent certRepContent = null;
+                certRepContent = new CertRepContent(caPubs);
 
-              ByteArrayOutputStream certRepOut = new ByteArrayOutputStream(); 
-              certRepContent.encode(certRepOut); 
-              byte[] certRepBytes = certRepOut.toByteArray();
+                PKIStatusInfo status = new PKIStatusInfo(PKIStatusInfo.granted);
+                CertifiedKeyPair certifiedKP = new CertifiedKeyPair(
+                        new CertOrEncCert(cert.getEncoded()));
+                CertResponse resp = new CertResponse(new INTEGER(request
+                        .getRequestId().toString()), status, certifiedKP);
+                certRepContent.addCertResponse(resp);
 
-              return CMS.BtoA(certRepBytes); 
+                ByteArrayOutputStream certRepOut = new ByteArrayOutputStream();
+                certRepContent.encode(certRepOut);
+                byte[] certRepBytes = certRepOut.toByteArray();
+
+                return CMS.BtoA(certRepBytes);
             } catch (Exception e) {
-               return null;
+                return null;
             }
         } else {
             return null;

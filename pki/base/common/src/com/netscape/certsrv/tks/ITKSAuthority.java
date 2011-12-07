@@ -17,16 +17,14 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.tks;
 
-
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.request.IRequestQueue;
 
-
 /**
- * An interface represents a Registration Authority that is
- * responsible for certificate enrollment operations.
+ * An interface represents a Registration Authority that is responsible for
+ * certificate enrollment operations.
  * <P>
- *
+ * 
  * @version $Revision$, $Date$
  */
 public interface ITKSAuthority extends ISubsystem {
@@ -36,23 +34,21 @@ public interface ITKSAuthority extends ISubsystem {
     public static final String PROP_REGISTRATION = "Registration";
     public static final String PROP_GATEWAY = "gateway";
     public static final String PROP_NICKNAME = "certNickname";
-    //public final static String PROP_PUBLISH_SUBSTORE = "publish";
-    //public final static String PROP_LDAP_PUBLISH_SUBSTORE = "ldappublish";
+    // public final static String PROP_PUBLISH_SUBSTORE = "publish";
+    // public final static String PROP_LDAP_PUBLISH_SUBSTORE = "ldappublish";
     public final static String PROP_CONNECTOR = "connector";
     public final static String PROP_NEW_NICKNAME = "newNickname";
 
-
-
     /**
      * Retrieves the request queue of this registration authority.
-     *
+     * 
      * @return RA's request queue
      */
     public IRequestQueue getRequestQueue();
 
     /**
      * Returns the nickname of the RA certificate.
-     *
+     * 
      * @return the nickname of the RA certificate
      */
     public String getNickname();

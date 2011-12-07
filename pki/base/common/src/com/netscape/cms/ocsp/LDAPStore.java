@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.ocsp;
 
-
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.cert.X509CRL;
@@ -71,11 +70,10 @@ import com.netscape.cmsutil.ocsp.SingleResponse;
 import com.netscape.cmsutil.ocsp.TBSRequest;
 import com.netscape.cmsutil.ocsp.UnknownInfo;
 
-
 /**
- * This is the LDAP OCSP store. It reads CA certificate and
- * revocation list attributes from the CA entry.
- *
+ * This is the LDAP OCSP store. It reads CA certificate and revocation list
+ * attributes from the CA entry.
+ * 
  * @version $Revision$, $Date$
  */
 public class LDAPStore implements IDefStore, IExtendedPluginInfo {
@@ -93,8 +91,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
     private static final String PROP_PORT = "port";
 
     private final static String PROP_NOT_FOUND_GOOD = "notFoundAsGood";
-    private final static String PROP_INCLUDE_NEXT_UPDATE = 
-        "includeNextUpdate";
+    private final static String PROP_INCLUDE_NEXT_UPDATE = "includeNextUpdate";
 
     private IOCSPAuthority mOCSPAuthority = null;
     private IConfigStore mConfig = null;
@@ -111,44 +108,59 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
     public LDAPStore() {
     }
 
-    public String[] getExtendedPluginInfo(Locale locale) { 
-        Vector v = new Vector(); 
+    public String[] getExtendedPluginInfo(Locale locale) {
+        Vector v = new Vector();
 
-        v.addElement(PROP_NOT_FOUND_GOOD + ";boolean; " + CMS.getUserMessage(locale, "CMS_OCSP_LDAPSTORE_PROP_NOT_FOUND_GOOD"));
-        v.addElement(PROP_INCLUDE_NEXT_UPDATE + ";boolean; " + CMS.getUserMessage(locale, "CMS_OCSP_LDAPSTORE_PROP_INCLUDE_NEXT_UPDATE"));
-        v.addElement(PROP_NUM_CONNS + ";number; " + CMS.getUserMessage(locale, "CMS_OCSP_LDAPSTORE_PROP_NUM_CONNS"));
-        v.addElement(PROP_BY_NAME + ";boolean; " + CMS.getUserMessage(locale, "CMS_OCSP_LDAPSTORE_PROP_BY_NAME"));
-        v.addElement(PROP_CRL_ATTR + ";string; " + CMS.getUserMessage(locale, "CMS_OCSP_LDAPSTORE_PROP_CRL_ATTR"));
-        v.addElement(PROP_CA_CERT_ATTR + ";string; " + CMS.getUserMessage(locale, "CMS_OCSP_LDAPSTORE_PROP_CA_CERT_ATTR"));
-        v.addElement(IExtendedPluginInfo.HELP_TEXT + "; " + CMS.getUserMessage(locale, "CMS_OCSP_LDAPSTORE_DESC"));
-        v.addElement(IExtendedPluginInfo.HELP_TOKEN + ";configuration-ocspstores-ldapstore"); 
-        return com.netscape.cmsutil.util.Utils.getStringArrayFromVector(v); 
+        v.addElement(PROP_NOT_FOUND_GOOD
+                + ";boolean; "
+                + CMS.getUserMessage(locale,
+                        "CMS_OCSP_LDAPSTORE_PROP_NOT_FOUND_GOOD"));
+        v.addElement(PROP_INCLUDE_NEXT_UPDATE
+                + ";boolean; "
+                + CMS.getUserMessage(locale,
+                        "CMS_OCSP_LDAPSTORE_PROP_INCLUDE_NEXT_UPDATE"));
+        v.addElement(PROP_NUM_CONNS
+                + ";number; "
+                + CMS.getUserMessage(locale,
+                        "CMS_OCSP_LDAPSTORE_PROP_NUM_CONNS"));
+        v.addElement(PROP_BY_NAME + ";boolean; "
+                + CMS.getUserMessage(locale, "CMS_OCSP_LDAPSTORE_PROP_BY_NAME"));
+        v.addElement(PROP_CRL_ATTR
+                + ";string; "
+                + CMS.getUserMessage(locale, "CMS_OCSP_LDAPSTORE_PROP_CRL_ATTR"));
+        v.addElement(PROP_CA_CERT_ATTR
+                + ";string; "
+                + CMS.getUserMessage(locale,
+                        "CMS_OCSP_LDAPSTORE_PROP_CA_CERT_ATTR"));
+        v.addElement(IExtendedPluginInfo.HELP_TEXT + "; "
+                + CMS.getUserMessage(locale, "CMS_OCSP_LDAPSTORE_DESC"));
+        v.addElement(IExtendedPluginInfo.HELP_TOKEN
+                + ";configuration-ocspstores-ldapstore");
+        return com.netscape.cmsutil.util.Utils.getStringArrayFromVector(v);
     }
 
     /**
      * Fetch CA certificate and CRL from LDAP server.
      */
-    public void init(ISubsystem owner, IConfigStore config) 	
-        throws EBaseException {
+    public void init(ISubsystem owner, IConfigStore config)
+            throws EBaseException {
         mOCSPAuthority = (IOCSPAuthority) owner;
         mConfig = config;
 
         mCRLAttr = mConfig.getString(PROP_CRL_ATTR, DEF_CRL_ATTR);
-        mCACertAttr = mConfig.getString(PROP_CA_CERT_ATTR, 
-                    DEF_CA_CERT_ATTR);
+        mCACertAttr = mConfig.getString(PROP_CA_CERT_ATTR, DEF_CA_CERT_ATTR);
         mByName = mConfig.getBoolean(PROP_BY_NAME, true);
-		
+
     }
 
     /**
      * Locates the CA certificate.
      */
-    public X509CertImpl locateCACert(LDAPConnection conn, String baseDN) 
-        throws EBaseException {
+    public X509CertImpl locateCACert(LDAPConnection conn, String baseDN)
+            throws EBaseException {
         try {
-            LDAPSearchResults results = conn.search(baseDN, 
-                    LDAPv2.SCOPE_SUB, mCACertAttr + "=*", 
-                    null, false);
+            LDAPSearchResults results = conn.search(baseDN, LDAPv2.SCOPE_SUB,
+                    mCACertAttr + "=*", null, false);
 
             if (!results.hasMoreElements()) {
                 throw new EBaseException("error - no entry");
@@ -166,8 +178,8 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
             return caCert;
         } catch (Exception e) {
             CMS.debug("LDAPStore: locateCACert " + e.toString());
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("OCSP_LOCATE_CA", e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("OCSP_LOCATE_CA", e.toString()));
         }
         return null;
     }
@@ -175,12 +187,11 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
     /**
      * Locates the CRL.
      */
-    public X509CRLImpl locateCRL(LDAPConnection conn, String baseDN) 
-        throws EBaseException {
+    public X509CRLImpl locateCRL(LDAPConnection conn, String baseDN)
+            throws EBaseException {
         try {
-            LDAPSearchResults results = conn.search(baseDN, 
-                    LDAPv2.SCOPE_SUB, mCRLAttr + "=*", 
-                    null, false);
+            LDAPSearchResults results = conn.search(baseDN, LDAPv2.SCOPE_SUB,
+                    mCRLAttr + "=*", null, false);
 
             if (!results.hasMoreElements()) {
                 throw new EBaseException("error - no entry");
@@ -198,25 +209,26 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
             return crl;
         } catch (Exception e) {
             CMS.debug("LDAPStore: locateCRL " + e.toString());
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("OCSP_LOCATE_CRL", e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("OCSP_LOCATE_CRL", e.toString()));
         }
         return null;
     }
 
-    public void updateCRLHash(X509CertImpl caCert, X509CRLImpl crl) 
-        throws EBaseException {
+    public void updateCRLHash(X509CertImpl caCert, X509CRLImpl crl)
+            throws EBaseException {
         X509CRLImpl oldCRL = (X509CRLImpl) mCRLs.get(caCert);
 
         if (oldCRL != null) {
-            if (oldCRL.getThisUpdate().getTime() >= 
-                crl.getThisUpdate().getTime()) {
-                log(ILogger.LL_INFO, 
-                    "LDAPStore: no update, received CRL is older than current CRL");
+            if (oldCRL.getThisUpdate().getTime() >= crl.getThisUpdate()
+                    .getTime()) {
+                log(ILogger.LL_INFO,
+                        "LDAPStore: no update, received CRL is older than current CRL");
                 return; // no update
             }
         }
-        CMS.debug("Added '" + caCert.getSubjectDN().toString() + "' into CRL hash");
+        CMS.debug("Added '" + caCert.getSubjectDN().toString()
+                + "' into CRL hash");
         mCRLs.put(caCert, crl);
     }
 
@@ -228,7 +240,8 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
         int num = mConfig.getInteger(PROP_NUM_CONNS, 0);
 
         for (int i = 0; i < num; i++) {
-            String host = mConfig.getString(PROP_HOST + Integer.toString(i), null);
+            String host = mConfig.getString(PROP_HOST + Integer.toString(i),
+                    null);
             int port = mConfig.getInteger(PROP_PORT + Integer.toString(i), 0);
             LDAPConnection c = new LDAPConnection();
 
@@ -237,11 +250,12 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
             } catch (LDAPException e) {
                 throw new EBaseException("LDAP " + e);
             }
-            String baseDN = mConfig.getString(PROP_BASE_DN + Integer.toString(i), null);
-            CRLUpdater updater = new CRLUpdater(
-                    this, c, baseDN,
-                    mConfig.getInteger(PROP_REFRESH_IN_SEC + Integer.toString(i), 
-                        DEF_REFRESH_IN_SEC));
+            String baseDN = mConfig.getString(
+                    PROP_BASE_DN + Integer.toString(i), null);
+            CRLUpdater updater = new CRLUpdater(this, c, baseDN,
+                    mConfig.getInteger(
+                            PROP_REFRESH_IN_SEC + Integer.toString(i),
+                            DEF_REFRESH_IN_SEC));
 
             updater.start();
         }
@@ -265,10 +279,9 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
     /**
      * Validate an OCSP request.
      */
-    public OCSPResponse validate(OCSPRequest request) 
-        throws EBaseException {	
+    public OCSPResponse validate(OCSPRequest request) throws EBaseException {
 
-        IStatsSubsystem statsSub = (IStatsSubsystem)CMS.getSubsystem("stats");
+        IStatsSubsystem statsSub = (IStatsSubsystem) CMS.getSubsystem("stats");
 
         mOCSPAuthority.incNumOCSPRequest(1);
         long startTime = CMS.getCurrentDate().getTime();
@@ -279,13 +292,12 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
             Vector singleResponses = new Vector();
 
             if (statsSub != null) {
-              statsSub.startTiming("lookup");
+                statsSub.startTiming("lookup");
             }
 
             long lookupStartTime = CMS.getCurrentDate().getTime();
             for (int i = 0; i < tbsReq.getRequestCount(); i++) {
-                com.netscape.cmsutil.ocsp.Request req = 
-                    tbsReq.getRequestAt(i);
+                com.netscape.cmsutil.ocsp.Request req = tbsReq.getRequestAt(i);
                 CertID cid = req.getCertID();
                 SingleResponse sr = processRequest(cid);
 
@@ -293,12 +305,12 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
             }
             long lookupEndTime = CMS.getCurrentDate().getTime();
             if (statsSub != null) {
-              statsSub.endTiming("lookup");
+                statsSub.endTiming("lookup");
             }
             mOCSPAuthority.incLookupTime(lookupEndTime - lookupStartTime);
 
             if (statsSub != null) {
-              statsSub.startTiming("build_response");
+                statsSub.startTiming("build_response");
             }
             SingleResponse res[] = new SingleResponse[singleResponses.size()];
 
@@ -323,14 +335,14 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
                 }
             }
 
-            ResponseData rd = new ResponseData(rid, 
-                    new GeneralizedTime(CMS.getCurrentDate()), res, nonce);
+            ResponseData rd = new ResponseData(rid, new GeneralizedTime(
+                    CMS.getCurrentDate()), res, nonce);
             if (statsSub != null) {
-              statsSub.endTiming("build_response");
+                statsSub.endTiming("build_response");
             }
 
             if (statsSub != null) {
-              statsSub.startTiming("signing");
+                statsSub.startTiming("signing");
             }
 
             long signStartTime = CMS.getCurrentDate().getTime();
@@ -338,13 +350,13 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
             long signEndTime = CMS.getCurrentDate().getTime();
             mOCSPAuthority.incSignTime(signEndTime - signStartTime);
             if (statsSub != null) {
-              statsSub.endTiming("signing");
+                statsSub.endTiming("signing");
             }
 
             OCSPResponse response = new OCSPResponse(
-                    OCSPResponseStatus.SUCCESSFUL, 
-                    new ResponseBytes(ResponseBytes.OCSP_BASIC, 
-                        new OCTET_STRING(ASN1Util.encode(basicRes))));
+                    OCSPResponseStatus.SUCCESSFUL, new ResponseBytes(
+                            ResponseBytes.OCSP_BASIC, new OCTET_STRING(
+                                    ASN1Util.encode(basicRes))));
 
             log(ILogger.LL_INFO, "done OCSP request");
             long endTime = CMS.getCurrentDate().getTime();
@@ -352,7 +364,8 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
             return response;
         } catch (Exception e) {
             CMS.debug("LDAPStore: validation " + e.toString());
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("OCSP_REQUEST_FAILURE", e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("OCSP_REQUEST_FAILURE", e.toString()));
             return null;
         }
     }
@@ -375,8 +388,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
     }
 
     public void addRepository(String name, String thisUpdate,
-        IRepositoryRecord rec)
-        throws EBaseException {
+            IRepositoryRecord rec) throws EBaseException {
         throw new EBaseException("NOT SUPPORTED");
     }
 
@@ -389,12 +401,12 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
     }
 
     public ICRLIssuingPointRecord readCRLIssuingPoint(String name)
-        throws EBaseException {
+            throws EBaseException {
         throw new EBaseException("NOT SUPPORTED");
     }
 
     public Enumeration searchAllCRLIssuingPointRecord(int maxSize)
-        throws EBaseException {
+            throws EBaseException {
         Vector recs = new Vector();
         Enumeration keys = mCRLs.keys();
 
@@ -407,26 +419,23 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
         return recs.elements();
     }
 
-    public Enumeration searchCRLIssuingPointRecord(String filter,
-        int maxSize)
-        throws EBaseException {
+    public Enumeration searchCRLIssuingPointRecord(String filter, int maxSize)
+            throws EBaseException {
         return null;
     }
 
-    public ICRLIssuingPointRecord createCRLIssuingPointRecord(
-        String name, BigInteger crlNumber,
-        Long crlSize, Date thisUpdate, Date nextUpdate) {
+    public ICRLIssuingPointRecord createCRLIssuingPointRecord(String name,
+            BigInteger crlNumber, Long crlSize, Date thisUpdate, Date nextUpdate) {
         return null;
     }
 
     public void addCRLIssuingPoint(String name, ICRLIssuingPointRecord rec)
-        throws EBaseException {
+            throws EBaseException {
         throw new EBaseException("NOT SUPPORTED");
     }
 
-    public void deleteCRLIssuingPointRecord(String id)
-       throws EBaseException  {
-       throw new EBaseException("NOT SUPPORTED");
+    public void deleteCRLIssuingPointRecord(String id) throws EBaseException {
+        throw new EBaseException("NOT SUPPORTED");
     }
 
     public boolean isNotFoundGood() {
@@ -439,7 +448,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
 
     public boolean includeNextUpdate() throws EBaseException {
         return mConfig.getBoolean(PROP_INCLUDE_NEXT_UPDATE, false);
-    } 
+    }
 
     public boolean isNotFoundGood1() throws EBaseException {
         return mConfig.getBoolean(PROP_NOT_FOUND_GOOD, true);
@@ -464,13 +473,13 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
             MessageDigest md = null;
 
             try {
-                md = MessageDigest.getInstance(
-                            mOCSPAuthority.getDigestName(cid.getHashAlgorithm()));
+                md = MessageDigest.getInstance(mOCSPAuthority.getDigestName(cid
+                        .getHashAlgorithm()));
             } catch (Exception e) {
             }
             X509Key key = (X509Key) caCert.getPublicKey();
 
-            if( key == null ) {
+            if (key == null) {
                 System.out.println("LDAPStore::processRequest - key is null!");
                 return null;
             }
@@ -494,77 +503,70 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
             return null;
         }
 
-        GeneralizedTime thisUpdate = new GeneralizedTime(
-                theCRL.getThisUpdate());
+        GeneralizedTime thisUpdate = new GeneralizedTime(theCRL.getThisUpdate());
         GeneralizedTime nextUpdate = null;
 
         if (includeNextUpdate()) {
-            nextUpdate = new GeneralizedTime(
-                        theCRL.getNextUpdate());
+            nextUpdate = new GeneralizedTime(theCRL.getNextUpdate());
         }
 
         CertStatus certStatus = null;
-        X509CRLEntry entry = theCRL.getRevokedCertificate(
-                cid.getSerialNumber());
+        X509CRLEntry entry = theCRL
+                .getRevokedCertificate(cid.getSerialNumber());
 
         if (entry == null) {
-            if (isNotFoundGood1()) { 
-                certStatus = new GoodInfo(); 
-            } else { 
-                certStatus = new UnknownInfo(); 
+            if (isNotFoundGood1()) {
+                certStatus = new GoodInfo();
+            } else {
+                certStatus = new UnknownInfo();
             }
         } else {
             certStatus = new RevokedInfo(new GeneralizedTime(
-                            entry.getRevocationDate()));
+                    entry.getRevocationDate()));
         }
-		
+
         return new SingleResponse(cid, certStatus, thisUpdate, nextUpdate);
     }
 
     /**
      * Provides configuration parameters.
      */
-    public NameValuePairs getConfigParameters() { 
+    public NameValuePairs getConfigParameters() {
         try {
-            NameValuePairs params = new NameValuePairs(); 
+            NameValuePairs params = new NameValuePairs();
 
-            params.add(Constants.PR_OCSPSTORE_IMPL_NAME, 
-                mConfig.getString("class"));
+            params.add(Constants.PR_OCSPSTORE_IMPL_NAME,
+                    mConfig.getString("class"));
             int num = mConfig.getInteger(PROP_NUM_CONNS, 0);
 
             params.add(PROP_NUM_CONNS, Integer.toString(num));
             for (int i = 0; i < num; i++) {
-                params.add(PROP_HOST + Integer.toString(i), 
-                    mConfig.getString(PROP_HOST + 
-                        Integer.toString(i), ""));
-                params.add(PROP_PORT + Integer.toString(i), 
-                    mConfig.getString(PROP_PORT + 
-                        Integer.toString(i), "389"));
-                params.add(PROP_BASE_DN + Integer.toString(i), 
-                    mConfig.getString(PROP_BASE_DN + 
-                        Integer.toString(i), ""));
-                params.add(PROP_REFRESH_IN_SEC + Integer.toString(i), 
-                    mConfig.getString(PROP_REFRESH_IN_SEC + 
-                        Integer.toString(i), Integer.toString(DEF_REFRESH_IN_SEC)));
+                params.add(PROP_HOST + Integer.toString(i),
+                        mConfig.getString(PROP_HOST + Integer.toString(i), ""));
+                params.add(PROP_PORT + Integer.toString(i), mConfig.getString(
+                        PROP_PORT + Integer.toString(i), "389"));
+                params.add(PROP_BASE_DN + Integer.toString(i), mConfig
+                        .getString(PROP_BASE_DN + Integer.toString(i), ""));
+                params.add(PROP_REFRESH_IN_SEC + Integer.toString(i), mConfig
+                        .getString(PROP_REFRESH_IN_SEC + Integer.toString(i),
+                                Integer.toString(DEF_REFRESH_IN_SEC)));
             }
-            params.add(PROP_BY_NAME, 
-                mConfig.getString(PROP_BY_NAME, "true"));
-            params.add(PROP_CA_CERT_ATTR, 
-                mConfig.getString(PROP_CA_CERT_ATTR, DEF_CA_CERT_ATTR));
+            params.add(PROP_BY_NAME, mConfig.getString(PROP_BY_NAME, "true"));
+            params.add(PROP_CA_CERT_ATTR,
+                    mConfig.getString(PROP_CA_CERT_ATTR, DEF_CA_CERT_ATTR));
             params.add(PROP_CRL_ATTR,
-                mConfig.getString(PROP_CRL_ATTR, DEF_CRL_ATTR));
+                    mConfig.getString(PROP_CRL_ATTR, DEF_CRL_ATTR));
             params.add(PROP_NOT_FOUND_GOOD,
-                mConfig.getString(PROP_NOT_FOUND_GOOD, "true"));
+                    mConfig.getString(PROP_NOT_FOUND_GOOD, "true"));
             params.add(PROP_INCLUDE_NEXT_UPDATE,
-                mConfig.getString(PROP_INCLUDE_NEXT_UPDATE, "false"));
+                    mConfig.getString(PROP_INCLUDE_NEXT_UPDATE, "false"));
             return params;
         } catch (Exception e) {
             return null;
         }
     }
 
-    public void setConfigParameters(NameValuePairs pairs)
-        throws EBaseException {
+    public void setConfigParameters(NameValuePairs pairs) throws EBaseException {
         Enumeration k = pairs.getNames();
 
         while (k.hasMoreElements()) {
@@ -575,15 +577,13 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
     }
 }
 
-
 class CRLUpdater extends Thread {
     private LDAPConnection mC = null;
     private String mBaseDN = null;
     private int mSec = 0;
     private LDAPStore mStore = null;
 
-    public CRLUpdater(LDAPStore store, LDAPConnection c, 
-        String baseDN, int sec) {
+    public CRLUpdater(LDAPStore store, LDAPConnection c, String baseDN, int sec) {
         mC = c;
         mSec = sec;
         mBaseDN = baseDN;
@@ -607,7 +607,6 @@ class CRLUpdater extends Thread {
         }
     }
 }
-
 
 class TempCRLIssuingPointRecord implements ICRLIssuingPointRecord {
     /**
@@ -739,7 +738,7 @@ class TempCRLIssuingPointRecord implements ICRLIssuingPointRecord {
         return null;
     }
 
-    public void set(String name, Object obj)throws EBaseException {
+    public void set(String name, Object obj) throws EBaseException {
     }
 
     public Object get(String name) throws EBaseException {
@@ -747,7 +746,7 @@ class TempCRLIssuingPointRecord implements ICRLIssuingPointRecord {
     }
 
     public void delete(String name) throws EBaseException {
-	
+
     }
 
     public Enumeration getElements() {

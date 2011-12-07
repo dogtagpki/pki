@@ -24,15 +24,12 @@ import netscape.security.util.BigInt;
 import netscape.security.util.DerOutputStream;
 import netscape.security.util.DerValue;
 
-
 /**
  * Represent the NoticeReference.
- *
- * NoticeReference ::= SEQUENCE {
- *  organization DisplayText,
- *  noticeNumbers SEQUENCE OF INTEGER
- * }
- *
+ * 
+ * NoticeReference ::= SEQUENCE { organization DisplayText, noticeNumbers
+ * SEQUENCE OF INTEGER }
+ * 
  * @author Thomas Kwan
  */
 public class NoticeReference {
@@ -41,8 +38,8 @@ public class NoticeReference {
     private int mNumbers[] = null;
 
     public NoticeReference(DisplayText org, int numbers[]) {
-      mOrg = org;
-      mNumbers = numbers;
+        mOrg = org;
+        mNumbers = numbers;
     }
 
     public NoticeReference(DerValue val) throws IOException {
@@ -52,34 +49,34 @@ public class NoticeReference {
         mOrg = new DisplayText(val.data.getDerValue());
         DerValue integers = val.data.getDerValue();
         if (integers.tag != DerValue.tag_Sequence) {
-            throw new IOException("Invalid encoding for NoticeReference (integers)");
+            throw new IOException(
+                    "Invalid encoding for NoticeReference (integers)");
         }
-	Vector num = new Vector();
+        Vector num = new Vector();
         while (integers.data.available() != 0) {
-           DerValue i = integers.data.getDerValue();
-	   BigInt bigI = i.getInteger();
-           num.addElement(bigI);
-	}
-	if (num.size() <= 0)
-		return;
-	mNumbers = new int[num.size()];
-	for (int i = 0; i < num.size(); i++) {
-		mNumbers[i] = ((BigInt)num.elementAt(i)).toInt();
-	}
+            DerValue i = integers.data.getDerValue();
+            BigInt bigI = i.getInteger();
+            num.addElement(bigI);
+        }
+        if (num.size() <= 0)
+            return;
+        mNumbers = new int[num.size()];
+        for (int i = 0; i < num.size(); i++) {
+            mNumbers[i] = ((BigInt) num.elementAt(i)).toInt();
+        }
     }
 
-    public DisplayText getOrganization()
-    {
-      return mOrg;
+    public DisplayText getOrganization() {
+        return mOrg;
     }
 
     public int[] getNumbers() {
-      return mNumbers;
+        return mNumbers;
     }
 
     /**
      * Write the NoticeReference to the DerOutputStream.
-     *
+     * 
      * @param out the DerOutputStream to write the object to.
      * @exception IOException on errors.
      */
@@ -87,10 +84,10 @@ public class NoticeReference {
         DerOutputStream tmp = new DerOutputStream();
         mOrg.encode(tmp);
         DerOutputStream iseq = new DerOutputStream();
-	for (int i = 0; i < mNumbers.length; i++) {
-          iseq.putInteger(new BigInt(mNumbers[i]));
-	}
-        tmp.write(DerValue.tag_Sequence,iseq);
-        out.write(DerValue.tag_Sequence,tmp);
+        for (int i = 0; i < mNumbers.length; i++) {
+            iseq.putInteger(new BigInt(mNumbers[i]));
+        }
+        tmp.write(DerValue.tag_Sequence, iseq);
+        out.write(DerValue.tag_Sequence, tmp);
     }
 }

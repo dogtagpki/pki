@@ -26,6 +26,7 @@ import netscape.security.util.DerValue;
  * This class implements the ASN.1 GeneralName object class.
  * <p>
  * The ASN.1 syntax for this is:
+ * 
  * <pre>
  * GeneralName ::= CHOICE {
  *    otherName                       [0]     OtherName,
@@ -39,6 +40,7 @@ import netscape.security.util.DerValue;
  *    registeredID                    [8]     OBJECT IDENTIFIER
  * }
  * </pre>
+ * 
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  * @version 1.7
@@ -54,7 +56,7 @@ public class GeneralName implements GeneralNameInterface {
 
     /**
      * Default constructor for the class.
-     *
+     * 
      * @param name the selected CHOICE from the list.
      */
     public GeneralName(GeneralNameInterface name) {
@@ -63,90 +65,89 @@ public class GeneralName implements GeneralNameInterface {
 
     /**
      * Create the object from its DER encoded value.
-     *
+     * 
      * @param encName the DER encoded GeneralName.
      */
     public GeneralName(DerValue encName) throws IOException {
-        short tag = (byte)(encName.tag & 0x1f);
+        short tag = (byte) (encName.tag & 0x1f);
 
-        // NB. this is always encoded with the IMPLICIT tag 
-        // The checks only make sense if we assume implicit tagging, 
-        // with explicit tagging the form is always constructed. 
+        // NB. this is always encoded with the IMPLICIT tag
+        // The checks only make sense if we assume implicit tagging,
+        // with explicit tagging the form is always constructed.
         switch (tag) {
         case GeneralNameInterface.NAME_RFC822:
             if (encName.isContextSpecific() && !encName.isConstructed()) {
                 encName.resetTag(DerValue.tag_IA5String);
-	        name = new RFC822Name(encName);
+                name = new RFC822Name(encName);
             } else
-	        throw new IOException("Invalid encoding of RFC822 name");
-	    break;
+                throw new IOException("Invalid encoding of RFC822 name");
+            break;
 
         case GeneralNameInterface.NAME_DNS:
             if (encName.isContextSpecific() && !encName.isConstructed()) {
                 encName.resetTag(DerValue.tag_IA5String);
-	        name = new DNSName(encName);
+                name = new DNSName(encName);
             } else
-	        throw new IOException("Invalid encoding of DNS name");
-	    break;
+                throw new IOException("Invalid encoding of DNS name");
+            break;
 
         case GeneralNameInterface.NAME_URI:
             if (encName.isContextSpecific() && !encName.isConstructed()) {
                 encName.resetTag(DerValue.tag_IA5String);
-	        name = new URIName(encName);
+                name = new URIName(encName);
             } else
-	        throw new IOException("Invalid encoding of URI");
-	    break;
+                throw new IOException("Invalid encoding of URI");
+            break;
 
         case GeneralNameInterface.NAME_IP:
             if (encName.isContextSpecific() && !encName.isConstructed()) {
                 encName.resetTag(DerValue.tag_OctetString);
-	        name = new IPAddressName(encName);
+                name = new IPAddressName(encName);
             } else
-	        throw new IOException("Invalid encoding of IP address");
-	    break;
+                throw new IOException("Invalid encoding of IP address");
+            break;
 
-          case GeneralNameInterface.NAME_ANY:
-              if (encName.isContextSpecific() && encName.isConstructed()) {
-                  encName.resetTag(DerValue.tag_OctetString);
+        case GeneralNameInterface.NAME_ANY:
+            if (encName.isContextSpecific() && encName.isConstructed()) {
+                encName.resetTag(DerValue.tag_OctetString);
                 name = new OtherName(encName);
-              } else
+            } else
                 throw new IOException("Invalid encoding of other name");
             break;
 
         case GeneralNameInterface.NAME_OID:
             if (encName.isContextSpecific() && !encName.isConstructed()) {
                 encName.resetTag(DerValue.tag_ObjectId);
-	        name = new OIDName(encName);
+                name = new OIDName(encName);
             } else
-	        throw new IOException("Invalid encoding of OID name");
-	    break;
+                throw new IOException("Invalid encoding of OID name");
+            break;
 
         case GeneralNameInterface.NAME_DIRECTORY:
             if (encName.isContextSpecific() && encName.isConstructed()) {
                 // Unlike the other cases, DirectoryName is EXPLICITly
                 // tagged, because the X.500 Name type is a CHOICE.
                 // Therefore, the sequence is actually nested in the
-                // content of this value.  We'll pretend it's an octet
+                // content of this value. We'll pretend it's an octet
                 // string so we can get at the content bytes.
                 encName.resetTag(DerValue.tag_OctetString);
                 byte[] content = encName.getOctetString();
-                name = new X500Name( content );
+                name = new X500Name(content);
             } else
-	        throw new IOException("Invalid encoding of Directory name");
-	    break;
+                throw new IOException("Invalid encoding of Directory name");
+            break;
 
         case GeneralNameInterface.NAME_EDI:
             if (encName.isContextSpecific() && encName.isConstructed()) {
                 encName.resetTag(DerValue.tag_Sequence);
                 name = new EDIPartyName(encName);
             } else
-	        throw new IOException("Invalid encoding of EDI name");
-	    break;
+                throw new IOException("Invalid encoding of EDI name");
+            break;
 
         default:
-	    throw new IOException("Unrecognized GeneralName tag, ("
-                                  + tag +")");
-        }      
+            throw new IOException("Unrecognized GeneralName tag, (" + tag + ")");
+        }
     }
 
     /**
@@ -163,35 +164,35 @@ public class GeneralName implements GeneralNameInterface {
         return (name.toString());
     }
 
-   /**
-    * Encode the name to the specified DerOutputStream.
-    *
-    * @param out the DerOutputStream to encode the the GeneralName to.
-    * @exception IOException on encoding errors.
-    */
-   public void encode(DerOutputStream out) throws IOException {
-       DerOutputStream tmp = new DerOutputStream();
-       name.encode(tmp);
-       int nameType = name.getType();
-       boolean constructedForm;
+    /**
+     * Encode the name to the specified DerOutputStream.
+     * 
+     * @param out the DerOutputStream to encode the the GeneralName to.
+     * @exception IOException on encoding errors.
+     */
+    public void encode(DerOutputStream out) throws IOException {
+        DerOutputStream tmp = new DerOutputStream();
+        name.encode(tmp);
+        int nameType = name.getType();
+        boolean constructedForm;
 
-       if (nameType == GeneralNameInterface.NAME_ANY ||
-           nameType == GeneralNameInterface.NAME_X400 ||
-           nameType == GeneralNameInterface.NAME_DIRECTORY ||
-           nameType == GeneralNameInterface.NAME_EDI) {
-                constructedForm = true;
-       } else {
-                constructedForm = false;
-       }
+        if (nameType == GeneralNameInterface.NAME_ANY
+                || nameType == GeneralNameInterface.NAME_X400
+                || nameType == GeneralNameInterface.NAME_DIRECTORY
+                || nameType == GeneralNameInterface.NAME_EDI) {
+            constructedForm = true;
+        } else {
+            constructedForm = false;
+        }
 
-       if( nameType == GeneralNameInterface.NAME_DIRECTORY ) {
-           // EXPLICIT tag, because Name is a CHOICE type
-           out.write(DerValue.createTag(DerValue.TAG_CONTEXT,
-                             constructedForm, (byte)nameType), tmp);
-       } else {
-           // IMPLICIT tag, the default
-           out.writeImplicit(DerValue.createTag(DerValue.TAG_CONTEXT,
-                             constructedForm, (byte)nameType), tmp);
-       }
-   }
+        if (nameType == GeneralNameInterface.NAME_DIRECTORY) {
+            // EXPLICIT tag, because Name is a CHOICE type
+            out.write(DerValue.createTag(DerValue.TAG_CONTEXT, constructedForm,
+                    (byte) nameType), tmp);
+        } else {
+            // IMPLICIT tag, the default
+            out.writeImplicit(DerValue.createTag(DerValue.TAG_CONTEXT,
+                    constructedForm, (byte) nameType), tmp);
+        }
+    }
 }

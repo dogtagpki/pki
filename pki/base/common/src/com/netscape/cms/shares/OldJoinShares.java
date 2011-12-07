@@ -23,9 +23,9 @@ import java.lang.reflect.Method;
 import com.netscape.certsrv.kra.IJoinShares;
 
 /**
- * Use Java's reflection API to leverage CMS's
- * old Share and JoinShares implementations.
- *
+ * Use Java's reflection API to leverage CMS's old Share and JoinShares
+ * implementations.
+ * 
  * @deprecated
  * @version $Revision$ $Date$
  */
@@ -33,59 +33,54 @@ public class OldJoinShares implements IJoinShares {
 
     public Object mOldImpl = null;
 
-    public OldJoinShares()
-    {
+    public OldJoinShares() {
     }
 
-    public void initialize(int threshold) throws Exception
-    {
-      Class c = Class.forName("com.netscape.cmscore.shares.JoinShares");
-      Class types[] = { int.class };
-      Constructor con = c.getConstructor(types);
-      Object params[] = {Integer.valueOf(threshold)};
-      mOldImpl = con.newInstance(params);
+    public void initialize(int threshold) throws Exception {
+        Class c = Class.forName("com.netscape.cmscore.shares.JoinShares");
+        Class types[] = { int.class };
+        Constructor con = c.getConstructor(types);
+        Object params[] = { Integer.valueOf(threshold) };
+        mOldImpl = con.newInstance(params);
     }
 
-    public void addShare(int shareNum, byte[] share)
-    {
-      try {
-        Class types[] = { int.class, share.getClass() };
-        Class c = mOldImpl.getClass();
-        Method method = c.getMethod("addShare", types);
-        Object params[] = {Integer.valueOf(shareNum), share};
-        method.invoke(mOldImpl, params);
-      } catch (Exception e) {
-      }
+    public void addShare(int shareNum, byte[] share) {
+        try {
+            Class types[] = { int.class, share.getClass() };
+            Class c = mOldImpl.getClass();
+            Method method = c.getMethod("addShare", types);
+            Object params[] = { Integer.valueOf(shareNum), share };
+            method.invoke(mOldImpl, params);
+        } catch (Exception e) {
+        }
     }
 
-    public int getShareCount()
-    {
-      if (mOldImpl == null)
-        return -1;
-      try {
-        Class types[] = null;
-        Class c = mOldImpl.getClass();
-        Method method = c.getMethod("getShareCount", types);
-        Object params[] = null;
-        Integer result = (Integer)method.invoke(mOldImpl, params);
-        return result.intValue();
-      } catch (Exception e) {
-        return -1;
-      }
+    public int getShareCount() {
+        if (mOldImpl == null)
+            return -1;
+        try {
+            Class types[] = null;
+            Class c = mOldImpl.getClass();
+            Method method = c.getMethod("getShareCount", types);
+            Object params[] = null;
+            Integer result = (Integer) method.invoke(mOldImpl, params);
+            return result.intValue();
+        } catch (Exception e) {
+            return -1;
+        }
     }
 
-    public byte[] recoverSecret()
-    {
-      if (mOldImpl == null)
-        return null;
-      try {
-        Class types[] = null;
-        Class c = mOldImpl.getClass();
-        Method method = c.getMethod("recoverSecret", types);
-        Object params[] = null;
-        return (byte[])method.invoke(mOldImpl, params);
-      } catch (Exception e) {
-        return null;
-      }
+    public byte[] recoverSecret() {
+        if (mOldImpl == null)
+            return null;
+        try {
+            Class types[] = null;
+            Class c = mOldImpl.getClass();
+            Method method = c.getMethod("recoverSecret", types);
+            Object params[] = null;
+            return (byte[]) method.invoke(mOldImpl, params);
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

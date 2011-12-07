@@ -17,13 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.authorization;
 
-
-
-
 /**
  * This class represents a registered authorization manager plugin.
  * <P>
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class AuthzMgrPlugin {
@@ -34,6 +31,7 @@ public class AuthzMgrPlugin {
 
     /**
      * Constructs a AuthzManager plugin.
+     * 
      * @param id authz manager implementation name
      * @param classPath class path
      */
@@ -41,9 +39,10 @@ public class AuthzMgrPlugin {
         mId = id;
         mClassPath = classPath;
     }
-		
+
     /**
      * Returns an authorization manager implementation name
+     * 
      * @return an authorization manager implementation name
      */
     public String getId() {
@@ -52,6 +51,7 @@ public class AuthzMgrPlugin {
 
     /**
      * Returns a classpath of a AuthzManager plugin
+     * 
      * @return a classpath of a AuthzManager plugin
      */
     public String getClassPath() {
@@ -60,6 +60,7 @@ public class AuthzMgrPlugin {
 
     /**
      * Returns a visibility of the plugin
+     * 
      * @return a visibility of the plugin
      */
     public boolean isVisible() {
@@ -68,6 +69,7 @@ public class AuthzMgrPlugin {
 
     /**
      * Sets visibility of the plugin
+     * 
      * @param visibility visibility of the plugin
      */
     public void setVisible(boolean visibility) {

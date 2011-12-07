@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.def;
 
-
 import java.io.IOException;
 import java.util.Locale;
 
@@ -34,12 +33,10 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 
-
 /**
- * This class implements an enrollment default policy
- * that populates server-side configurable subject name
- * into the certificate template.
- *
+ * This class implements an enrollment default policy that populates server-side
+ * configurable subject name into the certificate template.
+ * 
  * @version $Revision$, $Date$
  */
 public class SubjectNameDefault extends EnrollDefault {
@@ -55,15 +52,14 @@ public class SubjectNameDefault extends EnrollDefault {
     }
 
     public void init(IProfile profile, IConfigStore config)
-        throws EProfileException {
+            throws EProfileException {
         super.init(profile, config);
     }
 
-    public IDescriptor getConfigDescriptor(Locale locale, String name) { 
-        if (name.equals(CONFIG_NAME)) { 
-            return new Descriptor(IDescriptor.STRING, 
-                    null, "CN=TEST", CMS.getUserMessage(locale,
-                        "CMS_PROFILE_SUBJECT_NAME"));
+    public IDescriptor getConfigDescriptor(Locale locale, String name) {
+        if (name.equals(CONFIG_NAME)) {
+            return new Descriptor(IDescriptor.STRING, null, "CN=TEST",
+                    CMS.getUserMessage(locale, "CMS_PROFILE_SUBJECT_NAME"));
         } else {
             return null;
         }
@@ -72,19 +68,17 @@ public class SubjectNameDefault extends EnrollDefault {
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         if (name.equals(VAL_NAME)) {
             return new Descriptor(IDescriptor.STRING, null, null,
-                    CMS.getUserMessage(locale, 
-                        "CMS_PROFILE_SUBJECT_NAME"));
+                    CMS.getUserMessage(locale, "CMS_PROFILE_SUBJECT_NAME"));
         } else {
             return null;
         }
     }
 
-    public void setValue(String name, Locale locale,
-        X509CertInfo info, String value)
-        throws EPropertyException {
+    public void setValue(String name, Locale locale, X509CertInfo info,
+            String value) throws EPropertyException {
         if (name == null) {
-            throw new EPropertyException(CMS.getUserMessage( 
-                        locale, "CMS_INVALID_PROPERTY", name));
+            throw new EPropertyException(CMS.getUserMessage(locale,
+                    "CMS_INVALID_PROPERTY", name));
         }
         if (name.equals(VAL_NAME)) {
             X500Name x500name = null;
@@ -92,59 +86,59 @@ public class SubjectNameDefault extends EnrollDefault {
             try {
                 x500name = new X500Name(value);
                 if (x500name != null) {
-                    CMS.debug("SubjectNameDefault: setValue x500name=" + x500name.toString());
+                    CMS.debug("SubjectNameDefault: setValue x500name="
+                            + x500name.toString());
                 }
             } catch (IOException e) {
                 CMS.debug("SubjectNameDefault: setValue " + e.toString());
                 // failed to build x500 name
             }
-            CMS.debug("SubjectNameDefault: setValue name=" + x500name.toString());
+            CMS.debug("SubjectNameDefault: setValue name="
+                    + x500name.toString());
             try {
-                info.set(X509CertInfo.SUBJECT, 
-                    new CertificateSubjectName(x500name));
+                info.set(X509CertInfo.SUBJECT, new CertificateSubjectName(
+                        x500name));
             } catch (Exception e) {
                 // failed to insert subject name
                 CMS.debug("SubjectNameDefault: setValue " + e.toString());
-                throw new EPropertyException(CMS.getUserMessage( 
-                            locale, "CMS_INVALID_PROPERTY", name));
+                throw new EPropertyException(CMS.getUserMessage(locale,
+                        "CMS_INVALID_PROPERTY", name));
             }
         } else {
-            throw new EPropertyException(CMS.getUserMessage( 
-                        locale, "CMS_INVALID_PROPERTY", name));
+            throw new EPropertyException(CMS.getUserMessage(locale,
+                    "CMS_INVALID_PROPERTY", name));
         }
     }
 
-    public String getValue(String name, Locale locale,
-        X509CertInfo info)
-        throws EPropertyException {
+    public String getValue(String name, Locale locale, X509CertInfo info)
+            throws EPropertyException {
         if (name == null) {
-            throw new EPropertyException(CMS.getUserMessage( 
-                        locale, "CMS_INVALID_PROPERTY", name));
+            throw new EPropertyException(CMS.getUserMessage(locale,
+                    "CMS_INVALID_PROPERTY", name));
         }
         if (name.equals(VAL_NAME)) {
             CertificateSubjectName sn = null;
 
             try {
                 CMS.debug("SubjectNameDefault: getValue info=" + info);
-                sn = (CertificateSubjectName)
-                        info.get(X509CertInfo.SUBJECT);
+                sn = (CertificateSubjectName) info.get(X509CertInfo.SUBJECT);
                 CMS.debug("SubjectNameDefault: getValue name=" + sn);
                 return sn.toString();
             } catch (Exception e) {
                 // nothing
                 CMS.debug("SubjectNameDefault: getValue " + e.toString());
-		
+
             }
-            throw new EPropertyException(CMS.getUserMessage( 
-                        locale, "CMS_INVALID_PROPERTY", name));
+            throw new EPropertyException(CMS.getUserMessage(locale,
+                    "CMS_INVALID_PROPERTY", name));
         } else {
-            throw new EPropertyException(CMS.getUserMessage( 
-                        locale, "CMS_INVALID_PROPERTY", name));
+            throw new EPropertyException(CMS.getUserMessage(locale,
+                    "CMS_INVALID_PROPERTY", name));
         }
     }
 
     public String getText(Locale locale) {
-        return CMS.getUserMessage(locale, "CMS_PROFILE_DEF_SUBJECT_NAME", 
+        return CMS.getUserMessage(locale, "CMS_PROFILE_DEF_SUBJECT_NAME",
                 getConfig(CONFIG_NAME));
     }
 
@@ -152,13 +146,13 @@ public class SubjectNameDefault extends EnrollDefault {
      * Populates the request with this policy default.
      */
     public void populate(IRequest request, X509CertInfo info)
-        throws EProfileException {
+            throws EProfileException {
         X500Name name = null;
 
         String subjectName = null;
 
         try {
-          subjectName = mapPattern(request, getConfig(CONFIG_NAME));
+            subjectName = mapPattern(request, getConfig(CONFIG_NAME));
         } catch (IOException e) {
             CMS.debug("SubjectNameDefault: mapPattern " + e.toString());
         }
@@ -176,8 +170,7 @@ public class SubjectNameDefault extends EnrollDefault {
             // failed to build x500 name
         }
         try {
-            info.set(X509CertInfo.SUBJECT, 
-                new CertificateSubjectName(name));
+            info.set(X509CertInfo.SUBJECT, new CertificateSubjectName(name));
         } catch (Exception e) {
             // failed to insert subject name
             CMS.debug("SubjectNameDefault: populate " + e.toString());

@@ -17,14 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.dbs;
 
-
 import java.util.ListResourceBundle;
-
 
 /**
  * A class represents a resource bundle for DBS subsystem.
  * <P>
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class DBResources extends ListResourceBundle {
@@ -38,4 +36,3 @@ public class DBResources extends ListResourceBundle {
 
     static final Object[][] contents = {};
 }
-

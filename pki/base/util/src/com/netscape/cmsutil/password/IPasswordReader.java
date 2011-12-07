@@ -16,11 +16,14 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmsutil.password;
+
 import java.io.IOException;
 import java.util.Enumeration;
 
 public interface IPasswordReader {
     public void init(String pwdPath) throws IOException;
+
     public String getPassword(String tag);
+
     public Enumeration getTags();
 }

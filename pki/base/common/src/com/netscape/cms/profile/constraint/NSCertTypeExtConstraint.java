@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.constraint;
 
-
 import java.util.Locale;
 
 import netscape.security.extensions.NSCertTypeExtension;
@@ -36,12 +35,11 @@ import com.netscape.cms.profile.def.NSCertTypeExtDefault;
 import com.netscape.cms.profile.def.NoDefault;
 import com.netscape.cms.profile.def.UserExtensionDefault;
 
-
 /**
- * This class implements the Netscape certificate type extension constraint.
- * It checks if the Netscape certificate type extension in the certificate
- * template satisfies the criteria.
- *
+ * This class implements the Netscape certificate type extension constraint. It
+ * checks if the Netscape certificate type extension in the certificate template
+ * satisfies the criteria.
+ * 
  * @version $Revision$, $Date$
  */
 public class NSCertTypeExtConstraint extends EnrollConstraint {
@@ -68,63 +66,51 @@ public class NSCertTypeExtConstraint extends EnrollConstraint {
     }
 
     public void init(IProfile profile, IConfigStore config)
-        throws EProfileException {
+            throws EProfileException {
         super.init(profile, config);
     }
 
-    public IDescriptor getConfigDescriptor(Locale locale, String name) { 
+    public IDescriptor getConfigDescriptor(Locale locale, String name) {
         if (name.equals(CONFIG_CRITICAL)) {
-            return new Descriptor(IDescriptor.CHOICE, "true,false,-",
-                    "-",
+            return new Descriptor(IDescriptor.CHOICE, "true,false,-", "-",
                     CMS.getUserMessage(locale, "CMS_PROFILE_CRITICAL"));
         } else if (name.equals(CONFIG_SSL_CLIENT)) {
-            return new Descriptor(IDescriptor.CHOICE, "true,false,-",
-                    "-",
+            return new Descriptor(IDescriptor.CHOICE, "true,false,-", "-",
                     CMS.getUserMessage(locale, "CMS_PROFILE_SSL_CLIENT"));
         } else if (name.equals(CONFIG_SSL_SERVER)) {
-            return new Descriptor(IDescriptor.CHOICE, "true,false,-",
-                    "-",
+            return new Descriptor(IDescriptor.CHOICE, "true,false,-", "-",
                     CMS.getUserMessage(locale, "CMS_PROFILE_SSL_SERVER"));
         } else if (name.equals(CONFIG_EMAIL)) {
-            return new Descriptor(IDescriptor.CHOICE, "true,false,-",
-                    "-",
+            return new Descriptor(IDescriptor.CHOICE, "true,false,-", "-",
                     CMS.getUserMessage(locale, "CMS_PROFILE_EMAIL"));
         } else if (name.equals(CONFIG_OBJECT_SIGNING)) {
-            return new Descriptor(IDescriptor.CHOICE, "true,false,-",
-                    "-",
+            return new Descriptor(IDescriptor.CHOICE, "true,false,-", "-",
                     CMS.getUserMessage(locale, "CMS_PROFILE_OBJECT_SIGNING"));
         } else if (name.equals(CONFIG_SSL_CA)) {
-            return new Descriptor(IDescriptor.CHOICE, "true,false,-",
-                    "-",
+            return new Descriptor(IDescriptor.CHOICE, "true,false,-", "-",
                     CMS.getUserMessage(locale, "CMS_PROFILE_SSL_CA"));
         } else if (name.equals(CONFIG_EMAIL_CA)) {
-            return new Descriptor(IDescriptor.CHOICE, "true,false,-",
-                    "-",
+            return new Descriptor(IDescriptor.CHOICE, "true,false,-", "-",
                     CMS.getUserMessage(locale, "CMS_PROFILE_EMAIL_CA"));
         } else if (name.equals(CONFIG_OBJECT_SIGNING_CA)) {
-            return new Descriptor(IDescriptor.CHOICE, "true,false,-",
-                    "-",
-                    CMS.getUserMessage(locale, 
-                        "CMS_PROFILE_OBJECT_SIGNING_CA"));
+            return new Descriptor(IDescriptor.CHOICE, "true,false,-", "-",
+                    CMS.getUserMessage(locale, "CMS_PROFILE_OBJECT_SIGNING_CA"));
         }
         return null;
     }
 
     /**
-     * Validates the request. The request is not modified
-     * during the validation.
+     * Validates the request. The request is not modified during the validation.
      */
     public void validate(IRequest request, X509CertInfo info)
-        throws ERejectException {
-        NSCertTypeExtension ext = (NSCertTypeExtension)
-            getExtension(NSCertTypeExtension.CertType_Id.toString(), info);
+            throws ERejectException {
+        NSCertTypeExtension ext = (NSCertTypeExtension) getExtension(
+                NSCertTypeExtension.CertType_Id.toString(), info);
 
         if (ext == null) {
-            throw new ERejectException(
-                    CMS.getUserMessage(
-                        getLocale(request),
-                        "CMS_PROFILE_EXTENSION_NOT_FOUND",
-                        NSCertTypeExtension.CertType_Id.toString()));
+            throw new ERejectException(CMS.getUserMessage(getLocale(request),
+                    "CMS_PROFILE_EXTENSION_NOT_FOUND",
+                    NSCertTypeExtension.CertType_Id.toString()));
         }
 
         String value = getConfig(CONFIG_CRITICAL);
@@ -132,10 +118,9 @@ public class NSCertTypeExtConstraint extends EnrollConstraint {
         if (!isOptional(value)) {
             boolean critical = getBoolean(value);
 
-            if (critical != ext.isCritical()) { 
-                throw new ERejectException( 
-                        CMS.getUserMessage(getLocale(request), 
-                            "CMS_PROFILE_CRITICAL_NOT_MATCHED"));
+            if (critical != ext.isCritical()) {
+                throw new ERejectException(CMS.getUserMessage(
+                        getLocale(request), "CMS_PROFILE_CRITICAL_NOT_MATCHED"));
             }
         }
         value = getConfig(CONFIG_SSL_CLIENT);
@@ -143,10 +128,9 @@ public class NSCertTypeExtConstraint extends EnrollConstraint {
             boolean bit = getBoolean(value);
 
             if (bit != ext.isSet(0)) {
-                throw new ERejectException( 
-                        CMS.getUserMessage(getLocale(request), 
-                            "CMS_PROFILE_SSL_CLIENT_NOT_MATCHED",
-                            value));
+                throw new ERejectException(CMS.getUserMessage(
+                        getLocale(request),
+                        "CMS_PROFILE_SSL_CLIENT_NOT_MATCHED", value));
             }
         }
         value = getConfig(CONFIG_SSL_SERVER);
@@ -154,10 +138,9 @@ public class NSCertTypeExtConstraint extends EnrollConstraint {
             boolean bit = getBoolean(value);
 
             if (bit != ext.isSet(1)) {
-                throw new ERejectException( 
-                        CMS.getUserMessage(getLocale(request), 
-                            "CMS_PROFILE_SSL_SERVER_NOT_MATCHED",
-                            value));
+                throw new ERejectException(CMS.getUserMessage(
+                        getLocale(request),
+                        "CMS_PROFILE_SSL_SERVER_NOT_MATCHED", value));
             }
         }
         value = getConfig(CONFIG_EMAIL);
@@ -165,10 +148,9 @@ public class NSCertTypeExtConstraint extends EnrollConstraint {
             boolean bit = getBoolean(value);
 
             if (bit != ext.isSet(2)) {
-                throw new ERejectException( 
-                        CMS.getUserMessage(getLocale(request), 
-                            "CMS_PROFILE_EMAIL_NOT_MATCHED",
-                            value));
+                throw new ERejectException(CMS.getUserMessage(
+                        getLocale(request), "CMS_PROFILE_EMAIL_NOT_MATCHED",
+                        value));
             }
         }
         value = getConfig(CONFIG_OBJECT_SIGNING);
@@ -176,10 +158,9 @@ public class NSCertTypeExtConstraint extends EnrollConstraint {
             boolean bit = getBoolean(value);
 
             if (bit != ext.isSet(3)) {
-                throw new ERejectException( 
-                        CMS.getUserMessage(getLocale(request), 
-                            "CMS_PROFILE_OBJECT_SIGNING_NOT_MATCHED",
-                            value));
+                throw new ERejectException(CMS.getUserMessage(
+                        getLocale(request),
+                        "CMS_PROFILE_OBJECT_SIGNING_NOT_MATCHED", value));
             }
         }
         value = getConfig(CONFIG_SSL_CA);
@@ -187,10 +168,9 @@ public class NSCertTypeExtConstraint extends EnrollConstraint {
             boolean bit = getBoolean(value);
 
             if (bit != ext.isSet(4)) {
-                throw new ERejectException( 
-                        CMS.getUserMessage(getLocale(request), 
-                            "CMS_PROFILE_SSL_CA_NOT_MATCHED",
-                            value));
+                throw new ERejectException(CMS.getUserMessage(
+                        getLocale(request), "CMS_PROFILE_SSL_CA_NOT_MATCHED",
+                        value));
             }
         }
         value = getConfig(CONFIG_EMAIL_CA);
@@ -198,10 +178,9 @@ public class NSCertTypeExtConstraint extends EnrollConstraint {
             boolean bit = getBoolean(value);
 
             if (bit != ext.isSet(5)) {
-                throw new ERejectException( 
-                        CMS.getUserMessage(getLocale(request), 
-                            "CMS_PROFILE_EMAIL_CA_NOT_MATCHED",
-                            value));
+                throw new ERejectException(CMS.getUserMessage(
+                        getLocale(request), "CMS_PROFILE_EMAIL_CA_NOT_MATCHED",
+                        value));
             }
         }
         value = getConfig(CONFIG_OBJECT_SIGNING_CA);
@@ -209,27 +188,21 @@ public class NSCertTypeExtConstraint extends EnrollConstraint {
             boolean bit = getBoolean(value);
 
             if (bit != ext.isSet(6)) {
-                throw new ERejectException( 
-                        CMS.getUserMessage(getLocale(request), 
-                            "CMS_PROFILE_OBJECT_SIGNING_CA_NOT_MATCHED",
-                            value));
+                throw new ERejectException(CMS.getUserMessage(
+                        getLocale(request),
+                        "CMS_PROFILE_OBJECT_SIGNING_CA_NOT_MATCHED", value));
             }
         }
     }
 
     public String getText(Locale locale) {
-        String params[] = {
-                getConfig(CONFIG_CRITICAL),
-                getConfig(CONFIG_SSL_CLIENT),
-                getConfig(CONFIG_SSL_SERVER),
-                getConfig(CONFIG_EMAIL),
-                getConfig(CONFIG_OBJECT_SIGNING),
-                getConfig(CONFIG_SSL_CA),
-                getConfig(CONFIG_EMAIL_CA),
-                getConfig(CONFIG_OBJECT_SIGNING_CA)
-            };
+        String params[] = { getConfig(CONFIG_CRITICAL),
+                getConfig(CONFIG_SSL_CLIENT), getConfig(CONFIG_SSL_SERVER),
+                getConfig(CONFIG_EMAIL), getConfig(CONFIG_OBJECT_SIGNING),
+                getConfig(CONFIG_SSL_CA), getConfig(CONFIG_EMAIL_CA),
+                getConfig(CONFIG_OBJECT_SIGNING_CA) };
 
-        return CMS.getUserMessage(locale, 
+        return CMS.getUserMessage(locale,
                 "CMS_PROFILE_CONSTRAINT_NS_CERT_EXT_TEXT", params);
     }
 

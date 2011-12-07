@@ -17,17 +17,15 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.policy.constraints;
 
-
-
-
 /**
  * This class is used to help migrate CMS4.1 to CMS4.2.
  * <P>
+ * 
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- *
+ * 
  * @deprecated
  * @version $Revision$, $Date$
  */

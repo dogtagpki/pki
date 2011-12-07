@@ -17,17 +17,13 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.base;
 
-
 import java.util.Date;
 
-
 /**
- * This interface represents a time source where
- * current time can be retrieved. CMS is installed
- * with a default time source that returns
- * current time based on the system time. It is
- * possible to register a time source that returns
- * the current time from a NTP server.
+ * This interface represents a time source where current time can be retrieved.
+ * CMS is installed with a default time source that returns current time based
+ * on the system time. It is possible to register a time source that returns the
+ * current time from a NTP server.
  * 
  * @version $Revision$, $Date$
  */
@@ -35,7 +31,7 @@ public interface ITimeSource {
 
     /**
      * Retrieves current time and date.
-     *
+     * 
      * @return current time and date
      */
     public Date getCurrentDate();

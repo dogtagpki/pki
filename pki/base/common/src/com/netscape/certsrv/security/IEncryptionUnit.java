@@ -17,53 +17,51 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.security;
 
-
 import java.security.PublicKey;
 
 import org.mozilla.jss.crypto.PrivateKey;
 
 import com.netscape.certsrv.base.EBaseException;
 
-
 /**
  * An interface represents a encryption unit.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public interface IEncryptionUnit extends IToken {
 
     /**
      * Retrieves the public key in this unit.
-     *
+     * 
      * @return public key
      */
     public PublicKey getPublicKey();
 
     /**
-     * Wraps data. The given key will be wrapped by the
-     * private key in this unit.
-     *
+     * Wraps data. The given key will be wrapped by the private key in this
+     * unit.
+     * 
      * @param priKey private key to be wrapped
-     * @return wrapped data 
+     * @return wrapped data
      * @exception EBaseException failed to wrap
      */
     public byte[] wrap(PrivateKey priKey) throws EBaseException;
 
     /**
-     * Verifies the given key pair. 
-     *  
+     * Verifies the given key pair.
+     * 
      * @param publicKey public key
      * @param privateKey private key
      */
-    public void verify(PublicKey publicKey, PrivateKey privateKey) throws
-            EBaseException;
+    public void verify(PublicKey publicKey, PrivateKey privateKey)
+            throws EBaseException;
 
     /**
-     * Unwraps data. This method rebuilds the private key by
-     * unwrapping the private key data.
-     *
+     * Unwraps data. This method rebuilds the private key by unwrapping the
+     * private key data.
+     * 
      * @param sessionKey session key that unwrap the private key
-     * @param symmAlgOID symmetric algorithm 
+     * @param symmAlgOID symmetric algorithm
      * @param symmAlgParams symmetric algorithm parameters
      * @param privateKey private key data
      * @param pubKey public key
@@ -71,56 +69,54 @@ public interface IEncryptionUnit extends IToken {
      * @exception EBaseException failed to unwrap
      */
     public PrivateKey unwrap(byte sessionKey[], String symmAlgOID,
-        byte symmAlgParams[], byte privateKey[], 
-        PublicKey pubKey)
-        throws EBaseException;
+            byte symmAlgParams[], byte privateKey[], PublicKey pubKey)
+            throws EBaseException;
 
     /**
-     * Unwraps data. This method rebuilds the private key by
-     * unwrapping the private key data.
-     *
+     * Unwraps data. This method rebuilds the private key by unwrapping the
+     * private key data.
+     * 
      * @param privateKey private key data
      * @param pubKey public key object
      * @return private key object
      * @exception EBaseException failed to unwrap
      */
     public PrivateKey unwrap(byte privateKey[], PublicKey pubKey)
-        throws EBaseException;
-	
+            throws EBaseException;
+
     /**
-     * Encrypts the internal private key (private key to the KRA's
-     * internal storage).
-     *
+     * Encrypts the internal private key (private key to the KRA's internal
+     * storage).
+     * 
      * @param rawPrivate user's private key (key to be archived)
      * @return encrypted data
      * @exception EBaseException failed to encrypt
      */
     public byte[] encryptInternalPrivate(byte rawPrivate[])
-        throws EBaseException;
+            throws EBaseException;
 
     /**
-     * Decrypts the internal private key (private key from the KRA's
-     * internal storage).
-     *
-     * @param wrappedPrivateData unwrapped private key data (key to be recovered)
+     * Decrypts the internal private key (private key from the KRA's internal
+     * storage).
+     * 
+     * @param wrappedPrivateData unwrapped private key data (key to be
+     *            recovered)
      * @return raw private key
      * @exception EBaseException failed to decrypt
      */
     public byte[] decryptInternalPrivate(byte wrappedPrivateData[])
-        throws EBaseException;
+            throws EBaseException;
 
     /**
      * Decrypts the external private key (private key from the end-user).
-     *
+     * 
      * @param sessionKey session key that protects the user private
-     * @param symmAlgOID symmetric algorithm 
+     * @param symmAlgOID symmetric algorithm
      * @param symmAlgParams symmetric algorithm parameters
      * @param privateKey private key data
      * @return private key data
      * @exception EBaseException failed to decrypt
      */
-    public byte[] decryptExternalPrivate(byte sessionKey[], 
-        String symmAlgOID,
-        byte symmAlgParams[], byte privateKey[])
-        throws EBaseException;
+    public byte[] decryptExternalPrivate(byte sessionKey[], String symmAlgOID,
+            byte symmAlgParams[], byte privateKey[]) throws EBaseException;
 }

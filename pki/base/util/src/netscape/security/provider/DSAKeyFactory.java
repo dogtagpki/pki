@@ -32,215 +32,208 @@ import java.security.spec.X509EncodedKeySpec;
 
 /**
  * This class implements the DSA key factory of the Sun provider.
- *
+ * 
  * @author Jan Luehe
- *
+ * 
  * @version 1.8, 97/12/10
- *
+ * 
  * @since JDK1.2
  */
 
 public class DSAKeyFactory extends KeyFactorySpi {
 
     /**
-     * Generates a public key object from the provided key specification
-     * (key material).
-     *
+     * Generates a public key object from the provided key specification (key
+     * material).
+     * 
      * @param keySpec the specification (key material) of the public key
-     *
+     * 
      * @return the public key
-     *
-     * @exception InvalidKeySpecException if the given key specification
-     * is inappropriate for this key factory to produce a public key.
+     * 
+     * @exception InvalidKeySpecException if the given key specification is
+     *                inappropriate for this key factory to produce a public
+     *                key.
      */
     protected PublicKey engineGeneratePublic(KeySpec keySpec)
-    throws InvalidKeySpecException {
-	try {
-	    if (keySpec instanceof DSAPublicKeySpec) {
-		DSAPublicKeySpec dsaPubKeySpec = (DSAPublicKeySpec)keySpec;
-		return new DSAPublicKey(dsaPubKeySpec.getY(),
-					dsaPubKeySpec.getP(),
-					dsaPubKeySpec.getQ(),
-					dsaPubKeySpec.getG());
+            throws InvalidKeySpecException {
+        try {
+            if (keySpec instanceof DSAPublicKeySpec) {
+                DSAPublicKeySpec dsaPubKeySpec = (DSAPublicKeySpec) keySpec;
+                return new DSAPublicKey(dsaPubKeySpec.getY(),
+                        dsaPubKeySpec.getP(), dsaPubKeySpec.getQ(),
+                        dsaPubKeySpec.getG());
 
-	    } else if (keySpec instanceof X509EncodedKeySpec) {
-		return new DSAPublicKey
-		    (((X509EncodedKeySpec)keySpec).getEncoded());
+            } else if (keySpec instanceof X509EncodedKeySpec) {
+                return new DSAPublicKey(
+                        ((X509EncodedKeySpec) keySpec).getEncoded());
 
-	    } else {
-		throw new InvalidKeySpecException
-		    ("Inappropriate key specification");
-	    }
-	} catch (InvalidKeyException e) {
-	    throw new InvalidKeySpecException
-		("Inappropriate key specification: " + e.getMessage());
-	}
+            } else {
+                throw new InvalidKeySpecException(
+                        "Inappropriate key specification");
+            }
+        } catch (InvalidKeyException e) {
+            throw new InvalidKeySpecException(
+                    "Inappropriate key specification: " + e.getMessage());
+        }
     }
 
     /**
-     * Generates a private key object from the provided key specification
-     * (key material).
-     *
+     * Generates a private key object from the provided key specification (key
+     * material).
+     * 
      * @param keySpec the specification (key material) of the private key
-     *
+     * 
      * @return the private key
-     *
-     * @exception InvalidKeySpecException if the given key specification
-     * is inappropriate for this key factory to produce a private key.
+     * 
+     * @exception InvalidKeySpecException if the given key specification is
+     *                inappropriate for this key factory to produce a private
+     *                key.
      */
     protected PrivateKey engineGeneratePrivate(KeySpec keySpec)
-    throws InvalidKeySpecException {
-	try {
-	    if (keySpec instanceof DSAPrivateKeySpec) {
-		DSAPrivateKeySpec dsaPrivKeySpec = (DSAPrivateKeySpec)keySpec;
-		return new DSAPrivateKey(dsaPrivKeySpec.getX(),
-					 dsaPrivKeySpec.getP(),
-					 dsaPrivKeySpec.getQ(),
-					 dsaPrivKeySpec.getG());
+            throws InvalidKeySpecException {
+        try {
+            if (keySpec instanceof DSAPrivateKeySpec) {
+                DSAPrivateKeySpec dsaPrivKeySpec = (DSAPrivateKeySpec) keySpec;
+                return new DSAPrivateKey(dsaPrivKeySpec.getX(),
+                        dsaPrivKeySpec.getP(), dsaPrivKeySpec.getQ(),
+                        dsaPrivKeySpec.getG());
 
-	    } else if (keySpec instanceof PKCS8EncodedKeySpec) {
-		return new DSAPrivateKey
-		    (((PKCS8EncodedKeySpec)keySpec).getEncoded());
+            } else if (keySpec instanceof PKCS8EncodedKeySpec) {
+                return new DSAPrivateKey(
+                        ((PKCS8EncodedKeySpec) keySpec).getEncoded());
 
-	    } else {
-		throw new InvalidKeySpecException
-		    ("Inappropriate key specification");
-	    }
-	} catch (InvalidKeyException e) {
-	    throw new InvalidKeySpecException
-		("Inappropriate key specification: " + e.getMessage());
-	}
+            } else {
+                throw new InvalidKeySpecException(
+                        "Inappropriate key specification");
+            }
+        } catch (InvalidKeyException e) {
+            throw new InvalidKeySpecException(
+                    "Inappropriate key specification: " + e.getMessage());
+        }
     }
 
     /**
-     * Returns a specification (key material) of the given key object
-     * in the requested format.
-     *
-     * @param key the key 
-     *
+     * Returns a specification (key material) of the given key object in the
+     * requested format.
+     * 
+     * @param key the key
+     * 
      * @param keySpec the requested format in which the key material shall be
-     * returned
-     *
-     * @return the underlying key specification (key material) in the
-     * requested format
-     *
+     *            returned
+     * 
+     * @return the underlying key specification (key material) in the requested
+     *         format
+     * 
      * @exception InvalidKeySpecException if the requested key specification is
-     * inappropriate for the given key, or the given key cannot be processed
-     * (e.g., the given key has an unrecognized algorithm or format).
+     *                inappropriate for the given key, or the given key cannot
+     *                be processed (e.g., the given key has an unrecognized
+     *                algorithm or format).
      */
     protected KeySpec engineGetKeySpec(Key key, Class keySpec)
-    throws InvalidKeySpecException {
-	
-	DSAParams params;
+            throws InvalidKeySpecException {
 
-	try {
+        DSAParams params;
 
-	    if (key instanceof java.security.interfaces.DSAPublicKey) {
-		
-		// Determine valid key specs
-		Class dsaPubKeySpec = Class.forName
-		    ("java.security.spec.DSAPublicKeySpec");
-		Class x509KeySpec = Class.forName
-		    ("java.security.spec.X509EncodedKeySpec");
+        try {
 
-		if (dsaPubKeySpec.isAssignableFrom(keySpec)) {
-		    java.security.interfaces.DSAPublicKey dsaPubKey
-			= (java.security.interfaces.DSAPublicKey)key;
-		    params = dsaPubKey.getParams();
-		    return new DSAPublicKeySpec(dsaPubKey.getY(),
-						params.getP(),
-						params.getQ(),
-						params.getG());
+            if (key instanceof java.security.interfaces.DSAPublicKey) {
 
-		} else if (x509KeySpec.isAssignableFrom(keySpec)) {
-		    return new X509EncodedKeySpec(key.getEncoded());
+                // Determine valid key specs
+                Class dsaPubKeySpec = Class
+                        .forName("java.security.spec.DSAPublicKeySpec");
+                Class x509KeySpec = Class
+                        .forName("java.security.spec.X509EncodedKeySpec");
 
-		} else {
-		    throw new InvalidKeySpecException
-			("Inappropriate key specification");
-		}
-		 
-	    } else if (key instanceof java.security.interfaces.DSAPrivateKey) {
+                if (dsaPubKeySpec.isAssignableFrom(keySpec)) {
+                    java.security.interfaces.DSAPublicKey dsaPubKey = (java.security.interfaces.DSAPublicKey) key;
+                    params = dsaPubKey.getParams();
+                    return new DSAPublicKeySpec(dsaPubKey.getY(),
+                            params.getP(), params.getQ(), params.getG());
 
-		// Determine valid key specs
-		Class dsaPrivKeySpec = Class.forName
-		    ("java.security.spec.DSAPrivateKeySpec");
-		Class pkcs8KeySpec = Class.forName
-		    ("java.security.spec.PKCS8EncodedKeySpec");
+                } else if (x509KeySpec.isAssignableFrom(keySpec)) {
+                    return new X509EncodedKeySpec(key.getEncoded());
 
-		if (dsaPrivKeySpec.isAssignableFrom(keySpec)) {
-		    java.security.interfaces.DSAPrivateKey dsaPrivKey
-			= (java.security.interfaces.DSAPrivateKey)key;
-		    params = dsaPrivKey.getParams();
-		    return new DSAPrivateKeySpec(dsaPrivKey.getX(),
-						 params.getP(),
-						 params.getQ(),
-						 params.getG());
+                } else {
+                    throw new InvalidKeySpecException(
+                            "Inappropriate key specification");
+                }
 
-		} else if (pkcs8KeySpec.isAssignableFrom(keySpec)) {
-		    return new PKCS8EncodedKeySpec(key.getEncoded());
+            } else if (key instanceof java.security.interfaces.DSAPrivateKey) {
 
-		} else {
-		    throw new InvalidKeySpecException
-			("Inappropriate key specification");
-		}
+                // Determine valid key specs
+                Class dsaPrivKeySpec = Class
+                        .forName("java.security.spec.DSAPrivateKeySpec");
+                Class pkcs8KeySpec = Class
+                        .forName("java.security.spec.PKCS8EncodedKeySpec");
 
-	    } else {
-		throw new InvalidKeySpecException("Inappropriate key type");
-	    }
+                if (dsaPrivKeySpec.isAssignableFrom(keySpec)) {
+                    java.security.interfaces.DSAPrivateKey dsaPrivKey = (java.security.interfaces.DSAPrivateKey) key;
+                    params = dsaPrivKey.getParams();
+                    return new DSAPrivateKeySpec(dsaPrivKey.getX(),
+                            params.getP(), params.getQ(), params.getG());
 
-	} catch (ClassNotFoundException e) {
-	    throw new InvalidKeySpecException
-		("Unsupported key specification: " + e.getMessage());
-	}
+                } else if (pkcs8KeySpec.isAssignableFrom(keySpec)) {
+                    return new PKCS8EncodedKeySpec(key.getEncoded());
+
+                } else {
+                    throw new InvalidKeySpecException(
+                            "Inappropriate key specification");
+                }
+
+            } else {
+                throw new InvalidKeySpecException("Inappropriate key type");
+            }
+
+        } catch (ClassNotFoundException e) {
+            throw new InvalidKeySpecException("Unsupported key specification: "
+                    + e.getMessage());
+        }
     }
 
     /**
      * Translates a key object, whose provider may be unknown or potentially
      * untrusted, into a corresponding key object of this key factory.
-     *
+     * 
      * @param key the key whose provider is unknown or untrusted
-     *
+     * 
      * @return the translated key
-     *
+     * 
      * @exception InvalidKeyException if the given key cannot be processed by
-     * this key factory.
+     *                this key factory.
      */
     protected Key engineTranslateKey(Key key) throws InvalidKeyException {
 
-	try {
+        try {
 
-	    if (key instanceof java.security.interfaces.DSAPublicKey) {
-		// Check if key originates from this factory
-		if (key instanceof netscape.security.provider.DSAPublicKey) {
-		    return key;
-		}
-		// Convert key to spec
-		DSAPublicKeySpec dsaPubKeySpec
-		    = (DSAPublicKeySpec)engineGetKeySpec
-		    (key, DSAPublicKeySpec.class);
-		// Create key from spec, and return it
-		return engineGeneratePublic(dsaPubKeySpec);
+            if (key instanceof java.security.interfaces.DSAPublicKey) {
+                // Check if key originates from this factory
+                if (key instanceof netscape.security.provider.DSAPublicKey) {
+                    return key;
+                }
+                // Convert key to spec
+                DSAPublicKeySpec dsaPubKeySpec = (DSAPublicKeySpec) engineGetKeySpec(
+                        key, DSAPublicKeySpec.class);
+                // Create key from spec, and return it
+                return engineGeneratePublic(dsaPubKeySpec);
 
-	    } else if (key instanceof java.security.interfaces.DSAPrivateKey) {
-		// Check if key originates from this factory
-		if (key instanceof netscape.security.provider.DSAPrivateKey) {
-		    return key;
-		}
-		// Convert key to spec
-		DSAPrivateKeySpec dsaPrivKeySpec
-		    = (DSAPrivateKeySpec)engineGetKeySpec
-		    (key, DSAPrivateKeySpec.class);
-		// Create key from spec, and return it
-		return engineGeneratePrivate(dsaPrivKeySpec);
+            } else if (key instanceof java.security.interfaces.DSAPrivateKey) {
+                // Check if key originates from this factory
+                if (key instanceof netscape.security.provider.DSAPrivateKey) {
+                    return key;
+                }
+                // Convert key to spec
+                DSAPrivateKeySpec dsaPrivKeySpec = (DSAPrivateKeySpec) engineGetKeySpec(
+                        key, DSAPrivateKeySpec.class);
+                // Create key from spec, and return it
+                return engineGeneratePrivate(dsaPrivKeySpec);
 
-	    } else {
-		throw new InvalidKeyException("Wrong algorithm type");
-	    }
+            } else {
+                throw new InvalidKeyException("Wrong algorithm type");
+            }
 
-	} catch (InvalidKeySpecException e) {
-	    throw new InvalidKeyException("Cannot translate key: "
-                                          + e.getMessage());
-	}
+        } catch (InvalidKeySpecException e) {
+            throw new InvalidKeyException("Cannot translate key: "
+                    + e.getMessage());
+        }
     }
 }

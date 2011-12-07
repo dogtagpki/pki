@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmsutil.util;
 
-
 import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509CRL;
@@ -62,14 +61,14 @@ public class Cert {
             return s;
         }
 
-        if ((s.startsWith("-----BEGIN CERTIFICATE-----")) &&
-            (s.endsWith("-----END CERTIFICATE-----"))) {
+        if ((s.startsWith("-----BEGIN CERTIFICATE-----"))
+                && (s.endsWith("-----END CERTIFICATE-----"))) {
             return (s.substring(27, (s.length() - 25)));
         }
 
         // To support Thawte's header and footer
-        if ((s.startsWith("-----BEGIN PKCS #7 SIGNED DATA-----")) &&
-            (s.endsWith("-----END PKCS #7 SIGNED DATA-----"))) {
+        if ((s.startsWith("-----BEGIN PKCS #7 SIGNED DATA-----"))
+                && (s.endsWith("-----END PKCS #7 SIGNED DATA-----"))) {
             return (s.substring(35, (s.length() - 33)));
         }
 
@@ -80,24 +79,23 @@ public class Cert {
         if (s == null) {
             return s;
         }
-        if ((s.startsWith("-----BEGIN CERTIFICATE REVOCATION LIST-----")) &&
-            (s.endsWith("-----END CERTIFICATE REVOCATION LIST-----"))) {
+        if ((s.startsWith("-----BEGIN CERTIFICATE REVOCATION LIST-----"))
+                && (s.endsWith("-----END CERTIFICATE REVOCATION LIST-----"))) {
             return (s.substring(43, (s.length() - 41)));
         }
         return s;
     }
 
     public static String stripCertBrackets(String s) {
-	return stripBrackets(s);
+        return stripBrackets(s);
     }
 
- // private static BASE64Decoder mDecoder = new BASE64Decoder();
-    public static X509CertImpl mapCert(String mime64)
-        throws IOException {
+    // private static BASE64Decoder mDecoder = new BASE64Decoder();
+    public static X509CertImpl mapCert(String mime64) throws IOException {
         mime64 = stripCertBrackets(mime64.trim());
         String newval = normalizeCertStr(mime64);
-     // byte rawPub[] = mDecoder.decodeBuffer(newval);
-        byte rawPub[] = OSUtil.AtoB( newval );
+        // byte rawPub[] = mDecoder.decodeBuffer(newval);
+        byte rawPub[] = OSUtil.AtoB(newval);
         X509CertImpl cert = null;
 
         try {
@@ -108,27 +106,26 @@ public class Cert {
     }
 
     public static X509Certificate[] mapCertFromPKCS7(String mime64)
-        throws IOException {
+            throws IOException {
         mime64 = stripCertBrackets(mime64.trim());
         String newval = normalizeCertStr(mime64);
-     // byte rawPub[] = mDecoder.decodeBuffer(newval);
-        byte rawPub[] = OSUtil.AtoB( newval );
+        // byte rawPub[] = mDecoder.decodeBuffer(newval);
+        byte rawPub[] = OSUtil.AtoB(newval);
         PKCS7 p7 = null;
 
         try {
             p7 = new PKCS7(rawPub);
         } catch (Exception e) {
-            throw new IOException( "p7 is null" );
+            throw new IOException("p7 is null");
         }
         return p7.getCertificates();
     }
 
-    public static X509CRL mapCRL(String mime64)
-        throws IOException {
+    public static X509CRL mapCRL(String mime64) throws IOException {
         mime64 = stripCRLBrackets(mime64.trim());
         String newval = normalizeCertStr(mime64);
-     // byte rawPub[] = mDecoder.decodeBuffer(newval);
-        byte rawPub[] = OSUtil.AtoB( newval );
+        // byte rawPub[] = mDecoder.decodeBuffer(newval);
+        byte rawPub[] = OSUtil.AtoB(newval);
         X509CRL crl = null;
 
         try {
@@ -138,8 +135,7 @@ public class Cert {
         return crl;
     }
 
-    public static X509CRL mapCRL1(String mime64)
-        throws IOException {
+    public static X509CRL mapCRL1(String mime64) throws IOException {
         mime64 = stripCRLBrackets(mime64.trim());
 
         byte rawPub[] = OSUtil.AtoB(mime64);
@@ -187,4 +183,3 @@ public class Cert {
         return val;
     }
 }
-

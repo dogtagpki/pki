@@ -20,10 +20,9 @@ package com.netscape.certsrv.acls;
 import java.util.ListResourceBundle;
 
 /**
- * A class represents a resource bundle for the entire ACL component.
- * system.
+ * A class represents a resource bundle for the entire ACL component. system.
  * <P>
- *
+ * 
  * @deprecated
  * @version $Revision$, $Date$
  */
@@ -31,13 +30,14 @@ public class ACLsResources extends ListResourceBundle {
 
     /**
      * Returns the content of this resource.
+     * 
      * @return the content of this resource.
      */
     public Object[][] getContents() {
         return contents;
     }
 
-    /** 
+    /**
      * A set of constants for localized error messages.
      */
     static final Object[][] contents = {};

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -55,7 +54,6 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 import com.netscape.cmsutil.xml.XMLObject;
 
-
 public class UpdateDomainXML extends CMSServlet {
 
     /**
@@ -64,10 +62,8 @@ public class UpdateDomainXML extends CMSServlet {
     private static final long serialVersionUID = 4059169588555717548L;
     private final static String SUCCESS = "0";
     private final static String FAILED = "1";
-    private final static String LOGGING_SIGNED_AUDIT_SECURITY_DOMAIN_UPDATE =
-        "LOGGING_SIGNED_AUDIT_SECURITY_DOMAIN_UPDATE_1";
-    private final static String LOGGING_SIGNED_AUDIT_CONFIG_ROLE =
-        "LOGGING_SIGNED_AUDIT_CONFIG_ROLE_3";
+    private final static String LOGGING_SIGNED_AUDIT_SECURITY_DOMAIN_UPDATE = "LOGGING_SIGNED_AUDIT_SECURITY_DOMAIN_UPDATE_1";
+    private final static String LOGGING_SIGNED_AUDIT_CONFIG_ROLE = "LOGGING_SIGNED_AUDIT_CONFIG_ROLE_3";
 
     public UpdateDomainXML() {
         super();
@@ -75,6 +71,7 @@ public class UpdateDomainXML extends CMSServlet {
 
     /**
      * initialize the servlet.
+     * 
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -101,20 +98,19 @@ public class UpdateDomainXML extends CMSServlet {
                 status = FAILED;
                 CMS.debug("Failed to delete entry" + e.toString());
             }
-       } catch (Exception e) {
-            CMS.debug("Failed to delete entry" + e.toString()); 
-       } finally { 
+        } catch (Exception e) {
+            CMS.debug("Failed to delete entry" + e.toString());
+        } finally {
             try {
-                if ((conn != null) && (connFactory!= null)) {
+                if ((conn != null) && (connFactory != null)) {
                     CMS.debug("Releasing ldap connection");
                     connFactory.returnConn(conn);
                 }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 CMS.debug("Error releasing the ldap connection" + e.toString());
             }
-       }
-       return status;
+        }
+        return status;
     }
 
     private String modify_ldap(String dn, LDAPModification mod) {
@@ -135,22 +131,20 @@ public class UpdateDomainXML extends CMSServlet {
                 status = FAILED;
                 CMS.debug("Failed to modify entry" + e.toString());
             }
-       } catch (Exception e) {
+        } catch (Exception e) {
             CMS.debug("Failed to modify entry" + e.toString());
-       } finally {
+        } finally {
             try {
-                if ((conn != null) && (connFactory!= null)) {
+                if ((conn != null) && (connFactory != null)) {
                     CMS.debug("Releasing ldap connection");
                     connFactory.returnConn(conn);
                 }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 CMS.debug("Error releasing the ldap connection" + e.toString());
             }
-       }
-       return status;
+        }
+        return status;
     }
-
 
     private String add_to_ldap(LDAPEntry entry, String dn) {
         CMS.debug("UpdateDomainXML: add_to_ldap: starting");
@@ -172,37 +166,38 @@ public class UpdateDomainXML extends CMSServlet {
                     conn.delete(dn);
                     conn.add(entry);
                 } catch (LDAPException ee) {
-                    CMS.debug("UpdateDomainXML: Error when replacing existing entry "+ee.toString());
+                    CMS.debug("UpdateDomainXML: Error when replacing existing entry "
+                            + ee.toString());
                     status = FAILED;
                 }
             } else {
-                CMS.debug("UpdateDomainXML: Failed to update ldap domain info. Exception: "+e.toString());
+                CMS.debug("UpdateDomainXML: Failed to update ldap domain info. Exception: "
+                        + e.toString());
                 status = FAILED;
             }
         } catch (Exception e) {
             CMS.debug("Failed to add entry" + e.toString());
         } finally {
             try {
-                if ((conn != null) && (connFactory!= null)) {
+                if ((conn != null) && (connFactory != null)) {
                     CMS.debug("Releasing ldap connection");
                     connFactory.returnConn(conn);
                 }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 CMS.debug("Error releasing the ldap connection" + e.toString());
             }
-       }
-       return status;
+        }
+        return status;
     }
 
-
-
     /**
-     * Process the HTTP request. 
+     * Process the HTTP request.
      * <ul>
      * <li>http.param op 'downloadBIN' - return the binary certificate chain
-     * <li>http.param op 'displayIND' - display pretty-print of certificate chain components
+     * <li>http.param op 'displayIND' - display pretty-print of certificate
+     * chain components
      * </ul>
+     * 
      * @param cmsReq the object holding the request and response information
      */
     protected void process(CMSRequest cmsReq) throws EBaseException {
@@ -219,7 +214,7 @@ public class UpdateDomainXML extends CMSServlet {
             authToken = authenticate(cmsReq);
         } catch (Exception e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
             outputError(httpResp, AUTH_FAILURE, "Error: Not authenticated");
             return;
         }
@@ -233,19 +228,18 @@ public class UpdateDomainXML extends CMSServlet {
         AuthzToken authzToken = null;
 
         try {
-            authzToken = authorize(mAclMethod, authToken, mAuthzResourceName, 
-                "modify");
+            authzToken = authorize(mAclMethod, authToken, mAuthzResourceName,
+                    "modify");
         } catch (EAuthzAccessDenied e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
             outputError(httpResp, AUTH_FAILURE, "Error: Not authorized");
             return;
         } catch (Exception e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
-            outputError(httpResp,
-                AUTH_FAILURE, 
-                "Error: Encountered problem during authorization.");
+                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+            outputError(httpResp, AUTH_FAILURE,
+                    "Error: Encountered problem during authorization.");
             return;
         }
         if (authzToken == null) {
@@ -272,7 +266,7 @@ public class UpdateDomainXML extends CMSServlet {
         String missing = "";
         if ((host == null) || host.equals("")) {
             missing += " host ";
-        } 
+        }
         if ((name == null) || name.equals("")) {
             missing += " name ";
         }
@@ -286,20 +280,20 @@ public class UpdateDomainXML extends CMSServlet {
             clone = "false";
         }
 
-        if (! missing.equals("")) {
-            CMS.debug("UpdateDomainXML process: required parameters:" + missing + 
-                      "not provided in request");
-            outputError(httpResp, "Error: required parameters: "  + missing + 
-                        "not provided in request");
+        if (!missing.equals("")) {
+            CMS.debug("UpdateDomainXML process: required parameters:" + missing
+                    + "not provided in request");
+            outputError(httpResp, "Error: required parameters: " + missing
+                    + "not provided in request");
             return;
         }
 
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
-        String auditParams = "host;;"+host+"+name;;"+name+"+sport;;"+sport+
-                             "+clone;;"+clone+"+type;;"+type;
+        String auditParams = "host;;" + host + "+name;;" + name + "+sport;;"
+                + sport + "+clone;;" + clone + "+type;;" + type;
         if (operation != null) {
-            auditParams += "+operation;;"+operation;
+            auditParams += "+operation;;" + operation;
         } else {
             auditParams += "+operation;;add";
         }
@@ -312,8 +306,7 @@ public class UpdateDomainXML extends CMSServlet {
         try {
             basedn = cs.getString("internaldb.basedn");
             secstore = cs.getString("securitydomain.store");
-        }
-        catch (Exception e)  {
+        } catch (Exception e) {
             CMS.debug("Unable to determine security domain name or basedn. Please run the domaininfo migration script");
         }
 
@@ -326,13 +319,14 @@ public class UpdateDomainXML extends CMSServlet {
             String listName = type + "List";
             String cn = host + ":";
 
-            if ((adminsport!= null) && (adminsport != "")) {
+            if ((adminsport != null) && (adminsport != "")) {
                 cn += adminsport;
             } else {
                 cn += sport;
             }
 
-            String dn = "cn=" + cn + ",cn=" + listName + ",ou=Security Domain," + basedn;
+            String dn = "cn=" + cn + ",cn=" + listName + ",ou=Security Domain,"
+                    + basedn;
             CMS.debug("UpdateDomainXML: updating LDAP entry: " + dn);
 
             LDAPAttributeSet attrs = null;
@@ -356,69 +350,69 @@ public class UpdateDomainXML extends CMSServlet {
                 attrs.add(new LDAPAttribute("SecureEEClientAuthPort", eecaport));
             }
             if ((domainmgr != null) && (!domainmgr.equals(""))) {
-                attrs.add(new LDAPAttribute("DomainManager", domainmgr.toUpperCase()));
+                attrs.add(new LDAPAttribute("DomainManager", domainmgr
+                        .toUpperCase()));
             }
             attrs.add(new LDAPAttribute("clone", clone.toUpperCase()));
             attrs.add(new LDAPAttribute("SubsystemName", name));
             entry = new LDAPEntry(dn, attrs);
- 
-            if ((operation !=  null) && (operation.equals("remove"))) {
-                    status = remove_from_ldap(dn);
-                    String adminUserDN;
-                    if ((agentsport != null) && (!agentsport.equals(""))) {
-                        adminUserDN = "uid=" + type + "-" + host + "-" + agentsport + ",ou=People," + basedn;
-                    } else {
-                        adminUserDN = "uid=" + type + "-" + host + "-" + sport + ",ou=People," + basedn;
-                    }
-                    String userAuditParams = "Scope;;users+Operation;;OP_DELETE+source;;UpdateDomainXML" +
-                                             "+resource;;"+adminUserDN;
-                    if (status.equals(SUCCESS)) {
-                        // remove the user for this subsystem's admin
-                        status2 = remove_from_ldap(adminUserDN);
+
+            if ((operation != null) && (operation.equals("remove"))) {
+                status = remove_from_ldap(dn);
+                String adminUserDN;
+                if ((agentsport != null) && (!agentsport.equals(""))) {
+                    adminUserDN = "uid=" + type + "-" + host + "-" + agentsport
+                            + ",ou=People," + basedn;
+                } else {
+                    adminUserDN = "uid=" + type + "-" + host + "-" + sport
+                            + ",ou=People," + basedn;
+                }
+                String userAuditParams = "Scope;;users+Operation;;OP_DELETE+source;;UpdateDomainXML"
+                        + "+resource;;" + adminUserDN;
+                if (status.equals(SUCCESS)) {
+                    // remove the user for this subsystem's admin
+                    status2 = remove_from_ldap(adminUserDN);
+                    if (status2.equals(SUCCESS)) {
+                        auditMessage = CMS.getLogMessage(
+                                LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                                auditSubjectID, ILogger.SUCCESS,
+                                userAuditParams);
+                        audit(auditMessage);
+
+                        // remove this user from the subsystem group
+                        userAuditParams = "Scope;;groups+Operation;;OP_DELETE_USER"
+                                + "+source;;UpdateDomainXML"
+                                + "+resource;;Subsystem Group+user;;"
+                                + adminUserDN;
+                        dn = "cn=Subsystem Group, ou=groups," + basedn;
+                        LDAPModification mod = new LDAPModification(
+                                LDAPModification.DELETE, new LDAPAttribute(
+                                        "uniqueMember", adminUserDN));
+                        status2 = modify_ldap(dn, mod);
                         if (status2.equals(SUCCESS)) {
                             auditMessage = CMS.getLogMessage(
-                                               LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
-                                               auditSubjectID,
-                                               ILogger.SUCCESS,
-                                               userAuditParams);
-                            audit(auditMessage);
-
-                            // remove this user from the subsystem group
-                            userAuditParams = "Scope;;groups+Operation;;OP_DELETE_USER" +
-                                              "+source;;UpdateDomainXML" +
-                                              "+resource;;Subsystem Group+user;;"+adminUserDN;
-                            dn = "cn=Subsystem Group, ou=groups," + basedn;
-                            LDAPModification mod = new LDAPModification(LDAPModification.DELETE, 
-                                new LDAPAttribute("uniqueMember", adminUserDN));
-                            status2 = modify_ldap(dn, mod);
-                            if (status2.equals(SUCCESS)) {
-                                auditMessage = CMS.getLogMessage(
-                                                   LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
-                                                   auditSubjectID,
-                                                   ILogger.SUCCESS,
-                                                   userAuditParams);
-                            } else {
-                                auditMessage = CMS.getLogMessage(
-                                                   LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
-                                                   auditSubjectID,
-                                                   ILogger.FAILURE,
-                                                   userAuditParams);
-                            }
-                            audit(auditMessage);
-                        } else { // error deleting user
+                                    LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                                    auditSubjectID, ILogger.SUCCESS,
+                                    userAuditParams);
+                        } else {
                             auditMessage = CMS.getLogMessage(
-                                               LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
-                                               auditSubjectID,
-                                               ILogger.FAILURE,
-                                               userAuditParams);
-                            audit(auditMessage);
+                                    LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                                    auditSubjectID, ILogger.FAILURE,
+                                    userAuditParams);
                         }
+                        audit(auditMessage);
+                    } else { // error deleting user
+                        auditMessage = CMS.getLogMessage(
+                                LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                                auditSubjectID, ILogger.FAILURE,
+                                userAuditParams);
+                        audit(auditMessage);
                     }
+                }
             } else {
-                    status = add_to_ldap(entry, dn);
+                status = add_to_ldap(entry, dn);
             }
-        }
-        else { 
+        } else {
             // update the domain.xml file
             String path = CMS.getConfigStore().getString("instanceRoot", "")
                     + "/conf/domain.xml";
@@ -430,7 +424,7 @@ public class UpdateDomainXML extends CMSServlet {
                 CMS.debug("UpdateDomainXML: Inserting new domain info");
                 XMLObject parser = new XMLObject(new FileInputStream(path));
                 Node n = parser.getContainer(list);
-                int count =0;
+                int count = 0;
 
                 if ((operation != null) && (operation.equals("remove"))) {
                     // delete node
@@ -440,15 +434,19 @@ public class UpdateDomainXML extends CMSServlet {
 
                     for (int i = 0; i < len; i++) {
                         Node nn = (Node) nodeList.item(i);
-                        Vector v_name = parser.getValuesFromContainer(nn, "SubsystemName");
-                        Vector v_host = parser.getValuesFromContainer(nn, "Host");
-                        Vector v_adminport = parser.getValuesFromContainer(nn, "SecureAdminPort");
-                        if ((v_name.elementAt(0).equals(name)) && (v_host.elementAt(0).equals(host))
-                            && (v_adminport.elementAt(0).equals(adminsport))) {
-                                Node parent = nn.getParentNode();
-                                Node remNode = parent.removeChild(nn);
-                                count --;
-                                break;
+                        Vector v_name = parser.getValuesFromContainer(nn,
+                                "SubsystemName");
+                        Vector v_host = parser.getValuesFromContainer(nn,
+                                "Host");
+                        Vector v_adminport = parser.getValuesFromContainer(nn,
+                                "SecureAdminPort");
+                        if ((v_name.elementAt(0).equals(name))
+                                && (v_host.elementAt(0).equals(host))
+                                && (v_adminport.elementAt(0).equals(adminsport))) {
+                            Node parent = nn.getParentNode();
+                            Node remNode = parent.removeChild(nn);
+                            count--;
+                            break;
                         }
                     }
                 } else {
@@ -457,39 +455,44 @@ public class UpdateDomainXML extends CMSServlet {
                     parser.addItemToContainer(parent, "SubsystemName", name);
                     parser.addItemToContainer(parent, "Host", host);
                     parser.addItemToContainer(parent, "SecurePort", sport);
-                    parser.addItemToContainer(parent, "SecureAgentPort", agentsport);
-                    parser.addItemToContainer(parent, "SecureAdminPort", adminsport);
-                    parser.addItemToContainer(parent, "SecureEEClientAuthPort", eecaport);
+                    parser.addItemToContainer(parent, "SecureAgentPort",
+                            agentsport);
+                    parser.addItemToContainer(parent, "SecureAdminPort",
+                            adminsport);
+                    parser.addItemToContainer(parent, "SecureEEClientAuthPort",
+                            eecaport);
                     parser.addItemToContainer(parent, "UnSecurePort", httpport);
-                    parser.addItemToContainer(parent, "DomainManager", domainmgr.toUpperCase());
-                    parser.addItemToContainer(parent, "Clone", clone.toUpperCase());
-                    count ++;
+                    parser.addItemToContainer(parent, "DomainManager",
+                            domainmgr.toUpperCase());
+                    parser.addItemToContainer(parent, "Clone",
+                            clone.toUpperCase());
+                    count++;
                 }
-                //update count 
+                // update count
 
                 String countS = "";
                 NodeList nlist = n.getChildNodes();
                 Node countnode = null;
-                for (int i=0; i<nlist.getLength(); i++) {
-                    Element nn = (Element)nlist.item(i);
+                for (int i = 0; i < nlist.getLength(); i++) {
+                    Element nn = (Element) nlist.item(i);
                     String tagname = nn.getTagName();
                     if (tagname.equals("SubsystemCount")) {
                         countnode = nn;
                         NodeList nlist1 = nn.getChildNodes();
                         Node nn1 = nlist1.item(0);
-                        countS  = nn1.getNodeValue();
+                        countS = nn1.getNodeValue();
                         break;
                     }
                 }
 
-                CMS.debug("UpdateDomainXML process: SubsystemCount="+countS);
+                CMS.debug("UpdateDomainXML process: SubsystemCount=" + countS);
                 try {
-                        count += Integer.parseInt(countS);
+                    count += Integer.parseInt(countS);
                 } catch (Exception ee) {
                 }
 
                 Node nn2 = n.removeChild(countnode);
-                parser.addItemToContainer(n, "SubsystemCount", ""+count);
+                parser.addItemToContainer(n, "SubsystemCount", "" + count);
 
                 // recreate domain.xml
                 CMS.debug("UpdateDomainXML: Recreating domain.xml");
@@ -503,28 +506,24 @@ public class UpdateDomainXML extends CMSServlet {
             }
 
         }
-  
+
         if (status.equals(SUCCESS)) {
             auditMessage = CMS.getLogMessage(
-                               LOGGING_SIGNED_AUDIT_SECURITY_DOMAIN_UPDATE,
-                               auditSubjectID,
-                               ILogger.SUCCESS,
-                               auditParams);
+                    LOGGING_SIGNED_AUDIT_SECURITY_DOMAIN_UPDATE,
+                    auditSubjectID, ILogger.SUCCESS, auditParams);
         } else {
             // what if already exists or already deleted
             auditMessage = CMS.getLogMessage(
-                               LOGGING_SIGNED_AUDIT_SECURITY_DOMAIN_UPDATE,
-                               auditSubjectID,
-                               ILogger.FAILURE,
-                               auditParams);
+                    LOGGING_SIGNED_AUDIT_SECURITY_DOMAIN_UPDATE,
+                    auditSubjectID, ILogger.FAILURE, auditParams);
         }
         audit(auditMessage);
 
-       if (status.equals(SUCCESS) && status2.equals(SUCCESS)) {
-         status = SUCCESS;
-       } else {
-         status = FAILED;
-       }
+        if (status.equals(SUCCESS) && status2.equals(SUCCESS)) {
+            status = SUCCESS;
+        } else {
+            status = FAILED;
+        }
 
         try {
             // send success status back to the requestor
@@ -537,24 +536,34 @@ public class UpdateDomainXML extends CMSServlet {
 
             outputResult(httpResp, "application/xml", cb);
         } catch (Exception e) {
-                CMS.debug("UpdateDomainXML: Failed to send the XML output" + e.toString());
+            CMS.debug("UpdateDomainXML: Failed to send the XML output"
+                    + e.toString());
         }
     }
 
     protected String securityDomainXMLtoLDAP(String xmltag) {
-        if (xmltag.equals("Host")) return "host";
-        else return xmltag;
+        if (xmltag.equals("Host"))
+            return "host";
+        else
+            return xmltag;
     }
 
+    protected void setDefaultTemplates(ServletConfig sc) {
+    }
 
-    protected void setDefaultTemplates(ServletConfig sc) {}
+    protected void renderTemplate(CMSRequest cmsReq, String templateName,
+            ICMSTemplateFiller filler) throws IOException {// do nothing
+    }
 
-    protected void renderTemplate(
-            CMSRequest cmsReq, String templateName, ICMSTemplateFiller filler)
-        throws IOException {// do nothing
-    } 
-
-    protected void renderResult(CMSRequest cmsReq) throws IOException {// do nothing, ie, it will not return the default javascript.
+    protected void renderResult(CMSRequest cmsReq) throws IOException {// do
+                                                                       // nothing,
+                                                                       // ie, it
+                                                                       // will
+                                                                       // not
+                                                                       // return
+                                                                       // the
+                                                                       // default
+                                                                       // javascript.
     }
 
     /**

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.publish.mappers;
 
-
 import java.io.IOException;
 import java.security.cert.X509Certificate;
 import java.util.Locale;
@@ -48,20 +47,18 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.ILdapMapper;
 import com.netscape.certsrv.request.IRequest;
 
-
-/** 
- * Maps a request to an entry in the LDAP server.
- * Takes a dnPattern to form the baseDN from the request attributes
- * and certificate subject name.Do a base search for the entry 
- * in the directory to publish the cert or crl.
- * The restriction of this mapper is that the ldap dn components must
- * be part of certificate subject name or request attributes or constant.
- *
+/**
+ * Maps a request to an entry in the LDAP server. Takes a dnPattern to form the
+ * baseDN from the request attributes and certificate subject name.Do a base
+ * search for the entry in the directory to publish the cert or crl. The
+ * restriction of this mapper is that the ldap dn components must be part of
+ * certificate subject name or request attributes or constant.
+ * 
  * @version $Revision$, $Date$
  */
 public class LdapCaSimpleMap implements ILdapMapper, IExtendedPluginInfo {
-    protected static final String PROP_DNPATTERN = "dnPattern";  
-    protected static final String PROP_CREATECA = "createCAEntry";  
+    protected static final String PROP_DNPATTERN = "dnPattern";
+    protected static final String PROP_CREATECA = "createCAEntry";
     protected String mDnPattern = null;
     protected boolean mCreateCAEntry = true;
 
@@ -72,28 +69,28 @@ public class LdapCaSimpleMap implements ILdapMapper, IExtendedPluginInfo {
     /* the subject DN pattern */
     protected MapDNPattern mPattern = null;
 
-    /* the list of request attriubutes to retrieve*/
+    /* the list of request attriubutes to retrieve */
     protected String[] mReqAttrs = null;
 
-    /* the list of cert attriubutes to retrieve*/
+    /* the list of cert attriubutes to retrieve */
     protected String[] mCertAttrs = null;
 
     /* default dn pattern if left blank or not set in the config */
-    public static final String DEFAULT_DNPATTERN = 
-        "UID=$req.HTTP_PARAMS.UID,  OU=people, O=$subj.o, C=$subj.c";
+    public static final String DEFAULT_DNPATTERN = "UID=$req.HTTP_PARAMS.UID,  OU=people, O=$subj.o, C=$subj.c";
 
-    /** 
+    /**
      * Constructor.
-     *
-     * @param dnPattern The base DN. 
+     * 
+     * @param dnPattern The base DN.
      */
     public LdapCaSimpleMap(String dnPattern) {
         try {
             init(dnPattern);
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("OPERATION_ERROR", e.toString()));
         }
-		
+
     }
 
     /**
@@ -104,16 +101,17 @@ public class LdapCaSimpleMap implements ILdapMapper, IExtendedPluginInfo {
 
     public String[] getExtendedPluginInfo(Locale locale) {
         String params[] = {
-                "dnPattern;string;Describes how to form the Ldap Subject name in" +
-                " the directory.  Example 1:  'uid=CertMgr, o=Fedora'.  Example 2:" +
-                " 'uid=$req.HTTP_PARAMS.uid, E=$ext.SubjectAlternativeName.RFC822Name, ou=$subj.ou'. " + 
-                "$req means: take the attribute from the request. " + 
-                "$subj means: take the attribute from the certificate subject name. " + 
-                "$ext means: take the attribute from the certificate extension",
+                "dnPattern;string;Describes how to form the Ldap Subject name in"
+                        + " the directory.  Example 1:  'uid=CertMgr, o=Fedora'.  Example 2:"
+                        + " 'uid=$req.HTTP_PARAMS.uid, E=$ext.SubjectAlternativeName.RFC822Name, ou=$subj.ou'. "
+                        + "$req means: take the attribute from the request. "
+                        + "$subj means: take the attribute from the certificate subject name. "
+                        + "$ext means: take the attribute from the certificate extension",
                 "createCAEntry;boolean;If checked, CA entry will be created automatically",
-                IExtendedPluginInfo.HELP_TOKEN + ";configuration-ldappublish-mapper-casimplemapper",
-                IExtendedPluginInfo.HELP_TEXT + ";Describes how to form the LDAP DN of the entry to publish to"
-            };
+                IExtendedPluginInfo.HELP_TOKEN
+                        + ";configuration-ldappublish-mapper-casimplemapper",
+                IExtendedPluginInfo.HELP_TEXT
+                        + ";Describes how to form the LDAP DN of the entry to publish to" };
 
         return params;
     }
@@ -122,11 +120,10 @@ public class LdapCaSimpleMap implements ILdapMapper, IExtendedPluginInfo {
         return mConfig;
     }
 
-    /** 
+    /**
      * for initializing from config store.
      */
-    public void init(IConfigStore config) 
-        throws EBaseException {
+    public void init(IConfigStore config) throws EBaseException {
         mConfig = config;
         String dnPattern = mConfig.getString(PROP_DNPATTERN);
 
@@ -137,51 +134,51 @@ public class LdapCaSimpleMap implements ILdapMapper, IExtendedPluginInfo {
     /**
      * common initialization routine.
      */
-    protected void init(String dnPattern)
-        throws EBaseException {
-        if (mInited) 
+    protected void init(String dnPattern) throws EBaseException {
+        if (mInited)
             return;
 
         mDnPattern = dnPattern;
-        if (mDnPattern == null || mDnPattern.length() == 0) 
+        if (mDnPattern == null || mDnPattern.length() == 0)
             mDnPattern = DEFAULT_DNPATTERN;
         try {
             mPattern = new MapDNPattern(mDnPattern);
             String[] mReqAttrs = mPattern.getReqAttrs();
             String[] mCertAttrs = mPattern.getCertAttrs();
         } catch (ELdapException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_DN_PATTERN_INIT", dnPattern, e.toString()));
-            throw new EBaseException("falied to init with pattern " + 
-                    dnPattern + " " + e);
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("PUBLISH_DN_PATTERN_INIT", dnPattern,
+                            e.toString()));
+            throw new EBaseException("falied to init with pattern " + dnPattern
+                    + " " + e);
         }
 
         mInited = true;
     }
 
     /**
-     * Maps a X500 subject name to LDAP entry.
-     * Uses DN pattern to form a DN for a LDAP base search.
+     * Maps a X500 subject name to LDAP entry. Uses DN pattern to form a DN for
+     * a LDAP base search.
      * 
-     * @param conn	the LDAP connection.
-     * @param obj   the object to map.
+     * @param conn the LDAP connection.
+     * @param obj the object to map.
      * @exception ELdapException if any LDAP exceptions occured.
-     */ 
-    public String map(LDAPConnection conn, Object obj)
-        throws ELdapException {
+     */
+    public String map(LDAPConnection conn, Object obj) throws ELdapException {
         return map(conn, null, obj);
     }
 
     /**
-     * Maps a X500 subject name to LDAP entry.
-     * Uses DN pattern to form a DN for a LDAP base search.
+     * Maps a X500 subject name to LDAP entry. Uses DN pattern to form a DN for
+     * a LDAP base search.
      * 
-     * @param conn	the LDAP connection.
-     * @param req  	the request to map.
-     * @param obj   the object to map.
+     * @param conn the LDAP connection.
+     * @param req the request to map.
+     * @param obj the object to map.
      * @exception ELdapException if any LDAP exceptions occured.
-     */ 
+     */
     public String map(LDAPConnection conn, IRequest req, Object obj)
-        throws ELdapException {
+            throws ELdapException {
         if (conn == null)
             return null;
         String dn = null;
@@ -189,13 +186,14 @@ public class LdapCaSimpleMap implements ILdapMapper, IExtendedPluginInfo {
         try {
             dn = formDN(req, obj);
             if (dn == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_DN_NOT_FORMED"));
+                log(ILogger.LL_FAILURE,
+                        CMS.getLogMessage("PUBLISH_DN_NOT_FORMED"));
                 String s1 = "";
 
                 if (req != null)
                     s1 = req.getRequestId().toString();
-                throw new ELdapException(
-                        CMS.getUserMessage("CMS_LDAP_NO_DN_MATCH", s1));
+                throw new ELdapException(CMS.getUserMessage(
+                        "CMS_LDAP_NO_DN_MATCH", s1));
             }
             int scope = LDAPv2.SCOPE_BASE;
             String filter = "(objectclass=*)";
@@ -204,75 +202,82 @@ public class LdapCaSimpleMap implements ILdapMapper, IExtendedPluginInfo {
             String[] attrs = new String[] { LDAPv3.NO_ATTRS };
 
             log(ILogger.LL_INFO, "searching for dn: " + dn + " filter:"
-                + filter + " scope: base");
+                    + filter + " scope: base");
 
-            LDAPSearchResults results = 
-                conn.search(dn, scope, filter, attrs, false);
+            LDAPSearchResults results = conn.search(dn, scope, filter, attrs,
+                    false);
             LDAPEntry entry = results.next();
 
             if (results.hasMoreElements()) {
-                log(ILogger.LL_FAILURE, 
-                    CMS.getLogMessage("PUBLISH_MORE_THAN_ONE_ENTRY", dn,
-                        ((req == null) ? "" : req.getRequestId().toString()))); 
-                throw new ELdapException(
-                        CMS.getUserMessage("CMS_LDAP_MORE_THAN_ONE_ENTRY", 
-                            ((req == null) ? "" : req.getRequestId().toString()))); 
+                log(ILogger.LL_FAILURE, CMS.getLogMessage(
+                        "PUBLISH_MORE_THAN_ONE_ENTRY", dn, ((req == null) ? ""
+                                : req.getRequestId().toString())));
+                throw new ELdapException(CMS.getUserMessage(
+                        "CMS_LDAP_MORE_THAN_ONE_ENTRY", ((req == null) ? ""
+                                : req.getRequestId().toString())));
             }
             if (entry != null)
                 return entry.getDN();
             else {
-                log(ILogger.LL_FAILURE, 
-                    CMS.getLogMessage("PUBLISH_ENTRY_NOT_FOUND", dn,
-                        ((req == null) ? "" : req.getRequestId().toString())));
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_MATCH_FOUND",
-                            "null entry"));
+                log(ILogger.LL_FAILURE, CMS.getLogMessage(
+                        "PUBLISH_ENTRY_NOT_FOUND", dn, ((req == null) ? ""
+                                : req.getRequestId().toString())));
+                throw new ELdapException(CMS.getUserMessage(
+                        "CMS_LDAP_NO_MATCH_FOUND", "null entry"));
             }
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
                 // need to intercept this because message from LDAP is
                 // "DSA is unavailable" which confuses with DSA PKI.
                 log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("PUBLISH_NO_LDAP_SERVER"));
-                throw new ELdapServerDownException(CMS.getUserMessage("CMS_LDAP_SERVER_UNAVAILABLE", conn.getHost(), "" + conn.getPort()));
-            } else if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT && mCreateCAEntry) {
+                        CMS.getLogMessage("PUBLISH_NO_LDAP_SERVER"));
+                throw new ELdapServerDownException(CMS.getUserMessage(
+                        "CMS_LDAP_SERVER_UNAVAILABLE", conn.getHost(), ""
+                                + conn.getPort()));
+            } else if (e.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT
+                    && mCreateCAEntry) {
                 try {
                     createCAEntry(conn, dn);
                     log(ILogger.LL_INFO, "CA Entry " + dn + " Created");
                     return dn;
                 } catch (LDAPException e1) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_DN_MAP_EXCEPTION", dn, e1.toString()));
+                    log(ILogger.LL_FAILURE, CMS.getLogMessage(
+                            "PUBLISH_DN_MAP_EXCEPTION", dn, e1.toString()));
                     if (e1.getLDAPResultCode() == LDAPException.CONSTRAINT_VIOLATION) {
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_CA_ENTRY_NOT_CREATED"));
+                        log(ILogger.LL_FAILURE,
+                                CMS.getLogMessage("PUBLISH_CA_ENTRY_NOT_CREATED"));
                     } else {
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_CA_ENTRY_NOT_CREATED1"));
+                        log(ILogger.LL_FAILURE,
+                                CMS.getLogMessage("PUBLISH_CA_ENTRY_NOT_CREATED1"));
                     }
-                    throw new
-                        ELdapException(CMS.getUserMessage("CMS_LDAP_CREATE_CA_FAILED", dn));
+                    throw new ELdapException(CMS.getUserMessage(
+                            "CMS_LDAP_CREATE_CA_FAILED", dn));
                 }
             } else {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_DN_MAP_EXCEPTION", dn, e.toString()));
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_MATCH_FOUND", e.toString()));
+                log(ILogger.LL_FAILURE,
+                        CMS.getLogMessage("PUBLISH_DN_MAP_EXCEPTION", dn,
+                                e.toString()));
+                throw new ELdapException(CMS.getUserMessage(
+                        "CMS_LDAP_NO_MATCH_FOUND", e.toString()));
             }
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_EXCEPTION_CAUGHT", e.toString()));
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_MATCH_FOUND", e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("PUBLISH_EXCEPTION_CAUGHT", e.toString()));
+            throw new ELdapException(CMS.getUserMessage(
+                    "CMS_LDAP_NO_MATCH_FOUND", e.toString()));
         }
     }
 
     private void createCAEntry(LDAPConnection conn, String dn)
-        throws LDAPException {
+            throws LDAPException {
         LDAPAttributeSet attrs = new LDAPAttributeSet();
         // OID 2.5.6.16
-        String caOc[] = new String[] {"top", 
-                "person", 
-                "organizationalPerson", 
-                "inetOrgPerson"}; 
-		   
-        String oOc[] = {"top", 
-                "organization"};
-        String oiOc[] = {"top", 
-                "organizationalunit"};
-		   
+        String caOc[] = new String[] { "top", "person", "organizationalPerson",
+                "inetOrgPerson" };
+
+        String oOc[] = { "top", "organization" };
+        String oiOc[] = { "top", "organizationalunit" };
+
         DN dnobj = new DN(dn);
         String attrval[] = dnobj.explodeDN(true);
 
@@ -286,6 +291,7 @@ public class LdapCaSimpleMap implements ILdapMapper, IExtendedPluginInfo {
 
     /**
      * form a dn from component in the request and cert subject name
+     * 
      * @param req The request
      * @param obj The certificate or crl
      */
@@ -296,33 +302,35 @@ public class LdapCaSimpleMap implements ILdapMapper, IExtendedPluginInfo {
         try {
             X509Certificate cert = (X509Certificate) obj;
 
-            subjectDN = 
-                    (X500Name) ((X509Certificate) cert).getSubjectDN();
+            subjectDN = (X500Name) ((X509Certificate) cert).getSubjectDN();
 
-            CMS.debug("LdapCaSimpleMap: cert subject dn:" + subjectDN.toString());
-            X509CertInfo info = (X509CertInfo)
-                ((X509CertImpl) cert).get(
-                    X509CertImpl.NAME + "." + X509CertImpl.INFO);
+            CMS.debug("LdapCaSimpleMap: cert subject dn:"
+                    + subjectDN.toString());
+            X509CertInfo info = (X509CertInfo) ((X509CertImpl) cert)
+                    .get(X509CertImpl.NAME + "." + X509CertImpl.INFO);
 
-            certExt = (CertificateExtensions) info.get(
-                        CertificateExtensions.NAME);
+            certExt = (CertificateExtensions) info
+                    .get(CertificateExtensions.NAME);
         } catch (java.security.cert.CertificateParsingException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_CANT_GET_EXT", e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("PUBLISH_CANT_GET_EXT", e.toString()));
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_CANT_GET_EXT", e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("PUBLISH_CANT_GET_EXT", e.toString()));
         } catch (java.security.cert.CertificateException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_CANT_GET_EXT", e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("PUBLISH_CANT_GET_EXT", e.toString()));
         } catch (ClassCastException e) {
             try {
                 X509CRLImpl crl = (X509CRLImpl) obj;
 
-                subjectDN = 
-                        (X500Name) ((X509CRLImpl) crl).getIssuerDN();
+                subjectDN = (X500Name) ((X509CRLImpl) crl).getIssuerDN();
 
-                CMS.debug("LdapCaSimpleMap: crl issuer dn: " +
-                    subjectDN.toString());
-            }catch (ClassCastException ex) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_PUBLISH_OBJ_NOT_SUPPORTED",
+                CMS.debug("LdapCaSimpleMap: crl issuer dn: "
+                        + subjectDN.toString());
+            } catch (ClassCastException ex) {
+                log(ILogger.LL_FAILURE, CMS.getLogMessage(
+                        "PUBLISH_PUBLISH_OBJ_NOT_SUPPORTED",
                         ((req == null) ? "" : req.getRequestId().toString())));
                 return null;
             }
@@ -332,11 +340,12 @@ public class LdapCaSimpleMap implements ILdapMapper, IExtendedPluginInfo {
 
             return dn;
         } catch (ELdapException e) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("PUBLISH_CANT_FORM_DN",
-                    ((req == null) ? "" : req.getRequestId().toString()), e.toString()));
-            throw new EBaseException("falied to form dn for request: " +
-                    ((req == null) ? "" : req.getRequestId().toString()) + " " + e);
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_CANT_FORM_DN",
+                    ((req == null) ? "" : req.getRequestId().toString()),
+                    e.toString()));
+            throw new EBaseException("falied to form dn for request: "
+                    + ((req == null) ? "" : req.getRequestId().toString())
+                    + " " + e);
         }
     }
 
@@ -362,11 +371,12 @@ public class LdapCaSimpleMap implements ILdapMapper, IExtendedPluginInfo {
         try {
             if (mDnPattern == null) {
                 v.addElement(PROP_DNPATTERN + "=");
-            }else {
-                v.addElement(PROP_DNPATTERN + "=" +
-                    mConfig.getString(PROP_DNPATTERN));
+            } else {
+                v.addElement(PROP_DNPATTERN + "="
+                        + mConfig.getString(PROP_DNPATTERN));
             }
-            v.addElement(PROP_CREATECA + "=" + mConfig.getBoolean(PROP_CREATECA, true));
+            v.addElement(PROP_CREATECA + "="
+                    + mConfig.getBoolean(PROP_CREATECA, true));
         } catch (Exception e) {
         }
         return v;
@@ -374,8 +384,7 @@ public class LdapCaSimpleMap implements ILdapMapper, IExtendedPluginInfo {
 
     private void log(int level, String msg) {
         mLogger.log(ILogger.EV_SYSTEM, ILogger.S_LDAP, level,
-            "LdapCaSimpleMapper: " + msg);
+                "LdapCaSimpleMapper: " + msg);
     }
 
 }
-

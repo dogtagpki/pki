@@ -17,14 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.publish;
 
-
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 
-
-/**  
- * Handles requests to  perform Ldap publishing.
- *
+/**
+ * Handles requests to perform Ldap publishing.
+ * 
  * @version $Revision$ $Date$
  */
 public interface ILdapPublishModule extends IRequestListener {
@@ -32,14 +30,14 @@ public interface ILdapPublishModule extends IRequestListener {
     /**
      * initialize ldap publishing module with config store
      */
-    //	public void init(ICertAuthority owner, IConfigStore config) 
-    //		throws EBaseException, ELdapException;
+    // public void init(ICertAuthority owner, IConfigStore config)
+    // throws EBaseException, ELdapException;
 
     /**
-     * Accepts completed requests from an authority and 
-     * performs ldap publishing.
-     * @param request The publishing request. 
+     * Accepts completed requests from an authority and performs ldap
+     * publishing.
+     * 
+     * @param request The publishing request.
      */
     public void accept(IRequest request);
 }
-

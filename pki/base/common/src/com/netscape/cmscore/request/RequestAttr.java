@@ -17,28 +17,24 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.request;
 
-
 import com.netscape.certsrv.dbs.IDBAttrMapper;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.ldap.IRequestMod;
 
-
 /**
- * The RequestAttr class defines the methods used
- * to transfer data between the various representations of
- * a request.  The three forms are:
- *  1) LDAPAttributes (and Modifications)
- *  2) Database record IDBAttrSet
- *  3) IRequest (Request) object
+ * The RequestAttr class defines the methods used to transfer data between the
+ * various representations of a request. The three forms are: 1) LDAPAttributes
+ * (and Modifications) 2) Database record IDBAttrSet 3) IRequest (Request)
+ * object
  */
 abstract class RequestAttr {
 
     /**
      * 
      */
-  
+
     abstract void set(ARequestRecord r, Object o);
 
     abstract Object get(ARequestRecord r);

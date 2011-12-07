@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.usrgrp;
 
-
 import java.security.cert.X509Certificate;
 
 import netscape.ldap.LDAPException;
@@ -30,13 +29,11 @@ import com.netscape.certsrv.usrgrp.ICertUserLocator;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 
-
 /**
- * This interface defines a strategy on how to match
- * the incoming certificate(s) with the certificate(s)
- * in the scope.  It matches the "description" field which contains a
- * stringied certificate.
- *
+ * This interface defines a strategy on how to match the incoming certificate(s)
+ * with the certificate(s) in the scope. It matches the "description" field
+ * which contains a stringied certificate.
+ * 
  * @author thomask
  * @author cfu
  * @version $Revision$, $Date$
@@ -54,16 +51,16 @@ public class ExactMatchCertUserLocator implements ICertUserLocator {
      * Retrieves description.
      */
     public String getDescription() {
-        return "A subject is authenticated if its first" + 
-            " certificate can be matched with one of the" +
-            " certificate in the scope";
+        return "A subject is authenticated if its first"
+                + " certificate can be matched with one of the"
+                + " certificate in the scope";
     }
 
     /**
      * Do the cert-user mapping
      */
-    public IUser locateUser(Certificates certs) throws
-            EUsrGrpException, LDAPException, ELdapException {
+    public IUser locateUser(Certificates certs) throws EUsrGrpException,
+            LDAPException, ELdapException {
         mUG = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
 
         X509Certificate certificates[] = certs.getCertificates();
@@ -72,13 +69,13 @@ public class ExactMatchCertUserLocator implements ICertUserLocator {
             return null;
         int pos = 0;
 
-        if (certificates[0].getSubjectDN().toString().equals(
-                certificates[0].getIssuerDN().toString())) {
+        if (certificates[0].getSubjectDN().toString()
+                .equals(certificates[0].getIssuerDN().toString())) {
             pos = certificates.length - 1;
         }
 
-        String filter = "description=" +
-            mUG.getCertificateString(certificates[pos]);
+        String filter = "description="
+                + mUG.getCertificateString(certificates[pos]);
 
         return mUG.findUsersByCert(filter);
     }

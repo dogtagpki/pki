@@ -17,12 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.apps;
 
-
-
-
 /**
- * This interface represents a command queue for registeration
- * and unregisteration proccess for clean shutdown
+ * This interface represents a command queue for registeration and
+ * unregisteration proccess for clean shutdown
  * 
  * @version $Revision$, $Date$
  */
@@ -30,17 +27,18 @@ public interface ICommandQueue {
 
     /**
      * Registers a thread into the command queue.
-     *
+     * 
      * @param currentRequest request object
      * @param currentServlet servlet that serves the request object
      */
     public boolean registerProcess(Object currentRequest, Object currentServlet);
+
     /**
      * UnRegisters a thread from the command queue.
-     *
+     * 
      * @param currentRequest request object
      * @param currentServlet servlet that serves the request object
      */
     public void unRegisterProccess(Object currentRequest, Object currentServlet);
-            
+
 } // CommandQueue

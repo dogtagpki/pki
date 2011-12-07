@@ -17,18 +17,18 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.common;
 
-
 /**
- * This interface contains constants that are shared 
- * by certificate server and its client SDK.
- *
+ * This interface contains constants that are shared by certificate server and
+ * its client SDK.
+ * 
  * @version $Revision$, $Date$
  */
 public interface Constants {
 
-    /*=======================================================
-     * MESSAGE FORMAT CONSTANTS
-     *=======================================================*/
+    /*
+     * ======================================================= MESSAGE FORMAT
+     * CONSTANTS=======================================================
+     */
     public static final String PASSWORDTYPE = "PasswordField";
     public static final String TEXTTYPE = "TextField";
     public static final String CHECKBOXTYPE = "CheckBox";
@@ -41,34 +41,37 @@ public interface Constants {
     public final static String OP_TYPE = "OP_TYPE";
     public final static String OP_SCOPE = "OP_SCOPE";
 
-    //STATIC RESOURCE IDENTIFIERS
+    // STATIC RESOURCE IDENTIFIERS
     public final static String RS_ID = "RS_ID";
     public final static String RS_ID_CONFIG = "RS_ID_CONFIG";
     public final static String RS_ID_ORDER = "RS_ID_ORDER";
 
-    //STATIC UI TYPE
+    // STATIC UI TYPE
     public final static String TYPE_PASSWORD = "password";
-    
+
     /**********************************************************
      * PROPERTY NAME LISTED BELOW
      **********************************************************/
-    
-    /*========================================================
-     * General
-     *========================================================*/     
+
+    /*
+     * ======================================================== General
+     * ========================================================
+     */
     public final static String PR_PORT = "port";
     public final static String PR_SSLPORT = "sslPort";
-     
-    /*========================================================
-     * Tasks
-     *========================================================*/
+
+    /*
+     * ======================================================== Tasks
+     * ========================================================
+     */
     public final static String PR_SERVER_START = "start";
     public final static String PR_SERVER_STOP = "stop";
     public final static String PR_SERVER_RESTART = "restart";
-    
-    /*========================================================
-     * Networks
-     *========================================================*/
+
+    /*
+     * ======================================================== Networks
+     * ========================================================
+     */
     public final static String PR_ADMIN_S_PORT = "admin.https.port";
     public final static String PR_AGENT_S_PORT = "agent.https.port";
     public final static String PR_GATEWAY_S_PORT = "gateway.https.port";
@@ -78,19 +81,20 @@ public interface Constants {
     public final static String PR_AGENT_S_BACKLOG = "agent.https.backlog";
     public final static String PR_GATEWAY_S_BACKLOG = "gateway.https.backlog";
     public final static String PR_GATEWAY_BACKLOG = "gateway.http.backlog";
-    public final static String PR_GATEWAY_PORT_ENABLED =
-        "gateway.http.enable";
+    public final static String PR_GATEWAY_PORT_ENABLED = "gateway.http.enable";
     public final static String PR_MASTER_AGENT_PORT = "master.ca.agent.port";
     public final static String PR_MASTER_AGENT_HOST = "master.ca.agent.host";
-    
-    /*========================================================
-     * SMTP
-     *========================================================*/
+
+    /*
+     * ======================================================== SMTP
+     * ========================================================
+     */
     public final static String PR_SERVER_NAME = "server";
-    
-    /*========================================================
-     * SNMP
-     *========================================================*/
+
+    /*
+     * ======================================================== SNMP
+     * ========================================================
+     */
     public final static String PR_SNMP_ENABLED = "on";
     public final static String PR_SNMP_MASTER_HOST = "master.host";
     public final static String PR_SNMP_MASTER_PORT = "master.port";
@@ -99,23 +103,25 @@ public interface Constants {
     public final static String PR_SNMP_LOC = "loc";
     public final static String PR_SNMP_CONTACT = "contact";
 
-    /*========================================================
-     * Self Tests
-     *========================================================*/
+    /*
+     * ======================================================== Self Tests
+     * ========================================================
+     */
     public final static String PR_RUN_SELFTESTS_ON_DEMAND = "run";
     public final static String PR_RUN_SELFTESTS_ON_DEMAND_CLASS = "class";
     public final static String PR_RUN_SELFTESTS_ON_DEMAND_CONTENT = "runContent";
 
-    /*========================================================
-     * Users and Groups
-     *========================================================*/
-    
-    //group properties
+    /*
+     * ======================================================== Users and Groups
+     * ========================================================
+     */
+
+    // group properties
     public final static String PR_GROUP_DESC = "desc";
     public final static String PR_GROUP_USER = "user";
     public final static String PR_GROUP_GROUP = "group";
 
-    //user properties
+    // user properties
     public final static String PR_USER_FULLNAME = "fullname";
     public final static String PR_USER_PASSWORD = "password";
     public final static String PR_USER_EMAIL = "email";
@@ -125,9 +131,10 @@ public interface Constants {
     public final static String PR_USER_GROUP = "groups";
     public final static String PR_MULTIROLES = "multiroles";
 
-    /*========================================================
-     * Authentication
-     *========================================================*/
+    /*
+     * ======================================================== Authentication
+     * ========================================================
+     */
     public final static String PR_PING = "ping";
     public final static String PR_AUTH_CLASS = "class";
     public final static String PR_AUTH_IMPL_NAME = "implName";
@@ -137,25 +144,27 @@ public interface Constants {
     public final static String PR_AUTH_ADMIN_DN = "ldapauth.bindDN";
     public final static String PR_AUTH_ADMIN_PWD = "ldapauth.bindPassword";
 
-    /*========================================================
-     * Job Scheduler
-     *========================================================*/
+    /*
+     * ======================================================== Job Scheduler
+     * ========================================================
+     */
     public final static String PR_JOBS_CLASS = "class";
     public final static String PR_JOBS_IMPL_NAME = "implName";
     public final static String PR_JOBS_FREQUENCY = "frequency";
 
-    /*========================================================
-     * Notification
-     *========================================================*/
+    /*
+     * ======================================================== Notification
+     * ========================================================
+     */
     public final static String PR_NOTIFICATION_FORM_NAME = "emailTemplate";
-    public final static String PR_NOTIFICATION_SUBJECT =
-        "emailSubject";
+    public final static String PR_NOTIFICATION_SUBJECT = "emailSubject";
     public final static String PR_NOTIFICATION_SENDER = "senderEmail";
     public final static String PR_NOTIFICATION_RECEIVER = "recipientEmail";
 
-    /*========================================================
-     * Logs
-     *========================================================*/
+    /*
+     * ======================================================== Logs
+     * ========================================================
+     */
     public static final String PR_LOG_IMPL_NAME = "implName";
     public static final String PR_EXT_PLUGIN_IMPLTYPE_LOG = "log";
     public final static String PR_LOG_CLASS = "class";
@@ -191,10 +200,11 @@ public interface Constants {
     public static final String PR_DEBUG_LOG_ENABLE = "debug.enabled";
     public static final String PR_DEBUG_LOG_LEVEL = "debug.level";
 
-    /*========================================================
-     * LDAP Publishing
-     *========================================================*/
-     
+    /*
+     * ======================================================== LDAP Publishing
+     * ========================================================
+     */
+
     // publishing properties
     public final static String PR_BASIC_AUTH = "BasicAuth";
     public final static String PR_SSL_AUTH = "SslClientAuth";
@@ -253,7 +263,7 @@ public interface Constants {
     public final static String PR_BASE_DN = "baseDN";
     public final static String PR_DNCOMPS = "dnComps";
     public final static String PR_FILTERCOMPS = "filterComps";
-    
+
     // ldap connection test
     public final static String PR_CONN_INITED = "connInited";
     public final static String PR_CONN_INIT_FAIL = "connInitFail";
@@ -264,15 +274,17 @@ public interface Constants {
     public final static String PR_SAVE_OK = "saveOk";
     public final static String PR_SAVE_NOT = "saveOrNot";
 
-    /*========================================================
-     * Plugin
-     *========================================================*/
+    /*
+     * ======================================================== Plugin
+     * ========================================================
+     */
     public final static String PR_PLUGIN_IMP = "imp";
     public final static String PR_PLUGIN_INSTANCE = "instance";
 
-    /*========================================================
-     * Policy
-     *========================================================*/
+    /*
+     * ======================================================== Policy
+     * ========================================================
+     */
     public final static String PR_POLICY_CLASS = "class";
     public final static String PR_POLICY_IMPL_NAME = "implName";
     public final static String PR_CRLDP_NAME = "crldpName";
@@ -281,9 +293,10 @@ public interface Constants {
     public final static String PR_POLICY_ENABLE = "enable";
     public final static String PR_POLICY_PREDICATE = "predicate";
 
-    /*========================================================
-     * Publish
-     *========================================================*/
+    /*
+     * ======================================================== Publish
+     * ========================================================
+     */
     public final static String PR_PUBLISHER = "publisher";
     public final static String PR_PUBLISHER_CLASS = "class";
     public final static String PR_PUBLISHER_IMPL_NAME = "implName";
@@ -314,19 +327,18 @@ public interface Constants {
 
     public final static String PR_OCSPSTORE_IMPL_NAME = "implName";
 
-    /*========================================================
-     * Registration Authority
-     *========================================================*/
+    /*
+     * ======================================================== Registration
+     * Authority========================================================
+     */
     public final static String PR_EE_ENABLED = "eeEnabled";
     public final static String PR_OCSP_ENABLED = "ocspEnabled";
     public final static String PR_RA_ENABLED = "raEnabled";
     public final static String PR_RENEWAL_ENABLED = "renewal.enabled";
     public final static String PR_RENEWAL_VALIDITY = "renewal.validity";
     public final static String PR_RENEWAL_EMAIL = "renewal.email";
-    public final static String PR_RENEWAL_EXPIREDNOTIFIEDENABLED = 
-        "renewal.expired.notification.enabled";
-    public final static String PR_RENEWAL_NUMNOTIFICATION = 
-        "renewal.numNotification";
+    public final static String PR_RENEWAL_EXPIREDNOTIFIEDENABLED = "renewal.expired.notification.enabled";
+    public final static String PR_RENEWAL_NUMNOTIFICATION = "renewal.numNotification";
     public final static String PR_RENEWAL_INTERVAL = "renewal.interval";
     public final static String PR_SERVLET_CLASS = "class";
     public final static String PR_SERVLET_URI = "uri";
@@ -337,27 +349,30 @@ public interface Constants {
     public final static String PR_URI = "uri";
     public final static String PR_ENABLED = "enable";
 
-    /*========================================================
-     * Certificate Authority
-     *========================================================*/
+    /*
+     * ======================================================== Certificate
+     * Authority========================================================
+     */
     public final static String PR_VALIDITY = "validity";
     public final static String PR_DEFAULT_ALGORITHM = "defaultSigningAlgorithm";
     public final static String PR_ALL_ALGORITHMS = "allSigningAlgorithms";
     public final static String PR_SERIAL = "startSerialNumber";
     public final static String PR_MAXSERIAL = "maxSerialNumber";
 
-    /*========================================================
-     * Access Control
-     *========================================================*/
+    /*
+     * ======================================================== Access Control
+     * ========================================================
+     */
     public final static String PR_ACL_OPS = "aclOperations";
     public final static String PR_ACI = "aci";
     public final static String PR_ACL_CLASS = "class";
     public final static String PR_ACL_DESC = "desc";
     public final static String PR_ACL_RIGHTS = "rights";
-    
-    /*========================================================
-     * Key Recovery
-     *========================================================*/
+
+    /*
+     * ======================================================== Key Recovery
+     * ========================================================
+     */
     public final static String PR_AUTO_RECOVERY_ON = "autoRecoveryOn";
     public final static String PR_RECOVERY_N = "recoveryN";
     public final static String PR_RECOVERY_M = "recoveryM";
@@ -367,18 +382,20 @@ public interface Constants {
     public final static String PR_AGENT_PWD = "agentPwd";
     public final static String PR_NO_OF_REQUIRED_RECOVERY_AGENTS = "noOfRequiredRecoveryAgents";
 
-    /*========================================================
-     * Status
-     *========================================================*/
+    /*
+     * ======================================================== Status
+     * ========================================================
+     */
     public final static String PR_STAT_STARTUP = "startup";
     public final static String PR_STAT_TIME = "time";
     public final static String PR_STAT_VERSION = "cms.version";
     public final static String PR_STAT_INSTALLDATE = "installDate";
     public final static String PR_STAT_INSTANCEID = "instanceId";
 
-    /*========================================================
-     * Server Instance
-     *========================================================*/
+    /*
+     * ======================================================== Server Instance
+     * ========================================================
+     */
     public final static String PR_INSTALL = "install";
     public final static String PR_INSTANCES_INSTALL = "instancesInstall";
     public final static String PR_CA_INSTANCE = "ca";
@@ -386,7 +403,7 @@ public interface Constants {
     public final static String PR_RA_INSTANCE = "ra";
     public final static String PR_KRA_INSTANCE = "kra";
     public final static String PR_TKS_INSTANCE = "tks";
-   
+
     /*
      * Certificate info
      */
@@ -464,11 +481,12 @@ public interface Constants {
      */
     public final static String PR_TRUST = "trust";
 
-    /*========================================================
-     * Security
-     *========================================================*/
-     
-    //functionality 
+    /*
+     * ======================================================== Security
+     * ========================================================
+     */
+
+    // functionality
     public final static String PR_CERT_SERVER = "SERVER";
     public final static String PR_CERT_ADMIN = "ADMIN";
     public final static String PR_CERT_AGENT = "AGENT";
@@ -477,17 +495,16 @@ public interface Constants {
     public final static String PR_CERT_RA = "RA";
     public final static String PR_CERT_POA = "POA";
     public final static String PR_CERT_TRANS = "TRANS";
-    
+
     // key and certificate management
     public final static String PR_OPERATION_TYPE = "operationtype";
     public final static String PR_INSTALL_TYPE = "install";
     public final static String PR_REQUEST_TYPE = "request";
-    //public final static String PR_CA_SIGNING_CERT = "cacert";
-    //public final static String PR_SERVER_CERT = "servercert";
+    // public final static String PR_CA_SIGNING_CERT = "cacert";
+    // public final static String PR_SERVER_CERT = "servercert";
     public final static String PR_CLIENT_CERT = "clientcert";
-    public final static String PR_FULL_INTERNAL_TOKEN_NAME="Internal Key Storage Token";
-    public final static String PR_INTERNAL_TOKEN_NAME = 
-        "internal";
+    public final static String PR_FULL_INTERNAL_TOKEN_NAME = "Internal Key Storage Token";
+    public final static String PR_INTERNAL_TOKEN_NAME = "internal";
     public final static String PR_TOKEN_NAME = "tokenName";
     public final static String PR_TOKEN_PASSWD = "tokenPwd";
     public final static String PR_KEY_LENGTH = "keyLength";
@@ -502,16 +519,16 @@ public interface Constants {
     public final static String PR_SUBJECT_NAME = "subjectName";
     public final static String PR_CSR = "csr";
 
-    //encryption
-    
+    // encryption
+
     /* Cipher Version: domestic or export */
     public final static String PR_CIPHER_VERSION = "cipherversion";
     public final static String PR_CIPHER_VERSION_DOMESTIC = "cipherdomestic";
     public final static String PR_CIPHER_VERSION_EXPORT = "cipherexport";
-    
+
     /* Cipher Fortezza: true, false */
     public final static String PR_CIPHER_FORTEZZA = "cipherfortezza";
-    
+
     /* Token and Certificates */
     public final static String PR_TOKEN_LIST = "tokenlist";
     public final static String PR_TOKEN_PREFIX = "token_";
@@ -525,46 +542,30 @@ public interface Constants {
     public final static String PR_ECTYPE = "ectype";
 
     /* values for SSL cipher preferences */
-    public final static String 
-        PR_SSL2_RC4_128_WITH_MD5 = "rc4";
-    public final static String 
-        PR_SSL2_RC4_128_EXPORT40_WITH_MD5 = "rc4export";
-    public final static String 
-        PR_SSL2_RC2_128_CBC_WITH_MD5 = "rc2";
-    public final static String 
-        PR_SSL2_RC2_128_CBC_EXPORT40_WITH_MD5 = "rc2export";
-    public final static String 
-        PR_SSL2_DES_64_CBC_WITH_MD5 = "des";
-    public final static String 
-        PR_SSL2_DES_192_EDE3_CBC_WITH_MD5 = "desede3";
-    public final static String 
-        PR_SSL3_RSA_WITH_NULL_MD5 = "rsa_null_md5";
-    public final static String 
-        PR_SSL3_RSA_EXPORT_WITH_RC4_40_MD5 = "rsa_rc4_40_md5";
-    public final static String 
-        PR_SSL3_RSA_WITH_RC4_128_MD5 = "rsa_rc4_128_md5"; 
-    public final static String 
-        PR_SSL3_RSA_EXPORT_WITH_RC2_CBC_40_MD5 = "rsa_rc2_40_md5";
-    public final static String 
-        PR_SSL3_RSA_WITH_DES_CBC_SHA = "rsa_des_sha";
-    public final static String 
-        PR_SSL3_RSA_WITH_3DES_EDE_CBC_SHA = "rsa_3des_sha";
-    public final static String 
-        PR_SSL3_FORTEZZA_DMS_WITH_FORTEZZA_CBC_SHA = "fortezza";
-    public final static String 
-        PR_SSL3_FORTEZZA_DMS_WITH_RC4_128_SHA = "fortezza_rc4_128_sha";
-    public final static String 
-        PR_SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA = "rsa_fips_3des_sha";
-    public final static String 
-        PR_SSL_RSA_FIPS_WITH_DES_CBC_SHA = "rsa_fips_des_sha";
-    public final static String 
-        PR_TLS_RSA_EXPORT1024_WITH_RC4_56_SHA = "tls_rsa_rc4_56_sha";
-    public final static String 
-        PR_TLS_RSA_EXPORT1024_WITH_DES_CBC_SHA = "tls_rsa_des_sha";
+    public final static String PR_SSL2_RC4_128_WITH_MD5 = "rc4";
+    public final static String PR_SSL2_RC4_128_EXPORT40_WITH_MD5 = "rc4export";
+    public final static String PR_SSL2_RC2_128_CBC_WITH_MD5 = "rc2";
+    public final static String PR_SSL2_RC2_128_CBC_EXPORT40_WITH_MD5 = "rc2export";
+    public final static String PR_SSL2_DES_64_CBC_WITH_MD5 = "des";
+    public final static String PR_SSL2_DES_192_EDE3_CBC_WITH_MD5 = "desede3";
+    public final static String PR_SSL3_RSA_WITH_NULL_MD5 = "rsa_null_md5";
+    public final static String PR_SSL3_RSA_EXPORT_WITH_RC4_40_MD5 = "rsa_rc4_40_md5";
+    public final static String PR_SSL3_RSA_WITH_RC4_128_MD5 = "rsa_rc4_128_md5";
+    public final static String PR_SSL3_RSA_EXPORT_WITH_RC2_CBC_40_MD5 = "rsa_rc2_40_md5";
+    public final static String PR_SSL3_RSA_WITH_DES_CBC_SHA = "rsa_des_sha";
+    public final static String PR_SSL3_RSA_WITH_3DES_EDE_CBC_SHA = "rsa_3des_sha";
+    public final static String PR_SSL3_FORTEZZA_DMS_WITH_FORTEZZA_CBC_SHA = "fortezza";
+    public final static String PR_SSL3_FORTEZZA_DMS_WITH_RC4_128_SHA = "fortezza_rc4_128_sha";
+    public final static String PR_SSL_RSA_FIPS_WITH_3DES_EDE_CBC_SHA = "rsa_fips_3des_sha";
+    public final static String PR_SSL_RSA_FIPS_WITH_DES_CBC_SHA = "rsa_fips_des_sha";
+    public final static String PR_TLS_RSA_EXPORT1024_WITH_RC4_56_SHA = "tls_rsa_rc4_56_sha";
+    public final static String PR_TLS_RSA_EXPORT1024_WITH_DES_CBC_SHA = "tls_rsa_des_sha";
 
-    /*========================================================
-     * Watchdog and Server State Messages 
-     *========================================================*/
+    /*
+     * ======================================================== Watchdog and
+     * Server State Messages
+     * ========================================================
+     */
 
     public final static String SERVER_STARTUP_WARNING_MESSAGE = "CMS Warning: ";
     public final static String SERVER_STARTUP_MESSAGE = "Server is started.";
@@ -572,9 +573,11 @@ public interface Constants {
     public final static String SERVER_SHUTDOWN_ERROR_MESSAGE = "Error Starting CMS: ";
     public final static String SERVER_SHUTDOWN_EXTENDED_ERROR_MESSAGE = "Extended error information: ";
 
-    /*============================================================
-     * THE FOLLOWING LIST WILL BE REMOVED
-     *============================================================*/
+    /*
+     * ============================================================ THE
+     * FOLLOWING LIST WILL BE REMOVED
+     * ============================================================
+     */
 
     // parameter types
     public final static String PT_OP = "op";
@@ -598,10 +601,8 @@ public interface Constants {
     public final static String PT_MAPPING = "mapping";
     public final static String PT_DN = "dn";
 
-    public final static String PV_SYSTEM_ADMINISTRATORS =
-        "SystemAdministrators";
-    public final static String PV_CERTIFICATE_ADMINISTRATORS =
-        "CertificateAdministrators";
+    public final static String PV_SYSTEM_ADMINISTRATORS = "SystemAdministrators";
+    public final static String PV_CERTIFICATE_ADMINISTRATORS = "CertificateAdministrators";
 
     public final static String OP_AUTHENTICATE = "authenticate";
     public final static String OP_RESTART = "restart";
@@ -635,10 +636,8 @@ public interface Constants {
 
     // certificate authority operations
     public final static String PT_PUBLISH_DN = "ldappublish.ldap.admin-dn";
-    public final static String PT_PUBLISH_PWD =
-        "ldappublish.ldap.admin-password";
-    public final static String PT_PUBLISH_FREQ =
-        "crl.crl0.autoUpdateInterval";
+    public final static String PT_PUBLISH_PWD = "ldappublish.ldap.admin-password";
+    public final static String PT_PUBLISH_FREQ = "crl.crl0.autoUpdateInterval";
     public final static String PT_SERIALNO = "serialno";
     public final static String PT_NAMES = "names";
     public final static String PT_CERTIFICATES = "certificates";
@@ -732,10 +731,10 @@ public interface Constants {
     public final static String PR_REQUEST_SVC_PENDING = "4";
     public final static String PR_REQUEST_REJECTED = "5";
 
-    //Profile
+    // Profile
     public final static String PR_CONSTRAINTS_LIST = "constraintPolicy";
 
-    //Replication
+    // Replication
     public final static String PR_REPLICATION_ENABLED = "replication.enabled";
     public final static String PR_REPLICATION_AGREEMENT_NAME_1 = "replication.master1.name";
     public final static String PR_REPLICATION_HOST_1 = "replication.master1.hostname";

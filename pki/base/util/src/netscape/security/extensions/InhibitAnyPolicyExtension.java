@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.extensions;
 
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -34,17 +33,15 @@ import netscape.security.x509.Extension;
 import netscape.security.x509.OIDMap;
 
 /**
- *  RFC3280:
- *
- *  id-ce-inhibitAnyPolicy OBJECT IDENTIFIER ::=  { id-ce 54 }
+ * RFC3280:
  * 
- *  InhibitAnyPolicy ::= SkipCerts
+ * id-ce-inhibitAnyPolicy OBJECT IDENTIFIER ::= { id-ce 54 }
  * 
- *  SkipCerts ::= INTEGER (0..MAX)
+ * InhibitAnyPolicy ::= SkipCerts
+ * 
+ * SkipCerts ::= INTEGER (0..MAX)
  */
-public class InhibitAnyPolicyExtension 
-          extends Extension implements CertAttrSet 
-{
+public class InhibitAnyPolicyExtension extends Extension implements CertAttrSet {
 
     /**
      *
@@ -57,8 +54,8 @@ public class InhibitAnyPolicyExtension
 
     static {
         try {
-            OIDMap.addAttribute(InhibitAnyPolicyExtension.class.getName(),
-                OID, NAME);
+            OIDMap.addAttribute(InhibitAnyPolicyExtension.class.getName(), OID,
+                    NAME);
         } catch (CertificateException e) {
         }
     }
@@ -70,23 +67,23 @@ public class InhibitAnyPolicyExtension
     public InhibitAnyPolicyExtension(boolean crit, BigInt skipCerts) {
         try {
             extensionId = ObjectIdentifier.getObjectIdentifier(OID);
-        } catch (IOException e) {	
+        } catch (IOException e) {
             // never here
         }
         critical = crit;
-	mSkipCerts = skipCerts;
+        mSkipCerts = skipCerts;
         encodeExtValue();
     }
 
-    public InhibitAnyPolicyExtension(Boolean crit, Object value) 
-        throws IOException {
+    public InhibitAnyPolicyExtension(Boolean crit, Object value)
+            throws IOException {
         extensionId = ObjectIdentifier.getObjectIdentifier(OID);
         critical = crit.booleanValue();
-        //extensionValue = (byte[]) ((byte[]) byteVal).clone();
+        // extensionValue = (byte[]) ((byte[]) byteVal).clone();
         int len = Array.getLength(value);
         byte[] extValue = new byte[len];
         for (int i = 0; i < len; i++) {
-          extValue[i] = Array.getByte(value, i);
+            extValue[i] = Array.getByte(value, i);
         }
 
         extensionValue = extValue;
@@ -98,7 +95,7 @@ public class InhibitAnyPolicyExtension
             critical = newValue;
         }
     }
-    
+
     public BigInt getSkipCerts() {
         return mSkipCerts;
     }
@@ -114,17 +111,16 @@ public class InhibitAnyPolicyExtension
         if (extensionValue != null) {
             String extByteValue = new String(" skipCerts=" + mSkipCerts);
 
-            presentation += extByteValue;    
+            presentation += extByteValue;
         }
         return presentation;
     }
 
-    public void decode(InputStream in) 
-        throws CertificateException, IOException {
+    public void decode(InputStream in) throws CertificateException, IOException {
     }
 
-    public void set(String name, Object obj) 
-        throws CertificateException, IOException {
+    public void set(String name, Object obj) throws CertificateException,
+            IOException {
         // NOT USED
     }
 
@@ -138,11 +134,10 @@ public class InhibitAnyPolicyExtension
     }
 
     public String getName() {
-        return NAME;   
+        return NAME;
     }
 
-    public void delete(String name) 
-        throws CertificateException, IOException {
+    public void delete(String name) throws CertificateException, IOException {
         // NOT USED
     }
 
@@ -153,27 +148,27 @@ public class InhibitAnyPolicyExtension
     }
 
     public void encode(OutputStream out) throws IOException {
-       DerOutputStream  tmp = new DerOutputStream();
+        DerOutputStream tmp = new DerOutputStream();
 
-       if (this.extensionValue == null) {
+        if (this.extensionValue == null) {
             try {
                 extensionId = ObjectIdentifier.getObjectIdentifier(OID);
-            } catch (IOException e) {	
+            } catch (IOException e) {
                 // never here
             }
             DerOutputStream os = new DerOutputStream();
             os.putInteger(mSkipCerts);
             this.extensionValue = os.toByteArray();
-       }
+        }
 
-       super.encode(tmp);
-       out.write(tmp.toByteArray());
+        super.encode(tmp);
+        out.write(tmp.toByteArray());
     }
 
     private void encodeExtValue() {
         DerOutputStream out = new DerOutputStream();
         try {
-	  out.putInteger(mSkipCerts);
+            out.putInteger(mSkipCerts);
         } catch (IOException e) {
         }
         extensionValue = out.toByteArray();

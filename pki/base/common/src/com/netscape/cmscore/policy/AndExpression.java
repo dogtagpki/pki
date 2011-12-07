@@ -17,31 +17,29 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.policy;
 
-
 import com.netscape.certsrv.policy.EPolicyException;
 import com.netscape.certsrv.policy.IExpression;
 import com.netscape.certsrv.request.IRequest;
 
-
 /**
- * This class represents an expression of the form
- * <var1 op val1 AND var2 op va2>.
- *
+ * This class represents an expression of the form <var1 op val1 AND var2 op
+ * va2>.
+ * 
  * Expressions are used as predicates for policy selection.
- *
+ * 
  * @author kanda
  * @version $Revision$, $Date$
  */
 public class AndExpression implements IExpression {
     private IExpression mExp1;
     private IExpression mExp2;
+
     public AndExpression(IExpression exp1, IExpression exp2) {
         mExp1 = exp1;
         mExp2 = exp2;
     }
 
-    public boolean evaluate(IRequest req)
-        throws EPolicyException {
+    public boolean evaluate(IRequest req) throws EPolicyException {
         // If an expression is missing we assume applicability.
         if (mExp1 == null && mExp2 == null)
             return true;
@@ -49,7 +47,8 @@ public class AndExpression implements IExpression {
             return mExp1.evaluate(req) && mExp2.evaluate(req);
         else if (mExp1 == null)
             return mExp2.evaluate(req);
-        else // (if mExp2 == null)
+        else
+            // (if mExp2 == null)
             return mExp1.evaluate(req);
     }
 

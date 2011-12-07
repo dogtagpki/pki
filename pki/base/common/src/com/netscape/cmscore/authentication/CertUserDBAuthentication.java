@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.authentication;
 
-
 import java.security.cert.X509Certificate;
 
 import netscape.security.x509.X509CertImpl;
@@ -38,13 +37,11 @@ import com.netscape.certsrv.usrgrp.ICertUserLocator;
 import com.netscape.cmscore.usrgrp.ExactMatchCertUserLocator;
 import com.netscape.cmscore.usrgrp.User;
 
-
 /**
- * Certificate server agent authentication.  
- * Maps a SSL client authenticate certificate to a user (agent) entry in the 
- * internal database. 
+ * Certificate server agent authentication. Maps a SSL client authenticate
+ * certificate to a user (agent) entry in the internal database.
  * <P>
- *
+ * 
  * @author lhsiao
  * @author cfu
  * @version $Revision$, $Date$
@@ -81,15 +78,15 @@ public class CertUserDBAuthentication implements IAuthManager {
     /**
      * initializes the CertUserDBAuthentication auth manager
      * <p>
-     * called by AuthSubsystem init() method, when initializing
-     * all available authentication managers.
-     * @param owner - The authentication subsystem that hosts this
-     *   auth manager
-     * @param config - The configuration store used by the
-     *	 authentication subsystem
+     * called by AuthSubsystem init() method, when initializing all available
+     * authentication managers.
+     * 
+     * @param owner - The authentication subsystem that hosts this auth manager
+     * @param config - The configuration store used by the authentication
+     *            subsystem
      */
     public void init(String name, String implName, IConfigStore config)
-        throws EBaseException {
+            throws EBaseException {
         mName = name;
         mImplName = implName;
         mConfig = config;
@@ -98,21 +95,25 @@ public class CertUserDBAuthentication implements IAuthManager {
             mRevocationChecking = mConfig.getSubStore("revocationChecking");
         }
         if (mRevocationChecking != null) {
-            mRevocationCheckingEnabled = mRevocationChecking.getBoolean("enabled", false);
+            mRevocationCheckingEnabled = mRevocationChecking.getBoolean(
+                    "enabled", false);
             if (mRevocationCheckingEnabled) {
                 int size = mRevocationChecking.getInteger("bufferSize", 0);
-                long interval = (long) mRevocationChecking.getInteger("validityInterval", 28800);
-                long unknownStateInterval = (long) mRevocationChecking.getInteger("unknownStateInterval", 1800);
+                long interval = (long) mRevocationChecking.getInteger(
+                        "validityInterval", 28800);
+                long unknownStateInterval = (long) mRevocationChecking
+                        .getInteger("unknownStateInterval", 1800);
 
                 if (size > 0)
-                    CMS.setListOfVerifiedCerts(size, interval, unknownStateInterval);
+                    CMS.setListOfVerifiedCerts(size, interval,
+                            unknownStateInterval);
             }
         }
 
         mCULocator = new ExactMatchCertUserLocator();
         log(ILogger.LL_INFO, CMS.getLogMessage("INIT_DONE", name));
     }
- 
+
     /**
      * Gets the name of this authentication manager.
      */
@@ -126,45 +127,52 @@ public class CertUserDBAuthentication implements IAuthManager {
     public String getImplName() {
         return mImplName;
     }
- 
+
     /**
      * authenticates user(agent) by certificate
      * <p>
-     * called by other subsystems or their servlets to authenticate
-     *	 users (agents)
-     * @param authCred - authentication credential that contains
-     *	 an usrgrp.Certificates of the user (agent)
+     * called by other subsystems or their servlets to authenticate users
+     * (agents)
+     * 
+     * @param authCred - authentication credential that contains an
+     *            usrgrp.Certificates of the user (agent)
      * @return the authentication token that contains the following
-     *
-     * @exception com.netscape.certsrv.base.EAuthsException any
-     *	 authentication failure or insufficient credentials
+     * 
+     * @exception com.netscape.certsrv.base.EAuthsException any authentication
+     *                failure or insufficient credentials
      * @see com.netscape.certsrv.authentication.AuthToken
      * @see com.netscape.certsrv.usrgrp.Certificates
      */
     public IAuthToken authenticate(IAuthCredentials authCred)
-        throws EMissingCredential, EInvalidCredentials, EBaseException {
+            throws EMissingCredential, EInvalidCredentials, EBaseException {
         CMS.debug("CertUserDBAuth: started");
         AuthToken authToken = new AuthToken(this);
         CMS.debug("CertUserDBAuth: Retrieving client certificate");
-        X509Certificate[] x509Certs = 
-            (X509Certificate[]) authCred.get(CRED_CERT);
+        X509Certificate[] x509Certs = (X509Certificate[]) authCred
+                .get(CRED_CERT);
 
         if (x509Certs == null) {
             CMS.debug("CertUserDBAuth: no client certificate found");
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_MISSING_CERT"));
-            throw new EMissingCredential(CMS.getUserMessage("CMS_AUTHENTICATION_NULL_CREDENTIAL", CRED_CERT));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_AUTH_MISSING_CERT"));
+            throw new EMissingCredential(CMS.getUserMessage(
+                    "CMS_AUTHENTICATION_NULL_CREDENTIAL", CRED_CERT));
         }
         CMS.debug("CertUserDBAuth: Got client certificate");
 
         if (mRevocationCheckingEnabled) {
             X509CertImpl cert0 = (X509CertImpl) x509Certs[0];
             if (cert0 == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_NO_CERT"));
-                throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_NO_CERT"));
+                log(ILogger.LL_FAILURE,
+                        CMS.getLogMessage("CMSCORE_AUTH_NO_CERT"));
+                throw new EInvalidCredentials(
+                        CMS.getUserMessage("CMS_AUTHENTICATION_NO_CERT"));
             }
             if (CMS.isRevoked(x509Certs)) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_REVOKED_CERT"));
-                throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
+                log(ILogger.LL_FAILURE,
+                        CMS.getLogMessage("CMSCORE_AUTH_REVOKED_CERT"));
+                throw new EInvalidCredentials(
+                        CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
             }
         }
 
@@ -177,19 +185,28 @@ public class CertUserDBAuthentication implements IAuthManager {
         try {
             user = (User) mCULocator.locateUser(certs);
         } catch (EUsrGrpException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_AGENT_AUTH_FAILED", x509Certs[0].getSerialNumber().toString(16), x509Certs[0].getSubjectDN().toString(), e.toString()));
-            throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
+            log(ILogger.LL_FAILURE, CMS.getLogMessage(
+                    "CMSCORE_AUTH_AGENT_AUTH_FAILED", x509Certs[0]
+                            .getSerialNumber().toString(16), x509Certs[0]
+                            .getSubjectDN().toString(), e.toString()));
+            throw new EInvalidCredentials(
+                    CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
         } catch (netscape.ldap.LDAPException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_CANNOT_AGENT_AUTH", e.toString()));
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_AUTH_CANNOT_AGENT_AUTH",
+                            e.toString()));
+            throw new EBaseException(CMS.getUserMessage(
+                    "CMS_BASE_INTERNAL_ERROR", e.toString()));
         }
 
-        // any unexpected error occurs like internal db down, 
+        // any unexpected error occurs like internal db down,
         // UGSubsystem only returns null for user.
         if (user == null) {
             CMS.debug("Authentication: cannot map certificate to user");
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_AGENT_USER_NOT_FOUND"));
-            throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_AUTH_AGENT_USER_NOT_FOUND"));
+            throw new EInvalidCredentials(
+                    CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
         }
 
         CMS.debug("Authentication: mapped certificate to user");
@@ -198,20 +215,22 @@ public class CertUserDBAuthentication implements IAuthManager {
         authToken.set(TOKEN_USER_DN, user.getUserDN());
         authToken.set(TOKEN_USERID, user.getUserID());
         authToken.set(TOKEN_UID, user.getUserID());
-        authToken.set(CRED_CERT, certs);  
+        authToken.set(CRED_CERT, certs);
 
-        log(ILogger.LL_INFO, CMS.getLogMessage("CMS_AUTH_AUTHENTICATED", user.getUserID()));
+        log(ILogger.LL_INFO,
+                CMS.getLogMessage("CMS_AUTH_AUTHENTICATED", user.getUserID()));
         CMS.debug("authenticated " + user.getUserDN());
 
         return authToken;
     }
 
     /**
-     * get the list of authentication credential attribute names
-     *	 required by this authentication manager. Generally used by
-     *	 the servlets that handle agent operations to authenticate its
-     *	 users.  It calls this method to know which are the
-     *	 required credentials from the user (e.g. Javascript form data)
+     * get the list of authentication credential attribute names required by
+     * this authentication manager. Generally used by the servlets that handle
+     * agent operations to authenticate its users. It calls this method to know
+     * which are the required credentials from the user (e.g. Javascript form
+     * data)
+     * 
      * @return attribute names in Vector
      */
     public String[] getRequiredCreds() {
@@ -219,15 +238,15 @@ public class CertUserDBAuthentication implements IAuthManager {
     }
 
     /**
-     * get the list of configuration parameter names
-     *	 required by this authentication manager.  Generally used by
-     *	 the Certificate Server Console to display the table for
-     *	 configuration purposes.  CertUserDBAuthentication is currently not
-     *	 exposed in this case, so this method is not to be used.
-     * @return configuration parameter names in Hashtable of Vectors
-     *	 where each hashtable entry's key is the substore name, value is a
-     * Vector of parameter names.  If no substore, the parameter name
-     *	 is the Hashtable key itself, with value same as key.
+     * get the list of configuration parameter names required by this
+     * authentication manager. Generally used by the Certificate Server Console
+     * to display the table for configuration purposes. CertUserDBAuthentication
+     * is currently not exposed in this case, so this method is not to be used.
+     * 
+     * @return configuration parameter names in Hashtable of Vectors where each
+     *         hashtable entry's key is the substore name, value is a Vector of
+     *         parameter names. If no substore, the parameter name is the
+     *         Hashtable key itself, with value same as key.
      */
     public String[] getConfigParams() {
         return (mConfigParams);
@@ -240,8 +259,8 @@ public class CertUserDBAuthentication implements IAuthManager {
     }
 
     /**
-     * gets the configuretion substore used by this authentication
-     *  manager
+     * gets the configuretion substore used by this authentication manager
+     * 
      * @return configuration store
      */
     public IConfigStore getConfigStore() {
@@ -251,8 +270,8 @@ public class CertUserDBAuthentication implements IAuthManager {
     private void log(int level, String msg) {
         if (mLogger == null)
             return;
-        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_AUTHENTICATION,
-            level, msg);
+        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_AUTHENTICATION, level,
+                msg);
     }
 
 }

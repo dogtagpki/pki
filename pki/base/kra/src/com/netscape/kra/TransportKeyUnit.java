@@ -34,16 +34,15 @@ import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.security.ITransportKeyUnit;
 import com.netscape.cmsutil.util.Cert;
 
-
 /**
- * A class represents the transport key pair. This key pair
- * is used to protected EE's private key in transit.
- *
+ * A class represents the transport key pair. This key pair is used to protected
+ * EE's private key in transit.
+ * 
  * @author thomask
  * @version $Revision$, $Date$
  */
-public class TransportKeyUnit extends EncryptionUnit implements 
-        ISubsystem, ITransportKeyUnit {
+public class TransportKeyUnit extends EncryptionUnit implements ISubsystem,
+        ITransportKeyUnit {
 
     public static final String PROP_NICKNAME = "nickName";
     public static final String PROP_SIGNING_ALGORITHM = "signingAlgorithm";
@@ -72,14 +71,15 @@ public class TransportKeyUnit extends EncryptionUnit implements
      * Sets subsystem identifier.
      */
     public void setId(String id) throws EBaseException {
-        throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_OPERATION"));
+        throw new EBaseException(
+                CMS.getUserMessage("CMS_BASE_INVALID_OPERATION"));
     }
 
     /**
      * Initializes this subsystem.
      */
-    public void init(ISubsystem owner, IConfigStore config) 
-        throws EBaseException {
+    public void init(ISubsystem owner, IConfigStore config)
+            throws EBaseException {
         mConfig = config;
         try {
             mManager = CryptoManager.getInstance();
@@ -87,21 +87,24 @@ public class TransportKeyUnit extends EncryptionUnit implements
             String algo = config.getString("signingAlgorithm", "SHA256withRSA");
 
             // #613795 - initialize this; otherwise JSS is not happy
-            CryptoToken token = getToken(); 
+            CryptoToken token = getToken();
             SignatureAlgorithm sigalg = Cert.mapAlgorithmToJss(algo);
-            Signature signer = token.getSignatureContext(sigalg); 
+            Signature signer = token.getSignatureContext(sigalg);
             signer.initSign(getPrivateKey());
-           
 
         } catch (org.mozilla.jss.CryptoManager.NotInitializedException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()));
+            throw new EBaseException(CMS.getUserMessage(
+                    "CMS_BASE_INTERNAL_ERROR", e.toString()));
 
         } catch (TokenException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()));
+            throw new EBaseException(CMS.getUserMessage(
+                    "CMS_BASE_INTERNAL_ERROR", e.toString()));
         } catch (ObjectNotFoundException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()));
+            throw new EBaseException(CMS.getUserMessage(
+                    "CMS_BASE_INTERNAL_ERROR", e.toString()));
         } catch (Exception e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()));
+            throw new EBaseException(CMS.getUserMessage(
+                    "CMS_BASE_INTERNAL_ERROR", e.toString()));
         }
     }
 
@@ -115,7 +118,7 @@ public class TransportKeyUnit extends EncryptionUnit implements
 
     public CryptoToken getToken() {
         // 390148: returning the token that owns the private
-        //         key. 
+        // key.
         return getPrivateKey().getOwningToken();
     }
 
@@ -130,7 +133,7 @@ public class TransportKeyUnit extends EncryptionUnit implements
      */
     public void shutdown() {
     }
-	
+
     /**
      * Returns the configuration store of this token.
      */
@@ -191,7 +194,7 @@ public class TransportKeyUnit extends EncryptionUnit implements
      * Verifies the integrity of the given key pair.
      */
     public void verify(byte publicKey[], PrivateKey privateKey)
-        throws EBaseException {
+            throws EBaseException {
         // XXX
     }
 }

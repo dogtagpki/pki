@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.def;
 
-
 import java.io.IOException;
 import java.util.Locale;
 
@@ -35,11 +34,10 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 
-
 /**
- * This class implements an enrollment default policy that
- * populates subject name based on the attribute values
- * in the authentication token (AuthToken) object.
+ * This class implements an enrollment default policy that populates subject
+ * name based on the attribute values in the authentication token (AuthToken)
+ * object.
  * 
  * @version $Revision$, $Date$
  */
@@ -53,7 +51,7 @@ public class AuthTokenSubjectNameDefault extends EnrollDefault {
     }
 
     public void init(IProfile profile, IConfigStore config)
-        throws EProfileException {
+            throws EProfileException {
         super.init(profile, config);
     }
 
@@ -66,67 +64,66 @@ public class AuthTokenSubjectNameDefault extends EnrollDefault {
         }
     }
 
-    public void setValue(String name, Locale locale,
-        X509CertInfo info, String value)
-        throws EPropertyException {
+    public void setValue(String name, Locale locale, X509CertInfo info,
+            String value) throws EPropertyException {
         CMS.debug("AuthTokenSubjectNameDefault: begins");
         if (name == null) {
             throw new EPropertyException(CMS.getUserMessage(locale,
-                        "CMS_INVALID_PROPERTY", name));
+                    "CMS_INVALID_PROPERTY", name));
         }
         if (name.equals(VAL_NAME)) {
             X500Name x500name = null;
 
             try {
                 x500name = new X500Name(value);
-                CMS.debug("AuthTokenSubjectNameDefault: setValue x500name=" + x500name.toString());
+                CMS.debug("AuthTokenSubjectNameDefault: setValue x500name="
+                        + x500name.toString());
             } catch (IOException e) {
-                CMS.debug("AuthTokenSubjectNameDefault: setValue " + 
-                    e.toString());
+                CMS.debug("AuthTokenSubjectNameDefault: setValue "
+                        + e.toString());
                 // failed to build x500 name
             }
-            CMS.debug("AuthTokenSubjectNameDefault: setValue name=" + x500name.toString());
+            CMS.debug("AuthTokenSubjectNameDefault: setValue name="
+                    + x500name.toString());
             try {
-                info.set(X509CertInfo.SUBJECT, 
-                    new CertificateSubjectName(x500name));
+                info.set(X509CertInfo.SUBJECT, new CertificateSubjectName(
+                        x500name));
             } catch (Exception e) {
                 // failed to insert subject name
-                CMS.debug("AuthTokenSubjectNameDefault: setValue " + 
-                    e.toString());
+                CMS.debug("AuthTokenSubjectNameDefault: setValue "
+                        + e.toString());
             }
         } else {
             throw new EPropertyException(CMS.getUserMessage(locale,
-                        "CMS_INVALID_PROPERTY", name));
+                    "CMS_INVALID_PROPERTY", name));
         }
     }
 
-    public String getValue(String name, Locale locale,
-        X509CertInfo info)
-        throws EPropertyException {
+    public String getValue(String name, Locale locale, X509CertInfo info)
+            throws EPropertyException {
         if (name == null)
             throw new EPropertyException("Invalid name " + name);
         if (name.equals(VAL_NAME)) {
             CertificateSubjectName sn = null;
 
             try {
-                sn = (CertificateSubjectName)
-                        info.get(X509CertInfo.SUBJECT);
+                sn = (CertificateSubjectName) info.get(X509CertInfo.SUBJECT);
                 return sn.toString();
             } catch (Exception e) {
                 // nothing
-                CMS.debug("AuthTokenSubjectNameDefault: getValue " + 
-                    e.toString());
+                CMS.debug("AuthTokenSubjectNameDefault: getValue "
+                        + e.toString());
             }
             throw new EPropertyException(CMS.getUserMessage(locale,
-                        "CMS_INVALID_PROPERTY", name));
+                    "CMS_INVALID_PROPERTY", name));
         } else {
             throw new EPropertyException(CMS.getUserMessage(locale,
-                        "CMS_INVALID_PROPERTY", name));
+                    "CMS_INVALID_PROPERTY", name));
         }
     }
 
     public String getText(Locale locale) {
-        return CMS.getUserMessage(locale, 
+        return CMS.getUserMessage(locale,
                 "CMS_PROFILE_DEF_AUTHTOKEN_SUBJECT_NAME");
     }
 
@@ -134,7 +131,7 @@ public class AuthTokenSubjectNameDefault extends EnrollDefault {
      * Populates the request with this policy default.
      */
     public void populate(IRequest request, X509CertInfo info)
-        throws EProfileException {
+            throws EProfileException {
 
         // authenticate the subject name and populate it
         // to the certinfo
@@ -142,13 +139,14 @@ public class AuthTokenSubjectNameDefault extends EnrollDefault {
             X500Name name = new X500Name(
                     request.getExtDataInString(IProfileAuthenticator.AUTHENTICATED_NAME));
 
-            CMS.debug("AuthTokenSubjectNameDefault: X500Name=" + name.toString());
+            CMS.debug("AuthTokenSubjectNameDefault: X500Name="
+                    + name.toString());
             info.set(X509CertInfo.SUBJECT, new CertificateSubjectName(name));
         } catch (Exception e) {
             // failed to insert subject name
             CMS.debug("AuthTokenSubjectNameDefault: " + e.toString());
             throw new EProfileException(CMS.getUserMessage(getLocale(request),
-                        "CMS_PROFILE_SUBJECT_NAME_NOT_FOUND"));
+                    "CMS_PROFILE_SUBJECT_NAME_NOT_FOUND"));
         }
     }
 }

@@ -17,20 +17,17 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.registry;
 
-
 import java.util.Enumeration;
 
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 
-
 /**
- * This represents the registry subsystem that manages 
- * mulitple types of plugin information.
- *
- * The plugin information includes id, name, 
- * classname, and description.
- *
+ * This represents the registry subsystem that manages mulitple types of plugin
+ * information.
+ * 
+ * The plugin information includes id, name, classname, and description.
+ * 
  * @version $Revision$, $Date$
  */
 public interface IPluginRegistry extends ISubsystem {
@@ -39,21 +36,21 @@ public interface IPluginRegistry extends ISubsystem {
 
     /**
      * Returns handle to the registry configuration file.
-     *
+     * 
      * @return configuration store of registry subsystem
      */
     public IConfigStore getFileConfigStore();
 
     /**
      * Returns all type names.
-     *
+     * 
      * @return a list of String-based names
      */
     public Enumeration getTypeNames();
 
     /**
      * Returns a list of plugin identifiers of the given type.
-     *
+     * 
      * @param type plugin type
      * @return a list of plugin IDs
      */
@@ -61,7 +58,7 @@ public interface IPluginRegistry extends ISubsystem {
 
     /**
      * Retrieves the plugin information.
-     *
+     * 
      * @param type plugin type
      * @param id plugin id
      * @return plugin info
@@ -70,24 +67,24 @@ public interface IPluginRegistry extends ISubsystem {
 
     /**
      * Adds plugin info.
-     *
+     * 
      * @param type plugin type
      * @param id plugin id
      * @param info plugin info
      * @exception ERegistryException failed to add plugin
      */
     public void addPluginInfo(String type, String id, IPluginInfo info)
-        throws ERegistryException;
+            throws ERegistryException;
 
     /**
      * Removes plugin info.
      */
     public void removePluginInfo(String type, String id)
-     throws ERegistryException;
+            throws ERegistryException;
 
     /**
      * Creates a pluginInfo
      */
-    public IPluginInfo createPluginInfo(String name, String desc, 
-       String classPath);
+    public IPluginInfo createPluginInfo(String name, String desc,
+            String classPath);
 }

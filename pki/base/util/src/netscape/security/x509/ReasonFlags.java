@@ -28,10 +28,11 @@ import netscape.security.util.DerValue;
 
 /**
  * Represent the CRL Reason Flags.
- *
- * <p>This extension, if present, defines the identifies
- * the reason for the certificate revocation.
- *
+ * 
+ * <p>
+ * This extension, if present, defines the identifies the reason for the
+ * certificate revocation.
+ * 
  * @author Hemma Prafullchandra
  * @version 1.3
  * @see Extension
@@ -47,19 +48,17 @@ public class ReasonFlags {
     public static final String CA_COMPROMISE = "ca_compromise";
     public static final String AFFLIATION_CHANGED = "affliation_changed";
     public static final String SUPERSEDED = "superseded";
-    public static final String CESSATION_OF_OPERATION
-                                   = "cessation_of_operation";
+    public static final String CESSATION_OF_OPERATION = "cessation_of_operation";
     public static final String CERTIFICATION_HOLD = "certification_hold";
     public static final String PRIVILEGE_WITHDRAWN = "privilege_withdrawn";
     public static final String AA_COMPROMISE = "aa_compromise";
-
 
     // Private data members
     private boolean[] bitString;
 
     /**
      * Check if bit is set.
-     *
+     * 
      * @param position the position in the bit string to check.
      */
     private boolean isSet(int position) {
@@ -70,27 +69,27 @@ public class ReasonFlags {
      * Set the bit at the specified position.
      */
     private void set(int position, boolean val) {
-	// enlarge bitString if necessary
+        // enlarge bitString if necessary
         if (position >= bitString.length) {
-            boolean[] tmp = new boolean[position+1];
+            boolean[] tmp = new boolean[position + 1];
             System.arraycopy(bitString, 0, tmp, 0, bitString.length);
             bitString = tmp;
         }
-	bitString[position] = val;
+        bitString[position] = val;
     }
 
     /**
      * Create a ReasonFlags with the passed bit settings.
-     *
+     * 
      * @param reasons the bits to be set for the ReasonFlags.
      */
     public ReasonFlags(byte[] reasons) {
-        bitString = new BitArray(reasons.length*8, reasons).toBooleanArray();
+        bitString = new BitArray(reasons.length * 8, reasons).toBooleanArray();
     }
 
     /**
      * Create a ReasonFlags with the passed bit settings.
-     *
+     * 
      * @param reasons the bits to be set for the ReasonFlags.
      */
     public ReasonFlags(boolean[] reasons) {
@@ -99,7 +98,7 @@ public class ReasonFlags {
 
     /**
      * Create a ReasonFlags with the passed bit settings.
-     *
+     * 
      * @param reasons the bits to be set for the ReasonFlags.
      */
     public ReasonFlags(BitArray reasons) {
@@ -108,10 +107,10 @@ public class ReasonFlags {
 
     /**
      * Create the object from the passed DER encoded value.
-     *
+     * 
      * @param in the DerInputStream to read the ReasonFlags from.
      * @exception IOException on decoding errors.
-     */  
+     */
     public ReasonFlags(DerInputStream in) throws IOException {
         DerValue derVal = in.getDerValue();
         this.bitString = derVal.getUnalignedBitString(true).toBooleanArray();
@@ -119,10 +118,10 @@ public class ReasonFlags {
 
     /**
      * Create the object from the passed DER encoded value.
-     *   
+     * 
      * @param derVal the DerValue decoded from the stream.
      * @exception IOException on decoding errors.
-     */  
+     */
     public ReasonFlags(DerValue derVal) throws IOException {
         this.bitString = derVal.getUnalignedBitString(true).toBooleanArray();
     }
@@ -132,84 +131,84 @@ public class ReasonFlags {
      */
     public void set(String name, Object obj) throws IOException {
         if (!(obj instanceof Boolean)) {
-	    throw new IOException("Attribute must be of type Boolean.");
-	}
-	boolean val = ((Boolean)obj).booleanValue();
-	if (name.equalsIgnoreCase(UNUSED)) {
-	    set(0,val);
-	} else if (name.equalsIgnoreCase(KEY_COMPROMISE)) {
-	    set(1,val);
-	} else if (name.equalsIgnoreCase(CA_COMPROMISE)) {
-	    set(2,val);
-	} else if (name.equalsIgnoreCase(AFFLIATION_CHANGED)) {
-	    set(3,val);
-	} else if (name.equalsIgnoreCase(SUPERSEDED)) {
-	    set(4,val);
-	} else if (name.equalsIgnoreCase(CESSATION_OF_OPERATION)) {
-	    set(5,val);
-	} else if (name.equalsIgnoreCase(CERTIFICATION_HOLD)) {
-	    set(6,val);
-	} else if (name.equalsIgnoreCase(PRIVILEGE_WITHDRAWN)) {
-	    set(7,val);
-	} else if (name.equalsIgnoreCase(AA_COMPROMISE)) {
-	    set(8,val);
-	} else {
-	  throw new IOException("Name not recognized by ReasonFlags");
-	}
+            throw new IOException("Attribute must be of type Boolean.");
+        }
+        boolean val = ((Boolean) obj).booleanValue();
+        if (name.equalsIgnoreCase(UNUSED)) {
+            set(0, val);
+        } else if (name.equalsIgnoreCase(KEY_COMPROMISE)) {
+            set(1, val);
+        } else if (name.equalsIgnoreCase(CA_COMPROMISE)) {
+            set(2, val);
+        } else if (name.equalsIgnoreCase(AFFLIATION_CHANGED)) {
+            set(3, val);
+        } else if (name.equalsIgnoreCase(SUPERSEDED)) {
+            set(4, val);
+        } else if (name.equalsIgnoreCase(CESSATION_OF_OPERATION)) {
+            set(5, val);
+        } else if (name.equalsIgnoreCase(CERTIFICATION_HOLD)) {
+            set(6, val);
+        } else if (name.equalsIgnoreCase(PRIVILEGE_WITHDRAWN)) {
+            set(7, val);
+        } else if (name.equalsIgnoreCase(AA_COMPROMISE)) {
+            set(8, val);
+        } else {
+            throw new IOException("Name not recognized by ReasonFlags");
+        }
     }
 
     /**
      * Get the attribute value.
      */
     public Object get(String name) throws IOException {
-	if (name.equalsIgnoreCase(UNUSED)) {
-	    return new Boolean(isSet(0));
-	} else if (name.equalsIgnoreCase(KEY_COMPROMISE)) {
-	    return new Boolean(isSet(1));
-	} else if (name.equalsIgnoreCase(CA_COMPROMISE)) {
-	    return new Boolean(isSet(2));
-	} else if (name.equalsIgnoreCase(AFFLIATION_CHANGED)) {
-	    return new Boolean(isSet(3));
-	} else if (name.equalsIgnoreCase(SUPERSEDED)) {
-	    return new Boolean(isSet(4));
-	} else if (name.equalsIgnoreCase(CESSATION_OF_OPERATION)) {
-	    return new Boolean(isSet(5));
-	} else if (name.equalsIgnoreCase(CERTIFICATION_HOLD)) {
-	    return new Boolean(isSet(6));
-	} else if (name.equalsIgnoreCase(PRIVILEGE_WITHDRAWN)) {
-	    return new Boolean(isSet(7));
-	} else if (name.equalsIgnoreCase(AA_COMPROMISE)) {
-	    return new Boolean(isSet(8));
-	} else {
-	  throw new IOException("Name not recognized by ReasonFlags");
-	}
+        if (name.equalsIgnoreCase(UNUSED)) {
+            return new Boolean(isSet(0));
+        } else if (name.equalsIgnoreCase(KEY_COMPROMISE)) {
+            return new Boolean(isSet(1));
+        } else if (name.equalsIgnoreCase(CA_COMPROMISE)) {
+            return new Boolean(isSet(2));
+        } else if (name.equalsIgnoreCase(AFFLIATION_CHANGED)) {
+            return new Boolean(isSet(3));
+        } else if (name.equalsIgnoreCase(SUPERSEDED)) {
+            return new Boolean(isSet(4));
+        } else if (name.equalsIgnoreCase(CESSATION_OF_OPERATION)) {
+            return new Boolean(isSet(5));
+        } else if (name.equalsIgnoreCase(CERTIFICATION_HOLD)) {
+            return new Boolean(isSet(6));
+        } else if (name.equalsIgnoreCase(PRIVILEGE_WITHDRAWN)) {
+            return new Boolean(isSet(7));
+        } else if (name.equalsIgnoreCase(AA_COMPROMISE)) {
+            return new Boolean(isSet(8));
+        } else {
+            throw new IOException("Name not recognized by ReasonFlags");
+        }
     }
 
     /**
      * Delete the attribute value.
      */
     public void delete(String name) throws IOException {
-	if (name.equalsIgnoreCase(UNUSED)) {
-	    set(0,false);
-	} else if (name.equalsIgnoreCase(KEY_COMPROMISE)) {
-	    set(1,false);
-	} else if (name.equalsIgnoreCase(CA_COMPROMISE)) {
-	    set(2,false);
-	} else if (name.equalsIgnoreCase(AFFLIATION_CHANGED)) {
-	    set(3,false);
-	} else if (name.equalsIgnoreCase(SUPERSEDED)) {
-	    set(4,false);
-	} else if (name.equalsIgnoreCase(CESSATION_OF_OPERATION)) {
-	    set(5,false);
-	} else if (name.equalsIgnoreCase(CERTIFICATION_HOLD)) {
-	    set(6,false);
-	} else if (name.equalsIgnoreCase(PRIVILEGE_WITHDRAWN)) {
-	    set(7,false);
-	} else if (name.equalsIgnoreCase(AA_COMPROMISE)) {
-	    set(8,false);
-	} else {
-	  throw new IOException("Name not recognized by ReasonFlags");
-	}
+        if (name.equalsIgnoreCase(UNUSED)) {
+            set(0, false);
+        } else if (name.equalsIgnoreCase(KEY_COMPROMISE)) {
+            set(1, false);
+        } else if (name.equalsIgnoreCase(CA_COMPROMISE)) {
+            set(2, false);
+        } else if (name.equalsIgnoreCase(AFFLIATION_CHANGED)) {
+            set(3, false);
+        } else if (name.equalsIgnoreCase(SUPERSEDED)) {
+            set(4, false);
+        } else if (name.equalsIgnoreCase(CESSATION_OF_OPERATION)) {
+            set(5, false);
+        } else if (name.equalsIgnoreCase(CERTIFICATION_HOLD)) {
+            set(6, false);
+        } else if (name.equalsIgnoreCase(PRIVILEGE_WITHDRAWN)) {
+            set(7, false);
+        } else if (name.equalsIgnoreCase(AA_COMPROMISE)) {
+            set(8, false);
+        } else {
+            throw new IOException("Name not recognized by ReasonFlags");
+        }
     }
 
     /**
@@ -218,35 +217,36 @@ public class ReasonFlags {
     public String toString() {
         String s = super.toString() + "Reason Flags [\n";
 
-	try {
-        if (isSet(0)) {
-            s += "  Unused\n";
+        try {
+            if (isSet(0)) {
+                s += "  Unused\n";
+            }
+            if (isSet(1)) {
+                s += "  Key Compromise\n";
+            }
+            if (isSet(2)) {
+                s += "  CA_Compromise\n";
+            }
+            if (isSet(3)) {
+                s += "  Affiliation_Changed\n";
+            }
+            if (isSet(4)) {
+                s += "  Superseded\n";
+            }
+            if (isSet(5)) {
+                s += "  Cessation Of Operation\n";
+            }
+            if (isSet(6)) {
+                s += "  Certificate Hold\n";
+            }
+            if (isSet(7)) {
+                s += "  Privilege Withdrawn\n";
+            }
+            if (isSet(8)) {
+                s += "  AA Compromise\n";
+            }
+        } catch (ArrayIndexOutOfBoundsException ex) {
         }
-        if (isSet(1)) {
-            s += "  Key Compromise\n";
-        }
-        if (isSet(2)) {
-            s += "  CA_Compromise\n";
-        }
-        if (isSet(3)) {
-            s += "  Affiliation_Changed\n";
-        }
-        if (isSet(4)) {
-            s += "  Superseded\n";
-        }
-        if (isSet(5)) {
-            s += "  Cessation Of Operation\n";
-        }
-        if (isSet(6)) {
-            s += "  Certificate Hold\n";
-        }
-        if (isSet(7)) {
-            s += "  Privilege Withdrawn\n";
-        }
-        if (isSet(8)) {
-            s += "  AA Compromise\n";
-        }
-	} catch (ArrayIndexOutOfBoundsException ex) {}
 
         s += "]\n";
 
@@ -255,7 +255,7 @@ public class ReasonFlags {
 
     /**
      * Write the extension to the DerOutputStream.
-     *
+     * 
      * @param out the DerOutputStream to write the extension to.
      * @exception IOException on encoding errors.
      */
@@ -267,7 +267,7 @@ public class ReasonFlags {
      * Return an enumeration of names of attributes existing within this
      * attribute.
      */
-    public Enumeration<String> getElements () {
+    public Enumeration<String> getElements() {
         Vector<String> elements = new Vector<String>();
         elements.addElement(UNUSED);
         elements.addElement(KEY_COMPROMISE);
@@ -279,6 +279,6 @@ public class ReasonFlags {
         elements.addElement(PRIVILEGE_WITHDRAWN);
         elements.addElement(AA_COMPROMISE);
 
-	return (elements.elements());
+        return (elements.elements());
     }
 }

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.authority;
 
-
 import netscape.security.x509.CertificateChain;
 import netscape.security.x509.X500Name;
 import netscape.security.x509.X509CertImpl;
@@ -27,12 +26,10 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.request.IRequestListener;
 
-
 /**
- * Authority that handles certificates needed by the cert registration
- * servlets. 
+ * Authority that handles certificates needed by the cert registration servlets.
  * <P>
- *
+ * 
  * @version $Revision$ $Date$
  */
 public interface ICertAuthority extends IAuthority {
@@ -40,7 +37,7 @@ public interface ICertAuthority extends IAuthority {
     /**
      * Retrieves the certificate repository for this authority.
      * <P>
-     *
+     * 
      * @return the certificate repository.
      */
     public ICertificateRepository getCertificateRepository();
@@ -48,6 +45,7 @@ public interface ICertAuthority extends IAuthority {
     /**
      * Returns CA's certificate chain.
      * <P>
+     * 
      * @return the Certificate Chain for the CA.
      */
     public CertificateChain getCACertChain();
@@ -55,18 +53,19 @@ public interface ICertAuthority extends IAuthority {
     /**
      * Returns CA's certificate implementaion.
      * <P>
+     * 
      * @return CA's certificate.
      */
     public X509CertImpl getCACert();
 
     /**
-     * Returns signing algorithms supported by the CA.
-     * Dependent on CA's key type and algorithms supported by security lib. 
+     * Returns signing algorithms supported by the CA. Dependent on CA's key
+     * type and algorithms supported by security lib.
      */
     public String[] getCASigningAlgorithms();
 
     /**
-     * Returns authority's X500 Name. - XXX what's this for ?? 
+     * Returns authority's X500 Name. - XXX what's this for ??
      */
     public X500Name getX500Name();
 
@@ -86,15 +85,14 @@ public interface ICertAuthority extends IAuthority {
     public void registerPendingListener(IRequestListener l);
 
     /**
-     * get authority's  publishing module if any.
+     * get authority's publishing module if any.
      */
     public IPublisherProcessor getPublisherProcessor();
-		
+
     /**
-     * Returns the logging interface for this authority.
-     * Using this interface both System and Audit events can be
-     * logged.
-     *
+     * Returns the logging interface for this authority. Using this interface
+     * both System and Audit events can be logged.
+     * 
      */
     public ILogger getLogger();
 

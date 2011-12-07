@@ -17,20 +17,18 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.util;
 
-
 import java.io.File;
 import java.io.FilenameFilter;
 
-
 /**
- * checks the filename and directory with the specified filter
- * checks with multiple "*".
- * the filter has to start with a '*' character.
- * this to keep the search the same as in the motif version
+ * checks the filename and directory with the specified filter checks with
+ * multiple "*". the filter has to start with a '*' character. this to keep the
+ * search the same as in the motif version
  * <P>
- * Copied verbatium from sun.awt.tiny.TinyFileDialogPeer.  Used by 
- * RollingLogFile expiration code
+ * Copied verbatium from sun.awt.tiny.TinyFileDialogPeer. Used by RollingLogFile
+ * expiration code
  * <P>
+ * 
  * @author mikep
  * @version $Revision$, $Date$
  */
@@ -50,25 +48,25 @@ public class FileDialogFilter implements FilenameFilter {
      * return true if match
      */
     public boolean accept(File dir, String fileName) {
-    	
+
         File f = new File(dir, fileName);
-	
+
         if (f.isDirectory()) {
             return true;
         } else {
             return searchPattern(fileName, filter);
         }
     }
-	
-    /** 
-     * start searching 
+
+    /**
+     * start searching
      */
     boolean searchPattern(String fileName, String filter) {
         int filterCursor = 0;
         int fileNameCursor = 0;
 
         int filterChar = filter.charAt(filterCursor);
-	    
+
         if (filterCursor == 0 && filterChar != '*') {
             return false;
         }
@@ -85,17 +83,17 @@ public class FileDialogFilter implements FilenameFilter {
         int flLen = fileName.length();
         char ftChar;
         char flChar;
-        int  ftCur = 0;
-        int  flCur = 0;
+        int ftCur = 0;
+        int flCur = 0;
         int c = 0;
-	
+
         if (ftLen == 0) {
             return true;
         }
 
         while (c < flLen) {
-            ftChar = filter.charAt(ftCur); 
-		
+            ftChar = filter.charAt(ftCur);
+
             if (ftChar == '*') {
                 String ls = filter.substring(ftCur + 1);
                 String fs = fileName.substring(flCur);
@@ -109,11 +107,11 @@ public class FileDialogFilter implements FilenameFilter {
                 continue;
             }
             flChar = fileName.charAt(flCur);
-	    
+
             if (ftChar == flChar) {
                 ftCur++;
                 flCur++;
-		
+
                 if (flCur == flLen && ftCur == ftLen) {
                     return true;
                 }
@@ -134,9 +132,9 @@ public class FileDialogFilter implements FilenameFilter {
                 }
             }
         }
-    	
+
         for (int i = ftCur; i < ftLen; i++) {
-            ftChar = filter.charAt(i); 
+            ftChar = filter.charAt(i);
             if (ftChar != '*') {
                 return false;
             }
@@ -144,4 +142,3 @@ public class FileDialogFilter implements FilenameFilter {
         return true;
     }
 }
-

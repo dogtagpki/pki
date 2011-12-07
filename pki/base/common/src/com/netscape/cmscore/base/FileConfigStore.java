@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.base;
 
-
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -33,22 +32,19 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.cmsutil.util.Utils;
 
-
 /**
- * FileConfigStore:
- * Extends HashConfigStore with methods to load/save from/to file for 
- * persistent storage. This is a configuration store agent who
- * reads data from a file.
+ * FileConfigStore: Extends HashConfigStore with methods to load/save from/to
+ * file for persistent storage. This is a configuration store agent who reads
+ * data from a file.
  * <P>
- * Note that a LdapConfigStore can be implemented so that it reads 
- * the configuration stores from the Ldap directory.
+ * Note that a LdapConfigStore can be implemented so that it reads the
+ * configuration stores from the Ldap directory.
  * <P>
  * 
  * @version $Revision$, $Date$
  * @see PropConfigStore
  */
-public class FileConfigStore extends PropConfigStore implements 
-        IConfigStore {
+public class FileConfigStore extends PropConfigStore implements IConfigStore {
 
     /**
      *
@@ -59,7 +55,7 @@ public class FileConfigStore extends PropConfigStore implements
     /**
      * Constructs a file configuration store.
      * <P>
-     *
+     * 
      * @param fileName file name
      * @exception EBaseException failed to create file configuration
      */
@@ -67,8 +63,8 @@ public class FileConfigStore extends PropConfigStore implements
         super(null); // top-level store without a name
         mFile = new File(fileName);
         if (!mFile.exists()) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_NO_CONFIG_FILE", 
-                        mFile.getPath()));
+            throw new EBaseException(CMS.getUserMessage(
+                    "CMS_BASE_NO_CONFIG_FILE", mFile.getPath()));
         }
         load(fileName);
     }
@@ -76,7 +72,7 @@ public class FileConfigStore extends PropConfigStore implements
     /**
      * Loads property file into memory.
      * <P>
-     *
+     * 
      * @param fileName file name
      * @exception EBaseException failed to load configuration
      */
@@ -93,69 +89,66 @@ public class FileConfigStore extends PropConfigStore implements
 
     /**
      * The original config file is copied to
-     * <filename>.<current_time_in_milliseconds>.
-     * Commits the current properties to the configuration file.
+     * <filename>.<current_time_in_milliseconds>. Commits the current properties
+     * to the configuration file.
      * <P>
-     *
-     * @param backup 
+     * 
+     * @param backup
      */
     public void commit(boolean createBackup) throws EBaseException {
         if (createBackup) {
-            File newName = new File(mFile.getPath() + "." +
-                    Long.toString(System.currentTimeMillis()));
+            File newName = new File(mFile.getPath() + "."
+                    + Long.toString(System.currentTimeMillis()));
 
             try {
-                if( Utils.isNT() ) {
+                if (Utils.isNT()) {
                     // NT is very picky on the path
-                    Utils.exec( "copy " +
-                                mFile.getAbsolutePath().replace( '/', '\\' ) +
-                                " " +
-                                newName.getAbsolutePath().replace( '/',
-                                                                   '\\' ) );
+                    Utils.exec("copy "
+                            + mFile.getAbsolutePath().replace('/', '\\') + " "
+                            + newName.getAbsolutePath().replace('/', '\\'));
                 } else {
                     // Create a copy of the original file which
                     // preserves the original file permissions.
-                    Utils.exec( "cp -p " + mFile.getAbsolutePath() + " " +
-                                newName.getAbsolutePath() );
+                    Utils.exec("cp -p " + mFile.getAbsolutePath() + " "
+                            + newName.getAbsolutePath());
                 }
 
                 // Proceed only if the backup copy was successful.
-                if( !newName.exists() ) {
-                    throw new EBaseException( "backup copy failed" );
+                if (!newName.exists()) {
+                    throw new EBaseException("backup copy failed");
                 } else {
                     // Make certain that the backup file has
                     // the correct permissions.
-                    if( !Utils.isNT() ) {
-                        Utils.exec( "chmod 00660 " + newName.getAbsolutePath() );
+                    if (!Utils.isNT()) {
+                        Utils.exec("chmod 00660 " + newName.getAbsolutePath());
                     }
                 }
-            } catch( EBaseException e ) {
-                    throw new EBaseException( "backup copy failed" );
+            } catch (EBaseException e) {
+                throw new EBaseException("backup copy failed");
             }
         }
 
         // Overwrite the contents of the original file
         // to preserve the original file permissions.
-        save( mFile.getPath() );
+        save(mFile.getPath());
 
         try {
             // Make certain that the original file retains
             // the correct permissions.
-            if( !Utils.isNT() ) {
-                Utils.exec( "chmod 00660 " + mFile.getCanonicalPath() );
+            if (!Utils.isNT()) {
+                Utils.exec("chmod 00660 " + mFile.getCanonicalPath());
             }
-        } catch( Exception e ) {
+        } catch (Exception e) {
         }
     }
 
     /**
      * Saves in-memory properties to a specified file.
      * <P>
-     * Note that the superclass's save is synchronized. It
-     * means no properties can be altered (inserted) at
-     * the saving time.
+     * Note that the superclass's save is synchronized. It means no properties
+     * can be altered (inserted) at the saving time.
      * <P>
-     *
+     * 
      * @param fileName filename
      * @exception EBaseException failed to save configuration
      */
@@ -173,8 +166,7 @@ public class FileConfigStore extends PropConfigStore implements
     }
 
     private void printSubStore(PrintWriter writer, IConfigStore store,
-        String name) throws EBaseException,
-            IOException {
+            String name) throws EBaseException, IOException {
         // print keys
         Enumeration e0 = store.getPropertyNames();
         Vector v = new Vector();
@@ -219,8 +211,7 @@ public class FileConfigStore extends PropConfigStore implements
                 }
             }
             v.removeElementAt(j);
-            printSubStore(writer, store.getSubStore(pname), name +
-                pname + ".");
+            printSubStore(writer, store.getSubStore(pname), name + pname + ".");
         }
     }
 }

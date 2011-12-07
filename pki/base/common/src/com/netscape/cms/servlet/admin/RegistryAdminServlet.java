@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.admin;
 
-
 import java.io.IOException;
 import java.util.Enumeration;
 
@@ -41,7 +40,7 @@ import com.netscape.certsrv.registry.IPluginRegistry;
 
 /**
  * This implements the administration servlet for registry subsystem.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class RegistryAdminServlet extends AdminServlet {
@@ -53,8 +52,7 @@ public class RegistryAdminServlet extends AdminServlet {
     public final static String PROP_AUTHORITY = "authority";
 
     private final static String INFO = "RegistryAdminServlet";
-    private final static String PW_PASSWORD_CACHE_ADD = 
-        "PASSWORD_CACHE_ADD";
+    private final static String PW_PASSWORD_CACHE_ADD = "PASSWORD_CACHE_ADD";
 
     public final static String PROP_PREDICATE = "predicate";
     private IAuthority mAuthority = null;
@@ -103,9 +101,8 @@ public class RegistryAdminServlet extends AdminServlet {
     /**
      * Serves HTTP admin request.
      */
-    public void service(HttpServletRequest req,
-        HttpServletResponse resp)
-        throws ServletException, IOException {
+    public void service(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
         super.service(req, resp);
 
         super.authenticate(req);
@@ -113,7 +110,7 @@ public class RegistryAdminServlet extends AdminServlet {
         AUTHZ_RES_NAME = "certServer.registry.configuration";
         String scope = req.getParameter(Constants.OP_SCOPE);
         String op = req.getParameter(Constants.OP_TYPE);
-    
+
         if (scope.equals(ScopeDef.SC_SUPPORTED_CONSTRAINTPOLICIES)) {
             if (op.equals(OpDef.OP_READ))
                 if (!readAuthorize(req, resp))
@@ -124,25 +121,23 @@ public class RegistryAdminServlet extends AdminServlet {
         }
     }
 
-    private boolean readAuthorize(HttpServletRequest req, 
-        HttpServletResponse resp) throws IOException {
+    private boolean readAuthorize(HttpServletRequest req,
+            HttpServletResponse resp) throws IOException {
         mOp = "read";
         if ((mToken = super.authorize(req)) == null) {
-            sendResponse(ERROR,
-                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
-                null, resp);
+            sendResponse(ERROR, CMS.getUserMessage(getLocale(req),
+                    "CMS_ADMIN_SRVLT_AUTHZ_FAILED"), null, resp);
             return false;
         }
         return true;
     }
 
-    private boolean modifyAuthorize(HttpServletRequest req, 
-        HttpServletResponse resp) throws IOException {
+    private boolean modifyAuthorize(HttpServletRequest req,
+            HttpServletResponse resp) throws IOException {
         mOp = "modify";
         if ((mToken = super.authorize(req)) == null) {
-            sendResponse(ERROR,
-                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
-                null, resp);
+            sendResponse(ERROR, CMS.getUserMessage(getLocale(req),
+                    "CMS_ADMIN_SRVLT_AUTHZ_FAILED"), null, resp);
             return false;
         }
         return true;
@@ -151,9 +146,8 @@ public class RegistryAdminServlet extends AdminServlet {
     /**
      * Process Policy Implementation Management.
      */
-    public void processImplMgmt(HttpServletRequest req,
-        HttpServletResponse resp)
-        throws ServletException, IOException {
+    public void processImplMgmt(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
         // Get operation type
         String op = req.getParameter(Constants.OP_TYPE);
         String scope = req.getParameter(Constants.OP_SCOPE);
@@ -175,17 +169,15 @@ public class RegistryAdminServlet extends AdminServlet {
                 return;
             addImpl(req, resp);
         } else
-            sendResponse(ERROR, INVALID_POLICY_IMPL_OP,
-                null, resp);
+            sendResponse(ERROR, INVALID_POLICY_IMPL_OP, null, resp);
     }
 
-    public void addImpl(HttpServletRequest req,
-        HttpServletResponse resp)
-        throws ServletException, IOException {
+    public void addImpl(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
 
         // Get the policy impl id.
         String id = req.getParameter(Constants.RS_ID);
-        String scope = req.getParameter(Constants.OP_SCOPE); 
+        String scope = req.getParameter(Constants.OP_SCOPE);
         String classPath = req.getParameter(Constants.PR_POLICY_CLASS);
         String desc = req.getParameter(Constants.PR_POLICY_DESC);
 
@@ -198,17 +190,16 @@ public class RegistryAdminServlet extends AdminServlet {
 
         IPluginInfo info = mRegistry.createPluginInfo(id, desc, classPath);
         try {
-          mRegistry.addPluginInfo(scope, id, info);
+            mRegistry.addPluginInfo(scope, id, info);
         } catch (Exception e) {
-          CMS.debug(e.toString());
+            CMS.debug(e.toString());
         }
 
         sendResponse(SUCCESS, null, nvp, resp);
     }
 
-    public void deleteImpl(HttpServletRequest req,
-        HttpServletResponse resp)
-        throws ServletException, IOException {
+    public void deleteImpl(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
 
         // Get the policy impl id.
         String id = req.getParameter(Constants.RS_ID);
@@ -225,13 +216,13 @@ public class RegistryAdminServlet extends AdminServlet {
             sendResponse(ERROR, MISSING_POLICY_IMPL_ID, null, resp);
             return;
         }
-       
+
         NameValuePairs nvp = new NameValuePairs();
 
         try {
-          mRegistry.removePluginInfo(scope, id);
+            mRegistry.removePluginInfo(scope, id);
         } catch (Exception e) {
-          CMS.debug(e.toString());
+            CMS.debug(e.toString());
         }
 
         sendResponse(SUCCESS, null, nvp, resp);
@@ -240,9 +231,8 @@ public class RegistryAdminServlet extends AdminServlet {
     /**
      * Lists all registered profile impementations
      */
-    public void listImpls(HttpServletRequest req,
-        HttpServletResponse resp)
-        throws ServletException, IOException {
+    public void listImpls(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
 
         String scope = req.getParameter(Constants.OP_SCOPE);
         Enumeration impls = mRegistry.getIds(scope);
@@ -252,15 +242,17 @@ public class RegistryAdminServlet extends AdminServlet {
             String id = (String) impls.nextElement();
             IPluginInfo info = mRegistry.getPluginInfo(scope, id);
 
-            nvp.add(id, info.getClassName() + "," + 
-                info.getDescription(getLocale(req)) + "," + info.getName(getLocale(req)));
-        } 
+            nvp.add(id,
+                    info.getClassName() + ","
+                            + info.getDescription(getLocale(req)) + ","
+                            + info.getName(getLocale(req)));
+        }
 
         sendResponse(SUCCESS, null, nvp, resp);
     }
 
-    public void getSupportedConstraintPolicies(HttpServletRequest req, 
-        HttpServletResponse resp) throws ServletException, IOException {
+    public void getSupportedConstraintPolicies(HttpServletRequest req,
+            HttpServletResponse resp) throws ServletException, IOException {
         String id = req.getParameter(Constants.RS_ID);
 
         if (id == null) {
@@ -272,8 +264,8 @@ public class RegistryAdminServlet extends AdminServlet {
         try {
             IPluginInfo info = mRegistry.getPluginInfo("defaultPolicy", id);
             String className = info.getClassName();
-            IPolicyDefault policyDefaultClass = (IPolicyDefault)
-                Class.forName(className).newInstance();
+            IPolicyDefault policyDefaultClass = (IPolicyDefault) Class.forName(
+                    className).newInstance();
 
             if (policyDefaultClass != null) {
                 Enumeration impls = mRegistry.getIds("constraintPolicy");
@@ -282,28 +274,37 @@ public class RegistryAdminServlet extends AdminServlet {
                     String constraintID = (String) impls.nextElement();
                     IPluginInfo constraintInfo = mRegistry.getPluginInfo(
                             "constraintPolicy", constraintID);
-                    IPolicyConstraint policyConstraintClass = (IPolicyConstraint)
-                        Class.forName(constraintInfo.getClassName()).newInstance();
+                    IPolicyConstraint policyConstraintClass = (IPolicyConstraint) Class
+                            .forName(constraintInfo.getClassName())
+                            .newInstance();
 
-                    CMS.debug("RegistryAdminServlet: getSUpportedConstraint " + constraintInfo.getClassName());
+                    CMS.debug("RegistryAdminServlet: getSUpportedConstraint "
+                            + constraintInfo.getClassName());
 
                     if (policyConstraintClass.isApplicable(policyDefaultClass)) {
-                        CMS.debug("RegistryAdminServlet: getSUpportedConstraint isApplicable " + constraintInfo.getClassName());
-                        nvp.add(constraintID, constraintInfo.getClassName() + "," +
-                            constraintInfo.getDescription(getLocale(req)) + "," + constraintInfo.getName(getLocale(req)));
+                        CMS.debug("RegistryAdminServlet: getSUpportedConstraint isApplicable "
+                                + constraintInfo.getClassName());
+                        nvp.add(constraintID,
+                                constraintInfo.getClassName()
+                                        + ","
+                                        + constraintInfo
+                                                .getDescription(getLocale(req))
+                                        + ","
+                                        + constraintInfo
+                                                .getName(getLocale(req)));
                     }
                 }
             }
         } catch (Exception ex) {
-            CMS.debug("RegistyAdminServlet: getSupportConstraintPolicies: " + ex.toString());
+            CMS.debug("RegistyAdminServlet: getSupportConstraintPolicies: "
+                    + ex.toString());
             CMS.debug(ex);
         }
         sendResponse(SUCCESS, null, nvp, resp);
     }
 
     public void getProfileImplConfig(HttpServletRequest req,
-        HttpServletResponse resp)
-        throws ServletException, IOException {
+            HttpServletResponse resp) throws ServletException, IOException {
 
         // Get the policy impl id.
         String id = req.getParameter(Constants.RS_ID);
@@ -320,15 +321,14 @@ public class RegistryAdminServlet extends AdminServlet {
             sendResponse(ERROR, MISSING_POLICY_IMPL_ID, null, resp);
             return;
         }
-       
+
         NameValuePairs nvp = new NameValuePairs();
 
         String className = info.getClassName();
         IConfigTemplate template = null;
 
         try {
-            template = (IConfigTemplate)
-                    Class.forName(className).newInstance();
+            template = (IConfigTemplate) Class.forName(className).newInstance();
         } catch (Exception e) {
         }
         if (template != null) {
@@ -336,22 +336,30 @@ public class RegistryAdminServlet extends AdminServlet {
 
             if (names != null) {
                 while (names.hasMoreElements()) {
-                    String name = (String) names.nextElement(); 
-                        CMS.debug("RegistryAdminServlet: getProfileImpl descriptor " + name);
-                    IDescriptor desc = template.getConfigDescriptor(getLocale(req), name);
+                    String name = (String) names.nextElement();
+                    CMS.debug("RegistryAdminServlet: getProfileImpl descriptor "
+                            + name);
+                    IDescriptor desc = template.getConfigDescriptor(
+                            getLocale(req), name);
 
                     if (desc != null) {
-                      try {
-                        String value = getNonNull(desc.getSyntax()) + ";" + getNonNull(desc.getConstraint()) + ";" + desc.getDescription(getLocale(req)) + ";" + getNonNull(desc.getDefaultValue());
+                        try {
+                            String value = getNonNull(desc.getSyntax()) + ";"
+                                    + getNonNull(desc.getConstraint()) + ";"
+                                    + desc.getDescription(getLocale(req)) + ";"
+                                    + getNonNull(desc.getDefaultValue());
 
-                        CMS.debug("RegistryAdminServlet: getProfileImpl " + value);
-                        nvp.add(name, value);
-                      } catch (Exception e) {
-                  
-                        CMS.debug("RegistryAdminServlet: getProfileImpl skipped descriptor for " + name);
-                      }
+                            CMS.debug("RegistryAdminServlet: getProfileImpl "
+                                    + value);
+                            nvp.add(name, value);
+                        } catch (Exception e) {
+
+                            CMS.debug("RegistryAdminServlet: getProfileImpl skipped descriptor for "
+                                    + name);
+                        }
                     } else {
-                        CMS.debug("RegistryAdminServlet: getProfileImpl cannot find descriptor for " + name);
+                        CMS.debug("RegistryAdminServlet: getProfileImpl cannot find descriptor for "
+                                + name);
                     }
                 }
             }

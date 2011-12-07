@@ -32,19 +32,19 @@ import netscape.security.util.DerValue;
 
 /**
  * Represent the Delta CRL Indicator Extension.
- *
- * <p>The delta CRL indicator is a critical CRL extension
- * that identifies a delta-CRL.  The value of BaseCRLNumber
- * identifies the CRL number of the base CRL that was used
- * as the starting point in the generation of this delta- CRL.
- * The delta-CRL contains the changes between the base CRL
- * and the current CRL issued along with the delta-CRL.
- *
+ * 
+ * <p>
+ * The delta CRL indicator is a critical CRL extension that identifies a
+ * delta-CRL. The value of BaseCRLNumber identifies the CRL number of the base
+ * CRL that was used as the starting point in the generation of this delta- CRL.
+ * The delta-CRL contains the changes between the base CRL and the current CRL
+ * issued along with the delta-CRL.
+ * 
  * @see Extension
  * @see CertAttrSet
  */
-public class DeltaCRLIndicatorExtension extends Extension
-implements CertAttrSet {
+public class DeltaCRLIndicatorExtension extends Extension implements
+        CertAttrSet {
 
     /**
      *
@@ -66,8 +66,9 @@ implements CertAttrSet {
     static {
         try {
             OIDMap.addAttribute(DeltaCRLIndicatorExtension.class.getName(),
-                                OID, NAME);
-        } catch (CertificateException e) {}
+                    OID, NAME);
+        } catch (CertificateException e) {
+        }
     }
 
     // Encode this extension value
@@ -80,9 +81,9 @@ implements CertAttrSet {
     }
 
     /**
-     * Create a DeltaCRLIndicatorExtension with the integer value.
-     * The criticality is set to true.
-     *
+     * Create a DeltaCRLIndicatorExtension with the integer value. The
+     * criticality is set to true.
+     * 
      * @param baseCRLNum the value to be set for the extension.
      */
     public DeltaCRLIndicatorExtension(int baseCRLNum) throws IOException {
@@ -93,9 +94,9 @@ implements CertAttrSet {
     }
 
     /**
-     * Create a DeltaCRLIndicatorExtension with the BigInteger value.
-     * The criticality is set to true.
-     *
+     * Create a DeltaCRLIndicatorExtension with the BigInteger value. The
+     * criticality is set to true.
+     * 
      * @param baseCRLNum the value to be set for the extension.
      */
     public DeltaCRLIndicatorExtension(BigInteger baseCRLNum) throws IOException {
@@ -107,12 +108,12 @@ implements CertAttrSet {
 
     /**
      * Create a DeltaCRLIndicatorExtension with the BigInteger value.
-     *
+     * 
      * @param critical true if the extension is to be treated as critical.
      * @param baseCRLNum the value to be set for the extension.
      */
     public DeltaCRLIndicatorExtension(Boolean critical, BigInteger baseCRLNum)
-    throws IOException {
+            throws IOException {
         this.baseCRLNumber = new BigInt(baseCRLNum);
         this.extensionId = PKIXExtensions.DeltaCRLIndicator_Id;
         this.critical = critical.booleanValue();
@@ -121,13 +122,13 @@ implements CertAttrSet {
 
     /**
      * Create the extension from the passed DER encoded value of the same.
-     *
+     * 
      * @param critical true if the extension is to be treated as critical.
      * @param value Array of DER encoded bytes of the actual value.
      * @exception IOException on error.
      */
     public DeltaCRLIndicatorExtension(Boolean critical, Object value)
-    throws IOException {
+            throws IOException {
         this.extensionId = PKIXExtensions.DeltaCRLIndicator_Id;
         this.critical = critical.booleanValue();
 
@@ -149,10 +150,10 @@ implements CertAttrSet {
             if (!(obj instanceof BigInteger)) {
                 throw new IOException("Attribute must be of type BigInteger.");
             }
-            baseCRLNumber = new BigInt((BigInteger)obj);
+            baseCRLNumber = new BigInt((BigInteger) obj);
         } else {
-            throw new IOException("Attribute name not recognized by"+
-                                  " CertAttrSet:DeltaCRLIndicator.");
+            throw new IOException("Attribute name not recognized by"
+                    + " CertAttrSet:DeltaCRLIndicator.");
         }
     }
 
@@ -161,11 +162,13 @@ implements CertAttrSet {
      */
     public Object get(String name) throws IOException {
         if (name.equalsIgnoreCase(NUMBER)) {
-            if (baseCRLNumber == null) return null;
-            else return baseCRLNumber.toBigInteger();
+            if (baseCRLNumber == null)
+                return null;
+            else
+                return baseCRLNumber.toBigInteger();
         } else {
-            throw new IOException("Attribute name not recognized by"+
-                                  " CertAttrSet:DeltaCRLIndicator.");
+            throw new IOException("Attribute name not recognized by"
+                    + " CertAttrSet:DeltaCRLIndicator.");
         }
     }
 
@@ -176,8 +179,8 @@ implements CertAttrSet {
         if (name.equalsIgnoreCase(NUMBER)) {
             baseCRLNumber = null;
         } else {
-            throw new IOException("Attribute name not recognized by"+
-                                  " CertAttrSet:DeltaCRLIndicator.");
+            throw new IOException("Attribute name not recognized by"
+                    + " CertAttrSet:DeltaCRLIndicator.");
         }
     }
 
@@ -185,15 +188,15 @@ implements CertAttrSet {
      * Returns a printable representation of the DeltaCRLIndicatorExtension.
      */
     public String toString() {
-        String s = super.toString() + "Delta CRL Indicator: " +
-                   ((baseCRLNumber == null) ? "": baseCRLNumber.toString())
-                   + "\n";
+        String s = super.toString() + "Delta CRL Indicator: "
+                + ((baseCRLNumber == null) ? "" : baseCRLNumber.toString())
+                + "\n";
         return (s);
     }
 
     /**
      * Decode the extension from the InputStream.
-     *
+     * 
      * @param in the InputStream to unmarshal the contents from.
      * @exception IOException on decoding or validity errors.
      */
@@ -203,27 +206,27 @@ implements CertAttrSet {
 
     /**
      * Write the extension to the DerOutputStream.
-     *
+     * 
      * @param out the DerOutputStream to write the extension to.
      * @exception IOException on encoding errors.
      */
     public void encode(OutputStream out) throws IOException {
-       DerOutputStream	tmp = new DerOutputStream();
+        DerOutputStream tmp = new DerOutputStream();
 
-       if (this.extensionValue == null) {
-           this.extensionId = PKIXExtensions.DeltaCRLIndicator_Id;
-           this.critical = true;
-           encodeThis();
-       }
-       super.encode(tmp);
-       out.write(tmp.toByteArray());
+        if (this.extensionValue == null) {
+            this.extensionId = PKIXExtensions.DeltaCRLIndicator_Id;
+            this.critical = true;
+            encodeThis();
+        }
+        super.encode(tmp);
+        out.write(tmp.toByteArray());
     }
 
     /**
      * Return an enumeration of names of attributes existing within this
      * attribute.
      */
-    public Enumeration<String> getElements () {
+    public Enumeration<String> getElements() {
         Vector<String> elements = new Vector<String>();
         elements.addElement(NUMBER);
         return (elements.elements());
@@ -232,8 +235,7 @@ implements CertAttrSet {
     /**
      * Return the name of this attribute.
      */
-    public String getName () {
+    public String getName() {
         return (NAME);
     }
 }
-

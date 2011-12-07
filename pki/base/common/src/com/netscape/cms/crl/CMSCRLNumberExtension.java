@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.crl;
 
-
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Locale;
@@ -34,46 +33,45 @@ import com.netscape.certsrv.ca.ICRLIssuingPoint;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.ILogger;
 
-
 /**
  * This represents a CRL number extension.
- *
+ * 
  * @version $Revision$, $Date$
  */
-public class CMSCRLNumberExtension
-    implements ICMSCRLExtension, IExtendedPluginInfo {
+public class CMSCRLNumberExtension implements ICMSCRLExtension,
+        IExtendedPluginInfo {
     private ILogger mLogger = CMS.getLogger();
 
     public CMSCRLNumberExtension() {
     }
 
-    public Extension setCRLExtensionCriticality(Extension ext,
-        boolean critical) {
+    public Extension setCRLExtensionCriticality(Extension ext, boolean critical) {
         BigInteger crlNumber = null;
         CRLNumberExtension crlNumberExt = null;
 
         try {
-            crlNumber = (BigInteger)
-                    ((CRLNumberExtension) ext).get(CRLNumberExtension.NUMBER);
+            crlNumber = (BigInteger) ((CRLNumberExtension) ext)
+                    .get(CRLNumberExtension.NUMBER);
             crlNumberExt = new CRLNumberExtension(Boolean.valueOf(critical),
-                        crlNumber);
+                    crlNumber);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_CRL_NUMBER_EXT", e.toString()));
+            log(ILogger.LL_FAILURE, CMS.getLogMessage(
+                    "CRL_CREATE_CRL_NUMBER_EXT", e.toString()));
         }
         return crlNumberExt;
     }
 
-    public Extension getCRLExtension(IConfigStore config,
-        Object ip,
-        boolean critical) {
+    public Extension getCRLExtension(IConfigStore config, Object ip,
+            boolean critical) {
         CRLNumberExtension crlNumberExt = null;
         ICRLIssuingPoint crlIssuingPoint = (ICRLIssuingPoint) ip;
 
         try {
             crlNumberExt = new CRLNumberExtension(Boolean.valueOf(critical),
-                        crlIssuingPoint.getNextCRLNumber());
+                    crlIssuingPoint.getNextCRLNumber());
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_CRL_NUMBER_EXT", e.toString()));
+            log(ILogger.LL_FAILURE, CMS.getLogMessage(
+                    "CRL_CREATE_CRL_NUMBER_EXT", e.toString()));
         }
         return crlNumberExt;
     }
@@ -87,23 +85,22 @@ public class CMSCRLNumberExtension
 
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
-                //"type;choice(CRLExtension,CRLEntryExtension);"+
-                //"CRL Extension type. This field is not editable.",
+                // "type;choice(CRLExtension,CRLEntryExtension);"+
+                // "CRL Extension type. This field is not editable.",
                 "enable;boolean;Check to enable CRL Number extension.",
                 "critical;boolean;Set criticality for CRL Number extension.",
-                IExtendedPluginInfo.HELP_TOKEN +
-                ";configuration-ca-edit-crlextension-crlnumber",
-                IExtendedPluginInfo.HELP_TEXT +
-                ";The CRL number is a non-critical CRL extension " +
-                "which conveys a monotonically increasing sequence number " +
-                "for each CRL issued by a CA"
-            };
+                IExtendedPluginInfo.HELP_TOKEN
+                        + ";configuration-ca-edit-crlextension-crlnumber",
+                IExtendedPluginInfo.HELP_TEXT
+                        + ";The CRL number is a non-critical CRL extension "
+                        + "which conveys a monotonically increasing sequence number "
+                        + "for each CRL issued by a CA" };
 
         return params;
     }
 
     private void log(int level, String msg) {
         mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_CA, level,
-            "CMSCRLNumberExtension - " + msg);
+                "CMSCRLNumberExtension - " + msg);
     }
-} 
+}

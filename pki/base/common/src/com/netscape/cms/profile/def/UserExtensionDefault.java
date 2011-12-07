@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.def;
 
-
 import java.util.Locale;
 
 import netscape.security.x509.CertificateExtensions;
@@ -34,12 +33,10 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 
-
 /**
- * This class implements an enrollment default policy
- * that populates a user-supplied extension
- * into the certificate template.
- *
+ * This class implements an enrollment default policy that populates a
+ * user-supplied extension into the certificate template.
+ * 
  * @version $Revision$, $Date$
  */
 public class UserExtensionDefault extends EnrollExtDefault {
@@ -57,14 +54,13 @@ public class UserExtensionDefault extends EnrollExtDefault {
     }
 
     public void init(IProfile profile, IConfigStore config)
-        throws EProfileException {
+            throws EProfileException {
         super.init(profile, config);
     }
 
-    public IDescriptor getConfigDescriptor(Locale locale, String name) { 
+    public IDescriptor getConfigDescriptor(Locale locale, String name) {
         if (name.equals(CONFIG_OID)) {
-            return new Descriptor(IDescriptor.STRING, null,
-                    "Comment Here...",
+            return new Descriptor(IDescriptor.STRING, null, "Comment Here...",
                     CMS.getUserMessage(locale, "CMS_PROFILE_OID"));
         } else {
             return null;
@@ -73,27 +69,23 @@ public class UserExtensionDefault extends EnrollExtDefault {
 
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         if (name.equals(VAL_OID)) {
-            return new Descriptor(IDescriptor.STRING,
-                    IDescriptor.READONLY,
-                    null,
-                    CMS.getUserMessage(locale, "CMS_PROFILE_OID"));
+            return new Descriptor(IDescriptor.STRING, IDescriptor.READONLY,
+                    null, CMS.getUserMessage(locale, "CMS_PROFILE_OID"));
         } else {
             return null;
         }
     }
 
-    public void setValue(String name, Locale locale,
-        X509CertInfo info, String value)
-        throws EPropertyException {
+    public void setValue(String name, Locale locale, X509CertInfo info,
+            String value) throws EPropertyException {
         // Nothing to do for read-only values
     }
 
-    public String getValue(String name, Locale locale,
-        X509CertInfo info)
-        throws EPropertyException {
-        if (name == null) { 
-            throw new EPropertyException(CMS.getUserMessage( 
-                        locale, "CMS_INVALID_PROPERTY", name));
+    public String getValue(String name, Locale locale, X509CertInfo info)
+            throws EPropertyException {
+        if (name == null) {
+            throw new EPropertyException(CMS.getUserMessage(locale,
+                    "CMS_INVALID_PROPERTY", name));
         }
         if (name.equals(VAL_OID)) {
             Extension ext = getExtension(getConfig(CONFIG_OID), info);
@@ -104,35 +96,37 @@ public class UserExtensionDefault extends EnrollExtDefault {
             }
             return ext.getExtensionId().toString();
         } else {
-            throw new EPropertyException(CMS.getUserMessage( 
-                        locale, "CMS_INVALID_PROPERTY", name));
+            throw new EPropertyException(CMS.getUserMessage(locale,
+                    "CMS_INVALID_PROPERTY", name));
         }
     }
 
     public String getText(Locale locale) {
-        return CMS.getUserMessage(locale, "CMS_PROFILE_DEF_USER_EXT", getConfig(CONFIG_OID));
+        return CMS.getUserMessage(locale, "CMS_PROFILE_DEF_USER_EXT",
+                getConfig(CONFIG_OID));
     }
 
     /**
      * Populates the request with this policy default.
      */
     public void populate(IRequest request, X509CertInfo info)
-        throws EProfileException {
+            throws EProfileException {
         CertificateExtensions inExts = null;
         String oid = getConfig(CONFIG_OID);
 
-        inExts = request.getExtDataInCertExts(IEnrollProfile.REQUEST_EXTENSIONS);
+        inExts = request
+                .getExtDataInCertExts(IEnrollProfile.REQUEST_EXTENSIONS);
         if (inExts == null)
-          return; 
+            return;
         Extension ext = getExtension(getConfig(CONFIG_OID), inExts);
         if (ext == null) {
-          CMS.debug("UserExtensionDefault: no user ext supplied for "+ oid);
-          return;
+            CMS.debug("UserExtensionDefault: no user ext supplied for " + oid);
+            return;
         }
 
         // user supplied the ext that's allowed, replace the def set by system
         deleteExtension(oid, info);
-        CMS.debug("UserExtensionDefault: using user supplied ext for "+ oid);
+        CMS.debug("UserExtensionDefault: using user supplied ext for " + oid);
         addExtension(oid, ext, info);
     }
 }

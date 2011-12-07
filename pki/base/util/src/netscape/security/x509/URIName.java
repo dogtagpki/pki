@@ -23,9 +23,9 @@ import netscape.security.util.DerOutputStream;
 import netscape.security.util.DerValue;
 
 /**
- * This class implements the URIName as required by the GeneralNames
- * ASN.1 object.
- *
+ * This class implements the URIName as required by the GeneralNames ASN.1
+ * object.
+ * 
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  * @version 1.3
@@ -42,7 +42,7 @@ public class URIName implements GeneralNameInterface {
 
     /**
      * Create the URIName object from the passed encoded Der value.
-     *
+     * 
      * @param derValue the encoded DER URIName.
      * @exception IOException on error.
      */
@@ -52,7 +52,7 @@ public class URIName implements GeneralNameInterface {
 
     /**
      * Create the URIName object with the specified name.
-     *
+     * 
      * @param name the URIName.
      */
     public URIName(String name) {
@@ -68,7 +68,7 @@ public class URIName implements GeneralNameInterface {
 
     /**
      * Encode the URI name into the DerOutputStream.
-     *
+     * 
      * @param out the DER stream to encode the URIName to.
      * @exception IOException on encoding errors.
      */

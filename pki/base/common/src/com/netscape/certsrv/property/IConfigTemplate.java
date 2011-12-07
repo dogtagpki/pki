@@ -17,21 +17,17 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.property;
 
-
 import java.util.Enumeration;
 import java.util.Locale;
 
-
 /**
- * This interface provides a standard way to describe
- * a set of configuration parameters and its associated syntax.
- * It provides programmatic methods for querying 
- * template description.
+ * This interface provides a standard way to describe a set of configuration
+ * parameters and its associated syntax. It provides programmatic methods for
+ * querying template description.
  * <p>
- * A plugin, for example, can be described as a
- * property template. 
+ * A plugin, for example, can be described as a property template.
  * <p>
- *
+ * 
  * @version $Revision$, $Date$
  */
 public interface IConfigTemplate {
@@ -45,7 +41,7 @@ public interface IConfigTemplate {
 
     /**
      * Returns the descriptors of configuration parameter.
-     *
+     * 
      * @param locale user locale
      * @param name configuration parameter name
      * @return descriptor
@@ -54,17 +50,16 @@ public interface IConfigTemplate {
 
     /**
      * Sets configuration parameter.
-     *
+     * 
      * @param name parameter name
      * @param value parameter value
      * @exception EPropertyException failed to set parameter
      */
-    public void setConfig(String name, String value)
-        throws EPropertyException;
+    public void setConfig(String name, String value) throws EPropertyException;
 
     /**
      * Retrieves configuration parameter by name.
-     *
+     * 
      * @return parameter
      */
     public String getConfig(String name);

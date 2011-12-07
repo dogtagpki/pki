@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.extensions;
 
-
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
@@ -34,10 +33,9 @@ import netscape.security.x509.CertificateVersion;
 import netscape.security.x509.X500Name;
 import netscape.security.x509.X509CertInfo;
 
-
 /**
- * Extends X509CertInfo class so that minimal fields are initialized at 
- * creation time so an object of this type is always serializable.
+ * Extends X509CertInfo class so that minimal fields are initialized at creation
+ * time so an object of this type is always serializable.
  */
 public class CertInfo extends X509CertInfo {
     /**
@@ -54,35 +52,31 @@ public class CertInfo extends X509CertInfo {
     static {
         try {
             // force version 3
-            FORCE_VERSION_3 = 
-                    new CertificateVersion(CertificateVersion.V3);
-            SERIALIZE_SUBJECT = 
-                    new CertificateSubjectName(
-                        new X500Name("cn=uninitialized"));
-            SERIALIZE_ISSUER = 
-                    new CertificateIssuerName(
-                        new X500Name("cn=uninitialized"));
-            SERIALIZE_VALIDITY = 
-                    new CertificateValidity(new Date(0), new Date(0));
-            SERIALIZE_SERIALNO = 
-                    new CertificateSerialNumber(new BigInteger("0"));
-            SERIALIZE_ALGOR = 
-                    new CertificateAlgorithmId(
-                        AlgorithmId.getAlgorithmId("MD5withRSA"));
+            FORCE_VERSION_3 = new CertificateVersion(CertificateVersion.V3);
+            SERIALIZE_SUBJECT = new CertificateSubjectName(new X500Name(
+                    "cn=uninitialized"));
+            SERIALIZE_ISSUER = new CertificateIssuerName(new X500Name(
+                    "cn=uninitialized"));
+            SERIALIZE_VALIDITY = new CertificateValidity(new Date(0), new Date(
+                    0));
+            SERIALIZE_SERIALNO = new CertificateSerialNumber(
+                    new BigInteger("0"));
+            SERIALIZE_ALGOR = new CertificateAlgorithmId(
+                    AlgorithmId.getAlgorithmId("MD5withRSA"));
         } catch (IOException e) {
-            // should never happen. If does, system is hosed. 
+            // should never happen. If does, system is hosed.
             System.out.println("**** Impossible Error encountered ****");
             throw new RuntimeException(e.toString());
         } catch (NoSuchAlgorithmException e) {
-            // should never happen. If does, system is hosed. 
+            // should never happen. If does, system is hosed.
             System.out.println("**** Impossible Error encountered ****");
             throw new RuntimeException(e.toString());
         }
     }
 
     /**
-     * Initializes most fields required by der encoding so object will 
-     * serialize properly.
+     * Initializes most fields required by der encoding so object will serialize
+     * properly.
      */
     // XXX should write a class to use something else for serialization
     // but this is faster and done now for the time crunch.
@@ -113,8 +107,8 @@ public class CertInfo extends X509CertInfo {
                 certinfo.set(X509CertInfo.SUBJECT, SERIALIZE_SUBJECT);
             }
             // key is set later in the request.
-        } // these exceptions shouldn't happen here unless the 
-        // whole process is hosed.
+        } // these exceptions shouldn't happen here unless the
+          // whole process is hosed.
         catch (CertificateException e) {
         } catch (IOException e) {
         }

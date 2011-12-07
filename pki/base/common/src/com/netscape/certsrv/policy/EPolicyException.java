@@ -17,25 +17,23 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.policy;
 
-
 import java.util.Locale;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.MessageFormatter;
 
-
 /**
- * This class represents Exceptions used by the policy package.
- * The policies themselves do not raise exceptions but use them
- * to format error messages.
- *
+ * This class represents Exceptions used by the policy package. The policies
+ * themselves do not raise exceptions but use them to format error messages.
+ * 
  * Adapted from EBasException
  * <P>
+ * 
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- *
+ * 
  * @deprecated
  * @version $Revision$, $Date$
  * @see java.text.MessageFormat
@@ -49,12 +47,13 @@ public class EPolicyException extends EBaseException {
     /**
      * Resource class name.
      */
-    private static final String POLICY_RESOURCES = PolicyResources.class.getName();
+    private static final String POLICY_RESOURCES = PolicyResources.class
+            .getName();
 
     /**
      * Constructs a base exception.
      * <P>
-     *
+     * 
      * @param msgFormat exception details
      */
     public EPolicyException(String msgFormat) {
@@ -64,11 +63,12 @@ public class EPolicyException extends EBaseException {
 
     /**
      * Constructs a base exception with a parameter. For example,
+     * 
      * <PRE>
-     * 		new EPolicyException("failed to load {0}", fileName);
+     * new EPolicyException(&quot;failed to load {0}&quot;, fileName);
      * </PRE>
      * <P>
-     *
+     * 
      * @param msgFormat exception details in message string format
      * @param param message string parameter
      */
@@ -81,7 +81,7 @@ public class EPolicyException extends EBaseException {
     /**
      * Constructs a base exception with two String parameters. For example,
      * <P>
-     *
+     * 
      * @param msgFormat exception details in message string format
      * @param param1 message string parameter
      * @param param2 message string parameter
@@ -94,9 +94,9 @@ public class EPolicyException extends EBaseException {
     }
 
     /**
-     * Constructs a base exception. It can be used to carry
-     * a system exception that may contain information about
-     * the context. For example,
+     * Constructs a base exception. It can be used to carry a system exception
+     * that may contain information about the context. For example,
+     * 
      * <PRE>
      * 		try {
      *  		...
@@ -105,7 +105,7 @@ public class EPolicyException extends EBaseException {
      *      }
      * </PRE>
      * <P>
-     *
+     * 
      * @param msgFormat exception details in message string format
      * @param param system exception
      */
@@ -116,10 +116,10 @@ public class EPolicyException extends EBaseException {
     }
 
     /**
-     * Constructs a base exception with a list of parameters
-     * that will be substituted into the message format.
+     * Constructs a base exception with a list of parameters that will be
+     * substituted into the message format.
      * <P>
-     *
+     * 
      * @param msgFormat exception details in message string format
      * @param params list of message format parameters
      */
@@ -131,7 +131,7 @@ public class EPolicyException extends EBaseException {
     /**
      * Returns a list of parameters.
      * <P>
-     *
+     * 
      * @return list of message format parameters
      */
     public Object[] getParameters() {
@@ -139,10 +139,10 @@ public class EPolicyException extends EBaseException {
     }
 
     /**
-     * Returns localized exception string. This method should
-     * only be called if a localized string is necessary.
+     * Returns localized exception string. This method should only be called if
+     * a localized string is necessary.
      * <P>
-     *
+     * 
      * @return details message
      */
     public String toString() {
@@ -152,7 +152,7 @@ public class EPolicyException extends EBaseException {
     /**
      * Returns the string based on the given locale.
      * <P>
-     *
+     * 
      * @param locale locale
      * @return details message
      */

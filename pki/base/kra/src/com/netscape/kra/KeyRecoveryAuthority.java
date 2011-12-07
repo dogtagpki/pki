@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.kra;
 
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -74,18 +73,17 @@ import com.netscape.cmscore.dbs.KeyRepository;
 import com.netscape.cmscore.dbs.ReplicaIDRepository;
 import com.netscape.cmscore.request.RequestSubsystem;
 
-
 /**
- * A class represents an key recovery authority (KRA). A KRA
- * is responsible to maintain key pairs that have been
- * escrowed. It provides archive and recovery key pairs
- * functionalities. 
+ * A class represents an key recovery authority (KRA). A KRA is responsible to
+ * maintain key pairs that have been escrowed. It provides archive and recovery
+ * key pairs functionalities.
  * <P>
- *
+ * 
  * @author thomask
  * @version $Revision$, $Date$
  */
-public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecoveryAuthority {
+public class KeyRecoveryAuthority implements IAuthority, IKeyService,
+        IKeyRecoveryAuthority {
 
     public final static String OFFICIAL_NAME = "Data Recovery Manager";
 
@@ -127,15 +125,13 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     protected org.mozilla.jss.crypto.X509Certificate mJssCert = null;
     protected CryptoToken mKeygenToken = null;
 
-        // holds the number of bits of entropy to collect for each keygen
-        private int mEntropyBitsPerKeyPair=0;
+    // holds the number of bits of entropy to collect for each keygen
+    private int mEntropyBitsPerKeyPair = 0;
 
-        // the number of milliseconds which it is acceptable to block while
-        // getting entropy - anything longer will cause a warning.
-        // 0 means this warning is disabled
-        private int mEntropyBlockWarnMilliseconds = 0;
-
-
+    // the number of milliseconds which it is acceptable to block while
+    // getting entropy - anything longer will cause a warning.
+    // 0 means this warning is disabled
+    private int mEntropyBlockWarnMilliseconds = 0;
 
     // for the notification listener
     public IRequestListener mReqInQListener = null;
@@ -143,20 +139,12 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     private ILogger mSignedAuditLogger = CMS.getSignedAuditLogger();
     private final static byte EOL[] = { Character.LINE_SEPARATOR };
     private final static String SIGNED_AUDIT_AGENT_DELIMITER = ", ";
-    private final static String
-        LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST =
-        "LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST_4";
-    private final static String
-        LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST_PROCESSED =
-        "LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST_PROCESSED_3";
-    private final static String LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST =
-        "LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_4";
-    private final static String LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_ASYNC =
-        "LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_ASYNC_4";
-    private final static String LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED =
-        "LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED_4";
-    private final static String LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED_ASYNC =
-        "LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED_ASYNC_4";
+    private final static String LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST = "LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST_4";
+    private final static String LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST_PROCESSED = "LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST_PROCESSED_3";
+    private final static String LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST = "LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_4";
+    private final static String LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_ASYNC = "LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_ASYNC_4";
+    private final static String LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED = "LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED_4";
+    private final static String LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED_ASYNC = "LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED_ASYNC_4";
 
     /**
      * Constructs an escrow authority.
@@ -177,7 +165,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
     /**
      * Sets subsystem identifier.
-     *
+     * 
      * @param id subsystem id
      * @exception EBaseException failed to set id
      */
@@ -190,87 +178,84 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     }
 
     // initialize entropy collection parameters
-    private void initEntropy(IConfigStore config)
-    {
+    private void initEntropy(IConfigStore config) {
         mEntropyBitsPerKeyPair = 0;
         mEntropyBlockWarnMilliseconds = 50;
         // initialize entropy collection
         IConfigStore ecs = config.getSubStore("entropy");
         if (ecs != null) {
             try {
-                mEntropyBitsPerKeyPair = ecs.getInteger("bitsperkeypair",0);
-                mEntropyBlockWarnMilliseconds = ecs.getInteger("blockwarnms",50);
+                mEntropyBitsPerKeyPair = ecs.getInteger("bitsperkeypair", 0);
+                mEntropyBlockWarnMilliseconds = ecs.getInteger("blockwarnms",
+                        50);
             } catch (EBaseException eb) {
                 // ok - we deal with missing parameters above
             }
         }
-		CMS.debug("KeyRecoveryAuthority Entropy bits = "+mEntropyBitsPerKeyPair);
+        CMS.debug("KeyRecoveryAuthority Entropy bits = "
+                + mEntropyBitsPerKeyPair);
         if (mEntropyBitsPerKeyPair == 0) {
-            //log(ILogger.LL_INFO,
-                //CMS.getLogMessage("CMSCORE_KRA_ENTROPY_COLLECTION_DISABLED"));
+            // log(ILogger.LL_INFO,
+            // CMS.getLogMessage("CMSCORE_KRA_ENTROPY_COLLECTION_DISABLED"));
         } else {
-            //log(ILogger.LL_INFO,
-                //CMS.getLogMessage("CMSCORE_KRA_ENTROPY_COLLECTION_ENABLED"));
-			CMS.debug("KeyRecoveryAuthority about to add Entropy");
+            // log(ILogger.LL_INFO,
+            // CMS.getLogMessage("CMSCORE_KRA_ENTROPY_COLLECTION_ENABLED"));
+            CMS.debug("KeyRecoveryAuthority about to add Entropy");
             addEntropy(false);
-			CMS.debug("KeyRecoveryAuthority back from add Entropy");
+            CMS.debug("KeyRecoveryAuthority back from add Entropy");
         }
 
     }
-
 
     public void addEntropy(boolean logflag) {
-		CMS.debug("KeyRecoveryAuthority addEntropy()");
+        CMS.debug("KeyRecoveryAuthority addEntropy()");
         if (mEntropyBitsPerKeyPair == 0) {
-			CMS.debug("KeyRecoveryAuthority returning - disabled()"); 
-			return; 
-		}
+            CMS.debug("KeyRecoveryAuthority returning - disabled()");
+            return;
+        }
         long start = System.currentTimeMillis();
         try {
-            com.netscape.cmscore.security.JssSubsystem.getInstance().
-                addEntropy(mEntropyBitsPerKeyPair);
+            com.netscape.cmscore.security.JssSubsystem.getInstance()
+                    .addEntropy(mEntropyBitsPerKeyPair);
         } catch (Exception e) {
-			CMS.debug("KeyRecoveryAuthority returning - error - see log file"); 
-			CMS.debug("exception: "+e.getMessage());
-			CMS.debug(e);
-			if (logflag) {
-            	log(ILogger.LL_INFO,
-                	CMS.getLogMessage("CMSCORE_KRA_ENTROPY_ERROR",
-                    	e.getMessage()));
-			}
+            CMS.debug("KeyRecoveryAuthority returning - error - see log file");
+            CMS.debug("exception: " + e.getMessage());
+            CMS.debug(e);
+            if (logflag) {
+                log(ILogger.LL_INFO,
+                        CMS.getLogMessage("CMSCORE_KRA_ENTROPY_ERROR",
+                                e.getMessage()));
+            }
         }
-        long end   = System.currentTimeMillis();
-        long duration = end-start;
+        long end = System.currentTimeMillis();
+        long duration = end - start;
 
-        if (mEntropyBlockWarnMilliseconds > 0  &&
-            duration > mEntropyBlockWarnMilliseconds) {
+        if (mEntropyBlockWarnMilliseconds > 0
+                && duration > mEntropyBlockWarnMilliseconds) {
 
-			CMS.debug("KeyRecoveryAuthority returning - warning - entropy took too long (ms="+
-				duration+")"); 
-			if (logflag) {
-            	log(ILogger.LL_INFO,
-                	CMS.getLogMessage("CMSCORE_KRA_ENTROPY_BLOCKED_WARNING",
-                    	""+(int)duration));
-			}
+            CMS.debug("KeyRecoveryAuthority returning - warning - entropy took too long (ms="
+                    + duration + ")");
+            if (logflag) {
+                log(ILogger.LL_INFO, CMS.getLogMessage(
+                        "CMSCORE_KRA_ENTROPY_BLOCKED_WARNING", ""
+                                + (int) duration));
+            }
         }
-		CMS.debug("KeyRecoveryAuthority returning "); 
+        CMS.debug("KeyRecoveryAuthority returning ");
     }
 
-
-
-    /** 
-     * Starts this subsystem. It loads and initializes all 
-     * necessary components. This subsystem is started by
-     * KRASubsystem.
+    /**
+     * Starts this subsystem. It loads and initializes all necessary components.
+     * This subsystem is started by KRASubsystem.
      * <P>
      * 
      * @param owner owner of this subsystem
      * @param config configuration store for this subsystem
      * @exception EBaseException failed to start subsystem
      */
-    public void init(ISubsystem owner, IConfigStore config) 
-        throws EBaseException {
-	CMS.debug("KeyRecoveryAuthority init() begins");
+    public void init(ISubsystem owner, IConfigStore config)
+            throws EBaseException {
+        CMS.debug("KeyRecoveryAuthority init() begins");
         if (mInitialized)
             return;
 
@@ -284,92 +269,96 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         // create key repository
         int keydb_inc = mConfig.getInteger(PROP_KEYDB_INC, 5);
 
-        mKeyDB = new KeyRepository(getDBSubsystem(),
-                    keydb_inc,
-                    "ou=" + KEY_RESP_NAME + ",ou=" + 
-                    getId() + "," +
-                    getDBSubsystem().getBaseDN());
+        mKeyDB = new KeyRepository(getDBSubsystem(), keydb_inc, "ou="
+                + KEY_RESP_NAME + ",ou=" + getId() + ","
+                + getDBSubsystem().getBaseDN());
 
         // read transport key from internal database
         mTransportKeyUnit = new TransportKeyUnit();
         try {
-          mTransportKeyUnit.init(this, mConfig.getSubStore(
-                PROP_TRANSPORT_KEY));
+            mTransportKeyUnit.init(this,
+                    mConfig.getSubStore(PROP_TRANSPORT_KEY));
         } catch (EBaseException e) {
-            CMS.debug("KeyRecoveryAuthority: transport unit exception " + e.toString());
-//XXX            throw e;
-	return;
+            CMS.debug("KeyRecoveryAuthority: transport unit exception "
+                    + e.toString());
+            // XXX throw e;
+            return;
         }
 
         // retrieve the authority name from transport cert
         try {
             mJssCert = mTransportKeyUnit.getCertificate();
-            X509CertImpl certImpl = new 
-                X509CertImpl(mJssCert.getEncoded());
+            X509CertImpl certImpl = new X509CertImpl(mJssCert.getEncoded());
 
             mName = (X500Name) certImpl.getSubjectDN();
         } catch (CertificateEncodingException e) {
             CMS.debug("KeyRecoveryAuthority: " + e.toString());
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_LOAD_FAILED",
-                        "transport cert " + e.toString()));
+                    "transport cert " + e.toString()));
         } catch (CertificateException e) {
             CMS.debug("KeyRecoveryAuthority: " + e.toString());
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_LOAD_FAILED",
-                        "transport cert " + e.toString()));
+                    "transport cert " + e.toString()));
         }
 
         // read transport key from storage key
         mStorageKeyUnit = new StorageKeyUnit();
         try {
-           mStorageKeyUnit.init(this, 
-             mConfig.getSubStore(PROP_STORAGE_KEY));
+            mStorageKeyUnit.init(this, mConfig.getSubStore(PROP_STORAGE_KEY));
         } catch (EBaseException e) {
-            CMS.debug("KeyRecoveryAuthority: storage unit exception " + e.toString());
+            CMS.debug("KeyRecoveryAuthority: storage unit exception "
+                    + e.toString());
             throw e;
         }
 
-	// setup token for server-side key generation for user enrollments
-	String serverKeygenTokenName = mConfig.getString("serverKeygenTokenName", null);
-     if (serverKeygenTokenName == null) {
-       CMS.debug("serverKeygenTokenName set to nothing");
-       if (mStorageKeyUnit.getToken() != null) {
-         try {
-           String storageToken = mStorageKeyUnit.getToken().getName();
-           if (!storageToken.equals("internal")) {
-             CMS.debug("Auto set serverKeygenTokenName to " + storageToken);
-             serverKeygenTokenName = storageToken;
-           }
-         } catch (Exception e) {
-         }
-       }
-     }
-     if (serverKeygenTokenName == null) {
-         serverKeygenTokenName = "internal";
-     } 
+        // setup token for server-side key generation for user enrollments
+        String serverKeygenTokenName = mConfig.getString(
+                "serverKeygenTokenName", null);
+        if (serverKeygenTokenName == null) {
+            CMS.debug("serverKeygenTokenName set to nothing");
+            if (mStorageKeyUnit.getToken() != null) {
+                try {
+                    String storageToken = mStorageKeyUnit.getToken().getName();
+                    if (!storageToken.equals("internal")) {
+                        CMS.debug("Auto set serverKeygenTokenName to "
+                                + storageToken);
+                        serverKeygenTokenName = storageToken;
+                    }
+                } catch (Exception e) {
+                }
+            }
+        }
+        if (serverKeygenTokenName == null) {
+            serverKeygenTokenName = "internal";
+        }
         if (serverKeygenTokenName.equalsIgnoreCase(PR_INTERNAL_TOKEN_NAME))
             serverKeygenTokenName = PR_INTERNAL_TOKEN_NAME;
 
         try {
             if (serverKeygenTokenName.equalsIgnoreCase(PR_INTERNAL_TOKEN_NAME)) {
-		CMS.debug("KeyRecoveryAuthority: getting internal crypto token for serverkeygen");
-                mKeygenToken = CryptoManager.getInstance().getInternalKeyStorageToken();
+                CMS.debug("KeyRecoveryAuthority: getting internal crypto token for serverkeygen");
+                mKeygenToken = CryptoManager.getInstance()
+                        .getInternalKeyStorageToken();
             } else {
-		CMS.debug("KeyRecoveryAuthority: getting HSM token for serverkeygen");
-                mKeygenToken = CryptoManager.getInstance().getTokenByName(serverKeygenTokenName);
+                CMS.debug("KeyRecoveryAuthority: getting HSM token for serverkeygen");
+                mKeygenToken = CryptoManager.getInstance().getTokenByName(
+                        serverKeygenTokenName);
             }
-	    CMS.debug("KeyRecoveryAuthority: set up keygenToken");
+            CMS.debug("KeyRecoveryAuthority: set up keygenToken");
         } catch (NoSuchTokenException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_NOT_FOUND", serverKeygenTokenName));
+            throw new EBaseException(CMS.getUserMessage(
+                    "CMS_BASE_TOKEN_NOT_FOUND", serverKeygenTokenName));
         } catch (Exception e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_CRYPTOMANAGER_UNINITIALIZED"));
+            throw new EBaseException(
+                    CMS.getUserMessage("CMS_BASE_CRYPTOMANAGER_UNINITIALIZED"));
         }
 
-	    CMS.debug("KeyRecoveryAuthority: about to init entropy");
-		initEntropy(mConfig);
-	    CMS.debug("KeyRecoveryAuthority: completed init of entropy");
+        CMS.debug("KeyRecoveryAuthority: about to init entropy");
+        initEntropy(mConfig);
+        CMS.debug("KeyRecoveryAuthority: completed init of entropy");
 
-        getLogger().log(ILogger.EV_SYSTEM, ILogger.S_KRA, 
-            ILogger.LL_INFO, mName.toString() + " is started");
+        getLogger().log(ILogger.EV_SYSTEM, ILogger.S_KRA, ILogger.LL_INFO,
+                mName.toString() + " is started");
 
         // setup the KRA request queue
         IService service = new KRAService(this);
@@ -379,22 +368,22 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         IRequestSubsystem reqSub = RequestSubsystem.getInstance();
         int reqdb_inc = mConfig.getInteger("reqdbInc", 5);
 
-        mRequestQueue = reqSub.getRequestQueue(getId(), reqdb_inc,
-                    mPolicy, service, mNotify, mPNotify);
+        mRequestQueue = reqSub.getRequestQueue(getId(), reqdb_inc, mPolicy,
+                service, mNotify, mPNotify);
 
-        // set KeyStatusUpdateInterval to be 10 minutes if serial management is enabled.
-        mKeyDB.setKeyStatusUpdateInterval(
-            mRequestQueue.getRequestRepository(), 
-            mConfig.getInteger("keyStatusUpdateInterval", 10 * 60));
+        // set KeyStatusUpdateInterval to be 10 minutes if serial management is
+        // enabled.
+        mKeyDB.setKeyStatusUpdateInterval(mRequestQueue.getRequestRepository(),
+                mConfig.getInteger("keyStatusUpdateInterval", 10 * 60));
 
         // init request scheduler if configured
-        String schedulerClass =
-            mConfig.getString("requestSchedulerClass", null);
+        String schedulerClass = mConfig
+                .getString("requestSchedulerClass", null);
 
         if (schedulerClass != null) {
             try {
-                IRequestScheduler scheduler = (IRequestScheduler)
-                    Class.forName(schedulerClass).newInstance();
+                IRequestScheduler scheduler = (IRequestScheduler) Class
+                        .forName(schedulerClass).newInstance();
 
                 mRequestQueue.setRequestScheduler(scheduler);
             } catch (Exception e) {
@@ -405,17 +394,17 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
         String replicaReposDN = mConfig.getString(PROP_REPLICAID_DN, null);
         if (replicaReposDN == null) {
-           replicaReposDN = "ou=Replica," + getDBSubsystem().getBaseDN();
+            replicaReposDN = "ou=Replica," + getDBSubsystem().getBaseDN();
         }
 
-        mReplicaRepot = new ReplicaIDRepository(
-            DBSubsystem.getInstance(), 1, replicaReposDN);
+        mReplicaRepot = new ReplicaIDRepository(DBSubsystem.getInstance(), 1,
+                replicaReposDN);
         CMS.debug("Replica Repot inited");
 
     }
 
     public CryptoToken getKeygenToken() {
-	return mKeygenToken;
+        return mKeygenToken;
     }
 
     public IRequestListener getRequestInQListener() {
@@ -434,28 +423,27 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     }
 
     /**
-     * Starts this service. When this method is called, all
-     * service 
-     *
+     * Starts this service. When this method is called, all service
+     * 
      * @exception EBaseException failed to startup this subsystem
      */
     public void startup() throws EBaseException {
-	CMS.debug("KeyRecoveryAuthority startup() begins");
+        CMS.debug("KeyRecoveryAuthority startup() begins");
 
-	if (mRequestQueue != null) {
-        // setup administration operations if everything else is fine
-        mRequestQueue.recover();
-	CMS.debug("KeyRecoveryAuthority startup() call request Q recover");
+        if (mRequestQueue != null) {
+            // setup administration operations if everything else is fine
+            mRequestQueue.recover();
+            CMS.debug("KeyRecoveryAuthority startup() call request Q recover");
 
-        // Note that we use our instance id for registration.
-        // This helps us to support multiple instances
-        // of a subsystem within server.
+            // Note that we use our instance id for registration.
+            // This helps us to support multiple instances
+            // of a subsystem within server.
 
-        // register remote admin interface
-        mInitialized = true;
-	} else {
-	    CMS.debug("KeyRecoveryAuthority: mRequestQueue is null, could be in preop mode");
-	}
+            // register remote admin interface
+            mInitialized = true;
+        } else {
+            CMS.debug("KeyRecoveryAuthority: mRequestQueue is null, could be in preop mode");
+        }
     }
 
     /**
@@ -471,15 +459,15 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             mKeyDB.shutdown();
             mKeyDB = null;
         }
-        getLogger().log(ILogger.EV_SYSTEM, ILogger.S_KRA, 
-            ILogger.LL_INFO, mName.toString() + " is stopped");
+        getLogger().log(ILogger.EV_SYSTEM, ILogger.S_KRA, ILogger.LL_INFO,
+                mName.toString() + " is stopped");
         mInitialized = false;
     }
 
     /**
      * Retrieves the configuration store of this subsystem.
      * <P>
-     *
+     * 
      * @return configuration store
      */
     public IConfigStore getConfigStore() {
@@ -488,7 +476,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
     /**
      * Changes the auto recovery state.
-     *
+     * 
      * @param cs list of recovery agent credentials
      * @param on turn of auto recovery or not
      * @return operation success or not
@@ -509,7 +497,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
     /**
      * Retrieves the current auto recovery state.
-     *
+     * 
      * @return enable or not
      */
     public boolean getAutoRecoveryState() {
@@ -518,11 +506,9 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     }
 
     /**
-     * Returns a list of users who are in auto 
-     * recovery mode.
-     *
-     * @return list of user IDs that are accepted in the
-     * auto recovery mode
+     * Returns a list of users who are in auto recovery mode.
+     * 
+     * @return list of user IDs that are accepted in the auto recovery mode
      */
     public Enumeration getAutoRecoveryIDs() {
         return mAutoRecovery.keys();
@@ -530,7 +516,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
     /**
      * Adds auto recovery mode to the given user id.
-     *
+     * 
      * @param id new identifier to the auto recovery mode
      * @param creds list of credentials
      */
@@ -540,9 +526,8 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
     /**
      * Removes auto recovery mode from the given user id.
-     *
-     * @param id id of user to be removed from auto 
-     * recovery mode
+     * 
+     * @param id id of user to be removed from auto recovery mode
      */
     public void removeAutoRecovery(String id) {
         mAutoRecovery.remove(id);
@@ -550,7 +535,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
     /**
      * Retrieves logger from escrow authority.
-     *
+     * 
      * @return logger
      */
     public ILogger getLogger() {
@@ -558,29 +543,28 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     }
 
     /**
-     * Retrieves number of required agents for 
-     * recovery operation.
-     *
+     * Retrieves number of required agents for recovery operation.
+     * 
      * @return number of required agents
      * @exception EBaseException failed to retrieve info
      */
     public int getNoOfRequiredAgents() throws EBaseException {
         if (mConfig.getBoolean("keySplitting", false)) {
-		    return mStorageKeyUnit.getNoOfRequiredAgents(); 
+            return mStorageKeyUnit.getNoOfRequiredAgents();
         } else {
             int ret = -1;
-        	ret = mConfig.getInteger("noOfRequiredRecoveryAgents", 1);
+            ret = mConfig.getInteger("noOfRequiredRecoveryAgents", 1);
             if (ret <= 0) {
-              throw new EBaseException("Invalid parameter noOfRequiredecoveryAgents");
+                throw new EBaseException(
+                        "Invalid parameter noOfRequiredecoveryAgents");
             }
             return ret;
         }
     }
 
     /**
-     * Sets number of required agents for 
-     * recovery operation
-     *
+     * Sets number of required agents for recovery operation
+     * 
      * @return none
      * @exception EBaseException invalid setting
      */
@@ -588,7 +572,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         if (mConfig.getBoolean("keySplitting")) {
             mStorageKeyUnit.setNoOfRequiredAgents(number);
         } else {
-           mConfig.putInteger("noOfRequiredRecoveryAgents", number); 
+            mConfig.putInteger("noOfRequiredRecoveryAgents", number);
         }
     }
 
@@ -599,8 +583,8 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         return Integer.toString(mRecoveryIDCounter++);
     }
 
-    public Hashtable createRecoveryParams(String recoveryID) 
-        throws EBaseException {
+    public Hashtable createRecoveryParams(String recoveryID)
+            throws EBaseException {
         Hashtable h = new Hashtable();
 
         h.put(PARAM_CREDS, new Vector());
@@ -609,45 +593,40 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         return h;
     }
 
-    public void destroyRecoveryParams(String recoveryID) 
-        throws EBaseException {
+    public void destroyRecoveryParams(String recoveryID) throws EBaseException {
         mRecoveryParams.remove(recoveryID);
     }
 
-    public Hashtable getRecoveryParams(String recoveryID) 
-        throws EBaseException {
+    public Hashtable getRecoveryParams(String recoveryID) throws EBaseException {
         return (Hashtable) mRecoveryParams.get(recoveryID);
     }
 
     public void createPk12(String recoveryID, byte[] pk12)
-        throws EBaseException {
+            throws EBaseException {
         Hashtable h = getRecoveryParams(recoveryID);
 
         h.put(PARAM_PK12, pk12);
     }
 
-    public byte[] getPk12(String recoveryID)
-        throws EBaseException {
+    public byte[] getPk12(String recoveryID) throws EBaseException {
         return (byte[]) getRecoveryParams(recoveryID).get(PARAM_PK12);
     }
 
     public void createError(String recoveryID, String error)
-        throws EBaseException {
+            throws EBaseException {
         Hashtable h = getRecoveryParams(recoveryID);
 
         h.put(PARAM_ERROR, error);
     }
 
-    public String getError(String recoveryID)
-        throws EBaseException {
+    public String getError(String recoveryID) throws EBaseException {
         return (String) getRecoveryParams(recoveryID).get(PARAM_ERROR);
     }
 
     /**
      * Retrieve the current approval agents
      */
-    public Vector getAppAgents(
-        String recoveryID) throws EBaseException {
+    public Vector getAppAgents(String recoveryID) throws EBaseException {
         Hashtable h = getRecoveryParams(recoveryID);
         Vector dc = (Vector) h.get(PARAM_CREDS);
 
@@ -655,20 +634,18 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     }
 
     /**
-     * Retrieves a list credentials. This puts KRA in a waiting
-     * mode, it never returns until all the necessary passwords
-     * are collected.
+     * Retrieves a list credentials. This puts KRA in a waiting mode, it never
+     * returns until all the necessary passwords are collected.
      */
-    public Credential[] getDistributedCredentials(
-        String recoveryID) 
-        throws EBaseException {
+    public Credential[] getDistributedCredentials(String recoveryID)
+            throws EBaseException {
         Hashtable h = getRecoveryParams(recoveryID);
         Vector dc = (Vector) h.get(PARAM_CREDS);
         Object lock = (Object) h.get(PARAM_LOCK);
 
         synchronized (lock) {
-            while (dc.size() < getNoOfRequiredAgents()) { 
-	    CMS.debug("KeyRecoveryAuthority: cfu in synchronized lock for getDistributedCredentials");
+            while (dc.size() < getNoOfRequiredAgents()) {
+                CMS.debug("KeyRecoveryAuthority: cfu in synchronized lock for getDistributedCredentials");
                 try {
                     lock.wait();
                 } catch (InterruptedException e) {
@@ -684,16 +661,17 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     /**
      * Verifies credential.
      */
-    private void verifyCredential(Vector creds, String uid, 
-        String pwd) throws EBaseException {
-            // see if we have the uid already
+    private void verifyCredential(Vector creds, String uid, String pwd)
+            throws EBaseException {
+        // see if we have the uid already
 
         if (!mConfig.getBoolean("keySplitting")) {
-              // check if the uid is in the specified group
+            // check if the uid is in the specified group
             IUGSubsystem ug = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
             if (!ug.isMemberOf(uid, mConfig.getString("recoveryAgentGroup"))) {
-              // invalid group
-              throw new EBaseException(CMS.getUserMessage("CMS_KRA_CREDENTIALS_NOT_EXIST"));
+                // invalid group
+                throw new EBaseException(
+                        CMS.getUserMessage("CMS_KRA_CREDENTIALS_NOT_EXIST"));
             }
         }
 
@@ -702,19 +680,20 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
             if (c.getIdentifier().equals(uid)) {
                 // duplicated uid
-                throw new EBaseException(CMS.getUserMessage("CMS_KRA_CREDENTIALS_EXIST"));
+                throw new EBaseException(
+                        CMS.getUserMessage("CMS_KRA_CREDENTIALS_EXIST"));
             }
         }
         if (mConfig.getBoolean("keySplitting")) {
-          mStorageKeyUnit.checkPassword(uid, pwd);
+            mStorageKeyUnit.checkPassword(uid, pwd);
         }
     }
 
     /**
      * Adds password.
      */
-    public void addDistributedCredential(String recoveryID, 
-        String uid, String pwd) throws EBaseException {
+    public void addDistributedCredential(String recoveryID, String uid,
+            String pwd) throws EBaseException {
         Hashtable h = getRecoveryParams(recoveryID);
         Vector dc = (Vector) h.get(PARAM_CREDS);
         Object lock = (Object) h.get(PARAM_LOCK);
@@ -729,26 +708,26 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     }
 
     /**
-     * Archives key. This creates a key record in the key
-     * repository.
+     * Archives key. This creates a key record in the key repository.
      * <P>
-     *
+     * 
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST used
-     * whenever a user private key archive request is made (this is when the
-     * DRM receives the request)
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST_PROCESSED used
-     * whenever a user private key archive request is processed (this is when
-     * the DRM processes the request)
+     * whenever a user private key archive request is made (this is when the DRM
+     * receives the request)
+     * <li>signed.audit
+     * LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST_PROCESSED used whenever
+     * a user private key archive request is processed (this is when the DRM
+     * processes the request)
      * </ul>
+     * 
      * @param rec key record to be archived
      * @return executed request
      * @exception EBaseException failed to archive key
      * @return the request
-     * <P>
+     *         <P>
      */
-    public IRequest archiveKey(KeyRecord rec) 
-        throws EBaseException {
+    public IRequest archiveKey(KeyRecord rec) throws EBaseException {
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = auditRequesterID();
@@ -776,21 +755,17 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST,
-                        auditSubjectID,
-                        ILogger.SUCCESS,
-                        auditRequesterID,
-                        auditArchiveID);
+                    LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST,
+                    auditSubjectID, ILogger.SUCCESS, auditRequesterID,
+                    auditArchiveID);
 
             audit(auditMessage);
         } catch (EBaseException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST,
-                        auditSubjectID,
-                        ILogger.FAILURE,
-                        auditRequesterID,
-                        auditArchiveID);
+                    LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST,
+                    auditSubjectID, ILogger.FAILURE, auditRequesterID,
+                    auditArchiveID);
 
             audit(auditMessage);
 
@@ -801,25 +776,22 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         // to the signed audit log and stored as failures
         try {
             if (r != null) {
-                r.setExtData(EnrollmentService.ATTR_KEY_RECORD, rec.getSerialNumber());
+                r.setExtData(EnrollmentService.ATTR_KEY_RECORD,
+                        rec.getSerialNumber());
                 queue.processRequest(r);
             }
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST_PROCESSED,
-                        auditSubjectID,
-                        ILogger.SUCCESS,
-                        auditPublicKey);
+                    LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST_PROCESSED,
+                    auditSubjectID, ILogger.SUCCESS, auditPublicKey);
 
             audit(auditMessage);
         } catch (EBaseException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST_PROCESSED,
-                        auditSubjectID,
-                        ILogger.FAILURE,
-                        auditPublicKey);
+                    LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST_PROCESSED,
+                    auditSubjectID, ILogger.FAILURE, auditPublicKey);
 
             audit(auditMessage);
 
@@ -832,8 +804,8 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     /**
      * async key recovery initiation
      */
-    public String initAsyncKeyRecovery(BigInteger kid, X509CertImpl cert, String agent)
-         throws EBaseException {
+    public String initAsyncKeyRecovery(BigInteger kid, X509CertImpl cert,
+            String agent) throws EBaseException {
 
         String auditPublicKey = auditPublicKey(cert);
         String auditRecoveryID = "undefined";
@@ -857,37 +829,33 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_ASYNC,
-                        auditSubjectID,
-                        ILogger.SUCCESS,
-                        auditRecoveryID,
-                        auditPublicKey);
+                    LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_ASYNC,
+                    auditSubjectID, ILogger.SUCCESS, auditRecoveryID,
+                    auditPublicKey);
 
             audit(auditMessage);
         } catch (EBaseException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_ASYNC,
-                        auditSubjectID,
-                        ILogger.FAILURE,
-                        auditRecoveryID,
-                        auditPublicKey);
+                    LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_ASYNC,
+                    auditSubjectID, ILogger.FAILURE, auditRecoveryID,
+                    auditPublicKey);
 
             audit(auditMessage);
 
             throw eAudit1;
         }
 
-        //NO call to queue.processRequest(r) because it is only initiating
+        // NO call to queue.processRequest(r) because it is only initiating
         return r.getRequestId().toString();
     }
 
-   /**
-    * is async recovery request status APPROVED -
-    *   i.e. all required # of recovery agents approved
-    */
+    /**
+     * is async recovery request status APPROVED - i.e. all required # of
+     * recovery agents approved
+     */
     public boolean isApprovedAsyncKeyRecovery(String reqID)
-        throws EBaseException {
+            throws EBaseException {
         IRequestQueue queue = null;
         IRequest r = null;
 
@@ -900,18 +868,19 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         }
     }
 
-   /**
-    * get async recovery request initiating agent
-    */
+    /**
+     * get async recovery request initiating agent
+     */
     public String getInitAgentAsyncKeyRecovery(String reqID)
-        throws EBaseException {
+            throws EBaseException {
         IRequestQueue queue = null;
         IRequest r = null;
 
         queue = getRequestQueue();
         r = queue.findRequest(new RequestId(reqID));
 
-        String agents = r.getExtDataInString(RecoveryService.ATTR_APPROVE_AGENTS);
+        String agents = r
+                .getExtDataInString(RecoveryService.ATTR_APPROVE_AGENTS);
         if (agents != null) {
             int i = agents.indexOf(",");
             if (i == -1) {
@@ -925,14 +894,13 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         return null;
     }
 
-   /**
-    * add async recovery agent to approving agent list of the recovery request
-    * record
-    * This method will check to see if the agent belongs to the recovery group
-    * first before adding.
-    */
+    /**
+     * add async recovery agent to approving agent list of the recovery request
+     * record This method will check to see if the agent belongs to the recovery
+     * group first before adding.
+     */
     public void addAgentAsyncKeyRecovery(String reqID, String agentID)
-        throws EBaseException {
+            throws EBaseException {
         IRequestQueue queue = null;
         IRequest r = null;
 
@@ -940,13 +908,15 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         IUGSubsystem ug = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
         if (!ug.isMemberOf(agentID, mConfig.getString("recoveryAgentGroup"))) {
             // invalid group
-            throw new EBaseException(CMS.getUserMessage("CMS_KRA_CREDENTIALS_NOT_EXIST"));
+            throw new EBaseException(
+                    CMS.getUserMessage("CMS_KRA_CREDENTIALS_NOT_EXIST"));
         }
 
         queue = getRequestQueue();
         r = queue.findRequest(new RequestId(reqID));
 
-        String agents = r.getExtDataInString(RecoveryService.ATTR_APPROVE_AGENTS);
+        String agents = r
+                .getExtDataInString(RecoveryService.ATTR_APPROVE_AGENTS);
         if (agents != null) {
             int count = 0;
             StringTokenizer st = new StringTokenizer(agents, ",");
@@ -954,17 +924,18 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
                 String a = st.nextToken();
                 // first one is the initiating agent
                 if ((count != 0) && a.equals(agentID)) {
-                  // duplicated uid
-                  throw new EBaseException(CMS.getUserMessage("CMS_KRA_CREDENTIALS_EXIST"));
+                    // duplicated uid
+                    throw new EBaseException(
+                            CMS.getUserMessage("CMS_KRA_CREDENTIALS_EXIST"));
                 }
                 count++;
             }
 
             // note: if count==1 and required agents is 1, it's good to add
             // and it'd look like "agent1,agent1" - that's the only dup allowed
-            if (count <= getNoOfRequiredAgents()) { //all good, add it
-                r.setExtData(RecoveryService.ATTR_APPROVE_AGENTS,
-                      agents+","+agentID);
+            if (count <= getNoOfRequiredAgents()) { // all good, add it
+                r.setExtData(RecoveryService.ATTR_APPROVE_AGENTS, agents + ","
+                        + agentID);
                 if (count == getNoOfRequiredAgents()) {
                     r.setRequestStatus(RequestStatus.APPROVED);
                 } else {
@@ -978,34 +949,32 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     }
 
     /**
-     * Recovers key for administrators. This method is
-     * invoked by the agent operation of the key recovery servlet.
+     * Recovers key for administrators. This method is invoked by the agent
+     * operation of the key recovery servlet.
      * <P>
-     *
+     * 
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST used whenever
      * a user private key recovery request is made (this is when the DRM
      * receives the request)
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED used whenever
-     * a user private key recovery request is processed (this is when the DRM
-     * processes the request)
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED used
+     * whenever a user private key recovery request is processed (this is when
+     * the DRM processes the request)
      * </ul>
+     * 
      * @param kid key identifier
      * @param creds list of recovery agent credentials
      * @param password password of the PKCS12 package
      * @param cert certficate that will be put in PKCS12
      * @param delivery file, mail or something else
      * @param nickname string containing the nickname of the id cert for this
-     * subsystem
+     *            subsystem
      * @exception EBaseException failed to recover key
      * @return a byte array containing the key
      */
-    public byte[] doKeyRecovery(BigInteger kid,
-        Credential creds[], String password, 
-        X509CertImpl cert,
-        String delivery, String nickname,
-        String agent) 
-        throws EBaseException {
+    public byte[] doKeyRecovery(BigInteger kid, Credential creds[],
+            String password, X509CertImpl cert, String delivery,
+            String nickname, String agent) throws EBaseException {
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
         String auditRecoveryID = auditRecoveryID();
@@ -1026,8 +995,8 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             // set transient parameters
             params = createVolatileRequest(r.getRequestId());
 
-	    if (mConfig.getBoolean("keySplitting")) {
-              params.put(RecoveryService.ATTR_AGENT_CREDENTIALS, creds);
+            if (mConfig.getBoolean("keySplitting")) {
+                params.put(RecoveryService.ATTR_AGENT_CREDENTIALS, creds);
             }
             params.put(RecoveryService.ATTR_TRANSPORT_PWD, password);
 
@@ -1044,21 +1013,15 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST,
-                        auditSubjectID,
-                        ILogger.SUCCESS,
-                        auditRecoveryID,
-                        auditPublicKey);
+                    LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST, auditSubjectID,
+                    ILogger.SUCCESS, auditRecoveryID, auditPublicKey);
 
             audit(auditMessage);
         } catch (EBaseException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST,
-                        auditSubjectID,
-                        ILogger.FAILURE,
-                        auditRecoveryID,
-                        auditPublicKey);
+                    LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST, auditSubjectID,
+                    ILogger.FAILURE, auditRecoveryID, auditPublicKey);
 
             audit(auditMessage);
 
@@ -1071,18 +1034,16 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             queue.processRequest(r);
 
             if (r.getExtDataInString(IRequest.ERROR) == null) {
-                byte pkcs12[] = (byte[]) params.get(
-                        RecoveryService.ATTR_PKCS12);
+                byte pkcs12[] = (byte[]) params
+                        .get(RecoveryService.ATTR_PKCS12);
 
                 auditAgents = auditAgents(creds);
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED,
-                            auditSubjectID,
-                            ILogger.SUCCESS,
-                            auditRecoveryID,
-                            auditAgents);
+                        LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED,
+                        auditSubjectID, ILogger.SUCCESS, auditRecoveryID,
+                        auditAgents);
 
                 audit(auditMessage);
 
@@ -1092,11 +1053,9 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             } else {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED,
-                            auditSubjectID,
-                            ILogger.FAILURE,
-                            auditRecoveryID,
-                            auditAgents);
+                        LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED,
+                        auditSubjectID, ILogger.FAILURE, auditRecoveryID,
+                        auditAgents);
 
                 audit(auditMessage);
 
@@ -1105,11 +1064,9 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         } catch (EBaseException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED,
-                        auditSubjectID,
-                        ILogger.FAILURE,
-                        auditRecoveryID,
-                        auditAgents);
+                    LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED,
+                    auditSubjectID, ILogger.FAILURE, auditRecoveryID,
+                    auditAgents);
 
             audit(auditMessage);
 
@@ -1117,29 +1074,27 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         }
     }
 
-     /**
-     * Async Recovers key for administrators. This method is
-     * invoked by the agent operation of the key recovery servlet.
+    /**
+     * Async Recovers key for administrators. This method is invoked by the
+     * agent operation of the key recovery servlet.
      * <P>
-     *
+     * 
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST used whenever
      * a user private key recovery request is made (this is when the DRM
      * receives the request)
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED used whenever
-     * a user private key recovery request is processed (this is when the DRM
-     * processes the request)
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED used
+     * whenever a user private key recovery request is processed (this is when
+     * the DRM processes the request)
      * </ul>
-     * @param requestID  request id
-     * @param password password of the PKCS12 package
-     * subsystem
+     * 
+     * @param requestID request id
+     * @param password password of the PKCS12 package subsystem
      * @exception EBaseException failed to recover key
      * @return a byte array containing the key
      */
-    public byte[] doKeyRecovery(
-        String reqID, 
-        String password)
-        throws EBaseException {
+    public byte[] doKeyRecovery(String reqID, String password)
+            throws EBaseException {
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
         String auditRecoveryID = reqID;
@@ -1154,8 +1109,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         queue = getRequestQueue();
         r = queue.findRequest(new RequestId(reqID));
 
-        auditAgents = 
-            r.getExtDataInString(RecoveryService.ATTR_APPROVE_AGENTS);
+        auditAgents = r.getExtDataInString(RecoveryService.ATTR_APPROVE_AGENTS);
 
         // set transient parameters
         params = createVolatileRequest(r.getRequestId());
@@ -1164,22 +1118,22 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         // ensure that any low-level exceptions are reported
         // to the signed audit log and stored as failures
         try {
-            CMS.debug("KeyRecoveryAuthority: in asynchronous doKeyRecovery(), request state ="+ r.getRequestStatus().toString());
+            CMS.debug("KeyRecoveryAuthority: in asynchronous doKeyRecovery(), request state ="
+                    + r.getRequestStatus().toString());
             // can only process requests in begin state
             r.setRequestStatus(RequestStatus.BEGIN);
             queue.processRequest(r);
 
             if (r.getExtDataInString(IRequest.ERROR) == null) {
-                byte pkcs12[] = (byte[]) params.get(
-                        RecoveryService.ATTR_PKCS12);
+                byte pkcs12[] = (byte[]) params
+                        .get(RecoveryService.ATTR_PKCS12);
 
                 // store a message in the signed audit log file
-                auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED_ASYNC,
-                            auditSubjectID,
-                            ILogger.SUCCESS,
-                            auditRecoveryID,
-                            auditAgents);
+                auditMessage = CMS
+                        .getLogMessage(
+                                LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED_ASYNC,
+                                auditSubjectID, ILogger.SUCCESS,
+                                auditRecoveryID, auditAgents);
 
                 audit(auditMessage);
 
@@ -1188,12 +1142,11 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
                 return pkcs12;
             } else {
                 // store a message in the signed audit log file
-                auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED_ASYNC,
-                            auditSubjectID,
-                            ILogger.FAILURE,
-                            auditRecoveryID,
-                            auditAgents);
+                auditMessage = CMS
+                        .getLogMessage(
+                                LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED_ASYNC,
+                                auditSubjectID, ILogger.FAILURE,
+                                auditRecoveryID, auditAgents);
 
                 audit(auditMessage);
 
@@ -1202,11 +1155,9 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         } catch (EBaseException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED_ASYNC,
-                        auditSubjectID,
-                        ILogger.FAILURE,
-                        auditRecoveryID,
-                        auditAgents);
+                    LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED_ASYNC,
+                    auditSubjectID, ILogger.FAILURE, auditRecoveryID,
+                    auditAgents);
 
             audit(auditMessage);
             throw eAudit1;
@@ -1214,9 +1165,9 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     }
 
     /**
-     * Constructs a recovery request and submits it
-     * to the request subsystem for processing.
-     *
+     * Constructs a recovery request and submits it to the request subsystem for
+     * processing.
+     * 
      * @param kid key identifier
      * @param creds list of recovery agent credentials
      * @param password password of the PKCS12 package
@@ -1225,10 +1176,9 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      * @return executed request
      * @exception EBaseException failed to recover key
      */
-    public IRequest recoverKey(BigInteger kid,
-        Credential creds[], String password, 
-        X509CertImpl cert,
-        String delivery) throws EBaseException {
+    public IRequest recoverKey(BigInteger kid, Credential creds[],
+            String password, X509CertImpl cert, String delivery)
+            throws EBaseException {
         IRequestQueue queue = getRequestQueue();
         IRequest r = queue.newRequest("recovery");
 
@@ -1242,7 +1192,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
     /**
      * Recovers key for end-entities.
-     *
+     * 
      * @param creds list of credentials
      * @param encryptionChain certificate chain
      * @param signingCert signing cert
@@ -1251,10 +1201,10 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      * @return executed request
      * @exception EBaseException failed to recover key
      */
-    public IRequest recoverKey(Credential creds[], CertificateChain
-        encryptionChain, X509CertImpl signingCert,
-        X509CertImpl transportCert,
-        X500Name ownerName) throws EBaseException {
+    public IRequest recoverKey(Credential creds[],
+            CertificateChain encryptionChain, X509CertImpl signingCert,
+            X509CertImpl transportCert, X500Name ownerName)
+            throws EBaseException {
         IRequestQueue queue = getRequestQueue();
         IRequest r = queue.newRequest("recovery");
 
@@ -1264,8 +1214,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             r.setExtData(RecoveryService.ATTR_ENCRYPTION_CERTS,
                     certChainOut.toByteArray());
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                "Error encoding certificate chain");
+            log(ILogger.LL_FAILURE, "Error encoding certificate chain");
         }
 
         r.setExtData(RecoveryService.ATTR_SIGNING_CERT, signingCert);
@@ -1277,8 +1226,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             r.setExtData(RecoveryService.ATTR_OWNER_NAME,
                     ownerNameOut.toByteArray());
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                "Error encoding X500Name for owner name");
+            log(ILogger.LL_FAILURE, "Error encoding X500Name for owner name");
         }
 
         queue.processRequest(r);
@@ -1286,10 +1234,9 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     }
 
     /**
-     * Retrieves the storage key unit. The storage key
-     * is used to wrap the user key for long term
-     * storage.
-     *
+     * Retrieves the storage key unit. The storage key is used to wrap the user
+     * key for long term storage.
+     * 
      * @return storage key unit.
      */
     public IStorageKeyUnit getStorageKeyUnit() {
@@ -1298,7 +1245,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
     /**
      * Retrieves the transport key unit.
-     *
+     * 
      * @return transport key unit
      */
     public ITransportKeyUnit getTransportKeyUnit() {
@@ -1306,9 +1253,9 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     }
 
     /**
-     * Returns the name of this subsystem. This name is
-     * extracted from the transport certificate.
-     *
+     * Returns the name of this subsystem. This name is extracted from the
+     * transport certificate.
+     * 
      * @return KRA name
      */
     public X500Name getX500Name() {
@@ -1320,9 +1267,8 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     }
 
     /**
-     * Returns the nickname for the id cert of this 
-     * subsystem.
-     *
+     * Returns the nickname for the id cert of this subsystem.
+     * 
      * @return nickname of the transport certificate
      */
     public String getNickname() {
@@ -1339,11 +1285,11 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         } catch (EBaseException e) {
         }
     }
-       
+
     public String getNewNickName() throws EBaseException {
         return mConfig.getString(PROP_NEW_NICKNAME, "");
     }
- 
+
     public void setNewNickName(String name) {
         mConfig.putString(PROP_NEW_NICKNAME, name);
     }
@@ -1355,7 +1301,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     /**
      * Retrieves KRA request repository.
      * <P>
-     *
+     * 
      * @return request repository
      */
     public IRequestQueue getRequestQueue() {
@@ -1363,8 +1309,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     }
 
     /**
-     * Retrieves the key repository. The key repository 
-     * stores archived keys.
+     * Retrieves the key repository. The key repository stores archived keys.
      * <P>
      */
     public IKeyRepository getKeyRepository() {
@@ -1374,18 +1319,17 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     /**
      * Retrieves replica repository.
      * <P>
-     *
+     * 
      * @return replica repository
      */
     public IReplicaIDRepository getReplicaRepository() {
         return mReplicaRepot;
     }
 
-
     /**
      * Retrieves the DN of this escrow authority.
      * <P>
-     *
+     * 
      * @return distinguished name
      */
     protected String getDN() {
@@ -1401,23 +1345,22 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
     /**
      * Logs an event.
-     *
+     * 
      * @param level log level
      * @param msg message to log
      */
     public void log(int level, String msg) {
-        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, 
-            level, msg);
+        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, level, msg);
     }
 
     /**
      * Registers a request listener.
-     *
+     * 
      * @param l request listener
      */
     public void registerRequestListener(IRequestListener l) {
         // it's initialized.
-        if (mNotify != null) 
+        if (mNotify != null)
             mNotify.registerListener(l);
     }
 
@@ -1426,8 +1369,8 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     }
 
     /**
-     * init notification related listeners -
-     * right now only RequestInQueue listener is available for KRA
+     * init notification related listeners - right now only RequestInQueue
+     * listener is available for KRA
      */
     private void initNotificationListeners() {
         IConfigStore nc = null;
@@ -1439,66 +1382,58 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
                 IConfigStore rq = nc.getSubStore(PROP_REQ_IN_Q_SUBSTORE);
                 IAuthority cSub = (IAuthority) this;
 
-                String requestInQListenerClassName = nc.getString("certificateIssuedListenerClassName", "com.netscape.cms.listeners.RequestInQListener");
+                String requestInQListenerClassName = nc.getString(
+                        "certificateIssuedListenerClassName",
+                        "com.netscape.cms.listeners.RequestInQListener");
 
                 try {
-                    mReqInQListener = (IRequestListener) Class.forName(requestInQListenerClassName).newInstance();
+                    mReqInQListener = (IRequestListener) Class.forName(
+                            requestInQListenerClassName).newInstance();
                     mReqInQListener.init(this, nc);
                 } catch (Exception e1) {
-                    log(ILogger.LL_FAILURE, 
-                        CMS.getLogMessage("CMSCORE_KRA_REGISTER_LISTENER", requestInQListenerClassName));
+                    log(ILogger.LL_FAILURE, CMS.getLogMessage(
+                            "CMSCORE_KRA_REGISTER_LISTENER",
+                            requestInQListenerClassName));
                 }
             } else {
-                log(ILogger.LL_INFO, 
-                    "No KRA notification Module configuration found");
+                log(ILogger.LL_INFO,
+                        "No KRA notification Module configuration found");
             }
         } catch (EPropertyNotFound e) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSCORE_KRA_NOTIFY_ERROR", e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_NOTIFY_ERROR", e.toString()));
         } catch (EListenersException e) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSCORE_KRA_NOTIFY_ERROR", e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_NOTIFY_ERROR", e.toString()));
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSCORE_KRA_NOTIFY_ERROR", e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_NOTIFY_ERROR", e.toString()));
         }
     }
 
     /**
      * temporary accepted ras.
      */
-	/* code no longer used
-    public X500Name[] getAcceptedRAs() {
-        // temporary. use usr/grp for real thing.
-        X500Name radn = null;
-        String raname = null;
-
-        try {
-            raname = mConfig.getString("acceptedRA", null);
-            if (raname != null) {
-                radn = new X500Name(raname);
-            }
-        } catch (IOException e) {
-            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_KRA, 
-                ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSCORE_KRA_INVALID_RA_NAME", raname, e.toString()));
-        } catch (EBaseException e) {
-            // ignore - set to null.
-            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_KRA, 
-                ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSCORE_KRA_INVALID_RA_SETUP", e.toString()));
-        }
-        return new X500Name[] { radn };
-    }
-	*/
+    /*
+     * code no longer used public X500Name[] getAcceptedRAs() { // temporary.
+     * use usr/grp for real thing. X500Name radn = null; String raname = null;
+     * 
+     * try { raname = mConfig.getString("acceptedRA", null); if (raname != null)
+     * { radn = new X500Name(raname); } } catch (IOException e) {
+     * mLogger.log(ILogger.EV_SYSTEM, ILogger.S_KRA, ILogger.LL_FAILURE,
+     * CMS.getLogMessage("CMSCORE_KRA_INVALID_RA_NAME", raname, e.toString()));
+     * } catch (EBaseException e) { // ignore - set to null.
+     * mLogger.log(ILogger.EV_SYSTEM, ILogger.S_KRA, ILogger.LL_FAILURE,
+     * CMS.getLogMessage("CMSCORE_KRA_INVALID_RA_SETUP", e.toString())); }
+     * return new X500Name[] { radn }; }
+     */
 
     public Hashtable mVolatileRequests = new Hashtable();
 
     /**
-     * Creates a request object to store attributes that
-     * will not be serialized. Currently, request queue
-     * framework will try to serialize all the attribute into
-     * persistent storage. Things like passwords are not
+     * Creates a request object to store attributes that will not be serialized.
+     * Currently, request queue framework will try to serialize all the
+     * attribute into persistent storage. Things like passwords are not
      * desirable to be stored.
      */
     public Hashtable createVolatileRequest(RequestId id) {
@@ -1522,10 +1457,10 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
     /**
      * Signed Audit Log
-     *
+     * 
      * This method is called to store messages to the signed audit log.
      * <P>
-     *
+     * 
      * @param msg signed audit log message
      */
     private void audit(String msg) {
@@ -1536,20 +1471,17 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             return;
         }
 
-        mSignedAuditLogger.log(ILogger.EV_SIGNED_AUDIT,
-            null,
-            ILogger.S_SIGNED_AUDIT,
-            ILogger.LL_SECURITY,
-            msg);
+        mSignedAuditLogger.log(ILogger.EV_SIGNED_AUDIT, null,
+                ILogger.S_SIGNED_AUDIT, ILogger.LL_SECURITY, msg);
     }
 
     /**
      * Signed Audit Log Subject ID
-     *
-     * This method is called to obtain the "SubjectID" for
-     * a signed audit log message.
+     * 
+     * This method is called to obtain the "SubjectID" for a signed audit log
+     * message.
      * <P>
-     *
+     * 
      * @return id string containing the signed audit log message SubjectID
      */
     private String auditSubjectID() {
@@ -1564,8 +1496,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         SessionContext auditContext = SessionContext.getExistingContext();
 
         if (auditContext != null) {
-            subjectID = (String)
-                    auditContext.get(SessionContext.USER_ID);
+            subjectID = (String) auditContext.get(SessionContext.USER_ID);
 
             if (subjectID != null) {
                 subjectID = subjectID.trim();
@@ -1581,11 +1512,11 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
     /**
      * Signed Audit Log Requester ID
-     *
-     * This method is called to obtain the "RequesterID" for
-     * a signed audit log message.
+     * 
+     * This method is called to obtain the "RequesterID" for a signed audit log
+     * message.
      * <P>
-     *
+     * 
      * @return id string containing the signed audit log message RequesterID
      */
     private String auditRequesterID() {
@@ -1600,8 +1531,8 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         SessionContext auditContext = SessionContext.getExistingContext();
 
         if (auditContext != null) {
-            requesterID = (String)
-                    auditContext.get(SessionContext.REQUESTER_ID);
+            requesterID = (String) auditContext
+                    .get(SessionContext.REQUESTER_ID);
 
             if (requesterID != null) {
                 requesterID = requesterID.trim();
@@ -1617,11 +1548,11 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
     /**
      * Signed Audit Log Recovery ID
-     *
-     * This method is called to obtain the "RecoveryID" for
-     * a signed audit log message.
+     * 
+     * This method is called to obtain the "RecoveryID" for a signed audit log
+     * message.
      * <P>
-     *
+     * 
      * @return id string containing the signed audit log message RecoveryID
      */
     private String auditRecoveryID() {
@@ -1636,8 +1567,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         SessionContext auditContext = SessionContext.getExistingContext();
 
         if (auditContext != null) {
-            recoveryID = (String)
-                    auditContext.get(SessionContext.RECOVERY_ID);
+            recoveryID = (String) auditContext.get(SessionContext.RECOVERY_ID);
 
             if (recoveryID != null) {
                 recoveryID = recoveryID.trim();
@@ -1653,11 +1583,11 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
     /**
      * Signed Audit Log Public Key
-     *
+     * 
      * This method is called to obtain the public key from the passed in
      * "X509Certificate" for a signed audit log message.
      * <P>
-     *
+     * 
      * @param cert an X509Certificate
      * @return key string containing the certificate's public key
      */
@@ -1693,11 +1623,11 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
     /**
      * Signed Audit Log Public Key
-     *
+     * 
      * This method is called to obtain the public key from the passed in
      * "KeyRecord" for a signed audit log message.
      * <P>
-     *
+     * 
      * @param rec a Key Record
      * @return key string containing the certificate's public key
      */
@@ -1750,11 +1680,11 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
 
     /**
      * Signed Audit Agents
-     *
+     * 
      * This method is called to extract agent uids from the passed in
      * "Credentials[]" and return a string of comma-separated agent uids.
      * <P>
-     *
+     * 
      * @param creds array of credentials
      * @return a comma-separated string of agent uids
      */
@@ -1778,8 +1708,7 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
                 uid = uid.trim();
             }
 
-            if (uid != null &&
-                !uid.equals("")) {
+            if (uid != null && !uid.equals("")) {
 
                 if (i == 0) {
                     agents = uid;
@@ -1792,4 +1721,3 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         return agents;
     }
 }
-

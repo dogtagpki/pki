@@ -22,11 +22,11 @@ import com.netscape.certsrv.dbs.IDBVirtualList;
 import com.netscape.certsrv.dbs.IElementProcessor;
 
 /**
- * A default stub ojbect for tests to extend.
- * This class helps test avoid the problem of test stubs having to
- * implement a new stub method every time the interface changes.
- * It also makes the tests clearer by not cluttered them with empty methods.
- *
+ * A default stub ojbect for tests to extend. This class helps test avoid the
+ * problem of test stubs having to implement a new stub method every time the
+ * interface changes. It also makes the tests clearer by not cluttered them with
+ * empty methods.
+ * 
  * Do not put any behaviour in this class.
  */
 public class DBVirtualListDefaultStub implements IDBVirtualList {
@@ -73,7 +73,7 @@ public class DBVirtualListDefaultStub implements IDBVirtualList {
     }
 
     public void processElements(int startidx, int endidx, IElementProcessor ep)
-        throws EBaseException {
+            throws EBaseException {
     }
 
     public int getSelectedIndex() {

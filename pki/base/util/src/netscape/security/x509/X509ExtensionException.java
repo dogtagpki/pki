@@ -21,9 +21,8 @@ import java.security.GeneralSecurityException;
 
 /**
  * X.509 Extension Exception.
- *
- * @author Hemma Prafullchandra
- * 1.2
+ * 
+ * @author Hemma Prafullchandra 1.2
  */
 public class X509ExtensionException extends GeneralSecurityException {
 
@@ -33,19 +32,17 @@ public class X509ExtensionException extends GeneralSecurityException {
     private static final long serialVersionUID = 8152491877676477910L;
 
     /**
-     * Constructs an X509ExtensionException with no detail message. A
-     * detail message is a String that describes this particular
-     * exception.
+     * Constructs an X509ExtensionException with no detail message. A detail
+     * message is a String that describes this particular exception.
      */
     public X509ExtensionException() {
         super();
     }
 
     /**
-     * Constructs the exception with the specified detail
-     * message. A detail message is a String that describes this
-     * particular exception. 
-     *
+     * Constructs the exception with the specified detail message. A detail
+     * message is a String that describes this particular exception.
+     * 
      * @param message the detail message.
      */
     public X509ExtensionException(String message) {

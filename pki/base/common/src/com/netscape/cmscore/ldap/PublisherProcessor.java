@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.ldap;
 
-
 import java.math.BigInteger;
 import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
@@ -61,9 +60,8 @@ import com.netscape.certsrv.request.IRequestNotifier;
 import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.util.Debug;
 
-
-public class PublisherProcessor implements
-		IPublisherProcessor, IXcertPublisherProcessor {
+public class PublisherProcessor implements IPublisherProcessor,
+        IXcertPublisherProcessor {
 
     public Hashtable<String, PublisherPlugin> mPublisherPlugins = new Hashtable<String, PublisherPlugin>();
     public Hashtable<String, PublisherProxy> mPublisherInsts = new Hashtable<String, PublisherProxy>();
@@ -73,7 +71,7 @@ public class PublisherProcessor implements
     public Hashtable<String, ILdapRule> mRuleInsts = new Hashtable<String, ILdapRule>();
 
     /**
-     protected PublishRuleSet mRuleSet = null;
+     * protected PublishRuleSet mRuleSet = null;
      **/
     protected LdapConnModule mLdapConnModule = null;
 
@@ -94,7 +92,7 @@ public class PublisherProcessor implements
     public String getId() {
         return mId;
     }
-		
+
     public void setId(String id) {
         mId = id;
     }
@@ -104,7 +102,7 @@ public class PublisherProcessor implements
     }
 
     public void init(ISubsystem authority, IConfigStore config)
-        throws EBaseException {
+            throws EBaseException {
         mConfig = config;
         mAuthority = (ICertAuthority) authority;
 
@@ -124,20 +122,19 @@ public class PublisherProcessor implements
         if (Debug.ON)
             Debug.trace("loaded publisher plugins");
 
-            // load publisher instances
+        // load publisher instances
         c = publisherConfig.getSubStore(PROP_INSTANCE);
         Enumeration<String> instances = c.getSubStoreNames();
 
         while (instances.hasMoreElements()) {
             String insName = (String) instances.nextElement();
-            String implName = c.getString(insName + "." + 
-                    PROP_PLUGIN);
-            PublisherPlugin plugin =
-                (PublisherPlugin) mPublisherPlugins.get(implName);
+            String implName = c.getString(insName + "." + PROP_PLUGIN);
+            PublisherPlugin plugin = (PublisherPlugin) mPublisherPlugins
+                    .get(implName);
 
-            if (plugin == null) { 
-                log(ILogger.LL_FAILURE, 
-			CMS.getLogMessage("CMSCORE_LDAP_PLUGIN_NOT_FIND", implName));
+            if (plugin == null) {
+                log(ILogger.LL_FAILURE, CMS.getLogMessage(
+                        "CMSCORE_LDAP_PLUGIN_NOT_FIND", implName));
                 throw new ELdapException(implName);
             }
             String className = plugin.getClassPath();
@@ -147,10 +144,9 @@ public class PublisherProcessor implements
             ILdapPublisher publisherInst = null;
 
             try {
-                publisherInst = (ILdapPublisher)
-                        Class.forName(className).newInstance();
-                IConfigStore pConfig = 
-                    c.getSubStore(insName);
+                publisherInst = (ILdapPublisher) Class.forName(className)
+                        .newInstance();
+                IConfigStore pConfig = c.getSubStore(insName);
 
                 publisherInst.init(pConfig);
                 isEnable = true;
@@ -158,20 +154,27 @@ public class PublisherProcessor implements
             } catch (ClassNotFoundException e) {
                 String errMsg = "PublisherProcessor:: init()-" + e.toString();
 
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_LDAP_PUBLISHER_INIT_FAILED", e.toString()));
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
+                log(ILogger.LL_FAILURE, CMS.getLogMessage(
+                        "CMSCORE_LDAP_PUBLISHER_INIT_FAILED", e.toString()));
+                throw new ELdapException(CMS.getUserMessage(
+                        "CMS_LDAP_FAIL_LOAD_CLASS", className));
             } catch (IllegalAccessException e) {
                 String errMsg = "PublisherProcessor:: init()-" + e.toString();
 
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_LDAP_PUBLISHER_INIT_FAILED", e.toString()));
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
+                log(ILogger.LL_FAILURE, CMS.getLogMessage(
+                        "CMSCORE_LDAP_PUBLISHER_INIT_FAILED", e.toString()));
+                throw new ELdapException(CMS.getUserMessage(
+                        "CMS_LDAP_FAIL_LOAD_CLASS", className));
             } catch (InstantiationException e) {
                 String errMsg = "PublisherProcessor: init()-" + e.toString();
 
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_LDAP_PUBLISHER_INIT_FAILED", e.toString()));
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
+                log(ILogger.LL_FAILURE, CMS.getLogMessage(
+                        "CMSCORE_LDAP_PUBLISHER_INIT_FAILED", e.toString()));
+                throw new ELdapException(CMS.getUserMessage(
+                        "CMS_LDAP_FAIL_LOAD_CLASS", className));
             } catch (Throwable e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_LDAP_SKIP_PUBLISHER", insName, e.toString()));
+                log(ILogger.LL_FAILURE, CMS.getLogMessage(
+                        "CMSCORE_LDAP_SKIP_PUBLISHER", insName, e.toString()));
                 // Let the server continue if it is a
                 // mis-configuration. But the instance
                 // will be skipped. This give another
@@ -180,19 +183,22 @@ public class PublisherProcessor implements
             }
 
             if (publisherInst == null) {
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
+                throw new ELdapException(CMS.getUserMessage(
+                        "CMS_LDAP_FAIL_LOAD_CLASS", className));
             }
 
             if (insName == null) {
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", insName));
+                throw new ELdapException(CMS.getUserMessage(
+                        "CMS_LDAP_FAIL_LOAD_CLASS", insName));
             }
 
             // add publisher instance to list.
-            mPublisherInsts.put(insName, new 
-                PublisherProxy(isEnable, publisherInst));
+            mPublisherInsts.put(insName, new PublisherProxy(isEnable,
+                    publisherInst));
             log(ILogger.LL_INFO, "publisher instance " + insName + " added");
             if (Debug.ON)
-                Debug.trace("loaded publisher instance " + insName + " impl " + implName);
+                Debug.trace("loaded publisher instance " + insName + " impl "
+                        + implName);
         }
 
         // load mapper implementation
@@ -210,19 +216,17 @@ public class PublisherProcessor implements
         if (Debug.ON)
             Debug.trace("loaded mapper plugins");
 
-            // load mapper instances
+        // load mapper instances
         c = mapperConfig.getSubStore(PROP_INSTANCE);
         instances = c.getSubStoreNames();
         while (instances.hasMoreElements()) {
             String insName = (String) instances.nextElement();
-            String implName = c.getString(insName + "." + 
-                    PROP_PLUGIN);
-            MapperPlugin plugin =
-                (MapperPlugin) mMapperPlugins.get(implName);
+            String implName = c.getString(insName + "." + PROP_PLUGIN);
+            MapperPlugin plugin = (MapperPlugin) mMapperPlugins.get(implName);
 
-            if (plugin == null) { 
-                log(ILogger.LL_FAILURE, 
-			CMS.getLogMessage("CMSCORE_LDAP_MAPPER_NOT_FIND", implName));
+            if (plugin == null) {
+                log(ILogger.LL_FAILURE, CMS.getLogMessage(
+                        "CMSCORE_LDAP_MAPPER_NOT_FIND", implName));
                 throw new ELdapException(implName);
             }
             String className = plugin.getClassPath();
@@ -230,35 +234,41 @@ public class PublisherProcessor implements
             if (Debug.ON)
                 Debug.trace("loaded mapper className=" + className);
 
-                // Instantiate and init the mapper
+            // Instantiate and init the mapper
             boolean isEnable = false;
             ILdapMapper mapperInst = null;
 
             try {
-                mapperInst = (ILdapMapper)
-                        Class.forName(className).newInstance();
-                IConfigStore mConfig = 
-                    c.getSubStore(insName);
+                mapperInst = (ILdapMapper) Class.forName(className)
+                        .newInstance();
+                IConfigStore mConfig = c.getSubStore(insName);
 
                 mapperInst.init(mConfig);
                 isEnable = true;
             } catch (ClassNotFoundException e) {
                 String errMsg = "PublisherProcessor:: init()-" + e.toString();
 
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_LDAP_PUBLISHER_INIT_FAILED", e.toString()));
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
+                log(ILogger.LL_FAILURE, CMS.getLogMessage(
+                        "CMSCORE_LDAP_PUBLISHER_INIT_FAILED", e.toString()));
+                throw new ELdapException(CMS.getUserMessage(
+                        "CMS_LDAP_FAIL_LOAD_CLASS", className));
             } catch (IllegalAccessException e) {
                 String errMsg = "PublisherProcessor:: init()-" + e.toString();
 
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_LDAP_PUBLISHER_INIT_FAILED", e.toString()));
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
+                log(ILogger.LL_FAILURE, CMS.getLogMessage(
+                        "CMSCORE_LDAP_PUBLISHER_INIT_FAILED", e.toString()));
+                throw new ELdapException(CMS.getUserMessage(
+                        "CMS_LDAP_FAIL_LOAD_CLASS", className));
             } catch (InstantiationException e) {
                 String errMsg = "PublisherProcessor: init()-" + e.toString();
 
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_LDAP_PUBLISHER_INIT_FAILED", e.toString()));
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
+                log(ILogger.LL_FAILURE, CMS.getLogMessage(
+                        "CMSCORE_LDAP_PUBLISHER_INIT_FAILED", e.toString()));
+                throw new ELdapException(CMS.getUserMessage(
+                        "CMS_LDAP_FAIL_LOAD_CLASS", className));
             } catch (Throwable e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_LDAP_SKIP_MAPPER", insName, e.toString()));
+                log(ILogger.LL_FAILURE, CMS.getLogMessage(
+                        "CMSCORE_LDAP_SKIP_MAPPER", insName, e.toString()));
                 // Let the server continue if it is a
                 // mis-configuration. But the instance
                 // will be skipped. This give another
@@ -267,16 +277,17 @@ public class PublisherProcessor implements
             }
 
             if (mapperInst == null) {
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
+                throw new ELdapException(CMS.getUserMessage(
+                        "CMS_LDAP_FAIL_LOAD_CLASS", className));
             }
 
             // add manager instance to list.
-            mMapperInsts.put(insName, new MapperProxy(
-                    isEnable, mapperInst));
+            mMapperInsts.put(insName, new MapperProxy(isEnable, mapperInst));
 
             log(ILogger.LL_INFO, "mapper instance " + insName + " added");
             if (Debug.ON)
-                Debug.trace("loaded mapper instance " + insName + " impl " + implName);
+                Debug.trace("loaded mapper instance " + insName + " impl "
+                        + implName);
         }
 
         // load rule implementation
@@ -294,19 +305,17 @@ public class PublisherProcessor implements
         if (Debug.ON)
             Debug.trace("loaded rule plugins");
 
-            // load rule instances
+        // load rule instances
         c = ruleConfig.getSubStore(PROP_INSTANCE);
         instances = c.getSubStoreNames();
         while (instances.hasMoreElements()) {
             String insName = (String) instances.nextElement();
-            String implName = c.getString(insName + "." + 
-                    PROP_PLUGIN);
-            RulePlugin plugin =
-                (RulePlugin) mRulePlugins.get(implName);
+            String implName = c.getString(insName + "." + PROP_PLUGIN);
+            RulePlugin plugin = (RulePlugin) mRulePlugins.get(implName);
 
-            if (plugin == null) { 
-                log(ILogger.LL_FAILURE, 
-			CMS.getLogMessage("CMSCORE_LDAP_RULE_NOT_FIND", implName));
+            if (plugin == null) {
+                log(ILogger.LL_FAILURE, CMS.getLogMessage(
+                        "CMSCORE_LDAP_RULE_NOT_FIND", implName));
                 throw new ELdapException(implName);
             }
             String className = plugin.getClassPath();
@@ -314,14 +323,13 @@ public class PublisherProcessor implements
             if (Debug.ON)
                 Debug.trace("loaded rule className=" + className);
 
-                // Instantiate and init the rule
+            // Instantiate and init the rule
             IConfigStore mConfig = null;
 
             try {
                 ILdapRule ruleInst = null;
 
-                ruleInst = (ILdapRule)
-                        Class.forName(className).newInstance();
+                ruleInst = (ILdapRule) Class.forName(className).newInstance();
                 mConfig = c.getSubStore(insName);
                 ruleInst.init(this, mConfig);
                 ruleInst.setInstanceName(insName);
@@ -330,30 +338,37 @@ public class PublisherProcessor implements
                 if (Debug.ON)
                     Debug.trace("ADDING RULE " + insName + "  " + ruleInst);
                 mRuleInsts.put(insName, ruleInst);
-                log(ILogger.LL_INFO, "rule instance " + 
-                    insName + " added");
+                log(ILogger.LL_INFO, "rule instance " + insName + " added");
             } catch (ClassNotFoundException e) {
                 String errMsg = "PublisherProcessor:: init()-" + e.toString();
 
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_LDAP_PUBLISHER_INIT_FAILED", e.toString()));
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
+                log(ILogger.LL_FAILURE, CMS.getLogMessage(
+                        "CMSCORE_LDAP_PUBLISHER_INIT_FAILED", e.toString()));
+                throw new ELdapException(CMS.getUserMessage(
+                        "CMS_LDAP_FAIL_LOAD_CLASS", className));
             } catch (IllegalAccessException e) {
                 String errMsg = "PublisherProcessor:: init()-" + e.toString();
 
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_LDAP_PUBLISHER_INIT_FAILED", e.toString()));
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
+                log(ILogger.LL_FAILURE, CMS.getLogMessage(
+                        "CMSCORE_LDAP_PUBLISHER_INIT_FAILED", e.toString()));
+                throw new ELdapException(CMS.getUserMessage(
+                        "CMS_LDAP_FAIL_LOAD_CLASS", className));
             } catch (InstantiationException e) {
                 String errMsg = "PublisherProcessor: init()-" + e.toString();
 
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_LDAP_PUBLISHER_INIT_FAILED", e.toString()));
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
+                log(ILogger.LL_FAILURE, CMS.getLogMessage(
+                        "CMSCORE_LDAP_PUBLISHER_INIT_FAILED", e.toString()));
+                throw new ELdapException(CMS.getUserMessage(
+                        "CMS_LDAP_FAIL_LOAD_CLASS", className));
             } catch (Throwable e) {
                 if (mConfig == null) {
-                    throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
+                    throw new ELdapException(CMS.getUserMessage(
+                            "CMS_LDAP_FAIL_LOAD_CLASS", className));
                 }
-                mConfig.putString(ILdapRule.PROP_ENABLE, 
-                    "false");
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_LDAP_SKIP_RULE", insName, e.toString()));
+                mConfig.putString(ILdapRule.PROP_ENABLE, "false");
+                log(ILogger.LL_FAILURE,
+                        CMS.getLogMessage("CMSCORE_LDAP_SKIP_RULE", insName,
+                                e.toString()));
                 // Let the server continue if it is a
                 // mis-configuration. But the instance
                 // will be skipped. This give another
@@ -361,7 +376,8 @@ public class PublisherProcessor implements
                 // the server via console.
             }
             if (Debug.ON)
-                Debug.trace("loaded rule instance " + insName + " impl " + implName);
+                Debug.trace("loaded rule instance " + insName + " impl "
+                        + implName);
         }
 
         startup();
@@ -372,41 +388,39 @@ public class PublisherProcessor implements
     /**
      * Retrieves LDAP connection module.
      * <P>
-     *
+     * 
      * @return LDAP connection instance
      */
     public ILdapConnModule getLdapConnModule() {
         return mLdapConnModule;
     }
-	
+
     public void setLdapConnModule(ILdapConnModule m) {
-        mLdapConnModule = (LdapConnModule)m;
+        mLdapConnModule = (LdapConnModule) m;
     }
-		
+
     /**
      * init ldap connection
      */
-    private void initLdapConn(IConfigStore ldapConfig)
-        throws EBaseException {
+    private void initLdapConn(IConfigStore ldapConfig) throws EBaseException {
         IConfigStore c = ldapConfig;
 
         try {
-            //c = authConfig.getSubStore(PROP_LDAP_PUBLISH_SUBSTORE);
+            // c = authConfig.getSubStore(PROP_LDAP_PUBLISH_SUBSTORE);
             if (c != null && c.size() > 0) {
                 mLdapConnModule = new LdapConnModule();
                 mLdapConnModule.init(this, c);
                 CMS.debug("LdapPublishing connection inited");
             } else {
-                log(ILogger.LL_FAILURE, 
-                    "No Ldap Module configuration found");
+                log(ILogger.LL_FAILURE, "No Ldap Module configuration found");
                 throw new ELdapException(
-                  CMS.getUserMessage("CMS_LDAP_NO_LDAP_PUBLISH_CONFIG_FOUND"));
+                        CMS.getUserMessage("CMS_LDAP_NO_LDAP_PUBLISH_CONFIG_FOUND"));
             }
 
         } catch (ELdapException e) {
-            log(ILogger.LL_FAILURE, 
-                "Ldap Publishing Module failed with " + e);
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_INIT_LDAP_PUBLISH_MODULE_FAILED", e.toString()));
+            log(ILogger.LL_FAILURE, "Ldap Publishing Module failed with " + e);
+            throw new ELdapException(CMS.getUserMessage(
+                    "CMS_LDAP_INIT_LDAP_PUBLISH_MODULE_FAILED", e.toString()));
         }
     }
 
@@ -424,23 +438,33 @@ public class PublisherProcessor implements
             mLdapRequestListener = new LdapRequestListener();
             mLdapRequestListener.init(this, mLdapConfig);
             mAuthority.registerRequestListener(mLdapRequestListener);
-            IConfigStore queueConfig = mConfig.getSubStore(PROP_QUEUE_PUBLISH_SUBSTORE);
+            IConfigStore queueConfig = mConfig
+                    .getSubStore(PROP_QUEUE_PUBLISH_SUBSTORE);
             if (queueConfig != null) {
-                boolean isPublishingQueueEnabled = queueConfig.getBoolean("enable", false);
-                int publishingQueuePriorityLevel = queueConfig.getInteger("priorityLevel", 0);
-                int maxNumberOfPublishingThreads = queueConfig.getInteger("maxNumberOfThreads", 1);
-                int publishingQueuePageSize = queueConfig.getInteger("pageSize", 100);
-                int savePublishingStatus = queueConfig.getInteger("saveStatus", 0);
-                CMS.debug("PublisherProcessor: startup: Publishing Queue Enabled: " + isPublishingQueueEnabled +
-                          "  Priority Level: " + publishingQueuePriorityLevel +
-                          "  Maximum Number of Threads: " + maxNumberOfPublishingThreads +
-                          "  Page Size: "+ publishingQueuePageSize);
-                IRequestNotifier reqNotifier = ((ICertificateAuthority)mAuthority).getRequestNotifier();
-                reqNotifier.setPublishingQueue (isPublishingQueueEnabled,
-                                                publishingQueuePriorityLevel,
-                                                maxNumberOfPublishingThreads,
-                                                publishingQueuePageSize,
-                                                savePublishingStatus);
+                boolean isPublishingQueueEnabled = queueConfig.getBoolean(
+                        "enable", false);
+                int publishingQueuePriorityLevel = queueConfig.getInteger(
+                        "priorityLevel", 0);
+                int maxNumberOfPublishingThreads = queueConfig.getInteger(
+                        "maxNumberOfThreads", 1);
+                int publishingQueuePageSize = queueConfig.getInteger(
+                        "pageSize", 100);
+                int savePublishingStatus = queueConfig.getInteger("saveStatus",
+                        0);
+                CMS.debug("PublisherProcessor: startup: Publishing Queue Enabled: "
+                        + isPublishingQueueEnabled
+                        + "  Priority Level: "
+                        + publishingQueuePriorityLevel
+                        + "  Maximum Number of Threads: "
+                        + maxNumberOfPublishingThreads
+                        + "  Page Size: "
+                        + publishingQueuePageSize);
+                IRequestNotifier reqNotifier = ((ICertificateAuthority) mAuthority)
+                        .getRequestNotifier();
+                reqNotifier.setPublishingQueue(isPublishingQueueEnabled,
+                        publishingQueuePriorityLevel,
+                        maxNumberOfPublishingThreads, publishingQueuePageSize,
+                        savePublishingStatus);
             }
         }
     }
@@ -452,11 +476,11 @@ public class PublisherProcessor implements
                 mLdapConnModule.getLdapConnFactory().reset();
             }
             if (mLdapRequestListener != null) {
-                //mLdapRequestListener.shutdown();
+                // mLdapRequestListener.shutdown();
                 mAuthority.removeRequestListener(mLdapRequestListener);
             }
-        } catch (Exception e) { 
-            // ignore 
+        } catch (Exception e) {
+            // ignore
         }
     }
 
@@ -484,12 +508,12 @@ public class PublisherProcessor implements
         return mPublisherInsts;
     }
 
-    //certType can be client,server,ca,crl,smime
-    //XXXshould make it static to make it faster
+    // certType can be client,server,ca,crl,smime
+    // XXXshould make it static to make it faster
     public Enumeration<ILdapRule> getRules(String publishingType) {
         Vector<ILdapRule> rules = new Vector<ILdapRule>();
         Enumeration<String> e = mRuleInsts.keys();
-			
+
         while (e.hasMoreElements()) {
             String name = (String) e.nextElement();
 
@@ -502,7 +526,7 @@ public class PublisherProcessor implements
                     Debug.trace("rule name is " + name);
             }
 
-            //this is the only rule we support now
+            // this is the only rule we support now
             LdapRule rule = (LdapRule) (mRuleInsts.get(name));
 
             if (rule.enabled() && rule.getType().equals(publishingType)) {
@@ -532,7 +556,7 @@ public class PublisherProcessor implements
 
         Vector<ILdapRule> rules = new Vector<ILdapRule>();
         Enumeration<String> e = mRuleInsts.keys();
-			
+
         while (e.hasMoreElements()) {
             String name = (String) e.nextElement();
 
@@ -545,7 +569,7 @@ public class PublisherProcessor implements
                     Debug.trace("rule name is " + name);
             }
 
-            //this is the only rule we support now
+            // this is the only rule we support now
             LdapRule rule = (LdapRule) (mRuleInsts.get(name));
 
             if (rule.enabled() && rule.getType().equals(publishingType)) {
@@ -561,58 +585,63 @@ public class PublisherProcessor implements
 
                 rules.addElement(rule);
                 if (Debug.ON)
-                    Debug.trace("added rule " + name + " for " + publishingType +
-                        " request: " + req.getRequestId());
+                    Debug.trace("added rule " + name + " for " + publishingType
+                            + " request: " + req.getRequestId());
             }
         }
         return rules.elements();
     }
 
     /**
-     public PublishRuleSet getPublishRuleSet()
-     {
-     return mRuleSet;
-     }
+     * public PublishRuleSet getPublishRuleSet() { return mRuleSet; }
      **/
 
-    public Vector<String> getMapperDefaultParams(String implName) throws
-            ELdapException {
+    public Vector<String> getMapperDefaultParams(String implName)
+            throws ELdapException {
         // is this a registered implname?
         MapperPlugin plugin = mMapperPlugins.get(implName);
 
         if (plugin == null) {
             log(ILogger.LL_FAILURE,
-		CMS.getLogMessage("CMSCORE_LDAP_MAPPER_NOT_FIND", implName));
+                    CMS.getLogMessage("CMSCORE_LDAP_MAPPER_NOT_FIND", implName));
             throw new ELdapException(implName);
         }
-			
+
         // XXX can find an instance of this plugin in existing
         // mapper instances to avoid instantiation just for this.
-			
+
         // a temporary instance
         ILdapMapper mapperInst = null;
         String className = plugin.getClassPath();
 
         try {
-            mapperInst = (ILdapMapper)
-                    Class.forName(className).newInstance();
+            mapperInst = (ILdapMapper) Class.forName(className).newInstance();
             Vector<String> v = mapperInst.getDefaultParams();
 
             return v;
         } catch (InstantiationException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_LDAP_NO_NEW_MAPPER", e.toString()));
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_LDAP_NO_NEW_MAPPER",
+                            e.toString()));
+            throw new ELdapException(CMS.getUserMessage(
+                    "CMS_LDAP_FAIL_LOAD_CLASS", className));
         } catch (ClassNotFoundException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_LDAP_NO_NEW_MAPPER", e.toString()));
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_LDAP_NO_NEW_MAPPER",
+                            e.toString()));
+            throw new ELdapException(CMS.getUserMessage(
+                    "CMS_LDAP_FAIL_LOAD_CLASS", className));
         } catch (IllegalAccessException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_LDAP_NO_NEW_MAPPER", e.toString()));
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_LDAP_NO_NEW_MAPPER",
+                            e.toString()));
+            throw new ELdapException(CMS.getUserMessage(
+                    "CMS_LDAP_FAIL_LOAD_CLASS", className));
         }
     }
 
-    public Vector<String> getMapperInstanceParams(String insName) throws
-            ELdapException {
+    public Vector<String> getMapperInstanceParams(String insName)
+            throws ELdapException {
         ILdapMapper mapperInst = null;
         MapperProxy proxy = (MapperProxy) mMapperInsts.get(insName);
 
@@ -628,46 +657,54 @@ public class PublisherProcessor implements
         return v;
     }
 
-    public Vector<String> getPublisherDefaultParams(String implName) throws
-            ELdapException {
+    public Vector<String> getPublisherDefaultParams(String implName)
+            throws ELdapException {
         // is this a registered implname?
-        PublisherPlugin plugin = (PublisherPlugin)
-            mPublisherPlugins.get(implName);
+        PublisherPlugin plugin = (PublisherPlugin) mPublisherPlugins
+                .get(implName);
 
         if (plugin == null) {
             log(ILogger.LL_FAILURE,
-		CMS.getLogMessage("CMSCORE_LDAP_PLUGIN_NOT_FIND", implName));
+                    CMS.getLogMessage("CMSCORE_LDAP_PLUGIN_NOT_FIND", implName));
             throw new ELdapException(implName);
         }
-			
+
         // XXX can find an instance of this plugin in existing
         // publisher instantces to avoid instantiation just for this.
-			
+
         // a temporary instance
         ILdapPublisher publisherInst = null;
         String className = plugin.getClassPath();
 
         try {
-            publisherInst = (ILdapPublisher)
-                    Class.forName(className).newInstance();
+            publisherInst = (ILdapPublisher) Class.forName(className)
+                    .newInstance();
             Vector<String> v = publisherInst.getDefaultParams();
 
             return v;
         } catch (InstantiationException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_LDAP_NO_NEW_PUBLISHER", e.toString()));
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_LDAP_NO_NEW_PUBLISHER",
+                            e.toString()));
+            throw new ELdapException(CMS.getUserMessage(
+                    "CMS_LDAP_FAIL_LOAD_CLASS", className));
         } catch (ClassNotFoundException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_LDAP_NO_NEW_PUBLISHER", e.toString()));
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_LDAP_NO_NEW_PUBLISHER",
+                            e.toString()));
+            throw new ELdapException(CMS.getUserMessage(
+                    "CMS_LDAP_FAIL_LOAD_CLASS", className));
         } catch (IllegalAccessException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_LDAP_NO_NEW_PUBLISHER", e.toString()));
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_LDAP_NO_NEW_PUBLISHER",
+                            e.toString()));
+            throw new ELdapException(CMS.getUserMessage(
+                    "CMS_LDAP_FAIL_LOAD_CLASS", className));
         }
     }
 
     public boolean isMapperInstanceEnable(String insName) {
-        MapperProxy proxy = (MapperProxy)
-            mMapperInsts.get(insName);
+        MapperProxy proxy = (MapperProxy) mMapperInsts.get(insName);
 
         if (proxy == null) {
             return false;
@@ -695,8 +732,7 @@ public class PublisherProcessor implements
     }
 
     public boolean isPublisherInstanceEnable(String insName) {
-        PublisherProxy proxy = (PublisherProxy)
-            mPublisherInsts.get(insName);
+        PublisherProxy proxy = (PublisherProxy) mPublisherInsts.get(insName);
 
         if (proxy == null) {
             return false;
@@ -705,21 +741,19 @@ public class PublisherProcessor implements
     }
 
     public ILdapPublisher getActivePublisherInstance(String insName) {
-        PublisherProxy proxy = (PublisherProxy)
-            mPublisherInsts.get(insName);
+        PublisherProxy proxy = (PublisherProxy) mPublisherInsts.get(insName);
 
         if (proxy == null) {
             return null;
         }
         if (proxy.isEnable())
             return proxy.getPublisher();
-        else 
+        else
             return null;
     }
 
     public ILdapPublisher getPublisherInstance(String insName) {
-        PublisherProxy proxy = (PublisherProxy)
-            mPublisherInsts.get(insName);
+        PublisherProxy proxy = (PublisherProxy) mPublisherInsts.get(insName);
 
         if (proxy == null) {
             return null;
@@ -727,8 +761,8 @@ public class PublisherProcessor implements
         return proxy.getPublisher();
     }
 
-    public Vector<String> getPublisherInstanceParams(String insName) throws
-            ELdapException {
+    public Vector<String> getPublisherInstanceParams(String insName)
+            throws ELdapException {
         ILdapPublisher publisherInst = getPublisherInstance(insName);
 
         if (publisherInst == null) {
@@ -739,119 +773,132 @@ public class PublisherProcessor implements
         return v;
     }
 
-    public Vector<String> getRuleDefaultParams(String implName) throws
-            ELdapException {
+    public Vector<String> getRuleDefaultParams(String implName)
+            throws ELdapException {
         // is this a registered implname?
         RulePlugin plugin = mRulePlugins.get(implName);
 
         if (plugin == null) {
             log(ILogger.LL_FAILURE,
-		CMS.getLogMessage("CMSCORE_LDAP_RULE_NOT_FIND", implName));
+                    CMS.getLogMessage("CMSCORE_LDAP_RULE_NOT_FIND", implName));
             throw new ELdapException(implName);
         }
-			
+
         // XXX can find an instance of this plugin in existing
         // rule instantces to avoid instantiation just for this.
-			
+
         // a temporary instance
         ILdapRule ruleInst = null;
         String className = plugin.getClassPath();
 
         try {
-            ruleInst = (ILdapRule)
-                    Class.forName(className).newInstance();
-			
+            ruleInst = (ILdapRule) Class.forName(className).newInstance();
+
             Vector<String> v = ruleInst.getDefaultParams();
 
             return v;
         } catch (InstantiationException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_LDAP_NO_NEW_RULE", e.toString()));
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_LDAP_NO_NEW_RULE", e.toString()));
+            throw new ELdapException(CMS.getUserMessage(
+                    "CMS_LDAP_FAIL_LOAD_CLASS", className));
         } catch (ClassNotFoundException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_LDAP_NO_NEW_RULE", e.toString()));
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_LDAP_NO_NEW_RULE", e.toString()));
+            throw new ELdapException(CMS.getUserMessage(
+                    "CMS_LDAP_FAIL_LOAD_CLASS", className));
         } catch (IllegalAccessException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_LDAP_NO_NEW_RULE", e.toString()));
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_LDAP_NO_NEW_RULE", e.toString()));
+            throw new ELdapException(CMS.getUserMessage(
+                    "CMS_LDAP_FAIL_LOAD_CLASS", className));
         }
     }
 
-    public Vector<String> getRuleInstanceParams(String implName) throws
-            ELdapException {
+    public Vector<String> getRuleInstanceParams(String implName)
+            throws ELdapException {
         // is this a registered implname?
         RulePlugin plugin = mRulePlugins.get(implName);
 
         if (plugin == null) {
             log(ILogger.LL_FAILURE,
-		CMS.getLogMessage("CMSCORE_LDAP_RULE_NOT_FIND", implName));
+                    CMS.getLogMessage("CMSCORE_LDAP_RULE_NOT_FIND", implName));
             throw new ELdapException(implName);
         }
-		   
+
         // XXX can find an instance of this plugin in existing
         // rule instantces to avoid instantiation just for this.
-		   
+
         // a temporary instance
         ILdapRule ruleInst = null;
         String className = plugin.getClassPath();
 
         try {
-            ruleInst = (ILdapRule)
-                    Class.forName(className).newInstance();
+            ruleInst = (ILdapRule) Class.forName(className).newInstance();
             Vector<String> v = ruleInst.getInstanceParams();
             IConfigStore rc = ruleInst.getConfigStore();
 
             return v;
         } catch (InstantiationException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_LDAP_NO_NEW_RULE", e.toString()));
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_LDAP_NO_NEW_RULE", e.toString()));
+            throw new ELdapException(CMS.getUserMessage(
+                    "CMS_LDAP_FAIL_LOAD_CLASS", className));
         } catch (ClassNotFoundException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_LDAP_NO_NEW_RULE", e.toString()));
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_LDAP_NO_NEW_RULE", e.toString()));
+            throw new ELdapException(CMS.getUserMessage(
+                    "CMS_LDAP_FAIL_LOAD_CLASS", className));
         } catch (IllegalAccessException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_LDAP_NO_NEW_RULE", e.toString()));
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_LDAP_NO_NEW_RULE", e.toString()));
+            throw new ELdapException(CMS.getUserMessage(
+                    "CMS_LDAP_FAIL_LOAD_CLASS", className));
         }
     }
 
     /**
-     * set published flag - true when published, false when unpublished. 
-     * not exist means not published. 
+     * set published flag - true when published, false when unpublished. not
+     * exist means not published.
      */
     public void setPublishedFlag(BigInteger serialNo, boolean published) {
-        if (!(mAuthority instanceof ICertificateAuthority)) 
+        if (!(mAuthority instanceof ICertificateAuthority))
             return;
         ICertificateAuthority ca = (ICertificateAuthority) mAuthority;
 
         try {
-            ICertificateRepository certdb = (ICertificateRepository) ca.getCertificateRepository();
-            ICertRecord certRec = (ICertRecord) certdb.readCertificateRecord(serialNo);
+            ICertificateRepository certdb = (ICertificateRepository) ca
+                    .getCertificateRepository();
+            ICertRecord certRec = (ICertRecord) certdb
+                    .readCertificateRecord(serialNo);
             MetaInfo metaInfo = certRec.getMetaInfo();
 
             if (metaInfo == null) {
                 metaInfo = new MetaInfo();
             }
-            metaInfo.set(
-                CertRecord.META_LDAPPUBLISH, String.valueOf(published));
+            metaInfo.set(CertRecord.META_LDAPPUBLISH, String.valueOf(published));
             ModificationSet modSet = new ModificationSet();
 
-            modSet.add(ICertRecord.ATTR_META_INFO, 
-                Modification.MOD_REPLACE, metaInfo);
+            modSet.add(ICertRecord.ATTR_META_INFO, Modification.MOD_REPLACE,
+                    metaInfo);
             certdb.modifyCertificateRecord(serialNo, modSet);
         } catch (EBaseException e) {
             // not fatal. just log warning.
-            log(ILogger.LL_WARN, 
-                "Cannot mark cert 0x" + serialNo.toString(16) + " published as " + published +
-                " in the ldap directory. Cert Record not found. Error: " +
-                e.toString() + 
-                " Don't be alarmed if it's a subordinate ca or clone's ca siging cert. Otherwise your internal db may be corrupted.");
+            log(ILogger.LL_WARN,
+                    "Cannot mark cert 0x"
+                            + serialNo.toString(16)
+                            + " published as "
+                            + published
+                            + " in the ldap directory. Cert Record not found. Error: "
+                            + e.toString()
+                            + " Don't be alarmed if it's a subordinate ca or clone's ca siging cert. Otherwise your internal db may be corrupted.");
         }
     }
 
     /**
      * Publish ca cert, UpdateDir.java, jobs, request listeners
      */
-    public void publishCACert(X509Certificate cert)
-        throws ELdapException {
+    public void publishCACert(X509Certificate cert) throws ELdapException {
         boolean error = false;
         String errorRule = "";
 
@@ -860,118 +907,131 @@ public class PublisherProcessor implements
 
         CMS.debug("PublishProcessor::publishCACert");
 
-            // get mapper and publisher for cert type.
+        // get mapper and publisher for cert type.
         Enumeration<ILdapRule> rules = getRules(PROP_LOCAL_CA);
 
         if (rules == null || !rules.hasMoreElements()) {
             if (isClone()) {
-                log(ILogger.LL_WARN, "No rule is found for publishing: " + PROP_LOCAL_CA + " in this clone.");
+                log(ILogger.LL_WARN, "No rule is found for publishing: "
+                        + PROP_LOCAL_CA + " in this clone.");
                 return;
             } else {
-                Debug.trace(CMS.getLogMessage("CMSCORE_LDAP_NO_RULE_FOUND", PROP_LOCAL_CA));
-                //log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_LDAP_NO_RULE_FOUND", PROP_LOCAL_CA));
-                //throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_RULE_MATCHED", PROP_LOCAL_CA));
+                Debug.trace(CMS.getLogMessage("CMSCORE_LDAP_NO_RULE_FOUND",
+                        PROP_LOCAL_CA));
+                // log(ILogger.LL_FAILURE,
+                // CMS.getLogMessage("CMSCORE_LDAP_NO_RULE_FOUND",
+                // PROP_LOCAL_CA));
+                // throw new
+                // ELdapException(CMS.getUserMessage("CMS_LDAP_NO_RULE_MATCHED",
+                // PROP_LOCAL_CA));
                 return;
             }
         }
         while (rules.hasMoreElements()) {
             LdapRule rule = (LdapRule) rules.nextElement();
 
-            if( rule == null ) {
-                CMS.debug( "PublisherProcessor::publishCACert() - "
-                         + "rule is null!" );
-                throw new ELdapException( "rule is null" );
+            if (rule == null) {
+                CMS.debug("PublisherProcessor::publishCACert() - "
+                        + "rule is null!");
+                throw new ELdapException("rule is null");
             }
 
-            log(ILogger.LL_INFO, "publish certificate type=" + PROP_LOCAL_CA +
-                " rule=" + rule.getInstanceName() + " publisher=" + 
-                rule.getPublisher());
+            log(ILogger.LL_INFO,
+                    "publish certificate type=" + PROP_LOCAL_CA + " rule="
+                            + rule.getInstanceName() + " publisher="
+                            + rule.getPublisher());
 
             try {
                 ILdapMapper mapper = null;
 
                 String mapperName = rule.getMapper();
 
-                if (mapperName != null &&
-                    !mapperName.trim().equals("")) {
+                if (mapperName != null && !mapperName.trim().equals("")) {
                     mapper = getActiveMapperInstance(mapperName);
                 }
 
-                publishNow(mapper, getActivePublisherInstance(rule.getPublisher()), null/* NO REQUEsT */, cert);
-                log(ILogger.LL_INFO, "published certificate using rule=" + 
-                    rule.getInstanceName());
+                publishNow(mapper,
+                        getActivePublisherInstance(rule.getPublisher()),
+                        null/* NO REQUEsT */, cert);
+                log(ILogger.LL_INFO,
+                        "published certificate using rule="
+                                + rule.getInstanceName());
             } catch (Exception e) {
                 // continue publishing even publisher has errors
-                //log(ILogger.LL_WARN, e.toString());
-                CMS.debug("PublisherProcessor::publishCACert returned error: " + e.toString());
+                // log(ILogger.LL_WARN, e.toString());
+                CMS.debug("PublisherProcessor::publishCACert returned error: "
+                        + e.toString());
                 error = true;
-                errorRule = errorRule + " " + rule.getInstanceName() +
-                        " error:" + e.toString();
+                errorRule = errorRule + " " + rule.getInstanceName()
+                        + " error:" + e.toString();
             }
         }
         // set the ldap published flag.
         if (!error) {
             setPublishedFlag(cert.getSerialNumber(), true);
         } else {
-            throw new
-                ELdapException(CMS.getUserMessage("CMS_LDAP_PUBLISH_FAILED", errorRule));
+            throw new ELdapException(CMS.getUserMessage(
+                    "CMS_LDAP_PUBLISH_FAILED", errorRule));
         }
     }
 
     /**
-     * This function is never called. CMS does not unpublish
-     * CA certificate.
+     * This function is never called. CMS does not unpublish CA certificate.
      */
-    public void unpublishCACert(X509Certificate cert)
-        throws ELdapException {
+    public void unpublishCACert(X509Certificate cert) throws ELdapException {
         boolean error = false;
         String errorRule = "";
 
         if (!enabled())
             return;
 
-            // get mapper and publisher for cert type.
+        // get mapper and publisher for cert type.
         Enumeration<ILdapRule> rules = getRules(PROP_LOCAL_CA);
 
         if (rules == null || !rules.hasMoreElements()) {
             if (isClone()) {
-                log(ILogger.LL_WARN, "No rule is found for unpublishing: " + PROP_LOCAL_CA + " in this clone.");
+                log(ILogger.LL_WARN, "No rule is found for unpublishing: "
+                        + PROP_LOCAL_CA + " in this clone.");
                 return;
             } else {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_LDAP_NO_UNPUBLISHING_RULE_FOUND", PROP_LOCAL_CA));
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_RULE_MATCHED", PROP_LOCAL_CA));
+                log(ILogger.LL_FAILURE, CMS.getLogMessage(
+                        "CMSCORE_LDAP_NO_UNPUBLISHING_RULE_FOUND",
+                        PROP_LOCAL_CA));
+                throw new ELdapException(CMS.getUserMessage(
+                        "CMS_LDAP_NO_RULE_MATCHED", PROP_LOCAL_CA));
             }
         }
 
         while (rules.hasMoreElements()) {
             LdapRule rule = (LdapRule) rules.nextElement();
 
-            if( rule == null ) {
-                CMS.debug( "PublisherProcessor::unpublishCACert() - "
-                         + "rule is null!" );
-                throw new ELdapException( "rule is null" );
+            if (rule == null) {
+                CMS.debug("PublisherProcessor::unpublishCACert() - "
+                        + "rule is null!");
+                throw new ELdapException("rule is null");
             }
 
             try {
-                log(ILogger.LL_INFO, "unpublish certificate type=" +
-                    PROP_LOCAL_CA + " rule=" + rule.getInstanceName() + 
-                    " publisher=" + rule.getPublisher());
+                log(ILogger.LL_INFO, "unpublish certificate type="
+                        + PROP_LOCAL_CA + " rule=" + rule.getInstanceName()
+                        + " publisher=" + rule.getPublisher());
 
                 ILdapMapper mapper = null;
 
                 String mapperName = rule.getMapper();
 
-                if (mapperName != null &&
-                    !mapperName.trim().equals("")) {
+                if (mapperName != null && !mapperName.trim().equals("")) {
                     mapper = getActiveMapperInstance(mapperName);
                 }
 
-                unpublishNow(mapper, getActivePublisherInstance(rule.getPublisher()), null/* NO REQUEST */, cert);
-                log(ILogger.LL_INFO, "unpublished certificate using rule=" + 
-                    rule.getInstanceName());
+                unpublishNow(mapper,
+                        getActivePublisherInstance(rule.getPublisher()),
+                        null/* NO REQUEST */, cert);
+                log(ILogger.LL_INFO, "unpublished certificate using rule="
+                        + rule.getInstanceName());
             } catch (Exception e) {
                 // continue publishing even publisher has errors
-                //log(ILogger.LL_WARN, e.toString());
+                // log(ILogger.LL_WARN, e.toString());
                 error = true;
                 errorRule = errorRule + " " + rule.getInstanceName();
             }
@@ -981,77 +1041,83 @@ public class PublisherProcessor implements
         if (!error) {
             setPublishedFlag(cert.getSerialNumber(), false);
         } else {
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_UNPUBLISH_FAILED", errorRule));
+            throw new ELdapException(CMS.getUserMessage(
+                    "CMS_LDAP_UNPUBLISH_FAILED", errorRule));
         }
     }
 
     /**
      * Publish crossCertificatePair
      */
-    public void publishXCertPair(byte[] pair)
-        throws ELdapException {
+    public void publishXCertPair(byte[] pair) throws ELdapException {
         boolean error = false;
         String errorRule = "";
 
         if (!enabled())
             return;
-		CMS.debug("PublisherProcessor: in publishXCertPair()");
+        CMS.debug("PublisherProcessor: in publishXCertPair()");
 
-            // get mapper and publisher for cert type.
+        // get mapper and publisher for cert type.
         Enumeration<ILdapRule> rules = getRules(PROP_XCERT);
 
         if (rules == null || !rules.hasMoreElements()) {
             if (isClone()) {
-                log(ILogger.LL_WARN, "No rule is found for publishing: " + PROP_LOCAL_CA + " in this clone.");
+                log(ILogger.LL_WARN, "No rule is found for publishing: "
+                        + PROP_LOCAL_CA + " in this clone.");
                 return;
             } else {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_LDAP_NO_RULE_FOUND", PROP_XCERT));
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_RULE_MATCHED", PROP_XCERT));
+                log(ILogger.LL_FAILURE, CMS.getLogMessage(
+                        "CMSCORE_LDAP_NO_RULE_FOUND", PROP_XCERT));
+                throw new ELdapException(CMS.getUserMessage(
+                        "CMS_LDAP_NO_RULE_MATCHED", PROP_XCERT));
             }
         }
         while (rules.hasMoreElements()) {
             LdapRule rule = (LdapRule) rules.nextElement();
 
-            if( rule == null ) {
-                CMS.debug( "PublisherProcessor::publishXCertPair() - "
-                         + "rule is null!" );
-                throw new ELdapException( "rule is null" );
+            if (rule == null) {
+                CMS.debug("PublisherProcessor::publishXCertPair() - "
+                        + "rule is null!");
+                throw new ELdapException("rule is null");
             }
 
-            log(ILogger.LL_INFO, "publish certificate type=" + PROP_XCERT +
-                " rule=" + rule.getInstanceName() + " publisher=" + 
-                rule.getPublisher());
+            log(ILogger.LL_INFO,
+                    "publish certificate type=" + PROP_XCERT + " rule="
+                            + rule.getInstanceName() + " publisher="
+                            + rule.getPublisher());
             try {
                 ILdapMapper mapper = null;
 
                 String mapperName = rule.getMapper();
 
-                if (mapperName != null &&
-                    !mapperName.trim().equals("")) {
+                if (mapperName != null && !mapperName.trim().equals("")) {
                     mapper = getActiveMapperInstance(mapperName);
                 }
 
-                publishNow(mapper, getActivePublisherInstance(rule.getPublisher()), null/* NO REQUEsT */, pair);
-                log(ILogger.LL_INFO, "published Xcertificates using rule=" + 
-                    rule.getInstanceName());
+                publishNow(mapper,
+                        getActivePublisherInstance(rule.getPublisher()),
+                        null/* NO REQUEsT */, pair);
+                log(ILogger.LL_INFO, "published Xcertificates using rule="
+                        + rule.getInstanceName());
             } catch (Exception e) {
                 // continue publishing even publisher has errors
-                //log(ILogger.LL_WARN, e.toString());
+                // log(ILogger.LL_WARN, e.toString());
                 error = true;
-                errorRule = errorRule + " " + rule.getInstanceName() +
-                        " error:" + e.toString();
+                errorRule = errorRule + " " + rule.getInstanceName()
+                        + " error:" + e.toString();
 
-                CMS.debug("PublisherProcessor::publishXCertPair: error: " + e.toString());
+                CMS.debug("PublisherProcessor::publishXCertPair: error: "
+                        + e.toString());
             }
         }
     }
 
     /**
-     * Publishs regular user certificate based on the criteria
-     * set in the request.
+     * Publishs regular user certificate based on the criteria set in the
+     * request.
      */
     public void publishCert(X509Certificate cert, IRequest req)
-        throws ELdapException {
+            throws ELdapException {
         boolean error = false;
         String errorRule = "";
 
@@ -1059,10 +1125,10 @@ public class PublisherProcessor implements
         if (!enabled())
             return;
 
-            // get mapper and publisher for cert type.
+        // get mapper and publisher for cert type.
         Enumeration<ILdapRule> rules = getRules("certs", req);
 
-         // Bugscape  #52306  -  Remove superfluous log messages on failure
+        // Bugscape #52306 - Remove superfluous log messages on failure
         if (rules == null || !rules.hasMoreElements()) {
             CMS.debug("Publishing: can't find publishing rule,exiting routine.");
 
@@ -1074,11 +1140,11 @@ public class PublisherProcessor implements
             LdapRule rule = (LdapRule) rules.nextElement();
 
             try {
-                log(ILogger.LL_INFO, 
-                    "publish certificate (with request) type=" + 
-                    "certs" + " rule=" + rule.getInstanceName() + 
-                    " publisher=" + rule.getPublisher());
-                ILdapPublisher p = getActivePublisherInstance(rule.getPublisher());
+                log(ILogger.LL_INFO, "publish certificate (with request) type="
+                        + "certs" + " rule=" + rule.getInstanceName()
+                        + " publisher=" + rule.getPublisher());
+                ILdapPublisher p = getActivePublisherInstance(rule
+                        .getPublisher());
                 ILdapMapper m = null;
                 String mapperName = rule.getMapper();
 
@@ -1086,11 +1152,12 @@ public class PublisherProcessor implements
                     m = getActiveMapperInstance(mapperName);
                 }
                 publishNow(m, p, req, cert);
-                log(ILogger.LL_INFO, "published certificate using rule=" + 
-                    rule.getInstanceName());
+                log(ILogger.LL_INFO,
+                        "published certificate using rule="
+                                + rule.getInstanceName());
             } catch (Exception e) {
                 // continue publishing even publisher has errors
-                //log(ILogger.LL_WARN, e.toString());
+                // log(ILogger.LL_WARN, e.toString());
                 error = true;
                 errorRule = errorRule + " " + rule.getInstanceName();
             }
@@ -1099,63 +1166,66 @@ public class PublisherProcessor implements
         if (!error) {
             setPublishedFlag(cert.getSerialNumber(), true);
         } else {
-            CMS.debug("PublishProcessor::publishCert : " + CMS.getUserMessage("CMS_LDAP_PUBLISH_FAILED",errorRule));
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_PUBLISH_FAILED", errorRule));
+            CMS.debug("PublishProcessor::publishCert : "
+                    + CMS.getUserMessage("CMS_LDAP_PUBLISH_FAILED", errorRule));
+            throw new ELdapException(CMS.getUserMessage(
+                    "CMS_LDAP_PUBLISH_FAILED", errorRule));
         }
     }
 
     /**
-     * Unpublish user certificate. This is used by 
-     * UnpublishExpiredJob.
+     * Unpublish user certificate. This is used by UnpublishExpiredJob.
      */
     public void unpublishCert(X509Certificate cert, IRequest req)
-        throws ELdapException {
+            throws ELdapException {
         boolean error = false;
         String errorRule = "";
 
         if (!enabled())
             return;
 
-            // get mapper and publisher for cert type.
+        // get mapper and publisher for cert type.
         Enumeration<ILdapRule> rules = getRules("certs", req);
 
         if (rules == null || !rules.hasMoreElements()) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_LDAP_NO_UNPUBLISHING_RULE_FOUND_FOR_REQUEST", "certs", req.getRequestId().toString()));
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_RULE_MATCHED",
-                    req.getRequestId().toString()));
+            log(ILogger.LL_FAILURE, CMS.getLogMessage(
+                    "CMSCORE_LDAP_NO_UNPUBLISHING_RULE_FOUND_FOR_REQUEST",
+                    "certs", req.getRequestId().toString()));
+            throw new ELdapException(CMS.getUserMessage(
+                    "CMS_LDAP_NO_RULE_MATCHED", req.getRequestId().toString()));
         }
 
         while (rules.hasMoreElements()) {
             LdapRule rule = (LdapRule) rules.nextElement();
 
-            if( rule == null ) {
-                CMS.debug( "PublisherProcessor::unpublishCert() - "
-                         + "rule is null!" );
-                throw new ELdapException( "rule is null" );
+            if (rule == null) {
+                CMS.debug("PublisherProcessor::unpublishCert() - "
+                        + "rule is null!");
+                throw new ELdapException("rule is null");
             }
 
             try {
-                log(ILogger.LL_INFO, 
-                    "unpublish certificate (with request) type=" + 
-                    "certs" + " rule=" + rule.getInstanceName() + 
-                    " publisher=" + rule.getPublisher());
+                log(ILogger.LL_INFO,
+                        "unpublish certificate (with request) type=" + "certs"
+                                + " rule=" + rule.getInstanceName()
+                                + " publisher=" + rule.getPublisher());
 
                 ILdapMapper mapper = null;
 
                 String mapperName = rule.getMapper();
 
-                if (mapperName != null &&
-                    !mapperName.trim().equals("")) {
+                if (mapperName != null && !mapperName.trim().equals("")) {
                     mapper = getActiveMapperInstance(mapperName);
                 }
 
-                unpublishNow(mapper, getActivePublisherInstance(rule.getPublisher()),
-                    req, cert);
-                log(ILogger.LL_INFO, "unpublished certificate using rule=" + 
-                    rule.getInstanceName());
+                unpublishNow(mapper,
+                        getActivePublisherInstance(rule.getPublisher()), req,
+                        cert);
+                log(ILogger.LL_INFO, "unpublished certificate using rule="
+                        + rule.getInstanceName());
             } catch (Exception e) {
                 // continue publishing even publisher has errors
-                //log(ILogger.LL_WARN, e.toString());
+                // log(ILogger.LL_WARN, e.toString());
                 error = true;
                 errorRule = errorRule + " " + rule.getInstanceName();
             }
@@ -1165,20 +1235,20 @@ public class PublisherProcessor implements
         if (!error) {
             setPublishedFlag(cert.getSerialNumber(), false);
         } else {
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_UNPUBLISH_FAILED", errorRule));
+            throw new ELdapException(CMS.getUserMessage(
+                    "CMS_LDAP_UNPUBLISH_FAILED", errorRule));
         }
     }
 
     /**
-     * publishes a crl by mapping the issuer name in the crl to an entry
-     * and publishing it there. entry must be a certificate authority.
-     * Note that this is used by cmsgateway/cert/UpdateDir.java
+     * publishes a crl by mapping the issuer name in the crl to an entry and
+     * publishing it there. entry must be a certificate authority. Note that
+     * this is used by cmsgateway/cert/UpdateDir.java
      */
-    public void publishCRL(X509CRLImpl crl, String crlIssuingPointId) 
-        throws ELdapException {
+    public void publishCRL(X509CRLImpl crl, String crlIssuingPointId)
+            throws ELdapException {
         boolean error = false;
         String errorRule = "";
-
 
         if (!enabled())
             return;
@@ -1189,9 +1259,10 @@ public class PublisherProcessor implements
         Enumeration<ILdapRule> rules = getRules(PROP_LOCAL_CRL);
 
         if (rules == null || !rules.hasMoreElements()) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_LDAP_NO_RULE_FOR_CRL"));
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_RULE_MATCHED",
-                    PROP_LOCAL_CRL));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_LDAP_NO_RULE_FOR_CRL"));
+            throw new ELdapException(CMS.getUserMessage(
+                    "CMS_LDAP_NO_RULE_MATCHED", PROP_LOCAL_CRL));
         }
 
         LDAPConnection conn = null;
@@ -1207,53 +1278,57 @@ public class PublisherProcessor implements
                 String result = null;
                 LdapRule rule = (LdapRule) rules.nextElement();
 
-                log(ILogger.LL_INFO, "publish crl rule=" + 
-                    rule.getInstanceName() + " publisher=" + 
-                    rule.getPublisher());
+                log(ILogger.LL_INFO,
+                        "publish crl rule=" + rule.getInstanceName()
+                                + " publisher=" + rule.getPublisher());
                 try {
                     String mapperName = rule.getMapper();
 
-                    if (mapperName != null &&
-                        !mapperName.trim().equals("")) {
+                    if (mapperName != null && !mapperName.trim().equals("")) {
                         mapper = getActiveMapperInstance(mapperName);
                     }
                     if (mapper == null || mapper.getImplName().equals("NoMap")) {
                         dn = ((X500Name) crl.getIssuerDN()).toLdapDNString();
-                    }else {
-							
+                    } else {
+
                         result = ((ILdapMapper) mapper).map(conn, crl);
                         dn = result;
                         if (!mCreateOwnDNEntry) {
-                            if (dn == null) {  
-                                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_LDAP_MAPPER_NOT_MAP", rule.getMapper()));
-                                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_MATCH", 
-                                    crl.getIssuerDN().toString()));
-                          
+                            if (dn == null) {
+                                log(ILogger.LL_FAILURE, CMS.getLogMessage(
+                                        "CMSCORE_LDAP_MAPPER_NOT_MAP",
+                                        rule.getMapper()));
+                                throw new ELdapException(CMS.getUserMessage(
+                                        "CMS_LDAP_NO_MATCH", crl.getIssuerDN()
+                                                .toString()));
+
                             }
                         }
                     }
                     publisher = getActivePublisherInstance(rule.getPublisher());
                     if (publisher != null) {
-                        if(publisher instanceof com.netscape.cms.publish.publishers.FileBasedPublisher)
-                        ((com.netscape.cms.publish.publishers.FileBasedPublisher)publisher).setIssuingPointId(crlIssuingPointId);
+                        if (publisher instanceof com.netscape.cms.publish.publishers.FileBasedPublisher)
+                            ((com.netscape.cms.publish.publishers.FileBasedPublisher) publisher)
+                                    .setIssuingPointId(crlIssuingPointId);
                         publisher.publish(conn, dn, crl);
-                        log(ILogger.LL_INFO, "published crl using rule=" + rule.getInstanceName());
+                        log(ILogger.LL_INFO,
+                                "published crl using rule="
+                                        + rule.getInstanceName());
                     }
                     // continue publishing even publisher has errors
-                }catch (Exception e) {
-                    //e.printStackTrace();
-                    CMS.debug(
-                        "Error publishing CRL to " + dn + ": " + e);
+                } catch (Exception e) {
+                    // e.printStackTrace();
+                    CMS.debug("Error publishing CRL to " + dn + ": " + e);
                     error = true;
                     errorRule = errorRule + " " + rule.getInstanceName();
 
-                    CMS.debug("PublisherProcessor::publishCRL: error: " + e.toString());
+                    CMS.debug("PublisherProcessor::publishCRL: error: "
+                            + e.toString());
                 }
             }
-        }catch (ELdapException e) {
-            //e.printStackTrace();
-            CMS.debug(
-                "Error publishing CRL to " + dn + ": " + e);
+        } catch (ELdapException e) {
+            // e.printStackTrace();
+            CMS.debug("Error publishing CRL to " + dn + ": " + e);
             throw e;
         } finally {
             if (conn != null) {
@@ -1261,27 +1336,28 @@ public class PublisherProcessor implements
             }
         }
         if (error)
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_PUBLISH_FAILED", errorRule));
+            throw new ELdapException(CMS.getUserMessage(
+                    "CMS_LDAP_PUBLISH_FAILED", errorRule));
     }
 
     /**
-     * publishes a crl by mapping the issuer name in the crl to an entry
-     * and publishing it there. entry must be a certificate authority.
+     * publishes a crl by mapping the issuer name in the crl to an entry and
+     * publishing it there. entry must be a certificate authority.
      */
-    public void publishCRL(String dn, X509CRL crl) 
-        throws ELdapException {
+    public void publishCRL(String dn, X509CRL crl) throws ELdapException {
         boolean error = false;
         String errorRule = "";
 
         if (!enabled())
             return;
-            // get mapper and publisher for cert type.
+        // get mapper and publisher for cert type.
         Enumeration<ILdapRule> rules = getRules(PROP_LOCAL_CRL);
 
         if (rules == null || !rules.hasMoreElements()) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_LDAP_NO_RULE_FOR_CRL"));
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_RULE_MATCHED",
-                    PROP_LOCAL_CRL));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_LDAP_NO_RULE_FOR_CRL"));
+            throw new ELdapException(CMS.getUserMessage(
+                    "CMS_LDAP_NO_RULE_MATCHED", PROP_LOCAL_CRL));
         }
 
         LDAPConnection conn = null;
@@ -1294,26 +1370,29 @@ public class PublisherProcessor implements
             while (rules.hasMoreElements()) {
                 LdapRule rule = (LdapRule) rules.nextElement();
 
-                log(ILogger.LL_INFO, "publish crl dn=" + dn + " rule=" +
-                    rule.getInstanceName() + " publisher=" + 
-                    rule.getPublisher());
+                log(ILogger.LL_INFO,
+                        "publish crl dn=" + dn + " rule="
+                                + rule.getInstanceName() + " publisher="
+                                + rule.getPublisher());
                 try {
                     publisher = getActivePublisherInstance(rule.getPublisher());
                     if (publisher != null) {
                         publisher.publish(conn, dn, crl);
-                        log(ILogger.LL_INFO, "published crl using rule=" + rule.getInstanceName());
+                        log(ILogger.LL_INFO,
+                                "published crl using rule="
+                                        + rule.getInstanceName());
                     }
-                }catch (Exception e) {
-                    CMS.debug(
-                        "Error publishing CRL to " + dn + ": " + e.toString());
+                } catch (Exception e) {
+                    CMS.debug("Error publishing CRL to " + dn + ": "
+                            + e.toString());
                     error = true;
                     errorRule = errorRule + " " + rule.getInstanceName();
-                    CMS.debug("PublisherProcessor::publishCRL: error: " + e.toString()); 
-                } 
+                    CMS.debug("PublisherProcessor::publishCRL: error: "
+                            + e.toString());
+                }
             }
         } catch (ELdapException e) {
-            CMS.debug(
-                "Error publishing CRL to " + dn + ": " + e.toString());
+            CMS.debug("Error publishing CRL to " + dn + ": " + e.toString());
             throw e;
         } finally {
             if (conn != null) {
@@ -1321,11 +1400,12 @@ public class PublisherProcessor implements
             }
         }
         if (error)
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_PUBLISH_FAILED", errorRule));
+            throw new ELdapException(CMS.getUserMessage(
+                    "CMS_LDAP_PUBLISH_FAILED", errorRule));
     }
 
     private void publishNow(ILdapMapper mapper, ILdapPublisher publisher,
-        IRequest r, Object obj) throws ELdapException {
+            IRequest r, Object obj) throws ELdapException {
         if (!enabled())
             return;
         CMS.debug("PublisherProcessor: in publishNow()");
@@ -1340,19 +1420,22 @@ public class PublisherProcessor implements
                 if (mLdapConnModule != null) {
                     try {
                         conn = mLdapConnModule.getConn();
-                    } catch(ELdapException e) {
+                    } catch (ELdapException e) {
                         throw e;
-                   }
+                    }
                 }
                 try {
-                    if ((mapper instanceof com.netscape.cms.publish.mappers.LdapCertSubjMap) &&
-                         ((com.netscape.cms.publish.mappers.LdapCertSubjMap)mapper).useAllEntries()) {
-                        dirdn = ((com.netscape.cms.publish.mappers.LdapCertSubjMap)mapper).mapAll(conn, r, obj); 
+                    if ((mapper instanceof com.netscape.cms.publish.mappers.LdapCertSubjMap)
+                            && ((com.netscape.cms.publish.mappers.LdapCertSubjMap) mapper)
+                                    .useAllEntries()) {
+                        dirdn = ((com.netscape.cms.publish.mappers.LdapCertSubjMap) mapper)
+                                .mapAll(conn, r, obj);
                     } else {
-                       dirdn = mapper.map(conn, r, obj); 
+                        dirdn = mapper.map(conn, r, obj);
                     }
                 } catch (Throwable e1) {
-                    CMS.debug("Error mapping: mapper=" + mapper + " error=" + e1.toString());
+                    CMS.debug("Error mapping: mapper=" + mapper + " error="
+                            + e1.toString());
                     throw e1;
                 }
             }
@@ -1361,25 +1444,28 @@ public class PublisherProcessor implements
 
             try {
                 if (dirdn instanceof Vector) {
-                    Vector<?> dirdnVector = (Vector<?>)dirdn;
+                    Vector<?> dirdnVector = (Vector<?>) dirdn;
                     int n = dirdnVector.size();
                     for (int i = 0; i < n; i++) {
-                        publisher.publish(conn, (String)dirdnVector.elementAt(i), cert);
+                        publisher.publish(conn,
+                                (String) dirdnVector.elementAt(i), cert);
                     }
-                } else if (dirdn instanceof String || 
-                           publisher instanceof com.netscape.cms.publish.publishers.FileBasedPublisher) {
-                    publisher.publish(conn, (String)dirdn, cert);
+                } else if (dirdn instanceof String
+                        || publisher instanceof com.netscape.cms.publish.publishers.FileBasedPublisher) {
+                    publisher.publish(conn, (String) dirdn, cert);
                 }
             } catch (Throwable e1) {
-                CMS.debug("PublisherProcessor::publishNow : publisher=" + publisher + " error=" + e1.toString());
+                CMS.debug("PublisherProcessor::publishNow : publisher="
+                        + publisher + " error=" + e1.toString());
                 throw e1;
             }
-            log(ILogger.LL_INFO, "published certificate serial number: 0x" + 
-                cert.getSerialNumber().toString(16));
+            log(ILogger.LL_INFO, "published certificate serial number: 0x"
+                    + cert.getSerialNumber().toString(16));
         } catch (ELdapException e) {
             throw e;
         } catch (Throwable e) {
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_MATCH", e.toString())); 
+            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_MATCH",
+                    e.toString()));
         } finally {
             if (conn != null) {
                 mLdapConnModule.returnConn(conn);
@@ -1387,16 +1473,16 @@ public class PublisherProcessor implements
         }
     }
 
-	// for crosscerts
+    // for crosscerts
     private void publishNow(ILdapMapper mapper, ILdapPublisher publisher,
-        IRequest r, byte[] bytes) throws ELdapException {
+            IRequest r, byte[] bytes) throws ELdapException {
         if (!enabled())
             return;
-		CMS.debug("PublisherProcessor: in publishNow() for xcerts");
+        CMS.debug("PublisherProcessor: in publishNow() for xcerts");
 
-		// use ca cert publishing map and rule
+        // use ca cert publishing map and rule
         ICertificateAuthority ca = (ICertificateAuthority) mAuthority;
-		X509Certificate caCert = (X509Certificate) ca.getCACert();
+        X509Certificate caCert = (X509Certificate) ca.getCACert();
 
         LDAPConnection conn = null;
 
@@ -1410,28 +1496,32 @@ public class PublisherProcessor implements
                     conn = mLdapConnModule.getConn();
                 }
                 try {
-                    dirdn = mapper.map(conn, r, (Object) caCert); 
-		CMS.debug("PublisherProcessor: dirdn="+dirdn);
+                    dirdn = mapper.map(conn, r, (Object) caCert);
+                    CMS.debug("PublisherProcessor: dirdn=" + dirdn);
 
                 } catch (Throwable e1) {
-                    CMS.debug("Error mapping: mapper=" + mapper + " error=" + e1.toString());
+                    CMS.debug("Error mapping: mapper=" + mapper + " error="
+                            + e1.toString());
                     throw e1;
                 }
             }
 
             try {
-		CMS.debug("PublisherProcessor: publisher impl name="+publisher.getImplName());
+                CMS.debug("PublisherProcessor: publisher impl name="
+                        + publisher.getImplName());
 
                 publisher.publish(conn, dirdn, bytes);
             } catch (Throwable e1) {
-                CMS.debug("Error publishing: publisher=" + publisher + " error=" + e1.toString());
+                CMS.debug("Error publishing: publisher=" + publisher
+                        + " error=" + e1.toString());
                 throw e1;
             }
             log(ILogger.LL_INFO, "published crossCertPair");
         } catch (ELdapException e) {
             throw e;
         } catch (Throwable e) {
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_MATCH", e.toString())); 
+            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_MATCH",
+                    e.toString()));
         } finally {
             if (conn != null) {
                 mLdapConnModule.returnConn(conn);
@@ -1440,7 +1530,7 @@ public class PublisherProcessor implements
     }
 
     private void unpublishNow(ILdapMapper mapper, ILdapPublisher publisher,
-        IRequest r, Object obj) throws ELdapException {
+            IRequest r, Object obj) throws ELdapException {
         if (!enabled())
             return;
         LDAPConnection conn = null;
@@ -1454,13 +1544,13 @@ public class PublisherProcessor implements
                 if (mLdapConnModule != null) {
                     conn = mLdapConnModule.getConn();
                 }
-                dirdn = mapper.map(conn, r, obj); 
+                dirdn = mapper.map(conn, r, obj);
             }
             X509Certificate cert = (X509Certificate) obj;
 
             publisher.unpublish(conn, dirdn, cert);
-            log(ILogger.LL_INFO, "unpublished certificate serial number: 0x" + 
-                cert.getSerialNumber().toString(16));
+            log(ILogger.LL_INFO, "unpublished certificate serial number: 0x"
+                    + cert.getSerialNumber().toString(16));
         } catch (ELdapException e) {
             throw e;
         } finally {
@@ -1497,8 +1587,8 @@ public class PublisherProcessor implements
     }
 
     public boolean isClone() {
-        if ((mAuthority instanceof ICertificateAuthority) && 
-            ((ICertificateAuthority) mAuthority).isClone())
+        if ((mAuthority instanceof ICertificateAuthority)
+                && ((ICertificateAuthority) mAuthority).isClone())
             return true;
         else
             return false;
@@ -1510,7 +1600,7 @@ public class PublisherProcessor implements
     public void log(int level, String msg) {
         if (mLogger == null)
             return;
-        mLogger.log(ILogger.EV_SYSTEM, 
-            ILogger.S_LDAP, level, "Publishing: " + msg);
+        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_LDAP, level, "Publishing: "
+                + msg);
     }
 }

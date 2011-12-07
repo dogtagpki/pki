@@ -17,46 +17,42 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.ocsp;
 
-
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.cmsutil.ocsp.OCSPRequest;
 import com.netscape.cmsutil.ocsp.OCSPResponse;
 
-
 /**
- * This class represents the generic interface for an Online Certificate
- * Status Protocol (OCSP) store.  Users can plugin different OCSP stores
- * by extending this class.  For example, imagine that if a user wants to
- * use the corporate LDAP server for revocation checking, then the user
- * would merely create a new class that extends this class (e. g. -
+ * This class represents the generic interface for an Online Certificate Status
+ * Protocol (OCSP) store. Users can plugin different OCSP stores by extending
+ * this class. For example, imagine that if a user wants to use the corporate
+ * LDAP server for revocation checking, then the user would merely create a new
+ * class that extends this class (e. g. -
  * "public interface ICorporateLDAPStore extends IOCSPStore").
  * <P>
- *
+ * 
  * @version $Revision$, $Date$
  */
-public interface IOCSPStore extends ISubsystem
-{
+public interface IOCSPStore extends ISubsystem {
     /**
-     * This method validates the information associated with the specified
-     * OCSP request and returns an OCSP response.
+     * This method validates the information associated with the specified OCSP
+     * request and returns an OCSP response.
      * <P>
-     *
+     * 
      * @param req an OCSP request
-     * @return OCSPResponse the OCSP response associated with the specified
-     *     OCSP request
+     * @return OCSPResponse the OCSP response associated with the specified OCSP
+     *         request
      * @exception EBaseException an error associated with the inability to
-     *     process the supplied OCSP request
+     *                process the supplied OCSP request
      */
-    public OCSPResponse validate(OCSPRequest req) 
-        throws EBaseException;
+    public OCSPResponse validate(OCSPRequest req) throws EBaseException;
 
     /**
      * This method retrieves the configuration parameters associated with this
      * OCSP store.
      * <P>
-     *
+     * 
      * @return NameValuePairs all configuration items
      */
     public NameValuePairs getConfigParameters();
@@ -65,11 +61,9 @@ public interface IOCSPStore extends ISubsystem
      * This method stores the configuration parameters specified by the
      * passed-in Name Value pairs object.
      * <P>
-     *
+     * 
      * @param pairs a name-value pair object
      * @exception EBaseException an illegal name-value pair
      */
-    public void setConfigParameters(NameValuePairs pairs) 
-        throws EBaseException;
+    public void setConfigParameters(NameValuePairs pairs) throws EBaseException;
 }
-

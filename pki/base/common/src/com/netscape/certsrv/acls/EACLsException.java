@@ -17,21 +17,18 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.acls;
 
-
 import java.util.Locale;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.MessageFormatter;
 
-
 /**
- * A class represents an acls exception. Note that this is
- * an Runtime exception so that methods used AccessManager
- * do not have to explicity declare this exception. This
- * allows AccessManager to be easily integrated into any
+ * A class represents an acls exception. Note that this is an Runtime exception
+ * so that methods used AccessManager do not have to explicity declare this
+ * exception. This allows AccessManager to be easily integrated into any
  * existing code.
  * <P>
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class EACLsException extends EBaseException {
@@ -44,10 +41,11 @@ public class EACLsException extends EBaseException {
      * resource class name
      */
     private static final String ACL_RESOURCES = ACLsResources.class.getName();
- 
+
     /**
      * Constructs an acls exception.
      * <P>
+     * 
      * @param msgFormat exception details
      */
     public EACLsException(String msgFormat) {
@@ -57,11 +55,12 @@ public class EACLsException extends EBaseException {
 
     /**
      * Constructs a base exception with a parameter. For example,
+     * 
      * <PRE>
-     * 		new EACLsException("failed to load {0}", fileName);
+     * new EACLsException(&quot;failed to load {0}&quot;, fileName);
      * </PRE>
      * <P>
-     *
+     * 
      * @param msgFormat exception details in message string format
      * @param param message string parameter
      */
@@ -72,9 +71,9 @@ public class EACLsException extends EBaseException {
     }
 
     /**
-     * Constructs a base exception. It can be used to carry
-     * a system exception that may contain information about
-     * the context. For example,
+     * Constructs a base exception. It can be used to carry a system exception
+     * that may contain information about the context. For example,
+     * 
      * <PRE>
      * 		try {
      *  		...
@@ -83,7 +82,7 @@ public class EACLsException extends EBaseException {
      *      }
      * </PRE>
      * <P>
-     *
+     * 
      * @param msgFormat exception details in message string format
      * @param param system exception
      */
@@ -94,10 +93,10 @@ public class EACLsException extends EBaseException {
     }
 
     /**
-     * Constructs a base exception with a list of parameters
-     * that will be substituted into the message format.
+     * Constructs a base exception with a list of parameters that will be
+     * substituted into the message format.
      * <P>
-     *
+     * 
      * @param msgFormat exception details in message string format
      * @param params list of message format parameters
      */
@@ -109,7 +108,7 @@ public class EACLsException extends EBaseException {
     /**
      * Returns a list of parameters.
      * <P>
-     *
+     * 
      * @return list of message format parameters
      */
     public Object[] getParameters() {
@@ -118,6 +117,7 @@ public class EACLsException extends EBaseException {
 
     /**
      * String representation for the corresponding exception.
+     * 
      * @return String representation for the corresponding exception.
      */
     public String toString() {
@@ -126,6 +126,7 @@ public class EACLsException extends EBaseException {
 
     /**
      * Returns string representation for the corresponding exception.
+     * 
      * @param locale client specified locale for string representation.
      * @return String representation for the corresponding exception.
      */
@@ -136,6 +137,7 @@ public class EACLsException extends EBaseException {
 
     /**
      * Return the class name of the resource bundle.
+     * 
      * @return class name of the resource bundle.
      */
     protected String getBundleName() {

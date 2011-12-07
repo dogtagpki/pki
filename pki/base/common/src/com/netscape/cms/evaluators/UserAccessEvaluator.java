@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.evaluators;
 
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.SessionContext;
@@ -25,7 +24,6 @@ import com.netscape.certsrv.evaluators.IAccessEvaluator;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cmsutil.util.Utils;
-
 
 /**
  * A class represents a user acls evaluator.
@@ -48,7 +46,7 @@ public class UserAccessEvaluator implements IAccessEvaluator {
     }
 
     /**
-     * initialization.  nothing for now.
+     * initialization. nothing for now.
      */
     public void init() {
         CMS.debug("UserAccessEvaluator: init");
@@ -56,6 +54,7 @@ public class UserAccessEvaluator implements IAccessEvaluator {
 
     /**
      * gets the type name for this acl evaluator
+     * 
      * @return type for this acl evaluator: "user" or "at_user"
      */
     public String getType() {
@@ -64,6 +63,7 @@ public class UserAccessEvaluator implements IAccessEvaluator {
 
     /**
      * gets the description for this acl evaluator
+     * 
      * @return description for this acl evaluator
      */
     public String getDescription() {
@@ -80,27 +80,30 @@ public class UserAccessEvaluator implements IAccessEvaluator {
 
     /**
      * Evaluates the user in AuthToken to see if it's equal to value
+     * 
      * @param authToken AuthToken from authentication
      * @param type must be "at_user"
      * @param op must be "="
      * @param value the user id
      * @return true if AuthToken uid is same as value, false otherwise
      */
-    public boolean evaluate(IAuthToken authToken, String type, String op, String value) {
+    public boolean evaluate(IAuthToken authToken, String type, String op,
+            String value) {
 
         if (type.equals(mType)) {
             String s = Utils.stripQuotes(value);
 
             if ((s.equals(ANYBODY) || s.equals(EVERYBODY)) && op.equals("="))
-                return true; 
-            
-                // should define "uid" at a common place
+                return true;
+
+            // should define "uid" at a common place
             String uid = null;
 
             uid = authToken.getInString("uid");
 
             if (uid == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("EVALUTOR_UID_IS_NULL"));
+                log(ILogger.LL_FAILURE,
+                        CMS.getLogMessage("EVALUTOR_UID_IS_NULL"));
                 return false;
             }
 
@@ -108,13 +111,14 @@ public class UserAccessEvaluator implements IAccessEvaluator {
                 return s.equalsIgnoreCase(uid);
             else if (op.equals("!="))
                 return !(s.equalsIgnoreCase(uid));
-        }        
+        }
 
         return false;
     }
 
     /**
      * Evaluates the user in session context to see if it's equal to value
+     * 
      * @param type must be "user"
      * @param op must be "="
      * @param value the user id
@@ -144,8 +148,8 @@ public class UserAccessEvaluator implements IAccessEvaluator {
     private void log(int level, String msg) {
         if (mLogger == null)
             return;
-        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_ACLS,
-            level, "UserAccessEvaluator: " + msg);
+        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_ACLS, level,
+                "UserAccessEvaluator: " + msg);
     }
 
 }

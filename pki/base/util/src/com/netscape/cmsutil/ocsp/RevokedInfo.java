@@ -32,94 +32,79 @@ import org.mozilla.jss.asn1.Tag;
 
 /**
  * RFC 2560:
- *
+ * 
  * <pre>
  * RevokedInfo ::= SEQUENCE {
  *  revocationTime              GeneralizedTime,
  *  revocationReason    [0]     EXPLICIT CRLReason OPTIONAL }
  * </pre>
- *
+ * 
  * @version $Revision$ $Date$
  */
-public class RevokedInfo implements CertStatus
-{
-        private static final Tag TAG = SEQUENCE.TAG;
+public class RevokedInfo implements CertStatus {
+    private static final Tag TAG = SEQUENCE.TAG;
 
-	private GeneralizedTime mRevokedAt;
+    private GeneralizedTime mRevokedAt;
 
-	public RevokedInfo(GeneralizedTime revokedAt)
-	{
-		mRevokedAt = revokedAt;
-	}
+    public RevokedInfo(GeneralizedTime revokedAt) {
+        mRevokedAt = revokedAt;
+    }
 
-        public Tag getTag()
-        {
-                return Tag.get(1);
+    public Tag getTag() {
+        return Tag.get(1);
+    }
+
+    public void encode(Tag t, OutputStream os) throws IOException {
+        SEQUENCE seq = new SEQUENCE();
+        seq.addElement(mRevokedAt);
+        seq.encode(t, os);
+    }
+
+    public void encode(OutputStream os) throws IOException {
+        encode(getTag(), os);
+    }
+
+    public GeneralizedTime getRevocationTime() {
+        return mRevokedAt;
+    }
+
+    private static final Template templateInstance = new Template();
+
+    public static Template getTemplate() {
+        return templateInstance;
+    }
+
+    /**
+     * A Template for decoding <code>ResponseBytes</code>.
+     */
+    public static class Template implements ASN1Template {
+
+        private SEQUENCE.Template seqt;
+
+        public Template() {
+            seqt = new SEQUENCE.Template();
+            seqt.addElement(new GeneralizedTime.Template());
+            seqt.addOptionalElement(new EXPLICIT.Template(new Tag(0),
+                    new INTEGER.Template()));
+
         }
 
-        public void encode(Tag t, OutputStream os) throws IOException
-        {
-		SEQUENCE seq = new SEQUENCE();
-		seq.addElement(mRevokedAt);
-		seq.encode(t, os);
+        public boolean tagMatch(Tag tag) {
+            return TAG.equals(tag);
         }
 
-        public void encode(OutputStream os) throws IOException
-        {
-                encode(getTag(), os);
-        }
-	
-	public GeneralizedTime getRevocationTime()
-	{
-		return mRevokedAt;
-	}	
-
-
-        private static final Template templateInstance = new Template();
-
-        public static Template getTemplate() {
-                return templateInstance;
+        public ASN1Value decode(InputStream istream)
+                throws InvalidBERException, IOException {
+            return decode(TAG, istream);
         }
 
-        /**
-         * A Template for decoding <code>ResponseBytes</code>.
-         */
-        public static class Template implements ASN1Template
-        {
+        public ASN1Value decode(Tag implicitTag, InputStream istream)
+                throws InvalidBERException, IOException {
+            SEQUENCE seq = (SEQUENCE) seqt.decode(implicitTag, istream);
 
-                private SEQUENCE.Template seqt;
+            GeneralizedTime revokedAt = (GeneralizedTime) seq.elementAt(0);
+            return new RevokedInfo(revokedAt);
 
-                public Template()
-                {
-                     seqt = new SEQUENCE.Template();
-                     seqt.addElement(new GeneralizedTime.Template() );
-                     seqt.addOptionalElement( 
-                       new EXPLICIT.Template( new Tag(0), 
-                       new INTEGER.Template()) );
-
-                }
-
-                public boolean tagMatch(Tag tag)
-                {
-                        return TAG.equals(tag);
-                }
-
-                public ASN1Value decode(InputStream istream)
-                        throws InvalidBERException, IOException
-                {
-                        return decode(TAG, istream);
-                }
-
-                public ASN1Value decode(Tag implicitTag, InputStream istream)
-                        throws InvalidBERException, IOException
-                {
-                        SEQUENCE seq = (SEQUENCE) seqt.decode(implicitTag,
-                                istream);
-
-			GeneralizedTime  revokedAt = (GeneralizedTime)
-			seq.elementAt(0);
-                        return new RevokedInfo(revokedAt);
-
-                }
         }
+    }
 }

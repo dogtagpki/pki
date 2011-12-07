@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.policy.constraints;
 
-
 import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.Vector;
@@ -41,23 +40,24 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cms.policy.APolicyRule;
 
-
 /**
- * SigningAlgorithmConstraints enforces that only a supported
- * signing algorithm be requested.
+ * SigningAlgorithmConstraints enforces that only a supported signing algorithm
+ * be requested.
  * <P>
+ * 
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- *
+ * 
  * @deprecated
  * @version $Revision$, $Date$
  */
-public class SigningAlgorithmConstraints extends APolicyRule
-    implements IEnrollmentPolicy, IExtendedPluginInfo {
+public class SigningAlgorithmConstraints extends APolicyRule implements
+        IEnrollmentPolicy, IExtendedPluginInfo {
     private String[] mAllowedAlgs = null; // algs allowed by this policy
-    static String[] mDefaultAllowedAlgs = null; // default algs allowed by this policy based on CA's key
+    static String[] mDefaultAllowedAlgs = null; // default algs allowed by this
+                                                // policy based on CA's key
     private String[] mConfigAlgs = null; // algs listed in config file
     private boolean winnowedByKey = false;
     IAuthority mAuthority = null;
@@ -94,17 +94,17 @@ public class SigningAlgorithmConstraints extends APolicyRule
     /**
      * Initializes this policy rule.
      * <P>
-     *
+     * 
      * The entries probably are of the form
-     *      ra.Policy.rule.<ruleName>.implName=SigningAlgorithmConstraints
-     *      ra.Policy.rule.<ruleName>.algorithms=SHA-1WithRSA, SHA-1WithDSA
-     *      ra.Policy.rule.<ruleName>.enable=true
-     *      ra.Policy.rule.<ruleName>.predicate=ou==Sales
-     *
-     * @param config	The config store reference
+     * ra.Policy.rule.<ruleName>.implName=SigningAlgorithmConstraints
+     * ra.Policy.rule.<ruleName>.algorithms=SHA-1WithRSA, SHA-1WithDSA
+     * ra.Policy.rule.<ruleName>.enable=true
+     * ra.Policy.rule.<ruleName>.predicate=ou==Sales
+     * 
+     * @param config The config store reference
      */
     public void init(ISubsystem owner, IConfigStore config)
-        throws EBaseException {
+            throws EBaseException {
         mAuthority = (IAuthority) ((IPolicyProcessor) owner).getAuthority();
 
         // Get allowed algorithms from config file
@@ -114,10 +114,11 @@ public class SigningAlgorithmConstraints extends APolicyRule
             try {
                 algNames = config.getString(PROP_ALGORITHMS, null);
             } catch (Exception e) {
-                String[] params = {getInstanceName(), e.toString(), PROP_ALGORITHMS};
+                String[] params = { getInstanceName(), e.toString(),
+                        PROP_ALGORITHMS };
 
-                throw new EPolicyException(
-                        CMS.getUserMessage("CMS_POLICY_PARAM_CONFIG_ERROR", params));
+                throw new EPolicyException(CMS.getUserMessage(
+                        "CMS_POLICY_PARAM_CONFIG_ERROR", params));
             }
 
             if (algNames != null) {
@@ -136,7 +137,7 @@ public class SigningAlgorithmConstraints extends APolicyRule
                 for (int i = 0; i < itemCount; i++) {
                     mAllowedAlgs[i] = (String) algs.elementAt(i);
                 }
-			
+
             }
 
         }
@@ -149,8 +150,8 @@ public class SigningAlgorithmConstraints extends APolicyRule
 
         if (mAllowedAlgs != null) {
             // winnow out unknown algorithms
-            winnowAlgs(AlgorithmId.ALL_SIGNING_ALGORITHMS, 
-                "CMS_POLICY_UNKNOWN_SIGNING_ALG", true);
+            winnowAlgs(AlgorithmId.ALL_SIGNING_ALGORITHMS,
+                    "CMS_POLICY_UNKNOWN_SIGNING_ALG", true);
         } else {
             // if nothing was in the config file, allow all known algs
             mAllowedAlgs = AlgorithmId.ALL_SIGNING_ALGORITHMS;
@@ -160,8 +161,8 @@ public class SigningAlgorithmConstraints extends APolicyRule
         winnowByKey();
 
         if (mAllowedAlgs.length == 0) {
-            throw new EPolicyException(
-                    CMS.getUserMessage("CMS_POLICY_SIGNALG_NOT_MATCH_CAKEY", NAME));
+            throw new EPolicyException(CMS.getUserMessage(
+                    "CMS_POLICY_SIGNALG_NOT_MATCH_CAKEY", NAME));
         }
 
     }
@@ -182,20 +183,20 @@ public class SigningAlgorithmConstraints extends APolicyRule
         }
 
         // get list of algorithms allowed for the key
-        String[] allowedByKey =
-            ((ICertAuthority) mAuthority).getCASigningAlgorithms();
+        String[] allowedByKey = ((ICertAuthority) mAuthority)
+                .getCASigningAlgorithms();
 
         if (allowedByKey != null) {
-            // don't show algorithms that don't match CA's key in UI.	
+            // don't show algorithms that don't match CA's key in UI.
             mDefaultAllowedAlgs = new String[allowedByKey.length];
             for (int i = 0; i < allowedByKey.length; i++)
                 mDefaultAllowedAlgs[i] = allowedByKey[i];
-                // winnow out algorithms that don't match CA's signing key
-            winnowAlgs(allowedByKey,
-                "CMS_POLICY_SIGNALG_NOT_MATCH_CAKEY_1", false);
+            // winnow out algorithms that don't match CA's signing key
+            winnowAlgs(allowedByKey, "CMS_POLICY_SIGNALG_NOT_MATCH_CAKEY_1",
+                    false);
             winnowedByKey = true;
         } else {
-            // We don't know the CA's signing algorithms.  Maybe we're
+            // We don't know the CA's signing algorithms. Maybe we're
             // an RA that hasn't talked to the CA yet? Try again later.
         }
     }
@@ -203,14 +204,15 @@ public class SigningAlgorithmConstraints extends APolicyRule
     /**
      * Winnows out of mAllowedAlgorithms those algorithms that aren't allowed
      * for some reason.
-     *
-     * @param allowed An array of allowed algorithms.  Only algorithms in this
-     *    list will survive the winnowing process.
-     * @param reason A string describing the problem with an algorithm
-     *		that is not allowed by this list. Must be a predefined string in PolicyResources.
+     * 
+     * @param allowed An array of allowed algorithms. Only algorithms in this
+     *            list will survive the winnowing process.
+     * @param reason A string describing the problem with an algorithm that is
+     *            not allowed by this list. Must be a predefined string in
+     *            PolicyResources.
      */
-    private void winnowAlgs(String[] allowed, String reason, boolean isError) 
-        throws EBaseException {
+    private void winnowAlgs(String[] allowed, String reason, boolean isError)
+            throws EBaseException {
         int i, j, goodSize;
 
         // validate the currently-allowed algorithms
@@ -225,12 +227,13 @@ public class SigningAlgorithmConstraints extends APolicyRule
             }
             // if algorithm is not allowed, log a warning
             if (j == allowed.length) {
-                EPolicyException e = new EPolicyException(CMS.getUserMessage(reason, NAME, mAllowedAlgs[i]));
+                EPolicyException e = new EPolicyException(CMS.getUserMessage(
+                        reason, NAME, mAllowedAlgs[i]));
 
                 if (isError) {
                     log(ILogger.LL_FAILURE, e.toString());
-                    throw new EPolicyException(CMS.getUserMessage(reason,
-                                NAME, mAllowedAlgs[i]));
+                    throw new EPolicyException(CMS.getUserMessage(reason, NAME,
+                            mAllowedAlgs[i]));
                 } else {
                     log(ILogger.LL_WARN, e.toString());
                 }
@@ -240,7 +243,7 @@ public class SigningAlgorithmConstraints extends APolicyRule
         // convert back into an array
         goodSize = goodAlgs.size();
         if (mAllowedAlgs.length != goodSize) {
-            mAllowedAlgs = new String[ goodSize ];
+            mAllowedAlgs = new String[goodSize];
             for (i = 0; i < goodSize; i++) {
                 mAllowedAlgs[i] = (String) goodAlgs.elementAt(i);
             }
@@ -250,8 +253,8 @@ public class SigningAlgorithmConstraints extends APolicyRule
     /**
      * Applies the policy on the given Request.
      * <P>
-     *
-     * @param req	The request on which to apply policy.
+     * 
+     * @param req The request on which to apply policy.
      * @return The policy result object.
      */
     public PolicyResult apply(IRequest req) {
@@ -262,9 +265,10 @@ public class SigningAlgorithmConstraints extends APolicyRule
         try {
 
             // Get the certificate info from the request
-            //X509CertInfo certInfo[] = (X509CertInfo[])
-            //    req.get(IRequest.CERT_INFO);
-            X509CertInfo certInfo[] = req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
+            // X509CertInfo certInfo[] = (X509CertInfo[])
+            // req.get(IRequest.CERT_INFO);
+            X509CertInfo certInfo[] = req
+                    .getExtDataInCertInfoArray(IRequest.CERT_INFO);
 
             // We need to have a certificate info set
             if (certInfo == null) {
@@ -281,11 +285,11 @@ public class SigningAlgorithmConstraints extends APolicyRule
                     winnowByKey();
                 }
 
-                CertificateAlgorithmId certAlgId = (CertificateAlgorithmId)
-                    certInfo[i].get(X509CertInfo.ALGORITHM_ID);
+                CertificateAlgorithmId certAlgId = (CertificateAlgorithmId) certInfo[i]
+                        .get(X509CertInfo.ALGORITHM_ID);
 
-                AlgorithmId algId = (AlgorithmId)
-                    certAlgId.get(CertificateAlgorithmId.ALGORITHM);
+                AlgorithmId algId = (AlgorithmId) certAlgId
+                        .get(CertificateAlgorithmId.ALGORITHM);
                 String alg = algId.getName();
 
                 // test against the list of allowed algorithms
@@ -297,26 +301,28 @@ public class SigningAlgorithmConstraints extends APolicyRule
                 if (j == mAllowedAlgs.length) {
                     // if the algor doesn't match the CA's key replace
                     // it with one that does.
-                    if (mAllowedAlgs[0].equals("SHA1withDSA") ||
-                        alg.equals("SHA1withDSA")) {
-                        certInfo[i].set(X509CertInfo.ALGORITHM_ID,
-                            new CertificateAlgorithmId(
-                                AlgorithmId.get(mAllowedAlgs[0])));
+                    if (mAllowedAlgs[0].equals("SHA1withDSA")
+                            || alg.equals("SHA1withDSA")) {
+                        certInfo[i].set(
+                                X509CertInfo.ALGORITHM_ID,
+                                new CertificateAlgorithmId(AlgorithmId
+                                        .get(mAllowedAlgs[0])));
                         return PolicyResult.ACCEPTED;
                     }
 
                     // didn't find a match, alg not allowed
-                    setError(req, CMS.getUserMessage("CMS_POLICY_SIGNING_ALG_VIOLATION",
+                    setError(req, CMS.getUserMessage(
+                            "CMS_POLICY_SIGNING_ALG_VIOLATION",
                             getInstanceName(), alg), "");
                     result = PolicyResult.REJECTED;
                 }
             }
         } catch (Exception e) {
             // e.printStackTrace();
-            String params[] = {getInstanceName(), e.toString()};
+            String params[] = { getInstanceName(), e.toString() };
 
-            setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR", 
-                    params), "");
+            setError(req, CMS.getUserMessage(
+                    "CMS_POLICY_UNEXPECTED_POLICY_ERROR", params), "");
             result = PolicyResult.REJECTED;
         }
         return result;
@@ -324,10 +330,10 @@ public class SigningAlgorithmConstraints extends APolicyRule
 
     /**
      * Return configured parameters for a policy rule instance.
-     *
+     * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getInstanceParams() { 
+    public Vector getInstanceParams() {
         Vector confParams = new Vector();
         StringBuffer sb = new StringBuffer();
 
@@ -343,10 +349,10 @@ public class SigningAlgorithmConstraints extends APolicyRule
 
     /**
      * Return default parameters for a policy implementation.
-     *
+     * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getDefaultParams() { 
+    public Vector getDefaultParams() {
         StringBuffer sb = new StringBuffer();
         sb.append(PROP_ALGORITHMS);
         sb.append("=");
@@ -365,67 +371,73 @@ public class SigningAlgorithmConstraints extends APolicyRule
         }
         defConfParams.addElement(sb.toString());
 
-        return defConfParams; 
+        return defConfParams;
     }
 
     public String[] getExtendedPluginInfo(Locale locale) {
         if (!winnowedByKey) {
-            try { 
-                winnowByKey(); 
-            } catch (Exception e) { 
+            try {
+                winnowByKey();
+            } catch (Exception e) {
             }
         }
 
         String[] params = null;
 
         String[] params_BOTH = {
-                PROP_ALGORITHMS + ";" + "choice(MD2withRSA\\,MD5withRSA\\,SHA1withRSA\\,SHA256withRSA\\,SHA512withRSA\\,SHA1withDSA," +
-                "MD2withRSA\\,MD5withRSA\\,SHA1withRSA\\,SHA1withDSA,"+
-                "MD2withRSA\\,MD5withRSA\\,SHA1withRSA," +
-                "MD2withRSA\\,SHA1withRSA\\,SHA1withDSA," +
-                "MD5withRSA\\,SHA1withRSA\\,SHA1withDSA," +
-                "MD2withRSA\\,MD5withRSA\\,SHA1withDSA," +
-                "MD2withRSA\\,MD5withRSA," +
-                "MD2withRSA\\,SHA1withRSA," +
-                "MD2withRSA\\,SHA1withDSA," +
-                "MD5withRSA\\,SHA1withRSA," +
-                "MD5withRSA\\,SHA1withDSA," +
-                "SHA1withRSA\\,SHA1withDSA," +
-                "MD2withRSA," +
-                "MD5withRSA," +
-                "SHA1withRSA," +
-                "SHA1withDSA);List of algorithms to restrict the requested signing algorithm " +
-                "to be one of the algorithms supported by Certificate System",
-                IExtendedPluginInfo.HELP_TOKEN + ";configuration-policyrules-signingalgconstraints",
-                IExtendedPluginInfo.HELP_TEXT +
-                ";Restricts the requested signing algorithm to be one of" +
-                " the algorithms supported by Certificate System"
-            };
+                PROP_ALGORITHMS
+                        + ";"
+                        + "choice(MD2withRSA\\,MD5withRSA\\,SHA1withRSA\\,SHA256withRSA\\,SHA512withRSA\\,SHA1withDSA,"
+                        + "MD2withRSA\\,MD5withRSA\\,SHA1withRSA\\,SHA1withDSA,"
+                        + "MD2withRSA\\,MD5withRSA\\,SHA1withRSA,"
+                        + "MD2withRSA\\,SHA1withRSA\\,SHA1withDSA,"
+                        + "MD5withRSA\\,SHA1withRSA\\,SHA1withDSA,"
+                        + "MD2withRSA\\,MD5withRSA\\,SHA1withDSA,"
+                        + "MD2withRSA\\,MD5withRSA,"
+                        + "MD2withRSA\\,SHA1withRSA,"
+                        + "MD2withRSA\\,SHA1withDSA,"
+                        + "MD5withRSA\\,SHA1withRSA,"
+                        + "MD5withRSA\\,SHA1withDSA,"
+                        + "SHA1withRSA\\,SHA1withDSA,"
+                        + "MD2withRSA,"
+                        + "MD5withRSA,"
+                        + "SHA1withRSA,"
+                        + "SHA1withDSA);List of algorithms to restrict the requested signing algorithm "
+                        + "to be one of the algorithms supported by Certificate System",
+                IExtendedPluginInfo.HELP_TOKEN
+                        + ";configuration-policyrules-signingalgconstraints",
+                IExtendedPluginInfo.HELP_TEXT
+                        + ";Restricts the requested signing algorithm to be one of"
+                        + " the algorithms supported by Certificate System" };
 
         String[] params_RSA = {
-                PROP_ALGORITHMS + ";" + "choice(MD2withRSA\\,MD5withRSA\\,SHA1withRSA," +
-                "MD2withRSA\\,MD5withRSA," +
-                "MD2withRSA\\,SHA1withRSA," +
-                "MD5withRSA\\,SHA1withRSA," +
-                "MD2withRSA," +
-                "MD5withRSA," +
-                "SHA1withRSA);Restrict the requested signing algorithm to be " +
-                "one of the algorithms supported by Certificate System",
-                IExtendedPluginInfo.HELP_TOKEN + ";configuration-policyrules-signingalgconstraints",
-                IExtendedPluginInfo.HELP_TEXT +
-                ";Restricts the requested signing algorithm to be one of" +
-                " the algorithms supported by Certificate System"
-            };
+                PROP_ALGORITHMS
+                        + ";"
+                        + "choice(MD2withRSA\\,MD5withRSA\\,SHA1withRSA,"
+                        + "MD2withRSA\\,MD5withRSA,"
+                        + "MD2withRSA\\,SHA1withRSA,"
+                        + "MD5withRSA\\,SHA1withRSA,"
+                        + "MD2withRSA,"
+                        + "MD5withRSA,"
+                        + "SHA1withRSA);Restrict the requested signing algorithm to be "
+                        + "one of the algorithms supported by Certificate System",
+                IExtendedPluginInfo.HELP_TOKEN
+                        + ";configuration-policyrules-signingalgconstraints",
+                IExtendedPluginInfo.HELP_TEXT
+                        + ";Restricts the requested signing algorithm to be one of"
+                        + " the algorithms supported by Certificate System" };
 
         String[] params_DSA = {
-                PROP_ALGORITHMS + ";" + "choice(SHA1withDSA);Restrict the requested signing " +
-                "algorithm to be one of the algorithms supported by Certificate " +
-                "System",
-                IExtendedPluginInfo.HELP_TOKEN + ";configuration-policyrules-signingalgconstraints",
-                IExtendedPluginInfo.HELP_TEXT +
-                ";Restricts the requested signing algorithm to be one of" +
-                " the algorithms supported by Certificate System"
-            };
+                PROP_ALGORITHMS
+                        + ";"
+                        + "choice(SHA1withDSA);Restrict the requested signing "
+                        + "algorithm to be one of the algorithms supported by Certificate "
+                        + "System",
+                IExtendedPluginInfo.HELP_TOKEN
+                        + ";configuration-policyrules-signingalgconstraints",
+                IExtendedPluginInfo.HELP_TEXT
+                        + ";Restricts the requested signing algorithm to be one of"
+                        + " the algorithms supported by Certificate System" };
 
         switch (mDefaultAllowedAlgs.length) {
         case 1:
@@ -447,4 +459,3 @@ public class SigningAlgorithmConstraints extends APolicyRule
     }
 
 }
-

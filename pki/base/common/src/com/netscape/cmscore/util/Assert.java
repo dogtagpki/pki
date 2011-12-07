@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.util;
 
-
 public class Assert {
     public static final boolean ON = true;
 

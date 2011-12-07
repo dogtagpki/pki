@@ -17,25 +17,24 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.base;
 
-
 /**
- * AttributeNameHelper. This Helper class used to decompose 
- * dot-separated attribute name into prefix and suffix.
- *
+ * AttributeNameHelper. This Helper class used to decompose dot-separated
+ * attribute name into prefix and suffix.
+ * 
  * @version $Revision$, $Date$
  */
 public class AttributeNameHelper {
     // Public members
     private static final char SEPARATOR = '.';
-	
+
     // Private data members
     private String prefix = null;
     private String suffix = null;
-	
+
     /**
      * Default constructor for the class. Name is of the form
      * "proofOfPosession.type".
-     *
+     * 
      * @param name the attribute name.
      */
     public AttributeNameHelper(String name) {
@@ -51,20 +50,19 @@ public class AttributeNameHelper {
 
     /**
      * Return the prefix of the name.
-     *
+     * 
      * @return attribute prefix
      */
     public String getPrefix() {
         return (prefix);
     }
-	
+
     /**
      * Return the suffix of the name.
-     *
+     * 
      * @return attribute suffix
      */
     public String getSuffix() {
         return (suffix);
     }
 }
-

@@ -17,13 +17,11 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.extensions;
 
-
 import com.netscape.certsrv.base.EBaseException;
-
 
 /**
  * This represents the extensions exception.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class EExtensionsException extends EBaseException {
@@ -35,8 +33,8 @@ public class EExtensionsException extends EBaseException {
     /**
      * Resource class name.
      */
-    private static final String EXTENSIONS_RESOURCES =
-        ExtensionsResources.class.getName();
+    private static final String EXTENSIONS_RESOURCES = ExtensionsResources.class
+            .getName();
 
     public EExtensionsException(String msgFormat) {
         super(msgFormat);

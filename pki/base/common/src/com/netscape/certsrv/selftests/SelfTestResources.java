@@ -17,9 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.selftests;
 
-
 import java.util.ListResourceBundle;
-
 
 /**
  * A class represents a resource bundle for Self Tests.
@@ -36,6 +34,5 @@ public class SelfTestResources extends ListResourceBundle {
         return contents;
     }
 
-    static final Object[][] contents = {
-        };
+    static final Object[][] contents = {};
 }

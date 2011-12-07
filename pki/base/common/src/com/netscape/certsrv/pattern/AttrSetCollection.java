@@ -17,15 +17,13 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.pattern;
 
-
 import java.util.Hashtable;
 
 import com.netscape.certsrv.base.IAttrSet;
 
 /**
- * This class represents a collection of attribute
- * sets.
- *
+ * This class represents a collection of attribute sets.
+ * 
  * @version $Revision$, $Date$
  */
 public class AttrSetCollection extends Hashtable {
@@ -44,7 +42,7 @@ public class AttrSetCollection extends Hashtable {
 
     /**
      * Retrieves a attribute set from this collection.
-     *
+     * 
      * @param name name of the attribute set
      * @return attribute set
      */
@@ -54,7 +52,7 @@ public class AttrSetCollection extends Hashtable {
 
     /**
      * Sets attribute set in this collection.
-     *
+     * 
      * @param name set of the attribute set
      * @param set attribute set
      */

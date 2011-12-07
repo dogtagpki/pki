@@ -29,33 +29,32 @@ import netscape.security.x509.X509CRLImpl;
 import netscape.security.x509.X509CertImpl;
 import netscape.security.x509.X509ExtensionException;
 
-public class X509CertificateFactory  extends CertificateFactorySpi {
+public class X509CertificateFactory extends CertificateFactorySpi {
 
-    public Certificate engineGenerateCertificate(InputStream inStream) 
-		throws CertificateException {
-		return new X509CertImpl(inStream);
-	}
+    public Certificate engineGenerateCertificate(InputStream inStream)
+            throws CertificateException {
+        return new X509CertImpl(inStream);
+    }
+
     public Collection engineGenerateCertificates(InputStream inStream)
-		throws CertificateException {
-		return null;
-	}
+            throws CertificateException {
+        return null;
+    }
 
-	public CRL engineGenerateCRL(InputStream inStream)
-		throws CRLException {
-		X509CRLImpl crl = null;
-		try {
-			crl = new X509CRLImpl(inStream);
-		}
-		catch (X509ExtensionException e) {
-			;
-		}
-		
-		return crl;
-	}
+    public CRL engineGenerateCRL(InputStream inStream) throws CRLException {
+        X509CRLImpl crl = null;
+        try {
+            crl = new X509CRLImpl(inStream);
+        } catch (X509ExtensionException e) {
+            ;
+        }
 
-	public Collection engineGenerateCRLs(InputStream inStream)
-		throws CRLException {
-		return null;
-	}
-	
+        return crl;
+    }
+
+    public Collection engineGenerateCRLs(InputStream inStream)
+            throws CRLException {
+        return null;
+    }
+
 }

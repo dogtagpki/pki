@@ -1,4 +1,5 @@
 package com.netscape.pkisilent.common;
+
 // --- BEGIN COPYRIGHT BLOCK ---
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -64,12 +65,10 @@ import org.mozilla.jss.util.Password;
 
 import com.netscape.osutil.OSUtil;
 
-
 /**
- * CMS Test framework .
- * Use this class to initalize,add a certificate ,generate a certificate request from certificate database.
+ * CMS Test framework . Use this class to initalize,add a certificate ,generate
+ * a certificate request from certificate database.
  */
-
 
 public class ComCrypto {
 
@@ -98,18 +97,19 @@ public class ComCrypto {
 
     private String certprefix = null;
 
-    public ComCrypto() {}
-    ;
+    public ComCrypto() {
+    };
 
     /**
-     * Constructor . Takes the parameter certificatedbdirectory , passwordfor cert database, certificatenickname,keysize, keytype(RSA/DSA)
+     * Constructor . Takes the parameter certificatedbdirectory , passwordfor
+     * cert database, certificatenickname,keysize, keytype(RSA/DSA)
+     * 
      * @param certdbdirectory.
-     * @param certdbpassword 
-     * @param certnickname 
+     * @param certdbpassword
+     * @param certnickname
      * @param keysize (1024/2048/4096)
      * @param keytype (RSA/DSA)
      */
-
 
     public ComCrypto(String cd, String tpwd, String cn, String ks, String kt) {
         cdir = cd;
@@ -119,7 +119,7 @@ public class ComCrypto {
         keytype = kt;
     }
 
-    // Set and Get functions 
+    // Set and Get functions
 
     public void setCertDir(String cd) {
         cdir = cd;
@@ -158,10 +158,9 @@ public class ComCrypto {
     }
 
     /*
-     * setTransportCert() should only be called when the calling profile
-     * needs to do key archivals with the DRM and make sure the function
-     * generateCRMFtransport() is called for the CRMF request generation
-     * part.
+     * setTransportCert() should only be called when the calling profile needs
+     * to do key archivals with the DRM and make sure the function
+     * generateCRMFtransport() is called for the CRMF request generation part.
      */
     public void setTransportCert(String tcert) {
         transportcert = tcert;
@@ -176,7 +175,8 @@ public class ComCrypto {
     }
 
     /**
-     * Parses the Certificate and returns SubjectDN . Takes certificate as parameter
+     * Parses the Certificate and returns SubjectDN . Takes certificate as
+     * parameter
      */
 
     public String getCertificateString(X509Certificate cert) {
@@ -185,14 +185,13 @@ public class ComCrypto {
         }
 
         // note that it did not represent a certificate fully
-        return cert.getVersion() + ";" + cert.getSerialNumber().toString() + ";"
-                + cert.getIssuerDN() + ";" + cert.getSubjectDN();
+        return cert.getVersion() + ";" + cert.getSerialNumber().toString()
+                + ";" + cert.getIssuerDN() + ";" + cert.getSubjectDN();
     }
 
     /**
-     *  Finds and returns  Certificate . Takes certificatenickname as parameter.
+     * Finds and returns Certificate . Takes certificatenickname as parameter.
      */
-
 
     public X509Certificate findCert(String certname) {
         try {
@@ -209,17 +208,18 @@ public class ComCrypto {
     }
 
     /**
-     * Imports a certificate to Certificate Database. Takes certificate and nickname as parameters.
+     * Imports a certificate to Certificate Database. Takes certificate and
+     * nickname as parameters.
      */
-
 
     public boolean importCert(X509Certificate xcert, String nickname) {
         try {
 
-            System.out.println(
-                    "importCert x509 : importing with nickname: " + nickname);
+            System.out.println("importCert x509 : importing with nickname: "
+                    + nickname);
 
-            InternalCertificate cert2 = manager.importCertToPerm(xcert, nickname);
+            InternalCertificate cert2 = manager.importCertToPerm(xcert,
+                    nickname);
 
             cert2.setSSLTrust(2);
             return true;
@@ -232,9 +232,9 @@ public class ComCrypto {
     }
 
     /**
-     * Imports a certificate to Certificate Database. Takes certificate and nickname as parameters.
+     * Imports a certificate to Certificate Database. Takes certificate and
+     * nickname as parameters.
      */
-
 
     public boolean importCert(String cpack, String cn) {
 
@@ -243,7 +243,7 @@ public class ComCrypto {
 
             String tmp = normalize(cpack);
 
-            if (DBlogin) { 
+            if (DBlogin) {
                 System.out.println("Already logged into to DB");
             }
 
@@ -251,20 +251,22 @@ public class ComCrypto {
                 System.out.println("Manager object is null");
             }
 
-            X509Certificate cert = manager.importCertPackage(tmp.getBytes(), cn);
+            X509Certificate cert = manager
+                    .importCertPackage(tmp.getBytes(), cn);
 
             return true;
 
         } catch (Exception e) {
-            System.out.println(
-                    "ERROR:exception importing cert " + e.getMessage());
+            System.out.println("ERROR:exception importing cert "
+                    + e.getMessage());
             e.printStackTrace();
             return false;
         }
 
     }
 
-    /* imports CA certificate
+    /*
+     * imports CA certificate
      */
 
     public boolean importCACert(String cpack) {
@@ -272,10 +274,10 @@ public class ComCrypto {
         try {
             String tmp = normalize(cpack);
 
-            if (DBlogin) { 
+            if (DBlogin) {
                 System.out.println("Already logged into to DB");
             }
-	
+
             if (manager == null) {
                 System.out.println("Manager object is null");
             }
@@ -285,17 +287,17 @@ public class ComCrypto {
             return true;
 
         } catch (Exception e) {
-            System.out.println(
-                    "ERROR:exception importing cert " + e.getMessage());
+            System.out.println("ERROR:exception importing cert "
+                    + e.getMessage());
             return false;
         }
 
     }
 
     /**
-     * Normalizes a given certificate string . Removes the extra \\ in the certificate returned by CMS server.
+     * Normalizes a given certificate string . Removes the extra \\ in the
+     * certificate returned by CMS server.
      */
-
 
     public String normalize(String s) {
 
@@ -318,9 +320,9 @@ public class ComCrypto {
     }
 
     /**
-     * Normalizes a given certificate string . Removes the extra \\ in the certificate returned by CMS server.
+     * Normalizes a given certificate string . Removes the extra \\ in the
+     * certificate returned by CMS server.
      */
-
 
     public String normalizeForLDAP(String s) {
 
@@ -345,7 +347,6 @@ public class ComCrypto {
     /**
      * Convert to pkcs7 format
      */
-
 
     public String pkcs7Convertcert(String s) {
 
@@ -396,14 +397,13 @@ public class ComCrypto {
      * Creates a new certificate database
      **/
 
-
     public boolean CreateCertDB() {
         return loginDB();
 
     }
 
     /**
-     *  Login to cert database
+     * Login to cert database
      **/
 
     public boolean loginDB() {
@@ -439,15 +439,15 @@ public class ComCrypto {
             token.login(pass1);
             pass1.clear();
 
-        } catch (AlreadyInitializedException  e) {
+        } catch (AlreadyInitializedException e) {
             if (debug) {
                 System.out.println("Crypto manager already initialized");
             }
         } catch (Exception e) {
-            try { 
+            try {
                 if (!token.isLoggedIn()) {
                     token.initPassword(pass1, pass1);
-                }	
+                }
                 return true;
             } catch (Exception er) {
                 System.err.println("some exception:" + e);
@@ -507,35 +507,35 @@ public class ComCrypto {
         int num = 1;
         long total_time = 0;
         KeyPair pair = null;
-		
-        System.out.println("Debug : initialize crypto Manager");		
+
+        System.out.println("Debug : initialize crypto Manager");
         try {
 
             // Step 1. initialize crypto Manager
-            try { 
+            try {
                 CryptoManager.initialize(cdir);
-            } catch (Exception e) { 
-                // it is ok if it is already initialized 
+            } catch (Exception e) {
+                // it is ok if it is already initialized
                 System.out.println("INITIALIZATION ERROR: " + e.toString());
                 System.out.println("cdir = " + cdir);
             }
 
-            // Step 2 log into database 
+            // Step 2 log into database
             try {
 
                 System.out.println("Debug : before getInstance");
 
-                manager = CryptoManager.getInstance(); 
+                manager = CryptoManager.getInstance();
                 String token_pwd = tokenpwd;
 
                 System.out.println("Debug : before get token");
 
-                token = manager.getInternalKeyStorageToken(); 
-                password = new Password(token_pwd.toCharArray()); 
+                token = manager.getInternalKeyStorageToken();
+                password = new Password(token_pwd.toCharArray());
 
                 System.out.println("Debug : before login password");
 
-                token.login(password); 
+                token.login(password);
 
                 System.out.println("Debug : after login password");
             } catch (Exception e) {
@@ -546,9 +546,10 @@ public class ComCrypto {
                 }
             }
 
-            // Generating CRMF request 
+            // Generating CRMF request
 
-            KeyPairGenerator kg = token.getKeyPairGenerator(KeyPairAlgorithm.RSA); 
+            KeyPairGenerator kg = token
+                    .getKeyPairGenerator(KeyPairAlgorithm.RSA);
 
             Integer x = new Integer(keysize);
             int key_len = x.intValue();
@@ -556,7 +557,7 @@ public class ComCrypto {
             kg.initialize(key_len);
 
             // 1st key pair
-            pair = kg.genKeyPair(); 
+            pair = kg.genKeyPair();
 
             // create CRMF
             CertTemplate certTemplate = new CertTemplate();
@@ -565,53 +566,57 @@ public class ComCrypto {
 
             if (certnickname != null) {
                 X500Name name = new X500Name(certnickname);
-                ByteArrayInputStream cs = new ByteArrayInputStream(name.getEncoded()); 
+                ByteArrayInputStream cs = new ByteArrayInputStream(
+                        name.getEncoded());
                 Name n = (Name) Name.getTemplate().decode(cs);
                 certTemplate.setSubject(n);
             }
 
-            certTemplate.setPublicKey(new SubjectPublicKeyInfo(pair.getPublic()));
+            certTemplate
+                    .setPublicKey(new SubjectPublicKeyInfo(pair.getPublic()));
 
             SEQUENCE seq = new SEQUENCE();
             CertRequest certReq = new CertRequest(new INTEGER(1), certTemplate,
                     seq);
-            byte popdata[] = { 0x0, 0x3, 0x0};
+            byte popdata[] = { 0x0, 0x3, 0x0 };
 
-            ProofOfPossession pop = ProofOfPossession.createKeyEncipherment(
-                    POPOPrivKey.createThisMessage(new BIT_STRING(popdata, 3)));
+            ProofOfPossession pop = ProofOfPossession
+                    .createKeyEncipherment(POPOPrivKey
+                            .createThisMessage(new BIT_STRING(popdata, 3)));
 
             CertReqMsg crmfMsg = new CertReqMsg(certReq, pop, null);
 
             SEQUENCE s1 = new SEQUENCE();
-			
-            // 1st : Encryption key 
+
+            // 1st : Encryption key
 
             s1.addElement(crmfMsg);
 
             // 2nd : Signing Key
-	
+
             if (dualkey) {
                 System.out.println("dualkey = true");
                 SEQUENCE seq1 = new SEQUENCE();
                 CertRequest certReqSigning = new CertRequest(new INTEGER(1),
                         certTemplate, seq1);
-                CertReqMsg signingMsg = new CertReqMsg(certReqSigning, pop, null);		
+                CertReqMsg signingMsg = new CertReqMsg(certReqSigning, pop,
+                        null);
 
                 s1.addElement(signingMsg);
-            }		
+            }
 
-            byte encoded[] = ASN1Util.encode(s1); 
+            byte encoded[] = ASN1Util.encode(s1);
 
-            // BASE64Encoder encoder = new BASE64Encoder(); 
+            // BASE64Encoder encoder = new BASE64Encoder();
             // String Req1 = encoder.encodeBuffer(encoded);
             String Req1 = OSUtil.BtoA(encoded);
 
-            // Set CRMF_REQUEST variable 
+            // Set CRMF_REQUEST variable
             CRMF_REQUEST = Req1;
 
             System.out.println("CRMF_REQUEST = " + CRMF_REQUEST);
 
-        } catch (Exception e) { 
+        } catch (Exception e) {
             System.out.println("ERROR: " + e.toString());
             e.printStackTrace();
             return null;
@@ -621,10 +626,10 @@ public class ComCrypto {
     }
 
     /*
-     * This function is used to Generated CRMF requests wrapped with the 
-     * transport cert so that we can do key archival with the drm.
-     * This function expects transportcert variable to be set in this class.
-     * Use setTransportCert() to do the same.
+     * This function is used to Generated CRMF requests wrapped with the
+     * transport cert so that we can do key archival with the drm. This function
+     * expects transportcert variable to be set in this class. Use
+     * setTransportCert() to do the same.
      */
 
     public String generateCRMFtransport() {
@@ -636,30 +641,30 @@ public class ComCrypto {
 
         try {
             // Step 1. initialize crypto Manager
-            try { 
+            try {
                 CryptoManager.initialize(cdir);
-            } catch (Exception e) { 
-                // it is ok if it is already initialized 
+            } catch (Exception e) {
+                // it is ok if it is already initialized
                 System.out.println("INITIALIZATION ERROR: " + e.toString());
                 System.out.println("cdir = " + cdir);
             }
 
-            // Step 2 log into database 
+            // Step 2 log into database
             try {
 
                 System.out.println("Debug : before getInstance");
-	
-                manager = CryptoManager.getInstance(); 
+
+                manager = CryptoManager.getInstance();
                 String token_pwd = tokenpwd;
-	
+
                 System.out.println("Debug : before get token");
-	
-                token = manager.getInternalKeyStorageToken(); 
-                password = new Password(token_pwd.toCharArray()); 
+
+                token = manager.getInternalKeyStorageToken();
+                password = new Password(token_pwd.toCharArray());
 
                 System.out.println("Debug : before login password");
 
-                token.login(password); 
+                token.login(password);
 
                 System.out.println("Debug : after login password");
             } catch (Exception e) {
@@ -669,9 +674,10 @@ public class ComCrypto {
                     token.initPassword(password, password);
                 }
             }
-	
+
             // Key Pair Generation
-            KeyPairGenerator kg = token.getKeyPairGenerator(KeyPairAlgorithm.RSA);
+            KeyPairGenerator kg = token
+                    .getKeyPairGenerator(KeyPairAlgorithm.RSA);
             Integer x = new Integer(keysize);
             int key_len = x.intValue();
 
@@ -686,19 +692,19 @@ public class ComCrypto {
 
             X509Certificate tcert = manager.importCACertPackage(transport);
 
-            byte iv[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1};
+            byte iv[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
 
             KeyGenerator kg1 = token.getKeyGenerator(KeyGenAlgorithm.DES3);
             SymmetricKey sk = kg1.generate();
 
             // wrap private key using session
-            KeyWrapper wrapper1 = token.getKeyWrapper(
-                    KeyWrapAlgorithm.DES3_CBC_PAD);
+            KeyWrapper wrapper1 = token
+                    .getKeyWrapper(KeyWrapAlgorithm.DES3_CBC_PAD);
 
             wrapper1.initWrap(sk, new IVParameterSpec(iv));
 
-            byte key_data[] = wrapper1.wrap((
-                    org.mozilla.jss.crypto.PrivateKey) pair.getPrivate());
+            byte key_data[] = wrapper1
+                    .wrap((org.mozilla.jss.crypto.PrivateKey) pair.getPrivate());
 
             // wrap session using transport
             KeyWrapper rsaWrap = token.getKeyWrapper(KeyWrapAlgorithm.RSA);
@@ -714,12 +720,14 @@ public class ComCrypto {
 
             if (certnickname != null) {
                 X500Name name = new X500Name(certnickname);
-                ByteArrayInputStream cs = new ByteArrayInputStream(name.getEncoded());
+                ByteArrayInputStream cs = new ByteArrayInputStream(
+                        name.getEncoded());
                 Name n = (Name) Name.getTemplate().decode(cs);
                 certTemplate.setSubject(n);
             }
 
-            certTemplate.setPublicKey(new SubjectPublicKeyInfo(pair.getPublic()));
+            certTemplate
+                    .setPublicKey(new SubjectPublicKeyInfo(pair.getPublic()));
 
             // set extension
             AlgorithmIdentifier algS = new AlgorithmIdentifier(
@@ -735,38 +743,40 @@ public class ComCrypto {
 
             SEQUENCE seq = new SEQUENCE();
 
-            seq.addElement(
-                    new AVA(new OBJECT_IDENTIFIER("1.3.6.1.5.5.7.5.1.4"), opt));
+            seq.addElement(new AVA(
+                    new OBJECT_IDENTIFIER("1.3.6.1.5.5.7.5.1.4"), opt));
 
             CertRequest certReq = new CertRequest(new INTEGER(1), certTemplate,
                     seq);
 
             // Adding proof of possesion data
-            byte popdata[] = { 0x0, 0x3, 0x0};
-            ProofOfPossession pop = ProofOfPossession.createKeyEncipherment(
-                    POPOPrivKey.createThisMessage(new BIT_STRING(popdata, 3)));
+            byte popdata[] = { 0x0, 0x3, 0x0 };
+            ProofOfPossession pop = ProofOfPossession
+                    .createKeyEncipherment(POPOPrivKey
+                            .createThisMessage(new BIT_STRING(popdata, 3)));
 
             CertReqMsg crmfMsg = new CertReqMsg(certReq, pop, null);
 
             SEQUENCE s1 = new SEQUENCE();
 
-            // 1st : Encryption key 
+            // 1st : Encryption key
             s1.addElement(crmfMsg);
 
             // 2nd : Signing Key
-	
+
             if (dualkey) {
                 System.out.println("dualkey = true");
                 SEQUENCE seq1 = new SEQUENCE();
                 CertRequest certReqSigning = new CertRequest(new INTEGER(1),
                         certTemplate, seq1);
-                CertReqMsg signingMsg = new CertReqMsg(certReqSigning, pop, null);		
+                CertReqMsg signingMsg = new CertReqMsg(certReqSigning, pop,
+                        null);
 
                 s1.addElement(signingMsg);
-            }		
+            }
 
             byte encoded[] = ASN1Util.encode(s1);
-	
+
             // BASE64Encoder encoder = new BASE64Encoder();
 
             // CRMF_REQUEST = encoder.encodeBuffer(encoded);
@@ -781,9 +791,9 @@ public class ComCrypto {
         } catch (Exception e) {
             System.out.println("Exception: " + e.getMessage());
         }
-		
+
         return CRMF_REQUEST;
     }
 
-} // end of class 
+} // end of class
 

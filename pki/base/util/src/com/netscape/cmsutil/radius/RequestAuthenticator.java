@@ -17,18 +17,16 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmsutil.radius;
 
-
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
-
 public class RequestAuthenticator extends Authenticator {
     private byte _ra[] = null;
 
-    public RequestAuthenticator(SecureRandom rand, String secret) 
-        throws NoSuchAlgorithmException {
+    public RequestAuthenticator(SecureRandom rand, String secret)
+            throws NoSuchAlgorithmException {
         byte[] authenticator = new byte[16];
 
         rand.nextBytes(authenticator);

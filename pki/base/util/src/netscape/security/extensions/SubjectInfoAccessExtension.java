@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.extensions;
 
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -37,15 +36,15 @@ import netscape.security.x509.Extension;
 import netscape.security.x509.GeneralName;
 import netscape.security.x509.URIName;
 
-
 /**
- * This represents the subject information access extension
- * as defined in RFC3280.
- *
+ * This represents the subject information access extension as defined in
+ * RFC3280.
+ * 
  * @author thomask
  * @version $Revision$, $Date$
  */
-public class SubjectInfoAccessExtension extends Extension implements CertAttrSet {
+public class SubjectInfoAccessExtension extends Extension implements
+        CertAttrSet {
     /**
      *
      */
@@ -54,12 +53,12 @@ public class SubjectInfoAccessExtension extends Extension implements CertAttrSet
     public static final String NAME = "SubjectInfoAccessExtension";
 
     public static final int OID_OCSP[] = { 1, 3, 6, 1, 5, 5, 7, 48, 1 };
-    public static final ObjectIdentifier METHOD_OCSP = new 
-        ObjectIdentifier(OID_OCSP);
+    public static final ObjectIdentifier METHOD_OCSP = new ObjectIdentifier(
+            OID_OCSP);
 
     public static final int OID_CA_ISSUERS[] = { 1, 3, 6, 1, 5, 5, 7, 48, 2 };
-    public static final ObjectIdentifier METHOD_CA_ISSUERS = new 
-        ObjectIdentifier(OID_CA_ISSUERS);
+    public static final ObjectIdentifier METHOD_CA_ISSUERS = new ObjectIdentifier(
+            OID_CA_ISSUERS);
 
     public static final int OID[] = { 1, 3, 6, 1, 5, 5, 7, 1, 11 };
     public static final ObjectIdentifier ID = new ObjectIdentifier(OID);
@@ -68,7 +67,7 @@ public class SubjectInfoAccessExtension extends Extension implements CertAttrSet
 
     /**
      * Create the extension from the passed DER encoded value of the same.
-     *
+     * 
      * @param critical true if the extension is to be treated as critical.
      * @param value Array of DER encoded bytes of the actual value.
      * @exception IOException on error.
@@ -79,8 +78,8 @@ public class SubjectInfoAccessExtension extends Extension implements CertAttrSet
         this.extensionValue = null; // build this when encodeThis() is called
     }
 
-    public SubjectInfoAccessExtension(Boolean critical, Object value) 
-        throws IOException {
+    public SubjectInfoAccessExtension(Boolean critical, Object value)
+            throws IOException {
         this.extensionId = ID;
         this.critical = critical.booleanValue();
         this.extensionValue = (byte[]) ((byte[]) value).clone();
@@ -135,10 +134,8 @@ public class SubjectInfoAccessExtension extends Extension implements CertAttrSet
     /**
      * Adds Access Description.
      */
-    public void addAccessDescription(
-        ObjectIdentifier method, 
-        GeneralName gn) {
-	clearValue();
+    public void addAccessDescription(ObjectIdentifier method, GeneralName gn) {
+        clearValue();
         mDesc.addElement(new AccessDescription(method, gn));
     }
 
@@ -157,7 +154,8 @@ public class SubjectInfoAccessExtension extends Extension implements CertAttrSet
         DerValue val = new DerValue(this.extensionValue);
 
         if (val.tag != DerValue.tag_Sequence) {
-            throw new IOException("Invalid encoding of AuthInfoAccess extension");
+            throw new IOException(
+                    "Invalid encoding of AuthInfoAccess extension");
         }
         while (val.data.available() != 0) {
             DerValue seq = val.data.getDerValue();
@@ -168,7 +166,7 @@ public class SubjectInfoAccessExtension extends Extension implements CertAttrSet
         }
     }
 
-    private void encodeThis() throws IOException {	
+    private void encodeThis() throws IOException {
         DerOutputStream seq = new DerOutputStream();
         DerOutputStream tmp = new DerOutputStream();
 
@@ -183,10 +181,10 @@ public class SubjectInfoAccessExtension extends Extension implements CertAttrSet
         seq.write(DerValue.tag_Sequence, tmp);
         this.extensionValue = seq.toByteArray();
     }
- 
+
     /**
      * Write the extension to the DerOutputStream.
-     *
+     * 
      * @param out the DerOutputStream to write the extension to.
      * @exception IOException on encoding errors.
      */
@@ -218,20 +216,21 @@ public class SubjectInfoAccessExtension extends Extension implements CertAttrSet
 
     public static void main(String[] argv) {
         AuthInfoAccessExtension aia = new AuthInfoAccessExtension(false);
-        GeneralName ocspName = new GeneralName(new
-                URIName("http://ocsp.netscape.com"));
+        GeneralName ocspName = new GeneralName(new URIName(
+                "http://ocsp.netscape.com"));
 
         aia.addAccessDescription(METHOD_OCSP, ocspName);
-        GeneralName caIssuersName = new GeneralName(new
-                URIName("http://ocsp.netscape.com"));
+        GeneralName caIssuersName = new GeneralName(new URIName(
+                "http://ocsp.netscape.com"));
 
-        aia.addAccessDescription(METHOD_CA_ISSUERS, caIssuersName);	
+        aia.addAccessDescription(METHOD_CA_ISSUERS, caIssuersName);
         ByteArrayOutputStream os = new ByteArrayOutputStream();
 
         try {
             aia.encode(os);
 
-            System.out.println(com.netscape.osutil.OSUtil.BtoA(os.toByteArray()));
+            System.out
+                    .println(com.netscape.osutil.OSUtil.BtoA(os.toByteArray()));
         } catch (IOException e) {
             System.out.println(e.toString());
         }
@@ -246,8 +245,8 @@ public class SubjectInfoAccessExtension extends Extension implements CertAttrSet
             ByteArrayInputStream bis = new ByteArrayInputStream(
                     bos.toByteArray());
             ObjectInputStream ois = new ObjectInputStream(bis);
-            AuthInfoAccessExtension clone = (AuthInfoAccessExtension)
-                ois.readObject();
+            AuthInfoAccessExtension clone = (AuthInfoAccessExtension) ois
+                    .readObject();
 
             System.out.println(clone);
         } catch (Exception e) {

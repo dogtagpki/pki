@@ -30,22 +30,20 @@ import netscape.security.util.DerInputStream;
 import netscape.security.util.DerOutputStream;
 import netscape.security.util.DerValue;
 
-
 /**
  * Represent the CRL Invalidity Date Extension.
- *
- * <p>This CRL entry extension, if present, provides the date
- * on which it is known or suspected that the private key was
- * compromised or that the certificate otherwise became invalid.
- * Invalidity date may be earlier than the revocation date.
- *
+ * 
+ * <p>
+ * This CRL entry extension, if present, provides the date on which it is known
+ * or suspected that the private key was compromised or that the certificate
+ * otherwise became invalid. Invalidity date may be earlier than the revocation
+ * date.
+ * 
  * @see Extension
  * @see CertAttrSet
  */
 
-
-public class InvalidityDateExtension extends Extension
-implements CertAttrSet {
+public class InvalidityDateExtension extends Extension implements CertAttrSet {
 
     /**
      *
@@ -62,14 +60,14 @@ implements CertAttrSet {
      */
     public static final String OID = "2.5.29.24";
 
-
     private Date invalidityDate = null;
 
     static {
         try {
-            OIDMap.addAttribute(InvalidityDateExtension.class.getName(),
-                                OID, NAME);
-        } catch (CertificateException e) {}
+            OIDMap.addAttribute(InvalidityDateExtension.class.getName(), OID,
+                    NAME);
+        } catch (CertificateException e) {
+        }
     }
 
     // Encode this extension value
@@ -82,14 +80,12 @@ implements CertAttrSet {
     }
 
     /**
-     * Create a InvalidityDateExtension with the date.
-     * The criticality is set to false.
-     *
+     * Create a InvalidityDateExtension with the date. The criticality is set to
+     * false.
+     * 
      * @param dateOfInvalidity the value to be set for the extension.
      */
-    public InvalidityDateExtension(Date dateOfInvalidity)
-        throws IOException
-    {
+    public InvalidityDateExtension(Date dateOfInvalidity) throws IOException {
         this.invalidityDate = dateOfInvalidity;
         this.extensionId = PKIXExtensions.InvalidityDate_Id;
         this.critical = false;
@@ -97,15 +93,14 @@ implements CertAttrSet {
     }
 
     /**
-     * Create a InvalidityDateExtension with the date.
-     * The criticality is set to false.
-     *
+     * Create a InvalidityDateExtension with the date. The criticality is set to
+     * false.
+     * 
      * @param critical true if the extension is to be treated as critical.
      * @param dateOfInvalidity the value to be set for the extension.
      */
     public InvalidityDateExtension(Boolean critical, Date dateOfInvalidity)
-        throws IOException
-    {
+            throws IOException {
         this.invalidityDate = dateOfInvalidity;
         this.extensionId = PKIXExtensions.InvalidityDate_Id;
         this.critical = critical.booleanValue();
@@ -114,14 +109,13 @@ implements CertAttrSet {
 
     /**
      * Create the extension from the passed DER encoded value of the same.
-     *
+     * 
      * @param critical true if the extension is to be treated as critical.
      * @param value Array of DER encoded bytes of the actual value.
      * @exception IOException on error.
      */
     public InvalidityDateExtension(Boolean critical, Object value)
-        throws IOException
-    {
+            throws IOException {
         this.extensionId = PKIXExtensions.InvalidityDate_Id;
         this.critical = critical.booleanValue();
 
@@ -133,18 +127,19 @@ implements CertAttrSet {
         this.extensionValue = extValue;
         DerValue val = new DerValue(extValue);
         if (val.tag == DerValue.tag_GeneralizedTime) {
-            DerInputStream derInputStream = new DerInputStream(val.toByteArray());
+            DerInputStream derInputStream = new DerInputStream(
+                    val.toByteArray());
             this.invalidityDate = derInputStream.getGeneralizedTime();
         } else {
-            throw new IOException("Invalid encoding for InvalidityDateExtension");
+            throw new IOException(
+                    "Invalid encoding for InvalidityDateExtension");
         }
     }
 
     /**
      * Get the invalidity date.
      */
-    public Date getInvalidityDate()
-    {
+    public Date getInvalidityDate() {
         return invalidityDate;
     }
 
@@ -156,10 +151,10 @@ implements CertAttrSet {
             if (!(obj instanceof Date)) {
                 throw new IOException("Attribute must be of type Date.");
             }
-            invalidityDate = (Date)obj;
-	} else {
-            throw new IOException("Attribute name not recognized by"+
-                                  " CertAttrSet:InvalidityDate.");
+            invalidityDate = (Date) obj;
+        } else {
+            throw new IOException("Attribute name not recognized by"
+                    + " CertAttrSet:InvalidityDate.");
         }
     }
 
@@ -168,11 +163,13 @@ implements CertAttrSet {
      */
     public Object get(String name) throws IOException {
         if (name.equalsIgnoreCase(INVALIDITY_DATE)) {
-            if (invalidityDate == null) return null;
-            else return invalidityDate;
+            if (invalidityDate == null)
+                return null;
+            else
+                return invalidityDate;
         } else {
-            throw new IOException("Attribute name not recognized by"+
-                                  " CertAttrSet:InvalidityDate.");
+            throw new IOException("Attribute name not recognized by"
+                    + " CertAttrSet:InvalidityDate.");
         }
     }
 
@@ -183,8 +180,8 @@ implements CertAttrSet {
         if (name.equalsIgnoreCase(INVALIDITY_DATE)) {
             invalidityDate = null;
         } else {
-            throw new IOException("Attribute name not recognized by"+
-                                  " CertAttrSet:InvalidityDate.");
+            throw new IOException("Attribute name not recognized by"
+                    + " CertAttrSet:InvalidityDate.");
         }
     }
 
@@ -192,15 +189,15 @@ implements CertAttrSet {
      * Returns a printable representation of the InvalidityDateExtension.
      */
     public String toString() {
-        String s = super.toString() + "Invalidity Date: " +
-                   ((invalidityDate == null) ? "" : invalidityDate.toString())
-                   + "\n";
+        String s = super.toString() + "Invalidity Date: "
+                + ((invalidityDate == null) ? "" : invalidityDate.toString())
+                + "\n";
         return (s);
     }
 
     /**
      * Decode the extension from the InputStream.
-     *
+     * 
      * @param in the InputStream to unmarshal the contents from.
      * @exception IOException on decoding or validity errors.
      */
@@ -210,27 +207,27 @@ implements CertAttrSet {
 
     /**
      * Write the extension to the DerOutputStream.
-     *
+     * 
      * @param out the DerOutputStream to write the extension to.
      * @exception IOException on encoding errors.
      */
     public void encode(OutputStream out) throws IOException {
-       DerOutputStream	tmp = new DerOutputStream();
+        DerOutputStream tmp = new DerOutputStream();
 
-       if (this.extensionValue == null) {
-           this.extensionId = PKIXExtensions.InvalidityDate_Id;
-           this.critical = true;
-           encodeThis();
-       }
-       super.encode(tmp);
-       out.write(tmp.toByteArray());
+        if (this.extensionValue == null) {
+            this.extensionId = PKIXExtensions.InvalidityDate_Id;
+            this.critical = true;
+            encodeThis();
+        }
+        super.encode(tmp);
+        out.write(tmp.toByteArray());
     }
 
     /**
      * Return an enumeration of names of attributes existing within this
      * attribute.
      */
-    public Enumeration<String> getElements () {
+    public Enumeration<String> getElements() {
         Vector<String> elements = new Vector<String>();
         elements.addElement(INVALIDITY_DATE);
         return (elements.elements());
@@ -239,8 +236,7 @@ implements CertAttrSet {
     /**
      * Return the name of this attribute.
      */
-    public String getName () {
+    public String getName() {
         return (NAME);
     }
 }
-

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.notification;
 
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -28,21 +27,21 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.notification.IEmailTemplate;
 
-
 /**
- * Files to be processed and returned to the requested parties. It
- * is a template with $tokens to be used by the form/template processor.
- *
- *
+ * Files to be processed and returned to the requested parties. It is a template
+ * with $tokens to be used by the form/template processor.
+ * 
+ * 
  * @author cfu
  * @version $Revision$, $Date$
  */
 
 public class EmailTemplate implements IEmailTemplate {
 
-    /*==========================================================
-     * variables
-     *==========================================================*/
+    /*
+     * ========================================================== variables
+     * ==========================================================
+     */
 
     /* private variables */
     private String mTemplateFile = new String();
@@ -51,27 +50,29 @@ public class EmailTemplate implements IEmailTemplate {
     /* public vaiables */
     public String mFileContents;
 
-    /*==========================================================
-     * constructors
-     *==========================================================*/
+    /*
+     * ========================================================== constructors
+     * ==========================================================
+     */
 
     /**
      * Default Constructor
-     *
+     * 
      * @param templateFile File name of the template including the full path and
-     *        file extension
+     *            file extension
      */
     public EmailTemplate(String templatePath) {
         mTemplateFile = templatePath;
     }
 
-    /*==========================================================
-     * public methods
-     *==========================================================*/
+    /*
+     * ========================================================== public methods
+     * ==========================================================
+     */
 
     /*
      * Load the template from the file
-     *
+     * 
      * @return true if successful
      */
     public boolean init() {
@@ -79,10 +80,13 @@ public class EmailTemplate implements IEmailTemplate {
         File template = new File(mTemplateFile);
 
         /* check if file exists and is accessible */
-        if ((!template.exists()) || (!template.canRead()) || (template.isDirectory())) {
-            String error = "Template: " + mTemplateFile + " does not exist or invalid";
+        if ((!template.exists()) || (!template.canRead())
+                || (template.isDirectory())) {
+            String error = "Template: " + mTemplateFile
+                    + " does not exist or invalid";
 
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_NOTIFY_TEMPLATE_NOT_EXIST"));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_NOTIFY_TEMPLATE_NOT_EXIST"));
             return false;
         }
 
@@ -94,7 +98,8 @@ public class EmailTemplate implements IEmailTemplate {
         } catch (FileNotFoundException e) {
             String error = "Template: " + mTemplateFile + " not found";
 
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_NOTIFY_TEMPLATE_NOT_FOUND"));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_NOTIFY_TEMPLATE_NOT_FOUND"));
 
             return false;
         }
@@ -104,7 +109,8 @@ public class EmailTemplate implements IEmailTemplate {
         if (mFileContents == null) {
             String error = "Template: Error loading file into string";
 
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_NOTIFY_TEMPLATE_LOAD_ERROR"));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_NOTIFY_TEMPLATE_LOAD_ERROR"));
             return false;
         }
 
@@ -124,14 +130,13 @@ public class EmailTemplate implements IEmailTemplate {
         return mTemplateFile;
     }
 
-    /** 
+    /**
      * @return true if template is an html file, false otherwise
      */
     public boolean isHTML() {
-        if (mTemplateFile.endsWith(".html") ||
-            mTemplateFile.endsWith(".HTML") ||
-            mTemplateFile.endsWith(".htm") ||
-            mTemplateFile.endsWith(".HTM"))
+        if (mTemplateFile.endsWith(".html") || mTemplateFile.endsWith(".HTML")
+                || mTemplateFile.endsWith(".htm")
+                || mTemplateFile.endsWith(".HTM"))
             return true;
         else
             return false;
@@ -144,9 +149,10 @@ public class EmailTemplate implements IEmailTemplate {
         return mFileContents;
     }
 
-    /*==========================================================
-     * private methods
-     *==========================================================*/
+    /*
+     * ========================================================== private
+     * methods==========================================================
+     */
 
     /* load file into string */
     private String loadFile(FileReader input) {
@@ -163,7 +169,8 @@ public class EmailTemplate implements IEmailTemplate {
         } catch (IOException e) {
             String error = "Template: Error loading file";
 
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_NOTIFY_TEMPLATE_LOADING"));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_NOTIFY_TEMPLATE_LOADING"));
             return null;
         }
 
@@ -177,8 +184,7 @@ public class EmailTemplate implements IEmailTemplate {
     private void log(int level, String msg) {
         if (mLogger == null)
             return;
-        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_OTHER,
-            level, msg);
+        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_OTHER, level, msg);
     }
 
 }

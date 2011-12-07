@@ -17,13 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.common;
 
-
-
-
 /**
- * A class represents a name value pair. A name value
- * pair consists of a name and a value.
- *
+ * A class represents a name value pair. A name value pair consists of a name
+ * and a value.
+ * 
  * @version $Revision$, $Date$
  */
 public class NameValuePair {
@@ -33,7 +30,7 @@ public class NameValuePair {
 
     /**
      * Constructs value pair object.
-     *
+     * 
      * @param name name
      * @param value value
      */
@@ -44,7 +41,7 @@ public class NameValuePair {
 
     /**
      * Retrieves the name.
-     *
+     * 
      * @return name
      */
     public String getName() {
@@ -53,19 +50,19 @@ public class NameValuePair {
 
     /**
      * Retrieves the value.
-     *
+     * 
      * @return value
      */
     public String getValue() {
         return mValue;
     }
-	
+
     /**
      * Sets the value
-     *
+     * 
      * @param value value
      */
     public void setValue(String value) {
         mValue = value;
     }
-}    
+}

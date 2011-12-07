@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.request;
 
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -62,31 +61,29 @@ import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 
-
 /**
- * The ARequestQueue class is an abstract class that implements
- * most portions of the IRequestQueue interface.  This includes
- * the state engine as defined for processing IRequest objects.
+ * The ARequestQueue class is an abstract class that implements most portions of
+ * the IRequestQueue interface. This includes the state engine as defined for
+ * processing IRequest objects.
  * <p>
  * !Put state machine description here!
  * <p>
- * This class defines several abstract protected functions that
- * need to be defined by the concrete implementation.  In
- * particular, this class does not implement the operations
- * for storing requests persistantly.
+ * This class defines several abstract protected functions that need to be
+ * defined by the concrete implementation. In particular, this class does not
+ * implement the operations for storing requests persistantly.
  * <p>
- * This class also provides several accessor functions for setting
- * fields in the IRequest object.  These functions are provided
- * as an aid to saving and restoring the state in the database.
+ * This class also provides several accessor functions for setting fields in the
+ * IRequest object. These functions are provided as an aid to saving and
+ * restoring the state in the database.
  * <p>
- * This class also implements the locking operations specified by
- * the IRequestQueue interface.
+ * This class also implements the locking operations specified by the
+ * IRequestQueue interface.
  * <p>
+ * 
  * @author thayes
  * @version $Revision$ $Date$
  */
-public abstract class ARequestQueue
-    implements IRequestQueue {
+public abstract class ARequestQueue implements IRequestQueue {
 
     /**
      * global request version for tracking request changes.
@@ -96,37 +93,34 @@ public abstract class ARequestQueue
     /**
      * Create a new (unique) RequestId. (abstract)
      * <p>
-     * This method must be implemented by the specialized class to
-     * generate a new id from data in the persistant store.  This id
-     * is used to create a new request object.
+     * This method must be implemented by the specialized class to generate a
+     * new id from data in the persistant store. This id is used to create a new
+     * request object.
      * <p>
-     * @return
-     *    a new RequestId object.
-     * @exception EBaseException
-     *    indicates that creation of the new id could not be completed.
+     * 
+     * @return a new RequestId object.
+     * @exception EBaseException indicates that creation of the new id could not
+     *                be completed.
      * @see RequestId
      */
-    protected abstract RequestId newRequestId()
-        throws EBaseException;
+    protected abstract RequestId newRequestId() throws EBaseException;
 
     /**
      * Read a request from the persistant store. (abstract)
      * <p>
-     * This function is called to create the in-memory version of
-     * a request object.
+     * This function is called to create the in-memory version of a request
+     * object.
      * <p>
-     * The implementation of this object can use the createRequest
-     * member function to create a new instance of an IRequest, and
-     * use the setRequestStatus, setCreationTime and setModificationTime
-     * functions to set those values.
+     * The implementation of this object can use the createRequest member
+     * function to create a new instance of an IRequest, and use the
+     * setRequestStatus, setCreationTime and setModificationTime functions to
+     * set those values.
      * <p>
-     * @param id
-     *    the id of the request to read.
-     * @return
-     *    a new IRequest object. null is returned if the object cannot
-     *    be located.
-     * @exception EBaseException
-     *    TODO: this is not implemented yet
+     * 
+     * @param id the id of the request to read.
+     * @return a new IRequest object. null is returned if the object cannot be
+     *         located.
+     * @exception EBaseException TODO: this is not implemented yet
      * @see #createRequest
      * @see #setRequestStatus
      * @see #setModificationTime
@@ -137,56 +131,51 @@ public abstract class ARequestQueue
     /**
      * Add the request to the store. (abstract)
      * <p>
-     * This function is called when a new request immediately after
-     * creating a new request.
+     * This function is called when a new request immediately after creating a
+     * new request.
      * <p>
-     * @param request
-     *    the request to add.
-     * @exception EBaseException
-     *    TODO: this is not implemented yet
+     * 
+     * @param request the request to add.
+     * @exception EBaseException TODO: this is not implemented yet
      */
     protected abstract void addRequest(IRequest request) throws EBaseException;
 
     /**
      * Modify the request in the store. (abstract)
      * <p>
-     * Update the persistant copy of this request with the
-     * current values in the object.
+     * Update the persistant copy of this request with the current values in the
+     * object.
      * <p>
-     * Currently there are no hints for what has changed, so
-     * the entire request should be updated.
+     * Currently there are no hints for what has changed, so the entire request
+     * should be updated.
      * <p>
+     * 
      * @param request
-     * @exception EBaseException
-     *    TODO: this is not implemented yet
+     * @exception EBaseException TODO: this is not implemented yet
      */
     protected abstract void modifyRequest(IRequest request);
 
     /**
-     * Get complete list of RequestId values found i this
-     * queue.
+     * Get complete list of RequestId values found i this queue.
      * <p>
-     * This method can form the basis for creating other types
-     * of search/list operations (although there are probably more
-     * efficient ways of doing this.  ARequestQueue implements
-     * default versions of some of the searching by using this
-     * method as a basis.
+     * This method can form the basis for creating other types of search/list
+     * operations (although there are probably more efficient ways of doing
+     * this. ARequestQueue implements default versions of some of the searching
+     * by using this method as a basis.
      * <p>
-     * TODO: return IRequestList -or- just use listRequests as
-     * the basic engine.
+     * TODO: return IRequestList -or- just use listRequests as the basic engine.
      * <p>
-     * @return
-     *    an Enumeration that generates RequestId objects.
+     * 
+     * @return an Enumeration that generates RequestId objects.
      */
     abstract protected Enumeration getRawList();
 
     /**
      * protected access for setting the current state of a request.
      * <p>
-     * @param request
-     *    The request to be modified.
-     * @param status
-     *    The new value for the request status.
+     * 
+     * @param request The request to be modified.
+     * @param status The new value for the request status.
      */
     protected final void setRequestStatus(IRequest request, RequestStatus status) {
         Request r = (Request) request;
@@ -197,10 +186,9 @@ public abstract class ARequestQueue
     /**
      * protected access for setting the modification time of a request.
      * <p>
-     * @param request
-     *    The request to be modified.
-     * @param date
-     *    The new value for the time.
+     * 
+     * @param request The request to be modified.
+     * @param date The new value for the time.
      */
     protected final void setModificationTime(IRequest request, Date date) {
         Request r = (Request) request;
@@ -211,10 +199,9 @@ public abstract class ARequestQueue
     /**
      * protected access for setting the creation time of a request.
      * <p>
-     * @param request
-     *    The request to be modified.
-     * @param date
-     *    The new value for the time.
+     * 
+     * @param request The request to be modified.
+     * @param date The new value for the time.
      */
     protected final void setCreationTime(IRequest request, Date date) {
         Request r = (Request) request;
@@ -225,20 +212,19 @@ public abstract class ARequestQueue
     /**
      * protected access for creating a new Request object
      * <p>
-     * @param id
-     *    The identifier for the new request
-     * @return
-     *    A new request object.  The caller should fill in other data
-     *    values from the datastore.
+     * 
+     * @param id The identifier for the new request
+     * @return A new request object. The caller should fill in other data values
+     *         from the datastore.
      */
     protected final IRequest createRequest(RequestId id, String requestType) {
         Request r;
 
         /*
          * Determine the specialized class to create for this type
-         *
-         * TODO: this set of classes is an example only.  The real set
-         *   needs to be determined and implemented.
+         * 
+         * TODO: this set of classes is an example only. The real set needs to
+         * be determined and implemented.
          */
         if (requestType != null && requestType.equals("enrollment")) {
             r = new EnrollmentRequest(id);
@@ -250,14 +236,15 @@ public abstract class ARequestQueue
     }
 
     /**
-     * Implements IRequestQueue.newRequest 
+     * Implements IRequestQueue.newRequest
      * <p>
+     * 
      * @see IRequestQueue#newRequest
      */
-    public IRequest newRequest(String requestType)
-        throws EBaseException {
+    public IRequest newRequest(String requestType) throws EBaseException {
         if (requestType == null) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_REQUEST_TYPE", "null"));
+            throw new EBaseException(CMS.getUserMessage(
+                    "CMS_BASE_INVALID_REQUEST_TYPE", "null"));
         }
         RequestId rId = newRequestId();
         IRequest r = createRequest(rId, requestType);
@@ -287,16 +274,17 @@ public abstract class ARequestQueue
     /**
      * Implements IRequestQueue.cloneRequest
      * <p>
+     * 
      * @see IRequestQueue#cloneRequest
      */
-    public IRequest cloneRequest(IRequest r) 
-        throws EBaseException {
-        // 1. check for valid state. (Are any invalid ?) 
+    public IRequest cloneRequest(IRequest r) throws EBaseException {
+        // 1. check for valid state. (Are any invalid ?)
         RequestStatus rs = r.getRequestStatus();
 
-        if (rs == RequestStatus.BEGIN) throw new EBaseException("Invalid Status");
+        if (rs == RequestStatus.BEGIN)
+            throw new EBaseException("Invalid Status");
 
-            // 2. create new request 
+        // 2. create new request
         String reqType = r.getRequestType();
         IRequest clone = newRequest(reqType);
 
@@ -316,10 +304,10 @@ public abstract class ARequestQueue
     /**
      * Implements IRequestQueue.findRequest
      * <p>
+     * 
      * @see IRequestQueue#findRequest
      */
-    public IRequest findRequest(RequestId id)
-        throws EBaseException {
+    public IRequest findRequest(RequestId id) throws EBaseException {
         IRequest r;
 
         // mTable.lock(id);
@@ -327,12 +315,12 @@ public abstract class ARequestQueue
         r = readRequest(id);
 
         // if (r == null) mTable.unlock(id);
-      
+
         return r;
     }
 
     private IRequestScheduler mRequestScheduler = null;
- 
+
     public void setRequestScheduler(IRequestScheduler scheduler) {
         mRequestScheduler = scheduler;
     }
@@ -344,10 +332,10 @@ public abstract class ARequestQueue
     /**
      * Implements IRequestQueue.processRequest
      * <p>
+     * 
      * @see IRequestQueue#processRequest
      */
-    public final void processRequest(IRequest r)
-        throws EBaseException {
+    public final void processRequest(IRequest r) throws EBaseException {
 
         // #610553 Thread Scheduler
         IRequestScheduler scheduler = getRequestScheduler();
@@ -360,7 +348,8 @@ public abstract class ARequestQueue
             // 1. Check for valid state
             RequestStatus rs = r.getRequestStatus();
 
-            if (rs != RequestStatus.BEGIN) throw new EBaseException("Invalid Status");
+            if (rs != RequestStatus.BEGIN)
+                throw new EBaseException("Invalid Status");
 
             stateEngine(r);
         } finally {
@@ -373,19 +362,20 @@ public abstract class ARequestQueue
     /**
      * Implements IRequestQueue.markRequestPending
      * <p>
+     * 
      * @see IRequestQueue#markRequestPending
      */
-    public final void markRequestPending(IRequest r)
-        throws EBaseException {
+    public final void markRequestPending(IRequest r) throws EBaseException {
         // 1. Check for valid state
         RequestStatus rs = r.getRequestStatus();
 
-        if (rs != RequestStatus.BEGIN) throw new EBaseException("Invalid Status");
+        if (rs != RequestStatus.BEGIN)
+            throw new EBaseException("Invalid Status");
 
-            // 2. Change the request state.  This method of making
-            // a request PENDING does NOT invoke the PENDING notifiers.
-            // To change this, just call stateEngine at the completion of this
-            // routine.
+        // 2. Change the request state. This method of making
+        // a request PENDING does NOT invoke the PENDING notifiers.
+        // To change this, just call stateEngine at the completion of this
+        // routine.
         setRequestStatus(r, RequestStatus.PENDING);
 
         updateRequest(r);
@@ -395,10 +385,10 @@ public abstract class ARequestQueue
     /**
      * Implements IRequestQueue.cloneAndMarkPending
      * <p>
+     * 
      * @see IRequestQueue#cloneAndMarkPending
      */
-    public IRequest cloneAndMarkPending(IRequest r) 
-        throws EBaseException {
+    public IRequest cloneAndMarkPending(IRequest r) throws EBaseException {
         IRequest clone = cloneRequest(r);
 
         markRequestPending(clone);
@@ -408,17 +398,18 @@ public abstract class ARequestQueue
     /**
      * Implements IRequestQueue.approveRequest
      * <p>
+     * 
      * @see IRequestQueue#approveRequest
      */
-    public final void approveRequest(IRequest r)
-        throws EBaseException {
+    public final void approveRequest(IRequest r) throws EBaseException {
         // 1. Check for valid state
         RequestStatus rs = r.getRequestStatus();
 
-        if (rs != RequestStatus.PENDING) throw new EBaseException("Invalid Status");
+        if (rs != RequestStatus.PENDING)
+            throw new EBaseException("Invalid Status");
 
-        AgentApprovals aas = AgentApprovals.fromStringVector(
-                r.getExtDataInStringVector(AgentApprovals.class.getName()));
+        AgentApprovals aas = AgentApprovals.fromStringVector(r
+                .getExtDataInStringVector(AgentApprovals.class.getName()));
         if (aas == null) {
             aas = new AgentApprovals();
         }
@@ -426,7 +417,8 @@ public abstract class ARequestQueue
         // Record agent who did this
         String agentName = getUserIdentity();
 
-        if (agentName == null) throw new EBaseException("Missing agent information");
+        if (agentName == null)
+            throw new EBaseException("Missing agent information");
 
         aas.addApproval(agentName);
         r.setExtData(AgentApprovals.class.getName(), aas.toStringVector());
@@ -435,8 +427,7 @@ public abstract class ARequestQueue
 
         if (pr == PolicyResult.ACCEPTED) {
             setRequestStatus(r, RequestStatus.APPROVED);
-        } else if (pr == PolicyResult.DEFERRED ||
-            pr == PolicyResult.REJECTED) {
+        } else if (pr == PolicyResult.DEFERRED || pr == PolicyResult.REJECTED) {
         }
 
         // Always update. The policy code may have made changes to the
@@ -449,16 +440,17 @@ public abstract class ARequestQueue
     /**
      * Implements IRequestQueue.rejectRequest
      * <p>
+     * 
      * @see IRequestQueue#rejectRequest
      */
-    public final void rejectRequest(IRequest r)
-        throws EBaseException {
+    public final void rejectRequest(IRequest r) throws EBaseException {
         // 1. Check for valid state
         RequestStatus rs = r.getRequestStatus();
 
-        if (rs != RequestStatus.PENDING) throw new EBaseException("Invalid Status");
+        if (rs != RequestStatus.PENDING)
+            throw new EBaseException("Invalid Status");
 
-            // 2. Change state
+        // 2. Change state
         setRequestStatus(r, RequestStatus.REJECTED);
         updateRequest(r);
 
@@ -469,10 +461,10 @@ public abstract class ARequestQueue
     /**
      * Implments IRequestQueue.cancelRequest
      * <p>
+     * 
      * @see IRequestQueue#cancelRequest
      */
-    public final void cancelRequest(IRequest r)
-        throws EBaseException {
+    public final void cancelRequest(IRequest r) throws EBaseException {
         setRequestStatus(r, RequestStatus.CANCELED);
         updateRequest(r);
 
@@ -488,7 +480,8 @@ public abstract class ARequestQueue
         setRequestStatus(r, RequestStatus.COMPLETE);
         updateRequest(r);
 
-        if (mNotify != null) mNotify.notify(r);
+        if (mNotify != null)
+            mNotify.notify(r);
 
         return;
     }
@@ -496,10 +489,10 @@ public abstract class ARequestQueue
     /**
      * Implements IRequestQueue.listRequests
      * <p>
-     * Should be overridden by the specialized class if
-     * a more efficient method is available for implementing
-     * this operation.
+     * Should be overridden by the specialized class if a more efficient method
+     * is available for implementing this operation.
      * <P>
+     * 
      * @see IRequestQueue#listRequests
      */
     public IRequestList listRequests() {
@@ -509,10 +502,10 @@ public abstract class ARequestQueue
     /**
      * Implements IRequestQueue.listRequestsByStatus
      * <p>
-     * Should be overridden by the specialized class if
-     * a more efficient method is available for implementing
-     * this operation.
+     * Should be overridden by the specialized class if a more efficient method
+     * is available for implementing this operation.
      * <P>
+     * 
      * @see IRequestQueue#listRequestsByStatus
      */
     public IRequestList listRequestsByStatus(RequestStatus s) {
@@ -522,6 +515,7 @@ public abstract class ARequestQueue
     /**
      * Implements IRequestQueue.releaseRequest
      * <p>
+     * 
      * @see IRequestQueue#releaseRequest
      */
     public final void releaseRequest(IRequest request) {
@@ -533,17 +527,17 @@ public abstract class ARequestQueue
 
         String name = getUserIdentity();
 
-        if (name != null) r.setExtData(IRequest.UPDATED_BY, name);
+        if (name != null)
+            r.setExtData(IRequest.UPDATED_BY, name);
 
-            // TODO: use a state flag to determine whether to call
-            // addRequest or modifyRequest (see newRequest as well)
+        // TODO: use a state flag to determine whether to call
+        // addRequest or modifyRequest (see newRequest as well)
         modifyRequest(r);
     }
 
     // PRIVATE functions
 
-    private final void stateEngine(IRequest r)
-        throws EBaseException {
+    private final void stateEngine(IRequest r) throws EBaseException {
         boolean complete = false;
 
         while (!complete) {
@@ -617,14 +611,14 @@ public abstract class ARequestQueue
         // write the queue name and request id
         // write who changed it
         // write what change (which state change) was made
-        //   - new (processRequest)
-        //   - approve
-        //   - reject
+        // - new (processRequest)
+        // - approve
+        // - reject
 
         // Ordering
-        //  - make change in memory
-        //  - log change and result
-        //  - update record
+        // - make change in memory
+        // - log change and result
+        // - update record
     }
 
     /**
@@ -643,15 +637,15 @@ public abstract class ARequestQueue
      */
     public void recover() {
         if (CMS.isRunningMode()) {
-        RecoverThread t = new RecoverThread(this);
+            RecoverThread t = new RecoverThread(this);
 
-        t.start();
+            t.start();
         }
     }
 
     /**
-     * recover from a crash.  Resends all requests that are in
-     * the APPROVED state.
+     * recover from a crash. Resends all requests that are in the APPROVED
+     * state.
      */
     public void recoverWillBlock() {
         // Get a list of all requests that are APPROVED
@@ -664,7 +658,7 @@ public abstract class ARequestQueue
             try {
                 request = findRequest(rid);
 
-                //if (request == null) log_error
+                // if (request == null) log_error
 
                 // Recheck the status - should be the same!!
                 if (request.getRequestStatus() == RequestStatus.APPROVED) {
@@ -684,7 +678,7 @@ public abstract class ARequestQueue
 
     // Constructor
     protected ARequestQueue(IPolicy policy, IService service, INotify notify,
-        INotify pendingNotify) {
+            INotify pendingNotify) {
         mPolicy = policy;
         mService = service;
         mNotify = notify;
@@ -704,44 +698,29 @@ public abstract class ARequestQueue
     protected ILogger mLogger;
 }
 
-
 //
 // Table of RequestId values that are currently in use by some thread.
 // The fact that the request is in this table constitutes a lock
 // on the value.
 //
 /*
- class RequestIDTable {
- public synchronized void lock(RequestId id) {
- while (true) {
- if (mHashtable.put(id, id) == null)
- break;
-
- try {
- wait();
- } catch (InterruptedException e) {
- };
- }
- } 
-
- public synchronized void unlock(RequestId id) {
- mHashtable.remove(id);
-
- notifyAll();
- }
-
- // instance variables
- Hashtable mHashtable = new Hashtable(); 
- }
+ * class RequestIDTable { public synchronized void lock(RequestId id) { while
+ * (true) { if (mHashtable.put(id, id) == null) break;
+ * 
+ * try { wait(); } catch (InterruptedException e) { }; } }
+ * 
+ * public synchronized void unlock(RequestId id) { mHashtable.remove(id);
+ * 
+ * notifyAll(); }
+ * 
+ * // instance variables Hashtable mHashtable = new Hashtable(); }
  */
 
-
 //
-// Request - implementation of the IRequest interface.  This
+// Request - implementation of the IRequest interface. This
 // version is returned by ARequestQueue (and its derivatives)
 //
-class Request
-    implements IRequest {
+class Request implements IRequest {
     // IRequest.getRequestId
     public RequestId getRequestId() {
         return mRequestId;
@@ -833,9 +812,9 @@ class Request
         Enumeration e = req.getExtDataKeys();
         while (e.hasMoreElements()) {
             String key = (String) e.nextElement();
-            if (!key.equals(IRequest.ISSUED_CERTS) &&
-                !key.equals(IRequest.ERRORS) &&
-                !key.equals(IRequest.REMOTE_REQID)) {
+            if (!key.equals(IRequest.ISSUED_CERTS)
+                    && !key.equals(IRequest.ERRORS)
+                    && !key.equals(IRequest.REMOTE_REQID)) {
                 if (req.isSimpleExtDataValue(key)) {
                     setExtData(key, req.getExtDataInString(key));
                 } else {
@@ -847,15 +826,14 @@ class Request
 
     /**
      * This function used to check that the keys obeyed LDAP attribute name
-     * syntax rules.  Keys are being encoded now, so it is changed to just
-     * filter out null and empty string keys.
-     *
-     * @param key  The key to check
-     * @return  false if invalid
+     * syntax rules. Keys are being encoded now, so it is changed to just filter
+     * out null and empty string keys.
+     * 
+     * @param key The key to check
+     * @return false if invalid
      */
     protected boolean isValidExtDataKey(String key) {
-        return key != null &&
-               (! key.equals(""));
+        return key != null && (!key.equals(""));
     }
 
     protected boolean isValidExtDataHashtableValue(Hashtable hash) {
@@ -865,13 +843,12 @@ class Request
         Enumeration keys = hash.keys();
         while (keys.hasMoreElements()) {
             Object key = keys.nextElement();
-            if (! ((key instanceof String) &&
-                    isValidExtDataKey((String)key)) ) {
+            if (!((key instanceof String) && isValidExtDataKey((String) key))) {
                 return false;
             }
 
             Object value = hash.get(key);
-            if (! (value instanceof String)) {
+            if (!(value instanceof String)) {
                 return false;
             }
         }
@@ -880,7 +857,7 @@ class Request
     }
 
     public boolean setExtData(String key, String value) {
-        if (! isValidExtDataKey(key)) {
+        if (!isValidExtDataKey(key)) {
             return false;
         }
         if (value == null) {
@@ -892,7 +869,7 @@ class Request
     }
 
     public boolean setExtData(String key, Hashtable value) {
-        if ( !(isValidExtDataKey(key) && isValidExtDataHashtableValue(value)) ) {
+        if (!(isValidExtDataKey(key) && isValidExtDataHashtableValue(value))) {
             return false;
         }
 
@@ -909,10 +886,10 @@ class Request
         if (value == null) {
             return null;
         }
-        if (! (value instanceof String)) {
+        if (!(value instanceof String)) {
             return null;
         }
-        return (String)value;
+        return (String) value;
     }
 
     public Hashtable getExtDataInHashtable(String key) {
@@ -920,10 +897,10 @@ class Request
         if (value == null) {
             return null;
         }
-        if (! (value instanceof Hashtable)) {
+        if (!(value instanceof Hashtable)) {
             return null;
         }
-        return new ExtDataHashtable((Hashtable)value);
+        return new ExtDataHashtable((Hashtable) value);
     }
 
     public Enumeration getExtDataKeys() {
@@ -935,7 +912,7 @@ class Request
     }
 
     public boolean setExtData(String key, String subkey, String value) {
-        if (! (isValidExtDataKey(key) && isValidExtDataKey(subkey)) ) {
+        if (!(isValidExtDataKey(key) && isValidExtDataKey(subkey))) {
             return false;
         }
         if (isSimpleExtDataValue(key)) {
@@ -945,7 +922,7 @@ class Request
             return false;
         }
 
-        Hashtable existingValue = (Hashtable)mExtData.get(key);
+        Hashtable existingValue = (Hashtable) mExtData.get(key);
         if (existingValue == null) {
             existingValue = new ExtDataHashtable();
             mExtData.put(key, existingValue);
@@ -959,7 +936,7 @@ class Request
         if (value == null) {
             return null;
         }
-        return (String)value.get(subkey);
+        return (String) value.get(subkey);
     }
 
     public boolean setExtData(String key, Integer value) {
@@ -1122,7 +1099,8 @@ class Request
         X509CertImpl[] certArray = new X509CertImpl[stringArray.length];
         for (int index = 0; index < stringArray.length; index++) {
             try {
-                certArray[index] = new X509CertImpl(CMS.AtoB(stringArray[index]));
+                certArray[index] = new X509CertImpl(
+                        CMS.AtoB(stringArray[index]));
             } catch (CertificateException e) {
                 return null;
             }
@@ -1176,7 +1154,8 @@ class Request
         X509CertInfo[] certArray = new X509CertInfo[stringArray.length];
         for (int index = 0; index < stringArray.length; index++) {
             try {
-                certArray[index] = new X509CertInfo(CMS.AtoB(stringArray[index]));
+                certArray[index] = new X509CertInfo(
+                        CMS.AtoB(stringArray[index]));
             } catch (CertificateException e) {
                 return null;
             }
@@ -1207,7 +1186,8 @@ class Request
         RevokedCertImpl[] certArray = new RevokedCertImpl[stringArray.length];
         for (int index = 0; index < stringArray.length; index++) {
             try {
-                certArray[index] = new RevokedCertImpl(CMS.AtoB(stringArray[index]));
+                certArray[index] = new RevokedCertImpl(
+                        CMS.AtoB(stringArray[index]));
             } catch (CRLException e) {
                 return null;
             } catch (X509ExtensionException e) {
@@ -1223,7 +1203,7 @@ class Request
             return false;
         }
         try {
-            stringArray = (String[])stringVector.toArray(new String[0]);
+            stringArray = (String[]) stringVector.toArray(new String[0]);
         } catch (ArrayStoreException e) {
             return false;
         }
@@ -1245,7 +1225,8 @@ class Request
         return val.equalsIgnoreCase("true") || val.equalsIgnoreCase("ON");
     }
 
-    public boolean getExtDataInBoolean(String prefix, String type, boolean defVal) {
+    public boolean getExtDataInBoolean(String prefix, String type,
+            boolean defVal) {
         String val = getExtDataInString(prefix, type);
         if (val == null)
             return defVal;
@@ -1338,8 +1319,7 @@ class Request
             try {
                 // You must use DerInputStream
                 // using ByteArrayInputStream fails
-                name = new CertificateSubjectName(
-                        new DerInputStream(nameData));
+                name = new CertificateSubjectName(new DerInputStream(nameData));
             } catch (IOException e) {
                 return null;
             }
@@ -1374,7 +1354,7 @@ class Request
         Set arrayKeys = hashValue.keySet();
         Vector listValue = new Vector(arrayKeys.size());
         for (Iterator iter = arrayKeys.iterator(); iter.hasNext();) {
-            String arrayKey = (String)iter.next();
+            String arrayKey = (String) iter.next();
             try {
                 index = Integer.parseInt(arrayKey);
             } catch (NumberFormatException e) {
@@ -1383,10 +1363,9 @@ class Request
             if (listValue.size() < (index + 1)) {
                 listValue.setSize(index + 1);
             }
-            listValue.set(index,
-                    hashValue.get(arrayKey));
+            listValue.set(index, hashValue.get(arrayKey));
         }
-        return (String[])listValue.toArray(new String[0]);
+        return (String[]) listValue.toArray(new String[0]);
     }
 
     public IAttrSet asIAttrSet() {
@@ -1425,7 +1404,7 @@ class RequestIAttrSetWrapper implements IAttrSet {
 
     public void set(String name, Object obj) throws EBaseException {
         try {
-            mRequest.setExtData(name, (String)obj);
+            mRequest.setExtData(name, (String) obj);
         } catch (ClassCastException e) {
             throw new EBaseException(e.toString());
         }
@@ -1444,21 +1423,16 @@ class RequestIAttrSetWrapper implements IAttrSet {
     }
 }
 
-
 /**
  * Example of a specialized request class.
  */
-class EnrollmentRequest
-    extends Request
-    implements IEnrollmentRequest {
+class EnrollmentRequest extends Request implements IEnrollmentRequest {
     EnrollmentRequest(RequestId id) {
         super(id);
     }
 }
 
-
-class RequestListByStatus
-    implements IRequestList {
+class RequestListByStatus implements IRequestList {
     public boolean hasMoreElements() {
         return (mNext != null);
     }
@@ -1501,14 +1475,16 @@ class RequestListByStatus
         mNext = null;
 
         while (mNext == null) {
-            if (!mEnumeration.hasMoreElements()) break;
-   
+            if (!mEnumeration.hasMoreElements())
+                break;
+
             rId = (RequestId) mEnumeration.nextElement();
 
             try {
                 IRequest r = mQueue.findRequest(rId);
 
-                if (r.getRequestStatus() == mStatus) mNext = rId;
+                if (r.getRequestStatus() == mStatus)
+                    mNext = rId;
 
                 mQueue.releaseRequest(r);
             } catch (Exception e) {
@@ -1518,13 +1494,11 @@ class RequestListByStatus
 
     protected RequestStatus mStatus;
     protected IRequestQueue mQueue;
-    protected Enumeration mEnumeration; 
+    protected Enumeration mEnumeration;
     protected RequestId mNext;
 }
 
-
-class RequestList
-    implements IRequestList {
+class RequestList implements IRequestList {
     public boolean hasMoreElements() {
         return mEnumeration.hasMoreElements();
     }
@@ -1549,9 +1523,8 @@ class RequestList
         mEnumeration = e;
     }
 
-    protected Enumeration mEnumeration; 
+    protected Enumeration mEnumeration;
 }
-
 
 class RecoverThread extends Thread {
     private ARequestQueue mQ = null;

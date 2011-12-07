@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.connector;
 
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -28,13 +27,11 @@ import java.io.OptionalDataException;
 import com.netscape.certsrv.connector.IRequestEncoder;
 import com.netscape.cmscore.util.Debug;
 
-
 /**
- * encodes a request by serializing it. 
+ * encodes a request by serializing it.
  */
 public class HttpRequestEncoder implements IRequestEncoder {
-    public String encode(Object r)
-        throws IOException {
+    public String encode(Object r) throws IOException {
         String s = null;
         byte[] serial;
         ByteArrayOutputStream ba = new ByteArrayOutputStream();
@@ -46,8 +43,7 @@ public class HttpRequestEncoder implements IRequestEncoder {
         return s;
     }
 
-    public Object decode(String s)
-        throws IOException {
+    public Object decode(String s) throws IOException {
         Object result = null;
         byte[] serial = null;
 
@@ -59,7 +55,7 @@ public class HttpRequestEncoder implements IRequestEncoder {
 
             result = is.readObject();
         } catch (ClassNotFoundException e) {
-            // XXX hack: change this 
+            // XXX hack: change this
             if (Debug.ON)
                 Debug.trace("class not found ex " + e + e.getMessage());
             throw new IOException("Class Not Found " + e.getMessage());

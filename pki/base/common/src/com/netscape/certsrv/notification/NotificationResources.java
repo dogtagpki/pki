@@ -17,14 +17,11 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.notification;
 
-
 import java.util.ListResourceBundle;
 
-
 /**
- * A class represents a resource bundle for the 
- * Mail Notification package
- *
+ * A class represents a resource bundle for the Mail Notification package
+ * 
  * @version $Revision$, $Date$
  */
 public class NotificationResources extends ListResourceBundle {
@@ -37,8 +34,7 @@ public class NotificationResources extends ListResourceBundle {
     }
 
     /**
-     * Constants. The suffix represents the number of
-     * possible parameters.
+     * Constants. The suffix represents the number of possible parameters.
      */
 
     static final Object[][] contents = {};

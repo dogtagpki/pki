@@ -17,15 +17,13 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.ldap;
 
-
 import com.netscape.certsrv.base.EBaseException;
 
-
 /**
- * A class that represents a Ldap exception. Various
- * errors can occur when interacting with a Ldap directory server.
+ * A class that represents a Ldap exception. Various errors can occur when
+ * interacting with a Ldap directory server.
  * <P>
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class ELdapException extends EBaseException {
@@ -37,23 +35,25 @@ public class ELdapException extends EBaseException {
     /**
      * Ldap resource class name.
      */
-    private static final String LDAP_RESOURCES = LdapResources.class.getName();		
+    private static final String LDAP_RESOURCES = LdapResources.class.getName();
 
     /**
-     * Constructs a Ldap  exception.
+     * Constructs a Ldap exception.
+     * 
      * @param msgFormat Resource Key, if key not present, serves as the message.
-     * <P>
+     *            <P>
      */
     public ELdapException(String msgFormat) {
         super(msgFormat);
     }
 
     /**
-     * Constructs a Ldap  exception.
+     * Constructs a Ldap exception.
+     * 
      * @param msgFormat Resource Key, if key not present, serves as the message.
-     * Include a message string parameter for variable content.
+     *            Include a message string parameter for variable content.
      * @param param Message string parameter.
-     * <P>
+     *            <P>
      */
     public ELdapException(String msgFormat, String param) {
         super(msgFormat, param);
@@ -61,19 +61,21 @@ public class ELdapException extends EBaseException {
 
     /**
      * Constructs a Ldap exception.
+     * 
      * @param msgFormat Resource Key, if key not present, serves as the message.
-     * @param e  Common exception.
-     * <P>
+     * @param e Common exception.
+     *            <P>
      */
     public ELdapException(String msgFormat, Exception e) {
         super(msgFormat, e);
     }
 
     /**
-     * Constructs a Ldap  exception.
+     * Constructs a Ldap exception.
+     * 
      * @param msgFormat Resource Key, if key not present, serves as the message.
      * @param params Array of Message string parameters.
-     * <P>
+     *            <P>
      */
     public ELdapException(String msgFormat, Object params[]) {
         super(msgFormat, params);
@@ -81,8 +83,9 @@ public class ELdapException extends EBaseException {
 
     /**
      * Gets the resource bundle name
+     * 
      * @return Name of the Ldap Exception resource bundle name.
-     * <p>
+     *         <p>
      */
     protected String getBundleName() {
         return LDAP_RESOURCES;

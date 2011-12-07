@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.jobs;
 
-
 import java.io.IOException;
 import java.util.Hashtable;
 
@@ -36,11 +35,10 @@ import com.netscape.certsrv.notification.IEmailTemplate;
 import com.netscape.certsrv.notification.IMailNotification;
 import com.netscape.certsrv.request.IRequest;
 
-
 /**
- * This abstract class is a base job for real job extentions for the
- * Jobs Scheduler. 
- *
+ * This abstract class is a base job for real job extentions for the Jobs
+ * Scheduler.
+ * 
  * @version $Revision$, $Date$
  * @see com.netscape.certsrv.jobs.IJob
  */
@@ -57,7 +55,7 @@ public abstract class AJobBase implements IJob, Runnable {
     protected static final String STATUS_FAILURE = "failed";
     protected static final String STATUS_SUCCESS = "succeeded";
 
-    // variables used by the Job Scheduler Daemon 
+    // variables used by the Job Scheduler Daemon
     protected String mImplName = null;
     protected IConfigStore mConfig;
     protected String mId = null;
@@ -81,8 +79,8 @@ public abstract class AJobBase implements IJob, Runnable {
 
     /**
      * tells if the job is enabled
-     * @return a boolean value indicating whether the job is enabled
-     *	 or not
+     * 
+     * @return a boolean value indicating whether the job is enabled or not
      */
     public boolean isEnabled() {
         boolean enabled = false;
@@ -97,17 +95,18 @@ public abstract class AJobBase implements IJob, Runnable {
     /***********************
      * abstract methods
      ***********************/
-    public abstract void init(ISubsystem owner, String id, String implName, IConfigStore
-        config) throws EBaseException;
+    public abstract void init(ISubsystem owner, String id, String implName,
+            IConfigStore config) throws EBaseException;
 
     public abstract void run();
 
     /***********************
      * public methods
      ***********************/
-    
+
     /**
      * get instance id.
+     * 
      * @return a String identifier
      */
     public String getId() {
@@ -116,6 +115,7 @@ public abstract class AJobBase implements IJob, Runnable {
 
     /**
      * set instance id.
+     * 
      * @param id String id of the instance
      */
     public void setId(String id) {
@@ -124,6 +124,7 @@ public abstract class AJobBase implements IJob, Runnable {
 
     /**
      * get cron string associated with this job
+     * 
      * @return a JobCron object that represents the schedule of this job
      */
     public IJobCron getJobCron() {
@@ -132,6 +133,7 @@ public abstract class AJobBase implements IJob, Runnable {
 
     /**
      * gets the plugin name of this job.
+     * 
      * @return a String that is the name of this implementation
      */
     public String getImplName() {
@@ -140,6 +142,7 @@ public abstract class AJobBase implements IJob, Runnable {
 
     /**
      * Gets the configuration substore used by this job
+     * 
      * @return configuration store
      */
     public IConfigStore getConfigStore() {
@@ -159,7 +162,8 @@ public abstract class AJobBase implements IJob, Runnable {
 
         if (template != null) {
             if (!template.init()) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("JOBS_TEMPLATE_INIT_ERROR"));
+                log(ILogger.LL_FAILURE,
+                        CMS.getLogMessage("JOBS_TEMPLATE_INIT_ERROR"));
                 return null;
             }
 
@@ -170,7 +174,8 @@ public abstract class AJobBase implements IJob, Runnable {
             }
             templateString = template.toString();
         } else {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("JOBS_TEMPLATE_INIT_ERROR"));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("JOBS_TEMPLATE_INIT_ERROR"));
         }
 
         return templateString;
@@ -192,41 +197,43 @@ public abstract class AJobBase implements IJob, Runnable {
             mn.sendNotification();
         } catch (ENotificationException e) {
             // already logged, lets audit
-            mLogger.log(ILogger.EV_AUDIT, null,
-                ILogger.S_OTHER,
-                ILogger.LL_FAILURE, CMS.getLogMessage("JOBS_SEND_NOTIFICATION", e.toString()));
+            mLogger.log(ILogger.EV_AUDIT, null, ILogger.S_OTHER,
+                    ILogger.LL_FAILURE,
+                    CMS.getLogMessage("JOBS_SEND_NOTIFICATION", e.toString()));
         } catch (IOException e) {
             // already logged, lets audit
-            mLogger.log(ILogger.EV_AUDIT, null,
-                ILogger.S_OTHER,
-                ILogger.LL_FAILURE, CMS.getLogMessage("JOBS_SEND_NOTIFICATION", e.toString()));
+            mLogger.log(ILogger.EV_AUDIT, null, ILogger.S_OTHER,
+                    ILogger.LL_FAILURE,
+                    CMS.getLogMessage("JOBS_SEND_NOTIFICATION", e.toString()));
         }
     }
 
     protected void buildItemParams(X509CertImpl cert) {
-        mItemParams.put(IEmailFormProcessor.TOKEN_SERIAL_NUM,
-            (Object) cert.getSerialNumber().toString());
-        mItemParams.put(IEmailFormProcessor.TOKEN_HEX_SERIAL_NUM,
-            (Object) cert.getSerialNumber().toString(16));
-        mItemParams.put(IEmailFormProcessor.TOKEN_ISSUER_DN,
-            (Object) cert.getIssuerDN().toString());
-        mItemParams.put(IEmailFormProcessor.TOKEN_SUBJECT_DN,
-            (Object) cert.getSubjectDN().toString());
-        mItemParams.put(IEmailFormProcessor.TOKEN_NOT_AFTER,
-            (Object) cert.getNotAfter().toString());
-        mItemParams.put(IEmailFormProcessor.TOKEN_NOT_BEFORE,
-            (Object) cert.getNotBefore().toString());
+        mItemParams.put(IEmailFormProcessor.TOKEN_SERIAL_NUM, (Object) cert
+                .getSerialNumber().toString());
+        mItemParams.put(IEmailFormProcessor.TOKEN_HEX_SERIAL_NUM, (Object) cert
+                .getSerialNumber().toString(16));
+        mItemParams.put(IEmailFormProcessor.TOKEN_ISSUER_DN, (Object) cert
+                .getIssuerDN().toString());
+        mItemParams.put(IEmailFormProcessor.TOKEN_SUBJECT_DN, (Object) cert
+                .getSubjectDN().toString());
+        mItemParams.put(IEmailFormProcessor.TOKEN_NOT_AFTER, (Object) cert
+                .getNotAfter().toString());
+        mItemParams.put(IEmailFormProcessor.TOKEN_NOT_BEFORE, (Object) cert
+                .getNotBefore().toString());
         // ... and more
     }
 
     protected void buildItemParams(IRequest r) {
-        String re = r.getExtDataInString(IRequest.HTTP_PARAMS, "csrRequestorEmail");
+        String re = r.getExtDataInString(IRequest.HTTP_PARAMS,
+                "csrRequestorEmail");
 
         if (re != null) {
             mItemParams.put(IEmailFormProcessor.TOKEN_REQUESTOR_EMAIL, re);
         }
 
-        String ct = r.getExtDataInString(IRequest.HTTP_PARAMS, IRequest.CERT_TYPE);
+        String ct = r.getExtDataInString(IRequest.HTTP_PARAMS,
+                IRequest.CERT_TYPE);
 
         if (ct != null) {
             mItemParams.put(IEmailFormProcessor.TOKEN_CERT_TYPE, ct);
@@ -252,35 +259,38 @@ public abstract class AJobBase implements IJob, Runnable {
         if (val != null)
             mContentParams.put(name, val);
         else {
-            CMS.debug("AJobBase: buildContentParams: null value for name= " + name);
+            CMS.debug("AJobBase: buildContentParams: null value for name= "
+                    + name);
             mContentParams.put(name, "");
         }
     }
 
     /**
-     * logs an entry in the log file.  Used by classes extending this class.
+     * logs an entry in the log file. Used by classes extending this class.
+     * 
      * @param level log level
      * @param msg log message in String
      */
     public void log(int level, String msg) {
         if (mLogger == null)
             return;
-        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_OTHER,
-            level, mId + ": " + msg);
+        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_OTHER, level, mId + ": "
+                + msg);
     }
 
     /**
-     * capable of logging multiline entry in the log file.  Used by classes extending this class.
+     * capable of logging multiline entry in the log file. Used by classes
+     * extending this class.
+     * 
      * @param level log level
      * @param msg log message in String
-     * @param multiline boolean indicating whether the message is a
-     *	 multi-lined message.
+     * @param multiline boolean indicating whether the message is a multi-lined
+     *            message.
      */
     public void log(int level, String msg, boolean multiline) {
         if (mLogger == null)
             return;
-        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_OTHER,
-            level, mId + ": " + msg, multiline);
+        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_OTHER, level, mId + ": "
+                + msg, multiline);
     }
 }
-

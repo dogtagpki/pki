@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.request;
 
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -53,15 +52,13 @@ import com.netscape.cmscore.dbs.DateMapper;
 import com.netscape.cmscore.dbs.StringMapper;
 import com.netscape.cmscore.util.Debug;
 
-
 //
 // A request record is the stored version of a request.
 // It has a set of attributes that are mapped into LDAP
 // attributes for actual directory operations.
 //
-public class RequestRecord
-    extends ARequestRecord
-    implements IRequestRecord, IDBObj {
+public class RequestRecord extends ARequestRecord implements IRequestRecord,
+        IDBObj {
     /**
      *
      */
@@ -96,7 +93,8 @@ public class RequestRecord
         else {
             RequestAttr ra = (RequestAttr) mAttrTable.get(name);
 
-            if (ra != null) return ra.get(this);
+            if (ra != null)
+                return ra.get(this);
         }
 
         return null;
@@ -119,17 +117,17 @@ public class RequestRecord
         else if (name.equals(IRequestRecord.ATTR_REQUEST_OWNER))
             mOwner = (String) o;
         else if (name.equals(IRequestRecord.ATTR_EXT_DATA))
-            mExtData = (Hashtable)o;
+            mExtData = (Hashtable) o;
         else {
             RequestAttr ra = (RequestAttr) mAttrTable.get(name);
 
-            if (ra != null) ra.set(this, o);
+            if (ra != null)
+                ra.set(this, o);
         }
     }
 
     // IDBObj.delete
-    public void delete(String name)
-        throws EBaseException {
+    public void delete(String name) throws EBaseException {
         throw new EBaseException("Invalid call to delete");
     }
 
@@ -175,42 +173,43 @@ public class RequestRecord
 
     static void mod(ModificationSet mods, IRequest r) throws EBaseException {
         //
-        mods.add(IRequestRecord.ATTR_REQUEST_STATE,
-            Modification.MOD_REPLACE, r.getRequestStatus());
+        mods.add(IRequestRecord.ATTR_REQUEST_STATE, Modification.MOD_REPLACE,
+                r.getRequestStatus());
 
-        mods.add(IRequestRecord.ATTR_SOURCE_ID,
-            Modification.MOD_REPLACE, r.getSourceId());
+        mods.add(IRequestRecord.ATTR_SOURCE_ID, Modification.MOD_REPLACE,
+                r.getSourceId());
 
-        mods.add(IRequestRecord.ATTR_REQUEST_OWNER,
-            Modification.MOD_REPLACE, r.getRequestOwner());
+        mods.add(IRequestRecord.ATTR_REQUEST_OWNER, Modification.MOD_REPLACE,
+                r.getRequestOwner());
 
-        mods.add(IRequestRecord.ATTR_MODIFY_TIME,
-            Modification.MOD_REPLACE, r.getModificationTime());
+        mods.add(IRequestRecord.ATTR_MODIFY_TIME, Modification.MOD_REPLACE,
+                r.getModificationTime());
 
-        mods.add(IRequestRecord.ATTR_EXT_DATA,
-            Modification.MOD_REPLACE, loadExtDataFromRequest(r));
+        mods.add(IRequestRecord.ATTR_EXT_DATA, Modification.MOD_REPLACE,
+                loadExtDataFromRequest(r));
 
         for (int i = 0; i < mRequestA.length; i++) {
             mRequestA[i].mod(mods, r);
         }
     }
 
-    static void register(IDBSubsystem db)
-        throws EDBException {
+    static void register(IDBSubsystem db) throws EDBException {
         IDBRegistry reg = db.getRegistry();
 
         reg.registerObjectClass(RequestRecord.class.getName(), mOC);
 
-        reg.registerAttribute(IRequestRecord.ATTR_REQUEST_ID, new RequestIdMapper());
-        reg.registerAttribute(IRequestRecord.ATTR_REQUEST_STATE, new RequestStateMapper());
-        reg.registerAttribute(IRequestRecord.ATTR_CREATE_TIME,
-            new DateMapper(Schema.LDAP_ATTR_CREATE_TIME));
-        reg.registerAttribute(IRequestRecord.ATTR_MODIFY_TIME,
-            new DateMapper(Schema.LDAP_ATTR_MODIFY_TIME));
-        reg.registerAttribute(IRequestRecord.ATTR_SOURCE_ID,
-            new StringMapper(Schema.LDAP_ATTR_SOURCE_ID));
+        reg.registerAttribute(IRequestRecord.ATTR_REQUEST_ID,
+                new RequestIdMapper());
+        reg.registerAttribute(IRequestRecord.ATTR_REQUEST_STATE,
+                new RequestStateMapper());
+        reg.registerAttribute(IRequestRecord.ATTR_CREATE_TIME, new DateMapper(
+                Schema.LDAP_ATTR_CREATE_TIME));
+        reg.registerAttribute(IRequestRecord.ATTR_MODIFY_TIME, new DateMapper(
+                Schema.LDAP_ATTR_MODIFY_TIME));
+        reg.registerAttribute(IRequestRecord.ATTR_SOURCE_ID, new StringMapper(
+                Schema.LDAP_ATTR_SOURCE_ID));
         reg.registerAttribute(IRequestRecord.ATTR_REQUEST_OWNER,
-            new StringMapper(Schema.LDAP_ATTR_REQUEST_OWNER));
+                new StringMapper(Schema.LDAP_ATTR_REQUEST_OWNER));
         ExtAttrDynMapper extAttrMapper = new ExtAttrDynMapper();
         reg.registerAttribute(IRequestRecord.ATTR_EXT_DATA, extAttrMapper);
         reg.registerDynamicMapper(extAttrMapper);
@@ -222,10 +221,11 @@ public class RequestRecord
         }
     }
 
-    protected static final String mOC[] =
-        { Schema.LDAP_OC_TOP, Schema.LDAP_OC_REQUEST, Schema.LDAP_OC_EXTENSIBLE };
+    protected static final String mOC[] = { Schema.LDAP_OC_TOP,
+            Schema.LDAP_OC_REQUEST, Schema.LDAP_OC_EXTENSIBLE };
 
-    protected static Hashtable loadExtDataFromRequest(IRequest r) throws EBaseException {
+    protected static Hashtable loadExtDataFromRequest(IRequest r)
+            throws EBaseException {
         Hashtable h = new Hashtable();
 
         Enumeration e = r.getExtDataKeys();
@@ -247,12 +247,12 @@ public class RequestRecord
             String key = (String) e.nextElement();
             Object value = mExtData.get(key);
             if (value instanceof String) {
-                r.setExtData(key, (String)value);
+                r.setExtData(key, (String) value);
             } else if (value instanceof Hashtable) {
-                r.setExtData(key, (Hashtable)value);
+                r.setExtData(key, (Hashtable) value);
             } else {
-                throw new EDBException("Illegal data value in RequestRecord: " +
-                        r.toString());
+                throw new EDBException("Illegal data value in RequestRecord: "
+                        + r.toString());
             }
         }
     }
@@ -262,40 +262,40 @@ public class RequestRecord
     static Hashtable mAttrTable = new Hashtable();
 
     /*
-     * This table contains attribute handlers for attributes
-     * of the request.  These attributes are ones that are stored
-     * apart from the generic name/value pairs supported by the get/set
-     * interface plus the hashtable for the name/value pairs themselves. 
-     *
-     * NOTE: Eventually, all attributes should be done here.  Currently
-     *   only the last ones added are implemented this way.
+     * This table contains attribute handlers for attributes of the request.
+     * These attributes are ones that are stored apart from the generic
+     * name/value pairs supported by the get/set interface plus the hashtable
+     * for the name/value pairs themselves.
+     * 
+     * NOTE: Eventually, all attributes should be done here. Currently only the
+     * last ones added are implemented this way.
      */
     static RequestAttr mRequestA[] = {
 
-            new RequestAttr(IRequest.ATTR_REQUEST_TYPE,
-                new StringMapper(Schema.LDAP_ATTR_REQUEST_TYPE)) {
-                void set(ARequestRecord r, Object o) {
-                    r.mRequestType = (String) o;
-                }
-  
-                Object get(ARequestRecord r) {
-                    return r.mRequestType;
-                }
-  
-                void read(IRequestMod a, IRequest r, ARequestRecord rr) {
-                    r.setRequestType(rr.mRequestType);
-                }
-  
-                void add(IRequest r, ARequestRecord rr) {
-                    rr.mRequestType = r.getRequestType();
-                }
-  
-                void mod(ModificationSet mods, IRequest r) {
-                    addmod(mods, r.getRequestType());
-                }
-            }
+    new RequestAttr(IRequest.ATTR_REQUEST_TYPE, new StringMapper(
+            Schema.LDAP_ATTR_REQUEST_TYPE)) {
+        void set(ARequestRecord r, Object o) {
+            r.mRequestType = (String) o;
+        }
 
-        };
+        Object get(ARequestRecord r) {
+            return r.mRequestType;
+        }
+
+        void read(IRequestMod a, IRequest r, ARequestRecord rr) {
+            r.setRequestType(rr.mRequestType);
+        }
+
+        void add(IRequest r, ARequestRecord rr) {
+            rr.mRequestType = r.getRequestType();
+        }
+
+        void mod(ModificationSet mods, IRequest r) {
+            addmod(mods, r.getRequestType());
+        }
+    }
+
+    };
     static {
         mAttrs.add(IRequestRecord.ATTR_REQUEST_ID);
         mAttrs.add(IRequestRecord.ATTR_REQUEST_STATE);
@@ -315,7 +315,6 @@ public class RequestRecord
 
 }
 
-
 //
 // A mapper between an request state object and
 // its LDAP attribute representation
@@ -324,8 +323,7 @@ public class RequestRecord
 // @author thayes
 // @version $Revision$ $Date$
 //
-class RequestStateMapper
-    implements IDBAttrMapper {
+class RequestStateMapper implements IDBAttrMapper {
     // IDBAttrMapper methods
 
     //
@@ -335,20 +333,20 @@ class RequestStateMapper
     }
 
     //
-    public void mapObjectToLDAPAttributeSet(IDBObj parent,
-        String name, Object obj, LDAPAttributeSet attrs) {
+    public void mapObjectToLDAPAttributeSet(IDBObj parent, String name,
+            Object obj, LDAPAttributeSet attrs) {
         RequestStatus rs = (RequestStatus) obj;
 
-        attrs.add(new LDAPAttribute(Schema.LDAP_ATTR_REQUEST_STATE,
-                rs.toString()));
+        attrs.add(new LDAPAttribute(Schema.LDAP_ATTR_REQUEST_STATE, rs
+                .toString()));
     }
 
     public void mapLDAPAttributeSetToObject(LDAPAttributeSet attrs,
-        String name, IDBObj parent)
-        throws EBaseException {
+            String name, IDBObj parent) throws EBaseException {
         LDAPAttribute attr = attrs.getAttribute(Schema.LDAP_ATTR_REQUEST_STATE);
 
-        if (attr == null) throw new EBaseException("schema violation");
+        if (attr == null)
+            throw new EBaseException("schema violation");
 
         String value = (String) attr.getStringValues().nextElement();
 
@@ -366,7 +364,6 @@ class RequestStateMapper
     }
 }
 
-
 //
 // A mapper between an request id object and
 // its LDAP attribute representation
@@ -375,8 +372,7 @@ class RequestStateMapper
 // @author thayes
 // @version $Revision$ $Date$
 //
-class RequestIdMapper
-    implements IDBAttrMapper {
+class RequestIdMapper implements IDBAttrMapper {
     // IDBAttrMapper methods
 
     //
@@ -386,26 +382,27 @@ class RequestIdMapper
     }
 
     //
-    public void mapObjectToLDAPAttributeSet(IDBObj parent,
-        String name, Object obj, LDAPAttributeSet attrs) {
+    public void mapObjectToLDAPAttributeSet(IDBObj parent, String name,
+            Object obj, LDAPAttributeSet attrs) {
         RequestId rid = (RequestId) obj;
 
-        String v = BigIntegerMapper.BigIntegerToDB(new BigInteger(rid.toString()));
+        String v = BigIntegerMapper.BigIntegerToDB(new BigInteger(rid
+                .toString()));
 
         attrs.add(new LDAPAttribute(Schema.LDAP_ATTR_REQUEST_ID, v));
     }
 
     public void mapLDAPAttributeSetToObject(LDAPAttributeSet attrs,
-        String name, IDBObj parent)
-        throws EBaseException {
+            String name, IDBObj parent) throws EBaseException {
         LDAPAttribute attr = attrs.getAttribute(Schema.LDAP_ATTR_REQUEST_ID);
 
-        if (attr == null) throw new EBaseException("schema violation");
+        if (attr == null)
+            throw new EBaseException("schema violation");
 
         String value = (String) attr.getStringValues().nextElement();
 
-        parent.set(name, new RequestId(
-                BigIntegerMapper.BigIntegerFromDB(value).toString()));
+        parent.set(name, new RequestId(BigIntegerMapper.BigIntegerFromDB(value)
+                .toString()));
     }
 
     public String mapSearchFilter(String name, String op, String value) {
@@ -426,19 +423,17 @@ class RequestIdMapper
     }
 }
 
-
 /**
  * A mapper between an request attr set and its LDAP attribute representation.
- *
- * The attr attribute is no longer used.  This class is kept for historical
- * and migration purposes.
- *
+ * 
+ * The attr attribute is no longer used. This class is kept for historical and
+ * migration purposes.
+ * 
  * @author thayes
  * @version $Revision$ $Date$
  * @deprecated
  */
-class RequestAttrsMapper
-    implements IDBAttrMapper {
+class RequestAttrsMapper implements IDBAttrMapper {
     // IDBAttrMapper methods
 
     //
@@ -448,9 +443,9 @@ class RequestAttrsMapper
     }
 
     //
-    public void mapObjectToLDAPAttributeSet(IDBObj parent,
-        String name, Object obj, LDAPAttributeSet attrs) {
-        Hashtable ht = (Hashtable) obj;   
+    public void mapObjectToLDAPAttributeSet(IDBObj parent, String name,
+            Object obj, LDAPAttributeSet attrs) {
+        Hashtable ht = (Hashtable) obj;
         Enumeration e = ht.keys();
 
         try {
@@ -471,14 +466,14 @@ class RequestAttrsMapper
                     os.writeObject(data);
                 } catch (NotSerializableException x) {
                     if (Debug.ON) {
-                        System.err.println("Error: attribute '" + key + "' (" +
-                            x.getMessage() + ") is not serializable");
+                        System.err.println("Error: attribute '" + key + "' ("
+                                + x.getMessage() + ") is not serializable");
                         x.printStackTrace();
                     }
                 } catch (Exception x) {
                     if (Debug.ON) {
-                        System.err.println("Error: attribute '" + key +
-                            "' - error during serialization: " + x);
+                        System.err.println("Error: attribute '" + key
+                                + "' - error during serialization: " + x);
                         x.printStackTrace();
                     }
                 }
@@ -487,19 +482,20 @@ class RequestAttrsMapper
             os.writeObject(null);
             os.close();
 
-            attrs.add(new LDAPAttribute(Schema.LDAP_ATTR_REQUEST_ATTRS,
-                    bos.toByteArray()));
-        } catch (Exception x) { 
-            Debug.trace("Output Mapping Error in requeset ID " +
-                ((RequestRecord) parent).getRequestId().toString() + " : " + x); 
-            //if (Debug.ON) {
+            attrs.add(new LDAPAttribute(Schema.LDAP_ATTR_REQUEST_ATTRS, bos
+                    .toByteArray()));
+        } catch (Exception x) {
+            Debug.trace("Output Mapping Error in requeset ID "
+                    + ((RequestRecord) parent).getRequestId().toString()
+                    + " : " + x);
+            // if (Debug.ON) {
             Debug.printStackTrace(x);
-            //}
+            // }
         }
     }
 
-    private byte[] encode(Object value)
-        throws NotSerializableException, IOException {
+    private byte[] encode(Object value) throws NotSerializableException,
+            IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         ObjectOutputStream os = new ObjectOutputStream(bos);
 
@@ -509,8 +505,8 @@ class RequestAttrsMapper
         return bos.toByteArray();
     }
 
-    private Object decode(byte[] data)
-        throws ObjectStreamException, IOException, ClassNotFoundException {
+    private Object decode(byte[] data) throws ObjectStreamException,
+            IOException, ClassNotFoundException {
         ByteArrayInputStream bis = new ByteArrayInputStream(data);
         ObjectInputStream is = new ObjectInputStream(bis);
 
@@ -518,7 +514,7 @@ class RequestAttrsMapper
     }
 
     private Hashtable decodeHashtable(byte[] data)
-        throws ObjectStreamException, IOException, ClassNotFoundException {
+            throws ObjectStreamException, IOException, ClassNotFoundException {
         Hashtable ht = new Hashtable();
         ByteArrayInputStream bis = new ByteArrayInputStream(data);
         ObjectInputStream is = new ObjectInputStream(bis);
@@ -529,22 +525,23 @@ class RequestAttrsMapper
 
             while (true) {
                 key = (String) is.readObject();
-  
+
                 // end of table is marked with null
-                if (key == null) break;
+                if (key == null)
+                    break;
 
                 byte[] bytes = (byte[]) is.readObject();
 
                 ht.put(key, decode(bytes));
             }
         } catch (ObjectStreamException e) {
-            Debug.trace("Key " + key);  // would be nice to know object type.
+            Debug.trace("Key " + key); // would be nice to know object type.
             throw e;
         } catch (IOException e) {
-            Debug.trace("Key " + key);  // would be nice to know object type.
+            Debug.trace("Key " + key); // would be nice to know object type.
             throw e;
         } catch (ClassNotFoundException e) {
-            Debug.trace("Key " + key);  // would be nice to know object type.
+            Debug.trace("Key " + key); // would be nice to know object type.
             throw e;
         }
 
@@ -554,16 +551,16 @@ class RequestAttrsMapper
     /**
      * Implements IDBAttrMapper.mapLDAPAttributeSetToObject
      * <p>
+     * 
      * @see IDBAttrMapper#mapLDAPAttributeSetToObject
      */
     public void mapLDAPAttributeSetToObject(LDAPAttributeSet attrs,
-        String name, IDBObj parent)
-        throws EBaseException {
+            String name, IDBObj parent) throws EBaseException {
         Hashtable ht = null;
 
         //
         // Data is stored in a (single valued) binary attribute
-        // 
+        //
         byte[] value;
 
         LDAPAttribute attr = null;
@@ -579,12 +576,13 @@ class RequestAttrsMapper
                 ht = decodeHashtable(value);
             }
         } catch (Exception x) {
-            Debug.trace("Mapping error in request Id " +
-                ((RequestRecord) parent).getRequestId().toString() + " : " + x);
+            Debug.trace("Mapping error in request Id "
+                    + ((RequestRecord) parent).getRequestId().toString()
+                    + " : " + x);
             Debug.trace("Attr " + attr.getName());
-            //if (Debug.ON) {
+            // if (Debug.ON) {
             Debug.printStackTrace(x);
-            //}
+            // }
         }
 
         parent.set(name, ht);
@@ -604,48 +602,39 @@ class RequestAttrsMapper
 /**
  * Maps dynamic data for the extData- prefix to and from the extData Hashtable
  * in RequestRecord.
- *
- * The data in RequestRecord is stored in a Hashtable.  It comes in two forms:
- * 1. String key1 => String value1
- *    String key2 => String value2
- *    This is stored in LDAP as:
- *        extData-key1 => value1
- *        extData-key2 => value2
- *
- * 2. String key => Hashtable value
- *        where value stores:
- *            String key2 => String value2
- *            String key3 => String value3
- *    This is stored in LDAP as:
- *        extData-key;key2 => value2
- *        extData-key;key3 => value3
- *
- * These can be mixed, but each top-level key can only be associated with
- * a String value or a Hashtable value.
- *
+ * 
+ * The data in RequestRecord is stored in a Hashtable. It comes in two forms: 1.
+ * String key1 => String value1 String key2 => String value2 This is stored in
+ * LDAP as: extData-key1 => value1 extData-key2 => value2
+ * 
+ * 2. String key => Hashtable value where value stores: String key2 => String
+ * value2 String key3 => String value3 This is stored in LDAP as:
+ * extData-key;key2 => value2 extData-key;key3 => value3
+ * 
+ * These can be mixed, but each top-level key can only be associated with a
+ * String value or a Hashtable value.
+ * 
  */
 class ExtAttrDynMapper implements IDBDynAttrMapper {
 
     public boolean supportsLDAPAttributeName(String attrName) {
-        return (attrName != null) &&
-                attrName.toLowerCase().startsWith(extAttrPrefix);
+        return (attrName != null)
+                && attrName.toLowerCase().startsWith(extAttrPrefix);
     }
 
     public Enumeration getSupportedLDAPAttributeNames() {
         return mAttrs.elements();
     }
 
-
     /**
-     * Decodes extdata encoded keys.
-     * -- followed by a 4 digit hexadecimal string is decoded to the character
-     * representing the hex string.
-     *
-     * The routine is written to be highly efficient.  It only allocates
-     * the StringBuffer if needed and copies the pieces in large chunks.
-     *
-     * @param key  The key to decode
-     * @return  The decoded key.
+     * Decodes extdata encoded keys. -- followed by a 4 digit hexadecimal string
+     * is decoded to the character representing the hex string.
+     * 
+     * The routine is written to be highly efficient. It only allocates the
+     * StringBuffer if needed and copies the pieces in large chunks.
+     * 
+     * @param key The key to decode
+     * @return The decoded key.
      */
     public String decodeKey(String key) {
         StringBuffer output = null;
@@ -655,19 +644,15 @@ class ExtAttrDynMapper implements IDBDynAttrMapper {
         int index = 0;
         while (index < input.length) {
             if (input[index] == '-') {
-                if ( ((index + 1) < input.length) &&
-                     (input[index + 1] == '-')) {
+                if (((index + 1) < input.length) && (input[index + 1] == '-')) {
                     if (output == null) {
                         output = new StringBuffer(input.length);
                     }
                     output.append(input, startCopyIndex, index - startCopyIndex);
                     index += 2;
                     if ((index + 3) < input.length) {
-                        output.append(
-                            Character.toChars(
-                                Integer.parseInt(new String(input, index, 4),
-                                                16))
-                        );
+                        output.append(Character.toChars(Integer.parseInt(
+                                new String(input, index, 4), 16)));
                     }
                     index += 4;
                     startCopyIndex = index;
@@ -689,26 +674,23 @@ class ExtAttrDynMapper implements IDBDynAttrMapper {
 
     /**
      * Encoded extdata keys for storage in LDAP.
-     *
-     * The rules for encoding are trickier than decoding.  We want to allow
-     * '-' by itself to be stored in the database (for the common case of keys
-     * like 'Foo-Bar'.  Therefore we are using '--' as the encoding character.
-     * The rules are:
-     * 1) All characters [^-a-zA-Z0-9] are encoded as --XXXX where XXXX is the
-     *    hex representation of the digit.
-     * 2) [a-zA-Z0-9] are always passed through unencoded
-     * 3) [-] is passed through as long as it is preceded and followed
-     *    by [a-zA-Z0-9] (or if it's at the beginning/end of the string)
-     * 4) If [-] is preceded or followed by [^a-zA-Z0-9] then
-     *    the - as well as all following [^a-zA-Z0-9] characters are encoded
-     *    as --XXXX.
-     *
+     * 
+     * The rules for encoding are trickier than decoding. We want to allow '-'
+     * by itself to be stored in the database (for the common case of keys like
+     * 'Foo-Bar'. Therefore we are using '--' as the encoding character. The
+     * rules are: 1) All characters [^-a-zA-Z0-9] are encoded as --XXXX where
+     * XXXX is the hex representation of the digit. 2) [a-zA-Z0-9] are always
+     * passed through unencoded 3) [-] is passed through as long as it is
+     * preceded and followed by [a-zA-Z0-9] (or if it's at the beginning/end of
+     * the string) 4) If [-] is preceded or followed by [^a-zA-Z0-9] then the -
+     * as well as all following [^a-zA-Z0-9] characters are encoded as --XXXX.
+     * 
      * This routine tries to be as efficient as possible with StringBuffer and
-     * large copies.  However, the encoding unfortunately requires several
+     * large copies. However, the encoding unfortunately requires several
      * objects to be allocated.
-     *
+     * 
      * @param key The key to encode
-     * @return  The encoded key
+     * @return The encoded key
      */
     public String encodeKey(String key) {
         StringBuffer output = null;
@@ -717,21 +699,20 @@ class ExtAttrDynMapper implements IDBDynAttrMapper {
 
         int index = 0;
         while (index < input.length) {
-            if (! isAlphaNum(input[index])) {
-                if ((input[index] == '-') &&
-                    ((index + 1) < input.length) &&
-                    (isAlphaNum(input[index + 1]))) {
+            if (!isAlphaNum(input[index])) {
+                if ((input[index] == '-') && ((index + 1) < input.length)
+                        && (isAlphaNum(input[index + 1]))) {
                     index += 2;
-                } else if ((input[index] == '-') &&
-                           ((index + 1) == input.length)) {
+                } else if ((input[index] == '-')
+                        && ((index + 1) == input.length)) {
                     index += 1;
                 } else {
                     if (output == null) {
                         output = new StringBuffer(input.length + 5);
                     }
                     output.append(input, startCopyIndex, index - startCopyIndex);
-                    while ( (index < input.length) &&
-                            (! isAlphaNum(input[index])) ) {
+                    while ((index < input.length)
+                            && (!isAlphaNum(input[index]))) {
                         output.append("--");
                         String hexString = Integer.toHexString(input[index]);
                         int padding = 4 - hexString.length();
@@ -771,8 +752,7 @@ class ExtAttrDynMapper implements IDBDynAttrMapper {
     }
 
     public void mapObjectToLDAPAttributeSet(IDBObj parent, String name,
-                                            Object obj, LDAPAttributeSet attrs)
-            throws EBaseException {
+            Object obj, LDAPAttributeSet attrs) throws EBaseException {
         Hashtable ht = (Hashtable) obj;
         Enumeration e = ht.keys();
 
@@ -781,73 +761,75 @@ class ExtAttrDynMapper implements IDBDynAttrMapper {
                 String key = (String) e.nextElement();
                 Object value = ht.get(key);
                 if (value instanceof String) {
-                    String stringValue = (String)value;
-                    attrs.add(new LDAPAttribute(
-                            extAttrPrefix + encodeKey(key),
+                    String stringValue = (String) value;
+                    attrs.add(new LDAPAttribute(extAttrPrefix + encodeKey(key),
                             stringValue));
                 } else if (value instanceof Hashtable) {
-                    Hashtable innerHash = (Hashtable)value;
+                    Hashtable innerHash = (Hashtable) value;
                     Enumeration innerHashEnum = innerHash.keys();
-                    while (innerHashEnum.hasMoreElements()){
-                        String innerKey = (String)innerHashEnum.nextElement();
-                        String innerValue = (String)innerHash.get(innerKey);
-                        attrs.add(new LDAPAttribute(
-                            extAttrPrefix + encodeKey(key) + ";" + encodeKey(innerKey),
-                            innerValue));
+                    while (innerHashEnum.hasMoreElements()) {
+                        String innerKey = (String) innerHashEnum.nextElement();
+                        String innerValue = (String) innerHash.get(innerKey);
+                        attrs.add(new LDAPAttribute(extAttrPrefix
+                                + encodeKey(key) + ";" + encodeKey(innerKey),
+                                innerValue));
                     }
                 }
             }
         } catch (Exception x) {
-            Debug.trace("Output Mapping Error in requeset ID " +
-                ((IRequestRecord) parent).getRequestId().toString() + " : " + x);
-            //if (Debug.ON) {
+            Debug.trace("Output Mapping Error in requeset ID "
+                    + ((IRequestRecord) parent).getRequestId().toString()
+                    + " : " + x);
+            // if (Debug.ON) {
             Debug.printStackTrace(x);
-            //}
+            // }
         }
     }
 
-    public void mapLDAPAttributeSetToObject(LDAPAttributeSet attrs, String name,
-                                            IDBObj parent)
-            throws EBaseException {
+    public void mapLDAPAttributeSetToObject(LDAPAttributeSet attrs,
+            String name, IDBObj parent) throws EBaseException {
         Hashtable ht = new Hashtable();
         Hashtable valueHashtable;
 
         Enumeration attrEnum = attrs.getAttributes();
         while (attrEnum.hasMoreElements()) {
-            LDAPAttribute attr = (LDAPAttribute)attrEnum.nextElement();
+            LDAPAttribute attr = (LDAPAttribute) attrEnum.nextElement();
             String baseName = attr.getBaseName();
             if (baseName.toLowerCase().startsWith(extAttrPrefix)) {
-                String keyName = decodeKey(
-                        baseName.substring(extAttrPrefix.length()));
+                String keyName = decodeKey(baseName.substring(extAttrPrefix
+                        .length()));
                 String[] subTypes = attr.getSubtypes();
                 String[] values = attr.getStringValueArray();
                 if (values.length != 1) {
-                    String message = "Output Mapping Error in request ID " +
-                        ((IRequestRecord) parent).getRequestId().toString() + " : " +
-                            "more than one value returned for " +
-                            keyName;
+                    String message = "Output Mapping Error in request ID "
+                            + ((IRequestRecord) parent).getRequestId()
+                                    .toString() + " : "
+                            + "more than one value returned for " + keyName;
                     Debug.trace(message);
                     throw new EBaseException(message);
                 }
                 if ((subTypes != null) && (subTypes.length > 0)) {
                     if (subTypes.length != 1) {
-                        String message = "Output Mapping Error in request ID " +
-                            ((IRequestRecord) parent).getRequestId().toString() + " : " +
-                                "more than one subType returned for " +
-                                keyName;
+                        String message = "Output Mapping Error in request ID "
+                                + ((IRequestRecord) parent).getRequestId()
+                                        .toString() + " : "
+                                + "more than one subType returned for "
+                                + keyName;
                         Debug.trace(message);
                         throw new EBaseException(message);
                     }
                     Object value = ht.get(keyName);
-                    if ((value != null) && (! (value instanceof Hashtable))) {
-                        String message = "Output Mapping Error in request ID " +
-                            ((IRequestRecord) parent).getRequestId().toString() + " : " +
-                                "combined no-subtype and subtype data for key " +
-                                keyName;
+                    if ((value != null) && (!(value instanceof Hashtable))) {
+                        String message = "Output Mapping Error in request ID "
+                                + ((IRequestRecord) parent).getRequestId()
+                                        .toString()
+                                + " : "
+                                + "combined no-subtype and subtype data for key "
+                                + keyName;
                         Debug.trace(message);
                         throw new EBaseException(message);
                     }
-                    valueHashtable = (Hashtable)value;
+                    valueHashtable = (Hashtable) value;
                     if (valueHashtable == null) {
                         valueHashtable = new Hashtable();
                         ht.put(keyName, valueHashtable);
@@ -862,7 +844,8 @@ class ExtAttrDynMapper implements IDBDynAttrMapper {
         parent.set(name, ht);
     }
 
-    public String mapSearchFilter(String name, String op, String value) throws EBaseException {
+    public String mapSearchFilter(String name, String op, String value)
+            throws EBaseException {
         return name + op + value;
     }
 

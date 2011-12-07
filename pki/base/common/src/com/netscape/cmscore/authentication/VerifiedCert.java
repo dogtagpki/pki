@@ -17,16 +17,14 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.authentication;
 
-
 import java.math.BigInteger;
 import java.util.Date;
 
 import com.netscape.certsrv.apps.CMS;
 
-
-/** 
+/**
  * class storing verified certificate.
- *
+ * 
  * @version $Revision$, $Date$
  */
 
@@ -45,9 +43,8 @@ public class VerifiedCert {
     /**
      * Constructs verified certiificate record
      */
- 
-    public VerifiedCert(BigInteger serialNumber, byte[] certEncoded,
-        int status) {
+
+    public VerifiedCert(BigInteger serialNumber, byte[] certEncoded, int status) {
         mStatus = status;
         mSerialNumber = serialNumber;
         mCertEncoded = certEncoded;
@@ -55,13 +52,13 @@ public class VerifiedCert {
     }
 
     public int check(BigInteger serialNumber, byte[] certEncoded,
-        long interval, long unknownStateInterval) {
+            long interval, long unknownStateInterval) {
         int status = UNKNOWN;
- 
+
         if (mSerialNumber.equals(serialNumber)) {
             if (mCertEncoded != null) {
-                if (certEncoded != null &&
-                    mCertEncoded.length == certEncoded.length) {
+                if (certEncoded != null
+                        && mCertEncoded.length == certEncoded.length) {
                     int i;
 
                     for (i = 0; i < mCertEncoded.length; i++) {
@@ -69,7 +66,8 @@ public class VerifiedCert {
                             break;
                     }
                     if (i >= mCertEncoded.length) {
-                        Date expires = new Date(mCreated.getTime() + (interval * 1000));
+                        Date expires = new Date(mCreated.getTime()
+                                + (interval * 1000));
                         Date now = CMS.getCurrentDate();
 
                         if (now.after(expires))
@@ -78,7 +76,8 @@ public class VerifiedCert {
                     }
                 }
             } else if (unknownStateInterval > 0) {
-                Date expires = new Date(mCreated.getTime() + (unknownStateInterval * 1000));
+                Date expires = new Date(mCreated.getTime()
+                        + (unknownStateInterval * 1000));
                 Date now = CMS.getCurrentDate();
 
                 if (now.after(expires))
@@ -90,4 +89,3 @@ public class VerifiedCert {
         return status;
     }
 }
-

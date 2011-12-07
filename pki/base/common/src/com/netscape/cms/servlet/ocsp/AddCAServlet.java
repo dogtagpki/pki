@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.ocsp;
 
-
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.cert.X509Certificate;
@@ -46,22 +45,19 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmsutil.util.Cert;
 
-
 /**
  * Configure the CA to respond to OCSP requests for a CA
- *
+ * 
  * @version $Revision$ $Date$
  */
 public class AddCAServlet extends CMSServlet {
-	
+
     /**
      *
      */
     private static final long serialVersionUID = 1065151608542115340L;
-    public static final String BEGIN_HEADER =
-        "-----BEGIN CERTIFICATE-----";
-    public static final String END_HEADER =
-        "-----END CERTIFICATE-----";
+    public static final String BEGIN_HEADER = "-----BEGIN CERTIFICATE-----";
+    public static final String END_HEADER = "-----END CERTIFICATE-----";
 
     public static final BigInteger BIG_ZERO = new BigInteger("0");
     public static final Long MINUS_ONE = Long.valueOf(-1);
@@ -70,10 +66,8 @@ public class AddCAServlet extends CMSServlet {
     private String mFormPath = null;
     private IOCSPAuthority mOCSPAuthority = null;
 
-    private final static String LOGGING_SIGNED_AUDIT_OCSP_ADD_CA_REQUEST =
-        "LOGGING_SIGNED_AUDIT_OCSP_ADD_CA_REQUEST_3";
-    private final static String LOGGING_SIGNED_AUDIT_OCSP_ADD_CA_REQUEST_PROCESSED =
-        "LOGGING_SIGNED_AUDIT_OCSP_ADD_CA_REQUEST_PROCESSED_3";
+    private final static String LOGGING_SIGNED_AUDIT_OCSP_ADD_CA_REQUEST = "LOGGING_SIGNED_AUDIT_OCSP_ADD_CA_REQUEST_3";
+    private final static String LOGGING_SIGNED_AUDIT_OCSP_ADD_CA_REQUEST_PROCESSED = "LOGGING_SIGNED_AUDIT_OCSP_ADD_CA_REQUEST_PROCESSED_3";
 
     public AddCAServlet() {
         super();
@@ -82,7 +76,7 @@ public class AddCAServlet extends CMSServlet {
     /**
      * initialize the servlet. This servlet uses the template file
      * "addCA.template" to process the response.
-     *
+     * 
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -100,19 +94,18 @@ public class AddCAServlet extends CMSServlet {
     /**
      * Process the HTTP request.
      * <ul>
-     * <li>http.param cert ca certificate. The format is base-64, DER
-     *    encoded, wrapped with -----BEGIN CERTIFICATE-----, 
-     *    -----END CERTIFICATE----- strings 
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_OCSP_ADD_CA_REQUEST used when
-     * a CA is attempted to be added to the OCSP responder
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_OCSP_ADD_CA_REQUEST_PROCESSED
-     * used when an add CA request to the OCSP Responder is processed
+     * <li>http.param cert ca certificate. The format is base-64, DER encoded,
+     * wrapped with -----BEGIN CERTIFICATE-----, -----END CERTIFICATE-----
+     * strings
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_OCSP_ADD_CA_REQUEST used when a CA
+     * is attempted to be added to the OCSP responder
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_OCSP_ADD_CA_REQUEST_PROCESSED used
+     * when an add CA request to the OCSP Responder is processed
      * </ul>
-     *
+     * 
      * @param cmsReq the object holding the request and response information
      */
-    protected void process(CMSRequest cmsReq)
-        throws EBaseException {
+    protected void process(CMSRequest cmsReq) throws EBaseException {
         HttpServletRequest req = cmsReq.getHttpReq();
         HttpServletResponse resp = cmsReq.getHttpResp();
         String auditMessage = null;
@@ -125,8 +118,8 @@ public class AddCAServlet extends CMSServlet {
         AuthzToken authzToken = null;
 
         try {
-            authzToken = authorize(mAclMethod, authToken,
-                        mAuthzResourceName, "add");
+            authzToken = authorize(mAclMethod, authToken, mAuthzResourceName,
+                    "add");
         } catch (Exception e) {
             // do nothing for now
         }
@@ -143,20 +136,21 @@ public class AddCAServlet extends CMSServlet {
             form = getTemplate(mFormPath, req, locale);
         } catch (IOException e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()));
+                    CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath,
+                            e.toString()));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
 
         IArgBlock header = CMS.createArgBlock();
         IArgBlock fixed = CMS.createArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
 
-        if (auditSubjectID.equals(ILogger.NONROLEUSER) ||
-               auditSubjectID.equals(ILogger.UNIDENTIFIED))  {
+        if (auditSubjectID.equals(ILogger.NONROLEUSER)
+                || auditSubjectID.equals(ILogger.UNIDENTIFIED)) {
             String uid = authToken.getInString(IAuthToken.USER_ID);
             if (uid != null) {
-                CMS.debug("AddCAServlet: auditSubjectID set to "+uid);
+                CMS.debug("AddCAServlet: auditSubjectID set to " + uid);
                 auditSubjectID = uid;
             }
         }
@@ -164,47 +158,42 @@ public class AddCAServlet extends CMSServlet {
 
         if (b64 == null) {
             auditMessage = CMS.getLogMessage(
-                LOGGING_SIGNED_AUDIT_OCSP_ADD_CA_REQUEST,
-                auditSubjectID,
-                ILogger.FAILURE,
-                ILogger.SIGNED_AUDIT_EMPTY_VALUE);
+                    LOGGING_SIGNED_AUDIT_OCSP_ADD_CA_REQUEST, auditSubjectID,
+                    ILogger.FAILURE, ILogger.SIGNED_AUDIT_EMPTY_VALUE);
 
-            audit( auditMessage );
+            audit(auditMessage);
 
-            throw new ECMSGWException(CMS.getUserMessage(getLocale(req), "CMS_GW_MISSING_CA_CERT"));
+            throw new ECMSGWException(CMS.getUserMessage(getLocale(req),
+                    "CMS_GW_MISSING_CA_CERT"));
         }
 
         auditCA = Cert.normalizeCertStr(Cert.stripCertBrackets(b64.trim()));
         // record the fact that a request to add CA is made
         auditMessage = CMS.getLogMessage(
-            LOGGING_SIGNED_AUDIT_OCSP_ADD_CA_REQUEST,
-            auditSubjectID,
-            ILogger.SUCCESS,
-            auditCA);
+                LOGGING_SIGNED_AUDIT_OCSP_ADD_CA_REQUEST, auditSubjectID,
+                ILogger.SUCCESS, auditCA);
 
-        audit( auditMessage );
+        audit(auditMessage);
 
         if (b64.indexOf(BEGIN_HEADER) == -1) {
             auditMessage = CMS.getLogMessage(
-                LOGGING_SIGNED_AUDIT_OCSP_ADD_CA_REQUEST_PROCESSED,
-                auditSubjectID,
-                ILogger.FAILURE,
-                auditCASubjectDN);
+                    LOGGING_SIGNED_AUDIT_OCSP_ADD_CA_REQUEST_PROCESSED,
+                    auditSubjectID, ILogger.FAILURE, auditCASubjectDN);
 
-            audit( auditMessage );
+            audit(auditMessage);
 
-            throw new ECMSGWException(CMS.getUserMessage(getLocale(req), "CMS_GW_MISSING_CERT_HEADER"));
+            throw new ECMSGWException(CMS.getUserMessage(getLocale(req),
+                    "CMS_GW_MISSING_CERT_HEADER"));
         }
         if (b64.indexOf(END_HEADER) == -1) {
             auditMessage = CMS.getLogMessage(
-                LOGGING_SIGNED_AUDIT_OCSP_ADD_CA_REQUEST_PROCESSED,
-                auditSubjectID,
-                ILogger.FAILURE,
-                auditCASubjectDN);
+                    LOGGING_SIGNED_AUDIT_OCSP_ADD_CA_REQUEST_PROCESSED,
+                    auditSubjectID, ILogger.FAILURE, auditCASubjectDN);
 
-            audit( auditMessage );
+            audit(auditMessage);
 
-            throw new ECMSGWException(CMS.getUserMessage(getLocale(req), "CMS_GW_MISSING_CERT_FOOTER"));
+            throw new ECMSGWException(CMS.getUserMessage(getLocale(req),
+                    "CMS_GW_MISSING_CERT_FOOTER"));
         }
 
         IDefStore defStore = mOCSPAuthority.getDefaultStore();
@@ -215,17 +204,15 @@ public class AddCAServlet extends CMSServlet {
         try {
             X509Certificate cert = Cert.mapCert(b64);
 
-            if( cert == null ) {
-                CMS.debug( "AddCAServlet::process() - cert is null!" );
+            if (cert == null) {
+                CMS.debug("AddCAServlet::process() - cert is null!");
                 auditMessage = CMS.getLogMessage(
-                    LOGGING_SIGNED_AUDIT_OCSP_ADD_CA_REQUEST_PROCESSED,
-                    auditSubjectID,
-                    ILogger.FAILURE,
-                    auditCASubjectDN);
+                        LOGGING_SIGNED_AUDIT_OCSP_ADD_CA_REQUEST_PROCESSED,
+                        auditSubjectID, ILogger.FAILURE, auditCASubjectDN);
 
-                audit( auditMessage );
+                audit(auditMessage);
 
-                throw new EBaseException( "cert is null" );
+                throw new EBaseException("cert is null");
             } else {
                 certs = new X509Certificate[1];
             }
@@ -239,7 +226,8 @@ public class AddCAServlet extends CMSServlet {
             try {
                 // this could be a chain
                 certs = Cert.mapCertFromPKCS7(b64);
-                if (certs[0].getSubjectDN().getName().equals(certs[0].getIssuerDN().getName())) {
+                if (certs[0].getSubjectDN().getName()
+                        .equals(certs[0].getIssuerDN().getName())) {
                     leafCert = certs[certs.length - 1];
                 } else {
                     leafCert = certs[0];
@@ -247,15 +235,13 @@ public class AddCAServlet extends CMSServlet {
                 auditCASubjectDN = leafCert.getSubjectDN().getName();
             } catch (Exception e) {
                 auditMessage = CMS.getLogMessage(
-                    LOGGING_SIGNED_AUDIT_OCSP_ADD_CA_REQUEST_PROCESSED,
-                    auditSubjectID,
-                    ILogger.FAILURE,
-                    auditCASubjectDN);
+                        LOGGING_SIGNED_AUDIT_OCSP_ADD_CA_REQUEST_PROCESSED,
+                        auditSubjectID, ILogger.FAILURE, auditCASubjectDN);
 
-                audit( auditMessage );
+                audit(auditMessage);
 
                 throw new ECMSGWException(
-                  CMS.getUserMessage("CMS_GW_ENCODING_CA_CHAIN_ERROR"));
+                        CMS.getUserMessage("CMS_GW_ENCODING_CA_CHAIN_ERROR"));
             }
         }
         if (certs != null && certs.length > 0) {
@@ -264,32 +250,29 @@ public class AddCAServlet extends CMSServlet {
             // (2) store certificate (and certificate chain) into
             // database
             ICRLIssuingPointRecord rec = defStore.createCRLIssuingPointRecord(
-                    leafCert.getSubjectDN().getName(),  
-                    BIG_ZERO, 
-                    MINUS_ONE, null, null);
+                    leafCert.getSubjectDN().getName(), BIG_ZERO, MINUS_ONE,
+                    null, null);
 
             try {
-                rec.set(ICRLIssuingPointRecord.ATTR_CA_CERT, leafCert.getEncoded());
+                rec.set(ICRLIssuingPointRecord.ATTR_CA_CERT,
+                        leafCert.getEncoded());
             } catch (Exception e) {
                 auditMessage = CMS.getLogMessage(
-                    LOGGING_SIGNED_AUDIT_OCSP_ADD_CA_REQUEST_PROCESSED,
-                    auditSubjectID,
-                    ILogger.FAILURE,
-                    auditCASubjectDN);
+                        LOGGING_SIGNED_AUDIT_OCSP_ADD_CA_REQUEST_PROCESSED,
+                        auditSubjectID, ILogger.FAILURE, auditCASubjectDN);
 
-                audit( auditMessage );
+                audit(auditMessage);
 
                 // error
             }
             defStore.addCRLIssuingPoint(leafCert.getSubjectDN().getName(), rec);
-            log(ILogger.EV_AUDIT, AuditFormat.LEVEL, "Added CA certificate " + leafCert.getSubjectDN().getName());
+            log(ILogger.EV_AUDIT, AuditFormat.LEVEL, "Added CA certificate "
+                    + leafCert.getSubjectDN().getName());
             auditMessage = CMS.getLogMessage(
-                LOGGING_SIGNED_AUDIT_OCSP_ADD_CA_REQUEST_PROCESSED,
-                auditSubjectID,
-                ILogger.SUCCESS,
-                auditCASubjectDN);
+                    LOGGING_SIGNED_AUDIT_OCSP_ADD_CA_REQUEST_PROCESSED,
+                    auditSubjectID, ILogger.SUCCESS, auditCASubjectDN);
 
-            audit( auditMessage );
+            audit(auditMessage);
         }
 
         try {
@@ -297,18 +280,18 @@ public class AddCAServlet extends CMSServlet {
             String error = null;
 
             String xmlOutput = req.getParameter("xml");
-			if (xmlOutput != null && xmlOutput.equals("true")) {
-			  outputXML(resp, argSet);
-			} else {
-			  resp.setContentType("text/html");
-			  form.renderOutput(out, argSet);
-			  cmsReq.setStatus(CMSRequest.SUCCESS);
-			}
+            if (xmlOutput != null && xmlOutput.equals("true")) {
+                outputXML(resp, argSet);
+            } else {
+                resp.setContentType("text/html");
+                form.renderOutput(out, argSet);
+                cmsReq.setStatus(CMSRequest.SUCCESS);
+            }
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()));
+            log(ILogger.LL_FAILURE, CMS.getLogMessage(
+                    "CMSGW_ERR_STREAM_TEMPLATE", e.toString()));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
     }
 }

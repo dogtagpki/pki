@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.kra;
 
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -42,17 +41,15 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.IDBObj;
 
-
 /**
- * A class represents a proof of escrow. It indicates a key
- * pairs have been escrowed by appropriate authority. The 
- * structure of this object is very similar (if not exact) to 
- * X.509 certificate. A proof of escrow is signed by an escrow 
- * authority. It is possible to have a CMS policy to reject
- * the certificate issuance request if proof of escrow is not
- * presented.
+ * A class represents a proof of escrow. It indicates a key pairs have been
+ * escrowed by appropriate authority. The structure of this object is very
+ * similar (if not exact) to X.509 certificate. A proof of escrow is signed by
+ * an escrow authority. It is possible to have a CMS policy to reject the
+ * certificate issuance request if proof of escrow is not presented.
  * <P>
  * Here is the ASN1 definition of a proof of escrow:
+ * 
  * <PRE>
  * ProofOfEscrow ::= SIGNED {
  *   SEQUENCE {
@@ -106,13 +103,14 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival, Serializable {
     /**
      * Constructs a proof of escrow.
      * <P>
+     * 
      * @param serialNo serial number of proof
      * @param subject subject name
      * @param issuer issuer name
      * @param dateOfArchival date of archival
      */
-    public ProofOfArchival(BigInteger serialNo, String subject,
-        String issuer, Date dateOfArchival) {
+    public ProofOfArchival(BigInteger serialNo, String subject, String issuer,
+            Date dateOfArchival) {
         mVersion = DEFAULT_VERSION;
         mSerialNo = serialNo;
         mSubject = subject;
@@ -123,6 +121,7 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival, Serializable {
     /**
      * Constructs proof of escrow from input stream.
      * <P>
+     * 
      * @param in encoding source
      * @exception EBaseException failed to decode
      */
@@ -133,6 +132,7 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival, Serializable {
     /**
      * Sets an attribute value.
      * <P>
+     * 
      * @param name attribute name
      * @param obj attribute value
      * @exception EBaseException failed to set attribute
@@ -149,14 +149,15 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival, Serializable {
         } else if (name.equals(ATTR_DATE_OF_ARCHIVAL)) {
             mDateOfArchival = (Date) obj;
         } else {
-            throw new EBaseException(
-                    CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
+            throw new EBaseException(CMS.getUserMessage(
+                    "CMS_BASE_INVALID_ATTRIBUTE", name));
         }
     }
 
     /**
      * Retrieves the value of an named attribute.
      * <P>
+     * 
      * @param name attribute name
      * @return attribute value
      * @exception EBaseException failed to get attribute
@@ -173,26 +174,27 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival, Serializable {
         } else if (name.equals(ATTR_DATE_OF_ARCHIVAL)) {
             return mDateOfArchival;
         } else {
-            throw new EBaseException(
-                    CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
+            throw new EBaseException(CMS.getUserMessage(
+                    "CMS_BASE_INVALID_ATTRIBUTE", name));
         }
     }
-	
+
     /**
      * Deletes an attribute.
      * <P>
+     * 
      * @param name attribute name
      * @exception EBaseException failed to get attribute
      */
     public void delete(String name) throws EBaseException {
-        throw new EBaseException(
-                CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
+        throw new EBaseException(CMS.getUserMessage(
+                "CMS_BASE_INVALID_ATTRIBUTE", name));
     }
-	
+
     /**
      * Retrieves a list of possible attribute names.
      * <P>
-     *
+     * 
      * @return a list of names
      */
     public Enumeration getElements() {
@@ -207,11 +209,12 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival, Serializable {
     public Enumeration getSerializableAttrNames() {
         return mNames.elements();
     }
-	
+
     /**
      * Retrieves version of this proof.
      * <P>
-     * @return version 
+     * 
+     * @return version
      */
     public BigInteger getVersion() {
         return mVersion;
@@ -220,7 +223,8 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival, Serializable {
     /**
      * Retrieves the serial number.
      * <P>
-     * @return serial number 
+     * 
+     * @return serial number
      */
     public BigInteger getSerialNumber() {
         return mSerialNo;
@@ -229,6 +233,7 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival, Serializable {
     /**
      * Retrieves the subject name.
      * <P>
+     * 
      * @return subject name
      */
     public String getSubjectName() {
@@ -238,6 +243,7 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival, Serializable {
     /**
      * Retrieves the issuer name.
      * <P>
+     * 
      * @return issuer name
      */
     public String getIssuerName() {
@@ -247,6 +253,7 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival, Serializable {
     /**
      * Returns the beginning of the escrowed perioid.
      * <P>
+     * 
      * @return date of archival
      */
     public Date getDateOfArchival() {
@@ -254,8 +261,7 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival, Serializable {
     }
 
     /**
-     * Encodes this proof of escrow into the given 
-     * output stream.
+     * Encodes this proof of escrow into the given output stream.
      * <P>
      */
     public void encode(DerOutputStream out) throws EBaseException {
@@ -267,11 +273,10 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival, Serializable {
                 DerOutputStream version = new DerOutputStream();
 
                 version.putInteger(new BigInt(mVersion));
-                seq.write(DerValue.createTag(
-                        DerValue.TAG_CONTEXT, true, (byte) 0), 
-                    version);
+                seq.write(DerValue.createTag(DerValue.TAG_CONTEXT, true,
+                        (byte) 0), version);
             }
-	
+
             // serial number
             DerOutputStream serialno = new DerOutputStream();
 
@@ -289,10 +294,11 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival, Serializable {
 
             // issue date
             seq.putUTCTime(mDateOfArchival);
-            out.write(DerValue.tag_Sequence, seq);	
+            out.write(DerValue.tag_Sequence, seq);
 
         } catch (IOException e) {
-            throw new EKRAException(CMS.getUserMessage("CMS_KRA_POA_DECODE_FAILED", e.toString()));
+            throw new EKRAException(CMS.getUserMessage(
+                    "CMS_KRA_POA_DECODE_FAILED", e.toString()));
         }
     }
 
@@ -300,9 +306,8 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival, Serializable {
      * Encodes and signs this proof of escrow.
      * <P>
      */
-    public void encodeAndSign(PrivateKey key, String algorithm, 
-        String provider, DerOutputStream out) 
-        throws EBaseException {
+    public void encodeAndSign(PrivateKey key, String algorithm,
+            String provider, DerOutputStream out) throws EBaseException {
 
         try {
             Signature sigEngine = null;
@@ -310,8 +315,7 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival, Serializable {
             if (provider == null) {
                 sigEngine = Signature.getInstance(algorithm);
             } else {
-                sigEngine = Signature.getInstance(algorithm, 
-                            provider);
+                sigEngine = Signature.getInstance(algorithm, provider);
             }
 
             sigEngine.initSign(key);
@@ -319,8 +323,7 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival, Serializable {
 
             encode(tmp);
 
-            AlgorithmId sigAlgId = AlgorithmId.get(
-                    sigEngine.getAlgorithm());
+            AlgorithmId sigAlgId = AlgorithmId.get(sigEngine.getAlgorithm());
 
             sigAlgId.encode(tmp);
             byte dataToSign[] = tmp.toByteArray();
@@ -332,15 +335,20 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival, Serializable {
             out.write(DerValue.tag_Sequence, tmp);
             return;
         } catch (NoSuchAlgorithmException e) {
-            throw new EKRAException(CMS.getUserMessage("CMS_KRA_POA_ENCODE_FAILED_1", e.toString()));
+            throw new EKRAException(CMS.getUserMessage(
+                    "CMS_KRA_POA_ENCODE_FAILED_1", e.toString()));
         } catch (NoSuchProviderException e) {
-            throw new EKRAException(CMS.getUserMessage("CMS_KRA_POA_ENCODE_FAILED_1", e.toString()));
+            throw new EKRAException(CMS.getUserMessage(
+                    "CMS_KRA_POA_ENCODE_FAILED_1", e.toString()));
         } catch (InvalidKeyException e) {
-            throw new EKRAException(CMS.getUserMessage("CMS_KRA_POA_ENCODE_FAILED_1", e.toString()));
+            throw new EKRAException(CMS.getUserMessage(
+                    "CMS_KRA_POA_ENCODE_FAILED_1", e.toString()));
         } catch (SignatureException e) {
-            throw new EKRAException(CMS.getUserMessage("CMS_KRA_POA_ENCODE_FAILED_1", e.toString()));
+            throw new EKRAException(CMS.getUserMessage(
+                    "CMS_KRA_POA_ENCODE_FAILED_1", e.toString()));
         } catch (IOException e) {
-            throw new EKRAException(CMS.getUserMessage("CMS_KRA_POA_ENCODE_FAILED_1", e.toString()));
+            throw new EKRAException(CMS.getUserMessage(
+                    "CMS_KRA_POA_ENCODE_FAILED_1", e.toString()));
         }
     }
 
@@ -357,7 +365,7 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival, Serializable {
 
             DerValue val = new DerValue(in);
 
-            DerValue seq[] = new DerValue[3]; 
+            DerValue seq[] = new DerValue[3];
 
             seq[0] = val.data.getDerValue();
             if (seq[0].tag == DerValue.tag_Sequence) {
@@ -365,13 +373,15 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival, Serializable {
                 seq[1] = val.data.getDerValue();
                 seq[2] = val.data.getDerValue();
                 if (seq[1].data.available() != 0) {
-                    throw new EKRAException(CMS.getUserMessage("CMS_KRA_POA_DECODE_FAILED_1", 
-                                "no algorithm found"));
+                    throw new EKRAException(
+                            CMS.getUserMessage("CMS_KRA_POA_DECODE_FAILED_1",
+                                    "no algorithm found"));
                 }
 
                 if (seq[2].data.available() != 0) {
-                    throw new EKRAException(CMS.getUserMessage("CMS_KRA_POA_DECODE_FAILED_1", 
-                                "no signature found"));
+                    throw new EKRAException(
+                            CMS.getUserMessage("CMS_KRA_POA_DECODE_FAILED_1",
+                                    "no signature found"));
                 }
 
                 AlgorithmId algid = AlgorithmId.parse(seq[1]);
@@ -383,7 +393,8 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival, Serializable {
                 decodePOA(val, seq[0]);
             }
         } catch (IOException e) {
-            throw new EKRAException(CMS.getUserMessage("CMS_KRA_POA_DECODE_FAILED_1", e.toString()));
+            throw new EKRAException(CMS.getUserMessage(
+                    "CMS_KRA_POA_DECODE_FAILED_1", e.toString()));
         }
     }
 
@@ -391,15 +402,16 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival, Serializable {
      * Decodes proof of escrow.
      * <P>
      */
-    private void decodePOA(DerValue val, DerValue preprocessed) 
-        throws EBaseException {
+    private void decodePOA(DerValue val, DerValue preprocessed)
+            throws EBaseException {
         try {
             DerValue tmp = null;
 
             if (preprocessed == null) {
                 if (val.tag != DerValue.tag_Sequence) {
-                    throw new EKRAException(CMS.getUserMessage("CMS_KRA_POA_DECODE_FAILED_1", 
-                                "not start with sequence"));
+                    throw new EKRAException(CMS.getUserMessage(
+                            "CMS_KRA_POA_DECODE_FAILED_1",
+                            "not start with sequence"));
                 }
                 tmp = val.data.getDerValue();
             } else {
@@ -429,7 +441,7 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival, Serializable {
 
             // mSubject = new X500Name(subject); // doesnt work
             mSubject = new String(subject.toByteArray());
-		
+
             // issuer
             DerValue issuer = val.data.getDerValue();
 
@@ -438,20 +450,19 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival, Serializable {
             // date of archival
             mDateOfArchival = val.data.getUTCTime();
         } catch (IOException e) {
-            throw new EKRAException(CMS.getUserMessage("CMS_KRA_POA_DECODE_FAILED_1", e.toString()));
+            throw new EKRAException(CMS.getUserMessage(
+                    "CMS_KRA_POA_DECODE_FAILED_1", e.toString()));
         }
     }
 
     /**
-     * Retrieves the string reprensetation of this 
-     * proof of archival.
+     * Retrieves the string reprensetation of this proof of archival.
      */
     public String toString() {
-        return "Version: " + mVersion.toString() + "\n" +
-            "SerialNo: " + mSerialNo.toString() + "\n" +
-            "Subject: " + mSubject + "\n" +
-            "Issuer: " + mIssuer + "\n" +
-            "DateOfArchival: " + mDateOfArchival.toString();
+        return "Version: " + mVersion.toString() + "\n" + "SerialNo: "
+                + mSerialNo.toString() + "\n" + "Subject: " + mSubject + "\n"
+                + "Issuer: " + mIssuer + "\n" + "DateOfArchival: "
+                + mDateOfArchival.toString();
     }
 
 }

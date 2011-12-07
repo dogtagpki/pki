@@ -17,37 +17,36 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.publish;
 
-
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IPluginImpl;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ldap.ELdapException;
 
-
-/** 
+/**
  * Interface for any ldap plugin. Plugin implementation is defined here.
- *
+ * 
  * @version $Revision$ $Date$
  */
 public interface ILdapPluginImpl extends IPluginImpl {
 
     /**
      * initialize from config store.
+     * 
      * @param config the configuration store to initialize from.
      * @exception ELdapException initializtion failed due to Ldap error.
      * @exception EBaseException initialization failed.
      */
     public void init(ISubsystem sys, IConfigStore config)
-        throws EBaseException, ELdapException;
+            throws EBaseException, ELdapException;
 
     /**
      * initialize from config store and Isubsystem.
+     * 
      * @param config the configuration store to initialize from.
      * @exception ELdapException initializtion failed due to Ldap error.
      * @exception EBaseException initialization failed.
      */
-    public void init(IConfigStore config)
-        throws EBaseException, ELdapException;
+    public void init(IConfigStore config) throws EBaseException, ELdapException;
 
 }

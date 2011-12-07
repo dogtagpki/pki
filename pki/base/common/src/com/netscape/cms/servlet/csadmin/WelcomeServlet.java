@@ -17,14 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.velocity.Template;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.context.Context;
-
 
 public class WelcomeServlet extends BaseServlet {
 
@@ -34,8 +32,7 @@ public class WelcomeServlet extends BaseServlet {
     private static final long serialVersionUID = 1179761802633506502L;
 
     public Template process(HttpServletRequest request,
-            HttpServletResponse response,
-            Context context) {
+            HttpServletResponse response, Context context) {
 
         Template template = null;
 

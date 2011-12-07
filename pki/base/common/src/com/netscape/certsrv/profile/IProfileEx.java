@@ -20,17 +20,16 @@ package com.netscape.certsrv.profile;
 import com.netscape.certsrv.base.EBaseException;
 
 /**
- * This interface represents the extension version of
- * profile.
+ * This interface represents the extension version of profile.
  * <p>
- *
+ * 
  * @version $Revision$, $Date$
  */
 public interface IProfileEx extends IProfile {
 
     /**
-     * Called after initialization. It populates default
-     * policies, inputs, and outputs.
+     * Called after initialization. It populates default policies, inputs, and
+     * outputs.
      */
     public void populate() throws EBaseException;
 }

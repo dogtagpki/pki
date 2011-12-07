@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmstools;
 
-
 import java.util.Vector;
 
 import netscape.security.util.DerOutputStream;
@@ -25,14 +24,12 @@ import netscape.security.util.DerValue;
 import netscape.security.util.ObjectIdentifier;
 import netscape.security.x509.Extension;
 
-
 /**
- * Generates a DER-encoded Extended Key Usage extension.
- * The first parameter is the criticality of the extension, true or false.
- * The OIDs to be included in the extension are passed as command-line
- * arguments.  The OIDs are described in RFC 2459.  For example,
- * the OID for code signing is 1.3.6.1.5.5.7.3.3.
- *
+ * Generates a DER-encoded Extended Key Usage extension. The first parameter is
+ * the criticality of the extension, true or false. The OIDs to be included in
+ * the extension are passed as command-line arguments. The OIDs are described in
+ * RFC 2459. For example, the OID for code signing is 1.3.6.1.5.5.7.3.3.
+ * 
  * @version $Revision$, $Date$
  */
 public class GenExtKeyUsage {
@@ -40,9 +37,10 @@ public class GenExtKeyUsage {
     public static void main(String[] args) {
         try {
             if (args.length < 2) {
-                System.out.println("Usage:  GenExtKeyUsage [true|false] <OID> ...");
+                System.out
+                        .println("Usage:  GenExtKeyUsage [true|false] <OID> ...");
                 System.exit(-1);
-            } 
+            }
 
             boolean critical = false;
 
@@ -51,7 +49,8 @@ public class GenExtKeyUsage {
             } else if (args[0].equalsIgnoreCase("false")) {
                 critical = false;
             } else {
-                System.out.println("Usage: GenExtKeyUsage [true|false] <OID> ...");
+                System.out
+                        .println("Usage: GenExtKeyUsage [true|false] <OID> ...");
                 System.exit(-1);
             }
 
@@ -91,7 +90,8 @@ public class GenExtKeyUsage {
 
             // BASE64 encode the whole thing and write it to stdout
 
-            System.out.println(com.netscape.osutil.OSUtil.BtoA(extdos.toByteArray()));
+            System.out.println(com.netscape.osutil.OSUtil.BtoA(extdos
+                    .toByteArray()));
 
         } catch (Exception e) {
             e.printStackTrace();

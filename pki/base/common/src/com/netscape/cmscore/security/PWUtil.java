@@ -17,23 +17,19 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.security;
 
-
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
 import org.mozilla.jss.util.Password;
 import org.mozilla.jss.util.PasswordCallback;
 
-
-public class
-PWUtil {
-    public static Password
-    readPasswordFromStream() 
-        throws PasswordCallback.GiveUpException {
+public class PWUtil {
+    public static Password readPasswordFromStream()
+            throws PasswordCallback.GiveUpException {
         BufferedReader in;
 
         in = new BufferedReader(new InputStreamReader(System.in));
-    
+
         StringBuffer buf = new StringBuffer();
         String passwordString = new String();
         int c;
@@ -49,7 +45,7 @@ PWUtil {
                     if (ch != '\r') {
                         if (ch != '\n') {
                             buf.append(ch);
-                        } else {          
+                        } else {
                             passwordString = buf.toString();
                             buf.setLength(0);
                             break;
@@ -61,10 +57,10 @@ PWUtil {
             }
 
             // memory problem?
-            //      String passwordString = in.readLine();
-            //            System.out.println( "done read" );
-            //            System.out.println( " password recieved is ["
-            //                              + passwordString + "]" );
+            // String passwordString = in.readLine();
+            // System.out.println( "done read" );
+            // System.out.println( " password recieved is ["
+            // + passwordString + "]" );
             if (passwordString == null) {
                 throw new PasswordCallback.GiveUpException();
             }
@@ -80,4 +76,3 @@ PWUtil {
         }
     }
 }
-

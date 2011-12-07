@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.authentication;
 
-
 // ldap java sdk
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -49,15 +48,13 @@ import com.netscape.certsrv.profile.IProfileAuthenticator;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 
-
 /**
- * This represents the authentication manager that authenticates
- * user against a file where id, and password are stored.
+ * This represents the authentication manager that authenticates user against a
+ * file where id, and password are stored.
  * 
  * @version $Revision$, $Date$
  */
-public class FlatFileAuth 
-    implements IProfileAuthenticator, IExtendedPluginInfo {
+public class FlatFileAuth implements IProfileAuthenticator, IExtendedPluginInfo {
 
     /* configuration parameter keys */
     protected static final String PROP_FILENAME = "fileName";
@@ -66,39 +63,36 @@ public class FlatFileAuth
     protected static final String PROP_DEFERONFAILURE = "deferOnFailure";
 
     protected String mFilename = "config/pwfile";
-    protected long   mFileLastRead = 0;
+    protected long mFileLastRead = 0;
     protected String mKeyAttributes = "UID";
     protected String mAuthAttrs = "PWD";
     protected boolean mDeferOnFailure = true;
     private static final String DATE_PATTERN = "yyyy-MM-dd-HH-mm-ss";
-    private static SimpleDateFormat mDateFormat = new SimpleDateFormat(DATE_PATTERN);
+    private static SimpleDateFormat mDateFormat = new SimpleDateFormat(
+            DATE_PATTERN);
 
-    protected static String[] mConfigParams = 
-        new String[] {
-            PROP_FILENAME,
-            PROP_KEYATTRIBUTES,
-            PROP_AUTHATTRS,
-            PROP_DEFERONFAILURE
-        };
+    protected static String[] mConfigParams = new String[] { PROP_FILENAME,
+            PROP_KEYATTRIBUTES, PROP_AUTHATTRS, PROP_DEFERONFAILURE };
 
     public String[] getExtendedPluginInfo(Locale locale) {
         String s[] = {
                 PROP_FILENAME + ";string;Pathname of password file",
-                PROP_KEYATTRIBUTES + ";string;Comma-separated list of attributes" +
-                " which together form a unique identifier for the user",
-                PROP_AUTHATTRS + ";string;Comma-separated list of attributes" +
-                " which are used for further authentication",
-                PROP_DEFERONFAILURE + ";boolean;if user is not found, defer the " +
-                "request to the queue for manual-authentication (true), or " +
-                "simply rejected the request (false)"
-            };
+                PROP_KEYATTRIBUTES
+                        + ";string;Comma-separated list of attributes"
+                        + " which together form a unique identifier for the user",
+                PROP_AUTHATTRS + ";string;Comma-separated list of attributes"
+                        + " which are used for further authentication",
+                PROP_DEFERONFAILURE
+                        + ";boolean;if user is not found, defer the "
+                        + "request to the queue for manual-authentication (true), or "
+                        + "simply rejected the request (false)" };
 
         return s;
     }
-	
+
     /** name of this authentication manager instance */
     protected String mName = null;
-	
+
     protected String FFAUTH = "FlatFileAuth";
 
     /** name of the authentication manager plugin */
@@ -109,30 +103,31 @@ public class FlatFileAuth
 
     /** system logger */
     protected ILogger mLogger = CMS.getLogger();
-	
-    /** This array is created as to include all the requested attributes
-     *
+
+    /**
+     * This array is created as to include all the requested attributes
+     * 
      */
     String[] reqCreds = null;
 
     String[] authAttrs = null;
     String[] keyAttrs = null;
 
-    /** Hashtable of entries from Auth File. Hash index is the
-     *  concatenation of the attributes from matchAttributes property
+    /**
+     * Hashtable of entries from Auth File. Hash index is the concatenation of
+     * the attributes from matchAttributes property
      */
     protected Hashtable entries = null;
 
     /**
-     * Get the named property
-     * If the property is not set, use s as the default, and create
-     * a new value for the property in the config file.
+     * Get the named property If the property is not set, use s as the default,
+     * and create a new value for the property in the config file.
      * 
      * @param propertyName Property name
      * @param s The default value of the property
      */
     protected String getPropertyS(String propertyName, String s)
-        throws EBaseException {
+            throws EBaseException {
         String p;
 
         try {
@@ -149,15 +144,14 @@ public class FlatFileAuth
     }
 
     /**
-     * Get the named property,
-     * If the property is not set, use b as the default, and create
-     * a new value for the property in the config file.
+     * Get the named property, If the property is not set, use b as the default,
+     * and create a new value for the property in the config file.
      * 
      * @param propertyName Property name
      * @param b The default value of the property
      */
     protected boolean getPropertyB(String propertyName, boolean b)
-        throws EBaseException {
+            throws EBaseException {
         boolean p;
 
         try {
@@ -170,7 +164,7 @@ public class FlatFileAuth
     }
 
     public void init(String name, String implName, IConfigStore config)
-        throws EBaseException {
+            throws EBaseException {
         mName = name;
         mImplName = implName;
         mConfig = config;
@@ -198,7 +192,8 @@ public class FlatFileAuth
         print("mAuthAttrs     = " + mAuthAttrs);
         for (int i = 0; i < stringArrays.length; i++) {
             for (int j = 0; j < stringArrays[i].length; j++) {
-                print("stringArrays[" + i + "][" + j + "] = " + stringArrays[i][j]);
+                print("stringArrays[" + i + "][" + j + "] = "
+                        + stringArrays[i][j]);
             }
         }
 
@@ -207,35 +202,40 @@ public class FlatFileAuth
 
             mFileLastRead = file.lastModified();
             entries = readFile(file, keyAttrs);
-            CMS.debug("FlatFileAuth: " + CMS.getLogMessage("CMS_AUTH_READ_ENTRIES", mFilename));
+            CMS.debug("FlatFileAuth: "
+                    + CMS.getLogMessage("CMS_AUTH_READ_ENTRIES", mFilename));
             // printAllEntries();
         } catch (IOException e) {
-            throw new EBaseException(mName + " authentication: Could not open file " + mFilename + "   (" + e.getMessage() + ")");
+            throw new EBaseException(mName
+                    + " authentication: Could not open file " + mFilename
+                    + "   (" + e.getMessage() + ")");
         } catch (java.lang.StringIndexOutOfBoundsException ee) {
-            CMS.debug("FlatFileAuth: " + CMS.getLogMessage("OPERATION_ERROR", ee.toString()));
+            CMS.debug("FlatFileAuth: "
+                    + CMS.getLogMessage("OPERATION_ERROR", ee.toString()));
         }
 
     }
 
     /**
      * Log a message.
+     * 
      * @param level The logging level.
      * @param msg The message to log.
      */
     private void log(int level, String msg) {
         if (mLogger == null)
             return;
-        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_AUTHENTICATION,
-            level, msg);
+        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_AUTHENTICATION, level,
+                msg);
     }
- 
+
     void print(String s) {
         CMS.debug("FlatFileAuth: " + s);
     }
 
     /**
-     * Return a string array which is the union of all the string arrays
-     * passed in. The strings are treated as case sensitive
+     * Return a string array which is the union of all the string arrays passed
+     * in. The strings are treated as case sensitive
      */
 
     public String[] unionOfStrings(String[][] stringArrays) {
@@ -257,12 +257,11 @@ public class FlatFileAuth
             s[i] = (String) e.nextElement();
         }
         return s;
-		
+
     }
-			
+
     /**
-     * Split a comma-delimited String into an array of individual
-     * Strings.
+     * Split a comma-delimited String into an array of individual Strings.
      */
     private String[] splitOnComma(String s) {
         print("Splitting String: " + s + " on commas");
@@ -282,8 +281,8 @@ public class FlatFileAuth
     }
 
     /**
-     * Join an array of Strings into one string, with
-     * the specified string between each string
+     * Join an array of Strings into one string, with the specified string
+     * between each string
      */
 
     private String joinStringArray(String[] s, String sep) {
@@ -298,9 +297,9 @@ public class FlatFileAuth
         return sb.toString();
     }
 
-    private synchronized void updateFile (String key) {
+    private synchronized void updateFile(String key) {
         try {
-            String name = writeFile (key);
+            String name = writeFile(key);
             if (name != null) {
                 File orgFile = new File(mFilename);
                 long lastModified = orgFile.lastModified();
@@ -310,23 +309,28 @@ public class FlatFileAuth
                 } else {
                     mFileLastRead = newFile.lastModified();
                 }
-                if (orgFile.renameTo(new File(name.substring(0, name.length()-1)))) {
+                if (orgFile.renameTo(new File(name.substring(0,
+                        name.length() - 1)))) {
                     if (!newFile.renameTo(new File(mFilename))) {
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage("RENAME_FILE_ERROR", name, mFilename));
-                        File file = new File(name.substring(0, name.length()-1));
+                        log(ILogger.LL_FAILURE, CMS.getLogMessage(
+                                "RENAME_FILE_ERROR", name, mFilename));
+                        File file = new File(name.substring(0,
+                                name.length() - 1));
                         file.renameTo(new File(mFilename));
                     }
                 } else {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("RENAME_FILE_ERROR", mFilename,
-                                                              name.substring(0, name.length()-1)));
+                    log(ILogger.LL_FAILURE, CMS.getLogMessage(
+                            "RENAME_FILE_ERROR", mFilename,
+                            name.substring(0, name.length() - 1)));
                 }
             }
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("FILE_ERROR", e.getMessage()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("FILE_ERROR", e.getMessage()));
         }
     }
 
-    private String writeFile (String key) {
+    private String writeFile(String key) {
         BufferedReader reader = null;
         BufferedWriter writer = null;
         String name = null;
@@ -334,9 +338,9 @@ public class FlatFileAuth
         boolean done = false;
         String line = null;
         try {
-            reader = new BufferedReader (new FileReader (mFilename));
-            name = mFilename+"."+mDateFormat.format(new Date())+"~";
-            writer = new BufferedWriter (new FileWriter(name));
+            reader = new BufferedReader(new FileReader(mFilename));
+            name = mFilename + "." + mDateFormat.format(new Date()) + "~";
+            writer = new BufferedWriter(new FileWriter(name));
             if (reader != null && writer != null) {
                 while ((line = reader.readLine()) != null) {
                     if (commentOutNextLine) {
@@ -353,7 +357,8 @@ public class FlatFileAuth
                 done = true;
             }
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("FILE_ERROR", e.getMessage()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("FILE_ERROR", e.getMessage()));
         }
 
         try {
@@ -365,7 +370,8 @@ public class FlatFileAuth
                 writer.close();
             }
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("FILE_ERROR", e.getMessage()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("FILE_ERROR", e.getMessage()));
         }
 
         try {
@@ -374,43 +380,45 @@ public class FlatFileAuth
                 long s2 = 0;
                 File f1 = new File(mFilename);
                 File f2 = new File(name);
-                if (f1.exists()) s1 = f1.length();
-                if (f2.exists()) s2 = f2.length();
+                if (f1.exists())
+                    s1 = f1.length();
+                if (f2.exists())
+                    s2 = f2.length();
                 if (s1 > 0 && s2 > 0 && s2 > s1) {
                     done = true;
                 } else {
-                    if (f2.exists()) f2.delete();
+                    if (f2.exists())
+                        f2.delete();
                     name = null;
                 }
             }
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("FILE_ERROR", e.getMessage()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("FILE_ERROR", e.getMessage()));
         }
 
         return name;
     }
 
-
     /**
-     * Read a file with the following format: <p><pre>
+     * Read a file with the following format:
+     * <p>
+     * 
+     * <pre>
      * param1: valuea
      * param2: valueb
      * -blank-line-
      * param1: valuec
      * param2: valued
      * </pre>
-     *
+     * 
      * @param f The file to read
-     * @param keys The parameters to concat together to form the hash
-     *   key
+     * @param keys The parameters to concat together to form the hash key
      * @return a hashtable of hashtables.
      */
-    protected Hashtable readFile(File f, String[] keys)
-        throws IOException {
+    protected Hashtable readFile(File f, String[] keys) throws IOException {
         log(ILogger.LL_INFO, "Reading file: " + f.getName());
-        BufferedReader file = new BufferedReader(
-                new FileReader(f)
-            );
+        BufferedReader file = new BufferedReader(new FileReader(f));
 
         String line;
         Hashtable allusers = new Hashtable();
@@ -429,13 +437,14 @@ public class FlatFileAuth
                 entry = new Hashtable();
             }
 
-            if (colon == -1) {    // no colon -> empty line signifies end of record
+            if (colon == -1) { // no colon -> empty line signifies end of record
                 if (!line.trim().equals("")) {
                     if (file != null) {
                         file.close();
                     }
-                    throw new IOException(FFAUTH + ": Parsing error, " +
-                            "colon missing from line " + linenum + " of " + f.getName());
+                    throw new IOException(FFAUTH + ": Parsing error, "
+                            + "colon missing from line " + linenum + " of "
+                            + f.getName());
                 }
                 if (entry.size() > 0) {
                     putEntry(allusers, entry, keys);
@@ -457,9 +466,7 @@ public class FlatFileAuth
         return allusers;
     }
 
-    private void putEntry(Hashtable allUsers,
-        Hashtable entry, 
-        String[] keys) {
+    private void putEntry(Hashtable allUsers, Hashtable entry, String[] keys) {
         if (entry == null) {
             return;
         }
@@ -497,22 +504,24 @@ public class FlatFileAuth
     }
 
     /**
-     * Compare attributes provided by the user with those in
-     * in flat file.
-     *
+     * Compare attributes provided by the user with those in in flat file.
+     * 
      */
 
-    private IAuthToken doAuthentication(Hashtable user, IAuthCredentials authCred)
-        throws EMissingCredential, EInvalidCredentials, EBaseException {
+    private IAuthToken doAuthentication(Hashtable user,
+            IAuthCredentials authCred) throws EMissingCredential,
+            EInvalidCredentials, EBaseException {
         AuthToken authToken = new AuthToken(this);
 
         for (int i = 0; i < authAttrs.length; i++) {
             String ffvalue = (String) user.get(authAttrs[i]);
             String uservalue = (String) authCred.get(authAttrs[i]);
 
-            // print("checking authentication token (" + authAttrs[i] + ": " + uservalue + " against ff value: " + ffvalue);
+            // print("checking authentication token (" + authAttrs[i] + ": " +
+            // uservalue + " against ff value: " + ffvalue);
             if (!ffvalue.equals(uservalue)) {
-                throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
+                throw new EInvalidCredentials(
+                        CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
             }
         }
         return authToken;
@@ -530,16 +539,18 @@ public class FlatFileAuth
                 // printAllEntries();
             }
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("READ_FILE_ERROR", mFilename, e.getMessage()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("READ_FILE_ERROR", mFilename,
+                            e.getMessage()));
         }
     }
 
     /**
      * Authenticate the request
-     *
+     * 
      */
     public IAuthToken authenticate(IAuthCredentials authCred)
-        throws EMissingCredential, EInvalidCredentials, EBaseException {
+            throws EMissingCredential, EInvalidCredentials, EBaseException {
         IAuthToken authToken = null;
         String keyForUser = "";
 
@@ -550,11 +561,13 @@ public class FlatFileAuth
         /* Find the user in our hashtable */
 
         for (int i = 0; i < keyAttrs.length; i++) {
-            print("concatenating string i=" + i + "  keyAttrs[" + i + "] = " + keyAttrs[i]);
+            print("concatenating string i=" + i + "  keyAttrs[" + i + "] = "
+                    + keyAttrs[i]);
             String credential = (String) authCred.get(keyAttrs[i]);
 
             if (credential == null) {
-                throw new EMissingCredential(CMS.getUserMessage("CMS_AUTHENTICATION_NULL_CREDENTIAL", keyAttrs[i]));
+                throw new EMissingCredential(CMS.getUserMessage(
+                        "CMS_AUTHENTICATION_NULL_CREDENTIAL", keyAttrs[i]));
             }
             keyForUser = keyForUser.concat((String) authCred.get(keyAttrs[i]));
         }
@@ -566,8 +579,10 @@ public class FlatFileAuth
             if (user != null) {
                 authToken = doAuthentication(user, authCred);
             } else {
-                CMS.debug("FlatFileAuth: " + CMS.getLogMessage("CMS_AUTH_USER_NOT_FOUND"));
-                throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
+                CMS.debug("FlatFileAuth: "
+                        + CMS.getLogMessage("CMS_AUTH_USER_NOT_FOUND"));
+                throw new EInvalidCredentials(
+                        CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
             }
         } catch (EInvalidCredentials e) {
             // If defer on failure is false, then we re-throw the exception
@@ -579,7 +594,7 @@ public class FlatFileAuth
             }
         }
 
-        // if a dn was specified in the password file for this user, 
+        // if a dn was specified in the password file for this user,
         // replace the requested dn with the one in the pwfile
         if (user != null) {
             String dn = (String) user.get("dn");
@@ -601,21 +616,21 @@ public class FlatFileAuth
     }
 
     /**
-     * Return a list of HTTP parameters which will be taken from the
-     * request posting and placed into the AuthCredentials block
-     *
-     * Note that this method will not be called until after the
-     * init() method is called
+     * Return a list of HTTP parameters which will be taken from the request
+     * posting and placed into the AuthCredentials block
+     * 
+     * Note that this method will not be called until after the init() method is
+     * called
      */
     public String[] getRequiredCreds() {
         print("getRequiredCreds returning: " + joinStringArray(reqCreds, ","));
         return reqCreds;
-	
+
     }
 
     /**
-     * Returns a list of configuration parameters, so the console
-     * can prompt the user when configuring.
+     * Returns a list of configuration parameters, so the console can prompt the
+     * user when configuring.
      */
     public String[] getConfigParams() {
         return mConfigParams;
@@ -640,7 +655,7 @@ public class FlatFileAuth
     }
 
     public void init(IProfile profile, IConfigStore config)
-        throws EProfileException {
+            throws EProfileException {
     }
 
     /**
@@ -666,7 +681,7 @@ public class FlatFileAuth
     }
 
     public void populate(IAuthToken token, IRequest request)
-        throws EProfileException {
+            throws EProfileException {
     }
 
     /**

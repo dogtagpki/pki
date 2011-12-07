@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.def;
 
-
 import java.io.IOException;
 import java.util.Locale;
 
@@ -34,25 +33,19 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 
-
 /**
- * This class implements an enrollment default policy
- * that populates a Key Usage extension
- * into the certificate template.
- *
+ * This class implements an enrollment default policy that populates a Key Usage
+ * extension into the certificate template.
+ * 
  * @version $Revision$, $Date$
  */
 public class KeyUsageExtDefault extends EnrollExtDefault {
 
     public static final String CONFIG_CRITICAL = "keyUsageCritical";
-    public static final String CONFIG_DIGITAL_SIGNATURE = 
-        "keyUsageDigitalSignature";
-    public static final String CONFIG_NON_REPUDIATION = 
-        "keyUsageNonRepudiation";
-    public static final String CONFIG_KEY_ENCIPHERMENT = 
-        "keyUsageKeyEncipherment";
-    public static final String CONFIG_DATA_ENCIPHERMENT = 
-        "keyUsageDataEncipherment";
+    public static final String CONFIG_DIGITAL_SIGNATURE = "keyUsageDigitalSignature";
+    public static final String CONFIG_NON_REPUDIATION = "keyUsageNonRepudiation";
+    public static final String CONFIG_KEY_ENCIPHERMENT = "keyUsageKeyEncipherment";
+    public static final String CONFIG_DATA_ENCIPHERMENT = "keyUsageDataEncipherment";
     public static final String CONFIG_KEY_AGREEMENT = "keyUsageKeyAgreement";
     public static final String CONFIG_KEY_CERTSIGN = "keyUsageKeyCertSign";
     public static final String CONFIG_CRL_SIGN = "keyUsageCrlSign";
@@ -60,14 +53,10 @@ public class KeyUsageExtDefault extends EnrollExtDefault {
     public static final String CONFIG_DECIPHER_ONLY = "keyUsageDecipherOnly";
 
     public static final String VAL_CRITICAL = "keyUsageCritical";
-    public static final String VAL_DIGITAL_SIGNATURE = 
-        "keyUsageDigitalSignature";
-    public static final String VAL_NON_REPUDIATION = 
-        "keyUsageNonRepudiation";
-    public static final String VAL_KEY_ENCIPHERMENT = 
-        "keyUsageKeyEncipherment";
-    public static final String VAL_DATA_ENCIPHERMENT = 
-        "keyUsageDataEncipherment";
+    public static final String VAL_DIGITAL_SIGNATURE = "keyUsageDigitalSignature";
+    public static final String VAL_NON_REPUDIATION = "keyUsageNonRepudiation";
+    public static final String VAL_KEY_ENCIPHERMENT = "keyUsageKeyEncipherment";
+    public static final String VAL_DATA_ENCIPHERMENT = "keyUsageDataEncipherment";
     public static final String VAL_KEY_AGREEMENT = "keyUsageKeyAgreement";
     public static final String VAL_KEY_CERTSIGN = "keyUsageKeyCertSign";
     public static final String VAL_CRL_SIGN = "keyUsageCrlSign";
@@ -100,50 +89,40 @@ public class KeyUsageExtDefault extends EnrollExtDefault {
     }
 
     public void init(IProfile profile, IConfigStore config)
-        throws EProfileException {
+            throws EProfileException {
         super.init(profile, config);
     }
 
-    public IDescriptor getConfigDescriptor(Locale locale, String name) { 
+    public IDescriptor getConfigDescriptor(Locale locale, String name) {
         if (name.equals(CONFIG_CRITICAL)) {
-            return new Descriptor(IDescriptor.BOOLEAN, null, 
-                    "false",
+            return new Descriptor(IDescriptor.BOOLEAN, null, "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_CRITICAL"));
         } else if (name.equals(CONFIG_DIGITAL_SIGNATURE)) {
-            return new Descriptor(IDescriptor.BOOLEAN, null, 
-                    "false",
+            return new Descriptor(IDescriptor.BOOLEAN, null, "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_DIGITAL_SIGNATURE"));
         } else if (name.equals(CONFIG_NON_REPUDIATION)) {
-            return new Descriptor(IDescriptor.BOOLEAN, null, 
-                    "false",
+            return new Descriptor(IDescriptor.BOOLEAN, null, "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_NON_REPUDIATION"));
         } else if (name.equals(CONFIG_KEY_ENCIPHERMENT)) {
-            return new Descriptor(IDescriptor.BOOLEAN, null,
-                    "false",
+            return new Descriptor(IDescriptor.BOOLEAN, null, "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_KEY_ENCIPHERMENT"));
         } else if (name.equals(CONFIG_DATA_ENCIPHERMENT)) {
-            return new Descriptor(IDescriptor.BOOLEAN, null,
-                    "false",
+            return new Descriptor(IDescriptor.BOOLEAN, null, "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_DATA_ENCIPHERMENT"));
         } else if (name.equals(CONFIG_KEY_AGREEMENT)) {
-            return new Descriptor(IDescriptor.BOOLEAN, null,
-                    "false",
+            return new Descriptor(IDescriptor.BOOLEAN, null, "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_KEY_AGREEMENT"));
         } else if (name.equals(CONFIG_KEY_CERTSIGN)) {
-            return new Descriptor(IDescriptor.BOOLEAN, null,
-                    "false",
+            return new Descriptor(IDescriptor.BOOLEAN, null, "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_KEY_CERTSIGN"));
         } else if (name.equals(CONFIG_CRL_SIGN)) {
-            return new Descriptor(IDescriptor.BOOLEAN, null,
-                    "false",
+            return new Descriptor(IDescriptor.BOOLEAN, null, "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_CRL_SIGN"));
         } else if (name.equals(CONFIG_ENCIPHER_ONLY)) {
-            return new Descriptor(IDescriptor.BOOLEAN, null,
-                    "false",
+            return new Descriptor(IDescriptor.BOOLEAN, null, "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_ENCIPHER_ONLY"));
         } else if (name.equals(CONFIG_DECIPHER_ONLY)) {
-            return new Descriptor(IDescriptor.BOOLEAN, null,
-                    "false",
+            return new Descriptor(IDescriptor.BOOLEAN, null, "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_DECIPHER_ONLY"));
         } else {
             return null;
@@ -152,203 +131,190 @@ public class KeyUsageExtDefault extends EnrollExtDefault {
 
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         if (name.equals(VAL_CRITICAL)) {
-            return new Descriptor(IDescriptor.BOOLEAN, null, 
-                    "false",
+            return new Descriptor(IDescriptor.BOOLEAN, null, "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_CRITICAL"));
         } else if (name.equals(VAL_DIGITAL_SIGNATURE)) {
-            return new Descriptor(IDescriptor.BOOLEAN, null, 
-                    "false",
+            return new Descriptor(IDescriptor.BOOLEAN, null, "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_DIGITAL_SIGNATURE"));
         } else if (name.equals(VAL_NON_REPUDIATION)) {
-            return new Descriptor(IDescriptor.BOOLEAN, null, 
-                    "false",
+            return new Descriptor(IDescriptor.BOOLEAN, null, "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_NON_REPUDIATION"));
         } else if (name.equals(VAL_KEY_ENCIPHERMENT)) {
-            return new Descriptor(IDescriptor.BOOLEAN, null,
-                    "false",
+            return new Descriptor(IDescriptor.BOOLEAN, null, "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_KEY_ENCIPHERMENT"));
         } else if (name.equals(VAL_DATA_ENCIPHERMENT)) {
-            return new Descriptor(IDescriptor.BOOLEAN, null,
-                    "false",
+            return new Descriptor(IDescriptor.BOOLEAN, null, "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_DATA_ENCIPHERMENT"));
         } else if (name.equals(VAL_KEY_AGREEMENT)) {
-            return new Descriptor(IDescriptor.BOOLEAN, null,
-                    "false",
+            return new Descriptor(IDescriptor.BOOLEAN, null, "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_KEY_AGREEMENT"));
         } else if (name.equals(VAL_KEY_CERTSIGN)) {
-            return new Descriptor(IDescriptor.BOOLEAN, null,
-                    "false",
+            return new Descriptor(IDescriptor.BOOLEAN, null, "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_KEY_CERTSIGN"));
         } else if (name.equals(VAL_CRL_SIGN)) {
-            return new Descriptor(IDescriptor.BOOLEAN, null,
-                    "false",
+            return new Descriptor(IDescriptor.BOOLEAN, null, "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_CRL_SIGN"));
         } else if (name.equals(VAL_ENCIPHER_ONLY)) {
-            return new Descriptor(IDescriptor.BOOLEAN, null,
-                    "false",
+            return new Descriptor(IDescriptor.BOOLEAN, null, "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_ENCIPHER_ONLY"));
         } else if (name.equals(VAL_DECIPHER_ONLY)) {
-            return new Descriptor(IDescriptor.BOOLEAN, null,
-                    "false",
+            return new Descriptor(IDescriptor.BOOLEAN, null, "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_DECIPHER_ONLY"));
         } else {
             return null;
         }
     }
 
-    public void setValue(String name, Locale locale,
-        X509CertInfo info, String value)
-        throws EPropertyException {
+    public void setValue(String name, Locale locale, X509CertInfo info,
+            String value) throws EPropertyException {
         try {
             KeyUsageExtension ext = null;
 
-            if (name == null) { 
-                throw new EPropertyException(CMS.getUserMessage( 
-                            locale, "CMS_INVALID_PROPERTY", name));
+            if (name == null) {
+                throw new EPropertyException(CMS.getUserMessage(locale,
+                        "CMS_INVALID_PROPERTY", name));
             }
 
-            ext = (KeyUsageExtension)
-                        getExtension(PKIXExtensions.KeyUsage_Id.toString(), info); 
+            ext = (KeyUsageExtension) getExtension(
+                    PKIXExtensions.KeyUsage_Id.toString(), info);
 
-            if(ext == null)  {
-                populate(null,info);
+            if (ext == null) {
+                populate(null, info);
 
             }
-             
+
             if (name.equals(VAL_CRITICAL)) {
-                ext = (KeyUsageExtension)
-                        getExtension(PKIXExtensions.KeyUsage_Id.toString(), info);
-                boolean val = Boolean.valueOf(value).booleanValue(); 
+                ext = (KeyUsageExtension) getExtension(
+                        PKIXExtensions.KeyUsage_Id.toString(), info);
+                boolean val = Boolean.valueOf(value).booleanValue();
 
-                if(ext == null)  {
+                if (ext == null) {
                     return;
                 }
                 ext.setCritical(val);
-            } else if (name.equals(VAL_DIGITAL_SIGNATURE)) { 
-                ext = (KeyUsageExtension)
-                        getExtension(PKIXExtensions.KeyUsage_Id.toString(), info);
-                if(ext == null)  {
+            } else if (name.equals(VAL_DIGITAL_SIGNATURE)) {
+                ext = (KeyUsageExtension) getExtension(
+                        PKIXExtensions.KeyUsage_Id.toString(), info);
+                if (ext == null) {
                     return;
                 }
-                Boolean val = Boolean.valueOf(value); 
+                Boolean val = Boolean.valueOf(value);
 
                 ext.set(KeyUsageExtension.DIGITAL_SIGNATURE, val);
             } else if (name.equals(VAL_NON_REPUDIATION)) {
-                ext = (KeyUsageExtension)
-                        getExtension(PKIXExtensions.KeyUsage_Id.toString(), info);
-                if(ext == null)  {
+                ext = (KeyUsageExtension) getExtension(
+                        PKIXExtensions.KeyUsage_Id.toString(), info);
+                if (ext == null) {
                     return;
                 }
-                Boolean val = Boolean.valueOf(value); 
+                Boolean val = Boolean.valueOf(value);
 
                 ext.set(KeyUsageExtension.NON_REPUDIATION, val);
             } else if (name.equals(VAL_KEY_ENCIPHERMENT)) {
-                ext = (KeyUsageExtension)
-                        getExtension(PKIXExtensions.KeyUsage_Id.toString(), info);
-                if(ext == null)  {
+                ext = (KeyUsageExtension) getExtension(
+                        PKIXExtensions.KeyUsage_Id.toString(), info);
+                if (ext == null) {
                     return;
                 }
-                Boolean val = Boolean.valueOf(value); 
+                Boolean val = Boolean.valueOf(value);
 
                 ext.set(KeyUsageExtension.KEY_ENCIPHERMENT, val);
             } else if (name.equals(VAL_DATA_ENCIPHERMENT)) {
-                ext = (KeyUsageExtension)
-                        getExtension(PKIXExtensions.KeyUsage_Id.toString(), info);
-                if(ext == null)  {
+                ext = (KeyUsageExtension) getExtension(
+                        PKIXExtensions.KeyUsage_Id.toString(), info);
+                if (ext == null) {
                     return;
                 }
-                Boolean val = Boolean.valueOf(value); 
+                Boolean val = Boolean.valueOf(value);
 
                 ext.set(KeyUsageExtension.DATA_ENCIPHERMENT, val);
             } else if (name.equals(VAL_KEY_AGREEMENT)) {
-                ext = (KeyUsageExtension)
-                        getExtension(PKIXExtensions.KeyUsage_Id.toString(), info);
-                if(ext == null)  {
+                ext = (KeyUsageExtension) getExtension(
+                        PKIXExtensions.KeyUsage_Id.toString(), info);
+                if (ext == null) {
                     return;
                 }
-                Boolean val = Boolean.valueOf(value); 
+                Boolean val = Boolean.valueOf(value);
 
                 ext.set(KeyUsageExtension.KEY_AGREEMENT, val);
             } else if (name.equals(VAL_KEY_CERTSIGN)) {
-                ext = (KeyUsageExtension)
-                        getExtension(PKIXExtensions.KeyUsage_Id.toString(), info);
-                if(ext == null)  {
+                ext = (KeyUsageExtension) getExtension(
+                        PKIXExtensions.KeyUsage_Id.toString(), info);
+                if (ext == null) {
                     return;
                 }
-                Boolean val = Boolean.valueOf(value); 
+                Boolean val = Boolean.valueOf(value);
 
                 ext.set(KeyUsageExtension.KEY_CERTSIGN, val);
             } else if (name.equals(VAL_CRL_SIGN)) {
-                ext = (KeyUsageExtension)
-                        getExtension(PKIXExtensions.KeyUsage_Id.toString(), info);
-                if(ext == null)  {
+                ext = (KeyUsageExtension) getExtension(
+                        PKIXExtensions.KeyUsage_Id.toString(), info);
+                if (ext == null) {
                     return;
                 }
-                Boolean val = Boolean.valueOf(value); 
+                Boolean val = Boolean.valueOf(value);
 
                 ext.set(KeyUsageExtension.CRL_SIGN, val);
             } else if (name.equals(VAL_ENCIPHER_ONLY)) {
-                ext = (KeyUsageExtension)
-                        getExtension(PKIXExtensions.KeyUsage_Id.toString(), info);
-                if(ext == null)  {
+                ext = (KeyUsageExtension) getExtension(
+                        PKIXExtensions.KeyUsage_Id.toString(), info);
+                if (ext == null) {
                     return;
                 }
-                Boolean val = Boolean.valueOf(value); 
+                Boolean val = Boolean.valueOf(value);
 
                 ext.set(KeyUsageExtension.ENCIPHER_ONLY, val);
             } else if (name.equals(VAL_DECIPHER_ONLY)) {
-                ext = (KeyUsageExtension)
-                        getExtension(PKIXExtensions.KeyUsage_Id.toString(), info);
-                if(ext == null)  {
+                ext = (KeyUsageExtension) getExtension(
+                        PKIXExtensions.KeyUsage_Id.toString(), info);
+                if (ext == null) {
                     return;
                 }
-                Boolean val = Boolean.valueOf(value); 
+                Boolean val = Boolean.valueOf(value);
 
                 ext.set(KeyUsageExtension.DECIPHER_ONLY, val);
             } else {
-                throw new EPropertyException(CMS.getUserMessage( 
-                            locale, "CMS_INVALID_PROPERTY", name));
+                throw new EPropertyException(CMS.getUserMessage(locale,
+                        "CMS_INVALID_PROPERTY", name));
             }
 
             replaceExtension(PKIXExtensions.KeyUsage_Id.toString(), ext, info);
         } catch (IOException e) {
             CMS.debug("KeyUsageExtDefault: setValue " + e.toString());
-            throw new EPropertyException(CMS.getUserMessage( 
-                        locale, "CMS_INVALID_PROPERTY", name));
+            throw new EPropertyException(CMS.getUserMessage(locale,
+                    "CMS_INVALID_PROPERTY", name));
         } catch (EProfileException e) {
             CMS.debug("KeyUsageExtDefault: setValue " + e.toString());
-            throw new EPropertyException(CMS.getUserMessage( 
-                        locale, "CMS_INVALID_PROPERTY", name));
+            throw new EPropertyException(CMS.getUserMessage(locale,
+                    "CMS_INVALID_PROPERTY", name));
         }
     }
 
-    public String getValue(String name, Locale locale,
-        X509CertInfo info)
-        throws EPropertyException {
+    public String getValue(String name, Locale locale, X509CertInfo info)
+            throws EPropertyException {
         try {
             if (name == null) {
-                throw new EPropertyException(CMS.getUserMessage( 
-                            locale, "CMS_INVALID_PROPERTY", name));
+                throw new EPropertyException(CMS.getUserMessage(locale,
+                        "CMS_INVALID_PROPERTY", name));
             }
 
-            KeyUsageExtension ext = (KeyUsageExtension)
-                    getExtension(PKIXExtensions.KeyUsage_Id.toString(), info);
+            KeyUsageExtension ext = (KeyUsageExtension) getExtension(
+                    PKIXExtensions.KeyUsage_Id.toString(), info);
 
-            if(ext == null)
-            {
+            if (ext == null) {
                 try {
-                    populate(null,info);
+                    populate(null, info);
 
                 } catch (EProfileException e) {
-                     throw new EPropertyException(CMS.getUserMessage(
-                          locale, "CMS_INVALID_PROPERTY", name));
+                    throw new EPropertyException(CMS.getUserMessage(locale,
+                            "CMS_INVALID_PROPERTY", name));
                 }
 
             }
 
             if (name.equals(VAL_CRITICAL)) {
-                ext = (KeyUsageExtension)
-                    getExtension(PKIXExtensions.KeyUsage_Id.toString(), info);
+                ext = (KeyUsageExtension) getExtension(
+                        PKIXExtensions.KeyUsage_Id.toString(), info);
 
                 if (ext == null) {
                     return null;
@@ -359,122 +325,118 @@ public class KeyUsageExtDefault extends EnrollExtDefault {
                     return "false";
                 }
             } else if (name.equals(VAL_DIGITAL_SIGNATURE)) {
-                ext = (KeyUsageExtension)
-                    getExtension(PKIXExtensions.KeyUsage_Id.toString(), info);
+                ext = (KeyUsageExtension) getExtension(
+                        PKIXExtensions.KeyUsage_Id.toString(), info);
                 if (ext == null) {
                     return null;
                 }
 
-                Boolean val = (Boolean)
-                    ext.get(KeyUsageExtension.DIGITAL_SIGNATURE);
+                Boolean val = (Boolean) ext
+                        .get(KeyUsageExtension.DIGITAL_SIGNATURE);
 
                 return val.toString();
             } else if (name.equals(VAL_NON_REPUDIATION)) {
-                ext = (KeyUsageExtension)
-                    getExtension(PKIXExtensions.KeyUsage_Id.toString(), info);
+                ext = (KeyUsageExtension) getExtension(
+                        PKIXExtensions.KeyUsage_Id.toString(), info);
                 if (ext == null) {
                     return null;
                 }
-                Boolean val = (Boolean)
-                    ext.get(KeyUsageExtension.NON_REPUDIATION);
+                Boolean val = (Boolean) ext
+                        .get(KeyUsageExtension.NON_REPUDIATION);
 
                 return val.toString();
             } else if (name.equals(VAL_KEY_ENCIPHERMENT)) {
-                ext = (KeyUsageExtension)
-                    getExtension(PKIXExtensions.KeyUsage_Id.toString(), info);
+                ext = (KeyUsageExtension) getExtension(
+                        PKIXExtensions.KeyUsage_Id.toString(), info);
                 if (ext == null) {
                     return null;
                 }
-                Boolean val = (Boolean)
-                    ext.get(KeyUsageExtension.KEY_ENCIPHERMENT);
+                Boolean val = (Boolean) ext
+                        .get(KeyUsageExtension.KEY_ENCIPHERMENT);
 
                 return val.toString();
             } else if (name.equals(VAL_DATA_ENCIPHERMENT)) {
-                ext = (KeyUsageExtension)
-                    getExtension(PKIXExtensions.KeyUsage_Id.toString(), info);
+                ext = (KeyUsageExtension) getExtension(
+                        PKIXExtensions.KeyUsage_Id.toString(), info);
                 if (ext == null) {
                     return null;
                 }
-                Boolean val = (Boolean)
-                    ext.get(KeyUsageExtension.DATA_ENCIPHERMENT);
+                Boolean val = (Boolean) ext
+                        .get(KeyUsageExtension.DATA_ENCIPHERMENT);
 
                 return val.toString();
             } else if (name.equals(VAL_KEY_AGREEMENT)) {
-                ext = (KeyUsageExtension)
-                    getExtension(PKIXExtensions.KeyUsage_Id.toString(), info);
+                ext = (KeyUsageExtension) getExtension(
+                        PKIXExtensions.KeyUsage_Id.toString(), info);
                 if (ext == null) {
                     return null;
                 }
-                Boolean val = (Boolean)
-                    ext.get(KeyUsageExtension.KEY_AGREEMENT);
+                Boolean val = (Boolean) ext
+                        .get(KeyUsageExtension.KEY_AGREEMENT);
 
                 return val.toString();
             } else if (name.equals(VAL_KEY_CERTSIGN)) {
-                ext = (KeyUsageExtension)
-                    getExtension(PKIXExtensions.KeyUsage_Id.toString(), info);
+                ext = (KeyUsageExtension) getExtension(
+                        PKIXExtensions.KeyUsage_Id.toString(), info);
                 if (ext == null) {
                     return null;
                 }
-                Boolean val = (Boolean)
-                    ext.get(KeyUsageExtension.KEY_CERTSIGN);
+                Boolean val = (Boolean) ext.get(KeyUsageExtension.KEY_CERTSIGN);
 
                 return val.toString();
             } else if (name.equals(VAL_CRL_SIGN)) {
-                ext = (KeyUsageExtension)
-                    getExtension(PKIXExtensions.KeyUsage_Id.toString(), info);
+                ext = (KeyUsageExtension) getExtension(
+                        PKIXExtensions.KeyUsage_Id.toString(), info);
                 if (ext == null) {
                     return null;
                 }
-                Boolean val = (Boolean)
-                    ext.get(KeyUsageExtension.CRL_SIGN);
+                Boolean val = (Boolean) ext.get(KeyUsageExtension.CRL_SIGN);
 
                 return val.toString();
             } else if (name.equals(VAL_ENCIPHER_ONLY)) {
-                ext = (KeyUsageExtension)
-                    getExtension(PKIXExtensions.KeyUsage_Id.toString(), info);
+                ext = (KeyUsageExtension) getExtension(
+                        PKIXExtensions.KeyUsage_Id.toString(), info);
                 if (ext == null) {
                     return null;
                 }
-                Boolean val = (Boolean)
-                    ext.get(KeyUsageExtension.ENCIPHER_ONLY);
+                Boolean val = (Boolean) ext
+                        .get(KeyUsageExtension.ENCIPHER_ONLY);
 
                 return val.toString();
             } else if (name.equals(VAL_DECIPHER_ONLY)) {
-                ext = (KeyUsageExtension)
-                    getExtension(PKIXExtensions.KeyUsage_Id.toString(), info);
+                ext = (KeyUsageExtension) getExtension(
+                        PKIXExtensions.KeyUsage_Id.toString(), info);
                 if (ext == null) {
                     return null;
                 }
-                Boolean val = (Boolean)
-                    ext.get(KeyUsageExtension.DECIPHER_ONLY);
+                Boolean val = (Boolean) ext
+                        .get(KeyUsageExtension.DECIPHER_ONLY);
 
                 return val.toString();
             } else {
-                throw new EPropertyException(CMS.getUserMessage( 
-                            locale, "CMS_INVALID_PROPERTY", name));
+                throw new EPropertyException(CMS.getUserMessage(locale,
+                        "CMS_INVALID_PROPERTY", name));
             }
         } catch (IOException e) {
             CMS.debug("KeyUsageExtDefault: getValue " + e.toString());
-            throw new EPropertyException(CMS.getUserMessage( 
-                        locale, "CMS_INVALID_PROPERTY", name));
+            throw new EPropertyException(CMS.getUserMessage(locale,
+                    "CMS_INVALID_PROPERTY", name));
         }
     }
 
     public String getText(Locale locale) {
-        String params[] = {
-                getConfig(CONFIG_CRITICAL), 
-                getConfig(CONFIG_DIGITAL_SIGNATURE), 
-                getConfig(CONFIG_NON_REPUDIATION), 
-                getConfig(CONFIG_KEY_ENCIPHERMENT), 
-                getConfig(CONFIG_DATA_ENCIPHERMENT), 
-                getConfig(CONFIG_KEY_AGREEMENT), 
-                getConfig(CONFIG_KEY_CERTSIGN), 
-                getConfig(CONFIG_CRL_SIGN), 
-                getConfig(CONFIG_ENCIPHER_ONLY), 
-                getConfig(CONFIG_DECIPHER_ONLY)
-            };
+        String params[] = { getConfig(CONFIG_CRITICAL),
+                getConfig(CONFIG_DIGITAL_SIGNATURE),
+                getConfig(CONFIG_NON_REPUDIATION),
+                getConfig(CONFIG_KEY_ENCIPHERMENT),
+                getConfig(CONFIG_DATA_ENCIPHERMENT),
+                getConfig(CONFIG_KEY_AGREEMENT),
+                getConfig(CONFIG_KEY_CERTSIGN), getConfig(CONFIG_CRL_SIGN),
+                getConfig(CONFIG_ENCIPHER_ONLY),
+                getConfig(CONFIG_DECIPHER_ONLY) };
 
-        return CMS.getUserMessage(locale, "CMS_PROFILE_DEF_KEY_USAGE_EXT", params);
+        return CMS.getUserMessage(locale, "CMS_PROFILE_DEF_KEY_USAGE_EXT",
+                params);
 
     }
 
@@ -482,14 +444,14 @@ public class KeyUsageExtDefault extends EnrollExtDefault {
      * Populates the request with this policy default.
      */
     public void populate(IRequest request, X509CertInfo info)
-        throws EProfileException {
+            throws EProfileException {
         KeyUsageExtension ext = createKeyUsageExtension();
 
         addExtension(PKIXExtensions.KeyUsage_Id.toString(), ext, info);
     }
 
     public KeyUsageExtension createKeyUsageExtension() {
-        KeyUsageExtension ext = null; 
+        KeyUsageExtension ext = null;
         boolean[] bits = new boolean[KeyUsageExtension.NBITS];
 
         boolean critical = getConfigBoolean(CONFIG_CRITICAL);
@@ -506,8 +468,8 @@ public class KeyUsageExtDefault extends EnrollExtDefault {
         try {
             ext = new KeyUsageExtension(critical, bits);
         } catch (Exception e) {
-            CMS.debug("KeyUsageExtDefault: createKeyUsageExtension " + 
-                e.toString());
+            CMS.debug("KeyUsageExtDefault: createKeyUsageExtension "
+                    + e.toString());
         }
         return ext;
     }

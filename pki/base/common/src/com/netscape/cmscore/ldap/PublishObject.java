@@ -17,10 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.ldap;
 
-
 import netscape.security.x509.X509CRLImpl;
 import netscape.security.x509.X509CertImpl;
-
 
 /**
  * The object to publish or unpublish: a certificate or a CRL
@@ -32,7 +30,7 @@ public class PublishObject {
     private String mObjectType = null;
     private X509CertImpl mCert = null;
     private X509CertImpl[] mCerts = null;
-    private X509CRLImpl mCRL = null;	
+    private X509CRLImpl mCRL = null;
     private int mIndex = 0;
 
     public PublishObject() {

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -47,19 +46,19 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
 
 public class ImportAdminCertPanel extends WizardPanelBase {
 
-    public ImportAdminCertPanel() {}
+    public ImportAdminCertPanel() {
+    }
 
     /**
      * Initializes this panel.
      */
-    public void init(ServletConfig config, int panelno) 
-        throws ServletException {
+    public void init(ServletConfig config, int panelno) throws ServletException {
         setPanelNo(panelno);
         setName("Import Administrator's Certificate");
     }
 
-    public void init(WizardServlet servlet, ServletConfig config, int panelno, String id)
-        throws ServletException {
+    public void init(WizardServlet servlet, ServletConfig config, int panelno,
+            String id) throws ServletException {
         setPanelNo(panelno);
         setName("Import Administrator's Certificate");
         setId(id);
@@ -86,8 +85,7 @@ public class ImportAdminCertPanel extends WizardPanelBase {
      * Display the panel.
      */
     public void display(HttpServletRequest request,
-            HttpServletResponse response,
-            Context context) {
+            HttpServletResponse response, Context context) {
         CMS.debug("ImportAdminCertPanel: display");
         context.put("errorString", "");
         context.put("title", "Import Administrator's Certificate");
@@ -102,11 +100,12 @@ public class ImportAdminCertPanel extends WizardPanelBase {
         try {
             type = cs.getString("preop.ca.type", "");
             subsystemtype = cs.getString("cs.type", "");
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
 
         try {
             String serialno = cs.getString("preop.admincert.serialno.0");
-            
+
             context.put("serialNumber", serialno);
         } catch (Exception e) {
             context.put("errorString", "Failed to get serial number.");
@@ -129,21 +128,26 @@ public class ImportAdminCertPanel extends WizardPanelBase {
         if (ca == null) {
             if (type.equals("otherca")) {
                 try {
-                    // this is a non-CA system that has elected to have its certificates 
+                    // this is a non-CA system that has elected to have its
+                    // certificates
                     // signed by a CA outside of the security domain.
-                    // in this case, we submitted the cert request for the admin cert to
+                    // in this case, we submitted the cert request for the admin
+                    // cert to
                     // to security domain host.
                     caHost = cs.getString("securitydomain.host", "");
                     caPort = cs.getString("securitydomain.httpsadminport", "");
-                } catch (Exception e) {}
+                } catch (Exception e) {
+                }
             } else if (type.equals("sdca")) {
                 try {
                     // this is a non-CA system that submitted its certs to a CA
-                    // within the security domain.  In this case, we submitted the cert
+                    // within the security domain. In this case, we submitted
+                    // the cert
                     // request for the admin cert to this CA
                     caHost = cs.getString("preop.ca.hostname", "");
                     caPort = cs.getString("preop.ca.httpsadminport", "");
-                } catch (Exception e) {}
+                } catch (Exception e) {
+                }
             }
         } else {
             // for CAs, we always generate our own admin certs
@@ -151,7 +155,8 @@ public class ImportAdminCertPanel extends WizardPanelBase {
             try {
                 caHost = cs.getString("service.machineName", "");
                 caPort = cs.getString("pkicreate.admin_secure_port", "");
-            } catch (Exception e) {}
+            } catch (Exception e) {
+            }
         }
 
         String pkcs7 = "";
@@ -170,16 +175,14 @@ public class ImportAdminCertPanel extends WizardPanelBase {
      * Checks if the given parameters are valid.
      */
     public void validate(HttpServletRequest request,
-            HttpServletResponse response,
-            Context context) throws IOException {
+            HttpServletResponse response, Context context) throws IOException {
     }
 
     /**
      * Commit parameter changes
      */
     public void update(HttpServletRequest request,
-            HttpServletResponse response,
-            Context context) throws IOException {
+            HttpServletResponse response, Context context) throws IOException {
         IConfigStore cs = CMS.getConfigStore();
 
         String type = "";
@@ -192,12 +195,13 @@ public class ImportAdminCertPanel extends WizardPanelBase {
             subsystemtype = cs.getString("cs.type", "");
             security_domain_type = cs.getString("securitydomain.select", "");
             selected_hierarchy = cs.getString("preop.hierarchy.select", "");
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
 
-        ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem(
-                ICertificateAuthority.ID);
+        ICertificateAuthority ca = (ICertificateAuthority) CMS
+                .getSubsystem(ICertificateAuthority.ID);
 
-        if (ca == null) { 
+        if (ca == null) {
             context.put("ca", "false");
         } else {
             context.put("ca", "true");
@@ -206,25 +210,23 @@ public class ImportAdminCertPanel extends WizardPanelBase {
 
         X509CertImpl certs[] = new X509CertImpl[1];
 
-        // REMINDER:  This panel is NOT used by "clones"
-        if( ca != null ) {
+        // REMINDER: This panel is NOT used by "clones"
+        if (ca != null) {
             String serialno = null;
 
-            if( selected_hierarchy.equals( "root" ) ) {
-                CMS.debug( "ImportAdminCertPanel update:  "
-                         + "Root CA subsystem - "
-                         + "(new Security Domain)" );
+            if (selected_hierarchy.equals("root")) {
+                CMS.debug("ImportAdminCertPanel update:  "
+                        + "Root CA subsystem - " + "(new Security Domain)");
             } else {
-                CMS.debug( "ImportAdminCertPanel update:  "
-                         + "Subordinate CA subsystem - "
-                         + "(new Security Domain)" );
+                CMS.debug("ImportAdminCertPanel update:  "
+                        + "Subordinate CA subsystem - "
+                        + "(new Security Domain)");
             }
 
             try {
                 serialno = cs.getString("preop.admincert.serialno.0");
             } catch (Exception e) {
-                CMS.debug(
-                        "ImportAdminCertPanel update: Failed to get request id.");
+                CMS.debug("ImportAdminCertPanel update: Failed to get request id.");
                 context.put("updateStatus", "failure");
                 throw new IOException("Failed to get request id.");
             }
@@ -232,37 +234,37 @@ public class ImportAdminCertPanel extends WizardPanelBase {
             ICertificateRepository repost = ca.getCertificateRepository();
 
             try {
-                certs[0] = repost.getX509Certificate(
-                        new BigInteger(serialno, 16));
-            } catch (Exception ee) {}
+                certs[0] = repost.getX509Certificate(new BigInteger(serialno,
+                        16));
+            } catch (Exception ee) {
+            }
         } else {
             String dir = null;
 
-            // REMINDER:  This panel is NOT used by "clones"
-            if( subsystemtype.equals( "CA" ) ) {
-                if( selected_hierarchy.equals( "root" ) ) {
-                    CMS.debug( "ImportAdminCertPanel update:  "
-                             + "Root CA subsystem - "
-                             + "(existing Security Domain)" );
+            // REMINDER: This panel is NOT used by "clones"
+            if (subsystemtype.equals("CA")) {
+                if (selected_hierarchy.equals("root")) {
+                    CMS.debug("ImportAdminCertPanel update:  "
+                            + "Root CA subsystem - "
+                            + "(existing Security Domain)");
                 } else {
-                    CMS.debug( "ImportAdminCertPanel update:  "
-                             + "Subordinate CA subsystem - "
-                             + "(existing Security Domain)" );
+                    CMS.debug("ImportAdminCertPanel update:  "
+                            + "Subordinate CA subsystem - "
+                            + "(existing Security Domain)");
                 }
             } else {
-                CMS.debug( "ImportAdminCertPanel update:  "
-                         + subsystemtype
-                         + " subsystem" );
+                CMS.debug("ImportAdminCertPanel update:  " + subsystemtype
+                        + " subsystem");
             }
 
             try {
-                dir = cs.getString("preop.admincert.b64", ""); 
+                dir = cs.getString("preop.admincert.b64", "");
                 CMS.debug("ImportAdminCertPanel update: dir=" + dir);
-            } catch (Exception ee) {}
+            } catch (Exception ee) {
+            }
 
             try {
-                BufferedReader reader = new BufferedReader(
-                  new FileReader(dir));
+                BufferedReader reader = new BufferedReader(new FileReader(dir));
                 String b64 = "";
 
                 StringBuffer sb = new StringBuffer();
@@ -289,15 +291,15 @@ public class ImportAdminCertPanel extends WizardPanelBase {
             user.setX509Certificates(certs);
             ug.addUserCert(user);
         } catch (LDAPException e) {
-            CMS.debug("ImportAdminCertPanel update: failed to add certificate to the internal database. Exception: "+e.toString());
+            CMS.debug("ImportAdminCertPanel update: failed to add certificate to the internal database. Exception: "
+                    + e.toString());
             if (e.getLDAPResultCode() != LDAPException.ATTRIBUTE_OR_VALUE_EXISTS) {
                 context.put("updateStatus", "failure");
                 throw new IOException(e.toString());
             }
         } catch (Exception e) {
-            CMS.debug(
-                    "ImportAdminCertPanel update: failed to add certificate. Exception: "
-                            + e.toString());
+            CMS.debug("ImportAdminCertPanel update: failed to add certificate. Exception: "
+                    + e.toString());
             context.put("updateStatus", "failure");
             throw new IOException(e.toString());
         }
@@ -312,7 +314,7 @@ public class ImportAdminCertPanel extends WizardPanelBase {
     public boolean shouldSkip() {
         try {
             IConfigStore c = CMS.getConfigStore();
-            String s = c.getString("preop.subsystem.select",null);
+            String s = c.getString("preop.subsystem.select", null);
             if (s != null && s.equals("clone")) {
                 return true;
             }
@@ -322,13 +324,11 @@ public class ImportAdminCertPanel extends WizardPanelBase {
         return false;
     }
 
-
     /**
      * If validiate() returns false, this method will be called.
      */
     public void displayError(HttpServletRequest request,
-            HttpServletResponse response,
-            Context context) {
+            HttpServletResponse response, Context context) {
 
         /* This should never be called */
         context.put("title", "Import Administrator Certificate");

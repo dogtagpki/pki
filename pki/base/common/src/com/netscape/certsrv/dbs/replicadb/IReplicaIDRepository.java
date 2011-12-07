@@ -19,12 +19,11 @@ package com.netscape.certsrv.dbs.replicadb;
 
 import com.netscape.certsrv.dbs.repository.IRepository;
 
-
 /**
- * An interface represents a ReplicaID Repository. 
- * It provides unique managed replica IDs.
+ * An interface represents a ReplicaID Repository. It provides unique managed
+ * replica IDs.
  * <P>
- *
+ * 
  * @version $Revision$, $Date$
  */
 public interface IReplicaIDRepository extends IRepository {

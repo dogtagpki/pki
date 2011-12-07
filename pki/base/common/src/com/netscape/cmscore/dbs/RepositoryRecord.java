@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.dbs;
 
-
 import java.math.BigInteger;
 import java.util.Enumeration;
 import java.util.Vector;
@@ -26,11 +25,10 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 
-
 /**
  * A class represents a repository record.
  * <P>
- *
+ * 
  * @author thomask
  * @version $Revision$, $Date$
  */
@@ -65,7 +63,8 @@ public class RepositoryRecord implements IRepositoryRecord {
         } else if (name.equalsIgnoreCase(IRepositoryRecord.ATTR_PUB_STATUS)) {
             mPublishingStatus = (String) obj;
         } else {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
+            throw new EBaseException(CMS.getUserMessage(
+                    "CMS_BASE_INVALID_ATTRIBUTE", name));
         }
     }
 
@@ -78,7 +77,8 @@ public class RepositoryRecord implements IRepositoryRecord {
         } else if (name.equalsIgnoreCase(IRepositoryRecord.ATTR_PUB_STATUS)) {
             return mPublishingStatus;
         } else {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
+            throw new EBaseException(CMS.getUserMessage(
+                    "CMS_BASE_INVALID_ATTRIBUTE", name));
         }
     }
 
@@ -86,7 +86,8 @@ public class RepositoryRecord implements IRepositoryRecord {
      * Deletes an attribute.
      */
     public void delete(String name) throws EBaseException {
-        throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
+        throw new EBaseException(CMS.getUserMessage(
+                "CMS_BASE_INVALID_ATTRIBUTE", name));
     }
 
     /**

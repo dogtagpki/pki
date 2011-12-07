@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.def;
 
-
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Vector;
@@ -32,13 +31,12 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 
-
 /**
  * This class implements no default policy.
- *
+ * 
  * @version $Revision$, $Date$
  */
-public class NoDefault implements IPolicyDefault { 
+public class NoDefault implements IPolicyDefault {
 
     public static final String PROP_NAME = "name";
 
@@ -54,8 +52,7 @@ public class NoDefault implements IPolicyDefault {
         return null;
     }
 
-    public void setConfig(String name, String value)
-        throws EPropertyException {
+    public void setConfig(String name, String value) throws EPropertyException {
     }
 
     public String getDefaultConfig(String name) {
@@ -67,7 +64,7 @@ public class NoDefault implements IPolicyDefault {
     }
 
     public void init(IProfile profile, IConfigStore config)
-        throws EProfileException {
+            throws EProfileException {
         mConfig = config;
     }
 
@@ -78,8 +75,7 @@ public class NoDefault implements IPolicyDefault {
     /**
      * Populates the request with this policy default.
      */
-    public void populate(IRequest request)
-        throws EProfileException {
+    public void populate(IRequest request) throws EProfileException {
     }
 
     public Enumeration getValueNames() {
@@ -90,9 +86,8 @@ public class NoDefault implements IPolicyDefault {
         return null;
     }
 
-    public void setValue(String name, Locale locale, IRequest request, 
-        String value)
-        throws EPropertyException {
+    public void setValue(String name, Locale locale, IRequest request,
+            String value) throws EPropertyException {
     }
 
     public String getValue(String name, Locale locale, IRequest request) {

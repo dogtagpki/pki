@@ -1,4 +1,5 @@
 package com.netscape.pkisilent.common;
+
 // --- BEGIN COPYRIGHT BLOCK ---
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -20,19 +21,16 @@ package com.netscape.pkisilent.common;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
-
 /**
- * CMS Test framework .
- * This class reads,modifies and saves CS.cfg file 
+ * CMS Test framework . This class reads,modifies and saves CS.cfg file
  */
 
-
-public class CMSConfig extends ServerInfo { 
+public class CMSConfig extends ServerInfo {
 
     /**
-     * Constructor . Reads the CS.cfg file .Takes the parameter for Configfile ( Provide fullpath)
+     * Constructor . Reads the CS.cfg file .Takes the parameter for Configfile (
+     * Provide fullpath)
      */
-
 
     public CMSConfig(String confFile) {
         CMSConfigFile = confFile;
@@ -71,7 +69,7 @@ public class CMSConfig extends ServerInfo {
     }
 
     /**
-     * Saves the config file 
+     * Saves the config file
      **/
 
     public void saveCMSConfig() {
@@ -97,15 +95,16 @@ public class CMSConfig extends ServerInfo {
 
     }
 
-    // Authentication   
-
+    // Authentication
 
     // Enable DirectoryBased Authentication
     /**
-     * Takes parameters : secureConnection( true/false), basedn, ldaphostname, lapdaportnumber ( in case of secured connection give ldap secured port)
+     * Takes parameters : secureConnection( true/false), basedn, ldaphostname,
+     * lapdaportnumber ( in case of secured connection give ldap secured port)
      */
 
-    public void EnableDirEnrollment(boolean secureConn, String ldapbase, String lhost, String lport) {
+    public void EnableDirEnrollment(boolean secureConn, String ldapbase,
+            String lhost, String lport) {
         CMSprops.setProperty("auths.instance.UserDirEnrollment.dnpattern",
                 "UID=$attr.uid,E=$attr.mail.1,CN=$attr.cn,OU=$dn.ou.2,O=$dn.o,C=US");
         CMSprops.setProperty("auths.instance.UserDirEnrollment.ldap.basedn",
@@ -128,14 +127,16 @@ public class CMSConfig extends ServerInfo {
                     "auths.instance.UserDirEnrollment.ldap.ldapconn.secureConn",
                     "true");
             CMSprops.setProperty(
-                    "auths.instance.UserDirEnrollment.ldap.ldapconn.port", lport);
+                    "auths.instance.UserDirEnrollment.ldap.ldapconn.port",
+                    lport);
 
         } else {
             CMSprops.setProperty(
                     "auths.instance.UserDirEnrollment.ldap.ldapconn.secureConn",
                     "false");
             CMSprops.setProperty(
-                    "auths.instance.UserDirEnrollment.ldap.ldapconn.port", lport);
+                    "auths.instance.UserDirEnrollment.ldap.ldapconn.port",
+                    lport);
 
         }
     }
@@ -145,8 +146,7 @@ public class CMSConfig extends ServerInfo {
         CMSprops.remove("auths.instance.UserDirEnrollment.ldap.basedn");
         CMSprops.remove("auths.instance.UserDirEnrollment.ldap.ldapconn.host");
         CMSprops.remove("auths.instance.UserDirEnrollment.ldap.ldapconn.port");
-        CMSprops.remove(
-                "auths.instance.UserDirEnrollment.ldap.ldapconn.secureConn");
+        CMSprops.remove("auths.instance.UserDirEnrollment.ldap.ldapconn.secureConn");
         CMSprops.remove("auths.instance.UserDirEnrollment.ldap.ldapconn.version");
         CMSprops.remove("auths.instance.UserDirEnrollment.ldap.maxConns");
         CMSprops.remove("auths.instance.UserDirEnrollment.ldap.minConns");
@@ -163,10 +163,13 @@ public class CMSConfig extends ServerInfo {
     }
 
     /**
-     * Takes parameters : secureConnection( true/false), ldapbinddn, ldapbindnpassword,ldaphostname, lapdaportnumber ( in case of secured connection give ldap secured port), basedn (e.g ou=people,o=mcom.com)
+     * Takes parameters : secureConnection( true/false), ldapbinddn,
+     * ldapbindnpassword,ldaphostname, lapdaportnumber ( in case of secured
+     * connection give ldap secured port), basedn (e.g ou=people,o=mcom.com)
      */
 
-    void EnablePortalAuth(boolean secureConn, String ldaprootDN, String ldaprootDNPW, String lhost, String lport, String lbsuffix) {
+    void EnablePortalAuth(boolean secureConn, String ldaprootDN,
+            String ldaprootDNPW, String lhost, String lport, String lbsuffix) {
         String certnickname = null;
 
         CMSprops.setProperty("auths.instance.PortalEnrollment.pluginName",
@@ -179,7 +182,8 @@ public class CMSConfig extends ServerInfo {
                 "3");
         CMSprops.setProperty("auths.instance.PortalEnrollment.ldap.minConns",
                 "2");
-        CMSprops.setProperty("auths.instance.PortalEnrollment.ldap.objectclass",
+        CMSprops.setProperty(
+                "auths.instance.PortalEnrollment.ldap.objectclass",
                 "inetOrgPerson");
         CMSprops.setProperty(
                 "auths.instance.PortalEnrollment.ldap.ldapauth.bindDN",
@@ -221,12 +225,15 @@ public class CMSConfig extends ServerInfo {
 
     }
 
-    // Publishing 
+    // Publishing
     /**
-     * Takes parameters : secureConnection( true/false), ldapbinddn, ldapbindnpassword,ldaphostname, lapdaportnumber ( in case of secured connection give ldap secured port)
+     * Takes parameters : secureConnection( true/false), ldapbinddn,
+     * ldapbindnpassword,ldaphostname, lapdaportnumber ( in case of secured
+     * connection give ldap secured port)
      */
 
-    public void EnablePublishing(boolean secureConn, String ldaprootDN, String ldaprootDNPW, String lhost, String lport) {
+    public void EnablePublishing(boolean secureConn, String ldaprootDN,
+            String ldaprootDNPW, String lhost, String lport) {
 
         CMSprops.setProperty("ca.publish.enable", "true");
         CMSprops.setProperty("ca.publish.ldappublish.enable", "true");
@@ -236,27 +243,32 @@ public class CMSConfig extends ServerInfo {
             CMSprops.setProperty("ca.publish.ldappublish.ldap.ldapconn.port",
                     lport);
 
-            CMSprops.setProperty("ca.publish.ldappublish.ldap.ldapauth.authtype",
+            CMSprops.setProperty(
+                    "ca.publish.ldappublish.ldap.ldapauth.authtype",
                     "SslClientAuth");
         } else {
             CMSprops.setProperty(
                     "ca.publish.ldappublish.ldap.ldapconn.secureConn", "false");
             CMSprops.setProperty("ca.publish.ldappublish.ldap.ldapconn.port",
                     lport);
-            CMSprops.setProperty("ca.publish.ldappublish.ldap.ldapauth.authtype",
+            CMSprops.setProperty(
+                    "ca.publish.ldappublish.ldap.ldapauth.authtype",
                     "BasicAuth");
         }
 
         CMSprops.setProperty("ca.publish.ldappublish.ldap.ldapauth.bindDN",
                 ldaprootDN);
-        CMSprops.setProperty("ca.publish.ldappublish.ldap.ldapauth.bindPassword",
+        CMSprops.setProperty(
+                "ca.publish.ldappublish.ldap.ldapauth.bindPassword",
                 ldaprootDNPW);
-        CMSprops.setProperty("ca.publish.ldappublish.ldap.ldapauth.bindPWPrompt",
+        CMSprops.setProperty(
+                "ca.publish.ldappublish.ldap.ldapauth.bindPWPrompt",
                 "CA LDAP Publishing");
 
         // set the hostname with fully qulified name if you are using SSL
         CMSprops.setProperty("ca.publish.ldappublish.ldap.ldapconn.host", lhost);
-        CMSprops.setProperty("ca.publish.ldappublish.ldap.ldapconn.version", "3");
+        CMSprops.setProperty("ca.publish.ldappublish.ldap.ldapconn.version",
+                "3");
         CMSprops.setProperty("ca.publish.mapper.impl.LdapCaSimpleMap.class",
                 "com.netscape.cms.publish.mappers.LdapCaSimpleMap");
         CMSprops.setProperty("ca.publish.mapper.impl.LdapDNCompsMap.class",
@@ -270,7 +282,8 @@ public class CMSConfig extends ServerInfo {
         CMSprops.setProperty("ca.publish.mapper.impl.LdapSubjAttrMap.class",
                 "com.netscape.cms.publish.mappers.LdapCertSubjMap");
         CMSprops.setProperty(
-                "ca.publish.mapper.instance.LdapCaCertMap.createCAEntry", "true");
+                "ca.publish.mapper.instance.LdapCaCertMap.createCAEntry",
+                "true");
         CMSprops.setProperty(
                 "ca.publish.mapper.instance.LdapCaCertMap.dnPattern",
                 "UID=CManager,OU=people,O=mcom.com");
@@ -281,7 +294,8 @@ public class CMSConfig extends ServerInfo {
                 "ca.publish.mapper.instance.LdapCrlMap.createCAEntry", "true");
         CMSprops.setProperty("ca.publish.mapper.instance.LdapCrlMap.dnPattern",
                 "UID=CManager,OU=people,O=mcom.com");
-        CMSprops.setProperty("ca.publish.mapper.instance.LdapCrlMap.pluginName",
+        CMSprops.setProperty(
+                "ca.publish.mapper.instance.LdapCrlMap.pluginName",
                 "LdapCaSimpleMap");
         CMSprops.setProperty(
                 "ca.publish.mapper.instance.LdapUserCertMap.dnPattern",
@@ -295,7 +309,8 @@ public class CMSConfig extends ServerInfo {
         CMSprops.setProperty(
                 "ca.publish.publisher.impl.LdapCaCertPublisher.class",
                 "com.netscape.cms.publish.publishers.LdapCaCertPublisher");
-        CMSprops.setProperty("ca.publish.publisher.impl.LdapCrlPublisher.class",
+        CMSprops.setProperty(
+                "ca.publish.publisher.impl.LdapCrlPublisher.class",
                 "com.netscape.cms.publish.publishers.LdapCrlPublisher");
         CMSprops.setProperty(
                 "ca.publish.publisher.impl.LdapUserCertPublisher.class",
@@ -325,7 +340,8 @@ public class CMSConfig extends ServerInfo {
                 "LdapUserCertPublisher");
     }
 
-    public void DisablePublishing(boolean secureConn, String ldaprootDN, String ldaprootDNPW, String lhost, String lport, String base) {
+    public void DisablePublishing(boolean secureConn, String ldaprootDN,
+            String ldaprootDNPW, String lhost, String lport, String base) {
 
         CMSprops.setProperty("ca.publish.enable", "false");
         CMSprops.setProperty("ca.publish.ldappublish.enable", "false");
@@ -335,27 +351,32 @@ public class CMSConfig extends ServerInfo {
             CMSprops.setProperty("ca.publish.ldappublish.ldap.ldapconn.port",
                     lport);
 
-            CMSprops.setProperty("ca.publish.ldappublish.ldap.ldapauth.authtype",
+            CMSprops.setProperty(
+                    "ca.publish.ldappublish.ldap.ldapauth.authtype",
                     "SslClientAuth");
         } else {
             CMSprops.setProperty(
                     "ca.publish.ldappublish.ldap.ldapconn.secureConn", "false");
             CMSprops.setProperty("ca.publish.ldappublish.ldap.ldapconn.port",
                     lport);
-            CMSprops.setProperty("ca.publish.ldappublish.ldap.ldapauth.authtype",
+            CMSprops.setProperty(
+                    "ca.publish.ldappublish.ldap.ldapauth.authtype",
                     "BasicAuth");
         }
 
         CMSprops.setProperty("ca.publish.ldappublish.ldap.ldapauth.bindDN",
                 ldaprootDN);
-        CMSprops.setProperty("ca.publish.ldappublish.ldap.ldapauth.bindPassword",
+        CMSprops.setProperty(
+                "ca.publish.ldappublish.ldap.ldapauth.bindPassword",
                 ldaprootDNPW);
-        CMSprops.setProperty("ca.publish.ldappublish.ldap.ldapauth.bindPWPrompt",
+        CMSprops.setProperty(
+                "ca.publish.ldappublish.ldap.ldapauth.bindPWPrompt",
                 "CA LDAP Publishing");
 
         // set the hostname with fully qulified name if you are using SSL
         CMSprops.setProperty("ca.publish.ldappublish.ldap.ldapconn.host", lhost);
-        CMSprops.setProperty("ca.publish.ldappublish.ldap.ldapconn.version", "3");
+        CMSprops.setProperty("ca.publish.ldappublish.ldap.ldapconn.version",
+                "3");
         CMSprops.setProperty("ca.publish.mapper.impl.LdapCaSimpleMap.class",
                 "com.netscape.cms.publish.mappers.LdapCaSimpleMap");
         CMSprops.setProperty("ca.publish.mapper.impl.LdapDNCompsMap.class",
@@ -381,7 +402,8 @@ public class CMSConfig extends ServerInfo {
                 "ca.publish.mapper.instance.LdapCrlMap.createCAEntry", "false");
         CMSprops.setProperty("ca.publish.mapper.instance.LdapCrlMap.dnPattern",
                 "UID=CManager,OU=people," + base);
-        CMSprops.setProperty("ca.publish.mapper.instance.LdapCrlMap.pluginName",
+        CMSprops.setProperty(
+                "ca.publish.mapper.instance.LdapCrlMap.pluginName",
                 "LdapCaSimpleMap");
         CMSprops.setProperty(
                 "ca.publish.mapper.instance.LdapUserCertMap.dnPattern",
@@ -395,7 +417,8 @@ public class CMSConfig extends ServerInfo {
         CMSprops.setProperty(
                 "ca.publish.publisher.impl.LdapCaCertPublisher.class",
                 "com.netscape.cms.publish.publishers.LdapCaCertPublisher");
-        CMSprops.setProperty("ca.publish.publisher.impl.LdapCrlPublisher.class",
+        CMSprops.setProperty(
+                "ca.publish.publisher.impl.LdapCrlPublisher.class",
                 "com.netscape.cms.publish.publishers.LdapCrlPublisher");
         CMSprops.setProperty(
                 "ca.publish.publisher.impl.LdapUserCertPublisher.class",
@@ -425,8 +448,9 @@ public class CMSConfig extends ServerInfo {
                 "LdapUserCertPublisher");
     }
 
-    public void CreateOCSPPublisher(String OCSPHost, String OCSPPort, String OCSPEEPort) {
-        // Set host nmae with fully qualified hostname 
+    public void CreateOCSPPublisher(String OCSPHost, String OCSPPort,
+            String OCSPEEPort) {
+        // Set host nmae with fully qualified hostname
         String location = "http://" + OCSPHost + ":" + OCSPEEPort + "/ocsp";
 
         CMSprops.setProperty("ca.crl.MasterCRL.alwaysUpdate", "true");
@@ -445,14 +469,15 @@ public class CMSConfig extends ServerInfo {
         CMSprops.setProperty(
                 "ca.publish.rule.instance.OCSPPublishingRule.mapper", "");
         CMSprops.setProperty(
-                "ca.publish.rule.instance.OCSPPublishingRule.pluginName", "Rule");
+                "ca.publish.rule.instance.OCSPPublishingRule.pluginName",
+                "Rule");
         CMSprops.setProperty(
                 "ca.publish.rule.instance.OCSPPublishingRule.predicate", "");
         CMSprops.setProperty(
                 "ca.publish.rule.instance.OCSPPublishingRule.publisher",
                 "CAOCSPPublisher");
-        CMSprops.setProperty("ca.publish.rule.instance.OCSPPublishingRule.type",
-                "crl");
+        CMSprops.setProperty(
+                "ca.publish.rule.instance.OCSPPublishingRule.type", "crl");
         CMSprops.setProperty("ca.Policy.rule.AuthInfoAccessExt.ad0_location",
                 location);
         CMSprops.setProperty(
@@ -500,7 +525,8 @@ public class CMSConfig extends ServerInfo {
 
     }
 
-    public void SetupKRAConnectorInCA(String certInstanceID, String KRAHost, String KRAPort) {
+    public void SetupKRAConnectorInCA(String certInstanceID, String KRAHost,
+            String KRAPort) {
         String certNickName = "Server-Cert " + certInstanceID;
 
         CMSprops.setProperty("ca.connector.KRA.enable", "true");
@@ -562,8 +588,9 @@ public class CMSConfig extends ServerInfo {
 
     }
 
-    // Policies 
-    public void DefaultValidityRule(String SubsystemType, String lagtime, String leadtime, String maxValidity) {
+    // Policies
+    public void DefaultValidityRule(String SubsystemType, String lagtime,
+            String leadtime, String maxValidity) {
         if (SubsystemType.equals("ca")) {
             CMSprops.setProperty("ca.Policy.rule.DefaultValidityRule.enable",
                     "true");
@@ -580,8 +607,8 @@ public class CMSConfig extends ServerInfo {
                     "ca.Policy.rule.DefaultValidityRule.minValidity", "1");
             CMSprops.setProperty(
                     "ca.Policy.rule.DefaultValidityRule.notBeforeSkew", "5");
-            CMSprops.setProperty("ca.Policy.rule.DefaultValidityRule.predicate",
-                    null);
+            CMSprops.setProperty(
+                    "ca.Policy.rule.DefaultValidityRule.predicate", null);
         } else {
 
             CMSprops.setProperty("ra.Policy.rule.DefaultValidityRule.enable",
@@ -599,8 +626,8 @@ public class CMSConfig extends ServerInfo {
                     "ra.Policy.rule.DefaultValidityRule.minValidity", "1");
             CMSprops.setProperty(
                     "ra.Policy.rule.DefaultValidityRule.notBeforeSkew", "5");
-            CMSprops.setProperty("ra.Policy.rule.DefaultValidityRule.predicate",
-                    null);
+            CMSprops.setProperty(
+                    "ra.Policy.rule.DefaultValidityRule.predicate", null);
         }
 
     }
@@ -617,10 +644,10 @@ public class CMSConfig extends ServerInfo {
         CMSConfig s = new CMSConfig(args[0]);
         boolean secureC = false;
 
-        // s.EnableDirEnrollment(secureC);	
+        // s.EnableDirEnrollment(secureC);
         s.saveCMSConfig();
-   
+
     }// end of function main
 
-} // end of class 
+} // end of class
 

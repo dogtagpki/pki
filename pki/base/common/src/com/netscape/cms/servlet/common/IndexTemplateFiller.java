@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.common;
 
-
 import java.util.Locale;
 
 import com.netscape.certsrv.apps.CMS;
@@ -26,15 +25,13 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.ISubsystem;
 
-
 /**
- * A class represents a certificate server kernel. This
- * kernel contains a list of resident subsystems such
- * as logging, security, remote administration. Additional
- * subsystems can be loaded into this kernel by specifying
- * parameters in the configuration store.
+ * A class represents a certificate server kernel. This kernel contains a list
+ * of resident subsystems such as logging, security, remote administration.
+ * Additional subsystems can be loaded into this kernel by specifying parameters
+ * in the configuration store.
  * <P>
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class IndexTemplateFiller implements ICMSTemplateFiller {
@@ -52,8 +49,8 @@ public class IndexTemplateFiller implements ICMSTemplateFiller {
     public IndexTemplateFiller() {
     }
 
-    public CMSTemplateParams getTemplateParams(
-        CMSRequest cmsReq, IAuthority mAuthority, Locale locale, Exception e) {
+    public CMSTemplateParams getTemplateParams(CMSRequest cmsReq,
+            IAuthority mAuthority, Locale locale, Exception e) {
         IArgBlock header = CMS.createArgBlock();
         IArgBlock ctx = CMS.createArgBlock();
         CMSTemplateParams params = new CMSTemplateParams(header, ctx);
@@ -103,11 +100,11 @@ public class IndexTemplateFiller implements ICMSTemplateFiller {
             count++;
         }
         // information about what is selected is provided
-        // from the caller. This parameter (selected) is used 
+        // from the caller. This parameter (selected) is used
         // by header servlet
         try {
-            header.addStringValue("selected", 
-                cmsReq.getHttpParams().getValueAsString("selected"));
+            header.addStringValue("selected", cmsReq.getHttpParams()
+                    .getValueAsString("selected"));
         } catch (EBaseException ex) {
         }
         header.addIntegerValue(OUT_TOTAL_COUNT, count);

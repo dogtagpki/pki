@@ -26,18 +26,18 @@ import netscape.security.util.DerValue;
 
 /**
  * This class defines the UniqueIdentity class used by certificates.
- *
+ * 
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  * @version 1.6
  */
 public class UniqueIdentity {
     // Private data members
-    private BitArray	id;
+    private BitArray id;
 
     /**
      * The default constructor for this class.
-     *
+     * 
      * @param id the byte array containing the unique identifier.
      */
     public UniqueIdentity(BitArray id) {
@@ -46,16 +46,16 @@ public class UniqueIdentity {
 
     /**
      * The default constructor for this class.
-     *
+     * 
      * @param id the byte array containing the unique identifier.
      */
     public UniqueIdentity(byte[] id) {
-        this.id = new BitArray(id.length*8, id);
+        this.id = new BitArray(id.length * 8, id);
     }
 
     /**
      * Create the object, decoding the values from the passed DER stream.
-     *
+     * 
      * @param in the DerInputStream to read the UniqueIdentity from.
      * @exception IOException on decoding errors.
      */
@@ -66,7 +66,7 @@ public class UniqueIdentity {
 
     /**
      * Create the object, decoding the values from the passed DER stream.
-     *
+     * 
      * @param derVal the DerValue decoded from the stream.
      * @param tag the tag the value is encoded under.
      * @exception IOException on decoding errors.
@@ -84,14 +84,14 @@ public class UniqueIdentity {
 
     /**
      * Encode the UniqueIdentity in DER form to the stream.
-     *
+     * 
      * @param out the DerOutputStream to marshal the contents to.
      * @param tag enocode it under the following tag.
      * @exception IOException on errors.
      */
     public void encode(DerOutputStream out, byte tag) throws IOException {
-	byte[] bytes = id.toByteArray();
-	int excessBits = bytes.length*8 - id.length();
+        byte[] bytes = id.toByteArray();
+        int excessBits = bytes.length * 8 - id.length();
 
         out.write(tag);
         out.putLength(bytes.length + 1);
@@ -104,7 +104,8 @@ public class UniqueIdentity {
      * Return the unique id.
      */
     public boolean[] getId() {
-        if (id == null) return null;
+        if (id == null)
+            return null;
 
         return id.toBooleanArray();
     }

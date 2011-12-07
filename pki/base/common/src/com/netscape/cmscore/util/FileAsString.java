@@ -17,25 +17,22 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.util;
 
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
-
 public class FileAsString {
 
     protected String mFilename;
     protected long mLastRead = 0;
-	
+
     private String fileContents = null;
     private Object userObject = null;
-	
+
     /**
-     * This class enables you to get treat a file as a string
-     * If the file changes underneath you, it will automatically
-     * be read
+     * This class enables you to get treat a file as a string If the file
+     * changes underneath you, it will automatically be read
      */
     public FileAsString(String filename) throws IOException {
         mFilename = filename;
@@ -49,8 +46,7 @@ public class FileAsString {
         return (lastmodified != mLastRead);
     }
 
-    private void readFile()
-        throws IOException {
+    private void readFile() throws IOException {
         BufferedReader br = createBufferedReader(mFilename);
         StringBuffer buf = new StringBuffer("");
         int bytesread = 0;
@@ -63,15 +59,14 @@ public class FileAsString {
                 buf.append(cbuf, 0, bytesread);
             }
             String s = new String(buf);
-        }
-        while (bytesread != -1);
+        } while (bytesread != -1);
         br.close();
 
         fileContents = new String(buf);
     }
-		
-    private BufferedReader createBufferedReader(String filename) 
-        throws IOException {
+
+    private BufferedReader createBufferedReader(String filename)
+            throws IOException {
         Debug.trace("createBufferedReader(filename=" + filename + ")");
         BufferedReader br = null;
         FileReader fr = null;
@@ -84,13 +79,12 @@ public class FileAsString {
             br = new BufferedReader(fr);
             mFilename = filename;
         } catch (IOException e) {
-        	throw e;
+            throw e;
         }
         return br;
     }
-			
-    public String getAsString() 
-        throws IOException {
+
+    public String getAsString() throws IOException {
         if (fileHasChanged()) {
             readFile();
         }
@@ -111,9 +105,9 @@ public class FileAsString {
     public void setUserObject(Object x) {
         userObject = x;
     }
-	
+
     public String getFilename() {
         return mFilename;
     }
-		
+
 }

@@ -21,38 +21,39 @@ import java.io.IOException;
 
 import netscape.security.util.DerOutputStream;
 import netscape.security.util.DerValue;
- 
+
 /**
  * Represent the CertificatePolicyInformation ASN.1 object.
- *
- * @author Christine Ho 
+ * 
+ * @author Christine Ho
  */
 public class CertificatePolicyInfo implements java.io.Serializable {
-	/**
+    /**
      *
      */
     private static final long serialVersionUID = -8516006396099280477L;
     private CertificatePolicyId mPolicyIdentifier;
-	private PolicyQualifiers mPolicyQualifiers;
+    private PolicyQualifiers mPolicyQualifiers;
 
     /**
      * Create a CertificatePolicyInfo with the passed CertificatePolicyId's.
-     *
+     * 
      * @param id the CertificatePolicyId.
      */
     public CertificatePolicyInfo(CertificatePolicyId id) {
         this.mPolicyIdentifier = id;
-        this.mPolicyQualifiers= null;
+        this.mPolicyQualifiers = null;
     }
 
-    public CertificatePolicyInfo(CertificatePolicyId id, PolicyQualifiers qualifiers) {
+    public CertificatePolicyInfo(CertificatePolicyId id,
+            PolicyQualifiers qualifiers) {
         this.mPolicyIdentifier = id;
-        this.mPolicyQualifiers= qualifiers;
+        this.mPolicyQualifiers = qualifiers;
     }
 
     /**
      * Create the CertificatePolicyInfo from the DER encoded value.
-     *
+     * 
      * @param val the DER encoded value of the same.
      */
     public CertificatePolicyInfo(DerValue val) throws IOException {
@@ -60,18 +61,18 @@ public class CertificatePolicyInfo implements java.io.Serializable {
             throw new IOException("Invalid encoding for CertificatePolicyInfo");
         }
         mPolicyIdentifier = new CertificatePolicyId(val.data.getDerValue());
-	// The specification is not clear on whether qualifier is
-	// optional or not. GTE CyberTrust Root certificate has
-	// no qualifier.
-	if (val.data.available() == 0) {
-        	mPolicyQualifiers = null;
-	} else {
-        	mPolicyQualifiers = new PolicyQualifiers(val.data.getDerValue());
-	}
+        // The specification is not clear on whether qualifier is
+        // optional or not. GTE CyberTrust Root certificate has
+        // no qualifier.
+        if (val.data.available() == 0) {
+            mPolicyQualifiers = null;
+        } else {
+            mPolicyQualifiers = new PolicyQualifiers(val.data.getDerValue());
+        }
     }
- 
+
     /**
-     * return the policy identifier of the policy info 
+     * return the policy identifier of the policy info
      */
     public CertificatePolicyId getPolicyIdentifier() {
         return (mPolicyIdentifier);
@@ -85,26 +86,26 @@ public class CertificatePolicyInfo implements java.io.Serializable {
      * Returns a printable representation of the CertificatePolicyId.
      */
     public String toString() {
-        String s = "CertificatePolicyInfo: [\n"
-                 + "PolicyIdentifier:" + mPolicyIdentifier.toString()
+        String s = "CertificatePolicyInfo: [\n" + "PolicyIdentifier:"
+                + mPolicyIdentifier.toString()
 
-                 + "]\n";
+                + "]\n";
         return (s);
     }
- 
+
     /**
      * Write the CertificatePolicyInfo to the DerOutputStream.
-     *
+     * 
      * @param out the DerOutputStream to write the object to.
      * @exception IOException on errors.
      */
     public void encode(DerOutputStream out) throws IOException {
         DerOutputStream tmp = new DerOutputStream();
- 
+
         mPolicyIdentifier.encode(tmp);
-	if (mPolicyQualifiers != null) {
-        	mPolicyQualifiers.encode(tmp);
-	}
-        out.write(DerValue.tag_Sequence,tmp);
+        if (mPolicyQualifiers != null) {
+            mPolicyQualifiers.encode(tmp);
+        }
+        out.write(DerValue.tag_Sequence, tmp);
     }
 }

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.logging;
 
-
 import java.util.Properties;
 
 import com.netscape.certsrv.logging.IBundleLogEvent;
@@ -26,12 +25,11 @@ import com.netscape.certsrv.logging.ILogEventFactory;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.SystemEvent;
 
-
 /**
  * A log event object for handling system messages
  * <P>
- *
- * @author mikep 
+ * 
+ * @author mikep
  * @author mzhao
  * @version $Revision$, $Date$
  */
@@ -50,7 +48,7 @@ public class SystemEventFactory implements ILogEventFactory {
 
     /**
      * Creates an log event.
-     *
+     * 
      * @param evtClass the event type
      * @param prop the resource bundle
      * @param source the subsystem ID who creates the log event
@@ -58,10 +56,9 @@ public class SystemEventFactory implements ILogEventFactory {
      * @param multiline the log message has more than one line or not
      * @param msg the detail message of the log
      * @param params the parameters in the detail log message
-     
      */
     public ILogEvent create(int evtClass, Properties prop, int source,
-        int level, boolean multiline, String msg, Object params[]) {
+            int level, boolean multiline, String msg, Object params[]) {
         if (evtClass != ILogger.EV_SYSTEM)
             return null;
         SystemEvent event = new SystemEvent(msg, params);
@@ -75,8 +72,8 @@ public class SystemEventFactory implements ILogEventFactory {
 
     /**
      * Set the resource bundle of the log event.
-     *
-     * @param prop the properties 
+     * 
+     * @param prop the properties
      * @param event the log event
      */
     protected void setProperties(Properties prop, IBundleLogEvent event) {
@@ -93,7 +90,7 @@ public class SystemEventFactory implements ILogEventFactory {
 
     /**
      * Releases an log event.
-     *
+     * 
      * @param e the log event
      */
     public void release(ILogEvent e) {

@@ -26,14 +26,12 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 
-
 /**
- * This interface represents an authenticator for profile.
- * An authenticator is responsibile for authenting
- * the end-user. If authentication is successful, request
- * can be processed immediately. Otherwise, the request will
- * be defered and manual approval is then required.
- *  
+ * This interface represents an authenticator for profile. An authenticator is
+ * responsibile for authenting the end-user. If authentication is successful,
+ * request can be processed immediately. Otherwise, the request will be defered
+ * and manual approval is then required.
+ * 
  * @version $Revision$, $Date$
  */
 public interface IProfileAuthenticator extends IAuthManager {
@@ -42,35 +40,35 @@ public interface IProfileAuthenticator extends IAuthManager {
 
     /**
      * Initializes this default policy.
-     *
+     * 
      * @param profile owner of this authenticator
      * @param config configuration store
      * @exception EProfileException failed to initialize
      */
     public void init(IProfile profile, IConfigStore config)
-        throws EProfileException;
+            throws EProfileException;
 
     /**
      * Retrieves the configuration store.
-     *
+     * 
      * @return configuration store
      */
     public IConfigStore getConfigStore();
 
     /**
-     * Populates authentication specific information into the
-     * request for auditing purposes.
-     *
+     * Populates authentication specific information into the request for
+     * auditing purposes.
+     * 
      * @param token authentication token
      * @param request request
      * @exception EProfileException failed to populate
      */
     public void populate(IAuthToken token, IRequest request)
-        throws EProfileException;
+            throws EProfileException;
 
     /**
      * Retrieves the localizable name of this policy.
-     *
+     * 
      * @param locale end user locale
      * @return localized authenticator name
      */
@@ -78,7 +76,7 @@ public interface IProfileAuthenticator extends IAuthManager {
 
     /**
      * Retrieves the localizable description of this policy.
-     *
+     * 
      * @param locale end user locale
      * @return localized authenticator description
      */
@@ -86,26 +84,24 @@ public interface IProfileAuthenticator extends IAuthManager {
 
     /**
      * Retrieves a list of names of the property.
-     *
+     * 
      * @return a list of property names
      */
     public Enumeration getValueNames();
 
     /**
-     * Checks if the value of the given property should be
-     * serializable into the request. Passsword or other
-     * security-related value may not be desirable for
-     * storage.
-     *
+     * Checks if the value of the given property should be serializable into the
+     * request. Passsword or other security-related value may not be desirable
+     * for storage.
+     * 
      * @param name property name
      * @return true if the property is not security related
      */
     public boolean isValueWriteable(String name);
 
     /**
-     * Retrieves the descriptor of the given value 
-     * property by name.
-     *
+     * Retrieves the descriptor of the given value property by name.
+     * 
      * @param locale user locale
      * @param name property name
      * @return descriptor of the requested property
@@ -114,7 +110,7 @@ public interface IProfileAuthenticator extends IAuthManager {
 
     /**
      * Checks if this authenticator requires SSL client authentication.
-     *
+     * 
      * @return client authentication required or not
      */
     public boolean isSSLClientRequired();

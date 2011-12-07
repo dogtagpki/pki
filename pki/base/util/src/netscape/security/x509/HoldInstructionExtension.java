@@ -30,22 +30,19 @@ import netscape.security.util.DerOutputStream;
 import netscape.security.util.DerValue;
 import netscape.security.util.ObjectIdentifier;
 
-
 /**
  * Represent the CRL Hold Instruction Code Extension.
- *
- * <p>The hold instruction code is a non-critical CRL entry
- * extension that provides a registered instruction identifier
- * which indicates the action to be taken after encountering
- * a certificate that has been placed on hold.
- *
+ * 
+ * <p>
+ * The hold instruction code is a non-critical CRL entry extension that provides
+ * a registered instruction identifier which indicates the action to be taken
+ * after encountering a certificate that has been placed on hold.
+ * 
  * @see Extension
  * @see CertAttrSet
  */
 
-
-public class HoldInstructionExtension extends Extension
-implements CertAttrSet {
+public class HoldInstructionExtension extends Extension implements CertAttrSet {
 
     /**
      *
@@ -62,36 +59,31 @@ implements CertAttrSet {
      */
     public static final String OID = "2.5.29.23";
 
-    public static final String NONE_HOLD_INSTR_OID_STR =
-        "1.2.840.10040.2.1";
-    public static final ObjectIdentifier NONE_HOLD_INSTR_OID =
-        new ObjectIdentifier(NONE_HOLD_INSTR_OID_STR);
+    public static final String NONE_HOLD_INSTR_OID_STR = "1.2.840.10040.2.1";
+    public static final ObjectIdentifier NONE_HOLD_INSTR_OID = new ObjectIdentifier(
+            NONE_HOLD_INSTR_OID_STR);
 
-    public static final String CALL_ISSUER_HOLD_INSTR_OID_STR =
-        "1.2.840.10040.2.2";
-    public static final ObjectIdentifier CALL_ISSUER_HOLD_INSTR_OID =
-        new ObjectIdentifier(CALL_ISSUER_HOLD_INSTR_OID_STR);
+    public static final String CALL_ISSUER_HOLD_INSTR_OID_STR = "1.2.840.10040.2.2";
+    public static final ObjectIdentifier CALL_ISSUER_HOLD_INSTR_OID = new ObjectIdentifier(
+            CALL_ISSUER_HOLD_INSTR_OID_STR);
 
-    public static final String REJECT_HOLD_INSTR_OID_STR =
-        "1.2.840.10040.2.3";
-    public static final ObjectIdentifier REJECT_HOLD_INSTR_OID =
-        new ObjectIdentifier(REJECT_HOLD_INSTR_OID_STR);
+    public static final String REJECT_HOLD_INSTR_OID_STR = "1.2.840.10040.2.3";
+    public static final ObjectIdentifier REJECT_HOLD_INSTR_OID = new ObjectIdentifier(
+            REJECT_HOLD_INSTR_OID_STR);
 
-    private ObjectIdentifier holdInstructionCodeOIDs[] = {NONE_HOLD_INSTR_OID,
-                                                          CALL_ISSUER_HOLD_INSTR_OID,
-                                                          REJECT_HOLD_INSTR_OID};
+    private ObjectIdentifier holdInstructionCodeOIDs[] = { NONE_HOLD_INSTR_OID,
+            CALL_ISSUER_HOLD_INSTR_OID, REJECT_HOLD_INSTR_OID };
     private ObjectIdentifier holdInstructionCodeOID = null;
 
-    private String holdInstructionDescription[] = {"None",
-                                                   "Call Issuer",
-                                                   "Reject"};
-
+    private String holdInstructionDescription[] = { "None", "Call Issuer",
+            "Reject" };
 
     static {
         try {
-            OIDMap.addAttribute(HoldInstructionExtension.class.getName(),
-                                OID, NAME);
-        } catch (CertificateException e) {}
+            OIDMap.addAttribute(HoldInstructionExtension.class.getName(), OID,
+                    NAME);
+        } catch (CertificateException e) {
+        }
     }
 
     private int getHoldInstructionCodeFromOID(ObjectIdentifier oid) {
@@ -107,7 +99,7 @@ implements CertAttrSet {
         if (oid != null) {
             int i = getHoldInstructionCodeFromOID(oid);
             if (i > 0 && i < 4)
-                description = holdInstructionDescription[i-1];
+                description = holdInstructionDescription[i - 1];
         }
         return (description);
     }
@@ -122,31 +114,27 @@ implements CertAttrSet {
     }
 
     /**
-     * Create a HoldInstructionExtension with the date.
-     * The criticality is set to false.
-     *
+     * Create a HoldInstructionExtension with the date. The criticality is set
+     * to false.
+     * 
      * @param code the value to be set for the extension.
      */
-    public HoldInstructionExtension(int code)
-        throws IOException
-    {
+    public HoldInstructionExtension(int code) throws IOException {
         if (code < 1 || code > 3)
             throw new IOException("Invalid hold instruction code");
-        holdInstructionCodeOID = holdInstructionCodeOIDs[code-1];
+        holdInstructionCodeOID = holdInstructionCodeOIDs[code - 1];
         this.extensionId = PKIXExtensions.HoldInstructionCode_Id;
         this.critical = false;
         encodeThis();
     }
 
     /**
-     * Create a HoldInstructionExtension with the date.
-     * The criticality is set to false.
-     *
+     * Create a HoldInstructionExtension with the date. The criticality is set
+     * to false.
+     * 
      * @param oidStr the value to be set for the extension.
      */
-    public HoldInstructionExtension(String oidStr)
-        throws IOException
-    {
+    public HoldInstructionExtension(String oidStr) throws IOException {
         ObjectIdentifier oid = new ObjectIdentifier(oidStr);
         if (oid == null || getHoldInstructionCodeFromOID(oid) == 0)
             throw new IOException("Invalid hold instruction code");
@@ -157,14 +145,12 @@ implements CertAttrSet {
     }
 
     /**
-     * Create a HoldInstructionExtension with the date.
-     * The criticality is set to false.
-     *
+     * Create a HoldInstructionExtension with the date. The criticality is set
+     * to false.
+     * 
      * @param oid the value to be set for the extension.
      */
-    public HoldInstructionExtension(ObjectIdentifier oid)
-        throws IOException
-    {
+    public HoldInstructionExtension(ObjectIdentifier oid) throws IOException {
         if (getHoldInstructionCodeFromOID(oid) == 0)
             throw new IOException("Invalid hold instruction code");
         holdInstructionCodeOID = oid;
@@ -174,33 +160,31 @@ implements CertAttrSet {
     }
 
     /**
-     * Create a HoldInstructionExtension with the date.
-     * The criticality is set to false.
-     *
+     * Create a HoldInstructionExtension with the date. The criticality is set
+     * to false.
+     * 
      * @param critical true if the extension is to be treated as critical.
      * @param code the value to be set for the extension.
      */
     public HoldInstructionExtension(Boolean critical, int code)
-        throws IOException
-    {
+            throws IOException {
         if (code < 1 || code > 3)
             throw new IOException("Invalid hold instruction code");
-        holdInstructionCodeOID = holdInstructionCodeOIDs[code-1];
+        holdInstructionCodeOID = holdInstructionCodeOIDs[code - 1];
         this.extensionId = PKIXExtensions.HoldInstructionCode_Id;
         this.critical = critical.booleanValue();
         encodeThis();
     }
 
     /**
-     * Create a HoldInstructionExtension with the date.
-     * The criticality is set to false.
-     *
+     * Create a HoldInstructionExtension with the date. The criticality is set
+     * to false.
+     * 
      * @param critical true if the extension is to be treated as critical.
      * @param oidStr the value to be set for the extension.
      */
     public HoldInstructionExtension(Boolean critical, String oidStr)
-        throws IOException
-    {
+            throws IOException {
         ObjectIdentifier oid = new ObjectIdentifier(oidStr);
         if (oid == null || getHoldInstructionCodeFromOID(oid) == 0)
             throw new IOException("Invalid hold instruction code");
@@ -211,15 +195,14 @@ implements CertAttrSet {
     }
 
     /**
-     * Create a HoldInstructionExtension with the date.
-     * The criticality is set to false.
-     *
+     * Create a HoldInstructionExtension with the date. The criticality is set
+     * to false.
+     * 
      * @param critical true if the extension is to be treated as critical.
      * @param oid the value to be set for the extension.
      */
     public HoldInstructionExtension(Boolean critical, ObjectIdentifier oid)
-        throws IOException
-    {
+            throws IOException {
         if (getHoldInstructionCodeFromOID(oid) == 0)
             throw new IOException("Invalid hold instruction code");
         holdInstructionCodeOID = oid;
@@ -230,14 +213,13 @@ implements CertAttrSet {
 
     /**
      * Create the extension from the passed DER encoded value of the same.
-     *
+     * 
      * @param critical true if the extension is to be treated as critical.
      * @param value Array of DER encoded bytes of the actual value.
      * @exception IOException on error.
      */
     public HoldInstructionExtension(Boolean critical, Object value)
-        throws IOException
-    {
+            throws IOException {
         this.extensionId = PKIXExtensions.HoldInstructionCode_Id;
         this.critical = critical.booleanValue();
 
@@ -249,25 +231,26 @@ implements CertAttrSet {
         this.extensionValue = extValue;
         DerValue val = new DerValue(extValue);
         if (val.tag == DerValue.tag_ObjectId) {
-            DerInputStream derInputStream = new DerInputStream(val.toByteArray());
+            DerInputStream derInputStream = new DerInputStream(
+                    val.toByteArray());
             holdInstructionCodeOID = derInputStream.getOID();
             if (getHoldInstructionCodeFromOID(holdInstructionCodeOID) == 0)
-                throw new IOException("Invalid encoding for HoldInstructionExtension");
+                throw new IOException(
+                        "Invalid encoding for HoldInstructionExtension");
         } else {
-            throw new IOException("Invalid encoding for HoldInstructionExtension");
+            throw new IOException(
+                    "Invalid encoding for HoldInstructionExtension");
         }
     }
 
     /**
      * Get the hold instruction code.
      */
-    public ObjectIdentifier getHoldInstructionCode()
-    {
+    public ObjectIdentifier getHoldInstructionCode() {
         return holdInstructionCodeOID;
     }
 
-    public String getHoldInstructionCodeDescription()
-    {
+    public String getHoldInstructionCodeDescription() {
         return getHoldInstructionDescription(holdInstructionCodeOID);
     }
 
@@ -279,10 +262,10 @@ implements CertAttrSet {
             if (!(obj instanceof ObjectIdentifier)) {
                 throw new IOException("Attribute must be of type String.");
             }
-            holdInstructionCodeOID = (ObjectIdentifier)obj;
+            holdInstructionCodeOID = (ObjectIdentifier) obj;
         } else {
-            throw new IOException("Attribute name not recognized by"+
-                                  " CertAttrSet:HoldInstructionCode.");
+            throw new IOException("Attribute name not recognized by"
+                    + " CertAttrSet:HoldInstructionCode.");
         }
     }
 
@@ -293,8 +276,8 @@ implements CertAttrSet {
         if (name.equalsIgnoreCase(HOLD_INSTRUCTION)) {
             return holdInstructionCodeOID;
         } else {
-            throw new IOException("Attribute name not recognized by"+
-                                  " CertAttrSet:HoldInstructionCode.");
+            throw new IOException("Attribute name not recognized by"
+                    + " CertAttrSet:HoldInstructionCode.");
         }
     }
 
@@ -305,8 +288,8 @@ implements CertAttrSet {
         if (name.equalsIgnoreCase(HOLD_INSTRUCTION)) {
             holdInstructionCodeOID = null;
         } else {
-            throw new IOException("Attribute name not recognized by"+
-                                  " CertAttrSet:HoldInstructionCode.");
+            throw new IOException("Attribute name not recognized by"
+                    + " CertAttrSet:HoldInstructionCode.");
         }
     }
 
@@ -314,14 +297,14 @@ implements CertAttrSet {
      * Returns a printable representation of the HoldInstructionExtension.
      */
     public String toString() {
-        String s = super.toString() + "Hold Instruction Code: "+
-                   getHoldInstructionDescription(holdInstructionCodeOID)+"\n";
+        String s = super.toString() + "Hold Instruction Code: "
+                + getHoldInstructionDescription(holdInstructionCodeOID) + "\n";
         return (s);
     }
 
     /**
      * Decode the extension from the InputStream.
-     *
+     * 
      * @param in the InputStream to unmarshal the contents from.
      * @exception IOException on decoding or validity errors.
      */
@@ -331,27 +314,27 @@ implements CertAttrSet {
 
     /**
      * Write the extension to the DerOutputStream.
-     *
+     * 
      * @param out the DerOutputStream to write the extension to.
      * @exception IOException on encoding errors.
      */
     public void encode(OutputStream out) throws IOException {
-       DerOutputStream	tmp = new DerOutputStream();
+        DerOutputStream tmp = new DerOutputStream();
 
-       if (this.extensionValue == null) {
-           this.extensionId = PKIXExtensions.HoldInstructionCode_Id;
-           this.critical = true;
-           encodeThis();
-       }
-       super.encode(tmp);
-       out.write(tmp.toByteArray());
+        if (this.extensionValue == null) {
+            this.extensionId = PKIXExtensions.HoldInstructionCode_Id;
+            this.critical = true;
+            encodeThis();
+        }
+        super.encode(tmp);
+        out.write(tmp.toByteArray());
     }
 
     /**
      * Return an enumeration of names of attributes existing within this
      * attribute.
      */
-    public Enumeration<String> getElements () {
+    public Enumeration<String> getElements() {
         Vector<String> elements = new Vector<String>();
         elements.addElement(HOLD_INSTRUCTION);
         return (elements.elements());
@@ -360,8 +343,7 @@ implements CertAttrSet {
     /**
      * Return the name of this attribute.
      */
-    public String getName () {
+    public String getName() {
         return (NAME);
     }
 }
-

@@ -30,7 +30,7 @@ import netscape.security.util.DerValue;
 
 /**
  * This class defines the PKCS10 attributes for the request.
- *
+ * 
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  * @version 1.10
@@ -52,55 +52,52 @@ public class PKCS10Attributes extends Vector implements DerEncoder {
 
     /**
      * Create the object, decoding the values from the passed DER stream.
-     *
+     * 
      * @param in the DerInputStream to read the attributes from.
      * @exception IOException on decoding errors.
      */
-    public PKCS10Attributes(DerInputStream in)
-    throws IOException {
+    public PKCS10Attributes(DerInputStream in) throws IOException {
 
         map = new Hashtable();
-        DerValue [] attrs = in.getSet(5,true);
+        DerValue[] attrs = in.getSet(5, true);
 
-	if (attrs != null) {
-	    for (int i = 0; i < attrs.length; i++) {
-	        PKCS10Attribute attr = new PKCS10Attribute(attrs[i]);
-		addElement(attr);
-		map.put(attr.getAttributeValue().getName(),attr);
-	    }
-	}
+        if (attrs != null) {
+            for (int i = 0; i < attrs.length; i++) {
+                PKCS10Attribute attr = new PKCS10Attribute(attrs[i]);
+                addElement(attr);
+                map.put(attr.getAttributeValue().getName(), attr);
+            }
+        }
     }
 
-
     /**
      * Encode the attributes in DER form to the stream.
-     *
+     * 
      * @param out the OutputStream to marshal the contents to.
-     *
+     * 
      * @exception IOException on encoding errors.
      */
-    public void encode(OutputStream out)
-    throws IOException {
-	derEncode(out);
-        }
+    public void encode(OutputStream out) throws IOException {
+        derEncode(out);
+    }
 
     /**
-     * Encode the attributes in DER form to the stream.
-     * Implements the <code>DerEncoder</code> interface.
-     *
+     * Encode the attributes in DER form to the stream. Implements the
+     * <code>DerEncoder</code> interface.
+     * 
      * @param out the OutputStream to marshal the contents to.
      * @exception IOException on encoding errors.
      */
-    public void derEncode(OutputStream out)
-    throws IOException {
+    public void derEncode(OutputStream out) throws IOException {
 
-	// first copy the elements into an array
-	PKCS10Attribute[] attribs = new PKCS10Attribute[size()];
-	copyInto(attribs);
+        // first copy the elements into an array
+        PKCS10Attribute[] attribs = new PKCS10Attribute[size()];
+        copyInto(attribs);
 
-	DerOutputStream attrOut = new DerOutputStream();
-	attrOut.putOrderedSetOf(DerValue.createTag(DerValue.TAG_CONTEXT,true,(byte)0), 
-			 attribs);
+        DerOutputStream attrOut = new DerOutputStream();
+        attrOut.putOrderedSetOf(
+                DerValue.createTag(DerValue.TAG_CONTEXT, true, (byte) 0),
+                attribs);
 
         out.write(attrOut.toByteArray());
     }
@@ -109,7 +106,7 @@ public class PKCS10Attributes extends Vector implements DerEncoder {
      * Set the attribute value.
      */
     public void setAttribute(String name, Object obj) throws IOException {
-        map.put(name,obj);
+        map.put(name, obj);
         addElement(obj);
     }
 
@@ -118,11 +115,10 @@ public class PKCS10Attributes extends Vector implements DerEncoder {
      */
     public Object getAttribute(String name) throws IOException {
         Object obj = map.get(name);
-		/*
-        if (obj == null) {
-            throw new IOException("No attribute found with name " + name);
-        }
-		*/
+        /*
+         * if (obj == null) { throw new
+         * IOException("No attribute found with name " + name); }
+         */
         return (obj);
     }
 
@@ -142,7 +138,7 @@ public class PKCS10Attributes extends Vector implements DerEncoder {
      * Return an enumeration of names of attributes existing within this
      * attribute.
      */
-    public Enumeration getElements () {
+    public Enumeration getElements() {
         return (map.elements());
     }
 }

@@ -43,8 +43,8 @@ import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.profile.common.EnrollProfile;
 
 /**
- * This updater class will create the new user to the subsystem group and
- * then add the subsystem certificate to the user.
+ * This updater class will create the new user to the subsystem group and then
+ * add the subsystem certificate to the user.
  * 
  * @version $Revision$, $Date$
  */
@@ -57,8 +57,7 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
     private Vector mConfigNames = new Vector();
     private Vector mValueNames = new Vector();
 
-    private final static String LOGGING_SIGNED_AUDIT_CONFIG_ROLE =
-        "LOGGING_SIGNED_AUDIT_CONFIG_ROLE_3";
+    private final static String LOGGING_SIGNED_AUDIT_CONFIG_ROLE = "LOGGING_SIGNED_AUDIT_CONFIG_ROLE_3";
     private final static String SIGNED_AUDIT_PASSWORD_VALUE = "********";
     private final static String SIGNED_AUDIT_EMPTY_NAME_VALUE_PAIR = "Unknown";
     private final static String SIGNED_AUDIT_NAME_VALUE_DELIMITER = ";;";
@@ -67,8 +66,8 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
     public SubsystemGroupUpdater() {
     }
 
-    public void init(IProfile profile, IConfigStore config) 
-      throws EProfileException {
+    public void init(IProfile profile, IConfigStore config)
+            throws EProfileException {
         mConfig = config;
         mProfile = profile;
         mEnrollProfile = (EnrollProfile) profile;
@@ -82,8 +81,7 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
         return null;
     }
 
-    public void setConfig(String name, String value) 
-      throws EPropertyException {
+    public void setConfig(String name, String value) throws EPropertyException {
         if (mConfig.getSubStore("params") == null) {
             //
         } else {
@@ -108,8 +106,8 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
         return mConfig;
     }
 
-    public void update(IRequest req, RequestStatus status) 
-      throws EProfileException {
+    public void update(IRequest req, RequestStatus status)
+            throws EProfileException {
 
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
@@ -119,41 +117,45 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
             return;
         }
 
-        X509CertImpl cert = req.getExtDataInCert(IEnrollProfile.REQUEST_ISSUED_CERT);
+        X509CertImpl cert = req
+                .getExtDataInCert(IEnrollProfile.REQUEST_ISSUED_CERT);
         if (cert == null)
             return;
 
         IConfigStore mainConfig = CMS.getConfigStore();
-        
-        int num=0;
+
+        int num = 0;
         try {
             num = mainConfig.getInteger("subsystem.count", 0);
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
 
         IUGSubsystem system = (IUGSubsystem) (CMS.getSubsystem(IUGSubsystem.ID));
 
         String requestor_name = "subsystem";
         try {
-          requestor_name = req.getExtDataInString("requestor_name");
+            requestor_name = req.getExtDataInString("requestor_name");
         } catch (Exception e1) {
-          // ignore
+            // ignore
         }
 
         // i.e. tps-1.2.3.4-4
         String id = requestor_name;
- 
+
         num++;
         mainConfig.putInteger("subsystem.count", num);
-   
+
         try {
             mainConfig.commit(false);
         } catch (Exception e) {
         }
-        String auditParams = "Scope;;users+Operation;;OP_ADD+source;;SubsystemGroupUpdater" +
-                             "+Resource;;"+ id +
-                             "+fullname;;" + id +
-                             "+state;;1" +
-                             "+userType;;agentType+email;;<null>+password;;<null>+phone;;<null>";
+        String auditParams = "Scope;;users+Operation;;OP_ADD+source;;SubsystemGroupUpdater"
+                + "+Resource;;"
+                + id
+                + "+fullname;;"
+                + id
+                + "+state;;1"
+                + "+userType;;agentType+email;;<null>+password;;<null>+phone;;<null>";
 
         IUser user = null;
         CMS.debug("SubsystemGroupUpdater adduser");
@@ -171,11 +173,8 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
 
             system.addUser(user);
             CMS.debug("SubsystemGroupUpdater update: successfully add the user");
-            auditMessage = CMS.getLogMessage(
-                               LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
-                               auditSubjectID,
-                               ILogger.SUCCESS,
-                               auditParams);
+            auditMessage = CMS.getLogMessage(LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                    auditSubjectID, ILogger.SUCCESS, auditParams);
             audit(auditMessage);
 
             String b64 = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
@@ -192,57 +191,49 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
                 }
                 b64 = sb.toString();
             } catch (Exception ence) {
-                CMS.debug("SubsystemGroupUpdater update: user cert encoding failed: " + ence);
+                CMS.debug("SubsystemGroupUpdater update: user cert encoding failed: "
+                        + ence);
             }
 
-            auditParams = "Scope;;certs+Operation;;OP_ADD+source;;SubsystemGroupUpdater" +
-                             "+Resource;;"+ id +
-                             "+cert;;"+ b64;
+            auditParams = "Scope;;certs+Operation;;OP_ADD+source;;SubsystemGroupUpdater"
+                    + "+Resource;;" + id + "+cert;;" + b64;
 
             system.addUserCert(user);
             CMS.debug("SubsystemGroupUpdater update: successfully add the user certificate");
-            auditMessage = CMS.getLogMessage(
-                               LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
-                               auditSubjectID,
-                               ILogger.SUCCESS,
-                               auditParams);
+            auditMessage = CMS.getLogMessage(LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                    auditSubjectID, ILogger.SUCCESS, auditParams);
             audit(auditMessage);
         } catch (LDAPException e) {
             CMS.debug("UpdateSubsystemGroup: update " + e.toString());
             if (e.getLDAPResultCode() != LDAPException.ENTRY_ALREADY_EXISTS) {
                 auditMessage = CMS.getLogMessage(
-                                   LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
-                                   auditSubjectID,
-                                   ILogger.FAILURE,
-                                   auditParams);
+                        LOGGING_SIGNED_AUDIT_CONFIG_ROLE, auditSubjectID,
+                        ILogger.FAILURE, auditParams);
                 audit(auditMessage);
-                throw new EProfileException(e.toString()); 
+                throw new EProfileException(e.toString());
             }
         } catch (Exception e) {
             CMS.debug("UpdateSubsystemGroup: update addUser " + e.toString());
-            auditMessage = CMS.getLogMessage(
-                               LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
-                               auditSubjectID,
-                               ILogger.FAILURE,
-                               auditParams);
+            auditMessage = CMS.getLogMessage(LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                    auditSubjectID, ILogger.FAILURE, auditParams);
             audit(auditMessage);
             throw new EProfileException(e.toString());
         }
 
         IGroup group = null;
         String groupName = "Subsystem Group";
-        auditParams = "Scope;;groups+Operation;;OP_MODIFY+source;;SubsystemGroupUpdater" +
-                      "+Resource;;"+ groupName; 
+        auditParams = "Scope;;groups+Operation;;OP_MODIFY+source;;SubsystemGroupUpdater"
+                + "+Resource;;" + groupName;
 
         try {
             group = system.getGroupFromName(groupName);
-            
+
             auditParams += "+user;;";
             Enumeration members = group.getMemberNames();
             while (members.hasMoreElements()) {
                 auditParams += (String) members.nextElement();
                 if (members.hasMoreElements()) {
-                    auditParams +=",";         
+                    auditParams += ",";
                 }
             }
 
@@ -252,10 +243,8 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
                 system.modifyGroup(group);
 
                 auditMessage = CMS.getLogMessage(
-                               LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
-                               auditSubjectID,
-                               ILogger.SUCCESS,
-                               auditParams);
+                        LOGGING_SIGNED_AUDIT_CONFIG_ROLE, auditSubjectID,
+                        ILogger.SUCCESS, auditParams);
                 audit(auditMessage);
 
                 CMS.debug("UpdateSubsystemGroup: update: successfully added the user to the group.");
@@ -263,12 +252,10 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
                 CMS.debug("UpdateSubsystemGroup: update: user already a member of the group");
             }
         } catch (Exception e) {
-            CMS.debug("UpdateSubsystemGroup update: modifyGroup " + e.toString());
-            auditMessage = CMS.getLogMessage(
-                               LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
-                               auditSubjectID,
-                               ILogger.FAILURE,
-                               auditParams);
+            CMS.debug("UpdateSubsystemGroup update: modifyGroup "
+                    + e.toString());
+            auditMessage = CMS.getLogMessage(LOGGING_SIGNED_AUDIT_CONFIG_ROLE,
+                    auditSubjectID, ILogger.FAILURE, auditParams);
             audit(auditMessage);
         }
     }
@@ -286,11 +273,8 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
             return;
         }
 
-        mSignedAuditLogger.log(ILogger.EV_SIGNED_AUDIT,
-            null,
-            ILogger.S_SIGNED_AUDIT,
-            ILogger.LL_SECURITY,
-            msg);
+        mSignedAuditLogger.log(ILogger.EV_SIGNED_AUDIT, null,
+                ILogger.S_SIGNED_AUDIT, ILogger.LL_SECURITY, msg);
     }
 
     private String auditSubjectID() {
@@ -304,8 +288,7 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
         SessionContext auditContext = SessionContext.getExistingContext();
 
         if (auditContext != null) {
-            subjectID = (String)
-                    auditContext.get(SessionContext.USER_ID);
+            subjectID = (String) auditContext.get(SessionContext.USER_ID);
 
             if (subjectID != null) {
                 subjectID = subjectID.trim();

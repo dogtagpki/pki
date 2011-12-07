@@ -17,22 +17,17 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.base;
 
-
-
-
 /**
- * This class will display the certificate content in predefined
- * format.
- *
+ * This class will display the certificate content in predefined format.
+ * 
  * @version $Revision$, $Date$
  */
 public interface IExtPrettyPrint {
 
     /**
      * Retrieves the printable extension string.
-     *
+     * 
      * @return printable extension string
      */
     public String toString();
 }
-

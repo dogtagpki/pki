@@ -40,35 +40,44 @@ public class DBSSessionDefaultStub implements IDBSSession {
     public void modify(String name, ModificationSet mods) throws EBaseException {
     }
 
-    public IDBSearchResults search(String base, String filter) throws EBaseException {
+    public IDBSearchResults search(String base, String filter)
+            throws EBaseException {
         return null;
     }
 
-    public IDBSearchResults search(String base, String filter, int maxSize) throws EBaseException {
+    public IDBSearchResults search(String base, String filter, int maxSize)
+            throws EBaseException {
         return null;
     }
 
-    public IDBSearchResults search(String base, String filter, int maxSize, int timeLimit) throws EBaseException {
+    public IDBSearchResults search(String base, String filter, int maxSize,
+            int timeLimit) throws EBaseException {
         return null;
     }
 
-    public IDBSearchResults search(String base, String filter, String attrs[]) throws EBaseException {
+    public IDBSearchResults search(String base, String filter, String attrs[])
+            throws EBaseException {
         return null;
     }
 
-    public IDBVirtualList createVirtualList(String base, String filter, String attrs[]) throws EBaseException {
+    public IDBVirtualList createVirtualList(String base, String filter,
+            String attrs[]) throws EBaseException {
         return null;
     }
 
-    public LDAPSearchResults persistentSearch(String base, String filter, String attrs[]) throws EBaseException {
+    public LDAPSearchResults persistentSearch(String base, String filter,
+            String attrs[]) throws EBaseException {
         return null;
     }
 
-    public IDBVirtualList createVirtualList(String base, String filter, String attrs[], String sortKey, int pageSize) throws EBaseException {
+    public IDBVirtualList createVirtualList(String base, String filter,
+            String attrs[], String sortKey, int pageSize) throws EBaseException {
         return null;
     }
 
-    public IDBVirtualList createVirtualList(String base, String filter, String attrs[], String startFrom, String sortKey, int pageSize) throws EBaseException {
+    public IDBVirtualList createVirtualList(String base, String filter,
+            String attrs[], String startFrom, String sortKey, int pageSize)
+            throws EBaseException {
         return null;
     }
 }

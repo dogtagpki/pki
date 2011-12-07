@@ -27,60 +27,61 @@ import java.net.UnknownHostException;
 
 /**
  * This is the base class for network clients.
- *
- * @version	1.21, 08/07/97
- * @author	Jonathan Payne
+ * 
+ * @version 1.21, 08/07/97
+ * @author Jonathan Payne
  */
 public class NetworkClient {
     /** Socket for communicating with server. */
-    protected Socket	serverSocket = null;
+    protected Socket serverSocket = null;
 
     /** Stream for printing to the server. */
-    public PrintStream	serverOutput;
+    public PrintStream serverOutput;
 
     /** Buffered stream for reading replies from server. */
-    public InputStream	serverInput;
+    public InputStream serverInput;
 
     /** Open a connection to the server. */
-    public void openServer(String server, int port)
-	throws IOException, UnknownHostException {
-	if (serverSocket != null)
-	    closeServer();
-	serverSocket = doConnect (server, port);
-	serverOutput = new PrintStream(new BufferedOutputStream(serverSocket.getOutputStream()),
-				       true);
-	serverInput = new BufferedInputStream(serverSocket.getInputStream());
+    public void openServer(String server, int port) throws IOException,
+            UnknownHostException {
+        if (serverSocket != null)
+            closeServer();
+        serverSocket = doConnect(server, port);
+        serverOutput = new PrintStream(new BufferedOutputStream(
+                serverSocket.getOutputStream()), true);
+        serverInput = new BufferedInputStream(serverSocket.getInputStream());
     }
 
     /**
-     * Return a socket connected to the server, with any
-     * appropriate options pre-established
+     * Return a socket connected to the server, with any appropriate options
+     * pre-established
      */
-    protected Socket doConnect (String server, int port)
-    throws IOException, UnknownHostException {
-	return new Socket (server, port);
+    protected Socket doConnect(String server, int port) throws IOException,
+            UnknownHostException {
+        return new Socket(server, port);
     }
 
     /** Close an open connection to the server. */
     public void closeServer() throws IOException {
-	if (! serverIsOpen()) {
-	    return;
-	}
-	serverSocket.close();
-	serverSocket = null;
-	serverInput = null;
-	serverOutput = null;
+        if (!serverIsOpen()) {
+            return;
+        }
+        serverSocket.close();
+        serverSocket = null;
+        serverInput = null;
+        serverOutput = null;
     }
 
     /** Return server connection status */
     public boolean serverIsOpen() {
-	return serverSocket != null;
+        return serverSocket != null;
     }
 
     /** Create connection with host <i>host</i> on port <i>port</i> */
     public NetworkClient(String host, int port) throws IOException {
-	openServer(host, port);
+        openServer(host, port);
     }
 
-    public NetworkClient() {}
+    public NetworkClient() {
+    }
 }

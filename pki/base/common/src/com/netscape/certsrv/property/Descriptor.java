@@ -19,10 +19,9 @@ package com.netscape.certsrv.property;
 
 import java.util.Locale;
 
-
 /**
- * This interface represents a property descriptor. A descriptor
- * includes information that describe a property.
+ * This interface represents a property descriptor. A descriptor includes
+ * information that describe a property.
  * 
  * @version $Revision$, $Date$
  */
@@ -35,13 +34,14 @@ public class Descriptor implements IDescriptor {
 
     /**
      * Constructs a descriptor.
-     *
+     * 
      * @param syntax syntax
      * @param constraint constraint
      * @param defValue default value
      * @param description description
      */
-    public Descriptor(String syntax, String constraint, String defValue, String description) {
+    public Descriptor(String syntax, String constraint, String defValue,
+            String description) {
         mSyntax = syntax;
         mConstraint = constraint;
         mDef = defValue;
@@ -50,16 +50,16 @@ public class Descriptor implements IDescriptor {
 
     /**
      * Returns the syntax of the property.
-     *
+     * 
      * @return syntax
      */
     public String getSyntax() {
         return mSyntax;
     }
- 
+
     /**
      * Returns the default value of the property.
-     *
+     * 
      * @return default value
      */
     public String getDefaultValue() {
@@ -69,14 +69,14 @@ public class Descriptor implements IDescriptor {
     /**
      * Constraint for the given syntax. For example,
      * <p>
-     *   - number(1-5): 1-5 is the constraint, and it indicates
-     *     that the number must be in the range of 1 to 5.
+     * - number(1-5): 1-5 is the constraint, and it indicates that the number
+     * must be in the range of 1 to 5.
      * <p>
-     *   - choice(cert,crl): cert,crl is the constraint
-     *     for choice
+     * - choice(cert,crl): cert,crl is the constraint for choice
      * <p>
      * If null, no constraint shall be enforced.
      * <p>
+     * 
      * @return constraint
      */
     public String getConstraint() {
@@ -85,6 +85,7 @@ public class Descriptor implements IDescriptor {
 
     /**
      * Retrieves the description of the property.
+     * 
      * @param locale user locale
      * @return description
      */

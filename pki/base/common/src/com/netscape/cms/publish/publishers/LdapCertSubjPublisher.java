@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.publish.publishers;
 
-
 import java.io.IOException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
@@ -44,12 +43,11 @@ import com.netscape.certsrv.ldap.ELdapServerDownException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.ILdapPublisher;
 
-
-/** 
- * Interface for mapping a X509 certificate to a LDAP entry 
- * Publishes a certificate as binary and its subject name.
- * there is one subject name value for each certificate. 
- *
+/**
+ * Interface for mapping a X509 certificate to a LDAP entry Publishes a
+ * certificate as binary and its subject name. there is one subject name value
+ * for each certificate.
+ * 
  * @version $Revision$, $Date$
  */
 public class LdapCertSubjPublisher implements ILdapPublisher {
@@ -96,21 +94,20 @@ public class LdapCertSubjPublisher implements ILdapPublisher {
         return mConfig;
     }
 
-    public void init(IConfigStore config)
-        throws EBaseException {
+    public void init(IConfigStore config) throws EBaseException {
         if (mInited)
             return;
         mConfig = config;
-        mCertAttr = mConfig.getString("certAttr", 
-                    LdapUserCertPublisher.LDAP_USERCERT_ATTR);
-        mSubjNameAttr = mConfig.getString("certSubjectName", 
-                    LDAP_CERTSUBJNAME_ATTR);
+        mCertAttr = mConfig.getString("certAttr",
+                LdapUserCertPublisher.LDAP_USERCERT_ATTR);
+        mSubjNameAttr = mConfig.getString("certSubjectName",
+                LDAP_CERTSUBJNAME_ATTR);
         mInited = true;
     }
 
     /**
-     * constrcutor using specified certificate attribute and 
-     * certificate subject name attribute.
+     * constrcutor using specified certificate attribute and certificate subject
+     * name attribute.
      */
     public LdapCertSubjPublisher(String certAttr, String subjNameAttr) {
         mCertAttr = certAttr;
@@ -134,19 +131,21 @@ public class LdapCertSubjPublisher implements ILdapPublisher {
     }
 
     /**
-     * publish a user certificate
-     * Adds the cert to the multi-valued certificate attribute as a
-     * DER encoded binary blob. Does not check if cert already exists.
-     * Then adds the subject name of the cert to the subject name attribute.
+     * publish a user certificate Adds the cert to the multi-valued certificate
+     * attribute as a DER encoded binary blob. Does not check if cert already
+     * exists. Then adds the subject name of the cert to the subject name
+     * attribute.
+     * 
      * @param conn the LDAP connection
      * @param dn dn of the entry to publish the certificate
-     * @param certObj the certificate  object.
-     * @exception ELdapException if cert or subject name already exists, 
-     * 				if cert encoding fails, if getting cert subject name fails.
-     *			Use ELdapException.getException() to find underlying exception.
+     * @param certObj the certificate object.
+     * @exception ELdapException if cert or subject name already exists, if cert
+     *                encoding fails, if getting cert subject name fails. Use
+     *                ELdapException.getException() to find underlying
+     *                exception.
      */
     public void publish(LDAPConnection conn, String dn, Object certObj)
-        throws ELdapException {
+            throws ELdapException {
         if (conn == null) {
             log(ILogger.LL_INFO, "LdapCertSubjPublisher: no LDAP connection");
             return;
@@ -162,8 +161,8 @@ public class LdapCertSubjPublisher implements ILdapPublisher {
             byte[] certEnc = cert.getEncoded();
             String subjName = ((X500Name) cert.getSubjectDN()).toLdapDNString();
 
-            LDAPSearchResults res = 
-                conn.search(dn, LDAPv2.SCOPE_BASE, "(objectclass=*)", 
+            LDAPSearchResults res = conn.search(dn, LDAPv2.SCOPE_BASE,
+                    "(objectclass=*)",
                     new String[] { mCertAttr, mSubjNameAttr }, false);
 
             LDAPEntry entry = res.next();
@@ -177,14 +176,14 @@ public class LdapCertSubjPublisher implements ILdapPublisher {
 
             // check if has subject name already.
             if (subjnames != null) {
-                hasSubjname = 
-                        LdapUserCertPublisher.StringValueExists(subjnames, subjName);
+                hasSubjname = LdapUserCertPublisher.StringValueExists(
+                        subjnames, subjName);
             }
 
             // if has both, done.
             if (hasCert && hasSubjname) {
-                log(ILogger.LL_INFO, 
-                    "publish: " + subjName + " already has cert & subject name");
+                log(ILogger.LL_INFO, "publish: " + subjName
+                        + " already has cert & subject name");
                 return;
             }
 
@@ -193,44 +192,53 @@ public class LdapCertSubjPublisher implements ILdapPublisher {
 
             if (!hasCert) {
                 log(ILogger.LL_INFO, "publish: adding cert to " + subjName);
-                modSet.add(LDAPModification.ADD, 
-                    new LDAPAttribute(mCertAttr, certEnc)); 
+                modSet.add(LDAPModification.ADD, new LDAPAttribute(mCertAttr,
+                        certEnc));
             }
             // add subject name if not already there.
             if (!hasSubjname) {
-                log(ILogger.LL_INFO, "publish: adding " + subjName + " to " + dn);
-                modSet.add(LDAPModification.ADD, 
-                    new LDAPAttribute(mSubjNameAttr, subjName)); 
+                log(ILogger.LL_INFO, "publish: adding " + subjName + " to "
+                        + dn);
+                modSet.add(LDAPModification.ADD, new LDAPAttribute(
+                        mSubjNameAttr, subjName));
             }
             conn.modify(dn, modSet);
         } catch (CertificateEncodingException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_PUBLISH_ERROR", e.toString()));
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_GET_DER_ENCODED_CERT_FAILED", e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("PUBLISH_PUBLISH_ERROR", e.toString()));
+            throw new ELdapException(CMS.getUserMessage(
+                    "CMS_LDAP_GET_DER_ENCODED_CERT_FAILED", e.toString()));
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
                 // need to intercept this because message from LDAP is
                 // "DSA is unavailable" which confuses with DSA PKI.
                 log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("PUBLISH_NO_LDAP_SERVER"));
-                throw new ELdapServerDownException(CMS.getUserMessage("CMS_LDAP_SERVER_UNAVAILABLE", conn.getHost(), "" + conn.getPort()));
+                        CMS.getLogMessage("PUBLISH_NO_LDAP_SERVER"));
+                throw new ELdapServerDownException(CMS.getUserMessage(
+                        "CMS_LDAP_SERVER_UNAVAILABLE", conn.getHost(), ""
+                                + conn.getPort()));
             } else {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_PUBLISHER_EXCEPTION", "", e.toString()));
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_PUBLISH_USERCERT_ERROR", e.toString()));
+                log(ILogger.LL_FAILURE,
+                        CMS.getLogMessage("PUBLISH_PUBLISHER_EXCEPTION", "",
+                                e.toString()));
+                throw new ELdapException(CMS.getUserMessage(
+                        "CMS_LDAP_PUBLISH_USERCERT_ERROR", e.toString()));
             }
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_PUBLISH_ERROR", e.toString()));
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_PUBLISH_USERCERT_ERROR", e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("PUBLISH_PUBLISH_ERROR", e.toString()));
+            throw new ELdapException(CMS.getUserMessage(
+                    "CMS_LDAP_PUBLISH_USERCERT_ERROR", e.toString()));
         }
     }
 
     /**
-     * deletes the certificate from the list of certificates.
-     * does not check if certificate is already there.
-     * also takes out the subject name if no other certificate remain
-     * with the same subject name.
+     * deletes the certificate from the list of certificates. does not check if
+     * certificate is already there. also takes out the subject name if no other
+     * certificate remain with the same subject name.
      */
     public void unpublish(LDAPConnection conn, String dn, Object certObj)
-        throws ELdapException {
+            throws ELdapException {
         if (!(certObj instanceof X509Certificate))
             throw new IllegalArgumentException("Illegal arg to publish");
 
@@ -242,8 +250,8 @@ public class LdapCertSubjPublisher implements ILdapPublisher {
 
             byte[] certEnc = cert.getEncoded();
 
-            LDAPSearchResults res = 
-                conn.search(dn, LDAPv2.SCOPE_BASE, "(objectclass=*)", 
+            LDAPSearchResults res = conn.search(dn, LDAPv2.SCOPE_BASE,
+                    "(objectclass=*)",
                     new String[] { mCertAttr, mSubjNameAttr }, false);
 
             LDAPEntry entry = res.next();
@@ -266,74 +274,82 @@ public class LdapCertSubjPublisher implements ILdapPublisher {
                     try {
                         X509CertImpl certval = new X509CertImpl(val);
                         // XXX use some sort of X500name equals function here.
-                        String subjnam = 
-                            ((X500Name) certval.getSubjectDN()).toLdapDNString();
+                        String subjnam = ((X500Name) certval.getSubjectDN())
+                                .toLdapDNString();
 
                         if (subjnam.equalsIgnoreCase(subjName)) {
                             hasAnotherCert = true;
                         }
                     } catch (CertificateEncodingException e) {
                         // ignore this certificate.
-                        CMS.debug(
-                            "LdapCertSubjPublisher: unpublish: an invalid cert in dn entry encountered");
+                        CMS.debug("LdapCertSubjPublisher: unpublish: an invalid cert in dn entry encountered");
                     } catch (CertificateException e) {
                         // ignore this certificate.
-                        CMS.debug(
-                            "LdapCertSubjPublisher: unpublish: an invalid cert in dn entry encountered");
+                        CMS.debug("LdapCertSubjPublisher: unpublish: an invalid cert in dn entry encountered");
                     }
                 }
             }
 
             // check if doesn't have subject name already.
             if (subjnames != null) {
-                hasSubjname = 
-                        LdapUserCertPublisher.StringValueExists(subjnames, subjName);
+                hasSubjname = LdapUserCertPublisher.StringValueExists(
+                        subjnames, subjName);
             }
 
             // if doesn't have both, done.
             if (!hasCert && !hasSubjname) {
-                log(ILogger.LL_INFO, 
-                    "unpublish: " + subjName + " already has not cert & subjname");
+                log(ILogger.LL_INFO, "unpublish: " + subjName
+                        + " already has not cert & subjname");
                 return;
             }
 
-            // delete cert if there. 
+            // delete cert if there.
             LDAPModificationSet modSet = new LDAPModificationSet();
 
             if (hasCert) {
-                log(ILogger.LL_INFO, 
-                    "unpublish: deleting cert " + subjName + " from " + dn);
-                modSet.add(LDAPModification.DELETE,
-                    new LDAPAttribute(mCertAttr, certEnc));
+                log(ILogger.LL_INFO, "unpublish: deleting cert " + subjName
+                        + " from " + dn);
+                modSet.add(LDAPModification.DELETE, new LDAPAttribute(
+                        mCertAttr, certEnc));
             }
             // delete subject name if no other cert has the same name.
             if (hasSubjname && !hasAnotherCert) {
-                log(ILogger.LL_INFO, 
-                    "unpublish: deleting subject name " + subjName + " from " + dn);
-                modSet.add(LDAPModification.DELETE,
-                    new LDAPAttribute(mSubjNameAttr, subjName));
+                log(ILogger.LL_INFO, "unpublish: deleting subject name "
+                        + subjName + " from " + dn);
+                modSet.add(LDAPModification.DELETE, new LDAPAttribute(
+                        mSubjNameAttr, subjName));
             }
-            conn.modify(dn, modSet); 
+            conn.modify(dn, modSet);
         } catch (CertificateEncodingException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_UNPUBLISH_ERROR", e.toString()));
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_GET_DER_ENCODED_CERT_FAILED", e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("PUBLISH_UNPUBLISH_ERROR", e.toString()));
+            throw new ELdapException(CMS.getUserMessage(
+                    "CMS_LDAP_GET_DER_ENCODED_CERT_FAILED", e.toString()));
         } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_UNPUBLISH_ERROR", e.toString()));
-            throw new ELdapException(
-                    CMS.getUserMessage("CMS_LDAP_DECODING_CERT_FAILED", e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("PUBLISH_UNPUBLISH_ERROR", e.toString()));
+            throw new ELdapException(CMS.getUserMessage(
+                    "CMS_LDAP_DECODING_CERT_FAILED", e.toString()));
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_UNPUBLISH_ERROR", e.toString()));
-            throw new ELdapException(CMS.getUserMessage("CMS_LDAP_GET_LDAP_DN_STRING_FAILED", e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("PUBLISH_UNPUBLISH_ERROR", e.toString()));
+            throw new ELdapException(CMS.getUserMessage(
+                    "CMS_LDAP_GET_LDAP_DN_STRING_FAILED", e.toString()));
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
                 // need to intercept this because message from LDAP is
                 // "DSA is unavailable" which confuses with DSA PKI.
                 log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("PUBLISH_NO_LDAP_SERVER"));
-                throw new ELdapServerDownException(CMS.getUserMessage("CMS_LDAP_SERVER_UNAVAILABLE", conn.getHost(), "" + conn.getPort()));
+                        CMS.getLogMessage("PUBLISH_NO_LDAP_SERVER"));
+                throw new ELdapServerDownException(CMS.getUserMessage(
+                        "CMS_LDAP_SERVER_UNAVAILABLE", conn.getHost(), ""
+                                + conn.getPort()));
             } else {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_UNPUBLISH_ERROR", e.toString()));
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_UNPUBLISH_USERCERT_ERROR", e.toString()));
+                log(ILogger.LL_FAILURE,
+                        CMS.getLogMessage("PUBLISH_UNPUBLISH_ERROR",
+                                e.toString()));
+                throw new ELdapException(CMS.getUserMessage(
+                        "CMS_LDAP_UNPUBLISH_USERCERT_ERROR", e.toString()));
             }
         }
         return;
@@ -341,7 +357,7 @@ public class LdapCertSubjPublisher implements ILdapPublisher {
 
     private void log(int level, String msg) {
         mLogger.log(ILogger.EV_SYSTEM, ILogger.S_LDAP, level,
-            "LdapCertSubjPublisher: " + msg);
+                "LdapCertSubjPublisher: " + msg);
     }
 
 }

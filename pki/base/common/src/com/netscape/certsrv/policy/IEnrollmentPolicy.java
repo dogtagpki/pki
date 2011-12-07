@@ -17,20 +17,18 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.policy;
 
-
 /**
- * Interface for an enrollment policy rule. This provides general
- * typing for rules so that a policy processor can group rules
- * based on a particular type.
+ * Interface for an enrollment policy rule. This provides general typing for
+ * rules so that a policy processor can group rules based on a particular type.
  * <P>
+ * 
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- *
+ * 
  * @deprecated
  * @version $Revision$, $Date$
  */
 public interface IEnrollmentPolicy extends IPolicyRule {
 }
-

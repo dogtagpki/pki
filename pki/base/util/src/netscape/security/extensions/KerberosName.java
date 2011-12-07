@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.extensions;
 
-
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -30,28 +29,23 @@ import netscape.security.util.DerValue;
 import netscape.security.util.ObjectIdentifier;
 
 /**
- * This represents a KerberosName as defined in
- * RFC 1510.
- *
- *      KerberosName ::= SEQUENCE {
- *          realm           [0] Realm,
- *          principalName   [1] CertPrincipalName  -- defined above
- *      }
- *
- *      CertPrincipalName ::= SEQUENCE {
- *                      name-type[0]     INTEGER,
- *                      name-string[1]   SEQUENCE OF UTF8String
- *      }
- *
+ * This represents a KerberosName as defined in RFC 1510.
+ * 
+ * KerberosName ::= SEQUENCE { realm [0] Realm, principalName [1]
+ * CertPrincipalName -- defined above }
+ * 
+ * CertPrincipalName ::= SEQUENCE { name-type[0] INTEGER, name-string[1]
+ * SEQUENCE OF UTF8String }
+ * 
  * @author thomask
  * @version $Revision$, $Date$
  */
 public class KerberosName {
 
     public static final int OID[] = { 1, 3, 6, 1, 5, 2, 2 };
-    public static final ObjectIdentifier KRB5_PRINCIPAL_NAME = new 
-        ObjectIdentifier(OID);
-  
+    public static final ObjectIdentifier KRB5_PRINCIPAL_NAME = new ObjectIdentifier(
+            OID);
+
     private String m_realm = null;
     private int m_name_type = 0;
     private Vector m_name_strings = null;
@@ -64,7 +58,7 @@ public class KerberosName {
 
     /**
      * Write the extension to the DerOutputStream.
-     *
+     * 
      * @param out the DerOutputStream to write the extension to.
      * @exception IOException on encoding errors.
      */
@@ -74,49 +68,50 @@ public class KerberosName {
         DerOutputStream tmp = new DerOutputStream();
         DerOutputStream realm = new DerOutputStream();
         realm.putGeneralString(m_realm);
-        tmp.write(DerValue.createTag(DerValue.TAG_CONTEXT,
-                                 true, (byte)0), realm);
+        tmp.write(DerValue.createTag(DerValue.TAG_CONTEXT, true, (byte) 0),
+                realm);
 
         DerOutputStream seq1 = new DerOutputStream();
         DerOutputStream tmp1 = new DerOutputStream();
         DerOutputStream name_type = new DerOutputStream();
         name_type.putInteger(new BigInt(m_name_type));
-        tmp1.write(DerValue.createTag(DerValue.TAG_CONTEXT,
-                                 true, (byte)0), name_type);
+        tmp1.write(DerValue.createTag(DerValue.TAG_CONTEXT, true, (byte) 0),
+                name_type);
 
         DerOutputStream name_strings = new DerOutputStream();
         DerOutputStream name_string = new DerOutputStream();
         for (int i = 0; i < m_name_strings.size(); i++) {
-            name_string.putGeneralString((String)m_name_strings.elementAt(i));
+            name_string.putGeneralString((String) m_name_strings.elementAt(i));
         }
         name_strings.write(DerValue.tag_SequenceOf, name_string);
-        tmp1.write(DerValue.createTag(DerValue.TAG_CONTEXT,
-                                 true, (byte)1), name_strings);
+        tmp1.write(DerValue.createTag(DerValue.TAG_CONTEXT, true, (byte) 1),
+                name_strings);
         seq1.write(DerValue.tag_Sequence, tmp1);
-        tmp.write(DerValue.createTag(DerValue.TAG_CONTEXT,
-                                 true, (byte)1), seq1);
+        tmp.write(DerValue.createTag(DerValue.TAG_CONTEXT, true, (byte) 1),
+                seq1);
 
         seq.write(DerValue.tag_Sequence, tmp);
         out.write(seq.toByteArray());
     }
 
     public byte[] toByteArray() throws IOException {
-      ByteArrayOutputStream bos = new ByteArrayOutputStream();
-      encode(bos);
-      return bos.toByteArray();
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        encode(bos);
+        return bos.toByteArray();
     }
 
     public String toString() {
-      String strings = null;
-      for (int i = 0; i < m_name_strings.size(); i++) {
-         if (strings == null) {
-            strings = (String)m_name_strings.elementAt(i);
-         } else {
-            strings += ",";
-            strings += (String)m_name_strings.elementAt(i);
-         }
-      }
-      return "Realm: " + m_realm + " Name Type: " + m_name_type + " Name String(s):" + strings;
+        String strings = null;
+        for (int i = 0; i < m_name_strings.size(); i++) {
+            if (strings == null) {
+                strings = (String) m_name_strings.elementAt(i);
+            } else {
+                strings += ",";
+                strings += (String) m_name_strings.elementAt(i);
+            }
+        }
+        return "Realm: " + m_realm + " Name Type: " + m_name_type
+                + " Name String(s):" + strings;
     }
 
     public static void main(String[] argv) {
@@ -126,11 +121,11 @@ public class KerberosName {
 
         System.out.println(k.toString());
         try {
-          FileOutputStream os = new FileOutputStream("/tmp/out.der");
-          k.encode(os);
-          os.close();
+            FileOutputStream os = new FileOutputStream("/tmp/out.der");
+            k.encode(os);
+            os.close();
         } catch (Exception e) {
-          System.out.println(e.toString());
+            System.out.println(e.toString());
         }
     }
 }

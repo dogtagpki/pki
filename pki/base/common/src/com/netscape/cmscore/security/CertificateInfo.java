@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.security;
 
-
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
@@ -60,7 +59,6 @@ import com.netscape.certsrv.common.ConfigConstants;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.security.KeyCertData;
 
-
 /**
  * This base class provides methods to import CA signing cert or get certificate
  * request.
@@ -88,11 +86,12 @@ public abstract class CertificateInfo {
         mConfig = (IConfigStore) (mProperties.get("cmsFile"));
     }
 
-    protected abstract KeyUsageExtension getKeyUsageExtension() throws IOException;
+    protected abstract KeyUsageExtension getKeyUsageExtension()
+            throws IOException;
 
     public abstract String getSubjectName();
 
-    //public abstract SignatureAlgorithm getSigningAlgorithm();
+    // public abstract SignatureAlgorithm getSigningAlgorithm();
     public abstract String getKeyAlgorithm();
 
     public abstract String getNickname();
@@ -102,12 +101,12 @@ public abstract class CertificateInfo {
     public CertificateValidity getCertificateValidity() throws EBaseException {
 
         /*
-         String period = (String)mProperties.get(Constants.PR_VALIDITY_PERIOD);
-         Date notBeforeDate = CMS.getCurrentDate();
-         Date notAfterDate = new Date(notBeforeDate.getYear(),
-         notBeforeDate.getMonth(), 
-         notBeforeDate.getDate()+Integer.parseInt(period));
-         return new CertificateValidity(notBeforeDate, notAfterDate);
+         * String period =
+         * (String)mProperties.get(Constants.PR_VALIDITY_PERIOD); Date
+         * notBeforeDate = CMS.getCurrentDate(); Date notAfterDate = new
+         * Date(notBeforeDate.getYear(), notBeforeDate.getMonth(),
+         * notBeforeDate.getDate()+Integer.parseInt(period)); return new
+         * CertificateValidity(notBeforeDate, notAfterDate);
          */
         Date notBeforeDate = null;
         Date notAfterDate = null;
@@ -118,52 +117,41 @@ public abstract class CertificateInfo {
             notBeforeDate = new Date(Long.parseLong(notBeforeStr));
             notAfterDate = new Date(Long.parseLong(notAfterStr));
         } else {
-            int beginYear = 
-                Integer.parseInt(mProperties.getBeginYear()) - 1900;
-            int afterYear = 
-                Integer.parseInt(mProperties.getAfterYear()) - 1900;
-            int beginMonth =
-                Integer.parseInt(mProperties.getBeginMonth());
-            int afterMonth =
-                Integer.parseInt(mProperties.getAfterMonth());
-            int beginDate =
-                Integer.parseInt(mProperties.getBeginDate());
-            int afterDate = 
-                Integer.parseInt(mProperties.getAfterDate());
-            int beginHour =
-                Integer.parseInt(mProperties.getBeginHour());
-            int afterHour =
-                Integer.parseInt(mProperties.getAfterHour());
-            int beginMin =
-                Integer.parseInt(mProperties.getBeginMin());
-            int afterMin =
-                Integer.parseInt(mProperties.getAfterMin());
-            int beginSec =
-                Integer.parseInt(mProperties.getBeginSec());
-            int afterSec =
-                Integer.parseInt(mProperties.getAfterSec());
+            int beginYear = Integer.parseInt(mProperties.getBeginYear()) - 1900;
+            int afterYear = Integer.parseInt(mProperties.getAfterYear()) - 1900;
+            int beginMonth = Integer.parseInt(mProperties.getBeginMonth());
+            int afterMonth = Integer.parseInt(mProperties.getAfterMonth());
+            int beginDate = Integer.parseInt(mProperties.getBeginDate());
+            int afterDate = Integer.parseInt(mProperties.getAfterDate());
+            int beginHour = Integer.parseInt(mProperties.getBeginHour());
+            int afterHour = Integer.parseInt(mProperties.getAfterHour());
+            int beginMin = Integer.parseInt(mProperties.getBeginMin());
+            int afterMin = Integer.parseInt(mProperties.getAfterMin());
+            int beginSec = Integer.parseInt(mProperties.getBeginSec());
+            int afterSec = Integer.parseInt(mProperties.getAfterSec());
 
             Calendar calendar = Calendar.getInstance();
-            calendar.set(beginYear, beginMonth, beginDate,
-                        beginHour, beginMin, beginSec);
+            calendar.set(beginYear, beginMonth, beginDate, beginHour, beginMin,
+                    beginSec);
             notBeforeDate = calendar.getTime();
-            calendar.set(afterYear, afterMonth, afterDate,
-                    afterHour, afterMin, afterSec);
+            calendar.set(afterYear, afterMonth, afterDate, afterHour, afterMin,
+                    afterSec);
             notAfterDate = calendar.getTime();
         }
         return new CertificateValidity(notBeforeDate, notAfterDate);
     }
 
-    public X509CertInfo getCertInfo() throws EBaseException, PQGParamGenException {
+    public X509CertInfo getCertInfo() throws EBaseException,
+            PQGParamGenException {
         X509CertInfo certInfo = new X509CertInfo();
 
         try {
-            certInfo.set(X509CertInfo.VERSION,
-                new CertificateVersion(CertificateVersion.V3));
+            certInfo.set(X509CertInfo.VERSION, new CertificateVersion(
+                    CertificateVersion.V3));
             BigInteger serialNumber = mProperties.getSerialNumber();
 
             certInfo.set(X509CertInfo.SERIAL_NUMBER,
-                new CertificateSerialNumber(serialNumber));
+                    new CertificateSerialNumber(serialNumber));
             certInfo.set(X509CertInfo.EXTENSIONS, getExtensions());
             certInfo.set(X509CertInfo.VALIDITY, getCertificateValidity());
             String issuerName = mProperties.getIssuerName();
@@ -172,46 +160,51 @@ public abstract class CertificateInfo {
                 issuerName = getSubjectName();
             }
 
-            certInfo.set(X509CertInfo.ISSUER, 
-                new CertificateIssuerName(new X500Name(issuerName)));
-            certInfo.set(X509CertInfo.SUBJECT,
-                new CertificateSubjectName(new X500Name(getSubjectName())));
-            certInfo.set(X509CertInfo.VERSION, 
-                new CertificateVersion(CertificateVersion.V3));
+            certInfo.set(X509CertInfo.ISSUER, new CertificateIssuerName(
+                    new X500Name(issuerName)));
+            certInfo.set(X509CertInfo.SUBJECT, new CertificateSubjectName(
+                    new X500Name(getSubjectName())));
+            certInfo.set(X509CertInfo.VERSION, new CertificateVersion(
+                    CertificateVersion.V3));
 
             PublicKey pubk = mKeyPair.getPublic();
             X509Key xKey = KeyCertUtil.convertPublicKeyToX509Key(pubk);
 
             certInfo.set(X509CertInfo.KEY, new CertificateX509Key(xKey));
-            //SignatureAlgorithm algm = getSigningAlgorithm();
-            SignatureAlgorithm algm = 
-                (SignatureAlgorithm) mProperties.get(Constants.PR_SIGNATURE_ALGORITHM);
+            // SignatureAlgorithm algm = getSigningAlgorithm();
+            SignatureAlgorithm algm = (SignatureAlgorithm) mProperties
+                    .get(Constants.PR_SIGNATURE_ALGORITHM);
 
             if (algm == null) {
-                String hashtype = (String) mProperties.get(ConfigConstants.PR_HASH_TYPE);
+                String hashtype = (String) mProperties
+                        .get(ConfigConstants.PR_HASH_TYPE);
 
-                algm = KeyCertUtil.getSigningAlgorithm(getKeyAlgorithm(), hashtype);
+                algm = KeyCertUtil.getSigningAlgorithm(getKeyAlgorithm(),
+                        hashtype);
                 mProperties.put(Constants.PR_SIGNATURE_ALGORITHM, algm);
             }
 
             AlgorithmId sigAlgId = getAlgorithmId();
 
             if (sigAlgId == null) {
-                byte[]encodedOID = ASN1Util.encode(algm.toOID());
+                byte[] encodedOID = ASN1Util.encode(algm.toOID());
 
                 sigAlgId = new AlgorithmId(new ObjectIdentifier(
-                                new DerInputStream(encodedOID)));
+                        new DerInputStream(encodedOID)));
             }
-            certInfo.set(X509CertInfo.ALGORITHM_ID,
-                new CertificateAlgorithmId(sigAlgId));
+            certInfo.set(X509CertInfo.ALGORITHM_ID, new CertificateAlgorithmId(
+                    sigAlgId));
         } catch (InvalidKeyException e) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_KEY"));
-        } catch (CertificateException e) { 
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_CERT", e.toString()));
+        } catch (CertificateException e) {
+            throw new EBaseException(CMS.getUserMessage(
+                    "CMS_BASE_INVALID_CERT", e.toString()));
         } catch (IOException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_CERT", e.toString()));
+            throw new EBaseException(CMS.getUserMessage(
+                    "CMS_BASE_INVALID_CERT", e.toString()));
         } catch (NoSuchAlgorithmException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_ALG_NOT_SUPPORTED", ""));
+            throw new EBaseException(CMS.getUserMessage(
+                    "CMS_BASE_ALG_NOT_SUPPORTED", ""));
         }
 
         return certInfo;
@@ -225,7 +218,7 @@ public abstract class CertificateInfo {
         KeyCertUtil.setDERExtension(exts, mProperties);
         KeyCertUtil.setBasicConstraintsExtension(exts, mProperties);
         KeyCertUtil.setSubjectKeyIdentifier(mKeyPair, exts, mProperties);
-        //KeyCertUtil.setOCSPSigning(mKeyPair, exts, mProperties);
+        // KeyCertUtil.setOCSPSigning(mKeyPair, exts, mProperties);
         KeyCertUtil.setAuthInfoAccess(mKeyPair, exts, mProperties);
         KeyCertUtil.setOCSPNoCheck(mKeyPair, exts, mProperties);
         KeyPair caKeyPair = (KeyPair) mProperties.get(Constants.PR_CA_KEYPAIR);
@@ -245,8 +238,7 @@ public abstract class CertificateInfo {
         boolean isKeyUsageEnabled = mProperties.getKeyUsageExtension();
 
         if (isKeyUsageEnabled) {
-            KeyCertUtil.setKeyUsageExtension(
-                exts, getKeyUsageExtension());
+            KeyCertUtil.setKeyUsageExtension(exts, getKeyUsageExtension());
         }
         return exts;
     }
@@ -255,27 +247,27 @@ public abstract class CertificateInfo {
         return (AlgorithmId) (mProperties.get(Constants.PR_ALGORITHM_ID));
     }
 
-    public void setAuthorityKeyIdExt(CertificateExtensions caexts, CertificateExtensions ext)
-        throws IOException, CertificateException, CertificateEncodingException,
+    public void setAuthorityKeyIdExt(CertificateExtensions caexts,
+            CertificateExtensions ext) throws IOException,
+            CertificateException, CertificateEncodingException,
             CertificateParsingException {
         SubjectKeyIdentifierExtension subjKeyExt = null;
 
         try {
-            subjKeyExt =
-                    (SubjectKeyIdentifierExtension) caexts.get(SubjectKeyIdentifierExtension.NAME);
+            subjKeyExt = (SubjectKeyIdentifierExtension) caexts
+                    .get(SubjectKeyIdentifierExtension.NAME);
         } catch (IOException e) {
         }
 
         if (subjKeyExt == null)
             return;
         else {
-            KeyIdentifier keyId = (KeyIdentifier) subjKeyExt.get(
-                    SubjectKeyIdentifierExtension.KEY_ID);
-            AuthorityKeyIdentifierExtension authExt =
-                new AuthorityKeyIdentifierExtension(false, keyId, null, null);
+            KeyIdentifier keyId = (KeyIdentifier) subjKeyExt
+                    .get(SubjectKeyIdentifierExtension.KEY_ID);
+            AuthorityKeyIdentifierExtension authExt = new AuthorityKeyIdentifierExtension(
+                    false, keyId, null, null);
 
             ext.set(AuthorityKeyIdentifierExtension.NAME, authExt);
         }
     }
 }
-

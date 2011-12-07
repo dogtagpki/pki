@@ -17,20 +17,18 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.logging;
 
-
 import java.text.MessageFormat;
 import java.util.Locale;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.MessageFormatter;
 
-
 /**
- * The log event object that carries message detail of a log event
- * that goes into the Transaction log.  Note that the name of this
- * class "AuditEvent" is legacy and  has nothing to do with the signed 
- * audit log events, whcih are represented by SignedAuditEvent.
- *
+ * The log event object that carries message detail of a log event that goes
+ * into the Transaction log. Note that the name of this class "AuditEvent" is
+ * legacy and has nothing to do with the signed audit log events, whcih are
+ * represented by SignedAuditEvent.
+ * 
  * @version $Revision$, $Date$
  * @see java.text.MessageFormat
  * @see com.netscape.certsrv.logging.LogResources
@@ -56,12 +54,12 @@ public class AuditEvent implements IBundleLogEvent {
      * The bundle name for this event.
      */
     private String mBundleName = LogResources.class.getName();
-    private static final String INVALID_LOG_LEVEL="log level: {0} is invalid, should be 0-6";
+    private static final String INVALID_LOG_LEVEL = "log level: {0} is invalid, should be 0-6";
 
     /**
      * Constructs a message event
      * <P>
-     *
+     * 
      * @param msgFormat the message string
      */
     public AuditEvent(String msgFormat) {
@@ -71,11 +69,12 @@ public class AuditEvent implements IBundleLogEvent {
 
     /**
      * Constructs a message with a parameter. For example,
+     * 
      * <PRE>
-     *         new AuditEvent("failed to load {0}", fileName);
+     * new AuditEvent(&quot;failed to load {0}&quot;, fileName);
      * </PRE>
      * <P>
-     *
+     * 
      * @param msgFormat details in message string format
      * @param param message string parameter
      */
@@ -86,9 +85,9 @@ public class AuditEvent implements IBundleLogEvent {
     }
 
     /**
-     * Constructs a message from an exception. It can be used to carry
-     * a system exception that may contain information about
-     * the context. For example,
+     * Constructs a message from an exception. It can be used to carry a system
+     * exception that may contain information about the context. For example,
+     * 
      * <PRE>
      *         try {
      *          ...
@@ -97,7 +96,7 @@ public class AuditEvent implements IBundleLogEvent {
      *      }
      * </PRE>
      * <P>
-     *
+     * 
      * @param msgFormat exception details in message string format
      * @param exception system exception
      */
@@ -110,6 +109,7 @@ public class AuditEvent implements IBundleLogEvent {
     /**
      * Constructs a message from a base exception. This will use the msgFormat
      * from the exception itself.
+     * 
      * <PRE>
      *         try {
      *          ...
@@ -118,7 +118,7 @@ public class AuditEvent implements IBundleLogEvent {
      *      }
      * </PRE>
      * <P>
-     *
+     * 
      * @param e CMS exception
      */
     public AuditEvent(Exception e) {
@@ -132,10 +132,10 @@ public class AuditEvent implements IBundleLogEvent {
     }
 
     /**
-     * Constructs a message event with a list of parameters
-     * that will be substituted into the message format.
+     * Constructs a message event with a list of parameters that will be
+     * substituted into the message format.
      * <P>
-     *
+     * 
      * @param msgFormat message string format
      * @param params list of message format parameters
      */
@@ -147,7 +147,7 @@ public class AuditEvent implements IBundleLogEvent {
     /**
      * Returns the current message format string.
      * <P>
-     *
+     * 
      * @return details message
      */
     public String getMessage() {
@@ -157,7 +157,7 @@ public class AuditEvent implements IBundleLogEvent {
     /**
      * Returns a list of parameters.
      * <P>
-     *
+     * 
      * @return list of message format parameters
      */
     public Object[] getParameters() {
@@ -165,10 +165,10 @@ public class AuditEvent implements IBundleLogEvent {
     }
 
     /**
-     * Returns localized message string. This method should
-     * only be called if a localized string is necessary.
+     * Returns localized message string. This method should only be called if a
+     * localized string is necessary.
      * <P>
-     *
+     * 
      * @return details message
      */
     public String toContent() {
@@ -178,19 +178,19 @@ public class AuditEvent implements IBundleLogEvent {
     /**
      * Returns the string based on the given locale.
      * <P>
-     *
+     * 
      * @param locale locale
      * @return details message
      */
     public String toContent(Locale locale) {
         return MessageFormatter.getLocalizedString(locale, getBundleName(),
-                getMessage(),
-                getParameters());
+                getMessage(), getParameters());
     }
 
     /**
-     * Gets the resource bundle name for this class instance.  This should
-     * be overridden by subclasses who have their own resource bundles.
+     * Gets the resource bundle name for this class instance. This should be
+     * overridden by subclasses who have their own resource bundles.
+     * 
      * @param bundle String that represents the resource bundle name to be set
      */
     public void setBundleName(String bundle) {
@@ -199,6 +199,7 @@ public class AuditEvent implements IBundleLogEvent {
 
     /**
      * Retrieves bundle name.
+     * 
      * @return a String that represents the resource bundle name
      */
     protected String getBundleName() {
@@ -207,8 +208,9 @@ public class AuditEvent implements IBundleLogEvent {
 
     /**
      * Retrieves log source.
-     * @return an integer that indicates the component source
-     * where this message event was triggered
+     * 
+     * @return an integer that indicates the component source where this message
+     *         event was triggered
      */
     public int getSource() {
         return mSource;
@@ -216,18 +218,18 @@ public class AuditEvent implements IBundleLogEvent {
 
     /**
      * Sets log source.
-     * @param source an integer that represents the component source
-     * where this message event was triggered
+     * 
+     * @param source an integer that represents the component source where this
+     *            message event was triggered
      */
     public void setSource(int source) {
         mSource = source;
     }
 
-    
     /**
-     * Retrieves log level.
-     * The log level of an event represents its relative importance
-     * or severity within CMS.
+     * Retrieves log level. The log level of an event represents its relative
+     * importance or severity within CMS.
+     * 
      * @return Integer log level value.
      */
     public int getLevel() {
@@ -236,6 +238,7 @@ public class AuditEvent implements IBundleLogEvent {
 
     /**
      * Retrieves NT specific log event type.
+     * 
      * @return Integer NTEventType value.
      */
     public int getNTEventType() {
@@ -243,9 +246,9 @@ public class AuditEvent implements IBundleLogEvent {
     }
 
     /**
-     * Sets log level, NT log event type.
-     * For certain log levels the NT log event type gets
-     * set as well.
+     * Sets log level, NT log event type. For certain log levels the NT log
+     * event type gets set as well.
+     * 
      * @param level Integer log level value.
      */
     public void setLevel(int level) {
@@ -268,24 +271,26 @@ public class AuditEvent implements IBundleLogEvent {
             break;
 
         default:
-            ConsoleError.send(new SystemEvent(INVALID_LOG_LEVEL,
-                    Integer.toString(level)));
+            ConsoleError.send(new SystemEvent(INVALID_LOG_LEVEL, Integer
+                    .toString(level)));
             break;
         }
     }
-   
+
     /**
      * Retrieves log multiline attribute.
-     * @return Boolean whether or not this event is multiline.
-     * A multiline message simply consists of more than one line.
-     */ 
+     * 
+     * @return Boolean whether or not this event is multiline. A multiline
+     *         message simply consists of more than one line.
+     */
     public boolean getMultiline() {
         return mMultiline;
     }
 
     /**
-     * Sets log multiline attribute. A multiline message consists of
-     * more than one line.
+     * Sets log multiline attribute. A multiline message consists of more than
+     * one line.
+     * 
      * @param multiline Boolean multiline value.
      */
     public void setMultiline(boolean multiline) {
@@ -294,26 +299,27 @@ public class AuditEvent implements IBundleLogEvent {
 
     /**
      * Retrieves event time stamp.
+     * 
      * @return Long integer of the time the event was created.
      */
     public long getTimeStamp() {
         return mTimeStamp;
     }
 
-    
     /**
-     * Retrieves log event type. Each type of event
-     * has an associated String type value.
+     * Retrieves log event type. Each type of event has an associated String
+     * type value.
+     * 
      * @return String containing the type of event.
      */
     public String getEventType() {
         return mEventType;
     }
 
-    
     /**
-     * Sets log event type. Each type of event
-     * has an associated String type value.
+     * Sets log event type. Each type of event has an associated String type
+     * value.
+     * 
      * @param eventType String containing the type of event.
      */
     public void setEventType(String eventType) {
@@ -321,15 +327,16 @@ public class AuditEvent implements IBundleLogEvent {
     }
 
     /**
-    * Return string representation of log message.
-    * @return String containing log message.
-    */
+     * Return string representation of log message.
+     * 
+     * @return String containing log message.
+     */
     public String toString() {
         if (getBundleName() == null) {
             MessageFormat detailMessage = new MessageFormat(mMessage);
 
             return detailMessage.format(mParams);
-            //return getMessage();
+            // return getMessage();
         } else
             return toContent();
     }

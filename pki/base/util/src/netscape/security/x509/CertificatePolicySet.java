@@ -26,17 +26,17 @@ import netscape.security.util.DerValue;
 
 /**
  * This class defines the certificate policy set ASN.1 object.
- *
+ * 
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  * @version 1.4
  */
 public class CertificatePolicySet {
-    private Vector	ids;
+    private Vector ids;
 
     /**
      * The default constructor for this class.
-     *
+     * 
      * @param ids the sequence of CertificatePolicyId's.
      */
     public CertificatePolicySet(Vector ids) {
@@ -45,14 +45,14 @@ public class CertificatePolicySet {
 
     /**
      * Create the object from the DerValue.
-     *
+     * 
      * @param in the passed DerInputStream.
      * @exception IOException on decoding errors.
      */
     public CertificatePolicySet(DerInputStream in) throws IOException {
         ids = new Vector(1, 1);
         DerValue[] seq = in.getSequence(5);
- 
+
         for (int i = 0; i < seq.length; i++) {
             CertificatePolicyId id = new CertificatePolicyId(seq[i]);
             ids.addElement(id);
@@ -63,24 +63,22 @@ public class CertificatePolicySet {
      * Return printable form of the object.
      */
     public String toString() {
-        String s = "CertificatePolicySet:[\n"
-                 + ids.toString()
-                 + "]\n";
+        String s = "CertificatePolicySet:[\n" + ids.toString() + "]\n";
 
         return (s);
     }
 
     /**
      * Encode the policy set to the output stream.
-     *
+     * 
      * @param out the DerOutputStream to encode the data to.
      */
     public void encode(DerOutputStream out) throws IOException {
         DerOutputStream tmp = new DerOutputStream();
 
         for (int i = 0; i < ids.size(); i++) {
-            ((CertificatePolicyId)ids.elementAt(i)).encode(tmp);
+            ((CertificatePolicyId) ids.elementAt(i)).encode(tmp);
         }
-        out.write(DerValue.tag_Sequence,tmp);
+        out.write(DerValue.tag_Sequence, tmp);
     }
 }

@@ -20,13 +20,16 @@ public class DBDynAttrMapperDefaultStub implements IDBDynAttrMapper {
         return null;
     }
 
-    public void mapObjectToLDAPAttributeSet(IDBObj parent, String name, Object obj, LDAPAttributeSet attrs) throws EBaseException {
+    public void mapObjectToLDAPAttributeSet(IDBObj parent, String name,
+            Object obj, LDAPAttributeSet attrs) throws EBaseException {
     }
 
-    public void mapLDAPAttributeSetToObject(LDAPAttributeSet attrs, String name, IDBObj parent) throws EBaseException {
+    public void mapLDAPAttributeSetToObject(LDAPAttributeSet attrs,
+            String name, IDBObj parent) throws EBaseException {
     }
 
-    public String mapSearchFilter(String name, String op, String value) throws EBaseException {
+    public String mapSearchFilter(String name, String op, String value)
+            throws EBaseException {
         return null;
     }
 }

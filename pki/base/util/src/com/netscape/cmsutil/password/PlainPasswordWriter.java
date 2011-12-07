@@ -22,7 +22,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
 
-public class PlainPasswordWriter implements IPasswordWriter{
+public class PlainPasswordWriter implements IPasswordWriter {
     private static final String PASSWORD_WRITER_HEADER = "";
     private String mPwdPath = "";
     private Properties mPwdStore;
@@ -30,29 +30,26 @@ public class PlainPasswordWriter implements IPasswordWriter{
     public PlainPasswordWriter() {
     }
 
-    public void init(String pwdPath)
-        throws IOException
-    {
-	mPwdStore = new Properties();
-	// initialize mPwdStore
-	mPwdPath = pwdPath;
-	mPwdStore = new Properties();
+    public void init(String pwdPath) throws IOException {
+        mPwdStore = new Properties();
+        // initialize mPwdStore
+        mPwdPath = pwdPath;
+        mPwdStore = new Properties();
 
-	FileInputStream file = new FileInputStream(mPwdPath);
-	mPwdStore.load(file);
-    file.close();
+        FileInputStream file = new FileInputStream(mPwdPath);
+        mPwdStore.load(file);
+        file.close();
     }
 
     public Object putPassword(String tag, String password) {
-	return mPwdStore.setProperty(tag, password);
+        return mPwdStore.setProperty(tag, password);
     }
 
-    public void commit()
-	throws IOException, ClassCastException, NullPointerException
-    {
-	FileOutputStream file = new FileOutputStream(mPwdPath);
-	mPwdStore.store(file, PASSWORD_WRITER_HEADER);
-    file.close();
+    public void commit() throws IOException, ClassCastException,
+            NullPointerException {
+        FileOutputStream file = new FileOutputStream(mPwdPath);
+        mPwdStore.store(file, PASSWORD_WRITER_HEADER);
+        file.close();
     }
 
 }

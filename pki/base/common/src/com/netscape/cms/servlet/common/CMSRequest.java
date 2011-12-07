@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.common;
 
-
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -35,7 +34,7 @@ import com.netscape.certsrv.request.RequestStatus;
 
 /**
  * This represents a user request.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class CMSRequest {
@@ -46,7 +45,8 @@ public class CMSRequest {
     public static final Integer SVC_PENDING = Integer.valueOf(4);
     public static final Integer REJECTED = Integer.valueOf(5);
     public static final Integer ERROR = Integer.valueOf(6);
-    public static final Integer EXCEPTION = Integer.valueOf(7); // unexpected error.
+    public static final Integer EXCEPTION = Integer.valueOf(7); // unexpected
+                                                                // error.
 
     private static final String RESULT = "cmsRequestResult";
 
@@ -59,7 +59,7 @@ public class CMSRequest {
     // http headers & other info.
     private HttpServletRequest mHttpReq = null;
 
-    // http response. 
+    // http response.
     private HttpServletResponse mHttpResp = null;
 
     // http servlet config.
@@ -68,11 +68,11 @@ public class CMSRequest {
     // http servlet context.
     private ServletContext mServletContext = null;
 
-    // permanent request in request queue. 
+    // permanent request in request queue.
     private IRequest mRequest = null;
 
     // whether request processed successfully
-    private Integer mStatus = SUCCESS; 
+    private Integer mStatus = SUCCESS;
 
     // exception message containing error that occured.
     // note exception could also be thrown seperately.
@@ -85,13 +85,13 @@ public class CMSRequest {
     Object mResult = null;
     Hashtable mResults = new Hashtable();
 
-	/**
+    /**
      * Constructor
      */
     public CMSRequest() {
     }
 
-    // set methods use by servlets. 
+    // set methods use by servlets.
 
     /**
      * set the HTTP parameters
@@ -115,47 +115,45 @@ public class CMSRequest {
     }
 
     /**
-     * set the HTTP Response object which is used to create the
-     * HTTP response which is sent back to the user
+     * set the HTTP Response object which is used to create the HTTP response
+     * which is sent back to the user
      */
     public void setHttpResp(HttpServletResponse httpResp) {
         mHttpResp = httpResp;
     }
 
     /**
-     * set the servlet configuration. The servlet configuration is
-     * read from the WEB-APPS/web.xml file under the &lt;servlet&gt;
-     * XML definition. The parameters are delimited by init-param
-     * param-name/param-value options as described in the servlet
-     * documentation.
+     * set the servlet configuration. The servlet configuration is read from the
+     * WEB-APPS/web.xml file under the &lt;servlet&gt; XML definition. The
+     * parameters are delimited by init-param param-name/param-value options as
+     * described in the servlet documentation.
      */
     public void setServletConfig(ServletConfig servletConfig) {
         mServletConfig = servletConfig;
     }
 
-	/* 
-     * set the servlet context. the servletcontext has detail
-     * about the currently running request
+    /*
+     * set the servlet context. the servletcontext has detail about the
+     * currently running request
      */
     public void setServletContext(ServletContext servletContext) {
         mServletContext = servletContext;
     }
 
-	/**
-	 * Set request status. 
-	 * @param status request status. Allowed values are
-     * UNAUTHORIZED, SUCCESS, REJECTED, PENDING,  ERROR, SVC_PENDING
+    /**
+     * Set request status.
+     * 
+     * @param status request status. Allowed values are UNAUTHORIZED, SUCCESS,
+     *            REJECTED, PENDING, ERROR, SVC_PENDING
      * @throws IllegalArgumentException if status is not one of the above values
      */
     public void setStatus(Integer status) {
-        if ( !status.equals( UNAUTHORIZED ) && 
-             !status.equals( SUCCESS )      &&
-             !status.equals( REJECTED )     && 
-             !status.equals( PENDING )      &&
-             !status.equals( ERROR )        && 
-             !status.equals( SVC_PENDING )  &&
-             !status.equals( EXCEPTION ) ) { 
-            throw new IllegalArgumentException(CMS.getLogMessage("CMSGW_BAD_REQ_STATUS"));
+        if (!status.equals(UNAUTHORIZED) && !status.equals(SUCCESS)
+                && !status.equals(REJECTED) && !status.equals(PENDING)
+                && !status.equals(ERROR) && !status.equals(SVC_PENDING)
+                && !status.equals(EXCEPTION)) {
+            throw new IllegalArgumentException(
+                    CMS.getLogMessage("CMSGW_BAD_REQ_STATUS"));
         }
         mStatus = status;
     }
@@ -169,9 +167,9 @@ public class CMSRequest {
     }
 
     public void setErrorDescription(String descr) {
-        if (mErrorDescr == null) 
+        if (mErrorDescr == null)
             mErrorDescr = new Vector();
-        mErrorDescr.addElement(descr); 
+        mErrorDescr.addElement(descr);
     }
 
     public void setResult(Object result) {
@@ -235,7 +233,7 @@ public class CMSRequest {
         return reason;
     }
 
-    // handy routines for IRequest. 
+    // handy routines for IRequest.
 
     public void setExtData(String type, String value) {
         if (mRequest != null) {
@@ -251,7 +249,7 @@ public class CMSRequest {
         }
     }
 
-    // policy errors; set on rejection or possibly deferral. 
+    // policy errors; set on rejection or possibly deferral.
     public Vector getPolicyMessages() {
         if (mRequest != null) {
             return mRequest.getExtDataInStringVector(IRequest.ERRORS);
@@ -259,13 +257,13 @@ public class CMSRequest {
         return null;
     }
 
-    /** 
-     * set default CMS status according to IRequest status. 
+    /**
+     * set default CMS status according to IRequest status.
      */
     public void setIRequestStatus() throws EBaseException {
         if (mRequest == null) {
-            EBaseException e = 
-                new ECMSGWException(CMS.getLogMessage("CMSGW_MISSING_REQUEST"));
+            EBaseException e = new ECMSGWException(
+                    CMS.getLogMessage("CMSGW_MISSING_REQUEST"));
 
             throw e;
         }
@@ -277,11 +275,11 @@ public class CMSRequest {
             mStatus = CMSRequest.SUCCESS;
             return;
         }
-        // unexpected resulting request status. 
+        // unexpected resulting request status.
         if (status == RequestStatus.REJECTED) {
             mStatus = CMSRequest.REJECTED;
             return;
-        } // pending or service pending. 
+        } // pending or service pending.
         else if (status == RequestStatus.PENDING) {
             mStatus = CMSRequest.PENDING;
             return;
@@ -291,9 +289,9 @@ public class CMSRequest {
         } else {
             RequestId reqId = mRequest.getRequestId();
 
-            throw new ECMSGWException(
-                    CMS.getLogMessage("CMSGW_UNEXPECTED_REQUEST_STATUS_2", 
-                        status.toString(), reqId.toString()));
+            throw new ECMSGWException(CMS.getLogMessage(
+                    "CMSGW_UNEXPECTED_REQUEST_STATUS_2", status.toString(),
+                    reqId.toString()));
         }
     }
 

@@ -17,15 +17,14 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.ldap;
 
-
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 
-
 /**
- * Class for reading ldap connection information from the config store.
- * Ldap connection info: host name, port number,whether of not it is a secure connection.
- *
+ * Class for reading ldap connection information from the config store. Ldap
+ * connection info: host name, port number,whether of not it is a secure
+ * connection.
+ * 
  * @version $Revision$, $Date$
  */
 public interface ILdapConnInfo {
@@ -42,23 +41,24 @@ public interface ILdapConnInfo {
 
     /**
      * Initializes an instance from a config store.
+     * 
      * @param config Configuration store.
      * @exception ELdapException Ldap related error found.
-     * @exception EBaseException Other errors and errors with params included in the config store. 
+     * @exception EBaseException Other errors and errors with params included in
+     *                the config store.
      */
     public void init(IConfigStore config) throws EBaseException, ELdapException;
 
     /**
-     *  Return the name of the Host.
-     *
+     * Return the name of the Host.
+     * 
      */
 
-    
     public String getHost();
 
     /**
      * Return the port number of the host.
-     *
+     * 
      */
     public int getPort();
 
@@ -74,8 +74,8 @@ public interface ILdapConnInfo {
     public boolean getSecure();
 
     /**
-     * Return whether or not the server is to follow referrals
-     * to other servers when servicing a query.
+     * Return whether or not the server is to follow referrals to other servers
+     * when servicing a query.
      */
     public boolean getFollowReferrals();
 

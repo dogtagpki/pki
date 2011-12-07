@@ -75,7 +75,8 @@ public class CMSEngineDefaultStub implements ICMSEngine {
     public void setId(String id) throws EBaseException {
     }
 
-    public void init(ISubsystem owner, IConfigStore config) throws EBaseException {
+    public void init(ISubsystem owner, IConfigStore config)
+            throws EBaseException {
     }
 
     public void startup() throws EBaseException {
@@ -190,11 +191,13 @@ public class CMSEngineDefaultStub implements ICMSEngine {
         return null;
     }
 
-    public String getUserMessage(Locale locale, String msgID, String p1, String p2) {
+    public String getUserMessage(Locale locale, String msgID, String p1,
+            String p2) {
         return null;
     }
 
-    public String getUserMessage(Locale locale, String msgID, String p1, String p2, String p3) {
+    public String getUserMessage(Locale locale, String msgID, String p1,
+            String p2, String p3) {
         return null;
     }
 
@@ -218,27 +221,33 @@ public class CMSEngineDefaultStub implements ICMSEngine {
         return null;
     }
 
-    public String getLogMessage(String msgID, String p1, String p2, String p3, String p4) {
+    public String getLogMessage(String msgID, String p1, String p2, String p3,
+            String p4) {
         return null;
     }
 
-    public String getLogMessage(String msgID, String p1, String p2, String p3, String p4, String p5) {
+    public String getLogMessage(String msgID, String p1, String p2, String p3,
+            String p4, String p5) {
         return null;
     }
 
-    public String getLogMessage(String msgID, String p1, String p2, String p3, String p4, String p5, String p6) {
+    public String getLogMessage(String msgID, String p1, String p2, String p3,
+            String p4, String p5, String p6) {
         return null;
     }
 
-    public String getLogMessage(String msgID, String p1, String p2, String p3, String p4, String p5, String p6, String p7) {
+    public String getLogMessage(String msgID, String p1, String p2, String p3,
+            String p4, String p5, String p6, String p7) {
         return null;
     }
 
-    public String getLogMessage(String msgID, String p1, String p2, String p3, String p4, String p5, String p6, String p7, String p8) {
+    public String getLogMessage(String msgID, String p1, String p2, String p3,
+            String p4, String p5, String p6, String p7, String p8) {
         return null;
     }
 
-    public String getLogMessage(String msgID, String p1, String p2, String p3, String p4, String p5, String p6, String p7, String p8, String p9) {
+    public String getLogMessage(String msgID, String p1, String p2, String p3,
+            String p4, String p5, String p6, String p7, String p8, String p9) {
         return null;
     }
 
@@ -246,7 +255,8 @@ public class CMSEngineDefaultStub implements ICMSEngine {
         return null;
     }
 
-    public ICRLIssuingPointRecord createCRLIssuingPointRecord(String id, BigInteger crlNumber, Long crlSize, Date thisUpdate, Date nextUpdate) {
+    public ICRLIssuingPointRecord createCRLIssuingPointRecord(String id,
+            BigInteger crlNumber, Long crlSize, Date thisUpdate, Date nextUpdate) {
         return null;
     }
 
@@ -254,21 +264,26 @@ public class CMSEngineDefaultStub implements ICMSEngine {
         return null;
     }
 
-    public String getFingerPrint(Certificate cert) throws CertificateEncodingException, NoSuchAlgorithmException {
+    public String getFingerPrint(Certificate cert)
+            throws CertificateEncodingException, NoSuchAlgorithmException {
         return null;
     }
 
-    public String getFingerPrints(Certificate cert) throws NoSuchAlgorithmException, CertificateEncodingException {
+    public String getFingerPrints(Certificate cert)
+            throws NoSuchAlgorithmException, CertificateEncodingException {
         return null;
     }/*
-    * Returns the finger print of the given certificate.
-*
-* @param certDer DER byte array of certificate
-* @return finger print of certificate
-*/
-public String getFingerPrints(byte[] certDer) throws NoSuchAlgorithmException {
-    return null;
-}
+      * Returns the finger print of the given certificate.
+      * 
+      * @param certDer DER byte array of certificate
+      * 
+      * @return finger print of certificate
+      */
+
+    public String getFingerPrints(byte[] certDer)
+            throws NoSuchAlgorithmException {
+        return null;
+    }
 
     public IRepositoryRecord createRepositoryRecord() {
         return null;
@@ -314,11 +329,13 @@ public String getFingerPrints(byte[] certDer) throws NoSuchAlgorithmException {
         return null;
     }
 
-    public ILdapConnInfo getLdapConnInfo(IConfigStore config) throws EBaseException, ELdapException {
+    public ILdapConnInfo getLdapConnInfo(IConfigStore config)
+            throws EBaseException, ELdapException {
         return null;
     }
 
-    public LDAPSSLSocketFactoryExt getLdapJssSSLSocketFactory(String certNickname) {
+    public LDAPSSLSocketFactoryExt getLdapJssSSLSocketFactory(
+            String certNickname) {
         return null;
     }
 
@@ -334,7 +351,9 @@ public String getFingerPrints(byte[] certDer) throws NoSuchAlgorithmException {
         return null;
     }
 
-    public LDAPConnection getBoundConnection(String host, int port, int version, LDAPSSLSocketFactoryExt fac, String bindDN, String bindPW) throws LDAPException {
+    public LDAPConnection getBoundConnection(String host, int port,
+            int version, LDAPSSLSocketFactoryExt fac, String bindDN,
+            String bindPW) throws LDAPException {
         return null;
     }
 
@@ -447,61 +466,80 @@ public String getFingerPrints(byte[] certDer) throws NoSuchAlgorithmException {
         return null;
     }
 
-    public ObjectIdentifier checkOID(String attrName, String value) throws EBaseException {
+    public ObjectIdentifier checkOID(String attrName, String value)
+            throws EBaseException {
         return null;
     }
 
-    public GeneralName form_GeneralNameAsConstraints(String generalNameChoice, String value) throws EBaseException {
+    public GeneralName form_GeneralNameAsConstraints(String generalNameChoice,
+            String value) throws EBaseException {
         return null;
     }
 
-    public GeneralName form_GeneralName(String generalNameChoice, String value) throws EBaseException {
+    public GeneralName form_GeneralName(String generalNameChoice, String value)
+            throws EBaseException {
         return null;
     }
 
-    public void getGeneralNameConfigDefaultParams(String name, boolean isValueConfigured, Vector params) {
+    public void getGeneralNameConfigDefaultParams(String name,
+            boolean isValueConfigured, Vector params) {
     }
 
-    public void getGeneralNamesConfigDefaultParams(String name, boolean isValueConfigured, Vector params) {
+    public void getGeneralNamesConfigDefaultParams(String name,
+            boolean isValueConfigured, Vector params) {
     }
 
-    public void getGeneralNameConfigExtendedPluginInfo(String name, boolean isValueConfigured, Vector info) {
+    public void getGeneralNameConfigExtendedPluginInfo(String name,
+            boolean isValueConfigured, Vector info) {
     }
 
-    public void getGeneralNamesConfigExtendedPluginInfo(String name, boolean isValueConfigured, Vector info) {
+    public void getGeneralNamesConfigExtendedPluginInfo(String name,
+            boolean isValueConfigured, Vector info) {
     }
 
-    public IGeneralNamesConfig createGeneralNamesConfig(String name, IConfigStore config, boolean isValueConfigured, boolean isPolicyEnabled) throws EBaseException {
+    public IGeneralNamesConfig createGeneralNamesConfig(String name,
+            IConfigStore config, boolean isValueConfigured,
+            boolean isPolicyEnabled) throws EBaseException {
         return null;
     }
 
-    public IGeneralNameAsConstraintsConfig createGeneralNameAsConstraintsConfig(String name, IConfigStore config, boolean isValueConfigured, boolean isPolicyEnabled) throws EBaseException {
+    public IGeneralNameAsConstraintsConfig createGeneralNameAsConstraintsConfig(
+            String name, IConfigStore config, boolean isValueConfigured,
+            boolean isPolicyEnabled) throws EBaseException {
         return null;
     }
 
-    public IGeneralNamesAsConstraintsConfig createGeneralNamesAsConstraintsConfig(String name, IConfigStore config, boolean isValueConfigured, boolean isPolicyEnabled) throws EBaseException {
+    public IGeneralNamesAsConstraintsConfig createGeneralNamesAsConstraintsConfig(
+            String name, IConfigStore config, boolean isValueConfigured,
+            boolean isPolicyEnabled) throws EBaseException {
         return null;
     }
 
     public void getSubjAltNameConfigDefaultParams(String name, Vector params) {
     }
 
-    public void getSubjAltNameConfigExtendedPluginInfo(String name, Vector params) {
+    public void getSubjAltNameConfigExtendedPluginInfo(String name,
+            Vector params) {
     }
 
-    public ISubjAltNameConfig createSubjAltNameConfig(String name, IConfigStore config, boolean isValueConfigured) throws EBaseException {
+    public ISubjAltNameConfig createSubjAltNameConfig(String name,
+            IConfigStore config, boolean isValueConfigured)
+            throws EBaseException {
         return null;
     }
 
-    public IHttpConnection getHttpConnection(IRemoteAuthority authority, ISocketFactory factory) {
+    public IHttpConnection getHttpConnection(IRemoteAuthority authority,
+            ISocketFactory factory) {
         return null;
     }
 
-    public IHttpConnection getHttpConnection(IRemoteAuthority authority, ISocketFactory factory, int timeout) {
+    public IHttpConnection getHttpConnection(IRemoteAuthority authority,
+            ISocketFactory factory, int timeout) {
         return null;
     }
 
-    public IResender getResender(IAuthority authority, String nickname, IRemoteAuthority remote, int interval) {
+    public IResender getResender(IAuthority authority, String nickname,
+            IRemoteAuthority remote, int interval) {
         return null;
     }
 
@@ -519,7 +557,8 @@ public String getFingerPrints(byte[] certDer) throws NoSuchAlgorithmException {
         return false;
     }
 
-    public IConfigStore createFileConfigStore(String path) throws EBaseException {
+    public IConfigStore createFileConfigStore(String path)
+            throws EBaseException {
         return null;
     }
 
@@ -539,7 +578,8 @@ public String getFingerPrints(byte[] certDer) throws NoSuchAlgorithmException {
         return false;
     }
 
-    public void setListOfVerifiedCerts(int size, long interval, long unknownStateInterval) {
+    public void setListOfVerifiedCerts(int size, long interval,
+            long unknownStateInterval) {
     }
 
     public void forceShutdown() {
@@ -560,34 +600,34 @@ public String getFingerPrints(byte[] certDer) throws NoSuchAlgorithmException {
         return null;
     }
 
-	@Override
-	public String getEEClientAuthSSLPort() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public String getEEClientAuthSSLPort() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public boolean verifySystemCerts() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    public boolean verifySystemCerts() {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
-	@Override
-	public boolean verifySystemCertByTag(String tag) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    public boolean verifySystemCertByTag(String tag) {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
-	@Override
-	public boolean verifySystemCertByNickname(String nickname,
-			String certificateUsage) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    public boolean verifySystemCertByNickname(String nickname,
+            String certificateUsage) {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
-	@Override
-	public CertificateUsage getCertificateUsage(String certusage) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public CertificateUsage getCertificateUsage(String certusage) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }

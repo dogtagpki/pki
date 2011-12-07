@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.publish.mappers;
 
-
 import java.io.IOException;
 import java.io.PushbackReader;
 import java.io.StringReader;
@@ -31,25 +30,27 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.request.IRequest;
 
-
 /**
- * class for parsing a DN pattern used to construct a ldap dn from 
- * request attributes and cert subject name.<p>
+ * class for parsing a DN pattern used to construct a ldap dn from request
+ * attributes and cert subject name.
+ * <p>
  * 
- * dnpattern is a string representing a ldap dn pattern to formulate from 
- * the certificate subject name attributes and request attributes . 
- * If empty or not set, the certificate subject name 
- * will be used as the ldap dn. <p>
+ * dnpattern is a string representing a ldap dn pattern to formulate from the
+ * certificate subject name attributes and request attributes . If empty or not
+ * set, the certificate subject name will be used as the ldap dn.
+ * <p>
  * 
- * The syntax is 
+ * The syntax is
+ * 
  * <pre>
- *		dnPattern := rdnPattern *[ "," rdnPattern ]
- *		rdnPattern := avaPattern *[ "+" avaPattern ]
+ * 	dnPattern := rdnPattern *[ "," rdnPattern ]
+ * 	rdnPattern := avaPattern *[ "+" avaPattern ]
  * 		avaPattern := name "=" value | 
- *				      name "=" "$subj" "." attrName [ "." attrNumber ] | 
- *				      name "=" "$req" "." attrName [ "." attrNumber ] | 
- *	    		 	  "$rdn" "." number
+ * 			      name "=" "$subj" "." attrName [ "." attrNumber ] | 
+ * 			      name "=" "$req" "." attrName [ "." attrNumber ] | 
+ *     		 	  "$rdn" "." number
  * </pre>
+ * 
  * <pre>
  * Example1: <i>cn=Certificate Manager,ou=people,o=mcom.com</i>
  * cert subject name: dn:  CN=Certificate Manager, OU=people, O=mcom.com
@@ -60,7 +61,7 @@ import com.netscape.certsrv.request.IRequest;
  * <p>
  * note: Subordinate ca enrollment will use ca mapper. Use predicate
  * to distinguish the ca itself and the subordinates.
- *
+ * 
  * Example2: <i>UID=$req.HTTP_PARAMS.uid, OU=$subj.ou, O=people, , O=mcom.com</i>
  * cert subject name: dn:  UID=jjames, OU=IS, O=people, , O=mcom.com
  * request attributes: uid: cmanager 
@@ -73,18 +74,18 @@ import com.netscape.certsrv.request.IRequest;
  *     O = the string people, mcom.com. <br>
  * <p>
  * </pre>
- * If an request attribute or subject DN component does not exist,
- * the attribute is skipped. There is potential risk that a wrong dn
- * will be mapped into.
- *
+ * 
+ * If an request attribute or subject DN component does not exist, the attribute
+ * is skipped. There is potential risk that a wrong dn will be mapped into.
+ * 
  * @version $Revision$, $Date$
  */
 public class MapDNPattern {
 
-    /* the list of request attriubutes to retrieve*/
+    /* the list of request attriubutes to retrieve */
     protected String[] mReqAttrs = null;
 
-    /* the list of cert attriubutes to retrieve*/
+    /* the list of cert attriubutes to retrieve */
     protected String[] mCertAttrs = null;
 
     /* rdn patterns */
@@ -95,16 +96,15 @@ public class MapDNPattern {
 
     protected String mTestDN = null;
 
-    /** 
+    /**
      * Construct a DN pattern by parsing a pattern string.
+     * 
      * @param pattern the DN pattern
-     * @exception EBaseException If parsing error occurs. 
+     * @exception EBaseException If parsing error occurs.
      */
-    public MapDNPattern(String pattern)
-        throws ELdapException {
+    public MapDNPattern(String pattern) throws ELdapException {
         if (pattern == null || pattern.equals("")) {
-            CMS.debug(
-                "MapDNPattern: null pattern");			
+            CMS.debug("MapDNPattern: null pattern");
         } else {
             mPatternString = pattern;
             PushbackReader in = new PushbackReader(new StringReader(pattern));
@@ -113,13 +113,11 @@ public class MapDNPattern {
         }
     }
 
-    public MapDNPattern(PushbackReader in) 
-        throws ELdapException {
+    public MapDNPattern(PushbackReader in) throws ELdapException {
         parse(in);
     }
 
-    private void parse(PushbackReader in)
-        throws ELdapException {
+    private void parse(PushbackReader in) throws ELdapException {
         Vector rdnPatterns = new Vector();
         MapRDNPattern rdnPattern = null;
         int lastChar = -1;
@@ -130,11 +128,10 @@ public class MapDNPattern {
             try {
                 lastChar = in.read();
             } catch (IOException e) {
-                throw new ELdapException(
-                        CMS.getUserMessage("CMS_LDAP_INTERNAL_ERROR", e.toString()));
+                throw new ELdapException(CMS.getUserMessage(
+                        "CMS_LDAP_INTERNAL_ERROR", e.toString()));
             }
-        }
-        while (lastChar == ',');
+        } while (lastChar == ',');
 
         mRDNPatterns = new MapRDNPattern[rdnPatterns.size()];
         rdnPatterns.copyInto(mRDNPatterns);
@@ -144,8 +141,8 @@ public class MapDNPattern {
         for (int i = 0; i < mRDNPatterns.length; i++) {
             String[] rdnAttrs = mRDNPatterns[i].getReqAttrs();
 
-            if (rdnAttrs != null && rdnAttrs.length > 0) 
-                for (int j = 0; j < rdnAttrs.length; j++) 
+            if (rdnAttrs != null && rdnAttrs.length > 0)
+                for (int j = 0; j < rdnAttrs.length; j++)
                     reqAttrs.addElement(rdnAttrs[j]);
         }
         mReqAttrs = new String[reqAttrs.size()];
@@ -156,8 +153,8 @@ public class MapDNPattern {
         for (int i = 0; i < mRDNPatterns.length; i++) {
             String[] rdnAttrs = mRDNPatterns[i].getCertAttrs();
 
-            if (rdnAttrs != null && rdnAttrs.length > 0) 
-                for (int j = 0; j < rdnAttrs.length; j++) 
+            if (rdnAttrs != null && rdnAttrs.length > 0)
+                for (int j = 0; j < rdnAttrs.length; j++)
                     certAttrs.addElement(rdnAttrs[j]);
         }
         mCertAttrs = new String[certAttrs.size()];
@@ -166,12 +163,13 @@ public class MapDNPattern {
 
     /**
      * Form a Ldap v3 DN string from a request and a cert subject name.
+     * 
      * @param req the request for (un)publish
      * @param subject the subjectDN of the certificate
-     * @return Ldap v3 DN string to use for base ldap search. 
+     * @return Ldap v3 DN string to use for base ldap search.
      */
-    public String formDN(IRequest req, X500Name subject, CertificateExtensions ext)
-        throws ELdapException {
+    public String formDN(IRequest req, X500Name subject,
+            CertificateExtensions ext) throws ELdapException {
         StringBuffer formedDN = new StringBuffer();
 
         for (int i = 0; i < mRDNPatterns.length; i++) {
@@ -180,11 +178,11 @@ public class MapDNPattern {
             String rdn = mRDNPatterns[i].formRDN(req, subject, ext);
 
             if (rdn != null && rdn.length() != 0) {
-                    if (formedDN.length() != 0) 
-                        formedDN.append(",");
-                    formedDN.append(rdn);
+                if (formedDN.length() != 0)
+                    formedDN.append(",");
+                formedDN.append(rdn);
             } else {
-		throw new ELdapException("pattern not matched");
+                throw new ELdapException("pattern not matched");
             }
         }
         return formedDN.toString();
@@ -198,4 +196,3 @@ public class MapDNPattern {
         return (String[]) mCertAttrs.clone();
     }
 }
-

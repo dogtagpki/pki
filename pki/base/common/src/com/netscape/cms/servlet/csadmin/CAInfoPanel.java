@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-
 import java.io.IOException;
 import java.net.URL;
 import java.util.StringTokenizer;
@@ -39,19 +38,19 @@ import com.netscape.cms.servlet.wizard.WizardServlet;
 
 public class CAInfoPanel extends WizardPanelBase {
 
-    public CAInfoPanel() {}
+    public CAInfoPanel() {
+    }
 
     /**
      * Initializes this panel.
      */
-    public void init(ServletConfig config, int panelno) 
-        throws ServletException {
+    public void init(ServletConfig config, int panelno) throws ServletException {
         setPanelNo(panelno);
         setName("CA Information");
     }
 
-    public void init(WizardServlet servlet, ServletConfig config, int panelno, String id) 
-        throws ServletException {
+    public void init(WizardServlet servlet, ServletConfig config, int panelno,
+            String id) throws ServletException {
         setPanelNo(panelno);
         setName("CA Information");
         setId(id);
@@ -82,14 +81,15 @@ public class CAInfoPanel extends WizardPanelBase {
             } else {
                 return true;
             }
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
 
         return false;
     }
 
     public PropertySet getUsage() {
         PropertySet set = new PropertySet();
-                                                                                
+
         return set;
     }
 
@@ -97,8 +97,7 @@ public class CAInfoPanel extends WizardPanelBase {
      * Display the panel.
      */
     public void display(HttpServletRequest request,
-            HttpServletResponse response,
-            Context context) {
+            HttpServletResponse response, Context context) {
         CMS.debug("CAInfoPanel: display");
 
         IConfigStore cs = CMS.getConfigStore();
@@ -118,15 +117,18 @@ public class CAInfoPanel extends WizardPanelBase {
 
             try {
                 hostname = cs.getString("preop.ca.hostname");
-            } catch (Exception e) {}
+            } catch (Exception e) {
+            }
 
             try {
                 httpport = cs.getString("preop.ca.httpport");
-            } catch (Exception e) {}
+            } catch (Exception e) {
+            }
 
             try {
                 httpsport = cs.getString("preop.ca.httpsport");
-            } catch (Exception e) {}
+            } catch (Exception e) {
+            }
 
             if (type.equals("sdca")) {
                 context.put("check_sdca", "checked");
@@ -143,12 +145,11 @@ public class CAInfoPanel extends WizardPanelBase {
         String cstype = "CA";
         String portType = "SecurePort";
 
-/*
-        try {
-            cstype = cs.getString("cs.type", "");
-        } catch (EBaseException e) {}
-*/
-                                                                                
+        /*
+         * try { cstype = cs.getString("cs.type", ""); } catch (EBaseException
+         * e) {}
+         */
+
         CMS.debug("CAInfoPanel: Ready to get url");
         Vector v = getUrlListFromSecurityDomain(cs, cstype, portType);
         v.addElement("External CA");
@@ -163,12 +164,13 @@ public class CAInfoPanel extends WizardPanelBase {
                 list.append(",");
             }
         }
-                                                                                
+
         try {
             cs.putString("preop.ca.list", list.toString());
             cs.commit(false);
-        } catch (Exception e) {}
-                                                                                
+        } catch (Exception e) {
+        }
+
         context.put("urls", v);
 
         context.put("sdcaHostname", hostname);
@@ -183,8 +185,7 @@ public class CAInfoPanel extends WizardPanelBase {
      * Checks if the given parameters are valid.
      */
     public void validate(HttpServletRequest request,
-            HttpServletResponse response,
-            Context context) throws IOException {
+            HttpServletResponse response, Context context) throws IOException {
         IConfigStore config = CMS.getConfigStore();
     }
 
@@ -192,20 +193,18 @@ public class CAInfoPanel extends WizardPanelBase {
      * Commit parameter changes
      */
     public void update(HttpServletRequest request,
-            HttpServletResponse response,
-            Context context) throws IOException {
+            HttpServletResponse response, Context context) throws IOException {
 
         /*
-         String select = request.getParameter("choice");
-         if (select == null) {
-         CMS.debug("CAInfoPanel: choice not found");
-         throw new IOException("choice not found");
-         }
+         * String select = request.getParameter("choice"); if (select == null) {
+         * CMS.debug("CAInfoPanel: choice not found"); throw new
+         * IOException("choice not found"); }
          */
         IConfigStore config = CMS.getConfigStore();
 
         try {
-            String subsystemselect = config.getString("preop.subsystem.select", "");
+            String subsystemselect = config.getString("preop.subsystem.select",
+                    "");
             if (subsystemselect.equals("clone"))
                 return;
         } catch (Exception e) {
@@ -213,25 +212,26 @@ public class CAInfoPanel extends WizardPanelBase {
 
         String select = null;
         String index = request.getParameter("urls");
-        String url = ""; 
+        String url = "";
         if (index.startsWith("http")) {
-           // user may submit url directlry
-           url = index;
+            // user may submit url directlry
+            url = index;
         } else {
-          try {
-            int x = Integer.parseInt(index);
-            String list = config.getString("preop.ca.list", "");
-            StringTokenizer tokenizer = new StringTokenizer(list, ",");
-            int counter = 0;
+            try {
+                int x = Integer.parseInt(index);
+                String list = config.getString("preop.ca.list", "");
+                StringTokenizer tokenizer = new StringTokenizer(list, ",");
+                int counter = 0;
 
-            while (tokenizer.hasMoreTokens()) {
-                url = tokenizer.nextToken();
-                if (counter == x) {
-                    break;
+                while (tokenizer.hasMoreTokens()) {
+                    url = tokenizer.nextToken();
+                    if (counter == x) {
+                        break;
+                    }
+                    counter++;
                 }
-                counter++;
+            } catch (Exception e) {
             }
-          } catch (Exception e) {}
         }
 
         URL urlx = null;
@@ -240,7 +240,7 @@ public class CAInfoPanel extends WizardPanelBase {
             select = "otherca";
             config.putString("preop.ca.pkcs7", "");
             config.putInteger("preop.ca.certchain.size", 0);
-        } else { 
+        } else {
             select = "sdca";
 
             // parse URL (CA1 - https://...)
@@ -272,10 +272,12 @@ public class CAInfoPanel extends WizardPanelBase {
 
         try {
             config.commit(false);
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
     }
 
-    private void sdca(HttpServletRequest request, Context context, String hostname, String httpsPortStr) throws IOException {
+    private void sdca(HttpServletRequest request, Context context,
+            String hostname, String httpsPortStr) throws IOException {
         CMS.debug("CAInfoPanel update: this is the CA in the security domain.");
         IConfigStore config = CMS.getConfigStore();
 
@@ -292,26 +294,23 @@ public class CAInfoPanel extends WizardPanelBase {
         try {
             httpsport = Integer.parseInt(httpsPortStr);
         } catch (Exception e) {
-            CMS.debug(
-                    "CAInfoPanel update: Https port is not valid. Exception: "
-                            + e.toString());
+            CMS.debug("CAInfoPanel update: Https port is not valid. Exception: "
+                    + e.toString());
             throw new IOException("Http Port is not valid.");
         }
 
         config.putString("preop.ca.hostname", hostname);
         config.putString("preop.ca.httpsport", httpsPortStr);
         ConfigCertApprovalCallback certApprovalCallback = new ConfigCertApprovalCallback();
-        updateCertChainUsingSecureEEPort( config, "ca", hostname,
-                                          httpsport, true, context,
-                                          certApprovalCallback );
+        updateCertChainUsingSecureEEPort(config, "ca", hostname, httpsport,
+                true, context, certApprovalCallback);
     }
 
     /**
      * If validiate() returns false, this method will be called.
      */
     public void displayError(HttpServletRequest request,
-            HttpServletResponse response,
-            Context context) {
+            HttpServletResponse response, Context context) {
 
         /* This should never be called */
         context.put("title", "CA Information");

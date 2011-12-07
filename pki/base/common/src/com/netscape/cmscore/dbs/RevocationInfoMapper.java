@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.dbs;
 
-
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Vector;
@@ -37,13 +36,12 @@ import com.netscape.certsrv.dbs.IDBAttrMapper;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.cmscore.util.Debug;
 
-
 /**
- * A class represents a mapper to serialize 
- * revocation information into database.
+ * A class represents a mapper to serialize revocation information into
+ * database.
  * <P>
- *
- * @author  thomask
+ * 
+ * @author thomask
  * @version $Revision$, $Date$
  */
 public class RevocationInfoMapper implements IDBAttrMapper {
@@ -63,9 +61,8 @@ public class RevocationInfoMapper implements IDBAttrMapper {
         return mNames.elements();
     }
 
-    public void mapObjectToLDAPAttributeSet(IDBObj parent, String name, 
-        Object obj, LDAPAttributeSet attrs) 
-        throws EBaseException {
+    public void mapObjectToLDAPAttributeSet(IDBObj parent, String name,
+            Object obj, LDAPAttributeSet attrs) throws EBaseException {
         try {
             // in format of <date>;<extensions>
             String value = "";
@@ -82,35 +79,34 @@ public class RevocationInfoMapper implements IDBAttrMapper {
                 Extension ext = (Extension) e.nextElement();
 
                 if (ext instanceof CRLReasonExtension) {
-                    RevocationReason reason = 
-                        ((CRLReasonExtension) ext).getReason();
+                    RevocationReason reason = ((CRLReasonExtension) ext)
+                            .getReason();
 
-                    value = value + ";CRLReasonExtension=" + 	
-                            Integer.toString(reason.toInt());
+                    value = value + ";CRLReasonExtension="
+                            + Integer.toString(reason.toInt());
                 } else if (ext instanceof InvalidityDateExtension) {
-                    Date invalidityDate = 
-                        ((InvalidityDateExtension) ext).getInvalidityDate();
+                    Date invalidityDate = ((InvalidityDateExtension) ext)
+                            .getInvalidityDate();
 
-                    value = value + ";InvalidityDateExtension=" + 	
-                            DateMapper.dateToDB(invalidityDate);
+                    value = value + ";InvalidityDateExtension="
+                            + DateMapper.dateToDB(invalidityDate);
                 } else {
                     Debug.trace("XXX skipped extension");
                 }
             }
-            attrs.add(new LDAPAttribute(CertDBSchema.LDAP_ATTR_REVO_INFO, 
-                    value));
+            attrs.add(new LDAPAttribute(CertDBSchema.LDAP_ATTR_REVO_INFO, value));
         } catch (Exception e) {
             Debug.trace(e.toString());
-            throw new EDBException(
-                    CMS.getUserMessage("CMS_DBS_SERIALIZE_FAILED", name));
+            throw new EDBException(CMS.getUserMessage(
+                    "CMS_DBS_SERIALIZE_FAILED", name));
         }
     }
 
-    public void mapLDAPAttributeSetToObject(LDAPAttributeSet attrs, 
-        String name, IDBObj parent) throws EBaseException {
+    public void mapLDAPAttributeSetToObject(LDAPAttributeSet attrs,
+            String name, IDBObj parent) throws EBaseException {
         try {
-            LDAPAttribute attr = attrs.getAttribute(
-                    CertDBSchema.LDAP_ATTR_REVO_INFO);
+            LDAPAttribute attr = attrs
+                    .getAttribute(CertDBSchema.LDAP_ATTR_REVO_INFO);
 
             if (attr == null)
                 return;
@@ -139,36 +135,36 @@ public class RevocationInfoMapper implements IDBAttrMapper {
                     }
                     if (str.startsWith("CRLReasonExtension=")) {
                         String reasonStr = str.substring(19);
-                        RevocationReason reason = RevocationReason.fromInt(
-                                Integer.parseInt(reasonStr));
+                        RevocationReason reason = RevocationReason
+                                .fromInt(Integer.parseInt(reasonStr));
                         CRLReasonExtension ext = new CRLReasonExtension(reason);
 
                         exts.set(CRLReasonExtension.NAME, ext);
                     } else if (str.startsWith("InvalidityDateExtension=")) {
                         String invalidityDateStr = str.substring(24);
-                        Date invalidityDate = DateMapper.dateFromDB(invalidityDateStr);
-                        InvalidityDateExtension ext =
-                            new InvalidityDateExtension(invalidityDate);
+                        Date invalidityDate = DateMapper
+                                .dateFromDB(invalidityDateStr);
+                        InvalidityDateExtension ext = new InvalidityDateExtension(
+                                invalidityDate);
 
                         exts.set(InvalidityDateExtension.NAME, ext);
                     } else {
                         Debug.trace("XXX skipped extension");
                     }
-                }
-                while (i != -1);
-            }	
+                } while (i != -1);
+            }
             RevocationInfo info = new RevocationInfo(d, exts);
 
             parent.set(name, info);
         } catch (Exception e) {
             Debug.trace(e.toString());
-            throw new EDBException(
-                    CMS.getUserMessage("CMS_DBS_DESERIALIZE_FAILED", name));
+            throw new EDBException(CMS.getUserMessage(
+                    "CMS_DBS_DESERIALIZE_FAILED", name));
         }
     }
 
     public String mapSearchFilter(String name, String op, String value)
-        throws EBaseException {
+            throws EBaseException {
         return CertDBSchema.LDAP_ATTR_REVO_INFO + op + value;
     }
 }

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.constraint;
 
-
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Vector;
@@ -39,10 +38,9 @@ import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.common.EnrollProfile;
 
-
 /**
  * This class implements the generic enrollment constraint.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public abstract class EnrollConstraint implements IPolicyConstraint {
@@ -72,16 +70,15 @@ public abstract class EnrollConstraint implements IPolicyConstraint {
 
     public Locale getLocale(IRequest request) {
         Locale locale = null;
-        String language = request.getExtDataInString(
-                EnrollProfile.REQUEST_LOCALE);
+        String language = request
+                .getExtDataInString(EnrollProfile.REQUEST_LOCALE);
         if (language != null) {
             locale = new Locale(language);
         }
         return locale;
     }
 
-    public void setConfig(String name, String value)
-        throws EPropertyException {
+    public void setConfig(String name, String value) throws EPropertyException {
         if (mConfig.getSubStore("params") == null) {
             //
         } else {
@@ -105,46 +102,42 @@ public abstract class EnrollConstraint implements IPolicyConstraint {
     }
 
     public void init(IProfile profile, IConfigStore config)
-        throws EProfileException {
+            throws EProfileException {
         mConfig = config;
     }
 
     public IConfigStore getConfigStore() {
         return mConfig;
-    } 
+    }
 
     /**
-     * Validates the request. The request is not modified
-     * during the validation.
-     *
+     * Validates the request. The request is not modified during the validation.
+     * 
      * @param request enrollment request
      * @param info certificate template
-     * @exception ERejectException request is rejected due
-     *        to violation of constraint
+     * @exception ERejectException request is rejected due to violation of
+     *                constraint
      */
     public abstract void validate(IRequest request, X509CertInfo info)
-        throws ERejectException;
+            throws ERejectException;
 
     /**
-     * Validates the request. The request is not modified
-     * during the validation.
-     *
-     * The current implementation of this method calls
-     * into the subclass's validate(request, info)
-     * method for validation checking.
-     *
+     * Validates the request. The request is not modified during the validation.
+     * 
+     * The current implementation of this method calls into the subclass's
+     * validate(request, info) method for validation checking.
+     * 
      * @param request request
-     * @exception ERejectException request is rejected due
-     *        to violation of constraint
+     * @exception ERejectException request is rejected due to violation of
+     *                constraint
      */
-    public void validate(IRequest request)
-        throws ERejectException {
+    public void validate(IRequest request) throws ERejectException {
         String name = getClass().getName();
 
         name = name.substring(name.lastIndexOf('.') + 1);
         CMS.debug(name + ": validate start");
-        X509CertInfo info =
-            request.getExtDataInCertInfo(EnrollProfile.REQUEST_CERTINFO);
+        X509CertInfo info = request
+                .getExtDataInCertInfo(EnrollProfile.REQUEST_CERTINFO);
 
         validate(request, info);
 
@@ -168,8 +161,7 @@ public abstract class EnrollConstraint implements IPolicyConstraint {
         CertificateExtensions exts = null;
 
         try {
-            exts = (CertificateExtensions)
-                    info.get(X509CertInfo.EXTENSIONS);
+            exts = (CertificateExtensions) info.get(X509CertInfo.EXTENSIONS);
         } catch (Exception e) {
             CMS.debug("EnrollConstraint: getExtension " + e.toString());
         }

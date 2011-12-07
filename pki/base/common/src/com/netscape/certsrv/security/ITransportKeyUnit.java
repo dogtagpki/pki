@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.security;
 
-
 import java.security.PublicKey;
 
 import org.mozilla.jss.crypto.CryptoToken;
@@ -26,27 +25,31 @@ import org.mozilla.jss.crypto.SymmetricKey;
 
 import com.netscape.certsrv.base.EBaseException;
 
-
 /**
- * An interface represents the transport key pair. 
- * This key pair is used to protected EE's private 
- * key in transit.
- *
+ * An interface represents the transport key pair. This key pair is used to
+ * protected EE's private key in transit.
+ * 
  * @version $Revision$, $Date$
  */
 public interface ITransportKeyUnit extends IEncryptionUnit {
 
     /**
      * Retrieves public key.
-     *
+     * 
      * @return certificate
      */
     public org.mozilla.jss.crypto.X509Certificate getCertificate();
+
     public SymmetricKey unwrap_sym(byte encSymmKey[]);
+
     public SymmetricKey unwrap_encrypt_sym(byte encSymmKey[]);
-    public PrivateKey unwrap_temp(byte wrappedKeyData[], PublicKey
-	  pubKey) throws EBaseException;
+
+    public PrivateKey unwrap_temp(byte wrappedKeyData[], PublicKey pubKey)
+            throws EBaseException;
+
     public CryptoToken getToken();
-    public String getSigningAlgorithm() throws EBaseException; 
-    public void setSigningAlgorithm(String str) throws EBaseException; 
+
+    public String getSigningAlgorithm() throws EBaseException;
+
+    public void setSigningAlgorithm(String str) throws EBaseException;
 }

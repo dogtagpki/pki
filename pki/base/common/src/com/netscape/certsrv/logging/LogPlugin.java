@@ -17,18 +17,16 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.logging;
 
-
 import com.netscape.certsrv.base.Plugin;
-
 
 /**
  * This class represents a registered logger plugin.
  * <P>
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class LogPlugin extends Plugin {
-    public LogPlugin (String id, String path) {
+    public LogPlugin(String id, String path) {
         super(id, path);
     }
 }

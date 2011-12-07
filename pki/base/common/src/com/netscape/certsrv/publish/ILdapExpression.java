@@ -17,15 +17,13 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.publish;
 
-
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.request.IRequest;
 
-
 /**
  * Interface for a Ldap predicate expression.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public interface ILdapExpression {
@@ -44,28 +42,26 @@ public interface ILdapExpression {
 
     /**
      * Evaluate the Expression.
-     *
-     * @param   sc       The SessionContext on which we are applying the condition.
-     * @return          The return value.
-     * @exception          ELdapExeption  Failed to evaluate expression.
+     * 
+     * @param sc The SessionContext on which we are applying the condition.
+     * @return The return value.
+     * @exception ELdapExeption Failed to evaluate expression.
      */
-    boolean evaluate(SessionContext sc)
-        throws ELdapException;
+    boolean evaluate(SessionContext sc) throws ELdapException;
 
     /**
      * Evaluate the Expression.
-     *
-     * @param    req	The PKIRequest on which we are applying the condition.
-     * @return 		The return value.
-     * @exception          ELdapExeption  Failed to evaluate expression.
+     * 
+     * @param req The PKIRequest on which we are applying the condition.
+     * @return The return value.
+     * @exception ELdapExeption Failed to evaluate expression.
      */
-    boolean evaluate(IRequest req)
-        throws ELdapException;
+    boolean evaluate(IRequest req) throws ELdapException;
 
     /**
      * Convert to a string.
+     * 
      * @return String representation of expression.
      */
     public String toString();
 }
-

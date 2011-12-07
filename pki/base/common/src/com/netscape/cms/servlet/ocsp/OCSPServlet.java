@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.ocsp;
 
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -47,11 +46,10 @@ import com.netscape.cmsutil.ocsp.ResponseData;
 import com.netscape.cmsutil.ocsp.SingleResponse;
 import com.netscape.cmsutil.ocsp.TBSRequest;
 
-
 /**
- * Process OCSP messages, According to RFC 2560
- * See http://www.ietf.org/rfc/rfc2560.txt
- *
+ * Process OCSP messages, According to RFC 2560 See
+ * http://www.ietf.org/rfc/rfc2560.txt
+ * 
  * @version $Revision$ $Date$
  */
 public class OCSPServlet extends CMSServlet {
@@ -65,7 +63,7 @@ public class OCSPServlet extends CMSServlet {
     public final static String PROP_MAX_REQUEST_SIZE = "MaxRequestSize";
     public final static String PROP_ID = "ID";
 
-    private int m_maxRequestSize=5000;
+    private int m_maxRequestSize = 5000;
 
     public OCSPServlet() {
         super();
@@ -74,43 +72,43 @@ public class OCSPServlet extends CMSServlet {
     /**
      * initialize the servlet. This servlet uses the template file
      * "ImportCert.template" to process the response.
-     *
+     * 
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
         String s = sc.getInitParameter(PROP_MAX_REQUEST_SIZE);
         if (s != null) {
-        try {
-            m_maxRequestSize = Integer.parseInt(s);
-        } catch (Exception e) {}
-       }
+            try {
+                m_maxRequestSize = Integer.parseInt(s);
+            } catch (Exception e) {
+            }
+        }
 
     }
 
     /**
-     * Process the HTTP request. 
-     * This method is invoked when the OCSP service receives a OCSP
-     * request. Based on RFC 2560, the request should have the OCSP
-     * request in the HTTP body as binary blob.
-     *
+     * Process the HTTP request. This method is invoked when the OCSP service
+     * receives a OCSP request. Based on RFC 2560, the request should have the
+     * OCSP request in the HTTP body as binary blob.
+     * 
      * @param cmsReq the object holding the request and response information
      */
     protected void process(CMSRequest cmsReq) throws EBaseException {
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
-        IStatsSubsystem statsSub = (IStatsSubsystem)CMS.getSubsystem("stats");
+        IStatsSubsystem statsSub = (IStatsSubsystem) CMS.getSubsystem("stats");
         if (statsSub != null) {
-          statsSub.startTiming("ocsp", true /* main action */);
+            statsSub.startTiming("ocsp", true /* main action */);
         }
 
         IAuthToken authToken = authenticate(cmsReq);
         AuthzToken authzToken = null;
 
         try {
-            authzToken = authorize(mAclMethod, authToken,
-                        mAuthzResourceName, "submit");
+            authzToken = authorize(mAclMethod, authToken, mAuthzResourceName,
+                    "submit");
         } catch (Exception e) {
             // do nothing for now
         }
@@ -119,12 +117,12 @@ public class OCSPServlet extends CMSServlet {
             cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
             return;
         }
-        
+
         CMS.debug("Servlet Path=" + httpReq.getServletPath());
         CMS.debug("RequestURI=" + httpReq.getRequestURI());
-        String pathInfo =  httpReq.getPathInfo();
+        String pathInfo = httpReq.getPathInfo();
         if (pathInfo != null && pathInfo.indexOf('%') != -1) {
-          pathInfo = URLDecoder.decode(pathInfo);
+            pathInfo = URLDecoder.decode(pathInfo);
         }
         CMS.debug("PathInfo=" + pathInfo);
 
@@ -136,46 +134,50 @@ public class OCSPServlet extends CMSServlet {
             String method = httpReq.getMethod();
             CMS.debug("Method=" + method);
             if (method != null && method.equals("POST")) {
-              int reqlen = httpReq.getContentLength();
+                int reqlen = httpReq.getContentLength();
 
-              if (reqlen == -1) {
-                 throw new Exception("OCSPServlet: Content-Length not supplied");
-              }
-              if (reqlen == 0) {
-                 throw new Exception("OCSPServlet: Invalid Content-Length");
-              }
-              if (reqlen > m_maxRequestSize) {
-                 throw new Exception("OCSPServlet: Client sending too much OCSP request data ("+reqlen+")");
-              }
-
-              // for debugging
-              reqbuf = new byte[reqlen];
-              int bytesread = 0;
-              boolean partial = false;
-
-              while (bytesread < reqlen) {
-                int r = is.read(reqbuf, bytesread, reqlen - bytesread);
-                if (r == -1) {
-                    throw new Exception("OCSPServlet: Client did not supply enough OCSP data");
+                if (reqlen == -1) {
+                    throw new Exception(
+                            "OCSPServlet: Content-Length not supplied");
                 }
-                bytesread += r;
-                if (partial == false) {
-                    if (bytesread < reqlen) {
-                        partial = true;
+                if (reqlen == 0) {
+                    throw new Exception("OCSPServlet: Invalid Content-Length");
+                }
+                if (reqlen > m_maxRequestSize) {
+                    throw new Exception(
+                            "OCSPServlet: Client sending too much OCSP request data ("
+                                    + reqlen + ")");
+                }
+
+                // for debugging
+                reqbuf = new byte[reqlen];
+                int bytesread = 0;
+                boolean partial = false;
+
+                while (bytesread < reqlen) {
+                    int r = is.read(reqbuf, bytesread, reqlen - bytesread);
+                    if (r == -1) {
+                        throw new Exception(
+                                "OCSPServlet: Client did not supply enough OCSP data");
+                    }
+                    bytesread += r;
+                    if (partial == false) {
+                        if (bytesread < reqlen) {
+                            partial = true;
+                        }
                     }
                 }
-              }
-              is = new ByteArrayInputStream(reqbuf);
+                is = new ByteArrayInputStream(reqbuf);
             } else {
-              // GET method
-              if ( (pathInfo == null)              ||
-                   (pathInfo.equals( "" ) )        ||
-                   (pathInfo.substring(1) == null) ||
-                   (pathInfo.substring(1).equals( "" ) ) ) {
-                  throw new Exception("OCSPServlet: OCSP request not provided in GET method");
-              }
-              is = new ByteArrayInputStream(
-                com.netscape.osutil.OSUtil.AtoB(pathInfo.substring(1)));
+                // GET method
+                if ((pathInfo == null) || (pathInfo.equals(""))
+                        || (pathInfo.substring(1) == null)
+                        || (pathInfo.substring(1).equals(""))) {
+                    throw new Exception(
+                            "OCSPServlet: OCSP request not provided in GET method");
+                }
+                is = new ByteArrayInputStream(
+                        com.netscape.osutil.OSUtil.AtoB(pathInfo.substring(1)));
             }
 
             // (1) retrieve OCSP request
@@ -183,22 +185,20 @@ public class OCSPServlet extends CMSServlet {
             OCSPResponse response = null;
 
             try {
-                OCSPRequest.Template reqTemplate = 
-                    new OCSPRequest.Template();
+                OCSPRequest.Template reqTemplate = new OCSPRequest.Template();
 
-                if ( (is == null) ||
-                     (is.toString().equals( "" ) ) ) {
-                    throw new Exception( "OCSPServlet: OCSP request is "
-                                       + "empty or malformed");
+                if ((is == null) || (is.toString().equals(""))) {
+                    throw new Exception("OCSPServlet: OCSP request is "
+                            + "empty or malformed");
                 }
                 ocspReq = (OCSPRequest) reqTemplate.decode(is);
-                if ( (ocspReq == null) ||
-                     (ocspReq.toString().equals( "" ) ) ) {
-                    throw new Exception( "OCSPServlet: Decoded OCSP request "
-                                       + "is empty or malformed");
+                if ((ocspReq == null) || (ocspReq.toString().equals(""))) {
+                    throw new Exception("OCSPServlet: Decoded OCSP request "
+                            + "is empty or malformed");
                 }
                 response = ((IOCSPService) mAuthority).validate(ocspReq);
-            } catch (Exception e) {;
+            } catch (Exception e) {
+                ;
                 CMS.debug("OCSPServlet: " + e.toString());
             }
 
@@ -216,48 +216,54 @@ public class OCSPServlet extends CMSServlet {
                 // we can validate the response
                 if (CMS.debugOn()) {
                     CMS.debug("OCSPServlet: OCSP Request:");
-                    CMS.debug("OCSPServlet: " + CMS.BtoA(ASN1Util.encode(ocspReq)));
+                    CMS.debug("OCSPServlet: "
+                            + CMS.BtoA(ASN1Util.encode(ocspReq)));
                     TBSRequest tbsReq = ocspReq.getTBSRequest();
                     for (int i = 0; i < tbsReq.getRequestCount(); i++) {
-                       com.netscape.cmsutil.ocsp.Request req = tbsReq.getRequestAt(i);
-                       CMS.debug("Serial Number: " + req.getCertID().getSerialNumber());
+                        com.netscape.cmsutil.ocsp.Request req = tbsReq
+                                .getRequestAt(i);
+                        CMS.debug("Serial Number: "
+                                + req.getCertID().getSerialNumber());
                     }
                     CMS.debug("OCSPServlet: OCSP Response Size:");
-                    CMS.debug("OCSPServlet: " + Integer.toString(respbytes.length));
+                    CMS.debug("OCSPServlet: "
+                            + Integer.toString(respbytes.length));
                     CMS.debug("OCSPServlet: OCSP Response Data:");
                     CMS.debug("OCSPServlet: " + CMS.BtoA(respbytes));
                     ResponseBytes rbytes = response.getResponseBytes();
                     if (rbytes == null) {
                         CMS.debug("Response bytes is null");
                     } else if (rbytes.getObjectIdentifier().equals(
-                               ResponseBytes.OCSP_BASIC)) {
-                        BasicOCSPResponse basicRes = (BasicOCSPResponse)
-                        BasicOCSPResponse.getTemplate().decode(
-                        new ByteArrayInputStream(rbytes.getResponse().toByteArray()));
+                            ResponseBytes.OCSP_BASIC)) {
+                        BasicOCSPResponse basicRes = (BasicOCSPResponse) BasicOCSPResponse
+                                .getTemplate().decode(
+                                        new ByteArrayInputStream(rbytes
+                                                .getResponse().toByteArray()));
                         if (basicRes == null) {
                             CMS.debug("Basic Res is null");
                         } else {
                             ResponseData data = basicRes.getResponseData();
                             for (int i = 0; i < data.getResponseCount(); i++) {
                                 SingleResponse res = data.getResponseAt(i);
-                                CMS.debug("Serial Number: " + 
-                                          res.getCertID().getSerialNumber()  + 
-                                          " Status: " + 
-                                          res.getCertStatus().getClass().getName());
+                                CMS.debug("Serial Number: "
+                                        + res.getCertID().getSerialNumber()
+                                        + " Status: "
+                                        + res.getCertStatus().getClass()
+                                                .getName());
                             }
                         }
                     }
                 }
 
                 httpResp.setContentType("application/ocsp-response");
-             
+
                 httpResp.setContentLength(respbytes.length);
                 OutputStream ooss = httpResp.getOutputStream();
 
                 ooss.write(respbytes);
                 ooss.flush();
                 if (statsSub != null) {
-                  statsSub.endTiming("ocsp");
+                    statsSub.endTiming("ocsp");
                 }
 
                 mRenderResult = false;

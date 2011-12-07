@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.extensions;
 
-
 import netscape.security.util.ObjectIdentifier;
 import netscape.security.x509.Extension;
 
@@ -26,11 +25,10 @@ import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 
-
 /**
- * CMS extension interface, for creating extensions from http input and 
- * displaying extensions to html forms. 
- *
+ * CMS extension interface, for creating extensions from http input and
+ * displaying extensions to html forms.
+ * 
  * @version $Revision$, $Date$
  */
 public interface ICMSExtension {
@@ -42,11 +40,12 @@ public interface ICMSExtension {
      * initialize from configuration file
      */
     public void init(ISubsystem owner, IConfigStore config)
-        throws EBaseException; 
+            throws EBaseException;
 
     /**
-     * Get name of this extension. 
-     * @return the name of this CMS extension, for 
+     * Get name of this extension.
+     * 
+     * @return the name of this CMS extension, for
      */
     public String getName();
 
@@ -54,21 +53,20 @@ public interface ICMSExtension {
      * Get object identifier associated with this extension.
      */
     public ObjectIdentifier getOID();
-	
+
     /**
      * Get an instance of the extension given http input.
+     * 
      * @return an instance of the extension.
      */
-    public Extension getExtension(IArgBlock argblock) 
-        throws EBaseException;
+    public Extension getExtension(IArgBlock argblock) throws EBaseException;
 
     /**
-     * Get Javascript name value pairs to put into the request processing 
+     * Get Javascript name value pairs to put into the request processing
      * template.
-     * @return name value pairs 
+     * 
+     * @return name value pairs
      */
-    public IArgBlock getFormParams(Extension extension)
-        throws EBaseException;
+    public IArgBlock getFormParams(Extension extension) throws EBaseException;
 
 }
-

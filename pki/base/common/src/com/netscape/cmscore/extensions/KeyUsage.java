@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.extensions;
 
-
 import java.io.IOException;
 
 import netscape.security.util.DerOutputStream;
@@ -36,7 +35,6 @@ import com.netscape.certsrv.extensions.ICMSExtension;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cmscore.util.Debug;
 
-
 public class KeyUsage implements ICMSExtension {
     private final static String NAME = "KeyUsageExtension";
     private final static ObjectIdentifier OID = PKIXExtensions.KeyUsage_Id;
@@ -49,24 +47,23 @@ public class KeyUsage implements ICMSExtension {
     public KeyUsage(boolean setDefault) {
         mSetDefault = setDefault;
         mLogger = CMS.getLogger();
-    } 
+    }
 
-    public void init(ISubsystem owner, IConfigStore config) 
-        throws EBaseException {
+    public void init(ISubsystem owner, IConfigStore config)
+            throws EBaseException {
         // nothing to do here.
         mConfig = config;
     }
 
-    public String getName() { 
-        return NAME; 
+    public String getName() {
+        return NAME;
     }
 
-    public ObjectIdentifier getOID() { 
-        return OID; 
+    public ObjectIdentifier getOID() {
+        return OID;
     }
 
-    protected static final boolean[] DEF_BITS = 
-        new boolean[KeyUsageExtension.NBITS];
+    protected static final boolean[] DEF_BITS = new boolean[KeyUsageExtension.NBITS];
 
     static {
         // set default bits used when request missing key usage info.
@@ -84,10 +81,10 @@ public class KeyUsage implements ICMSExtension {
     private static boolean getBoolean(Object value) {
         String val = (String) value;
 
-        if (val != null && 
-            (val.equalsIgnoreCase("true") || val.equalsIgnoreCase("on")))
+        if (val != null
+                && (val.equalsIgnoreCase("true") || val.equalsIgnoreCase("on")))
             return true;
-        else 
+        else
             return false;
     }
 
@@ -120,13 +117,12 @@ public class KeyUsage implements ICMSExtension {
         int i;
 
         for (i = 0; i < KeyUsageExtension.NBITS; i++) {
-            if (values[i] != null && (values[i] instanceof String)) 
+            if (values[i] != null && (values[i] instanceof String))
                 break;
         }
         if (i == KeyUsageExtension.NBITS && mSetDefault) {
             // no key usage extension parameters are requested. set default.
-            CMS.debug(
-                "No Key usage bits requested. Setting default.");
+            CMS.debug("No Key usage bits requested. Setting default.");
             bits = DEF_BITS;
         } else {
             bit = KeyUsageExtension.DIGITAL_SIGNATURE_BIT;
@@ -171,24 +167,23 @@ public class KeyUsage implements ICMSExtension {
             int j = 0;
 
             for (j = 0; j < bits.length; j++) {
-                if (bits[j]) 
+                if (bits[j])
                     break;
             }
             if (j == bits.length) {
-                if (!mSetDefault) 
+                if (!mSetDefault)
                     return null;
-                else 
+                else
                     bits = DEF_BITS;
-            } 
+            }
             return new KeyUsageExtension(bits);
         } catch (IOException e) {
-            throw new EExtensionsException(
-                    CMS.getUserMessage("CMS_EXTENSION_CREATING_EXT_ERROR", NAME));
+            throw new EExtensionsException(CMS.getUserMessage(
+                    "CMS_EXTENSION_CREATING_EXT_ERROR", NAME));
         }
     }
 
-    public IArgBlock getFormParams(Extension extension)
-        throws EBaseException {
+    public IArgBlock getFormParams(Extension extension) throws EBaseException {
         KeyUsageExtension ext = null;
 
         if (!extension.getExtensionId().equals(PKIXExtensions.KeyUsage_Id)) {
@@ -210,24 +205,24 @@ public class KeyUsage implements ICMSExtension {
         IArgBlock params = CMS.createArgBlock();
         boolean[] bits = ext.getBits();
 
-        params.set(KeyUsageExtension.DIGITAL_SIGNATURE, 
-            String.valueOf(bits[KeyUsageExtension.DIGITAL_SIGNATURE_BIT]));
+        params.set(KeyUsageExtension.DIGITAL_SIGNATURE,
+                String.valueOf(bits[KeyUsageExtension.DIGITAL_SIGNATURE_BIT]));
         params.set(KeyUsageExtension.NON_REPUDIATION,
-            String.valueOf(bits[KeyUsageExtension.NON_REPUDIATION_BIT]));
+                String.valueOf(bits[KeyUsageExtension.NON_REPUDIATION_BIT]));
         params.set(KeyUsageExtension.KEY_ENCIPHERMENT,
-            String.valueOf(bits[KeyUsageExtension.KEY_ENCIPHERMENT_BIT]));
+                String.valueOf(bits[KeyUsageExtension.KEY_ENCIPHERMENT_BIT]));
         params.set(KeyUsageExtension.DATA_ENCIPHERMENT,
-            String.valueOf(bits[KeyUsageExtension.DATA_ENCIPHERMENT_BIT]));
+                String.valueOf(bits[KeyUsageExtension.DATA_ENCIPHERMENT_BIT]));
         params.set(KeyUsageExtension.KEY_AGREEMENT,
-            String.valueOf(bits[KeyUsageExtension.KEY_AGREEMENT_BIT]));
+                String.valueOf(bits[KeyUsageExtension.KEY_AGREEMENT_BIT]));
         params.set(KeyUsageExtension.KEY_CERTSIGN,
-            String.valueOf(bits[KeyUsageExtension.KEY_CERTSIGN_BIT]));
+                String.valueOf(bits[KeyUsageExtension.KEY_CERTSIGN_BIT]));
         params.set(KeyUsageExtension.CRL_SIGN,
-            String.valueOf(bits[KeyUsageExtension.CRL_SIGN_BIT]));
-        params.set(KeyUsageExtension.ENCIPHER_ONLY, 
-            String.valueOf(bits[KeyUsageExtension.ENCIPHER_ONLY_BIT]));
+                String.valueOf(bits[KeyUsageExtension.CRL_SIGN_BIT]));
+        params.set(KeyUsageExtension.ENCIPHER_ONLY,
+                String.valueOf(bits[KeyUsageExtension.ENCIPHER_ONLY_BIT]));
         params.set(KeyUsageExtension.DECIPHER_ONLY,
-            String.valueOf(bits[KeyUsageExtension.DECIPHER_ONLY_BIT]));
+                String.valueOf(bits[KeyUsageExtension.DECIPHER_ONLY_BIT]));
         return params;
     }
 
@@ -236,4 +231,3 @@ public class KeyUsage implements ICMSExtension {
     }
 
 }
-

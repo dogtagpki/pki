@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.apps;
 
-
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -181,12 +180,16 @@ public class CMSEngine implements ICMSEngine {
     private static final String PROP_CLASS = "class";
     private static final String SERVER_XML = "server.xml";
 
-    public static final SubsystemRegistry mSSReg = SubsystemRegistry.getInstance();
+    public static final SubsystemRegistry mSSReg = SubsystemRegistry
+            .getInstance();
 
-    public static String instanceDir;    /* path to instance <server-root>/cert-<instance-name> */
-  
-    private IConfigStore mConfig = null; 
-    private ISubsystem mOwner = null; 
+    public static String instanceDir; /*
+                                       * path to instance
+                                       * <server-root>/cert-<instance-name>
+                                       */
+
+    private IConfigStore mConfig = null;
+    private ISubsystem mOwner = null;
     private long mStartupTime = 0;
     private boolean isStarted = false;
     private StringBuffer mWarning = new StringBuffer();
@@ -198,44 +201,32 @@ public class CMSEngine implements ICMSEngine {
     private String mConfigSDSessionId = null;
     private Timer mSDTimer = null;
 
-    // static subsystems - must be singletons 
+    // static subsystems - must be singletons
     private static SubsystemInfo[] mStaticSubsystems = {
-            new SubsystemInfo(
-                Debug.ID, Debug.getInstance()),
-            new SubsystemInfo(LogSubsystem.ID, 
-                LogSubsystem.getInstance()),
-            new SubsystemInfo( 
-                OsSubsystem.ID, OsSubsystem.getInstance()),
-            new SubsystemInfo( 
-                JssSubsystem.ID, JssSubsystem.getInstance()),
-            new SubsystemInfo( 
-                DBSubsystem.ID, DBSubsystem.getInstance()),
-            new SubsystemInfo( 
-                UGSubsystem.ID, UGSubsystem.getInstance()),
-            new SubsystemInfo(
-                PluginRegistry.ID, new PluginRegistry()),
-            new SubsystemInfo(
-                OidLoaderSubsystem.ID, OidLoaderSubsystem.getInstance()),
-            new SubsystemInfo(
-                X500NameSubsystem.ID, X500NameSubsystem.getInstance()),
-            // skip TP subsystem; 
+            new SubsystemInfo(Debug.ID, Debug.getInstance()),
+            new SubsystemInfo(LogSubsystem.ID, LogSubsystem.getInstance()),
+            new SubsystemInfo(OsSubsystem.ID, OsSubsystem.getInstance()),
+            new SubsystemInfo(JssSubsystem.ID, JssSubsystem.getInstance()),
+            new SubsystemInfo(DBSubsystem.ID, DBSubsystem.getInstance()),
+            new SubsystemInfo(UGSubsystem.ID, UGSubsystem.getInstance()),
+            new SubsystemInfo(PluginRegistry.ID, new PluginRegistry()),
+            new SubsystemInfo(OidLoaderSubsystem.ID,
+                    OidLoaderSubsystem.getInstance()),
+            new SubsystemInfo(X500NameSubsystem.ID,
+                    X500NameSubsystem.getInstance()),
+            // skip TP subsystem;
             // problem in needing dbsubsystem in constructor. and it's not used.
-            new SubsystemInfo(
-                RequestSubsystem.ID, RequestSubsystem.getInstance()),
-        };
+            new SubsystemInfo(RequestSubsystem.ID,
+                    RequestSubsystem.getInstance()), };
 
-    // dynamic subsystems are loaded at init time, not neccessarily singletons. 
+    // dynamic subsystems are loaded at init time, not neccessarily singletons.
     private static SubsystemInfo[] mDynSubsystems = null;
 
-    // final static subsystems - must be singletons. 
+    // final static subsystems - must be singletons.
     private static SubsystemInfo[] mFinalSubsystems = {
-            new SubsystemInfo( 
-                AuthSubsystem.ID, AuthSubsystem.getInstance()),
-            new SubsystemInfo( 
-                AuthzSubsystem.ID, AuthzSubsystem.getInstance()),
-            new SubsystemInfo(
-                JobsScheduler.ID, JobsScheduler.getInstance()),
-        };
+            new SubsystemInfo(AuthSubsystem.ID, AuthSubsystem.getInstance()),
+            new SubsystemInfo(AuthzSubsystem.ID, AuthzSubsystem.getInstance()),
+            new SubsystemInfo(JobsScheduler.ID, JobsScheduler.getInstance()), };
 
     private static final int IP = 0;
     private static final int PORT = 1;
@@ -246,12 +237,12 @@ public class CMSEngine implements ICMSEngine {
     private static final int EE_NON_SSL = 3;
     private static final int EE_CLIENT_AUTH_SSL = 4;
     private static String mServerCertNickname = null;
-    private static String info[][] = { {null, null, null},//agent
-            {null, null, null},//admin
-            {null, null, null},//sslEE
-            {null, null, null},//non_sslEE
-            {null, null, null} //ssl_clientauth_EE
-        };
+    private static String info[][] = { { null, null, null },// agent
+            { null, null, null },// admin
+            { null, null, null },// sslEE
+            { null, null, null },// non_sslEE
+            { null, null, null } // ssl_clientauth_EE
+    };
 
     /**
      * private constructor.
@@ -260,17 +251,18 @@ public class CMSEngine implements ICMSEngine {
     }
 
     /**
-     * gets this ID 
+     * gets this ID
      */
     public String getId() {
         return ID;
     }
 
     /**
-     * should never be called. returns error. 
+     * should never be called. returns error.
      */
     public void setId(String id) throws EBaseException {
-        throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_OPERATION"));
+        throw new EBaseException(
+                CMS.getUserMessage("CMS_BASE_INVALID_OPERATION"));
     }
 
     /**
@@ -282,72 +274,81 @@ public class CMSEngine implements ICMSEngine {
 
     public synchronized IPasswordStore getPasswordStore() {
         // initialize the PasswordReader and PasswordWriter
-      try {
-        String pwdPath = mConfig.getString("passwordFile");
-        if (mPasswordStore == null) {
-          CMS.debug("CMSEngine: getPasswordStore(): password store not initialized before.");
-          String pwdClass = mConfig.getString("passwordClass");
+        try {
+            String pwdPath = mConfig.getString("passwordFile");
+            if (mPasswordStore == null) {
+                CMS.debug("CMSEngine: getPasswordStore(): password store not initialized before.");
+                String pwdClass = mConfig.getString("passwordClass");
 
-          if (pwdClass != null) {
-            try {
-                mPasswordStore = (IPasswordStore)Class.forName(pwdClass).newInstance();
-            } catch (Exception e) {
-                CMS.debug("CMSEngine: getPasswordStore(): password store initialization failure:" + e.toString());
+                if (pwdClass != null) {
+                    try {
+                        mPasswordStore = (IPasswordStore) Class.forName(
+                                pwdClass).newInstance();
+                    } catch (Exception e) {
+                        CMS.debug("CMSEngine: getPasswordStore(): password store initialization failure:"
+                                + e.toString());
+                    }
+                }
+            } else {
+                CMS.debug("CMSEngine: getPasswordStore(): password store initialized before.");
             }
-          }
-        } else {
-          CMS.debug("CMSEngine: getPasswordStore(): password store initialized before.");
+
+            // have to initialize it because other places don't always
+            mPasswordStore.init(pwdPath);
+            CMS.debug("CMSEngine: getPasswordStore(): password store initialized.");
+        } catch (Exception e) {
+            CMS.debug("CMSEngine: getPasswordStore(): failure:" + e.toString());
         }
 
-        // have to initialize it because other places don't always
-        mPasswordStore.init(pwdPath); 
-        CMS.debug("CMSEngine: getPasswordStore(): password store initialized.");
-      } catch (Exception e) {
-        CMS.debug("CMSEngine: getPasswordStore(): failure:" + e.toString());
-      }
-
-      return mPasswordStore;
+        return mPasswordStore;
     }
 
     /**
      * initialize all static, dynamic and final static subsystems.
+     * 
      * @param owner null
      * @param config main config store.
-     * @exception EBaseException if any error occur in subsystems during 
-     * initialization.
+     * @exception EBaseException if any error occur in subsystems during
+     *                initialization.
      */
-    public void init(ISubsystem owner, IConfigStore config) 
-        throws EBaseException {
+    public void init(ISubsystem owner, IConfigStore config)
+            throws EBaseException {
         mOwner = owner;
         mConfig = config;
         int state = mConfig.getInteger("cs.state");
         String sd = mConfig.getString("securitydomain.select", "");
         // my default is 1 day
-        String flush_timeout = config.getString("securitydomain.flushinterval", "86400000");
-        String secdomain_source = config.getString("securitydomain.source", "memory");
-        String secdomain_check_interval = config.getString("securitydomain.checkinterval", "5000");
+        String flush_timeout = config.getString("securitydomain.flushinterval",
+                "86400000");
+        String secdomain_source = config.getString("securitydomain.source",
+                "memory");
+        String secdomain_check_interval = config.getString(
+                "securitydomain.checkinterval", "5000");
 
         if (secdomain_source.equals("ldap")) {
-            mSecurityDomainSessionTable = new LDAPSecurityDomainSessionTable((new Long(flush_timeout)).longValue());
+            mSecurityDomainSessionTable = new LDAPSecurityDomainSessionTable(
+                    (new Long(flush_timeout)).longValue());
         } else {
-            mSecurityDomainSessionTable = new SecurityDomainSessionTable((new Long(flush_timeout)).longValue());
+            mSecurityDomainSessionTable = new SecurityDomainSessionTable(
+                    (new Long(flush_timeout)).longValue());
         }
 
         mSDTimer = new Timer();
         SessionTimer timertask = new SessionTimer(mSecurityDomainSessionTable);
         if ((state != 1) || (sd.equals("existing"))) {
-            // for non-security domain hosts or if not yet configured, 
+            // for non-security domain hosts or if not yet configured,
             // do not check session domain table
         } else {
-            mSDTimer.schedule(timertask, 5, (new Long(secdomain_check_interval)).longValue());
+            mSDTimer.schedule(timertask, 5,
+                    (new Long(secdomain_check_interval)).longValue());
         }
 
         String tsClass = config.getString("timeSourceClass", null);
 
         if (tsClass != null) {
             try {
-                mTimeSource = (ITimeSource)
-                        Class.forName(tsClass).newInstance();
+                mTimeSource = (ITimeSource) Class.forName(tsClass)
+                        .newInstance();
             } catch (Exception e) {
                 // nothing to do
             }
@@ -361,11 +362,11 @@ public class CMSEngine implements ICMSEngine {
 
         loadDynSubsystems();
 
-        java.security.Security.addProvider(
-            new netscape.security.provider.CMS());
+        java.security.Security
+                .addProvider(new netscape.security.provider.CMS());
 
         mSSReg.put(ID, this);
-        initSubsystems(mStaticSubsystems, false); 
+        initSubsystems(mStaticSubsystems, false);
 
         // Once the log subsystem is initialized, we
         // want to register a listener to catch
@@ -378,14 +379,15 @@ public class CMSEngine implements ICMSEngine {
         initSubsystems(mDynSubsystems, true);
         initSubsystems(mFinalSubsystems, false);
 
-        CMS.debug("Java version=" + (String)System.getProperty("java.version"));
+        CMS.debug("Java version=" + (String) System.getProperty("java.version"));
         java.security.Provider ps[] = java.security.Security.getProviders();
 
         if (ps == null || ps.length <= 0) {
             CMS.debug("CMSEngine: Java Security Provider NONE");
         } else {
             for (int x = 0; x < ps.length; x++) {
-                CMS.debug("CMSEngine: Java Security Provider " + x + " class=" + ps[x]);
+                CMS.debug("CMSEngine: Java Security Provider " + x + " class="
+                        + ps[x]);
             }
         }
         parseServerXML();
@@ -394,8 +396,10 @@ public class CMSEngine implements ICMSEngine {
 
     /**
      * Parse ACL resource attributes
+     * 
      * @param resACLs same format as the resourceACLs attribute:
-     * <PRE>
+     * 
+     *            <PRE>
      *     <resource name>:<permission1,permission2,...permissionn>:
      *     <allow|deny> (<subset of the permission set>) <evaluator expression>
      * </PRE>
@@ -404,7 +408,8 @@ public class CMSEngine implements ICMSEngine {
      */
     public IACL parseACL(String resACLs) throws EACLsException {
         if (resACLs == null) {
-            throw new EACLsException(CMS.getUserMessage("CMS_ACL_NULL_VALUE", "resACLs"));
+            throw new EACLsException(CMS.getUserMessage("CMS_ACL_NULL_VALUE",
+                    "resACLs"));
         }
 
         ACL acl = null;
@@ -418,14 +423,15 @@ public class CMSEngine implements ICMSEngine {
             String resource = resACLs.substring(0, idx1);
 
             if (resource == null) {
-                String infoMsg = "resource not specified in resourceACLS attribute:" +
-                    resACLs;
+                String infoMsg = "resource not specified in resourceACLS attribute:"
+                        + resACLs;
 
                 String[] params = new String[2];
 
                 params[0] = resACLs;
                 params[1] = infoMsg;
-                throw new EACLsException(CMS.getUserMessage("CMS_ACL_PARSING_ERROR", params));
+                throw new EACLsException(CMS.getUserMessage(
+                        "CMS_ACL_PARSING_ERROR", params));
             }
 
             // getting list of applicable rights
@@ -436,13 +442,14 @@ public class CMSEngine implements ICMSEngine {
             if (idx2 != -1)
                 rightsString = st.substring(0, idx2);
             else {
-                String infoMsg =
-                    "rights not specified in resourceACLS attribute:" + resACLs;
+                String infoMsg = "rights not specified in resourceACLS attribute:"
+                        + resACLs;
                 String[] params = new String[2];
 
                 params[0] = resACLs;
                 params[1] = infoMsg;
-                throw new EACLsException(CMS.getUserMessage("CMS_ACL_PARSING_ERROR", params));
+                throw new EACLsException(CMS.getUserMessage(
+                        "CMS_ACL_PARSING_ERROR", params));
             }
 
             if (rightsString != null) {
@@ -476,7 +483,8 @@ public class CMSEngine implements ICMSEngine {
 
                         params[0] = "ACLEntry = " + acs;
                         params[1] = infoMsg;
-                        throw new EACLsException(CMS.getUserMessage("CMS_ACL_PARSING_ERROR", params));
+                        throw new EACLsException(CMS.getUserMessage(
+                                "CMS_ACL_PARSING_ERROR", params));
                     }
 
                     entry.setACLEntryString(acs);
@@ -484,15 +492,17 @@ public class CMSEngine implements ICMSEngine {
                 }
             } else {
                 // fine
-                String infoMsg = "acls not specified in resourceACLS attribute:" +
+                String infoMsg = "acls not specified in resourceACLS attribute:"
+                        +
 
-                    resACLs;
+                        resACLs;
 
                 String[] params = new String[2];
 
                 params[0] = resACLs;
                 params[1] = infoMsg;
-                throw new EACLsException(CMS.getUserMessage("CMS_ACL_PARSING_ERROR", params));
+                throw new EACLsException(CMS.getUserMessage(
+                        "CMS_ACL_PARSING_ERROR", params));
             }
 
             // getting description
@@ -510,100 +520,102 @@ public class CMSEngine implements ICMSEngine {
     private void parseServerXML() {
         try {
             String instanceRoot = mConfig.getString("instanceRoot");
-            String path = instanceRoot+File.separator+"conf"+File.separator+SERVER_XML;
+            String path = instanceRoot + File.separator + "conf"
+                    + File.separator + SERVER_XML;
             DOMParser parser = new DOMParser();
             parser.parse(path);
-            NodeList nodes = parser.getDocument().getElementsByTagName("Connector");
-            String parentName="";
-            String name="";
-            String port="";
-            for (int i=0; i<nodes.getLength(); i++) {
-                Element n = (Element)nodes.item(i);
+            NodeList nodes = parser.getDocument().getElementsByTagName(
+                    "Connector");
+            String parentName = "";
+            String name = "";
+            String port = "";
+            for (int i = 0; i < nodes.getLength(); i++) {
+                Element n = (Element) nodes.item(i);
 
                 parentName = "";
                 Element p = (Element) n.getParentNode();
-                if(p != null)  {
-                    parentName = p.getAttribute("name");   
+                if (p != null) {
+                    parentName = p.getAttribute("name");
                 }
                 name = n.getAttribute("name");
                 port = n.getAttribute("port");
-             
+
                 // The "server.xml" file is parsed from top-to-bottom, and
                 // supports BOTH "Port Separation" (the new default method)
-                // as well as "Shared Ports" (the old legacy method).  Since
+                // as well as "Shared Ports" (the old legacy method). Since
                 // both methods must be supported, the file structure MUST
                 // conform to ONE AND ONLY ONE of the following formats:
                 //
                 // Port Separation:
                 //
-                //  <Catalina>
-                //     ...
-                //     <!-- Port Separation:  Unsecure Port -->
-                //     <Connector name="Unsecure" . . .
-                //     ...
-                //     <!-- Port Separation:  Agent Secure Port -->
-                //     <Connector name="Agent" . . .
-                //     ...
-                //     <!-- Port Separation:  Admin Secure Port -->
-                //     <Connector name="Admin" . . .
-                //     ...
-                //     <!-- Port Separation:  EE Secure Port -->
-                //     <Connector name="EE" . . .
-                //     ...
-                //  </Catalina>
+                // <Catalina>
+                // ...
+                // <!-- Port Separation: Unsecure Port -->
+                // <Connector name="Unsecure" . . .
+                // ...
+                // <!-- Port Separation: Agent Secure Port -->
+                // <Connector name="Agent" . . .
+                // ...
+                // <!-- Port Separation: Admin Secure Port -->
+                // <Connector name="Admin" . . .
+                // ...
+                // <!-- Port Separation: EE Secure Port -->
+                // <Connector name="EE" . . .
+                // ...
+                // </Catalina>
                 //
                 //
                 // Shared Ports:
                 //
-                //  <Catalina>
-                //     ...
-                //     <!-- Shared Ports:  Unsecure Port -->
-                //     <Connector name="Unsecure" . . .
-                //     ...
-                //     <!-- Shared Ports:  Agent, EE, and Admin Secure Port -->
-                //     <Connector name="Secure" . . .
-                //     ...
-                //     <!--
-                //     <Connector name="Unused" . . .
-                //     -->
-                //     ...
-                //     <!--
-                //     <Connector name="Unused" . . .
-                //     -->
-                //     ...
-                //  </Catalina>
+                // <Catalina>
+                // ...
+                // <!-- Shared Ports: Unsecure Port -->
+                // <Connector name="Unsecure" . . .
+                // ...
+                // <!-- Shared Ports: Agent, EE, and Admin Secure Port -->
+                // <Connector name="Secure" . . .
+                // ...
+                // <!--
+                // <Connector name="Unused" . . .
+                // -->
+                // ...
+                // <!--
+                // <Connector name="Unused" . . .
+                // -->
+                // ...
+                // </Catalina>
                 //
-                if ( parentName.equals("Catalina"))  {
-                    if( name.equals( "Unsecure" ) ) {
-                        // Port Separation:  Unsecure Port
-                        //                   OR
-                        // Shared Ports:     Unsecure Port
+                if (parentName.equals("Catalina")) {
+                    if (name.equals("Unsecure")) {
+                        // Port Separation: Unsecure Port
+                        // OR
+                        // Shared Ports: Unsecure Port
                         info[EE_NON_SSL][PORT] = port;
-                    } else if( name.equals( "Agent" ) ) {
-                        // Port Separation:  Agent Secure Port
+                    } else if (name.equals("Agent")) {
+                        // Port Separation: Agent Secure Port
                         info[AGENT][PORT] = port;
-                    } else if( name.equals( "Admin" ) ) {
-                        // Port Separation:  Admin Secure Port
+                    } else if (name.equals("Admin")) {
+                        // Port Separation: Admin Secure Port
                         info[ADMIN][PORT] = port;
-                    } else if( name.equals( "EE" ) ) {
-                        // Port Separation:  EE Secure Port
+                    } else if (name.equals("EE")) {
+                        // Port Separation: EE Secure Port
                         info[EE_SSL][PORT] = port;
-                    } else if( name.equals( "EEClientAuth" ) ) {
+                    } else if (name.equals("EEClientAuth")) {
                         // Port Separation: EE Client Auth Secure Port
-                        info[EE_CLIENT_AUTH_SSL][PORT] = port; 
-                    } else if( name.equals( "Secure" ) ) {
-                        // Shared Ports:  Agent, EE, and Admin Secure Port
+                        info[EE_CLIENT_AUTH_SSL][PORT] = port;
+                    } else if (name.equals("Secure")) {
+                        // Shared Ports: Agent, EE, and Admin Secure Port
                         info[AGENT][PORT] = port;
                         info[ADMIN][PORT] = port;
                         info[EE_SSL][PORT] = port;
                         info[EE_CLIENT_AUTH_SSL][PORT] = port;
                     }
-                }   
-           }
- 
-           } catch (Exception e) {
-               CMS.debug("CMSEngine: parseServerXML exception: " + e.toString());
-           }
+                }
+            }
+
+        } catch (Exception e) {
+            CMS.debug("CMSEngine: parseServerXML exception: " + e.toString());
+        }
     }
 
     private void fixProxyPorts() throws EBaseException {
@@ -623,24 +635,23 @@ public class CMSEngine implements ICMSEngine {
         } catch (EBaseException e) {
             CMS.debug("CMSEngine: fixProxyPorts exception: " + e.toString());
             throw e;
-        }   
+        }
     }
 
-
-    public IConfigStore createFileConfigStore(String path) throws EBaseException {
+    public IConfigStore createFileConfigStore(String path)
+            throws EBaseException {
         try {
-          /* if the file is not there, create one */
-          File f = new File(path);
-          if (!f.exists()) {
-            f.createNewFile();
-          }
+            /* if the file is not there, create one */
+            File f = new File(path);
+            if (!f.exists()) {
+                f.createNewFile();
+            }
         } catch (Exception e) {
         }
 
-        
         return new FileConfigStore(path);
     }
-    
+
     public IArgBlock createArgBlock() {
         return new ArgBlock();
     }
@@ -682,9 +693,10 @@ public class CMSEngine implements ICMSEngine {
         return new RepositoryRecord();
     }
 
-    public ICRLIssuingPointRecord createCRLIssuingPointRecord(String
-        id, BigInteger crlNumber, Long crlSize, Date thisUpdate, Date nextUpdate) {
-        return new CRLIssuingPointRecord(id, crlNumber, crlSize, thisUpdate, nextUpdate);
+    public ICRLIssuingPointRecord createCRLIssuingPointRecord(String id,
+            BigInteger crlNumber, Long crlSize, Date thisUpdate, Date nextUpdate) {
+        return new CRLIssuingPointRecord(id, crlNumber, crlSize, thisUpdate,
+                nextUpdate);
     }
 
     public ISecurityDomainSessionTable getSecurityDomainSessionTable() {
@@ -777,17 +789,17 @@ public class CMSEngine implements ICMSEngine {
     }
 
     public IHttpConnection getHttpConnection(IRemoteAuthority authority,
-        ISocketFactory factory) {
+            ISocketFactory factory) {
         return new HttpConnection(authority, factory);
     }
 
     public IHttpConnection getHttpConnection(IRemoteAuthority authority,
-        ISocketFactory factory, int timeout) {
+            ISocketFactory factory, int timeout) {
         return new HttpConnection(authority, factory, timeout);
     }
 
     public IResender getResender(IAuthority authority, String nickname,
-        IRemoteAuthority remote, int interval) {
+            IRemoteAuthority remote, int interval) {
         return new Resender(authority, nickname, remote, interval);
     }
 
@@ -795,31 +807,29 @@ public class CMSEngine implements ICMSEngine {
         return new HttpPKIMessage();
     }
 
-    public  ILdapConnInfo getLdapConnInfo(IConfigStore config)
-        throws EBaseException, ELdapException {
+    public ILdapConnInfo getLdapConnInfo(IConfigStore config)
+            throws EBaseException, ELdapException {
         return new LdapConnInfo(config);
     }
 
-    public   LDAPSSLSocketFactoryExt getLdapJssSSLSocketFactory(
-        String certNickname) {
+    public LDAPSSLSocketFactoryExt getLdapJssSSLSocketFactory(
+            String certNickname) {
         return new LdapJssSSLSocketFactory(certNickname);
     }
 
-    public   LDAPSSLSocketFactoryExt getLdapJssSSLSocketFactory() {
+    public LDAPSSLSocketFactoryExt getLdapJssSSLSocketFactory() {
         return new LdapJssSSLSocketFactory();
     }
 
-    public  ILdapAuthInfo getLdapAuthInfo() {
+    public ILdapAuthInfo getLdapAuthInfo() {
         return new LdapAuthInfo();
     }
 
-    public  ILdapConnFactory getLdapBoundConnFactory()
-        throws ELdapException {
+    public ILdapConnFactory getLdapBoundConnFactory() throws ELdapException {
         return new LdapBoundConnFactory();
     }
 
-    public  ILdapConnFactory getLdapAnonConnFactory()
-        throws ELdapException {
+    public ILdapConnFactory getLdapAnonConnFactory() throws ELdapException {
         return new LdapAnonConnFactory();
     }
 
@@ -843,8 +853,8 @@ public class CMSEngine implements ICMSEngine {
      * initialize an array of subsystem info.
      */
     private void initSubsystems(SubsystemInfo[] sslist, boolean doSetId)
-        throws EBaseException {
-        if (sslist == null) 
+            throws EBaseException {
+        if (sslist == null)
             return;
         for (int i = 0; i < sslist.length; i++) {
             initSubsystem(sslist[i], doSetId);
@@ -854,43 +864,41 @@ public class CMSEngine implements ICMSEngine {
     /**
      * load dynamic subsystems
      */
-    private void loadDynSubsystems()
-        throws EBaseException {
+    private void loadDynSubsystems() throws EBaseException {
         IConfigStore ssconfig = mConfig.getSubStore(PROP_SUBSYSTEM);
 
-        // count number of dyn loaded subsystems. 
+        // count number of dyn loaded subsystems.
         Enumeration ssnames = ssconfig.getSubStoreNames();
         int nsubsystems = 0;
 
         for (nsubsystems = 0; ssnames.hasMoreElements(); nsubsystems++)
-            ssnames.nextElement(); 
+            ssnames.nextElement();
         if (Debug.ON) {
             Debug.trace(nsubsystems + " dyn subsystems loading..");
         }
-        if (nsubsystems == 0) 
+        if (nsubsystems == 0)
             return;
 
-            // load dyn subsystems.
+        // load dyn subsystems.
         mDynSubsystems = new SubsystemInfo[nsubsystems];
         ssnames = ssconfig.getSubStoreNames();
         for (int i = 0; i < mDynSubsystems.length; i++) {
-            IConfigStore config = 
-                ssconfig.getSubStore(String.valueOf(i));
+            IConfigStore config = ssconfig.getSubStore(String.valueOf(i));
             String id = config.getString(PROP_ID);
             String classname = config.getString(PROP_CLASS);
             ISubsystem ss = null;
 
             try {
                 ss = (ISubsystem) Class.forName(classname).newInstance();
-            } catch (InstantiationException e) { 
-                throw new EBaseException(
-                        CMS.getUserMessage("CMS_BASE_LOAD_FAILED_1", id, e.toString()));
+            } catch (InstantiationException e) {
+                throw new EBaseException(CMS.getUserMessage(
+                        "CMS_BASE_LOAD_FAILED_1", id, e.toString()));
             } catch (IllegalAccessException e) {
-                throw new EBaseException(
-                        CMS.getUserMessage("CMS_BASE_LOAD_FAILED_1", id, e.toString()));
+                throw new EBaseException(CMS.getUserMessage(
+                        "CMS_BASE_LOAD_FAILED_1", id, e.toString()));
             } catch (ClassNotFoundException e) {
-                throw new EBaseException(
-                        CMS.getUserMessage("CMS_BASE_LOAD_FAILED_1", id, e.toString()));
+                throw new EBaseException(CMS.getUserMessage(
+                        "CMS_BASE_LOAD_FAILED_1", id, e.toString()));
             }
             mDynSubsystems[i] = new SubsystemInfo(id, ss);
             Debug.trace("loaded dyn subsystem " + id);
@@ -898,24 +906,22 @@ public class CMSEngine implements ICMSEngine {
     }
 
     public LDAPConnection getBoundConnection(String host, int port,
-               int version, LDAPSSLSocketFactoryExt fac, String bindDN,
-               String bindPW) throws LDAPException
-    {
-          return new LdapBoundConnection(host, port, version, fac,
-             bindDN, bindPW);
+            int version, LDAPSSLSocketFactoryExt fac, String bindDN,
+            String bindPW) throws LDAPException {
+        return new LdapBoundConnection(host, port, version, fac, bindDN, bindPW);
     }
 
     /**
-     * initialize a subsystem 
+     * initialize a subsystem
      */
-    private void initSubsystem(SubsystemInfo ssinfo, boolean doSetId) 
-        throws EBaseException {
+    private void initSubsystem(SubsystemInfo ssinfo, boolean doSetId)
+            throws EBaseException {
         String id = ssinfo.mId;
         ISubsystem ss = ssinfo.mInstance;
         IConfigStore ssConfig = mConfig.getSubStore(id);
 
         CMS.debug("CMSEngine: initSubsystem id=" + id);
-        if (doSetId) 
+        if (doSetId)
             ss.setId(id);
         CMS.debug("CMSEngine: ready to init id=" + id);
         ss.init(this, ssConfig);
@@ -924,23 +930,30 @@ public class CMSEngine implements ICMSEngine {
         mSSReg.put(id, ss);
         CMS.debug("CMSEngine: initialized " + id);
 
-        if(id.equals("ca") || id.equals("ocsp") ||
-            id.equals("kra") || id.equals("tks")) {
-            CMS.debug("CMSEngine::initSubsystem " + id + " Java subsytem about to calculate serverCertNickname. ");
+        if (id.equals("ca") || id.equals("ocsp") || id.equals("kra")
+                || id.equals("tks")) {
+            CMS.debug("CMSEngine::initSubsystem " + id
+                    + " Java subsytem about to calculate serverCertNickname. ");
             // get SSL server nickname
-            IConfigStore serverCertStore = mConfig.getSubStore(id + "." + "sslserver");
+            IConfigStore serverCertStore = mConfig.getSubStore(id + "."
+                    + "sslserver");
             if (serverCertStore != null && serverCertStore.size() > 0) {
                 String nickName = serverCertStore.getString("nickname");
                 String tokenName = serverCertStore.getString("tokenname");
-                if (tokenName != null && tokenName.length() > 0 &&
-                    nickName != null && nickName.length() > 0) {
+                if (tokenName != null && tokenName.length() > 0
+                        && nickName != null && nickName.length() > 0) {
                     CMS.setServerCertNickname(tokenName, nickName);
-                    CMS.debug("Subsystem " + id + " init sslserver:  tokenName:"+tokenName+"  nickName:"+nickName);
+                    CMS.debug("Subsystem " + id
+                            + " init sslserver:  tokenName:" + tokenName
+                            + "  nickName:" + nickName);
                 } else if (nickName != null && nickName.length() > 0) {
                     CMS.setServerCertNickname(nickName);
-                    CMS.debug("Subsystem " + id + " init sslserver:  nickName:"+nickName);
+                    CMS.debug("Subsystem " + id + " init sslserver:  nickName:"
+                            + nickName);
                 } else {
-                    CMS.debug("Subsystem " + id + " init error: SSL server certificate nickname is not available.");
+                    CMS.debug("Subsystem "
+                            + id
+                            + " init error: SSL server certificate nickname is not available.");
                 }
             }
         }
@@ -954,22 +967,24 @@ public class CMSEngine implements ICMSEngine {
 
     /**
      * Starts up all subsystems. subsystems must be initialized.
+     * 
      * @exception EBaseException if any subsystem fails to startup.
      */
     public void startup() throws EBaseException {
-        //OsSubsystem.nativeExit(0);
+        // OsSubsystem.nativeExit(0);
         startupSubsystems(mStaticSubsystems);
         if (mDynSubsystems != null)
             startupSubsystems(mDynSubsystems);
         startupSubsystems(mFinalSubsystems);
 
-        // global admin servlet. (anywhere else more fit for this ?) 
+        // global admin servlet. (anywhere else more fit for this ?)
 
         mStartupTime = System.currentTimeMillis();
 
         mQueue.removeLogEventListener(mWarningListener);
         if (!mWarning.toString().equals("")) {
-            System.out.println(Constants.SERVER_STARTUP_WARNING_MESSAGE + mWarning);
+            System.out.println(Constants.SERVER_STARTUP_WARNING_MESSAGE
+                    + mWarning);
         }
 
         // check serial number ranges if a CA/KRA
@@ -980,7 +995,7 @@ public class CMSEngine implements ICMSEngine {
 
             CMS.debug("CMSEngine: checking certificate serial number ranges");
             ca.getCertificateRepository().checkRanges();
-        } 
+        }
 
         IKeyRecoveryAuthority kra = (IKeyRecoveryAuthority) getSubsystem("kra");
         if ((kra != null) && !isPreOpMode()) {
@@ -991,16 +1006,18 @@ public class CMSEngine implements ICMSEngine {
             kra.getKeyRepository().checkRanges();
         }
 
-        /*LogDoc
-         *
+        /*
+         * LogDoc
+         * 
          * @phase server startup
+         * 
          * @reason all subsystems are initialized and started.
          */
         Logger.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_ADMIN,
-            ILogger.LL_INFO, CMS.getLogMessage("SERVER_STARTUP"));
+                ILogger.LL_INFO, CMS.getLogMessage("SERVER_STARTUP"));
         System.out.println(Constants.SERVER_STARTUP_MESSAGE);
         isStarted = true;
-       
+
     }
 
     public boolean isInRunningState() {
@@ -1009,32 +1026,30 @@ public class CMSEngine implements ICMSEngine {
 
     public byte[] getPKCS7(Locale locale, IRequest req) {
         try {
-            X509CertImpl cert = req.getExtDataInCert(
-              IEnrollProfile.REQUEST_ISSUED_CERT);
+            X509CertImpl cert = req
+                    .getExtDataInCert(IEnrollProfile.REQUEST_ISSUED_CERT);
             if (cert == null)
                 return null;
-            
-            ICertificateAuthority ca = (ICertificateAuthority)
-              CMS.getSubsystem("ca");
+
+            ICertificateAuthority ca = (ICertificateAuthority) CMS
+                    .getSubsystem("ca");
             CertificateChain cachain = ca.getCACertChain();
             X509Certificate[] cacerts = cachain.getChain();
 
             X509CertImpl[] userChain = new X509CertImpl[cacerts.length + 1];
             int m = 1, n = 0;
-    
+
             for (; n < cacerts.length; m++, n++) {
                 userChain[m] = (X509CertImpl) cacerts[n];
             }
 
             userChain[0] = cert;
-            PKCS7 p7 = new PKCS7(new AlgorithmId[0],
-              new ContentInfo(new byte[0]),
-              userChain,
-              new SignerInfo[0]);
+            PKCS7 p7 = new PKCS7(new AlgorithmId[0], new ContentInfo(
+                    new byte[0]), userChain, new SignerInfo[0]);
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
             p7.encodeSignedData(bos);
-            return bos.toByteArray(); 
+            return bos.toByteArray();
         } catch (Exception e) {
             return null;
         }
@@ -1044,12 +1059,11 @@ public class CMSEngine implements ICMSEngine {
         return mServerCertNickname;
     }
 
-    public void setServerCertNickname(String tokenName, String
-        nickName) {
+    public void setServerCertNickname(String tokenName, String nickName) {
         String newName = null;
 
-        if (tokenName.equals(Constants.PR_INTERNAL_TOKEN_NAME) ||
-            tokenName.equalsIgnoreCase("Internal Key Storage Token"))
+        if (tokenName.equals(Constants.PR_INTERNAL_TOKEN_NAME)
+                || tokenName.equalsIgnoreCase("Internal Key Storage Token"))
             newName = nickName;
         else {
             if (tokenName.equals("") && nickName.equals(""))
@@ -1062,73 +1076,53 @@ public class CMSEngine implements ICMSEngine {
 
     public void setServerCertNickname(String newName) {
         // modify server.xml
-/*
-        String filePrefix = instanceDir + File.separator +
-            "config" + File.separator;
-        String orig = filePrefix + "server.xml";
-        String dest = filePrefix + "server.xml.bak";
-        String newF = filePrefix + "server.xml.new";
-
-        // save the old copy
-        Utils.copy(orig, dest);
-
-        BufferedReader in1 = null;
-        PrintWriter out1 = null;
-
-        try {
-            in1 = new BufferedReader(new FileReader(dest));
-            out1 = new PrintWriter(
-                        new BufferedWriter(new FileWriter(newF)));
-            String line = "";
-
-            while (in1.ready()) {
-                line = in1.readLine();
-                if (line != null)
-                    out1.println(lineParsing(line, newName)); 
-            }
-
-            out1.close();
-            in1.close();
-        } catch (Exception eee) {
-            Logger.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_ADMIN,
-                ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", eee.toString()));
-        }
-
-        File file = new File(newF);
-        File nfile = new File(orig);
-
-        try {
-            boolean success = file.renameTo(nfile);
-
-            if (!success) {
-                if (Utils.isNT()) {
-                    // NT is very picky on the path
-                    Utils.exec("copy " +
-                        file.getAbsolutePath().replace('/', '\\') + " " +
-                        nfile.getAbsolutePath().replace('/', '\\'));
-                } else {
-                    Utils.exec("cp " + file.getAbsolutePath() + " " +
-                        nfile.getAbsolutePath());
-                }
-            }
-        } catch (Exception exx) {
-            Logger.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_ADMIN,
-                ILogger.LL_FAILURE, "CMSEngine: Error " + exx.toString());
-        }
-        // update "cache" for CMS.getServerCertNickname()
-*/
+        /*
+         * String filePrefix = instanceDir + File.separator + "config" +
+         * File.separator; String orig = filePrefix + "server.xml"; String dest
+         * = filePrefix + "server.xml.bak"; String newF = filePrefix +
+         * "server.xml.new";
+         * 
+         * // save the old copy Utils.copy(orig, dest);
+         * 
+         * BufferedReader in1 = null; PrintWriter out1 = null;
+         * 
+         * try { in1 = new BufferedReader(new FileReader(dest)); out1 = new
+         * PrintWriter( new BufferedWriter(new FileWriter(newF))); String line =
+         * "";
+         * 
+         * while (in1.ready()) { line = in1.readLine(); if (line != null)
+         * out1.println(lineParsing(line, newName)); }
+         * 
+         * out1.close(); in1.close(); } catch (Exception eee) {
+         * Logger.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_ADMIN,
+         * ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR",
+         * eee.toString())); }
+         * 
+         * File file = new File(newF); File nfile = new File(orig);
+         * 
+         * try { boolean success = file.renameTo(nfile);
+         * 
+         * if (!success) { if (Utils.isNT()) { // NT is very picky on the path
+         * Utils.exec("copy " + file.getAbsolutePath().replace('/', '\\') + " "
+         * + nfile.getAbsolutePath().replace('/', '\\')); } else {
+         * Utils.exec("cp " + file.getAbsolutePath() + " " +
+         * nfile.getAbsolutePath()); } } } catch (Exception exx) {
+         * Logger.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_ADMIN,
+         * ILogger.LL_FAILURE, "CMSEngine: Error " + exx.toString()); } //
+         * update "cache" for CMS.getServerCertNickname()
+         */
         mServerCertNickname = newName;
     }
 
     private String lineParsing(String input, String newName) {
-        //<SSLPARAMS servercertnickname="Server-Cert cert-firefly"
+        // <SSLPARAMS servercertnickname="Server-Cert cert-firefly"
         int index = input.indexOf("servercertnickname");
 
         if (index >= 0) {
             String str = input.substring(index + 20);
             int index2 = str.indexOf("\"");
-            String newLine = input.substring(0, index + 20)
-                + newName + str.substring(index2);
+            String newLine = input.substring(0, index + 20) + newName
+                    + str.substring(index2);
 
             return newLine;
         } else {
@@ -1137,24 +1131,24 @@ public class CMSEngine implements ICMSEngine {
     }
 
     public String getFingerPrint(Certificate cert)
-        throws CertificateEncodingException, NoSuchAlgorithmException {
+            throws CertificateEncodingException, NoSuchAlgorithmException {
         return CertUtils.getFingerPrint(cert);
     }
 
     public String getFingerPrints(Certificate cert)
-        throws NoSuchAlgorithmException, CertificateEncodingException {
+            throws NoSuchAlgorithmException, CertificateEncodingException {
         return CertUtils.getFingerPrints(cert);
     }
 
     public String getFingerPrints(byte[] certDer)
-        throws NoSuchAlgorithmException {
+            throws NoSuchAlgorithmException {
         return CertUtils.getFingerPrints(certDer);
     }
 
     public String getUserMessage(Locale locale, String msgID, String params[]) {
         // if locale is null, try to get it out from session context
         if (locale == null) {
-            SessionContext sc = SessionContext.getExistingContext(); 
+            SessionContext sc = SessionContext.getExistingContext();
 
             if (sc != null)
                 locale = (Locale) sc.get(SessionContext.LOCALE);
@@ -1162,11 +1156,9 @@ public class CMSEngine implements ICMSEngine {
         ResourceBundle rb = null;
 
         if (locale == null) {
-            rb = ResourceBundle.getBundle(
-                        "UserMessages", Locale.ENGLISH);
+            rb = ResourceBundle.getBundle("UserMessages", Locale.ENGLISH);
         } else {
-            rb = ResourceBundle.getBundle(
-                        "UserMessages", locale);
+            rb = ResourceBundle.getBundle("UserMessages", locale);
         }
         String msg = rb.getString(msgID);
 
@@ -1187,22 +1179,22 @@ public class CMSEngine implements ICMSEngine {
         return getUserMessage(locale, msgID, params);
     }
 
-    public String getUserMessage(Locale locale, String msgID, String p1, String p2) {
+    public String getUserMessage(Locale locale, String msgID, String p1,
+            String p2) {
         String params[] = { p1, p2 };
 
         return getUserMessage(locale, msgID, params);
     }
 
-    public String getUserMessage(Locale locale, String msgID, 
-        String p1, String p2, String p3) {
+    public String getUserMessage(Locale locale, String msgID, String p1,
+            String p2, String p3) {
         String params[] = { p1, p2, p3 };
 
         return getUserMessage(locale, msgID, params);
     }
 
     public String getLogMessage(String msgID, String params[]) {
-        ResourceBundle rb = ResourceBundle.getBundle(
-                "LogMessages");
+        ResourceBundle rb = ResourceBundle.getBundle("LogMessages");
         String msg = rb.getString(msgID);
 
         if (params == null)
@@ -1213,7 +1205,7 @@ public class CMSEngine implements ICMSEngine {
     }
 
     public void debug(byte data[]) {
-        if (!debugOn()) { 
+        if (!debugOn()) {
             // this helps to not saving stuff to file when debug
             // is disable
             return;
@@ -1222,7 +1214,7 @@ public class CMSEngine implements ICMSEngine {
     }
 
     public void debug(int level, String msg) {
-        if (!debugOn()) { 
+        if (!debugOn()) {
             // this helps to not saving stuff to file when debug
             // is disable
             return;
@@ -1231,7 +1223,7 @@ public class CMSEngine implements ICMSEngine {
     }
 
     public void debug(String msg) {
-        if (!debugOn()) { 
+        if (!debugOn()) {
             // this helps to not saving stuff to file when debug
             // is disable
             return;
@@ -1240,7 +1232,7 @@ public class CMSEngine implements ICMSEngine {
     }
 
     public void debug(Throwable e) {
-        if (!debugOn()) { 
+        if (!debugOn()) {
             // this helps to not saving stuff to file when debug
             // is disable
             return;
@@ -1259,13 +1251,14 @@ public class CMSEngine implements ICMSEngine {
     public void traceHashKey(String type, String key) {
         Debug.traceHashKey(type, key);
     }
+
     public void traceHashKey(String type, String key, String val) {
         Debug.traceHashKey(type, key, val);
     }
+
     public void traceHashKey(String type, String key, String val, String def) {
         Debug.traceHashKey(type, key, val, def);
     }
-
 
     public String getLogMessage(String msgID) {
         return getLogMessage(msgID, (String[]) null);
@@ -1289,103 +1282,122 @@ public class CMSEngine implements ICMSEngine {
         return getLogMessage(msgID, params);
     }
 
-    public String getLogMessage(String msgID, String p1, String p2, String p3, String p4) {
+    public String getLogMessage(String msgID, String p1, String p2, String p3,
+            String p4) {
         String params[] = { p1, p2, p3, p4 };
 
         return getLogMessage(msgID, params);
     }
 
-    public String getLogMessage(String msgID, String p1, String p2, String p3, String p4, String p5) {
+    public String getLogMessage(String msgID, String p1, String p2, String p3,
+            String p4, String p5) {
         String params[] = { p1, p2, p3, p4, p5 };
 
         return getLogMessage(msgID, params);
     }
 
-    public String getLogMessage(String msgID, String p1, String p2, String p3, String p4, String p5, String p6) {
+    public String getLogMessage(String msgID, String p1, String p2, String p3,
+            String p4, String p5, String p6) {
         String params[] = { p1, p2, p3, p4, p5, p6 };
 
         return getLogMessage(msgID, params);
     }
 
-    public String getLogMessage(String msgID, String p1, String p2, String p3, String p4, String p5, String p6, String p7) {
+    public String getLogMessage(String msgID, String p1, String p2, String p3,
+            String p4, String p5, String p6, String p7) {
         String params[] = { p1, p2, p3, p4, p5, p6, p7 };
 
         return getLogMessage(msgID, params);
     }
 
-    public String getLogMessage(String msgID, String p1, String p2, String p3, String p4, String p5, String p6, String p7, String p8) {
+    public String getLogMessage(String msgID, String p1, String p2, String p3,
+            String p4, String p5, String p6, String p7, String p8) {
         String params[] = { p1, p2, p3, p4, p5, p6, p7, p8 };
 
         return getLogMessage(msgID, params);
     }
 
-    public String getLogMessage(String msgID, String p1, String p2, String p3, String p4, String p5, String p6, String p7, String p8, String p9) {
+    public String getLogMessage(String msgID, String p1, String p2, String p3,
+            String p4, String p5, String p6, String p7, String p8, String p9) {
         String params[] = { p1, p2, p3, p4, p5, p6, p7, p8, p9 };
 
         return getLogMessage(msgID, params);
     }
 
-    public  void getSubjAltNameConfigDefaultParams(String name,
-        Vector params) {
+    public void getSubjAltNameConfigDefaultParams(String name, Vector params) {
         GeneralNameUtil.SubjAltNameGN.getDefaultParams(name, params);
     }
 
-    public  void getSubjAltNameConfigExtendedPluginInfo(String name,
-        Vector params) {
+    public void getSubjAltNameConfigExtendedPluginInfo(String name,
+            Vector params) {
         GeneralNameUtil.SubjAltNameGN.getExtendedPluginInfo(name, params);
     }
 
-    public  ISubjAltNameConfig createSubjAltNameConfig(String name, IConfigStore config, boolean isValueConfigured) throws EBaseException {
-        return new GeneralNameUtil.SubjAltNameGN(name, config, isValueConfigured);
+    public ISubjAltNameConfig createSubjAltNameConfig(String name,
+            IConfigStore config, boolean isValueConfigured)
+            throws EBaseException {
+        return new GeneralNameUtil.SubjAltNameGN(name, config,
+                isValueConfigured);
     }
 
-    public  GeneralName form_GeneralNameAsConstraints(String generalNameChoice, String value) throws EBaseException {
-        return GeneralNameUtil.form_GeneralNameAsConstraints(generalNameChoice, value);
+    public GeneralName form_GeneralNameAsConstraints(String generalNameChoice,
+            String value) throws EBaseException {
+        return GeneralNameUtil.form_GeneralNameAsConstraints(generalNameChoice,
+                value);
     }
 
-    public  GeneralName form_GeneralName(String generalNameChoice,
-        String value) throws EBaseException {
+    public GeneralName form_GeneralName(String generalNameChoice, String value)
+            throws EBaseException {
         return GeneralNameUtil.form_GeneralName(generalNameChoice, value);
     }
 
-    public  void getGeneralNameConfigDefaultParams(String name,
-        boolean isValueConfigured, Vector params) {
-        GeneralNameUtil.GeneralNameConfig.getDefaultParams(name, isValueConfigured, params);
+    public void getGeneralNameConfigDefaultParams(String name,
+            boolean isValueConfigured, Vector params) {
+        GeneralNameUtil.GeneralNameConfig.getDefaultParams(name,
+                isValueConfigured, params);
     }
 
-    public  void getGeneralNamesConfigDefaultParams(String name,
-        boolean isValueConfigured, Vector params) {
-        GeneralNameUtil.GeneralNamesConfig.getDefaultParams(name, isValueConfigured, params);
+    public void getGeneralNamesConfigDefaultParams(String name,
+            boolean isValueConfigured, Vector params) {
+        GeneralNameUtil.GeneralNamesConfig.getDefaultParams(name,
+                isValueConfigured, params);
     }
 
-    public  void getGeneralNameConfigExtendedPluginInfo(String name,
-        boolean isValueConfigured, Vector info) {
-        GeneralNameUtil.GeneralNameConfig.getExtendedPluginInfo(name, isValueConfigured, info);
+    public void getGeneralNameConfigExtendedPluginInfo(String name,
+            boolean isValueConfigured, Vector info) {
+        GeneralNameUtil.GeneralNameConfig.getExtendedPluginInfo(name,
+                isValueConfigured, info);
     }
 
-    public  void getGeneralNamesConfigExtendedPluginInfo(String name,
-        boolean isValueConfigured, Vector info) {
-        GeneralNameUtil.GeneralNamesConfig.getExtendedPluginInfo(name, isValueConfigured, info);
+    public void getGeneralNamesConfigExtendedPluginInfo(String name,
+            boolean isValueConfigured, Vector info) {
+        GeneralNameUtil.GeneralNamesConfig.getExtendedPluginInfo(name,
+                isValueConfigured, info);
     }
 
-    public  IGeneralNamesConfig createGeneralNamesConfig(String name,
-        IConfigStore config, boolean isValueConfigured,
-        boolean isPolicyEnabled) throws EBaseException {
-        return new GeneralNameUtil.GeneralNamesConfig(name, config, isValueConfigured, isPolicyEnabled);
+    public IGeneralNamesConfig createGeneralNamesConfig(String name,
+            IConfigStore config, boolean isValueConfigured,
+            boolean isPolicyEnabled) throws EBaseException {
+        return new GeneralNameUtil.GeneralNamesConfig(name, config,
+                isValueConfigured, isPolicyEnabled);
     }
 
-    public  IGeneralNameAsConstraintsConfig createGeneralNameAsConstraintsConfig(String name, IConfigStore config, boolean isValueConfigured,
-        boolean isPolicyEnabled) throws EBaseException {
-        return new GeneralNameUtil.GeneralNameAsConstraintsConfig(name, config, isValueConfigured, isPolicyEnabled);
+    public IGeneralNameAsConstraintsConfig createGeneralNameAsConstraintsConfig(
+            String name, IConfigStore config, boolean isValueConfigured,
+            boolean isPolicyEnabled) throws EBaseException {
+        return new GeneralNameUtil.GeneralNameAsConstraintsConfig(name, config,
+                isValueConfigured, isPolicyEnabled);
     }
 
-    public  IGeneralNamesAsConstraintsConfig createGeneralNamesAsConstraintsConfig(String name, IConfigStore config, boolean isValueConfigured,
-        boolean isPolicyEnabled) throws EBaseException {
-        return new GeneralNameUtil.GeneralNamesAsConstraintsConfig(name, config, isValueConfigured, isPolicyEnabled);
+    public IGeneralNamesAsConstraintsConfig createGeneralNamesAsConstraintsConfig(
+            String name, IConfigStore config, boolean isValueConfigured,
+            boolean isPolicyEnabled) throws EBaseException {
+        return new GeneralNameUtil.GeneralNamesAsConstraintsConfig(name,
+                config, isValueConfigured, isPolicyEnabled);
     }
 
     public ObjectIdentifier checkOID(String attrName, String value)
-        throws EBaseException {
+            throws EBaseException {
         return CertUtils.checkOID(attrName, value);
     }
 
@@ -1399,10 +1411,9 @@ public class CMSEngine implements ICMSEngine {
 
     public String getEncodedCert(X509Certificate cert) {
         try {
-            return
-                "-----BEGIN CERTIFICATE-----\n" +
-                CMS.BtoA(cert.getEncoded()) +
-                "\n-----END CERTIFICATE-----\n";
+            return "-----BEGIN CERTIFICATE-----\n"
+                    + CMS.BtoA(cert.getEncoded())
+                    + "\n-----END CERTIFICATE-----\n";
         } catch (Exception e) {
             return null;
         }
@@ -1416,7 +1427,8 @@ public class CMSEngine implements ICMSEngine {
         return CertUtils.verifySystemCertByTag(tag);
     }
 
-    public boolean verifySystemCertByNickname(String nickname, String certificateUsage) {
+    public boolean verifySystemCertByNickname(String nickname,
+            String certificateUsage) {
         return CertUtils.verifySystemCertByNickname(nickname, certificateUsage);
     }
 
@@ -1454,10 +1466,10 @@ public class CMSEngine implements ICMSEngine {
 
     public IMailNotification getMailNotification() {
         try {
-            String className = mConfig.getString("notificationClassName", 
+            String className = mConfig.getString("notificationClassName",
                     "com.netscape.cms.notification.MailNotification");
-            IMailNotification notification = (IMailNotification)
-                Class.forName(className).newInstance();
+            IMailNotification notification = (IMailNotification) Class.forName(
+                    className).newInstance();
 
             return notification;
         } catch (Exception e) {
@@ -1489,8 +1501,8 @@ public class CMSEngine implements ICMSEngine {
         try {
             String className = mConfig.getString("passwordCheckerClass",
                     "com.netscape.cms.password.PasswordChecker");
-            IPasswordCheck check = (IPasswordCheck)
-                Class.forName(className).newInstance();
+            IPasswordCheck check = (IPasswordCheck) Class.forName(className)
+                    .newInstance();
 
             return check;
         } catch (Exception e) {
@@ -1509,8 +1521,8 @@ public class CMSEngine implements ICMSEngine {
     /**
      * starts up subsystems in a subsystem list..
      */
-    private void startupSubsystems(SubsystemInfo[] sslist) 
-        throws EBaseException {
+    private void startupSubsystems(SubsystemInfo[] sslist)
+            throws EBaseException {
         ISubsystem ss = null;
 
         for (int i = 0; i < sslist.length; i++) {
@@ -1531,11 +1543,12 @@ public class CMSEngine implements ICMSEngine {
 
     public void terminateRequests() {
         java.util.Enumeration e = CommandQueue.mCommandQueue.keys();
-        
+
         while (e.hasMoreElements()) {
             Object thisRequest = e.nextElement();
-                   
-            HttpServlet thisServlet = (HttpServlet) CommandQueue.mCommandQueue.get(thisRequest);
+
+            HttpServlet thisServlet = (HttpServlet) CommandQueue.mCommandQueue
+                    .get(thisRequest);
 
             if (thisServlet != null) {
                 CommandQueue.mCommandQueue.remove((Object) thisRequest);
@@ -1543,6 +1556,7 @@ public class CMSEngine implements ICMSEngine {
             }
         }
     }
+
     public static boolean isNT() {
         return (File.separator.equals("\\"));
     }
@@ -1557,17 +1571,16 @@ public class CMSEngine implements ICMSEngine {
                 cmds = new String[3];
                 cmds[0] = "cmd";
                 cmds[1] = "/c";
-                cmds[2] = instanceDir +"\\" + cmd;
+                cmds[2] = instanceDir + "\\" + cmd;
             } else {
                 // UNIX
                 cmds = new String[3];
                 cmds[0] = "/bin/sh";
                 cmds[1] = "-c";
-                cmds[2] = instanceDir +"/" +cmd;
+                cmds[2] = instanceDir + "/" + cmd;
             }
 
-            Process process = Runtime.getRuntime().exec(cmds); 
-
+            Process process = Runtime.getRuntime().exec(cmds);
 
             process.waitFor();
 
@@ -1577,38 +1590,32 @@ public class CMSEngine implements ICMSEngine {
 
         }
     } // end shutdownHttpServer
+
     /**
-     * Shuts down subsystems in backwards order 
-     * exceptions are ignored. process exists at end to force exit.
+     * Shuts down subsystems in backwards order exceptions are ignored. process
+     * exists at end to force exit.
      */
     public void shutdown() {
         Logger.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_ADMIN,
-            ILogger.LL_INFO, Constants.SERVER_SHUTDOWN_MESSAGE);
+                ILogger.LL_INFO, Constants.SERVER_SHUTDOWN_MESSAGE);
 
         CMS.debug("CMSEngine.shutdown()");
-       
-/*
-        CommandQueue commandQueue = new CommandQueue();
-        Thread t1 = new Thread(commandQueue);
 
-        t1.setDaemon(true);
-        t1.start();
-        
-        // wait for command queue to emptied before proceeding to shutting down subsystems
-        Date time = new Date();
-        long startTime = time.getTime();
-        long timeOut = time.getTime();
-
-        while (t1.isAlive() && ((timeOut - startTime) < (60 * 1000))) //wait for 1 minute
-        {
-            try {
-                Thread.currentThread().sleep(5000); // sleep for 5 sec
-            }catch (java.lang.InterruptedException e) {
-            }
-            timeOut = time.getTime();
-        }
-        terminateRequests();
-*/
+        /*
+         * CommandQueue commandQueue = new CommandQueue(); Thread t1 = new
+         * Thread(commandQueue);
+         * 
+         * t1.setDaemon(true); t1.start();
+         * 
+         * // wait for command queue to emptied before proceeding to shutting
+         * down subsystems Date time = new Date(); long startTime =
+         * time.getTime(); long timeOut = time.getTime();
+         * 
+         * while (t1.isAlive() && ((timeOut - startTime) < (60 * 1000))) //wait
+         * for 1 minute { try { Thread.currentThread().sleep(5000); // sleep for
+         * 5 sec }catch (java.lang.InterruptedException e) { } timeOut =
+         * time.getTime(); } terminateRequests();
+         */
 
         shutdownSubsystems(mFinalSubsystems);
         shutdownSubsystems(mDynSubsystems);
@@ -1618,15 +1625,14 @@ public class CMSEngine implements ICMSEngine {
     }
 
     /**
-     * Shuts down subsystems in backwards order
-     * exceptions are ignored. process exists at end to force exit.
-     * Added extra call to shutdown the web server.
+     * Shuts down subsystems in backwards order exceptions are ignored. process
+     * exists at end to force exit. Added extra call to shutdown the web server.
      */
 
     public void forceShutdown() {
 
         Logger.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_ADMIN,
-            ILogger.LL_INFO, Constants.SERVER_SHUTDOWN_MESSAGE);
+                ILogger.LL_INFO, Constants.SERVER_SHUTDOWN_MESSAGE);
 
         CMS.debug("CMSEngine.forceShutdown()");
 
@@ -1636,16 +1642,19 @@ public class CMSEngine implements ICMSEngine {
         t1.setDaemon(true);
         t1.start();
 
-        // wait for command queue to emptied before proceeding to shutting down subsystems
+        // wait for command queue to emptied before proceeding to shutting down
+        // subsystems
         Date time = new Date();
         long startTime = time.getTime();
         long timeOut = time.getTime();
 
-        while (t1.isAlive() && ((timeOut - startTime) < (60 * 1000))) //wait for 1 minute
+        while (t1.isAlive() && ((timeOut - startTime) < (60 * 1000))) // wait
+                                                                      // for 1
+                                                                      // minute
         {
             try {
-				Thread.sleep(5000); // sleep for 5 sec
-            }catch (java.lang.InterruptedException e) {
+                Thread.sleep(5000); // sleep for 5 sec
+            } catch (java.lang.InterruptedException e) {
             }
             timeOut = time.getTime();
         }
@@ -1662,12 +1671,11 @@ public class CMSEngine implements ICMSEngine {
      * shuts down a subsystem list in reverse order.
      */
     private void shutdownSubsystems(SubsystemInfo[] sslist) {
-        if (sslist == null) 
+        if (sslist == null)
             return;
 
         for (int i = sslist.length - 1; i >= 0; i--) {
-            if (sslist[i] != null && sslist[i].mInstance != null) 
-            {
+            if (sslist[i] != null && sslist[i].mInstance != null) {
                 sslist[i].mInstance.shutdown();
             }
         }
@@ -1694,7 +1702,8 @@ public class CMSEngine implements ICMSEngine {
         } catch (EBaseException e) {
             // intercept this for now -- don't want to change the callers
             Logger.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SDR_ADD_ERROR", e.toString()));
+                    ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_SDR_ADD_ERROR", e.toString()));
         }
     }
 
@@ -1721,23 +1730,21 @@ public class CMSEngine implements ICMSEngine {
         return mConfigSDSessionId;
     }
 
-    public static void upgradeConfig(IConfigStore c)
-        throws EBaseException {
+    public static void upgradeConfig(IConfigStore c) throws EBaseException {
         String version = c.getString("cms.version", "pre4.2");
 
         if (version.equals("4.22")) {
             Upgrade.perform422to45(c);
-        }else if (version.equals("4.2")) {
+        } else if (version.equals("4.2")) {
             // SUPPORT UPGRADE FROM 4.2 to 4.2 (SP2)
             Upgrade.perform42to422(c);
             Upgrade.perform422to45(c);
         } else {
             // ONLY SUPPORT UPGRADE FROM 4.2 to 4.2 (SP2)
             /**
-             if (!version.equals("pre4.2"))
-             return;
-
-             Upgrade.perform(c);
+             * if (!version.equals("pre4.2")) return;
+             * 
+             * Upgrade.perform(c);
              **/
         }
     }
@@ -1750,14 +1757,15 @@ public class CMSEngine implements ICMSEngine {
         ICertificateRepository certDB = null;
 
         try {
-            ICertificateAuthority ca = (ICertificateAuthority)
-                    SubsystemRegistry.getInstance().get("ca");
+            ICertificateAuthority ca = (ICertificateAuthority) SubsystemRegistry
+                    .getInstance().get("ca");
 
             if (ca != null) {
                 certDB = (ICertificateRepository) ca.getCertificateRepository();
             }
         } catch (Exception e) {
-            CMS.debug("CMSEngine: " + CMS.getLogMessage("CMSCORE_AUTH_AGENT_CERT_REPO"));
+            CMS.debug("CMSEngine: "
+                    + CMS.getLogMessage("CMSCORE_AUTH_AGENT_CERT_REPO"));
         }
 
         return certDB;
@@ -1767,15 +1775,16 @@ public class CMSEngine implements ICMSEngine {
         IRequestQueue queue = null;
 
         try {
-            IRegistrationAuthority ra = (IRegistrationAuthority)
-                SubsystemRegistry.getInstance().get("ra");
+            IRegistrationAuthority ra = (IRegistrationAuthority) SubsystemRegistry
+                    .getInstance().get("ra");
 
             if (ra != null) {
-                  queue = ra.getRequestQueue();
+                queue = ra.getRequestQueue();
             }
 
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_AGENT_REQUEST_QUEUE"));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_AUTH_AGENT_REQUEST_QUEUE"));
         }
 
         return queue;
@@ -1784,7 +1793,8 @@ public class CMSEngine implements ICMSEngine {
     private VerifiedCerts mVCList = null;
     private int mVCListSize = 0;
 
-    public void setListOfVerifiedCerts(int size, long interval, long unknownStateInterval) {
+    public void setListOfVerifiedCerts(int size, long interval,
+            long unknownStateInterval) {
         if (size > 0 && mVCListSize == 0) {
             mVCListSize = size;
             mVCList = new VerifiedCerts(size, interval, unknownStateInterval);
@@ -1802,9 +1812,9 @@ public class CMSEngine implements ICMSEngine {
             if (mVCList != null) {
                 result = mVCList.check(cert);
             }
-            if (result != VerifiedCert.REVOKED &&
-                result != VerifiedCert.NOT_REVOKED &&
-                result != VerifiedCert.CHECKED) {
+            if (result != VerifiedCert.REVOKED
+                    && result != VerifiedCert.NOT_REVOKED
+                    && result != VerifiedCert.CHECKED) {
 
                 CertificateRepository certDB = (CertificateRepository) getCertDB();
 
@@ -1819,7 +1829,8 @@ public class CMSEngine implements ICMSEngine {
                                 mVCList.update(cert, VerifiedCert.NOT_REVOKED);
                         }
                     } catch (EBaseException e) {
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_AGENT_REVO_STATUS"));
+                        log(ILogger.LL_FAILURE,
+                                CMS.getLogMessage("CMSCORE_AUTH_AGENT_REVO_STATUS"));
                     }
                 } else {
                     IRequestQueue queue = getReqQueue();
@@ -1828,22 +1839,27 @@ public class CMSEngine implements ICMSEngine {
                         IRequest checkRevReq = null;
 
                         try {
-                            checkRevReq = queue.newRequest(CertRequestConstants.GETREVOCATIONINFO_REQUEST);
-                            checkRevReq.setExtData(IRequest.REQ_TYPE,
-                                CertRequestConstants.GETREVOCATIONINFO_REQUEST);
+                            checkRevReq = queue
+                                    .newRequest(CertRequestConstants.GETREVOCATIONINFO_REQUEST);
+                            checkRevReq
+                                    .setExtData(
+                                            IRequest.REQ_TYPE,
+                                            CertRequestConstants.GETREVOCATIONINFO_REQUEST);
                             checkRevReq.setExtData(IRequest.REQUESTOR_TYPE,
-                                IRequest.REQUESTOR_RA);
+                                    IRequest.REQUESTOR_RA);
 
                             X509CertImpl agentCerts[] = new X509CertImpl[certificates.length];
 
                             for (int i = 0; i < certificates.length; i++) {
                                 agentCerts[i] = (X509CertImpl) certificates[i];
                             }
-                            checkRevReq.setExtData(IRequest.ISSUED_CERTS, agentCerts);
+                            checkRevReq.setExtData(IRequest.ISSUED_CERTS,
+                                    agentCerts);
 
                             queue.processRequest(checkRevReq);
                         } catch (EBaseException e) {
-                            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_AGENT_PROCESS_CHECKING"));
+                            log(ILogger.LL_FAILURE,
+                                    CMS.getLogMessage("CMSCORE_AUTH_AGENT_PROCESS_CHECKING"));
                         }
 
                         RequestStatus status = checkRevReq.getRequestStatus();
@@ -1857,12 +1873,14 @@ public class CMSEngine implements ICMSEngine {
                                 if (name.equals(IRequest.REVOKED_CERTS)) {
                                     revoked = true;
                                     if (mVCList != null)
-                                        mVCList.update(cert, VerifiedCert.REVOKED);
+                                        mVCList.update(cert,
+                                                VerifiedCert.REVOKED);
                                 }
                             }
                             if (revoked == false) {
                                 if (mVCList != null)
-                                    mVCList.update(cert, VerifiedCert.NOT_REVOKED);
+                                    mVCList.update(cert,
+                                            VerifiedCert.NOT_REVOKED);
                             }
 
                         } else {
@@ -1880,11 +1898,10 @@ public class CMSEngine implements ICMSEngine {
     }
 
     private void log(int level, String msg) {
-        Logger.getLogger().log(ILogger.EV_SYSTEM, null, 
-            ILogger.S_AUTHENTICATION, level, msg);
+        Logger.getLogger().log(ILogger.EV_SYSTEM, null,
+                ILogger.S_AUTHENTICATION, level, msg);
     }
 }
-
 
 class WarningListener implements ILogEventListener {
     private StringBuffer mSB = null;
@@ -1918,28 +1935,28 @@ class WarningListener implements ILogEventListener {
         return null;
     }
 
-    public void init(ISubsystem owner, IConfigStore config) 
-        throws EBaseException {
+    public void init(ISubsystem owner, IConfigStore config)
+            throws EBaseException {
     }
 
     public void startup() {
     }
 
     /**
-     * Retrieve last "maxLine" number of system log with log lever >"level"
-     * and from  source "source". If the parameter is omitted. All entries
-     * are sent back.
+     * Retrieve last "maxLine" number of system log with log lever >"level" and
+     * from source "source". If the parameter is omitted. All entries are sent
+     * back.
      */
-    public synchronized NameValuePairs retrieveLogContent(Hashtable req) throws ServletException,
-            IOException, EBaseException {
+    public synchronized NameValuePairs retrieveLogContent(Hashtable req)
+            throws ServletException, IOException, EBaseException {
         return null;
     }
 
     /**
      * Retrieve log file list.
      */
-    public synchronized NameValuePairs retrieveLogList(Hashtable req) throws ServletException,
-            IOException, EBaseException {
+    public synchronized NameValuePairs retrieveLogList(Hashtable req)
+            throws ServletException, IOException, EBaseException {
         return null;
     }
 
@@ -1964,14 +1981,13 @@ class WarningListener implements ILogEventListener {
     }
 }
 
-
 class SubsystemInfo {
     public final String mId;
     public final ISubsystem mInstance;
+
     public SubsystemInfo(String id, ISubsystem ssInstance) {
         mId = id;
         mInstance = ssInstance;
     }
-    
-}
 
+}

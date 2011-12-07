@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.kra;
 
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FilterOutputStream;
@@ -65,51 +64,34 @@ import com.netscape.cmscore.dbs.KeyRecord;
 import com.netscape.cmscore.util.Debug;
 
 /**
- * A class representing keygen/archival request procesor for requests
- *  from netkey RAs.
- * the user private key of the encryption cert is wrapped with a
- * session symmetric key.  The session symmetric key is wrapped with the
- * storage key and stored in the internal database for long term
- * storage.
- * The user private key of the encryption cert is to be wrapped with the
- * DES key which came in in the request wrapped with the KRA
- * transport cert.  The wrapped user private key is then sent back to
- * the caller (netkey RA) ...netkey RA should already has kek-wrapped
- * des key from the TKS. They are to be sent together back to
- * the token.
- *
+ * A class representing keygen/archival request procesor for requests from
+ * netkey RAs. the user private key of the encryption cert is wrapped with a
+ * session symmetric key. The session symmetric key is wrapped with the storage
+ * key and stored in the internal database for long term storage. The user
+ * private key of the encryption cert is to be wrapped with the DES key which
+ * came in in the request wrapped with the KRA transport cert. The wrapped user
+ * private key is then sent back to the caller (netkey RA) ...netkey RA should
+ * already has kek-wrapped des key from the TKS. They are to be sent together
+ * back to the token.
+ * 
  * @author Christina Fu (cfu)
  * @version $Revision$, $Date$
  */
 
 public class NetkeyKeygenService implements IService {
     public final static String ATTR_KEY_RECORD = "keyRecord";
-    public final static String ATTR_PROOF_OF_ARCHIVAL =
-        "proofOfArchival";
+    public final static String ATTR_PROOF_OF_ARCHIVAL = "proofOfArchival";
 
-    // private 
-    private final static String
-        LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST =
-        "LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST_4";
-    private final static String
-        LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST_PROCESSED =
-        "LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST_PROCESSED_3";
-    // these need to be defined in LogMessages_en.properties later when we do this
-    private final static String
-	    LOGGING_SIGNED_AUDIT_SERVER_SIDE_KEYGEN_REQUEST =
-	    "LOGGING_SIGNED_AUDIT_SERVER_SIDE_KEYGEN_REQUEST_3";
-    private final static String
-	    LOGGING_SIGNED_AUDIT_SERVER_SIDE_KEYGEN_REQUEST_PROCESSED_SUCCESS =
-	    "LOGGING_SIGNED_AUDIT_SERVER_SIDE_KEYGEN_REQUEST_PROCESSED_SUCCESS_4";
-    private final static String
-	    LOGGING_SIGNED_AUDIT_SERVER_SIDE_KEYGEN_REQUEST_PROCESSED_FAILURE =
-	    "LOGGING_SIGNED_AUDIT_SERVER_SIDE_KEYGEN_REQUEST_PROCESSED_FAILURE_3";
-    private final static String
-        LOGGING_SIGNED_AUDIT_PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_SUCCESS =
-        "LOGGING_SIGNED_AUDIT_PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_SUCCESS_4";
-    private final static String
-        LOGGING_SIGNED_AUDIT_PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_FAILURE =
-        "LOGGING_SIGNED_AUDIT_PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_FAILURE_4";
+    // private
+    private final static String LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST = "LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST_4";
+    private final static String LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST_PROCESSED = "LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST_PROCESSED_3";
+    // these need to be defined in LogMessages_en.properties later when we do
+    // this
+    private final static String LOGGING_SIGNED_AUDIT_SERVER_SIDE_KEYGEN_REQUEST = "LOGGING_SIGNED_AUDIT_SERVER_SIDE_KEYGEN_REQUEST_3";
+    private final static String LOGGING_SIGNED_AUDIT_SERVER_SIDE_KEYGEN_REQUEST_PROCESSED_SUCCESS = "LOGGING_SIGNED_AUDIT_SERVER_SIDE_KEYGEN_REQUEST_PROCESSED_SUCCESS_4";
+    private final static String LOGGING_SIGNED_AUDIT_SERVER_SIDE_KEYGEN_REQUEST_PROCESSED_FAILURE = "LOGGING_SIGNED_AUDIT_SERVER_SIDE_KEYGEN_REQUEST_PROCESSED_FAILURE_3";
+    private final static String LOGGING_SIGNED_AUDIT_PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_SUCCESS = "LOGGING_SIGNED_AUDIT_PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_SUCCESS_4";
+    private final static String LOGGING_SIGNED_AUDIT_PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_FAILURE = "LOGGING_SIGNED_AUDIT_PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_FAILURE_4";
     private IKeyRecoveryAuthority mKRA = null;
     private ITransportKeyUnit mTransportUnit = null;
     private IStorageKeyUnit mStorageUnit = null;
@@ -132,34 +114,31 @@ public class NetkeyKeygenService implements IService {
         PKIArchiveOptions archOpts = null;
 
         try {
-            archOpts = (PKIArchiveOptions)
-                    (new PKIArchiveOptions.Template()).decode(bis);
+            archOpts = (PKIArchiveOptions) (new PKIArchiveOptions.Template())
+                    .decode(bis);
         } catch (Exception e) {
-            CMS.debug("NetkeyKeygenService: getPKIArchiveOptions " + e.toString());
+            CMS.debug("NetkeyKeygenService: getPKIArchiveOptions "
+                    + e.toString());
         }
         return archOpts;
     }
 
-    public  KeyPair generateKeyPair(
-        KeyPairAlgorithm kpAlg, int keySize, PQGParams pqg) 
-        throws NoSuchAlgorithmException, TokenException, InvalidAlgorithmParameterException,
-            InvalidParameterException, PQGParamGenException {
+    public KeyPair generateKeyPair(KeyPairAlgorithm kpAlg, int keySize,
+            PQGParams pqg) throws NoSuchAlgorithmException, TokenException,
+            InvalidAlgorithmParameterException, InvalidParameterException,
+            PQGParamGenException {
 
         CryptoToken token = mKRA.getKeygenToken();
-	
-        CMS.debug("NetkeyKeygenService: key pair is to be generated on slot: "+token.getName());
+
+        CMS.debug("NetkeyKeygenService: key pair is to be generated on slot: "
+                + token.getName());
 
         /*
-	       make it temporary so can work with HSM
-           netHSM works with
-              temporary == true
-              sensitive == <do not specify>
-              extractable == <do not specify>
-           LunaSA2 works with
-              temporary == true
-              sensitive == true
-              extractable == true
-        */
+         * make it temporary so can work with HSM netHSM works with temporary ==
+         * true sensitive == <do not specify> extractable == <do not specify>
+         * LunaSA2 works with temporary == true sensitive == true extractable ==
+         * true
+         */
         KeyPairGenerator kpGen = token.getKeyPairGenerator(kpAlg);
         IConfigStore config = CMS.getConfigStore();
         IConfigStore kgConfig = config.getSubStore("kra.keygen");
@@ -167,19 +146,19 @@ public class NetkeyKeygenService implements IService {
         boolean sp = false;
         boolean ep = false;
         if (kgConfig != null) {
-          try {
-            tp = kgConfig.getBoolean("temporaryPairs", false);
-            sp = kgConfig.getBoolean("sensitivePairs", false);
-            ep = kgConfig.getBoolean("extractablePairs", false);
-            // by default, let nethsm work
-            if ((tp == false) && (sp == false) && (ep == false)) {
+            try {
+                tp = kgConfig.getBoolean("temporaryPairs", false);
+                sp = kgConfig.getBoolean("sensitivePairs", false);
+                ep = kgConfig.getBoolean("extractablePairs", false);
+                // by default, let nethsm work
+                if ((tp == false) && (sp == false) && (ep == false)) {
+                    tp = true;
+                }
+            } catch (Exception e) {
+                CMS.debug("NetkeyKeygenService: kgConfig.getBoolean failed");
+                // by default, let nethsm work
                 tp = true;
             }
-          } catch (Exception e) {
-	        CMS.debug("NetkeyKeygenService: kgConfig.getBoolean failed");
-            // by default, let nethsm work
-            tp = true;
-          }
         } else {
             // by default, let nethsm work
             CMS.debug("NetkeyKeygenService: cannot find config store: kra.keygen, assume temporaryPairs==true");
@@ -187,18 +166,18 @@ public class NetkeyKeygenService implements IService {
         }
         /* only specified to "true" will it be set */
         if (tp == true) {
-	        CMS.debug("NetkeyKeygenService: setting temporaryPairs to true");
-	        kpGen.temporaryPairs(true);
+            CMS.debug("NetkeyKeygenService: setting temporaryPairs to true");
+            kpGen.temporaryPairs(true);
         }
         if (sp == true) {
-	        CMS.debug("NetkeyKeygenService: setting sensitivePairs to true");
+            CMS.debug("NetkeyKeygenService: setting sensitivePairs to true");
             kpGen.sensitivePairs(true);
         }
         if (ep == true) {
-	        CMS.debug("NetkeyKeygenService: setting extractablePairs to true");
+            CMS.debug("NetkeyKeygenService: setting extractablePairs to true");
             kpGen.extractablePairs(true);
         }
- 
+
         if (kpAlg == KeyPairAlgorithm.DSA) {
             if (pqg == null) {
                 kpGen.initialize(keySize);
@@ -210,33 +189,29 @@ public class NetkeyKeygenService implements IService {
         }
 
         if (pqg == null) {
-			KeyPair kp = null;
-			synchronized (new Object()) {
+            KeyPair kp = null;
+            synchronized (new Object()) {
                 CMS.debug("NetkeyKeygenService: key pair generation begins");
-            	kp = kpGen.genKeyPair();
+                kp = kpGen.genKeyPair();
                 CMS.debug("NetkeyKeygenService: key pair generation done");
-				mKRA.addEntropy(true);
-			}
-			return kp;
+                mKRA.addEntropy(true);
+            }
+            return kp;
         } else {
             // DSA
             KeyPair kp = null;
 
-            /* no DSA for now... netkey prototype
-            do {
-                // 602548 NSS bug - to overcome it, we use isBadDSAKeyPair
-                kp = kpGen.genKeyPair();
-            }
-            while (isBadDSAKeyPair(kp)); 
-            */
+            /*
+             * no DSA for now... netkey prototype do { // 602548 NSS bug - to
+             * overcome it, we use isBadDSAKeyPair kp = kpGen.genKeyPair(); }
+             * while (isBadDSAKeyPair(kp));
+             */
             return kp;
         }
     }
 
-
-
-    public  KeyPair generateKeyPair( String alg,
-        int keySize, PQGParams pqg) throws EBaseException {
+    public KeyPair generateKeyPair(String alg, int keySize, PQGParams pqg)
+            throws EBaseException {
 
         KeyPairAlgorithm kpAlg = null;
 
@@ -246,21 +221,24 @@ public class NetkeyKeygenService implements IService {
             kpAlg = KeyPairAlgorithm.DSA;
 
         try {
-            KeyPair kp = generateKeyPair( kpAlg, keySize, pqg);
+            KeyPair kp = generateKeyPair(kpAlg, keySize, pqg);
 
             return kp;
         } catch (InvalidParameterException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_KEYSIZE_PARAMS",
-                        "" + keySize));
+            throw new EBaseException(CMS.getUserMessage(
+                    "CMS_BASE_INVALID_KEYSIZE_PARAMS", "" + keySize));
         } catch (PQGParamGenException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_PQG_GEN_FAILED"));
+            throw new EBaseException(
+                    CMS.getUserMessage("CMS_BASE_PQG_GEN_FAILED"));
         } catch (NoSuchAlgorithmException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_ALG_NOT_SUPPORTED",
-                        kpAlg.toString()));
+            throw new EBaseException(CMS.getUserMessage(
+                    "CMS_BASE_ALG_NOT_SUPPORTED", kpAlg.toString()));
         } catch (TokenException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_ERROR_1", e.toString()));
+            throw new EBaseException(CMS.getUserMessage(
+                    "CMS_BASE_TOKEN_ERROR_1", e.toString()));
         } catch (InvalidAlgorithmParameterException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_ALG_NOT_SUPPORTED", "DSA"));
+            throw new EBaseException(CMS.getUserMessage(
+                    "CMS_BASE_ALG_NOT_SUPPORTED", "DSA"));
         }
     }
 
@@ -268,11 +246,8 @@ public class NetkeyKeygenService implements IService {
         // All this streaming is lame, but Base64OutputStream needs a
         // PrintStream
         ByteArrayOutputStream output = new ByteArrayOutputStream();
-        Base64OutputStream b64 = new Base64OutputStream(new
-                PrintStream(new
-                    FilterOutputStream(output)
-                )
-            );
+        Base64OutputStream b64 = new Base64OutputStream(new PrintStream(
+                new FilterOutputStream(output)));
 
         b64.write(bytes);
         b64.flush();
@@ -283,34 +258,32 @@ public class NetkeyKeygenService implements IService {
     }
 
     // this encrypts bytes with a symmetric key
-    public byte[] encryptIt(byte[] toBeEncrypted, SymmetricKey symKey, CryptoToken token,
-			    IVParameterSpec IV)
-    {
-	try {
-	    Cipher cipher = token.getCipherContext(
-                    EncryptionAlgorithm.DES3_CBC_PAD);
-                                                                                
-	    cipher.initEncrypt(symKey, IV);
-	    byte pri[] = cipher.doFinal(toBeEncrypted);
-	    return pri;
-	} catch (Exception e) {
-	    CMS.debug("NetkeyKeygenService:initEncrypt() threw exception: "+e.toString());
+    public byte[] encryptIt(byte[] toBeEncrypted, SymmetricKey symKey,
+            CryptoToken token, IVParameterSpec IV) {
+        try {
+            Cipher cipher = token
+                    .getCipherContext(EncryptionAlgorithm.DES3_CBC_PAD);
+
+            cipher.initEncrypt(symKey, IV);
+            byte pri[] = cipher.doFinal(toBeEncrypted);
+            return pri;
+        } catch (Exception e) {
+            CMS.debug("NetkeyKeygenService:initEncrypt() threw exception: "
+                    + e.toString());
             return null;
         }
 
     }
 
-
     /**
      * Services an archival request from netkey.
      * <P>
-     *
+     * 
      * @param request enrollment request
      * @return serving successful or not
      * @exception EBaseException failed to serve
      */
-    public boolean serviceRequest(IRequest request) 
-        throws EBaseException {
+    public boolean serviceRequest(IRequest request) throws EBaseException {
         String auditMessage = null;
         String auditSubjectID = null;
         String auditRequesterID = "TPSagent";
@@ -318,129 +291,135 @@ public class NetkeyKeygenService implements IService {
         String auditPublicKey = ILogger.UNIDENTIFIED;
         byte[] wrapped_des_key;
 
-        byte iv[] = {0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1};
-	String iv_s ="";
+        byte iv[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
+        String iv_s = "";
         try {
             SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
             random.nextBytes(iv);
         } catch (Exception e) {
-            CMS.debug("NetkeyKeygenService.serviceRequest:  "+ e.toString());
+            CMS.debug("NetkeyKeygenService.serviceRequest:  " + e.toString());
         }
 
-	IVParameterSpec algParam = new IVParameterSpec(iv);
+        IVParameterSpec algParam = new IVParameterSpec(iv);
 
         wrapped_des_key = null;
-	boolean archive = true;
-	PK11SymKey sk= null;
-	byte[] publicKeyData = null;;
-	String PubKey = "";
+        boolean archive = true;
+        PK11SymKey sk = null;
+        byte[] publicKeyData = null;
+        ;
+        String PubKey = "";
 
         String id = request.getRequestId().toString();
         if (id != null) {
             auditArchiveID = id.trim();
         }
 
-	String rArchive = request.getExtDataInString(IRequest.NETKEY_ATTR_ARCHIVE_FLAG);
-	if (rArchive.equals("true")) {
-	    archive = true;
-            CMS.debug("NetkeyKeygenService: serviceRequest " +"archival requested for serverSideKeyGen");
-	} else {
-	    archive = false;
-            CMS.debug("NetkeyKeygenService: serviceRequest " +"archival not requested for serverSideKeyGen");
+        String rArchive = request
+                .getExtDataInString(IRequest.NETKEY_ATTR_ARCHIVE_FLAG);
+        if (rArchive.equals("true")) {
+            archive = true;
+            CMS.debug("NetkeyKeygenService: serviceRequest "
+                    + "archival requested for serverSideKeyGen");
+        } else {
+            archive = false;
+            CMS.debug("NetkeyKeygenService: serviceRequest "
+                    + "archival not requested for serverSideKeyGen");
         }
 
         String rCUID = request.getExtDataInString(IRequest.NETKEY_ATTR_CUID);
-        String rUserid = request.getExtDataInString(IRequest.NETKEY_ATTR_USERID);
-	String rKeysize = request.getExtDataInString(IRequest.NETKEY_ATTR_KEY_SIZE);
-	int keysize = Integer.parseInt(rKeysize);
-	auditSubjectID=rCUID+":"+rUserid;
+        String rUserid = request
+                .getExtDataInString(IRequest.NETKEY_ATTR_USERID);
+        String rKeysize = request
+                .getExtDataInString(IRequest.NETKEY_ATTR_KEY_SIZE);
+        int keysize = Integer.parseInt(rKeysize);
+        auditSubjectID = rCUID + ":" + rUserid;
 
         SessionContext sContext = SessionContext.getContext();
-        String agentId="";
+        String agentId = "";
         if (sContext != null) {
-            agentId =
-                (String) sContext.get(SessionContext.USER_ID);
+            agentId = (String) sContext.get(SessionContext.USER_ID);
         }
 
         auditMessage = CMS.getLogMessage(
-            LOGGING_SIGNED_AUDIT_SERVER_SIDE_KEYGEN_REQUEST,
-              agentId,
-              ILogger.SUCCESS,
-              auditSubjectID);
+                LOGGING_SIGNED_AUDIT_SERVER_SIDE_KEYGEN_REQUEST, agentId,
+                ILogger.SUCCESS, auditSubjectID);
 
         audit(auditMessage);
-		    
 
-        String rWrappedDesKeyString = request.getExtDataInString(IRequest.NETKEY_ATTR_DRMTRANS_DES_KEY);
-	//        CMS.debug("NetkeyKeygenService: received DRM-trans-wrapped DES key ="+rWrappedDesKeyString);
-        wrapped_des_key = com.netscape.cmsutil.util.Utils.SpecialDecode(rWrappedDesKeyString);
+        String rWrappedDesKeyString = request
+                .getExtDataInString(IRequest.NETKEY_ATTR_DRMTRANS_DES_KEY);
+        // CMS.debug("NetkeyKeygenService: received DRM-trans-wrapped DES key ="+rWrappedDesKeyString);
+        wrapped_des_key = com.netscape.cmsutil.util.Utils
+                .SpecialDecode(rWrappedDesKeyString);
         CMS.debug("NetkeyKeygenService: wrapped_des_key specialDecoded");
 
-	// get the token for generating user keys
-	CryptoToken keygenToken = mKRA.getKeygenToken();
-	if (keygenToken == null) {
-	    CMS.debug("NetkeyKeygenService: failed getting keygenToken");
-	    request.setExtData(IRequest.RESULT, Integer.valueOf(10));
-	    return false;
-	} else 
-	    CMS.debug("NetkeyKeygenService: got keygenToken");
+        // get the token for generating user keys
+        CryptoToken keygenToken = mKRA.getKeygenToken();
+        if (keygenToken == null) {
+            CMS.debug("NetkeyKeygenService: failed getting keygenToken");
+            request.setExtData(IRequest.RESULT, Integer.valueOf(10));
+            return false;
+        } else
+            CMS.debug("NetkeyKeygenService: got keygenToken");
 
-        if ((wrapped_des_key != null) &&
-            (wrapped_des_key.length > 0)) {
+        if ((wrapped_des_key != null) && (wrapped_des_key.length > 0)) {
 
             // unwrap the DES key
-            sk= (PK11SymKey) mTransportUnit.unwrap_sym(wrapped_des_key);
+            sk = (PK11SymKey) mTransportUnit.unwrap_sym(wrapped_des_key);
 
-            /* XXX could be done in HSM*/
+            /* XXX could be done in HSM */
             KeyPair keypair = null;
 
             CMS.debug("NetkeyKeygenService: about to generate key pair");
 
-            keypair = generateKeyPair("RSA"/*alg*/,
-                      keysize /*Integer.parseInt(len)*/, null /*pqgParams*/);
+            keypair = generateKeyPair("RSA"/* alg */, keysize /*
+                                                               * Integer.parseInt
+                                                               * (len)
+                                                               */, null /* pqgParams */);
 
             if (keypair == null) {
-                CMS.debug("NetkeyKeygenService: failed generating key pair for "+rCUID+":"+rUserid);
+                CMS.debug("NetkeyKeygenService: failed generating key pair for "
+                        + rCUID + ":" + rUserid);
                 request.setExtData(IRequest.RESULT, Integer.valueOf(4));
 
-                auditMessage = CMS.getLogMessage(
-                    LOGGING_SIGNED_AUDIT_SERVER_SIDE_KEYGEN_REQUEST_PROCESSED_FAILURE,
-                        agentId,
-                        ILogger.FAILURE,
-                      auditSubjectID);
+                auditMessage = CMS
+                        .getLogMessage(
+                                LOGGING_SIGNED_AUDIT_SERVER_SIDE_KEYGEN_REQUEST_PROCESSED_FAILURE,
+                                agentId, ILogger.FAILURE, auditSubjectID);
 
                 audit(auditMessage);
 
                 return false;
             }
-            CMS.debug("NetkeyKeygenService: finished generate key pair for " +rCUID+":"+rUserid);
+            CMS.debug("NetkeyKeygenService: finished generate key pair for "
+                    + rCUID + ":" + rUserid);
 
             try {
-		        publicKeyData = keypair.getPublic().getEncoded();
-		        if (publicKeyData == null) {
-		            request.setExtData(IRequest.RESULT, Integer.valueOf(4));
-		            CMS.debug("NetkeyKeygenService: failed getting publickey encoded");
-		            return false;
-		        } else {
-		            //CMS.debug("NetkeyKeygenService: public key binary length ="+ publicKeyData.length);
-		            PubKey = base64Encode(publicKeyData);
+                publicKeyData = keypair.getPublic().getEncoded();
+                if (publicKeyData == null) {
+                    request.setExtData(IRequest.RESULT, Integer.valueOf(4));
+                    CMS.debug("NetkeyKeygenService: failed getting publickey encoded");
+                    return false;
+                } else {
+                    // CMS.debug("NetkeyKeygenService: public key binary length ="+
+                    // publicKeyData.length);
+                    PubKey = base64Encode(publicKeyData);
 
-		            //CMS.debug("NetkeyKeygenService: public key length =" + PubKey.length());
-		            request.setExtData("public_key", PubKey);
-	    	    }
+                    // CMS.debug("NetkeyKeygenService: public key length =" +
+                    // PubKey.length());
+                    request.setExtData("public_key", PubKey);
+                }
 
-                auditMessage = CMS.getLogMessage(
-                    LOGGING_SIGNED_AUDIT_SERVER_SIDE_KEYGEN_REQUEST_PROCESSED_SUCCESS,
-                        agentId,
-                        ILogger.SUCCESS,
-                        auditSubjectID,
-                        PubKey);
+                auditMessage = CMS
+                        .getLogMessage(
+                                LOGGING_SIGNED_AUDIT_SERVER_SIDE_KEYGEN_REQUEST_PROCESSED_SUCCESS,
+                                agentId, ILogger.SUCCESS, auditSubjectID,
+                                PubKey);
 
                 audit(auditMessage);
 
-                //...extract the private key handle (not privatekeydata)
-                java.security.PrivateKey privKey =
-                    keypair.getPrivate();
+                // ...extract the private key handle (not privatekeydata)
+                java.security.PrivateKey privKey = keypair.getPrivate();
 
                 if (privKey == null) {
                     request.setExtData(IRequest.RESULT, Integer.valueOf(4));
@@ -450,159 +429,159 @@ public class NetkeyKeygenService implements IService {
                     CMS.debug("NetkeyKeygenService: got private key");
                 }
 
-		if (sk == null) {
-		    CMS.debug("NetkeyKeygenService: no DES key");
-		    request.setExtData(IRequest.RESULT, Integer.valueOf(4));
-            return false;
-		} else {
-		    CMS.debug("NetkeyKeygenService: received DES key");
-		}
-
-		// 3 wrapping should be done in HSM
-		// wrap private key with DES
-		KeyWrapper symWrap =
-		    keygenToken.getKeyWrapper(KeyWrapAlgorithm.DES3_CBC_PAD);
-		CMS.debug("NetkeyKeygenService: wrapper token=" + keygenToken.getName());
-		CMS.debug("NetkeyKeygenService: got key wrapper");
-
-		CMS.debug("NetkeyKeygenService: key transport key is on slot: "+sk.getOwningToken().getName());
-		symWrap.initWrap((SymmetricKey)sk, algParam);
-		byte wrapped[] = symWrap.wrap((PrivateKey)privKey);
-		/*
-		  CMS.debug("NetkeyKeygenService: wrap called");
-		  CMS.debug(wrapped);
-		*/
-		/* This is for using with my decryption tool and ASN1
-		   decoder to see if the private key is indeed PKCS#8 format
-		   { // cfu debug
-		   String oFilePath = "/tmp/wrappedPrivKey.bin";
-		   File file = new File(oFilePath);
-		   FileOutputStream ostream = new FileOutputStream(oFilePath);
-		   ostream.write(wrapped);
-		   ostream.close();
-		   }
-		*/
-		String wrappedPrivKeyString = /*base64Encode(wrapped);*/
-		    com.netscape.cmsutil.util.Utils.SpecialEncode(wrapped);
-		if (wrappedPrivKeyString == null) {
-		    request.setExtData(IRequest.RESULT, Integer.valueOf(4));
-		    CMS.debug("NetkeyKeygenService: failed generating wrapped private key");
-		    auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_FAILURE,
-                        agentId,
-                        ILogger.FAILURE,
-                        auditSubjectID,
-                        PubKey);
-
-		    audit(auditMessage);
-		    return false;
-		} else {
-		    request.setExtData("wrappedUserPrivate", wrappedPrivKeyString);
-		    auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_SUCCESS,
-                        agentId,
-                        ILogger.SUCCESS,
-                        auditSubjectID,
-                        PubKey);
-
-		    audit(auditMessage);
-		}
-
-		iv_s = /*base64Encode(iv);*/com.netscape.cmsutil.util.Utils.SpecialEncode(iv);
-		request.setExtData("iv_s", iv_s);
-
-		/*
-		 * archival - option flag "archive" controllable by the caller - TPS
-		 */
-		if (archive) {
-		    //
-		    // privateKeyData ::= SEQUENCE {
-		    //                       sessionKey OCTET_STRING,
-		    //                       encKey OCTET_STRING,
-		    //                    }
-		    //
-		    //            mKRA.log(ILogger.LL_INFO, "KRA encrypts internal private");
-
-            auditMessage = CMS.getLogMessage(
-                LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST,
-                  agentId,
-                  ILogger.SUCCESS,
-                  auditSubjectID,
-                  auditArchiveID);
-
-            audit(auditMessage);
-		    CMS.debug("KRA encrypts private key to put on internal ldap db");
-		    byte privateKeyData[] =
-			mStorageUnit.wrap((org.mozilla.jss.crypto.PrivateKey) privKey);
-
-		    if (privateKeyData == null) {
-			request.setExtData(IRequest.RESULT, Integer.valueOf(4));
-			CMS.debug("NetkeyKeygenService: privatekey encryption by storage unit failed");
-			return false;
-		    } else
-			CMS.debug("NetkeyKeygenService: privatekey encryption by storage unit successful");
-
-		    // create key record
-		    KeyRecord rec = new KeyRecord(null, publicKeyData, 
-						  privateKeyData, rCUID+":"+rUserid, 
-						  keypair.getPublic().getAlgorithm(),
-						  agentId);
-
-		    CMS.debug("NetkeyKeygenService: got key record");
-		    
-		    // we deal with RSA key only
-		    try {
-			RSAPublicKey rsaPublicKey = new RSAPublicKey(publicKeyData);
-
-			rec.setKeySize(Integer.valueOf(rsaPublicKey.getKeySize()));
-		    } catch (InvalidKeyException e) {
-			request.setExtData(IRequest.RESULT, Integer.valueOf(11));
-			CMS.debug("NetkeyKeygenService: failed:InvalidKeyException");
-			return false;
-		    }
-		    //??
-		    IKeyRepository storage = mKRA.getKeyRepository();
-		    BigInteger serialNo = storage.getNextSerialNumber();
-
-		    if (serialNo == null) {
-			request.setExtData(IRequest.RESULT, Integer.valueOf(11));
-			CMS.debug("NetkeyKeygenService: serialNo null");
-			return false;
-		    }
-		    CMS.debug("NetkeyKeygenService: before addKeyRecord");
-		    rec.set(KeyRecord.ATTR_ID, serialNo);
-            request.setExtData(ATTR_KEY_RECORD, serialNo);
-		    storage.addKeyRecord(rec);
-		    CMS.debug("NetkeyKeygenService: key archived for "+rCUID+":"+rUserid);
-
-		    auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST_PROCESSED,
-                        agentId,
-                        ILogger.SUCCESS,
-                        PubKey);
-
-		    audit(auditMessage);
-
-		} //if archive
-
-		request.setExtData(IRequest.RESULT, Integer.valueOf(1));
-                } catch (Exception e) {
-                    CMS.debug("NetKeyKeygenService: " + e.toString());
-                    Debug.printStackTrace(e);
+                if (sk == null) {
+                    CMS.debug("NetkeyKeygenService: no DES key");
                     request.setExtData(IRequest.RESULT, Integer.valueOf(4));
+                    return false;
+                } else {
+                    CMS.debug("NetkeyKeygenService: received DES key");
                 }
-        } else 
+
+                // 3 wrapping should be done in HSM
+                // wrap private key with DES
+                KeyWrapper symWrap = keygenToken
+                        .getKeyWrapper(KeyWrapAlgorithm.DES3_CBC_PAD);
+                CMS.debug("NetkeyKeygenService: wrapper token="
+                        + keygenToken.getName());
+                CMS.debug("NetkeyKeygenService: got key wrapper");
+
+                CMS.debug("NetkeyKeygenService: key transport key is on slot: "
+                        + sk.getOwningToken().getName());
+                symWrap.initWrap((SymmetricKey) sk, algParam);
+                byte wrapped[] = symWrap.wrap((PrivateKey) privKey);
+                /*
+                 * CMS.debug("NetkeyKeygenService: wrap called");
+                 * CMS.debug(wrapped);
+                 */
+                /*
+                 * This is for using with my decryption tool and ASN1 decoder to
+                 * see if the private key is indeed PKCS#8 format { // cfu debug
+                 * String oFilePath = "/tmp/wrappedPrivKey.bin"; File file = new
+                 * File(oFilePath); FileOutputStream ostream = new
+                 * FileOutputStream(oFilePath); ostream.write(wrapped);
+                 * ostream.close(); }
+                 */
+                String wrappedPrivKeyString = /* base64Encode(wrapped); */
+                com.netscape.cmsutil.util.Utils.SpecialEncode(wrapped);
+                if (wrappedPrivKeyString == null) {
+                    request.setExtData(IRequest.RESULT, Integer.valueOf(4));
+                    CMS.debug("NetkeyKeygenService: failed generating wrapped private key");
+                    auditMessage = CMS
+                            .getLogMessage(
+                                    LOGGING_SIGNED_AUDIT_PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_FAILURE,
+                                    agentId, ILogger.FAILURE, auditSubjectID,
+                                    PubKey);
+
+                    audit(auditMessage);
+                    return false;
+                } else {
+                    request.setExtData("wrappedUserPrivate",
+                            wrappedPrivKeyString);
+                    auditMessage = CMS
+                            .getLogMessage(
+                                    LOGGING_SIGNED_AUDIT_PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_SUCCESS,
+                                    agentId, ILogger.SUCCESS, auditSubjectID,
+                                    PubKey);
+
+                    audit(auditMessage);
+                }
+
+                iv_s = /* base64Encode(iv); */com.netscape.cmsutil.util.Utils
+                        .SpecialEncode(iv);
+                request.setExtData("iv_s", iv_s);
+
+                /*
+                 * archival - option flag "archive" controllable by the caller -
+                 * TPS
+                 */
+                if (archive) {
+                    //
+                    // privateKeyData ::= SEQUENCE {
+                    // sessionKey OCTET_STRING,
+                    // encKey OCTET_STRING,
+                    // }
+                    //
+                    // mKRA.log(ILogger.LL_INFO,
+                    // "KRA encrypts internal private");
+
+                    auditMessage = CMS.getLogMessage(
+                            LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST,
+                            agentId, ILogger.SUCCESS, auditSubjectID,
+                            auditArchiveID);
+
+                    audit(auditMessage);
+                    CMS.debug("KRA encrypts private key to put on internal ldap db");
+                    byte privateKeyData[] = mStorageUnit
+                            .wrap((org.mozilla.jss.crypto.PrivateKey) privKey);
+
+                    if (privateKeyData == null) {
+                        request.setExtData(IRequest.RESULT, Integer.valueOf(4));
+                        CMS.debug("NetkeyKeygenService: privatekey encryption by storage unit failed");
+                        return false;
+                    } else
+                        CMS.debug("NetkeyKeygenService: privatekey encryption by storage unit successful");
+
+                    // create key record
+                    KeyRecord rec = new KeyRecord(null, publicKeyData,
+                            privateKeyData, rCUID + ":" + rUserid, keypair
+                                    .getPublic().getAlgorithm(), agentId);
+
+                    CMS.debug("NetkeyKeygenService: got key record");
+
+                    // we deal with RSA key only
+                    try {
+                        RSAPublicKey rsaPublicKey = new RSAPublicKey(
+                                publicKeyData);
+
+                        rec.setKeySize(Integer.valueOf(rsaPublicKey
+                                .getKeySize()));
+                    } catch (InvalidKeyException e) {
+                        request.setExtData(IRequest.RESULT, Integer.valueOf(11));
+                        CMS.debug("NetkeyKeygenService: failed:InvalidKeyException");
+                        return false;
+                    }
+                    // ??
+                    IKeyRepository storage = mKRA.getKeyRepository();
+                    BigInteger serialNo = storage.getNextSerialNumber();
+
+                    if (serialNo == null) {
+                        request.setExtData(IRequest.RESULT, Integer.valueOf(11));
+                        CMS.debug("NetkeyKeygenService: serialNo null");
+                        return false;
+                    }
+                    CMS.debug("NetkeyKeygenService: before addKeyRecord");
+                    rec.set(KeyRecord.ATTR_ID, serialNo);
+                    request.setExtData(ATTR_KEY_RECORD, serialNo);
+                    storage.addKeyRecord(rec);
+                    CMS.debug("NetkeyKeygenService: key archived for " + rCUID
+                            + ":" + rUserid);
+
+                    auditMessage = CMS
+                            .getLogMessage(
+                                    LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST_PROCESSED,
+                                    agentId, ILogger.SUCCESS, PubKey);
+
+                    audit(auditMessage);
+
+                } // if archive
+
+                request.setExtData(IRequest.RESULT, Integer.valueOf(1));
+            } catch (Exception e) {
+                CMS.debug("NetKeyKeygenService: " + e.toString());
+                Debug.printStackTrace(e);
+                request.setExtData(IRequest.RESULT, Integer.valueOf(4));
+            }
+        } else
             request.setExtData(IRequest.RESULT, Integer.valueOf(2));
-                    
+
         return true;
-    } //serviceRequest
+    } // serviceRequest
 
     /**
-     * Signed Audit Log
-     *y
-     * This method is called to store messages to the signed audit log.
+     * Signed Audit Log y This method is called to store messages to the signed
+     * audit log.
      * <P>
-     *
+     * 
      * @param msg signed audit log message
      */
     private void audit(String msg) {
@@ -613,10 +592,7 @@ public class NetkeyKeygenService implements IService {
             return;
         }
 
-        mSignedAuditLogger.log(ILogger.EV_SIGNED_AUDIT,
-            null,
-            ILogger.S_SIGNED_AUDIT,
-            ILogger.LL_SECURITY,
-            msg);
+        mSignedAuditLogger.log(ILogger.EV_SIGNED_AUDIT, null,
+                ILogger.S_SIGNED_AUDIT, ILogger.LL_SECURITY, msg);
     }
 }

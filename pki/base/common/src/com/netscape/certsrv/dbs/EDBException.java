@@ -17,14 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.dbs;
 
-
 import com.netscape.certsrv.base.EBaseException;
-
 
 /**
  * A class represents a database exception.
  * <P>
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class EDBException extends EBaseException {
@@ -36,12 +34,12 @@ public class EDBException extends EBaseException {
     /**
      * Resource class name.
      */
-    private static final String DB_RESOURCES = DBResources.class.getName();		
+    private static final String DB_RESOURCES = DBResources.class.getName();
 
     /**
      * Constructs a database exception.
      * <P>
-     *
+     * 
      * @param msgFormat message format
      */
     public EDBException(String msgFormat) {
@@ -51,7 +49,7 @@ public class EDBException extends EBaseException {
     /**
      * Constructs a database exception.
      * <P>
-     *
+     * 
      * @param msgFormat message format
      * @param param parameter
      */
@@ -62,7 +60,7 @@ public class EDBException extends EBaseException {
     /**
      * Constructs a database exception.
      * <P>
-     *
+     * 
      * @param msgFormat message format
      * @param e exception as parameter
      */
@@ -73,7 +71,7 @@ public class EDBException extends EBaseException {
     /**
      * Constructs a database exception.
      * <P>
-     *
+     * 
      * @param msgFormat message format
      * @param params list of parameters
      */

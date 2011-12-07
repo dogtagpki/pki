@@ -17,45 +17,44 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.ldap;
 
-
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 
-
 /**
- * Class on behalf of the Publishing system that controls an instance of an ILdapConnFactory.
- * Allows a factory to be intialized and grants access
- * to the factory to other interested parties.
- *
+ * Class on behalf of the Publishing system that controls an instance of an
+ * ILdapConnFactory. Allows a factory to be intialized and grants access to the
+ * factory to other interested parties.
+ * 
  * @version $Revision$, $Date$
  */
- 
+
 public interface ILdapConnModule {
 
     /**
      * Initialize ldap publishing module with config store.
+     * 
      * @param owner Entity that is interested in this instance of Publishing.
-     * @param config Config store containing the info needed to set up Publishing.
+     * @param config Config store containing the info needed to set up
+     *            Publishing.
      * @exception ELdapException Due to Ldap error.
-     * @exception EBaseException Due to config value errors and all other errors.
+     * @exception EBaseException Due to config value errors and all other
+     *                errors.
      */
-    public void init(ISubsystem owner, IConfigStore config) 
-        throws EBaseException, ELdapException;
+    public void init(ISubsystem owner, IConfigStore config)
+            throws EBaseException, ELdapException;
 
     /**
-     * Returns the internal ldap connection factory.
-     * This can be useful to get a ldap connection to the
-     * ldap publishing directory without having to get it again from the
-     * config file. Note that this means sharing a ldap connection pool
-     * with the ldap publishing module so be sure to return connections to pool.
-     * Use ILdapConnFactory.getConn() to get a Ldap connection to the ldap
-     * publishing directory.
-     * Use ILdapConnFactory.returnConn() to return the connection.
-     *
+     * Returns the internal ldap connection factory. This can be useful to get a
+     * ldap connection to the ldap publishing directory without having to get it
+     * again from the config file. Note that this means sharing a ldap
+     * connection pool with the ldap publishing module so be sure to return
+     * connections to pool. Use ILdapConnFactory.getConn() to get a Ldap
+     * connection to the ldap publishing directory. Use
+     * ILdapConnFactory.returnConn() to return the connection.
+     * 
      * @return Instance of ILdapConnFactory.
      */
 
     public ILdapConnFactory getLdapConnFactory();
 }
-

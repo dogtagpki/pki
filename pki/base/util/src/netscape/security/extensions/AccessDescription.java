@@ -25,7 +25,6 @@ import netscape.security.util.DerValue;
 import netscape.security.util.ObjectIdentifier;
 import netscape.security.x509.GeneralName;
 
-
 public class AccessDescription implements Serializable {
     ObjectIdentifier mOID = null;
     GeneralName mLocation = null;
@@ -44,12 +43,10 @@ public class AccessDescription implements Serializable {
     }
 
     /**
-     * For serialization:
-     * Note that GeneralName is not serializable. That is
-     * why we need to define our own serialization method.
+     * For serialization: Note that GeneralName is not serializable. That is why
+     * we need to define our own serialization method.
      */
-    private void writeObject(java.io.ObjectOutputStream out)
-        throws IOException {
+    private void writeObject(java.io.ObjectOutputStream out) throws IOException {
         DerOutputStream seq = new DerOutputStream();
         DerOutputStream tmp = new DerOutputStream();
 
@@ -60,12 +57,10 @@ public class AccessDescription implements Serializable {
     }
 
     /**
-     * For serialization
-     * Note that GeneralName is not serializable. That is
-     * why we need to define our own serialization method.
+     * For serialization Note that GeneralName is not serializable. That is why
+     * we need to define our own serialization method.
      */
-    private void readObject(java.io.ObjectInputStream in)
-        throws IOException {
+    private void readObject(java.io.ObjectInputStream in) throws IOException {
         DerValue val = new DerValue(in);
         DerValue seq = val.data.getDerValue();
 

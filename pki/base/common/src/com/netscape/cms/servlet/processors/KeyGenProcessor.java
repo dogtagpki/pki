@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.processors;
 
-
 import java.io.IOException;
 import java.security.cert.CertificateException;
 
@@ -37,11 +36,10 @@ import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ECMSGWException;
 
-
 /**
- * KeyGenProcess parses Certificate request matching the
- * KEYGEN tag format used by Netscape Communicator 4.x
- *
+ * KeyGenProcess parses Certificate request matching the KEYGEN tag format used
+ * by Netscape Communicator 4.x
+ * 
  * @version $Revision$, $Date$
  */
 public class KeyGenProcessor extends PKIProcessor {
@@ -55,14 +53,11 @@ public class KeyGenProcessor extends PKIProcessor {
 
     }
 
-    public void process(CMSRequest cmsReq)
-        throws EBaseException {
+    public void process(CMSRequest cmsReq) throws EBaseException {
     }
 
-    public void fillCertInfo(
-        String protocolString, X509CertInfo certInfo,
-        IAuthToken authToken, IArgBlock httpParams)
-        throws EBaseException {
+    public void fillCertInfo(String protocolString, X509CertInfo certInfo,
+            IAuthToken authToken, IArgBlock httpParams) throws EBaseException {
 
         CMS.debug("KeyGenProcessor: fillCertInfo");
 
@@ -72,28 +67,30 @@ public class KeyGenProcessor extends PKIProcessor {
 
         KeyGenInfo keyGenInfo = httpParams.getValueAsKeyGenInfo(
                 PKIProcessor.SUBJECT_KEYGEN_INFO, null);
-    
+
         // fill key
         X509Key key = null;
 
         key = keyGenInfo.getSPKI();
         if (key == null) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_MISSING_KEY_IN_KEYGENINFO"));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSGW_MISSING_KEY_IN_KEYGENINFO"));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_MISSING_KEY_IN_KEYGENINFO"));
+                    CMS.getUserMessage("CMS_GW_MISSING_KEY_IN_KEYGENINFO"));
         }
         try {
             certInfo.set(X509CertInfo.KEY, new CertificateX509Key(key));
         } catch (CertificateException e) {
             log(ILogger.LL_FAILURE,
-                "Could not set key into certInfo from keygen. Error " + e);
-            throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_SET_KEY_FROM_KEYGEN_FAILED", e.toString()));
+                    "Could not set key into certInfo from keygen. Error " + e);
+            throw new ECMSGWException(CMS.getUserMessage(
+                    "CMS_GW_SET_KEY_FROM_KEYGEN_FAILED", e.toString()));
         } catch (IOException e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("CMSGW_FAILED_SET_KEY_FROM_KEYGEN_1", e.toString()));
-            throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_SET_KEY_FROM_KEYGEN_FAILED", e.toString()));
+                    CMS.getLogMessage("CMSGW_FAILED_SET_KEY_FROM_KEYGEN_1",
+                            e.toString()));
+            throw new ECMSGWException(CMS.getUserMessage(
+                    "CMS_GW_SET_KEY_FROM_KEYGEN_FAILED", e.toString()));
         }
 
         String authMgr = mServlet.getAuthMgr();
@@ -106,12 +103,13 @@ public class KeyGenProcessor extends PKIProcessor {
             if (authToken.getInString(AuthToken.TOKEN_CERT_SUBJECT) == null) {
                 // allow special case for agent gateway in admin enroll
                 // and bulk issuance.
-                if (!authMgr.equals(IAuthSubsystem.CERTUSERDB_AUTHMGR_ID) && 
-                    !authMgr.equals(IAuthSubsystem.PASSWDUSERDB_AUTHMGR_ID)) {
+                if (!authMgr.equals(IAuthSubsystem.CERTUSERDB_AUTHMGR_ID)
+                        && !authMgr
+                                .equals(IAuthSubsystem.PASSWDUSERDB_AUTHMGR_ID)) {
                     log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSGW_MISSING_SUBJECT_NAME_FROM_AUTHTOKEN"));
+                            CMS.getLogMessage("CMSGW_MISSING_SUBJECT_NAME_FROM_AUTHTOKEN"));
                     throw new ECMSGWException(
-                      CMS.getUserMessage("CMS_GW_MISSING_SUBJECT_NAME_FROM_AUTHTOKEN"));
+                            CMS.getUserMessage("CMS_GW_MISSING_SUBJECT_NAME_FROM_AUTHTOKEN"));
                 }
                 fillCertInfoFromForm(certInfo, httpParams);
             } else {

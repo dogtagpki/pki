@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.security;
 
-
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -46,7 +45,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cmsutil.util.Utils;
 
-
 /* 
  * A class for managing passwords in the SDR password cache
  *
@@ -73,7 +71,8 @@ public class PWsdrCache {
             mPWcachedb = CMS.getConfigStore().getString("pwCache");
             CMS.debug("got pwCache file path from configstore");
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_GET_CONFIG"));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_SECURITY_GET_CONFIG"));
             // let it fall through
         }
         initToken();
@@ -85,14 +84,18 @@ public class PWsdrCache {
             CryptoManager cm = null;
             try {
                 cm = CryptoManager.getInstance();
-                mTokenName = CMS.getConfigStore().getString(PROP_PWC_TOKEN_NAME);
-                log (ILogger.LL_DEBUG, "pwcTokenname specified.  Use token for SDR key. tokenname= "+mTokenName);
+                mTokenName = CMS.getConfigStore()
+                        .getString(PROP_PWC_TOKEN_NAME);
+                log(ILogger.LL_DEBUG,
+                        "pwcTokenname specified.  Use token for SDR key. tokenname= "
+                                + mTokenName);
                 mToken = cm.getTokenByName(mTokenName);
             } catch (NotInitializedException e) {
-                log (ILogger.LL_FAILURE, e.toString());
+                log(ILogger.LL_FAILURE, e.toString());
                 throw new EBaseException(e.toString());
             } catch (Exception e) {
-                log (ILogger.LL_DEBUG, "no pwcTokenname specified, use internal token for SDR key");
+                log(ILogger.LL_DEBUG,
+                        "no pwcTokenname specified, use internal token for SDR key");
                 mToken = cm.getInternalKeyStorageToken();
             }
         }
@@ -103,11 +106,11 @@ public class PWsdrCache {
         if (mKeyID == null) {
             try {
                 String keyID = CMS.getConfigStore().getString(PROP_PWC_KEY_ID);
-                log (ILogger.LL_DEBUG, "retrieved PWC SDR key");
+                log(ILogger.LL_DEBUG, "retrieved PWC SDR key");
                 mKeyID = base64Decode(keyID);
-                
+
             } catch (Exception e) {
-                log (ILogger.LL_DEBUG, "no pwcSDRKey specified");
+                log(ILogger.LL_DEBUG, "no pwcSDRKey specified");
                 throw new EBaseException(e.toString());
             }
         }
@@ -118,7 +121,7 @@ public class PWsdrCache {
     // Do not use for PWCBsdr, since we don't want to mistakenly
     // generate SDR keys in case of configuration errors
     public PWsdrCache(String pwCache, String pwcTokenname, byte[] keyId,
-                      boolean isTool) throws Exception {
+            boolean isTool) throws Exception {
         mPWcachedb = pwCache;
         mIsTool = isTool;
         mTokenName = pwcTokenname;
@@ -131,10 +134,10 @@ public class PWsdrCache {
         cm = CryptoManager.getInstance();
         if (mTokenName != null) {
             mToken = cm.getTokenByName(mTokenName);
-            mToken =  cm.getInternalKeyStorageToken();
-            debug("PWsdrCache: mToken = "+mTokenName);
+            mToken = cm.getInternalKeyStorageToken();
+            debug("PWsdrCache: mToken = " + mTokenName);
         } else {
-            mToken =  cm.getInternalKeyStorageToken();
+            mToken = cm.getInternalKeyStorageToken();
             debug("PWsdrCache: mToken = internal");
         }
     }
@@ -147,61 +150,54 @@ public class PWsdrCache {
         return mTokenName;
     }
 
-    public void deleteUniqueNamedKey( String nickName )
-        throws Exception
-    {
-        KeyManager km = new KeyManager( mToken );
-        km.deleteUniqueNamedKey( nickName );
+    public void deleteUniqueNamedKey(String nickName) throws Exception {
+        KeyManager km = new KeyManager(mToken);
+        km.deleteUniqueNamedKey(nickName);
     }
 
-    public byte[] generateSDRKey () throws Exception {
-		return generateSDRKeyWithNickName(PROP_PWC_NICKNAME);
+    public byte[] generateSDRKey() throws Exception {
+        return generateSDRKeyWithNickName(PROP_PWC_NICKNAME);
     }
 
-    public byte[] generateSDRKeyWithNickName (String nickName)
-        throws Exception
-    {
+    public byte[] generateSDRKeyWithNickName(String nickName) throws Exception {
         try {
 
             if (mIsTool != true) {
                 // generate SDR key
                 KeyManager km = new KeyManager(mToken);
                 try {
-                    // Bugscape Bug #54838:  Due to the CMS cloning feature,
-                    //                       we must check for the presence of
-                    //                       a uniquely named symmetric key
-                    //                       prior to making an attempt to
-                    //                       generate it!
+                    // Bugscape Bug #54838: Due to the CMS cloning feature,
+                    // we must check for the presence of
+                    // a uniquely named symmetric key
+                    // prior to making an attempt to
+                    // generate it!
                     //
-                    if( !( km.uniqueNamedKeyExists( nickName ) ) ) {
-                        mKeyID = km.generateUniqueNamedKey( nickName );
+                    if (!(km.uniqueNamedKeyExists(nickName))) {
+                        mKeyID = km.generateUniqueNamedKey(nickName);
                     }
                 } catch (TokenException e) {
-                    log (0, "generateSDRKey() failed on "+e.toString());
+                    log(0, "generateSDRKey() failed on " + e.toString());
                     throw e;
                 }
             }
         } catch (Exception e) {
-            log (ILogger.LL_FAILURE, e.toString());
+            log(ILogger.LL_FAILURE, e.toString());
             throw e;
         }
         return mKeyID;
     }
 
     public byte[] base64Decode(String s) throws IOException {
-         byte[] d = com.netscape.osutil.OSUtil.AtoB(s);
-         return d;
+        byte[] d = com.netscape.osutil.OSUtil.AtoB(s);
+        return d;
     }
 
     public static String base64Encode(byte[] bytes) throws IOException {
         // All this streaming is lame, but Base64OutputStream needs a
         // PrintStream
         ByteArrayOutputStream output = new ByteArrayOutputStream();
-        Base64OutputStream b64 = new Base64OutputStream(new
-                PrintStream(new
-                    FilterOutputStream(output)
-                )
-            );
+        Base64OutputStream b64 = new Base64OutputStream(new PrintStream(
+                new FilterOutputStream(output)));
 
         b64.write(bytes);
         b64.flush();
@@ -211,10 +207,8 @@ public class PWsdrCache {
         return output.toString("8859_1");
     }
 
-
     // for PWCBsdr
-    public PWsdrCache(String pwCache, ILogger logger) throws
-        EBaseException {
+    public PWsdrCache(String pwCache, ILogger logger) throws EBaseException {
         mLogger = logger;
         mPWcachedb = pwCache;
         initToken();
@@ -235,8 +229,9 @@ public class PWsdrCache {
     /*
      * add passwd in pwcache.
      */
-    public void addEntry(String tag, String pwd, Hashtable tagPwds) throws EBaseException {
-        
+    public void addEntry(String tag, String pwd, Hashtable tagPwds)
+            throws EBaseException {
+
         String stringToAdd = null;
         String bufs = null;
 
@@ -249,7 +244,7 @@ public class PWsdrCache {
                 tag = (String) enum1.nextElement();
                 pwd = (String) tagPwds.get(tag);
                 debug("password tag: " + tag + " stored in " + mPWcachedb);
-                
+
                 if (stringToAdd == null) {
                     stringToAdd = tag + ":" + pwd + "\n";
                 } else {
@@ -262,7 +257,7 @@ public class PWsdrCache {
 
         if (dcrypts != null) {
             // converts to Hashtable, replace if tag exists, add
-            //                if tag doesn't exist
+            // if tag doesn't exist
             Hashtable ht = string2Hashtable(dcrypts);
 
             if (ht.containsKey(tag) == false) {
@@ -277,7 +272,7 @@ public class PWsdrCache {
             debug("adding new tag: " + tag);
             bufs = stringToAdd;
         }
-        
+
         // write update to cache
         writePWcache(bufs);
     }
@@ -292,7 +287,7 @@ public class PWsdrCache {
 
         if (dcrypts != null) {
             // converts to Hashtable, replace if tag exists, add
-            //                if tag doesn't exist
+            // if tag doesn't exist
             Hashtable ht = string2Hashtable(dcrypts);
 
             if (ht.containsKey(tag) == false) {
@@ -307,7 +302,7 @@ public class PWsdrCache {
             debug("password cache contains no tags");
             return;
         }
-        
+
         // write update to cache
         writePWcache(bufs);
     }
@@ -337,10 +332,14 @@ public class PWsdrCache {
             }
             inputs.close();
         } catch (FileNotFoundException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_PW_FILE", mPWcachedb, e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_SECURITY_PW_FILE", mPWcachedb,
+                            e.toString()));
             throw new EBaseException(e.toString() + ": " + mPWcachedb);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_PW_FILE", mPWcachedb, e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_SECURITY_PW_FILE", mPWcachedb,
+                            e.toString()));
             throw new EBaseException(e.toString() + ": " + mPWcachedb);
         }
 
@@ -351,7 +350,9 @@ public class PWsdrCache {
 
                 dcrypts = new String(dcryptb, "UTF-8");
             } catch (Exception e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_PW_DECRYPT", e.toString()));
+                log(ILogger.LL_FAILURE,
+                        CMS.getLogMessage("CMSCORE_SECURITY_PW_DECRYPT",
+                                e.toString()));
                 e.printStackTrace();
                 throw new EBaseException("password cache decrypt failed");
             }
@@ -366,7 +367,7 @@ public class PWsdrCache {
     public void writePWcache(String bufs) throws EBaseException {
         try {
             Encryptor sdr = new Encryptor(mToken, mKeyID,
-                                Encryptor.DEFAULT_ENCRYPTION_ALG);
+                    Encryptor.DEFAULT_ENCRYPTION_ALG);
 
             byte[] writebuf = null;
 
@@ -374,7 +375,9 @@ public class PWsdrCache {
                 // now encrypt it again
                 writebuf = sdr.encrypt(bufs.getBytes("UTF-8"));
             } catch (Exception e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_PW_ENCRYPT", e.toString()));
+                log(ILogger.LL_FAILURE,
+                        CMS.getLogMessage("CMSCORE_SECURITY_PW_ENCRYPT",
+                                e.toString()));
                 e.printStackTrace();
                 throw new EBaseException("password cache encrypt failed");
             }
@@ -386,7 +389,8 @@ public class PWsdrCache {
                 tmpPWcache.delete();
                 tmpPWcache = new File(mPWcachedb + ".tmp");
             }
-            FileOutputStream outstream = new FileOutputStream(mPWcachedb + ".tmp");
+            FileOutputStream outstream = new FileOutputStream(mPWcachedb
+                    + ".tmp");
 
             outstream.write(writebuf);
             outstream.close();
@@ -394,48 +398,54 @@ public class PWsdrCache {
             File origFile = new File(mPWcachedb);
 
             try {
-                if( Utils.isNT() ) {
+                if (Utils.isNT()) {
                     // NT is very picky on the path
-                    Utils.exec( "copy " +
-                                tmpPWcache.getAbsolutePath().replace( '/',
-                                                                      '\\' ) +
-                                " " +
-                                origFile.getAbsolutePath().replace( '/',
-                                                                    '\\' ) );
+                    Utils.exec("copy "
+                            + tmpPWcache.getAbsolutePath().replace('/', '\\')
+                            + " "
+                            + origFile.getAbsolutePath().replace('/', '\\'));
                 } else {
                     // Create a copy of the original file which
                     // preserves the original file permissions.
-                    Utils.exec( "cp -p " + tmpPWcache.getAbsolutePath() + " " +
-                                origFile.getAbsolutePath() );
+                    Utils.exec("cp -p " + tmpPWcache.getAbsolutePath() + " "
+                            + origFile.getAbsolutePath());
                 }
 
                 // Remove the original file if and only if
                 // the backup copy was successful.
-                if( origFile.exists() ) {
-                    if( !Utils.isNT() ) {
+                if (origFile.exists()) {
+                    if (!Utils.isNT()) {
                         try {
-                            Utils.exec( "chmod 00660 " +
-                                        origFile.getCanonicalPath() );
-                        } catch( IOException e ) {
-                            CMS.debug( "Unable to change file permissions on "
-                                     + origFile.toString() );
+                            Utils.exec("chmod 00660 "
+                                    + origFile.getCanonicalPath());
+                        } catch (IOException e) {
+                            CMS.debug("Unable to change file permissions on "
+                                    + origFile.toString());
                         }
                     }
                     tmpPWcache.delete();
-                    debug( "operation completed for " + mPWcachedb );
+                    debug("operation completed for " + mPWcachedb);
                 }
             } catch (Exception exx) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_PW_CACHE", exx.toString()));
+                log(ILogger.LL_FAILURE,
+                        CMS.getLogMessage("CMSCORE_SECURITY_PW_CACHE",
+                                exx.toString()));
                 throw new EBaseException(exx.toString() + ": " + mPWcachedb);
             }
         } catch (FileNotFoundException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_PW_FILE", mPWcachedb, e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_SECURITY_PW_FILE", mPWcachedb,
+                            e.toString()));
             throw new EBaseException(e.toString() + ": " + mPWcachedb);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_PW_FILE", mPWcachedb, e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_SECURITY_PW_FILE", mPWcachedb,
+                            e.toString()));
             throw new EBaseException(e.toString() + ": " + mPWcachedb);
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_PW_FILE", mPWcachedb, e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_SECURITY_PW_FILE", mPWcachedb,
+                            e.toString()));
             throw new EBaseException(e.toString() + ": " + mPWcachedb);
         }
     }
@@ -447,7 +457,7 @@ public class PWsdrCache {
         while (enum1.hasMoreElements()) {
             String tag = (String) enum1.nextElement();
             String pwd = (String) ht.get(tag);
-                
+
             if (returnString == null) {
                 returnString = tag + ":" + pwd + "\n";
             } else {
@@ -470,19 +480,18 @@ public class PWsdrCache {
 
             if (colonIdx != -1) {
                 String tag = line.substring(0, colonIdx);
-                String passwd = line.substring(colonIdx + 1,
-                        line.length());
+                String passwd = line.substring(colonIdx + 1, line.length());
 
                 ht.put(tag.trim(), passwd.trim());
             } else {
-                //invalid format...log or throw...later
+                // invalid format...log or throw...later
             }
         }
         return ht;
     }
 
     /*
-     * get password from cache.  This one supplies cache file name
+     * get password from cache. This one supplies cache file name
      */
     public Password getEntry(String fileName, String tag) {
         mPWcachedb = fileName;
@@ -490,8 +499,8 @@ public class PWsdrCache {
     }
 
     /*
-     * if tag found with pwd, return it
-     * if tag not found, return null, which will cause it to give up
+     * if tag found with pwd, return it if tag not found, return null, which
+     * will cause it to give up
      */
     public Password getEntry(String tag) {
         Hashtable pwTable = null;
@@ -509,7 +518,8 @@ public class PWsdrCache {
         try {
             dcrypts = readPWcache();
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_PW_READ", e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_SECURITY_PW_READ", e.toString()));
             return null;
         }
 
@@ -527,12 +537,13 @@ public class PWsdrCache {
             debug("getEntry gotten password for " + tag);
             return new Password(pw.toCharArray());
         } else {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_PW_TAG", tag));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_SECURITY_PW_TAG", tag));
             return null;
         }
     }
 
-    //copied from IOUtil.java
+    // copied from IOUtil.java
     /**
      * Checks if this is NT.
      */
@@ -566,22 +577,17 @@ public class PWsdrCache {
             if (process.exitValue() == 0) {
 
                 /**
-                 pOut = new BufferedReader(
-                 new InputStreamReader(process.getInputStream()));
-                 while ((l = pOut.readLine()) != null) {
-                 System.out.println(l);
-                 }
+                 * pOut = new BufferedReader( new
+                 * InputStreamReader(process.getInputStream())); while ((l =
+                 * pOut.readLine()) != null) { System.out.println(l); }
                  **/
                 return true;
             } else {
 
                 /**
-                 pOut = new BufferedReader(
-                 new InputStreamReader(process.getErrorStream()));
-                 l = null;
-                 while ((l = pOut.readLine()) != null) {
-                 System.out.println(l);
-                 }
+                 * pOut = new BufferedReader( new
+                 * InputStreamReader(process.getErrorStream())); l = null; while
+                 * ((l = pOut.readLine()) != null) { System.out.println(l); }
                  **/
                 return false;
             }
@@ -599,7 +605,7 @@ public class PWsdrCache {
     public void log(int level, String msg) {
         if (mLogger != null) {
             mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER, level,
-                "PWsdrCache " + msg);
+                    "PWsdrCache " + msg);
         } else if (mIsTool) {
             System.out.println(msg);
         } // else it's most likely the installation wizard...no logging
@@ -615,7 +621,8 @@ public class PWsdrCache {
         try {
             dcrypts = readPWcache();
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_PW_READ", e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_SECURITY_PW_READ", e.toString()));
             return false;
         }
 
@@ -632,13 +639,11 @@ public class PWsdrCache {
 
                 if (colonIdx != -1) {
                     String tag = line.substring(0, colonIdx);
-                    String passwd = line.substring(colonIdx + 1,
-                            line.length());
+                    String passwd = line.substring(colonIdx + 1, line.length());
 
-                    debug(tag.trim() +
-                        " : " + passwd.trim());
+                    debug(tag.trim() + " : " + passwd.trim());
                 } else {
-                    //invalid format...log or throw...later
+                    // invalid format...log or throw...later
                     debug("invalid format");
                 }
             }

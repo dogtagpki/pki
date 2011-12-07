@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.request;
 
-
 import java.math.BigInteger;
 import java.util.Locale;
 
@@ -29,10 +28,9 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.key.KeyRecordParser;
 
-
 /**
  * Output a 'pretty print' of a Key Archival request
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class KeyReqParser extends ReqParser {
@@ -49,8 +47,8 @@ public class KeyReqParser extends ReqParser {
     /**
      * Fills in certificate specific request attributes.
      */
-    public void fillRequestIntoArg(Locale l, IRequest req, CMSTemplateParams argSet, IArgBlock arg)
-        throws EBaseException {
+    public void fillRequestIntoArg(Locale l, IRequest req,
+            CMSTemplateParams argSet, IArgBlock arg) throws EBaseException {
         // fill in the standard attributes
         super.fillRequestIntoArg(l, req, argSet, arg);
 
@@ -58,11 +56,11 @@ public class KeyReqParser extends ReqParser {
 
         if (type.equals(IRequest.ENROLLMENT_REQUEST)) {
             BigInteger recSerialNo = req.getExtDataInBigInteger("keyRecord");
-            IKeyRecoveryAuthority kra = (IKeyRecoveryAuthority)CMS.getSubsystem("kra");
+            IKeyRecoveryAuthority kra = (IKeyRecoveryAuthority) CMS
+                    .getSubsystem("kra");
             if (kra != null) {
-                KeyRecordParser.fillRecordIntoArg(
-                        kra.getKeyRepository().readKeyRecord(recSerialNo),
-                        arg);
+                KeyRecordParser.fillRecordIntoArg(kra.getKeyRepository()
+                        .readKeyRecord(recSerialNo), arg);
             } else {
                 throw new EBaseException("KRA is not available");
             }

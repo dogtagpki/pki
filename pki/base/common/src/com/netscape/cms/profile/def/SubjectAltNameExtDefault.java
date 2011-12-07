@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.def;
 
-
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Locale;
@@ -43,12 +42,10 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 
-
 /**
- * This class implements an enrollment default policy
- * that populates a subject alternative name extension
- * into the certificate template.
- *
+ * This class implements an enrollment default policy that populates a subject
+ * alternative name extension into the certificate template.
+ * 
  * @version $Revision$, $Date$
  */
 public class SubjectAltNameExtDefault extends EnrollExtDefault {
@@ -91,70 +88,67 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
         }
 
         if (num >= MAX_NUM_GN)
-           num = DEF_NUM_GN;
+            num = DEF_NUM_GN;
         return num;
     }
- 
 
     public void init(IProfile profile, IConfigStore config)
-        throws EProfileException {
+            throws EProfileException {
 
-        super.init(profile,config);
-        refreshConfigAndValueNames();  
+        super.init(profile, config);
+        refreshConfigAndValueNames();
         // migrate old parameters to new parameters
         String old_type = null;
         String old_pattern = null;
         IConfigStore paramConfig = config.getSubStore("params");
         try {
-          if (paramConfig != null) {
-            old_type = paramConfig.getString(CONFIG_OLD_TYPE);
-          }
+            if (paramConfig != null) {
+                old_type = paramConfig.getString(CONFIG_OLD_TYPE);
+            }
         } catch (EBaseException e) {
-          // nothing to do here
+            // nothing to do here
         }
-        CMS.debug("SubjectAltNameExtDefault: Upgrading old_type=" +
-                old_type);
+        CMS.debug("SubjectAltNameExtDefault: Upgrading old_type=" + old_type);
         try {
-          if (paramConfig != null) {
-            old_pattern = paramConfig.getString(CONFIG_OLD_PATTERN);
-          }
+            if (paramConfig != null) {
+                old_pattern = paramConfig.getString(CONFIG_OLD_PATTERN);
+            }
         } catch (EBaseException e) {
-          // nothing to do here
+            // nothing to do here
         }
-        CMS.debug("SubjectAltNameExtDefault: Upgrading old_pattern=" +
-                old_pattern);
-        if (old_type != null && old_pattern != null)  {
-           CMS.debug("SubjectAltNameExtDefault: Upgrading");
-           try {
-             paramConfig.putString(CONFIG_NUM_GNS, "1");
-             paramConfig.putString(CONFIG_GN_ENABLE + "0", "true");
-             paramConfig.putString(CONFIG_TYPE + "0", old_type);
-             paramConfig.putString(CONFIG_PATTERN + "0", old_pattern);
-             paramConfig.remove(CONFIG_OLD_TYPE);
-             paramConfig.remove(CONFIG_OLD_PATTERN);
-             profile.getConfigStore().commit(true);
-           } catch (Exception e) {
-             CMS.debug("SubjectAltNameExtDefault: Failed to upgrade " + e);
-           }
+        CMS.debug("SubjectAltNameExtDefault: Upgrading old_pattern="
+                + old_pattern);
+        if (old_type != null && old_pattern != null) {
+            CMS.debug("SubjectAltNameExtDefault: Upgrading");
+            try {
+                paramConfig.putString(CONFIG_NUM_GNS, "1");
+                paramConfig.putString(CONFIG_GN_ENABLE + "0", "true");
+                paramConfig.putString(CONFIG_TYPE + "0", old_type);
+                paramConfig.putString(CONFIG_PATTERN + "0", old_pattern);
+                paramConfig.remove(CONFIG_OLD_TYPE);
+                paramConfig.remove(CONFIG_OLD_PATTERN);
+                profile.getConfigStore().commit(true);
+            } catch (Exception e) {
+                CMS.debug("SubjectAltNameExtDefault: Failed to upgrade " + e);
+            }
         }
     }
 
-    public void setConfig(String name, String value)
-        throws EPropertyException {
+    public void setConfig(String name, String value) throws EPropertyException {
         int num = 0;
         if (name.equals(CONFIG_NUM_GNS)) {
-          try {
-            num = Integer.parseInt(value);
+            try {
+                num = Integer.parseInt(value);
 
-            if (num >= MAX_NUM_GN || num < 0) {
-                throw new EPropertyException(CMS.getUserMessage(
+                if (num >= MAX_NUM_GN || num < 0) {
+                    throw new EPropertyException(CMS.getUserMessage(
                             "CMS_INVALID_PROPERTY", CONFIG_NUM_GNS));
+                }
+
+            } catch (Exception e) {
+                throw new EPropertyException(CMS.getUserMessage(
+                        "CMS_INVALID_PROPERTY", CONFIG_NUM_GNS));
             }
-
-          } catch (Exception e) {
-                throw new EPropertyException(CMS.getUserMessage(
-                            "CMS_INVALID_PROPERTY", CONFIG_NUM_GNS));
-          }
         }
         super.setConfig(name, value);
     }
@@ -174,34 +168,31 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
         int num = getNumGNs();
         addConfigName(CONFIG_NUM_GNS);
         for (int i = 0; i < num; i++) {
-        addConfigName(CONFIG_TYPE + i);
-        addConfigName(CONFIG_PATTERN + i);
-        addConfigName(CONFIG_GN_ENABLE + i);
+            addConfigName(CONFIG_TYPE + i);
+            addConfigName(CONFIG_PATTERN + i);
+            addConfigName(CONFIG_GN_ENABLE + i);
         }
     }
-    
-    public IDescriptor getConfigDescriptor(Locale locale, String name) { 
+
+    public IDescriptor getConfigDescriptor(Locale locale, String name) {
         if (name.equals(CONFIG_CRITICAL)) {
-            return new Descriptor(IDescriptor.BOOLEAN, null, 
-                    "false",
+            return new Descriptor(IDescriptor.BOOLEAN, null, "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_CRITICAL"));
         } else if (name.startsWith(CONFIG_TYPE)) {
-            return new Descriptor(IDescriptor.CHOICE, "RFC822Name,DNSName,DirectoryName,EDIPartyName,URIName,IPAddress,OIDName,OtherName",
-                    "RFC822Name",
-                    CMS.getUserMessage(locale, 
-                        "CMS_PROFILE_SUBJECT_ALT_NAME_TYPE"));
+            return new Descriptor(
+                    IDescriptor.CHOICE,
+                    "RFC822Name,DNSName,DirectoryName,EDIPartyName,URIName,IPAddress,OIDName,OtherName",
+                    "RFC822Name", CMS.getUserMessage(locale,
+                            "CMS_PROFILE_SUBJECT_ALT_NAME_TYPE"));
         } else if (name.startsWith(CONFIG_PATTERN)) {
-            return new Descriptor(IDescriptor.STRING, null, 
-                    null,
-                    CMS.getUserMessage(locale, 
-                        "CMS_PROFILE_SUBJECT_ALT_NAME_PATTERN"));
+            return new Descriptor(IDescriptor.STRING, null, null,
+                    CMS.getUserMessage(locale,
+                            "CMS_PROFILE_SUBJECT_ALT_NAME_PATTERN"));
         } else if (name.startsWith(CONFIG_GN_ENABLE)) {
-            return new Descriptor(IDescriptor.BOOLEAN, null, 
-                    "false",
+            return new Descriptor(IDescriptor.BOOLEAN, null, "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_GN_ENABLE"));
         } else if (name.startsWith(CONFIG_NUM_GNS)) {
-            return new Descriptor(IDescriptor.INTEGER, null,
-                    "1",
+            return new Descriptor(IDescriptor.INTEGER, null, "1",
                     CMS.getUserMessage(locale, "CMS_PROFILE_NUM_GNS"));
         }
 
@@ -210,41 +201,37 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
 
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         if (name.equals(VAL_CRITICAL)) {
-            return new Descriptor(IDescriptor.BOOLEAN, null, 
-                    "false",
+            return new Descriptor(IDescriptor.BOOLEAN, null, "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_CRITICAL"));
         } else if (name.equals(VAL_GENERAL_NAMES)) {
-            return new Descriptor(IDescriptor.STRING_LIST, null, 
-                    null,
+            return new Descriptor(IDescriptor.STRING_LIST, null, null,
                     CMS.getUserMessage(locale, "CMS_PROFILE_GENERAL_NAMES"));
         } else {
             return null;
         }
     }
 
-    public void setValue(String name, Locale locale,
-        X509CertInfo info, String value)
-        throws EPropertyException {
+    public void setValue(String name, Locale locale, X509CertInfo info,
+            String value) throws EPropertyException {
         try {
             SubjectAlternativeNameExtension ext = null;
 
-            if (name == null) { 
-                throw new EPropertyException(CMS.getUserMessage( 
-                            locale, "CMS_INVALID_PROPERTY", name));
+            if (name == null) {
+                throw new EPropertyException(CMS.getUserMessage(locale,
+                        "CMS_INVALID_PROPERTY", name));
             }
 
-            ext =
-                        (SubjectAlternativeNameExtension)
-                        getExtension(PKIXExtensions.SubjectAlternativeName_Id.toString(), info);
+            ext = (SubjectAlternativeNameExtension) getExtension(
+                    PKIXExtensions.SubjectAlternativeName_Id.toString(), info);
 
-            if(ext == null)  {
-                populate(null,info);
-            } 
+            if (ext == null) {
+                populate(null, info);
+            }
 
             if (name.equals(VAL_CRITICAL)) {
-                ext = 
-                        (SubjectAlternativeNameExtension)
-                        getExtension(PKIXExtensions.SubjectAlternativeName_Id.toString(), info);
+                ext = (SubjectAlternativeNameExtension) getExtension(
+                        PKIXExtensions.SubjectAlternativeName_Id.toString(),
+                        info);
 
                 if (ext == null) {
                     // it is ok, the extension is never populated or delted
@@ -254,9 +241,9 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
 
                 ext.setCritical(critical);
             } else if (name.equals(VAL_GENERAL_NAMES)) {
-                ext = 
-                        (SubjectAlternativeNameExtension)
-                        getExtension(PKIXExtensions.SubjectAlternativeName_Id.toString(), info);
+                ext = (SubjectAlternativeNameExtension) getExtension(
+                        PKIXExtensions.SubjectAlternativeName_Id.toString(),
+                        info);
 
                 if (ext == null) {
                     // it is ok, the extension is never populated or delted
@@ -264,7 +251,9 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
                 }
                 if (value.equals("")) {
                     // if value is empty, do not add this extension
-                    deleteExtension(PKIXExtensions.SubjectAlternativeName_Id.toString(), info);
+                    deleteExtension(
+                            PKIXExtensions.SubjectAlternativeName_Id.toString(),
+                            info);
                     return;
                 }
                 GeneralNames gn = new GeneralNames();
@@ -279,64 +268,63 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
                     }
                     GeneralNameInterface n = parseGeneralName(gname);
                     if (n != null) {
-                      gn.addElement(n);
+                        gn.addElement(n);
                     }
                 }
                 if (gn.size() == 0) {
-                   CMS.debug("GN size is zero");
-                   deleteExtension(PKIXExtensions.SubjectAlternativeName_Id.toString(), info);
+                    CMS.debug("GN size is zero");
+                    deleteExtension(
+                            PKIXExtensions.SubjectAlternativeName_Id.toString(),
+                            info);
                     return;
                 } else {
-                   CMS.debug("GN size is non zero (" + gn.size() + ")");
-                  ext.set(SubjectAlternativeNameExtension.SUBJECT_NAME, gn);
+                    CMS.debug("GN size is non zero (" + gn.size() + ")");
+                    ext.set(SubjectAlternativeNameExtension.SUBJECT_NAME, gn);
                 }
             } else {
-                throw new EPropertyException(CMS.getUserMessage( 
-                            locale, "CMS_INVALID_PROPERTY", name));
+                throw new EPropertyException(CMS.getUserMessage(locale,
+                        "CMS_INVALID_PROPERTY", name));
             }
             replaceExtension(
-                PKIXExtensions.SubjectAlternativeName_Id.toString(),
-                ext, info);
+                    PKIXExtensions.SubjectAlternativeName_Id.toString(), ext,
+                    info);
         } catch (IOException e) {
             CMS.debug("SubjectAltNameExtDefault: setValue " + e.toString());
-            throw new EPropertyException(CMS.getUserMessage( 
-                        locale, "CMS_INVALID_PROPERTY", name));
+            throw new EPropertyException(CMS.getUserMessage(locale,
+                    "CMS_INVALID_PROPERTY", name));
         } catch (EProfileException e) {
             CMS.debug("SubjectAltNameExtDefault: setValue " + e.toString());
-            throw new EPropertyException(CMS.getUserMessage( 
-                        locale, "CMS_INVALID_PROPERTY", name));
+            throw new EPropertyException(CMS.getUserMessage(locale,
+                    "CMS_INVALID_PROPERTY", name));
         }
     }
 
-    public String getValue(String name, Locale locale,
-        X509CertInfo info)
-        throws EPropertyException {
+    public String getValue(String name, Locale locale, X509CertInfo info)
+            throws EPropertyException {
         try {
             if (name == null) {
-                throw new EPropertyException(CMS.getUserMessage( 
-                            locale, "CMS_INVALID_PROPERTY", name));
+                throw new EPropertyException(CMS.getUserMessage(locale,
+                        "CMS_INVALID_PROPERTY", name));
             }
 
-            SubjectAlternativeNameExtension ext =
-                    (SubjectAlternativeNameExtension)
-                    getExtension(PKIXExtensions.SubjectAlternativeName_Id.toString(), info);
+            SubjectAlternativeNameExtension ext = (SubjectAlternativeNameExtension) getExtension(
+                    PKIXExtensions.SubjectAlternativeName_Id.toString(), info);
 
-            if(ext == null)
-            {
+            if (ext == null) {
                 try {
-                    populate(null,info);
+                    populate(null, info);
 
                 } catch (EProfileException e) {
-                     throw new EPropertyException(CMS.getUserMessage(
-                          locale, "CMS_INVALID_PROPERTY", name));
+                    throw new EPropertyException(CMS.getUserMessage(locale,
+                            "CMS_INVALID_PROPERTY", name));
                 }
 
             }
 
             if (name.equals(VAL_CRITICAL)) {
-                ext = 
-                    (SubjectAlternativeNameExtension)
-                    getExtension(PKIXExtensions.SubjectAlternativeName_Id.toString(), info);
+                ext = (SubjectAlternativeNameExtension) getExtension(
+                        PKIXExtensions.SubjectAlternativeName_Id.toString(),
+                        info);
 
                 if (ext == null) {
                     return null;
@@ -347,106 +335,108 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
                     return "false";
                 }
             } else if (name.equals(VAL_GENERAL_NAMES)) {
-                ext = 
-                    (SubjectAlternativeNameExtension)
-                    getExtension(PKIXExtensions.SubjectAlternativeName_Id.toString(), info);
+                ext = (SubjectAlternativeNameExtension) getExtension(
+                        PKIXExtensions.SubjectAlternativeName_Id.toString(),
+                        info);
                 if (ext == null) {
                     return null;
                 }
 
-                GeneralNames names = (GeneralNames)
-                    ext.get(SubjectAlternativeNameExtension.SUBJECT_NAME);
+                GeneralNames names = (GeneralNames) ext
+                        .get(SubjectAlternativeNameExtension.SUBJECT_NAME);
                 StringBuffer sb = new StringBuffer();
                 Enumeration e = names.elements();
 
                 while (e.hasMoreElements()) {
                     Object o = (Object) e.nextElement();
                     if (!(o instanceof GeneralName))
-                            continue;
+                        continue;
                     GeneralName gn = (GeneralName) o;
 
                     if (!sb.toString().equals("")) {
                         sb.append("\r\n");
                     }
                     sb.append(toGeneralNameString(gn));
-                    CMS.debug("SubjectAltNameExtDefault: getValue append GN:" + toGeneralNameString(gn));
+                    CMS.debug("SubjectAltNameExtDefault: getValue append GN:"
+                            + toGeneralNameString(gn));
                 }
                 return sb.toString();
             } else {
-                throw new EPropertyException(CMS.getUserMessage( 
-                            locale, "CMS_INVALID_PROPERTY", name));
+                throw new EPropertyException(CMS.getUserMessage(locale,
+                        "CMS_INVALID_PROPERTY", name));
             }
         } catch (IOException e) {
-            CMS.debug("SubjectAltNameExtDefault: getValue " + 
-                e.toString());
+            CMS.debug("SubjectAltNameExtDefault: getValue " + e.toString());
         }
         return null;
     }
 
     /*
-     * returns text that goes into description for this extension on
-     * a profile
+     * returns text that goes into description for this extension on a profile
      */
     public String getText(Locale locale) {
         StringBuffer sb = new StringBuffer();
         String numGNs = getConfig(CONFIG_NUM_GNS);
         int num = getNumGNs();
 
-        for (int i= 0; i< num; i++) {
+        for (int i = 0; i < num; i++) {
             sb.append("Record #");
             sb.append(i);
             sb.append("{");
             sb.append(GN_PATTERN + ":");
             sb.append(getConfig(CONFIG_PATTERN + i));
             sb.append(",");
-            sb.append(GN_TYPE +":");
-            sb.append(getConfig(CONFIG_TYPE +i));
+            sb.append(GN_TYPE + ":");
+            sb.append(getConfig(CONFIG_TYPE + i));
             sb.append(",");
             sb.append(GN_ENABLE + ":");
             sb.append(getConfig(CONFIG_GN_ENABLE + i));
             sb.append("}");
-        };
+        }
+        ;
 
-        return CMS.getUserMessage(locale, "CMS_PROFILE_DEF_SUBJECT_ALT_NAME_EXT", getConfig(CONFIG_CRITICAL), sb.toString());
+        return CMS.getUserMessage(locale,
+                "CMS_PROFILE_DEF_SUBJECT_ALT_NAME_EXT",
+                getConfig(CONFIG_CRITICAL), sb.toString());
     }
 
     /**
      * Populates the request with this policy default.
      */
     public void populate(IRequest request, X509CertInfo info)
-        throws EProfileException {
+            throws EProfileException {
         SubjectAlternativeNameExtension ext = null;
 
         try {
-            /* read from config file*/
+            /* read from config file */
             ext = createExtension(request);
 
         } catch (IOException e) {
             CMS.debug("SubjectAltNameExtDefault: populate " + e.toString());
         }
         if (ext != null) {
-        addExtension(PKIXExtensions.SubjectAlternativeName_Id.toString(), 
-            ext, info);
+            addExtension(PKIXExtensions.SubjectAlternativeName_Id.toString(),
+                    ext, info);
         } else {
             CMS.debug("SubjectAltNameExtDefault: populate sees no extension.  get out");
         }
     }
 
     public SubjectAlternativeNameExtension createExtension(IRequest request)
-        throws IOException {
+            throws IOException {
         SubjectAlternativeNameExtension ext = null;
         int num = getNumGNs();
 
-        boolean critical = Boolean.valueOf(
-                getConfig(CONFIG_CRITICAL)).booleanValue();
+        boolean critical = Boolean.valueOf(getConfig(CONFIG_CRITICAL))
+                .booleanValue();
 
         GeneralNames gn = new GeneralNames();
         int count = 0; // # of actual gnames
-        for (int i=0; i< num; i++) {
-        String enable = getConfig(CONFIG_GN_ENABLE +i);
+        for (int i = 0; i < num; i++) {
+            String enable = getConfig(CONFIG_GN_ENABLE + i);
             if (enable != null && enable.equals("true")) {
-                CMS.debug("SubjectAltNameExtDefault: createExtension i=" +i);
-                
+                CMS.debug("SubjectAltNameExtDefault: createExtension i=" + i);
+
                 String pattern = getConfig(CONFIG_PATTERN + i);
                 if (pattern == null || pattern.equals("")) {
                     pattern = " ";
@@ -457,28 +447,31 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
 
                     // cfu - see if this is server-generated (e.g. UUID4)
                     // to use this feature, use $server.source$ in pattern
-                    String source = getConfig(CONFIG_SOURCE +i); 
+                    String source = getConfig(CONFIG_SOURCE + i);
                     String type = getConfig(CONFIG_TYPE + i);
                     if ((source != null) && (!source.equals(""))) {
                         if (type.equalsIgnoreCase("OtherName")) {
-                            CMS.debug("SubjectAlternativeNameExtension: using "+
-                               source+ " as gn");
+                            CMS.debug("SubjectAlternativeNameExtension: using "
+                                    + source + " as gn");
                             if (source.equals(CONFIG_SOURCE_UUID4)) {
-                              UUID randUUID = UUID.randomUUID();
-                              // call the mapPattern that does server-side gen
-                              // request is not used, but needed for the substitute
-                              // function
-                              gname = mapPattern(randUUID.toString(), request, pattern);
-                            } else { //expand more server-gen types here
-                              CMS.debug("SubjectAltNameExtDefault: createExtension - unsupported server-generated type: "+source+". Supported: UUID4");
-                              continue;
+                                UUID randUUID = UUID.randomUUID();
+                                // call the mapPattern that does server-side gen
+                                // request is not used, but needed for the
+                                // substitute
+                                // function
+                                gname = mapPattern(randUUID.toString(),
+                                        request, pattern);
+                            } else { // expand more server-gen types here
+                                CMS.debug("SubjectAltNameExtDefault: createExtension - unsupported server-generated type: "
+                                        + source + ". Supported: UUID4");
+                                continue;
                             }
                         } else {
-                              CMS.debug("SubjectAltNameExtDefault: createExtension - source is only supported for subjAltExtType OtherName");
-                              continue;
+                            CMS.debug("SubjectAltNameExtDefault: createExtension - source is only supported for subjAltExtType OtherName");
+                            continue;
                         }
                     } else {
-                        if (request != null)  {
+                        if (request != null) {
                             gname = mapPattern(request, pattern);
                         }
                     }
@@ -487,11 +480,13 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
                         CMS.debug("gname is empty, not added");
                         continue;
                     }
-                    CMS.debug("SubjectAltNameExtDefault: createExtension got gname=" +gname);
+                    CMS.debug("SubjectAltNameExtDefault: createExtension got gname="
+                            + gname);
 
-                    GeneralNameInterface n = parseGeneralName(type + ":" + gname);
+                    GeneralNameInterface n = parseGeneralName(type + ":"
+                            + gname);
 
-                    CMS.debug("adding gname: "+gname);
+                    CMS.debug("adding gname: " + gname);
                     if (n != null) {
                         CMS.debug("SubjectAlternativeNameExtension: n not null");
                         gn.addElement(n);
@@ -500,26 +495,26 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
                         CMS.debug("SubjectAlternativeNameExtension: n null");
                     }
                 }
-           }
-        } //for
+            }
+        } // for
 
         if (count != 0) {
-          try {
-            ext = new SubjectAlternativeNameExtension();
-          } catch (Exception e) {
-            CMS.debug(e.toString());
-            throw new IOException( e.toString() );
-          }
-          ext.set(SubjectAlternativeNameExtension.SUBJECT_NAME, gn);
-          ext.setCritical(critical);
+            try {
+                ext = new SubjectAlternativeNameExtension();
+            } catch (Exception e) {
+                CMS.debug(e.toString());
+                throw new IOException(e.toString());
+            }
+            ext.set(SubjectAlternativeNameExtension.SUBJECT_NAME, gn);
+            ext.setCritical(critical);
         } else {
-          CMS.debug("count is 0");
-        } 
+            CMS.debug("count is 0");
+        }
         return ext;
     }
 
-    public String mapPattern(IRequest request, String pattern) 
-        throws IOException {
+    public String mapPattern(IRequest request, String pattern)
+            throws IOException {
         Pattern p = new Pattern(pattern);
         IAttrSet attrSet = null;
         if (request != null) {
@@ -529,8 +524,8 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
     }
 
     // for server-side generated values
-    public String mapPattern(String val, IRequest request, String pattern) 
-        throws IOException {
+    public String mapPattern(String val, IRequest request, String pattern)
+            throws IOException {
         Pattern p = new Pattern(pattern);
         IAttrSet attrSet = null;
         if (request != null) {
@@ -539,7 +534,8 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
         try {
             attrSet.set("source", val);
         } catch (Exception e) {
-            CMS.debug("SubjectAlternativeNameExtension: mapPattern source "+e.toString());
+            CMS.debug("SubjectAlternativeNameExtension: mapPattern source "
+                    + e.toString());
         }
 
         return p.substitute("server", attrSet);

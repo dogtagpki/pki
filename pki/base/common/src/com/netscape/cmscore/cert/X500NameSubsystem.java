@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.cert;
 
-
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
@@ -35,13 +34,12 @@ import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cmscore.util.Debug;
 
-
 /**
- * Subsystem for configuring X500Name related things. 
- * It is used for the following. 
+ * Subsystem for configuring X500Name related things. It is used for the
+ * following.
  * <ul>
- * <li>Add X500Name (string to oid) maps for attributes that 
- *   are not supported by default.
+ * <li>Add X500Name (string to oid) maps for attributes that are not supported
+ * by default.
  * <li>Specify an order for encoding Directory Strings other than the default.
  * </ul>
  * 
@@ -51,11 +49,10 @@ import com.netscape.cmscore.util.Debug;
 public class X500NameSubsystem implements ISubsystem {
 
     private IConfigStore mConfig = null;
-    public  static final String ID = "X500Name";
+    public static final String ID = "X500Name";
     private String mId = ID;
 
-    private static final String 
-        PROP_DIR_STR_ENCODING_ORDER = "directoryStringEncodingOrder";
+    private static final String PROP_DIR_STR_ENCODING_ORDER = "directoryStringEncodingOrder";
 
     private static final String PROP_ATTR = "attr";
     private static final String PROP_OID = "oid";
@@ -82,57 +79,62 @@ public class X500NameSubsystem implements ISubsystem {
     public static X500NameSubsystem getInstance() {
         return mInstance;
     }
-	
+
     /**
-     * Initializes this subsystem with the given configuration store.
-     * All paramters are optional.  
+     * Initializes this subsystem with the given configuration store. All
+     * paramters are optional.
      * <ul>
-     * <li>Change encoding order of Directory Strings: 
+     * <li>Change encoding order of Directory Strings:
+     * 
      * <pre>
      * X500Name.directoryStringEncodingOrder=order seperated by commas
      * For example: Printable,BMPString,UniversalString.
      * </pre>
-     * Possible values are:  
+     * 
+     * Possible values are:
      * <ul>
      * <li>Printable
      * <li>IA5String
      * <li>UniversalString
      * <li>BMPString
-     * <li>UTF8String 
+     * <li>UTF8String
      * </ul>
      * <p>
-     * <li>Add X500Name attributes: 
+     * <li>Add X500Name attributes:
+     * 
      * <pre>
      * X500Name.attr.attribute-name.oid=n.n.n.n
-     * X500Name.attr.attribute-name.class=value converter class 
+     * X500Name.attr.attribute-name.class=value converter class
      * </pre>
      * 
-     * The value converter class converts a string to a ASN.1 value. 
-     * It must implement netscape.security.x509.AVAValueConverter interface. 
-     * Converter classes provided in CMS are: 
+     * The value converter class converts a string to a ASN.1 value. It must
+     * implement netscape.security.x509.AVAValueConverter interface. Converter
+     * classes provided in CMS are:
+     * 
      * <pre>
      *     netscape.security.x509.PrintableConverter - 
-     *			Converts to a Printable String value. String must have only 
-     *			printable characters. 
+     * 		Converts to a Printable String value. String must have only 
+     * 		printable characters. 
      *     netscape.security.x509.IA5StringConverter - 
-     *			Converts to a IA5String value. String must have only IA5String
-     *			characters. 
+     * 		Converts to a IA5String value. String must have only IA5String
+     * 		characters. 
      *     netscape.security.x509.DirStrConverter - 
-     *			Converts to a Directory (v3) String. String is expected to 
-     *			be in Directory String format according to rfc2253.
+     * 		Converts to a Directory (v3) String. String is expected to 
+     * 		be in Directory String format according to rfc2253.
      *     netscape.security.x509.GenericValueConverter - 
-     *			Converts string character by character in the following order
-     *			from smaller character sets to broadest character set.
-     *				Printable, IA5String, BMPString, Universal String.
+     * 		Converts string character by character in the following order
+     * 		from smaller character sets to broadest character set.
+     * 			Printable, IA5String, BMPString, Universal String.
      * </pre>
+     * 
      * </ul>
      * <P>
-     *
+     * 
      * @param owner owner of this subsystem
      * @param config configuration store
      */
     public synchronized void init(ISubsystem owner, IConfigStore config)
-        throws EBaseException {
+            throws EBaseException {
         mLogger = CMS.getLogger();
         if (Debug.ON) {
             Debug.trace(ID + " started");
@@ -142,16 +144,14 @@ public class X500NameSubsystem implements ISubsystem {
         // get order for encoding directory strings if any.
         setDirStrEncodingOrder();
 
-        // load x500 name maps 
+        // load x500 name maps
         loadX500NameAttrMaps();
     }
 
     /**
-     * Loads X500Name String to attribute maps. 
-     * Called from init.
+     * Loads X500Name String to attribute maps. Called from init.
      */
-    private void loadX500NameAttrMaps()
-        throws EBaseException {
+    private void loadX500NameAttrMaps() throws EBaseException {
         X500NameAttrMap globalMap = X500NameAttrMap.getDefault();
         IConfigStore attrSubStore = mConfig.getSubStore(PROP_ATTR);
         Enumeration attrNames = attrSubStore.getSubStoreNames();
@@ -166,28 +166,27 @@ public class X500NameSubsystem implements ISubsystem {
             AVAValueConverter convClass = null;
 
             try {
-                convClass = (AVAValueConverter)
-                        Class.forName(className).newInstance();
+                convClass = (AVAValueConverter) Class.forName(className)
+                        .newInstance();
             } catch (Exception e) {
-                throw new EBaseException(
-                        CMS.getUserMessage("CMS_BASE_LOAD_CLASS_FAILED", className, e.toString()));
+                throw new EBaseException(CMS.getUserMessage(
+                        "CMS_BASE_LOAD_CLASS_FAILED", className, e.toString()));
             }
             globalMap.addNameOID(name, oid, convClass);
             if (Debug.ON) {
-                Debug.trace(ID + ": Loaded " + name + " " + oid + " " + className);
+                Debug.trace(ID + ": Loaded " + name + " " + oid + " "
+                        + className);
             }
         }
     }
 
     /**
-     * Set directory string encoding order. 
-     * Called from init().
+     * Set directory string encoding order. Called from init().
      */
-    private void setDirStrEncodingOrder() 
-        throws EBaseException {
+    private void setDirStrEncodingOrder() throws EBaseException {
         String order = mConfig.getString(PROP_DIR_STR_ENCODING_ORDER, null);
 
-        if (order == null || order.length() == 0)  // nothing.
+        if (order == null || order.length() == 0) // nothing.
             return;
         StringTokenizer toker = new StringTokenizer(order, ", \t");
         int numTokens = toker.countTokens();
@@ -195,9 +194,11 @@ public class X500NameSubsystem implements ISubsystem {
         if (numTokens == 0) {
             String msg = "must be a list of DER tag names seperated by commas.";
 
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CERT_DIR_STRING", PROP_DIR_STR_ENCODING_ORDER));
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE", 
-                        PROP_DIR_STR_ENCODING_ORDER, msg));
+            log(ILogger.LL_FAILURE, CMS.getLogMessage(
+                    "CMSCORE_CERT_DIR_STRING", PROP_DIR_STR_ENCODING_ORDER));
+            throw new EBaseException(CMS.getUserMessage(
+                    "CMS_BASE_INVALID_ATTR_VALUE", PROP_DIR_STR_ENCODING_ORDER,
+                    msg));
         }
 
         byte[] tags = new byte[numTokens];
@@ -210,9 +211,12 @@ public class X500NameSubsystem implements ISubsystem {
             } catch (IllegalArgumentException e) {
                 String msg = "unknown DER tag '" + nextTag + "'.";
 
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CERT_UNKNOWN_TAG", PROP_DIR_STR_ENCODING_ORDER, nextTag));
-                throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE", 
-                            PROP_DIR_STR_ENCODING_ORDER, msg));
+                log(ILogger.LL_FAILURE, CMS.getLogMessage(
+                        "CMSCORE_CERT_UNKNOWN_TAG",
+                        PROP_DIR_STR_ENCODING_ORDER, nextTag));
+                throw new EBaseException(CMS.getUserMessage(
+                        "CMS_BASE_INVALID_ATTR_VALUE",
+                        PROP_DIR_STR_ENCODING_ORDER, msg));
             }
         }
 
@@ -229,28 +233,24 @@ public class X500NameSubsystem implements ISubsystem {
     private static Hashtable mDerStr2TagHash = new Hashtable();
 
     static {
-        mDerStr2TagHash.put(
-            PRINTABLESTRING, Byte.valueOf(DerValue.tag_PrintableString));
-        mDerStr2TagHash.put(
-            IA5STRING, Byte.valueOf(DerValue.tag_IA5String));
-        mDerStr2TagHash.put(
-            VISIBLESTRING, Byte.valueOf(DerValue.tag_VisibleString));
-        mDerStr2TagHash.put(
-            T61STRING, Byte.valueOf(DerValue.tag_T61String));
-        mDerStr2TagHash.put(
-            BMPSTRING, Byte.valueOf(DerValue.tag_BMPString));
-        mDerStr2TagHash.put(
-            UNIVERSALSTRING, Byte.valueOf(DerValue.tag_UniversalString));
-        mDerStr2TagHash.put(
-            UFT8STRING, Byte.valueOf(DerValue.tag_UTF8String));
+        mDerStr2TagHash.put(PRINTABLESTRING,
+                Byte.valueOf(DerValue.tag_PrintableString));
+        mDerStr2TagHash.put(IA5STRING, Byte.valueOf(DerValue.tag_IA5String));
+        mDerStr2TagHash.put(VISIBLESTRING,
+                Byte.valueOf(DerValue.tag_VisibleString));
+        mDerStr2TagHash.put(T61STRING, Byte.valueOf(DerValue.tag_T61String));
+        mDerStr2TagHash.put(BMPSTRING, Byte.valueOf(DerValue.tag_BMPString));
+        mDerStr2TagHash.put(UNIVERSALSTRING,
+                Byte.valueOf(DerValue.tag_UniversalString));
+        mDerStr2TagHash.put(UFT8STRING, Byte.valueOf(DerValue.tag_UTF8String));
     }
 
     private byte derStr2Tag(String s) {
-        if (s == null || s.length() == 0) 
+        if (s == null || s.length() == 0)
             throw new IllegalArgumentException();
         Byte tag = (Byte) mDerStr2TagHash.get(s);
 
-        if (tag == null) 
+        if (tag == null)
             throw new IllegalArgumentException();
         return tag.byteValue();
     }
@@ -265,9 +265,8 @@ public class X500NameSubsystem implements ISubsystem {
     }
 
     /*
-     * Returns the root configuration storage of this system.
-     * <P>
-     *
+     * Returns the root configuration storage of this system. <P>
+     * 
      * @return configuration store of this subsystem
      */
     public IConfigStore getConfigStore() {
@@ -277,8 +276,7 @@ public class X500NameSubsystem implements ISubsystem {
     protected ILogger mLogger = null;
 
     protected void log(int level, String msg) {
-        mLogger.log(ILogger.EV_SYSTEM,
-            ILogger.S_ADMIN, level, msg);
+        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_ADMIN, level, msg);
     }
 
 }

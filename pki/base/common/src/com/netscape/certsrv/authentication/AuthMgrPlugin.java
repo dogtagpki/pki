@@ -17,13 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.authentication;
 
-
-
-
 /**
  * This class represents a registered authentication manager plugin.
  * <P>
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class AuthMgrPlugin {
@@ -34,21 +31,24 @@ public class AuthMgrPlugin {
 
     /**
      * Constructs a AuthManager plugin.
+     * 
      * @param id auth manager implementation name
      * @param classPath class path
      */
     public AuthMgrPlugin(String id, String classPath) {
 
         /*
-         if (id == null || classPath == null)
-         throw new AssertionException("Authentication Manager id or classpath can't be null");
+         * if (id == null || classPath == null) throw new
+         * AssertionException("Authentication Manager id or classpath can't be null"
+         * );
          */
         mId = id;
         mClassPath = classPath;
     }
-		
+
     /**
      * Returns an auth manager implementation name
+     * 
      * @return an auth manager implementation name
      */
     public String getId() {
@@ -57,22 +57,25 @@ public class AuthMgrPlugin {
 
     /**
      * Returns a classpath of a AuthManager plugin
+     * 
      * @return a classpath of a AuthManager plugin
      */
     public String getClassPath() {
         return mClassPath;
     }
 
-    /** 
+    /**
      * Returns a visibility of the plugin
+     * 
      * @return a visibility of the plugin
      */
     public boolean isVisible() {
         return mVisible;
     }
 
-    /** 
+    /**
      * Sets visibility of the plugin
+     * 
      * @param visibility visibility of the plugin
      */
     public void setVisible(boolean visibility) {

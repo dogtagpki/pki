@@ -23,10 +23,9 @@ import netscape.security.util.DerOutputStream;
 import netscape.security.util.DerValue;
 import netscape.security.util.ObjectIdentifier;
 
-
 /**
  * Represent the CertificatePolicyId ASN.1 object.
- *
+ * 
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  * @version 1.5
@@ -40,7 +39,7 @@ public class CertificatePolicyId implements java.io.Serializable {
 
     /**
      * Create a CertificatePolicyId with the ObjectIdentifier.
-     *
+     * 
      * @param id the ObjectIdentifier for the policy id.
      */
     public CertificatePolicyId(ObjectIdentifier id) {
@@ -49,7 +48,7 @@ public class CertificatePolicyId implements java.io.Serializable {
 
     /**
      * Create the object from its Der encoded value.
-     *
+     * 
      * @param val the DER encoded value for the same.
      */
     public CertificatePolicyId(DerValue val) throws IOException {
@@ -67,16 +66,14 @@ public class CertificatePolicyId implements java.io.Serializable {
      * Returns a printable representation of the CertificatePolicyId.
      */
     public String toString() {
-        String s = "CertificatePolicyId: ["
-                 + id.toString()
-                 + "]\n";
+        String s = "CertificatePolicyId: [" + id.toString() + "]\n";
 
         return (s);
     }
 
     /**
      * Write the CertificatePolicyId to the DerOutputStream.
-     *
+     * 
      * @param out the DerOutputStream to write the object to.
      * @exception IOException on errors.
      */

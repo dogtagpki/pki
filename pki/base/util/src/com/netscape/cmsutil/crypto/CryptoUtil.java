@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmsutil.crypto;
 
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.CharConversionException;
@@ -109,27 +108,27 @@ public class CryptoUtil {
     /*
      * encodes cert
      */
- // private static BASE64Encoder mEncoder = new BASE64Encoder();
+    // private static BASE64Encoder mEncoder = new BASE64Encoder();
     public static String toMIME64(X509CertImpl cert) {
         try {
-            return
-                    "-----BEGIN CERTIFICATE-----\n"
-                //  + mEncoder.encodeBuffer(cert.getEncoded())
-                    + OSUtil.BtoA( cert.getEncoded() )
+            return "-----BEGIN CERTIFICATE-----\n"
+                    // + mEncoder.encodeBuffer(cert.getEncoded())
+                    + OSUtil.BtoA(cert.getEncoded())
                     + "-----END CERTIFICATE-----\n";
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
         return null;
     }
-                                                                                
+
     public static boolean arraysEqual(byte[] bytes, byte[] ints) {
         if (bytes == null || ints == null) {
             return false;
         }
-                                                                                
+
         if (bytes.length != ints.length) {
             return false;
         }
-                                                                                
+
         for (int i = 0; i < bytes.length; i++) {
             if (bytes[i] != ints[i]) {
                 return false;
@@ -142,8 +141,7 @@ public class CryptoUtil {
      * Retrieves handle to a JSS token.
      */
     public static CryptoToken getTokenByName(String token)
-        throws CryptoManager.NotInitializedException,
-                NoSuchTokenException {
+            throws CryptoManager.NotInitializedException, NoSuchTokenException {
         CryptoManager cm = CryptoManager.getInstance();
         CryptoToken t = null;
 
@@ -159,10 +157,8 @@ public class CryptoUtil {
      * Generates a RSA key pair.
      */
     public static KeyPair generateRSAKeyPair(String token, int keysize)
-        throws CryptoManager.NotInitializedException,
-                NoSuchTokenException,
-                NoSuchAlgorithmException,
-                TokenException {
+            throws CryptoManager.NotInitializedException, NoSuchTokenException,
+            NoSuchAlgorithmException, TokenException {
         CryptoToken t = getTokenByName(token);
         KeyPairGenerator g = t.getKeyPairGenerator(KeyPairAlgorithm.RSA);
 
@@ -172,34 +168,28 @@ public class CryptoUtil {
         return pair;
     }
 
-    public static boolean isECCKey(X509Key key) 
-    {
+    public static boolean isECCKey(X509Key key) {
         String keyAlgo = key.getAlgorithm();
-         if (keyAlgo.equals("EC") ||
-                keyAlgo.equals("OID.1.2.840.10045.44")) { // ECC
-             return true;
-         }
-         return false;
+        if (keyAlgo.equals("EC") || keyAlgo.equals("OID.1.2.840.10045.44")) { // ECC
+            return true;
+        }
+        return false;
     }
 
     /**
      * Generates an ecc key pair.
      */
     public static KeyPair generateECCKeyPair(String token, int keysize)
-        throws CryptoManager.NotInitializedException,
-                NoSuchTokenException,
-                NoSuchAlgorithmException,
-                TokenException {
+            throws CryptoManager.NotInitializedException, NoSuchTokenException,
+            NoSuchAlgorithmException, TokenException {
         return generateECCKeyPair(token, keysize, null, null);
     }
 
     public static KeyPair generateECCKeyPair(String token, int keysize,
-           org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage[] usage_ops,
-           org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage[] usage_mask)
-        throws CryptoManager.NotInitializedException,
-                NoSuchTokenException,
-                NoSuchAlgorithmException,
-                TokenException {
+            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage[] usage_ops,
+            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage[] usage_mask)
+            throws CryptoManager.NotInitializedException, NoSuchTokenException,
+            NoSuchAlgorithmException, TokenException {
         CryptoToken t = getTokenByName(token);
 
         KeyPairAlgorithm alg = KeyPairAlgorithm.EC;
@@ -217,55 +207,52 @@ public class CryptoUtil {
      * Generates an ecc key pair by curve name
      */
     public static KeyPair generateECCKeyPair(String token, String curveName)
-        throws CryptoManager.NotInitializedException,
-                NoSuchTokenException,
-                NoSuchAlgorithmException,
-                TokenException {
+            throws CryptoManager.NotInitializedException, NoSuchTokenException,
+            NoSuchAlgorithmException, TokenException {
         return generateECCKeyPair(token, curveName, null, null);
     }
 
     public static KeyPair generateECCKeyPair(CryptoToken token, String curveName)
-        throws CryptoManager.NotInitializedException,
-                NoSuchTokenException,
-                NoSuchAlgorithmException,
-                TokenException {
+            throws CryptoManager.NotInitializedException, NoSuchTokenException,
+            NoSuchAlgorithmException, TokenException {
         return generateECCKeyPair(token, curveName, null, null);
     }
 
     public static KeyPair generateECCKeyPair(String token, String curveName,
-           org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage[] usage_ops,
-           org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage[] usage_mask)
-        throws CryptoManager.NotInitializedException,
-                NoSuchTokenException,
-                NoSuchAlgorithmException,
-                TokenException {
+            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage[] usage_ops,
+            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage[] usage_mask)
+            throws CryptoManager.NotInitializedException, NoSuchTokenException,
+            NoSuchAlgorithmException, TokenException {
         CryptoToken t = getTokenByName(token);
         return generateECCKeyPair(t, curveName, usage_ops, usage_mask);
     }
 
-    public static KeyPair generateECCKeyPair(CryptoToken token, String curveName,
-           org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage[] usage_ops,
-           org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage[] usage_mask)
-        throws CryptoManager.NotInitializedException,
-                NoSuchTokenException,
-                NoSuchAlgorithmException,
-                TokenException {
+    public static KeyPair generateECCKeyPair(CryptoToken token,
+            String curveName,
+            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage[] usage_ops,
+            org.mozilla.jss.crypto.KeyPairGeneratorSpi.Usage[] usage_mask)
+            throws CryptoManager.NotInitializedException, NoSuchTokenException,
+            NoSuchAlgorithmException, TokenException {
         KeyPairAlgorithm alg = KeyPairAlgorithm.EC;
         KeyPairGenerator g = token.getKeyPairGenerator(alg);
 
         g.setKeyPairUsages(usage_ops, usage_mask);
 
-        System.out.println("CryptoUtil: generateECCKeyPair: curve = "+ curveName);
+        System.out.println("CryptoUtil: generateECCKeyPair: curve = "
+                + curveName);
         int curveCode = 0;
         try {
             curveCode = g.getCurveCodeByName(curveName);
         } catch (Exception e) {
-            System.out.println("CryptoUtil: generateECCKeyPair: "+ e.toString());
+            System.out.println("CryptoUtil: generateECCKeyPair: "
+                    + e.toString());
             throw new NoSuchAlgorithmException();
         }
         g.initialize(curveCode);
 
-        System.out.println("CryptoUtil: generateECCKeyPair: after KeyPairGenerator initialize with:"+ curveName);
+        System.out
+                .println("CryptoUtil: generateECCKeyPair: after KeyPairGenerator initialize with:"
+                        + curveName);
         KeyPair pair = g.genKeyPair();
 
         return pair;
@@ -287,23 +274,22 @@ public class CryptoUtil {
         // All this streaming is lame, but Base64OutputStream needs a
         // PrintStream
         ByteArrayOutputStream output = new ByteArrayOutputStream();
-        Base64OutputStream b64 = new Base64OutputStream(new
-                PrintStream(new
-                FilterOutputStream(output)));
-                                                                                
+        Base64OutputStream b64 = new Base64OutputStream(new PrintStream(
+                new FilterOutputStream(output)));
+
         b64.write(bytes);
         b64.flush();
-                                                                                
+
         // This is internationally safe because Base64 chars are
         // contained within 8859_1
         return output.toString("8859_1");
     }
-                                                                                
+
     public static byte[] base64Decode(String s) throws IOException {
-     // BASE64Decoder base64 = new BASE64Decoder();
-     // byte[] d = base64.decodeBuffer(s);
-        byte[] d = OSUtil.AtoB( s );
-                                                                                
+        // BASE64Decoder base64 = new BASE64Decoder();
+        // byte[] d = base64.decodeBuffer(s);
+        byte[] d = OSUtil.AtoB(s);
+
         return d;
     }
 
@@ -313,10 +299,10 @@ public class CryptoUtil {
     public static String reqFormat(String content) {
         int beginIndex = CERTREQ_BEGIN_HEADING.length();
         int endIndex = CERTREQ_END_HEADING.length();
-                                                                                
+
         String result = CERTREQ_BEGIN_HEADING + "\n";
         int index = 0;
-                                                                                
+
         while (content.length() >= LINE_COUNT) {
             result = result + content.substring(0, LINE_COUNT) + "\n";
             content = content.substring(LINE_COUNT);
@@ -326,21 +312,15 @@ public class CryptoUtil {
         } else {
             result = result + CERTREQ_END_HEADING;
         }
-                                                                                
+
         return result;
     }
-                                                                                
-    public static String getPKCS10FromKey(String dn, 
-                    byte modulus[], byte exponent[], byte prikdata[])
-              throws IOException,
-                     InvalidKeyException,
-                     TokenException,
-                     NoSuchProviderException,
-                     CertificateException,
-                     SignatureException,
-                     CryptoManager.NotInitializedException,
-                     NoSuchAlgorithmException
-    {
+
+    public static String getPKCS10FromKey(String dn, byte modulus[],
+            byte exponent[], byte prikdata[]) throws IOException,
+            InvalidKeyException, TokenException, NoSuchProviderException,
+            CertificateException, SignatureException,
+            CryptoManager.NotInitializedException, NoSuchAlgorithmException {
         X509Key x509key = getPublicX509Key(modulus, exponent);
         PrivateKey prik = findPrivateKeyFromID(prikdata);
         PKCS10 pkcs10 = createCertificationRequest(dn, x509key, prik);
@@ -350,17 +330,11 @@ public class CryptoUtil {
         return bs.toString();
     }
 
-    public static String getPKCS10FromKey(String dn, 
-                    byte modulus[], byte exponent[], byte prikdata[], String alg)
-              throws IOException,
-                     InvalidKeyException,
-                     TokenException,
-                     NoSuchProviderException,
-                     CertificateException,
-                     SignatureException,
-                     CryptoManager.NotInitializedException,
-                     NoSuchAlgorithmException
-    {
+    public static String getPKCS10FromKey(String dn, byte modulus[],
+            byte exponent[], byte prikdata[], String alg) throws IOException,
+            InvalidKeyException, TokenException, NoSuchProviderException,
+            CertificateException, SignatureException,
+            CryptoManager.NotInitializedException, NoSuchAlgorithmException {
         X509Key x509key = getPublicX509Key(modulus, exponent);
         PrivateKey prik = findPrivateKeyFromID(prikdata);
         PKCS10 pkcs10 = createCertificationRequest(dn, x509key, prik, alg);
@@ -379,10 +353,10 @@ public class CryptoUtil {
         }
         int beginIndex = CERT_BEGIN_HEADING.length();
         int endIndex = CERT_END_HEADING.length();
-                                                                                
+
         String result = CERT_BEGIN_HEADING + "\n";
         int index = 0;
-                                                                                
+
         while (content.length() >= LINE_COUNT) {
             result = result + content.substring(0, LINE_COUNT) + "\n";
             content = content.substring(LINE_COUNT);
@@ -392,31 +366,32 @@ public class CryptoUtil {
         } else {
             result = result + CERT_END_HEADING;
         }
-                                                                                
+
         return result;
     }
 
     /**
      * strips out the begin and end certificate brackets
+     * 
      * @param s the string potentially bracketed with
-     * "-----BEGIN CERTIFICATE-----" and "-----END CERTIFICATE-----"
+     *            "-----BEGIN CERTIFICATE-----" and "-----END CERTIFICATE-----"
      * @return string without the brackets
      */
     public static String stripCertBrackets(String s) {
         if (s == null) {
             return s;
         }
-                                                                                
+
         if (s.startsWith(CERT_BEGIN_HEADING) && s.endsWith(CERT_END_HEADING)) {
             return (s.substring(27, (s.length() - 25)));
         }
-                                                                                
+
         // To support Thawte's header and footer
         if ((s.startsWith("-----BEGIN PKCS #7 SIGNED DATA-----"))
                 && (s.endsWith("-----END PKCS #7 SIGNED DATA-----"))) {
             return (s.substring(35, (s.length() - 33)));
         }
-                                                                                
+
         return s;
     }
 
@@ -430,13 +405,13 @@ public class CryptoUtil {
         s = s.replaceAll("-----END NEW CERTIFICATE REQUEST-----", "");
         s = s.replaceAll("-----BEGIN CERTIFICATE-----", "");
         s = s.replaceAll("-----END CERTIFICATE-----", "");
-                                                                                
+
         StringBuffer sb = new StringBuffer();
         StringTokenizer st = new StringTokenizer(s, "\r\n ");
-                                                                                
+
         while (st.hasMoreTokens()) {
             String nextLine = st.nextToken();
-                                                                                
+
             nextLine = nextLine.trim();
             if (nextLine.equals("-----BEGIN CERTIFICATE REQUEST-----")) {
                 continue;
@@ -460,10 +435,10 @@ public class CryptoUtil {
         }
         return sb.toString();
     }
-                                                                                
+
     public static String normalizeCertStr(String s) {
         String val = "";
-                                                                                
+
         for (int i = 0; i < s.length(); i++) {
             if (s.charAt(i) == '\n') {
                 continue;
@@ -480,65 +455,58 @@ public class CryptoUtil {
     }
 
     public static void importCertificateChain(String certchain)
-             throws IOException,
-                    CryptoManager.NotInitializedException,
-                    TokenException,
-                    CertificateEncodingException,
-                    CertificateException
-    {
+            throws IOException, CryptoManager.NotInitializedException,
+            TokenException, CertificateEncodingException, CertificateException {
         byte[] blah = base64Decode(certchain);
         CryptoManager manager = CryptoManager.getInstance();
         PKCS7 pkcs7 = null;
-        try {  
-          // try PKCS7 first
-          pkcs7 = new PKCS7(blah);
+        try {
+            // try PKCS7 first
+            pkcs7 = new PKCS7(blah);
         } catch (Exception e) {
         }
         X509Certificate cert = null;
         if (pkcs7 == null) {
-          cert = manager.importCACertPackage(blah);
-        } else {
-          java.security.cert.X509Certificate certsInP7[] = 
-                pkcs7.getCertificates();
-          if (certsInP7 == null) {
             cert = manager.importCACertPackage(blah);
-          } else {
-            for (int i = 0; i < certsInP7.length; i++) {
-              // import P7 one by one
-              cert = manager.importCACertPackage(certsInP7[i].getEncoded());
+        } else {
+            java.security.cert.X509Certificate certsInP7[] = pkcs7
+                    .getCertificates();
+            if (certsInP7 == null) {
+                cert = manager.importCACertPackage(blah);
+            } else {
+                for (int i = 0; i < certsInP7.length; i++) {
+                    // import P7 one by one
+                    cert = manager.importCACertPackage(certsInP7[i]
+                            .getEncoded());
+                }
             }
-          }
         }
-        X509Certificate[] certchains = 
-            CryptoManager.getInstance().buildCertificateChain(cert);
-                                                                                
+        X509Certificate[] certchains = CryptoManager.getInstance()
+                .buildCertificateChain(cert);
+
         if (certchains != null) {
-          cert = certchains[certchains.length - 1];
+            cert = certchains[certchains.length - 1];
         }
         InternalCertificate icert = (InternalCertificate) cert;
-        icert.setSSLTrust( InternalCertificate.TRUSTED_CA
-                                    | InternalCertificate.TRUSTED_CLIENT_CA
-                                    | InternalCertificate.VALID_CA);
+        icert.setSSLTrust(InternalCertificate.TRUSTED_CA
+                | InternalCertificate.TRUSTED_CLIENT_CA
+                | InternalCertificate.VALID_CA);
     }
 
     public static SEQUENCE parseCRMFMsgs(byte cert_request[])
-               throws IOException, InvalidBERException
-    {
-        ByteArrayInputStream crmfBlobIn = 
-              new ByteArrayInputStream(cert_request);
-        SEQUENCE crmfMsgs = (SEQUENCE)
-          new SEQUENCE.OF_Template(new CertReqMsg.Template()).decode(
-                        crmfBlobIn);
+            throws IOException, InvalidBERException {
+        ByteArrayInputStream crmfBlobIn = new ByteArrayInputStream(cert_request);
+        SEQUENCE crmfMsgs = (SEQUENCE) new SEQUENCE.OF_Template(
+                new CertReqMsg.Template()).decode(crmfBlobIn);
         return crmfMsgs;
     }
 
-    public static X509Key getX509KeyFromCRMFMsgs(SEQUENCE crmfMsgs) 
-              throws IOException, NoSuchAlgorithmException, 
-                  InvalidKeyException, InvalidKeyFormatException
-    {
+    public static X509Key getX509KeyFromCRMFMsgs(SEQUENCE crmfMsgs)
+            throws IOException, NoSuchAlgorithmException, InvalidKeyException,
+            InvalidKeyFormatException {
         int nummsgs = crmfMsgs.size();
         if (nummsgs <= 0) {
-          throw new IOException("invalid certificate requests");
+            throw new IOException("invalid certificate requests");
         }
         CertReqMsg msg = (CertReqMsg) crmfMsgs.elementAt(0);
         CertRequest certreq = msg.getCertReq();
@@ -549,47 +517,46 @@ public class CryptoUtil {
         return x509key;
     }
 
-    public static X509Key getPublicX509Key(byte modulus[], byte exponent[]) 
-        throws InvalidKeyException {
+    public static X509Key getPublicX509Key(byte modulus[], byte exponent[])
+            throws InvalidKeyException {
         return new netscape.security.provider.RSAPublicKey(new BigInt(modulus),
                 new BigInt(exponent));
     }
 
     public static X509Key getPublicX509ECCKey(byte encoded[])
-        throws InvalidKeyException {
-      try {
-        return X509Key.parse(new DerValue(encoded));
-      } catch (IOException e) {
-        throw new InvalidKeyException();
-      }
+            throws InvalidKeyException {
+        try {
+            return X509Key.parse(new DerValue(encoded));
+        } catch (IOException e) {
+            throw new InvalidKeyException();
+        }
     }
 
     public static X509Key convertPublicKeyToX509Key(PublicKey pubk)
-        throws InvalidKeyException {
+            throws InvalidKeyException {
         X509Key xKey;
-                                                                                
+
         if (pubk instanceof RSAPublicKey) {
             RSAPublicKey rsaKey = (RSAPublicKey) pubk;
-                                                                                
-            xKey = new netscape.security.provider.RSAPublicKey(
-                    new BigInt(rsaKey.getModulus()),
+
+            xKey = new netscape.security.provider.RSAPublicKey(new BigInt(
+                    rsaKey.getModulus()),
                     new BigInt(rsaKey.getPublicExponent()));
         } else {
             // Assert.assert(pubk instanceof DSAPublicKey);
             DSAPublicKey dsaKey = (DSAPublicKey) pubk;
             DSAParams params = dsaKey.getParams();
-                                                                                
+
             xKey = new netscape.security.provider.DSAPublicKey(dsaKey.getY(),
                     params.getP(), params.getQ(), params.getG());
         }
         return xKey;
     }
 
-    public static String getSubjectName(SEQUENCE crmfMsgs) 
-      throws IOException {
+    public static String getSubjectName(SEQUENCE crmfMsgs) throws IOException {
         int nummsgs = crmfMsgs.size();
         if (nummsgs <= 0) {
-          throw new IOException("invalid certificate requests");
+            throw new IOException("invalid certificate requests");
         }
         CertReqMsg msg = (CertReqMsg) crmfMsgs.elementAt(0);
         CertRequest certreq = msg.getCertReq();
@@ -597,7 +564,7 @@ public class CryptoUtil {
         Name n = certTemplate.getSubject();
         ByteArrayOutputStream subjectEncStream = new ByteArrayOutputStream();
         n.encode(subjectEncStream);
-        
+
         byte[] b = subjectEncStream.toByteArray();
         X500Name subject = new X500Name(b);
         return subject.toString();
@@ -606,157 +573,119 @@ public class CryptoUtil {
     /**
      * Creates a Certificate template.
      */
-    public static X509CertInfo createX509CertInfo(KeyPair pair,
-            int serialno, String issuername, String subjname, 
-            Date notBefore, Date notAfter)
-        throws IOException, 
-                CertificateException, 
-                InvalidKeyException {
-        return createX509CertInfo(convertPublicKeyToX509Key(pair.getPublic()), 
+    public static X509CertInfo createX509CertInfo(KeyPair pair, int serialno,
+            String issuername, String subjname, Date notBefore, Date notAfter)
+            throws IOException, CertificateException, InvalidKeyException {
+        return createX509CertInfo(convertPublicKeyToX509Key(pair.getPublic()),
                 serialno, issuername, subjname, notBefore, notAfter);
     }
 
     public static X509CertInfo createX509CertInfo(PublicKey publickey,
-            int serialno, String issuername, String subjname, 
-            Date notBefore, Date notAfter)
-        throws IOException, 
-                CertificateException, 
-                InvalidKeyException {
-        return createX509CertInfo(convertPublicKeyToX509Key(publickey), serialno,
-                issuername, subjname, notBefore, notAfter);
+            int serialno, String issuername, String subjname, Date notBefore,
+            Date notAfter) throws IOException, CertificateException,
+            InvalidKeyException {
+        return createX509CertInfo(convertPublicKeyToX509Key(publickey),
+                serialno, issuername, subjname, notBefore, notAfter);
     }
 
     public static X509CertInfo createX509CertInfo(X509Key x509key,
-            int serialno, String issuername, String subjname, 
-            Date notBefore, Date notAfter)
-        throws IOException, 
-                CertificateException, 
-                InvalidKeyException {
+            int serialno, String issuername, String subjname, Date notBefore,
+            Date notAfter) throws IOException, CertificateException,
+            InvalidKeyException {
         // set default; use the other call with "alg" to set algorithm
         String alg = "SHA256withRSA";
         try {
-        return createX509CertInfo (x509key, serialno, issuername, subjname, notBefore, notAfter, alg);
+            return createX509CertInfo(x509key, serialno, issuername, subjname,
+                    notBefore, notAfter, alg);
         } catch (NoSuchAlgorithmException ex) {
-          // for those that calls the old call without alg
-          throw new CertificateException("createX509CertInfo old call should not be here");
+            // for those that calls the old call without alg
+            throw new CertificateException(
+                    "createX509CertInfo old call should not be here");
         }
     }
 
     public static X509CertInfo createX509CertInfo(X509Key x509key,
-            int serialno, String issuername, String subjname, 
-            Date notBefore, Date notAfter, String alg)
-        throws IOException, 
-                CertificateException, 
-                InvalidKeyException,
-                NoSuchAlgorithmException {
+            int serialno, String issuername, String subjname, Date notBefore,
+            Date notAfter, String alg) throws IOException,
+            CertificateException, InvalidKeyException, NoSuchAlgorithmException {
         X509CertInfo info = new X509CertInfo();
 
-        info.set(X509CertInfo.VERSION, new
-                CertificateVersion(CertificateVersion.V3));
-        info.set(X509CertInfo.SERIAL_NUMBER, new
-                CertificateSerialNumber(serialno));
-        info.set(X509CertInfo.ISSUER, new
-                CertificateIssuerName(new X500Name(issuername)));
-        info.set(X509CertInfo.SUBJECT, new
-                CertificateSubjectName(new X500Name(subjname)));
-        info.set(X509CertInfo.VALIDITY, new
-                CertificateValidity(notBefore, notAfter));
-        info.set(X509CertInfo.ALGORITHM_ID, new
-                CertificateAlgorithmId(AlgorithmId.get(alg)));
+        info.set(X509CertInfo.VERSION, new CertificateVersion(
+                CertificateVersion.V3));
+        info.set(X509CertInfo.SERIAL_NUMBER, new CertificateSerialNumber(
+                serialno));
+        info.set(X509CertInfo.ISSUER, new CertificateIssuerName(new X500Name(
+                issuername)));
+        info.set(X509CertInfo.SUBJECT, new CertificateSubjectName(new X500Name(
+                subjname)));
+        info.set(X509CertInfo.VALIDITY, new CertificateValidity(notBefore,
+                notAfter));
+        info.set(X509CertInfo.ALGORITHM_ID, new CertificateAlgorithmId(
+                AlgorithmId.get(alg)));
         info.set(X509CertInfo.KEY, new CertificateX509Key(x509key));
         info.set(X509CertInfo.EXTENSIONS, new CertificateExtensions());
         return info;
     }
 
-
-    public static X509CertImpl signECCCert(PrivateKey privateKey, 
-            X509CertInfo certInfo)
-        throws NoSuchTokenException, 
-                CryptoManager.NotInitializedException,
-                NoSuchAlgorithmException,
-                NoSuchTokenException,
-                TokenException,
-                InvalidKeyException,
-                SignatureException,
-                IOException,
-                CertificateException
-    {
+    public static X509CertImpl signECCCert(PrivateKey privateKey,
+            X509CertInfo certInfo) throws NoSuchTokenException,
+            CryptoManager.NotInitializedException, NoSuchAlgorithmException,
+            NoSuchTokenException, TokenException, InvalidKeyException,
+            SignatureException, IOException, CertificateException {
         // set default; use the other call with "alg" to specify algorithm
         String alg = "SHA256withEC";
         return signECCCert(privateKey, certInfo, alg);
     }
 
-    public static X509CertImpl signECCCert(PrivateKey privateKey, 
-            X509CertInfo certInfo, String alg)
-        throws NoSuchTokenException, 
-                CryptoManager.NotInitializedException,
-                NoSuchAlgorithmException,
-                NoSuchTokenException,
-                TokenException,
-                InvalidKeyException,
-                SignatureException,
-                IOException,
-                CertificateException
-    {
-       return signCert(privateKey, certInfo, 
-                Cert.mapAlgorithmToJss(alg));
+    public static X509CertImpl signECCCert(PrivateKey privateKey,
+            X509CertInfo certInfo, String alg) throws NoSuchTokenException,
+            CryptoManager.NotInitializedException, NoSuchAlgorithmException,
+            NoSuchTokenException, TokenException, InvalidKeyException,
+            SignatureException, IOException, CertificateException {
+        return signCert(privateKey, certInfo, Cert.mapAlgorithmToJss(alg));
     }
 
     /**
      * Signs certificate.
      */
-    public static X509CertImpl signCert(PrivateKey privateKey, 
-            X509CertInfo certInfo, String alg)
-        throws NoSuchTokenException, 
-                CryptoManager.NotInitializedException,
-                NoSuchAlgorithmException,
-                NoSuchTokenException,
-                TokenException,
-                InvalidKeyException,
-                SignatureException,
-                IOException,
-                CertificateException {
-        return signCert (privateKey, certInfo,
-                 Cert.mapAlgorithmToJss(alg));
+    public static X509CertImpl signCert(PrivateKey privateKey,
+            X509CertInfo certInfo, String alg) throws NoSuchTokenException,
+            CryptoManager.NotInitializedException, NoSuchAlgorithmException,
+            NoSuchTokenException, TokenException, InvalidKeyException,
+            SignatureException, IOException, CertificateException {
+        return signCert(privateKey, certInfo, Cert.mapAlgorithmToJss(alg));
     }
 
-    public static X509CertImpl signCert(PrivateKey privateKey, 
+    public static X509CertImpl signCert(PrivateKey privateKey,
             X509CertInfo certInfo, SignatureAlgorithm sigAlg)
-        throws NoSuchTokenException, 
-                CryptoManager.NotInitializedException,
-                NoSuchAlgorithmException,
-                NoSuchTokenException,
-                TokenException,
-                InvalidKeyException,
-                SignatureException,
-                IOException,
-                CertificateException {
+            throws NoSuchTokenException, CryptoManager.NotInitializedException,
+            NoSuchAlgorithmException, NoSuchTokenException, TokenException,
+            InvalidKeyException, SignatureException, IOException,
+            CertificateException {
 
         DerInputStream ds = new DerInputStream(ASN1Util.encode(sigAlg.toOID()));
         ObjectIdentifier sigAlgOID = new ObjectIdentifier(ds);
         AlgorithmId aid = new AlgorithmId(sigAlgOID);
-        certInfo.set(X509CertInfo.ALGORITHM_ID, 
-               new CertificateAlgorithmId(aid));
-                                                                                
-        org.mozilla.jss.crypto.PrivateKey priKey = 
-              (org.mozilla.jss.crypto.PrivateKey) privateKey;
+        certInfo.set(X509CertInfo.ALGORITHM_ID, new CertificateAlgorithmId(aid));
+
+        org.mozilla.jss.crypto.PrivateKey priKey = (org.mozilla.jss.crypto.PrivateKey) privateKey;
         CryptoToken token = priKey.getOwningToken();
-                                                                                
+
         DerOutputStream tmp = new DerOutputStream();
         DerOutputStream out = new DerOutputStream();
-                                                                                
+
         certInfo.encode(tmp);
         Signature signer = token.getSignatureContext(sigAlg);
-                                                                                
+
         signer.initSign(priKey);
         signer.update(tmp.toByteArray());
         byte signed[] = signer.sign();
-                                                                                
+
         aid.encode(tmp);
         tmp.putBitString(signed);
         out.write(DerValue.tag_Sequence, tmp);
         X509CertImpl signedCert = new X509CertImpl(out.toByteArray());
-                                                                                
+
         return signedCert;
     }
 
@@ -764,23 +693,22 @@ public class CryptoUtil {
      * Creates a PKCS#10 request.
      */
     public static PKCS10 createCertificationRequest(String subjectName,
-            X509Key pubk, PrivateKey prik)
-        throws NoSuchAlgorithmException, NoSuchProviderException,
-                InvalidKeyException, IOException, CertificateException,
-                SignatureException {
+            X509Key pubk, PrivateKey prik) throws NoSuchAlgorithmException,
+            NoSuchProviderException, InvalidKeyException, IOException,
+            CertificateException, SignatureException {
         // give default
         String alg = "SHA256withRSA";
         if (isECCKey(pubk)) {
-          alg = "SHA256withEC";
+            alg = "SHA256withEC";
         }
         return createCertificationRequest(subjectName, pubk, prik, alg);
     }
 
     public static PKCS10 createCertificationRequest(String subjectName,
             X509Key pubk, PrivateKey prik, String alg)
-        throws NoSuchAlgorithmException, NoSuchProviderException,
-                InvalidKeyException, IOException, CertificateException,
-                SignatureException {
+            throws NoSuchAlgorithmException, NoSuchProviderException,
+            InvalidKeyException, IOException, CertificateException,
+            SignatureException {
         X509Key key = pubk;
         java.security.Signature sig = java.security.Signature.getInstance(alg,
                 "Mozilla-JSS");
@@ -798,10 +726,9 @@ public class CryptoUtil {
      * Creates a PKCS#10 request.
      */
     public static PKCS10 createCertificationRequest(String subjectName,
-            KeyPair keyPair)
-        throws NoSuchAlgorithmException, NoSuchProviderException,
-                InvalidKeyException, IOException, CertificateException,
-                SignatureException {
+            KeyPair keyPair) throws NoSuchAlgorithmException,
+            NoSuchProviderException, InvalidKeyException, IOException,
+            CertificateException, SignatureException {
         String alg;
         PublicKey pubk = keyPair.getPublic();
         X509Key key = convertPublicKeyToX509Key(pubk);
@@ -813,46 +740,44 @@ public class CryptoUtil {
             // Assert.assert(pubk instanceof DSAPublicKey);
             alg = "DSA";
         }
-        return createCertificationRequest(subjectName,keyPair, alg);
+        return createCertificationRequest(subjectName, keyPair, alg);
     }
 
     public static PKCS10 createCertificationRequest(String subjectName,
-            KeyPair keyPair, String alg)
-        throws NoSuchAlgorithmException, NoSuchProviderException,
-                InvalidKeyException, IOException, CertificateException,
-                SignatureException {
+            KeyPair keyPair, String alg) throws NoSuchAlgorithmException,
+            NoSuchProviderException, InvalidKeyException, IOException,
+            CertificateException, SignatureException {
         PublicKey pubk = keyPair.getPublic();
         X509Key key = convertPublicKeyToX509Key(pubk);
-                                                                                
+
         java.security.Signature sig = java.security.Signature.getInstance(alg,
                 "Mozilla-JSS");
-                                                                                
+
         sig.initSign(keyPair.getPrivate());
-                                                                                
+
         PKCS10 pkcs10 = new PKCS10(key);
-                                                                                
+
         X500Name name = new X500Name(subjectName);
         X500Signer signer = new X500Signer(sig, name);
-                                                                                
+
         pkcs10.encodeAndSign(signer);
-                                                                                
+
         return pkcs10;
     }
 
     public static void unTrustCert(InternalCertificate cert) {
         // remove TRUSTED_CA
         int flag = cert.getSSLTrust();
-                                                                                
+
         flag ^= InternalCertificate.VALID_CA;
         cert.setSSLTrust(flag);
     }
-                                                                                
+
     /**
      * Trusts a certificate by nickname.
      */
-    public static void trustCertByNickname(String nickname) 
-        throws CryptoManager.NotInitializedException,
-                TokenException {
+    public static void trustCertByNickname(String nickname)
+            throws CryptoManager.NotInitializedException, TokenException {
         CryptoManager cm = CryptoManager.getInstance();
         X509Certificate certs[] = cm.findCertsByNickname(nickname);
 
@@ -868,28 +793,28 @@ public class CryptoUtil {
      * Trusts a certificate.
      */
     public static void trustCert(InternalCertificate cert) {
-        int flag = InternalCertificate.VALID_CA | InternalCertificate.TRUSTED_CA
-                | InternalCertificate.USER
+        int flag = InternalCertificate.VALID_CA
+                | InternalCertificate.TRUSTED_CA | InternalCertificate.USER
                 | InternalCertificate.TRUSTED_CLIENT_CA;
-                                                                                
+
         cert.setSSLTrust(flag);
         cert.setObjectSigningTrust(flag);
         cert.setEmailTrust(flag);
     }
-                                                                                
+
     /**
-     * To certificate server point of view, SSL trust is
-     * what we referring.
+     * To certificate server point of view, SSL trust is what we referring.
      */
     public static boolean isCertTrusted(InternalCertificate cert) {
-        if (isTrust(cert.getSSLTrust()) && isTrust(cert.getObjectSigningTrust())
+        if (isTrust(cert.getSSLTrust())
+                && isTrust(cert.getObjectSigningTrust())
                 && isTrust(cert.getEmailTrust())) {
             return true;
         } else {
             return false;
         }
     }
-                                                                                
+
     public static boolean isTrust(int flag) {
         if (((flag & InternalCertificate.VALID_CA) > 0)
                 && ((flag & InternalCertificate.TRUSTED_CA) > 0)
@@ -905,12 +830,11 @@ public class CryptoUtil {
      * Generates a symmetric key.
      */
     public static SymmetricKey generateKey(CryptoToken token,
-            KeyGenAlgorithm alg)
-        throws TokenException, NoSuchAlgorithmException,
-                IllegalStateException {
+            KeyGenAlgorithm alg) throws TokenException,
+            NoSuchAlgorithmException, IllegalStateException {
         try {
             KeyGenerator kg = token.getKeyGenerator(alg);
-                                                                                
+
             return kg.generate();
         } catch (CharConversionException e) {
             throw new RuntimeException(
@@ -950,9 +874,8 @@ public class CryptoUtil {
     /**
      * Retrieves a private key from a unique key ID.
      */
-    public static PrivateKey findPrivateKeyFromID(byte id[]) 
-        throws CryptoManager.NotInitializedException,
-                TokenException {
+    public static PrivateKey findPrivateKeyFromID(byte id[])
+            throws CryptoManager.NotInitializedException, TokenException {
         CryptoManager cm = CryptoManager.getInstance();
         Enumeration enums = cm.getAllTokens();
 
@@ -960,7 +883,7 @@ public class CryptoUtil {
             CryptoToken token = (CryptoToken) enums.nextElement();
             String tokenName = token.getName();
             CryptoStore store = token.getCryptoStore();
-            PrivateKey keys[] = store.getPrivateKeys(); 
+            PrivateKey keys[] = store.getPrivateKeys();
 
             if (keys != null) {
                 for (int i = 0; i < keys.length; i++) {
@@ -977,8 +900,7 @@ public class CryptoUtil {
      * Retrieves all user certificates from all tokens.
      */
     public static X509CertImpl[] getAllUserCerts()
-        throws CryptoManager.NotInitializedException,
-                TokenException {
+            throws CryptoManager.NotInitializedException, TokenException {
         Vector certs = new Vector();
         CryptoManager cm = CryptoManager.getInstance();
         Enumeration enums = cm.getAllTokens();
@@ -986,10 +908,11 @@ public class CryptoUtil {
         while (enums.hasMoreElements()) {
             CryptoToken token = (CryptoToken) enums.nextElement();
             String tokenName = token.getName();
-                                                                                
+
             CryptoStore store = token.getCryptoStore();
-            org.mozilla.jss.crypto.X509Certificate list[] = store.getCertificates();
-                                                                               
+            org.mozilla.jss.crypto.X509Certificate list[] = store
+                    .getCertificates();
+
             for (int i = 0; i < list.length; i++) {
                 try {
                     PrivateKey key = cm.findPrivKeyByCert(list[i]);
@@ -1022,7 +945,7 @@ public class CryptoUtil {
      * Deletes a private key.
      */
     public static void deletePrivateKey(PrivateKey prikey)
-        throws CryptoManager.NotInitializedException, TokenException {
+            throws CryptoManager.NotInitializedException, TokenException {
         CryptoManager cm = CryptoManager.getInstance();
 
         try {
@@ -1030,21 +953,24 @@ public class CryptoUtil {
             CryptoStore store = token.getCryptoStore();
 
             store.deletePrivateKey(prikey);
-        } catch (NoSuchItemOnTokenException e) {}
+        } catch (NoSuchItemOnTokenException e) {
+        }
     }
 
     /**
      * Retrieves a private key by nickname.
      */
     public static PrivateKey getPrivateKey(String nickname)
-        throws CryptoManager.NotInitializedException, TokenException {
+            throws CryptoManager.NotInitializedException, TokenException {
         try {
             CryptoManager cm = CryptoManager.getInstance();
             X509Certificate cert = cm.findCertByNickname(nickname);
-            org.mozilla.jss.crypto.PrivateKey prikey = cm.findPrivKeyByCert(cert);
+            org.mozilla.jss.crypto.PrivateKey prikey = cm
+                    .findPrivKeyByCert(cert);
 
             return prikey;
-        } catch (ObjectNotFoundException e) {}
+        } catch (ObjectNotFoundException e) {
+        }
         return null;
     }
 
@@ -1052,7 +978,7 @@ public class CryptoUtil {
      * Deletes all certificates by a nickname.
      */
     public static void deleteAllCertificates(String nickname)
-        throws CryptoManager.NotInitializedException, TokenException {
+            throws CryptoManager.NotInitializedException, TokenException {
         CryptoManager cm = CryptoManager.getInstance();
         X509Certificate certs[] = cm.findCertsByNickname(nickname);
 
@@ -1062,28 +988,28 @@ public class CryptoUtil {
         for (int i = 0; i < certs.length; i++) {
             try {
                 X509Certificate cert = certs[i];
-                org.mozilla.jss.crypto.PrivateKey prikey = cm.findPrivKeyByCert(
-                        cert);
+                org.mozilla.jss.crypto.PrivateKey prikey = cm
+                        .findPrivKeyByCert(cert);
                 CryptoToken token = prikey.getOwningToken();
                 CryptoStore store = token.getCryptoStore();
 
                 store.deleteCert(cert);
-            } catch (NoSuchItemOnTokenException e) {} catch (ObjectNotFoundException e) {}
+            } catch (NoSuchItemOnTokenException e) {
+            } catch (ObjectNotFoundException e) {
+            }
         }
     }
 
     /**
-     * Imports a PKCS#7 certificate chain that includes the user 
-     * certificate, and trusts the certificate.
+     * Imports a PKCS#7 certificate chain that includes the user certificate,
+     * and trusts the certificate.
      */
-    public static X509Certificate importUserCertificateChain(String c, 
-            String nickname)
-        throws CryptoManager.NotInitializedException, 
-                CryptoManager.NicknameConflictException, 
-                CryptoManager.UserCertConflictException,
-                NoSuchItemOnTokenException,
-                TokenException,
-                CertificateEncodingException {
+    public static X509Certificate importUserCertificateChain(String c,
+            String nickname) throws CryptoManager.NotInitializedException,
+            CryptoManager.NicknameConflictException,
+            CryptoManager.UserCertConflictException,
+            NoSuchItemOnTokenException, TokenException,
+            CertificateEncodingException {
         CryptoManager cm = CryptoManager.getInstance();
         X509Certificate cert = cm.importCertPackage(c.getBytes(), nickname);
 
@@ -1095,26 +1021,22 @@ public class CryptoUtil {
      * Imports a user certificate, and trusts the certificate.
      */
     public static void importUserCertificate(X509CertImpl cert, String nickname)
-        throws CryptoManager.NotInitializedException,
-                CertificateEncodingException,
-                NoSuchItemOnTokenException,
-                TokenException,
-                CryptoManager.NicknameConflictException,
-                CryptoManager.UserCertConflictException {
+            throws CryptoManager.NotInitializedException,
+            CertificateEncodingException, NoSuchItemOnTokenException,
+            TokenException, CryptoManager.NicknameConflictException,
+            CryptoManager.UserCertConflictException {
         CryptoManager cm = CryptoManager.getInstance();
 
         cm.importUserCACertPackage(cert.getEncoded(), nickname);
         trustCertByNickname(nickname);
     }
 
-    public static void importUserCertificate(X509CertImpl cert, String nickname,
-      boolean trust)
-        throws CryptoManager.NotInitializedException,
-                CertificateEncodingException,
-                NoSuchItemOnTokenException,
-                TokenException,
-                CryptoManager.NicknameConflictException,
-                CryptoManager.UserCertConflictException {
+    public static void importUserCertificate(X509CertImpl cert,
+            String nickname, boolean trust)
+            throws CryptoManager.NotInitializedException,
+            CertificateEncodingException, NoSuchItemOnTokenException,
+            TokenException, CryptoManager.NicknameConflictException,
+            CryptoManager.UserCertConflictException {
         CryptoManager cm = CryptoManager.getInstance();
 
         cm.importUserCACertPackage(cert.getEncoded(), nickname);
@@ -1122,39 +1044,38 @@ public class CryptoUtil {
             trustCertByNickname(nickname);
     }
 
-    public static java.security.cert.X509Certificate[] getX509CertificateFromPKCS7(byte[] b) throws IOException {
+    public static java.security.cert.X509Certificate[] getX509CertificateFromPKCS7(
+            byte[] b) throws IOException {
         ByteArrayInputStream bis = new ByteArrayInputStream(b);
         CertificateChain certchain = new CertificateChain();
 
         certchain.decode(bis);
-        java.security.cert.X509Certificate[] certs = certchain.getChain(); 
+        java.security.cert.X509Certificate[] certs = certchain.getChain();
 
         return certs;
     }
 }
 
 // START ENABLE_ECC
-// This following can be removed when JSS with ECC capability 
+// This following can be removed when JSS with ECC capability
 // is integrated.
-class CryptoAlgorithm extends Algorithm
-{
+class CryptoAlgorithm extends Algorithm {
     protected CryptoAlgorithm(int oidIndex, String name) {
         super(oidIndex, name);
     }
 }
 
-class CryptoKeyPairAlgorithm extends KeyPairAlgorithm
-{
-    protected CryptoKeyPairAlgorithm(int oidIndex, String name, Algorithm algFamily) {        super(oidIndex, name, algFamily);
+class CryptoKeyPairAlgorithm extends KeyPairAlgorithm {
+    protected CryptoKeyPairAlgorithm(int oidIndex, String name,
+            Algorithm algFamily) {
+        super(oidIndex, name, algFamily);
     }
 }
 
-class CryptoSignatureAlgorithm extends SignatureAlgorithm
-{
+class CryptoSignatureAlgorithm extends SignatureAlgorithm {
     protected CryptoSignatureAlgorithm(int oidIndex, String name,
-        SignatureAlgorithm signingAlg, DigestAlgorithm digestAlg,
-        OBJECT_IDENTIFIER oid)
-    {
+            SignatureAlgorithm signingAlg, DigestAlgorithm digestAlg,
+            OBJECT_IDENTIFIER oid) {
         super(oidIndex, name, signingAlg, digestAlg, oid);
     }
 }

@@ -17,21 +17,20 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.policy;
 
-
 import java.util.Vector;
 
 import netscape.security.x509.GeneralNames;
 
-
-/** 
- * Class that can be used to form general names from configuration file. 
- * Used by policies and extension commands.
+/**
+ * Class that can be used to form general names from configuration file. Used by
+ * policies and extension commands.
  * <P>
+ * 
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- *
+ * 
  * @deprecated
  * @version $Revision$, $Date$
  */
@@ -39,14 +38,14 @@ public interface IGeneralNamesConfig {
 
     /**
      * Retrieves a list of configured general names.
-     *
+     * 
      * @return general names
      */
     public GeneralNames getGeneralNames();
 
     /**
      * Retrieves the instance parameters.
-     *
+     * 
      * @param params instance parameters
      */
     public void getInstanceParams(Vector params);

@@ -17,32 +17,30 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.dbs.certdb;
 
-
 import java.util.Date;
 
 import netscape.security.x509.CRLExtensions;
 
-
 /**
- * A class represents a certificate revocation info. This
- * object is written as an attribute of certificate record 
- * which essentially signifies a revocation act.
+ * A class represents a certificate revocation info. This object is written as
+ * an attribute of certificate record which essentially signifies a revocation
+ * act.
  * <P>
- *
+ * 
  * @version $Revision$, $Date$
  */
 public interface IRevocationInfo {
 
     /**
      * Retrieves revocation date.
-     *
+     * 
      * @return revocation date
      */
     public Date getRevocationDate();
 
     /**
      * Retrieves CRL entry extensions.
-     *
+     * 
      * @return CRL entry extensions
      */
     public CRLExtensions getCRLEntryExtensions();

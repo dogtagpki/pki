@@ -59,6 +59,7 @@ public class GetConfigEntries extends CMSServlet {
 
     /**
      * initialize the servlet.
+     * 
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -67,11 +68,13 @@ public class GetConfigEntries extends CMSServlet {
     }
 
     /**
-     * Process the HTTP request. 
+     * Process the HTTP request.
      * <ul>
      * <li>http.param op 'downloadBIN' - return the binary certificate chain
-     * <li>http.param op 'displayIND' - display pretty-print of certificate chain components
+     * <li>http.param op 'displayIND' - display pretty-print of certificate
+     * chain components
      * </ul>
+     * 
      * @param cmsReq the object holding the request and response information
      */
     protected void process(CMSRequest cmsReq) throws EBaseException {
@@ -84,12 +87,12 @@ public class GetConfigEntries extends CMSServlet {
             authToken = authenticate(cmsReq);
         } catch (Exception e) {
             CMS.debug("GetConfigEntries authentication failed");
-            log(ILogger.LL_FAILURE, 
+            log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSGW_ERR_BAD_SERV_OUT_STREAM", "",
-                    e.toString()));
+                            e.toString()));
             outputError(httpResp, AUTH_FAILURE, "Error: Not authenticated");
             return;
-        } 
+        }
 
         // Construct an ArgBlock
         IArgBlock args = cmsReq.getHttpParams();
@@ -104,32 +107,32 @@ public class GetConfigEntries extends CMSServlet {
         try {
             xmlObj = new XMLObject();
         } catch (Exception e) {
-            CMS.debug("GetConfigEntries process: Exception: "+e.toString());
-            throw new EBaseException( e.toString() );
+            CMS.debug("GetConfigEntries process: Exception: " + e.toString());
+            throw new EBaseException(e.toString());
         }
 
         Node root = xmlObj.createRoot("XMLResponse");
         AuthzToken authzToken = null;
 
         try {
-           authzToken = authorize(mAclMethod, authToken, mAuthzResourceName, 
+            authzToken = authorize(mAclMethod, authToken, mAuthzResourceName,
                     "read");
         } catch (EAuthzAccessDenied e) {
-                log(ILogger.LL_FAILURE,
+            log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
-                outputError(httpResp, "Error: Not authorized");
-                return;
+            outputError(httpResp, "Error: Not authorized");
+            return;
         } catch (Exception e) {
-                log(ILogger.LL_FAILURE,
+            log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
-                outputError(httpResp,
+            outputError(httpResp,
                     "Error: Encountered problem during authorization.");
-                return;
+            return;
         }
 
         if (authzToken == null) {
-                outputError(httpResp, "Error: Not authorized");
-                return;
+            outputError(httpResp, "Error: Not authorized");
+            return;
         }
 
         if (op != null) {
@@ -140,9 +143,9 @@ public class GetConfigEntries extends CMSServlet {
                 String name1 = t.nextToken();
                 IConfigStore cs = config.getSubStore(name1);
                 Enumeration enum1 = cs.getPropertyNames();
-             
+
                 while (enum1.hasMoreElements()) {
-                    String name = name1+"."+enum1.nextElement();
+                    String name = name1 + "." + enum1.nextElement();
                     try {
                         String value = config.getString(name);
                         Node container = xmlObj.createContainer(root, "Config");
@@ -171,10 +174,10 @@ public class GetConfigEntries extends CMSServlet {
                         value = getLDAPPassword();
                     } else if (name.equals("internaldb.replication.password")) {
                         value = getReplicationPassword();
-                    } else 
+                    } else
                         continue;
                 }
-             
+
                 Node container = xmlObj.createContainer(root, "Config");
                 xmlObj.addItemToContainer(container, "name", name);
                 xmlObj.addItemToContainer(container, "value", value);
@@ -208,7 +211,15 @@ public class GetConfigEntries extends CMSServlet {
         return locale;
     }
 
-    protected void renderResult(CMSRequest cmsReq) throws IOException {// do nothing, ie, it will not return the default javascript.
+    protected void renderResult(CMSRequest cmsReq) throws IOException {// do
+                                                                       // nothing,
+                                                                       // ie, it
+                                                                       // will
+                                                                       // not
+                                                                       // return
+                                                                       // the
+                                                                       // default
+                                                                       // javascript.
     }
 
     private String getLDAPPassword() {

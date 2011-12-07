@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.cert;
 
-
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
@@ -54,7 +53,6 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 
-
 /**
  * Allow agent to turn on/off authentication managers
  * 
@@ -89,11 +87,11 @@ public class RemoteAuthConfig extends CMSServlet {
 
     /**
      * Initializes the servlet.
-     *
-     * Presence of "auths.enableRemoteConfiguration=true" in CMS.cfg
-     * enables remote configuration for authentication plugins.
-     * List of remotely set instances can be found in CMS.cfg
-     * at "auths.remotelySetInstances=<name1>,<name2>,...,<nameN>"
+     * 
+     * Presence of "auths.enableRemoteConfiguration=true" in CMS.cfg enables
+     * remote configuration for authentication plugins. List of remotely set
+     * instances can be found in CMS.cfg at
+     * "auths.remotelySetInstances=<name1>,<name2>,...,<nameN>"
      */
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
@@ -102,9 +100,11 @@ public class RemoteAuthConfig extends CMSServlet {
         mFileConfig = CMS.getConfigStore();
         mAuthConfig = mFileConfig.getSubStore("auths");
         try {
-            mEnableRemoteConfiguration = mAuthConfig.getBoolean(ENABLE_REMOTE_CONFIG, false);
+            mEnableRemoteConfiguration = mAuthConfig.getBoolean(
+                    ENABLE_REMOTE_CONFIG, false);
         } catch (EBaseException eb) {
-            // Thanks to design of getBoolean we have to catch but we will never get anything.
+            // Thanks to design of getBoolean we have to catch but we will never
+            // get anything.
         }
 
         String remoteList = null;
@@ -112,7 +112,8 @@ public class RemoteAuthConfig extends CMSServlet {
         try {
             remoteList = mAuthConfig.getString(REMOTELY_SET_INSTANCES, null);
         } catch (EBaseException eb) {
-            // Thanks to design of getString we have to catch but we will never get anything.
+            // Thanks to design of getString we have to catch but we will never
+            // get anything.
         }
         if (remoteList != null) {
             StringTokenizer s = new StringTokenizer(remoteList, ",");
@@ -133,16 +134,10 @@ public class RemoteAuthConfig extends CMSServlet {
 
     /**
      * Serves HTTPS request. The format of this request is as follows:
-     *   https://host:ee-port/remoteAuthConfig?
-     *                        op="add"|"delete"&
-     *                        instance=<instanceName>&
-     *                        of=<authPluginName>&
-     *                        host=<hostName>&
-     *                        port=<portNumber>&
-     *                        password=<password>&
-     *                        [adminDN=<adminDN>]&
-     *                        [uid=<uid>]&
-     *                        [baseDN=<baseDN>]
+     * https://host:ee-port/remoteAuthConfig? op="add"|"delete"&
+     * instance=<instanceName>& of=<authPluginName>& host=<hostName>&
+     * port=<portNumber>& password=<password>& [adminDN=<adminDN>]& [uid=<uid>]&
+     * [baseDN=<baseDN>]
      */
     public void process(CMSRequest cmsReq) throws EBaseException {
         HttpServletRequest req = cmsReq.getHttpReq();
@@ -174,7 +169,8 @@ public class RemoteAuthConfig extends CMSServlet {
             if (adminDN != null && adminDN.length() > 0) {
                 errMsg = authenticateRemoteAdmin(host, port, adminDN, password);
             } else {
-                errMsg = authenticateRemoteAdmin(host, port, uid, baseDN, password);
+                errMsg = authenticateRemoteAdmin(host, port, uid, baseDN,
+                        password);
             }
             if (errMsg == null || errMsg.length() == 0) {
                 if (mAuthSubsystem != null && mAuthConfig != null) {
@@ -197,14 +193,17 @@ public class RemoteAuthConfig extends CMSServlet {
                                         header.addStringValue("error", errMsg);
                                     } else {
                                         header.addStringValue("plugin", plugin);
-                                        header.addStringValue("instance", instance);
+                                        header.addStringValue("instance",
+                                                instance);
                                     }
                                 } else {
-                                    header.addStringValue("error", "Unknown instance " +
-                                        instance + ".");
+                                    header.addStringValue("error",
+                                            "Unknown instance " + instance
+                                                    + ".");
                                 }
                             } else {
-                                header.addStringValue("error", "Unknown plugin name: " + plugin);
+                                header.addStringValue("error",
+                                        "Unknown plugin name: " + plugin);
                             }
                         } else if (op.equals("add")) {
                             String plugin = req.getParameter("of");
@@ -216,28 +215,33 @@ public class RemoteAuthConfig extends CMSServlet {
                                     instance = makeInstanceName();
                                 }
                                 if (isInstanceListed(instance)) {
-                                    header.addStringValue("error", "Instance name " +
-                                        instance + " is already in use.");
+                                    header.addStringValue("error",
+                                            "Instance name " + instance
+                                                    + " is already in use.");
                                 } else {
                                     errMsg = addInstance(instance, plugin,
-                                                host, port, baseDN,
-                                                req.getParameter("dnPattern"));
+                                            host, port, baseDN,
+                                            req.getParameter("dnPattern"));
                                     if (errMsg != null && errMsg.length() > 0) {
                                         header.addStringValue("error", errMsg);
                                     } else {
                                         header.addStringValue("plugin", plugin);
-                                        header.addStringValue("instance", instance);
+                                        header.addStringValue("instance",
+                                                instance);
                                     }
                                 }
                             } else {
-                                header.addStringValue("error", "Unknown plugin name: " + plugin);
+                                header.addStringValue("error",
+                                        "Unknown plugin name: " + plugin);
                             }
                         } else {
-                            header.addStringValue("error", "Unsupported operation: " + op);
+                            header.addStringValue("error",
+                                    "Unsupported operation: " + op);
                         }
                     }
                 } else {
-                    header.addStringValue("error", "Invalid configuration data.");
+                    header.addStringValue("error",
+                            "Invalid configuration data.");
                 }
             } else {
                 header.addStringValue("error", errMsg);
@@ -251,9 +255,10 @@ public class RemoteAuthConfig extends CMSServlet {
         try {
             form = getTemplate(mFormPath, req, locale);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", e.toString()));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
 
         try {
@@ -263,15 +268,15 @@ public class RemoteAuthConfig extends CMSServlet {
             form.renderOutput(out, argSet);
             cmsReq.setStatus(CMSRequest.SUCCESS);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()));
+            log(ILogger.LL_FAILURE, CMS.getLogMessage(
+                    "CMSGW_ERR_STREAM_TEMPLATE", e.toString()));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
     }
 
     private String authenticateRemoteAdmin(String host, String port,
-        String adminDN, String password) {
+            String adminDN, String password) {
         if (host == null || host.length() == 0) {
             return "Missing host name.";
         }
@@ -313,13 +318,16 @@ public class RemoteAuthConfig extends CMSServlet {
                             LDAPEntry groupEntry = c.read(nextValue);
 
                             if (groupEntry != null) {
-                                LDAPAttribute gAttr = groupEntry.getAttribute(UNIQUE_MEMBER);
+                                LDAPAttribute gAttr = groupEntry
+                                        .getAttribute(UNIQUE_MEMBER);
 
                                 if (gAttr != null) {
-                                    Enumeration eValues = gAttr.getStringValues();
+                                    Enumeration eValues = gAttr
+                                            .getStringValues();
 
                                     while (eValues.hasMoreElements()) {
-                                        String value = (String) eValues.nextElement();
+                                        String value = (String) eValues
+                                                .nextElement();
 
                                         if (value.equals(entry.getDN())) {
                                             c.disconnect();
@@ -339,13 +347,11 @@ public class RemoteAuthConfig extends CMSServlet {
             } catch (LDAPException e) {
 
                 /*
-                 switch (e.getLDAPResultCode()) {
-                 case LDAPException.NO_SUCH_OBJECT:
-                 case LDAPException.INVALID_CREDENTIALS:
-                 case LDAPException.INSUFFICIENT_ACCESS_RIGHTS:
-                 case LDAPException.LDAP_PARTIAL_RESULTS:
-                 default:
-                 }
+                 * switch (e.getLDAPResultCode()) { case
+                 * LDAPException.NO_SUCH_OBJECT: case
+                 * LDAPException.INVALID_CREDENTIALS: case
+                 * LDAPException.INSUFFICIENT_ACCESS_RIGHTS: case
+                 * LDAPException.LDAP_PARTIAL_RESULTS: default: }
                  */
                 c.disconnect();
                 return "LDAP error: " + e.toString();
@@ -362,8 +368,7 @@ public class RemoteAuthConfig extends CMSServlet {
     }
 
     private String authenticateRemoteAdmin(String host, String port,
-        String uid, String baseDN,
-        String password) {
+            String uid, String baseDN, String password) {
         if (host == null || host.length() == 0) {
             return "Missing host name.";
         }
@@ -398,8 +403,7 @@ public class RemoteAuthConfig extends CMSServlet {
             connected = true;
             boolean memberOf = false;
             LDAPSearchResults results = c.search(baseDN, LDAPv2.SCOPE_SUB,
-                    "(uid=" + uid + ")",
-                    null, false);
+                    "(uid=" + uid + ")", null, false);
 
             while (results.hasMoreElements()) {
                 LDAPEntry entry = null;
@@ -420,13 +424,16 @@ public class RemoteAuthConfig extends CMSServlet {
                                 LDAPEntry groupEntry = c.read(nextValue);
 
                                 if (groupEntry != null) {
-                                    LDAPAttribute gAttr = groupEntry.getAttribute(UNIQUE_MEMBER);
+                                    LDAPAttribute gAttr = groupEntry
+                                            .getAttribute(UNIQUE_MEMBER);
 
                                     if (gAttr != null) {
-                                        Enumeration eValues = gAttr.getStringValues();
+                                        Enumeration eValues = gAttr
+                                                .getStringValues();
 
                                         while (eValues.hasMoreElements()) {
-                                            String value = (String) eValues.nextElement();
+                                            String value = (String) eValues
+                                                    .nextElement();
 
                                             if (value.equals(entry.getDN())) {
                                                 c.disconnect();
@@ -472,9 +479,8 @@ public class RemoteAuthConfig extends CMSServlet {
         return "Access unauthorized";
     }
 
-    private String addInstance(String instance, String plugin,
-        String host, String port,
-        String baseDN, String dnPattern) {
+    private String addInstance(String instance, String plugin, String host,
+            String port, String baseDN, String dnPattern) {
         if (host == null || host.length() == 0) {
             return "Missing host name.";
         }
@@ -516,7 +522,8 @@ public class RemoteAuthConfig extends CMSServlet {
         StringBuffer list = new StringBuffer();
 
         for (int i = 0; i < mRemotelySetInstances.size(); i++) {
-            if (i > 0) list.append(",");
+            if (i > 0)
+                list.append(",");
             list.append((String) mRemotelySetInstances.elementAt(i));
         }
 
@@ -542,7 +549,8 @@ public class RemoteAuthConfig extends CMSServlet {
             StringBuffer list = new StringBuffer();
 
             for (int i = 0; i < mRemotelySetInstances.size(); i++) {
-                if (i > 0) list.append(",");
+                if (i > 0)
+                    list.append(",");
                 list.append((String) mRemotelySetInstances.elementAt(i));
             }
 
@@ -602,17 +610,21 @@ public class RemoteAuthConfig extends CMSServlet {
         int y = now.get(Calendar.YEAR);
         String name = "R" + y;
 
-        if (now.get(Calendar.MONTH) < 10) name += "0";
+        if (now.get(Calendar.MONTH) < 10)
+            name += "0";
         name += now.get(Calendar.MONTH);
-        if (now.get(Calendar.DAY_OF_MONTH) < 10) name += "0";
+        if (now.get(Calendar.DAY_OF_MONTH) < 10)
+            name += "0";
         name += now.get(Calendar.DAY_OF_MONTH);
-        if (now.get(Calendar.HOUR_OF_DAY) < 10) name += "0";
+        if (now.get(Calendar.HOUR_OF_DAY) < 10)
+            name += "0";
         name += now.get(Calendar.HOUR_OF_DAY);
-        if (now.get(Calendar.MINUTE) < 10) name += "0";
+        if (now.get(Calendar.MINUTE) < 10)
+            name += "0";
         name += now.get(Calendar.MINUTE);
-        if (now.get(Calendar.SECOND) < 10) name += "0";
+        if (now.get(Calendar.SECOND) < 10)
+            name += "0";
         name += now.get(Calendar.SECOND);
         return name;
     }
 }
-

@@ -17,12 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.common;
 
-
-
-
 /**
- * handy class containing cms templates to load & fill. 
- *
+ * handy class containing cms templates to load & fill.
+ * 
  * @version $Revision$, $Date$
  */
 public class CMSLoadTemplate {
@@ -34,10 +31,9 @@ public class CMSLoadTemplate {
     public CMSLoadTemplate() {
     }
 
-    public CMSLoadTemplate(
-        String propName, String fillerPropName, 
-        String templateName, ICMSTemplateFiller filler) {
-		
+    public CMSLoadTemplate(String propName, String fillerPropName,
+            String templateName, ICMSTemplateFiller filler) {
+
         mPropName = propName;
         mFillerPropName = fillerPropName;
         mTemplateName = templateName;

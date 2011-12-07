@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.kra;
 
-
 import java.io.CharConversionException;
 import java.io.File;
 import java.io.FileInputStream;
@@ -62,17 +61,15 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.security.Credential;
 import com.netscape.certsrv.security.IStorageKeyUnit;
 
-
 /**
- * A class represents a storage key unit. Currently, this
- * is implemented with cryptix, the final implementation
- * should be built on JSS/HCL.
- *
+ * A class represents a storage key unit. Currently, this is implemented with
+ * cryptix, the final implementation should be built on JSS/HCL.
+ * 
  * @author thomask
  * @version $Revision$, $Date$
  */
-public class StorageKeyUnit extends EncryptionUnit implements 
-        ISubsystem, IStorageKeyUnit {
+public class StorageKeyUnit extends EncryptionUnit implements ISubsystem,
+        IStorageKeyUnit {
 
     private IConfigStore mConfig = null;
 
@@ -89,7 +86,6 @@ public class StorageKeyUnit extends EncryptionUnit implements
     private byte mPrivateKeyData[] = null;
     private boolean mKeySplitting = false;
 
-
     private static final String PROP_N = "n";
     private static final String PROP_M = "m";
     private static final String PROP_UID = "uid";
@@ -105,7 +101,7 @@ public class StorageKeyUnit extends EncryptionUnit implements
      * Constructs this token.
      */
     public StorageKeyUnit() {
-      super();
+        super();
     }
 
     /**
@@ -116,192 +112,220 @@ public class StorageKeyUnit extends EncryptionUnit implements
     }
 
     /**
-     * Sets subsystem identifier. Once the system is 
-     * loaded, system identifier cannot be changed 
-     * dynamically.
+     * Sets subsystem identifier. Once the system is loaded, system identifier
+     * cannot be changed dynamically.
      */
     public void setId(String id) throws EBaseException {
         throw new EBaseException(CMS.getUserMessage("CMS_INVALID_OPERATION"));
     }
 
     /**
-     *  return true if byte arrays are equal, false otherwise
+     * return true if byte arrays are equal, false otherwise
      */
     private boolean byteArraysMatch(byte a[], byte b[]) {
-       if (a==null || b==null) { return false; }
-       if (a.length != b.length) { return false; }
-       for (int i=0; i<a.length; i++) {
-	   if (a[i] != b[i]) { return false; }
-	}
-       return true;
+        if (a == null || b == null) {
+            return false;
+        }
+        if (a.length != b.length) {
+            return false;
+        }
+        for (int i = 0; i < a.length; i++) {
+            if (a[i] != b[i]) {
+                return false;
+            }
+        }
+        return true;
     }
-
 
     /**
      * Initializes this subsystem.
      */
-    public void init(ISubsystem owner, IConfigStore config) 
-        throws EBaseException {
+    public void init(ISubsystem owner, IConfigStore config)
+            throws EBaseException {
         mKRA = (IKeyRecoveryAuthority) owner;
         mConfig = config;
-		
-        mKeySplitting = owner.getConfigStore().getBoolean("keySplitting", false);
+
+        mKeySplitting = owner.getConfigStore()
+                .getBoolean("keySplitting", false);
 
         try {
             mManager = CryptoManager.getInstance();
             mToken = getToken();
         } catch (org.mozilla.jss.CryptoManager.NotInitializedException e) {
-            mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_STORAGE_INIT", e.toString()));
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()));
+            mKRA.log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_STORAGE_INIT", e.toString()));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR",
+                    e.toString()));
         }
-		
+
         if (mConfig.getString(PROP_HARDWARE, null) != null) {
-            System.setProperty("cms.skip_token", mConfig.getString(PROP_HARDWARE));
+            System.setProperty("cms.skip_token",
+                    mConfig.getString(PROP_HARDWARE));
 
-// The strategy here is to read all the certs in the token
-// and cycle through them until we find one that matches the
-// kra-cert.db file
+            // The strategy here is to read all the certs in the token
+            // and cycle through them until we find one that matches the
+            // kra-cert.db file
 
-          if (mKeySplitting) {
+            if (mKeySplitting) {
 
-          byte certFileData[] = null;
-            try {
-                File certFile = new File(
-                        mConfig.getString(PROP_CERTDB));
+                byte certFileData[] = null;
+                try {
+                    File certFile = new File(mConfig.getString(PROP_CERTDB));
 
-                certFileData = new byte[
-                        (Long.valueOf(certFile.length())).intValue()];
-                FileInputStream fi = new FileInputStream(certFile);
+                    certFileData = new byte[(Long.valueOf(certFile.length()))
+                            .intValue()];
+                    FileInputStream fi = new FileInputStream(certFile);
 
-                fi.read(certFileData);
-                fi.close();
+                    fi.read(certFileData);
+                    fi.close();
 
-                // pick up cert by nickName
+                    // pick up cert by nickName
 
-            } catch (IOException e) {
-                mKRA.log(ILogger.LL_INFO, 
-                    CMS.getLogMessage("CMSCORE_KRA_STORAGE_READ_CERT", e.toString()));
-                throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()));
-	    }
+                } catch (IOException e) {
+                    mKRA.log(ILogger.LL_INFO, CMS.getLogMessage(
+                            "CMSCORE_KRA_STORAGE_READ_CERT", e.toString()));
+                    throw new EBaseException(CMS.getUserMessage(
+                            "CMS_BASE_CERT_ERROR", e.toString()));
+                }
 
-            try {
-                X509Certificate certs[] = 
-                    getToken().getCryptoStore().getCertificates();
-		for (int i=0;i <certs.length;i++) {
-                   if (byteArraysMatch(certs[i].getEncoded(),certFileData)) {
-			mCert = certs[i];
-		   }
-		}
-		if (mCert == null) {
-                   mKRA.log(ILogger.LL_FAILURE, "Storage Cert could not be initialized. No cert in token matched kra-cert file");
-                throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", "mCert == null"));
-		} else {
-                   mKRA.log(ILogger.LL_INFO, "Using Storage Cert "+mCert.getSubjectDN());
-		}
-            } catch (CertificateEncodingException e) {
-                mKRA.log(ILogger.LL_FAILURE, "Error encoding cert ");
-                throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()));
-            } catch (TokenException e) {
-                mKRA.log(ILogger.LL_FAILURE, 
-                    CMS.getLogMessage("CMSCORE_KRA_STORAGE_READ_CERT", e.toString()));
-                throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()));
-             }
-          }
-			
+                try {
+                    X509Certificate certs[] = getToken().getCryptoStore()
+                            .getCertificates();
+                    for (int i = 0; i < certs.length; i++) {
+                        if (byteArraysMatch(certs[i].getEncoded(), certFileData)) {
+                            mCert = certs[i];
+                        }
+                    }
+                    if (mCert == null) {
+                        mKRA.log(ILogger.LL_FAILURE,
+                                "Storage Cert could not be initialized. No cert in token matched kra-cert file");
+                        throw new EBaseException(CMS.getUserMessage(
+                                "CMS_BASE_CERT_ERROR", "mCert == null"));
+                    } else {
+                        mKRA.log(ILogger.LL_INFO,
+                                "Using Storage Cert " + mCert.getSubjectDN());
+                    }
+                } catch (CertificateEncodingException e) {
+                    mKRA.log(ILogger.LL_FAILURE, "Error encoding cert ");
+                    throw new EBaseException(CMS.getUserMessage(
+                            "CMS_BASE_CERT_ERROR", e.toString()));
+                } catch (TokenException e) {
+                    mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage(
+                            "CMSCORE_KRA_STORAGE_READ_CERT", e.toString()));
+                    throw new EBaseException(CMS.getUserMessage(
+                            "CMS_BASE_CERT_ERROR", e.toString()));
+                }
+            }
+
         } else {
 
             // read certificate from file
             byte certData[] = null;
 
             try {
-	     if (mKeySplitting) {
-                File certFile = new File(
-                        mConfig.getString(PROP_CERTDB));
+                if (mKeySplitting) {
+                    File certFile = new File(mConfig.getString(PROP_CERTDB));
 
-                certData = new byte[
-                        (Long.valueOf(certFile.length())).intValue()];
-                FileInputStream fi = new FileInputStream(certFile);
+                    certData = new byte[(Long.valueOf(certFile.length()))
+                            .intValue()];
+                    FileInputStream fi = new FileInputStream(certFile);
 
-                fi.read(certData);
-                fi.close();
+                    fi.read(certData);
+                    fi.close();
 
-                // pick up cert by nickName
-                mCert = mManager.findCertByNickname(
-                            config.getString(PROP_NICKNAME));
+                    // pick up cert by nickName
+                    mCert = mManager.findCertByNickname(config
+                            .getString(PROP_NICKNAME));
 
-              } else {
-                mCert = mManager.findCertByNickname(
-                            config.getString(PROP_NICKNAME));
-              }
+                } else {
+                    mCert = mManager.findCertByNickname(config
+                            .getString(PROP_NICKNAME));
+                }
             } catch (IOException e) {
-                mKRA.log(ILogger.LL_FAILURE, 
-                    CMS.getLogMessage("CMSCORE_KRA_STORAGE_READ_CERT", e.toString()));
-                throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()));
+                mKRA.log(
+                        ILogger.LL_FAILURE,
+                        CMS.getLogMessage("CMSCORE_KRA_STORAGE_READ_CERT",
+                                e.toString()));
+                throw new EBaseException(CMS.getUserMessage(
+                        "CMS_BASE_CERT_ERROR", e.toString()));
             } catch (TokenException e) {
-                mKRA.log(ILogger.LL_FAILURE, 
-                    CMS.getLogMessage("CMSCORE_KRA_STORAGE_READ_CERT", e.toString()));
-                throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()));
+                mKRA.log(
+                        ILogger.LL_FAILURE,
+                        CMS.getLogMessage("CMSCORE_KRA_STORAGE_READ_CERT",
+                                e.toString()));
+                throw new EBaseException(CMS.getUserMessage(
+                        "CMS_BASE_CERT_ERROR", e.toString()));
             } catch (ObjectNotFoundException e) {
-                mKRA.log(ILogger.LL_FAILURE, 
-                    CMS.getLogMessage("CMSCORE_KRA_STORAGE_READ_CERT", e.toString()));
+                mKRA.log(
+                        ILogger.LL_FAILURE,
+                        CMS.getLogMessage("CMSCORE_KRA_STORAGE_READ_CERT",
+                                e.toString()));
                 // XXX - this import wont work
                 try {
-                    mCert = mManager.importCertPackage(certData, 
-                                "kraStorageCert");
+                    mCert = mManager.importCertPackage(certData,
+                            "kraStorageCert");
                 } catch (Exception ex) {
-                    mKRA.log(ILogger.LL_FAILURE, 
-                        CMS.getLogMessage("CMSCORE_KRA_STORAGE_IMPORT_CERT", e.toString()));
-                    throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", ex.toString()));
+                    mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage(
+                            "CMSCORE_KRA_STORAGE_IMPORT_CERT", e.toString()));
+                    throw new EBaseException(CMS.getUserMessage(
+                            "CMS_BASE_CERT_ERROR", ex.toString()));
                 }
             }
-			
-          if (mKeySplitting) {
-            // read private key from the file
-            try {
-                File priFile = new File(mConfig.getString(PROP_KEYDB));
 
-                mPrivateKeyData = new byte[
-                        (Long.valueOf(priFile.length())).intValue()];
-                FileInputStream fi = new FileInputStream(priFile);
+            if (mKeySplitting) {
+                // read private key from the file
+                try {
+                    File priFile = new File(mConfig.getString(PROP_KEYDB));
 
-                fi.read(mPrivateKeyData);
-                fi.close();
-            } catch (IOException e) {
-                mKRA.log(ILogger.LL_FAILURE, 
-                    CMS.getLogMessage("CMSCORE_KRA_STORAGE_READ_PRIVATE", e.toString()));
-                throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_KEY_1", e.toString()));
+                    mPrivateKeyData = new byte[(Long.valueOf(priFile.length()))
+                            .intValue()];
+                    FileInputStream fi = new FileInputStream(priFile);
+
+                    fi.read(mPrivateKeyData);
+                    fi.close();
+                } catch (IOException e) {
+                    mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage(
+                            "CMSCORE_KRA_STORAGE_READ_PRIVATE", e.toString()));
+                    throw new EBaseException(CMS.getUserMessage(
+                            "CMS_BASE_INVALID_KEY_1", e.toString()));
+                }
             }
-         }
-	
+
         }
 
-       if (mKeySplitting) {
-        // open internal data storage configuration
-        mTokenFile = mConfig.getString(PROP_MN);
+        if (mKeySplitting) {
+            // open internal data storage configuration
+            mTokenFile = mConfig.getString(PROP_MN);
+            try {
+                // read m, n and no of identifier
+                mStorageConfig = CMS.createFileConfigStore(mTokenFile);
+            } catch (EBaseException e) {
+                mKRA.log(
+                        ILogger.LL_FAILURE,
+                        CMS.getLogMessage("CMSCORE_KRA_STORAGE_READ_MN",
+                                e.toString()));
+                throw new EBaseException(
+                        CMS.getUserMessage("CMS_BASE_INVALID_OPERATION"));
+
+            }
+        }
+
         try {
-            // read m, n and no of identifier
-            mStorageConfig = CMS.createFileConfigStore(mTokenFile);
-        } catch (EBaseException e) {
-            mKRA.log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSCORE_KRA_STORAGE_READ_MN",
+            if (mCert == null) {
+                CMS.debug("mCert is null...retrieving "
+                        + config.getString(PROP_NICKNAME));
+                mCert = mManager.findCertByNickname(config
+                        .getString(PROP_NICKNAME));
+                CMS.debug("mCert = " + mCert);
+            }
+        } catch (Exception e) {
+            mKRA.log(
+                    ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_STORAGE_READ_CERT",
+                            e.toString()));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR",
                     e.toString()));
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_OPERATION"));
-
         }
-      }
-
-      try {
-        if (mCert == null) {
-	   CMS.debug("mCert is null...retrieving "+ config.getString(PROP_NICKNAME));
-	   mCert = mManager.findCertByNickname(
-					       config.getString(PROP_NICKNAME));
-	   CMS.debug("mCert = "+mCert);
-         }
-       } catch (Exception e) {
-         mKRA.log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSCORE_KRA_STORAGE_READ_CERT", e.toString()));
-         throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()));
-       }
 
     }
 
@@ -316,7 +340,7 @@ public class StorageKeyUnit extends EncryptionUnit implements
      */
     public void shutdown() {
     }
-	
+
     /**
      * Returns the configuration store of this token.
      */
@@ -324,10 +348,11 @@ public class StorageKeyUnit extends EncryptionUnit implements
         return mConfig;
     }
 
-    public static SymmetricKey buildSymmetricKeyWithInternalStorage(
-        String pin) throws EBaseException {
+    public static SymmetricKey buildSymmetricKeyWithInternalStorage(String pin)
+            throws EBaseException {
         try {
-            return buildSymmetricKey(CryptoManager.getInstance().getInternalKeyStorageToken(), pin);
+            return buildSymmetricKey(CryptoManager.getInstance()
+                    .getInternalKeyStorageToken(), pin);
         } catch (Exception e) {
             return null;
         }
@@ -336,95 +361,89 @@ public class StorageKeyUnit extends EncryptionUnit implements
     /**
      * Builds symmetric key from the given password.
      */
-    public static SymmetricKey buildSymmetricKey(CryptoToken token, 
-        String pin) throws EBaseException {
+    public static SymmetricKey buildSymmetricKey(CryptoToken token, String pin)
+            throws EBaseException {
         try {
 
             Password pass = new Password(pin.toCharArray());
             KeyGenerator kg = null;
 
-            kg = token.getKeyGenerator(
-                        PBEAlgorithm.PBE_SHA1_DES3_CBC);
-            byte salt[] = {0x01, 0x01, 0x01, 0x01, 
-                    0x01, 0x01, 0x01, 0x01};
-            PBEKeyGenParams kgp = new PBEKeyGenParams(pass,
-                    salt, 5);
+            kg = token.getKeyGenerator(PBEAlgorithm.PBE_SHA1_DES3_CBC);
+            byte salt[] = { 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01, 0x01 };
+            PBEKeyGenParams kgp = new PBEKeyGenParams(pass, salt, 5);
 
             pass.clear();
             kg.initialize(kgp);
             return kg.generate();
         } catch (TokenException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_KEY_1", 
-                        "buildSymmetricKey:" +
-                        e.toString()));
+            throw new EBaseException(CMS.getUserMessage(
+                    "CMS_BASE_INVALID_KEY_1",
+                    "buildSymmetricKey:" + e.toString()));
         } catch (NoSuchAlgorithmException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_KEY_1", 
-                        "buildSymmetricKey:" +
-                        e.toString()));
+            throw new EBaseException(CMS.getUserMessage(
+                    "CMS_BASE_INVALID_KEY_1",
+                    "buildSymmetricKey:" + e.toString()));
         } catch (InvalidAlgorithmParameterException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_KEY_1", 
-                        "buildSymmetricKey:" +
-                        e.toString()));
+            throw new EBaseException(CMS.getUserMessage(
+                    "CMS_BASE_INVALID_KEY_1",
+                    "buildSymmetricKey:" + e.toString()));
         } catch (CharConversionException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_KEY_1", 
-                        "buildSymmetricKey:" +
-                        e.toString()));
+            throw new EBaseException(CMS.getUserMessage(
+                    "CMS_BASE_INVALID_KEY_1",
+                    "buildSymmetricKey:" + e.toString()));
         }
     }
 
     /**
      * Unwraps the storage key with the given symmetric key.
      */
-    public PrivateKey unwrapStorageKey(CryptoToken token,
-        SymmetricKey sk, byte wrapped[], 	
-        PublicKey pubKey)
-        throws EBaseException {
+    public PrivateKey unwrapStorageKey(CryptoToken token, SymmetricKey sk,
+            byte wrapped[], PublicKey pubKey) throws EBaseException {
         try {
 
             CMS.debug("StorageKeyUnit.unwrapStorageKey.");
 
-            KeyWrapper wrapper = token.getKeyWrapper(
-                    KeyWrapAlgorithm.DES3_CBC_PAD);
-            
-            wrapper.initUnwrap(sk,  IV);
+            KeyWrapper wrapper = token
+                    .getKeyWrapper(KeyWrapAlgorithm.DES3_CBC_PAD);
+
+            wrapper.initUnwrap(sk, IV);
 
             // XXX - it does not like the public key that is
             // not a crypto X509Certificate
-            PrivateKey pk = wrapper.unwrapTemporaryPrivate(wrapped, 
+            PrivateKey pk = wrapper.unwrapTemporaryPrivate(wrapped,
                     PrivateKey.RSA, pubKey);
 
             return pk;
         } catch (TokenException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_KEY_1", 
-                        "unwrapStorageKey:" +
-                        e.toString()));
+            throw new EBaseException(CMS.getUserMessage(
+                    "CMS_BASE_INVALID_KEY_1",
+                    "unwrapStorageKey:" + e.toString()));
         } catch (NoSuchAlgorithmException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_KEY_1", 
-                        "unwrapStorageKey:" +
-                        e.toString()));
+            throw new EBaseException(CMS.getUserMessage(
+                    "CMS_BASE_INVALID_KEY_1",
+                    "unwrapStorageKey:" + e.toString()));
         } catch (InvalidKeyException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_KEY_1", 
-                        "unwrapStorageKey:" +
-                        e.toString()));
+            throw new EBaseException(CMS.getUserMessage(
+                    "CMS_BASE_INVALID_KEY_1",
+                    "unwrapStorageKey:" + e.toString()));
         } catch (InvalidAlgorithmParameterException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_KEY_1", 
-                        "unwrapStorageKey:" +
-                        e.toString()));
+            throw new EBaseException(CMS.getUserMessage(
+                    "CMS_BASE_INVALID_KEY_1",
+                    "unwrapStorageKey:" + e.toString()));
         }
     }
-		
+
     /**
      * Used by config-cert.
      */
-    public byte[] wrapStorageKey(CryptoToken token,
-        SymmetricKey sk, PrivateKey pri)
-        throws EBaseException {
+    public byte[] wrapStorageKey(CryptoToken token, SymmetricKey sk,
+            PrivateKey pri) throws EBaseException {
         CMS.debug("StorageKeyUnit.wrapStorageKey.");
         try {
             // move public & private to config/storage.dat
             // delete private key
-            KeyWrapper wrapper = token.getKeyWrapper(
-                    KeyWrapAlgorithm.DES3_CBC_PAD);
+            KeyWrapper wrapper = token
+                    .getKeyWrapper(KeyWrapAlgorithm.DES3_CBC_PAD);
 
             // next to randomly generate a symmetric
             // password
@@ -432,21 +451,17 @@ public class StorageKeyUnit extends EncryptionUnit implements
             wrapper.initWrap(sk, IV);
             return wrapper.wrap(pri);
         } catch (TokenException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_KEY_1", 
-                        "wrapStorageKey:" +
-                        e.toString()));
+            throw new EBaseException(CMS.getUserMessage(
+                    "CMS_BASE_INVALID_KEY_1", "wrapStorageKey:" + e.toString()));
         } catch (NoSuchAlgorithmException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_KEY_1", 
-                        "wrapStorageKey:" +
-                        e.toString()));
+            throw new EBaseException(CMS.getUserMessage(
+                    "CMS_BASE_INVALID_KEY_1", "wrapStorageKey:" + e.toString()));
         } catch (InvalidKeyException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_KEY_1", 
-                        "wrapStorageKey:" +
-                        e.toString()));
+            throw new EBaseException(CMS.getUserMessage(
+                    "CMS_BASE_INVALID_KEY_1", "wrapStorageKey:" + e.toString()));
         } catch (InvalidAlgorithmParameterException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_KEY_1", 
-                        "wrapStorageKey:" +
-                        e.toString()));
+            throw new EBaseException(CMS.getUserMessage(
+                    "CMS_BASE_INVALID_KEY_1", "wrapStorageKey:" + e.toString()));
         }
     }
 
@@ -460,23 +475,29 @@ public class StorageKeyUnit extends EncryptionUnit implements
                 PrivateKey pk[] = getToken().getCryptoStore().getPrivateKeys();
 
                 for (int i = 0; i < pk.length; i++) {
-                    if (arraysEqual(pk[i].getUniqueID(), 
+                    if (arraysEqual(pk[i].getUniqueID(),
                             ((TokenCertificate) mCert).getUniqueID())) {
                         mPrivateKey = pk[i];
                     }
                 }
             } catch (Exception e) {
-                mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_STORAGE_LOGIN", e.toString()));
+                mKRA.log(
+                        ILogger.LL_FAILURE,
+                        CMS.getLogMessage("CMSCORE_KRA_STORAGE_LOGIN",
+                                e.toString()));
             }
 
         } else {
             try {
                 SymmetricKey sk = buildSymmetricKey(mToken, pin);
 
-                mPrivateKey = unwrapStorageKey(mToken, sk, 
-                            mPrivateKeyData, getPublicKey());
+                mPrivateKey = unwrapStorageKey(mToken, sk, mPrivateKeyData,
+                        getPublicKey());
             } catch (Exception e) {
-                mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_STORAGE_LOGIN", e.toString()));
+                mKRA.log(
+                        ILogger.LL_FAILURE,
+                        CMS.getLogMessage("CMSCORE_KRA_STORAGE_LOGIN",
+                                e.toString()));
             }
             if (mPrivateKey == null) {
                 mPrivateKey = getPrivateKey();
@@ -487,8 +508,7 @@ public class StorageKeyUnit extends EncryptionUnit implements
     /**
      * Logins to this token.
      */
-    public void login(Credential creds[]) 
-        throws EBaseException {
+    public void login(Credential creds[]) throws EBaseException {
         String pwd = constructPassword(creds);
 
         login(pwd);
@@ -500,12 +520,15 @@ public class StorageKeyUnit extends EncryptionUnit implements
     public void logout() {
         try {
             if (mConfig.getString(PROP_HARDWARE, null) != null) {
-              if (mConfig.getBoolean(PROP_LOGOUT, false)) {
-                getToken().logout();
-              }
+                if (mConfig.getBoolean(PROP_LOGOUT, false)) {
+                    getToken().logout();
+                }
             }
         } catch (Exception e) {
-            mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_STORAGE_LOGOUT", e.toString()));
+            mKRA.log(
+                    ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_STORAGE_LOGOUT",
+                            e.toString()));
 
         }
         mPrivateKey = null;
@@ -519,8 +542,7 @@ public class StorageKeyUnit extends EncryptionUnit implements
 
         for (int i = 0;; i++) {
             try {
-                String uid = 
-                    mStorageConfig.getString(PROP_UID + i);
+                String uid = mStorageConfig.getString(PROP_UID + i);
 
                 if (uid == null)
                     break;
@@ -535,22 +557,21 @@ public class StorageKeyUnit extends EncryptionUnit implements
     /**
      * Changes agent password.
      */
-    public boolean changeAgentPassword(String id, String oldpwd, 
-        String newpwd) throws EBaseException {
+    public boolean changeAgentPassword(String id, String oldpwd, String newpwd)
+            throws EBaseException {
         // locate the id(s)
         for (int i = 0;; i++) {
             try {
-                String uid = 
-                    mStorageConfig.getString(PROP_UID + i);
+                String uid = mStorageConfig.getString(PROP_UID + i);
 
                 if (uid == null)
                     break;
                 if (id.equals(uid)) {
-                    byte share[] = decryptShareWithInternalStorage(mStorageConfig.getString(PROP_SHARE + i), oldpwd);
+                    byte share[] = decryptShareWithInternalStorage(
+                            mStorageConfig.getString(PROP_SHARE + i), oldpwd);
 
                     mStorageConfig.putString(PROP_SHARE + i,
-                        encryptShareWithInternalStorage(
-                            share, newpwd));
+                            encryptShareWithInternalStorage(share, newpwd));
                     mStorageConfig.commit(false);
                     return true;
                 }
@@ -564,10 +585,8 @@ public class StorageKeyUnit extends EncryptionUnit implements
     /**
      * Changes the m out of n recovery schema.
      */
-    public boolean changeAgentMN(int new_n, int new_m, 
-        Credential oldcreds[],
-        Credential newcreds[]) 
-        throws EBaseException {
+    public boolean changeAgentMN(int new_n, int new_m, Credential oldcreds[],
+            Credential newcreds[]) throws EBaseException {
 
         if (new_n != newcreds.length) {
             throw new EKRAException(CMS.getUserMessage("CMS_KRA_INVALID_N"));
@@ -587,22 +606,22 @@ public class StorageKeyUnit extends EncryptionUnit implements
 
         IShare s = null;
         try {
-          String className = mConfig.getString("share_class", 
-                                       "com.netscape.cms.shares.OldShare");
-          s = (IShare)Class.forName(className).newInstance();
+            String className = mConfig.getString("share_class",
+                    "com.netscape.cms.shares.OldShare");
+            s = (IShare) Class.forName(className).newInstance();
         } catch (Exception e) {
-          CMS.debug("Loading Shares error " + e);
+            CMS.debug("Loading Shares error " + e);
         }
         if (s == null) {
-          CMS.debug("Share plugin is not found");
-          return false;
+            CMS.debug("Share plugin is not found");
+            return false;
         }
 
         try {
-          s.initialize(secret.getBytes(), new_m);
+            s.initialize(secret.getBytes(), new_m);
         } catch (Exception e) {
-          CMS.debug("Failed to initialize Share plugin");
-          return false;
+            CMS.debug("Failed to initialize Share plugin");
+            return false;
         }
 
         for (int i = 0; i < newcreds.length; i++) {
@@ -615,20 +634,22 @@ public class StorageKeyUnit extends EncryptionUnit implements
         mStorageConfig.putInteger(PROP_N, new_n);
         mStorageConfig.putInteger(PROP_M, new_m);
         for (int i = 0; i < newcreds.length; i++) {
-            mStorageConfig.putString(PROP_UID + i, 
-                newcreds[i].getIdentifier());
+            mStorageConfig.putString(PROP_UID + i, newcreds[i].getIdentifier());
             // use password to encrypt shares...
-            mStorageConfig.putString(PROP_SHARE + i, 
-                encryptShareWithInternalStorage(shares[i],
-                    newcreds[i].getPassword()));
+            mStorageConfig.putString(
+                    PROP_SHARE + i,
+                    encryptShareWithInternalStorage(shares[i],
+                            newcreds[i].getPassword()));
         }
 
         try {
             mStorageConfig.commit(false);
             return true;
         } catch (EBaseException e) {
-            mKRA.log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSCORE_KRA_STORAGE_CHANGE_MN", e.toString()));
+            mKRA.log(
+                    ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_STORAGE_CHANGE_MN",
+                            e.toString()));
         }
         return false;
     }
@@ -641,8 +662,7 @@ public class StorageKeyUnit extends EncryptionUnit implements
     }
 
     /**
-     * Returns number of recovery agents required for
-     * recovery operation.
+     * Returns number of recovery agents required for recovery operation.
      */
     public int getNoOfRequiredAgents() throws EBaseException {
         return mStorageConfig.getInteger(PROP_M);
@@ -663,7 +683,8 @@ public class StorageKeyUnit extends EncryptionUnit implements
     public CryptoToken getToken() {
         try {
             if (mConfig.getString(PROP_HARDWARE, null) != null) {
-                return mManager.getTokenByName(mConfig.getString(PROP_HARDWARE));
+                return mManager
+                        .getTokenByName(mConfig.getString(PROP_HARDWARE));
             } else {
                 return CryptoManager.getInstance().getInternalKeyStorageToken();
             }
@@ -683,35 +704,35 @@ public class StorageKeyUnit extends EncryptionUnit implements
     public PrivateKey getPrivateKey() {
 
         if (!mKeySplitting) {
-	try {
-         PrivateKey pk[] = getToken().getCryptoStore().getPrivateKeys();
-       	 for (int i = 0; i < pk.length; i++) {
-                    if (arraysEqual(pk[i].getUniqueID(), 
+            try {
+                PrivateKey pk[] = getToken().getCryptoStore().getPrivateKeys();
+                for (int i = 0; i < pk.length; i++) {
+                    if (arraysEqual(pk[i].getUniqueID(),
                             ((TokenCertificate) mCert).getUniqueID())) {
                         return pk[i];
                     }
-       	 }
-	} catch (TokenException e) {
-	}
-	return null;
-       } else {
-        return mPrivateKey;
-       }
+                }
+            } catch (TokenException e) {
+            }
+            return null;
+        } else {
+            return mPrivateKey;
+        }
     }
 
     /**
      * Verifies the integrity of the given key pairs.
      */
     public void verify(byte publicKey[], PrivateKey privateKey)
-        throws EBaseException {
+            throws EBaseException {
         // XXX
     }
 
-    public String encryptShareWithInternalStorage(
-        byte share[], String pwd)
-        throws EBaseException {
+    public String encryptShareWithInternalStorage(byte share[], String pwd)
+            throws EBaseException {
         try {
-            return encryptShare(CryptoManager.getInstance().getInternalKeyStorageToken(), share, pwd);
+            return encryptShare(CryptoManager.getInstance()
+                    .getInternalKeyStorageToken(), share, pwd);
         } catch (Exception e) {
             return null;
         }
@@ -720,13 +741,12 @@ public class StorageKeyUnit extends EncryptionUnit implements
     /**
      * Protectes the share with the given password.
      */
-    public String encryptShare(CryptoToken token,
-        byte share[], String pwd)
-        throws EBaseException {
+    public String encryptShare(CryptoToken token, byte share[], String pwd)
+            throws EBaseException {
         try {
             CMS.debug("StorageKeyUnit.encryptShare");
-            Cipher cipher = token.getCipherContext(
-                    EncryptionAlgorithm.DES3_CBC_PAD);
+            Cipher cipher = token
+                    .getCipherContext(EncryptionAlgorithm.DES3_CBC_PAD);
             SymmetricKey sk = StorageKeyUnit.buildSymmetricKey(token, pwd);
 
             cipher.initEncrypt(sk, IV);
@@ -737,23 +757,23 @@ public class StorageKeyUnit extends EncryptionUnit implements
             // configuration
             return com.netscape.osutil.OSUtil.BtoA(enc).trim();
         } catch (NoSuchAlgorithmException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_KEY_1", 
-                        e.toString()));
+            throw new EBaseException(CMS.getUserMessage(
+                    "CMS_BASE_INVALID_KEY_1", e.toString()));
         } catch (TokenException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_KEY_1", 
-                        e.toString()));
+            throw new EBaseException(CMS.getUserMessage(
+                    "CMS_BASE_INVALID_KEY_1", e.toString()));
         } catch (InvalidKeyException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_KEY_1", 
-                        e.toString()));
+            throw new EBaseException(CMS.getUserMessage(
+                    "CMS_BASE_INVALID_KEY_1", e.toString()));
         } catch (InvalidAlgorithmParameterException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_KEY_1", 
-                        e.toString()));
+            throw new EBaseException(CMS.getUserMessage(
+                    "CMS_BASE_INVALID_KEY_1", e.toString()));
         } catch (BadPaddingException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_KEY_1", 
-                        e.toString()));
+            throw new EBaseException(CMS.getUserMessage(
+                    "CMS_BASE_INVALID_KEY_1", e.toString()));
         } catch (IllegalBlockSizeException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_KEY_1", 
-                        e.toString()));
+            throw new EBaseException(CMS.getUserMessage(
+                    "CMS_BASE_INVALID_KEY_1", e.toString()));
         }
     }
 
@@ -798,23 +818,24 @@ public class StorageKeyUnit extends EncryptionUnit implements
             }
             if (uid.equals(userid)) {
                 byte data[] = decryptShareWithInternalStorage(
-                    mStorageConfig.getString(PROP_SHARE + i),
-                    pwd);
-                if (data == null) { 
-                  throw new EBaseException(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
+                        mStorageConfig.getString(PROP_SHARE + i), pwd);
+                if (data == null) {
+                    throw new EBaseException(
+                            CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
                 }
                 return;
             }
         }
-        throw new EBaseException(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
-      
+        throw new EBaseException(
+                CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
+
     }
 
-    public byte[] decryptShareWithInternalStorage(
-        String encoding, String pwd) 
-        throws EBaseException {
+    public byte[] decryptShareWithInternalStorage(String encoding, String pwd)
+            throws EBaseException {
         try {
-            return decryptShare(CryptoManager.getInstance().getInternalKeyStorageToken(), encoding, pwd);
+            return decryptShare(CryptoManager.getInstance()
+                    .getInternalKeyStorageToken(), encoding, pwd);
         } catch (Exception e) {
             return null;
         }
@@ -823,23 +844,22 @@ public class StorageKeyUnit extends EncryptionUnit implements
     /**
      * Decrypts shares with the given password.
      */
-    public byte[] decryptShare(CryptoToken token,
-        String encoding, String pwd) 
-        throws EBaseException {
+    public byte[] decryptShare(CryptoToken token, String encoding, String pwd)
+            throws EBaseException {
         try {
             CMS.debug("StorageKeyUnit.decryptShare");
             byte share[] = CMS.AtoB(encoding);
-            Cipher cipher = token.getCipherContext(
-                    EncryptionAlgorithm.DES3_CBC_PAD);
-            SymmetricKey sk = StorageKeyUnit.buildSymmetricKey(
-                    token, pwd);
+            Cipher cipher = token
+                    .getCipherContext(EncryptionAlgorithm.DES3_CBC_PAD);
+            SymmetricKey sk = StorageKeyUnit.buildSymmetricKey(token, pwd);
 
             cipher.initDecrypt(sk, IV);
             byte dec[] = cipher.doFinal(share);
 
             if (dec == null || !verifyShare(dec)) {
                 // invalid passwod
-                throw new EBaseException(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
+                throw new EBaseException(
+                        CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
             }
             return postVerify(dec);
         } catch (OutOfMemoryError e) {
@@ -851,34 +871,33 @@ public class StorageKeyUnit extends EncryptionUnit implements
             //
             // e.printStackTrace();
             //
-            throw new EBaseException(CMS.getUserMessage("CMS_KRA_INVALID_PASSWORD", 
-                        e.toString()));
+            throw new EBaseException(CMS.getUserMessage(
+                    "CMS_KRA_INVALID_PASSWORD", e.toString()));
         } catch (TokenException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_KRA_INVALID_PASSWORD", 
-                        e.toString()));
+            throw new EBaseException(CMS.getUserMessage(
+                    "CMS_KRA_INVALID_PASSWORD", e.toString()));
         } catch (NoSuchAlgorithmException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_KRA_INVALID_PASSWORD", 
-                        e.toString()));
+            throw new EBaseException(CMS.getUserMessage(
+                    "CMS_KRA_INVALID_PASSWORD", e.toString()));
         } catch (InvalidKeyException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_KRA_INVALID_PASSWORD", 
-                        e.toString()));
+            throw new EBaseException(CMS.getUserMessage(
+                    "CMS_KRA_INVALID_PASSWORD", e.toString()));
         } catch (InvalidAlgorithmParameterException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_KRA_INVALID_PASSWORD", 
-                        e.toString()));
+            throw new EBaseException(CMS.getUserMessage(
+                    "CMS_KRA_INVALID_PASSWORD", e.toString()));
         } catch (IllegalBlockSizeException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_KRA_INVALID_PASSWORD", 
-                        e.toString()));
+            throw new EBaseException(CMS.getUserMessage(
+                    "CMS_KRA_INVALID_PASSWORD", e.toString()));
         } catch (BadPaddingException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_KRA_INVALID_PASSWORD", 
-                        e.toString()));
+            throw new EBaseException(CMS.getUserMessage(
+                    "CMS_KRA_INVALID_PASSWORD", e.toString()));
         }
     }
 
     /**
      * Reconstructs password from recovery agents.
      */
-    private String constructPassword(Credential creds[]) 
-        throws EBaseException {
+    private String constructPassword(Credential creds[]) throws EBaseException {
         // sort the credential according to the order in
         // configuration file
         Hashtable v = new Hashtable();
@@ -896,11 +915,11 @@ public class StorageKeyUnit extends EncryptionUnit implements
             for (int j = 0; j < creds.length; j++) {
                 if (uid.equals(creds[j].getIdentifier())) {
                     byte pwd[] = decryptShareWithInternalStorage(
-                            mStorageConfig.getString(
-                                PROP_SHARE + i),
+                            mStorageConfig.getString(PROP_SHARE + i),
                             creds[j].getPassword());
                     if (pwd == null) {
-                        throw new EBaseException(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
+                        throw new EBaseException(
+                                CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
                     }
                     v.put(Integer.toString(i), pwd);
                     break;
@@ -909,39 +928,42 @@ public class StorageKeyUnit extends EncryptionUnit implements
         }
 
         if (v.size() < 0) {
-            throw new EBaseException(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
+            throw new EBaseException(
+                    CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
         }
 
         if (v.size() != creds.length) {
-            throw new EBaseException(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
+            throw new EBaseException(
+                    CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
         }
 
         IJoinShares j = null;
         try {
-          String className = mConfig.getString("joinshares_class", 
-                                       "com.netscape.cms.shares.OldJoinShares");
-          j = (IJoinShares)Class.forName(className).newInstance();
+            String className = mConfig.getString("joinshares_class",
+                    "com.netscape.cms.shares.OldJoinShares");
+            j = (IJoinShares) Class.forName(className).newInstance();
         } catch (Exception e) {
-          CMS.debug("JoinShares error " + e);
+            CMS.debug("JoinShares error " + e);
         }
         if (j == null) {
             CMS.debug("JoinShares plugin is not found");
-            throw new EBaseException(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
+            throw new EBaseException(
+                    CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
         }
 
         try {
-          j.initialize(v.size());
+            j.initialize(v.size());
         } catch (Exception e) {
             CMS.debug("Failed to initialize JoinShares");
-            throw new EBaseException(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
+            throw new EBaseException(
+                    CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
         }
         Enumeration e = v.keys();
 
         while (e.hasMoreElements()) {
             String next = (String) e.nextElement();
 
-            j.addShare(Integer.parseInt(next) + 1, 
-                (byte[]) v.get(next));
+            j.addShare(Integer.parseInt(next) + 1, (byte[]) v.get(next));
         }
         try {
             byte secret[] = j.recoverSecret();
@@ -949,10 +971,12 @@ public class StorageKeyUnit extends EncryptionUnit implements
 
             return pwd;
         } catch (Exception ee) {
-            mKRA.log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSCORE_KRA_STORAGE_RECONSTRUCT", e.toString()));
-            throw new EBaseException(CMS.getUserMessage("CMS_KRA_INVALID_PASSWORD", 
-                        ee.toString()));
+            mKRA.log(
+                    ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_STORAGE_RECONSTRUCT",
+                            e.toString()));
+            throw new EBaseException(CMS.getUserMessage(
+                    "CMS_KRA_INVALID_PASSWORD", ee.toString()));
         }
     }
 

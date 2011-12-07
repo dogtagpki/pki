@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.ocsp;
 
-
 import java.math.BigInteger;
 import java.security.cert.X509CRL;
 import java.util.Date;
@@ -27,28 +26,26 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 
-
 /**
  * This class defines an Online Certificate Status Protocol (OCSP) store which
  * has been extended to provide information from the internal database.
- * <P> 
- *
+ * <P>
+ * 
  * @version $Revision$, $Date$
  */
-public interface IDefStore extends IOCSPStore
-{
+public interface IDefStore extends IOCSPStore {
     /**
      * This method retrieves the number of CRL updates since startup.
      * <P>
-     *
+     * 
      * @return count the number of OCSP default stores
      */
-    public int getStateCount(); 
+    public int getStateCount();
 
     /**
      * This method retrieves the number of OCSP requests since startup.
      * <P>
-     *
+     * 
      * @param id a string associated with an OCSP request
      * @return count the number of this type of OCSP requests
      */
@@ -57,30 +54,29 @@ public interface IDefStore extends IOCSPStore
     /**
      * This method creates a an OCSP default store repository record.
      * <P>
-     *
+     * 
      * @return IRepositoryRecord an instance of the repository record object
      */
-    public IRepositoryRecord createRepositoryRecord(); 
+    public IRepositoryRecord createRepositoryRecord();
 
     /**
      * This method adds a request to the default OCSP store repository.
      * <P>
-     *
+     * 
      * @param name a string representing the name of this request
      * @param thisUpdate the current request
      * @param rec an instance of the repository record object
-     * @exception EBaseException occurs when there is an error attempting to
-     *    add this request to the repository
+     * @exception EBaseException occurs when there is an error attempting to add
+     *                this request to the repository
      */
     public void addRepository(String name, String thisUpdate,
-        IRepositoryRecord rec)
-        throws EBaseException;
+            IRepositoryRecord rec) throws EBaseException;
 
     /**
      * This method specifies whether or not to wait for the Certificate
      * Revocation List (CRL) to be updated.
      * <P>
-     *
+     * 
      * @return boolean true or false
      */
     public boolean waitOnCRLUpdate();
@@ -88,7 +84,7 @@ public interface IDefStore extends IOCSPStore
     /**
      * This method updates the specified CRL.
      * <P>
-     *
+     * 
      * @param crl the CRL to be updated
      * @exception EBaseException occurs when the CRL cannot be updated
      */
@@ -97,44 +93,42 @@ public interface IDefStore extends IOCSPStore
     /**
      * This method attempts to read the CRL issuing point.
      * <P>
-     *
+     * 
      * @param name the name of the CRL to be read
      * @return ICRLIssuingPointRecord the CRL issuing point
      * @exception EBaseException occurs when the specified CRL cannot be located
      */
     public ICRLIssuingPointRecord readCRLIssuingPoint(String name)
-        throws EBaseException;
+            throws EBaseException;
 
     /**
      * This method searches all CRL issuing points.
      * <P>
-     *
+     * 
      * @param maxSize specifies the largest number of hits from the search
      * @return Enumeration a list of the CRL issuing points
      * @exception EBaseException occurs when no CRL issuing point exists
      */
-    public Enumeration searchAllCRLIssuingPointRecord(
-        int maxSize)
-        throws EBaseException;
+    public Enumeration searchAllCRLIssuingPointRecord(int maxSize)
+            throws EBaseException;
 
     /**
      * This method searches all CRL issuing points constrained by the specified
      * filtering mechanism.
      * <P>
-     *
+     * 
      * @param filter a string which constrains the search
      * @param maxSize specifies the largest number of hits from the search
      * @return Enumeration a list of the CRL issuing points
      * @exception EBaseException occurs when no CRL issuing point exists
      */
-    public Enumeration searchCRLIssuingPointRecord(String filter,
-        int maxSize)
-        throws EBaseException;
+    public Enumeration searchCRLIssuingPointRecord(String filter, int maxSize)
+            throws EBaseException;
 
     /**
      * This method creates a CRL issuing point record.
      * <P>
-     *
+     * 
      * @param name a string representation of this CRL issuing point record
      * @param crlNumber the number of this CRL issuing point record
      * @param crlSize the size of this CRL issuing point record
@@ -142,40 +136,37 @@ public interface IDefStore extends IOCSPStore
      * @param nextUpdate the time for the next CRL issuing point record
      * @return ICRLIssuingPointRecord this CRL issuing point record
      */
-    public ICRLIssuingPointRecord createCRLIssuingPointRecord(
-        String name, BigInteger crlNumber, 
-        Long crlSize, Date thisUpdate, Date nextUpdate);
+    public ICRLIssuingPointRecord createCRLIssuingPointRecord(String name,
+            BigInteger crlNumber, Long crlSize, Date thisUpdate, Date nextUpdate);
 
     /**
      * This method adds a CRL issuing point
      * <P>
-     *
+     * 
      * @param name a string representation of this CRL issuing point record
      * @param rec this CRL issuing point record
      * @exception EBaseException occurs when the specified CRL issuing point
-     *     record cannot be added
+     *                record cannot be added
      */
     public void addCRLIssuingPoint(String name, ICRLIssuingPointRecord rec)
-        throws EBaseException;
+            throws EBaseException;
 
     /**
      * This method deletes a CRL issuing point record
      * <P>
-     *
+     * 
      * @param id a string representation of this CRL issuing point record
      * @exception EBaseException occurs when the specified CRL issuing point
-     *     record cannot be deleted 
+     *                record cannot be deleted
      */
-    public void deleteCRLIssuingPointRecord(String id)
-        throws EBaseException;
+    public void deleteCRLIssuingPointRecord(String id) throws EBaseException;
 
     /**
-     * This method checks to see if the OCSP response should return good
-     * when the certificate is not found.
+     * This method checks to see if the OCSP response should return good when
+     * the certificate is not found.
      * <P>
-     *
+     * 
      * @return boolean true or false
      */
     public boolean isNotFoundGood();
 }
-

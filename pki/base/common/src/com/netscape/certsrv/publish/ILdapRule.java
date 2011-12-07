@@ -17,16 +17,14 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.publish;
 
-
 import java.util.Vector;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 
-
-/** 
+/**
  * Interface for publishing rule which associates a Publisher with a Mapper.
- *
+ * 
  * @version $Revision$ $Date$
  */
 public interface ILdapRule extends ILdapPlugin {
@@ -36,10 +34,11 @@ public interface ILdapRule extends ILdapPlugin {
 
     /**
      * Initialize the plugin.
+     * 
      * @exception EBaseException Initialization failed.
      */
-    public void init(IPublisherProcessor processor, IConfigStore
-        config) throws EBaseException;
+    public void init(IPublisherProcessor processor, IConfigStore config)
+            throws EBaseException;
 
     /**
      * Returns the implementation name.

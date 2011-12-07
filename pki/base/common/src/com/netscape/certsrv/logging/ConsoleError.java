@@ -17,12 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.logging;
 
-
-
-
 /**
  * A static class to log error messages to the Console
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class ConsoleError {
@@ -30,8 +27,8 @@ public class ConsoleError {
 
     /**
      * Send the given event to the Console.
-     *
-     * @param	ev	log event to be sent to the console
+     * 
+     * @param ev log event to be sent to the console
      */
     public static void send(ILogEvent ev) {
         console.log(ev);

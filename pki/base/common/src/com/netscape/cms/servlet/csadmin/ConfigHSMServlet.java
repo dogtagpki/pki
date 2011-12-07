@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -38,7 +37,6 @@ import org.mozilla.jss.pkcs11.PK11Module;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.cmsutil.crypto.Module;
-
 
 public class ConfigHSMServlet extends ConfigBaseServlet {
     /**
@@ -68,9 +66,8 @@ public class ConfigHSMServlet extends ConfigBaseServlet {
                 mCurrModTable.put(mod.getName(), mod);
             } // while
         } catch (Exception e) {
-            CMS.debug(
-                    "ConfigHSMServlet: Exception caught in loadCurrModTable: "
-                            + e.toString());
+            CMS.debug("ConfigHSMServlet: Exception caught in loadCurrModTable: "
+                    + e.toString());
             System.err.println("Exception caught: " + e.toString());
         }
     }
@@ -119,21 +116,19 @@ public class ConfigHSMServlet extends ConfigBaseServlet {
             try {
                 CryptoToken token = (CryptoToken) tokens.nextElement();
 
-                CMS.debug("ConfigHSMServlet: token nick name=" + token.getName());
-                CMS.debug(
-                        "ConfigHSMServlet: token logged in?"
-                                + token.isLoggedIn());
-                CMS.debug(
-                        "ConfigHSMServlet: token is present?"
-                                + token.isPresent());
+                CMS.debug("ConfigHSMServlet: token nick name="
+                        + token.getName());
+                CMS.debug("ConfigHSMServlet: token logged in?"
+                        + token.isLoggedIn());
+                CMS.debug("ConfigHSMServlet: token is present?"
+                        + token.isPresent());
                 if (!token.getName().equals("Internal Crypto Services Token")) {
                     module.addToken(token);
                 } else {
-                    CMS.debug(
-                            "ConfigHSMServlet: token " + token.getName()
+                    CMS.debug("ConfigHSMServlet: token " + token.getName()
                             + " not to be added");
                 }
-			    
+
             } catch (TokenException ex) {
                 CMS.debug("ConfigHSMServlet:" + ex.toString());
             }
@@ -165,11 +160,11 @@ public class ConfigHSMServlet extends ConfigBaseServlet {
                 if ((cn == null) || (cn.equals(""))) {
                     break;
                 }
-		
+
                 CMS.debug("ConfigHSMServlet: got from config module: " + cn);
                 // create a Module object
                 Module module = new Module(cn, pn, img);
-		
+
                 if (mCurrModTable.containsKey(cn)) {
                     CMS.debug("ConfigHSMServlet: module found: " + cn);
                     module.setFound(true);
@@ -178,7 +173,7 @@ public class ConfigHSMServlet extends ConfigBaseServlet {
 
                     loadModTokens(module, m);
                 }
-		
+
                 CMS.debug("ConfigHSMServlet: adding module " + cn);
                 // add module to set
                 if (!mSupportedModules.contains(module)) {
@@ -187,16 +182,14 @@ public class ConfigHSMServlet extends ConfigBaseServlet {
             }// for
 
         } catch (Exception e) {
-            CMS.debug(
-                    "ConfigHSMServlet: Exception caught in loadSupportedModules(): "
-                            + e.toString());
+            CMS.debug("ConfigHSMServlet: Exception caught in loadSupportedModules(): "
+                    + e.toString());
             System.err.println("Exception caught: " + e.toString());
         }
     }
 
     public boolean isDisplayMode(HttpServletRequest request,
-            HttpServletResponse response,
-            Context context) {
+            HttpServletResponse response, Context context) {
         String choice = request.getParameter("choice");
 
         if (choice == null) {
@@ -223,8 +216,7 @@ public class ConfigHSMServlet extends ConfigBaseServlet {
     }
 
     public void display(HttpServletRequest request,
-            HttpServletResponse response,
-            Context context) {
+            HttpServletResponse response, Context context) {
         CMS.debug("ConfigHSMServlet: in display()");
 
         loadCurrModTable();
@@ -252,8 +244,7 @@ public class ConfigHSMServlet extends ConfigBaseServlet {
     }
 
     public void update(HttpServletRequest request,
-            HttpServletResponse response,
-            Context context) {
+            HttpServletResponse response, Context context) {
 
         IConfigStore cs = CMS.getConfigStore();
 
@@ -286,12 +277,11 @@ public class ConfigHSMServlet extends ConfigBaseServlet {
     }
 
     public Template getTemplate(HttpServletRequest request,
-            HttpServletResponse response,
-            Context context) {
+            HttpServletResponse response, Context context) {
         try {
             return Velocity.getTemplate("admin/console/config/config_hsm.vm");
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
         return null;
     }
 }
-
