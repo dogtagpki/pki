@@ -2355,7 +2355,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                         .isCRLExtensionEnabled(DeltaCRLIndicatorExtension.NAME)
                 && mCMSCRLExtensions
                         .isCRLExtensionEnabled(CRLNumberExtension.NAME) && mCMSCRLExtensions
-                .isCRLExtensionEnabled(CRLReasonExtension.NAME));
+                    .isCRLExtensionEnabled(CRLReasonExtension.NAME));
     }
 
     public boolean isThisCurrentDeltaCRL(X509CRLImpl deltaCRL) {
@@ -2544,7 +2544,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 || ((mCRLCacheIsCleared && mCRLCerts.isEmpty()
                         && clonedRevokedCerts.isEmpty()
                         && clonedUnrevokedCerts.isEmpty() && clonedExpiredCerts
-                        .isEmpty())
+                            .isEmpty())
                         || (mCRLCerts.isEmpty() && (!clonedUnrevokedCerts
                                 .isEmpty()))
                         || (mCRLCerts.size() < clonedUnrevokedCerts.size())
@@ -2716,7 +2716,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             if (mSchemaCounter == 0) {
                 if (((!mCRLCerts.isEmpty()) && ((!clonedRevokedCerts.isEmpty())
                         || (!clonedUnrevokedCerts.isEmpty()) || (!clonedExpiredCerts
-                        .isEmpty())))
+                            .isEmpty())))
                         || (mCRLCerts.isEmpty() && (mCRLSize == 0) && (!clonedRevokedCerts
                                 .isEmpty()))) {
 

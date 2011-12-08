@@ -489,7 +489,7 @@ public class CAService implements ICAService, IService {
 
         if (!(type.equals(IRequest.REVOCATION_REQUEST)
                 || type.equals(IRequest.UNREVOCATION_REQUEST) || type
-                .equals(IRequest.CMCREVOKE_REQUEST))) {
+                    .equals(IRequest.CMCREVOKE_REQUEST))) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
                     LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST,

@@ -228,7 +228,7 @@ public class GetCRL extends CMSServlet {
                 || (op.equals("displayCRL") && crlDisplayType != null && (crlDisplayType
                         .equals("entireCRL")
                         || crlDisplayType.equals("crlHeader") || crlDisplayType
-                        .equals("base64Encoded")))) {
+                            .equals("base64Encoded")))) {
             crlbytes = crlRecord.getCRL();
         }
 
@@ -254,7 +254,7 @@ public class GetCRL extends CMSServlet {
                         .equals("entireCRL")
                         || crlDisplayType.equals("crlHeader")
                         || crlDisplayType.equals("base64Encoded") || crlDisplayType
-                        .equals("deltaCRL")))) {
+                            .equals("deltaCRL")))) {
             try {
                 if (op.equals("displayCRL") && crlDisplayType != null
                         && crlDisplayType.equals("crlHeader")) {
@@ -273,7 +273,7 @@ public class GetCRL extends CMSServlet {
             }
             if ((op.equals("importDeltaCRL") || (op.equals("displayCRL")
                     && crlDisplayType != null && crlDisplayType
-                    .equals("deltaCRL")))
+                        .equals("deltaCRL")))
                     && ((!(crlIP != null && crlIP.isThisCurrentDeltaCRL(crl))) && (crlRecord
                             .getCRLNumber() == null
                             || crlRecord.getDeltaCRLNumber() == null
