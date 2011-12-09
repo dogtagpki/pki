@@ -17,6 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
+
+
+
 public class Cert {
     private String mNickname = "";
     private String mTokenname = "";
@@ -113,8 +116,8 @@ public class Cert {
     }
 
     public String escapeForHTML(String s) {
-        s = s.replaceAll("\"", "&quot;");
-        return s;
+      s = s.replaceAll("\"", "&quot;");
+      return s;
     }
 
     public String getEscapedDN() {

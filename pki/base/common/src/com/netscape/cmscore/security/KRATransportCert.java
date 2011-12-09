@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.security;
 
+
 import java.io.IOException;
 import java.security.KeyPair;
 
@@ -28,14 +29,16 @@ import com.netscape.certsrv.common.ConfigConstants;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.security.KeyCertData;
 
+
 /**
- * KRA transport certificate
+ * KRA transport certificate 
  * 
  * @author Christine Ho
  * @version $Revision$, $Date$
  */
 public class KRATransportCert extends CertificateInfo {
-    public static final String SUBJECT_NAME = "CN=Data Recovery Manager, O=Netscape Communications, C=US";
+    public static final String SUBJECT_NAME = 
+        "CN=Data Recovery Manager, O=Netscape Communications, C=US";
     private String mTokenname = Constants.PR_INTERNAL_TOKEN_NAME;
 
     public KRATransportCert(KeyCertData properties) {
@@ -46,7 +49,8 @@ public class KRATransportCert extends CertificateInfo {
         super(properties, pair);
         String tmp = (String) mProperties.get(Constants.PR_TOKEN_NAME);
 
-        if ((tmp != null) && (!tmp.equals(Constants.PR_INTERNAL_TOKEN)))
+        if ((tmp != null) && 
+            (!tmp.equals(Constants.PR_INTERNAL_TOKEN)))   
             mTokenname = tmp;
         mProperties.put(Constants.PR_AKI, Constants.TRUE);
     }
@@ -58,8 +62,7 @@ public class KRATransportCert extends CertificateInfo {
         if (tokenname.equals(Constants.PR_INTERNAL_TOKEN_NAME))
             cmsFileTmp.putString("kra.transportUnit.nickName", nickname);
         else
-            cmsFileTmp.putString("kra.transportUnit.nickName", tokenname + ":"
-                    + nickname);
+            cmsFileTmp.putString("kra.transportUnit.nickName", tokenname + ":" + nickname);
         cmsFileTmp.commit(false);
     }
 
@@ -69,8 +72,8 @@ public class KRATransportCert extends CertificateInfo {
 
     public String getNickname() {
         String name = (String) mProperties.get(Constants.PR_NICKNAME);
-        String instanceName = (String) mProperties
-                .get(ConfigConstants.PR_CERT_INSTANCE_NAME);
+        String instanceName = 
+            (String) mProperties.get(ConfigConstants.PR_CERT_INSTANCE_NAME);
 
         if (name != null)
             return name;
@@ -78,14 +81,19 @@ public class KRATransportCert extends CertificateInfo {
     }
 
     /*
-     * public SignatureAlgorithm getSigningAlgorithm() { SignatureAlgorithm sAlg
-     * = (SignatureAlgorithm)mProperties.get(Constants.PR_SIGNATURE_ALGORITHM);
-     * if (sAlg != null) { return sAlg; } String alg =
-     * (String)mProperties.get(Constants.PR_KEY_TYPE);
-     * 
-     * if (alg.equals("RSA")) return
-     * SignatureAlgorithm.RSASignatureWithMD5Digest; else return
-     * SignatureAlgorithm.DSASignatureWithSHA1Digest; }
+     public SignatureAlgorithm getSigningAlgorithm() {
+     SignatureAlgorithm sAlg =
+     (SignatureAlgorithm)mProperties.get(Constants.PR_SIGNATURE_ALGORITHM);
+     if (sAlg != null) {
+     return sAlg;
+     }
+     String alg = (String)mProperties.get(Constants.PR_KEY_TYPE);
+     
+     if (alg.equals("RSA"))
+     return SignatureAlgorithm.RSASignatureWithMD5Digest;
+     else
+     return SignatureAlgorithm.DSASignatureWithSHA1Digest;
+     }
      */
 
     public String getKeyAlgorithm() {
@@ -99,3 +107,4 @@ public class KRATransportCert extends CertificateInfo {
         return extension;
     }
 }
+

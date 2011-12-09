@@ -1,5 +1,4 @@
 package com.netscape.pkisilent.common;
-
 // --- BEGIN COPYRIGHT BLOCK ---
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -30,10 +29,11 @@ import java.net.URL;
 import com.netscape.osutil.OSUtil;
 
 /**
- * CMS Test framework . This class submits request to admin server after
- * authenticating with UID and Password. You can get back the response by
- * calling the method. getPage().
+ * CMS Test framework .
+ * This class submits request to admin server after authenticating with UID and Password. You can get back the response by calling the method. getPage().
  */
+
+
 
 public class PostQuery {
 
@@ -45,14 +45,10 @@ public class PostQuery {
     private StringBuffer stdout = new StringBuffer();
 
     /**
-     * Constructor . Takes the parameters
-     * urlstring("http://hostname:<portnumber> , Id for authenticating to the
-     * server, password for authentication to the server and query which needs
-     * to be submitted to the server
+     * Constructor . Takes the parameters urlstring("http://hostname:<portnumber> , Id for authenticating to the server, password for authentication to the server and query which needs to be submitted to the server 
      */
 
-    public PostQuery(String urlstr, String authid, String authpwd,
-            String querystring) {
+    public PostQuery(String urlstr, String authid, String authpwd, String querystring) {   
 
         URLString = urlstr;
         adminID = authid;
@@ -79,24 +75,24 @@ public class PostQuery {
     }
 
     public boolean Send() {
-        // / This functions connects to the URL and POST HTTP Request .
-        // It compares with NMC_STATUS and return the status.
+        // / This functions connects to the URL and POST HTTP Request . 
+        // It compares with NMC_STATUS  and return the status.
         System.out.println(URLString);
         st = false;
 
         try {
 
-            BufferedReader mbufferedReader = null;
+            BufferedReader mbufferedReader = null; 
             URL myUrl = new URL(URLString);
             String userPassword = adminID + ":" + adminPWD;
 
             System.out.println("adminid=" + adminID);
             System.out.println("adminpwd=" + adminPWD);
             // String encoding = new sun.misc.BASE64Encoder().encode(
-            // userPassword.getBytes());
-            String encoding = OSUtil.BtoA(userPassword.getBytes());
-            HttpURLConnection URLCon = (HttpURLConnection) myUrl
-                    .openConnection();
+            //         userPassword.getBytes());
+            String encoding = OSUtil.BtoA(
+                    userPassword.getBytes());
+            HttpURLConnection URLCon = (HttpURLConnection) myUrl.openConnection();
 
             URLCon.setRequestProperty("Authorization", "Basic " + encoding);
             URLCon.setDoOutput(true);
@@ -107,7 +103,7 @@ public class PostQuery {
             // URLCon.setRequestMethod("POST");
             System.out.println("After post");
 
-            DataOutputStream os = new DataOutputStream(URLCon.getOutputStream());
+            DataOutputStream os = new DataOutputStream(URLCon.getOutputStream()); 
 
             System.out.println("Query: " + postQuery);
 
@@ -116,12 +112,12 @@ public class PostQuery {
             os.writeBytes(postQuery);
             os.flush();
             os.close();
-
+        
             InputStream Content = (InputStream) URLCon.getInputStream();
 
             System.out.println("Configuring Cert Instance : Return Response");
-            BufferedReader in = new BufferedReader(new InputStreamReader(
-                    Content));
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(Content));
             String line;
 
             while ((line = in.readLine()) != null) {
@@ -131,12 +127,12 @@ public class PostQuery {
                 if (st) {
                     break;
                 }
-            }
+            } 
             URLCon.disconnect();
-        } // try
+        } // try 
         catch (MalformedURLException e) {
             System.out.println(URLString + " is not a valid URL.");
-
+	
         } catch (IOException e) {
             System.out.println("exception : " + e.getMessage());
         }

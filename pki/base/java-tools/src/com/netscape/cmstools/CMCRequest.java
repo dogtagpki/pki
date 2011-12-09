@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmstools;
 
+
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -84,31 +85,31 @@ import org.mozilla.jss.util.Password;
 
 import com.netscape.cmsutil.util.HMACDigest;
 
+
 /**
  * Tool for creating CMC full request
  * 
  * <P>
- * 
  * @version $Revision$, $Date$
- * 
+ *
  */
 public class CMCRequest {
 
     public static final String PR_REQUEST_CMC = "CMC";
     public static final String PR_REQUEST_CRMF = "CRMF";
 
-    public static final int ARGC = 1;
+    public static final int    ARGC = 1;
     private static final String CERTDB = "cert8.db";
     private static final String KEYDB = "key3.db";
     public static final String HEADER = "-----BEGIN NEW CERTIFICATE REQUEST-----";
     public static final String TRAILER = "-----END NEW CERTIFICATE REQUEST-----";
-
-    void cleanArgs(String[] s) {
-
+    
+    void  cleanArgs(String[]  s) {
+        
     }
 
     public static X509Certificate getCertificate(String tokenname,
-            String nickname) throws Exception {
+        String nickname) throws Exception {
         CryptoManager manager = CryptoManager.getInstance();
         CryptoToken token = null;
 
@@ -131,31 +132,29 @@ public class CMCRequest {
         }
     }
 
-    public static java.security.PrivateKey getPrivateKey(String tokenname,
-            String nickname) throws Exception {
+    public static java.security.PrivateKey getPrivateKey(String tokenname, String nickname)
+        throws Exception {
 
         X509Certificate cert = getCertificate(tokenname, nickname);
 
         return CryptoManager.getInstance().findPrivKeyByCert(cert);
     }
 
+
     /**
      * getCMCBlob create and return the enrollent request.
      * <P>
-     * 
-     * @param signerCert the certificate of the authorized signer of the CMC
-     *            revocation request.
+     * @param signerCert the certificate of the authorized signer of the CMC revocation request.
      * @param nickname the nickname of the certificate inside the token.
      * @param rValue CRMF/PKCS10 request.
-     * @param format either crmf or pkcs10
+     * @param format either crmf or pkcs10 
      * @return the CMC enrollment request encoded in base64
      */
-    static ContentInfo getCMCBlob(X509Certificate signerCert, String nickname,
-            String[] rValue, String format, CryptoManager manager,
-            String transactionMgtEnable, String transactionMgtId,
-            String identityProofEnable, String identityProofSharedSecret,
-            SEQUENCE controlSeq, SEQUENCE otherMsgSeq, int bpid) {
-
+    static ContentInfo getCMCBlob(X509Certificate signerCert, String nickname, 
+      String[] rValue, String format, CryptoManager manager, String transactionMgtEnable, 
+      String transactionMgtId, String identityProofEnable, String identityProofSharedSecret,
+      SEQUENCE controlSeq, SEQUENCE otherMsgSeq, int bpid) {
+        
         String tokenname = "internal";
 
         ContentInfo fullEnrollmentReq = null;
@@ -168,61 +167,59 @@ public class CMCRequest {
             X509CertImpl impl = new X509CertImpl(certB);
             X500Name issuerName = (X500Name) impl.getIssuerDN();
             byte[] issuerByte = issuerName.getEncoded();
-            ByteArrayInputStream istream = new ByteArrayInputStream(issuerByte);
-
+            ByteArrayInputStream istream = new  ByteArrayInputStream(issuerByte);
+                
             Name issuer = (Name) Name.getTemplate().decode(istream);
-            IssuerAndSerialNumber ias = new IssuerAndSerialNumber(issuer,
-                    new INTEGER(serialno.toString()));
+            IssuerAndSerialNumber ias = new IssuerAndSerialNumber(
+              issuer, new INTEGER(serialno.toString()));
 
-            si = new SignerIdentifier(SignerIdentifier.ISSUER_AND_SERIALNUMBER,
-                    ias, null);
+            si = new  SignerIdentifier(
+              SignerIdentifier.ISSUER_AND_SERIALNUMBER, ias, null);
             privKey = getPrivateKey(tokenname, nickname);
 
             TaggedRequest trq = null;
             PKCS10 pkcs = null;
             CertReqMsg certReqMsg = null;
-
+            
             // create CMC req
             SEQUENCE reqSequence = new SEQUENCE();
             try {
-                for (int k = 0; k < rValue.length; k++) {
-                    String asciiBASE64Blob = rValue[k];
-                    byte[] decodedBytes = com.netscape.osutil.OSUtil
-                            .AtoB(asciiBASE64Blob);
-
+                for (int k=0; k<rValue.length; k++) {
+                    String asciiBASE64Blob = rValue[k]; 
+                    byte[] decodedBytes = com.netscape.osutil.OSUtil.AtoB(asciiBASE64Blob);
+                
                     if (format.equals("crmf")) {
-                        ByteArrayInputStream reqBlob = new ByteArrayInputStream(
-                                decodedBytes);
+                        ByteArrayInputStream reqBlob = 
+                            new ByteArrayInputStream(decodedBytes);
                         SEQUENCE crmfMsgs = null;
-                        try {
-                            crmfMsgs = (SEQUENCE) new SEQUENCE.OF_Template(
-                                    new CertReqMsg.Template()).decode(reqBlob);
+                        try { 
+                            crmfMsgs = (SEQUENCE)new SEQUENCE.OF_Template(new
+                              CertReqMsg.Template()).decode(reqBlob);
                         } catch (InvalidBERException ee) {
-                            System.out
-                                    .println("This is not a crmf request. Or this request has an error.");
+                            System.out.println("This is not a crmf request. Or this request has an error.");
                             System.exit(1);
                         }
                         int nummsgs = crmfMsgs.size();
-                        certReqMsg = (CertReqMsg) crmfMsgs.elementAt(0);
+                        certReqMsg = (CertReqMsg)crmfMsgs.elementAt(0);
                         trq = new TaggedRequest(TaggedRequest.CRMF, null,
-                                certReqMsg);
+                          certReqMsg);
                     } else if (format.equals("pkcs10")) {
                         try {
                             pkcs = new PKCS10(decodedBytes);
                         } catch (IllegalArgumentException e) {
                             System.out.println("This is not a PKCS10 request.");
                             System.exit(1);
-                        }
+                        } 
                         ByteArrayInputStream crInputStream = new ByteArrayInputStream(
-                                pkcs.toByteArray());
-                        CertificationRequest cr = (CertificationRequest) CertificationRequest
-                                .getTemplate().decode(crInputStream);
+                          pkcs.toByteArray());
+                        CertificationRequest cr = (CertificationRequest)
+                          CertificationRequest.getTemplate().decode(crInputStream);
                         TaggedCertificationRequest tcr = new TaggedCertificationRequest(
-                                new INTEGER(bpid++), cr);
-                        trq = new TaggedRequest(TaggedRequest.PKCS10, tcr, null);
+                          new INTEGER(bpid++), cr);
+                        trq = new
+                          TaggedRequest(TaggedRequest.PKCS10, tcr, null);
                     } else {
-                        System.out.println("Unrecognized request format: "
-                                + format);
+                        System.out.println("Unrecognized request format: "+format);
                         System.exit(1);
                     }
                     reqSequence.addElement(trq);
@@ -234,70 +231,64 @@ public class CMCRequest {
             } catch (NoSuchAlgorithmException e) {
                 throw new IOException("Internal Error - " + e.toString());
             }
-
+            
             if (transactionMgtEnable.equals("true"))
-                bpid = addTransactionAttr(bpid, controlSeq, transactionMgtId,
-                        format, pkcs, certReqMsg);
+                bpid = addTransactionAttr(bpid, controlSeq, transactionMgtId, format, 
+                  pkcs, certReqMsg);
 
             if (identityProofEnable.equals("true"))
-                bpid = addIdentityProofAttr(bpid, controlSeq, reqSequence,
-                        identityProofSharedSecret);
+                bpid = addIdentityProofAttr(bpid, controlSeq, reqSequence, 
+                  identityProofSharedSecret);
 
-            PKIData pkidata = new PKIData(controlSeq, reqSequence,
-                    new SEQUENCE(), otherMsgSeq);
-
-            EncapsulatedContentInfo ci = new EncapsulatedContentInfo(
-                    OBJECT_IDENTIFIER.id_cct_PKIData, pkidata);
+            PKIData pkidata = new PKIData(controlSeq, reqSequence, new SEQUENCE(), otherMsgSeq);
+                
+            EncapsulatedContentInfo ci = new
+              EncapsulatedContentInfo(OBJECT_IDENTIFIER.id_cct_PKIData, pkidata);
             // SHA1 is the default digest Alg for now.
             DigestAlgorithm digestAlg = null;
             SignatureAlgorithm signAlg = SignatureAlgorithm.RSASignatureWithSHA1Digest;
-            org.mozilla.jss.crypto.PrivateKey.Type signingKeyType = ((org.mozilla.jss.crypto.PrivateKey) privKey)
-                    .getType();
+            org.mozilla.jss.crypto.PrivateKey.Type signingKeyType = ((org.mozilla.jss.crypto.PrivateKey) privKey).getType();
 
-            if (signingKeyType
-                    .equals(org.mozilla.jss.crypto.PrivateKey.Type.DSA))
+            if (signingKeyType.equals(org.mozilla.jss.crypto.PrivateKey.Type.DSA))
                 signAlg = SignatureAlgorithm.DSASignatureWithSHA1Digest;
             MessageDigest SHADigest = null;
 
-            byte[] digest = null;
+            byte[] digest = null; 
             try {
                 SHADigest = MessageDigest.getInstance("SHA1");
                 digestAlg = DigestAlgorithm.SHA1;
-
+                    
                 ByteArrayOutputStream ostream = new ByteArrayOutputStream();
 
                 pkidata.encode((OutputStream) ostream);
                 digest = SHADigest.digest(ostream.toByteArray());
             } catch (NoSuchAlgorithmException e) {
             }
-            SignerInfo signInfo = new SignerInfo(si, null, null,
-                    OBJECT_IDENTIFIER.id_cct_PKIData, digest, signAlg,
-                    (org.mozilla.jss.crypto.PrivateKey) privKey);
+            SignerInfo signInfo = new
+              SignerInfo(si, null, null, OBJECT_IDENTIFIER.id_cct_PKIData, digest, signAlg,
+              (org.mozilla.jss.crypto.PrivateKey) privKey);
             SET signInfos = new SET();
             signInfos.addElement(signInfo);
-
+                
             SET digestAlgs = new SET();
 
             if (digestAlg != null) {
-                AlgorithmIdentifier ai = new AlgorithmIdentifier(
-                        digestAlg.toOID(), null);
+                AlgorithmIdentifier ai = new AlgorithmIdentifier(digestAlg.toOID(), null);
                 digestAlgs.addElement(ai);
             }
-
-            org.mozilla.jss.crypto.X509Certificate[] agentChain = manager
-                    .buildCertificateChain(signerCert);
+                
+            org.mozilla.jss.crypto.X509Certificate[] agentChain = manager.buildCertificateChain(signerCert);
             SET certs = new SET();
 
             for (int i = 0; i < agentChain.length; i++) {
                 ANY cert = new ANY(agentChain[i].getEncoded());
                 certs.addElement(cert);
             }
-            SignedData req = new SignedData(digestAlgs, ci, certs, null,
-                    signInfos);
+            SignedData req = new SignedData(digestAlgs, ci, certs, null, signInfos);
             fullEnrollmentReq = new ContentInfo(req);
             ByteArrayOutputStream bs = new ByteArrayOutputStream();
             PrintStream ps = new PrintStream(bs);
-
+            
             if (fullEnrollmentReq != null) {
                 ByteArrayOutputStream os = new ByteArrayOutputStream();
 
@@ -307,10 +298,9 @@ public class CMCRequest {
             String asciiBASE64Blob = bs.toString();
 
             System.out.println("");
-            System.out
-                    .println("The CMC enrollment request in base-64 encoded format:");
+            System.out.println("The CMC enrollment request in base-64 encoded format:");
             System.out.println("");
-            System.out.println(asciiBASE64Blob);
+            System.out.println(asciiBASE64Blob); 
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
@@ -323,123 +313,96 @@ public class CMCRequest {
         System.out.println("Usage: CMCRequest <configuration file>");
         System.out.println("For example, CMCRequest CMCRequest.cfg");
         System.out.println("");
-        System.out
-                .println("The configuration file should look like as follows:");
+        System.out.println("The configuration file should look like as follows:");
         System.out.println("");
-        System.out
-                .println("#numRequests: Total number of PKCS10 requests or CRMF requests.");
+        System.out.println("#numRequests: Total number of PKCS10 requests or CRMF requests.");
         System.out.println("numRequests=1");
         System.out.println("");
-        System.out
-                .println("#input: full path for the PKCS10 request or CRMF request,");
+        System.out.println("#input: full path for the PKCS10 request or CRMF request,");
         System.out.println("#the content must be in Base-64 encoded format");
-        System.out
-                .println("#Multiple files are supported. They must be separated by space.");
+        System.out.println("#Multiple files are supported. They must be separated by space.");
         System.out.println("input=crmf1");
         System.out.println("");
-        System.out
-                .println("#output: full path for the CMC request in binary format");
+        System.out.println("#output: full path for the CMC request in binary format");
         System.out.println("output=/u/doc/cmcReq");
         System.out.println("");
-        System.out
-                .println("#nickname: nickname for agent certificate which will be used");
+        System.out.println("#nickname: nickname for agent certificate which will be used");
         System.out.println("#to sign the CMC full request.");
         System.out.println("nickname=CMS Agent Certificate");
         System.out.println("");
-        System.out
-                .println("#dbdir: directory for cert8.db, key3.db and secmod.db");
+        System.out.println("#dbdir: directory for cert8.db, key3.db and secmod.db");
         System.out.println("dbdir=/u/smith/.netscape");
         System.out.println("");
-        System.out
-                .println("#password: password for cert8.db which stores the agent");
+        System.out.println("#password: password for cert8.db which stores the agent");
         System.out.println("#certificate");
         System.out.println("password=pass");
         System.out.println("");
         System.out.println("#format: request format, either pkcs10 or crmf");
         System.out.println("format=crmf");
         System.out.println("");
-        System.out
-                .println("#confirmCertAcceptance.enable: if true, then the request will");
+        System.out.println("#confirmCertAcceptance.enable: if true, then the request will");
         System.out.println("#contain this control. Otherwise, false.");
         System.out.println("confirmCertAcceptance.enable=true");
         System.out.println("");
-        System.out
-                .println("#confirmCertAcceptance.serial: The serial number for");
+        System.out.println("#confirmCertAcceptance.serial: The serial number for");
         System.out.println("#confirmCertAcceptance control");
         System.out.println("confirmCertAcceptance.serial=3");
         System.out.println("");
-        System.out
-                .println("#confirmCertAcceptance.issuer: The issuer name for");
+        System.out.println("#confirmCertAcceptance.issuer: The issuer name for");
         System.out.println("#confirmCertAcceptance control");
-        System.out
-                .println("confirmCertAcceptance.issuer=cn=Certificate Manager,c=us");
+        System.out.println("confirmCertAcceptance.issuer=cn=Certificate Manager,c=us");
         System.out.println("");
-        System.out
-                .println("#getCert.enable: if true, then the request will contain this");
+        System.out.println("#getCert.enable: if true, then the request will contain this");
         System.out.println("#control. Otherwise, false.");
         System.out.println("getCert.enable=true");
         System.out.println("");
-        System.out
-                .println("#getCert.serial: The serial number for getCert control");
+        System.out.println("#getCert.serial: The serial number for getCert control");
         System.out.println("getCert.serial=3");
         System.out.println("");
-        System.out
-                .println("#getCert.issuer: The issuer name for getCert control");
+        System.out.println("#getCert.issuer: The issuer name for getCert control");
         System.out.println("getCert.issuer=cn=Certificate Manager,c=us");
         System.out.println("");
-        System.out
-                .println("#dataReturn.enable: if true, then the request will contain");
+        System.out.println("#dataReturn.enable: if true, then the request will contain");
         System.out.println("#this control. Otherwise, false.");
         System.out.println("dataReturn.enable=true");
         System.out.println("");
         System.out.println("#dataReturn.data: data contained in the control.");
         System.out.println("dataReturn.data=test");
         System.out.println("");
-        System.out
-                .println("#transactionMgt.enable: if true, then the request will contain");
+        System.out.println("#transactionMgt.enable: if true, then the request will contain");
         System.out.println("#this control. Otherwise, false.");
         System.out.println("transactionMgt.enable=true");
         System.out.println("");
-        System.out
-                .println("#transactionMgt.id: transaction identifier. Verisign recommend");
+        System.out.println("#transactionMgt.id: transaction identifier. Verisign recommend");
         System.out.println("#transactionId to be MD5 hash of publicKey.");
         System.out.println("transactionMgt.id=");
         System.out.println("");
-        System.out
-                .println("#senderNonce.enable: if true, then the request will contain this");
+        System.out.println("#senderNonce.enable: if true, then the request will contain this");
         System.out.println("#control. Otherwise, false.");
         System.out.println("senderNonce.enable=true");
         System.out.println("");
         System.out.println("#senderNonce.id: sender nonce");
         System.out.println("senderNonce.id=");
         System.out.println("");
-        System.out
-                .println("#revRequest.enable: if true, then the request will contain this");
+        System.out.println("#revRequest.enable: if true, then the request will contain this");
         System.out.println("#control. Otherwise, false.");
         System.out.println("revRequest.enable=true");
         System.out.println("");
-        System.out
-                .println("#revRequest.nickname: The nickname for the revoke certificate");
+        System.out.println("#revRequest.nickname: The nickname for the revoke certificate");
         System.out.println("revRequest.nickname=newuser's 102504a ID");
         System.out.println("");
-        System.out
-                .println("#revRequest.issuer: The issuer name for the certificate being");
+        System.out.println("#revRequest.issuer: The issuer name for the certificate being");
         System.out.println("#revoked.");
         System.out.println("revRequest.issuer=cn=Certificate Manager,c=us");
         System.out.println("");
-        System.out
-                .println("#revRequest.serial: The serial number for the certificate being");
+        System.out.println("#revRequest.serial: The serial number for the certificate being");
         System.out.println("#revoked.");
         System.out.println("revRequest.serial=61");
         System.out.println("");
-        System.out
-                .println("#revRequest.reason: The reason for revoking this certificate: ");
-        System.out
-                .println("#                   unspecified, keyCompromise, caCompromise,");
-        System.out
-                .println("#                   affiliationChanged, superseded, cessationOfOperation,");
-        System.out
-                .println("#                   certificateHold, removeFromCRL");
+        System.out.println("#revRequest.reason: The reason for revoking this certificate: ");
+        System.out.println("#                   unspecified, keyCompromise, caCompromise,"); 
+        System.out.println("#                   affiliationChanged, superseded, cessationOfOperation,");
+        System.out.println("#                   certificateHold, removeFromCRL");
         System.out.println("revRequest.reason=unspecified");
         System.out.println("");
         System.out.println("#revRequest.sharedSecret: The sharedSecret");
@@ -448,35 +411,27 @@ public class CMCRequest {
         System.out.println("#revRequest.comment: The human readable comment");
         System.out.println("revRequest.comment=");
         System.out.println("");
-        System.out
-                .println("#revRequest.invalidityDatePresent: if true, the current time will be the");
-        System.out
-                .println("#                                  invalidityDate. If false, no invalidityDate");
+        System.out.println("#revRequest.invalidityDatePresent: if true, the current time will be the");
+        System.out.println("#                                  invalidityDate. If false, no invalidityDate");
         System.out.println("#                                  is present.");
         System.out.println("revRequest.invalidityDatePresent=false");
         System.out.println("");
-        System.out
-                .println("#identityProof.enable: if true, then the request will contain");
+        System.out.println("#identityProof.enable: if true, then the request will contain");
         System.out.println("#this control. Otherwise, false.");
         System.out.println("identityProof.enable=true");
         System.out.println("");
         System.out.println("#identityProof.sharedSecret: Shared Secret");
         System.out.println("identityProof.sharedSecret=testing");
         System.out.println("");
-        System.out
-                .println("#popLinkWitness.enable:  if true, then the request will contain");
+        System.out.println("#popLinkWitness.enable:  if true, then the request will contain");
         System.out.println("#this control. Otherwise, false.");
-        System.out
-                .println("#If you want to test this control, make sure to use CRMFPopClient ");
-        System.out
-                .println("# to generate the CRMF request which will include the ");
-        System.out
-                .println("#idPOPLinkWitness attribute in the controls section of the ");
+        System.out.println("#If you want to test this control, make sure to use CRMFPopClient ");
+        System.out.println("# to generate the CRMF request which will include the ");
+        System.out.println("#idPOPLinkWitness attribute in the controls section of the ");
         System.out.println("#CertRequest structure.");
         System.out.println("popLinkWitness.enable=false");
         System.out.println("");
-        System.out
-                .println("#LraPopWitness.enable: if true, then the request will contain this");
+        System.out.println("#LraPopWitness.enable: if true, then the request will contain this");
         System.out.println("#control. Otherwise, false.");
         System.out.println("LraPopWitness.enable=true");
         System.out.println("");
@@ -486,44 +441,38 @@ public class CMCRequest {
         System.exit(1);
     }
 
-    private static int addLraPopWitnessAttr(int bpid, SEQUENCE seq,
-            String bodyPartIDs) {
+    private static int addLraPopWitnessAttr(int bpid, SEQUENCE seq, String bodyPartIDs) {
         StringTokenizer tokenizer = new StringTokenizer(bodyPartIDs, " ");
-        SEQUENCE bodyList = new SEQUENCE();
+        SEQUENCE bodyList = new SEQUENCE(); 
         while (tokenizer.hasMoreTokens()) {
-            String s = (String) tokenizer.nextToken();
+            String s = (String)tokenizer.nextToken();
             bodyList.addElement(new INTEGER(s));
         }
         LraPopWitness lra = new LraPopWitness(new INTEGER(0), bodyList);
-        TaggedAttribute cont = new TaggedAttribute(new INTEGER(bpid++),
-                OBJECT_IDENTIFIER.id_cmc_lraPOPWitness, lra);
-        System.out
-                .println("Successfully create LRA POP witness control. bpid = "
-                        + (bpid - 1));
-        System.out.println("");
+        TaggedAttribute cont = new TaggedAttribute(new
+          INTEGER(bpid++), OBJECT_IDENTIFIER.id_cmc_lraPOPWitness, lra); 
+        System.out.println("Successfully create LRA POP witness control. bpid = "+(bpid-1));
+        System.out.println(""); 
         seq.addElement(cont);
         return bpid;
     }
 
-    private static int addConfirmCertAttr(int bpid, SEQUENCE seq,
-            String confirmCertIssuer, String confirmCertSerial) {
+    private static int addConfirmCertAttr(int bpid, SEQUENCE seq, String confirmCertIssuer, 
+      String confirmCertSerial) {
         try {
             INTEGER serial = new INTEGER(confirmCertSerial);
             X500Name issuername = new X500Name(confirmCertIssuer);
             byte[] issuerbyte = issuername.getEncoded();
             ANY issuern = new ANY(issuerbyte);
             CMCCertId cmcCertId = new CMCCertId(issuern, serial, null);
-            TaggedAttribute cmcCertIdControl = new TaggedAttribute(new INTEGER(
-                    bpid++), OBJECT_IDENTIFIER.id_cmc_idConfirmCertAcceptance,
-                    cmcCertId);
-            System.out
-                    .println("Successfully create confirm certificate acceptance control. bpid = "
-                            + (bpid - 1));
-            System.out.println("");
+            TaggedAttribute cmcCertIdControl = new TaggedAttribute(new
+              INTEGER(bpid++),
+              OBJECT_IDENTIFIER.id_cmc_idConfirmCertAcceptance, cmcCertId);
+            System.out.println("Successfully create confirm certificate acceptance control. bpid = "+(bpid-1));
+            System.out.println(""); 
             seq.addElement(cmcCertIdControl);
         } catch (Exception e) {
-            System.out
-                    .println("Error in creating confirm certificate acceptance control. Check the parameters.");
+            System.out.println("Error in creating confirm certificate acceptance control. Check the parameters.");
             System.exit(1);
         }
         return bpid;
@@ -552,10 +501,10 @@ public class CMCRequest {
         System.exit(1);
 
         return RevRequest.unspecified;
-    }
+   }
 
-    private static int addIdentityProofAttr(int bpid, SEQUENCE seq,
-            SEQUENCE reqSequence, String sharedSecret) {
+    private static int addIdentityProofAttr(int bpid, SEQUENCE seq, SEQUENCE reqSequence, 
+      String sharedSecret) {
         byte[] b = ASN1Util.encode(reqSequence);
         byte[] key = null;
         byte[] finalDigest = null;
@@ -563,8 +512,8 @@ public class CMCRequest {
             MessageDigest SHA1Digest = MessageDigest.getInstance("SHA1");
             key = SHA1Digest.digest(sharedSecret.getBytes());
         } catch (NoSuchAlgorithmException ex) {
-            System.out.println("CMCRequest::addIdentityProofAttr() - "
-                    + "No such algorithm!");
+            System.out.println( "CMCRequest::addIdentityProofAttr() - "
+                              + "No such algorithm!" );
             return -1;
         }
 
@@ -576,33 +525,30 @@ public class CMCRequest {
         } catch (NoSuchAlgorithmException ex) {
         }
 
-        TaggedAttribute identityProof = new TaggedAttribute(
-                new INTEGER(bpid++), OBJECT_IDENTIFIER.id_cmc_identityProof,
-                new OCTET_STRING(finalDigest));
+        TaggedAttribute identityProof = new TaggedAttribute(new
+          INTEGER(bpid++), OBJECT_IDENTIFIER.id_cmc_identityProof,
+          new OCTET_STRING(finalDigest));
         seq.addElement(identityProof);
         System.out.println("Identity Proof control: ");
         System.out.print("   Value: ");
-        for (int i = 0; i < finalDigest.length; i++) {
-            System.out.print(finalDigest[i] + " ");
-        }
+        for (int i=0; i<finalDigest.length; i++) {
+            System.out.print(finalDigest[i]+" ");
+        } 
         System.out.println("");
-        System.out.println("Successfully create identityProof control. bpid = "
-                + (bpid - 1));
+        System.out.println("Successfully create identityProof control. bpid = "+(bpid-1));
         System.out.println("");
-        return bpid;
+        return bpid; 
     }
 
-    private static int addRevRequestAttr(int bpid, SEQUENCE seq,
-            SEQUENCE otherMsgSeq, String nickname, String revRequestIssuer,
-            String revRequestSerial, String revRequestReason,
-            String revRequestSharedSecret, String revRequestComment,
-            String invalidityDatePresent, CryptoManager manager) {
-        try {
+    private static int addRevRequestAttr(int bpid, SEQUENCE seq, SEQUENCE otherMsgSeq, String nickname, 
+      String revRequestIssuer, String revRequestSerial, String revRequestReason, 
+      String revRequestSharedSecret, String revRequestComment, String invalidityDatePresent, 
+      CryptoManager manager) {
+        try {  
             if (nickname.length() <= 0) {
-                System.out
-                        .println("The nickname for the certificate being revoked is null");
+                System.out.println("The nickname for the certificate being revoked is null");
                 System.exit(1);
-            }
+            } 
             String nickname1 = nickname;
             UTF8String comment = null;
             OCTET_STRING sharedSecret = null;
@@ -611,31 +557,28 @@ public class CMCRequest {
             INTEGER snumber = new INTEGER(revRequestSerial);
             ENUMERATED reason = toCRLReason(revRequestReason);
             if (revRequestSharedSecret.length() > 0)
-                sharedSecret = new OCTET_STRING(
-                        revRequestSharedSecret.getBytes());
-            if (revRequestComment.length() > 0)
+                sharedSecret = new OCTET_STRING(revRequestSharedSecret.getBytes());
+            if (revRequestComment.length() > 0) 
                 comment = new UTF8String(revRequestComment);
             if (invalidityDatePresent.equals("true"))
                 d = new GeneralizedTime(new Date());
-            RevRequest revRequest = new RevRequest(new ANY(
-                    subjectname.getEncoded()), snumber, reason, d,
-                    sharedSecret, comment);
+            RevRequest revRequest =
+              new RevRequest(new ANY(subjectname.getEncoded()), snumber,
+              reason, d, sharedSecret, comment);
             int revokeBpid = bpid;
             TaggedAttribute revRequestControl = new TaggedAttribute(
-                    new INTEGER(bpid++),
-                    OBJECT_IDENTIFIER.id_cmc_revokeRequest, revRequest);
+              new INTEGER(bpid++),
+              OBJECT_IDENTIFIER.id_cmc_revokeRequest, revRequest);
             seq.addElement(revRequestControl);
 
             if (sharedSecret != null) {
-                System.out
-                        .println("Successfully create revRequest control. bpid = "
-                                + (bpid - 1));
+                System.out.println("Successfully create revRequest control. bpid = "+(bpid-1));
                 System.out.println("");
-                return bpid;
+                return bpid;          
             }
 
             EncapsulatedContentInfo revokeContent = new EncapsulatedContentInfo(
-                    OBJECT_IDENTIFIER.id_cct_PKIData, revRequestControl);
+              OBJECT_IDENTIFIER.id_cct_PKIData, revRequestControl);
             DigestAlgorithm digestAlg1 = null;
             SignatureAlgorithm signAlg1 = SignatureAlgorithm.RSASignatureWithSHA1Digest;
             java.security.PrivateKey revokePrivKey = null;
@@ -643,14 +586,13 @@ public class CMCRequest {
             try {
                 revokeCert = manager.findCertByNickname(nickname1);
             } catch (ObjectNotFoundException e) {
-                System.out.println("Certificate not found: " + nickname1);
+                System.out.println("Certificate not found: "+nickname1);
                 System.exit(1);
             }
             revokePrivKey = manager.findPrivKeyByCert(revokeCert);
-            org.mozilla.jss.crypto.PrivateKey.Type signingKeyType1 = ((org.mozilla.jss.crypto.PrivateKey) revokePrivKey)
-                    .getType();
-            if (signingKeyType1
-                    .equals(org.mozilla.jss.crypto.PrivateKey.Type.DSA))
+            org.mozilla.jss.crypto.PrivateKey.Type signingKeyType1 =
+              ((org.mozilla.jss.crypto.PrivateKey) revokePrivKey).getType();
+            if (signingKeyType1.equals(org.mozilla.jss.crypto.PrivateKey.Type.DSA))
                 signAlg1 = SignatureAlgorithm.DSASignatureWithSHA1Digest;
 
             MessageDigest rSHADigest = null;
@@ -666,79 +608,68 @@ public class CMCRequest {
             } catch (NoSuchAlgorithmException e) {
             }
 
-            ByteArrayInputStream bistream = new ByteArrayInputStream(
-                    subjectname.getEncoded());
-            Name iname = (Name) Name.getTemplate().decode(bistream);
-            IssuerAndSerialNumber ias1 = new IssuerAndSerialNumber(iname,
-                    snumber);
+            ByteArrayInputStream bistream =
+              new ByteArrayInputStream(subjectname.getEncoded());
+            Name iname = (Name)Name.getTemplate().decode(bistream);
+            IssuerAndSerialNumber ias1 = new IssuerAndSerialNumber(iname, snumber);
 
             SignerIdentifier rsi = new SignerIdentifier(
-                    SignerIdentifier.ISSUER_AND_SERIALNUMBER, ias1, null);
+              SignerIdentifier.ISSUER_AND_SERIALNUMBER, ias1, null);
 
             SignerInfo signInfo1 = new SignerInfo(rsi, null, null,
-                    OBJECT_IDENTIFIER.id_cct_PKIData, rdigest, signAlg1,
+              OBJECT_IDENTIFIER.id_cct_PKIData, rdigest, signAlg1,
                     (org.mozilla.jss.crypto.PrivateKey) revokePrivKey);
 
             SET signInfos1 = new SET();
             signInfos1.addElement(signInfo1);
             SET digestAlgs1 = new SET();
             if (digestAlg1 != null) {
-                AlgorithmIdentifier ai1 = new AlgorithmIdentifier(
-                        digestAlg1.toOID(), null);
+                AlgorithmIdentifier ai1 = new AlgorithmIdentifier(digestAlg1.toOID(), null);
                 digestAlgs1.addElement(ai1);
             }
 
-            org.mozilla.jss.crypto.X509Certificate[] revokeCertChain = manager
-                    .buildCertificateChain(revokeCert);
+            org.mozilla.jss.crypto.X509Certificate[] revokeCertChain =
+              manager.buildCertificateChain(revokeCert);
             SET certs1 = new SET();
-            for (int i = 0; i < revokeCertChain.length; i++) {
+            for (int i=0; i<revokeCertChain.length; i++) {
                 ANY cert1 = new ANY(revokeCertChain[i].getEncoded());
                 certs1.addElement(cert1);
             }
 
-            SignedData sData = new SignedData(digestAlgs1, revokeContent,
-                    certs1, null, signInfos1);
-            OBJECT_IDENTIFIER signedDataOID = new OBJECT_IDENTIFIER(
-                    "1.2.840.113549.1.7.2");
+            SignedData sData = new SignedData(digestAlgs1, revokeContent, certs1, null, signInfos1); 
+            OBJECT_IDENTIFIER signedDataOID = new OBJECT_IDENTIFIER("1.2.840.113549.1.7.2");
             ByteArrayOutputStream bos1 = new ByteArrayOutputStream();
             sData.encode(bos1);
-            OtherMsg otherMsg = new OtherMsg(new INTEGER(revokeBpid),
-                    signedDataOID, new ANY(bos1.toByteArray()));
+            OtherMsg otherMsg = new OtherMsg(new INTEGER(revokeBpid), signedDataOID, new ANY(bos1.toByteArray()));
             otherMsgSeq.addElement(otherMsg);
-            System.out
-                    .println("Successfully create revRequest control. bpid = "
-                            + (bpid - 1));
+            System.out.println("Successfully create revRequest control. bpid = "+(bpid-1));
             System.out.println("");
         } catch (Exception e) {
-            System.out
-                    .println("Error in creating revRequest control. Check the parameters.");
+            System.out.println("Error in creating revRequest control. Check the parameters.");
             System.exit(1);
         }
-
+ 
         return bpid;
     }
-
-    private static int addGetCertAttr(int bpid, SEQUENCE seq, String issuer,
-            String serial) {
+ 
+    private static int addGetCertAttr(int bpid, SEQUENCE seq, String issuer, String serial) {
         try {
             INTEGER serialno = new INTEGER(serial);
             X500Name issuername = new X500Name(issuer);
             byte[] issuerbyte = issuername.getEncoded();
             ANY issuern = new ANY(issuerbyte);
             GetCert getCert = new GetCert(issuern, serialno);
-            TaggedAttribute getCertControl = new TaggedAttribute(new INTEGER(
-                    bpid++), OBJECT_IDENTIFIER.id_cmc_getCert, getCert);
-            System.out
-                    .println("Successfully create get certificate control. bpid = "
-                            + (bpid - 1));
+            TaggedAttribute getCertControl = new TaggedAttribute(new
+              INTEGER(bpid++),
+              OBJECT_IDENTIFIER.id_cmc_getCert, getCert);
+            System.out.println("Successfully create get certificate control. bpid = "+(bpid-1));
             System.out.println("");
             seq.addElement(getCertControl);
         } catch (Exception e) {
-            System.out
-                    .println("Error in creating get certificate control. Check the parameters.");
+            System.out.println("Error in creating get certificate control. Check the parameters.");
             System.exit(1);
         }
-
+    
         return bpid;
     }
 
@@ -747,29 +678,26 @@ public class CMCRequest {
             byte bvalue[] = str.getBytes();
             System.out.println("Data Return Control: ");
             String ss = "   Value: ";
-            for (int m = 0; m < bvalue.length; m++) {
-                ss = ss + bvalue[m] + " ";
+            for (int m=0; m<bvalue.length; m++) {
+                ss = ss+bvalue[m]+" ";
             }
             System.out.println(ss);
             OCTET_STRING s = new OCTET_STRING(bvalue);
-            TaggedAttribute dataReturnControl = new TaggedAttribute(
-                    new INTEGER(bpid++), OBJECT_IDENTIFIER.id_cmc_dataReturn, s);
+            TaggedAttribute dataReturnControl = new TaggedAttribute(new
+              INTEGER(bpid++), OBJECT_IDENTIFIER.id_cmc_dataReturn, s);
             seq.addElement(dataReturnControl);
-            System.out
-                    .println("Successfully create data return control. bpid = "
-                            + (bpid - 1));
+            System.out.println("Successfully create data return control. bpid = "+(bpid-1));
             System.out.println("");
         } catch (Exception e) {
-            System.out
-                    .println("Error in creating data return control. Check the parameters.");
+            System.out.println("Error in creating data return control. Check the parameters.");
             System.exit(1);
         }
 
         return bpid;
     }
 
-    private static int addTransactionAttr(int bpid, SEQUENCE seq, String id,
-            String format, PKCS10 pkcs, CertReqMsg certReqMsg) {
+    private static int addTransactionAttr(int bpid, SEQUENCE seq, String id, String format, 
+      PKCS10 pkcs, CertReqMsg certReqMsg) {
         byte[] transId = null;
         Date date = new Date();
         String salt = "lala123" + date.toString();
@@ -784,30 +712,27 @@ public class CMCRequest {
                     byte[] b = bitString.getBits();
                     transId = MD5Digest.digest(b);
                 } else if (format.equals("pkcs10")) {
-                    transId = MD5Digest.digest(pkcs.getSubjectPublicKeyInfo()
-                            .getKey());
+                    transId = MD5Digest.digest(pkcs.getSubjectPublicKeyInfo().getKey());
                 }
             } catch (Exception ex) {
                 transId = salt.getBytes();
             }
         } else {
-            transId = id.getBytes();
+            transId = id.getBytes();   
         }
 
-        if (transId == null) {
-            System.out.println("CMCRequest::addTransactionAttr() - "
-                    + "transId is null!");
+        if( transId == null ) {
+            System.out.println( "CMCRequest::addTransactionAttr() - "
+                              + "transId is null!" );
             return -1;
         }
 
         INTEGER ii = new INTEGER(1, transId);
-        TaggedAttribute transactionId = new TaggedAttribute(
-                new INTEGER(bpid++), OBJECT_IDENTIFIER.id_cmc_transactionId, ii);
+        TaggedAttribute transactionId = new TaggedAttribute(new
+          INTEGER(bpid++), OBJECT_IDENTIFIER.id_cmc_transactionId, ii);
         System.out.println("Transaction ID control: ");
-        System.out.println("   Value: " + ii.toString());
-        System.out
-                .println("Successfully create transaction management control. bpid = "
-                        + (bpid - 1));
+        System.out.println("   Value: "+ii.toString());
+        System.out.println("Successfully create transaction management control. bpid = "+(bpid-1));
         System.out.println("");
 
         seq.addElement(transactionId);
@@ -833,65 +758,64 @@ public class CMCRequest {
 
             sn = com.netscape.osutil.OSUtil.BtoA(dig);
         }
-        byte bb[] = sn.getBytes();
+        byte bb[] = sn.getBytes(); 
         System.out.println("SenderNonce control: ");
         String ss = "   Value: ";
-        for (int m = 0; m < bb.length; m++) {
-            ss = ss + bb[m] + " ";
+        for (int m=0; m<bb.length; m++) {
+            ss = ss+bb[m]+" ";
         }
         System.out.println(ss);
-        TaggedAttribute senderNonce = new TaggedAttribute(new INTEGER(bpid++),
-                OBJECT_IDENTIFIER.id_cmc_senderNonce, new OCTET_STRING(
-                        sn.getBytes()));
-        System.out.println("Successfully create sender nonce control. bpid = "
-                + (bpid - 1));
+        TaggedAttribute senderNonce = new TaggedAttribute(new
+          INTEGER(bpid++), OBJECT_IDENTIFIER.id_cmc_senderNonce,
+          new OCTET_STRING(sn.getBytes()));
+        System.out.println("Successfully create sender nonce control. bpid = "+(bpid-1));
         System.out.println("");
         seq.addElement(senderNonce);
         return bpid;
     }
 
     private static int addPopLinkWitnessAttr(int bpid, SEQUENCE controlSeq) {
-        byte[] seed = { 0x10, 0x53, 0x42, 0x24, 0x1a, 0x2a, 0x35, 0x3c, 0x7a,
-                0x52, 0x54, 0x56, 0x71, 0x65, 0x66, 0x4c, 0x51, 0x34, 0x35,
-                0x23, 0x3c, 0x42, 0x43, 0x45, 0x61, 0x4f, 0x6e, 0x43, 0x1e,
-                0x2a, 0x2b, 0x31, 0x32, 0x34, 0x35, 0x36, 0x55, 0x51, 0x48,
-                0x14, 0x16, 0x29, 0x41, 0x42, 0x43, 0x7b, 0x63, 0x44, 0x6a,
-                0x12, 0x6b, 0x3c, 0x4c, 0x3f, 0x00, 0x14, 0x51, 0x61, 0x15,
-                0x22, 0x23, 0x5f, 0x5e, 0x69 };
+byte[] seed = 
+{0x10, 0x53, 0x42, 0x24, 0x1a, 0x2a, 0x35, 0x3c,
+ 0x7a, 0x52, 0x54, 0x56, 0x71, 0x65, 0x66, 0x4c,
+ 0x51, 0x34, 0x35, 0x23, 0x3c, 0x42, 0x43, 0x45,
+ 0x61, 0x4f, 0x6e, 0x43, 0x1e, 0x2a, 0x2b, 0x31,
+ 0x32, 0x34, 0x35, 0x36, 0x55, 0x51, 0x48, 0x14,
+ 0x16, 0x29, 0x41, 0x42, 0x43, 0x7b, 0x63, 0x44,
+ 0x6a, 0x12, 0x6b, 0x3c, 0x4c, 0x3f, 0x00, 0x14,
+ 0x51, 0x61, 0x15, 0x22, 0x23, 0x5f, 0x5e, 0x69};
 
-        TaggedAttribute idPOPLinkRandom = new TaggedAttribute(new INTEGER(
-                bpid++), OBJECT_IDENTIFIER.id_cmc_idPOPLinkRandom,
-                new OCTET_STRING(seed));
+        TaggedAttribute idPOPLinkRandom = new TaggedAttribute(new
+              INTEGER(bpid++), OBJECT_IDENTIFIER.id_cmc_idPOPLinkRandom,
+              new OCTET_STRING(seed));
         controlSeq.addElement(idPOPLinkRandom);
-        System.out
-                .println("Successfully create PopLinkWitness control. bpid = "
-                        + (bpid - 1));
-        System.out.println("");
+        System.out.println("Successfully create PopLinkWitness control. bpid = "+(bpid-1));
+        System.out.println(""); 
         return bpid;
     }
 
-    public static void main(String[] s) {
-        String numRequests = null;
-        String dbdir = null, nickname = null;
-        String ifilename = null, ofilename = null, password = null, format = null;
+    public static void main(String[]s) {
+        String numRequests=null;
+        String dbdir=null, nickname=null;
+        String ifilename=null, ofilename=null, password=null, format=null; 
         FileOutputStream outputBlob = null;
         String confirmCertEnable = "false", confirmCertIssuer = null, confirmCertSerial = null;
         String getCertEnable = "false", getCertIssuer = null, getCertSerial = null;
-        String dataReturnEnable = "false", dataReturnData = null;
+        String dataReturnEnable = "false", dataReturnData = null; 
         String transactionMgtEnable = "false", transactionMgtId = null;
         String senderNonceEnable = "false", senderNonce = null;
         String revCertNickname = "";
-        String revRequestEnable = "false", revRequestIssuer = null, revRequestSerial = null;
+        String revRequestEnable = "false", revRequestIssuer = null, revRequestSerial= null;
         String revRequestReason = null, revRequestSharedSecret = null, revRequestComment = null;
         String revRequestInvalidityDatePresent = "false";
         String identityProofEnable = "false", identityProofSharedSecret = null;
         String popLinkWitnessEnable = "false";
         String bodyPartIDs = null, lraPopWitnessEnable = "false";
 
-        System.out.println("");
+        System.out.println(""); 
 
         // Check that the correct # of arguments were submitted to the program
-        if (s.length != (ARGC)) {
+        if( s.length != ( ARGC ) ) {
             System.out.println("Wrong number of parameters:" + s.length);
             printUsage();
         }
@@ -900,16 +824,17 @@ public class CMCRequest {
         BufferedReader reader = null;
         try {
             reader = new BufferedReader(new InputStreamReader(
-                    new BufferedInputStream(new FileInputStream(configFile))));
+                            new BufferedInputStream(
+                                new FileInputStream(
+                                    configFile))));
         } catch (FileNotFoundException e) {
-            System.out.println("CMCRequest:  can't find configuration file: "
-                    + configFile);
+            System.out.println("CMCRequest:  can't find configuration file: "+configFile);
             printUsage();
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
         }
-
+ 
         try {
             String str = "";
             while ((str = reader.readLine()) != null) {
@@ -917,15 +842,14 @@ public class CMCRequest {
                 if (!str.startsWith("#") && str.length() > 0) {
                     int index = str.indexOf("=");
                     String name = "";
-                    String val = "";
+                    String val = ""; 
                     if (index == -1) {
-                        System.out.println("Error in configuration file: "
-                                + str);
+                        System.out.println("Error in configuration file: "+str);
                         System.exit(1);
                     }
                     name = str.substring(0, index);
-                    if (index != str.length() - 1)
-                        val = str.substring(index + 1);
+                    if (index != str.length()-1)
+                        val = str.substring(index+1); 
 
                     if (name.equals("format")) {
                         format = val;
@@ -1018,15 +942,15 @@ public class CMCRequest {
         }
 
         StringTokenizer tokenizer = new StringTokenizer(ifilename, " ");
-        String[] ifiles = new String[num];
-        for (int i = 0; i < num; i++) {
-            String ss = (String) tokenizer.nextToken();
+        String[] ifiles = new String[num]; 
+        for (int i=0; i<num; i++) {
+            String ss = (String)tokenizer.nextToken();
             ifiles[i] = ss;
             if (ss == null) {
                 System.out.println("Missing input file for the request.");
                 System.exit(1);
             }
-        }
+        } 
 
         if (ofilename == null) {
             System.out.println("Missing output filename for the CMC request.");
@@ -1051,12 +975,13 @@ public class CMCRequest {
         try {
             // initialize CryptoManager
             if (dbdir == null)
-                dbdir = ".";
-            String mPrefix = "";
+                dbdir = ".";   
+            String mPrefix = ""; 
             System.out.println("cert/key prefix = " + mPrefix);
             System.out.println("path = " + dbdir);
-            CryptoManager.InitializationValues vals = new CryptoManager.InitializationValues(
-                    dbdir, mPrefix, mPrefix, "secmod.db");
+            CryptoManager.InitializationValues vals =
+              new CryptoManager.InitializationValues(dbdir, mPrefix,
+              mPrefix, "secmod.db");
 
             CryptoManager.initialize(vals);
             CryptoManager cm = CryptoManager.getInstance();
@@ -1067,92 +992,85 @@ public class CMCRequest {
             CryptoStore store = token.getCryptoStore();
             X509Certificate[] list = store.getCertificates();
             X509Certificate signerCert = null;
-
+                
             signerCert = cm.findCertByNickname(nickname);
-
+                
             String[] requests = new String[num];
-            for (int i = 0; i < num; i++) {
+            for (int i=0; i<num; i++) { 
                 BufferedReader inputBlob = null;
                 try {
                     inputBlob = new BufferedReader(new InputStreamReader(
-                            new BufferedInputStream(new FileInputStream(
-                                    ifiles[i]))));
+                      new BufferedInputStream(new FileInputStream(ifiles[i]))));
                 } catch (FileNotFoundException e) {
-                    System.out.println("CMCRequest:  can't find file "
-                            + ifiles[i] + ":\n" + e);
+                    System.out.println("CMCRequest:  can't find file " +
+                        ifiles[i] + ":\n" + e);
                 } catch (Exception e) {
                     e.printStackTrace();
                     System.exit(1);
                 }
                 // (3) Read the entire contents of the specified BASE 64 encoded
-                // blob into a String() object throwing away any
-                // headers beginning with HEADER and any trailers beginning
-                // with TRAILER
+                //     blob into a String() object throwing away any
+                //     headers beginning with HEADER and any trailers beginning
+                //     with TRAILER
                 String asciiBASE64BlobChunk = new String();
                 String asciiBASE64Blob = new String();
 
                 try {
                     while ((asciiBASE64BlobChunk = inputBlob.readLine()) != null) {
-                        if (!(asciiBASE64BlobChunk.startsWith(HEADER))
-                                && !(asciiBASE64BlobChunk.startsWith(TRAILER))) {
+                        if (!(asciiBASE64BlobChunk.startsWith(HEADER)) &&
+                            !(asciiBASE64BlobChunk.startsWith(TRAILER))) {
                             asciiBASE64Blob += asciiBASE64BlobChunk.trim();
                         }
                     }
                     requests[i] = asciiBASE64Blob;
                 } catch (IOException e) {
-                    System.out.println("CMCRequest:  Unexpected BASE64 "
-                            + "encoded error encountered in readLine():\n" + e);
+                    System.out.println("CMCRequest:  Unexpected BASE64 " +
+                      "encoded error encountered in readLine():\n" +
+                      e);
                 }
                 // (4) Close the DataInputStream() object
                 try {
                     inputBlob.close();
                 } catch (IOException e) {
-                    System.out.println("CMCRequest():  Unexpected BASE64 "
-                            + "encoded error encountered in close():\n" + e);
+                    System.out.println("CMCRequest():  Unexpected BASE64 " +
+                      "encoded error encountered in close():\n" + e);
                 }
-            }
-
+            } 
+                
             SEQUENCE controlSeq = new SEQUENCE();
             int bpid = 1;
             if (confirmCertEnable.equalsIgnoreCase("true")) {
-                if (confirmCertIssuer.length() == 0
-                        || confirmCertSerial.length() == 0) {
-                    System.out
-                            .println("Illegal parameters for confirm certificate acceptance control");
+                if (confirmCertIssuer.length() == 0 || confirmCertSerial.length() == 0) {
+                    System.out.println("Illegal parameters for confirm certificate acceptance control");
                     printUsage();
                     System.exit(1);
                 }
-                bpid = addConfirmCertAttr(bpid, controlSeq, confirmCertIssuer,
-                        confirmCertSerial);
+                bpid = addConfirmCertAttr(bpid, controlSeq, confirmCertIssuer, confirmCertSerial);
             }
-
+     
             if (lraPopWitnessEnable.equalsIgnoreCase("true")) {
                 if (bodyPartIDs.length() == 0) {
-                    System.out
-                            .println("Illegal parameters for Lra Pop Witness control");
+                    System.out.println("Illegal parameters for Lra Pop Witness control");
                     printUsage();
                     System.exit(1);
-                }
+                } 
 
                 bpid = addLraPopWitnessAttr(bpid, controlSeq, bodyPartIDs);
             }
 
             if (getCertEnable.equalsIgnoreCase("true")) {
                 if (getCertIssuer.length() == 0 || getCertSerial.length() == 0) {
-                    System.out
-                            .println("Illegal parameters for get certificate control");
+                    System.out.println("Illegal parameters for get certificate control");
                     printUsage();
                     System.exit(1);
                 }
-
-                bpid = addGetCertAttr(bpid, controlSeq, getCertIssuer,
-                        getCertSerial);
+   
+                bpid = addGetCertAttr(bpid, controlSeq, getCertIssuer, getCertSerial);
             }
 
             if (dataReturnEnable.equalsIgnoreCase("true")) {
                 if (dataReturnData.length() == 0) {
-                    System.out
-                            .println("Illegal parameters for data return control");
+                    System.out.println("Illegal parameters for data return control");
                     printUsage();
                     System.exit(1);
                 }
@@ -1168,52 +1086,46 @@ public class CMCRequest {
 
             SEQUENCE otherMsgSeq = new SEQUENCE();
             if (revRequestEnable.equalsIgnoreCase("true")) {
-                if (revRequestIssuer.length() == 0
-                        || revRequestSerial.length() == 0
-                        || revRequestReason.length() == 0) {
-                    System.out
-                            .println("Illegal parameters for revRequest control");
+                if (revRequestIssuer.length() == 0  || revRequestSerial.length() == 0 ||
+                  revRequestReason.length() == 0) {
+                    System.out.println("Illegal parameters for revRequest control");
                     printUsage();
                     System.exit(1);
                 }
 
-                bpid = addRevRequestAttr(bpid, controlSeq, otherMsgSeq,
-                        revCertNickname, revRequestIssuer, revRequestSerial,
-                        revRequestReason, revRequestSharedSecret,
-                        revRequestComment, revRequestInvalidityDatePresent, cm);
+                bpid = addRevRequestAttr(bpid, controlSeq, otherMsgSeq, revCertNickname, 
+                  revRequestIssuer, revRequestSerial, revRequestReason, revRequestSharedSecret,
+                  revRequestComment, revRequestInvalidityDatePresent, cm);
             }
-
-            ContentInfo cmcblob = getCMCBlob(signerCert, nickname, requests,
-                    format, cm, transactionMgtEnable, transactionMgtId,
-                    identityProofEnable, identityProofSharedSecret, controlSeq,
-                    otherMsgSeq, bpid);
+            
+            ContentInfo cmcblob = getCMCBlob(signerCert, nickname, requests, format, 
+              cm, transactionMgtEnable, transactionMgtId, identityProofEnable, 
+              identityProofSharedSecret, controlSeq, otherMsgSeq, bpid);
 
             // (6) Finally, print the actual CMC blob to the
-            // specified output file
-            FileOutputStream os = null;
+            //     specified output file
+            FileOutputStream os = null; 
             try {
                 os = new FileOutputStream(ofilename);
                 cmcblob.encode(os);
                 System.out.println("");
                 System.out.println("");
-                System.out
-                        .println("The CMC enrollment request in binary format is stored in "
-                                + ofilename + ".");
+                System.out.println("The CMC enrollment request in binary format is stored in "+
+                  ofilename+".");
             } catch (IOException e) {
-                System.out.println("CMCRequest:  unable to open file "
-                        + ofilename + " for writing:\n" + e);
+                System.out.println("CMCRequest:  unable to open file " +ofilename+
+                    " for writing:\n" + e);
             }
-
+               
             try {
                 os.close();
             } catch (IOException e) {
-                System.out
-                        .println("CMCRequest:  Unexpected error "
-                                + "encountered while attempting to close() "
-                                + "\n" + e);
+                System.out.println("CMCRequest:  Unexpected error " +
+                  "encountered while attempting to close() " +
+                  "\n" + e);
             }
-
-        } catch (Exception e) {
+ 
+        }catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
         }

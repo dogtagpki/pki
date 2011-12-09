@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.security;
 
+
 import java.io.IOException;
 import java.security.KeyPair;
 
@@ -27,6 +28,7 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.ConfigConstants;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.security.KeyCertData;
+
 
 /**
  * Subsystem certificate.
@@ -59,8 +61,7 @@ public class SubsystemCert extends CertificateInfo {
 
     public String getNickname() {
         String name = (String) mProperties.get(Constants.PR_NICKNAME);
-        String instanceName = (String) mProperties
-                .get(ConfigConstants.PR_CERT_INSTANCE_NAME);
+        String instanceName = (String) mProperties.get(ConfigConstants.PR_CERT_INSTANCE_NAME);
 
         if (name != null)
             return name;
@@ -80,3 +81,4 @@ public class SubsystemCert extends CertificateInfo {
         return extension;
     }
 }
+

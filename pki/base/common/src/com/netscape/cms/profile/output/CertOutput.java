@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.output;
 
+
 import java.util.Locale;
 
 import netscape.security.x509.X509CertImpl;
@@ -33,13 +34,14 @@ import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.common.EnrollProfile;
 
+
 /**
- * This class implements the pretty print certificate output that displays the
- * issued certificate in a pretty print format.
- * 
+ * This class implements the pretty print certificate output
+ * that displays the issued certificate in a pretty print format.
+ *
  * @version $Revision$, $Date$
  */
-public class CertOutput extends EnrollOutput implements IProfileOutput {
+public class CertOutput extends EnrollOutput implements IProfileOutput { 
     public static final String VAL_PRETTY_CERT = "pretty_cert";
     public static final String VAL_B64_CERT = "b64_cert";
 
@@ -52,7 +54,7 @@ public class CertOutput extends EnrollOutput implements IProfileOutput {
      * Initializes this default policy.
      */
     public void init(IProfile profile, IConfigStore config)
-            throws EProfileException {
+        throws EProfileException {
         super.init(profile, config);
     }
 
@@ -74,39 +76,44 @@ public class CertOutput extends EnrollOutput implements IProfileOutput {
      * Populates the request with this policy default.
      */
     public void populate(IProfileContext ctx, IRequest request)
-            throws EProfileException {
+        throws EProfileException {
     }
 
     /**
-     * Retrieves the descriptor of the given value parameter by name.
+     * Retrieves the descriptor of the given value
+     * parameter by name.
      */
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         if (name.equals(VAL_PRETTY_CERT)) {
-            return new Descriptor(IDescriptor.PRETTY_PRINT, null, null,
-                    CMS.getUserMessage(locale, "CMS_PROFILE_OUTPUT_CERT_PP"));
+            return new Descriptor(IDescriptor.PRETTY_PRINT, null,
+                    null,
+                    CMS.getUserMessage(locale, 
+                        "CMS_PROFILE_OUTPUT_CERT_PP"));
         } else if (name.equals(VAL_B64_CERT)) {
-            return new Descriptor(IDescriptor.PRETTY_PRINT, null, null,
-                    CMS.getUserMessage(locale, "CMS_PROFILE_OUTPUT_CERT_B64"));
+            return new Descriptor(IDescriptor.PRETTY_PRINT, null,
+                    null,
+                    CMS.getUserMessage(locale, 
+                        "CMS_PROFILE_OUTPUT_CERT_B64"));
         }
         return null;
     }
 
     public String getValue(String name, Locale locale, IRequest request)
-            throws EProfileException {
+        throws EProfileException {
         if (name.equals(VAL_PRETTY_CERT)) {
-            X509CertImpl cert = request
-                    .getExtDataInCert(EnrollProfile.REQUEST_ISSUED_CERT);
+            X509CertImpl cert = request.getExtDataInCert(
+                    EnrollProfile.REQUEST_ISSUED_CERT);
             if (cert == null)
                 return null;
-            ICertPrettyPrint prettyCert = CMS.getCertPrettyPrint(cert);
+            ICertPrettyPrint prettyCert = CMS.getCertPrettyPrint(cert); 
 
             return prettyCert.toString(locale);
         } else if (name.equals(VAL_B64_CERT)) {
-            X509CertImpl cert = request
-                    .getExtDataInCert(EnrollProfile.REQUEST_ISSUED_CERT);
+            X509CertImpl cert = request.getExtDataInCert(
+                    EnrollProfile.REQUEST_ISSUED_CERT);
             if (cert == null)
                 return null;
-            return CMS.getEncodedCert(cert);
+            return CMS.getEncodedCert(cert); 
         } else {
             return null;
         }

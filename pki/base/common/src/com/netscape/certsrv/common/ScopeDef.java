@@ -17,10 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.common;
 
+
 /**
- * This interface defines all the operation scope used in the administration
- * protocol between the console and the server.
- * 
+ * This interface defines all the operation scope
+ * used in the administration protocol between the
+ * console and the server.
+ *
  * @version $Revision$, $Date$
  */
 public interface ScopeDef {
@@ -29,7 +31,7 @@ public interface ScopeDef {
     public final static String SC_GROUPS = "groups";
     public final static String SC_USERS = "users";
     public final static String SC_USER_CERTS = "certs";
-
+    
     public final static String SC_SNMP = "snmp";
     public final static String SC_SMTP = "smtp";
     public final static String SC_SUBSYSTEM = "subsystem";
@@ -37,12 +39,12 @@ public interface ScopeDef {
     public final static String SC_GATEWAY = "gateway";
     public final static String SC_ADMIN = "admin";
     public final static String SC_NETWORK = "network";
-
+    
     // profile
     public final static String SC_PROFILE_IMPLS = "profile";
     public final static String SC_PROFILE_RULES = "rules";
     public final static String SC_PROFILE_DEFAULT_POLICY = "defaultPolicy";
-    public final static String SC_PROFILE_CONSTRAINT_POLICY = "constraintPolicy";
+    public final static String SC_PROFILE_CONSTRAINT_POLICY = "constraintPolicy"; 
     public final static String SC_PROFILE_POLICIES = "policies";
     public final static String SC_PROFILE_POLICY_CONFIG = "config";
     public final static String SC_PROFILE_INPUT = "profileInput";
@@ -81,9 +83,9 @@ public interface ScopeDef {
     public final static String SC_LOG_CONTENT = "log_content";
     public final static String SC_AUDITLOG_CONTENT = "transactionsLog_content";
     public final static String SC_ERRORLOG_CONTENT = "errorLog_content";
-    public final static String SC_SYSTEMLOG_CONTENT = "systemLog_content";
+    public final static String SC_SYSTEMLOG_CONTENT = "systemLog_content";    
 
-    // LDAP publishing
+    //LDAP publishing
     public final static String SC_LDAP = "ldap";
     public final static String SC_CRL = "crl";
     public final static String SC_USERCERT = "userCert";
@@ -107,9 +109,9 @@ public interface ScopeDef {
     public final static String SC_RECOVERY = "recovery";
     public final static String SC_AGENT_PWD = "agentPwd";
     public final static String SC_MNSCHEME = "mnScheme";
-
-    // stat
-    public final static String SC_STAT = "stat";
+    
+    //stat
+    public final static String  SC_STAT = "stat";
 
     // RA
     public final static String SC_GENERAL = "general";
@@ -117,27 +119,27 @@ public interface ScopeDef {
     public final static String SC_PKIGW = "pkigw";
     public final static String SC_SERVLET = "servlet";
     public final static String SC_CONNECTOR = "connector";
-
-    // tasks
+    
+    //tasks
     public final static String SC_TASKS = "tasks";
-
-    // authentication
+    
+    //authentication
     public final static String SC_AUTH = "auths";
     public final static String SC_AUTHTYPE = "authType";
     public final static String SC_AUTH_IMPLS = "impl";
     public final static String SC_AUTH_MGR_INSTANCE = "instance";
 
-    // jobs scheduler
+    //jobs scheduler
     public final static String SC_JOBS = "jobScheduler";
     public final static String SC_JOBS_IMPLS = "impl";
     public final static String SC_JOBS_INSTANCE = "job";
     public final static String SC_JOBS_RULES = "rules";
 
-    // notification
+    //notification
     public final static String SC_NOTIFICATION_REQ_COMP = "notificationREQC";
     public final static String SC_NOTIFICATION_REV_COMP = "notificationREVC";
     public final static String SC_NOTIFICATION_RIQ = "notificationRIQ";
-
+    
     // acl
     public final static String SC_ACL_IMPLS = "impl";
     public final static String SC_ACL = "acls";
@@ -179,7 +181,7 @@ public interface ScopeDef {
     public final static String SC_PLATFORM = "platform";
 
     public final static String SC_GET_NICKNAMES = "getNicknames";
-
+ 
     // Profile
     public final static String SC_SUPPORTED_CONSTRAINTPOLICIES = "supportedConstraintPolicies";
 

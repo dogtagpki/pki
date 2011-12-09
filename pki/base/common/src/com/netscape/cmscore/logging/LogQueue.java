@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.logging;
 
+
 import java.util.Vector;
 
 import com.netscape.certsrv.logging.ELogException;
@@ -24,8 +25,9 @@ import com.netscape.certsrv.logging.ILogEvent;
 import com.netscape.certsrv.logging.ILogEventListener;
 import com.netscape.certsrv.logging.ILogQueue;
 
+
 /**
- * A class represents a log queue.
+ * A class represents a log queue. 
  * <P>
  * 
  * @author mzhao
@@ -49,11 +51,11 @@ public class LogQueue implements ILogQueue {
     /**
      * Initializes the log queue.
      * <P>
-     * 
+     *
      */
     public void init() {
         mListeners = new Vector();
-
+        
     }
 
     /**
@@ -61,7 +63,7 @@ public class LogQueue implements ILogQueue {
      * <P>
      */
     public void shutdown() {
-        if (mListeners == null)
+        if (mListeners == null) 
             return;
         for (int i = 0; i < mListeners.size(); i++) {
             ((ILogEventListener) mListeners.elementAt(i)).shutdown();
@@ -71,18 +73,18 @@ public class LogQueue implements ILogQueue {
 
     /**
      * Adds an event listener.
-     * 
+     *
      * @param listener the log event listener
      */
     public void addLogEventListener(ILogEventListener listener) {
-        // Make sure we don't have duplicated listener
+        //Make sure we don't have duplicated listener
         if (!mListeners.contains(listener))
             mListeners.addElement(listener);
     }
 
     /**
      * Removes an event listener.
-     * 
+     *
      * @param listener the log event listener
      */
     public void removeLogEventListener(ILogEventListener listener) {
@@ -91,31 +93,30 @@ public class LogQueue implements ILogQueue {
 
     /**
      * Logs an event, and notifies logger to reuse the event.
-     * 
+     *
      * @param event the log event
      */
     public void log(ILogEvent event) {
         if (mListeners == null)
-            return;
+           return;
         for (int i = 0; i < mListeners.size(); i++) {
             try {
                 ((ILogEventListener) mListeners.elementAt(i)).log(event);
             } catch (ELogException e) {
-                // Raidzilla Bug #57592: Don't display potentially
-                // incorrect log message.
-                // ConsoleError.send(new
-                // SystemEvent(CMS.getUserMessage("CMS_LOG_EVENT_FAILED",
-                // event.getEventType(), e.toString())));
+                // Raidzilla Bug #57592:  Don't display potentially
+                //                        incorrect log message.
+                // ConsoleError.send(new SystemEvent(CMS.getUserMessage("CMS_LOG_EVENT_FAILED",
+                //          event.getEventType(), e.toString())));
 
-                // Don't do this again.
-                removeLogEventListener((ILogEventListener) mListeners
-                        .elementAt(i));
+                // Don't do this again.  
+                removeLogEventListener((ILogEventListener)
+                    mListeners.elementAt(i));
             }
         }
     }
 
     /**
-     * Flushes the log buffers (if any)
+     *  Flushes the log buffers (if any)
      */
     public void flush() {
         for (int i = 0; i < mListeners.size(); i++) {
@@ -123,3 +124,4 @@ public class LogQueue implements ILogQueue {
         }
     }
 }
+

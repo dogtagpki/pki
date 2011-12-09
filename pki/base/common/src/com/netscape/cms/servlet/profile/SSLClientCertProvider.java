@@ -31,9 +31,10 @@ public class SSLClientCertProvider implements ISSLClientCertProvider {
     }
 
     public X509Certificate[] getClientCertificateChain() {
-        X509Certificate[] allCerts = (X509Certificate[]) mRequest
-                .getAttribute("javax.servlet.request.X509Certificate");
+        X509Certificate[] allCerts = (X509Certificate[])
+            mRequest.getAttribute("javax.servlet.request.X509Certificate");
 
         return allCerts;
     }
 }
+

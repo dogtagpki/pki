@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.ldap;
 
+
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Vector;
@@ -29,7 +30,8 @@ import com.netscape.certsrv.publish.ILdapRule;
 import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.cmscore.util.Debug;
 
-/**
+
+/** 
  * The publishing rule that links mapper and publisher together.
  */
 public class LdapRule implements ILdapRule, IExtendedPluginInfo {
@@ -41,15 +43,15 @@ public class LdapRule implements ILdapRule, IExtendedPluginInfo {
 
     private IPublisherProcessor mProcessor = null;
 
-    private static String[] epi_params = null; // extendedpluginInfo
+    private static String[] epi_params = null;  // extendedpluginInfo
 
     public IConfigStore getConfigStore() {
         return mConfig;
     }
 
     public String[] getExtendedPluginInfo(Locale locale) {
-        // dont know why it's null here.
-        // if (mProcessor == null) System.out.println("p null");
+        //dont know why it's null here.
+        //if (mProcessor == null) System.out.println("p null");
 
         if (Debug.ON) {
             Debug.trace("LdapRule: getExtendedPluginInfo() - returning epi_params:");
@@ -59,9 +61,8 @@ public class LdapRule implements ILdapRule, IExtendedPluginInfo {
         }
         return epi_params;
     }
-
-    public void init(IPublisherProcessor processor, IConfigStore config)
-            throws EBaseException {
+	
+    public void init(IPublisherProcessor processor, IConfigStore config) throws EBaseException {
         mConfig = config;
 
         mProcessor = processor;
@@ -71,32 +72,29 @@ public class LdapRule implements ILdapRule, IExtendedPluginInfo {
         String map = NOMAPPER;
 
         for (; mappers.hasMoreElements();) {
-            String name = mappers.nextElement();
+            String name =  mappers.nextElement();
 
             map = map + "," + name;
         }
         String publish = "";
 
         for (; publishers.hasMoreElements();) {
-            String name = publishers.nextElement();
+            String name =  publishers.nextElement();
 
             publish = publish + "," + name;
         }
 
         epi_params = new String[] {
-                "type;choice(cacert,crl, certs);The publishing object type",
-                "mapper;choice("
-                        + map
-                        + ");Use the mapper to find the ldap dn \nto publish the certificate or crl",
-                "publisher;choice("
-                        + publish
-                        + ");Use the publisher to publish the certificate or crl a directory etc",
-                "enable;boolean;Enable this publishing rule",
-                "predicate;string;Filter describing when this publishing rule shoule be used" };
+                    "type;choice(cacert,crl, certs);The publishing object type",
+                    "mapper;choice(" + map + ");Use the mapper to find the ldap dn \nto publish the certificate or crl",
+                    "publisher;choice(" + publish + ");Use the publisher to publish the certificate or crl a directory etc",
+                    "enable;boolean;Enable this publishing rule",
+                    "predicate;string;Filter describing when this publishing rule shoule be used"
+                };
 
         // Read the predicate expression if any associated
         // with the rule
-        String exp = config.getString(IPublisherProcessor.PROP_PREDICATE, null);
+        String exp = config.getString(IPublisherProcessor.PROP_PREDICATE, null);		
 
         if (exp != null)
             exp = exp.trim();
@@ -105,26 +103,29 @@ public class LdapRule implements ILdapRule, IExtendedPluginInfo {
 
             setPredicate(filterExp);
         }
-        // if (mProcessor == null) System.out.println("null");
+        //if (mProcessor == null) System.out.println("null");
 
     }
 
     /**
-     * The init method in ILdapPlugin It can not set set mapper,publisher choice
-     * for console dynamicly Should not use this method to init.
+     * The init method in ILdapPlugin
+     * It can not set set mapper,publisher choice for console dynamicly
+     * Should not use this method to init.
      */
     public void init(IConfigStore config) throws EBaseException {
         mConfig = config;
 
         epi_params = new String[] {
-                "type;choice(cacert, crl, certs);The publishing object type",
-                "mapper;choice(null,LdapUserCertMap,LdapServerCertMap,LdapCrlMap,LdapCaCertMap);Use the mapper to find the ldap dn to publish the certificate or crl",
-                "publisher;choice(LdapUserCertPublisher,LdapServerCertPublisher,LdapCrlPublisher,LdapCaCertPublisher);Use the publisher to publish the certificate or crl a directory etc",
-                "enable;boolean;", "predicate;string;" };
+                    "type;choice(cacert, crl, certs);The publishing object type",
+                    "mapper;choice(null,LdapUserCertMap,LdapServerCertMap,LdapCrlMap,LdapCaCertMap);Use the mapper to find the ldap dn to publish the certificate or crl",
+                    "publisher;choice(LdapUserCertPublisher,LdapServerCertPublisher,LdapCrlPublisher,LdapCaCertPublisher);Use the publisher to publish the certificate or crl a directory etc",
+                    "enable;boolean;",
+                    "predicate;string;"
+                };
 
         // Read the predicate expression if any associated
         // with the rule
-        String exp = config.getString(IPublisherProcessor.PROP_PREDICATE, null);
+        String exp = config.getString(IPublisherProcessor.PROP_PREDICATE, null);		
 
         if (exp != null)
             exp = exp.trim();
@@ -168,8 +169,8 @@ public class LdapRule implements ILdapRule, IExtendedPluginInfo {
      * Returns the current instance parameters.
      */
     public Vector<String> getInstanceParams() {
-        // if (mProcessor == null) System.out.println("xxxxnull");
-        // dont know why the processor was null in getExtendedPluginInfo()
+        //if (mProcessor == null) System.out.println("xxxxnull");
+        //dont know why the processor was null in getExtendedPluginInfo()
         Enumeration<String> mappers = mProcessor.getMapperInsts().keys();
         Enumeration<String> publishers = mProcessor.getPublisherInsts().keys();
         String map = NOMAPPER;
@@ -188,30 +189,31 @@ public class LdapRule implements ILdapRule, IExtendedPluginInfo {
         }
 
         /*
-         * mExtendedPluginInfo = new NameValuePairs();
-         * mExtendedPluginInfo.add("type",
-         * "choice(client,server,objSignClient,smime,ca,crl);The publishing object type"
-         * ); mExtendedPluginInfo.add("mapper","choice("+map+
-         * ");Use the mapper to find the ldap dn \nto publish the certificate or crl"
-         * ); mExtendedPluginInfo.add("publisher","choice("+publish+
-         * ");Use the publisher to publish the certificate or crl a directory etc"
-         * ); mExtendedPluginInfo.add("enable","boolean;");
-         * mExtendedPluginInfo.add("predicate","string;");
+         mExtendedPluginInfo = new NameValuePairs();
+         mExtendedPluginInfo.add("type","choice(client,server,objSignClient,smime,ca,crl);The publishing object type");
+         mExtendedPluginInfo.add("mapper","choice("+map+");Use the mapper to find the ldap dn \nto publish the certificate or crl");
+         mExtendedPluginInfo.add("publisher","choice("+publish+");Use the publisher to publish the certificate or crl a directory etc");
+         mExtendedPluginInfo.add("enable","boolean;");
+         mExtendedPluginInfo.add("predicate","string;");
          */
 
         Vector<String> v = new Vector<String>();
 
         try {
-            v.addElement(IPublisherProcessor.PROP_TYPE + "="
-                    + mConfig.getString(IPublisherProcessor.PROP_TYPE, ""));
-            v.addElement(IPublisherProcessor.PROP_PREDICATE + "="
-                    + mConfig.getString(IPublisherProcessor.PROP_PREDICATE, ""));
-            v.addElement(IPublisherProcessor.PROP_ENABLE + "="
-                    + mConfig.getString(IPublisherProcessor.PROP_ENABLE, ""));
-            v.addElement(IPublisherProcessor.PROP_MAPPER + "="
-                    + mConfig.getString(IPublisherProcessor.PROP_MAPPER, ""));
-            v.addElement(IPublisherProcessor.PROP_PUBLISHER + "="
-                    + mConfig.getString(IPublisherProcessor.PROP_PUBLISHER, ""));
+            v.addElement(IPublisherProcessor.PROP_TYPE + "=" + 
+                mConfig.getString(IPublisherProcessor.PROP_TYPE, ""));
+            v.addElement(IPublisherProcessor.PROP_PREDICATE + "=" + 
+                mConfig.getString(IPublisherProcessor.PROP_PREDICATE, 
+                    ""));
+            v.addElement(IPublisherProcessor.PROP_ENABLE + "=" + 
+                mConfig.getString(IPublisherProcessor.PROP_ENABLE, 
+                    ""));
+            v.addElement(IPublisherProcessor.PROP_MAPPER + "=" + 
+                mConfig.getString(IPublisherProcessor.PROP_MAPPER, 
+                    ""));
+            v.addElement(IPublisherProcessor.PROP_PUBLISHER + "=" + 
+                mConfig.getString(IPublisherProcessor.PROP_PUBLISHER, 
+                    ""));
         } catch (EBaseException e) {
         }
         return v;
@@ -220,8 +222,8 @@ public class LdapRule implements ILdapRule, IExtendedPluginInfo {
     /**
      * Sets a predicate expression for rule matching.
      * <P>
-     * 
-     * @param exp The predicate expression for the rule.
+     *
+     * @param exp   The predicate expression for the rule.
      */
     public void setPredicate(ILdapExpression exp) {
         mFilterExp = exp;
@@ -230,7 +232,7 @@ public class LdapRule implements ILdapRule, IExtendedPluginInfo {
     /**
      * Returns the predicate expression for the rule.
      * <P>
-     * 
+     *
      * @return The predicate expression for the rule.
      */
     public ILdapExpression getPredicate() {
@@ -239,7 +241,8 @@ public class LdapRule implements ILdapRule, IExtendedPluginInfo {
 
     public String getMapper() {
         try {
-            String map = mConfig.getString(IPublisherProcessor.PROP_MAPPER, "");
+            String map =
+                mConfig.getString(IPublisherProcessor.PROP_MAPPER, "");
 
             if (map != null)
                 map = map.trim();
@@ -272,10 +275,10 @@ public class LdapRule implements ILdapRule, IExtendedPluginInfo {
 
     public boolean enabled() {
         try {
-            boolean enable = mConfig.getBoolean(
-                    IPublisherProcessor.PROP_ENABLE, false);
+            boolean enable = 
+                mConfig.getBoolean(IPublisherProcessor.PROP_ENABLE, false);
 
-            // System.out.println(enable);
+            //System.out.println(enable);
             return enable;
         } catch (EBaseException e) {
         }

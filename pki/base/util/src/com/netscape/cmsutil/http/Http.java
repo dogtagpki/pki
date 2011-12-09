@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmsutil.http;
 
+
 public class Http {
     public static final String HttpVers = "HTTP/1.0";
 

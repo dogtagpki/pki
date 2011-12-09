@@ -24,15 +24,15 @@ import java.net.UnknownHostException;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 import org.mozilla.jss.ssl.SSLClientCertificateSelectionCallback;
 
-public interface ISocketFactory {
-    Socket makeSocket(String host, int port) throws IOException,
-            UnknownHostException;
-
-    Socket makeSocket(String host, int port, int timeout) throws IOException,
-            UnknownHostException;
-
-    Socket makeSocket(String host, int port,
-            SSLCertificateApprovalCallback certApprovalCallback,
-            SSLClientCertificateSelectionCallback clientCertCallback)
-            throws IOException, UnknownHostException;
+public interface ISocketFactory 
+{
+	Socket makeSocket(String host, int port) 
+		throws IOException, UnknownHostException;
+	Socket makeSocket(String host, int port, int timeout) 
+		throws IOException, UnknownHostException;
+    Socket makeSocket(String host, int port, 
+      SSLCertificateApprovalCallback certApprovalCallback,
+      SSLClientCertificateSelectionCallback clientCertCallback) 
+      throws IOException, UnknownHostException;
 }
+

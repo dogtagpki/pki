@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.base;
 
+
 import java.io.IOException;
 import java.util.Date;
 import java.util.Enumeration;
@@ -38,13 +39,14 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 
+
 /**
- * Return some javascript to the request which contains the list of dynamic data
- * in the CMS system.
+ * Return some javascript to the request which contains the list of
+ * dynamic data in the CMS system.
  * <p>
- * This allows the requestor (browser) to make decisions about what to present
- * in the UI, depending on how CMS is configured
- * 
+ * This allows the requestor (browser) to make decisions about what
+ * to present in the UI, depending on how CMS is configured
+ *
  * @version $Revision$, $Date$
  */
 public class DynamicVariablesServlet extends CMSServlet {
@@ -81,10 +83,10 @@ public class DynamicVariablesServlet extends CMSServlet {
     private static final String VAR_CLA_CRL_URL_STRING = "clacrlurl()";
     private static final Integer VAR_CLA_CRL_URL = Integer.valueOf(6);
     private String VAR_CLA_CRL_URL_VALUE = null;
-
+	
     private String mAuthMgrCacheString = "";
-    private long mAuthMgrCacheTime = 0;
-    private final int AUTHMGRCACHE = 10; // number of seconds to cache list of
+    private long   mAuthMgrCacheTime = 0;
+    private final int AUTHMGRCACHE = 10;   	//number of seconds to cache list of
     // authmanagers for
     private Hashtable dynvars = null;
     private String mGetClientCert = "false";
@@ -97,7 +99,8 @@ public class DynamicVariablesServlet extends CMSServlet {
         IConfigStore config = CMS.getConfigStore().getSubStore(PROP_CLONING);
 
         try {
-            mCrlurl = config.getString(PROP_CRLURL, "");
+            mCrlurl = 
+                    config.getString(PROP_CRLURL, "");
         } catch (EBaseException e) {
         }
     }
@@ -116,37 +119,32 @@ public class DynamicVariablesServlet extends CMSServlet {
     /**
      * Reads the following variables from the servlet config:
      * <ul>
-     * <li><strong>AuthMgr</strong> - the authentication manager to use to
-     * authenticate the request
-     * <li><strong>GetClientCert</strong> - whether to request client auth for
-     * this request
-     * <li><strong>authority</strong> - the authority (ca, ra, drm) to return to
-     * the client
-     * <li><strong>dynamicVariables</strong> - a string of the form:
-     * serverdate=serverdate(),subsystemname=subsystemname(),
-     * http=http(),authmgrs=authmgrs(),clacrlurl=clacrlurl()
+     *   <li><strong>AuthMgr</strong>  - the authentication manager to use to authenticate the request
+     *   <li><strong>GetClientCert</strong> - whether to request client auth for this request
+     *   <li><strong>authority</strong>  - the authority (ca, ra, drm) to return to the client
+     *   <li><strong>dynamicVariables</strong> - a string of the form:
+     *         serverdate=serverdate(),subsystemname=subsystemname(),
+     *         http=http(),authmgrs=authmgrs(),clacrlurl=clacrlurl()
      * </ul>
-     * The dynamicVariables string is parsed by splitting on commas. When
-     * services, the HTTP request provides a piece of javascript code as
-     * follows.
+     * The dynamicVariables string is parsed by splitting on commas.
+     * When services, the HTTP request provides a piece of javascript
+     * code as follows.
      * <p>
      * Each sub expression "lhs=rhs()" forms a javascript statement of the form
-     * <i>lhs=xxx;</i> Where lhs is xxx is the result of 'evaluating' the rhs.
-     * The possible values for the rhs() function are:
+     * <i>lhs=xxx;</i>  Where  lhs is xxx is the result of 'evaluating' the
+     * rhs. The possible values for the rhs() function are:
      * <ul>
-     * <li><strong>serverdate()</strong> - the timestamp of the server (used to
-     * ensure that the client clock is set correctly)
+     * <li><strong>serverdate()</strong>  - the timestamp of the server (used to ensure that the client
+     *        clock is set correctly)
      * <li><strong>subsystemname()</strong>
-     * <li><strong>http()</strong> - "true" or "false" - is this an http
-     * connection (as opposed to https)
+     * <li><strong>http()</strong> - "true" or "false" - is this an http connection (as opposed to https)
      * <li>authmgrs() - a comma separated list of authentication managers
-     * <li>clacrlurl() - the URL to get the CRL from, in the case of a Clone CA.
-     * This is defined in the CMS configuration parameter
-     * 'cloning.cloneMasterCrlUrl'
+     * <li>clacrlurl() - the URL to get the CRL from, in the case of a Clone CA. This is
+     *    defined in the CMS configuration parameter 'cloning.cloneMasterCrlUrl'
      * </ul>
-     * 
      * @see javax.servlet.Servlet#init(ServletConfig)
      */
+
 
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
@@ -184,8 +182,7 @@ public class DynamicVariablesServlet extends CMSServlet {
                 } else if (varvalue.equalsIgnoreCase(VAR_CLA_CRL_URL_STRING)) {
                     varcode = VAR_CLA_CRL_URL;
                 } else {
-                    throw new ServletException(
-                            "bad configuration parameter in " + PROP_DYNVAR);
+                    throw new ServletException("bad configuration parameter in " + PROP_DYNVAR);
                 }
                 if (varcode != null) {
                     dynvars.put(varcode, (Object) varname);
@@ -196,19 +193,20 @@ public class DynamicVariablesServlet extends CMSServlet {
         }
     }
 
-    public void service(HttpServletRequest httpReq, HttpServletResponse httpResp)
-            throws ServletException, IOException {
+    public void service(HttpServletRequest httpReq,
+        HttpServletResponse httpResp)
+        throws ServletException, IOException {
         boolean running_state = CMS.isInRunningState();
 
         if (!running_state)
-            throw new IOException("CMS server is not ready to serve.");
+            throw new IOException(
+                    "CMS server is not ready to serve.");
 
         if (mAuthMgr != null) {
             try {
                 IAuthToken token = authenticate(httpReq);
             } catch (EBaseException e) {
-                mServletCtx.log(CMS.getLogMessage("CMSGW_FILE_NO_ACCESS",
-                        e.toString()));
+                mServletCtx.log(CMS.getLogMessage("CMSGW_FILE_NO_ACCESS", e.toString()));
                 httpResp.sendError(HttpServletResponse.SC_FORBIDDEN);
                 return;
             }
@@ -216,7 +214,7 @@ public class DynamicVariablesServlet extends CMSServlet {
 
         httpResp.setContentType("application/x-javascript");
         httpResp.setHeader("Pragma", "no-cache");
-
+		
         try {
             ServletOutputStream os = httpResp.getOutputStream();
 
@@ -229,40 +227,47 @@ public class DynamicVariablesServlet extends CMSServlet {
                         Integer varcode = (Integer) k.nextElement();
 
                         if (varcode.equals(VAR_SERVERDATE)) {
-                            toBeWritten = dynvars.get(varcode) + "="
-                                    + getServerDate() + ";\n";
+                            toBeWritten = dynvars.get(varcode) +
+                                    "=" +
+                                    getServerDate() +
+                                    ";\n";
 
                             os.print(toBeWritten);
                         }
 
                         if (varcode.equals(VAR_SUBSYSTEMNAME)) {
                             if (getSubsystemName() != null) {
-                                toBeWritten = dynvars.get(varcode) + "=" + "\""
-                                        + getSubsystemName() + "\"" + ";\n";
+                                toBeWritten = dynvars.get(varcode) +
+                                        "=" + "\"" +
+                                        getSubsystemName() + "\"" +
+                                        ";\n";
                                 os.print(toBeWritten);
                             }
                         }
 
                         if (varcode.equals(VAR_HTTP)) {
                             if (getHttp(httpReq) != null) {
-                                toBeWritten = dynvars.get(varcode) + "=" + "\""
-                                        + getHttp(httpReq) + "\"" + ";\n";
+                                toBeWritten = dynvars.get(varcode) +
+                                        "=" + "\"" +
+                                        getHttp(httpReq) + "\"" +
+                                        ";\n";
                                 os.print(toBeWritten);
                             }
                         }
 
                         if (varcode.equals(VAR_CLA_CRL_URL)) {
                             if (getImportCrlUrl() != null) {
-                                toBeWritten = dynvars.get(varcode) + "=" + "\""
-                                        + getImportCrlUrl() + "\"" + ";\n";
+                                toBeWritten = dynvars.get(varcode) +
+                                        "=" + "\"" +
+                                        getImportCrlUrl() + "\"" +
+                                        ";\n";
                                 os.print(toBeWritten);
                             }
                         }
 
                         if (varcode.equals(VAR_AUTHMGRS)) {
                             toBeWritten = "";
-                            IAuthSubsystem as = (IAuthSubsystem) CMS
-                                    .getSubsystem(CMS.SUBSYSTEM_AUTH);
+                            IAuthSubsystem as = (IAuthSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);
                             Enumeration ame = as.getAuthManagers();
 
                             Date d = CMS.getCurrentDate();
@@ -273,12 +278,10 @@ public class DynamicVariablesServlet extends CMSServlet {
 
                                 StringBuffer sb = new StringBuffer();
                                 while (ame.hasMoreElements()) {
-                                    IAuthManager am = (IAuthManager) ame
-                                            .nextElement();
+                                    IAuthManager am = (IAuthManager) ame.nextElement();
                                     String amName = am.getImplName();
 
-                                    AuthMgrPlugin ap = as
-                                            .getAuthManagerPluginImpl(amName);
+                                    AuthMgrPlugin ap = as.getAuthManagerPluginImpl(amName);
 
                                     if (ap.isVisible()) {
                                         sb.append("authmanager[");

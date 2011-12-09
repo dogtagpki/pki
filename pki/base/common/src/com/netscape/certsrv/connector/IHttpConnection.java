@@ -17,23 +17,26 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.connector;
 
+
 import com.netscape.certsrv.base.EBaseException;
 
+
 /**
- * This represents a HTTP connection to a remote authority. Http connection is
- * used by the connector to send PKI messages to a remote authority. The remote
- * authority will reply with a PKI message as well. An example would be the
- * communication between a CA and a KRA.
- * 
+ * This represents a HTTP connection to a remote authority.
+ * Http connection is used by the connector to send
+ * PKI messages to a remote authority. The remote authority
+ * will reply with a PKI message as well. An example would
+ * be the communication between a CA and a KRA.
+ *
  * @version $Revision$, $Date$
  */
 public interface IHttpConnection {
 
     /**
      * Sends the PKI message to the remote authority.
-     * 
      * @param tomsg Message to forward to authority.
      * @exception EBaseException Failed to send message.
      */
-    public IPKIMessage send(IPKIMessage tomsg) throws EBaseException;
+    public IPKIMessage send(IPKIMessage tomsg) 
+        throws EBaseException;
 }

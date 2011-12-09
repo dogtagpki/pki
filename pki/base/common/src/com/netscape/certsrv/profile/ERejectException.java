@@ -17,14 +17,16 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.profile;
 
+
 /**
- * This represents a profile specific exception. This exception is raised when a
- * request is rejected.
+ * This represents a profile specific exception. This
+ * exception is raised when a request is rejected.
  * <p>
- * A rejected request cannot be reprocessed. Rejected request is considered as a
- * request in its terminal state.
+ * A rejected request cannot be reprocessed. Rejected
+ * request is considered as a request in its terminal
+ * state.
  * <p>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class ERejectException extends EProfileException {
@@ -35,9 +37,10 @@ public class ERejectException extends EProfileException {
     private static final long serialVersionUID = -542393641391361342L;
 
     /**
-     * Creates a rejection exception.
-     * 
-     * @param msg localized message that indicates the reason why a request is
+     * Creates a rejection exception. 
+     *
+     * @param msg localized message that indicates
+     *            the reason why a request is 
      *            rejected.
      */
     public ERejectException(String msg) {

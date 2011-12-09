@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.key;
 
+
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Locale;
@@ -43,10 +44,11 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 
+
 /**
  * Display a specific Key Archival Request
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class DisplayBySerial extends CMSServlet {
@@ -76,7 +78,7 @@ public class DisplayBySerial extends CMSServlet {
     /**
      * initialize the servlet. This servlet uses the template file
      * "displayBySerial.template" to process the response.
-     * 
+     *
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -92,8 +94,8 @@ public class DisplayBySerial extends CMSServlet {
     /**
      * Returns serlvet information.
      */
-    public String getServletInfo() {
-        return INFO;
+    public String getServletInfo() { 
+        return INFO; 
     }
 
     /**
@@ -101,7 +103,7 @@ public class DisplayBySerial extends CMSServlet {
      * <ul>
      * <li>http.param serialNumber serial number of the key archival request
      * </ul>
-     * 
+     *
      * @param cmsReq the object holding the request and response information
      */
     public void process(CMSRequest cmsReq) throws EBaseException {
@@ -113,14 +115,14 @@ public class DisplayBySerial extends CMSServlet {
         AuthzToken authzToken = null;
 
         try {
-            authzToken = authorize(mAclMethod, authToken, mAuthzResourceName,
-                    "read");
+            authzToken = authorize(mAclMethod, authToken,
+                        mAuthzResourceName, "read");
         } catch (EAuthzAccessDenied e) {
             log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
         } catch (Exception e) {
             log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
         }
 
         if (authzToken == null) {
@@ -135,14 +137,13 @@ public class DisplayBySerial extends CMSServlet {
             form = getTemplate(mFormPath, req, locale);
         } catch (IOException e) {
             log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath,
-                            e.toString()));
+                CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()));
             throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+              CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
 
         // Note that we should try to handle all the exceptions
-        // instead of passing it up back to the servlet
+        // instead of passing it up back to the servlet 
         // framework.
 
         IArgBlock header = CMS.createArgBlock();
@@ -152,14 +153,13 @@ public class DisplayBySerial extends CMSServlet {
 
         try {
             if (req.getParameter(IN_SERIALNO) != null) {
-                seqNum = Integer.parseInt(req.getParameter(IN_SERIALNO));
+                seqNum = Integer.parseInt(
+                            req.getParameter(IN_SERIALNO));
             }
             process(argSet, header, seqNum, req, resp, locale[0]);
         } catch (NumberFormatException e) {
-            header.addStringValue(
-                    OUT_ERROR,
-                    CMS.getUserMessage(locale[0], "CMS_BASE_INTERNAL_ERROR",
-                            e.toString()));
+            header.addStringValue(OUT_ERROR,
+                CMS.getUserMessage(locale[0], "CMS_BASE_INTERNAL_ERROR", e.toString()));
         }
 
         try {
@@ -168,23 +168,27 @@ public class DisplayBySerial extends CMSServlet {
             resp.setContentType("text/html");
             form.renderOutput(out, argSet);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                    "CMSGW_ERR_STREAM_TEMPLATE", e.toString()));
+            log(ILogger.LL_FAILURE,
+                CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()));
             throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+              CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
     }
 
     /**
      * Display information about a particular key.
      */
-    private void process(CMSTemplateParams argSet, IArgBlock header, int seq,
-            HttpServletRequest req, HttpServletResponse resp, Locale locale) {
+    private void process(CMSTemplateParams argSet,
+        IArgBlock header, int seq, 
+        HttpServletRequest req, HttpServletResponse resp,
+        Locale locale) {
         try {
-            header.addStringValue(OUT_OP, req.getParameter(OUT_OP));
-            header.addStringValue(OUT_SERVICE_URL, req.getRequestURI());
-            IKeyRecord rec = (IKeyRecord) mKeyDB.readKeyRecord(new BigInteger(
-                    Integer.toString(seq)));
+            header.addStringValue(OUT_OP,
+                req.getParameter(OUT_OP));
+            header.addStringValue(OUT_SERVICE_URL,
+                req.getRequestURI());
+            IKeyRecord rec = (IKeyRecord) mKeyDB.readKeyRecord(new 
+                    BigInteger(Integer.toString(seq)));
 
             KeyRecordParser.fillRecordIntoArg(rec, header);
         } catch (EBaseException e) {

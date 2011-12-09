@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.dbs;
 
+
 import java.util.Enumeration;
 import java.util.Vector;
 
@@ -25,10 +26,11 @@ import com.netscape.certsrv.dbs.IDBVirtualList;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.IKeyRecordList;
 
+
 /**
  * A class represents a list of key records.
  * <P>
- * 
+ *
  * @author thomask
  * @version $Revision$, $Date$
  */
@@ -44,13 +46,13 @@ public class KeyRecordList implements IKeyRecordList {
     }
 
     /**
-     * Retrieves the size of key list.
+     * Retrieves the size of key list. 
      */
     public int getSize() {
         return mVlist.getSize();
     }
 
-    public int getSizeBeforeJumpTo() {
+    public  int getSizeBeforeJumpTo() {
 
         return mVlist.getSizeBeforeJumpTo();
 
@@ -64,17 +66,15 @@ public class KeyRecordList implements IKeyRecordList {
     public IKeyRecord getKeyRecord(int i) {
         KeyRecord record = (KeyRecord) mVlist.getElementAt(i);
 
-        if (record == null)
-            return null;
+        if (record == null) return null;
 
-        return record;
-    }
-
+        return record; 
+    } 
     /**
      * Retrieves requests.
      */
     public Enumeration getKeyRecords(int startidx, int endidx)
-            throws EBaseException {
+        throws EBaseException {
         Vector entries = new Vector();
 
         for (int i = startidx; i <= endidx; i++) {

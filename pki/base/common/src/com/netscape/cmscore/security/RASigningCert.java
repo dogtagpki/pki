@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.security;
 
+
 import java.io.IOException;
 import java.security.KeyPair;
 
@@ -28,14 +29,16 @@ import com.netscape.certsrv.common.ConfigConstants;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.security.KeyCertData;
 
+
 /**
- * RA signing certificate
+ * RA signing certificate 
  * 
  * @author Christine Ho
  * @version $Revision$, $Date$
  */
 public class RASigningCert extends CertificateInfo {
-    public static final String SUBJECT_NAME = "CN=Registration Authority, O=Netscape Communications, C=US";
+    public static final String SUBJECT_NAME = 
+        "CN=Registration Authority, O=Netscape Communications, C=US";
     private String mTokenname = Constants.PR_INTERNAL_TOKEN_NAME;
 
     public RASigningCert(KeyCertData properties) {
@@ -46,7 +49,8 @@ public class RASigningCert extends CertificateInfo {
         super(properties, pair);
         String tmp = (String) mProperties.get(Constants.PR_TOKEN_NAME);
 
-        if ((tmp != null) && (!tmp.equals(Constants.PR_INTERNAL_TOKEN)))
+        if ((tmp != null) && 
+            (!tmp.equals(Constants.PR_INTERNAL_TOKEN)))   
             mTokenname = tmp;
         try {
             if (mProperties.get(Constants.PR_AKI) == null) {
@@ -74,8 +78,8 @@ public class RASigningCert extends CertificateInfo {
 
     public String getNickname() {
         String name = (String) mProperties.get(Constants.PR_NICKNAME);
-        String instanceName = (String) mProperties
-                .get(ConfigConstants.PR_CERT_INSTANCE_NAME);
+        String instanceName =
+            (String) mProperties.get(ConfigConstants.PR_CERT_INSTANCE_NAME);
 
         if (name != null)
             return name;
@@ -83,14 +87,19 @@ public class RASigningCert extends CertificateInfo {
     }
 
     /*
-     * public SignatureAlgorithm getSigningAlgorithm() { SignatureAlgorithm sAlg
-     * = (SignatureAlgorithm)mProperties.get(Constants.PR_SIGNATURE_ALGORITHM);
-     * if (sAlg != null) { return sAlg; } String alg =
-     * (String)mProperties.get(Constants.PR_KEY_TYPE);
-     * 
-     * if (alg.equals("RSA")) return
-     * SignatureAlgorithm.RSASignatureWithMD5Digest; else return
-     * SignatureAlgorithm.DSASignatureWithSHA1Digest; }
+     public SignatureAlgorithm getSigningAlgorithm() {
+     SignatureAlgorithm sAlg =
+     (SignatureAlgorithm)mProperties.get(Constants.PR_SIGNATURE_ALGORITHM);
+     if (sAlg != null) {
+     return sAlg;
+     }
+     String alg = (String)mProperties.get(Constants.PR_KEY_TYPE);
+     
+     if (alg.equals("RSA"))
+     return SignatureAlgorithm.RSASignatureWithMD5Digest;
+     else
+     return SignatureAlgorithm.DSASignatureWithSHA1Digest;
+     }
      */
 
     public String getKeyAlgorithm() {
@@ -104,3 +113,4 @@ public class RASigningCert extends CertificateInfo {
         return extension;
     }
 }
+

@@ -1,5 +1,4 @@
 package com.netscape.pkisilent.common;
-
 // --- BEGIN COPYRIGHT BLOCK ---
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -17,6 +16,8 @@ package com.netscape.pkisilent.common;
 // (C) 2007 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
+
+
 
 public class CertificateRecord {
 
@@ -41,4 +42,7 @@ public class CertificateRecord {
     public CertificateRecord() {// Do nothing
     }
 
-};
+}
+
+
+;

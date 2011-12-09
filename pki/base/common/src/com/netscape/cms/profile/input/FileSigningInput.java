@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.input;
 
+
 import java.io.BufferedInputStream;
 import java.net.URL;
 import java.net.URLConnection;
@@ -33,13 +34,15 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 
+
 /**
- * This class implements the image input that collects a picture.
+ * This class implements the image
+ * input that collects a picture.
  * <p>
- * 
+ *
  * @version $Revision$, $Date$
  */
-public class FileSigningInput extends EnrollInput implements IProfileInput {
+public class FileSigningInput extends EnrollInput implements IProfileInput { 
 
     public static final String URL = "file_signing_url";
     public static final String TEXT = "file_signing_text";
@@ -56,7 +59,7 @@ public class FileSigningInput extends EnrollInput implements IProfileInput {
      * Initializes this default policy.
      */
     public void init(IProfile profile, IConfigStore config)
-            throws EProfileException {
+        throws EProfileException {
         super.init(profile, config);
     }
 
@@ -64,24 +67,23 @@ public class FileSigningInput extends EnrollInput implements IProfileInput {
      * Retrieves the localizable name of this policy.
      */
     public String getName(Locale locale) {
-        return CMS
-                .getUserMessage(locale, "CMS_PROFILE_INPUT_FILE_SIGNING_NAME");
+        return CMS.getUserMessage(locale, "CMS_PROFILE_INPUT_FILE_SIGNING_NAME");
     }
 
     /**
      * Retrieves the localizable description of this policy.
      */
     public String getText(Locale locale) {
-        return CMS
-                .getUserMessage(locale, "CMS_PROFILE_INPUT_FILE_SIGNING_TEXT");
+        return CMS.getUserMessage(locale, "CMS_PROFILE_INPUT_FILE_SIGNING_TEXT");
     }
 
-    public String toHexString(byte data[]) {
+    public String toHexString(byte data[]) 
+    {
         StringBuffer sb = new StringBuffer();
         for (int i = 0; i < data.length; i++) {
             int v = data[i] & 0xff;
             if (v <= 9) {
-                sb.append("0");
+              sb.append("0");
             }
             sb.append(Integer.toHexString(v));
         }
@@ -92,50 +94,52 @@ public class FileSigningInput extends EnrollInput implements IProfileInput {
      * Populates the request with this policy default.
      */
     public void populate(IProfileContext ctx, IRequest request)
-            throws EProfileException {
+        throws EProfileException {
         request.setExtData(TEXT, ctx.get(TEXT));
         request.setExtData(URL, ctx.get(URL));
         request.setExtData(DIGEST_TYPE, "SHA256");
-
+ 
         try {
-            // retrieve file and calculate the hash
-            URL url = new URL(ctx.get(URL));
-            URLConnection c = url.openConnection();
-            c.setAllowUserInteraction(false);
-            c.setDoInput(true);
-            c.setDoOutput(false);
-            c.setUseCaches(false);
-            c.connect();
-            int len = c.getContentLength();
-            request.setExtData(SIZE, Integer.toString(len));
-            BufferedInputStream is = new BufferedInputStream(c.getInputStream());
-            byte data[] = new byte[len];
-            is.read(data, 0, len);
-            is.close();
+          // retrieve file and calculate the hash
+          URL url = new URL(ctx.get(URL));
+          URLConnection c = url.openConnection();
+          c.setAllowUserInteraction(false);
+          c.setDoInput(true);
+          c.setDoOutput(false);
+          c.setUseCaches(false);
+          c.connect();
+          int len = c.getContentLength();
+          request.setExtData(SIZE, Integer.toString(len));
+  	  BufferedInputStream is = new BufferedInputStream(c.getInputStream());
+          byte data[] = new byte[len];
+          is.read(data, 0, len);
+          is.close();
 
-            // calculate digest
-            MessageDigest digester = MessageDigest.getInstance("SHA256");
-            byte digest[] = digester.digest(data);
-            request.setExtData(DIGEST, toHexString(digest));
-        } catch (Exception e) {
-            CMS.debug("FileSigningInput populate failure " + e);
-            throw new EProfileException(CMS.getUserMessage(getLocale(request),
-                    "CMS_PROFILE_FILE_NOT_FOUND"));
+          // calculate digest
+          MessageDigest digester = MessageDigest.getInstance("SHA256");
+          byte digest[] = digester.digest(data);
+          request.setExtData(DIGEST, toHexString(digest));
+        } catch (Exception e) { 
+               CMS.debug("FileSigningInput populate failure " + e);
+               throw new EProfileException( 
+                  CMS.getUserMessage(getLocale(request), 
+                  "CMS_PROFILE_FILE_NOT_FOUND"));
         }
     }
 
     /**
-     * Retrieves the descriptor of the given value parameter by name.
+     * Retrieves the descriptor of the given value
+     * parameter by name.
      */
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         if (name.equals(URL)) {
-            return new Descriptor(IDescriptor.STRING, null, null,
-                    CMS.getUserMessage(locale,
-                            "CMS_PROFILE_INPUT_FILE_SIGNING_URL"));
+            return new Descriptor(IDescriptor.STRING, null,
+                    null,
+                    CMS.getUserMessage(locale, "CMS_PROFILE_INPUT_FILE_SIGNING_URL"));
         } else if (name.equals(TEXT)) {
-            return new Descriptor(IDescriptor.STRING, null, null,
-                    CMS.getUserMessage(locale,
-                            "CMS_PROFILE_INPUT_FILE_SIGNING_TEXT"));
+            return new Descriptor(IDescriptor.STRING, null,
+                    null,
+                    CMS.getUserMessage(locale, "CMS_PROFILE_INPUT_FILE_SIGNING_TEXT"));
         }
         return null;
     }

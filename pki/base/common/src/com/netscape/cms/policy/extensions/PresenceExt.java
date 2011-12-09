@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.policy.extensions;
 
+
 import java.util.Locale;
 import java.util.Vector;
 
@@ -31,12 +32,11 @@ import com.netscape.cms.policy.APolicyRule;
 /**
  * Checks extension presence.
  * <P>
- * 
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- * 
+ *
  * @deprecated
  * @version $Revision$, $Date$
  */
@@ -77,7 +77,7 @@ public class PresenceExt extends APolicyRule {
     }
 
     public void init(ISubsystem owner, IConfigStore config)
-            throws EBaseException {
+        throws EBaseException {
         mConfig = config;
 
         mCritical = config.getBoolean(PROP_IS_CRITICAL, false);
@@ -97,18 +97,19 @@ public class PresenceExt extends APolicyRule {
         PolicyResult res = PolicyResult.ACCEPTED;
 
         /*
-         * PresenceServerExtension ext = new PresenceServerExtension(mCritical,
-         * mOID, mVersion, mStreetAddress, mTelephoneNumber, mRFC822Name, mID,
-         * mHostName, mPortNumber, mMaxUsers, mServiceLevel);
+         PresenceServerExtension ext = new PresenceServerExtension(mCritical,
+         mOID, mVersion, mStreetAddress,
+         mTelephoneNumber, mRFC822Name, mID,
+         mHostName, mPortNumber, mMaxUsers, mServiceLevel);
          */
-
+	
         return res;
     }
 
-    public Vector getInstanceParams() {
-        Vector params = new Vector();
+    public Vector getInstanceParams() { 
+        Vector params = new Vector(); 
 
-        params.addElement(PROP_IS_CRITICAL + "=" + mCritical);
+        params.addElement(PROP_IS_CRITICAL + "=" + mCritical); 
         params.addElement(PROP_OID + "=" + mOID);
         params.addElement(PROP_VERSION + "=" + mVersion);
         params.addElement(PROP_STREET_ADDRESS + "=" + mStreetAddress);
@@ -135,22 +136,22 @@ public class PresenceExt extends APolicyRule {
                 PROP_PORT_NUMBER + ";string; port number",
                 PROP_MAX_USERS + ";string; max users",
                 PROP_SERVICE_LEVEL + ";string; service level",
-                IExtendedPluginInfo.HELP_TOKEN
-                        + ";configuration-policyrules-presenceext",
-                IExtendedPluginInfo.HELP_TEXT
-                        + ";Adds Presence Server Extension;"
+                IExtendedPluginInfo.HELP_TOKEN +
+                ";configuration-policyrules-presenceext",
+                IExtendedPluginInfo.HELP_TEXT +
+                ";Adds Presence Server Extension;"
 
-        };
+            };
 
         return params;
     }
-
+	
     /**
      * Return default parameters for a policy implementation.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getDefaultParams() {
+    public Vector getDefaultParams() { 
         return mDefParams;
     }
 }

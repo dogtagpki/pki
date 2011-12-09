@@ -38,13 +38,13 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.usrgrp.Certificates;
 
 /**
- * Authentication token returned by Authentication Managers. Upon return, it
- * contains authentication/identification information as well as information
- * retrieved from the database where the authentication was done against. Each
- * authentication manager has its own list of such information. See individual
- * authenticaiton manager for more details.
+ * Authentication token returned by Authentication Managers.
+ * Upon return, it contains authentication/identification information
+ * as well as information retrieved from the database where the
+ * authentication was done against.  Each authentication manager has
+ * its own list of such information.  See individual authenticaiton
+ * manager for more details.
  * <p>
- * 
  * @version $Revision$, $Date$
  */
 public class AuthToken implements IAuthToken {
@@ -74,45 +74,43 @@ public class AuthToken implements IAuthToken {
     public static final String TOKEN_CERT_TO_REVOKE = "tokenCertToRevoke";
 
     /**
-     * Plugin name of the authentication manager that created the AuthToken as a
-     * string.
+     * Plugin name of the authentication manager that created the 
+     * AuthToken as a string.
      */
     public static final String TOKEN_AUTHMGR_IMPL_NAME = "authMgrImplName";
 
     /**
-     * Name of the authentication manager that created the AuthToken as a
-     * string.
+     * Name of the authentication manager that created the AuthToken
+     * as a string.
      */
     public static final String TOKEN_AUTHMGR_INST_NAME = "authMgrInstName";
 
     /**
-     * Time of authentication as a java.util.Date
+     * Time of authentication as a java.util.Date 
      */
     public static final String TOKEN_AUTHTIME = "authTime";
 
     /**
-     * Constructs an instance of a authentication token. The token by default
-     * contains the following attributes: <br>
-     * 
+     * Constructs an instance of a authentication token.
+     * The token by default contains the following attributes: <br>
      * <pre>
-     * 	"authMgrInstName" - The authentication manager instance name.
-     * 	"authMgrImplName" - The authentication manager plugin name.
-     * 	"authTime" - The - The time of authentication.
+     *		"authMgrInstName" - The authentication manager instance name.
+     *		"authMgrImplName" - The authentication manager plugin name.
+     *		"authTime" - The - The time of authentication.
      * </pre>
-     * 
      * @param authMgr The authentication manager that created this Token.
      */
     public AuthToken(IAuthManager authMgr) {
         mAttrs = new Hashtable();
         if (authMgr != null) {
-            set(TOKEN_AUTHMGR_INST_NAME, authMgr.getName());
-            set(TOKEN_AUTHMGR_IMPL_NAME, authMgr.getImplName());
+          set(TOKEN_AUTHMGR_INST_NAME, authMgr.getName());
+          set(TOKEN_AUTHMGR_IMPL_NAME, authMgr.getImplName());
         }
         set(TOKEN_AUTHTIME, new Date());
     }
 
     public String getInString(String attrName) {
-        return (String) mAttrs.get(attrName);
+        return (String)mAttrs.get(attrName);
     }
 
     public boolean set(String attrName, String value) {
@@ -125,7 +123,6 @@ public class AuthToken implements IAuthToken {
 
     /**
      * Removes an attribute in the AuthToken
-     * 
      * @param attrName The name of the attribute to remove.
      */
     public void delete(String attrName) {
@@ -134,7 +131,6 @@ public class AuthToken implements IAuthToken {
 
     /**
      * Enumerate all attribute names in the AuthToken.
-     * 
      * @return Enumeration of all attribute names in this AuthToken.
      */
     public Enumeration getElements() {
@@ -355,7 +351,7 @@ public class AuthToken implements IAuthToken {
             for (int i = 0; i < certArray.length; i++) {
                 ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
                 try {
-                    X509CertImpl certImpl = (X509CertImpl) certArray[i];
+                    X509CertImpl certImpl = (X509CertImpl)certArray[i];
                     certImpl.encode(byteStream);
                     derValues[i] = new DerValue(byteStream.toByteArray());
                 } catch (CertificateEncodingException e) {
@@ -410,7 +406,6 @@ public class AuthToken implements IAuthToken {
 
     /**
      * Enumerate all attribute values in the AuthToken.
-     * 
      * @return Enumeration of all attribute names in this AuthToken.
      */
     public Enumeration getVals() {
@@ -418,11 +413,10 @@ public class AuthToken implements IAuthToken {
     }
 
     /**
-     * Gets the name of the authentication manager instance that created this
-     * token.
-     * 
-     * @return The name of the authentication manager instance that created this
-     *         token.
+     * Gets the name of the authentication manager instance that created 
+     * this token.
+     * @return The name of the authentication manager instance that created 
+     * this token.
      */
     public String getAuthManagerInstName() {
         return ((String) mAttrs.get(TOKEN_AUTHMGR_INST_NAME));
@@ -431,9 +425,8 @@ public class AuthToken implements IAuthToken {
     /**
      * Gets the plugin name of the authentication manager that created this
      * token.
-     * 
      * @return The plugin name of the authentication manager that created this
-     *         token.
+     * token.
      */
     public String getAuthManagerImplName() {
         return ((String) mAttrs.get(TOKEN_AUTHMGR_IMPL_NAME));
@@ -441,10 +434,10 @@ public class AuthToken implements IAuthToken {
 
     /**
      * Gets the time of authentication.
-     * 
      * @return The time of authentication
      */
     public Date getAuthTime() {
         return ((Date) mAttrs.get(TOKEN_AUTHTIME));
     }
 }
+

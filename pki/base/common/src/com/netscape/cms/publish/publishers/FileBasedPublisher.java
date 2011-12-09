@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.publish.publishers;
 
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -46,9 +47,10 @@ import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.ILdapPublisher;
 
-/**
- * This publisher writes certificate and CRL into a directory.
- * 
+/** 
+ * This publisher writes certificate and CRL into
+ * a directory.
+ *
  * @version $Revision$, $Date$
  */
 public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
@@ -72,10 +74,10 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
     protected String mLinkExt = null;
     protected int mZipLevel = 9;
 
-    public void setIssuingPointId(String crlIssuingPointId) {
+    public void setIssuingPointId(String crlIssuingPointId)
+    {
         mCrlIssuingPointId = crlIssuingPointId;
     }
-
     /**
      * Returns the implementation name.
      */
@@ -93,26 +95,19 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
 
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
-                PROP_DIR
-                        + ";string;Directory in which to put the files (absolute path or relative path to cert-* instance directory).",
-                PROP_DER
-                        + ";boolean;Store certificates or CRLs into *.der files.",
-                PROP_B64
-                        + ";boolean;Store certificates or CRLs into *.b64 files.",
-                PROP_GMT
-                        + ";choice(LocalTime,GMT);Use local time or GMT to time stamp CRL file name with CRL's 'thisUpdate' field.",
-                PROP_LNK
-                        + ";boolean;Generate link to the latest binary CRL. It requires '"
-                        + PROP_DER + "' to be enabled.",
-                PROP_EXT
-                        + ";string;Name extension used by link to the latest CRL. Default name extension is 'der'.",
+                PROP_DIR + ";string;Directory in which to put the files (absolute path or relative path to cert-* instance directory).",
+                PROP_DER + ";boolean;Store certificates or CRLs into *.der files.",
+                PROP_B64 + ";boolean;Store certificates or CRLs into *.b64 files.",
+                PROP_GMT + ";choice(LocalTime,GMT);Use local time or GMT to time stamp CRL file name with CRL's 'thisUpdate' field.",
+                PROP_LNK + ";boolean;Generate link to the latest binary CRL. It requires '"+PROP_DER+"' to be enabled.",
+                PROP_EXT + ";string;Name extension used by link to the latest CRL. Default name extension is 'der'.",
                 PROP_ZIP + ";boolean;Generate compressed CRLs.",
-                PROP_LEV
-                        + ";choice(0,1,2,3,4,5,6,7,8,9);Set compression level from 0 to 9.",
-                IExtendedPluginInfo.HELP_TOKEN
-                        + ";configuration-ldappublish-publisher-filepublisher",
-                IExtendedPluginInfo.HELP_TEXT
-                        + ";Stores the certificates or CRLs into files. Certificate is named as cert-<serialno>.der or *.b64, and CRL is named as <IssuingPoint>-<thisUpdate-time>.der or *.b64." };
+                PROP_LEV + ";choice(0,1,2,3,4,5,6,7,8,9);Set compression level from 0 to 9.",
+                IExtendedPluginInfo.HELP_TOKEN +
+                ";configuration-ldappublish-publisher-filepublisher",
+                IExtendedPluginInfo.HELP_TEXT +
+                ";Stores the certificates or CRLs into files. Certificate is named as cert-<serialno>.der or *.b64, and CRL is named as <IssuingPoint>-<thisUpdate-time>.der or *.b64."
+            };
 
         return params;
     }
@@ -144,14 +139,14 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
         try {
             if (mTimeStamp == null || (!mTimeStamp.equals("GMT")))
                 mTimeStamp = "LocalTime";
-            v.addElement(PROP_DIR + "=" + dir);
-            v.addElement(PROP_DER + "=" + mConfig.getBoolean(PROP_DER, true));
-            v.addElement(PROP_B64 + "=" + mConfig.getBoolean(PROP_B64, false));
-            v.addElement(PROP_GMT + "=" + mTimeStamp);
-            v.addElement(PROP_LNK + "=" + mConfig.getBoolean(PROP_LNK, false));
-            v.addElement(PROP_EXT + "=" + ext);
-            v.addElement(PROP_ZIP + "=" + mConfig.getBoolean(PROP_ZIP, false));
-            v.addElement(PROP_LEV + "=" + mZipLevel);
+            v.addElement(PROP_DIR+"=" + dir);
+            v.addElement(PROP_DER+"=" + mConfig.getBoolean(PROP_DER,true));
+            v.addElement(PROP_B64+"=" + mConfig.getBoolean(PROP_B64,false));
+            v.addElement(PROP_GMT+"=" + mTimeStamp);
+            v.addElement(PROP_LNK+"=" + mConfig.getBoolean(PROP_LNK,false));
+            v.addElement(PROP_EXT+"=" + ext);
+            v.addElement(PROP_ZIP+"=" + mConfig.getBoolean(PROP_ZIP,false));
+            v.addElement(PROP_LEV+"=" + mZipLevel);
         } catch (Exception e) {
         }
         return v;
@@ -163,14 +158,14 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
     public Vector<String> getDefaultParams() {
         Vector<String> v = new Vector<String>();
 
-        v.addElement(PROP_DIR + "=");
-        v.addElement(PROP_DER + "=true");
-        v.addElement(PROP_B64 + "=false");
-        v.addElement(PROP_GMT + "=LocalTime");
-        v.addElement(PROP_LNK + "=false");
-        v.addElement(PROP_EXT + "=");
-        v.addElement(PROP_ZIP + "=false");
-        v.addElement(PROP_LEV + "=9");
+        v.addElement(PROP_DIR+"=");
+        v.addElement(PROP_DER+"=true");
+        v.addElement(PROP_B64+"=false");
+        v.addElement(PROP_GMT+"=LocalTime");
+        v.addElement(PROP_LNK+"=false");
+        v.addElement(PROP_EXT+"=");
+        v.addElement(PROP_ZIP+"=false");
+        v.addElement(PROP_LEV+"=9");
         return v;
     }
 
@@ -198,7 +193,7 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
         }
 
         // convert to forward slash
-        dir = dir.replace('\\', '/');
+        dir = dir.replace('\\', '/'); 
         config.putString(PROP_DIR, dir);
 
         File dirCheck = new File(dir);
@@ -214,7 +209,8 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
             } catch (Exception e) {
                 throw new RuntimeException("Invalid Instance Dir " + e);
             }
-            dirCheck = new File(mInstanceRoot + File.separator + dir);
+            dirCheck = new File(mInstanceRoot + 
+                        File.separator + dir);
             if (dirCheck.isDirectory()) {
                 mDir = mInstanceRoot + File.separator + dir;
             } else {
@@ -228,20 +224,18 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
     }
 
     private String[] getCrlNamePrefix(X509CRL crl, boolean useGMT) {
-        String[] namePrefix = { "crl", "crl" };
+        String[] namePrefix = {"crl", "crl"};
 
         if (mCrlIssuingPointId != null && mCrlIssuingPointId.length() != 0) {
             namePrefix[0] = mCrlIssuingPointId;
             namePrefix[1] = mCrlIssuingPointId;
         }
-        java.text.SimpleDateFormat format = new java.text.SimpleDateFormat(
-                "yyyyMMdd-HHmmss");
+        java.text.SimpleDateFormat format = new java.text.SimpleDateFormat("yyyyMMdd-HHmmss");
         TimeZone tz = TimeZone.getTimeZone("GMT");
-        if (useGMT)
-            format.setTimeZone(tz);
+        if (useGMT) format.setTimeZone(tz);
         String timeStamp = format.format(crl.getThisUpdate()).toString();
         namePrefix[0] += "-" + timeStamp;
-        if (((netscape.security.x509.X509CRLImpl) crl).isDeltaCRL()) {
+        if (((netscape.security.x509.X509CRLImpl)crl).isDeltaCRL()) {
             namePrefix[0] += "-delta";
             namePrefix[1] += "-delta";
         }
@@ -249,60 +243,65 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
         return namePrefix;
     }
 
-    private void createLink(String linkName, String fileName) {
+    private void createLink(String linkName,  String fileName) {
         String cmd = "ln -s " + fileName + " " + linkName + ".new";
         if (com.netscape.cmsutil.util.Utils.exec(cmd)) {
             File oldLink = new File(linkName + ".old");
-            if (oldLink.exists()) { // remove old link if exists
+            if (oldLink.exists()) {     // remove old link if exists
                 oldLink.delete();
             }
             File link = new File(linkName);
-            if (link.exists()) { // current link becomes an old link
+            if (link.exists()) {        // current link becomes an old link 
                 link.renameTo(new File(linkName + ".old"));
             }
             File newLink = new File(linkName + ".new");
-            if (newLink.exists()) { // new link becomes current link
+            if (newLink.exists()) {     // new link becomes current link
                 newLink.renameTo(new File(linkName));
             }
             oldLink = new File(linkName + ".old");
-            if (oldLink.exists()) { // remove a new old link
+            if (oldLink.exists()) {     // remove a new old link
                 oldLink.delete();
             }
         } else {
-            CMS.debug("FileBasedPublisher:  createLink: '" + cmd
-                    + "' --- failed");
+            CMS.debug("FileBasedPublisher:  createLink: '" + cmd + "' --- failed");
         }
     }
 
     /**
      * Publishs a object to the ldap directory.
      * 
-     * @param conn a Ldap connection (null if LDAP publishing is not enabled)
-     * @param dn dn of the ldap entry to publish cert (null if LDAP publishing
-     *            is not enabled)
-     * @param object object to publish (java.security.cert.X509Certificate or,
-     *            java.security.cert.X509CRL)
+     * @param conn a Ldap connection 
+     *        (null if LDAP publishing is not enabled)
+     * @param dn dn of the ldap entry to publish cert
+     *        (null if LDAP publishing is not enabled)
+     * @param object object to publish
+     *        (java.security.cert.X509Certificate or,
+     *         java.security.cert.X509CRL)
      */
     public void publish(LDAPConnection conn, String dn, Object object)
-            throws ELdapException {
+        throws ELdapException {
         CMS.debug("FileBasedPublisher: publish");
         try {
             if (object instanceof X509Certificate) {
                 X509Certificate cert = (X509Certificate) object;
                 BigInteger sno = cert.getSerialNumber();
-                String name = mDir + File.separator + "cert-" + sno.toString();
-                if (mDerAttr) {
+                String name = mDir +
+                    File.separator + "cert-" + 
+                    sno.toString();
+                if (mDerAttr)
+                {
                     String fileName = name + ".der";
                     FileOutputStream fos = new FileOutputStream(fileName);
                     fos.write(cert.getEncoded());
                     fos.close();
                 }
-                if (mB64Attr) {
+                if (mB64Attr)
+                {
                     String fileName = name + ".b64";
                     FileOutputStream fos = new FileOutputStream(fileName);
                     ByteArrayOutputStream output = new ByteArrayOutputStream();
-                    Base64OutputStream b64 = new Base64OutputStream(
-                            new PrintStream(new FilterOutputStream(output)));
+                    Base64OutputStream b64 =
+                        new Base64OutputStream(new PrintStream(new FilterOutputStream(output)));
                     b64.write(cert.getEncoded());
                     b64.flush();
                     (new PrintStream(fos)).print(output.toString("8859_1"));
@@ -310,13 +309,12 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
                 }
             } else if (object instanceof X509CRL) {
                 X509CRL crl = (X509CRL) object;
-                String[] namePrefix = getCrlNamePrefix(crl,
-                        mTimeStamp.equals("GMT"));
+                String[] namePrefix = getCrlNamePrefix(crl, mTimeStamp.equals("GMT"));
                 String baseName = mDir + File.separator + namePrefix[0];
                 String tempFile = baseName + ".temp";
                 FileOutputStream fos;
                 ZipOutputStream zos;
-                byte[] encodedArray = null;
+                byte [] encodedArray = null;
                 File destFile = null;
                 String destName = null;
                 File renameFile = null;
@@ -327,17 +325,16 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
                     fos.write(encodedArray);
                     fos.close();
                     if (mZipCRL) {
-                        zos = new ZipOutputStream(new FileOutputStream(baseName
-                                + ".zip"));
+                        zos = new ZipOutputStream(new FileOutputStream(baseName+".zip"));
                         zos.setLevel(mZipLevel);
-                        zos.putNextEntry(new ZipEntry(baseName + ".der"));
+                        zos.putNextEntry(new ZipEntry(baseName+".der"));
                         zos.write(encodedArray, 0, encodedArray.length);
                         zos.closeEntry();
                         zos.close();
                     }
                     destName = baseName + ".der";
                     destFile = new File(destName);
-
+                
                     if (destFile.exists())
                         destFile.delete();
                     renameFile = new File(tempFile);
@@ -350,71 +347,59 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
                         } else {
                             linkExt += "der";
                         }
-                        String linkName = mDir + File.separator + namePrefix[1]
-                                + linkExt;
-                        createLink(linkName, destName);
+                        String linkName = mDir + File.separator + namePrefix[1] + linkExt;
+                        createLink(linkName,  destName);
                         if (mZipCRL) {
-                            linkName = mDir + File.separator + namePrefix[1]
-                                    + ".zip";
-                            createLink(linkName, baseName + ".zip");
+                            linkName = mDir + File.separator + namePrefix[1] + ".zip";
+                            createLink(linkName,  baseName+".zip");
                         }
                     }
                 }
-
+                
                 // output base64 file
-                if (mB64Attr == true) {
-                    if (encodedArray == null)
-                        encodedArray = crl.getEncoded();
+                if(mB64Attr==true)
+                {
+                if (encodedArray ==null)
+                    encodedArray = crl.getEncoded();
+                   
+                ByteArrayOutputStream os = new ByteArrayOutputStream();
 
-                    ByteArrayOutputStream os = new ByteArrayOutputStream();
-
-                    fos = new FileOutputStream(tempFile);
-                    fos.write(com.netscape.osutil.OSUtil.BtoA(encodedArray)
-                            .getBytes());
-                    fos.close();
-                    destName = baseName + ".b64";
-                    destFile = new File(destName);
-
-                    if (destFile.exists())
-                        destFile.delete();
-                    renameFile = new File(tempFile);
-                    renameFile.renameTo(destFile);
-                }
+                 fos = new FileOutputStream(tempFile);
+                fos.write(com.netscape.osutil.OSUtil.BtoA(encodedArray).getBytes());
+                fos.close();
+                destName = baseName + ".b64";
+                destFile = new File(destName);
+                
+                if(destFile.exists())
+                    destFile.delete();
+                renameFile = new File(tempFile);
+                renameFile.renameTo(destFile);
+                }          
             }
         } catch (IOException e) {
-            mLogger.log(
-                    ILogger.EV_SYSTEM,
-                    ILogger.S_OTHER,
-                    ILogger.LL_FAILURE,
-                    CMS.getLogMessage("PUBLISH_FILE_PUBLISHER_ERROR",
-                            e.toString()));
+            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER, 
+                ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_FILE_PUBLISHER_ERROR", e.toString()));
         } catch (CertificateEncodingException e) {
-            mLogger.log(
-                    ILogger.EV_SYSTEM,
-                    ILogger.S_OTHER,
-                    ILogger.LL_FAILURE,
-                    CMS.getLogMessage("PUBLISH_FILE_PUBLISHER_ERROR",
-                            e.toString()));
+            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER, 
+                ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_FILE_PUBLISHER_ERROR", e.toString()));
         } catch (CRLException e) {
-            mLogger.log(
-                    ILogger.EV_SYSTEM,
-                    ILogger.S_OTHER,
-                    ILogger.LL_FAILURE,
-                    CMS.getLogMessage("PUBLISH_FILE_PUBLISHER_ERROR",
-                            e.toString()));
+            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER, 
+                ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_FILE_PUBLISHER_ERROR", e.toString()));
         }
     }
 
     /**
      * Unpublishs a object to the ldap directory.
-     * 
-     * @param conn the Ldap connection (null if LDAP publishing is not enabled)
-     * @param dn dn of the ldap entry to unpublish cert (null if LDAP publishing
-     *            is not enabled)
-     * @param object object to unpublish (java.security.cert.X509Certificate)
+     *
+     * @param conn the Ldap connection
+     *        (null if LDAP publishing is not enabled)
+     * @param dn dn of the ldap entry to unpublish cert
+     *        (null if LDAP publishing is not enabled)
+     * @param object object to unpublish 
+     *        (java.security.cert.X509Certificate)
      */
     public void unpublish(LDAPConnection conn, String dn, Object object)
-            throws ELdapException {
+        throws ELdapException {
         CMS.debug("FileBasedPublisher: unpublish");
         String name = mDir + File.separator;
         String fileName;
@@ -425,8 +410,7 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
             name += "cert-" + sno.toString();
         } else if (object instanceof X509CRL) {
             X509CRL crl = (X509CRL) object;
-            String[] namePrefix = getCrlNamePrefix(crl,
-                    mTimeStamp.equals("GMT"));
+            String[] namePrefix = getCrlNamePrefix(crl, mTimeStamp.equals("GMT"));
             name += namePrefix[0];
 
             fileName = name + ".zip";
@@ -441,15 +425,13 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
         f = new File(fileName);
         f.delete();
     }
-
-    /**
+   /**
      * returns the Der attribute where it'll be published.
      */
     public boolean getDerAttr() {
         return mDerAttr;
     }
-
-    /**
+   /**
      * returns the B64 attribute where it'll be published.
      */
     public boolean getB64Attr() {

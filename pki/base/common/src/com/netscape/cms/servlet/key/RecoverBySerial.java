@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.key;
 
+
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Hashtable;
@@ -50,7 +51,7 @@ import com.netscape.cmsutil.util.Cert;
 
 /**
  * A class representing a recoverBySerial servlet.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class RecoverBySerial extends CMSServlet {
@@ -107,17 +108,22 @@ public class RecoverBySerial extends CMSServlet {
     /**
      * Returns serlvet information.
      */
-    public String getServletInfo() {
-        return INFO;
+    public String getServletInfo() { 
+        return INFO; 
     }
 
     /**
      * Serves HTTP request. The format of this request is as follows:
-     * recoverBySerial? [serialNumber=<number>] [uid#=<uid>] [pwd#=<password>]
-     * [localAgents=yes|null] [recoveryID=recoveryID] [pkcs12Password=<password
-     * of pkcs12>] [pkcs12PasswordAgain=<password of pkcs12>]
-     * [pkcs12Delivery=<delivery mechanism for pkcs12>] [cert=<encryption
-     * certificate>]
+     *   recoverBySerial?
+     *     [serialNumber=<number>]
+     *     [uid#=<uid>]
+     *     [pwd#=<password>]
+     *     [localAgents=yes|null]
+     *     [recoveryID=recoveryID]
+     *     [pkcs12Password=<password of pkcs12>]
+     *     [pkcs12PasswordAgain=<password of pkcs12>]
+     *     [pkcs12Delivery=<delivery mechanism for pkcs12>]
+     *     [cert=<encryption certificate>]
      */
     public void process(CMSRequest cmsReq) throws EBaseException {
 
@@ -128,14 +134,14 @@ public class RecoverBySerial extends CMSServlet {
         AuthzToken authzToken = null;
 
         try {
-            authzToken = authorize(mAclMethod, authToken, mAuthzResourceName,
-                    "recover");
+            authzToken = authorize(mAclMethod, authToken,
+                        mAuthzResourceName, "recover");
         } catch (EAuthzAccessDenied e) {
             log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
         } catch (Exception e) {
             log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
         }
 
         if (authzToken == null) {
@@ -150,10 +156,9 @@ public class RecoverBySerial extends CMSServlet {
             form = getTemplate(mFormPath, req, locale);
         } catch (IOException e) {
             log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath,
-                            e.toString()));
+                CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()));
             throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+              CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
 
         cmsReq.setStatus(CMSRequest.SUCCESS);
@@ -184,53 +189,54 @@ public class RecoverBySerial extends CMSServlet {
             ctx = SessionContext.getContext();
 
             /*
-             * When Recovery is first initiated, if it is in asynch mode, no
-             * pkcs#12 password is needed. The initiating agent uid will be
-             * recorded in the recovery request. Later, as approving agents
-             * submit their approvals, they will also be listed in the request.
+               When Recovery is first initiated, if it is in asynch mode,
+               no pkcs#12 password is needed.
+               The initiating agent uid will be recorded in the recovery
+               request.
+               Later, as approving agents submit their approvals, they will
+               also be listed in the request.
              */
-            if ((initAsyncRecovery != null)
-                    && initAsyncRecovery.equalsIgnoreCase("ON")) {
-                process(form, argSet, header, req.getParameter(IN_SERIALNO),
-                        req.getParameter(IN_CERT), req, resp, locale[0]);
+            if ((initAsyncRecovery != null) &&
+                   initAsyncRecovery.equalsIgnoreCase("ON")) {
+              process(form, argSet, header,
+                  req.getParameter(IN_SERIALNO),
+                  req.getParameter(IN_CERT),
+                  req, resp, locale[0]);
 
-                int requiredNumber = mService.getNoOfRequiredAgents();
-                header.addIntegerValue("noOfRequiredAgents", requiredNumber);
+              int requiredNumber = mService.getNoOfRequiredAgents();
+              header.addIntegerValue("noOfRequiredAgents", requiredNumber);
             } else {
                 String recoveryID = req.getParameter("recoveryID");
 
                 if (recoveryID != null && !recoveryID.equals("")) {
-                    ctx.put(SessionContext.RECOVERY_ID,
-                            req.getParameter("recoveryID"));
+                  ctx.put(SessionContext.RECOVERY_ID,
+                    req.getParameter("recoveryID"));
                 }
-                byte pkcs12[] = process(form, argSet, header,
-                        req.getParameter(IN_SERIALNO),
-                        req.getParameter("localAgents"),
-                        req.getParameter(IN_PASSWORD),
-                        req.getParameter(IN_PASSWORD_AGAIN),
-                        req.getParameter(IN_CERT),
-                        req.getParameter(IN_DELIVERY),
-                        req.getParameter(IN_NICKNAME), req, resp, locale[0]);
+              byte pkcs12[] = process(form, argSet, header, 
+                    req.getParameter(IN_SERIALNO), 
+                    req.getParameter("localAgents"),
+                    req.getParameter(IN_PASSWORD),
+                    req.getParameter(IN_PASSWORD_AGAIN),
+                    req.getParameter(IN_CERT),
+                    req.getParameter(IN_DELIVERY),
+                    req.getParameter(IN_NICKNAME),
+                    req, resp, locale[0]);
 
-                if (pkcs12 != null) {
-                    // resp.setStatus(HttpServletResponse.SC_OK);
-                    resp.setContentType("application/x-pkcs12");
-                    // resp.setContentLength(pkcs12.length);
-                    resp.getOutputStream().write(pkcs12);
-                    mRenderResult = false;
-                    return;
-                }
+              if (pkcs12 != null) {
+                //resp.setStatus(HttpServletResponse.SC_OK);
+                resp.setContentType("application/x-pkcs12");
+                //resp.setContentLength(pkcs12.length);
+                resp.getOutputStream().write(pkcs12);
+                mRenderResult = false;
+                return;
+              }
             }
         } catch (NumberFormatException e) {
-            header.addStringValue(
-                    OUT_ERROR,
-                    CMS.getUserMessage(locale[0], "CMS_BASE_INTERNAL_ERROR",
-                            e.toString()));
+            header.addStringValue(OUT_ERROR,
+                CMS.getUserMessage(locale[0], "CMS_BASE_INTERNAL_ERROR", e.toString()));
         } catch (IOException e) {
-            header.addStringValue(
-                    OUT_ERROR,
-                    CMS.getUserMessage(locale[0], "CMS_BASE_INTERNAL_ERROR",
-                            e.toString()));
+            header.addStringValue(OUT_ERROR,
+                CMS.getUserMessage(locale[0], "CMS_BASE_INTERNAL_ERROR", e.toString()));
         } finally {
             SessionContext.releaseContext();
         }
@@ -242,10 +248,10 @@ public class RecoverBySerial extends CMSServlet {
             resp.setContentType("text/html");
             form.renderOutput(out, argSet);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                    "CMSGW_ERR_STREAM_TEMPLATE", e.toString()));
+            log(ILogger.LL_FAILURE,
+                CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()));
             throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+              CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
 
         cmsReq.setStatus(CMSRequest.SUCCESS);
@@ -254,9 +260,10 @@ public class RecoverBySerial extends CMSServlet {
     /**
      * Async Key Recovery - request initiation
      */
-    private void process(CMSTemplate form, CMSTemplateParams argSet,
-            IArgBlock header, String seq, String cert, HttpServletRequest req,
-            HttpServletResponse resp, Locale locale) {
+    private void  process(CMSTemplate form, CMSTemplateParams argSet,
+        IArgBlock header, String seq, String cert,
+        HttpServletRequest req, HttpServletResponse resp,
+        Locale locale) {
 
         // seq is the key id
         if (seq == null) {
@@ -283,35 +290,38 @@ public class RecoverBySerial extends CMSServlet {
         SessionContext sContext = SessionContext.getContext();
 
         try {
-            String reqID = mService.initAsyncKeyRecovery(new BigInteger(seq),
-                    x509cert, (String) sContext.get(SessionContext.USER_ID));
+            String reqID = mService.initAsyncKeyRecovery(
+                  new BigInteger(seq), x509cert,
+                      (String) sContext.get(SessionContext.USER_ID));
             header.addStringValue(OUT_SERIALNO, req.getParameter(IN_SERIALNO));
             header.addStringValue("requestID", reqID);
         } catch (EBaseException e) {
-            String error = "Failed to recover key for key id " + seq
-                    + ".\nException: " + e.toString();
+            String error =
+                "Failed to recover key for key id " +
+                seq + ".\nException: " + e.toString();
 
-            CMS.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_KRA,
-                    ILogger.LL_FAILURE, error);
+            CMS.getLogger().log(ILogger.EV_SYSTEM,
+                ILogger.S_KRA, ILogger.LL_FAILURE, error);
             try {
                 ((IKeyRecoveryAuthority) mService).createError(seq, error);
             } catch (EBaseException eb) {
-                CMS.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_KRA,
-                        ILogger.LL_FAILURE, eb.toString());
+                CMS.getLogger().log(ILogger.EV_SYSTEM,
+                    ILogger.S_KRA, ILogger.LL_FAILURE, eb.toString());
             }
         }
         return;
     }
 
     /**
-     * Recovers a key. The p12 will be protected by the password provided by the
-     * administrator.
+     * Recovers a key. The p12 will be protected by the password
+     * provided by the administrator.
      */
     private byte[] process(CMSTemplate form, CMSTemplateParams argSet,
-            IArgBlock header, String seq, String localAgents, String password,
-            String passwordAgain, String cert, String delivery,
-            String nickname, HttpServletRequest req, HttpServletResponse resp,
-            Locale locale) {
+        IArgBlock header, String seq, String localAgents,
+        String password, String passwordAgain,
+        String cert, String delivery, String nickname,
+        HttpServletRequest req, HttpServletResponse resp,
+        Locale locale) {
         if (seq == null) {
             header.addStringValue(OUT_ERROR, "sequence number not found");
             return null;
@@ -350,64 +360,8 @@ public class RecoverBySerial extends CMSServlet {
             if (sContext != null) {
                 agent = (String) sContext.get(SessionContext.USER_ID);
             }
-            if (CMS.getConfigStore().getBoolean("kra.keySplitting")) {
-                if (localAgents == null) {
-                    String recoveryID = req.getParameter("recoveryID");
-
-                    if (recoveryID == null || recoveryID.equals("")) {
-                        header.addStringValue(OUT_ERROR,
-                                "No recovery ID specified");
-                        return null;
-                    }
-                    Hashtable params = mService
-                            .createRecoveryParams(recoveryID);
-
-                    params.put("keyID", req.getParameter(IN_SERIALNO));
-
-                    header.addStringValue("recoveryID", recoveryID);
-
-                    params.put("agent", agent);
-
-                    // new thread to wait for pk12
-                    Thread waitThread = new WaitApprovalThread(recoveryID, seq,
-                            password, x509cert, delivery, nickname,
-                            SessionContext.getContext());
-
-                    waitThread.start();
-                    return null;
-                } else {
-                    Vector v = new Vector();
-
-                    for (int i = 0; i < mService.getNoOfRequiredAgents(); i++) {
-                        String uid = req.getParameter(IN_UID + i);
-                        String pwd = req.getParameter(IN_PWD + i);
-
-                        if (uid != null && pwd != null && !uid.equals("")
-                                && !pwd.equals("")) {
-                            v.addElement(new Credential(uid, pwd));
-                        } else {
-                            header.addStringValue(OUT_ERROR,
-                                    "Uid(s) or password(s) are not provided");
-                            return null;
-                        }
-                    }
-                    if (v.size() != mService.getNoOfRequiredAgents()) {
-                        header.addStringValue(OUT_ERROR,
-                                "Uid(s) or password(s) are not provided");
-                        return null;
-                    }
-                    creds = new Credential[v.size()];
-                    v.copyInto(creds);
-                }
-
-                header.addStringValue(OUT_OP, req.getParameter(OUT_OP));
-                header.addIntegerValue(OUT_SERIALNO, Integer.parseInt(seq));
-                header.addStringValue(OUT_SERVICE_URL, req.getRequestURI());
-                byte pkcs12[] = mService.doKeyRecovery(new BigInteger(seq),
-                        creds, password, x509cert, delivery, nickname, agent);
-
-                return pkcs12;
-            } else {
+	   if (CMS.getConfigStore().getBoolean("kra.keySplitting")) {
+            if (localAgents == null) {
                 String recoveryID = req.getParameter("recoveryID");
 
                 if (recoveryID == null || recoveryID.equals("")) {
@@ -423,13 +377,70 @@ public class RecoverBySerial extends CMSServlet {
                 params.put("agent", agent);
 
                 // new thread to wait for pk12
-                Thread waitThread = new WaitApprovalThread(recoveryID, seq,
-                        password, x509cert, delivery, nickname,
+                Thread waitThread = new WaitApprovalThread(recoveryID,
+                        seq, password, x509cert, delivery, nickname,
                         SessionContext.getContext());
 
                 waitThread.start();
                 return null;
+            } else {
+                Vector v = new Vector();
+
+                for (int i = 0; i < mService.getNoOfRequiredAgents(); i++) {
+                    String uid = req.getParameter(IN_UID + i);
+                    String pwd = req.getParameter(IN_PWD + i);
+
+                    if (uid != null && pwd != null && !uid.equals("") &&
+                        !pwd.equals("")) {
+                        v.addElement(new Credential(uid, pwd));
+                    } else {
+                        header.addStringValue(OUT_ERROR, "Uid(s) or password(s) are not provided");
+                        return null;
+                    }
+                }
+                if (v.size() != mService.getNoOfRequiredAgents()) {
+                    header.addStringValue(OUT_ERROR, "Uid(s) or password(s) are not provided");
+                    return null;
+                }
+                creds = new Credential[v.size()];
+                v.copyInto(creds);
             }
+
+            header.addStringValue(OUT_OP,
+                req.getParameter(OUT_OP));
+            header.addIntegerValue(OUT_SERIALNO, 
+                Integer.parseInt(seq));
+            header.addStringValue(OUT_SERVICE_URL,
+                req.getRequestURI());
+            byte pkcs12[] = mService.doKeyRecovery(
+                    new BigInteger(seq),
+                    creds, password, x509cert,	
+                    delivery, nickname, agent);
+
+            return pkcs12;
+          } else {
+                String recoveryID = req.getParameter("recoveryID");
+
+                if (recoveryID == null || recoveryID.equals("")) {
+                    header.addStringValue(OUT_ERROR, "No recovery ID specified");
+                    return null;
+                }
+                Hashtable params = mService.createRecoveryParams(recoveryID);
+
+                params.put("keyID", req.getParameter(IN_SERIALNO));
+
+                header.addStringValue("recoveryID", recoveryID);
+
+                params.put("agent", agent);
+
+                // new thread to wait for pk12
+                Thread waitThread = new WaitApprovalThread(recoveryID,
+                        seq, password, x509cert, delivery, nickname,
+                        SessionContext.getContext());
+
+                waitThread.start();
+                return null;
+          }
         } catch (EBaseException e) {
             header.addStringValue(OUT_ERROR, e.toString(locale));
         } catch (Exception e) {
@@ -439,8 +450,8 @@ public class RecoverBySerial extends CMSServlet {
     }
 
     /**
-     * Wait approval thread. Wait for recovery agents' approval exit when
-     * required number of approval received
+     * Wait approval thread. Wait for recovery agents' approval
+     * exit when required number of approval received
      */
     final class WaitApprovalThread extends Thread {
         String theRecoveryID = null;
@@ -451,24 +462,24 @@ public class RecoverBySerial extends CMSServlet {
         String theNickname = null;
         SessionContext theSc = null;
 
-        /**
+        /** 
          * Wait approval thread constructor including thread name
          */
         public WaitApprovalThread(String recoveryID, String seq,
-                String password, X509CertImpl cert, String delivery,
-                String nickname, SessionContext sc) {
+            String password, X509CertImpl cert,
+            String delivery, String nickname, SessionContext sc) {
             super();
-            super.setName("waitApproval." + recoveryID + "-"
-                    + (Thread.activeCount() + 1));
+            super.setName("waitApproval." + recoveryID + "-" + 
+                (Thread.activeCount() + 1));
             theRecoveryID = recoveryID;
             theSeq = seq;
             thePassword = password;
             theCert = cert;
             theDelivery = delivery;
             theNickname = nickname;
-            theSc = sc;
+            theSc = sc;    
         }
-
+        
         public void run() {
             SessionContext.setContext(theSc);
             Credential creds[] = null;
@@ -476,17 +487,17 @@ public class RecoverBySerial extends CMSServlet {
             try {
                 creds = mService.getDistributedCredentials(theRecoveryID);
             } catch (EBaseException e) {
-                String error = "Failed to get required approvals for recovery id "
-                        + theRecoveryID + ".\nException: " + e.toString();
+                String error = 
+                    "Failed to get required approvals for recovery id " +
+                    theRecoveryID + ".\nException: " + e.toString();
 
-                CMS.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_KRA,
-                        ILogger.LL_FAILURE, error);
+                CMS.getLogger().log(ILogger.EV_SYSTEM,
+                    ILogger.S_KRA, ILogger.LL_FAILURE, error);
                 try {
-                    ((IKeyRecoveryAuthority) mService).createError(
-                            theRecoveryID, error);
+                    ((IKeyRecoveryAuthority) mService).createError(theRecoveryID, error);
                 } catch (EBaseException eb) {
-                    CMS.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_KRA,
-                            ILogger.LL_FAILURE, eb.toString());
+                    CMS.getLogger().log(ILogger.EV_SYSTEM,
+                        ILogger.S_KRA, ILogger.LL_FAILURE, eb.toString());
                 }
                 return;
             }
@@ -494,24 +505,25 @@ public class RecoverBySerial extends CMSServlet {
             SessionContext sContext = SessionContext.getContext();
 
             try {
-                byte pkcs12[] = mService.doKeyRecovery(new BigInteger(theSeq),
-                        creds, thePassword, theCert, theDelivery, theNickname,
+                byte pkcs12[] = mService.doKeyRecovery(
+                        new BigInteger(theSeq),
+                        creds, thePassword, theCert,
+                        theDelivery, theNickname,
                         (String) sContext.get(SessionContext.USER_ID));
 
-                ((IKeyRecoveryAuthority) mService).createPk12(theRecoveryID,
-                        pkcs12);
+                ((IKeyRecoveryAuthority) mService).createPk12(theRecoveryID, pkcs12);
             } catch (EBaseException e) {
-                String error = "Failed to recover key for recovery id "
-                        + theRecoveryID + ".\nException: " + e.toString();
+                String error =
+                    "Failed to recover key for recovery id " +
+                    theRecoveryID + ".\nException: " + e.toString();
 
-                CMS.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_KRA,
-                        ILogger.LL_FAILURE, error);
+                CMS.getLogger().log(ILogger.EV_SYSTEM,
+                    ILogger.S_KRA, ILogger.LL_FAILURE, error);
                 try {
-                    ((IKeyRecoveryAuthority) mService).createError(
-                            theRecoveryID, error);
+                    ((IKeyRecoveryAuthority) mService).createError(theRecoveryID, error);
                 } catch (EBaseException eb) {
-                    CMS.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_KRA,
-                            ILogger.LL_FAILURE, eb.toString());
+                    CMS.getLogger().log(ILogger.EV_SYSTEM,
+                        ILogger.S_KRA, ILogger.LL_FAILURE, eb.toString());
                 }
             }
             return;
@@ -519,3 +531,4 @@ public class RecoverBySerial extends CMSServlet {
     }
 
 }
+

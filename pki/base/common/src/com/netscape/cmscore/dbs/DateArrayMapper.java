@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.dbs;
 
+
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Vector;
@@ -28,12 +29,14 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.IDBAttrMapper;
 import com.netscape.certsrv.dbs.IDBObj;
 
+
 /**
- * A class represents ann attribute mapper that maps a Java Date array object
- * into LDAP attribute, and vice versa.
- * 
+ * A class represents ann attribute mapper that maps
+ * a Java Date array object into LDAP attribute,
+ * and vice versa.
+ *
  * @author thomask
- * @version $Revision$, $Date$
+ * @version $Revision$, $Date$ 
  */
 public class DateArrayMapper implements IDBAttrMapper {
 
@@ -58,8 +61,9 @@ public class DateArrayMapper implements IDBAttrMapper {
     /**
      * Maps object to a set of attributes.
      */
-    public void mapObjectToLDAPAttributeSet(IDBObj parent, String name,
-            Object obj, LDAPAttributeSet attrs) throws EBaseException {
+    public void mapObjectToLDAPAttributeSet(IDBObj parent, 
+        String name, Object obj, LDAPAttributeSet attrs) 
+        throws EBaseException {
         Date dates[] = (Date[]) obj;
 
         if (dates == null)
@@ -73,10 +77,11 @@ public class DateArrayMapper implements IDBAttrMapper {
     }
 
     /**
-     * Maps LDAP attributes into object, and put the object into 'parent'.
+     * Maps LDAP attributes into object, and put the object
+     * into 'parent'.
      */
-    public void mapLDAPAttributeSetToObject(LDAPAttributeSet attrs,
-            String name, IDBObj parent) throws EBaseException {
+    public void mapLDAPAttributeSetToObject(LDAPAttributeSet attrs, 
+        String name, IDBObj parent) throws EBaseException {
         LDAPAttribute attr = attrs.getAttribute(mLdapName);
 
         if (attr == null)
@@ -85,7 +90,8 @@ public class DateArrayMapper implements IDBAttrMapper {
         Vector v = new Vector();
 
         while (e.hasMoreElements()) {
-            v.addElement(DateMapper.dateFromDB((String) e.nextElement()));
+            v.addElement(DateMapper.dateFromDB((String)
+                    e.nextElement()));
         }
         if (v.size() == 0)
             return;
@@ -98,8 +104,8 @@ public class DateArrayMapper implements IDBAttrMapper {
     /**
      * Maps search filters into LDAP search filter.
      */
-    public String mapSearchFilter(String name, String op, String value)
-            throws EBaseException {
+    public String mapSearchFilter(String name, String op, 
+        String value) throws EBaseException {
         return mLdapName + op + value;
     }
 }

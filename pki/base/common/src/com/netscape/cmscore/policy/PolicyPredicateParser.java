@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.policy;
 
+
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -28,16 +29,19 @@ import com.netscape.certsrv.policy.EPolicyException;
 import com.netscape.certsrv.policy.IExpression;
 import com.netscape.cmscore.util.Debug;
 
+
 /**
  * Default implementation of predicate parser.
- * 
+ *
  * Limitations:
- * 
- * 1. Currently parentheses are not suported. 2. Only ==, != <, >, <= and >=
- * operators are supported. 3. The only boolean operators supported are AND and
- * OR. AND takes precedence over OR. Example: a AND b OR e OR c AND d is treated
- * as (a AND b) OR e OR (c AND d) 4. If this is n't adequate, roll your own.
- * 
+ *
+ *	1. Currently parentheses are not suported.
+ *	2. Only ==, != <, >, <= and >= operators are supported.
+ *	3. The only boolean operators supported are AND and OR. AND takes precedence
+ *	   over OR. Example: a AND b OR e OR c AND d
+ *					is treated as (a AND b) OR e OR (c AND d)
+ *	4. If this is n't adequate, roll your own.
+ *
  * @author kanda
  * @version $Revision$, $Date$
  */
@@ -53,22 +57,22 @@ public class PolicyPredicateParser {
 
     /**
      * Parse the predicate expression and return a vector of expressions.
-     * 
-     * @param predicateExp The predicate expression as read from the config
-     *            file.
-     * @return expVector The vector of expressions.
+     *
+     * @param predicateExp	The predicate expression as read from the config file.
+     * @return expVector	The vector of expressions.
      */
     public static IExpression parse(String predicateExpression)
-            throws EPolicyException {
-        if (predicateExpression == null || predicateExpression.length() == 0)
+        throws EPolicyException {
+        if (predicateExpression == null || 
+            predicateExpression.length() == 0)
             return null;
         PredicateTokenizer pt = new PredicateTokenizer(predicateExpression);
 
         if (pt == null || !pt.hasMoreTokens())
             return null;
 
-        // The first token cannot be an operator. We are not dealing with
-        // reverse-polish notation.
+            // The first token cannot be an operator. We are not dealing with
+            // reverse-polish notation.
         String token = pt.nextToken();
         boolean opANDSeen;
         boolean opORSeen;
@@ -76,8 +80,7 @@ public class PolicyPredicateParser {
         if (getOP(token) != EXPRESSION) {
             if (Debug.ON)
                 Debug.trace("Malformed expression: " + predicateExpression);
-            throw new EPolicyException(CMS.getUserMessage(
-                    "CMS_POLICY_BAD_POLICY_EXPRESSION", predicateExpression));
+            throw new EPolicyException(CMS.getUserMessage("CMS_POLICY_BAD_POLICY_EXPRESSION", predicateExpression));
         }
         IExpression current = parseExpression(token);
         boolean malformed = false;
@@ -88,8 +91,8 @@ public class PolicyPredicateParser {
             token = pt.nextToken();
             int curType = getOP(token);
 
-            if ((prevType != EXPRESSION && curType != EXPRESSION)
-                    || (prevType == EXPRESSION && curType == EXPRESSION)) {
+            if ((prevType != EXPRESSION && curType != EXPRESSION) ||
+                (prevType == EXPRESSION && curType == EXPRESSION)) {
                 malformed = true;
                 break;
             }
@@ -100,8 +103,7 @@ public class PolicyPredicateParser {
                 continue;
             }
 
-            // If the previous type was an OR token, add the current expression
-            // to
+            // If the previous type was an OR token, add the current expression to
             // the expression set;
             if (prevType == OP_OR) {
                 expSet.addElement(current);
@@ -119,8 +121,9 @@ public class PolicyPredicateParser {
         if (malformed) {
             if (Debug.ON)
                 Debug.trace("Malformed expression: " + predicateExpression);
-            throw new EPolicyException(CMS.getUserMessage(
-                    "CMS_POLICY_BAD_POLICY_EXPRESSION", predicateExpression));
+            throw new EPolicyException(
+                    CMS.getUserMessage("CMS_POLICY_BAD_POLICY_EXPRESSION",
+                        predicateExpression));
         }
 
         // Form an ORExpression
@@ -131,11 +134,12 @@ public class PolicyPredicateParser {
 
         if (size == 0)
             return null;
-        OrExpression orExp = new OrExpression(
-                (IExpression) expSet.elementAt(0), null);
+        OrExpression orExp = new
+            OrExpression((IExpression) expSet.elementAt(0), null);
 
         for (int i = 1; i < size; i++)
-            orExp = new OrExpression(orExp, (IExpression) expSet.elementAt(i));
+            orExp = new OrExpression(orExp,
+                        (IExpression) expSet.elementAt(i));
         return orExp;
     }
 
@@ -149,7 +153,7 @@ public class PolicyPredicateParser {
     }
 
     private static IExpression parseExpression(String input)
-            throws EPolicyException {
+        throws EPolicyException {
         // If the expression has multiple parts separated by commas
         // we need to construct an AND expression. Else we will return a
         // simple expression.
@@ -161,16 +165,17 @@ public class PolicyPredicateParser {
         Vector expVector = new Vector();
 
         while (commaIndex > 0) {
-            SimpleExpression exp = (SimpleExpression) SimpleExpression
-                    .parse(input.substring(currentIndex, commaIndex));
+            SimpleExpression exp = (SimpleExpression)
+                SimpleExpression.parse(input.substring(currentIndex,
+                        commaIndex));
 
             expVector.addElement(exp);
             currentIndex = commaIndex + 1;
             commaIndex = input.indexOf(COMMA, currentIndex);
         }
         if (currentIndex < (input.length() - 1)) {
-            SimpleExpression exp = (SimpleExpression) SimpleExpression
-                    .parse(input.substring(currentIndex));
+            SimpleExpression exp = (SimpleExpression)
+                SimpleExpression.parse(input.substring(currentIndex));
 
             expVector.addElement(exp);
         }
@@ -181,8 +186,7 @@ public class PolicyPredicateParser {
         AndExpression andExp = new AndExpression(exp1, exp2);
 
         for (int i = 2; i < size; i++) {
-            andExp = new AndExpression(andExp,
-                    (SimpleExpression) expVector.elementAt(i));
+            andExp = new AndExpression(andExp, (SimpleExpression) expVector.elementAt(i));
         }
         return andExp;
     }
@@ -190,39 +194,78 @@ public class PolicyPredicateParser {
     public static void main(String[] args) {
 
         /*********
-         * IRequest req = new IRequest(); try { req.set("ou", "people");
-         * req.set("cn", "John Doe"); req.set("uid", "jdoes"); req.set("o",
-         * "airius.com"); req.set("certtype", "client"); req.set("request",
-         * "issuance"); req.set("id", new Integer(10)); req.set("dualcerts", new
-         * Boolean(true));
-         * 
-         * Vector v = new Vector(); v.addElement("one"); v.addElement("two");
-         * v.addElement("three"); req.set("count", v); } catch (Exception
-         * e){e.printStackTrace();} String[] array = {
-         * "ou == people AND certtype == client",
-         * "ou == servergroup AND certtype == server",
-         * "uid == jdoes, ou==people, o==airius.com OR ou == people AND certType == client OR certType == server AND cn == needles.mcom.com"
-         * , }; for (int i = 0; i < array.length; i++) { System.out.println();
-         * System.out.println("String: " + array[i]); IExpression exp = null;
-         * try { exp = parse(array[i]); if (exp != null) {
-         * System.out.println("Parsed Expression: " + exp); boolean result =
-         * exp.evaluate(req); System.out.println("Result: " + result); } } catch
-         * (Exception e) {e.printStackTrace(); } }
-         * 
-         * 
-         * try { BufferedReader rdr = new BufferedReader( new
-         * FileReader(args[0])); String line; while((line=rdr.readLine()) !=
-         * null) { System.out.println(); System.out.println("Line Read: " +
-         * line); IExpression exp = null; try { exp = parse(line); if (exp !=
-         * null) { System.out.println(exp); boolean result = exp.evaluate(req);
-         * System.out.println("Result: " + result); }
-         * 
-         * }catch (Exception e){e.printStackTrace();} } } catch (Exception
-         * e){e.printStackTrace(); }
+         IRequest req = new IRequest();
+         try
+         {
+         req.set("ou", "people");
+         req.set("cn", "John Doe");
+         req.set("uid", "jdoes");
+         req.set("o", "airius.com");
+         req.set("certtype", "client");
+         req.set("request", "issuance");
+         req.set("id", new Integer(10));
+         req.set("dualcerts", new Boolean(true));
+
+         Vector v = new Vector();
+         v.addElement("one");
+         v.addElement("two");
+         v.addElement("three");
+         req.set("count", v);
+         }
+         catch (Exception e){e.printStackTrace();}
+         String[] array = { "ou == people AND certtype == client",
+         "ou == servergroup AND certtype == server",
+         "uid == jdoes, ou==people, o==airius.com OR ou == people AND certType == client OR certType == server AND cn == needles.mcom.com",
+         };
+         for (int i = 0; i < array.length; i++)
+         {
+         System.out.println();
+         System.out.println("String: " + array[i]);
+         IExpression exp = null;
+         try
+         {
+         exp = parse(array[i]);
+         if (exp != null)
+         {
+         System.out.println("Parsed Expression: " + exp);
+         boolean result = exp.evaluate(req);
+         System.out.println("Result: " + result);
+         }
+         }
+         catch (Exception e) {e.printStackTrace(); }
+         }
+
+
+         try
+         {
+         BufferedReader rdr = new BufferedReader(
+         new FileReader(args[0]));
+         String line;
+         while((line=rdr.readLine()) != null)
+         {
+         System.out.println();
+         System.out.println("Line Read: " + line);
+         IExpression exp = null;
+         try
+         {
+         exp = parse(line);
+         if (exp != null)
+         {
+         System.out.println(exp);
+         boolean result = exp.evaluate(req);
+         System.out.println("Result: " + result);
+         }
+
+         }catch (Exception e){e.printStackTrace();}
+         }
+         }
+         catch (Exception e){e.printStackTrace(); }
+
          *******/
     }
 
 }
+
 
 class PredicateTokenizer {
     String input;
@@ -305,27 +348,30 @@ class PredicateTokenizer {
     }
 }
 
+
 class AttributeSet implements IAttrSet {
     /**
      *
      */
     private static final long serialVersionUID = -3985810281989018413L;
     Hashtable ht = new Hashtable();
-
     public AttributeSet() {
     }
 
-    public void delete(String name) throws EBaseException {
+    public void delete(String name)
+        throws EBaseException {
         Object ob = ht.get(name);
 
         ht.remove(ob);
     }
 
-    public Object get(String name) throws EBaseException {
+    public Object get(String name)
+        throws EBaseException {
         return ht.get(name);
     }
 
-    public void set(String name, Object ob) throws EBaseException {
+    public void set(String name, Object ob)
+        throws EBaseException {
         ht.put(name, ob);
     }
 

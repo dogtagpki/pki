@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.admin;
 
+
 import java.util.Enumeration;
 import java.util.Hashtable;
 
@@ -24,10 +25,11 @@ import com.netscape.certsrv.authentication.IAuthCredentials;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 
+
 /**
  * Authentication Credentials as input to the authMgr
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class AuthCredentials implements IAuthCredentials {
@@ -36,23 +38,21 @@ public class AuthCredentials implements IAuthCredentials {
      */
     private static final long serialVersionUID = -6938644716486895814L;
     private Hashtable authCreds = null;
-    // Inserted by bskim
+    // Inserted by bskim 
     private IArgBlock argblk = null;
-
     // Insert end
-
+    
     public AuthCredentials() {
         authCreds = new Hashtable();
     }
 
     /**
      * sets a credential with credential name and the credential
-     * 
      * @param name credential name
      * @param cred credential
      * @exception com.netscape.certsrv.base.EBaseException NullPointerException
      */
-    public void set(String name, Object cred) throws EBaseException {
+    public void set(String name, Object cred)throws EBaseException {
         if (cred == null) {
             throw new EBaseException("AuthCredentials.set()");
         }
@@ -62,8 +62,7 @@ public class AuthCredentials implements IAuthCredentials {
 
     /**
      * returns the credential to which the specified name is mapped in this
-     * credential set
-     * 
+     *	 credential set
      * @param name credential name
      * @return the named authentication credential
      */
@@ -72,10 +71,9 @@ public class AuthCredentials implements IAuthCredentials {
     }
 
     /**
-     * removes the name and its corresponding credential from this credential
-     * set. This method does nothing if the named credential is not in the
-     * credential set.
-     * 
+     * removes the name and its corresponding credential from this
+     *	 credential set.  This method does nothing if the named
+     *	 credential is not in the credential set.
      * @param name credential name
      */
     public void delete(String name) {
@@ -83,27 +81,27 @@ public class AuthCredentials implements IAuthCredentials {
     }
 
     /**
-     * returns an enumeration of the credentials in this credential set. Use the
-     * Enumeration methods on the returned object to fetch the elements
-     * sequentially.
-     * 
+     * returns an enumeration of the credentials in this credential
+     *	 set.  Use the Enumeration methods on the returned object to
+     *	 fetch the elements sequentially.
      * @return an enumeration of the values in this credential set
      * @see java.util.Enumeration
      */
     public Enumeration getElements() {
         return (authCreds.elements());
     }
-
+    
     // Inserted by bskim
     public void setArgBlock(IArgBlock blk) {
         argblk = blk;
         return;
-    }
+    }        
 
     // Insert end
-
+    
     public IArgBlock getArgBlock() {
         return argblk;
-    }
+    }        
     // Insert end
 }
+

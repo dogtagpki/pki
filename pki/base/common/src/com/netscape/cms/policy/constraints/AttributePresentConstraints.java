@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.policy.constraints;
 
+
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Locale;
@@ -43,20 +44,20 @@ import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.policy.APolicyRule;
 
+
 /**
  * This checks if attribute present.
  * <P>
- * 
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- * 
+ *
  * @deprecated
  * @version $Revision$, $Date$
  */
-public class AttributePresentConstraints extends APolicyRule implements
-        IEnrollmentPolicy, IExtendedPluginInfo {
+public class AttributePresentConstraints extends APolicyRule 
+    implements IEnrollmentPolicy, IExtendedPluginInfo {
     protected static final String PROP_ENABLED = "enabled";
     protected static final String PROP_LDAP = "ldap";
 
@@ -75,59 +76,50 @@ public class AttributePresentConstraints extends APolicyRule implements
     private LDAPConnection mCheckAttrLdapConnection = null;
 
     public AttributePresentConstraints() {
-        DESC = "Rejects request if ldap attribute is not present in the "
-                + "directory.";
+        DESC = "Rejects request if ldap attribute is not present in the " +
+                "directory.";
     }
 
     public String[] getExtendedPluginInfo(Locale locale) {
         String params[] = {
-                PROP_ATTR
-                        + ";string,required;Ldap attribute to check presence of (default "
-                        + DEF_ATTR + ")",
-                PROP_VALUE
-                        + ";string;if this parameter is non-empty, the attribute must "
-                        + "match this value for the request to proceed ",
-                PROP_LDAP_BASE
-                        + ";string,required;Base DN to start searching "
-                        + "under. If your user's DN is 'uid=jsmith, o=company', you "
-                        + "might want to use 'o=company' here",
-                PROP_LDAP_HOST + ";string,required;"
-                        + "LDAP host to connect to",
-                PROP_LDAP_PORT + ";number,required;"
-                        + "LDAP port number (use 389, or 636 if SSL)",
-                PROP_LDAP_SSL + ";boolean;"
-                        + "Use SSL to connect to directory?",
-                PROP_LDAP_VER + ";choice(3,2),required;"
-                        + "LDAP protocol version",
-                PROP_LDAP_BIND
-                        + ";string;DN to bind as for attribute checking. "
-                        + "For example 'CN=Pincheck User'",
-                PROP_LDAP_PW + ";password;Enter password used to bind as "
-                        + "the above user",
-                PROP_LDAP_AUTH + ";choice(BasicAuth,SslClientAuth),required;"
-                        + "How to bind to the directory",
-                PROP_LDAP_CERT + ";string;If you want to use "
-                        + "SSL client auth to the directory, set the client "
-                        + "cert nickname here",
-                PROP_LDAP_BASE
-                        + ";string,required;Base DN to start searching "
-                        + "under. If your user's DN is 'uid=jsmith, o=company', you "
-                        + "might want to use 'o=company' here",
-                PROP_LDAP_MINC + ";number;number of connections "
-                        + "to keep open to directory server. Default "
-                        + DEF_LDAP_MINC,
-                PROP_LDAP_MAXC
-                        + ";number;when needed, connection "
-                        + "pool can grow to this many (multiplexed) connections. Default "
-                        + DEF_LDAP_MAXC,
-                IExtendedPluginInfo.HELP_TOKEN
-                        + ";configuration-policyrules-pinpresent",
-                IExtendedPluginInfo.HELP_TEXT
-                        + ";"
-                        + DESC
-                        + " This plugin can be used to "
-                        + "check the presence (and, optionally, the value) of any LDAP "
-                        + "attribute for the user. " };
+                PROP_ATTR + ";string,required;Ldap attribute to check presence of (default " +
+                DEF_ATTR + ")",
+                PROP_VALUE + ";string;if this parameter is non-empty, the attribute must " +
+                "match this value for the request to proceed ",
+                PROP_LDAP_BASE + ";string,required;Base DN to start searching " +
+                "under. If your user's DN is 'uid=jsmith, o=company', you " +
+                "might want to use 'o=company' here",
+                PROP_LDAP_HOST + ";string,required;" +
+                "LDAP host to connect to",
+                PROP_LDAP_PORT + ";number,required;" +
+                "LDAP port number (use 389, or 636 if SSL)",
+                PROP_LDAP_SSL + ";boolean;" +
+                "Use SSL to connect to directory?",
+                PROP_LDAP_VER + ";choice(3,2),required;" +
+                "LDAP protocol version",
+                PROP_LDAP_BIND + ";string;DN to bind as for attribute checking. " +
+                "For example 'CN=Pincheck User'",
+                PROP_LDAP_PW + ";password;Enter password used to bind as " +
+                "the above user",
+                PROP_LDAP_AUTH + ";choice(BasicAuth,SslClientAuth),required;" +
+                "How to bind to the directory",
+                PROP_LDAP_CERT + ";string;If you want to use " +
+                "SSL client auth to the directory, set the client " +
+                "cert nickname here",
+                PROP_LDAP_BASE + ";string,required;Base DN to start searching " +
+                "under. If your user's DN is 'uid=jsmith, o=company', you " +
+                "might want to use 'o=company' here",
+                PROP_LDAP_MINC + ";number;number of connections " +
+                "to keep open to directory server. Default " + DEF_LDAP_MINC,
+                PROP_LDAP_MAXC + ";number;when needed, connection " +
+                "pool can grow to this many (multiplexed) connections. Default " + DEF_LDAP_MAXC,
+                IExtendedPluginInfo.HELP_TOKEN +
+                ";configuration-policyrules-pinpresent",
+                IExtendedPluginInfo.HELP_TEXT +
+                ";" + DESC + " This plugin can be used to " +
+                "check the presence (and, optionally, the value) of any LDAP " +
+                "attribute for the user. "
+            };
 
         return params;
     }
@@ -188,9 +180,9 @@ public class AttributePresentConstraints extends APolicyRule implements
     protected static final String PROP_VALUE = "value";
     protected static final String DEF_VALUE = "";
 
-    protected static Vector mParamNames;
+    protected static Vector    mParamNames;
     protected static Hashtable mParamDefault;
-    protected Hashtable mParamValue = null;
+    protected        Hashtable mParamValue = null;
 
     static {
         mParamNames = new Vector();
@@ -209,7 +201,7 @@ public class AttributePresentConstraints extends APolicyRule implements
         addParam(PROP_ATTR, DEF_ATTR);
         addParam(PROP_VALUE, DEF_VALUE);
     };
-
+	
     protected static void addParam(String name, Object value) {
         mParamNames.addElement(name);
         mParamDefault.put(name, value);
@@ -218,33 +210,40 @@ public class AttributePresentConstraints extends APolicyRule implements
     protected void getStringConfigParam(IConfigStore config, String paramName) {
         try {
             mParamValue.put(
-                    paramName,
-                    config.getString(paramName,
-                            (String) mParamDefault.get(paramName)));
+                paramName, config.getString(paramName, (String) mParamDefault.get(paramName))
+            );
         } catch (Exception e) {
         }
     }
 
     protected void getIntConfigParam(IConfigStore config, String paramName) {
         try {
-            mParamValue.put(paramName, Integer.valueOf(config.getInteger(
-                    paramName,
-                    ((Integer) mParamDefault.get(paramName)).intValue())));
+            mParamValue.put(
+                paramName, Integer.valueOf(
+                    config.getInteger(paramName,
+                        ((Integer) mParamDefault.get(paramName)).intValue()
+                    )
+                )
+            );
         } catch (Exception e) {
         }
     }
 
     protected void getBooleanConfigParam(IConfigStore config, String paramName) {
         try {
-            mParamValue.put(paramName, Boolean.valueOf(config.getBoolean(
-                    paramName,
-                    ((Boolean) mParamDefault.get(paramName)).booleanValue())));
+            mParamValue.put(
+                paramName, Boolean.valueOf(
+                    config.getBoolean(paramName,
+                        ((Boolean) mParamDefault.get(paramName)).booleanValue()
+                    )
+                )
+            );
         } catch (Exception e) {
         }
     }
 
     public void init(ISubsystem owner, IConfigStore config)
-            throws EBaseException {
+        throws EBaseException {
         mConfig = config;
 
         mParamValue = new Hashtable();
@@ -278,16 +277,14 @@ public class AttributePresentConstraints extends APolicyRule implements
 
         String requestType = r.getRequestType();
 
-        if (requestType.equals(IRequest.ENROLLMENT_REQUEST)
-                || requestType.equals(IRequest.RENEWAL_REQUEST)) {
+        if (requestType.equals(IRequest.ENROLLMENT_REQUEST) ||
+            requestType.equals(IRequest.RENEWAL_REQUEST)) {
 
             String uid = r.getExtDataInString(IRequest.HTTP_PARAMS, "uid");
 
             if (uid == null) {
-                log(ILogger.LL_INFO, "did not find UID parameter in request "
-                        + r.getRequestId());
-                setError(r, CMS.getUserMessage("CMS_POLICY_PIN_UNAUTHORIZED"),
-                        "");
+                log(ILogger.LL_INFO, "did not find UID parameter in request " + r.getRequestId());
+                setError(r, CMS.getUserMessage("CMS_POLICY_PIN_UNAUTHORIZED"), "");
                 return PolicyResult.REJECTED;
             }
 
@@ -295,34 +292,26 @@ public class AttributePresentConstraints extends APolicyRule implements
 
             try {
                 String[] attrs = { (String) mParamValue.get(PROP_ATTR) };
-                LDAPSearchResults searchResult = mCheckAttrLdapConnection
-                        .search((String) mParamValue.get(PROP_LDAP_BASE),
-                                LDAPv2.SCOPE_SUB, "(uid=" + uid + ")", attrs,
-                                false);
-
+                LDAPSearchResults searchResult = 
+                    mCheckAttrLdapConnection.search((String) mParamValue.get(PROP_LDAP_BASE),
+                        LDAPv2.SCOPE_SUB, "(uid=" + uid + ")", attrs, false);
+			
                 if (!searchResult.hasMoreElements()) {
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CMS_AUTH_NO_PIN_FOUND", uid));
-                    setError(r,
-                            CMS.getUserMessage("CMS_POLICY_PIN_UNAUTHORIZED"),
-                            "");
+                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMS_AUTH_NO_PIN_FOUND", uid));
+                    setError(r, CMS.getUserMessage("CMS_POLICY_PIN_UNAUTHORIZED"), "");
                     return PolicyResult.REJECTED;
                 }
 
                 LDAPEntry entry = (LDAPEntry) searchResult.nextElement();
 
                 userdn = entry.getDN();
-
-                LDAPAttribute attr = entry.getAttribute((String) mParamValue
-                        .get(PROP_ATTR));
+	
+                LDAPAttribute attr = entry.getAttribute((String) mParamValue.get(PROP_ATTR));
 
                 /* if attribute not present, reject the request */
                 if (attr == null) {
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CMS_AUTH_NO_PIN_FOUND", userdn));
-                    setError(r,
-                            CMS.getUserMessage("CMS_POLICY_PIN_UNAUTHORIZED"),
-                            "");
+                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMS_AUTH_NO_PIN_FOUND", userdn)); 
+                    setError(r, CMS.getUserMessage("CMS_POLICY_PIN_UNAUTHORIZED"), "");
                     return PolicyResult.REJECTED;
                 }
                 String acceptedValue = ((String) mParamValue.get(PROP_VALUE));
@@ -338,24 +327,17 @@ public class AttributePresentConstraints extends APolicyRule implements
                         }
                     }
                     if (matches == 0) {
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                                "CMS_AUTH_NO_PIN_FOUND", userdn));
-                        setError(
-                                r,
-                                CMS.getUserMessage("CMS_POLICY_PIN_UNAUTHORIZED"),
-                                "");
+                        log(ILogger.LL_FAILURE, CMS.getLogMessage("CMS_AUTH_NO_PIN_FOUND", userdn));
+                        setError(r, CMS.getUserMessage("CMS_POLICY_PIN_UNAUTHORIZED"), "");
                         return PolicyResult.REJECTED;
                     }
                 }
-
-                CMS.debug("AttributePresentConstraints: Attribute is present for user: \""
-                        + userdn + "\"");
+				
+                CMS.debug("AttributePresentConstraints: Attribute is present for user: \"" + userdn + "\"");
 
             } catch (LDAPException e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("POLICY_PIN_UNAUTHORIZED"));
-                setError(r, CMS.getUserMessage("CMS_POLICY_PIN_UNAUTHORIZED"),
-                        "");
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("POLICY_PIN_UNAUTHORIZED"));
+                setError(r, CMS.getUserMessage("CMS_POLICY_PIN_UNAUTHORIZED"), "");
                 return PolicyResult.REJECTED;
             }
 
@@ -401,26 +383,25 @@ public class AttributePresentConstraints extends APolicyRule implements
         return params;
 
         /*
-         * params.addElement("ldap.ldapconn.host=localhost");
-         * params.addElement("ldap.ldapconn.port=389");
-         * params.addElement("ldap.ldapconn.secureConn=false");
-         * params.addElement("ldap.ldapconn.version=3");
-         * params.addElement("ldap.ldapauth.bindDN=CN=Directory Manager");
-         * params.addElement("ldap.ldapauth.bindPWPrompt=");
-         * params.addElement("ldap.ldapauth.clientCertNickname=");
-         * params.addElement("ldap.ldapauth.authtype=BasicAuth");
-         * params.addElement("ldap.basedn=");
-         * params.addElement("ldap.minConns=1");
-         * params.addElement("ldap.maxConns=5");
+         params.addElement("ldap.ldapconn.host=localhost");
+         params.addElement("ldap.ldapconn.port=389");
+         params.addElement("ldap.ldapconn.secureConn=false");
+         params.addElement("ldap.ldapconn.version=3");
+         params.addElement("ldap.ldapauth.bindDN=CN=Directory Manager");
+         params.addElement("ldap.ldapauth.bindPWPrompt=");
+         params.addElement("ldap.ldapauth.clientCertNickname=");
+         params.addElement("ldap.ldapauth.authtype=BasicAuth");
+         params.addElement("ldap.basedn=");
+         params.addElement("ldap.minConns=1");
+         params.addElement("ldap.maxConns=5");
          */
     }
 
     protected void log(int level, String msg) {
-        if (mLogger == null)
-            return;
+        if (mLogger == null) return;
 
-        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_OTHER, level,
-                "AttributePresentConstraints: " + msg);
+        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_OTHER,
+            level, "AttributePresentConstraints: " + msg);
     }
 
 }

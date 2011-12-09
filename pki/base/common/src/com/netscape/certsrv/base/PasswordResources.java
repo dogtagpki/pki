@@ -17,12 +17,14 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.base;
 
+
 import java.util.ListResourceBundle;
+
 
 /**
  * A class represents a resource bundle for the password checker.
  * <p>
- * 
+ *
  * @version $Revision$, $Date$
  * @see java.util.ListResourceBundle
  */
@@ -40,3 +42,4 @@ public class PasswordResources extends ListResourceBundle {
      */
     static final Object[][] contents = {};
 }
+

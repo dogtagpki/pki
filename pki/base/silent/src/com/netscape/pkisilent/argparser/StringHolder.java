@@ -1,5 +1,4 @@
 package com.netscape.pkisilent.argparser;
-
 // --- BEGIN COPYRIGHT BLOCK ---
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -19,34 +18,38 @@ package com.netscape.pkisilent.argparser;
 // --- END COPYRIGHT BLOCK ---
 
 /**
- * Wrapper class which ``holds'' a String reference, enabling methods to return
- * String references through arguments.
- */
-public class StringHolder implements java.io.Serializable {
-    /**
+  * Wrapper class which ``holds'' a String reference,
+  * enabling methods to return String references through
+  * arguments.
+  */
+public class StringHolder implements java.io.Serializable
+{
+	/**
      *
      */
     private static final long serialVersionUID = -3184348746223759310L;
     /**
-     * Value of the String reference, set and examined by the application as
-     * needed.
-     */
-    public String value;
+	 * Value of the String reference, set and examined
+	 * by the application as needed.
+	 */
+	public String value;
 
-    /**
-     * Constructs a new <code>StringHolder</code> with an initial value of
-     * <code>null</code>.
-     */
-    public StringHolder() {
-        value = null;
-    }
+	/**
+	 * Constructs a new <code>StringHolder</code> with an
+	 * initial value of <code>null</code>.
+	 */
+	public StringHolder ()
+	 { value = null;
+	 }
 
-    /**
-     * Constructs a new <code>StringHolder</code> with a specific initial value.
-     * 
-     * @param s Initial String reference.
-     */
-    public StringHolder(String s) {
-        value = s;
-    }
+	/**
+	 * Constructs a new <code>StringHolder</code> with a
+	 * specific initial value.
+	 *
+	 * @param s Initial String reference.
+	 */
+	public StringHolder (String s)
+	 { value = s;
+	 }
 }
+

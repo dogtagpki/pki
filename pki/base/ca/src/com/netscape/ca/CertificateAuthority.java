@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.ca;
 
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -116,26 +117,25 @@ import com.netscape.cmsutil.ocsp.SingleResponse;
 import com.netscape.cmsutil.ocsp.TBSRequest;
 import com.netscape.cmsutil.ocsp.UnknownInfo;
 
+
 /**
- * A class represents a Certificate Authority that is responsible for
- * certificate specific operations.
+ * A class represents a Certificate Authority that is
+ * responsible for certificate specific operations.
  * <P>
- * 
+ *
  * @author lhsiao
  * @version $Revision$, $Date$
  */
-public class CertificateAuthority implements ICertificateAuthority,
-        ICertAuthority, IOCSPService {
+public class CertificateAuthority implements ICertificateAuthority, ICertAuthority, IOCSPService {
     public static final String OFFICIAL_NAME = "Certificate Manager";
 
-    public final static OBJECT_IDENTIFIER OCSP_NONCE = new OBJECT_IDENTIFIER(
-            "1.3.6.1.5.5.7.48.1.2");
+    public final static OBJECT_IDENTIFIER OCSP_NONCE = new OBJECT_IDENTIFIER("1.3.6.1.5.5.7.48.1.2");
 
     protected ISubsystem mOwner = null;
     protected IConfigStore mConfig = null;
     protected ILogger mLogger = CMS.getLogger();
-    protected Hashtable<String, CRLIssuingPoint> mCRLIssuePoints = new Hashtable<String, CRLIssuingPoint>();
-    protected CRLIssuingPoint mMasterCRLIssuePoint = null; // the complete crl.
+    protected Hashtable<String, CRLIssuingPoint> mCRLIssuePoints = new Hashtable<String, CRLIssuingPoint>(); 
+    protected CRLIssuingPoint mMasterCRLIssuePoint = null; // the complete crl. 
     protected SigningUnit mSigningUnit;
     protected SigningUnit mOCSPSigningUnit;
     protected SigningUnit mCRLSigningUnit;
@@ -143,8 +143,8 @@ public class CertificateAuthority implements ICertificateAuthority,
     protected X500Name mName = null;
     protected X500Name mCRLName = null;
     protected X500Name mOCSPName = null;
-    protected String mNickname = null; // nickname of CA signing cert.
-    protected String mOCSPNickname = null; // nickname of OCSP signing cert.
+    protected String mNickname = null;	// nickname of CA signing cert.
+    protected String mOCSPNickname = null;	// nickname of OCSP signing cert.
     protected long mCertSerialNumberCounter = System.currentTimeMillis();
     protected long mRequestID = System.currentTimeMillis();
 
@@ -185,7 +185,7 @@ public class CertificateAuthority implements ICertificateAuthority,
     protected boolean mEnableOCSP;
     protected int mFastSigning = FASTSIGNING_DISABLED;
 
-    protected static final long SECOND = 1000; // 1000 milliseconds
+    protected static final long SECOND = 1000;  // 1000 milliseconds
     protected static final long MINUTE = 60 * SECOND;
     protected static final long HOUR = 60 * MINUTE;
     protected static final long DAY = 24 * HOUR;
@@ -197,7 +197,7 @@ public class CertificateAuthority implements ICertificateAuthority,
 
     // for the notification listeners
 
-    /**
+    /** 
      * Package constants
      */
 
@@ -261,12 +261,12 @@ public class CertificateAuthority implements ICertificateAuthority,
         }
     }
 
+
     public void publishCRLNow() throws EBaseException {
         if (mMasterCRLIssuePoint != null) {
             mMasterCRLIssuePoint.publishCRL();
         }
     }
-
     public ICRLPublisher getCRLPublisher() {
         return mCRLPublisher;
     }
@@ -286,108 +286,105 @@ public class CertificateAuthority implements ICertificateAuthority,
     /**
      * Initializes this CA subsystem.
      * <P>
-     * 
+     *
      * @param owner owner of this subsystem
      * @param config configuration of this subsystem
      * @exception EBaseException failed to initialize this CA
      */
-    public void init(ISubsystem owner, IConfigStore config)
-            throws EBaseException {
+    public void init(ISubsystem owner, IConfigStore config) throws
+            EBaseException {
 
+    try {
+        CMS.debug("CertificateAuthority init ");
+        mOwner = owner;
+        mConfig = config;
+
+        // init cert & crl database. 
+        initCaDatabases();
+
+        // init signing unit & CA cert.
         try {
-            CMS.debug("CertificateAuthority init ");
-            mOwner = owner;
-            mConfig = config;
-
-            // init cert & crl database.
-            initCaDatabases();
-
-            // init signing unit & CA cert.
-            try {
-                initSigUnit();
-                // init default CA attributes like cert version, validity.
-                initDefCaAttrs();
-            } catch (EBaseException e) {
-                if (CMS.isPreOpMode())
-                    ;
-                else
-                    throw e;
-            }
-
-            // init web gateway.
-            initWebGateway();
-
-            mUseNonces = mConfig.getBoolean("enableNonces", true);
-            mMaxNonces = mConfig.getInteger("maxNumberOfNonces", 100);
-            if (mUseNonces) {
-                mNonces = new Nonces(mMaxNonces);
-                CMS.debug("CertificateAuthority init: Nonces enabled. ("
-                        + mNonces.size() + ")");
-            }
-
-            // init request queue and related modules.
-            CMS.debug("CertificateAuthority init: initRequestQueue");
-            initRequestQueue();
-            if (CMS.isPreOpMode())
-                return;
-
-            // set certificate status to 10 minutes
-            mCertRepot.setCertStatusUpdateInterval(
-                    mRequestQueue.getRequestRepository(),
-                    mConfig.getInteger("certStatusUpdateInterval", 10 * 60),
-                    mConfig.getBoolean("listenToCloneModifications", false));
-            mCertRepot.setConsistencyCheck(mConfig.getBoolean(
-                    "ConsistencyCheck", false));
-            mCertRepot.setSkipIfInConsistent(mConfig.getBoolean(
-                    "SkipIfInConsistent", false));
-
-            mService.init(config.getSubStore("connector"));
-
-            initMiscellaneousListeners();
-
-            // instantiate CRL publisher
-            IConfigStore cpStore = null;
-
-            mByName = config.getBoolean("byName", true);
-
-            cpStore = config.getSubStore("crlPublisher");
-            if (cpStore != null && cpStore.size() > 0) {
-                String publisherClass = cpStore.getString("class");
-
-                if (publisherClass != null) {
-                    try {
-                        Class pc = Class.forName(publisherClass);
-
-                        mCRLPublisher = (ICRLPublisher) pc.newInstance();
-                        mCRLPublisher.init(this, cpStore);
-                    } catch (ClassNotFoundException ee) {
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                                "CMSCORE_CA_CA_NO_PUBLISHER", ee.toString()));
-                    } catch (IllegalAccessException ee) {
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                                "CMSCORE_CA_CA_NO_PUBLISHER", ee.toString()));
-                    } catch (InstantiationException ee) {
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                                "CMSCORE_CA_CA_NO_PUBLISHER", ee.toString()));
-                    }
-                }
-            }
-
-            // initialize publisher processor (publish remote admin
-            // rely on this subsystem, so it has to be initialized)
-            initPublish();
-
-            // Initialize CRL issuing points.
-            // note CRL framework depends on DBS, CRYPTO and PUBLISHING
-            // being functional.
-            initCRL();
-
+            initSigUnit();
+            // init default CA attributes like cert version, validity.
+            initDefCaAttrs();
         } catch (EBaseException e) {
             if (CMS.isPreOpMode())
-                return;
+                ;
             else
                 throw e;
         }
+
+        // init web gateway.
+        initWebGateway();
+
+        mUseNonces = mConfig.getBoolean("enableNonces", true);
+        mMaxNonces = mConfig.getInteger("maxNumberOfNonces", 100);
+        if (mUseNonces) {
+            mNonces = new Nonces(mMaxNonces);
+            CMS.debug("CertificateAuthority init: Nonces enabled. ("+mNonces.size()+")");
+        }
+
+        // init request queue and related modules.
+        CMS.debug("CertificateAuthority init: initRequestQueue");
+        initRequestQueue();
+        if (CMS.isPreOpMode())
+            return;
+
+        // set certificate status to 10 minutes
+        mCertRepot.setCertStatusUpdateInterval(
+            mRequestQueue.getRequestRepository(),
+            mConfig.getInteger("certStatusUpdateInterval", 10 * 60),
+            mConfig.getBoolean("listenToCloneModifications", false));
+        mCertRepot.setConsistencyCheck(
+            mConfig.getBoolean("ConsistencyCheck", false));
+        mCertRepot.setSkipIfInConsistent(
+            mConfig.getBoolean("SkipIfInConsistent", false));
+ 
+        mService.init(config.getSubStore("connector"));
+
+        initMiscellaneousListeners();
+
+        // instantiate CRL publisher
+        IConfigStore cpStore = null;
+
+        mByName = config.getBoolean("byName", true);
+
+        cpStore = config.getSubStore("crlPublisher");
+        if (cpStore != null && cpStore.size() > 0) {
+            String publisherClass = cpStore.getString("class");
+
+            if (publisherClass != null) {
+                try {
+                    Class pc = Class.forName(publisherClass);
+
+                    mCRLPublisher = (ICRLPublisher)
+                            pc.newInstance();
+                    mCRLPublisher.init(this, cpStore);
+                } catch (ClassNotFoundException ee) {
+                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_NO_PUBLISHER", ee.toString()));
+                } catch (IllegalAccessException ee) {
+                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_NO_PUBLISHER", ee.toString()));
+                } catch (InstantiationException ee) {
+                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_NO_PUBLISHER", ee.toString()));
+                }
+            }
+        }
+
+        // initialize publisher processor (publish remote admin
+        // rely on this subsystem, so it has to be initialized)
+        initPublish();
+
+        // Initialize CRL issuing points. 
+        // note CRL framework depends on DBS, CRYPTO and PUBLISHING 
+        // being functional.
+        initCRL();
+
+    } catch (EBaseException e) {
+        if (CMS.isPreOpMode())
+            return;
+        else
+            throw e;
+    }
     }
 
     /**
@@ -396,7 +393,7 @@ public class CertificateAuthority implements ICertificateAuthority,
     public IRequestQueue getRequestQueue() {
         return mRequestQueue;
     }
-
+    
     /**
      * registers listener
      */
@@ -509,7 +506,7 @@ public class CertificateAuthority implements ICertificateAuthority,
         }
         mService.startup();
         mRequestQueue.recover();
-
+		
         // Note that this could be null.
 
         // setup Admin operations
@@ -517,7 +514,7 @@ public class CertificateAuthority implements ICertificateAuthority,
         initNotificationListeners();
 
         startPublish();
-        // startCRL();
+        //		startCRL();
     }
 
     /**
@@ -527,7 +524,7 @@ public class CertificateAuthority implements ICertificateAuthority,
     public void shutdown() {
         Enumeration enums = mCRLIssuePoints.elements();
         while (enums.hasMoreElements()) {
-            CRLIssuingPoint point = (CRLIssuingPoint) enums.nextElement();
+            CRLIssuingPoint point = (CRLIssuingPoint)enums.nextElement();
             point.shutdown();
         }
 
@@ -580,7 +577,7 @@ public class CertificateAuthority implements ICertificateAuthority,
         return mDefaultValidity;
     }
 
-    public SignatureAlgorithm getDefaultSignatureAlgorithm() {
+    public SignatureAlgorithm  getDefaultSignatureAlgorithm() {
         return mSigningUnit.getDefaultSignatureAlgorithm();
     }
 
@@ -594,7 +591,8 @@ public class CertificateAuthority implements ICertificateAuthority,
 
     public String getStartSerial() {
         try {
-            BigInteger serial = ((Repository) mCertRepot).getTheSerialNumber();
+            BigInteger serial =
+                ((Repository) mCertRepot).getTheSerialNumber();
 
             if (serial == null)
                 return "";
@@ -602,7 +600,7 @@ public class CertificateAuthority implements ICertificateAuthority,
                 return serial.toString(16);
         } catch (EBaseException e) {
             // shouldn't get here.
-            return "";
+            return ""; 
         }
     }
 
@@ -626,22 +624,23 @@ public class CertificateAuthority implements ICertificateAuthority,
     /**
      * Retrieves certificate repository.
      * <P>
-     * 
+     *
      * @return certificate repository
      */
     public ICertificateRepository getCertificateRepository() {
         return mCertRepot;
     }
-
+ 
     /**
      * Retrieves replica repository.
      * <P>
-     * 
+     *
      * @return replica repository
      */
     public IReplicaIDRepository getReplicaRepository() {
         return mReplicaRepot;
     }
+
 
     /**
      * Retrieves CRL repository.
@@ -657,7 +656,6 @@ public class CertificateAuthority implements ICertificateAuthority,
     /**
      * Retrieves the CRL issuing point by id.
      * <P>
-     * 
      * @param id string id of the CRL issuing point
      * @return CRL issuing point
      */
@@ -668,7 +666,6 @@ public class CertificateAuthority implements ICertificateAuthority,
     /**
      * Enumerates CRL issuing points
      * <P>
-     * 
      * @return security service
      */
     public Enumeration getCRLIssuingPoints() {
@@ -683,7 +680,7 @@ public class CertificateAuthority implements ICertificateAuthority,
      * Adds CRL issuing point with the given identifier and description.
      */
     public boolean addCRLIssuingPoint(IConfigStore crlSubStore, String id,
-            boolean enable, String description) {
+                                      boolean enable, String description) {
         crlSubStore.makeSubStore(id);
         IConfigStore c = crlSubStore.getSubStore(id);
 
@@ -715,34 +712,26 @@ public class CertificateAuthority implements ICertificateAuthority,
             // crl extensions
             // AuthorityInformationAccess
             c.putString("extension.AuthorityInformationAccess.enable", "false");
-            c.putString("extension.AuthorityInformationAccess.critical",
-                    "false");
-            c.putString("extension.AuthorityInformationAccess.type",
-                    "CRLExtension");
+            c.putString("extension.AuthorityInformationAccess.critical", "false");
+            c.putString("extension.AuthorityInformationAccess.type", "CRLExtension");
             c.putString("extension.AuthorityInformationAccess.class",
-                    "com.netscape.cms.crl.CMSAuthInfoAccessExtension");
-            c.putString(
-                    "extension.AuthorityInformationAccess.numberOfAccessDescriptions",
-                    "1");
-            c.putString("extension.AuthorityInformationAccess.accessMethod0",
-                    "caIssuers");
-            c.putString(
-                    "extension.AuthorityInformationAccess.accessLocationType0",
-                    "URI");
-            c.putString("extension.AuthorityInformationAccess.accessLocation0",
-                    "");
+                "com.netscape.cms.crl.CMSAuthInfoAccessExtension");
+            c.putString("extension.AuthorityInformationAccess.numberOfAccessDescriptions", "1");
+            c.putString("extension.AuthorityInformationAccess.accessMethod0", "caIssuers");
+            c.putString("extension.AuthorityInformationAccess.accessLocationType0", "URI");
+            c.putString("extension.AuthorityInformationAccess.accessLocation0", "");
             // AuthorityKeyIdentifier
             c.putString("extension.AuthorityKeyIdentifier.enable", "false");
             c.putString("extension.AuthorityKeyIdentifier.critical", "false");
             c.putString("extension.AuthorityKeyIdentifier.type", "CRLExtension");
             c.putString("extension.AuthorityKeyIdentifier.class",
-                    "com.netscape.cms.crl.CMSAuthorityKeyIdentifierExtension");
+                "com.netscape.cms.crl.CMSAuthorityKeyIdentifierExtension");
             // IssuerAlternativeName
             c.putString("extension.IssuerAlternativeName.enable", "false");
             c.putString("extension.IssuerAlternativeName.critical", "false");
             c.putString("extension.IssuerAlternativeName.type", "CRLExtension");
             c.putString("extension.IssuerAlternativeName.class",
-                    "com.netscape.cms.crl.CMSIssuerAlternativeNameExtension");
+                "com.netscape.cms.crl.CMSIssuerAlternativeNameExtension");
             c.putString("extension.IssuerAlternativeName.numNames", "0");
             c.putString("extension.IssuerAlternativeName.nameType0", "");
             c.putString("extension.IssuerAlternativeName.name0", "");
@@ -751,71 +740,62 @@ public class CertificateAuthority implements ICertificateAuthority,
             c.putString("extension.CRLNumber.critical", "false");
             c.putString("extension.CRLNumber.type", "CRLExtension");
             c.putString("extension.CRLNumber.class",
-                    "com.netscape.cms.crl.CMSCRLNumberExtension");
+                "com.netscape.cms.crl.CMSCRLNumberExtension");
             // DeltaCRLIndicator
             c.putString("extension.DeltaCRLIndicator.enable", "false");
             c.putString("extension.DeltaCRLIndicator.critical", "true");
             c.putString("extension.DeltaCRLIndicator.type", "CRLExtension");
             c.putString("extension.DeltaCRLIndicator.class",
-                    "com.netscape.cms.crl.CMSDeltaCRLIndicatorExtension");
+                "com.netscape.cms.crl.CMSDeltaCRLIndicatorExtension");
             // IssuingDistributionPoint
             c.putString("extension.IssuingDistributionPoint.enable", "false");
             c.putString("extension.IssuingDistributionPoint.critical", "true");
-            c.putString("extension.IssuingDistributionPoint.type",
-                    "CRLExtension");
+            c.putString("extension.IssuingDistributionPoint.type", "CRLExtension");
             c.putString("extension.IssuingDistributionPoint.class",
-                    "com.netscape.cms.crl.CMSIssuingDistributionPointExtension");
+                "com.netscape.cms.crl.CMSIssuingDistributionPointExtension");
             c.putString("extension.IssuingDistributionPoint.pointType", "");
             c.putString("extension.IssuingDistributionPoint.pointName", "");
-            c.putString(
-                    "extension.IssuingDistributionPoint.onlyContainsUserCerts",
-                    "false");
-            c.putString(
-                    "extension.IssuingDistributionPoint.onlyContainsCACerts",
-                    "false");
-            c.putString("extension.IssuingDistributionPoint.onlySomeReasons",
-                    "");
-            // "keyCompromise,cACompromise,affiliationChanged,superseded,cessationOfOperation,certificateHold");
-            c.putString("extension.IssuingDistributionPoint.indirectCRL",
-                    "false");
+            c.putString("extension.IssuingDistributionPoint.onlyContainsUserCerts", "false");
+            c.putString("extension.IssuingDistributionPoint.onlyContainsCACerts", "false");
+            c.putString("extension.IssuingDistributionPoint.onlySomeReasons", "");
+            //"keyCompromise,cACompromise,affiliationChanged,superseded,cessationOfOperation,certificateHold");
+            c.putString("extension.IssuingDistributionPoint.indirectCRL", "false");
             // CRLReason
             c.putString("extension.CRLReason.enable", "true");
             c.putString("extension.CRLReason.critical", "false");
             c.putString("extension.CRLReason.type", "CRLEntryExtension");
             c.putString("extension.CRLReason.class",
-                    "com.netscape.cms.crl.CMSCRLReasonExtension");
+                "com.netscape.cms.crl.CMSCRLReasonExtension");
             // HoldInstruction - removed by RFC 5280
             // c.putString("extension.HoldInstruction.enable", "false");
             // c.putString("extension.HoldInstruction.critical", "false");
-            // c.putString("extension.HoldInstruction.type",
-            // "CRLEntryExtension");
+            // c.putString("extension.HoldInstruction.type", "CRLEntryExtension");
             // c.putString("extension.HoldInstruction.class",
-            // "com.netscape.cms.crl.CMSHoldInstructionExtension");
+            //     "com.netscape.cms.crl.CMSHoldInstructionExtension");
             // c.putString("extension.HoldInstruction.instruction", "none");
             // InvalidityDate
             c.putString("extension.InvalidityDate.enable", "true");
             c.putString("extension.InvalidityDate.critical", "false");
             c.putString("extension.InvalidityDate.type", "CRLEntryExtension");
             c.putString("extension.InvalidityDate.class",
-                    "com.netscape.cms.crl.CMSInvalidityDateExtension");
+                "com.netscape.cms.crl.CMSInvalidityDateExtension");
             // CertificateIssuer
             /*
-             * c.putString("extension.CertificateIssuer.enable", "false");
-             * c.putString("extension.CertificateIssuer.critical", "true");
-             * c.putString("extension.CertificateIssuer.type",
-             * "CRLEntryExtension");
-             * c.putString("extension.CertificateIssuer.class",
-             * "com.netscape.cms.crl.CMSCertificateIssuerExtension");
-             * c.putString("extension.CertificateIssuer.numNames", "0");
-             * c.putString("extension.CertificateIssuer.nameType0", "");
-             * c.putString("extension.CertificateIssuer.name0", "");
+             c.putString("extension.CertificateIssuer.enable", "false");
+             c.putString("extension.CertificateIssuer.critical", "true");
+             c.putString("extension.CertificateIssuer.type", "CRLEntryExtension");
+             c.putString("extension.CertificateIssuer.class",
+             "com.netscape.cms.crl.CMSCertificateIssuerExtension");
+             c.putString("extension.CertificateIssuer.numNames", "0");
+             c.putString("extension.CertificateIssuer.nameType0", "");
+             c.putString("extension.CertificateIssuer.name0", "");
              */
             // FreshestCRL
             c.putString("extension.FreshestCRL.enable", "false");
             c.putString("extension.FreshestCRL.critical", "false");
             c.putString("extension.FreshestCRL.type", "CRLExtension");
             c.putString("extension.FreshestCRL.class",
-                    "com.netscape.cms.crl.CMSFreshestCRLExtension");
+                "com.netscape.cms.crl.CMSFreshestCRLExtension");
             c.putString("extension.FreshestCRL.numPoints", "0");
             c.putString("extension.FreshestCRL.pointType0", "");
             c.putString("extension.FreshestCRL.pointName0", "");
@@ -827,8 +807,7 @@ public class CertificateAuthority implements ICertificateAuthority,
             try {
                 issuingPointClassName = c.getString(PROP_CLASS);
                 issuingPointClass = Class.forName(issuingPointClassName);
-                issuingPoint = (CRLIssuingPoint) issuingPointClass
-                        .newInstance();
+                issuingPoint = (CRLIssuingPoint) issuingPointClass.newInstance();
                 issuingPoint.init(this, id, c);
                 mCRLIssuePoints.put(id, issuingPoint);
             } catch (EPropertyNotFound e) {
@@ -866,8 +845,7 @@ public class CertificateAuthority implements ICertificateAuthority,
                 mCRLRepot.deleteCRLIssuingPointRecord(id);
             } catch (EBaseException e) {
                 log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("FAILED_REMOVING_CRL_IP_2", id,
-                                e.toString()));
+                    CMS.getLogMessage("FAILED_REMOVING_CRL_IP_2", id, e.toString()));
             }
         }
     }
@@ -875,7 +853,7 @@ public class CertificateAuthority implements ICertificateAuthority,
     /**
      * Returns X500 name of the Certificate Authority
      * <P>
-     * 
+     *
      * @return CA name
      */
     public X500Name getX500Name() {
@@ -893,7 +871,6 @@ public class CertificateAuthority implements ICertificateAuthority,
     /**
      * Returns nickname of CA's signing cert.
      * <p>
-     * 
      * @return CA signing cert nickname.
      */
     public String getNickname() {
@@ -903,7 +880,6 @@ public class CertificateAuthority implements ICertificateAuthority,
     /**
      * Returns nickname of OCSP's signing cert.
      * <p>
-     * 
      * @return OCSP signing cert nickname.
      */
     public String getOCSPNickname() {
@@ -913,7 +889,7 @@ public class CertificateAuthority implements ICertificateAuthority,
     /**
      * Returns default signing unit used by this CA
      * <P>
-     * 
+     *
      * @return request identifier
      */
     public ISigningUnit getSigningUnit() {
@@ -929,29 +905,28 @@ public class CertificateAuthority implements ICertificateAuthority,
     }
 
     public void setBasicConstraintMaxLen(int num) {
-        mConfig.putString("Policy.rule.BasicConstraintsExt.maxPathLen", ""
-                + num);
+        mConfig.putString("Policy.rule.BasicConstraintsExt.maxPathLen", "" + num);
     }
 
     /**
-     * Signs CRL using the specified signature algorithm. If no algorithm is
-     * specified the CA's default signing algorithm is used.
+     * Signs CRL using the specified signature algorithm.
+     * If no algorithm is specified the CA's default signing algorithm 
+     * is used.
      * <P>
-     * 
      * @param crl the CRL to be signed.
-     * @param algname the algorithm name to use. This is a JCA name such as
-     *            MD5withRSA, etc. If set to null the default signing algorithm
-     *            is used.
-     * 
+     * @param algname the algorithm name to use. This is a JCA name such
+     * as MD5withRSA, etc. If set to null the default signing algorithm 
+     * is used.
+     *
      * @return the signed CRL
      */
     public X509CRLImpl sign(X509CRLImpl crl, String algname)
-            throws EBaseException {
+        throws EBaseException {
         X509CRLImpl signedcrl = null;
 
-        IStatsSubsystem statsSub = (IStatsSubsystem) CMS.getSubsystem("stats");
+        IStatsSubsystem statsSub = (IStatsSubsystem)CMS.getSubsystem("stats");
         if (statsSub != null) {
-            statsSub.startTiming("signing");
+          statsSub.startTiming("signing");
         }
 
         long startTime = CMS.getCurrentDate().getTime();
@@ -984,57 +959,48 @@ public class CertificateAuthority implements ICertificateAuthority,
                 CMS.debug("Failed to add signature to CRL object.");
             }
         } catch (CRLException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_CA_CA_SIGN_CRL", e.toString(),
-                            e.getMessage()));
-            throw new ECAException(CMS.getUserMessage(
-                    "CMS_CA_SIGNING_CRL_FAILED", e.getMessage()));
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_SIGN_CRL", e.toString(), e.getMessage()));
+            throw new ECAException(
+                    CMS.getUserMessage("CMS_CA_SIGNING_CRL_FAILED", e.getMessage()));
         } catch (X509ExtensionException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_CA_CA_SIGN_CRL", e.toString(),
-                            e.getMessage()));
-            throw new ECAException(CMS.getUserMessage(
-                    "CMS_CA_SIGNING_CRL_FAILED", e.getMessage()));
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_SIGN_CRL", e.toString(), e.getMessage()));
+            throw new ECAException(
+                    CMS.getUserMessage("CMS_CA_SIGNING_CRL_FAILED", e.getMessage()));
         } catch (NoSuchAlgorithmException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_CA_CA_SIGN_CRL", e.toString(),
-                            e.getMessage()));
-            throw new ECAException(CMS.getUserMessage(
-                    "CMS_CA_SIGNING_CRL_FAILED", e.getMessage()));
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_SIGN_CRL", e.toString(), e.getMessage()));
+            throw new ECAException(
+                    CMS.getUserMessage("CMS_CA_SIGNING_CRL_FAILED", e.getMessage()));
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_CA_CA_SIGN_CRL", e.toString(),
-                            e.getMessage()));
-            throw new ECAException(CMS.getUserMessage(
-                    "CMS_CA_SIGNING_CRL_FAILED", e.getMessage()));
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_SIGN_CRL", e.toString(), e.getMessage()));
+            throw new ECAException(
+                    CMS.getUserMessage("CMS_CA_SIGNING_CRL_FAILED", e.getMessage()));
         } finally {
-            if (statsSub != null) {
-                statsSub.endTiming("signing");
-            }
+          if (statsSub != null) {
+            statsSub.endTiming("signing");
+          }
         }
 
         return signedcrl;
     }
 
     /**
-     * Signs the given certificate info using specified signing algorithm If no
-     * algorithm is specified the CA's default algorithm is used.
+     * Signs the given certificate info using specified signing algorithm
+     * If no algorithm is specified the CA's default algorithm is used.
      * <P>
-     * 
      * @param certInfo the certificate info to be signed.
-     * @param algname the signing algorithm to use. These are names defined in
-     *            JCA, such as MD5withRSA, etc. If null the CA's default signing
-     *            algorithm will be used.
+     * @param algname the signing algorithm to use. These are names defined
+     * in JCA, such as MD5withRSA, etc. If null the CA's default
+     * signing algorithm will be used.
      * @return signed certificate
      */
-    public X509CertImpl sign(X509CertInfo certInfo, String algname)
-            throws EBaseException {
+    public X509CertImpl sign(X509CertInfo certInfo, String algname) 
+        throws EBaseException {
 
         X509CertImpl signedcert = null;
 
-        IStatsSubsystem statsSub = (IStatsSubsystem) CMS.getSubsystem("stats");
+        IStatsSubsystem statsSub = (IStatsSubsystem)CMS.getSubsystem("stats");
         if (statsSub != null) {
-            statsSub.startTiming("signing");
+          statsSub.startTiming("signing");
         }
 
         long startTime = CMS.getCurrentDate().getTime();
@@ -1043,8 +1009,7 @@ public class CertificateAuthority implements ICertificateAuthority,
             DerOutputStream tmp = new DerOutputStream();
 
             if (certInfo == null) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_CA_CA_NO_CERTINFO"));
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_NO_CERTINFO"));
                 return null;
             }
 
@@ -1059,20 +1024,20 @@ public class CertificateAuthority implements ICertificateAuthority,
             CMS.debug("sign cert encoding cert");
             certInfo.encode(tmp);
             byte[] rawCert = tmp.toByteArray();
-
+			
             // encode algorithm identifier
             CMS.debug("sign cert encoding algorithm");
             alg.encode(tmp);
-
+			
             CMS.debug("CA cert signing: signing cert");
             byte[] signature = mSigningUnit.sign(rawCert, algname);
-
+			
             tmp.putBitString(signature);
-
+			
             // Wrap the signed data in a SEQUENCE { data, algorithm, sig }
             out.write(DerValue.tag_Sequence, tmp);
-            // log(ILogger.LL_INFO, "CertificateAuthority: done signing");
-
+            //log(ILogger.LL_INFO, "CertificateAuthority: done signing");
+			
             switch (mFastSigning) {
             case FASTSIGNING_DISABLED:
                 signedcert = new X509CertImpl(out.toByteArray());
@@ -1085,55 +1050,52 @@ public class CertificateAuthority implements ICertificateAuthority,
             default:
                 break;
             }
-        } catch (NoSuchAlgorithmException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                    "CMSCORE_CA_CA_SIGN_CERT", e.toString(), e.getMessage()));
-            throw new ECAException(CMS.getUserMessage(
-                    "CMS_CA_SIGNING_CERT_FAILED", e.getMessage()));
+        } 
+        catch (NoSuchAlgorithmException e) {
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_SIGN_CERT", e.toString(), e.getMessage()));
+            throw new ECAException(
+                    CMS.getUserMessage("CMS_CA_SIGNING_CERT_FAILED", e.getMessage()));
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                    "CMSCORE_CA_CA_SIGN_CERT", e.toString(), e.getMessage()));
-            throw new ECAException(CMS.getUserMessage(
-                    "CMS_CA_SIGNING_CERT_FAILED", e.getMessage()));
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_SIGN_CERT", e.toString(), e.getMessage()));
+            throw new ECAException(
+                    CMS.getUserMessage("CMS_CA_SIGNING_CERT_FAILED", e.getMessage()));
         } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                    "CMSCORE_CA_CA_SIGN_CERT", e.toString(), e.getMessage()));
-            throw new ECAException(CMS.getUserMessage(
-                    "CMS_CA_SIGNING_CERT_FAILED", e.getMessage()));
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_SIGN_CERT", e.toString(), e.getMessage()));
+            throw new ECAException(
+                    CMS.getUserMessage("CMS_CA_SIGNING_CERT_FAILED", e.getMessage()));
         } finally {
-            if (statsSub != null) {
-                statsSub.endTiming("signing");
-            }
+          if (statsSub != null) {
+            statsSub.endTiming("signing");
+          }
         }
         return signedcert;
     }
 
     /**
-     * Sign a byte array using the specified algorithm. If algorithm is null the
-     * CA's default algorithm is used.
+     * Sign a byte array using the specified algorithm.
+     * If algorithm is null the CA's default algorithm is used.
      * <p>
-     * 
-     * @param data the data to be signed in a byte array.
+     * @param data the data to be signed in a byte array. 
      * @param algname the algorithm to use.
      * @return the signature in a byte array.
-     */
-    public byte[] sign(byte[] data, String algname) throws EBaseException {
+     */ 
+    public byte[] sign(byte[] data, String algname) 
+        throws EBaseException {
         return mSigningUnit.sign(data, algname);
     }
 
     /**
      * logs a message in the CA area.
-     * 
      * @param level the debug level.
      * @param msg the message to debug.
      */
     public void log(int level, String msg) {
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_CA, level, msg);
+        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_CA, 
+            level, msg);
     }
 
     /**
      * Retrieves certificate chains of this CA.
-     * 
      * @return this CA's cert chain.
      */
     public CertificateChain getCACertChain() {
@@ -1142,18 +1104,18 @@ public class CertificateAuthority implements ICertificateAuthority,
 
     public X509CertImpl getCACert() {
         if (mCaCert != null) {
-            return mCaCert;
+          return mCaCert;
         }
         // during configuration
         try {
-            String cert = mConfig.getString("signing.cert", null);
-            if (cert != null) {
-                return new X509CertImpl(CMS.AtoB(cert));
-            }
+          String cert = mConfig.getString("signing.cert", null);
+          if (cert != null) {
+            return new X509CertImpl(CMS.AtoB(cert));
+          }
         } catch (EBaseException e) {
-            CMS.debug(e);
+          CMS.debug(e);
         } catch (CertificateException e) {
-            CMS.debug(e);
+          CMS.debug(e);
         }
         return null;
     }
@@ -1163,10 +1125,10 @@ public class CertificateAuthority implements ICertificateAuthority,
     }
 
     public String[] getCASigningAlgorithms() {
-        if (mCASigningAlgorithms != null)
+        if (mCASigningAlgorithms != null) 
             return mCASigningAlgorithms;
 
-        if (mCaCert == null)
+        if (mCaCert == null) 
             return null; // CA not inited yet.
         X509Key caPubKey = null;
 
@@ -1174,48 +1136,49 @@ public class CertificateAuthority implements ICertificateAuthority,
             caPubKey = (X509Key) mCaCert.get(X509CertImpl.PUBLIC_KEY);
         } catch (CertificateParsingException e) {
         }
-        if (caPubKey == null)
-            return null; // something seriously wrong.
+        if (caPubKey == null) 
+            return null;	// something seriously wrong.
         AlgorithmId alg = caPubKey.getAlgorithmId();
 
-        if (alg == null)
-            return null; // something seriously wrong.
+        if (alg == null) 
+            return null;	// something seriously wrong.
         mCASigningAlgorithms = AlgorithmId.getSigningAlgorithms(alg);
         if (mCASigningAlgorithms == null) {
-            CMS.debug("CA - no signing algorithms for " + alg.getName());
+            CMS.debug(
+                "CA - no signing algorithms for " + alg.getName());
         } else {
-            CMS.debug("CA First signing algorithm is "
-                    + mCASigningAlgorithms[0]);
+            CMS.debug(    
+                "CA First signing algorithm is " + mCASigningAlgorithms[0]);
         }
 
         return mCASigningAlgorithms;
     }
 
-    // ////////
-    // Initialization routines.
+    //////////
+    // Initialization routines. 
     //
 
+	
     /**
      * init CA signing unit & cert chain.
      */
-    private void initSigUnit() throws EBaseException {
+    private void initSigUnit()
+        throws EBaseException {
         try {
             // init signing unit
             mSigningUnit = new SigningUnit();
-            IConfigStore caSigningCfg = mConfig
-                    .getSubStore(PROP_SIGNING_SUBSTORE);
+            IConfigStore caSigningCfg =
+                mConfig.getSubStore(PROP_SIGNING_SUBSTORE);
 
             mSigningUnit.init(this, caSigningCfg);
             CMS.debug("CA signing unit inited");
 
             // for identrus
-            IConfigStore CrlStore = mConfig
-                    .getSubStore(PROP_CRL_SIGNING_SUBSTORE);
+            IConfigStore CrlStore = mConfig.getSubStore(PROP_CRL_SIGNING_SUBSTORE);
 
             if (CrlStore != null && CrlStore.size() > 0) {
                 mCRLSigningUnit = new SigningUnit();
-                mCRLSigningUnit.init(this,
-                        mConfig.getSubStore(PROP_CRL_SIGNING_SUBSTORE));
+                mCRLSigningUnit.init(this, mConfig.getSubStore(PROP_CRL_SIGNING_SUBSTORE));
             } else {
                 mCRLSigningUnit = mSigningUnit;
             }
@@ -1223,44 +1186,43 @@ public class CertificateAuthority implements ICertificateAuthority,
             // init cert chain
             CryptoManager manager = CryptoManager.getInstance();
 
-            int caChainNum = caSigningCfg.getInteger(PROP_CA_CHAIN_NUM, 0);
+            int caChainNum =
+                caSigningCfg.getInteger(PROP_CA_CHAIN_NUM, 0);
 
             CMS.debug("cachainNum= " + caChainNum);
             if (caChainNum > 0) {
                 // custom build chain (for cross cert chain)
                 // audit here ***
-                IConfigStore chainStore = caSigningCfg
-                        .getSubStore(PROP_CA_CHAIN);
+                IConfigStore chainStore =
+                    caSigningCfg.getSubStore(PROP_CA_CHAIN);
 
                 if (chainStore == null) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                            "CMSCORE_CA_CA_OCSP_CHAIN",
+                    log(ILogger.LL_FAILURE,
+                        CMS.getLogMessage("CMSCORE_CA_CA_OCSP_CHAIN",
                             "ca cert chain config error"));
-                    throw new ECAException(CMS.getUserMessage(
-                            "CMS_CA_BUILD_CA_CHAIN_FAILED",
+                    throw new ECAException(
+                            CMS.getUserMessage("CMS_CA_BUILD_CA_CHAIN_FAILED",
                             "ca cert chain config error"));
                 }
 
-                java.security.cert.X509Certificate[] implchain = new java.security.cert.X509Certificate[caChainNum];
+                java.security.cert.X509Certificate[] implchain =
+                    new java.security.cert.X509Certificate[caChainNum];
 
                 for (int i = 0; i < caChainNum; i++) {
                     String subtreeName = PROP_CA_CERT + i;
                     // cert file name must be full path
-                    String certFileName = chainStore.getString(subtreeName,
-                            null);
+                    String certFileName =
+                        chainStore.getString(subtreeName, null);
 
                     if ((certFileName == null) || certFileName.equals("")) {
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                                "CMSCORE_CA_CA_OCSP_CHAIN",
-                                "cert file config error"));
-                        throw new ECAException(CMS.getUserMessage(
-                                "CMS_CA_BUILD_CA_CHAIN_FAILED",
+                        log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_OCSP_CHAIN", "cert file config error"));
+                        throw new ECAException(
+                                CMS.getUserMessage("CMS_CA_BUILD_CA_CHAIN_FAILED",
                                 "cert file config error"));
                     }
                     byte[] b64Bytes = getCertFromFile(certFileName);
                     String b64String = new String(b64Bytes);
-                    byte[] certBytes = KeyCertUtil
-                            .convertB64EToByteArray(b64String);
+                    byte[] certBytes = KeyCertUtil.convertB64EToByteArray(b64String);
 
                     implchain[i] = new X509CertImpl(certBytes);
                 } // for
@@ -1269,10 +1231,11 @@ public class CertificateAuthority implements ICertificateAuthority,
                 CMS.debug("in init - custom built CA cert chain.");
             } else {
                 // build ca chain the traditional way
-                org.mozilla.jss.crypto.X509Certificate[] chain = manager
-                        .buildCertificateChain(mSigningUnit.getCert());
+                org.mozilla.jss.crypto.X509Certificate[] chain = 
+                    manager.buildCertificateChain(mSigningUnit.getCert());
                 // do this in case other subsyss expect a X509CertImpl
-                java.security.cert.X509Certificate[] implchain = new java.security.cert.X509Certificate[chain.length];
+                java.security.cert.X509Certificate[] implchain =
+                    new java.security.cert.X509Certificate[chain.length];
 
                 for (int i = 0; i < chain.length; i++) {
                     implchain[i] = new X509CertImpl(chain[i].getEncoded());
@@ -1281,23 +1244,22 @@ public class CertificateAuthority implements ICertificateAuthority,
                 CMS.debug("in init - got CA chain from JSS.");
             }
 
-            IConfigStore OCSPStore = mConfig
-                    .getSubStore(PROP_OCSP_SIGNING_SUBSTORE);
+            IConfigStore OCSPStore = mConfig.getSubStore(PROP_OCSP_SIGNING_SUBSTORE);
 
             if (OCSPStore != null && OCSPStore.size() > 0) {
                 mOCSPSigningUnit = new SigningUnit();
-                mOCSPSigningUnit.init(this,
-                        mConfig.getSubStore(PROP_OCSP_SIGNING_SUBSTORE));
+                mOCSPSigningUnit.init(this, mConfig.getSubStore(PROP_OCSP_SIGNING_SUBSTORE));
                 CMS.debug("Separate OCSP signing unit inited");
             } else {
                 mOCSPSigningUnit = mSigningUnit;
                 CMS.debug("Shared OCSP signing unit inited");
             }
 
-            org.mozilla.jss.crypto.X509Certificate[] ocspChain = manager
-                    .buildCertificateChain(mOCSPSigningUnit.getCert());
+            org.mozilla.jss.crypto.X509Certificate[] ocspChain = 
+                manager.buildCertificateChain(mOCSPSigningUnit.getCert());
             // do this in case other subsyss expect a X509CertImpl
-            java.security.cert.X509Certificate[] ocspImplchain = new java.security.cert.X509Certificate[ocspChain.length];
+            java.security.cert.X509Certificate[] ocspImplchain =
+                new java.security.cert.X509Certificate[ocspChain.length];
 
             for (int i = 0; i < ocspChain.length; i++) {
                 ocspImplchain[i] = new X509CertImpl(ocspChain[i].getEncoded());
@@ -1323,47 +1285,40 @@ public class CertificateAuthority implements ICertificateAuthority,
             CMS.debug("in init - got CA name " + mName);
 
         } catch (CryptoManager.NotInitializedException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_CA_CA_OCSP_SIGNING",
-                            e.toString()));
-            throw new ECAException(
-                    CMS.getUserMessage("CMS_CA_CRYPTO_NOT_INITIALIZED"));
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_OCSP_SIGNING", e.toString()));
+            throw new ECAException(CMS.getUserMessage("CMS_CA_CRYPTO_NOT_INITIALIZED"));
         } catch (CertificateException e) {
             if (Debug.ON)
                 e.printStackTrace();
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_CA_CA_OCSP_CHAIN", e.toString()));
-            throw new ECAException(CMS.getUserMessage(
-                    "CMS_CA_BUILD_CA_CHAIN_FAILED", e.toString()));
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_OCSP_CHAIN", e.toString()));
+            throw new ECAException(
+                    CMS.getUserMessage("CMS_CA_BUILD_CA_CHAIN_FAILED", e.toString()));
         } catch (FileNotFoundException e) {
             if (Debug.ON)
                 e.printStackTrace();
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_CA_CA_OCSP_CHAIN", e.toString()));
-            throw new ECAException(CMS.getUserMessage(
-                    "CMS_CA_BUILD_CA_CHAIN_FAILED", e.toString()));
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_OCSP_CHAIN", e.toString()));
+            throw new ECAException(
+                    CMS.getUserMessage("CMS_CA_BUILD_CA_CHAIN_FAILED", e.toString()));
         } catch (IOException e) {
             if (Debug.ON)
                 e.printStackTrace();
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_CA_CA_OCSP_CHAIN", e.toString()));
-            throw new ECAException(CMS.getUserMessage(
-                    "CMS_CA_BUILD_CA_CHAIN_FAILED", e.toString()));
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_OCSP_CHAIN", e.toString()));
+            throw new ECAException(
+                    CMS.getUserMessage("CMS_CA_BUILD_CA_CHAIN_FAILED", e.toString()));
         } catch (TokenException e) {
             if (Debug.ON)
                 e.printStackTrace();
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_CA_CA_OCSP_CHAIN", e.toString()));
-            throw new ECAException(CMS.getUserMessage(
-                    "CMS_CA_BUILD_CA_CHAIN_FAILED", e.toString()));
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_OCSP_CHAIN", e.toString()));
+            throw new ECAException(
+                    CMS.getUserMessage("CMS_CA_BUILD_CA_CHAIN_FAILED", e.toString()));
         }
     }
 
     /**
      * read ca cert from path, converts and bytes
      */
-    byte[] getCertFromFile(String path) throws FileNotFoundException,
-            IOException {
+    byte[] getCertFromFile(String path)
+        throws FileNotFoundException, IOException {
 
         File file = new File(path);
         Long l = Long.valueOf(file.length());
@@ -1375,30 +1330,33 @@ public class CertificateAuthority implements ICertificateAuthority,
         return b;
     }
 
-    /**
+    /** 
      * init default cert attributes.
      */
-    private void initDefCaAttrs() throws EBaseException {
-        int version = mConfig.getInteger(PROP_X509CERT_VERSION,
+    private void initDefCaAttrs()
+        throws EBaseException {
+        int version = mConfig.getInteger(PROP_X509CERT_VERSION, 
                 CertificateVersion.V3);
 
-        if (version != CertificateVersion.V1
-                && version != CertificateVersion.V3) {
+        if (version != CertificateVersion.V1 && 
+            version != CertificateVersion.V3) {
             throw new ECAException(
                     CMS.getUserMessage("CMS_CA_X509CERT_VERSION_NOT_SUPPORTED"));
         }
         try {
             mDefaultCertVersion = new CertificateVersion(version - 1);
         } catch (IOException e) {
-            // should never occur.
+            // should never occur. 
         }
 
         int validity_in_days = mConfig.getInteger(PROP_DEF_VALIDITY, 2 * 365);
 
         mDefaultValidity = validity_in_days * DAY; // days in config file.
 
-        mEnablePastCATime = mConfig.getBoolean(PROP_ENABLE_PAST_CATIME, false);
-        mEnableOCSP = mConfig.getBoolean(PROP_ENABLE_OCSP, true);
+        mEnablePastCATime = 
+                mConfig.getBoolean(PROP_ENABLE_PAST_CATIME, false);
+        mEnableOCSP = 
+                mConfig.getBoolean(PROP_ENABLE_OCSP, true);
 
         String fs = mConfig.getString(PROP_FAST_SIGNING, "");
 
@@ -1413,29 +1371,29 @@ public class CertificateAuthority implements ICertificateAuthority,
     /**
      * init cert & crl database
      */
-    private void initCaDatabases() throws EBaseException {
+    private void initCaDatabases()
+        throws EBaseException {
         int certdb_inc = mConfig.getInteger(PROP_CERTDB_INC, 5);
 
         String certReposDN = mConfig.getString(PROP_CERT_REPOS_DN, null);
 
-        if (certReposDN == null) {
-            certReposDN = "ou=certificateRepository, ou=" + getId() + ", "
-                    + getDBSubsystem().getBaseDN();
+        if (certReposDN == null) { 
+            certReposDN = "ou=certificateRepository, ou=" + getId() + 
+                    ", " + getDBSubsystem().getBaseDN();
         }
         String reposDN = mConfig.getString(PROP_REPOS_DN, null);
 
-        if (reposDN == null) {
-            reposDN = "ou=certificateRepository, ou=" + getId() + ", "
-                    + getDBSubsystem().getBaseDN();
+        if (reposDN == null) { 
+            reposDN = "ou=certificateRepository, ou=" + getId() + 
+                    ", " + getDBSubsystem().getBaseDN();
         }
 
-        int transitMaxRecords = mConfig.getInteger(
-                PROP_CERTDB_TRANS_MAXRECORDS, 1000000);
-        int transitRecordPageSize = mConfig.getInteger(
-                PROP_CERTDB_TRANS_PAGESIZE, 200);
+        int transitMaxRecords = mConfig.getInteger(PROP_CERTDB_TRANS_MAXRECORDS, 1000000);
+        int transitRecordPageSize = mConfig.getInteger(PROP_CERTDB_TRANS_PAGESIZE, 200);
 
-        mCertRepot = new CertificateRepository(DBSubsystem.getInstance(),
-                certReposDN, certdb_inc, reposDN);
+        mCertRepot = new CertificateRepository(
+                    DBSubsystem.getInstance(),
+                    certReposDN, certdb_inc, reposDN);
 
         mCertRepot.setTransitMaxRecords(transitMaxRecords);
         mCertRepot.setTransitRecordPageSize(transitRecordPageSize);
@@ -1446,17 +1404,19 @@ public class CertificateAuthority implements ICertificateAuthority,
 
         int crldb_inc = mConfig.getInteger(PROP_CRLDB_INC, 5);
 
-        mCRLRepot = new CRLRepository(DBSubsystem.getInstance(), crldb_inc,
-                "ou=crlIssuingPoints, ou=" + getId() + ", "
-                        + getDBSubsystem().getBaseDN());
+        mCRLRepot = new CRLRepository(
+                    DBSubsystem.getInstance(),
+                    crldb_inc,
+                    "ou=crlIssuingPoints, ou=" + getId() + ", " +
+                    getDBSubsystem().getBaseDN());
         CMS.debug("CRL Repot inited");
 
         String replicaReposDN = mConfig.getString(PROP_REPLICAID_DN, null);
         if (replicaReposDN == null) {
-            replicaReposDN = "ou=Replica," + getDBSubsystem().getBaseDN();
+           replicaReposDN = "ou=Replica," + getDBSubsystem().getBaseDN();
         }
-        mReplicaRepot = new ReplicaIDRepository(DBSubsystem.getInstance(), 1,
-                replicaReposDN);
+        mReplicaRepot = new ReplicaIDRepository(
+            DBSubsystem.getInstance(), 1, replicaReposDN);
         CMS.debug("Replica Repot inited");
 
     }
@@ -1464,11 +1424,13 @@ public class CertificateAuthority implements ICertificateAuthority,
     /**
      * init web gateway - just gets the ee gateway for this CA.
      */
-    private void initWebGateway() throws EBaseException {
+    private void initWebGateway()
+        throws EBaseException {
     }
 
-    private void startPublish() throws EBaseException {
-        // xxx Note that CMS411 only support ca cert publishing to ldap
+    private void startPublish()
+        throws EBaseException {
+        //xxx Note that CMS411 only support ca cert publishing to ldap
         // if ldap publishing is not enabled while publishing isenabled
         // there will be a lot of problem.
         try {
@@ -1478,36 +1440,34 @@ public class CertificateAuthority implements ICertificateAuthority,
             }
         } catch (ELdapException e) {
             // exception not thrown - not seen as a fatal error.
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_CA_CA_PUBLISH", e.toString()));
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_PUBLISH", e.toString()));
         }
     }
 
     /**
      * init publishing
      */
-    private void initPublish() throws EBaseException {
+    private void initPublish()
+        throws EBaseException {
         IConfigStore c = null;
 
         try {
             c = mConfig.getSubStore(PROP_PUBLISH_SUBSTORE);
             if (c != null && c.size() > 0) {
-                mPublisherProcessor = new PublisherProcessor(getId() + "pp");
+                mPublisherProcessor = new PublisherProcessor(
+                            getId() + "pp");
                 mPublisherProcessor.init(this, c);
                 CMS.debug("Publishing inited");
             } else {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_CA_CA_NO_PUBLISH"));
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_NO_PUBLISH"));
                 throw new ECAException(
                         CMS.getUserMessage("CMS_CA_INIT_PUBLISH_MODULE_FAILED"));
             }
 
         } catch (ELdapException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_CA_CA_ERROR_PUBLISH_MODULE",
-                            e.toString()));
-            // throw new ECAException(
-            // CAResources.INIT_PUBLISH_MODULE_FAILED, e);
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_ERROR_PUBLISH_MODULE", e.toString()));
+            //throw new ECAException(
+            //	CAResources.INIT_PUBLISH_MODULE_FAILED, e);
         }
     }
 
@@ -1528,7 +1488,7 @@ public class CertificateAuthority implements ICertificateAuthority,
                 while (names.hasMoreElements()) {
                     String id = (String) names.nextElement();
 
-                    if (Debug.ON)
+                    if (Debug.ON) 
                         Debug.trace("registering listener impl: " + id);
                     String cl = implc.getString(id + "." + PROP_CLASS);
 
@@ -1547,50 +1507,42 @@ public class CertificateAuthority implements ICertificateAuthority,
                         Debug.trace("registering listener instance: " + id);
                     IConfigStore iConfig = instc.getSubStore(id);
                     String implName = instc.getString(id + "." + PROP_PLUGIN);
-                    ListenerPlugin plugin = (ListenerPlugin) mListenerPlugins
-                            .get(implName);
+                    ListenerPlugin plugin = (ListenerPlugin) mListenerPlugins.get(implName);
 
                     if (plugin == null) {
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                                "CMSCORE_CA_CA_ERROR_LISTENER", implName));
+                        log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_ERROR_LISTENER", implName));
                         throw new Exception("Cannot initialize");
                     }
                     String className = plugin.getClassPath();
-
+					
                     try {
                         IRequestListener listener = null;
 
-                        listener = (IRequestListener) Class.forName(className)
-                                .newInstance();
+                        listener = (IRequestListener) 
+                                Class.forName(className).newInstance();
 
-                        // listener.init(id, implName, iConfig);
+                        //listener.init(id, implName, iConfig);
                         listener.init(this, iConfig);
-                        // registerRequestListener(id, (IRequestListener)
-                        // listener);
-                        // log(ILogger.LL_INFO,
-                        // "Listener instance " + id + " added");
+                        // registerRequestListener(id, (IRequestListener) listener);
+                        //log(ILogger.LL_INFO,
+                        //   "Listener instance " + id + " added");
 
                     } catch (Exception e) {
                         if (Debug.ON) {
                             e.printStackTrace();
                         }
                         Debug.trace("failed to add listener instance");
-                        log(ILogger.LL_FAILURE,
-                                CMS.getLogMessage(
-                                        "CMSCORE_CA_CA_INIT_LISTENER", id,
-                                        e.toString()));
+                        log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_INIT_LISTENER", id, e.toString()));
                         throw e;
                     }
                 }
-
+				
             }
-
+			
         } catch (Exception e) {
-            log(ILogger.LL_INFO,
-                    CMS.getLogMessage("CMSCORE_CA_CA_FAILED_LISTENER",
-                            e.toString()));
+            log(ILogger.LL_INFO, CMS.getLogMessage("CMSCORE_CA_CA_FAILED_LISTENER", e.toString()));
         }
-
+					
     }
 
     /**
@@ -1604,79 +1556,63 @@ public class CertificateAuthority implements ICertificateAuthority,
             if (nc != null && nc.size() > 0) {
                 // Initialize Certificate Issued notification listener
 
-                String certificateIssuedListenerClassName = nc.getString(
-                        "certificateIssuedListenerClassName",
-                        "com.netscape.cms.listeners.CertificateIssuedListener");
+                String certificateIssuedListenerClassName = nc.getString("certificateIssuedListenerClassName", "com.netscape.cms.listeners.CertificateIssuedListener");
 
                 try {
-                    mCertIssuedListener = (IRequestListener) Class.forName(
-                            certificateIssuedListenerClassName).newInstance();
+                    mCertIssuedListener = (IRequestListener) Class.forName(certificateIssuedListenerClassName).newInstance();
                     mCertIssuedListener.init(this, nc);
                 } catch (Exception e1) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                            "CMSCORE_CA_CA_REGISTER_LISTENER",
-                            certificateIssuedListenerClassName));
+                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_REGISTER_LISTENER", certificateIssuedListenerClassName));
                 }
 
                 // Initialize Revoke Request notification listener
-
-                String certificateRevokedListenerClassName = nc
-                        .getString("certificateIssuedListenerClassName",
-                                "com.netscape.cms.listeners.CertificateRevokedListener");
+  
+                String certificateRevokedListenerClassName = nc.getString("certificateIssuedListenerClassName", "com.netscape.cms.listeners.CertificateRevokedListener");
 
                 try {
-                    mCertRevokedListener = (IRequestListener) Class.forName(
-                            certificateRevokedListenerClassName).newInstance();
+                    mCertRevokedListener = (IRequestListener) Class.forName(certificateRevokedListenerClassName).newInstance();
                     mCertRevokedListener.init(this, nc);
                 } catch (Exception e1) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                            "CMSCORE_CA_CA_REGISTER_LISTENER",
-                            certificateRevokedListenerClassName));
+                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_REGISTER_LISTENER", certificateRevokedListenerClassName));
                 }
 
                 // Initialize Request In Queue notification listener
                 IConfigStore rq = nc.getSubStore(PROP_REQ_IN_Q_SUBSTORE);
-
-                String requestInQListenerClassName = nc.getString(
-                        "certificateIssuedListenerClassName",
-                        "com.netscape.cms.listeners.RequestInQListener");
+        
+                String requestInQListenerClassName = nc.getString("certificateIssuedListenerClassName", "com.netscape.cms.listeners.RequestInQListener");
 
                 try {
-                    mReqInQListener = (IRequestListener) Class.forName(
-                            requestInQListenerClassName).newInstance();
+                    mReqInQListener = (IRequestListener) Class.forName(requestInQListenerClassName).newInstance();
                     mReqInQListener.init(this, nc);
                 } catch (Exception e1) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                            "CMSCORE_CA_CA_REGISTER_REQ_LISTENER",
-                            requestInQListenerClassName));
+                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_REGISTER_REQ_LISTENER", requestInQListenerClassName));
                 }
 
                 // Initialize extra listeners
                 IConfigStore mListenerConfig = null;
 
             } else {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_CA_CA_NOTIFY_NONE"));
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_NOTIFY_NONE"));
             }
         } catch (Exception e) {
             e.printStackTrace();
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_CA_CA_NOTIFY_FAILED"));
-            // throw e;
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_NOTIFY_FAILED"));
+            //			throw e;
         }
     }
 
     /**
      * initialize request queue components
      */
-    private void initRequestQueue() throws EBaseException {
+    private void initRequestQueue()
+        throws EBaseException {
         mPolicy = new CAPolicy();
         ((CAPolicy) mPolicy).init(this, mConfig.getSubStore(PROP_POLICY));
         CMS.debug("CA policy inited");
         mService = new CAService(this);
         CMS.debug("CA service inited");
 
-        mNotify = new ARequestNotifier(this);
+        mNotify = new ARequestNotifier (this);
         CMS.debug("CA notifier inited");
         mPNotify = new ARequestNotifier();
         CMS.debug("CA pending notifier inited");
@@ -1685,23 +1621,22 @@ public class CertificateAuthority implements ICertificateAuthority,
         try {
             int reqdb_inc = mConfig.getInteger("reqdbInc", 5);
 
-            mRequestQueue = RequestSubsystem.getInstance().getRequestQueue(
-                    getId(), reqdb_inc, mPolicy, mService, mNotify, mPNotify);
+            mRequestQueue = 
+                    RequestSubsystem.getInstance().getRequestQueue(
+                        getId(), reqdb_inc, mPolicy, mService, mNotify, mPNotify);
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_CA_CA_QUEUE_FAILED",
-                            e.toString()));
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_QUEUE_FAILED", e.toString()));
             throw e;
         }
 
         // init request scheduler if configured
-        String schedulerClass = mConfig
-                .getString("requestSchedulerClass", null);
+        String schedulerClass = 
+            mConfig.getString("requestSchedulerClass", null);
 
         if (schedulerClass != null) {
-            try {
-                IRequestScheduler scheduler = (IRequestScheduler) Class
-                        .forName(schedulerClass).newInstance();
+            try { 
+                IRequestScheduler scheduler = (IRequestScheduler)
+                    Class.forName(schedulerClass).newInstance();
 
                 mRequestQueue.setRequestScheduler(scheduler);
             } catch (Exception e) {
@@ -1711,30 +1646,35 @@ public class CertificateAuthority implements ICertificateAuthority,
     }
 
     /*
-     * private void startCRL() throws EBaseException { Enumeration e =
-     * mCRLIssuePoints.keys(); while (e.hasMoreElements()) { CRLIssuingPoint cp
-     * = (CRLIssuingPoint) mCRLIssuePoints.get(e.nextElement()); cp.startup(); }
-     * }
+     private void startCRL()
+     throws EBaseException
+     {
+     Enumeration e = mCRLIssuePoints.keys();
+     while (e.hasMoreElements()) {
+     CRLIssuingPoint cp = (CRLIssuingPoint)
+     mCRLIssuePoints.get(e.nextElement());
+     cp.startup();
+     }
+     }
      */
-
+    
     /**
-     * initialize CRL
+     * initialize CRL 
      */
-    private void initCRL() throws EBaseException {
+    private void initCRL()
+        throws EBaseException {
         IConfigStore crlConfig = mConfig.getSubStore(PROP_CRL_SUBSTORE);
 
         if ((crlConfig == null) || (crlConfig.size() <= 0)) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_CA_CA_NO_MASTER_CRL"));
-            // throw new ECAException(CAResources.NO_CONFIG_FOR_MASTER_CRL);
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_NO_MASTER_CRL"));
+            //throw new ECAException(CAResources.NO_CONFIG_FOR_MASTER_CRL);
             return;
         }
         Enumeration<String> issuePointIdEnum = crlConfig.getSubStoreNames();
 
         if (issuePointIdEnum == null || !issuePointIdEnum.hasMoreElements()) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_CA_CA_NO_MASTER_CRL_SUBSTORE"));
-            // throw new ECAException(CAResources.NO_CONFIG_FOR_MASTER_CRL);
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_NO_MASTER_CRL_SUBSTORE"));
+            //throw new ECAException(CAResources.NO_CONFIG_FOR_MASTER_CRL);
             return;
         }
 
@@ -1743,7 +1683,8 @@ public class CertificateAuthority implements ICertificateAuthority,
         while (issuePointIdEnum.hasMoreElements()) {
             String issuePointId = (String) issuePointIdEnum.nextElement();
 
-            CMS.debug("initializing crl issue point " + issuePointId);
+            CMS.debug(
+                "initializing crl issue point " + issuePointId);
             IConfigStore issuePointConfig = null;
             String issuePointClassName = null;
             Class issuePointClass = null;
@@ -1756,28 +1697,29 @@ public class CertificateAuthority implements ICertificateAuthority,
                 issuePoint = (CRLIssuingPoint) issuePointClass.newInstance();
                 issuePoint.init(this, issuePointId, issuePointConfig);
                 mCRLIssuePoints.put(issuePointId, issuePoint);
-                if (mMasterCRLIssuePoint == null
-                        && issuePointId.equals(PROP_MASTER_CRL))
+                if (mMasterCRLIssuePoint == null && 
+                    issuePointId.equals(PROP_MASTER_CRL))
                     mMasterCRLIssuePoint = issuePoint;
             } catch (ClassNotFoundException e) {
-                throw new ECAException(CMS.getUserMessage(
-                        "CMS_CA_CRL_ISSUING_POINT_INIT_FAILED", issuePointId,
-                        e.toString()));
+                throw new ECAException(
+                        CMS.getUserMessage("CMS_CA_CRL_ISSUING_POINT_INIT_FAILED",
+                        issuePointId, e.toString()));
             } catch (InstantiationException e) {
-                throw new ECAException(CMS.getUserMessage(
-                        "CMS_CA_CRL_ISSUING_POINT_INIT_FAILED", issuePointId,
-                        e.toString()));
+                throw new ECAException(
+                        CMS.getUserMessage("CMS_CA_CRL_ISSUING_POINT_INIT_FAILED",
+                        issuePointId, e.toString()));
             } catch (IllegalAccessException e) {
-                throw new ECAException(CMS.getUserMessage(
-                        "CMS_CA_CRL_ISSUING_POINT_INIT_FAILED", issuePointId,
-                        e.toString()));
+                throw new ECAException(
+                        CMS.getUserMessage("CMS_CA_CRL_ISSUING_POINT_INIT_FAILED",
+                        issuePointId, e.toString()));
             }
         }
 
         /*
-         * if (mMasterCRLIssuePoint == null) { log(ILogger.LL_FAILURE,
-         * CMS.getLogMessage("CMSCORE_CA_CA_NO_FULL_CRL", PROP_MASTER_CRL));
-         * throw new ECAException(CAResources.NO_CONFIG_FOR_MASTER_CRL); }
+         if (mMasterCRLIssuePoint == null) {
+         log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_NO_FULL_CRL", PROP_MASTER_CRL));
+         throw new ECAException(CAResources.NO_CONFIG_FOR_MASTER_CRL);
+         }
          */
         log(ILogger.LL_INFO, "CRL Issuing Points inited");
     }
@@ -1802,8 +1744,9 @@ public class CertificateAuthority implements ICertificateAuthority,
         return mSignTime;
     }
 
-    public long getOCSPTotalLookupTime() {
-        return mLookupTime;
+    public long getOCSPTotalLookupTime()
+    {
+         return mLookupTime;
     }
 
     public ResponderID getResponderIDByName() {
@@ -1811,9 +1754,8 @@ public class CertificateAuthority implements ICertificateAuthority,
             X500Name name = getOCSPX500Name();
             Name.Template nameTemplate = new Name.Template();
 
-            return new NameID(
-                    (Name) nameTemplate.decode(new ByteArrayInputStream(name
-                            .getEncoded())));
+            return new NameID((Name) nameTemplate.decode(
+                        new ByteArrayInputStream(name.getEncoded())));
         } catch (IOException e) {
             return null;
         } catch (InvalidBERException e) {
@@ -1824,8 +1766,8 @@ public class CertificateAuthority implements ICertificateAuthority,
     public ResponderID getResponderIDByHash() {
 
         /*
-         * KeyHash ::= OCTET STRING --SHA-1 hash of responder's public key
-         * --(excluding the tag and length fields)
+         KeyHash ::= OCTET STRING --SHA-1 hash of responder's public key
+         --(excluding the tag and length fields)
          */
         PublicKey publicKey = getOCSPSigningUnit().getPublicKey();
         MessageDigest md = null;
@@ -1844,7 +1786,8 @@ public class CertificateAuthority implements ICertificateAuthority,
     /**
      * Process OCSPRequest.
      */
-    public OCSPResponse validate(OCSPRequest request) throws EBaseException {
+    public OCSPResponse validate(OCSPRequest request)
+        throws EBaseException {
 
         if (!mEnableOCSP) {
             CMS.debug("Local ocsp service is disable.");
@@ -1852,22 +1795,23 @@ public class CertificateAuthority implements ICertificateAuthority,
         }
 
         mNumOCSPRequest++;
-        IStatsSubsystem statsSub = (IStatsSubsystem) CMS.getSubsystem("stats");
+        IStatsSubsystem statsSub = (IStatsSubsystem)CMS.getSubsystem("stats");
         long startTime = CMS.getCurrentDate().getTime();
         try {
-            // log(ILogger.LL_INFO, "start OCSP request");
+            //log(ILogger.LL_INFO, "start OCSP request");
             TBSRequest tbsReq = request.getTBSRequest();
 
             // (3) look into database to check the
-            // certificate's status
+            //     certificate's status
             Vector singleResponses = new Vector();
             if (statsSub != null) {
-                statsSub.startTiming("lookup");
+              statsSub.startTiming("lookup");
             }
 
             long lookupStartTime = CMS.getCurrentDate().getTime();
             for (int i = 0; i < tbsReq.getRequestCount(); i++) {
-                com.netscape.cmsutil.ocsp.Request req = tbsReq.getRequestAt(i);
+                com.netscape.cmsutil.ocsp.Request req =
+                    tbsReq.getRequestAt(i);
                 CertID cid = req.getCertID();
                 SingleResponse sr = processRequest(cid);
 
@@ -1875,12 +1819,12 @@ public class CertificateAuthority implements ICertificateAuthority,
             }
             long lookupEndTime = CMS.getCurrentDate().getTime();
             if (statsSub != null) {
-                statsSub.endTiming("lookup");
+              statsSub.endTiming("lookup");
             }
             mLookupTime += lookupEndTime - lookupStartTime;
 
             if (statsSub != null) {
-                statsSub.startTiming("build_response");
+              statsSub.startTiming("build_response");
             }
             SingleResponse res[] = new SingleResponse[singleResponses.size()];
 
@@ -1889,16 +1833,16 @@ public class CertificateAuthority implements ICertificateAuthority,
             ResponderID rid = null;
             if (mByName) {
                 if (mResponderIDByName == null) {
-                    mResponderIDByName = getResponderIDByName();
+                  mResponderIDByName = getResponderIDByName();
                 }
                 rid = mResponderIDByName;
             } else {
                 if (mResponderIDByHash == null) {
-                    mResponderIDByHash = getResponderIDByHash();
+                  mResponderIDByHash = getResponderIDByHash();
                 }
                 rid = mResponderIDByHash;
             }
-
+			
             Extension nonce[] = null;
 
             for (int j = 0; j < tbsReq.getExtensionsCount(); j++) {
@@ -1909,36 +1853,34 @@ public class CertificateAuthority implements ICertificateAuthority,
                     nonce[0] = thisExt;
                 }
             }
-            ResponseData rd = new ResponseData(rid, new GeneralizedTime(
-                    CMS.getCurrentDate()), res, nonce);
+            ResponseData rd = new ResponseData(rid,
+                    new GeneralizedTime(CMS.getCurrentDate()), res, nonce);
             if (statsSub != null) {
-                statsSub.endTiming("build_response");
+              statsSub.endTiming("build_response");
             }
 
             if (statsSub != null) {
-                statsSub.startTiming("signing");
+              statsSub.startTiming("signing");
             }
             long signStartTime = CMS.getCurrentDate().getTime();
             BasicOCSPResponse basicRes = sign(rd);
             long signEndTime = CMS.getCurrentDate().getTime();
             mSignTime += signEndTime - signStartTime;
             if (statsSub != null) {
-                statsSub.endTiming("signing");
+              statsSub.endTiming("signing");
             }
 
             OCSPResponse response = new OCSPResponse(
-                    OCSPResponseStatus.SUCCESSFUL, new ResponseBytes(
-                            ResponseBytes.OCSP_BASIC, new OCTET_STRING(
-                                    ASN1Util.encode(basicRes))));
+                    OCSPResponseStatus.SUCCESSFUL,
+                    new ResponseBytes(ResponseBytes.OCSP_BASIC,
+                        new OCTET_STRING(ASN1Util.encode(basicRes))));
 
-            // log(ILogger.LL_INFO, "done OCSP request");
+            //log(ILogger.LL_INFO, "done OCSP request");
             long endTime = CMS.getCurrentDate().getTime();
             mTotalTime += endTime - startTime;
             return response;
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_CA_CA_OCSP_REQUEST",
-                            e.toString()));
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_OCSP_REQUEST", e.toString()));
             return null;
         }
     }
@@ -1948,11 +1890,11 @@ public class CertificateAuthority implements ICertificateAuthority,
             DerOutputStream out = new DerOutputStream();
             DerOutputStream tmp = new DerOutputStream();
 
-            String algname = mOCSPSigningUnit.getDefaultAlgorithm();
+            String  algname = mOCSPSigningUnit.getDefaultAlgorithm();
 
             byte rd_data[] = ASN1Util.encode(rd);
             if (rd_data != null) {
-                mTotalData += rd_data.length;
+              mTotalData += rd_data.length;
             }
             rd.encode(tmp);
             AlgorithmId.get(algname).encode(tmp);
@@ -1965,27 +1907,25 @@ public class CertificateAuthority implements ICertificateAuthority,
             DerOutputStream tmpChain = new DerOutputStream();
             DerOutputStream tmp1 = new DerOutputStream();
             DerOutputStream outChain = new DerOutputStream();
-            java.security.cert.X509Certificate chains[] = mOCSPCertChain
-                    .getChain();
+            java.security.cert.X509Certificate chains[] =
+                mOCSPCertChain.getChain();
 
             for (int i = 0; i < chains.length; i++) {
                 tmpChain.putDerValue(new DerValue(chains[i].getEncoded()));
             }
             tmp1.write(DerValue.tag_Sequence, tmpChain);
             tmp.write(DerValue.createTag(DerValue.TAG_CONTEXT, true, (byte) 0),
-                    tmp1);
+                tmp1);
 
             out.write(DerValue.tag_Sequence, tmp);
 
-            BasicOCSPResponse response = new BasicOCSPResponse(
-                    out.toByteArray());
+            BasicOCSPResponse response = new BasicOCSPResponse(out.toByteArray());
 
             return response;
         } catch (Exception e) {
             e.printStackTrace();
             // error e
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_CA_CA_OCSP_SIGN", e.toString()));
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_OCSP_SIGN", e.toString()));
             return null;
         }
     }
@@ -2011,11 +1951,12 @@ public class CertificateAuthority implements ICertificateAuthority,
 
             try {
                 issuingPointId = mConfig.getString(
-                        "ocspUseCacheIssuingPointId", PROP_MASTER_CRL);
+                            "ocspUseCacheIssuingPointId", PROP_MASTER_CRL);
 
             } catch (EBaseException e) {
             }
-            CRLIssuingPoint point = (CRLIssuingPoint) getCRLIssuingPoint(issuingPointId);
+            CRLIssuingPoint point = (CRLIssuingPoint)
+                getCRLIssuingPoint(issuingPointId);
 
             if (point.isCRLCacheEnabled()) {
                 // only do this if cache is enabled
@@ -2024,29 +1965,26 @@ public class CertificateAuthority implements ICertificateAuthority,
                 boolean includeExpiredCerts = false;
 
                 try {
-                    checkDeltaCache = mConfig.getBoolean(
-                            "ocspUseCacheCheckDeltaCache", false);
+                    checkDeltaCache = mConfig.getBoolean("ocspUseCacheCheckDeltaCache", false);
                 } catch (EBaseException e) {
                 }
                 try {
-                    includeExpiredCerts = mConfig.getBoolean(
-                            "ocspUseCacheIncludeExpiredCerts", false);
+                    includeExpiredCerts = mConfig.getBoolean("ocspUseCacheIncludeExpiredCerts", false);
                 } catch (EBaseException e) {
                 }
-                Date revokedOn = point.getRevocationDateFromCache(sno,
-                        checkDeltaCache, includeExpiredCerts);
+                Date revokedOn = point.getRevocationDateFromCache(
+                        sno, checkDeltaCache, includeExpiredCerts);
 
                 if (revokedOn == null) {
                     certStatus = new GoodInfo();
                 } else {
                     certStatus = new RevokedInfo(new GeneralizedTime(revokedOn));
                 }
-                return new SingleResponse(cid, certStatus, thisUpdate,
-                        nextUpdate);
+                return new SingleResponse(cid, certStatus, thisUpdate, nextUpdate);
             }
         }
 
-        try {
+        try { 
             ICertRecord rec = mCertRepot.readCertificateRecord(serialNo);
             String status = rec.getStatus();
 
@@ -2058,13 +1996,11 @@ public class CertificateAuthority implements ICertificateAuthority,
                 // not yet valid
                 certStatus = new UnknownInfo();
             } else if (status.equals(CertRecord.STATUS_REVOKED)) {
-                certStatus = new RevokedInfo(new GeneralizedTime(
-                        rec.getRevokedOn()));
+                certStatus = new RevokedInfo(new GeneralizedTime(rec.getRevokedOn()));
             } else if (status.equals(CertRecord.STATUS_EXPIRED)) {
                 certStatus = new UnknownInfo();
             } else if (status.equals(CertRecord.STATUS_REVOKED_EXPIRED)) {
-                certStatus = new RevokedInfo(new GeneralizedTime(
-                        rec.getRevokedOn()));
+                certStatus = new RevokedInfo(new GeneralizedTime(rec.getRevokedOn()));
             } else {
                 certStatus = new UnknownInfo();
             }
@@ -2076,3 +2012,4 @@ public class CertificateAuthority implements ICertificateAuthority,
         return new SingleResponse(cid, certStatus, thisUpdate, nextUpdate);
     }
 }
+

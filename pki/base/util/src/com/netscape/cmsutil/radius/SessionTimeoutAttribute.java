@@ -17,7 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmsutil.radius;
 
+
 import java.io.IOException;
+
 
 public class SessionTimeoutAttribute extends Attribute {
     private int _timeout = 0;
@@ -37,12 +39,12 @@ public class SessionTimeoutAttribute extends Attribute {
     }
 
     public byte[] getValue() throws IOException {
-        byte[] p = new byte[4];
+        byte[] p = new byte[4]; 
 
-        p[0] = (byte) ((_timeout >>> 24) & 0xFF);
-        p[1] = (byte) ((_timeout >>> 16) & 0xFF);
-        p[2] = (byte) ((_timeout >>> 8) & 0xFF);
-        p[3] = (byte) (_timeout & 0xFF);
+        p[0] = (byte) ((_timeout >>> 24) & 0xFF); 
+        p[1] = (byte) ((_timeout >>> 16) & 0xFF); 
+        p[2] = (byte) ((_timeout >>> 8) & 0xFF); 
+        p[3] = (byte) (_timeout & 0xFF); 
         return p;
     }
 }

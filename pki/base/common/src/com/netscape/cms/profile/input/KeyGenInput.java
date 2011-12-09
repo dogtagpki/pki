@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.input;
 
+
 import java.util.Locale;
 
 import netscape.security.pkcs.PKCS10;
@@ -37,21 +38,25 @@ import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.common.EnrollProfile;
 
+
 /**
- * This class implements the key generation input that populates parameters to
- * the enrollment page for key generation.
+ * This class implements the key generation input that
+ * populates parameters to the enrollment page for
+ * key generation.
  * <p>
- * 
- * This input normally is used with user-based or non certificate request
- * profile.
+ *
+ * This input normally is used with user-based or
+ * non certificate request profile.
  * <p>
- * 
+ *
  * @version $Revision$, $Date$
  */
-public class KeyGenInput extends EnrollInput implements IProfileInput {
+public class KeyGenInput extends EnrollInput implements IProfileInput { 
 
-    public static final String VAL_KEYGEN_REQUEST_TYPE = EnrollProfile.CTX_CERT_REQUEST_TYPE;
-    public static final String VAL_KEYGEN_REQUEST = EnrollProfile.CTX_CERT_REQUEST;
+    public static final String VAL_KEYGEN_REQUEST_TYPE = 
+        EnrollProfile.CTX_CERT_REQUEST_TYPE;
+    public static final String VAL_KEYGEN_REQUEST = 
+        EnrollProfile.CTX_CERT_REQUEST;
 
     public EnrollProfile mEnrollProfile = null;
 
@@ -64,7 +69,7 @@ public class KeyGenInput extends EnrollInput implements IProfileInput {
      * Initializes this default policy.
      */
     public void init(IProfile profile, IConfigStore config)
-            throws EProfileException {
+        throws EProfileException {
         super.init(profile, config);
         mEnrollProfile = (EnrollProfile) profile;
     }
@@ -87,97 +92,94 @@ public class KeyGenInput extends EnrollInput implements IProfileInput {
      * Populates the request with this policy default.
      */
     public void populate(IProfileContext ctx, IRequest request)
-            throws EProfileException {
+        throws EProfileException {
         String keygen_request_type = ctx.get(VAL_KEYGEN_REQUEST_TYPE);
         String keygen_request = ctx.get(VAL_KEYGEN_REQUEST);
 
-        X509CertInfo info = request
-                .getExtDataInCertInfo(EnrollProfile.REQUEST_CERTINFO);
+        X509CertInfo info =
+            request.getExtDataInCertInfo(EnrollProfile.REQUEST_CERTINFO);
 
         if (keygen_request_type == null) {
-            CMS.debug("KeyGenInput: populate - invalid cert request type " + "");
-            throw new EProfileException(CMS.getUserMessage(getLocale(request),
-                    "CMS_PROFILE_UNKNOWN_CERT_REQ_TYPE", ""));
+            CMS.debug("KeyGenInput: populate - invalid cert request type " +
+                "");
+            throw new EProfileException(
+                    CMS.getUserMessage(getLocale(request),
+                        "CMS_PROFILE_UNKNOWN_CERT_REQ_TYPE",
+                        ""));
         }
         if (keygen_request_type.startsWith(EnrollProfile.REQ_TYPE_PKCS10)) {
-            PKCS10 pkcs10 = mEnrollProfile.parsePKCS10(getLocale(request),
-                    keygen_request);
+            PKCS10 pkcs10 = mEnrollProfile.parsePKCS10(getLocale(request), keygen_request);
 
             if (pkcs10 == null) {
                 throw new EProfileException(CMS.getUserMessage(
-                        getLocale(request), "CMS_PROFILE_NO_CERT_REQ"));
+                            getLocale(request), "CMS_PROFILE_NO_CERT_REQ"));
             }
 
-            mEnrollProfile
-                    .fillPKCS10(getLocale(request), pkcs10, info, request);
-        } else if (keygen_request_type
-                .startsWith(EnrollProfile.REQ_TYPE_KEYGEN)) {
-            DerInputStream keygen = mEnrollProfile.parseKeyGen(
-                    getLocale(request), keygen_request);
+            mEnrollProfile.fillPKCS10(getLocale(request), pkcs10, info, request);	
+        } else if (keygen_request_type.startsWith(EnrollProfile.REQ_TYPE_KEYGEN)) {
+            DerInputStream keygen = mEnrollProfile.parseKeyGen(getLocale(request), keygen_request);
 
             if (keygen == null) {
                 throw new EProfileException(CMS.getUserMessage(
-                        getLocale(request), "CMS_PROFILE_NO_CERT_REQ"));
+                            getLocale(request), "CMS_PROFILE_NO_CERT_REQ"));
             }
 
-            mEnrollProfile
-                    .fillKeyGen(getLocale(request), keygen, info, request);
+            mEnrollProfile.fillKeyGen(getLocale(request), keygen, info, request);	
         } else if (keygen_request_type.startsWith(EnrollProfile.REQ_TYPE_CRMF)) {
-            CertReqMsg msgs[] = mEnrollProfile.parseCRMF(getLocale(request),
-                    keygen_request);
+            CertReqMsg msgs[] = mEnrollProfile.parseCRMF(getLocale(request), keygen_request);
 
             if (msgs == null) {
                 throw new EProfileException(CMS.getUserMessage(
-                        getLocale(request), "CMS_PROFILE_NO_CERT_REQ"));
+                            getLocale(request), "CMS_PROFILE_NO_CERT_REQ"));
             }
             for (int x = 0; x < msgs.length; x++) {
                 verifyPOP(getLocale(request), msgs[x]);
             }
             // This profile only handle the first request in CRMF
-            Integer seqNum = request
-                    .getExtDataInInteger(EnrollProfile.REQUEST_SEQ_NUM);
+            Integer seqNum = request.getExtDataInInteger(EnrollProfile.REQUEST_SEQ_NUM);
 
-            mEnrollProfile.fillCertReqMsg(getLocale(request),
-                    msgs[seqNum.intValue()], info, request);
+            mEnrollProfile.fillCertReqMsg(getLocale(request), msgs[seqNum.intValue()], info, request);
         } else if (keygen_request_type.startsWith(EnrollProfile.REQ_TYPE_CMC)) {
-            TaggedRequest msgs[] = mEnrollProfile.parseCMC(getLocale(request),
-                    keygen_request);
+            TaggedRequest msgs[] = mEnrollProfile.parseCMC(getLocale(request), keygen_request);
 
             if (msgs == null) {
                 throw new EProfileException(CMS.getUserMessage(
-                        getLocale(request), "CMS_PROFILE_NO_CERT_REQ"));
+                            getLocale(request), "CMS_PROFILE_NO_CERT_REQ"));
             }
             // This profile only handle the first request in CRMF
-            Integer seqNum = request
-                    .getExtDataInInteger(EnrollProfile.REQUEST_SEQ_NUM);
+            Integer seqNum = request.getExtDataInInteger(EnrollProfile.REQUEST_SEQ_NUM);
 
-            if (seqNum == null) {
-                throw new EProfileException(CMS.getUserMessage(
-                        getLocale(request), "CMS_PROFILE_UNKNOWN_SEQ_NUM"));
+            if (seqNum == null) { 
+                   throw new EProfileException( 
+                    CMS.getUserMessage(getLocale(request), 
+                    "CMS_PROFILE_UNKNOWN_SEQ_NUM")); 
             }
 
-            mEnrollProfile.fillTaggedRequest(getLocale(request),
-                    msgs[seqNum.intValue()], info, request);
+            mEnrollProfile.fillTaggedRequest(getLocale(request), msgs[seqNum.intValue()], info, request);
         } else {
             // error
-            CMS.debug("DualKeyGenInput: populate - "
-                    + "invalid cert request type " + keygen_request_type);
-            throw new EProfileException(CMS.getUserMessage(getLocale(request),
-                    "CMS_PROFILE_UNKNOWN_CERT_REQ_TYPE", keygen_request_type));
+            CMS.debug("DualKeyGenInput: populate - " +
+                "invalid cert request type " + keygen_request_type);
+            throw new EProfileException(CMS.getUserMessage(
+                        getLocale(request),
+                        "CMS_PROFILE_UNKNOWN_CERT_REQ_TYPE",
+                        keygen_request_type));
         }
         request.setExtData(EnrollProfile.REQUEST_CERTINFO, info);
     }
 
     /**
-     * Retrieves the descriptor of the given value parameter by name.
+     * Retrieves the descriptor of the given value
+     * parameter by name.
      */
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         if (name.equals(VAL_KEYGEN_REQUEST_TYPE)) {
-            return new Descriptor(IDescriptor.KEYGEN_REQUEST_TYPE, null, null,
-                    CMS.getUserMessage(locale,
-                            "CMS_PROFILE_INPUT_KEYGEN_REQ_TYPE"));
+            return new Descriptor(IDescriptor.KEYGEN_REQUEST_TYPE, null,
+                    null,
+                    CMS.getUserMessage(locale, "CMS_PROFILE_INPUT_KEYGEN_REQ_TYPE"));
         } else if (name.equals(VAL_KEYGEN_REQUEST)) {
-            return new Descriptor(IDescriptor.KEYGEN_REQUEST, null, null,
+            return new Descriptor(IDescriptor.KEYGEN_REQUEST, null,
+                    null,
                     CMS.getUserMessage(locale, "CMS_PROFILE_INPUT_KEYGEN_REQ"));
         }
         return null;

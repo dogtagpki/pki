@@ -20,14 +20,16 @@ package com.netscape.cms.servlet.csadmin;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 
-public class ConfigCertApprovalCallback implements
-        SSLCertificateApprovalCallback {
+
+public class ConfigCertApprovalCallback 
+  implements SSLCertificateApprovalCallback {
 
     public ConfigCertApprovalCallback() {
     }
 
     public boolean approve(X509Certificate cert,
-            SSLCertificateApprovalCallback.ValidityStatus status) {
-        return true;
+      SSLCertificateApprovalCallback.ValidityStatus status) {
+      return true;
     }
 }
+

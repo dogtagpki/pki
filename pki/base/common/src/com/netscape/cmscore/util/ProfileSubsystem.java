@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.util;
 
+
 import java.awt.Frame;
 import java.awt.TextArea;
 import java.awt.event.MouseAdapter;
@@ -38,9 +39,11 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 
+
 /**
- * A class represents a internal subsystem. This subsystem can be loaded into
- * cert server kernel to perform run time system profiling.
+ * A class represents a internal subsystem. This subsystem
+ * can be loaded into cert server kernel to perform
+ * run time system profiling.
  * <P>
  * 
  * @author thomask
@@ -79,30 +82,35 @@ public class ProfileSubsystem extends Frame implements ISubsystem, Runnable {
     }
 
     /**
-     * Initializes this subsystem with the given configuration store. It first
-     * initializes resident subsystems, and it loads and initializes loadable
-     * subsystem specified in the configuration store.
+     * Initializes this subsystem with the given 
+     * configuration store.
+     * It first initializes resident subsystems,
+     * and it loads and initializes loadable
+     * subsystem specified in the configuration
+     * store.
      * <P>
-     * Note that individual subsystem should be initialized in a separated
-     * thread if it has dependency on the initialization of other subsystems.
+     * Note that individual subsystem should be
+     * initialized in a separated thread if
+     * it has dependency on the initialization
+     * of other subsystems.
      * <P>
-     * 
+     *
      * @param owner owner of this subsystem
      * @param config configuration store
      */
     public synchronized void init(ISubsystem owner, IConfigStore config)
-            throws EBaseException {
+        throws EBaseException {
         JTabbedPane tabPane = new JTabbedPane();
 
         // general panel
         JPanel pane = new JPanel();
 
         mTextArea = new TextArea();
-        // mTextArea.setSize(500, 180);
-        // mGC = new JButton("GC");
-        // pane.setLayout(new GridLayout(2, 1));
+        //    mTextArea.setSize(500, 180);
+        //mGC = new JButton("GC"); 
+        //  pane.setLayout(new GridLayout(2, 1));
         pane.add(mTextArea);
-        // pane.add(mGC);
+        //  pane.add(mGC);
         mTextArea.setEditable(false);
         tabPane.addTab("General", mTextArea);
         tabPane.setSelectedIndex(0);
@@ -133,8 +141,9 @@ public class ProfileSubsystem extends Frame implements ISubsystem, Runnable {
     }
 
     /*
-     * Returns the root configuration storage of this system. <P>
-     * 
+     * Returns the root configuration storage of this system.
+     * <P>
+     *
      * @return configuration store of this subsystem
      */
     public IConfigStore getConfigStore() {
@@ -143,16 +152,17 @@ public class ProfileSubsystem extends Frame implements ISubsystem, Runnable {
 
     public void updateGeneralPanel() {
         Runtime.getRuntime().gc();
-        String text = "JDK VM Information "
-                + "\n"
-                + "Total Memory: "
-                + Runtime.getRuntime().totalMemory()
-                + "\n"
-                + "Used Memory: "
-                + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime()
-                        .freeMemory()) + "\n" + "Free Memory: "
-                + Runtime.getRuntime().freeMemory() + "\n"
-                + "Number of threads: " + Thread.activeCount() + "\n";
+        String text = 
+            "JDK VM Information " + "\n" +
+            "Total Memory: " +  
+            Runtime.getRuntime().totalMemory() + "\n" +
+            "Used Memory: " +  
+            (Runtime.getRuntime().totalMemory() - 
+                Runtime.getRuntime().freeMemory()) + "\n" +
+            "Free Memory: " +  
+            Runtime.getRuntime().freeMemory() + "\n" +
+            "Number of threads: " +  
+            Thread.activeCount() + "\n";
 
         mTextArea.setText(text);
     }
@@ -187,7 +197,7 @@ public class ProfileSubsystem extends Frame implements ISubsystem, Runnable {
         colNames.addElement("isCurrent");
         colNames.addElement("isInterrupted");
         colNames.addElement("isDaemon");
-
+     
         mThreadModel.setInfo(data, colNames);
         if (mThreadTable != null) {
             mThreadTable.setModel(mThreadModel);
@@ -209,7 +219,8 @@ public class ProfileSubsystem extends Frame implements ISubsystem, Runnable {
     }
 }
 
-class ThreadTableModel extends AbstractTableModel {
+
+class ThreadTableModel extends AbstractTableModel { 
     /**
      *
      */
@@ -225,33 +236,34 @@ class ThreadTableModel extends AbstractTableModel {
         columnNames = _columnNames;
     }
 
-    public String getColumnName(int column) {
-        return columnNames.elementAt(column).toString();
-    }
+    public String getColumnName(int column) { 
+        return columnNames.elementAt(column).toString(); 
+    } 
 
-    public int getRowCount() {
-        return rowData.size();
-    }
+    public int getRowCount() { 
+        return rowData.size(); 
+    } 
 
-    public int getColumnCount() {
-        return columnNames.size();
-    }
+    public int getColumnCount() { 
+        return columnNames.size(); 
+    } 
 
-    public Object getValueAt(int row, int column) {
-        return ((Vector) rowData.elementAt(row)).elementAt(column);
-    }
+    public Object getValueAt(int row, int column) { 
+        return ((Vector) rowData.elementAt(row)).elementAt(column); 
+    } 
 
-    public boolean isCellEditable(int row, int column) {
-        return false;
-    }
+    public boolean isCellEditable(int row, int column) { 
+        return false; 
+    } 
 
-    public void setValueAt(Object value, int row, int column) {
-        ((Vector) rowData.elementAt(row)).setElementAt(value, column);
-        fireTableCellUpdated(row, column);
+    public void setValueAt(Object value, int row, int column) { 
+        ((Vector) rowData.elementAt(row)).setElementAt(value, column); 
+        fireTableCellUpdated(row, column); 
     }
 }
 
-class ThreadTableEvent extends MouseAdapter {
+
+class ThreadTableEvent extends MouseAdapter { 
 
     private JTable mThreadTable = null;
 
@@ -259,8 +271,8 @@ class ThreadTableEvent extends MouseAdapter {
         mThreadTable = table;
     }
 
-    public void mouseClicked(MouseEvent e) {
-        if (e.getClickCount() == 2) {
+    public void mouseClicked(MouseEvent e) { 
+        if (e.getClickCount() == 2) { 
             int row = mThreadTable.getSelectedRow();
 
             if (row != -1) {
@@ -271,23 +283,23 @@ class ThreadTableEvent extends MouseAdapter {
 
                 field.setEditable(false);
 
-                // get stack trace
+                // get stack trace 
                 Thread threads[] = new Thread[100];
                 int numThreads = Thread.enumerate(threads);
 
-                ByteArrayOutputStream outArray = new ByteArrayOutputStream();
+                ByteArrayOutputStream outArray = new ByteArrayOutputStream(); 
 
                 for (int i = 0; i < numThreads; i++) {
                     if (!threads[i].getName().equals(name))
                         continue;
-                    PrintStream err = System.err;
+                    PrintStream err = System.err; 
 
                     System.setErr(new PrintStream(outArray));
-                    // TODO remove. This was being called on the array object
-                    // But you can only dump stack on the current thread
-                    Thread.dumpStack();
-
-                    System.setErr(err);
+                  //TODO remove.  This was being called on the array object
+                    //But you can only dump stack on the current thread
+                    Thread.dumpStack();  
+                    
+                    System.setErr(err); 
                 }
 
                 String str = outArray.toString();
@@ -300,7 +312,7 @@ class ThreadTableEvent extends MouseAdapter {
                 dialog.setContentPane(pane);
                 dialog.show();
             }
-        }
+        } 
     }
 
 }

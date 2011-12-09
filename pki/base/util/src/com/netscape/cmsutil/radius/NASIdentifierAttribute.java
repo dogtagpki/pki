@@ -17,7 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmsutil.radius;
 
+
 import java.io.IOException;
+
 
 public class NASIdentifierAttribute extends Attribute {
     private byte _value[] = null;

@@ -17,31 +17,32 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.ca;
 
+
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.NameValuePairs;
+
 
 /**
  * An interface representing a list of CRL extensions.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface ICMSCRLExtensions {
 
     /**
-     * Updates configuration store for extension identified by id with data
-     * delivered in name value pairs.
-     * 
+     * Updates configuration store for extension identified by id
+     * with data delivered in name value pairs.
+     *
      * @param id extension id
      * @param nvp name value pairs with new configuration data
      * @param config configuration store
      */
-    public void setConfigParams(String id, NameValuePairs nvp,
-            IConfigStore config);
+    public void setConfigParams(String id, NameValuePairs nvp, IConfigStore config);
 
     /**
      * Reads configuration data and returns them as name value pairs.
-     * 
+     *
      * @param id extension id
      * @return name value pairs with configuration data
      */
@@ -49,9 +50,10 @@ public interface ICMSCRLExtensions {
 
     /**
      * Returns class name with its path.
-     * 
+     *
      * @param name extension id
      * @return class name with its path
      */
     public String getClassPath(String name);
 }
+

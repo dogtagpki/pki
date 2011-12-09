@@ -118,9 +118,9 @@ public class TestListener extends RunListener {
 
         testSuiteElement.setAttribute("name", testSuiteName);
         testSuiteElement.setAttribute("timestamp",
-                dateFormat.format(new Date(testSuiteStartTime)));
-        testSuiteElement.setAttribute("hostname", InetAddress.getLocalHost()
-                .getHostName());
+            dateFormat.format(new Date(testSuiteStartTime)));
+        testSuiteElement.setAttribute("hostname",
+            InetAddress.getLocalHost().getHostName());
 
         // system properties
         Element propertiesElement = document.createElement("properties");
@@ -167,18 +167,21 @@ public class TestListener extends RunListener {
         Element systemOutElement = document.createElement("system-out");
         testSuiteElement.appendChild(systemOutElement);
 
-        systemOutElement
-                .appendChild(document.createCDATASection(out.toString()));
+        systemOutElement.appendChild(
+            document.createCDATASection(out.toString())
+        );
 
         Element systemErrElement = document.createElement("system-err");
         testSuiteElement.appendChild(systemErrElement);
 
-        systemErrElement
-                .appendChild(document.createCDATASection(err.toString()));
+        systemErrElement.appendChild(
+            document.createCDATASection(err.toString())
+        );
 
         // write to file
-        FileWriter fw = new FileWriter(reportsDir + File.separator + "TEST-"
-                + currentTestSuiteName + ".xml");
+        FileWriter fw = new FileWriter(
+            reportsDir + File.separator + "TEST-" + currentTestSuiteName + ".xml"
+        );
         StreamResult sr = new StreamResult(fw);
         DOMSource source = new DOMSource(document);
         trans.transform(source, sr);
@@ -219,21 +222,23 @@ public class TestListener extends RunListener {
         failureElement.setAttribute("message", failure.getMessage());
         failureElement.setAttribute("type", exceptionName);
 
-        Text messageElement = document.createTextNode(exceptionName + ": "
-                + failure.getMessage() + "\n");
+        Text messageElement = document.createTextNode(
+            exceptionName + ": " +failure.getMessage() + "\n"
+        );
 
         // print stack trace
         for (StackTraceElement element : exception.getStackTrace()) {
-            if (!element.getClassName().equals(description.getClassName()))
-                continue;
+            if (!element.getClassName().equals(description.getClassName())) continue;
 
             String source = "Unknown Source";
             if (element.getFileName() != null && element.getLineNumber() >= 0) {
                 source = element.getFileName() + ":" + element.getLineNumber();
             }
 
-            messageElement.appendData("\tat " + element.getClassName() + "."
-                    + element.getMethodName() + "(" + source + ")\n");
+            messageElement.appendData("\tat " +
+                element.getClassName() + "." + element.getMethodName() +
+                "(" + source + ")\n"
+            );
         }
 
         failureElement.appendChild(messageElement);

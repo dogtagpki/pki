@@ -17,25 +17,25 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.request;
 
+
 /**
  * This interface defines access to request virtual list.
  * <p>
- * 
  * @version $Revision$, $Date$
  */
 public interface IRequestVirtualList {
 
     /**
-     * Gets the total size of the result set. Elements of the list are numbered
-     * from 0..(size-1)
-     * 
+     * Gets the total size of the result set.  Elements of the
+     * list are numbered from 0..(size-1)
+	 *
      * @return size of the result set
      */
     int getSize();
 
     /**
      * Gets the element at the specified index
-     * 
+	 *
      * @param index index of the element
      * @return specified request
      */
@@ -43,7 +43,7 @@ public interface IRequestVirtualList {
 
     /**
      * Gets the current index
-     * 
+	 *
      * @return current index
      */
     int getCurrentIndex();

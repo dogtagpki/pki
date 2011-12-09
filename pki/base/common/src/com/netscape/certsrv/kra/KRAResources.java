@@ -17,7 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.kra;
 
+
 import java.util.ListResourceBundle;
+
 
 /**
  * A class represents a resource bundle for KRA subsystem.
@@ -34,5 +36,6 @@ public class KRAResources extends ListResourceBundle {
         return contents;
     }
 
-    static final Object[][] contents = {};
+    static final Object[][] contents = {
+        };
 }

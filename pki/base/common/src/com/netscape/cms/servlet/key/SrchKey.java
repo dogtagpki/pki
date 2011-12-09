@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.key;
 
+
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Locale;
@@ -47,7 +48,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 
 /**
  * Retrieve archived keys matching search criteria
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class SrchKey extends CMSServlet {
@@ -73,7 +74,7 @@ public class SrchKey extends CMSServlet {
     private final static String OUT_ERROR = "errorDetails";
     private final static String OUT_ARCHIVER = "archiverName";
     private final static String OUT_SERVICE_URL = "serviceURL";
-    private final static String OUT_TOTAL_COUNT = "totalRecordCount";
+    private final static String OUT_TOTAL_COUNT = "totalRecordCount"; 
     private final static String OUT_TEMPLATE = "templateName";
 
     private IKeyRepository mKeyDB = null;
@@ -92,20 +93,20 @@ public class SrchKey extends CMSServlet {
     /**
      * initialize the servlet. This servlet uses the template file
      * "srchKey.template" to process the response.
-     * 
+     *
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
         mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
 
-        /*
-         * maxReturns doesn't seem to do anything useful in this servlet!!!
-         */
+		/* maxReturns doesn't seem to do anything useful in this
+           servlet!!! */
         try {
-            String tmp = sc.getInitParameter(PROP_MAX_SEARCH_RETURNS);
+            String tmp =
+                sc.getInitParameter(PROP_MAX_SEARCH_RETURNS);
 
-            if (tmp == null)
+            if (tmp == null)	
                 mMaxReturns = 100;
             else
                 mMaxReturns = Integer.parseInt(tmp);
@@ -131,20 +132,20 @@ public class SrchKey extends CMSServlet {
     /**
      * Returns serlvet information.
      */
-    public String getServletInfo() {
-        return INFO;
+    public String getServletInfo() { 
+        return INFO; 
     }
 
     /**
      * Process the HTTP request.
      * <ul>
-     * <li>http.param maxCount maximum number of matches to show in result
-     * <li>http.param maxResults maximum number of matches to run in ldapsearch
-     * <li>http.param queryFilter ldap-style filter to search with
+     * <li>http.param maxCount      maximum number of matches to show in result
+     * <li>http.param maxResults    maximum number of matches to run in ldapsearch
+     * <li>http.param queryFilter   ldap-style filter to search with
      * <li>http.param querySentinel ID of first request to show
-     * <li>http.param timeLimit number of seconds to limit ldap search to
+     * <li>http.param timeLimit     number of seconds to limit ldap search to
      * </ul>
-     * 
+     *
      * @param cmsReq the object holding the request and response information
      */
     public void process(CMSRequest cmsReq) throws EBaseException {
@@ -157,14 +158,14 @@ public class SrchKey extends CMSServlet {
         AuthzToken authzToken = null;
 
         try {
-            authzToken = authorize(mAclMethod, authToken, mAuthzResourceName,
-                    "list");
+            authzToken = authorize(mAclMethod, authToken,
+                        mAuthzResourceName, "list");
         } catch (EAuthzAccessDenied e) {
             log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
         } catch (Exception e) {
             log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
         }
 
         if (authzToken == null) {
@@ -179,10 +180,9 @@ public class SrchKey extends CMSServlet {
             form = getTemplate(mFormPath, req, locale);
         } catch (IOException e) {
             log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath,
-                            e.toString()));
+                CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()));
             throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+              CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
 
         // process query if authentication is successful
@@ -197,10 +197,12 @@ public class SrchKey extends CMSServlet {
 
         try {
             if (req.getParameter(IN_MAXCOUNT) != null) {
-                maxCount = Integer.parseInt(req.getParameter(IN_MAXCOUNT));
+                maxCount = Integer.parseInt(
+                            req.getParameter(IN_MAXCOUNT));
             }
             if (req.getParameter(IN_SENTINEL) != null) {
-                sentinel = Integer.parseInt(req.getParameter(IN_SENTINEL));
+                sentinel = Integer.parseInt(
+                            req.getParameter(IN_SENTINEL));
             }
             String maxResultsStr = req.getParameter("maxResults");
 
@@ -210,13 +212,12 @@ public class SrchKey extends CMSServlet {
 
             if (timeLimitStr != null && timeLimitStr.length() > 0)
                 timeLimit = Integer.parseInt(timeLimitStr);
-            process(argSet, header, ctx, maxCount, maxResults, timeLimit,
-                    sentinel, req.getParameter(IN_FILTER), req, resp, locale[0]);
+            process(argSet, header, ctx, maxCount, maxResults,
+                timeLimit, sentinel,
+                req.getParameter(IN_FILTER), req, resp, locale[0]);
         } catch (NumberFormatException e) {
-            header.addStringValue(
-                    OUT_ERROR,
-                    CMS.getUserMessage(locale[0], "CMS_BASE_INTERNAL_ERROR",
-                            e.toString()));
+            header.addStringValue(OUT_ERROR,
+                CMS.getUserMessage(locale[0], "CMS_BASE_INTERNAL_ERROR", e.toString()));
         }
 
         try {
@@ -225,10 +226,10 @@ public class SrchKey extends CMSServlet {
             resp.setContentType("text/html");
             form.renderOutput(out, argSet);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                    "CMSGW_ERR_STREAM_TEMPLATE", e.toString()));
+            log(ILogger.LL_FAILURE,
+                CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()));
             throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+              CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
         cmsReq.setStatus(CMSRequest.SUCCESS);
     }
@@ -236,47 +237,54 @@ public class SrchKey extends CMSServlet {
     /**
      * Process the key search.
      */
-    private void process(CMSTemplateParams argSet, IArgBlock header,
-            IArgBlock ctx, int maxCount, int maxResults, int timeLimit,
-            int sentinel, String filter, HttpServletRequest req,
-            HttpServletResponse resp, Locale locale) {
+    private void process(CMSTemplateParams argSet,
+        IArgBlock header, IArgBlock ctx, 
+        int maxCount, int maxResults, int timeLimit, int sentinel, String filter, 
+        HttpServletRequest req, HttpServletResponse resp, Locale locale) {
 
         try {
             // Fill header
-            header.addStringValue(OUT_OP, req.getParameter(OUT_OP));
-            header.addStringValue(OUT_ARCHIVER, mAuthName.toString());
+            header.addStringValue(OUT_OP, 
+                req.getParameter(OUT_OP));
+            header.addStringValue(OUT_ARCHIVER,
+                mAuthName.toString());
             // STRANGE: IE does not like the following:
-            // header.addStringValue(OUT_SERVICE_URL,
-            // req.getRequestURI());
+            //      header.addStringValue(OUT_SERVICE_URL,
+            //	req.getRequestURI());
             // XXX
-            header.addStringValue(OUT_SERVICE_URL, "/kra?");
-            header.addStringValue(OUT_TEMPLATE, TPL_FILE);
-            header.addStringValue(OUT_FILTER, filter);
+            header.addStringValue(OUT_SERVICE_URL,
+                "/kra?");
+            header.addStringValue(OUT_TEMPLATE,
+                TPL_FILE);
+            header.addStringValue(OUT_FILTER,
+                filter);
 
             if (timeLimit == -1 || timeLimit > mTimeLimits) {
-                CMS.debug("Resetting timelimit from " + timeLimit + " to "
-                        + mTimeLimits);
+                CMS.debug("Resetting timelimit from " + timeLimit + " to " + mTimeLimits);
                 timeLimit = mTimeLimits;
             }
             CMS.debug("Start searching ... timelimit=" + timeLimit);
-            Enumeration e = mKeyDB.searchKeys(filter, maxResults, timeLimit);
+            Enumeration e = mKeyDB.searchKeys(filter, 
+                    maxResults, timeLimit);
             int count = 0;
 
             if (e == null) {
-                header.addStringValue(OUT_SENTINEL, null);
+                header.addStringValue(OUT_SENTINEL, 	
+                    null);
             } else {
                 while (e.hasMoreElements()) {
-                    IKeyRecord rec = (IKeyRecord) e.nextElement();
+                    IKeyRecord rec = (IKeyRecord)
+                        e.nextElement();
                     // rec is null when we specify maxResults
                     // DS will return an err=4, which triggers
                     // a LDAPException.SIZE_LIMIT_ExCEEDED
                     // in DSSearchResults.java
                     if (rec != null) {
-                        IArgBlock rarg = CMS.createArgBlock();
+                      IArgBlock rarg = CMS.createArgBlock();
 
-                        KeyRecordParser.fillRecordIntoArg(rec, rarg);
-                        argSet.addRepeatRecord(rarg);
-                        count++;
+                      KeyRecordParser.fillRecordIntoArg(rec, rarg);
+                      argSet.addRepeatRecord(rarg);
+                      count++;
                     }
                 }
             }

@@ -26,7 +26,6 @@ import netscape.security.util.PrettyPrintFormat;
 
 /**
  * Represent the GeneralSubtree ASN.1 object, whose syntax is:
- * 
  * <pre>
  * GeneralSubtree ::= SEQUENCE {
  *    base             GeneralName,
@@ -35,7 +34,6 @@ import netscape.security.util.PrettyPrintFormat;
  * }
  * BaseDistance ::= INTEGER (0..MAX)
  * </pre>
- * 
  * @version 1.5
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
@@ -43,17 +41,17 @@ import netscape.security.util.PrettyPrintFormat;
 public class GeneralSubtree {
     private static final byte TAG_MIN = 0;
     private static final byte TAG_MAX = 1;
-    private static final int MIN_DEFAULT = 0;
+    private static final int  MIN_DEFAULT = 0;
 
-    private GeneralName name;
-    private int minimum = MIN_DEFAULT;
-    private int maximum = -1;
+    private GeneralName	name;
+    private int		minimum = MIN_DEFAULT;
+    private int		maximum = -1;
 
     private PrettyPrintFormat pp = new PrettyPrintFormat(":");
 
     /**
      * The default constructor for the class.
-     * 
+     *
      * @param name the GeneralName
      * @param min the minimum BaseDistance
      * @param max the maximum BaseDistance
@@ -66,7 +64,7 @@ public class GeneralSubtree {
 
     /**
      * Create the object from its DER encoded form.
-     * 
+     *
      * @param val the DER encoded from of the same.
      */
     public GeneralSubtree(DerValue val) throws IOException {
@@ -83,13 +81,13 @@ public class GeneralSubtree {
 
             if (opt.isContextSpecific(TAG_MIN) && !opt.isConstructed()) {
                 opt.resetTag(DerValue.tag_Integer);
-                minimum = (opt.getInteger()).toInt();
+	        minimum = (opt.getInteger()).toInt();
 
             } else if (opt.isContextSpecific(TAG_MAX) && !opt.isConstructed()) {
                 opt.resetTag(DerValue.tag_Integer);
-                maximum = (opt.getInteger()).toInt();
-            } else
-                throw new IOException("Invalid encoding of GeneralSubtree.");
+	        maximum = (opt.getInteger()).toInt();
+            } else 
+	        throw new IOException("Invalid encoding of GeneralSubtree.");
         }
     }
 
@@ -97,33 +95,32 @@ public class GeneralSubtree {
      * Return a printable string of the GeneralSubtree.
      */
     public String toString() {
-        String s = "\n   GeneralSubtree: [\n" + "    GeneralName: "
-                + ((name == null) ? "" : name.toString()) + "\n    Minimum: "
-                + minimum;
-        if (maximum == -1) {
-            s += "\t    Maximum: undefined";
-        } else
-            s += "\t    Maximum: " + maximum;
-        s += "    ]\n";
+        String s = "\n   GeneralSubtree: [\n" +
+            "    GeneralName: " + ((name == null) ? "" : name.toString()) +
+            "\n    Minimum: " + minimum;
+            if (maximum == -1) {
+                s += "\t    Maximum: undefined";
+            } else
+                s += "\t    Maximum: " + maximum;
+            s += "    ]\n";
         return (s);
     }
 
     public String toPrint(int indent) {
-        String s = "\n" + pp.indent(indent) + "GeneralSubtree: [\n"
-                + pp.indent(indent + 2) + "GeneralName: "
-                + ((name == null) ? "" : name.toString()) + "\n"
-                + pp.indent(indent + 2) + "Minimum: " + minimum;
-        if (maximum == -1) {
-            s += "\n" + pp.indent(indent + 2) + "Maximum: undefined";
-        } else
-            s += "\n" + pp.indent(indent + 2) + "Maximum: " + maximum;
-        s += "]\n";
+        String s = "\n"+pp.indent(indent) + "GeneralSubtree: [\n" + pp.indent(indent+2) +
+            "GeneralName: " + ((name == null) ? "" : name.toString()) +
+            "\n"+pp.indent(indent+2) + "Minimum: " + minimum;
+            if (maximum == -1) {
+                s += "\n" + pp.indent(indent+2) + "Maximum: undefined";
+            } else
+                s += "\n" + pp.indent(indent+2) + "Maximum: " + maximum;
+            s += "]\n";
         return (s);
     }
 
     /**
      * Encode the GeneralSubtree.
-     * 
+     *
      * @param out the DerOutputStream to encode this object to.
      */
     public void encode(DerOutputStream out) throws IOException {
@@ -131,21 +128,20 @@ public class GeneralSubtree {
 
         name.encode(seq);
 
-        if (minimum != MIN_DEFAULT) {
+        if (minimum != MIN_DEFAULT) 
+		{
             DerOutputStream tmp = new DerOutputStream();
             tmp.putInteger(new BigInt(minimum));
-            seq.writeImplicit(
-                    DerValue.createTag(DerValue.TAG_CONTEXT, false, TAG_MIN),
-                    tmp);
+            seq.writeImplicit(DerValue.createTag(DerValue.TAG_CONTEXT,
+                              false, TAG_MIN), tmp);
         }
         if (maximum != -1) {
             DerOutputStream tmp = new DerOutputStream();
             tmp.putInteger(new BigInt(maximum));
-            seq.writeImplicit(
-                    DerValue.createTag(DerValue.TAG_CONTEXT, false, TAG_MAX),
-                    tmp);
+            seq.writeImplicit(DerValue.createTag(DerValue.TAG_CONTEXT,
+                              false, TAG_MAX), tmp);
         }
-        out.write(DerValue.tag_Sequence, seq);
+        out.write(DerValue.tag_Sequence,seq);
     }
 
     public GeneralName getGeneralName() {

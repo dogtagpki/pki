@@ -17,11 +17,14 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.dbs;
 
+
+
+
 /**
- * A class represents a collection of certificate record specific schema
- * information.
+ * A class represents a collection of certificate record
+ * specific schema information.
  * <P>
- * 
+ *
  * @author thomask
  * @version $Revision$, $Date$
  */

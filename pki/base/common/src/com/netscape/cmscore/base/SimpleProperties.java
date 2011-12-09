@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.base;
 
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -30,24 +31,26 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
+
 /**
- * The <code>Properties</code> class represents a persistent set of properties.
- * The <code>Properties</code> can be saved to a stream or loaded from a stream.
- * Each key and its corresponding value in the property list is a string.
+ * The <code>Properties</code> class represents a persistent set of
+ * properties. The <code>Properties</code> can be saved to a stream
+ * or loaded from a stream. Each key and its corresponding value in
+ * the property list is a string.
  * <p>
- * A property list can contain another property list as its "defaults"; this
- * second property list is searched if the property key is not found in the
- * original property list.
- * 
+ * A property list can contain another property list as its
+ * "defaults"; this second property list is searched if
+ * the property key is not found in the original property list.
+ *
  * Because <code>Properties</code> inherits from <code>Hashtable</code>, the
  * <code>put</code> and <code>putAll</code> methods can be applied to a
- * <code>Properties</code> object. Their use is strongly discouraged as they
+ * <code>Properties</code> object.  Their use is strongly discouraged as they
  * allow the caller to insert entries whose keys or values are not
- * <code>Strings</code>. The <code>setProperty</code> method should be used
- * instead. If the <code>store</code> or <code>save</code> method is called on a
- * "compromised" <code>Properties</code> object that contains a non-
- * <code>String</code> key or value, the call will fail.
- * 
+ * <code>Strings</code>.  The <code>setProperty</code> method should be used
+ * instead.  If the <code>store</code> or <code>save</code> method is called
+ * on a "compromised" <code>Properties</code> object that contains a
+ * non-<code>String</code> key or value, the call will fail.
+ *
  */
 public class SimpleProperties extends Hashtable {
 
@@ -57,9 +60,9 @@ public class SimpleProperties extends Hashtable {
     private static final long serialVersionUID = -6129810287662322712L;
 
     /**
-     * A property list that contains default values for any keys not found in
-     * this property list.
-     * 
+     * A property list that contains default values for any keys not
+     * found in this property list.
+     *
      * @serial
      */
     protected SimpleProperties defaults;
@@ -73,19 +76,18 @@ public class SimpleProperties extends Hashtable {
 
     /**
      * Creates an empty property list with the specified defaults.
-     * 
-     * @param defaults the defaults.
+     *
+     * @param   defaults   the defaults.
      */
     public SimpleProperties(SimpleProperties defaults) {
         this.defaults = defaults;
     }
 
     /**
-     * Calls the hashtable method <code>put</code>. Provided for parallelism
-     * with the getProperties method. Enforces use of strings for property keys
-     * and values.
-     * 
-     * @since JDK1.2
+     * Calls the hashtable method <code>put</code>. Provided for
+     * parallelism with the getProperties method. Enforces use of
+     * strings for property keys and values.
+     * @since    JDK1.2
      */
     public synchronized Object setProperty(String key, String value) {
         return put(key, value);
@@ -102,88 +104,79 @@ public class SimpleProperties extends Hashtable {
     /**
      * Reads a property list (key and element pairs) from the input stream.
      * <p>
-     * Every property occupies one line of the input stream. Each line is
-     * terminated by a line terminator (<code>\n</code> or <code>\r</code> or
-     * <code>\r\n</code>). Lines from the input stream are processed until end
-     * of file is reached on the input stream.
+     * Every property occupies one line of the input stream. Each line
+     * is terminated by a line terminator (<code>\n</code> or <code>\r</code>
+     * or <code>\r\n</code>). Lines from the input stream are processed until
+     * end of file is reached on the input stream.
      * <p>
      * A line that contains only whitespace or whose first non-whitespace
-     * character is an ASCII <code>#</code> or <code>!</code> is ignored (thus,
-     * <code>#</code> or <code>!</code> indicate comment lines).
+     * character is an ASCII <code>#</code> or <code>!</code> is ignored
+     * (thus, <code>#</code> or <code>!</code> indicate comment lines).
      * <p>
      * Every line other than a blank line or a comment line describes one
      * property to be added to the table (except that if a line ends with \,
-     * then the following line, if it exists, is treated as a continuation line,
-     * as described below). The key consists of all the characters in the line
-     * starting with the first non-whitespace character and up to, but not
-     * including, the first ASCII <code>=</code>, <code>:</code>, or whitespace
-     * character. All of the key termination characters may be included in the
-     * key by preceding them with a \. Any whitespace after the key is skipped;
-     * if the first non-whitespace character after the key is <code>=</code> or
-     * <code>:</code>, then it is ignored and any whitespace characters after it
-     * are also skipped. All remaining characters on the line become part of the
-     * associated element string. Within the element string, the ASCII escape
-     * sequences <code>\t</code>, <code>\n</code>, <code>\r</code>,
-     * <code>\\</code>, <code>\"</code>, <code>\'</code>, <code>\ &#32;</code>
-     * &#32;(a backslash and a space), and <code>\\u</code><i>xxxx</i> are
-     * recognized and converted to single characters. Moreover, if the last
-     * character on the line is <code>\</code>, then the next line is treated as
-     * a continuation of the current line; the <code>\</code> and line
-     * terminator are simply discarded, and any leading whitespace characters on
-     * the continuation line are also discarded and are not part of the element
-     * string.
+     * then the following line, if it exists, is treated as a continuation
+     * line, as described
+     * below). The key consists of all the characters in the line starting
+     * with the first non-whitespace character and up to, but not including,
+     * the first ASCII <code>=</code>, <code>:</code>, or whitespace
+     * character. All of the key termination characters may be included in
+     * the key by preceding them with a \.
+     * Any whitespace after the key is skipped; if the first non-whitespace
+     * character after the key is <code>=</code> or <code>:</code>, then it
+     * is ignored and any whitespace characters after it are also skipped.
+     * All remaining characters on the line become part of the associated
+     * element string. Within the element string, the ASCII
+     * escape sequences <code>\t</code>, <code>\n</code>,
+     * <code>\r</code>, <code>\\</code>, <code>\"</code>, <code>\'</code>,
+     * <code>\ &#32;</code> &#32;(a backslash and a space), and
+     * <code>\\u</code><i>xxxx</i> are recognized and converted to single
+     * characters. Moreover, if the last character on the line is
+     * <code>\</code>, then the next line is treated as a continuation of the
+     * current line; the <code>\</code> and line terminator are simply
+     * discarded, and any leading whitespace characters on the continuation
+     * line are also discarded and are not part of the element string.
      * <p>
      * As an example, each of the following four lines specifies the key
      * <code>"Truth"</code> and the associated element value
      * <code>"Beauty"</code>:
      * <p>
-     * 
      * <pre>
      * Truth = Beauty
-     * Truth:Beauty
+     *	Truth:Beauty
      * Truth			:Beauty
      * </pre>
-     * 
-     * As another example, the following three lines specify a single property:
+     * As another example, the following three lines specify a single
+     * property:
      * <p>
-     * 
      * <pre>
      * fruits				apple, banana, pear, \
      *                                  cantaloupe, watermelon, \
      *                                  kiwi, mango
      * </pre>
-     * 
      * The key is <code>"fruits"</code> and the associated element is:
      * <p>
-     * 
-     * <pre>
-     * &quot;apple, banana, pear, cantaloupe, watermelon,kiwi, mango&quot;
-     * </pre>
-     * 
-     * Note that a space appears before each <code>\</code> so that a space will
-     * appear after each comma in the final result; the <code>\</code>, line
-     * terminator, and leading whitespace on the continuation line are merely
-     * discarded and are <i>not</i> replaced by one or more other characters.
+     * <pre>"apple, banana, pear, cantaloupe, watermelon,kiwi, mango"</pre>
+     * Note that a space appears before each <code>\</code> so that a space
+     * will appear after each comma in the final result; the <code>\</code>,
+     * line terminator, and leading whitespace on the continuation line are
+     * merely discarded and are <i>not</i> replaced by one or more other
+     * characters.
      * <p>
      * As a third example, the line:
      * <p>
-     * 
-     * <pre>
-     * cheeses
+     * <pre>cheeses
      * </pre>
-     * 
      * specifies that the key is <code>"cheeses"</code> and the associated
-     * element is the empty string.
-     * <p>
-     * 
-     * @param in the input stream.
-     * @exception IOException if an error occurred when reading from the input
-     *                stream.
+     * element is the empty string.<p>
+     *
+     * @param      in   the input stream.
+     * @exception  IOException  if an error occurred when reading from the
+     *               input stream.
      */
     public synchronized void load(InputStream inStream) throws IOException {
 
-        BufferedReader in = new BufferedReader(new InputStreamReader(inStream,
-                "8859_1"));
+        BufferedReader in = new BufferedReader(new InputStreamReader(inStream, "8859_1"));
 
         while (true) {
             // Get next line
@@ -202,17 +195,14 @@ public class SimpleProperties extends Hashtable {
 
                         if (nextLine == null)
                             nextLine = "";
-                        String loppedLine = line
-                                .substring(0, line.length() - 1);
+                        String loppedLine = line.substring(0, line.length() - 1);
                         // Advance beyond whitespace on new line
                         int startIndex = 0;
 
                         for (startIndex = 0; startIndex < nextLine.length(); startIndex++)
-                            if (whiteSpaceChars.indexOf(nextLine
-                                    .charAt(startIndex)) == -1)
+                            if (whiteSpaceChars.indexOf(nextLine.charAt(startIndex)) == -1)
                                 break;
-                        nextLine = nextLine.substring(startIndex,
-                                nextLine.length());
+                        nextLine = nextLine.substring(startIndex, nextLine.length());
                         line = new String(loppedLine + nextLine);
                     }
                     // Find start of key
@@ -242,26 +232,24 @@ public class SimpleProperties extends Hashtable {
                         if (whiteSpaceChars.indexOf(line.charAt(valueIndex)) == -1)
                             break;
 
-                    // Skip over one non whitespace key value separators if any
+                        // Skip over one non whitespace key value separators if any
                     if (valueIndex < len)
-                        if (strictKeyValueSeparators.indexOf(line
-                                .charAt(valueIndex)) != -1)
+                        if (strictKeyValueSeparators.indexOf(line.charAt(valueIndex)) != -1)
                             valueIndex++;
 
-                    // Skip over white space after other separators if any
+                        // Skip over white space after other separators if any
                     while (valueIndex < len) {
                         if (whiteSpaceChars.indexOf(line.charAt(valueIndex)) == -1)
                             break;
                         valueIndex++;
                     }
                     String key = line.substring(keyStart, separatorIndex);
-                    String value = (separatorIndex < len) ? line.substring(
-                            valueIndex, len) : "";
+                    String value = (separatorIndex < len) ? line.substring(valueIndex, len) : "";
 
                     // Convert then store key and value
                     // NETSCAPE: no need to convert escape characters
-                    // key = loadConvert(key);
-                    // value = loadConvert(value);
+                    //                    key = loadConvert(key);
+                    //                    value = loadConvert(value);
                     put(key, value);
                 }
             }
@@ -269,8 +257,8 @@ public class SimpleProperties extends Hashtable {
     }
 
     /*
-     * Returns true if the given line is a line that must be appended to the
-     * next line
+     * Returns true if the given line is a line that must
+     * be appended to the next line
      */
     private boolean continueLine(String line) {
         int slashCount = 0;
@@ -282,8 +270,8 @@ public class SimpleProperties extends Hashtable {
     }
 
     /*
-     * Converts encoded \\uxxxx to unicode chars and changes special saved chars
-     * to their original forms
+     * Converts encoded \\uxxxx to unicode chars
+     * and changes special saved chars to their original forms
      */
     private String loadConvert(String theString) {
         char aChar;
@@ -339,14 +327,10 @@ public class SimpleProperties extends Hashtable {
                     }
                     outBuffer.append((char) value);
                 } else {
-                    if (aChar == 't')
-                        aChar = '\t';
-                    else if (aChar == 'r')
-                        aChar = '\r';
-                    else if (aChar == 'n')
-                        aChar = '\n';
-                    else if (aChar == 'f')
-                        aChar = '\f';
+                    if (aChar == 't') aChar = '\t';
+                    else if (aChar == 'r') aChar = '\r';
+                    else if (aChar == 'n') aChar = '\n';
+                    else if (aChar == 'f') aChar = '\f';
                     outBuffer.append(aChar);
                 }
             } else
@@ -356,8 +340,9 @@ public class SimpleProperties extends Hashtable {
     }
 
     /*
-     * Converts unicodes to encoded \\uxxxx and writes out any of the characters
-     * in specialSaveChars with a preceding slash
+     * Converts unicodes to encoded \\uxxxx
+     * and writes out any of the characters in specialSaveChars
+     * with a preceding slash
      */
     private String saveConvert(String theString) {
         char aChar;
@@ -411,20 +396,18 @@ public class SimpleProperties extends Hashtable {
     }
 
     /**
-     * Calls the <code>store(OutputStream out, String header)</code> method and
-     * suppresses IOExceptions that were thrown.
-     * 
+     * Calls the <code>store(OutputStream out, String header)</code> method
+     * and suppresses IOExceptions that were thrown.
+     *
      * @deprecated This method does not throw an IOException if an I/O error
-     *             occurs while saving the property list. As of JDK 1.2, the
-     *             preferred way to save a properties list is via the
-     *             <code>store(OutputStream out,
+     * occurs while saving the property list.  As of JDK 1.2, the preferred
+     * way to save a properties list is via the <code>store(OutputStream out,
      * String header)</code> method.
-     * 
-     * @param out an output stream.
-     * @param header a description of the property list.
-     * @exception ClassCastException if this <code>Properties</code> object
-     *                contains any keys or values that are not
-     *                <code>Strings</code>.
+     *
+     * @param   out      an output stream.
+     * @param   header   a description of the property list.
+     * @exception  ClassCastException  if this <code>Properties</code> object
+     *             contains any keys or values that are not <code>Strings</code>.
      */
     public synchronized void save(OutputStream out, String header) {
         try {
@@ -439,45 +422,44 @@ public class SimpleProperties extends Hashtable {
      * for loading into a <code>Properties</code> table using the
      * <code>load</code> method.
      * <p>
-     * Properties from the defaults table of this <code>Properties</code> table
-     * (if any) are <i>not</i> written out by this method.
+     * Properties from the defaults table of this <code>Properties</code>
+     * table (if any) are <i>not</i> written out by this method.
      * <p>
      * If the header argument is not null, then an ASCII <code>#</code>
-     * character, the header string, and a line separator are first written to
-     * the output stream. Thus, the <code>header</code> can serve as an
+     * character, the header string, and a line separator are first written
+     * to the output stream. Thus, the <code>header</code> can serve as an
      * identifying comment.
      * <p>
      * Next, a comment line is always written, consisting of an ASCII
-     * <code>#</code> character, the current date and time (as if produced by
-     * the <code>toString</code> method of <code>Date</code> for the current
-     * time), and a line separator as generated by the Writer.
+     * <code>#</code> character, the current date and time (as if produced
+     * by the <code>toString</code> method of <code>Date</code> for the
+     * current time), and a line separator as generated by the Writer.
      * <p>
      * Then every entry in this <code>Properties</code> table is written out,
      * one per line. For each entry the key string is written, then an ASCII
-     * <code>=</code>, then the associated element string. Each character of the
-     * element string is examined to see whether it should be rendered as an
-     * escape sequence. The ASCII characters <code>\</code>, tab, newline, and
-     * carriage return are written as <code>\\</code>, <code>\t</code>,
-     * <code>\n</code>, and <code>\r</code>, respectively. Characters less than
-     * <code>\u0020</code> and characters greater than <code>\u007E</code> are
-     * written as <code>\\u</code><i>xxxx</i> for the appropriate hexadecimal
-     * value <i>xxxx</i>. Space characters, but not embedded or trailing space
-     * characters, are written with a preceding <code>\</code>. The key and
-     * value characters <code>#</code>, <code>!</code>, <code>=</code>, and
-     * <code>:</code> are written with a preceding slash to ensure that they are
-     * properly loaded.
+     * <code>=</code>, then the associated element string. Each character of
+     * the element string is examined to see whether it should be rendered as
+     * an escape sequence. The ASCII characters <code>\</code>, tab, newline,
+     * and carriage return are written as <code>\\</code>, <code>\t</code>,
+     * <code>\n</code>, and <code>\r</code>, respectively. Characters less
+     * than <code>\u0020</code> and characters greater than
+     * <code>\u007E</code> are written as <code>\\u</code><i>xxxx</i> for
+     * the appropriate hexadecimal value <i>xxxx</i>. Space characters, but
+     * not embedded or trailing space characters, are written with a preceding
+     * <code>\</code>. The key and value characters <code>#</code>,
+     * <code>!</code>, <code>=</code>, and <code>:</code> are written with a
+     * preceding slash to ensure that they are properly loaded.
      * <p>
-     * After the entries have been written, the output stream is flushed. The
+     * After the entries have been written, the output stream is flushed.  The
      * output stream remains open after this method returns.
-     * 
-     * @param out an output stream.
-     * @param header a description of the property list.
-     * @exception ClassCastException if this <code>Properties</code> object
-     *                contains any keys or values that are not
-     *                <code>Strings</code>.
+     *
+     * @param   out      an output stream.
+     * @param   header   a description of the property list.
+     * @exception  ClassCastException  if this <code>Properties</code> object
+     *             contains any keys or values that are not <code>Strings</code>.
      */
     public synchronized void store(OutputStream out, String header)
-            throws IOException {
+        throws IOException {
         BufferedWriter awriter;
 
         awriter = new BufferedWriter(new OutputStreamWriter(out, "8859_1"));
@@ -488,8 +470,8 @@ public class SimpleProperties extends Hashtable {
             String key = (String) e.nextElement();
             String val = (String) get(key);
 
-            // key = saveConvert(key);
-            // val = saveConvert(val);
+            //           key = saveConvert(key);
+            //           val = saveConvert(val);
             writeln(awriter, key + "=" + val);
         }
         awriter.flush();
@@ -505,17 +487,16 @@ public class SimpleProperties extends Hashtable {
      * If the key is not found in this property list, the default property list,
      * and its defaults, recursively, are then checked. The method returns
      * <code>null</code> if the property is not found.
-     * 
-     * @param key the property key.
-     * @return the value in this property list with the specified key value.
-     * @see java.util.Properties#defaults
+     *
+     * @param   key   the property key.
+     * @return  the value in this property list with the specified key value.
+     * @see     java.util.Properties#defaults
      */
     public String getProperty(String key) {
         Object oval = super.get(key);
         String sval = (oval instanceof String) ? (String) oval : null;
 
-        return ((sval == null) && (defaults != null)) ? defaults
-                .getProperty(key) : sval;
+        return ((sval == null) && (defaults != null)) ? defaults.getProperty(key) : sval;
     }
 
     /**
@@ -523,12 +504,12 @@ public class SimpleProperties extends Hashtable {
      * If the key is not found in this property list, the default property list,
      * and its defaults, recursively, are then checked. The method returns the
      * default value argument if the property is not found.
-     * 
-     * @param key the hashtable key.
-     * @param defaultValue a default value.
-     * 
-     * @return the value in this property list with the specified key value.
-     * @see java.util.Properties#defaults
+     *
+     * @param   key            the hashtable key.
+     * @param   defaultValue   a default value.
+     *
+     * @return  the value in this property list with the specified key value.
+     * @see     java.util.Properties#defaults
      */
     public String getProperty(String key, String defaultValue) {
         String val = getProperty(key);
@@ -539,11 +520,11 @@ public class SimpleProperties extends Hashtable {
     /**
      * Returns an enumeration of all the keys in this property list, including
      * the keys in the default property list.
-     * 
-     * @return an enumeration of all the keys in this property list, including
-     *         the keys in the default property list.
-     * @see java.util.Enumeration
-     * @see java.util.Properties#defaults
+     *
+     * @return  an enumeration of all the keys in this property list, including
+     *          the keys in the default property list.
+     * @see     java.util.Enumeration
+     * @see     java.util.Properties#defaults
      */
     public Enumeration propertyNames() {
         Hashtable h = new Hashtable();
@@ -553,10 +534,10 @@ public class SimpleProperties extends Hashtable {
     }
 
     /**
-     * Prints this property list out to the specified output stream. This method
-     * is useful for debugging.
-     * 
-     * @param out an output stream.
+     * Prints this property list out to the specified output stream.
+     * This method is useful for debugging.
+     *
+     * @param   out   an output stream.
      */
     public void list(PrintStream out) {
         out.println("-- listing properties --");
@@ -575,13 +556,13 @@ public class SimpleProperties extends Hashtable {
     }
 
     /**
-     * Prints this property list out to the specified output stream. This method
-     * is useful for debugging.
-     * 
-     * @param out an output stream.
-     * @since JDK1.1
+     * Prints this property list out to the specified output stream.
+     * This method is useful for debugging.
+     *
+     * @param   out   an output stream.
+     * @since   JDK1.1
      */
-
+    
     /*
      * Rather than use an anonymous inner class to share common code, this
      * method is duplicated in order to ensure that a non-1.1 compiler can
@@ -605,7 +586,6 @@ public class SimpleProperties extends Hashtable {
 
     /**
      * Enumerates all key/value pairs in the specified hastable.
-     * 
      * @param h the hashtable
      */
     private synchronized void enumerate(Hashtable h) {
@@ -621,14 +601,14 @@ public class SimpleProperties extends Hashtable {
 
     /**
      * Convert a nibble to a hex character
-     * 
-     * @param nibble the nibble to convert.
+     * @param	nibble	the nibble to convert.
      */
     private static char toHex(int nibble) {
         return hexDigit[(nibble & 0xF)];
     }
 
     /** A table of hex digits */
-    private static final char[] hexDigit = { '0', '1', '2', '3', '4', '5', '6',
-            '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+    private static final char[] hexDigit = {
+            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
+        };
 }

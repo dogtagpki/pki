@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.constraint;
 
+
 import java.io.IOException;
 import java.util.Locale;
 
@@ -39,18 +40,24 @@ import com.netscape.cms.profile.def.BasicConstraintsExtDefault;
 import com.netscape.cms.profile.def.NoDefault;
 import com.netscape.cms.profile.def.UserExtensionDefault;
 
+
 /**
- * This class implements the basic constraints extension constraint. It checks
- * if the basic constraint in the certificate template satisfies the criteria.
- * 
+ * This class implements the basic constraints extension constraint.
+ * It checks if the basic constraint in the certificate
+ * template satisfies the criteria.
+ *
  * @version $Revision$, $Date$
  */
 public class BasicConstraintsExtConstraint extends EnrollConstraint {
 
-    public static final String CONFIG_CRITICAL = "basicConstraintsCritical";
-    public static final String CONFIG_IS_CA = "basicConstraintsIsCA";
-    public static final String CONFIG_MIN_PATH_LEN = "basicConstraintsMinPathLen";
-    public static final String CONFIG_MAX_PATH_LEN = "basicConstraintsMaxPathLen";
+    public static final String CONFIG_CRITICAL = 
+        "basicConstraintsCritical";
+    public static final String CONFIG_IS_CA = 
+        "basicConstraintsIsCA";
+    public static final String CONFIG_MIN_PATH_LEN = 
+        "basicConstraintsMinPathLen";
+    public static final String CONFIG_MAX_PATH_LEN = 
+        "basicConstraintsMaxPathLen";
 
     public BasicConstraintsExtConstraint() {
         super();
@@ -64,42 +71,50 @@ public class BasicConstraintsExtConstraint extends EnrollConstraint {
      * Initializes this constraint plugin.
      */
     public void init(IProfile profile, IConfigStore config)
-            throws EProfileException {
+        throws EProfileException {
         super.init(profile, config);
     }
 
-    public IDescriptor getConfigDescriptor(Locale locale, String name) {
-        if (name.equals(CONFIG_CRITICAL)) {
-            return new Descriptor(IDescriptor.CHOICE, "true,false,-", "-",
+    public IDescriptor getConfigDescriptor(Locale locale, String name) { 
+        if (name.equals(CONFIG_CRITICAL)) { 
+            return new Descriptor(IDescriptor.CHOICE, "true,false,-", 
+                    "-",
                     CMS.getUserMessage(locale, "CMS_PROFILE_CRITICAL"));
         } else if (name.equals(CONFIG_IS_CA)) {
-            return new Descriptor(IDescriptor.CHOICE, "true,false,-", "-",
+            return new Descriptor(IDescriptor.CHOICE, "true,false,-", 
+                    "-",
                     CMS.getUserMessage(locale, "CMS_PROFILE_IS_CA"));
         } else if (name.equals(CONFIG_MIN_PATH_LEN)) {
-            return new Descriptor(IDescriptor.INTEGER, null, "-1",
+            return new Descriptor(IDescriptor.INTEGER, null, 
+                    "-1",
                     CMS.getUserMessage(locale, "CMS_PROFILE_MIN_PATH_LEN"));
         } else if (name.equals(CONFIG_MAX_PATH_LEN)) {
-            return new Descriptor(IDescriptor.INTEGER, null, "100",
+            return new Descriptor(IDescriptor.INTEGER, null, 
+                    "100",
                     CMS.getUserMessage(locale, "CMS_PROFILE_MAX_PATH_LEN"));
         }
         return null;
     }
 
     /**
-     * Validates the request. The request is not modified during the validation.
+     * Validates the request. The request is not modified
+     * during the validation.
      */
     public void validate(IRequest request, X509CertInfo info)
-            throws ERejectException {
+        throws ERejectException {
         CertificateExtensions exts = null;
 
         try {
-            BasicConstraintsExtension ext = (BasicConstraintsExtension) getExtension(
-                    PKIXExtensions.BasicConstraints_Id.toString(), info);
+            BasicConstraintsExtension ext = (BasicConstraintsExtension)
+                getExtension(PKIXExtensions.BasicConstraints_Id.toString(), 
+                    info); 
 
             if (ext == null) {
-                throw new ERejectException(CMS.getUserMessage(
-                        getLocale(request), "CMS_PROFILE_EXTENSION_NOT_FOUND",
-                        PKIXExtensions.BasicConstraints_Id.toString()));
+                throw new ERejectException(
+                        CMS.getUserMessage(
+                            getLocale(request), 
+                            "CMS_PROFILE_EXTENSION_NOT_FOUND", 
+                            PKIXExtensions.BasicConstraints_Id.toString()));
             }
 
             // check criticality
@@ -109,66 +124,67 @@ public class BasicConstraintsExtConstraint extends EnrollConstraint {
                 boolean critical = getBoolean(value);
 
                 if (critical != ext.isCritical()) {
-                    throw new ERejectException(CMS.getUserMessage(
-                            getLocale(request),
-                            "CMS_PROFILE_CRITICAL_NOT_MATCHED"));
+                    throw new ERejectException(
+                            CMS.getUserMessage(getLocale(request), 
+                                "CMS_PROFILE_CRITICAL_NOT_MATCHED"));
                 }
-            }
+            } 
             value = getConfig(CONFIG_IS_CA);
             if (!isOptional(value)) {
                 boolean isCA = getBoolean(value);
-                Boolean extIsCA = (Boolean) ext
-                        .get(BasicConstraintsExtension.IS_CA);
+                Boolean extIsCA = (Boolean) ext.get(BasicConstraintsExtension.IS_CA);
 
                 if (isCA != extIsCA.booleanValue()) {
                     throw new ERejectException(
-                            CMS.getUserMessage(getLocale(request),
-                                    "CMS_PROFILE_CONSTRAINT_BASIC_CONSTRAINTS_EXT_IS_CA"));
+                            CMS.getUserMessage(getLocale(request), 
+                                "CMS_PROFILE_CONSTRAINT_BASIC_CONSTRAINTS_EXT_IS_CA"));
                 }
-            }
+            } 
             value = getConfig(CONFIG_MIN_PATH_LEN);
             if (!isOptional(value)) {
                 int pathLen = getInt(value);
-                Integer extPathLen = (Integer) ext
-                        .get(BasicConstraintsExtension.PATH_LEN);
+                Integer extPathLen = (Integer) ext.get(BasicConstraintsExtension.PATH_LEN);
 
                 if (pathLen > extPathLen.intValue()) {
-                    CMS.debug("BasicCOnstraintsExtConstraint: pathLen="
-                            + pathLen + " > extPathLen=" + extPathLen);
+                    CMS.debug("BasicCOnstraintsExtConstraint: pathLen=" + pathLen + " > extPathLen=" + extPathLen);
                     throw new ERejectException(
-                            CMS.getUserMessage(getLocale(request),
-                                    "CMS_PROFILE_CONSTRAINT_BASIC_CONSTRAINTS_EXT_MIN_PATH"));
+                            CMS.getUserMessage(getLocale(request), 
+                                "CMS_PROFILE_CONSTRAINT_BASIC_CONSTRAINTS_EXT_MIN_PATH"));
                 }
             }
             value = getConfig(CONFIG_MAX_PATH_LEN);
             if (!isOptional(value)) {
                 int pathLen = getInt(value);
-                Integer extPathLen = (Integer) ext
-                        .get(BasicConstraintsExtension.PATH_LEN);
+                Integer extPathLen = (Integer) ext.get(BasicConstraintsExtension.PATH_LEN);
 
                 if (pathLen < extPathLen.intValue()) {
-                    CMS.debug("BasicCOnstraintsExtConstraint: pathLen="
-                            + pathLen + " < extPathLen=" + extPathLen);
+                    CMS.debug("BasicCOnstraintsExtConstraint: pathLen=" + pathLen + " < extPathLen=" + extPathLen);
                     throw new ERejectException(
-                            CMS.getUserMessage(getLocale(request),
-                                    "CMS_PROFILE_CONSTRAINT_BASIC_CONSTRAINTS_EXT_MAX_PATH"));
+                            CMS.getUserMessage(getLocale(request), 
+                                "CMS_PROFILE_CONSTRAINT_BASIC_CONSTRAINTS_EXT_MAX_PATH"));
                 }
             }
         } catch (IOException e) {
             CMS.debug("BasicConstraintsExt: validate " + e.toString());
-            throw new ERejectException(CMS.getUserMessage(getLocale(request),
-                    "CMS_PROFILE_EXTENSION_NOT_FOUND",
-                    PKIXExtensions.BasicConstraints_Id.toString()));
+            throw new ERejectException(
+                    CMS.getUserMessage(
+                        getLocale(request), 
+                        "CMS_PROFILE_EXTENSION_NOT_FOUND", 
+                        PKIXExtensions.BasicConstraints_Id.toString()));
         }
     }
 
     public String getText(Locale locale) {
-        String params[] = { getConfig(CONFIG_CRITICAL),
-                getConfig(CONFIG_IS_CA), getConfig(CONFIG_MIN_PATH_LEN),
-                getConfig(CONFIG_MAX_PATH_LEN) };
+        String params[] = {
+                getConfig(CONFIG_CRITICAL),
+                getConfig(CONFIG_IS_CA),
+                getConfig(CONFIG_MIN_PATH_LEN),
+                getConfig(CONFIG_MAX_PATH_LEN)
+            };
 
-        return CMS.getUserMessage(locale,
-                "CMS_PROFILE_CONSTRAINT_BASIC_CONSTRAINTS_EXT_TEXT", params);
+        return CMS.getUserMessage(locale, 
+                "CMS_PROFILE_CONSTRAINT_BASIC_CONSTRAINTS_EXT_TEXT", 
+                params);
     }
 
     public boolean isApplicable(IPolicyDefault def) {
@@ -181,17 +197,19 @@ public class BasicConstraintsExtConstraint extends EnrollConstraint {
         return false;
     }
 
-    public void setConfig(String name, String value) throws EPropertyException {
+    public void setConfig(String name, String value)
+        throws EPropertyException {
+
 
         if (mConfig.getSubStore("params") == null) {
             CMS.debug("BasicConstraintsExt: mConfig.getSubStore is null");
             //
         } else {
 
-            CMS.debug("BasicConstraintsExt: setConfig name " + name + " value "
-                    + value);
+            CMS.debug("BasicConstraintsExt: setConfig name " + name + " value " + value);
 
-            if (name.equals(CONFIG_MAX_PATH_LEN)) {
+            if(name.equals(CONFIG_MAX_PATH_LEN))
+            {
 
                 String minPathLen = getConfig(CONFIG_MIN_PATH_LEN);
 
@@ -199,11 +217,12 @@ public class BasicConstraintsExtConstraint extends EnrollConstraint {
 
                 int maxLen = getInt(value);
 
-                if (minLen >= maxLen) {
+                if(minLen >= maxLen)    {
                     CMS.debug("BasicConstraintExt:  minPathLen >= maxPathLen!");
 
                     throw new EPropertyException("bad value");
                 }
+
 
             }
             mConfig.getSubStore("params").putString(name, value);

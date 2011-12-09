@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.dbs;
 
+
 import java.math.BigInteger;
 import java.util.Enumeration;
 import java.util.Vector;
@@ -32,12 +33,14 @@ import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.logging.ILogger;
+ 
 
 /**
- * A class represents a mapper to serialize key record into database.
+ * A class represents a mapper to serialize 
+ * key record into database.
  * <P>
- * 
- * @author thomask
+ *
+ * @author  thomask
  * @version $Revision$, $Date$
  */
 public class KeyRecordMapper implements IDBAttrMapper {
@@ -56,8 +59,8 @@ public class KeyRecordMapper implements IDBAttrMapper {
         return v.elements();
     }
 
-    public void mapObjectToLDAPAttributeSet(IDBObj parent, String name,
-            Object obj, LDAPAttributeSet attrs) throws EBaseException {
+    public void mapObjectToLDAPAttributeSet(IDBObj parent, String name, 
+        Object obj, LDAPAttributeSet attrs) throws EBaseException {
         try {
             KeyRecord rec = (KeyRecord) obj;
 
@@ -65,58 +68,47 @@ public class KeyRecordMapper implements IDBAttrMapper {
                     rec.getSerialNumber().toString()));
         } catch (Exception e) {
 
-            /*
-             * LogDoc
-             * 
-             * @phase Maps object to ldap attribute set
-             * 
+            /*LogDoc
+             *
+             * @phase  Maps object to ldap attribute set
              * @message KeyRecordMapper: <exception thrown>
              */
-            mLogger.log(
-                    ILogger.EV_SYSTEM,
-                    ILogger.S_DB,
-                    ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_DBS_KEYRECORD_MAPPER_ERROR",
-                            e.toString()));
-            throw new EDBException(CMS.getUserMessage(
-                    "CMS_DBS_SERIALIZE_FAILED", name));
+            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_DB, ILogger.LL_FAILURE, 
+                CMS.getLogMessage("CMSCORE_DBS_KEYRECORD_MAPPER_ERROR", e.toString()));
+            throw new EDBException(
+                    CMS.getUserMessage("CMS_DBS_SERIALIZE_FAILED", name));
         }
     }
 
-    public void mapLDAPAttributeSetToObject(LDAPAttributeSet attrs,
-            String name, IDBObj parent) throws EBaseException {
-        try {
-            LDAPAttribute attr = attrs
-                    .getAttribute(KeyDBSchema.LDAP_ATTR_KEY_RECORD_ID);
+    public void mapLDAPAttributeSetToObject(LDAPAttributeSet attrs, 
+        String name, IDBObj parent) throws EBaseException {
+        try {	
+            LDAPAttribute attr = attrs.getAttribute(
+                    KeyDBSchema.LDAP_ATTR_KEY_RECORD_ID);
 
             if (attr == null)
                 return;
             String serialno = (String) attr.getStringValues().nextElement();
-            IKeyRecord rec = mDB.readKeyRecord(new BigInteger(serialno));
+            IKeyRecord rec = mDB.readKeyRecord(new 
+                    BigInteger(serialno));
 
             parent.set(name, rec);
         } catch (Exception e) {
 
-            /*
-             * LogDoc
-             * 
-             * @phase Maps ldap attribute set to object
-             * 
+            /*LogDoc
+             *
+             * @phase  Maps ldap attribute set to object
              * @message KeyRecordMapper: <exception thrown>
              */
-            mLogger.log(
-                    ILogger.EV_SYSTEM,
-                    ILogger.S_DB,
-                    ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_DBS_KEYRECORD_MAPPER_ERROR",
-                            e.toString()));
-            throw new EDBException(CMS.getUserMessage(
-                    "CMS_DBS_DESERIALIZE_FAILED", name));
+            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_DB, ILogger.LL_FAILURE, 
+                CMS.getLogMessage("CMSCORE_DBS_KEYRECORD_MAPPER_ERROR", e.toString()));
+            throw new EDBException(
+                    CMS.getUserMessage("CMS_DBS_DESERIALIZE_FAILED", name));
         }
     }
 
     public String mapSearchFilter(String name, String op, String value)
-            throws EBaseException {
+        throws EBaseException {
         return name + op + value;
     }
 }

@@ -28,9 +28,7 @@ public class EAuthzUnknownProtectedRes extends EAuthzException {
     private static final long serialVersionUID = 444663701711532889L;
 
     /**
-     * Constructs a exception for a protected resource unknown to the
-     * authorization manager
-     * 
+     * Constructs a exception for a protected resource unknown to the authorization manager
      * @param errorString Detailed error message.
      */
     public EAuthzUnknownProtectedRes(String errorString) {

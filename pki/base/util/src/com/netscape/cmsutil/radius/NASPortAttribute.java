@@ -17,7 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmsutil.radius;
 
+
 import java.io.IOException;
+
 
 public class NASPortAttribute extends Attribute {
     private int _port = 0;
@@ -37,12 +39,12 @@ public class NASPortAttribute extends Attribute {
     }
 
     public byte[] getValue() throws IOException {
-        byte[] p = new byte[4];
+        byte[] p = new byte[4]; 
 
-        p[0] = (byte) ((_port >>> 24) & 0xFF);
-        p[1] = (byte) ((_port >>> 16) & 0xFF);
-        p[2] = (byte) ((_port >>> 8) & 0xFF);
-        p[3] = (byte) (_port & 0xFF);
+        p[0] = (byte) ((_port >>> 24) & 0xFF); 
+        p[1] = (byte) ((_port >>> 16) & 0xFF); 
+        p[2] = (byte) ((_port >>> 8) & 0xFF); 
+        p[3] = (byte) (_port & 0xFF); 
         return p;
     }
 }

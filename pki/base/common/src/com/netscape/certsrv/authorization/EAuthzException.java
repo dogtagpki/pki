@@ -17,12 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.authorization;
 
+
 import com.netscape.certsrv.base.EBaseException;
 
 /**
  * This class represents authorization exceptions.
  * <P>
- * 
  * @version $Revision$, $Date$
  */
 public class EAuthzException extends EBaseException {
@@ -34,13 +34,11 @@ public class EAuthzException extends EBaseException {
     /**
      * Resource class name.
      */
-    private static final String AUTHZ_RESOURCES = AuthzResources.class
-            .getName();
+    private static final String AUTHZ_RESOURCES = AuthzResources.class.getName();
 
     /**
      * Constructs a authz exception
      * <P>
-     * 
      * @param msgFormat exception details
      */
     public EAuthzException(String msgFormat) {
@@ -48,9 +46,8 @@ public class EAuthzException extends EBaseException {
     }
 
     /**
-     * Constructs a authz exception with a parameter.
+     * Constructs a authz exception with a parameter. 
      * <p>
-     * 
      * @param msgFormat exception details in message string format
      * @param param message string parameter
      */
@@ -61,7 +58,6 @@ public class EAuthzException extends EBaseException {
     /**
      * Constructs a authz exception with a exception parameter.
      * <P>
-     * 
      * @param msgFormat exception details in message string format
      * @param param system exception
      */
@@ -72,7 +68,6 @@ public class EAuthzException extends EBaseException {
     /**
      * Constructs a authz exception with a list of parameters.
      * <P>
-     * 
      * @param msgFormat the message format.
      * @param params list of message format parameters
      */
@@ -82,7 +77,6 @@ public class EAuthzException extends EBaseException {
 
     /**
      * Returns the resource bundle name
-     * 
      * @return resource bundle name
      */
     protected String getBundleName() {

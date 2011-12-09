@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.output;
 
+
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Vector;
@@ -30,21 +31,22 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 
+
 /**
  * This class implements the basic enrollment output.
- * 
+ *
  * @version $Revision$, $Date$
  */
-public abstract class EnrollOutput implements IProfileOutput {
+public abstract class EnrollOutput implements IProfileOutput { 
     private IConfigStore mConfig = null;
     private Vector mValueNames = new Vector();
     protected Vector mConfigNames = new Vector();
-
+ 
     /**
      * Initializes this default policy.
      */
     public void init(IProfile profile, IConfigStore config)
-            throws EProfileException {
+        throws EProfileException {
         mConfig = config;
     }
 
@@ -58,26 +60,28 @@ public abstract class EnrollOutput implements IProfileOutput {
 
     /**
      * Populates the request with this policy default.
-     * 
+     *
      * @param ctx profile context
      * @param request request
      * @exception EProfileException failed to populate
      */
     public abstract void populate(IProfileContext ctx, IRequest request)
-            throws EProfileException;
+        throws EProfileException;
 
     /**
-     * Retrieves the descriptor of the given value parameter by name.
-     * 
+     * Retrieves the descriptor of the given value
+     * parameter by name.
+     *
      * @param locale user locale
      * @param name property name
      * @return property descriptor
      */
     public abstract IDescriptor getValueDescriptor(Locale locale, String name);
 
+
     /**
      * Retrieves the localizable name of this policy.
-     * 
+     *
      * @param locale user locale
      * @return output policy name
      */
@@ -85,7 +89,7 @@ public abstract class EnrollOutput implements IProfileOutput {
 
     /**
      * Retrieves the localizable description of this policy.
-     * 
+     *
      * @param locale user locale
      * @return output policy description
      */
@@ -99,7 +103,7 @@ public abstract class EnrollOutput implements IProfileOutput {
     }
 
     public String getValue(String name, Locale locale, IRequest request)
-            throws EProfileException {
+        throws EProfileException {
         return request.getExtDataInString(name);
     }
 
@@ -107,7 +111,7 @@ public abstract class EnrollOutput implements IProfileOutput {
      * Sets the value of the given value parameter by name.
      */
     public void setValue(String name, Locale locale, IRequest request,
-            String value) throws EPropertyException {
+        String value) throws EPropertyException {
         request.setExtData(name, value);
     }
 
@@ -119,7 +123,8 @@ public abstract class EnrollOutput implements IProfileOutput {
         return null;
     }
 
-    public void setConfig(String name, String value) throws EPropertyException {
+    public void setConfig(String name, String value)
+        throws EPropertyException {
     }
 
     public String getConfig(String name) {

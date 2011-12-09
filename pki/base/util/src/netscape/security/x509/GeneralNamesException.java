@@ -21,7 +21,7 @@ import java.security.GeneralSecurityException;
 
 /**
  * Generic General Names Exception.
- * 
+ *
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  * @version 1.4
@@ -41,7 +41,7 @@ public class GeneralNamesException extends GeneralSecurityException {
 
     /**
      * Constructs the exception with the specified error message.
-     * 
+     *
      * @param message the requisite error message.
      */
     public GeneralNamesException(String message) {

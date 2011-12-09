@@ -36,11 +36,11 @@ import com.netscape.certsrv.base.ISecurityDomainSessionTable;
 import com.netscape.cmsutil.password.IPasswordStore;
 
 /**
- * This object stores the values for IP, uid and group based on the cookie id in
- * LDAP. Entries are stored under ou=Security Domain, ou=sessions, $basedn
+ * This object stores the values for IP, uid and group based on the cookie id in LDAP.
+ * Entries are stored under ou=Security Domain, ou=sessions, $basedn
  */
-public class LDAPSecurityDomainSessionTable implements
-        ISecurityDomainSessionTable {
+public class LDAPSecurityDomainSessionTable 
+  implements ISecurityDomainSessionTable {
 
     private long m_timeToLive;
 
@@ -48,7 +48,8 @@ public class LDAPSecurityDomainSessionTable implements
         m_timeToLive = timeToLive;
     }
 
-    public int addEntry(String sessionId, String ip, String uid, String group) {
+    public int addEntry(String sessionId, String ip, 
+      String uid, String group) {
         IConfigStore cs = CMS.getConfigStore();
         LDAPConnection conn = null;
         boolean sessions_exists = true;
@@ -60,8 +61,7 @@ public class LDAPSecurityDomainSessionTable implements
             basedn = cs.getString("internaldb.basedn");
             sessionsdn = "ou=sessions,ou=Security Domain," + basedn;
         } catch (Exception e) {
-            CMS.debug("SecurityDomainSessionTable: addEntry: failed to read basedn"
-                    + e);
+            CMS.debug("SecurityDomainSessionTable: addEntry: failed to read basedn" + e);
             return status;
         }
 
@@ -77,16 +77,14 @@ public class LDAPSecurityDomainSessionTable implements
             attrs.add(new LDAPAttribute("ou", "sessions"));
             entry = new LDAPEntry(sessionsdn, attrs);
             conn.add(entry);
-        } catch (Exception e) {
-            if ((e instanceof LDAPException)
-                    && (((LDAPException) e).getLDAPResultCode() == LDAPException.ENTRY_ALREADY_EXISTS)) {
+         } catch (Exception e) {
+            if ((e instanceof LDAPException) && (((LDAPException) e).getLDAPResultCode() == LDAPException.ENTRY_ALREADY_EXISTS)) {
                 // continue
             } else {
-                CMS.debug("SecurityDomainSessionTable: unable to create ou=sessions:"
-                        + e);
+                CMS.debug("SecurityDomainSessionTable: unable to create ou=sessions:" + e);
                 sessions_exists = false;
             }
-        }
+         }
 
         // add new entry
         try {
@@ -95,32 +93,27 @@ public class LDAPSecurityDomainSessionTable implements
             String entrydn = "cn=" + sessionId + "," + sessionsdn;
             attrs = new LDAPAttributeSet();
             attrs.add(new LDAPAttribute("objectclass", "top"));
-            attrs.add(new LDAPAttribute("objectclass",
-                    "securityDomainSessionEntry"));
+            attrs.add(new LDAPAttribute("objectclass", "securityDomainSessionEntry"));
             attrs.add(new LDAPAttribute("cn", sessionId));
             attrs.add(new LDAPAttribute("host", ip));
             attrs.add(new LDAPAttribute("uid", uid));
             attrs.add(new LDAPAttribute("cmsUserGroup", group));
-            attrs.add(new LDAPAttribute("dateOfCreate", Long
-                    .toString((new Date()).getTime())));
+            attrs.add(new LDAPAttribute("dateOfCreate", Long.toString((new Date()).getTime())));
 
             entry = new LDAPEntry(entrydn, attrs);
             if (sessions_exists) {
                 conn.add(entry);
-                CMS.debug("SecurityDomainSessionTable: added session entry"
-                        + sessionId);
+                CMS.debug("SecurityDomainSessionTable: added session entry" + sessionId);
                 status = SUCCESS;
             }
-        } catch (Exception e) {
-            CMS.debug("SecurityDomainSessionTable: unable to create session entry"
-                    + sessionId + ": " + e);
-        }
+        } catch(Exception e) {
+            CMS.debug("SecurityDomainSessionTable: unable to create session entry" + sessionId + ": " + e);
+        } 
 
         try {
             conn.disconnect();
         } catch (Exception e) {
-            CMS.debug("SecurityDomainSessionTable:addEntry: Error in disconnecting from database: "
-                    + e);
+            CMS.debug("SecurityDomainSessionTable:addEntry: Error in disconnecting from database: " + e);
         }
         return status;
     }
@@ -131,25 +124,21 @@ public class LDAPSecurityDomainSessionTable implements
         int status = FAILURE;
         try {
             String basedn = cs.getString("internaldb.basedn");
-            String dn = "cn=" + sessionId + ",ou=sessions,ou=Security Domain,"
-                    + basedn;
+            String dn = "cn=" + sessionId + ",ou=sessions,ou=Security Domain," + basedn;
             conn = getLDAPConn();
             conn.delete(dn);
             status = SUCCESS;
         } catch (Exception e) {
-            if ((e instanceof LDAPException)
-                    && (((LDAPException) e).getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT)) {
+            if ((e instanceof LDAPException) && (((LDAPException) e).getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT)) {
                 // continue
             } else {
-                CMS.debug("SecurityDomainSessionTable: unable to delete session "
-                        + sessionId + ": " + e);
+                CMS.debug("SecurityDomainSessionTable: unable to delete session " + sessionId + ": " + e);
             }
         }
         try {
             conn.disconnect();
         } catch (Exception e) {
-            CMS.debug("SecurityDomainSessionTable: removeEntry: Error in disconnecting from database: "
-                    + e);
+            CMS.debug("SecurityDomainSessionTable: removeEntry: Error in disconnecting from database: " + e);
         }
         return status;
     }
@@ -165,23 +154,20 @@ public class LDAPSecurityDomainSessionTable implements
             String[] attrs = { "cn" };
 
             conn = getLDAPConn();
-            LDAPSearchResults res = conn.search(sessionsdn, LDAPv2.SCOPE_SUB,
-                    filter, attrs, false);
-            if (res.getCount() > 0)
-                ret = true;
-        } catch (Exception e) {
-            CMS.debug("SecurityDomainSessionTable: unable to query session "
-                    + sessionId + ": " + e);
+            LDAPSearchResults res = conn.search(sessionsdn, LDAPv2.SCOPE_SUB, filter, attrs, false);
+            if (res.getCount() > 0) ret = true;
+        } catch(Exception e) {
+            CMS.debug("SecurityDomainSessionTable: unable to query session " + sessionId + ": " + e);
         }
 
         try {
             conn.disconnect();
         } catch (Exception e) {
-            CMS.debug("SecurityDomainSessionTable: isSessionIdExist: Error in disconnecting from database: "
-                    + e);
+            CMS.debug("SecurityDomainSessionTable: isSessionIdExist: Error in disconnecting from database: " + e);
         }
         return ret;
     }
+
 
     public Enumeration getSessionIds() {
         IConfigStore cs = CMS.getConfigStore();
@@ -195,31 +181,27 @@ public class LDAPSecurityDomainSessionTable implements
             String[] attrs = { "cn" };
 
             conn = getLDAPConn();
-            LDAPSearchResults res = conn.search(sessionsdn, LDAPv2.SCOPE_SUB,
-                    filter, attrs, false);
+            LDAPSearchResults res = conn.search(sessionsdn, LDAPv2.SCOPE_SUB, filter, attrs, false);
             while (res.hasMoreElements()) {
                 LDAPEntry entry = res.next();
                 ret.add(entry.getAttribute("cn").getStringValueArray()[0]);
             }
         } catch (LDAPException e) {
             switch (e.getLDAPResultCode()) {
-            case LDAPException.NO_SUCH_OBJECT:
-                CMS.debug("SecurityDomainSessionTable: getSessionIds():  no sessions have been created");
-                break;
-            default:
-                CMS.debug("SecurityDomainSessionTable: unable to query sessionIds due to ldap exception: "
-                        + e);
+                case LDAPException.NO_SUCH_OBJECT:
+                    CMS.debug("SecurityDomainSessionTable: getSessionIds():  no sessions have been created");
+                    break;
+                default:
+                    CMS.debug("SecurityDomainSessionTable: unable to query sessionIds due to ldap exception: " + e);
             }
-        } catch (Exception e) {
-            CMS.debug("SecurityDomainSessionTable: unable to query sessionIds: "
-                    + e);
+        } catch(Exception e) {
+            CMS.debug("SecurityDomainSessionTable: unable to query sessionIds: " + e);
         }
 
         try {
             conn.disconnect();
         } catch (Exception e) {
-            CMS.debug("SecurityDomainSessionTable: getSessionIds: Error in disconnecting from database: "
-                    + e);
+            CMS.debug("SecurityDomainSessionTable: getSessionIds: Error in disconnecting from database: " + e);
         }
 
         return ret.elements();
@@ -229,28 +211,25 @@ public class LDAPSecurityDomainSessionTable implements
         IConfigStore cs = CMS.getConfigStore();
         LDAPConnection conn = null;
         String ret = null;
-        try {
+        try { 
             String basedn = cs.getString("internaldb.basedn");
             String sessionsdn = "ou=sessions,ou=Security Domain," + basedn;
             String filter = "(cn=" + sessionId + ")";
             String[] attrs = { attr };
             conn = getLDAPConn();
-            LDAPSearchResults res = conn.search(sessionsdn, LDAPv2.SCOPE_SUB,
-                    filter, attrs, false);
-            if (res.getCount() > 0) {
+            LDAPSearchResults res = conn.search(sessionsdn, LDAPv2.SCOPE_SUB, filter, attrs, false);
+            if (res.getCount() > 0) { 
                 LDAPEntry entry = res.next();
                 ret = entry.getAttribute(attr).getStringValueArray()[0];
             }
-        } catch (Exception e) {
-            CMS.debug("SecurityDomainSessionTable: unable to query session "
-                    + sessionId + ": " + e);
+        } catch(Exception e) {
+            CMS.debug("SecurityDomainSessionTable: unable to query session " + sessionId + ": " + e);
         }
 
         try {
             conn.disconnect();
         } catch (Exception e) {
-            CMS.debug("SecurityDomainSessionTable: isSessionIdExist: Error in disconnecting from database: "
-                    + e);
+            CMS.debug("SecurityDomainSessionTable: isSessionIdExist: Error in disconnecting from database: " + e);
         }
         return ret;
     }
@@ -282,7 +261,7 @@ public class LDAPSecurityDomainSessionTable implements
     public int getSize() {
         IConfigStore cs = CMS.getConfigStore();
         LDAPConnection conn = null;
-        int ret = 0;
+        int ret =0;
 
         try {
             String basedn = cs.getString("internaldb.basedn");
@@ -291,25 +270,24 @@ public class LDAPSecurityDomainSessionTable implements
             String[] attrs = { "cn" };
 
             conn = getLDAPConn();
-            LDAPSearchResults res = conn.search(sessionsdn, LDAPv2.SCOPE_SUB,
-                    filter, attrs, false);
+            LDAPSearchResults res = conn.search(sessionsdn, LDAPv2.SCOPE_SUB, filter, attrs, false);
             ret = res.getCount();
-        } catch (Exception e) {
-            CMS.debug("SecurityDomainSessionTable: unable to query sessionIds: "
-                    + e);
+        } catch(Exception e) {
+            CMS.debug("SecurityDomainSessionTable: unable to query sessionIds: " + e);
         }
 
         try {
             conn.disconnect();
         } catch (Exception e) {
-            CMS.debug("SecurityDomainSessionTable: getSessionIds: Error in disconnecting from database: "
-                    + e);
+            CMS.debug("SecurityDomainSessionTable: getSessionIds: Error in disconnecting from database: " + e);
         }
 
         return ret;
     }
 
-    private LDAPConnection getLDAPConn() throws IOException {
+    private LDAPConnection getLDAPConn()
+            throws IOException
+    {
         IConfigStore cs = CMS.getConfigStore();
 
         String host = "";
@@ -321,13 +299,12 @@ public class LDAPSecurityDomainSessionTable implements
         IPasswordStore pwdStore = CMS.getPasswordStore();
 
         if (pwdStore != null) {
-            // CMS.debug("SecurityDomainSessionTable: getLDAPConn: password store available");
+            //CMS.debug("SecurityDomainSessionTable: getLDAPConn: password store available");
             pwd = pwdStore.getPassword("internaldb");
         }
 
-        if (pwd == null) {
-            throw new IOException(
-                    "SecurityDomainSessionTable: Failed to obtain password from password store");
+        if ( pwd == null) {
+           throw new IOException("SecurityDomainSessionTable: Failed to obtain password from password store");
         }
 
         try {
@@ -352,15 +329,14 @@ public class LDAPSecurityDomainSessionTable implements
 
         LDAPConnection conn = null;
         if (security.equals("true")) {
-            // CMS.debug("SecurityDomainSessionTable getLDAPConn: creating secure (SSL) connection for internal ldap");
-            conn = new LDAPConnection(CMS.getLdapJssSSLSocketFactory());
+          //CMS.debug("SecurityDomainSessionTable getLDAPConn: creating secure (SSL) connection for internal ldap");
+          conn = new LDAPConnection(CMS.getLdapJssSSLSocketFactory());
         } else {
-            // CMS.debug("SecurityDomainSessionTable getLDAPConn: creating non-secure (non-SSL) connection for internal ldap");
-            conn = new LDAPConnection();
+          //CMS.debug("SecurityDomainSessionTable getLDAPConn: creating non-secure (non-SSL) connection for internal ldap");
+          conn = new LDAPConnection();
         }
 
-        // CMS.debug("SecurityDomainSessionTable connecting to " + host + ":" +
-        // p);
+        //CMS.debug("SecurityDomainSessionTable connecting to " + host + ":" + p);
         try {
             conn.connect(host, p, binddn, pwd);
         } catch (LDAPException e) {

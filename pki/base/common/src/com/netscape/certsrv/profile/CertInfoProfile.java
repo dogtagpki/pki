@@ -26,7 +26,8 @@ import netscape.security.x509.X509CertInfo;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 
-public class CertInfoProfile {
+public class CertInfoProfile 
+{
     private Vector mDefaults = new Vector();
     private String mName = null;
     private String mID = null;
@@ -34,7 +35,8 @@ public class CertInfoProfile {
     private String mProfileIDMapping = null;
     private String mProfileSetIDMapping = null;
 
-    public CertInfoProfile(String cfg) throws Exception {
+    public CertInfoProfile(String cfg) throws Exception
+    {
         IConfigStore config = CMS.createFileConfigStore(cfg);
         mID = config.getString("id");
         mName = config.getString("name");
@@ -43,60 +45,67 @@ public class CertInfoProfile {
         mProfileSetIDMapping = config.getString("profileSetIDMapping");
         StringTokenizer st = new StringTokenizer(config.getString("list"), ",");
         while (st.hasMoreTokens()) {
-            String id = (String) st.nextToken();
+            String id = (String)st.nextToken();
             String c = config.getString(id + ".default.class");
             try {
-                /* load defaults */
-                ICertInfoPolicyDefault def = (ICertInfoPolicyDefault) Class
-                        .forName(c).newInstance();
-                init(config.getSubStore(id + ".default"), def);
-                mDefaults.addElement(def);
+              /* load defaults */
+              ICertInfoPolicyDefault def = (ICertInfoPolicyDefault)
+                 Class.forName(c).newInstance();
+              init(config.getSubStore(id + ".default"), def);
+              mDefaults.addElement(def);
             } catch (Exception e) {
-                CMS.debug("CertInfoProfile: " + e.toString());
+              CMS.debug("CertInfoProfile: " + e.toString());
             }
         }
     }
 
     private void init(IConfigStore config, ICertInfoPolicyDefault def)
-            throws Exception {
-        try {
-            def.init(null, config);
-        } catch (Exception e) {
-            CMS.debug("CertInfoProfile.init: " + e.toString());
-        }
+           throws Exception
+    {
+      try {
+        def.init(null, config);
+      } catch (Exception e) {
+        CMS.debug("CertInfoProfile.init: " + e.toString());
+      }
     }
 
-    public String getID() {
+    public String getID()
+    {
         return mID;
     }
 
-    public String getName() {
+    public String getName()
+    {
         return mName;
     }
 
-    public String getDescription() {
+    public String getDescription()
+    {
         return mDescription;
     }
 
-    public String getProfileIDMapping() {
+    public String getProfileIDMapping()
+    {
         return mProfileIDMapping;
     }
 
-    public String getProfileSetIDMapping() {
+    public String getProfileSetIDMapping()
+    {
         return mProfileSetIDMapping;
     }
 
-    public void populate(X509CertInfo info) {
+    public void populate(X509CertInfo info)
+    {
         Enumeration e1 = mDefaults.elements();
         while (e1.hasMoreElements()) {
-            ICertInfoPolicyDefault def = (ICertInfoPolicyDefault) e1
-                    .nextElement();
-            try {
-                def.populate(null /* request */, info);
-            } catch (Exception e) {
-                CMS.debug(e);
-                CMS.debug("CertInfoProfile.populate: " + e.toString());
-            }
+          ICertInfoPolicyDefault def = 
+               (ICertInfoPolicyDefault)e1.nextElement();
+          try {
+            def.populate(null /* request */, info);
+          } catch (Exception e) {
+            CMS.debug(e);
+            CMS.debug("CertInfoProfile.populate: " + e.toString());
+          }
         }
     }
 }

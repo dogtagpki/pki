@@ -1,5 +1,4 @@
 package com.netscape.pkisilent.common;
-
 // --- BEGIN COPYRIGHT BLOCK ---
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -27,45 +26,38 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Properties;
 
+
+
 /**
- * CMS Test Framework. Use this class to Configure a CA, RA,DRM,OCSP and SubCA
- * subsystem. This simulartes the installation wizard functions and helps to
- * configure a CMS subsystem.
+ * CMS Test Framework. 
+ * Use this class to Configure a  CA, RA,DRM,OCSP and SubCA subsystem.
+ * This simulartes the installation wizard functions and helps to configure a CMS subsystem.
  */
+
 
 public class AutoInstaller {
 
     private static Properties props = null;
 
-    // Admin Server and InternalDB varialbes
-    private String adminDomain, adminID, adminPWD, adminPort, machineName,
-            host, serverID, instanceID, serverRoot, sieURL, dbConnPort,
-            dbConnHost, dbInstanceName, dbPassword, dbLDAPauthDN, dbmode,
-            ldapServerDB;
+    // Admin Server and InternalDB varialbes 
+    private String adminDomain, adminID, adminPWD, adminPort, machineName, host, serverID, instanceID, serverRoot, sieURL, dbConnPort, dbConnHost, dbInstanceName, dbPassword, dbLDAPauthDN, dbmode, ldapServerDB;
 
     // CMS Subsystem info
 
-    private String certAdminName, certAdminUid, certAdminPWD, kra, subsystems,
-            ca, ra, ocsp, remoteKRA, wirelessSupport, eeHttpPort, eeHttpsPort,
-            agentHttpsPort, radminHttpsPort, tokenName, tokenPWD, certType,
-            keyType, keyLength, SingleSignOnPWD, subjectName, aki, isCA, ski,
-            sslCABit, objectSigningCABit, mailCABit, hashType, caOComponent,
-            certValidityDays, signingCert, tks;
+    private String certAdminName, certAdminUid, certAdminPWD, kra, subsystems, ca, ra, ocsp, remoteKRA, wirelessSupport, eeHttpPort, eeHttpsPort, agentHttpsPort, radminHttpsPort, tokenName, tokenPWD, certType, keyType, keyLength, SingleSignOnPWD, subjectName, aki, isCA, ski, sslCABit, objectSigningCABit, mailCABit, hashType, caOComponent, certValidityDays, signingCert, tks;
 
     // CA info
-    private String caHostname, caPortnum, caTimeout, caEEPort, enpropfile,
-            cdir, tokenpwd, CAadminId, CAadminPwd, CAcertnickname,
-            caAgentPortnum, cloneInstanceId;
+    private String caHostname, caPortnum, caTimeout, caEEPort, enpropfile, cdir, tokenpwd, CAadminId, CAadminPwd, CAcertnickname, caAgentPortnum, cloneInstanceId;
 
-    // Program variables
+    // Program variables 
     private int i;
     private String configURL, deamonURL, certInstID;
     private String inputLine;
     private boolean st = false;
-
+  
     private String postQuery = null;
     private String propFileName;
-    private StringBuffer spage = new StringBuffer();
+    private StringBuffer  spage = new StringBuffer();
     // 4.5 server String CERTtokenName="Internal Key Storage Token";
     private String CERTtokenName = "internal";
 
@@ -76,10 +68,9 @@ public class AutoInstaller {
 
     private boolean subca = false;
 
-    // / Constructors
+    // / Constructors 
 
-    public AutoInstaller() {
-    }
+    public AutoInstaller() {}
 
     /**
      * Constructor . Takes parameter Server Root .
@@ -90,13 +81,10 @@ public class AutoInstaller {
 
     // Set InternalDBVInfo
     /**
-     * Set Internal Database Information . Takes parameters internaldatabase
-     * hostname, internaldatabase port, internaldatabase name, internaldatabase
-     * binddn, internaldatabase password
+     * Set Internal Database Information . Takes parameters internaldatabase hostname, internaldatabase port, internaldatabase name, internaldatabase binddn, internaldatabase password 
      */
 
-    public void setInternalDBInfo(String dbh, String dbp, String dbname,
-            String dbdn, String dbpswd) {
+    public void setInternalDBInfo(String dbh, String dbp, String dbname, String dbdn, String dbpswd) {
         dbConnPort = dbp;
         dbConnHost = dbh;
         dbInstanceName = dbname;
@@ -106,14 +94,14 @@ public class AutoInstaller {
         ldapServerDB = "userRoot";
     }
 
-    // Create Password file
+    // Create Password file 
     private boolean CreatePasswordFile() {
         String s = "internal: " + SingleSignOnPWD;
         OutputStream f0 = null;
 
         try {
-            f0 = new FileOutputStream(serverRoot + "/" + instanceID
-                    + "/config/password.conf");
+            f0 = new FileOutputStream(
+                    serverRoot + "/" + instanceID + "/config/password.conf");
 
             f0.write(s.getBytes());
             f0.close();
@@ -121,8 +109,7 @@ public class AutoInstaller {
         } catch (Exception e) {
             System.out.println("exception " + e.getMessage());
             try {
-                if (f0 != null)
-                    f0.close();
+                if (f0 != null) f0.close();
             } catch (IOException ioe) {
                 System.out.println("IO Exception: " + ioe.getMessage());
             }
@@ -135,8 +122,8 @@ public class AutoInstaller {
         FileInputStream f1 = null;
         OutputStream f2 = null;
         try {
-            f1 = new FileInputStream(serverRoot + "/" + instanceID
-                    + "/config/CS.cfg");
+            f1 = new FileInputStream(
+                    serverRoot + "/" + instanceID + "/config/CS.cfg");
             int size = f1.available();
             byte b[] = new byte[size];
 
@@ -144,34 +131,32 @@ public class AutoInstaller {
                 f1.close();
                 return false;
             }
-            f2 = new FileOutputStream(serverRoot + "/" + instanceID
-                    + "/config/CS.cfg.org");
+            f2 = new FileOutputStream(
+                    serverRoot + "/" + instanceID + "/config/CS.cfg.org");
 
             f2.write(b);
 
             f1.close();
-            f2.close();
+            f2.close(); 
             return true;
         } catch (Exception e) {
             System.out.println("exception " + e.getMessage());
             try {
-                if (f1 != null)
-                    f1.close();
+                if (f1 != null) f1.close();
             } catch (IOException ioe) {
                 System.out.println("IO Exception: " + ioe.getMessage());
             }
             try {
-                if (f2 != null)
-                    f2.close();
+                if (f2 != null) f2.close(); 
             } catch (IOException ioe) {
                 System.out.println("IO Exception: " + ioe.getMessage());
             }
             return false;
         }
-
+ 
     }
 
-    // Get RaSigning Cert
+    // Get RaSigning Cert 
 
     public String getRASigningCert() {
         return raSigningCert;
@@ -185,11 +170,9 @@ public class AutoInstaller {
     // Set Admin Server Info
 
     /**
-     * Set Admin Server Information . Takes parameters : hostname, adminserver
-     * portnumber , adminId , adminPassword
+     * Set Admin Server Information . Takes parameters : hostname, adminserver portnumber , adminId , adminPassword
      */
-    public void setAdminInfo(String h, String p, String adDN, String id,
-            String adpwd) {
+    public void setAdminInfo(String h, String p, String adDN, String id, String adpwd) {
         adminDomain = adDN;
         adminID = id;
         adminPWD = adpwd;
@@ -198,14 +181,12 @@ public class AutoInstaller {
 
     }
 
-    // Set CA Server Info
+    // Set CA Server Info 
     /**
-     * Set CA server Information . Takes parametrers :CAhostname, CAEEPORT,
-     * CAAGENTPORT , CAAdminUID, CAAdminPassword
+     * Set CA server Information . Takes parametrers :CAhostname, CAEEPORT, CAAGENTPORT , CAAdminUID, CAAdminPassword
      */
 
-    public void setCAInfo(String cah, String caeep, String caagp,
-            String caaduid, String caadpwd) {
+    public void setCAInfo(String cah, String caeep, String caagp, String caaduid, String caadpwd) {
         caHostname = cah;
         caPortnum = caagp;
         caTimeout = "30";
@@ -218,9 +199,8 @@ public class AutoInstaller {
 
     // Set ClientDB Info;
     /**
-     * Sets Client Database information . Takes paramters : certdbdir,
-     * certdbpasswd, certnickanme
-     */
+     * Sets Client Database information . Takes paramters : certdbdir, certdbpasswd, certnickanme 
+     */ 
 
     public void setClientDBInfo(String cd, String pwd, String nickname) {
 
@@ -240,19 +220,13 @@ public class AutoInstaller {
 
     }
 
-    // Set Subsystem Information for Configuring
+    // Set Subsystem Information for Configuring 
 
     /**
-     * Takes parameters - sID- ServerID e.x cert1, sRoot- ServerRootK kT-
-     * keyType "RSA/DSA" , kL - keylength (1024.2048) , cVD- certificate
-     * validity dates e.g 365 for 1 year, sdn - subsystems dn, sAdp -
-     * subsystem's Admin port, sAgp - subsystems's Agentport,seSP- subsystem's
-     * ee SSL port , sep- Subsystems ee port.
+     * Takes parameters - sID- ServerID e.x cert1,  sRoot- ServerRootK kT- keyType "RSA/DSA" , kL - keylength (1024.2048) , cVD- certificate validity dates e.g 365 for 1 year, sdn - subsystems dn, sAdp - subsystem's Admin port, sAgp - subsystems's Agentport,seSP- subsystem's ee SSL port , sep- Subsystems ee port.
      */
 
-    public void setSubSystemInfo(String sID, String sRoot, String kT,
-            String kL, String hT, String cVD, String sdn, String sAdP,
-            String sAgP, String seSP, String seP) {
+    public void setSubSystemInfo(String sID, String sRoot, String kT, String kL, String hT, String cVD, String sdn, String sAdP, String sAgP, String seSP, String seP) {
         serverID = sID;
         instanceID = "cert-" + sID;
 
@@ -269,14 +243,12 @@ public class AutoInstaller {
         caOComponent = "test";
     }
 
-    // // Configure CMS Subsystems
+    // // Configure CMS Subsystems 
 
     /**
-     * Confiures a CA Subsystem .Takes parameter : adminSubjectDN, adminUID,
-     * AdminPasswd, SingleSignonPasswd
+     * Confiures a CA Subsystem .Takes parameter : adminSubjectDN, adminUID, AdminPasswd, SingleSignonPasswd
      */
-    public boolean ConfigureCA(String adn, String aduid, String adp,
-            String ssonpwd) {
+    public boolean ConfigureCA(String adn, String aduid, String adp, String ssonpwd) {
         certAdminName = adn;
         certAdminUid = aduid;
         certAdminPWD = adp;
@@ -308,14 +280,13 @@ public class AutoInstaller {
 
     }
 
-    public boolean ConfigureTKS(String adn, String aduid, String adp,
-            String ssonpwd) {
+    public boolean ConfigureTKS(String adn, String aduid, String adp, String ssonpwd) {
 
         certAdminName = adn;
         certAdminUid = aduid;
         certAdminPWD = adp;
         SingleSignOnPWD = ssonpwd;
-        signingCert = "raSigningCert";
+        signingCert = "raSigningCert"; 
         certType = signingCert;
         subsystems = "tks";
         ra = "false";
@@ -343,13 +314,13 @@ public class AutoInstaller {
     }
 
     private boolean ConfTKS() {
-        // Start Configuring
+        // Start Configuring 
 
         // Step 1. Start Deamon
 
         if (!startDeamon()) {
-            System.out
-                    .println("Configuring Cert Instance: Unable to start deamon");
+            System.out.println(
+                    "Configuring Cert Instance: Unable to start deamon");
             return false;
         }
 
@@ -363,37 +334,37 @@ public class AutoInstaller {
 
         // Step 1a: Initialize Token ( Changed in 6.0)jjj
         if (!initializePWD()) {
-            System.out
-                    .println("Configuring Cert Instance: error initializing pwd token");
+            System.out.println(
+                    "Configuring Cert Instance: error initializing pwd token");
             return false;
         }
 
         // Step 2. Configure Internal DB
         if (!configInternalDB()) {
-            System.out
-                    .println("Configuring Cert Instance: error configuring internal db");
+            System.out.println(
+                    "Configuring Cert Instance: error configuring internal db");
             return false;
         }
 
-        // Step 3. Create Admin Values
+        // Step 3. Create Admin Values 
         if (!createAdminValues()) {
-            System.out
-                    .println("Configuring Cert Instance: error configuring admin values ");
+            System.out.println(
+                    "Configuring Cert Instance: error configuring admin values ");
             return false;
         }
 
-        // Step 4. SubSystems
+        // Step 4. SubSystems 
 
         if (!selectSubSystem()) {
-            System.out
-                    .println("Configuring Cert Instance: error selecting subsystems");
+            System.out.println(
+                    "Configuring Cert Instance: error selecting subsystems");
             return false;
         }
 
         // Step 5. Network Configuration
         if (!networkConfig()) {
-            System.out
-                    .println("Configuring Cert Instance: error configuring network ports ");
+            System.out.println(
+                    "Configuring Cert Instance: error configuring network ports ");
             return false;
         }
 
@@ -412,53 +383,53 @@ public class AutoInstaller {
         signingCert = "server";
 
         if (!initializeToken()) {
-            System.out
-                    .println("Configuring Cert Instance: error initializing token");
+            System.out.println(
+                    "Configuring Cert Instance: error initializing token");
             return false;
         }
 
         // Step 8 : keyLenth
         if (!keyLength()) {
-            System.out
-                    .println("Configuring Cert Instance: error configuring KeyLength");
+            System.out.println(
+                    "Configuring Cert Instance: error configuring KeyLength");
             return false;
         }
 
-        // Step 9 : CheckDN
+        // Step 9 : CheckDN 
         if (!checkDN()) {
-            System.out
-                    .println("Configuring Cert Instance: error checking deamon");
+            System.out.println(
+                    "Configuring Cert Instance: error checking deamon");
             return false;
         }
 
         // Step 10 :
         if (!certRequest(false)) {
-            System.out
-                    .println("Configuring Cert Instance: error creating Request");
+            System.out.println(
+                    "Configuring Cert Instance: error creating Request");
             return false;
         }
 
-        // After creating ssl cert
+        // After creating ssl cert 
         tokenPWD = mtokenPWD;
 
-        // Step 11
+        // Step 11 
         if (!singleSignON()) {
-            System.out
-                    .println("Configuring Cert Instance: error setting up singlesignon");
+            System.out.println(
+                    "Configuring Cert Instance: error setting up singlesignon");
             return false;
         }
 
-        // Step 11
+        // Step 11 
         if (!doMisc()) {
-            System.out
-                    .println("Configuring Cert Instance: error setting up miscell");
+            System.out.println(
+                    "Configuring Cert Instance: error setting up miscell");
             return false;
         }
 
-        // Step 12
+        // Step 12 
         if (!exitDeamon()) {
-            System.out
-                    .println("Configuring Cert Instance: Unable to exit deamon");
+            System.out.println(
+                    "Configuring Cert Instance: Unable to exit deamon");
             return false;
         }
 
@@ -466,12 +437,11 @@ public class AutoInstaller {
     }
 
     /**
-     * Confiures a RA Subsystem .Takes parameter : adminSubjectDN, adminUID,
-     * AdminPasswd, SingleSignonPasswd
+     * Confiures a RA Subsystem .Takes parameter : adminSubjectDN, adminUID, AdminPasswd, SingleSignonPasswd
      */
 
-    public boolean ConfigureRA(String adn, String aduid, String adp,
-            String ssonpwd) {
+
+    public boolean ConfigureRA(String adn, String aduid, String adp, String ssonpwd) {
         certAdminName = adn;
         certAdminUid = aduid;
         certAdminPWD = adp;
@@ -504,12 +474,11 @@ public class AutoInstaller {
     }
 
     /**
-     * Confiures a OCSP Subsystem .Takes parameter : adminSubjectDN, adminUID,
-     * AdminPasswd, SingleSignonPasswd
+     * Confiures a OCSP Subsystem .Takes parameter : adminSubjectDN, adminUID, AdminPasswd, SingleSignonPasswd
      */
 
-    public boolean ConfigureOCSP(String adn, String aduid, String adp,
-            String ssonpwd) {
+
+    public boolean ConfigureOCSP(String adn, String aduid, String adp, String ssonpwd) {
         certAdminName = adn;
         certAdminUid = aduid;
         certAdminPWD = adp;
@@ -541,12 +510,11 @@ public class AutoInstaller {
     }
 
     /**
-     * Confiures a KRA Subsystem .Takes parameter : adminSubjectDN, adminUID,
-     * AdminPasswd, SingleSignonPasswd
+     * Confiures a KRA Subsystem .Takes parameter : adminSubjectDN, adminUID, AdminPasswd, SingleSignonPasswd
      */
 
-    public boolean ConfigureKRA(String adn, String aduid, String adp,
-            String ssonpwd) {
+
+    public boolean ConfigureKRA(String adn, String aduid, String adp, String ssonpwd) {
         certAdminName = adn;
         certAdminUid = aduid;
         certAdminPWD = adp;
@@ -577,12 +545,11 @@ public class AutoInstaller {
     }
 
     /**
-     * Confiures a SubCA Subsystem .Takes parameter : adminSubjectDN, adminUID,
-     * AdminPasswd, SingleSignonPasswd
+     * Confiures a SubCA Subsystem .Takes parameter : adminSubjectDN, adminUID, AdminPasswd, SingleSignonPasswd
      */
 
-    public boolean ConfigureSubCA(String adn, String aduid, String adp,
-            String ssonpwd) {
+
+    public boolean ConfigureSubCA(String adn, String aduid, String adp, String ssonpwd) {
         certAdminName = adn;
         certAdminUid = aduid;
         certAdminPWD = adp;
@@ -627,8 +594,7 @@ public class AutoInstaller {
             System.out.println("exception " + e.getMessage());
         }
         try {
-            if (fis != null)
-                fis.close();
+            if (fis != null) fis.close();
         } catch (IOException ioe) {
             System.out.println("IO Exception: " + ioe.getMessage());
         }
@@ -652,8 +618,8 @@ public class AutoInstaller {
     }
 
     private boolean Connect(String myStringUrl) {
-        // / This functions connects to the URL and POST HTTP Request .
-        // It compares with NMC_STATUS and return the status.
+        // / This functions connects to the URL and POST HTTP Request . 
+        // It compares with NMC_STATUS  and return the status.
         System.out.println(myStringUrl);
         st = false;
 
@@ -663,12 +629,10 @@ public class AutoInstaller {
         spage = sm.getPage();
         return st;
     }
-
+	
     private boolean startDeamon() {
-        // Set StringURL to connect , set the query string and Connect .Get the
-        // result
-        System.out
-                .println("Log Info - configuring Cert Instance : Start Deamon");
+        // Set StringURL to connect , set the query string and Connect .Get the result 
+        System.out.println("Log Info - configuring Cert Instance : Start Deamon");
         setDeamonURL();
         String myStringUrl = "http://" + host + "." + adminDomain + ":"
                 + adminPort + deamonURL;
@@ -685,8 +649,8 @@ public class AutoInstaller {
 
     private boolean configInternalDB() {
 
-        System.out
-                .println("Log Info - configuring Cert Instance : configureInternalDB");
+        System.out.println(
+                "Log Info - configuring Cert Instance : configureInternalDB");
         setConfigURL();
         String myStringUrl = "http://" + host + ":" + adminPort + configURL;
 
@@ -762,13 +726,13 @@ public class AutoInstaller {
         query += "&opType=" + URLEncoder.encode("OP_MODIFY");
         query += "&taskID=" + URLEncoder.encode("selectSubsystems");
         query += "&cmsSeed=0";
-
+	
         if (subsystems.equals("ca")) {
             query += "&internaldb.ldapconn.host="
                     + URLEncoder.encode(dbConnHost);
             query += "&internaldb.ldapconn.port="
                     + URLEncoder.encode(dbConnPort);
-
+	
         }
         if (subsystems.equals("ra")) {
             query += "&caHostname=" + caHostname;
@@ -801,7 +765,7 @@ public class AutoInstaller {
         query += "&kra=false";
         query += "&subsystems=ca";
         query += "&cloning=true";
-        query += "&cloningInstance=" + URLEncoder.encode(cloneInstanceId);
+        query += "&cloningInstance=" + URLEncoder.encode(cloneInstanceId); 
         query += "&claTimeout=" + URLEncoder.encode("60");
         query += "&internaldb.ldapauth.bindDN="
                 + URLEncoder.encode(dbLDAPauthDN);
@@ -1087,8 +1051,8 @@ public class AutoInstaller {
             query += "&aki=true";
             query += "&keyUsage=true";
             query += "&caSigningCertReqFormat=PKCS10";
-        }
-
+        }			
+	
         if (subsystems.equals("ra")) {
             query += "&aki=" + URLEncoder.encode(aki);
             query += "&keyUsage=" + URLEncoder.encode("true");
@@ -1122,7 +1086,7 @@ public class AutoInstaller {
         query += "&taskID=" + URLEncoder.encode("certRequest");
         query += "&caHostname=" + caHostname;
         query += "&caEEPort=" + caEEPort;
-        query += "&cmsSeed=0";
+        query += "&cmsSeed=0";	
 
         setPostQueryString(query);
         if (!Connect(myStringUrl)) {
@@ -1139,9 +1103,9 @@ public class AutoInstaller {
 
         int ReqId = 0;
 
-        UserEnroll e = new UserEnroll(caHostname, caEEPort, subjectName,
-                "test", "test", null, "test", "test", cdir, tokenpwd,
-                ssl_clientcert, keyLength, keyType, null, null, signingCert);
+        UserEnroll e = new UserEnroll(caHostname, caEEPort, subjectName, "test",
+                "test", null, "test", "test", cdir, tokenpwd, ssl_clientcert,
+                keyLength, keyType, null, null, signingCert);
 
         e.setpkcs10Request(certRequestStr);
         if (e.Enroll()) {
@@ -1164,8 +1128,8 @@ public class AutoInstaller {
                 null, null, "approve", "enrollment", "showWaiting", null, trm);
 
         if (r.ApproveRequests(getString(ReqId)) <= -1) {
-            System.out
-                    .println("Error : Agent request approval was not successful");
+            System.out.println(
+                    "Error : Agent request approval was not successful");
             return false;
         }
 
@@ -1191,7 +1155,7 @@ public class AutoInstaller {
         query += "&serverRoot=" + URLEncoder.encode(serverRoot);
         query += "&caEEPort=" + caEEPort;
         query += "&caHostname=" + host;
-        query += "&caEEType=https";
+        query += "&caEEType=https";	
         query += "&opType=" + URLEncoder.encode("OP_MODIFY");
         query += "&taskID=" + URLEncoder.encode("reqSuccess");
         query += "&cmsSeed=0";
@@ -1211,9 +1175,8 @@ public class AutoInstaller {
                         + "-----END CERTIFICATE-----\n";
 
                 // install cert
-                System.out
-                        .println("configuring Cert Instance :  install cert :"
-                                + cert);
+                System.out.println(
+                        "configuring Cert Instance :  install cert :" + cert); 
                 setConfigURL();
                 myStringUrl = "http://" + host + ":" + adminPort + configURL;
                 System.out.println(myStringUrl);
@@ -1225,7 +1188,7 @@ public class AutoInstaller {
 
                 if (certType.equals("raSigningCert")) {
                     query += "&nickname="
-                            + URLEncoder.encode(certType + " " + instanceID);
+                            + URLEncoder.encode(certType + " " + instanceID);	
                     raSigningCert = "-----BEGIN CERTIFICATE-----" + "\n"
                             + cr.getCert() + "\n"
                             + "-----END CERTIFICATE-----\n";
@@ -1238,31 +1201,30 @@ public class AutoInstaller {
                     kraTransportCert = cCrypto.normalize(cr.getCert());
                 }
 
-                if (certType.equals("serverCert")) {
+                if (certType.equals("serverCert")) {	
                     query += "&nickname="
-                            + URLEncoder.encode("Server-Cert" + " "
-                                    + instanceID);
+                            + URLEncoder.encode("Server-Cert" + " " + instanceID);	
                 }
 
                 if (certType.equals("ocspSigningCert")) {
                     query += "&nickname="
                             + URLEncoder.encode(certType + " " + instanceID);
                 }
-
+		
                 query += "&pkcs10=" + URLEncoder.encode(cert);
                 query += "&opType=" + URLEncoder.encode("OP_MODIFY");
                 query += "&taskID=" + URLEncoder.encode("installCert");
                 query += "&cmsSeed=0";
 
                 setPostQueryString(query);
-                return (Connect(myStringUrl));
+                return(Connect(myStringUrl));	 
             }
 
         } else {
             System.out.println("Error: Request is not approved");
             return false;
         }
-        return true;
+        return true;     
     }
 
     private String getString(int m) {
@@ -1274,19 +1236,19 @@ public class AutoInstaller {
 
     private boolean createCert() {
         System.out.println("configuring Cert Instance : Create Cert");
-
+	
         // clauclate the validity dates for the cert.
         GregorianCalendar begin = new GregorianCalendar();
         GregorianCalendar end = new GregorianCalendar();
         Integer days = new Integer(certValidityDays);
 
         end.add(GregorianCalendar.DATE, days.intValue());
-
+	
         setConfigURL();
         String myStringUrl = "http://" + host + ":" + adminPort + configURL;
 
         System.out.println(myStringUrl);
-
+        
         String query = "AdminUserPassword=" + URLEncoder.encode(adminPWD);
 
         query += "&";
@@ -1297,39 +1259,33 @@ public class AutoInstaller {
         query += "&certType=" + URLEncoder.encode(certType);
 
         query += "&beginYear="
-                + URLEncoder
-                        .encode(getString(begin.get(GregorianCalendar.YEAR)));
+                + URLEncoder.encode(getString(begin.get(GregorianCalendar.YEAR)));
         query += "&beginMonth="
-                + URLEncoder.encode(getString(begin
-                        .get(GregorianCalendar.MONTH)));
+                + URLEncoder.encode(
+                        getString(begin.get(GregorianCalendar.MONTH)));
         query += "&beginDate="
-                + URLEncoder
-                        .encode(getString(begin.get(GregorianCalendar.DATE)));
+                + URLEncoder.encode(getString(begin.get(GregorianCalendar.DATE)));
         query += "&beginHour="
-                + URLEncoder
-                        .encode(getString(begin.get(GregorianCalendar.HOUR)));
+                + URLEncoder.encode(getString(begin.get(GregorianCalendar.HOUR)));
         query += "&beginMin="
-                + URLEncoder.encode(getString(begin
-                        .get(GregorianCalendar.MINUTE)));
+                + URLEncoder.encode(
+                        getString(begin.get(GregorianCalendar.MINUTE)));
         query += "&beginSec="
-                + URLEncoder.encode(getString(begin
-                        .get(GregorianCalendar.SECOND)));
+                + URLEncoder.encode(
+                        getString(begin.get(GregorianCalendar.SECOND)));
 
         query += "&afterYear="
                 + URLEncoder.encode(getString(end.get(GregorianCalendar.YEAR)));
         query += "&afterMonth="
-                + URLEncoder
-                        .encode(getString(end.get(GregorianCalendar.MONTH)));
+                + URLEncoder.encode(getString(end.get(GregorianCalendar.MONTH)));
         query += "&afterDate="
                 + URLEncoder.encode(getString(end.get(GregorianCalendar.DATE)));
         query += "&afterHour="
                 + URLEncoder.encode(getString(end.get(GregorianCalendar.HOUR)));
         query += "&afterMin="
-                + URLEncoder
-                        .encode(getString(end.get(GregorianCalendar.MINUTE)));
+                + URLEncoder.encode(getString(end.get(GregorianCalendar.MINUTE)));
         query += "&afterSec="
-                + URLEncoder
-                        .encode(getString(end.get(GregorianCalendar.SECOND)));
+                + URLEncoder.encode(getString(end.get(GregorianCalendar.SECOND)));
 
         query += "&keyType=" + URLEncoder.encode(keyType);
         query += "&keyLength=" + URLEncoder.encode(keyLength);
@@ -1342,7 +1298,7 @@ public class AutoInstaller {
         if (certType.equals("serverCert")) {
             query += "&sslServerBit=" + URLEncoder.encode("true");
             query += "&sslClientBit=" + URLEncoder.encode("true");
-
+	    
         } else {
             query += "&caOComponent=" + URLEncoder.encode(caOComponent);
             query += "&caCComponent=" + URLEncoder.encode("us");
@@ -1354,7 +1310,7 @@ public class AutoInstaller {
             query += "&mailCABit=" + URLEncoder.encode(mailCABit);
             query += "&objectSigningCABit="
                     + URLEncoder.encode(objectSigningCABit);
-
+	
         }
         query += "&hashType=" + URLEncoder.encode(hashType);
 
@@ -1388,7 +1344,7 @@ public class AutoInstaller {
         query += "&pwcTokenname=" + URLEncoder.encode("internal");
 
         query += "&singlesignon=" + URLEncoder.encode(tokenPWD);
-
+	
         query += "&opType=" + URLEncoder.encode("OP_MODIFY");
         query += "&taskID=" + URLEncoder.encode("singleSignon");
         query += "&cmsSeed=0";
@@ -1425,7 +1381,7 @@ public class AutoInstaller {
     }
 
     private boolean exitDeamon() {
-
+ 
         System.out.println("configuring Cert Instance : Exit Deamon");
         setDeamonURL();
         String myStringUrl = "http://" + host + ":" + adminPort + configURL;
@@ -1448,8 +1404,8 @@ public class AutoInstaller {
         // Step 1. Start Deamon
 
         if (!startDeamon()) {
-            System.out
-                    .println("Configuring Cert Instance: Unable to start deamon");
+            System.out.println(
+                    "Configuring Cert Instance: Unable to start deamon");
             return false;
         }
 
@@ -1463,62 +1419,62 @@ public class AutoInstaller {
 
         // Step 1a: Initialize Token ( Changed in 6.0)jjj
         if (!initializePWD()) {
-            System.out
-                    .println("Configuring Cert Instance: error initializing pwd token");
+            System.out.println(
+                    "Configuring Cert Instance: error initializing pwd token");
             return false;
         }
 
         // Step 2. Configure Internal DB
         if (!configInternalDB()) {
-            System.out
-                    .println("Configuring Cert Instance: error configuring internal db");
+            System.out.println(
+                    "Configuring Cert Instance: error configuring internal db");
             return false;
         }
 
         // Step 3. Create Admin Values
         if (!createAdminValues()) {
-            System.out
-                    .println("Configuring Cert Instance: error configuring admin values ");
+            System.out.println(
+                    "Configuring Cert Instance: error configuring admin values ");
             return false;
         }
 
         // Step 4. SubSystems
 
         if (!selectSubSystem()) {
-            System.out
-                    .println("Configuring Cert Instance: error selecting subsystems");
+            System.out.println(
+                    "Configuring Cert Instance: error selecting subsystems");
             return false;
         }
 
         // Step 5. Network Configuration
         if (!networkConfig()) {
-            System.out
-                    .println("Configuring Cert Instance: error configuring network ports ");
+            System.out.println(
+                    "Configuring Cert Instance: error configuring network ports ");
             return false;
         }
 
         // Step 6: Initialize Token This has been moved to step 1a
         if (!initializeToken()) {
-            System.out
-                    .println("Configuring Cert Instance: error initializing token");
+            System.out.println(
+                    "Configuring Cert Instance: error initializing token");
             return false;
         }
 
         // Step 7 : keyLenth
         if (!keyLength()) {
-            System.out
-                    .println("Configuring Cert Instance: error configuring KeyLength");
+            System.out.println(
+                    "Configuring Cert Instance: error configuring KeyLength");
             return false;
         }
 
         // Step 8 : CheckDN
         if (!checkDN()) {
-            System.out
-                    .println("Configuring Cert Instance: error checking deamon");
+            System.out.println(
+                    "Configuring Cert Instance: error checking deamon");
             return false;
         }
 
-        // Step 9 : certRequest and Install
+        // Step 9 : certRequest and Install  
         if (!certRequest(false)) {
             System.out.println("Configuring Cert Instance: error getting cert");
             return false;
@@ -1539,29 +1495,29 @@ public class AutoInstaller {
         signingCert = "server";
 
         if (!initializeToken()) {
-            System.out
-                    .println("Configuring Cert Instance: error initializing token");
+            System.out.println(
+                    "Configuring Cert Instance: error initializing token");
             return false;
         }
 
         // Step 8 : keyLenth
         if (!keyLength()) {
-            System.out
-                    .println("Configuring Cert Instance: error configuring KeyLength");
+            System.out.println(
+                    "Configuring Cert Instance: error configuring KeyLength");
             return false;
         }
 
         // Step 9 : CheckDN
         if (!checkDN()) {
-            System.out
-                    .println("Configuring Cert Instance: error checking deamon");
+            System.out.println(
+                    "Configuring Cert Instance: error checking deamon");
             return false;
         }
 
         // Step 10 :
         if (!certRequest(false)) {
-            System.out
-                    .println("Configuring Cert Instance: error creating Request");
+            System.out.println(
+                    "Configuring Cert Instance: error creating Request");
             return false;
         }
 
@@ -1570,22 +1526,22 @@ public class AutoInstaller {
 
         // Step 11
         if (!singleSignON()) {
-            System.out
-                    .println("Configuring Cert Instance: error setting up singlesignon");
+            System.out.println(
+                    "Configuring Cert Instance: error setting up singlesignon");
             return false;
         }
 
         // Step 11
         if (!doMisc()) {
-            System.out
-                    .println("Configuring Cert Instance: error setting up miscell");
+            System.out.println(
+                    "Configuring Cert Instance: error setting up miscell");
             return false;
         }
 
         // Step 12
         if (!exitDeamon()) {
-            System.out
-                    .println("Configuring Cert Instance: Unable to exit deamon");
+            System.out.println(
+                    "Configuring Cert Instance: Unable to exit deamon");
             return false;
         }
 
@@ -1641,13 +1597,13 @@ public class AutoInstaller {
     }
 
     private boolean ConfRA() {
-        // Start Configuring
+        // Start Configuring 
 
         // Step 1. Start Deamon
 
         if (!startDeamon()) {
-            System.out
-                    .println("Configuring Cert Instance: Unable to start deamon");
+            System.out.println(
+                    "Configuring Cert Instance: Unable to start deamon");
             return false;
         }
 
@@ -1661,63 +1617,62 @@ public class AutoInstaller {
 
         // Step 1a: Initialize Token ( Changed in 6.0)jjj
         if (!initializePWD()) {
-            System.out
-                    .println("Configuring Cert Instance: error initializing pwd token");
+            System.out.println(
+                    "Configuring Cert Instance: error initializing pwd token");
             return false;
         }
 
         // Step 2. Configure Internal DB
         if (!configInternalDB()) {
-            System.out
-                    .println("Configuring Cert Instance: error configuring internal db");
+            System.out.println(
+                    "Configuring Cert Instance: error configuring internal db");
             return false;
         }
 
-        // Step 3. Create Admin Values
+        // Step 3. Create Admin Values 
         if (!createAdminValues()) {
-            System.out
-                    .println("Configuring Cert Instance: error configuring admin values ");
+            System.out.println(
+                    "Configuring Cert Instance: error configuring admin values ");
             return false;
         }
 
-        // Step 4. SubSystems
+        // Step 4. SubSystems 
 
         if (!selectSubSystem()) {
-            System.out
-                    .println("Configuring Cert Instance: error selecting subsystems");
+            System.out.println(
+                    "Configuring Cert Instance: error selecting subsystems");
             return false;
         }
 
         // Step 5. Network Configuration
         if (!networkConfig()) {
-            System.out
-                    .println("Configuring Cert Instance: error configuring network ports ");
+            System.out.println(
+                    "Configuring Cert Instance: error configuring network ports ");
             return false;
         }
 
         // Step 6: Initialize Token This has been moved to step 1a
         if (!initializeToken()) {
-            System.out
-                    .println("Configuring Cert Instance: error initializing token");
+            System.out.println(
+                    "Configuring Cert Instance: error initializing token");
             return false;
         }
 
         // Step 7 : keyLenth
         if (!keyLength()) {
-            System.out
-                    .println("Configuring Cert Instance: error configuring KeyLength");
+            System.out.println(
+                    "Configuring Cert Instance: error configuring KeyLength");
             return false;
         }
 
-        // Step 8 : CheckDN
+        // Step 8 : CheckDN 
         if (!checkDN()) {
-            System.out
-                    .println("Configuring Cert Instance: error checking deamon");
+            System.out.println(
+                    "Configuring Cert Instance: error checking deamon");
             return false;
         }
 
-        // Step 9 : certRequest and Install i.e approve the request as a trusted
-        // manager
+        // Step 9 : certRequest and Install  i.e approve the request as a trusted manager
         if (!certRequest(true)) {
             System.out.println("Configuring Cert Instance: error getting cert");
             return false;
@@ -1738,53 +1693,53 @@ public class AutoInstaller {
         signingCert = "server";
 
         if (!initializeToken()) {
-            System.out
-                    .println("Configuring Cert Instance: error initializing token");
+            System.out.println(
+                    "Configuring Cert Instance: error initializing token");
             return false;
         }
 
         // Step 8 : keyLenth
         if (!keyLength()) {
-            System.out
-                    .println("Configuring Cert Instance: error configuring KeyLength");
+            System.out.println(
+                    "Configuring Cert Instance: error configuring KeyLength");
             return false;
         }
 
-        // Step 9 : CheckDN
+        // Step 9 : CheckDN 
         if (!checkDN()) {
-            System.out
-                    .println("Configuring Cert Instance: error checking deamon");
+            System.out.println(
+                    "Configuring Cert Instance: error checking deamon");
             return false;
         }
 
         // Step 10 :
         if (!certRequest(false)) {
-            System.out
-                    .println("Configuring Cert Instance: error creating Request");
+            System.out.println(
+                    "Configuring Cert Instance: error creating Request");
             return false;
         }
 
-        // After creating ssl cert
+        // After creating ssl cert 
         tokenPWD = mtokenPWD;
 
-        // Step 11
+        // Step 11 
         if (!singleSignON()) {
-            System.out
-                    .println("Configuring Cert Instance: error setting up singlesignon");
+            System.out.println(
+                    "Configuring Cert Instance: error setting up singlesignon");
             return false;
         }
 
-        // Step 11
+        // Step 11 
         if (!doMisc()) {
-            System.out
-                    .println("Configuring Cert Instance: error setting up miscell");
+            System.out.println(
+                    "Configuring Cert Instance: error setting up miscell");
             return false;
         }
 
-        // Step 12
+        // Step 12 
         if (!exitDeamon()) {
-            System.out
-                    .println("Configuring Cert Instance: Unable to exit deamon");
+            System.out.println(
+                    "Configuring Cert Instance: Unable to exit deamon");
             return false;
         }
 
@@ -1792,13 +1747,13 @@ public class AutoInstaller {
     }
 
     private boolean ConfKRA() {
-        // Start Configuring
+        // Start Configuring 
 
         // Step 1. Start Deamon
 
         if (!startDeamon()) {
-            System.out
-                    .println("Configuring Cert Instance: Unable to start deamon");
+            System.out.println(
+                    "Configuring Cert Instance: Unable to start deamon");
             return false;
         }
 
@@ -1812,79 +1767,77 @@ public class AutoInstaller {
 
         // Step 1a: Initialize Token ( Changed in 6.0)jjj
         if (!initializePWD()) {
-            System.out
-                    .println("Configuring Cert Instance: error initializing pwd token");
+            System.out.println(
+                    "Configuring Cert Instance: error initializing pwd token");
             return false;
         }
 
         // Step 2. Configure Internal DB
         if (!configInternalDB()) {
-            System.out
-                    .println("Configuring Cert Instance: error configuring internal db");
+            System.out.println(
+                    "Configuring Cert Instance: error configuring internal db");
             return false;
         }
 
-        // Step 3. Create Admin Values
+        // Step 3. Create Admin Values 
         if (!createAdminValues()) {
-            System.out
-                    .println("Configuring Cert Instance: error configuring admin values ");
+            System.out.println(
+                    "Configuring Cert Instance: error configuring admin values ");
             return false;
         }
 
-        // Step 4. SubSystems
+        // Step 4. SubSystems 
 
         if (!selectSubSystem()) {
-            System.out
-                    .println("Configuring Cert Instance: error selecting subsystems");
+            System.out.println(
+                    "Configuring Cert Instance: error selecting subsystems");
             return false;
         }
 
         // Step 5. Network Configuration
         if (!networkConfig()) {
-            System.out
-                    .println("Configuring Cert Instance: error configuring network ports ");
+            System.out.println(
+                    "Configuring Cert Instance: error configuring network ports ");
             return false;
         }
 
         // Step 6: Initialize Token This has been moved to step 1a
         if (!initializeToken()) {
-            System.out
-                    .println("Configuring Cert Instance: error initializing token");
+            System.out.println(
+                    "Configuring Cert Instance: error initializing token");
             return false;
         }
 
         // Step 7 : keyLenth
         if (!keyLength()) {
-            System.out
-                    .println("Configuring Cert Instance: error configuring KeyLength");
+            System.out.println(
+                    "Configuring Cert Instance: error configuring KeyLength");
             return false;
         }
 
-        // Step 8 : CheckDN
+        // Step 8 : CheckDN 
         if (!checkDN()) {
-            System.out
-                    .println("Configuring Cert Instance: error checking deamon");
+            System.out.println(
+                    "Configuring Cert Instance: error checking deamon");
             return false;
         }
 
-        // Step 9 : certRequest and Install i.e approve the request as a trusted
-        // manager
+        // Step 9 : certRequest and Install  i.e approve the request as a trusted manager
         if (!certRequest(true)) {
             System.out.println("Configuring Cert Instance: error getting cert");
             return false;
         }
 
         if (!setupStorageKey()) {
-            System.out
-                    .println("Configuring Cert Instance: error configuring storage key");
+            System.out.println(
+                    "Configuring Cert Instance: error configuring storage key");
             return false;
         }
 
         // no need to do this from 7.1 due to new acl based key recovery
         /*
-         * if (!setupKRAAgents()) { System.out.println(
-         * "Configuring Cert Instance: error configuring storage key"); return
-         * false;}
+         if (!setupKRAAgents())
+         { System.out.println("Configuring Cert Instance: error configuring storage key"); return false;}
          */
 
         // Create a SSL signing cert
@@ -1902,53 +1855,53 @@ public class AutoInstaller {
         signingCert = "server";
 
         if (!initializeToken()) {
-            System.out
-                    .println("Configuring Cert Instance: error initializing token");
+            System.out.println(
+                    "Configuring Cert Instance: error initializing token");
             return false;
         }
 
         // Step 8 : keyLenth
         if (!keyLength()) {
-            System.out
-                    .println("Configuring Cert Instance: error configuring KeyLength");
+            System.out.println(
+                    "Configuring Cert Instance: error configuring KeyLength");
             return false;
         }
 
-        // Step 9 : CheckDN
+        // Step 9 : CheckDN 
         if (!checkDN()) {
-            System.out
-                    .println("Configuring Cert Instance: error checking deamon");
+            System.out.println(
+                    "Configuring Cert Instance: error checking deamon");
             return false;
         }
 
         // Step 10 :
         if (!certRequest(false)) {
-            System.out
-                    .println("Configuring Cert Instance: error creating Request");
+            System.out.println(
+                    "Configuring Cert Instance: error creating Request");
             return false;
         }
 
-        // After creating ssl cert
+        // After creating ssl cert 
         tokenPWD = mtokenPWD;
 
-        // Step 11
+        // Step 11 
         if (!singleSignON()) {
-            System.out
-                    .println("Configuring Cert Instance: error setting up singlesignon");
+            System.out.println(
+                    "Configuring Cert Instance: error setting up singlesignon");
             return false;
         }
 
-        // Step 11
+        // Step 11 
         if (!doMisc()) {
-            System.out
-                    .println("Configuring Cert Instance: error setting up miscell");
+            System.out.println(
+                    "Configuring Cert Instance: error setting up miscell");
             return false;
         }
 
-        // Step 12
+        // Step 12 
         if (!exitDeamon()) {
-            System.out
-                    .println("Configuring Cert Instance: Unable to exit deamon");
+            System.out.println(
+                    "Configuring Cert Instance: Unable to exit deamon");
             return false;
         }
 
@@ -1963,8 +1916,8 @@ public class AutoInstaller {
         // Step 1. Start Deamon
 
         if (!startDeamon()) {
-            System.out
-                    .println("Configuring Cert Instance: Unable to start deamon");
+            System.out.println(
+                    "Configuring Cert Instance: Unable to start deamon");
             return false;
         }
 
@@ -1978,63 +1931,62 @@ public class AutoInstaller {
 
         // Step 1a: Initialize Token ( Changed in 6.0)jjj
         if (!initializePWD()) {
-            System.out
-                    .println("Configuring Cert Instance: error initializing pwd token");
+            System.out.println(
+                    "Configuring Cert Instance: error initializing pwd token");
             return false;
         }
 
         // Step 2. Configure Internal DB
         if (!configInternalDB()) {
-            System.out
-                    .println("Configuring Cert Instance: error configuring internal db");
+            System.out.println(
+                    "Configuring Cert Instance: error configuring internal db");
             return false;
         }
 
         // Step 3. Create Admin Values
         if (!createAdminValues()) {
-            System.out
-                    .println("Configuring Cert Instance: error configuring admin values ");
+            System.out.println(
+                    "Configuring Cert Instance: error configuring admin values ");
             return false;
         }
 
         // Step 4. SubSystems
 
         if (!selectSubSystem()) {
-            System.out
-                    .println("Configuring Cert Instance: error selecting subsystems");
+            System.out.println(
+                    "Configuring Cert Instance: error selecting subsystems");
             return false;
         }
 
         // Step 5. Network Configuration
         if (!networkConfig()) {
-            System.out
-                    .println("Configuring Cert Instance: error configuring network ports ");
+            System.out.println(
+                    "Configuring Cert Instance: error configuring network ports ");
             return false;
         }
 
         // Step 6: Initialize Token This has been moved to step 1a
         if (!initializeToken()) {
-            System.out
-                    .println("Configuring Cert Instance: error initializing token");
+            System.out.println(
+                    "Configuring Cert Instance: error initializing token");
             return false;
         }
 
         // Step 7 : keyLenth
         if (!keyLength()) {
-            System.out
-                    .println("Configuring Cert Instance: error configuring KeyLength");
+            System.out.println(
+                    "Configuring Cert Instance: error configuring KeyLength");
             return false;
         }
 
         // Step 8 : CheckDN
         if (!checkDN()) {
-            System.out
-                    .println("Configuring Cert Instance: error checking deamon");
+            System.out.println(
+                    "Configuring Cert Instance: error checking deamon");
             return false;
         }
 
-        // Step 9 : certRequest and Install i.e approve the request as a trusted
-        // manager
+        // Step 9 : certRequest and Install  i.e approve the request as a trusted manager
         if (!certRequest(false)) {
             System.out.println("Configuring Cert Instance: error getting cert");
             return false;
@@ -2055,29 +2007,29 @@ public class AutoInstaller {
         signingCert = "server";
 
         if (!initializeToken()) {
-            System.out
-                    .println("Configuring Cert Instance: error initializing token");
+            System.out.println(
+                    "Configuring Cert Instance: error initializing token");
             return false;
         }
 
         // Step 8 : keyLenth
         if (!keyLength()) {
-            System.out
-                    .println("Configuring Cert Instance: error configuring KeyLength");
+            System.out.println(
+                    "Configuring Cert Instance: error configuring KeyLength");
             return false;
         }
 
         // Step 9 : CheckDN
         if (!checkDN()) {
-            System.out
-                    .println("Configuring Cert Instance: error checking deamon");
+            System.out.println(
+                    "Configuring Cert Instance: error checking deamon");
             return false;
         }
 
         // Step 10 :
         if (!certRequest(false)) {
-            System.out
-                    .println("Configuring Cert Instance: error creating Request");
+            System.out.println(
+                    "Configuring Cert Instance: error creating Request");
             return false;
         }
 
@@ -2086,22 +2038,22 @@ public class AutoInstaller {
 
         // Step 11
         if (!singleSignON()) {
-            System.out
-                    .println("Configuring Cert Instance: error setting up singlesignon");
+            System.out.println(
+                    "Configuring Cert Instance: error setting up singlesignon");
             return false;
         }
 
         // Step 11
         if (!doMisc()) {
-            System.out
-                    .println("Configuring Cert Instance: error setting up miscell");
+            System.out.println(
+                    "Configuring Cert Instance: error setting up miscell");
             return false;
         }
 
         // Step 12
         if (!exitDeamon()) {
-            System.out
-                    .println("Configuring Cert Instance: Unable to exit deamon");
+            System.out.println(
+                    "Configuring Cert Instance: Unable to exit deamon");
             return false;
         }
 
@@ -2112,13 +2064,13 @@ public class AutoInstaller {
 
     // org
     private boolean ConfCA() {
-        // Start Configuring
+        // Start Configuring 
 
         // Step 1. Start Deamon
 
         if (!startDeamon()) {
-            System.out
-                    .println("Configuring Cert Instance: Unable to start deamon");
+            System.out.println(
+                    "Configuring Cert Instance: Unable to start deamon");
             return false;
         }
 
@@ -2132,85 +2084,82 @@ public class AutoInstaller {
 
         // Step 1a: Initialize Token ( Changed in 6.0)jjj
         if (!initializePWD()) {
-            System.out
-                    .println("Configuring Cert Instance: error initializing pwd token");
+            System.out.println(
+                    "Configuring Cert Instance: error initializing pwd token");
             return false;
         }
 
         // Step 2. Configure Internal DB
         if (!configInternalDB()) {
-            System.out
-                    .println("Configuring Cert Instance: error configuring internal db");
+            System.out.println(
+                    "Configuring Cert Instance: error configuring internal db");
             return false;
         }
 
-        // Step 3. Create Admin Values
+        // Step 3. Create Admin Values 
         if (!createAdminValues()) {
-            System.out
-                    .println("Configuring Cert Instance: error configuring admin values ");
+            System.out.println(
+                    "Configuring Cert Instance: error configuring admin values ");
             return false;
         }
 
-        // Step 4. SubSystems
+        // Step 4. SubSystems 
 
         if (!selectSubSystem()) {
-            System.out
-                    .println("Configuring Cert Instance: error selecting subsystems");
+            System.out.println(
+                    "Configuring Cert Instance: error selecting subsystems");
             return false;
         }
 
-        // SetSerial Number
+        // SetSerial Number 
         if (!setSerial("1", "1000000")) {
-            System.out
-                    .println("Configuring Cert Instance: error setting serial number");
+            System.out.println(
+                    "Configuring Cert Instance: error setting serial number");
             return false;
         }
 
         if (!setOCSP()) {
-            System.out
-                    .println("Configuring Cert Instance: error selecting subsystems");
+            System.out.println(
+                    "Configuring Cert Instance: error selecting subsystems");
             return false;
         }
 
         // Step 5. Network Configuration
         if (!networkConfig()) {
-            System.out
-                    .println("Configuring Cert Instance: error configuring network ports ");
+            System.out.println(
+                    "Configuring Cert Instance: error configuring network ports ");
             return false;
         }
 
-        // Step 6. setting up Server Migration
+        // Step 6. setting up Server Migration 
 
         // if (!serverMigration())
-        // {
-        // System.out.println("Configuring Cert Instance: error configuring server migration");
-        // return false;}
+        // { System.out.println("Configuring Cert Instance: error configuring server migration"); return false;}
 
         // Step 7: Initialize Token
         if (!initializeToken()) {
-            System.out
-                    .println("Configuring Cert Instance: error initializing token");
+            System.out.println(
+                    "Configuring Cert Instance: error initializing token");
             return false;
         }
 
         // Step 8 : keyLenth
         if (!keyLength()) {
-            System.out
-                    .println("Configuring Cert Instance: error configuring KeyLength");
+            System.out.println(
+                    "Configuring Cert Instance: error configuring KeyLength");
             return false;
         }
 
-        // Step 9 : CheckDN
+        // Step 9 : CheckDN 
         if (!checkDN()) {
-            System.out
-                    .println("Configuring Cert Instance: error checking deamon");
+            System.out.println(
+                    "Configuring Cert Instance: error checking deamon");
             return false;
         }
 
         // Step 10 :
         if (!createCert()) {
-            System.out
-                    .println("Configuring Cert Instance: error creating cert");
+            System.out.println("Configuring Cert Instance: error creating cert");
             return false;
         }
 
@@ -2227,60 +2176,59 @@ public class AutoInstaller {
         tokenPWD = "";
 
         if (!initializeToken()) {
-            System.out
-                    .println("Configuring Cert Instance: error initializing token");
+            System.out.println(
+                    "Configuring Cert Instance: error initializing token");
             return false;
         }
 
         // Step 8 : keyLenth
         if (!keyLength()) {
-            System.out
-                    .println("Configuring Cert Instance: error configuring KeyLength");
+            System.out.println(
+                    "Configuring Cert Instance: error configuring KeyLength");
             return false;
         }
 
-        // Step 9 : CheckDN
+        // Step 9 : CheckDN 
         if (!checkDN()) {
-            System.out
-                    .println("Configuring Cert Instance: error checking deamon");
+            System.out.println(
+                    "Configuring Cert Instance: error checking deamon");
             return false;
         }
 
         // Step 10 :
         if (!createCert()) {
-            System.out
-                    .println("Configuring Cert Instance: error creating cert");
+            System.out.println("Configuring Cert Instance: error creating cert");
             return false;
         }
 
-        // After creating ssl cert
+        // After creating ssl cert 
         tokenPWD = mtokenPWD;
 
-        // Step 11
+        // Step 11 
         if (!singleSignON()) {
-            System.out
-                    .println("Configuring Cert Instance: error setting up singlesignon");
+            System.out.println(
+                    "Configuring Cert Instance: error setting up singlesignon");
             return false;
         }
 
-        // Step 11
+        // Step 11 
         if (!doMisc()) {
-            System.out
-                    .println("Configuring Cert Instance: error setting up miscell");
+            System.out.println(
+                    "Configuring Cert Instance: error setting up miscell");
             return false;
         }
 
-        // Step 12
+        // Step 12 
         if (!exitDeamon()) {
-            System.out
-                    .println("Configuring Cert Instance: Unable to exit deamon");
+            System.out.println(
+                    "Configuring Cert Instance: Unable to exit deamon");
             return false;
         }
 
         return true;
     }
 
-    // Configure Clone
+    // Configure Clone 
 
     private boolean ConfClone() {
         // Start Configuring
@@ -2288,8 +2236,8 @@ public class AutoInstaller {
         // Step 1. Start Deamon
 
         if (!startDeamon()) {
-            System.out
-                    .println("Configuring Cert Instance: Unable to start deamon");
+            System.out.println(
+                    "Configuring Cert Instance: Unable to start deamon");
             return false;
         }
 
@@ -2303,30 +2251,30 @@ public class AutoInstaller {
 
         // Step 1a: Initialize Token ( Changed in 6.0)jjj
         if (!initializePWD()) {
-            System.out
-                    .println("Configuring Cert Instance: error initializing pwd token");
+            System.out.println(
+                    "Configuring Cert Instance: error initializing pwd token");
             return false;
         }
 
         // Step 2. Configure Internal DB
         if (!configInternalDB()) {
-            System.out
-                    .println("Configuring Cert Instance: error configuring internal db");
+            System.out.println(
+                    "Configuring Cert Instance: error configuring internal db");
             return false;
         }
 
         // Step 3. Create Admin Values
         if (!createAdminValues()) {
-            System.out
-                    .println("Configuring Cert Instance: error configuring admin values ");
+            System.out.println(
+                    "Configuring Cert Instance: error configuring admin values ");
             return false;
         }
 
         // Step 4. SubSystems
 
         if (!selectSubSystem()) {
-            System.out
-                    .println("Configuring Cert Instance: error selecting subsystems");
+            System.out.println(
+                    "Configuring Cert Instance: error selecting subsystems");
             return false;
         }
 
@@ -2343,20 +2291,19 @@ public class AutoInstaller {
 
         // Step 5. Network Configuration
         if (!networkConfig()) {
-            System.out
-                    .println("Configuring Cert Instance: error configuring network ports ");
+            System.out.println(
+                    "Configuring Cert Instance: error configuring network ports ");
             return false;
         }
 
         if (!taskCloning()) {
-            System.out
-                    .println("Configuring Cert Instance: error Task Cloning ");
+            System.out.println("Configuring Cert Instance: error Task Cloning ");
             return false;
         }
 
         if (!taskCloneMaster()) {
-            System.out
-                    .println("Configuring Cert Instance: error configuring network ports ");
+            System.out.println(
+                    "Configuring Cert Instance: error configuring network ports ");
             return false;
         }
 
@@ -2364,29 +2311,28 @@ public class AutoInstaller {
         certType = "serverCert";
 
         if (!taskCloning()) {
-            System.out
-                    .println("Configuring Cert Instance: error Task Cloning ");
+            System.out.println("Configuring Cert Instance: error Task Cloning ");
             return false;
         }
 
-        // Step 11
+        // Step 11 
         if (!singleSignON()) {
-            System.out
-                    .println("Configuring Cert Instance: error setting up singlesignon");
+            System.out.println(
+                    "Configuring Cert Instance: error setting up singlesignon");
             return false;
         }
 
-        // Step 11
+        // Step 11 
         if (!doMisc()) {
-            System.out
-                    .println("Configuring Cert Instance: error setting up miscell");
+            System.out.println(
+                    "Configuring Cert Instance: error setting up miscell");
             return false;
         }
 
-        // Step 12
+        // Step 12 
         if (!exitDeamon()) {
-            System.out
-                    .println("Configuring Cert Instance: Unable to exit deamon");
+            System.out.println(
+                    "Configuring Cert Instance: Unable to exit deamon");
             return false;
         }
 
@@ -2399,11 +2345,11 @@ public class AutoInstaller {
         try {
             getProperties(propFileName);
         } catch (Exception e) {
-            System.out.println("exception reading Properties File "
-                    + e.getMessage());
+            System.out.println(
+                    "exception reading Properties File " + e.getMessage());
         }
 
-        // read all properties
+        // read all properties 
 
         adminDomain = props.getProperty("inst.admin.domain");
         adminID = props.getProperty("inst.admin.uid");
@@ -2475,12 +2421,12 @@ public class AutoInstaller {
         }
         if (subsystems.equals("ocsp")) {
             return ConfOCSP();
-        }
+        } 
         if (subsystems.equals("kra")) {
             return ConfKRA();
         }
         if (subsystems.equals("subca")) {
-            subca = true;
+            subca = true;	
             subsystems = "ca";
             return ConfSubCA();
         }
@@ -2490,8 +2436,9 @@ public class AutoInstaller {
 
     public static void main(String args[]) {
         // Exit Status - (-1) for error
-        // - 1 Configured and server Alive
-        // - 0 Configured bur could not sart server
+        // - 1  Configured and server Alive
+        // - 0  Configured bur could not sart server 
+
 
         AutoInstaller t = new AutoInstaller();
 
@@ -2501,13 +2448,13 @@ public class AutoInstaller {
         if (args.length < 1) {
             System.out.println("Usage : PropertiesFilePath");
             System.exit(-1);
-        }
-
+        }   
+    
         System.out.println("configuring Cert Instance : Start");
 
         boolean st = t.readProperties();
 
-        if (st) {
+        if (st) { 
             System.out.println("Configuring Cert Instance : Successful");
             System.exit(1);
         } else {
@@ -2517,5 +2464,5 @@ public class AutoInstaller {
         }
     }
 
-} // end of class
+} // end of class 
 

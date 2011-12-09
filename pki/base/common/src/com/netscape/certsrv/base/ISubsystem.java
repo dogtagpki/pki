@@ -17,9 +17,13 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.base;
 
+
+
+
 /**
- * An interface represents a CMS subsystem. CMS is made up of a list subsystems.
- * Each subsystem is responsible for a set of speciailized functions.
+ * An interface represents a CMS subsystem. CMS is made up of a list
+ * subsystems. Each subsystem is responsible for a set of 
+ * speciailized functions.
  * <P>
  * 
  * @version $Revision$, $Date$
@@ -28,40 +32,41 @@ public interface ISubsystem {
 
     /**
      * Retrieves the name of this subsystem.
-     * 
+     *
      * @return subsystem identifier
      */
     public String getId();
 
     /**
      * Sets specific to this subsystem.
-     * 
+     *
      * @param id subsystem identifier
      * @exception EBaseException failed to set id
      */
     public void setId(String id) throws EBaseException;
 
     /**
-     * Initializes this subsystem with the given configuration store.
+     * Initializes this subsystem with the given configuration
+     * store.
      * <P>
-     * 
+     *
      * @param owner owner of this subsystem
      * @param config configuration store
      * @exception EBaseException failed to initialize
      */
     public void init(ISubsystem owner, IConfigStore config)
-            throws EBaseException;
+        throws EBaseException;
 
     /**
      * Notifies this subsystem if owner is in running mode.
-     * 
+     *
      * @exception EBaseException failed to start up
      */
     public void startup() throws EBaseException;
 
     /**
-     * Stops this system. The owner may call shutdown anytime after
-     * initialization.
+     * Stops this system. The owner may call shutdown
+     * anytime after initialization.
      * <P>
      */
     public void shutdown();
@@ -69,7 +74,7 @@ public interface ISubsystem {
     /**
      * Returns the root configuration storage of this system.
      * <P>
-     * 
+     *
      * @return configuration store of this subsystem
      */
     public IConfigStore getConfigStore();

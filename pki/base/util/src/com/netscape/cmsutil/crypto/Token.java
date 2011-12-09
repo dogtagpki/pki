@@ -22,36 +22,36 @@ import org.mozilla.jss.crypto.CryptoToken;
 public class Token {
     CryptoToken mToken;
 
-    public Token(CryptoToken token) {
-        mToken = token;
+    public Token (CryptoToken token) {
+	    mToken = token;
     }
 
     public String getNickName() {
-        String nickName = "";
+        String nickName="";
         try {
-            nickName = mToken.getName();
+	        nickName = mToken.getName();
         } catch (Exception e) {
         }
-        return nickName;
+	    return nickName;
     }
 
     public boolean isLoggedIn() {
         boolean isLoggedIn = false;
         try {
-            isLoggedIn = mToken.isLoggedIn();
+	         isLoggedIn = mToken.isLoggedIn();
         } catch (Exception e) {
         }
 
-        return isLoggedIn;
+	    return isLoggedIn;
     }
 
     public boolean isPresent() {
         boolean isPresent = false;
         try {
-            isPresent = mToken.isPresent();
+	        isPresent = mToken.isPresent();
         } catch (Exception e) {
         }
 
-        return isPresent;
+	    return isPresent;
     }
 }

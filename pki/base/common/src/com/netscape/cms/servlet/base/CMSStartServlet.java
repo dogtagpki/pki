@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.base;
 
+
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -31,10 +32,11 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmsutil.util.Utils;
 
+
 /**
- * This servlet is started by the web server at startup, and it starts the CMS
- * framework.
- * 
+ * This servlet is started by the web server at startup, and
+ * it starts the CMS framework.
+ *
  * @version $Revision$, $Date$
  */
 public class CMSStartServlet extends HttpServlet {
@@ -53,33 +55,34 @@ public class CMSStartServlet extends HttpServlet {
         if (!f.exists()) {
             int index = path.lastIndexOf("CS.cfg");
             if (index != -1) {
-                old_path = path.substring(0, index) + "CMS.cfg";
+                old_path = path.substring(0, index)+"CMS.cfg";
             }
             File f1 = new File(old_path);
             if (f1.exists()) {
                 // The following block of code moves "CMS.cfg" to "CS.cfg".
                 try {
-                    if (Utils.isNT()) {
+                    if( Utils.isNT() ) {
                         // NT is very picky on the path
-                        Utils.exec("copy "
-                                + f1.getAbsolutePath().replace('/', '\\') + " "
-                                + f.getAbsolutePath().replace('/', '\\'));
+                        Utils.exec( "copy " +
+                                    f1.getAbsolutePath().replace( '/', '\\' ) +
+                                    " " +
+                                    f.getAbsolutePath().replace( '/', '\\' ) );
                     } else {
                         // Create a copy of the original file which
                         // preserves the original file permissions.
-                        Utils.exec("cp -p " + f1.getAbsolutePath() + " "
-                                + f.getAbsolutePath());
+                        Utils.exec( "cp -p " + f1.getAbsolutePath() + " " +
+                                    f.getAbsolutePath() );
                     }
 
                     // Remove the original file if and only if
                     // the backup copy was successful.
-                    if (f.exists()) {
+                    if( f.exists() ) {
                         f1.delete();
 
                         // Make certain that the new file has
                         // the correct permissions.
-                        if (!Utils.isNT()) {
-                            Utils.exec("chmod 00660 " + f.getAbsolutePath());
+                        if( !Utils.isNT() ) {
+                            Utils.exec( "chmod 00660 " + f.getAbsolutePath() );
                         }
                     }
                 } catch (Exception e) {
@@ -93,7 +96,7 @@ public class CMSStartServlet extends HttpServlet {
     }
 
     public void doGet(HttpServletRequest req, HttpServletResponse res)
-            throws ServletException, IOException {
+        throws ServletException, IOException {
         res.setContentType("text/html");
 
         PrintWriter out = res.getWriter();

@@ -17,16 +17,18 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.request;
 
+
 import com.netscape.certsrv.base.EBaseException;
 
+
 /**
- * A (localizable) message recorded by a policy module that describes the reason
- * for rejecting a request.
+ * A (localizable) message recorded by a policy module that describes
+ * the reason for rejecting a request.
  * <p>
- * 
  * @version $Revision$, $Date$
  */
-public class PolicyMessage extends EBaseException {
+public class PolicyMessage
+    extends EBaseException {
 
     /**
      *
@@ -36,7 +38,6 @@ public class PolicyMessage extends EBaseException {
     /**
      * Class constructor that registers policy message.
      * <p>
-     * 
      * @param message message string
      */
     public PolicyMessage(String message) {

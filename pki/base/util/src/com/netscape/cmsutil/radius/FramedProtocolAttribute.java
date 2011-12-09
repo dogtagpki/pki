@@ -17,7 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmsutil.radius;
 
+
 import java.io.IOException;
+
 
 public class FramedProtocolAttribute extends Attribute {
     public static final int PPP = 1;
@@ -33,9 +35,9 @@ public class FramedProtocolAttribute extends Attribute {
     public FramedProtocolAttribute(byte value[]) {
         super();
         _t = SERVICE_TYPE;
-        _type = value[5] & 0xFF;
-        _type |= ((value[4] << 8) & 0xFF00);
-        _type |= ((value[3] << 16) & 0xFF0000);
+        _type = value[5] & 0xFF; 
+        _type |= ((value[4] << 8) & 0xFF00); 
+        _type |= ((value[3] << 16) & 0xFF0000); 
         _type |= ((value[2] << 24) & 0xFF000000);
         _value = value;
     }

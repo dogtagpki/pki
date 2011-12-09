@@ -18,19 +18,16 @@
 package com.netscape.certsrv.kra;
 
 /**
- * Use Java's reflection API to leverage CMS's old Share and JoinShares
- * implementations.
- * 
+ * Use Java's reflection API to leverage CMS's
+ * old Share and JoinShares implementations.
+ *
  * @deprecated
  * @version $Revision$ $Date$
  */
 public interface IJoinShares {
 
     public void initialize(int threshold) throws Exception;
-
     public void addShare(int shareNum, byte[] share);
-
     public int getShareCount();
-
     public byte[] recoverSecret();
 }

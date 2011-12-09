@@ -20,9 +20,12 @@
 
 package com.netscape.certsrv.selftests;
 
+
 ///////////////////////
 // import statements //
 ///////////////////////
+
+
 
 //////////////////////
 // class definition //
@@ -30,22 +33,25 @@ package com.netscape.certsrv.selftests;
 
 /**
  * This class implements an invalid self test exception.
- * EInvalidSelfTestExceptions are derived from ESelfTestExceptions in order to
- * allow users to easily do self tests without try-catch clauses.
- * 
+ * EInvalidSelfTestExceptions are derived from ESelfTestExceptions
+ * in order to allow users to easily do self tests without try-catch clauses.
+ *
  * EInvalidSelfTestExceptions should be caught by SelfTestSubsystem managers.
  * <P>
  * 
  * @version $Revision$, $Date$
  */
-public class EInvalidSelfTestException extends ESelfTestException {
-    // //////////////////////
+public class EInvalidSelfTestException
+    extends ESelfTestException {
+    ////////////////////////
     // default parameters //
-    // //////////////////////
+    ////////////////////////
 
-    // /////////////////////
+
+
+    ///////////////////////
     // helper parameters //
-    // /////////////////////
+    ///////////////////////
 
     /**
      *
@@ -56,26 +62,32 @@ public class EInvalidSelfTestException extends ESelfTestException {
     private String mInstanceParameter = null;
     private String mInstanceValue = null;
 
-    // ////////////////////////////////////////
+    //////////////////////////////////////////
     // EInvalidSelfTestException parameters //
-    // ////////////////////////////////////////
+    //////////////////////////////////////////
 
-    // /////////////////////////////////////////////
+
+
+    ///////////////////////////////////////////////
     // ESelfTestException parameters (inherited) //
-    // /////////////////////////////////////////////
+    ///////////////////////////////////////////////
 
-    // ///////////////////
+
+
+    /////////////////////
     // default methods //
-    // ///////////////////
+    /////////////////////
 
     /**
      * Constructs an "invalid" self test exception.
      * <P>
-     * 
+     *
      * @param instanceName invalid "instanceName" exception details
      */
     public EInvalidSelfTestException(String instanceName) {
-        super("The self test plugin named " + instanceName + " is invalid.");
+        super("The self test plugin named "
+            + instanceName
+            + " is invalid.");
 
         // strip preceding/trailing whitespace
         // from passed-in String parameters
@@ -91,13 +103,17 @@ public class EInvalidSelfTestException extends ESelfTestException {
      * Constructs a "invalid" self test exception where the value is always
      * invalid from a name/value pair
      * <P>
-     * 
+     *
      * @param instanceName invalid "instanceName" exception details
      * @param instanceValue invalid "instanceValue" exception details
      */
-    public EInvalidSelfTestException(String instanceName, String instanceValue) {
-        super("The self test plugin named " + instanceName
-                + " contains a value " + instanceValue + " which is invalid.");
+    public EInvalidSelfTestException(String instanceName,
+        String instanceValue) {
+        super("The self test plugin named "
+            + instanceName
+            + " contains a value "
+            + instanceValue
+            + " which is invalid.");
 
         // strip preceding/trailing whitespace
         // from passed-in String parameters
@@ -115,19 +131,21 @@ public class EInvalidSelfTestException extends ESelfTestException {
 
     /**
      * Constructs an "invalid" self test exception where the parameter is always
-     * invalid from a substore.parameter/value pair; (the value passed in may be
-     * null).
+     * invalid from a substore.parameter/value pair; (the value passed in may
+     * be null).
      * <P>
-     * 
+     *
      * @param instanceStore invalid "instanceStore" exception details
      * @param instanceParameter invalid "instanceParameter" exception details
-     * @param instanceValue invalid "instanceValue" exception details (may be
-     *            null)
+     * @param instanceValue invalid "instanceValue" exception details
+     * (may be null)
      */
     public EInvalidSelfTestException(String instanceStore,
-            String instanceParameter, String instanceValue) {
-        super("The self test plugin parameter named " + instanceStore + "."
-                + instanceParameter + " is invalid.");
+        String instanceParameter,
+        String instanceValue) {
+        super("The self test plugin parameter named "
+            + instanceStore + "." + instanceParameter
+            + " is invalid.");
 
         // strip preceding/trailing whitespace
         // from passed-in String parameters
@@ -147,14 +165,14 @@ public class EInvalidSelfTestException extends ESelfTestException {
         mInstanceValue = instanceValue;
     }
 
-    // //////////////////
+    ////////////////////
     // helper methods //
-    // //////////////////
+    ////////////////////
 
     /**
      * Returns the instance name associated with this self test.
      * <P>
-     * 
+     *
      * @return name portion of the name/value pair
      */
     public String getInstanceName() {
@@ -164,7 +182,7 @@ public class EInvalidSelfTestException extends ESelfTestException {
     /**
      * Returns the store associated with this self test.
      * <P>
-     * 
+     *
      * @return substore portion of the substore.parameter/value pair
      */
     public String getInstanceStore() {
@@ -174,7 +192,7 @@ public class EInvalidSelfTestException extends ESelfTestException {
     /**
      * Returns the parameter associated with this self test.
      * <P>
-     * 
+     *
      * @return parameter portion of the substore.parameter/value pair
      */
     public String getInstanceParameter() {
@@ -184,25 +202,27 @@ public class EInvalidSelfTestException extends ESelfTestException {
     /**
      * Returns the value associated with this self test.
      * <P>
-     * 
+     *
      * @return value portion of the name/value pair
      */
     public String getInstanceValue() {
         return mInstanceValue;
     }
 
-    // /////////////////////////////////////
+    ///////////////////////////////////////
     // EInvalidSelfTestException methods //
-    // /////////////////////////////////////
+    ///////////////////////////////////////
 
-    // //////////////////////////////////////////
+
+
+    ////////////////////////////////////////////
     // ESelfTestException methods (inherited) //
-    // //////////////////////////////////////////
+    ////////////////////////////////////////////
 
-    /*
-     * Note that all of the following ESelfTestException methods are inherited
-     * from the ESelfTestException class:
-     * 
+    /* Note that all of the following ESelfTestException methods
+     * are inherited from the ESelfTestException class:
+     *
      * public ESelfTestException( String msg );
      */
 }
+

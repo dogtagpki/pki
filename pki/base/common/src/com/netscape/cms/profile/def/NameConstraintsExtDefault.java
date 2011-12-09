@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.def;
 
+
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Locale;
@@ -40,22 +41,25 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 
+
 /**
- * This class implements an enrollment default policy that populates a name
- * constraint extension into the certificate template.
- * 
+ * This class implements an enrollment default policy
+ * that populates a name constraint extension
+ * into the certificate template.
+ *
  * @version $Revision$, $Date$
  */
 public class NameConstraintsExtDefault extends EnrollExtDefault {
 
     public static final String CONFIG_CRITICAL = "nameConstraintsCritical";
-    public static final String CONFIG_NUM_PERMITTED_SUBTREES = "nameConstraintsNumPermittedSubtrees";
+    public static final String CONFIG_NUM_PERMITTED_SUBTREES = 
+        "nameConstraintsNumPermittedSubtrees";
     public static final String CONFIG_PERMITTED_MIN_VAL = "nameConstraintsPermittedSubtreeMinValue_";
     public static final String CONFIG_PERMITTED_MAX_VAL = "nameConstraintsPermittedSubtreeMaxValue_";
     public static final String CONFIG_PERMITTED_NAME_CHOICE = "nameConstraintsPermittedSubtreeNameChoice_";
     public static final String CONFIG_PERMITTED_NAME_VAL = "nameConstraintsPermittedSubtreeNameValue_";
     public static final String CONFIG_PERMITTED_ENABLE = "nameConstraintsPermittedSubtreeEnable_";
-
+    
     public static final String CONFIG_NUM_EXCLUDED_SUBTREES = "nameConstraintsNumExcludedSubtrees";
     public static final String CONFIG_EXCLUDED_MIN_VAL = "nameConstraintsExcludedSubtreeMinValue_";
     public static final String CONFIG_EXCLUDED_MAX_VAL = "nameConstraintsExcludedSubtreeMaxValue_";
@@ -83,7 +87,7 @@ public class NameConstraintsExtDefault extends EnrollExtDefault {
     }
 
     public void init(IProfile profile, IConfigStore config)
-            throws EProfileException {
+        throws EProfileException {
         super.init(profile, config);
         refreshConfigAndValueNames();
 
@@ -124,40 +128,40 @@ public class NameConstraintsExtDefault extends EnrollExtDefault {
         return num;
     }
 
-    public void setConfig(String name, String value) throws EPropertyException {
+     public void setConfig(String name, String value)
+        throws EPropertyException {
         int num = 0;
         if (name.equals(CONFIG_NUM_PERMITTED_SUBTREES)) {
-            try {
-                num = Integer.parseInt(value);
+          try {
+            num = Integer.parseInt(value);
 
-                if (num >= MAX_NUM_PERMITTED_SUBTREES || num < 0) {
-                    throw new EPropertyException(CMS.getUserMessage(
-                            "CMS_INVALID_PROPERTY",
-                            CONFIG_NUM_PERMITTED_SUBTREES));
-                }
-
-            } catch (Exception e) {
+            if (num >= MAX_NUM_PERMITTED_SUBTREES || num < 0) {
                 throw new EPropertyException(CMS.getUserMessage(
-                        "CMS_INVALID_PROPERTY", CONFIG_NUM_PERMITTED_SUBTREES));
+                            "CMS_INVALID_PROPERTY", CONFIG_NUM_PERMITTED_SUBTREES));
             }
-        } else if (name.equals(CONFIG_NUM_EXCLUDED_SUBTREES)) {
+
+          } catch (Exception e) {
+                throw new EPropertyException(CMS.getUserMessage(
+                            "CMS_INVALID_PROPERTY", CONFIG_NUM_PERMITTED_SUBTREES));
+          }
+        } else if(name.equals(CONFIG_NUM_EXCLUDED_SUBTREES)) {
 
             try {
-                num = Integer.parseInt(value);
+              num = Integer.parseInt(value);
 
-                if (num >= MAX_NUM_EXCLUDED_SUBTREES || num < 0) {
-                    throw new EPropertyException(CMS.getUserMessage(
-                            "CMS_INVALID_PROPERTY",
-                            CONFIG_NUM_EXCLUDED_SUBTREES));
-                }
-
-            } catch (Exception e) {
+            if (num >= MAX_NUM_EXCLUDED_SUBTREES || num < 0) {
                 throw new EPropertyException(CMS.getUserMessage(
-                        "CMS_INVALID_PROPERTY", CONFIG_NUM_EXCLUDED_SUBTREES));
+                            "CMS_INVALID_PROPERTY", CONFIG_NUM_EXCLUDED_SUBTREES));
             }
+
+          } catch (Exception e) {
+                throw new EPropertyException(CMS.getUserMessage(
+                            "CMS_INVALID_PROPERTY", CONFIG_NUM_EXCLUDED_SUBTREES));
+          }
         }
         super.setConfig(name, value);
     }
+
 
     public Enumeration getConfigNames() {
         refreshConfigAndValueNames();
@@ -165,7 +169,7 @@ public class NameConstraintsExtDefault extends EnrollExtDefault {
     }
 
     protected void refreshConfigAndValueNames() {
-        // refesh our config name list
+        //refesh our config name list
 
         super.refreshConfigAndValueNames();
 
@@ -199,112 +203,119 @@ public class NameConstraintsExtDefault extends EnrollExtDefault {
 
     }
 
-    public IDescriptor getConfigDescriptor(Locale locale, String name) {
+
+    public IDescriptor getConfigDescriptor(Locale locale, String name) { 
         if (name.equals(CONFIG_CRITICAL)) {
-            return new Descriptor(IDescriptor.BOOLEAN, null, "false",
+            return new Descriptor(IDescriptor.BOOLEAN, null, 
+                    "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_CRITICAL"));
         } else if (name.startsWith(CONFIG_PERMITTED_MIN_VAL)) {
-            return new Descriptor(IDescriptor.STRING, null, null,
+            return new Descriptor(IDescriptor.STRING, null, 
+                    null,
                     CMS.getUserMessage(locale, "CMS_PROFILE_PERMITTED_MIN_VAL"));
         } else if (name.startsWith(CONFIG_PERMITTED_MAX_VAL)) {
-            return new Descriptor(IDescriptor.STRING, null, null,
+            return new Descriptor(IDescriptor.STRING, null, 
+                    null,
                     CMS.getUserMessage(locale, "CMS_PROFILE_PERMITTED_MAX_VAL"));
         } else if (name.startsWith(CONFIG_PERMITTED_NAME_CHOICE)) {
-            return new Descriptor(IDescriptor.STRING, null, null,
-                    CMS.getUserMessage(locale,
-                            "CMS_PROFILE_PERMITTED_NAME_CHOICE"));
-        } else if (name.startsWith(CONFIG_PERMITTED_NAME_VAL)) {
-            return new Descriptor(
-                    IDescriptor.STRING,
+            return new Descriptor(IDescriptor.STRING, null, 
                     null,
+                    CMS.getUserMessage(locale, "CMS_PROFILE_PERMITTED_NAME_CHOICE"));
+        } else if (name.startsWith(CONFIG_PERMITTED_NAME_VAL)) {
+            return new Descriptor(IDescriptor.STRING, null, 
                     null,
                     CMS.getUserMessage(locale, "CMS_PROFILE_PERMITTED_NAME_VAL"));
         } else if (name.startsWith(CONFIG_PERMITTED_ENABLE)) {
-            return new Descriptor(IDescriptor.BOOLEAN, null, "false",
+            return new Descriptor(IDescriptor.BOOLEAN, null, 
+                    "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_ENABLE"));
         } else if (name.startsWith(CONFIG_EXCLUDED_MIN_VAL)) {
-            return new Descriptor(IDescriptor.STRING, null, null,
+            return new Descriptor(IDescriptor.STRING, null, 
+                    null,
                     CMS.getUserMessage(locale, "CMS_PROFILE_EXCLUDED_MIN_VAL"));
         } else if (name.startsWith(CONFIG_EXCLUDED_MAX_VAL)) {
-            return new Descriptor(IDescriptor.STRING, null, null,
+            return new Descriptor(IDescriptor.STRING, null, 
+                    null,
                     CMS.getUserMessage(locale, "CMS_PROFILE_EXCLUDED_MAX_VAL"));
         } else if (name.startsWith(CONFIG_EXCLUDED_NAME_CHOICE)) {
-            return new Descriptor(IDescriptor.STRING, null, null,
-                    CMS.getUserMessage(locale,
-                            "CMS_PROFILE_EXCLUDED_NAME_CHOICE"));
+            return new Descriptor(IDescriptor.STRING, null, 
+                    null,
+                    CMS.getUserMessage(locale, "CMS_PROFILE_EXCLUDED_NAME_CHOICE"));
         } else if (name.startsWith(CONFIG_EXCLUDED_NAME_VAL)) {
-            return new Descriptor(IDescriptor.STRING, null, null,
+            return new Descriptor(IDescriptor.STRING, null, 
+                    null,
                     CMS.getUserMessage(locale, "CMS_PROFILE_EXCLUDED_NAME_VAL"));
         } else if (name.startsWith(CONFIG_EXCLUDED_ENABLE)) {
-            return new Descriptor(IDescriptor.BOOLEAN, null, "false",
+            return new Descriptor(IDescriptor.BOOLEAN, null, 
+                    "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_ENABLE"));
         } else if (name.startsWith(CONFIG_NUM_EXCLUDED_SUBTREES)) {
-            return new Descriptor(IDescriptor.INTEGER, null, "1",
-                    CMS.getUserMessage(locale,
-                            "CMS_PROFILE_NUM_EXCLUDED_SUBTREES"));
+            return new Descriptor(IDescriptor.INTEGER, null,
+                    "1",
+                    CMS.getUserMessage(locale, "CMS_PROFILE_NUM_EXCLUDED_SUBTREES"));
         } else if (name.startsWith(CONFIG_NUM_PERMITTED_SUBTREES)) {
-            return new Descriptor(IDescriptor.INTEGER, null, "1",
-                    CMS.getUserMessage(locale,
-                            "CMS_PROFILE_NUM_PERMITTED_SUBTREES"));
+            return new Descriptor(IDescriptor.INTEGER, null,
+                   "1",
+                   CMS.getUserMessage(locale, "CMS_PROFILE_NUM_PERMITTED_SUBTREES"));
         }
         return null;
     }
 
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         if (name.equals(VAL_CRITICAL)) {
-            return new Descriptor(IDescriptor.BOOLEAN, null, "false",
+            return new Descriptor(IDescriptor.BOOLEAN, null, 
+                    "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_CRITICAL"));
         } else if (name.equals(VAL_PERMITTED_SUBTREES)) {
-            return new Descriptor(
-                    IDescriptor.STRING_LIST,
-                    null,
+            return new Descriptor(IDescriptor.STRING_LIST, null, 
                     null,
                     CMS.getUserMessage(locale, "CMS_PROFILE_PERMITTED_SUBTREES"));
         } else if (name.equals(VAL_EXCLUDED_SUBTREES)) {
-            return new Descriptor(IDescriptor.STRING_LIST, null, null,
+            return new Descriptor(IDescriptor.STRING_LIST, null, 
+                    null,
                     CMS.getUserMessage(locale, "CMS_PROFILE_EXCLUDED_SUBTREES"));
         } else {
             return null;
         }
     }
 
-    public void setValue(String name, Locale locale, X509CertInfo info,
-            String value) throws EPropertyException {
+    public void setValue(String name, Locale locale,
+        X509CertInfo info, String value)
+        throws EPropertyException {
         try {
             NameConstraintsExtension ext = null;
 
-            if (name == null) {
-                throw new EPropertyException(CMS.getUserMessage(locale,
-                        "CMS_INVALID_PROPERTY", name));
+            if (name == null) { 
+                throw new EPropertyException(CMS.getUserMessage( 
+                            locale, "CMS_INVALID_PROPERTY", name));
             }
 
-            ext = (NameConstraintsExtension) getExtension(
-                    PKIXExtensions.NameConstraints_Id.toString(), info);
+            ext = (NameConstraintsExtension)
+                        getExtension(PKIXExtensions.NameConstraints_Id.toString(), info);
 
-            if (ext == null) {
-                populate(null, info);
+            if(ext == null)  {
+                populate(null,info);
             }
 
             if (name.equals(VAL_CRITICAL)) {
-                ext = (NameConstraintsExtension) getExtension(
-                        PKIXExtensions.NameConstraints_Id.toString(), info);
+                ext = (NameConstraintsExtension)
+                        getExtension(PKIXExtensions.NameConstraints_Id.toString(), info);
                 boolean val = Boolean.valueOf(value).booleanValue();
 
-                if (ext == null) {
+                if(ext == null)  {
                     return;
                 }
-                ext.setCritical(val);
-            } else if (name.equals(VAL_PERMITTED_SUBTREES)) {
-                ext = (NameConstraintsExtension) getExtension(
-                        PKIXExtensions.NameConstraints_Id.toString(), info);
+                ext.setCritical(val); 
+            } else if (name.equals(VAL_PERMITTED_SUBTREES)) { 
+                ext = (NameConstraintsExtension)
+                        getExtension(PKIXExtensions.NameConstraints_Id.toString(), info);
 
-                if (ext == null) {
+                if(ext == null)  {
                     return;
                 }
-                if ((value == null) || (value.equals("null"))
-                        || (value.equals(""))) {
-                    CMS.debug("NameConstraintsExtDefault:setValue : "
-                            + "blank value for permitted subtrees ... returning");
+                if ((value == null) || (value.equals("null")) || (value.equals(""))) {
+                    CMS.debug("NameConstraintsExtDefault:setValue : " + 
+                              "blank value for permitted subtrees ... returning");
                     return;
                 }
 
@@ -312,47 +323,44 @@ public class NameConstraintsExtDefault extends EnrollExtDefault {
 
                 Vector permittedSubtrees = createSubtrees(locale, v);
 
-                ext.set(NameConstraintsExtension.PERMITTED_SUBTREES,
-                        new GeneralSubtrees(permittedSubtrees));
+                ext.set(NameConstraintsExtension.PERMITTED_SUBTREES, 
+                    new GeneralSubtrees(permittedSubtrees));
             } else if (name.equals(VAL_EXCLUDED_SUBTREES)) {
-                ext = (NameConstraintsExtension) getExtension(
-                        PKIXExtensions.NameConstraints_Id.toString(), info);
+                ext = (NameConstraintsExtension)
+                        getExtension(PKIXExtensions.NameConstraints_Id.toString(), info);
 
-                if (ext == null) {
+                if(ext == null)  {
                     return;
                 }
-                if ((value == null) || (value.equals("null"))
-                        || (value.equals(""))) {
-                    CMS.debug("NameConstraintsExtDefault:setValue : "
-                            + "blank value for excluded subtrees ... returning");
+                if ((value == null) || (value.equals("null")) || (value.equals(""))) {
+                    CMS.debug("NameConstraintsExtDefault:setValue : " + 
+                              "blank value for excluded subtrees ... returning");
                     return;
                 }
                 Vector v = parseRecords(value);
 
                 Vector excludedSubtrees = createSubtrees(locale, v);
 
-                ext.set(NameConstraintsExtension.EXCLUDED_SUBTREES,
-                        new GeneralSubtrees(excludedSubtrees));
+                ext.set(NameConstraintsExtension.EXCLUDED_SUBTREES, 
+                    new GeneralSubtrees(excludedSubtrees));
             } else {
-                throw new EPropertyException(CMS.getUserMessage(locale,
-                        "CMS_INVALID_PROPERTY", name));
+                throw new EPropertyException(CMS.getUserMessage( 
+                            locale, "CMS_INVALID_PROPERTY", name));
             }
 
-            replaceExtension(PKIXExtensions.NameConstraints_Id.toString(), ext,
-                    info);
+            replaceExtension(PKIXExtensions.NameConstraints_Id.toString(), ext, info);
         } catch (IOException e) {
             CMS.debug("NameConstraintsExtDefault: setValue " + e.toString());
-            throw new EPropertyException(CMS.getUserMessage(locale,
-                    "CMS_INVALID_PROPERTY", name));
+            throw new EPropertyException(CMS.getUserMessage( 
+                        locale, "CMS_INVALID_PROPERTY", name));
         } catch (EProfileException e) {
             CMS.debug("NameConstraintsExtDefault: setValue " + e.toString());
-            throw new EPropertyException(CMS.getUserMessage(locale,
-                    "CMS_INVALID_PROPERTY", name));
+            throw new EPropertyException(CMS.getUserMessage( 
+                        locale, "CMS_INVALID_PROPERTY", name));
         }
     }
 
-    private Vector createSubtrees(Locale locale, Vector v)
-            throws EPropertyException {
+    private Vector createSubtrees(Locale locale, Vector v) throws EPropertyException {
         int size = v.size();
         String choice = null;
         String val = "";
@@ -377,16 +385,16 @@ public class NameConstraintsExtDefault extends EnrollExtDefault {
                 } else if (name1.equals(MAX_VALUE)) {
                     maxS = nvps.getValue(name1);
                 }
-            }
+            } 
 
             if (choice == null || choice.length() == 0) {
                 throw new EPropertyException(CMS.getUserMessage(locale,
-                        "CMS_PROFILE_GENERAL_NAME_NOT_FOUND"));
+                            "CMS_PROFILE_GENERAL_NAME_NOT_FOUND"));
             }
-
+                 
             if (val == null)
                 val = "";
-
+                   
             int min = 0;
             int max = -1;
 
@@ -401,50 +409,53 @@ public class NameConstraintsExtDefault extends EnrollExtDefault {
             try {
                 gnI = parseGeneralName(choice + ":" + val);
             } catch (IOException e) {
-                CMS.debug("NameConstraintsExtDefault: createSubtress "
-                        + e.toString());
+                CMS.debug("NameConstraintsExtDefault: createSubtress " +
+                    e.toString());
             }
 
             if (gnI != null) {
                 gn = new GeneralName(gnI);
             } else {
                 throw new EPropertyException(CMS.getUserMessage(locale,
-                        "CMS_PROFILE_GENERAL_NAME_NOT_FOUND"));
+                            "CMS_PROFILE_GENERAL_NAME_NOT_FOUND"));
             }
-            GeneralSubtree subtree = new GeneralSubtree(gn, min, max);
+            GeneralSubtree subtree = new GeneralSubtree(
+                    gn, min, max);
 
             subtrees.addElement(subtree);
-        }
+        } 
 
         return subtrees;
     }
 
-    public String getValue(String name, Locale locale, X509CertInfo info)
-            throws EPropertyException {
+    public String getValue(String name, Locale locale,
+        X509CertInfo info)
+        throws EPropertyException {
         NameConstraintsExtension ext = null;
 
         if (name == null) {
-            throw new EPropertyException(CMS.getUserMessage(locale,
-                    "CMS_INVALID_PROPERTY", name));
+            throw new EPropertyException(CMS.getUserMessage( 
+                        locale, "CMS_INVALID_PROPERTY", name));
         }
 
-        ext = (NameConstraintsExtension) getExtension(
-                PKIXExtensions.NameConstraints_Id.toString(), info);
+        ext = (NameConstraintsExtension)
+                    getExtension(PKIXExtensions.NameConstraints_Id.toString(), info); 
 
-        if (ext == null) {
+        if(ext == null)
+        {
             try {
-                populate(null, info);
+                populate(null,info);
 
             } catch (EProfileException e) {
-                throw new EPropertyException(CMS.getUserMessage(locale,
-                        "CMS_INVALID_PROPERTY", name));
+                 throw new EPropertyException(CMS.getUserMessage(
+                      locale, "CMS_INVALID_PROPERTY", name));
             }
 
         }
 
         if (name.equals(VAL_CRITICAL)) {
-            ext = (NameConstraintsExtension) getExtension(
-                    PKIXExtensions.NameConstraints_Id.toString(), info);
+            ext = (NameConstraintsExtension)
+                    getExtension(PKIXExtensions.NameConstraints_Id.toString(), info);
 
             if (ext == null) {
                 return null;
@@ -454,9 +465,9 @@ public class NameConstraintsExtDefault extends EnrollExtDefault {
             } else {
                 return "false";
             }
-        } else if (name.equals(VAL_PERMITTED_SUBTREES)) {
-            ext = (NameConstraintsExtension) getExtension(
-                    PKIXExtensions.NameConstraints_Id.toString(), info);
+        } else if (name.equals(VAL_PERMITTED_SUBTREES)) { 
+            ext = (NameConstraintsExtension)
+                    getExtension(PKIXExtensions.NameConstraints_Id.toString(), info);
 
             if (ext == null)
                 return "";
@@ -464,21 +475,21 @@ public class NameConstraintsExtDefault extends EnrollExtDefault {
             GeneralSubtrees subtrees = null;
 
             try {
-                subtrees = (GeneralSubtrees) ext
-                        .get(NameConstraintsExtension.PERMITTED_SUBTREES);
+                subtrees = (GeneralSubtrees) 
+                        ext.get(NameConstraintsExtension.PERMITTED_SUBTREES);
             } catch (IOException e) {
                 CMS.debug("NameConstraintExtDefault: getValue " + e.toString());
             }
 
-            if (subtrees == null) {
-                CMS.debug("NameConstraintsExtDefault::getValue() VAL_PERMITTED_SUBTREES is null!");
-                throw new EPropertyException("subtrees is null");
+            if( subtrees == null ) {
+                CMS.debug( "NameConstraintsExtDefault::getValue() VAL_PERMITTED_SUBTREES is null!" );
+                throw new EPropertyException( "subtrees is null" );
             }
 
             return getSubtreesInfo(ext, subtrees);
-        } else if (name.equals(VAL_EXCLUDED_SUBTREES)) {
-            ext = (NameConstraintsExtension) getExtension(
-                    PKIXExtensions.NameConstraints_Id.toString(), info);
+        } else if (name.equals(VAL_EXCLUDED_SUBTREES)) { 
+            ext = (NameConstraintsExtension)
+                    getExtension(PKIXExtensions.NameConstraints_Id.toString(), info);
 
             if (ext == null)
                 return "";
@@ -486,26 +497,26 @@ public class NameConstraintsExtDefault extends EnrollExtDefault {
             GeneralSubtrees subtrees = null;
 
             try {
-                subtrees = (GeneralSubtrees) ext
-                        .get(NameConstraintsExtension.EXCLUDED_SUBTREES);
+                subtrees = (GeneralSubtrees) 
+                        ext.get(NameConstraintsExtension.EXCLUDED_SUBTREES);
             } catch (IOException e) {
                 CMS.debug("NameConstraintExtDefault: getValue " + e.toString());
             }
 
-            if (subtrees == null) {
-                CMS.debug("NameConstraintsExtDefault::getValue() VAL_EXCLUDED_SUBTREES is null!");
-                throw new EPropertyException("subtrees is null");
+            if( subtrees == null ) {
+                CMS.debug( "NameConstraintsExtDefault::getValue() VAL_EXCLUDED_SUBTREES is null!" );
+                throw new EPropertyException( "subtrees is null" );
             }
 
             return getSubtreesInfo(ext, subtrees);
         } else {
-            throw new EPropertyException(CMS.getUserMessage(locale,
-                    "CMS_INVALID_PROPERTY", name));
+            throw new EPropertyException(CMS.getUserMessage( 
+                        locale, "CMS_INVALID_PROPERTY", name));
         }
     }
 
-    private String getSubtreesInfo(NameConstraintsExtension ext,
-            GeneralSubtrees subtrees) throws EPropertyException {
+    private String getSubtreesInfo(NameConstraintsExtension ext, 
+        GeneralSubtrees subtrees) throws EPropertyException {
         Vector trees = subtrees.getSubtrees();
         int size = trees.size();
 
@@ -515,8 +526,8 @@ public class NameConstraintsExtDefault extends EnrollExtDefault {
             GeneralSubtree tree = (GeneralSubtree) trees.elementAt(i);
 
             GeneralName gn = tree.getGeneralName();
-            String type = getGeneralNameType(gn);
-            int max = tree.getMaxValue();
+            String type = getGeneralNameType(gn); 
+            int max = tree.getMaxValue(); 
             int min = tree.getMinValue();
 
             NameValuePairs pairs = new NameValuePairs();
@@ -529,7 +540,7 @@ public class NameConstraintsExtDefault extends EnrollExtDefault {
 
             recs.addElement(pairs);
         }
-
+ 
         return buildRecords(recs);
     }
 
@@ -572,8 +583,8 @@ public class NameConstraintsExtDefault extends EnrollExtDefault {
             sb.append(getConfig(CONFIG_EXCLUDED_MAX_VAL + i));
             sb.append("}");
         }
-        return CMS.getUserMessage(locale,
-                "CMS_PROFILE_DEF_NAME_CONSTRAINTS_EXT",
+        return CMS.getUserMessage(locale, 
+                "CMS_PROFILE_DEF_NAME_CONSTRAINTS_EXT", 
                 getConfig(CONFIG_CRITICAL), sb.toString());
     }
 
@@ -581,14 +592,14 @@ public class NameConstraintsExtDefault extends EnrollExtDefault {
      * Populates the request with this policy default.
      */
     public void populate(IRequest request, X509CertInfo info)
-            throws EProfileException {
+        throws EProfileException {
         NameConstraintsExtension ext = createExtension();
 
         addExtension(PKIXExtensions.NameConstraints_Id.toString(), ext, info);
     }
 
     public NameConstraintsExtension createExtension() {
-        NameConstraintsExtension ext = null;
+        NameConstraintsExtension ext = null; 
 
         try {
             int num = getNumPermitted();
@@ -626,18 +637,18 @@ public class NameConstraintsExtDefault extends EnrollExtDefault {
                 }
             }
 
-            ext = new NameConstraintsExtension(critical,
-                    new GeneralSubtrees(v), new GeneralSubtrees(v1));
+            ext = new NameConstraintsExtension(critical, 
+                        new GeneralSubtrees(v), new GeneralSubtrees(v1));
         } catch (Exception e) {
-            CMS.debug("NameConstraintsExtDefault: createExtension "
-                    + e.toString());
+            CMS.debug("NameConstraintsExtDefault: createExtension " + 
+                e.toString());
         }
 
         return ext;
     }
 
-    private GeneralSubtree createSubtree(String choice, String value,
-            String minS, String maxS) {
+    private GeneralSubtree createSubtree(String choice, String value, 
+        String minS, String maxS) {
         GeneralName gn = null;
         GeneralNameInterface gnI = null;
 
@@ -649,7 +660,7 @@ public class NameConstraintsExtDefault extends EnrollExtDefault {
         if (gnI != null)
             gn = new GeneralName(gnI);
         else
-            // throw new EPropertyException("GeneralName must not be null");
+            //throw new EPropertyException("GeneralName must not be null");
             return null;
 
         int min = 0;

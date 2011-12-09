@@ -31,120 +31,122 @@ import netscape.security.x509.X509Key;
 
 /**
  * An X.509 public key for the RSA Algorithm.
- * 
+ *
  * @author galperin
- * 
+ *
  * @version $Revision$, $Date$
- * 
+ *
  */
 
 public final class RSAPublicKey extends X509Key implements Serializable {
 
-    /*
-     * XXX This currently understands only PKCS#1 RSA Encryption OID and
-     * parameter format Later we may consider adding X509v3 OID for RSA keys.
-     * Besides different OID it also has a parameter equal to modulus size in
-     * bits (redundant!)
-     */
+	/* XXX This currently understands only PKCS#1 RSA Encryption OID
+	   and parameter format
+	   Later we may consider adding X509v3 OID for RSA keys. Besides 
+	   different OID it also has a parameter equal to modulus size 
+	   in bits (redundant!)
+	   */
 
-    /**
+  /**
      *
      */
     private static final long serialVersionUID = 7764823589128565374L;
 
-    private static final ObjectIdentifier ALGORITHM_OID = AlgorithmId.RSAEncryption_oid;
-
-    private BigInt modulus;
-    private BigInt publicExponent;
-
+private static final ObjectIdentifier ALGORITHM_OID =
+  	AlgorithmId.RSAEncryption_oid;
+	
+  private BigInt modulus;
+  private BigInt publicExponent;
+	
     /*
-     * Keep this constructor for backwards compatibility with JDK1.1.
+     * Keep this constructor for backwards compatibility with JDK1.1. 
      */
-    public RSAPublicKey() {
-    }
+  public RSAPublicKey() {
+  }
 
     /**
      * Make a RSA public key out of a public exponent and modulus
      */
-    public RSAPublicKey(BigInt modulus, BigInt publicExponent)
-            throws InvalidKeyException {
-        this.modulus = modulus;
-        this.publicExponent = publicExponent;
-        this.algid = new AlgorithmId(ALGORITHM_OID);
+  public RSAPublicKey(BigInt modulus, BigInt publicExponent)
+    throws InvalidKeyException {
+	this.modulus = modulus;
+	this.publicExponent = publicExponent;
+	this.algid = new AlgorithmId(ALGORITHM_OID);
 
-        try {
-            DerOutputStream out = new DerOutputStream();
-
-            out.putInteger(modulus);
-            out.putInteger(publicExponent);
-            key = (new DerValue(DerValue.tag_Sequence, out.toByteArray()))
-                    .toByteArray();
-            encode();
-        } catch (IOException ex) {
-            throw new InvalidKeyException("could not DER encode : "
-                    + ex.getMessage());
-        }
-    }
-
+	try {
+		DerOutputStream	out = new DerOutputStream ();
+		
+		out.putInteger (modulus);
+		out.putInteger (publicExponent);
+	    key = (new DerValue(DerValue.tag_Sequence, 
+							out.toByteArray())).toByteArray();
+	    encode();
+	} catch (IOException ex) {
+	    throw new InvalidKeyException("could not DER encode : " +
+									  ex.getMessage());
+	}
+  }
+	
     /**
      * Make a RSA public key from its DER encoding (X.509).
      */
-    public RSAPublicKey(byte[] encoded) throws InvalidKeyException {
-        decode(encoded);
-    }
-
+  public RSAPublicKey(byte[] encoded) throws InvalidKeyException {
+	  decode(encoded);
+  }
+	
     /**
-     * Get key size as number of bits in modulus (Always rounded up to a
-     * multiple of 8)
-     * 
+     * Get key size as number of bits in modulus
+	 * (Always rounded up to a multiple of 8)
+     *
      */
-    public int getKeySize() {
-        return this.modulus.byteLength() * 8;
-    }
-
+  public int getKeySize() {
+	  return this.modulus.byteLength() * 8;
+  }
+	
     /**
      * Get the raw public exponent
-     * 
+     *
      */
-    public BigInt getPublicExponent() {
-        return this.publicExponent;
-    }
-
+  public BigInt getPublicExponent() {
+	  return this.publicExponent;
+  }
+	
     /**
      * Get the raw modulus
-     * 
+     *
      */
-    public BigInt getModulus() {
-        return this.modulus;
-    }
-
-    public String toString() {
-        return "RSA Public Key\n  Algorithm: " + algid + "\n  modulus:\n"
-                + this.modulus.toString() + "\n" + "\n  publicExponent:\n"
-                + this.publicExponent.toString() + "\n";
-    }
-
-    protected void parseKeyBits() throws InvalidKeyException {
-        if (!this.algid.getOID().equals(ALGORITHM_OID)
-                && !this.algid.getOID().equals(AlgorithmId.RSA_oid)) {
-            throw new InvalidKeyException("Key algorithm OID is not RSA");
-        }
-
-        try {
-            DerValue val = new DerValue(key);
-            if (val.tag != DerValue.tag_Sequence) {
-                throw new InvalidKeyException("Invalid RSA public key format:"
-                        + " must be a SEQUENCE");
-            }
-
-            DerInputStream in = val.data;
-
-            this.modulus = in.getInteger();
-            this.publicExponent = in.getInteger();
-        } catch (IOException e) {
-            throw new InvalidKeyException("Invalid RSA public key: "
-                    + e.getMessage());
-        }
-    }
-
+  public BigInt getModulus() {
+	  return this.modulus;
+  }
+	
+  public String toString() {
+	  return "RSA Public Key\n  Algorithm: " + algid
+	  + "\n  modulus:\n" + this.modulus.toString() + "\n"
+	  + "\n  publicExponent:\n" + this.publicExponent.toString()
+	  + "\n";
+  }
+	
+  protected void parseKeyBits() throws InvalidKeyException {
+	  if (!this.algid.getOID().equals(ALGORITHM_OID) &&
+		 !this.algid.getOID().equals(AlgorithmId.RSA_oid)) {
+		  throw new InvalidKeyException("Key algorithm OID is not RSA");
+	  }
+	  
+	  try {
+		  DerValue val = new DerValue (key);
+		  if (val.tag != DerValue.tag_Sequence) {
+			  throw new InvalidKeyException("Invalid RSA public key format:" +
+											" must be a SEQUENCE");
+		  }
+		  
+		  DerInputStream in = val.data;
+		  
+		  this.modulus = in.getInteger();
+		  this.publicExponent = in.getInteger();
+	  } catch (IOException e) {
+		  throw new InvalidKeyException("Invalid RSA public key: " + 
+										e.getMessage());
+	  }
+  }
+	
 }

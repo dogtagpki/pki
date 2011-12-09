@@ -17,9 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.common;
 
+
 /**
  * This represents raw JS parameters.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class RawJS implements IRawJS {

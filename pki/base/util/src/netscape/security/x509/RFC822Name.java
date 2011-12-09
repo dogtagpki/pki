@@ -23,9 +23,9 @@ import netscape.security.util.DerOutputStream;
 import netscape.security.util.DerValue;
 
 /**
- * This class implements the RFC822Name as required by the GeneralNames ASN.1
- * object.
- * 
+ * This class implements the RFC822Name as required by the GeneralNames
+ * ASN.1 object.
+ *
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  * @version 1.3
@@ -33,7 +33,8 @@ import netscape.security.util.DerValue;
  * @see GeneralNames
  * @see GeneralNameInterface
  */
-public class RFC822Name implements GeneralNameInterface {
+public class RFC822Name implements GeneralNameInterface
+{
     /**
      *
      */
@@ -42,7 +43,7 @@ public class RFC822Name implements GeneralNameInterface {
 
     /**
      * Create the RFC822Name object from the passed encoded Der value.
-     * 
+     *
      * @param derValue the encoded DER RFC822Name.
      * @exception IOException on error.
      */
@@ -52,7 +53,7 @@ public class RFC822Name implements GeneralNameInterface {
 
     /**
      * Create the RFC822Name object with the specified name.
-     * 
+     *
      * @param name the RFC822Name.
      */
     public RFC822Name(String name) {
@@ -68,7 +69,7 @@ public class RFC822Name implements GeneralNameInterface {
 
     /**
      * Encode the RFC822 name into the DerOutputStream.
-     * 
+     *
      * @param out the DER stream to encode the RFC822Name to.
      * @exception IOException on encoding errors.
      */

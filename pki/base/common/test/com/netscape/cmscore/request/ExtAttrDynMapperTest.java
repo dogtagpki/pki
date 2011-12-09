@@ -36,7 +36,7 @@ public class ExtAttrDynMapperTest extends CMSBaseTestCase {
 
     public void testSupportLDAPAttributeName() {
         assertNotNull(mapper);
-
+        
         assertTrue(mapper.supportsLDAPAttributeName("extData-green"));
         assertTrue(mapper.supportsLDAPAttributeName("EXTDATA-green"));
         assertTrue(mapper.supportsLDAPAttributeName("extData-foo;0"));
@@ -122,8 +122,8 @@ public class ExtAttrDynMapperTest extends CMSBaseTestCase {
 
         mapper.mapObjectToLDAPAttributeSet(null, null, extAttrsHash, attrs);
         assertEquals(1, attrs.size());
-        assertEquals(ExtAttrDynMapper.extAttrPrefix + "foo--003b", attrs
-                .elementAt(0).getName());
+        assertEquals(ExtAttrDynMapper.extAttrPrefix + "foo--003b",
+                attrs.elementAt(0).getName());
         String vals[] = attrs.elementAt(0).getStringValueArray();
         assertEquals(1, vals.length);
         assertEquals("bar", vals[0]);
@@ -143,8 +143,8 @@ public class ExtAttrDynMapperTest extends CMSBaseTestCase {
         LDAPAttribute attrBaz = attrs.elementAt(0);
         LDAPAttribute attrBim = attrs.elementAt(1);
         // swap attributes if necessary
-        if (attrBaz.getName().equals(
-                ExtAttrDynMapper.extAttrPrefix + "top--003bkey;bi--003bm")) {
+        if (attrBaz.getName().equals(ExtAttrDynMapper.extAttrPrefix +
+                "top--003bkey;bi--003bm")) {
             attrBaz = attrs.elementAt(1);
             attrBim = attrs.elementAt(0);
         }
@@ -164,16 +164,17 @@ public class ExtAttrDynMapperTest extends CMSBaseTestCase {
         assertTrue(attrBim.hasSubtype("bi--003bm"));
     }
 
+
     public void testMapLDAPAttributeSetToObject() throws EBaseException {
         //
         // Test simple key-value pairs
         //
         LDAPAttributeSet attrs = new LDAPAttributeSet();
-        attrs.add(new LDAPAttribute(ExtAttrDynMapper.extAttrPrefix
-                + "o--003bkey1", "val1"));
+        attrs.add(new LDAPAttribute(
+                ExtAttrDynMapper.extAttrPrefix + "o--003bkey1", "val1"));
         attrs.add(new LDAPAttribute("junk", "junkval"));
-        attrs.add(new LDAPAttribute(ExtAttrDynMapper.extAttrPrefix + "okey2",
-                "val2"));
+        attrs.add(new LDAPAttribute(
+                ExtAttrDynMapper.extAttrPrefix + "okey2", "val2"));
 
         RequestRecordStub requestRecord = new RequestRecordStub();
 
@@ -181,8 +182,8 @@ public class ExtAttrDynMapperTest extends CMSBaseTestCase {
                 requestRecord);
 
         assertEquals(1, requestRecord.setCallCounter);
-        Hashtable extData = (Hashtable) requestRecord.extAttrData
-                .get(IRequestRecord.ATTR_EXT_DATA);
+        Hashtable extData = (Hashtable)requestRecord.extAttrData.get(
+                IRequestRecord.ATTR_EXT_DATA);
         assertNotNull(extData);
 
         assertEquals(2, extData.keySet().size());
@@ -195,16 +196,16 @@ public class ExtAttrDynMapperTest extends CMSBaseTestCase {
         // Test subkeys
         //
         attrs = new LDAPAttributeSet();
-        attrs.add(new LDAPAttribute(ExtAttrDynMapper.extAttrPrefix
-                + "o--003bkey1;i--003bkey11", "val11"));
-        attrs.add(new LDAPAttribute(ExtAttrDynMapper.extAttrPrefix
-                .toUpperCase() + "o--003bkey1;ikey12", "val12"));
-        attrs.add(new LDAPAttribute(ExtAttrDynMapper.extAttrPrefix
-                + "o--003bkey1;ikey13", "val13"));
-        attrs.add(new LDAPAttribute(ExtAttrDynMapper.extAttrPrefix
-                + "okey2;ikey21", "val21"));
-        attrs.add(new LDAPAttribute(ExtAttrDynMapper.extAttrPrefix
-                + "okey2;ikey22", "val22"));
+        attrs.add(new LDAPAttribute(
+                ExtAttrDynMapper.extAttrPrefix + "o--003bkey1;i--003bkey11", "val11"));
+        attrs.add(new LDAPAttribute(
+                ExtAttrDynMapper.extAttrPrefix.toUpperCase() + "o--003bkey1;ikey12", "val12"));
+        attrs.add(new LDAPAttribute(
+                ExtAttrDynMapper.extAttrPrefix + "o--003bkey1;ikey13", "val13"));
+        attrs.add(new LDAPAttribute(
+                ExtAttrDynMapper.extAttrPrefix + "okey2;ikey21", "val21"));
+        attrs.add(new LDAPAttribute(
+                ExtAttrDynMapper.extAttrPrefix + "okey2;ikey22", "val22"));
         attrs.add(new LDAPAttribute("foo", "bar"));
 
         requestRecord = new RequestRecordStub();
@@ -213,27 +214,27 @@ public class ExtAttrDynMapperTest extends CMSBaseTestCase {
                 requestRecord);
 
         assertEquals(1, requestRecord.setCallCounter);
-        extData = (Hashtable) requestRecord.extAttrData
-                .get(IRequestRecord.ATTR_EXT_DATA);
+        extData = (Hashtable)requestRecord.extAttrData.get(
+                IRequestRecord.ATTR_EXT_DATA);
         assertNotNull(extData);
 
         assertTrue(extData.containsKey("o;key1"));
-        Hashtable okey1Data = (Hashtable) extData.get("o;key1");
+        Hashtable okey1Data = (Hashtable)extData.get("o;key1");
         assertEquals(3, okey1Data.keySet().size());
         assertTrue(okey1Data.containsKey("i;key11"));
-        assertEquals("val11", (String) okey1Data.get("i;key11"));
+        assertEquals("val11", (String)okey1Data.get("i;key11"));
         assertTrue(okey1Data.containsKey("ikey12"));
-        assertEquals("val12", (String) okey1Data.get("ikey12"));
+        assertEquals("val12", (String)okey1Data.get("ikey12"));
         assertTrue(okey1Data.containsKey("ikey13"));
-        assertEquals("val13", (String) okey1Data.get("ikey13"));
+        assertEquals("val13", (String)okey1Data.get("ikey13"));
 
         assertTrue(extData.containsKey("okey2"));
-        Hashtable okey2Data = (Hashtable) extData.get("okey2");
+        Hashtable okey2Data = (Hashtable)extData.get("okey2");
         assertEquals(2, okey2Data.keySet().size());
         assertTrue(okey2Data.containsKey("ikey21"));
-        assertEquals("val21", (String) okey2Data.get("ikey21"));
+        assertEquals("val21", (String)okey2Data.get("ikey21"));
         assertTrue(okey2Data.containsKey("ikey22"));
-        assertEquals("val22", (String) okey2Data.get("ikey22"));
+        assertEquals("val22", (String)okey2Data.get("ikey22"));
 
         assertFalse(extData.containsKey("foo"));
 
@@ -241,22 +242,23 @@ public class ExtAttrDynMapperTest extends CMSBaseTestCase {
         // test illegal data combination
         //
         attrs = new LDAPAttributeSet();
-        attrs.add(new LDAPAttribute(ExtAttrDynMapper.extAttrPrefix + "okey1",
-                "val11"));
-        attrs.add(new LDAPAttribute(ExtAttrDynMapper.extAttrPrefix
-                + "okey1;ikey12", "val12"));
+        attrs.add(new LDAPAttribute(
+                ExtAttrDynMapper.extAttrPrefix + "okey1", "val11"));
+        attrs.add(new LDAPAttribute(
+                ExtAttrDynMapper.extAttrPrefix + "okey1;ikey12", "val12"));
 
         requestRecord = new RequestRecordStub();
 
         try {
-            mapper.mapLDAPAttributeSetToObject(attrs,
-                    IRequestRecord.ATTR_EXT_DATA, requestRecord);
+            mapper.mapLDAPAttributeSetToObject(attrs, IRequestRecord.ATTR_EXT_DATA,
+                    requestRecord);
             fail("Should have thrown EBaseException on illegal data");
         } catch (EBaseException e) {
             // good
         }
 
     }
+
 
     class RequestRecordStub extends RequestRecordDefaultStub {
         /**
@@ -265,6 +267,7 @@ public class ExtAttrDynMapperTest extends CMSBaseTestCase {
         private static final long serialVersionUID = 4106967075497999274L;
         Hashtable extAttrData = new Hashtable();
         int setCallCounter = 0;
+
 
         public void set(String name, Object o) {
             setCallCounter++;

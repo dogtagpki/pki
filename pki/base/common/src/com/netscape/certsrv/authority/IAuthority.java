@@ -17,13 +17,15 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.authority;
 
+
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestQueue;
 
+
 /**
  * Authority interface.
- * 
+ *
  * @version $Revision$ $Date$
  */
 public interface IAuthority extends ISubsystem {
@@ -31,7 +33,6 @@ public interface IAuthority extends ISubsystem {
     /**
      * Retrieves the request queue for the Authority.
      * <P>
-     * 
      * @return the request queue.
      */
     public IRequestQueue getRequestQueue();

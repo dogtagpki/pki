@@ -16,7 +16,6 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmsutil.xml;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -44,7 +43,8 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 import org.xml.sax.SAXException;
 
-public class XMLObject {
+public class XMLObject
+{
     private Document mDoc = null;
 
     public XMLObject() throws ParserConfigurationException {
@@ -53,15 +53,15 @@ public class XMLObject {
         mDoc = docBuilder.newDocument();
     }
 
-    public XMLObject(InputStream s) throws SAXException, IOException,
-            ParserConfigurationException {
+    public XMLObject(InputStream s) 
+      throws SAXException, IOException, ParserConfigurationException {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder docBuilder = factory.newDocumentBuilder();
         mDoc = docBuilder.parse(s);
     }
 
-    public XMLObject(File f) throws SAXException, IOException,
-            ParserConfigurationException {
+    public XMLObject(File f) 
+      throws SAXException, IOException, ParserConfigurationException {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder docBuilder = factory.newDocumentBuilder();
         mDoc = docBuilder.parse(f);
@@ -77,16 +77,16 @@ public class XMLObject {
     public Node createRoot(String name) {
         Element root = mDoc.createElement(name);
         mDoc.appendChild(root);
-        return (Node) root;
+        return (Node)root;
     }
 
     public Node getRoot() {
         return mDoc.getFirstChild();
     }
 
-    /**
-     * If you have duplicate containers, then this method will return the first
-     * container in the list.
+    /** 
+     * If you have duplicate containers, then this method will return the
+     * first container in the list.
      */
     public Node getContainer(String tagname) {
         NodeList list = mDoc.getElementsByTagName(tagname);
@@ -98,7 +98,7 @@ public class XMLObject {
     public Node createContainer(Node containerParent, String containerName) {
         Element node = mDoc.createElement(containerName);
         containerParent.appendChild(node);
-        return (Node) node;
+        return (Node)node;
     }
 
     public void addItemToContainer(Node container, String tagname, String value) {
@@ -109,7 +109,7 @@ public class XMLObject {
     }
 
     public String getValue(String tagname) {
-        Node n = getContainer(tagname);
+        Node n = getContainer(tagname); 
 
         if (n != null) {
             NodeList c = n.getChildNodes();
@@ -125,7 +125,7 @@ public class XMLObject {
     public Vector getAllValues(String tagname) {
         Vector v = new Vector();
         NodeList nodes = mDoc.getElementsByTagName(tagname);
-        for (int i = 0; i < nodes.getLength(); i++) {
+        for (int i=0; i<nodes.getLength(); i++) {
             Node n = nodes.item(i);
             NodeList c = n.getChildNodes();
             if (c.getLength() > 0) {
@@ -141,7 +141,7 @@ public class XMLObject {
         Vector v = new Vector();
         NodeList c = container.getChildNodes();
         int len = c.getLength();
-        for (int i = 0; i < len; i++) {
+        for (int i=0; i<len; i++) {
             Node subchild = c.item(i);
             if (subchild.getNodeName().equals(tagname)) {
                 NodeList grandchildren = subchild.getChildNodes();
@@ -156,8 +156,7 @@ public class XMLObject {
         return v;
     }
 
-    public byte[] toByteArray() throws TransformerConfigurationException,
-            TransformerException {
+    public byte[] toByteArray() throws TransformerConfigurationException, TransformerException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         TransformerFactory tranFactory = TransformerFactory.newInstance();
         Transformer aTransformer = tranFactory.newTransformer();
@@ -167,8 +166,8 @@ public class XMLObject {
         return bos.toByteArray();
     }
 
-    public void output(OutputStream os)
-            throws TransformerConfigurationException, TransformerException {
+    public void output(OutputStream os) 
+      throws TransformerConfigurationException, TransformerException {
         TransformerFactory tranFactory = TransformerFactory.newInstance();
         Transformer aTransformer = tranFactory.newTransformer();
         Source src = new DOMSource(mDoc);
@@ -176,8 +175,7 @@ public class XMLObject {
         aTransformer.transform(src, dest);
     }
 
-    public String toXMLString() throws TransformerConfigurationException,
-            TransformerException {
+    public String toXMLString() throws TransformerConfigurationException, TransformerException {
         TransformerFactory tranFactory = TransformerFactory.newInstance();
         Transformer transformer = tranFactory.newTransformer();
         Source src = new DOMSource(mDoc);
@@ -185,5 +183,5 @@ public class XMLObject {
         transformer.transform(src, dest);
         String xmlString = dest.getWriter().toString();
         return xmlString;
-    }
+   }
 }

@@ -22,26 +22,28 @@ import com.netscape.certsrv.request.IRequest;
 /**
  * This interface represents an enrollment profile.
  * <p>
- * An enrollment profile contains a list of enrollment specific input plugins,
- * default policies, constriant policies and output plugins.
+ * An enrollment profile contains a list of enrollment
+ * specific input plugins, default policies, constriant
+ * policies and output plugins.
  * <p>
- * This interface also defines a set of enrollment specific attribute names that
- * can be used to retrieve values from an enrollment request.
+ * This interface also defines a set of enrollment specific
+ * attribute names that can be used to retrieve values
+ * from an enrollment request.
  * <p>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IEnrollProfile extends IProfile {
 
     /**
-     * Name of request attribute that stores the User Supplied Certificate
-     * Request Type.
+     * Name of request attribute that stores the User 
+     * Supplied Certificate Request Type.
      */
     public static final String CTX_CERT_REQUEST_TYPE = "cert_request_type";
 
     /**
-     * Name of request attribute that stores the User Supplied Certificate
-     * Request.
+     * Name of request attribute that stores the User 
+     * Supplied Certificate Request.
      */
     public static final String CTX_CERT_REQUEST = "cert_request";
 
@@ -54,17 +56,17 @@ public interface IEnrollProfile extends IProfile {
     public static final String REQ_TYPE_KEYGEN = "keygen";
 
     /**
-     * Name of request attribute that stores the End-User Locale.
+     * Name of request attribute that stores the End-User Locale. 
      * <p>
      * The value is of type java.util.Locale.
      */
     public static final String REQUEST_LOCALE = "req_locale";
 
     /**
-     * Name of request attribute that stores the sequence number. Consider a
-     * CRMF request that may contain multiple certificate request. The first sub
-     * certificate certificate request has a sequence number of 0, the next one
-     * has a sequence of 1, and so on.
+     * Name of request attribute that stores the sequence number. Consider
+     * a CRMF request that may contain multiple certificate request.
+     * The first sub certificate certificate request has a sequence
+     * number of 0, the next one has a sequence of 1, and so on.
      * <p>
      * The value is of type java.lang.Integer.
      */
@@ -84,53 +86,57 @@ public interface IEnrollProfile extends IProfile {
     public static final String CTX_RENEWAL = "renewal";
 
     /**
-     * Name of request attribute that stores the End-User Supplied Key.
+     * Name of request attribute that stores the End-User Supplied
+     * Key.
      * <p>
      * The value is of type netscape.security.x509.CertificateX509Key
      */
     public static final String REQUEST_KEY = "req_key";
 
     /**
-     * Name of request attribute that stores the End-User Supplied Subject Name.
+     * Name of request attribute that stores the End-User Supplied
+     * Subject Name.
      * <p>
      * The value is of type netscape.security.x509.CertificateSubjectName
      */
     public static final String REQUEST_SUBJECT_NAME = "req_subject_name";
 
     /**
-     * Name of request attribute that stores the End-User Supplied Validity.
+     * Name of request attribute that stores the End-User Supplied
+     * Validity.
      * <p>
      * The value is of type netscape.security.x509.CertificateValidity
      */
     public static final String REQUEST_VALIDITY = "req_validity";
 
     /**
-     * Name of request attribute that stores the End-User Supplied Signing
-     * Algorithm.
+     * Name of request attribute that stores the End-User Supplied
+     * Signing Algorithm.
      * <p>
      * The value is of type netscape.security.x509.CertificateAlgorithmId
      */
     public static final String REQUEST_SIGNING_ALGORITHM = "req_signing_alg";
 
     /**
-     * Name of request attribute that stores the End-User Supplied Extensions.
+     * Name of request attribute that stores the End-User Supplied
+     * Extensions.
      * <p>
      * The value is of type netscape.security.x509.CertificateExtensions
      */
     public static final String REQUEST_EXTENSIONS = "req_extensions";
 
     /**
-     * Name of request attribute that stores the End-User Supplied PKI Archive
-     * Option extension. This extension is extracted from a CRMF request that
-     * has the user-provided private key.
+     * Name of request attribute that stores the End-User Supplied
+     * PKI Archive Option extension. This extension is extracted
+     * from a CRMF request that has the user-provided private key.
      * <p>
      * The value is of type byte []
      */
     public static final String REQUEST_ARCHIVE_OPTIONS = "req_archive_options";
 
     /**
-     * Name of request attribute that stores the certificate template that will
-     * be signed and then become a certificate.
+     * Name of request attribute that stores the certificate template
+     * that will be signed and then become a certificate.
      * <p>
      * The value is of type netscape.security.x509.X509CertInfo
      */
@@ -145,7 +151,6 @@ public interface IEnrollProfile extends IProfile {
 
     /**
      * Set Default X509CertInfo in the request.
-     * 
      * @param request profile-based certificate request.
      * @exception EProfileException failed to set the X509CertInfo.
      */

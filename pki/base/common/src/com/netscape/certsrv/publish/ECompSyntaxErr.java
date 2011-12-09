@@ -17,14 +17,16 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.publish;
 
+
 import com.netscape.certsrv.ldap.ELdapException;
 
+
 /**
- * This type of exception is thrown in cases where an parsing error is found
- * while evaluating a PKI component. An example would be in trying to evaluate a
- * PKI authentication message and the parsing operation fails due to a missing
- * token.
- * 
+ *  This type of exception is thrown in cases where an parsing
+ *  error is found while evaluating a PKI component.  An example
+ * would be in trying to evaluate a PKI authentication message and
+ * the parsing operation fails due to a missing token.
+ *  
  * @version $Revision$ $Date$
  */
 public class ECompSyntaxErr extends ELdapException {
@@ -35,9 +37,8 @@ public class ECompSyntaxErr extends ELdapException {
     private static final long serialVersionUID = -2224290038321971845L;
 
     /**
-     * Construct a ECompSyntaxErr
-     * 
-     * @param errorString The descriptive error condition.
+     *   Construct a ECompSyntaxErr
+     *   @param errorString The descriptive error condition.
      */
 
     public ECompSyntaxErr(String errorString) {

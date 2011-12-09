@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.authentication;
 
+
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Enumeration;
@@ -47,14 +48,16 @@ import com.netscape.certsrv.usrgrp.ICertUserLocator;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 
+
 /**
- * Certificate server agent authentication. Maps a SSL client authenticate
- * certificate to a user (agent) entry in the internal database.
+ * Certificate server agent authentication.  
+ * Maps a SSL client authenticate certificate to a user (agent) entry in the 
+ * internal database. 
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
-public class AgentCertAuthentication implements IAuthManager,
+public class AgentCertAuthentication implements IAuthManager, 
         IProfileAuthenticator {
 
     /* result auth token attributes */
@@ -88,15 +91,14 @@ public class AgentCertAuthentication implements IAuthManager,
     /**
      * initializes the CertUserDBAuthentication auth manager
      * <p>
-     * called by AuthSubsystem init() method, when initializing all available
-     * authentication managers.
-     * 
+     * called by AuthSubsystem init() method, when initializing
+     * all available authentication managers.
      * @param name The name of this authentication manager instance.
      * @param implName The name of the authentication manager plugin.
      * @param config The configuration store for this authentication manager.
      */
     public void init(String name, String implName, IConfigStore config)
-            throws EBaseException {
+        throws EBaseException {
         mName = name;
         mImplName = implName;
         mConfig = config;
@@ -104,7 +106,7 @@ public class AgentCertAuthentication implements IAuthManager,
         mUGSub = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
         mCULocator = mUGSub.getCertUserLocator();
     }
-
+ 
     /**
      * Gets the name of this authentication manager.
      */
@@ -118,7 +120,7 @@ public class AgentCertAuthentication implements IAuthManager,
     public String getImplName() {
         return mImplName;
     }
-
+ 
     public boolean isSSLClientRequired() {
         return true;
     }
@@ -126,35 +128,33 @@ public class AgentCertAuthentication implements IAuthManager,
     /**
      * authenticates user(agent) by certificate
      * <p>
-     * called by other subsystems or their servlets to authenticate users
-     * (agents)
-     * 
-     * @param authCred - authentication credential that contains an
-     *            usrgrp.Certificates of the user (agent)
+     * called by other subsystems or their servlets to authenticate
+     *	 users (agents)
+     * @param authCred - authentication credential that contains
+     *	 an usrgrp.Certificates of the user (agent)
      * @return the authentication token that contains the following
-     * 
+     *
      * @exception EMissingCredential If a required credential for this
-     *                authentication manager is missing.
+     * authentication manager is missing.
      * @exception EInvalidCredentials If credentials cannot be authenticated.
      * @exception EBaseException If an internal error occurred.
      * @see com.netscape.certsrv.authentication.AuthToken
      * @see com.netscape.certsrv.usrgrp.Certificates
      */
     public IAuthToken authenticate(IAuthCredentials authCred)
-            throws EMissingCredential, EInvalidCredentials, EBaseException {
-
+        throws EMissingCredential, EInvalidCredentials, EBaseException {
+      
         CMS.debug("AgentCertAuthentication: start");
-        CMS.debug("authenticator instance name is " + getName());
+        CMS.debug("authenticator instance name is "+getName());
 
         // force SSL handshake
         SessionContext context = SessionContext.getExistingContext();
-        ISSLClientCertProvider provider = (ISSLClientCertProvider) context
-                .get("sslClientCertProvider");
+        ISSLClientCertProvider provider = (ISSLClientCertProvider)
+            context.get("sslClientCertProvider");
 
         if (provider == null) {
             CMS.debug("AgentCertAuthentication: No SSL Client Cert Provider Found");
-            throw new EInvalidCredentials(
-                    CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
+            throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
         }
         CMS.debug("AgentCertAuthenticator: got provider");
         CMS.debug("AgentCertAuthenticator: retrieving client certificate");
@@ -162,8 +162,7 @@ public class AgentCertAuthentication implements IAuthManager,
 
         if (allCerts == null) {
             CMS.debug("AgentCertAuthentication: No SSL Client Certs Found");
-            throw new EInvalidCredentials(
-                    CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
+            throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
         }
         CMS.debug("AgentCertAuthenticator: got certificates");
 
@@ -186,16 +185,15 @@ public class AgentCertAuthentication implements IAuthManager,
         // check if certificate(s) is revoked
         boolean checkRevocation = true;
         try {
-            checkRevocation = mConfig.getBoolean("checkRevocation", true);
+           checkRevocation = mConfig.getBoolean("checkRevocation", true);
         } catch (EBaseException e) {
-            // do nothing; default to true
+           // do nothing; default to true
         }
         if (checkRevocation) {
-            if (CMS.isRevoked(ci)) {
-                CMS.debug("AgentCertAuthentication: certificate revoked");
-                throw new EInvalidCredentials(
-                        CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
-            }
+          if (CMS.isRevoked(ci)) {
+             CMS.debug("AgentCertAuthentication: certificate revoked");
+             throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
+          }
         }
 
         // map cert to user
@@ -205,39 +203,33 @@ public class AgentCertAuthentication implements IAuthManager,
         try {
             user = (IUser) mCULocator.locateUser(certs);
         } catch (EUsrGrpException e) {
-            throw new EInvalidCredentials(
-                    CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
+            throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
         } catch (netscape.ldap.LDAPException e) {
-            throw new EBaseException(CMS.getUserMessage(
-                    "CMS_BASE_INTERNAL_ERROR", e.toString()));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", 
+                        e.toString()));
         }
 
-        // any unexpected error occurs like internal db down,
+        // any unexpected error occurs like internal db down, 
         // UGSubsystem only returns null for user.
         if (user == null) {
-            throw new EInvalidCredentials(
-                    CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
+            throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
         }
 
         // get group name from configuration file
         IConfigStore sconfig = CMS.getConfigStore();
         String groupname = "";
         try {
-            groupname = sconfig.getString("auths.instance." + getName()
-                    + ".agentGroup", "");
+            groupname = sconfig.getString("auths.instance."+ getName() +".agentGroup", 
+              "");
         } catch (EBaseException ee) {
         }
 
         if (!groupname.equals("")) {
-            CMS.debug("check if " + user.getUserID() + " is  in group "
-                    + groupname);
-            IUGSubsystem uggroup = (IUGSubsystem) CMS
-                    .getSubsystem(CMS.SUBSYSTEM_UG);
+            CMS.debug("check if "+user.getUserID()+" is  in group "+groupname);
+            IUGSubsystem uggroup = (IUGSubsystem)CMS.getSubsystem(CMS.SUBSYSTEM_UG);
             if (!uggroup.isMemberOf(user, groupname)) {
-                CMS.debug(user.getUserID() + " is not in this group "
-                        + groupname);
-                throw new EInvalidCredentials(
-                        CMS.getUserMessage("CMS_AUTHORIZATION_ERROR"));
+                CMS.debug(user.getUserID()+" is not in this group "+groupname);
+                throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHORIZATION_ERROR"));
             }
         }
         authToken.set(TOKEN_USERDN, user.getUserDN());
@@ -245,7 +237,7 @@ public class AgentCertAuthentication implements IAuthManager,
         authToken.set(TOKEN_USERID, user.getUserID());
         authToken.set(TOKEN_UID, user.getUserID());
         authToken.set(TOKEN_GROUP, groupname);
-        authToken.set(CRED_CERT, certs);
+        authToken.set(CRED_CERT, certs);  
 
         CMS.debug("AgentCertAuthentication: authenticated " + user.getUserDN());
 
@@ -253,12 +245,11 @@ public class AgentCertAuthentication implements IAuthManager,
     }
 
     /**
-     * get the list of authentication credential attribute names required by
-     * this authentication manager. Generally used by the servlets that handle
-     * agent operations to authenticate its users. It calls this method to know
-     * which are the required credentials from the user (e.g. Javascript form
-     * data)
-     * 
+     * get the list of authentication credential attribute names
+     *	 required by this authentication manager. Generally used by
+     *	 the servlets that handle agent operations to authenticate its
+     *	 users.  It calls this method to know which are the
+     *	 required credentials from the user (e.g. Javascript form data)
      * @return attribute names in Vector
      */
     public String[] getRequiredCreds() {
@@ -266,15 +257,15 @@ public class AgentCertAuthentication implements IAuthManager,
     }
 
     /**
-     * get the list of configuration parameter names required by this
-     * authentication manager. Generally used by the Certificate Server Console
-     * to display the table for configuration purposes. CertUserDBAuthentication
-     * is currently not exposed in this case, so this method is not to be used.
-     * 
-     * @return configuration parameter names in Hashtable of Vectors where each
-     *         hashtable entry's key is the substore name, value is a Vector of
-     *         parameter names. If no substore, the parameter name is the
-     *         Hashtable key itself, with value same as key.
+     * get the list of configuration parameter names
+     *	 required by this authentication manager.  Generally used by
+     *	 the Certificate Server Console to display the table for
+     *	 configuration purposes.  CertUserDBAuthentication is currently not
+     *	 exposed in this case, so this method is not to be used.
+     * @return configuration parameter names in Hashtable of Vectors
+     *	 where each hashtable entry's key is the substore name, value is a
+     * Vector of parameter names.  If no substore, the parameter name
+     *	 is the Hashtable key itself, with value same as key.
      */
     public String[] getConfigParams() {
         return (mConfigParams);
@@ -287,8 +278,8 @@ public class AgentCertAuthentication implements IAuthManager,
     }
 
     /**
-     * gets the configuretion substore used by this authentication manager
-     * 
+     * gets the configuretion substore used by this authentication
+     *  manager
      * @return configuration store
      */
     public IConfigStore getConfigStore() {
@@ -298,7 +289,7 @@ public class AgentCertAuthentication implements IAuthManager,
     // Profile-related methods
 
     public void init(IProfile profile, IConfigStore config)
-            throws EProfileException {
+        throws EProfileException {
     }
 
     /**
@@ -327,13 +318,14 @@ public class AgentCertAuthentication implements IAuthManager,
     }
 
     /**
-     * Retrieves the descriptor of the given value parameter by name.
+     * Retrieves the descriptor of the given value
+     * parameter by name.
      */
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         return null;
     }
 
     public void populate(IAuthToken token, IRequest request)
-            throws EProfileException {
+        throws EProfileException {
     }
 }

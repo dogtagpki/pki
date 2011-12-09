@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -26,6 +27,7 @@ import org.apache.velocity.context.Context;
 
 import com.netscape.certsrv.apps.CMS;
 
+
 public class LoginServlet extends BaseServlet {
 
     /**
@@ -34,12 +36,14 @@ public class LoginServlet extends BaseServlet {
     private static final long serialVersionUID = -4766622132710080340L;
 
     public boolean authenticate(HttpServletRequest request,
-            HttpServletResponse response, Context context) {
+            HttpServletResponse response,
+            Context context) {
         return true;
     }
 
     public Template process(HttpServletRequest request,
-            HttpServletResponse response, Context context) {
+            HttpServletResponse response,
+            Context context) {
         Template template = null;
 
         try {
@@ -48,7 +52,7 @@ public class LoginServlet extends BaseServlet {
             if (pin == null) {
                 context.put("error", "");
             } else {
-                String cspin = CMS.getConfigStore().getString("preop.pin");
+                String cspin = CMS.getConfigStore().getString("preop.pin");   
 
                 if (cspin != null && cspin.equals(pin)) {
                     // create session
@@ -58,7 +62,7 @@ public class LoginServlet extends BaseServlet {
                     return null;
                 } else {
                     context.put("error", "Login Failed");
-                }
+                } 
             }
             template = Velocity.getTemplate("admin/console/config/login.vm");
         } catch (Exception e) {

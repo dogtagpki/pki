@@ -27,9 +27,9 @@ import java.security.PublicKey;
 
 /**
  * An identity.
- * 
- * @version 1.19, 09/12/97
- * @author Benjamin Renaud
+ *
+ * @version 	1.19, 09/12/97
+ * @author 	Benjamin Renaud 
  */
 
 public class SystemIdentity extends Identity implements Serializable {
@@ -43,37 +43,38 @@ public class SystemIdentity extends Identity implements Serializable {
     /* This exists only for serialization bc and don't use it! */
     private boolean trusted = false;
 
-    public SystemIdentity(String name, IdentityScope scope)
-            throws InvalidParameterException, KeyManagementException {
-        super(name, scope);
+    public SystemIdentity(String name, IdentityScope scope) 
+    throws InvalidParameterException, KeyManagementException {
+	super(name, scope);
     }
 
     void setIdentityInfo(String info) {
-        super.setInfo(info);
+	super.setInfo(info);
     }
 
     String getIndentityInfo() {
-        return super.getInfo();
+	return super.getInfo();
     }
 
     /**
      * Call back method into a protected method for package friends.
      */
     void setIdentityPublicKey(PublicKey key) throws KeyManagementException {
-        setPublicKey(key);
+	setPublicKey(key);
     }
 
     /**
      * Call back method into a protected method for package friends.
      */
-    void addIdentityCertificate(Certificate cert) throws KeyManagementException {
-        addCertificate(cert);
+    void addIdentityCertificate(Certificate cert) 
+    throws KeyManagementException {
+	addCertificate(cert);
     }
 
     void clearCertificates() throws KeyManagementException {
-        Certificate[] certs = certificates();
-        for (int i = 0; i < certs.length; i++) {
-            removeCertificate(certs[i]);
-        }
+	Certificate[] certs = certificates();
+	for (int i = 0; i < certs.length; i++) {
+	    removeCertificate(certs[i]);
+	}
     }
 }

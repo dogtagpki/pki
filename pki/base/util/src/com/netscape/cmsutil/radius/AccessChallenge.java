@@ -17,7 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmsutil.radius;
 
+
 import java.io.IOException;
+
 
 public class AccessChallenge extends ServerPacket {
     public AccessChallenge(byte data[]) throws IOException {

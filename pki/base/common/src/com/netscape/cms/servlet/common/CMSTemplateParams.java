@@ -17,14 +17,16 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.common;
 
+
 import java.util.Enumeration;
 import java.util.Vector;
 
 import com.netscape.certsrv.base.IArgBlock;
 
+
 /**
  * Holds template parameters
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class CMSTemplateParams {

@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.logging;
 
+
 import java.util.Hashtable;
 import java.util.Properties;
 
@@ -25,11 +26,13 @@ import com.netscape.certsrv.logging.ILogEventFactory;
 import com.netscape.certsrv.logging.ILogQueue;
 import com.netscape.certsrv.logging.ILogger;
 
+
 /**
- * A class represents certificate server logger implementation.
+ * A class represents certificate server logger
+ * implementation.
  * <P>
- * 
- * @author thomask
+ *
+ * @author thomask 
  * @author mzhao
  * @version $Revision$, $Date$
  */
@@ -40,8 +43,8 @@ public class Logger implements ILogger {
     protected Hashtable mFactories = new Hashtable();
 
     /**
-     * Constructs a generic logger, and registers a list of resident event
-     * factories.
+     * Constructs a generic logger, and registers a list
+     * of resident event factories.
      */
     public Logger() {
         mLogQueue = LogSubsystem.getLogQueue();
@@ -60,7 +63,7 @@ public class Logger implements ILogger {
     }
 
     /**
-     * Retrieves the associated log queue.
+     * Retrieves the associated log queue. 
      */
     public ILogQueue getLogQueue() {
         return mLogQueue;
@@ -68,19 +71,17 @@ public class Logger implements ILogger {
 
     /**
      * Registers log factory.
-     * 
-     * @param evtClass the event class name: ILogger.EV_SYSTEM or
-     *            ILogger.EV_AUDIT
+     * @param evtClass the event class name: ILogger.EV_SYSTEM or ILogger.EV_AUDIT
      * @param f the event factory name
      */
     public void register(int evtClass, ILogEventFactory f) {
         mFactories.put(Integer.toString(evtClass), f);
     }
 
-    // ************** default level ****************
+    //************** default level ****************
     /**
      * Logs an event using default log level: ILogger.LL_INFO
-     * 
+     *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM.
      * @param source the source of the log event
      * @param msg the one line detail message to be logged
@@ -91,7 +92,7 @@ public class Logger implements ILogger {
 
     /**
      * Logs an event using default log level: ILogger.LL_INFO
-     * 
+     *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM.
      * @param props the resource bundle used for the detailed message
      * @param source the source of the log event
@@ -101,11 +102,11 @@ public class Logger implements ILogger {
         log(evtClass, props, source, ILogger.LL_INFO, msg, null);
     }
 
-    // ************** no param ****************
+    //************** no param ****************
 
     /**
      * Logs an event to the log queue.
-     * 
+     *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM.
      * @param source the source of the log event
      * @param level the level of the log event
@@ -117,51 +118,48 @@ public class Logger implements ILogger {
 
     /**
      * Logs an event to the log queue.
-     * 
+     *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM.
      * @param props the resource bundle used for the detailed message
      * @param source the source of the log event
      * @param level the level of the log event
      * @param msg the one line detail message to be logged
      */
-    public void log(int evtClass, Properties props, int source, int level,
-            String msg) {
+    public void log(int evtClass, Properties props, int source, int level, String msg) {
         log(evtClass, props, source, level, msg, null);
     }
 
-    // ********************* one param **********************
+    //********************* one param **********************
 
     /**
      * Logs an event to the log queue.
-     * 
+     *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM.
      * @param props the resource bundle used for the detailed message
      * @param source the source of the log event
      * @param msg the one line detail message to be logged
      * @param param the parameter in the detail message
      */
-    public void log(int evtClass, int source, int level, String msg,
-            Object param) {
+    public void log(int evtClass, int source, int level, String msg, Object param) {
         log(evtClass, null, source, level, msg, param);
     }
 
     /**
      * Logs an event using default log level: ILogger.LL_INFO
-     * 
+     *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM.
      * @param props the resource bundle used for the detailed message
      * @param source the source of the log event
      * @param msg the one line detail message to be logged
      * @param param the parameter in the detail message
      */
-    public void log(int evtClass, Properties props, int source, String msg,
-            Object param) {
+    public void log(int evtClass, Properties props, int source, String msg, Object param) {
         log(evtClass, props, source, ILogger.LL_INFO, msg, param);
     }
 
     /**
      * Logs an event to the log queue.
-     * 
+     *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM.
      * @param props the resource bundle used for the detailed message
      * @param source the source of the log event
@@ -169,19 +167,19 @@ public class Logger implements ILogger {
      * @param msg the one line detail message to be logged
      * @param param the parameter in the detail message
      */
-    public void log(int evtClass, Properties props, int source, int level,
-            String msg, Object param) {
+    public void log(int evtClass, Properties props, int source, int level, String msg,
+        Object param) {
         Object o[] = new Object[1];
 
         o[0] = param;
         log(evtClass, props, source, level, msg, o);
     }
 
-    // ******************* multiple param **************************
+    //******************* multiple param **************************
 
     /**
      * Logs an event to the log queue.
-     * 
+     *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM.
      * @param source the source of the log event
      * @param level the level of the log event
@@ -189,14 +187,14 @@ public class Logger implements ILogger {
      * @param params the parameters in the detail message
      */
     public void log(int evtClass, int source, int level, String msg,
-            Object params[]) {
+        Object params[]) {
         log(evtClass, null, source, level, msg, params);
     }
 
-    // *************** the real implementation *****************
+    //*************** the real implementation *****************
     /**
      * Logs an event to the log queue.
-     * 
+     *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM.
      * @param props the resource bundle used for the detailed message
      * @param source the source of the log event
@@ -204,22 +202,20 @@ public class Logger implements ILogger {
      * @param msg the one line detail message to be logged
      * @param params the parameters in the detail message
      */
-    public void log(int evtClass, Properties prop, int source, int level,
-            String msg, Object params[]) {
-        mLogQueue.log(create(evtClass, prop, source, level, msg, params,
-                ILogger.L_SINGLELINE));
+    public void log(int evtClass, Properties prop, int source, int level, String msg,
+        Object params[]) {
+        mLogQueue.log(create(evtClass, prop, source, level, msg, params, ILogger.L_SINGLELINE));
     }
 
-    // ******************** multiline log *************************
-    // ************** default level ****************
+    //******************** multiline log *************************
+    //************** default level ****************
     /**
      * Logs an event using default log level: ILogger.LL_INFO
-     * 
+     *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM.
      * @param source the source of the log event
      * @param msg the one line detail message to be logged
-     * @param multiline true if the message has more than one line, otherwise
-     *            false
+     * @param multiline true if the message has more than one line, otherwise false
      */
     public void log(int evtClass, int source, String msg, boolean multiline) {
         log(evtClass, null, source, ILogger.LL_INFO, msg, null, multiline);
@@ -227,153 +223,141 @@ public class Logger implements ILogger {
 
     /**
      * Logs an event using default log level: ILogger.LL_INFO
-     * 
+     *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM.
      * @param props the resource bundle used for the detailed message
      * @param source the source of the log event
      * @param msg the one line detail message to be logged
-     * @param multiline true if the message has more than one line, otherwise
-     *            false
+     * @param multiline true if the message has more than one line, otherwise false
      */
-    public void log(int evtClass, Properties props, int source, String msg,
-            boolean multiline) {
+    public void log(int evtClass, Properties props, int source, String msg, boolean multiline) {
         log(evtClass, props, source, ILogger.LL_INFO, msg, null, multiline);
     }
 
-    // ************** no param ****************
+    //************** no param ****************
 
     /**
      * Logs an event to the log queue.
-     * 
+     *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM.
      * @param source the source of the log event
      * @param level the level of the log event
      * @param msg the one line detail message to be logged
-     * @param multiline true if the message has more than one line, otherwise
-     *            false
+     * @param multiline true if the message has more than one line, otherwise false
      */
-    public void log(int evtClass, int source, int level, String msg,
-            boolean multiline) {
+    public void log(int evtClass, int source, int level, String msg, boolean multiline) {
         log(evtClass, null, source, level, msg, null, multiline);
     }
 
     /**
      * Logs an event to the log queue.
-     * 
+     *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM.
      * @param props the resource bundle used for the detailed message
      * @param source the source of the log event
      * @param level the level of the log event
      * @param msg the one line detail message to be logged
-     * @param multiline true if the message has more than one line, otherwise
-     *            false
+     * @param multiline true if the message has more than one line, otherwise false
      */
-    public void log(int evtClass, Properties props, int source, int level,
-            String msg, boolean multiline) {
+    public void log(int evtClass, Properties props, int source, int level, String msg, boolean multiline) {
         log(evtClass, props, source, level, msg, null, multiline);
     }
 
-    // ********************* one param **********************
+    //********************* one param **********************
 
     /**
      * Logs an event to the log queue.
-     * 
+     *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM.
      * @param props the resource bundle used for the detailed message
      * @param source the source of the log event
      * @param msg the one line detail message to be logged
      * @param param the parameter in the detail message
-     * @param multiline true if the message has more than one line, otherwise
-     *            false
+     * @param multiline true if the message has more than one line, otherwise false
      */
-    public void log(int evtClass, int source, int level, String msg,
-            Object param, boolean multiline) {
+    public void log(int evtClass, int source, int level, String msg, Object param, boolean multiline) {
         log(evtClass, null, source, level, msg, param, multiline);
     }
 
     /**
      * Logs an event using default log level: ILogger.LL_INFO
-     * 
+     *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM.
      * @param props the resource bundle used for the detailed message
      * @param source the source of the log event
      * @param msg the one line detail message to be logged
      * @param param the parameter in the detail message
-     * @param multiline true if the message has more than one line, otherwise
-     *            false
+     * @param multiline true if the message has more than one line, otherwise false
      */
-    public void log(int evtClass, Properties props, int source, String msg,
-            Object param, boolean multiline) {
+    public void log(int evtClass, Properties props, int source, String msg, Object param, boolean multiline) {
         log(evtClass, props, source, ILogger.LL_INFO, msg, param, multiline);
     }
 
     /**
      * Logs an event to the log queue.
-     * 
+     *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM.
      * @param props the resource bundle used for the detailed message
      * @param source the source of the log event
      * @param level the level of the log event
      * @param msg the one line detail message to be logged
      * @param param the parameter in the detail message
-     * @param multiline true if the message has more than one line, otherwise
-     *            false
+     * @param multiline true if the message has more than one line, otherwise false
      */
-    public void log(int evtClass, Properties props, int source, int level,
-            String msg, Object param, boolean multiline) {
+    public void log(int evtClass, Properties props, int source, int level, String msg,
+        Object param, boolean multiline) {
         Object o[] = new Object[1];
 
         o[0] = param;
         log(evtClass, props, source, level, msg, o, multiline);
     }
 
-    // ******************* multiple param **************************
+    //******************* multiple param **************************
 
     /**
      * Logs an event to the log queue.
-     * 
+     *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM.
      * @param source the source of the log event
      * @param level the level of the log event
      * @param msg the one line detail message to be logged
      * @param params the parameters in the detail message
-     * @param multiline true if the message has more than one line, otherwise
-     *            false
+     * @param multiline true if the message has more than one line, otherwise false
      */
     public void log(int evtClass, int source, int level, String msg,
-            Object params[], boolean multiline) {
+        Object params[], boolean multiline) {
         log(evtClass, null, source, level, msg, params, multiline);
     }
 
-    // *************** the real implementation *****************
+    //*************** the real implementation *****************
     /**
      * Logs an event to the log queue.
-     * 
+     *
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM.
      * @param props the resource bundle used for the detailed message
      * @param source the source of the log event
      * @param level the level of the log event
      * @param msg the one line detail message to be logged
      * @param params the parameters in the detail message
-     * @param multiline true if the message has more than one line, otherwise
-     *            false
+     * @param multiline true if the message has more than one line, otherwise false
      */
-    public void log(int evtClass, Properties prop, int source, int level,
-            String msg, Object params[], boolean multiline) {
-        mLogQueue.log(create(evtClass, prop, source, level, msg, params,
-                multiline));
+    public void log(int evtClass, Properties prop, int source, int level, String msg,
+        Object params[], boolean multiline) {
+        mLogQueue.log(create(evtClass, prop, source, level, msg, params, multiline));
     }
 
-    // ******************** end multiline log *************************
+    //******************** end  multiline log *************************
+
 
     /**
-     * Creates generic log event. If required, we can recycle events here.
+     * Creates generic log event. If required, we can recycle
+     * events here.
      */
-    // XXXXXXXXXXX prop is out dated!!!! XXXXXXXXXXXXXXX
-    public ILogEvent create(int evtClass, Properties prop, int source,
-            int level, String msg, Object params[], boolean multiline) {
-        ILogEventFactory f = (ILogEventFactory) mFactories.get(Integer
-                .toString(evtClass));
+    //XXXXXXXXXXX prop is out dated!!!! XXXXXXXXXXXXXXX
+    public ILogEvent create(int evtClass, Properties prop, int source, int level,
+        String msg, Object params[], boolean multiline) {
+        ILogEventFactory f = (ILogEventFactory) mFactories.get(
+                Integer.toString(evtClass));
 
         if (f == null)
             return null;
@@ -381,9 +365,8 @@ public class Logger implements ILogger {
     }
 
     /**
-     * Notifies logger to reuse the event. This framework opens up possibility
-     * to reuse event.
-     * 
+     * Notifies logger to reuse the event. This framework
+     * opens up possibility to reuse event.
      * @param event a log event
      */
     public void release(ILogEvent event) {

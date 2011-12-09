@@ -17,9 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.base;
 
+
+
+
 /**
- * An interface represents a subsystem source. A subsystem source is a container
- * that manages multiple subsystems.
+ * An interface represents a subsystem source. A subsystem
+ * source is a container that manages multiple subsystems.
  * <P>
  * 
  * @version $Revision$, $Date$
@@ -28,7 +31,7 @@ public interface ISubsystemSource {
 
     /**
      * Retrieves subsystem from the source.
-     * 
+     *
      * @param sid subsystem identifier
      * @return subsystem
      */

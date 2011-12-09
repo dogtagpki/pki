@@ -17,40 +17,39 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.connector;
 
+
 import com.netscape.certsrv.request.IRequest;
 
+
 /**
- * This represents a Http PKI message. It contains simple name/value pair
- * values. Also maintains information about the status and type of the message.
- * 
+ * This represents a  Http PKI message. It contains 
+ * simple name/value pair values.  Also maintains information
+ * about the status and type of the message.
+ *
  * @version $Revision$, $Date$
  */
 public interface IHttpPKIMessage extends IPKIMessage {
 
     /**
      * Retrieves the request type.
-     * 
      * @return String with the type of request.
      */
     public String getReqType();
 
     /**
      * Retrieves the request identifier.
-     * 
      * @return String of name of request.
      */
     public String getReqId();
 
     /**
      * Copies contents of request to make a simple name/value message.
-     * 
      * @param r Instance of IRequest to be copied from.
      */
     public void fromRequest(IRequest r);
 
     /**
      * Copies contents to request.
-     * 
      * @param r Instance of IRequest to be copied to.
      */
     public void toRequest(IRequest r);

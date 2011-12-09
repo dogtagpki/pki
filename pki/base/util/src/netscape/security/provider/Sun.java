@@ -29,25 +29,27 @@ import java.security.Provider;
 
 /**
  * Defines the SUN provider.
- * 
+ *
  * Algorithm supported, and their names:
- * 
- * - SHA-1 is the message digest scheme decribed FIPS 180-1. Aliases for SHA-1
- * are SHA.
- * 
- * - DSA is the signature scheme described in FIPS 186. (SHA used in DSA is
- * SHA-1: FIPS 186 with Change No 1.) Aliases for DSA are SHA/DSA, SHA-1/DSA,
- * SHA1/DSA, DSS and the object identifier strings "OID.1.3.14.3.2.13",
- * "OID.1.3.14.3.2.27" and "OID.1.2.840.10040.4.3".
- * 
- * - DSA is the key generation scheme as described in FIPS 186. Aliases for DSA
- * include the OID strings "OID.1.3.14.3.2.12" and "OID.1.2.840.10040.4.1".
- * 
- * - MD5 is the message digest scheme described in RFC 1321. There are no
- * aliases for MD5.
- * 
- * Notes: The name of algorithm described in FIPS-180 is SHA-0, and is not
- * supported by the SUN provider.)
+ *
+ * - SHA-1 is the message digest scheme decribed FIPS 180-1. 
+ *   Aliases for SHA-1 are SHA.
+ *
+ * - DSA is the signature scheme described in FIPS 186.  (SHA used in
+ *   DSA is SHA-1: FIPS 186 with Change No 1.)  Aliases for DSA are
+ *   SHA/DSA, SHA-1/DSA, SHA1/DSA, DSS and the object identifier
+ *   strings "OID.1.3.14.3.2.13", "OID.1.3.14.3.2.27" and
+ *   "OID.1.2.840.10040.4.3".
+ *
+ * - DSA is the key generation scheme as described in FIPS 186.
+ *   Aliases for DSA include the OID strings "OID.1.3.14.3.2.12"
+ *   and "OID.1.2.840.10040.4.1".
+ *
+ * - MD5 is the message digest scheme described in RFC 1321.
+ *   There are no aliases for MD5.
+ *
+ * Notes: The name of algorithm described in FIPS-180 is SHA-0, and is
+ * not supported by the SUN provider.)  
  */
 public final class Sun extends Provider {
 
@@ -55,20 +57,20 @@ public final class Sun extends Provider {
      *
      */
     private static final long serialVersionUID = 9134942296334703727L;
-    private static String info = "SUN Security Provider v1.0, "
-            + "DSA signing and key generation, SHA-1 and MD5 message digests.";
+    private static String info = "SUN Security Provider v1.0, " + 
+    "DSA signing and key generation, SHA-1 and MD5 message digests.";
 
     public Sun() {
-        /* We are the SUN provider */
-        super("SUN", 1.0, info);
+	/* We are the SUN provider */
+	super("SUN", 1.0, info);
 
-        try {
+	try {
 
-            // AccessController.beginPrivileged();
+//	    AccessController.beginPrivileged();
 
-            /*
-             * Signature engines
-             */
+	    /*
+	     * Signature engines 
+	     */
             put("Signature.DSA", "netscape.security.provider.DSA");
 
             put("Alg.Alias.Signature.SHA/DSA", "DSA");
@@ -86,11 +88,11 @@ public final class Sun extends Provider {
             put("Alg.Alias.Signature.SHAwithDSA", "DSA");
             put("Alg.Alias.Signature.SHA1withDSA", "DSA");
 
-            /*
-             * Key Pair Generator engines
-             */
-            put("KeyPairGenerator.DSA",
-                    "netscape.security.provider.DSAKeyPairGenerator");
+	    /*
+	     *  Key Pair Generator engines 
+	     */
+            put("KeyPairGenerator.DSA", 
+	        "netscape.security.provider.DSAKeyPairGenerator");
 
             put("Alg.Alias.KeyPairGenerator.OID.1.3.14.3.2.12", "DSA");
             put("Alg.Alias.KeyPairGenerator.OID.1.2.840.10040.4.1", "DSA");
@@ -99,35 +101,35 @@ public final class Sun extends Provider {
             put("Alg.Alias.KeyPairGenerator.1.3.14.3.2.12", "DSA");
             put("Alg.Alias.KeyPairGenerator.1.2.840.10040.4.1", "DSA");
 
-            /*
-             * Digest engines
-             */
-            put("MessageDigest.MD5", "netscape.security.provider.MD5");
-            put("MessageDigest.SHA-1", "netscape.security.provider.SHA");
-
-            put("Alg.Alias.MessageDigest.SHA", "SHA-1");
-            put("Alg.Alias.MessageDigest.SHA1", "SHA-1");
+	    /* 
+	     * Digest engines 
+	     */
+	    put("MessageDigest.MD5", "netscape.security.provider.MD5");
+	    put("MessageDigest.SHA-1", "netscape.security.provider.SHA");
+	
+	    put("Alg.Alias.MessageDigest.SHA", "SHA-1");
+	    put("Alg.Alias.MessageDigest.SHA1", "SHA-1");
 
             /*
              * Algorithm Parameter Generator engines
              */
-            put("AlgorithmParameterGenerator.DSA",
-                    "netscape.security.provider.DSAParameterGenerator");
+	    put("AlgorithmParameterGenerator.DSA",
+		"netscape.security.provider.DSAParameterGenerator");
 
             /*
              * Algorithm Parameter engines
              */
-            put("AlgorithmParameters.DSA",
-                    "netscape.security.provider.DSAParameters");
+	    put("AlgorithmParameters.DSA",
+		"netscape.security.provider.DSAParameters");
             put("Alg.Alias.AlgorithmParameters.1.3.14.3.2.12", "DSA");
             put("Alg.Alias.AlgorithmParameters.1.2.840.10040.4.1", "DSA");
-            /*
-             * Key factories
-             */
-            put("KeyFactory.DSA", "netscape.security.provider.DSAKeyFactory");
+	    /*
+	     * Key factories
+	     */
+	    put("KeyFactory.DSA", "netscape.security.provider.DSAKeyFactory");
 
-        } finally {
-            // AccessController.endPrivileged();
-        }
+	} finally {
+//	    AccessController.endPrivileged();
+	}
     }
 }

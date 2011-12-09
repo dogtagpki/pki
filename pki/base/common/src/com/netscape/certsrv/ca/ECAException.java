@@ -17,12 +17,14 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.ca;
 
+
 import com.netscape.certsrv.base.EBaseException;
+
 
 /**
  * A class represents a CA exception.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class ECAException extends EBaseException {
@@ -34,12 +36,11 @@ public class ECAException extends EBaseException {
     /**
      * CA resource class name.
      */
-    private static final String CA_RESOURCES = CAResources.class.getName();
+    private static final String CA_RESOURCES = CAResources.class.getName();		
 
     /**
      * Constructs a CA exception.
      * <P>
-     * 
      * @param msgFormat constant from CAResources.
      */
     public ECAException(String msgFormat) {
@@ -49,7 +50,6 @@ public class ECAException extends EBaseException {
     /**
      * Constructs a CA exception.
      * <P>
-     * 
      * @param msgFormat constant from CAResources.
      * @param param additional parameters to the message.
      */
@@ -60,7 +60,6 @@ public class ECAException extends EBaseException {
     /**
      * Constructs a CA exception.
      * <P>
-     * 
      * @param msgFormat constant from CAResources.
      * @param e embedded exception.
      */
@@ -71,7 +70,6 @@ public class ECAException extends EBaseException {
     /**
      * Constructs a CA exception.
      * <P>
-     * 
      * @param msgFormat constant from CAResources.
      * @param params additional parameters to the message.
      */
@@ -82,7 +80,6 @@ public class ECAException extends EBaseException {
     /**
      * Returns the bundle file name.
      * <P>
-     * 
      * @return name of bundle class associated with this exception.
      */
     protected String getBundleName() {

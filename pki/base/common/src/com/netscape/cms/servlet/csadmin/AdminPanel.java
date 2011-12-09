@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -69,19 +70,18 @@ public class AdminPanel extends WizardPanelBase {
     private static final String ADMIN_UID = "admin";
     private final static String CERT_TAG = "admin";
 
-    public AdminPanel() {
-    }
+    public AdminPanel() {}
 
     /**
      * Initializes this panel.
      */
-    public void init(ServletConfig config, int panelno) throws ServletException {
+    public void init(ServletConfig config, int panelno) 
+        throws ServletException {
         setPanelNo(panelno);
         setName("Administrator");
     }
 
-    public void init(WizardServlet servlet, ServletConfig config, int panelno,
-            String id) {
+    public void init(WizardServlet servlet, ServletConfig config, int panelno, String id) {
         setPanelNo(panelno);
         setName("Administrator");
         setId(id);
@@ -101,39 +101,29 @@ public class AdminPanel extends WizardPanelBase {
             } else {
                 return true;
             }
-        } catch (Exception e) {
-        }
+        } catch (Exception e) {}
 
         return false;
     }
 
     public PropertySet getUsage() {
         PropertySet set = new PropertySet();
-
-        Descriptor emailDesc = new Descriptor(IDescriptor.STRING, null, /*
-                                                                         * no
-                                                                         * constraint
-                                                                         */
-        null, /* no default parameter */
-        "Email address for an administrator");
+                                                                                
+        Descriptor emailDesc = new Descriptor(IDescriptor.STRING, null, /* no constraint */
+                null, /* no default parameter */
+                "Email address for an administrator");
 
         set.add("admin_email", emailDesc);
 
-        Descriptor pwdDesc = new Descriptor(IDescriptor.STRING, null, /*
-                                                                       * no
-                                                                       * constraint
-                                                                       */
-        null, /* no default parameter */
-        "Administrator's password");
+        Descriptor pwdDesc = new Descriptor(IDescriptor.STRING, null, /* no constraint */
+                null, /* no default parameter */
+                "Administrator's password");
 
         set.add("pwd", pwdDesc);
 
-        Descriptor pwdAgainDesc = new Descriptor(IDescriptor.STRING, null, /*
-                                                                            * no
-                                                                            * constraint
-                                                                            */
-        null, /* no default parameter */
-        "Administrator's password again");
+        Descriptor pwdAgainDesc = new Descriptor(IDescriptor.STRING, null, /* no constraint */
+                null, /* no default parameter */
+                "Administrator's password again");
 
         set.add("admin_password_again", pwdAgainDesc);
         return set;
@@ -143,7 +133,8 @@ public class AdminPanel extends WizardPanelBase {
      * Display the panel.
      */
     public void display(HttpServletRequest request,
-            HttpServletResponse response, Context context) {
+            HttpServletResponse response,
+            Context context) {
         CMS.debug("AdminPanel: display");
 
         IConfigStore cs = CMS.getConfigStore();
@@ -161,8 +152,7 @@ public class AdminPanel extends WizardPanelBase {
         try {
             type = cs.getString("preop.ca.type", "");
             subsystemtype = cs.getString("cs.type", "");
-        } catch (Exception e) {
-        }
+        } catch (Exception e) {}
 
         if (isPanelDone()) {
             try {
@@ -171,14 +161,11 @@ public class AdminPanel extends WizardPanelBase {
                 context.put("admin_pwd", "");
                 context.put("admin_pwd_again", "");
                 context.put("admin_uid", cs.getString("preop.admin.uid"));
-            } catch (Exception e) {
-            }
+            } catch (Exception e) {}
         } else {
             String def_admin_name = "";
             try {
-                def_admin_name = cs.getString("cs.type")
-                        + " Administrator of Instance "
-                        + cs.getString("instanceId");
+              def_admin_name = cs.getString("cs.type") + " Administrator of Instance " + cs.getString("instanceId");
             } catch (EBaseException e) {
             }
             context.put("admin_name", def_admin_name);
@@ -189,7 +176,7 @@ public class AdminPanel extends WizardPanelBase {
         }
         ISubsystem ca = (ISubsystem) CMS.getSubsystem("ca");
 
-        if (ca == null) {
+        if (ca == null) { 
             context.put("ca", "false");
         } else {
             context.put("ca", "true");
@@ -199,24 +186,24 @@ public class AdminPanel extends WizardPanelBase {
         String domainname = "";
         try {
             domainname = cs.getString("securitydomain.name", "");
-        } catch (EBaseException e1) {
-        }
+        } catch (EBaseException e1) {}
         context.put("securityDomain", domainname);
         context.put("title", "Administrator");
         context.put("panel", "admin/console/config/adminpanel.vm");
         context.put("errorString", "");
         context.put("info", info);
-
+        
     }
 
     /**
      * Checks if the given parameters are valid.
      */
     public void validate(HttpServletRequest request,
-            HttpServletResponse response, Context context) throws IOException {
+            HttpServletResponse response,
+            Context context) throws IOException
+    {
         String pwd = HttpInput.getPassword(request, "__pwd");
-        String pwd_again = HttpInput.getPassword(request,
-                "__admin_password_again");
+        String pwd_again = HttpInput.getPassword(request, "__admin_password_again");
         String email = HttpInput.getEmail(request, "email");
         String name = HttpInput.getName(request, "name");
         String uid = HttpInput.getUID(request, "uid");
@@ -243,8 +230,7 @@ public class AdminPanel extends WizardPanelBase {
 
         if (!pwd.equals(pwd_again)) {
             context.put("updateStatus", "validate-failure");
-            throw new IOException(
-                    "Password and password again are not the same.");
+            throw new IOException("Password and password again are not the same.");
         }
 
         if (email == null || email.length() == 0) {
@@ -257,7 +243,8 @@ public class AdminPanel extends WizardPanelBase {
      * Commit parameter changes
      */
     public void update(HttpServletRequest request,
-            HttpServletResponse response, Context context) throws IOException {
+            HttpServletResponse response,
+            Context context) throws IOException {
         IConfigStore config = CMS.getConfigStore();
         context.put("info", "");
         context.put("import", "true");
@@ -269,15 +256,13 @@ public class AdminPanel extends WizardPanelBase {
         try {
             type = config.getString(PRE_CA_TYPE, "");
             subsystemtype = config.getString("cs.type", "");
-            security_domain_type = config
-                    .getString("securitydomain.select", "");
+            security_domain_type = config.getString("securitydomain.select","");
             selected_hierarchy = config.getString("preop.hierarchy.select", "");
-        } catch (Exception e) {
-        }
+        } catch (Exception e) {}
 
         ISubsystem ca = (ISubsystem) CMS.getSubsystem("ca");
 
-        if (ca == null) {
+        if (ca == null) { 
             context.put("ca", "false");
         } else {
             context.put("ca", "true");
@@ -301,12 +286,14 @@ public class AdminPanel extends WizardPanelBase {
             throw e;
         }
 
-        // REMINDER: This panel is NOT used by "clones"
-        if (ca != null) {
-            if (selected_hierarchy.equals("root")) {
-                CMS.debug("AdminPanel update:  " + "Root CA subsystem");
+        // REMINDER:  This panel is NOT used by "clones"
+        if( ca != null ) {
+            if( selected_hierarchy.equals( "root" ) ) {
+                CMS.debug( "AdminPanel update:  "
+                         + "Root CA subsystem");
             } else {
-                CMS.debug("AdminPanel update:  " + "Subordinate CA subsystem");
+                CMS.debug( "AdminPanel update:  "
+                         + "Subordinate CA subsystem");
             }
 
             try {
@@ -322,8 +309,10 @@ public class AdminPanel extends WizardPanelBase {
             String ca_hostname = null;
             int ca_port = -1;
 
-            // REMINDER: This panel is NOT used by "clones"
-            CMS.debug("AdminPanel update:  " + subsystemtype + " subsystem");
+            // REMINDER:  This panel is NOT used by "clones"
+            CMS.debug( "AdminPanel update:  "
+                         + subsystemtype
+                         + " subsystem" );
 
             if (type.equals("sdca")) {
                 try {
@@ -350,11 +339,10 @@ public class AdminPanel extends WizardPanelBase {
 
         try {
             config.commit(false);
-        } catch (Exception e) {
-        }
+        } catch (Exception e) {}
 
         context.put("updateStatus", "success");
-
+    
     }
 
     private void createAdmin(HttpServletRequest request) throws IOException {
@@ -414,8 +402,7 @@ public class AdminPanel extends WizardPanelBase {
 
             String select = config.getString("securitydomain.select", "");
             if (select.equals("new")) {
-                group = system
-                        .getGroupFromName("Security Domain Administrators");
+                group = system.getGroupFromName("Security Domain Administrators");
                 if (!group.isMember(uid)) {
                     group.addMemberName(uid);
                     system.modifyGroup(group);
@@ -427,8 +414,7 @@ public class AdminPanel extends WizardPanelBase {
                     system.modifyGroup(group);
                 }
 
-                group = system
-                        .getGroupFromName("Enterprise KRA Administrators");
+                group = system.getGroupFromName("Enterprise KRA Administrators");
                 if (!group.isMember(uid)) {
                     group.addMemberName(uid);
                     system.modifyGroup(group);
@@ -440,22 +426,19 @@ public class AdminPanel extends WizardPanelBase {
                     system.modifyGroup(group);
                 }
 
-                group = system
-                        .getGroupFromName("Enterprise TKS Administrators");
+                group = system.getGroupFromName("Enterprise TKS Administrators");
                 if (!group.isMember(uid)) {
                     group.addMemberName(uid);
                     system.modifyGroup(group);
                 }
 
-                group = system
-                        .getGroupFromName("Enterprise OCSP Administrators");
+                group = system.getGroupFromName("Enterprise OCSP Administrators");
                 if (!group.isMember(uid)) {
                     group.addMemberName(uid);
                     system.modifyGroup(group);
                 }
 
-                group = system
-                        .getGroupFromName("Enterprise TPS Administrators");
+                group = system.getGroupFromName("Enterprise TPS Administrators");
                 if (!group.isMember(uid)) {
                     group.addMemberName(uid);
                     system.modifyGroup(group);
@@ -467,9 +450,8 @@ public class AdminPanel extends WizardPanelBase {
         }
     }
 
-    private void submitRequest(String ca_hostname, int ca_port,
-            HttpServletRequest request, HttpServletResponse response,
-            Context context) throws IOException {
+    private void submitRequest(String ca_hostname, int ca_port, HttpServletRequest request,
+            HttpServletResponse response, Context context) throws IOException {
         IConfigStore config = CMS.getConfigStore();
         String sd_hostname = null;
         int sd_port = -1;
@@ -477,29 +459,22 @@ public class AdminPanel extends WizardPanelBase {
         try {
             sd_hostname = config.getString("securitydomain.host", "");
             sd_port = config.getInteger("securitydomain.httpseeport");
-        } catch (Exception e) {
-        }
+        } catch (Exception e) {}
 
         String profileId = HttpInput.getID(request, "profileId");
         if (profileId == null) {
             try {
-                profileId = config.getString("preop.admincert.profile",
-                        "caAdminCert");
-            } catch (Exception e) {
-            }
+                profileId = config.getString("preop.admincert.profile", "caAdminCert");
+            } catch (Exception e) {}
         }
 
-        String cert_request_type = HttpInput
-                .getID(request, "cert_request_type");
+        String cert_request_type = HttpInput.getID(request, "cert_request_type");
         String cert_request = HttpInput.getCertRequest(request, "cert_request");
         cert_request = URLEncoder.encode(cert_request, "UTF-8");
         String session_id = CMS.getConfigSDSessionId();
         String subjectDN = HttpInput.getString(request, "subject");
 
-        String content = "profileId=" + profileId + "&cert_request_type="
-                + cert_request_type + "&cert_request=" + cert_request
-                + "&xmlOutput=true&sessionID=" + session_id + "&subject="
-                + subjectDN;
+        String content = "profileId="+profileId+"&cert_request_type="+cert_request_type+"&cert_request="+cert_request+"&xmlOutput=true&sessionID="+session_id+"&subject="+subjectDN;
 
         HttpClient httpclient = new HttpClient();
         String c = null;
@@ -522,7 +497,7 @@ public class AdminPanel extends WizardPanelBase {
 
             c = httpresponse.getContent();
             CMS.debug("AdminPanel submitRequest: content=" + c);
-
+            
             // retrieve the request Id ad admin certificate
             if (c != null) {
                 try {
@@ -533,15 +508,15 @@ public class AdminPanel extends WizardPanelBase {
                     try {
                         parser = new XMLObject(bis);
                     } catch (Exception e) {
-                        CMS.debug("AdminPanel::submitRequest() - "
-                                + "Exception=" + e.toString());
-                        throw new IOException(e.toString());
+                        CMS.debug( "AdminPanel::submitRequest() - "
+                                 + "Exception="+e.toString() );
+                        throw new IOException( e.toString() );
                     }
                     String status = parser.getValue("Status");
 
                     CMS.debug("AdminPanel update: status=" + status);
                     if (status.equals("2")) {
-                        // relogin to the security domain
+                        //relogin to the security domain
                         reloginSecurityDomain(response);
                         return;
                     } else if (!status.equals("0")) {
@@ -550,7 +525,7 @@ public class AdminPanel extends WizardPanelBase {
                         context.put("errorString", error);
                         throw new IOException(error);
                     }
-
+ 
                     IConfigStore cs = CMS.getConfigStore();
                     String id = parser.getValue("Id");
 
@@ -564,7 +539,7 @@ public class AdminPanel extends WizardPanelBase {
                             + File.separator + "admin.b64";
 
                     cs.putString("preop.admincert.b64", dir);
-                    PrintStream ps = new PrintStream(new FileOutputStream(dir));
+                    PrintStream ps = new PrintStream(new FileOutputStream(dir)); 
 
                     ps.println(b64);
                     ps.flush();
@@ -586,13 +561,12 @@ public class AdminPanel extends WizardPanelBase {
             HttpServletResponse response, Context context) throws IOException {
         String cert_request = HttpInput.getCertRequest(request, "cert_request");
 
-        String cert_request_type = HttpInput
-                .getID(request, "cert_request_type");
+        String cert_request_type = HttpInput.getID(request, "cert_request_type");
         IConfigStore cs = CMS.getConfigStore();
 
-        if (cs == null) {
-            CMS.debug("AdminPanel::createAdminCertificate() - cs is null!");
-            throw new IOException("cs is null");
+        if( cs == null ) {
+            CMS.debug( "AdminPanel::createAdminCertificate() - cs is null!" );
+            throw new IOException( "cs is null" );
         }
 
         String subject = "";
@@ -604,13 +578,14 @@ public class AdminPanel extends WizardPanelBase {
                 subject = CryptoUtil.getSubjectName(crmfMsgs);
                 x509key = CryptoUtil.getX509KeyFromCRMFMsgs(crmfMsgs);
             } catch (Exception e) {
-                CMS.debug("AdminPanel createAdminCertificate: Exception="
-                        + e.toString());
+                CMS.debug(
+                        "AdminPanel createAdminCertificate: Exception="
+                                + e.toString());
             }
-            // this request is from IE. The VBScript has problem of generating
-            // certificate request if the subject name has E and UID components.
-            // For now, we always hardcoded the subject DN to be cn=NAME in
-            // the IE browser.
+        // this request is from IE. The VBScript has problem of generating
+        // certificate request if the subject name has E and UID components.
+        // For now, we always hardcoded the subject DN to be cn=NAME in 
+        // the IE browser.
         } else if (cert_request_type.equals("pkcs10")) {
             try {
                 byte[] b = CMS.AtoB(cert_request);
@@ -619,35 +594,33 @@ public class AdminPanel extends WizardPanelBase {
                 x509key = pkcs10.getSubjectPublicKeyInfo();
             } catch (Exception e) {
                 CMS.debug("AdminPanel createAdminCertificate: Exception="
-                        + e.toString());
+                  + e.toString());
             }
         }
 
-        if (x509key == null) {
-            CMS.debug("AdminPanel::createAdminCertificate() - x509key is null!");
-            throw new IOException("x509key is null");
+        if( x509key == null ) {
+            CMS.debug( "AdminPanel::createAdminCertificate() - x509key is null!" );
+            throw new IOException( "x509key is null" );
         }
 
         try {
             cs.putString(PCERT_PREFIX + CERT_TAG + ".dn", subject);
-            String caType = cs.getString(PCERT_PREFIX + CERT_TAG + ".type",
-                    "local");
+            String caType = cs.getString(PCERT_PREFIX + CERT_TAG + ".type", "local");
             X509CertImpl impl = CertUtil.createLocalCert(cs, x509key,
-                    PCERT_PREFIX, CERT_TAG, caType, context);
+              PCERT_PREFIX, CERT_TAG, caType, context);
 
             // update the locally created request for renewal
-            CertUtil.updateLocalRequest(cs, CERT_TAG, cert_request,
-                    cert_request_type, subject);
+            CertUtil.updateLocalRequest(cs, CERT_TAG, cert_request,cert_request_type, subject);
 
             ISubsystem ca = (ISubsystem) CMS.getSubsystem("ca");
             if (ca != null) {
                 createPKCS7(impl);
             }
-            cs.putString("preop.admincert.serialno.0", impl.getSerialNumber()
-                    .toString(16));
+            cs.putString("preop.admincert.serialno.0",
+              impl.getSerialNumber().toString(16));
         } catch (Exception e) {
             CMS.debug("AdminPanel createAdminCertificate: Exception="
-                    + e.toString());
+              + e.toString());
         }
     }
 
@@ -655,7 +628,8 @@ public class AdminPanel extends WizardPanelBase {
      * If validiate() returns false, this method will be called.
      */
     public void displayError(HttpServletRequest request,
-            HttpServletResponse response, Context context) {
+            HttpServletResponse response,
+            Context context) {
 
         context.put("title", "Administrator");
         context.put("panel", "admin/console/config/adminpanel.vm");
@@ -666,9 +640,8 @@ public class AdminPanel extends WizardPanelBase {
 
         try {
             type = cs.getString("preop.ca.type", "");
-        } catch (Exception e) {
-        }
-        if (ca == null && type.equals("otherca")) {
+        } catch (Exception e) {}
+        if (ca == null && type.equals("otherca")) { 
             info = "Since you do not join the Redhat CA network, the administrator's certificate will not be generated automatically.";
         }
         context.put("info", info);
@@ -682,7 +655,7 @@ public class AdminPanel extends WizardPanelBase {
     public boolean shouldSkip() {
         try {
             IConfigStore c = CMS.getConfigStore();
-            String s = c.getString("preop.subsystem.select", null);
+            String s = c.getString("preop.subsystem.select",null);
             if (s != null && s.equals("clone")) {
                 return true;
             }
@@ -692,11 +665,11 @@ public class AdminPanel extends WizardPanelBase {
         return false;
     }
 
+
     private void createPKCS7(X509CertImpl cert) {
         try {
             IConfigStore cs = CMS.getConfigStore();
-            ICertificateAuthority ca = (ICertificateAuthority) CMS
-                    .getSubsystem("ca");
+            ICertificateAuthority ca = (ICertificateAuthority)CMS.getSubsystem("ca");
             CertificateChain cachain = ca.getCACertChain();
             X509Certificate[] cacerts = cachain.getChain();
             X509CertImpl[] userChain = new X509CertImpl[cacerts.length + 1];
@@ -707,18 +680,16 @@ public class AdminPanel extends WizardPanelBase {
             }
 
             userChain[0] = cert;
-            PKCS7 p7 = new PKCS7(new AlgorithmId[0], new ContentInfo(
-                    new byte[0]), userChain, new SignerInfo[0]);
+            PKCS7 p7 = new PKCS7(new AlgorithmId[0],
+              new ContentInfo(new byte[0]), userChain, new SignerInfo[0]);
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
             p7.encodeSignedData(bos);
             byte[] p7Bytes = bos.toByteArray();
             String p7Str = CMS.BtoA(p7Bytes);
-            cs.putString("preop.admincert.pkcs7",
-                    CryptoUtil.normalizeCertStr(p7Str));
+            cs.putString("preop.admincert.pkcs7", CryptoUtil.normalizeCertStr(p7Str));
         } catch (Exception e) {
-            CMS.debug("AdminPanel createPKCS7: Failed to create pkcs7 file. Exception: "
-                    + e.toString());
+            CMS.debug("AdminPanel createPKCS7: Failed to create pkcs7 file. Exception: "+e.toString());
         }
     }
 }

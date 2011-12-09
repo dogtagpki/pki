@@ -17,35 +17,40 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.logging;
 
+
+
+
 /**
- * An interface represents a log queue. A log queue is a queue of pending log
- * events to be dispatched to a set of registered ILogEventListeners.
- * 
+ * An interface represents a log queue. A log queue
+ * is a queue of pending log events to be dispatched
+ * to a set of registered ILogEventListeners.
+ *
  * @version $Revision$, $Date$
  */
 public interface ILogQueue {
 
     /**
      * Dispatch the log event to all registered log event listeners.
-     * 
+     *
      * @param evt the log event
      */
     public void log(ILogEvent evt);
 
     /**
-     * Flushes log queue, flushes all registered listeners. Messages should be
-     * written to their destination.
+     * Flushes log queue, flushes all registered listeners.
+     * Messages should be written to their destination.
      */
     public void flush();
 
     /**
      * Registers an event listener.
-     * 
-     * @param listener The log event listener to be registered to this queue.
+     *
+     * @param listener The log event listener to be registered
+     * to this queue.
      */
     public void addLogEventListener(ILogEventListener listener);
 
-    /**
+    /** 
      * Removes an event listener.
      * 
      * @param listener The log event listener to be removed from this queue.
@@ -55,7 +60,7 @@ public interface ILogQueue {
     /**
      * Initializes the log queue.
      * <P>
-     * 
+     *
      */
     public void init();
 

@@ -17,13 +17,16 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.profile;
 
+
 import java.util.Enumeration;
 
 import com.netscape.certsrv.base.ISubsystem;
 
+
 /**
- * This represents the profile subsystem that manages a list of profiles.
- * 
+ * This represents the profile subsystem that manages 
+ * a list of profiles.
+ *
  * @version $Revision$, $Date$
  */
 public interface IProfileSubsystem extends ISubsystem {
@@ -31,15 +34,16 @@ public interface IProfileSubsystem extends ISubsystem {
 
     /**
      * Retrieves a profile by id.
-     * 
+     *
      * @return profile
      * @exception EProfileException failed to retrieve
      */
-    public IProfile getProfile(String id) throws EProfileException;
+    public IProfile getProfile(String id)
+        throws EProfileException;
 
     /**
      * Checks if a profile is approved by an agent or not.
-     * 
+     *
      * @param id profile id
      * @return true if profile is approved
      */
@@ -47,7 +51,7 @@ public interface IProfileSubsystem extends ISubsystem {
 
     /**
      * Retrieves the approver of the given profile.
-     * 
+     *
      * @param id profile id
      * @return user id of the agent who has approved the profile
      */
@@ -55,73 +59,76 @@ public interface IProfileSubsystem extends ISubsystem {
 
     /**
      * Creates new profile.
-     * 
+     *
      * @param id profile id
      * @param classid implementation id
      * @param className class Name
      * @param configFile configuration file
      * @exception EProfileException failed to create profile
      */
-    public IProfile createProfile(String id, String classid, String className,
-            String configFile) throws EProfileException;
+    public IProfile createProfile(String id, String classid, 
+        String className, String configFile) 
+        throws EProfileException;
 
     /**
      * Deletes profile.
-     * 
+     *
      * @param id profile id
      * @param configFile configuration file
      * @exception EProfileException failed to delete profile
      */
-    public void deleteProfile(String id, String configFile)
-            throws EProfileException;
+    public void deleteProfile(String id, String configFile) 
+        throws EProfileException;
 
     /**
      * Creates a new profile configuration file.
-     * 
+     *
      * @param id profile id
      * @param classId implementation id
      * @param configPath location to create the configuration file
      * @exception failed to create profile
      */
-    public void createProfileConfig(String id, String classId, String configPath)
-            throws EProfileException;
+    public void createProfileConfig(String id, String classId,
+        String configPath) throws EProfileException;
 
     /**
      * Enables a profile.
-     * 
+     *
      * @param id profile id
      * @param enableBy agent's user id
      * @exception EProfileException failed to enable profile
      */
     public void enableProfile(String id, String enableBy)
-            throws EProfileException;
+        throws EProfileException;
 
     /**
      * Disables a profile.
-     * 
+     *
      * @param id profile id
      * @exception EProfileException failed to disable
      */
-    public void disableProfile(String id) throws EProfileException;
+    public void disableProfile(String id)
+        throws EProfileException;
 
     /**
      * Retrieves the id of the implementation of the given profile.
-     * 
+     *
      * @param id profile id
      * @return implementation id managed by the registry
      */
     public String getProfileClassId(String id);
 
     /**
-     * Retrieves a list of profile ids. The return list is of type String.
-     * 
+     * Retrieves a list of profile ids. The return
+     * list is of type String.
+     *
      * @return a list of profile ids
      */
     public Enumeration getProfileIds();
 
     /**
      * Checks if owner id should be enforced during profile approval.
-     * 
+     *
      * @return true if approval should be checked
      */
     public boolean checkOwner();

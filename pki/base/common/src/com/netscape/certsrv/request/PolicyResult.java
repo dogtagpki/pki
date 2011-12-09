@@ -17,9 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.request;
 
+
 /**
  * This class defines results for policy actions.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public final class PolicyResult {

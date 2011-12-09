@@ -17,21 +17,26 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.util;
 
+
 import java.util.Date;
 
 import com.netscape.certsrv.base.ISubsystem;
 
+
 /**
- * A class represents a internal subsystem. This subsystem can be loaded into
- * cert server kernel to perform statistics collection.
+ * A class represents a internal subsystem. This subsystem
+ * can be loaded into cert server kernel to perform
+ * statistics collection.
  * <P>
  * 
  * @author thomask
  * @version $Revision$, $Date$
  */
-public interface IStatsSubsystem extends ISubsystem {
+public interface IStatsSubsystem extends ISubsystem
+{
     /**
-     * Retrieves the start time since startup or clearing of statistics.
+     * Retrieves the start time since startup or 
+     * clearing of statistics.
      */
     public Date getStartTime();
 

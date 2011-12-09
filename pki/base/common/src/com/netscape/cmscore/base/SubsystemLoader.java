@@ -17,12 +17,14 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.base;
 
+
 import java.util.Vector;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
+
 
 /**
  * A class represents a subsystem loader.
@@ -32,7 +34,7 @@ import com.netscape.certsrv.base.ISubsystem;
  * @version $Revision$, $Date$
  */
 public class SubsystemLoader {
-
+	
     private static final String PROP_SUBSYSTEM = "subsystem";
     private static final String PROP_CLASSNAME = "class";
     private static final String PROP_ID = "id";
@@ -60,14 +62,14 @@ public class SubsystemLoader {
             if (className == null)
                 break;
             try {
-                ISubsystem sub = (ISubsystem) Class.forName(className)
-                        .newInstance();
+                ISubsystem sub = (ISubsystem) Class.forName(
+                        className).newInstance();
 
                 sub.setId(id);
                 v.addElement(sub);
             } catch (Exception e) {
-                throw new EBaseException(CMS.getUserMessage(
-                        "CMS_BASE_LOAD_FAILED", className));
+                throw new EBaseException(
+                        CMS.getUserMessage("CMS_BASE_LOAD_FAILED", className));
             }
         }
         return v;

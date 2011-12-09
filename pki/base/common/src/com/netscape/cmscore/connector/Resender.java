@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.connector;
 
+
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Vector;
@@ -35,15 +36,16 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmscore.util.Debug;
 import com.netscape.cmsutil.http.JssSSLSocketFactory;
 
+
 /**
- * Resend requests at intervals to the server to check if it's been completed.
+ * Resend requests at intervals to the server to check if it's been completed. 
  * Default interval is 5 minutes.
  */
 public class Resender implements IResender {
-    public static final int SECOND = 1000; // milliseconds
-    public static final int MINUTE = 60 * SECOND;
-    public static final int HOUR = 60 * MINUTE;
-    public static final int DAY = 24 * HOUR;
+    public static final int SECOND = 1000; //milliseconds
+    public static final int MINUTE = 60 * SECOND;	
+    public static final int HOUR = 60 * MINUTE;	
+    public static final int DAY = 24 * HOUR;	
 
     protected IAuthority mAuthority = null;
     IRequestQueue mQueue = null;
@@ -59,42 +61,44 @@ public class Resender implements IResender {
     // default interval.
     // XXX todo add another interval for requests unsent because server
     // was down (versus being serviced in request queue)
-    protected int mInterval = 1 * MINUTE;
+    protected int mInterval = 1 * MINUTE;	
 
     public Resender(IAuthority authority, String nickName, IRemoteAuthority dest) {
         mAuthority = authority;
         mQueue = mAuthority.getRequestQueue();
         mDest = dest;
         mNickName = nickName;
-
-        // mConn = new HttpConnection(dest,
-        // new JssSSLSocketFactory(nickName));
+        
+        //mConn = new HttpConnection(dest, 
+         //           new JssSSLSocketFactory(nickName));
     }
 
-    public Resender(IAuthority authority, String nickName,
-            IRemoteAuthority dest, int interval) {
+    public Resender(
+        IAuthority authority, String nickName, 
+        IRemoteAuthority dest, int interval) {
         mAuthority = authority;
         mQueue = mAuthority.getRequestQueue();
         mDest = dest;
         if (interval > 0)
             mInterval = interval * SECOND; // interval specified in seconds.
 
-        // mConn = new HttpConnection(dest,
-        // new JssSSLSocketFactory(nickName));
+        //mConn = new HttpConnection(dest, 
+         //           new JssSSLSocketFactory(nickName));
     }
 
     // must be done after a subsystem 'start' so queue is initialized.
     private void initRequests() {
         mQueue = mAuthority.getRequestQueue();
         // get all requests in mAuthority that are still pending.
-        IRequestList list = mQueue
-                .listRequestsByStatus(RequestStatus.SVC_PENDING);
+        IRequestList list = 
+            mQueue.listRequestsByStatus(RequestStatus.SVC_PENDING);
 
         while (list != null && list.hasMoreElements()) {
             RequestId rid = list.nextRequestId();
 
-            CMS.debug("added request Id " + rid + " in init to resend queue.");
-            // note these are added as strings
+            CMS.debug(
+                "added request Id " + rid + " in init to resend queue.");
+            // note these are added as strings 
             mRequestIds.addElement(rid.toString());
         }
     }
@@ -104,13 +108,15 @@ public class Resender implements IResender {
             // note the request ids are added as strings.
             mRequestIds.addElement(r.getRequestId().toString());
         }
-        CMS.debug("added " + r.getRequestId() + " to resend queue");
+        CMS.debug(
+            "added " + r.getRequestId() + " to resend queue");
     }
 
     public void run() {
 
-        CMS.debug("Resender: In resender Thread run:");
-        mConn = new HttpConnection(mDest, new JssSSLSocketFactory(mNickName));
+         CMS.debug("Resender: In resender Thread run:");
+         mConn = new HttpConnection(mDest,
+                    new JssSSLSocketFactory(mNickName));
         initRequests();
 
         do {
@@ -118,12 +124,11 @@ public class Resender implements IResender {
             try {
                 Thread.sleep(mInterval);
             } catch (InterruptedException e) {
-                mAuthority
-                        .log(ILogger.LL_INFO,
-                                CMS.getLogMessage("CMSCORE_CONNECTOR_RESENDER_INTERRUPTED"));
+                mAuthority.log(ILogger.LL_INFO, CMS.getLogMessage("CMSCORE_CONNECTOR_RESENDER_INTERRUPTED"));
                 continue;
             }
-        } while (true);
+        }
+        while (true);
     }
 
     private void resend() {
@@ -136,46 +141,42 @@ public class Resender implements IResender {
 
         while (enum1.hasMoreElements()) {
             // request ids are added as strings.
-            String ridString = (String) enum1.nextElement();
+            String ridString = (String) enum1.nextElement(); 
             RequestId rid = new RequestId(ridString);
             IRequest r = null;
 
-            CMS.debug("resend processing request id " + rid);
+            CMS.debug(
+                "resend processing request id " + rid);
 
             try {
                 r = mQueue.findRequest(rid);
             } catch (EBaseException e) {
-                // XXX bad case. should we remove the rid now ?
-                mAuthority.log(ILogger.LL_WARN, CMS.getLogMessage(
-                        "CMSCORE_CONNECTOR_REQUEST_NOT_FOUND", rid.toString()));
+                // XXX bad case. should we remove the rid now ? 
+                mAuthority.log(ILogger.LL_WARN, CMS.getLogMessage("CMSCORE_CONNECTOR_REQUEST_NOT_FOUND", rid.toString()));
                 continue;
             }
             try {
                 if (r.getRequestStatus() != RequestStatus.SVC_PENDING) {
                     // request not pending anymore - aborted or cancelled.
                     completedRids.addElement(rid);
-                    CMS.debug("request id " + rid
-                            + " no longer service pending");
+                    CMS.debug(
+                        "request id " + rid + " no longer service pending");
                 } else {
                     boolean completed = send(r);
 
                     if (completed) {
                         completedRids.addElement(rid);
-                        mAuthority.log(ILogger.LL_INFO, CMS.getLogMessage(
-                                "CMSCORE_CONNECTOR_REQUEST_COMPLETED",
-                                rid.toString()));
+                        mAuthority.log(ILogger.LL_INFO, CMS.getLogMessage("CMSCORE_CONNECTOR_REQUEST_COMPLETED", rid.toString()));
                     }
                 }
             } catch (IOException e) {
-                mAuthority.log(ILogger.LL_WARN, CMS.getLogMessage(
-                        "CMSCORE_CONNECTOR_REQUEST_ERROR", rid.toString(),
-                        e.toString()));
+                mAuthority.log(ILogger.LL_WARN, CMS.getLogMessage("CMSCORE_CONNECTOR_REQUEST_ERROR", rid.toString(), e.toString()));
             } catch (EBaseException e) {
                 // if connection is down, don't send the remaining request
                 // as it will sure fail.
-                mAuthority.log(ILogger.LL_WARN,
-                        CMS.getLogMessage("CMSCORE_CONNECTOR_DOWN"));
-                if (e.toString().indexOf("connection not available") >= 0)
+                mAuthority.log(ILogger.LL_WARN, CMS.getLogMessage("CMSCORE_CONNECTOR_DOWN"));
+                if (e.toString().indexOf("connection not available")
+                    >= 0)
                     break;
             }
         }
@@ -187,64 +188,66 @@ public class Resender implements IResender {
             while (en.hasMoreElements()) {
                 RequestId id = (RequestId) en.nextElement();
 
-                CMS.debug("Connector: Removed request " + id
-                        + " from re-send queue");
+                CMS.debug(
+                    "Connector: Removed request " + id + " from re-send queue");
                 mRequestIds.removeElement(id.toString());
-                CMS.debug("Connector: mRequestIds now has "
-                        + mRequestIds.size() + " elements.");
+                CMS.debug(
+                    "Connector: mRequestIds now has " +
+                    mRequestIds.size() + " elements.");
             }
         }
     }
 
     // this is almost the same as connector's send.
-    private boolean send(IRequest r) throws IOException, EBaseException {
+    private boolean send(IRequest r)
+        throws IOException, EBaseException {
         IRequest reply = null;
-
+		
         try {
             HttpPKIMessage tomsg = new HttpPKIMessage();
             HttpPKIMessage replymsg = null;
 
             tomsg.fromRequest(r);
             replymsg = (HttpPKIMessage) mConn.send(tomsg);
-            if (replymsg == null)
+            if(replymsg==null)
                 return false;
-            CMS.debug(r.getRequestId() + " resent to CA");
-
-            RequestStatus replyStatus = RequestStatus
-                    .fromString(replymsg.reqStatus);
+            CMS.debug(
+                r.getRequestId() + " resent to CA");
+			
+            RequestStatus replyStatus = 
+                RequestStatus.fromString(replymsg.reqStatus);
             int index = replymsg.reqId.lastIndexOf(':');
-            RequestId replyRequestId = new RequestId(
-                    replymsg.reqId.substring(index + 1));
+            RequestId replyRequestId = 
+                new RequestId(replymsg.reqId.substring(index + 1));
 
             if (Debug.ON)
-                Debug.trace("reply request id " + replyRequestId
-                        + " for request " + r.getRequestId());
+                Debug.trace("reply request id " + replyRequestId +
+                    " for request " + r.getRequestId());
 
             if (replyStatus != RequestStatus.COMPLETE) {
-                CMS.debug("resend " + r.getRequestId()
-                        + " still not completed.");
+                CMS.debug("resend " +
+                    r.getRequestId() + " still not completed.");
                 return false;
             }
 
             // request was completed. copy relevant contents.
             replymsg.toRequest(r);
             if (Debug.ON)
-                Debug.trace("resend request id was completed "
-                        + r.getRequestId());
+                Debug.trace("resend request id was completed " + r.getRequestId());
             mQueue.markAsServiced(r);
             mQueue.releaseRequest(r);
-            CMS.debug("resend released request " + r.getRequestId());
+            CMS.debug(
+                "resend released request " + r.getRequestId());
             return true;
         } catch (EBaseException e) {
             // same as not having sent it, so still want to resend.
-            mAuthority.log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                    "CMSCORE_CONNECTOR_RESEND_ERROR", r.getRequestId()
-                            .toString(), e.toString()));
+            mAuthority.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CONNECTOR_RESEND_ERROR", r.getRequestId().toString(), e.toString()));
             if (e.toString().indexOf("Connection refused by peer") > 0)
                 throw new EBaseException("connection not available");
         }
         return false;
 
     }
-
+	
 }
+

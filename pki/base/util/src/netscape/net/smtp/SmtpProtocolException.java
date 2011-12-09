@@ -20,8 +20,8 @@ package netscape.net.smtp;
 import java.io.IOException;
 
 /**
- * This exeception is thrown when unexpected results are returned during an SMTP
- * session.
+ * This exeception is thrown when unexpected results are returned during
+ * an SMTP session.
  */
 public class SmtpProtocolException extends IOException {
     /**
@@ -30,6 +30,7 @@ public class SmtpProtocolException extends IOException {
     private static final long serialVersionUID = -5586603317525864401L;
 
     SmtpProtocolException(String s) {
-        super(s);
+	super(s);
     }
 }
+

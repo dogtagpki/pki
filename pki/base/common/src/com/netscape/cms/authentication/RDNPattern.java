@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.authentication;
 
+
 import java.io.IOException;
 import java.io.PushbackReader;
 import java.io.StringReader;
@@ -28,27 +29,24 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.EAuthException;
 import com.netscape.certsrv.base.EBaseException;
 
+
 /**
- * class for parsing a DN pattern used to construct a certificate subject name
- * from ldap attributes and dn.
- * <p>
+ * class for parsing a DN pattern used to construct a certificate 
+ * subject name from ldap attributes and dn.<p>
  * 
- * dnpattern is a string representing a subject name pattern to formulate from
- * the directory attributes and entry dn. If empty or not set, the ldap entry DN
- * will be used as the certificate subject name.
- * <p>
+ * dnpattern is a string representing a subject name pattern to formulate from 
+ * the directory attributes and entry dn. If empty or not set, the 
+ * ldap entry DN will be used as the certificate subject name. <p>
  * 
- * The syntax is
- * 
+ * The syntax is 
  * <pre>
- * 	dnPattern := rdnPattern *[ "," rdnPattern ]
- * 	rdnPattern := avaPattern *[ "+" avaPattern ]
+ *		dnPattern := rdnPattern *[ "," rdnPattern ]
+ *		rdnPattern := avaPattern *[ "+" avaPattern ]
  * 		avaPattern := name "=" value | 
- * 			      name "=" "$attr" "." attrName [ "." attrNumber ] | 
- * 			      name "=" "$dn" "." attrName [ "." attrNumber ] | 
- * 			 	  "$dn" "." "$rdn" "." number
+ *				      name "=" "$attr" "." attrName [ "." attrNumber ] | 
+ *				      name "=" "$dn" "." attrName [ "." attrNumber ] | 
+ *				 	  "$dn" "." "$rdn" "." number
  * </pre>
- * 
  * <pre>
  * Example1: <i>E=$attr.mail.1, CN=$attr.cn, OU=$dn.ou.2, O=$dn.o, C=US </i>
  * Ldap entry: dn:  UID=jjames, OU=IS, OU=people, O=acme.org
@@ -75,12 +73,11 @@ import com.netscape.certsrv.base.EBaseException;
  *     E = the first 'mail' ldap attribute value in user's entry. <br>
  *     CN = the (first) 'cn' ldap attribute value in the user's entry. <br>
  *     OU = the second 'ou' value in the user's entry DN. note multiple AVAs
- * 	    in a RDN in this example. <br>
+ *		    in a RDN in this example. <br>
  *     O = the (first) 'o' value in the user's entry DN. <br>
  *     C = the string "US"
  * <p>
  * </pre>
- * 
  * <pre>
  * Example3: <i>CN=$attr.cn, $rdn.2, O=$dn.o, C=US</i>
  * Ldap entry: dn:  UID=jjames, OU=IS+OU=people, O=acme.org
@@ -105,16 +102,15 @@ import com.netscape.certsrv.base.EBaseException;
  * <p>	
  *     CN = the (first) 'cn' ldap attribute value in the user's entry. <br>
  *     OU = the second 'ou' value in the user's entry DN followed by the 
- * 		first 'ou' value in the user's entry. note multiple AVAs
- * 	    in a RDN in this example. <br>
+ *			first 'ou' value in the user's entry. note multiple AVAs
+ *		    in a RDN in this example. <br>
  *     O = the (first) 'o' value in the user's entry DN. <br>
  *     C = the string "US"
  * <p>
  * </pre>
- * 
- * If an attribute or subject DN component does not exist the attribute is
- * skipped.
- * 
+ * If an attribute or subject DN component does not exist the attribute 
+ * is skipped.
+ *
  * @version $Revision$, $Date$
  */
 class RDNPattern {
@@ -130,15 +126,15 @@ class RDNPattern {
 
     protected String mTestDN = null;
 
-    /**
+    /** 
      * Construct a DN pattern by parsing a pattern string.
-     * 
      * @param pattenr the DN pattern
-     * @exception EBaseException If parsing error occurs.
+     * @exception EBaseException If parsing error occurs. 
      */
-    public RDNPattern(String pattern) throws EAuthException {
+    public RDNPattern(String pattern)
+        throws EAuthException {
         if (pattern == null || pattern.equals("")) {
-            // create an attribute list that is the dn.
+            // create an attribute list that is the dn. 
             mLdapAttrs = new String[] { "dn" };
         } else {
             mPatternString = pattern;
@@ -149,14 +145,16 @@ class RDNPattern {
     }
 
     /**
-     * Construct a DN pattern from a input stream of pattern
+     * Construct a DN pattern from a input stream of pattern 
      */
-    public RDNPattern(PushbackReader in) throws EAuthException {
+    public RDNPattern(PushbackReader in) 
+        throws EAuthException {
         parse(in);
     }
 
-    private void parse(PushbackReader in) throws EAuthException {
-        // System.out.println("_________ begin rdn _________");
+    private void parse(PushbackReader in)
+        throws EAuthException {
+        //System.out.println("_________ begin rdn _________");
         Vector avaPatterns = new Vector();
         AVAPattern avaPattern = null;
         int lastChar;
@@ -164,25 +162,24 @@ class RDNPattern {
         do {
             avaPattern = new AVAPattern(in);
             avaPatterns.addElement(avaPattern);
-            // System.out.println("added AVAPattern"+
-            // " mType "+avaPattern.mType+
-            // " mAttr "+avaPattern.mAttr+
-            // " mValue "+avaPattern.mValue+
-            // " mElement "+avaPattern.mElement);
-            try {
-                lastChar = in.read();
+            //System.out.println("added AVAPattern"+
+            //" mType "+avaPattern.mType+
+            //" mAttr "+avaPattern.mAttr+
+            //" mValue "+avaPattern.mValue+
+            //" mElement "+avaPattern.mElement);
+            try { 
+                lastChar = in.read(); 
             } catch (IOException e) {
-                throw new EAuthException(CMS.getUserMessage(
-                        "CMS_AUTHENTICATION_INTERNAL_ERROR", e.toString()));
+                throw new EAuthException(CMS.getUserMessage("CMS_AUTHENTICATION_INTERNAL_ERROR", e.toString()));
             }
-        } while (lastChar == '+');
+        }
+        while (lastChar == '+');
 
         if (lastChar != -1) {
             try {
-                in.unread(lastChar); // pushback last ,
+                in.unread(lastChar);	// pushback last , 
             } catch (IOException e) {
-                throw new EAuthException(CMS.getUserMessage(
-                        "CMS_AUTHENTICATION_INTERNAL_ERROR", e.toString()));
+                throw new EAuthException(CMS.getUserMessage("CMS_AUTHENTICATION_INTERNAL_ERROR", e.toString()));
             }
         }
 
@@ -194,7 +191,7 @@ class RDNPattern {
         for (int i = 0; i < mAVAPatterns.length; i++) {
             String avaAttr = mAVAPatterns[i].getLdapAttr();
 
-            if (avaAttr == null || avaAttr.length() == 0)
+            if (avaAttr == null || avaAttr.length() == 0) 
                 continue;
             ldapAttrs.addElement(avaAttr);
         }
@@ -204,15 +201,15 @@ class RDNPattern {
 
     /**
      * Form a Ldap v3 DN string from results of a ldap search.
-     * 
      * @param entry LDAPentry from a ldap search
-     * @return Ldap v3 DN string to use for a subject name.
+     * @return Ldap v3 DN string to use for a subject name. 
      */
-    public String formRDN(LDAPEntry entry) throws EAuthException {
+    public String formRDN(LDAPEntry entry)
+        throws EAuthException {
         StringBuffer formedRDN = new StringBuffer();
 
         for (int i = 0; i < mAVAPatterns.length; i++) {
-            if (mTestDN != null)
+            if (mTestDN != null) 
                 mAVAPatterns[i].mTestDN = mTestDN;
             String ava = mAVAPatterns[i].formAVA(entry);
 
@@ -222,7 +219,7 @@ class RDNPattern {
                 formedRDN.append(ava);
             }
         }
-        // System.out.println("formed RDN "+formedRDN.toString());
+        //System.out.println("formed RDN "+formedRDN.toString());
         return formedRDN.toString();
     }
 

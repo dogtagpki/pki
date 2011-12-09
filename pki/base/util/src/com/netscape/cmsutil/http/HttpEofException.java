@@ -17,7 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmsutil.http;
 
+
 import java.io.IOException;
+
 
 public class HttpEofException extends IOException {
     /**

@@ -17,18 +17,19 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.base;
 
+
 import com.netscape.certsrv.base.ISourceConfigStore;
 
+
 /**
- * This class is is a wrapper to hide the Properties methods from the
- * PropConfigStore. Lucky for us, Properties already implements almost every
- * thing ISourceConfigStore requires.
+ * This class is is a wrapper to hide the Properties methods from
+ * the PropConfigStore.  Lucky for us, Properties already implements
+ * almost every thing ISourceConfigStore requires.
  * 
  * @version $Revision$, $Date$
  * @see java.util.Properties
  */
-public class SourceConfigStore extends SimpleProperties implements
-        ISourceConfigStore {
+public class SourceConfigStore extends SimpleProperties implements ISourceConfigStore {
 
     /**
      *
@@ -38,7 +39,7 @@ public class SourceConfigStore extends SimpleProperties implements
     /**
      * Retrieves a property from the config store
      * <P>
-     * 
+     *
      * @param name property name
      * @return property value
      */
@@ -49,7 +50,7 @@ public class SourceConfigStore extends SimpleProperties implements
     /**
      * Puts a property into the config store.
      * <P>
-     * 
+     *
      * @param name property name
      * @param value property value
      */

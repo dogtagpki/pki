@@ -17,12 +17,14 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.velocity.Template;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.context.Context;
+
 
 public class ConfigImportCertServlet extends BaseServlet {
 
@@ -32,14 +34,15 @@ public class ConfigImportCertServlet extends BaseServlet {
     private static final long serialVersionUID = 1907102921734394118L;
 
     public Template process(HttpServletRequest request,
-            HttpServletResponse response, Context context) {
+            HttpServletResponse response,
+            Context context) {
 
         Template template = null;
 
         try {
             context.put("name", "Velocity Test");
-            template = Velocity
-                    .getTemplate("admin/console/config/config_importcert.vm");
+            template = Velocity.getTemplate(
+                    "admin/console/config/config_importcert.vm");
         } catch (Exception e) {
             System.err.println("Exception caught: " + e.getMessage());
         }

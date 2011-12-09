@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.cert;
 
+
 import java.io.IOException;
 import java.security.cert.X509Certificate;
 import java.util.Locale;
@@ -45,9 +46,10 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 
+
 /**
  * For Face-to-face enrollment, enable EE enrollment feature
- * 
+ *
  * @version $Revision$, $Date$
  * @see com.netscape.cms.servlet.cert.DisableEnrollResult
  */
@@ -85,7 +87,8 @@ public class EnableEnrollResult extends CMSServlet {
     /**
      * Services the request
      */
-    protected void process(CMSRequest cmsReq) throws EBaseException {
+    protected void process(CMSRequest cmsReq)
+        throws EBaseException {
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
@@ -94,8 +97,8 @@ public class EnableEnrollResult extends CMSServlet {
         AuthzToken authzToken = null;
 
         try {
-            authzToken = authorize(mAclMethod, authToken, mAuthzResourceName,
-                    "enable");
+            authzToken = authorize(mAclMethod, authToken,
+                        mAuthzResourceName, "enable");
         } catch (Exception e) {
             // do nothing for now
         }
@@ -114,10 +117,9 @@ public class EnableEnrollResult extends CMSServlet {
         IArgBlock args = cmsReq.getHttpParams();
 
         if (!(mAuthority instanceof IRegistrationAuthority)) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_CA_FROM_RA_NOT_IMP"));
-            cmsReq.setError(new ECMSGWException(CMS
-                    .getUserMessage("CMS_GW_NOT_YET_IMPLEMENTED")));
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_CA_FROM_RA_NOT_IMP"));
+            cmsReq.setError(new ECMSGWException(
+              CMS.getUserMessage("CMS_GW_NOT_YET_IMPLEMENTED")));
             cmsReq.setStatus(CMSRequest.ERROR);
             return;
         }
@@ -128,11 +130,10 @@ public class EnableEnrollResult extends CMSServlet {
         try {
             form = getTemplate(mFormPath, httpReq, locale);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath,
-                            e.toString()));
-            cmsReq.setError(new ECMSGWException(CMS
-                    .getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR")));
+            log(ILogger.LL_FAILURE, 
+                CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()));
+            cmsReq.setError(new ECMSGWException(
+              CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR")));
             cmsReq.setStatus(CMSRequest.ERROR);
             return;
         }
@@ -148,8 +149,7 @@ public class EnableEnrollResult extends CMSServlet {
         header.addStringValue("machineName", machine);
         header.addStringValue("port", port);
         String val = configStore.getString("hashDirEnrollment.name");
-        IAuthSubsystem authSS = (IAuthSubsystem) CMS
-                .getSubsystem(CMS.SUBSYSTEM_AUTH);
+        IAuthSubsystem authSS = (IAuthSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);
         IAuthManager authMgr = authSS.get(val);
         HashAuthentication mgr = (HashAuthentication) authMgr;
 
@@ -162,7 +162,7 @@ public class EnableEnrollResult extends CMSServlet {
             String timeout = args.getValueAsString("timeout", "600");
 
             mgr.createEntry(host, dn, Long.parseLong(timeout) * 1000,
-                    random.nextLong() + "", 0);
+                random.nextLong() + "", 0);
             header.addStringValue("code", "0");
         }
 
@@ -173,10 +173,10 @@ public class EnableEnrollResult extends CMSServlet {
             form.renderOutput(out, argSet);
             cmsReq.setStatus(CMSRequest.SUCCESS);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                    "CMSGW_ERR_STREAM_TEMPLATE", e.toString()));
-            cmsReq.setError(new ECMSGWException(CMS
-                    .getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR")));
+            log(ILogger.LL_FAILURE, 
+                CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()));
+            cmsReq.setError(new ECMSGWException(
+              CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR")));
             cmsReq.setStatus(CMSRequest.ERROR);
         }
         cmsReq.setStatus(CMSRequest.SUCCESS);

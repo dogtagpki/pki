@@ -22,7 +22,7 @@ import java.util.ListResourceBundle;
 /**
  * A class represents a resource bundle for the authentication component.
  * <P>
- * 
+ *
  * @deprecated
  * @version $Revision$, $Date$
  */
@@ -30,7 +30,6 @@ public class AuthResources extends ListResourceBundle {
 
     /**
      * Returns the content of this resource.
-     * 
      * @return the contents of this resource
      */
     public Object[][] getContents() {

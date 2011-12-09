@@ -1,5 +1,4 @@
 package com.netscape.pkisilent.common;
-
 // --- BEGIN COPYRIGHT BLOCK ---
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -85,7 +84,7 @@ public class Utilities {
         StringBuffer buf = new StringBuffer();
         int end = token.length();
         int begin = 0;
-
+		
         if (token.endsWith(";")) {
             end--;
         }
@@ -160,8 +159,10 @@ public class Utilities {
     }
 
     /*
-     * format of the file should be like this: -----BEGIN CERTIFICATE-----
-     * base64 encoded certificate -----END CERTIFICATE-----
+     * format of the file should be like this:
+     * -----BEGIN CERTIFICATE-----
+     * base64 encoded certificate
+     * -----END CERTIFICATE-----
      */
     public String getcertfromfile(String filename) {
         StringBuffer tempBuffer = new StringBuffer();
@@ -179,7 +180,7 @@ public class Utilities {
                 }
                 tempBuffer.append(temp);
             }
-
+			
             return tempBuffer.toString();
         } catch (Exception e) {
             System.out.println("ERROR: getcertfromfile" + e.toString());
@@ -202,15 +203,17 @@ public class Utilities {
             }
             return tempBuffer.toString();
         } catch (Exception e) {
-            System.out.println("ERROR: getcertfromfile_withheaders"
-                    + e.toString());
+            System.out.println(
+                    "ERROR: getcertfromfile_withheaders" + e.toString());
             return null;
         }
     }
 
     /*
-     * format of the file should be like this: -----BEGIN CERTIFICATE REVOCATION
-     * LIST----- base64 encoded CRL -----END CERTIFICATE REVOCATION LIST-----
+     * format of the file should be like this:
+     * -----BEGIN CERTIFICATE REVOCATION LIST-----
+     * base64 encoded CRL
+     * -----END CERTIFICATE REVOCATION LIST-----
      */
     public String getcrlfromfile(String filename) {
         StringBuffer tempBuffer = new StringBuffer();
@@ -224,7 +227,7 @@ public class Utilities {
 
                 tempBuffer.append(temp);
             }
-
+			
             return tempBuffer.toString();
         } catch (Exception e) {
             System.out.println("ERROR: getcrlfromfile" + e.toString());
@@ -234,8 +237,10 @@ public class Utilities {
     }
 
     /*
-     * format of the file should be like this: -----BEGIN CERTIFICATE-----
-     * base64 encoded certificate -----END CERTIFICATE-----
+     * format of the file should be like this:
+     * -----BEGIN CERTIFICATE-----
+     * base64 encoded certificate
+     * -----END CERTIFICATE-----
      */
     public String getcafromfile(String filename) {
         StringBuffer tempBuffer = new StringBuffer();
@@ -249,7 +254,7 @@ public class Utilities {
 
                 tempBuffer.append(temp);
             }
-
+			
             return tempBuffer.toString();
         } catch (Exception e) {
             System.out.println("ERROR: getcafromfile" + e.toString());
@@ -259,12 +264,12 @@ public class Utilities {
     }
 
     /*
-     * function for RFC 2254. converts a x509 certificate given as a binary
-     * array[] to a Ldap filter string
+     * function for RFC 2254. converts a x509 certificate given as
+     * a binary array[] to a Ldap filter string
      */
     public static String escapeBinaryData(byte data[]) {
         String result = "";
-
+                                                                                
         for (int i = 0; i < data.length; i++) {
             String s = Integer.toHexString((int) (0xff & data[i]));
 
@@ -309,25 +314,23 @@ public class Utilities {
             X509CertInfo certinfo = (X509CertInfo) x509_cert.get("x509.INFO");
 
             /* Get Serial Number */
-            CertificateSerialNumber csn = (CertificateSerialNumber) certinfo
-                    .get(X509CertInfo.SERIAL_NUMBER);
+            CertificateSerialNumber csn = (CertificateSerialNumber)
+                    certinfo.get(X509CertInfo.SERIAL_NUMBER);
             SerialNumber sn = (SerialNumber) csn.get("NUMBER");
 
-            // just adding serialnumber for add.
-            // we can add mode here like subject name, extensions,issuer to this
-            // record.
+            // just adding serialnumber for add. 
+            // we can add mode here like subject name, extensions,issuer to this record.
             cr.serialNumber = sn.getNumber().toString().trim();
 
             /* Get Subject Name */
 
-            CertificateSubjectName csn1 = (CertificateSubjectName) certinfo
-                    .get(X509CertInfo.SUBJECT);
+            CertificateSubjectName csn1 = (CertificateSubjectName)
+                    certinfo.get(X509CertInfo.SUBJECT);
 
             @SuppressWarnings("unchecked")
-            Enumeration<String> en = csn1.getElements();
+			Enumeration<String> en = csn1.getElements();
 
-            X500Name dname = (X500Name) csn1
-                    .get(CertificateSubjectName.DN_NAME);
+            X500Name dname = (X500Name) csn1.get(CertificateSubjectName.DN_NAME);
 
             String pp = "";
             RDN[] rdns = dname.getNames();
@@ -339,8 +342,7 @@ public class Utilities {
             cr.subject = pp;
 
         } catch (Exception e) {
-            System.out.println("ERROR: Exception when decoding certificate="
-                    + e);
+            System.out.println("ERROR: Exception when decoding certificate=" + e);
             e.printStackTrace();
             return null;
         }
@@ -349,4 +351,7 @@ public class Utilities {
 
     }
 
-}; // end class
+}
+
+
+; // end class

@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.dbs;
 
+
 import java.math.BigInteger;
 import java.util.Date;
 import java.util.Enumeration;
@@ -28,10 +29,11 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 
+
 /**
  * A class represents a CRL issuing point record.
  * <P>
- * 
+ *
  * @author thomask
  * @version $Revision$, $Date$
  */
@@ -41,8 +43,8 @@ public class CRLIssuingPointRecord implements ICRLIssuingPointRecord, IDBObj {
      *
      */
     private static final long serialVersionUID = 400565044343905267L;
-    protected String mId = null; // internal unique id
-    protected BigInteger mCRLNumber = null; // CRL number
+    protected String mId = null;               // internal unique id
+    protected BigInteger mCRLNumber = null;      // CRL number
     protected Long mCRLSize = null;
     protected Date mThisUpdate = null;
     protected Date mNextUpdate = null;
@@ -76,8 +78,8 @@ public class CRLIssuingPointRecord implements ICRLIssuingPointRecord, IDBObj {
     }
 
     /**
-     * Constructs empty CRLIssuingPointRecord. This is required in database
-     * framework.
+     * Constructs empty CRLIssuingPointRecord. This is
+     * required in database framework.
      */
     public CRLIssuingPointRecord() {
     }
@@ -85,8 +87,8 @@ public class CRLIssuingPointRecord implements ICRLIssuingPointRecord, IDBObj {
     /**
      * Constructs a CRLIssuingPointRecord
      */
-    public CRLIssuingPointRecord(String id, BigInteger crlNumber, Long crlSize,
-            Date thisUpdate, Date nextUpdate) {
+    public CRLIssuingPointRecord(String id, BigInteger crlNumber, Long crlSize, 
+        Date thisUpdate, Date nextUpdate) {
         mId = id;
         mCRLNumber = crlNumber;
         mCRLSize = crlSize;
@@ -104,10 +106,9 @@ public class CRLIssuingPointRecord implements ICRLIssuingPointRecord, IDBObj {
     /**
      * Constructs a CRLIssuingPointRecord
      */
-    public CRLIssuingPointRecord(String id, BigInteger crlNumber, Long crlSize,
-            Date thisUpdate, Date nextUpdate, BigInteger deltaCRLNumber,
-            Long deltaCRLSize, Hashtable revokedCerts,
-            Hashtable unrevokedCerts, Hashtable expiredCerts) {
+    public CRLIssuingPointRecord(String id, BigInteger crlNumber, Long crlSize, 
+        Date thisUpdate, Date nextUpdate, BigInteger deltaCRLNumber, Long deltaCRLSize,
+        Hashtable revokedCerts, Hashtable unrevokedCerts, Hashtable expiredCerts) {
         mId = id;
         mCRLNumber = crlNumber;
         mCRLSize = crlSize;
@@ -154,8 +155,7 @@ public class CRLIssuingPointRecord implements ICRLIssuingPointRecord, IDBObj {
         } else if (name.equalsIgnoreCase(ATTR_DELTA_CRL)) {
             mDeltaCRL = (byte[]) obj;
         } else {
-            throw new EBaseException(CMS.getUserMessage(
-                    "CMS_BASE_INVALID_ATTRIBUTE", name));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
         }
     }
 
@@ -191,14 +191,12 @@ public class CRLIssuingPointRecord implements ICRLIssuingPointRecord, IDBObj {
         } else if (name.equalsIgnoreCase(ATTR_DELTA_CRL)) {
             return mDeltaCRL;
         } else {
-            throw new EBaseException(CMS.getUserMessage(
-                    "CMS_BASE_INVALID_ATTRIBUTE", name));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
         }
     }
 
     public void delete(String name) throws EBaseException {
-        throw new EBaseException(CMS.getUserMessage(
-                "CMS_BASE_INVALID_ATTRIBUTE", name));
+        throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
     }
 
     public Enumeration getElements() {

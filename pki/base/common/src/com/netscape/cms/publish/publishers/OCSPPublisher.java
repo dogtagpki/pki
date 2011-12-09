@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.publish.publishers;
 
+
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -41,9 +42,11 @@ import com.netscape.certsrv.publish.ILdapPublisher;
 import com.netscape.cmsutil.http.HttpRequest;
 import com.netscape.cmsutil.http.JssSSLSocketFactory;
 
-/**
- * This publisher writes certificate and CRL into a directory.
- * 
+
+/** 
+ * This publisher writes certificate and CRL into
+ * a directory.
+ *
  * @version $Revision$, $Date$
  */
 public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
@@ -80,14 +83,13 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
                 PROP_HOST + ";string;Host of CMS's OCSP Secure agent service",
                 PROP_PORT + ";string;Port of CMS's OCSP Secure agent service",
                 PROP_PATH + ";string;URI of CMS's OCSP Secure agent service",
-                PROP_NICK
-                        + ";string;Nickname of cert used for client authentication",
-                PROP_CLIENT_AUTH_ENABLE
-                        + ";boolean;Client Authentication enabled",
-                IExtendedPluginInfo.HELP_TOKEN
-                        + ";configuration-ldappublish-publisher-ocsppublisher",
-                IExtendedPluginInfo.HELP_TEXT
-                        + ";Publishes CRLs to a Online Certificate Status Manager, an OCSP responder provided by CMS." };
+                PROP_NICK + ";string;Nickname of cert used for client authentication",
+                PROP_CLIENT_AUTH_ENABLE + ";boolean;Client Authentication enabled",
+                IExtendedPluginInfo.HELP_TOKEN +
+                ";configuration-ldappublish-publisher-ocsppublisher",
+                IExtendedPluginInfo.HELP_TEXT +
+                ";Publishes CRLs to a Online Certificate Status Manager, an OCSP responder provided by CMS."
+            };
 
         return params;
     }
@@ -143,11 +145,11 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
         try {
             nickname = config.getString("ca.subsystem.nickname", "");
             String tokenname = config.getString("ca.subsystem.tokenname", "");
-            if (!tokenname.equals("internal")
-                    && !tokenname.equals("Internal Key Storage Token"))
-                nickname = tokenname + ":" + nickname;
+            if (!tokenname.equals("internal") && !tokenname.equals("Internal Key Storage Token"))
+                nickname = tokenname+":"+nickname;
         } catch (Exception e) {
         }
+
 
         v.addElement(PROP_HOST + "=");
         v.addElement(PROP_PORT + "=");
@@ -167,8 +169,7 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
             mPort = mConfig.getString(PROP_PORT, "");
             mPath = mConfig.getString(PROP_PATH, "");
             mNickname = mConfig.getString(PROP_NICK, "");
-            mClientAuthEnabled = mConfig.getBoolean(PROP_CLIENT_AUTH_ENABLE,
-                    true);
+            mClientAuthEnabled = mConfig.getBoolean(PROP_CLIENT_AUTH_ENABLE, true);
         } catch (EBaseException e) {
         }
     }
@@ -177,43 +178,45 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
         return mConfig;
     }
 
-    protected Socket Connect(String host, boolean secure,
-            JssSSLSocketFactory factory) {
-        Socket socket = null;
-        StringTokenizer st = new StringTokenizer(host, " ");
-        while (st.hasMoreTokens()) {
-            String hp = st.nextToken(); // host:port
-            StringTokenizer st1 = new StringTokenizer(hp, ":");
-            String h = st1.nextToken();
-            int p = Integer.parseInt(st1.nextToken());
-            try {
-                if (secure) {
-                    socket = factory.makeSocket(h, p);
-                } else {
-                    socket = new Socket(h, p);
-                }
-                return socket;
-            } catch (Exception e) {
-            }
-            try {
-                Thread.sleep(5000); // 5 seconds delay
-            } catch (Exception e) {
-            }
-        }
-        return null;
+    protected Socket Connect(String host, boolean secure, JssSSLSocketFactory factory) 
+    {
+            Socket socket = null;
+               StringTokenizer st = new StringTokenizer(host, " ");
+               while (st.hasMoreTokens()) {
+                  String hp = st.nextToken(); // host:port
+                  StringTokenizer st1 = new StringTokenizer(hp, ":");
+                  String h = st1.nextToken();
+                  int p = Integer.parseInt(st1.nextToken());
+                  try {
+                     if (secure) {
+                        socket = factory.makeSocket(h, p);
+                     } else {
+                        socket = new Socket(h, p);
+                     }
+                     return socket;
+                  }  catch (Exception e) {
+                  }
+                  try {
+                     Thread.sleep(5000); // 5 seconds delay
+                  }  catch (Exception e) {
+                  }
+               }
+               return null;
     }
 
     /**
      * Publishs a object to the ldap directory.
      * 
-     * @param conn a Ldap connection (null if LDAP publishing is not enabled)
-     * @param dn dn of the ldap entry to publish cert (null if LDAP publishing
-     *            is not enabled)
-     * @param object object to publish (java.security.cert.X509Certificate or,
-     *            java.security.cert.X509CRL)
+     * @param conn a Ldap connection 
+     *        (null if LDAP publishing is not enabled)
+     * @param dn dn of the ldap entry to publish cert
+     *        (null if LDAP publishing is not enabled)
+     * @param object object to publish
+     *        (java.security.cert.X509Certificate or,
+     *         java.security.cert.X509CRL)
      */
-    public synchronized void publish(LDAPConnection conn, String dn,
-            Object object) throws ELdapException {
+    public synchronized void publish(LDAPConnection conn, String dn, Object object)
+        throws ELdapException {
         try {
             if (!(object instanceof X509CRL))
                 return;
@@ -223,24 +226,24 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
 
             // open the connection and prepare it to POST
             boolean secure = true;
-
+	 
             String host = mHost;
             int port = Integer.parseInt(mPort);
             String path = mPath;
 
-            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER, ILogger.LL_INFO,
-                    "OCSPPublisher: " + "Host='" + host + "' Port='" + port
-                            + "' URL='" + path + "'");
-            CMS.debug("OCSPPublisher: " + "Host='" + host + "' Port='" + port
-                    + "' URL='" + path + "'");
+            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER, 
+                ILogger.LL_INFO, "OCSPPublisher: " + 
+                "Host='" + host + "' Port='" + port + 
+                "' URL='" + path + "'");
+            CMS.debug("OCSPPublisher: " + 
+                "Host='" + host + "' Port='" + port + 
+                "' URL='" + path + "'");
 
             StringBuffer query = new StringBuffer();
             query.append("crl=");
-            query.append(URLEncoder
-                    .encode("-----BEGIN CERTIFICATE REVOCATION LIST-----\n"));
+            query.append(URLEncoder.encode("-----BEGIN CERTIFICATE REVOCATION LIST-----\n"));
             query.append(URLEncoder.encode(CMS.BtoA(crl.getEncoded())));
-            query.append(URLEncoder
-                    .encode("\n-----END CERTIFICATE REVOCATION LIST-----"));
+            query.append(URLEncoder.encode("\n-----END CERTIFICATE REVOCATION LIST-----"));
             query.append("&noui=true");
 
             Socket socket = null;
@@ -253,23 +256,23 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
             }
 
             if (mHost != null && mHost.indexOf(' ') != -1) {
-                // support failover hosts configuration
-                // host parameter can be
-                // "directory.knowledge.com:1050 people.catalog.com 199.254.1.2"
-                do {
-                    socket = Connect(mHost, secure, factory);
-                } while (socket == null);
+               // support failover hosts configuration
+               // host parameter can be
+               // "directory.knowledge.com:1050 people.catalog.com 199.254.1.2"
+               do {
+                   socket = Connect(mHost, secure, factory);
+               } while (socket == null);
             } else {
-                if (secure) {
-                    socket = factory.makeSocket(host, port);
-                } else {
-                    socket = new Socket(host, port);
-                }
+              if (secure) {
+                socket = factory.makeSocket(host, port);
+              } else {
+                socket = new Socket(host, port);
+              }
             }
 
-            if (socket == null) {
-                CMS.debug("OCSPPublisher::publish() - socket is null!");
-                throw new ELdapException("socket is null");
+            if( socket == null ) {
+                CMS.debug( "OCSPPublisher::publish() - socket is null!" );
+                throw new ELdapException( "socket is null" );
             }
 
             // use HttpRequest and POST
@@ -280,28 +283,26 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
             httpReq.setHeader("Connection", "Keep-Alive");
 
             httpReq.setHeader("Content-Type",
-                    "application/x-www-form-urlencoded");
+                "application/x-www-form-urlencoded");
             httpReq.setHeader("Content-Transfer-Encoding", "7bit");
 
-            httpReq.setHeader("Content-Length",
-                    Integer.toString(query.length()));
+            httpReq.setHeader("Content-Length", 
+                Integer.toString(query.length()));
             httpReq.setContent(query.toString());
             OutputStream os = socket.getOutputStream();
-            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(os,
-                    "UTF8");
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(os, "UTF8");
 
-            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER, ILogger.LL_INFO,
-                    "OCSPPublisher: start sending CRL");
+            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER, 
+                ILogger.LL_INFO, "OCSPPublisher: start sending CRL");
             long startTime = CMS.getCurrentDate().getTime();
             CMS.debug("OCSPPublisher: start CRL sending startTime=" + startTime);
             httpReq.write(outputStreamWriter);
             long endTime = CMS.getCurrentDate().getTime();
-            CMS.debug("OCSPPublisher: done CRL sending endTime=" + endTime
-                    + " diff=" + (endTime - startTime));
+            CMS.debug("OCSPPublisher: done CRL sending endTime=" + endTime + " diff=" + (endTime - startTime));
 
             // Read the response
-            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER, ILogger.LL_INFO,
-                    "OCSPPublisher: start getting response");
+            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER, 
+                ILogger.LL_INFO, "OCSPPublisher: start getting response");
             DataInputStream dis = new DataInputStream(socket.getInputStream());
             String nextline;
             String line = "";
@@ -320,50 +321,40 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
             }
             dis.close();
             if (status) {
-                mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                        ILogger.LL_INFO, "OCSPPublisher: successful");
+                mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER, 
+                    ILogger.LL_INFO, "OCSPPublisher: successful");
             } else {
-                mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                        ILogger.LL_INFO, "OCSPPublisher: failed - " + error);
+                mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER, 
+                    ILogger.LL_INFO, "OCSPPublisher: failed - " + error);
             }
-
+				
         } catch (IOException e) {
             CMS.debug("OCSPPublisher: publish failed " + e.toString());
-            mLogger.log(
-                    ILogger.EV_SYSTEM,
-                    ILogger.S_OTHER,
-                    ILogger.LL_FAILURE,
-                    CMS.getLogMessage("PUBLISH_OCSP_PUBLISHER_ERROR",
-                            e.toString()));
+            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER, 
+                ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_OCSP_PUBLISHER_ERROR", e.toString()));
         } catch (CRLException e) {
             CMS.debug("OCSPPublisher: publish failed " + e.toString());
-            mLogger.log(
-                    ILogger.EV_SYSTEM,
-                    ILogger.S_OTHER,
-                    ILogger.LL_FAILURE,
-                    CMS.getLogMessage("PUBLISH_OCSP_PUBLISHER_ERROR",
-                            e.toString()));
+            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER, 
+                ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_OCSP_PUBLISHER_ERROR", e.toString()));
         } catch (Exception e) {
             CMS.debug("OCSPPublisher: publish failed " + e.toString());
-            mLogger.log(
-                    ILogger.EV_SYSTEM,
-                    ILogger.S_OTHER,
-                    ILogger.LL_FAILURE,
-                    CMS.getLogMessage("PUBLISH_OCSP_PUBLISHER_ERROR",
-                            e.toString()));
+            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER, 
+                ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_OCSP_PUBLISHER_ERROR", e.toString()));
         }
     }
 
     /**
      * Unpublishs a object to the ldap directory.
-     * 
-     * @param conn the Ldap connection (null if LDAP publishing is not enabled)
-     * @param dn dn of the ldap entry to unpublish cert (null if LDAP publishing
-     *            is not enabled)
-     * @param object object to unpublish (java.security.cert.X509Certificate)
+     *
+     * @param conn the Ldap connection
+     *        (null if LDAP publishing is not enabled)
+     * @param dn dn of the ldap entry to unpublish cert
+     *        (null if LDAP publishing is not enabled)
+     * @param object object to unpublish 
+     *        (java.security.cert.X509Certificate)
      */
     public void unpublish(LDAPConnection conn, String dn, Object object)
-            throws ELdapException {
+        throws ELdapException {
         // NOT USED
     }
 }

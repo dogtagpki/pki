@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
+
 import java.io.IOException;
 import java.util.Locale;
 
@@ -35,6 +36,7 @@ import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cmsutil.xml.XMLObject;
 
+
 public class GetStatus extends CMSServlet {
 
     /**
@@ -50,7 +52,6 @@ public class GetStatus extends CMSServlet {
 
     /**
      * initialize the servlet.
-     * 
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -58,19 +59,18 @@ public class GetStatus extends CMSServlet {
     }
 
     /**
-     * Process the HTTP request.
-     * 
+     * Process the HTTP request. 
      * @param cmsReq the object holding the request and response information
      */
     protected void process(CMSRequest cmsReq) throws EBaseException {
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
-        IConfigStore config = CMS.getConfigStore();
+	IConfigStore config = CMS.getConfigStore();
 
         String outputString = null;
 
-        String state = config.getString("cs.state", "");
-        String type = config.getString("cs.type", "");
+	String state = config.getString("cs.state", "");
+	String type = config.getString("cs.type", "");
 
         try {
             XMLObject xmlObj = null;
@@ -89,15 +89,7 @@ public class GetStatus extends CMSServlet {
         }
     }
 
-    protected void renderResult(CMSRequest cmsReq) throws IOException {// do
-                                                                       // nothing,
-                                                                       // ie, it
-                                                                       // will
-                                                                       // not
-                                                                       // return
-                                                                       // the
-                                                                       // default
-                                                                       // javascript.
+    protected void renderResult(CMSRequest cmsReq) throws IOException {// do nothing, ie, it will not return the default javascript.
     }
 
     /**

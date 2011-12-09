@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.policy.constraints;
 
+
 import java.util.Date;
 import java.util.Locale;
 import java.util.Vector;
@@ -37,20 +38,20 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cms.policy.APolicyRule;
 
+
 /**
  * Whether to allow revocation of an expired cert.
  * <P>
- * 
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- * 
+ *
  * @deprecated
  * @version $Revision$, $Date$
  */
-public class RevocationConstraints extends APolicyRule implements
-        IRevocationPolicy, IExtendedPluginInfo {
+public class RevocationConstraints extends APolicyRule
+    implements IRevocationPolicy, IExtendedPluginInfo {
     private static final String PROP_ALLOW_EXPIRED_CERTS = "allowExpiredCerts";
     private static final String PROP_ALLOW_ON_HOLD = "allowOnHold";
 
@@ -70,18 +71,16 @@ public class RevocationConstraints extends APolicyRule implements
 
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
-                PROP_ALLOW_EXPIRED_CERTS
-                        + ";boolean;Allow a user to revoke an already-expired certificate",
-                PROP_ALLOW_ON_HOLD
-                        + ";boolean;Allow a user to set reason to On-Hold",
-                IExtendedPluginInfo.HELP_TOKEN
-                        + ";configuration-policyrules-revocationconstraints",
-                IExtendedPluginInfo.HELP_TEXT
-                        + ";Allow administrator to decide policy on whether to allow "
-                        + "recovation of expired certificates"
-                        + "and set reason to On-Hold"
+                PROP_ALLOW_EXPIRED_CERTS + ";boolean;Allow a user to revoke an already-expired certificate",
+                PROP_ALLOW_ON_HOLD + ";boolean;Allow a user to set reason to On-Hold",
+                IExtendedPluginInfo.HELP_TOKEN +
+                ";configuration-policyrules-revocationconstraints",
+                IExtendedPluginInfo.HELP_TEXT +
+                ";Allow administrator to decide policy on whether to allow " +
+                "recovation of expired certificates" +
+                "and set reason to On-Hold"
 
-        };
+            };
 
         return params;
 
@@ -90,36 +89,36 @@ public class RevocationConstraints extends APolicyRule implements
     /**
      * Initializes this policy rule.
      * <P>
-     * 
+     *
      * The entries probably are of the form:
-     * 
-     * ra.Policy.rule.<ruleName>.implName=ValidityConstraints
-     * ra.Policy.rule.<ruleName>.enable=true
-     * ra.Policy.rule.<ruleName>.allowExpiredCerts=true
-     * 
-     * @param config The config store reference
+     *
+     *      ra.Policy.rule.<ruleName>.implName=ValidityConstraints
+     *      ra.Policy.rule.<ruleName>.enable=true
+     *      ra.Policy.rule.<ruleName>.allowExpiredCerts=true
+     *
+     * @param config	The config store reference
      */
     public void init(ISubsystem owner, IConfigStore config)
-            throws EPolicyException {
+        throws EPolicyException {
         // Get min and max validity in days and onfigure them.
         try {
-            mAllowExpiredCerts = config.getBoolean(PROP_ALLOW_EXPIRED_CERTS,
-                    true);
-            mAllowOnHold = config.getBoolean(PROP_ALLOW_ON_HOLD, true);
+            mAllowExpiredCerts = 
+                    config.getBoolean(PROP_ALLOW_EXPIRED_CERTS, true);
+            mAllowOnHold =
+                    config.getBoolean(PROP_ALLOW_ON_HOLD, true);
         } catch (EBaseException e) {
             // never happen.
         }
 
-        CMS.debug("RevocationConstraints: allow expired certs "
-                + mAllowExpiredCerts);
+        CMS.debug("RevocationConstraints: allow expired certs " + mAllowExpiredCerts);
         CMS.debug("RevocationConstraints: allow on hold " + mAllowOnHold);
     }
 
     /**
      * Applies the policy on the given Request.
      * <P>
-     * 
-     * @param req The request on which to apply policy.
+     *
+     * @param req	The request on which to apply policy.
      * @return The policy result object.
      */
     public PolicyResult apply(IRequest req) {
@@ -128,8 +127,8 @@ public class RevocationConstraints extends APolicyRule implements
             CMS.debug("RevocationConstraints: apply: no revocationReason found in request");
             return PolicyResult.REJECTED;
         }
-        RevocationReason rr = RevocationReason.fromInt(req.getExtDataInInteger(
-                IRequest.REVOKED_REASON).intValue());
+        RevocationReason rr = RevocationReason.fromInt(
+                req.getExtDataInInteger(IRequest.REVOKED_REASON).intValue());
 
         if (!mAllowOnHold && (rr != null)) {
             int reason = rr.toInt();
@@ -137,37 +136,37 @@ public class RevocationConstraints extends APolicyRule implements
             if (reason == RevocationReason.CERTIFICATE_HOLD.toInt()) {
                 String params[] = { getInstanceName() };
 
-                setError(req, CMS.getUserMessage(
-                        "CMS_POLICY_NO_ON_HOLD_ALLOWED", params), "");
+                setError(req, CMS.getUserMessage("CMS_POLICY_NO_ON_HOLD_ALLOWED", params), "");
                 return PolicyResult.REJECTED;
-            }
+            }                
         }
 
         if (mAllowExpiredCerts)
             // nothing to check.
             return PolicyResult.ACCEPTED;
-
+		
         PolicyResult result = PolicyResult.ACCEPTED;
 
         try {
             // Get the certificates being renwed.
-            X509CertImpl[] oldCerts = req
-                    .getExtDataInCertArray(IRequest.OLD_CERTS);
+            X509CertImpl[] oldCerts =
+                req.getExtDataInCertArray(IRequest.OLD_CERTS);
 
             if (oldCerts == null) {
                 setError(req, CMS.getUserMessage("CMS_POLICY_NO_OLD_CERT"),
-                        getInstanceName());
+                    getInstanceName());
                 return PolicyResult.REJECTED;
             }
 
             // check if each cert to be renewed is expired.
             for (int i = 0; i < oldCerts.length; i++) {
-                X509CertInfo oldCertInfo = (X509CertInfo) oldCerts[i]
-                        .get(X509CertImpl.NAME + "." + X509CertImpl.INFO);
-                CertificateValidity oldValidity = (CertificateValidity) oldCertInfo
-                        .get(X509CertInfo.VALIDITY);
-                Date notAfter = (Date) oldValidity
-                        .get(CertificateValidity.NOT_AFTER);
+                X509CertInfo oldCertInfo = (X509CertInfo)
+                    oldCerts[i].get(
+                        X509CertImpl.NAME + "." + X509CertImpl.INFO);
+                CertificateValidity  oldValidity = (CertificateValidity)
+                    oldCertInfo.get(X509CertInfo.VALIDITY);
+                Date notAfter = (Date)
+                    oldValidity.get(CertificateValidity.NOT_AFTER);
 
                 // Is the Certificate still valid?
                 Date now = CMS.getCurrentDate();
@@ -175,19 +174,18 @@ public class RevocationConstraints extends APolicyRule implements
                 if (notAfter.before(now)) {
                     String params[] = { getInstanceName() };
 
-                    setError(req, CMS.getUserMessage(
-                            "CMS_POLICY_CANNOT_REVOKE_EXPIRED_CERTS", params),
-                            "");
+                    setError(req, 
+                        CMS.getUserMessage("CMS_POLICY_CANNOT_REVOKE_EXPIRED_CERTS",
+                            params), "");
                     result = PolicyResult.REJECTED;
                     break;
                 }
             }
 
         } catch (Exception e) {
-            String params[] = { getInstanceName(), e.toString() };
+            String params[] = {getInstanceName(), e.toString()};
 
-            setError(req, CMS.getUserMessage(
-                    "CMS_POLICY_UNEXPECTED_POLICY_ERROR", params), "");
+            setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR", params), "");
             result = PolicyResult.REJECTED;
         }
         return result;
@@ -195,21 +193,22 @@ public class RevocationConstraints extends APolicyRule implements
 
     /**
      * Return configured parameters for a policy rule instance.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector getInstanceParams() {
         Vector confParams = new Vector();
 
-        confParams.addElement(PROP_ALLOW_EXPIRED_CERTS + "="
-                + mAllowExpiredCerts);
-        confParams.addElement(PROP_ALLOW_ON_HOLD + "=" + mAllowOnHold);
+        confParams.addElement(
+            PROP_ALLOW_EXPIRED_CERTS + "=" + mAllowExpiredCerts);
+        confParams.addElement(
+            PROP_ALLOW_ON_HOLD + "=" + mAllowOnHold);
         return confParams;
     }
 
     /**
      * Return default parameters for a policy implementation.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector getDefaultParams() {

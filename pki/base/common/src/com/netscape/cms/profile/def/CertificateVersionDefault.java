@@ -34,9 +34,10 @@ import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 
 /**
- * This class implements an enrollment default policy that populates a Netscape
- * comment extension into the certificate template.
- * 
+ * This class implements an enrollment default policy
+ * that populates a Netscape comment extension
+ * into the certificate template.
+ *
  * @version $Revision$, $Date$
  */
 public class CertificateVersionDefault extends EnrollExtDefault {
@@ -53,67 +54,71 @@ public class CertificateVersionDefault extends EnrollExtDefault {
     }
 
     public void init(IProfile profile, IConfigStore config)
-            throws EProfileException {
+        throws EProfileException {
         super.init(profile, config);
     }
 
-    public IDescriptor getConfigDescriptor(Locale locale, String name) {
+    public IDescriptor getConfigDescriptor(Locale locale, String name) { 
         if (name.equals(CONFIG_VERSION)) {
-            return new Descriptor(IDescriptor.INTEGER, null, "3",
+            return new Descriptor(IDescriptor.INTEGER, null,
+                    "3",
                     CMS.getUserMessage(locale, "CMS_PROFILE_VERSION"));
         } else {
             return null;
         }
     }
 
-    public void setConfig(String name, String value) throws EPropertyException {
+    public void setConfig(String name, String value)
+        throws EPropertyException {
         if (name.equals(CONFIG_VERSION)) {
-            try {
-                Integer.parseInt(value);
-            } catch (Exception e) {
+          try {
+            Integer.parseInt(value);
+          } catch (Exception e) {
                 throw new EPropertyException(CMS.getUserMessage(
-                        "CMS_INVALID_PROPERTY", CONFIG_VERSION));
-            }
+                            "CMS_INVALID_PROPERTY", CONFIG_VERSION));
+          }
         }
         super.setConfig(name, value);
     }
 
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         if (name.equals(VAL_VERSION)) {
-            return new Descriptor(IDescriptor.INTEGER, null, "3",
+            return new Descriptor(IDescriptor.INTEGER, null,
+                    "3",
                     CMS.getUserMessage(locale, "CMS_PROFILE_VERSION"));
         } else {
             return null;
         }
     }
 
-    public void setValue(String name, Locale locale, X509CertInfo info,
-            String value) throws EPropertyException {
+    public void setValue(String name, Locale locale,
+        X509CertInfo info, String value)
+        throws EPropertyException {
         try {
 
             if (name == null) {
-                throw new EPropertyException(CMS.getUserMessage(locale,
-                        "CMS_INVALID_PROPERTY", name));
+                throw new EPropertyException(CMS.getUserMessage( 
+                            locale, "CMS_INVALID_PROPERTY", name));
             }
-            if (name.equals(VAL_VERSION)) {
+            if (name.equals(VAL_VERSION)) { 
                 if (value == null || value.equals(""))
-                    throw new EPropertyException(name + " cannot be empty");
+                    throw new EPropertyException(name+" cannot be empty");
                 else {
-                    int version = Integer.valueOf(value).intValue() - 1;
-
+                    int version = Integer.valueOf(value).intValue()-1;
+         
                     if (version == CertificateVersion.V1)
-                        info.set(X509CertInfo.VERSION, new CertificateVersion(
-                                CertificateVersion.V1));
+                        info.set(X509CertInfo.VERSION,
+                          new CertificateVersion(CertificateVersion.V1));
                     else if (version == CertificateVersion.V2)
-                        info.set(X509CertInfo.VERSION, new CertificateVersion(
-                                CertificateVersion.V2));
+                        info.set(X509CertInfo.VERSION,
+                          new CertificateVersion(CertificateVersion.V2));
                     else if (version == CertificateVersion.V3)
-                        info.set(X509CertInfo.VERSION, new CertificateVersion(
-                                CertificateVersion.V3));
+                        info.set(X509CertInfo.VERSION,
+                          new CertificateVersion(CertificateVersion.V3));
                 }
             } else {
-                throw new EPropertyException(CMS.getUserMessage(locale,
-                        "CMS_INVALID_PROPERTY", name));
+                throw new EPropertyException(CMS.getUserMessage( 
+                            locale, "CMS_INVALID_PROPERTY", name));
             }
         } catch (IOException e) {
             CMS.debug("CertificateVersionDefault: setValue " + e.toString());
@@ -122,65 +127,67 @@ public class CertificateVersionDefault extends EnrollExtDefault {
         }
     }
 
-    public String getValue(String name, Locale locale, X509CertInfo info)
-            throws EPropertyException {
+    public String getValue(String name, Locale locale,
+        X509CertInfo info)
+        throws EPropertyException {
 
         if (name == null) {
-            throw new EPropertyException(CMS.getUserMessage(locale,
-                    "CMS_INVALID_PROPERTY", name));
+            throw new EPropertyException(CMS.getUserMessage( 
+                        locale, "CMS_INVALID_PROPERTY", name));
         }
 
-        if (name.equals(VAL_VERSION)) {
+        if (name.equals(VAL_VERSION)) { 
             CertificateVersion v = null;
-            try {
-                v = (CertificateVersion) info.get(X509CertInfo.VERSION);
+            try { 
+                v = (CertificateVersion)info.get(
+                  X509CertInfo.VERSION);
             } catch (Exception e) {
             }
 
             if (v == null)
-                throw new EPropertyException(CMS.getUserMessage(locale,
-                        "CMS_INVALID_PROPERTY", name));
+                throw new EPropertyException(CMS.getUserMessage( 
+                        locale, "CMS_INVALID_PROPERTY", name));
             int version = v.compare(0);
-
-            return "" + (version + 1);
+   
+            return ""+(version+1);
         } else {
-            throw new EPropertyException(CMS.getUserMessage(locale,
-                    "CMS_INVALID_PROPERTY", name));
+            throw new EPropertyException(CMS.getUserMessage( 
+                        locale, "CMS_INVALID_PROPERTY", name));
         }
     }
 
     public String getText(Locale locale) {
-        String params[] = { getConfig(CONFIG_VERSION) };
+        String params[] = {
+                getConfig(CONFIG_VERSION)
+            };
 
-        return CMS.getUserMessage(locale, "CMS_PROFILE_DEF_CERT_VERSION",
-                params);
+        return CMS.getUserMessage(locale, "CMS_PROFILE_DEF_CERT_VERSION", params);
     }
 
     /**
      * Populates the request with this policy default.
      */
     public void populate(IRequest request, X509CertInfo info)
-            throws EProfileException {
+        throws EProfileException {
         String v = getConfig(CONFIG_VERSION);
-        int version = Integer.valueOf(v).intValue() - 1;
-
+        int version = Integer.valueOf(v).intValue()-1;
+         
         try {
             if (version == CertificateVersion.V1)
-                info.set(X509CertInfo.VERSION, new CertificateVersion(
-                        CertificateVersion.V1));
+                info.set(X509CertInfo.VERSION,
+                  new CertificateVersion(CertificateVersion.V1));
             else if (version == CertificateVersion.V2)
-                info.set(X509CertInfo.VERSION, new CertificateVersion(
-                        CertificateVersion.V2));
+                info.set(X509CertInfo.VERSION,
+                  new CertificateVersion(CertificateVersion.V2));
             else if (version == CertificateVersion.V3)
-                info.set(X509CertInfo.VERSION, new CertificateVersion(
-                        CertificateVersion.V3));
+                info.set(X509CertInfo.VERSION,
+                  new CertificateVersion(CertificateVersion.V3));
             else {
                 throw new EProfileException(CMS.getUserMessage(
-                        getLocale(request), "CMS_INVALID_PROPERTY",
-                        CONFIG_VERSION));
+                  getLocale(request), "CMS_INVALID_PROPERTY", CONFIG_VERSION));
             }
         } catch (IOException e) {
         } catch (CertificateException e) {
-        }
+        } 
     }
 }

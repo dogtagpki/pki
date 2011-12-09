@@ -38,8 +38,8 @@ import netscape.security.x509.X500Name;
 
 /**
  * A SignerInfo, as defined in PKCS#7's signedData type.
- * 
- * @author Benjamin Renaud
+ *
+ * @author Benjamin Renaud 
  * @version 1.27 97/12/10
  */
 public class SignerInfo implements DerEncoder {
@@ -54,284 +54,301 @@ public class SignerInfo implements DerEncoder {
     PKCS9Attributes authenticatedAttributes;
     PKCS9Attributes unauthenticatedAttributes;
 
-    public SignerInfo(X500Name issuerName, BigInt serial,
-            AlgorithmId digestAlgorithmId,
-            AlgorithmId digestEncryptionAlgorithmId, byte[] encryptedDigest) {
-        this.version = new BigInt(1);
-        this.issuerName = issuerName;
-        this.certificateSerialNumber = serial;
-        this.digestAlgorithmId = digestAlgorithmId;
-        this.digestEncryptionAlgorithmId = digestEncryptionAlgorithmId;
-        this.encryptedDigest = encryptedDigest;
+    public SignerInfo(X500Name 	issuerName, 
+		      BigInt serial,
+		      AlgorithmId digestAlgorithmId,
+		      AlgorithmId digestEncryptionAlgorithmId,
+		      byte[] encryptedDigest) {
+	this.version = new BigInt(1);
+	this.issuerName	= issuerName;
+	this.certificateSerialNumber = serial;
+	this.digestAlgorithmId = digestAlgorithmId;
+	this.digestEncryptionAlgorithmId = digestEncryptionAlgorithmId;
+	this.encryptedDigest = encryptedDigest;
     }
 
-    public SignerInfo(X500Name issuerName, BigInt serial,
-            AlgorithmId digestAlgorithmId,
-            PKCS9Attributes authenticatedAttributes,
-            AlgorithmId digestEncryptionAlgorithmId, byte[] encryptedDigest,
-            PKCS9Attributes unauthenticatedAttributes) {
-        this.version = new BigInt(1);
-        this.issuerName = issuerName;
-        this.certificateSerialNumber = serial;
-        this.digestAlgorithmId = digestAlgorithmId;
-        this.authenticatedAttributes = authenticatedAttributes;
-        this.digestEncryptionAlgorithmId = digestEncryptionAlgorithmId;
-        this.encryptedDigest = encryptedDigest;
-        this.unauthenticatedAttributes = unauthenticatedAttributes;
+    public SignerInfo(X500Name 	issuerName, 
+		      BigInt serial,
+		      AlgorithmId digestAlgorithmId,
+		      PKCS9Attributes authenticatedAttributes,
+		      AlgorithmId digestEncryptionAlgorithmId,
+		      byte[] encryptedDigest,
+		      PKCS9Attributes unauthenticatedAttributes) {
+	this.version = new BigInt(1);
+	this.issuerName	= issuerName;
+	this.certificateSerialNumber = serial;
+	this.digestAlgorithmId = digestAlgorithmId;
+	this.authenticatedAttributes = authenticatedAttributes;
+	this.digestEncryptionAlgorithmId = digestEncryptionAlgorithmId;
+	this.encryptedDigest = encryptedDigest;
+	this.unauthenticatedAttributes = unauthenticatedAttributes;
     }
 
-    public SignerInfo(DerInputStream derin) throws IOException,
-            ParsingException {
+    public SignerInfo(DerInputStream derin) 
+    throws IOException, ParsingException {
 
-        // version
-        version = derin.getInteger();
+	// version
+	version = derin.getInteger();	
+	
+	// issuerAndSerialNumber
+	DerValue[] issuerAndSerialNumber = derin.getSequence(2);
+	byte[] issuerBytes = issuerAndSerialNumber[0].toByteArray();
+	issuerName = new X500Name(new DerValue(DerValue.tag_Sequence, 
+					       issuerBytes));
+	certificateSerialNumber = issuerAndSerialNumber[1].getInteger();
 
-        // issuerAndSerialNumber
-        DerValue[] issuerAndSerialNumber = derin.getSequence(2);
-        byte[] issuerBytes = issuerAndSerialNumber[0].toByteArray();
-        issuerName = new X500Name(new DerValue(DerValue.tag_Sequence,
-                issuerBytes));
-        certificateSerialNumber = issuerAndSerialNumber[1].getInteger();
+	// digestAlgorithmId
+	DerValue tmp = derin.getDerValue();
 
-        // digestAlgorithmId
-        DerValue tmp = derin.getDerValue();
+	digestAlgorithmId = AlgorithmId.parse(tmp);
 
-        digestAlgorithmId = AlgorithmId.parse(tmp);
+	/*
+	 * check if set of auth attributes (implicit tag) is provided
+	 * (auth attributes are OPTIONAL)
+	 */
+	if ((byte)(derin.peekByte()) == (byte)0xA0) {
+	    authenticatedAttributes = new PKCS9Attributes(derin);
+	}
 
-        /*
-         * check if set of auth attributes (implicit tag) is provided (auth
-         * attributes are OPTIONAL)
-         */
-        if ((byte) (derin.peekByte()) == (byte) 0xA0) {
-            authenticatedAttributes = new PKCS9Attributes(derin);
-        }
+	// digestEncryptionAlgorithmId - little RSA naming scheme - 
+	// signature == encryption...
+	tmp = derin.getDerValue();
 
-        // digestEncryptionAlgorithmId - little RSA naming scheme -
-        // signature == encryption...
-        tmp = derin.getDerValue();
+	digestEncryptionAlgorithmId = AlgorithmId.parse(tmp);
 
-        digestEncryptionAlgorithmId = AlgorithmId.parse(tmp);
+	// encryptedDigest
+	encryptedDigest = derin.getOctetString();
 
-        // encryptedDigest
-        encryptedDigest = derin.getOctetString();
-
-        /*
-         * check if set of unauth attributes (implicit tag) is provided (unauth
-         * attributes are OPTIONAL)
-         */
-        if (derin.available() != 0 && (byte) (derin.peekByte()) == (byte) 0xA1) {
-            unauthenticatedAttributes = new PKCS9Attributes(derin);
-        }
-
-        // all done
-        if (derin.available() != 0) {
-            throw new ParsingException("extra data at the end");
-        }
+	/*
+	 * check if set of unauth attributes (implicit tag) is provided
+	 * (unauth attributes are OPTIONAL)
+	 */
+	if (derin.available() != 0 && (byte)(derin.peekByte()) == (byte)0xA1) {
+	    unauthenticatedAttributes = new PKCS9Attributes(derin);
+	}
+	
+	// all done
+	if (derin.available() != 0) {
+	    throw new ParsingException("extra data at the end");
+	}
     }
 
     public void encode(DerOutputStream out) throws IOException {
-
-        derEncode(out);
+	
+	derEncode(out);
     }
 
     /**
-     * DER encode this object onto an output stream. Implements the
-     * <code>DerEncoder</code> interface.
-     * 
-     * @param out the output stream on which to write the DER encoding.
-     * 
+     * DER encode this object onto an output stream.
+     * Implements the <code>DerEncoder</code> interface.
+     *
+     * @param out 
+     * the output stream on which to write the DER encoding.
+     *
      * @exception IOException on encoding error.
      */
     public void derEncode(OutputStream out) throws IOException {
-        DerOutputStream seq = new DerOutputStream();
-        seq.putInteger(version);
-        DerOutputStream issuerAndSerialNumber = new DerOutputStream();
-        issuerName.encode(issuerAndSerialNumber);
-        issuerAndSerialNumber.putInteger(certificateSerialNumber);
-        seq.write(DerValue.tag_Sequence, issuerAndSerialNumber);
+	DerOutputStream seq = new DerOutputStream();
+	seq.putInteger(version);
+	DerOutputStream issuerAndSerialNumber = new DerOutputStream();
+	issuerName.encode(issuerAndSerialNumber);
+	issuerAndSerialNumber.putInteger(certificateSerialNumber);
+	seq.write(DerValue.tag_Sequence, issuerAndSerialNumber);
 
-        digestAlgorithmId.encode(seq);
+	digestAlgorithmId.encode(seq);
+	
+	// encode authenticated attributes if there are any
+	if (authenticatedAttributes != null) 
+	    authenticatedAttributes.encode((byte)0xA0, seq);
 
-        // encode authenticated attributes if there are any
-        if (authenticatedAttributes != null)
-            authenticatedAttributes.encode((byte) 0xA0, seq);
+	digestEncryptionAlgorithmId.encode(seq);
+	
+	seq.putOctetString(encryptedDigest);
+	
+	// encode unauthenticated attributes if there are any
+	if (unauthenticatedAttributes != null) 
+	    unauthenticatedAttributes.encode((byte)0xA1, seq);
 
-        digestEncryptionAlgorithmId.encode(seq);
+	DerOutputStream tmp = new DerOutputStream();
+	tmp.write(DerValue.tag_Sequence, seq);
 
-        seq.putOctetString(encryptedDigest);
-
-        // encode unauthenticated attributes if there are any
-        if (unauthenticatedAttributes != null)
-            unauthenticatedAttributes.encode((byte) 0xA1, seq);
-
-        DerOutputStream tmp = new DerOutputStream();
-        tmp.write(DerValue.tag_Sequence, seq);
-
-        out.write(tmp.toByteArray());
+	out.write(tmp.toByteArray());
     }
 
-    public X509Certificate getCertificate(PKCS7 block) throws IOException {
-        return block.getCertificate(certificateSerialNumber, issuerName);
+
+
+    public X509Certificate getCertificate(PKCS7 block)
+    throws IOException {
+	return block.getCertificate(certificateSerialNumber, issuerName);
     }
 
-    /*
-     * Returns null if verify fails, this signerInfo if verify succeeds.
-     */
-    SignerInfo verify(PKCS7 block, byte[] data)
-            throws NoSuchAlgorithmException, SignatureException {
+    /* Returns null if verify fails, this signerInfo if
+       verify succeeds. */
+    SignerInfo verify(PKCS7 block, byte[] data) 
+    throws NoSuchAlgorithmException, SignatureException {
 
-        try {
+	try {
+	    
+		ContentInfo content = block.getContentInfo();
+	    if (data == null) {
+		data = content.getContentBytes();
+	    }
 
-            ContentInfo content = block.getContentInfo();
-            if (data == null) {
-                data = content.getContentBytes();
-            }
+	    String digestAlgname = 
+		getDigestAlgorithmId().getName();
 
-            String digestAlgname = getDigestAlgorithmId().getName();
+	    byte[] dataSigned;
 
-            byte[] dataSigned;
+	    // if there are authenticate attributes, get the message
+	    // digest and compare it with the digest of data
+	    if (authenticatedAttributes == null) {
+		dataSigned = data;
+	    } else {
 
-            // if there are authenticate attributes, get the message
-            // digest and compare it with the digest of data
-            if (authenticatedAttributes == null) {
-                dataSigned = data;
-            } else {
+		// first, check content type
+		ObjectIdentifier contentType = (ObjectIdentifier)
+		       authenticatedAttributes.getAttributeValue(
+			 PKCS9Attribute.CONTENT_TYPE_OID);
+		if (contentType == null || 
+		    !contentType.equals(content.contentType))
+		    return null;  // contentType does not match, bad SignerInfo
 
-                // first, check content type
-                ObjectIdentifier contentType = (ObjectIdentifier) authenticatedAttributes
-                        .getAttributeValue(PKCS9Attribute.CONTENT_TYPE_OID);
-                if (contentType == null
-                        || !contentType.equals(content.contentType))
-                    return null; // contentType does not match, bad SignerInfo
+		// now, check message digest
+		byte[] messageDigest = (byte[])
+		    authenticatedAttributes.getAttributeValue(
+			 PKCS9Attribute.MESSAGE_DIGEST_OID);
 
-                // now, check message digest
-                byte[] messageDigest = (byte[]) authenticatedAttributes
-                        .getAttributeValue(PKCS9Attribute.MESSAGE_DIGEST_OID);
+		if (messageDigest == null) // fail if there is no message digest
+		    return null; 
 
-                if (messageDigest == null) // fail if there is no message digest
-                    return null;
+		MessageDigest md = MessageDigest.getInstance(digestAlgname);
+		byte[] computedMessageDigest = md.digest(data);
+		
+		if (messageDigest.length != computedMessageDigest.length)
+		    return null;
+		for (int i = 0; i < messageDigest.length; i++) {
+		    if (messageDigest[i] != computedMessageDigest[i])
+			return null;
+		}
+		
+		// message digest attribute matched 
+		// digest of original data
 
-                MessageDigest md = MessageDigest.getInstance(digestAlgname);
-                byte[] computedMessageDigest = md.digest(data);
+		// the data actually signed is the DER encoding of 
+		// the authenticated attributes (tagged with 
+		// the "SET OF" tag, not 0xA0).
+		dataSigned = authenticatedAttributes.getDerEncoding();
+	    }
 
-                if (messageDigest.length != computedMessageDigest.length)
-                    return null;
-                for (int i = 0; i < messageDigest.length; i++) {
-                    if (messageDigest[i] != computedMessageDigest[i])
-                        return null;
-                }
+	    // put together digest algorithm and encryption algorithm
+	    // to form signing algorithm
+	    String encryptionAlgname = 
+		getDigestEncryptionAlgorithmId().getName();
 
-                // message digest attribute matched
-                // digest of original data
+	    String algname;
+	    if (encryptionAlgname.equals("DSA") || 
+		   encryptionAlgname.equals("SHA1withDSA")) {
+		algname = "DSA";
+	    } else {
+		algname = digestAlgname + "/" + encryptionAlgname;
+	    }
 
-                // the data actually signed is the DER encoding of
-                // the authenticated attributes (tagged with
-                // the "SET OF" tag, not 0xA0).
-                dataSigned = authenticatedAttributes.getDerEncoding();
-            }
+	    Signature sig = Signature.getInstance(algname);
+	    X509Certificate cert = getCertificate(block);
+						 
+	    if (cert == null) {
+		return null;
+	    }
 
-            // put together digest algorithm and encryption algorithm
-            // to form signing algorithm
-            String encryptionAlgname = getDigestEncryptionAlgorithmId()
-                    .getName();
+	    PublicKey key = cert.getPublicKey();
+	    sig.initVerify(key);
+	    
+	    sig.update(dataSigned);
 
-            String algname;
-            if (encryptionAlgname.equals("DSA")
-                    || encryptionAlgname.equals("SHA1withDSA")) {
-                algname = "DSA";
-            } else {
-                algname = digestAlgname + "/" + encryptionAlgname;
-            }
+	    if (sig.verify(encryptedDigest)) {
+		return this;
+	    }
 
-            Signature sig = Signature.getInstance(algname);
-            X509Certificate cert = getCertificate(block);
+	} catch (IOException e) {
+	    throw new SignatureException("IO error verifying signature:\n" +
+					 e.getMessage());
 
-            if (cert == null) {
-                return null;
-            }
+	} catch (InvalidKeyException e) {
+	    throw new SignatureException("InvalidKey: " + e.getMessage());
 
-            PublicKey key = cert.getPublicKey();
-            sig.initVerify(key);
-
-            sig.update(dataSigned);
-
-            if (sig.verify(encryptedDigest)) {
-                return this;
-            }
-
-        } catch (IOException e) {
-            throw new SignatureException("IO error verifying signature:\n"
-                    + e.getMessage());
-
-        } catch (InvalidKeyException e) {
-            throw new SignatureException("InvalidKey: " + e.getMessage());
-
-        }
-        return null;
+	}
+	return null;
     }
-
+	
     /* Verify the content of the pkcs7 block. */
-    SignerInfo verify(PKCS7 block) throws NoSuchAlgorithmException,
-            SignatureException {
-        return verify(block, null);
+    SignerInfo verify(PKCS7 block)
+    throws NoSuchAlgorithmException, SignatureException {
+	return verify(block, null);
     }
+	
 
     public BigInt getVersion() {
-        return version;
+	    return version;
     }
 
     public X500Name getIssuerName() {
-        return issuerName;
+	return issuerName;
     }
 
     public BigInt getCertificateSerialNumber() {
-        return certificateSerialNumber;
+	return certificateSerialNumber;
     }
 
     public AlgorithmId getDigestAlgorithmId() {
-        return digestAlgorithmId;
+	return digestAlgorithmId;
     }
 
     public PKCS9Attributes getAuthenticatedAttributes() {
-        return authenticatedAttributes;
+	return authenticatedAttributes;
     }
 
     public AlgorithmId getDigestEncryptionAlgorithmId() {
-        return digestEncryptionAlgorithmId;
+	return digestEncryptionAlgorithmId;
     }
 
     public byte[] getEncryptedDigest() {
-        return encryptedDigest;
+	return encryptedDigest;
     }
 
     public PKCS9Attributes getUnauthenticatedAttributes() {
-        return unauthenticatedAttributes;
+	return unauthenticatedAttributes;
     }
 
     public String toString() {
-        netscape.security.util.PrettyPrintFormat pp = new netscape.security.util.PrettyPrintFormat(
-                " ", 20);
-        String digestbits = pp.toHexString(encryptedDigest);
+	netscape.security.util.PrettyPrintFormat pp = 
+		new netscape.security.util.PrettyPrintFormat(" ", 20);
+	String digestbits = pp.toHexString(encryptedDigest);
 
-        String out = "";
+	String out = "";
 
-        out += "Signer Info for (issuer): " + issuerName + "\n";
-        out += "\tversion: " + version + "\n";
-        out += "\tcertificateSerialNumber: " + certificateSerialNumber + "\n";
-        out += "\tdigestAlgorithmId: " + digestAlgorithmId + "\n";
-        if (authenticatedAttributes != null) {
-            out += "\tauthenticatedAttributes: " + authenticatedAttributes
-                    + "\n";
-        }
-        out += "\tdigestEncryptionAlgorithmId: " + digestEncryptionAlgorithmId
-                + "\n";
-
-        out += "\tencryptedDigest: " + "\n" + digestbits + "\n";
-        if (unauthenticatedAttributes != null) {
-            out += "\tunauthenticatedAttributes: " + unauthenticatedAttributes
-                    + "\n";
-        }
-        return out;
+	out += "Signer Info for (issuer): " + issuerName + "\n";
+	out += "\tversion: " + version + "\n";
+	out += "\tcertificateSerialNumber: " + certificateSerialNumber + 
+	    "\n";
+	out += "\tdigestAlgorithmId: " + digestAlgorithmId + "\n";
+	if (authenticatedAttributes != null) {
+	    out += "\tauthenticatedAttributes: " + authenticatedAttributes + 
+		   "\n"; 
+	}
+	out += "\tdigestEncryptionAlgorithmId: " + digestEncryptionAlgorithmId +
+	    "\n";
+	
+	out += "\tencryptedDigest: " + "\n" +
+	    digestbits + "\n";
+	if (unauthenticatedAttributes != null) {
+	    out += "\tunauthenticatedAttributes: " + 
+		   unauthenticatedAttributes + "\n"; 
+	}
+	return out;
     }
 
 }
+
+
+	
+	

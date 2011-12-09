@@ -18,30 +18,31 @@
 package com.netscape.certsrv.profile;
 
 /**
- * This interface represents a profile policy which consists a default policy
- * and a constraint policy.
- * 
+ * This interface represents a profile policy
+ * which consists a default policy and a
+ * constraint policy.
+ *
  * @version $Revision$, $Date$
  */
 public interface IProfilePolicy {
 
     /**
-     * Retrieves the policy id
-     * 
+     * Retrieves the policy id 
+     *
      * @return policy id
      */
     public String getId();
 
     /**
      * Retrieves the default policy.
-     * 
+     *
      * @return default policy
      */
     public IPolicyDefault getDefault();
 
     /**
      * Retrieves the constraint policy.
-     * 
+     *
      * @return constraint policy
      */
     public IPolicyConstraint getConstraint();

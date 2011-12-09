@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.policy.extensions;
 
+
 import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.util.Locale;
@@ -36,64 +37,66 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cms.policy.APolicyRule;
 
+
 /**
- * Remove Basic Constraints policy. Adds the Basic constraints extension.
+ * Remove Basic Constraints policy.
+ * Adds the Basic constraints extension.
  * <P>
- * 
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- * 
+ *
  * @deprecated
  * @version $Revision$, $Date$
  */
-public class RemoveBasicConstraintsExt extends APolicyRule implements
-        IEnrollmentPolicy, IExtendedPluginInfo {
+public class RemoveBasicConstraintsExt extends APolicyRule
+    implements IEnrollmentPolicy, IExtendedPluginInfo {
     public RemoveBasicConstraintsExt() {
         NAME = "RemoveBasicConstraintsExt";
         DESC = "Remove Basic Constraints extension";
     }
 
     public void init(ISubsystem owner, IConfigStore config)
-            throws EBaseException {
+        throws EBaseException {
     }
 
     public PolicyResult apply(IRequest req) {
         PolicyResult res = PolicyResult.ACCEPTED;
 
         // get cert info.
-        X509CertInfo[] ci = req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
+        X509CertInfo[] ci = 
+            req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
 
         X509CertInfo certInfo = null;
 
         if (ci == null || (certInfo = ci[0]) == null) {
-            setError(req, CMS.getUserMessage("CMS_POLICY_NO_CERT_INFO"), NAME);
+            setError(req, CMS.getUserMessage("CMS_POLICY_NO_CERT_INFO"), NAME); 
             return PolicyResult.REJECTED; // unrecoverable error.
         }
 
         for (int i = 0; i < ci.length; i++) {
             PolicyResult certResult = applyCert(req, certInfo);
 
-            if (certResult == PolicyResult.REJECTED)
+            if (certResult == PolicyResult.REJECTED) 
                 return certResult;
         }
         return PolicyResult.ACCEPTED;
     }
 
-    public PolicyResult applyCert(IRequest req, X509CertInfo certInfo) {
+    public PolicyResult applyCert(
+        IRequest req, X509CertInfo certInfo) {
         // get basic constraints extension from cert info if any.
         CertificateExtensions extensions = null;
 
         try {
             // get basic constraints extension if any.
-            extensions = (CertificateExtensions) certInfo
-                    .get(X509CertInfo.EXTENSIONS);
+            extensions = (CertificateExtensions)
+                    certInfo.get(X509CertInfo.EXTENSIONS);
             if (extensions != null) {
                 try {
                     extensions.delete(BasicConstraintsExtension.NAME);
-                    CMS.debug("PolicyRule RemoveBasicConstraintsExt: removed the extension from request "
-                            + req.getRequestId().toString());
+                    CMS.debug("PolicyRule RemoveBasicConstraintsExt: removed the extension from request " + req.getRequestId().toString());
                 } catch (IOException e) {
                 }
             }
@@ -107,10 +110,10 @@ public class RemoveBasicConstraintsExt extends APolicyRule implements
 
     /**
      * Return configured parameters for a policy rule instance.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getInstanceParams() {
+    public Vector getInstanceParams() { 
         Vector params = new Vector();
 
         return params;
@@ -118,10 +121,10 @@ public class RemoveBasicConstraintsExt extends APolicyRule implements
 
     /**
      * Return default parameters for a policy implementation.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getDefaultParams() {
+    public Vector getDefaultParams() { 
         Vector defParams = new Vector();
 
         return defParams;
@@ -129,12 +132,14 @@ public class RemoveBasicConstraintsExt extends APolicyRule implements
 
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
-                IExtendedPluginInfo.HELP_TOKEN
-                        + ";configuration-policyrules-removebasicconstraints",
-                IExtendedPluginInfo.HELP_TEXT
-                        + ";Removes the Basic Constraints extension." };
+                IExtendedPluginInfo.HELP_TOKEN +
+                ";configuration-policyrules-removebasicconstraints",
+                IExtendedPluginInfo.HELP_TEXT +
+                ";Removes the Basic Constraints extension."
+            };
 
         return params;
     }
 
 }
+

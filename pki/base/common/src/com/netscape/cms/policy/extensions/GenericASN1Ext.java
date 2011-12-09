@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.policy.extensions;
 
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -45,10 +46,12 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cms.policy.APolicyRule;
 
+
 /**
- * Private Integer extension policy. If this policy is enabled, it adds an
- * Private Integer extension to the certificate.
- * 
+ * Private Integer extension policy.
+ * If this policy is enabled, it adds an Private Integer
+ * extension to the certificate.
+ *
  * The following listed sample configuration parameters:
  * 
  * ca.Policy.impl.privateInteger.class=com.netscape.certsrv.policy.genericASNExt
@@ -75,242 +78,101 @@ import com.netscape.cms.policy.APolicyRule;
  * ca.Policy.rule.genericASNExt.implName=genericASNExt
  * ca.Policy.rule.genericASNExt.predicate=
  * <P>
- * 
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- * 
+ *
  * @deprecated
  * @version $Revision$, $Date$
  */
-public class GenericASN1Ext extends APolicyRule implements IEnrollmentPolicy,
-        IExtendedPluginInfo {
+public class GenericASN1Ext extends APolicyRule implements 
+        IEnrollmentPolicy, IExtendedPluginInfo {
     protected static final int MAX_ATTR = 10;
 
-    protected static final String PROP_CRITICAL = "critical";
-    protected static final String PROP_NAME = "name";
-    protected static final String PROP_OID = "oid";
-    protected static final String PROP_PATTERN = "pattern";
-    protected static final String PROP_ATTRIBUTE = "attribute";
-    protected static final String PROP_TYPE = "type";
-    protected static final String PROP_SOURCE = "source";
-    protected static final String PROP_VALUE = "value";
-    protected static final String PROP_PREDICATE = "predicate";
+    protected static final String PROP_CRITICAL =
+        "critical";
+    protected static final String PROP_NAME =
+        "name";
+    protected static final String PROP_OID =
+        "oid";
+    protected static final String PROP_PATTERN =
+        "pattern";
+    protected static final String PROP_ATTRIBUTE =
+        "attribute";
+    protected static final String PROP_TYPE =
+        "type";
+    protected static final String PROP_SOURCE =
+        "source";
+    protected static final String PROP_VALUE =
+        "value";
+    protected static final String PROP_PREDICATE =
+        "predicate";
 
-    protected static final String PROP_ENABLE = "enable";
+    protected static final String PROP_ENABLE =
+        "enable";
 
     public IConfigStore mConfig = null;
 
     private String pattern = null;
-
+    
     public String[] getExtendedPluginInfo(Locale locale) {
         String s[] = {
                 "enable" + ";boolean;Enable this policy",
                 "predicate" + ";string;",
                 PROP_CRITICAL + ";boolean;",
-                PROP_NAME + ";string;Name for this extension.",
-                PROP_OID
-                        + ";string;OID number for this extension. It should be unique.",
+                PROP_NAME + ";string;Name for this extension.",                  
+                PROP_OID + ";string;OID number for this extension. It should be unique.",                   
                 PROP_PATTERN + ";string;Pattern for extension; {012}34",
                 // Attribute 0
-                PROP_ATTRIBUTE
-                        + "."
-                        + "0"
-                        + "."
-                        + PROP_TYPE
-                        + ";choice(Integer,IA5String,OctetString,PrintableString,VisibleString,UTCTime,OID,Boolean);Attribute type for extension",
-                PROP_ATTRIBUTE
-                        + "."
-                        + "0"
-                        + "."
-                        + PROP_SOURCE
-                        + ";choice(Value,File);Data Source for the extension. You can specify the value here or file name has value.",
-                PROP_ATTRIBUTE
-                        + "."
-                        + "0"
-                        + "."
-                        + PROP_VALUE
-                        + ";string;If data source is 'value', specity value here. If data source is 'file', specify the file name with full path.",
+                PROP_ATTRIBUTE + "." + "0" + "." + PROP_TYPE + ";choice(Integer,IA5String,OctetString,PrintableString,VisibleString,UTCTime,OID,Boolean);Attribute type for extension",
+                PROP_ATTRIBUTE + "." + "0" + "." + PROP_SOURCE + ";choice(Value,File);Data Source for the extension. You can specify the value here or file name has value.",
+                PROP_ATTRIBUTE + "." + "0" + "." + PROP_VALUE + ";string;If data source is 'value', specity value here. If data source is 'file', specify the file name with full path.",
                 // Attribute 1
-                PROP_ATTRIBUTE
-                        + "."
-                        + "1"
-                        + "."
-                        + PROP_TYPE
-                        + ";choice(Integer,IA5String,OctetString,PrintableString,VisibleString,UTCTime,OID,Boolean);Attribute type for extension",
-                PROP_ATTRIBUTE
-                        + "."
-                        + "1"
-                        + "."
-                        + PROP_SOURCE
-                        + ";choice(Value,File);Data Source for the extension. You can specify the value here or file name has value.",
-                PROP_ATTRIBUTE
-                        + "."
-                        + "1"
-                        + "."
-                        + PROP_VALUE
-                        + ";string;If data source is 'value', specity value here. If data source is 'file', specify the file name with full path.",
+                PROP_ATTRIBUTE + "." + "1" + "." + PROP_TYPE + ";choice(Integer,IA5String,OctetString,PrintableString,VisibleString,UTCTime,OID,Boolean);Attribute type for extension",
+                PROP_ATTRIBUTE + "." + "1" + "." + PROP_SOURCE + ";choice(Value,File);Data Source for the extension. You can specify the value here or file name has value.",
+                PROP_ATTRIBUTE + "." + "1" + "." + PROP_VALUE + ";string;If data source is 'value', specity value here. If data source is 'file', specify the file name with full path.",
                 // Attribute 2
-                PROP_ATTRIBUTE
-                        + "."
-                        + "2"
-                        + "."
-                        + PROP_TYPE
-                        + ";choice(Integer,IA5String,OctetString,PrintableString,VisibleString,UTCTime,OID,Boolean);Attribute type for extension",
-                PROP_ATTRIBUTE
-                        + "."
-                        + "2"
-                        + "."
-                        + PROP_SOURCE
-                        + ";choice(Value,File);Data Source for the extension. You can specify the value here or file name has value.",
-                PROP_ATTRIBUTE
-                        + "."
-                        + "2"
-                        + "."
-                        + PROP_VALUE
-                        + ";string;If data source is 'value', specity value here. If data source is 'file', specify the file name with full path.",
+                PROP_ATTRIBUTE + "." + "2" + "." + PROP_TYPE + ";choice(Integer,IA5String,OctetString,PrintableString,VisibleString,UTCTime,OID,Boolean);Attribute type for extension",
+                PROP_ATTRIBUTE + "." + "2" + "." + PROP_SOURCE + ";choice(Value,File);Data Source for the extension. You can specify the value here or file name has value.",
+                PROP_ATTRIBUTE + "." + "2" + "." + PROP_VALUE + ";string;If data source is 'value', specity value here. If data source is 'file', specify the file name with full path.",
                 // Attribute 3
-                PROP_ATTRIBUTE
-                        + "."
-                        + "3"
-                        + "."
-                        + PROP_TYPE
-                        + ";choice(Integer,IA5String,OctetString,PrintableString,VisibleString,UTCTime,OID,Boolean);Attribute type for extension",
-                PROP_ATTRIBUTE
-                        + "."
-                        + "3"
-                        + "."
-                        + PROP_SOURCE
-                        + ";choice(Value,File);Data Source for the extension. You can specify the value here or file name has value.",
-                PROP_ATTRIBUTE
-                        + "."
-                        + "3"
-                        + "."
-                        + PROP_VALUE
-                        + ";string;If data source is 'value', specity value here. If data source is 'file', specify the file name with full path.",
+                PROP_ATTRIBUTE + "." + "3" + "." + PROP_TYPE + ";choice(Integer,IA5String,OctetString,PrintableString,VisibleString,UTCTime,OID,Boolean);Attribute type for extension",
+                PROP_ATTRIBUTE + "." + "3" + "." + PROP_SOURCE + ";choice(Value,File);Data Source for the extension. You can specify the value here or file name has value.",
+                PROP_ATTRIBUTE + "." + "3" + "." + PROP_VALUE + ";string;If data source is 'value', specity value here. If data source is 'file', specify the file name with full path.",
                 // Attribute 4
-                PROP_ATTRIBUTE
-                        + "."
-                        + "4"
-                        + "."
-                        + PROP_TYPE
-                        + ";choice(Integer,IA5String,OctetString,PrintableString,VisibleString,UTCTime,OID,Boolean);Attribute type for extension",
-                PROP_ATTRIBUTE
-                        + "."
-                        + "4"
-                        + "."
-                        + PROP_SOURCE
-                        + ";choice(Value,File);Data Source for the extension. You can specify the value here or file name has value.",
-                PROP_ATTRIBUTE
-                        + "."
-                        + "4"
-                        + "."
-                        + PROP_VALUE
-                        + ";string;If data source is 'value', specity value here. If data source is 'file', specify the file name with full path.",
+                PROP_ATTRIBUTE + "." + "4" + "." + PROP_TYPE + ";choice(Integer,IA5String,OctetString,PrintableString,VisibleString,UTCTime,OID,Boolean);Attribute type for extension",
+                PROP_ATTRIBUTE + "." + "4" + "." + PROP_SOURCE + ";choice(Value,File);Data Source for the extension. You can specify the value here or file name has value.",
+                PROP_ATTRIBUTE + "." + "4" + "." + PROP_VALUE + ";string;If data source is 'value', specity value here. If data source is 'file', specify the file name with full path.",
                 // Attribute 5
-                PROP_ATTRIBUTE
-                        + "."
-                        + "5"
-                        + "."
-                        + PROP_TYPE
-                        + ";choice(Integer,IA5String,OctetString,PrintableString,VisibleString,UTCTime,OID,Boolean);Attribute type for extension",
-                PROP_ATTRIBUTE
-                        + "."
-                        + "5"
-                        + "."
-                        + PROP_SOURCE
-                        + ";choice(Value,File);Data Source for the extension. You can specify the value here or file name has value.",
-                PROP_ATTRIBUTE
-                        + "."
-                        + "5"
-                        + "."
-                        + PROP_VALUE
-                        + ";string;If data source is 'value', specity value here. If data source is 'file', specify the file name with full path.",
+                PROP_ATTRIBUTE + "." + "5" + "." + PROP_TYPE + ";choice(Integer,IA5String,OctetString,PrintableString,VisibleString,UTCTime,OID,Boolean);Attribute type for extension",
+                PROP_ATTRIBUTE + "." + "5" + "." + PROP_SOURCE + ";choice(Value,File);Data Source for the extension. You can specify the value here or file name has value.",
+                PROP_ATTRIBUTE + "." + "5" + "." + PROP_VALUE + ";string;If data source is 'value', specity value here. If data source is 'file', specify the file name with full path.",
                 // Attribute 6
-                PROP_ATTRIBUTE
-                        + "."
-                        + "6"
-                        + "."
-                        + PROP_TYPE
-                        + ";choice(Integer,IA5String,OctetString,PrintableString,VisibleString,UTCTime,OID,Boolean);Attribute type for extension",
-                PROP_ATTRIBUTE
-                        + "."
-                        + "6"
-                        + "."
-                        + PROP_SOURCE
-                        + ";choice(Value,File);Data Source for the extension. You can specify the value here or file name has value.",
-                PROP_ATTRIBUTE
-                        + "."
-                        + "6"
-                        + "."
-                        + PROP_VALUE
-                        + ";string;If data source is 'value', specity value here. If data source is 'file', specify the file name with full path.",
+                PROP_ATTRIBUTE + "." + "6" + "." + PROP_TYPE + ";choice(Integer,IA5String,OctetString,PrintableString,VisibleString,UTCTime,OID,Boolean);Attribute type for extension",
+                PROP_ATTRIBUTE + "." + "6" + "." + PROP_SOURCE + ";choice(Value,File);Data Source for the extension. You can specify the value here or file name has value.",
+                PROP_ATTRIBUTE + "." + "6" + "." + PROP_VALUE + ";string;If data source is 'value', specity value here. If data source is 'file', specify the file name with full path.",
                 // Attribute 7
-                PROP_ATTRIBUTE
-                        + "."
-                        + "7"
-                        + "."
-                        + PROP_TYPE
-                        + ";choice(Integer,IA5String,OctetString,PrintableString,VisibleString,UTCTime,OID,Boolean);Attribute type for extension",
-                PROP_ATTRIBUTE
-                        + "."
-                        + "7"
-                        + "."
-                        + PROP_SOURCE
-                        + ";choice(Value,File);Data Source for the extension. You can specify the value here or file name has value.",
-                PROP_ATTRIBUTE
-                        + "."
-                        + "7"
-                        + "."
-                        + PROP_VALUE
-                        + ";string;If data source is 'value', specity value here. If data source is 'file', specify the file name with full path.",
+                PROP_ATTRIBUTE + "." + "7" + "." + PROP_TYPE + ";choice(Integer,IA5String,OctetString,PrintableString,VisibleString,UTCTime,OID,Boolean);Attribute type for extension",
+                PROP_ATTRIBUTE + "." + "7" + "." + PROP_SOURCE + ";choice(Value,File);Data Source for the extension. You can specify the value here or file name has value.",
+                PROP_ATTRIBUTE + "." + "7" + "." + PROP_VALUE + ";string;If data source is 'value', specity value here. If data source is 'file', specify the file name with full path.",
                 // Attribute 8
-                PROP_ATTRIBUTE
-                        + "."
-                        + "8"
-                        + "."
-                        + PROP_TYPE
-                        + ";choice(Integer,IA5String,OctetString,PrintableString,VisibleString,UTCTime,OID,Boolean);Attribute type for extension",
-                PROP_ATTRIBUTE
-                        + "."
-                        + "8"
-                        + "."
-                        + PROP_SOURCE
-                        + ";choice(Value,File);Data Source for the extension. You can specify the value here or file name has value.",
-                PROP_ATTRIBUTE
-                        + "."
-                        + "8"
-                        + "."
-                        + PROP_VALUE
-                        + ";string;If data source is 'value', specity value here. If data source is 'file', specify the file name with full path.",
+                PROP_ATTRIBUTE + "." + "8" + "." + PROP_TYPE + ";choice(Integer,IA5String,OctetString,PrintableString,VisibleString,UTCTime,OID,Boolean);Attribute type for extension",
+                PROP_ATTRIBUTE + "." + "8" + "." + PROP_SOURCE + ";choice(Value,File);Data Source for the extension. You can specify the value here or file name has value.",
+                PROP_ATTRIBUTE + "." + "8" + "." + PROP_VALUE + ";string;If data source is 'value', specity value here. If data source is 'file', specify the file name with full path.",
                 // Attribute 9
-                PROP_ATTRIBUTE
-                        + "."
-                        + "9"
-                        + "."
-                        + PROP_TYPE
-                        + ";choice(Integer,IA5String,OctetString,PrintableString,VisibleString,UTCTime,OID,Boolean);Attribute type for extension",
-                PROP_ATTRIBUTE
-                        + "."
-                        + "9"
-                        + "."
-                        + PROP_SOURCE
-                        + ";choice(Value,File);Data Source for the extension. You can specify the value here or file name has value.",
-                PROP_ATTRIBUTE
-                        + "."
-                        + "9"
-                        + "."
-                        + PROP_VALUE
-                        + ";string;If data source is 'value', specity value here. If data source is 'file', specify the file name with full path.",
-                IExtendedPluginInfo.HELP_TOKEN
-                        + ";configuration-policyrules-genericasn1ext",
-                IExtendedPluginInfo.HELP_TEXT
-                        + ";Adds Private extension based on ASN1. See manual" };
+                PROP_ATTRIBUTE + "." + "9" + "." + PROP_TYPE + ";choice(Integer,IA5String,OctetString,PrintableString,VisibleString,UTCTime,OID,Boolean);Attribute type for extension",
+                PROP_ATTRIBUTE + "." + "9" + "." + PROP_SOURCE + ";choice(Value,File);Data Source for the extension. You can specify the value here or file name has value.",
+                PROP_ATTRIBUTE + "." + "9" + "." + PROP_VALUE + ";string;If data source is 'value', specity value here. If data source is 'file', specify the file name with full path.",
+                IExtendedPluginInfo.HELP_TOKEN +
+                ";configuration-policyrules-genericasn1ext",
+                IExtendedPluginInfo.HELP_TEXT +
+                ";Adds Private extension based on ASN1. See manual"    		
+            };
 
         return s;
     }
-
+    
     public GenericASN1Ext() {
         NAME = "GenericASN1Ext";
         DESC = "Sets Generic extension for certificates";
@@ -319,17 +181,17 @@ public class GenericASN1Ext extends APolicyRule implements IEnrollmentPolicy,
     /**
      * Initializes this policy rule.
      * <P>
-     * 
+     *
      * The entries may be of the form:
-     * 
-     * ca.Policy.rule.<ruleName>.implName=genericASNExt
-     * ca.Policy.rule.<ruleName>.enable=true
-     * ca.Policy.rule.<ruleName>.predicate=
-     * 
-     * @param config The config store reference
+     *
+     *      ca.Policy.rule.<ruleName>.implName=genericASNExt
+     *      ca.Policy.rule.<ruleName>.enable=true
+     *      ca.Policy.rule.<ruleName>.predicate=
+     *
+     * @param config	The config store reference
      */
     public void init(ISubsystem owner, IConfigStore config)
-            throws EBaseException {
+        throws EBaseException {
         mConfig = config;
         if (mConfig == null) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("POLICY_INIT_ERROR"));
@@ -340,33 +202,33 @@ public class GenericASN1Ext extends APolicyRule implements IEnrollmentPolicy,
 
         if (enable == false)
             return;
-
+	    
         String oid = mConfig.getString(PROP_OID, null);
 
         if ((oid == null) || (oid.length() == 0)) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("POLICY_INIT_ERROR"));
             return;
         }
-
+	    
         String name = mConfig.getString(PROP_NAME, null);
 
         if ((name == null) || (name.length() == 0)) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("POLICY_INIT_ERROR"));
             return;
         }
-
+	    
         try {
             if (File.separatorChar == '\\') {
                 pattern = mConfig.getString(PROP_PATTERN, null);
                 checkFilename(0);
-            }
+            }                
         } catch (IOException e) {
             log(ILogger.LL_FAILURE, "" + e.toString());
         } catch (EBaseException e) {
             log(ILogger.LL_FAILURE, "" + e.toString());
         }
-
-        // Check OID value
+		
+        // Check OID value 
         CMS.checkOID(name, oid);
         pattern = mConfig.getString(PROP_PATTERN, null);
         checkOID(0);
@@ -375,19 +237,18 @@ public class GenericASN1Ext extends APolicyRule implements IEnrollmentPolicy,
             ObjectIdentifier tmpid = new ObjectIdentifier(oid);
 
             if (OIDMap.getName(tmpid) == null)
-                OIDMap.addAttribute(
-                        "netscape.security.extensions.GenericASN1Extension",
-                        oid, name);
+                OIDMap.addAttribute("netscape.security.extensions.GenericASN1Extension", oid, name);
         } catch (CertificateException e) {
             log(ILogger.LL_FAILURE, "" + e.toString());
         }
-
+        
     }
 
     // Check filename
-    private int checkFilename(int index) throws IOException, EBaseException {
+    private  int checkFilename(int index) 
+        throws IOException, EBaseException {
         String source = null;
-
+        
         while (index < pattern.length()) {
             char ch = pattern.charAt(index);
 
@@ -401,30 +262,28 @@ public class GenericASN1Ext extends APolicyRule implements IEnrollmentPolicy,
                 return index;
 
             default:
-                source = mConfig.getString(PROP_ATTRIBUTE + "." + ch + "."
-                        + PROP_SOURCE, null);
+                source = mConfig.getString(PROP_ATTRIBUTE + "." + ch + "." + PROP_SOURCE, null);                    
                 if ((source != null) && (source.equalsIgnoreCase("file"))) {
-                    String oValue = mConfig.getString(PROP_ATTRIBUTE + "." + ch
-                            + "." + PROP_VALUE, null);
+                    String oValue = mConfig.getString(PROP_ATTRIBUTE + "." + ch + "." + PROP_VALUE, null);                    
                     String nValue = oValue.replace('\\', '/');
 
-                    mConfig.putString(PROP_ATTRIBUTE + "." + ch + "."
-                            + PROP_VALUE, nValue);
+                    mConfig.putString(PROP_ATTRIBUTE + "." + ch + "." + PROP_VALUE, nValue);                    
                     FileInputStream fis = new FileInputStream(nValue);
                     fis.close();
-                }
+                }                        
             }
             index++;
-        }
+        }            
 
         return index;
     }
 
     // Check oid
-    private int checkOID(int index) throws EBaseException {
+    private  int checkOID(int index) 
+        throws EBaseException {
         String type = null;
         String oid = null;
-
+		
         while (index < pattern.length()) {
             char ch = pattern.charAt(index);
 
@@ -438,25 +297,23 @@ public class GenericASN1Ext extends APolicyRule implements IEnrollmentPolicy,
                 return index;
 
             default:
-                type = mConfig.getString(PROP_ATTRIBUTE + "." + ch + "."
-                        + PROP_TYPE, null);
+                type = mConfig.getString(PROP_ATTRIBUTE + "." + ch + "." + PROP_TYPE, null);                    
                 if ((type != null) && (type.equalsIgnoreCase("OID"))) {
-                    oid = mConfig.getString(PROP_ATTRIBUTE + "." + ch + "."
-                            + PROP_VALUE, null);
+                    oid = mConfig.getString(PROP_ATTRIBUTE + "." + ch + "." + PROP_VALUE, null);                    
                     CMS.checkOID(oid, oid);
-                }
+                }                        
             }
             index++;
-        }
+        }            
 
         return index;
     }
-
+	
     /**
-     * If this policy is enabled, add the private Integer information extension
-     * to the certificate.
+     * If this policy is enabled, add the private Integer
+     * information extension to the certificate.
      * <P>
-     * 
+     *
      * @param req The request on which to apply policy.
      * @return The policy result object.
      */
@@ -464,9 +321,9 @@ public class GenericASN1Ext extends APolicyRule implements IEnrollmentPolicy,
         PolicyResult res = PolicyResult.ACCEPTED;
         X509CertInfo certInfo;
         X509CertInfo[] ci = req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
-
+	
         if (ci == null) {
-            setError(req, CMS.getUserMessage("CMS_POLICY_NO_CERT_INFO"), NAME);
+            setError(req, CMS.getUserMessage("CMS_POLICY_NO_CERT_INFO"), NAME); 
             return PolicyResult.REJECTED; // unrecoverable error.
         }
 
@@ -474,24 +331,19 @@ public class GenericASN1Ext extends APolicyRule implements IEnrollmentPolicy,
 
             certInfo = ci[j];
             if (certInfo == null) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CA_CERT_INFO_ERROR", ""));
-                setError(
-                        req,
-                        CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"),
-                        NAME, "Configuration Info Error");
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("CA_CERT_INFO_ERROR", ""));
+                setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"), NAME, "Configuration Info Error");
                 return PolicyResult.REJECTED; // unrecoverable error.
             }
 
             try {
                 // Find the extensions in the certInfo
-                CertificateExtensions extensions = (CertificateExtensions) certInfo
-                        .get(X509CertInfo.EXTENSIONS);
+                CertificateExtensions extensions = (CertificateExtensions) certInfo.get(X509CertInfo.EXTENSIONS);
 
                 if (extensions == null) {
                     // create extension if not exist
-                    certInfo.set(X509CertInfo.VERSION, new CertificateVersion(
-                            CertificateVersion.V3));
+                    certInfo.set(X509CertInfo.VERSION,
+                        new CertificateVersion(CertificateVersion.V3));
                     extensions = new CertificateExtensions();
                     certInfo.set(X509CertInfo.EXTENSIONS, extensions);
                 } else {
@@ -506,50 +358,35 @@ public class GenericASN1Ext extends APolicyRule implements IEnrollmentPolicy,
 
                 // Create the extension
                 GenericASN1Extension priExt = mkExtension();
-
+                
                 extensions.set(GenericASN1Extension.NAME, priExt);
 
             } catch (IOException e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("BASE_IO_ERROR", e.getMessage()));
-                setError(
-                        req,
-                        CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"),
-                        NAME, e.getMessage());
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("BASE_IO_ERROR", e.getMessage()));
+                setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"), 
+                    NAME, e.getMessage());
                 return PolicyResult.REJECTED; // unrecoverable error.
             } catch (EBaseException e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CA_CERT_INFO_ERROR", e.getMessage()));
-                setError(
-                        req,
-                        CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"),
-                        NAME, "Configuration Info Error");
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("CA_CERT_INFO_ERROR", e.getMessage()));
+                setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"), 
+                    NAME, "Configuration Info Error");
                 return PolicyResult.REJECTED; // unrecoverable error.
             } catch (CertificateException e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CA_CERT_INFO_ERROR", e.getMessage()));
-                setError(
-                        req,
-                        CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"),
-                        NAME, "Certificate Info Error");
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("CA_CERT_INFO_ERROR", e.getMessage()));
+                setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"), 
+                    NAME, "Certificate Info Error");
                 return PolicyResult.REJECTED; // unrecoverable error.
             } catch (ParseException e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("BASE_EXTENSION_ERROR",
-                                e.getMessage()));
-                setError(
-                        req,
-                        CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"),
-                        NAME, "Pattern parsing error");
+                log(ILogger.LL_FAILURE, 
+                    CMS.getLogMessage("BASE_EXTENSION_ERROR", e.getMessage()));
+                setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"), 
+                    NAME, "Pattern parsing error");
                 return PolicyResult.REJECTED; // unrecoverable error.
             } catch (Exception e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("BASE_UNKNOWN_EXCEPTION",
-                                e.getMessage()));
-                setError(
-                        req,
-                        CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"),
-                        NAME, "Unknown Error");
+                log(ILogger.LL_FAILURE, 
+                    CMS.getLogMessage("BASE_UNKNOWN_EXCEPTION", e.getMessage()));
+                setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"), 
+                    NAME, "Unknown Error");
                 return PolicyResult.REJECTED; // unrecoverable error.
             }
         }
@@ -559,8 +396,8 @@ public class GenericASN1Ext extends APolicyRule implements IEnrollmentPolicy,
     /**
      * Construct GenericASN1Extension with value from CMS.cfg
      */
-    protected GenericASN1Extension mkExtension() throws IOException,
-            EBaseException, ParseException {
+    protected GenericASN1Extension mkExtension()
+        throws IOException, EBaseException, ParseException {
         GenericASN1Extension ext;
 
         Hashtable h = new Hashtable();
@@ -576,52 +413,41 @@ public class GenericASN1Ext extends APolicyRule implements IEnrollmentPolicy,
             String proptype = PROP_ATTRIBUTE + "." + idx + "." + PROP_TYPE;
             String propsource = PROP_ATTRIBUTE + "." + idx + "." + PROP_SOURCE;
             String propvalue = PROP_ATTRIBUTE + "." + idx + "." + PROP_VALUE;
-
+		
             h.put(proptype, mConfig.getString(proptype, null));
             h.put(propsource, mConfig.getString(propsource, null));
             h.put(propvalue, mConfig.getString(propvalue, null));
         }
         ext = new GenericASN1Extension(h);
         return ext;
-    }
-
+    }        
+        
     /**
      * Return configured parameters for a policy rule instance.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getInstanceParams() {
+    public Vector getInstanceParams() { 
         int idx = 0;
         Vector params = new Vector();
 
         try {
-            params.addElement(PROP_CRITICAL + "="
-                    + mConfig.getBoolean(PROP_CRITICAL, false));
-            params.addElement(PROP_NAME + "="
-                    + mConfig.getString(PROP_NAME, null));
-            params.addElement(PROP_OID + "="
-                    + mConfig.getString(PROP_OID, null));
-            params.addElement(PROP_PATTERN + "="
-                    + mConfig.getString(PROP_PATTERN, null));
-
+            params.addElement(PROP_CRITICAL + "=" + mConfig.getBoolean(PROP_CRITICAL, false));
+            params.addElement(PROP_NAME + "=" + mConfig.getString(PROP_NAME, null));
+            params.addElement(PROP_OID + "=" + mConfig.getString(PROP_OID, null));
+            params.addElement(PROP_PATTERN + "=" + mConfig.getString(PROP_PATTERN, null));
+		
             for (idx = 0; idx < MAX_ATTR; idx++) {
                 String proptype = PROP_ATTRIBUTE + "." + idx + "." + PROP_TYPE;
-                String propsource = PROP_ATTRIBUTE + "." + idx + "."
-                        + PROP_SOURCE;
-                String propvalue = PROP_ATTRIBUTE + "." + idx + "."
-                        + PROP_VALUE;
+                String propsource = PROP_ATTRIBUTE + "." + idx + "." + PROP_SOURCE;
+                String propvalue = PROP_ATTRIBUTE + "." + idx + "." + PROP_VALUE;
 
-                params.addElement(proptype + "="
-                        + mConfig.getString(proptype, null));
-                params.addElement(propsource + "="
-                        + mConfig.getString(propsource, null));
-                params.addElement(propvalue + "="
-                        + mConfig.getString(propvalue, null));
+                params.addElement(proptype + "=" + mConfig.getString(proptype, null));
+                params.addElement(propsource + "=" + mConfig.getString(propsource, null));
+                params.addElement(propvalue + "=" + mConfig.getString(propvalue, null));
             }
-            params.addElement(PROP_PREDICATE + "="
-                    + mConfig.getString(PROP_PREDICATE, null));
-        } catch (EBaseException e) {
-            ;
+            params.addElement(PROP_PREDICATE + "=" + mConfig.getString(PROP_PREDICATE, null));
+        } catch (EBaseException e) {;
         }
 
         return params;
@@ -629,28 +455,26 @@ public class GenericASN1Ext extends APolicyRule implements IEnrollmentPolicy,
 
     /**
      * Return default parameters for a policy implementation.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getDefaultParams() {
+    public Vector getDefaultParams() { 
         int idx = 0;
-
+        
         Vector defParams = new Vector();
 
         defParams.addElement(PROP_CRITICAL + "=false");
         defParams.addElement(PROP_NAME + "=");
         defParams.addElement(PROP_OID + "=");
         defParams.addElement(PROP_PATTERN + "=");
-
+		
         for (idx = 0; idx < MAX_ATTR; idx++) {
-            defParams.addElement(PROP_ATTRIBUTE + "." + idx + "." + PROP_TYPE
-                    + "=");
-            defParams.addElement(PROP_ATTRIBUTE + "." + idx + "." + PROP_SOURCE
-                    + "=");
-            defParams.addElement(PROP_ATTRIBUTE + "." + idx + "." + PROP_VALUE
-                    + "=");
+            defParams.addElement(PROP_ATTRIBUTE + "." + idx + "." + PROP_TYPE + "=");
+            defParams.addElement(PROP_ATTRIBUTE + "." + idx + "." + PROP_SOURCE + "=");
+            defParams.addElement(PROP_ATTRIBUTE + "." + idx + "." + PROP_VALUE + "=");
         }
-
+        
         return defParams;
     }
 }
+

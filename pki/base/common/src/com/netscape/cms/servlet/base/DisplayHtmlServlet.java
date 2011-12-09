@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.base;
 
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -32,10 +33,10 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ECMSGWException;
 
+
 /**
- * This is the servlet that displays the html page for the corresponding input
- * id.
- * 
+ * This is the servlet that displays the html page for the corresponding input id.
+ *
  * @version $Revision$, $Date$
  */
 public class DisplayHtmlServlet extends CMSServlet {
@@ -54,7 +55,7 @@ public class DisplayHtmlServlet extends CMSServlet {
 
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
-        mHTMLPath = sc.getInitParameter(PROP_HTML_PATH);
+        mHTMLPath = sc.getInitParameter(PROP_HTML_PATH); 
         mTemplates.remove(CMSRequest.SUCCESS);
     }
 
@@ -67,19 +68,18 @@ public class DisplayHtmlServlet extends CMSServlet {
         IAuthToken authToken = authenticate(cmsReq);
 
         try {
-            String realpath = mServletConfig.getServletContext().getRealPath(
-                    "/" + mHTMLPath);
+            String realpath = 
+              mServletConfig.getServletContext().getRealPath("/" + mHTMLPath);
 
             if (realpath == null) {
-                mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                        ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSGW_NO_FIND_TEMPLATE", mHTMLPath));
-                throw new ECMSGWException(
-                        CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"));
+                mLogger.log(
+                  ILogger.EV_SYSTEM, ILogger.S_OTHER, ILogger.LL_FAILURE,
+                  CMS.getLogMessage("CMSGW_NO_FIND_TEMPLATE", mHTMLPath));
+                throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE")) ;
             }
             File file = new File(realpath);
             long flen = file.length();
-            byte[] bin = new byte[(int) flen];
+            byte[] bin = new byte[(int)flen];
             FileInputStream ins = new FileInputStream(file);
 
             int len = 0;
@@ -92,11 +92,9 @@ public class DisplayHtmlServlet extends CMSServlet {
             ins.close();
             bos.close();
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_OUT_TEMPLATE", mHTMLPath,
-                            e.toString()));
-            throw new ECMSGWException(
-                    CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"));
+            log(ILogger.LL_FAILURE, 
+              CMS.getLogMessage("CMSGW_ERR_OUT_TEMPLATE", mHTMLPath, e.toString()));
+            throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE")); 
         }
     }
 }

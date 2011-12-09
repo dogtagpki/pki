@@ -50,7 +50,6 @@ public class DownloadPKCS12 extends CMSServlet {
 
     /**
      * initialize the servlet.
-     * 
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -60,7 +59,7 @@ public class DownloadPKCS12 extends CMSServlet {
     }
 
     /**
-     * Process the HTTP request.
+     * Process the HTTP request. 
      */
     protected void process(CMSRequest cmsReq) throws EBaseException {
         CMS.debug("DownloadPKCS12: processing...");
@@ -71,7 +70,7 @@ public class DownloadPKCS12 extends CMSServlet {
         mRenderResult = false;
 
         // check the pin from the session
-        String pin = (String) httpReq.getSession().getAttribute("pin");
+        String pin = (String)httpReq.getSession().getAttribute("pin");
         if (pin == null) {
             CMS.debug("DownloadPKCS12 process: Failed to get the pin from the cookie.");
             outputError(httpResp, AUTH_FAILURE, "Error: Not authenticated");
@@ -102,26 +101,18 @@ public class DownloadPKCS12 extends CMSServlet {
             httpResp.getOutputStream().write(pkcs12);
             return;
         } catch (Exception e) {
-            CMS.debug("DownloadPKCS12 process: Exception=" + e.toString());
+            CMS.debug("DownloadPKCS12 process: Exception="+e.toString());
         }
     }
 
-    protected void setDefaultTemplates(ServletConfig sc) {
-    }
+    protected void setDefaultTemplates(ServletConfig sc) {}
 
-    protected void renderTemplate(CMSRequest cmsReq, String templateName,
-            ICMSTemplateFiller filler) throws IOException {// do nothing
-    }
+    protected void renderTemplate(
+            CMSRequest cmsReq, String templateName, ICMSTemplateFiller filler)
+        throws IOException {// do nothing
+    } 
 
-    protected void renderResult(CMSRequest cmsReq) throws IOException {// do
-                                                                       // nothing,
-                                                                       // ie, it
-                                                                       // will
-                                                                       // not
-                                                                       // return
-                                                                       // the
-                                                                       // default
-                                                                       // javascript.
+    protected void renderResult(CMSRequest cmsReq) throws IOException {// do nothing, ie, it will not return the default javascript.
     }
 
     /**

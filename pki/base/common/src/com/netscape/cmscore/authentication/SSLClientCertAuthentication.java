@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.authentication;
 
+
 // ldap java sdk
 
 // cert server imports.
@@ -46,10 +47,10 @@ import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmscore.util.Debug;
 
+
 /**
  * SSL client based authentication.
  * <P>
- * 
  * @author chrisho
  * @version $Revision$, $Date$
  */
@@ -69,12 +70,13 @@ public class SSLClientCertAuthentication implements IAuthManager {
     private IConfigStore mConfig = null;
     private String mRequestor = null;
 
-    /*
-     * Holds configuration parameters accepted by this implementation. This list
-     * is passed to the configuration console so configuration for instances of
-     * this implementation can be configured through the console.
+    /* Holds configuration parameters accepted by this implementation.
+     * This list is passed to the configuration console so configuration
+     * for instances of this implementation can be configured through the
+     * console.
      */
-    protected static String[] mConfigParams = new String[] {};
+    protected static String[] mConfigParams = 
+        new String[] {};
 
     /**
      * Default constructor, initialization must follow.
@@ -84,7 +86,7 @@ public class SSLClientCertAuthentication implements IAuthManager {
     }
 
     public void init(String name, String implName, IConfigStore config)
-            throws EBaseException {
+        throws EBaseException {
         mName = name;
         mImplName = implName;
         mConfig = config;
@@ -93,20 +95,19 @@ public class SSLClientCertAuthentication implements IAuthManager {
     }
 
     public IAuthToken authenticate(IAuthCredentials authCred)
-            throws EMissingCredential, EInvalidCredentials, EBaseException {
+        throws EMissingCredential, EInvalidCredentials, EBaseException {
 
         AuthToken authToken = new AuthToken(this);
 
         CMS.debug("SSLCertAuth: Retrieving client certificates");
-        X509Certificate[] x509Certs = (X509Certificate[]) authCred
-                .get(CRED_CERT);
+        X509Certificate[] x509Certs =
+            (X509Certificate[]) authCred.get(CRED_CERT);
 
         if (x509Certs == null) {
             CMS.debug("SSLCertAuth: No client certificate found");
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_AUTH_MISSING_CERT"));
-            throw new EMissingCredential(CMS.getUserMessage(
-                    "CMS_AUTHENTICATION_NULL_CREDENTIAL", CRED_CERT));
+            log(ILogger.LL_FAILURE, 
+                CMS.getLogMessage("CMSCORE_AUTH_MISSING_CERT"));
+            throw new EMissingCredential(CMS.getUserMessage("CMS_AUTHENTICATION_NULL_CREDENTIAL", CRED_CERT));
         }
         CMS.debug("SSLCertAuth: Got client certificate");
 
@@ -117,19 +118,17 @@ public class SSLClientCertAuthentication implements IAuthManager {
         }
 
         X509CertImpl clientCert = (X509CertImpl) x509Certs[0];
-
+ 
         BigInteger serialNum = null;
 
         try {
             serialNum = (BigInteger) clientCert.getSerialNumber();
-            // serialNum = new BigInteger(s.substring(2), 16);
+            //serialNum = new BigInteger(s.substring(2), 16);
         } catch (NumberFormatException e) {
-            throw new EAuthUserError(CMS.getUserMessage(
-                    "CMS_AUTHENTICATION_INVALID_ATTRIBUTE_VALUE",
-                    "Invalid serial number."));
+            throw new EAuthUserError(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_ATTRIBUTE_VALUE", "Invalid serial number."));
         }
 
-        String clientCertIssuerDN = clientCert.getIssuerDN().toString();
+        String clientCertIssuerDN = clientCert.getIssuerDN().toString(); 
         BigInteger[] bigIntArray = null;
 
         if (mCertDB != null) { /* is CA */
@@ -146,21 +145,19 @@ public class SSLClientCertAuthentication implements IAuthManager {
                 String status = record.getStatus();
 
                 if (status.equals("VALID")) {
-
+ 
                     X509CertImpl cacert = mCA.getCACert();
                     Principal p = cacert.getSubjectDN();
 
                     if (!p.toString().equals(clientCertIssuerDN)) {
-                        throw new EBaseException(
-                                CMS.getUserMessage("CMS_BASE_INVALID_ISSUER_NAME"));
-                    }
+                        throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ISSUER_NAME")); 
+                    } 
                 } else {
-                    throw new EBaseException(CMS.getUserMessage(
-                            "CMS_BASE_INVALID_CERT_STATUS", status));
+                    throw new EBaseException(
+                            CMS.getUserMessage("CMS_BASE_INVALID_CERT_STATUS", status));
                 }
             } else {
-                throw new EBaseException(
-                        CMS.getUserMessage("CMS_BASE_CERT_NOT_FOUND"));
+                throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_NOT_FOUND"));
             }
         } else {
 
@@ -173,8 +170,8 @@ public class SSLClientCertAuthentication implements IAuthManager {
             if (queue != null) {
                 IRequest getCertStatusReq = null;
 
-                getCertStatusReq = queue
-                        .newRequest(IRequest.GETCERT_STATUS_REQUEST);
+                getCertStatusReq =
+                        queue.newRequest(IRequest.GETCERT_STATUS_REQUEST);
                 // pass just serial number instead of whole cert
                 if (serialNum != null) {
                     getCertStatusReq.setExtData(SERIALNUMBER, serialNum);
@@ -185,34 +182,31 @@ public class SSLClientCertAuthentication implements IAuthManager {
                 RequestStatus status = getCertStatusReq.getRequestStatus();
 
                 if (status == RequestStatus.COMPLETE) {
-                    String certStatus = getCertStatusReq
-                            .getExtDataInString(IRequest.CERT_STATUS);
+                    String certStatus = 
+                        getCertStatusReq.getExtDataInString(IRequest.CERT_STATUS);
 
-                    if (certStatus == null) {
-                        String[] params = { "null status" };
+                    if (certStatus == null) { 
+                        String[] params = {"null status"};
 
-                        throw new EBaseException(CMS.getUserMessage(
-                                "CMS_BASE_INVALID_CERT_STATUS", params));
-                    } else if (certStatus.equals("INVALIDCERTROOT")) {
                         throw new EBaseException(
-                                CMS.getUserMessage("CMS_BASE_INVALID_ISSUER_NAME"));
+                                CMS.getUserMessage("CMS_BASE_INVALID_CERT_STATUS", params));
+                    } else if (certStatus.equals("INVALIDCERTROOT")) {
+                        throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ISSUER_NAME")); 
                     } else if (!certStatus.equals("VALID")) {
-                        String[] params = { status.toString() };
+                        String[] params = {status.toString()};
 
-                        throw new EBaseException(CMS.getUserMessage(
-                                "CMS_BASE_INVALID_CERT_STATUS", params));
+                        throw new EBaseException(
+                                CMS.getUserMessage("CMS_BASE_INVALID_CERT_STATUS", params));
                     }
                 } else {
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CMSCORE_AUTH_INCOMPLETE_REQUEST"));
-                    throw new EBaseException(
-                            CMS.getUserMessage("CMS_BASE_REQUEST_IN_BAD_STATE"));
+                    log(ILogger.LL_FAILURE, 
+                        CMS.getLogMessage("CMSCORE_AUTH_INCOMPLETE_REQUEST"));
+                    throw new EBaseException(CMS.getUserMessage("CMS_BASE_REQUEST_IN_BAD_STATE"));
                 }
             } else {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_AUTH_FAILED_GET_QUEUE"));
-                throw new EBaseException(
-                        CMS.getUserMessage("CMS_BASE_GET_QUEUE_FAILED"));
+                log(ILogger.LL_FAILURE, 
+                    CMS.getLogMessage("CMSCORE_AUTH_FAILED_GET_QUEUE"));
+                throw new EBaseException(CMS.getUserMessage("CMS_BASE_GET_QUEUE_FAILED"));
             }
         } // else, ra
 
@@ -228,10 +222,10 @@ public class SSLClientCertAuthentication implements IAuthManager {
     }
 
     /**
-     * Returns a list of configuration parameter names. The list is passed to
-     * the configuration console so instances of this implementation can be
-     * configured through the console.
-     * 
+     * Returns a list of configuration parameter names. 
+     * The list is passed to the configuration console so instances of 
+     * this implementation can be configured through the console.
+     *
      * @return String array of configuration parameter names.
      */
     public String[] getConfigParams() {
@@ -240,7 +234,6 @@ public class SSLClientCertAuthentication implements IAuthManager {
 
     /**
      * Returns array of required credentials for this authentication manager.
-     * 
      * @return Array of required credentials.
      */
     public String[] getRequiredCreds() {
@@ -250,23 +243,24 @@ public class SSLClientCertAuthentication implements IAuthManager {
     private void log(int level, String msg) {
         if (mLogger == null)
             return;
-        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_AUTHENTICATION, level,
-                msg);
+        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_AUTHENTICATION,
+            level, msg);
     }
 
     private IRequestQueue getReqQueue() {
         IRequestQueue queue = null;
 
         try {
-            IRegistrationAuthority ra = (IRegistrationAuthority) CMS
-                    .getSubsystem("ra");
+            IRegistrationAuthority ra = 
+                (IRegistrationAuthority) CMS.getSubsystem("ra");
 
             if (ra != null) {
                 queue = ra.getRequestQueue();
                 mRequestor = IRequest.REQUESTOR_RA;
             }
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE, " cannot get access to the request queue.");
+            log(ILogger.LL_FAILURE,
+                " cannot get access to the request queue.");
         }
 
         return queue;
@@ -274,7 +268,6 @@ public class SSLClientCertAuthentication implements IAuthManager {
 
     /**
      * Gets the configuration substore used by this authentication manager
-     * 
      * @return configuration store
      */
     public IConfigStore getConfigStore() {
@@ -295,3 +288,4 @@ public class SSLClientCertAuthentication implements IAuthManager {
         return mImplName;
     }
 }
+

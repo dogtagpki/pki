@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.input;
 
+
 import java.util.Locale;
 
 import netscape.security.x509.X509CertInfo;
@@ -34,19 +35,23 @@ import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.common.EnrollProfile;
 
+
 /**
- * This class implements the certificate request input. This input populates 2
- * main fields to the enrollment page: 1/ Certificate Request Type, 2/
- * Certificate Request
+ * This class implements the certificate request input.
+ * This input populates 2 main fields to the enrollment page:
+ * 1/ Certificate Request Type, 2/ Certificate Request
  * <p>
  * 
- * This input usually is used by an enrollment profile for certificate requests.
- * 
+ * This input usually is used by an enrollment profile for
+ * certificate requests.
+ *
  * @version $Revision$, $Date$
  */
-public class CMCCertReqInput extends EnrollInput implements IProfileInput {
-    public static final String VAL_CERT_REQUEST_TYPE = EnrollProfile.CTX_CERT_REQUEST_TYPE;
-    public static final String VAL_CERT_REQUEST = EnrollProfile.CTX_CERT_REQUEST;
+public class CMCCertReqInput extends EnrollInput implements IProfileInput { 
+    public static final String VAL_CERT_REQUEST_TYPE = 
+        EnrollProfile.CTX_CERT_REQUEST_TYPE;
+    public static final String VAL_CERT_REQUEST =
+        EnrollProfile.CTX_CERT_REQUEST;
 
     public EnrollProfile mEnrollProfile = null;
 
@@ -58,7 +63,7 @@ public class CMCCertReqInput extends EnrollInput implements IProfileInput {
      * Initializes this default policy.
      */
     public void init(IProfile profile, IConfigStore config)
-            throws EProfileException {
+        throws EProfileException {
         super.init(profile, config);
 
         mEnrollProfile = (EnrollProfile) profile;
@@ -82,38 +87,39 @@ public class CMCCertReqInput extends EnrollInput implements IProfileInput {
      * Populates the request with this policy default.
      */
     public void populate(IProfileContext ctx, IRequest request)
-            throws EProfileException {
+        throws EProfileException {
         String cert_request = ctx.get(VAL_CERT_REQUEST);
-        X509CertInfo info = request
-                .getExtDataInCertInfo(EnrollProfile.REQUEST_CERTINFO);
+        X509CertInfo info =
+            request.getExtDataInCertInfo(EnrollProfile.REQUEST_CERTINFO);
 
-        TaggedRequest msgs[] = mEnrollProfile.parseCMC(getLocale(request),
-                cert_request);
+        TaggedRequest msgs[] = mEnrollProfile.parseCMC(getLocale(request), cert_request);
 
         if (msgs == null) {
-            return;
+            return; 
         }
         // This profile only handle the first request in CRMF
-        Integer seqNum = request
-                .getExtDataInInteger(EnrollProfile.REQUEST_SEQ_NUM);
+        Integer seqNum = request.getExtDataInInteger(EnrollProfile.REQUEST_SEQ_NUM);
         if (seqNum == null) {
-            throw new EProfileException(CMS.getUserMessage(getLocale(request),
-                    "CMS_PROFILE_UNKNOWN_SEQ_NUM"));
+           throw new EProfileException(
+            CMS.getUserMessage(getLocale(request),
+                "CMS_PROFILE_UNKNOWN_SEQ_NUM")); 
         }
 
-        mEnrollProfile.fillTaggedRequest(getLocale(request),
-                msgs[seqNum.intValue()], info, request);
+        mEnrollProfile.fillTaggedRequest(getLocale(request), msgs[seqNum.intValue()], info, request);
         request.setExtData(EnrollProfile.REQUEST_CERTINFO, info);
     }
 
     /**
-     * Retrieves the descriptor of the given value parameter by name.
+     * Retrieves the descriptor of the given value
+     * parameter by name.
      */
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         if (name.equals(VAL_CERT_REQUEST)) {
-            return new Descriptor(IDescriptor.CERT_REQUEST, null, null,
-                    CMS.getUserMessage(locale, "CMS_PROFILE_INPUT_CERT_REQ"));
-        }
+            return new Descriptor(IDescriptor.CERT_REQUEST, null,
+                    null,
+                    CMS.getUserMessage(locale,
+                        "CMS_PROFILE_INPUT_CERT_REQ"));
+        } 
         return null;
     }
 }

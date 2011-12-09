@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.ca;
 
+
 import netscape.security.x509.RevokedCertImpl;
 import netscape.security.x509.X509CertImpl;
 import netscape.security.x509.X509CertInfo;
@@ -26,10 +27,11 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.connector.IConnector;
 import com.netscape.certsrv.request.IRequest;
 
+
 /**
  * An interface representing a CA request services.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface ICAService {
@@ -37,52 +39,54 @@ public interface ICAService {
     /**
      * Marks certificate record as revoked by adding revocation information.
      * Updates CRL cache.
-     * 
+     *
      * @param crlentry revocation information obtained from revocation request
      * @exception EBaseException failed to mark certificate record as revoked
      */
-    public void revokeCert(RevokedCertImpl crlentry) throws EBaseException;
+    public void revokeCert(RevokedCertImpl crlentry)
+        throws EBaseException;
 
     /**
      * Marks certificate record as revoked by adding revocation information.
      * Updates CRL cache.
-     * 
+     *
      * @param crlentry revocation information obtained from revocation request
      * @param requestId revocation request id
      * @exception EBaseException failed to mark certificate record as revoked
      */
     public void revokeCert(RevokedCertImpl crlentry, String requestId)
-            throws EBaseException;
+        throws EBaseException;
 
     /**
-     * Issues certificate base on enrollment information, creates certificate
-     * record, and stores all necessary data.
-     * 
+     * Issues certificate base on enrollment information,
+     * creates certificate record, and stores all necessary data.
+     *
      * @param certi information obtain from revocation request
-     * @exception EBaseException failed to issue certificate or create
-     *                certificate record
+     * @exception EBaseException failed to issue certificate or create certificate record
      */
-    public X509CertImpl issueX509Cert(X509CertInfo certi) throws EBaseException;
+    public X509CertImpl issueX509Cert(X509CertInfo certi)
+        throws EBaseException;
 
-    public X509CertImpl issueX509Cert(X509CertInfo certi, String profileId,
-            String rid) throws EBaseException;
+    public X509CertImpl issueX509Cert(X509CertInfo certi, String profileId, String rid)
+        throws EBaseException;
 
     /**
      * Services profile request.
-     * 
+     *
      * @param request profile enrollment request information
      * @exception EBaseException failed to service profile enrollment request
      */
-    public void serviceProfileRequest(IRequest request) throws EBaseException;
+    public void serviceProfileRequest(IRequest request)
+        throws EBaseException;
 
     /**
      * Returns KRA-CA connector.
-     * 
+     *
      * @return KRA-CA connector
      */
     public IConnector getKRAConnector();
 
     public void setKRAConnector(IConnector c);
 
-    public IConnector getConnector(IConfigStore cs) throws EBaseException;
+    public IConnector getConnector(IConfigStore cs)  throws EBaseException;
 }

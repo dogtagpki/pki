@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.crl;
 
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Locale;
@@ -46,13 +47,14 @@ import com.netscape.certsrv.ca.ICRLIssuingPoint;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.ILogger;
 
+
 /**
  * This represents a issuer alternative name extension.
- * 
+ *
  * @version $Revision$, $Date$
  */
-public class CMSIssuerAlternativeNameExtension implements ICMSCRLExtension,
-        IExtendedPluginInfo {
+public class CMSIssuerAlternativeNameExtension
+    implements ICMSCRLExtension, IExtendedPluginInfo {
     private static final String PROP_RFC822_NAME = "rfc822Name";
     private static final String PROP_DNS_NAME = "dNSName";
     private static final String PROP_DIR_NAME = "directoryName";
@@ -67,25 +69,23 @@ public class CMSIssuerAlternativeNameExtension implements ICMSCRLExtension,
     public CMSIssuerAlternativeNameExtension() {
     }
 
-    public Extension setCRLExtensionCriticality(Extension ext, boolean critical) {
+    public Extension setCRLExtensionCriticality(Extension ext,
+        boolean critical) {
         IssuerAlternativeNameExtension issuerAltNameExt = null;
         GeneralNames names = null;
 
         try {
-            names = (GeneralNames) ((IssuerAlternativeNameExtension) ext)
-                    .get(IssuerAlternativeNameExtension.ISSUER_NAME);
-            issuerAltNameExt = new IssuerAlternativeNameExtension(
-                    Boolean.valueOf(critical), names);
+            names = (GeneralNames) ((IssuerAlternativeNameExtension) ext).get(IssuerAlternativeNameExtension.ISSUER_NAME);
+            issuerAltNameExt = new IssuerAlternativeNameExtension(Boolean.valueOf(critical), names);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CRL_CREATE_ISSUER_ALT_NAME_EXT",
-                            e.toString()));
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_ISSUER_ALT_NAME_EXT", e.toString()));
         }
         return issuerAltNameExt;
     }
 
-    public Extension getCRLExtension(IConfigStore config, Object ip,
-            boolean critical) {
+    public Extension getCRLExtension(IConfigStore config,
+        Object ip,
+        boolean critical) {
         ICRLIssuingPoint crlIssuingPoint = (ICRLIssuingPoint) ip;
         IssuerAlternativeNameExtension issuerAltNameExt = null;
         int numNames = 0;
@@ -93,9 +93,7 @@ public class CMSIssuerAlternativeNameExtension implements ICMSCRLExtension,
         try {
             numNames = config.getInteger("numNames", 0);
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CRL_CREATE_ISSUER_INVALID_NUM_NAMES",
-                            e.toString()));
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_ISSUER_INVALID_NUM_NAMES", e.toString()));
         }
         if (numNames > 0) {
             GeneralNames names = new GeneralNames();
@@ -106,13 +104,9 @@ public class CMSIssuerAlternativeNameExtension implements ICMSCRLExtension,
                 try {
                     nameType = config.getString("nameType" + i);
                 } catch (EPropertyNotFound e) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                            "CRL_CREATE_ISSUER_UNDEFINED_TYPE",
-                            Integer.toString(i), e.toString()));
+                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_ISSUER_UNDEFINED_TYPE", Integer.toString(i), e.toString()));
                 } catch (EBaseException e) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                            "CRL_CREATE_ISSUER_INVALID_TYPE",
-                            Integer.toString(i), e.toString()));
+                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_ISSUER_INVALID_TYPE", Integer.toString(i), e.toString()));
                 }
 
                 if (nameType != null && nameType.length() > 0) {
@@ -121,13 +115,9 @@ public class CMSIssuerAlternativeNameExtension implements ICMSCRLExtension,
                     try {
                         name = config.getString("name" + i);
                     } catch (EPropertyNotFound e) {
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                                "CRL_CREATE_ISSUER_UNDEFINED_TYPE",
-                                Integer.toString(i), e.toString()));
+                        log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_ISSUER_UNDEFINED_TYPE", Integer.toString(i), e.toString()));
                     } catch (EBaseException e) {
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                                "CRL_CREATE_ISSUER_INVALID_TYPE",
-                                Integer.toString(i), e.toString()));
+                        log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_ISSUER_INVALID_TYPE", Integer.toString(i), e.toString()));
                     }
 
                     if (name != null && name.length() > 0) {
@@ -137,9 +127,7 @@ public class CMSIssuerAlternativeNameExtension implements ICMSCRLExtension,
 
                                 names.addElement(dirName);
                             } catch (IOException e) {
-                                log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                                        "CRL_CREATE_INVALID_500NAME",
-                                        e.toString()));
+                                log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_INVALID_500NAME", e.toString()));
                             }
                         } else if (nameType.equalsIgnoreCase(PROP_RFC822_NAME)) {
                             RFC822Name rfc822Name = new RFC822Name(name);
@@ -169,22 +157,16 @@ public class CMSIssuerAlternativeNameExtension implements ICMSCRLExtension,
                         } else if (nameType.equalsIgnoreCase(PROP_OTHER_NAME)) {
 
                             try {
-                                byte[] val = com.netscape.osutil.OSUtil
-                                        .AtoB(name);
-                                DerValue derVal = new DerValue(
-                                        new ByteArrayInputStream(val));
-                                GeneralName generalName = new GeneralName(
-                                        derVal);
+                                byte[] val = com.netscape.osutil.OSUtil.AtoB(name);
+                                DerValue derVal = new DerValue(new ByteArrayInputStream(val));
+                                GeneralName generalName = new GeneralName(derVal);
 
                                 names.addElement(generalName);
                             } catch (IOException e) {
-                                log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                                        "CRL_INVALID_OTHER_NAME", e.toString()));
+                                log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_INVALID_OTHER_NAME", e.toString()));
                             }
                         } else {
-                            log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                                    "CRL_CREATE_ISSUER_INVALID_TYPE", nameType,
-                                    ""));
+                            log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_ISSUER_INVALID_TYPE", nameType, ""));
                         }
                     }
                 }
@@ -193,10 +175,9 @@ public class CMSIssuerAlternativeNameExtension implements ICMSCRLExtension,
             if (names.size() > 0) {
                 try {
                     issuerAltNameExt = new IssuerAlternativeNameExtension(
-                            Boolean.valueOf(critical), names);
+                                Boolean.valueOf(critical), names);
                 } catch (IOException e) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                            "CRL_CREATE_ISSUER_ALT_NAME_EXT", e.toString()));
+                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_ISSUER_ALT_NAME_EXT", e.toString()));
                 }
             }
         }
@@ -214,8 +195,8 @@ public class CMSIssuerAlternativeNameExtension implements ICMSCRLExtension,
         try {
             numNames = config.getInteger("numNames", 0);
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE, "Invalid numNames property for CRL "
-                    + "IssuerAlternativeName extension - " + e);
+            log(ILogger.LL_FAILURE, "Invalid numNames property for CRL " +
+                "IssuerAlternativeName extension - " + e);
         }
         nvp.add("numNames", String.valueOf(numNames));
 
@@ -225,13 +206,11 @@ public class CMSIssuerAlternativeNameExtension implements ICMSCRLExtension,
             try {
                 nameType = config.getString("nameType" + i);
             } catch (EPropertyNotFound e) {
-                log(ILogger.LL_FAILURE, "Undefined nameType" + i
-                        + " property for "
-                        + "CRL IssuerAlternativeName extension - " + e);
+                log(ILogger.LL_FAILURE, "Undefined nameType" + i + " property for " +
+                    "CRL IssuerAlternativeName extension - " + e);
             } catch (EBaseException e) {
-                log(ILogger.LL_FAILURE, "Invalid nameType" + i
-                        + " property for "
-                        + "CRL IssuerAlternativeName extension - " + e);
+                log(ILogger.LL_FAILURE, "Invalid nameType" + i + " property for " +
+                    "CRL IssuerAlternativeName extension - " + e);
             }
 
             if (nameType != null && nameType.length() > 0) {
@@ -245,11 +224,11 @@ public class CMSIssuerAlternativeNameExtension implements ICMSCRLExtension,
             try {
                 name = config.getString("name" + i);
             } catch (EPropertyNotFound e) {
-                log(ILogger.LL_FAILURE, "Undefined name" + i + " property for "
-                        + "CRL IssuerAlternativeName extension - " + e);
+                log(ILogger.LL_FAILURE, "Undefined name" + i + " property for " +
+                    "CRL IssuerAlternativeName extension - " + e);
             } catch (EBaseException e) {
-                log(ILogger.LL_FAILURE, "Invalid name" + i + " property for "
-                        + "CRL IssuerAlternativeName extension - " + e);
+                log(ILogger.LL_FAILURE, "Invalid name" + i + " property for " +
+                    "CRL IssuerAlternativeName extension - " + e);
             }
 
             if (name != null && name.length() > 0) {
@@ -269,40 +248,35 @@ public class CMSIssuerAlternativeNameExtension implements ICMSCRLExtension,
 
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
-                // "type;choice(CRLExtension,CRLEntryExtension);"+
-                // "CRL Extension type. This field is not editable.",
+                //"type;choice(CRLExtension,CRLEntryExtension);"+
+                //"CRL Extension type. This field is not editable.",
                 "enable;boolean;Check to enable Issuer Alternative Name CRL extension.",
                 "critical;boolean;Set criticality for Issuer Alternative Name CRL extension.",
                 "numNames;number;Set number of alternative names for the CRL issuer.",
-                "nameType0;choice(" + PROP_RFC822_NAME + "," + PROP_DIR_NAME
-                        + "," + PROP_DNS_NAME + "," + PROP_EDI_NAME + ","
-                        + PROP_URI_NAME + "," + PROP_IP_NAME + ","
-                        + PROP_OID_NAME + "," + PROP_OTHER_NAME
-                        + ");Select Issuer Alternative Name type.",
+                "nameType0;choice(" + PROP_RFC822_NAME + "," + PROP_DIR_NAME + "," + PROP_DNS_NAME + "," +
+                PROP_EDI_NAME + "," + PROP_URI_NAME + "," + PROP_IP_NAME + "," + PROP_OID_NAME + "," +
+                PROP_OTHER_NAME + ");Select Issuer Alternative Name type.",
                 "name0;string;Enter Issuer Alternative Name corresponding to the selected name type.",
-                "nameType1;choice(" + PROP_RFC822_NAME + "," + PROP_DIR_NAME
-                        + "," + PROP_DNS_NAME + "," + PROP_EDI_NAME + ","
-                        + PROP_URI_NAME + "," + PROP_IP_NAME + ","
-                        + PROP_OID_NAME + "," + PROP_OTHER_NAME
-                        + ");Select Issuer Alternative Name type.",
+                "nameType1;choice(" + PROP_RFC822_NAME + "," + PROP_DIR_NAME + "," + PROP_DNS_NAME + "," +
+                PROP_EDI_NAME + "," + PROP_URI_NAME + "," + PROP_IP_NAME + "," + PROP_OID_NAME + "," +
+                PROP_OTHER_NAME + ");Select Issuer Alternative Name type.",
                 "name1;string;Enter Issuer Alternative Name corresponding to the selected name type.",
-                "nameType2;choice(" + PROP_RFC822_NAME + "," + PROP_DIR_NAME
-                        + "," + PROP_DNS_NAME + "," + PROP_EDI_NAME + ","
-                        + PROP_URI_NAME + "," + PROP_IP_NAME + ","
-                        + PROP_OID_NAME + "," + PROP_OTHER_NAME
-                        + ");Select Issuer Alternative Name type.",
+                "nameType2;choice(" + PROP_RFC822_NAME + "," + PROP_DIR_NAME + "," + PROP_DNS_NAME + "," +
+                PROP_EDI_NAME + "," + PROP_URI_NAME + "," + PROP_IP_NAME + "," + PROP_OID_NAME + "," +
+                PROP_OTHER_NAME + ");Select Issuer Alternative Name type.",
                 "name2;string;Enter Issuer Alternative Name corresponding to the selected name type.",
-                IExtendedPluginInfo.HELP_TOKEN
-                        + ";configuration-ca-edit-crlextension-issueralternativename",
-                IExtendedPluginInfo.HELP_TEXT
-                        + ";The issuer alternative names extension allows additional"
-                        + " identities to be associated with the issuer of the CRL." };
+                IExtendedPluginInfo.HELP_TOKEN +
+                ";configuration-ca-edit-crlextension-issueralternativename",
+                IExtendedPluginInfo.HELP_TEXT +
+                ";The issuer alternative names extension allows additional" +
+                " identities to be associated with the issuer of the CRL."
+            };
 
         return params;
     }
 
     private void log(int level, String msg) {
         mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_CA, level,
-                "CMSIssuerAlternativeNameExtension - " + msg);
+            "CMSIssuerAlternativeNameExtension - " + msg);
     }
-}
+} 

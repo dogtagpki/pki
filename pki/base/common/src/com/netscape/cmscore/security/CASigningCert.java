@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.security;
 
+
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.KeyPair;
@@ -33,6 +34,7 @@ import com.netscape.certsrv.common.ConfigConstants;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.security.KeyCertData;
 
+
 /**
  * CA signing certificate.
  * 
@@ -41,7 +43,8 @@ import com.netscape.certsrv.security.KeyCertData;
  */
 public class CASigningCert extends CertificateInfo {
 
-    public static final String SUBJECT_NAME = "CN=Certificate Authority, O=Netscape Communications, C=US";
+    public static final String SUBJECT_NAME = 
+        "CN=Certificate Authority, O=Netscape Communications, C=US";
 
     public CASigningCert(KeyCertData properties) {
         this(properties, null);
@@ -49,11 +52,15 @@ public class CASigningCert extends CertificateInfo {
 
     public CASigningCert(KeyCertData properties, KeyPair pair) {
         super(properties, pair);
-        /*
-         * included in console UI try { if (mProperties.get(Constants.PR_AKI) ==
-         * null) { mProperties.put(Constants.PR_AKI, Constants.FALSE); } } catch
-         * (Exception e) { mProperties.put(Constants.PR_AKI, Constants.FALSE); }
-         */
+        /* included in console UI
+        try {
+            if (mProperties.get(Constants.PR_AKI) == null) {
+                mProperties.put(Constants.PR_AKI, Constants.FALSE);
+            }
+        } catch (Exception e) {
+            mProperties.put(Constants.PR_AKI, Constants.FALSE);
+        }
+        */
         try {
             if (mProperties.get(Constants.PR_CERT_LEN) == null) {
                 mProperties.put(Constants.PR_CERT_LEN, "-1");
@@ -70,11 +77,15 @@ public class CASigningCert extends CertificateInfo {
             // "null" mean no BasicConstriant
             mProperties.put(Constants.PR_IS_CA, "null");
         }
-        /*
-         * included in console UI try { if (mProperties.get(Constants.PR_SKI) ==
-         * null) { mProperties.put(Constants.PR_SKI, Constants.FALSE); } } catch
-         * (Exception e) { mProperties.put(Constants.PR_SKI, Constants.FALSE); }
-         */
+        /* included in console UI
+        try {
+            if (mProperties.get(Constants.PR_SKI) == null) {
+                mProperties.put(Constants.PR_SKI, Constants.FALSE);
+            }
+        } catch (Exception e) {
+            mProperties.put(Constants.PR_SKI, Constants.FALSE);
+        }
+        */
     }
 
     public String getSubjectName() {
@@ -96,7 +107,7 @@ public class CASigningCert extends CertificateInfo {
             BigInteger P = new BigInteger(p);
             BigInteger Q = new BigInteger(q);
             BigInteger G = new BigInteger(g);
-            BigInteger pqgSeed = new BigInteger(seed);
+            BigInteger pqgSeed = new BigInteger(seed); 
             BigInteger pqgH = new BigInteger(H);
 
             return new PQGParams(P, Q, G, pqgSeed, counter, pqgH);
@@ -117,22 +128,20 @@ public class CASigningCert extends CertificateInfo {
         else if (keyType.equals("RSA"))
             alg = "SHA1withRSA";
         else
-            throw new EBaseException(CMS.getUserMessage(
-                    "CMS_BASE_ALG_NOT_SUPPORTED", keyType));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_ALG_NOT_SUPPORTED", keyType));
 
         cmsFileTmp.putString("ca.signing.defaultSigningAlgorithm", alg);
         if (tokenname.equals(Constants.PR_INTERNAL_TOKEN_NAME))
             cmsFileTmp.putString("ca.signing.cacertnickname", nickname);
         else
-            cmsFileTmp.putString("ca.signing.cacertnickname", tokenname + ":"
-                    + nickname);
+            cmsFileTmp.putString("ca.signing.cacertnickname",
+                tokenname + ":" + nickname);
         cmsFileTmp.commit(false);
     }
 
     public String getNickname() {
         String name = (String) mProperties.get(Constants.PR_NICKNAME);
-        String instanceName = (String) mProperties
-                .get(ConfigConstants.PR_CERT_INSTANCE_NAME);
+        String instanceName = (String) mProperties.get(ConfigConstants.PR_CERT_INSTANCE_NAME);
 
         if (name != null)
             return name;
@@ -153,3 +162,4 @@ public class CASigningCert extends CertificateInfo {
         return extension;
     }
 }
+

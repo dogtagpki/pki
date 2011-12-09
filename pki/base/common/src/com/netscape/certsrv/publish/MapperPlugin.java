@@ -17,23 +17,25 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.publish;
 
+
 import com.netscape.certsrv.base.Plugin;
+
 
 /**
  * This class represents a registered mapper plugin.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class MapperPlugin extends Plugin {
 
     /**
      * Constructs a MapperPlugin based on a name and a path.
-     * 
      * @param id Name of plugin.
      * @param path Classpath of plugin.
      */
-    public MapperPlugin(String id, String path) {
+    public MapperPlugin (String id, String path) {
         super(id, path);
     }
 }
+

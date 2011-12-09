@@ -17,45 +17,45 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.cert;
 
+
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.ISubsystem;
 
+
 /**
  * Interface for handling cross certs
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface ICrossCertPairSubsystem extends ISubsystem {
 
     /**
-     * "import" the CA cert cross-signed by another CA (potentially a bridge CA)
-     * into internal ldap db. If publishing is turned on, and if matches up a
-     * pair, then publish to publishing directory otherwise, leave in internal
-     * ldap db and wait for it's matching pair
-     * 
+     * "import" the CA cert cross-signed by another CA (potentially a
+     * bridge CA) into internal ldap db.
+     * If publishing is turned on, and 
+     * if matches up a pair, then publish to publishing directory
+     * otherwise, leave in internal ldap db and wait for it's matching 
+     * pair
      * @param certBytes binary byte array of the cert
-     * @exception EBaseException when certBytes conversion to X509 certificate
-     *                fails
+	 * @exception EBaseException when certBytes conversion to X509
+	 * certificate fails
      */
     public void importCert(byte[] certBytes) throws EBaseException;
 
     /**
      * publish all cert pairs, if publisher is on
-     * 
-     * @exception EBaseException when publishing fails
+	 * @exception EBaseException when publishing fails
      */
     public void publishCertPairs() throws EBaseException;
 
-    /**
-     * convert byte array to X509Certificate
-     * 
-     * @return X509Certificate the X509Certificate class representation of the
-     *         certificate byte array
-     * @exception CertificateException when conversion fails
-     */
-    public X509Certificate byteArray2X509Cert(byte[] certBytes)
-            throws CertificateException;
+	/**
+	 * convert byte array to X509Certificate
+	 * @return X509Certificate the X509Certificate class
+	 * representation of the certificate byte array
+	 * @exception CertificateException when conversion fails
+	 */
+    public X509Certificate byteArray2X509Cert(byte[] certBytes) throws CertificateException;
 }

@@ -20,10 +20,11 @@ package com.netscape.certsrv.template;
 import java.util.Vector;
 
 /**
- * This class represents a list of arguments that will be returned to the
- * end-user via the template framework.
+ * This class represents a list of arguments
+ * that will be returned to the end-user via
+ * the template framework.
  * <p>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class ArgList implements IArgValue {
@@ -38,16 +39,16 @@ public class ArgList implements IArgValue {
 
     /**
      * Adds an argument to the list.
-     * 
+     *
      * @param arg argument to be added
      */
     public void add(IArgValue arg) {
         mList.addElement(arg);
     }
 
-    /**
+    /** 
      * Returns the number of arguments in the list.
-     * 
+     *
      * @return size of the list
      */
     public int size() {
@@ -55,8 +56,9 @@ public class ArgList implements IArgValue {
     }
 
     /**
-     * Returns the argument at the given position Position starts from 0.
-     * 
+     * Returns the argument at the given position
+     * Position starts from 0.
+     *
      * @param pos position
      * @return argument
      */

@@ -20,19 +20,21 @@
 
 package com.netscape.cmscore.selftests;
 
+
 ///////////////////////
 // import statements //
 ///////////////////////
 
 import java.util.StringTokenizer;
 
+
 //////////////////////
 // class definition //
 //////////////////////
 
 /**
- * This class implements a single element in an ordered list of self test
- * instances.
+ * This class implements a single element in
+ * an ordered list of self test instances.
  * <P>
  * 
  * @author mharmsen
@@ -40,32 +42,32 @@ import java.util.StringTokenizer;
  * @version $Revision$, $Date$
  */
 public class SelfTestOrderedInstance {
-    // //////////////////////
+    ////////////////////////
     // default parameters //
-    // //////////////////////
+    ////////////////////////
 
     private static final String ELEMENT_DELIMITER = ":";
     private static final String CRITICAL = "critical";
 
-    // //////////////////////////////////////
+    ////////////////////////////////////////
     // SelfTestOrderedInstance parameters //
-    // //////////////////////////////////////
+    ////////////////////////////////////////
 
-    private String mInstanceName = null;
+    private String  mInstanceName = null;
     private boolean mCritical = false;
 
-    // ///////////////////
+    /////////////////////
     // default methods //
-    // ///////////////////
+    /////////////////////
 
     /**
-     * Constructs a single element within an ordered list of self tests. A
-     * "listElement" contains a string of the form "[instanceName]" or
+     * Constructs a single element within an ordered list of self tests.
+     * A "listElement" contains a string of the form "[instanceName]" or
      * "[instanceName]:critical".
      * <P>
-     * 
-     * @param listElement a string containing the "instanceName" and information
-     *            indictating whether or not the instance is "critical"
+     *
+     * @param listElement a string containing the "instanceName" and
+     * information indictating whether or not the instance is "critical"
      */
     public SelfTestOrderedInstance(String listElement) {
         // strip preceding/trailing whitespace
@@ -99,14 +101,14 @@ public class SelfTestOrderedInstance {
 
     }
 
-    // ///////////////////////////////////
+    /////////////////////////////////////
     // SelfTestOrderedInstance methods //
-    // ///////////////////////////////////
+    /////////////////////////////////////
 
     /**
      * Returns the name associated with this self test; may be null.
      * <P>
-     * 
+     *
      * @return instanceName of this self test
      */
     public String getSelfTestName() {
@@ -116,9 +118,9 @@ public class SelfTestOrderedInstance {
     /**
      * Returns the criticality associated with this self test.
      * <P>
-     * 
-     * @return true if failure of this self test is fatal when it is executed;
-     *         otherwise return false
+     *
+     * @return true if failure of this self test is fatal when
+     * it is executed; otherwise return false
      */
     public boolean isSelfTestCritical() {
         return mCritical;
@@ -127,10 +129,11 @@ public class SelfTestOrderedInstance {
     /**
      * Sets/resets the criticality associated with this self test.
      * <P>
-     * 
+     *
      * @param criticalMode the criticality of this self test
      */
     public void setSelfTestCriticalMode(boolean criticalMode) {
         mCritical = criticalMode;
     }
 }
+

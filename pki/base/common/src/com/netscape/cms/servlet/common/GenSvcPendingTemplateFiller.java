@@ -16,6 +16,7 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.common;
+ 
 
 import java.util.Locale;
 
@@ -24,9 +25,10 @@ import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.request.IRequest;
 
+
 /**
- * default Service Pending template filler
- * 
+ * default Service Pending template filler 
+ *
  * @version $Revision$, $Date$
  */
 public class GenSvcPendingTemplateFiller implements ICMSTemplateFiller {
@@ -36,15 +38,14 @@ public class GenSvcPendingTemplateFiller implements ICMSTemplateFiller {
     }
 
     /**
-     * fill error details and description if any.
-     * 
+     * fill error details and description if any. 
      * @param cmsReq CMS Request
      * @param authority this authority
      * @param locale locale of template.
      * @param e unexpected exception e. ignored.
      */
-    public CMSTemplateParams getTemplateParams(CMSRequest cmsReq,
-            IAuthority authority, Locale locale, Exception e) {
+    public CMSTemplateParams getTemplateParams(
+        CMSRequest cmsReq, IAuthority authority, Locale locale, Exception e) {
         IArgBlock fixed = CMS.createArgBlock();
         CMSTemplateParams params = new CMSTemplateParams(null, fixed);
 
@@ -62,8 +63,8 @@ public class GenSvcPendingTemplateFiller implements ICMSTemplateFiller {
                 fixed.set(ICMSTemplateFiller.REQUEST_ID, req.getRequestId());
 
                 // remote authority we're waiting for
-                String remoteAuthority = req
-                        .getExtDataInString(IRequest.REMOTE_SERVICE_AUTHORITY);
+                String remoteAuthority =
+                        req.getExtDataInString(IRequest.REMOTE_SERVICE_AUTHORITY);
 
                 if (remoteAuthority != null)
                     fixed.set(REMOTE_AUTHORITY, remoteAuthority);
@@ -71,8 +72,10 @@ public class GenSvcPendingTemplateFiller implements ICMSTemplateFiller {
         }
 
         // this authority
-        if (authority != null)
-            fixed.set(ICMSTemplateFiller.AUTHORITY, authority.getOfficialName());
+        if (authority != null) 
+            fixed.set(ICMSTemplateFiller.AUTHORITY, 
+                authority.getOfficialName());
         return params;
     }
 }
+

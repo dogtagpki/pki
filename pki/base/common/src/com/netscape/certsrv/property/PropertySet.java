@@ -20,33 +20,40 @@ package com.netscape.certsrv.property;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
+
 /**
  * A set of properties.
  */
 public class PropertySet {
 
-    private Hashtable mProperties = new Hashtable();
+  private Hashtable mProperties = new Hashtable();
 
-    public PropertySet() {
-    }
+  public PropertySet()
+  {
+  }
 
-    public void add(String name, IDescriptor desc) {
-        mProperties.put(name, desc);
-    }
+  public void add(String name, IDescriptor desc)
+  {
+     mProperties.put(name, desc);
+  }
 
-    public Enumeration getNames() {
-        return mProperties.keys();
-    }
+  public Enumeration getNames()
+  {
+    return mProperties.keys();
+  }
 
-    public IDescriptor getDescriptor(String name) {
-        return (IDescriptor) mProperties.get(name);
-    }
+  public IDescriptor getDescriptor(String name)
+  {
+    return (IDescriptor)mProperties.get(name);
+  }
 
-    public void remove(String name) {
-        mProperties.remove(name);
-    }
+  public void remove(String name)
+  {
+    mProperties.remove(name);
+  }
 
-    public int size() {
-        return mProperties.size();
-    }
+  public int size()
+  {
+    return mProperties.size();
+  }
 }

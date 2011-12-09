@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.kra;
 
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
@@ -28,6 +29,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.policy.GenericPolicyProcessor;
 import com.netscape.cmscore.util.Debug;
+
 
 /**
  * KRA Policy.
@@ -44,7 +46,7 @@ public class KRAPolicy implements IPolicy {
     }
 
     public void init(ISubsystem owner, IConfigStore config)
-            throws EBaseException {
+        throws EBaseException {
         mKRA = (IKeyRecoveryAuthority) owner;
         mConfig = config;
         mPolicies.init(mKRA, mConfig);
@@ -75,3 +77,4 @@ public class KRAPolicy implements IPolicy {
     }
 
 }
+

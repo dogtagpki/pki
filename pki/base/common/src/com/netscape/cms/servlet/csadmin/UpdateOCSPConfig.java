@@ -40,6 +40,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 import com.netscape.cmsutil.xml.XMLObject;
 
+
 public class UpdateOCSPConfig extends CMSServlet {
 
     /**
@@ -56,7 +57,6 @@ public class UpdateOCSPConfig extends CMSServlet {
 
     /**
      * initialize the servlet.
-     * 
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -81,18 +81,18 @@ public class UpdateOCSPConfig extends CMSServlet {
         AuthzToken authzToken = null;
 
         try {
-            authzToken = authorize(mAclMethod, authToken, mAuthzResourceName,
-                    "modify");
+            authzToken = authorize(mAclMethod, authToken, mAuthzResourceName, 
+                "modify");
         } catch (EAuthzAccessDenied e) {
             log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
             outputError(httpResp, "Error: Not authorized");
             return;
         } catch (Exception e) {
             log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
             outputError(httpResp,
-                    "Error: Encountered problem during authorization.");
+                "Error: Encountered problem during authorization.");
             return;
         }
         if (authzToken == null) {
@@ -107,38 +107,32 @@ public class UpdateOCSPConfig extends CMSServlet {
         try {
             nickname = cs.getString("ca.subsystem.nickname", "");
             String tokenname = cs.getString("ca.subsystem.tokenname", "");
-            if (!tokenname.equals("internal")
-                    && !tokenname.equals("Internal Key Storage Token"))
-                nickname = tokenname + ":" + nickname;
+            if (!tokenname.equals("internal") && !tokenname.equals("Internal Key Storage Token"))
+                nickname = tokenname+":"+nickname;
         } catch (Exception e) {
         }
 
-        CMS.debug("UpdateOCSPConfig process: nickname=" + nickname);
+        CMS.debug("UpdateOCSPConfig process: nickname="+nickname);
 
         String ocsphost = httpReq.getParameter("ocsp_host");
         String ocspport = httpReq.getParameter("ocsp_port");
         try {
             cs.putString("ca.publish.enable", "true");
-            cs.putString("ca.publish.publisher.instance.OCSPPublisher.host",
-                    ocsphost);
-            cs.putString("ca.publish.publisher.instance.OCSPPublisher.port",
-                    ocspport);
-            cs.putString(
-                    "ca.publish.publisher.instance.OCSPPublisher.nickName",
-                    nickname);
+            cs.putString("ca.publish.publisher.instance.OCSPPublisher.host", 
+              ocsphost);
+            cs.putString("ca.publish.publisher.instance.OCSPPublisher.port", 
+              ocspport);
+            cs.putString("ca.publish.publisher.instance.OCSPPublisher.nickName", 
+              nickname);
             cs.putString("ca.publish.publisher.instance.OCSPPublisher.path",
-                    "/ocsp/agent/ocsp/addCRL");
-            cs.putString(
-                    "ca.publish.publisher.instance.OCSPPublisher.pluginName",
-                    "OCSPPublisher");
-            cs.putString(
-                    "ca.publish.publisher.instance.OCSPPublisher.enableClientAuth",
-                    "true");
+              "/ocsp/agent/ocsp/addCRL");
+            cs.putString("ca.publish.publisher.instance.OCSPPublisher.pluginName", "OCSPPublisher");
+            cs.putString("ca.publish.publisher.instance.OCSPPublisher.enableClientAuth", "true");
             cs.putString("ca.publish.rule.instance.ocsprule.enable", "true");
             cs.putString("ca.publish.rule.instance.ocsprule.mapper", "NoMap");
             cs.putString("ca.publish.rule.instance.ocsprule.pluginName", "Rule");
-            cs.putString("ca.publish.rule.instance.ocsprule.publisher",
-                    "OCSPPublisher");
+            cs.putString("ca.publish.rule.instance.ocsprule.publisher", 
+              "OCSPPublisher");
             cs.putString("ca.publish.rule.instance.ocsprule.type", "crl");
             cs.commit(false);
             // insert info
@@ -153,28 +147,19 @@ public class UpdateOCSPConfig extends CMSServlet {
 
             outputResult(httpResp, "application/xml", cb);
         } catch (Exception e) {
-            CMS.debug("UpdateOCSPConfig: Failed to update OCSP configuration. Exception: "
-                    + e.toString());
+            CMS.debug("UpdateOCSPConfig: Failed to update OCSP configuration. Exception: "+e.toString());
             outputError(httpResp, "Error: Failed to update OCSP configuration.");
         }
     }
 
-    protected void setDefaultTemplates(ServletConfig sc) {
-    }
+    protected void setDefaultTemplates(ServletConfig sc) {}
 
-    protected void renderTemplate(CMSRequest cmsReq, String templateName,
-            ICMSTemplateFiller filler) throws IOException {// do nothing
-    }
+    protected void renderTemplate(
+            CMSRequest cmsReq, String templateName, ICMSTemplateFiller filler)
+        throws IOException {// do nothing
+    } 
 
-    protected void renderResult(CMSRequest cmsReq) throws IOException {// do
-                                                                       // nothing,
-                                                                       // ie, it
-                                                                       // will
-                                                                       // not
-                                                                       // return
-                                                                       // the
-                                                                       // default
-                                                                       // javascript.
+    protected void renderResult(CMSRequest cmsReq) throws IOException {// do nothing, ie, it will not return the default javascript.
     }
 
     /**

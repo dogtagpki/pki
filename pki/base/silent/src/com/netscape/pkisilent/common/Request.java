@@ -1,5 +1,4 @@
 package com.netscape.pkisilent.common;
-
 // --- BEGIN COPYRIGHT BLOCK ---
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -18,16 +17,20 @@ package com.netscape.pkisilent.common;
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
+
 import java.net.URLEncoder;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Vector;
 
+
+
 /**
- * CMS Test framework . Submits List,Approve,Reject,cancel requests to agent
- * port
+ * CMS Test framework .
+ * Submits List,Approve,Reject,cancel requests to agent port
  */
+
 
 public class Request extends TestClient {
 
@@ -35,7 +38,7 @@ public class Request extends TestClient {
     private String approveseqnum, type, reqType, reqState, agenttype;
     private int i;
 
-    // Program variables
+    // Program variables 
     private String ACTION_PROCESS_CERT_REQUEST = null;
     private String ACTION_LISTREQUEST = "/queryReq";
     private int reqtype = 1;
@@ -49,33 +52,29 @@ public class Request extends TestClient {
     private Vector<String> seqNum = new Vector<String>();
     private String AUTH_ID = null;
 
-    // Cert Detail variables
+    // Cert Detail variables 
 
-    private String csrRequestorName, csrRequestorPhone, csrRequestorEmail,
-            subject, subjectdn, reqStatus, certType;
-    private String requestType, requestID, sslclient, clientcert, servercert,
-            emailcert, objectsigningcert, sslcacert, objectsigningcacert,
-            emailcacert, sigAlgo, totalRecord, validitylength, trustedManager;
+    private String csrRequestorName, csrRequestorPhone, csrRequestorEmail, subject, subjectdn, reqStatus, certType;
+    private String requestType, requestID, sslclient, clientcert, servercert, emailcert, objectsigningcert, sslcacert, objectsigningcacert, emailcacert, sigAlgo, totalRecord, validitylength, trustedManager;
 
     private int totalNumApproved = 0;
 
-    // Constructors
+    // Constructors 
 
     /**
      * Constructor . Takes the parameter for Properties file name
-     * 
-     * @param propfileName name of the parameter file.
+     * @param propfileName                  name of the parameter file.
      */
+
 
     public Request(String pfile) {
         propfileName = pfile;
     }
 
     /**
-     * Constructor . Takes the parameter host , port and "angent type - ca/ra"
-     * 
+     * Constructor . Takes the parameter host , port and  "angent type - ca/ra"
      * @param hostname.
-     * @param port
+     * @param port 
      * @param agenttype Whether ca or ra agent
      */
 
@@ -86,10 +85,9 @@ public class Request extends TestClient {
     }
 
     /**
-     * Constructor . Takes the following parmaters
-     * 
-     * @param hostName .
-     * @param port
+     * Constructor .  Takes the following parmaters 
+     * @param hostName                 .
+     * @param port 
      * @param adminuid
      * @param adminpwd
      * @param agentcertnickname
@@ -99,15 +97,14 @@ public class Request extends TestClient {
      * @param ApproveSequenceNumberFrom
      * @param ApproveSequnceNumberTo
      * @param type
-     * @param reqtype enrollment/revoked
-     * @param requestState complete/pending
-     * @param agentType ra/ca
-     * @param trustedManager true/false
+     * @param reqtype	  enrollment/revoked
+     * @param requestState    complete/pending
+     * @param agentType 	  ra/ca
+     * @param trustedManager  true/false
      */
 
-    public Request(String h, String p, String aid, String apwd, String cname,
-            String cd, String ctpwd, String snum, String sfrom, String sto,
-            String ty, String rty, String rstate, String aty, String tm) {
+
+    public Request(String h, String p, String aid, String apwd, String cname, String cd, String ctpwd, String snum, String sfrom, String sto, String ty, String rty, String rstate, String aty, String tm) {
         host = h;
         ports = p;
         adminid = aid;
@@ -145,22 +142,19 @@ public class Request extends TestClient {
     }
 
     /**
-     * Set Agent Cert nick name
+     *  Set Agent Cert nick name 
      */
     public void setAgentCertName(String s) {
         certnickname = s;
     }
 
     /**
-     * List all pending enrollment request. Takes parameters
-     * fromRequestNumber,toRequestNumber
-     * 
-     * @param fromrequest number
+     * List all pending enrollment request. Takes parameters fromRequestNumber,toRequestNumber
+     * @param fromrequest number 
      * @param endrequestnumber.
      */
 
-    public Vector<String> ListPendingRequests(String fromRequestNumber,
-            String toRequestNumber) {
+    public Vector<String> ListPendingRequests(String fromRequestNumber, String toRequestNumber) {
         reqState = "showWaiting";
         reqType = "enrollment";
         approveseqnumFrom = fromRequestNumber;
@@ -170,15 +164,13 @@ public class Request extends TestClient {
     }
 
     /**
-     * List all pending request. Takes parameters
-     * fromRequestNumber,toRequestNumber
-     * 
-     * @param fromrequest number
+     * List all pending request. Takes parameters fromRequestNumber,toRequestNumber
+     * @param fromrequest number 
      * @param endrequestnumber.
      */
 
-    public Vector<String> ListAllRequests(String fromRequestNumber,
-            String toRequestNumber) {
+
+    public Vector<String> ListAllRequests(String fromRequestNumber, String toRequestNumber) {
         reqState = "showAll";
         reqType = "enrollment";
         approveseqnumFrom = fromRequestNumber;
@@ -189,9 +181,9 @@ public class Request extends TestClient {
 
     /**
      * Approve pending enrollment request. Takes parameters RequestNumber
-     * 
-     * @param request number
+     * @param request number 
      */
+
 
     public int ApproveRequests(String requestNumber) {
         reqState = "showWaiting";
@@ -209,10 +201,8 @@ public class Request extends TestClient {
     }
 
     /**
-     * Approve profile based pending enrollment request. Takes parameters
-     * RequestNumber
-     * 
-     * @param request number
+     * Approve profile based pending enrollment request. Takes parameters RequestNumber
+     * @param request number 
      */
 
     public int ApproveProfileRequests(String RequestNumber) {
@@ -231,25 +221,23 @@ public class Request extends TestClient {
 
     }
 
-    public boolean Approve_cadualcert_Profile_Request(String RequestNumber,
-            String name) {
-
+    public boolean Approve_cadualcert_Profile_Request(String RequestNumber, String name) {
+	
         approveseqnum = RequestNumber;
         approveseqnumFrom = RequestNumber;
         approveseqnumTo = RequestNumber;
 
         cadualcert_name = name;
 
-        // reqtype = 7 means cadualcert profile request
-        // this is just a convention that we follow within this file to
-        // distinguish
+        // reqtype = 7 means cadualcert profile request 
+        // this is just a convention that we follow within this file to distinguish
         // bet'n the different requests
 
         reqtype = 7;
 
         buildquery();
 
-        if (!Send()) {
+        if (!Send()) { 
             System.out.println("Error: Approving request " + approveseqnum);
             return false;
         }
@@ -259,11 +247,10 @@ public class Request extends TestClient {
     }
 
     /**
-     * Reject profile based pending enrollment request. Takes parameters
-     * RequestNumber
-     * 
-     * @param request number
+     * Reject profile based pending enrollment request. Takes parameters RequestNumber
+     * @param request number 
      */
+
 
     public int RejectProfileRequests(String RequestNumber) {
 
@@ -282,10 +269,8 @@ public class Request extends TestClient {
     }
 
     /**
-     * Cancel profile based pending enrollment request. Takes parameters
-     * RequestNumber
-     * 
-     * @param request number
+     * Cancel profile based pending enrollment request. Takes parameters RequestNumber
+     * @param request number 
      */
 
     public int CancelProfileRequests(String RequestNumber) {
@@ -304,7 +289,7 @@ public class Request extends TestClient {
 
     }
 
-    // private methods
+    // private  methods
     private boolean RetrieveProfileCancel(StringBuffer s) {
         String res = s.toString();
         int ret = 0;
@@ -369,21 +354,20 @@ public class Request extends TestClient {
             AUTH_ID = res.substring(ret + AUTHID.length() + 1,
                     res.indexOf(";", ret) - 1);
             while (ret > 0) {
-                if ((ret = res.indexOf(seqnum, ret)) > -1) {
-                    int bi = ret + seqnum.length() + 2;
+                if ((ret = res.indexOf(seqnum, ret)) > -1) {  
+                    int bi = ret + seqnum.length() + 2; 
                     int be = res.indexOf(";", ret) - 1;
 
                     seqNum.addElement(res.substring(bi, be));
                     ret++;
-                }
-
+                } 
+		   
             }
 
         }
 
         ret = res.indexOf("header.totalRecordCount =");
-        totalRecord = res.substring(
-                ret + "header.totalRecordCount = ".length(),
+        totalRecord = res.substring(ret + "header.totalRecordCount = ".length(),
                 res.indexOf(";", ret));
 
         return true;
@@ -406,26 +390,26 @@ public class Request extends TestClient {
             String cmp = "header.SERVER_ATTRS[" + t + "].name=";
 
             ret = res.indexOf(cmp);
-            if ((res.substring(ret + cmp.length() + 1,
-                    res.indexOf(";", ret) - 1)).equals("requestId")) {
+            if ((res.substring(ret + cmp.length() + 1, res.indexOf(";", ret) - 1)).equals(
+                    "requestId")) {
                 ret = res.indexOf("header.SERVER_ATTRS[" + t + "].value=");
                 requestID = res.substring(
                         ret + "header.SERVER_ATTRS[t].value=".length() + 1,
                         res.indexOf(";", ret) - 1);
             }
-            if ((res.substring(ret + cmp.length() + 1,
-                    res.indexOf(";", ret) - 1)).equals("requestStatus")) {
+            if ((res.substring(ret + cmp.length() + 1, res.indexOf(";", ret) - 1)).equals(
+                    "requestStatus")) {
                 ret = res.indexOf("header.SERVER_ATTRS[" + t + "].value=");
                 reqStatus = res.substring(
                         ret + "header.SERVER_ATTRS[t].value=".length() + 1,
                         res.indexOf(";", ret) - 1);
             }
 
-            if ((res.substring(ret + cmp.length() + 1,
-                    res.indexOf(";", ret) - 1)).equals("requestType")) {
+            if ((res.substring(ret + cmp.length() + 1, res.indexOf(";", ret) - 1)).equals(
+                    "requestType")) {
                 ret = res.indexOf("header.SERVER_ATTRS[" + t + "].value=");
-                requestType = res.substring(ret
-                        + "header.SERVER_ATTRS[t].value=".length() + 1,
+                requestType = res.substring(
+                        ret + "header.SERVER_ATTRS[t].value=".length() + 1,
                         res.indexOf(";", ret) - 1);
             }
 
@@ -438,8 +422,7 @@ public class Request extends TestClient {
         }
 
         if (!st) {
-            System.out.println("Error in retrieving the record "
-                    + approveseqnum);
+            System.out.println("Error in retrieving the record " + approveseqnum);
             return false;
         }
 
@@ -449,39 +432,39 @@ public class Request extends TestClient {
             String cmp = "header.HTTP_PARAMS[" + t + "].name=";
 
             ret = res.indexOf(cmp);
-            if ((res.substring(ret + cmp.length() + 1,
-                    res.indexOf(";", ret) - 1)).equals("csrRequestorEmail")) {
+            if ((res.substring(ret + cmp.length() + 1, res.indexOf(";", ret) - 1)).equals(
+                    "csrRequestorEmail")) {
                 ret = res.indexOf("header.HTTP_PARAMS[" + t + "].value=");
-                csrRequestorEmail = res.substring(ret
-                        + "header.HTTP_PARAMS[t].value=".length() + 1,
+                csrRequestorEmail = res.substring(
+                        ret + "header.HTTP_PARAMS[t].value=".length() + 1,
                         res.indexOf(";", ret) - 1);
             }
-            if ((res.substring(ret + cmp.length() + 1,
-                    res.indexOf(";", ret) - 1)).equals("csrRequestorPhone")) {
+            if ((res.substring(ret + cmp.length() + 1, res.indexOf(";", ret) - 1)).equals(
+                    "csrRequestorPhone")) {
                 ret = res.indexOf("header.HTTP_PARAMS[" + t + "].value=");
-                csrRequestorPhone = res.substring(ret
-                        + "header.HTTP_PARAMS[t].value=".length() + 1,
+                csrRequestorPhone = res.substring(
+                        ret + "header.HTTP_PARAMS[t].value=".length() + 1,
                         res.indexOf(";", ret) - 1);
             }
-            if ((res.substring(ret + cmp.length() + 1,
-                    res.indexOf(";", ret) - 1)).equals("csrRequestorName")) {
+            if ((res.substring(ret + cmp.length() + 1, res.indexOf(";", ret) - 1)).equals(
+                    "csrRequestorName")) {
                 ret = res.indexOf("header.HTTP_PARAMS[" + t + "].value=");
-                csrRequestorName = res.substring(ret
-                        + "header.HTTP_PARAMS[t].value=".length() + 1,
+                csrRequestorName = res.substring(
+                        ret + "header.HTTP_PARAMS[t].value=".length() + 1,
                         res.indexOf(";", ret) - 1);
             }
 
-            if ((res.substring(ret + cmp.length() + 1,
-                    res.indexOf(";", ret) - 1)).equals("subject")) {
+            if ((res.substring(ret + cmp.length() + 1, res.indexOf(";", ret) - 1)).equals(
+                    "subject")) {
                 ret = res.indexOf("header.HTTP_PARAMS[" + t + "].value=");
                 subjectdn = res.substring(
                         ret + "header.HTTP_PARAMS[t].value=".length() + 1,
                         res.indexOf(";", ret) - 1);
             }
 
-        } // end of for loop
+        } // end of for loop 
 
-        // System.out.println("Debug : Retrieving cert details");
+        // System.out.println("Debug : Retrieving cert details"); 
 
         ret = res.indexOf("header.subject =");
         if (ret > 0) {
@@ -497,6 +480,7 @@ public class Request extends TestClient {
                     res.indexOf(";", ret) - 1);
         }
         // System.out.println("Debug : Retrieving cert details ");
+
 
         ret = res.indexOf("header.ext_ssl_client =");
         if (ret > 0) {
@@ -524,8 +508,8 @@ public class Request extends TestClient {
 
         ret = res.indexOf("header.ext_object_signing =");
         if (ret > 0) {
-            objectsigningcert = res.substring(ret
-                    + "header.ext_object_signing = ".length() + 1,
+            objectsigningcert = res.substring(
+                    ret + "header.ext_object_signing = ".length() + 1,
                     res.indexOf(";", ret) - 1);
         }
 
@@ -533,8 +517,7 @@ public class Request extends TestClient {
 
         ret = res.indexOf("header.ext_ssl_ca =");
         if (ret > 0) {
-            sslcacert = res.substring(
-                    ret + "header.ext_ssl_ca = ".length() + 1,
+            sslcacert = res.substring(ret + "header.ext_ssl_ca = ".length() + 1,
                     res.indexOf(";", ret) - 1);
         }
 
@@ -543,16 +526,17 @@ public class Request extends TestClient {
         if (ret > 0) {
             ret = res.indexOf("header.ext_object_signing_ca=");
         }
-        objectsigningcacert = res.substring(ret
-                + "header.ext_object_signing_ca = ".length() + 1,
+        objectsigningcacert = res.substring(
+                ret + "header.ext_object_signing_ca = ".length() + 1,
                 res.indexOf(";", ret) - 1);
 
         // System.out.println("Debug : Retrieving cert details ");
 
         ret = res.indexOf("header.ext_email_ca =");
         if (ret > 0) {
-            emailcacert = res.substring(ret + "header.ext_email_ca = ".length()
-                    + 1, res.indexOf(";", ret) - 1);
+            emailcacert = res.substring(
+                    ret + "header.ext_email_ca = ".length() + 1,
+                    res.indexOf(";", ret) - 1);
         }
 
         // System.out.println("Debug : Retrieving cert details ");
@@ -590,7 +574,7 @@ public class Request extends TestClient {
             System.out.println(res);
         }
 
-        // Find th Server_ATTRS paramteter value of reqStatus
+        // Find th Server_ATTRS paramteter value of reqStatus 
 
         int i = 1;
         int ret;
@@ -599,21 +583,21 @@ public class Request extends TestClient {
             String cmp = "header.SERVER_ATTRS[" + t + "].name=";
 
             ret = res.indexOf(cmp);
-            if ((res.substring(ret + cmp.length() + 1,
-                    res.indexOf(";", ret) - 1)).equals("requestStatus")) {
+            if ((res.substring(ret + cmp.length() + 1, res.indexOf(";", ret) - 1)).equals(
+                    "requestStatus")) {
                 i = t;
                 break;
-            }
+            } 
 
         }
-
+ 
         String req = "header.SERVER_ATTRS[" + i + "].value=";
 
         ret = res.indexOf(req);
         reqStatus = res.substring(ret + req.length() + 1,
                 res.indexOf(";", ret) - 1);
 
-        if (reqStatus != null) {
+        if (reqStatus != null) {	
             reqStatus.toLowerCase();
             if (reqStatus.equals("complete")) {
                 return true;
@@ -643,7 +627,7 @@ public class Request extends TestClient {
             con.setQueryString(query);
             con.setActionURL(ACTION_STRING);
             con.Send();
-            StringBuffer s = new StringBuffer();
+            StringBuffer  s = new StringBuffer();
 
             s = con.getPage();
             String line;
@@ -661,7 +645,7 @@ public class Request extends TestClient {
                 break;
 
             case 3:
-                st = approveRequestStatus(s);
+                st = approveRequestStatus(s);	
                 break;
 
             case 4:
@@ -681,7 +665,7 @@ public class Request extends TestClient {
                 break;
 
             default:
-                System.out.println("reqtype not recognized");
+                System.out.println("reqtype not recognized");	
             }
         } catch (Exception e) {
             System.err.println("exception: in Send routine" + e);
@@ -701,7 +685,7 @@ public class Request extends TestClient {
             query += "&reqState=" + reqState;
 
         }
-
+	
         if (reqtype == 2) { // get cert details
             ACTION_PROCESS_CERT_REQUEST = "/" + AUTH_ID + "/processCertReq";
             ACTION_STRING = ACTION_PROCESS_CERT_REQUEST;
@@ -715,7 +699,7 @@ public class Request extends TestClient {
                 Integer x = new Integer(validityperiod);
 
                 validperiod = x.intValue();
-            } else {
+            } else { 
                 validperiod = 180;
             }
 
@@ -735,7 +719,7 @@ public class Request extends TestClient {
             if (csrRequestorPhone != null) {
                 query += "&csrRequestorPhone=" + csrRequestorPhone;
             }
-
+	
             if (csrRequestorEmail != null) {
                 query += "&csrRequestorEmail=" + csrRequestorEmail;
             }
@@ -762,7 +746,7 @@ public class Request extends TestClient {
                 query += "&certTypeSSLServer=" + servercert;
             }
 
-            if (emailcert.equals("true")) {
+            if (emailcert.equals("true")) {	
                 query += "&certTypeEmail=" + emailcert;
             }
 
@@ -774,15 +758,13 @@ public class Request extends TestClient {
 
         }
 
-        if ((reqtype == 4) || (reqtype == 5) || (reqtype == 6)) { // profile
-                                                                  // based cert
-                                                                  // request
+        if ((reqtype == 4) || (reqtype == 5) || (reqtype == 6)) { // profile based cert request
 
             if (validityperiod != null) {
                 Integer x = new Integer(validityperiod);
 
                 validperiod = x.intValue();
-            } else {
+            } else { 
                 validperiod = 180;
             }
 
@@ -790,8 +772,8 @@ public class Request extends TestClient {
             ACTION_STRING = ACTION_PROCESS_CERT_REQUEST;
             query = "requestId=" + approveseqnum;
             query += "&name="
-                    + URLEncoder
-                            .encode("UID=test,E=test,CN=test,OU=netscape,O=aol");
+                    + URLEncoder.encode(
+                            "UID=test,E=test,CN=test,OU=netscape,O=aol");
             query += "&keyUsageCritical=true";
             query += "&keyUsageDigitalSignature=true";
             query += "&keyUsageNonRepudiation=true";
@@ -827,9 +809,9 @@ public class Request extends TestClient {
             // Date begindate = begin.getTime();
             // Date enddate = end.getTime();
             String nb = begin.get(Calendar.YEAR) + "-"
-                    + begin.get(Calendar.MONTH) + "-"
-                    + begin.get(Calendar.DATE) + " " + begin.get(Calendar.HOUR)
-                    + ":" + begin.get(Calendar.MINUTE) + ":"
+                    + begin.get(Calendar.MONTH) + "-" + begin.get(Calendar.DATE)
+                    + " " + begin.get(Calendar.HOUR) + ":"
+                    + begin.get(Calendar.MINUTE) + ":"
                     + begin.get(Calendar.SECOND);
 
             String nat = end.get(Calendar.YEAR) + "-" + end.get(Calendar.MONTH)
@@ -868,9 +850,9 @@ public class Request extends TestClient {
             end.add(GregorianCalendar.DATE, validperiod);
 
             String nb = begin.get(Calendar.YEAR) + "-"
-                    + begin.get(Calendar.MONTH) + "-"
-                    + begin.get(Calendar.DATE) + " " + begin.get(Calendar.HOUR)
-                    + ":" + begin.get(Calendar.MINUTE) + ":"
+                    + begin.get(Calendar.MONTH) + "-" + begin.get(Calendar.DATE)
+                    + " " + begin.get(Calendar.HOUR) + ":"
+                    + begin.get(Calendar.MINUTE) + ":"
                     + begin.get(Calendar.SECOND);
 
             String nat = end.get(Calendar.YEAR) + "-" + end.get(Calendar.MONTH)
@@ -880,30 +862,28 @@ public class Request extends TestClient {
 
             query = "requestId=" + approveseqnum + "&name="
                     + URLEncoder.encode(cadualcert_name) + "&notBefore=" + nb
-                    + "&notAfter="
-                    + nat
-                    + "&authInfoAccessCritical=false"
-                    + "&authInfoAccessGeneralNames="
-                    + "&keyUsageCritical=true"
+                    + "&notAfter=" + nat + "&authInfoAccessCritical=false"
+                    + "&authInfoAccessGeneralNames=" + "&keyUsageCritical=true"
                     + "&keyUsageDigitalSignature=false"
                     + "&keyUsageNonRepudiation=false"
                     + "&keyUsageKeyEncipherment=true"
                     + "&keyUsageDataEncipherment=false"
                     + "&keyUsageKeyAgreement=false"
-                    + "&keyUsageKeyCertSign=false"
-                    + "&keyUsageCrlSign=false"
+                    + "&keyUsageKeyCertSign=false" + "&keyUsageCrlSign=false"
                     + "&keyUsageEncipherOnly=false"
-                    + "&keyUsageDecipherOnly=false"
-                    + /*
-                       * -- For Older CMS 6.x servers use these
-                       * "&nsCertCritical=false" + "&nsCertSSLClient=true" +
-                       * "&nsCertSSLServer=false" + "&nsCertEmail=true" +
-                       * "&nsCertObjectSigning=false" + "&nsCertSSLCA=false" +
-                       * "&nsCertEmailCA=false" + "&nsCertObjectSigningCA=false"
-                       * + "&subjAltNameExtCritical=false" +
-                       * "&subjAltNames=RFC822Name: null" +
-                       * "&signingAlg=MD5withRSA" +
-                       */// For newer CS 7.x servers use these
+                    + "&keyUsageDecipherOnly=false" + /* -- For Older CMS 6.x servers use these 
+                     "&nsCertCritical=false" + 
+                     "&nsCertSSLClient=true" + 
+                     "&nsCertSSLServer=false" + 
+                     "&nsCertEmail=true" + 
+                     "&nsCertObjectSigning=false" + 
+                     "&nsCertSSLCA=false" + 
+                     "&nsCertEmailCA=false" + 
+                     "&nsCertObjectSigningCA=false" + 
+                     "&subjAltNameExtCritical=false" +
+                     "&subjAltNames=RFC822Name: null" +
+                     "&signingAlg=MD5withRSA" +
+                     */ // For newer CS 7.x servers use these
                     "&exKeyUsageCritical=false"
                     + "&exKeyUsageOIDs=1.3.6.1.5.5.7.3.2,1.3.6.1.5.5.7.3.4"
                     + "&subjAltNameExtCritical=false"
@@ -912,7 +892,7 @@ public class Request extends TestClient {
                     + "&op=approve" + "&submit=submit";
 
         }
-
+			
     }
 
     private void readProperties() {
@@ -921,8 +901,8 @@ public class Request extends TestClient {
         try {
             getProperties(propfileName);
         } catch (Exception e) {
-            System.out.println("exception reading Properties File "
-                    + e.getMessage());
+            System.out.println(
+                    "exception reading Properties File " + e.getMessage());
         }
 
         // Read the properties file
@@ -988,14 +968,14 @@ public class Request extends TestClient {
             maxCount = 50;
         } else {
             maxCount = y.intValue() - x.intValue();
-        }
+        } 
         if (maxCount == 0) {
             maxCount = 1;
-        }
+        } 
 
         reqtype = 1;
         buildquery();
-        return (Send());
+        return(Send());
     }
 
     private boolean approveRequest() {
@@ -1009,20 +989,20 @@ public class Request extends TestClient {
             return false;
         }
 
-        if (approveseqnum.length() > 0) {
+        if (approveseqnum.length() > 0) { 
             if (seqNum.contains(approveseqnum)) {
                 seqNum.removeAllElements();
                 seqNum.addElement(approveseqnum);
             } else {
-                System.out.println(" Seq num " + approveseqnum
-                        + " already approved ");
+                System.out.println(
+                        " Seq num " + approveseqnum + " already approved ");
                 return false;
             }
         } else {
-            System.out
-                    .println(" Seq num not specified . Approving all pending request From : "
+            System.out.println(
+                    " Seq num not specified . Approving all pending request From : "
                             + approveseqnumFrom + " To : " + approveseqnumTo);
-        }
+        } 
 
         boolean flag = true;
 
@@ -1035,7 +1015,7 @@ public class Request extends TestClient {
             while (i < seqNum.size()) {
 
                 approveseqnum = (seqNum.elementAt(i)).toString();
-                // Get request details
+                // Get request details 
                 reqtype = 2;
                 buildquery();
                 if (!Send()) {
@@ -1043,43 +1023,44 @@ public class Request extends TestClient {
                     i++;
                     continue;
                 }
-
+ 
                 if (debug) {
-                    System.out.println(csrRequestorName + " "
-                            + csrRequestorPhone + " " + csrRequestorEmail + " "
-                            + requestID + " " + subject);
+                    System.out.println(
+                            csrRequestorName + " " + csrRequestorPhone + " "
+                            + csrRequestorEmail + " " + requestID + " "
+                            + subject);
                 }
-                // Now for pending status - approve the request
+                // Now for pending status -  approve the request
                 reqtype = 3;
                 buildquery();
                 if (!Send()) {
-                    System.out.println("Error: Approving request "
-                            + approveseqnum);
+                    System.out.println(
+                            "Error: Approving request " + approveseqnum); 
                     i++;
                     continue;
                 }
-                System.out
-                        .println("Request " + approveseqnum + " is approved ");
+                System.out.println("Request " + approveseqnum + " is approved ");
                 totalNumApproved++;
-                i++;
+                i++; 
             }
             Integer x = new Integer(approveseqnum);
 
-            if (x.intValue() >= torequest) {
+            if (x.intValue() >= torequest) {  
                 flag = false;
-            } else {
+            } else { 
                 listRequest(approveseqnum, approveseqnumTo);
             }
-
+	
         }
         return st;
     }
 
     /**
-     * Use this method when you need to use properties file.
+     * Use this method when you need to use properties file. 
      */
 
-    public int processRequest() {
+
+    public int  processRequest() {
         if (propfileName != null) {
             readProperties();
         }
@@ -1109,7 +1090,7 @@ public class Request extends TestClient {
                 } else {
                     return 0;
                 }
-            } else {
+            } else { 
                 return -1;
             }
 
@@ -1122,11 +1103,11 @@ public class Request extends TestClient {
         // Exit Status - (0) for error
         // - any number > 0 Pass
         int st = 0;
-
+  
         if (args.length < 1) {
             System.out.println("Usage : propertiesfile");
             System.exit(0);
-        }
+        }   
 
         Request t = new Request(args[0]);
 
@@ -1139,5 +1120,5 @@ public class Request extends TestClient {
 
     }// end of function main
 
-} // end of class
+} // end of class 
 

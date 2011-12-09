@@ -42,25 +42,32 @@ import org.mozilla.jss.ssl.SSLHandshakeCompletedListener;
 import org.mozilla.jss.ssl.SSLSocket;
 import org.mozilla.jss.util.Password;
 
+
 /**
  * This class implements a CMC Enroll client for testing.
- * 
+ *
  * @version $Revision$, $Date$
  */
-public class HttpClient {
+public class HttpClient
+{
     private String _host = null;
     private int _port = 0;
     private boolean _secure = false;
 
-    public static final int ARGC = 1;
-    static final int cipherSuites[] = { SSLSocket.SSL3_RSA_WITH_RC4_128_MD5,
+    public static final int    ARGC = 1;
+    static final int cipherSuites[] = {
+            SSLSocket.SSL3_RSA_WITH_RC4_128_MD5,
             SSLSocket.SSL3_RSA_WITH_3DES_EDE_CBC_SHA,
             SSLSocket.SSL3_RSA_WITH_DES_CBC_SHA,
             SSLSocket.SSL3_RSA_EXPORT_WITH_RC4_40_MD5,
             SSLSocket.SSL3_RSA_EXPORT_WITH_RC2_CBC_40_MD5,
-            SSLSocket.SSL3_RSA_WITH_NULL_MD5, 0 };
+            SSLSocket.SSL3_RSA_WITH_NULL_MD5,
+            0
+    };
 
-    public HttpClient(String host, int port, String secure) throws Exception {
+    public HttpClient(String host, int port, String secure) 
+         throws Exception
+    {
         _host = host;
         _port = port;
         if (secure.equals("true"))
@@ -74,79 +81,81 @@ public class HttpClient {
         long length = file.length();
 
         if (length > Integer.MAX_VALUE) {
-            throw new IOException("Input file " + filename
-                    + " is too large. Must be smaller than "
-                    + Integer.MAX_VALUE);
+            throw new IOException("Input file " + filename + 
+                " is too large. Must be smaller than " + Integer.MAX_VALUE);
         }
 
-        byte[] bytes = new byte[(int) length];
+        byte[] bytes = new byte[(int)length];
 
         int offset = 0;
         int numRead = 0;
         while (offset < bytes.length
-                && (numRead = is.read(bytes, offset, bytes.length - offset)) >= 0) {
+               && (numRead=is.read(bytes, offset, bytes.length-offset)) >= 0) {
             offset += numRead;
         }
 
         if (offset < bytes.length) {
-            throw new IOException("Could not completely read file " + filename);
+            throw new IOException("Could not completely read file "+filename);
         }
 
         is.close();
         return bytes;
     }
 
-    public void send(String ifilename, String ofilename, String dbdir,
-            String nickname, String password, String servlet, String clientmode)
-            throws Exception {
-        byte[] b = getBytesFromFile(ifilename);
 
-        System.out.println("Total number of bytes read = " + b.length);
+    public void send(String ifilename, String ofilename, String dbdir, 
+      String nickname, String password, String servlet, String clientmode) 
+         throws Exception
+    {
+        byte[] b = getBytesFromFile(ifilename); 
+
+        System.out.println("Total number of bytes read = "+b.length);
 
         DataOutputStream dos = null;
         InputStream is = null;
         if (_secure) {
             try {
-                CryptoManager.InitializationValues vals = new CryptoManager.InitializationValues(
-                        dbdir, "", "", "secmod.db");
+                CryptoManager.InitializationValues vals =
+                  new CryptoManager.InitializationValues(dbdir, "", "", "secmod.db");
                 CryptoManager.initialize(vals);
                 SSLSocket socket = new SSLSocket(_host, _port);
                 int i;
 
-                for (i = SSLSocket.SSL2_RC4_128_WITH_MD5; i <= SSLSocket.SSL2_RC2_128_CBC_EXPORT40_WITH_MD5; ++i) {
+                for (i = SSLSocket.SSL2_RC4_128_WITH_MD5;
+                    i <= SSLSocket.SSL2_RC2_128_CBC_EXPORT40_WITH_MD5; ++i) {
                     try {
                         socket.setCipherPreference(i, true);
-                    } catch (SocketException e) {
+                    } catch( SocketException e) {
                     }
                 }
-                // skip SSL_EN_IDEA_128_EDE3_CBC_WITH_MD5
-                for (i = SSLSocket.SSL2_DES_64_CBC_WITH_MD5; i <= SSLSocket.SSL2_DES_192_EDE3_CBC_WITH_MD5; ++i) {
-                    try {
+                //skip SSL_EN_IDEA_128_EDE3_CBC_WITH_MD5
+                for (i = SSLSocket.SSL2_DES_64_CBC_WITH_MD5;
+                    i <= SSLSocket.SSL2_DES_192_EDE3_CBC_WITH_MD5; ++i) {
+                    try { 
                         socket.setCipherPreference(i, true);
-                    } catch (SocketException e) {
+                    } catch( SocketException e) {
                     }
                 }
                 for (i = 0; cipherSuites[i] != 0; ++i) {
                     try {
                         socket.setCipherPreference(cipherSuites[i], true);
-                    } catch (SocketException e) {
+                    } catch( SocketException e) {
                     }
                 }
-                SSLHandshakeCompletedListener listener = new ClientHandshakeCB(
-                        this);
-                socket.addHandshakeCompletedListener(listener);
+                SSLHandshakeCompletedListener listener = new ClientHandshakeCB(this);
+                socket.addHandshakeCompletedListener(listener); 
 
                 if (clientmode != null && clientmode.equals("true")) {
                     CryptoManager cm = CryptoManager.getInstance();
                     CryptoToken token = cm.getInternalKeyStorageToken();
-                    Password pass = new Password(password.toCharArray());
+                    Password pass = new Password(password.toCharArray()); 
                     token.login(pass);
-                    CryptoStore store = token.getCryptoStore();
-                    X509Certificate cert = cm.findCertByNickname(nickname);
+                    CryptoStore store = token.getCryptoStore(); 
+                    X509Certificate cert = cm.findCertByNickname(nickname); 
                     if (cert == null)
-                        System.out.println("client cert is null");
+                        System.out.println("client cert is null"); 
                     else
-                        System.out.println("client cert is not null");
+                        System.out.println("client cert is not null"); 
                     socket.setUseClientMode(true);
                     socket.setClientCertNickname(nickname);
                 }
@@ -155,7 +164,7 @@ public class HttpClient {
                 dos = new DataOutputStream(socket.getOutputStream());
                 is = socket.getInputStream();
             } catch (Exception e) {
-                System.out.println("Exception: " + e.toString());
+                System.out.println("Exception: "+e.toString());
                 return;
             }
         } else {
@@ -164,17 +173,17 @@ public class HttpClient {
             is = socket.getInputStream();
         }
 
-        // send request
+        // send request 
         if (servlet == null) {
             System.out.println("Missing servlet name.");
             printUsage();
         } else {
-            String s = "POST " + servlet + " HTTP/1.0\r\n";
+            String s = "POST "+servlet+" HTTP/1.0\r\n";
             dos.writeBytes(s);
-        }
-        dos.writeBytes("Content-length: " + b.length + "\r\n");
-        dos.writeBytes("\r\n");
-        dos.write(b);
+        } 
+        dos.writeBytes("Content-length: " + b.length + "\r\n"); 
+        dos.writeBytes("\r\n"); 
+        dos.write(b); 
         dos.flush();
 
         FileOutputStream fof = new FileOutputStream(ofilename);
@@ -182,7 +191,8 @@ public class HttpClient {
         int sum = 0;
         boolean hack = false;
         try {
-            while (true) {
+            while (true)
+            {
                 int r = is.read();
                 if (r == -1)
                     break;
@@ -207,7 +217,7 @@ public class HttpClient {
         fof.close();
 
         byte[] bout = getBytesFromFile(ofilename);
-        System.out.println("Total number of bytes read = " + bout.length);
+        System.out.println("Total number of bytes read = "+ bout.length);
 
         ByteArrayOutputStream bs = new ByteArrayOutputStream();
         PrintStream ps = new PrintStream(bs);
@@ -215,8 +225,7 @@ public class HttpClient {
         System.out.println(bs.toString());
 
         System.out.println("");
-        System.out.println("The response in binary format is stored in "
-                + ofilename);
+        System.out.println("The response in binary format is stored in "+ofilename);
         System.out.println("");
     }
 
@@ -225,8 +234,7 @@ public class HttpClient {
         System.out.println("Usage: HttpClient <configuration file>");
         System.out.println("For example, HttpClient HttpClient.cfg");
         System.out.println("");
-        System.out
-                .println("The configuration file should look like as follows:");
+        System.out.println("The configuration file should look like as follows:");
         System.out.println("");
         System.out.println("#host: host name for the http server");
         System.out.println("host=host1.a.com");
@@ -234,36 +242,29 @@ public class HttpClient {
         System.out.println("#port: port number");
         System.out.println("port=1025");
         System.out.println("");
-        System.out
-                .println("#secure: true for secure connection, false for nonsecure connection");
+        System.out.println("#secure: true for secure connection, false for nonsecure connection");
         System.out.println("secure=false");
         System.out.println("");
-        System.out
-                .println("#input: full path for the enrollment request, the content must be in binary format");
+        System.out.println("#input: full path for the enrollment request, the content must be in binary format");
         System.out.println("input=/u/doc/cmcReqCRMFBin");
         System.out.println("");
-        System.out
-                .println("#output: full path for the response in binary format");
+        System.out.println("#output: full path for the response in binary format");
         System.out.println("output=/u/doc/cmcResp");
         System.out.println("");
-        System.out
-                .println("#dbdir: directory for cert8.db, key3.db and secmod.db");
+        System.out.println("#dbdir: directory for cert8.db, key3.db and secmod.db");
         System.out.println("#This parameter will be ignored if secure=false");
         System.out.println("dbdir=/u/smith/.netscape");
         System.out.println("");
-        System.out
-                .println("#clientmode: true for client authentication, false for no client authentication");
+        System.out.println("#clientmode: true for client authentication, false for no client authentication");
         System.out.println("#This parameter will be ignored if secure=false");
         System.out.println("clientmode=false");
         System.out.println("");
         System.out.println("#password: password for cert8.db");
-        System.out
-                .println("#This parameter will be ignored if secure=false and clientauth=false");
+        System.out.println("#This parameter will be ignored if secure=false and clientauth=false");
         System.out.println("password=");
         System.out.println("");
         System.out.println("#nickname: nickname for client certificate");
-        System.out
-                .println("#This parameter will be ignored if clientmode=false");
+        System.out.println("#This parameter will be ignored if clientmode=false");
         System.out.println("nickname=");
         System.out.println("");
         System.out.println("#servlet: servlet name");
@@ -272,16 +273,17 @@ public class HttpClient {
         System.exit(0);
     }
 
-    public static void main(String args[]) {
-        String host = null, portstr = null, secure = null, dbdir = null, nickname = null;
+    public static void main(String args[]) 
+    { 
+        String host = null, portstr = null, secure = null, dbdir = null, nickname = null ;
         String password = null, ofilename = null, ifilename = null;
         String servlet = null;
         String clientmode = null;
 
-        System.out.println("");
+        System.out.println(""); 
 
         // Check that the correct # of arguments were submitted to the program
-        if (args.length != (ARGC)) {
+        if( args.length != ( ARGC ) ) {
             System.out.println("Wrong number of parameters:" + args.length);
             printUsage();
         }
@@ -290,10 +292,10 @@ public class HttpClient {
         BufferedReader reader = null;
         try {
             reader = new BufferedReader(new InputStreamReader(
-                    new BufferedInputStream(new FileInputStream(configFile))));
+                            new BufferedInputStream(
+                                new FileInputStream(configFile))));
         } catch (FileNotFoundException e) {
-            System.out.println("HttpClient:  can't find configuration file: "
-                    + configFile);
+            System.out.println("HttpClient:  can't find configuration file: "+configFile);
             printUsage();
             System.exit(1);
         } catch (Exception e) {
@@ -312,7 +314,7 @@ public class HttpClient {
                         String name = tokenizer.nextToken();
                         String val = null;
                         if (tokenizer.countTokens() > 0)
-                            val = tokenizer.nextToken();
+                            val = tokenizer.nextToken(); 
                         if (name.equals("host")) {
                             host = val;
                         } else if (name.equals("port")) {
@@ -358,8 +360,7 @@ public class HttpClient {
         }
 
         if (ifilename == null) {
-            System.out
-                    .println("Missing input filename for the enrollment request.");
+            System.out.println("Missing input filename for the enrollment request.");
             printUsage();
         }
 
@@ -369,7 +370,7 @@ public class HttpClient {
         }
 
         int port = Integer.parseInt(portstr);
-
+ 
         if (secure != null && secure.equals("true")) {
             if (dbdir == null) {
                 System.out.println("Missing directory name for the cert7.db.");
@@ -382,17 +383,16 @@ public class HttpClient {
                     printUsage();
                 }
                 if (nickname == null) {
-                    System.out
-                            .println("Missing nickname for the client certificate");
+                    System.out.println("Missing nickname for the client certificate");
                     printUsage();
                 }
             }
         }
 
         try {
-            HttpClient client = new HttpClient(host, port, secure);
-            client.send(ifilename, ofilename, dbdir, nickname, password,
-                    servlet, clientmode);
+            HttpClient client = 
+               new HttpClient(host, port, secure);
+            client.send(ifilename, ofilename, dbdir, nickname, password, servlet, clientmode);
         } catch (Exception e) {
             System.out.println("Error: " + e.toString());
         }

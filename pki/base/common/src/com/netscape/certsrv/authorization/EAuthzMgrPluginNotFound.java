@@ -29,7 +29,6 @@ public class EAuthzMgrPluginNotFound extends EAuthzException {
 
     /**
      * Constructs a exception for a missing authorization plugin
-     * 
      * @param errorString Detailed error message.
      */
     public EAuthzMgrPluginNotFound(String errorString) {

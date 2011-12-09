@@ -22,9 +22,9 @@ import java.io.IOException;
 import netscape.security.util.DerOutputStream;
 
 /**
- * This interface specifies the abstract methods which have to be implemented by
- * all the members of the GeneralNames ASN.1 object.
- * 
+ * This interface specifies the abstract methods which have to be
+ * implemented by all the members of the GeneralNames ASN.1 object.
+ *
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  * @version 1.6
@@ -44,15 +44,17 @@ public interface GeneralNameInterface extends java.io.Serializable {
     public static final int NAME_OID = 8;
 
     /**
-     * Return the type of the general name, as defined above.
+     * Return the type of the general name, as
+     * defined above.
      */
     int getType();
 
     /**
      * Encode the name to the specified DerOutputStream.
-     * 
+     *
      * @param out the DerOutputStream to encode the GeneralName to.
-     * @exception IOException thrown if the GeneralName could not be encoded.
+     * @exception IOException thrown if the GeneralName could not be
+     *            encoded.
      */
     void encode(DerOutputStream out) throws IOException;
 }

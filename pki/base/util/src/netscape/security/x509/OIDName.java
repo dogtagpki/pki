@@ -24,9 +24,9 @@ import netscape.security.util.DerValue;
 import netscape.security.util.ObjectIdentifier;
 
 /**
- * This class implements the OIDName as required by the GeneralNames ASN.1
- * object.
- * 
+ * This class implements the OIDName as required by the GeneralNames
+ * ASN.1 object.
+ *
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  * @version 1.3
@@ -35,7 +35,7 @@ import netscape.security.util.ObjectIdentifier;
  * @see GeneralNameInterface
  */
 public class OIDName implements GeneralNameInterface {
-    /**
+     /**
      *
      */
     private static final long serialVersionUID = 9198510631835117121L;
@@ -43,7 +43,7 @@ public class OIDName implements GeneralNameInterface {
 
     /**
      * Create the OIDName object from the passed encoded Der value.
-     * 
+     *
      * @param derValue the encoded DER OIDName.
      * @exception IOException on error.
      */
@@ -53,7 +53,7 @@ public class OIDName implements GeneralNameInterface {
 
     /**
      * Create the OIDName object with the specified name.
-     * 
+     *
      * @param name the OIDName.
      */
     public OIDName(ObjectIdentifier oid) {
@@ -61,7 +61,7 @@ public class OIDName implements GeneralNameInterface {
     }
 
     public OIDName(String oid) {
-        this.oid = new ObjectIdentifier(oid);
+	this.oid = new ObjectIdentifier(oid);
     }
 
     /**
@@ -73,7 +73,7 @@ public class OIDName implements GeneralNameInterface {
 
     /**
      * Encode the OID name into the DerOutputStream.
-     * 
+     *
      * @param out the DER stream to encode the OIDName to.
      * @exception IOException on encoding errors.
      */

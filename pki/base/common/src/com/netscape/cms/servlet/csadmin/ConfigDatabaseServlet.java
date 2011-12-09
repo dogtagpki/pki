@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -26,6 +27,7 @@ import org.apache.velocity.context.Context;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
+
 
 public class ConfigDatabaseServlet extends ConfigBaseServlet {
 
@@ -45,8 +47,7 @@ public class ConfigDatabaseServlet extends ConfigBaseServlet {
 
         try {
             modified = cs.getString("preop.configDatabase.modified", "");
-        } catch (Exception e) {
-        }
+        } catch (Exception e) {}
 
         if (modified.equals("true")) {
             return true;
@@ -56,7 +57,8 @@ public class ConfigDatabaseServlet extends ConfigBaseServlet {
     }
 
     public void display(HttpServletRequest request,
-            HttpServletResponse response, Context context) {
+            HttpServletResponse response,
+            Context context) {
         String hostname = null;
         String portStr = null;
         String basedn = null;
@@ -73,8 +75,7 @@ public class ConfigDatabaseServlet extends ConfigBaseServlet {
                 basedn = cs.getString("internaldb.basedn", "");
                 binddn = cs.getString("internaldb.ldapauth.bindDN", "");
                 database = cs.getString("internaldb.database", "");
-            } catch (Exception e) {
-            }
+            } catch (Exception e) {}
         } else {
             hostname = HOST;
             portStr = PORT;
@@ -94,7 +95,8 @@ public class ConfigDatabaseServlet extends ConfigBaseServlet {
     }
 
     public void update(HttpServletRequest request,
-            HttpServletResponse response, Context context) {
+            HttpServletResponse response,
+            Context context) {
         IConfigStore cs = CMS.getConfigStore();
         String errorString = "";
         String hostname = request.getParameter("host");
@@ -111,7 +113,7 @@ public class ConfigDatabaseServlet extends ConfigBaseServlet {
             int port = -1;
 
             try {
-                port = Integer.parseInt(portStr);
+                port = Integer.parseInt(portStr); 
                 cs.putInteger("internaldb.ldapconn.port", port);
             } catch (Exception e) {
                 errorString = "Port is invalid";
@@ -157,7 +159,7 @@ public class ConfigDatabaseServlet extends ConfigBaseServlet {
                 CMS.debug("ConfigDatabaseServlet update: " + e.toString());
                 return;
             }
-            psStore.putString("internaldb", bindpwd);
+            psStore.putString("internaldb", bindpwd); 
         } else {
             errorString = "Bind password is empty string";
         }
@@ -183,11 +185,11 @@ public class ConfigDatabaseServlet extends ConfigBaseServlet {
     }
 
     public Template getTemplate(HttpServletRequest request,
-            HttpServletResponse response, Context context) {
+            HttpServletResponse response,
+            Context context) {
         try {
             return Velocity.getTemplate("admin/console/config/config_db.vm");
-        } catch (Exception e) {
-        }
+        } catch (Exception e) {}
         return null;
     }
 }

@@ -17,11 +17,14 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.publish;
 
-/**
- * Class that represents the result of a Ldap Mapping operation. certificate map
- * result: Represented by a mapped entry as a DN and whether entry has the
- * certificate.
- * 
+
+
+
+/** 
+ * Class that represents the result of a Ldap Mapping operation.
+ *  certificate map result: 
+ *  Represented by a mapped entry as a DN and whether entry has the certificate.
+ *
  * @version $Revision$ $Date$
  */
 public class LdapCertMapResult {
@@ -35,10 +38,9 @@ public class LdapCertMapResult {
         mDn = dn;
         mHasCert = hasCert;
     }
-
+	
     /**
      * Gets DN from the result.
-     * 
      * @return Distinguished Name.
      */
     public String getDn() {
@@ -47,7 +49,6 @@ public class LdapCertMapResult {
 
     /**
      * Gets whether the ldap entry had a certificate from result.
-     * 
      * @return true if cert is present, false otherwise.
      */
     public boolean hasCert() {

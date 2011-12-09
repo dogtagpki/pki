@@ -17,12 +17,14 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.notification;
 
+
 import com.netscape.certsrv.base.EBaseException;
+
 
 /**
  * A class represents a notification exception.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class ENotificationException extends EBaseException {
@@ -34,8 +36,7 @@ public class ENotificationException extends EBaseException {
     /**
      * Identity resource class name.
      */
-    private static final String NOTIFICATION_RESOURCES = NotificationResources.class
-            .getName();
+    private static final String NOTIFICATION_RESOURCES = NotificationResources.class.getName();
 
     /**
      * Constructs a notification exception

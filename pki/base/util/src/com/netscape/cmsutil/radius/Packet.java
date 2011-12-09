@@ -17,14 +17,17 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmsutil.radius;
 
+
+
+
 public abstract class Packet {
-    public static final int ACCESS_REQUEST = 1;
-    public static final int ACCESS_ACCEPT = 2;
-    public static final int ACCESS_REJECT = 3;
-    // public static final int ACCOUNTING_REQUEST = 4;
-    // public static final int ACCOUNTING_RESPONSE = 5;
+    public static final int ACCESS_REQUEST = 1; 
+    public static final int ACCESS_ACCEPT = 2; 
+    public static final int ACCESS_REJECT = 3; 
+    // public static final int ACCOUNTING_REQUEST = 4; 
+    // public static final int ACCOUNTING_RESPONSE = 5; 
     public static final int ACCESS_CHALLENGE = 11;
-    public static final int RESERVED = 255;
+    public static final int RESERVED = 255; 
 
     protected int _c = 0;
     protected short _id = 0;

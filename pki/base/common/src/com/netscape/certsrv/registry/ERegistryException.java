@@ -17,11 +17,13 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.registry;
 
+
 import com.netscape.certsrv.base.EBaseException;
+
 
 /**
  * This represents a registry exception.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class ERegistryException extends EBaseException {
@@ -33,7 +35,7 @@ public class ERegistryException extends EBaseException {
 
     /**
      * Constructs a registry exception.
-     * 
+     *
      * @param msg message carried along with the exception
      */
     public ERegistryException(String msg) {

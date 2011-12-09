@@ -33,19 +33,18 @@ public interface IWizardPanel {
     /**
      * Initializes this panel.
      */
-    public void init(ServletConfig config, int panelno) throws ServletException;
+    public void init(ServletConfig config, int panelno) 
+                 throws ServletException;
 
-    public void init(WizardServlet servlet, ServletConfig config, int panelno,
-            String id) throws ServletException;
+    public void init(WizardServlet servlet, ServletConfig config, 
+                     int panelno, String id) throws ServletException;
 
     public String getName();
 
     public int getPanelNo();
 
     public void setId(String id);
-
     public String getId();
-
     public PropertySet getUsage();
 
     /**
@@ -84,23 +83,25 @@ public interface IWizardPanel {
      * Display the panel.
      */
     public void display(HttpServletRequest request,
-            HttpServletResponse response, Context context);
-
+                            HttpServletResponse response,
+                            Context context );
     /**
      * Checks if the given parameters are valid.
      */
     public void validate(HttpServletRequest request,
-            HttpServletResponse response, Context context) throws IOException;
+                            HttpServletResponse response,
+                            Context context ) throws IOException;
 
     /**
      * Commit parameter changes
      */
     public void update(HttpServletRequest request,
-            HttpServletResponse response, Context context) throws IOException;
-
+                          HttpServletResponse response,
+                          Context context ) throws IOException;
     /**
      * If validiate() returns false, this method will be called.
      */
     public void displayError(HttpServletRequest request,
-            HttpServletResponse response, Context context);
+                            HttpServletResponse response,
+                            Context context);
 }

@@ -17,12 +17,15 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.base;
 
+
 import java.util.ListResourceBundle;
 
+
 /**
- * A class represents a resource bundle for the entire system.
+ * A class represents a resource bundle for the entire
+ * system.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  * @see java.util.ListResourceBundle
  */
@@ -36,7 +39,8 @@ public class BaseResources extends ListResourceBundle {
     }
 
     /*
-     * Constants. The suffix represents the number of possible parameters.
+     * Constants. The suffix represents the number of
+     * possible parameters.
      */
 
     static final Object[][] contents = {};

@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.cert;
 
+
 import java.security.cert.CertificateException;
 import java.util.Enumeration;
 
@@ -37,6 +38,7 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.cmscore.util.Debug;
 
+
 /**
  * 
  * @author stevep
@@ -45,7 +47,7 @@ import com.netscape.cmscore.util.Debug;
 public class OidLoaderSubsystem implements ISubsystem {
 
     private IConfigStore mConfig = null;
-    public static final String ID = "oidmap";
+    public  static final String ID = "oidmap";
     private String mId = ID;
 
     private static final String PROP_OID = "oid";
@@ -75,51 +77,61 @@ public class OidLoaderSubsystem implements ISubsystem {
     public static OidLoaderSubsystem getInstance() {
         return mInstance;
     }
-
+	
     private static final int CertType_data[] = { 2, 16, 840, 1, 113730, 1, 1 };
 
     /**
      * Identifies the particular public key used to sign the certificate.
      */
-    public static final ObjectIdentifier CertType_Id = new ObjectIdentifier(
-            CertType_data);
+    public static final ObjectIdentifier CertType_Id = new
+        ObjectIdentifier(CertType_data);
 
     private static final String[][] oidMapEntries = new String[][] {
-            { NSCertTypeExtension.class.getName(), CertType_Id.toString(),
-                    NSCertTypeExtension.NAME },
-            { CertificateRenewalWindowExtension.class.getName(),
-                    CertificateRenewalWindowExtension.ID.toString(),
-                    CertificateRenewalWindowExtension.NAME },
-            { CertificateScopeOfUseExtension.class.getName(),
-                    CertificateScopeOfUseExtension.ID.toString(),
-                    CertificateScopeOfUseExtension.NAME },
-            { DeltaCRLIndicatorExtension.class.getName(),
-                    DeltaCRLIndicatorExtension.OID,
-                    DeltaCRLIndicatorExtension.NAME },
-            { HoldInstructionExtension.class.getName(),
-                    HoldInstructionExtension.OID, HoldInstructionExtension.NAME },
-            { InvalidityDateExtension.class.getName(),
-                    InvalidityDateExtension.OID, InvalidityDateExtension.NAME },
-            { IssuingDistributionPointExtension.class.getName(),
-                    IssuingDistributionPointExtension.OID,
-                    IssuingDistributionPointExtension.NAME },
-            { FreshestCRLExtension.class.getName(), FreshestCRLExtension.OID,
-                    FreshestCRLExtension.NAME }, };
+            {NSCertTypeExtension.class.getName(),
+                CertType_Id.toString(),
+                NSCertTypeExtension.NAME},
+            {CertificateRenewalWindowExtension.class.getName(),
+                CertificateRenewalWindowExtension.ID.toString(),
+                CertificateRenewalWindowExtension.NAME},
+            {CertificateScopeOfUseExtension.class.getName(),
+                CertificateScopeOfUseExtension.ID.toString(),
+                CertificateScopeOfUseExtension.NAME},
+            {DeltaCRLIndicatorExtension.class.getName(),
+                DeltaCRLIndicatorExtension.OID,
+                DeltaCRLIndicatorExtension.NAME},
+            {HoldInstructionExtension.class.getName(),
+                HoldInstructionExtension.OID,
+                HoldInstructionExtension.NAME},
+            {InvalidityDateExtension.class.getName(),
+                InvalidityDateExtension.OID,
+                InvalidityDateExtension.NAME},
+            {IssuingDistributionPointExtension.class.getName(),
+                IssuingDistributionPointExtension.OID,
+                IssuingDistributionPointExtension.NAME},
+            {FreshestCRLExtension.class.getName(),
+                FreshestCRLExtension.OID,
+                FreshestCRLExtension.NAME},
+        };
 
     /**
-     * Initializes this subsystem with the given configuration store. It first
-     * initializes resident subsystems, and it loads and initializes loadable
-     * subsystem specified in the configuration store.
+     * Initializes this subsystem with the given 
+     * configuration store.
+     * It first initializes resident subsystems,
+     * and it loads and initializes loadable
+     * subsystem specified in the configuration
+     * store.
      * <P>
-     * Note that individual subsystem should be initialized in a separated
-     * thread if it has dependency on the initialization of other subsystems.
+     * Note that individual subsystem should be
+     * initialized in a separated thread if
+     * it has dependency on the initialization
+     * of other subsystems.
      * <P>
-     * 
+     *
      * @param owner owner of this subsystem
      * @param config configuration store
      */
     public synchronized void init(ISubsystem owner, IConfigStore config)
-            throws EBaseException {
+        throws EBaseException {
         if (Debug.ON) {
             Debug.trace("OIDLoaderSubsystem started");
         }
@@ -131,8 +143,9 @@ public class OidLoaderSubsystem implements ISubsystem {
 
         for (int i = 0; i < oidMapEntries.length; i++) {
             try {
-                OIDMap.addAttribute(oidMapEntries[i][0], oidMapEntries[i][1],
-                        oidMapEntries[i][2]);
+                OIDMap.addAttribute(oidMapEntries[i][0],
+                    oidMapEntries[i][1],
+                    oidMapEntries[i][2]);
             } catch (Exception e) {
             }
         }
@@ -147,7 +160,9 @@ public class OidLoaderSubsystem implements ISubsystem {
                 String oidname = substore.getString(PROP_OID);
                 String classname = substore.getString(PROP_CLASS);
 
-                OIDMap.addAttribute(classname, oidname, substorename);
+                OIDMap.addAttribute(classname,
+                    oidname,
+                    substorename);
             } catch (EPropertyNotFound e) {
                 // Log error
             } catch (CertificateException e) {
@@ -166,8 +181,9 @@ public class OidLoaderSubsystem implements ISubsystem {
     }
 
     /*
-     * Returns the root configuration storage of this system. <P>
-     * 
+     * Returns the root configuration storage of this system.
+     * <P>
+     *
      * @return configuration store of this subsystem
      */
     public IConfigStore getConfigStore() {

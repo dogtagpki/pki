@@ -17,14 +17,16 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.util;
 
+
 import java.util.Locale;
 
 import com.netscape.certsrv.base.MessageFormatter;
 
+
 /**
- * This object is used to easily create I18N messages for utility classes and
- * standalone programs.
- * 
+ * This object is used to easily create I18N messages for utility
+ * classes and standalone programs.
+ *
  * @author mikep
  * @version $Revision$, $Date$
  * @see com.netscape.certsrv.base.MessageFormatter
@@ -44,7 +46,7 @@ public class UtilMessage {
     /**
      * Constructs a message event
      * <P>
-     * 
+     *
      * @param msgFormat the message string
      */
     public UtilMessage(String msgFormat) {
@@ -54,12 +56,11 @@ public class UtilMessage {
 
     /**
      * Constructs a message with a parameter. For example,
-     * 
      * <PRE>
-     * new UtilMessage(&quot;failed to load {0}&quot;, fileName);
+     * 		new UtilMessage("failed to load {0}", fileName);
      * </PRE>
      * <P>
-     * 
+     *
      * @param msgFormat details in message string format
      * @param param message string parameter
      */
@@ -70,9 +71,9 @@ public class UtilMessage {
     }
 
     /**
-     * Constructs a message from an exception. It can be used to carry a system
-     * exception that may contain information about the context. For example,
-     * 
+     * Constructs a message from an exception. It can be used to carry
+     * a system exception that may contain information about
+     * the context. For example,
      * <PRE>
      * 		try {
      *  		...
@@ -81,7 +82,7 @@ public class UtilMessage {
      *      }
      * </PRE>
      * <P>
-     * 
+     *
      * @param msgFormat exception details in message string format
      * @param exception system exception
      */
@@ -94,7 +95,6 @@ public class UtilMessage {
     /**
      * Constructs a message from a base exception. This will use the msgFormat
      * from the exception itself.
-     * 
      * <PRE>
      * 		try {
      *  		...
@@ -103,7 +103,7 @@ public class UtilMessage {
      *      }
      * </PRE>
      * <P>
-     * 
+     *
      * @param exception CMS exception
      */
     public UtilMessage(Exception e) {
@@ -113,10 +113,10 @@ public class UtilMessage {
     }
 
     /**
-     * Constructs a message event with a list of parameters that will be
-     * substituted into the message format.
+     * Constructs a message event with a list of parameters
+     * that will be substituted into the message format.
      * <P>
-     * 
+     *
      * @param msgFormat message string format
      * @param params list of message format parameters
      */
@@ -128,7 +128,7 @@ public class UtilMessage {
     /**
      * Returns the current message format string.
      * <P>
-     * 
+     *
      * @return details message
      */
     public String getMessage() {
@@ -138,7 +138,7 @@ public class UtilMessage {
     /**
      * Returns a list of parameters.
      * <P>
-     * 
+     *
      * @return list of message format parameters
      */
     public Object[] getParameters() {
@@ -146,10 +146,10 @@ public class UtilMessage {
     }
 
     /**
-     * Returns localized message string. This method should only be called if a
-     * localized string is necessary.
+     * Returns localized message string. This method should
+     * only be called if a localized string is necessary.
      * <P>
-     * 
+     *
      * @return details message
      */
     public String toString() {
@@ -159,18 +159,19 @@ public class UtilMessage {
     /**
      * Returns the string based on the given locale.
      * <P>
-     * 
+     *
      * @param locale locale
      * @return details message
      */
     public String toString(Locale locale) {
         return MessageFormatter.getLocalizedString(locale, getBundleName(),
-                getMessage(), getParameters());
+                getMessage(),
+                getParameters());
     }
 
     /**
-     * Gets the resource bundle name for this class instance. This should be
-     * overridden by subclasses who have their own resource bundles.
+     * Gets the resource bundle name for this class instance.  This should
+     * be overridden by subclasses who have their own resource bundles.
      */
     protected String getBundleName() {
         return mBundleName;

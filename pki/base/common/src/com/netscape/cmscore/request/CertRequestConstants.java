@@ -17,13 +17,15 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.request;
 
+
 /**
- * temporary location for cert request constants. XXX we really need to
- * centralize all these but for now they are here as needed.
+ * temporary location for cert request constants. 
+ * XXX we really need to centralize all these but for now they are here
+ * as needed.
  */
 public class CertRequestConstants {
-    // request types - these have string values.
-    // made to match policy constants.
+    // request types - these have string values. 
+    // made to match policy constants. 
     public final static String GETCRL_REQUEST = "getCRL";
     public final static String GETCACHAIN_REQUEST = "getCAChain";
     public final static String GETREVOCATIONINFO_REQUEST = "getRevocationInfo";
@@ -49,7 +51,7 @@ public class CertRequestConstants {
     // this has a CRLExtensions value.
     public final static String CRLEXTS = "CRLExts";
 
-    // this has a String value - it is either null or set.
+    // this has a String value - it is either null or set. 
     public final static String DOGETCACHAIN = "doGetCAChain";
 
     // this has a CertificateChain value.
@@ -62,7 +64,7 @@ public class CertRequestConstants {
     public final static String CERTIFICATE = "certificate";
 
     // this is an array of EBaseException for service errors when
-    // there's an error processing an array of something such as
+    // there's an error processing an array of something such as 
     // certs to renew, certs to revoke, etc.
     public final static String SVCERRORS = "serviceErrors";
 

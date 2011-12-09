@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.publish;
 
+
 import java.util.Vector;
 
 import netscape.ldap.LDAPConnection;
@@ -24,9 +25,10 @@ import netscape.ldap.LDAPConnection;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.request.IRequest;
 
-/**
- * Interface for mapping a X509 certificate to a LDAP entry.
- * 
+
+/** 
+ * Interface for mapping a X509 certificate to a LDAP entry. 
+ *
  * @version $Revision$ $Date$
  */
 public interface ILdapMapper extends ILdapPlugin {
@@ -52,24 +54,28 @@ public interface ILdapMapper extends ILdapPlugin {
     public Vector<String> getInstanceParams();
 
     /**
-     * maps a certificate to a LDAP entry. returns dn of the mapped LDAP entry.
-     * 
+     * maps a certificate to a LDAP entry.
+     * returns dn of the mapped LDAP entry.
      * @param conn the LDAP connection
      * @param obj the object to map
      * @return dn indicates whether a mapping was successful
      * @exception ELdapException Map operation failed.
      */
-    public String map(LDAPConnection conn, Object obj) throws ELdapException;
+    public String 
+    map(LDAPConnection conn, Object obj)
+        throws ELdapException;
 
     /**
-     * maps a certificate to a LDAP entry. returns dn of the mapped LDAP entry.
-     * 
+     * maps a certificate to a LDAP entry.
+     * returns dn of the mapped LDAP entry.
      * @param conn the LDAP connection
-     * @param r the request to map
-     * @param obj the object to map
+     * @param r    the request to map
+     * @param obj  the object to map
      * @return dn indicates whether a mapping was successful
      * @exception ELdapException Map operation failed.
      */
-    public String map(LDAPConnection conn, IRequest r, Object obj)
-            throws ELdapException;
+    public String 
+    map(LDAPConnection conn, IRequest r, Object obj)
+        throws ELdapException;
 }
+

@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.def;
 
+
 import java.io.ByteArrayInputStream;
 import java.util.Locale;
 
@@ -34,10 +35,12 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 
+
 /**
- * This class implements an enrollment default policy that populates a
- * user-supplied signing algorithm into the certificate template.
- * 
+ * This class implements an enrollment default policy
+ * that populates a user-supplied signing algorithm
+ * into the certificate template.
+ *
  * @version $Revision$, $Date$
  */
 public class UserSigningAlgDefault extends EnrollDefault {
@@ -50,70 +53,72 @@ public class UserSigningAlgDefault extends EnrollDefault {
     }
 
     public void init(IProfile profile, IConfigStore config)
-            throws EProfileException {
+        throws EProfileException {
         super.init(profile, config);
     }
 
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         if (name.equals(VAL_ALG_ID)) {
-            return new Descriptor(IDescriptor.STRING, IDescriptor.READONLY,
-                    null, CMS.getUserMessage(locale,
-                            "CMS_PROFILE_SIGNING_ALGORITHM"));
+            return new Descriptor(IDescriptor.STRING, 
+                    IDescriptor.READONLY, null,
+                    CMS.getUserMessage(locale,
+                        "CMS_PROFILE_SIGNING_ALGORITHM"));
         } else {
             return null;
         }
     }
 
-    public void setValue(String name, Locale locale, X509CertInfo info,
-            String value) throws EPropertyException {
+    public void setValue(String name, Locale locale,
+        X509CertInfo info, String value)
+        throws EPropertyException {
         // this default rule is readonly
     }
 
-    public String getValue(String name, Locale locale, X509CertInfo info)
-            throws EPropertyException {
+    public String getValue(String name, Locale locale,
+        X509CertInfo info)
+        throws EPropertyException {
         if (name == null) {
-            throw new EPropertyException(CMS.getUserMessage(locale,
-                    "CMS_INVALID_PROPERTY", name));
+            throw new EPropertyException(CMS.getUserMessage(
+                        locale, "CMS_INVALID_PROPERTY", name));
         }
         if (name.equals(VAL_ALG_ID)) {
             CertificateAlgorithmId algID = null;
 
             try {
-                algID = (CertificateAlgorithmId) info
-                        .get(X509CertInfo.ALGORITHM_ID);
-                AlgorithmId id = (AlgorithmId) algID
-                        .get(CertificateAlgorithmId.ALGORITHM);
+                algID = (CertificateAlgorithmId)
+                        info.get(X509CertInfo.ALGORITHM_ID);
+                AlgorithmId id = (AlgorithmId)
+                    algID.get(CertificateAlgorithmId.ALGORITHM);
 
                 return id.toString();
             } catch (Exception e) {
                 CMS.debug("UserSigningAlgDefault: setValue " + e.toString());
-                return ""; // XXX
+                return ""; //XXX
             }
         } else {
-            throw new EPropertyException(CMS.getUserMessage(locale,
-                    "CMS_INVALID_PROPERTY", name));
+            throw new EPropertyException(CMS.getUserMessage(
+                        locale, "CMS_INVALID_PROPERTY", name));
         }
     }
 
     public String getText(Locale locale) {
-        return CMS.getUserMessage(locale,
-                "CMS_PROFILE_DEF_USER_SIGNING_ALGORITHM");
+        return CMS.getUserMessage(locale, "CMS_PROFILE_DEF_USER_SIGNING_ALGORITHM");
     }
 
     /**
      * Populates the request with this policy default.
      */
     public void populate(IRequest request, X509CertInfo info)
-            throws EProfileException {
+        throws EProfileException {
         CertificateAlgorithmId certAlg = null;
         // authenticate the certificate key, and move
         // the key from request into x509 certinfo
         try {
-            byte[] certAlgData = request
-                    .getExtDataInByteArray(IEnrollProfile.REQUEST_SIGNING_ALGORITHM);
+            byte[] certAlgData = request.getExtDataInByteArray(
+                    IEnrollProfile.REQUEST_SIGNING_ALGORITHM);
             if (certAlgData != null) {
-                certAlg = new CertificateAlgorithmId(new ByteArrayInputStream(
-                        certAlgData));
+                certAlg = new CertificateAlgorithmId(
+                        new ByteArrayInputStream(certAlgData));
             }
             info.set(X509CertInfo.ALGORITHM_ID, certAlg);
         } catch (Exception e) {

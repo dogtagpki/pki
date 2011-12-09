@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.key;
 
+
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Locale;
@@ -44,9 +45,11 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 
+
 /**
- * Display a Specific Key Archival Request, and initiate key recovery process
- * 
+ * Display a Specific Key Archival Request, and initiate
+ * key recovery process
+ *
  * @version $Revision$, $Date$
  */
 public class DisplayBySerialForRecovery extends CMSServlet {
@@ -77,7 +80,7 @@ public class DisplayBySerialForRecovery extends CMSServlet {
     /**
      * initialize the servlet. This servlet uses the template file
      * "displayBySerialForRecovery.template" to process the response.
-     * 
+     *
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -92,17 +95,17 @@ public class DisplayBySerialForRecovery extends CMSServlet {
     /**
      * Returns serlvet information.
      */
-    public String getServletInfo() {
-        return INFO;
+    public String getServletInfo() { 
+        return INFO; 
     }
 
     /**
      * Process the HTTP request.
      * <ul>
-     * <li>http.param serialNumber request ID of key archival request
-     * <li>http.param publicKeyData
+     * <li>http.param serialNumber  request ID of key archival request
+     * <li>http.param publicKeyData  
      * </ul>
-     * 
+     *
      * @param cmsReq the object holding the request and response information
      */
     public void process(CMSRequest cmsReq) throws EBaseException {
@@ -114,14 +117,14 @@ public class DisplayBySerialForRecovery extends CMSServlet {
         AuthzToken authzToken = null;
 
         try {
-            authzToken = authorize(mAclMethod, authToken, mAuthzResourceName,
-                    "read");
+            authzToken = authorize(mAclMethod, authToken,
+                        mAuthzResourceName, "read");
         } catch (EAuthzAccessDenied e) {
             log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
         } catch (Exception e) {
             log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
         }
 
         if (authzToken == null) {
@@ -136,14 +139,13 @@ public class DisplayBySerialForRecovery extends CMSServlet {
             form = getTemplate(mFormPath, req, locale);
         } catch (IOException e) {
             log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath,
-                            e.toString()));
+                CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()));
             throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+              CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
 
         // Note that we should try to handle all the exceptions
-        // instead of passing it up back to the servlet
+        // instead of passing it up back to the servlet 
         // framework.
 
         IArgBlock header = CMS.createArgBlock();
@@ -154,15 +156,15 @@ public class DisplayBySerialForRecovery extends CMSServlet {
 
         try {
             if (req.getParameter(IN_SERIALNO) != null) {
-                seqNum = Integer.parseInt(req.getParameter(IN_SERIALNO));
+                seqNum = Integer.parseInt(
+                            req.getParameter(IN_SERIALNO));
             }
-            process(argSet, header, req.getParameter("publicKeyData"), seqNum,
-                    req, resp, locale[0]);
+            process(argSet, header, 
+                req.getParameter("publicKeyData"),
+                seqNum, req, resp, locale[0]);
         } catch (NumberFormatException e) {
-            header.addStringValue(
-                    OUT_ERROR,
-                    CMS.getUserMessage(locale[0], "CMS_BASE_INTERNAL_ERROR",
-                            e.toString()));
+            header.addStringValue(OUT_ERROR,
+                CMS.getUserMessage(locale[0], "CMS_BASE_INTERNAL_ERROR", e.toString()));
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println(e.toString());
@@ -173,10 +175,10 @@ public class DisplayBySerialForRecovery extends CMSServlet {
             resp.setContentType("text/html");
             form.renderOutput(out, argSet);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                    "CMSGW_ERR_STREAM_TEMPLATE", e.toString()));
+            log(ILogger.LL_FAILURE,
+                CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()));
             throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+              CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
         cmsReq.setStatus(CMSRequest.SUCCESS);
     }
@@ -185,20 +187,24 @@ public class DisplayBySerialForRecovery extends CMSServlet {
      * Display information about a particular key.
      */
     private synchronized void process(CMSTemplateParams argSet,
-            IArgBlock header, String publicKeyData, int seq,
-            HttpServletRequest req, HttpServletResponse resp, Locale locale) {
+        IArgBlock header, String publicKeyData, int seq, 
+        HttpServletRequest req, HttpServletResponse resp,
+        Locale locale) {
         try {
             header.addIntegerValue("noOfRequiredAgents",
-                    mService.getNoOfRequiredAgents());
-            header.addStringValue(OUT_OP, req.getParameter(OUT_OP));
-            header.addStringValue("keySplitting", CMS.getConfigStore()
-                    .getString("kra.keySplitting"));
-            header.addStringValue(OUT_SERVICE_URL, req.getRequestURI());
+                mService.getNoOfRequiredAgents());
+            header.addStringValue(OUT_OP,
+                req.getParameter(OUT_OP));
+            header.addStringValue("keySplitting",
+                CMS.getConfigStore().getString("kra.keySplitting"));
+            header.addStringValue(OUT_SERVICE_URL,
+                req.getRequestURI());
             if (publicKeyData != null) {
-                header.addStringValue("publicKeyData", publicKeyData);
+                header.addStringValue("publicKeyData",
+                    publicKeyData);
             }
-            IKeyRecord rec = (IKeyRecord) mKeyDB.readKeyRecord(new BigInteger(
-                    Integer.toString(seq)));
+            IKeyRecord rec = (IKeyRecord) mKeyDB.readKeyRecord(new 
+                    BigInteger(Integer.toString(seq)));
 
             KeyRecordParser.fillRecordIntoArg(rec, header);
 

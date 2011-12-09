@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
+
 import java.net.URL;
 import java.net.URLDecoder;
 
@@ -38,12 +39,14 @@ public class SecurityDomainLogin extends BaseServlet {
     private static final long serialVersionUID = -1616344299101179396L;
 
     public boolean authenticate(HttpServletRequest request,
-            HttpServletResponse response, Context context) {
+            HttpServletResponse response,
+            Context context) {
         return true;
     }
 
     public Template process(HttpServletRequest request,
-            HttpServletResponse response, Context context) {
+            HttpServletResponse response,
+            Context context) {
         Template template = null;
 
         try {
@@ -56,9 +59,9 @@ public class SecurityDomainLogin extends BaseServlet {
             int index = url.indexOf("subsystem=");
             String subsystem = "";
             if (index > 0) {
-                subsystem = url.substring(index + 10);
+                subsystem = url.substring(index+10);
                 int index1 = subsystem.indexOf("&");
-                if (index1 > 0)
+                if (index1 > 0) 
                     subsystem = subsystem.substring(0, index1);
             }
             context.put("sd_uid", "");
@@ -67,16 +70,15 @@ public class SecurityDomainLogin extends BaseServlet {
             context.put("host", u.getHost());
             context.put("sdhost", CMS.getEESSLHost());
             if (subsystem.equals("KRA")) {
-                subsystem = "DRM";
+              subsystem = "DRM";
             }
             context.put("subsystem", subsystem);
             // The "securitydomain.name" property ONLY resides in the "CS.cfg"
             // associated with the CS subsystem hosting the security domain.
             IConfigStore cs = CMS.getConfigStore();
             String sdname = cs.getString("securitydomain.name", "");
-            context.put("name", sdname);
-            template = Velocity
-                    .getTemplate("admin/console/config/securitydomainloginpanel.vm");
+            context.put("name", sdname); 
+            template = Velocity.getTemplate("admin/console/config/securitydomainloginpanel.vm");
         } catch (Exception e) {
             System.err.println("Exception caught: " + e.getMessage());
         }

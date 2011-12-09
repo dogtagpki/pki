@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.request;
 
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.lang.reflect.Array;
@@ -60,15 +61,18 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.RawJS;
 
+
 /**
  * Output a 'pretty print' of a certificate request
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class CertReqParser extends ReqParser {
-
-    public static final CertReqParser DETAIL_PARSER = new CertReqParser(true);
-    public static final CertReqParser NODETAIL_PARSER = new CertReqParser(false);
+	
+    public static final CertReqParser 
+        DETAIL_PARSER = new CertReqParser(true);
+    public static final CertReqParser 
+        NODETAIL_PARSER = new CertReqParser(false);
 
     private boolean mDetails = true;
     private IPrettyPrintFormat pp = null;
@@ -82,7 +86,7 @@ public class CertReqParser extends ReqParser {
 
     /**
      * Constructs a certificate request parser.
-     * 
+     *
      * @param details return detailed information (this can be time consuming)
      */
     public CertReqParser(boolean details) {
@@ -97,34 +101,34 @@ public class CertReqParser extends ReqParser {
     private static final String RB = "]";
     private static final String EQ = " = ";
 
-    private static final String HTTP_PARAMS_COUNTER = IRequest.HTTP_PARAMS + LB
-            + "httpParamsCount++" + RB;
-    private static final String HTTP_HEADERS_COUNTER = IRequest.HTTP_HEADERS
-            + LB + "httpHeadersCount++" + RB;
-    private static final String AUTH_TOKEN_COUNTER = IRequest.AUTH_TOKEN + LB
-            + "authTokenCount++" + RB;
-    private static final String SERVER_ATTRS_COUNTER = IRequest.SERVER_ATTRS
-            + LB + "serverAttrsCount++" + RB;
+    private static final String 
+        HTTP_PARAMS_COUNTER = IRequest.HTTP_PARAMS + LB + "httpParamsCount++" + RB;
+    private static final String 
+        HTTP_HEADERS_COUNTER = IRequest.HTTP_HEADERS + LB + "httpHeadersCount++" + RB;
+    private static final String 
+        AUTH_TOKEN_COUNTER = IRequest.AUTH_TOKEN + LB + "authTokenCount++" + RB;
+    private static final String 
+        SERVER_ATTRS_COUNTER = IRequest.SERVER_ATTRS + LB + "serverAttrsCount++" + RB;
 
     /**
      * Fills in certificate specific request attributes.
      */
-    public void fillRequestIntoArg(Locale l, IRequest req,
-            CMSTemplateParams argSet, IArgBlock arg) throws EBaseException {
+    public void fillRequestIntoArg(Locale l, IRequest req, CMSTemplateParams argSet, IArgBlock arg)
+        throws EBaseException {
         if (req.getExtDataInCertInfoArray(IRequest.CERT_INFO) != null) {
-            fillX509RequestIntoArg(l, req, argSet, arg);
+            fillX509RequestIntoArg(l, req, argSet, arg);	
         } else if (req.getExtDataInRevokedCertArray(IRequest.CERT_INFO) != null) {
-            fillRevokeRequestIntoArg(l, req, argSet, arg);
+            fillRevokeRequestIntoArg(l, req, argSet, arg);	
         } else {
-            // o = req.get(IRequest.OLD_CERTS);
-            // if (o != null)
-            fillRevokeRequestIntoArg(l, req, argSet, arg);
+            //o = req.get(IRequest.OLD_CERTS);
+            //if (o != null)
+            fillRevokeRequestIntoArg(l, req, argSet, arg);	
         }
     }
-
-    private void fillX509RequestIntoArg(Locale l, IRequest req,
-            CMSTemplateParams argSet, IArgBlock arg) throws EBaseException {
-
+	
+    private void fillX509RequestIntoArg(Locale l, IRequest req, CMSTemplateParams argSet, IArgBlock arg)
+        throws EBaseException {
+	
         // fill in the standard attributes
         super.fillRequestIntoArg(l, req, argSet, arg);
 
@@ -134,7 +138,7 @@ public class CertReqParser extends ReqParser {
         Enumeration enum1 = req.getExtDataKeys();
 
         // gross hack
-        String prefix = "record.";
+        String prefix = "record."; 
 
         if (argSet.getHeader() == arg)
             prefix = "header.";
@@ -146,41 +150,32 @@ public class CertReqParser extends ReqParser {
                 // show all http parameters stored in request.
                 if (name.equalsIgnoreCase(IRequest.HTTP_PARAMS)) {
                     Hashtable http_params = req.getExtDataInHashtable(name);
-                    // show certType specially
-                    String certType = (String) http_params
-                            .get(IRequest.CERT_TYPE);
+                    // show certType specially 
+                    String certType = (String) http_params.get(IRequest.CERT_TYPE);
 
                     if (certType != null) {
                         arg.addStringValue(IRequest.CERT_TYPE, certType);
                     }
-                    String presenceServerExt = (String) http_params
-                            .get("PresenceServerExtension");
+                    String presenceServerExt = (String) http_params.get("PresenceServerExtension");
 
                     if (presenceServerExt != null) {
-                        arg.addStringValue("PresenceServerExtension",
-                                presenceServerExt);
+                        arg.addStringValue("PresenceServerExtension", presenceServerExt);
                     }
                     // show all http parameters in request
                     int counter = 0;
                     Enumeration elms = http_params.keys();
 
                     while (elms.hasMoreElements()) {
-                        String parami = IRequest.HTTP_PARAMS + LB
-                                + String.valueOf(counter++) + RB;
+                        String parami = 
+                            IRequest.HTTP_PARAMS + LB + String.valueOf(counter++) + RB;
                         // hack
                         String n = (String) elms.nextElement();
-                        String rawJS = "new Object;\n\r"
-                                + prefix
-                                + parami
-                                + ".name=\""
-                                + CMSTemplate.escapeJavaScriptString(n)
-                                + "\";\n\r"
-                                + prefix
-                                + parami
-                                + ".value=\""
-                                + CMSTemplate
-                                        .escapeJavaScriptStringHTML(http_params
-                                                .get(n).toString()) + "\"";
+                        String rawJS = "new Object;\n\r" +
+                            prefix + parami + ".name=\"" +
+                            CMSTemplate.escapeJavaScriptString(n) + "\";\n\r" +
+                            prefix + parami + ".value=\"" +
+                            CMSTemplate.escapeJavaScriptStringHTML(
+                                http_params.get(n).toString()) + "\"";
 
                         arg.set(parami, new RawJS(rawJS));
                     }
@@ -191,22 +186,16 @@ public class CertReqParser extends ReqParser {
                     int counter = 0;
 
                     while (elms.hasMoreElements()) {
-                        String parami = IRequest.HTTP_HEADERS + LB
-                                + String.valueOf(counter++) + RB;
+                        String parami = 
+                            IRequest.HTTP_HEADERS + LB + String.valueOf(counter++) + RB;
                         // hack
                         String n = (String) elms.nextElement();
-                        String rawJS = "new Object;\n\r"
-                                + prefix
-                                + parami
-                                + ".name=\""
-                                + CMSTemplate.escapeJavaScriptString(n)
-                                + "\";\n\r"
-                                + prefix
-                                + parami
-                                + ".value=\""
-                                + CMSTemplate
-                                        .escapeJavaScriptStringHTML(http_hdrs
-                                                .get(n).toString()) + "\"";
+                        String rawJS = "new Object;\n\r" +
+                            prefix + parami + ".name=\"" +
+                            CMSTemplate.escapeJavaScriptString(n) + "\";\n\r" +
+                            prefix + parami + ".value=\"" +
+                            CMSTemplate.escapeJavaScriptStringHTML(
+                                http_hdrs.get(n).toString()) + "\"";
 
                         arg.set(parami, new RawJS(rawJS));
                     }
@@ -217,8 +206,8 @@ public class CertReqParser extends ReqParser {
                     int counter = 0;
 
                     while (elms.hasMoreElements()) {
-                        String parami = IRequest.AUTH_TOKEN + LB
-                                + String.valueOf(counter++) + RB;
+                        String parami = 
+                            IRequest.AUTH_TOKEN + LB + String.valueOf(counter++) + RB;
                         // hack
                         String n = (String) elms.nextElement();
                         Object authTokenValue = auth_token.getInStringArray(n);
@@ -226,16 +215,14 @@ public class CertReqParser extends ReqParser {
                             authTokenValue = auth_token.getInString(n);
                         }
                         String v = expandValue(prefix + parami + ".value",
-                                authTokenValue);
-                        String rawJS = "new Object;\n\r" + prefix + parami
-                                + ".name=\""
-                                + CMSTemplate.escapeJavaScriptString(n)
-                                + "\";\n" + v;
+                            authTokenValue);
+                        String rawJS = "new Object;\n\r" +
+                            prefix + parami + ".name=\"" +
+                            CMSTemplate.escapeJavaScriptString(n) + "\";\n" + v;
 
                         arg.set(parami, new RawJS(rawJS));
                     }
-                } // all others are request attrs from policy or internal
-                  // modules.
+                } // all others are request attrs from policy or internal modules.
                 else {
                     Object val;
                     if (req.isSimpleExtDataValue(name)) {
@@ -248,47 +235,41 @@ public class CertReqParser extends ReqParser {
                     }
                     String valstr = "";
                     // hack
-                    String parami = IRequest.SERVER_ATTRS + LB
-                            + String.valueOf(saCounter++) + RB;
+                    String parami = 
+                        IRequest.SERVER_ATTRS + LB + String.valueOf(saCounter++) + RB;
 
-                    if (name.equalsIgnoreCase(IRequest.ISSUED_CERTS)
-                            && mDetails
-                            && (req.getRequestStatus().toString()
-                                    .equals(RequestStatus.COMPLETE_STRING) || req
-                                    .getRequestType().equals(
-                                            IRequest.GETREVOCATIONINFO_REQUEST))) {
-                        X509CertImpl issuedCert[] = req
-                                .getExtDataInCertArray(IRequest.ISSUED_CERTS);
+                    if (name.equalsIgnoreCase(IRequest.ISSUED_CERTS) && mDetails &&
+                        (req.getRequestStatus().toString().equals(RequestStatus.COMPLETE_STRING) ||
+                            req.getRequestType().equals(IRequest.GETREVOCATIONINFO_REQUEST))) {
+                        X509CertImpl issuedCert[] =
+                            req.getExtDataInCertArray(IRequest.ISSUED_CERTS);
                         if (issuedCert != null && issuedCert[0] != null) {
-                            val = "<pre>"
-                                    + CMS.getCertPrettyPrint(issuedCert[0])
-                                            .toString(l) + "</pre>";
+                            val = "<pre>"+CMS.getCertPrettyPrint(issuedCert[0]).toString(l)+"</pre>";
                         }
-                    } else if (name.equalsIgnoreCase(IRequest.CERT_INFO)
-                            && mDetails) {
-                        X509CertInfo[] certInfo = req
-                                .getExtDataInCertInfoArray(IRequest.CERT_INFO);
+                    } else if (name.equalsIgnoreCase(IRequest.CERT_INFO) && mDetails) {
+                        X509CertInfo[] certInfo =
+                            req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
                         if (certInfo != null && certInfo[0] != null) {
-                            val = "<pre>" + certInfo[0].toString() + "</pre>";
+                            val = "<pre>"+certInfo[0].toString()+"</pre>";
                         }
                     }
 
                     valstr = expandValue(prefix + parami + ".value", val);
-                    String rawJS = "new Object;\n\r" + prefix + parami
-                            + ".name=\""
-                            + CMSTemplate.escapeJavaScriptString(name)
-                            + "\";\n" + valstr; // java string already escaped
-                                                // in expandValue.
+                    String rawJS = "new Object;\n\r" +
+                        prefix + parami + ".name=\"" +
+                        CMSTemplate.escapeJavaScriptString(name) + "\";\n" +
+                        valstr;  // java string already escaped in expandValue.
 
                     arg.set(parami, new RawJS(rawJS));
                 }
             }
 
             if (name.equalsIgnoreCase(IRequest.REQUESTOR_PHONE)
-                    || name.equalsIgnoreCase(IRequest.REQUESTOR_EMAIL)
-                    || name.equalsIgnoreCase(IRequest.REQUESTOR_COMMENTS)
-                    || name.equalsIgnoreCase(IRequest.RESULT)
-                    || name.equalsIgnoreCase(IRequest.REQUEST_TRUSTEDMGR_PRIVILEGE)) {
+                || name.equalsIgnoreCase(IRequest.REQUESTOR_EMAIL)
+                || name.equalsIgnoreCase(IRequest.REQUESTOR_COMMENTS)
+                || name.equalsIgnoreCase(IRequest.RESULT)
+                || name.equalsIgnoreCase(IRequest.REQUEST_TRUSTEDMGR_PRIVILEGE)
+            ) {
                 arg.addStringValue(name, req.getExtDataInString(name));
             }
 
@@ -314,24 +295,22 @@ public class CertReqParser extends ReqParser {
                 }
             }
             if (name.equalsIgnoreCase(IRequest.ERROR)) {
-                arg.addStringValue(IRequest.ERRORS,
-                        req.getExtDataInString(name));
+                arg.addStringValue(IRequest.ERRORS, req.getExtDataInString(name));
             }
 
             if (name.equalsIgnoreCase(IRequest.CERT_INFO)) {
-                // Get the certificate info from the request
-                X509CertInfo[] certInfo = req
-                        .getExtDataInCertInfoArray(IRequest.CERT_INFO);
+                // Get the certificate info from the request 
+                X509CertInfo[] certInfo =
+                    req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
 
                 if (certInfo != null && certInfo[0] != null) {
-                    // Get the subject name if any set.
+                    // Get the subject name if any set. 
                     CertificateSubjectName subjectName = null;
                     String signatureAlgorithm = null;
                     String signatureAlgorithmName = null;
 
                     try {
-                        subjectName = (CertificateSubjectName) certInfo[0]
-                                .get(X509CertInfo.SUBJECT);
+                        subjectName = (CertificateSubjectName) certInfo[0].get(X509CertInfo.SUBJECT);
                     } catch (IOException e) {
                         // XXX raise exception
                     } catch (CertificateException e) {
@@ -352,10 +331,10 @@ public class CertReqParser extends ReqParser {
 
                     if (mDetails) {
                         try {
-                            CertificateAlgorithmId certAlgId = (CertificateAlgorithmId) certInfo[0]
-                                    .get(X509CertInfo.ALGORITHM_ID);
-                            AlgorithmId algId = (AlgorithmId) certAlgId
-                                    .get(CertificateAlgorithmId.ALGORITHM);
+                            CertificateAlgorithmId certAlgId = (CertificateAlgorithmId)
+                                certInfo[0].get(X509CertInfo.ALGORITHM_ID);
+                            AlgorithmId algId = (AlgorithmId)
+                                certAlgId.get(CertificateAlgorithmId.ALGORITHM);
 
                             signatureAlgorithm = (algId.getOID()).toString();
                             signatureAlgorithmName = algId.getName();
@@ -363,19 +342,16 @@ public class CertReqParser extends ReqParser {
                             // XXX raise exception
                         }
                         if (signatureAlgorithm != null) {
-                            arg.addStringValue("signatureAlgorithm",
-                                    signatureAlgorithm);
+                            arg.addStringValue("signatureAlgorithm", signatureAlgorithm);
                         }
                         if (signatureAlgorithmName != null) {
-                            arg.addStringValue("signatureAlgorithmName",
-                                    signatureAlgorithmName);
+                            arg.addStringValue("signatureAlgorithmName", signatureAlgorithmName);
                         }
 
                         CertificateExtensions extensions = null;
 
                         try {
-                            extensions = (CertificateExtensions) certInfo[0]
-                                    .get(X509CertInfo.EXTENSIONS);
+                            extensions = (CertificateExtensions) certInfo[0].get(X509CertInfo.EXTENSIONS);
                         } catch (Exception e) {
                         }
                         if (extensions != null) {
@@ -386,88 +362,56 @@ public class CertReqParser extends ReqParser {
 
                                 // only know about ns cert type
                                 if (ext instanceof NSCertTypeExtension) {
-                                    NSCertTypeExtension nsExtensions = (NSCertTypeExtension) ext;
+                                    NSCertTypeExtension nsExtensions = 
+                                        (NSCertTypeExtension) ext;
 
                                     try {
-                                        arg.addStringValue(
-                                                "ext_"
-                                                        + NSCertTypeExtension.SSL_SERVER,
-                                                nsExtensions
-                                                        .get(NSCertTypeExtension.SSL_SERVER)
-                                                        .toString());
+                                        arg.addStringValue("ext_" + NSCertTypeExtension.SSL_SERVER,
+                                            nsExtensions.get(NSCertTypeExtension.SSL_SERVER).toString());
 
-                                        arg.addStringValue(
-                                                "ext_"
-                                                        + NSCertTypeExtension.SSL_CLIENT,
-                                                nsExtensions
-                                                        .get(NSCertTypeExtension.SSL_CLIENT)
-                                                        .toString());
+                                        arg.addStringValue("ext_" + NSCertTypeExtension.SSL_CLIENT,
+                                            nsExtensions.get(NSCertTypeExtension.SSL_CLIENT).toString());
 
-                                        arg.addStringValue(
-                                                "ext_"
-                                                        + NSCertTypeExtension.EMAIL,
-                                                nsExtensions
-                                                        .get(NSCertTypeExtension.EMAIL)
-                                                        .toString());
+                                        arg.addStringValue("ext_" + NSCertTypeExtension.EMAIL,
+                                            nsExtensions.get(NSCertTypeExtension.EMAIL).toString());
 
-                                        arg.addStringValue(
-                                                "ext_"
-                                                        + NSCertTypeExtension.OBJECT_SIGNING,
-                                                nsExtensions
-                                                        .get(NSCertTypeExtension.OBJECT_SIGNING)
-                                                        .toString());
+                                        arg.addStringValue("ext_" + NSCertTypeExtension.OBJECT_SIGNING,
+                                            nsExtensions.get(NSCertTypeExtension.OBJECT_SIGNING).toString());
 
-                                        arg.addStringValue(
-                                                "ext_"
-                                                        + NSCertTypeExtension.SSL_CA,
-                                                nsExtensions
-                                                        .get(NSCertTypeExtension.SSL_CA)
-                                                        .toString());
+                                        arg.addStringValue("ext_" + NSCertTypeExtension.SSL_CA,
+                                            nsExtensions.get(NSCertTypeExtension.SSL_CA).toString());
 
-                                        arg.addStringValue(
-                                                "ext_"
-                                                        + NSCertTypeExtension.EMAIL_CA,
-                                                nsExtensions
-                                                        .get(NSCertTypeExtension.EMAIL_CA)
-                                                        .toString());
+                                        arg.addStringValue("ext_" + NSCertTypeExtension.EMAIL_CA,
+                                            nsExtensions.get(NSCertTypeExtension.EMAIL_CA).toString());
 
-                                        arg.addStringValue(
-                                                "ext_"
-                                                        + NSCertTypeExtension.OBJECT_SIGNING_CA,
-                                                nsExtensions
-                                                        .get(NSCertTypeExtension.OBJECT_SIGNING_CA)
-                                                        .toString());
+                                        arg.addStringValue("ext_" + NSCertTypeExtension.OBJECT_SIGNING_CA,
+                                            nsExtensions.get(NSCertTypeExtension.OBJECT_SIGNING_CA).toString());
 
                                     } catch (Exception e) {
                                     }
                                 } else if (ext instanceof BasicConstraintsExtension) {
-                                    BasicConstraintsExtension bcExt = (BasicConstraintsExtension) ext;
+                                    BasicConstraintsExtension bcExt = 
+                                        (BasicConstraintsExtension) ext;
                                     Integer pathLength = null;
                                     Boolean isCA = null;
 
                                     try {
-                                        pathLength = (Integer) bcExt
-                                                .get(BasicConstraintsExtension.PATH_LEN);
-                                        isCA = (Boolean) bcExt
-                                                .get(BasicConstraintsExtension.IS_CA);
+                                        pathLength = (Integer) bcExt.get(BasicConstraintsExtension.PATH_LEN);
+                                        isCA = (Boolean) bcExt.get(BasicConstraintsExtension.IS_CA);
                                     } catch (IOException e) {
                                     }
                                     if (pathLength != null)
-                                        arg.addIntegerValue(
-                                                "pathLenBasicConstraints",
-                                                pathLength.intValue());
+                                        arg.addIntegerValue("pathLenBasicConstraints", pathLength.intValue());
                                     if (isCA != null)
-                                        arg.addBooleanValue(
-                                                "isCABasicConstraints",
-                                                isCA.booleanValue());
+                                        arg.addBooleanValue("isCABasicConstraints", isCA.booleanValue());
                                 } // pretty print all others.
                                 else {
                                     if (argSet != null) {
                                         IArgBlock rr = CMS.createArgBlock();
 
-                                        rr.addStringValue(EXT_PRETTYPRINT, CMS
-                                                .getExtPrettyPrint(ext, 0)
-                                                .toString());
+                                        rr.addStringValue(
+                                            EXT_PRETTYPRINT,
+                                            CMS.getExtPrettyPrint(ext, 0).toString());
                                         argSet.addRepeatRecord(rr);
                                     }
                                 }
@@ -475,12 +419,11 @@ public class CertReqParser extends ReqParser {
 
                         }
 
-                        // Get the public key
+                        // Get the public key 
                         CertificateX509Key certKey = null;
 
                         try {
-                            certKey = (CertificateX509Key) certInfo[0]
-                                    .get(X509CertInfo.KEY);
+                            certKey = (CertificateX509Key) certInfo[0].get(X509CertInfo.KEY);
                         } catch (IOException e) {
                             // XXX raise exception
                         } catch (CertificateException e) {
@@ -497,29 +440,22 @@ public class CertReqParser extends ReqParser {
 
                         if (key != null) {
                             arg.addStringValue("subjectPublicKeyInfo",
-                                    key.getAlgorithm()
-                                            + " - "
-                                            + key.getAlgorithmId().getOID()
-                                                    .toString());
+                                key.getAlgorithm() + " - " + key.getAlgorithmId().getOID().toString());
                             arg.addStringValue("subjectPublicKey",
-                                    pp.toHexString(key.getKey(), 0, 16));
+                                pp.toHexString(key.getKey(), 0, 16));
                         }
 
-                        // Get the validity period
+                        // Get the validity period 
                         CertificateValidity validity = null;
 
                         try {
-                            validity = (CertificateValidity) certInfo[0]
-                                    .get(X509CertInfo.VALIDITY);
+                            validity =
+                                    (CertificateValidity) 
+                                    certInfo[0].get(X509CertInfo.VALIDITY);
                             if (validity != null) {
-                                long validityLength = (((Date) validity
-                                        .get(CertificateValidity.NOT_AFTER))
-                                        .getTime() - ((Date) validity
-                                        .get(CertificateValidity.NOT_BEFORE))
-                                        .getTime()) / 1000;
+                                long validityLength = (((Date) validity.get(CertificateValidity.NOT_AFTER)).getTime() - ((Date) validity.get(CertificateValidity.NOT_BEFORE)).getTime()) / 1000;
 
-                                arg.addLongValue("validityLength",
-                                        validityLength);
+                                arg.addLongValue("validityLength", validityLength);
                             }
                         } catch (IOException e) {
                             // XXX raise exception
@@ -531,8 +467,7 @@ public class CertReqParser extends ReqParser {
             }
 
             if (name.equalsIgnoreCase(IRequest.OLD_SERIALS) && mDetails) {
-                BigInteger oldSerialNo[] = req
-                        .getExtDataInBigIntegerArray(IRequest.OLD_SERIALS);
+                BigInteger oldSerialNo[] = req.getExtDataInBigIntegerArray(IRequest.OLD_SERIALS);
 
                 if (oldSerialNo != null) {
                     if (argSet != null) {
@@ -540,44 +475,37 @@ public class CertReqParser extends ReqParser {
                             IArgBlock rarg = CMS.createArgBlock();
 
                             rarg.addBigIntegerValue("serialNumber",
-                                    oldSerialNo[i], 16);
+                                oldSerialNo[i], 16);
                             argSet.addRepeatRecord(rarg);
                         }
                     }
                 }
             }
 
-            if (name.equalsIgnoreCase(IRequest.ISSUED_CERTS)
-                    && mDetails
-                    && (req.getRequestStatus().toString()
-                            .equals(RequestStatus.COMPLETE_STRING) || req
-                            .getRequestType().equals(
-                                    IRequest.GETREVOCATIONINFO_REQUEST))) {
-                X509CertImpl issuedCert[] = req
-                        .getExtDataInCertArray(IRequest.ISSUED_CERTS);
+            if (name.equalsIgnoreCase(IRequest.ISSUED_CERTS) && mDetails &&
+                (req.getRequestStatus().toString().equals(RequestStatus.COMPLETE_STRING) ||
+                    req.getRequestType().equals(IRequest.GETREVOCATIONINFO_REQUEST))) {
+                X509CertImpl issuedCert[] =
+                    req.getExtDataInCertArray(IRequest.ISSUED_CERTS);
 
-                arg.addBigIntegerValue("serialNumber",
-                        issuedCert[0].getSerialNumber(), 16);
+                arg.addBigIntegerValue("serialNumber", issuedCert[0].getSerialNumber(), 16);
                 // Set Serial No for 2nd certificate
                 if (issuedCert.length == 2)
-                    arg.addBigIntegerValue("serialNumber2",
-                            issuedCert[1].getSerialNumber(), 16);
+                    arg.addBigIntegerValue("serialNumber2", issuedCert[1].getSerialNumber(), 16);
             }
             if (name.equalsIgnoreCase(IRequest.OLD_CERTS) && mDetails) {
-                X509CertImpl oldCert[] = req
-                        .getExtDataInCertArray(IRequest.OLD_CERTS);
+                X509CertImpl oldCert[] =
+                    req.getExtDataInCertArray(IRequest.OLD_CERTS);
 
                 if (oldCert != null && oldCert.length > 0) {
-                    arg.addBigIntegerValue("serialNumber",
-                            oldCert[0].getSerialNumber(), 16);
-                    arg.addStringValue("subject", oldCert[0].getSubjectDN()
-                            .toString());
+                    arg.addBigIntegerValue("serialNumber", oldCert[0].getSerialNumber(), 16);
+                    arg.addStringValue("subject", oldCert[0].getSubjectDN().toString());
                     if (req.getRequestType().equals(IRequest.GETCERTS_REQUEST)) {
                         for (int i = 0; i < oldCert.length; i++) {
                             IArgBlock rarg = CMS.createArgBlock();
 
                             rarg.addBigIntegerValue("serialNumber",
-                                    oldCert[i].getSerialNumber(), 16);
+                                oldCert[i].getSerialNumber(), 16);
                             argSet.addRepeatRecord(rarg);
                         }
                     }
@@ -585,13 +513,12 @@ public class CertReqParser extends ReqParser {
             }
 
             if (name.equalsIgnoreCase(IRequest.CACERTCHAIN) && mDetails) {
-                byte[] certChainData = req
-                        .getExtDataInByteArray(IRequest.CACERTCHAIN);
+                byte[] certChainData = req.getExtDataInByteArray(
+                        IRequest.CACERTCHAIN);
                 if (certChainData != null) {
                     CertificateChain certChain = new CertificateChain();
                     try {
-                        certChain
-                                .decode(new ByteArrayInputStream(certChainData));
+                        certChain.decode(new ByteArrayInputStream(certChainData));
 
                         X509Certificate cert[] = certChain.getChain();
 
@@ -599,7 +526,7 @@ public class CertReqParser extends ReqParser {
                             IArgBlock rarg = CMS.createArgBlock();
 
                             rarg.addBigIntegerValue("serialNumber",
-                                    cert[i].getSerialNumber(), 16);
+                                cert[i].getSerialNumber(), 16);
                             argSet.addRepeatRecord(rarg);
                         }
                     } catch (IOException e) {
@@ -608,24 +535,22 @@ public class CertReqParser extends ReqParser {
                 }
             }
             if (name.equalsIgnoreCase(IRequest.FINGERPRINTS) && mDetails) {
-                Hashtable fingerprints = req
-                        .getExtDataInHashtable(IRequest.FINGERPRINTS);
+                Hashtable fingerprints = 
+                    req.getExtDataInHashtable(IRequest.FINGERPRINTS);
 
                 if (fingerprints != null) {
                     String namesAndHashes = null;
                     Enumeration enumFingerprints = fingerprints.keys();
 
-                    while (enumFingerprints.hasMoreElements()) {
-                        String hashname = (String) enumFingerprints
-                                .nextElement();
+                    while (enumFingerprints.hasMoreElements()) { 
+                        String hashname = (String) enumFingerprints.nextElement();
                         String hashvalue = (String) fingerprints.get(hashname);
                         byte[] fingerprint = CMS.AtoB(hashvalue);
                         String ppFingerprint = pp.toHexString(fingerprint, 0);
 
                         if (hashname != null && ppFingerprint != null) {
                             if (namesAndHashes != null) {
-                                namesAndHashes += "+" + hashname + "+"
-                                        + ppFingerprint;
+                                namesAndHashes += "+" + hashname + "+" + ppFingerprint;
                             } else {
                                 namesAndHashes = hashname + "+" + ppFingerprint;
                             }
@@ -652,8 +577,7 @@ public class CertReqParser extends ReqParser {
                 int j = 0;
 
                 StringBuffer sb = new StringBuffer();
-                for (Enumeration n = ((Vector) v).elements(); n
-                        .hasMoreElements(); j++) {
+                for (Enumeration n = ((Vector) v).elements(); n.hasMoreElements(); j++) {
                     sb.append(";\n");
                     sb.append(valuename);
                     sb.append(LB);
@@ -661,9 +585,10 @@ public class CertReqParser extends ReqParser {
                     sb.append(RB);
                     sb.append(EQ);
                     sb.append("\"");
-                    sb.append(CMSTemplate.escapeJavaScriptStringHTML(n
-                            .nextElement().toString()));
-                    sb.append("\";\n");
+                    sb.append(
+                            CMSTemplate.escapeJavaScriptStringHTML(
+                                n.nextElement().toString())); 
+                    sb.append( "\";\n");
                 }
                 sb.append("\n");
                 valstr = sb.toString();
@@ -673,7 +598,7 @@ public class CertReqParser extends ReqParser {
             // if an array.
             int len = -1;
 
-            try {
+            try { 
                 len = Array.getLength(v);
             } catch (IllegalArgumentException e) {
             }
@@ -683,15 +608,9 @@ public class CertReqParser extends ReqParser {
 
                 for (i = 0; i < len; i++) {
                     if (Array.get(v, i) != null)
-                        valstr += ";\n"
-                                + valuename
-                                + LB
-                                + i
-                                + RB
-                                + EQ
-                                + "\""
-                                + CMSTemplate.escapeJavaScriptStringHTML(Array
-                                        .get(v, i).toString()) + "\";\n";
+                        valstr += ";\n" + valuename + LB + i + RB + EQ + "\"" +
+                                CMSTemplate.escapeJavaScriptStringHTML(
+                                    Array.get(v, i).toString()) + "\";\n";
                 }
                 return valstr;
             }
@@ -699,17 +618,17 @@ public class CertReqParser extends ReqParser {
         }
 
         // if string or unrecognized type, just call its toString method.
-        return valuename + "=\""
-                + CMSTemplate.escapeJavaScriptStringHTML(v.toString()) + "\"";
+        return valuename + "=\"" +
+            CMSTemplate.escapeJavaScriptStringHTML(v.toString()) + "\"";
     }
 
     public String getRequestorDN(IRequest request) {
         try {
-            X509CertInfo info = (X509CertInfo) request
-                    .getExtDataInCertInfo(IEnrollProfile.REQUEST_CERTINFO);
+            X509CertInfo info = (X509CertInfo)
+                request.getExtDataInCertInfo(IEnrollProfile.REQUEST_CERTINFO);
             // retrieve the subject name
-            CertificateSubjectName sn = (CertificateSubjectName) info
-                    .get(X509CertInfo.SUBJECT);
+            CertificateSubjectName sn = (CertificateSubjectName)
+                info.get(X509CertInfo.SUBJECT);
 
             return sn.toString();
         } catch (Exception e) {
@@ -724,16 +643,15 @@ public class CertReqParser extends ReqParser {
 
             String cid = request.getExtDataInString(IRequest.NETKEY_ATTR_CUID);
             if (cid == null) {
-                cid = "";
+                 cid = "";
             }
-            String uid = request
-                    .getExtDataInString(IRequest.NETKEY_ATTR_USERID);
+            String uid = request.getExtDataInString(IRequest.NETKEY_ATTR_USERID);
             if (uid == null) {
-                uid = "";
+                 uid = "";
             }
-            kid = cid + ":" + uid;
+            kid = cid+":"+uid;
             if (kid.equals(":")) {
-                kid = "";
+              kid = "";
             }
 
             return kid;
@@ -743,15 +661,15 @@ public class CertReqParser extends ReqParser {
         return null;
     }
 
-    private void fillRevokeRequestIntoArg(Locale l, IRequest req,
-            CMSTemplateParams argSet, IArgBlock arg) throws EBaseException {
+    private void fillRevokeRequestIntoArg(Locale l, IRequest req, CMSTemplateParams argSet, IArgBlock arg)
+        throws EBaseException {
         // fill in the standard attributes
         super.fillRequestIntoArg(l, req, argSet, arg);
 
         arg.addStringValue("certExtsEnabled", "yes");
         String profile = req.getExtDataInString("profile");
 
-        // CMS.debug("CertReqParser: profile=" + profile);
+        //CMS.debug("CertReqParser: profile=" + profile);
         if (profile != null) {
             arg.addStringValue("profile", profile);
             String requestorDN = getRequestorDN(req);
@@ -772,7 +690,7 @@ public class CertReqParser extends ReqParser {
         Enumeration enum1 = req.getExtDataKeys();
 
         // gross hack
-        String prefix = "record.";
+        String prefix = "record."; 
 
         if (argSet.getHeader() == arg)
             prefix = "header.";
@@ -784,9 +702,8 @@ public class CertReqParser extends ReqParser {
                 // show all http parameters stored in request.
                 if (name.equalsIgnoreCase(IRequest.HTTP_PARAMS)) {
                     Hashtable http_params = req.getExtDataInHashtable(name);
-                    // show certType specially
-                    String certType = (String) http_params
-                            .get(IRequest.CERT_TYPE);
+                    // show certType specially 
+                    String certType = (String) http_params.get(IRequest.CERT_TYPE);
 
                     if (certType != null) {
                         arg.addStringValue(IRequest.CERT_TYPE, certType);
@@ -796,22 +713,16 @@ public class CertReqParser extends ReqParser {
                     Enumeration elms = http_params.keys();
 
                     while (elms.hasMoreElements()) {
-                        String parami = IRequest.HTTP_PARAMS + LB
-                                + String.valueOf(counter++) + RB;
+                        String parami = 
+                            IRequest.HTTP_PARAMS + LB + String.valueOf(counter++) + RB;
                         // hack
                         String n = (String) elms.nextElement();
-                        String rawJS = "new Object;\n\r"
-                                + prefix
-                                + parami
-                                + ".name=\""
-                                + CMSTemplate.escapeJavaScriptString(n)
-                                + "\";\n\r"
-                                + prefix
-                                + parami
-                                + ".value=\""
-                                + CMSTemplate
-                                        .escapeJavaScriptStringHTML(http_params
-                                                .get(n).toString()) + "\"";
+                        String rawJS = "new Object;\n\r" +
+                            prefix + parami + ".name=\"" +
+                            CMSTemplate.escapeJavaScriptString(n) + "\";\n\r" +
+                            prefix + parami + ".value=\"" +
+                            CMSTemplate.escapeJavaScriptStringHTML(
+                                http_params.get(n).toString()) + "\"";
 
                         arg.set(parami, new RawJS(rawJS));
                     }
@@ -822,22 +733,16 @@ public class CertReqParser extends ReqParser {
                     int counter = 0;
 
                     while (elms.hasMoreElements()) {
-                        String parami = IRequest.HTTP_HEADERS + LB
-                                + String.valueOf(counter++) + RB;
+                        String parami = 
+                            IRequest.HTTP_HEADERS + LB + String.valueOf(counter++) + RB;
                         // hack
                         String n = (String) elms.nextElement();
-                        String rawJS = "new Object;\n\r"
-                                + prefix
-                                + parami
-                                + ".name=\""
-                                + CMSTemplate.escapeJavaScriptString(n)
-                                + "\";\n\r"
-                                + prefix
-                                + parami
-                                + ".value=\""
-                                + CMSTemplate
-                                        .escapeJavaScriptStringHTML(http_hdrs
-                                                .get(n).toString()) + "\"";
+                        String rawJS = "new Object;\n\r" +
+                            prefix + parami + ".name=\"" +
+                            CMSTemplate.escapeJavaScriptString(n) + "\";\n\r" +
+                            prefix + parami + ".value=\"" +
+                            CMSTemplate.escapeJavaScriptStringHTML(
+                                http_hdrs.get(n).toString()) + "\"";
 
                         arg.set(parami, new RawJS(rawJS));
                     }
@@ -848,21 +753,20 @@ public class CertReqParser extends ReqParser {
                     int counter = 0;
 
                     while (elms.hasMoreElements()) {
-                        String parami = IRequest.AUTH_TOKEN + LB
-                                + String.valueOf(counter++) + RB;
+                        String parami = 
+                            IRequest.AUTH_TOKEN + LB + String.valueOf(counter++) + RB;
                         // hack
                         String n = (String) elms.nextElement();
-                        String v = expandValue(prefix + parami + ".value",
+                        String v = 
+                            expandValue(prefix + parami + ".value", 
                                 auth_token.getInString(n));
-                        String rawJS = "new Object;\n\r" + prefix + parami
-                                + ".name=\""
-                                + CMSTemplate.escapeJavaScriptString(n)
-                                + "\";\n" + v;
+                        String rawJS = "new Object;\n\r" +
+                            prefix + parami + ".name=\"" +
+                            CMSTemplate.escapeJavaScriptString(n) + "\";\n" + v;
 
                         arg.set(parami, new RawJS(rawJS));
                     }
-                } // all others are request attrs from policy or internal
-                  // modules.
+                } // all others are request attrs from policy or internal modules.
                 else {
                     Object val;
                     if (req.isSimpleExtDataValue(name)) {
@@ -875,25 +779,25 @@ public class CertReqParser extends ReqParser {
                     }
                     String valstr = "";
                     // hack
-                    String parami = IRequest.SERVER_ATTRS + LB
-                            + String.valueOf(saCounter++) + RB;
+                    String parami = 
+                        IRequest.SERVER_ATTRS + LB + String.valueOf(saCounter++) + RB;
 
                     valstr = expandValue(prefix + parami + ".value", val);
-                    String rawJS = "new Object;\n\r" + prefix + parami
-                            + ".name=\""
-                            + CMSTemplate.escapeJavaScriptString(name)
-                            + "\";\n" + valstr; // java string already escaped
-                                                // in expandValue.
+                    String rawJS = "new Object;\n\r" +
+                        prefix + parami + ".name=\"" +
+                        CMSTemplate.escapeJavaScriptString(name) + "\";\n" +
+                        valstr;  // java string already escaped in expandValue.
 
                     arg.set(parami, new RawJS(rawJS));
                 }
             }
 
             if (name.equalsIgnoreCase(IRequest.REQUESTOR_PHONE)
-                    || name.equalsIgnoreCase(IRequest.REQUESTOR_EMAIL)
-                    || name.equalsIgnoreCase(IRequest.REQUESTOR_COMMENTS)
-                    || name.equalsIgnoreCase(IRequest.RESULT)
-                    || name.equalsIgnoreCase(IRequest.REQUEST_TRUSTEDMGR_PRIVILEGE)) {
+                || name.equalsIgnoreCase(IRequest.REQUESTOR_EMAIL)
+                || name.equalsIgnoreCase(IRequest.REQUESTOR_COMMENTS)
+                || name.equalsIgnoreCase(IRequest.RESULT)
+                || name.equalsIgnoreCase(IRequest.REQUEST_TRUSTEDMGR_PRIVILEGE)
+            ) {
                 arg.addStringValue(name, req.getExtDataInString(name));
             }
 
@@ -919,14 +823,12 @@ public class CertReqParser extends ReqParser {
                 }
             }
             if (name.equalsIgnoreCase(IRequest.ERROR)) {
-                arg.addStringValue(IRequest.ERRORS,
-                        req.getExtDataInString(name));
+                arg.addStringValue(IRequest.ERRORS, req.getExtDataInString(name));
             }
 
             if (name.equalsIgnoreCase(IRequest.CERT_INFO)) {
-                // Get the certificate info from the request
-                RevokedCertImpl revokedCert[] = req
-                        .getExtDataInRevokedCertArray(IRequest.CERT_INFO);
+                // Get the certificate info from the request 
+                RevokedCertImpl revokedCert[] = req.getExtDataInRevokedCertArray(IRequest.CERT_INFO);
 
                 if (mDetails && revokedCert != null) {
                     if (argSet != null) {
@@ -934,39 +836,35 @@ public class CertReqParser extends ReqParser {
                             IArgBlock rarg = CMS.createArgBlock();
 
                             rarg.addBigIntegerValue("serialNumber",
-                                    revokedCert[i].getSerialNumber(), 16);
+                                revokedCert[i].getSerialNumber(), 16);
 
-                            CRLExtensions crlExtensions = revokedCert[i]
-                                    .getExtensions();
+                            CRLExtensions crlExtensions = revokedCert[i].getExtensions();
 
                             if (crlExtensions != null) {
                                 for (int k = 0; k < crlExtensions.size(); k++) {
-                                    Extension ext = (Extension) crlExtensions
-                                            .elementAt(k);
+                                    Extension ext = (Extension) crlExtensions.elementAt(k);
 
                                     if (ext instanceof CRLReasonExtension) {
                                         rarg.addStringValue("reason",
-                                                ((CRLReasonExtension) ext)
-                                                        .getReason().toString());
+                                            ((CRLReasonExtension) ext).getReason().toString());
                                     }
                                 }
                             } else {
                                 rarg.addStringValue("reason",
-                                        RevocationReason.UNSPECIFIED.toString());
+                                    RevocationReason.UNSPECIFIED.toString());
                             }
 
                             argSet.addRepeatRecord(rarg);
                         }
                     } else {
                         arg.addBigIntegerValue("serialNumber",
-                                revokedCert[0].getSerialNumber(), 16);
+                            revokedCert[0].getSerialNumber(), 16);
                     }
                 }
             }
 
             if (name.equalsIgnoreCase(IRequest.OLD_SERIALS) && mDetails) {
-                BigInteger oldSerialNo[] = req
-                        .getExtDataInBigIntegerArray(IRequest.OLD_SERIALS);
+                BigInteger oldSerialNo[] = req.getExtDataInBigIntegerArray(IRequest.OLD_SERIALS);
 
                 if (oldSerialNo != null) {
                     if (argSet != null) {
@@ -974,7 +872,7 @@ public class CertReqParser extends ReqParser {
                             IArgBlock rarg = CMS.createArgBlock();
 
                             rarg.addBigIntegerValue("serialNumber",
-                                    oldSerialNo[i], 16);
+                                oldSerialNo[i], 16);
                             argSet.addRepeatRecord(rarg);
                         }
                     }
@@ -982,27 +880,24 @@ public class CertReqParser extends ReqParser {
             }
 
             if (name.equalsIgnoreCase(IRequest.OLD_CERTS) && mDetails) {
-                // X509CertImpl oldCert[] =
-                // (X509CertImpl[])req.get(IRequest.OLD_CERTS);
-                Certificate oldCert[] = (Certificate[]) req
-                        .getExtDataInCertArray(IRequest.OLD_CERTS);
-
+                //X509CertImpl oldCert[] =
+                //	(X509CertImpl[])req.get(IRequest.OLD_CERTS);
+                Certificate oldCert[] =
+                    (Certificate[]) req.getExtDataInCertArray(IRequest.OLD_CERTS);
+				
                 if (oldCert != null && oldCert.length > 0) {
                     if (oldCert[0] instanceof X509CertImpl) {
                         X509CertImpl xcert = (X509CertImpl) oldCert[0];
 
-                        arg.addBigIntegerValue("serialNumber",
-                                xcert.getSerialNumber(), 16);
-                        arg.addStringValue("subject", xcert.getSubjectDN()
-                                .toString());
-                        if (req.getRequestType().equals(
-                                IRequest.GETCERTS_REQUEST)) {
+                        arg.addBigIntegerValue("serialNumber", xcert.getSerialNumber(), 16);
+                        arg.addStringValue("subject", xcert.getSubjectDN().toString());
+                        if (req.getRequestType().equals(IRequest.GETCERTS_REQUEST)) {
                             for (int i = 0; i < oldCert.length; i++) {
                                 IArgBlock rarg = CMS.createArgBlock();
 
                                 xcert = (X509CertImpl) oldCert[i];
                                 rarg.addBigIntegerValue("serialNumber",
-                                        xcert.getSerialNumber(), 16);
+                                    xcert.getSerialNumber(), 16);
                                 argSet.addRepeatRecord(rarg);
                             }
                         }
@@ -1010,23 +905,21 @@ public class CertReqParser extends ReqParser {
                 }
             }
 
-            if (name.equalsIgnoreCase(IRequest.REVOKED_CERTS) && mDetails
-                    && req.getRequestType().equals("getRevocationInfo")) {
-                RevokedCertImpl revokedCert[] = req
-                        .getExtDataInRevokedCertArray(IRequest.REVOKED_CERTS);
+            if (name.equalsIgnoreCase(IRequest.REVOKED_CERTS) && mDetails &&
+                req.getRequestType().equals("getRevocationInfo")) {
+                RevokedCertImpl revokedCert[] = 
+                    req.getExtDataInRevokedCertArray(IRequest.REVOKED_CERTS);
 
                 if (revokedCert != null && revokedCert[0] != null) {
                     boolean reasonFound = false;
-                    CRLExtensions crlExtensions = revokedCert[0]
-                            .getExtensions();
+                    CRLExtensions crlExtensions = revokedCert[0].getExtensions();
 
                     for (int k = 0; k < crlExtensions.size(); k++) {
                         Extension ext = (Extension) crlExtensions.elementAt(k);
 
                         if (ext instanceof CRLReasonExtension) {
                             arg.addStringValue("reason",
-                                    ((CRLReasonExtension) ext).getReason()
-                                            .toString());
+                                ((CRLReasonExtension) ext).getReason().toString());
                             reasonFound = true;
                         }
                     }
@@ -1037,5 +930,5 @@ public class CertReqParser extends ReqParser {
             }
         }
     }
-
+		
 }

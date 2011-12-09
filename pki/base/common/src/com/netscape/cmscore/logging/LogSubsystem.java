@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.logging;
 
+
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -31,6 +32,7 @@ import com.netscape.certsrv.logging.ILogQueue;
 import com.netscape.certsrv.logging.ILogSubsystem;
 import com.netscape.certsrv.logging.LogPlugin;
 import com.netscape.cmscore.util.Debug;
+
 
 /**
  * A class represents a log subsystem.
@@ -69,19 +71,18 @@ public class LogSubsystem implements ILogSubsystem {
     }
 
     public void setId(String id) throws EBaseException {
-        throw new EBaseException(
-                CMS.getUserMessage("CMS_BASE_INVALID_OPERATION"));
+        throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_OPERATION"));
     }
 
     /**
      * Initializes the log subsystem.
      * <P>
-     * 
+     *
      * @param owner owner of this subsystem
      * @param config configuration store
      */
     public void init(ISubsystem owner, IConfigStore config)
-            throws EBaseException {
+        throws EBaseException {
         mConfig = config;
         mLogQueue.init();
 
@@ -99,16 +100,18 @@ public class LogSubsystem implements ILogSubsystem {
         if (Debug.ON)
             Debug.trace("loaded logger plugins");
 
-        // load log instances
+            // load log instances
         c = config.getSubStore(PROP_INSTANCE);
         Enumeration instances = c.getSubStoreNames();
 
         while (instances.hasMoreElements()) {
             String insName = (String) instances.nextElement();
-            String implName = c.getString(insName + "." + PROP_PLUGIN);
-            LogPlugin plugin = (LogPlugin) mLogPlugins.get(implName);
+            String implName = c.getString(insName + "." + 
+                    PROP_PLUGIN);
+            LogPlugin plugin =
+                (LogPlugin) mLogPlugins.get(implName);
 
-            if (plugin == null) {
+            if (plugin == null) { 
                 throw new EBaseException(implName);
             }
             String className = plugin.getClassPath();
@@ -116,9 +119,10 @@ public class LogSubsystem implements ILogSubsystem {
             ILogEventListener logInst = null;
 
             try {
-                logInst = (ILogEventListener) Class.forName(className)
-                        .newInstance();
-                IConfigStore pConfig = c.getSubStore(insName);
+                logInst = (ILogEventListener)
+                        Class.forName(className).newInstance();
+                IConfigStore pConfig = 
+                    c.getSubStore(insName);
 
                 logInst.init(this, pConfig);
                 // for view from console
@@ -126,35 +130,28 @@ public class LogSubsystem implements ILogSubsystem {
             } catch (ClassNotFoundException e) {
                 String errMsg = "LogSubsystem:: init()-" + e.toString();
 
-                throw new EBaseException(insName
-                        + ":Failed to instantiate class " + className);
+                throw new EBaseException(insName + ":Failed to instantiate class " + className);
             } catch (IllegalAccessException e) {
                 String errMsg = "LogSubsystem:: init()-" + e.toString();
 
-                throw new EBaseException(insName
-                        + ":Failed to instantiate class " + className);
+                throw new EBaseException(insName + ":Failed to instantiate class " + className);
             } catch (InstantiationException e) {
                 String errMsg = "LogSubsystem:: init()-" + e.toString();
 
-                throw new EBaseException(insName
-                        + ":Failed to instantiate class " + className);
+                throw new EBaseException(insName + ":Failed to instantiate class " + className);
             } catch (Throwable e) {
                 e.printStackTrace();
-                throw new EBaseException(insName
-                        + ":Failed to instantiate class " + className
-                        + " error: " + e.getMessage());
+                throw new EBaseException(insName + ":Failed to instantiate class " + className + " error: " + e.getMessage());
             }
 
             if (insName == null) {
-                throw new EBaseException("Failed to instantiate class "
-                        + insName);
+                throw new EBaseException("Failed to instantiate class " + insName);
             }
 
             // add log instance to list.
             mLogInsts.put(insName, logInst);
             if (Debug.ON)
-                Debug.trace("loaded log instance " + insName + " impl "
-                        + implName);
+                Debug.trace("loaded log instance " + insName + " impl " + implName);
         }
 
     }
@@ -166,10 +163,9 @@ public class LogSubsystem implements ILogSubsystem {
         while (enum1.hasMoreElements()) {
             String instName = (String) enum1.nextElement();
 
-            Debug.trace("about to call inst=" + instName
-                    + " in LogSubsystem.startup()");
-            ILogEventListener inst = (ILogEventListener) mLogInsts
-                    .get(instName);
+            Debug.trace("about to call inst=" + instName + " in LogSubsystem.startup()");
+            ILogEventListener inst = (ILogEventListener)
+                mLogInsts.get(instName);
 
             inst.startup();
         }
@@ -186,7 +182,7 @@ public class LogSubsystem implements ILogSubsystem {
     /**
      * Returns the root configuration storage of this system.
      * <P>
-     * 
+     *
      * @return configuration store of this subsystem
      */
     public IConfigStore getConfigStore() {
@@ -232,37 +228,40 @@ public class LogSubsystem implements ILogSubsystem {
         return mLogInsts;
     }
 
-    public Vector getLogDefaultParams(String implName) throws ELogException {
+    public Vector getLogDefaultParams(String implName) throws
+            ELogException {
         // is this a registered implname?
-        LogPlugin plugin = (LogPlugin) mLogPlugins.get(implName);
+        LogPlugin plugin = (LogPlugin)
+            mLogPlugins.get(implName);
 
         if (plugin == null) {
             throw new ELogException(implName);
         }
-
+			
         // a temporary instance
         ILogEventListener LogInst = null;
         String className = plugin.getClassPath();
 
         try {
-            LogInst = (ILogEventListener) Class.forName(className)
-                    .newInstance();
+            LogInst = (ILogEventListener)
+                    Class.forName(className).newInstance();
             Vector v = LogInst.getDefaultParams();
 
             return v;
         } catch (InstantiationException e) {
-            throw new ELogException(CMS.getUserMessage(
-                    "CMS_LOG_LOAD_CLASS_FAIL", className));
+            throw new ELogException(
+                    CMS.getUserMessage("CMS_LOG_LOAD_CLASS_FAIL", className));
         } catch (ClassNotFoundException e) {
-            throw new ELogException(CMS.getUserMessage(
-                    "CMS_LOG_LOAD_CLASS_FAIL", className));
+            throw new ELogException(
+                    CMS.getUserMessage("CMS_LOG_LOAD_CLASS_FAIL", className));
         } catch (IllegalAccessException e) {
-            throw new ELogException(CMS.getUserMessage(
-                    "CMS_LOG_LOAD_CLASS_FAIL", className));
+            throw new ELogException(
+                    CMS.getUserMessage("CMS_LOG_LOAD_CLASS_FAIL", className));
         }
     }
 
-    public Vector getLogInstanceParams(String insName) throws ELogException {
+    public Vector getLogInstanceParams(String insName) throws
+            ELogException {
         ILogEventListener logInst = getLogInstance(insName);
 
         if (logInst == null) {
@@ -273,3 +272,4 @@ public class LogSubsystem implements ILogSubsystem {
         return v;
     }
 }
+

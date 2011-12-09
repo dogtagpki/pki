@@ -1,5 +1,4 @@
 package com.netscape.pkisilent.common;
-
 // --- BEGIN COPYRIGHT BLOCK ---
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -26,34 +25,26 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.URLEncoder;
 
+
 public class CMSInstance {
 
     private int i;
     private boolean st;
-    private String host, port, AdminDN, AdminDNPW, serverRoot, instanceID,
-            sieurl, adminDomain, machineName;
+    private String host, port, AdminDN, AdminDNPW, serverRoot, instanceID, sieurl, adminDomain, machineName;
 
     /**
-     * CMS Test framework . This class Creates and Removes a CMS server instance
+     * CMS Test framework .
+     * This class Creates and Removes a CMS server instance 
      */
+
 
     /**
-     * Constructor. Takes parameters hostname, adminserverport, adminDN,
-     * adminDNpassword, Dominanname, ServerRoot( full path) , instanceID,
-     * mnameand sieURL. mname is the fully qualified name of the server (
-     * jupiter2.nscp.aoltw.net) sieURL is
-     * ("ldap://jupiter2.nscp.aoltw.net:(ConfigLADPPort)/o=NetscapeRoot"
+     * Constructor. Takes parameters hostname, adminserverport, adminDN, adminDNpassword, Dominanname, ServerRoot( full path) , instanceID, mnameand sieURL. mname is the fully qualified name of the server ( jupiter2.nscp.aoltw.net) sieURL is ("ldap://jupiter2.nscp.aoltw.net:(ConfigLADPPort)/o=NetscapeRoot"
      */
 
-    private String cs_server_root, cs_tps_root, tps_hostname, tps_fqdn,
-            tps_instanceid, tps_ee_port, tps_agent_port, tps_auth_ldap_host,
-            tps_auth_ldap_port, tps_auth_ldap_suffix, ca_hostname, ca_ee_port,
-            tks_hostname, tks_agent_port, token_db_hostname, token_db_port,
-            token_db_suffix, token_db_passwd;
+    private String cs_server_root, cs_tps_root, tps_hostname, tps_fqdn, tps_instanceid, tps_ee_port, tps_agent_port, tps_auth_ldap_host, tps_auth_ldap_port, tps_auth_ldap_suffix, ca_hostname, ca_ee_port, tks_hostname, tks_agent_port, token_db_hostname, token_db_port, token_db_suffix, token_db_passwd;
 
-    public CMSInstance(String h, String p, String AdDN, String pwd,
-            String domain, String sroot, String insID, String mname,
-            String sieURL) {
+    public CMSInstance(String h, String p, String AdDN, String pwd, String domain, String sroot, String insID, String mname, String sieURL) {
 
         host = h;
         port = p;
@@ -66,11 +57,24 @@ public class CMSInstance {
         sieurl = sieURL;
     }
 
-    public CMSInstance(String croot, String troot, String th, String tfqdn,
-            String tid, String tep, String tagp, String tldaphost,
-            String tldapport, String tldapsuffix, String ch, String ceep,
-            String tkh, String tkagp, String toh, String toagp,
-            String tosuffix, String topasswd) {
+    public CMSInstance(String croot,
+            String troot,
+            String th,
+            String tfqdn,
+            String tid,
+            String tep,
+            String tagp,
+            String tldaphost,
+            String tldapport,
+            String tldapsuffix,
+            String ch,
+            String ceep,
+            String tkh,
+            String tkagp,
+            String toh,
+            String toagp,
+            String tosuffix,
+            String topasswd) {
 
         cs_server_root = croot;
         cs_tps_root = troot;
@@ -97,9 +101,9 @@ public class CMSInstance {
         // steps
         // 1. create .cfg file
         // 2. run create.pl with that .cfg file
-
-        FileOutputStream out = new FileOutputStream(cs_server_root
-                + "/tps_auto_config.cfg");
+	
+        FileOutputStream out = new FileOutputStream(
+                cs_server_root + "/tps_auto_config.cfg");
         BufferedWriter awriter;
 
         awriter = new BufferedWriter(new OutputStreamWriter(out, "8859_1"));
@@ -146,28 +150,27 @@ public class CMSInstance {
         try {
             Process p = null;
             Runtime r = Runtime.getRuntime();
-            // String[] se = {"perl",
-            // cs_server_root+"/bin/cert/tps/setup/create.pl" , "-i",
-            // cs_server_root+"/tps_auto_config.cfg" };
-            String[] se = { "perl",
-                    "/home/ckannan/cms/src/ns/netkeyra/setup/create.pl", "-i",
-                    cs_server_root + "/tps_auto_config.cfg" };
+            // String[] se = {"perl", cs_server_root+"/bin/cert/tps/setup/create.pl" , "-i", cs_server_root+"/tps_auto_config.cfg" };
+            String[] se = {
+                "perl",
+                "/home/ckannan/cms/src/ns/netkeyra/setup/create.pl", "-i",
+                cs_server_root + "/tps_auto_config.cfg" };
 
             System.out.println(se);
-            p = r.exec(se);
+            p = r.exec(se);  
             p.waitFor();
             String line;
 
             if (p.exitValue() == 0) {
-                BufferedReader br = new BufferedReader(new InputStreamReader(
-                        p.getInputStream()));
+                BufferedReader br = new BufferedReader(
+                        new InputStreamReader(p.getInputStream()));
 
                 while ((line = br.readLine()) != null) {
                     System.out.println(line);
                 }
             } else {
-                BufferedReader br = new BufferedReader(new InputStreamReader(
-                        p.getErrorStream()));
+                BufferedReader br = new BufferedReader(
+                        new InputStreamReader(p.getErrorStream()));
 
                 while ((line = br.readLine()) != null) {
                     System.out.println(line);
@@ -189,7 +192,7 @@ public class CMSInstance {
                 + startURL;
 
         System.out.println(myStringUrl);
-
+	
         String query = "serverRoot=" + URLEncoder.encode(serverRoot);
 
         query += "&instanceID=" + URLEncoder.encode(instanceID);
@@ -202,7 +205,7 @@ public class CMSInstance {
         PostQuery sm = new PostQuery(myStringUrl, AdminDN, AdminDNPW, query);
 
         return (sm.Send());
-
+   
     }
 
     public boolean RemoveInstance() {
@@ -211,11 +214,11 @@ public class CMSInstance {
         String myStringUrl = "http://" + host + ":" + port + startURL;
 
         System.out.println(myStringUrl);
-
+	
         String query = "serverRoot=" + URLEncoder.encode(serverRoot);
 
         query += "&instanceID=" + URLEncoder.encode(instanceID);
-
+	
         PostQuery sm = new PostQuery(myStringUrl, AdminDN, AdminDNPW, query);
 
         st = sm.Send();
@@ -230,15 +233,15 @@ public class CMSInstance {
         myStringUrl = "http://" + host + ":" + port + startURL;
 
         System.out.println(myStringUrl);
-
+	
         query = "serverRoot=" + URLEncoder.encode(serverRoot);
         query += "&InstanceName=" + URLEncoder.encode(instanceID + "-db");
-
+	
         PostQuery rmdb = new PostQuery(myStringUrl, AdminDN, AdminDNPW, query);
 
         rmdb.setNMCStatus("NMC_Status: 0");
         return (rmdb.Send());
-
+   
     }
 
     public static void main(String args[]) {
@@ -247,51 +250,50 @@ public class CMSInstance {
         // Exit Status - (-1) for error
         // - 0 FAIL
         // - 1 PASS
-
+ 
         boolean st;
-
+  
         System.out.println(args.length);
         if (args.length < 10) {
-            System.out
-                    .println("Usage : <task:Create/REmove> host port AdminDN AdminDNPW adminDomain serverRoot instanceID machineName sieURL");
+            System.out.println(
+                    "Usage : <task:Create/REmove> host port AdminDN AdminDNPW adminDomain serverRoot instanceID machineName sieURL");
             System.exit(-1);
-        }
+        }   
 
         int task = 0;
 
         args[0] = args[0].toLowerCase();
-        if (args[0].equals("create")) {
+        if (args[0].equals("create")) { 
             task = 0;
         }
         if (args[0].equals("remove")) {
             task = 1;
         }
-
+   
         CMSInstance t = new CMSInstance(args[1], args[2], args[3], args[4],
                 args[5], args[6], args[7], args[8], args[9]);
 
         switch (task) {
-
+        
         case 0:
             st = t.CreateInstance();
-            if (st) {
+            if (st) { 
                 System.out.println("server Instance created ");
                 System.exit(1);
             } else {
-
-                System.out
-                        .println("Error: Server Instance could not be created");
+	
+                System.out.println("Error: Server Instance could not be created");
                 System.exit(0);
             }
             break;
 
         case 1:
             st = t.RemoveInstance();
-            if (st) {
+            if (st) { 
                 System.out.println("Server instance removed");
                 System.exit(1);
             } else {
-
+	
                 System.out.println("Server instance could not be removed");
                 System.exit(0);
             }
@@ -304,5 +306,5 @@ public class CMSInstance {
         } // end of switch
     }// end of function main
 
-} // end of class
+} // end of class 
 

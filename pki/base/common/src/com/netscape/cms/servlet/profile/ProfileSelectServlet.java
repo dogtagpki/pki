@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.profile;
 
+
 import java.util.Enumeration;
 import java.util.Locale;
 
@@ -47,9 +48,10 @@ import com.netscape.certsrv.template.ArgList;
 import com.netscape.certsrv.template.ArgSet;
 import com.netscape.cms.servlet.common.CMSRequest;
 
+
 /**
  * Retrieve detailed information of a particular profile.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class ProfileSelectServlet extends ProfileServlet {
@@ -59,7 +61,7 @@ public class ProfileSelectServlet extends ProfileServlet {
      */
     private static final long serialVersionUID = -3765390650830903602L;
     private static final String PROP_AUTHORITY_ID = "authorityId";
-    private String mAuthorityId = null;
+    private String mAuthorityId = null; 
 
     public ProfileSelectServlet() {
     }
@@ -74,7 +76,7 @@ public class ProfileSelectServlet extends ProfileServlet {
      * <ul>
      * <li>http.param profileId the id of the profile to select
      * </ul>
-     * 
+     *
      * @param cmsReq the object holding the request and response information
      */
     public void process(CMSRequest cmsReq) throws EBaseException {
@@ -94,11 +96,10 @@ public class ProfileSelectServlet extends ProfileServlet {
             } catch (EBaseException e) {
                 CMS.debug("ProcessReqServlet: " + e.toString());
                 log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE",
-                                e.toString()));
+                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
                 args.set(ARG_ERROR_CODE, "1");
-                args.set(ARG_ERROR_REASON,
-                        CMS.getUserMessage(locale, "CMS_AUTHENTICATION_ERROR"));
+                args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
+                        "CMS_AUTHENTICATION_ERROR"));
                 outputTemplate(request, response, args);
                 return;
             }
@@ -107,20 +108,20 @@ public class ProfileSelectServlet extends ProfileServlet {
         AuthzToken authzToken = null;
 
         try {
-            authzToken = authorize(mAclMethod, authToken, mAuthzResourceName,
-                    "read");
+            authzToken = authorize(mAclMethod, authToken,
+                        mAuthzResourceName, "read");
         } catch (EAuthzAccessDenied e) {
             log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
         } catch (Exception e) {
             log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
         }
 
         if (authzToken == null) {
             args.set(ARG_ERROR_CODE, "1");
-            args.set(ARG_ERROR_REASON,
-                    CMS.getUserMessage(locale, "CMS_AUTHORIZATION_ERROR"));
+            args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
+                    "CMS_AUTHORIZATION_ERROR"));
             outputTemplate(request, response, args);
             return;
         }
@@ -132,14 +133,14 @@ public class ProfileSelectServlet extends ProfileServlet {
             mProfileSubId = IProfileSubsystem.ID;
         }
         CMS.debug("ProfileSelectServlet: SubId=" + mProfileSubId);
-        IProfileSubsystem ps = (IProfileSubsystem) CMS
-                .getSubsystem(mProfileSubId);
+        IProfileSubsystem ps = (IProfileSubsystem)
+            CMS.getSubsystem(mProfileSubId);
 
         if (ps == null) {
             CMS.debug("ProfileSelectServlet: ProfileSubsystem not found");
             args.set(ARG_ERROR_CODE, "1");
-            args.set(ARG_ERROR_REASON,
-                    CMS.getUserMessage(locale, "CMS_INTERNAL_ERROR"));
+            args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
+                    "CMS_INTERNAL_ERROR"));
             outputTemplate(request, response, args);
             return;
         }
@@ -148,22 +149,22 @@ public class ProfileSelectServlet extends ProfileServlet {
         IAuthority authority = (IAuthority) CMS.getSubsystem(mAuthorityId);
 
         if (authority == null) {
-            CMS.debug("ProfileSelectServlet: Authority " + mAuthorityId
-                    + " not found");
+            CMS.debug("ProfileSelectServlet: Authority " + mAuthorityId +
+                " not found");
             args.set(ARG_ERROR_CODE, "1");
-            args.set(ARG_ERROR_REASON,
-                    CMS.getUserMessage(locale, "CMS_INTERNAL_ERROR"));
+            args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
+                    "CMS_INTERNAL_ERROR"));
             outputTemplate(request, response, args);
             return;
         }
         IRequestQueue queue = authority.getRequestQueue();
 
         if (queue == null) {
-            CMS.debug("ProfileSelectServlet: Request Queue of " + mAuthorityId
-                    + " not found");
+            CMS.debug("ProfileSelectServlet: Request Queue of " +
+                mAuthorityId + " not found");
             args.set(ARG_ERROR_CODE, "1");
-            args.set(ARG_ERROR_REASON,
-                    CMS.getUserMessage(locale, "CMS_INTERNAL_ERROR"));
+            args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
+                    "CMS_INTERNAL_ERROR"));
             outputTemplate(request, response, args);
             return;
         }
@@ -178,8 +179,8 @@ public class ProfileSelectServlet extends ProfileServlet {
             profile = ps.getProfile(profileId);
         } catch (EProfileException e) {
             // profile not found
-            CMS.debug("ProfileSelectServlet: profile not found profileId="
-                    + profileId + " " + e.toString());
+            CMS.debug("ProfileSelectServlet: profile not found profileId=" + 
+                profileId + " " + e.toString());
         }
         if (profile == null) {
             args.set(ARG_ERROR_CODE, "1");
@@ -188,7 +189,7 @@ public class ProfileSelectServlet extends ProfileServlet {
             outputTemplate(request, response, args);
             return;
         }
-
+		
         ArgList setlist = new ArgList();
         Enumeration policySetIds = profile.getProfilePolicySetIds();
 
@@ -202,14 +203,14 @@ public class ProfileSelectServlet extends ProfileServlet {
                 if (policyIds != null) {
                     while (policyIds.hasMoreElements()) {
                         String id = (String) policyIds.nextElement();
-                        IProfilePolicy policy = (IProfilePolicy) profile
-                                .getProfilePolicy(setId, id);
+                        IProfilePolicy policy = (IProfilePolicy)
+                            profile.getProfilePolicy(setId, id);
 
                         // (3) query all the profile policies
-                        // (4) default plugins convert request parameters into
-                        // string
-                        // http parameters
-                        handlePolicy(list, response, locale, id, policy);
+                        // (4) default plugins convert request parameters into string
+                        //     http parameters
+                        handlePolicy(list, response, locale,
+                            id, policy);
                     }
                 }
                 ArgSet setArg = new ArgSet();
@@ -223,31 +224,29 @@ public class ProfileSelectServlet extends ProfileServlet {
 
         args.set(ARG_PROFILE_ID, profileId);
         args.set(ARG_PROFILE_IS_ENABLED,
-                Boolean.toString(ps.isProfileEnable(profileId)));
+            Boolean.toString(ps.isProfileEnable(profileId)));
         args.set(ARG_PROFILE_ENABLED_BY, ps.getProfileEnableBy(profileId));
         args.set(ARG_PROFILE_NAME, profile.getName(locale));
-        args.set(ARG_PROFILE_DESC, profile.getDescription(locale));
-        args.set(ARG_PROFILE_IS_VISIBLE, Boolean.toString(profile.isVisible()));
+        args.set(ARG_PROFILE_DESC, profile.getDescription(locale)); 
+        args.set(ARG_PROFILE_IS_VISIBLE, 
+            Boolean.toString(profile.isVisible()));
         args.set(ARG_ERROR_CODE, "0");
         args.set(ARG_ERROR_REASON, "");
 
         try {
-            boolean keyArchivalEnabled = CMS.getConfigStore().getBoolean(
-                    "ca.connector.KRA.enable", false);
-            if (keyArchivalEnabled == true) {
-                CMS.debug("ProfileSelectServlet: keyArchivalEnabled is true");
+          boolean keyArchivalEnabled = CMS.getConfigStore().getBoolean("ca.connector.KRA.enable", false);
+          if (keyArchivalEnabled == true) {
+            CMS.debug("ProfileSelectServlet: keyArchivalEnabled is true");
 
-                // output transport certificate if present
-                args.set(
-                        "transportCert",
-                        CMS.getConfigStore().getString(
-                                "ca.connector.KRA.transportCert", ""));
-            } else {
-                CMS.debug("ProfileSelectServlet: keyArchivalEnabled is false");
-                args.set("transportCert", "");
-            }
+            // output transport certificate if present
+            args.set("transportCert", 
+            CMS.getConfigStore().getString("ca.connector.KRA.transportCert", ""));
+          } else {
+            CMS.debug("ProfileSelectServlet: keyArchivalEnabled is false");
+            args.set("transportCert",  "");
+          }
         } catch (EBaseException e) {
-            CMS.debug("ProfileSelectServlet: exception caught:" + e.toString());
+          CMS.debug("ProfileSelectServlet: exception caught:"+e.toString());
         }
 
         // build authentication
@@ -260,7 +259,7 @@ public class ProfileSelectServlet extends ProfileServlet {
             // authenticator not installed correctly
             args.set(ARG_ERROR_CODE, "1");
             args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
-                    "CMS_AUTHENTICATION_MANAGER_NOT_FOUND",
+                    "CMS_AUTHENTICATION_MANAGER_NOT_FOUND", 	
                     profile.getAuthenticatorId()));
             outputTemplate(request, response, args);
             return;
@@ -273,8 +272,8 @@ public class ProfileSelectServlet extends ProfileServlet {
                 while (authNames.hasMoreElements()) {
                     ArgSet authset = new ArgSet();
                     String authName = (String) authNames.nextElement();
-                    IDescriptor authDesc = authenticator.getValueDescriptor(
-                            locale, authName);
+                    IDescriptor authDesc = 
+                        authenticator.getValueDescriptor(locale, authName);
 
                     if (authDesc == null)
                         continue;
@@ -292,8 +291,8 @@ public class ProfileSelectServlet extends ProfileServlet {
             args.set(ARG_AUTH_LIST, authlist);
             args.set(ARG_AUTH_NAME, authenticator.getName(locale));
             args.set(ARG_AUTH_DESC, authenticator.getText(locale));
-            args.set(ARG_AUTH_IS_SSL,
-                    Boolean.toString(authenticator.isSSLClientRequired()));
+            args.set(ARG_AUTH_IS_SSL, 
+                Boolean.toString(authenticator.isSSLClientRequired()));
         }
 
         // build input list
@@ -310,10 +309,10 @@ public class ProfileSelectServlet extends ProfileServlet {
 
                     ArgSet inputpluginset = new ArgSet();
                     inputpluginset.set(ARG_INPUT_PLUGIN_ID, inputId);
-                    inputpluginset.set(ARG_INPUT_PLUGIN_NAME,
-                            profileInput.getName(locale));
-                    inputpluginset.set(ARG_INPUT_PLUGIN_DESC,
-                            profileInput.getText(locale));
+                    inputpluginset.set(ARG_INPUT_PLUGIN_NAME, 
+                        profileInput.getName(locale));
+                    inputpluginset.set(ARG_INPUT_PLUGIN_DESC, 
+                        profileInput.getText(locale));
                     inputPluginlist.add(inputpluginset);
 
                     Enumeration inputNames = profileInput.getValueNames();
@@ -321,17 +320,15 @@ public class ProfileSelectServlet extends ProfileServlet {
                     if (inputNames != null) {
                         while (inputNames.hasMoreElements()) {
                             ArgSet inputset = new ArgSet();
-                            String inputName = (String) inputNames
-                                    .nextElement();
-                            IDescriptor inputDesc = profileInput
-                                    .getValueDescriptor(locale, inputName);
+                            String inputName = (String) inputNames.nextElement();
+                            IDescriptor inputDesc = profileInput.getValueDescriptor(
+                                    locale, inputName);
 
                             if (inputDesc == null)
                                 continue;
                             String inputSyntax = inputDesc.getSyntax();
                             String inputConstraint = inputDesc.getConstraint();
-                            String inputValueName = inputDesc
-                                    .getDescription(locale);
+                            String inputValueName = inputDesc.getDescription(locale);
                             String inputValue = null;
 
                             inputset.set(ARG_INPUT_PLUGIN_ID, inputId);
@@ -355,8 +352,8 @@ public class ProfileSelectServlet extends ProfileServlet {
         outputTemplate(request, response, args);
     }
 
-    private void handlePolicy(ArgList list, ServletResponse response,
-            Locale locale, String id, IProfilePolicy policy) {
+    private void handlePolicy(ArgList list, ServletResponse response, 
+        Locale locale, String id, IProfilePolicy policy) {
         ArgSet set = new ArgSet();
 
         set.set(ARG_POLICY_ID, id);

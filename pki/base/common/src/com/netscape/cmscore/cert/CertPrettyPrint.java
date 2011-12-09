@@ -17,18 +17,20 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.cert;
 
+
 import java.security.cert.Certificate;
 
 import com.netscape.certsrv.base.ICertPrettyPrint;
 
+
 /**
- * This class will display the certificate content in predefined format.
- * 
+ * This class will display the certificate content in predefined
+ * format.
+ *
  * @author Jack Pan-Chen
  * @version $Revision$, $Date$
  */
-public class CertPrettyPrint extends netscape.security.util.CertPrettyPrint
-        implements ICertPrettyPrint {
+public class CertPrettyPrint extends netscape.security.util.CertPrettyPrint implements ICertPrettyPrint {
 
     public CertPrettyPrint(Certificate cert) {
         super(cert);

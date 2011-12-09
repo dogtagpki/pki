@@ -17,10 +17,13 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.notification;
 
+
+
+
 /**
- * Files to be processed and returned to the requested parties. It is a template
- * with $tokens to be used by the form/template processor.
- * 
+ * Files to be processed and returned to the requested parties. It
+ * is a template with $tokens to be used by the form/template processor.
+ *
  * @version $Revision$, $Date$
  */
 
@@ -33,7 +36,7 @@ public interface IEmailTemplate {
      */
     public String getTemplateName();
 
-    /**
+    /** 
      * @return true if template is an html file, false otherwise
      */
     public boolean isHTML();

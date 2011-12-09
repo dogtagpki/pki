@@ -17,10 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.apps;
 
+
 /**
- * A class represents a listener that listens to PKIServer event.
+ * A class represents a listener that listens to
+ * PKIServer event.
  * <P>
- * 
+ *
  * @author thomask
  * @version $Revision$, $Date$
  */

@@ -17,12 +17,15 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.request;
 
+
 /**
- * An example of a more specialized request interface. This version (currently)
- * doesn't supply any additional data, but is implementated only for testing and
+ * An example of a more specialized request interface.
+ * This version (currently) doesn't supply any additional
+ * data, but is implementated only for testing and
  * demonstration purposes.
- * 
+ *
  * @version $Revision$, $Date$
  */
-public interface IEnrollmentRequest extends IRequest {
+public interface IEnrollmentRequest
+    extends IRequest {
 }

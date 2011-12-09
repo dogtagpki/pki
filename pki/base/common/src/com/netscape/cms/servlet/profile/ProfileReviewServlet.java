@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.profile;
 
+
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Random;
@@ -53,9 +54,10 @@ import com.netscape.certsrv.template.ArgList;
 import com.netscape.certsrv.template.ArgSet;
 import com.netscape.cms.servlet.common.CMSRequest;
 
+
 /**
  * This servlet allows reviewing of profile-based request.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class ProfileReviewServlet extends ProfileServlet {
@@ -67,7 +69,7 @@ public class ProfileReviewServlet extends ProfileServlet {
 
     private static final String PROP_AUTHORITY_ID = "authorityId";
 
-    private String mAuthorityId = null;
+    private String mAuthorityId = null; 
     private Random mRandom = null;
     private Nonces mNonces = null;
 
@@ -77,7 +79,7 @@ public class ProfileReviewServlet extends ProfileServlet {
     /**
      * initialize the servlet. This servlet uses the template file
      * "ImportCert.template" to process the response.
-     * 
+     *
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -99,7 +101,7 @@ public class ProfileReviewServlet extends ProfileServlet {
      * <ul>
      * <li>http.param requestId the ID of the profile to review
      * </ul>
-     * 
+     *
      * @param cmsReq the object holding the request and response information
      */
     public void process(CMSRequest cmsReq) throws EBaseException {
@@ -118,33 +120,32 @@ public class ProfileReviewServlet extends ProfileServlet {
             } catch (EBaseException e) {
                 CMS.debug("ReviewReqServlet: " + e.toString());
                 log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE",
-                                e.toString()));
-                args.set(ARG_ERROR_CODE, "1");
-                args.set(ARG_ERROR_REASON,
-                        CMS.getUserMessage(locale, "CMS_AUTHENTICATION_ERROR"));
+                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                args.set(ARG_ERROR_CODE, "1"); 
+                args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale, 
+                        "CMS_AUTHENTICATION_ERROR"));
                 outputTemplate(request, response, args);
                 return;
-            }
+            }    
         }
 
         AuthzToken authzToken = null;
 
         try {
-            authzToken = authorize(mAclMethod, authToken, mAuthzResourceName,
-                    "read");
+            authzToken = authorize(mAclMethod, authToken,
+                        mAuthzResourceName, "read");
         } catch (EAuthzAccessDenied e) {
             log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
         } catch (Exception e) {
             log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
         }
 
         if (authzToken == null) {
-            args.set(ARG_ERROR_CODE, "1");
-            args.set(ARG_ERROR_REASON,
-                    CMS.getUserMessage(locale, "CMS_AUTHORIZATION_ERROR"));
+            args.set(ARG_ERROR_CODE, "1"); 
+            args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale, 
+                    "CMS_AUTHORIZATION_ERROR"));
             outputTemplate(request, response, args);
             return;
         }
@@ -156,14 +157,14 @@ public class ProfileReviewServlet extends ProfileServlet {
             mProfileSubId = IProfileSubsystem.ID;
         }
         CMS.debug("ProfileReviewServlet: SubId=" + mProfileSubId);
-        IProfileSubsystem ps = (IProfileSubsystem) CMS
-                .getSubsystem(mProfileSubId);
+        IProfileSubsystem ps = (IProfileSubsystem)
+            CMS.getSubsystem(mProfileSubId);
 
         if (ps == null) {
             CMS.debug("ProfileReviewServlet: ProfileSubsystem not found");
             args.set(ARG_ERROR_CODE, "1");
-            args.set(ARG_ERROR_REASON,
-                    CMS.getUserMessage(locale, "CMS_INTERNAL_ERROR"));
+            args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
+                    "CMS_INTERNAL_ERROR"));
             outputTemplate(request, response, args);
             return;
         }
@@ -172,22 +173,22 @@ public class ProfileReviewServlet extends ProfileServlet {
         IAuthority authority = (IAuthority) CMS.getSubsystem(mAuthorityId);
 
         if (authority == null) {
-            CMS.debug("ProfileReviewServlet: Authority " + mAuthorityId
-                    + " not found");
+            CMS.debug("ProfileReviewServlet: Authority " + mAuthorityId +
+                " not found");
             args.set(ARG_ERROR_CODE, "1");
-            args.set(ARG_ERROR_REASON,
-                    CMS.getUserMessage(locale, "CMS_INTERNAL_ERROR"));
+            args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
+                    "CMS_INTERNAL_ERROR"));
             outputTemplate(request, response, args);
             return;
         }
         IRequestQueue queue = authority.getRequestQueue();
 
         if (queue == null) {
-            CMS.debug("ProfileReviewServlet: Request Queue of " + mAuthorityId
-                    + " not found");
+            CMS.debug("ProfileReviewServlet: Request Queue of " +
+                mAuthorityId + " not found");
             args.set(ARG_ERROR_CODE, "1");
-            args.set(ARG_ERROR_REASON,
-                    CMS.getUserMessage(locale, "CMS_INTERNAL_ERROR"));
+            args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
+                    "CMS_INTERNAL_ERROR"));
             outputTemplate(request, response, args);
             return;
         }
@@ -200,8 +201,8 @@ public class ProfileReviewServlet extends ProfileServlet {
             req = queue.findRequest(new RequestId(requestId));
         } catch (EBaseException e) {
             // request not found
-            CMS.debug("ProfileReviewServlet: request not found requestId="
-                    + requestId + " " + e.toString());
+            CMS.debug("ProfileReviewServlet: request not found requestId=" + 
+                requestId + " " + e.toString());
         }
         if (req == null) {
             args.set(ARG_ERROR_CODE, "1");
@@ -213,17 +214,16 @@ public class ProfileReviewServlet extends ProfileServlet {
 
         String profileId = req.getExtDataInString("profileId");
 
-        CMS.debug("ProfileReviewServlet: requestId=" + requestId
-                + " profileId=" + profileId);
+        CMS.debug("ProfileReviewServlet: requestId=" + 
+            requestId + " profileId=" + profileId);
         IProfile profile = null;
 
         try {
             profile = ps.getProfile(profileId);
         } catch (EProfileException e) {
             // profile not found
-            CMS.debug("ProfileReviewServlet: profile not found requestId="
-                    + requestId + " profileId=" + profileId + " "
-                    + e.toString());
+            CMS.debug("ProfileReviewServlet: profile not found requestId=" + 
+                requestId + " profileId=" + profileId + " " + e.toString());
         }
         if (profile == null) {
             args.set(ARG_ERROR_CODE, "1");
@@ -232,26 +232,27 @@ public class ProfileReviewServlet extends ProfileServlet {
             outputTemplate(request, response, args);
             return;
         }
-
+		
         String profileSetId = req.getExtDataInString("profileSetId");
 
         CMS.debug("ProfileReviewServlet: profileSetId=" + profileSetId);
-        Enumeration policyIds = (profileSetId != null && profileSetId.length() > 0) ? profile
-                .getProfilePolicyIds(profileSetId) : null;
+        Enumeration policyIds = (profileSetId != null && profileSetId.length() > 0)?
+                                 profile.getProfilePolicyIds(profileSetId): null;
         int count = 0;
         ArgList list = new ArgList();
 
         if (policyIds != null) {
-            while (policyIds.hasMoreElements()) {
+            while (policyIds.hasMoreElements()) { 
                 String id = (String) policyIds.nextElement();
-                IProfilePolicy policy = (IProfilePolicy) profile
-                        .getProfilePolicy(
-                                req.getExtDataInString("profileSetId"), id);
+                IProfilePolicy policy = (IProfilePolicy)
+                    profile.getProfilePolicy(req.getExtDataInString("profileSetId"),
+                        id);
 
                 // (3) query all the profile policies
                 // (4) default plugins convert request parameters into string
-                // http parameters
-                handlePolicy(list, response, locale, id, policy, req);
+                //     http parameters
+                handlePolicy(list, response, locale,
+                    id, policy, req);
                 count++;
             }
         }
@@ -268,33 +269,34 @@ public class ProfileReviewServlet extends ProfileServlet {
         args.set(ARG_REQUEST_TYPE, req.getRequestType());
         args.set(ARG_REQUEST_STATUS, req.getRequestStatus().toString());
         if (req.getRequestOwner() == null) {
-            args.set(ARG_REQUEST_OWNER, "");
+          args.set(ARG_REQUEST_OWNER, "");
         } else {
-            args.set(ARG_REQUEST_OWNER, req.getRequestOwner());
+          args.set(ARG_REQUEST_OWNER, req.getRequestOwner());
         }
         args.set(ARG_REQUEST_CREATION_TIME, req.getCreationTime().toString());
-        args.set(ARG_REQUEST_MODIFICATION_TIME, req.getModificationTime()
-                .toString());
+        args.set(ARG_REQUEST_MODIFICATION_TIME, 	
+            req.getModificationTime().toString());
 
         args.set(ARG_PROFILE_ID, profileId);
-        args.set(ARG_PROFILE_APPROVED_BY,
-                req.getExtDataInString("profileApprovedBy"));
+        args.set(ARG_PROFILE_APPROVED_BY, 
+            req.getExtDataInString("profileApprovedBy"));
         args.set(ARG_PROFILE_SET_ID, req.getExtDataInString("profileSetId"));
         if (profile.isVisible()) {
-            args.set(ARG_PROFILE_IS_VISIBLE, "true");
+          args.set(ARG_PROFILE_IS_VISIBLE, "true");
         } else {
-            args.set(ARG_PROFILE_IS_VISIBLE, "false");
+          args.set(ARG_PROFILE_IS_VISIBLE, "false");
         }
         args.set(ARG_PROFILE_NAME, profile.getName(locale));
         args.set(ARG_PROFILE_DESC, profile.getDescription(locale));
-        args.set(ARG_PROFILE_REMOTE_HOST,
-                req.getExtDataInString("profileRemoteHost"));
-        args.set(ARG_PROFILE_REMOTE_ADDR,
-                req.getExtDataInString("profileRemoteAddr"));
+        args.set(ARG_PROFILE_REMOTE_HOST, 
+            req.getExtDataInString("profileRemoteHost"));
+        args.set(ARG_PROFILE_REMOTE_ADDR, 
+            req.getExtDataInString("profileRemoteAddr"));
         if (req.getExtDataInString("requestNotes") == null) {
             args.set(ARG_REQUEST_NOTES, "");
         } else {
-            args.set(ARG_REQUEST_NOTES, req.getExtDataInString("requestNotes"));
+            args.set(ARG_REQUEST_NOTES, 
+                req.getExtDataInString("requestNotes"));
         }
 
         args.set(ARG_RECORD, list);
@@ -320,20 +322,17 @@ public class ProfileReviewServlet extends ProfileServlet {
                         ArgSet inputset = new ArgSet();
                         String inputName = (String) inputNames.nextElement();
 
-                        IDescriptor inputDesc = profileInput
-                                .getValueDescriptor(locale, inputName);
+                        IDescriptor inputDesc = profileInput.getValueDescriptor(locale, inputName);
 
                         if (inputDesc == null)
                             continue;
                         String inputSyntax = inputDesc.getSyntax();
                         String inputConstraint = inputDesc.getConstraint();
-                        String inputValueName = inputDesc
-                                .getDescription(locale);
+                        String inputValueName = inputDesc.getDescription(locale);
                         String inputValue = null;
 
                         try {
-                            inputValue = profileInput.getValue(inputName,
-                                    locale, req);
+                            inputValue = profileInput.getValue(inputName, locale, req);
                         } catch (EBaseException e) {
                             CMS.debug("ProfileReviewServlet: " + e.toString());
                         }
@@ -358,31 +357,32 @@ public class ProfileReviewServlet extends ProfileServlet {
         if (outputIds != null) {
             while (outputIds.hasMoreElements()) {
                 String outputId = (String) outputIds.nextElement();
-                IProfileOutput profileOutput = profile
-                        .getProfileOutput(outputId);
+                IProfileOutput profileOutput = profile.getProfileOutput(outputId
+                    );
 
                 Enumeration outputNames = profileOutput.getValueNames();
 
                 if (outputNames != null) {
                     while (outputNames.hasMoreElements()) {
                         ArgSet outputset = new ArgSet();
-                        String outputName = (String) outputNames.nextElement();
-                        IDescriptor outputDesc = profileOutput
-                                .getValueDescriptor(locale, outputName);
+                        String outputName = (String) outputNames.nextElement
+                            ();
+                        IDescriptor outputDesc =
+                            profileOutput.getValueDescriptor(locale, outputName);
 
                         if (outputDesc == null)
                             continue;
                         String outputSyntax = outputDesc.getSyntax();
                         String outputConstraint = outputDesc.getConstraint();
-                        String outputValueName = outputDesc
-                                .getDescription(locale);
+                        String outputValueName = outputDesc.getDescription(locale);
                         String outputValue = null;
 
                         try {
                             outputValue = profileOutput.getValue(outputName,
-                                    locale, req);
+                                        locale, req);
                         } catch (EProfileException e) {
-                            CMS.debug("ProfileSubmitServlet: " + e.toString());
+                            CMS.debug("ProfileSubmitServlet: " + e.toString(
+                                ));
                         }
 
                         outputset.set(ARG_OUTPUT_ID, outputName);
@@ -401,8 +401,9 @@ public class ProfileReviewServlet extends ProfileServlet {
         outputTemplate(request, response, args);
     }
 
-    private void handlePolicy(ArgList list, ServletResponse response,
-            Locale locale, String id, IProfilePolicy policy, IRequest req) {
+    private void handlePolicy(ArgList list, ServletResponse response, 
+        Locale locale, String id, IProfilePolicy policy, 
+        IRequest req) {
         ArgSet set = new ArgSet();
 
         set.set(ARG_POLICY_ID, id);

@@ -1,3 +1,4 @@
+
 // --- BEGIN COPYRIGHT BLOCK ---
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,6 +17,7 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.def;
+
 
 import java.io.IOException;
 import java.util.Enumeration;
@@ -47,9 +49,10 @@ import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 
 /**
- * This class implements an enrollment default policy that populates a policy
- * mappings extension into the certificate template.
- * 
+ * This class implements an enrollment default policy
+ * that populates a policy mappings extension
+ * into the certificate template.
+ *
  * @version $Revision$, $Date$
  */
 public class CertificatePoliciesExtDefault extends EnrollExtDefault {
@@ -119,30 +122,32 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
     }
 
     public void init(IProfile profile, IConfigStore config)
-            throws EProfileException {
+        throws EProfileException {
         super.init(profile, config);
 
         refreshConfigAndValueNames();
     }
 
-    public void setConfig(String name, String value) throws EPropertyException {
+    public void setConfig(String name, String value)
+        throws EPropertyException {
         int num = 0;
         if (name.equals(CONFIG_POLICY_NUM)) {
-            try {
-                num = Integer.parseInt(value);
+          try {
+            num = Integer.parseInt(value);
 
-                if (num >= MAX_NUM_POLICIES || num < 0) {
-                    throw new EPropertyException(CMS.getUserMessage(
-                            "CMS_INVALID_PROPERTY", CONFIG_POLICY_NUM));
-                }
-
-            } catch (Exception e) {
+            if (num >= MAX_NUM_POLICIES || num < 0) {
                 throw new EPropertyException(CMS.getUserMessage(
-                        "CMS_INVALID_PROPERTY", CONFIG_POLICY_NUM));
+                            "CMS_INVALID_PROPERTY", CONFIG_POLICY_NUM));
             }
+
+          } catch (Exception e) {
+                throw new EPropertyException(CMS.getUserMessage(
+                            "CMS_INVALID_PROPERTY", CONFIG_POLICY_NUM));
+          }
         }
         super.setConfig(name, value);
     }
+
 
     public Enumeration getConfigNames() {
         refreshConfigAndValueNames();
@@ -161,69 +166,67 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
         int numQualifiers = getNumQualifiers();
 
         addConfigName(CONFIG_POLICY_NUM);
-
+        
         for (int i = 0; i < num; i++) {
-            addConfigName(CONFIG_PREFIX + i + SEPARATOR + CONFIG_POLICY_ID);
-            addConfigName(CONFIG_PREFIX + i + SEPARATOR + CONFIG_POLICY_ENABLE);
-            for (int j = 0; j < numQualifiers; j++) {
-                addConfigName(CONFIG_PREFIX + i + SEPARATOR + CONFIG_PREFIX1
-                        + j + SEPARATOR + CONFIG_CPSURI_ENABLE);
-                addConfigName(CONFIG_PREFIX + i + SEPARATOR + CONFIG_PREFIX1
-                        + j + SEPARATOR + CONFIG_USERNOTICE_ENABLE);
-                addConfigName(CONFIG_PREFIX + i + SEPARATOR + CONFIG_PREFIX1
-                        + j + SEPARATOR + CONFIG_CPSURI_VALUE);
-                addConfigName(CONFIG_PREFIX + i + SEPARATOR + CONFIG_PREFIX1
-                        + j + SEPARATOR + CONFIG_USERNOTICE_ORG);
-                addConfigName(CONFIG_PREFIX + i + SEPARATOR + CONFIG_PREFIX1
-                        + j + SEPARATOR + CONFIG_USERNOTICE_NUMBERS);
-                addConfigName(CONFIG_PREFIX + i + SEPARATOR + CONFIG_PREFIX1
-                        + j + SEPARATOR + CONFIG_USERNOTICE_TEXT);
+            addConfigName(CONFIG_PREFIX+i+SEPARATOR+CONFIG_POLICY_ID);
+            addConfigName(CONFIG_PREFIX+i+SEPARATOR+CONFIG_POLICY_ENABLE);
+            for (int j=0; j<numQualifiers; j++) {
+                addConfigName(CONFIG_PREFIX+i+SEPARATOR+CONFIG_PREFIX1+j+SEPARATOR+CONFIG_CPSURI_ENABLE);
+                addConfigName(CONFIG_PREFIX+i+SEPARATOR+CONFIG_PREFIX1+j+SEPARATOR+CONFIG_USERNOTICE_ENABLE);
+                addConfigName(CONFIG_PREFIX+i+SEPARATOR+CONFIG_PREFIX1+j+SEPARATOR+CONFIG_CPSURI_VALUE);
+                addConfigName(CONFIG_PREFIX+i+SEPARATOR+CONFIG_PREFIX1+j+SEPARATOR+CONFIG_USERNOTICE_ORG);
+                addConfigName(CONFIG_PREFIX+i+SEPARATOR+CONFIG_PREFIX1+j+SEPARATOR+CONFIG_USERNOTICE_NUMBERS);
+                addConfigName(CONFIG_PREFIX+i+SEPARATOR+CONFIG_PREFIX1+j+SEPARATOR+CONFIG_USERNOTICE_TEXT);
             }
         }
     }
 
-    public IDescriptor getConfigDescriptor(Locale locale, String name) {
+    public IDescriptor getConfigDescriptor(Locale locale, String name) { 
 
         if (name.equals(CONFIG_CRITICAL)) {
-            return new Descriptor(IDescriptor.BOOLEAN, null, "false",
+            return new Descriptor(IDescriptor.BOOLEAN, null,
+                    "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_CRITICAL"));
         } else if (name.indexOf(CONFIG_POLICY_ID) >= 0) {
-            return new Descriptor(IDescriptor.STRING, null, null,
-                    CMS.getUserMessage(locale, "CMS_PROFILE_POLICY_ID"));
+            return new Descriptor(IDescriptor.STRING, null,
+              null,
+              CMS.getUserMessage(locale, "CMS_PROFILE_POLICY_ID"));
         } else if (name.indexOf(CONFIG_CPSURI_ENABLE) >= 0) {
-            return new Descriptor(IDescriptor.BOOLEAN, null, "false",
-                    CMS.getUserMessage(locale,
-                            "CMS_PROFILE_POLICY_QUALIFIER_CPSURI_ENABLE"));
+            return new Descriptor(IDescriptor.BOOLEAN, null,
+              "false",
+              CMS.getUserMessage(locale, "CMS_PROFILE_POLICY_QUALIFIER_CPSURI_ENABLE"));
         } else if (name.indexOf(CONFIG_USERNOTICE_ENABLE) >= 0) {
-            return new Descriptor(IDescriptor.BOOLEAN, null, "false",
-                    CMS.getUserMessage(locale,
-                            "CMS_PROFILE_POLICY_QUALIFIER_USERNOTICE_ENABLE"));
+            return new Descriptor(IDescriptor.BOOLEAN, null,
+              "false",
+              CMS.getUserMessage(locale, "CMS_PROFILE_POLICY_QUALIFIER_USERNOTICE_ENABLE"));
         } else if (name.indexOf(CONFIG_POLICY_ENABLE) >= 0) {
-            return new Descriptor(IDescriptor.BOOLEAN, null, "false",
-                    CMS.getUserMessage(locale,
-                            "CMS_PROFILE_CERTIFICATE_POLICY_ENABLE"));
+            return new Descriptor(IDescriptor.BOOLEAN, null,
+                    "false",
+                    CMS.getUserMessage(locale, "CMS_PROFILE_CERTIFICATE_POLICY_ENABLE"));
         } else if (name.indexOf(CONFIG_POLICY_QUALIFIERS_NUM) >= 0) {
-            return new Descriptor(IDescriptor.INTEGER, null, "1",
-                    CMS.getUserMessage(locale,
-                            "CMS_PROFILE_POLICY_QUALIFIER_NUM"));
+            return new Descriptor(IDescriptor.INTEGER, null,
+                    "1",
+                    CMS.getUserMessage(locale, "CMS_PROFILE_POLICY_QUALIFIER_NUM"));
         } else if (name.indexOf(CONFIG_USERNOTICE_ORG) >= 0) {
-            return new Descriptor(IDescriptor.STRING, null, null,
-                    CMS.getUserMessage(locale,
-                            "CMS_PROFILE_POLICY_USERNOTICE_REF_ORG"));
+            return new Descriptor(IDescriptor.STRING, null,
+                    null,
+                    CMS.getUserMessage(locale, "CMS_PROFILE_POLICY_USERNOTICE_REF_ORG"));
         } else if (name.indexOf(CONFIG_USERNOTICE_NUMBERS) >= 0) {
-            return new Descriptor(IDescriptor.STRING, null, null,
-                    CMS.getUserMessage(locale,
-                            "CMS_PROFILE_POLICY_USERNOTICE_REF_NUMBERS"));
+            return new Descriptor(IDescriptor.STRING, null,
+                    null,
+                    CMS.getUserMessage(locale, "CMS_PROFILE_POLICY_USERNOTICE_REF_NUMBERS"));
         } else if (name.indexOf(CONFIG_USERNOTICE_TEXT) >= 0) {
-            return new Descriptor(IDescriptor.STRING, null, null,
-                    CMS.getUserMessage(locale,
-                            "CMS_PROFILE_POLICY_USERNOTICE_EXPLICIT_TEXT"));
+            return new Descriptor(IDescriptor.STRING, null,
+                    null,
+                    CMS.getUserMessage(locale, "CMS_PROFILE_POLICY_USERNOTICE_EXPLICIT_TEXT"));
         } else if (name.indexOf(CONFIG_CPSURI_VALUE) >= 0) {
-            return new Descriptor(IDescriptor.STRING, null, null,
+            return new Descriptor(IDescriptor.STRING, null,
+                    null,
                     CMS.getUserMessage(locale, "CMS_PROFILE_POLICY_CPSURI"));
         } else if (name.indexOf(CONFIG_POLICY_NUM) >= 0) {
-            return new Descriptor(IDescriptor.INTEGER, null, "5",
-                    CMS.getUserMessage(locale, "CMS_PROFILE_NUM_POLICIES"));
+            return new Descriptor(IDescriptor.INTEGER, null,
+                   "5",
+                   CMS.getUserMessage(locale, "CMS_PROFILE_NUM_POLICIES"));
         }
         return null;
     }
@@ -231,10 +234,12 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
     public IDescriptor getValueDescriptor(Locale locale, String name) {
 
         if (name.equals(VAL_CRITICAL)) {
-            return new Descriptor(IDescriptor.BOOLEAN, null, "false",
+            return new Descriptor(IDescriptor.BOOLEAN, null, 
+                    "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_CRITICAL"));
         } else if (name.equals(VAL_POLICY_QUALIFIERS)) {
-            return new Descriptor(IDescriptor.STRING_LIST, null, null,
+            return new Descriptor(IDescriptor.STRING_LIST, null,
+                    null,
                     CMS.getUserMessage(locale, "CMS_PROFILE_POLICY_QUALIFIERS"));
         }
         return null;
@@ -248,143 +253,126 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
             int index = token.indexOf(":");
             if (index <= 0)
                 throw new EPropertyException(CMS.getUserMessage(
-                        "CMS_INVALID_PROPERTY", token));
+                  "CMS_INVALID_PROPERTY", token));
             String name = token.substring(0, index);
             String val = "";
-            if ((token.length() - 1) > index) {
-                val = token.substring(index + 1);
+            if ((token.length()-1) > index) {
+                val = token.substring(index+1);
             }
             table.put(name, val);
-        }
-
+        }        
+    
         return table;
     }
 
-    public void setValue(String name, Locale locale, X509CertInfo info,
-            String value) throws EPropertyException {
+    public void setValue(String name, Locale locale,
+        X509CertInfo info, String value)
+        throws EPropertyException {
         try {
             CertificatePoliciesExtension ext = null;
 
             if (name == null) {
-                throw new EPropertyException(CMS.getUserMessage(locale,
-                        "CMS_INVALID_PROPERTY", name));
+                throw new EPropertyException(CMS.getUserMessage( 
+                            locale, "CMS_INVALID_PROPERTY", name));
             }
             if (name.equals(VAL_CRITICAL)) {
-                ext = (CertificatePoliciesExtension) getExtension(
-                        PKIXExtensions.CertificatePolicies_Id.toString(), info);
+                ext = (CertificatePoliciesExtension)
+                        getExtension(PKIXExtensions.CertificatePolicies_Id.toString(), 
+                            info);
                 boolean val = Boolean.valueOf(value).booleanValue();
 
-                ext.setCritical(val);
-            } else if (name.equals(VAL_POLICY_QUALIFIERS)) {
-                ext = (CertificatePoliciesExtension) getExtension(
-                        PKIXExtensions.CertificatePolicies_Id.toString(), info);
-
+                ext.setCritical(val); 
+            } else if (name.equals(VAL_POLICY_QUALIFIERS)) { 
+                ext = (CertificatePoliciesExtension)
+                        getExtension(PKIXExtensions.CertificatePolicies_Id.toString(), 
+                            info);
+                
                 Hashtable h = buildRecords(value);
 
-                String numStr = (String) h.get(CONFIG_POLICY_NUM);
+                String numStr = (String)h.get(CONFIG_POLICY_NUM);
                 int size = Integer.parseInt(numStr);
 
                 Vector certificatePolicies = new Vector();
                 for (int i = 0; i < size; i++) {
-                    String enable = (String) h.get(CONFIG_PREFIX + i
-                            + SEPARATOR + CONFIG_POLICY_ENABLE);
+                    String enable = (String)h.get(CONFIG_PREFIX+i+SEPARATOR+CONFIG_POLICY_ENABLE);
                     CertificatePolicyInfo cinfo = null;
                     if (enable != null && enable.equals("true")) {
-                        String policyId = (String) h.get(CONFIG_PREFIX + i
-                                + SEPARATOR + CONFIG_POLICY_ID);
+                        String policyId = (String)h.get(CONFIG_PREFIX+i+SEPARATOR+CONFIG_POLICY_ID);
 
-                        if (policyId == null || policyId.length() == 0)
-                            throw new EPropertyException(
-                                    CMS.getUserMessage(locale,
-                                            "CMS_PROFILE_CERTIFICATE_POLICIES_EMPTY_POLICYID"));
+                        if (policyId == null || policyId.length() == 0) 
+                            throw new EPropertyException(CMS.getUserMessage( 
+                                        locale, "CMS_PROFILE_CERTIFICATE_POLICIES_EMPTY_POLICYID"));
                         CertificatePolicyId cpolicyId = getPolicyId(policyId);
 
-                        String qualifersNum = (String) h.get(CONFIG_PREFIX + i
-                                + SEPARATOR + CONFIG_POLICY_QUALIFIERS_NUM);
+                        String qualifersNum = (String)h.get(CONFIG_PREFIX+i+SEPARATOR+CONFIG_POLICY_QUALIFIERS_NUM);
                         PolicyQualifiers policyQualifiers = new PolicyQualifiers();
                         int num = 0;
                         if (qualifersNum != null && qualifersNum.length() > 0)
                             num = Integer.parseInt(qualifersNum);
-                        for (int j = 0; j < num; j++) {
-                            String cpsuriEnable = (String) h.get(CONFIG_PREFIX
-                                    + i + SEPARATOR + CONFIG_PREFIX1 + j
-                                    + SEPARATOR + CONFIG_CPSURI_ENABLE);
-                            String usernoticeEnable = (String) h
-                                    .get(CONFIG_PREFIX + i + SEPARATOR
-                                            + CONFIG_PREFIX1 + j + SEPARATOR
-                                            + CONFIG_USERNOTICE_ENABLE);
-                            if (cpsuriEnable != null
-                                    && cpsuriEnable.equals("true")) {
-                                String cpsuri = (String) h.get(CONFIG_PREFIX
-                                        + i + SEPARATOR + CONFIG_PREFIX1 + j
-                                        + SEPARATOR + CONFIG_CPSURI_VALUE);
+                        for (int j=0; j<num; j++) {
+                            String cpsuriEnable = (String)h.get(CONFIG_PREFIX+i+SEPARATOR+CONFIG_PREFIX1+j+SEPARATOR+CONFIG_CPSURI_ENABLE);
+                            String usernoticeEnable = (String)h.get(CONFIG_PREFIX+i+SEPARATOR+CONFIG_PREFIX1+j+SEPARATOR+CONFIG_USERNOTICE_ENABLE);
+                            if (cpsuriEnable != null && cpsuriEnable.equals("true")) {
+                                String cpsuri = (String)h.get(CONFIG_PREFIX+i+SEPARATOR+CONFIG_PREFIX1+j+SEPARATOR+CONFIG_CPSURI_VALUE);
                                 netscape.security.x509.PolicyQualifierInfo qualifierInfo = createCPSuri(cpsuri);
                                 if (qualifierInfo != null)
-                                    policyQualifiers.add(qualifierInfo);
-                            } else if (usernoticeEnable != null
-                                    && enable.equals("true")) {
-                                String org = (String) h.get(CONFIG_PREFIX + i
-                                        + SEPARATOR + CONFIG_PREFIX1 + j
-                                        + SEPARATOR + CONFIG_USERNOTICE_ORG);
-                                String noticenumbers = (String) h
-                                        .get(CONFIG_PREFIX + i + SEPARATOR
-                                                + CONFIG_PREFIX1 + j
-                                                + SEPARATOR
-                                                + CONFIG_USERNOTICE_NUMBERS);
-                                String explicitText = (String) h
-                                        .get(CONFIG_PREFIX + i + SEPARATOR
-                                                + CONFIG_PREFIX1 + j
-                                                + SEPARATOR
-                                                + CONFIG_USERNOTICE_TEXT);
-                                netscape.security.x509.PolicyQualifierInfo qualifierInfo = createUserNotice(
-                                        org, noticenumbers, explicitText);
+                                  policyQualifiers.add(qualifierInfo);
+                            } else if (usernoticeEnable != null && enable.equals("true")) {
+                                String org = (String)h.get(CONFIG_PREFIX+i+SEPARATOR+CONFIG_PREFIX1+j+SEPARATOR+CONFIG_USERNOTICE_ORG);
+                                String noticenumbers = (String)h.get(CONFIG_PREFIX+i+SEPARATOR+CONFIG_PREFIX1+j+SEPARATOR+CONFIG_USERNOTICE_NUMBERS);
+                                String explicitText = (String)h.get(CONFIG_PREFIX+i+SEPARATOR+CONFIG_PREFIX1+j+SEPARATOR+CONFIG_USERNOTICE_TEXT);
+                                netscape.security.x509.PolicyQualifierInfo qualifierInfo = createUserNotice(org,
+                                  noticenumbers, explicitText);
                                 if (qualifierInfo != null)
-                                    policyQualifiers.add(qualifierInfo);
+                                  policyQualifiers.add(qualifierInfo);
                             }
                         }
 
                         if (policyQualifiers.size() <= 0) {
-                            cinfo = new CertificatePolicyInfo(cpolicyId);
+                            cinfo =
+                              new CertificatePolicyInfo(cpolicyId);
                         } else {
-                            cinfo = new CertificatePolicyInfo(cpolicyId,
-                                    policyQualifiers);
+                            cinfo =
+                              new CertificatePolicyInfo(cpolicyId, policyQualifiers);
                         }
                         if (cinfo != null)
-                            certificatePolicies.addElement(cinfo);
+                          certificatePolicies.addElement(cinfo);
                     }
                 }
 
                 ext.set(CertificatePoliciesExtension.INFOS, certificatePolicies);
             } else {
-                throw new EPropertyException(CMS.getUserMessage(locale,
-                        "CMS_INVALID_PROPERTY", name));
+                throw new EPropertyException(CMS.getUserMessage( 
+                            locale, "CMS_INVALID_PROPERTY", name));
             }
 
             replaceExtension(PKIXExtensions.CertificatePolicies_Id.toString(),
-                    ext, info);
+                ext, info);
         } catch (EProfileException e) {
             CMS.debug("CertificatePoliciesExtDefault: setValue " + e.toString());
-            throw new EPropertyException(CMS.getUserMessage(locale,
-                    "CMS_INVALID_PROPERTY", name));
+            throw new EPropertyException(CMS.getUserMessage( 
+                        locale, "CMS_INVALID_PROPERTY", name));
         } catch (IOException e) {
             CMS.debug("CertificatePoliciesExtDefault: setValue " + e.toString());
-            throw new EPropertyException(CMS.getUserMessage(locale,
-                    "CMS_INVALID_PROPERTY", name));
+            throw new EPropertyException(CMS.getUserMessage( 
+                        locale, "CMS_INVALID_PROPERTY", name));
         }
     }
 
-    public String getValue(String name, Locale locale, X509CertInfo info)
-            throws EPropertyException {
+    public String getValue(String name, Locale locale,
+        X509CertInfo info)
+        throws EPropertyException {
         CertificatePoliciesExtension ext = null;
 
         if (name == null) {
-            throw new EPropertyException(CMS.getUserMessage(locale,
-                    "CMS_INVALID_PROPERTY", name));
+            throw new EPropertyException(CMS.getUserMessage( 
+                        locale, "CMS_INVALID_PROPERTY", name));
         }
 
         if (name.equals(VAL_CRITICAL)) {
-            ext = (CertificatePoliciesExtension) getExtension(
-                    PKIXExtensions.CertificatePolicies_Id.toString(), info);
+            ext = (CertificatePoliciesExtension)
+                    getExtension(PKIXExtensions.CertificatePolicies_Id.toString(), 
+                        info);
 
             if (ext == null) {
                 return null;
@@ -394,9 +382,10 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
             } else {
                 return "false";
             }
-        } else if (name.equals(VAL_POLICY_QUALIFIERS)) {
-            ext = (CertificatePoliciesExtension) getExtension(
-                    PKIXExtensions.CertificatePolicies_Id.toString(), info);
+        } else if (name.equals(VAL_POLICY_QUALIFIERS)) { 
+            ext = (CertificatePoliciesExtension)
+                    getExtension(PKIXExtensions.CertificatePolicies_Id.toString(), 
+                        info);
 
             if (ext == null)
                 return "";
@@ -410,7 +399,7 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
             sb.append("\n");
             Vector infos = null;
             try {
-                infos = (Vector) (ext.get(CertificatePoliciesExtension.INFOS));
+                infos = (Vector)(ext.get(CertificatePoliciesExtension.INFOS)); 
             } catch (IOException ee) {
             }
             Enumeration policies = ext.getElements();
@@ -420,79 +409,70 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
                 String policyId = "";
                 String policyEnable = "false";
                 PolicyQualifiers qualifiers = null;
-                if (infos.size() > 0) {
-                    CertificatePolicyInfo cinfo = (CertificatePolicyInfo) infos
-                            .elementAt(0);
-
-                    CertificatePolicyId id1 = cinfo.getPolicyIdentifier();
+                if (infos.size() > 0) { 
+                    CertificatePolicyInfo cinfo = 
+                        (CertificatePolicyInfo) infos.elementAt(0);
+                
+                    CertificatePolicyId id1 = cinfo.getPolicyIdentifier();               
                     policyId = id1.getIdentifier().toString();
                     policyEnable = "true";
                     qualifiers = cinfo.getPolicyQualifiers();
                     if (qualifiers != null)
-                        qSize = qualifiers.size();
+                      qSize = qualifiers.size();
                     infos.removeElementAt(0);
                 }
-                sb.append(CONFIG_PREFIX + i + SEPARATOR + CONFIG_POLICY_ENABLE);
+                sb.append(CONFIG_PREFIX+i+SEPARATOR+CONFIG_POLICY_ENABLE);
                 sb.append(":");
                 sb.append(policyEnable);
                 sb.append("\n");
-                sb.append(CONFIG_PREFIX + i + SEPARATOR + CONFIG_POLICY_ID);
+                sb.append(CONFIG_PREFIX+i+SEPARATOR+CONFIG_POLICY_ID);
                 sb.append(":");
                 sb.append(policyId);
                 sb.append("\n");
-
+          
                 if (qSize == 0) {
-                    sb.append(CONFIG_PREFIX + i + SEPARATOR
-                            + CONFIG_POLICY_QUALIFIERS_NUM);
+                    sb.append(CONFIG_PREFIX+i+SEPARATOR+CONFIG_POLICY_QUALIFIERS_NUM);
                     sb.append(":");
                     sb.append(DEF_NUM_QUALIFIERS);
                     sb.append("\n");
                 } else {
-                    sb.append(CONFIG_PREFIX + i + SEPARATOR
-                            + CONFIG_POLICY_QUALIFIERS_NUM);
+                    sb.append(CONFIG_PREFIX+i+SEPARATOR+CONFIG_POLICY_QUALIFIERS_NUM);
                     sb.append(":");
                     sb.append(qSize);
                     sb.append("\n");
                 }
                 if (qSize == 0) {
-                    sb.append(CONFIG_PREFIX + i + SEPARATOR + CONFIG_PREFIX1
-                            + "0" + SEPARATOR + CONFIG_CPSURI_ENABLE);
+                    sb.append(CONFIG_PREFIX+i+SEPARATOR+CONFIG_PREFIX1+"0"+SEPARATOR+CONFIG_CPSURI_ENABLE);
                     sb.append(":");
                     sb.append("false");
                     sb.append("\n");
-                    sb.append(CONFIG_PREFIX + i + SEPARATOR + CONFIG_PREFIX1
-                            + "0" + SEPARATOR + CONFIG_CPSURI_VALUE);
+                    sb.append(CONFIG_PREFIX+i+SEPARATOR+CONFIG_PREFIX1+"0"+SEPARATOR+CONFIG_CPSURI_VALUE);
                     sb.append(":");
                     sb.append("");
                     sb.append("\n");
-                    sb.append(CONFIG_PREFIX + i + SEPARATOR + CONFIG_PREFIX1
-                            + "0" + SEPARATOR + CONFIG_USERNOTICE_ENABLE);
+                    sb.append(CONFIG_PREFIX+i+SEPARATOR+CONFIG_PREFIX1+"0"+SEPARATOR+CONFIG_USERNOTICE_ENABLE);
                     sb.append(":");
                     sb.append("false");
                     sb.append("\n");
-                    sb.append(CONFIG_PREFIX + i + SEPARATOR + CONFIG_PREFIX1
-                            + "0" + SEPARATOR + CONFIG_USERNOTICE_ORG);
+                    sb.append(CONFIG_PREFIX+i+SEPARATOR+CONFIG_PREFIX1+"0"+SEPARATOR+CONFIG_USERNOTICE_ORG);
                     sb.append(":");
                     sb.append("");
                     sb.append("\n");
-                    sb.append(CONFIG_PREFIX + i + SEPARATOR + CONFIG_PREFIX1
-                            + "0" + SEPARATOR + CONFIG_USERNOTICE_NUMBERS);
+                    sb.append(CONFIG_PREFIX+i+SEPARATOR+CONFIG_PREFIX1+"0"+SEPARATOR+CONFIG_USERNOTICE_NUMBERS);
                     sb.append(":");
                     sb.append("");
                     sb.append("\n");
-                    sb.append(CONFIG_PREFIX + i + SEPARATOR + CONFIG_PREFIX1
-                            + "0" + SEPARATOR + CONFIG_USERNOTICE_TEXT);
+                    sb.append(CONFIG_PREFIX+i+SEPARATOR+CONFIG_PREFIX1+"0"+SEPARATOR+CONFIG_USERNOTICE_TEXT);
                     sb.append(":");
                     sb.append("");
                     sb.append("\n");
                 }
 
-                for (int j = 0; j < qSize; j++) {
-                    netscape.security.x509.PolicyQualifierInfo qinfo = qualifiers
-                            .getInfoAt(j);
+                for (int j=0; j<qSize; j++) {
+                    netscape.security.x509.PolicyQualifierInfo qinfo = qualifiers.getInfoAt(j);
                     ObjectIdentifier oid = qinfo.getId();
                     Qualifier qualifier = qinfo.getQualifier();
-
+                        
                     String cpsuriEnable = "false";
                     String usernoticeEnable = "false";
                     String cpsuri = "";
@@ -500,23 +480,18 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
                     StringBuffer noticeNum = new StringBuffer();
                     String explicitText = "";
 
-                    if (oid.toString().equals(
-                            netscape.security.x509.PolicyQualifierInfo.QT_CPS
-                                    .toString())) {
+                    if (oid.toString().equals(netscape.security.x509.PolicyQualifierInfo.QT_CPS.toString())) {
                         cpsuriEnable = "true";
-                        CPSuri content = (CPSuri) qualifier;
-                        cpsuri = content.getURI();
-                    } else if (oid
-                            .toString()
-                            .equals(netscape.security.x509.PolicyQualifierInfo.QT_UNOTICE
-                                    .toString())) {
+                        CPSuri content = (CPSuri)qualifier;
+                        cpsuri = content.getURI(); 
+                    } else if (oid.toString().equals(netscape.security.x509.PolicyQualifierInfo.QT_UNOTICE.toString())) {
                         usernoticeEnable = "true";
-                        UserNotice content = (UserNotice) qualifier;
+                        UserNotice content = (UserNotice)qualifier;
                         NoticeReference ref = content.getNoticeReference();
                         if (ref != null) {
                             org = ref.getOrganization().getText();
                             int[] nums = ref.getNumbers();
-                            for (int k = 0; k < nums.length; k++) {
+                            for (int k=0; k<nums.length; k++) {
                                 if (k != 0) {
                                     noticeNum.append(",");
                                     noticeNum.append(nums[k]);
@@ -529,33 +504,27 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
                             explicitText = displayText.getText();
                     }
 
-                    sb.append(CONFIG_PREFIX + i + SEPARATOR + CONFIG_PREFIX1
-                            + j + SEPARATOR + CONFIG_CPSURI_ENABLE);
+                    sb.append(CONFIG_PREFIX+i+SEPARATOR+CONFIG_PREFIX1+j+SEPARATOR+CONFIG_CPSURI_ENABLE);
                     sb.append(":");
                     sb.append(cpsuriEnable);
                     sb.append("\n");
-                    sb.append(CONFIG_PREFIX + i + SEPARATOR + CONFIG_PREFIX1
-                            + j + SEPARATOR + CONFIG_CPSURI_VALUE);
+                    sb.append(CONFIG_PREFIX+i+SEPARATOR+CONFIG_PREFIX1+j+SEPARATOR+CONFIG_CPSURI_VALUE);
                     sb.append(":");
                     sb.append(cpsuri);
                     sb.append("\n");
-                    sb.append(CONFIG_PREFIX + i + SEPARATOR + CONFIG_PREFIX1
-                            + j + SEPARATOR + CONFIG_USERNOTICE_ENABLE);
+                    sb.append(CONFIG_PREFIX+i+SEPARATOR+CONFIG_PREFIX1+j+SEPARATOR+CONFIG_USERNOTICE_ENABLE);
                     sb.append(":");
                     sb.append(usernoticeEnable);
                     sb.append("\n");
-                    sb.append(CONFIG_PREFIX + i + SEPARATOR + CONFIG_PREFIX1
-                            + j + SEPARATOR + CONFIG_USERNOTICE_ORG);
+                    sb.append(CONFIG_PREFIX+i+SEPARATOR+CONFIG_PREFIX1+j+SEPARATOR+CONFIG_USERNOTICE_ORG);
                     sb.append(":");
                     sb.append(org);
                     sb.append("\n");
-                    sb.append(CONFIG_PREFIX + i + SEPARATOR + CONFIG_PREFIX1
-                            + j + SEPARATOR + CONFIG_USERNOTICE_NUMBERS);
+                    sb.append(CONFIG_PREFIX+i+SEPARATOR+CONFIG_PREFIX1+j+SEPARATOR+CONFIG_USERNOTICE_NUMBERS);
                     sb.append(":");
                     sb.append(noticeNum.toString());
                     sb.append("\n");
-                    sb.append(CONFIG_PREFIX + i + SEPARATOR + CONFIG_PREFIX1
-                            + j + SEPARATOR + CONFIG_USERNOTICE_TEXT);
+                    sb.append(CONFIG_PREFIX+i+SEPARATOR+CONFIG_PREFIX1+j+SEPARATOR+CONFIG_USERNOTICE_TEXT);
                     sb.append(":");
                     sb.append(explicitText);
                     sb.append("\n");
@@ -563,8 +532,8 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
             } // end of for loop
             return sb.toString();
         } else {
-            throw new EPropertyException(CMS.getUserMessage(locale,
-                    "CMS_INVALID_PROPERTY", name));
+            throw new EPropertyException(CMS.getUserMessage( 
+                        locale, "CMS_INVALID_PROPERTY", name));
         }
     }
 
@@ -582,8 +551,7 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
             sb.append(",");
             for (int i = 0; i < num; i++) {
                 sb.append("{");
-                IConfigStore substore = basesubstore.getSubStore(CONFIG_PREFIX
-                        + i);
+                IConfigStore substore = basesubstore.getSubStore(CONFIG_PREFIX+i);
                 String enable = substore.getString(CONFIG_POLICY_ENABLE, "");
                 sb.append(POLICY_ID_ENABLE + ":");
                 sb.append(enable);
@@ -592,41 +560,34 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
                 sb.append(POLICY_ID + ":");
                 sb.append(policyId);
                 sb.append(",");
-                String qualifiersNum = substore.getString(
-                        CONFIG_POLICY_QUALIFIERS_NUM, "");
-                sb.append(CONFIG_POLICY_QUALIFIERS_NUM + ":");
+                String qualifiersNum = substore.getString(CONFIG_POLICY_QUALIFIERS_NUM, "");
+                sb.append(CONFIG_POLICY_QUALIFIERS_NUM+":");
                 sb.append(qualifiersNum);
                 sb.append(",");
-                for (int j = 0; j < num1; j++) {
-                    IConfigStore substore1 = substore
-                            .getSubStore(CONFIG_PREFIX1 + j);
+                for (int j=0; j<num1; j++) {
+                    IConfigStore substore1 = substore.getSubStore(CONFIG_PREFIX1+j);
                     sb.append("{");
-                    String cpsuriEnable = substore1.getString(
-                            CONFIG_CPSURI_ENABLE, "");
+                    String cpsuriEnable = substore1.getString(CONFIG_CPSURI_ENABLE, "");
                     sb.append(POLICY_QUALIFIER_CPSURI_ENABLE + ":");
                     sb.append(cpsuriEnable);
                     sb.append(",");
-                    String usernoticeEnable = substore1.getString(
-                            CONFIG_USERNOTICE_ENABLE, "");
-                    sb.append(POLICY_QUALIFIER_USERNOTICE_ENABLE + ":");
+                    String usernoticeEnable = substore1.getString(CONFIG_USERNOTICE_ENABLE, "");
+                    sb.append(POLICY_QUALIFIER_USERNOTICE_ENABLE+ ":");
                     sb.append(usernoticeEnable);
                     sb.append(",");
                     String org = substore1.getString(CONFIG_USERNOTICE_ORG, "");
                     sb.append(USERNOTICE_REF_ORG + ":");
                     sb.append(org);
                     sb.append(",");
-                    String refNums = substore1.getString(
-                            CONFIG_USERNOTICE_NUMBERS, "");
+                    String refNums = substore1.getString(CONFIG_USERNOTICE_NUMBERS, "");
                     sb.append(USERNOTICE_REF_NUMBERS + ":");
                     sb.append(refNums);
                     sb.append(",");
-                    String explicitText = substore1.getString(
-                            CONFIG_USERNOTICE_TEXT, "");
+                    String explicitText = substore1.getString(CONFIG_USERNOTICE_TEXT, "");
                     sb.append(USERNOTICE_EXPLICIT_TEXT + ":");
                     sb.append(explicitText);
                     sb.append(",");
-                    String cpsuri = substore1
-                            .getString(CONFIG_CPSURI_VALUE, "");
+                    String cpsuri = substore1.getString(CONFIG_CPSURI_VALUE, "");
                     sb.append(CPSURI + ":");
                     sb.append(cpsuri);
                     sb.append("}");
@@ -634,9 +595,9 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
                 sb.append("}");
             }
             sb.append("}");
-            return CMS.getUserMessage(locale,
-                    "CMS_PROFILE_DEF_CERTIFICATE_POLICIES_EXT",
-                    getConfig(CONFIG_CRITICAL), sb.toString());
+            return CMS.getUserMessage(locale, 
+                "CMS_PROFILE_DEF_CERTIFICATE_POLICIES_EXT", 
+                getConfig(CONFIG_CRITICAL), sb.toString());
         } catch (Exception e) {
             return "";
         }
@@ -646,144 +607,127 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
      * Populates the request with this policy default.
      */
     public void populate(IRequest request, X509CertInfo info)
-            throws EProfileException {
+        throws EProfileException {
         CertificatePoliciesExtension ext = createExtension();
 
         if (ext == null)
             return;
-        addExtension(PKIXExtensions.CertificatePolicies_Id.toString(), ext,
-                info);
+        addExtension(PKIXExtensions.CertificatePolicies_Id.toString(), 
+            ext, info);
     }
 
-    public CertificatePoliciesExtension createExtension()
-            throws EProfileException {
-        CertificatePoliciesExtension ext = null;
+    public CertificatePoliciesExtension createExtension() 
+      throws EProfileException {
+        CertificatePoliciesExtension ext = null; 
 
         try {
             boolean critical = getConfigBoolean(CONFIG_CRITICAL);
             Vector certificatePolicies = new Vector();
             int num = getNumPolicies();
-            CMS.debug("CertificatePoliciesExtension: createExtension: number of policies="
-                    + num);
+            CMS.debug("CertificatePoliciesExtension: createExtension: number of policies="+num);
             IConfigStore config = getConfigStore();
 
-            for (int i = 0; i < num; i++) {
+            for (int i = 0; i < num; i++) { 
                 IConfigStore basesubstore = config.getSubStore("params");
-                IConfigStore substore = basesubstore.getSubStore(CONFIG_PREFIX
-                        + i);
+                IConfigStore substore = basesubstore.getSubStore(CONFIG_PREFIX+i);
                 String enable = substore.getString(CONFIG_POLICY_ENABLE);
 
-                CMS.debug("CertificatePoliciesExtension: createExtension: CertificatePolicy "
-                        + i + " enable=" + enable);
+                CMS.debug("CertificatePoliciesExtension: createExtension: CertificatePolicy "+i+" enable="+enable);
                 if (enable != null && enable.equals("true")) {
                     String policyId = substore.getString(CONFIG_POLICY_ID);
                     CertificatePolicyId cpolicyId = getPolicyId(policyId);
-                    CMS.debug("CertificatePoliciesExtension: createExtension: CertificatePolicy "
-                            + i + " policyId=" + policyId);
+                    CMS.debug("CertificatePoliciesExtension: createExtension: CertificatePolicy "+i+" policyId="+policyId);
                     int qualifierNum = getNumQualifiers();
                     PolicyQualifiers policyQualifiers = new PolicyQualifiers();
-                    for (int j = 0; j < qualifierNum; j++) {
-                        IConfigStore substore1 = substore
-                                .getSubStore(CONFIG_PREFIX1 + j);
-                        String cpsuriEnable = substore1
-                                .getString(CONFIG_CPSURI_ENABLE);
-                        String usernoticeEnable = substore1
-                                .getString(CONFIG_USERNOTICE_ENABLE);
+                    for (int j=0; j<qualifierNum; j++) {
+                        IConfigStore substore1 = substore.getSubStore(CONFIG_PREFIX1+j);
+                        String cpsuriEnable = substore1.getString(CONFIG_CPSURI_ENABLE);
+                        String usernoticeEnable = substore1.getString(CONFIG_USERNOTICE_ENABLE);
 
                         if (cpsuriEnable != null && cpsuriEnable.equals("true")) {
-                            String cpsuri = substore1.getString(
-                                    CONFIG_CPSURI_VALUE, "");
-                            netscape.security.x509.PolicyQualifierInfo qualifierInfo = createCPSuri(cpsuri);
+                            String cpsuri = substore1.getString(CONFIG_CPSURI_VALUE, "");
+                            netscape.security.x509.PolicyQualifierInfo qualifierInfo = createCPSuri(cpsuri); 
                             if (qualifierInfo != null)
-                                policyQualifiers.add(qualifierInfo);
-                        } else if (usernoticeEnable != null
-                                && usernoticeEnable.equals("true")) {
+                              policyQualifiers.add(qualifierInfo);
+                        } else if (usernoticeEnable != null && 
+                                     usernoticeEnable.equals("true")) {
 
-                            String org = substore1
-                                    .getString(CONFIG_USERNOTICE_ORG);
-                            String noticenumbers = substore1
-                                    .getString(CONFIG_USERNOTICE_NUMBERS);
-                            String explicitText = substore1
-                                    .getString(CONFIG_USERNOTICE_TEXT);
-                            netscape.security.x509.PolicyQualifierInfo qualifierInfo = createUserNotice(
-                                    org, noticenumbers, explicitText);
+                            String org = substore1.getString(CONFIG_USERNOTICE_ORG);
+                            String noticenumbers = substore1.getString(CONFIG_USERNOTICE_NUMBERS);
+                            String explicitText = substore1.getString(CONFIG_USERNOTICE_TEXT);
+                            netscape.security.x509.PolicyQualifierInfo qualifierInfo = createUserNotice(org,
+                              noticenumbers, explicitText);
                             if (qualifierInfo != null)
                                 policyQualifiers.add(qualifierInfo);
                         }
                     }
-
+                
                     CertificatePolicyInfo info = null;
                     if (policyQualifiers.size() <= 0) {
-                        info = new CertificatePolicyInfo(cpolicyId);
+                        info = 
+                          new CertificatePolicyInfo(cpolicyId);
                     } else {
-                        info = new CertificatePolicyInfo(cpolicyId,
-                                policyQualifiers);
+                        info = 
+                          new CertificatePolicyInfo(cpolicyId, policyQualifiers);
                     }
-
+             
                     if (info != null)
-                        certificatePolicies.addElement(info);
+                      certificatePolicies.addElement(info);
                 }
             }
 
-            ext = new CertificatePoliciesExtension(critical,
-                    certificatePolicies);
+            ext = new CertificatePoliciesExtension(critical, certificatePolicies);
         } catch (EPropertyException e) {
             throw new EProfileException(e.toString());
         } catch (EProfileException e) {
             throw e;
         } catch (Exception e) {
-            CMS.debug("CertificatePoliciesExtDefault: createExtension "
-                    + e.toString());
+            CMS.debug("CertificatePoliciesExtDefault: createExtension " + 
+                e.toString());
         }
 
         return ext;
     }
 
-    private CertificatePolicyId getPolicyId(String policyId)
-            throws EPropertyException {
+    private CertificatePolicyId getPolicyId (String policyId) throws EPropertyException {
         if (policyId == null || policyId.length() == 0)
-            throw new EPropertyException(
-                    CMS.getUserMessage("CMS_PROFILE_CERTIFICATE_POLICIES_EMPTY_POLICYID"));
+            throw new EPropertyException(CMS.getUserMessage(
+              "CMS_PROFILE_CERTIFICATE_POLICIES_EMPTY_POLICYID"));
 
         CertificatePolicyId cpolicyId = null;
         try {
             cpolicyId = new CertificatePolicyId(
-                    ObjectIdentifier.getObjectIdentifier(policyId));
+              ObjectIdentifier.getObjectIdentifier(policyId));
             return cpolicyId;
         } catch (Exception e) {
-            throw new EPropertyException(
-                    CMS.getUserMessage(
-                            "CMS_PROFILE_CERTIFICATE_POLICIES_POLICYID_ERROR",
-                            policyId));
+            throw new EPropertyException(CMS.getUserMessage(
+              "CMS_PROFILE_CERTIFICATE_POLICIES_POLICYID_ERROR", policyId));
         }
     }
 
-    private netscape.security.x509.PolicyQualifierInfo createCPSuri(String uri)
-            throws EPropertyException {
-        if (uri == null || uri.length() == 0)
-            throw new EPropertyException(
-                    CMS.getUserMessage("CMS_PROFILE_CERTIFICATE_POLICIES_EMPTY_CPSURI"));
+    private netscape.security.x509.PolicyQualifierInfo createCPSuri(String uri) throws EPropertyException {
+        if (uri == null || uri.length() == 0) 
+            throw new EPropertyException(CMS.getUserMessage(
+              "CMS_PROFILE_CERTIFICATE_POLICIES_EMPTY_CPSURI"));
 
-        CPSuri cpsURI = new CPSuri(uri);
-        netscape.security.x509.PolicyQualifierInfo policyQualifierInfo2 = new netscape.security.x509.PolicyQualifierInfo(
-                netscape.security.x509.PolicyQualifierInfo.QT_CPS, cpsURI);
-
+        CPSuri cpsURI = new CPSuri(uri); 
+        netscape.security.x509.PolicyQualifierInfo policyQualifierInfo2 =
+          new netscape.security.x509.PolicyQualifierInfo(netscape.security.x509.PolicyQualifierInfo.QT_CPS, cpsURI);
+ 
         return policyQualifierInfo2;
     }
 
-    private netscape.security.x509.PolicyQualifierInfo createUserNotice(
-            String organization, String noticeText, String noticeNums)
-            throws EPropertyException {
-
-        if ((organization == null || organization.length() == 0)
-                && (noticeNums == null || noticeNums.length() == 0)
-                && (noticeText == null || noticeText.length() == 0))
+    private netscape.security.x509.PolicyQualifierInfo createUserNotice(String organization, 
+      String noticeText, String noticeNums) throws EPropertyException {
+   
+        if ((organization == null || organization.length() == 0) && 
+          (noticeNums == null || noticeNums.length() == 0) &&
+          (noticeText == null || noticeText.length() == 0))
             return null;
 
         DisplayText explicitText = null;
-        if (noticeText != null && noticeText.length() > 0)
-            explicitText = new DisplayText(DisplayText.tag_VisibleString,
-                    noticeText);
+        if (noticeText != null && noticeText.length() > 0) 
+            explicitText = new DisplayText(DisplayText.tag_VisibleString, noticeText);
 
         int nums[] = null;
         if (noticeNums != null && noticeNums.length() > 0) {
@@ -807,8 +751,8 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
 
         DisplayText orgName = null;
         if (organization != null && organization.length() > 0) {
-            orgName = new DisplayText(DisplayText.tag_VisibleString,
-                    organization);
+            orgName =
+              new DisplayText(DisplayText.tag_VisibleString, organization);
         }
 
         NoticeReference noticeReference = null;
@@ -818,11 +762,10 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
 
         UserNotice userNotice = null;
         if (explicitText != null || noticeReference != null) {
-            userNotice = new UserNotice(noticeReference, explicitText);
+            userNotice = new UserNotice (noticeReference, explicitText);
 
-            netscape.security.x509.PolicyQualifierInfo policyQualifierInfo1 = new netscape.security.x509.PolicyQualifierInfo(
-                    netscape.security.x509.PolicyQualifierInfo.QT_UNOTICE,
-                    userNotice);
+            netscape.security.x509.PolicyQualifierInfo policyQualifierInfo1 =
+              new netscape.security.x509.PolicyQualifierInfo(netscape.security.x509.PolicyQualifierInfo.QT_UNOTICE, userNotice);
             return policyQualifierInfo1;
         }
 

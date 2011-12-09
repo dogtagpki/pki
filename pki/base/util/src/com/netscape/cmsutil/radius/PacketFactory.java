@@ -17,11 +17,13 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmsutil.radius;
 
+
 import java.io.IOException;
+
 
 public class PacketFactory {
     public static ServerPacket createServerPacket(byte data[])
-            throws IOException {
+        throws IOException {
         switch (data[0] & 0xFF) {
         case Packet.ACCESS_ACCEPT:
             return new AccessAccept(data);

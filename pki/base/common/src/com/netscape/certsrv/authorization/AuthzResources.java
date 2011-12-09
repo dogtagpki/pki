@@ -17,12 +17,13 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.authorization;
 
+
 import java.util.ListResourceBundle;
+
 
 /**
  * A class represents a resource bundle for the authorization subsystem
  * <P>
- * 
  * @deprecated
  * @version $Revision$, $Date$
  */
@@ -30,7 +31,6 @@ public class AuthzResources extends ListResourceBundle {
 
     /**
      * Returns the content of this resource.
-     * 
      * @return the content of this resource
      */
     public Object[][] getContents() {

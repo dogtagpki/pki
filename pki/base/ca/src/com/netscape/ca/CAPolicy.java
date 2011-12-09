@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.ca;
 
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
@@ -31,11 +32,14 @@ import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.policy.GenericPolicyProcessor;
 import com.netscape.cmscore.util.Debug;
 
+
 /**
- * XXX Just inherit 'GenericPolicyProcessor' (from RA) for now. This really bad.
- * need to make a special case just for connector. would like a much better way
- * of doing this to handle both EE and connectors. XXX2 moved to just implement
- * IPolicy since GenericPolicyProcessor is unuseable for CA.
+ * XXX Just inherit 'GenericPolicyProcessor' (from RA) for now. 
+ * This really bad. need to make a special case just for connector. 
+ * would like a much better way of doing this to handle both EE and 
+ * connectors.
+ * XXX2 moved to just implement IPolicy since GenericPolicyProcessor is 
+ * unuseable for CA.
  * 
  * @version $Revision$, $Date$
  */
@@ -43,7 +47,8 @@ public class CAPolicy implements IPolicy {
     IConfigStore mConfig = null;
     ICertificateAuthority mCA = null;
 
-    public static String PROP_PROCESSOR = "processor";
+    public static String PROP_PROCESSOR = 
+        "processor";
     // These are the different types of policy that are
     // allowed for the "processor" property
     public static String PR_TYPE_CLASSIC = "classic";
@@ -59,19 +64,19 @@ public class CAPolicy implements IPolicy {
     }
 
     public void init(ISubsystem owner, IConfigStore config)
-            throws EBaseException {
+        throws EBaseException {
         mCA = (ICertificateAuthority) owner;
         mConfig = config;
 
-        String processorType = // XXX - need to upgrade 4.2
-        config.getString(PROP_PROCESSOR, PR_TYPE_CLASSIC);
+        String processorType =    // XXX - need to upgrade 4.2
+            config.getString(PROP_PROCESSOR, PR_TYPE_CLASSIC);
 
         Debug.trace("selected policy processor = " + processorType);
         if (processorType.equals(PR_TYPE_CLASSIC)) {
             mPolicies = new GenericPolicyProcessor();
         } else {
-            throw new EBaseException("Unknown policy processor type ("
-                    + processorType + ")");
+            throw new EBaseException("Unknown policy processor type (" +
+                    processorType + ")");
         }
 
         mPolicies.init(mCA, mConfig);
@@ -94,31 +99,33 @@ public class CAPolicy implements IPolicy {
             return PolicyResult.REJECTED;
         }
 
-        Debug.trace("in CAPolicy.apply(requestType=" + r.getRequestType()
-                + ",requestId=" + r.getRequestId().toString()
-                + ",requestStatus=" + r.getRequestStatus().toString() + ")");
+        Debug.trace("in CAPolicy.apply(requestType=" +
+            r.getRequestType() + ",requestId=" + 
+            r.getRequestId().toString() + ",requestStatus=" +  
+            r.getRequestStatus().toString() + ")");
 
-        if (isProfileRequest(r)) {
-            Debug.trace("CAPolicy: Profile-base Request "
-                    + r.getRequestId().toString());
+        if (isProfileRequest(r)) { 
+            Debug.trace("CAPolicy: Profile-base Request " + 
+                r.getRequestId().toString()); 
 
-            CMS.debug("CAPolicy: requestId=" + r.getRequestId().toString());
+            CMS.debug("CAPolicy: requestId=" + 
+                r.getRequestId().toString());
 
             String profileId = r.getExtDataInString("profileId");
 
-            if (profileId == null || profileId.equals("")) {
+            if (profileId == null || profileId.equals("")) { 
                 return PolicyResult.REJECTED;
             }
 
-            IProfileSubsystem ps = (IProfileSubsystem) CMS
-                    .getSubsystem("profile");
+            IProfileSubsystem ps = (IProfileSubsystem) 
+                CMS.getSubsystem("profile"); 
 
             try {
-                IProfile profile = ps.getProfile(profileId);
+                IProfile profile = ps.getProfile(profileId); 
 
                 r.setExtData("dbStatus", "NOT_UPDATED");
-                profile.populate(r);
-                profile.validate(r);
+                profile.populate(r); 
+                profile.validate(r); 
                 return PolicyResult.ACCEPTED;
             } catch (EBaseException e) {
                 CMS.debug("CAPolicy: " + e.toString());
@@ -130,3 +137,4 @@ public class CAPolicy implements IPolicy {
     }
 
 }
+

@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.dbs.crldb;
 
+
 import java.math.BigInteger;
 import java.util.Date;
 import java.util.Hashtable;
@@ -25,9 +26,11 @@ import netscape.security.x509.RevokedCertificate;
 
 import com.netscape.certsrv.dbs.IDBObj;
 
+
 /**
- * An interface that defines abilities of a CRL issuing point record.
- * 
+ * An interface that defines abilities of
+ * a CRL issuing point record.
+ *
  * @version $Revision$, $Date$
  */
 public interface ICRLIssuingPointRecord extends IDBObj {
@@ -49,112 +52,111 @@ public interface ICRLIssuingPointRecord extends IDBObj {
     public static final String ATTR_DELTA_CRL = "deltaRevocationList";
 
     public static final String CLEAN_CACHE = "-1";
-    public static final String NEW_CACHE = "-2";
+    public static final String NEW_CACHE   = "-2";
 
     /**
      * Retrieve unique CRL identifier.
-     * 
+     *
      * @return unique CRL identifier
      */
     public String getId();
 
     /**
      * Retrieves current CRL number out of CRL issuing point record.
-     * 
+     *
      * @return current CRL number
      */
     public BigInteger getCRLNumber();
 
     /**
      * Retrieves CRL size measured by the number of entries.
-     * 
+     *
      * @return CRL size
      */
     public Long getCRLSize();
 
     /**
      * Retrieves this update time.
-     * 
+     *
      * @return time of this update
      */
     public Date getThisUpdate();
 
     /**
      * Retrieves next update time.
-     * 
+     *
      * @return time of next update
      */
     public Date getNextUpdate();
 
     /**
      * Retrieves current delta CRL number out of CRL issuing point record.
-     * 
+     *
      * @return current delta CRL number
      */
     public BigInteger getDeltaCRLNumber();
 
     /**
      * Retrieves delta CRL size measured by the number of entries.
-     * 
+     *
      * @return delta CRL size
      */
     public Long getDeltaCRLSize();
 
     /**
      * Retrieve Retrieve reference to the first unsaved data.
-     * 
+     *
      * @return reference to the first unsaved data
      */
     public String getFirstUnsaved();
 
     /**
      * Retrieves encoded CRL.
-     * 
+     *
      * @return encoded CRL
      */
     public byte[] getCRL();
 
     /**
      * Retrieves encoded delta CRL.
-     * 
+     *
      * @return encoded delta CRL
      */
     public byte[] getDeltaCRL();
 
     /**
      * Retrieves encoded CA certificate.
-     * 
+     *
      * @return encoded CA certificate
      */
     public byte[] getCACert();
 
     /**
      * Retrieves cache information about CRL.
-     * 
+     *
      * @return list of recently revoked certificates
      */
-    public Hashtable<BigInteger, RevokedCertificate> getCRLCacheNoClone();
-
-    public Hashtable<BigInteger, RevokedCertificate> getCRLCache();
+    public Hashtable<BigInteger,RevokedCertificate> getCRLCacheNoClone();
+    public Hashtable<BigInteger,RevokedCertificate> getCRLCache();
 
     /**
      * Retrieves cache information about revoked certificates.
-     * 
+     *
      * @return list of recently revoked certificates
      */
-    public Hashtable<BigInteger, RevokedCertificate> getRevokedCerts();
+    public Hashtable<BigInteger,RevokedCertificate> getRevokedCerts();
 
     /**
      * Retrieves cache information about certificates released from hold.
-     * 
+     *
      * @return list of certificates recently released from hold
      */
-    public Hashtable<BigInteger, RevokedCertificate> getUnrevokedCerts();
+    public Hashtable<BigInteger,RevokedCertificate> getUnrevokedCerts();
 
     /**
      * Retrieves cache information about expired certificates.
-     * 
+     *
      * @return list of recently expired certificates
      */
-    public Hashtable<BigInteger, RevokedCertificate> getExpiredCerts();
+    public Hashtable<BigInteger,RevokedCertificate> getExpiredCerts();
 }

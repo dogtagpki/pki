@@ -17,15 +17,15 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.policy;
 
+
 /**
  * Interface for policy predicate parsers.
  * <P>
- * 
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- * 
+ *
  * @deprecated
  * @version $Revision$, $Date$
  */
@@ -33,10 +33,11 @@ public interface IPolicyPredicateParser {
 
     /**
      * Parse the predicate expression and return a vector of expressions.
-     * 
-     * @param predicateExpression The predicate expression as read from the
-     *            config file.
-     * @return expVector The vector of expressions.
+     *
+     * @param predicateExpression	The predicate expression as read from the
+     *		config file.
+     * @return expVector	The vector of expressions.
      */
-    IExpression parse(String predicateExpression) throws EPolicyException;
+    IExpression parse(String predicateExpression)
+        throws EPolicyException;
 }

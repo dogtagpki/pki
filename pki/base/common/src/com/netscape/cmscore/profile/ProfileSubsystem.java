@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.profile;
 
+
 import java.io.File;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -32,6 +33,7 @@ import com.netscape.certsrv.profile.IProfile;
 import com.netscape.certsrv.profile.IProfileSubsystem;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.certsrv.registry.IPluginRegistry;
+
 
 public class ProfileSubsystem implements IProfileSubsystem {
     private static final String PROP_LIST = "list";
@@ -52,7 +54,7 @@ public class ProfileSubsystem implements IProfileSubsystem {
      * Retrieves the name of this subsystem.
      */
     public String getId() {
-        return null;
+        return null; 
     }
 
     /**
@@ -62,18 +64,19 @@ public class ProfileSubsystem implements IProfileSubsystem {
     }
 
     /**
-     * Initializes this subsystem with the given configuration store.
+     * Initializes this subsystem with the given configuration
+     * store.
      * <P>
-     * 
+     *
      * @param owner owner of this subsystem
      * @param config configuration store
      * @exception EBaseException failed to initialize
      */
     public void init(ISubsystem owner, IConfigStore config)
-            throws EBaseException {
+        throws EBaseException {
         CMS.debug("ProfileSubsystem: start init");
-        IPluginRegistry registry = (IPluginRegistry) CMS
-                .getSubsystem(CMS.SUBSYSTEM_REGISTRY);
+        IPluginRegistry registry = (IPluginRegistry)
+            CMS.getSubsystem(CMS.SUBSYSTEM_REGISTRY);
 
         mConfig = config;
         mOwner = owner;
@@ -96,9 +99,8 @@ public class ProfileSubsystem implements IProfileSubsystem {
             IPluginInfo info = registry.getPluginInfo("profile", classid);
             String configPath = subStore.getString(PROP_CONFIG);
 
-            CMS.debug("Start Profile Creation - " + id + " " + classid + " "
-                    + info.getClassName());
-            IProfile profile = createProfile(id, classid, info.getClassName(),
+            CMS.debug("Start Profile Creation - " + id + " " + classid + " " + info.getClassName());
+            IProfile profile = createProfile(id, classid, info.getClassName(), 
                     configPath);
 
             CMS.debug("Done Profile Creation - " + id);
@@ -110,14 +112,15 @@ public class ProfileSubsystem implements IProfileSubsystem {
             String id = (String) ee.nextElement();
 
             CMS.debug("Registered Confirmation - " + id);
-        }
+        }	
     }
 
     /**
      * Creates a profile instance.
      */
-    public IProfile createProfile(String id, String classid, String className,
-            String configPath) throws EProfileException {
+    public IProfile createProfile(String id, String classid, String className, 
+        String configPath)
+        throws EProfileException {
         IProfile profile = null;
 
         try {
@@ -139,13 +142,12 @@ public class ProfileSubsystem implements IProfileSubsystem {
         return null;
     }
 
-    public void deleteProfile(String id, String configPath)
-            throws EProfileException {
-
+    public void deleteProfile(String id, String configPath) throws EProfileException {
+    
         if (isProfileEnable(id)) {
             throw new EProfileException("CMS_PROFILE_DELETE_ENABLEPROFILE");
         }
-
+        
         String ids = "";
         try {
             ids = mConfig.getString(PROP_LIST, "");
@@ -164,7 +166,7 @@ public class ProfileSubsystem implements IProfileSubsystem {
         }
         if (!list.equals(""))
             list = list.substring(0, list.length() - 1);
-
+ 
         mConfig.putString(PROP_LIST, list);
         mConfig.removeSubStore(id);
         File file1 = new File(configPath);
@@ -179,12 +181,13 @@ public class ProfileSubsystem implements IProfileSubsystem {
         }
     }
 
-    public void createProfileConfig(String id, String classId, String configPath)
-            throws EProfileException {
+    public void createProfileConfig(String id, String classId, 
+        String configPath)
+        throws EProfileException {
         try {
             if (mProfiles.size() > 0) {
-                mConfig.putString(PROP_LIST, mConfig.getString(PROP_LIST) + ","
-                        + id);
+                mConfig.putString(PROP_LIST, 
+                    mConfig.getString(PROP_LIST) + "," + id);
             } else {
                 mConfig.putString(PROP_LIST, id);
             }
@@ -204,8 +207,8 @@ public class ProfileSubsystem implements IProfileSubsystem {
     }
 
     /**
-     * Stops this system. The owner may call shutdown anytime after
-     * initialization.
+     * Stops this system. The owner may call shutdown
+     * anytime after initialization.
      * <P>
      */
     public void shutdown() {
@@ -219,7 +222,7 @@ public class ProfileSubsystem implements IProfileSubsystem {
     /**
      * Returns the root configuration storage of this system.
      * <P>
-     * 
+     *
      * @return configuration store of this subsystem
      */
     public IConfigStore getConfigStore() {
@@ -230,7 +233,7 @@ public class ProfileSubsystem implements IProfileSubsystem {
      * Adds a profile.
      */
     public void addProfile(String id, IProfile profile)
-            throws EProfileException {
+        throws EProfileException {
     }
 
     public boolean isProfileEnable(String id) {
@@ -264,7 +267,7 @@ public class ProfileSubsystem implements IProfileSubsystem {
      * Enables a profile for execution.
      */
     public void enableProfile(String id, String enableBy)
-            throws EProfileException {
+        throws EProfileException {
         IProfile profile = (IProfile) mProfiles.get(id);
 
         profile.getConfigStore().putString(PROP_ENABLE, "true");
@@ -278,7 +281,8 @@ public class ProfileSubsystem implements IProfileSubsystem {
     /**
      * Disables a profile for execution.
      */
-    public void disableProfile(String id) throws EProfileException {
+    public void disableProfile(String id)
+        throws EProfileException {
         IProfile profile = (IProfile) mProfiles.get(id);
 
         profile.getConfigStore().putString(PROP_ENABLE, "false");
@@ -291,7 +295,8 @@ public class ProfileSubsystem implements IProfileSubsystem {
     /**
      * Retrieves a profile by id.
      */
-    public IProfile getProfile(String id) throws EProfileException {
+    public IProfile getProfile(String id)
+        throws EProfileException {
         return (IProfile) mProfiles.get(id);
     }
 
@@ -300,7 +305,8 @@ public class ProfileSubsystem implements IProfileSubsystem {
     }
 
     /**
-     * Retrieves a list of profile ids. The return list is of type String.
+     * Retrieves a list of profile ids. The return
+     * list is of type String.
      */
     public Enumeration getProfileIds() {
         return mProfileIds.elements();
@@ -308,14 +314,15 @@ public class ProfileSubsystem implements IProfileSubsystem {
 
     /**
      * Checks if owner id should be enforced during profile approval.
-     * 
+     *
      * @return true if approval should be checked
      */
-    public boolean checkOwner() {
+    public boolean checkOwner()
+    {
         try {
-            return mConfig.getBoolean(PROP_CHECK_OWNER, false);
+          return mConfig.getBoolean(PROP_CHECK_OWNER, false);
         } catch (EBaseException e) {
-            return false;
+          return false;
         }
     }
 }

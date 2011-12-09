@@ -29,7 +29,7 @@ import org.mozilla.jss.asn1.Tag;
 
 /**
  * RFC 2560:
- * 
+ *
  * <pre>
  * OCSPResponseStatus ::= ENUMERATED {
  *     successful            (0),  --Response has valid confirmations
@@ -41,85 +41,95 @@ import org.mozilla.jss.asn1.Tag;
  *     unauthorized          (6)   --Request unauthorized
  * }
  * </pre>
- * 
+ *
  * @version $Revision$ $Date$
  */
-public class OCSPResponseStatus implements ASN1Value {
-    // /////////////////////////////////////////////////////////////////////
-    // Members and member access
-    // /////////////////////////////////////////////////////////////////////
-    public final static OCSPResponseStatus SUCCESSFUL = new OCSPResponseStatus(
-            0);
-    public final static OCSPResponseStatus MALFORMED_REQUEST = new OCSPResponseStatus(
-            1);
-    public final static OCSPResponseStatus INTERNAL_ERROR = new OCSPResponseStatus(
-            2);
-    public final static OCSPResponseStatus TRY_LATER = new OCSPResponseStatus(3);
-    public final static OCSPResponseStatus SIG_REQUIRED = new OCSPResponseStatus(
-            5);
-    public final static OCSPResponseStatus UNAUTHORIZED = new OCSPResponseStatus(
-            6);
+public class OCSPResponseStatus implements ASN1Value
+{
+	///////////////////////////////////////////////////////////////////////
+	// Members and member access
+	///////////////////////////////////////////////////////////////////////
+	public final static OCSPResponseStatus SUCCESSFUL = 
+		new OCSPResponseStatus(0);
+	public final static OCSPResponseStatus MALFORMED_REQUEST =
+		new OCSPResponseStatus(1);
+	public final static OCSPResponseStatus INTERNAL_ERROR =
+		new OCSPResponseStatus(2);
+	public final static OCSPResponseStatus TRY_LATER =
+		new OCSPResponseStatus(3);
+	public final static OCSPResponseStatus SIG_REQUIRED =
+		new OCSPResponseStatus(5);
+	public final static OCSPResponseStatus UNAUTHORIZED = 
+		new OCSPResponseStatus(6);
 
-    private ENUMERATED responseStatus;
+	private ENUMERATED responseStatus;
 
-    public long getValue() {
-        return responseStatus.getValue();
-    }
+	public long getValue()
+	{
+		return responseStatus.getValue();
+	}
 
-    // /////////////////////////////////////////////////////////////////////
-    // Constructors
-    // /////////////////////////////////////////////////////////////////////
-    private OCSPResponseStatus() {
-    }
+	///////////////////////////////////////////////////////////////////////
+	// Constructors
+	///////////////////////////////////////////////////////////////////////
+	private OCSPResponseStatus() { }
 
-    public OCSPResponseStatus(long val) {
-        responseStatus = new ENUMERATED(val);
-    }
+	public OCSPResponseStatus(long val)
+	{
+		responseStatus = new ENUMERATED(val);
+	}
 
-    // /////////////////////////////////////////////////////////////////////
-    // encoding/decoding
-    // /////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////
+	// encoding/decoding
+	///////////////////////////////////////////////////////////////////////
 
-    private static final Tag TAG = ENUMERATED.TAG;
+	private static final Tag TAG = ENUMERATED.TAG;
 
-    public Tag getTag() {
-        return TAG;
-    }
+	public Tag getTag()
+	{
+		return TAG;
+	}
 
-    public void encode(OutputStream ostream) throws IOException {
-        encode(TAG, ostream);
-    }
+	public void encode(OutputStream ostream) throws IOException
+	{
+		encode(TAG, ostream);
+	}
 
-    public void encode(Tag implicitTag, OutputStream ostream)
-            throws IOException {
-        responseStatus.encode(implicitTag, ostream);
-    }
+	public void encode(Tag implicitTag, OutputStream ostream)
+		throws IOException
+	{
+		responseStatus.encode(implicitTag, ostream);
+	}
 
-    private static final Template templateInstance = new Template();
+	private static final Template templateInstance = new Template();
 
-    public static Template getTemplate() {
-        return templateInstance;
-    }
+	public static Template getTemplate() {
+		return templateInstance;
+	}
 
-    /**
-     * A Template for decoding an <code>OCSPResponseStatus</code>.
-     */
-    public static class Template implements ASN1Template {
-        public boolean tagMatch(Tag tag) {
-            return TAG.equals(tag);
-        }
+	/**
+	 * A Template for decoding an <code>OCSPResponseStatus</code>.
+	 */
+	public static class Template implements ASN1Template
+	{
+		public boolean tagMatch(Tag tag)
+		{
+			return TAG.equals(tag);
+		}
 
-        public ASN1Value decode(InputStream istream)
-                throws InvalidBERException, IOException {
-            return decode(TAG, istream);
-        }
+		public ASN1Value decode(InputStream istream)
+			throws InvalidBERException, IOException
+		{
+			return decode(TAG, istream);
+		}
 
-        public ASN1Value decode(Tag implicitTag, InputStream istream)
-                throws InvalidBERException, IOException {
-            ENUMERATED.Template enumt = new ENUMERATED.Template();
-            ENUMERATED enum1 = (ENUMERATED) enumt.decode(implicitTag, istream);
+		public ASN1Value decode(Tag implicitTag, InputStream istream)
+			throws InvalidBERException, IOException
+		{
+			ENUMERATED.Template enumt = new ENUMERATED.Template(); 
+			ENUMERATED enum1 = (ENUMERATED) enumt.decode(implicitTag, istream);
 
-            return new OCSPResponseStatus(enum1.getValue());
-        }
-    }
+			return new OCSPResponseStatus(enum1.getValue());
+		}
+	}
 }

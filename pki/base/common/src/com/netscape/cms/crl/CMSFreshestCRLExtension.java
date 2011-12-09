@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.crl;
 
+
 import java.io.IOException;
 import java.util.Locale;
 
@@ -39,13 +40,14 @@ import com.netscape.certsrv.ca.ICRLIssuingPoint;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.ILogger;
 
+
 /**
  * This represents a freshest CRL extension.
- * 
+ *
  * @version $Revision$, $Date$
  */
-public class CMSFreshestCRLExtension implements ICMSCRLExtension,
-        IExtendedPluginInfo {
+public class CMSFreshestCRLExtension
+    implements ICMSCRLExtension, IExtendedPluginInfo {
     public static final String PROP_NUM_POINTS = "numPoints";
     public static final String PROP_POINTTYPE = "pointType";
     public static final String PROP_POINTNAME = "pointName";
@@ -57,7 +59,8 @@ public class CMSFreshestCRLExtension implements ICMSCRLExtension,
     public CMSFreshestCRLExtension() {
     }
 
-    public Extension setCRLExtensionCriticality(Extension ext, boolean critical) {
+    public Extension setCRLExtensionCriticality(Extension ext,
+        boolean critical) {
         FreshestCRLExtension freshestCRLExt = (FreshestCRLExtension) ext;
 
         freshestCRLExt.setCritical(critical);
@@ -66,7 +69,7 @@ public class CMSFreshestCRLExtension implements ICMSCRLExtension,
     }
 
     public Extension getCRLExtension(IConfigStore config, Object ip,
-            boolean critical) {
+        boolean critical) {
         ICRLIssuingPoint crlIssuingPoint = (ICRLIssuingPoint) ip;
         FreshestCRLExtension freshestCRLExt = null;
 
@@ -75,9 +78,7 @@ public class CMSFreshestCRLExtension implements ICMSCRLExtension,
         try {
             numPoints = config.getInteger("numPoints", 0);
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CRL_CREATE_ISSUER_INVALID_NUM_NAMES",
-                            e.toString()));
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_ISSUER_INVALID_NUM_NAMES", e.toString()));
         }
 
         if (numPoints > 0) {
@@ -90,11 +91,9 @@ public class CMSFreshestCRLExtension implements ICMSCRLExtension,
                 try {
                     pointType = config.getString(PROP_POINTTYPE + i);
                 } catch (EPropertyNotFound e) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                            "CRL_CREATE_DIST_POINT_UNDEFINED", e.toString()));
+                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_DIST_POINT_UNDEFINED", e.toString()));
                 } catch (EBaseException e) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                            "CRL_CREATE_DIST_POINT_INVALID", e.toString()));
+                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_DIST_POINT_INVALID", e.toString()));
                 }
 
                 if (pointType != null) {
@@ -103,13 +102,9 @@ public class CMSFreshestCRLExtension implements ICMSCRLExtension,
                     try {
                         pointName = config.getString(PROP_POINTNAME + i);
                     } catch (EPropertyNotFound e) {
-                        log(ILogger.LL_FAILURE,
-                                CMS.getLogMessage(
-                                        "CRL_CREATE_DIST_POINT_UNDEFINED",
-                                        e.toString()));
+                        log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_DIST_POINT_UNDEFINED", e.toString()));
                     } catch (EBaseException e) {
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                                "CRL_CREATE_DIST_POINT_INVALID", e.toString()));
+                        log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_DIST_POINT_INVALID", e.toString()));
                     }
 
                     if (pointName != null && pointName.length() > 0) {
@@ -119,17 +114,14 @@ public class CMSFreshestCRLExtension implements ICMSCRLExtension,
 
                                 names.addElement(dirName);
                             } catch (IOException e) {
-                                log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                                        "CRL_CREATE_INVALID_500NAME",
-                                        e.toString()));
+                                log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_INVALID_500NAME", e.toString()));
                             }
                         } else if (pointType.equalsIgnoreCase(PROP_URINAME)) {
                             URIName uriName = new URIName(pointName);
 
                             names.addElement(uriName);
                         } else {
-                            log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                                    "CRL_INVALID_POTINT_TYPE", pointType));
+                            log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_INVALID_POTINT_TYPE", pointType));
                         }
                     }
                 }
@@ -138,13 +130,9 @@ public class CMSFreshestCRLExtension implements ICMSCRLExtension,
                     try {
                         crlDP.setFullName(names);
                     } catch (IOException e) {
-                        log(ILogger.LL_FAILURE,
-                                CMS.getLogMessage("CRL_CANNOT_SET_NAME",
-                                        e.toString()));
+                        log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CANNOT_SET_NAME", e.toString()));
                     } catch (GeneralNamesException e) {
-                        log(ILogger.LL_FAILURE,
-                                CMS.getLogMessage("CRL_CANNOT_SET_NAME",
-                                        e.toString()));
+                        log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CANNOT_SET_NAME", e.toString()));
                     }
                 }
 
@@ -170,8 +158,8 @@ public class CMSFreshestCRLExtension implements ICMSCRLExtension,
         try {
             numPoints = config.getInteger(PROP_NUM_POINTS, 0);
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE, "Invalid numPoints property for CRL "
-                    + "Freshest CRL extension - " + e);
+            log(ILogger.LL_FAILURE, "Invalid numPoints property for CRL " +
+                "Freshest CRL extension - " + e);
         }
         nvp.add(PROP_NUM_POINTS, String.valueOf(numPoints));
 
@@ -181,13 +169,9 @@ public class CMSFreshestCRLExtension implements ICMSCRLExtension,
             try {
                 pointType = config.getString(PROP_POINTTYPE + i);
             } catch (EPropertyNotFound e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CRL_CREATE_DIST_POINT_UNDEFINED",
-                                e.toString()));
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_DIST_POINT_UNDEFINED", e.toString()));
             } catch (EBaseException e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CRL_CREATE_DIST_POINT_INVALID",
-                                e.toString()));
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_DIST_POINT_INVALID", e.toString()));
             }
 
             if (pointType != null && pointType.length() > 0) {
@@ -201,13 +185,9 @@ public class CMSFreshestCRLExtension implements ICMSCRLExtension,
             try {
                 pointName = config.getString(PROP_POINTNAME + i);
             } catch (EPropertyNotFound e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CRL_CREATE_DIST_POINT_UNDEFINED",
-                                e.toString()));
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_DIST_POINT_UNDEFINED", e.toString()));
             } catch (EBaseException e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CRL_CREATE_DIST_POINT_INVALID",
-                                e.toString()));
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_DIST_POINT_INVALID", e.toString()));
             }
 
             if (pointName != null && pointName.length() > 0) {
@@ -222,38 +202,35 @@ public class CMSFreshestCRLExtension implements ICMSCRLExtension,
         String[] params = {
                 "enable;boolean;Check to enable Freshest CRL extension.",
                 "critical;boolean;Set criticality for Freshest CRL extension.",
-                PROP_NUM_POINTS
-                        + ";number;Set number of CRL distribution points.",
-                PROP_POINTTYPE + "0;choice(" + PROP_DIRNAME + ","
-                        + PROP_URINAME
-                        + ");Select CRL distribution point name type.",
-                PROP_POINTNAME + "0;string;Enter CRL distribution point name "
-                        + "corresponding to the selected point type.",
-                IExtendedPluginInfo.HELP_TOKEN
-                        + ";configuration-ca-edit-crlextension-issuingdistributionpoint",
-                PROP_POINTTYPE + "1;choice(" + PROP_DIRNAME + ","
-                        + PROP_URINAME
-                        + ");Select CRL distribution point name type.",
-                PROP_POINTNAME + "1;string;Enter CRL distribution point name "
-                        + "corresponding to the selected point type.",
-                IExtendedPluginInfo.HELP_TOKEN
-                        + ";configuration-ca-edit-crlextension-issuingdistributionpoint",
-                PROP_POINTTYPE + "2;choice(" + PROP_DIRNAME + ","
-                        + PROP_URINAME
-                        + ");Select CRL distribution point name type.",
-                PROP_POINTNAME + "2;string;Enter CRL distribution point name "
-                        + "corresponding to the selected point type.",
-                IExtendedPluginInfo.HELP_TOKEN
-                        + ";configuration-ca-edit-crlextension-issuingdistributionpoint",
-                IExtendedPluginInfo.HELP_TEXT
-                        + ";The Freshest CRL is a non critical CRL extension "
-                        + "that identifies the delta CRL distribution points for a particular CRL." };
+                PROP_NUM_POINTS + ";number;Set number of CRL distribution points.",
+                PROP_POINTTYPE + "0;choice(" + PROP_DIRNAME + "," + PROP_URINAME +
+                ");Select CRL distribution point name type.",
+                PROP_POINTNAME + "0;string;Enter CRL distribution point name " +
+                "corresponding to the selected point type.",
+                IExtendedPluginInfo.HELP_TOKEN +
+                ";configuration-ca-edit-crlextension-issuingdistributionpoint",
+                PROP_POINTTYPE + "1;choice(" + PROP_DIRNAME + "," + PROP_URINAME +
+                ");Select CRL distribution point name type.",
+                PROP_POINTNAME + "1;string;Enter CRL distribution point name " +
+                "corresponding to the selected point type.",
+                IExtendedPluginInfo.HELP_TOKEN +
+                ";configuration-ca-edit-crlextension-issuingdistributionpoint",
+                PROP_POINTTYPE + "2;choice(" + PROP_DIRNAME + "," + PROP_URINAME +
+                ");Select CRL distribution point name type.",
+                PROP_POINTNAME + "2;string;Enter CRL distribution point name " +
+                "corresponding to the selected point type.",
+                IExtendedPluginInfo.HELP_TOKEN +
+                ";configuration-ca-edit-crlextension-issuingdistributionpoint",
+                IExtendedPluginInfo.HELP_TEXT +
+                ";The Freshest CRL is a non critical CRL extension " +
+                "that identifies the delta CRL distribution points for a particular CRL."
+            };
 
         return params;
     }
 
     private void log(int level, String msg) {
         mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_CA, level,
-                "CMSFreshestCRLExtension - " + msg);
+            "CMSFreshestCRLExtension - " + msg);
     }
-}
+} 

@@ -17,6 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmsutil.radius;
 
+
+
+
 public class AccessRequest extends NASPacket {
     public AccessRequest(short id, Authenticator auth) {
         super(ACCESS_REQUEST, id, auth);

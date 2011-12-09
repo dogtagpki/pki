@@ -30,7 +30,7 @@ import netscape.security.util.DerValue;
 
 /**
  * This class defines the version of the X509 Certificate.
- * 
+ *
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  * @version 1.8
@@ -40,19 +40,19 @@ public class CertificateVersion implements CertAttrSet {
     /**
      * X509Certificate Version 1
      */
-    public static final int V1 = 0;
+    public static final int 	V1 = 0;
     /**
      * X509Certificate Version 2
      */
-    public static final int V2 = 1;
+    public static final int 	V2 = 1;
     /**
      * X509Certificate Version 3
      */
-    public static final int V3 = 2;
+    public static final int 	V3 = 2;
     /**
-     * Identifier for this attribute, to be used with the get, set, delete
-     * methods of Certificate, x509 type.
-     */
+     * Identifier for this attribute, to be used with the
+     * get, set, delete methods of Certificate, x509 type.
+     */  
     public static final String IDENT = "x509.info.version";
     /**
      * Sub attributes name for this CertAttrSet.
@@ -64,8 +64,8 @@ public class CertificateVersion implements CertAttrSet {
     int version = V1;
 
     // Returns the version number.
-    private int getVersion() {
-        return (version);
+    private int getVersion() { 
+        return(version);
     }
 
     // Construct the class from the passed DerValue
@@ -74,14 +74,14 @@ public class CertificateVersion implements CertAttrSet {
             derVal = derVal.data.getDerValue();
             version = derVal.getInteger().toInt();
             if (derVal.data.available() != 0) {
-                throw new IOException("X.509 version, bad format");
+	        throw new IOException("X.509 version, bad format");
             }
         }
     }
 
     /**
-     * The default constructor for this class, sets the version to 0 (i.e. X.509
-     * version 1).
+     * The default constructor for this class,
+     *  sets the version to 0 (i.e. X.509 version 1).
      */
     public CertificateVersion() {
         version = V1;
@@ -89,7 +89,7 @@ public class CertificateVersion implements CertAttrSet {
 
     /**
      * The constructor for this class for the required version.
-     * 
+     *
      * @param version the version for the certificate.
      * @exception IOException if the version is not valid.
      */
@@ -99,14 +99,14 @@ public class CertificateVersion implements CertAttrSet {
         if (version == V1 || version == V2 || version == V3)
             this.version = version;
         else {
-            throw new IOException("X.509 Certificate version " + version
-                    + " not supported.\n");
+            throw new IOException("X.509 Certificate version " +
+                                   version + " not supported.\n");
         }
     }
 
     /**
      * Create the object, decoding the values from the passed DER stream.
-     * 
+     *
      * @param in the DerInputStream to read the CertificateVersion from.
      * @exception IOException on decoding errors.
      */
@@ -119,7 +119,7 @@ public class CertificateVersion implements CertAttrSet {
 
     /**
      * Create the object, decoding the values from the passed stream.
-     * 
+     *
      * @param in the InputStream to read the CertificateVersion from.
      * @exception IOException on decoding errors.
      */
@@ -132,13 +132,13 @@ public class CertificateVersion implements CertAttrSet {
 
     /**
      * Create the object, decoding the values from the passed DerValue.
-     * 
+     *
      * @param val the Der encoded value.
      * @exception IOException on decoding errors.
      */
     public CertificateVersion(DerValue val) throws IOException {
         version = V1;
-
+ 
         construct(val);
     }
 
@@ -146,12 +146,12 @@ public class CertificateVersion implements CertAttrSet {
      * Return the version number of the certificate.
      */
     public String toString() {
-        return ("Version: V" + (version + 1));
+        return("Version: V" + (version+1));
     }
 
     /**
      * Encode the CertificateVersion period in DER form to the stream.
-     * 
+     *
      * @param out the OutputStream to marshal the contents to.
      * @exception IOException on errors.
      */
@@ -164,21 +164,22 @@ public class CertificateVersion implements CertAttrSet {
         tmp.putInteger(new BigInt(version));
 
         DerOutputStream seq = new DerOutputStream();
-        seq.write(DerValue.createTag(DerValue.TAG_CONTEXT, true, (byte) 0), tmp);
+        seq.write(DerValue.createTag(DerValue.TAG_CONTEXT, true, (byte)0),
+                  tmp);
 
         out.write(seq.toByteArray());
     }
 
     /**
      * Decode the CertificateVersion period in DER form from the stream.
-     * 
+     *
      * @param in the InputStream to unmarshal the contents from.
      * @exception IOException on errors.
      */
     public void decode(InputStream in) throws IOException {
         DerValue derVal = new DerValue(in);
         construct(derVal);
-    }
+    } 
 
     /**
      * Set the attribute value.
@@ -188,10 +189,10 @@ public class CertificateVersion implements CertAttrSet {
             throw new IOException("Attribute must be of type Integer.");
         }
         if (name.equalsIgnoreCase(VERSION)) {
-            version = ((Integer) obj).intValue();
+            version = ((Integer)obj).intValue();
         } else {
-            throw new IOException("Attribute name not recognized by "
-                    + "CertAttrSet: CertificateVersion.");
+            throw new IOException("Attribute name not recognized by " +
+                                  "CertAttrSet: CertificateVersion.");
         }
     }
 
@@ -200,10 +201,10 @@ public class CertificateVersion implements CertAttrSet {
      */
     public Object get(String name) throws IOException {
         if (name.equalsIgnoreCase(VERSION)) {
-            return (Integer.valueOf(getVersion()));
+            return(Integer.valueOf(getVersion()));
         } else {
-            throw new IOException("Attribute name not recognized by "
-                    + "CertAttrSet: CertificateVersion.");
+            throw new IOException("Attribute name not recognized by " +
+                                  "CertAttrSet: CertificateVersion.");
         }
     }
 
@@ -214,8 +215,8 @@ public class CertificateVersion implements CertAttrSet {
         if (name.equalsIgnoreCase(VERSION)) {
             version = V1;
         } else {
-            throw new IOException("Attribute name not recognized by "
-                    + "CertAttrSet: CertificateVersion.");
+            throw new IOException("Attribute name not recognized by " +
+                                  "CertAttrSet: CertificateVersion.");
         }
     }
 
@@ -234,13 +235,13 @@ public class CertificateVersion implements CertAttrSet {
      * Return the name of this attribute.
      */
     public String getName() {
-        return (NAME);
+        return(NAME);
     }
 
     /**
      * Compare versions.
      */
     public int compare(int vers) {
-        return (version - vers);
+        return(version - vers);
     }
 }

@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.base;
 
+
 import java.io.IOException;
 
 import javax.servlet.ServletConfig;
@@ -33,7 +34,7 @@ import com.netscape.cmsutil.xml.XMLObject;
 
 /**
  * This servlet returns port information.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class PortsServlet extends CMSServlet {
@@ -49,7 +50,7 @@ public class PortsServlet extends CMSServlet {
 
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
-        // override these to output directly ourselves.
+        // override these to output directly ourselves. 
         mTemplates.remove(CMSRequest.SUCCESS);
         mTemplates.remove(CMSRequest.ERROR);
     }
@@ -66,10 +67,10 @@ public class PortsServlet extends CMSServlet {
         String port = null;
 
         if (secure.equals("true"))
-            port = CMS.getEESSLPort();
+            port = CMS.getEESSLPort(); 
         else
             port = CMS.getEENonSSLPort();
-
+     
         try {
             XMLObject xmlObj = null;
             xmlObj = new XMLObject();

@@ -30,119 +30,129 @@ import org.mozilla.jss.asn1.Tag;
 
 /**
  * RFC 2560:
- * 
+ *
  * <pre>
  * OCSPRequest     ::=     SEQUENCE {
  *  tbsRequest                  TBSRequest,
  *  optionalSignature   [0]     EXPLICIT Signature OPTIONAL }
  * </pre>
- * 
+ *
  * @version $Revision$ $Date$
  */
 
-public class OCSPRequest implements ASN1Value {
+public class OCSPRequest implements ASN1Value
+{
 
-    // /////////////////////////////////////////////////////////////////////
-    // Members and member access
-    // /////////////////////////////////////////////////////////////////////
-    private TBSRequest tbsRequest;
-    private Signature optionalSignature;
-    private SEQUENCE sequence;
+	///////////////////////////////////////////////////////////////////////
+	// Members and member access
+	///////////////////////////////////////////////////////////////////////
+	private TBSRequest tbsRequest;
+	private Signature optionalSignature;
+	private SEQUENCE sequence;
 
-    /**
-     * Returns the <code>TBSRequest</code> field.
-     */
-    public TBSRequest getTBSRequest() {
-        return tbsRequest;
-    }
+	/**
+	 * Returns the <code>TBSRequest</code> field.
+	 */
+	public TBSRequest getTBSRequest()
+	{
+		return tbsRequest;
+	}
 
-    /**
-     * Returns the <code>Signature</code> field.
-     */
-    public Signature getSignature() {
-        return optionalSignature;
-    }
+	/**
+	 * Returns the <code>Signature</code> field.
+	 */
+	public Signature getSignature()
+	{
+		return optionalSignature;
+	}
 
-    // /////////////////////////////////////////////////////////////////////
-    // Constructors
-    // /////////////////////////////////////////////////////////////////////
-    private OCSPRequest() {
-    }
+	///////////////////////////////////////////////////////////////////////
+	// Constructors
+	///////////////////////////////////////////////////////////////////////
+	private OCSPRequest() { }
 
-    /*
-     * THIS code is probably broken. It does not properly encode the explicit
-     * element
-     */
+	/* THIS code is probably broken. It does not properly encode the explicit element */
+       
+	public OCSPRequest(TBSRequest tbsRequest, Signature optionalSignature)
+	{
+		sequence = new SEQUENCE();
 
-    public OCSPRequest(TBSRequest tbsRequest, Signature optionalSignature) {
-        sequence = new SEQUENCE();
+		this.tbsRequest = tbsRequest;
+		sequence.addElement(tbsRequest);
 
-        this.tbsRequest = tbsRequest;
-        sequence.addElement(tbsRequest);
+		this.optionalSignature = optionalSignature;
+		if (optionalSignature != null) {
+			sequence.addElement(optionalSignature);
+		}
+	}
 
-        this.optionalSignature = optionalSignature;
-        if (optionalSignature != null) {
-            sequence.addElement(optionalSignature);
-        }
-    }
+	///////////////////////////////////////////////////////////////////////
+	// encoding/decoding
+	///////////////////////////////////////////////////////////////////////
+	private static final Tag TAG = SEQUENCE.TAG;
 
-    // /////////////////////////////////////////////////////////////////////
-    // encoding/decoding
-    // /////////////////////////////////////////////////////////////////////
-    private static final Tag TAG = SEQUENCE.TAG;
+	public Tag getTag()
+	{
+		return TAG;
+	}
 
-    public Tag getTag() {
-        return TAG;
-    }
+	public void encode(OutputStream ostream) throws IOException
+	{
+		encode(TAG, ostream);
+	}
 
-    public void encode(OutputStream ostream) throws IOException {
-        encode(TAG, ostream);
-    }
+	public void encode(Tag implicitTag, OutputStream ostream)
+			throws IOException
+	{
+		sequence.encode(implicitTag, ostream);
+	}
 
-    public void encode(Tag implicitTag, OutputStream ostream)
-            throws IOException {
-        sequence.encode(implicitTag, ostream);
-    }
+	private static final Template templateInstance = new Template();
 
-    private static final Template templateInstance = new Template();
+	public static Template getTemplate()
+	{
+		return templateInstance;
+	}
 
-    public static Template getTemplate() {
-        return templateInstance;
-    }
+	/**
+ 	* A Template for decoding OCSPRequest.
+ 	*/
+	public static class Template implements ASN1Template
+	{
 
-    /**
-     * A Template for decoding OCSPRequest.
-     */
-    public static class Template implements ASN1Template {
+		private SEQUENCE.Template seqt;
 
-        private SEQUENCE.Template seqt;
+		public Template()
+		{
+			seqt = new SEQUENCE.Template();
+			seqt.addElement(TBSRequest.getTemplate());
+			seqt.addOptionalElement( new EXPLICIT.Template( new Tag(0),
+				new Signature.Template()) );
+		}
 
-        public Template() {
-            seqt = new SEQUENCE.Template();
-            seqt.addElement(TBSRequest.getTemplate());
-            seqt.addOptionalElement(new EXPLICIT.Template(new Tag(0),
-                    new Signature.Template()));
-        }
+		public boolean tagMatch(Tag tag)
+		{
+			return TAG.equals(tag);
+		}
 
-        public boolean tagMatch(Tag tag) {
-            return TAG.equals(tag);
-        }
+		public ASN1Value decode(InputStream istream)
+			throws InvalidBERException, IOException
+		{
+			return decode(TAG, istream);
+		}
 
-        public ASN1Value decode(InputStream istream)
-                throws InvalidBERException, IOException {
-            return decode(TAG, istream);
-        }
+		public ASN1Value decode(Tag implicitTag, InputStream istream)
+				throws InvalidBERException, IOException
+		{
+			SEQUENCE seq = (SEQUENCE) seqt.decode(istream);
+			Signature signature = null;
+			if (seq.elementAt(1) != null) {
+				signature = (Signature)((EXPLICIT)seq.elementAt(1)).getContent();
+			}
 
-        public ASN1Value decode(Tag implicitTag, InputStream istream)
-                throws InvalidBERException, IOException {
-            SEQUENCE seq = (SEQUENCE) seqt.decode(istream);
-            Signature signature = null;
-            if (seq.elementAt(1) != null) {
-                signature = (Signature) ((EXPLICIT) seq.elementAt(1))
-                        .getContent();
-            }
-
-            return new OCSPRequest((TBSRequest) seq.elementAt(0), signature);
-        }
-    }
+			return new OCSPRequest(
+				(TBSRequest) seq.elementAt(0),
+				signature);
+		}
+	}
 }

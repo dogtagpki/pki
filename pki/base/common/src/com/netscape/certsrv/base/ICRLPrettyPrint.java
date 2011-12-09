@@ -17,31 +17,32 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.base;
 
+
 import java.util.Locale;
 
+
 /**
- * This interface represents a CRL pretty print handler. It converts a CRL
- * object into a printable CRL string.
- * 
+ * This interface represents a CRL pretty print handler.
+ * It converts a CRL object into a printable CRL string.
+ *
  * @version $Revision$, $Date$
  */
 public interface ICRLPrettyPrint {
 
     /**
      * Retrieves the printable CRL string.
-     * 
+     *
      * @param clientLocale end user clocale
      * @param crlSize CRL size
      * @param pageStart starting page number
      * @param pageSize page size in rows
      * @return printable CRL string
      */
-    public String toString(Locale clientLocale, long crlSize, long pageStart,
-            long pageSize);
+    public String toString(Locale clientLocale, long crlSize, long pageStart, long pageSize);
 
     /**
      * Retrieves the printable CRL string.
-     * 
+     *
      * @param clientLocale end user clocale
      * @return printable CRL string
      */

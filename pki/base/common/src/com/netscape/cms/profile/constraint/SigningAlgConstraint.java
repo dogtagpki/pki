@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.constraint;
 
+
 import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.Vector;
@@ -39,10 +40,12 @@ import com.netscape.cms.profile.def.NoDefault;
 import com.netscape.cms.profile.def.SigningAlgDefault;
 import com.netscape.cms.profile.def.UserSigningAlgDefault;
 
+
 /**
- * This class implements the signing algorithm constraint. It checks if the
- * signing algorithm in the certificate template satisfies the criteria.
- * 
+ * This class implements the signing algorithm constraint.
+ * It checks if the signing algorithm in the certificate
+ * template satisfies the criteria.
+ *
  * @version $Revision$, $Date$
  */
 public class SigningAlgConstraint extends EnrollConstraint {
@@ -66,27 +69,29 @@ public class SigningAlgConstraint extends EnrollConstraint {
     }
 
     public void init(IProfile profile, IConfigStore config)
-            throws EProfileException {
+        throws EProfileException {
         super.init(profile, config);
     }
 
-    public void setConfig(String name, String value) throws EPropertyException {
+    public void setConfig(String name, String value)
+        throws EPropertyException {
 
         if (mConfig.getSubStore("params") == null) {
             CMS.debug("SigningAlgConstraint: mConfig.getSubStore is null");
         } else {
-            CMS.debug("SigningAlgConstraint: setConfig name=" + name
-                    + " value=" + value);
+            CMS.debug("SigningAlgConstraint: setConfig name=" + name + 
+                 " value=" + value);
 
-            if (name.equals(CONFIG_ALGORITHMS_ALLOWED)) {
-                StringTokenizer st = new StringTokenizer(value, ",");
-                while (st.hasMoreTokens()) {
-                    String v = st.nextToken();
-                    if (DEF_CONFIG_ALGORITHMS.indexOf(v) == -1) {
-                        throw new EPropertyException(CMS.getUserMessage(
-                                "CMS_PROFILE_PROPERTY_ERROR", v));
-                    }
-                }
+            if(name.equals(CONFIG_ALGORITHMS_ALLOWED))
+            {
+              StringTokenizer st = new StringTokenizer(value, ",");
+              while (st.hasMoreTokens()) {
+                 String v = st.nextToken();
+                 if (DEF_CONFIG_ALGORITHMS.indexOf(v) == -1) {
+                   throw new EPropertyException(
+                      CMS.getUserMessage("CMS_PROFILE_PROPERTY_ERROR", v));
+                 }
+              }
             }
             mConfig.getSubStore("params").putString(name, value);
         }
@@ -95,24 +100,25 @@ public class SigningAlgConstraint extends EnrollConstraint {
     public IDescriptor getConfigDescriptor(Locale locale, String name) {
         if (name.equals(CONFIG_ALGORITHMS_ALLOWED)) {
             return new Descriptor(IDescriptor.STRING, null,
-                    DEF_CONFIG_ALGORITHMS, CMS.getUserMessage(locale,
-                            "CMS_PROFILE_SIGNING_ALGORITHMS_ALLOWED"));
+                    DEF_CONFIG_ALGORITHMS,
+                    CMS.getUserMessage(locale, 
+                        "CMS_PROFILE_SIGNING_ALGORITHMS_ALLOWED"));
         }
         return null;
     }
 
     /**
-     * Validates the request. The request is not modified during the validation.
+     * Validates the request. The request is not modified
+     * during the validation.
      */
     public void validate(IRequest request, X509CertInfo info)
-            throws ERejectException {
+        throws ERejectException {
         CertificateAlgorithmId algId = null;
 
         try {
-            algId = (CertificateAlgorithmId) info
-                    .get(X509CertInfo.ALGORITHM_ID);
-            AlgorithmId id = (AlgorithmId) algId
-                    .get(CertificateAlgorithmId.ALGORITHM);
+            algId = (CertificateAlgorithmId) info.get(X509CertInfo.ALGORITHM_ID);
+            AlgorithmId id = (AlgorithmId)
+                algId.get(CertificateAlgorithmId.ALGORITHM);
 
             Vector mCache = new Vector();
             StringTokenizer st = new StringTokenizer(
@@ -126,25 +132,22 @@ public class SigningAlgConstraint extends EnrollConstraint {
 
             if (!mCache.contains(id.toString())) {
                 throw new ERejectException(CMS.getUserMessage(
-                        getLocale(request),
-                        "CMS_PROFILE_SIGNING_ALGORITHM_NOT_MATCHED",
-                        id.toString()));
+                            getLocale(request), 
+                            "CMS_PROFILE_SIGNING_ALGORITHM_NOT_MATCHED", id.toString()));
             }
         } catch (Exception e) {
             if (e instanceof ERejectException) {
                 throw (ERejectException) e;
             }
             CMS.debug("SigningAlgConstraint: " + e.toString());
-            throw new ERejectException(CMS.getUserMessage(getLocale(request),
-                    "CMS_PROFILE_SIGNING_ALGORITHM_NOT_FOUND"));
+            throw new ERejectException(CMS.getUserMessage(
+                        getLocale(request), "CMS_PROFILE_SIGNING_ALGORITHM_NOT_FOUND"));
         }
 
     }
 
     public String getText(Locale locale) {
-        return CMS.getUserMessage(locale,
-                "CMS_PROFILE_CONSTRAINT_SIGNING_ALG_TEXT",
-                getConfig(CONFIG_ALGORITHMS_ALLOWED));
+        return CMS.getUserMessage(locale, "CMS_PROFILE_CONSTRAINT_SIGNING_ALG_TEXT", getConfig(CONFIG_ALGORITHMS_ALLOWED));
     }
 
     public boolean isApplicable(IPolicyDefault def) {

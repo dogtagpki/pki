@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.util;
 
+
 import java.security.PublicKey;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -24,43 +25,42 @@ import java.util.ResourceBundle;
 import netscape.security.provider.RSAPublicKey;
 import netscape.security.x509.X509Key;
 
+
 /**
- * This class will display the certificate content in predefined format.
- * 
+ * This class will display the certificate content in predefined
+ * format.
+ *
  * @author Jack Pan-Chen
  * @author Andrew Wnuk
  * @version $Revision$, $Date$
  */
 public class PubKeyPrettyPrint {
 
-    /*
-     * ========================================================== variables
-     * ==========================================================
-     */
+    /*==========================================================
+     * variables
+     *==========================================================*/
     private X509Key mX509Key = null;
     private PrettyPrintFormat pp = null;
 
-    /*
-     * ========================================================== constructors
-     * ==========================================================
-     */
+    /*==========================================================
+     * constructors
+     *==========================================================*/
 
     public PubKeyPrettyPrint(PublicKey key) {
         if (key instanceof X509Key)
             mX509Key = (X509Key) key;
-
+			
         pp = new PrettyPrintFormat(":");
     }
 
-    /*
-     * ========================================================== public methods
-     * ==========================================================
-     */
+    /*==========================================================
+     * public methods
+     *==========================================================*/
 
     /**
-     * This method return string representation of the certificate in predefined
-     * format using specified client local. I18N Support.
-     * 
+     * This method return string representation of the certificate
+     * in predefined format using specified client local. I18N Support.
+     *
      * @param clientLocale Locale to be used for localization
      * @return string representation of the certificate
      */
@@ -71,41 +71,39 @@ public class PubKeyPrettyPrint {
         else
             return null;
     }
-
+	
     public String X509toString(Locale clientLocale, int indentSize, int lineLen) {
 
-        // get I18N resources
-        ResourceBundle resource = ResourceBundle
-                .getBundle(PrettyPrintResources.class.getName());
+
+        //get I18N resources
+        ResourceBundle resource = ResourceBundle.getBundle(
+                PrettyPrintResources.class.getName());
 
         StringBuffer sb = new StringBuffer();
 
         try {
             String alg = mX509Key.getAlgorithm();
 
-            // XXX I18N Algorithm Name ?
-            sb.append(pp.indent(indentSize)
-                    + resource.getString(PrettyPrintResources.TOKEN_ALGORITHM)
-                    + alg + " - "
-                    + mX509Key.getAlgorithmId().getOID().toString() + "\n");
+            //XXX I18N Algorithm Name ?
+            sb.append(pp.indent(indentSize) + resource.getString(
+                    PrettyPrintResources.TOKEN_ALGORITHM) +
+                alg + " - " +
+                mX509Key.getAlgorithmId().getOID().toString() + "\n");
 
             if (alg.equals("RSA")) {
 
                 RSAPublicKey rsakey = new RSAPublicKey(mX509Key.getEncoded());
 
-                sb.append(pp.indent(indentSize)
-                        + resource
-                                .getString(PrettyPrintResources.TOKEN_PUBLIC_KEY)
-                        + "\n");
-                sb.append(pp.indent(indentSize + 4)
-                        + resource
-                                .getString(PrettyPrintResources.TOKEN_PUBLIC_KEY_EXPONENT)
-                        + rsakey.getPublicExponent().toInt() + "\n");
-                sb.append(pp.indent(indentSize + 4)
-                        + resource
-                                .getString(PrettyPrintResources.TOKEN_PUBLIC_KEY_MODULUS)
-                        + "(" + rsakey.getKeySize() + " bits) :\n");
-                sb.append(pp.toHexString(rsakey.getModulus().toByteArray(),
+                sb.append(pp.indent(indentSize) + resource.getString(
+                        PrettyPrintResources.TOKEN_PUBLIC_KEY) + "\n");
+                sb.append(pp.indent(indentSize + 4) + resource.getString(
+                        PrettyPrintResources.TOKEN_PUBLIC_KEY_EXPONENT) +
+                    rsakey.getPublicExponent().toInt() + "\n");
+                sb.append(pp.indent(indentSize + 4) + resource.getString(
+                        PrettyPrintResources.TOKEN_PUBLIC_KEY_MODULUS) +
+                    "(" + rsakey.getKeySize() + " bits) :\n");
+                sb.append(pp.toHexString(
+                        rsakey.getModulus().toByteArray(), 
                         indentSize + 8, lineLen));
             } else {
 
@@ -113,12 +111,9 @@ public class PubKeyPrettyPrint {
                 // the DSAParams (PQG) is not fully decoded.
                 // So, we just print the entire public key blob
 
-                sb.append(pp.indent(indentSize)
-                        + resource
-                                .getString(PrettyPrintResources.TOKEN_PUBLIC_KEY)
-                        + "\n");
-                sb.append(pp.toHexString(mX509Key.getKey(), indentSize + 4,
-                        lineLen));
+                sb.append(pp.indent(indentSize) + resource.getString(
+                        PrettyPrintResources.TOKEN_PUBLIC_KEY) + "\n");
+                sb.append(pp.toHexString(mX509Key.getKey(), indentSize + 4, lineLen));
             }
 
         } catch (Exception e) {

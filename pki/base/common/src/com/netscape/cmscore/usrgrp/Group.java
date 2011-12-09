@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.usrgrp;
 
+
 import java.util.Enumeration;
 import java.util.Vector;
 
@@ -25,9 +26,10 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUsrGrp;
 
+
 /**
  * A class represents a group.
- * 
+ *
  * @author cfu
  * @version $Revision$, $Date$
  */
@@ -90,18 +92,15 @@ public class Group implements IGroup {
 
     public void set(String name, Object object) throws EBaseException {
         if (name.equals(ATTR_NAME)) {
-            throw new EBaseException(CMS.getUserMessage(
-                    "CMS_BASE_INVALID_ATTRIBUTE", name));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
         } else if (name.equals(ATTR_ID)) {
-            throw new EBaseException(CMS.getUserMessage(
-                    "CMS_BASE_INVALID_ATTRIBUTE", name));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
         } else if (name.equals(ATTR_MEMBERS)) {
             mMembers = (Vector) object;
         } else if (name.equals(ATTR_DESCRIPTION)) {
             mDescription = (String) object;
         } else {
-            throw new EBaseException(CMS.getUserMessage(
-                    "CMS_BASE_INVALID_ATTRIBUTE", name));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
         }
     }
 
@@ -113,14 +112,12 @@ public class Group implements IGroup {
         } else if (name.equals(ATTR_MEMBERS)) {
             return mMembers;
         } else {
-            throw new EBaseException(CMS.getUserMessage(
-                    "CMS_BASE_INVALID_ATTRIBUTE", name));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
         }
     }
 
     public void delete(String name) throws EBaseException {
-        throw new EBaseException(CMS.getUserMessage(
-                "CMS_BASE_INVALID_ATTRIBUTE", name));
+        throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
     }
 
     public Enumeration getElements() {

@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.policy.extensions;
 
+
 import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.util.Locale;
@@ -38,25 +39,25 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cms.policy.APolicyRule;
 
+
 /**
- * This implements an OCSP Signing policy, it adds the OCSP Signing extension to
- * the certificate.
+ * This implements an OCSP Signing policy, it
+ * adds the OCSP Signing extension to the certificate.
  * <P>
- * 
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- * 
+ *
  * @deprecated
  * @version $Revision$ $Date$
  */
-public class OCSPNoCheckExt extends APolicyRule implements IEnrollmentPolicy,
-        IExtendedPluginInfo {
-
+public class OCSPNoCheckExt extends APolicyRule
+    implements IEnrollmentPolicy, IExtendedPluginInfo {
+    
     public static final String PROP_CRITICAL = "critical";
     private boolean mCritical = false;
-
+    
     // PKIX specifies the that the extension SHOULD NOT be critical
     public static final boolean DEFAULT_CRITICALITY = false;
 
@@ -72,12 +73,12 @@ public class OCSPNoCheckExt extends APolicyRule implements IEnrollmentPolicy,
 
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
-                PROP_CRITICAL
-                        + ";boolean;RFC 2560 recommendation: SHOULD be non-critical.",
-                IExtendedPluginInfo.HELP_TOKEN
-                        + ";configuration-policyrules-ocspnocheck",
-                IExtendedPluginInfo.HELP_TEXT
-                        + ";Adds OCSP signing extension to certificate" };
+                PROP_CRITICAL + ";boolean;RFC 2560 recommendation: SHOULD be non-critical.",
+                IExtendedPluginInfo.HELP_TOKEN +
+                ";configuration-policyrules-ocspnocheck",
+                IExtendedPluginInfo.HELP_TEXT +
+                ";Adds OCSP signing extension to certificate"
+            };
 
         return params;
 
@@ -87,12 +88,13 @@ public class OCSPNoCheckExt extends APolicyRule implements IEnrollmentPolicy,
      * Performs one-time initialization of the policy.
      */
     public void init(ISubsystem owner, IConfigStore config)
-            throws EBaseException {
+        throws EBaseException {
         mOCSPNoCheck = new OCSPNoCheckExtension();
-
+    
         if (mOCSPNoCheck != null) {
             // configure the extension itself
-            mCritical = config.getBoolean(PROP_CRITICAL, DEFAULT_CRITICALITY);
+            mCritical = config.getBoolean(PROP_CRITICAL,
+                        DEFAULT_CRITICALITY);
             mOCSPNoCheck.setCritical(mCritical);
         }
     }
@@ -107,7 +109,8 @@ public class OCSPNoCheckExt extends APolicyRule implements IEnrollmentPolicy,
             return PolicyResult.ACCEPTED;
         }
 
-        X509CertInfo[] ci = req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
+        X509CertInfo[] ci =
+            req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
 
         if (ci == null || ci[0] == null) {
             setError(req, CMS.getUserMessage("CMS_POLICY_NO_CERT_INFO"), NAME);
@@ -127,24 +130,23 @@ public class OCSPNoCheckExt extends APolicyRule implements IEnrollmentPolicy,
         try {
 
             // find the extensions in the certInfo
-            CertificateExtensions extensions = (CertificateExtensions) certInfo
-                    .get(X509CertInfo.EXTENSIONS);
+            CertificateExtensions extensions = (CertificateExtensions)
+                certInfo.get(X509CertInfo.EXTENSIONS);
 
             // prepare the extensions data structure
             if (extensions == null) {
-                certInfo.set(X509CertInfo.VERSION, new CertificateVersion(
-                        CertificateVersion.V3));
+                certInfo.set(X509CertInfo.VERSION,
+                    new CertificateVersion(CertificateVersion.V3));
                 extensions = new CertificateExtensions();
-                certInfo.set(X509CertInfo.VERSION, new CertificateVersion(
-                        CertificateVersion.V3));
+                certInfo.set(X509CertInfo.VERSION,
+                    new CertificateVersion(CertificateVersion.V3));
                 certInfo.set(X509CertInfo.EXTENSIONS, extensions);
             } else {
                 try {
                     extensions.delete(OCSPNoCheckExtension.NAME);
                 } catch (IOException ex) {
                     // OCSPNoCheck extension is not already there
-                    // log(ILogger.LL_FAILURE,
-                    // "No previous extension: "+OCSPNoCheckExtension.NAME+" "+ex.getMessage());
+                    //  log(ILogger.LL_FAILURE, "No previous extension: "+OCSPNoCheckExtension.NAME+" "+ex.getMessage());
                 }
             }
 
@@ -153,22 +155,18 @@ public class OCSPNoCheckExt extends APolicyRule implements IEnrollmentPolicy,
             return PolicyResult.ACCEPTED;
 
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("BASE_IO_ERROR", e.getMessage()));
-            setError(req,
-                    CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"),
-                    NAME, e.getMessage());
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("BASE_IO_ERROR", e.getMessage()));
+            setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"), NAME,
+                e.getMessage());
             return PolicyResult.REJECTED;
         } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CA_CERT_INFO_ERROR", e.getMessage()));
-            setError(req,
-                    CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"),
-                    NAME, e.getMessage());
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CA_CERT_INFO_ERROR", e.getMessage()));
+            setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"), NAME,
+                e.getMessage());
             return PolicyResult.REJECTED;
         }
     }
-
+    
     /**
      * Returns instance parameters.
      */
@@ -177,9 +175,9 @@ public class OCSPNoCheckExt extends APolicyRule implements IEnrollmentPolicy,
 
         params.addElement(PROP_CRITICAL + "=" + mCritical);
         return params;
-
+        
     }
-
+    
     /**
      * Returns default parameters.
      */
@@ -188,6 +186,6 @@ public class OCSPNoCheckExt extends APolicyRule implements IEnrollmentPolicy,
 
         defParams.addElement(PROP_CRITICAL + "=false");
         return defParams;
-
+        
     }
 }

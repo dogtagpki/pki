@@ -235,8 +235,7 @@ public class RequestDefaultStub implements IRequest {
         return false;
     }
 
-    public boolean getExtDataInBoolean(String prefix, String type,
-            boolean defVal) {
+    public boolean getExtDataInBoolean(String prefix, String type, boolean defVal) {
         return false;
     }
 

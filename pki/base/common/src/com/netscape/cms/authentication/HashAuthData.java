@@ -17,16 +17,17 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.authentication;
 
+
 // java sdk imports.
 import java.util.Hashtable;
 import java.util.Vector;
 
+
 /**
- * The structure stores the information of which machine is enabled for the
- * agent-initiated user enrollment, and whom agents enable this feature, and the
- * value of the timeout.
+ * The structure stores the information of which machine is enabled for
+ * the agent-initiated user enrollment, and whom agents enable this feature,
+ * and the value of the timeout.
  * <P>
- * 
  * @version $Revision$, $Date$
  */
 public class HashAuthData extends Hashtable {
@@ -53,7 +54,7 @@ public class HashAuthData extends Hashtable {
         Vector val = (Vector) get(hostname);
 
         if (val == null) {
-            val = new Vector();
+            val = new Vector();   
             put(hostname, val);
         }
         val.setElementAt(agentName, 0);
@@ -116,3 +117,4 @@ public class HashAuthData extends Hashtable {
         val.setElementAt(Long.valueOf(lastLogin), 3);
     }
 }
+

@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmstools;
 
+
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -35,42 +36,43 @@ import netscape.security.x509.X500Name;
 import netscape.security.x509.X509CertImpl;
 import netscape.security.x509.X509CertInfo;
 
+
 /**
- * The PrettyPrintCert class is a utility program designed to "pretty print" a
- * certificate. It assumes that the name of a data file is passed to the program
- * via the command line, and that the contents contain a certificate encoded in
- * an ASCII BASE 64 format. Note that the data file may contain an optional
- * "-----BEGIN" header and/or an optional "-----END" trailer.
- * 
+ * The PrettyPrintCert class is a utility program designed to "pretty print"
+ * a certificate.  It assumes that the name of a data file is passed to the
+ * program via the command line, and that the contents contain a certificate
+ * encoded in an ASCII BASE 64 format.  Note that the data file may contain
+ * an optional "-----BEGIN" header and/or an optional "-----END" trailer.
+ *
  * <P>
  * The program may be invoked as follows:
- * 
  * <PRE>
- * 
+ *
  *      PrettyPrintCert &lt;input filename&gt; [output filename]
- * 
+ *
  *      NOTE:  &lt;input filename&gt;   must contain an ASCII
  *                                BASE 64 encoded certificate
- * 
+ *
  *             &lt;output filename&gt;  contains a certificate displayed
  *                                in a "pretty print" ASCII format
  * </PRE>
- * 
+ *
  * @version $Revision$, $Date$
  */
 
 public class PrettyPrintCert {
     // Define constants
-    public static final int ARGC = 2;
+    public static final int    ARGC = 2;
     public static final String HEADER = "-----BEGIN";
     public static final String TRAILER = "-----END";
 
     public static void usageAndExit() {
-        System.out.println("Usage:  PrettyPrintCert " + "[options] "
-                + "<input filename> " + "[output filename]");
+        System.out.println("Usage:  PrettyPrintCert " +
+            "[options] " +
+            "<input filename> " +
+            "[output filename]");
         System.out.println("\n options: ");
-        System.out
-                .println("    -simpleinfo     :  prints limited cert info in easy to parse format");
+        System.out.println("    -simpleinfo     :  prints limited cert info in easy to parse format");
         System.exit(0);
     }
 
@@ -85,7 +87,7 @@ public class PrettyPrintCert {
         CertPrettyPrint certDetails = null;
         String pp = new String();
         FileOutputStream outputCert = null;
-        boolean mSimpleInfo = false;
+        boolean  mSimpleInfo = false;
         String inputfile = null;
         String outputfile = null;
 
@@ -128,68 +130,70 @@ public class PrettyPrintCert {
         if (inputfile == null) {
             usageAndExit();
         }
-
+			
         // (2) Create a DataInputStream() object to the BASE 64
-        // encoded certificate contained within the file
-        // specified on the command line
+        //     encoded certificate contained within the file
+        //     specified on the command line
         try {
             inputCert = new BufferedReader(new InputStreamReader(
-                    new BufferedInputStream(new FileInputStream(inputfile))));
+                            new BufferedInputStream(
+                                new FileInputStream(
+                                    inputfile))));
         } catch (FileNotFoundException e) {
-            System.out.println("PrettyPrintCert:  can't find file " + inputfile
-                    + ":\n" + e);
+            System.out.println("PrettyPrintCert:  can't find file " +
+                inputfile + ":\n" + e);
             return;
         }
 
         // (3) Read the entire contents of the specified BASE 64 encoded
-        // certificate into a String() object throwing away any
-        // headers beginning with HEADER and any trailers beginning
-        // with TRAILER
+        //     certificate into a String() object throwing away any
+        //     headers beginning with HEADER and any trailers beginning
+        //     with TRAILER
         try {
             while ((encodedBASE64CertChunk = inputCert.readLine()) != null) {
-                if (!(encodedBASE64CertChunk.startsWith(HEADER))
-                        && !(encodedBASE64CertChunk.startsWith(TRAILER))) {
+                if (!(encodedBASE64CertChunk.startsWith(HEADER)) &&
+                    !(encodedBASE64CertChunk.startsWith(TRAILER))) {
                     encodedBASE64Cert += encodedBASE64CertChunk.trim();
                 }
             }
         } catch (IOException e) {
-            System.out.println("PrettyPrintCert:  Unexpected BASE64 "
-                    + "encoded error encountered in readLine():\n" + e);
+            System.out.println("PrettyPrintCert:  Unexpected BASE64 " +
+                "encoded error encountered in readLine():\n" +
+                e);
         }
 
         // (4) Close the DataInputStream() object
         try {
             inputCert.close();
         } catch (IOException e) {
-            System.out.println("PrettyPrintCert:  Unexpected BASE64 "
-                    + "encoded error encountered in close():\n" + e);
+            System.out.println("PrettyPrintCert:  Unexpected BASE64 " +
+                "encoded error encountered in close():\n" + e);
         }
-
+		
         // (5) Decode the ASCII BASE 64 certificate enclosed in the
-        // String() object into a BINARY BASE 64 byte[] object
+        //     String() object into a BINARY BASE 64 byte[] object
 
         decodedBASE64Cert = com.netscape.osutil.OSUtil.AtoB(encodedBASE64Cert);
 
         // (6) Create an X509CertImpl() object from the BINARY BASE 64
-        // byte[] object
+        //     byte[] object
         try {
             cert = new X509CertImpl(decodedBASE64Cert);
         } catch (CertificateException e) {
-            System.out.println("PrettyPrintCert:  Error encountered "
-                    + "on parsing certificate :\n" + e);
+            System.out.println("PrettyPrintCert:  Error encountered " +
+                "on parsing certificate :\n" + e);
         }
 
         if (mSimpleInfo) {
             try {
                 X509CertInfo certinfo = (X509CertInfo) cert.get("x509.INFO");
-
-                CertificateSubjectName csn = (CertificateSubjectName) certinfo
-                        .get(X509CertInfo.SUBJECT);
+			
+                CertificateSubjectName csn = (CertificateSubjectName)
+                    certinfo.get(X509CertInfo.SUBJECT);
 
                 Enumeration en = csn.getElements();
 
-                X500Name dname = (X500Name) csn
-                        .get(CertificateSubjectName.DN_NAME);
+                X500Name   dname = (X500Name) csn.get(CertificateSubjectName.DN_NAME);
 
                 pp = "";
                 RDN[] rdns = dname.getNames();
@@ -197,14 +201,14 @@ public class PrettyPrintCert {
                 for (int i = rdns.length - 1; i >= 0; i--) {
                     pp = pp + rdns[i] + "\n";
                 }
-
-            } catch (Exception e) {
+	
+            } catch (Exception e) {	
                 System.out.println("ERROR");
                 e.printStackTrace();
-            }
+            }	
         } else {
             // (7) For this utility, always specify the default Locale
-            aLocale = Locale.getDefault();
+            aLocale = Locale.getDefault(); 
 
             // (8) Create a CertPrettyPrint() object
             certDetails = new CertPrettyPrint(cert);
@@ -214,33 +218,34 @@ public class PrettyPrintCert {
         }
 
         // (10) Finally, "pretty print" the actual certificate to the console
-        // unless an output file has been specified
+        //      unless an output file has been specified
         if (outputfile == null) {
             System.out.println(pp);
         } else {
             try {
                 outputCert = new FileOutputStream(outputfile);
             } catch (Exception e) {
-                System.out.println("PrettyPrintCert:  unable to open file "
-                        + argv[1] + " for writing:\n" + e);
+                System.out.println("PrettyPrintCert:  unable to open file " +
+                    argv[1] + " for writing:\n" + e);
                 return;
             }
 
             try {
                 outputCert.write(pp.getBytes());
             } catch (IOException e) {
-                System.out.println("PrettyPrintCert:  Unexpected error "
-                        + "encountered while attempting to write() "
-                        + outputfile + ":\n" + e);
+                System.out.println("PrettyPrintCert:  Unexpected error " +
+                    "encountered while attempting to write() " +
+                    outputfile + ":\n" + e);
             }
 
             try {
                 outputCert.close();
             } catch (IOException e) {
-                System.out.println("PrettyPrintCert:  Unexpected error "
-                        + "encountered while attempting to close() "
-                        + outputfile + ":\n" + e);
+                System.out.println("PrettyPrintCert:  Unexpected error " +
+                    "encountered while attempting to close() " +
+                    outputfile + ":\n" + e);
             }
         }
     }
 }
+

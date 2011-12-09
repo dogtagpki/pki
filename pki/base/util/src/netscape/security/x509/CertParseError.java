@@ -23,18 +23,21 @@ package netscape.security.x509;
 
 /**
  * CertException indicates one of a variety of certificate problems.
- * 
+ *
  * @version 1.7
  * @author David Brownell
  */
 
-class CertParseError extends CertException {
+class CertParseError extends CertException
+{
     /**
      *
      */
     private static final long serialVersionUID = -7623327377774730807L;
 
-    CertParseError(String where) {
-        super(CertException.verf_PARSE_ERROR, where);
+    CertParseError (String where)
+    {
+	super (CertException.verf_PARSE_ERROR, where);
     }
 }
+

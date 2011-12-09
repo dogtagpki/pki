@@ -22,23 +22,23 @@ import java.math.BigInteger;
 import com.netscape.certsrv.dbs.IDBObj;
 
 /**
- * An interface represents a generic repository record. It maintains unique
- * serial number within repository.
+ * An interface represents a generic repository record. 
+ * It maintains unique serial number within repository.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface IRepositoryRecord extends IDBObj {
 
-    public final static String ATTR_SERIALNO = "serialNo";
-    public final static String ATTR_PUB_STATUS = "publishingStatus";
+	public final static String ATTR_SERIALNO = "serialNo";
+	public final static String ATTR_PUB_STATUS = "publishingStatus";
 
-    /**
-     * Retrieves serial number.
-     * 
-     * @return serial number
-     */
-    public BigInteger getSerialNumber();
+	/**
+	 * Retrieves serial number.
+	 *
+	 * @return serial number
+	 */
+	public BigInteger getSerialNumber();
 
-    public String getPublishingStatus();
+	public String getPublishingStatus();
 }

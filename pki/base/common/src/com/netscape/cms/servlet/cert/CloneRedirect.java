@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.cert;
 
+
 import java.io.IOException;
 import java.util.Locale;
 
@@ -38,11 +39,12 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 
+
 /**
- * Redirect a request to the Master. This servlet is used in a clone when a
- * requested service (such as CRL) is not available. It redirects the user to
- * the master.
- * 
+ * Redirect a request to the Master. This servlet is used in
+ * a clone when a requested service (such as CRL) is not available. 
+ * It redirects the user to the master.
+ *
  * @version $Revision$, $Date$
  */
 public class CloneRedirect extends CMSServlet {
@@ -69,8 +71,7 @@ public class CloneRedirect extends CMSServlet {
 
     /**
      * Initialize the servlet.
-     * 
-     * @param sc servlet configuration, read from the web.xml file
+	 * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
@@ -82,9 +83,8 @@ public class CloneRedirect extends CMSServlet {
 
             if (authConfig != null) {
                 try {
-                    mNewUrl = authConfig
-                            .getString(PROP_REDIRECT_URL,
-                                    "*** master URL unavailable, check your configuration ***");
+                    mNewUrl = authConfig.getString(PROP_REDIRECT_URL,
+                                "*** master URL unavailable, check your configuration ***");
                 } catch (EBaseException e) {
                     // do nothing
                 }
@@ -93,8 +93,8 @@ public class CloneRedirect extends CMSServlet {
 
         if (mAuthority instanceof ICertificateAuthority)
             mCA = (ICertificateAuthority) mAuthority;
-
-        // override success to do output with our own template.
+		
+            // override success to do output with our own template.
         mTemplates.remove(CMSRequest.SUCCESS);
     }
 
@@ -117,32 +117,29 @@ public class CloneRedirect extends CMSServlet {
         try {
             form = getTemplate(mFormPath, req, locale);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"));
+            log(ILogger.LL_FAILURE, 
+                CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"));
             throw new ECMSGWException(
                     CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"));
         }
 
-        CMS.debug("CloneRedirect: "
-                + CMS.getLogMessage("ADMIN_SRVLT_ADD_MASTER_URL", mNewUrl));
+        CMS.debug("CloneRedirect: " + CMS.getLogMessage("ADMIN_SRVLT_ADD_MASTER_URL", mNewUrl)); 
         header.addStringValue("masterURL", mNewUrl);
         try {
             ServletOutputStream out = resp.getOutputStream();
 
             String xmlOutput = req.getParameter("xml");
-            if (xmlOutput != null && xmlOutput.equals("true")) {
-                outputXML(resp, argSet);
-            } else {
-                resp.setContentType("text/html");
-                form.renderOutput(out, argSet);
-                cmsReq.setStatus(CMSRequest.SUCCESS);
-            }
+			if (xmlOutput != null && xmlOutput.equals("true")) {
+			  outputXML(resp, argSet);
+			} else {
+			  resp.setContentType("text/html");
+			  form.renderOutput(out, argSet);
+			  cmsReq.setStatus(CMSRequest.SUCCESS);
+			}
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_ERR_STREAM_TEMPLATE",
-                            e.toString()));
-            throw new ECMSGWException(
-                    CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"));
+            log(ILogger.LL_FAILURE, 
+                CMS.getLogMessage("ADMIN_SRVLT_ERR_STREAM_TEMPLATE", e.toString()));
+            throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"));
         }
     }
 
@@ -150,11 +147,13 @@ public class CloneRedirect extends CMSServlet {
      * Display information about redirecting to the master's URL info
      */
     private void process(CMSTemplateParams argSet, IArgBlock header,
-            HttpServletRequest req, HttpServletResponse resp,
-            String signatureAlgorithm, Locale locale) throws EBaseException {
+        HttpServletRequest req,
+        HttpServletResponse resp,
+        String signatureAlgorithm,
+        Locale locale)
+        throws EBaseException {
 
-        CMS.debug("CloneRedirect: "
-                + CMS.getLogMessage("ADMIN_SRVLT_ADD_MASTER_URL", mNewUrl));
+        CMS.debug("CloneRedirect: " + CMS.getLogMessage("ADMIN_SRVLT_ADD_MASTER_URL", mNewUrl)); 
         header.addStringValue("masterURL", mNewUrl);
         return;
     }

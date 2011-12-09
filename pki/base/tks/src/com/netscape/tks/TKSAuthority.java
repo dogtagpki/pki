@@ -27,46 +27,43 @@ import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestQueue;
 
 public class TKSAuthority implements IAuthority, ISubsystem {
-    protected ILogger mLogger = CMS.getLogger();
-    private String mNickname = null;
-    private ISubsystem mOwner;
-    private IConfigStore mConfig = null;
-    protected String mId = null;
-    public static final String PROP_NICKNAME = "nickName";
+	protected ILogger mLogger = CMS.getLogger();
+	private String mNickname = null;  
+	private ISubsystem mOwner;
+	private IConfigStore mConfig = null;
+	protected String mId = null;
+	public static final String PROP_NICKNAME = "nickName";
 
-    /**
+   /**
      * Retrieves the request queue for the Authority.
      * <P>
-     * 
      * @return the request queue.
      */
     public IRequestQueue getRequestQueue() {
         return null;
     }
-
     /**
      * Registers request completed class.
      */
     public void registerRequestListener(IRequestListener listener) {
     }
 
-    /**
+   /**
      * Registers pending request class.
      */
     public void registerPendingListener(IRequestListener listener) {
     }
-
-    /**
+	    /**
      * log interface
      */
-    public void log(int level, String msg) {
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_TKS, level, msg);
+   public void log(int level, String msg) {
+        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_TKS,
+            level, msg);
     }
-
-    /**
+   /**
      * nickname of signing (id) cert
      */
-    public void setNickname(String nickname) {
+    public void setNickname( String nickname ) {
         mNickname = nickname;
     }
 
@@ -74,33 +71,31 @@ public class TKSAuthority implements IAuthority, ISubsystem {
         CMS.debug("Error: TKSAuthority::getNickname - nickname of signing (id) cert");
         return mNickname;
     }
-
     public String getOfficialName() {
         return "tks";
     }
-
-    /**
+	
+	 /**
      * Initializes this subsystem.
      * <P>
-     * 
+     *
      * @param owner owner of this subsystem
      * @param config configuration of this subsystem
      * @exception EBaseException failed to initialize this RA
      */
-    public void init(ISubsystem owner, IConfigStore config)
-            throws EBaseException {
+    public void init(ISubsystem owner, IConfigStore config) throws
+            EBaseException {
         mOwner = owner;
 
         mConfig = config;
-        // mNickname = mConfig.getString(PROP_NICKNAME);
-        CMS.debug("TKS Authority (" + getId() + "): "
-                + "Initialized Request Processor.");
+		//mNickname = mConfig.getString(PROP_NICKNAME);
+       CMS.debug("TKS Authority (" +
+            getId() + "): " + "Initialized Request Processor.");
 
     }
-
-    /**
+	    /**
      * Notifies this subsystem if owner is in running mode.
-     * 
+     *
      * @exception EBaseException failed to start up
      */
     public void startup() throws EBaseException {
@@ -110,46 +105,42 @@ public class TKSAuthority implements IAuthority, ISubsystem {
         // of a subsystem within server.
 
     }
-
     /**
-     * Stops this system. The owner may call shutdown anytime after
-     * initialization.
+     * Stops this system. The owner may call shutdown
+     * anytime after initialization.
      * <P>
      */
-    public void shutdown() {
+   public void shutdown() {
 
-        getLogger().log(ILogger.EV_SYSTEM, ILogger.S_TKS, ILogger.LL_INFO,
-                "TKSAuthority is stopped");
+        getLogger().log(ILogger.EV_SYSTEM, ILogger.S_TKS, 
+            ILogger.LL_INFO, "TKSAuthority is stopped");
 
     }
-
     /**
      * Returns the root configuration storage of this system.
      * <P>
-     * 
+     *
      * @return configuration store of this subsystem
      */
     public IConfigStore getConfigStore() {
         return mConfig;
     }
-
     public String getId() {
         return mId;
     }
 
-    /**
+	/**
      * Sets subsystem identifier.
-     * 
+     *
      * @param id subsystem id
      * @exception EBaseException failed to set id
      */
     public void setId(String id) throws EBaseException {
         mId = id;
     }
-
-    /**
+	 /**
      * Retrieves logger from escrow authority.
-     * 
+     *
      * @return logger
      */
     public ILogger getLogger() {

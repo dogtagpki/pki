@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.policy.extensions;
 
+
 import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.util.Locale;
@@ -40,23 +41,23 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cms.policy.APolicyRule;
 
+
 /**
  * Issuer Alt Name Extension policy.
  * 
- * This extension is used to associate Internet-style identities with the
- * Certificate issuer.
+ * This extension is used to associate Internet-style identities 
+ * with the Certificate issuer. 
  * <P>
- * 
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- * 
+ *
  * @deprecated
  * @version $Revision$, $Date$
  */
-public class IssuerAltNameExt extends APolicyRule implements IEnrollmentPolicy,
-        IExtendedPluginInfo {
+public class IssuerAltNameExt extends APolicyRule
+    implements IEnrollmentPolicy, IExtendedPluginInfo {
     public static final String PROP_CRITICAL = "critical";
 
     // PKIX specifies the that the extension SHOULD NOT be critical
@@ -68,16 +69,15 @@ public class IssuerAltNameExt extends APolicyRule implements IEnrollmentPolicy,
     static {
         defaultParams.addElement(PROP_CRITICAL + "=" + DEFAULT_CRITICALITY);
         CMS.getGeneralNamesConfigDefaultParams(null, true, defaultParams);
-
+	
         Vector info = new Vector();
 
-        info.addElement(PROP_CRITICAL
-                + ";boolean;RFC 2459 recommendation: SHOULD NOT be marked critical.");
-        info.addElement(IExtendedPluginInfo.HELP_TOKEN
-                + ";configuration-policyrules-issueraltname");
-        info.addElement(IExtendedPluginInfo.HELP_TEXT
-                + ";This policy inserts the Issuer Alternative Name "
-                + "Extension into the certificate. See RFC 2459 (4.2.1.8). ");
+        info.addElement(PROP_CRITICAL + ";boolean;RFC 2459 recommendation: SHOULD NOT be marked critical.");
+        info.addElement(IExtendedPluginInfo.HELP_TOKEN +
+            ";configuration-policyrules-issueraltname");
+        info.addElement(IExtendedPluginInfo.HELP_TEXT +
+            ";This policy inserts the Issuer Alternative Name " +
+            "Extension into the certificate. See RFC 2459 (4.2.1.8). ");
 
         CMS.getGeneralNamesConfigExtendedPluginInfo(null, true, info);
 
@@ -102,60 +102,61 @@ public class IssuerAltNameExt extends APolicyRule implements IEnrollmentPolicy,
 
     /**
      * Initializes this policy rule.
-     * 
-     * @param config The config store reference
+     * @param config    The config store reference
      */
     public void init(ISubsystem owner, IConfigStore config)
-            throws EBaseException {
+        throws EBaseException {
         mConfig = config;
 
         // get criticality
         mCritical = mConfig.getBoolean(PROP_CRITICAL, DEFAULT_CRITICALITY);
 
         // get enabled.
-        mEnabled = mConfig.getBoolean(IPolicyProcessor.PROP_ENABLE, false);
+        mEnabled = mConfig.getBoolean(
+                    IPolicyProcessor.PROP_ENABLE, false);
 
         // form general names.
         mGNs = CMS.createGeneralNamesConfig(null, config, true, mEnabled);
 
         // form extension
         try {
-            if (mEnabled && mGNs.getGeneralNames() != null
-                    && !mGNs.getGeneralNames().isEmpty()) {
-                mExtension = new IssuerAlternativeNameExtension(
-                        Boolean.valueOf(mCritical), mGNs.getGeneralNames());
+            if (mEnabled && 
+                mGNs.getGeneralNames() != null && !mGNs.getGeneralNames().isEmpty()) {
+                mExtension = 
+                        new IssuerAlternativeNameExtension(
+                            Boolean.valueOf(mCritical), mGNs.getGeneralNames());
             }
         } catch (Exception e) {
-            throw new EBaseException(CMS.getUserMessage(
-                    "CMS_BASE_INTERNAL_ERROR", e.toString()));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()));
         }
 
         // init instance params
-        mParams.addElement(PROP_CRITICAL + "=" + mCritical);
+        mParams.addElement(PROP_CRITICAL + "=" + mCritical); 
         mGNs.getInstanceParams(mParams);
 
         return;
     }
 
     /**
-     * Adds a extension if none exists.
-     * 
-     * @param req The request on which to apply policy.
+     * Adds a extension if none exists. 
+     *
+     * @param req   The request on which to apply policy.
      * @return The policy result object.
      */
     public PolicyResult apply(IRequest req) {
         PolicyResult res = PolicyResult.ACCEPTED;
 
-        if (mEnabled == false || mExtension == null)
+        if (mEnabled == false || mExtension == null) 
             return res;
 
-        // get cert info.
-        X509CertInfo[] ci = req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
+            // get cert info.
+        X509CertInfo[] ci = 
+            req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
 
         X509CertInfo certInfo = null;
 
         if (ci == null || (certInfo = ci[0]) == null) {
-            setError(req, CMS.getUserMessage("CMS_POLICY_NO_CERT_INFO"), NAME);
+            setError(req, CMS.getUserMessage("CMS_POLICY_NO_CERT_INFO"), NAME); 
             return PolicyResult.REJECTED; // unrecoverable error.
         }
 
@@ -175,8 +176,8 @@ public class IssuerAltNameExt extends APolicyRule implements IEnrollmentPolicy,
 
         try {
             // get extension if any.
-            extensions = (CertificateExtensions) certInfo
-                    .get(X509CertInfo.EXTENSIONS);
+            extensions = (CertificateExtensions)
+                    certInfo.get(X509CertInfo.EXTENSIONS);
         } catch (IOException e) {
             // no extensions.
         } catch (CertificateException e) {
@@ -186,8 +187,8 @@ public class IssuerAltNameExt extends APolicyRule implements IEnrollmentPolicy,
         if (extensions == null) {
             extensions = new CertificateExtensions();
             try {
-                certInfo.set(X509CertInfo.VERSION, new CertificateVersion(
-                        CertificateVersion.V3));
+                certInfo.set(X509CertInfo.VERSION,
+                    new CertificateVersion(CertificateVersion.V3));
                 certInfo.set(X509CertInfo.EXTENSIONS, extensions);
             } catch (CertificateException e) {
                 // not possible
@@ -213,13 +214,11 @@ public class IssuerAltNameExt extends APolicyRule implements IEnrollmentPolicy,
         try {
             extensions.set(IssuerAlternativeNameExtension.NAME, mExtension);
         } catch (Exception e) {
-            if (e instanceof RuntimeException)
+            if (e instanceof RuntimeException) 
                 throw (RuntimeException) e;
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CRL_CREATE_ISSUER_ALT_NAME_EXT",
-                            e.toString()));
-            setError(req,
-                    CMS.getUserMessage("CMS_POLICY_SUBJECT_KEY_ID_ERROR"), NAME);
+            log(ILogger.LL_FAILURE, 
+                CMS.getLogMessage("CRL_CREATE_ISSUER_ALT_NAME_EXT", e.toString()));
+            setError(req, CMS.getUserMessage("CMS_POLICY_SUBJECT_KEY_ID_ERROR"), NAME);
             return PolicyResult.REJECTED;
         }
         return PolicyResult.ACCEPTED;
@@ -227,21 +226,21 @@ public class IssuerAltNameExt extends APolicyRule implements IEnrollmentPolicy,
 
     /**
      * Return configured parameters for a policy rule instance.
-     * 
+     *
      * @return Empty Vector since this policy has no configuration parameters.
-     *         for this policy instance.
+     * for this policy instance.
      */
-    public Vector getInstanceParams() {
+    public Vector getInstanceParams() { 
         return mParams;
     }
 
     /**
      * Return default parameters for a policy implementation.
-     * 
-     * @return Empty Vector since this policy implementation has no
-     *         configuration parameters.
+     *
+     * @return Empty Vector since this policy implementation has no 
+     * configuration parameters.
      */
-    public Vector getDefaultParams() {
+    public Vector getDefaultParams() { 
         return defaultParams;
     }
 
@@ -250,3 +249,4 @@ public class IssuerAltNameExt extends APolicyRule implements IEnrollmentPolicy,
     }
 
 }
+

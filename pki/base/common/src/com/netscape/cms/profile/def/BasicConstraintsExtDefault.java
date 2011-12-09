@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.def;
 
+
 import java.io.IOException;
 import java.util.Locale;
 
@@ -33,10 +34,12 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 
+
 /**
- * This class implements an enrollment default policy that populates Basic
- * Constraint extension into the certificate template.
- * 
+ * This class implements an enrollment default policy
+ * that populates Basic Constraint extension
+ * into the certificate template.
+ *
  * @version $Revision$, $Date$
  */
 public class BasicConstraintsExtDefault extends EnrollExtDefault {
@@ -61,19 +64,22 @@ public class BasicConstraintsExtDefault extends EnrollExtDefault {
     }
 
     public void init(IProfile profile, IConfigStore config)
-            throws EProfileException {
+        throws EProfileException {
         super.init(profile, config);
     }
 
-    public IDescriptor getConfigDescriptor(Locale locale, String name) {
+    public IDescriptor getConfigDescriptor(Locale locale, String name) { 
         if (name.equals(CONFIG_CRITICAL)) {
-            return new Descriptor(IDescriptor.BOOLEAN, null, "false",
+            return new Descriptor(IDescriptor.BOOLEAN, null, 
+                    "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_CRITICAL"));
         } else if (name.equals(CONFIG_IS_CA)) {
-            return new Descriptor(IDescriptor.BOOLEAN, null, "true",
+            return new Descriptor(IDescriptor.BOOLEAN, null, 
+                    "true",
                     CMS.getUserMessage(locale, "CMS_PROFILE_IS_CA"));
         } else if (name.equals(CONFIG_PATH_LEN)) {
-            return new Descriptor(IDescriptor.INTEGER, null, "-1",
+            return new Descriptor(IDescriptor.INTEGER, null, 
+                    "-1",
                     CMS.getUserMessage(locale, "CMS_PROFILE_PATH_LEN"));
         }
         return null;
@@ -81,60 +87,66 @@ public class BasicConstraintsExtDefault extends EnrollExtDefault {
 
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         if (name.equals(VAL_CRITICAL)) {
-            return new Descriptor(IDescriptor.BOOLEAN, null, "false",
+            return new Descriptor(IDescriptor.BOOLEAN, null, 
+                    "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_CRITICAL"));
         } else if (name.equals(VAL_IS_CA)) {
-            return new Descriptor(IDescriptor.BOOLEAN, null, "true",
+            return new Descriptor(IDescriptor.BOOLEAN, null, 
+                    "true",
                     CMS.getUserMessage(locale, "CMS_PROFILE_IS_CA"));
         } else if (name.equals(VAL_PATH_LEN)) {
-            return new Descriptor(IDescriptor.INTEGER, null, "-1",
+            return new Descriptor(IDescriptor.INTEGER, null, 
+                    "-1",
                     CMS.getUserMessage(locale, "CMS_PROFILE_PATH_LEN"));
         } else {
             return null;
         }
     }
 
-    public void setValue(String name, Locale locale, X509CertInfo info,
-            String value) throws EPropertyException {
+    public void setValue(String name, Locale locale,
+        X509CertInfo info, String value)
+        throws EPropertyException {
         try {
             BasicConstraintsExtension ext = null;
 
-            if (name == null) {
-                throw new EPropertyException(CMS.getUserMessage(locale,
-                        "CMS_INVALID_PROPERTY", name));
+            if (name == null) { 
+                throw new EPropertyException(CMS.getUserMessage( 
+                            locale, "CMS_INVALID_PROPERTY", name));
             }
 
-            ext = (BasicConstraintsExtension) getExtension(
-                    PKIXExtensions.BasicConstraints_Id.toString(), info);
+            ext = (BasicConstraintsExtension)
+                        getExtension(PKIXExtensions.BasicConstraints_Id.toString(), info);
 
-            if (ext == null) {
-                populate(null, info);
+            if(ext == null)
+            {
+                populate(null,info);
             }
 
             if (name.equals(VAL_CRITICAL)) {
 
-                ext = (BasicConstraintsExtension) getExtension(
-                        PKIXExtensions.BasicConstraints_Id.toString(), info);
-                boolean val = Boolean.valueOf(value).booleanValue();
+                ext = (BasicConstraintsExtension)
+                        getExtension(PKIXExtensions.BasicConstraints_Id.toString(), info);
+                boolean val = Boolean.valueOf(value).booleanValue(); 
 
-                if (ext == null) {
+
+                if(ext == null)  {
                     return;
                 }
                 ext.setCritical(val);
             } else if (name.equals(VAL_IS_CA)) {
-                ext = (BasicConstraintsExtension) getExtension(
-                        PKIXExtensions.BasicConstraints_Id.toString(), info);
-                if (ext == null) {
+                ext = (BasicConstraintsExtension)
+                        getExtension(PKIXExtensions.BasicConstraints_Id.toString(), info);
+                if(ext == null)  {
                     return;
                 }
                 Boolean isCA = Boolean.valueOf(value);
 
                 ext.set(BasicConstraintsExtension.IS_CA, isCA);
             } else if (name.equals(VAL_PATH_LEN)) {
-                ext = (BasicConstraintsExtension) getExtension(
-                        PKIXExtensions.BasicConstraints_Id.toString(), info);
+                ext = (BasicConstraintsExtension)
+                        getExtension(PKIXExtensions.BasicConstraints_Id.toString(), info);
 
-                if (ext == null) {
+                if(ext == null)  {
                     return;
                 }
                 Integer pathLen = Integer.valueOf(value);
@@ -144,47 +156,48 @@ public class BasicConstraintsExtDefault extends EnrollExtDefault {
                 throw new EPropertyException("Invalid name " + name);
             }
             replaceExtension(PKIXExtensions.BasicConstraints_Id.toString(),
-                    ext, info);
-        } catch (IOException e) {
+                ext, info);
+        } catch (IOException e) { 
             CMS.debug("BasicConstraintsExtDefault: setValue " + e.toString());
-            throw new EPropertyException(CMS.getUserMessage(locale,
-                    "CMS_INVALID_PROPERTY", name));
+            throw new EPropertyException(CMS.getUserMessage(
+                        locale, "CMS_INVALID_PROPERTY", name));
         } catch (EProfileException e) {
             CMS.debug("BasicConstraintsExtDefault: setValue " + e.toString());
-            throw new EPropertyException(CMS.getUserMessage(locale,
-                    "CMS_INVALID_PROPERTY", name));
+            throw new EPropertyException(CMS.getUserMessage(
+                        locale, "CMS_INVALID_PROPERTY", name));
         }
     }
 
-    public String getValue(String name, Locale locale, X509CertInfo info)
-            throws EPropertyException {
+    public String getValue(String name, Locale locale,
+        X509CertInfo info)
+        throws EPropertyException {
         try {
-            if (name == null) {
-                throw new EPropertyException(CMS.getUserMessage(locale,
-                        "CMS_INVALID_PROPERTY", name));
+            if (name == null) { 
+                throw new EPropertyException(CMS.getUserMessage( 
+                            locale, "CMS_INVALID_PROPERTY", name));
             }
 
-            BasicConstraintsExtension ext = (BasicConstraintsExtension) getExtension(
-                    PKIXExtensions.BasicConstraints_Id.toString(), info);
+            BasicConstraintsExtension ext = (BasicConstraintsExtension)
+                    getExtension(PKIXExtensions.BasicConstraints_Id.toString(), info);
 
-            if (ext == null) {
+            if(ext == null)
+            {
                 CMS.debug("BasicConstraintsExtDefault: getValue ext is null, populating a new one ");
-
-                try {
-                    populate(null, info);
+             
+                try { 
+                    populate(null,info);
 
                 } catch (EProfileException e) {
-                    CMS.debug("BasicConstraintsExtDefault: getValue "
-                            + e.toString());
-                    throw new EPropertyException(CMS.getUserMessage(locale,
-                            "CMS_INVALID_PROPERTY", name));
+                    CMS.debug("BasicConstraintsExtDefault: getValue " + e.toString());
+                     throw new EPropertyException(CMS.getUserMessage(
+                          locale, "CMS_INVALID_PROPERTY", name));
                 }
 
             }
 
             if (name.equals(VAL_CRITICAL)) {
-                ext = (BasicConstraintsExtension) getExtension(
-                        PKIXExtensions.BasicConstraints_Id.toString(), info);
+                    ext = (BasicConstraintsExtension)
+                    getExtension(PKIXExtensions.BasicConstraints_Id.toString(), info);
 
                 if (ext == null) {
                     return null;
@@ -195,85 +208,87 @@ public class BasicConstraintsExtDefault extends EnrollExtDefault {
                     return "false";
                 }
             } else if (name.equals(VAL_IS_CA)) {
-                ext = (BasicConstraintsExtension) getExtension(
-                        PKIXExtensions.BasicConstraints_Id.toString(), info);
+                    ext = (BasicConstraintsExtension)
+                    getExtension(PKIXExtensions.BasicConstraints_Id.toString(), info);
 
                 if (ext == null) {
                     return null;
                 }
-                Boolean isCA = (Boolean) ext
-                        .get(BasicConstraintsExtension.IS_CA);
+                Boolean isCA = (Boolean) ext.get(BasicConstraintsExtension.IS_CA);
 
                 return isCA.toString();
             } else if (name.equals(VAL_PATH_LEN)) {
-                ext = (BasicConstraintsExtension) getExtension(
-                        PKIXExtensions.BasicConstraints_Id.toString(), info);
+                    ext = (BasicConstraintsExtension)
+                    getExtension(PKIXExtensions.BasicConstraints_Id.toString(), info);
 
                 if (ext == null) {
                     return null;
                 }
-                Integer pathLen = (Integer) ext
-                        .get(BasicConstraintsExtension.PATH_LEN);
+                Integer pathLen = (Integer)
+                    ext.get(BasicConstraintsExtension.PATH_LEN);
+
 
                 String pLen = null;
 
                 pLen = pathLen.toString();
-                if (pLen.equals("-2")) {
-                    // This is done for bug 621700. Profile constraints actually
-                    // checks for -1
-                    // The low level security class for some reason sets this to
-                    // -2
-                    // This will allow the request to be approved successfuly by
-                    // the agent.
+                if(pLen.equals("-2"))
+                {
+                   //This is done for bug 621700.  Profile constraints actually checks for -1
+                   //The low level security class for some reason sets this to -2
+                   //This will allow the request to be approved successfuly by the agent.
 
-                    pLen = "-1";
+                   pLen = "-1";
 
                 }
-
+               
                 CMS.debug("BasicConstriantsExtDefault getValue(pLen) " + pLen);
-
+ 
                 return pLen;
 
-            } else {
-                throw new EPropertyException(CMS.getUserMessage(locale,
-                        "CMS_INVALID_PROPERTY", name));
+                
+            } else { 
+                throw new EPropertyException(CMS.getUserMessage( 
+                            locale, "CMS_INVALID_PROPERTY", name));
             }
         } catch (IOException e) {
             CMS.debug("BasicConstraintsExtDefault: getValue " + e.toString());
-            throw new EPropertyException(CMS.getUserMessage(locale,
-                    "CMS_INVALID_PROPERTY", name));
+            throw new EPropertyException(CMS.getUserMessage( 
+                        locale, "CMS_INVALID_PROPERTY", name));
         }
     }
 
     public String getText(Locale locale) {
-        String params[] = { getConfig(CONFIG_CRITICAL),
-                getConfig(CONFIG_IS_CA), getConfig(CONFIG_PATH_LEN) };
+        String params[] = {
+                getConfig(CONFIG_CRITICAL),
+                getConfig(CONFIG_IS_CA),
+                getConfig(CONFIG_PATH_LEN)
+            };
 
-        return CMS.getUserMessage(locale,
-                "CMS_PROFILE_DEF_BASIC_CONSTRAINTS_EXT", params);
+        return CMS.getUserMessage(locale, "CMS_PROFILE_DEF_BASIC_CONSTRAINTS_EXT", params);
     }
 
     /**
      * Populates the request with this policy default.
      */
     public void populate(IRequest request, X509CertInfo info)
-            throws EProfileException {
+        throws EProfileException {
         BasicConstraintsExtension ext = createExtension();
 
-        addExtension(PKIXExtensions.BasicConstraints_Id.toString(), ext, info);
+        addExtension(PKIXExtensions.BasicConstraints_Id.toString(), ext,
+            info);
     }
 
     public BasicConstraintsExtension createExtension() {
         BasicConstraintsExtension ext = null;
 
-        boolean critical = Boolean.valueOf(getConfig(CONFIG_CRITICAL))
-                .booleanValue();
+        boolean critical = Boolean.valueOf(getConfig(CONFIG_CRITICAL)).booleanValue();
         boolean isCA = Boolean.valueOf(getConfig(CONFIG_IS_CA)).booleanValue();
         String pathLenStr = getConfig(CONFIG_PATH_LEN);
 
         int pathLen = -2;
 
-        if (!pathLenStr.equals("")) {
+
+        if(!pathLenStr.equals("") )  {
 
             pathLen = Integer.valueOf(pathLenStr).intValue();
         }
@@ -281,8 +296,8 @@ public class BasicConstraintsExtDefault extends EnrollExtDefault {
         try {
             ext = new BasicConstraintsExtension(isCA, critical, pathLen);
         } catch (Exception e) {
-            CMS.debug("BasicConstraintsExtDefault: createExtension "
-                    + e.toString());
+            CMS.debug("BasicConstraintsExtDefault: createExtension " + 
+                e.toString());
             return null;
         }
         ext.setCritical(critical);

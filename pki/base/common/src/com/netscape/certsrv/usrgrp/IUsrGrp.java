@@ -20,54 +20,50 @@ package com.netscape.certsrv.usrgrp;
 import netscape.ldap.LDAPException;
 
 /**
- * This interface defines the basic capabilities of a usr/group manager.
- * (get/add/modify/remove users or groups)
- * 
+ * This interface defines the basic capabilities of
+ * a usr/group manager. (get/add/modify/remove users or groups)
+ *
  * @version $Revision$, $Date$
  */
 public interface IUsrGrp extends IIdEvaluator {
 
     /**
      * Retrieves usr/grp manager identifier.
-     * 
      * @return id
      */
     public String getId();
 
     /**
      * Retrieves the description
-     * 
      * @return description
      */
     public String getDescription();
 
     /**
      * Retrieves an identity
-     * 
      * @param userid the user id for the given user
      * @return user interface
      */
     public IUser getUser(String userid) throws EUsrGrpException;
 
     /**
-     * Adds a user identity to the LDAP server. For example, <code>
+     * Adds a user identity to the LDAP server. For example,
+     * <code>
      *   User user = new User("joe");
      *   user.setFullName("joe doe");
      *   user.setPassword("secret");
      *   usrgrp.addUser(user);
      * </code>
-     * 
      * @param user an user interface
      * @exception EUsrGrpException thrown when some of the user attribute values
-     *                are null
+     * are null
      * @exception LDAPException thrown when the LDAP internal database is not
-     *                available, or the add operation failed
+     * available, or the add operation failed
      */
     public void addUser(IUser user) throws EUsrGrpException, LDAPException;
 
     /**
      * Removes a user.
-     * 
      * @param userid the user id for the given user
      * @exception EUsrGrpException thrown when failed to remove user
      */
@@ -75,7 +71,6 @@ public interface IUsrGrp extends IIdEvaluator {
 
     /**
      * Modifies user.
-     * 
      * @param user the user interface which contains the modified information
      * @exception EUsrGrpException thrown when failed to modify user
      */
@@ -83,7 +78,6 @@ public interface IUsrGrp extends IIdEvaluator {
 
     /**
      * Retrieves an identity group
-     * 
      * @param groupid the given group id.
      * @return the group interface
      */
@@ -91,7 +85,6 @@ public interface IUsrGrp extends IIdEvaluator {
 
     /**
      * Adds a group
-     * 
      * @param group the given group
      * @exception EUsrGrpException thrown when failed to add the group.
      */
@@ -99,18 +92,16 @@ public interface IUsrGrp extends IIdEvaluator {
 
     /**
      * Modifies a group
-     * 
-     * @param group the given group contains the new information for
-     *            modification.
+     * @param group the given group contains the new information for modification.
      * @exception EUsrGrpException thrown when failed to modify the group.
      */
     public void modifyGroup(IGroup group) throws EUsrGrpException;
 
     /**
      * Removes a group
-     * 
      * @param name the group name
-     * @exception EUsrGrpException thrown when failed to remove the given group.
+     * @exception EUsrGrpException thrown when failed to remove the given
+     * group.
      */
     public void removeGroup(String name) throws EUsrGrpException;
 

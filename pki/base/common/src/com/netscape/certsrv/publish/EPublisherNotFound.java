@@ -17,11 +17,13 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.publish;
 
+
 import com.netscape.certsrv.ldap.ELdapException;
+
 
 /**
  * Exception for Publisher not found. Required for successful publishing.
- * 
+ *
  * @version $Revision$ $Date$
  */
 public class EPublisherNotFound extends ELdapException {
@@ -33,7 +35,6 @@ public class EPublisherNotFound extends ELdapException {
 
     /**
      * Constructs a exception for a missing required publisher.
-     * 
      * @param errorString Detailed error message.
      */
     public EPublisherNotFound(String errorString) {

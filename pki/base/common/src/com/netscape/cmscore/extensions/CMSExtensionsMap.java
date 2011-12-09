@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.extensions;
 
+
 import java.util.Enumeration;
 import java.util.Hashtable;
 
@@ -29,9 +30,10 @@ import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.extensions.EExtensionsException;
 import com.netscape.certsrv.extensions.ICMSExtension;
 
-/**
- * Loads extension classes from configuration file and return for a given
- * extension name or OID.
+
+/** 
+ * Loads extension classes from configuration file and return 
+ * for a given extension name or OID.
  */
 public class CMSExtensionsMap implements ISubsystem {
     public static String ID = "extensions";
@@ -54,11 +56,10 @@ public class CMSExtensionsMap implements ISubsystem {
 
     /**
      * Create extensions from configuration store.
-     * 
      * @param config the configuration store.
      */
-    public void init(ISubsystem owner, IConfigStore config)
-            throws EBaseException {
+    public void init(ISubsystem owner, IConfigStore config) 
+        throws EBaseException {
         mOwner = owner;
         mConfig = config;
 
@@ -76,19 +77,19 @@ public class CMSExtensionsMap implements ISubsystem {
                 ext.init(this, c);
                 addExt(ext);
             } catch (ClassNotFoundException e) {
-                throw new EExtensionsException(CMS.getUserMessage(
-                        "CMS_EXTENSION_CLASS_NOT_FOUND", className));
+                throw new EExtensionsException(
+                        CMS.getUserMessage("CMS_EXTENSION_CLASS_NOT_FOUND", className));
             } catch (IllegalAccessException e) {
-                throw new EExtensionsException(CMS.getUserMessage(
-                        "CMS_EXTENSION_INSTANTIATE_ERROR", className,
-                        e.toString()));
+                throw new EExtensionsException(
+                        CMS.getUserMessage("CMS_EXTENSION_INSTANTIATE_ERROR",
+                        className, e.toString()));
             } catch (InstantiationException e) {
-                throw new EExtensionsException(CMS.getUserMessage(
-                        "CMS_EXTENSION_INSTANTIATE_ERROR", className,
-                        e.toString()));
+                throw new EExtensionsException(
+                        CMS.getUserMessage("CMS_EXTENSION_INSTANTIATE_ERROR",
+                        className, e.toString()));
             } catch (ClassCastException e) {
-                throw new EExtensionsException(CMS.getUserMessage(
-                        "CMS_EXTENSION_INVALID_IMPL", className));
+                throw new EExtensionsException(
+                        CMS.getUserMessage("CMS_EXTENSION_INVALID_IMPL", className));
             }
         }
     }
@@ -98,8 +99,9 @@ public class CMSExtensionsMap implements ISubsystem {
         ObjectIdentifier oid = ext.getOID();
 
         if (name == null || oid == null) {
-            throw new EExtensionsException(CMS.getUserMessage(
-                    "CMS_EXTENSION_INCORRECT_IMPL", ext.getClass().getName()));
+            throw new EExtensionsException(
+                    CMS.getUserMessage("CMS_EXTENSION_INCORRECT_IMPL",
+                    ext.getClass().getName()));
         }
         mName2Ext.put(name, ext);
         mOID2Ext.put(oid.toString(), ext);
@@ -118,30 +120,29 @@ public class CMSExtensionsMap implements ISubsystem {
     }
 
     /**
-     * Get configuration store.
+     * Get configuration store. 
      */
     public IConfigStore getConfigStore() {
         return mConfig;
     }
 
     /**
-     * Returns subsystem ID
+     * Returns subsystem ID 
      */
     public String getId() {
         return ID;
     }
 
     /**
-     * sets subsystem ID
+     * sets subsystem ID 
      */
     public void setId(String Id) {
     }
 
     /**
      * Get the extension class by name.
-     * 
      * @param name name of the extension
-     * @return the extension class.
+     * @return the extension class. 
      */
     public ICMSExtension getByName(String name) {
         return (ICMSExtension) mName2Ext.get(name);
@@ -149,7 +150,6 @@ public class CMSExtensionsMap implements ISubsystem {
 
     /**
      * Get the extension class by its OID.
-     * 
      * @param oid - the OID of the extension.
      * @return the extension class.
      */

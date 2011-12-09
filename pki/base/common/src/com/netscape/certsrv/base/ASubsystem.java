@@ -17,10 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.base;
 
+
 /**
- * This class represents a basic subsystem. Each basic subsystem is named with
- * an identifier and has a configuration store.
- * 
+ * This class represents a basic subsystem. Each basic
+ * subsystem is named with an identifier and has a 
+ * configuration store.
+ *
  * @version $Revision$, $Date$
  */
 public abstract class ASubsystem implements ISubsystem {
@@ -31,7 +33,7 @@ public abstract class ASubsystem implements ISubsystem {
 
     /**
      * Initializes this subsystem.
-     * 
+     *
      * @param parent parent subsystem
      * @param cfg configuration store
      */
@@ -42,7 +44,7 @@ public abstract class ASubsystem implements ISubsystem {
 
     /**
      * Retrieves the configuration store.
-     * 
+     *
      * @return configuration store
      */
     public IConfigStore getConfigStore() {
@@ -51,7 +53,7 @@ public abstract class ASubsystem implements ISubsystem {
 
     /**
      * Sets the identifier of this subsystem.
-     * 
+     *
      * @param id subsystem identifier
      */
     public void setId(String id) {
@@ -60,7 +62,7 @@ public abstract class ASubsystem implements ISubsystem {
 
     /**
      * Retrieves the subsystem identifier.
-     * 
+     *
      * @return subsystem identifier
      */
     public String getId() {

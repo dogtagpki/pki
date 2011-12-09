@@ -17,7 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmsutil.radius;
 
+
 import java.io.IOException;
+
 
 public class FramedAppleTalkLinkAttribute extends Attribute {
     public static int UN_NUMBERED = 0;

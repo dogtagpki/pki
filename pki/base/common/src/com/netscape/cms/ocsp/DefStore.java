@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.ocsp;
 
+
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.cert.X509CRL;
@@ -74,29 +75,33 @@ import com.netscape.cmsutil.ocsp.SingleResponse;
 import com.netscape.cmsutil.ocsp.TBSRequest;
 import com.netscape.cmsutil.ocsp.UnknownInfo;
 
+
 /**
- * This is the default OCSP store that stores revocation information as
- * certificate record (CMS internal data structure).
- * 
+ * This is the default OCSP store that stores revocation information
+ * as certificate record (CMS internal data structure).
+ *
  * @version $Revision$, $Date$
  */
 public class DefStore implements IDefStore, IExtendedPluginInfo {
 
     // refreshInSec is useful in the master-clone situation.
-    // clone does not know that the CRL has been updated in
+    // clone does not know that the CRL has been updated in 
     // the master (by default no refresh)
     private static final String PROP_USE_CACHE = "useCache";
 
     private static final String PROP_REFRESH_IN_SEC = "refreshInSec";
-    private static final int DEF_REFRESH_IN_SEC = 0;
+    private static final int DEF_REFRESH_IN_SEC = 0; 
 
     public static final BigInteger BIG_ZERO = new BigInteger("0");
     public static final Long MINUS_ONE = Long.valueOf(-1);
 
-    private final static String PROP_BY_NAME = "byName";
-    private final static String PROP_WAIT_ON_CRL_UPDATE = "waitOnCRLUpdate";
+    private final static String PROP_BY_NAME = 
+        "byName";
+    private final static String PROP_WAIT_ON_CRL_UPDATE = 
+        "waitOnCRLUpdate";
     private final static String PROP_NOT_FOUND_GOOD = "notFoundAsGood";
-    private final static String PROP_INCLUDE_NEXT_UPDATE = "includeNextUpdate";
+    private final static String PROP_INCLUDE_NEXT_UPDATE =
+        "includeNextUpdate";
 
     protected Hashtable mReqCounts = new Hashtable();
     protected boolean mNotFoundGood = true;
@@ -118,28 +123,19 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     public DefStore() {
     }
 
-    public String[] getExtendedPluginInfo(Locale locale) {
-        Vector v = new Vector();
+    public String[] getExtendedPluginInfo(Locale locale) { 
+        Vector v = new Vector(); 
 
-        v.addElement(PROP_NOT_FOUND_GOOD
-                + ";boolean; "
-                + CMS.getUserMessage(locale,
-                        "CMS_OCSP_DEFSTORE_PROP_NOT_FOUND_GOOD"));
-        v.addElement(PROP_BY_NAME + ";boolean; "
-                + CMS.getUserMessage(locale, "CMS_OCSP_DEFSTORE_PROP_BY_NAME"));
-        v.addElement(PROP_INCLUDE_NEXT_UPDATE
-                + ";boolean; "
-                + CMS.getUserMessage(locale,
-                        "CMS_OCSP_DEFSTORE_PROP_INCLUDE_NEXT_UPDATE"));
-        v.addElement(IExtendedPluginInfo.HELP_TEXT + "; "
-                + CMS.getUserMessage(locale, "CMS_OCSP_DEFSTORE_DESC"));
-        v.addElement(IExtendedPluginInfo.HELP_TOKEN
-                + ";configuration-ocspstores-defstore");
+        v.addElement(PROP_NOT_FOUND_GOOD + ";boolean; " + CMS.getUserMessage(locale, "CMS_OCSP_DEFSTORE_PROP_NOT_FOUND_GOOD"));
+        v.addElement(PROP_BY_NAME + ";boolean; " + CMS.getUserMessage(locale, "CMS_OCSP_DEFSTORE_PROP_BY_NAME"));
+        v.addElement(PROP_INCLUDE_NEXT_UPDATE + ";boolean; " + CMS.getUserMessage(locale, "CMS_OCSP_DEFSTORE_PROP_INCLUDE_NEXT_UPDATE"));
+        v.addElement(IExtendedPluginInfo.HELP_TEXT + "; " + CMS.getUserMessage(locale, "CMS_OCSP_DEFSTORE_DESC"));
+        v.addElement(IExtendedPluginInfo.HELP_TOKEN + ";configuration-ocspstores-defstore"); 
         return com.netscape.cmsutil.util.Utils.getStringArrayFromVector(v);
     }
 
-    public void init(ISubsystem owner, IConfigStore config)
-            throws EBaseException {
+    public void init(ISubsystem owner, IConfigStore config) 	
+        throws EBaseException {
         mOCSPAuthority = (IOCSPAuthority) owner;
         mConfig = config;
 
@@ -164,8 +160,8 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         // To include next update in the OCSP response. If included,
         // PSM (client) will check to see if the revoked information
         // is too old or not
-        mIncludeNextUpdate = mConfig
-                .getBoolean(PROP_INCLUDE_NEXT_UPDATE, false);
+        mIncludeNextUpdate = mConfig.getBoolean(PROP_INCLUDE_NEXT_UPDATE,
+                    false);
 
         // should move this into DBSubsystem ....
         IDBRegistry reg = mDBService.getRegistry();
@@ -174,7 +170,8 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         initWebGateway();
 
         /**
-         * DeleteOldCRLsThread t = new DeleteOldCRLsThread(this); t.start();
+         DeleteOldCRLsThread t = new DeleteOldCRLsThread(this);
+         t.start();
          **/
         // deleteOldCRLs();
     }
@@ -182,7 +179,8 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     /**
      * init web gateway - just gets the ee gateway for this CA.
      */
-    private void initWebGateway() throws EBaseException {
+    private void initWebGateway()
+        throws EBaseException {
     }
 
     public IRepositoryRecord createRepositoryRecord() {
@@ -224,18 +222,20 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     }
 
     /**
-     * This store will not delete the old CRL until the new one is totally
-     * committed.
+     * This store will not delete the old CRL until the 
+     * new one is totally committed.
      */
     public void deleteOldCRLs() throws EBaseException {
         Enumeration recs = searchCRLIssuingPointRecord(
-                "objectclass=" + CMS.getCRLIssuingPointRecordName(), 100);
+                "objectclass=" +
+                CMS.getCRLIssuingPointRecordName(),
+                100);
         X509CertImpl theCert = null;
         ICRLIssuingPointRecord theRec = null;
 
         while (recs.hasMoreElements()) {
-            ICRLIssuingPointRecord rec = (ICRLIssuingPointRecord) recs
-                    .nextElement();
+            ICRLIssuingPointRecord rec = (ICRLIssuingPointRecord)
+                recs.nextElement();
 
             deleteOldCRLsInCA(rec.getId());
         }
@@ -245,38 +245,47 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         IDBSSession s = mDBService.createSession();
 
         try {
-            ICRLIssuingPointRecord cp = (ICRLIssuingPointRecord) readCRLIssuingPoint(caName);
+            ICRLIssuingPointRecord cp = (ICRLIssuingPointRecord)
+                readCRLIssuingPoint(caName);
 
             if (cp == null)
                 return; // nothing to do
             if (cp.getThisUpdate() == null)
                 return; // nothing to do
-            String thisUpdate = Long.toString(cp.getThisUpdate().getTime());
-            Enumeration e = searchRepository(caName, "(!"
-                    + IRepositoryRecord.ATTR_SERIALNO + "=" + thisUpdate + ")");
+            String thisUpdate = Long.toString(
+                    cp.getThisUpdate().getTime());
+            Enumeration e = searchRepository(
+                    caName,
+                    "(!" + IRepositoryRecord.ATTR_SERIALNO + "=" +
+                    thisUpdate + ")");
 
             while (e != null && e.hasMoreElements()) {
-                IRepositoryRecord r = (IRepositoryRecord) e.nextElement();
-                Enumeration recs = searchCertRecord(caName, r.getSerialNumber()
-                        .toString(), ICertRecord.ATTR_ID + "=*");
+                IRepositoryRecord r = (IRepositoryRecord)
+                    e.nextElement();
+                Enumeration recs = 
+                    searchCertRecord(caName,
+                        r.getSerialNumber().toString(),
+                        ICertRecord.ATTR_ID + "=*");
 
-                log(ILogger.LL_INFO, "remove CRL 0x"
-                        + r.getSerialNumber().toString(16) + " of " + caName);
-                String rep_dn = "ou=" + r.getSerialNumber().toString() + ",cn="
-                        + transformDN(caName) + "," + getBaseDN();
+                log(ILogger.LL_INFO, "remove CRL 0x" + 
+                    r.getSerialNumber().toString(16) + 
+                    " of " + caName);
+                String rep_dn = "ou=" + 
+                    r.getSerialNumber().toString() +
+                    ",cn=" + transformDN(caName) + "," + 
+                    getBaseDN();
 
                 while (recs != null && recs.hasMoreElements()) {
                     ICertRecord rec = (ICertRecord) recs.nextElement();
-                    String cert_dn = "cn=" + rec.getSerialNumber().toString()
-                            + "," + rep_dn;
+                    String cert_dn = "cn=" + 
+                        rec.getSerialNumber().toString() + "," + rep_dn;
 
                     s.delete(cert_dn);
                 }
                 s.delete(rep_dn);
             }
         } finally {
-            if (s != null)
-                s.close();
+            if (s != null) s.close();
         }
     }
 
@@ -289,12 +298,12 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     }
 
     public void startup() throws EBaseException {
-        int refresh = mConfig.getInteger(PROP_REFRESH_IN_SEC,
-                DEF_REFRESH_IN_SEC);
+        int refresh = mConfig.getInteger(PROP_REFRESH_IN_SEC, 
+           DEF_REFRESH_IN_SEC);
         if (refresh > 0) {
-            DefStoreCRLUpdater updater = new DefStoreCRLUpdater(
-                    mCacheCRLIssuingPoints, refresh);
-            updater.start();
+          DefStoreCRLUpdater updater = 
+            new DefStoreCRLUpdater(mCacheCRLIssuingPoints, refresh);
+          updater.start();
         }
     }
 
@@ -316,9 +325,10 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     /**
      * Validate an OCSP request.
      */
-    public OCSPResponse validate(OCSPRequest request) throws EBaseException {
+    public OCSPResponse validate(OCSPRequest request) 
+        throws EBaseException {	
 
-        IStatsSubsystem statsSub = (IStatsSubsystem) CMS.getSubsystem("stats");
+        IStatsSubsystem statsSub = (IStatsSubsystem)CMS.getSubsystem("stats");
 
         mOCSPAuthority.incNumOCSPRequest(1);
         long startTime = CMS.getCurrentDate().getTime();
@@ -327,15 +337,16 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
             TBSRequest tbsReq = request.getTBSRequest();
 
             // (3) look into database to check the
-            // certificate's status
+            //     certificate's status
             Vector singleResponses = new Vector();
             if (statsSub != null) {
-                statsSub.startTiming("lookup");
+              statsSub.startTiming("lookup");
             }
 
             long lookupStartTime = CMS.getCurrentDate().getTime();
             for (int i = 0; i < tbsReq.getRequestCount(); i++) {
-                com.netscape.cmsutil.ocsp.Request req = tbsReq.getRequestAt(i);
+                com.netscape.cmsutil.ocsp.Request req =
+                    tbsReq.getRequestAt(i);
                 CertID cid = req.getCertID();
                 SingleResponse sr = processRequest(cid);
 
@@ -343,18 +354,17 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
             }
             long lookupEndTime = CMS.getCurrentDate().getTime();
             if (statsSub != null) {
-                statsSub.endTiming("lookup");
+              statsSub.endTiming("lookup");
             }
             mOCSPAuthority.incLookupTime(lookupEndTime - lookupStartTime);
 
-            if (singleResponses.size() <= 0) {
+            if (singleResponses.size() <= 0) { 
                 CMS.debug("DefStore: No Request Found");
-                log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                        "OCSP_REQUEST_FAILURE", "No Request Found"));
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("OCSP_REQUEST_FAILURE", "No Request Found"));
                 return null;
             }
             if (statsSub != null) {
-                statsSub.startTiming("build_response");
+              statsSub.startTiming("build_response");
             }
             SingleResponse res[] = new SingleResponse[singleResponses.size()];
 
@@ -379,27 +389,27 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
                 }
             }
 
-            ResponseData rd = new ResponseData(rid, new GeneralizedTime(
-                    CMS.getCurrentDate()), res, nonce);
+            ResponseData rd = new ResponseData(rid,
+                    new GeneralizedTime(CMS.getCurrentDate()), res, nonce);
             if (statsSub != null) {
-                statsSub.endTiming("build_response");
+              statsSub.endTiming("build_response");
             }
 
             if (statsSub != null) {
-                statsSub.startTiming("signing");
+              statsSub.startTiming("signing");
             }
             long signStartTime = CMS.getCurrentDate().getTime();
             BasicOCSPResponse basicRes = mOCSPAuthority.sign(rd);
             long signEndTime = CMS.getCurrentDate().getTime();
             if (statsSub != null) {
-                statsSub.endTiming("signing");
+              statsSub.endTiming("signing");
             }
             mOCSPAuthority.incSignTime(signEndTime - signStartTime);
 
             OCSPResponse response = new OCSPResponse(
-                    OCSPResponseStatus.SUCCESSFUL, new ResponseBytes(
-                            ResponseBytes.OCSP_BASIC, new OCTET_STRING(
-                                    ASN1Util.encode(basicRes))));
+                    OCSPResponseStatus.SUCCESSFUL,
+                    new ResponseBytes(ResponseBytes.OCSP_BASIC,
+                        new OCTET_STRING(ASN1Util.encode(basicRes))));
 
             log(ILogger.LL_INFO, "done OCSP request");
             long endTime = CMS.getCurrentDate().getTime();
@@ -407,8 +417,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
             return response;
         } catch (Exception e) {
             CMS.debug("DefStore: validation failed " + e.toString());
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("OCSP_REQUEST_FAILURE", e.toString()));
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("OCSP_REQUEST_FAILURE", e.toString()));
             return null;
         }
     }
@@ -426,16 +435,18 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
             X509CRLImpl theCRL = null;
             ICRLIssuingPointRecord theRec = null;
             byte keyhsh[] = cid.getIssuerKeyHash().toByteArray();
-            CRLIPContainer matched = (CRLIPContainer) mCacheCRLIssuingPoints
-                    .get(new String(keyhsh));
+            CRLIPContainer matched = (CRLIPContainer)
+                mCacheCRLIssuingPoints.get(new String(keyhsh));
 
             if (matched == null) {
-                Enumeration recs = searchCRLIssuingPointRecord("objectclass="
-                        + CMS.getCRLIssuingPointRecordName(), 100);
+                Enumeration recs = searchCRLIssuingPointRecord(
+                        "objectclass=" +
+                        CMS.getCRLIssuingPointRecordName(),
+                        100);
 
                 while (recs.hasMoreElements()) {
-                    ICRLIssuingPointRecord rec = (ICRLIssuingPointRecord) recs
-                            .nextElement();
+                    ICRLIssuingPointRecord rec = (ICRLIssuingPointRecord)
+                        recs.nextElement();
                     byte certdata[] = rec.getCACert();
                     X509CertImpl cert = null;
 
@@ -443,13 +454,11 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
                         cert = new X509CertImpl(certdata);
                     } catch (Exception e) {
                         // error
-                        log(ILogger.LL_FAILURE,
-                                CMS.getLogMessage("OCSP_DECODE_CERT",
-                                        e.toString()));
+                        log(ILogger.LL_FAILURE, CMS.getLogMessage("OCSP_DECODE_CERT", e.toString()));
                         return null;
                     }
-                    MessageDigest md = MessageDigest.getInstance(mOCSPAuthority
-                            .getDigestName(cid.getHashAlgorithm()));
+                    MessageDigest md = MessageDigest.getInstance(
+                            mOCSPAuthority.getDigestName(cid.getHashAlgorithm()));
                     X509Key key = (X509Key) cert.getPublicKey();
                     byte digest[] = md.digest(key.getKey());
 
@@ -460,20 +469,17 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
                         byte crldata[] = rec.getCRL();
 
                         if (rec.getCRLCache() == null) {
-                            CMS.debug("DefStore: start building x509 crl impl");
-                            try {
-                                theCRL = new X509CRLImpl(crldata);
-                            } catch (Exception e) {
-                                log(ILogger.LL_FAILURE,
-                                        CMS.getLogMessage("OCSP_DECODE_CRL",
-                                                e.toString()));
-                            }
-                            CMS.debug("DefStore: done building x509 crl impl");
+                          CMS.debug("DefStore: start building x509 crl impl");
+                          try {
+                            theCRL = new X509CRLImpl(crldata);
+                          } catch (Exception e) {
+                            log(ILogger.LL_FAILURE, CMS.getLogMessage("OCSP_DECODE_CRL", e.toString()));
+                          }
+                          CMS.debug("DefStore: done building x509 crl impl");
                         } else {
-                            CMS.debug("DefStore: using crl cache");
+                          CMS.debug("DefStore: using crl cache");
                         }
-                        mCacheCRLIssuingPoints.put(new String(digest),
-                                new CRLIPContainer(theRec, theCert, theCRL));
+                        mCacheCRLIssuingPoints.put(new String(digest), new CRLIPContainer(theRec, theCert, theCRL));
                         break;
                     }
                 }
@@ -488,19 +494,16 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
             if (theCert != null) {
                 INTEGER serialNo = cid.getSerialNumber();
 
-                log(ILogger.EV_AUDIT,
-                        AuditFormat.LEVEL,
-                        "Checked Status of certificate 0x"
-                                + serialNo.toString(16));
-                CMS.debug("DefStore: process request 0x"
-                        + serialNo.toString(16));
+                log(ILogger.EV_AUDIT, AuditFormat.LEVEL, "Checked Status of certificate 0x" + serialNo.toString(16));
+                CMS.debug("DefStore: process request 0x" + serialNo.toString(16));
                 CertStatus certStatus = null;
                 GeneralizedTime thisUpdate = null;
 
                 if (theRec == null) {
                     thisUpdate = new GeneralizedTime(CMS.getCurrentDate());
                 } else {
-                    thisUpdate = new GeneralizedTime(theRec.getThisUpdate());
+                    thisUpdate = new GeneralizedTime(
+                                theRec.getThisUpdate());
                 }
                 GeneralizedTime nextUpdate = null;
 
@@ -509,7 +512,8 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
                     if (theRec == null) {
                         nextUpdate = new GeneralizedTime(CMS.getCurrentDate());
                     } else {
-                        nextUpdate = new GeneralizedTime(theRec.getNextUpdate());
+                        nextUpdate = new GeneralizedTime(
+                                    theRec.getNextUpdate());
                     }
                 }
 
@@ -521,28 +525,26 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
                         CMS.debug("DefStore: evaluating crl cache");
                         Hashtable cache = theRec.getCRLCacheNoClone();
                         if (cache != null) {
-                            RevokedCertificate rc = (RevokedCertificate) cache
-                                    .get(new BigInteger(serialNo.toString()));
-                            if (rc == null) {
-                                if (isNotFoundGood()) {
-                                    certStatus = new GoodInfo();
-                                } else {
-                                    certStatus = new UnknownInfo();
+                             RevokedCertificate rc = (RevokedCertificate)
+                                  cache.get(new BigInteger(serialNo.toString()));
+                             if (rc == null) { 
+                                if (isNotFoundGood()) { 
+                                   certStatus = new GoodInfo(); 
+                                } else { 
+                                   certStatus = new UnknownInfo(); 
                                 }
-                            } else {
-
+                             } else {
+           
                                 certStatus = new RevokedInfo(
-                                        new GeneralizedTime(
-                                                rc.getRevocationDate()));
-                            }
+                                     new GeneralizedTime(
+                                        rc.getRevocationDate()));
+                             }
                         }
                     }
-
+                     
                 } else {
-                    CMS.debug("DefStore: evaluating x509 crl impl");
-                    X509CRLEntry crlentry = theCRL
-                            .getRevokedCertificate(new BigInteger(serialNo
-                                    .toString()));
+                        CMS.debug("DefStore: evaluating x509 crl impl");
+                    X509CRLEntry crlentry = theCRL.getRevokedCertificate(new BigInteger(serialNo.toString()));
 
                     if (crlentry == null) {
                         // good or unknown
@@ -553,8 +555,8 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
                         }
                     } else {
                         certStatus = new RevokedInfo(new GeneralizedTime(
-                                crlentry.getRevocationDate()));
-
+                                        crlentry.getRevocationDate()));
+               
                     }
                 }
                 return new SingleResponse(cid, certStatus, thisUpdate,
@@ -580,13 +582,16 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     }
 
     public Enumeration searchAllCRLIssuingPointRecord(int maxSize)
-            throws EBaseException {
+        throws EBaseException {
         return searchCRLIssuingPointRecord(
-                "objectclass=" + CMS.getCRLIssuingPointRecordName(), maxSize);
+                "objectclass=" +
+                CMS.getCRLIssuingPointRecordName(),
+                maxSize);
     }
 
-    public Enumeration searchCRLIssuingPointRecord(String filter, int maxSize)
-            throws EBaseException {
+    public Enumeration searchCRLIssuingPointRecord(String filter,
+        int maxSize)
+        throws EBaseException {
         IDBSSession s = mDBService.createSession();
         Enumeration e = null;
 
@@ -600,20 +605,20 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     }
 
     public synchronized void modifyCRLIssuingPointRecord(String name,
-            ModificationSet mods) throws EBaseException {
+        ModificationSet mods) throws EBaseException {
         IDBSSession s = mDBService.createSession();
 
         try {
-            String dn = "cn=" + transformDN(name) + "," + getBaseDN();
+            String dn = "cn=" +
+                transformDN(name) + "," + getBaseDN();
 
             s.modify(dn, mods);
         } catch (EBaseException e) {
-            CMS.debug("modifyCRLIssuingPointRecord: error=" + e);
-            CMS.debug(e);
-            throw e;
+          CMS.debug("modifyCRLIssuingPointRecord: error=" + e);
+          CMS.debug(e);
+          throw e;
         } finally {
-            if (s != null)
-                s.close();
+            if (s != null) s.close();
         }
     }
 
@@ -621,43 +626,42 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
      * Returns an issuing point.
      */
     public ICRLIssuingPointRecord readCRLIssuingPoint(String name)
-            throws EBaseException {
+        throws EBaseException {
         IDBSSession s = mDBService.createSession();
         ICRLIssuingPointRecord rec = null;
 
         try {
-            String dn = "cn=" + transformDN(name) + "," + getBaseDN();
+            String dn = "cn=" +
+                transformDN(name) + "," + getBaseDN();
 
             if (s != null) {
                 rec = (ICRLIssuingPointRecord) s.read(dn);
             }
         } finally {
-            if (s != null)
-                s.close();
+            if (s != null) s.close();
         }
         return rec;
     }
 
-    public ICRLIssuingPointRecord createCRLIssuingPointRecord(String name,
-            BigInteger crlNumber, Long crlSize, Date thisUpdate, Date nextUpdate) {
-        return CMS.createCRLIssuingPointRecord(name, crlNumber, crlSize,
-                thisUpdate, nextUpdate);
+    public ICRLIssuingPointRecord createCRLIssuingPointRecord(
+        String name, BigInteger crlNumber,
+        Long crlSize, Date thisUpdate, Date nextUpdate) {
+        return CMS.createCRLIssuingPointRecord(
+                name, crlNumber, crlSize, thisUpdate, nextUpdate);
     }
 
-    public void deleteCRLIssuingPointRecord(String id) throws EBaseException {
+     public void deleteCRLIssuingPointRecord(String id)
+        throws EBaseException {
 
         IDBSSession s = null;
 
         try {
             s = mDBService.createSession();
-            String name = "cn=" + transformDN(id) + "," + getBaseDN();
-            CMS.debug("DefStore::deleteCRLIssuingPointRecord: Attempting to delete: "
-                    + name);
-            if (s != null)
-                s.delete(name);
+            String name = "cn=" + transformDN(id) + "," + getBaseDN(); 
+            CMS.debug("DefStore::deleteCRLIssuingPointRecord: Attempting to delete: " + name);
+            if (s != null) s.delete(name);
         } finally {
-            if (s != null)
-                s.close();
+            if (s != null) s.close();
         }
     }
 
@@ -665,11 +669,12 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
      * Creates a new issuing point in OCSP.
      */
     public void addCRLIssuingPoint(String name, ICRLIssuingPointRecord rec)
-            throws EBaseException {
+        throws EBaseException {
         IDBSSession s = mDBService.createSession();
 
         try {
-            String dn = "cn=" + transformDN(name) + "," + getBaseDN();
+            String dn = "cn=" +
+                transformDN(name) + "," + getBaseDN();
 
             s.add(dn, (ICRLIssuingPointRecord) rec);
         } finally {
@@ -679,12 +684,13 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     }
 
     public Enumeration searchRepository(String name, String filter)
-            throws EBaseException {
+        throws EBaseException {
         IDBSSession s = mDBService.createSession();
         Enumeration e = null;
 
         try {
-            e = s.search("cn=" + transformDN(name) + "," + getBaseDN(), filter);
+            e = s.search("cn=" + transformDN(name) + "," + getBaseDN(),
+                        filter);
         } finally {
             if (s != null)
                 s.close();
@@ -696,12 +702,13 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
      * Creates a new issuing point in OCSP.
      */
     public void addRepository(String name, String thisUpdate,
-            IRepositoryRecord rec) throws EBaseException {
+        IRepositoryRecord rec)
+        throws EBaseException {
         IDBSSession s = mDBService.createSession();
 
         try {
-            String dn = "ou=" + thisUpdate + ",cn=" + transformDN(name) + ","
-                    + getBaseDN();
+            String dn = "ou=" + thisUpdate + ",cn=" +
+                transformDN(name) + "," + getBaseDN();
 
             s.add(dn, rec);
         } finally {
@@ -710,30 +717,30 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         }
     }
 
-    public void modifyCertRecord(String name, String thisUpdate, String sno,
-            ModificationSet mods) throws EBaseException {
+    public void modifyCertRecord(String name, String thisUpdate,
+        String sno,
+        ModificationSet mods) throws EBaseException {
         IDBSSession s = mDBService.createSession();
 
         try {
-            String dn = "cn=" + sno + ",ou=" + thisUpdate + ",cn="
-                    + transformDN(name) + "," + getBaseDN();
+            String dn = "cn=" + sno + ",ou=" + thisUpdate +
+                ",cn=" + transformDN(name) + "," + getBaseDN();
 
-            if (s != null)
-                s.modify(dn, mods);
+            if (s != null) s.modify(dn, mods);
         } finally {
-            if (s != null)
-                s.close();
+            if (s != null) s.close();
         }
     }
 
     public Enumeration searchCertRecord(String name, String thisUpdate,
-            String filter) throws EBaseException {
+        String filter) throws EBaseException {
         IDBSSession s = mDBService.createSession();
         Enumeration e = null;
 
         try {
-            e = s.search("ou=" + thisUpdate + ",cn=" + transformDN(name) + ","
-                    + getBaseDN(), filter);
+            e = s.search("ou=" + thisUpdate + ",cn=" +
+                        transformDN(name) + "," + getBaseDN(),
+                        filter);
         } finally {
             if (s != null)
                 s.close();
@@ -741,21 +748,21 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         return e;
     }
 
-    public ICertRecord readCertRecord(String name, String thisUpdate, String sno)
-            throws EBaseException {
+    public ICertRecord readCertRecord(String name, String thisUpdate,
+        String sno)
+        throws EBaseException {
         IDBSSession s = mDBService.createSession();
         ICertRecord rec = null;
 
         try {
-            String dn = "cn=" + sno + ",ou=" + thisUpdate + ",cn="
-                    + transformDN(name) + "," + getBaseDN();
+            String dn = "cn=" + sno + ",ou=" + thisUpdate +
+                ",cn=" + transformDN(name) + "," + getBaseDN();
 
             if (s != null) {
                 rec = (ICertRecord) s.read(dn);
             }
         } finally {
-            if (s != null)
-                s.close();
+            if (s != null) s.close();
         }
         return rec;
     }
@@ -763,13 +770,14 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     /**
      * Creates a new issuing point in OCSP.
      */
-    public void addCertRecord(String name, String thisUpdate, String sno,
-            ICertRecord rec) throws EBaseException {
+    public void addCertRecord(String name, String thisUpdate,
+        String sno, ICertRecord rec)
+        throws EBaseException {
         IDBSSession s = mDBService.createSession();
 
         try {
-            String dn = "cn=" + sno + ",ou=" + thisUpdate + ",cn="
-                    + transformDN(name) + "," + getBaseDN();
+            String dn = "cn=" + sno + ",ou=" + thisUpdate +
+                ",cn=" + transformDN(name) + "," + getBaseDN();
 
             s.add(dn, rec);
         } finally {
@@ -778,24 +786,26 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         }
     }
 
-    public NameValuePairs getConfigParameters() {
+    public NameValuePairs getConfigParameters() { 
         try {
-            NameValuePairs params = new NameValuePairs();
+            NameValuePairs params = new NameValuePairs(); 
 
             params.add(Constants.PR_OCSPSTORE_IMPL_NAME,
-                    mConfig.getString("class"));
-            params.add(PROP_NOT_FOUND_GOOD,
-                    mConfig.getString(PROP_NOT_FOUND_GOOD, "true"));
-            params.add(PROP_BY_NAME, mConfig.getString(PROP_BY_NAME, "true"));
-            params.add(PROP_INCLUDE_NEXT_UPDATE,
-                    mConfig.getString(PROP_INCLUDE_NEXT_UPDATE, "false"));
-            return params;
+                mConfig.getString("class"));
+            params.add(PROP_NOT_FOUND_GOOD, 
+                mConfig.getString(PROP_NOT_FOUND_GOOD, "true"));
+            params.add(PROP_BY_NAME, 
+                mConfig.getString(PROP_BY_NAME, "true"));
+            params.add(PROP_INCLUDE_NEXT_UPDATE, 
+                mConfig.getString(PROP_INCLUDE_NEXT_UPDATE, "false"));
+            return params; 
         } catch (Exception e) {
             return null;
         }
     }
 
-    public void setConfigParameters(NameValuePairs pairs) throws EBaseException {
+    public void setConfigParameters(NameValuePairs pairs) 
+        throws EBaseException { 
         Enumeration k = pairs.getNames();
 
         while (k.hasMoreElements()) {
@@ -812,8 +822,8 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
             CMS.debug("DefStore: Ready to update Issuer");
 
             try {
-                if (!((X509CRLImpl) crl).areEntriesIncluded())
-                    crl = new X509CRLImpl(((X509CRLImpl) crl).getEncoded());
+              if (!((X509CRLImpl)crl).areEntriesIncluded())
+                crl = new X509CRLImpl(((X509CRLImpl)crl).getEncoded());
             } catch (Exception e) {
                 CMS.debug(e);
             }
@@ -823,52 +833,51 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
 
             if (crl.getThisUpdate() != null)
                 mods.add(ICRLIssuingPointRecord.ATTR_THIS_UPDATE,
-                        Modification.MOD_REPLACE, crl.getThisUpdate());
+                    Modification.MOD_REPLACE, crl.getThisUpdate());
             if (crl.getNextUpdate() != null)
                 mods.add(ICRLIssuingPointRecord.ATTR_NEXT_UPDATE,
-                        Modification.MOD_REPLACE, crl.getNextUpdate());
+                    Modification.MOD_REPLACE, crl.getNextUpdate());
             if (mUseCache) {
-                if (((X509CRLImpl) crl).getListOfRevokedCertificates() != null) {
-                    mods.add(ICRLIssuingPointRecord.ATTR_CRL_CACHE,
-                            Modification.MOD_REPLACE,
-                            ((X509CRLImpl) crl).getListOfRevokedCertificates());
-                }
+              if (((X509CRLImpl)crl).getListOfRevokedCertificates() != null) {
+                 mods.add(ICRLIssuingPointRecord.ATTR_CRL_CACHE,
+                    Modification.MOD_REPLACE, 
+                    ((X509CRLImpl)crl).getListOfRevokedCertificates());
+              }
             }
             if (((X509CRLImpl) crl).getNumberOfRevokedCertificates() < 0) {
                 mods.add(ICRLIssuingPointRecord.ATTR_CRL_SIZE,
-                        Modification.MOD_REPLACE, Long.valueOf(0));
+                    Modification.MOD_REPLACE, Long.valueOf(0));
             } else {
                 mods.add(ICRLIssuingPointRecord.ATTR_CRL_SIZE,
-                        Modification.MOD_REPLACE, Long
-                                .valueOf(((X509CRLImpl) crl)
-                                        .getNumberOfRevokedCertificates()));
+                    Modification.MOD_REPLACE, Long.valueOf(((X509CRLImpl) crl).getNumberOfRevokedCertificates()));
             }
-            BigInteger crlNumber = ((X509CRLImpl) crl).getCRLNumber();
+            BigInteger crlNumber = ((X509CRLImpl)crl).getCRLNumber();
             if (crlNumber == null) {
                 mods.add(ICRLIssuingPointRecord.ATTR_CRL_NUMBER,
-                        Modification.MOD_REPLACE, new BigInteger("-1"));
+                    Modification.MOD_REPLACE, new BigInteger("-1"));
             } else {
                 mods.add(ICRLIssuingPointRecord.ATTR_CRL_NUMBER,
-                        Modification.MOD_REPLACE, crlNumber);
+                    Modification.MOD_REPLACE, crlNumber);
             }
             try {
                 mods.add(ICRLIssuingPointRecord.ATTR_CRL,
-                        Modification.MOD_REPLACE, crl.getEncoded());
+                    Modification.MOD_REPLACE, crl.getEncoded());
             } catch (Exception e) {
                 // ignore
             }
-            CMS.debug("DefStore: ready to CRL update "
-                    + crl.getIssuerDN().getName());
-            modifyCRLIssuingPointRecord(crl.getIssuerDN().getName(), mods);
-            CMS.debug("DefStore: done CRL update "
-                    + crl.getIssuerDN().getName());
+            CMS.debug("DefStore: ready to CRL update " + 
+                crl.getIssuerDN().getName());
+            modifyCRLIssuingPointRecord(
+                crl.getIssuerDN().getName(), mods);
+            CMS.debug("DefStore: done CRL update " + 
+                crl.getIssuerDN().getName());
 
             // update cache
             mCacheCRLIssuingPoints.clear();
 
-            log(ILogger.LL_INFO, "AddCRLServlet: Finish Committing CRL."
-                    + " thisUpdate=" + crl.getThisUpdate() + " nextUpdate="
-                    + crl.getNextUpdate());
+            log(ILogger.LL_INFO, "AddCRLServlet: Finish Committing CRL." + 
+                " thisUpdate=" + crl.getThisUpdate() + 
+                " nextUpdate=" + crl.getNextUpdate());
 
         } finally {
             mStateCount--;
@@ -880,6 +889,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     }
 
 }
+
 
 class DeleteOldCRLsThread extends Thread {
     private DefStore mDefStore = null;
@@ -896,13 +906,13 @@ class DeleteOldCRLsThread extends Thread {
     }
 }
 
+
 class CRLIPContainer {
     private ICRLIssuingPointRecord mRec = null;
     private X509CertImpl mCert = null;
     private X509CRLImpl mCRL = null;
 
-    public CRLIPContainer(ICRLIssuingPointRecord rec, X509CertImpl cert,
-            X509CRLImpl crl) {
+    public CRLIPContainer(ICRLIssuingPointRecord rec, X509CertImpl cert, X509CRLImpl crl) {
         mRec = rec;
         mCert = cert;
         mCRL = crl;

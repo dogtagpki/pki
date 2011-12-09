@@ -28,10 +28,9 @@ import java.security.Signer;
 
 /**
  * SunSecurity signer.
- * 
- * @version 1.24, 09/12/97
- * @author Benjamin Renaud
- */
+ *
+ * @version 	1.24, 09/12/97
+ * @author Benjamin Renaud */
 public class SystemSigner extends Signer {
 
     /** use serialVersionUID from JDK 1.1. for interoperability */
@@ -40,52 +39,52 @@ public class SystemSigner extends Signer {
     /* This exists only for serialization bc and don't use it! */
     private boolean trusted = false;
 
-    /**
+    /** 
      * Construct a signer with a given name.
      */
     public SystemSigner(String name) {
-        super(name);
+	super(name);
     }
 
-    /**
+    /** 
      * Construct a signer with a name and a scope.
-     * 
+     *
      * @param name the signer's name.
-     * 
+     *
      * @param scope the scope for this signer.
      */
     public SystemSigner(String name, IdentityScope scope)
-            throws KeyManagementException {
+     throws KeyManagementException {
 
-        super(name, scope);
+	super(name, scope);
     }
 
     /* friendly callback for set keys */
-    void setSignerKeyPair(KeyPair pair) throws InvalidParameterException,
-            KeyException {
-        setKeyPair(pair);
+    void setSignerKeyPair(KeyPair pair) 
+    throws InvalidParameterException, KeyException {
+	setKeyPair(pair);
     }
 
     /* friendly callback for getting private keys */
     PrivateKey getSignerPrivateKey() {
-        return getPrivateKey();
+	return getPrivateKey();
     }
 
     void setSignerInfo(String s) {
-        setInfo(s);
+	setInfo(s);
     }
-
+    
     /**
      * Call back method into a protected method for package friends.
      */
     void addSignerCertificate(Certificate cert) throws KeyManagementException {
-        addCertificate(cert);
+	addCertificate(cert);
     }
 
     void clearCertificates() throws KeyManagementException {
-        Certificate[] certs = certificates();
-        for (int i = 0; i < certs.length; i++) {
-            removeCertificate(certs[i]);
-        }
+	Certificate[] certs = certificates();
+	for (int i = 0; i < certs.length; i++) {
+	    removeCertificate(certs[i]);
+	}
     }
 }

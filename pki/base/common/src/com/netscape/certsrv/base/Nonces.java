@@ -21,10 +21,11 @@ import java.security.cert.X509Certificate;
 import java.util.Hashtable;
 import java.util.Vector;
 
+
 /**
  * This class manages nonces sometimes used to control request state flow.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class Nonces implements IAuthInfo {
@@ -52,17 +53,17 @@ public class Nonces implements IAuthInfo {
         long i;
         long k = 0;
         long n = nonce;
-        long m = (long) ((mNonceLimit / 2) + 1);
+        long m = (long)((mNonceLimit / 2) + 1);
 
         for (i = 0; i < m; i++) {
             k = n + i;
             // avoid collisions
-            if (!mNonceList.contains((Object) k)) {
+            if (!mNonceList.contains((Object)k)) {
                 break;
             }
             k = n - i;
             // avoid collisions
-            if (!mNonceList.contains((Object) k)) {
+            if (!mNonceList.contains((Object)k)) {
                 break;
             }
         }
@@ -70,9 +71,9 @@ public class Nonces implements IAuthInfo {
             mNonceList.add(k);
             mNonces.put(k, cert);
             if (mNonceList.size() > mNonceLimit) {
-                n = ((Long) (mNonceList.firstElement())).longValue();
+                n = ((Long)(mNonceList.firstElement())).longValue();
                 mNonceList.remove(0);
-                mNonces.remove((Object) n);
+                mNonces.remove((Object)n);
             }
         } else {
             // failed to resolved collision
@@ -82,15 +83,15 @@ public class Nonces implements IAuthInfo {
     }
 
     public X509Certificate getCertificate(long nonce) {
-        X509Certificate cert = (X509Certificate) mNonces.get(nonce);
+        X509Certificate cert = (X509Certificate)mNonces.get(nonce);
         return cert;
     }
 
     public X509Certificate getCertificate(int index) {
         X509Certificate cert = null;
         if (index >= 0 && index < mNonceList.size()) {
-            long nonce = ((Long) (mNonceList.elementAt(index))).longValue();
-            cert = (X509Certificate) mNonces.get(nonce);
+            long nonce = ((Long)(mNonceList.elementAt(index))).longValue();
+            cert = (X509Certificate)mNonces.get(nonce);
         }
         return cert;
     }
@@ -98,15 +99,16 @@ public class Nonces implements IAuthInfo {
     public long getNonce(int index) {
         long nonce = 0;
         if (index >= 0 && index < mNonceList.size()) {
-            nonce = ((Long) (mNonceList.elementAt(index))).longValue();
+            nonce = ((Long)(mNonceList.elementAt(index))).longValue();
         }
         return nonce;
     }
 
     public void removeNonce(long nonce) {
-        mNonceList.remove((Object) nonce);
-        mNonces.remove((Object) nonce);
+        mNonceList.remove((Object)nonce);
+        mNonces.remove((Object)nonce);
     }
+
 
     public int size() {
         return mNonceList.size();

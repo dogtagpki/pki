@@ -17,7 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmsutil.radius;
 
+
 import java.io.IOException;
+
 
 public class TerminationActionAttribute extends Attribute {
     public static final int DEFAULT = 0;

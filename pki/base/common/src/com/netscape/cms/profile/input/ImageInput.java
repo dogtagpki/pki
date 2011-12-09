@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.input;
 
+
 import java.util.Locale;
 
 import com.netscape.certsrv.apps.CMS;
@@ -29,13 +30,15 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 
+
 /**
- * This class implements the image input that collects a picture.
+ * This class implements the image
+ * input that collects a picture.
  * <p>
- * 
+ *
  * @version $Revision$, $Date$
  */
-public class ImageInput extends EnrollInput implements IProfileInput {
+public class ImageInput extends EnrollInput implements IProfileInput { 
 
     public static final String IMAGE_URL = "image_url";
 
@@ -47,7 +50,7 @@ public class ImageInput extends EnrollInput implements IProfileInput {
      * Initializes this default policy.
      */
     public void init(IProfile profile, IConfigStore config)
-            throws EProfileException {
+        throws EProfileException {
         super.init(profile, config);
     }
 
@@ -69,16 +72,18 @@ public class ImageInput extends EnrollInput implements IProfileInput {
      * Populates the request with this policy default.
      */
     public void populate(IProfileContext ctx, IRequest request)
-            throws EProfileException {
+        throws EProfileException {
         request.setExtData(IMAGE_URL, ctx.get(IMAGE_URL));
     }
 
     /**
-     * Retrieves the descriptor of the given value parameter by name.
+     * Retrieves the descriptor of the given value
+     * parameter by name.
      */
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         if (name.equals(IMAGE_URL)) {
-            return new Descriptor(IDescriptor.STRING, null, null,
+            return new Descriptor(IDescriptor.STRING, null,
+                    null,
                     CMS.getUserMessage(locale, "CMS_PROFILE_INPUT_IMAGE_URL"));
         }
         return null;

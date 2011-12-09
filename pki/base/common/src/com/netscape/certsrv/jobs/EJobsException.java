@@ -17,12 +17,14 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.jobs;
 
+
 import com.netscape.certsrv.base.EBaseException;
+
 
 /**
  * A class represents a jobs exception.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class EJobsException extends EBaseException {

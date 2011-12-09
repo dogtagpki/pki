@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.key;
 
+
 import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Locale;
@@ -42,9 +43,10 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 
+
 /**
  * Get the recovered key in PKCS#12 format
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class GetPk12 extends CMSServlet {
@@ -64,9 +66,13 @@ public class GetPk12 extends CMSServlet {
     private com.netscape.certsrv.kra.IKeyService mService = null;
     private final static String OUT_STATUS = "status";
 
-    private final static String LOGGING_SIGNED_AUDIT_PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_SUCCESS = "LOGGING_SIGNED_AUDIT_PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_SUCCESS_4";
+    private final static String
+        LOGGING_SIGNED_AUDIT_PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_SUCCESS =
+        "LOGGING_SIGNED_AUDIT_PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_SUCCESS_4";
 
-    private final static String LOGGING_SIGNED_AUDIT_PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_FAILURE = "LOGGING_SIGNED_AUDIT_PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_FAILURE_4";
+    private final static String
+        LOGGING_SIGNED_AUDIT_PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_FAILURE =
+        "LOGGING_SIGNED_AUDIT_PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_FAILURE_4";
 
     private String mFormPath = null;
 
@@ -80,7 +86,7 @@ public class GetPk12 extends CMSServlet {
     /**
      * initialize the servlet. This servlet uses the template file
      * "finishRecovery.template" to process the response.
-     * 
+     *
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -96,8 +102,8 @@ public class GetPk12 extends CMSServlet {
     /**
      * Returns serlvet information.
      */
-    public String getServletInfo() {
-        return INFO;
+    public String getServletInfo() { 
+        return INFO; 
     }
 
     /**
@@ -105,7 +111,7 @@ public class GetPk12 extends CMSServlet {
      * <ul>
      * <li>http.param recoveryID ID of request to recover
      * </ul>
-     * 
+     *
      * @param cmsReq the object holding the request and response information
      */
     public void process(CMSRequest cmsReq) throws EBaseException {
@@ -121,14 +127,14 @@ public class GetPk12 extends CMSServlet {
         AuthzToken authzToken = null;
 
         try {
-            authzToken = authorize(mAclMethod, authToken, mAuthzResourceName,
-                    "download");
+            authzToken = authorize(mAclMethod, authToken,
+                        mAuthzResourceName, "download");
         } catch (EAuthzAccessDenied e) {
             log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
         } catch (Exception e) {
             log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
         }
 
         if (authzToken == null) {
@@ -143,10 +149,9 @@ public class GetPk12 extends CMSServlet {
             form = getTemplate(mFormPath, req, locale);
         } catch (IOException e) {
             log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath,
-                            e.toString()));
+                CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()));
             throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+              CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
 
         cmsReq.setStatus(CMSRequest.SUCCESS);
@@ -164,10 +169,10 @@ public class GetPk12 extends CMSServlet {
             Hashtable params = mService.getRecoveryParams(recoveryID);
 
             if (params == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                        "CMSGW_NO_RECOVERY_TOKEN_FOUND_1", recoveryID));
-                throw new ECMSGWException(CMS.getUserMessage(
-                        "CMS_GW_NO_RECOVERY_TOKEN_FOUND", recoveryID));
+                log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSGW_NO_RECOVERY_TOKEN_FOUND_1", recoveryID));
+                throw new ECMSGWException(
+                  CMS.getUserMessage("CMS_GW_NO_RECOVERY_TOKEN_FOUND", recoveryID));
             }
 
             // only the init DRM agent can get the pkcs12
@@ -176,27 +181,29 @@ public class GetPk12 extends CMSServlet {
                 agent = (String) sContext.get(SessionContext.USER_ID);
             }
 
-            if (agent == null) {
-                CMS.debug("GetPk12::process() - agent is null!");
-                throw new EBaseException("agent is null");
+            if (agent == null ) {
+                CMS.debug( "GetPk12::process() - agent is null!" );
+                throw new EBaseException( "agent is null" );
             }
 
-            String initAgent = (String) params.get("agent");
+            String initAgent = (String) params.get("agent");     
 
             if (!agent.equals(initAgent)) {
                 log(ILogger.LL_SECURITY,
-
-                CMS.getLogMessage("CMSGW_INVALID_AGENT_3", recoveryID,
+                    
+                    CMS.getLogMessage("CMSGW_INVALID_AGENT_3",
+                        recoveryID,
                         initAgent));
-                throw new ECMSGWException(CMS.getUserMessage(
-                        "CMS_GW_INVALID_AGENT", agent, initAgent, recoveryID));
+                throw new ECMSGWException(
+                  CMS.getUserMessage("CMS_GW_INVALID_AGENT",
+                            agent, initAgent, recoveryID));
             }
 
-            header.addStringValue("serialNumber", (String) params.get("keyID"));
+            header.addStringValue("serialNumber",
+                (String) params.get("keyID"));
 
             // got all approval, return pk12
-            byte pkcs12[] = ((IKeyRecoveryAuthority) mService)
-                    .getPk12(recoveryID);
+            byte pkcs12[] = ((IKeyRecoveryAuthority) mService).getPk12(recoveryID);
 
             if (pkcs12 != null) {
                 mService.destroyRecoveryParams(recoveryID);
@@ -205,22 +212,24 @@ public class GetPk12 extends CMSServlet {
                     resp.getOutputStream().write(pkcs12);
                     mRenderResult = false;
 
-                    auditMessage = CMS
-                            .getLogMessage(
-                                    LOGGING_SIGNED_AUDIT_PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_SUCCESS,
-                                    agent, ILogger.SUCCESS, recoveryID, "");
+                    auditMessage = CMS.getLogMessage(
+                        LOGGING_SIGNED_AUDIT_PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_SUCCESS,
+                        agent,
+                        ILogger.SUCCESS,
+                        recoveryID,
+                        "");
 
                     audit(auditMessage);
 
                     return;
                 } catch (IOException e) {
-                    header.addStringValue(OUT_ERROR, CMS.getUserMessage(
-                            locale[0], "CMS_BASE_INTERNAL_ERROR", e.toString()));
+                    header.addStringValue(OUT_ERROR,
+                        CMS.getUserMessage(locale[0], "CMS_BASE_INTERNAL_ERROR", e.toString()));
                 }
             } else if (((IKeyRecoveryAuthority) mService).getError(recoveryID) != null) {
                 // error in recovery process
-                header.addStringValue(OUT_ERROR,
-                        ((IKeyRecoveryAuthority) mService).getError(recoveryID));
+                header.addStringValue(OUT_ERROR, 
+                    ((IKeyRecoveryAuthority) mService).getError(recoveryID));
             } else {
                 // pk12 hasn't been created yet. Shouldn't get here
             }
@@ -229,10 +238,12 @@ public class GetPk12 extends CMSServlet {
         }
 
         if ((agent != null) && (recoveryID != null)) {
-            auditMessage = CMS
-                    .getLogMessage(
-                            LOGGING_SIGNED_AUDIT_PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_FAILURE,
-                            agent, ILogger.FAILURE, recoveryID, "");
+            auditMessage = CMS.getLogMessage(
+                LOGGING_SIGNED_AUDIT_PRIVATE_KEY_EXPORT_REQUEST_PROCESSED_FAILURE,
+                agent,
+                ILogger.FAILURE,
+                recoveryID,
+                "");
 
             audit(auditMessage);
         }
@@ -243,10 +254,10 @@ public class GetPk12 extends CMSServlet {
             resp.setContentType("text/html");
             form.renderOutput(out, argSet);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                    "CMSGW_ERR_STREAM_TEMPLATE", e.toString()));
+            log(ILogger.LL_FAILURE,
+                CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()));
             throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+              CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
 
         cmsReq.setStatus(CMSRequest.SUCCESS);

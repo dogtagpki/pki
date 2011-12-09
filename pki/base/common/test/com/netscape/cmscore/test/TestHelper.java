@@ -8,7 +8,7 @@ import java.util.Enumeration;
 public class TestHelper {
 
     public static boolean enumerationContains(Enumeration enumeration,
-            Object element) {
+                                              Object element) {
         while (enumeration.hasMoreElements()) {
             if (enumeration.nextElement().equals(element)) {
                 return true;

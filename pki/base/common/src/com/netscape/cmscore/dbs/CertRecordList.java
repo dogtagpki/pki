@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.dbs;
 
+
 import java.util.Enumeration;
 import java.util.Vector;
 
@@ -25,10 +26,11 @@ import com.netscape.certsrv.dbs.IDBVirtualList;
 import com.netscape.certsrv.dbs.IElementProcessor;
 import com.netscape.certsrv.dbs.certdb.ICertRecordList;
 
+
 /**
  * A class represents a list of certificate records.
  * <P>
- * 
+ *
  * @author thomask mzhao
  * @version $Revision$, $Date$
  */
@@ -66,33 +68,35 @@ public class CertRecordList implements ICertRecordList {
     }
 
     /**
-     * Process certificate record as soon as it is returned. kmccarth: changed
-     * to ignore startidx and endidx because VLVs don't provide a stable list.
+     * Process certificate record as soon as it is returned.
+     * kmccarth: changed to ignore startidx and endidx because VLVs don't
+     *           provide a stable list.
      */
     public void processCertRecords(int startidx, int endidx,
-            IElementProcessor ep) throws EBaseException {
+        IElementProcessor ep) throws EBaseException {
         int i = 0;
-        while (i < mVlist.getSize()) {
-            Object element = mVlist.getElementAt(i);
-            if (element != null && (!(element instanceof String))) {
-                ep.process(element);
-            }
-            i++;
+        while ( i<mVlist.getSize() ) {
+           Object element = mVlist.getElementAt(i);
+           if (element != null && (! (element instanceof String)) ) {
+              ep.process(element);
+           }
+           i++;
         }
     }
 
     /**
-     * Retrieves requests. It's no good to call this if you didnt check if the
-     * startidx, endidx are valid.
+     * Retrieves requests.
+     * It's no good to call this if you didnt check
+     * if the startidx, endidx are valid.
      */
     public Enumeration getCertRecords(int startidx, int endidx)
-            throws EBaseException {
+        throws EBaseException {
         Vector entries = new Vector();
 
         for (int i = startidx; i <= endidx; i++) {
             Object element = mVlist.getElementAt(i);
 
-            // CMS.debug("gerCertRecords[" + i + "] element: " + element);
+            //  CMS.debug("gerCertRecords[" + i + "] element: " + element);
             if (element != null) {
                 entries.addElement(element);
             }
@@ -100,7 +104,8 @@ public class CertRecordList implements ICertRecordList {
         return entries.elements();
     }
 
-    public Object getCertRecord(int index) throws EBaseException {
+    public Object getCertRecord(int index)
+        throws EBaseException {
 
         Object element = mVlist.getElementAt(index);
 

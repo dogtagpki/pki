@@ -17,9 +17,11 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmsutil.http;
 
+
 import java.net.SocketException;
 
 import com.netscape.cmsutil.net.ISocketFactory;
+
 
 public class ConnectAsync extends Thread {
     String host = null;
@@ -31,9 +33,9 @@ public class ConnectAsync extends Thread {
         this.host = host;
         this.port = port;
         this.obj = sock;
-        setName("ConnectAsync");
+	setName("ConnectAsync");
     }
-
+    
     public void run() {
         try {
             obj.makeSocket(host, port);
@@ -44,3 +46,4 @@ public class ConnectAsync extends Thread {
         }
     }
 }
+

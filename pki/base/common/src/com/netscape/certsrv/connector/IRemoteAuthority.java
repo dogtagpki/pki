@@ -17,38 +17,38 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.connector;
 
+
+
+
 /**
- * This represents a remote authority that can be a certificate manager, or key
- * recovery manager or some other manager.
- * 
+ * This represents a remote authority that can be
+ * a certificate manager, or key recovery manager or
+ * some other manager.
+ *
  * @version $Revision$, $Date$
  */
 public interface IRemoteAuthority {
 
     /**
      * Retrieves the host name of the remote Authority.
-     * 
      * @return String with the name of host of remote Authority.
      */
     public String getHost();
 
     /**
      * Retrieves the port number of the remote Authority.
-     * 
      * @return Int with port number of remote Authority.
      */
     public int getPort();
 
     /**
      * Retrieves the URI of the remote Authority.
-     * 
      * @return String with URI of remote Authority.
      */
     public String getURI();
 
     /**
      * Retrieves the timeout value for the connection to the remote Authority.
-     * 
      * @return In with remote Authority timeout value.
      */
     public int getTimeout();

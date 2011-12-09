@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.dbs;
 
+
 import java.util.Enumeration;
 import java.util.Vector;
 
@@ -27,12 +28,14 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.IDBAttrMapper;
 import com.netscape.certsrv.dbs.IDBObj;
 
+
 /**
- * A class represents ann attribute mapper that maps a Java String object into
- * LDAP attribute, and vice versa.
- * 
+ * A class represents ann attribute mapper that maps
+ * a Java String object into LDAP attribute,
+ * and vice versa.
+ *
  * @author thomask
- * @version $Revision$, $Date$
+ * @version $Revision$, $Date$ 
  */
 public class StringVectorMapper implements IDBAttrMapper {
 
@@ -57,8 +60,9 @@ public class StringVectorMapper implements IDBAttrMapper {
     /**
      * Maps attribute value to ldap attributes.
      */
-    public void mapObjectToLDAPAttributeSet(IDBObj parent, String name,
-            Object obj, LDAPAttributeSet attrs) throws EBaseException {
+    public void mapObjectToLDAPAttributeSet(IDBObj parent, 
+        String name, Object obj, LDAPAttributeSet attrs) 
+        throws EBaseException {
         Vector v = (Vector) obj;
         int s = v.size();
 
@@ -74,10 +78,11 @@ public class StringVectorMapper implements IDBAttrMapper {
     }
 
     /**
-     * Maps LDAP attributes into object, and put the object into 'parent'.
+     * Maps LDAP attributes into object, and put the object
+     * into 'parent'.
      */
-    public void mapLDAPAttributeSetToObject(LDAPAttributeSet attrs,
-            String name, IDBObj parent) throws EBaseException {
+    public void mapLDAPAttributeSetToObject(LDAPAttributeSet attrs, 
+        String name, IDBObj parent) throws EBaseException {
         LDAPAttribute attr = attrs.getAttribute(mLdapName);
 
         if (attr == null)
@@ -99,8 +104,8 @@ public class StringVectorMapper implements IDBAttrMapper {
     /**
      * Maps search filters into LDAP search filter.
      */
-    public String mapSearchFilter(String name, String op, String value)
-            throws EBaseException {
+    public String mapSearchFilter(String name, String op, 
+        String value) throws EBaseException {
         return mLdapName + op + value;
     }
 }

@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.password;
 
+
 /**
  * Configuration Wizard Password quality checker interface.
  * <P>
@@ -27,18 +28,16 @@ public interface IConfigPasswordCheck {
 
     /**
      * Check if the password meets the quality requirement
-     * 
      * @param pwd the given password
-     * @return true if the password meets the quality requirement; otherwise
-     *         false
+     * @return true if the password meets the quality requirement; otherwise false
      */
     public boolean isGoodConfigPassword(String pwd);
 
     /**
      * Returns a reason if the password doesnt meet the quality requirement.
-     * 
      * @param pwd the given password
      * @return a reason if the password quality requirement is not met.
      */
     public String getConfigReason(String pwd);
 }
+

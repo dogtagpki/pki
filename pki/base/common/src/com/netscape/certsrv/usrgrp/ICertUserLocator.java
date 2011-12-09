@@ -17,32 +17,32 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.usrgrp;
 
+
 import netscape.ldap.LDAPException;
 
 import com.netscape.certsrv.ldap.ELdapException;
 
+
 /**
- * This interface defines a certificate mapping strategy to locate a user
- * 
+ * This interface defines a certificate mapping strategy to locate
+ * a user
+ *
  * @version $Revision$, $Date$
  */
 public interface ICertUserLocator {
 
     /**
      * Returns a user whose certificates match with the given certificates
-     * 
      * @return an user interface
-     * @exception EUsrGrpException thrown when failed to build user
-     * @exception LDAPException thrown when LDAP internal database is not
-     *                available
+     * @exception EUsrGrpException thrown when failed to build user 
+     * @exception LDAPException thrown when LDAP internal database is not available
      * @exception ELdapException thrown when the LDAP search failed
      */
-    public IUser locateUser(Certificates certs) throws EUsrGrpException,
-            LDAPException, ELdapException;
+    public IUser locateUser(Certificates certs) throws
+            EUsrGrpException, LDAPException, ELdapException;
 
     /**
      * Retrieves description.
-     * 
      * @return description
      */
     public String getDescription();

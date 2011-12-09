@@ -17,6 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.usrgrp;
 
+
+
+
 /**
  * A class represents an ID evaluator.
  * <P>
@@ -26,9 +29,8 @@ package com.netscape.certsrv.usrgrp;
 public interface IIdEvaluator {
 
     /**
-     * Evaluates if the given value satisfies the ID evaluation: is a user a
-     * member of a group
-     * 
+     * Evaluates if the given value satisfies the ID evaluation:
+     * is a user a member of a group
      * @param type the type of evaluator, in this case, it is group
      * @param id the user id for the given user
      * @param op operator, only "=" and "!=" are supported

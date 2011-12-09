@@ -25,8 +25,8 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestStatus;
 
 /**
- * This interface represents an updater that will be called when the request's
- * state changes.
+ * This interface represents an updater that will be
+ * called when the request's state changes.
  * 
  * @version $Revision$, $Date$
  */
@@ -34,34 +34,34 @@ public interface IProfileUpdater extends IConfigTemplate {
 
     /**
      * Initializes this default policy.
-     * 
+     *
      * @param profile owner of this policy
      * @param config configuration store
      * @exception EProfileException failed to initialize
      */
     public void init(IProfile profile, IConfigStore config)
-            throws EProfileException;
+        throws EProfileException;
 
     /**
      * Retrieves configuration store.
-     * 
+     *
      * @return configuration store
      */
     public IConfigStore getConfigStore();
 
     /**
      * Notifies of state change.
-     * 
+     *
      * @param req request
      * @param status The status to check for.
      * @exception EProfileException failed to populate
      */
-    public void update(IRequest req, RequestStatus status)
-            throws EProfileException;
+    public void update(IRequest req, RequestStatus status) 
+         throws EProfileException;
 
     /**
      * Retrieves the localizable name of this policy.
-     * 
+     *
      * @param locale user locale
      * @return output policy name
      */
@@ -69,7 +69,7 @@ public interface IProfileUpdater extends IConfigTemplate {
 
     /**
      * Retrieves the localizable description of this policy.
-     * 
+     *
      * @param locale user locale
      * @return output policy description
      */

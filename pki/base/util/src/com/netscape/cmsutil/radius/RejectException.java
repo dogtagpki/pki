@@ -17,6 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmsutil.radius;
 
+
+
+
 public class RejectException extends Exception {
     /**
      *
@@ -33,7 +36,6 @@ public class RejectException extends Exception {
     }
 
     public String getReplyMessage() {
-        return ((ReplyMessageAttribute) (_res.getAttributeSet()
-                .getAttributeByType(Attribute.REPLY_MESSAGE))).getString();
-    }
+        return ((ReplyMessageAttribute) (_res.getAttributeSet().getAttributeByType(Attribute.REPLY_MESSAGE))).getString();
+    }        
 }

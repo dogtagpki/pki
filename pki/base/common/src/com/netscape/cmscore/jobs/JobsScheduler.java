@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.jobs;
 
+
 import java.util.Calendar;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -34,21 +35,24 @@ import com.netscape.certsrv.jobs.JobPlugin;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cmscore.util.Debug;
 
+
 /**
- * This is a daemon thread that handles scheduled jobs like cron would do with
- * different jobs. This daemon wakes up at a pre-configured interval to see if
- * there is any job to be done, if so, a thread is created to execute the
- * job(s).
+ * This is a daemon thread that handles scheduled jobs like cron would
+ * do with different jobs.  This daemon wakes up at a pre-configured
+ * interval to see
+ * if there is any job to be done, if so, a thread is created to execute
+ * the job(s).
  * <p>
- * The interval <b>jobsScheduler.interval</b> in the configuration is specified
- * as number of minutes. If not set, the default is 1 minute. Note that the cron
- * specification for each job CAN NOT be finer than the granularity of the
- * Scheduler daemon interval. For example, if the daemon interval is set to 5
- * minute, a job cron for every minute at 7am on each Tuesday (e.g. * 7 * * 2)
- * will result in the execution of the job thread only once every 5 minutes
- * during that hour. <b>The inteval value is recommended at 1 minute, setting it
- * otherwise has the potential of forever missing the beat</b>. Use with
- * caution.
+ * The interval <b>jobsScheduler.interval</b> in the configuration is
+ * specified as number of minutes.  If not set, the default is 1 minute.
+ * Note that the cron specification for each job CAN NOT be finer than
+ * the granularity of the Scheduler daemon interval.  For example, if
+ * the daemon interval is set to 5 minute, a job cron for every minute
+ * at 7am on each Tuesday (e.g. * 7 * * 2) will result in the
+ * execution of the job thread only once every 5 minutes during that
+ * hour.  <b>The inteval value is recommended at 1 minute, setting it
+ * otherwise has the potential of forever missing the beat</b>. Use
+ * with caution.
  * 
  * @author cfu
  * @see JobCron
@@ -89,19 +93,19 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
     }
 
     /**
-     * read from the config file all implementations of Jobs, register and
-     * initialize them
+     * read from the config file all implementations of Jobs,
+     * register and initialize them
      * <p>
      * the config params have the following formats:
      * jobScheduler.impl.[implementation name].class=[package name]
      * jobScheduler.job.[job name].pluginName=[implementation name]
-     * jobScheduler.job.[job name].cron=[crontab format] jobScheduler.job.[job
-     * name].[any job specific params]=[values]
+     * jobScheduler.job.[job name].cron=[crontab format]
+     * jobScheduler.job.[job name].[any job specific params]=[values]
      * 
      * @param config jobsScheduler configStore
      */
     public void init(ISubsystem owner, IConfigStore config)
-            throws EBaseException, EJobsException {
+        throws EBaseException, EJobsException {
         mLogger = CMS.getLogger();
 
         // read in config parameters and set variables
@@ -137,13 +141,15 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
         while (jobs.hasMoreElements()) {
             String jobName = (String) jobs.nextElement();
             String implName = c.getString(jobName + "." + PROP_PLUGIN);
-            JobPlugin plugin = (JobPlugin) mJobPlugins.get(implName);
+            JobPlugin plugin =
+                (JobPlugin) mJobPlugins.get(implName);
 
             if (plugin == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                        "CMSCORE_JOBS_CLASS_NOT_FOUND", implName));
-                throw new EJobsException(CMS.getUserMessage(
-                        "CMS_JOB_PLUGIN_NOT_FOUND", implName));
+                log(ILogger.LL_FAILURE, 
+                    CMS.getLogMessage("CMSCORE_JOBS_CLASS_NOT_FOUND",
+                        implName));
+                throw new
+                    EJobsException(CMS.getUserMessage("CMS_JOB_PLUGIN_NOT_FOUND", implName));
             }
             String classPath = plugin.getClassPath();
 
@@ -151,7 +157,8 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
             IJob job = null;
 
             try {
-                job = (IJob) Class.forName(classPath).newInstance();
+                job = (IJob)
+                        Class.forName(classPath).newInstance();
                 IConfigStore jconfig = c.getSubStore(jobName);
 
                 job.init(this, jobName, implName, jconfig);
@@ -161,31 +168,23 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
             } catch (ClassNotFoundException e) {
                 String errMsg = "JobsScheduler:: init()-" + e.toString();
 
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_JOBS_INIT_ERROR",
-                                e.toString()));
-                throw new EJobsException(CMS.getUserMessage(
-                        "CMS_JOB_LOAD_CLASS_FAILED", classPath));
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_JOBS_INIT_ERROR", e.toString()));
+                throw new
+                    EJobsException(CMS.getUserMessage("CMS_JOB_LOAD_CLASS_FAILED", classPath));
             } catch (IllegalAccessException e) {
                 String errMsg = "JobsScheduler:: init()-" + e.toString();
 
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_JOBS_INIT_ERROR",
-                                e.toString()));
-                throw new EJobsException(CMS.getUserMessage(
-                        "CMS_JOB_LOAD_CLASS_FAILED", classPath));
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_JOBS_INIT_ERROR", e.toString()));
+                throw new
+                    EJobsException(CMS.getUserMessage("CMS_JOB_LOAD_CLASS_FAILED", classPath));
             } catch (InstantiationException e) {
                 String errMsg = "JobsScheduler: init()-" + e.toString();
 
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_JOBS_INIT_ERROR",
-                                e.toString()));
-                throw new EJobsException(CMS.getUserMessage(
-                        "CMS_JOB_LOAD_CLASS_FAILED", classPath));
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_JOBS_INIT_ERROR", e.toString()));
+                throw new
+                    EJobsException(CMS.getUserMessage("CMS_JOB_LOAD_CLASS_FAILED", classPath));
             } catch (EBaseException e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_JOBS_INIT_ERROR",
-                                e.toString()));
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_JOBS_INIT_ERROR", e.toString()));
                 throw e;
             }
         }
@@ -206,10 +205,12 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
     }
 
     /**
-     * when wake up: . execute the scheduled job(s) * if job still running from
-     * previous interval, skip it . figure out when is the next wakeup time
-     * (every interval). If current wakup time runs over the interval, skip the
-     * missed interval(s) . sleep till the next wakeup time
+     * when wake up:
+     * . execute the scheduled job(s)
+     * * if job still running from previous interval, skip it
+     * . figure out when is the next wakeup time (every interval).  If
+     *	 current wakup time runs over the interval, skip the missed interval(s)
+     * . sleep till the next wakeup time
      */
     public void run() {
         long wokeupTime = 0;
@@ -228,8 +229,9 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
                 // possible to be at exactly second 1, millisecond 0,
                 // just let it skip to next second, fine.
                 duration = (60 - second) * 1000 + 1000 - milliSec;
-                log(ILogger.LL_INFO, "adjustment for cron behavior: sleep for "
-                        + duration + " milliseconds");
+                log(ILogger.LL_INFO,
+                    "adjustment for cron behavior: sleep for " +
+                    duration + " milliseconds");
             } else {
 
                 // when is the next wakeup time for the JobsScheduler?
@@ -266,13 +268,14 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
 
             // get time now
             cal = Calendar.getInstance();
-
+			
             /**
-             * Get the current time outside the jobs while loop to make sure
-             * that the rightful jobs are run -- milliseconds from the epoch
+             * Get the current time outside the jobs while loop
+             * to make sure that the rightful jobs are run
+             * -- milliseconds from the epoch
              */
             wokeupTime = cal.getTime().getTime();
-
+			
             IJob job = null;
 
             for (Enumeration e = mJobs.elements(); e.hasMoreElements();) {
@@ -293,29 +296,28 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
 
                 // start the job thread if necessary
                 if (isShowTime(job, cal) == true) {
-                    // log(ILogger.LL_INFO, "show time for: "+job.getId());
+                    //	log(ILogger.LL_INFO, "show time for: "+job.getId());
 
                     // if previous thread still alive, skip
                     Thread jthread = (Thread) mJobThreads.get(job.getId());
 
                     if ((jthread == null) || (!jthread.isAlive())) {
-                        Thread jobThread = new Thread((Runnable) job,
-                                job.getId());
+                        Thread jobThread = new Thread((Runnable) job, job.getId());
 
                         jobThread.start();
                         // put into job thread control
                         mJobThreads.put(job.getId(), jobThread);
                     } else {
                         // previous thread still alive, log it
-                        log(ILogger.LL_INFO, "Job " + job.getId()
-                                + " still running...skipping this round");
+                        log(ILogger.LL_INFO, "Job " + job.getId() +
+                            " still running...skipping this round");
                     }
                 }
             } // for
 
         }
     }
-
+   
     public IJobCron createJobCron(String cs) throws EBaseException {
         return new JobCron(cs);
     }
@@ -335,8 +337,9 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
         /**
          * is it the right month?
          */
-        Vector moy = jcron.getItem(JobCron.CRON_MONTH_OF_YEAR).getElements();
-
+        Vector moy =
+            jcron.getItem(JobCron.CRON_MONTH_OF_YEAR).getElements();
+		
         int cronMoy = jcron.MOY_cal2cron(now);
 
         if (jcron.isElement(cronMoy, moy) == false) {
@@ -357,8 +360,8 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
 
         int cronDow = jcron.DOW_cal2cron(now);
 
-        if ((jcron.isElement(cronDow, dow) == false)
-                && (jcron.isElement(now.get(Calendar.DAY_OF_MONTH), dom) == false)) {
+        if ((jcron.isElement(cronDow, dow) == false) &&
+            (jcron.isElement(now.get(Calendar.DAY_OF_MONTH), dom) == false)) {
             return false;
         }
         // is the right date!
@@ -381,25 +384,23 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
         if (jcron.isElement(now.get(Calendar.MINUTE), minute) == false) {
             return false;
         }
-        // is the right minute! We're on!
+        // is the right minute!  We're on!
 
         return true;
     }
 
     /**
      * Retrieves id (name) of this subsystem.
-     * 
      * @return name of the Jobs Scheduler subsystem
      */
     public String getId() {
         return (mId);
     }
-
+  
     /**
      * Sets id string to this subsystem.
      * <p>
-     * Use with caution. Should not do it when sharing with others
-     * 
+     * Use with caution.  Should not do it when sharing with others
      * @param id name to be applied to an Jobs Scheduler subsystem
      */
     public void setId(String id) throws EBaseException {
@@ -420,14 +421,13 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
      * registers the administration servlet with the administration subsystem.
      */
     public void startup() throws EBaseException {
-        // remove, already logged from S_ADMIN
-        // String infoMsg =
-        // "Jobs Scheduler subsystem administration Servlet registered";
-        // log(ILogger.LL_INFO, infoMsg);
+        //remove, already logged from S_ADMIN
+        //String infoMsg = "Jobs Scheduler subsystem administration Servlet registered";
+        //log(ILogger.LL_INFO, infoMsg);
     }
 
     /**
-     * shuts down Jobs one by one.
+     * shuts down Jobs one by one. 
      * <P>
      */
     public void shutdown() {
@@ -438,23 +438,23 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
 
         Enumeration enums = mJobThreads.keys();
         while (enums.hasMoreElements()) {
-            String id = (String) enums.nextElement();
-            Thread currthread = (Thread) mJobThreads.get(id);
-            // if (currthread != null)
-            // currthread.destroy();
+            String id = (String)enums.nextElement();
+            Thread currthread = (Thread)mJobThreads.get(id);
+            //if (currthread != null) 
+            //  currthread.destroy();
         }
 
         mJobThreads.clear();
         mJobThreads = null;
 
-        // if (mScheduleThread != null)
-        // mScheduleThread.destroy();
+        //if (mScheduleThread != null) 
+              //  mScheduleThread.destroy();
     }
 
     /**
      * Returns the root configuration storage of this system.
      * <P>
-     * 
+     *
      * @return configuration store of this subsystem
      */
     public IConfigStore getConfigStore() {
@@ -462,28 +462,29 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
     }
 
     /**
-     * Gets configuration parameters for the given job plugin.
-     * 
+     * Gets configuration parameters for the given 
+     * job plugin.
      * @param implName Name of the job plugin.
      * @return Hashtable of required parameters.
      */
-    public String[] getConfigParams(String implName) throws EJobsException {
+    public String[] getConfigParams(String implName)
+        throws EJobsException {
         if (Debug.ON)
             Debug.trace("in getCofigParams()");
 
-        // is this a registered implname?
+            // is this a registered implname?
         JobPlugin plugin = (JobPlugin) mJobPlugins.get(implName);
 
         if (plugin == null) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_JOBS_CLASS_NOT_FOUND", implName));
+            log(ILogger.LL_FAILURE, 
+                CMS.getLogMessage("CMSCORE_JOBS_CLASS_NOT_FOUND", implName));
             if (Debug.ON)
                 Debug.trace("Job plugin " + implName + " not found.");
-            throw new EJobsException(CMS.getUserMessage(
-                    "CMS_JOB_PLUGIN_NOT_FOUND", implName));
+            throw new EJobsException(CMS.getUserMessage("CMS_JOB_PLUGIN_NOT_FOUND",
+                    implName));
         }
 
-        // XXX can find an instance of this plugin in existing
+        // XXX can find an instance of this plugin in existing 
         // auth manager instantces to avoid instantiation just for this.
 
         // a temporary instance
@@ -493,31 +494,32 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
         if (Debug.ON)
             Debug.trace("className = " + className);
         try {
-            jobInst = (IJob) Class.forName(className).newInstance();
+            jobInst = (IJob)
+                    Class.forName(className).newInstance();
             if (Debug.ON)
                 Debug.trace("class instantiated");
             return (jobInst.getConfigParams());
         } catch (InstantiationException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_JOBS_CREATE_NEW", e.toString()));
+            log(ILogger.LL_FAILURE, 
+                CMS.getLogMessage("CMSCORE_JOBS_CREATE_NEW", e.toString()));
             if (Debug.ON)
                 Debug.trace("class NOT instantiated: " + e.toString());
-            throw new EJobsException(CMS.getUserMessage(
-                    "CMS_JOB_LOAD_CLASS_FAILED", className));
+            throw new 
+                EJobsException(CMS.getUserMessage("CMS_JOB_LOAD_CLASS_FAILED", className));
         } catch (ClassNotFoundException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_JOBS_CREATE_NEW", e.toString()));
+            log(ILogger.LL_FAILURE, 
+                CMS.getLogMessage("CMSCORE_JOBS_CREATE_NEW", e.toString()));
             if (Debug.ON)
                 Debug.trace("class NOT instantiated: " + e.toString());
-            throw new EJobsException(CMS.getUserMessage(
-                    "CMS_JOB_LOAD_CLASS_FAILED", className));
+            throw new
+                EJobsException(CMS.getUserMessage("CMS_JOB_LOAD_CLASS_FAILED", className));
         } catch (IllegalAccessException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_JOBS_CREATE_NEW", e.toString()));
+            log(ILogger.LL_FAILURE, 
+                CMS.getLogMessage("CMSCORE_JOBS_CREATE_NEW", e.toString()));
             if (Debug.ON)
                 Debug.trace("class NOT instantiated: " + e.toString());
-            throw new EJobsException(CMS.getUserMessage(
-                    "CMS_JOB_LOAD_CLASS_FAILED", className));
+            throw new
+                EJobsException(CMS.getUserMessage("CMS_JOB_LOAD_CLASS_FAILED", className));
         }
     }
 
@@ -531,7 +533,8 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
     public void log(int level, String msg) {
         if (mLogger == null)
             return;
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER, level, msg);
+        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
+            level, msg);
     }
 
     public Hashtable getJobPlugins() {

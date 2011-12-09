@@ -32,28 +32,30 @@ import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.cmscore.dbs.Repository;
 import com.netscape.cmscore.dbs.RepositoryRecord;
 
+
 /**
- * TODO: what does this class provide beyond the Repository base class??
+ * TODO: what does this class provide beyond the Repository
+ * base class??
  * <p>
- * 
  * @author thayes
  * @version $Revision$ $Date$
  */
-class RequestRepository extends Repository {
+class RequestRepository
+    extends Repository {
 
-    IDBSubsystem mDB = null;
-    IRequestQueue mRequestQueue = null;
-
+     IDBSubsystem mDB = null;
+     IRequestQueue mRequestQueue = null;
     /**
      * Create a request repository that uses the LDAP database
      * <p>
-     * 
-     * @param name the name of the repository. This String is used to construct
-     *            the DN for the repository's LDAP entry.
-     * @param db the LDAP database system.
+     * @param name
+     *    the name of the repository.  This String is used to
+     *    construct the DN for the repository's LDAP entry.
+     * @param db
+     *    the LDAP database system.
      */
     public RequestRepository(String name, int increment, IDBSubsystem db)
-            throws EDBException {
+        throws EDBException {
         super(db, increment, "ou=" + name + ",ou=requests," + db.getBaseDN());
 
         CMS.debug("RequestRepository: constructor 1");
@@ -65,8 +67,8 @@ class RequestRepository extends Repository {
         mDB = db;
     }
 
-    public RequestRepository(String name, int increment, IDBSubsystem db,
-            IRequestQueue requestQueue) throws EDBException {
+    public RequestRepository(String name, int increment, IDBSubsystem db,IRequestQueue requestQueue)
+        throws EDBException {
         super(db, increment, "ou=" + name + ",ou=requests," + db.getBaseDN());
 
         CMS.debug("RequestRepository: constructor2.");
@@ -80,11 +82,12 @@ class RequestRepository extends Repository {
     }
 
     /**
-     * get the LDAP base DN for this repository. This value can be used by the
-     * request queue to create the name for the request records themselves.
+     * get the LDAP base DN for this repository.  This
+     * value can be used by the request queue to create the
+     * name for the request records themselves.
      * <p>
-     * 
-     * @return the LDAP base DN.
+     * @return
+     *    the LDAP base DN.
      */
     public String getBaseDN() {
         return mBaseDN;
@@ -93,58 +96,60 @@ class RequestRepository extends Repository {
     /**
      * Resets serial number.
      */
-    public void resetSerialNumber(BigInteger serial) throws EBaseException {
+    public void resetSerialNumber(BigInteger serial) throws EBaseException
+    {
         setTheSerialNumber(serial);
     }
-
+                                                                                
     /**
      * Removes all objects with this repository.
      */
-    public void removeAllObjects() throws EBaseException {
+    public void removeAllObjects() throws EBaseException
+    {
         IDBSSession s = mDB.createSession();
         try {
-            Enumeration e = s.search(getBaseDN(), "("
-                    + RequestRecord.ATTR_REQUEST_ID + "=*)");
+            Enumeration e = s.search(getBaseDN(), 
+                               "(" + RequestRecord.ATTR_REQUEST_ID + "=*)");
             while (e.hasMoreElements()) {
-                RequestRecord r = (RequestRecord) e.nextElement();
-                String name = "cn" + "=" + r.getRequestId().toString() + ","
-                        + getBaseDN();
-                s.delete(name);
-            }
+              RequestRecord r = (RequestRecord)e.nextElement();
+              String name = "cn" + "=" +
+                r.getRequestId().toString() + "," + getBaseDN();
+               s.delete(name);
+            }       
         } finally {
             if (s != null)
                 s.close();
         }
     }
 
-    public BigInteger getLastSerialNumberInRange(BigInteger min, BigInteger max) {
+    public BigInteger getLastSerialNumberInRange(BigInteger min, BigInteger max)
+    {
 
-        CMS.debug("RequestRepository: in getLastSerialNumberInRange: min "
-                + min + " max " + max);
+        CMS.debug("RequestRepository: in getLastSerialNumberInRange: min " + min + " max " + max);
 
         CMS.debug("RequestRepository: mRequestQueue " + mRequestQueue);
 
         BigInteger ret = null;
 
-        if (mRequestQueue == null) {
+        if(mRequestQueue == null)  {
 
             CMS.debug("RequestRepository:  mRequestQueue is null.");
 
-        } else {
-
-            CMS.debug("RequestRepository: about to call mRequestQueue.getLastRequestIdInRange");
-            ret = mRequestQueue.getLastRequestIdInRange(min, max);
+        }  else  {
+       
+            CMS.debug("RequestRepository: about to call mRequestQueue.getLastRequestIdInRange"); 
+            ret = mRequestQueue.getLastRequestIdInRange(min,max);
 
         }
 
         return ret;
 
     }
-
     /**
      * the LDAP base DN for this repository
      */
     protected String mBaseDN;
+
 
     public String getPublishingStatus() {
         RepositoryRecord record = null;
@@ -155,8 +160,8 @@ class RequestRepository extends Repository {
         try {
             dbs = mDB.createSession();
             obj = dbs.read(mBaseDN);
-        } catch (Exception e) {
-            CMS.debug("RequestRepository:  getPublishingStatus:  Error: " + e);
+        } catch (Exception e) { 
+            CMS.debug("RequestRepository:  getPublishingStatus:  Error: " + e); 
             CMS.debugStackTrace();
         } finally {
             // Close session - ignoring errors (UTIL)
@@ -164,8 +169,7 @@ class RequestRepository extends Repository {
                 try {
                     dbs.close();
                 } catch (Exception ex) {
-                    CMS.debug("RequestRepository:  getPublishingStatus:  Error: "
-                            + ex);
+                    CMS.debug("RequestRepository:  getPublishingStatus:  Error: " + ex); 
                 }
             }
         }
@@ -176,8 +180,8 @@ class RequestRepository extends Repository {
         } else {
             CMS.debug("RequestRepository:  obj is NOT instanceof RepositoryRecord");
         }
-        CMS.debug("RequestRepository:  getPublishingStatus  mBaseDN: "
-                + mBaseDN + "  status: " + ((status != null) ? status : "null"));
+        CMS.debug("RequestRepository:  getPublishingStatus  mBaseDN: " + mBaseDN +
+                  "  status: " + ((status != null)?status:"null"));
 
         return status;
     }
@@ -185,20 +189,18 @@ class RequestRepository extends Repository {
     public void setPublishingStatus(String status) {
         IDBSSession dbs = null;
 
-        CMS.debug("RequestRepository:  setPublishingStatus  mBaseDN: "
-                + mBaseDN + "  status: " + status);
+        CMS.debug("RequestRepository:  setPublishingStatus  mBaseDN: " + mBaseDN + "  status: " + status);
         ModificationSet mods = new ModificationSet();
 
         if (status != null && status.length() > 0) {
-            mods.add(IRepositoryRecord.ATTR_PUB_STATUS,
-                    Modification.MOD_REPLACE, status);
+            mods.add(IRepositoryRecord.ATTR_PUB_STATUS, 
+                Modification.MOD_REPLACE, status);
 
             try {
                 dbs = mDB.createSession();
                 dbs.modify(mBaseDN, mods);
-            } catch (Exception e) {
-                CMS.debug("RequestRepository:  setPublishingStatus:  Error: "
-                        + e);
+            } catch (Exception e) { 
+                CMS.debug("RequestRepository:  setPublishingStatus:  Error: " + e); 
                 CMS.debugStackTrace();
             } finally {
                 // Close session - ignoring errors (UTIL)
@@ -206,8 +208,7 @@ class RequestRepository extends Repository {
                     try {
                         dbs.close();
                     } catch (Exception ex) {
-                        CMS.debug("RequestRepository:  setPublishingStatus:  Error: "
-                                + ex);
+                        CMS.debug("RequestRepository:  setPublishingStatus:  Error: " + ex); 
                     }
                 }
             }

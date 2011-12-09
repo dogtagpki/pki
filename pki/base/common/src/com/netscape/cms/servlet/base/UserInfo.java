@@ -17,10 +17,11 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.base;
 
+
 /**
- * This class represents information about the client e.g. version, langauge,
- * vendor.
- * 
+ * This class represents information about the client e.g. version,
+ * langauge, vendor.
+ *
  * @version $Revision$, $Date$
  */
 public class UserInfo {
@@ -35,7 +36,7 @@ public class UserInfo {
 
     /**
      * Returns the user language.
-     * 
+     *
      * @param s user language info from the browser
      * @return user language
      */
@@ -52,7 +53,7 @@ public class UserInfo {
 
     /**
      * Returns the user country.
-     * 
+     *
      * @param s user language info from the browser
      * @return user country
      */
@@ -66,10 +67,10 @@ public class UserInfo {
         }
         return "";
     }
-
+    
     /**
      * Returns the users agent.
-     * 
+     *
      * @param s user language info from the browser
      * @return user agent
      */
@@ -78,7 +79,7 @@ public class UserInfo {
         if (s.indexOf(MSIE) != -1) {
             return MSIE;
         }
-
+        
         // Check for Netscape i.e. Mozilla
         if (s.indexOf(MOZILLA) != -1) {
             return MOZILLA;
@@ -86,5 +87,5 @@ public class UserInfo {
 
         // Don't know agent. Return empty string.
         return "";
-    }
+    }        
 }

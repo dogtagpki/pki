@@ -32,7 +32,7 @@ import netscape.security.util.DerValue;
 
 /**
  * This class defines the X500Name attribute for the Certificate.
- * 
+ *
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  * @version 1.6
@@ -44,9 +44,9 @@ public class CertificateSubjectName implements CertAttrSet, Serializable {
      */
     private static final long serialVersionUID = 503643453152834350L;
     /**
-     * Identifier for this attribute, to be used with the get, set, delete
-     * methods of Certificate, x509 type.
-     */
+     * Identifier for this attribute, to be used with the
+     * get, set, delete methods of Certificate, x509 type.
+     */  
     public static final String IDENT = "x509.info.subject";
     /**
      * Sub attributes name for this CertAttrSet.
@@ -55,11 +55,11 @@ public class CertificateSubjectName implements CertAttrSet, Serializable {
     public static final String DN_NAME = "dname";
 
     // Private data member
-    private X500Name dnName;
+    private X500Name	dnName;
 
     /**
      * Default constructor for the certificate attribute.
-     * 
+     *
      * @param name the X500Name
      */
     public CertificateSubjectName(X500Name name) {
@@ -68,7 +68,7 @@ public class CertificateSubjectName implements CertAttrSet, Serializable {
 
     /**
      * Create the object, decoding the values from the passed DER stream.
-     * 
+     *
      * @param in the DerInputStream to read the X500Name from.
      * @exception IOException on decoding errors.
      */
@@ -78,7 +78,7 @@ public class CertificateSubjectName implements CertAttrSet, Serializable {
 
     /**
      * Create the object, decoding the values from the passed stream.
-     * 
+     *
      * @param in the InputStream to read the X500Name from.
      * @exception IOException on decoding errors.
      */
@@ -91,24 +91,23 @@ public class CertificateSubjectName implements CertAttrSet, Serializable {
      * Return the name as user readable string.
      */
     public String toString() {
-        if (dnName == null)
-            return "";
-        return (dnName.toString());
+        if (dnName == null) return "";
+        return(dnName.toString());
     }
 
     private synchronized void writeObject(ObjectOutputStream stream)
-            throws IOException {
+    throws IOException {
         encode(stream);
     }
 
     private synchronized void readObject(ObjectInputStream stream)
-            throws IOException {
-        decodeEx(stream);
+    throws IOException {
+       decodeEx(stream);
     }
 
     /**
      * Encode the name in DER form to the stream.
-     * 
+     *
      * @param out the DerOutputStream to marshal the contents to.
      * @exception IOException on errors.
      */
@@ -121,7 +120,7 @@ public class CertificateSubjectName implements CertAttrSet, Serializable {
 
     /**
      * Decode the name in DER form from the stream.
-     * 
+     *
      * @param in the InputStream to marshal the contents from.
      * @exception IOException on errors.
      */
@@ -134,7 +133,7 @@ public class CertificateSubjectName implements CertAttrSet, Serializable {
 
     /**
      * Decode the name in DER form from the stream.
-     * 
+     *
      * @param in the InputStream to marshal the contents from.
      * @exception IOException on errors.
      */
@@ -152,10 +151,10 @@ public class CertificateSubjectName implements CertAttrSet, Serializable {
             throw new IOException("Attribute must be of type X500Name.");
         }
         if (name.equalsIgnoreCase(DN_NAME)) {
-            this.dnName = (X500Name) obj;
+            this.dnName = (X500Name)obj;
         } else {
-            throw new IOException("Attribute name not recognized by "
-                    + "CertAttrSet:CertificateSubjectName.");
+            throw new IOException("Attribute name not recognized by " +
+                                  "CertAttrSet:CertificateSubjectName.");
         }
     }
 
@@ -164,10 +163,10 @@ public class CertificateSubjectName implements CertAttrSet, Serializable {
      */
     public Object get(String name) throws IOException {
         if (name.equalsIgnoreCase(DN_NAME)) {
-            return (dnName);
+            return(dnName);
         } else {
-            throw new IOException("Attribute name not recognized by "
-                    + "CertAttrSet:CertificateSubjectName.");
+            throw new IOException("Attribute name not recognized by " +
+                                  "CertAttrSet:CertificateSubjectName.");
         }
     }
 
@@ -178,8 +177,8 @@ public class CertificateSubjectName implements CertAttrSet, Serializable {
         if (name.equalsIgnoreCase(DN_NAME)) {
             dnName = null;
         } else {
-            throw new IOException("Attribute name not recognized by "
-                    + "CertAttrSet:CertificateSubjectName.");
+            throw new IOException("Attribute name not recognized by " +
+                                  "CertAttrSet:CertificateSubjectName.");
         }
     }
 
@@ -191,13 +190,13 @@ public class CertificateSubjectName implements CertAttrSet, Serializable {
         Vector<String> elements = new Vector<String>();
         elements.addElement(DN_NAME);
 
-        return (elements.elements());
+        return(elements.elements());
     }
 
     /**
      * Return the name of this attribute.
      */
     public String getName() {
-        return (NAME);
+        return(NAME);
     }
 }

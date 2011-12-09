@@ -40,7 +40,7 @@ public class CertRecordListTest extends CMSBaseTestCase {
         return new TestSuite(CertRecordListTest.class);
     }
 
-    public void testProcessCertRecordsUsesSize() throws EBaseException {
+    public void testProcessCertRecordsUsesSize()  throws EBaseException {
         DBVirtualListStub dbList = new DBVirtualListStub();
         dbList.size = 5;
 
@@ -56,6 +56,7 @@ public class CertRecordListTest extends CMSBaseTestCase {
         assertEquals(8, dbList.getElementAtCallCount);
         assertEquals(7, dbList.lastIndexGetElementAtCalledWith);
     }
+
 
     public class DBVirtualListStub extends DBVirtualListDefaultStub {
         public int size = 0;

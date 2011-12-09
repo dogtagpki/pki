@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.policy.extensions;
 
+
 import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.util.Enumeration;
@@ -42,45 +43,57 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cms.policy.APolicyRule;
 
+
 /**
- * Authority Information Access extension policy. If this policy is enabled, it
- * adds an authority information access extension to the certificate.
- * 
+ * Authority Information Access extension policy.
+ * If this policy is enabled, it adds an authority
+ * information access extension to the certificate.
+ *
  * The following listed sample configuration parameters:
  * 
- * ca.Policy.impl.AuthInfoAccess.class=com.netscape.certsrv.policy.
- * AuthInfoAccessExt
+ * ca.Policy.impl.AuthInfoAccess.class=com.netscape.certsrv.policy.AuthInfoAccessExt
  * ca.Policy.rule.aia.ad0_location=uriName:http://ocsp1.netscape.com
- * ca.Policy.rule.aia.ad0_method=ocsp ca.Policy.rule.aia.ad1_location_type=URI
+ * ca.Policy.rule.aia.ad0_method=ocsp
+ * ca.Policy.rule.aia.ad1_location_type=URI
  * ca.Policy.rule.aia.ad1_location=http://ocsp2.netscape.com
- * ca.Policy.rule.aia.ad1_method=ocsp ca.Policy.rule.aia.ad2_location=
- * ca.Policy.rule.aia.ad2_method= ca.Policy.rule.aia.ad3_location=
- * ca.Policy.rule.aia.ad3_method= ca.Policy.rule.aia.ad4_location=
- * ca.Policy.rule.aia.ad4_method= ca.Policy.rule.aia.critical=true
- * ca.Policy.rule.aia.enable=true ca.Policy.rule.aia.implName=AuthInfoAccess
+ * ca.Policy.rule.aia.ad1_method=ocsp
+ * ca.Policy.rule.aia.ad2_location=
+ * ca.Policy.rule.aia.ad2_method=
+ * ca.Policy.rule.aia.ad3_location=
+ * ca.Policy.rule.aia.ad3_method=
+ * ca.Policy.rule.aia.ad4_location=
+ * ca.Policy.rule.aia.ad4_method=
+ * ca.Policy.rule.aia.critical=true
+ * ca.Policy.rule.aia.enable=true
+ * ca.Policy.rule.aia.implName=AuthInfoAccess
  * ca.Policy.rule.aia.predicate=
- * 
- * Currently, this policy only supports the following location: uriName:[URI],
- * dirName:[DN]
+ *
+ * Currently, this policy only supports the following location:
+ *  uriName:[URI], dirName:[DN]
  * <P>
- * 
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- * 
+ *
  * @deprecated
  * @version $Revision$, $Date$
  */
-public class AuthInfoAccessExt extends APolicyRule implements
+public class AuthInfoAccessExt extends APolicyRule implements 
         IEnrollmentPolicy, IExtendedPluginInfo {
-    protected static final String PROP_CRITICAL = "critical";
-    protected static final String PROP_AD = "ad";
-    protected static final String PROP_METHOD = "method";
-    protected static final String PROP_LOCATION = "location";
-    protected static final String PROP_LOCATION_TYPE = "location_type";
+    protected static final String PROP_CRITICAL =
+        "critical";
+    protected static final String PROP_AD =
+        "ad";
+    protected static final String PROP_METHOD =
+        "method";
+    protected static final String PROP_LOCATION =
+        "location";
+    protected static final String PROP_LOCATION_TYPE =
+        "location_type";
 
-    protected static final String PROP_NUM_ADS = "numADs";
+    protected static final String PROP_NUM_ADS =
+        "numADs";
 
     public static final int MAX_AD = 5;
 
@@ -94,28 +107,19 @@ public class AuthInfoAccessExt extends APolicyRule implements
     public String[] getExtendedPluginInfo(Locale locale) {
         Vector v = new Vector();
 
-        v.addElement(PROP_CRITICAL
-                + ";boolean;RFC 2459 recommendation: This extension MUST be non-critical.");
-        v.addElement(PROP_NUM_ADS
-                + ";number;The total number of access descriptions.");
-        v.addElement(IExtendedPluginInfo.HELP_TEXT
-                + ";Adds Authority Info Access Extension. Defined in RFC 2459 "
-                + "(4.2.2.1)");
-        v.addElement(IExtendedPluginInfo.HELP_TOKEN
-                + ";configuration-policyrules-authinfoaccess");
+        v.addElement(PROP_CRITICAL +
+            ";boolean;RFC 2459 recommendation: This extension MUST be non-critical.");
+        v.addElement(PROP_NUM_ADS +
+            ";number;The total number of access descriptions.");
+        v.addElement(IExtendedPluginInfo.HELP_TEXT +
+            ";Adds Authority Info Access Extension. Defined in RFC 2459 " + "(4.2.2.1)");
+        v.addElement(IExtendedPluginInfo.HELP_TOKEN +
+            ";configuration-policyrules-authinfoaccess");
 
         for (int i = 0; i < MAX_AD; i++) {
-            v.addElement(PROP_AD
-                    + Integer.toString(i)
-                    + "_"
-                    + PROP_METHOD
-                    + ";string;"
-                    + "A unique,valid OID specified in dot-separated numeric component notation. e.g. 1.3.6.1.5.5.7.48.1 (ocsp), 1.3.6.1.5.5.7.48.2 (caIssuers), 2.16.840.1.113730.1.16.1 (renewal)");
-            v.addElement(PROP_AD + Integer.toString(i) + "_"
-                    + PROP_LOCATION_TYPE + ";"
-                    + IGeneralNameUtil.GENNAME_CHOICE_INFO);
-            v.addElement(PROP_AD + Integer.toString(i) + "_" + PROP_LOCATION
-                    + ";" + IGeneralNameUtil.GENNAME_VALUE_INFO);
+            v.addElement(PROP_AD + Integer.toString(i) + "_" + PROP_METHOD + ";string;" + "A unique,valid OID specified in dot-separated numeric component notation. e.g. 1.3.6.1.5.5.7.48.1 (ocsp), 1.3.6.1.5.5.7.48.2 (caIssuers), 2.16.840.1.113730.1.16.1 (renewal)");
+            v.addElement(PROP_AD + Integer.toString(i) + "_" + PROP_LOCATION_TYPE + ";" + IGeneralNameUtil.GENNAME_CHOICE_INFO);
+            v.addElement(PROP_AD + Integer.toString(i) + "_" + PROP_LOCATION + ";" + IGeneralNameUtil.GENNAME_VALUE_INFO);
         }
         return com.netscape.cmsutil.util.Utils.getStringArrayFromVector(v);
     }
@@ -123,17 +127,17 @@ public class AuthInfoAccessExt extends APolicyRule implements
     /**
      * Initializes this policy rule.
      * <P>
-     * 
+     *
      * The entries may be of the form:
-     * 
-     * ca.Policy.rule.<ruleName>.implName=AuthInfoAccessExt
-     * ca.Policy.rule.<ruleName>.enable=true
-     * ca.Policy.rule.<ruleName>.predicate=
-     * 
-     * @param config The config store reference
+     *
+     *      ca.Policy.rule.<ruleName>.implName=AuthInfoAccessExt
+     *      ca.Policy.rule.<ruleName>.enable=true
+     *      ca.Policy.rule.<ruleName>.predicate=
+     *
+     * @param config	The config store reference
      */
     public void init(ISubsystem owner, IConfigStore config)
-            throws EBaseException {
+        throws EBaseException {
         mConfig = config;
     }
 
@@ -148,8 +152,8 @@ public class AuthInfoAccessExt extends APolicyRule implements
         //
         for (int i = 0;; i++) {
             ObjectIdentifier methodOID = null;
-            String method = mConfig.getString(PROP_AD + Integer.toString(i)
-                    + "_" + PROP_METHOD, null);
+            String method = mConfig.getString(PROP_AD + 
+                    Integer.toString(i) + "_" + PROP_METHOD, null);
 
             if (method == null)
                 break;
@@ -157,27 +161,23 @@ public class AuthInfoAccessExt extends APolicyRule implements
             if (method.equals(""))
                 break;
 
-            //
-            // method ::= ocsp | caIssuers | <OID>
-            // OID ::= [object identifier]
-            //
+                //
+                // method ::= ocsp | caIssuers | <OID>
+                // OID ::= [object identifier]
+                //
             try {
                 if (method.equalsIgnoreCase("ocsp")) {
-                    methodOID = ObjectIdentifier
-                            .getObjectIdentifier("1.3.6.1.5.5.7.48.1");
+                    methodOID = ObjectIdentifier.getObjectIdentifier("1.3.6.1.5.5.7.48.1");
                 } else if (method.equalsIgnoreCase("caIssuers")) {
-                    methodOID = ObjectIdentifier
-                            .getObjectIdentifier("1.3.6.1.5.5.7.48.2");
+                    methodOID = ObjectIdentifier.getObjectIdentifier("1.3.6.1.5.5.7.48.2");
                 } else if (method.equalsIgnoreCase("renewal")) {
-                    methodOID = ObjectIdentifier
-                            .getObjectIdentifier("2.16.840.1.113730.1.16.1");
+                    methodOID = ObjectIdentifier.getObjectIdentifier("2.16.840.1.113730.1.16.1");
                 } else {
                     // it could be an object identifier, test it
                     methodOID = ObjectIdentifier.getObjectIdentifier(method);
                 }
             } catch (IOException e) {
-                throw new EBaseException(CMS.getUserMessage(
-                        "CMS_BASE_ATTRIBUTE_NAME_CAN_NOT_BE_RESOLVED", method));
+                throw new EBaseException(CMS.getUserMessage("CMS_BASE_ATTRIBUTE_NAME_CAN_NOT_BE_RESOLVED", method));
             }
 
             //
@@ -185,16 +185,17 @@ public class AuthInfoAccessExt extends APolicyRule implements
             // TAG ::= uriName | dirName
             // VALUE ::= [value defined by TAG]
             //
-            String location_type = mConfig.getString(
-                    PROP_AD + Integer.toString(i) + "_" + PROP_LOCATION_TYPE,
-                    null);
-            String location = mConfig.getString(PROP_AD + Integer.toString(i)
-                    + "_" + PROP_LOCATION, null);
+            String location_type = mConfig.getString(PROP_AD + 
+                    Integer.toString(i) + 
+                    "_" + PROP_LOCATION_TYPE, null);
+            String location = mConfig.getString(PROP_AD + 
+                    Integer.toString(i) + 
+                    "_" + PROP_LOCATION, null);
 
             if (location == null)
                 break;
             GeneralName gn = CMS.form_GeneralName(location_type, location);
-            Vector e = new Vector();
+            Vector e = new Vector(); 
 
             e.addElement(methodOID);
             e.addElement(gn);
@@ -204,10 +205,10 @@ public class AuthInfoAccessExt extends APolicyRule implements
     }
 
     /**
-     * If this policy is enabled, add the authority information access extension
-     * to the certificate.
+     * If this policy is enabled, add the authority information
+     * access extension to the certificate.
      * <P>
-     * 
+     *
      * @param req The request on which to apply policy.
      * @return The policy result object.
      */
@@ -215,11 +216,11 @@ public class AuthInfoAccessExt extends APolicyRule implements
         PolicyResult res = PolicyResult.ACCEPTED;
 
         X509CertInfo certInfo;
-        X509CertInfo[] ci = req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
+        X509CertInfo[] ci = req.getExtDataInCertInfoArray(
+                IRequest.CERT_INFO);
 
         if (ci == null) {
-            setError(req, CMS.getUserMessage("CMS_POLICY_NO_CERT_INFO", NAME),
-                    "");
+            setError(req, CMS.getUserMessage("CMS_POLICY_NO_CERT_INFO", NAME), ""); 
             return PolicyResult.REJECTED; // unrecoverable error.
         }
 
@@ -227,45 +228,43 @@ public class AuthInfoAccessExt extends APolicyRule implements
 
             certInfo = ci[j];
             if (certInfo == null) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                        "POLICY_UNEXPECTED_POLICY_ERROR", NAME, ""));
-                setError(req, CMS.getUserMessage(
-                        "CMS_POLICY_UNEXPECTED_POLICY_ERROR", NAME,
-                        "Configuration Info Error"), "");
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("POLICY_UNEXPECTED_POLICY_ERROR", NAME, "")); 
+                setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR", 
+                        NAME, "Configuration Info Error"), "");
                 return PolicyResult.REJECTED; // unrecoverable error.
             }
 
             try {
                 // Find the extensions in the certInfo
-                CertificateExtensions extensions = (CertificateExtensions) certInfo
-                        .get(X509CertInfo.EXTENSIONS);
+                CertificateExtensions extensions = (CertificateExtensions)
+                    certInfo.get(X509CertInfo.EXTENSIONS);
 
                 // add access descriptions
                 Enumeration e = getAccessDescriptions();
 
                 if (!e.hasMoreElements()) {
                     return res;
-                }
-
+                }	
+	
                 if (extensions == null) {
                     // create extension if not exist
-                    certInfo.set(X509CertInfo.VERSION, new CertificateVersion(
-                            CertificateVersion.V3));
+                    certInfo.set(X509CertInfo.VERSION,
+                        new CertificateVersion(CertificateVersion.V3));
                     extensions = new CertificateExtensions();
                     certInfo.set(X509CertInfo.EXTENSIONS, extensions);
                 } else {
                     // check to see if AIA is already exist
                     try {
                         extensions.delete(AuthInfoAccessExtension.NAME);
-                        log(ILogger.LL_WARN, "Previous extension deleted: "
-                                + AuthInfoAccessExtension.NAME);
+                        log(ILogger.LL_WARN, "Previous extension deleted: " + AuthInfoAccessExtension.NAME);
                     } catch (IOException ex) {
                     }
                 }
 
                 // Create the extension
-                AuthInfoAccessExtension aiaExt = new AuthInfoAccessExtension(
-                        mConfig.getBoolean(PROP_CRITICAL, false));
+                AuthInfoAccessExtension aiaExt = new 
+                    AuthInfoAccessExtension(mConfig.getBoolean(
+                            PROP_CRITICAL, false));
 
                 while (e.hasMoreElements()) {
                     Vector ad = (Vector) e.nextElement();
@@ -277,25 +276,19 @@ public class AuthInfoAccessExt extends APolicyRule implements
                 extensions.set(AuthInfoAccessExtension.NAME, aiaExt);
 
             } catch (IOException e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                        "POLICY_UNEXPECTED_POLICY_ERROR", NAME, e.getMessage()));
-                setError(req, CMS.getUserMessage(
-                        "CMS_POLICY_UNEXPECTED_POLICY_ERROR", NAME,
-                        e.getMessage()), "");
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("POLICY_UNEXPECTED_POLICY_ERROR", NAME, e.getMessage()));
+                setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR", 
+                        NAME, e.getMessage()), "");
                 return PolicyResult.REJECTED; // unrecoverable error.
             } catch (EBaseException e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                        "POLICY_UNEXPECTED_POLICY_ERROR", NAME, e.getMessage()));
-                setError(req, CMS.getUserMessage(
-                        "CMS_POLICY_UNEXPECTED_POLICY_ERROR", NAME,
-                        "Configuration Info Error"), "");
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("POLICY_UNEXPECTED_POLICY_ERROR", NAME, e.getMessage()));
+                setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR", 
+                        NAME, "Configuration Info Error"), "");
                 return PolicyResult.REJECTED; // unrecoverable error.
             } catch (CertificateException e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                        "POLICY_UNEXPECTED_POLICY_ERROR", NAME, e.getMessage()));
-                setError(req, CMS.getUserMessage(
-                        "CMS_POLICY_UNEXPECTED_POLICY_ERROR", NAME,
-                        "Certificate Info Error"), "");
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("POLICY_UNEXPECTED_POLICY_ERROR", NAME, e.getMessage()));
+                setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR", 
+                        NAME, "Certificate Info Error"), "");
                 return PolicyResult.REJECTED; // unrecoverable error.
             }
         }
@@ -305,15 +298,15 @@ public class AuthInfoAccessExt extends APolicyRule implements
 
     /**
      * Return configured parameters for a policy rule instance.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getInstanceParams() {
+    public Vector getInstanceParams() { 
         Vector params = new Vector();
 
         try {
-            params.addElement(PROP_CRITICAL + "="
-                    + mConfig.getBoolean(PROP_CRITICAL, false));
+            params.addElement(PROP_CRITICAL + "=" + 
+                mConfig.getBoolean(PROP_CRITICAL, false));
         } catch (EBaseException e) {
             params.addElement(PROP_CRITICAL + "=false");
         }
@@ -331,41 +324,46 @@ public class AuthInfoAccessExt extends APolicyRule implements
             String method = null;
 
             try {
-                method = mConfig.getString(PROP_AD + Integer.toString(i) + "_"
-                        + PROP_METHOD, "");
+                method = mConfig.getString(PROP_AD + 
+                            Integer.toString(i) + "_" + PROP_METHOD,
+                            "");
             } catch (EBaseException e) {
             }
-            params.addElement(PROP_AD + Integer.toString(i) + "_" + PROP_METHOD
-                    + "=" + method);
+            params.addElement(PROP_AD + 
+                Integer.toString(i) + 
+                "_" + PROP_METHOD + "=" + method);
             String location_type = null;
 
             try {
-                location_type = mConfig.getString(PROP_AD + Integer.toString(i)
-                        + "_" + PROP_LOCATION_TYPE,
-                        IGeneralNameUtil.GENNAME_CHOICE_URL);
+                location_type = mConfig.getString(PROP_AD + 
+                            Integer.toString(i) + "_" + PROP_LOCATION_TYPE, 
+                            IGeneralNameUtil.GENNAME_CHOICE_URL);
             } catch (EBaseException e) {
             }
-            params.addElement(PROP_AD + Integer.toString(i) + "_"
-                    + PROP_LOCATION_TYPE + "=" + location_type);
+            params.addElement(PROP_AD + 
+                Integer.toString(i) + 
+                "_" + PROP_LOCATION_TYPE + "=" + location_type);
             String location = null;
 
             try {
-                location = mConfig.getString(PROP_AD + Integer.toString(i)
-                        + "_" + PROP_LOCATION, "");
+                location = mConfig.getString(PROP_AD + 
+                            Integer.toString(i) + "_" + PROP_LOCATION, 
+                            "");
             } catch (EBaseException e) {
             }
-            params.addElement(PROP_AD + Integer.toString(i) + "_"
-                    + PROP_LOCATION + "=" + location);
+            params.addElement(PROP_AD + 
+                Integer.toString(i) + 
+                "_" + PROP_LOCATION + "=" + location);
         }
         return params;
     }
 
     /**
      * Return default parameters for a policy implementation.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getDefaultParams() {
+    public Vector getDefaultParams() { 
         Vector defParams = new Vector();
 
         defParams.addElement(PROP_CRITICAL + "=false");
@@ -377,14 +375,14 @@ public class AuthInfoAccessExt extends APolicyRule implements
         // the CMS.cfg
         //
         for (int i = 0; i < MAX_AD; i++) {
-            defParams.addElement(PROP_AD + Integer.toString(i) + "_"
-                    + PROP_METHOD + "=");
-            defParams.addElement(PROP_AD + Integer.toString(i) + "_"
-                    + PROP_LOCATION_TYPE + "="
-                    + IGeneralNameUtil.GENNAME_CHOICE_URL);
-            defParams.addElement(PROP_AD + Integer.toString(i) + "_"
-                    + PROP_LOCATION + "=");
+            defParams.addElement(PROP_AD + Integer.toString(i) + 
+                "_" + PROP_METHOD + "=");
+            defParams.addElement(PROP_AD + Integer.toString(i) + 
+                "_" + PROP_LOCATION_TYPE + "=" + IGeneralNameUtil.GENNAME_CHOICE_URL);
+            defParams.addElement(PROP_AD + Integer.toString(i) + 
+                "_" + PROP_LOCATION + "=");
         }
         return defParams;
     }
 }
+

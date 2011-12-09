@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.connector;
 
+
 import java.util.Hashtable;
 
 import com.netscape.certsrv.apps.CMS;
@@ -35,6 +36,7 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmscore.util.Debug;
 
+
 public class LocalConnector implements IConnector {
     ILogger mLogger = CMS.getLogger();
     ICertAuthority mSource = null;
@@ -44,44 +46,45 @@ public class LocalConnector implements IConnector {
     public LocalConnector(ICertAuthority source, IAuthority dest) {
         mSource = source;
         // mSource.log(ILogger.LL_DEBUG, "Local connector setup for source " +
-        // mSource.getId());
+        //    mSource.getId());
         mDest = dest;
-        CMS.debug("Local connector setup for dest " + mDest.getId());
+        CMS.debug("Local connector setup for dest " +
+            mDest.getId());
         // register for events.
         mDest.registerRequestListener(new LocalConnListener());
         CMS.debug("Connector inited");
     }
 
     /**
-     * send request to local authority. returns resulting request
+     * send request to local authority.
+     * returns resulting request
      */
     public boolean send(IRequest r) throws EBaseException {
         if (Debug.ON) {
-            Debug.print("send request type " + r.getRequestType() + " status="
-                    + r.getRequestStatus() + " to " + mDest.getId() + " id="
-                    + r.getRequestId() + "\n");
+            Debug.print("send request type " + r.getRequestType() + " status=" + r.getRequestStatus() + " to " + mDest.getId() + " id=" + r.getRequestId() + "\n");
         }
-        CMS.debug("send request type " + r.getRequestType() + " to "
-                + mDest.getId());
+        CMS.debug("send request type " + r.getRequestType() +
+            " to " + mDest.getId());
 
         IRequestQueue destQ = mDest.getRequestQueue();
         IRequest destreq = destQ.newRequest(r.getRequestType());
 
-        CMS.debug("local connector dest req " + destreq.getRequestId()
-                + " created for source rId " + r.getRequestId());
-        // mSource.log(ILogger.LL_DEBUG,
-        // "setting connector dest " + mDest.getId() +
-        // " source id to " + r.getRequestId());
+        CMS.debug("local connector dest req " +
+            destreq.getRequestId() + " created for source rId " + r.getRequestId());
+        //  mSource.log(ILogger.LL_DEBUG, 
+        //     "setting connector dest " + mDest.getId() +
+        //    " source id to " + r.getRequestId());
 
-        // XXX set context to the real identity later.
-        destreq.setSourceId(mSource.getX500Name().toString() + ":"
-                + r.getRequestId().toString());
-        // destreq.copyContents(r); // copy meta attributes in request.
+        // XXX set context to the real identity later. 
+        destreq.setSourceId(
+            mSource.getX500Name().toString() + ":" + r.getRequestId().toString());
+        //destreq.copyContents(r);  // copy meta attributes in request.
         transferRequest(r, destreq);
         // XXX requestor type is not transferred on return.
-        destreq.setExtData(IRequest.REQUESTOR_TYPE, IRequest.REQUESTOR_RA);
-        CMS.debug("connector dest " + mDest.getId() + " processing "
-                + destreq.getRequestId());
+        destreq.setExtData(IRequest.REQUESTOR_TYPE,
+            IRequest.REQUESTOR_RA);
+        CMS.debug("connector dest " + mDest.getId() +
+            " processing " + destreq.getRequestId());
 
         // set context before calling process request so
         // that request subsystem can record the creator
@@ -95,7 +98,7 @@ public class LocalConnector implements IConnector {
         }
 
         // Locally cache the source request so that we
-        // can update it when the dest request is
+        // can update it when the dest request is 
         // processed (when LocalConnListener is being called).
         mSourceReqs.put(r.getRequestId().toString(), r);
         try {
@@ -107,9 +110,9 @@ public class LocalConnector implements IConnector {
             mSourceReqs.remove(r.getRequestId().toString());
         }
 
-        CMS.debug("connector dest " + mDest.getId() + " processed "
-                + destreq.getRequestId() + " status "
-                + destreq.getRequestStatus());
+        CMS.debug("connector dest " + mDest.getId() +
+            " processed " + destreq.getRequestId() +
+            " status " + destreq.getRequestStatus());
 
         if (destreq.getRequestStatus() == RequestStatus.COMPLETE) {
             // no need to transfer contents if request wasn't complete.
@@ -123,7 +126,7 @@ public class LocalConnector implements IConnector {
     public class LocalConnListener implements IRequestListener {
 
         public void init(ISubsystem sys, IConfigStore config)
-                throws EBaseException {
+            throws EBaseException {
         }
 
         public void set(String name, String val) {
@@ -131,40 +134,38 @@ public class LocalConnector implements IConnector {
 
         public void accept(IRequest destreq) {
             if (Debug.ON) {
-                Debug.print("dest " + mDest.getId() + " done with "
-                        + destreq.getRequestId());
+                Debug.print("dest " + mDest.getId() + " done with " + destreq.getRequestId());
             }
-            CMS.debug("dest " + mDest.getId() + " done with "
-                    + destreq.getRequestId());
+            CMS.debug( 
+                "dest " + mDest.getId() + " done with " + destreq.getRequestId());
 
             IRequestQueue sourceQ = mSource.getRequestQueue();
-            // accept requests that only belong to us.
+            // accept requests that only belong to us. 
             // XXX review death scenarios here. - If system dies anywhere
-            // here need to check all requests at next server startup.
+            // here need to check all requests at next server startup. 
             String sourceNameAndId = destreq.getSourceId();
             String sourceName = mSource.getX500Name().toString();
 
-            if (sourceNameAndId == null
-                    || !sourceNameAndId.toString().regionMatches(0, sourceName,
-                            0, sourceName.length())) {
-                CMS.debug("request " + destreq.getRequestId() + " from "
-                        + sourceNameAndId + " not ours.");
+            if (sourceNameAndId == null || 
+                !sourceNameAndId.toString().regionMatches(0, 
+                    sourceName, 0, sourceName.length())) {
+                CMS.debug("request " + destreq.getRequestId() +
+                    " from " + sourceNameAndId + " not ours.");
                 return;
             }
             int index = sourceNameAndId.lastIndexOf(':');
 
             if (index == -1) {
-                mSource.log(ILogger.LL_FAILURE,
-                        "request " + destreq.getRequestId() + " for "
-                                + sourceNameAndId + " malformed.");
+                mSource.log(ILogger.LL_FAILURE, 
+                    "request " + destreq.getRequestId() +
+                    " for " + sourceNameAndId + " malformed.");
                 return;
             }
             String sourceId = sourceNameAndId.substring(index + 1);
             RequestId rId = new RequestId(sourceId);
 
-            // mSource.log(ILogger.LL_DEBUG, mDest.getId() + " " +
-            // destreq.getRequestId() + " mapped to " + mSource.getId() + " " +
-            // rId);
+            //    mSource.log(ILogger.LL_DEBUG, mDest.getId() + " " +
+            //       destreq.getRequestId() + " mapped to " + mSource.getId() + " " + rId);
 
             IRequest r = null;
 
@@ -173,7 +174,7 @@ public class LocalConnector implements IConnector {
             // performance enhancement, approved request will
             // not be immediately available in the database. So
             // retrieving the request from the queue within
-            // the serviceRequest() function will have
+            // the serviceRequest() function will have 
             // diffculities.
             // You may wonder what happen if the system crashes
             // during the request servicing. Yes, the request
@@ -181,14 +182,14 @@ public class LocalConnector implements IConnector {
             // resubmit their requests again.
             // Note that the pending requests, on the other hand,
             // are persistent before the servicing.
-            // Please see stateEngine() function in
+            // Please see stateEngine() function in 
             // ARequestQueue.java for details.
             r = (IRequest) mSourceReqs.get(rId);
             if (r != null) {
                 if (r.getRequestStatus() != RequestStatus.SVC_PENDING) {
-                    mSource.log(ILogger.LL_FAILURE,
-                            "request state of " + rId + "not pending "
-                                    + " from dest authority " + mDest.getId());
+                    mSource.log(ILogger.LL_FAILURE, 
+                        "request state of " + rId + "not pending " +
+                        " from dest authority " + mDest.getId());
                     sourceQ.releaseRequest(r);
                     return;
                 }
@@ -208,3 +209,4 @@ public class LocalConnector implements IConnector {
         RequestTransfer.transfer(src, dest);
     }
 }
+

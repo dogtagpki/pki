@@ -20,6 +20,8 @@
 
 package com.netscape.cms.selftests.tks;
 
+
+
 ///////////////////////
 // import statements //
 ///////////////////////
@@ -40,6 +42,8 @@ import com.netscape.certsrv.selftests.ISelfTestSubsystem;
 import com.netscape.cms.selftests.ASelfTest;
 import com.netscape.symkey.SessionKey;
 
+
+
 //////////////////////
 // class definition //
 //////////////////////
@@ -53,40 +57,47 @@ import com.netscape.symkey.SessionKey;
  * @author awnuk
  * @version $Revision$, $Date$
  */
-public class TKSKnownSessionKey extends ASelfTest {
+public class TKSKnownSessionKey
+extends ASelfTest
+{
     // parameter information
     public static final String PROP_TKS_SUB_ID = "TksSubId";
-    private String mTksSubId = null;
-    private String mToken = null;
-    private String mUseSoftToken = null;
-    private String mKeyName = null;
-    private byte[] mKeyInfo = null;
+    private String mTksSubId      = null;
+    private String mToken         = null;
+    private String mUseSoftToken  = null;
+    private String mKeyName       = null;
+    private byte[] mKeyInfo       = null;
     private byte[] mCardChallenge = null;
     private byte[] mHostChallenge = null;
-    private byte[] mCUID = null;
-    private byte[] mMacKey = null;
-    private byte[] mSessionKey = null;
+    private byte[] mCUID          = null;
+    private byte[] mMacKey        = null;
+    private byte[] mSessionKey    = null;
+
 
     /**
-     * Initializes this subsystem with the configuration store associated with
-     * this instance name.
+     * Initializes this subsystem with the configuration store
+     * associated with this instance name.
      * <P>
-     * 
+     *
      * @param subsystem the associated subsystem
-     * @param instanceName the name of this self test instance
+     * @param instanceName the name of this self test instance 
      * @param parameters configuration store (self test parameters)
      * @exception EDuplicateSelfTestException subsystem has duplicate name/value
      * @exception EInvalidSelfTestException subsystem has invalid name/value
      * @exception EMissingSelfTestException subsystem has missing name/value
      */
-    public void initSelfTest(ISelfTestSubsystem subsystem, String instanceName,
-            IConfigStore parameters) throws EDuplicateSelfTestException,
-            EInvalidSelfTestException, EMissingSelfTestException {
+    public void initSelfTest (ISelfTestSubsystem subsystem,
+                              String instanceName,
+                              IConfigStore parameters)
+    throws EDuplicateSelfTestException,
+           EInvalidSelfTestException,
+           EMissingSelfTestException
+    {
         ISubsystem tks = null;
         IConfigStore tksConfig = null;
         String logMessage = null;
 
-        super.initSelfTest(subsystem, instanceName, parameters);
+        super.initSelfTest( subsystem, instanceName, parameters );
 
         mTksSubId = getConfigString(PROP_TKS_SUB_ID);
         mToken = getConfigString("token");
@@ -105,8 +116,7 @@ public class TKSKnownSessionKey extends ASelfTest {
             if (tksConfig != null) {
                 try {
                     defKeySetMacKey = tksConfig.getString("defKeySet.mac_key");
-                    byte defMacKey[] = com.netscape.cmsutil.util.Utils
-                            .SpecialDecode(defKeySetMacKey);
+                    byte defMacKey[] = com.netscape.cmsutil.util.Utils.SpecialDecode(defKeySetMacKey);
                     if (!Arrays.equals(mMacKey, defMacKey)) {
                         defKeySetMacKey = null;
                     }
@@ -118,36 +128,34 @@ public class TKSKnownSessionKey extends ASelfTest {
         if (defKeySetMacKey == null) {
             CMS.debug("TKSKnownSessionKey: invalid mac key");
             CMS.debug("TKSKnownSessionKey self test FAILED");
-            mSelfTestSubsystem.log(mSelfTestSubsystem.getSelfTestLogger(), CMS
-                    .getLogMessage("SELFTESTS_INVALID_VALUES",
-                            getSelfTestName(), mPrefix + "." + "macKey"));
-            throw new EInvalidSelfTestException(mPrefix, "macKey", null);
+            mSelfTestSubsystem.log (mSelfTestSubsystem.getSelfTestLogger(),
+                                    CMS.getLogMessage("SELFTESTS_INVALID_VALUES",
+                                    getSelfTestName(), mPrefix + "." + "macKey"));
+            throw new EInvalidSelfTestException (mPrefix, "macKey", null);
         }
-
+     
         try {
             mSessionKey = getConfigByteArray("sessionKey", 16);
         } catch (EMissingSelfTestException e) {
             if (mSessionKey == null) {
-                mSessionKey = SessionKey.ComputeSessionKey(mToken, mKeyName,
-                        mCardChallenge, mHostChallenge, mKeyInfo, mCUID,
-                        mMacKey, mUseSoftToken, null, null);
+                mSessionKey = SessionKey.ComputeSessionKey (mToken, mKeyName,
+                                                            mCardChallenge, mHostChallenge,
+                                                            mKeyInfo, mCUID, mMacKey, mUseSoftToken, null, null);
                 if (mSessionKey == null || mSessionKey.length != 16) {
-                    mSelfTestSubsystem.log(mSelfTestSubsystem
-                            .getSelfTestLogger(), CMS.getLogMessage(
-                            "SELFTESTS_MISSING_VALUES", getSelfTestName(),
-                            mPrefix + ".sessionKey"));
-                    throw new EMissingSelfTestException("sessionKey");
+                    mSelfTestSubsystem.log (mSelfTestSubsystem.getSelfTestLogger(),
+                                            CMS.getLogMessage("SELFTESTS_MISSING_VALUES",
+                                            getSelfTestName(), mPrefix + ".sessionKey"));
+                    throw new EMissingSelfTestException ("sessionKey");
                 }
                 String sessionKey = SpecialEncode(mSessionKey);
                 mConfig.putString("sessionKey", sessionKey);
                 try {
                     CMS.getConfigStore().commit(true);
                 } catch (EBaseException be) {
-                    mSelfTestSubsystem.log(mSelfTestSubsystem
-                            .getSelfTestLogger(), CMS.getLogMessage(
-                            "SELFTESTS_MISSING_VALUES", getSelfTestName(),
-                            mPrefix + ".sessionKey"));
-                    throw new EMissingSelfTestException("sessionKey");
+                    mSelfTestSubsystem.log (mSelfTestSubsystem.getSelfTestLogger(),
+                                            CMS.getLogMessage("SELFTESTS_MISSING_VALUES",
+                                            getSelfTestName(), mPrefix + ".sessionKey"));
+                    throw new EMissingSelfTestException ("sessionKey");
                 }
             }
         }
@@ -155,7 +163,9 @@ public class TKSKnownSessionKey extends ASelfTest {
         return;
     }
 
-    private String SpecialEncode(byte data[]) {
+
+    private String SpecialEncode (byte data[])
+    {
         StringBuffer sb = new StringBuffer();
 
         for (int i = 0; i < data.length; i++) {
@@ -169,8 +179,9 @@ public class TKSKnownSessionKey extends ASelfTest {
         return sb.toString();
     }
 
-    private String getConfigString(String name)
-            throws EMissingSelfTestException {
+
+    private String getConfigString (String name) throws EMissingSelfTestException
+    {
         String value = null;
 
         try {
@@ -178,126 +189,137 @@ public class TKSKnownSessionKey extends ASelfTest {
             if (value != null) {
                 value = value.trim();
             } else {
-                mSelfTestSubsystem.log(mSelfTestSubsystem.getSelfTestLogger(),
-                        CMS.getLogMessage("SELFTESTS_MISSING_VALUES",
-                                getSelfTestName(), mPrefix + "." + name));
-                throw new EMissingSelfTestException(name);
+                mSelfTestSubsystem.log (mSelfTestSubsystem.getSelfTestLogger(),
+                                        CMS.getLogMessage("SELFTESTS_MISSING_VALUES",
+                                        getSelfTestName(), mPrefix + "." + name));
+                throw new EMissingSelfTestException (name);
             }
         } catch (EBaseException e) {
-            mSelfTestSubsystem.log(mSelfTestSubsystem.getSelfTestLogger(), CMS
-                    .getLogMessage("SELFTESTS_MISSING_NAME", getSelfTestName(),
-                            mPrefix + "." + name));
-            throw new EMissingSelfTestException(mPrefix, name, null);
+            mSelfTestSubsystem.log (mSelfTestSubsystem.getSelfTestLogger(),
+                                    CMS.getLogMessage("SELFTESTS_MISSING_NAME",
+                                    getSelfTestName(), mPrefix + "." + name));
+            throw new EMissingSelfTestException (mPrefix, name, null);
         }
 
         return value;
     }
 
-    private byte[] getConfigByteArray(String name, int size)
-            throws EMissingSelfTestException, EInvalidSelfTestException {
+
+    private byte[] getConfigByteArray (String name, int size) throws EMissingSelfTestException,
+                                                                     EInvalidSelfTestException
+    {
         String stringValue = getConfigString(name);
 
-        byte byteValue[] = com.netscape.cmsutil.util.Utils
-                .SpecialDecode(stringValue);
+        byte byteValue[] = com.netscape.cmsutil.util.Utils.SpecialDecode(stringValue);
         if (byteValue == null) {
-            mSelfTestSubsystem.log(mSelfTestSubsystem.getSelfTestLogger(), CMS
-                    .getLogMessage("SELFTESTS_MISSING_NAME", getSelfTestName(),
-                            mPrefix + "." + name));
-            throw new EMissingSelfTestException(name);
+            mSelfTestSubsystem.log (mSelfTestSubsystem.getSelfTestLogger(),
+                                    CMS.getLogMessage("SELFTESTS_MISSING_NAME",
+                                    getSelfTestName(), mPrefix + "." + name));
+            throw new EMissingSelfTestException (name);
         }
         if (byteValue.length != size) {
-            mSelfTestSubsystem.log(mSelfTestSubsystem.getSelfTestLogger(), CMS
-                    .getLogMessage("SELFTESTS_INVALID_VALUES",
-                            getSelfTestName(), mPrefix + "." + name));
-            throw new EInvalidSelfTestException(mPrefix, name, stringValue);
+            mSelfTestSubsystem.log (mSelfTestSubsystem.getSelfTestLogger(),
+                                    CMS.getLogMessage("SELFTESTS_INVALID_VALUES",
+                                    getSelfTestName(), mPrefix + "." + name));
+            throw new EInvalidSelfTestException (mPrefix, name, stringValue);
         }
 
         return byteValue;
     }
 
+
     /**
      * Notifies this subsystem if it is in execution mode.
      * <P>
-     * 
+     *
      * @exception ESelfTestException failed to start
      */
-    public void startupSelfTest() throws ESelfTestException {
+    public void startupSelfTest()
+    throws ESelfTestException
+    {
         return;
     }
 
+
     /**
-     * Stops this subsystem. The subsystem may call shutdownSelfTest anytime
-     * after initialization.
+     * Stops this subsystem. The subsystem may call shutdownSelfTest
+     * anytime after initialization.
      * <P>
      */
-    public void shutdownSelfTest() {
+    public void shutdownSelfTest()
+    {
         return;
     }
 
+
     /**
-     * Returns the name associated with this self test. This method may return
-     * null if the self test has not been intialized.
+     * Returns the name associated with this self test. This method may
+     * return null if the self test has not been intialized.
      * <P>
-     * 
+     *
      * @return instanceName of this self test
      */
-    public String getSelfTestName() {
+    public String getSelfTestName()
+    {
         return super.getSelfTestName();
     }
 
+
     /**
-     * Returns the root configuration storage (self test parameters) associated
-     * with this subsystem.
+     * Returns the root configuration storage (self test parameters)
+     * associated with this subsystem.
      * <P>
-     * 
+     *
      * @return configuration store (self test parameters) of this subsystem
      */
-    public IConfigStore getSelfTestConfigStore() {
+    public IConfigStore getSelfTestConfigStore()
+    {
         return super.getSelfTestConfigStore();
     }
 
+
     /**
-     * Retrieves description associated with an individual self test. This
-     * method may return null.
+     * Retrieves description associated with an individual self test.
+     * This method may return null.
      * <P>
-     * 
+     *
      * @param locale locale of the client that requests the description
      * @return description of self test
      */
-    public String getSelfTestDescription(Locale locale) {
-        return CMS.getUserMessage(locale,
-                "CMS_SELFTESTS_TKS_PRESENCE_DESCRIPTION");
+    public String getSelfTestDescription( Locale locale )
+    {
+        return CMS.getUserMessage (locale, "CMS_SELFTESTS_TKS_PRESENCE_DESCRIPTION");
     }
+
 
     /**
      * Execute an individual self test.
      * <P>
-     * 
+     *
      * @param logger specifies logging subsystem
      * @exception ESelfTestException self test exception
      */
-    public void runSelfTest(ILogEventListener logger) throws ESelfTestException {
+    public void runSelfTest (ILogEventListener logger)
+    throws ESelfTestException
+    {
         String logMessage = null;
         String keySet = "defKeySet";
 
-        byte[] sessionKey = SessionKey.ComputeSessionKey(mToken, mKeyName,
-                mCardChallenge, mHostChallenge, mKeyInfo, mCUID, mMacKey,
-                mUseSoftToken, keySet, null);
+        byte[] sessionKey = SessionKey.ComputeSessionKey (mToken, mKeyName,
+                                                          mCardChallenge, mHostChallenge,
+                                                          mKeyInfo, mCUID, mMacKey, mUseSoftToken, keySet, null);
 
         // Now we just see if we can successfully generate a session key.
-        // For FIPS compliance, the routine now returns a wrapped key, which
-        // can't be extracted and compared.
+        // For FIPS compliance, the routine now returns a wrapped key, which can't be extracted and compared.
         if (sessionKey == null) {
             CMS.debug("TKSKnownSessionKey: generated no session key");
             CMS.debug("TKSKnownSessionKey self test FAILED");
-            logMessage = CMS.getLogMessage("SELFTESTS_TKS_FAILED",
-                    getSelfTestName(), getSelfTestName());
-            mSelfTestSubsystem.log(logger, logMessage);
-            throw new ESelfTestException(logMessage);
-        } else {
-            logMessage = CMS.getLogMessage("SELFTESTS_TKS_SUCCEEDED",
-                    getSelfTestName(), getSelfTestName());
-            mSelfTestSubsystem.log(logger, logMessage);
+            logMessage = CMS.getLogMessage ("SELFTESTS_TKS_FAILED", getSelfTestName(), getSelfTestName());
+            mSelfTestSubsystem.log (logger, logMessage);
+            throw new ESelfTestException( logMessage );
+        } else {  
+            logMessage = CMS.getLogMessage ("SELFTESTS_TKS_SUCCEEDED", getSelfTestName(), getSelfTestName());
+            mSelfTestSubsystem.log (logger, logMessage);
             CMS.debug("TKSKnownSessionKey self test SUCCEEDED");
         }
 

@@ -22,45 +22,48 @@ import sun.io.ConversionBufferFullException;
 import sun.io.UnknownCharacterException;
 
 /**
- * Converts bytes in ASN.1 IA5String character set to unicode characters.
- * 
+ * Converts bytes in ASN.1 IA5String character set to unicode 
+ * characters. 
+ *
  * @author Lily Hsiao
  * @author Slava Galperin
  */
 
-public class ByteToCharIA5String extends ByteToCharConverter {
+public class ByteToCharIA5String extends ByteToCharConverter 
+{
     public String getCharacterEncoding() {
-        return "ASN.1 IA5String";
+	return "ASN.1 IA5String";
     }
 
-    public int convert(byte[] input, int inStart, int inEnd, char[] output,
-            int outStart, int outEnd) throws ConversionBufferFullException,
-            UnknownCharacterException {
-        int j = outStart;
-        for (int i = inStart; i < inEnd; i++, j++) {
-            if (j >= outEnd) {
-                byteOff = i;
-                charOff = j;
-                throw new ConversionBufferFullException();
-            }
-            if (!subMode && (input[i] & 0x80) != 0) {
-                byteOff = i;
-                charOff = j;
-                badInputLength = 1;
-                throw new UnknownCharacterException();
-            }
-            output[j] = (char) (input[i] & 0x7f);
-        }
-        byteOff = inEnd;
-        charOff = j;
-        return j - outStart;
+    public int convert(byte[] input, int inStart, int inEnd,
+		       char[] output, int outStart, int outEnd)
+	throws ConversionBufferFullException,
+		UnknownCharacterException
+    {
+	int j = outStart;
+	for (int i = inStart; i < inEnd; i++, j++) {
+	    if (j >= outEnd) {
+		byteOff = i;
+		charOff = j;
+		throw new ConversionBufferFullException();
+	    }
+	    if (!subMode && (input[i] & 0x80) != 0) {
+		byteOff = i;
+		charOff = j;
+		badInputLength = 1;
+		throw new UnknownCharacterException();
+	    }
+	    output[j] = (char) (input[i] & 0x7f);
+	}
+	byteOff = inEnd;
+	charOff = j;
+	return j - outStart;
     }
 
     public int flush(char[] output, int outStart, int outEnd) {
-        return 0;
+	return 0;
     }
 
-    public void reset() {
-    }
+    public void reset() { }
 
 }

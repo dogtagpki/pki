@@ -34,18 +34,19 @@ import org.mozilla.jss.util.Password;
 
 /**
  * Tool used to test out signing a CRL
- * 
+ *
  * <p>
- * 
  * @version $Revision$ Date: $
  */
-public class TestCRLSigning {
-    public static void printUsage() {
-        System.out
-                .println("Command <dbdir> <numreovked> <keysize> <tokenname> <tokenpwd>");
+public class TestCRLSigning
+{
+    public static void printUsage()
+    {
+      System.out.println("Command <dbdir> <numreovked> <keysize> <tokenname> <tokenpwd>");
     }
 
-    public static void main(String args[]) throws Exception {
+    public static void main(String args[]) throws Exception
+    { 
         String dir = args[0];
         String num = args[1];
         String keysize = args[2];
@@ -54,19 +55,19 @@ public class TestCRLSigning {
 
         // initialize JSS
         CryptoManager cm = null;
-        CryptoManager.InitializationValues vals = new CryptoManager.InitializationValues(
-                dir, "", "", "secmod.db");
+        CryptoManager.InitializationValues vals =
+            new CryptoManager.InitializationValues(dir, "", "", "secmod.db");
         CryptoManager.initialize(vals);
         cm = CryptoManager.getInstance();
 
-        // Login to token
+        // Login to token 
         CryptoToken token = null;
         if (tokenname.equals("internal")) {
-            token = cm.getInternalKeyStorageToken();
+          token = cm.getInternalKeyStorageToken();
         } else {
-            token = cm.getTokenByName(tokenname);
+          token = cm.getTokenByName(tokenname);
         }
-        Password pass = new Password(tokenpwd.toCharArray());
+        Password pass = new Password(tokenpwd.toCharArray()); 
         token.login(pass);
 
         // generate key pair
@@ -80,15 +81,21 @@ public class TestCRLSigning {
         Hashtable badCerts = new Hashtable();
         int n = Integer.parseInt(num);
         for (int i = 0; i < n; i++) {
-            badCerts.put(Integer.toString(i), new RevokedCertImpl(
-                    new BigInteger(Integer.toString(i)), curDate));
+               badCerts.put(Integer.toString(i), 
+            new RevokedCertImpl(new BigInteger(Integer.toString(i)), curDate));
         }
         long endPutting = System.currentTimeMillis();
 
         long startConstructing = System.currentTimeMillis();
-        X509CRLImpl crl = new X509CRLImpl(new X500Name("CN=Signer"), null,
-                curDate, curDate, badCerts, null);
+        X509CRLImpl crl = new X509CRLImpl( 
+                               new X500Name("CN=Signer"),
+                               null,
+                               curDate,
+                               curDate,
+                               badCerts,
+                               null);
         long endConstructing = System.currentTimeMillis();
+
 
         System.out.println("Start signing");
         long startSigning = System.currentTimeMillis();
@@ -101,14 +108,10 @@ public class TestCRLSigning {
         long endData = System.currentTimeMillis();
 
         System.out.println("Summary:");
-        System.out.println("Insertion time (ms): "
-                + Long.toString(endPutting - startPutting));
-        System.out.println("Construction time (ms): "
-                + Long.toString(endConstructing - startConstructing));
-        System.out.println("Signing time (ms): "
-                + Long.toString(endSigning - startSigning));
-        System.out.println("Data time (ms): "
-                + Long.toString(endData - startData));
+        System.out.println("Insertion time (ms): " + Long.toString(endPutting - startPutting));
+        System.out.println("Construction time (ms): " + Long.toString(endConstructing - startConstructing));
+        System.out.println("Signing time (ms): " + Long.toString(endSigning - startSigning));
+        System.out.println("Data time (ms): " + Long.toString(endData - startData));
         System.out.println("Data size (bytes): " + Long.toString(data.length));
     }
 }

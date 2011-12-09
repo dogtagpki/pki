@@ -17,16 +17,19 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.logging;
 
+
 import java.text.MessageFormat;
 import java.util.Locale;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.MessageFormatter;
 
+
 /**
- * The log event object that carries a log message. This class represents System
- * events which are CMS events which need to be logged to a log file.
- * 
+ * The log event object that carries a log message.
+ * This class represents System events which are CMS events
+ * which need to be logged to a log file. 
+ *
  * @version $Revision$, $Date$
  * @see java.text.MessageFormat
  * @see com.netscape.certsrv.logging.LogResources
@@ -53,12 +56,12 @@ public class SystemEvent implements IBundleLogEvent {
      */
     private String mBundleName = LogResources.class.getName();
 
-    private static final String INVALID_LOG_LEVEL = "log level: {0} is invalid, should be 0-6";
+    private static final String INVALID_LOG_LEVEL="log level: {0} is invalid, should be 0-6";
 
     /**
      * Constructs a SystemEvent message event.
      * <P>
-     * 
+     *
      * @param msgFormat The message string.
      */
     public SystemEvent(String msgFormat) {
@@ -68,12 +71,11 @@ public class SystemEvent implements IBundleLogEvent {
 
     /**
      * Constructs a SystemEvent message with a parameter. For example,
-     * 
      * <PRE>
-     * new SystemEvent(&quot;failed to load {0}&quot;, fileName);
+     * 		new SystemEvent("failed to load {0}", fileName);
      * </PRE>
      * <P>
-     * 
+     *
      * @param msgFormat Details in message string format.
      * @param param Message string parameter.
      */
@@ -84,10 +86,9 @@ public class SystemEvent implements IBundleLogEvent {
     }
 
     /**
-     * Constructs a SystemEvent message from an exception. It can be used to
-     * carry a system exception that may contain information about the context.
-     * For example,
-     * 
+     * Constructs a SystemEvent message from an exception. It can be used to carry
+     * a system exception that may contain information about
+     * the context. For example,
      * <PRE>
      * 		try {
      *  		...
@@ -96,7 +97,7 @@ public class SystemEvent implements IBundleLogEvent {
      *      }
      * </PRE>
      * <P>
-     * 
+     *
      * @param msgFormat Exception details in message string format.
      * @param exception System exception.
      */
@@ -107,9 +108,8 @@ public class SystemEvent implements IBundleLogEvent {
     }
 
     /**
-     * Constructs a SystemEvent message from a base exception. This will use the
-     * msgFormat from the exception itself.
-     * 
+     * Constructs a SystemEvent message from a base exception. This will use the msgFormat
+     * from the exception itself.
      * <PRE>
      * 		try {
      *  		...
@@ -118,7 +118,7 @@ public class SystemEvent implements IBundleLogEvent {
      *      }
      * </PRE>
      * <P>
-     * 
+     *
      * @param e CMS exception.
      */
     public SystemEvent(Exception e) {
@@ -132,10 +132,10 @@ public class SystemEvent implements IBundleLogEvent {
     }
 
     /**
-     * Constructs a SystemEvent message event with a list of parameters that
-     * will be substituted into the message format.
+     * Constructs a SystemEvent message event with a list of parameters
+     * that will be substituted into the message format.
      * <P>
-     * 
+     *
      * @param msgFormat Message string format.
      * @param params List of message format parameters.
      */
@@ -147,7 +147,7 @@ public class SystemEvent implements IBundleLogEvent {
     /**
      * Returns the current message format string.
      * <P>
-     * 
+     *
      * @return Details message.
      */
     public String getMessage() {
@@ -155,10 +155,10 @@ public class SystemEvent implements IBundleLogEvent {
     }
 
     /**
-     * Returns a list of parameters. These parameters can be used to assist in
-     * formatting the message.
+     * Returns a list of parameters. These parameters can be
+     * used to assist in formatting the message.
      * <P>
-     * 
+     *
      * @return List of message format parameters.
      */
     public Object[] getParameters() {
@@ -166,10 +166,10 @@ public class SystemEvent implements IBundleLogEvent {
     }
 
     /**
-     * Returns localized message string. This method should only be called if a
-     * localized string is necessary.
+     * Returns localized message string. This method should
+     * only be called if a localized string is necessary.
      * <P>
-     * 
+     *
      * @return Details message.
      */
     public String toContent() {
@@ -179,19 +179,19 @@ public class SystemEvent implements IBundleLogEvent {
     /**
      * Returns the string based on the given locale.
      * <P>
-     * 
+     *
      * @param locale Locale.
      * @return Details message.
      */
     public String toContent(Locale locale) {
         return MessageFormatter.getLocalizedString(locale, getBundleName(),
-                getMessage(), getParameters());
+                getMessage(),
+                getParameters());
     }
 
     /**
-     * Sets the resource bundle name for this class instance. This should be
-     * overridden by subclasses who have their own resource bundles.
-     * 
+     * Sets the resource bundle name for this class instance.  This should
+     * be overridden by subclasses who have their own resource bundles.
      * @param bundle String with the name of resource bundle.
      */
     public void setBundleName(String bundle) {
@@ -200,7 +200,6 @@ public class SystemEvent implements IBundleLogEvent {
 
     /**
      * Retrieves bundle name.
-     * 
      * @return String with name of resource bundle.
      */
     protected String getBundleName() {
@@ -208,9 +207,9 @@ public class SystemEvent implements IBundleLogEvent {
     }
 
     /**
-     * Retrieves log source. This is an id of the subsystem responsible for
-     * creating the log event.
-     * 
+     * Retrieves log source.
+     * This is an id of the subsystem responsible
+     * for creating the log event.
      * @return Integer source id.
      */
     public int getSource() {
@@ -218,8 +217,8 @@ public class SystemEvent implements IBundleLogEvent {
     }
 
     /**
-     * Sets log source. Sets the id of the subsystem issuing the event.
-     * 
+     * Sets log source.
+     * Sets the id of the subsystem issuing the event.
      * @param source Integer source id.
      */
     public void setSource(int source) {
@@ -227,9 +226,9 @@ public class SystemEvent implements IBundleLogEvent {
     }
 
     /**
-     * Retrieves log level. The log level of an event represents its relative
-     * importance or severity within CMS.
-     * 
+     * Retrieves log level.
+     * The log level of an event represents its relative importance
+     * or severity within CMS.
      * @return Integer log level value.
      */
     public int getLevel() {
@@ -238,7 +237,6 @@ public class SystemEvent implements IBundleLogEvent {
 
     /**
      * Retrieves NT specific log event type.
-     * 
      * @return Integer NTEventType value.
      */
     public int getNTEventType() {
@@ -246,9 +244,9 @@ public class SystemEvent implements IBundleLogEvent {
     }
 
     /**
-     * Sets log level, NT log event type. For certain log levels the NT log
-     * event type gets set as well.
-     * 
+     * Sets log level, NT log event type.
+     * For certain log levels the NT log event type gets
+     * set as well.  
      * @param level Integer log level value.
      */
     public void setLevel(int level) {
@@ -271,26 +269,24 @@ public class SystemEvent implements IBundleLogEvent {
             break;
 
         default:
-            ConsoleError.send(new SystemEvent(INVALID_LOG_LEVEL, Integer
-                    .toString(level)));
+            ConsoleError.send(new SystemEvent(INVALID_LOG_LEVEL,
+                    Integer.toString(level)));
             break;
         }
     }
 
     /**
      * Retrieves log multiline attribute.
-     * 
-     * @return Boolean whether or not this event is multiline. A multiline
-     *         message simply consists of more than one line.
+     * @return Boolean whether or not this event is multiline.
+     * A multiline message simply consists of more than one line.
      */
     public boolean getMultiline() {
         return mMultiline;
     }
 
     /**
-     * Sets log multiline attribute. A multiline message consists of more than
-     * one line.
-     * 
+     * Sets log multiline attribute. A multiline message consists of
+     * more than one line.
      * @param multiline Boolean multiline value.
      */
     public void setMultiline(boolean multiline) {
@@ -299,7 +295,6 @@ public class SystemEvent implements IBundleLogEvent {
 
     /**
      * Retrieves event time stamp.
-     * 
      * @return Long integer of the time the event was created.
      */
     public long getTimeStamp() {
@@ -307,19 +302,18 @@ public class SystemEvent implements IBundleLogEvent {
     }
 
     /**
-     * Retrieves log event type. Each type of event has an associated String
-     * type value.
-     * 
+     * Retrieves log event type. Each type of event
+     * has an associated String type value.
      * @return String containing the type of event.
      */
     public String getEventType() {
         return mEventType;
     }
 
+    
     /**
-     * Sets log event type. Each type of event has an associated String type
-     * value.
-     * 
+     * Sets log event type. Each type of event
+     * has an associated String type value.
      * @param eventType String containing the type of event.
      */
     public void setEventType(String eventType) {
@@ -327,10 +321,9 @@ public class SystemEvent implements IBundleLogEvent {
     }
 
     /**
-     * Return string representation of log message.
-     * 
-     * @return String containing log message.
-     */
+    * Return string representation of log message.
+    * @return String containing log message.
+    */
     public String toString() {
         if (getBundleName() == null) {
             MessageFormat detailMessage = new MessageFormat(mMessage);

@@ -17,24 +17,26 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.publish;
 
+
 import com.netscape.certsrv.base.Plugin;
+
 
 /**
  * This class represents a registered publisher plugin.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class PublisherPlugin extends Plugin {
 
     /**
-     * 
-     * Constructs a PublisherPlugin based on name and classpath.
-     * 
-     * @param id name of plugin.
-     * @param path Classpath of plugin.
+     *
+     *  Constructs a PublisherPlugin based on name and classpath.
+     *  @param id name of plugin.
+     *  @param path Classpath of plugin.
      */
-    public PublisherPlugin(String id, String path) {
+    public PublisherPlugin (String id, String path) {
         super(id, path);
     }
 }
+

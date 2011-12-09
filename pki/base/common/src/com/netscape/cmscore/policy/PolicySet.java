@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.policy;
 
+
 import java.util.Enumeration;
 import java.util.Vector;
 
@@ -29,10 +30,11 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cmscore.util.Debug;
 
+
 /**
- * Implements a policy set per IPolicySet interface. This class uses a vector of
- * ordered policies to enforce priority.
- * 
+ * Implements a policy set per IPolicySet interface. This class
+ * uses a vector of ordered policies to enforce priority.
+ *
  * @author kanda
  * @version $Revision$, $Date$
  */
@@ -49,7 +51,7 @@ public class PolicySet implements IPolicySet {
     /**
      * Returns the name of the rule set.
      * <P>
-     * 
+     *
      * @return The name of the rule set.
      */
     public String getName() {
@@ -59,7 +61,6 @@ public class PolicySet implements IPolicySet {
     /**
      * Returns the no of rules in a set.
      * <P>
-     * 
      * @return the no of rules.
      */
     public int count() {
@@ -69,9 +70,9 @@ public class PolicySet implements IPolicySet {
     /**
      * Add a policy rule.
      * <P>
-     * 
-     * @param ruleName The name of the rule to be added.
-     * @param rule The rule to be added.
+     *
+     * @param ruleName  The name of the rule to be added.
+     * @param rule  The rule to be added.
      */
     public void addRule(String ruleName, IPolicyRule rule) {
         if (mRuleNames.indexOf(ruleName) >= 0)
@@ -87,9 +88,9 @@ public class PolicySet implements IPolicySet {
 
     /**
      * Remplaces a policy rule identified by the given name.
-     * 
-     * @param name The name of the rule to be replaced.
-     * @param rule The rule to be replaced.
+     *
+     * @param name  The name of the rule to be replaced.
+     * @param rule  The rule to be replaced.
      */
     public void replaceRule(String ruleName, IPolicyRule rule) {
         int index = mRuleNames.indexOf(ruleName);
@@ -98,22 +99,22 @@ public class PolicySet implements IPolicySet {
             addRule(ruleName, rule);
             return;
         }
-
+        	
         mRuleNames.setElementAt(ruleName, index);
         mRules.setElementAt(rule, index);
     }
 
     /**
      * Removes a policy rule identified by the given name.
-     * 
-     * @param name The name of the rule to be removed.
+     *
+     * @param name  The name of the rule to be removed.
      */
     public void removeRule(String ruleName) {
         int index = mRuleNames.indexOf(ruleName);
 
         if (index < 0)
             return; // XXX - throw an exception.
-
+        	
         mRuleNames.removeElementAt(index);
         mRules.removeElementAt(index);
     }
@@ -121,8 +122,8 @@ public class PolicySet implements IPolicySet {
     /**
      * Returns the rule identified by a given name.
      * <P>
-     * 
-     * @param name The name of the rule to be return.
+     *
+     * @param name  The name of the rule to be return.
      * @return The rule identified by the given name or null if none exists.
      */
     public IPolicyRule getRule(String ruleName) {
@@ -136,7 +137,7 @@ public class PolicySet implements IPolicySet {
     /**
      * Returns an enumeration of rules.
      * <P>
-     * 
+     *
      * @return An enumeration of rules.
      */
     public Enumeration getRules() {
@@ -144,10 +145,10 @@ public class PolicySet implements IPolicySet {
     }
 
     /**
-     * Apply policies on a given request from a rule set. The rules may modify
-     * the request.
-     * 
-     * @param req The request to apply policies on.
+     * Apply policies on a given request from a rule set.
+     * The rules may modify the request.
+     *
+     * @param req   The request to apply policies on.
      * @return the PolicyResult.
      */
     public PolicyResult apply(IRequest req) {
@@ -157,11 +158,11 @@ public class PolicySet implements IPolicySet {
         if ((cnt = mRules.size()) == 0)
             return PolicyResult.ACCEPTED;
 
-        // All policies are applied before returning the result. Hence
-        // if atleast one of the policies returns a REJECTED, we need to
-        // return that status. If none of the policies REJECTED
-        // the request, but atleast one of them DEFERRED the request, we
-        // need to return DEFERRED.
+            // All policies are applied before returning the result. Hence
+            // if atleast one of the policies returns a REJECTED, we need to
+            // return that status. If none of the policies REJECTED
+            // the request, but atleast one of them DEFERRED the request, we
+            // need to return DEFERRED. 
         boolean rejected = false;
         boolean deferred = false;
         int size = mRules.size();
@@ -173,17 +174,15 @@ public class PolicySet implements IPolicySet {
 
             try {
                 if (Debug.ON)
-                    Debug.trace("evaluating predicate for rule "
-                            + rule.getName());
-                CMS.debug("PolicySet: apply()- evaluating predicate for rule "
-                        + rule.getName());
+                    Debug.trace("evaluating predicate for rule " + rule.getName());
+                CMS.debug("PolicySet: apply()- evaluating predicate for rule " + rule.getName());
                 if (exp != null && !exp.evaluate(req))
                     continue;
             } catch (Exception e) {
                 e.printStackTrace();
             }
 
-            if (!typeMatched(rule, req))
+            if (!typeMatched(rule, req)) 
                 continue;
 
             try {
@@ -201,18 +200,16 @@ public class PolicySet implements IPolicySet {
                     // we pass that info down the chain. For now use S_OTHER
                     // as the system id for the log entry.
                     mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                            ILogger.LL_FAILURE, CMS.getLogMessage(
-                                    "CMSCORE_POLICY_REJECT_RESULT", req
-                                            .getRequestId().toString(), name));
+                        ILogger.LL_FAILURE, 
+                        CMS.getLogMessage("CMSCORE_POLICY_REJECT_RESULT", req.getRequestId().toString(), name));
                     rejected = true;
                 } else if (result == PolicyResult.DEFERRED) {
                     // It is hard to find out the owner at the moment unless
                     // we pass that info down the chain. For now use S_OTHER
                     // as the system id for the log entry.
                     mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                            ILogger.LL_WARN, CMS.getLogMessage(
-                                    "CMSCORE_POLICY_DEFER_RESULT", req
-                                            .getRequestId().toString(), name));
+                        ILogger.LL_WARN, 
+                        CMS.getLogMessage("CMSCORE_POLICY_DEFER_RESULT", req.getRequestId().toString(), name));
                     deferred = true;
                 } else if (result == PolicyResult.ACCEPTED) {
                     // It is hard to find out the owner at the moment unless
@@ -224,10 +221,9 @@ public class PolicySet implements IPolicySet {
                     // we pass that info down the chain. For now use S_OTHER
                     // as the system id for the log entry.
                     mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                            ILogger.LL_INFO,
-                            "policy: Request " + req.getRequestId()
-                                    + " - Result of applying rule: " + name
-                                    + " is: " + getPolicyResult(result));
+                        ILogger.LL_INFO, 
+                        "policy: Request " + req.getRequestId() + " - Result of applying rule: " + name + 
+                        " is: " + getPolicyResult(result));
                 }
             } catch (Throwable ex) {
                 // Customer can install his own policies.
@@ -235,16 +231,14 @@ public class PolicySet implements IPolicySet {
                 // catch those problems and report
                 // them to the log
                 mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                        ILogger.LL_FAILURE, CMS.getLogMessage(
-                                "CMSCORE_POLICY_ERROR_RESULT", req
-                                        .getRequestId().toString(), name, ex
-                                        .toString()));
-                // treat as rejected to prevent request from going into
+                    ILogger.LL_FAILURE, 
+                    CMS.getLogMessage("CMSCORE_POLICY_ERROR_RESULT", req.getRequestId().toString(), name, ex.toString()));
+                // treat as rejected to prevent request from going into 
                 // a weird state. request queue doesn't handle this case.
                 rejected = true;
-                ((IPolicyRule) rule).setError(req, CMS.getUserMessage(
-                        "CMS_POLICY_UNEXPECTED_POLICY_ERROR", rule.getName(),
-                        ex.toString()), null);
+                ((IPolicyRule) rule).setError(
+                    req,
+                    CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR", rule.getName(), ex.toString()), null); 
             }
         }
 
@@ -253,9 +247,10 @@ public class PolicySet implements IPolicySet {
         } else if (deferred) {
             return PolicyResult.DEFERRED;
         } else {
-            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER, ILogger.LL_INFO,
-                    "Request " + req.getRequestId()
-                            + " Policy result: successful");
+            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
+                ILogger.LL_INFO, 
+                "Request " + req.getRequestId() + 
+                " Policy result: successful");
             return PolicyResult.ACCEPTED;
         }
     }
@@ -271,8 +266,8 @@ public class PolicySet implements IPolicySet {
             String ruleName = (String) mRuleNames.elementAt(index);
 
             System.out.println("Rule Name: " + ruleName);
-            System.out.println("Implementation: "
-                    + mRules.elementAt(index).getClass().getName());
+            System.out.println("Implementation: " +
+                mRules.elementAt(index).getClass().getName());
         }
     }
 
@@ -300,3 +295,4 @@ public class PolicySet implements IPolicySet {
         return false;
     }
 }
+

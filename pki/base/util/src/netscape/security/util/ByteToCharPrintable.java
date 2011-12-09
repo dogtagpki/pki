@@ -23,58 +23,66 @@ import sun.io.MalformedInputException;
 import sun.io.UnknownCharacterException;
 
 /**
- * Converts bytes in ASN.1 Printable String character set to unicode characters.
- * 
+ * Converts bytes in ASN.1 Printable String character set to unicode 
+ * characters. 
+ *
  * @author Lily Hsiao
  * @author Slava Galperin
  */
 
-public class ByteToCharPrintable extends ByteToCharConverter {
+public class ByteToCharPrintable extends ByteToCharConverter
+{
 
-    public String getCharacterEncoding() {
-        return "ASN.1 Printable";
+    public String getCharacterEncoding()
+    {
+	return "ASN.1 Printable";
     }
 
-    public int convert(byte[] input, int inStart, int inEnd, char[] output,
-            int outStart, int outEnd) throws MalformedInputException,
-            UnknownCharacterException, ConversionBufferFullException {
-        int j = outStart;
-        boolean hasNonPrintableChar = false;
+    public int convert(byte[] input, int inStart, int inEnd,
+		       char[] output, int outStart, int outEnd)
+            throws MalformedInputException,
+                   UnknownCharacterException,
+                   ConversionBufferFullException
+    {
+	int j = outStart;
+	boolean hasNonPrintableChar = false;
 
-        for (int i = inStart; i < inEnd; i++, j++) {
-            if (j >= outEnd) {
-                byteOff = i;
-                charOff = j;
-                throw new ConversionBufferFullException();
-            }
-            if (!subMode
-                    && !CharToBytePrintable
-                            .isPrintableChar((char) (input[i] & 0x7f))) {
-                /*
-                 * "bug" fix for 359010 byteOff = i; charOff = j; badInputLength
-                 * = 1; throw new UnknownCharacterException();
-                 */
-                j--;
-                hasNonPrintableChar = true;
-            } else
-                output[j] = (char) (input[i] & 0x7f);
-        }
+	for (int i = inStart; i < inEnd; i++, j++) {
+	    if (j >= outEnd) {
+		byteOff = i;
+		charOff = j;
+		throw new ConversionBufferFullException();
+	    }
+	    if (!subMode &&
+			!CharToBytePrintable.isPrintableChar((char) (input[i] & 0x7f))) {
+			/* "bug" fix for 359010
+			  byteOff = i;
+			  charOff = j;
+			  badInputLength = 1;
+			  throw new UnknownCharacterException();
+			  */
+			j--;
+			hasNonPrintableChar = true;
+	    } else
+			output[j] = (char) (input[i] & 0x7f);
+	}
 
-        if (hasNonPrintableChar == true) {
-            //
-        }
+	if (hasNonPrintableChar == true) {
+		//
+	}
 
-        byteOff = inEnd;
-        charOff = j;
-        return j - outStart;
+	byteOff = inEnd;
+	charOff = j;
+	return j - outStart;
     }
 
-    public int flush(char[] output, int outStart, int outEnd)
-            throws MalformedInputException, ConversionBufferFullException {
-        return 0;
+    public int flush( char[] output, int outStart, int outEnd )
+        throws MalformedInputException, ConversionBufferFullException
+    {
+	return 0;
     }
 
-    public void reset() {
-    }
+    public void reset() { }
+
 
 }

@@ -17,12 +17,13 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.publish;
 
+
 import com.netscape.certsrv.ldap.ELdapException;
 
+
 /**
- * Exception for Publisher Rule plugin not found. Plugin required to implement
- * Ldap Rule.
- * 
+ * Exception for Publisher Rule plugin not found.  Plugin required to implement Ldap Rule.
+ *
  * @version $Revision$ $Date$
  */
 public class ERulePluginNotFound extends ELdapException {
@@ -34,10 +35,10 @@ public class ERulePluginNotFound extends ELdapException {
 
     /**
      * Constructs a exception for a missing rule plugin.
-     * 
      * @param errorString Detailed error message.
      */
     public ERulePluginNotFound(String errorString) {
         super(errorString);
     }
 }
+

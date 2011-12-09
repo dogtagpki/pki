@@ -17,10 +17,11 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.ca;
 
+
 /**
  * A class represents a CA exception associated with publishing error.
  * <P>
- * 
+ *
  * @version $Revision$ $Date$
  */
 public class EErrorPublishCRL extends ECAException {
@@ -33,10 +34,9 @@ public class EErrorPublishCRL extends ECAException {
     /**
      * Constructs a CA exception caused by publishing error.
      * <P>
-     * 
      * @param errorString Detailed error message.
      */
     public EErrorPublishCRL(String errorString) {
-        super(errorString);
+        super(errorString); 
     }
 }

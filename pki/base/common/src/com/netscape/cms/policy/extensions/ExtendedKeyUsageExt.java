@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.policy.extensions;
 
+
 import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.util.Locale;
@@ -39,20 +40,20 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cms.policy.APolicyRule;
 
+
 /**
  * This implements the extended key usage extension.
  * <P>
- * 
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- * 
+ *
  * @deprecated
  * @version $Revision$, $Date$
  */
-public class ExtendedKeyUsageExt extends APolicyRule implements
-        IEnrollmentPolicy, IExtendedPluginInfo {
+public class ExtendedKeyUsageExt extends APolicyRule
+    implements IEnrollmentPolicy, IExtendedPluginInfo {
     public static final String PROP_CRITICAL = "critical";
     protected static final String PROP_PURPOSE_ID = "id";
     protected static final String PROP_NUM_IDS = "numIds";
@@ -62,7 +63,7 @@ public class ExtendedKeyUsageExt extends APolicyRule implements
     private Vector mUsages = null;
 
     private String[] mParams = null;
-
+    
     // PKIX specifies the that the extension SHOULD NOT be critical
     public static final boolean DEFAULT_CRITICALITY = false;
 
@@ -80,7 +81,7 @@ public class ExtendedKeyUsageExt extends APolicyRule implements
      * Performs one-time initialization of the policy.
      */
     public void init(ISubsystem owner, IConfigStore config)
-            throws EBaseException {
+        throws EBaseException {
         mConfig = config;
         setExtendedPluginInfo();
         setupParams();
@@ -97,7 +98,8 @@ public class ExtendedKeyUsageExt extends APolicyRule implements
             return PolicyResult.ACCEPTED;
         }
 
-        X509CertInfo[] ci = req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
+        X509CertInfo[] ci =
+            req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
 
         if (ci == null || ci[0] == null) {
             setError(req, CMS.getUserMessage("CMS_POLICY_NO_CERT_INFO"), NAME);
@@ -116,16 +118,16 @@ public class ExtendedKeyUsageExt extends APolicyRule implements
     public PolicyResult applyCert(IRequest req, X509CertInfo certInfo) {
         try {
             // find the extensions in the certInfo
-            CertificateExtensions extensions = (CertificateExtensions) certInfo
-                    .get(X509CertInfo.EXTENSIONS);
+            CertificateExtensions extensions = (CertificateExtensions)
+                certInfo.get(X509CertInfo.EXTENSIONS);
 
             // prepare the extensions data structure
             if (extensions == null) {
-                certInfo.set(X509CertInfo.VERSION, new CertificateVersion(
-                        CertificateVersion.V3));
+                certInfo.set(X509CertInfo.VERSION,
+                    new CertificateVersion(CertificateVersion.V3));
                 extensions = new CertificateExtensions();
-                certInfo.set(X509CertInfo.VERSION, new CertificateVersion(
-                        CertificateVersion.V3));
+                certInfo.set(X509CertInfo.VERSION,
+                    new CertificateVersion(CertificateVersion.V3));
                 certInfo.set(X509CertInfo.EXTENSIONS, extensions);
             } else {
                 try {
@@ -139,22 +141,19 @@ public class ExtendedKeyUsageExt extends APolicyRule implements
 
             return PolicyResult.ACCEPTED;
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("BASE_IO_ERROR", e.getMessage()));
-            setError(req,
-                    CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"),
-                    NAME, e.getMessage());
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("BASE_IO_ERROR", e.getMessage()));
+            setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"), NAME,
+                e.getMessage());
             return PolicyResult.REJECTED;
         } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CA_CERT_INFO_ERROR", e.getMessage()));
-            setError(req,
-                    CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"),
-                    NAME, e.getMessage());
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CA_CERT_INFO_ERROR",
+                    e.getMessage()));
+            setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"), NAME,
+                e.getMessage());
             return PolicyResult.REJECTED;
         }
     }
-
+    
     /**
      * Returns instance specific parameters.
      */
@@ -173,15 +172,16 @@ public class ExtendedKeyUsageExt extends APolicyRule implements
 
         for (int i = 0; i < numIds; i++) {
             if (mUsages.size() <= i) {
-                params.addElement(PROP_PURPOSE_ID + Integer.toString(i) + "=");
+                params.addElement(PROP_PURPOSE_ID + 
+                    Integer.toString(i) + "=");
             } else {
                 usage = ((ObjectIdentifier) mUsages.elementAt(i)).toString();
                 if (usage == null) {
-                    params.addElement(PROP_PURPOSE_ID + Integer.toString(i)
-                            + "=");
+                    params.addElement(PROP_PURPOSE_ID + 
+                        Integer.toString(i) + "=");
                 } else {
-                    params.addElement(PROP_PURPOSE_ID + Integer.toString(i)
-                            + "=" + usage);
+                    params.addElement(PROP_PURPOSE_ID + 
+                        Integer.toString(i) + "=" + usage);
                 }
             }
         }
@@ -199,20 +199,18 @@ public class ExtendedKeyUsageExt extends APolicyRule implements
             }
         }
         for (int i = 0; i < mNum; i++) {
-            v.addElement(PROP_PURPOSE_ID
-                    + Integer.toString(i)
-                    + ";string;"
-                    + "A unique,valid OID specified in dot-separated numeric component notation. e.g. 2.16.840.1.113730.1.99");
+            v.addElement(PROP_PURPOSE_ID + Integer.toString(i) + ";string;" +
+                "A unique,valid OID specified in dot-separated numeric component notation. e.g. 2.16.840.1.113730.1.99");
         }
 
         v.addElement(PROP_NUM_IDS + ";number;The total number of policy IDs.");
-        v.addElement(PROP_CRITICAL
-                + ";boolean;RFC 2459 recommendation: This extension may, at the option of the certificate issuer, be either critical or non-critical.");
-        v.addElement(IExtendedPluginInfo.HELP_TOKEN
-                + ";configuration-policyrules-extendedkeyusage");
-        v.addElement(IExtendedPluginInfo.HELP_TEXT
-                + ";Adds Extended Key Usage Extension. Defined in RFC 2459 "
-                + "(4.2.1.13)");
+        v.addElement(PROP_CRITICAL +
+            ";boolean;RFC 2459 recommendation: This extension may, at the option of the certificate issuer, be either critical or non-critical.");
+        v.addElement(IExtendedPluginInfo.HELP_TOKEN +
+            ";configuration-policyrules-extendedkeyusage");
+        v.addElement(IExtendedPluginInfo.HELP_TEXT +
+            ";Adds Extended Key Usage Extension. Defined in RFC 2459 " +
+            "(4.2.1.13)");
 
         mParams = com.netscape.cmsutil.util.Utils.getStringArrayFromVector(v);
     }
@@ -223,7 +221,7 @@ public class ExtendedKeyUsageExt extends APolicyRule implements
         }
         return mParams;
     }
-
+    
     /**
      * Returns default parameters.
      */
@@ -237,48 +235,44 @@ public class ExtendedKeyUsageExt extends APolicyRule implements
         }
         return defParams;
     }
-
+    
     /**
      * Setups parameters.
      */
     private void setupParams() throws EBaseException {
-
+        
         mCritical = mConfig.getBoolean(PROP_CRITICAL, false);
         if (mUsages == null) {
             mUsages = new Vector();
         }
-
+        
         int mNum = mConfig.getInteger(PROP_NUM_IDS, MAX_PURPOSE_ID);
 
         for (int i = 0; i < mNum; i++) {
             ObjectIdentifier usageOID = null;
-
-            String usage = mConfig.getString(
-                    PROP_PURPOSE_ID + Integer.toString(i), null);
+	        
+            String usage = mConfig.getString(PROP_PURPOSE_ID + 
+                    Integer.toString(i), null);
 
             try {
-
-                if (usage == null)
-                    break;
+           
+                if (usage == null)  break;
                 usage = usage.trim();
-                if (usage.equals(""))
-                    break;
+                if (usage.equals(""))   break;
                 if (usage.equalsIgnoreCase("ocspsigning")) {
-                    usageOID = ObjectIdentifier
-                            .getObjectIdentifier(ExtendedKeyUsageExtension.OID_OCSPSigning);
+                    usageOID = ObjectIdentifier.getObjectIdentifier(ExtendedKeyUsageExtension.OID_OCSPSigning);
                 } else if (usage.equalsIgnoreCase("codesigning")) {
-                    usageOID = ObjectIdentifier
-                            .getObjectIdentifier(ExtendedKeyUsageExtension.OID_CODESigning);
+                    usageOID = ObjectIdentifier.getObjectIdentifier(ExtendedKeyUsageExtension.OID_CODESigning);
                 } else {
                     // it could be an object identifier, test it
                     usageOID = ObjectIdentifier.getObjectIdentifier(usage);
                 }
             } catch (IOException ex) {
-                throw new EBaseException(this.getClass().getName() + ":"
-                        + ex.getMessage());
+                throw new EBaseException(this.getClass().getName() + ":" + 
+                        ex.getMessage());
             } catch (NumberFormatException ex) {
-                throw new EBaseException(this.getClass().getName() + ":"
-                        + "OID '" + usage + "' format error");
+                throw new EBaseException(this.getClass().getName() + ":" + 
+                        "OID '" + usage + "' format error");
             }
             mUsages.addElement(usageOID);
         }

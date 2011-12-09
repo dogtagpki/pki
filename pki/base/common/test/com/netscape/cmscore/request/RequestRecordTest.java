@@ -57,7 +57,7 @@ public class RequestRecordTest extends CMSBaseTestCase {
 
     public void testGetElements() {
         assertTrue(TestHelper.enumerationContains(requestRecord.getElements(),
-                IRequestRecord.ATTR_EXT_DATA));
+                           IRequestRecord.ATTR_EXT_DATA));
     }
 
     public void testAddExtData() throws EBaseException {
@@ -69,7 +69,7 @@ public class RequestRecordTest extends CMSBaseTestCase {
 
         requestRecord.add(request);
 
-        assertEquals(request.mExtData, requestRecord.mExtData);
+        assertEquals(request.mExtData,  requestRecord.mExtData);
         assertNotSame(request.mExtData, requestRecord.mExtData);
     }
 
@@ -82,6 +82,7 @@ public class RequestRecordTest extends CMSBaseTestCase {
         extData.put("hashkey", extDataHashValue);
         requestRecord.set(IRequestRecord.ATTR_EXT_DATA, extData);
         requestRecord.mRequestType = "foo";
+
 
         requestRecord.read(new RequestModDefaultStub(), request);
 
@@ -111,12 +112,13 @@ public class RequestRecordTest extends CMSBaseTestCase {
         assertTrue(db.registry.extAttrMapper instanceof ExtAttrDynMapper);
 
         assertTrue(db.registry.registerObjectClassCalled);
-        assertTrue(TestHelper.contains(
-                db.registry.registerObjectClassLdapNames, "extensibleObject"));
-
+        assertTrue(TestHelper.contains(db.registry.registerObjectClassLdapNames,
+                                       "extensibleObject"));
+        
         assertTrue(db.registry.registerDynamicMapperCalled);
         assertTrue(db.registry.dynamicMapper instanceof ExtAttrDynMapper);
     }
+
 
     class ModificationSetStub extends ModificationSet {
         public boolean addCalledWithExtData = false;
@@ -130,13 +132,16 @@ public class RequestRecordTest extends CMSBaseTestCase {
         }
     }
 
+
     class DBSubsystemStub extends DBSubsystemDefaultStub {
         DBRegistryStub registry = new DBRegistryStub();
+
 
         public IDBRegistry getRegistry() {
             return registry;
         }
     }
+
 
     class DBRegistryStub extends DBRegistryDefaultStub {
         boolean registerCalledWithExtAttr = false;
@@ -148,14 +153,12 @@ public class RequestRecordTest extends CMSBaseTestCase {
         private boolean registerDynamicMapperCalled = false;
         private IDBDynAttrMapper dynamicMapper;
 
-        public void registerObjectClass(String className, String ldapNames[])
-                throws EDBException {
+        public void registerObjectClass(String className, String ldapNames[]) throws EDBException {
             registerObjectClassCalled = true;
             registerObjectClassLdapNames = ldapNames;
         }
 
-        public void registerAttribute(String ufName, IDBAttrMapper mapper)
-                throws EDBException {
+        public void registerAttribute(String ufName, IDBAttrMapper mapper) throws EDBException {
             if (IRequestRecord.ATTR_EXT_DATA.equals(ufName)) {
                 registerCalledWithExtAttr = true;
                 extAttrMapper = mapper;

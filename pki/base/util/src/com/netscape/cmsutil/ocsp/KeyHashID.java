@@ -30,75 +30,87 @@ import org.mozilla.jss.asn1.Tag;
 
 /**
  * RFC 2560:
- * 
+ *
  * <pre>
  * ResponderID ::= CHOICE {
  *    byName               [1] EXPLICIT Name,
  *    byKey                [2] EXPLICIT KeyHash }
  * </pre>
- * 
+ *
  * @version $Revision$ $Date$
  */
-public class KeyHashID implements ResponderID {
-    private OCTET_STRING _hash = null;
-    private static final Tag TAG = SEQUENCE.TAG;
+public class KeyHashID implements ResponderID
+{
+	private OCTET_STRING _hash = null; 
+        private static final Tag TAG = SEQUENCE.TAG;
 
-    public KeyHashID(OCTET_STRING hash) {
-        _hash = hash;
-    }
+	public KeyHashID(OCTET_STRING hash)
+	{
+		_hash = hash;
+	}
 
-    public Tag getTag() {
-        return Tag.get(2);
-    }
+	public Tag getTag()
+	{
+		return Tag.get(2);
+	}
 
-    public void encode(Tag tag, OutputStream os) throws IOException {
-        _hash.encode(os);
-    }
+	public void encode(Tag tag, OutputStream os) throws IOException
+	{
+               _hash.encode(os);
+	}
 
-    public void encode(OutputStream os) throws IOException {
-        _hash.encode(os);
-    }
+	public void encode(OutputStream os) throws IOException
+	{
+               _hash.encode(os);
+	}
 
-    public OCTET_STRING getHash() {
-        return _hash;
-    }
+	public OCTET_STRING getHash()
+	{
+		return _hash;
+	}
 
-    private static final Template templateInstance = new Template();
+        private static final Template templateInstance = new Template();
 
-    public static Template getTemplate() {
-        return templateInstance;
-    }
-
-    /**
-     * A Template for decoding <code>ResponseBytes</code>.
-     */
-    public static class Template implements ASN1Template {
-
-        private SEQUENCE.Template seqt;
-
-        public Template() {
-            seqt = new SEQUENCE.Template();
-            // seqt.addElement(new EXPLICIT.Template(
-            // new Tag (2), new OCTET_STRING.Template()) );
-            seqt.addElement(new OCTET_STRING.Template());
-
+        public static Template getTemplate() {
+                return templateInstance;
         }
 
-        public boolean tagMatch(Tag tag) {
-            return TAG.equals(tag);
-        }
+        /**
+         * A Template for decoding <code>ResponseBytes</code>.
+         */
+        public static class Template implements ASN1Template
+        {
 
-        public ASN1Value decode(InputStream istream)
-                throws InvalidBERException, IOException {
-            return decode(TAG, istream);
-        }
+                private SEQUENCE.Template seqt;
 
-        public ASN1Value decode(Tag implicitTag, InputStream istream)
-                throws InvalidBERException, IOException {
-            SEQUENCE seq = (SEQUENCE) seqt.decode(implicitTag, istream);
+                public Template()
+                {
+                     seqt = new SEQUENCE.Template();
+//                     seqt.addElement(new EXPLICIT.Template(
+ //                       new Tag (2), new OCTET_STRING.Template()) );
+                       seqt.addElement(new OCTET_STRING.Template() );
 
-            OCTET_STRING o = (OCTET_STRING) seq.elementAt(0);
-            return new KeyHashID(o);
-        }
-    }
+                }
+
+                public boolean tagMatch(Tag tag)
+                {
+                        return TAG.equals(tag);
+                }
+
+                public ASN1Value decode(InputStream istream)
+                        throws InvalidBERException, IOException
+                {
+                        return decode(TAG, istream);
+                }
+
+                public ASN1Value decode(Tag implicitTag, InputStream istream)
+                        throws InvalidBERException, IOException
+                {
+                        SEQUENCE seq = (SEQUENCE) seqt.decode(implicitTag,
+                                istream);
+
+                        OCTET_STRING o = (OCTET_STRING)seq.elementAt(0);
+                        return new KeyHashID(o);
+                }
+       }
 }

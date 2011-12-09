@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.authorization;
 
+
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Locale;
@@ -36,32 +37,30 @@ import com.netscape.certsrv.evaluators.IAccessEvaluator;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cmsutil.util.Utils;
 
+
 /**
- * An abstract class represents an authorization manager that governs the access
- * of internal resources such as servlets. It parses in the ACLs associated with
- * each protected resources, and provides protected method
- * <CODE>checkPermission</CODE> for code that needs to verify access before
- * performing actions.
+ * An abstract class represents an authorization manager that governs the 
+ * access of internal resources such as servlets. 
+ * It parses in the ACLs associated with each protected 
+ * resources, and provides protected method <CODE>checkPermission</CODE> 
+ * for code that needs to verify access before performing 
+ * actions.
  * <P>
  * Here is a sample resourceACLS for a resource
- * 
  * <PRE>
  *   certServer.UsrGrpAdminServlet:
  *       execute:
  *           deny (execute) user="tempAdmin";
  *           allow (execute) group="Administrators";
  * </PRE>
- * 
- * To perform permission checking, code call authz mgr authorize() method to
- * verify access. See AuthzMgr for calling example.
+ * To perform permission checking, code call authz mgr authorize()
+ * method to verify access. See AuthzMgr for calling example.
  * <P>
- * default "evaluators" are used to evaluate the "group=.." or "user=.." rules.
- * See evaluator for more info
+ * default "evaluators" are used to evaluate the "group=.." or "user=.."
+ * rules.  See evaluator for more info
  * 
  * @version $Revision$, $Date$
- * @see <A
- *      HREF="http://developer.netscape.com/library/documentation/enterprise/admnunix/aclfiles.htm">ACL
- *      Files</A>
+ * @see <A HREF="http://developer.netscape.com/library/documentation/enterprise/admnunix/aclfiles.htm">ACL Files</A>
  */
 public abstract class AAclAuthz {
 
@@ -93,9 +92,10 @@ public abstract class AAclAuthz {
     }
 
     /**
-     * Initializes
+     * Initializes 
      */
-    protected void init(IConfigStore config) throws EBaseException {
+    protected void init(IConfigStore config) 
+        throws EBaseException {
 
         mLogger = CMS.getLogger();
         CMS.debug("AAclAuthz: init begins");
@@ -119,21 +119,21 @@ public abstract class AAclAuthz {
             } catch (Exception e) {
                 log(ILogger.LL_MISCONF, "failed to get config class info");
 
-                throw new EBaseException(
-                        CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED", type
-                                + "." + PROP_CLASS));
+                throw new EBaseException(CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED",
+                            type + "." + PROP_CLASS));
             }
 
-            // instantiate evaluator
+            // instantiate evaluator 
             try {
-                evaluator = (IAccessEvaluator) Class.forName(evalClassPath)
-                        .newInstance();
+                evaluator =
+                        (IAccessEvaluator) Class.forName(evalClassPath).newInstance();
             } catch (Exception e) {
-                String errMsg = "init(): failed to load class: "
-                        + evalClassPath + ":" + e.toString();
+                String errMsg = "init(): failed to load class: " +
+                    evalClassPath + ":" + e.toString();
 
-                throw new EACLsException(CMS.getUserMessage(
-                        "CMS_ACL_CLASS_LOAD_FAIL", evalClassPath));
+                throw new
+                    EACLsException(CMS.getUserMessage("CMS_ACL_CLASS_LOAD_FAIL",
+                            evalClassPath));
             }
 
             if (evaluator != null) {
@@ -143,8 +143,7 @@ public abstract class AAclAuthz {
             } else {
                 String errMsg = "access evaluator " + type + " is null";
 
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("AUTHZ_EVALUATOR_NULL", type));
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("AUTHZ_EVALUATOR_NULL", type));
             }
         }
 
@@ -152,18 +151,16 @@ public abstract class AAclAuthz {
     }
 
     /**
-     * Parse ACL resource attributes, then update the ACLs memory store This is
-     * intended to be used if storing ACLs on ldap is not desired, and the
-     * caller is expected to call this method to add resource and acl info into
-     * acls memory store. The resACLs format should conform to the following:
-     * <resource
-     * ID>:right-1[,right-n]:[allow,deny](right(s))<evaluatorType>=<value
-     * >:<comment for this resource acl
+     * Parse ACL resource attributes, then update the ACLs memory store
+     * This is intended to be used if storing ACLs on ldap is not desired, 
+     * and the caller is expected to call this method to add resource
+     * and acl info into acls memory store.  The resACLs format should conform
+     * to the following:
+     *    <resource ID>:right-1[,right-n]:[allow,deny](right(s))<evaluatorType>=<value>:<comment for this resource acl
      * <P>
-     * Example: resTurnKnob:left,right:allow(left) group="lefties":door knobs
-     * for lefties
-     * 
-     * @param resACLs same format as the resourceACLs attribute
+     * Example:
+     *    resTurnKnob:left,right:allow(left) group="lefties":door knobs for lefties
+     * @param resACLs same format as the resourceACLs attribute 
      * @throws EBaseException parsing error from <code>parseACL</code>
      */
     public void addACLs(String resACLs) throws EBaseException {
@@ -183,7 +180,7 @@ public abstract class AAclAuthz {
     public IACL getACL(String target) {
         return (ACL) mACLs.get(target);
     }
-
+	
     protected Enumeration getTargetNames() {
         return mACLs.keys();
     }
@@ -207,10 +204,10 @@ public abstract class AAclAuthz {
     }
 
     /**
-     * Returns a list of configuration parameter names. The list is passed to
-     * the configuration console so instances of this implementation can be
-     * configured through the console.
-     * 
+     * Returns a list of configuration parameter names.
+     * The list is passed to the configuration console so instances of
+     * this implementation can be configured through the console.
+     *
      * @return String array of configuration parameter names.
      */
     public String[] getConfigParams() {
@@ -223,7 +220,8 @@ public abstract class AAclAuthz {
     public abstract void shutdown();
 
     /**
-     * Registers new handler for the given attribute type in the expressions.
+     * Registers new handler for the given attribute type
+     * in the expressions.
      */
     public void registerEvaluator(String type, IAccessEvaluator evaluator) {
         mEvaluators.put(type, evaluator);
@@ -235,42 +233,45 @@ public abstract class AAclAuthz {
      *******************************************************/
 
     /**
-     * Checks if the permission is granted or denied in the current execution
-     * context. If the code is marked as privileged, this methods will simply
+     * Checks if the permission is granted or denied in 
+     * the current execution context. If the code is
+     * marked as privileged, this methods will simply
      * return.
      * <P>
-     * note that if a resource does not exist in the aclResources entry, but a
-     * higher level node exist, it will still be evaluated. The highest level
-     * node's acl determines the permission. If the higher level node doesn't
-     * contain any acl information, then it's passed down to the lower node. If
-     * a node has no aci in its resourceACLs, then it's considered passed.
+     * note that if a resource does not exist in the aclResources
+     *	 entry, but a higher level node exist, it will still be
+     *	 evaluated.  The highest level node's acl determines the
+     *	 permission.  If the higher level node doesn't contain any acl
+     *	 information, then it's passed down to the lower node.  If
+     *	 a node has no aci in its resourceACLs, then it's considered
+     *	 passed.
      * <p>
      * example: certServer.common.users, if failed permission check for
-     * "certServer", then it's considered failed, and there is no need to
-     * continue the check. If passed permission check for "certServer", then
-     * it's considered passed, and no need to continue the check. If certServer
-     * contains no aci then "certServer.common" will be checked for permission
-     * instead. If down to the leaf level, the node still contains no aci, then
-     * it's considered passed. If at the leaf level, no such resource exist, or
-     * no acis, it's considered passed.
+     *	 "certServer", then it's considered failed, and there is no need to
+     *	 continue the check.  If passed permission check for "certServer",
+     * then it's considered passed, and no need to continue the
+     *	 check.  If certServer contains no aci then "certServer.common" will be
+     *	 checked for permission instead.  If down to the leaf level,
+     *	 the node still contains no aci, then it's considered passed.
+     *  If at the leaf level, no such resource exist, or no acis, it's
+     *	 considered passed.
      * <p>
-     * If there are multiple aci's for a resource, ALL aci's will be checked,
-     * and only if all passed permission checks, will the eventual access be
-     * granted.
-     * 
+     * If there are multiple aci's for a resource, ALL aci's will be
+     *	 checked, and only if all passed permission checks, will the
+     *	 eventual access be granted.
      * @param name resource name
      * @param perm permission requested
      * @exception EACLsException access permission denied
      */
-    protected synchronized void checkPermission(String name, String perm)
-            throws EACLsException {
+    protected synchronized void checkPermission(String name, String perm) 
+        throws EACLsException {
         String resource = "";
         StringTokenizer st = new StringTokenizer(name, ".");
 
         while (st.hasMoreTokens()) {
             String node = st.nextToken();
 
-            if (!"".equals(resource)) {
+            if (! "".equals(resource)) {
                 resource = resource + "." + node;
             } else {
                 resource = node;
@@ -286,19 +287,19 @@ public abstract class AAclAuthz {
                 params[0] = name;
                 params[1] = perm;
 
-                String errMsg = "checkPermission(): permission denied for the resource "
-                        + name + " on operation " + perm;
+                String errMsg = "checkPermission(): permission denied for the resource " +
+                    name + " on operation " + perm;
 
-                log(ILogger.LL_SECURITY, CMS.getLogMessage(
-                        "AUTHZ_EVALUATOR_ACCESS_DENIED", name, perm));
+                log(ILogger.LL_SECURITY, CMS.getLogMessage("AUTHZ_EVALUATOR_ACCESS_DENIED", name, perm));
 
-                throw new EACLsException(CMS.getUserMessage(
-                        "CMS_ACL_NO_PERMISSION", (String[]) params));
+                throw new
+                    EACLsException(CMS.getUserMessage("CMS_ACL_NO_PERMISSION",
+                            (String[]) params));
             }
 
             if (passed) {
-                String infoMsg = "checkPermission(): permission granted for the resource "
-                        + name + " on operation " + perm;
+                String infoMsg = "checkPermission(): permission granted for the resource " +
+                    name + " on operation " + perm;
 
                 log(ILogger.LL_INFO, infoMsg);
 
@@ -308,44 +309,46 @@ public abstract class AAclAuthz {
     }
 
     /**
-     * Checks if the permission is granted or denied in the current execution
-     * context.
+     * Checks if the permission is granted or denied in 
+     * the current execution context.
      * <P>
      * An <code>ACL</code> may contain one or more <code>ACLEntry</code>.
-     * However, in case of multiple <code>ACLEntry</code>, a subject must pass
-     * ALL of the <code>ACLEntry</code> evaluation for permission to be granted
+     * However, in case of multiple <code>ACLEntry</code>, a subject must
+     * pass ALL of the <code>ACLEntry</code> evaluation for permission
+     * to be granted
      * <P>
-     * negative ("deny") aclEntries are treated differently than positive
-     * ("allow") statements. If a negative aclEntries fails the acl check, the
-     * permission check will return "false" right away; while in the case of a
-     * positive aclEntry, if the the aclEntry fails the acl check, the next
-     * aclEntry will be evaluated.
-     * 
+     * negative ("deny") aclEntries are treated differently than
+     * positive ("allow") statements. If a negative aclEntries 
+     * fails the acl check, the permission check will return "false"
+     * right away; while in the case of a positive aclEntry, if the
+     * the aclEntry fails the acl check, the next aclEntry will be
+     * evaluated.
      * @param name resource name
      * @param perm permission requested
-     * @return true if access allowed false if should be passed down to the next
-     *         node
+     * @return true if access allowed
+     *         false if should be passed down to the next node
      * @exception EACLsException if access disallowed
      */
-    private boolean checkACLs(String name, String perm) throws EACLsException {
+    private boolean checkACLs(String name, String perm) 
+        throws EACLsException {
         ACL acl = (ACL) mACLs.get(name);
 
         // no such resource, pass it down
         if (acl == null) {
-            String infoMsg = "checkACLs(): no acl for" + name
-                    + "...pass down to next node";
+            String infoMsg = "checkACLs(): no acl for" +
+                name + "...pass down to next node";
 
             log(ILogger.LL_INFO, infoMsg);
 
-            return false;
+            return false; 
         }
 
         Enumeration e = acl.entries();
 
         if ((e == null) || (e.hasMoreElements() == false)) {
             // no acis for node, pass down to next node
-            String infoMsg = " AAclAuthz.checkACLs(): no acis for " + name
-                    + " acl entry...pass down to next node";
+            String infoMsg = " AAclAuthz.checkACLs(): no acis for " +
+                name + " acl entry...pass down to next node";
 
             log(ILogger.LL_INFO, infoMsg);
 
@@ -362,16 +365,13 @@ public abstract class AAclAuthz {
             if (entry.containPermission(perm) == true) {
                 if (evaluateExpressions(entry.getAttributeExpressions())) {
                     if (entry.checkPermission(perm) == false) {
-                        log(ILogger.LL_SECURITY,
-                                " checkACLs(): permission denied");
-                        throw new EACLsException(
-                                CMS.getUserMessage("CMS_ACL_PERMISSION_DENIED"));
+                        log(ILogger.LL_SECURITY, " checkACLs(): permission denied");
+                        throw new EACLsException(CMS.getUserMessage("CMS_ACL_PERMISSION_DENIED"));
                     }
                 } else if (!entry.isNegative()) {
                     // didn't meet the access expression for "allow", failed
                     log(ILogger.LL_SECURITY, "checkACLs(): permission denied");
-                    throw new EACLsException(
-                            CMS.getUserMessage("CMS_ACL_PERMISSION_DENIED"));
+                    throw new EACLsException(CMS.getUserMessage("CMS_ACL_PERMISSION_DENIED"));
                 }
             }
         }
@@ -380,8 +380,10 @@ public abstract class AAclAuthz {
     }
 
     /**
-     * Resolves the given expressions. expression || expression || ... example:
-     * group="Administrators" || group="Operators"
+     * Resolves the given expressions.
+     * expression || expression || ...
+     * example:
+     *     group="Administrators" || group="Operators"
      */
     private boolean evaluateExpressions(String s) {
         // XXX - just handle "||" (or) among multiple expressions for now
@@ -447,15 +449,14 @@ public abstract class AAclAuthz {
     private boolean evaluateExpression(String expression) {
         // XXX - just recognize "=" for now!!
         int i = expression.indexOf("=");
-        String type = expression.substring(0, i);
-        String value = expression.substring(i + 1);
+        String type = expression.substring(0, i);	
+        String value = expression.substring(i + 1);	
         IAccessEvaluator evaluator = (IAccessEvaluator) mEvaluators.get(type);
 
         if (evaluator == null) {
             String errMsg = "evaluator for type " + type + "not found";
 
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("AUTHZ_EVALUATOR_NOT_FOUND", type));
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("AUTHZ_EVALUATOR_NOT_FOUND", type));
             return false;
         }
 
@@ -467,72 +468,76 @@ public abstract class AAclAuthz {
      *******************************************************/
 
     /**
-     * Checks if the permission is granted or denied with id from authtoken
+     * Checks if the permission is granted or denied with id from authtoken 
      * gotten from authentication that precedes authorization. If the code is
-     * marked as privileged, this methods will simply return.
+     * marked as privileged, this methods will simply
+     * return.
      * <P>
-     * note that if a resource does not exist in the aclResources entry, but a
-     * higher level node exist, it will still be evaluated. The highest level
-     * node's acl determines the permission. If the higher level node doesn't
-     * contain any acl information, then it's passed down to the lower node. If
-     * a node has no aci in its resourceACLs, then it's considered passed.
+     * note that if a resource does not exist in the aclResources
+     *	 entry, but a higher level node exist, it will still be
+     *	 evaluated.  The highest level node's acl determines the
+     *	 permission.  If the higher level node doesn't contain any acl
+     *	 information, then it's passed down to the lower node.  If
+     *	 a node has no aci in its resourceACLs, then it's considered
+     *	 passed.
      * <p>
      * example: certServer.common.users, if failed permission check for
-     * "certServer", then it's considered failed, and there is no need to
-     * continue the check. If passed permission check for "certServer", then
-     * it's considered passed, and no need to continue the check. If certServer
-     * contains no aci then "certServer.common" will be checked for permission
-     * instead. If down to the leaf level, the node still contains no aci, then
-     * it's considered passed. If at the leaf level, no such resource exist, or
-     * no acis, it's considered passed.
+     *	 "certServer", then it's considered failed, and there is no need to
+     *	 continue the check.  If passed permission check for "certServer",
+     * then it's considered passed, and no need to continue the
+     *	 check.  If certServer contains no aci then "certServer.common" will be
+     *	 checked for permission instead.  If down to the leaf level,
+     *	 the node still contains no aci, then it's considered passed.
+     *  If at the leaf level, no such resource exist, or no acis, it's
+     *	 considered passed.
      * <p>
-     * If there are multiple aci's for a resource, ALL aci's will be checked,
-     * and only if all passed permission checks, will the eventual access be
-     * granted.
-     * 
+     * If there are multiple aci's for a resource, ALL aci's will be
+     *	 checked, and only if all passed permission checks, will the
+     *	 eventual access be granted.
      * @param authToken authentication token gotten from authentication
      * @param name resource name
      * @param perm permission requested
      * @exception EACLsException access permission denied
      */
-    public synchronized void checkPermission(IAuthToken authToken, String name,
-            String perm) throws EACLsException {
-
+    public synchronized void checkPermission(IAuthToken authToken, String name, 
+        String perm) 
+        throws EACLsException {
+ 
         Vector nodev = getNodes(name);
         Enumeration nodes = nodev.elements();
         String order = getOrder();
         Enumeration entries = null;
 
-        if (order.equals("deny"))
+        if (order.equals("deny")) 
             entries = getDenyEntries(nodes, perm);
-        else
+        else 
             entries = getAllowEntries(nodes, perm);
-
+ 
         boolean permitted = false;
 
         while (entries.hasMoreElements()) {
             ACLEntry entry = (ACLEntry) entries.nextElement();
 
-            CMS.debug("checkACLS(): ACLEntry expressions= "
-                    + entry.getAttributeExpressions());
+            CMS.debug("checkACLS(): ACLEntry expressions= " +
+                entry.getAttributeExpressions());
             if (evaluateExpressions(authToken, entry.getAttributeExpressions())) {
-                log(ILogger.LL_SECURITY, " checkACLs(): permission denied");
-                throw new EACLsException(
-                        CMS.getUserMessage("CMS_ACL_PERMISSION_DENIED"));
+                log(ILogger.LL_SECURITY, 
+                    " checkACLs(): permission denied");
+                throw new EACLsException(CMS.getUserMessage("CMS_ACL_PERMISSION_DENIED"));
             }
         }
 
         nodes = nodev.elements();
-        if (order.equals("deny"))
+        if (order.equals("deny")) 
             entries = getAllowEntries(nodes, perm);
-        else
+        else 
             entries = getDenyEntries(nodes, perm);
 
-        while (entries.hasMoreElements()) {
+        while (entries.hasMoreElements()) { 
             ACLEntry entry = (ACLEntry) entries.nextElement();
 
-            CMS.debug("checkACLS(): ACLEntry expressions= "
-                    + entry.getAttributeExpressions());
+            CMS.debug("checkACLS(): ACLEntry expressions= " +
+                entry.getAttributeExpressions());
             if (evaluateExpressions(authToken, entry.getAttributeExpressions())) {
                 permitted = true;
             }
@@ -540,8 +545,8 @@ public abstract class AAclAuthz {
 
         nodev = null;
         if (permitted) {
-            String infoMsg = "checkPermission(): permission granted for the resource "
-                    + name + " on operation " + perm;
+            String infoMsg = "checkPermission(): permission granted for the resource " +
+                name + " on operation " + perm;
 
             log(ILogger.LL_INFO, infoMsg);
             return;
@@ -551,14 +556,14 @@ public abstract class AAclAuthz {
             params[0] = name;
             params[1] = perm;
 
-            String errMsg = "checkPermission(): permission denied for the resource "
-                    + name + " on operation " + perm;
+            String errMsg = "checkPermission(): permission denied for the resource " +
+                name + " on operation " + perm;
 
-            log(ILogger.LL_SECURITY, CMS.getLogMessage(
-                    "AUTHZ_EVALUATOR_ACCESS_DENIED", name, perm));
+            log(ILogger.LL_SECURITY, 
+                CMS.getLogMessage("AUTHZ_EVALUATOR_ACCESS_DENIED", name, perm));
 
-            throw new EACLsException(CMS.getUserMessage(
-                    "CMS_ACL_NO_PERMISSION", (String[]) params));
+            throw new EACLsException(CMS.getUserMessage("CMS_ACL_NO_PERMISSION",
+                        (String[]) params));
         }
     }
 
@@ -577,12 +582,13 @@ public abstract class AAclAuthz {
             while (e.hasMoreElements()) {
                 ACLEntry entry = (ACLEntry) e.nextElement();
 
-                if (!entry.isNegative() && entry.containPermission(operation)) {
+                if (!entry.isNegative() && 
+                    entry.containPermission(operation)) {
                     v.addElement(entry);
                 }
             }
         }
-
+       
         return v.elements();
     }
 
@@ -601,18 +607,21 @@ public abstract class AAclAuthz {
             while (e.hasMoreElements()) {
                 ACLEntry entry = (ACLEntry) e.nextElement();
 
-                if (entry.isNegative() && entry.containPermission(operation)) {
+                if (entry.isNegative() && 
+                    entry.containPermission(operation)) {
                     v.addElement(entry);
                 }
             }
         }
-
+       
         return v.elements();
     }
 
     /**
-     * Resolves the given expressions. expression || expression || ... example:
-     * group="Administrators" || group="Operators"
+     * Resolves the given expressions.
+     * expression || expression || ...
+     * example:
+     *     group="Administrators" || group="Operators"
      */
     private boolean evaluateExpressions(IAuthToken authToken, String s) {
         // XXX - just handle "||" (or) among multiple expressions for now
@@ -629,8 +638,7 @@ public abstract class AAclAuthz {
             if (orIndex == -1 && andIndex == -1) {
                 boolean passed = evaluateExpression(authToken, s.trim());
 
-                CMS.debug("evaluated expression: " + s.trim() + " to be "
-                        + passed);
+                CMS.debug("evaluated expression: " + s.trim() + " to be " + passed);
                 v.addElement(Boolean.valueOf(passed));
                 break;
 
@@ -639,8 +647,7 @@ public abstract class AAclAuthz {
                 String s1 = s.substring(0, orIndex);
                 boolean passed = evaluateExpression(authToken, s1.trim());
 
-                CMS.debug("evaluated expression: " + s1.trim() + " to be "
-                        + passed);
+                CMS.debug("evaluated expression: " + s1.trim() + " to be " + passed);
                 v.addElement(new Boolean(passed));
                 v.addElement("||");
                 s = s.substring(orIndex + 2);
@@ -649,8 +656,7 @@ public abstract class AAclAuthz {
                 String s1 = s.substring(0, andIndex);
                 boolean passed = evaluateExpression(authToken, s1.trim());
 
-                CMS.debug("evaluated expression: " + s1.trim() + " to be "
-                        + passed);
+                CMS.debug("evaluated expression: " + s1.trim() + " to be " + passed);
                 v.addElement(new Boolean(passed));
                 v.addElement("&&");
                 s = s.substring(andIndex + 2);
@@ -697,7 +703,7 @@ public abstract class AAclAuthz {
         while (index != -1) {
             name = name.substring(0, index);
             v.addElement(name);
-            index = name.lastIndexOf(".");
+            index = name.lastIndexOf(".");    
         }
 
         return v;
@@ -723,8 +729,7 @@ public abstract class AAclAuthz {
         if (evaluator == null) {
             String errMsg = "evaluator for type " + type + "not found";
 
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("AUTHZ_EVALUATOR_NOT_FOUND", type));
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("AUTHZ_EVALUATOR_NOT_FOUND", type));
             return false;
         }
 
@@ -740,9 +745,8 @@ public abstract class AAclAuthz {
                 i = exp.indexOf(">");
                 if (i == -1) {
                     i = exp.indexOf("<");
-                    if (i == -1) {
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                                "AUTHZ_OP_NOT_SUPPORTED", exp));
+                    if (i == -1) {  
+                        log(ILogger.LL_FAILURE, CMS.getLogMessage("AUTHZ_OP_NOT_SUPPORTED", exp));
                     } else {
                         return "<";
                     }
@@ -776,26 +780,25 @@ public abstract class AAclAuthz {
      *******************************************************/
 
     /**
-     * This one only updates the memory. Classes extend this class should also
-     * update to a permanent storage
+     * This one only updates the memory.  Classes extend this class should
+     * also update to a permanent storage
      */
-    public void updateACLs(String id, String rights, String strACLs, String desc)
-            throws EACLsException {
+    public void updateACLs(String id, String rights, String strACLs, 
+        String desc) throws EACLsException {
         ACL acl = (ACL) getACL(id);
-
+  
         String resourceACLs = id;
 
         if (rights != null)
             resourceACLs = id + ":" + rights + ":" + strACLs + ":" + desc;
 
-        // memory update
+            // memory update
         ACL ac = null;
 
         try {
             ac = (ACL) CMS.parseACL(resourceACLs);
         } catch (EBaseException ex) {
-            throw new EACLsException(
-                    CMS.getUserMessage("CMS_ACL_PARSING_ERROR_0"));
+            throw new EACLsException(CMS.getUserMessage("CMS_ACL_PARSING_ERROR_0"));
         }
 
         mACLs.put(ac.getName(), ac);
@@ -803,7 +806,6 @@ public abstract class AAclAuthz {
 
     /**
      * gets an enumeration of resources
-     * 
      * @return an enumeration of resources contained in the ACL table
      */
     public Enumeration aclResElements() {
@@ -812,7 +814,6 @@ public abstract class AAclAuthz {
 
     /**
      * gets an enumeration of access evaluators
-     * 
      * @return an enumeraton of access evaluators
      */
     public Enumeration aclEvaluatorElements() {
@@ -821,7 +822,6 @@ public abstract class AAclAuthz {
 
     /**
      * gets the access evaluators
-     * 
      * @return handle to the access evaluators table
      */
     public Hashtable getAccessEvaluators() {
@@ -830,7 +830,6 @@ public abstract class AAclAuthz {
 
     /**
      * is this resource name unique
-     * 
      * @return true if unique; false otherwise
      */
     public boolean isTypeUnique(String type) {
@@ -844,8 +843,8 @@ public abstract class AAclAuthz {
     private void log(int level, String msg) {
         if (mLogger == null)
             return;
-        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_AUTHORIZATION, level,
-                msg);
+        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_AUTHORIZATION,
+            level, msg);
     }
 
     /*********************************
@@ -853,24 +852,24 @@ public abstract class AAclAuthz {
      **********************************/
 
     /**
-     * update acls. called after memory upate is done to flush to permanent
+     * update acls.  called after memory upate is done to flush to permanent
      * storage.
      * <p>
      */
     protected abstract void flushResourceACLs() throws EACLsException;
 
     /**
-     * an abstract class that enforces implementation of the authorize() method
-     * that will authorize an operation on a particular resource
-     * 
+     * an abstract class that enforces implementation of the
+     *	 authorize() method that will authorize an operation on a
+     *	 particular resource
+     *
      * @param authToken the authToken associated with a user
      * @param resource - the protected resource name
      * @param operation - the protected resource operation name
      * @exception EBaseException If an internal error occurred.
      * @return authzToken
      */
-    public abstract AuthzToken authorize(IAuthToken authToken, String resource,
-            String operation) throws EBaseException;
+    public abstract AuthzToken authorize(IAuthToken authToken, String resource, String operation) throws EBaseException;
 
     public String getOrder() {
         IConfigStore mainConfig = CMS.getConfigStore();

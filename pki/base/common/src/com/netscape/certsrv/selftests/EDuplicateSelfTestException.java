@@ -20,9 +20,12 @@
 
 package com.netscape.certsrv.selftests;
 
+
 ///////////////////////
 // import statements //
 ///////////////////////
+
+
 
 //////////////////////
 // class definition //
@@ -30,22 +33,25 @@ package com.netscape.certsrv.selftests;
 
 /**
  * This class implements a duplicate self test exception.
- * EDuplicateSelfTestExceptions are derived from ESelfTestExceptions in order to
- * allow users to easily do self tests without try-catch clauses.
- * 
+ * EDuplicateSelfTestExceptions are derived from ESelfTestExceptions
+ * in order to allow users to easily do self tests without try-catch clauses.
+ *
  * EDuplicateSelfTestExceptions should be caught by SelfTestSubsystem managers.
  * <P>
  * 
  * @version $Revision$, $Date$
  */
-public class EDuplicateSelfTestException extends ESelfTestException {
-    // //////////////////////
+public class EDuplicateSelfTestException
+    extends ESelfTestException {
+    ////////////////////////
     // default parameters //
-    // //////////////////////
+    ////////////////////////
 
-    // /////////////////////
+
+
+    ///////////////////////
     // helper parameters //
-    // /////////////////////
+    ///////////////////////
 
     /**
      *
@@ -56,27 +62,32 @@ public class EDuplicateSelfTestException extends ESelfTestException {
     private String mInstanceParameter = null;
     private String mInstanceValue = null;
 
-    // //////////////////////////////////////////
+    ////////////////////////////////////////////
     // EDuplicateSelfTestException parameters //
-    // //////////////////////////////////////////
+    ////////////////////////////////////////////
 
-    // /////////////////////////////////////////////
+
+
+    ///////////////////////////////////////////////
     // ESelfTestException parameters (inherited) //
-    // /////////////////////////////////////////////
+    ///////////////////////////////////////////////
 
-    // ///////////////////
+
+
+    /////////////////////
     // default methods //
-    // ///////////////////
+    /////////////////////
 
     /**
      * Constructs a "duplicate" self test exception.
      * <P>
-     * 
+     *
      * @param instanceName duplicate "instanceName" exception details
      */
     public EDuplicateSelfTestException(String instanceName) {
-        super("The self test plugin property named " + instanceName
-                + " already exists.");
+        super("The self test plugin property named "
+            + instanceName
+            + " already exists.");
 
         // strip preceding/trailing whitespace
         // from passed-in String parameters
@@ -89,17 +100,20 @@ public class EDuplicateSelfTestException extends ESelfTestException {
     }
 
     /**
-     * Constructs a "duplicate" self test exception where the value is always a
-     * duplicate from a name/value pair
+     * Constructs a "duplicate" self test exception where the value is always
+     * a duplicate from a name/value pair
      * <P>
-     * 
+     *
      * @param instanceName duplicate "instanceName" exception details
      * @param instanceValue duplicate "instanceValue" exception details
      */
-    public EDuplicateSelfTestException(String instanceName, String instanceValue) {
-        super("The self test plugin property named " + instanceName
-                + " contains a value of " + instanceValue
-                + " which already exists.");
+    public EDuplicateSelfTestException(String instanceName,
+        String instanceValue) {
+        super("The self test plugin property named "
+            + instanceName
+            + " contains a value of "
+            + instanceValue
+            + " which already exists.");
 
         // strip preceding/trailing whitespace
         // from passed-in String parameters
@@ -120,16 +134,18 @@ public class EDuplicateSelfTestException extends ESelfTestException {
      * duplicate from a substore.parameter/value pair; (the value passed in may
      * be null).
      * <P>
-     * 
+     *
      * @param instanceStore duplicate "instanceStore" exception details
      * @param instanceParameter duplicate "instanceParameter" exception details
-     * @param instanceValue duplicate "instanceValue" exception details (may be
-     *            null)
+     * @param instanceValue duplicate "instanceValue" exception details
+     * (may be null)
      */
     public EDuplicateSelfTestException(String instanceStore,
-            String instanceParameter, String instanceValue) {
-        super("The self test plugin property named " + instanceStore + "."
-                + instanceParameter + " is a duplicate.");
+        String instanceParameter,
+        String instanceValue) {
+        super("The self test plugin property named "
+            + instanceStore + "." + instanceParameter
+            + " is a duplicate.");
 
         // strip preceding/trailing whitespace
         // from passed-in String parameters
@@ -149,14 +165,14 @@ public class EDuplicateSelfTestException extends ESelfTestException {
         mInstanceValue = instanceValue;
     }
 
-    // //////////////////
+    ////////////////////
     // helper methods //
-    // //////////////////
+    ////////////////////
 
     /**
      * Returns the instance name associated with this self test.
      * <P>
-     * 
+     *
      * @return name portion of the name/value pair
      */
     public String getInstanceName() {
@@ -166,7 +182,7 @@ public class EDuplicateSelfTestException extends ESelfTestException {
     /**
      * Returns the store associated with this self test.
      * <P>
-     * 
+     *
      * @return substore portion of the substore.parameter/value pair
      */
     public String getInstanceStore() {
@@ -176,7 +192,7 @@ public class EDuplicateSelfTestException extends ESelfTestException {
     /**
      * Returns the parameter associated with this self test.
      * <P>
-     * 
+     *
      * @return parameter portion of the substore.parameter/value pair
      */
     public String getInstanceParameter() {
@@ -186,25 +202,27 @@ public class EDuplicateSelfTestException extends ESelfTestException {
     /**
      * Returns the value associated with this self test.
      * <P>
-     * 
+     *
      * @return value portion of the name/value pair
      */
     public String getInstanceValue() {
         return mInstanceValue;
     }
 
-    // ///////////////////////////////////////
+    /////////////////////////////////////////
     // EDuplicateSelfTestException methods //
-    // ///////////////////////////////////////
+    /////////////////////////////////////////
 
-    // //////////////////////////////////////////
+
+
+    ////////////////////////////////////////////
     // ESelfTestException methods (inherited) //
-    // //////////////////////////////////////////
+    ////////////////////////////////////////////
 
-    /*
-     * Note that all of the following ESelfTestException methods are inherited
-     * from the ESelfTestException class:
-     * 
+    /* Note that all of the following ESelfTestException methods
+     * are inherited from the ESelfTestException class:
+     *
      * public ESelfTestException( String msg );
      */
 }
+

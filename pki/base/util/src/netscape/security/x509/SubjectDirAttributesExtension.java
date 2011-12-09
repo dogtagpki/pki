@@ -29,36 +29,35 @@ import netscape.security.util.DerValue;
 
 /**
  * This class represents the Subject Directory Attributes Extension.
- * 
- * <p>
- * The subject directory attributes extension is not recommended as an essential
- * part of this profile, but it may be used in local environments. This
- * extension MUST be non-critical.
- * 
+ *
+ * <p>The subject directory attributes extension is not recommended as an
+ * essential part of this profile, but it may be used in local environments.
+ * This extension MUST be non-critical.
+ *
  * <pre>
  * The ASN.1 syntax for this extension is:
- * 
+ *
  *    SubjectDirectoryAttributes ::= SEQUENCE (1..MAX) OF Attribute
- * 
+ *
  *    Attribute	::= SEQUENCE {
- * type		AttributeType,
+ *	type		AttributeType,
  * 	value		SET OF AttributeValue
  *              	-- at least one value is required --}
- * 
+ *
  *    AttributeType	::= OBJECT IDENTIFIER
- * 
- *    AttributeValue	::= ANY
- * 
+ *
+ *    AttributeValue	::= ANY 
+ *
  * </pre>
- * 
+ *
  * @author Christine Ho
  * @version 1.7
- * 
+ *
  * @see CertAttrSet
  * @see Extension
  */
-public class SubjectDirAttributesExtension extends Extension implements
-        CertAttrSet {
+public class SubjectDirAttributesExtension extends Extension
+implements CertAttrSet {
 
     /**
      *
@@ -66,13 +65,12 @@ public class SubjectDirAttributesExtension extends Extension implements
     private static final long serialVersionUID = -1215458115428197688L;
 
     /**
-     * Identifier for this attribute, to be used with the get, set, delete
-     * methods of Certificate, x509 type.
-     */
-    // public static final String IDENT =
-    // "x509.info.extensions.SubjectDirectoryAttributes";
+     * Identifier for this attribute, to be used with the
+     * get, set, delete methods of Certificate, x509 type.
+     */  
+    //public static final String IDENT = "x509.info.extensions.SubjectDirectoryAttributes";
     public static final String IDENT = "Subject Directory Attributes";
-
+    
     /**
      * Attribute names.
      */
@@ -86,12 +84,12 @@ public class SubjectDirAttributesExtension extends Extension implements
         DerOutputStream out = new DerOutputStream();
         DerOutputStream tmp = new DerOutputStream();
 
-        // encoding the attributes
-        Enumeration attrs = attrList.elements();
-        while (attrs.hasMoreElements()) {
+		//encoding the attributes
+		Enumeration attrs = attrList.elements();
+		while (attrs.hasMoreElements()) {
             Attribute attr = (Attribute) attrs.nextElement();
-            attr.encode(tmp);
-        }
+		    attr.encode(tmp);
+		}
 
         out.write(DerValue.tag_SequenceOf, tmp);
         this.extensionValue = out.toByteArray();
@@ -101,13 +99,13 @@ public class SubjectDirAttributesExtension extends Extension implements
     private void decodeThis(DerValue derVal) throws IOException {
 
         if (derVal.tag != DerValue.tag_Sequence) {
-            throw new IOException("Invalid encoding for "
-                    + "Subject Directory Attribute extension.");
+            throw new IOException("Invalid encoding for "+
+				"Subject Directory Attribute extension.");
         }
 
         if (derVal.data.available() == 0) {
-            throw new IOException(NAME + " No data available in "
-                    + "passed DER encoded value.");
+            throw new IOException(NAME+" No data available in "
+                                   + "passed DER encoded value.");
         }
 
         // Decode all the Attributes
@@ -120,79 +118,79 @@ public class SubjectDirAttributesExtension extends Extension implements
 
     /**
      * Default constructor for this object.
-     * 
+     *
      * @param derVal Der encoded value of this extension
      */
     public SubjectDirAttributesExtension(DerValue derVal) throws IOException {
 
-        this.extensionId = PKIXExtensions.SubjectDirectoryAttributes_Id;
-        this.critical = false;
+		this.extensionId = PKIXExtensions.SubjectDirectoryAttributes_Id;
+		this.critical = false;
         decodeThis(derVal);
     }
 
     /**
      * Default constructor for this object.
-     * 
+     *
      * @param list Attribute object list
      */
     public SubjectDirAttributesExtension(Attribute[] list) throws IOException {
 
-        this.extensionId = PKIXExtensions.SubjectDirectoryAttributes_Id;
-        this.critical = false;
+		this.extensionId = PKIXExtensions.SubjectDirectoryAttributes_Id;
+		this.critical = false;
 
-        if ((list == null) || (list.length == 0)) {
+		if ((list == null)||(list.length==0)) {
             throw new IOException("No data available in "
-                    + "passed Attribute List.");
-        }
+                                   + "passed Attribute List.");
+		}
 
         // add the Attributes
         for (int i = 0; i < list.length; i++) {
-            attrList.addElement(list[i]);
-        }
+		    attrList.addElement(list[i]);
+		} 
     }
 
     /**
      * Constructor from parsing extension
-     * 
+     *
      * @param list Attribute object list
      */
     public SubjectDirAttributesExtension(Boolean crit, Object value)
-            throws IOException {
+    throws IOException {
 
-        this.extensionId = PKIXExtensions.SubjectDirectoryAttributes_Id;
+	this.extensionId = PKIXExtensions.SubjectDirectoryAttributes_Id;
         this.critical = crit.booleanValue();
 
         if (!(value instanceof byte[]))
-            throw new IOException(NAME + "Illegal argument type");
+            throw new IOException(NAME+"Illegal argument type");
         int len = Array.getLength(value);
         byte[] extValue = new byte[len];
         System.arraycopy(value, 0, extValue, 0, len);
 
         this.extensionValue = extValue;
-        decodeThis(new DerValue(extValue));
+	decodeThis(new DerValue(extValue));
     }
 
     /**
      * Constructor for this object.
-     * 
+     *
      * @param list Attribute object list
      * @param critical The criticality
      */
-    public SubjectDirAttributesExtension(Attribute[] list, boolean critical)
-            throws IOException {
+    public SubjectDirAttributesExtension(Attribute[] list, boolean critical) 
+      throws IOException {
 
-        this.extensionId = PKIXExtensions.SubjectDirectoryAttributes_Id;
-        this.critical = critical;
+		this.extensionId = PKIXExtensions.SubjectDirectoryAttributes_Id;
+		this.critical = critical;
 
-        if ((list == null) || (list.length == 0)) {
+		if ((list == null)||(list.length==0)) {
             throw new IOException("No data available in "
-                    + "passed Attribute List.");
-        }
+                                   + "passed Attribute List.");
+		}
 
         // add the Attributes
         for (int i = 0; i < list.length; i++) {
-            attrList.addElement(list[i]);
-        }
+		    attrList.addElement(list[i]);
+		} 
     }
 
     /**
@@ -201,18 +199,18 @@ public class SubjectDirAttributesExtension extends Extension implements
     public String toString() {
         String s = super.toString() + "SubjectDirectoryAttributes:[\n";
 
-        Enumeration attrs = attrList.elements();
-        while (attrs.hasMoreElements()) {
-            Attribute attr = (Attribute) attrs.nextElement();
-            s += attr.toString();
-        }
+	Enumeration attrs = attrList.elements();
+	while (attrs.hasMoreElements()) {
+	    Attribute attr = (Attribute) attrs.nextElement();
+	    s += attr.toString();
+	}
 
         return (s + "]\n");
     }
 
     /**
      * Decode the extension from the InputStream.
-     * 
+     *
      * @param in the InputStream to unmarshal the contents from.
      * @exception IOException on decoding or validity errors.
      */
@@ -221,44 +219,44 @@ public class SubjectDirAttributesExtension extends Extension implements
         decodeThis(val);
     }
 
-    /**
-     * Encode this extension value to the output stream.
-     * 
-     * @param out the DerOutputStream to encode the extension to.
-     */
-    public void encode(OutputStream out) throws IOException {
-        DerOutputStream tmp = new DerOutputStream();
-        if (extensionValue == null) {
-            this.extensionId = PKIXExtensions.SubjectDirectoryAttributes_Id;
-            this.critical = false;
-            encodeThis();
-        }
-        super.encode(tmp);
-        out.write(tmp.toByteArray());
-    }
+     /**
+      * Encode this extension value to the output stream.
+      *
+      * @param out the DerOutputStream to encode the extension to.
+      */
+     public void encode(OutputStream out) throws IOException {
+         DerOutputStream tmp = new DerOutputStream();
+         if (extensionValue == null) {
+             this.extensionId = PKIXExtensions.SubjectDirectoryAttributes_Id;
+	     this.critical = false;
+             encodeThis();
+         }
+         super.encode(tmp);
+	 out.write(tmp.toByteArray());
+     }
 
     /**
      * Set the attribute value.
      */
     public void set(String name, Object obj) throws IOException {
-        throw new IOException("Attribute name not recognized by "
-                + "CertAttrSet:SubjectDirectoryAttributes.");
+	  throw new IOException("Attribute name not recognized by " + 
+				"CertAttrSet:SubjectDirectoryAttributes.");
     }
 
     /**
      * Get the attribute value.
      */
     public Object get(String name) throws IOException {
-        throw new IOException("Attribute name not recognized by "
-                + "CertAttrSet:SubjectDirectoryAttributes.");
+	  throw new IOException("Attribute name not recognized by " + 
+				"CertAttrSet:SubjectDirectoryAttributes.");
     }
 
     /**
      * Delete the attribute value.
      */
     public void delete(String name) throws IOException {
-        throw new IOException("Attribute name not recognized by "
-                + "CertAttrSet:SubjectDirectoryAttributes.");
+	  throw new IOException("Attribute name not recognized by " + 
+				"CertAttrSet:SubjectDirectoryAttributes.");
     }
 
     /**
@@ -267,7 +265,7 @@ public class SubjectDirAttributesExtension extends Extension implements
      */
     public Enumeration<String> getElements() {
         Vector<String> elements = new Vector<String>();
-        return (elements.elements());
+	return (elements.elements());
     }
 
     /**
@@ -281,8 +279,8 @@ public class SubjectDirAttributesExtension extends Extension implements
      * Returns an enumeration of attributes in the extension.
      */
     public Enumeration getAttributesList() {
-        if (attrList == null)
-            return null;
-        return attrList.elements();
+	if (attrList == null) 
+		return null;
+	return attrList.elements();
     }
 }

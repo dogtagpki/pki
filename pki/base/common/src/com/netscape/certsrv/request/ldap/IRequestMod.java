@@ -25,31 +25,31 @@ import com.netscape.certsrv.request.RequestStatus;
 /**
  * This interface defines how to update request record.
  * <p>
- * 
  * @version $Revision$, $Date$
  */
-public interface IRequestMod {
-    /**
+public interface IRequestMod
+{
+	/**
      * Modifies request status.
-     * 
+	 *
      * @param r request
      * @param s request status
      */
-    void modRequestStatus(IRequest r, RequestStatus s);
+	void modRequestStatus(IRequest r, RequestStatus s);
 
-    /**
+	/**
      * Modifies request creation time.
-     * 
+	 *
      * @param r request
      * @param d date
      */
-    void modCreationTime(IRequest r, Date d);
+	void modCreationTime(IRequest r, Date d);
 
-    /**
+	/**
      * Modifies request modification time.
-     * 
+	 *
      * @param r request
      * @param d date
      */
-    void modModificationTime(IRequest r, Date d);
+	void modModificationTime(IRequest r, Date d);
 }

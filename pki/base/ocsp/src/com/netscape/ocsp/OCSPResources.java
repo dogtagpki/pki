@@ -17,12 +17,14 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.ocsp;
 
+
 import java.util.ListResourceBundle;
+
 
 /**
  * A class represents a resource bundle for OCSP subsystem.
  * <P>
- * 
+ *
  * @version $Revision$ $Date$
  */
 public class OCSPResources extends ListResourceBundle {
@@ -35,7 +37,8 @@ public class OCSPResources extends ListResourceBundle {
     }
 
     /**
-     * Constants. The suffix represents the number of possible parameters.
+     * Constants. The suffix represents the number of
+     * possible parameters.
      */
     static final Object[][] contents = {};
 }

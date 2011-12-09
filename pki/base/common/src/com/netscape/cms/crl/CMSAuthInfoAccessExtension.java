@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.crl;
 
+
 import java.io.IOException;
 import java.util.Locale;
 
@@ -37,13 +38,14 @@ import com.netscape.certsrv.ca.ICRLIssuingPoint;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.ILogger;
 
+
 /**
  * This represents a Authority Information Access CRL extension.
- * 
+ *
  * @version $Revision$, $Date$
  */
-public class CMSAuthInfoAccessExtension implements ICMSCRLExtension,
-        IExtendedPluginInfo {
+public class CMSAuthInfoAccessExtension
+    implements ICMSCRLExtension, IExtendedPluginInfo {
     public static final String PROP_NUM_ADS = "numberOfAccessDescriptions";
     public static final String PROP_ACCESS_METHOD = "accessMethod";
     public static final String PROP_ACCESS_LOCATION_TYPE = "accessLocationType";
@@ -59,7 +61,8 @@ public class CMSAuthInfoAccessExtension implements ICMSCRLExtension,
     public CMSAuthInfoAccessExtension() {
     }
 
-    public Extension setCRLExtensionCriticality(Extension ext, boolean critical) {
+    public Extension setCRLExtensionCriticality(Extension ext,
+        boolean critical) {
         AuthInfoAccessExtension authInfoAccessExt = (AuthInfoAccessExtension) ext;
 
         authInfoAccessExt.setCritical(critical);
@@ -68,19 +71,16 @@ public class CMSAuthInfoAccessExtension implements ICMSCRLExtension,
     }
 
     public Extension getCRLExtension(IConfigStore config, Object ip,
-            boolean critical) {
+        boolean critical) {
         ICRLIssuingPoint crlIssuingPoint = (ICRLIssuingPoint) ip;
-        AuthInfoAccessExtension authInfoAccessExt = new AuthInfoAccessExtension(
-                critical);
+        AuthInfoAccessExtension authInfoAccessExt = new AuthInfoAccessExtension(critical);
 
         int numberOfAccessDescriptions = 0;
 
         try {
             numberOfAccessDescriptions = config.getInteger(PROP_NUM_ADS, 0);
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CRL_CREATE_AIA_INVALID_NUM_ADS",
-                            e.toString()));
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_AIA_INVALID_NUM_ADS", e.toString()));
         }
 
         if (numberOfAccessDescriptions > 0) {
@@ -94,72 +94,54 @@ public class CMSAuthInfoAccessExtension implements ICMSCRLExtension,
                 try {
                     accessMethod = config.getString(PROP_ACCESS_METHOD + i);
                 } catch (EPropertyNotFound e) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                            "CRL_CREATE_AIA_AD_AM_UNDEFINED", e.toString()));
+                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_AIA_AD_AM_UNDEFINED", e.toString()));
                 } catch (EBaseException e) {
-                    log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CRL_CREATE_AIA_AD_AM_INVALID",
-                                    e.toString()));
+                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_AIA_AD_AM_INVALID", e.toString()));
                 }
 
-                if (accessMethod != null
-                        && accessMethod.equals(PROP_ACCESS_METHOD_OCSP)) {
+                if (accessMethod != null && accessMethod.equals(PROP_ACCESS_METHOD_OCSP)) {
                     method = AuthInfoAccessExtension.METHOD_OCSP;
                 }
 
                 try {
-                    accessLocationType = config
-                            .getString(PROP_ACCESS_LOCATION_TYPE + i);
+                    accessLocationType = config.getString(PROP_ACCESS_LOCATION_TYPE + i);
                 } catch (EPropertyNotFound e) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                            "CRL_CREATE_AIA_AD_ALT_UNDEFINED", e.toString()));
+                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_AIA_AD_ALT_UNDEFINED", e.toString()));
                 } catch (EBaseException e) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                            "CRL_CREATE_AIA_AD_ALT_INVALID", e.toString()));
+                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_AIA_AD_ALT_INVALID", e.toString()));
                 }
 
                 try {
                     accessLocation = config.getString(PROP_ACCESS_LOCATION + i);
                 } catch (EPropertyNotFound e) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                            "CRL_CREATE_DIST_POINT_UNDEFINED", e.toString()));
+                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_DIST_POINT_UNDEFINED", e.toString()));
                 } catch (EBaseException e) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                            "CRL_CREATE_DIST_POINT_INVALID", e.toString()));
+                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_DIST_POINT_INVALID", e.toString()));
                 }
 
-                if (accessLocationType != null && accessLocation != null
-                        && accessLocation.length() > 0) {
+                if (accessLocationType != null && accessLocation != null && accessLocation.length() > 0) {
                     if (accessLocationType.equalsIgnoreCase(PROP_DIRNAME)) {
                         try {
                             X500Name dirName = new X500Name(accessLocation);
-                            authInfoAccessExt.addAccessDescription(method,
-                                    new GeneralName(dirName));
+                            authInfoAccessExt.addAccessDescription(method, new GeneralName(dirName));
                         } catch (IOException e) {
-                            log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                                    "CRL_CREATE_INVALID_500NAME", e.toString()));
+                            log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_INVALID_500NAME", e.toString()));
                         }
-                    } else if (accessLocationType
-                            .equalsIgnoreCase(PROP_URINAME)) {
+                    } else if (accessLocationType.equalsIgnoreCase(PROP_URINAME)) {
                         URIName uriName = new URIName(accessLocation);
-                        authInfoAccessExt.addAccessDescription(method,
-                                new GeneralName(uriName));
+                        authInfoAccessExt.addAccessDescription(method, new GeneralName(uriName));
                     } else {
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                                "CRL_INVALID_POTINT_TYPE", accessLocation));
+                        log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_INVALID_POTINT_TYPE", accessLocation));
                     }
                 } else {
                     accessLocationType = PROP_URINAME;
                     String hostname = CMS.getEENonSSLHost();
                     String port = CMS.getEENonSSLPort();
                     if (hostname != null && port != null) {
-                        accessLocation = "http://" + hostname + ":" + port
-                                + "/ca/ee/ca/getCAChain?op=downloadBIN";
+                        accessLocation = "http://"+hostname+":"+port+"/ca/ee/ca/getCAChain?op=downloadBIN";
                     }
                     URIName uriName = new URIName(accessLocation);
-                    authInfoAccessExt.addAccessDescription(
-                            AuthInfoAccessExtension.METHOD_CA_ISSUERS,
-                            new GeneralName(uriName));
+                    authInfoAccessExt.addAccessDescription(AuthInfoAccessExtension.METHOD_CA_ISSUERS, new GeneralName(uriName));
                 }
             }
         }
@@ -178,9 +160,7 @@ public class CMSAuthInfoAccessExtension implements ICMSCRLExtension,
         try {
             numberOfAccessDescriptions = config.getInteger(PROP_NUM_ADS, 0);
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CRL_CREATE_AIA_INVALID_NUM_ADS",
-                            e.toString()));
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_AIA_INVALID_NUM_ADS", e.toString()));
         }
         nvp.add(PROP_NUM_ADS, String.valueOf(numberOfAccessDescriptions));
 
@@ -192,13 +172,9 @@ public class CMSAuthInfoAccessExtension implements ICMSCRLExtension,
             try {
                 accessMethod = config.getString(PROP_ACCESS_METHOD + i);
             } catch (EPropertyNotFound e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CRL_CREATE_AIA_AD_AM_UNDEFINED",
-                                e.toString()));
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_AIA_AD_AM_UNDEFINED", e.toString()));
             } catch (EBaseException e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CRL_CREATE_AIA_AD_AM_INVALID",
-                                e.toString()));
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_AIA_AD_AM_INVALID", e.toString()));
             }
 
             if (accessMethod != null && accessMethod.length() > 0) {
@@ -208,16 +184,11 @@ public class CMSAuthInfoAccessExtension implements ICMSCRLExtension,
             }
 
             try {
-                accessLocationType = config.getString(PROP_ACCESS_LOCATION_TYPE
-                        + i);
+                accessLocationType = config.getString(PROP_ACCESS_LOCATION_TYPE + i);
             } catch (EPropertyNotFound e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CRL_CREATE_AIA_AD_ALT_UNDEFINED",
-                                e.toString()));
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_AIA_AD_ALT_UNDEFINED", e.toString()));
             } catch (EBaseException e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CRL_CREATE_AIA_AD_ALT_INVALID",
-                                e.toString()));
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_AIA_AD_ALT_INVALID", e.toString()));
             }
 
             if (accessLocationType != null && accessLocationType.length() > 0) {
@@ -229,13 +200,9 @@ public class CMSAuthInfoAccessExtension implements ICMSCRLExtension,
             try {
                 accessLocation = config.getString(PROP_ACCESS_LOCATION + i);
             } catch (EPropertyNotFound e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CRL_CREATE_AIA_AD_AL_UNDEFINED",
-                                e.toString()));
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_AIA_AD_AL_UNDEFINED", e.toString()));
             } catch (EBaseException e) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CRL_CREATE_AIA_AD_AL_INVALID",
-                                e.toString()));
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_AIA_AD_AL_INVALID", e.toString()));
             }
 
             if (accessLocation != null && accessLocation.length() > 0) {
@@ -244,8 +211,7 @@ public class CMSAuthInfoAccessExtension implements ICMSCRLExtension,
                 String hostname = CMS.getEENonSSLHost();
                 String port = CMS.getEENonSSLPort();
                 if (hostname != null && port != null) {
-                    accessLocation = "http://" + hostname + ":" + port
-                            + "/ca/ee/ca/getCAChain?op=downloadBIN";
+                    accessLocation = "http://"+hostname+":"+port+"/ca/ee/ca/getCAChain?op=downloadBIN";
                 }
                 nvp.add(PROP_ACCESS_LOCATION + i, accessLocation);
             }
@@ -257,42 +223,40 @@ public class CMSAuthInfoAccessExtension implements ICMSCRLExtension,
                 "enable;boolean;Check to enable Authority Information Access extension.",
                 "critical;boolean;Set criticality for Authority Information Access extension.",
                 PROP_NUM_ADS + ";number;Set number of Access Descriptions.",
-                PROP_ACCESS_METHOD + "0;choice(" + PROP_ACCESS_METHOD_CAISSUERS
-                        + "," + PROP_ACCESS_METHOD_OCSP
-                        + ");Select access description method.",
-                PROP_ACCESS_LOCATION_TYPE + "0;choice(" + PROP_URINAME + ","
-                        + PROP_DIRNAME + ");Select access location type.",
-                PROP_ACCESS_LOCATION + "0;string;Enter access location "
-                        + "corresponding to the selected access location type.",
-                IExtendedPluginInfo.HELP_TOKEN
-                        + ";configuration-ca-edit-crlextension-authorityinformationaccess",
-                PROP_ACCESS_METHOD + "1;choice(" + PROP_ACCESS_METHOD_CAISSUERS
-                        + "," + PROP_ACCESS_METHOD_OCSP
-                        + ");Select access description method.",
-                PROP_ACCESS_LOCATION_TYPE + "1;choice(" + PROP_URINAME + ","
-                        + PROP_DIRNAME + ");Select access location type.",
-                PROP_ACCESS_LOCATION + "1;string;Enter access location "
-                        + "corresponding to the selected access location type.",
-                IExtendedPluginInfo.HELP_TOKEN
-                        + ";configuration-ca-edit-crlextension-authorityinformationaccess",
-                PROP_ACCESS_METHOD + "2;choice(" + PROP_ACCESS_METHOD_CAISSUERS
-                        + "," + PROP_ACCESS_METHOD_OCSP
-                        + ");Select access description method.",
-                PROP_ACCESS_LOCATION_TYPE + "2;choice(" + PROP_URINAME + ","
-                        + PROP_DIRNAME + ");Select access location type.",
-                PROP_ACCESS_LOCATION + "2;string;Enter access location "
-                        + "corresponding to the selected access location type.",
-                IExtendedPluginInfo.HELP_TOKEN
-                        + ";configuration-ca-edit-crlextension-authorityinformationaccess",
-                IExtendedPluginInfo.HELP_TEXT
-                        + ";The Freshest CRL is a non critical CRL extension "
-                        + "that identifies the delta CRL distribution points for a particular CRL." };
+                PROP_ACCESS_METHOD + "0;choice(" + PROP_ACCESS_METHOD_CAISSUERS + "," +
+                PROP_ACCESS_METHOD_OCSP +");Select access description method.",
+                PROP_ACCESS_LOCATION_TYPE + "0;choice(" + PROP_URINAME + "," +
+                PROP_DIRNAME + ");Select access location type.",
+                PROP_ACCESS_LOCATION + "0;string;Enter access location " +
+                "corresponding to the selected access location type.",
+                IExtendedPluginInfo.HELP_TOKEN +
+                ";configuration-ca-edit-crlextension-authorityinformationaccess",
+                PROP_ACCESS_METHOD + "1;choice(" + PROP_ACCESS_METHOD_CAISSUERS + "," +
+                PROP_ACCESS_METHOD_OCSP +");Select access description method.",
+                PROP_ACCESS_LOCATION_TYPE + "1;choice(" + PROP_URINAME + "," +
+                PROP_DIRNAME + ");Select access location type.",
+                PROP_ACCESS_LOCATION + "1;string;Enter access location " +
+                "corresponding to the selected access location type.",
+                IExtendedPluginInfo.HELP_TOKEN +
+                ";configuration-ca-edit-crlextension-authorityinformationaccess",
+                PROP_ACCESS_METHOD + "2;choice(" + PROP_ACCESS_METHOD_CAISSUERS + "," +
+                PROP_ACCESS_METHOD_OCSP +");Select access description method.",
+                PROP_ACCESS_LOCATION_TYPE + "2;choice(" + PROP_URINAME + "," +
+                PROP_DIRNAME + ");Select access location type.",
+                PROP_ACCESS_LOCATION + "2;string;Enter access location " +
+                "corresponding to the selected access location type.",
+                IExtendedPluginInfo.HELP_TOKEN +
+                ";configuration-ca-edit-crlextension-authorityinformationaccess",
+                IExtendedPluginInfo.HELP_TEXT +
+                ";The Freshest CRL is a non critical CRL extension " +
+                "that identifies the delta CRL distribution points for a particular CRL."
+            };
 
         return params;
     }
 
     private void log(int level, String msg) {
         mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_CA, level,
-                "CMSAuthInfoAccessExtension - " + msg);
+            "CMSAuthInfoAccessExtension - " + msg);
     }
-}
+} 

@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.dbs;
 
+
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -36,18 +37,22 @@ import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.IDBRegistry;
 import com.netscape.certsrv.dbs.IFilterConverter;
 import com.netscape.certsrv.logging.ILogger;
+ 
 
 /**
- * A class represents a registry where all the schema (object classes and
- * attribute) information is stored.
- * 
- * Attribute mappers can be registered with this registry.
- * 
- * Given the schema information stored, this registry has knowledge to convert a
- * Java object into a LDAPAttributeSet or vice versa.
- * 
+ * A class represents a registry where all the
+ * schema (object classes and attribute) information 
+ * is stored.
+ *
+ * Attribute mappers can be registered with this
+ * registry.
+ *
+ * Given the schema information stored, this registry
+ * has knowledge to convert a Java object into a
+ * LDAPAttributeSet or vice versa.
+ *
  * @author thomask
- * @version $Revision$, $Date$
+ * @version $Revision$, $Date$ 
  */
 public class DBRegistry implements IDBRegistry, ISubsystem {
 
@@ -74,25 +79,25 @@ public class DBRegistry implements IDBRegistry, ISubsystem {
     }
 
     /**
-     * Sets subsystem identifier. This is an internal subsystem, and is not
-     * loadable.
+     * Sets subsystem identifier. This is an internal
+     * subsystem, and is not loadable.
      */
     public void setId(String id) throws EBaseException {
-        throw new EBaseException(
-                CMS.getUserMessage("CMS_BASE_INVALID_OPERATION"));
+        throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_OPERATION"));
     }
 
     /**
-     * Initializes the internal registery. Connects to the data source, and
-     * create a pool of connection of which applications can use. Optionally,
-     * check the integrity of the database.
+     * Initializes the internal registery. Connects to the 
+     * data source, and create a pool of connection of which 
+     * applications can use. Optionally, check the integrity
+     * of the database.
      */
-    public void init(ISubsystem owner, IConfigStore config)
-            throws EBaseException {
+    public void init(ISubsystem owner, IConfigStore config) 
+        throws EBaseException {
         mConfig = config;
         mConverter = new LdapFilterConverter(mAttrufNames);
     }
-
+	
     /**
      * Retrieves configuration store.
      */
@@ -123,28 +128,26 @@ public class DBRegistry implements IDBRegistry, ISubsystem {
      * Registers object class.
      */
     public void registerObjectClass(String className, String ldapNames[])
-            throws EDBException {
+        throws EDBException {
         try {
             Class c = Class.forName(className);
 
             mOCclassNames.put(className, ldapNames);
-            mOCldapNames.put(sortAndConcate(ldapNames).toLowerCase(),
-                    new NameAndObject(className, c));
+            mOCldapNames.put(sortAndConcate(
+                    ldapNames).toLowerCase(), 
+                new NameAndObject(className, c));
         } catch (ClassNotFoundException e) {
 
-            /*
-             * LogDoc
-             * 
+            /*LogDoc
+             *
              * @phase db startup
-             * 
              * @reason failed to register object class
-             * 
              * @message DBRegistry: <exception thrown>
              */
-            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_DB, ILogger.LL_FAILURE,
-                    CMS.getLogMessage("OPERATION_ERROR", e.toString()));
-            throw new EDBException(CMS.getUserMessage(
-                    "CMS_DBS_INVALID_CLASS_NAME", className));
+            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_DB,
+                ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
+            throw new EDBException(
+                    CMS.getUserMessage("CMS_DBS_INVALID_CLASS_NAME", className));
         }
     }
 
@@ -158,8 +161,8 @@ public class DBRegistry implements IDBRegistry, ISubsystem {
     /**
      * Registers attribute mapper.
      */
-    public void registerAttribute(String ufName, IDBAttrMapper mapper)
-            throws EDBException {
+    public void registerAttribute(String ufName, IDBAttrMapper mapper) 
+        throws EDBException {
         // should not allows 'objectclass' as attribute; it has
         // special meaning
         mAttrufNames.put(ufName.toLowerCase(), mapper);
@@ -177,9 +180,9 @@ public class DBRegistry implements IDBRegistry, ISubsystem {
     }
 
     /**
-     * Creates LDAP-based search filters with help of registered mappers. Parses
-     * filter from filter string specified in RFC1558.
-     * 
+     * Creates LDAP-based search filters with help of
+     * registered mappers.
+     * Parses filter from filter string specified in RFC1558.
      * <pre>
      * <filter> ::= '(' <filtercomp> ')'
      * <filtercomp> ::= <and> | <or> | <not> | <item>
@@ -206,34 +209,37 @@ public class DBRegistry implements IDBRegistry, ISubsystem {
         return getFilter(filter, mConverter);
     }
 
-    public String getFilter(String filter, IFilterConverter c)
-            throws EBaseException {
+    public String getFilter(String filter, IFilterConverter c) 
+        throws EBaseException {
         String f = filter;
 
         f = f.trim();
         if (f.startsWith("(") && f.endsWith(")")) {
-            return "(" + getFilterComp(f.substring(1, f.length() - 1), c) + ")";
+            return "(" + getFilterComp(f.substring(1, 
+                        f.length() - 1), c) + ")";
         } else {
             return getFilterComp(filter, c);
         }
     }
 
-    private String getFilterComp(String f, IFilterConverter c)
-            throws EBaseException {
+    private String getFilterComp(String f, IFilterConverter c) 
+        throws EBaseException {
         f = f.trim();
-        if (f.startsWith("&")) { // AND operation
-            return "&" + getFilterList(f.substring(1, f.length()), c);
+        if (f.startsWith("&")) {        // AND operation
+            return "&" + getFilterList(f.substring(1, 
+                        f.length()), c);
         } else if (f.startsWith("|")) { // OR operation
-            return "|" + getFilterList(f.substring(1, f.length()), c);
+            return "|" + getFilterList(f.substring(1, 
+                        f.length()), c);
         } else if (f.startsWith("!")) { // NOT operation
             return "!" + getFilter(f.substring(1, f.length()), c);
-        } else { // item
+        } else {                        // item
             return getFilterItem(f, c);
         }
     }
-
-    private String getFilterList(String f, IFilterConverter c)
-            throws EBaseException {
+	
+    private String getFilterList(String f, IFilterConverter c) 
+        throws EBaseException {
         f = f.trim();
         int level = 0;
         int start = 0;
@@ -268,14 +274,14 @@ public class DBRegistry implements IDBRegistry, ISubsystem {
     /**
      * So, here we need to separate item into name, op, value.
      */
-    private String getFilterItem(String f, IFilterConverter c)
-            throws EBaseException {
+    private String getFilterItem(String f, IFilterConverter c) 
+        throws EBaseException {
         f = f.trim();
         int idx = f.indexOf('=');
 
         if (idx == -1) {
-            throw new EDBException(CMS.getUserMessage(
-                    "CMS_DBS_INVALID_FILTER_ITEM", "="));
+            throw new EDBException(
+                    CMS.getUserMessage("CMS_DBS_INVALID_FILTER_ITEM", "="));
         }
 
         String type = f.substring(0, idx).trim();
@@ -311,15 +317,17 @@ public class DBRegistry implements IDBRegistry, ISubsystem {
         // if value contains no '*', then it is equality
         if (value.indexOf('*') == -1) {
             if (type.equals("objectclass")) {
-                String ldapNames[] = (String[]) mOCclassNames.get(value);
+                String ldapNames[] = (String[])
+                    mOCclassNames.get(value);
 
                 if (ldapNames == null)
-                    throw new EDBException(CMS.getUserMessage(
-                            "CMS_DBS_INVALID_FILTER_ITEM", f));
+                    throw new EDBException(
+                            CMS.getUserMessage("CMS_DBS_INVALID_FILTER_ITEM", f));
                 String filter = "";
 
                 for (int g = 0; g < ldapNames.length; g++) {
-                    filter += "(objectclass=" + ldapNames[g] + ")";
+                    filter += "(objectclass=" + 
+                            ldapNames[g] + ")";	
                 }
                 return "&" + filter;
             } else {
@@ -333,25 +341,27 @@ public class DBRegistry implements IDBRegistry, ISubsystem {
     /**
      * Maps object into LDAP attribute set.
      */
-    public void mapObject(IDBObj parent, String name, Object obj,
-            LDAPAttributeSet attrs) throws EBaseException {
-        IDBAttrMapper mapper = (IDBAttrMapper) mAttrufNames.get(name
-                .toLowerCase());
+    public void mapObject(IDBObj parent, String name, Object obj, 
+        LDAPAttributeSet attrs) throws EBaseException {
+        IDBAttrMapper mapper = (IDBAttrMapper) mAttrufNames.get(
+                name.toLowerCase());
 
         if (mapper == null) {
             return; // no mapper found, just skip this attribute
-        }
+        }	
         mapper.mapObjectToLDAPAttributeSet(parent, name, obj, attrs);
     }
 
     /**
-     * Retrieves a list of LDAP attributes that are associated with the given
-     * attributes. This method is used for searches, to map the database
-     * attributes to LDAP attributes.
+     * Retrieves a list of LDAP attributes that are associated
+     * with the given attributes.
+     * This method is used for searches, to map the database attributes
+     * to LDAP attributes.
      */
-    public String[] getLDAPAttributes(String attrs[]) throws EBaseException {
+    public String[] getLDAPAttributes(String attrs[]) 
+        throws EBaseException {
         IDBAttrMapper mapper;
-
+	    
         if (attrs == null)
             return null;
         Vector v = new Vector();
@@ -364,11 +374,10 @@ public class DBRegistry implements IDBRegistry, ISubsystem {
             }
 
             if (isAttributeRegistered(attrs[i])) {
-                mapper = (IDBAttrMapper) mAttrufNames.get(attrs[i]
-                        .toLowerCase());
+                mapper = (IDBAttrMapper)
+                        mAttrufNames.get(attrs[i].toLowerCase());
                 if (mapper == null) {
-                    throw new EDBException(
-                            CMS.getUserMessage("CMS_DBS_INVALID_ATTRS"));
+                    throw new EDBException(CMS.getUserMessage("CMS_DBS_INVALID_ATTRS"));
                 }
                 Enumeration e = mapper.getSupportedLDAPAttributeNames();
 
@@ -382,10 +391,10 @@ public class DBRegistry implements IDBRegistry, ISubsystem {
             } else {
                 IDBDynAttrMapper matchingDynAttrMapper = null;
                 // check if a dynamic mapper can handle the attribute
-                for (Iterator dynMapperIter = mDynAttrMappers.iterator(); dynMapperIter
-                        .hasNext();) {
-                    IDBDynAttrMapper dynAttrMapper = (IDBDynAttrMapper) dynMapperIter
-                            .next();
+                for (Iterator dynMapperIter = mDynAttrMappers.iterator();
+                     dynMapperIter.hasNext();) {
+                    IDBDynAttrMapper dynAttrMapper =
+                            (IDBDynAttrMapper)dynMapperIter.next();
                     if (dynAttrMapper.supportsLDAPAttributeName(attrs[i])) {
                         matchingDynAttrMapper = dynAttrMapper;
                         break;
@@ -394,20 +403,15 @@ public class DBRegistry implements IDBRegistry, ISubsystem {
                 if (matchingDynAttrMapper != null) {
                     v.addElement(attrs[i]);
                 } else {
-                    /*
-                     * LogDoc
-                     * 
+                    /*LogDoc
+                     *
                      * @phase retrieve ldap attr
-                     * 
                      * @reason failed to get registered object class
-                     * 
                      * @message DBRegistry: <attr> is not registered
                      */
                     mLogger.log(ILogger.EV_SYSTEM, ILogger.S_DB,
-                            ILogger.LL_FAILURE, CMS.getLogMessage(
-                                    "CMSCORE_DBS_ATTR_NOT_REGISTER", attrs[i]));
-                    throw new EDBException(CMS.getLogMessage(
-                            "CMSCORE_DBS_ATTR_NOT_REGISTER", attrs[i]));
+                        ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_DBS_ATTR_NOT_REGISTER", attrs[i]));
+                    throw new EDBException(CMS.getLogMessage("CMSCORE_DBS_ATTR_NOT_REGISTER", attrs[i]));
                 }
             }
 
@@ -423,8 +427,8 @@ public class DBRegistry implements IDBRegistry, ISubsystem {
     /**
      * Creates attribute set from object.
      */
-    public LDAPAttributeSet createLDAPAttributeSet(IDBObj obj)
-            throws EBaseException {
+    public LDAPAttributeSet createLDAPAttributeSet(IDBObj obj) 
+        throws EBaseException {
         Enumeration e = obj.getSerializableAttrNames();
         LDAPAttributeSet attrs = new LDAPAttributeSet();
 
@@ -448,11 +452,12 @@ public class DBRegistry implements IDBRegistry, ISubsystem {
     /**
      * Creates object from attribute set.
      */
-    public IDBObj createObject(LDAPAttributeSet attrs) throws EBaseException {
+    public IDBObj createObject(LDAPAttributeSet attrs)
+        throws EBaseException {
         // map object class attribute to object
         LDAPAttribute attr = attrs.getAttribute("objectclass");
 
-        // CMS.debug("createObject: attrs " + attrs.toString());
+        //CMS.debug("createObject: attrs " + attrs.toString());
 
         attrs.remove("objectclass");
 
@@ -470,8 +475,8 @@ public class DBRegistry implements IDBRegistry, ISubsystem {
         NameAndObject no = (NameAndObject) mOCldapNames.get(sorted);
 
         if (no == null) {
-            throw new EDBException(CMS.getUserMessage(
-                    "CMS_DBS_INVALID_CLASS_NAME", sorted));
+            throw new EDBException(
+                    CMS.getUserMessage("CMS_DBS_INVALID_CLASS_NAME", sorted));
         }
         Class c = (Class) no.getObject();
 
@@ -481,29 +486,28 @@ public class DBRegistry implements IDBRegistry, ISubsystem {
 
             while (ee.hasMoreElements()) {
                 String oname = (String) ee.nextElement();
-                IDBAttrMapper mapper = (IDBAttrMapper) mAttrufNames.get(oname
-                        .toLowerCase());
+                IDBAttrMapper mapper = (IDBAttrMapper)
+                    mAttrufNames.get(
+                        oname.toLowerCase());
 
                 if (mapper == null) {
-                    throw new EDBException(CMS.getUserMessage(
-                            "CMS_DBS_NO_MAPPER_FOUND", oname));
+                    throw new EDBException(
+                            CMS.getUserMessage("CMS_DBS_NO_MAPPER_FOUND", oname));
                 }
-                mapper.mapLDAPAttributeSetToObject(attrs, oname, obj);
+                mapper.mapLDAPAttributeSetToObject(attrs, 
+                    oname, obj);
             }
             return obj;
         } catch (Exception e) {
 
-            /*
-             * LogDoc
-             * 
+            /*LogDoc
+             *
              * @phase create ldap attr
-             * 
              * @reason failed to create object class
-             * 
              * @message DBRegistry: <attr> is not registered
              */
-            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_DB, ILogger.LL_FAILURE,
-                    CMS.getLogMessage("OPERATION_ERROR", e.toString()));
+            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_DB,
+                ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
             throw new EDBException(CMS.getUserMessage("CMS_DBS_INVALID_ATTRS"));
         }
     }
@@ -538,6 +542,7 @@ public class DBRegistry implements IDBRegistry, ISubsystem {
     }
 }
 
+
 /**
  * Just a convenient container class.
  */
@@ -550,7 +555,7 @@ class NameAndObject {
         mN = name;
         mO = o;
     }
-
+	
     public String getName() {
         return mN;
     }

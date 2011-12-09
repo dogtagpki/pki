@@ -17,8 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmsutil.radius;
 
+
 import java.util.Enumeration;
 import java.util.Vector;
+
 
 public class AttributeSet {
     private Vector _attrs = new Vector();

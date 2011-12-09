@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.policy.constraints;
 
+
 import java.util.Locale;
 import java.util.Vector;
 
@@ -34,29 +35,29 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cms.policy.APolicyRule;
 
+
 /**
- * IssuerConstraints is a rule for restricting the issuers of the certificates
- * used for certificate-based enrollments.
+ * IssuerConstraints is a rule for restricting the issuers of the
+ * certificates used for certificate-based enrollments.
  * <P>
- * 
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- * 
+ *
  * @deprecated
  * @version $Revision$ $Date$
  */
-public class IssuerConstraints extends APolicyRule implements
-        IEnrollmentPolicy, IExtendedPluginInfo {
+public class IssuerConstraints extends APolicyRule
+    implements IEnrollmentPolicy, IExtendedPluginInfo {
     private final static String PROP_ISSUER_DN = "issuerDN";
     private static final String CLIENT_ISSUER = "clientIssuer";
     private X500Name mIssuerDN = null;
     private String mIssuerDNString;
 
     /**
-     * checks the issuer of the ssl client-auth cert. Only one issuer is allowed
-     * for now
+     * checks the issuer of the ssl client-auth cert.  Only one issuer
+     *	 is allowed for now
      */
     public IssuerConstraints() {
         NAME = "IssuerConstraints";
@@ -65,13 +66,13 @@ public class IssuerConstraints extends APolicyRule implements
 
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
-                PROP_ISSUER_DN
-                        + ";string;Subject DN of the Issuer. The IssuerDN of the authenticating cert must match what's specified here",
-                IExtendedPluginInfo.HELP_TOKEN
-                        + ";configuration-policyrules-issuerconstraints",
-                IExtendedPluginInfo.HELP_TEXT
-                        + ";Rejects the request if the issuer in the certificate is"
-                        + "not of the one specified" };
+                PROP_ISSUER_DN + ";string;Subject DN of the Issuer. The IssuerDN of the authenticating cert must match what's specified here",
+                IExtendedPluginInfo.HELP_TOKEN +
+                ";configuration-policyrules-issuerconstraints",
+                IExtendedPluginInfo.HELP_TEXT +
+                ";Rejects the request if the issuer in the certificate is" +
+                "not of the one specified"
+            };
 
         return params;
 
@@ -80,33 +81,34 @@ public class IssuerConstraints extends APolicyRule implements
     /**
      * Initializes this policy rule.
      * <P>
-     * 
-     * @param config The config store reference
+     * @param config	The config store reference
      */
     public void init(ISubsystem owner, IConfigStore config)
-            throws EPolicyException {
+        throws EPolicyException {
         try {
             mIssuerDNString = config.getString(PROP_ISSUER_DN, null);
-            if ((mIssuerDNString != null) && !mIssuerDNString.equals("")) {
+            if ((mIssuerDNString != null) && 
+                !mIssuerDNString.equals("")) {
                 mIssuerDN = new X500Name(mIssuerDNString);
             }
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE,
-                    NAME + CMS.getLogMessage("CA_GET_ISSUER_NAME_FAILED"));
+            log(ILogger.LL_FAILURE, 
+                NAME + CMS.getLogMessage("CA_GET_ISSUER_NAME_FAILED"));
 
-            String[] params = { getInstanceName(), e.toString() };
+            String[] params = {getInstanceName(), e.toString()};
 
-            throw new EPolicyException(CMS.getUserMessage(
-                    "CMS_POLICY_INVALID_POLICY_CONFIG", params));
+            throw new EPolicyException(
+                    CMS.getUserMessage("CMS_POLICY_INVALID_POLICY_CONFIG", params));
         }
-        CMS.debug(NAME + ": init() done");
+        CMS.debug(
+            NAME + ": init() done");
     }
 
     /**
      * Applies the policy on the given Request.
      * <P>
-     * 
-     * @param req The request on which to apply policy.
+     *
+     * @param req	The request on which to apply policy.
      * @return The policy result object.
      */
     public PolicyResult apply(IRequest req) {
@@ -122,86 +124,83 @@ public class IssuerConstraints extends APolicyRule implements
                 X500Name ci_name = new X500Name(clientIssuerDN);
 
                 if (!ci_name.equals(mIssuerDN)) {
-                    setError(req, CMS.getUserMessage(
-                            "CMS_POLICY_INVALID_ISSUER", getInstanceName()), "");
+                    setError(req,
+                        CMS.getUserMessage("CMS_POLICY_INVALID_ISSUER",
+                            getInstanceName()), "");
                     result = PolicyResult.REJECTED;
                     log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CA_GET_ISSUER_NAME_FAILED"));
-                    CMS.debug(NAME
-                            + ": apply() - issuerDN mismatch: client issuerDN = "
-                            + clientIssuerDN + "; expected issuerDN = "
-                            + mIssuerDNString);
+                        CMS.getLogMessage("CA_GET_ISSUER_NAME_FAILED")); 
+                    CMS.debug(
+                        NAME + ": apply() - issuerDN mismatch: client issuerDN = " + clientIssuerDN + "; expected issuerDN = " + mIssuerDNString);
                 }
             } else {
 
                 // Get the certificate info from the request
-                X509CertInfo certInfo[] = req
-                        .getExtDataInCertInfoArray(IRequest.CERT_INFO);
+                X509CertInfo certInfo[] =
+                    req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
 
                 if (certInfo == null) {
-                    log(ILogger.LL_FAILURE, NAME
-                            + ": apply() - missing certInfo");
-                    setError(req, CMS.getUserMessage("CMS_POLICY_NO_CERT_INFO",
+                    log(ILogger.LL_FAILURE, 
+                        NAME + ": apply() - missing certInfo");
+                    setError(req, CMS.getUserMessage("CMS_POLICY_NO_CERT_INFO", 
                             getInstanceName()), "");
                     return PolicyResult.REJECTED;
                 }
-
+				
                 for (int i = 0; i < certInfo.length; i++) {
-                    String oldIssuer = (String) certInfo[i].get(
-                            X509CertInfo.ISSUER).toString();
-
+                    String oldIssuer = (String)
+                        certInfo[i].get(X509CertInfo.ISSUER).toString();
+					
                     if (oldIssuer == null) {
-                        setError(req, CMS.getUserMessage(
-                                "CMS_POLICY_CLIENT_ISSUER_NOT_FOUND",
+                        setError(req,
+                            CMS.getUserMessage("CMS_POLICY_CLIENT_ISSUER_NOT_FOUND",
                                 getInstanceName()), "");
                         result = PolicyResult.REJECTED;
-                        log(ILogger.LL_FAILURE, NAME
-                                + ": apply() - client issuerDN not found");
+                        log(ILogger.LL_FAILURE, 
+                            NAME + ": apply() - client issuerDN not found");
                     }
                     X500Name oi_name = new X500Name(oldIssuer);
 
                     if (!oi_name.equals(mIssuerDN)) {
                         setError(req,
-                                CMS.getUserMessage("CMS_POLICY_INVALID_ISSUER",
-                                        getInstanceName()), "");
+                            CMS.getUserMessage("CMS_POLICY_INVALID_ISSUER",
+                                getInstanceName()), "");
                         result = PolicyResult.REJECTED;
-                        log(ILogger.LL_FAILURE,
-                                NAME
-                                        + ": apply() - cert issuerDN mismatch: client issuerDN = "
-                                        + oldIssuer + "; expected issuerDN = "
-                                        + mIssuerDNString);
+                        log(ILogger.LL_FAILURE, 
+                            NAME + ": apply() - cert issuerDN mismatch: client issuerDN = " + oldIssuer + "; expected issuerDN = " + mIssuerDNString);
                     }
                 }
             }
         } catch (Exception e) {
-            String params[] = { getInstanceName(), e.toString() };
+            String params[] = {getInstanceName(), e.toString()};
 
-            setError(req, CMS.getUserMessage(
-                    "CMS_POLICY_UNEXPECTED_POLICY_ERROR", params), "");
+            setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR", params), "");
             result = PolicyResult.REJECTED;
         }
 
         if (result.equals(PolicyResult.ACCEPTED)) {
-            log(ILogger.LL_INFO, NAME + ": apply() - accepted");
+            log(ILogger.LL_INFO, 
+                NAME + ": apply() - accepted");
         }
         return result;
     }
 
     /**
      * Return configured parameters for a policy rule instance.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector getInstanceParams() {
         Vector confParams = new Vector();
 
-        confParams.addElement(PROP_ISSUER_DN + "=" + mIssuerDNString);
+        confParams.addElement(PROP_ISSUER_DN + "=" +
+            mIssuerDNString);
         return confParams;
     }
 
     /**
      * Return default parameters for a policy implementation.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector getDefaultParams() {

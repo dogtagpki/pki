@@ -17,7 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmsutil.radius;
 
+
 import java.io.IOException;
+
 
 public abstract class ServerPacket extends Packet {
     public ServerPacket(byte data[]) throws IOException {
@@ -39,8 +41,8 @@ public abstract class ServerPacket extends Packet {
             int attrLen = (data[startp + 1] & 0xFF);
             byte attrData[] = new byte[attrLen];
 
-            System.arraycopy(data, startp, attrData, 0, attrData.length);
-            addAttribute(AttributeFactory.createAttribute(attrData));
+            System.arraycopy(data, startp, attrData, 0, attrData.length); 
+            addAttribute(AttributeFactory.createAttribute(attrData));	
             startp += attrData.length;
         }
     }

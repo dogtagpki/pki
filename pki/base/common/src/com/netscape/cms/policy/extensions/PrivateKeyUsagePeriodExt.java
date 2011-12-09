@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.policy.extensions;
 
+
 import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.text.SimpleDateFormat;
@@ -41,20 +42,20 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cms.policy.APolicyRule;
 
+
 /**
  * PrivateKeyUsagePeriod Identifier Extension policy.
  * <P>
- * 
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- * 
+ *
  * @deprecated
  * @version $Revision$, $Date$
  */
-public class PrivateKeyUsagePeriodExt extends APolicyRule implements
-        IEnrollmentPolicy, IExtendedPluginInfo {
+public class PrivateKeyUsagePeriodExt extends APolicyRule
+    implements IEnrollmentPolicy, IExtendedPluginInfo {
 
     private final static String PROP_NOT_BEFORE = "notBefore";
     private final static String PROP_NOT_AFTER = "notAfter";
@@ -92,20 +93,18 @@ public class PrivateKeyUsagePeriodExt extends APolicyRule implements
 
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
-                PROP_IS_CRITICAL
-                        + ";boolean;RFC 2459 recommendation: The profile "
-                        + "recommends against the use of this extension. CAs "
-                        + "conforming to the profile MUST NOT generate certs with "
-                        + "critical private key usage period extensions.",
-                PROP_NOT_BEFORE
-                        + ";string; Date before which the Private Key is invalid.",
-                PROP_NOT_AFTER
-                        + ";string; Date after which the Private Key is invalid.",
-                IExtendedPluginInfo.HELP_TOKEN
-                        + ";configuration-policyrules-privatekeyusageperiod",
-                IExtendedPluginInfo.HELP_TEXT
-                        + ";Adds (deprecated) Private Key Usage Period Extension. "
-                        + "Defined in RFC 2459 (4.2.1.4)" };
+                PROP_IS_CRITICAL + ";boolean;RFC 2459 recommendation: The profile " +
+                "recommends against the use of this extension. CAs " +
+                "conforming to the profile MUST NOT generate certs with " +
+                "critical private key usage period extensions.",
+                PROP_NOT_BEFORE + ";string; Date before which the Private Key is invalid.",
+                PROP_NOT_AFTER + ";string; Date after which the Private Key is invalid.",
+                IExtendedPluginInfo.HELP_TOKEN +
+                ";configuration-policyrules-privatekeyusageperiod",
+                IExtendedPluginInfo.HELP_TEXT +
+                ";Adds (deprecated) Private Key Usage Period Extension. " +
+                "Defined in RFC 2459 (4.2.1.4)"
+            };
 
         return params;
     }
@@ -120,17 +119,17 @@ public class PrivateKeyUsagePeriodExt extends APolicyRule implements
 
     /**
      * Initializes this policy rule.
-     * ra.Policy.rule.<ruleName>.implName=PrivateKeyUsageExtension
-     * ra.Policy.rule.<ruleName>.enable=true
-     * ra.Policy.rule.<ruleName>.notBefore=30
-     * ra.Policy.rule.<ruleName>.notAfter=180
-     * ra.Policy.rule.<ruleName>.critical=false
-     * ra.Policy.rule.<ruleName>.predicate=ou==Sales
-     * 
-     * @param config The config store reference
+     *	  ra.Policy.rule.<ruleName>.implName=PrivateKeyUsageExtension
+     *	  ra.Policy.rule.<ruleName>.enable=true
+     *	  ra.Policy.rule.<ruleName>.notBefore=30
+     *	  ra.Policy.rule.<ruleName>.notAfter=180
+     *	  ra.Policy.rule.<ruleName>.critical=false
+     *	  ra.Policy.rule.<ruleName>.predicate=ou==Sales
+     *
+     * @param config	The config store reference
      */
     public void init(ISubsystem owner, IConfigStore config)
-            throws EBaseException {
+        throws EBaseException {
 
         try {
             // Get params.
@@ -146,29 +145,29 @@ public class PrivateKeyUsagePeriodExt extends APolicyRule implements
             notAfter = formatter.format(formatter.parse(mNotAfter.trim()));
         } catch (Exception e) {
             // e.printStackTrace();
-            Object[] params = { getInstanceName(), e };
+            Object[] params = {getInstanceName(), e};
 
             throw new EPolicyException(
-                    CMS.getUserMessage("CMS_POLICY_INVALID_POLICY_CONFIG"),
-                    params);
+                    CMS.getUserMessage("CMS_POLICY_INVALID_POLICY_CONFIG"), params);
         }
 
     }
 
     /**
-     * Adds a private key usage extension if none exists.
-     * 
-     * @param req The request on which to apply policy.
+     * Adds a private key usage extension if none exists. 
+     *
+     * @param req	The request on which to apply policy.
      * @return The policy result object.
      */
     public PolicyResult apply(IRequest req) {
         PolicyResult res = PolicyResult.ACCEPTED;
 
         // get cert info.
-        X509CertInfo[] ci = req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
-
+        X509CertInfo[] ci = 
+            req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
+		
         if (ci == null || ci[0] == null) {
-            setError(req, CMS.getUserMessage("CMS_POLICY_NO_CERT_INFO"), NAME);
+            setError(req, CMS.getUserMessage("CMS_POLICY_NO_CERT_INFO"), NAME); 
             return PolicyResult.REJECTED; // unrecoverable error.
         }
 
@@ -188,8 +187,8 @@ public class PrivateKeyUsagePeriodExt extends APolicyRule implements
 
         try {
             // get subject key id extension if any.
-            extensions = (CertificateExtensions) certInfo
-                    .get(X509CertInfo.EXTENSIONS);
+            extensions = (CertificateExtensions)
+                    certInfo.get(X509CertInfo.EXTENSIONS);
         } catch (IOException e) {
             // no extensions or subject key identifier extension.
         } catch (CertificateException e) {
@@ -202,26 +201,25 @@ public class PrivateKeyUsagePeriodExt extends APolicyRule implements
             // remove any previously computed version of the extension
             try {
                 extensions.delete(PrivateKeyUsageExtension.NAME);
-
+	   
             } catch (IOException e) {
             }
 
         }
 
         try {
-            ext = new PrivateKeyUsageExtension(formatter.parse(mNotBefore),
-                    formatter.parse(mNotAfter));
-            certInfo.set(X509CertInfo.VERSION, new CertificateVersion(
-                    CertificateVersion.V3));
+            ext = new PrivateKeyUsageExtension(
+                        formatter.parse(mNotBefore), 
+                        formatter.parse(mNotAfter));
+            certInfo.set(X509CertInfo.VERSION,
+                new CertificateVersion(CertificateVersion.V3));
             extensions.set(PrivateKeyUsageExtension.NAME, ext);
         } catch (Exception e) {
-            if (e instanceof RuntimeException)
+            if (e instanceof RuntimeException) 
                 throw (RuntimeException) e;
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("POLICY_ERROR_CREATE_PRIVATE_KEY_EXT",
-                            e.toString()));
-            setError(req,
-                    CMS.getUserMessage("CMS_POLICY_SUBJECT_KEY_ID_ERROR"), NAME);
+            log(ILogger.LL_FAILURE, 
+                CMS.getLogMessage("POLICY_ERROR_CREATE_PRIVATE_KEY_EXT", e.toString()));
+            setError(req, CMS.getUserMessage("CMS_POLICY_SUBJECT_KEY_ID_ERROR"), NAME);
             return PolicyResult.REJECTED;
         }
         return PolicyResult.ACCEPTED;
@@ -229,11 +227,11 @@ public class PrivateKeyUsagePeriodExt extends APolicyRule implements
 
     /**
      * Return configured parameters for a policy rule instance.
-     * 
+     *
      * @return Empty Vector since this policy has no configuration parameters.
-     *         for this policy instance.
+     * for this policy instance.
      */
-    public Vector getInstanceParams() {
+    public Vector getInstanceParams() { 
         Vector params = new Vector();
 
         params.addElement(PROP_IS_CRITICAL + "=" + mCritical);
@@ -244,11 +242,11 @@ public class PrivateKeyUsagePeriodExt extends APolicyRule implements
 
     /**
      * Return default parameters for a policy implementation.
-     * 
-     * @return Empty Vector since this policy implementation has no
-     *         configuration parameters.
+     *
+     * @return Empty Vector since this policy implementation has no 
+     * configuration parameters.
      */
-    public Vector getDefaultParams() {
+    public Vector getDefaultParams() { 
         Vector defParams = new Vector();
 
         defParams.addElement(PROP_IS_CRITICAL + "=" + DEFAULT_CRITICALITY);
@@ -257,3 +255,4 @@ public class PrivateKeyUsagePeriodExt extends APolicyRule implements
         return defParams;
     }
 }
+

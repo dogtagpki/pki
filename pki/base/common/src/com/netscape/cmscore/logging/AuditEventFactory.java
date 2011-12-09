@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.logging;
 
+
 import java.util.Properties;
 
 import com.netscape.certsrv.logging.AuditEvent;
@@ -25,11 +26,12 @@ import com.netscape.certsrv.logging.ILogEvent;
 import com.netscape.certsrv.logging.ILogEventFactory;
 import com.netscape.certsrv.logging.ILogger;
 
+
 /**
  * A log event object for handling audit messages
  * <P>
- * 
- * @author mikep
+ *
+ * @author mikep 
  * @author mzhao
  * @version $Revision$, $Date$
  */
@@ -58,7 +60,7 @@ public class AuditEventFactory implements ILogEventFactory {
      * @param params the parameters in the detail log message
      */
     public ILogEvent create(int evtClass, Properties prop, int source,
-            int level, boolean multiline, String msg, Object params[]) {
+        int level, boolean multiline, String msg, Object params[]) {
         if (evtClass != ILogger.EV_AUDIT)
             return null;
         AuditEvent event = new AuditEvent(msg, params);
@@ -72,8 +74,8 @@ public class AuditEventFactory implements ILogEventFactory {
 
     /**
      * Set the resource bundle of the log event.
-     * 
-     * @param prop the properties
+     *
+     * @param prop the properties 
      * @param event the log event
      */
     protected void setProperties(Properties prop, IBundleLogEvent event) {
@@ -90,7 +92,7 @@ public class AuditEventFactory implements ILogEventFactory {
 
     /**
      * Releases an log event.
-     * 
+     *
      * @param e the log event
      */
     public void release(ILogEvent e) {

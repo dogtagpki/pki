@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.crl;
 
+
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Locale;
@@ -33,45 +34,48 @@ import com.netscape.certsrv.ca.ICRLIssuingPoint;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.ILogger;
 
+
 /**
  * This represents a delta CRL indicator extension.
- * 
+ *
  * @version $Revision$, $Date$
  */
-public class CMSDeltaCRLIndicatorExtension implements ICMSCRLExtension,
-        IExtendedPluginInfo {
+public class CMSDeltaCRLIndicatorExtension
+    implements ICMSCRLExtension, IExtendedPluginInfo {
     private ILogger mLogger = CMS.getLogger();
 
     public CMSDeltaCRLIndicatorExtension() {
     }
 
-    public Extension setCRLExtensionCriticality(Extension ext, boolean critical) {
+    public Extension setCRLExtensionCriticality(Extension ext,
+        boolean critical) {
         BigInteger baseCRLNumber = null;
         DeltaCRLIndicatorExtension deltaCRLIndicatorExt = null;
 
         try {
-            baseCRLNumber = (BigInteger) ((DeltaCRLIndicatorExtension) ext)
-                    .get(DeltaCRLIndicatorExtension.NUMBER);
+            baseCRLNumber = (BigInteger)
+                    ((DeltaCRLIndicatorExtension) ext).get(DeltaCRLIndicatorExtension.NUMBER);
             deltaCRLIndicatorExt = new DeltaCRLIndicatorExtension(
-                    Boolean.valueOf(critical), baseCRLNumber);
+                        Boolean.valueOf(critical),
+                        baseCRLNumber);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CRL_CREATE_DELTA_CRL_EXT", e.toString()));
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_DELTA_CRL_EXT", e.toString()));
         }
         return deltaCRLIndicatorExt;
     }
 
-    public Extension getCRLExtension(IConfigStore config, Object ip,
-            boolean critical) {
+    public Extension getCRLExtension(IConfigStore config,
+        Object ip,
+        boolean critical) {
         DeltaCRLIndicatorExtension deltaCRLIndicatorExt = null;
         ICRLIssuingPoint crlIssuingPoint = (ICRLIssuingPoint) ip;
 
         try {
             deltaCRLIndicatorExt = new DeltaCRLIndicatorExtension(
-                    Boolean.valueOf(critical), crlIssuingPoint.getCRLNumber());
+                        Boolean.valueOf(critical),
+                        crlIssuingPoint.getCRLNumber());
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CRL_CREATE_DELTA_CRL_EXT", e.toString()));
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_DELTA_CRL_EXT", e.toString()));
         }
         return deltaCRLIndicatorExt;
     }
@@ -85,21 +89,23 @@ public class CMSDeltaCRLIndicatorExtension implements ICMSCRLExtension,
 
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
-                // "type;choice(CRLExtension,CRLEntryExtension);"+
-                // "CRL Extension type. This field is not editable.",
+                //"type;choice(CRLExtension,CRLEntryExtension);"+
+                //"CRL Extension type. This field is not editable.",
                 "enable;boolean;Check to enable Delta CRL Indicator extension.",
                 "critical;boolean;Set criticality for Delta CRL Indicator extension.",
-                IExtendedPluginInfo.HELP_TOKEN
-                        + ";configuration-ca-edit-crlextension-crlnumber",
-                IExtendedPluginInfo.HELP_TEXT
-                        + ";The Delta CRL Indicator is a critical CRL extension "
-                        + "which identifies a delta-CRL." };
+                IExtendedPluginInfo.HELP_TOKEN +
+                ";configuration-ca-edit-crlextension-crlnumber",
+                IExtendedPluginInfo.HELP_TEXT +
+                ";The Delta CRL Indicator is a critical CRL extension " +
+                "which identifies a delta-CRL."
+            };
 
         return params;
     }
 
     private void log(int level, String msg) {
         mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_CA, level,
-                "CMSDeltaCRLIndicatorExtension - " + msg);
+            "CMSDeltaCRLIndicatorExtension - " + msg);
     }
 }
+

@@ -1,5 +1,4 @@
 package com.netscape.pkisilent.common;
-
 // --- BEGIN COPYRIGHT BLOCK ---
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -18,6 +17,7 @@ package com.netscape.pkisilent.common;
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
+
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -29,28 +29,31 @@ import java.util.GregorianCalendar;
 
 import org.mozilla.jss.ssl.SSLSocket;
 
+
+
 /**
- * CMS Test framework . Submits Legacy Manual User Enrollment request from EESSL
- * port. Parses the response from server and return RequestID.
- * <P>
+ * CMS Test framework .
+ * Submits Legacy Manual User Enrollment request from EESSL port. Parses the response from server and return RequestID.
+ *<P>
  */
+
 
 public class UserEnroll extends TestClient {
 
     private int i;
-    private String requestorName, requestorEmail, requestorPhone,
-            requestorComments, requestId, certType, ssl_client;
+    private String requestorName, requestorEmail, requestorPhone, requestorComments, requestId, certType, ssl_client;
     private int port;
     private long elapsedTime;
 
     // Constructor
-    public UserEnroll() {
-    }
+    public UserEnroll() {}
 
     /**
-     * Constructor . Takes the parameter hostname and EESSLport
+     * Constructor . Takes the parameter hostname and EESSLport 
      * <p>
      */
+
+
 
     public UserEnroll(String h, String p) {
         host = h;
@@ -60,28 +63,23 @@ public class UserEnroll extends TestClient {
     /**
      * Constructor . Takes the parameter for Properties file name
      * <p>
-     * 
-     * @param propfilename name of the parameter file
+     * @param propfilename  name of the parameter file
      */
+
 
     public UserEnroll(String pfile) {
         propfileName = pfile;
     }
 
     /**
-     * Constructor . Takes the parameter for hostname, EESSLportnumber,
-     * subjectdn, E, CN,UID,OU,O, CertdbDirecrory(fullpath) , certdbPassword,
-     * keysize, keytype, requestorName,requestorEmail and Certtype. valid values
-     * for Certtype - "ca","ra","ocsp"
+     * Constructor . Takes the parameter for hostname, EESSLportnumber, subjectdn, E, CN,UID,OU,O, CertdbDirecrory(fullpath) , certdbPassword, keysize, keytype, requestorName,requestorEmail and Certtype.
+     * valid values for Certtype - "ca","ra","ocsp"
      * <p>
-     * 
-     * @param propfilename name of the parameter file
+     * @param propfilename  name of the parameter file
      */
 
-    public UserEnroll(String h, String p, String dn, String e, String cn,
-            String uid, String ou, String o, String cd, String tpwd,
-            String sslcl, String ksize, String keyty, String reqname,
-            String reqemail, String ctype) {
+
+    public UserEnroll(String h, String p, String dn, String e, String cn, String uid, String ou, String o, String cd, String tpwd, String sslcl, String ksize, String keyty, String reqname, String reqemail, String ctype) { 
 
         host = h;
         ports = p;
@@ -117,12 +115,10 @@ public class UserEnroll extends TestClient {
     }
 
     /**
-     * Set Certificate Request information. Takes parameters -
-     * subjectdn,E,CN,UID,OU,O
+     * Set Certificate Request information. Takes parameters - subjectdn,E,CN,UID,OU,O 
      */
 
-    public void setUserInfo(String dn, String e, String cn, String uid,
-            String ou, String o) {
+    public void setUserInfo(String dn, String e, String cn, String uid, String ou, String o) {
         DN = dn;
         E = e;
         CN = cn;
@@ -137,8 +133,7 @@ public class UserEnroll extends TestClient {
 
     }
 
-    public void setUserInfo(String dn, String e, String cn, String uid,
-            String ou, String o, String nickname) {
+    public void setUserInfo(String dn, String e, String cn, String uid, String ou, String o, String nickname) {
         DN = dn;
         E = e;
         CN = cn;
@@ -154,8 +149,7 @@ public class UserEnroll extends TestClient {
     }
 
     /**
-     * Set Certificat Type for which you want to submit a request . Valid values
-     * - "ca"/"ra"/"ocsp"
+     * Set Certificat Type for which you want to submit a request . Valid values - "ca"/"ra"/"ocsp"
      */
     public void setCertType(String ct) {
         certType = ct;
@@ -168,22 +162,20 @@ public class UserEnroll extends TestClient {
     public boolean enroll_load() {
         buildquery();
         setStatusString("");
-        return (Send());
+        return(Send());
     }
 
     private boolean pkcs10() {
 
-        System.out.println(" In pkcs10 Keysize ,  key type " + keysize
-                + keytype);
-        // ComCrypto cCrypt = new
-        // ComCrypto(cdir,tokenpwd,certnickname,keysize,keytype);
+        System.out.println(" In pkcs10 Keysize ,  key type " + keysize + keytype);
+        // ComCrypto cCrypt = new ComCrypto(cdir,tokenpwd,certnickname,keysize,keytype);
         cCrypt.setCertDir(cdir);
         cCrypt.setCertnickname(adminCertName);
         cCrypt.setKeySize(keysize);
         cCrypt.setKeyType(keytype);
         cCrypt.setTokenPWD(tokenpwd);
         cCrypt.setDebug(true);
-        if (pkcs10request != null) {
+        if (pkcs10request != null) {	
             cCrypt.setGenerateRequest(false);
             cCrypt.loginDB();
         } else {
@@ -202,12 +194,12 @@ public class UserEnroll extends TestClient {
                 System.out.println(query);
             }
             setStatusString("");
-            return (Send());
+            return(Send());
         } catch (Exception e) {
             System.err.println("some exception:" + e);
         }
 
-        return (false);
+        return(false);
 
     }
 
@@ -234,7 +226,7 @@ public class UserEnroll extends TestClient {
 
         try {
 
-            if (debug) {
+            if (debug) {  
                 System.out.println("Step 3 : Socket initialize");
             }
 
@@ -261,8 +253,8 @@ public class UserEnroll extends TestClient {
             ps.println("\r");
             ps.flush();
             os.flush();
-            BufferedReader stdin = new BufferedReader(new InputStreamReader(
-                    socket.getInputStream()));
+            BufferedReader stdin = new BufferedReader(
+                    new InputStreamReader(socket.getInputStream()));
 
             if (debug) {
                 System.out.println("Step 4: Received the page");
@@ -278,10 +270,9 @@ public class UserEnroll extends TestClient {
                     st = true;
                 }
                 if (line.indexOf("fixed.requestId = ") != -1) {
-                    requestId = line.substring(
-                            "fixed.requestId = ".length() + 1,
+                    requestId = line.substring("fixed.requestId = ".length() + 1,
                             line.indexOf(";") - 1);
-                }
+                } 
 
                 if (getError(line)) {
                     st = false;
@@ -309,7 +300,7 @@ public class UserEnroll extends TestClient {
         }
 
         return st;
-
+ 
     }
 
     private void buildquery() {
@@ -344,12 +335,12 @@ public class UserEnroll extends TestClient {
                 queryStrBuf.append("&csrRequestorEmail=");
                 queryStrBuf.append(URLEncoder.encode(requestorEmail));
                 queryStrBuf.append("&email=true");
-
+	
             } else {
                 queryStrBuf.append("&email=false");
             }
-
-            if (requestorPhone.length() > 0) {
+     
+            if (requestorPhone.length() > 0) { 
                 queryStrBuf.append("&csrRequestorPhone=");
                 queryStrBuf.append(URLEncoder.encode(requestorPhone));
             }
@@ -357,7 +348,7 @@ public class UserEnroll extends TestClient {
                 queryStrBuf.append("&csrRequestorComments=");
                 queryStrBuf.append(URLEncoder.encode(requestorComments));
             }
-            System.out.println("buidlquery client E ");
+            System.out.println("buidlquery client E ");	
             if (E.length() > 0) {
                 queryStrBuf.append("&E=");
                 queryStrBuf.append(E);
@@ -375,10 +366,8 @@ public class UserEnroll extends TestClient {
                 queryStrBuf.append("&OU=");
                 queryStrBuf.append(OU);
             }
-            // if(O.length() > 0) {
-            // queryStrBuf.append("&O=");queryStrBuf.append(O);}
-            // if(C.length() >0) {
-            // queryStrBuf.append("&C=");queryStrBuf.append(C);}
+            // if(O.length() > 0) {	queryStrBuf.append("&O=");queryStrBuf.append(O);}
+            // if(C.length() >0) {	queryStrBuf.append("&C=");queryStrBuf.append(C);}
             System.out.println("buidlquery client dn ");
             queryStrBuf.append("&subject=");
             queryStrBuf.append(URLEncoder.encode(DN));
@@ -427,7 +416,7 @@ public class UserEnroll extends TestClient {
         query = queryStrBuf.toString();
 
         System.out.println(query);
-        queryStrBuf = null;
+        queryStrBuf = null;   
     }
 
     public int getRequestId() {
@@ -445,16 +434,16 @@ public class UserEnroll extends TestClient {
         certType = "client";
         ssl_client = "true";
         debug = true;
-        return (pkcs10());
+        return(pkcs10());
     }
 
     public boolean Enroll() {
         debug = true;
-        return (pkcs10());
+        return(pkcs10());
     }
 
     /**
-     * Read the properties file
+     * Read the properties file 
      **/
 
     public boolean readProperties() {
@@ -463,8 +452,8 @@ public class UserEnroll extends TestClient {
         try {
             getProperties(propfileName);
         } catch (Exception e) {
-            System.out.println("exception reading Properties File "
-                    + e.getMessage());
+            System.out.println(
+                    "exception reading Properties File " + e.getMessage());
             return false;
         }
 
@@ -508,12 +497,12 @@ public class UserEnroll extends TestClient {
             debug = false;
         } else if (de.equals("true")) {
             debug = true;
-        } else {
+        } else { 
             debug = false;
         }
 
         // Enroll using a pkscks10 request
-        return (pkcs10());
+        return(pkcs10());
     }
 
     public static void main(String args[]) {
@@ -521,33 +510,33 @@ public class UserEnroll extends TestClient {
         // - requestId Pass
         boolean st;
 
-        UserEnroll e = new UserEnroll(
-                "jupiter2",
-                "1027",
-                "E=test,cn=test,uid=test",
-                "test",
-                "test",
-                "test",
-                "t1",
-                "t",
+        UserEnroll e = new UserEnroll("jupiter2", "1027",
+                "E=test,cn=test,uid=test", "test", "test", "test", "t1", "t",
                 "/u/lgopal/work/tetCMS/ns/tetframework/testcases/CMS/6.0/acceptanceJava/data/certdb",
                 "secret12", "true", "1024", "RSA", "rn", "re", "client");
 
         e.clientCertEnroll();
+  
+        /* if ( args.length < 1)
+         {
+         System.out.println("Usage : propertiesfile");
+         System.exit(0);
+         }   
 
-        /*
-         * if ( args.length < 1) { System.out.println("Usage : propertiesfile");
-         * System.exit(0); }
-         * 
-         * 
-         * UserEnroll t = new UserEnroll(args[0]); st=t.enroll(); if (st){
-         * System
-         * .out.println("User Enrolled successfully . RequestId is "+t.getrequestId
-         * ()); System.exit(t.getRequestId()); } else{
-         * 
-         * System.out.println("Error: " + t.getErrorDetail()); System.exit(0); }
+
+         UserEnroll t = new UserEnroll(args[0]);
+         st=t.enroll();
+         if (st){ 
+         System.out.println("User Enrolled successfully . RequestId is "+t.getrequestId());
+         System.exit(t.getRequestId());
+         }     	
+         else{
+
+         System.out.println("Error: " + t.getErrorDetail());	 
+         System.exit(0);
+         }
          */
     }// end of function main
 
-} // end of class
+} // end of class 
 

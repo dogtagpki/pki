@@ -17,7 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmsutil.radius;
 
+
 import java.io.IOException;
+
 
 public class LoginIPHostAttribute extends Attribute {
     public static final int NAS_ALLOW_SELECT = 0xFFFFFFFF;

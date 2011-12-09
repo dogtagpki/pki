@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.def;
 
+
 import java.io.ByteArrayInputStream;
 import java.math.BigInteger;
 import java.security.interfaces.DSAParams;
@@ -39,10 +40,12 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 
+
 /**
- * This class implements an enrollment default policy that populates a user
- * supplied key into the certificate template.
- * 
+ * This class implements an enrollment default policy
+ * that populates a user supplied key
+ * into the certificate template.
+ *
  * @version $Revision$, $Date$
  */
 public class UserKeyDefault extends EnrollDefault {
@@ -59,74 +62,86 @@ public class UserKeyDefault extends EnrollDefault {
     }
 
     public void init(IProfile profile, IConfigStore config)
-            throws EProfileException {
+        throws EProfileException {
         super.init(profile, config);
     }
 
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         if (name.equals(VAL_KEY)) {
-            return new Descriptor(IDescriptor.STRING, IDescriptor.READONLY,
-                    null, CMS.getUserMessage(locale, "CMS_PROFILE_KEY"));
+            return new Descriptor(IDescriptor.STRING, 
+                    IDescriptor.READONLY, 
+                    null,
+                    CMS.getUserMessage(locale, "CMS_PROFILE_KEY"));
         } else if (name.equals(VAL_LEN)) {
-            return new Descriptor(IDescriptor.STRING, IDescriptor.READONLY,
-                    null, CMS.getUserMessage(locale, "CMS_PROFILE_KEY_LEN"));
+            return new Descriptor(IDescriptor.STRING,
+                    IDescriptor.READONLY, 
+                    null,
+                    CMS.getUserMessage(locale, "CMS_PROFILE_KEY_LEN"));
         } else if (name.equals(VAL_TYPE)) {
-            return new Descriptor(IDescriptor.STRING, IDescriptor.READONLY,
-                    null, CMS.getUserMessage(locale, "CMS_PROFILE_KEY_TYPE"));
+            return new Descriptor(IDescriptor.STRING,
+                    IDescriptor.READONLY, 
+                    null,
+                    CMS.getUserMessage(locale, "CMS_PROFILE_KEY_TYPE"));
         } else {
             return null;
         }
     }
 
-    public void setValue(String name, Locale locale, X509CertInfo info,
-            String value) throws EPropertyException {
+    public void setValue(String name, Locale locale,
+        X509CertInfo info, String value)
+        throws EPropertyException {
         // this default rule is readonly
     }
 
-    public String getValue(String name, Locale locale, X509CertInfo info)
-            throws EPropertyException {
-        if (name == null) {
-            throw new EPropertyException(CMS.getUserMessage(locale,
-                    "CMS_INVALID_PROPERTY", name));
+    public String getValue(String name, Locale locale,
+        X509CertInfo info)
+        throws EPropertyException {
+        if (name == null) { 
+            throw new EPropertyException(CMS.getUserMessage(
+                        locale, "CMS_INVALID_PROPERTY", name));
         }
         if (name.equals(VAL_KEY)) {
             CertificateX509Key ck = null;
 
             try {
-                ck = (CertificateX509Key) info.get(X509CertInfo.KEY);
+                ck = (CertificateX509Key)
+                        info.get(X509CertInfo.KEY);
             } catch (Exception e) {
                 // nothing
             }
             X509Key k = null;
 
             try {
-                k = (X509Key) ck.get(CertificateX509Key.KEY);
+                k = (X509Key)
+                        ck.get(CertificateX509Key.KEY);
             } catch (Exception e) {
                 // nothing
-            }
+            } 
             if (k == null) {
-                throw new EPropertyException(CMS.getUserMessage(locale,
-                        "CMS_PROFILE_KEY_NOT_FOUND"));
+                throw new EPropertyException(CMS.getUserMessage(
+                            locale, "CMS_PROFILE_KEY_NOT_FOUND"));
             }
             return toHexString(k.getKey());
         } else if (name.equals(VAL_LEN)) {
             CertificateX509Key ck = null;
 
             try {
-                ck = (CertificateX509Key) info.get(X509CertInfo.KEY);
+                ck = (CertificateX509Key)
+                        info.get(X509CertInfo.KEY);
             } catch (Exception e) {
                 // nothing
             }
             X509Key k = null;
 
             try {
-                k = (X509Key) ck.get(CertificateX509Key.KEY);
+                k = (X509Key)
+                        ck.get(CertificateX509Key.KEY);
             } catch (Exception e) {
                 // nothing
             }
-            if (k == null) {
-                throw new EPropertyException(CMS.getUserMessage(locale,
-                        "CMS_PROFILE_KEY_NOT_FOUND"));
+            if (k == null) { 
+                throw new EPropertyException(CMS.getUserMessage(
+                            locale, "CMS_PROFILE_KEY_NOT_FOUND"));
             }
             try {
                 if (k.getAlgorithm().equals("RSA")) {
@@ -136,33 +151,35 @@ public class UserKeyDefault extends EnrollDefault {
                 }
             } catch (Exception e) {
                 CMS.debug("UserKeyDefault: getValue " + e.toString());
-                throw new EPropertyException(CMS.getUserMessage(locale,
-                        "CMS_INVALID_PROPERTY", name));
+                throw new EPropertyException(CMS.getUserMessage(
+                            locale, "CMS_INVALID_PROPERTY", name));
             }
         } else if (name.equals(VAL_TYPE)) {
             CertificateX509Key ck = null;
 
             try {
-                ck = (CertificateX509Key) info.get(X509CertInfo.KEY);
+                ck = (CertificateX509Key)
+                        info.get(X509CertInfo.KEY);
             } catch (Exception e) {
                 // nothing
             }
             X509Key k = null;
 
             try {
-                k = (X509Key) ck.get(CertificateX509Key.KEY);
+                k = (X509Key)
+                        ck.get(CertificateX509Key.KEY);
             } catch (Exception e) {
                 // nothing
             }
-            if (k == null) {
-                throw new EPropertyException(CMS.getUserMessage(locale,
-                        "CMS_PROFILE_KEY_NOT_FOUND"));
+            if (k == null) { 
+                throw new EPropertyException(CMS.getUserMessage(
+                            locale, "CMS_PROFILE_KEY_NOT_FOUND"));
             }
-            return k.getAlgorithm() + " - "
-                    + k.getAlgorithmId().getOID().toString();
+            return k.getAlgorithm() + " - " + 
+                k.getAlgorithmId().getOID().toString();
         } else {
-            throw new EPropertyException(CMS.getUserMessage(locale,
-                    "CMS_INVALID_PROPERTY", name));
+            throw new EPropertyException(CMS.getUserMessage(
+                        locale, "CMS_INVALID_PROPERTY", name));
         }
     }
 
@@ -174,7 +191,8 @@ public class UserKeyDefault extends EnrollDefault {
         X509Key newkey = null;
 
         try {
-            newkey = new X509Key(AlgorithmId.get("RSA"), key.getKey());
+            newkey = new X509Key(AlgorithmId.get("RSA"),
+                        key.getKey());
         } catch (Exception e) {
             CMS.debug("UserKeyDefault: getRSAKey " + e.toString());
             throw e;
@@ -199,16 +217,15 @@ public class UserKeyDefault extends EnrollDefault {
      * Populates the request with this policy default.
      */
     public void populate(IRequest request, X509CertInfo info)
-            throws EProfileException {
+        throws EProfileException {
         CertificateX509Key certKey = null;
         // authenticate the certificate key, and move
         // the key from request into x509 certinfo
         try {
-            byte[] certKeyData = request
-                    .getExtDataInByteArray(IEnrollProfile.REQUEST_KEY);
+            byte[] certKeyData = request.getExtDataInByteArray(IEnrollProfile.REQUEST_KEY);
             if (certKeyData != null) {
-                certKey = new CertificateX509Key(new ByteArrayInputStream(
-                        certKeyData));
+                certKey = new CertificateX509Key(
+                        new ByteArrayInputStream(certKeyData));
             }
             info.set(X509CertInfo.KEY, certKey);
         } catch (Exception e) {

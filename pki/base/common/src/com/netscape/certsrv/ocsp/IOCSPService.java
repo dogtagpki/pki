@@ -17,49 +17,53 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.ocsp;
 
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmsutil.ocsp.OCSPRequest;
 import com.netscape.cmsutil.ocsp.OCSPResponse;
 
+
 /**
- * This class represents the servlet that serves the Online Certificate Status
- * Protocol (OCSP) requests.
- * 
+ * This class represents the servlet that serves the Online Certificate
+ * Status Protocol (OCSP) requests.
+ *
  * @version $Revision$ $Date$
  */
-public interface IOCSPService {
+public interface IOCSPService
+{
     /**
-     * This method validates the information associated with the specified OCSP
-     * request and returns an OCSP response.
+     * This method validates the information associated with the specified
+     * OCSP request and returns an OCSP response.
      * <P>
-     * 
+     *
      * @param r an OCSP request
-     * @return OCSPResponse the OCSP response associated with the specified OCSP
-     *         request
+     * @return OCSPResponse the OCSP response associated with the specified
+     *     OCSP request
      * @exception EBaseException an error associated with the inability to
-     *                process the supplied OCSP request
+     *     process the supplied OCSP request
      */
-    public OCSPResponse validate(OCSPRequest r) throws EBaseException;
+    public OCSPResponse validate(OCSPRequest r) 
+        throws EBaseException;
 
     /**
      * Returns the in-memory count of the processed OCSP requests.
-     * 
+     *
      * @return number of processed OCSP requests in memory
      */
     public long getNumOCSPRequest();
 
     /**
-     * Returns the in-memory time (in mini-second) of the processed time for
-     * OCSP requests.
-     * 
+     * Returns the in-memory time (in mini-second) of
+     * the processed time for OCSP requests.
+     *
      * @return processed times for OCSP requests
      */
     public long getOCSPRequestTotalTime();
 
     /**
-     * Returns the in-memory time (in mini-second) of the signing time for OCSP
-     * requests.
-     * 
+     * Returns the in-memory time (in mini-second) of
+     * the signing time for OCSP requests.
+     *
      * @return processed times for OCSP requests
      */
     public long getOCSPTotalSignTime();
@@ -67,9 +71,11 @@ public interface IOCSPService {
     public long getOCSPTotalLookupTime();
 
     /**
-     * Returns the total data signed for OCSP requests.
-     * 
+     * Returns the total data signed
+     * for OCSP requests.
+     *
      * @return processed times for OCSP requests
      */
     public long getOCSPTotalData();
 }
+

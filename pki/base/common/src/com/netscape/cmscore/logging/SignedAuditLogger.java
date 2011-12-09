@@ -17,19 +17,23 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.logging;
 
+
+
+
 /**
- * A class represents certificate server logger implementation.
+ * A class represents certificate server logger
+ * implementation.
  * <P>
- * 
- * @author thomask
+ *
+ * @author thomask 
  * @author mzhao
  * @version $Revision$, $Date$
  */
 public class SignedAuditLogger extends Logger {
 
     /**
-     * Constructs a generic logger, and registers a list of resident event
-     * factories.
+     * Constructs a generic logger, and registers a list
+     * of resident event factories.
      */
     public SignedAuditLogger() {
         super();

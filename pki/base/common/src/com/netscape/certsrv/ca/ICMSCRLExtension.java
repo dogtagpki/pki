@@ -17,52 +17,58 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.ca;
 
+
 import netscape.security.x509.Extension;
 
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.NameValuePairs;
 
+
 /**
  * An interface representing a CRL extension plugin.
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public interface ICMSCRLExtension {
 
     /**
      * Returns CRL extension OID string.
-     * 
+     *
      * @return OID of CRL extension
      */
     public String getCRLExtOID();
 
     /**
-     * Sets extension criticality and returns extension with new criticality.
-     * 
+     * Sets extension criticality and returns extension
+     * with new criticality.
+     *
      * @param ext CRL extension that will change criticality
      * @param critical new criticality to be assigned to CRL extension
      * @return extension with new criticality
      */
-    Extension setCRLExtensionCriticality(Extension ext, boolean critical);
+    Extension setCRLExtensionCriticality(Extension ext,
+        boolean critical);
 
     /**
-     * Builds new CRL extension based on configuration data, issuing point
-     * information, and criticality.
-     * 
+     * Builds new CRL extension based on configuration data,
+     * issuing point information, and criticality.
+     *
      * @param config configuration store
      * @param crlIssuingPoint CRL issuing point
      * @param critical criticality to be assigned to CRL extension
      * @return extension new CRL extension
      */
-    Extension getCRLExtension(IConfigStore config, Object crlIssuingPoint,
-            boolean critical);
+    Extension getCRLExtension(IConfigStore config,
+        Object crlIssuingPoint,
+        boolean critical);
 
     /**
      * Reads configuration data and converts them to name value pairs.
-     * 
+     *
      * @param config configuration store
-     * @param nvp name value pairs obtained from configuration data
+     * @param nvp name value pairs obtained from configuration data 
      */
-    public void getConfigParams(IConfigStore config, NameValuePairs nvp);
-}
+    public void getConfigParams(IConfigStore config,
+        NameValuePairs nvp);
+} 

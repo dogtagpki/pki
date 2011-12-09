@@ -17,10 +17,14 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.dbs;
 
+
+
+
 /**
- * An interface represents a filter converter that understands how to convert a
- * attribute type from one defintion to another. For example,
- * 
+ * An interface represents a filter converter
+ * that understands how to convert a attribute
+ * type from one defintion to another.
+ * For example, 
  * <PRE>
  * (1) database layer need to convert
  *     registered attribute type to ldap attribute
@@ -30,13 +34,13 @@ package com.netscape.certsrv.dbs;
  *     attribute type.
  * </PRE>
  * 
- * @version $Revision$, $Date$
+ * @version $Revision$, $Date$ 
  */
 public interface IFilterConverter {
 
     /**
      * Converts attribute into LDAP attribute.
-     * 
+     *
      * @param attr attribute name
      * @param op attribute operation
      * @param value attribute value

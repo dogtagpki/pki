@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.policy.constraints;
 
+
 import java.util.Date;
 import java.util.Locale;
 import java.util.Vector;
@@ -34,24 +35,26 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cms.policy.APolicyRule;
 
+
 /**
- * ValidityConstraints is a default rule for Enrollment and Renewal that
- * enforces minimum and maximum validity periods and changes them if not met.
- * 
- * Optionally the lead and lag times - i.e how far back into the front or back
- * the notBefore date could go in minutes can also be specified.
+ * ValidityConstraints is a default rule for Enrollment and
+ * Renewal that enforces minimum and maximum validity periods
+ * and changes them if not met.
+ *
+ * Optionally the lead and lag times - i.e how far back into the
+ * front or back the notBefore date could go in minutes can also
+ * be specified.
  * <P>
- * 
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- * 
+ *
  * @deprecated
  * @version $Revision$, $Date$
  */
-public class ValidityConstraints extends APolicyRule implements
-        IEnrollmentPolicy, IExtendedPluginInfo {
+public class ValidityConstraints extends APolicyRule
+    implements IEnrollmentPolicy, IExtendedPluginInfo {
     protected long mMinValidity;
     protected long mMaxValidity;
     protected long mLeadTime;
@@ -74,29 +77,32 @@ public class ValidityConstraints extends APolicyRule implements
     private final static Vector defConfParams = new Vector();
 
     static {
-        defConfParams.addElement(PROP_MIN_VALIDITY + "=" + DEF_MIN_VALIDITY);
-        defConfParams.addElement(PROP_MAX_VALIDITY + "=" + DEF_MAX_VALIDITY);
-        defConfParams.addElement(PROP_LEAD_TIME + "=" + DEF_LEAD_TIME);
-        defConfParams.addElement(PROP_LAG_TIME + "=" + DEF_LAG_TIME);
-        defConfParams.addElement(PROP_NOT_BEFORE_SKEW + "="
-                + DEF_NOT_BEFORE_SKEW);
+        defConfParams.addElement(PROP_MIN_VALIDITY + "=" +
+            DEF_MIN_VALIDITY);
+        defConfParams.addElement(PROP_MAX_VALIDITY + "=" +
+            DEF_MAX_VALIDITY);
+        defConfParams.addElement(PROP_LEAD_TIME + "=" +
+            DEF_LEAD_TIME);
+        defConfParams.addElement(PROP_LAG_TIME + "=" +
+            DEF_LAG_TIME);
+        defConfParams.addElement(PROP_NOT_BEFORE_SKEW + "=" +
+            DEF_NOT_BEFORE_SKEW);
     }
 
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
                 PROP_MIN_VALIDITY + ";number;Minimum Validity time, in days",
                 PROP_MAX_VALIDITY + ";number;Maximum Validity time, in days",
-                PROP_LEAD_TIME
-                        + ";number;Number of minutes in the future a request's notBefore can be",
+                PROP_LEAD_TIME + ";number;Number of minutes in the future a request's notBefore can be",
                 PROP_LAG_TIME + ";number;NOT CURRENTLY IN USE",
-                PROP_NOT_BEFORE_SKEW
-                        + ";number;Number of minutes a cert's notBefore should be in the past",
-                IExtendedPluginInfo.HELP_TOKEN
-                        + ";configuration-policyrules-validityconstraints",
-                IExtendedPluginInfo.HELP_TEXT
-                        + ";Ensures that the user's requested validity period is "
-                        + "acceptable. If not specified, as is usually the case, "
-                        + "this policy will set the validity. See RFC 2459." };
+                PROP_NOT_BEFORE_SKEW + ";number;Number of minutes a cert's notBefore should be in the past",
+                IExtendedPluginInfo.HELP_TOKEN +
+                ";configuration-policyrules-validityconstraints",
+                IExtendedPluginInfo.HELP_TEXT +
+                ";Ensures that the user's requested validity period is " +
+                "acceptable. If not specified, as is usually the case, " +
+                "this policy will set the validity. See RFC 2459."
+            };
 
         return params;
 
@@ -110,19 +116,19 @@ public class ValidityConstraints extends APolicyRule implements
     /**
      * Initializes this policy rule.
      * <P>
-     * 
+     *
      * The entries probably are of the form:
-     * 
-     * ra.Policy.rule.<ruleName>.implName=ValidityConstraints
-     * ra.Policy.rule.<ruleName>.enable=true
-     * ra.Policy.rule.<ruleName>.minValidity=30
-     * ra.Policy.rule.<ruleName>.maxValidity=180
-     * ra.Policy.rule.<ruleName>.predicate=ou==Sales
-     * 
-     * @param config The config store reference
+     *
+     *      ra.Policy.rule.<ruleName>.implName=ValidityConstraints
+     *      ra.Policy.rule.<ruleName>.enable=true
+     *      ra.Policy.rule.<ruleName>.minValidity=30
+     *      ra.Policy.rule.<ruleName>.maxValidity=180
+     *      ra.Policy.rule.<ruleName>.predicate=ou==Sales
+     *
+     * @param config	The config store reference
      */
     public void init(ISubsystem owner, IConfigStore config)
-            throws EPolicyException {
+        throws EPolicyException {
 
         // Get min and max validity in days and configure them.
         try {
@@ -158,18 +164,18 @@ public class ValidityConstraints extends APolicyRule implements
                 mNotBeforeSkew = DEF_NOT_BEFORE_SKEW * MINS_TO_MS_FACTOR;
         } catch (Exception e) {
             // e.printStackTrace();
-            String[] params = { getInstanceName(), e.toString() };
+            String[] params = {getInstanceName(), e.toString()};
 
-            throw new EPolicyException(CMS.getUserMessage(
-                    "CMS_POLICY_INVALID_POLICY_CONFIG", params));
+            throw new EPolicyException(
+                    CMS.getUserMessage("CMS_POLICY_INVALID_POLICY_CONFIG", params));
         }
     }
 
     /**
      * Applies the policy on the given Request.
      * <P>
-     * 
-     * @param req The request on which to apply policy.
+     *
+     * @param req	The request on which to apply policy.
      * @return The policy result object.
      */
     public PolicyResult apply(IRequest req) {
@@ -178,10 +184,9 @@ public class ValidityConstraints extends APolicyRule implements
 
         try {
             // Get the certificate info from the request
-            // X509CertInfo certInfo[] = (X509CertInfo[])
-            // req.get(IRequest.CERT_INFO);
-            X509CertInfo certInfo[] = req
-                    .getExtDataInCertInfoArray(IRequest.CERT_INFO);
+            //X509CertInfo certInfo[] = (X509CertInfo[])
+            //    req.get(IRequest.CERT_INFO);
+            X509CertInfo certInfo[] = req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
 
             // There should be a certificate info set.
             if (certInfo == null) {
@@ -192,67 +197,64 @@ public class ValidityConstraints extends APolicyRule implements
 
             // Else check if validity is within the limit
             for (int i = 0; i < certInfo.length; i++) {
-                CertificateValidity validity = (CertificateValidity) certInfo[i]
-                        .get(X509CertInfo.VALIDITY);
+                CertificateValidity validity = (CertificateValidity)
+                    certInfo[i].get(X509CertInfo.VALIDITY);
 
                 Date notBefore = null, notAfter = null;
 
                 if (validity != null) {
-                    notBefore = (Date) validity
-                            .get(CertificateValidity.NOT_BEFORE);
-                    notAfter = (Date) validity
-                            .get(CertificateValidity.NOT_AFTER);
+                    notBefore = (Date)
+                            validity.get(CertificateValidity.NOT_BEFORE);
+                    notAfter = (Date)
+                            validity.get(CertificateValidity.NOT_AFTER);
                 }
 
-                // If no validity is supplied yet, make one. The default
+                // If no validity is supplied yet, make one.  The default
                 // validity is supposed to pass the following checks, so
                 // bypass further checking.
                 // (date = 0 is hack for serialization)
 
-                if (validity == null
-                        || (notBefore.getTime() == 0 && notAfter.getTime() == 0)) {
+                if (validity == null ||
+                    (notBefore.getTime() == 0 && notAfter.getTime() == 0)) {
                     certInfo[i].set(X509CertInfo.VALIDITY,
-                            makeDefaultValidity(req));
+                        makeDefaultValidity(req));
                     continue;
                 }
 
                 Date now = CMS.getCurrentDate();
 
                 if (notBefore.getTime() > (now.getTime() + mLeadTime)) {
-                    setError(req,
-                            CMS.getUserMessage("CMS_POLICY_INVALID_BEGIN_TIME",
-                                    getInstanceName()), "");
+                    setError(req, CMS.getUserMessage("CMS_POLICY_INVALID_BEGIN_TIME",
+                            getInstanceName()), "");
                     result = PolicyResult.REJECTED;
                 }
-                if ((notAfter.getTime() - notBefore.getTime()) > mMaxValidity) {
-                    String params[] = {
-                            getInstanceName(),
-                            String.valueOf(((notAfter.getTime() - notBefore
-                                    .getTime()) / DAYS_TO_MS_FACTOR)),
-                            String.valueOf(mMaxValidity / DAYS_TO_MS_FACTOR) };
+                if ((notAfter.getTime() - notBefore.getTime()) >
+                    mMaxValidity) {
+                    String params[] = {getInstanceName(), 
+                            String.valueOf(
+                                ((notAfter.getTime() - notBefore.getTime()) / DAYS_TO_MS_FACTOR)),
+                            String.valueOf(mMaxValidity / DAYS_TO_MS_FACTOR)};
 
-                    setError(req, CMS.getUserMessage(
-                            "CMS_POLICY_MORE_THAN_MAX_VALIDITY", params), "");
+                    setError(req, CMS.getUserMessage("CMS_POLICY_MORE_THAN_MAX_VALIDITY", params), "");
                     result = PolicyResult.REJECTED;
                 }
-                if ((notAfter.getTime() - notBefore.getTime()) < mMinValidity) {
-                    String params[] = {
-                            getInstanceName(),
-                            String.valueOf(((notAfter.getTime() - notBefore
-                                    .getTime()) / DAYS_TO_MS_FACTOR)),
-                            String.valueOf(mMinValidity / DAYS_TO_MS_FACTOR) };
+                if ((notAfter.getTime() - notBefore.getTime()) <
+                    mMinValidity) {
+                    String params[] = {getInstanceName(), 
+                            String.valueOf(
+                                ((notAfter.getTime() - notBefore.getTime()) / DAYS_TO_MS_FACTOR)),
+                            String.valueOf(mMinValidity / DAYS_TO_MS_FACTOR)};
 
-                    setError(req, CMS.getUserMessage(
-                            "CMS_POLICY_LESS_THAN_MIN_VALIDITY", params), "");
+                    setError(req, CMS.getUserMessage("CMS_POLICY_LESS_THAN_MIN_VALIDITY", params), "");
                     result = PolicyResult.REJECTED;
                 }
             }
         } catch (Exception e) {
             // e.printStackTrace();
-            String params[] = { getInstanceName(), e.toString() };
+            String params[] = {getInstanceName(), e.toString()};
 
-            setError(req, CMS.getUserMessage(
-                    "CMS_POLICY_UNEXPECTED_POLICY_ERROR", params), "");
+            setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR",
+                    params), "");
             result = PolicyResult.REJECTED;
         }
         return result;
@@ -260,28 +262,28 @@ public class ValidityConstraints extends APolicyRule implements
 
     /**
      * Return configured parameters for a policy rule instance.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector getInstanceParams() {
         Vector confParams = new Vector();
 
-        confParams.addElement(PROP_MIN_VALIDITY + "=" + mMinValidity
-                / DAYS_TO_MS_FACTOR);
-        confParams.addElement(PROP_MAX_VALIDITY + "=" + mMaxValidity
-                / DAYS_TO_MS_FACTOR);
-        confParams.addElement(PROP_LEAD_TIME + "=" + mLeadTime
-                / MINS_TO_MS_FACTOR);
-        confParams.addElement(PROP_LAG_TIME + "=" + mLagTime
-                / MINS_TO_MS_FACTOR);
-        confParams.addElement(PROP_NOT_BEFORE_SKEW + "=" + mNotBeforeSkew
-                / MINS_TO_MS_FACTOR);
+        confParams.addElement(PROP_MIN_VALIDITY + "=" +
+            mMinValidity / DAYS_TO_MS_FACTOR);
+        confParams.addElement(PROP_MAX_VALIDITY + "=" +
+            mMaxValidity / DAYS_TO_MS_FACTOR);
+        confParams.addElement(PROP_LEAD_TIME + "=" 
+            + mLeadTime / MINS_TO_MS_FACTOR);
+        confParams.addElement(PROP_LAG_TIME + "=" + 
+            mLagTime / MINS_TO_MS_FACTOR);
+        confParams.addElement(PROP_NOT_BEFORE_SKEW + "=" + 
+            mNotBeforeSkew / MINS_TO_MS_FACTOR);
         return confParams;
     }
 
     /**
      * Return default parameters for a policy implementation.
-     * 
+     *
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector getDefaultParams() {
@@ -290,12 +292,12 @@ public class ValidityConstraints extends APolicyRule implements
 
     /**
      * Create a default validity value for a request
-     * 
+     *
      * This code can be easily overridden in a derived class, if the
      * calculations here aren't accepatble.
-     * 
-     * TODO: it might be good to base this calculation on the creation time of
-     * the request.
+     *
+     * TODO: it might be good to base this calculation on the creation
+     * time of the request.
      */
     protected CertificateValidity makeDefaultValidity(IRequest req) {
         long now = roundTimeToSecond((CMS.getCurrentDate()).getTime());
@@ -309,11 +311,13 @@ public class ValidityConstraints extends APolicyRule implements
     }
 
     /**
-     * convert a millisecond resolution time into one with 1 second resolution.
-     * Most times in certificates are storage at 1 second resolution, so its
-     * better if we deal with things at that level.
+     * convert a millisecond resolution time into one with 1 second
+     * resolution.  Most times in certificates are storage at 1
+     * second resolution, so its better if we deal with things at
+     * that level.
      */
     protected long roundTimeToSecond(long input) {
         return (input / 1000) * 1000;
     }
 }
+

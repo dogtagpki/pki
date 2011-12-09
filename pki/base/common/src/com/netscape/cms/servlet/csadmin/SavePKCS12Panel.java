@@ -34,19 +34,19 @@ import com.netscape.cms.servlet.wizard.WizardServlet;
 
 public class SavePKCS12Panel extends WizardPanelBase {
 
-    public SavePKCS12Panel() {
-    }
+    public SavePKCS12Panel() {}
 
     /**
      * Initializes this panel.
      */
-    public void init(ServletConfig config, int panelno) throws ServletException {
+    public void init(ServletConfig config, int panelno) 
+        throws ServletException {
         setPanelNo(panelno);
         setName("Save Keys and Certificates");
     }
 
-    public void init(WizardServlet servlet, ServletConfig config, int panelno,
-            String id) throws ServletException {
+    public void init(WizardServlet servlet, ServletConfig config, int panelno, String id)
+        throws ServletException {
         setPanelNo(panelno);
         setName("Save Keys and Certificates");
         setId(id);
@@ -60,11 +60,11 @@ public class SavePKCS12Panel extends WizardPanelBase {
 
         try {
             boolean enable = cs.getBoolean("preop.backupkeys.enable", false);
-            if (!enable)
+            if (!enable) 
                 return true;
         } catch (Exception e) {
         }
-
+ 
         return false;
     }
 
@@ -77,14 +77,13 @@ public class SavePKCS12Panel extends WizardPanelBase {
             } else {
                 return true;
             }
-        } catch (EBaseException e) {
-        }
+        } catch (EBaseException e) {}
         return false;
     }
 
     public PropertySet getUsage() {
         PropertySet set = new PropertySet();
-
+                                                                                
         return set;
     }
 
@@ -96,7 +95,8 @@ public class SavePKCS12Panel extends WizardPanelBase {
      * Display the panel.
      */
     public void display(HttpServletRequest request,
-            HttpServletResponse response, Context context) {
+            HttpServletResponse response,
+            Context context) {
         context.put("title", "Save Keys and Certificates");
         IConfigStore config = CMS.getConfigStore();
         String subsystemtype = "";
@@ -116,14 +116,15 @@ public class SavePKCS12Panel extends WizardPanelBase {
      * Checks if the given parameters are valid.
      */
     public void validate(HttpServletRequest request,
-            HttpServletResponse response, Context context) throws IOException {
+      HttpServletResponse response, Context context) throws IOException {
     }
 
     /**
      * Commit parameter changes
      */
     public void update(HttpServletRequest request,
-            HttpServletResponse response, Context context) throws IOException {
+            HttpServletResponse response,
+            Context context) throws IOException {
         context.put("title", "Save Keys and Certificates");
         context.put("panel", "admin/console/config/savepkcs12panel.vm");
         context.put("updateStatus", "success");
@@ -133,7 +134,9 @@ public class SavePKCS12Panel extends WizardPanelBase {
      * If validiate() returns false, this method will be called.
      */
     public void displayError(HttpServletRequest request,
-            HttpServletResponse response, Context context) {
+        HttpServletResponse response,
+        Context context)
+    {
         context.put("title", "Save Keys and Certificates");
         context.put("panel", "admin/console/config/savepkcs12panel.vm");
     }

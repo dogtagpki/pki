@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.dbs;
 
+
 import java.math.BigInteger;
 import java.util.Date;
 import java.util.Enumeration;
@@ -28,12 +29,14 @@ import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.KeyState;
 
+
 /**
- * A class represents a Key record. It maintains the key life cycle as well as
- * other information about an archived key. Namely, whether a key is inactive
- * because of compromise.
+ * A class represents a Key record. It maintains the key
+ * life cycle as well as other information about an
+ * archived key. Namely, whether a key is inactive because
+ * of compromise.
  * <P>
- * 
+ *
  * @author thomask
  * @version $Revision$, $Date$
  */
@@ -79,13 +82,14 @@ public class KeyRecord implements IDBObj, IKeyRecord {
     }
 
     /*
-     * Constructs key record.
+     *  Constructs key record.
      * 
      * @param key key to be archived
      */
-    public KeyRecord(BigInteger serialNo, byte publicData[],
-            byte privateData[], String owner, String algorithm, String agentId)
-            throws EBaseException {
+    public KeyRecord(BigInteger serialNo, byte publicData[], 
+        byte privateData[], String owner,
+        String algorithm, String agentId) 
+        throws EBaseException {
         mSerialNo = serialNo;
         mPublicKey = publicData;
         mPrivateKey = privateData;
@@ -127,9 +131,7 @@ public class KeyRecord implements IDBObj, IKeyRecord {
         } else if (name.equalsIgnoreCase(ATTR_ARCHIVED_BY)) {
             mArchivedBy = (String) object;
         } else {
-            throw new EBaseException(
-                    com.netscape.certsrv.apps.CMS.getUserMessage(
-                            "CMS_BASE_INVALID_ATTRIBUTE", name));
+            throw new EBaseException(com.netscape.certsrv.apps.CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
         }
     }
 
@@ -163,9 +165,7 @@ public class KeyRecord implements IDBObj, IKeyRecord {
         } else if (name.equalsIgnoreCase(ATTR_ARCHIVED_BY)) {
             return mArchivedBy;
         } else {
-            throw new EBaseException(
-                    com.netscape.certsrv.apps.CMS.getUserMessage(
-                            "CMS_BASE_INVALID_ATTRIBUTE", name));
+            throw new EBaseException(com.netscape.certsrv.apps.CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
         }
     }
 
@@ -174,8 +174,7 @@ public class KeyRecord implements IDBObj, IKeyRecord {
      * <P>
      */
     public void delete(String name) throws EBaseException {
-        throw new EBaseException(com.netscape.certsrv.apps.CMS.getUserMessage(
-                "CMS_BASE_INVALID_ATTRIBUTE", name));
+        throw new EBaseException(com.netscape.certsrv.apps.CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
     }
 
     /**
@@ -194,10 +193,10 @@ public class KeyRecord implements IDBObj, IKeyRecord {
     }
 
     /**
-     * Retrieves serial number of the key record. Each key record is uniquely
-     * identified by serial number.
+     * Retrieves serial number of the key record. Each key record
+     * is uniquely identified by serial number.
      * <P>
-     * 
+     *
      * @return serial number of this key record
      */
     public BigInteger getSerialNumber() throws EBaseException {
@@ -212,9 +211,10 @@ public class KeyRecord implements IDBObj, IKeyRecord {
     }
 
     /**
-     * Retrieves the key state. This gives key life cycle information.
+     * Retrieves the key state. This gives key life cycle 
+     * information.
      * <P>
-     * 
+     *
      * @return key state
      */
     public KeyState getState() throws EBaseException {
@@ -239,7 +239,7 @@ public class KeyRecord implements IDBObj, IKeyRecord {
     /**
      * Retrieves key.
      * <P>
-     * 
+     * 	
      * @return archived key
      */
     public byte[] getPrivateKeyData() throws EBaseException {
@@ -256,7 +256,7 @@ public class KeyRecord implements IDBObj, IKeyRecord {
     /**
      * Retrieves the key size.
      * <P>
-     * 
+     *
      * @return key size
      */
     public Integer getKeySize() throws EBaseException {
@@ -280,7 +280,7 @@ public class KeyRecord implements IDBObj, IKeyRecord {
     }
 
     /**
-     * Sets owner name.
+     * Sets owner name.	
      * <P>
      */
     public void setOwnerName(String name) throws EBaseException {
@@ -338,7 +338,8 @@ public class KeyRecord implements IDBObj, IKeyRecord {
     }
 
     /**
-     * Retrieves the last modification time of this record.
+     * Retrieves the last modification time of 
+     * this record.
      */
     public Date getModifyTime() {
         return mModifyTime;

@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.ca;
 
+
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
@@ -85,17 +86,18 @@ import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.util.Debug;
 
 /**
- * This class encapsulates CRL issuing mechanism. CertificateAuthority contains
- * a map of CRLIssuingPoint indexed by string ids. Each issuing point contains
- * information about CRL issuing and publishing parameters as well as state
- * information which includes last issued CRL, next CRL serial number, time of
- * the next update etc. If autoUpdateInterval is set to non-zero value then
- * worker thread is created that will perform CRL update at scheduled intervals.
- * Update can also be triggered by invoking updateCRL method directly. Another
- * parameter minUpdateInterval can be used to prevent CRL from being updated too
- * often
+ * This class encapsulates CRL issuing mechanism. CertificateAuthority 
+ * contains a map of CRLIssuingPoint indexed by string ids. Each issuing 
+ * point contains information about CRL issuing and publishing parameters 
+ * as well as state information which includes last issued CRL, next CRL 
+ * serial number, time of the next update etc. 
+ * If autoUpdateInterval is set to non-zero value then worker thread 
+ * is created that will perform CRL update at scheduled intervals. Update 
+ * can also be triggered by invoking updateCRL method directly. Another 
+ * parameter minUpdateInterval can be used to prevent CRL
+ * from being updated too often
  * <P>
- * 
+ *
  * @author awnuk
  * @author lhsiao
  * @author galperin
@@ -132,8 +134,8 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     protected String mId = null;
 
     /**
-     * Reference to the CertificateAuthority instance which owns this issuing
-     * point.
+     * Reference to the CertificateAuthority instance which owns this 
+     * issuing point.
      */
     protected ICertificateAuthority mCA = null;
 
@@ -160,16 +162,16 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     /**
      * CRL cache
      */
-    private Hashtable<BigInteger, RevokedCertificate> mCRLCerts = new Hashtable<BigInteger, RevokedCertificate>();
-    private Hashtable<BigInteger, RevokedCertificate> mRevokedCerts = new Hashtable<BigInteger, RevokedCertificate>();
-    private Hashtable<BigInteger, RevokedCertificate> mUnrevokedCerts = new Hashtable<BigInteger, RevokedCertificate>();
-    private Hashtable<BigInteger, RevokedCertificate> mExpiredCerts = new Hashtable<BigInteger, RevokedCertificate>();
+    private Hashtable<BigInteger,RevokedCertificate> mCRLCerts = new Hashtable<BigInteger, RevokedCertificate>();
+    private Hashtable<BigInteger,RevokedCertificate> mRevokedCerts = new Hashtable<BigInteger, RevokedCertificate>();
+    private Hashtable<BigInteger,RevokedCertificate> mUnrevokedCerts = new Hashtable<BigInteger, RevokedCertificate>();
+    private Hashtable<BigInteger,RevokedCertificate> mExpiredCerts = new Hashtable<BigInteger, RevokedCertificate>();
     private boolean mIncludeExpiredCerts = false;
     private boolean mIncludeExpiredCertsOneExtraTime = false;
     private boolean mCACertsOnly = false;
 
     private boolean mProfileCertsOnly = false;
-    private Vector<String> mProfileList = null;
+    private Vector<String>  mProfileList = null;
 
     /**
      * Enable CRL cache.
@@ -177,7 +179,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     private boolean mEnableCRLCache = true;
     private boolean mCRLCacheIsCleared = true;
     private boolean mEnableCacheRecovery = false;
-    private String mFirstUnsaved = null;
+    private String  mFirstUnsaved = null;
     private boolean mEnableCacheTesting = false;
 
     /**
@@ -186,8 +188,8 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     private long mLastCacheUpdate = 0;
 
     /**
-     * Time interval in milliseconds between consequential CRL cache updates
-     * performed automatically.
+     * Time interval in milliseconds between consequential CRL cache 
+     * updates performed automatically.
      */
     private long mCacheUpdateInterval;
 
@@ -206,7 +208,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
      * Enable CRL daily updates at listed times.
      */
     private boolean mEnableDailyUpdates = false;
-    private Vector<Vector<Integer>> mDailyUpdates = null;
+    private Vector<Vector<Integer>> mDailyUpdates = null; 
     private int mCurrentDay = 0;
     private int mLastDay = 0;
     private int mTimeListSize = 0;
@@ -218,14 +220,14 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     private boolean mEnableUpdateFreq = false;
 
     /**
-     * Time interval in milliseconds between consequential CRL Enable CRL daily
-     * update at updates performed automatically.
+     * Time interval in milliseconds between consequential CRL Enable CRL daily update at updates 
+     * performed automatically.
      */
     private long mAutoUpdateInterval;
 
     /**
-     * Minimum time interval in milliseconds between consequential CRL updates
-     * (manual or automatic).
+     * Minimum time interval in milliseconds between consequential 
+     * CRL updates (manual or automatic).
      */
     private long mMinUpdateInterval;
 
@@ -237,16 +239,17 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     /**
      * next update grace period
      */
-    private long mNextUpdateGracePeriod;
+    private long mNextUpdateGracePeriod; 
 
     /**
-     * Boolean flag controlling whether CRLv2 extensions are to be used in CRL.
+     * Boolean flag controlling whether CRLv2 extensions are to be 
+     * used in CRL.
      */
     private boolean mAllowExtensions = false;
 
     /**
-     * DN of the directory entry where CRLs from this issuing point are
-     * published.
+     * DN of the directory entry where CRLs from this issuing point 
+     * are published.
      */
     private String mPublishDN = null;
 
@@ -259,7 +262,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     /**
      * Cached value of the CRL extensions to be placed in CRL
      */
-    // protected CRLExtensions mCrlExtensions;
+    //protected CRLExtensions mCrlExtensions;
 
     /**
      * CRL number
@@ -294,7 +297,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     private Thread mUpdateThread = null;
 
     /**
-     * for going one more round when auto-interval is set to 0 (turned off)
+     * for going one more round when auto-interval is set to 0 (turned off) 
      */
     private boolean mDoLastAutoUpdate = false;
 
@@ -310,15 +313,15 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     private long mDeltaCRLSize = -1;
 
     /**
-     * update status, publishing status Strings to store in requests to display
-     * result.
+     * update status, publishing status Strings to store in requests to 
+     * display result.
      */
     private String mCrlUpdateStatus;
     private String mCrlUpdateError;
     private String mCrlPublishStatus;
     private String mCrlPublishError;
 
-    /**
+    /** 
      * begin, end serial number range of revoked certs if any.
      */
     protected BigInteger mBeginSerial = null;
@@ -327,7 +330,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     private int mUpdatingCRL = CRL_UPDATE_DONE;
 
     private boolean mDoManualUpdate = false;
-    private String mSignatureAlgorithmForManualUpdate = null;
+    private String  mSignatureAlgorithmForManualUpdate = null;
 
     private boolean mPublishOnStart = false;
     private long[] mSplits = new long[10];
@@ -335,8 +338,8 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     private boolean mSaveMemory = false;
 
     /**
-     * Constructs a CRL issuing point from instantiating from class name. CRL
-     * Issuing point must be followed by method call init(CA, id, config);
+     * Constructs a CRL issuing point from instantiating from class name.
+     * CRL Issuing point must be followed by method call init(CA, id, config);
      */
     public CRLIssuingPoint() {
     }
@@ -395,41 +398,39 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     }
 
     public boolean isProfileCertsOnly() {
-        return (mProfileCertsOnly && mProfileList != null && mProfileList
-                .size() > 0);
+        return (mProfileCertsOnly && mProfileList != null && mProfileList.size() > 0);
     }
 
     public boolean checkCurrentProfile(String id) {
         boolean b = false;
 
-        if (mProfileCertsOnly && mProfileList != null
-                && mProfileList.size() > 0) {
+        if (mProfileCertsOnly && mProfileList != null && mProfileList.size() > 0) {
             for (int k = 0; k < mProfileList.size(); k++) {
                 String profileId = mProfileList.elementAt(k);
-                if (id != null && profileId != null
-                        && profileId.equalsIgnoreCase(id)) {
+                if (id != null && profileId != null && profileId.equalsIgnoreCase(id)) {
                     b = true;
                     break;
                 }
             }
         }
-
+            
         return b;
     }
+
 
     /**
      * Initializes a CRL issuing point config.
      * <P>
-     * 
-     * @param ca reference to CertificateAuthority instance which owns this
-     *            issuing point.
+     *
+     * @param ca reference to CertificateAuthority instance which 
+     * owns this issuing point.
      * @param id string id of this CRL issuing point.
      * @param config configuration of this CRL issuing point.
      * @exception EBaseException if initialization failed
      * @exception IOException
      */
-    public void init(ISubsystem ca, String id, IConfigStore config)
-            throws EBaseException {
+    public void init(ISubsystem ca, String id, IConfigStore config) 
+        throws EBaseException {
         mCA = (ICertificateAuthority) ca;
         mId = id;
 
@@ -447,19 +448,17 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
         mConfigStore = config;
 
-        IConfigStore crlSubStore = mCA.getConfigStore().getSubStore(
-                ICertificateAuthority.PROP_CRL_SUBSTORE);
-        mPageSize = crlSubStore.getInteger(
-                ICertificateAuthority.PROP_CRL_PAGE_SIZE, CRL_PAGE_SIZE);
-        CMS.debug("CRL Page Size: " + mPageSize);
+        IConfigStore crlSubStore = mCA.getConfigStore().getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE);
+        mPageSize = crlSubStore.getInteger(ICertificateAuthority.PROP_CRL_PAGE_SIZE, CRL_PAGE_SIZE);
+        CMS.debug("CRL Page Size: "+ mPageSize);
 
-        mCountMod = config.getInteger("countMod", 0);
+        mCountMod = config.getInteger("countMod",0);
         mCRLRepository = mCA.getCRLRepository();
         mCertRepository = mCA.getCertificateRepository();
         ((CertificateRepository) mCertRepository).addCRLIssuingPoint(mId, this);
         mPublisherProcessor = mCA.getPublisherProcessor();
 
-        // mCRLPublisher = mCA.getCRLPublisher();
+        //mCRLPublisher = mCA.getCRLPublisher();
         ((CAService) mCA.getCAService()).addCRLIssuingPoint(mId, this);
 
         // read in config parameters.
@@ -470,8 +469,8 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         String crlListName = lname + "_" + mId;
 
         if (mCA.getRequestListener(crlListName) == null) {
-            mCA.registerRequestListener(crlListName,
-                    new RevocationRequestListener());
+            mCA.registerRequestListener(
+                crlListName, new RevocationRequestListener());
         }
 
         for (int i = 0; i < mSplits.length; i++) {
@@ -482,62 +481,52 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         setAutoUpdates();
     }
 
+
     private int checkTime(String time) {
         String digits = "0123456789";
 
         int len = time.length();
-        if (len < 3 || len > 5)
-            return -1;
+        if (len < 3 || len > 5) return -1;
 
         int s = time.indexOf(':');
-        if (s < 0 || s > 2 || (len - s) != 3)
-            return -1;
+        if (s < 0 || s > 2 || (len - s) != 3) return -1;
 
         int h = 0;
         for (int i = 0; i < s; i++) {
             h *= 10;
             int k = digits.indexOf(time.charAt(i));
-            if (k < 0)
-                return -1;
+            if (k < 0) return -1;
             h += k;
         }
-        if (h > 23)
-            return -1;
+        if (h > 23)  return -1;
 
         int m = 0;
-        for (int i = s + 1; i < len; i++) {
+        for (int i = s+1; i < len; i++) {
             m *= 10;
             int k = digits.indexOf(time.charAt(i));
-            if (k < 0)
-                return -1;
+            if (k < 0) return -1;
             m += k;
         }
-        if (m > 59)
-            return -1;
+        if (m > 59)  return -1;
 
         return ((h * 60) + m);
     }
 
-    private boolean areTimeListsIdentical(Vector<Vector<Integer>> list1,
-            Vector<Vector<Integer>> list2) {
+    private boolean areTimeListsIdentical(Vector<Vector<Integer>> list1, Vector<Vector<Integer>> list2) {
         boolean identical = true;
-        if (list1 == null || list2 == null)
-            identical = false;
-        if (identical && list1.size() != list2.size())
-            identical = false;
+        if (list1 == null || list2 == null) identical = false;
+        if (identical && list1.size() != list2.size()) identical = false;
         for (int i = 0; identical && i < list1.size(); i++) {
             Vector<Integer> times1 = list1.elementAt(i);
             Vector<Integer> times2 = list2.elementAt(i);
-            if (times1.size() != times2.size())
-                identical = false;
+            if (times1.size() != times2.size()) identical = false;
             for (int j = 0; identical && j < times1.size(); j++) {
-                if ((((times1.elementAt(j))).intValue()) != (((times2
-                        .elementAt(j))).intValue())) {
+                if ((((times1.elementAt(j))).intValue()) != (((times2.elementAt(j))).intValue())) {
                     identical = false;
                 }
             }
         }
-        CMS.debug("areTimeListsIdentical:  identical: " + identical);
+        CMS.debug("areTimeListsIdentical:  identical: "+identical);
         return identical;
     }
 
@@ -546,25 +535,23 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         int listSize = 0;
         for (int i = 0; listedDays != null && i < listedDays.size(); i++) {
             Vector<Integer> listedTimes = listedDays.elementAt(i);
-            listSize += ((listedTimes != null) ? listedTimes.size() : 0);
+            listSize += ((listedTimes != null)? listedTimes.size(): 0);
         }
-        CMS.debug("getTimeListSize:  ListSize=" + listSize);
+        CMS.debug("getTimeListSize:  ListSize="+listSize);
         return listSize;
     }
 
     private boolean isTimeListExtended(String list) {
-        boolean extendedTimeList = true;
-        if (list == null || list.indexOf('*') == -1)
-            extendedTimeList = false;
-        return extendedTimeList;
+       boolean extendedTimeList = true; 
+       if (list == null || list.indexOf('*') == -1)
+           extendedTimeList = false;
+       return extendedTimeList;
     }
 
     private Vector<Vector<Integer>> getTimeList(String list) {
         boolean timeListPresent = false;
-        if (list == null || list.length() == 0)
-            return null;
-        if (list.charAt(0) == ',' || list.charAt(list.length() - 1) == ',')
-            return null;
+        if (list == null || list.length() == 0) return null;
+        if (list.charAt(0) == ',' || list.charAt(list.length()-1) == ',') return null;
 
         Vector<Vector<Integer>> listedDays = new Vector<Vector<Integer>>();
 
@@ -572,8 +559,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         Vector<Integer> listedTimes = null;
         while (days.hasMoreTokens()) {
             String dayList = days.nextToken().trim();
-            if (dayList == null)
-                continue;
+            if (dayList == null) continue;
 
             if (dayList.equals(";")) {
                 if (timeListPresent) {
@@ -602,7 +588,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                     return null;
                 } else {
                     if (t > t0) {
-                        listedTimes.addElement(new Integer(k * t));
+                        listedTimes.addElement(new Integer(k*t));
                         t0 = t;
                     } else {
                         return null;
@@ -612,7 +598,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         }
         if (!timeListPresent) {
             listedTimes = new Vector<Integer>();
-            listedDays.addElement(listedTimes);
+            listedDays.addElement(listedTimes);            
         }
 
         return listedDays;
@@ -621,7 +607,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     private String checkProfile(String id, Enumeration<String> e) {
         if (e != null) {
             while (e.hasMoreElements()) {
-                String profileId = e.nextElement();
+                String profileId =  e.nextElement();
                 if (profileId != null && profileId.equalsIgnoreCase(id))
                     return id;
             }
@@ -632,12 +618,9 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     private Vector<String> getProfileList(String list) {
         Enumeration<String> e = null;
         IConfigStore pc = CMS.getConfigStore().getSubStore("profile");
-        if (pc != null)
-            e = pc.getSubStoreNames();
-        if (list == null)
-            return null;
-        if (list.length() > 0 && list.charAt(list.length() - 1) == ',')
-            return null;
+        if (pc != null) e = pc.getSubStoreNames();
+        if (list == null) return null;
+        if (list.length() > 0 && list.charAt(list.length()-1) == ',') return null;
 
         Vector<String> listedProfiles = new Vector<String>();
 
@@ -646,10 +629,8 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         int n = 0;
         while (elements.hasMoreTokens()) {
             String element = elements.nextToken().trim();
-            if (element == null || element.length() == 0)
-                return null;
-            if (element.equals(",") && n % 2 == 0)
-                return null;
+            if (element == null || element.length() == 0) return null;
+            if (element.equals(",") && n % 2 == 0) return null;
             if (n % 2 == 0) {
                 String id = checkProfile(element, e);
                 if (id != null) {
@@ -658,28 +639,26 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             }
             n++;
         }
-        if (n % 2 == 0)
-            return null;
+        if (n % 2 == 0) return null;
 
         return listedProfiles;
     }
 
+
     /**
      * get CRL config store info
      */
-    protected void initConfig(IConfigStore config) throws EBaseException {
+    protected void initConfig(IConfigStore config)
+        throws EBaseException {
 
         mEnable = config.getBoolean(Constants.PR_ENABLE, true);
         mDescription = config.getString(Constants.PR_DESCRIPTION);
 
         // Get CRL cache config.
         mEnableCRLCache = config.getBoolean(Constants.PR_ENABLE_CACHE, true);
-        mCacheUpdateInterval = MINUTE
-                * config.getInteger(Constants.PR_CACHE_FREQ, 0);
-        mEnableCacheRecovery = config.getBoolean(Constants.PR_CACHE_RECOVERY,
-                false);
-        mEnableCacheTesting = config.getBoolean(Constants.PR_CACHE_TESTING,
-                false);
+        mCacheUpdateInterval = MINUTE * config.getInteger(Constants.PR_CACHE_FREQ, 0);
+        mEnableCacheRecovery = config.getBoolean(Constants.PR_CACHE_RECOVERY, false);
+        mEnableCacheTesting = config.getBoolean(Constants.PR_CACHE_TESTING, false);
 
         // check if CRL generation is enabled
         mEnableCRLUpdates = config.getBoolean(Constants.PR_ENABLE_CRL, true);
@@ -692,43 +671,34 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         mAlwaysUpdate = config.getBoolean(Constants.PR_UPDATE_ALWAYS, false);
 
         // Get list of daily updates.
-        mEnableDailyUpdates = config.getBoolean(Constants.PR_ENABLE_DAILY,
-                false);
+        mEnableDailyUpdates = config.getBoolean(Constants.PR_ENABLE_DAILY, false);
         String daily = config.getString(Constants.PR_DAILY_UPDATES, null);
         mDailyUpdates = getTimeList(daily);
         mExtendedTimeList = isTimeListExtended(daily);
         mTimeListSize = getTimeListSize(mDailyUpdates);
-        if (mDailyUpdates == null || mDailyUpdates.isEmpty()
-                || mTimeListSize == 0) {
+        if (mDailyUpdates == null || mDailyUpdates.isEmpty() || mTimeListSize == 0) {
             mEnableDailyUpdates = false;
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_CA_INVALID_TIME_LIST"));
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_INVALID_TIME_LIST"));
         }
 
         // Get auto update interval in minutes.
         mEnableUpdateFreq = config.getBoolean(Constants.PR_ENABLE_FREQ, true);
-        mAutoUpdateInterval = MINUTE
-                * config.getInteger(Constants.PR_UPDATE_FREQ, 0);
-        mMinUpdateInterval = MINUTE
-                * config.getInteger(PROP_MIN_UPDATE_INTERVAL, 0);
-        if (mEnableUpdateFreq && mAutoUpdateInterval > 0
-                && mAutoUpdateInterval < mMinUpdateInterval)
+        mAutoUpdateInterval = MINUTE * config.getInteger(Constants.PR_UPDATE_FREQ, 0);
+        mMinUpdateInterval = MINUTE * config.getInteger(PROP_MIN_UPDATE_INTERVAL, 0);
+        if (mEnableUpdateFreq && mAutoUpdateInterval > 0 &&
+            mAutoUpdateInterval < mMinUpdateInterval)
             mAutoUpdateInterval = mMinUpdateInterval;
 
-        // get next update grace period
-        mNextUpdateGracePeriod = MINUTE
-                * config.getInteger(Constants.PR_GRACE_PERIOD, 0);
+        // get next update grace period 
+        mNextUpdateGracePeriod = MINUTE * config.getInteger(Constants.PR_GRACE_PERIOD, 0);
 
-        // Get V2 or V1 CRL
+        // Get V2 or V1 CRL 
         mAllowExtensions = config.getBoolean(Constants.PR_EXTENSIONS, false);
 
-        mIncludeExpiredCerts = config.getBoolean(
-                Constants.PR_INCLUDE_EXPIREDCERTS, false);
-        mIncludeExpiredCertsOneExtraTime = config.getBoolean(
-                Constants.PR_INCLUDE_EXPIREDCERTS_ONEEXTRATIME, false);
+        mIncludeExpiredCerts = config.getBoolean(Constants.PR_INCLUDE_EXPIREDCERTS, false);
+        mIncludeExpiredCertsOneExtraTime = config.getBoolean(Constants.PR_INCLUDE_EXPIREDCERTS_ONEEXTRATIME, false);
         mCACertsOnly = config.getBoolean(Constants.PR_CA_CERTS_ONLY, false);
-        mProfileCertsOnly = config.getBoolean(Constants.PR_PROFILE_CERTS_ONLY,
-                false);
+        mProfileCertsOnly = config.getBoolean(Constants.PR_PROFILE_CERTS_ONLY, false);
         if (mProfileCertsOnly) {
             String profiles = config.getString(Constants.PR_PROFILE_LIST, null);
             mProfileList = getProfileList(profiles);
@@ -737,17 +707,16 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         // Get default signing algorithm.
         // check if algorithm is supported.
         mSigningAlgorithm = mCA.getCRLSigningUnit().getDefaultAlgorithm();
-        String algorithm = config.getString(Constants.PR_SIGNING_ALGORITHM,
-                null);
+        String algorithm = config.getString(Constants.PR_SIGNING_ALGORITHM, null);
 
         if (algorithm != null) {
-            // make sure this algorithm is acceptable to CA.
+            // make sure this algorithm is acceptable to CA. 
             mCA.getCRLSigningUnit().checkSigningAlgorithmFromName(algorithm);
             mSigningAlgorithm = algorithm;
         }
 
         mPublishOnStart = config.getBoolean(PROP_PUBLISH_ON_START, false);
-        // if publish dn is null then certificate will be published to
+        // if publish dn is null then certificate will be published to 
         // CA's entry in the directory.
         mPublishDN = config.getString(PROP_PUBLISH_DN, null);
 
@@ -755,28 +724,30 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
         mCMSCRLExtensions = new CMSCRLExtensions(this, config);
 
-        mExtendedNextUpdate = ((mUpdateSchema > 1 || (mEnableDailyUpdates && mExtendedTimeList)) && isDeltaCRLEnabled()) ? config
-                .getBoolean(Constants.PR_EXTENDED_NEXT_UPDATE, true) : false;
+        mExtendedNextUpdate = ((mUpdateSchema > 1 || (mEnableDailyUpdates && mExtendedTimeList)) && isDeltaCRLEnabled())?
+                                config.getBoolean(Constants.PR_EXTENDED_NEXT_UPDATE, true):
+                                false;
 
         // Get serial number ranges if any.
         mBeginSerial = config.getBigInteger(PROP_BEGIN_SERIAL, null);
         if (mBeginSerial != null && mBeginSerial.compareTo(BigInteger.ZERO) < 0) {
-            throw new EBaseException(CMS.getUserMessage(
-                    "CMS_BASE_INVALID_PROPERTY_1", PROP_BEGIN_SERIAL,
-                    "BigInteger", "positive number"));
+            throw new EBaseException(
+                    CMS.getUserMessage("CMS_BASE_INVALID_PROPERTY_1", 
+                        PROP_BEGIN_SERIAL, "BigInteger", "positive number"));
         }
         mEndSerial = config.getBigInteger(PROP_END_SERIAL, null);
         if (mEndSerial != null && mEndSerial.compareTo(BigInteger.ZERO) < 0) {
-            throw new EBaseException(CMS.getUserMessage(
-                    "CMS_BASE_INVALID_PROPERTY_1", PROP_END_SERIAL,
-                    "BigInteger", "positive number"));
+            throw new EBaseException(
+                    CMS.getUserMessage("CMS_BASE_INVALID_PROPERTY_1", 
+                        PROP_END_SERIAL, "BigInteger", "positive number"));
         }
     }
 
     /**
-     * Reads CRL issuing point, if missing, it creates one. Initializes CRL
-     * cache and republishes CRL if requested Called from auto update thread
-     * (run()). Do not call it from init(), because it will block CMS on start.
+     * Reads CRL issuing point, if missing, it creates one.
+     * Initializes CRL cache and republishes CRL if requested
+     * Called from auto update thread (run()).
+     * Do not call it from init(), because it will block CMS on start.
      */
     private void initCRL() {
         ICRLIssuingPointRecord crlRecord = null;
@@ -786,14 +757,12 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         try {
             crlRecord = mCRLRepository.readCRLIssuingPointRecord(mId);
         } catch (EDBNotAvailException e) {
-            log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_CA_ISSUING_INST_CRL",
-                            e.toString()));
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_INST_CRL", e.toString()));
             mInitialized = CRL_IP_INITIALIZATION_FAILED;
             return;
         } catch (EBaseException e) {
             // CRL was never set.
-            // fall to the following..
+            // fall to the following.. 
         }
 
         if (crlRecord != null) {
@@ -833,19 +802,16 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
             mNextUpdate = crlRecord.getNextUpdate();
             if (isDeltaCRLEnabled()) {
-                mNextDeltaUpdate = (mNextUpdate != null) ? new Date(
-                        mNextUpdate.getTime()) : null;
+                mNextDeltaUpdate = (mNextUpdate != null)? new Date(mNextUpdate.getTime()): null;
             }
 
             mFirstUnsaved = crlRecord.getFirstUnsaved();
             if (Debug.on()) {
-                Debug.trace("initCRL  CRLNumber=" + mCRLNumber.toString()
-                        + "  CRLSize=" + mCRLSize + "  FirstUnsaved="
-                        + mFirstUnsaved);
+                Debug.trace("initCRL  CRLNumber="+mCRLNumber.toString()+"  CRLSize="+mCRLSize+
+                            "  FirstUnsaved="+mFirstUnsaved);
             }
-            if (mFirstUnsaved == null
-                    || (mFirstUnsaved != null && mFirstUnsaved
-                            .equals(ICRLIssuingPointRecord.NEW_CACHE))) {
+            if (mFirstUnsaved == null ||
+                (mFirstUnsaved != null && mFirstUnsaved.equals(ICRLIssuingPointRecord.NEW_CACHE))) {
                 clearCRLCache();
                 updateCRLCacheRepository();
             } else {
@@ -859,14 +825,10 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                             x509crl = new X509CRLImpl(crl);
                         } catch (Exception e) {
                             clearCRLCache();
-                            log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                                    "CMSCORE_CA_ISSUING_DECODE_CRL",
-                                    e.toString()));
+                            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_DECODE_CRL", e.toString()));
                         } catch (OutOfMemoryError e) {
                             clearCRLCache();
-                            log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                                    "CMSCORE_CA_ISSUING_DECODE_CRL",
-                                    e.toString()));
+                            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_DECODE_CRL", e.toString()));
                             mInitialized = CRL_IP_INITIALIZATION_FAILED;
                             return;
                         }
@@ -874,8 +836,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                     if (x509crl != null) {
                         mLastFullUpdate = x509crl.getThisUpdate();
                         if (mEnableCRLCache) {
-                            if (mCRLCacheIsCleared
-                                    && mUpdatingCRL == CRL_UPDATE_DONE) {
+                            if (mCRLCacheIsCleared && mUpdatingCRL == CRL_UPDATE_DONE) {
                                 mRevokedCerts = crlRecord.getRevokedCerts();
                                 if (mRevokedCerts == null) {
                                     mRevokedCerts = new Hashtable<BigInteger, RevokedCertificate>();
@@ -891,12 +852,9 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                                 if (isDeltaCRLEnabled()) {
                                     mNextUpdate = x509crl.getNextUpdate();
                                 }
-                                mCRLCerts = x509crl
-                                        .getListOfRevokedCertificates();
+                                mCRLCerts = x509crl.getListOfRevokedCertificates();
                             }
-                            if (mFirstUnsaved != null
-                                    && !mFirstUnsaved
-                                            .equals(ICRLIssuingPointRecord.CLEAN_CACHE)) {
+                            if (mFirstUnsaved != null && !mFirstUnsaved.equals(ICRLIssuingPointRecord.CLEAN_CACHE)) {
                                 recoverCRLCache();
                             } else {
                                 mCRLCacheIsCleared = false;
@@ -909,14 +867,10 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                                 x509crl = null;
                             } catch (EBaseException e) {
                                 x509crl = null;
-                                log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                                        "CMSCORE_CA_ISSUING_PUBLISH_CRL",
-                                        mCRLNumber.toString(), e.toString()));
+                                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_PUBLISH_CRL", mCRLNumber.toString(), e.toString()));
                             } catch (OutOfMemoryError e) {
                                 x509crl = null;
-                                log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                                        "CMSCORE_CA_ISSUING_PUBLISH_CRL",
-                                        mCRLNumber.toString(), e.toString()));
+                                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_PUBLISH_CRL", mCRLNumber.toString(), e.toString()));
                             }
                         }
                     }
@@ -925,33 +879,30 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         }
 
         if (crlRecord == null) {
-            // no crl was ever created, or crl in db is corrupted.
+            // no crl was ever created, or crl in db is corrupted. 
             // create new one.
             try {
-                crlRecord = new CRLIssuingPointRecord(mId, BigInteger.ZERO,
-                        Long.valueOf(-1), null, null, BigInteger.ZERO,
-                        Long.valueOf(-1), mRevokedCerts, mUnrevokedCerts,
-                        mExpiredCerts);
+                crlRecord = new CRLIssuingPointRecord(mId, BigInteger.ZERO, Long.valueOf(-1),
+                                               null, null, BigInteger.ZERO, Long.valueOf(-1),
+                                          mRevokedCerts, mUnrevokedCerts, mExpiredCerts);
                 mCRLRepository.addCRLIssuingPointRecord(crlRecord);
-                mCRLNumber = BigInteger.ZERO; // BIG_ZERO;
-                mNextCRLNumber = BigInteger.ONE; // BIG_ONE;
+                mCRLNumber = BigInteger.ZERO;     //BIG_ZERO;
+                mNextCRLNumber = BigInteger.ONE;  //BIG_ONE;
                 mLastCRLNumber = mCRLNumber;
                 mDeltaCRLNumber = mCRLNumber;
                 mNextDeltaCRLNumber = mNextCRLNumber;
                 mLastUpdate = new Date(0L);
                 if (crlRecord != null) {
-                    // This will trigger updateCRLNow, which will also publish
-                    // CRL.
-                    if ((mDoManualUpdate == false)
-                            && (mEnableCRLCache || mAlwaysUpdate || (mEnableUpdateFreq && mAutoUpdateInterval > 0))) {
+                    // This will trigger updateCRLNow, which will also publish CRL.
+                    if ((mDoManualUpdate == false) &&
+                        (mEnableCRLCache || mAlwaysUpdate ||
+                         (mEnableUpdateFreq && mAutoUpdateInterval > 0))) {
                         mInitialized = CRL_IP_INITIALIZED;
                         setManualUpdate(null);
                     }
                 }
             } catch (EBaseException ex) {
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_CA_ISSUING_CREATE_CRL",
-                                ex.toString()));
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_CREATE_CRL", ex.toString()));
                 mInitialized = CRL_IP_INITIALIZATION_FAILED;
                 return;
             }
@@ -970,14 +921,13 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 NameValuePair p = params.elementAt(i);
                 String name = p.getName();
                 String value = p.getValue();
-
+                
                 // -- Update Schema --
                 if (name.equals(Constants.PR_ENABLE_CRL)) {
                     if (value.equals(Constants.FALSE) && mEnableCRLUpdates) {
                         mEnableCRLUpdates = false;
                         modifiedSchedule = true;
-                    } else if (value.equals(Constants.TRUE)
-                            && (!mEnableCRLUpdates)) {
+                    } else if (value.equals(Constants.TRUE) && (!mEnableCRLUpdates)) {
                         mEnableCRLUpdates = true;
                         modifiedSchedule = true;
                     }
@@ -1001,8 +951,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 if (name.equals(Constants.PR_EXTENDED_NEXT_UPDATE)) {
                     if (value.equals(Constants.FALSE) && mExtendedNextUpdate) {
                         mExtendedNextUpdate = false;
-                    } else if (value.equals(Constants.TRUE)
-                            && (!mExtendedNextUpdate)) {
+                    } else if (value.equals(Constants.TRUE) && (!mExtendedNextUpdate)) {
                         mExtendedNextUpdate = true;
                     }
                 }
@@ -1020,8 +969,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                     if (value.equals(Constants.FALSE) && mEnableDailyUpdates) {
                         mEnableDailyUpdates = false;
                         modifiedSchedule = true;
-                    } else if (value.equals(Constants.TRUE)
-                            && (!mEnableDailyUpdates)) {
+                    } else if (value.equals(Constants.TRUE) && (!mEnableDailyUpdates)) {
                         mEnableDailyUpdates = true;
                         modifiedSchedule = true;
                     }
@@ -1041,11 +989,9 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                         mTimeListSize = getTimeListSize(mDailyUpdates);
                         modifiedSchedule = true;
                     }
-                    if (mDailyUpdates == null || mDailyUpdates.isEmpty()
-                            || mTimeListSize == 0) {
+                    if (mDailyUpdates == null || mDailyUpdates.isEmpty() || mTimeListSize == 0) {
                         mEnableDailyUpdates = false;
-                        log(ILogger.LL_FAILURE,
-                                CMS.getLogMessage("CMSCORE_CA_INVALID_TIME_LIST"));
+                        log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_INVALID_TIME_LIST"));
                     }
                 }
 
@@ -1053,8 +999,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                     if (value.equals(Constants.FALSE) && mEnableUpdateFreq) {
                         mEnableUpdateFreq = false;
                         modifiedSchedule = true;
-                    } else if (value.equals(Constants.TRUE)
-                            && (!mEnableUpdateFreq)) {
+                    } else if (value.equals(Constants.TRUE) && (!mEnableUpdateFreq)) {
                         mEnableUpdateFreq = true;
                         modifiedSchedule = true;
                     }
@@ -1082,8 +1027,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 if (name.equals(Constants.PR_GRACE_PERIOD)) {
                     try {
                         if (value != null && value.length() > 0) {
-                            mNextUpdateGracePeriod = MINUTE
-                                    * Long.parseLong(value.trim());
+                            mNextUpdateGracePeriod = MINUTE * Long.parseLong(value.trim());
                         }
                     } catch (NumberFormatException e) {
                         noRestart = false;
@@ -1097,8 +1041,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                         updateCRLCacheRepository();
                         mEnableCRLCache = false;
                         modifiedSchedule = true;
-                    } else if (value.equals(Constants.TRUE)
-                            && (!mEnableCRLCache)) {
+                    } else if (value.equals(Constants.TRUE) && (!mEnableCRLCache)) {
                         clearCRLCache();
                         updateCRLCacheRepository();
                         mEnableCRLCache = true;
@@ -1123,8 +1066,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 if (name.equals(Constants.PR_CACHE_RECOVERY)) {
                     if (value.equals(Constants.FALSE) && mEnableCacheRecovery) {
                         mEnableCacheRecovery = false;
-                    } else if (value.equals(Constants.TRUE)
-                            && (!mEnableCacheRecovery)) {
+                    } else if (value.equals(Constants.TRUE) && (!mEnableCacheRecovery)) {
                         mEnableCacheRecovery = true;
                     }
                 }
@@ -1135,16 +1077,14 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                         updateCRLCacheRepository();
                         mEnableCacheTesting = false;
                         setManualUpdate(null);
-                    } else if (value.equals(Constants.TRUE)
-                            && (!mEnableCacheTesting)) {
+                    } else if (value.equals(Constants.TRUE) && (!mEnableCacheTesting)) {
                         mEnableCacheTesting = true;
                     }
                 }
 
                 // -- CRL Format --
                 if (name.equals(Constants.PR_SIGNING_ALGORITHM)) {
-                    if (value != null)
-                        value = value.trim();
+                    if (value != null) value = value.trim();
                     if (!mSigningAlgorithm.equals(value)) {
                         mSigningAlgorithm = value;
                     }
@@ -1155,8 +1095,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                         clearCRLCache();
                         updateCRLCacheRepository();
                         mAllowExtensions = false;
-                    } else if (value.equals(Constants.TRUE)
-                            && (!mAllowExtensions)) {
+                    } else if (value.equals(Constants.TRUE) && (!mAllowExtensions)) {
                         clearCRLCache();
                         updateCRLCacheRepository();
                         mAllowExtensions = true;
@@ -1168,8 +1107,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                         clearCRLCache();
                         updateCRLCacheRepository();
                         mIncludeExpiredCerts = false;
-                    } else if (value.equals(Constants.TRUE)
-                            && (!mIncludeExpiredCerts)) {
+                    } else if (value.equals(Constants.TRUE) && (!mIncludeExpiredCerts)) {
                         clearCRLCache();
                         updateCRLCacheRepository();
                         mIncludeExpiredCerts = true;
@@ -1177,11 +1115,9 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 }
 
                 if (name.equals(Constants.PR_INCLUDE_EXPIREDCERTS_ONEEXTRATIME)) {
-                    if (value.equals(Constants.FALSE)
-                            && mIncludeExpiredCertsOneExtraTime) {
+                    if (value.equals(Constants.FALSE) && mIncludeExpiredCertsOneExtraTime) {
                         mIncludeExpiredCertsOneExtraTime = false;
-                    } else if (value.equals(Constants.TRUE)
-                            && (!mIncludeExpiredCertsOneExtraTime)) {
+                    } else if (value.equals(Constants.TRUE) && (!mIncludeExpiredCertsOneExtraTime)) {
                         mIncludeExpiredCertsOneExtraTime = true;
                     }
                 }
@@ -1189,10 +1125,9 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 if (name.equals(Constants.PR_CA_CERTS_ONLY)) {
                     Extension distExt = getCRLExtension(IssuingDistributionPointExtension.NAME);
                     IssuingDistributionPointExtension iExt = (IssuingDistributionPointExtension) distExt;
-                    IssuingDistributionPoint issuingDistributionPoint = null;
-                    if (iExt != null)
-                        issuingDistributionPoint = iExt
-                                .getIssuingDistributionPoint();
+                    IssuingDistributionPoint issuingDistributionPoint =  null;
+                   if(iExt != null)
+                       issuingDistributionPoint = iExt.getIssuingDistributionPoint();
                     if (value.equals(Constants.FALSE) && mCACertsOnly) {
                         clearCRLCache();
                         updateCRLCacheRepository();
@@ -1202,31 +1137,27 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                         updateCRLCacheRepository();
                         mCACertsOnly = true;
                     }
-                    // attempt to sync the IssuingDistributionPoint Extension
-                    // value of
-                    // onlyContainsCACerts
-                    if (issuingDistributionPoint != null && params.size() > 1) {
-                        boolean onlyContainsCACerts = issuingDistributionPoint
-                                .getOnlyContainsCACerts();
-                        if (onlyContainsCACerts != mCACertsOnly) {
+                    //attempt to sync the IssuingDistributionPoint Extension value of
+                    //onlyContainsCACerts
+                    if(issuingDistributionPoint != null && params.size() > 1) {
+                        boolean onlyContainsCACerts = issuingDistributionPoint.getOnlyContainsCACerts();
+                        if(onlyContainsCACerts != mCACertsOnly) {
                             IConfigStore config = mCA.getConfigStore();
-                            IConfigStore crlsSubStore = config
-                                    .getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE);
-                            IConfigStore crlSubStore = crlsSubStore
-                                    .getSubStore(mId);
-                            IConfigStore crlExtsSubStore = crlSubStore
-                                    .getSubStore(ICertificateAuthority.PROP_CRLEXT_SUBSTORE);
-                            crlExtsSubStore = crlExtsSubStore
-                                    .getSubStore(IssuingDistributionPointExtension.NAME);
+                            IConfigStore crlsSubStore =
+                               config.getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE);
+                            IConfigStore crlSubStore = crlsSubStore.getSubStore(mId);
+                            IConfigStore crlExtsSubStore =
+                                crlSubStore.getSubStore(ICertificateAuthority.PROP_CRLEXT_SUBSTORE);
+                            crlExtsSubStore = crlExtsSubStore.getSubStore(IssuingDistributionPointExtension.NAME);
 
-                            if (crlExtsSubStore != null) {
+                            if(crlExtsSubStore != null) {
                                 String val = "";
-                                if (mCACertsOnly == true) {
+                                if(mCACertsOnly == true) {
                                     val = Constants.TRUE;
                                 } else {
                                     val = Constants.FALSE;
                                 }
-                                crlExtsSubStore.putString(PROP_CACERTS, val);
+                                crlExtsSubStore.putString(PROP_CACERTS,val);
                                 try {
                                     crlExtsSubStore.commit(true);
                                 } catch (Exception e) {
@@ -1241,8 +1172,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                         clearCRLCache();
                         updateCRLCacheRepository();
                         mProfileCertsOnly = false;
-                    } else if (value.equals(Constants.TRUE)
-                            && (!mProfileCertsOnly)) {
+                    } else if (value.equals(Constants.TRUE) && (!mProfileCertsOnly)) {
                         clearCRLCache();
                         updateCRLCacheRepository();
                         mProfileCertsOnly = true;
@@ -1251,13 +1181,12 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
                 if (name.equals(Constants.PR_PROFILE_LIST)) {
                     Vector<String> profileList = getProfileList(value);
-                    if (((profileList != null) ^ (mProfileList != null))
-                            || (profileList != null && mProfileList != null && (!mProfileList
-                                    .equals(profileList)))) {
+                    if (((profileList != null) ^ (mProfileList != null)) ||
+                        (profileList != null && mProfileList != null &&
+                        (!mProfileList.equals(profileList)))) {
                         if (profileList != null) {
                             @SuppressWarnings("unchecked")
-                            Vector<String> newProfileList = (Vector<String>) profileList
-                                    .clone();
+                            Vector<String> newProfileList =  (Vector<String>) profileList.clone();
                             mProfileList = newProfileList;
                         } else {
                             mProfileList = null;
@@ -1267,14 +1196,12 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                     }
                     if (mProfileList == null || mProfileList.isEmpty()) {
                         mProfileCertsOnly = false;
-                        log(ILogger.LL_FAILURE,
-                                CMS.getLogMessage("CMSCORE_CA_INVALID_PROFILE_LIST"));
+                        log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_INVALID_PROFILE_LIST"));
                     }
                 }
             }
 
-            if (modifiedSchedule)
-                setAutoUpdates();
+            if (modifiedSchedule) setAutoUpdates();
 
             return noRestart;
         }
@@ -1293,15 +1220,20 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
         setAutoUpdates();
         /*
-         * if (mUpdateThread != null) { try { mUpdateThread.interrupt(); } catch
-         * (Exception e) { } }
-         */
+        if (mUpdateThread != null) {
+            try {
+                mUpdateThread.interrupt();
+            }
+            catch (Exception e) {
+            }
+        }
+        */
     }
 
     /**
      * Returns internal id of this CRL issuing point.
      * <P>
-     * 
+     *
      * @return internal id of this CRL issuing point
      */
     public String getId() {
@@ -1311,7 +1243,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     /**
      * Returns internal description of this CRL issuing point.
      * <P>
-     * 
+     *
      * @return internal description of this CRL issuing point
      */
     public String getDescription() {
@@ -1320,7 +1252,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
     /**
      * Sets internal description of this CRL issuing point.
-     * 
+     *
      * @param description description for this CRL issuing point.
      */
     public void setDescription(String description) {
@@ -1328,10 +1260,10 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     }
 
     /**
-     * Returns DN of the directory entry where CRLs.from this issuing point are
-     * published.
+     * Returns DN of the directory entry where CRLs.from this issuing point
+     * are published.
      * <P>
-     * 
+     *
      * @return DN of the directory entry where CRLs are published.
      */
     public String getPublishDN() {
@@ -1341,7 +1273,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     /**
      * Returns signing algorithm.
      * <P>
-     * 
+     *
      * @return SigningAlgorithm.
      */
     public String getSigningAlgorithm() {
@@ -1355,7 +1287,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     /**
      * Returns current CRL generation schema for this CRL issuing point.
      * <P>
-     * 
+     *
      * @return current CRL generation schema for this CRL issuing point
      */
     public int getCRLSchema() {
@@ -1365,7 +1297,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     /**
      * Returns current CRL number of this CRL issuing point.
      * <P>
-     * 
+     *
      * @return current CRL number of this CRL issuing point
      */
     public BigInteger getCRLNumber() {
@@ -1375,18 +1307,17 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     /**
      * Returns current delta CRL number of this CRL issuing point.
      * <P>
-     * 
+     *
      * @return current delta CRL number of this CRL issuing point
      */
     public BigInteger getDeltaCRLNumber() {
-        return (isDeltaCRLEnabled() && mDeltaCRLSize > -1) ? mDeltaCRLNumber
-                : BigInteger.ZERO;
+        return (isDeltaCRLEnabled() && mDeltaCRLSize > -1)? mDeltaCRLNumber: BigInteger.ZERO;
     }
 
     /**
      * Returns next CRL number of this CRL issuing point.
      * <P>
-     * 
+     *
      * @return next CRL number of this CRL issuing point
      */
     public BigInteger getNextCRLNumber() {
@@ -1396,18 +1327,17 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     /**
      * Returns number of entries in the CRL
      * <P>
-     * 
+     *
      * @return number of entries in the CRL
      */
     public long getCRLSize() {
-        return (mCRLCerts.size() > 0 && mCRLSize == 0) ? mCRLCerts.size()
-                : mCRLSize;
+        return (mCRLCerts.size() > 0 && mCRLSize == 0)? mCRLCerts.size(): mCRLSize;
     }
 
     /**
      * Returns number of entries in delta CRL
      * <P>
-     * 
+     *
      * @return number of entries in delta CRL
      */
     public long getDeltaCRLSize() {
@@ -1417,7 +1347,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     /**
      * Returns last update time
      * <P>
-     * 
+     *
      * @return last CRL update time
      */
     public Date getLastUpdate() {
@@ -1427,7 +1357,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     /**
      * Returns next update time
      * <P>
-     * 
+     *
      * @return next CRL update time
      */
     public Date getNextUpdate() {
@@ -1437,7 +1367,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     /**
      * Returns next update time
      * <P>
-     * 
+     *
      * @return next CRL update time
      */
     public Date getNextDeltaUpdate() {
@@ -1447,15 +1377,14 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     /**
      * Returns all the revoked certificates from the CRL cache.
      * <P>
-     * 
+     *
      * @return set of all the revoked certificates or null if there are none.
      */
     public Set<RevokedCertificate> getRevokedCertificates(int start, int end) {
         if (mCRLCacheIsCleared || mCRLCerts == null || mCRLCerts.isEmpty()) {
             return null;
         } else {
-            Set<RevokedCertificate> certSet = new TreeSet<RevokedCertificate>(
-                    mCRLCerts.values());
+            Set<RevokedCertificate> certSet = new TreeSet<RevokedCertificate>(mCRLCerts.values());
             return certSet;
         }
     }
@@ -1463,7 +1392,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     /**
      * Returns certificate authority.
      * <P>
-     * 
+     *
      * @return certificate authority
      */
     public ISubsystem getCertificateAuthority() {
@@ -1475,27 +1404,29 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
      */
 
     private synchronized void setAutoUpdates() {
-        if ((mEnable && mUpdateThread == null)
-                && ((mEnableCRLCache && mCacheUpdateInterval > 0) || (mEnableCRLUpdates && ((mEnableDailyUpdates
-                        && mDailyUpdates != null && mTimeListSize > 0)
-                        || (mEnableUpdateFreq && mAutoUpdateInterval > 0)
-                        || (mInitialized == CRL_IP_NOT_INITIALIZED)
-                        || mDoLastAutoUpdate || mDoManualUpdate)))) {
+        if ((mEnable && mUpdateThread == null) &&
+            ((mEnableCRLCache && mCacheUpdateInterval > 0) ||
+             (mEnableCRLUpdates &&
+              ((mEnableDailyUpdates && mDailyUpdates != null &&
+                mTimeListSize > 0) ||
+               (mEnableUpdateFreq && mAutoUpdateInterval > 0) ||
+               (mInitialized == CRL_IP_NOT_INITIALIZED) ||
+                mDoLastAutoUpdate || mDoManualUpdate)))) {
             mUpdateThread = new Thread(this, "CRLIssuingPoint-" + mId);
-            log(ILogger.LL_INFO,
-                    CMS.getLogMessage("CMSCORE_CA_ISSUING_START_CRL", mId));
+            log(ILogger.LL_INFO, CMS.getLogMessage("CMSCORE_CA_ISSUING_START_CRL", mId));
             mUpdateThread.setDaemon(true);
             mUpdateThread.start();
         }
 
-        if ((mInitialized == CRL_IP_INITIALIZED)
-                && (((mNextUpdate != null) ^ ((mEnableDailyUpdates
-                        && mDailyUpdates != null && mTimeListSize > 0) || (mEnableUpdateFreq && mAutoUpdateInterval > 0))) || (!mEnableCRLUpdates && mNextUpdate != null))) {
-            mDoLastAutoUpdate = true;
+        if ((mInitialized == CRL_IP_INITIALIZED) && (((mNextUpdate != null) ^
+            ((mEnableDailyUpdates && mDailyUpdates != null && mTimeListSize > 0) ||
+             (mEnableUpdateFreq && mAutoUpdateInterval > 0))) ||
+             (!mEnableCRLUpdates && mNextUpdate != null))) {
+             mDoLastAutoUpdate = true;
         }
 
-        if (mEnableUpdateFreq && mAutoUpdateInterval > 0
-                && mAutoUpdateInterval < mMinUpdateInterval) {
+        if (mEnableUpdateFreq && mAutoUpdateInterval > 0 &&
+            mAutoUpdateInterval < mMinUpdateInterval) {
             mAutoUpdateInterval = mMinUpdateInterval;
         }
 
@@ -1503,14 +1434,14 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     }
 
     /**
-     * Sets CRL manual-update Starts or stops worker thread as necessary.
+     * Sets CRL manual-update 
+     * Starts or stops worker thread as necessary.
      */
     public synchronized void setManualUpdate(String signatureAlgorithm) {
         if (!mDoManualUpdate) {
             mDoManualUpdate = true;
             mSignatureAlgorithmForManualUpdate = signatureAlgorithm;
-            if (mEnableUpdateFreq && mAutoUpdateInterval > 0
-                    && mUpdateThread != null) {
+            if (mEnableUpdateFreq && mAutoUpdateInterval > 0 && mUpdateThread != null) {
                 notifyAll();
             } else {
                 setAutoUpdates();
@@ -1522,13 +1453,13 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
      * @return auto update interval in milliseconds.
      */
     public long getAutoUpdateInterval() {
-        return (mEnableUpdateFreq) ? mAutoUpdateInterval : 0;
+        return (mEnableUpdateFreq)? mAutoUpdateInterval: 0;
     }
 
     /**
-     * @return always update the CRL
+     * @return always update the CRL 
      */
-    public boolean getAlwaysUpdate() {
+    public boolean getAlwaysUpdate() { 
         return mAlwaysUpdate;
     }
 
@@ -1542,11 +1473,11 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
     /**
      * Finds next update time expressed as delay or time of the next update.
-     * 
-     * @param fromLastUpdate if true, function returns delay to the next update
-     *            time otherwise returns the next update time.
-     * @param delta if true, function returns the next update time for delta
-     *            CRL, otherwise returns the next update time for CRL.
+     *
+     * @param fromLastUpdate if true, function returns delay to the next update time
+     * otherwise returns the next update time.
+     * @param delta if true, function returns the next update time for delta CRL,
+     * otherwise returns the next update time for CRL.
      * @return delay to the next update time or the next update time itself
      */
     private long findNextUpdate(boolean fromLastUpdate, boolean delta) {
@@ -1554,61 +1485,52 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         TimeZone tz = TimeZone.getDefault();
         int offset = tz.getOffset(now);
         long oneDay = 1440L * MINUTE;
-        long nowToday = (now + (long) offset) % oneDay;
+        long nowToday = (now + (long)offset) % oneDay;
         long startOfToday = now - nowToday;
 
-        long lastUpdated = (mLastUpdate != null) ? mLastUpdate.getTime() : now;
-        long lastUpdateDay = lastUpdated
-                - ((lastUpdated + (long) offset) % oneDay);
+        long lastUpdated = (mLastUpdate != null)? mLastUpdate.getTime(): now;
+        long lastUpdateDay = lastUpdated - ((lastUpdated + (long)offset) % oneDay);
 
-        long lastUpdate = (mLastUpdate != null && fromLastUpdate) ? mLastUpdate
-                .getTime() : now;
-        long last = (lastUpdate + (long) offset) % oneDay;
+        long lastUpdate = (mLastUpdate != null && fromLastUpdate)? mLastUpdate.getTime(): now;
+        long last = (lastUpdate + (long)offset) % oneDay;
         long lastDay = lastUpdate - last;
 
         boolean isDeltaEnabled = isDeltaCRLEnabled();
         long next = 0L;
         long nextUpdate = 0L;
 
-        CMS.debug("findNextUpdate:  fromLastUpdate: " + fromLastUpdate
-                + "  delta: " + delta);
+        CMS.debug("findNextUpdate:  fromLastUpdate: "+fromLastUpdate+"  delta: "+delta);
 
-        int numberOfDays = (int) ((startOfToday - lastUpdateDay) / oneDay);
-        if (numberOfDays > 0
-                && mDailyUpdates.size() > 1
-                && ((mCurrentDay == mLastDay) || (mCurrentDay != ((mLastDay + numberOfDays) % mDailyUpdates
-                        .size())))) {
+        int numberOfDays = (int)((startOfToday - lastUpdateDay) / oneDay);
+        if (numberOfDays > 0 && mDailyUpdates.size() > 1 &&
+            ((mCurrentDay == mLastDay) ||
+             (mCurrentDay != ((mLastDay + numberOfDays) % mDailyUpdates.size())))) {
             mCurrentDay = (mLastDay + numberOfDays) % mDailyUpdates.size();
         }
 
-        if ((delta || fromLastUpdate)
-                && isDeltaEnabled
-                && (mUpdateSchema > 1 || (mEnableDailyUpdates && mExtendedTimeList))
-                && mNextDeltaUpdate != null) {
+        if ((delta || fromLastUpdate) && isDeltaEnabled &&
+            (mUpdateSchema > 1 || (mEnableDailyUpdates && mExtendedTimeList)) &&
+             mNextDeltaUpdate != null) {
             nextUpdate = mNextDeltaUpdate.getTime();
         } else if (mNextUpdate != null) {
             nextUpdate = mNextUpdate.getTime();
         }
 
-        if (mEnableDailyUpdates && mDailyUpdates != null
-                && mDailyUpdates.size() > 0) {
+        if (mEnableDailyUpdates &&
+            mDailyUpdates != null && mDailyUpdates.size() > 0) {
             int n = 0;
-            if (mDailyUpdates.size() == 1
-                    && mDailyUpdates.elementAt(0).size() == 1
-                    && mEnableUpdateFreq && mAutoUpdateInterval > 0) {
+            if (mDailyUpdates.size() == 1 && mDailyUpdates.elementAt(0).size() == 1 &&
+                mEnableUpdateFreq && mAutoUpdateInterval > 0) {
                 // Interval updates with starting time
-                long firstTime = MINUTE
-                        * ((Integer) mDailyUpdates.elementAt(0).elementAt(0))
-                                .longValue();
+                long firstTime = MINUTE * ((Integer)mDailyUpdates.elementAt(0).elementAt(0)).longValue();
                 long t = firstTime;
                 long interval = mAutoUpdateInterval;
-                if (mExtendedNextUpdate && (!fromLastUpdate) && (!delta)
-                        && isDeltaEnabled && mUpdateSchema > 1) {
+                if (mExtendedNextUpdate && (!fromLastUpdate) && (!delta) &&
+                    isDeltaEnabled && mUpdateSchema > 1) {
                     interval *= mUpdateSchema;
                 }
-                while (t < oneDay) {
-                    if (t - mMinUpdateInterval > last)
-                        break;
+                while  (t < oneDay) {
+                    if (t - mMinUpdateInterval > last) break;
                     t += interval;
                     n++;
                 }
@@ -1620,8 +1542,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                         if (t == firstTime) {
                             mSchemaCounter = 0;
                         } else if (n != mSchemaCounter) {
-                            if (mSchemaCounter != 0
-                                    && (mSchemaCounter < n || n == 0)) {
+                            if (mSchemaCounter != 0 && (mSchemaCounter < n || n == 0)) {
                                 mSchemaCounter = n;
                             }
                         }
@@ -1643,12 +1564,9 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 }
                 // search the current day
                 for (i = 0; i < mDailyUpdates.elementAt(mCurrentDay).size(); i++) {
-                    long t = MINUTE
-                            * ((Integer) mDailyUpdates.elementAt(mCurrentDay)
-                                    .elementAt(i)).longValue();
+                    long t = MINUTE * ((Integer)mDailyUpdates.elementAt(mCurrentDay).elementAt(i)).longValue();
                     if (mEnableDailyUpdates && mExtendedTimeList) {
-                        if (mExtendedNextUpdate && (!fromLastUpdate)
-                                && (!delta) && isDeltaEnabled) {
+                        if (mExtendedNextUpdate && (!fromLastUpdate) && (!delta) && isDeltaEnabled) {
                             if (t < 0) {
                                 t *= -1;
                             } else {
@@ -1661,11 +1579,8 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                         }
                     }
                     if (t - mMinUpdateInterval > last) {
-                        if (mExtendedNextUpdate
-                                && (!fromLastUpdate)
-                                && (!(mEnableDailyUpdates && mExtendedTimeList))
-                                && (!delta) && isDeltaEnabled
-                                && mUpdateSchema > 1) {
+                        if (mExtendedNextUpdate && (!fromLastUpdate) && (!(mEnableDailyUpdates && mExtendedTimeList)) && (!delta) &&
+                            isDeltaEnabled && mUpdateSchema > 1) {
                             i += mUpdateSchema - ((i + m) % mUpdateSchema);
                         }
                         break;
@@ -1675,26 +1590,21 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
                 if (i < mDailyUpdates.elementAt(mCurrentDay).size()) {
                     // found inside the current day
-                    next = (MINUTE * ((Integer) mDailyUpdates.elementAt(
-                            mCurrentDay).elementAt(i)).longValue());
+                    next = (MINUTE * ((Integer)mDailyUpdates.elementAt(mCurrentDay).elementAt(i)).longValue());
                     if (mEnableDailyUpdates && mExtendedTimeList && next < 0) {
                         next *= -1;
                         if (fromLastUpdate) {
                             mSchemaCounter = 0;
                         }
                     }
-                    next += ((lastDay < lastUpdateDay) ? lastDay
-                            : lastUpdateDay)
-                            + (oneDay * (mCurrentDay - mLastDay));
+                    next += ((lastDay < lastUpdateDay)? lastDay: lastUpdateDay) + (oneDay * (mCurrentDay - mLastDay));
 
-                    if (fromLastUpdate
-                            && (!(mEnableDailyUpdates && mExtendedTimeList))) {
+                    if (fromLastUpdate && (!(mEnableDailyUpdates && mExtendedTimeList))) {
                         n = n % mUpdateSchema;
                         if (i == 0 && mCurrentDay == 0) {
                             mSchemaCounter = 0;
                         } else if (n != mSchemaCounter) {
-                            if (mSchemaCounter != 0
-                                    && ((n == 0 && mCurrentDay == 0) || mSchemaCounter < n)) {
+                            if (mSchemaCounter != 0 && ((n == 0 && mCurrentDay == 0) || mSchemaCounter < n)) {
                                 mSchemaCounter = n;
                             }
                         }
@@ -1706,20 +1616,12 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                     long t = 0;
                     if (mDailyUpdates.size() > 1) {
                         while (nDays <= mDailyUpdates.size()) {
-                            int nextDay = (mCurrentDay + nDays)
-                                    % mDailyUpdates.size();
+                            int nextDay = (mCurrentDay + nDays) % mDailyUpdates.size();
                             if (j < mDailyUpdates.elementAt(nextDay).size()) {
-                                if (nextDay == 0
-                                        && (!(mEnableDailyUpdates && mExtendedTimeList)))
-                                    j = 0;
-                                t = MINUTE
-                                        * ((Integer) mDailyUpdates.elementAt(
-                                                nextDay).elementAt(j))
-                                                .longValue();
+                                if (nextDay == 0 && (!(mEnableDailyUpdates && mExtendedTimeList))) j = 0;
+                                t = MINUTE * ((Integer)mDailyUpdates.elementAt(nextDay).elementAt(j)).longValue();
                                 if (mEnableDailyUpdates && mExtendedTimeList) {
-                                    if (mExtendedNextUpdate
-                                            && (!fromLastUpdate) && (!delta)
-                                            && isDeltaEnabled) {
+                                    if (mExtendedNextUpdate && (!fromLastUpdate) && (!delta) && isDeltaEnabled) {
                                         if (t < 0) {
                                             t *= -1;
                                         } else {
@@ -1742,8 +1644,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                             nDays++;
                         }
                     }
-                    next = ((lastDay < lastUpdateDay) ? lastDay : lastUpdateDay)
-                            + (oneDay * nDays) + t;
+                    next = ((lastDay < lastUpdateDay)? lastDay: lastUpdateDay) + (oneDay * nDays) + t;
 
                     if (fromLastUpdate && mDailyUpdates.size() < 2) {
                         mSchemaCounter = 0;
@@ -1752,49 +1653,49 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             }
         } else if (mEnableUpdateFreq && mAutoUpdateInterval > 0) {
             // Interval updates without starting time
-            if (mExtendedNextUpdate && (!fromLastUpdate) && (!delta)
-                    && isDeltaEnabled && mUpdateSchema > 1) {
+            if (mExtendedNextUpdate && (!fromLastUpdate) && (!delta) &&  isDeltaEnabled && mUpdateSchema > 1) {
                 next = lastUpdate + (mUpdateSchema * mAutoUpdateInterval);
             } else {
                 next = lastUpdate + mAutoUpdateInterval;
             }
         }
 
-        if (fromLastUpdate && nextUpdate > 0
-                && (nextUpdate < next || nextUpdate >= now)) {
+        if (fromLastUpdate && nextUpdate > 0 && (nextUpdate < next || nextUpdate >= now)) {
             next = nextUpdate;
         }
 
-        CMS.debug("findNextUpdate:  " + ((new Date(next)).toString())
-                + ((fromLastUpdate) ? "  delay: " + (next - now) : ""));
+        CMS.debug("findNextUpdate:  "+((new Date(next)).toString())+((fromLastUpdate)? "  delay: "+(next-now): ""));
 
-        return (fromLastUpdate) ? next - now : next;
+        return (fromLastUpdate)? next-now: next;
     }
 
+
     /**
-     * Implements Runnable interface. Defines auto-update logic used by worker
-     * thread.
+     * Implements Runnable interface. Defines auto-update 
+     * logic used by worker thread.
      * <P>
      */
     public void run() {
-        while (mEnable
-                && ((mEnableCRLCache && mCacheUpdateInterval > 0)
-                        || (mInitialized == CRL_IP_NOT_INITIALIZED)
-                        || mDoLastAutoUpdate || (mEnableCRLUpdates && ((mEnableDailyUpdates
-                        && mDailyUpdates != null && mTimeListSize > 0)
-                        || (mEnableUpdateFreq && mAutoUpdateInterval > 0) || mDoManualUpdate)))) {
+        while (mEnable && ((mEnableCRLCache && mCacheUpdateInterval > 0) ||
+                           (mInitialized == CRL_IP_NOT_INITIALIZED) ||
+                            mDoLastAutoUpdate || (mEnableCRLUpdates &&
+                            ((mEnableDailyUpdates && mDailyUpdates != null &&
+                              mTimeListSize > 0) ||
+                             (mEnableUpdateFreq && mAutoUpdateInterval > 0) ||
+                              mDoManualUpdate)))) {
 
             synchronized (this) {
                 long delay = 0;
                 long delay2 = 0;
                 boolean doCacheUpdate = false;
-                boolean scheduledUpdates = mEnableCRLUpdates
-                        && ((mEnableDailyUpdates && mDailyUpdates != null && mTimeListSize > 0) || (mEnableUpdateFreq && mAutoUpdateInterval > 0));
+                boolean scheduledUpdates = mEnableCRLUpdates &&
+                    ((mEnableDailyUpdates && mDailyUpdates != null &&
+                      mTimeListSize > 0) ||
+                    (mEnableUpdateFreq && mAutoUpdateInterval > 0));
 
                 if (mInitialized == CRL_IP_NOT_INITIALIZED)
                     initCRL();
-                if (mInitialized == CRL_IP_INITIALIZED && (!mEnable))
-                    break;
+                if (mInitialized == CRL_IP_INITIALIZED && (!mEnable)) break;
 
                 if ((mEnableCRLUpdates && mDoManualUpdate) || mDoLastAutoUpdate) {
                     delay = 0;
@@ -1803,10 +1704,11 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 }
 
                 if (mEnableCRLCache && mCacheUpdateInterval > 0) {
-                    delay2 = mLastCacheUpdate + mCacheUpdateInterval
-                            - System.currentTimeMillis();
-                    if (delay2 < delay
-                            || (!(scheduledUpdates || mDoLastAutoUpdate || (mEnableCRLUpdates && mDoManualUpdate)))) {
+                    delay2 = mLastCacheUpdate + mCacheUpdateInterval -
+                             System.currentTimeMillis();
+                    if (delay2 < delay ||
+                        (!(scheduledUpdates || mDoLastAutoUpdate ||
+                           (mEnableCRLUpdates && mDoManualUpdate)))) {
                         delay = delay2;
                         if (delay <= 0) {
                             doCacheUpdate = true;
@@ -1816,7 +1718,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 }
 
                 if (delay > 0) {
-                    try {
+                    try { 
                         wait(delay);
                     } catch (InterruptedException e) {
                     }
@@ -1824,22 +1726,18 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                     try {
                         if (doCacheUpdate) {
                             updateCRLCacheRepository();
-                        } else if (mAutoUpdateInterval > 0 || mDoLastAutoUpdate
-                                || mDoManualUpdate) {
+                        } else if (mAutoUpdateInterval > 0 || mDoLastAutoUpdate || mDoManualUpdate) {
                             updateCRL();
                         }
                     } catch (Exception e) {
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                                "CMSCORE_CA_ISSUING_CRL",
-                                (doCacheUpdate) ? "update CRL cache"
-                                        : "update CRL", e.toString()));
+                        log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_CRL",
+                            (doCacheUpdate)?"update CRL cache":"update CRL", e.toString()));
                         if (Debug.on()) {
-                            Debug.trace((doCacheUpdate) ? "update CRL cache"
-                                    : "update CRL" + " error " + e);
+                            Debug.trace((doCacheUpdate)?"update CRL cache":"update CRL" + " error " + e);
                             Debug.printStackTrace(e);
                         }
                     }
-                    // put this here to prevent continuous loop if internal
+                    // put this here to prevent continuous loop if internal 
                     // db is down.
                     if (mDoLastAutoUpdate)
                         mDoLastAutoUpdate = false;
@@ -1853,23 +1751,28 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         mUpdateThread = null;
     }
 
+
     /**
-     * Updates CRL and publishes it. If time elapsed since last CRL update is
-     * less than minUpdateInterval silently returns. Otherwise determines
-     * nextUpdate by adding autoUpdateInterval or minUpdateInterval to the
-     * current time. If neither of the intervals are defined nextUpdate will be
-     * null. Then using specified configuration parameters it formulates new
-     * CRL, signs it, updates CRLIssuingPointRecord in the database and
-     * publishes CRL in the directory.
+     * Updates CRL and publishes it.  
+     * If time elapsed since last CRL update is less than 
+     * minUpdateInterval silently returns.
+     * Otherwise determines nextUpdate by adding autoUpdateInterval or 
+     * minUpdateInterval to the current time. If neither of the 
+     * intervals are defined nextUpdate will be null.
+     * Then using specified configuration parameters it formulates new 
+     * CRL, signs it, updates CRLIssuingPointRecord in the database 
+     * and publishes CRL in the directory.
      * <P>
      */
     private void updateCRL() throws EBaseException {
         /*
-         * if (mEnableUpdateFreq && mAutoUpdateInterval > 0 &&
-         * (System.currentTimeMillis() - mLastUpdate.getTime() <
-         * mMinUpdateInterval)) { // log or alternatively throw an Exception
-         * return; }
-         */
+        if (mEnableUpdateFreq && mAutoUpdateInterval > 0 && 
+            (System.currentTimeMillis() - mLastUpdate.getTime() < 
+                mMinUpdateInterval)) {
+            // log or alternatively throw an Exception
+            return;
+        }
+        */
         if (mDoManualUpdate && mSignatureAlgorithmForManualUpdate != null) {
             updateCRLNow(mSignatureAlgorithmForManualUpdate);
         } else {
@@ -1888,25 +1791,21 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
         if (mIncludeExpiredCerts)
             filter += "(|";
-        filter += "(" + CertRecord.ATTR_CERT_STATUS + "="
-                + CertRecord.STATUS_REVOKED + ")";
+        filter += "(" + CertRecord.ATTR_CERT_STATUS + "=" + CertRecord.STATUS_REVOKED + ")";
         if (mIncludeExpiredCerts)
-            filter += "(" + CertRecord.ATTR_CERT_STATUS + "="
-                    + CertRecord.STATUS_REVOKED_EXPIRED + "))";
+            filter += "(" + CertRecord.ATTR_CERT_STATUS + "=" + CertRecord.STATUS_REVOKED_EXPIRED + "))";
 
         if (mCACertsOnly) {
             filter += "(x509cert.BasicConstraints.isCA=on)";
         }
 
-        if (mProfileCertsOnly && mProfileList != null
-                && mProfileList.size() > 0) {
+        if (mProfileCertsOnly && mProfileList != null && mProfileList.size() > 0) {
             if (mProfileList.size() > 1) {
                 filter += "(|";
             }
             for (int k = 0; k < mProfileList.size(); k++) {
                 String id = mProfileList.elementAt(k);
-                filter += "(" + CertRecord.ATTR_META_INFO + "=profileId:" + id
-                        + ")";
+                filter += "(" + CertRecord.ATTR_META_INFO + "=profileId:" + id + ")";
             }
             if (mProfileList.size() > 1) {
                 filter += ")";
@@ -1915,20 +1814,15 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
         // check if any ranges specified.
         if (mBeginSerial != null) {
-            filter += "(" + CertRecord.ATTR_ID + ">=" + mBeginSerial.toString()
-                    + ")";
+            filter += "(" + CertRecord.ATTR_ID + ">=" + mBeginSerial.toString() + ")";
         }
         if (mEndSerial != null) {
-            filter += "(" + CertRecord.ATTR_ID + "<=" + mEndSerial.toString()
-                    + ")";
+            filter += "(" + CertRecord.ATTR_ID + "<=" + mEndSerial.toString() + ")";
         }
 
         // get all revoked non-expired certs.
-        if (mEndSerial != null
-                || mBeginSerial != null
-                || mCACertsOnly
-                || (mProfileCertsOnly && mProfileList != null && mProfileList
-                        .size() > 0)) {
+        if (mEndSerial != null || mBeginSerial != null || mCACertsOnly ||
+            (mProfileCertsOnly && mProfileList != null && mProfileList.size() > 0)) {
             filter = "(&" + filter + ")";
         }
 
@@ -1936,28 +1830,29 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     }
 
     /**
-     * Gets a enumeration of revoked certs to put into CRL. This does not
-     * include expired certs. <i>Override this method to make a CRL other than
-     * the full/complete CRL.</i>
-     * 
-     * @return Enumeration of CertRecords to put into CRL.
+     * Gets a enumeration of revoked certs to put into CRL.
+     * This does not include expired certs.
+     * <i>Override this method to make a CRL other than the 
+     * full/complete CRL.</i>
+     * @return Enumeration of CertRecords to put into CRL. 
      * @exception EBaseException if an error occured in the database.
      */
-    public void processRevokedCerts(IElementProcessor p) throws EBaseException {
+    public void processRevokedCerts(IElementProcessor p)
+        throws EBaseException {
         CertRecProcessor cp = (CertRecProcessor) p;
         String filter = getFilter();
 
-        // NOTE: dangerous cast.
+        // NOTE: dangerous cast. 
         // correct way would be to modify interface and add
         // accessor but we don't want to touch the interface
-        CertificateRepository cr = (CertificateRepository) mCertRepository;
+        CertificateRepository cr = (CertificateRepository)mCertRepository;
 
         synchronized (cr.mCertStatusUpdateThread) {
             CMS.debug("Starting processRevokedCerts (entered lock)");
-            ICertRecordList list = mCertRepository.findCertRecordsInList(
-                    filter, new String[] { ICertRecord.ATTR_ID,
-                            ICertRecord.ATTR_REVO_INFO, "objectclass" },
-                    "serialno", mPageSize);
+            ICertRecordList list = mCertRepository.findCertRecordsInList(filter,
+                    new String[] {ICertRecord.ATTR_ID, ICertRecord.ATTR_REVO_INFO, "objectclass" },
+                    "serialno",
+                    mPageSize);
 
             int totalSize = list.getSize();
 
@@ -1995,24 +1890,21 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         if (mEnableCacheRecovery) {
             // 553815 - original filter was not aligned with any VLV index
             // String filter = "(&(requeststate=complete)"+
-            // "(|(requestType=" + IRequest.REVOCATION_REQUEST + ")"+
-            // "(requestType=" + IRequest.UNREVOCATION_REQUEST + ")))";
+            //                 "(|(requestType=" + IRequest.REVOCATION_REQUEST + ")"+
+            //                 "(requestType=" + IRequest.UNREVOCATION_REQUEST + ")))";
             String filter = "(requeststate=complete)";
             if (Debug.on()) {
-                Debug.trace("recoverCRLCache  mFirstUnsaved=" + mFirstUnsaved
-                        + "  filter=" + filter);
+                Debug.trace("recoverCRLCache  mFirstUnsaved="+mFirstUnsaved+"  filter="+filter);
             }
             IRequestQueue mQueue = mCA.getRequestQueue();
 
             IRequestVirtualList list = mQueue.getPagedRequestsByFilter(
-                    new RequestId(mFirstUnsaved), filter, 500, "requestId");
+                        new RequestId(mFirstUnsaved), filter, 500, "requestId");
             if (Debug.on()) {
-                Debug.trace("recoverCRLCache  size=" + list.getSize()
-                        + "  index=" + list.getCurrentIndex());
+                Debug.trace("recoverCRLCache  size="+list.getSize()+"  index="+list.getCurrentIndex());
             }
 
-            CertRecProcessor cp = new CertRecProcessor(mCRLCerts, this,
-                    mLogger, mAllowExtensions);
+            CertRecProcessor cp = new CertRecProcessor(mCRLCerts, this, mLogger, mAllowExtensions);
             boolean includeCert = true;
 
             int s = list.getSize() - list.getCurrentIndex();
@@ -2027,44 +1919,29 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                     continue;
                 }
                 if (Debug.on()) {
-                    Debug.trace("recoverCRLCache  request="
-                            + request.getRequestId().toString() + "  type="
-                            + request.getRequestType());
+                    Debug.trace("recoverCRLCache  request="+request.getRequestId().toString()+
+                                "  type="+request.getRequestType());
                 }
-                if (IRequest.REVOCATION_REQUEST
-                        .equals(request.getRequestType())) {
-                    RevokedCertImpl revokedCert[] = request
-                            .getExtDataInRevokedCertArray(IRequest.CERT_INFO);
+                if (IRequest.REVOCATION_REQUEST.equals(request.getRequestType())) {
+                    RevokedCertImpl revokedCert[] =
+                        request.getExtDataInRevokedCertArray(IRequest.CERT_INFO);
                     for (int j = 0; j < revokedCert.length; j++) {
                         if (Debug.on()) {
-                            Debug.trace("recoverCRLCache R j="
-                                    + j
-                                    + "  length="
-                                    + revokedCert.length
-                                    + "  SerialNumber=0x"
-                                    + revokedCert[j].getSerialNumber()
-                                            .toString(16));
+                            Debug.trace("recoverCRLCache R j="+j+"  length="+revokedCert.length+
+                                        "  SerialNumber=0x"+revokedCert[j].getSerialNumber().toString(16));
                         }
-                        if (cp != null)
-                            includeCert = cp
-                                    .checkRevokedCertExtensions(revokedCert[j]
-                                            .getExtensions());
-                        if (includeCert) {
-                            updateRevokedCert(REVOKED_CERT,
-                                    revokedCert[j].getSerialNumber(),
-                                    revokedCert[j]);
+                        if(cp != null)
+                           includeCert = cp.checkRevokedCertExtensions(revokedCert[j].getExtensions());
+                        if(includeCert) {
+                            updateRevokedCert(REVOKED_CERT, revokedCert[j].getSerialNumber(), revokedCert[j]);
                         }
                     }
-                } else if (IRequest.UNREVOCATION_REQUEST.equals(request
-                        .getRequestType())) {
-                    BigInteger serialNo[] = request
-                            .getExtDataInBigIntegerArray(IRequest.OLD_SERIALS);
+                } else if (IRequest.UNREVOCATION_REQUEST.equals(request.getRequestType())) {
+                    BigInteger serialNo[] = request.getExtDataInBigIntegerArray(IRequest.OLD_SERIALS);
                     for (int j = 0; j < serialNo.length; j++) {
                         if (Debug.on()) {
-                            Debug.trace("recoverCRLCache U j=" + j
-                                    + "  length=" + serialNo.length
-                                    + "  SerialNumber=0x"
-                                    + serialNo[j].toString(16));
+                            Debug.trace("recoverCRLCache U j="+j+"  length="+serialNo.length+
+                                        "  SerialNumber=0x"+serialNo[j].toString(16));
                         }
                         updateRevokedCert(UNREVOKED_CERT, serialNo[j], null);
                     }
@@ -2072,13 +1949,11 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             }
 
             try {
-                mCRLRepository.updateRevokedCerts(mId, mRevokedCerts,
-                        mUnrevokedCerts);
+                mCRLRepository.updateRevokedCerts(mId, mRevokedCerts, mUnrevokedCerts);
                 mFirstUnsaved = ICRLIssuingPointRecord.CLEAN_CACHE;
                 mCRLCacheIsCleared = false;
             } catch (EBaseException e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                        "CMSCORE_CA_ISSUING_STORE_CRL_CACHE", e.toString()));
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_STORE_CRL_CACHE", e.toString()));
             }
         } else {
             clearCRLCache();
@@ -2099,33 +1974,32 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     }
 
     private Extension getCRLExtension(String extName) {
-        if (mAllowExtensions == false) {
+        if(mAllowExtensions == false) {
             return null;
         }
-        if (mCMSCRLExtensions.isCRLExtensionEnabled(extName) == false) {
+        if(mCMSCRLExtensions.isCRLExtensionEnabled(extName) == false) {
             return null;
         }
 
         CMSCRLExtensions exts = (CMSCRLExtensions) this.getCRLExtensions();
         CRLExtensions ext = new CRLExtensions();
-
+        
         Vector<String> extNames = exts.getCRLExtensionNames();
-        for (int i = 0; i < extNames.size(); i++) {
-            String curName = extNames.elementAt(i);
-            if (curName.equals(extName)) {
-                exts.addToCRLExtensions(ext, extName, null);
+            for (int i = 0; i < extNames.size(); i++) {
+                String curName = extNames.elementAt(i);
+                if (curName.equals(extName)) {
+                   exts.addToCRLExtensions(ext, extName, null);
+                }
             }
-        }
-        Extension theExt = null;
-        try {
-            theExt = ext.get(extName);
-        } catch (Exception e) {
-        }
+            Extension theExt = null;
+            try {
+                theExt = ext.get(extName);
+            } catch (Exception e) {
+            }
 
-        CMS.debug("CRLIssuingPoint.getCRLExtension extension: " + theExt);
-        return theExt;
+            CMS.debug("CRLIssuingPoint.getCRLExtension extension: " + theExt);
+            return theExt;
     }
-
     /**
      * get required crl entry extensions
      */
@@ -2134,8 +2008,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
         if (mAllowExtensions && exts != null && exts.size() > 0) {
             entryExt = new CRLExtensions();
-            Vector<String> extNames = mCMSCRLExtensions
-                    .getCRLEntryExtensionNames();
+            Vector<String> extNames = mCMSCRLExtensions.getCRLEntryExtensionNames();
 
             for (int i = 0; i < extNames.size(); i++) {
                 String extName = extNames.elementAt(i);
@@ -2145,23 +2018,20 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
                     for (k = 0; k < exts.size(); k++) {
                         Extension ext = (Extension) exts.elementAt(k);
-                        String name = mCMSCRLExtensions.getCRLExtensionName(ext
-                                .getExtensionId().toString());
+                        String name = mCMSCRLExtensions.getCRLExtensionName(
+                                ext.getExtensionId().toString());
 
                         if (extName.equals(name)) {
-                            if (!(ext instanceof CRLReasonExtension)
-                                    || (((CRLReasonExtension) ext).getReason()
-                                            .toInt() > RevocationReason.UNSPECIFIED
-                                            .toInt())) {
-                                mCMSCRLExtensions.addToCRLExtensions(entryExt,
-                                        extName, ext);
+                            if (!(ext instanceof CRLReasonExtension) ||
+                                (((CRLReasonExtension) ext).getReason().toInt() >
+                                    RevocationReason.UNSPECIFIED.toInt())) {
+                                mCMSCRLExtensions.addToCRLExtensions(entryExt, extName, ext);
                             }
                             break;
                         }
                     }
                     if (k == exts.size()) {
-                        mCMSCRLExtensions.addToCRLExtensions(entryExt, extName,
-                                null);
+                        mCMSCRLExtensions.addToCRLExtensions(entryExt, extName, null);
                     }
                 }
             }
@@ -2177,22 +2047,24 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     /**
      * update CRL cache with new revoked-unrevoked certificate info
      */
-    private void updateRevokedCert(int certType, BigInteger serialNumber,
-            RevokedCertImpl revokedCert) {
+    private void updateRevokedCert(int certType,
+                                   BigInteger serialNumber,
+                                   RevokedCertImpl revokedCert) {
         updateRevokedCert(certType, serialNumber, revokedCert, null);
     }
 
-    private void updateRevokedCert(int certType, BigInteger serialNumber,
-            RevokedCertImpl revokedCert, String requestId) {
+    private void updateRevokedCert(int certType,
+                                   BigInteger serialNumber,
+                                   RevokedCertImpl revokedCert,
+                                   String requestId) {
         synchronized (cacheMonitor) {
-            if (requestId != null && mFirstUnsaved != null
-                    && mFirstUnsaved.equals(ICRLIssuingPointRecord.CLEAN_CACHE)) {
+            if (requestId != null && mFirstUnsaved != null &&
+                mFirstUnsaved.equals(ICRLIssuingPointRecord.CLEAN_CACHE)) {
                 mFirstUnsaved = requestId;
                 try {
                     mCRLRepository.updateFirstUnsaved(mId, mFirstUnsaved);
                 } catch (EBaseException e) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                            "CMSCORE_CA_ISSUING_STORE_CRL_CACHE", e.toString()));
+                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_STORE_CRL_CACHE", e.toString()));
                 }
             }
             if (certType == REVOKED_CERT) {
@@ -2200,22 +2072,19 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                     mUnrevokedCerts.remove(serialNumber);
                     if (mCRLCerts.containsKey(serialNumber)) {
                         Date revocationDate = revokedCert.getRevocationDate();
-                        CRLExtensions entryExt = getRequiredEntryExtensions(revokedCert
-                                .getExtensions());
-                        RevokedCertImpl newRevokedCert = new RevokedCertImpl(
-                                serialNumber, revocationDate, entryExt);
+                        CRLExtensions entryExt = getRequiredEntryExtensions(revokedCert.getExtensions());
+                        RevokedCertImpl newRevokedCert =
+                            new RevokedCertImpl(serialNumber, revocationDate, entryExt);
 
                         mCRLCerts.put(serialNumber, newRevokedCert);
                     }
                 } else {
                     Date revocationDate = revokedCert.getRevocationDate();
-                    CRLExtensions entryExt = getRequiredEntryExtensions(revokedCert
-                            .getExtensions());
-                    RevokedCertImpl newRevokedCert = new RevokedCertImpl(
-                            serialNumber, revocationDate, entryExt);
+                    CRLExtensions entryExt = getRequiredEntryExtensions(revokedCert.getExtensions());
+                    RevokedCertImpl newRevokedCert =
+                        new RevokedCertImpl(serialNumber, revocationDate, entryExt);
 
-                    mRevokedCerts.put(serialNumber,
-                            (RevokedCertificate) newRevokedCert);
+                    mRevokedCerts.put(serialNumber, (RevokedCertificate) newRevokedCert);
                 }
             } else if (certType == UNREVOKED_CERT) {
                 if (mRevokedCerts.containsKey(serialNumber)) {
@@ -2224,16 +2093,14 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                     CRLExtensions entryExt = new CRLExtensions();
 
                     try {
-                        entryExt.set(
-                                CRLReasonExtension.REMOVE_FROM_CRL.getName(),
-                                CRLReasonExtension.REMOVE_FROM_CRL);
+                        entryExt.set(CRLReasonExtension.REMOVE_FROM_CRL.getName(),
+                            CRLReasonExtension.REMOVE_FROM_CRL);
                     } catch (IOException e) {
                     }
-                    RevokedCertImpl newRevokedCert = new RevokedCertImpl(
-                            serialNumber, CMS.getCurrentDate(), entryExt);
+                    RevokedCertImpl newRevokedCert = new RevokedCertImpl(serialNumber,
+                            CMS.getCurrentDate(), entryExt);
 
-                    mUnrevokedCerts.put(serialNumber,
-                            (RevokedCertificate) newRevokedCert);
+                    mUnrevokedCerts.put(serialNumber, (RevokedCertificate) newRevokedCert);
                 }
             }
         }
@@ -2242,34 +2109,27 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     /**
      * registers revoked certificates
      */
-    public void addRevokedCert(BigInteger serialNumber,
-            RevokedCertImpl revokedCert) {
+    public void addRevokedCert(BigInteger serialNumber, RevokedCertImpl revokedCert) {
         addRevokedCert(serialNumber, revokedCert, null);
     }
 
-    public void addRevokedCert(BigInteger serialNumber,
-            RevokedCertImpl revokedCert, String requestId) {
+    public void addRevokedCert(BigInteger serialNumber, RevokedCertImpl revokedCert,
+                               String requestId) {
 
-        CertRecProcessor cp = new CertRecProcessor(mCRLCerts, this, mLogger,
-                mAllowExtensions);
+        CertRecProcessor cp = new CertRecProcessor(mCRLCerts, this, mLogger, mAllowExtensions);
         boolean includeCert = true;
-        if (cp != null)
-            includeCert = cp.checkRevokedCertExtensions(revokedCert
-                    .getExtensions());
+        if(cp != null)
+           includeCert = cp.checkRevokedCertExtensions(revokedCert.getExtensions()); 
 
         if (mEnable && mEnableCRLCache && includeCert == true) {
-            updateRevokedCert(REVOKED_CERT, serialNumber, revokedCert,
-                    requestId);
+            updateRevokedCert(REVOKED_CERT, serialNumber, revokedCert, requestId);
 
             if (mCacheUpdateInterval == 0) {
                 try {
-                    mCRLRepository.updateRevokedCerts(mId, mRevokedCerts,
-                            mUnrevokedCerts);
+                    mCRLRepository.updateRevokedCerts(mId, mRevokedCerts, mUnrevokedCerts);
                     mFirstUnsaved = ICRLIssuingPointRecord.CLEAN_CACHE;
                 } catch (EBaseException e) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                            "CMSCORE_CA_ISSUING_STORE_REVOKED_CERT", mId,
-                            e.toString()));
+                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_STORE_REVOKED_CERT", mId, e.toString()));
                 }
             }
         }
@@ -2288,13 +2148,10 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
             if (mCacheUpdateInterval == 0) {
                 try {
-                    mCRLRepository.updateRevokedCerts(mId, mRevokedCerts,
-                            mUnrevokedCerts);
+                    mCRLRepository.updateRevokedCerts(mId, mRevokedCerts, mUnrevokedCerts);
                     mFirstUnsaved = ICRLIssuingPointRecord.CLEAN_CACHE;
                 } catch (EBaseException e) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                            "CMSCORE_CA_ISSUING_STORE_UNREVOKED_CERT", mId,
-                            e.toString()));
+                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_STORE_UNREVOKED_CERT", mId, e.toString()));
                 }
             }
         }
@@ -2311,23 +2168,20 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
                 try {
                     entryExt.set(CRLReasonExtension.REMOVE_FROM_CRL.getName(),
-                            CRLReasonExtension.REMOVE_FROM_CRL);
+                        CRLReasonExtension.REMOVE_FROM_CRL);
                 } catch (IOException e) {
                 }
-                RevokedCertImpl newRevokedCert = new RevokedCertImpl(
-                        serialNumber, CMS.getCurrentDate(), entryExt);
+                RevokedCertImpl newRevokedCert = new RevokedCertImpl(serialNumber,
+                        CMS.getCurrentDate(), entryExt);
 
-                mExpiredCerts.put(serialNumber,
-                        (RevokedCertificate) newRevokedCert);
+                mExpiredCerts.put(serialNumber, (RevokedCertificate) newRevokedCert);
             }
 
             if (mCacheUpdateInterval == 0) {
                 try {
                     mCRLRepository.updateExpiredCerts(mId, mExpiredCerts);
                 } catch (EBaseException e) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                            "CMSCORE_CA_ISSUING_STORE_EXPIRED_CERT", mId,
-                            e.toString()));
+                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_STORE_EXPIRED_CERT", mId, e.toString()));
                 }
             }
         }
@@ -2339,23 +2193,19 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         synchronized (repositoryMonitor) {
             try {
                 mCRLRepository.updateCRLCache(mId, Long.valueOf(mCRLSize),
-                        mRevokedCerts, mUnrevokedCerts, mExpiredCerts);
+                    mRevokedCerts, mUnrevokedCerts, mExpiredCerts);
                 mFirstUnsaved = ICRLIssuingPointRecord.CLEAN_CACHE;
             } catch (EBaseException e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                        "CMSCORE_CA_ISSUING_STORE_CRL_CACHE", e.toString()));
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_STORE_CRL_CACHE", e.toString()));
             }
         }
     }
 
     public boolean isDeltaCRLEnabled() {
-        return (mAllowExtensions
-                && mEnableCRLCache
-                && mCMSCRLExtensions
-                        .isCRLExtensionEnabled(DeltaCRLIndicatorExtension.NAME)
-                && mCMSCRLExtensions
-                        .isCRLExtensionEnabled(CRLNumberExtension.NAME) && mCMSCRLExtensions
-                .isCRLExtensionEnabled(CRLReasonExtension.NAME));
+        return (mAllowExtensions && mEnableCRLCache &&
+                mCMSCRLExtensions.isCRLExtensionEnabled(DeltaCRLIndicatorExtension.NAME) &&
+                mCMSCRLExtensions.isCRLExtensionEnabled(CRLNumberExtension.NAME) &&
+                mCMSCRLExtensions.isCRLExtensionEnabled(CRLReasonExtension.NAME));
     }
 
     public boolean isThisCurrentDeltaCRL(X509CRLImpl deltaCRL) {
@@ -2369,19 +2219,16 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                     for (int k = 0; k < crlExtensions.size(); k++) {
                         Extension ext = (Extension) crlExtensions.elementAt(k);
 
-                        if (DeltaCRLIndicatorExtension.OID.equals(ext
-                                .getExtensionId().toString())) {
+                        if (DeltaCRLIndicatorExtension.OID.equals(ext.getExtensionId().toString())) {
                             DeltaCRLIndicatorExtension dExt = (DeltaCRLIndicatorExtension) ext;
                             BigInteger crlNumber = null;
 
                             try {
-                                crlNumber = (BigInteger) dExt
-                                        .get(DeltaCRLIndicatorExtension.NUMBER);
+                                crlNumber = (BigInteger) dExt.get(DeltaCRLIndicatorExtension.NUMBER);
                             } catch (IOException e) {
                             }
-                            if (crlNumber != null
-                                    && (crlNumber.equals(mLastCRLNumber) || mLastCRLNumber
-                                            .equals(BigInteger.ZERO))) {
+                            if (crlNumber != null && (crlNumber.equals(mLastCRLNumber) ||
+                                                      mLastCRLNumber.equals(BigInteger.ZERO))) {
                                 result = true;
                             }
                         }
@@ -2397,7 +2244,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     }
 
     public boolean isCRLCacheEmpty() {
-        return ((mCRLCerts != null) ? mCRLCerts.isEmpty() : true);
+        return ((mCRLCerts != null)? mCRLCerts.isEmpty(): true);
     }
 
     public boolean isCRLCacheTestingEnabled() {
@@ -2405,7 +2252,8 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     }
 
     public Date getRevocationDateFromCache(BigInteger serialNumber,
-            boolean checkDeltaCache, boolean includeExpiredCerts) {
+        boolean checkDeltaCache,
+        boolean includeExpiredCerts) {
         Date revocationDate = null;
 
         if (mCRLCerts.containsKey(serialNumber)) {
@@ -2417,8 +2265,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 revocationDate = null;
             }
             if (mRevokedCerts.containsKey(serialNumber)) {
-                revocationDate = mRevokedCerts.get(serialNumber)
-                        .getRevocationDate();
+                revocationDate = mRevokedCerts.get(serialNumber).getRevocationDate();
             }
             if (!includeExpiredCerts && mExpiredCerts.containsKey(serialNumber)) {
                 revocationDate = null;
@@ -2444,32 +2291,29 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     /**
      * updates CRL and publishes it now
      */
-    public void updateCRLNow() throws EBaseException {
+    public void updateCRLNow()
+        throws EBaseException {
 
         updateCRLNow(null);
     }
 
     public synchronized void updateCRLNow(String signingAlgorithm)
-            throws EBaseException {
+        throws EBaseException {
 
-        if ((!mEnable) || (!mEnableCRLUpdates && !mDoLastAutoUpdate))
-            return;
+        if ((!mEnable) || (!mEnableCRLUpdates && !mDoLastAutoUpdate)) return;
         CMS.debug("Updating CRL");
-        mLogger.log(
-                ILogger.EV_AUDIT,
-                ILogger.S_OTHER,
-                AuditFormat.LEVEL,
-                CMS.getLogMessage("CMSCORE_CA_CA_CRL_UPDATE_STARTED"),
-                new Object[] {
+        mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER, AuditFormat.LEVEL,
+                    CMS.getLogMessage("CMSCORE_CA_CA_CRL_UPDATE_STARTED"),
+                    new Object[] {
                         getId(),
                         getNextCRLNumber(),
                         Boolean.toString(isDeltaCRLEnabled()),
                         Boolean.toString(isCRLCacheEnabled()),
                         Boolean.toString(mEnableCacheRecovery),
                         Boolean.toString(mCRLCacheIsCleared),
-                        "" + mCRLCerts.size() + "," + mRevokedCerts.size()
-                                + "," + mUnrevokedCerts.size() + ","
-                                + mExpiredCerts.size() + "" });
+                        ""+mCRLCerts.size()+","+mRevokedCerts.size()+","+mUnrevokedCerts.size()+","+mExpiredCerts.size()+""
+                    }
+                   );
         mUpdatingCRL = CRL_UPDATE_STARTED;
         if (signingAlgorithm == null || signingAlgorithm.length() == 0)
             signingAlgorithm = mSigningAlgorithm;
@@ -2478,23 +2322,20 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         Date nextUpdate = null;
         Date nextDeltaUpdate = null;
 
-        if (mEnableCRLUpdates
-                && ((mEnableDailyUpdates && mDailyUpdates != null && mTimeListSize > 0) || (mEnableUpdateFreq && mAutoUpdateInterval > 0))) {
+        if (mEnableCRLUpdates && ((mEnableDailyUpdates &&
+            mDailyUpdates != null && mTimeListSize > 0) ||
+            (mEnableUpdateFreq && mAutoUpdateInterval > 0))) {
 
-            if ((!isDeltaCRLEnabled()) || mSchemaCounter == 0
-                    || mUpdateSchema == 1) {
+            if ((!isDeltaCRLEnabled()) || mSchemaCounter == 0 || mUpdateSchema == 1) {
                 nextUpdate = new Date(findNextUpdate(false, false));
                 mNextUpdate = new Date(nextUpdate.getTime());
             }
             if (isDeltaCRLEnabled()) {
-                if (mUpdateSchema > 1
-                        || (mEnableDailyUpdates && mExtendedTimeList && mTimeListSize > 1)) {
+                if (mUpdateSchema > 1 || (mEnableDailyUpdates && mExtendedTimeList && mTimeListSize > 1)) {
                     nextDeltaUpdate = new Date(findNextUpdate(false, true));
-                    if (mExtendedNextUpdate && mSchemaCounter > 0
-                            && mNextUpdate != null
-                            && mNextUpdate.equals(nextDeltaUpdate)) {
-                        if (mEnableDailyUpdates && mExtendedTimeList
-                                && mTimeListSize > 1) {
+                    if (mExtendedNextUpdate && mSchemaCounter > 0 &&
+                        mNextUpdate != null && mNextUpdate.equals(nextDeltaUpdate)) {
+                        if (mEnableDailyUpdates && mExtendedTimeList && mTimeListSize > 1) {
                             mSchemaCounter = mTimeListSize - 1;
                         } else {
                             mSchemaCounter = mUpdateSchema - 1;
@@ -2515,41 +2356,33 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
         mLastUpdate = thisUpdate;
         // mNextUpdate = nextUpdate;
-        mNextDeltaUpdate = (nextDeltaUpdate != null) ? new Date(
-                nextDeltaUpdate.getTime()) : null;
+        mNextDeltaUpdate = (nextDeltaUpdate != null)? new Date(nextDeltaUpdate.getTime()): null;
         if (nextUpdate != null) {
-            nextUpdate.setTime((nextUpdate.getTime()) + mNextUpdateGracePeriod);
+            nextUpdate.setTime((nextUpdate.getTime())+mNextUpdateGracePeriod);
         }
         if (nextDeltaUpdate != null) {
-            nextDeltaUpdate.setTime((nextDeltaUpdate.getTime())
-                    + mNextUpdateGracePeriod);
+            nextDeltaUpdate.setTime((nextDeltaUpdate.getTime())+mNextUpdateGracePeriod);
         }
 
         mSplits[0] -= System.currentTimeMillis();
         @SuppressWarnings("unchecked")
-        Hashtable<BigInteger, RevokedCertificate> clonedRevokedCerts = (Hashtable<BigInteger, RevokedCertificate>) mRevokedCerts
-                .clone();
+        Hashtable<BigInteger, RevokedCertificate> clonedRevokedCerts = (Hashtable<BigInteger, RevokedCertificate>)mRevokedCerts.clone();
         @SuppressWarnings("unchecked")
-        Hashtable<BigInteger, RevokedCertificate> clonedUnrevokedCerts = (Hashtable<BigInteger, RevokedCertificate>) mUnrevokedCerts
-                .clone();
+        Hashtable<BigInteger, RevokedCertificate> clonedUnrevokedCerts = (Hashtable<BigInteger, RevokedCertificate>)mUnrevokedCerts.clone();
         @SuppressWarnings("unchecked")
-        Hashtable<BigInteger, RevokedCertificate> clonedExpiredCerts = (Hashtable<BigInteger, RevokedCertificate>) mExpiredCerts
-                .clone();
+        Hashtable<BigInteger, RevokedCertificate> clonedExpiredCerts = (Hashtable<BigInteger, RevokedCertificate> )mExpiredCerts.clone();
 
         mSplits[0] += System.currentTimeMillis();
 
         // starting from the beginning
 
-        if ((!mEnableCRLCache)
-                || ((mCRLCacheIsCleared && mCRLCerts.isEmpty()
-                        && clonedRevokedCerts.isEmpty()
-                        && clonedUnrevokedCerts.isEmpty() && clonedExpiredCerts
-                        .isEmpty())
-                        || (mCRLCerts.isEmpty() && (!clonedUnrevokedCerts
-                                .isEmpty()))
-                        || (mCRLCerts.size() < clonedUnrevokedCerts.size())
-                        || (mCRLCerts.isEmpty() && (mCRLSize > 0)) || (mCRLCerts
-                        .size() > 0 && mCRLSize == 0))) {
+        if ((!mEnableCRLCache) ||
+            ((mCRLCacheIsCleared && mCRLCerts.isEmpty() && clonedRevokedCerts.isEmpty() &&
+              clonedUnrevokedCerts.isEmpty() && clonedExpiredCerts.isEmpty()) ||
+                (mCRLCerts.isEmpty() && (!clonedUnrevokedCerts.isEmpty())) ||
+                (mCRLCerts.size() < clonedUnrevokedCerts.size()) ||
+                (mCRLCerts.isEmpty() && (mCRLSize > 0)) ||
+                (mCRLCerts.size() > 0 && mCRLSize == 0))) {
 
             mSplits[5] -= System.currentTimeMillis();
             mDeltaCRLSize = -1;
@@ -2559,17 +2392,15 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             clonedExpiredCerts.clear();
             mSchemaCounter = 0;
 
-            IStatsSubsystem statsSub = (IStatsSubsystem) CMS
-                    .getSubsystem("stats");
+            IStatsSubsystem statsSub = (IStatsSubsystem)CMS.getSubsystem("stats");
             if (statsSub != null) {
-                statsSub.startTiming("generation");
+              statsSub.startTiming("generation");
             }
-            CertRecProcessor cp = new CertRecProcessor(mCRLCerts, this,
-                    mLogger, mAllowExtensions);
+            CertRecProcessor cp = new CertRecProcessor(mCRLCerts, this, mLogger, mAllowExtensions);
             processRevokedCerts(cp);
 
             if (statsSub != null) {
-                statsSub.endTiming("generation");
+              statsSub.endTiming("generation");
             }
 
             mCRLCacheIsCleared = false;
@@ -2578,21 +2409,17 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             if (isDeltaCRLEnabled()) {
                 mSplits[1] -= System.currentTimeMillis();
                 @SuppressWarnings("unchecked")
-                Hashtable<BigInteger, RevokedCertificate> deltaCRLCerts = (Hashtable<BigInteger, RevokedCertificate>) clonedRevokedCerts
-                        .clone();
+                Hashtable<BigInteger, RevokedCertificate> deltaCRLCerts = (Hashtable<BigInteger, RevokedCertificate> )clonedRevokedCerts.clone();
 
                 deltaCRLCerts.putAll(clonedUnrevokedCerts);
                 if (mIncludeExpiredCertsOneExtraTime) {
                     if (!clonedExpiredCerts.isEmpty()) {
-                        for (Enumeration<BigInteger> e = clonedExpiredCerts
-                                .keys(); e.hasMoreElements();) {
+                        for (Enumeration<BigInteger> e = clonedExpiredCerts.keys(); e.hasMoreElements();) {
                             BigInteger serialNumber = e.nextElement();
-                            if ((mLastFullUpdate != null && mLastFullUpdate
-                                    .after((mExpiredCerts.get(serialNumber))
-                                            .getRevocationDate()))
-                                    || mLastFullUpdate == null) {
-                                deltaCRLCerts.put(serialNumber,
-                                        clonedExpiredCerts.get(serialNumber));
+                            if ((mLastFullUpdate != null &&
+                                 mLastFullUpdate.after((mExpiredCerts.get(serialNumber)).getRevocationDate())) ||
+                                 mLastFullUpdate == null) {
+                                deltaCRLCerts.put(serialNumber, clonedExpiredCerts.get(serialNumber));
                             }
                         }
                     }
@@ -2603,16 +2430,14 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 mLastCRLNumber = mCRLNumber;
 
                 CRLExtensions ext = new CRLExtensions();
-                Vector<String> extNames = mCMSCRLExtensions
-                        .getCRLExtensionNames();
+                Vector<String> extNames = mCMSCRLExtensions.getCRLExtensionNames();
 
                 for (int i = 0; i < extNames.size(); i++) {
                     String extName = extNames.elementAt(i);
 
-                    if (mCMSCRLExtensions.isCRLExtensionEnabled(extName)
-                            && (!extName.equals(FreshestCRLExtension.NAME))) {
-                        mCMSCRLExtensions
-                                .addToCRLExtensions(ext, extName, null);
+                    if (mCMSCRLExtensions.isCRLExtensionEnabled(extName) &&
+                        (!extName.equals(FreshestCRLExtension.NAME))) {
+                        mCMSCRLExtensions.addToCRLExtensions(ext, extName, null);
                     }
                 }
                 mSplits[1] += System.currentTimeMillis();
@@ -2624,17 +2449,15 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                     byte[] newDeltaCRL;
 
                     // #56123 - dont generate CRL if no revoked certificates
-                    if (mConfigStore.getBoolean("noCRLIfNoRevokedCert", false)) {
+        	    if (mConfigStore.getBoolean("noCRLIfNoRevokedCert", false)) {
                         if (deltaCRLCerts.size() == 0) {
                             CMS.debug("CRLIssuingPoint: No Revoked Certificates Found And noCRLIfNoRevokedCert is set to true - No Delta CRL Generated");
-                            throw new EBaseException(CMS.getUserMessage(
-                                    "CMS_BASE_INTERNAL_ERROR",
-                                    "No Revoked Certificates"));
+                            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", "No Revoked Certificates"));
                         }
                     }
                     X509CRLImpl crl = new X509CRLImpl(mCA.getCRLX500Name(),
-                            AlgorithmId.get(signingAlgorithm), thisUpdate,
-                            nextDeltaUpdate, deltaCRLCerts, ext);
+                            AlgorithmId.get(signingAlgorithm),
+                            thisUpdate, nextDeltaUpdate, deltaCRLCerts, ext);
 
                     newX509DeltaCRL = mCA.sign(crl, signingAlgorithm);
                     newDeltaCRL = newX509DeltaCRL.getEncoded();
@@ -2642,51 +2465,47 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
                     mSplits[3] -= System.currentTimeMillis();
                     mCRLRepository.updateDeltaCRL(mId, mNextDeltaCRLNumber,
-                            Long.valueOf(deltaCRLCerts.size()),
-                            mNextDeltaUpdate, newDeltaCRL);
+                              Long.valueOf(deltaCRLCerts.size()), mNextDeltaUpdate, newDeltaCRL);
                     mSplits[3] += System.currentTimeMillis();
 
                     mDeltaCRLSize = deltaCRLCerts.size();
+
 
                     long totalTime = 0;
                     String splitTimes = "  (";
                     for (int i = 1; i < mSplits.length && i < 5; i++) {
                         totalTime += mSplits[i];
-                        if (i > 1)
-                            splitTimes += ",";
+                        if (i > 1) splitTimes += ",";
                         splitTimes += Long.toString(mSplits[i]);
                     }
                     splitTimes += ")";
-                    mLogger.log(
-                            ILogger.EV_AUDIT,
-                            ILogger.S_OTHER,
-                            AuditFormat.LEVEL,
-                            CMS.getLogMessage("CMSCORE_CA_CA_DELTA_CRL_UPDATED"),
-                            new Object[] { getId(), getNextCRLNumber(),
-                                    getCRLNumber(), getLastUpdate(),
+                    mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
+                                AuditFormat.LEVEL,
+                                CMS.getLogMessage("CMSCORE_CA_CA_DELTA_CRL_UPDATED"),
+                                new Object[] {
+                                    getId(),
+                                    getNextCRLNumber(),
+                                    getCRLNumber(),
+                                    getLastUpdate(),
                                     getNextDeltaUpdate(),
-                                    Long.toString(mDeltaCRLSize),
-                                    Long.toString(totalTime) + splitTimes });
+                                    Long.toString(mDeltaCRLSize), 
+                                    Long.toString(totalTime)+splitTimes
+                                }
+                               );
                 } catch (EBaseException e) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                            "CMSCORE_CA_ISSUING_SIGN_OR_STORE_DELTA",
-                            e.toString()));
+                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_OR_STORE_DELTA", e.toString()));
                     mDeltaCRLSize = -1;
                 } catch (NoSuchAlgorithmException e) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                            "CMSCORE_CA_ISSUING_SIGN_DELTA", e.toString()));
+                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_DELTA", e.toString()));
                     mDeltaCRLSize = -1;
                 } catch (CRLException e) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                            "CMSCORE_CA_ISSUING_SIGN_DELTA", e.toString()));
+                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_DELTA", e.toString()));
                     mDeltaCRLSize = -1;
                 } catch (X509ExtensionException e) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                            "CMSCORE_CA_ISSUING_SIGN_DELTA", e.toString()));
+                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_DELTA", e.toString()));
                     mDeltaCRLSize = -1;
                 } catch (OutOfMemoryError e) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                            "CMSCORE_CA_ISSUING_SIGN_DELTA", e.toString()));
+                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_DELTA", e.toString()));
                     mDeltaCRLSize = -1;
                 }
 
@@ -2696,16 +2515,12 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                     mSplits[4] += System.currentTimeMillis();
                 } catch (EBaseException e) {
                     newX509DeltaCRL = null;
-                    if (Debug.on())
+                    if (Debug.on()) 
                         Debug.printStackTrace(e);
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                            "CMSCORE_CA_ISSUING_PUBLISH_DELTA",
-                            mCRLNumber.toString(), e.toString()));
+                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_PUBLISH_DELTA", mCRLNumber.toString(), e.toString()));
                 } catch (OutOfMemoryError e) {
                     newX509DeltaCRL = null;
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                            "CMSCORE_CA_ISSUING_PUBLISH_DELTA",
-                            mCRLNumber.toString(), e.toString()));
+                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_PUBLISH_DELTA", mCRLNumber.toString(), e.toString()));
                 }
             } else {
                 mDeltaCRLSize = -1;
@@ -2714,15 +2529,12 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             mSplits[5] -= System.currentTimeMillis();
 
             if (mSchemaCounter == 0) {
-                if (((!mCRLCerts.isEmpty()) && ((!clonedRevokedCerts.isEmpty())
-                        || (!clonedUnrevokedCerts.isEmpty()) || (!clonedExpiredCerts
-                        .isEmpty())))
-                        || (mCRLCerts.isEmpty() && (mCRLSize == 0) && (!clonedRevokedCerts
-                                .isEmpty()))) {
+                if (((!mCRLCerts.isEmpty()) && ((!clonedRevokedCerts.isEmpty()) ||
+                    (!clonedUnrevokedCerts.isEmpty()) || (!clonedExpiredCerts.isEmpty()))) ||
+                    (mCRLCerts.isEmpty() && (mCRLSize == 0) && (!clonedRevokedCerts.isEmpty()))) {
 
                     if (!clonedUnrevokedCerts.isEmpty()) {
-                        for (Enumeration<BigInteger> e = clonedUnrevokedCerts
-                                .keys(); e.hasMoreElements();) {
+                        for (Enumeration<BigInteger> e = clonedUnrevokedCerts.keys(); e.hasMoreElements();) {
                             BigInteger serialNumber = e.nextElement();
 
                             if (mCRLCerts.containsKey(serialNumber)) {
@@ -2733,27 +2545,22 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                     }
 
                     if (!clonedRevokedCerts.isEmpty()) {
-                        for (Enumeration<BigInteger> e = clonedRevokedCerts
-                                .keys(); e.hasMoreElements();) {
+                        for (Enumeration<BigInteger> e = clonedRevokedCerts.keys(); e.hasMoreElements();) {
                             BigInteger serialNumber = e.nextElement();
 
-                            mCRLCerts.put(serialNumber,
-                                    mRevokedCerts.get(serialNumber));
+                            mCRLCerts.put(serialNumber, mRevokedCerts.get(serialNumber));
                             mRevokedCerts.remove(serialNumber);
                         }
                     }
 
                     if (!clonedExpiredCerts.isEmpty()) {
-                        for (Enumeration<BigInteger> e = clonedExpiredCerts
-                                .keys(); e.hasMoreElements();) {
+                        for (Enumeration<BigInteger> e = clonedExpiredCerts.keys(); e.hasMoreElements();) {
                             BigInteger serialNumber = e.nextElement();
 
-                            if ((!mIncludeExpiredCertsOneExtraTime)
-                                    || (mLastFullUpdate != null && mLastFullUpdate
-                                            .after((mExpiredCerts
-                                                    .get(serialNumber))
-                                                    .getRevocationDate()))
-                                    || mLastFullUpdate == null) {
+                            if ((!mIncludeExpiredCertsOneExtraTime) ||
+                                 (mLastFullUpdate != null &&
+                                  mLastFullUpdate.after((mExpiredCerts.get(serialNumber)).getRevocationDate())) ||
+                                 mLastFullUpdate == null) {
                                 if (mCRLCerts.containsKey(serialNumber)) {
                                     mCRLCerts.remove(serialNumber);
                                 }
@@ -2784,17 +2591,14 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
 
             if (mAllowExtensions) {
                 ext = new CRLExtensions();
-                Vector<String> extNames = mCMSCRLExtensions
-                        .getCRLExtensionNames();
+                Vector<String> extNames = mCMSCRLExtensions.getCRLExtensionNames();
 
                 for (int i = 0; i < extNames.size(); i++) {
                     String extName = extNames.elementAt(i);
 
-                    if (mCMSCRLExtensions.isCRLExtensionEnabled(extName)
-                            && (!extName
-                                    .equals(DeltaCRLIndicatorExtension.NAME))) {
-                        mCMSCRLExtensions
-                                .addToCRLExtensions(ext, extName, null);
+                    if (mCMSCRLExtensions.isCRLExtensionEnabled(extName) &&
+                        (!extName.equals(DeltaCRLIndicatorExtension.NAME))) {
+                        mCMSCRLExtensions.addToCRLExtensions(ext, extName, null);
                     }
                 }
             }
@@ -2806,24 +2610,22 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             try {
                 byte[] newCRL;
 
-                CMS.debug("Making CRL with algorithm " + signingAlgorithm + " "
-                        + AlgorithmId.get(signingAlgorithm));
+                CMS.debug("Making CRL with algorithm " +
+                    signingAlgorithm + " " + AlgorithmId.get(signingAlgorithm));
 
                 mSplits[7] -= System.currentTimeMillis();
 
                 // #56123 - dont generate CRL if no revoked certificates
-                if (mConfigStore.getBoolean("noCRLIfNoRevokedCert", false)) {
-                    if (mCRLCerts.size() == 0) {
-                        CMS.debug("CRLIssuingPoint: No Revoked Certificates Found And noCRLIfNoRevokedCert is set to true - No CRL Generated");
-                        throw new EBaseException(CMS.getUserMessage(
-                                "CMS_BASE_INTERNAL_ERROR",
-                                "No Revoked Certificates"));
-                    }
+      	    	if (mConfigStore.getBoolean("noCRLIfNoRevokedCert", false)) {
+                        if (mCRLCerts.size() == 0) {
+                            CMS.debug("CRLIssuingPoint: No Revoked Certificates Found And noCRLIfNoRevokedCert is set to true - No CRL Generated");
+                            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", "No Revoked Certificates"));
+                        }
                 }
                 CMS.debug("before new X509CRLImpl");
                 X509CRLImpl crl = new X509CRLImpl(mCA.getCRLX500Name(),
-                        AlgorithmId.get(signingAlgorithm), thisUpdate,
-                        nextUpdate, mCRLCerts, ext);
+                        AlgorithmId.get(signingAlgorithm),
+                        thisUpdate, nextUpdate, mCRLCerts, ext);
 
                 CMS.debug("before sign");
                 newX509CRL = mCA.sign(crl, signingAlgorithm);
@@ -2836,21 +2638,20 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 mSplits[8] -= System.currentTimeMillis();
 
                 Date nextUpdateDate = mNextUpdate;
-                if (isDeltaCRLEnabled()
-                        && (mUpdateSchema > 1 || (mEnableDailyUpdates && mExtendedTimeList))
-                        && mNextDeltaUpdate != null) {
+                if (isDeltaCRLEnabled() && (mUpdateSchema > 1 ||
+                    (mEnableDailyUpdates && mExtendedTimeList)) && mNextDeltaUpdate != null) {
                     nextUpdateDate = mNextDeltaUpdate;
                 }
                 if (mSaveMemory) {
-                    mCRLRepository.updateCRLIssuingPointRecord(mId, newCRL,
-                            thisUpdate, nextUpdateDate, mNextCRLNumber,
-                            Long.valueOf(mCRLCerts.size()));
+                    mCRLRepository.updateCRLIssuingPointRecord(
+                        mId, newCRL, thisUpdate, nextUpdateDate,
+                        mNextCRLNumber, Long.valueOf(mCRLCerts.size()));
                     updateCRLCacheRepository();
                 } else {
-                    mCRLRepository.updateCRLIssuingPointRecord(mId, newCRL,
-                            thisUpdate, nextUpdateDate, mNextCRLNumber,
-                            Long.valueOf(mCRLCerts.size()), mRevokedCerts,
-                            mUnrevokedCerts, mExpiredCerts);
+                    mCRLRepository.updateCRLIssuingPointRecord(
+                        mId, newCRL, thisUpdate, nextUpdateDate,
+                        mNextCRLNumber, Long.valueOf(mCRLCerts.size()),
+                        mRevokedCerts, mUnrevokedCerts, mExpiredCerts);
                     mFirstUnsaved = ICRLIssuingPointRecord.CLEAN_CACHE;
                 }
 
@@ -2862,10 +2663,11 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                 mNextCRLNumber = mCRLNumber.add(BigInteger.ONE);
                 mNextDeltaCRLNumber = mNextCRLNumber;
 
+
                 CMS.debug("Logging CRL Update to transaction log");
-                long totalTime = 0;
-                long crlTime = 0;
-                long deltaTime = 0;
+                long totalTime = 0;                   
+                long crlTime = 0;                   
+                long deltaTime = 0;                   
                 String splitTimes = "  (";
                 for (int i = 0; i < mSplits.length; i++) {
                     totalTime += mSplits[i];
@@ -2874,67 +2676,53 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                     } else {
                         crlTime += mSplits[i];
                     }
-                    if (i > 0)
-                        splitTimes += ",";
+                    if (i > 0) splitTimes += ",";
                     splitTimes += Long.toString(mSplits[i]);
                 }
-                splitTimes += "," + Long.toString(deltaTime) + ","
-                        + Long.toString(crlTime) + ","
-                        + Long.toString(totalTime) + ")";
-                mLogger.log(
-                        ILogger.EV_AUDIT,
-                        ILogger.S_OTHER,
-                        AuditFormat.LEVEL,
-                        CMS.getLogMessage("CMSCORE_CA_CA_CRL_UPDATED"),
-                        new Object[] { getId(), getCRLNumber(),
-                                getLastUpdate(), getNextUpdate(),
+                splitTimes += "," + Long.toString(deltaTime) + "," + Long.toString(crlTime) + "," + Long.toString(totalTime) + ")";
+                mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
+                            AuditFormat.LEVEL,
+                            CMS.getLogMessage("CMSCORE_CA_CA_CRL_UPDATED"),
+                            new Object[] { 
+                                getId(),
+                                getCRLNumber(),
+                                getLastUpdate(),
+                                getNextUpdate(),
                                 Long.toString(mCRLSize),
                                 Long.toString(totalTime),
                                 Long.toString(crlTime),
-                                Long.toString(deltaTime) + splitTimes });
+                                Long.toString(deltaTime)+splitTimes
+                            }
+                           );
                 CMS.debug("Finished Logging CRL Update to transaction log");
 
             } catch (EBaseException e) {
                 newX509CRL = null;
                 mUpdatingCRL = CRL_UPDATE_DONE;
-                if (Debug.on())
+                if (Debug.on()) 
                     Debug.printStackTrace(e);
-                log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                        "CMSCORE_CA_ISSUING_SIGN_OR_STORE_CRL", e.toString()));
-                throw new ECAException(CMS.getUserMessage(
-                        "CMS_CA_FAILED_CONSTRUCTING_CRL", e.toString()));
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_OR_STORE_CRL", e.toString()));
+                throw new ECAException(CMS.getUserMessage("CMS_CA_FAILED_CONSTRUCTING_CRL", e.toString()));
             } catch (NoSuchAlgorithmException e) {
                 newX509CRL = null;
                 mUpdatingCRL = CRL_UPDATE_DONE;
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_CRL",
-                                e.toString()));
-                throw new ECAException(CMS.getUserMessage(
-                        "CMS_CA_FAILED_CONSTRUCTING_CRL", e.toString()));
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_CRL", e.toString()));
+                throw new ECAException(CMS.getUserMessage("CMS_CA_FAILED_CONSTRUCTING_CRL", e.toString()));
             } catch (CRLException e) {
                 newX509CRL = null;
                 mUpdatingCRL = CRL_UPDATE_DONE;
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_CRL",
-                                e.toString()));
-                throw new ECAException(CMS.getUserMessage(
-                        "CMS_CA_FAILED_CONSTRUCTING_CRL", e.toString()));
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_CRL", e.toString()));
+                throw new ECAException(CMS.getUserMessage("CMS_CA_FAILED_CONSTRUCTING_CRL", e.toString()));
             } catch (X509ExtensionException e) {
                 newX509CRL = null;
                 mUpdatingCRL = CRL_UPDATE_DONE;
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_CRL",
-                                e.toString()));
-                throw new ECAException(CMS.getUserMessage(
-                        "CMS_CA_FAILED_CONSTRUCTING_CRL", e.toString()));
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_CRL", e.toString()));
+                throw new ECAException(CMS.getUserMessage("CMS_CA_FAILED_CONSTRUCTING_CRL", e.toString()));
             } catch (OutOfMemoryError e) {
                 newX509CRL = null;
                 mUpdatingCRL = CRL_UPDATE_DONE;
-                log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_CRL",
-                                e.toString()));
-                throw new ECAException(CMS.getUserMessage(
-                        "CMS_CA_FAILED_CONSTRUCTING_CRL", e.toString()));
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_SIGN_CRL", e.toString()));
+                throw new ECAException(CMS.getUserMessage("CMS_CA_FAILED_CONSTRUCTING_CRL", e.toString()));
             }
 
             try {
@@ -2946,15 +2734,11 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             } catch (EBaseException e) {
                 newX509CRL = null;
                 mUpdatingCRL = CRL_UPDATE_DONE;
-                log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                        "CMSCORE_CA_ISSUING_PUBLISH_CRL",
-                        mCRLNumber.toString(), e.toString()));
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_PUBLISH_CRL", mCRLNumber.toString(), e.toString()));
             } catch (OutOfMemoryError e) {
                 newX509CRL = null;
                 mUpdatingCRL = CRL_UPDATE_DONE;
-                log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                        "CMSCORE_CA_ISSUING_PUBLISH_CRL",
-                        mCRLNumber.toString(), e.toString()));
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_PUBLISH_CRL", mCRLNumber.toString(), e.toString()));
             }
         }
 
@@ -2962,13 +2746,10 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             mDeltaCRLNumber = mNextDeltaCRLNumber;
             mNextDeltaCRLNumber = mDeltaCRLNumber.add(BigInteger.ONE);
         }
-
-        if ((!(mEnableDailyUpdates && mExtendedTimeList))
-                || mSchemaCounter == 0)
-            mSchemaCounter++;
-        if ((mEnableDailyUpdates && mExtendedTimeList && mSchemaCounter >= mTimeListSize)
-                || (mUpdateSchema > 1 && mSchemaCounter >= mUpdateSchema))
-            mSchemaCounter = 0;
+        
+        if ((!(mEnableDailyUpdates && mExtendedTimeList)) || mSchemaCounter == 0) mSchemaCounter++;
+        if ((mEnableDailyUpdates && mExtendedTimeList && mSchemaCounter >= mTimeListSize) ||
+            (mUpdateSchema > 1 && mSchemaCounter >= mUpdateSchema)) mSchemaCounter = 0;
         mLastDay = mCurrentDay;
 
         mUpdatingCRL = CRL_UPDATE_DONE;
@@ -2979,32 +2760,35 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
      * publish CRL. called from updateCRLNow() and init().
      */
 
-    public void publishCRL() throws EBaseException {
+    public void publishCRL() 
+        throws EBaseException {
         publishCRL(null);
     }
 
-    protected void publishCRL(X509CRLImpl x509crl) throws EBaseException {
+    protected void publishCRL(X509CRLImpl x509crl) 
+        throws EBaseException {
         publishCRL(x509crl, false);
     }
-
+    
     /*
-     * The Session Context is a Hashtable, but without type information.
-     * Suppress the warnings generated by adding to the session context
+     *  The Session Context is a Hashtable, but without type information.
+     *  Suppress the warnings generated by adding to the session context   
+     *   
      */
     @SuppressWarnings("unchecked")
-    protected void publishCRL(X509CRLImpl x509crl, boolean isDeltaCRL)
-            throws EBaseException {
+	protected void publishCRL(X509CRLImpl x509crl, boolean isDeltaCRL) 
+        throws EBaseException {
         SessionContext sc = SessionContext.getContext();
 
-        IStatsSubsystem statsSub = (IStatsSubsystem) CMS.getSubsystem("stats");
+        IStatsSubsystem statsSub = (IStatsSubsystem)CMS.getSubsystem("stats");
         if (statsSub != null) {
-            statsSub.startTiming("crl_publishing");
+          statsSub.startTiming("crl_publishing");
         }
 
         if (mCountMod == 0) {
-            sc.put(SC_CRL_COUNT, Integer.toString(mCount));
+          sc.put(SC_CRL_COUNT, Integer.toString(mCount));
         } else {
-            sc.put(SC_CRL_COUNT, Integer.toString(mCount % mCountMod));
+          sc.put(SC_CRL_COUNT, Integer.toString(mCount%mCountMod));
         }
         mCount++;
         sc.put(SC_ISSUING_POINT_ID, mId);
@@ -3021,18 +2805,16 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             if (x509crl == null) {
                 crlRecord = mCRLRepository.readCRLIssuingPointRecord(mId);
                 if (crlRecord != null) {
-                    byte[] crl = (isDeltaCRL) ? crlRecord.getDeltaCRL()
-                            : crlRecord.getCRL();
+                    byte[] crl = (isDeltaCRL) ? crlRecord.getDeltaCRL() : crlRecord.getCRL();
 
                     if (crl != null) {
                         x509crl = new X509CRLImpl(crl);
                     }
                 }
             }
-            if (x509crl != null && mPublisherProcessor != null
-                    && mPublisherProcessor.enabled()) {
-                Enumeration<ILdapRule> rules = mPublisherProcessor
-                        .getRules(IPublisherProcessor.PROP_LOCAL_CRL);
+            if (x509crl != null &&
+                mPublisherProcessor != null && mPublisherProcessor.enabled()) {
+                Enumeration<ILdapRule> rules = mPublisherProcessor.getRules(IPublisherProcessor.PROP_LOCAL_CRL);
                 if (rules == null || !rules.hasMoreElements()) {
                     CMS.debug("CRL publishing is not enabled.");
                 } else {
@@ -3040,7 +2822,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                         mPublisherProcessor.publishCRL(mPublishDN, x509crl);
                         CMS.debug("CRL published to " + mPublishDN);
                     } else {
-                        mPublisherProcessor.publishCRL(x509crl, getId());
+                        mPublisherProcessor.publishCRL(x509crl,getId());
                         CMS.debug("CRL published.");
                     }
                 }
@@ -3048,18 +2830,18 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         } catch (Exception e) {
             CMS.debug("Could not publish CRL. Error " + e);
             CMS.debug("Could not publish CRL. ID " + mId);
-            throw new EErrorPublishCRL(CMS.getUserMessage(
-                    "CMS_CA_ERROR_PUBLISH_CRL", mId, e.toString()));
+            throw new EErrorPublishCRL(
+                    CMS.getUserMessage("CMS_CA_ERROR_PUBLISH_CRL", mId, e.toString()));
         } finally {
-            if (statsSub != null) {
-                statsSub.endTiming("crl_publishing");
-            }
+          if (statsSub != null) {
+            statsSub.endTiming("crl_publishing");
+          }
         }
     }
 
     protected void log(int level, String msg) {
-        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_CA, level,
-                "CRLIssuingPoint " + mId + " - " + msg);
+        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_CA, level, 
+            "CRLIssuingPoint " + mId + " - " + msg);
     }
 
     void setConfigParam(String name, String value) {
@@ -3069,7 +2851,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     class RevocationRequestListener implements IRequestListener {
 
         public void init(ISubsystem sys, IConfigStore config)
-                throws EBaseException {
+            throws EBaseException {
         }
 
         public void set(String name, String val) {
@@ -3078,37 +2860,38 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         public void accept(IRequest r) {
             String requestType = r.getRequestType();
 
-            if (requestType.equals(IRequest.REVOCATION_REQUEST)
-                    || requestType.equals(IRequest.UNREVOCATION_REQUEST)
-                    || requestType.equals(IRequest.CLA_CERT4CRL_REQUEST)
-                    || requestType.equals(IRequest.CLA_UNCERT4CRL_REQUEST)) {
+            if (requestType.equals(IRequest.REVOCATION_REQUEST) ||
+                requestType.equals(IRequest.UNREVOCATION_REQUEST) ||
+                requestType.equals(IRequest.CLA_CERT4CRL_REQUEST) ||
+                requestType.equals(IRequest.CLA_UNCERT4CRL_REQUEST)) {
                 CMS.debug("Revocation listener called.");
                 // check if serial number is in begin/end range if set.
                 if (mBeginSerial != null || mEndSerial != null) {
-                    CMS.debug("Checking if serial number is between "
-                            + mBeginSerial + " and " + mEndSerial);
-                    BigInteger[] serialNos = r
-                            .getExtDataInBigIntegerArray(IRequest.OLD_SERIALS);
+                    CMS.debug(
+                        "Checking if serial number is between " +
+                        mBeginSerial + " and " + mEndSerial);
+                    BigInteger[] serialNos = 
+                        r.getExtDataInBigIntegerArray(IRequest.OLD_SERIALS);
 
                     if (serialNos == null || serialNos.length == 0) {
-                        X509CertImpl oldCerts[] = r
-                                .getExtDataInCertArray(IRequest.OLD_CERTS);
+                        X509CertImpl oldCerts[] = 
+                            r.getExtDataInCertArray(IRequest.OLD_CERTS);
 
-                        if (oldCerts == null || oldCerts.length == 0)
+                        if (oldCerts == null || oldCerts.length == 0) 
                             return;
                         serialNos = new BigInteger[oldCerts.length];
                         for (int i = 0; i < oldCerts.length; i++) {
                             serialNos[i] = oldCerts[i].getSerialNumber();
                         }
                     }
-
+					
                     boolean inRange = false;
 
                     for (int i = 0; i < serialNos.length; i++) {
-                        if ((mBeginSerial == null || serialNos[i]
-                                .compareTo(mBeginSerial) >= 0)
-                                && (mEndSerial == null || serialNos[i]
-                                        .compareTo(mEndSerial) <= 0)) {
+                        if ((mBeginSerial == null || 
+                                serialNos[i].compareTo(mBeginSerial) >= 0) &&
+                            (mEndSerial == null || 
+                                serialNos[i].compareTo(mEndSerial) <= 0)) {
                             inRange = true;
                         }
                     }
@@ -3122,8 +2905,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                         updateCRLNow();
                         r.setExtData(mCrlUpdateStatus, IRequest.RES_SUCCESS);
                         if (mPublisherProcessor != null) {
-                            r.setExtData(mCrlPublishStatus,
-                                    IRequest.RES_SUCCESS);
+                            r.setExtData(mCrlPublishStatus, IRequest.RES_SUCCESS);
                         }
                     } catch (EErrorPublishCRL e) {
                         // error already logged in updateCRLNow();
@@ -3133,28 +2915,24 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
                             r.setExtData(mCrlPublishError, e);
                         }
                     } catch (EBaseException e) {
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                                "CMSCORE_CA_ISSUING_UPDATE_CRL", e.toString()));
+                        log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_UPDATE_CRL", e.toString()));
                         r.setExtData(mCrlUpdateStatus, IRequest.RES_ERROR);
                         r.setExtData(mCrlUpdateError, e);
                     } catch (Exception e) {
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage(
-                                "CMSCORE_CA_ISSUING_UPDATE_CRL", e.toString()));
+                        log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_ISSUING_UPDATE_CRL", e.toString()));
                         if (Debug.on())
                             Debug.printStackTrace(e);
                         r.setExtData(mCrlUpdateStatus, IRequest.RES_ERROR);
-                        r.setExtData(
-                                mCrlUpdateError,
-                                new EBaseException(
-                                        CMS.getUserMessage(
-                                                "CMS_BASE_INTERNAL_ERROR",
-                                                e.toString())));
+                        r.setExtData(mCrlUpdateError,
+                            new EBaseException(
+                                CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString())));
                     }
                 }
             }
         }
     }
 }
+
 
 class CertRecProcessor implements IElementProcessor {
     private Hashtable<BigInteger, RevokedCertificate> mCRLCerts = null;
@@ -3166,109 +2944,107 @@ class CertRecProcessor implements IElementProcessor {
     private boolean mIssuingDistPointEnabled = false;
     private BitArray mOnlySomeReasons = null;
 
-    public CertRecProcessor(Hashtable<BigInteger, RevokedCertificate> crlCerts,
-            CRLIssuingPoint ip, ILogger logger, boolean allowExtensions) {
+    public CertRecProcessor(Hashtable<BigInteger, RevokedCertificate> crlCerts, CRLIssuingPoint ip, ILogger logger, boolean allowExtensions) {
         mCRLCerts = crlCerts;
         mLogger = logger;
         mIP = ip;
         mAllowExtensions = allowExtensions;
         mIssuingDistPointAttempted = false;
-        mIssuingDistPointEnabled = false;
+        mIssuingDistPointEnabled   = false;
         mOnlySomeReasons = null;
     }
 
     private boolean initCRLIssuingDistPointExtension() {
-        boolean result = false;
-        CMSCRLExtensions exts = null;
+       boolean result = false;
+       CMSCRLExtensions exts = null;
 
-        if (mIssuingDistPointAttempted == true) {
-            if ((mIssuingDistPointEnabled == true)
-                    && (mOnlySomeReasons != null)) {
-                return true;
-            } else {
-                return false;
-            }
-        }
+       if(mIssuingDistPointAttempted == true) {
+           if((mIssuingDistPointEnabled == true) && (mOnlySomeReasons != null )) {
+              return true;
+           } else {
+              return false;
+           } 
+       }
 
-        mIssuingDistPointAttempted = true;
-        exts = (CMSCRLExtensions) mIP.getCRLExtensions();
-        if (exts == null) {
-            return result;
-        }
-        boolean isIssuingDistPointExtEnabled = false;
-        isIssuingDistPointExtEnabled = exts
-                .isCRLExtensionEnabled(IssuingDistributionPointExtension.NAME);
-        if (isIssuingDistPointExtEnabled == false) {
+       mIssuingDistPointAttempted = true;
+       exts = (CMSCRLExtensions) mIP.getCRLExtensions();
+       if(exts == null) {
+          return result;
+       }
+       boolean isIssuingDistPointExtEnabled =  false;
+        isIssuingDistPointExtEnabled =  exts.isCRLExtensionEnabled(IssuingDistributionPointExtension.NAME);
+        if(isIssuingDistPointExtEnabled == false) {
             mIssuingDistPointEnabled = false;
             return false;
         }
 
         mIssuingDistPointEnabled = true;
 
-        // Get info out of the IssuingDistPointExtension
+       //Get info out of the IssuingDistPointExtension
         CRLExtensions ext = new CRLExtensions();
         Vector<String> extNames = exts.getCRLExtensionNames();
-        for (int i = 0; i < extNames.size(); i++) {
-            String extName = extNames.elementAt(i);
-            if (extName.equals(IssuingDistributionPointExtension.NAME)) {
-                exts.addToCRLExtensions(ext, extName, null);
+            for (int i = 0; i < extNames.size(); i++) {
+                String extName = extNames.elementAt(i);
+                if (extName.equals(IssuingDistributionPointExtension.NAME)) {
+                   exts.addToCRLExtensions(ext, extName, null);
+                }
             }
-        }
-        Extension issuingDistExt = null;
-        try {
-            issuingDistExt = ext.get(IssuingDistributionPointExtension.NAME);
-        } catch (Exception e) {
-        }
-
-        IssuingDistributionPointExtension iExt = null;
-        if (issuingDistExt != null)
-            iExt = (IssuingDistributionPointExtension) issuingDistExt;
-        IssuingDistributionPoint issuingDistributionPoint = null;
-        if (iExt != null)
-            issuingDistributionPoint = iExt.getIssuingDistributionPoint();
-
-        BitArray onlySomeReasons = null;
-
-        if (issuingDistributionPoint != null)
-            onlySomeReasons = issuingDistributionPoint.getOnlySomeReasons();
-
-        boolean applyReasonMatch = false;
-        boolean reasonMatch = true;
-
-        if (onlySomeReasons != null) {
-            applyReasonMatch = !onlySomeReasons.toString().equals("0000000");
-            CMS.debug("applyReasonMatch " + applyReasonMatch);
-            if (applyReasonMatch == true) {
-                mOnlySomeReasons = onlySomeReasons;
-                result = true;
+            Extension issuingDistExt = null;
+            try {
+                issuingDistExt = ext.get(IssuingDistributionPointExtension.NAME);
+            } catch (Exception e) {
             }
-        }
-        return result;
+
+            IssuingDistributionPointExtension iExt  = null;
+            if(issuingDistExt != null)
+                iExt = (IssuingDistributionPointExtension) issuingDistExt;
+            IssuingDistributionPoint issuingDistributionPoint =  null;
+            if(iExt != null)
+                issuingDistributionPoint = iExt.getIssuingDistributionPoint();
+
+            BitArray onlySomeReasons = null;
+
+            if(issuingDistributionPoint != null)
+                onlySomeReasons = issuingDistributionPoint.getOnlySomeReasons();
+
+            boolean applyReasonMatch = false;
+            boolean reasonMatch = true;
+
+            if(onlySomeReasons != null) {
+                applyReasonMatch = !onlySomeReasons.toString().equals("0000000");
+                CMS.debug("applyReasonMatch " + applyReasonMatch);
+                if(applyReasonMatch == true) {
+                    mOnlySomeReasons = onlySomeReasons;
+                    result = true;
+               }
+            }
+            return result;
     }
 
-    private boolean checkOnlySomeReasonsExtension(CRLExtensions entryExts) {
+    private boolean checkOnlySomeReasonsExtension(CRLExtensions entryExts)
+    {
         boolean includeCert = true;
-        // This is exactly how the Pretty Print code obtains the reason code
-        // through the extensions
-        if (entryExts == null) {
+        //This is exactly how the Pretty Print code obtains the reason code
+        //through the extensions
+        if(entryExts == null) {
             return includeCert;
         }
 
         Extension crlReasonExt = null;
         try {
-            crlReasonExt = entryExts.get(CRLReasonExtension.NAME);
+                 crlReasonExt = entryExts.get(CRLReasonExtension.NAME);
         } catch (Exception e) {
             return includeCert;
         }
 
         RevocationReason reason = null;
         int reasonIndex = 0;
-        if (crlReasonExt != null) {
+        if(crlReasonExt != null) {
             try {
-                CRLReasonExtension theReason = (CRLReasonExtension) crlReasonExt;
-                reason = (RevocationReason) theReason.get("value");
-                reasonIndex = reason.toInt();
-                CMS.debug("revoked reason " + reason);
+                   CRLReasonExtension  theReason = (CRLReasonExtension) crlReasonExt;
+                   reason = (RevocationReason) theReason.get("value");
+                   reasonIndex = reason.toInt();
+                   CMS.debug("revoked reason " + reason);
             } catch (Exception e) {
                 return includeCert;
             }
@@ -3276,37 +3052,37 @@ class CertRecProcessor implements IElementProcessor {
             return includeCert;
         }
         boolean reasonMatch = false;
-        if (reason != null) {
-            if (mOnlySomeReasons != null) {
+        if(reason != null) {
+            if(mOnlySomeReasons != null) {
                 reasonMatch = mOnlySomeReasons.get(reasonIndex);
-                if (reasonMatch != true) {
+                if(reasonMatch != true) {
                     includeCert = false;
                 } else {
                     CMS.debug("onlySomeReasons match! reason: " + reason);
                 }
             }
         }
-
+ 
         return includeCert;
     }
 
-    public boolean checkRevokedCertExtensions(CRLExtensions crlExtensions) {
-        // For now just check the onlySomeReason CRL IssuingDistributionPoint
-        // extension
+    public boolean checkRevokedCertExtensions(CRLExtensions crlExtensions)
+    {
+        //For now just check the onlySomeReason CRL IssuingDistributionPoint extension
 
-        boolean includeCert = true;
-        if ((crlExtensions == null) || (mAllowExtensions == false)) {
+        boolean includeCert = true; 
+        if((crlExtensions == null) || (mAllowExtensions == false)) {
             return includeCert;
         }
         boolean inited = initCRLIssuingDistPointExtension();
 
-        // If the CRLIssuingDistPointExtension is not available or
+        //If the CRLIssuingDistPointExtension is not available or
         // if onlySomeReasons does not apply, bail.
-        if (inited == false) {
+        if(inited == false) {
             return includeCert;
-        }
+        } 
 
-        // Check the onlySomeReasonsExtension
+        //Check the onlySomeReasonsExtension
         includeCert = checkOnlySomeReasonsExtension(crlExtensions);
 
         return includeCert;
@@ -3325,24 +3101,23 @@ class CertRecProcessor implements IElementProcessor {
                 crlExts = revInfo.getCRLEntryExtensions();
                 entryExt = mIP.getRequiredEntryExtensions(crlExts);
             }
-            RevokedCertificate newRevokedCert = new RevokedCertImpl(
-                    serialNumber, revocationDate, entryExt);
+            RevokedCertificate newRevokedCert =
+                new RevokedCertImpl(serialNumber, revocationDate, entryExt);
 
             boolean includeCert = checkRevokedCertExtensions(crlExts);
 
             if (includeCert == true) {
-                mCRLCerts
-                        .put(serialNumber, (RevokedCertificate) newRevokedCert);
+                mCRLCerts.put(serialNumber, (RevokedCertificate) newRevokedCert);
                 if (serialNumber != null) {
-                    CMS.debug("Putting certificate serial: 0x"
-                            + serialNumber.toString(16) + " into CRL hashtable");
+                    CMS.debug("Putting certificate serial: 0x"+serialNumber.toString(16)+" into CRL hashtable");
                 }
             }
         } catch (EBaseException e) {
-            CMS.debug("CA failed constructing CRL entry: "
-                    + (mCRLCerts.size() + 1) + " " + e);
-            throw new ECAException(CMS.getUserMessage(
-                    "CMS_CA_FAILED_CONSTRUCTING_CRL", e.toString()));
+            CMS.debug(
+                "CA failed constructing CRL entry: " +
+                (mCRLCerts.size() + 1) + " " + e);
+            throw new ECAException(CMS.getUserMessage("CMS_CA_FAILED_CONSTRUCTING_CRL", e.toString()));
         }
     }
 }
+

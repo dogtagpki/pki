@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.security;
 
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FilterOutputStream;
@@ -115,6 +116,7 @@ import com.netscape.cmscore.dbs.DateMapper;
 import com.netscape.cmscore.dbs.X509CertImplMapper;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
+
 /**
  * This class provides all the base methods to generate the key for different
  * kinds of certificates.
@@ -147,15 +149,14 @@ public class KeyCertUtil {
                 try {
                     Extension de = new Extension(new DerValue(b));
                 } catch (IOException ex) {
-                    throw new EBaseException(
-                            CMS.getUserMessage("CMS_BASE_INVALID_CERT_EXTENSION"));
+                    throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_CERT_EXTENSION"));
                 }
             }
         }
     }
 
-    public static String getTokenNames(CryptoManager manager)
-            throws TokenException {
+    public static String getTokenNames(CryptoManager manager) 
+        throws TokenException {
         String tokenList = "";
         Enumeration tokens = manager.getExternalTokens();
         int num = 0;
@@ -179,8 +180,11 @@ public class KeyCertUtil {
         // All this streaming is lame, but Base64OutputStream needs a
         // PrintStream
         ByteArrayOutputStream output = new ByteArrayOutputStream();
-        Base64OutputStream b64 = new Base64OutputStream(new PrintStream(
-                new FilterOutputStream(output)));
+        Base64OutputStream b64 = new Base64OutputStream(new
+                PrintStream(new
+                    FilterOutputStream(output)
+                )
+            );
 
         b64.write(bytes);
         b64.flush();
@@ -191,7 +195,7 @@ public class KeyCertUtil {
     }
 
     public static byte[] makeDSSParms(BigInteger P, BigInteger Q, BigInteger G)
-            throws IOException {
+        throws IOException {
 
         // Write P, Q, G to a DER stream
         DerOutputStream contents = new DerOutputStream();
@@ -208,43 +212,42 @@ public class KeyCertUtil {
         return sequence.toByteArray();
     }
 
-    public static PrivateKey getPrivateKey(String tokenname, String nickname)
-            throws TokenException, EBaseException, NoSuchTokenException,
-            NotInitializedException, CertificateException,
-            CertificateEncodingException, EBaseException,
-            ObjectNotFoundException {
+    public static PrivateKey getPrivateKey(String tokenname, String nickname) 
+        throws TokenException, EBaseException,
+            NoSuchTokenException, NotInitializedException, CertificateException,
+            CertificateEncodingException, EBaseException, ObjectNotFoundException {
 
         /*
-         * String caNickname = store.getString("ca.signing.tokenname"); String
-         * tokenName = store.getString("ca.signing.cacertnickname");
+         String caNickname = store.getString("ca.signing.tokenname");
+         String tokenName = store.getString("ca.signing.cacertnickname");
          */
         X509Certificate cert = getCertificate(tokenname, nickname);
-
+            
         return CryptoManager.getInstance().findPrivKeyByCert(cert);
     }
 
-    public static String getCertSubjectName(String tokenname, String nickname)
-            throws TokenException, EBaseException, NoSuchTokenException,
+    public static String getCertSubjectName(String tokenname, String nickname) 
+        throws TokenException, EBaseException, NoSuchTokenException,
             NotInitializedException, CertificateException,
             CertificateEncodingException, EBaseException {
-
+ 
         X509Certificate cert = getCertificate(tokenname, nickname);
         X509CertImpl impl = new X509CertImpl(cert.getEncoded());
 
         return impl.getSubjectDN().getName();
     }
 
-    public static X509CertImpl signCert(PrivateKey privateKey,
-            X509CertInfo certInfo, SignatureAlgorithm sigAlg)
-            throws NoSuchTokenException, EBaseException,
-            NotInitializedException {
+    public static X509CertImpl signCert(PrivateKey privateKey, X509CertInfo certInfo,
+        SignatureAlgorithm sigAlg) 
+        throws NoSuchTokenException, EBaseException, NotInitializedException {
         try {
-            CertificateAlgorithmId sId = (CertificateAlgorithmId) certInfo
-                    .get(X509CertInfo.ALGORITHM_ID);
-            AlgorithmId sigAlgId = (AlgorithmId) sId
-                    .get(CertificateAlgorithmId.ALGORITHM);
+            CertificateAlgorithmId sId = (CertificateAlgorithmId)
+                certInfo.get(X509CertInfo.ALGORITHM_ID);
+            AlgorithmId sigAlgId =
+                (AlgorithmId) sId.get(CertificateAlgorithmId.ALGORITHM);
 
-            org.mozilla.jss.crypto.PrivateKey priKey = (org.mozilla.jss.crypto.PrivateKey) privateKey;
+            org.mozilla.jss.crypto.PrivateKey priKey = 
+                (org.mozilla.jss.crypto.PrivateKey) privateKey;
             CryptoToken token = priKey.getOwningToken();
 
             DerOutputStream tmp = new DerOutputStream();
@@ -267,25 +270,19 @@ public class KeyCertUtil {
 
             return signedCert;
         } catch (IOException e) {
-            throw new EBaseException(CMS.getUserMessage(
-                    "CMS_BASE_SIGNED_FAILED", e.toString()));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_SIGNED_FAILED", e.toString()));
         } catch (NoSuchAlgorithmException e) {
-            throw new EBaseException(CMS.getUserMessage(
-                    "CMS_BASE_ALG_NOT_SUPPORTED", e.toString()));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_ALG_NOT_SUPPORTED", e.toString()));
         } catch (TokenException e) {
-            throw new EBaseException(CMS.getUserMessage(
-                    "CMS_BASE_TOKEN_ERROR_1", e.toString()));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_ERROR_1", e.toString()));
         } catch (SignatureException e) {
-            throw new EBaseException(CMS.getUserMessage(
-                    "CMS_BASE_SIGNED_FAILED", e.toString()));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_SIGNED_FAILED", e.toString()));
         } catch (InvalidKeyException e) {
-            throw new EBaseException(CMS.getUserMessage(
-                    "CMS_BASE_INVALID_KEY_1", e.toString()));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_KEY_1", e.toString()));
         } catch (CertificateException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR",
-                    e.toString()));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", e.toString()));
         }
-    }
+    } 
 
     public static SignatureAlgorithm getSigningAlgorithm(String keyType) {
         SignatureAlgorithm sAlg = null;
@@ -298,8 +295,7 @@ public class KeyCertUtil {
         return sAlg;
     }
 
-    public static SignatureAlgorithm getSigningAlgorithm(String keyType,
-            String hashtype) {
+    public static SignatureAlgorithm getSigningAlgorithm(String keyType, String hashtype) {
         SignatureAlgorithm sAlg = null;
 
         if (keyType.equals("RSA")) {
@@ -321,9 +317,9 @@ public class KeyCertUtil {
     }
 
     public static AlgorithmId getAlgorithmId(String algname, IConfigStore store)
-            throws EBaseException {
+        throws EBaseException {
         try {
-
+            
             if (algname.equals("DSA")) {
                 byte[] p = store.getByteArray("ca.dsaP", null);
                 byte[] q = store.getByteArray("ca.dsaQ", null);
@@ -339,16 +335,15 @@ public class KeyCertUtil {
             }
             return AlgorithmId.getAlgorithmId(algname);
         } catch (NoSuchAlgorithmException e) {
-            throw new EBaseException(
-                    CMS.getUserMessage("CMS_BASE_ALG_NOT_SUPPORTED"));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_ALG_NOT_SUPPORTED"));
         }
     }
 
     public static X509Certificate getCertificate(String tokenname,
-            String nickname) throws NotInitializedException,
-            NoSuchTokenException, EBaseException, TokenException {
+        String nickname) throws NotInitializedException, NoSuchTokenException,
+            EBaseException, TokenException {
         CryptoManager manager = CryptoManager.getInstance();
-        CryptoToken token = null;
+        CryptoToken token = null; 
 
         if (tokenname.equals(Constants.PR_INTERNAL_TOKEN_NAME)) {
             token = manager.getInternalKeyStorageToken();
@@ -365,16 +360,16 @@ public class KeyCertUtil {
         try {
             return manager.findCertByNickname(certname.toString());
         } catch (ObjectNotFoundException e) {
-            throw new EBaseException(
-                    CMS.getUserMessage("CMS_BASE_CA_SIGNINGCERT_NOT_FOUND"));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_CA_SIGNINGCERT_NOT_FOUND"));
         }
     }
 
-    public static KeyPair getKeyPair(String tokenname, String nickname)
-            throws NotInitializedException, NoSuchTokenException,
-            TokenException, ObjectNotFoundException, EBaseException {
+    public static KeyPair getKeyPair(String tokenname, String nickname) 
+        throws NotInitializedException, NoSuchTokenException, TokenException,
+            ObjectNotFoundException, EBaseException {
         X509Certificate cert = getCertificate(tokenname, nickname);
-        PrivateKey priKey = CryptoManager.getInstance().findPrivKeyByCert(cert);
+        PrivateKey priKey =
+            CryptoManager.getInstance().findPrivKeyByCert(cert);
         PublicKey publicKey = cert.getPublicKey();
 
         return new KeyPair(publicKey, priKey);
@@ -388,8 +383,8 @@ public class KeyCertUtil {
         }
     }
 
-    public static PQGParams getCAPQG(int keysize, IConfigStore store)
-            throws EBaseException {
+    public static PQGParams getCAPQG(int keysize, IConfigStore store) 
+        throws EBaseException {
         if (store != null) {
             try {
                 int pqgKeySize = store.getInteger("ca.dsaPQG.keyLength", 0);
@@ -415,44 +410,40 @@ public class KeyCertUtil {
                 PQGParams pqg = PQGParams.generate(keysize);
 
                 store.putInteger("ca.dsaPQG.keyLength", keysize);
-                store.putString("ca.dsaP",
-                        KeyCertUtil.base64Encode(pqg.getP().toByteArray()));
-                store.putString("ca.dsaQ",
-                        KeyCertUtil.base64Encode(pqg.getQ().toByteArray()));
-                store.putString("ca.dsaG",
-                        KeyCertUtil.base64Encode(pqg.getG().toByteArray()));
-                store.putString("ca.dsaSeed",
-                        KeyCertUtil.base64Encode(pqg.getSeed().toByteArray()));
+                store.putString("ca.dsaP", KeyCertUtil.base64Encode(
+                        pqg.getP().toByteArray()));
+                store.putString("ca.dsaQ", KeyCertUtil.base64Encode(
+                        pqg.getQ().toByteArray()));
+                store.putString("ca.dsaG", KeyCertUtil.base64Encode(
+                        pqg.getG().toByteArray()));
+                store.putString("ca.dsaSeed", KeyCertUtil.base64Encode(
+                        pqg.getSeed().toByteArray()));
                 store.putInteger("ca.dsaCounter", pqg.getCounter());
-                store.putString("ca.dsaH",
-                        KeyCertUtil.base64Encode(pqg.getH().toByteArray()));
-                store.putString(
-                        "ca.DSSParms",
-                        KeyCertUtil.base64Encode(KeyCertUtil.makeDSSParms(
-                                pqg.getP(), pqg.getQ(), pqg.getG())));
+                store.putString("ca.dsaH", KeyCertUtil.base64Encode(
+                        pqg.getH().toByteArray()));
+                store.putString("ca.DSSParms", 
+                    KeyCertUtil.base64Encode(
+                        KeyCertUtil.makeDSSParms(pqg.getP(), pqg.getQ(), pqg.getG())));
                 store.commit(false);
                 return pqg;
             } catch (IOException ee) {
-                throw new EBaseException(
-                        CMS.getUserMessage("CMS_BASE_PQG_GEN_FAILED"));
+                throw new EBaseException(CMS.getUserMessage("CMS_BASE_PQG_GEN_FAILED"));
             } catch (EBaseException ee) {
                 throw ee;
             } catch (PQGParamGenException ee) {
-                throw new EBaseException(
-                        CMS.getUserMessage("CMS_BASE_PQG_GEN_FAILED"));
+                throw new EBaseException(CMS.getUserMessage("CMS_BASE_PQG_GEN_FAILED"));
             }
         }
         return null;
     }
 
     public static KeyPair generateKeyPair(CryptoToken token,
-            KeyPairAlgorithm kpAlg, int keySize, PQGParams pqg)
-            throws NoSuchAlgorithmException, TokenException,
-            InvalidAlgorithmParameterException, InvalidParameterException,
-            PQGParamGenException {
+        KeyPairAlgorithm kpAlg, int keySize, PQGParams pqg) 
+        throws NoSuchAlgorithmException, TokenException, InvalidAlgorithmParameterException,
+            InvalidParameterException, PQGParamGenException {
 
         KeyPairGenerator kpGen = token.getKeyPairGenerator(kpAlg);
-
+ 
         if (kpAlg == KeyPairAlgorithm.DSA) {
             if (pqg == null) {
                 kpGen.initialize(keySize);
@@ -472,16 +463,18 @@ public class KeyCertUtil {
             do {
                 // 602548 NSS bug - to overcome it, we use isBadDSAKeyPair
                 kp = kpGen.genKeyPair();
-            } while (isBadDSAKeyPair(kp));
+            }
+            while (isBadDSAKeyPair(kp)); 
             return kp;
         }
     }
 
     /**
-     * Test for a DSA key pair that will trigger a bug in NSS. The problem
-     * occurs when the first byte of the key is 0. This happens when the value
-     * otherwise would have been negative, and a zero byte is prepended to force
-     * it to be positive. This is blackflag bug 602548.
+     * Test for a DSA key pair that will trigger a bug in NSS.
+     * The problem occurs when the first byte of the key is 0. This
+     * happens when the value otherwise would have been negative, and a
+     * zero byte is prepended to force it to be positive.
+     * This is blackflag bug 602548.
      */
     public static boolean isBadDSAKeyPair(KeyPair pair) {
         try {
@@ -494,10 +487,9 @@ public class KeyCertUtil {
 
             BIT_STRING bs = (BIT_STRING) seq.elementAt(1);
             byte[] bits = bs.getBits();
-            ByteArrayInputStream bitstream = new ByteArrayInputStream(
-                    bs.getBits());
+            ByteArrayInputStream bitstream = new ByteArrayInputStream(bs.getBits());
             ASN1Header wrapper = new ASN1Header(bitstream);
-            byte[] valBytes = new byte[(int) wrapper.getContentLength()];
+            byte[] valBytes = new byte[ (int) wrapper.getContentLength() ];
 
             ASN1Util.readFully(valBytes, bitstream);
 
@@ -511,7 +503,7 @@ public class KeyCertUtil {
     }
 
     public static KeyPair generateKeyPair(String tokenName, String alg,
-            int keySize, PQGParams pqg) throws EBaseException {
+        int keySize, PQGParams pqg) throws EBaseException {
 
         CryptoToken token = null;
 
@@ -520,17 +512,14 @@ public class KeyCertUtil {
 
         try {
             if (tokenName.equalsIgnoreCase(Constants.PR_INTERNAL_TOKEN)) {
-                token = CryptoManager.getInstance()
-                        .getInternalKeyStorageToken();
+                token = CryptoManager.getInstance().getInternalKeyStorageToken();
             } else {
                 token = CryptoManager.getInstance().getTokenByName(tokenName);
             }
         } catch (NoSuchTokenException e) {
-            throw new EBaseException(CMS.getUserMessage(
-                    "CMS_BASE_TOKEN_NOT_FOUND", tokenName));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_NOT_FOUND", tokenName));
         } catch (NotInitializedException e) {
-            throw new EBaseException(
-                    CMS.getUserMessage("CMS_BASE_CRYPTOMANAGER_UNINITIALIZED"));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_CRYPTOMANAGER_UNINITIALIZED"));
         }
 
         KeyPairAlgorithm kpAlg = null;
@@ -545,25 +534,22 @@ public class KeyCertUtil {
 
             return kp;
         } catch (InvalidParameterException e) {
-            throw new EBaseException(CMS.getUserMessage(
-                    "CMS_BASE_INVALID_KEYSIZE_PARAMS", "" + keySize));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_KEYSIZE_PARAMS",
+                        "" + keySize));
         } catch (PQGParamGenException e) {
-            throw new EBaseException(
-                    CMS.getUserMessage("CMS_BASE_PQG_GEN_FAILED"));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_PQG_GEN_FAILED"));
         } catch (NoSuchAlgorithmException e) {
-            throw new EBaseException(CMS.getUserMessage(
-                    "CMS_BASE_ALG_NOT_SUPPORTED", kpAlg.toString()));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_ALG_NOT_SUPPORTED",
+                        kpAlg.toString()));
         } catch (TokenException e) {
-            throw new EBaseException(CMS.getUserMessage(
-                    "CMS_BASE_TOKEN_ERROR_1", e.toString()));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_TOKEN_ERROR_1", e.toString()));
         } catch (InvalidAlgorithmParameterException e) {
-            throw new EBaseException(CMS.getUserMessage(
-                    "CMS_BASE_ALG_NOT_SUPPORTED", "DSA"));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_ALG_NOT_SUPPORTED", "DSA"));
         }
     }
 
-    public static PKCS10 getCertRequest(String subjectName, KeyPair keyPair)
-            throws NoSuchAlgorithmException, NoSuchProviderException,
+    public static PKCS10 getCertRequest(String subjectName, KeyPair keyPair) 
+        throws NoSuchAlgorithmException, NoSuchProviderException, 
             InvalidKeyException, IOException, CertificateException,
             SignatureException {
         PublicKey pubk = keyPair.getPublic();
@@ -577,8 +563,8 @@ public class KeyCertUtil {
         } else {
             alg = "DSA";
         }
-        java.security.Signature sig = java.security.Signature.getInstance(alg,
-                "Mozilla-JSS");
+        java.security.Signature sig =
+            java.security.Signature.getInstance(alg, "Mozilla-JSS");
 
         sig.initSign(keyPair.getPrivate());
 
@@ -592,10 +578,12 @@ public class KeyCertUtil {
         return pkcs10;
     }
 
-    public static PKCS10 getCertRequest(String subjectName, KeyPair keyPair,
-            Extensions exts) throws NoSuchAlgorithmException,
-            NoSuchProviderException, InvalidKeyException, IOException,
-            CertificateException, SignatureException {
+    public static PKCS10 getCertRequest(String subjectName, KeyPair
+        keyPair, Extensions
+        exts) 
+        throws NoSuchAlgorithmException, NoSuchProviderException, 
+            InvalidKeyException, IOException, CertificateException,
+            SignatureException {
         PublicKey pubk = keyPair.getPublic();
         X509Key key = convertPublicKeyToX509Key(pubk);
         String alg;
@@ -607,16 +595,17 @@ public class KeyCertUtil {
         } else {
             alg = "DSA";
         }
-        java.security.Signature sig = java.security.Signature.getInstance(alg,
-                "Mozilla-JSS");
+        java.security.Signature sig =
+            java.security.Signature.getInstance(alg, "Mozilla-JSS");
 
         sig.initSign(keyPair.getPrivate());
 
         PKCS10 pkcs10 = null;
 
         if (exts != null) {
-            PKCS10Attribute attr = new PKCS10Attribute(
-                    PKCS9Attribute.EXTENSION_REQUEST_OID, (CertAttrSet) exts);
+            PKCS10Attribute attr = new
+                PKCS10Attribute(PKCS9Attribute.EXTENSION_REQUEST_OID,
+                    (CertAttrSet) exts);
             PKCS10Attributes attrs = new PKCS10Attributes();
 
             attrs.setAttribute(attr.getAttributeValue().getName(), attr);
@@ -634,8 +623,8 @@ public class KeyCertUtil {
         return pkcs10;
     }
 
-    public static X509Key convertPublicKeyToX509Key(PublicKey pubk)
-            throws InvalidKeyException {
+    public static X509Key convertPublicKeyToX509Key(PublicKey pubk) 
+        throws InvalidKeyException {
 
         X509Key xKey;
 
@@ -643,9 +632,9 @@ public class KeyCertUtil {
             RSAPublicKey rsaKey = (RSAPublicKey) pubk;
 
             // REMOVED constructors from parameters by MLH on 1/9/99
-            xKey = new netscape.security.provider.RSAPublicKey(new BigInt(
-                    rsaKey.getModulus()),
-                    new BigInt(rsaKey.getPublicExponent()));
+            xKey = new netscape.security.provider.RSAPublicKey(
+                        new BigInt(rsaKey.getModulus()),
+                        new BigInt(rsaKey.getPublicExponent()));
         } else if (pubk instanceof PK11ECPublicKey) {
             byte encoded[] = pubk.getEncoded();
             xKey = CryptoUtil.getPublicX509ECCKey(encoded);
@@ -654,41 +643,44 @@ public class KeyCertUtil {
             DSAPublicKey dsaKey = (DSAPublicKey) pubk;
             DSAParams params = dsaKey.getParams();
 
-            xKey = new netscape.security.provider.DSAPublicKey(dsaKey.getY(),
-                    params.getP(), params.getQ(), params.getG());
+            xKey = new netscape.security.provider.DSAPublicKey(
+                        dsaKey.getY(),
+                        params.getP(),
+                        params.getQ(),
+                        params.getG());
         }
         return xKey;
     }
 
-    public static X509Certificate importCert(X509CertImpl signedCert,
-            String nickname, String certType) throws NotInitializedException,
-            TokenException, CertificateEncodingException,
-            UserCertConflictException, NicknameConflictException,
-            NoSuchItemOnTokenException, CertificateException {
-
+    public static X509Certificate
+    importCert(X509CertImpl signedCert, String nickname,
+        String certType) throws NotInitializedException, TokenException,
+            CertificateEncodingException, UserCertConflictException,
+            NicknameConflictException, NoSuchItemOnTokenException, CertificateException {
+      
         return importCert(signedCert.getEncoded(), nickname, certType);
     }
 
-    public static X509Certificate importCert(String b64E, String nickname,
-            String certType) throws NotInitializedException, TokenException,
+    public static X509Certificate
+    importCert(String b64E, String nickname, String certType)
+        throws NotInitializedException, TokenException,
             CertificateEncodingException, UserCertConflictException,
-            NicknameConflictException, NoSuchItemOnTokenException,
-            CertificateException {
-
+            NicknameConflictException, NoSuchItemOnTokenException, CertificateException {
+ 
         byte b[] = b64E.getBytes();
         X509Certificate cert = getInternalCertificate(b, nickname, certType);
-
+ 
         if (cert instanceof InternalCertificate) {
             setTrust(certType, (InternalCertificate) cert);
         }
         return cert;
     }
 
-    public static X509Certificate importCert(byte[] b, String nickname,
-            String certType) throws NotInitializedException, TokenException,
-            CertificateEncodingException, UserCertConflictException,
-            NicknameConflictException, NoSuchItemOnTokenException,
-            CertificateException {
+    public static X509Certificate
+    importCert(byte[] b, String nickname, String certType) 
+        throws NotInitializedException, TokenException, 
+            CertificateEncodingException, UserCertConflictException, 
+            NicknameConflictException, NoSuchItemOnTokenException, CertificateException {
 
         X509Certificate cert = getInternalCertificate(b, nickname, certType);
 
@@ -698,43 +690,43 @@ public class KeyCertUtil {
         return cert;
     }
 
-    public static X509Certificate getInternalCertificate(byte[] b,
-            String nickname, String certType) throws NotInitializedException,
-            TokenException, CertificateEncodingException,
-            UserCertConflictException, NicknameConflictException,
-            NoSuchItemOnTokenException, CertificateException {
+    public static X509Certificate getInternalCertificate(byte[] b, String nickname, String certType) 
+        throws NotInitializedException, TokenException, CertificateEncodingException,
+            UserCertConflictException, NicknameConflictException, NoSuchItemOnTokenException,
+            CertificateException {
         X509Certificate cert = null;
 
         if (certType.equals(Constants.PR_CA_SIGNING_CERT)) {
             cert = CryptoManager.getInstance().importUserCACertPackage(b,
-                    nickname);
-        } else if (certType.equals(Constants.PR_RA_SIGNING_CERT)
-                || certType.equals(Constants.PR_KRA_TRANSPORT_CERT)
-                || certType.equals(Constants.PR_OCSP_SIGNING_CERT)
-                || certType.equals(Constants.PR_SERVER_CERT)
-                || certType.equals(Constants.PR_SERVER_CERT_RADM)
-                || certType.equals(Constants.PR_OTHER_CERT)
-                || certType.equals(Constants.PR_SUBSYSTEM_CERT)) {
-            cert = CryptoManager.getInstance().importCertPackage(b, nickname);
+                        nickname);
+        } else if (certType.equals(Constants.PR_RA_SIGNING_CERT) ||
+            certType.equals(Constants.PR_KRA_TRANSPORT_CERT) ||
+            certType.equals(Constants.PR_OCSP_SIGNING_CERT) ||
+            certType.equals(Constants.PR_SERVER_CERT) ||
+            certType.equals(Constants.PR_SERVER_CERT_RADM) ||
+            certType.equals(Constants.PR_OTHER_CERT) ||
+            certType.equals(Constants.PR_SUBSYSTEM_CERT)) {
+            cert = CryptoManager.getInstance().importCertPackage(b,
+                        nickname);
         } else if (certType.equals(Constants.PR_SERVER_CERT_CHAIN)) {
             cert = CryptoManager.getInstance().importCACertPackage(b);
         } else if (certType.equals(Constants.PR_TRUSTED_CA_CERT)) {
             cert = CryptoManager.getInstance().importCACertPackage(b);
-            X509Certificate[] certchain = CryptoManager.getInstance()
-                    .buildCertificateChain(cert);
+            X509Certificate[] certchain = CryptoManager.getInstance().buildCertificateChain(cert);
 
             if (certchain != null) {
                 cert = certchain[certchain.length - 1];
             }
         }
-        return cert;
+        return cert;   
     }
 
     public static void setTrust(String certType, InternalCertificate inCert) {
         if (certType.equals(Constants.PR_CA_SIGNING_CERT)) {
-            int flag = InternalCertificate.VALID_CA
-                    | InternalCertificate.TRUSTED_CA | InternalCertificate.USER
-                    | InternalCertificate.TRUSTED_CLIENT_CA;
+            int flag = InternalCertificate.VALID_CA |
+                InternalCertificate.TRUSTED_CA |
+                InternalCertificate.USER |
+                InternalCertificate.TRUSTED_CLIENT_CA;
 
             inCert.setSSLTrust(flag);
             inCert.setObjectSigningTrust(flag);
@@ -744,61 +736,72 @@ public class KeyCertUtil {
 
             inCert.setSSLTrust(flag);
             inCert.setObjectSigningTrust(flag);
-            inCert.setEmailTrust(flag);
+            inCert.setEmailTrust(flag); 
         } else if (certType.equals(Constants.PR_OCSP_SIGNING_CERT)) {
             int flag = InternalCertificate.USER | InternalCertificate.VALID_CA;
 
             inCert.setSSLTrust(flag);
             inCert.setObjectSigningTrust(flag);
-            inCert.setEmailTrust(flag);
-        } else if (certType.equals(Constants.PR_SERVER_CERT)
-                || certType.equals(Constants.PR_SUBSYSTEM_CERT)) {
+            inCert.setEmailTrust(flag); 
+        } else if (certType.equals(Constants.PR_SERVER_CERT) ||
+          certType.equals(Constants.PR_SUBSYSTEM_CERT)) {
             int flag = InternalCertificate.USER | InternalCertificate.VALID_CA;
 
             inCert.setSSLTrust(flag);
             inCert.setObjectSigningTrust(flag);
-            inCert.setEmailTrust(flag);
+            inCert.setEmailTrust(flag); 
         } else if (certType.equals(Constants.PR_TRUSTED_CA_CERT)) {
-            inCert.setSSLTrust(InternalCertificate.TRUSTED_CA
-                    | InternalCertificate.TRUSTED_CLIENT_CA
-                    | InternalCertificate.VALID_CA);
-            // inCert.setEmailTrust(InternalCertificate.TRUSTED_CA);
+            inCert.setSSLTrust(InternalCertificate.TRUSTED_CA | InternalCertificate.TRUSTED_CLIENT_CA |
+                InternalCertificate.VALID_CA);
+            //inCert.setEmailTrust(InternalCertificate.TRUSTED_CA);
 
-            // cannot set this bit. If set, then the cert will not appear when
-            // you called getCACerts().
-            // inCert.setObjectSigningTrust(InternalCertificate.TRUSTED_CA);
+            // cannot set this bit. If set, then the cert will not appear when you called getCACerts().
+            //inCert.setObjectSigningTrust(InternalCertificate.TRUSTED_CA);
         }
     }
 
     public static byte[] convertB64EToByteArray(String b64E)
-            throws CertificateException, IOException {
+        throws CertificateException, IOException {
         String str = CertUtils.stripCertBrackets(b64E);
         byte bCert[] = (byte[]) (com.netscape.osutil.OSUtil.AtoB(str));
 
         /*
-         * java.security.cert.X509Certificate cert =
-         * java.security.cert.X509Certificate.getInstance(bCert); return cert;
+         java.security.cert.X509Certificate cert = 
+         java.security.cert.X509Certificate.getInstance(bCert);
+         return cert;
          */
         return bCert;
     }
 
     /**
-     * ASN.1 structure: 0 30 142: SEQUENCE { 3 30 69: SEQUENCE { 5 06 3: OBJECT
-     * IDENTIFIER issuerAltName (2 5 29 18) 10 04 62: OCTET STRING : 30 3C 82 01
-     * 61 82 01 61 A4 10 30 0E 31 0C 30 0A : 06 03 55 04 03 13 03 64 73 61 87 04
-     * 01 01 01 01 : 86 01 61 81 14 74 68 6F 6D 61 73 6B 40 6E 65 74 : 73 63 61
-     * 70 65 2E 63 6F 6D 88 03 29 01 01 : } 74 30 69: SEQUENCE { 76 06 3: OBJECT
-     * IDENTIFIER subjectAltName (2 5 29 17) 81 04 62: OCTET STRING : 30 3C 82
-     * 01 61 82 01 61 A4 10 30 0E 31 0C 30 0A : 06 03 55 04 03 13 03 64 73 61 87
-     * 04 01 01 01 01 : 86 01 61 81 14 74 68 6F 6D 61 73 6B 40 6E 65 74 : 73 63
-     * 61 70 65 2E 63 6F 6D 88 03 29 01 01 : } : } Uses the following to test
-     * with configuration wizard:
+     * ASN.1 structure:
+     *  0 30  142: SEQUENCE {
+     *  3 30   69:   SEQUENCE {
+     *  5 06    3:     OBJECT IDENTIFIER issuerAltName (2 5 29 18)
+     * 10 04   62:     OCTET STRING
+     *           :       30 3C 82 01 61 82 01 61 A4 10 30 0E 31 0C 30 0A
+     *           :       06 03 55 04 03 13 03 64 73 61 87 04 01 01 01 01
+     *           :       86 01 61 81 14 74 68 6F 6D 61 73 6B 40 6E 65 74
+     *           :       73 63 61 70 65 2E 63 6F 6D 88 03 29 01 01
+     *           :     }
+     * 74 30   69:   SEQUENCE {
+     * 76 06    3:     OBJECT IDENTIFIER subjectAltName (2 5 29 17)
+     * 81 04   62:     OCTET STRING
+     *           :       30 3C 82 01 61 82 01 61 A4 10 30 0E 31 0C 30 0A
+     *           :       06 03 55 04 03 13 03 64 73 61 87 04 01 01 01 01
+     *           :       86 01 61 81 14 74 68 6F 6D 61 73 6B 40 6E 65 74
+     *           :       73 63 61 70 65 2E 63 6F 6D 88 03 29 01 01
+     *           :     }
+     *           :   }
+     * Uses the following to test with configuration wizard:
      * MIGOMEUGA1UdEQQ+MDyCAWGCAWGkEDAOMQwwCgYDVQQDEwNkc2GHBAEBAQGGAWGB
      * FHRob21hc2tAbmV0c2NhcGUuY29tiAMpAQEwRQYDVR0SBD4wPIIBYYIBYaQQMA4x
-     * DDAKBgNVBAMTA2RzYYcEAQEBAYYBYYEUdGhvbWFza0BuZXRzY2FwZS5jb22IAykB AQ==
+     * DDAKBgNVBAMTA2RzYYcEAQEBAYYBYYEUdGhvbWFza0BuZXRzY2FwZS5jb22IAykB
+     * AQ== 
      */
-    public static void setDERExtension(CertificateExtensions ext,
-            KeyCertData properties) throws IOException {
+    public static void setDERExtension(
+        CertificateExtensions ext, KeyCertData properties) 
+        throws IOException {
 
         String b64E = properties.getDerExtension();
 
@@ -822,8 +825,9 @@ public class KeyCertUtil {
         }
     }
 
-    public static void setBasicConstraintsExtension(CertificateExtensions ext,
-            KeyCertData properties) throws IOException {
+    public static void setBasicConstraintsExtension(
+        CertificateExtensions ext, KeyCertData properties) 
+        throws IOException {
         String isCA = properties.isCA();
         String certLen = properties.getCertLen();
 
@@ -839,29 +843,30 @@ public class KeyCertUtil {
         else
             len = Integer.parseInt(certLen);
 
-        if ((isCA == null) || (isCA.equals(""))
-                || (isCA.equals(Constants.FALSE)))
+        if ((isCA == null) || (isCA.equals("")) || 
+            (isCA.equals(Constants.FALSE)))
             bool = false;
         else
             bool = true;
-
-        BasicConstraintsExtension basic = new BasicConstraintsExtension(bool,
-                len);
+            
+        BasicConstraintsExtension basic = new BasicConstraintsExtension(
+                bool, len);
 
         ext.set(BasicConstraintsExtension.NAME, basic);
     }
 
-    public static void setExtendedKeyUsageExtension(CertificateExtensions ext,
-            KeyCertData properties) throws IOException, CertificateException {
+    public static void setExtendedKeyUsageExtension(
+        CertificateExtensions ext, KeyCertData properties) throws IOException,
+            CertificateException {
         ExtendedKeyUsageExtension ns = new ExtendedKeyUsageExtension();
         boolean anyExt = false;
-
+        
         String sslClient = properties.getSSLClientBit();
-
+        
         if ((sslClient != null) && (sslClient.equals(Constants.TRUE))) {
             ns.addOID(new ObjectIdentifier("1.3.6.1.5.5.7.3.2"));
             anyExt = true;
-        }
+        }   
 
         String sslServer = properties.getSSLServerBit();
 
@@ -902,8 +907,8 @@ public class KeyCertUtil {
     }
 
     public static void setNetscapeCertificateExtension(
-            CertificateExtensions ext, KeyCertData properties)
-            throws IOException, CertificateException {
+        CertificateExtensions ext, KeyCertData properties) throws IOException,
+            CertificateException {
 
         NSCertTypeExtension ns = new NSCertTypeExtension();
         boolean anyExt = false;
@@ -952,8 +957,7 @@ public class KeyCertUtil {
 
         String objectSigningCA = properties.getObjectSigningCABit();
 
-        if ((objectSigningCA != null)
-                && (objectSigningCA.equals(Constants.TRUE))) {
+        if ((objectSigningCA != null) && (objectSigningCA.equals(Constants.TRUE))) {
             ns.set(NSCertTypeExtension.OBJECT_SIGNING_CA, new Boolean(true));
             anyExt = true;
         }
@@ -961,36 +965,38 @@ public class KeyCertUtil {
             ext.set(NSCertTypeExtension.NAME, ns);
     }
 
-    public static void setOCSPNoCheck(KeyPair keypair,
-            CertificateExtensions ext, KeyCertData properties)
-            throws IOException, NoSuchAlgorithmException, InvalidKeyException {
+    public static void setOCSPNoCheck(KeyPair keypair, 
+        CertificateExtensions ext, KeyCertData properties) throws IOException,
+            NoSuchAlgorithmException, InvalidKeyException {
         String noCheck = properties.getOCSPNoCheck();
 
         if ((noCheck != null) && (noCheck.equals(Constants.TRUE))) {
-            OCSPNoCheckExtension noCheckExt = new OCSPNoCheckExtension();
+            OCSPNoCheckExtension noCheckExt = 
+                new OCSPNoCheckExtension();
 
             ext.set(OCSPNoCheckExtension.NAME, noCheckExt);
         }
     }
 
-    public static void setOCSPSigning(KeyPair keypair,
-            CertificateExtensions ext, KeyCertData properties)
-            throws IOException, NoSuchAlgorithmException, InvalidKeyException {
+    public static void setOCSPSigning(KeyPair keypair, 
+        CertificateExtensions ext, KeyCertData properties) throws IOException,
+            NoSuchAlgorithmException, InvalidKeyException {
         String signing = properties.getOCSPSigning();
 
-        if ((signing != null) && (signing.equals(Constants.TRUE))) {
-            Vector oidSet = new Vector();
-            oidSet.addElement(ObjectIdentifier
-                    .getObjectIdentifier(ExtendedKeyUsageExtension.OID_OCSPSigning));
-            ExtendedKeyUsageExtension ocspExt = new ExtendedKeyUsageExtension(
-                    false, oidSet);
+        if ((signing != null) && (signing.equals(Constants.TRUE))) { 
+            Vector oidSet = new Vector(); 
+            oidSet.addElement(
+              ObjectIdentifier.getObjectIdentifier(
+                ExtendedKeyUsageExtension.OID_OCSPSigning));
+            ExtendedKeyUsageExtension ocspExt = 
+                new ExtendedKeyUsageExtension(false, oidSet);
             ext.set(ExtendedKeyUsageExtension.NAME, ocspExt);
         }
     }
 
-    public static void setAuthInfoAccess(KeyPair keypair,
-            CertificateExtensions ext, KeyCertData properties)
-            throws IOException, NoSuchAlgorithmException, InvalidKeyException {
+    public static void setAuthInfoAccess(KeyPair keypair, 
+        CertificateExtensions ext, KeyCertData properties) throws IOException,
+            NoSuchAlgorithmException, InvalidKeyException {
         String aia = properties.getAIA();
 
         if ((aia != null) && (aia.equals(Constants.TRUE))) {
@@ -998,131 +1004,137 @@ public class KeyCertUtil {
             String port = CMS.getEENonSSLPort();
             AuthInfoAccessExtension aiaExt = new AuthInfoAccessExtension(false);
             if (hostname != null && port != null) {
-                String location = "http://" + hostname + ":" + port
-                        + "/ca/ocsp";
+                String location = "http://"+hostname+":"+port+"/ca/ocsp";
                 GeneralName ocspName = new GeneralName(new URIName(location));
-                aiaExt.addAccessDescription(
-                        AuthInfoAccessExtension.METHOD_OCSP, ocspName);
+                aiaExt.addAccessDescription(AuthInfoAccessExtension.METHOD_OCSP, ocspName);
             }
 
             ext.set(AuthInfoAccessExtension.NAME, aiaExt);
         }
     }
 
-    public static void setAuthorityKeyIdentifier(KeyPair keypair,
-            CertificateExtensions ext, KeyCertData properties)
-            throws IOException, NoSuchAlgorithmException, InvalidKeyException {
+    public static void setAuthorityKeyIdentifier(KeyPair keypair, 
+        CertificateExtensions ext, KeyCertData properties) throws IOException,
+            NoSuchAlgorithmException, InvalidKeyException {
         String aki = properties.getAKI();
 
         if ((aki != null) && (aki.equals(Constants.TRUE))) {
             KeyIdentifier id = createKeyIdentifier(keypair);
-            AuthorityKeyIdentifierExtension akiExt = new AuthorityKeyIdentifierExtension(
-                    id, null, null);
+            AuthorityKeyIdentifierExtension akiExt = 
+                new AuthorityKeyIdentifierExtension(id, null, null);
 
             ext.set(AuthorityKeyIdentifierExtension.NAME, akiExt);
         }
     }
 
-    public static void setSubjectKeyIdentifier(KeyPair keypair,
-            CertificateExtensions ext, KeyCertData properties)
-            throws IOException, NoSuchAlgorithmException, InvalidKeyException {
+    public static void setSubjectKeyIdentifier(KeyPair keypair, 
+        CertificateExtensions ext,
+        KeyCertData properties) throws IOException, NoSuchAlgorithmException, 
+            InvalidKeyException {
         String ski = properties.getSKI();
 
         if ((ski != null) && (ski.equals(Constants.TRUE))) {
             KeyIdentifier id = createKeyIdentifier(keypair);
-            SubjectKeyIdentifierExtension skiExt = new SubjectKeyIdentifierExtension(
-                    id.getIdentifier());
+            SubjectKeyIdentifierExtension skiExt =
+                new SubjectKeyIdentifierExtension(id.getIdentifier());
 
             ext.set(SubjectKeyIdentifierExtension.NAME, skiExt);
         }
     }
 
     public static void setKeyUsageExtension(CertificateExtensions ext,
-            KeyUsageExtension keyUsage) throws IOException {
+        KeyUsageExtension keyUsage) throws IOException {
         ext.set(KeyUsageExtension.NAME, keyUsage);
     }
 
-    public static KeyIdentifier createKeyIdentifier(KeyPair keypair)
-            throws NoSuchAlgorithmException, InvalidKeyException {
+    public static KeyIdentifier createKeyIdentifier(KeyPair keypair) 
+        throws NoSuchAlgorithmException, InvalidKeyException {
         MessageDigest md = MessageDigest.getInstance("SHA-1");
-        X509Key subjectKeyInfo = convertPublicKeyToX509Key(keypair.getPublic());
+        X509Key subjectKeyInfo = convertPublicKeyToX509Key(
+                keypair.getPublic());
 
-        // md.update(subjectKeyInfo.getEncoded());
+        //md.update(subjectKeyInfo.getEncoded());
         md.update(subjectKeyInfo.getKey());
         return new KeyIdentifier(md.digest());
     }
 
-    public static BigInteger getSerialNumber(LDAPConnection conn, String baseDN)
-            throws LDAPException {
+    public static BigInteger getSerialNumber(LDAPConnection conn, String baseDN) 
+        throws LDAPException {
         String dn = "ou=certificateRepository,ou=ca," + baseDN;
         BigInteger serialno = null;
         LDAPEntry entry = conn.read(dn);
-        String serialnoStr = (String) entry.getAttribute("serialno")
-                .getStringValues().nextElement();
+        String serialnoStr = (String) entry.getAttribute(
+                "serialno").getStringValues().nextElement();
 
         serialno = BigIntegerMapper.BigIntegerFromDB(serialnoStr);
         LDAPAttribute attr = new LDAPAttribute("serialno");
 
-        attr.addValue(BigIntegerMapper.BigIntegerToDB(serialno
-                .add(new BigInteger("1"))));
-        LDAPModification mod = new LDAPModification(LDAPModification.REPLACE,
-                attr);
+        attr.addValue(BigIntegerMapper.BigIntegerToDB(
+                serialno.add(new BigInteger("1"))));
+        LDAPModification mod = new LDAPModification(
+                LDAPModification.REPLACE, attr);
 
         conn.modify(dn, mod);
 
         return serialno;
     }
 
-    public static void setSerialNumber(LDAPConnection conn, String baseDN,
-            BigInteger serial) throws LDAPException {
+    public static void setSerialNumber(LDAPConnection conn, 
+        String baseDN, BigInteger serial) 
+        throws LDAPException {
         String dn = "ou=certificateRepository,ou=ca," + baseDN;
         LDAPAttribute attr = new LDAPAttribute("serialno");
 
         // the serial number should already be set
-        attr.addValue(BigIntegerMapper.BigIntegerToDB(serial));
-        LDAPModification mod = new LDAPModification(LDAPModification.REPLACE,
-                attr);
+        attr.addValue(BigIntegerMapper.BigIntegerToDB(
+                serial));
+        LDAPModification mod = new LDAPModification(
+                LDAPModification.REPLACE, attr);
 
         conn.modify(dn, mod);
 
     }
 
-    public static void addCertToDB(LDAPConnection conn, String dn,
-            X509CertImpl cert) throws LDAPException, EBaseException {
+    public static void addCertToDB(LDAPConnection conn, String dn, X509CertImpl cert)
+        throws LDAPException, EBaseException {
         BigInteger serialno = cert.getSerialNumber();
         X509CertImplMapper mapper = new X509CertImplMapper();
         LDAPAttributeSet attrs = new LDAPAttributeSet();
 
-        mapper.mapObjectToLDAPAttributeSet(null, null, cert, attrs);
+        mapper.mapObjectToLDAPAttributeSet(null, null,
+            cert, attrs);
         attrs.add(new LDAPAttribute("objectclass", "top"));
-        attrs.add(new LDAPAttribute("objectclass", "certificateRecord"));
-        attrs.add(new LDAPAttribute("serialno", BigIntegerMapper
-                .BigIntegerToDB(serialno)));
-        attrs.add(new LDAPAttribute("dateOfCreate", DateMapper.dateToDB((CMS
-                .getCurrentDate()))));
-        attrs.add(new LDAPAttribute("dateOfModify", DateMapper.dateToDB((CMS
-                .getCurrentDate()))));
-        attrs.add(new LDAPAttribute("certStatus", "VALID"));
-        attrs.add(new LDAPAttribute("autoRenew", "ENABLED"));
-        attrs.add(new LDAPAttribute("issuedBy", "installation"));
-        LDAPEntry entry = new LDAPEntry("cn=" + serialno.toString() + "," + dn,
-                attrs);
+        attrs.add(new LDAPAttribute("objectclass",
+                "certificateRecord"));
+        attrs.add(new LDAPAttribute("serialno",
+                BigIntegerMapper.BigIntegerToDB(
+                    serialno)));
+        attrs.add(new LDAPAttribute("dateOfCreate",
+                DateMapper.dateToDB((CMS.getCurrentDate()))));
+        attrs.add(new LDAPAttribute("dateOfModify",
+                DateMapper.dateToDB((CMS.getCurrentDate()))));
+        attrs.add(new LDAPAttribute("certStatus",
+                "VALID"));
+        attrs.add(new LDAPAttribute("autoRenew",
+                "ENABLED"));
+        attrs.add(new LDAPAttribute("issuedBy",
+                "installation"));
+        LDAPEntry entry = new LDAPEntry("cn=" + serialno.toString() + "," + dn, attrs);
 
         conn.add(entry);
     }
 
-    public static CertificateExtensions getExtensions(String tokenname,
-            String nickname) throws NotInitializedException, TokenException,
-            ObjectNotFoundException, IOException, CertificateException {
+    public static CertificateExtensions getExtensions(String tokenname, String nickname) 
+        throws NotInitializedException, TokenException, ObjectNotFoundException, 
+            IOException, CertificateException {
         String fullnickname = nickname;
 
-        if (!tokenname.equals(Constants.PR_INTERNAL_TOKEN_NAME))
+        if (!tokenname.equals(Constants.PR_INTERNAL_TOKEN_NAME)) 
             fullnickname = tokenname + ":" + nickname;
         CryptoManager manager = CryptoManager.getInstance();
         X509Certificate cert = manager.findCertByNickname(fullnickname);
         X509CertImpl impl = new X509CertImpl(cert.getEncoded());
-        X509CertInfo info = (X509CertInfo) impl.get(X509CertImpl.NAME + "."
-                + X509CertImpl.INFO);
+        X509CertInfo info = (X509CertInfo) impl.get(X509CertImpl.NAME + "." + X509CertImpl.INFO);
 
         return (CertificateExtensions) info.get(X509CertInfo.EXTENSIONS);
     }

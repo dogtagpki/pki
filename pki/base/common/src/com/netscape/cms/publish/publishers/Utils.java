@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.publish.publishers;
 
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,9 +29,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Vector;
 
+
 /**
  * Publisher utility class.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class Utils {
@@ -38,8 +40,7 @@ public class Utils {
         InetAddress addr = InetAddress.getByName(hostname);
     }
 
-    public static void copyStream(InputStream in, OutputStream out)
-            throws IOException {
+    public static void copyStream(InputStream in, OutputStream out) throws IOException {
         byte[] buf = new byte[4096];
         int len;
 
@@ -48,8 +49,7 @@ public class Utils {
         }
     }
 
-    public static void copyStream(BufferedReader in, OutputStreamWriter out)
-            throws IOException {
+    public static void copyStream(BufferedReader in, OutputStreamWriter out) throws IOException {
         char[] buf = new char[4096];
         int len;
 
@@ -58,8 +58,8 @@ public class Utils {
         }
     }
 
-    // / Sorts an array of Strings.
-    // Java currently has no general sort function. Sorting Strings is
+    /// Sorts an array of Strings.
+    // Java currently has no general sort function.  Sorting Strings is
     // common enough that it's worth making a special case.
     public static void sortStrings(String[] strings) {
         // Just does a bubblesort.
@@ -75,8 +75,8 @@ public class Utils {
         }
     }
 
-    // / Returns a date string formatted in Unix ls style - if it's within
-    // six months of now, Mmm dd hh:ss, else Mmm dd yyyy.
+    /// Returns a date string formatted in Unix ls style - if it's within
+    // six months of now, Mmm dd hh:ss, else Mmm dd  yyyy.
     public static String lsDateStr(Date date) {
         long dateTime = date.getTime();
 
@@ -104,10 +104,9 @@ public class Utils {
         }
         return true;
     }
-
+    
     /**
      * strips out double quotes around String parameter
-     * 
      * @param s the string potentially bracketed with double quotes
      * @return string stripped of surrounding double quotes
      */
@@ -124,8 +123,9 @@ public class Utils {
     }
 
     /**
-     * returns an array of strings from a vector of Strings there'll be trouble
-     * if the Vector contains something other than just Strings
+     * returns an array of strings from a vector of Strings
+     * there'll be trouble if the Vector contains something other
+     * than just Strings
      */
     public static String[] getStringArrayFromVector(Vector v) {
         String s[] = new String[v.size()];

@@ -1,5 +1,4 @@
 package com.netscape.pkisilent.common;
-
 // --- BEGIN COPYRIGHT BLOCK ---
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -32,6 +31,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+
 public class ParseXML {
     Document dom = null;
 
@@ -53,8 +53,7 @@ public class ParseXML {
             se.printStackTrace();
 
             try {
-                BufferedReader br = new BufferedReader(
-                        new InputStreamReader(is));
+                BufferedReader br = new BufferedReader(new InputStreamReader(is));
                 StringBuilder sb = new StringBuilder();
                 String line = null;
 
@@ -78,7 +77,7 @@ public class ParseXML {
 
             // get the root elememt
             Element docEle = dom.getDocumentElement();
-
+				
             // get a nodelist of <employee> elements
             NodeList nl = docEle.getElementsByTagName(tag);
 
@@ -108,10 +107,9 @@ public class ParseXML {
             XMLSerializer serializer = new XMLSerializer(System.out, format);
 
             serializer.serialize(dom);
-        } catch (Exception e) {
-        }
+        } catch (Exception e) {}
     }
-
+			
     private String getTextValue(Element ele, String tagName) {
         String textVal = null;
         NodeList nl = ele.getElementsByTagName(tagName);
@@ -134,7 +132,7 @@ public class ParseXML {
         try {
             // get the root elememt
             Element docEle = dom.getDocumentElement();
-
+		
             // get a nodelist of <employee> elements
             NodeList nl = docEle.getElementsByTagName(first);
 
@@ -165,8 +163,10 @@ public class ParseXML {
             px.parse(fiscfg);
             px.prettyprintxml();
 
-        } catch (Exception e) {
-        }
+        } catch (Exception e) {}
     }
 
-}; // end class
+}
+
+
+; // end class

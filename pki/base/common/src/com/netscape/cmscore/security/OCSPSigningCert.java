@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.security;
 
+
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.KeyPair;
@@ -33,6 +34,7 @@ import com.netscape.certsrv.common.ConfigConstants;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.security.KeyCertData;
 
+
 /**
  * OCSP signing certificate.
  * 
@@ -40,7 +42,8 @@ import com.netscape.certsrv.security.KeyCertData;
  * @version $Revision$, $Date$
  */
 public class OCSPSigningCert extends CertificateInfo {
-    public static final String SUBJECT_NAME = "CN=Certificate Authority, O=Netscape Communications, C=US";
+    public static final String SUBJECT_NAME = 
+        "CN=Certificate Authority, O=Netscape Communications, C=US";
 
     public OCSPSigningCert(KeyCertData properties) {
         this(properties, null);
@@ -48,16 +51,19 @@ public class OCSPSigningCert extends CertificateInfo {
 
     public OCSPSigningCert(KeyCertData properties, KeyPair pair) {
         super(properties, pair);
-        /*
-         * included in console UI try { if
-         * (mProperties.get(Constants.PR_OCSP_SIGNING) == null) {
-         * mProperties.put(Constants.PR_OCSP_SIGNING, Constants.TRUE); } if
-         * (mProperties.get(Constants.PR_OCSP_NOCHECK) == null) {
-         * mProperties.put(Constants.PR_OCSP_NOCHECK, Constants.TRUE); } } catch
-         * (Exception e) { mProperties.put(Constants.PR_OCSP_SIGNING,
-         * Constants.TRUE); mProperties.put(Constants.PR_OCSP_NOCHECK,
-         * Constants.TRUE); }
-         */
+        /* included in console UI
+        try {
+            if (mProperties.get(Constants.PR_OCSP_SIGNING) == null) {
+                mProperties.put(Constants.PR_OCSP_SIGNING, Constants.TRUE);
+            }
+            if (mProperties.get(Constants.PR_OCSP_NOCHECK) == null) {
+                mProperties.put(Constants.PR_OCSP_NOCHECK, Constants.TRUE);
+            }
+        } catch (Exception e) {
+            mProperties.put(Constants.PR_OCSP_SIGNING, Constants.TRUE);
+            mProperties.put(Constants.PR_OCSP_NOCHECK, Constants.TRUE);
+        }
+        */
     }
 
     public String getSubjectName() {
@@ -79,7 +85,7 @@ public class OCSPSigningCert extends CertificateInfo {
             BigInteger P = new BigInteger(p);
             BigInteger Q = new BigInteger(q);
             BigInteger G = new BigInteger(g);
-            BigInteger pqgSeed = new BigInteger(seed);
+            BigInteger pqgSeed = new BigInteger(seed); 
             BigInteger pqgH = new BigInteger(H);
 
             return new PQGParams(P, Q, G, pqgSeed, counter, pqgH);
@@ -100,22 +106,20 @@ public class OCSPSigningCert extends CertificateInfo {
         else if (keyType.equals("DSA"))
             alg = "SHA1withDSA";
         else
-            throw new EBaseException(CMS.getUserMessage(
-                    "CMS_BASE_ALG_NOT_SUPPORTED", keyType));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_ALG_NOT_SUPPORTED", keyType));
 
         cmsFileTmp.putString("ca.signing.defaultSigningAlgorithm", alg);
         if (tokenname.equals(Constants.PR_INTERNAL_TOKEN_NAME))
             cmsFileTmp.putString("ca.signing.cacertnickname", nickname);
         else
-            cmsFileTmp.putString("ca.signing.cacertnickname", tokenname + ":"
-                    + nickname);
+            cmsFileTmp.putString("ca.signing.cacertnickname",
+                tokenname + ":" + nickname);
         cmsFileTmp.commit(false);
     }
 
     public String getNickname() {
         String name = (String) mProperties.get(Constants.PR_NICKNAME);
-        String instanceName = (String) mProperties
-                .get(ConfigConstants.PR_CERT_INSTANCE_NAME);
+        String instanceName = (String) mProperties.get(ConfigConstants.PR_CERT_INSTANCE_NAME);
 
         if (name != null)
             return name;
@@ -136,3 +140,4 @@ public class OCSPSigningCert extends CertificateInfo {
         return extension;
     }
 }
+

@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.security;
 
+
 public class Provider extends java.security.Provider {
 
     /**
@@ -25,11 +26,12 @@ public class Provider extends java.security.Provider {
     private static final long serialVersionUID = -8050884788034389693L;
 
     public Provider() {
-        super("CMS", 1.4, "Provides Signature and Message Digesting");
+        super("CMS", 1.4,
+            "Provides Signature and Message Digesting");
 
-        // ///////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////
         // Signature
-        // ///////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////
 
         put("Signature.SHA1withDSA", "org.mozilla.jss.provider.DSASignature");
 
@@ -43,13 +45,14 @@ public class Provider extends java.security.Provider {
 
         put("Signature.MD5/RSA", "org.mozilla.jss.provider.MD5RSASignature");
         put("Signature.MD2/RSA", "org.mozilla.jss.provider.MD2RSASignature");
-        put("Signature.SHA-1/RSA", "org.mozilla.jss.provider.SHA1RSASignature");
+        put("Signature.SHA-1/RSA",
+            "org.mozilla.jss.provider.SHA1RSASignature");
 
         put("Alg.Alias.Signature.SHA1/RSA", "SHA-1/RSA");
 
-        // ///////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////
         // Message Digesting
-        // ///////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////
 
     }
 }
