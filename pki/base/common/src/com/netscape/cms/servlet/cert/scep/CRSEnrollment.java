@@ -257,7 +257,7 @@ public class CRSEnrollment extends HttpServlet {
                 if (!(mTokenName.equalsIgnoreCase(Constants.PR_INTERNAL_TOKEN)
                         || mTokenName
                                 .equalsIgnoreCase("Internal Key Storage Token") || mTokenName
-                            .length() == 0)) {
+                        .length() == 0)) {
                     int i = mNickname.indexOf(':');
                     if (!((i > -1) && (mTokenName.length() == i) && (mNickname
                             .startsWith(mTokenName)))) {
