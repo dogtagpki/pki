@@ -24,5 +24,6 @@
 	<classpathentry kind="lib" path="/usr/share/java/servlet.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/xerces-j2.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/junit4.jar"/>
+	<classpathentry kind="lib" path="/usr/share/candlepin/lib/jaxrs-api-2.2.1.GA.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

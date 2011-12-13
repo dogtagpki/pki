@@ -69,6 +69,8 @@ public interface IRequest {
     public static final String CLA_UNCERT4CRL_REQUEST = "uncert4crl";
     public static final String NETKEY_KEYGEN_REQUEST = "netkeyKeygen";
     public static final String NETKEY_KEYRECOVERY_REQUEST = "netkeyKeyRecovery";
+    public static final String SECURITY_DATA_ENROLLMENT_REQUEST = "securityDataEnrollment";
+    public static final String SECURITY_DATA_RECOVERY_REQUEST = "securityDataRecovery";
 
     public static final String REQUESTOR_NAME = "csrRequestorName";
     public static final String REQUESTOR_PHONE = "csrRequestorPhone";
