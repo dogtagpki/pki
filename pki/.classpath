@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/ca/src"/>
+	<classpathentry kind="src" path="base/test/src"/>
+	<classpathentry kind="src" path="base/util/test"/>
 	<classpathentry kind="src" path="base/common/test"/>
 	<classpathentry kind="src" path="base/common/src"/>
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/java-tools/src"/>

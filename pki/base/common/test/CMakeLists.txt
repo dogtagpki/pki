@@ -51,15 +51,14 @@ set(pki-common-test_SRCS
     com/netscape/cmscore/request/RequestTest.java
     com/netscape/cmscore/test/CMSBaseTestCase.java
     com/netscape/cmscore/test/TestHelper.java
-    com/netscape/test/TestListener.java
-    com/netscape/test/TestRunner.java
 )
 
 set(CMAKE_JAVA_INCLUDE_PATH
     ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR}
     ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR} ${PKI_CMSCORE_JAR} ${PKI_CMSBUNDLE_JAR}
     ${LDAPJDK_JAR} ${SERVLET_JAR} ${VELOCITY_JAR} ${XALAN_JAR} ${XERCES_JAR}
-    ${JSS_JAR} ${OSUTIL_JAR} ${SYMKEY_JAR} ${JUNIT_JAR}
+    ${JSS_JAR} ${OSUTIL_JAR} ${SYMKEY_JAR}
+    ${PKI_TEST_JAR} ${JUNIT_JAR}
 )
 
 set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
@@ -72,6 +71,7 @@ add_jar(pki-common-test ${pki-common-test_SRCS})
 add_dependencies(pki-common-test
     osutil pki-nsutil pki-cmsutil
     pki-certsrv pki-cms pki-cmscore pki-cmsbundle
+    pki-test
 )
 
 # create test target
@@ -83,7 +83,8 @@ add_junit_test(test-pki-common
         ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR}
         ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR} ${PKI_CMSCORE_JAR} ${PKI_CMSBUNDLE_JAR}
         ${LDAPJDK_JAR} ${SERVLET_JAR} ${VELOCITY_JAR}
-        ${JSS_JAR} ${OSUTIL_JAR} ${SYMKEY_JAR} ${JUNIT_JAR}
+        ${JSS_JAR} ${OSUTIL_JAR} ${SYMKEY_JAR}
+        ${PKI_TEST_JAR} ${JUNIT_JAR}
     TESTS
         com.netscape.certsrv.authentication.AuthTokenTest
         com.netscape.certsrv.request.AgentApprovalsTest
