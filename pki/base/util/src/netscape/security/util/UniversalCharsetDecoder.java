@@ -17,83 +17,81 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.util;
 
-import sun.io.ByteToCharConverter;
-import sun.io.ConversionBufferFullException;
-import sun.io.UnknownCharacterException;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CoderResult;
+import java.nio.charset.CodingErrorAction;
 
 /**
- * Converts bytes in ASN.1 UniversalString character set to unicode
+ * Converts bytes in ASN.1 UniversalString character set to UniversalString
  * characters.
  *
  * @author Lily Hsiao
  * @author Slava Galperin
  */
 
-public class UniversalCharsetDecoder extends ByteToCharConverter
-{
-    public String getCharacterEncoding() {
-	return "ASN.1 UniversalString";
+public class UniversalCharsetDecoder extends CharsetDecoder {
+
+    public UniversalCharsetDecoder(Charset cs) {
+        super(cs, 0.25f, 1);
     }
 
-    public int convert(byte[] input, int inStart, int inEnd,
-		       char[] output, int outStart, int outEnd)
-	throws ConversionBufferFullException,
-		UnknownCharacterException
-    {
-	int j = outStart;
+    protected CoderResult decodeLoop(ByteBuffer in, CharBuffer out) {
 
+        while (true) {
+            // XXX we do not know what to do with truly UCS-4 characters here
+            // we also assumed network byte order
 
-	int i = inStart;
-	while(i < inEnd) {
-	    // XXX we do not know what to do with truly UCS-4 characters here
-	    // we also assumed network byte order
+            if (in.remaining() < 4) return CoderResult.UNDERFLOW;
 
-        if ( i+3 >= inEnd || 
-				(!((input[i] == 0 && input[i+1] == 0) ||
-				(input[i+2] == 0 && input[i+3] == 0)))) {
-    		byteOff = i;
-	    	charOff = j;
-		    throw new UnknownCharacterException();
-	    }
-		if (input[i+2] == 0 && input[i+3] == 0) {
-			// Try to be a bit forgiving. If the byte order is
-			// reversed, we still try handle it.
+            in.mark();
+            byte b0 = in.get();
+            byte b1 = in.get();
+            byte b2 = in.get();
+            byte b3 = in.get();
 
-			// Sample Date Set (1):
-			// 0000000   f   0  \0  \0 213   0  \0  \0   S   0  \0  \0
-			// 0000014
+            if (CodingErrorAction.REPORT == unmappableCharacterAction() &&
+                !((b0 == 0 && b1 == 0) || (b2 == 0 && b3 == 0))) {
+                return CoderResult.unmappableForLength(4);
+            }
 
-			// Sample Date Set (2):
-			// 0000000   w  \0  \0  \0   w  \0  \0  \0   w  \0  \0  \0   .  \0  \0  \0
-			// 0000020   (  \0  \0  \0   t  \0  \0  \0   o  \0  \0  \0   b  \0  \0  \0
-			// 0000040   e  \0  \0  \0   |  \0  \0  \0   n  \0  \0  \0   o  \0  \0  \0
-			// 0000060   t  \0  \0  \0   t  \0  \0  \0   o  \0  \0  \0   b  \0  \0  \0
-			// 0000100   e  \0  \0  \0   )  \0  \0  \0   .  \0  \0  \0   c  \0  \0  \0
-			// 0000120   o  \0  \0  \0   m  \0  \0  \0
-			// 0000130
-		    output[j] = (char)(((input[i+1] << 8)& 0xff00) + (input[i] & 0x00ff));
-		} else { 
-			// This should be the right order.
-			//
-			// 0000000 0000 00c4 0000 0064 0000 006d 0000 0069
-			// 0000020 0000 006e 0000 0020 0000 0051 0000 0041
-			// 0000040
+            char c;
+            if (b2 == 0 && b3 == 0) {
+                // Try to be a bit forgiving. If the byte order is
+                // reversed, we still try handle it.
 
-			// (input[i] == 0 && input[i+1] == 0)
-		    output[j] = (char)(((input[i+2] << 8)& 0xff00) + (input[i+3] & 0x00ff));
-		}
-	    j++;
-	    i += 4;
-	}
-	byteOff = inEnd;
-	charOff = j;
-	return j - outStart;
+                // Sample Date Set (1):
+                // 0000000   f   0  \0  \0 213   0  \0  \0   S   0  \0  \0
+                // 0000014
+
+                // Sample Date Set (2):
+                // 0000000   w  \0  \0  \0   w  \0  \0  \0   w  \0  \0  \0   .  \0  \0  \0
+                // 0000020   (  \0  \0  \0   t  \0  \0  \0   o  \0  \0  \0   b  \0  \0  \0
+                // 0000040   e  \0  \0  \0   |  \0  \0  \0   n  \0  \0  \0   o  \0  \0  \0
+                // 0000060   t  \0  \0  \0   t  \0  \0  \0   o  \0  \0  \0   b  \0  \0  \0
+                // 0000100   e  \0  \0  \0   )  \0  \0  \0   .  \0  \0  \0   c  \0  \0  \0
+                // 0000120   o  \0  \0  \0   m  \0  \0  \0
+                // 0000130
+                c = (char)(((b1 << 8) & 0xff00) + (b0 & 0x00ff));
+
+            } else { // (b0 == 0 && b1 == 0)
+                // This should be the right order.
+                //
+                // 0000000 0000 00c4 0000 0064 0000 006d 0000 0069
+                // 0000020 0000 006e 0000 0020 0000 0051 0000 0041
+                // 0000040
+
+                c = (char)(((b2 << 8) & 0xff00) + (b3 & 0x00ff));
+            }
+
+            if (out.remaining() < 1) {
+                in.reset();
+                return CoderResult.OVERFLOW;
+            }
+
+            out.put(c);
+        }
     }
-
-    public int flush(char[] output, int outStart, int outEnd) {
-	return 0;
-    }
-
-    public void reset() { }
-
 }

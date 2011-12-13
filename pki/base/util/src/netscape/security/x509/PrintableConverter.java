@@ -18,10 +18,13 @@
 package netscape.security.x509;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.CharsetEncoder;
 
 import netscape.security.util.ASN1CharStrConvMap;
 import netscape.security.util.DerValue;
-import sun.io.CharToByteConverter;
 
 /**
  * A AVAValueConverter that converts a Printable String attribute to a DerValue 
@@ -48,7 +51,7 @@ public class PrintableConverter implements AVAValueConverter
      * 
      * @return			a DerValue. 
      * 
-     * @exception IOException	if a Printable CharToByteConverter is not 
+     * @exception IOException	if a Printable encoder is not
      *				available for the conversion.
      */
     public DerValue getValue(String valueString)
@@ -57,31 +60,20 @@ public class PrintableConverter implements AVAValueConverter
 	return getValue(valueString, null);
     }
 
-    public DerValue getValue(String valueString, byte[] encodingOrder)
-	throws IOException
-    {
-	CharToByteConverter printable;
-	byte[] bbuf = new byte[valueString.length()];
-	try {
-	    printable = ASN1CharStrConvMap.getDefault().getCBC(
-				DerValue.tag_PrintableString);
-	    if (printable == null) {
-		throw new IOException("No CharToByteConverter for printable");
-	    }
-	    printable.convert(valueString.toCharArray(), 0, 
-			      valueString.length(), bbuf, 0, bbuf.length);
-	}
-	catch (java.io.CharConversionException e) {
-	    throw new IllegalArgumentException(
-			"Invalid Printable String AVA Value");
-	}
-	catch (InstantiationException e) {
-	    throw new IOException("Cannot instantiate CharToByteConverter");
-	}
-	catch (IllegalAccessException e) {
-	    throw new IOException("Cannot load CharToByteConverter");
-	}
-	return new DerValue(DerValue.tag_PrintableString, bbuf);
+    public DerValue getValue(String valueString, byte[] tags) throws IOException {
+        try {
+            CharsetEncoder encoder = ASN1CharStrConvMap.getDefault().getEncoder(DerValue.tag_PrintableString);
+            if (encoder == null) throw new IOException("No encoder for printable");
+
+            CharBuffer charBuffer = CharBuffer.wrap(valueString.toCharArray());
+            ByteBuffer byteBuffer = encoder.encode(charBuffer);
+
+            return new DerValue(DerValue.tag_PrintableString,
+                byteBuffer.array(), byteBuffer.arrayOffset(), byteBuffer.limit());
+
+        } catch (CharacterCodingException e) {
+            throw new IllegalArgumentException("Invalid Printable String AVA Value", e);
+        }
     }
 
     /**

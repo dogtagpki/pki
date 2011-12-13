@@ -18,10 +18,13 @@
 package netscape.security.x509;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.CharsetEncoder;
 
 import netscape.security.util.ASN1CharStrConvMap;
 import netscape.security.util.DerValue;
-import sun.io.CharToByteConverter;
 
 /**
  * A GenericValueConverter converts a string that is not associated with 
@@ -30,9 +33,9 @@ import sun.io.CharToByteConverter;
  * Universal String.
  * 
  * <p>The conversion is done as follows. 
- * A CharToByteConverter is obtained for the all the character sets 
+ * An encoder is obtained for the all the character sets
  * from the global default ASN1CharStrConvMap.
- * The CharToByteConverters are then used to convert the string to the 
+ * The encoders are then used to convert the string to the
  * smallest character set first -- printableString. 
  * If the string contains characters outside of that character set, 
  * it is converted to the next character set -- IA5String character set. 
@@ -54,18 +57,18 @@ public class GenericValueConverter implements AVAValueConverter
      * as a PrintableString, IA5String, T.61String, BMPString or  
      * UniversalString. The string is not expected to be encoded in any form.
      * 
-     * <p>If a CharToByteConverter is not available for a character set that
+     * <p>If an encoder is not available for a character set that
      * is needed to convert the string, the string cannot be converted and 
      * an IOException is thrown. For example, if the string contains characters 
      * outside the PrintableString character and only a PrintableString 
-     * CharToByteConverter is available then an IOException is thrown.
+     * encoder is available then an IOException is thrown.
      * 
      * @param s 	A string representing a generic attribute string value.
      *
      * @return 		The DER value of the attribute.
      * 
      * @exception IOException	 if the string cannot be converted, such as 
-     *				 when a CharToByteConverter needed is 
+     *				 when an encoder needed is
      *				 unavailable.
      */
     public DerValue getValue(String s)
@@ -74,50 +77,29 @@ public class GenericValueConverter implements AVAValueConverter
 	return getValue(s, null);
     }
 
-    public DerValue getValue(String s, byte[] tags)
-	throws IOException
-    {
-	// try to convert to printable, then t61 the universal -  
-	// i.e. from minimal coverage to the broadest.
-	int ret = -1;
-	CharToByteConverter cbc;
-	DerValue value;
-	byte[] bbuf, derBuf;
-	int i;
+    public DerValue getValue(String valueString, byte[] tags) throws IOException {
+        // try to convert to printable, then t61 the universal -
+        // i.e. from minimal coverage to the broadest.
 
-	if (tags == null || tags.length == 0)
-		tags = DefEncodingTags;
+        if (tags == null || tags.length == 0) tags = DefEncodingTags;
 
-	bbuf = new byte[4*s.length()];
-	for (i = 0; i < tags.length; i++) 
-	{
-	    try {
-		cbc = ASN1CharStrConvMap.getDefault().getCBC(tags[i]);
-		if (cbc == null)
-		    continue;
-		ret = cbc.convert(s.toCharArray(), 0, s.length(), 
-				  bbuf, 0, bbuf.length);
-		break;
-	    } 
-	    catch (java.io.CharConversionException e) {
-		continue;
-	    } 
-	    catch (InstantiationException e) {
-		throw new IOException("Cannot instantiate CharToByteConverter");
-	    } 
-	    catch (IllegalAccessException e) {
-		throw new IOException(
-			"Illegal Access loading CharToByteConverter");
-	    }
-	}
-	if (ret == -1) {
-	    throw new IllegalArgumentException(
-		"Cannot convert the string value to a ASN.1 type");
-	}
+        for (int i = 0; i < tags.length; i++) {
+            try {
+                CharsetEncoder encoder = ASN1CharStrConvMap.getDefault().getEncoder(tags[i]);
+                if (encoder == null) continue;
 
-	derBuf = new byte[ret];
-	System.arraycopy(bbuf, 0, derBuf, 0, ret);
-	return new DerValue(tags[i], derBuf);
+                CharBuffer charBuffer = CharBuffer.wrap(valueString.toCharArray());
+                ByteBuffer byteBuffer = encoder.encode(charBuffer);
+
+                return new DerValue(tags[i], byteBuffer.array(), byteBuffer.arrayOffset(), byteBuffer.limit());
+
+            } catch (CharacterCodingException e) {
+                continue;
+            }
+        }
+
+        throw new IOException(
+            "Cannot convert the string value to a ASN.1 type");
     }
 
     /** 
@@ -146,7 +128,7 @@ public class GenericValueConverter implements AVAValueConverter
      * 
      * @param avaValue 	A DerValue
      * @return 		A string representing the attribute value.
-     * @exception IOException  	if a ByteToCharConverter needed for the 
+     * @exception IOException  	if a decoder needed for the
      *				conversion is not available or if BER value 
      *				is not one of the ASN1 character string types
      *				here.

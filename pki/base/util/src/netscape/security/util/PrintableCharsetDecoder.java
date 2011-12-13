@@ -17,72 +17,52 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.util;
 
-import sun.io.ByteToCharConverter;
-import sun.io.ConversionBufferFullException;
-import sun.io.MalformedInputException;
-import sun.io.UnknownCharacterException;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CoderResult;
+import java.nio.charset.CodingErrorAction;
 
 /**
- * Converts bytes in ASN.1 Printable String character set to unicode 
- * characters. 
+ * Converts bytes in ASN.1 PrintableString character set to PrintableString
+ * characters.
  *
  * @author Lily Hsiao
  * @author Slava Galperin
  */
 
-public class PrintableCharsetDecoder extends ByteToCharConverter
-{
+public class PrintableCharsetDecoder extends CharsetDecoder {
 
-    public String getCharacterEncoding()
-    {
-	return "ASN.1 Printable";
+    public PrintableCharsetDecoder(Charset cs) {
+        super(cs, 1, 1);
     }
 
-    public int convert(byte[] input, int inStart, int inEnd,
-		       char[] output, int outStart, int outEnd)
-            throws MalformedInputException,
-                   UnknownCharacterException,
-                   ConversionBufferFullException
-    {
-	int j = outStart;
-	boolean hasNonPrintableChar = false;
+    protected CoderResult decodeLoop(ByteBuffer in, CharBuffer out) {
 
-	for (int i = inStart; i < inEnd; i++, j++) {
-	    if (j >= outEnd) {
-		byteOff = i;
-		charOff = j;
-		throw new ConversionBufferFullException();
-	    }
-	    if (!subMode &&
-			!PrintableCharsetEncoder.isPrintableChar((char) (input[i] & 0x7f))) {
-			/* "bug" fix for 359010
-			  byteOff = i;
-			  charOff = j;
-			  badInputLength = 1;
-			  throw new UnknownCharacterException();
-			  */
-			j--;
-			hasNonPrintableChar = true;
-	    } else
-			output[j] = (char) (input[i] & 0x7f);
-	}
+        while (true) {
 
-	if (hasNonPrintableChar == true) {
-		//
-	}
+            if (in.remaining() < 1) return CoderResult.UNDERFLOW;
 
-	byteOff = inEnd;
-	charOff = j;
-	return j - outStart;
+            in.mark();
+            byte b = in.get();
+            char c = (char)(b & 0x7f);
+
+            if (CodingErrorAction.REPORT == unmappableCharacterAction() &&
+                !PrintableCharset.isPrintableChar(c)) {
+                /*
+                "bug" fix for 359010
+                return CoderResult.unmappableForLength(1);
+                */
+                continue;
+            }
+
+            if (out.remaining() < 1) {
+                in.reset();
+                return CoderResult.OVERFLOW;
+            }
+
+            out.put(c);
+        }
     }
-
-    public int flush( char[] output, int outStart, int outEnd )
-        throws MalformedInputException, ConversionBufferFullException
-    {
-	return 0;
-    }
-
-    public void reset() { }
-
-
 }

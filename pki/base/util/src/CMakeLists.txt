@@ -157,30 +157,33 @@ set(pki-nsutil_java_SRCS
     netscape/security/x509/PolicyConstraint.java
     netscape/security/x509/RevokedCertImpl.java
     netscape/security/x509/OtherName.java
-    netscape/security/util/BigInt.java
-    netscape/security/util/DerOutputStream.java
+    netscape/security/util/ASN1CharsetProvider.java
     netscape/security/util/ASN1CharStrConvMap.java
-    netscape/security/util/ByteToCharUnicode.java
-    netscape/security/util/DerValue.java
-    netscape/security/util/CharToByteIA5String.java
-    netscape/security/util/DerInputBuffer.java
-    netscape/security/util/CharToBytePrintable.java
-    netscape/security/util/ObjectIdentifier.java
-    netscape/security/util/DerEncoder.java
-    netscape/security/util/ExtPrettyPrint.java
-    netscape/security/util/ByteArrayLexOrder.java
+    netscape/security/util/BigInt.java
     netscape/security/util/BitArray.java
-    netscape/security/util/CrlPrettyPrint.java
-    netscape/security/util/CertPrettyPrint.java
+    netscape/security/util/ByteArrayLexOrder.java
     netscape/security/util/ByteArrayTagOrder.java
-    netscape/security/util/PrettyPrintResources.java
-    netscape/security/util/PrettyPrintFormat.java
-    netscape/security/util/CharToByteUniversalString.java
-    netscape/security/util/ByteToCharIA5String.java
-    netscape/security/util/PubKeyPrettyPrint.java
-    netscape/security/util/ByteToCharPrintable.java
+    netscape/security/util/CertPrettyPrint.java
+    netscape/security/util/CrlPrettyPrint.java
+    netscape/security/util/DerEncoder.java
+    netscape/security/util/DerInputBuffer.java
     netscape/security/util/DerInputStream.java
-    netscape/security/util/ByteToCharUniversalString.java
+    netscape/security/util/DerOutputStream.java
+    netscape/security/util/DerValue.java
+    netscape/security/util/ExtPrettyPrint.java
+    netscape/security/util/IA5Charset.java
+    netscape/security/util/IA5CharsetDecoder.java
+    netscape/security/util/IA5CharsetEncoder.java
+    netscape/security/util/ObjectIdentifier.java
+    netscape/security/util/PrettyPrintFormat.java
+    netscape/security/util/PrettyPrintResources.java
+    netscape/security/util/PrintableCharset.java
+    netscape/security/util/PrintableCharsetDecoder.java
+    netscape/security/util/PrintableCharsetEncoder.java
+    netscape/security/util/PubKeyPrettyPrint.java
+    netscape/security/util/UniversalCharset.java
+    netscape/security/util/UniversalCharsetDecoder.java
+    netscape/security/util/UniversalCharsetEncoder.java
     netscape/security/provider/DSA.java
     netscape/security/provider/DSAPrivateKey.java
     netscape/security/provider/DSAParameters.java

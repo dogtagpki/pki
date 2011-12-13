@@ -23,11 +23,17 @@ import java.io.IOException;
 import java.io.PushbackReader;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.UnsupportedCharsetException;
+import java.util.Arrays;
 import java.util.Vector;
 
 import netscape.security.util.DerValue;
 import netscape.security.util.ObjectIdentifier;
-import sun.io.ByteToCharConverter;
 
 /**
  * A converter that converts Ldap v3 DN strings as specified in
@@ -835,46 +841,32 @@ public class LdapV3DNStrConverter extends LdapDNStrConverter
      * Parse a sequence of hex pairs, each pair a UTF8 byte to a java string.
      * For example, "4C75C48D" is "Luc", the last c with caron.
      */
-    protected static char[] getStringFromHexpairs(char[] hexPairs)
-	throws UnsupportedEncodingException
-    {
-	ByteToCharConverter utf8_bcc;
-	byte utf8_buf[];
-	char char_buf[];
-	int ret;
-	int i,j;
+    protected static char[] getStringFromHexpairs(char[] hexPairs) throws UnsupportedEncodingException {
+        try {
+            byte[] buffer = new byte[hexPairs.length/2];
 
-	try {
-	    utf8_bcc = ByteToCharConverter.getConverter("UTF8");
-	}
-	catch (UnsupportedEncodingException e) {
-	    throw new UnsupportedEncodingException(
-		"No UTF8 byte to char converter to use for "+
-		"parsing LDAP DN String");
-	}
-	utf8_bcc.setSubstitutionMode(false);
+            for (int i=0; i < buffer.length; i++) {
+                buffer[i] = (byte)
+                    ((Character.digit( hexPairs[i*2], 16 ) << 4) +
+                    Character.digit( hexPairs[i*2+1], 16 ));
+            }
 
-	utf8_buf = new byte[hexPairs.length/2];
-	char_buf = new char[utf8_buf.length*utf8_bcc.getMaxCharsPerByte()];
+            Charset charset = Charset.forName("UTF-8");
+            CharsetDecoder decoder = charset.newDecoder();
 
-	for ( i=0,j=0 ; i < hexPairs.length ; i++,j++ )
-	{
-	    utf8_buf[j] = (byte)
-			  ((Character.digit( hexPairs[i++], 16 ) << 4) +
-		  	    Character.digit( hexPairs[i], 16 ));
-	}
-	try {
-	    ret = utf8_bcc.convert( utf8_buf, 0, utf8_buf.length,
-				    char_buf, 0, char_buf.length );
-	}
-	catch (java.io.CharConversionException e) {
-	    throw new IllegalArgumentException(
-		"Invalid hex pair in LDAP DN String." );
-	}
+            CharBuffer charBuffer = decoder.decode(ByteBuffer.wrap(buffer));
 
-	char [] out_buf = new char[ ret ];
-	System.arraycopy( char_buf, 0, out_buf, 0, ret );
-	return out_buf;
+            return Arrays.copyOfRange(charBuffer.array(),
+                    charBuffer.arrayOffset(), charBuffer.arrayOffset() + charBuffer.limit());
+
+        } catch (UnsupportedCharsetException e) {
+            throw new UnsupportedEncodingException(
+                "No UTF8 byte to char converter to use for "+
+                "parsing LDAP DN String");
+
+        } catch (CharacterCodingException e) {
+            throw new IllegalArgumentException(
+                "Invalid hex pair in LDAP DN String.");
+        }
     }
-
 }

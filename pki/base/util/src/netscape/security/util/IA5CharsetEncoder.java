@@ -17,72 +17,52 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.util;
 
-import sun.io.CharToByteConverter;
-import sun.io.ConversionBufferFullException;
-import sun.io.UnknownCharacterException;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
+import java.nio.charset.CoderResult;
+import java.nio.charset.CodingErrorAction;
 
 /**
- * Converts a string of ASN.1 IA5String characters to IA5String bytes.
+ * Converts characters in ASN.1 IA5String character set to IA5String bytes.
  *
  * @author Lily Hsiao
  * @author Slava Galperin
  */
 
-public class IA5CharsetEncoder extends CharToByteConverter
-{
-    /* 
-     * Returns the character set id for the conversion.
-     * @return the character set id.
-     */
-    public String getCharacterEncoding () {
-	return "ASN.1 IA5String";
+public class IA5CharsetEncoder extends CharsetEncoder {
+
+    public IA5CharsetEncoder(Charset cs) {
+        super(cs, 1, 1);
     }
 
-    /* 
+    /*
      * Converts an array of Unicode characters into an array of IA5String
-     * bytes and returns the total number of characters converted.
-     * If conversion cannot be done, UnknownCharacterException is
-     * thrown. The character and byte offset will be set to the point
-     * of the unknown character. 
-     * @param input character array to convert.
-     * @param inStart offset from which to start the conversion.
-     * @param inEnd where to end the conversion.
-     * @param output byte array to store converted bytes.
-     * @param outStart starting offset in the output byte array.
-     * @param outEnd ending offset in the output byte array.
-     * @return the number of characters converted.
+     * bytes and returns the conversion result.
+     * @param in input character buffer to convert.
+     * @param out byte buffer to store output.
+     * @return encoding result.
      */
-    public int convert(char[] input, int inStart, int inEnd,
-		       byte[] output, int outStart, int outEnd)
-	throws ConversionBufferFullException,
-		UnknownCharacterException
-    {
-	int j = outStart;
-	for (int i = inStart; i < inEnd; i++, j++) {
-	    if (j >= outEnd) {
-		charOff = i;
-		byteOff = j;
-		throw new ConversionBufferFullException();
-	    }
-	    if (!subMode && (input[i] & 0xFF80) != 0) {
-		charOff = i;
-		byteOff = j;
-		badInputLength = 1;
-		throw new UnknownCharacterException();
-	    }
-		
-	    output[j] = (byte) (input[i] & 0x7f);
-	}
-	return j - outStart;
-    }
+    protected CoderResult encodeLoop(CharBuffer in, ByteBuffer out) {
 
-    public int flush(byte[] output, int outStart, int outEnd) {
-	return 0;
-    }
+        while (true) {
 
-    public void reset() { }
+            if (in.remaining() < 1) return CoderResult.UNDERFLOW;
 
-    public int getMaxBytesPerChar() {
-	return 1;
+            in.mark();
+            char c = in.get();
+
+            if (CodingErrorAction.REPORT == unmappableCharacterAction() && (c & 0xFF80) != 0) {
+                return CoderResult.unmappableForLength(1);
+            }
+
+            if (out.remaining() < 1) {
+                in.reset();
+                return CoderResult.OVERFLOW;
+            }
+
+            out.put((byte)(c & 0x7f));
+        }
     }
 }

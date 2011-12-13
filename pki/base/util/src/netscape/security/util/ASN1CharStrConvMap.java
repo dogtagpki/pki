@@ -17,16 +17,16 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.util;
 
-import java.util.Enumeration;
-import java.util.Hashtable;
-
-import sun.io.ByteToCharConverter;
-import sun.io.ByteToCharUTF8;
-import sun.io.CharToByteConverter;
-import sun.io.CharToByteUTF8;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CharsetEncoder;
+import java.nio.charset.CodingErrorAction;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
- * Maps a ASN.1 character string type to a CharToByte and ByteToChar converter.
+ * Maps a ASN.1 character string type to a charset encoder and decoder.
  * The converter is used to convert a DerValue of a ASN.1 character string type
  * from bytes to unicode characters and vice versa.
  *
@@ -50,102 +50,61 @@ public class ASN1CharStrConvMap
     }
 
     /**
-     * Get a Character to Byte converter for the specified DER tag.
+     * Get an encoder for the specified DER tag.
      *
      * @param tag 	A DER tag of a ASN.1 character string type,
      *			for example DerValue.tag_PrintableString.
      *
-     * @return 		A CharToByteConverter for the DER tag.
-     *
-     * @exception InstantiationException
-     *		if error occurs when instantiating the CharToByteConverter.
-     * @exception IllegalAccessException
-     *		if error occurs when loading the CharToByteConverter class.
+     * @return 		An encoder for the DER tag.
      */
-    public CharToByteConverter getCBC(byte tag)
-	throws IllegalAccessException, InstantiationException
-    {
-	Byte tagObj = Byte.valueOf(tag);
-	CharToByteConverter cbc = null;
-	Class<CharToByteConverter> cbcClass;
-	cbcClass = (Class<CharToByteConverter>)tag2CBC.get(tagObj);
-	if (cbcClass == null)
-	    return null;
-	cbc = (CharToByteConverter)cbcClass.newInstance();
-	cbc.setSubstitutionMode(false);
-	return cbc;
+    public CharsetEncoder getEncoder(byte tag) {
+        Charset charset = charsets.get(tag);
+        if (charset == null) return null;
+        return charset.newEncoder();
     }
 
     /**
-     * Get a Byte to Character converter for the given DER tag.
+     * Get a decoder for the given DER tag.
      *
      * @param tag 	A DER tag of a ASN.1 character string type,
      *			for example DerValue.tag_PrintableString.
      *
-     * @return 		A ByteToCharConverter for the DER tag.
-     *
-     * @exception InstantiationException
-     *		if error occurs when instantiationg the ByteToCharConverter.
-     * @exception IllegalAccessException
-     *		if error occurs when loading the ByteToCharConverter class.
+     * @return 		A decoder for the DER tag.
      */
-    public ByteToCharConverter getBCC(byte tag)
-	throws IllegalAccessException, InstantiationException
-    {
-	Byte tagObj = Byte.valueOf(tag);
-	ByteToCharConverter bcc = null;
-	Class<ByteToCharConverter> bccClass = tag2BCC.get(tagObj);
-	if (bccClass == null)
-	    return null;
-	bcc = (ByteToCharConverter)bccClass.newInstance();
-	bcc.setSubstitutionMode(false);
-	return bcc;
+    public CharsetDecoder getDecoder(byte tag) {
+        Charset charset = charsets.get(tag);
+        if (charset == null) return null;
+        return charset.newDecoder();
     }
 
     /**
-     * Add a tag-CharToByteConverter-ByteToCharConverter entry in the map.
+     * Add a tag-charset entry in the map.
      *
      * @param tag	A DER tag of a ASN.1 character string type,
      *			ex. DerValue.tag_IA5String
-     * @param cbc	A CharToByteConverter for the tag.
-     * @param bcc	A ByteToCharConverter for the tag.
+     * @param charset	A charset for the tag.
      */
-	@SuppressWarnings("unchecked")
-	public void addEntry(byte tag, Class<?> cbc, Class<?> bcc)
-    {
-	Class<CharToByteConverter> current_cbc;
-	Class<ByteToCharConverter> current_bcc;
-	Byte tagByte = Byte.valueOf(tag);
+    public void addEntry(byte tag, Charset charset) {
 
-	current_cbc = (Class<CharToByteConverter>)tag2CBC.get(tagByte);
-	current_bcc = (Class<ByteToCharConverter>)tag2BCC.get(tagByte);
-	if (current_cbc != null || current_bcc != null)
-	{
-	    if (current_cbc != cbc || current_bcc != bcc)
-	    {
-		throw new IllegalArgumentException(
-		    "a DER tag to converter entry already exists.");
-	    }
-	    else {
-		return;
-	    }
-	}
-	if (!CharToByteConverter.class.isAssignableFrom(cbc) ||
-	    !ByteToCharConverter.class.isAssignableFrom(bcc)) {
-	    throw new IllegalArgumentException(
-		"arguments not a CharToByteConverter or ByteToCharConverter");
-	}
-	tag2CBC.put(tagByte, (Class<CharToByteConverter>) cbc);
-	tag2BCC.put(tagByte, (Class<ByteToCharConverter>) bcc);
+        Charset currentCharset = charsets.get(tag);
+
+        if (currentCharset != null) {
+            if (currentCharset != charset) {
+                throw new IllegalArgumentException(
+                    "a DER tag to converter entry already exists.");
+            } else {
+                return;
+            }
+        }
+
+        charsets.put(tag, charset);
     }
-
     /**
-     * Get and enumeration of all tags in the map.
-     * @return 	An Enumeration of DER tags in the map as Bytes.
+     * Get an iterator of all tags in the map.
+     * @return 	An Iterator of DER tags in the map as Bytes.
      */
-    public Enumeration<Byte> getTags()
-    {
-	return tag2CBC.keys();
+    public Iterator<Byte> getTags() {
+        return charsets.keySet().iterator();
     }
 
     // static public methods.
@@ -173,8 +132,7 @@ public class ASN1CharStrConvMap
 
     // private methods and variables.
 
-    private Hashtable<Byte, Class<CharToByteConverter>> tag2CBC = new Hashtable<Byte, Class<CharToByteConverter>>();
-    private Hashtable<Byte, Class<ByteToCharConverter>> tag2BCC = new Hashtable<Byte, Class<ByteToCharConverter>>();
+    private Map<Byte, Charset> charsets = new HashMap<Byte, Charset>();
 
     private static ASN1CharStrConvMap defaultMap;
 
@@ -182,50 +140,28 @@ public class ASN1CharStrConvMap
      * Create the default converter map on initialization
      */
     static {
-	defaultMap = new ASN1CharStrConvMap();
-	defaultMap.addEntry(DerValue.tag_PrintableString,
-		PrintableCharsetEncoder.class, PrintableCharsetDecoder.class);
-	defaultMap.addEntry(DerValue.tag_VisibleString,
-		PrintableCharsetEncoder.class, PrintableCharsetDecoder.class);
-	defaultMap.addEntry(DerValue.tag_IA5String,
-		IA5CharsetEncoder.class, IA5CharsetDecoder.class);
-	defaultMap.addEntry(DerValue.tag_BMPString,
-	        // Changed by bskim
-	    	//sun.io.CharToByteUnicode.class,
-	    	//netscape.security.util.ByteToCharUnicode.class);
-	    	sun.io.CharToByteUnicodeBig.class,
-	    	sun.io.ByteToCharUnicodeBig.class);
-	    	// Change end
-	defaultMap.addEntry(DerValue.tag_UniversalString,
-		UniversalCharsetEncoder.class,
-		UniversalCharsetDecoder.class);
-    	// XXX this is an oversimplified implementation of T.61 strings, it
-    	// doesn't handle all cases
-	defaultMap.addEntry(DerValue.tag_T61String,
-	    	latin1CBC.class, latin1BCC.class);
-	// UTF8String added to ASN.1 in 1998
-	defaultMap.addEntry(DerValue.tag_UTF8String,
-	    	CharToByteUTF8.class,
-	    	ByteToCharUTF8.class);
-	defaultMap.addEntry(DerValue.tag_GeneralString,
-	    	CharToByteUTF8.class,
-	    	ByteToCharUTF8.class);
+        ASN1CharsetProvider provider = new ASN1CharsetProvider();
+
+        defaultMap = new ASN1CharStrConvMap();
+        defaultMap.addEntry(DerValue.tag_PrintableString,
+            provider.charsetForName("ASN.1-Printable"));
+        defaultMap.addEntry(DerValue.tag_VisibleString,
+            provider.charsetForName("ASN.1-Printable"));
+        defaultMap.addEntry(DerValue.tag_IA5String,
+            provider.charsetForName("ASN.1-IA5"));
+        defaultMap.addEntry(DerValue.tag_BMPString,
+            Charset.forName("UnicodeBig"));
+        defaultMap.addEntry(DerValue.tag_UniversalString,
+            provider.charsetForName("ASN.1-Universal"));
+        // XXX this is an oversimplified implementation of T.61 strings, it
+        // doesn't handle all cases
+        defaultMap.addEntry(DerValue.tag_T61String,
+            Charset.forName("ISO-8859-1"));
+        // UTF8String added to ASN.1 in 1998
+        defaultMap.addEntry(DerValue.tag_UTF8String,
+            Charset.forName("UTF-8"));
+        defaultMap.addEntry(DerValue.tag_GeneralString,
+            Charset.forName("UTF-8"));
     };
 
 };
-
-class latin1CBC extends sun.io.CharToByteISO8859_1 {
-	public latin1CBC() {
-		super();
-		subMode = false;
-	}
-}
-
-class latin1BCC extends sun.io.ByteToCharISO8859_1 {
-	public latin1BCC() {
-		super();
-		subMode = false;
-	}
-}
-
-

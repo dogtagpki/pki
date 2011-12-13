@@ -20,13 +20,17 @@ package netscape.security.x509;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.UnsupportedCharsetException;
 
 import netscape.security.util.DerEncoder;
 import netscape.security.util.DerInputStream;
 import netscape.security.util.DerOutputStream;
 import netscape.security.util.DerValue;
 import netscape.security.util.ObjectIdentifier;
-import sun.io.ByteToCharConverter;
 
 
 /**
@@ -127,28 +131,24 @@ public final class AVA implements DerEncoder
      * @see LdapDNStrConverter
      * @param in the input stream.
      */
-    public AVA (InputStream in) throws IOException
-    {
-	StringBuffer	temp = new StringBuffer ();
-	AVA 		a;
-	byte[]		buf = new byte[in.available()];
-	char[]		converted_chars;
-	ByteToCharConverter bcc;
+    public AVA(InputStream in) throws IOException {
+        try {
+            // convert from UTF8 bytes to java string then parse it.
+            byte[] buffer = new byte[in.available()];
+            in.read(buffer);
 
-	// convert from UTF8 bytes to java string then parse it.
-	in.read(buf);
-	try {
-	    bcc = ByteToCharConverter.getConverter("UTF8");
-	}
-	catch (java.io.UnsupportedEncodingException e) {
-	    throw new IOException("UTF8 encoding not supported");
-	}
-	converted_chars = bcc.convertAll(buf);
-	temp.append(converted_chars);
+            Charset charset = Charset.forName("UTF-8");
+            CharsetDecoder decoder = charset.newDecoder();
 
-	a = LdapDNStrConverter.getDefault().parseAVA(temp.toString());
-	oid = a.getOid();
-	value = a.getValue();
+            CharBuffer charBuffer = decoder.decode(ByteBuffer.wrap(buffer));
+
+            AVA a = LdapDNStrConverter.getDefault().parseAVA(charBuffer.toString());
+            oid = a.getOid();
+            value = a.getValue();
+
+        } catch (UnsupportedCharsetException e) {
+            throw new IOException("UTF8 encoding not supported", e);
+        }
     }
 
     /**

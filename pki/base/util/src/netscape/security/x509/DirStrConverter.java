@@ -18,10 +18,13 @@
 package netscape.security.x509;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.CharsetEncoder;
 
 import netscape.security.util.ASN1CharStrConvMap;
 import netscape.security.util.DerValue;
-import sun.io.CharToByteConverter;
 
 /**
  * A DirStrConverter converts a string to a DerValue of ASN.1 Directory String,
@@ -31,10 +34,10 @@ import sun.io.CharToByteConverter;
  * <p>The string to DerValue conversion is done as follows.
  * If the string has only PrintableString characters it is converted
  * to a ASN.1 Printable String using the PrintableString
- * CharToByteConverter from the global default ASN1CharStrConvMap.
+ * encoder from the global default ASN1CharStrConvMap.
  * If it has only characters covered in the PrintableString or T.61
  * character set it is converted to a ASN.1 T.61 string using the T.61
- * CharToByteConverter from the ASN1CharStrCovnMap.
+ * encoder from the ASN1CharStrCovnMap.
  * Otherwise it is converted to a ASN.1 UniversalString (UCS-4 character set)
  * which covers all characters.
  *
@@ -68,7 +71,7 @@ public class DirStrConverter implements AVAValueConverter
      * @return 		a DerValue
      *
      * @exception IOException	 if the string cannot be converted, such as
-     *				 when a UniversalString CharToByteConverter
+     *				 when a UniversalString encoder
      *				 isn't available and the string contains
      *				 characters covered only in the universal
      *				 string (or UCS-4) character set.
@@ -95,51 +98,29 @@ public class DirStrConverter implements AVAValueConverter
     /**
      * Like getValue(String) with specified DER tags as encoding order.
      */
-    public DerValue getValue(String ds, byte[] tags)
-	throws IOException
-    {
-	// try to convert to printable, then t61 the universal -
-	// i.e. from minimal to the most liberal.
+    public DerValue getValue(String valueString, byte[] tags) throws IOException {
+        // try to convert to printable, then t61 the universal -
+        // i.e. from minimal to the most liberal.
 
-	int ret = -1;
-	CharToByteConverter cbc;
-	DerValue value;
-	byte[] bbuf, derBuf;
-	int i;
+        if (tags == null || tags.length == 0) tags = DefEncodingOrder;
 
-	if (tags == null || tags.length == 0) 
-		tags = DefEncodingOrder;
+        for (int i = 0; i < tags.length; i++) {
+            try {
+                CharsetEncoder encoder = ASN1CharStrConvMap.getDefault().getEncoder(tags[i]);
+                if (encoder == null) continue;
 
-	bbuf = new byte[4*ds.length()];
-	for (i = 0; i < tags.length; i++)
-	{
-	    try {
-		cbc = ASN1CharStrConvMap.getDefault().getCBC(tags[i]);
-		if (cbc == null)
-		    continue;
-		ret = cbc.convert(ds.toCharArray(), 0, ds.length(),
-				  bbuf, 0, bbuf.length);
-		break;
-	    }
-	    catch (java.io.CharConversionException e) {
-		continue;
-	    }
-	    catch (InstantiationException e) {
-		throw new IOException("Cannot instantiate CharToByteConverter");
-	    }
-	    catch (IllegalAccessException e) {
-		throw new IOException(
-			"Illegal Access loading CharToByteConverter");
-	    }
-	}
-	if (ret == -1) {
-	    throw new IOException(
-		"Cannot convert the directory string value to a ASN.1 type");
-	}
+                CharBuffer charBuffer = CharBuffer.wrap(valueString.toCharArray());
+                ByteBuffer byteBuffer = encoder.encode(charBuffer);
 
-	derBuf = new byte[ret];
-	System.arraycopy(bbuf, 0, derBuf, 0, ret);
-	return new DerValue(tags[i], derBuf);
+                return new DerValue(tags[i], byteBuffer.array(), byteBuffer.arrayOffset(), byteBuffer.limit());
+
+            } catch (CharacterCodingException e) {
+                continue;
+            }
+        }
+
+        throw new IOException(
+            "Cannot convert the directory string value to a ASN.1 type");
     }
 
     /**
@@ -177,7 +158,7 @@ public class DirStrConverter implements AVAValueConverter
      *
      * @param avaValue 	a DerValue
      * @return 		a string if the value can be converted.
-     * @exception IOException  	if a ByteToCharConverter needed for the
+     * @exception IOException  	if a decoder needed for the
      *				conversion is not available.
      */
     public String getAsString(DerValue avaValue)
@@ -190,7 +171,7 @@ public class DirStrConverter implements AVAValueConverter
             avaValue.tag != DerValue.tag_T61String)
 	    throw new IllegalArgumentException(
 		"Invalid Directory String value");
-	// NOTE will return null if a ByteToCharConverter is not available.
+	// NOTE will return null if a decoder is not available.
 	*/
 	return avaValue.getASN1CharString();
     }

@@ -18,10 +18,13 @@
 package netscape.security.x509;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.CharsetEncoder;
 
 import netscape.security.util.ASN1CharStrConvMap;
 import netscape.security.util.DerValue;
-import sun.io.CharToByteConverter;
 
 /**
  * A AVAValueConverter that converts a IA5String attribute to a DerValue 
@@ -49,7 +52,7 @@ public class IA5StringConverter implements AVAValueConverter
      * 
      * @return			a DerValue. 
      * 
-     * @exception IOException	if a IA5String CharToByteConverter is not 
+     * @exception IOException	if a IA5String encoder is not
      *				available for the conversion.
      */
     public DerValue getValue(String valueString)
@@ -58,29 +61,20 @@ public class IA5StringConverter implements AVAValueConverter
 	return getValue(valueString, null);
     }
 
-    public DerValue getValue(String valueString, byte[] encodingOrder)
-	throws IOException
-    {
-	ASN1CharStrConvMap map;
-	CharToByteConverter cbc;
-	byte[] bbuf = new byte[valueString.length()];
-	map = ASN1CharStrConvMap.getDefault();
-	try {
-	    cbc = map.getCBC(DerValue.tag_IA5String);
-	    if (cbc == null)
-		throw new IOException("No CharToByteConverter for IA5String");
-	    cbc.convert(valueString.toCharArray(), 0, valueString.length(), 
-			bbuf, 0, bbuf.length);
-	}
-	catch (java.io.CharConversionException e) {
-	    throw new IllegalArgumentException(
-		"Invalid IA5String AVA Value string");
-	} catch (InstantiationException e) {
-	    throw new IOException("Cannot instantiate CharToByteConverter");
-	} catch (IllegalAccessException e) {
-	    throw new IOException("Illegal access loading CharToByteConverter");
-	}
-	return new DerValue(DerValue.tag_IA5String, bbuf);
+    public DerValue getValue(String valueString, byte[] tags) throws IOException {
+        try {
+            CharsetEncoder encoder = ASN1CharStrConvMap.getDefault().getEncoder(DerValue.tag_IA5String);
+            if (encoder == null) throw new IOException("No encoder for IA5String");
+
+            CharBuffer charBuffer = CharBuffer.wrap(valueString.toCharArray());
+            ByteBuffer byteBuffer = encoder.encode(charBuffer);
+
+            return new DerValue(DerValue.tag_IA5String,
+                byteBuffer.array(), byteBuffer.arrayOffset(), byteBuffer.limit());
+
+        } catch (CharacterCodingException e) {
+            throw new IllegalArgumentException("Invalid IA5String AVA Value string");
+        }
     }
 
     /*

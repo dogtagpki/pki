@@ -20,6 +20,10 @@ package netscape.security.util;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.CharsetEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -27,8 +31,6 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
-
-import sun.io.CharToByteConverter;
 
 /**
  * Output stream marshaling DER-encoded data.  This is eventually provided
@@ -541,36 +543,21 @@ extends ByteArrayOutputStream implements DerEncoder {
 	putStringType(DerValue.tag_UTF8String, s);
     }
 
-    public void putStringType(byte tag, String s) throws IOException
-    {
-	int next_byte_index;
-	CharToByteConverter cbc;
-	byte buf[];
-	try {
-	    cbc = ASN1CharStrConvMap.getDefault().getCBC(tag);
-	    if (cbc == null)
-		throw new IOException("No character to byte converter for tag");
-	    buf= new byte[cbc.getMaxBytesPerChar()*s.length()];
-	    // Don't use convertAll() here b/c it does not throw
-	    // UnknownCharacterException.
-	    next_byte_index = cbc.convert(s.toCharArray(), 0, s.length(), buf, 0, buf.length);
-	}
-	catch (java.io.CharConversionException e) {
-	    throw new IOException("Not a valid string type "+ tag);
-	}
-	catch (IllegalAccessException e) {
-	    throw new IOException("Cannot load CharToByteConverter class "+
-				  "for DER tag "+tag);
-	}
-	catch (InstantiationException e) {
-	    throw new IOException("Cannot instantiate CharToByteConverter "+
-				  "class for DER tag "+tag);
-	}
+    public void putStringType(byte tag, String s) throws IOException {
+        try {
+            CharsetEncoder encoder = ASN1CharStrConvMap.getDefault().getEncoder(tag);
+            if (encoder == null) throw new IOException("No encoder for tag");
 
-	//next_byte_index = cbc.nextByteIndex();
-	write(tag);
-	putLength(next_byte_index);
-	write(buf, 0, next_byte_index);
+            CharBuffer charBuffer = CharBuffer.wrap(s.toCharArray());
+            ByteBuffer byteBuffer = encoder.encode(charBuffer);
+
+            write(tag);
+            putLength(byteBuffer.limit());
+            write(byteBuffer.array(), byteBuffer.arrayOffset(), byteBuffer.limit());
+
+        } catch (CharacterCodingException e) {
+            throw new IOException("Not a valid string type "+tag, e);
+        }
     }
 
     private void put2DateBytes(byte[] buffer, int value, int offset)

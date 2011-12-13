@@ -21,10 +21,14 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.CharsetDecoder;
+import java.util.Arrays;
 
 import netscape.security.x509.AVAValueConverter;
 import netscape.security.x509.GenericValueConverter;
-import sun.io.ByteToCharConverter;
 
 /**
  * Represents a single DER-encoded value.  DER encoding rules are a subset
@@ -198,11 +202,23 @@ public class DerValue {
      * @param data the DER-encoded data
      */
     public DerValue(byte tag, byte[] data) {
-	this.tag = tag;
-	buffer = new DerInputBuffer((byte[])data.clone());
-	length = data.length;
-	this.data = new DerInputStream (buffer);
-	this.data.mark (Integer.MAX_VALUE);
+        this.tag = tag;
+        buffer = new DerInputBuffer(data.clone());
+        length = data.length;
+        this.data = new DerInputStream(buffer);
+        this.data.mark(Integer.MAX_VALUE);
+    }
+
+    /**
+     * Creates a DerValue from a tag and some DER-encoded data.
+     *
+     * @param tag the DER type tag
+     * @param data the DER-encoded data
+     * @param offset offset of the data
+     * @param length length of the data
+     */
+    public DerValue(byte tag, byte[] data, int offset, int length) {
+        this(tag, Arrays.copyOfRange(data, offset, offset+length));
     }
 
     /*
@@ -491,37 +507,24 @@ public class DerValue {
 
     /*
      * @eturns a string if the DerValue is a ASN.1 character string type and
-     * if there is a ByteToChar converter for the type. Returns null otherwise.
+     * if there is a decoder for the type. Returns null otherwise.
      */
-    public String getASN1CharString()
-	throws IOException
-    {
-	ByteToCharConverter bcc;
-	int ret;
-	byte buf[];
-	char cbuf[];
+    public String getASN1CharString() throws IOException {
+        try {
+            CharsetDecoder decoder = ASN1CharStrConvMap.getDefault().getDecoder(tag);
+            if (decoder == null) return null;
 
-	try {
-	    bcc = ASN1CharStrConvMap.getDefault().getBCC(tag);
-	    if (bcc == null)
-		return null;
+            ByteBuffer byteBuffer = ByteBuffer.allocate(length);
 
-	    buf = new byte[length];
-	    cbuf = new char[bcc.getMaxCharsPerByte()*length];
-	    data.reset();
-	    data.getBytes(buf);
-	    ret = bcc.convert(buf, 0, buf.length, cbuf, 0, cbuf.length);
-	}
-	catch (java.io.CharConversionException e) {
-	    throw new IOException("Misformed DER value");
-	}
-	catch (IllegalAccessException e) {
-	    throw new IOException("Illegal Access loading ByteToCharConverter");
-	}
-	catch (InstantiationException e) {
-	    throw new IOException("Cannot instantiate ByteToCharConverter");
-	}
-	return new String(cbuf, 0, ret);
+            data.reset();
+            data.getBytes(byteBuffer.array());
+
+            CharBuffer charBuffer = decoder.decode(byteBuffer);
+            return charBuffer.toString();
+
+        } catch (CharacterCodingException e) {
+            throw new IOException("Misformed DER value", e);
+        }
     }
 
     /**
