@@ -30,7 +30,7 @@ import sun.io.UnknownCharacterException;
  * @author Slava Galperin
  */
 
-public class ByteToCharPrintable extends ByteToCharConverter
+public class PrintableCharsetDecoder extends ByteToCharConverter
 {
 
     public String getCharacterEncoding()
@@ -54,7 +54,7 @@ public class ByteToCharPrintable extends ByteToCharConverter
 		throw new ConversionBufferFullException();
 	    }
 	    if (!subMode &&
-			!CharToBytePrintable.isPrintableChar((char) (input[i] & 0x7f))) {
+			!PrintableCharsetEncoder.isPrintableChar((char) (input[i] & 0x7f))) {
 			/* "bug" fix for 359010
 			  byteOff = i;
 			  charOff = j;

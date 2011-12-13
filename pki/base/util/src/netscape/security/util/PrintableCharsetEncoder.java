@@ -19,31 +19,58 @@ package netscape.security.util;
 
 import sun.io.CharToByteConverter;
 import sun.io.ConversionBufferFullException;
+import sun.io.MalformedInputException;
 import sun.io.UnknownCharacterException;
 
 /**
- * Converts a string of ASN.1 IA5String characters to IA5String bytes.
+ * Converts a string of ASN.1 PrintableString characters to PrintableString 
+ * bytes.
  *
  * @author Lily Hsiao
  * @author Slava Galperin
  */
 
-public class CharToByteUniversalString extends CharToByteConverter
+public class PrintableCharsetEncoder extends CharToByteConverter
 {
     /*
-     * Returns the character set id for the conversion.
+     * returns the character set id for the conversion.
      * @return the character set id.
      */
-    public String getCharacterEncoding () {
-	return "ASN.1 UniversalString";
+    public String getCharacterEncoding()
+    {
+	return "ASN.1 Printable";
     }
 
-    /*
-     * Converts an array of Unicode characters into an array of UniversalString
-     * bytes and returns the total number of characters converted.
+    public static boolean isPrintableChar( char c ) 
+    {
+	if ((c < 'A' || c > 'Z') &&
+	    (c < 'a' || c > 'z') && 
+	    (c < '0' || c > '9') && 
+	    (c != ' ') && 
+	    (c != '\'') && 
+	    (c != '(') && 
+	    (c != ')') && 
+	    (c != '+') && 
+	    (c != ',') && 
+	    (c != '-') && 
+	    (c != '.') && 
+	    (c != '/') && 
+	    (c != ':') && 
+	    (c != '=') && 
+	    (c != '?')) 
+	{
+	    return false;
+	} else {
+	    return true;
+	}
+    }
+
+    /* 
+     * Converts an array of Unicode characters into an array of Printable
+     * String bytes and returns the total number of characters converted.
      * If conversion cannot be done, UnknownCharacterException is
      * thrown. The character and byte offset will be set to the point
-     * of the unknown character.
+     * of the unknown character. 
      * @param input character array to convert.
      * @param inStart offset from which to start the conversion.
      * @param inEnd where to end the conversion.
@@ -52,34 +79,44 @@ public class CharToByteUniversalString extends CharToByteConverter
      * @param outEnd ending offset in the output byte array.
      * @return the number of characters converted.
      */
-    public int convert(char[] input, int inStart, int inEnd,
-		       byte[] output, int outStart, int outEnd)
-	throws ConversionBufferFullException,
-		UnknownCharacterException
+    public int convert(char[] input, int inStart, int inEnd, 
+			byte[] output, int outStart, int outEnd)
+	throws MalformedInputException, UnknownCharacterException,
+		ConversionBufferFullException
     {
-	int j = outStart;
-	for (int i = inStart; i < inEnd; i++) {
-	    if (j+3 >= outEnd) {
+ 	int j = outStart;
+	int i;
+	for (i = inStart; i < inEnd ; i++, j++) 
+	{
+	    if (j >= outEnd) {
 		charOff = i;
 		byteOff = j;
 		throw new ConversionBufferFullException();
 	    }
-        output[j++] = 0;
-        output[j++] = 0;
-	    output[j++] = (byte) ((input[i] >> 8) & 0xff);
-	    output[j++] = (byte) (input[i] & 0xff);
+	    if (!subMode && !isPrintableChar(input[i])) {
+		charOff = i;
+		byteOff = j;
+		badInputLength = 1;
+		throw new UnknownCharacterException();
+	    }
+	    output[j] = (byte) (input[i] & 0x7f);
 	}
-
+	charOff = i;
+	byteOff = j;
 	return j - outStart;
     }
 
-    public int flush(byte[] output, int outStart, int outEnd) {
+    public int flush(byte[] output, int outStart, int outEnd)
+	throws MalformedInputException, ConversionBufferFullException
+    {
 	return 0;
     }
 
     public void reset() { }
 
-    public int getMaxBytesPerChar() {
-	return 4;
+    public int getMaxBytesPerChar()
+    {
+	return 1;
     }
+
 }

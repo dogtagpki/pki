@@ -184,11 +184,11 @@ public class ASN1CharStrConvMap
     static {
 	defaultMap = new ASN1CharStrConvMap();
 	defaultMap.addEntry(DerValue.tag_PrintableString,
-	    	(Class<?>)CharToBytePrintable.class, (Class<?>)ByteToCharPrintable.class);
+		PrintableCharsetEncoder.class, PrintableCharsetDecoder.class);
 	defaultMap.addEntry(DerValue.tag_VisibleString,
-	    	CharToBytePrintable.class, ByteToCharPrintable.class);
+		PrintableCharsetEncoder.class, PrintableCharsetDecoder.class);
 	defaultMap.addEntry(DerValue.tag_IA5String,
-	    	CharToByteIA5String.class, ByteToCharIA5String.class);
+		IA5CharsetEncoder.class, IA5CharsetDecoder.class);
 	defaultMap.addEntry(DerValue.tag_BMPString,
 	        // Changed by bskim
 	    	//sun.io.CharToByteUnicode.class,
@@ -197,8 +197,8 @@ public class ASN1CharStrConvMap
 	    	sun.io.ByteToCharUnicodeBig.class);
 	    	// Change end
 	defaultMap.addEntry(DerValue.tag_UniversalString,
-	    	CharToByteUniversalString.class,
-	    	ByteToCharUniversalString.class);
+		UniversalCharsetEncoder.class,
+		UniversalCharsetDecoder.class);
     	// XXX this is an oversimplified implementation of T.61 strings, it
     	// doesn't handle all cases
 	defaultMap.addEntry(DerValue.tag_T61String,

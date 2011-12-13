@@ -29,7 +29,7 @@ import sun.io.UnknownCharacterException;
  * @author Slava Galperin
  */
 
-public class ByteToCharUniversalString extends ByteToCharConverter
+public class UniversalCharsetDecoder extends ByteToCharConverter
 {
     public String getCharacterEncoding() {
 	return "ASN.1 UniversalString";

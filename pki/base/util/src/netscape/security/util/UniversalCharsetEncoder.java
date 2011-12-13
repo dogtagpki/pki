@@ -28,22 +28,22 @@ import sun.io.UnknownCharacterException;
  * @author Slava Galperin
  */
 
-public class CharToByteIA5String extends CharToByteConverter 
+public class UniversalCharsetEncoder extends CharToByteConverter
 {
-    /* 
+    /*
      * Returns the character set id for the conversion.
      * @return the character set id.
      */
     public String getCharacterEncoding () {
-	return "ASN.1 IA5String";
+	return "ASN.1 UniversalString";
     }
 
-    /* 
-     * Converts an array of Unicode characters into an array of IA5String
+    /*
+     * Converts an array of Unicode characters into an array of UniversalString
      * bytes and returns the total number of characters converted.
      * If conversion cannot be done, UnknownCharacterException is
      * thrown. The character and byte offset will be set to the point
-     * of the unknown character. 
+     * of the unknown character.
      * @param input character array to convert.
      * @param inStart offset from which to start the conversion.
      * @param inEnd where to end the conversion.
@@ -58,21 +58,18 @@ public class CharToByteIA5String extends CharToByteConverter
 		UnknownCharacterException
     {
 	int j = outStart;
-	for (int i = inStart; i < inEnd; i++, j++) {
-	    if (j >= outEnd) {
+	for (int i = inStart; i < inEnd; i++) {
+	    if (j+3 >= outEnd) {
 		charOff = i;
 		byteOff = j;
 		throw new ConversionBufferFullException();
 	    }
-	    if (!subMode && (input[i] & 0xFF80) != 0) {
-		charOff = i;
-		byteOff = j;
-		badInputLength = 1;
-		throw new UnknownCharacterException();
-	    }
-		
-	    output[j] = (byte) (input[i] & 0x7f);
+        output[j++] = 0;
+        output[j++] = 0;
+	    output[j++] = (byte) ((input[i] >> 8) & 0xff);
+	    output[j++] = (byte) (input[i] & 0xff);
 	}
+
 	return j - outStart;
     }
 
@@ -83,6 +80,6 @@ public class CharToByteIA5String extends CharToByteConverter
     public void reset() { }
 
     public int getMaxBytesPerChar() {
-	return 1;
+	return 4;
     }
 }

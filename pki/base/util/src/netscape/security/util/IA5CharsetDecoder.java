@@ -29,7 +29,7 @@ import sun.io.UnknownCharacterException;
  * @author Slava Galperin
  */
 
-public class ByteToCharIA5String extends ByteToCharConverter 
+public class IA5CharsetDecoder extends ByteToCharConverter
 {
     public String getCharacterEncoding() {
 	return "ASN.1 IA5String";
