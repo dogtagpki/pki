@@ -30,7 +30,7 @@ set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
 # TODO: build test only when the test is invoked
 set(CMAKE_JAR_CLASSES_PREFIX com/netscape)
 add_jar(pki-util-test ${pki-util-test_SRCS})
-add_dependencies(pki-util-test osutil pki-test)
+add_dependencies(pki-util-test osutil pki-nsutil pki-cmsutil pki-test)
 
 # create test target
 # do not include xalan and xerces in class path
