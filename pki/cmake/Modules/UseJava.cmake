@@ -230,6 +230,7 @@ function(add_jar _TARGET_NAME)
             TARGET ${_TARGET_NAME}
             COMMAND ${CMAKE_Java_COMPILER}
                 ${CMAKE_JAVA_COMPILE_FLAGS}
+                -encoding UTF-8
                 -classpath ${CMAKE_JAVA_INCLUDE_PATH_FINAL}
                 -d ${CMAKE_JAVA_CLASS_OUTPUT_PATH}
                 ${_JAVA_COMPILE_FILES}
