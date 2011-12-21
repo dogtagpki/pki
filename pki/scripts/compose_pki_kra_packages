@@ -39,7 +39,7 @@ PKI_KRA_VERSION="9.0.9"
 ##
 
 PKI_SPECS_FILE="${PKI_DIR}/specs/${PKI_KRA}.spec"
-PKI_COMPONENT_LIST="kra"
+PKI_COMPONENT_LIST="test kra"
 
 
 ##

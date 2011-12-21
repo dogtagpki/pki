@@ -39,7 +39,7 @@ PKI_OCSP_VERSION="9.0.8"
 ##
 
 PKI_SPECS_FILE="${PKI_DIR}/specs/${PKI_OCSP}.spec"
-PKI_COMPONENT_LIST="ocsp"
+PKI_COMPONENT_LIST="test ocsp"
 
 
 ##

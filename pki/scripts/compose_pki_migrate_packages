@@ -39,7 +39,7 @@ PKI_MIGRATE_VERSION="9.0.2"
 ##
 
 PKI_SPECS_FILE="${PKI_DIR}/specs/${PKI_MIGRATE}.spec"
-PKI_COMPONENT_LIST="migrate"
+PKI_COMPONENT_LIST="test migrate"
 
 
 ##

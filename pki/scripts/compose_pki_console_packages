@@ -39,7 +39,7 @@ PKI_CONSOLE_VERSION="9.0.5"
 ##
 
 PKI_SPECS_FILE="${PKI_DIR}/specs/${PKI_CONSOLE}.spec"
-PKI_COMPONENT_LIST="console"
+PKI_COMPONENT_LIST="test console"
 
 
 ##

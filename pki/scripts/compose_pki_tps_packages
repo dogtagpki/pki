@@ -39,7 +39,7 @@ PKI_TPS_VERSION="9.0.7"
 ##
 
 PKI_SPECS_FILE="${PKI_DIR}/specs/${PKI_TPS}.spec"
-PKI_COMPONENT_LIST="tps"
+PKI_COMPONENT_LIST="test tps"
 
 
 ##
