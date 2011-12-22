@@ -905,7 +905,7 @@ implements Serializable, DerEncoder {
      * @return a set of the extension oid strings in the
      * certificate that are marked critical.
      */
-    public Set getCriticalExtensionOIDs() {
+    public Set<String> getCriticalExtensionOIDs() {
         if (info == null)
             return null;
             try {
@@ -913,7 +913,7 @@ implements Serializable, DerEncoder {
                                              CertificateExtensions.NAME);
                 if (exts == null)
                 return null;
-            Set<String> extSet = new TreeSet();
+            Set<String> extSet = new TreeSet<String>();
             Extension ex;
                 for (Enumeration e = exts.getElements(); e.hasMoreElements(); ) {
                 ex = (Extension)e.nextElement();
@@ -933,7 +933,7 @@ implements Serializable, DerEncoder {
      * @return a set of the extension oid strings in the
      * certificate that are NOT marked critical.
      */
-    public Set getNonCriticalExtensionOIDs() {
+    public Set<String> getNonCriticalExtensionOIDs() {
         if (info == null)
             return null;
             try {
@@ -942,7 +942,7 @@ implements Serializable, DerEncoder {
                 if (exts == null)
                 return null;
 
-            Set extSet = new TreeSet();
+            Set<String> extSet = new TreeSet<String>();
             Extension ex;
                 for (Enumeration e = exts.getElements(); e.hasMoreElements(); ) {
                 ex = (Extension)e.nextElement();

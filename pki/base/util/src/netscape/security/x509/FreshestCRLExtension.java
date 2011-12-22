@@ -29,6 +29,7 @@ import java.util.Vector;
 
 import netscape.security.util.BitArray;
 import netscape.security.util.DerOutputStream;
+import netscape.security.x509.FreshestCRLExtension.Reason;
 
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.InvalidBERException;
@@ -324,11 +325,11 @@ public class FreshestCRLExtension extends Extension
 		    list.addElement(this);
         }
 
-        private static Hashtable map = new Hashtable();
-	    private static Vector list = new Vector();
+        private static Hashtable<String, Reason> map = new Hashtable<String, Reason>();
+	    private static Vector<Reason> list = new Vector<Reason>();
 
         public static Reason fromString(String name) {
-            return (Reason) map.get(name);
+            return  map.get(name);
         }
 
         public String getName() {
@@ -364,7 +365,7 @@ public class FreshestCRLExtension extends Extension
 	    public static Reason[] bitArrayToReasonArray(byte[] bitFlags) {
 		    byte first = bitFlags[0];
 		    int size = list.size();
-		    Vector result = new Vector();
+		    Vector<Reason> result = new Vector<Reason>();
 		    for(int i = 0; i < size; i++) {
 			    Reason r = (Reason) list.elementAt(i);
 			    byte b = r.getBitMask();
@@ -375,7 +376,7 @@ public class FreshestCRLExtension extends Extension
 		    size = result.size();
 		    Reason[] retval = new Reason[size];
 		    for(int i=0; i < size; i++) {
-			    retval[i] = (Reason) result.elementAt(i);
+			    retval[i] = result.elementAt(i);
 		    }
 		    return retval;
 	    }

@@ -77,7 +77,7 @@ implements CertAttrSet {
     public static final String NAME = "SubjectDirectoryAttributes";
 
     // Private data members
-    private Vector attrList = new Vector();
+    private Vector<Attribute> attrList = new Vector<Attribute>();
 
     // Encode this extension value
     private void encodeThis() throws IOException {
@@ -85,9 +85,9 @@ implements CertAttrSet {
         DerOutputStream tmp = new DerOutputStream();
 
 		//encoding the attributes
-		Enumeration attrs = attrList.elements();
+		Enumeration<Attribute> attrs = attrList.elements();
 		while (attrs.hasMoreElements()) {
-            Attribute attr = (Attribute) attrs.nextElement();
+            Attribute attr =  attrs.nextElement();
 		    attr.encode(tmp);
 		}
 
@@ -199,9 +199,9 @@ implements CertAttrSet {
     public String toString() {
         String s = super.toString() + "SubjectDirectoryAttributes:[\n";
 
-	Enumeration attrs = attrList.elements();
+	Enumeration<Attribute> attrs = attrList.elements();
 	while (attrs.hasMoreElements()) {
-	    Attribute attr = (Attribute) attrs.nextElement();
+	    Attribute attr = attrs.nextElement();
 	    s += attr.toString();
 	}
 
@@ -278,7 +278,7 @@ implements CertAttrSet {
     /**
      * Returns an enumeration of attributes in the extension.
      */
-    public Enumeration getAttributesList() {
+    public Enumeration<Attribute> getAttributesList() {
 	if (attrList == null) 
 		return null;
 	return attrList.elements();

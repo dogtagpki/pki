@@ -65,7 +65,7 @@ implements CertAttrSet {
     public static final String MAP = "map";
 
     // Private data members
-    private Vector maps = null;
+    private Vector<CertificatePolicyMap> maps = null;
 
     // Encode this extension value
     private void encodeThis() throws IOException {
@@ -84,7 +84,7 @@ implements CertAttrSet {
      *
      * @param maps the Vector of CertificatePolicyMap.
      */
-    public PolicyMappingsExtension(Vector map) throws IOException {
+    public PolicyMappingsExtension(Vector<CertificatePolicyMap> map) throws IOException {
 		init(false, map);
     }
 
@@ -93,7 +93,7 @@ implements CertAttrSet {
      *
      * @param maps the Vector of CertificatePolicyMap.
      */
-    public PolicyMappingsExtension(boolean critical, Vector map) 
+    public PolicyMappingsExtension(boolean critical, Vector<CertificatePolicyMap> map) 
 	throws IOException {
 		init(critical, map);
 	}
@@ -101,7 +101,7 @@ implements CertAttrSet {
 	/**
 	 * init policy with criticality and map.
 	 */
-    private void init(boolean critical, Vector map) throws IOException {
+    private void init(boolean critical, Vector<CertificatePolicyMap> map) throws IOException {
         this.maps = map;
         this.extensionId = PKIXExtensions.PolicyMappings_Id;
         this.critical = critical;
@@ -114,7 +114,7 @@ implements CertAttrSet {
     public PolicyMappingsExtension() {
         extensionId = PKIXExtensions.PolicyMappings_Id;
         critical = false;
-        maps = new Vector(1,1);
+        maps = new Vector<CertificatePolicyMap>(1,1);
     }
 
     /**
@@ -140,7 +140,7 @@ implements CertAttrSet {
             throw new IOException("Invalid encoding for " +
                                   "PolicyMappingsExtension.");
         }
-        maps = new Vector(1, 1);
+        maps = new Vector<CertificatePolicyMap>(1, 1);
         while (val.data.available() != 0) {
             DerValue seq = val.data.getDerValue();
             CertificatePolicyMap map = new CertificatePolicyMap(seq);
@@ -189,14 +189,14 @@ implements CertAttrSet {
     /**
      * Set the attribute value.
      */
-    public void set(String name, Object obj) throws IOException {
+	public void set(String name, Object obj) throws IOException {
 	clearValue();
 	if (name.equalsIgnoreCase(MAP)) {
 	    if (!(obj instanceof Vector)) {
 	      throw new IOException("Attribute value should be of" +
                                     " type Vector.");
 	    }
-	    maps = (Vector)obj;
+	    maps = (Vector<CertificatePolicyMap>)obj;
 	} else {
 	  throw new IOException("Attribute name not recognized by " + 
 			"CertAttrSet:PolicyMappingsExtension.");
@@ -248,7 +248,7 @@ implements CertAttrSet {
     /**
      * Returns an enumeration of the mappings in the extension.
      */
-    public Enumeration getMappings() {
+    public Enumeration<CertificatePolicyMap> getMappings() {
 	if (maps == null) 
 		return null;
 	return maps.elements();

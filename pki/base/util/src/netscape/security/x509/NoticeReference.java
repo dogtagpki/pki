@@ -54,7 +54,7 @@ public class NoticeReference {
         if (integers.tag != DerValue.tag_Sequence) {
             throw new IOException("Invalid encoding for NoticeReference (integers)");
         }
-	Vector num = new Vector();
+	Vector<BigInt> num = new Vector<BigInt>();
         while (integers.data.available() != 0) {
            DerValue i = integers.data.getDerValue();
 	   BigInt bigI = i.getInteger();
@@ -64,7 +64,7 @@ public class NoticeReference {
 		return;
 	mNumbers = new int[num.size()];
 	for (int i = 0; i < num.size(); i++) {
-		mNumbers[i] = ((BigInt)num.elementAt(i)).toInt();
+		mNumbers[i] = num.elementAt(i).toInt();
 	}
     }
 

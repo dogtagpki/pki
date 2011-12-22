@@ -34,7 +34,7 @@ import netscape.security.util.PrettyPrintFormat;
  * @author Hemma Prafullchandra
  */
 public class GeneralSubtrees {
-    private Vector	trees;
+    private Vector<GeneralSubtree>	trees;
     private PrettyPrintFormat pp = new PrettyPrintFormat(":");
 
     /**
@@ -42,7 +42,7 @@ public class GeneralSubtrees {
      *
      * @param trees the sequence of GeneralSubtree.
      */
-    public GeneralSubtrees(Vector trees) {
+    public GeneralSubtrees(Vector<GeneralSubtree> trees) {
         this.trees = trees;
     }
 
@@ -52,7 +52,7 @@ public class GeneralSubtrees {
      * @param val the DER encoded form of the same.
      */
     public GeneralSubtrees(DerValue val) throws IOException {
-        trees = new Vector(1, 1);
+        trees = new Vector<GeneralSubtree>(1, 1);
         if (val.tag != DerValue.tag_Sequence) {
             throw new IOException("Invalid encoding of GeneralSubtrees.");
         }
@@ -78,7 +78,7 @@ public class GeneralSubtrees {
         String s = "";
 	GeneralSubtree element;
 
-	for (Enumeration e = trees.elements() ; e.hasMoreElements() ;) {
+	for (Enumeration<GeneralSubtree> e = trees.elements() ; e.hasMoreElements() ;) {
 		element = (GeneralSubtree) e.nextElement();		
 		s = s + pp.indent(indent+4)+ element.toPrint(indent) +"\n";
 	}
@@ -100,7 +100,7 @@ public class GeneralSubtrees {
         out.write(DerValue.tag_Sequence,seq);
     }
 
-    public Vector getSubtrees() {
+    public Vector<GeneralSubtree> getSubtrees() {
         return trees;
     }
 }

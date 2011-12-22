@@ -201,7 +201,7 @@ public class X509Key implements PublicKey {
 		throw new InstantiationException();
 	    }
 
-	    Class	keyClass = Class.forName(classname);
+	    Class<?>	keyClass = Class.forName(classname);
 	    Object	inst;
 	    X509Key	result;
 

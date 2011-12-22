@@ -70,7 +70,7 @@ implements CertAttrSet {
 
 
     // Private data members 
-    private Vector mInfos;
+    private Vector<CertificatePolicyInfo> mInfos;
  
     // Encode this extension value
     private void encodeThis() throws IOException {
@@ -84,7 +84,7 @@ implements CertAttrSet {
         extensionValue = os.toByteArray();
     }
 
-    public CertificatePoliciesExtension(boolean critical, Vector infos) throws IOException {
+    public CertificatePoliciesExtension(boolean critical, Vector<CertificatePolicyInfo> infos) throws IOException {
         this.mInfos = infos;
         this.extensionId = PKIXExtensions.CertificatePolicies_Id;
         this.critical = critical;
@@ -96,7 +96,7 @@ implements CertAttrSet {
      *
      * @param infos the Vector of CertificatePolicyInfo.
      */
-    public CertificatePoliciesExtension(Vector infos) throws IOException {
+    public CertificatePoliciesExtension(Vector<CertificatePolicyInfo> infos) throws IOException {
         this.mInfos = infos;
         this.extensionId = PKIXExtensions.CertificatePolicies_Id;
         this.critical = false;
@@ -109,7 +109,7 @@ implements CertAttrSet {
 	public CertificatePoliciesExtension() {
         this.extensionId = PKIXExtensions.CertificatePolicies_Id; 
         critical = false;
-        mInfos  = new Vector(1,1);
+        mInfos  = new Vector<CertificatePolicyInfo>(1,1);
     }
 
     /**
@@ -135,7 +135,7 @@ implements CertAttrSet {
             throw new IOException("Invalid encoding for " +
                                   "CertificatePoliciesExtension.");
         }
-        mInfos = new Vector(1, 1);
+        mInfos = new Vector<CertificatePolicyInfo>(1, 1);
         while (val.data.available() != 0) {
             DerValue seq = val.data.getDerValue();
             CertificatePolicyInfo info = new CertificatePolicyInfo(seq);
@@ -184,14 +184,15 @@ implements CertAttrSet {
     /**
      * Set the attribute value.
      */
-    public void set(String name, Object obj) throws IOException {
+    @SuppressWarnings("unchecked")
+	public void set(String name, Object obj) throws IOException {
         clearValue();
         if (name.equalsIgnoreCase(INFOS)) {
             if (!(obj instanceof Vector)) {
               throw new IOException("Attribute value should be of" +
                                     " type Vector.");
             }
-            mInfos = (Vector)obj;
+            mInfos = (Vector<CertificatePolicyInfo>)obj;
         } else {
           throw new IOException("Attribute name not recognized by " +
                         "CertAttrSet:CertificatePoliciesExtension.");
@@ -226,8 +227,8 @@ implements CertAttrSet {
      * Return an enumeration of names of attributes existing within this
      * attribute.
      */
-    public Enumeration getElements () {
-        Vector elements = new Vector();
+    public Enumeration<Vector<CertificatePolicyInfo>> getElements () {
+        Vector<Vector<CertificatePolicyInfo>> elements = new Vector<Vector<CertificatePolicyInfo>>();
         elements.addElement(mInfos);
         return (elements.elements());
     }
@@ -312,7 +313,7 @@ implements CertAttrSet {
 		qualifiers1.add(qualifierInfo1);
 		CertificatePolicyInfo info1 = new CertificatePolicyInfo(
 			plcyId1, qualifiers1);
-		Vector infos = new Vector();
+		Vector<CertificatePolicyInfo> infos = new Vector<CertificatePolicyInfo>();
 		infos.addElement(info0);
 		infos.addElement(info1);
 		try {

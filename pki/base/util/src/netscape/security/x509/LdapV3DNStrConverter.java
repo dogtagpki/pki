@@ -108,7 +108,7 @@ public class LdapV3DNStrConverter extends LdapDNStrConverter
     {
 	StringReader dn_reader = new StringReader(dn);
 	PushbackReader in = new PushbackReader(dn_reader, 5);
-	Vector rdnVector = new Vector();
+	Vector<RDN> rdnVector = new Vector<RDN>();
         RDN[] names;
 
 	return parseDN(in, encodingOrder);
@@ -136,7 +136,7 @@ public class LdapV3DNStrConverter extends LdapDNStrConverter
     {
 	StringReader rdn_reader = new StringReader(rdn);
 	PushbackReader in = new PushbackReader(rdn_reader, 5);
-	Vector avaVector = new Vector();
+	Vector<AVA> avaVector = new Vector<AVA>();
         AVA[] assertion;
 
 	return parseRDN(in, null);
@@ -197,7 +197,7 @@ public class LdapV3DNStrConverter extends LdapDNStrConverter
     {
 	RDN rdn;
 	int lastChar;
-        Vector rdnVector = new Vector();
+        Vector<RDN> rdnVector = new Vector<RDN>();
 	RDN names[];
         int i,j;
 
@@ -240,7 +240,7 @@ public class LdapV3DNStrConverter extends LdapDNStrConverter
     public RDN parseRDN(PushbackReader in, byte[] encodingOrder)
 	throws IOException
     {
-	Vector avaVector = new Vector();
+	Vector<AVA> avaVector = new Vector<AVA>();
 	AVA ava;
 	int lastChar;
 	AVA assertion[];

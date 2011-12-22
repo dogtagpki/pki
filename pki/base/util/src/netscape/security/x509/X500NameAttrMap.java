@@ -61,7 +61,7 @@ public class X500NameAttrMap
     public String getName(ObjectIdentifier oid)
     {
 	// XXX assert oid != null
-	return (String)oid2Name.get(oid);
+	return oid2Name.get(oid);
     }
 
     /**
@@ -74,7 +74,7 @@ public class X500NameAttrMap
     public ObjectIdentifier getOid(String name) 
     {
 	// XXX assert name != null
-	return (ObjectIdentifier)name2OID.get(name.toUpperCase());
+	return name2OID.get(name.toUpperCase());
     }
 
     /** 
@@ -86,7 +86,7 @@ public class X500NameAttrMap
      */
     public AVAValueConverter getValueConverter(String name)
     {
-	ObjectIdentifier oid = (ObjectIdentifier)
+	ObjectIdentifier oid = 
 				name2OID.get(name.toUpperCase());
 	if (oid == null) return null;
 	return (AVAValueConverter)oid2ValueConverter.get(oid);
@@ -109,7 +109,7 @@ public class X500NameAttrMap
      *
      * @return 	An Enumeration of all attribute names.
      */
-    public Enumeration getAllNames()
+    public Enumeration<String> getAllNames()
     {
 	return name2OID.keys();
     }
@@ -119,7 +119,7 @@ public class X500NameAttrMap
      *
      * @return 	An Enumeration of all OIDs in this map.
      */
-    public Enumeration getAllOIDs()
+    public Enumeration<ObjectIdentifier> getAllOIDs()
     {
 	return oid2Name.keys();
     }
@@ -132,10 +132,10 @@ public class X500NameAttrMap
      */
     public ObjectIdentifier getOid(ObjectIdentifier oid)
     {
-	String name = (String)oid2Name.get(oid);
+	String name = oid2Name.get(oid);
 	if (name == null)
 	    return null;
-	return (ObjectIdentifier)name2OID.get(name);
+	return name2OID.get(name);
     }
 
 
@@ -158,9 +158,9 @@ public class X500NameAttrMap
     {
 	// normalize name for case insensitive compare.
 	ObjectIdentifier theOid;
-        Class expValueConverter;
+        Class<? extends AVAValueConverter> expValueConverter;
 
-	theOid = (ObjectIdentifier)name2OID.get(name);
+	theOid = name2OID.get(name);
 	if (theOid != null) {
 	   expValueConverter = oid2ValueConverter.get(theOid).getClass();
 	   if (!theOid.equals(oid) || 
@@ -217,9 +217,9 @@ public class X500NameAttrMap
     // private variables
     //
 
-    Hashtable name2OID = new Hashtable();
-    Hashtable oid2Name = new Hashtable();
-    Hashtable oid2ValueConverter = new Hashtable();
+    Hashtable<String, ObjectIdentifier> name2OID = new Hashtable<String, ObjectIdentifier>();
+    Hashtable<ObjectIdentifier, String> oid2Name = new Hashtable<ObjectIdentifier, String>();
+    Hashtable<ObjectIdentifier, AVAValueConverter> oid2ValueConverter = new Hashtable<ObjectIdentifier, AVAValueConverter>();
 
     //
     // global defaults.

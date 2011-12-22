@@ -32,14 +32,14 @@ import netscape.security.util.DerValue;
  * @version 1.4
  */
 public class CertificatePolicySet {
-    private Vector	ids;
+    private Vector<CertificatePolicyId>	ids;
 
     /**
      * The default constructor for this class.
      *
      * @param ids the sequence of CertificatePolicyId's.
      */
-    public CertificatePolicySet(Vector ids) {
+    public CertificatePolicySet(Vector<CertificatePolicyId> ids) {
         this.ids = ids;
     }
 
@@ -50,7 +50,7 @@ public class CertificatePolicySet {
      * @exception IOException on decoding errors.
      */
     public CertificatePolicySet(DerInputStream in) throws IOException {
-        ids = new Vector(1, 1);
+        ids = new Vector<CertificatePolicyId>(1, 1);
         DerValue[] seq = in.getSequence(5);
  
         for (int i = 0; i < seq.length; i++) {

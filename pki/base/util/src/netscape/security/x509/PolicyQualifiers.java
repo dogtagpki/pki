@@ -37,7 +37,7 @@ public class PolicyQualifiers implements java.io.Serializable {
      *
      */
     private static final long serialVersionUID = 6932694408774694516L;
-    private Vector mInfo = new Vector();
+    private Vector<PolicyQualifierInfo> mInfo = new Vector<PolicyQualifierInfo>();
 
     /**
      * Create a PolicyQualifiers with the ObjectIdentifier.
@@ -73,7 +73,7 @@ public class PolicyQualifiers implements java.io.Serializable {
     }
  
     public PolicyQualifierInfo getInfoAt(int i) {
-        return (PolicyQualifierInfo)mInfo.elementAt(i);
+        return mInfo.elementAt(i);
     }
 
     /**
@@ -82,7 +82,7 @@ public class PolicyQualifiers implements java.io.Serializable {
     public String toString() {
         String s = "PolicyQualifiers: [";
         for (int i = 0; i < mInfo.size(); i++) {
-          PolicyQualifierInfo pq = (PolicyQualifierInfo)mInfo.elementAt(i);
+          PolicyQualifierInfo pq = mInfo.elementAt(i);
           s = s + pq.toString();
         }
         s = s + "]\n";
@@ -100,7 +100,7 @@ public class PolicyQualifiers implements java.io.Serializable {
         DerOutputStream tmp = new DerOutputStream();
 	
         for (int i = 0; i < mInfo.size(); i++) {
-          PolicyQualifierInfo pq = (PolicyQualifierInfo)mInfo.elementAt(i);
+          PolicyQualifierInfo pq = mInfo.elementAt(i);
           pq.encode(tmp);
 	}
 

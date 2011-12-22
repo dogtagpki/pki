@@ -21,8 +21,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.cert.CertificateException;
-import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.Properties;
 
 import netscape.security.util.ObjectIdentifier;
@@ -91,9 +91,9 @@ public class OIDMap {
     private static final String CRL_REASON  = ROOT + "." +
                                           CRLReasonExtension.NAME;
 
-    private static final Hashtable oid2Name = new Hashtable();
-    private static final Hashtable name2OID = new Hashtable();
-    private static final Hashtable name2Class = new Hashtable();
+    private static final Hashtable<ObjectIdentifier, String> oid2Name = new Hashtable<ObjectIdentifier, String>();
+    private static final Hashtable<String, ObjectIdentifier> name2OID = new Hashtable<String, ObjectIdentifier>();
+    private static final Hashtable<String, String> name2Class = new Hashtable<String, String>();
 
     // Initialize recognized extensions from EXTENSIONS_{OIDS/CLASSES} files
     static {
@@ -174,9 +174,9 @@ public class OIDMap {
             }
         }
 
-        Enumeration names = props.propertyNames();
-        while (names.hasMoreElements()) {
-            String name = (String)names.nextElement();
+        Iterator<String> names = props.stringPropertyNames().iterator();
+        while (names.hasNext()) {
+            String name = names.next();
             String oidName = props.getProperty(name);
             ObjectIdentifier oid = new ObjectIdentifier(oidName);
 
@@ -201,9 +201,9 @@ public class OIDMap {
             }
         }
 
-        Enumeration names = props.propertyNames();
-        while (names.hasMoreElements()) {
-            String name = (String)names.nextElement();
+        Iterator<String> names = props.stringPropertyNames().iterator();
+        while (names.hasNext()) {
+            String name = names.next();
             String className = props.getProperty(name);
 
             name2Class.put(name, className);
@@ -265,12 +265,12 @@ public class OIDMap {
      * @param name the user friendly name.
      * @exception CertificateException if class cannot be instantiated.
      */
-    public static Class getClass(String name) throws CertificateException {
+    public static Class<?> getClass(String name) throws CertificateException {
         String className = (String)name2Class.get(name);
         if (className == null)
             return null;
         try {
-            Class extClass = Class.forName(className);
+            Class<?> extClass = Class.forName(className);
 	    return (extClass);
 	} catch (Exception e) {
 	  throw new CertificateException("Error instantiating class for "
@@ -284,7 +284,7 @@ public class OIDMap {
      * @param oid the name of the object identifier to be returned.
      * @exception CertificateException if class cannot be instatiated.
      */
-    public static Class getClass(ObjectIdentifier oid)
+    public static Class<?> getClass(ObjectIdentifier oid)
     throws CertificateException {
         String name = getName(oid);
         if (name == null)
@@ -293,7 +293,7 @@ public class OIDMap {
         if (className == null)
             return null;
         try {
-            Class extClass = Class.forName(className);
+            Class<?> extClass = Class.forName(className);
 	    return (extClass);
 	} catch (Exception e) {
 	    throw new CertificateException("Error instantiating class for "

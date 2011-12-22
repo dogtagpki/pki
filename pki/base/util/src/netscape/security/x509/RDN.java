@@ -158,12 +158,12 @@ class RDN
     /**
      * convenience method.
      */
-    public RDN(Vector avaVector)
+    public RDN(Vector<AVA> avaVector)
     {
 	int size = avaVector.size();
 	assertion = new AVA[size];
 	for (int i = 0; i < size; i++) {
-	    assertion[i] = (AVA)avaVector.elementAt(i);
+	    assertion[i] = avaVector.elementAt(i);
 	}
     }
 
@@ -187,7 +187,7 @@ class RDN
 
     private AVA			assertion [];
 
-    private class AVAEnumerator implements Enumeration
+    private class AVAEnumerator implements Enumeration<AVA>
     {
 	private int index;
 
@@ -198,7 +198,7 @@ class RDN
 	    return (index < assertion.length);
 	}
 
-	public Object nextElement()
+	public AVA nextElement()
 	{
 	    AVA ava = null;
 	    if (index >= assertion.length)
@@ -262,7 +262,7 @@ class RDN
      * returns an enumeration of AVAs that make up this RDN.
      * @return an enumeration of AVAs that make up this RDN.
      */
-    public Enumeration getAVAs()
+    public Enumeration<AVA> getAVAs()
     {
 	return new AVAEnumerator();
     }

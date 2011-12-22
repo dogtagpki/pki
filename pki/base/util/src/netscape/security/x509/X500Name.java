@@ -291,7 +291,7 @@ public class X500Name implements Principal, GeneralNameInterface {
      * convenience method.
      * @param rdns a vector of rdns.
      */
-    public X500Name (Vector rdnVector)
+    public X500Name (Vector<RDN> rdnVector)
     throws IOException
     {
 	int size = rdnVector.size();
@@ -550,7 +550,7 @@ public class X500Name implements Principal, GeneralNameInterface {
      * Returns an enumerator of RDNs in the X500Name.
      * @return enumeration of rdns in this X500Name.
      */
-    public Enumeration getRDNs()
+    public Enumeration<RDN> getRDNs()
     {
 	return new RDNEnumerator();
     }
@@ -672,7 +672,7 @@ public class X500Name implements Principal, GeneralNameInterface {
 	dn = ldapDNStrConverter.encodeDN(this);
     }
 
-    private class RDNEnumerator implements Enumeration
+    private class RDNEnumerator implements Enumeration<RDN>
     {
 	private int index;
 
@@ -683,7 +683,7 @@ public class X500Name implements Principal, GeneralNameInterface {
 	    return (index < names.length);
 	}
 
-	public Object nextElement()
+	public RDN nextElement()
 	{
 	    if (index >= names.length)
 		return null;

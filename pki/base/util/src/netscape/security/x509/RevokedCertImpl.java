@@ -291,14 +291,14 @@ public class RevokedCertImpl extends RevokedCertificate
      * @return a set of the extension oid strings in the
      * Object that are marked critical.
      */
-    public Set getCriticalExtensionOIDs() {
+    public Set<String> getCriticalExtensionOIDs() {
         if (extensions == null)
             return null;
-        Set extSet = new TreeSet();
+        Set<String> extSet = new TreeSet<String>();
         Extension ex;
-            for (Enumeration e = extensions.getElements();
+            for (Enumeration<Extension> e = extensions.getElements();
                                           e.hasMoreElements();) {
-            ex = (Extension)e.nextElement();
+            ex = e.nextElement();
                 if (ex.isCritical())
                 extSet.add(((ObjectIdentifier)ex.getExtensionId()).toString());
             }
@@ -312,12 +312,12 @@ public class RevokedCertImpl extends RevokedCertificate
      * @return a set of the extension oid strings in the
      * Object that are marked critical.
      */
-    public Set getNonCriticalExtensionOIDs() {
+    public Set<String> getNonCriticalExtensionOIDs() {
         if (extensions == null)
             return null;
-        Set extSet = new TreeSet();
+        Set<String> extSet = new TreeSet<String>();
         Extension ex;
-            for (Enumeration e = extensions.getElements();
+            for (Enumeration<Extension> e = extensions.getElements();
                                           e.hasMoreElements();) {
             ex = (Extension)e.nextElement();
                 if ( ! ex.isCritical())
@@ -349,7 +349,7 @@ public class RevokedCertImpl extends RevokedCertificate
                 ObjectIdentifier findOID = new ObjectIdentifier(oid);
                 Extension ex = null;
                 ObjectIdentifier inCertOID;
-                for (Enumeration e=extensions.getElements();
+                for (Enumeration<Extension> e=extensions.getElements();
                                                  e.hasMoreElements();) {
                     ex = (Extension)e.nextElement();
                     inCertOID = ex.getExtensionId();

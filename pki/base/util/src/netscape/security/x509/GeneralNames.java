@@ -35,7 +35,7 @@ import netscape.security.util.DerValue;
  * @author Hemma Prafullchandra
  * @version 1.7
  */
-public class GeneralNames extends Vector {
+public class GeneralNames extends Vector<GeneralNameInterface> {
     /**
      *
      */
@@ -107,7 +107,7 @@ public class GeneralNames extends Vector {
     throws IOException, GeneralNamesException {
         if (size() == 0) { return; }
 
-        Enumeration names = elements();
+        Enumeration<GeneralNameInterface> names = elements();
         DerOutputStream temp = new DerOutputStream();
 
         while (names.hasMoreElements()) {
