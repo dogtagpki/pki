@@ -345,15 +345,15 @@ do_writes(
 SECStatus
 do_io( PRFileDesc *ssl_sock, int connection)
 {
-    int	    countRead = 0;
+    int countRead = 0;
     PRInt32 rv;
-    char    *buf;
-	int first=1;
+    char *buf;
+    char *buf2;
+    int first=1;
 
     buf = PR_Malloc(RD_BUF_SIZE);
     if (!buf) exit(5);
 	
-
     /* send the http request here. */
 
     rv = do_writes(ssl_sock);
@@ -374,6 +374,8 @@ do_io( PRFileDesc *ssl_sock, int connection)
 	}
 	if (rv < 0) {
 	    errWarn("PR_Read");
+            PR_Free(buf);
+            buf = 0;
 	    exit(1);
 	}
 
@@ -386,12 +388,48 @@ do_io( PRFileDesc *ssl_sock, int connection)
         if (first) {
              first=0;
 	     if (rv < 13) {
-	         errWarn("not enough bytes read in first read");
-                 exit(2);
-             } else {
-                 if ( ! PL_strnstr(buf,"200",13)) {
-                     exit(3);
+                 int ret = 0;
+                 buf2 = PR_Malloc(RD_BUF_SIZE);
+                 if (!buf2) {
+                     PR_Free(buf);
+                     buf = 0;
+                     exit(5);
                  }
+
+                 for (ret=0; rv < 13 ; rv += ret) {
+                     ret = PR_Read(ssl_sock, buf2, RD_BUF_SIZE - rv); 
+                     if (ret <  0 ) {
+                         errWarn("PR_Read");
+                         PR_Free(buf);
+                         buf = 0;
+                         PR_Free(buf2);
+                         buf2 = 0;
+                         exit(1);
+                     }
+                     if (ret == 0) {
+                         errWarn("not enough bytes read in first read");
+                         PR_Free(buf);
+                         buf = 0;
+                         PR_Free(buf2);
+                         buf2 = 0;
+                         exit(2);
+                     }
+                     countRead +=  ret;
+                     FPRINTF(stderr, "connection %d read %d bytes (%d total).\n",
+                         connection, ret, countRead );
+                     FPRINTF(stderr, "these bytes read:\n");
+                     PR_Write(PR_STDOUT, buf2, ret);
+
+                     PR_snprintf(buf, RD_BUF_SIZE, "%s%s", buf, buf2);
+                 }
+                 PR_Free(buf2);
+                 buf2 = 0;
+             }
+
+             if ( ! PL_strnstr(buf,"200",13)) {
+                 PR_Free(buf);
+                 buf = 0;
+                 exit(3);
              }
 	}
     }
