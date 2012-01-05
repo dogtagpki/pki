@@ -27,6 +27,21 @@ public class DirStrConverterTest {
     }
 
     @Test
+    public void testNullCharacters() throws Exception {
+
+        String string = StringTestUtil.NULL_CHARS;
+        System.out.println("Converting: ["+StringTestUtil.toString(string.getBytes())+"]");
+
+        byte[] expected = JSSUtil.encode(DerValue.tag_T61String, string);
+        System.out.println(" - expected: "+StringTestUtil.toString(expected));
+
+        byte[] actual = ConverterTestUtil.convert(new DirStrConverter(), string);
+        System.out.println(" - actual  : "+StringTestUtil.toString(actual));
+
+        Assert.assertArrayEquals(expected, actual);
+    }
+
+    @Test
     public void testPrintableCharacters() throws Exception {
 
         String string = StringTestUtil.PRINTABLE_CHARS;

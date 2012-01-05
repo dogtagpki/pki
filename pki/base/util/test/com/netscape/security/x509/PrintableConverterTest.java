@@ -27,6 +27,26 @@ public class PrintableConverterTest {
     }
 
     @Test
+    public void testNullCharacters() throws Exception {
+
+        String string = StringTestUtil.NULL_CHARS;
+        System.out.println("Converting: ["+StringTestUtil.toString(string.getBytes())+"]");
+
+        System.out.println(" - expected: IllegalArgumentException");
+
+        try {
+            byte[] actual = ConverterTestUtil.convert(new PrintableConverter(), string);
+            System.out.println(" - actual  : "+StringTestUtil.toString(actual));
+
+            Assert.fail();
+
+        } catch (Exception e) {
+            System.out.println(" - actual  : "+e.getClass().getSimpleName());
+            Assert.assertTrue(e instanceof IllegalArgumentException);
+        }
+    }
+
+    @Test
     public void testPrintableCharacters() throws Exception {
 
         String string = StringTestUtil.PRINTABLE_CHARS;

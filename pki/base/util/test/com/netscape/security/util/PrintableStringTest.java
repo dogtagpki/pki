@@ -43,6 +43,41 @@ public class PrintableStringTest {
     }
 
     @Test
+    public void testEncodingNullCharacters() throws Exception {
+
+        String string = StringTestUtil.NULL_CHARS;
+        System.out.println("Encoding: ["+StringTestUtil.toString(string.getBytes())+"]");
+
+        System.out.println(" - expected: IOException");
+
+        try {
+            byte[] actual = StringTestUtil.encode(tag, string);
+            System.out.println(" - actual  : "+StringTestUtil.toString(actual));
+
+            Assert.fail();
+
+        } catch (Exception e) {
+            System.out.println(" - actual  : "+e.getClass().getSimpleName());
+            Assert.assertTrue(e instanceof IOException);
+        }
+    }
+
+    @Test
+    public void testDecodingNullCharacters() throws Exception {
+
+        byte[] data = { 0x13, 0x01, 0x00 };
+        System.out.println("Decoding: ["+StringTestUtil.toString(data)+"]");
+
+        String expected = ""; // skip null chars (bug 359010)
+        System.out.println(" - expected: ["+expected+"]");
+
+        String output = StringTestUtil.decode(tag, data);
+        System.out.println(" - actual  : ["+output+"]");
+
+        Assert.assertEquals(expected, output);
+    }
+
+    @Test
     public void testEncodingPrintableCharacters() throws Exception {
 
         String string = StringTestUtil.PRINTABLE_CHARS;

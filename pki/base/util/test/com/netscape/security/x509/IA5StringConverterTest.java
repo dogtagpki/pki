@@ -27,6 +27,21 @@ public class IA5StringConverterTest {
     }
 
     @Test
+    public void testNullCharacters() throws Exception {
+
+        String string = StringTestUtil.NULL_CHARS;
+        System.out.println("Converting: ["+StringTestUtil.toString(string.getBytes())+"]");
+
+        byte[] expected = JSSUtil.encode(DerValue.tag_IA5String, string);
+        System.out.println(" - expected: "+StringTestUtil.toString(expected));
+
+        byte[] actual = ConverterTestUtil.convert(new IA5StringConverter(), string);
+        System.out.println(" - actual  : "+StringTestUtil.toString(actual));
+
+        Assert.assertArrayEquals(expected, actual);
+    }
+
+    @Test
     public void testPrintableCharacters() throws Exception {
 
         String string = StringTestUtil.PRINTABLE_CHARS;

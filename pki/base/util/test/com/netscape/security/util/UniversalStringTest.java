@@ -41,6 +41,40 @@ public class UniversalStringTest {
     }
 
     @Test
+    public void testEncodingNullCharacters() throws Exception {
+
+        String string = StringTestUtil.NULL_CHARS;
+        System.out.println("Encoding: ["+StringTestUtil.toString(string.getBytes())+"]");
+
+        byte[] expected = JSSUtil.encode(tag, string);
+        System.out.println(" - expected: "+StringTestUtil.toString(expected));
+
+        byte[] actual = StringTestUtil.encode(tag, string);
+        System.out.println(" - actual  : "+StringTestUtil.toString(actual));
+
+        actual = StringTestUtil.normalizeUnicode(actual);
+        System.out.println(" - norm.   : "+StringTestUtil.toString(actual));
+
+        Assert.assertArrayEquals(expected, actual);
+    }
+
+    @Test
+    public void testDecodingNullCharacters() throws Exception {
+
+        String input = StringTestUtil.NULL_CHARS;
+        byte[] data = JSSUtil.encode(tag, input);
+
+        System.out.println("Decoding: ["+StringTestUtil.toString(data)+"]");
+
+        System.out.println(" - expected: ["+StringTestUtil.toString(input.getBytes())+"]");
+
+        String output = StringTestUtil.decode(tag, data);
+        System.out.println(" - actual  : ["+StringTestUtil.toString(output.getBytes())+"]");
+
+        Assert.assertEquals(input, output);
+    }
+
+    @Test
     public void testEncodingPrintableCharacters() throws Exception {
 
         String string = StringTestUtil.PRINTABLE_CHARS;
