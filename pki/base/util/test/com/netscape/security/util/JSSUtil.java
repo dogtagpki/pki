@@ -2,11 +2,13 @@ package com.netscape.security.util;
 
 import netscape.security.util.DerValue;
 
+import org.mozilla.jss.asn1.ASN1Template;
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.ASN1Value;
 import org.mozilla.jss.asn1.BMPString;
 import org.mozilla.jss.asn1.IA5String;
 import org.mozilla.jss.asn1.PrintableString;
+import org.mozilla.jss.asn1.Tag;
 import org.mozilla.jss.asn1.TeletexString;
 import org.mozilla.jss.asn1.UTF8String;
 import org.mozilla.jss.asn1.UniversalString;
@@ -39,5 +41,33 @@ public class JSSUtil {
                 throw new Exception("Unsupported tag: "+tag);
         }
         return ASN1Util.encode(value);
+    }
+
+    public static String decode(byte tag, byte[] bytes) throws Exception {
+        ASN1Template template;
+
+        switch (tag) {
+            case DerValue.tag_BMPString:
+                template = new BMPString.Template();
+                break;
+            case DerValue.tag_IA5String:
+                template = new IA5String.Template();
+                break;
+            case DerValue.tag_PrintableString:
+                template = new PrintableString.Template();
+                break;
+            case DerValue.tag_T61String:
+                template = new TeletexString.Template();
+                break;
+            case DerValue.tag_UniversalString:
+                template = new UniversalString.Template();
+                break;
+            case DerValue.tag_UTF8String:
+                template = new UTF8String.Template();
+                break;
+            default:
+                throw new Exception("Unsupported tag: "+tag);
+        }
+        return ASN1Util.decode(new Tag(Tag.UNIVERSAL, tag), template, bytes).toString();
     }
 }

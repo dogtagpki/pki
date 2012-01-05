@@ -233,4 +233,54 @@ public class PrintableStringTest {
             Assert.assertTrue(e instanceof IOException);
         }
     }
+
+    @Test
+    public void testEncodingTime() throws Exception {
+
+        System.out.println("Encoding time:");
+
+        String string = StringTestUtil.PRINTABLE_CHARS;
+
+        long t0 = System.currentTimeMillis();
+
+        for (int i=0; i<10000; i++) JSSUtil.encode(tag, string);
+
+        long t1 = System.currentTimeMillis();
+
+        for (int i=0; i<10000; i++) StringTestUtil.encode(tag, string);
+
+        long t2 = System.currentTimeMillis();
+
+        long time1 = t1 - t0;
+        long time2 = t2 - t1;
+
+        System.out.println(" - JSS     : "+time1+" ms");
+        System.out.println(" - Internal: " + time2 + " ms");
+    }
+
+    @Test
+    public void testDecodingTime() throws Exception {
+
+        System.out.println("Decoding time:");
+
+        String string = StringTestUtil.PRINTABLE_CHARS;
+
+        byte[] data = JSSUtil.encode(tag, string);
+
+        long t0 = System.currentTimeMillis();
+
+        for (int i=0; i<10000; i++) JSSUtil.decode(tag, data);
+
+        long t1 = System.currentTimeMillis();
+
+        for (int i=0; i<10000; i++) StringTestUtil.decode(tag, data);
+
+        long t2 = System.currentTimeMillis();
+
+        long time1 = t1 - t0;
+        long time2 = t2 - t1;
+
+        System.out.println(" - JSS     : "+time1+" ms");
+        System.out.println(" - Internal: " + time2 + " ms");
+    }
 }
