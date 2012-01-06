@@ -31,6 +31,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.cms.servlet.base.CMSResource;
 import com.netscape.cms.servlet.request.model.ArchivalRequestData;
 import com.netscape.cms.servlet.request.model.KeyRequestDAO;
 import com.netscape.cms.servlet.request.model.KeyRequestInfo;
@@ -41,8 +42,8 @@ import com.netscape.cms.servlet.request.model.RecoveryRequestData;
  * 
  */
 @Path("/keyrequest")
-public class KeyRequestResource {
-    
+public class KeyRequestResource extends CMSResource {
+
     @Context
     UriInfo uriInfo;
     

@@ -31,6 +31,7 @@ import javax.ws.rs.core.UriInfo;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.cms.servlet.base.CMSResource;
 import com.netscape.cms.servlet.request.model.KeyRequestDAO;
 import com.netscape.cms.servlet.request.model.KeyRequestInfo;
  
@@ -39,8 +40,8 @@ import com.netscape.cms.servlet.request.model.KeyRequestInfo;
  *
  */
 @Path("/keyrequests")
-public class KeyRequestsResource {
-
+public class KeyRequestsResource extends CMSResource {
+ 
     @Context
     UriInfo uriInfo;
 

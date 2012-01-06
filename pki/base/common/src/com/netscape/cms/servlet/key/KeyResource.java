@@ -29,6 +29,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import com.netscape.cms.servlet.base.CMSResource;
 import com.netscape.cms.servlet.key.model.KeyDAO;
 import com.netscape.cms.servlet.key.model.KeyData;
 import com.netscape.cms.servlet.request.model.KeyRequestDAO;
@@ -42,7 +43,7 @@ import com.netscape.certsrv.base.EBaseException;
  * 
  */
 @Path("/key")
-public class KeyResource {
+public class KeyResource extends CMSResource {
     
     @Context
     UriInfo uriInfo;
