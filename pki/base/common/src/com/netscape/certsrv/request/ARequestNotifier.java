@@ -232,8 +232,8 @@ public class ARequestNotifier implements IRequestNotifier {
                     if (!(requestType.equals(IRequest.ENROLLMENT_REQUEST) ||
                             requestType.equals(IRequest.RENEWAL_REQUEST) ||
                             requestType.equals(IRequest.REVOCATION_REQUEST) ||
-                            requestType.equals(IRequest.CMCREVOKE_REQUEST) || requestType
-                            .equals(IRequest.UNREVOCATION_REQUEST))) {
+                            requestType.equals(IRequest.CMCREVOKE_REQUEST) || 
+                            requestType.equals(IRequest.UNREVOCATION_REQUEST))) {
                         continue;
                     }
                     if (i == 0 && id.equals(r.getRequestId().toString())) {

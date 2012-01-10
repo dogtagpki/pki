@@ -203,8 +203,8 @@ public class LdapSimpleMap implements ILdapMapper, IExtendedPluginInfo {
             LDAPEntry entry = results.next();
 
             if (results.hasMoreElements()) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_MORE_THAN_ONE_ENTRY", dn, ((req == null) ? "" : req
-                        .getRequestId().toString())));
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_MORE_THAN_ONE_ENTRY", dn, ((req == null) ? "" : 
+                        req.getRequestId().toString())));
                 throw new ELdapException(CMS.getUserMessage("CMS_LDAP_MORE_THAN_ONE_ENTRY",
                             ((req == null) ? "" : req.getRequestId().toString())));
             }

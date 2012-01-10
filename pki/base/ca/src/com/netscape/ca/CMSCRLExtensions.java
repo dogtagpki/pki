@@ -432,8 +432,8 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
     }
 
     public boolean isCRLExtensionEnabled(String extName) {
-        return ((mCRLExtensionNames.contains(extName) || mCRLEntryExtensionNames.contains(extName)) && mEnabledCRLExtensions
-                .contains(extName));
+        return ((mCRLExtensionNames.contains(extName) || mCRLEntryExtensionNames.contains(extName)) && 
+                mEnabledCRLExtensions.contains(extName));
     }
 
     public boolean isCRLExtensionCritical(String extName) {

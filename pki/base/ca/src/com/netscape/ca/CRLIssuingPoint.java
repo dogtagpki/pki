@@ -2231,8 +2231,8 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
     public boolean isDeltaCRLEnabled() {
         return (mAllowExtensions && mEnableCRLCache &&
                 mCMSCRLExtensions.isCRLExtensionEnabled(DeltaCRLIndicatorExtension.NAME) &&
-                mCMSCRLExtensions.isCRLExtensionEnabled(CRLNumberExtension.NAME) && mCMSCRLExtensions
-                .isCRLExtensionEnabled(CRLReasonExtension.NAME));
+                mCMSCRLExtensions.isCRLExtensionEnabled(CRLNumberExtension.NAME) && 
+                mCMSCRLExtensions.isCRLExtensionEnabled(CRLReasonExtension.NAME));
     }
 
     public boolean isThisCurrentDeltaCRL(X509CRLImpl deltaCRL) {

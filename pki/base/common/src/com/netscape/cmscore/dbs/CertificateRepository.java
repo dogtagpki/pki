@@ -1657,8 +1657,9 @@ public class CertificateRepository extends Repository
             throws EBaseException {
         IDBSSession s = mDBService.createSession();
         Enumeration e = null;
+        // index is setup for this filter
         String ldapfilter = "(|(" + CertRecord.ATTR_CERT_STATUS + "=" + CertRecord.STATUS_REVOKED + ")("
-                + CertRecord.ATTR_CERT_STATUS + "=" + CertRecord.STATUS_REVOKED_EXPIRED + "))"; // index is setup for this filter
+                + CertRecord.ATTR_CERT_STATUS + "=" + CertRecord.STATUS_REVOKED_EXPIRED + "))";
 
         try {
             //e = s.search(getDN(), ldapfilter);
@@ -1720,8 +1721,9 @@ public class CertificateRepository extends Repository
             throws EBaseException {
         IDBSSession s = mDBService.createSession();
         Enumeration e = null;
+        // index is setup for this filter
         String ldapfilter = "(&(|(" + CertRecord.ATTR_CERT_STATUS + "=" + CertRecord.STATUS_REVOKED + ")("
-                + CertRecord.ATTR_CERT_STATUS + "=" + CertRecord.STATUS_REVOKED_EXPIRED + "))"; // index is setup for this filter
+                + CertRecord.ATTR_CERT_STATUS + "=" + CertRecord.STATUS_REVOKED_EXPIRED + "))";
 
         ldapfilter += "(certMetainfo=" +
                 CertRecord.META_LDAPPUBLISH +

@@ -376,8 +376,8 @@ public abstract class EnrollProfile extends BasicProfile
 
             org.mozilla.jss.pkix.cms.ContentInfo cmcReq = (org.mozilla.jss.pkix.cms.ContentInfo)
                     org.mozilla.jss.pkix.cms.ContentInfo.getTemplate().decode(cmcBlobIn);
-            org.mozilla.jss.pkix.cms.SignedData cmcFullReq = (org.mozilla.jss.pkix.cms.SignedData) cmcReq
-                    .getInterpretedContent();
+            org.mozilla.jss.pkix.cms.SignedData cmcFullReq = 
+                (org.mozilla.jss.pkix.cms.SignedData) cmcReq.getInterpretedContent();
             org.mozilla.jss.pkix.cms.EncapsulatedContentInfo ci = cmcFullReq.getContentInfo();
             OBJECT_IDENTIFIER id = ci.getContentType();
             OCTET_STRING content = ci.getContent();

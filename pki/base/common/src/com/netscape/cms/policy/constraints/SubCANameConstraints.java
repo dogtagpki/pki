@@ -154,8 +154,7 @@ public class SubCANameConstraints extends APolicyRule implements IEnrollmentPoli
 
                 if (certSubjectName.equalsIgnoreCase(mIssuerNameStr)) {
                     log(ILogger.LL_FAILURE, CMS.getLogMessage("POLICY_SUBJECT_NAME_EXIST_1", mIssuerNameStr));
-                    setError(
-                            req,
+                    setError(req, 
                             CMS.getUserMessage("CMS_POLICY_SUBJECT_NAME_EXIST", NAME + ":" + "Same As Issuer Name "
                                     + mIssuerNameStr), "");
                     result = PolicyResult.REJECTED;

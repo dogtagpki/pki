@@ -64,8 +64,8 @@ import com.netscape.cmsutil.util.HMACDigest;
 public class PKCS10Client {
 
     private static void printUsage() {
-        System.out
-                .println("Usage: PKCS10Client -p <certdb password> -d <location of certdb> -o <output file which saves the base64 PKCS10> -s <subjectDN>\n");
+        System.out.println(
+                "Usage: PKCS10Client -p <certdb password> -d <location of certdb> -o <output file which saves the base64 PKCS10> -s <subjectDN>\n");
     }
 
     public static void main(String args[]) {

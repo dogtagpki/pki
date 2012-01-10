@@ -1199,8 +1199,8 @@ public class ProfileSubmitServlet extends ProfileServlet {
                 // no profile set found
                 CMS.debug("ProfileSubmitServlet: no profile policy set found");
                 if (xmlOutput) {
-                    outputError(response, FAILED, CMS.getUserMessage("CMS_PROFILE_NO_POLICY_SET_FOUND"), reqs[k]
-                            .getRequestId().toString());
+                    outputError(response, FAILED, CMS.getUserMessage("CMS_PROFILE_NO_POLICY_SET_FOUND"), 
+                            reqs[k].getRequestId().toString());
                 } else {
                     args.set(ARG_ERROR_CODE, "1");
                     args.set(ARG_ERROR_REASON,
@@ -1249,8 +1249,8 @@ public class ProfileSubmitServlet extends ProfileServlet {
                 //  throw new IOException("Profile " + profileId + 
                 //          " cannot populate");
                 if (xmlOutput) {
-                    outputError(response, FAILED, CMS.getUserMessage(locale, "CMS_INTERNAL_ERROR"), reqs[k]
-                            .getRequestId().toString());
+                    outputError(response, FAILED, CMS.getUserMessage(locale, "CMS_INTERNAL_ERROR"), 
+                            reqs[k].getRequestId().toString());
                 } else {
                     args.set(ARG_ERROR_CODE, "1");
                     args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,

@@ -838,16 +838,12 @@ public class PublisherProcessor implements
         } catch (EBaseException e) {
             // not fatal. just log warning.
             log(ILogger.LL_WARN,
-                    "Cannot mark cert 0x"
-                            + serialNo.toString(16)
-                            + " published as "
-                            + published
-                            +
-                            " in the ldap directory. Cert Record not found. Error: "
-                            +
-                            e.toString()
-                            +
-                            " Don't be alarmed if it's a subordinate ca or clone's ca siging cert. Otherwise your internal db may be corrupted.");
+                    "Cannot mark cert 0x" + serialNo.toString(16)
+                    + " published as " + published
+                    + " in the ldap directory. Cert Record not found. Error: "
+                    + e.toString() 
+                    + " Don't be alarmed if it's a subordinate ca or clone's ca siging cert. " 
+                    + "Otherwise your internal db may be corrupted.");
         }
     }
 

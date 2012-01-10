@@ -70,12 +70,12 @@ public class PKCS12Export {
     }
 
     private static void printUsage() {
-        System.out
-                .println("Usage: PKCS12Export -d <cert/key db directory> -p <file containing password for keydb> -w <file containing pkcs12 password> -o <output file for pkcs12>");
+        System.out.println(
+                "Usage: PKCS12Export -d <cert/key db directory> -p <file containing password for keydb> -w <file containing pkcs12 password> -o <output file for pkcs12>");
         System.out.println("");
         System.out.println("If you want to turn on debug, do the following:");
-        System.out
-                .println("Usage: PKCS12Export -debug -d <cert/key db directory> -p <file containing password for keydb> -w <file containing pkcs12 password> -o <output file for pkcs12>");
+        System.out.println(
+                "Usage: PKCS12Export -debug -d <cert/key db directory> -p <file containing password for keydb> -w <file containing pkcs12 password> -o <output file for pkcs12>");
     }
 
     private static byte[] getEncodedKey(org.mozilla.jss.crypto.PrivateKey pkey) {

@@ -159,9 +159,8 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
         mExtendedPluginInfo = new Vector();
 
         mExtendedPluginInfo
-                .add(IExtendedPluginInfo.HELP_TEXT
-                        +
-                        ";Authenticate the CMC request. The signer must be an agent. The \"Authentication Instance ID\" must be named \"CMCAuth\"");
+                .add(IExtendedPluginInfo.HELP_TEXT +
+                    ";Authenticate the CMC request. The signer must be an agent. The \"Authentication Instance ID\" must be named \"CMCAuth\"");
         mExtendedPluginInfo.add(IExtendedPluginInfo.HELP_TOKEN +
                 ";configuration-authentication");
     }

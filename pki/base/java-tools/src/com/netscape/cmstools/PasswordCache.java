@@ -62,16 +62,16 @@ public class PasswordCache {
     private static final String KEYDB = "key3.db";
 
     private static void usage() {
-        System.out
-                .println("This tool has to be run from the same directory where pwcache.db file resides, normally <cms instance>/config directory, unless the file's full path is specified in the -c option..\nUsage: PasswordCache <SSO_PASSWORD> <-d cert/key db directory> <-h tokenName> <-P cert/key db prefix> <-c pwcache.db_file_full_path> <-k file containing Base64EncodedKeyID> <COMMAND> ...");
+        System.out.println(
+                "This tool has to be run from the same directory where pwcache.db file resides, normally <cms instance>/config directory, unless the file's full path is specified in the -c option..\nUsage: PasswordCache <SSO_PASSWORD> <-d cert/key db directory> <-h tokenName> <-P cert/key db prefix> <-c pwcache.db_file_full_path> <-k file containing Base64EncodedKeyID> <COMMAND> ...");
         System.out.println("  commands:");
         System.out.println("     'add <password_name> <password>'");
         System.out.println("     'change <password_name> <password>'");
         System.out.println("     'delete <password_name>'");
         System.out.println("     'rekey'");
         System.out.println("     'list'");
-        System.out
-                .println("\nExample:\n\tPasswordCache thePassword1 -d /usr/netscape/servers/cms/alias -P cert-instance1-machine1- -c pwcache.db -k keyidFile list");
+        System.out.println(
+                "\nExample:\n\tPasswordCache thePassword1 -d /usr/netscape/servers/cms/alias -P cert-instance1-machine1- -c pwcache.db -k keyidFile list");
         System.exit(1);
     }
 

@@ -444,9 +444,8 @@ public class CertReqParser extends ReqParser {
                                     (CertificateValidity)
                                     certInfo[0].get(X509CertInfo.VALIDITY);
                             if (validity != null) {
-                                long validityLength = (((Date) validity.get(CertificateValidity.NOT_AFTER)).getTime() - ((Date) validity
-                                        .get(CertificateValidity.NOT_BEFORE)).getTime()) / 1000;
-
+                                long validityLength = (((Date) validity.get(CertificateValidity.NOT_AFTER)).getTime() - 
+                                        ((Date) validity.get(CertificateValidity.NOT_BEFORE)).getTime()) / 1000;
                                 arg.addLongValue("validityLength", validityLength);
                             }
                         } catch (IOException e) {

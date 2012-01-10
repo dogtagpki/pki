@@ -685,8 +685,8 @@ public class ConfigureCA {
                         in.close();
                         return true;
                     } catch (Exception e) {
-                        System.out
-                                .println("CertSubjectPanel: Unable to read in external approved CA cert or certificate chain.");
+                        System.out.println(
+                               "CertSubjectPanel: Unable to read in external approved CA cert or certificate chain.");
                         System.out.println(e.toString());
                         return false;
                     }
@@ -1247,8 +1247,8 @@ public class ConfigureCA {
             } else {
                 // first pass - cacert file not defined
                 System.out.println("A Certificate Request has been generated and stored in " + ext_csr_file);
-                System.out
-                        .println("Please submit this CSR to your external CA and obtain the CA Cert and CA Cert Chain");
+                System.out.println(
+                       "Please submit this CSR to your external CA and obtain the CA Cert and CA Cert Chain");
                 return true;
             }
         }

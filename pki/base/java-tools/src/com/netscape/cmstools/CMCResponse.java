@@ -211,8 +211,8 @@ public class CMCResponse {
 
     private static void printUsage() {
         System.out.println("");
-        System.out
-                .println("Usage: CMCResponse -d <pathname for cert8.db> -i <pathname for CMC response in binary format> ");
+        System.out.println(
+                "Usage: CMCResponse -d <pathname for cert8.db> -i <pathname for CMC response in binary format> ");
     }
 
     public static void main(String args[]) {

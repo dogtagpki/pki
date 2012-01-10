@@ -371,8 +371,8 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                 Vector serialNumbers = new Vector();
 
                 if (revokeAll != null && revokeAll.length() > 0) {
-                    for (int i = revokeAll.indexOf('='); i < revokeAll.length() && i > -1; i = revokeAll
-                            .indexOf('=', i)) {
+                    for (int i = revokeAll.indexOf('='); i < revokeAll.length() && i > -1; 
+                            i = revokeAll.indexOf('=', i)) {
                         if (i > -1) {
                             i++;
                             while (i < revokeAll.length() && revokeAll.charAt(i) == ' ') {

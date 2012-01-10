@@ -197,8 +197,8 @@ public class OCSPClient {
         System.out.println("  <port>     = OCSP server port number");
         System.out.println("  <dbdir>    = Certificate Database Directory");
         System.out.println("  <nickname> = Nickname of CA Certificate");
-        System.out
-                .println("  <serialno_or_filename> = Serial Number Being Checked, Or Name of file that contains the request");
+        System.out.println(
+                "  <serialno_or_filename> = Serial Number Being Checked, Or Name of file that contains the request");
         System.out.println("  <output>   = Filename of Response in DER encoding");
         System.out.println("  <times>    = Submit Request Multiple Times");
         System.out.println("  [<uri>]    = OCSP Service URI (i.e. /ocsp/ee/ocsp)");

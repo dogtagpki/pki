@@ -1479,8 +1479,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
                             ";boolean;Enable audit logs to be signed",
                     PROP_SIGNED_AUDIT_CERT_NICKNAME +
                             ";string;The nickname of the certificate to be used to sign audit logs",
-                    PROP_SIGNED_AUDIT_EVENTS
-                            +
+                    PROP_SIGNED_AUDIT_EVENTS +
                             ";string;A comma-separated list of strings used to specify particular signed audit log events",
             };
 

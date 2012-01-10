@@ -877,8 +877,8 @@ public abstract class BasicProfile implements IProfile {
                 // noDefaultImpl, genericExtDefaultImpl
 
                 if ((curDefaultClassId.equals(defaultClassId) &&
-                        !curDefaultClassId.equals(PROP_NO_DEFAULT) && !curDefaultClassId
-                        .equals(PROP_GENERIC_EXT_DEFAULT))) {
+                        !curDefaultClassId.equals(PROP_NO_DEFAULT) && 
+                        !curDefaultClassId.equals(PROP_GENERIC_EXT_DEFAULT))) {
 
                     matches++;
                     if (createConfig) {

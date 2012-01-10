@@ -174,9 +174,8 @@ public class HttpInput {
                 return i;
             else {
                 throw new IOException(
-                        "Invalid key length '"
-                                + i
-                                + "'. Please consult your security officer for a proper length, or take the default value. Here are examples of some commonly used key lengths: 256, 384, 521.");
+                        "Invalid key length '" + i
+                        + "'. Please consult your security officer for a proper length, or take the default value. Here are examples of some commonly used key lengths: 256, 384, 521.");
             }
             /*
 
