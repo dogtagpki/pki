@@ -26,8 +26,8 @@ import java.math.BigInteger;
 import java.security.cert.CRLException;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.TreeSet;
 
 import netscape.security.util.BigInt;
 import netscape.security.util.DerInputStream;
@@ -294,7 +294,7 @@ public class RevokedCertImpl extends RevokedCertificate
     public Set<String> getCriticalExtensionOIDs() {
         if (extensions == null)
             return null;
-        Set<String> extSet = new TreeSet<String>();
+        Set<String> extSet = new LinkedHashSet<String>();
         Extension ex;
             for (Enumeration<Extension> e = extensions.getElements();
                                           e.hasMoreElements();) {
@@ -315,7 +315,7 @@ public class RevokedCertImpl extends RevokedCertificate
     public Set<String> getNonCriticalExtensionOIDs() {
         if (extensions == null)
             return null;
-        Set<String> extSet = new TreeSet<String>();
+        Set<String> extSet = new LinkedHashSet<String>();
         Extension ex;
             for (Enumeration<Extension> e = extensions.getElements();
                                           e.hasMoreElements();) {

@@ -37,8 +37,8 @@ import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.TreeSet;
 
 import netscape.security.util.BigInt;
 import netscape.security.util.DerInputStream;
@@ -668,7 +668,7 @@ public class X509CRLImpl extends X509CRL {
         if (revokedCerts == null || revokedCerts.isEmpty())
             return null;
         else {
-            Set<RevokedCertificate> certSet = new TreeSet<RevokedCertificate>(revokedCerts.values());
+            Set<RevokedCertificate> certSet = new LinkedHashSet<RevokedCertificate>(revokedCerts.values());
             return certSet;
         }
     }
@@ -802,7 +802,7 @@ public class X509CRLImpl extends X509CRL {
     public Set<String> getCriticalExtensionOIDs() {
         if (extensions == null)
             return null;
-        Set<String> extSet = new TreeSet<String>();
+        Set<String> extSet = new LinkedHashSet<String>();
         Extension ex;
         for (Enumeration<Extension> e = extensions.getElements();
                                              e.hasMoreElements();) {
@@ -824,7 +824,7 @@ public class X509CRLImpl extends X509CRL {
     public Set<String> getNonCriticalExtensionOIDs() {
         if (extensions == null)
             return null;
-        Set<String> extSet = new TreeSet<String>();
+        Set<String> extSet = new LinkedHashSet<String>();
         Extension ex;
             for (Enumeration<Extension> e = extensions.getElements();
                                              e.hasMoreElements();) {

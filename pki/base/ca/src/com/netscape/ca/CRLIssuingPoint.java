@@ -25,10 +25,10 @@ import java.security.cert.CRLException;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TimeZone;
-import java.util.TreeSet;
 import java.util.Vector;
 
 import netscape.security.util.BitArray;
@@ -1382,7 +1382,7 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         if (mCRLCacheIsCleared || mCRLCerts == null || mCRLCerts.isEmpty()) {
             return null;
         } else {
-            Set<RevokedCertificate> certSet = new TreeSet<RevokedCertificate>(mCRLCerts.values());
+            Set<RevokedCertificate> certSet = new LinkedHashSet<RevokedCertificate>(mCRLCerts.values());
             return certSet;
         }
     }

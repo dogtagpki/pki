@@ -41,8 +41,8 @@ import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.Vector;
 
 import netscape.security.util.BigInt;
@@ -913,7 +913,7 @@ implements Serializable, DerEncoder {
                                              CertificateExtensions.NAME);
                 if (exts == null)
                 return null;
-            Set<String> extSet = new TreeSet<String>();
+            Set<String> extSet = new LinkedHashSet<String>();
             Extension ex;
                 for (Enumeration e = exts.getElements(); e.hasMoreElements(); ) {
                 ex = (Extension)e.nextElement();
@@ -942,7 +942,7 @@ implements Serializable, DerEncoder {
                 if (exts == null)
                 return null;
 
-            Set<String> extSet = new TreeSet<String>();
+            Set<String> extSet = new LinkedHashSet<String>();
             Extension ex;
                 for (Enumeration e = exts.getElements(); e.hasMoreElements(); ) {
                 ex = (Extension)e.nextElement();
