@@ -474,7 +474,8 @@ public class LogAdminServlet extends AdminServlet {
                 }
 
                 sendResponse(ERROR,
-                        new ELogException(CMS.getUserMessage(getLocale(req), "CMS_LOG_SRVLT_ILL_PLUGIN_ID", id)).toString(),
+                        new ELogException(CMS.getUserMessage(getLocale(req), "CMS_LOG_SRVLT_ILL_PLUGIN_ID", id))
+                                .toString(),
                         null, resp);
                 return;
             }
@@ -803,8 +804,10 @@ public class LogAdminServlet extends AdminServlet {
                     audit(auditMessage);
                 }
 
-                sendResponse(ERROR,
-                        new ELogPluginNotFound(CMS.getUserMessage(getLocale(req), "CMS_LOG_PLUGIN_NOT_FOUND", implname)).toString(),
+                sendResponse(
+                        ERROR,
+                        new ELogPluginNotFound(CMS.getUserMessage(getLocale(req), "CMS_LOG_PLUGIN_NOT_FOUND", implname))
+                                .toString(),
                         null, resp);
                 return;
             }
@@ -862,7 +865,8 @@ public class LogAdminServlet extends AdminServlet {
                 }
 
                 sendResponse(ERROR,
-                        new ELogException(CMS.getUserMessage(getLocale(req), "CMS_LOG_LOAD_CLASS_FAIL", className)).toString(),
+                        new ELogException(CMS.getUserMessage(getLocale(req), "CMS_LOG_LOAD_CLASS_FAIL", className))
+                                .toString(),
                         null, resp);
                 return;
             } catch (InstantiationException e) {
@@ -880,7 +884,8 @@ public class LogAdminServlet extends AdminServlet {
                 }
 
                 sendResponse(ERROR,
-                        new ELogException(CMS.getUserMessage(getLocale(req), "CMS_LOG_LOAD_CLASS_FAIL", className)).toString(),
+                        new ELogException(CMS.getUserMessage(getLocale(req), "CMS_LOG_LOAD_CLASS_FAIL", className))
+                                .toString(),
                         null, resp);
                 return;
             } catch (IllegalAccessException e) {
@@ -898,7 +903,8 @@ public class LogAdminServlet extends AdminServlet {
                 }
 
                 sendResponse(ERROR,
-                        new ELogException(CMS.getUserMessage(getLocale(req), "CMS_LOG_LOAD_CLASS_FAIL", className)).toString(),
+                        new ELogException(CMS.getUserMessage(getLocale(req), "CMS_LOG_LOAD_CLASS_FAIL", className))
+                                .toString(),
                         null, resp);
                 return;
             }
@@ -1133,7 +1139,8 @@ public class LogAdminServlet extends AdminServlet {
                 }
 
                 sendResponse(ERROR,
-                        new ELogNotFound(CMS.getUserMessage(getLocale(req), "CMS_LOG_INSTANCE_NOT_FOUND", id)).toString(),
+                        new ELogNotFound(CMS.getUserMessage(getLocale(req), "CMS_LOG_INSTANCE_NOT_FOUND", id))
+                                .toString(),
                         null, resp);
                 return;
             }
@@ -1296,7 +1303,8 @@ public class LogAdminServlet extends AdminServlet {
                 }
 
                 sendResponse(ERROR,
-                        new ELogPluginNotFound(CMS.getUserMessage(getLocale(req), "CMS_LOG_PLUGIN_NOT_FOUND", id)).toString(),
+                        new ELogPluginNotFound(CMS.getUserMessage(getLocale(req), "CMS_LOG_PLUGIN_NOT_FOUND", id))
+                                .toString(),
                         null, resp);
                 return;
             }
@@ -1543,8 +1551,10 @@ public class LogAdminServlet extends AdminServlet {
                     audit(auditMessage);
                 }
 
-                sendResponse(ERROR,
-                        new ELogPluginNotFound(CMS.getUserMessage(getLocale(req), "CMS_LOG_PLUGIN_NOT_FOUND", implname)).toString(), null, resp);
+                sendResponse(
+                        ERROR,
+                        new ELogPluginNotFound(CMS.getUserMessage(getLocale(req), "CMS_LOG_PLUGIN_NOT_FOUND", implname))
+                                .toString(), null, resp);
                 return;
             }
 
@@ -1812,7 +1822,8 @@ public class LogAdminServlet extends AdminServlet {
                 }
 
                 sendResponse(ERROR,
-                        new ELogException(CMS.getUserMessage(getLocale(req), "CMS_LOG_LOAD_CLASS_FAIL", className)).toString(),
+                        new ELogException(CMS.getUserMessage(getLocale(req), "CMS_LOG_LOAD_CLASS_FAIL", className))
+                                .toString(),
                         null, resp);
                 return;
             } catch (InstantiationException e) {
@@ -1862,7 +1873,8 @@ public class LogAdminServlet extends AdminServlet {
                 }
 
                 sendResponse(ERROR,
-                        new ELogException(CMS.getUserMessage(getLocale(req), "CMS_LOG_LOAD_CLASS_FAIL", className)).toString(),
+                        new ELogException(CMS.getUserMessage(getLocale(req), "CMS_LOG_LOAD_CLASS_FAIL", className))
+                                .toString(),
                         null, resp);
                 return;
             } catch (IllegalAccessException e) {
@@ -1912,7 +1924,8 @@ public class LogAdminServlet extends AdminServlet {
                 }
 
                 sendResponse(ERROR,
-                        new ELogException(CMS.getUserMessage(getLocale(req), "CMS_LOG_LOAD_CLASS_FAIL", className)).toString(),
+                        new ELogException(CMS.getUserMessage(getLocale(req), "CMS_LOG_LOAD_CLASS_FAIL", className))
+                                .toString(),
                         null, resp);
                 return;
             }

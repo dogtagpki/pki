@@ -158,8 +158,10 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
     static {
         mExtendedPluginInfo = new Vector();
 
-        mExtendedPluginInfo.add(IExtendedPluginInfo.HELP_TEXT +
-                ";Authenticate the CMC request. The signer must be an agent. The \"Authentication Instance ID\" must be named \"CMCAuth\"");
+        mExtendedPluginInfo
+                .add(IExtendedPluginInfo.HELP_TEXT
+                        +
+                        ";Authenticate the CMC request. The signer must be an agent. The \"Authentication Instance ID\" must be named \"CMCAuth\"");
         mExtendedPluginInfo.add(IExtendedPluginInfo.HELP_TOKEN +
                 ";configuration-authentication");
     }
@@ -231,7 +233,8 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
      *                If an internal error occurred.
      * @see com.netscape.certsrv.authentication.AuthToken
      */
-    public IAuthToken authenticate(IAuthCredentials authCred) throws EMissingCredential, EInvalidCredentials, EBaseException {
+    public IAuthToken authenticate(IAuthCredentials authCred) throws EMissingCredential, EInvalidCredentials,
+            EBaseException {
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
         String auditReqType = ILogger.UNIDENTIFIED;
@@ -836,7 +839,8 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
                             byte[] issuerB = ASN1Util.encode(issuer);
                             INTEGER sn = certI.getSerialNumber();
                             // if this cert is the signer cert, not a cert in the chain
-                            if (new String(issuerB).equals(new String(ASN1Util.encode(issuerAndSerialNumber.getIssuer())))
+                            if (new String(issuerB).equals(new String(
+                                    ASN1Util.encode(issuerAndSerialNumber.getIssuer())))
                                     && sn.toString().equals(issuerAndSerialNumber.getSerialNumber().toString())) {
                                 ByteArrayOutputStream os = new
                                         ByteArrayOutputStream();

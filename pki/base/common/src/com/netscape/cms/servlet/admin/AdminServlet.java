@@ -190,10 +190,12 @@ public class AdminServlet extends HttpServlet {
                     }
                     CMS.debug("AdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_AUTHZ_MGR_INIT_DONE", mServletID));
                 } else { // PROP_AUTHZ_MGR not specified, use default authzmgr
-                    CMS.debug("AdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_PROP_ACL_NOT_SPEC", PROP_ACL, mServletID, AUTHZ_MGR_LDAP));
+                    CMS.debug("AdminServlet: "
+                            + CMS.getLogMessage("ADMIN_SRVLT_PROP_ACL_NOT_SPEC", PROP_ACL, mServletID, AUTHZ_MGR_LDAP));
                 }
             } else { // PROP_AUTHZ_MGR not specified, use default authzmgr
-                CMS.debug("AdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_PROP_ACL_NOT_SPEC", PROP_AUTHZ_MGR, mServletID, AUTHZ_MGR_LDAP));
+                CMS.debug("AdminServlet: "
+                        + CMS.getLogMessage("ADMIN_SRVLT_PROP_ACL_NOT_SPEC", PROP_AUTHZ_MGR, mServletID, AUTHZ_MGR_LDAP));
             }
 
         } else {

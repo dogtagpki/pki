@@ -105,9 +105,11 @@ public class CertificateRepository extends Repository
     public BigInteger getLastSerialNumberInRange(BigInteger serial_low_bound, BigInteger serial_upper_bound)
             throws EBaseException {
 
-        CMS.debug("CertificateRepository:  in getLastSerialNumberInRange: low " + serial_low_bound + " high " + serial_upper_bound);
+        CMS.debug("CertificateRepository:  in getLastSerialNumberInRange: low " + serial_low_bound + " high "
+                + serial_upper_bound);
 
-        if (serial_low_bound == null || serial_upper_bound == null || serial_low_bound.compareTo(serial_upper_bound) >= 0) {
+        if (serial_low_bound == null || serial_upper_bound == null
+                || serial_low_bound.compareTo(serial_upper_bound) >= 0) {
             return null;
 
         }
@@ -116,7 +118,8 @@ public class CertificateRepository extends Repository
 
         String[] attrs = null;
 
-        ICertRecordList recList = findCertRecordsInList(ldapfilter, attrs, serial_upper_bound.toString(10), "serialno", 5 * -1);
+        ICertRecordList recList = findCertRecordsInList(ldapfilter, attrs, serial_upper_bound.toString(10), "serialno",
+                5 * -1);
 
         int size = recList.getSize();
 
@@ -1654,7 +1657,8 @@ public class CertificateRepository extends Repository
             throws EBaseException {
         IDBSSession s = mDBService.createSession();
         Enumeration e = null;
-        String ldapfilter = "(|(" + CertRecord.ATTR_CERT_STATUS + "=" + CertRecord.STATUS_REVOKED + ")(" + CertRecord.ATTR_CERT_STATUS + "=" + CertRecord.STATUS_REVOKED_EXPIRED + "))"; // index is setup for this filter
+        String ldapfilter = "(|(" + CertRecord.ATTR_CERT_STATUS + "=" + CertRecord.STATUS_REVOKED + ")("
+                + CertRecord.ATTR_CERT_STATUS + "=" + CertRecord.STATUS_REVOKED_EXPIRED + "))"; // index is setup for this filter
 
         try {
             //e = s.search(getDN(), ldapfilter);
@@ -1716,7 +1720,8 @@ public class CertificateRepository extends Repository
             throws EBaseException {
         IDBSSession s = mDBService.createSession();
         Enumeration e = null;
-        String ldapfilter = "(&(|(" + CertRecord.ATTR_CERT_STATUS + "=" + CertRecord.STATUS_REVOKED + ")(" + CertRecord.ATTR_CERT_STATUS + "=" + CertRecord.STATUS_REVOKED_EXPIRED + "))"; // index is setup for this filter
+        String ldapfilter = "(&(|(" + CertRecord.ATTR_CERT_STATUS + "=" + CertRecord.STATUS_REVOKED + ")("
+                + CertRecord.ATTR_CERT_STATUS + "=" + CertRecord.STATUS_REVOKED_EXPIRED + "))"; // index is setup for this filter
 
         ldapfilter += "(certMetainfo=" +
                 CertRecord.META_LDAPPUBLISH +

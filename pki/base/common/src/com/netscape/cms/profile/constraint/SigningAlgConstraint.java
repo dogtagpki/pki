@@ -144,7 +144,8 @@ public class SigningAlgConstraint extends EnrollConstraint {
     }
 
     public String getText(Locale locale) {
-        return CMS.getUserMessage(locale, "CMS_PROFILE_CONSTRAINT_SIGNING_ALG_TEXT", getConfig(CONFIG_ALGORITHMS_ALLOWED));
+        return CMS.getUserMessage(locale, "CMS_PROFILE_CONSTRAINT_SIGNING_ALG_TEXT",
+                getConfig(CONFIG_ALGORITHMS_ALLOWED));
     }
 
     public boolean isApplicable(IPolicyDefault def) {

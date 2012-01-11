@@ -292,7 +292,8 @@ public class DoUnrevoke extends CMSServlet {
             RequestStatus status = unrevReq.getRequestStatus();
             String type = unrevReq.getRequestType();
 
-            if ((status == RequestStatus.COMPLETE) || ((type.equals(IRequest.CLA_UNCERT4CRL_REQUEST)) && (status == RequestStatus.SVC_PENDING))) {
+            if ((status == RequestStatus.COMPLETE)
+                    || ((type.equals(IRequest.CLA_UNCERT4CRL_REQUEST)) && (status == RequestStatus.SVC_PENDING))) {
 
                 Integer result = unrevReq.getExtDataInInteger(IRequest.RESULT);
 

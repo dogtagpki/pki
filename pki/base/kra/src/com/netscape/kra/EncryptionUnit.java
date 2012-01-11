@@ -121,39 +121,48 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
 
             return out.toByteArray();
         } catch (TokenException e) {
-            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_INTERNAL", e.toString()));
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_INTERNAL", e.toString()));
             Debug.trace("EncryptionUnit::encryptInternalPrivate " + e.toString());
             return null;
         } catch (NoSuchAlgorithmException e) {
-            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_INTERNAL", e.toString()));
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_INTERNAL", e.toString()));
             Debug.trace("EncryptionUnit::encryptInternalPrivate " + e.toString());
             return null;
         } catch (CharConversionException e) {
-            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_INTERNAL", e.toString()));
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_INTERNAL", e.toString()));
             Debug.trace("EncryptionUnit::encryptInternalPrivate " + e.toString());
             return null;
         } catch (InvalidAlgorithmParameterException e) {
-            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_INTERNAL", e.toString()));
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_INTERNAL", e.toString()));
             Debug.trace("EncryptionUnit::encryptInternalPrivate " + e.toString());
             return null;
         } catch (InvalidKeyException e) {
-            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_INTERNAL", e.toString()));
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_INTERNAL", e.toString()));
             Debug.trace("EncryptionUnit::encryptInternalPrivate " + e.toString());
             return null;
         } catch (BadPaddingException e) {
-            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_INTERNAL", e.toString()));
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_INTERNAL", e.toString()));
             Debug.trace("EncryptionUnit::encryptInternalPrivate " + e.toString());
             return null;
         } catch (IllegalBlockSizeException e) {
-            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_INTERNAL", e.toString()));
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_INTERNAL", e.toString()));
             Debug.trace("EncryptionUnit::encryptInternalPrivate " + e.toString());
             return null;
         } catch (IOException e) {
-            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_INTERNAL", e.toString()));
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_INTERNAL", e.toString()));
             Debug.trace("EncryptionUnit::encryptInternalPrivate " + e.toString());
             return null;
         } catch (Exception e) {
-            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_INTERNAL", e.toString()));
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_INTERNAL", e.toString()));
             Debug.trace("EncryptionUnit::encryptInternalPrivate " + e.toString());
             return null;
         }
@@ -212,31 +221,38 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
 
             return out.toByteArray();
         } catch (TokenException e) {
-            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_WRAP", e.toString()));
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_WRAP", e.toString()));
             Debug.trace("EncryptionUnit::wrap " + e.toString());
             return null;
         } catch (NoSuchAlgorithmException e) {
-            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_WRAP", e.toString()));
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_WRAP", e.toString()));
             Debug.trace("EncryptionUnit::wrap " + e.toString());
             return null;
         } catch (CharConversionException e) {
-            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_WRAP", e.toString()));
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_WRAP", e.toString()));
             Debug.trace("EncryptionUnit::wrap " + e.toString());
             return null;
         } catch (InvalidAlgorithmParameterException e) {
-            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_WRAP", e.toString()));
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_WRAP", e.toString()));
             Debug.trace("EncryptionUnit::wrap " + e.toString());
             return null;
         } catch (InvalidKeyException e) {
-            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_WRAP", e.toString()));
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_WRAP", e.toString()));
             Debug.trace("EncryptionUnit::wrap " + e.toString());
             return null;
         } catch (IOException e) {
-            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_WRAP", e.toString()));
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_WRAP", e.toString()));
             Debug.trace("EncryptionUnit::wrap " + e.toString());
             return null;
         } catch (Exception e) {
-            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_WRAP", e.toString()));
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_WRAP", e.toString()));
             Debug.trace("EncryptionUnit::wrap " + e.toString());
             return null;
         }
@@ -313,31 +329,38 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
                     symmAlgParams));
             return cipher.doFinal(encValue);
         } catch (IllegalBlockSizeException e) {
-            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_EXTERNAL", e.toString()));
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_EXTERNAL", e.toString()));
             Debug.trace("EncryptionUnit::decryptExternalPrivate " + e.toString());
             return null;
         } catch (BadPaddingException e) {
-            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_EXTERNAL", e.toString()));
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_EXTERNAL", e.toString()));
             Debug.trace("EncryptionUnit::decryptExternalPrivate " + e.toString());
             return null;
         } catch (TokenException e) {
-            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_EXTERNAL", e.toString()));
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_EXTERNAL", e.toString()));
             Debug.trace("EncryptionUnit::decryptExternalPrivate " + e.toString());
             return null;
         } catch (NoSuchAlgorithmException e) {
-            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_EXTERNAL", e.toString()));
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_EXTERNAL", e.toString()));
             Debug.trace("EncryptionUnit::decryptExternalPrivate " + e.toString());
             return null;
         } catch (InvalidAlgorithmParameterException e) {
-            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_EXTERNAL", e.toString()));
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_EXTERNAL", e.toString()));
             Debug.trace("EncryptionUnit::decryptExternalPrivate " + e.toString());
             return null;
         } catch (InvalidKeyException e) {
-            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_EXTERNAL", e.toString()));
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_EXTERNAL", e.toString()));
             Debug.trace("EncryptionUnit::decryptExternalPrivate " + e.toString());
             return null;
         } catch (Exception e) {
-            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_EXTERNAL", e.toString()));
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_EXTERNAL", e.toString()));
             Debug.trace("EncryptionUnit::decryptExternalPrivate " + e.toString());
             return null;
         }
@@ -385,19 +408,23 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
 
             return pk;
         } catch (TokenException e) {
-            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_UNWRAP", e.toString()));
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_UNWRAP", e.toString()));
             Debug.trace("EncryptionUnit::unwrap " + e.toString());
             return null;
         } catch (NoSuchAlgorithmException e) {
-            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_UNWRAP", e.toString()));
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_UNWRAP", e.toString()));
             Debug.trace("EncryptionUnit::unwrap " + e.toString());
             return null;
         } catch (InvalidAlgorithmParameterException e) {
-            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_UNWRAP", e.toString()));
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_UNWRAP", e.toString()));
             Debug.trace("EncryptionUnit::unwrap " + e.toString());
             return null;
         } catch (InvalidKeyException e) {
-            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_UNWRAP", e.toString()));
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_UNWRAP", e.toString()));
             Debug.trace("EncryptionUnit::unwrap " + e.toString());
             return null;
         } catch (Exception e) {
@@ -436,35 +463,43 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
             cipher.initDecrypt(sk, IV);
             return cipher.doFinal(pri);
         } catch (IllegalBlockSizeException e) {
-            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_DECRYPT", e.toString()));
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_DECRYPT", e.toString()));
             Debug.trace("EncryptionUnit::decryptInternalPrivate " + e.toString());
             return null;
         } catch (BadPaddingException e) {
-            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_DECRYPT", e.toString()));
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_DECRYPT", e.toString()));
             Debug.trace("EncryptionUnit::decryptInternalPrivate " + e.toString());
             return null;
         } catch (TokenException e) {
-            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_DECRYPT", e.toString()));
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_DECRYPT", e.toString()));
             Debug.trace("EncryptionUnit::decryptInternalPrivate " + e.toString());
             return null;
         } catch (NoSuchAlgorithmException e) {
-            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_DECRYPT", e.toString()));
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_DECRYPT", e.toString()));
             Debug.trace("EncryptionUnit::decryptInternalPrivate " + e.toString());
             return null;
         } catch (InvalidAlgorithmParameterException e) {
-            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_DECRYPT", e.toString()));
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_DECRYPT", e.toString()));
             Debug.trace("EncryptionUnit::decryptInternalPrivate " + e.toString());
             return null;
         } catch (InvalidKeyException e) {
-            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_DECRYPT", e.toString()));
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_DECRYPT", e.toString()));
             Debug.trace("EncryptionUnit::decryptInternalPrivate " + e.toString());
             return null;
         } catch (IOException e) {
-            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_DECRYPT", e.toString()));
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_DECRYPT", e.toString()));
             Debug.trace("EncryptionUnit::decryptInternalPrivate " + e.toString());
             return null;
         } catch (Exception e) {
-            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_DECRYPT", e.toString()));
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_DECRYPT", e.toString()));
             Debug.trace("EncryptionUnit::decryptInternalPrivate " + e.toString());
             return null;
         }
@@ -526,24 +561,29 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
             }
             return pk;
         } catch (TokenException e) {
-            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_UNWRAP", e.toString()));
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_UNWRAP", e.toString()));
             Debug.trace("EncryptionUnit::unwrap " + e.toString());
             CMS.debug(e);
             return null;
         } catch (NoSuchAlgorithmException e) {
-            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_UNWRAP", e.toString()));
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_UNWRAP", e.toString()));
             Debug.trace("EncryptionUnit::unwrap " + e.toString());
             return null;
         } catch (InvalidAlgorithmParameterException e) {
-            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_UNWRAP", e.toString()));
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_UNWRAP", e.toString()));
             Debug.trace("EncryptionUnit::unwrap " + e.toString());
             return null;
         } catch (InvalidKeyException e) {
-            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_UNWRAP", e.toString()));
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_UNWRAP", e.toString()));
             Debug.printStackTrace(e);
             return null;
         } catch (IOException e) {
-            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_UNWRAP", e.toString()));
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_UNWRAP", e.toString()));
             Debug.trace("EncryptionUnit::unwrap " + e.toString());
             return null;
         } catch (Exception e) {

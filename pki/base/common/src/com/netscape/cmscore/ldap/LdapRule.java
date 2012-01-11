@@ -85,7 +85,8 @@ public class LdapRule implements ILdapRule, IExtendedPluginInfo {
         epi_params = new String[] {
                     "type;choice(cacert,crl, certs);The publishing object type",
                     "mapper;choice(" + map + ");Use the mapper to find the ldap dn \nto publish the certificate or crl",
-                    "publisher;choice(" + publish + ");Use the publisher to publish the certificate or crl a directory etc",
+                    "publisher;choice(" + publish
+                            + ");Use the publisher to publish the certificate or crl a directory etc",
                     "enable;boolean;Enable this publishing rule",
                     "predicate;string;Filter describing when this publishing rule shoule be used"
                 };

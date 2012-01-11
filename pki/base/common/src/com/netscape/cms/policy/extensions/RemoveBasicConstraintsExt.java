@@ -95,7 +95,8 @@ public class RemoveBasicConstraintsExt extends APolicyRule
             if (extensions != null) {
                 try {
                     extensions.delete(BasicConstraintsExtension.NAME);
-                    CMS.debug("PolicyRule RemoveBasicConstraintsExt: removed the extension from request " + req.getRequestId().toString());
+                    CMS.debug("PolicyRule RemoveBasicConstraintsExt: removed the extension from request "
+                            + req.getRequestId().toString());
                 } catch (IOException e) {
                 }
             }

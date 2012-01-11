@@ -126,8 +126,10 @@ public class CertRequestPanel extends WizardPanelBase {
                 return true;
             } catch (Exception ee) {
                 if (hardware) {
-                    CMS.debug("CertRequestPanel findCertificate: The certificate with the same nickname: " + fullnickname + " has been found on HSM. Please remove it before proceeding.");
-                    throw new IOException("The certificate with the same nickname: " + fullnickname + " has been found on HSM. Please remove it before proceeding.");
+                    CMS.debug("CertRequestPanel findCertificate: The certificate with the same nickname: "
+                            + fullnickname + " has been found on HSM. Please remove it before proceeding.");
+                    throw new IOException("The certificate with the same nickname: " + fullnickname
+                            + " has been found on HSM. Please remove it before proceeding.");
                 }
                 return true;
             }
@@ -210,7 +212,8 @@ public class CertRequestPanel extends WizardPanelBase {
                     CMS.debug("CertRequestPanel cleanup: deleting certificate (" + nickname + ").");
                     deleteCert(tokenname, nickname);
                 } catch (Exception e) {
-                    CMS.debug("CertRequestPanel cleanup: failed to delete certificate (" + nickname + "). Exception: " + e.toString());
+                    CMS.debug("CertRequestPanel cleanup: failed to delete certificate (" + nickname + "). Exception: "
+                            + e.toString());
                 }
             }
         }
@@ -625,7 +628,8 @@ public class CertRequestPanel extends WizardPanelBase {
 
                                 if (/*(certchains.length <= 1) &&*/
                                 (b64chain != null && b64chain.length() != 0)) {
-                                    CMS.debug("CertRequestPanel: cert might not have contained chain...calling importCertificateChain: " + b64chain);
+                                    CMS.debug("CertRequestPanel: cert might not have contained chain...calling importCertificateChain: "
+                                            + b64chain);
                                     try {
                                         CryptoUtil.importCertificateChain(
                                                 CryptoUtil.normalizeCertAndReq(b64chain));
@@ -731,7 +735,8 @@ public class CertRequestPanel extends WizardPanelBase {
                     ic.setSSLTrust(InternalCertificate.USER);
                     ic.setEmailTrust(InternalCertificate.USER);
                     if (tag.equals("audit_signing")) {
-                        ic.setObjectSigningTrust(InternalCertificate.USER | InternalCertificate.VALID_PEER | InternalCertificate.TRUSTED_PEER);
+                        ic.setObjectSigningTrust(InternalCertificate.USER | InternalCertificate.VALID_PEER
+                                | InternalCertificate.TRUSTED_PEER);
                     } else {
                         ic.setObjectSigningTrust(InternalCertificate.USER);
                     }

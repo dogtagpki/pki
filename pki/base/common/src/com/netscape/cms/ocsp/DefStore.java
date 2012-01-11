@@ -124,9 +124,11 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     public String[] getExtendedPluginInfo(Locale locale) {
         Vector v = new Vector();
 
-        v.addElement(PROP_NOT_FOUND_GOOD + ";boolean; " + CMS.getUserMessage(locale, "CMS_OCSP_DEFSTORE_PROP_NOT_FOUND_GOOD"));
+        v.addElement(PROP_NOT_FOUND_GOOD + ";boolean; "
+                + CMS.getUserMessage(locale, "CMS_OCSP_DEFSTORE_PROP_NOT_FOUND_GOOD"));
         v.addElement(PROP_BY_NAME + ";boolean; " + CMS.getUserMessage(locale, "CMS_OCSP_DEFSTORE_PROP_BY_NAME"));
-        v.addElement(PROP_INCLUDE_NEXT_UPDATE + ";boolean; " + CMS.getUserMessage(locale, "CMS_OCSP_DEFSTORE_PROP_INCLUDE_NEXT_UPDATE"));
+        v.addElement(PROP_INCLUDE_NEXT_UPDATE + ";boolean; "
+                + CMS.getUserMessage(locale, "CMS_OCSP_DEFSTORE_PROP_INCLUDE_NEXT_UPDATE"));
         v.addElement(IExtendedPluginInfo.HELP_TEXT + "; " + CMS.getUserMessage(locale, "CMS_OCSP_DEFSTORE_DESC"));
         v.addElement(IExtendedPluginInfo.HELP_TOKEN + ";configuration-ocspstores-defstore");
         return com.netscape.cmsutil.util.Utils.getStringArrayFromVector(v);

@@ -94,7 +94,8 @@ public class checkRequest extends TestClient {
      * <p>
      */
 
-    public checkRequest(String hs, String pt, String certdir, String certtokenpwd, String seqnum, String nickname, String impc) {
+    public checkRequest(String hs, String pt, String certdir, String certtokenpwd, String seqnum, String nickname,
+            String impc) {
         host = hs;
         ports = pt;
         cdir = certdir;

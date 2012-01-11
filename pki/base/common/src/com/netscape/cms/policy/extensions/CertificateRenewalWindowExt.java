@@ -202,8 +202,10 @@ public class CertificateRenewalWindowExt extends APolicyRule
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
                 PROP_CRITICAL + ";boolean;Netscape recommendation: non-critical.",
-                PROP_BEGIN_TIME + ";string;Start Time in seconds (Relative to the time of issuance). Optionally, time unit (s - seconds, m - minutes, h - hours, D - days, M - months) can be specified right after the value. For example, 5 days can be expressed as 5D.",
-                PROP_END_TIME + ";string;End Time in seconds (Optional, Relative to the time of issuance). Optionally, time unit (s - seconds, m - minutes, h - hours, D - days, M - months) can be specified right after the value. For example, 5 days can be expressed as 5D.",
+                PROP_BEGIN_TIME
+                        + ";string;Start Time in seconds (Relative to the time of issuance). Optionally, time unit (s - seconds, m - minutes, h - hours, D - days, M - months) can be specified right after the value. For example, 5 days can be expressed as 5D.",
+                PROP_END_TIME
+                        + ";string;End Time in seconds (Optional, Relative to the time of issuance). Optionally, time unit (s - seconds, m - minutes, h - hours, D - days, M - months) can be specified right after the value. For example, 5 days can be expressed as 5D.",
                 IExtendedPluginInfo.HELP_TOKEN +
                         ";configuration-policyrules-certificaterenewalwindow",
                 IExtendedPluginInfo.HELP_TEXT +

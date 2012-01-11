@@ -77,7 +77,8 @@ public class RenewalConstraints extends APolicyRule
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
                 PROP_ALLOW_EXPIRED_CERTS + ";boolean;Allow a user to renew an already-expired certificate",
-                PROP_RENEWAL_NOT_AFTER + ";number;Number of days since certificate expiry after which renewal request would be rejected",
+                PROP_RENEWAL_NOT_AFTER
+                        + ";number;Number of days since certificate expiry after which renewal request would be rejected",
                 IExtendedPluginInfo.HELP_TOKEN +
                         ";configuration-policyrules-renewalconstraints",
                 IExtendedPluginInfo.HELP_TEXT +
@@ -164,7 +165,8 @@ public class RenewalConstraints extends APolicyRule
 
                     if (renewedNotAfter.before(now)) {
                         CMS.debug(
-                                "One or more certificates is expired for more than " + (mRenewalNotAfter / DAYS_TO_MS_FACTOR) + " days");
+                                "One or more certificates is expired for more than "
+                                        + (mRenewalNotAfter / DAYS_TO_MS_FACTOR) + " days");
                         String params[] = { getInstanceName(), Long.toString(mRenewalNotAfter / DAYS_TO_MS_FACTOR) };
 
                         setError(req,

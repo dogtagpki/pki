@@ -398,7 +398,8 @@ public interface ICMSEngine extends ISubsystem {
      * @param p7 7th parameter
      * @return localized log message
      */
-    public String getLogMessage(String msgID, String p1, String p2, String p3, String p4, String p5, String p6, String p7);
+    public String getLogMessage(String msgID, String p1, String p2, String p3, String p4, String p5, String p6,
+            String p7);
 
     /**
      * Retrieves the centralized log message from LogMessages.properties.
@@ -414,7 +415,8 @@ public interface ICMSEngine extends ISubsystem {
      * @param p8 8th parameter
      * @return localized log message
      */
-    public String getLogMessage(String msgID, String p1, String p2, String p3, String p4, String p5, String p6, String p7, String p8);
+    public String getLogMessage(String msgID, String p1, String p2, String p3, String p4, String p5, String p6,
+            String p7, String p8);
 
     /**
      * Retrieves the centralized log message from LogMessages.properties.
@@ -431,7 +433,8 @@ public interface ICMSEngine extends ISubsystem {
      * @param p9 9th parameter
      * @return localized log message
      */
-    public String getLogMessage(String msgID, String p1, String p2, String p3, String p4, String p5, String p6, String p7, String p8, String p9);
+    public String getLogMessage(String msgID, String p1, String p2, String p3, String p4, String p5, String p6,
+            String p7, String p8, String p9);
 
     /**
      * Parse ACL resource attributes
@@ -452,7 +455,8 @@ public interface ICMSEngine extends ISubsystem {
      * 
      * @return issuing record
      */
-    public ICRLIssuingPointRecord createCRLIssuingPointRecord(String id, BigInteger crlNumber, Long crlSize, Date thisUpdate, Date nextUpdate);
+    public ICRLIssuingPointRecord createCRLIssuingPointRecord(String id, BigInteger crlNumber, Long crlSize,
+            Date thisUpdate, Date nextUpdate);
 
     /**
      * Retrieves the default CRL issuing point record name.
@@ -956,7 +960,8 @@ public interface ICMSEngine extends ISubsystem {
      * @param isPolicyEnabled true if policy is enabled
      * @exception EBaseException failed to create subject alt name configuration
      */
-    public IGeneralNameAsConstraintsConfig createGeneralNameAsConstraintsConfig(String name, IConfigStore config, boolean isValueConfigured,
+    public IGeneralNameAsConstraintsConfig createGeneralNameAsConstraintsConfig(String name, IConfigStore config,
+            boolean isValueConfigured,
             boolean isPolicyEnabled) throws EBaseException;
 
     /**
@@ -968,7 +973,8 @@ public interface ICMSEngine extends ISubsystem {
      * @param isPolicyEnabled true if policy is enabled
      * @exception EBaseException failed to create subject alt name configuration
      */
-    public IGeneralNamesAsConstraintsConfig createGeneralNamesAsConstraintsConfig(String name, IConfigStore config, boolean isValueConfigured,
+    public IGeneralNamesAsConstraintsConfig createGeneralNamesAsConstraintsConfig(String name, IConfigStore config,
+            boolean isValueConfigured,
             boolean isPolicyEnabled) throws EBaseException;
 
     /**
@@ -995,7 +1001,8 @@ public interface ICMSEngine extends ISubsystem {
      * @param isValueConfigured true if value is configured
      * @exception EBaseException failed to create subject alt name configuration
      */
-    public ISubjAltNameConfig createSubjAltNameConfig(String name, IConfigStore config, boolean isValueConfigured) throws EBaseException;
+    public ISubjAltNameConfig createSubjAltNameConfig(String name, IConfigStore config, boolean isValueConfigured)
+            throws EBaseException;
 
     /**
      * Retrieves the HTTP Connection for use with connector.

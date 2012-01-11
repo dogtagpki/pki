@@ -382,7 +382,8 @@ public class GeneralNameUtil implements IGeneralNameUtil {
 
     }
 
-    static public class GeneralNamesAsConstraintsConfig extends GeneralNamesConfig implements IGeneralNamesAsConstraintsConfig {
+    static public class GeneralNamesAsConstraintsConfig extends GeneralNamesConfig implements
+            IGeneralNamesAsConstraintsConfig {
         public GeneralNamesAsConstraintsConfig(
                 String name,
                 IConfigStore config,
@@ -596,7 +597,8 @@ public class GeneralNameUtil implements IGeneralNameUtil {
     /**
      * convenience class for policies use.
      */
-    static public class GeneralNameAsConstraintsConfig extends GeneralNameConfig implements IGeneralNameAsConstraintsConfig {
+    static public class GeneralNameAsConstraintsConfig extends GeneralNameConfig implements
+            IGeneralNameAsConstraintsConfig {
 
         public GeneralNameAsConstraintsConfig(
                 String name,

@@ -186,7 +186,8 @@ public class ChallengePhraseAuthentication implements IAuthManager {
                 }
 
             } catch (NumberFormatException e) {
-                throw new EAuthUserError(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_ATTRIBUTE_VALUE", "Invalid serial number."));
+                throw new EAuthUserError(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_ATTRIBUTE_VALUE",
+                        "Invalid serial number."));
             }
         }
 
@@ -239,7 +240,8 @@ public class ChallengePhraseAuthentication implements IAuthManager {
                         bigIntArray = new BigInteger[1];
                         bigIntArray[0] = record.getSerialNumber();
                     } else
-                        throw new EAuthUserError(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_ATTRIBUTE_VALUE", "Invalid password."));
+                        throw new EAuthUserError(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_ATTRIBUTE_VALUE",
+                                "Invalid password."));
 
                 } else {
                     bigIntArray = new BigInteger[0];

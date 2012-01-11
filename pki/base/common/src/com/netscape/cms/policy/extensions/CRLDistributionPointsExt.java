@@ -174,18 +174,25 @@ public class CRLDistributionPointsExt extends APolicyRule
                     "The type of the CRL distribution point.");
             v.addElement(PROP_POINT_NAME + Integer.toString(i) + ";string;" +
                     "The name of the CRL distribution point depending on the CRLDP type.");
-            v.addElement(PROP_REASONS + Integer.toString(i) + ";string;" +
+            v.addElement(PROP_REASONS
+                    + Integer.toString(i)
+                    + ";string;"
+                    +
                     "The revocation reasons for the CRL maintained at this distribution point. It's a comma-seperated list of the following constants: unused, keyCompromise, cACompromise, affiliationChanged, superseded, cessationOfOperation, certificateHold.");
             v.addElement(PROP_ISSUER_TYPE + Integer.toString(i) + ";choice(" +
                     "DirectoryName,URI);" +
                     "The type of the issuer that has signed the CRL maintained at this distribution point.");
-            v.addElement(PROP_ISSUER_NAME + Integer.toString(i) + ";string;" +
+            v.addElement(PROP_ISSUER_NAME
+                    + Integer.toString(i)
+                    + ";string;"
+                    +
                     "The name of the issuer that has signed the CRL maintained at this distribution point. The value depends on the issuer type.");
         }
 
         v.addElement(PROP_NUM_POINTS +
                 ";number;The total number of CRL distribution points to be contained or allowed in the extension.");
-        v.addElement(PROP_IS_CRITICAL +
+        v.addElement(PROP_IS_CRITICAL
+                +
                 ";boolean;RFC 2459 recommendation: SHOULD be non-critical. But recommends support for this extension by CAs and applications.");
         v.addElement(IExtendedPluginInfo.HELP_TOKEN +
                 ";configuration-policyrules-crldistributionpoints");

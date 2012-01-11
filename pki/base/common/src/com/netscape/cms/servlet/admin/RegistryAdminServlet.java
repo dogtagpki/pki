@@ -287,9 +287,12 @@ public class RegistryAdminServlet extends AdminServlet {
                     CMS.debug("RegistryAdminServlet: getSUpportedConstraint " + constraintInfo.getClassName());
 
                     if (policyConstraintClass.isApplicable(policyDefaultClass)) {
-                        CMS.debug("RegistryAdminServlet: getSUpportedConstraint isApplicable " + constraintInfo.getClassName());
-                        nvp.add(constraintID, constraintInfo.getClassName() + "," +
-                                constraintInfo.getDescription(getLocale(req)) + "," + constraintInfo.getName(getLocale(req)));
+                        CMS.debug("RegistryAdminServlet: getSUpportedConstraint isApplicable "
+                                + constraintInfo.getClassName());
+                        nvp.add(constraintID,
+                                constraintInfo.getClassName() + "," +
+                                        constraintInfo.getDescription(getLocale(req)) + ","
+                                        + constraintInfo.getName(getLocale(req)));
                     }
                 }
             }
@@ -341,7 +344,8 @@ public class RegistryAdminServlet extends AdminServlet {
 
                     if (desc != null) {
                         try {
-                            String value = getNonNull(desc.getSyntax()) + ";" + getNonNull(desc.getConstraint()) + ";" + desc.getDescription(getLocale(req)) + ";" + getNonNull(desc.getDefaultValue());
+                            String value = getNonNull(desc.getSyntax()) + ";" + getNonNull(desc.getConstraint()) + ";"
+                                    + desc.getDescription(getLocale(req)) + ";" + getNonNull(desc.getDefaultValue());
 
                             CMS.debug("RegistryAdminServlet: getProfileImpl " + value);
                             nvp.add(name, value);

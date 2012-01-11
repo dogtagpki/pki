@@ -290,7 +290,8 @@ public class JobsAdminServlet extends AdminServlet {
         // is the job plugin id unique?
         if (mJobsSched.getPlugins().containsKey((Object) id)) {
             sendResponse(ERROR,
-                    new EJobsException(CMS.getUserMessage(getLocale(req), "CMS_JOB_SRVLT_ILL_JOB_PLUGIN_ID", id)).toString(),
+                    new EJobsException(CMS.getUserMessage(getLocale(req), "CMS_JOB_SRVLT_ILL_JOB_PLUGIN_ID", id))
+                            .toString(),
                     null, resp);
             return;
         }

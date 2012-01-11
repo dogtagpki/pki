@@ -1968,7 +1968,9 @@ public class ProfileAdminServlet extends AdminServlet {
             if (desc == null) {
                 nvp.add(name, ";" + ";" + rule.getConfig(name));
             } else {
-                nvp.add(name, desc.getSyntax() + ";" + ";" + getNonNull(desc.getConstraint()) + ";" + desc.getDescription(getLocale(req)) + ";" + rule.getConfig(name));
+                nvp.add(name,
+                        desc.getSyntax() + ";" + ";" + getNonNull(desc.getConstraint()) + ";"
+                                + desc.getDescription(getLocale(req)) + ";" + rule.getConfig(name));
             }
         }
         sendResponse(SUCCESS, null, nvp, resp);
@@ -2016,7 +2018,9 @@ public class ProfileAdminServlet extends AdminServlet {
             if (desc == null) {
                 nvp.add(name, ";" + rule.getConfig(name));
             } else {
-                nvp.add(name, desc.getSyntax() + ";" + getNonNull(desc.getConstraint()) + ";" + desc.getDescription(getLocale(req)) + ";" + rule.getConfig(name));
+                nvp.add(name,
+                        desc.getSyntax() + ";" + getNonNull(desc.getConstraint()) + ";"
+                                + desc.getDescription(getLocale(req)) + ";" + rule.getConfig(name));
             }
         }
         sendResponse(SUCCESS, null, nvp, resp);

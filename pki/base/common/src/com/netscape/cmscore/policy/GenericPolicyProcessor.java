@@ -320,7 +320,8 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
                     ((IPolicyRule) rule).setInstanceName(instanceName);
                 rule.init(this, c);
             } catch (Throwable e) {
-                mAuthority.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_POLICY_INIT_FAILED", instanceName, e.toString()));
+                mAuthority.log(ILogger.LL_FAILURE,
+                        CMS.getLogMessage("CMSCORE_POLICY_INIT_FAILED", instanceName, e.toString()));
                 // disable rule initialized if there is 
                 // configuration error
                 enabled = false;

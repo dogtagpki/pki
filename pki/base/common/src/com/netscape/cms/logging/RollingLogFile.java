@@ -423,7 +423,8 @@ public class RollingLogFile extends LogFile {
                         rotate();
                     } catch (IOException e) {
                         ConsoleError.send(new
-                                SystemEvent(CMS.getUserMessage("CMS_LOG_ROTATE_LOG_FAILED", mFile.getName(), e.toString())));
+                                SystemEvent(CMS.getUserMessage("CMS_LOG_ROTATE_LOG_FAILED", mFile.getName(),
+                                        e.toString())));
                         break;
                     }
                 }
@@ -618,9 +619,12 @@ public class RollingLogFile extends LogFile {
             if (!p[i].startsWith(IExtendedPluginInfo.HELP_TOKEN) && !p[i].startsWith(IExtendedPluginInfo.HELP_TEXT))
                 info.addElement(p[i]);
         }
-        info.addElement(PROP_MAX_FILE_SIZE + ";integer;If the current log file size if bigger than this parameter in kilobytes(KB), the file will be rotated.");
-        info.addElement(PROP_ROLLOVER_INTERVAL + ";choice(Hourly,Daily,Weekly,Monthly,Yearly);The frequency of the log being rotated.");
-        info.addElement(PROP_EXPIRATION_TIME + ";integer;The amount of time before a backed up log is removed in seconds");
+        info.addElement(PROP_MAX_FILE_SIZE
+                + ";integer;If the current log file size if bigger than this parameter in kilobytes(KB), the file will be rotated.");
+        info.addElement(PROP_ROLLOVER_INTERVAL
+                + ";choice(Hourly,Daily,Weekly,Monthly,Yearly);The frequency of the log being rotated.");
+        info.addElement(PROP_EXPIRATION_TIME
+                + ";integer;The amount of time before a backed up log is removed in seconds");
         info.addElement(IExtendedPluginInfo.HELP_TOKEN +
                 //";configuration-logrules-rollinglogfile");
                 ";configuration-adminbasics");

@@ -350,12 +350,14 @@ public class RecoveryService implements IService {
             BigInt privateKeyExponent = privateKeyDerIn.getInteger();
 
             if (!publicKeyModulus.equals(privateKeyModulus)) {
-                CMS.debug("verifyKeyPair modulus mismatch publicKeyModulus=" + publicKeyModulus + " privateKeyModulus=" + privateKeyModulus);
+                CMS.debug("verifyKeyPair modulus mismatch publicKeyModulus=" + publicKeyModulus + " privateKeyModulus="
+                        + privateKeyModulus);
                 return false;
             }
 
             if (!publicKeyExponent.equals(privateKeyExponent)) {
-                CMS.debug("verifyKeyPair exponent mismatch publicKeyExponent=" + publicKeyExponent + " privateKeyExponent=" + privateKeyExponent);
+                CMS.debug("verifyKeyPair exponent mismatch publicKeyExponent=" + publicKeyExponent
+                        + " privateKeyExponent=" + privateKeyExponent);
                 return false;
             }
 
@@ -413,7 +415,8 @@ public class RecoveryService implements IService {
 
             if (privKey == null) {
                 mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_PRIVATE_KEY_NOT_FOUND"));
-                throw new EKRAException(CMS.getUserMessage("CMS_KRA_RECOVERY_FAILED_1", "private key unwrapping failure"));
+                throw new EKRAException(CMS.getUserMessage("CMS_KRA_RECOVERY_FAILED_1",
+                        "private key unwrapping failure"));
             }
             if (CMS.getConfigStore().getBoolean("kra.keySplitting")) {
                 mStorageUnit.logout();
@@ -421,7 +424,8 @@ public class RecoveryService implements IService {
             return privKey;
         } catch (Exception e) {
             CMS.debug("RecoverService: recoverKey() failed with allowEncDecrypt_recovery=false:" + e.toString());
-            throw new EKRAException(CMS.getUserMessage("CMS_KRA_RECOVERY_FAILED_1", "recoverKey() failed with allowEncDecrypt_recovery=false:" + e.toString()));
+            throw new EKRAException(CMS.getUserMessage("CMS_KRA_RECOVERY_FAILED_1",
+                    "recoverKey() failed with allowEncDecrypt_recovery=false:" + e.toString()));
         }
     }
 

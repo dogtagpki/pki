@@ -157,7 +157,10 @@ public class HttpConnection implements IHttpConnection {
             }
         } catch (IOException e) {
             if (e.getMessage().indexOf("Peer's certificate issuer has been marked as not trusted") != -1) {
-                throw new EBaseException(CMS.getUserMessage("CMS_BASE_CONN_FAILED", "(This local authority cannot connect to the remote authority. The local authority's signing certificate must chain to a CA certificate trusted for client authentication in the certificate database. Use the certificate manager, or command line tool such as certutil to verify that the trust permissions of the local authority's issuer cert have 'CT' setting in the SSL client auth field.)"));
+                throw new EBaseException(
+                        CMS.getUserMessage(
+                                "CMS_BASE_CONN_FAILED",
+                                "(This local authority cannot connect to the remote authority. The local authority's signing certificate must chain to a CA certificate trusted for client authentication in the certificate database. Use the certificate manager, or command line tool such as certutil to verify that the trust permissions of the local authority's issuer cert have 'CT' setting in the SSL client auth field.)"));
             }
             CMS.debug("HttpConn:Couldn't reconnect " + e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_CONN_FAILED", "Couldn't reconnect " + e));
@@ -180,7 +183,8 @@ public class HttpConnection implements IHttpConnection {
                     mHttpClient.connect(mDest.getHost(), mDest.getPort());
                 } catch (IOException ex) {
                     CMS.debug("reconnect for resend failed. " + ex);
-                    throw new EBaseException(CMS.getUserMessage("CMS_BASE_CONN_FAILED", "reconnect for resend failed." + ex));
+                    throw new EBaseException(CMS.getUserMessage("CMS_BASE_CONN_FAILED", "reconnect for resend failed."
+                            + ex));
                 }
                 reconnect = true;
             }

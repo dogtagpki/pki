@@ -75,7 +75,8 @@ public class UserEnroll extends TestClient {
      * @param propfilename name of the parameter file
      */
 
-    public UserEnroll(String h, String p, String dn, String e, String cn, String uid, String ou, String o, String cd, String tpwd, String sslcl, String ksize, String keyty, String reqname, String reqemail, String ctype) {
+    public UserEnroll(String h, String p, String dn, String e, String cn, String uid, String ou, String o, String cd,
+            String tpwd, String sslcl, String ksize, String keyty, String reqname, String reqemail, String ctype) {
 
         host = h;
         ports = p;

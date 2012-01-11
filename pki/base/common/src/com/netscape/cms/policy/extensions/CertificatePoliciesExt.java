@@ -281,7 +281,8 @@ public class CertificatePoliciesExt extends APolicyRule
         Vector theparams = new Vector();
 
         theparams.addElement(PROP_CRITICAL + ";boolean;RFC 3280 recommendation: MUST be non-critical.");
-        theparams.addElement(PROP_NUM_CERTPOLICIES + ";number; Number of certificate policies. The value must be greater than or equal to 1");
+        theparams.addElement(PROP_NUM_CERTPOLICIES
+                + ";number; Number of certificate policies. The value must be greater than or equal to 1");
 
         for (int k = 0; k < 5; k++) {
             String certPolicykDot = PROP_CERTPOLICY + k + ".";

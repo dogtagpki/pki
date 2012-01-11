@@ -119,7 +119,8 @@ public class CMSHoldInstructionExtension
         }
         if (instruction != null) {
             if (!(instruction.equalsIgnoreCase(PROP_INSTR_NONE) ||
-                    instruction.equalsIgnoreCase(PROP_INSTR_CALLISSUER) || instruction.equalsIgnoreCase(PROP_INSTR_REJECT))) {
+                    instruction.equalsIgnoreCase(PROP_INSTR_CALLISSUER) || instruction
+                    .equalsIgnoreCase(PROP_INSTR_REJECT))) {
                 instruction = PROP_INSTR_NONE;
             }
         } else {

@@ -250,21 +250,27 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
             if (mDefaultEnabledCRLExtensions.contains(extName)) {
                 mEnabledCRLExtensions.addElement(extName);
             }
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CRLEXTS_NO_ENABLE", extName, mDefaultEnabledCRLExtensions.contains(extName) ? "true" : "false"));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_CA_CRLEXTS_NO_ENABLE", extName,
+                            mDefaultEnabledCRLExtensions.contains(extName) ? "true" : "false"));
         } catch (EPropertyNotDefined e) {
             extConfig.putBoolean(PROP_ENABLE, mDefaultEnabledCRLExtensions.contains(extName));
             modifiedConfig = true;
             if (mDefaultEnabledCRLExtensions.contains(extName)) {
                 mEnabledCRLExtensions.addElement(extName);
             }
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CRLEXTS_UNDEFINE_ENABLE", extName, mDefaultEnabledCRLExtensions.contains(extName) ? "true" : "false"));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_CA_CRLEXTS_UNDEFINE_ENABLE", extName,
+                            mDefaultEnabledCRLExtensions.contains(extName) ? "true" : "false"));
         } catch (EBaseException e) {
             extConfig.putBoolean(PROP_ENABLE, mDefaultEnabledCRLExtensions.contains(extName));
             modifiedConfig = true;
             if (mDefaultEnabledCRLExtensions.contains(extName)) {
                 mEnabledCRLExtensions.addElement(extName);
             }
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CRLEXTS_INVALID_ENABLE", extName, mDefaultEnabledCRLExtensions.contains(extName) ? "true" : "false"));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_CA_CRLEXTS_INVALID_ENABLE", extName,
+                            mDefaultEnabledCRLExtensions.contains(extName) ? "true" : "false"));
         }
         return modifiedConfig;
     }
@@ -282,21 +288,27 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
             if (mDefaultCriticalCRLExtensions.contains(extName)) {
                 mCriticalCRLExtensions.addElement(extName);
             }
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CRLEXTS_NO_CRITICAL", extName, mDefaultEnabledCRLExtensions.contains(extName) ? "true" : "false"));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_CA_CRLEXTS_NO_CRITICAL", extName,
+                            mDefaultEnabledCRLExtensions.contains(extName) ? "true" : "false"));
         } catch (EPropertyNotDefined e) {
             extConfig.putBoolean(PROP_CRITICAL, mDefaultCriticalCRLExtensions.contains(extName));
             modifiedConfig = true;
             if (mDefaultCriticalCRLExtensions.contains(extName)) {
                 mCriticalCRLExtensions.addElement(extName);
             }
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CRLEXTS_UNDEFINE_CRITICAL", extName, mDefaultEnabledCRLExtensions.contains(extName) ? "true" : "false"));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_CA_CRLEXTS_UNDEFINE_CRITICAL", extName,
+                            mDefaultEnabledCRLExtensions.contains(extName) ? "true" : "false"));
         } catch (EBaseException e) {
             extConfig.putBoolean(PROP_CRITICAL, mDefaultCriticalCRLExtensions.contains(extName));
             modifiedConfig = true;
             if (mDefaultCriticalCRLExtensions.contains(extName)) {
                 mCriticalCRLExtensions.addElement(extName);
             }
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CRLEXTS_INVALID_CRITICAL", extName, mDefaultEnabledCRLExtensions.contains(extName) ? "true" : "false"));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_CA_CRLEXTS_INVALID_CRITICAL", extName,
+                            mDefaultEnabledCRLExtensions.contains(extName) ? "true" : "false"));
         }
         return modifiedConfig;
     }
@@ -317,12 +329,14 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
                         extConfig.putString(PROP_TYPE, PROP_CRL_ENTRY_EXT);
                         modifiedConfig = true;
                         mCRLEntryExtensionNames.addElement(extName);
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CRLEXTS_INVALID_EXT", extName, PROP_CRL_ENTRY_EXT));
+                        log(ILogger.LL_FAILURE,
+                                CMS.getLogMessage("CMSCORE_CA_CRLEXTS_INVALID_EXT", extName, PROP_CRL_ENTRY_EXT));
                     } else if (mDefaultCRLExtensionNames.contains(extName)) {
                         extConfig.putString(PROP_TYPE, PROP_CRL_EXT);
                         modifiedConfig = true;
                         mCRLExtensionNames.addElement(extName);
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CRLEXTS_INVALID_EXT", extName, PROP_CRL_EXT));
+                        log(ILogger.LL_FAILURE,
+                                CMS.getLogMessage("CMSCORE_CA_CRLEXTS_INVALID_EXT", extName, PROP_CRL_EXT));
                     } else {
                         log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CRLEXTS_INVALID_EXT", extName, ""));
                     }
@@ -370,13 +384,17 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
                         }
                     }
                 } catch (ClassCastException e) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CRLEXTS_INCORRECT_CLASS", extClass, e.toString()));
+                    log(ILogger.LL_FAILURE,
+                            CMS.getLogMessage("CMSCORE_CA_CRLEXTS_INCORRECT_CLASS", extClass, e.toString()));
                 } catch (ClassNotFoundException e) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CRLEXTS_CLASS_NOT_FOUND", extClass, e.toString()));
+                    log(ILogger.LL_FAILURE,
+                            CMS.getLogMessage("CMSCORE_CA_CRLEXTS_CLASS_NOT_FOUND", extClass, e.toString()));
                 } catch (InstantiationException e) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CRLEXTS_CLASS_NOT_INST", extClass, e.toString()));
+                    log(ILogger.LL_FAILURE,
+                            CMS.getLogMessage("CMSCORE_CA_CRLEXTS_CLASS_NOT_INST", extClass, e.toString()));
                 } catch (IllegalAccessException e) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CRLEXTS_CLASS_NOT_ACCESS", extClass, e.toString()));
+                    log(ILogger.LL_FAILURE,
+                            CMS.getLogMessage("CMSCORE_CA_CRLEXTS_CLASS_NOT_ACCESS", extClass, e.toString()));
                 }
 
             } else {
@@ -414,7 +432,8 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
     }
 
     public boolean isCRLExtensionEnabled(String extName) {
-        return ((mCRLExtensionNames.contains(extName) || mCRLEntryExtensionNames.contains(extName)) && mEnabledCRLExtensions.contains(extName));
+        return ((mCRLExtensionNames.contains(extName) || mCRLEntryExtensionNames.contains(extName)) && mEnabledCRLExtensions
+                .contains(extName));
     }
 
     public boolean isCRLExtensionCritical(String extName) {
@@ -528,11 +547,14 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
                             }
                         }
                     } catch (ClassNotFoundException e) {
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CRLEXTS_CLASS_NOT_FOUND", name, e.toString()));
+                        log(ILogger.LL_FAILURE,
+                                CMS.getLogMessage("CMSCORE_CA_CRLEXTS_CLASS_NOT_FOUND", name, e.toString()));
                     } catch (InstantiationException e) {
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CRLEXTS_CLASS_NOT_INST", name, e.toString()));
+                        log(ILogger.LL_FAILURE,
+                                CMS.getLogMessage("CMSCORE_CA_CRLEXTS_CLASS_NOT_INST", name, e.toString()));
                     } catch (IllegalAccessException e) {
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CRLEXTS_CLASS_NOT_ACCESS", name, e.toString()));
+                        log(ILogger.LL_FAILURE,
+                                CMS.getLogMessage("CMSCORE_CA_CRLEXTS_CLASS_NOT_ACCESS", name, e.toString()));
                     }
 
                     int i = name.lastIndexOf('.');
@@ -601,7 +623,8 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
 
                 CMSCRLExtensions cmsCRLExtensions = (CMSCRLExtensions) ip.getCRLExtensions();
                 if (cmsCRLExtensions != null) {
-                    issuingDistPointExtEnabled = cmsCRLExtensions.isCRLExtensionEnabled(IssuingDistributionPointExtension.NAME);
+                    issuingDistPointExtEnabled = cmsCRLExtensions
+                            .isCRLExtensionEnabled(IssuingDistributionPointExtension.NAME);
                 }
 
                 CMS.debug("issuingDistPointExtEnabled = " + issuingDistPointExtEnabled);

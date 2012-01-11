@@ -282,7 +282,8 @@ public class CAInfoPanel extends WizardPanelBase {
         }
     }
 
-    private void sdca(HttpServletRequest request, Context context, String hostname, String httpsPortStr) throws IOException {
+    private void sdca(HttpServletRequest request, Context context, String hostname, String httpsPortStr)
+            throws IOException {
         CMS.debug("CAInfoPanel update: this is the CA in the security domain.");
         IConfigStore config = CMS.getConfigStore();
 

@@ -406,10 +406,12 @@ public class nsTokenUserKeySubjectNameDefault extends EnrollDefault {
                 CMS.debug("nsTokenUserKeySubjectNameDefault: getSubjectName(): " + searchName + " does not exist");
                 throw new EProfileException("id does not exist");
             }
-            CMS.debug("nsTokenUserKeySubjectNameDefault: getSubjectName(): retrieved entry for " + searchName + " = " + request.getExtDataInString("uid"));
+            CMS.debug("nsTokenUserKeySubjectNameDefault: getSubjectName(): retrieved entry for " + searchName + " = "
+                    + request.getExtDataInString("uid"));
 
             LDAPEntry entry = null;
-            CMS.debug("nsTokenUserKeySubjectNameDefault: getSubjectName(): about to search with " + mLdapStringAttrs.length + " attributes");
+            CMS.debug("nsTokenUserKeySubjectNameDefault: getSubjectName(): about to search with "
+                    + mLdapStringAttrs.length + " attributes");
             LDAPSearchResults results =
                     conn.search(userdn, LDAPv2.SCOPE_BASE, "objectclass=*",
                             mLdapStringAttrs, false);
@@ -425,7 +427,8 @@ public class nsTokenUserKeySubjectNameDefault extends EnrollDefault {
                         entry.getAttribute(mLdapStringAttrs[i]);
                 if (la != null) {
                     String[] sla = la.getStringValueArray();
-                    CMS.debug("nsTokenUserKeySubjectNameDefault: getSubjectName(): got attribute: " + mLdapStringAttrs[i] +
+                    CMS.debug("nsTokenUserKeySubjectNameDefault: getSubjectName(): got attribute: "
+                            + mLdapStringAttrs[i] +
                             "=" + escapeValueRfc1779(sla[0], false).toString());
                     request.setExtData(mLdapStringAttrs[i], escapeValueRfc1779(sla[0], false).toString());
                 }
@@ -443,7 +446,8 @@ public class nsTokenUserKeySubjectNameDefault extends EnrollDefault {
                 if (conn != null)
                     mConnFactory.returnConn(conn);
             } catch (Exception e) {
-                throw new EProfileException("nsTokenUserKeySubjectNameDefault: getSubjectName(): connection return failure");
+                throw new EProfileException(
+                        "nsTokenUserKeySubjectNameDefault: getSubjectName(): connection return failure");
             }
         }
         return sbjname;

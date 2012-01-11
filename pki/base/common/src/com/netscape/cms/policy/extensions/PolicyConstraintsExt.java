@@ -274,8 +274,10 @@ public class PolicyConstraintsExt extends APolicyRule
 
         String[] params = {
                 PROP_CRITICAL + ";boolean;RFC 2459 recommendation: may be critical or non-critical.",
-                PROP_REQ_EXPLICIT_POLICY + ";integer;Number of addional certificates that may appear in the path before an explicit policy is required. If less than 0 this field is unset in the extension.",
-                PROP_INHIBIT_POLICY_MAPPING + ";integer;Number of addional certificates that may appear in the path before policy mapping is no longer permitted. If less than 0 this field is unset in the extension.",
+                PROP_REQ_EXPLICIT_POLICY
+                        + ";integer;Number of addional certificates that may appear in the path before an explicit policy is required. If less than 0 this field is unset in the extension.",
+                PROP_INHIBIT_POLICY_MAPPING
+                        + ";integer;Number of addional certificates that may appear in the path before policy mapping is no longer permitted. If less than 0 this field is unset in the extension.",
                 IExtendedPluginInfo.HELP_TOKEN + ";configuration-policyrules-policyconstraints"
             };
 

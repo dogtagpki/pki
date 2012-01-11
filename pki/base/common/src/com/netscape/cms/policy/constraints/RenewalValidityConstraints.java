@@ -88,7 +88,8 @@ public class RenewalValidityConstraints extends APolicyRule
         String[] params = {
                 PROP_MIN_VALIDITY + ";number;Specifies the minimum validity period, in days, for renewed certificates.",
                 PROP_MAX_VALIDITY + ";number;Specifies the maximum validity period, in days, for renewed certificates.",
-                PROP_RENEWAL_INTERVAL + ";number;Specifies how many days before its expiration that a certificate can be renewed.",
+                PROP_RENEWAL_INTERVAL
+                        + ";number;Specifies how many days before its expiration that a certificate can be renewed.",
                 IExtendedPluginInfo.HELP_TOKEN +
                         ";configuration-policyrules-renewalvalidityconstraints",
                 IExtendedPluginInfo.HELP_TEXT +

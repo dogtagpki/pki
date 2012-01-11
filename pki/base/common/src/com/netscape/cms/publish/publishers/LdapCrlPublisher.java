@@ -285,7 +285,8 @@ public class LdapCrlPublisher implements ILdapPublisher, IExtendedPluginInfo {
                 // "DSA is unavailable" which confuses with DSA PKI.
                 log(ILogger.LL_FAILURE,
                         CMS.getLogMessage("PUBLISH_NO_LDAP_SERVER"));
-                throw new ELdapServerDownException(CMS.getUserMessage("CMS_LDAP_SERVER_UNAVAILABLE", conn.getHost(), "" + conn.getPort()));
+                throw new ELdapServerDownException(CMS.getUserMessage("CMS_LDAP_SERVER_UNAVAILABLE", conn.getHost(), ""
+                        + conn.getPort()));
             } else {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_PUBLISH_ERROR", e.toString()));
                 throw new ELdapException(CMS.getUserMessage("CMS_LDAP_PUBLISH_CRL_ERROR", e.toString()));
@@ -361,7 +362,8 @@ public class LdapCrlPublisher implements ILdapPublisher, IExtendedPluginInfo {
                 // "DSA is unavailable" which confuses with DSA PKI.
                 log(ILogger.LL_FAILURE,
                         CMS.getLogMessage("PUBLISH_NO_LDAP_SERVER"));
-                throw new ELdapServerDownException(CMS.getUserMessage("CMS_LDAP_SERVER_UNAVAILABLE", conn.getHost(), "" + conn.getPort()));
+                throw new ELdapServerDownException(CMS.getUserMessage("CMS_LDAP_SERVER_UNAVAILABLE", conn.getHost(), ""
+                        + conn.getPort()));
             } else {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_UNPUBLISH_ERROR", e.toString()));
                 throw new ELdapException(CMS.getUserMessage("CMS_LDAP_UNPUBLISH_CRL_ERROR", e.toString()));

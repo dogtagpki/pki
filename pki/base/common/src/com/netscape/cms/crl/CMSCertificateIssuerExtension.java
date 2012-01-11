@@ -87,9 +87,11 @@ public class CMSCertificateIssuerExtension
                 try {
                     nameType = config.getString("nameType" + i);
                 } catch (EPropertyNotFound e) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_UNDEFINED_TYPE", Integer.toString(i), e.toString()));
+                    log(ILogger.LL_FAILURE,
+                            CMS.getLogMessage("CRL_CREATE_UNDEFINED_TYPE", Integer.toString(i), e.toString()));
                 } catch (EBaseException e) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_INVALID_TYPE", Integer.toString(i), e.toString()));
+                    log(ILogger.LL_FAILURE,
+                            CMS.getLogMessage("CRL_CREATE_INVALID_TYPE", Integer.toString(i), e.toString()));
                 }
 
                 if (nameType != null) {
@@ -98,9 +100,11 @@ public class CMSCertificateIssuerExtension
                     try {
                         name = config.getString("name" + i);
                     } catch (EPropertyNotFound e) {
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_UNDEFINED_TYPE", Integer.toString(i), e.toString()));
+                        log(ILogger.LL_FAILURE,
+                                CMS.getLogMessage("CRL_CREATE_UNDEFINED_TYPE", Integer.toString(i), e.toString()));
                     } catch (EBaseException e) {
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_INVALID_TYPE", Integer.toString(i), e.toString()));
+                        log(ILogger.LL_FAILURE,
+                                CMS.getLogMessage("CRL_CREATE_INVALID_TYPE", Integer.toString(i), e.toString()));
                     }
 
                     if (name != null && name.length() > 0) {
@@ -156,7 +160,8 @@ public class CMSCertificateIssuerExtension
             try {
                 nameType = config.getString("nameType" + i);
             } catch (EPropertyNotFound e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_UNDEFINED_TYPE", Integer.toString(i), e.toString()));
+                log(ILogger.LL_FAILURE,
+                        CMS.getLogMessage("CRL_CREATE_UNDEFINED_TYPE", Integer.toString(i), e.toString()));
             } catch (EBaseException e) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_INVALID_TYPE", Integer.toString(i), e.toString()));
             }
@@ -172,7 +177,8 @@ public class CMSCertificateIssuerExtension
             try {
                 name = config.getString("name" + i);
             } catch (EPropertyNotFound e) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_UNDEFINED_TYPE", Integer.toString(i), e.toString()));
+                log(ILogger.LL_FAILURE,
+                        CMS.getLogMessage("CRL_CREATE_UNDEFINED_TYPE", Integer.toString(i), e.toString()));
             } catch (EBaseException e) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_INVALID_TYPE", Integer.toString(i), e.toString()));
             }

@@ -201,7 +201,8 @@ public class AuthSubsystem implements IAuthSubsystem {
 
                 if (plugin == null) {
                     log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_CANT_FIND_PLUGIN", implName));
-                    throw new EAuthMgrPluginNotFound(CMS.getUserMessage("CMS_AUTHENTICATION_AUTHMGR_NOT_FOUND", implName));
+                    throw new EAuthMgrPluginNotFound(CMS.getUserMessage("CMS_AUTHENTICATION_AUTHMGR_NOT_FOUND",
+                            implName));
                 }
                 String className = plugin.getClassPath();
 

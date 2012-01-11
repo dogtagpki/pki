@@ -150,7 +150,8 @@ public class AuthInfoAccessExtDefault extends EnrollExtDefault {
                     null,
                     CMS.getUserMessage(locale, "CMS_PROFILE_AD_METHOD"));
         } else if (name.startsWith(CONFIG_AD_LOCATIONTYPE)) {
-            return new Descriptor(IDescriptor.CHOICE, "RFC822Name,DNSName,DirectoryName,EDIPartyName,URIName,IPAddress,OIDName",
+            return new Descriptor(IDescriptor.CHOICE,
+                    "RFC822Name,DNSName,DirectoryName,EDIPartyName,URIName,IPAddress,OIDName",
                     "URIName",
                     CMS.getUserMessage(locale, "CMS_PROFILE_AD_LOCATIONTYPE"));
         } else if (name.startsWith(CONFIG_AD_LOCATION)) {

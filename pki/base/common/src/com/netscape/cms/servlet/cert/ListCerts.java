@@ -128,7 +128,8 @@ public class ListCerts extends CMSServlet {
                 sc.getInitParameter(USE_CLIENT_FILTER).equalsIgnoreCase("true")) {
             mUseClientFilter = true;
         }
-        if (sc.getInitParameter(ALLOWED_CLIENT_FILTERS) == null || sc.getInitParameter(ALLOWED_CLIENT_FILTERS).equals("")) {
+        if (sc.getInitParameter(ALLOWED_CLIENT_FILTERS) == null
+                || sc.getInitParameter(ALLOWED_CLIENT_FILTERS).equals("")) {
             mAllowedClientFilters.addElement("(certStatus=*)");
             mAllowedClientFilters.addElement("(certStatus=VALID)");
             mAllowedClientFilters.addElement("(|(certStatus=VALID)(certStatus=INVALID)(certStatus=EXPIRED))");
@@ -152,12 +153,14 @@ public class ListCerts extends CMSServlet {
             // check to see if the filter is allowed
             while (filters.hasMoreElements()) {
                 String filter = (String) filters.nextElement();
-                com.netscape.certsrv.apps.CMS.debug("Comparing filter=" + filter + " queryCertFilter=" + queryCertFilter);
+                com.netscape.certsrv.apps.CMS.debug("Comparing filter=" + filter + " queryCertFilter="
+                        + queryCertFilter);
                 if (filter.equals(queryCertFilter)) {
                     return queryCertFilter;
                 }
             }
-            com.netscape.certsrv.apps.CMS.debug("Requested filter '" + queryCertFilter + "' is not allowed. Please check the " + ALLOWED_CLIENT_FILTERS + "parameter");
+            com.netscape.certsrv.apps.CMS.debug("Requested filter '" + queryCertFilter
+                    + "' is not allowed. Please check the " + ALLOWED_CLIENT_FILTERS + "parameter");
             return null;
         } else {
             com.netscape.certsrv.apps.CMS.debug("useClientFilter=false");
@@ -315,7 +318,8 @@ public class ListCerts extends CMSServlet {
         } catch (NumberFormatException e) {
             log(ILogger.LL_FAILURE, com.netscape.certsrv.apps.CMS.getLogMessage("BASE_INVALID_NUMBER_FORMAT"));
 
-            error = new EBaseException(com.netscape.certsrv.apps.CMS.getUserMessage(getLocale(req), "CMS_BASE_INVALID_NUMBER_FORMAT"));
+            error = new EBaseException(com.netscape.certsrv.apps.CMS.getUserMessage(getLocale(req),
+                    "CMS_BASE_INVALID_NUMBER_FORMAT"));
         } catch (EBaseException e) {
             error = e;
         }

@@ -778,10 +778,12 @@ public class CMCOutputTemplate {
                                 SignedData msgData =
                                         (SignedData) msgValue.decodeWith(SignedData.getTemplate());
                                 if (!verifyRevRequestSignature(msgData)) {
-                                    OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL, new INTEGER(OtherInfo.BAD_MESSAGE_CHECK), null);
+                                    OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL, new INTEGER(
+                                            OtherInfo.BAD_MESSAGE_CHECK), null);
                                     SEQUENCE failed_bpids = new SEQUENCE();
                                     failed_bpids.addElement(attrbpid);
-                                    cmcStatusInfo = new CMCStatusInfo(CMCStatusInfo.FAILED, failed_bpids, (String) null, otherInfo);
+                                    cmcStatusInfo = new CMCStatusInfo(CMCStatusInfo.FAILED, failed_bpids,
+                                            (String) null, otherInfo);
                                     tagattr = new TaggedAttribute(
                                             new INTEGER(bpid++),
                                             OBJECT_IDENTIFIER.id_cmc_cMCStatusInfo, cmcStatusInfo);
@@ -823,7 +825,8 @@ public class CMCOutputTemplate {
 
                     if (!sharedSecretFound) {
                         CMS.debug("CMCOutputTemplate: class for shared secret was not found.");
-                        OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL, new INTEGER(OtherInfo.INTERNAL_CA_ERROR), null);
+                        OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL, new INTEGER(OtherInfo.INTERNAL_CA_ERROR),
+                                null);
                         SEQUENCE failed_bpids = new SEQUENCE();
                         failed_bpids.addElement(attrbpid);
                         cmcStatusInfo = new CMCStatusInfo(CMCStatusInfo.FAILED, failed_bpids, (String) null, otherInfo);
@@ -842,7 +845,8 @@ public class CMCOutputTemplate {
 
                     if (sharedSecret == null) {
                         CMS.debug("CMCOutputTemplate: class for shared secret was not found.");
-                        OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL, new INTEGER(OtherInfo.INTERNAL_CA_ERROR), null);
+                        OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL, new INTEGER(OtherInfo.INTERNAL_CA_ERROR),
+                                null);
                         SEQUENCE failed_bpids = new SEQUENCE();
                         failed_bpids.addElement(attrbpid);
                         cmcStatusInfo = new CMCStatusInfo(CMCStatusInfo.FAILED, failed_bpids, (String) null, otherInfo);
@@ -860,7 +864,8 @@ public class CMCOutputTemplate {
                         revoke = true;
                     } else {
                         CMS.debug("CMCOutputTemplate: Both client and server shared secret are not the same, cant revoke certificate.");
-                        OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL, new INTEGER(OtherInfo.BAD_MESSAGE_CHECK), null);
+                        OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL, new INTEGER(OtherInfo.BAD_MESSAGE_CHECK),
+                                null);
                         SEQUENCE failed_bpids = new SEQUENCE();
                         failed_bpids.addElement(attrbpid);
                         cmcStatusInfo = new CMCStatusInfo(CMCStatusInfo.FAILED, failed_bpids, (String) null, otherInfo);
@@ -924,7 +929,8 @@ public class CMCOutputTemplate {
                         entryExtn.set(crlReasonExtn.getName(), crlReasonExtn);
                     }
 
-                    RevokedCertImpl revCertImpl = new RevokedCertImpl(impl.getSerialNumber(), CMS.getCurrentDate(), entryExtn);
+                    RevokedCertImpl revCertImpl = new RevokedCertImpl(impl.getSerialNumber(), CMS.getCurrentDate(),
+                            entryExtn);
                     RevokedCertImpl[] revCertImpls = new RevokedCertImpl[1];
                     revCertImpls[0] = revCertImpl;
                     IRequestQueue queue = ca.getRequestQueue();
@@ -944,10 +950,12 @@ public class CMCOutputTemplate {
                         if (result.equals(IRequest.RES_ERROR)) {
                             CMS.debug("CMCOutputTemplate: revReq exception: " +
                                     revReq.getExtDataInString(IRequest.ERROR));
-                            OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL, new INTEGER(OtherInfo.BAD_REQUEST), null);
+                            OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL, new INTEGER(OtherInfo.BAD_REQUEST),
+                                    null);
                             SEQUENCE failed_bpids = new SEQUENCE();
                             failed_bpids.addElement(attrbpid);
-                            cmcStatusInfo = new CMCStatusInfo(CMCStatusInfo.FAILED, failed_bpids, (String) null, otherInfo);
+                            cmcStatusInfo = new CMCStatusInfo(CMCStatusInfo.FAILED, failed_bpids, (String) null,
+                                    otherInfo);
                             tagattr = new TaggedAttribute(
                                     new INTEGER(bpid++),
                                     OBJECT_IDENTIFIER.id_cmc_cMCStatusInfo, cmcStatusInfo);
@@ -1072,7 +1080,8 @@ public class CMCOutputTemplate {
                             Name issuer = certI.getIssuer();
                             byte[] issuerB = ASN1Util.encode(issuer);
                             INTEGER sn = certI.getSerialNumber();
-                            if (new String(issuerB).equalsIgnoreCase(new String(ASN1Util.encode(issuerAndSerialNumber.getIssuer()))) &&
+                            if (new String(issuerB).equalsIgnoreCase(new String(ASN1Util.encode(issuerAndSerialNumber
+                                    .getIssuer()))) &&
                                     sn.toString().equals(issuerAndSerialNumber.getSerialNumber().toString())) {
                                 ByteArrayOutputStream os = new ByteArrayOutputStream();
                                 certJss.encode(os);

@@ -589,7 +589,8 @@ public class ExtPrettyPrint {
 
         try {
             sb.append(pp.indent(mIndentSize) + mResource.getString(PrettyPrintResources.TOKEN_IDENTIFIER));
-            sb.append(mResource.getString(PrettyPrintResources.TOKEN_CERT_TYPE) + "- " + mExt.getExtensionId().toString() + "\n");
+            sb.append(mResource.getString(PrettyPrintResources.TOKEN_CERT_TYPE) + "- "
+                    + mExt.getExtensionId().toString() + "\n");
             sb.append(pp.indent(mIndentSize + 4) + mResource.getString(PrettyPrintResources.TOKEN_CRITICAL));
             if (mExt.isCritical()) {
                 sb.append(mResource.getString(PrettyPrintResources.TOKEN_YES) + "\n");
@@ -618,7 +619,8 @@ public class ExtPrettyPrint {
                 sb.append(pp.indent(mIndentSize + 8) + mResource.getString(NSCertTypeExtension.EMAIL_CA) + "\n");
             }
             if (((Boolean) type.get(NSCertTypeExtension.OBJECT_SIGNING_CA)).booleanValue()) {
-                sb.append(pp.indent(mIndentSize + 8) + mResource.getString(NSCertTypeExtension.OBJECT_SIGNING_CA) + "\n");
+                sb.append(pp.indent(mIndentSize + 8) + mResource.getString(NSCertTypeExtension.OBJECT_SIGNING_CA)
+                        + "\n");
             }
             return sb.toString();
         } catch (Exception e) {
@@ -635,7 +637,8 @@ public class ExtPrettyPrint {
 
         try {
             sb.append(pp.indent(mIndentSize) + mResource.getString(PrettyPrintResources.TOKEN_IDENTIFIER));
-            sb.append(mResource.getString(PrettyPrintResources.TOKEN_SKI) + "- " + mExt.getExtensionId().toString() + "\n");
+            sb.append(mResource.getString(PrettyPrintResources.TOKEN_SKI) + "- " + mExt.getExtensionId().toString()
+                    + "\n");
             sb.append(pp.indent(mIndentSize + 4) + mResource.getString(PrettyPrintResources.TOKEN_CRITICAL));
             if (mExt.isCritical()) {
                 sb.append(mResource.getString(PrettyPrintResources.TOKEN_YES) + "\n");
@@ -663,7 +666,8 @@ public class ExtPrettyPrint {
 
         try {
             sb.append(pp.indent(mIndentSize) + mResource.getString(PrettyPrintResources.TOKEN_IDENTIFIER));
-            sb.append(mResource.getString(PrettyPrintResources.TOKEN_AKI) + "- " + mExt.getExtensionId().toString() + "\n");
+            sb.append(mResource.getString(PrettyPrintResources.TOKEN_AKI) + "- " + mExt.getExtensionId().toString()
+                    + "\n");
             sb.append(pp.indent(mIndentSize + 4) + mResource.getString(PrettyPrintResources.TOKEN_CRITICAL));
             if (mExt.isCritical()) {
                 sb.append(mResource.getString(PrettyPrintResources.TOKEN_YES) + "\n");
@@ -685,7 +689,9 @@ public class ExtPrettyPrint {
                     GeneralName authName = (GeneralName) authNames.elementAt(i);
 
                     if (authName != null) {
-                        sb.append(pp.indent(mIndentSize + 4) + mResource.getString(PrettyPrintResources.TOKEN_AUTH_NAME) + authName.toString() + "\n");
+                        sb.append(pp.indent(mIndentSize + 4)
+                                + mResource.getString(PrettyPrintResources.TOKEN_AUTH_NAME) + authName.toString()
+                                + "\n");
                     }
                 }
             }
@@ -1244,9 +1250,11 @@ public class ExtPrettyPrint {
                 RDN relativeName = issuingDistributionPoint.getRelativeName();
 
                 if (fullNames != null || relativeName != null) {
-                    sb.append(pp.indent(mIndentSize + 4) + mResource.getString(PrettyPrintResources.TOKEN_DIST_POINT_NAME) + "\n");
+                    sb.append(pp.indent(mIndentSize + 4)
+                            + mResource.getString(PrettyPrintResources.TOKEN_DIST_POINT_NAME) + "\n");
                     if (fullNames != null) {
-                        sb.append(pp.indent(mIndentSize + 8) + mResource.getString(PrettyPrintResources.TOKEN_FULL_NAME) + "\n");
+                        sb.append(pp.indent(mIndentSize + 8)
+                                + mResource.getString(PrettyPrintResources.TOKEN_FULL_NAME) + "\n");
                         for (int i = 0; i < fullNames.size(); i++) {
                             GeneralName fullName = (GeneralName) fullNames.elementAt(i);
 
@@ -1256,7 +1264,8 @@ public class ExtPrettyPrint {
                         }
                     }
                     if (relativeName != null) {
-                        sb.append(pp.indent(mIndentSize + 8) + mResource.getString(PrettyPrintResources.TOKEN_RELATIVE_NAME) +
+                        sb.append(pp.indent(mIndentSize + 8)
+                                + mResource.getString(PrettyPrintResources.TOKEN_RELATIVE_NAME) +
                                 relativeName.toString() + "\n");
                     }
                 }
@@ -1277,7 +1286,8 @@ public class ExtPrettyPrint {
                 BitArray onlySomeReasons = issuingDistributionPoint.getOnlySomeReasons();
 
                 if (onlySomeReasons != null) {
-                    sb.append(pp.indent(mIndentSize + 4) + mResource.getString(PrettyPrintResources.TOKEN_ONLY_SOME_REASONS));
+                    sb.append(pp.indent(mIndentSize + 4)
+                            + mResource.getString(PrettyPrintResources.TOKEN_ONLY_SOME_REASONS));
                     sb.append("0x" + pp.toHexString(onlySomeReasons.toByteArray()));
                 }
 
@@ -1590,24 +1600,29 @@ public class ExtPrettyPrint {
                 while (e.hasMoreElements()) {
                     CertificatePolicyInfo cpi = (CertificatePolicyInfo) e.nextElement();
 
-                    sb.append(pp.indent(mIndentSize + 8) + "Policy Identifier: " + cpi.getPolicyIdentifier().getIdentifier().toString() + "\n");
+                    sb.append(pp.indent(mIndentSize + 8) + "Policy Identifier: "
+                            + cpi.getPolicyIdentifier().getIdentifier().toString() + "\n");
                     PolicyQualifiers cpq = cpi.getPolicyQualifiers();
                     if (cpq != null) {
                         for (int i = 0; i < cpq.size(); i++) {
                             PolicyQualifierInfo pq = cpq.getInfoAt(i);
                             Qualifier q = pq.getQualifier();
                             if (q instanceof CPSuri) {
-                                sb.append(pp.indent(mIndentSize + 12) + "Policy Qualifier Identifier: CPS Pointer Qualifier - "
+                                sb.append(pp.indent(mIndentSize + 12)
+                                        + "Policy Qualifier Identifier: CPS Pointer Qualifier - "
                                         + pq.getId() + "\n");
-                                sb.append(pp.indent(mIndentSize + 12) + "Policy Qualifier Data: " + ((CPSuri) q).getURI() + "\n");
+                                sb.append(pp.indent(mIndentSize + 12) + "Policy Qualifier Data: "
+                                        + ((CPSuri) q).getURI() + "\n");
                             } else if (q instanceof UserNotice) {
-                                sb.append(pp.indent(mIndentSize + 12) + "Policy Qualifier Identifier: CPS User Notice Qualifier - "
+                                sb.append(pp.indent(mIndentSize + 12)
+                                        + "Policy Qualifier Identifier: CPS User Notice Qualifier - "
                                         + pq.getId() + "\n");
                                 NoticeReference nref = ((UserNotice) q).getNoticeReference();
                                 DisplayText dt = ((UserNotice) q).getDisplayText();
                                 sb.append(pp.indent(mIndentSize + 12) + "Policy Qualifier Data: \n");
                                 if (nref != null) {
-                                    sb.append(pp.indent(mIndentSize + 16) + "Organization: " + nref.getOrganization().toString() + "\n");
+                                    sb.append(pp.indent(mIndentSize + 16) + "Organization: "
+                                            + nref.getOrganization().toString() + "\n");
                                     sb.append(pp.indent(mIndentSize + 16) + "Notice Numbers: ");
                                     int[] nums = nref.getNumbers();
                                     for (int k = 0; k < nums.length; k++) {

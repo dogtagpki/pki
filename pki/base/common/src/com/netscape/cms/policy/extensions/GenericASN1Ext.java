@@ -124,45 +124,195 @@ public class GenericASN1Ext extends APolicyRule implements
                 PROP_OID + ";string;OID number for this extension. It should be unique.",
                 PROP_PATTERN + ";string;Pattern for extension; {012}34",
                 // Attribute 0
-                PROP_ATTRIBUTE + "." + "0" + "." + PROP_TYPE + ";choice(Integer,IA5String,OctetString,PrintableString,VisibleString,UTCTime,OID,Boolean);Attribute type for extension",
-                PROP_ATTRIBUTE + "." + "0" + "." + PROP_SOURCE + ";choice(Value,File);Data Source for the extension. You can specify the value here or file name has value.",
-                PROP_ATTRIBUTE + "." + "0" + "." + PROP_VALUE + ";string;If data source is 'value', specity value here. If data source is 'file', specify the file name with full path.",
+                PROP_ATTRIBUTE
+                        + "."
+                        + "0"
+                        + "."
+                        + PROP_TYPE
+                        + ";choice(Integer,IA5String,OctetString,PrintableString,VisibleString,UTCTime,OID,Boolean);Attribute type for extension",
+                PROP_ATTRIBUTE
+                        + "."
+                        + "0"
+                        + "."
+                        + PROP_SOURCE
+                        + ";choice(Value,File);Data Source for the extension. You can specify the value here or file name has value.",
+                PROP_ATTRIBUTE
+                        + "."
+                        + "0"
+                        + "."
+                        + PROP_VALUE
+                        + ";string;If data source is 'value', specity value here. If data source is 'file', specify the file name with full path.",
                 // Attribute 1
-                PROP_ATTRIBUTE + "." + "1" + "." + PROP_TYPE + ";choice(Integer,IA5String,OctetString,PrintableString,VisibleString,UTCTime,OID,Boolean);Attribute type for extension",
-                PROP_ATTRIBUTE + "." + "1" + "." + PROP_SOURCE + ";choice(Value,File);Data Source for the extension. You can specify the value here or file name has value.",
-                PROP_ATTRIBUTE + "." + "1" + "." + PROP_VALUE + ";string;If data source is 'value', specity value here. If data source is 'file', specify the file name with full path.",
+                PROP_ATTRIBUTE
+                        + "."
+                        + "1"
+                        + "."
+                        + PROP_TYPE
+                        + ";choice(Integer,IA5String,OctetString,PrintableString,VisibleString,UTCTime,OID,Boolean);Attribute type for extension",
+                PROP_ATTRIBUTE
+                        + "."
+                        + "1"
+                        + "."
+                        + PROP_SOURCE
+                        + ";choice(Value,File);Data Source for the extension. You can specify the value here or file name has value.",
+                PROP_ATTRIBUTE
+                        + "."
+                        + "1"
+                        + "."
+                        + PROP_VALUE
+                        + ";string;If data source is 'value', specity value here. If data source is 'file', specify the file name with full path.",
                 // Attribute 2
-                PROP_ATTRIBUTE + "." + "2" + "." + PROP_TYPE + ";choice(Integer,IA5String,OctetString,PrintableString,VisibleString,UTCTime,OID,Boolean);Attribute type for extension",
-                PROP_ATTRIBUTE + "." + "2" + "." + PROP_SOURCE + ";choice(Value,File);Data Source for the extension. You can specify the value here or file name has value.",
-                PROP_ATTRIBUTE + "." + "2" + "." + PROP_VALUE + ";string;If data source is 'value', specity value here. If data source is 'file', specify the file name with full path.",
+                PROP_ATTRIBUTE
+                        + "."
+                        + "2"
+                        + "."
+                        + PROP_TYPE
+                        + ";choice(Integer,IA5String,OctetString,PrintableString,VisibleString,UTCTime,OID,Boolean);Attribute type for extension",
+                PROP_ATTRIBUTE
+                        + "."
+                        + "2"
+                        + "."
+                        + PROP_SOURCE
+                        + ";choice(Value,File);Data Source for the extension. You can specify the value here or file name has value.",
+                PROP_ATTRIBUTE
+                        + "."
+                        + "2"
+                        + "."
+                        + PROP_VALUE
+                        + ";string;If data source is 'value', specity value here. If data source is 'file', specify the file name with full path.",
                 // Attribute 3
-                PROP_ATTRIBUTE + "." + "3" + "." + PROP_TYPE + ";choice(Integer,IA5String,OctetString,PrintableString,VisibleString,UTCTime,OID,Boolean);Attribute type for extension",
-                PROP_ATTRIBUTE + "." + "3" + "." + PROP_SOURCE + ";choice(Value,File);Data Source for the extension. You can specify the value here or file name has value.",
-                PROP_ATTRIBUTE + "." + "3" + "." + PROP_VALUE + ";string;If data source is 'value', specity value here. If data source is 'file', specify the file name with full path.",
+                PROP_ATTRIBUTE
+                        + "."
+                        + "3"
+                        + "."
+                        + PROP_TYPE
+                        + ";choice(Integer,IA5String,OctetString,PrintableString,VisibleString,UTCTime,OID,Boolean);Attribute type for extension",
+                PROP_ATTRIBUTE
+                        + "."
+                        + "3"
+                        + "."
+                        + PROP_SOURCE
+                        + ";choice(Value,File);Data Source for the extension. You can specify the value here or file name has value.",
+                PROP_ATTRIBUTE
+                        + "."
+                        + "3"
+                        + "."
+                        + PROP_VALUE
+                        + ";string;If data source is 'value', specity value here. If data source is 'file', specify the file name with full path.",
                 // Attribute 4
-                PROP_ATTRIBUTE + "." + "4" + "." + PROP_TYPE + ";choice(Integer,IA5String,OctetString,PrintableString,VisibleString,UTCTime,OID,Boolean);Attribute type for extension",
-                PROP_ATTRIBUTE + "." + "4" + "." + PROP_SOURCE + ";choice(Value,File);Data Source for the extension. You can specify the value here or file name has value.",
-                PROP_ATTRIBUTE + "." + "4" + "." + PROP_VALUE + ";string;If data source is 'value', specity value here. If data source is 'file', specify the file name with full path.",
+                PROP_ATTRIBUTE
+                        + "."
+                        + "4"
+                        + "."
+                        + PROP_TYPE
+                        + ";choice(Integer,IA5String,OctetString,PrintableString,VisibleString,UTCTime,OID,Boolean);Attribute type for extension",
+                PROP_ATTRIBUTE
+                        + "."
+                        + "4"
+                        + "."
+                        + PROP_SOURCE
+                        + ";choice(Value,File);Data Source for the extension. You can specify the value here or file name has value.",
+                PROP_ATTRIBUTE
+                        + "."
+                        + "4"
+                        + "."
+                        + PROP_VALUE
+                        + ";string;If data source is 'value', specity value here. If data source is 'file', specify the file name with full path.",
                 // Attribute 5
-                PROP_ATTRIBUTE + "." + "5" + "." + PROP_TYPE + ";choice(Integer,IA5String,OctetString,PrintableString,VisibleString,UTCTime,OID,Boolean);Attribute type for extension",
-                PROP_ATTRIBUTE + "." + "5" + "." + PROP_SOURCE + ";choice(Value,File);Data Source for the extension. You can specify the value here or file name has value.",
-                PROP_ATTRIBUTE + "." + "5" + "." + PROP_VALUE + ";string;If data source is 'value', specity value here. If data source is 'file', specify the file name with full path.",
+                PROP_ATTRIBUTE
+                        + "."
+                        + "5"
+                        + "."
+                        + PROP_TYPE
+                        + ";choice(Integer,IA5String,OctetString,PrintableString,VisibleString,UTCTime,OID,Boolean);Attribute type for extension",
+                PROP_ATTRIBUTE
+                        + "."
+                        + "5"
+                        + "."
+                        + PROP_SOURCE
+                        + ";choice(Value,File);Data Source for the extension. You can specify the value here or file name has value.",
+                PROP_ATTRIBUTE
+                        + "."
+                        + "5"
+                        + "."
+                        + PROP_VALUE
+                        + ";string;If data source is 'value', specity value here. If data source is 'file', specify the file name with full path.",
                 // Attribute 6
-                PROP_ATTRIBUTE + "." + "6" + "." + PROP_TYPE + ";choice(Integer,IA5String,OctetString,PrintableString,VisibleString,UTCTime,OID,Boolean);Attribute type for extension",
-                PROP_ATTRIBUTE + "." + "6" + "." + PROP_SOURCE + ";choice(Value,File);Data Source for the extension. You can specify the value here or file name has value.",
-                PROP_ATTRIBUTE + "." + "6" + "." + PROP_VALUE + ";string;If data source is 'value', specity value here. If data source is 'file', specify the file name with full path.",
+                PROP_ATTRIBUTE
+                        + "."
+                        + "6"
+                        + "."
+                        + PROP_TYPE
+                        + ";choice(Integer,IA5String,OctetString,PrintableString,VisibleString,UTCTime,OID,Boolean);Attribute type for extension",
+                PROP_ATTRIBUTE
+                        + "."
+                        + "6"
+                        + "."
+                        + PROP_SOURCE
+                        + ";choice(Value,File);Data Source for the extension. You can specify the value here or file name has value.",
+                PROP_ATTRIBUTE
+                        + "."
+                        + "6"
+                        + "."
+                        + PROP_VALUE
+                        + ";string;If data source is 'value', specity value here. If data source is 'file', specify the file name with full path.",
                 // Attribute 7
-                PROP_ATTRIBUTE + "." + "7" + "." + PROP_TYPE + ";choice(Integer,IA5String,OctetString,PrintableString,VisibleString,UTCTime,OID,Boolean);Attribute type for extension",
-                PROP_ATTRIBUTE + "." + "7" + "." + PROP_SOURCE + ";choice(Value,File);Data Source for the extension. You can specify the value here or file name has value.",
-                PROP_ATTRIBUTE + "." + "7" + "." + PROP_VALUE + ";string;If data source is 'value', specity value here. If data source is 'file', specify the file name with full path.",
+                PROP_ATTRIBUTE
+                        + "."
+                        + "7"
+                        + "."
+                        + PROP_TYPE
+                        + ";choice(Integer,IA5String,OctetString,PrintableString,VisibleString,UTCTime,OID,Boolean);Attribute type for extension",
+                PROP_ATTRIBUTE
+                        + "."
+                        + "7"
+                        + "."
+                        + PROP_SOURCE
+                        + ";choice(Value,File);Data Source for the extension. You can specify the value here or file name has value.",
+                PROP_ATTRIBUTE
+                        + "."
+                        + "7"
+                        + "."
+                        + PROP_VALUE
+                        + ";string;If data source is 'value', specity value here. If data source is 'file', specify the file name with full path.",
                 // Attribute 8
-                PROP_ATTRIBUTE + "." + "8" + "." + PROP_TYPE + ";choice(Integer,IA5String,OctetString,PrintableString,VisibleString,UTCTime,OID,Boolean);Attribute type for extension",
-                PROP_ATTRIBUTE + "." + "8" + "." + PROP_SOURCE + ";choice(Value,File);Data Source for the extension. You can specify the value here or file name has value.",
-                PROP_ATTRIBUTE + "." + "8" + "." + PROP_VALUE + ";string;If data source is 'value', specity value here. If data source is 'file', specify the file name with full path.",
+                PROP_ATTRIBUTE
+                        + "."
+                        + "8"
+                        + "."
+                        + PROP_TYPE
+                        + ";choice(Integer,IA5String,OctetString,PrintableString,VisibleString,UTCTime,OID,Boolean);Attribute type for extension",
+                PROP_ATTRIBUTE
+                        + "."
+                        + "8"
+                        + "."
+                        + PROP_SOURCE
+                        + ";choice(Value,File);Data Source for the extension. You can specify the value here or file name has value.",
+                PROP_ATTRIBUTE
+                        + "."
+                        + "8"
+                        + "."
+                        + PROP_VALUE
+                        + ";string;If data source is 'value', specity value here. If data source is 'file', specify the file name with full path.",
                 // Attribute 9
-                PROP_ATTRIBUTE + "." + "9" + "." + PROP_TYPE + ";choice(Integer,IA5String,OctetString,PrintableString,VisibleString,UTCTime,OID,Boolean);Attribute type for extension",
-                PROP_ATTRIBUTE + "." + "9" + "." + PROP_SOURCE + ";choice(Value,File);Data Source for the extension. You can specify the value here or file name has value.",
-                PROP_ATTRIBUTE + "." + "9" + "." + PROP_VALUE + ";string;If data source is 'value', specity value here. If data source is 'file', specify the file name with full path.",
+                PROP_ATTRIBUTE
+                        + "."
+                        + "9"
+                        + "."
+                        + PROP_TYPE
+                        + ";choice(Integer,IA5String,OctetString,PrintableString,VisibleString,UTCTime,OID,Boolean);Attribute type for extension",
+                PROP_ATTRIBUTE
+                        + "."
+                        + "9"
+                        + "."
+                        + PROP_SOURCE
+                        + ";choice(Value,File);Data Source for the extension. You can specify the value here or file name has value.",
+                PROP_ATTRIBUTE
+                        + "."
+                        + "9"
+                        + "."
+                        + PROP_VALUE
+                        + ";string;If data source is 'value', specity value here. If data source is 'file', specify the file name with full path.",
                 IExtendedPluginInfo.HELP_TOKEN +
                         ";configuration-policyrules-genericasn1ext",
                 IExtendedPluginInfo.HELP_TEXT +
@@ -329,7 +479,8 @@ public class GenericASN1Ext extends APolicyRule implements
             certInfo = ci[j];
             if (certInfo == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("CA_CERT_INFO_ERROR", ""));
-                setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"), NAME, "Configuration Info Error");
+                setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"), NAME,
+                        "Configuration Info Error");
                 return PolicyResult.REJECTED; // unrecoverable error.
             }
 

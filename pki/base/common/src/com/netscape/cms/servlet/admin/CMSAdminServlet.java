@@ -2072,7 +2072,8 @@ public final class CMSAdminServlet extends AdminServlet {
             //		nickname).
             //
 
-            CMS.debug("CMSAdminServlet.installCert(): About to try jssSubSystem.importCert: " + nicknameWithoutTokenName);
+            CMS.debug("CMSAdminServlet.installCert(): About to try jssSubSystem.importCert: "
+                    + nicknameWithoutTokenName);
             try {
                 jssSubSystem.importCert(pkcs, nicknameWithoutTokenName,
                         certType);
@@ -2082,7 +2083,8 @@ public final class CMSAdminServlet extends AdminServlet {
 
                 String eString = e.toString();
                 if (eString.contains("Failed to find certificate that was just imported")) {
-                    CMS.debug("CMSAdminServlet.installCert(): nickname=" + nicknameWithoutTokenName + " TokenException: " + eString);
+                    CMS.debug("CMSAdminServlet.installCert(): nickname=" + nicknameWithoutTokenName
+                            + " TokenException: " + eString);
 
                     X509Certificate cert = null;
                     try {
@@ -2109,7 +2111,8 @@ public final class CMSAdminServlet extends AdminServlet {
                     } else {
                         nickname = tokenName + ":" + newNickname;
                     }
-                    CMS.debug("CMSAdminServlet: installCert():  After second install attempt following initial error: nickname=" + nickname);
+                    CMS.debug("CMSAdminServlet: installCert():  After second install attempt following initial error: nickname="
+                            + nickname);
                 }
             }
 

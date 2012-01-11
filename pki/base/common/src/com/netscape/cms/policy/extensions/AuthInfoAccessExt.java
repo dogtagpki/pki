@@ -116,9 +116,16 @@ public class AuthInfoAccessExt extends APolicyRule implements
                 ";configuration-policyrules-authinfoaccess");
 
         for (int i = 0; i < MAX_AD; i++) {
-            v.addElement(PROP_AD + Integer.toString(i) + "_" + PROP_METHOD + ";string;" + "A unique,valid OID specified in dot-separated numeric component notation. e.g. 1.3.6.1.5.5.7.48.1 (ocsp), 1.3.6.1.5.5.7.48.2 (caIssuers), 2.16.840.1.113730.1.16.1 (renewal)");
-            v.addElement(PROP_AD + Integer.toString(i) + "_" + PROP_LOCATION_TYPE + ";" + IGeneralNameUtil.GENNAME_CHOICE_INFO);
-            v.addElement(PROP_AD + Integer.toString(i) + "_" + PROP_LOCATION + ";" + IGeneralNameUtil.GENNAME_VALUE_INFO);
+            v.addElement(PROP_AD
+                    + Integer.toString(i)
+                    + "_"
+                    + PROP_METHOD
+                    + ";string;"
+                    + "A unique,valid OID specified in dot-separated numeric component notation. e.g. 1.3.6.1.5.5.7.48.1 (ocsp), 1.3.6.1.5.5.7.48.2 (caIssuers), 2.16.840.1.113730.1.16.1 (renewal)");
+            v.addElement(PROP_AD + Integer.toString(i) + "_" + PROP_LOCATION_TYPE + ";"
+                    + IGeneralNameUtil.GENNAME_CHOICE_INFO);
+            v.addElement(PROP_AD + Integer.toString(i) + "_" + PROP_LOCATION + ";"
+                    + IGeneralNameUtil.GENNAME_VALUE_INFO);
         }
         return com.netscape.cmsutil.util.Utils.getStringArrayFromVector(v);
     }

@@ -521,12 +521,14 @@ public class EnrollmentService implements IService {
             BigInt privateKeyExponent = privateKeyDerIn.getInteger();
 
             if (!publicKeyModulus.equals(privateKeyModulus)) {
-                CMS.debug("verifyKeyPair modulus mismatch publicKeyModulus=" + publicKeyModulus + " privateKeyModulus=" + privateKeyModulus);
+                CMS.debug("verifyKeyPair modulus mismatch publicKeyModulus=" + publicKeyModulus + " privateKeyModulus="
+                        + privateKeyModulus);
                 return false;
             }
 
             if (!publicKeyExponent.equals(privateKeyExponent)) {
-                CMS.debug("verifyKeyPair exponent mismatch publicKeyExponent=" + publicKeyExponent + " privateKeyExponent=" + privateKeyExponent);
+                CMS.debug("verifyKeyPair exponent mismatch publicKeyExponent=" + publicKeyExponent
+                        + " privateKeyExponent=" + privateKeyExponent);
                 return false;
             }
 
@@ -591,7 +593,8 @@ public class EnrollmentService implements IService {
                     }
                 }
             } catch (Exception e) {
-                throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", "no PKIArchiveOptions found " + e.toString()));
+                throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", "no PKIArchiveOptions found "
+                        + e.toString()));
             }
             if (archAva != null) {
 
@@ -603,9 +606,11 @@ public class EnrollmentService implements IService {
                     archOpts = (PKIArchiveOptions)
                             (new PKIArchiveOptions.Template()).decode(bis);
                 } catch (IOException e) {
-                    throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", "[PKIArchiveOptions]" + e.toString()));
+                    throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE",
+                            "[PKIArchiveOptions]" + e.toString()));
                 } catch (InvalidBERException e) {
-                    throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", "[PKIArchiveOptions]" + e.toString()));
+                    throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE",
+                            "[PKIArchiveOptions]" + e.toString()));
                 }
                 options.addElement(new PKIArchiveOptionsContainer(archOpts, z));
             }
@@ -657,11 +662,13 @@ public class EnrollmentService implements IService {
         } catch (IOException e) {
             mKRA.log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSCORE_KRA_GET_PUBLIC_KEY", e.toString()));
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", "[" + X509CertInfo.KEY + "]" + e.toString()));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE",
+                    "[" + X509CertInfo.KEY + "]" + e.toString()));
         } catch (CertificateException e) {
             mKRA.log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSCORE_KRA_GET_PUBLIC_KEY", e.toString()));
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", "[" + X509CertInfo.KEY + "]" + e.toString()));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE",
+                    "[" + X509CertInfo.KEY + "]" + e.toString()));
         }
         X509Key pKey = null;
 
@@ -671,7 +678,8 @@ public class EnrollmentService implements IService {
         } catch (IOException e) {
             mKRA.log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSCORE_KRA_GET_PUBLIC_KEY", e.toString()));
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", "[" + CertificateX509Key.KEY + "]" + e.toString()));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", "[" + CertificateX509Key.KEY
+                    + "]" + e.toString()));
         }
         return pKey;
     }
@@ -706,11 +714,13 @@ public class EnrollmentService implements IService {
         } catch (IOException e) {
             mKRA.log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSCORE_KRA_GET_OWNER_NAME", e.toString()));
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", "[" + X509CertInfo.SUBJECT + "]" + e.toString()));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", "[" + X509CertInfo.SUBJECT + "]"
+                    + e.toString()));
         } catch (CertificateException e) {
             mKRA.log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSCORE_KRA_GET_OWNER_NAME", e.toString()));
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", "[" + X509CertInfo.SUBJECT + "]" + e.toString()));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", "[" + X509CertInfo.SUBJECT + "]"
+                    + e.toString()));
         }
         String owner = pSub.toString();
 
@@ -894,12 +904,14 @@ class ArchiveOptions {
                 EncryptedContentInfo eCI = env_data.getEncryptedContentInfo();
                 symmAlg = eCI.getContentEncryptionAlgorithm();
                 mSymmAlgOID = symmAlg.getOID().toString();
-                mSymmAlgParams = ((OCTET_STRING) ((ANY) symmAlg.getParameters()).decodeWith(OCTET_STRING.getTemplate())).toByteArray();
+                mSymmAlgParams = ((OCTET_STRING) ((ANY) symmAlg.getParameters()).decodeWith(OCTET_STRING.getTemplate()))
+                        .toByteArray();
 
                 SET recipients = env_data.getRecipientInfos();
                 if (recipients.size() <= 0) {
                     CMS.debug("EnrollService: ArchiveOptions() - missing recipient information ");
-                    throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", "[PKIArchiveOptions] missing recipient information "));
+                    throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE",
+                            "[PKIArchiveOptions] missing recipient information "));
                 }
                 //check recpient - later
                 //we only handle one recipient here anyways.  so, either the key
@@ -918,7 +930,8 @@ class ArchiveOptions {
                 val = key.getEncryptedValue();
                 symmAlg = val.getSymmAlg();
                 mSymmAlgOID = symmAlg.getOID().toString();
-                mSymmAlgParams = ((OCTET_STRING) ((ANY) symmAlg.getParameters()).decodeWith(OCTET_STRING.getTemplate())).toByteArray();
+                mSymmAlgParams = ((OCTET_STRING) ((ANY) symmAlg.getParameters()).decodeWith(OCTET_STRING.getTemplate()))
+                        .toByteArray();
                 BIT_STRING encSymmKey = val.getEncSymmKey();
 
                 mEncSymmKey = encSymmKey.getBits();
@@ -928,12 +941,14 @@ class ArchiveOptions {
                 CMS.debug("EnrollService: ArchiveOptions() EncryptedKey type= ENCRYPTED_VALUE done");
             } else {
                 CMS.debug("EnrollService: ArchiveOptions() invalid EncryptedKey type");
-                throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", "[PKIArchiveOptions] type " + key.getType()));
+                throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", "[PKIArchiveOptions] type "
+                        + key.getType()));
             }
 
         } catch (InvalidBERException e) {
             CMS.debug("EnrollService: ArchiveOptions(): " + e.toString());
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", "[PKIArchiveOptions]" + e.toString()));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE",
+                    "[PKIArchiveOptions]" + e.toString()));
         } catch (IOException e) {
             CMS.debug("EnrollService: ArchiveOptions(): " + e.toString());
             throw new EBaseException("ArchiveOptions() exception caught: " +

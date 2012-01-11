@@ -147,7 +147,8 @@ public class HttpInput {
                 i.equals("2048") || i.equals("4096")) {
             return i;
         }
-        throw new IOException("Invalid key length '" + i + "'. Currently supported key lengths are 256, 512, 1024, 2048, 4096.");
+        throw new IOException("Invalid key length '" + i
+                + "'. Currently supported key lengths are 256, 512, 1024, 2048, 4096.");
     }
 
     public static String getKeySize(HttpServletRequest request, String name, String keyType)
@@ -158,7 +159,8 @@ public class HttpInput {
                     i.equals("2048") || i.equals("4096")) {
                 return i;
             } else {
-                throw new IOException("Invalid key length '" + i + "'. Currently supported RSA key lengths are 256, 512, 1024, 2048, 4096.");
+                throw new IOException("Invalid key length '" + i
+                        + "'. Currently supported RSA key lengths are 256, 512, 1024, 2048, 4096.");
             }
         }
         if (keyType.equals("ecc")) {
@@ -171,7 +173,10 @@ public class HttpInput {
             if ((p >= 112) && (p <= 571))
                 return i;
             else {
-                throw new IOException("Invalid key length '" + i + "'. Please consult your security officer for a proper length, or take the default value. Here are examples of some commonly used key lengths: 256, 384, 521.");
+                throw new IOException(
+                        "Invalid key length '"
+                                + i
+                                + "'. Please consult your security officer for a proper length, or take the default value. Here are examples of some commonly used key lengths: 256, 384, 521.");
             }
             /*
 
@@ -260,7 +265,8 @@ public class HttpInput {
         Pattern p = Pattern.compile("[A-Za-z0-9]+[A-Za-z0-9 -]*");
         Matcher m = p.matcher(v);
         if (!m.matches()) {
-            throw new IOException("Invalid characters found in Security Domain Name " + v + ". Valid characters are A-Z, a-z, 0-9, dash and space");
+            throw new IOException("Invalid characters found in Security Domain Name " + v
+                    + ". Valid characters are A-Z, a-z, 0-9, dash and space");
         }
         return v;
     }

@@ -41,7 +41,8 @@ public final class Upgrade {
     public static void perform42to422(IConfigStore c)
             throws EBaseException {
         // upgrade CMS's configuration parameters
-        c.putString("eeGateway.dynamicVariables",
+        c.putString(
+                "eeGateway.dynamicVariables",
                 "serverdate=serverdate(),subsystemname=subsystemname(),http=http(),authmgrs=authmgrs(),clacrlurl=clacrlurl()");
 
         // new OCSP Publisher implemention

@@ -85,8 +85,10 @@ public class UniqueSubjectNameConstraints extends APolicyRule
 
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
-                PROP_PRE_AGENT_APPROVAL_CHECKING + ";boolean;If checked, check subject name uniqueness BEFORE agent approves, (else checks AFTER approval)",
-                PROP_KEY_USAGE_EXTENSION_CHECKING + ";boolean;If checked, allow non-unique subject names if Key Usage Extension differs",
+                PROP_PRE_AGENT_APPROVAL_CHECKING
+                        + ";boolean;If checked, check subject name uniqueness BEFORE agent approves, (else checks AFTER approval)",
+                PROP_KEY_USAGE_EXTENSION_CHECKING
+                        + ";boolean;If checked, allow non-unique subject names if Key Usage Extension differs",
                 IExtendedPluginInfo.HELP_TOKEN +
                         ";configuration-policyrules-uniquesubjectname",
                 IExtendedPluginInfo.HELP_TEXT +
@@ -117,11 +119,13 @@ public class UniqueSubjectNameConstraints extends APolicyRule
         if (certAuthority == null) {
             // should never get here.
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CA_CANT_FIND_MANAGER"));
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", "Cannot find the Certificate Manager or Registration Manager"));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR",
+                    "Cannot find the Certificate Manager or Registration Manager"));
         }
         if (!(certAuthority instanceof ICertificateAuthority)) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CA_CANT_FIND_MANAGER"));
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", "Cannot find the Certificate Manager"));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR",
+                    "Cannot find the Certificate Manager"));
         }
 
         mCA = (ICertificateAuthority) certAuthority;
@@ -186,7 +190,8 @@ public class UniqueSubjectNameConstraints extends APolicyRule
                     ICertRecord rec = (ICertRecord) matched.nextElement();
                     String status = rec.getStatus();
 
-                    if (status.equals(ICertRecord.STATUS_REVOKED) || status.equals(ICertRecord.STATUS_EXPIRED) || status.equals(ICertRecord.STATUS_REVOKED_EXPIRED)) {
+                    if (status.equals(ICertRecord.STATUS_REVOKED) || status.equals(ICertRecord.STATUS_EXPIRED)
+                            || status.equals(ICertRecord.STATUS_REVOKED_EXPIRED)) {
                         // accept this only if we have a REVOKED, 
                         // EXPIRED or REVOKED_EXPIRED certificate
                         continue;

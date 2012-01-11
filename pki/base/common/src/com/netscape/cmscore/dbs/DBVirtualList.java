@@ -535,7 +535,8 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
                 //       ".." + (mTop+mEntries.size()-1) +
                 //      " of " + mSize );
             } else {
-                mLogger.log(ILogger.EV_SYSTEM, ILogger.S_DB, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_DBS_VL_NULL_RESPONSE"));
+                mLogger.log(ILogger.EV_SYSTEM, ILogger.S_DB, ILogger.LL_FAILURE,
+                        CMS.getLogMessage("CMSCORE_DBS_VL_NULL_RESPONSE"));
             }
             return true;
         } catch (Exception e) {

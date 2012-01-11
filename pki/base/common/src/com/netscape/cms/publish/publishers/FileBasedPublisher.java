@@ -94,17 +94,21 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
 
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
-                PROP_DIR + ";string;Directory in which to put the files (absolute path or relative path to cert-* instance directory).",
+                PROP_DIR
+                        + ";string;Directory in which to put the files (absolute path or relative path to cert-* instance directory).",
                 PROP_DER + ";boolean;Store certificates or CRLs into *.der files.",
                 PROP_B64 + ";boolean;Store certificates or CRLs into *.b64 files.",
-                PROP_GMT + ";choice(LocalTime,GMT);Use local time or GMT to time stamp CRL file name with CRL's 'thisUpdate' field.",
-                PROP_LNK + ";boolean;Generate link to the latest binary CRL. It requires '" + PROP_DER + "' to be enabled.",
+                PROP_GMT
+                        + ";choice(LocalTime,GMT);Use local time or GMT to time stamp CRL file name with CRL's 'thisUpdate' field.",
+                PROP_LNK + ";boolean;Generate link to the latest binary CRL. It requires '" + PROP_DER
+                        + "' to be enabled.",
                 PROP_EXT + ";string;Name extension used by link to the latest CRL. Default name extension is 'der'.",
                 PROP_ZIP + ";boolean;Generate compressed CRLs.",
                 PROP_LEV + ";choice(0,1,2,3,4,5,6,7,8,9);Set compression level from 0 to 9.",
                 IExtendedPluginInfo.HELP_TOKEN +
                         ";configuration-ldappublish-publisher-filepublisher",
-                IExtendedPluginInfo.HELP_TEXT +
+                IExtendedPluginInfo.HELP_TEXT
+                        +
                         ";Stores the certificates or CRLs into files. Certificate is named as cert-<serialno>.der or *.b64, and CRL is named as <IssuingPoint>-<thisUpdate-time>.der or *.b64."
             };
 

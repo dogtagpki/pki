@@ -203,7 +203,8 @@ public class CertUtil {
     /*
      * create requests so renewal can work on these initial certs
      */
-    public static IRequest createLocalRequest(IRequestQueue queue, String serialNum, X509CertInfo info) throws EBaseException {
+    public static IRequest createLocalRequest(IRequestQueue queue, String serialNum, X509CertInfo info)
+            throws EBaseException {
         //        RequestId rid = new RequestId(serialNum);
         // just need a request, no need to get into a queue
         //        IRequest r = new EnrollmentRequest(rid);
@@ -237,7 +238,8 @@ public class CertUtil {
      * update local cert request with the actual request
      * called from CertRequestPanel.java
      */
-    public static void updateLocalRequest(IConfigStore config, String certTag, String certReq, String reqType, String subjectName) {
+    public static void updateLocalRequest(IConfigStore config, String certTag, String certReq, String reqType,
+            String subjectName) {
         try {
             CMS.debug("Updating local request... certTag=" + certTag);
             RequestId rid = new RequestId(config.getString("preop.cert." + certTag + ".reqId"));
@@ -641,7 +643,8 @@ public class CertUtil {
         try {
             privKey = cm.findPrivKeyByCert(cert);
         } catch (Exception e) {
-            CMS.debug("CertUtil privateKeyExistsOnToken: cant find private key (" + fullnickname + ") exception: " + e.toString());
+            CMS.debug("CertUtil privateKeyExistsOnToken: cant find private key (" + fullnickname + ") exception: "
+                    + e.toString());
             return false;
         }
 

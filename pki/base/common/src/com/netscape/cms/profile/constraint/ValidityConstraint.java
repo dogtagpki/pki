@@ -141,7 +141,8 @@ public class ValidityConstraint extends EnrollConstraint {
         }
 
         long millisDiff = notAfter.getTime() - notBefore.getTime();
-        CMS.debug("ValidityConstraint: millisDiff=" + millisDiff + " notAfter=" + notAfter.getTime() + " notBefore=" + notBefore.getTime());
+        CMS.debug("ValidityConstraint: millisDiff=" + millisDiff + " notAfter=" + notAfter.getTime() + " notBefore="
+                + notBefore.getTime());
         long long_days = (millisDiff / 1000) / 86400;
         CMS.debug("ValidityConstraint: long_days: " + long_days);
         int days = (int) long_days;

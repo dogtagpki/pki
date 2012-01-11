@@ -61,7 +61,8 @@ import com.netscape.cmsutil.util.HMACDigest;
 public class PKCS10Client {
 
     private static void printUsage() {
-        System.out.println("Usage: PKCS10Client -p <certdb password> -d <location of certdb> -o <output file which saves the base64 PKCS10> -s <subjectDN>\n");
+        System.out
+                .println("Usage: PKCS10Client -p <certdb password> -d <location of certdb> -o <output file which saves the base64 PKCS10> -s <subjectDN>\n");
     }
 
     public static void main(String args[]) {
@@ -193,7 +194,8 @@ public class PKCS10Client {
 
             try {
                 if (split[0].equals("UID")) {
-                    ret.addElement(new AVA(new OBJECT_IDENTIFIER("0.9.2342.19200300.100.1.1"), new PrintableString(split[1])));
+                    ret.addElement(new AVA(new OBJECT_IDENTIFIER("0.9.2342.19200300.100.1.1"), new PrintableString(
+                            split[1])));
                     //                 System.out.println("UID found : " + split[1]);
                 }
 

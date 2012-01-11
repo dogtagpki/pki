@@ -439,7 +439,8 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
                             xp = (IXcertPublisherProcessor) mPublisherProcessor;
                             xp.publishXCertPair(val);
                         } catch (Exception e) {
-                            throw new EBaseException("CrossCertPairSubsystem: publishCertPairs() failed:" + e.toString());
+                            throw new EBaseException("CrossCertPairSubsystem: publishCertPairs() failed:"
+                                    + e.toString());
                         }
                     }
                 }// while

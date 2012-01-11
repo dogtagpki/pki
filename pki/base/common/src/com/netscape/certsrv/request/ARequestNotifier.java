@@ -232,7 +232,8 @@ public class ARequestNotifier implements IRequestNotifier {
                     if (!(requestType.equals(IRequest.ENROLLMENT_REQUEST) ||
                             requestType.equals(IRequest.RENEWAL_REQUEST) ||
                             requestType.equals(IRequest.REVOCATION_REQUEST) ||
-                            requestType.equals(IRequest.CMCREVOKE_REQUEST) || requestType.equals(IRequest.UNREVOCATION_REQUEST))) {
+                            requestType.equals(IRequest.CMCREVOKE_REQUEST) || requestType
+                            .equals(IRequest.UNREVOCATION_REQUEST))) {
                         continue;
                     }
                     if (i == 0 && id.equals(r.getRequestId().toString())) {
@@ -244,7 +245,8 @@ public class ARequestNotifier implements IRequestNotifier {
                     }
                     if (mRequests.size() < mMaxRequests) {
                         mRequests.addElement(r.getRequestId().toString());
-                        CMS.debug("getRequest  added " + r.getRequestType() + " request " + r.getRequestId().toString() +
+                        CMS.debug("getRequest  added " + r.getRequestType() + " request " + r.getRequestId().toString()
+                                +
                                   " to mRequests: " + mRequests.size() + " (" + mMaxRequests + ")");
                     } else {
                         break;
@@ -512,7 +514,9 @@ class RunListeners implements Runnable {
      * RunListeners thread implementation.
      */
     public void run() {
-        CMS.debug("RunListeners::" + ((mRequestNotifier != null && mRequestNotifier.getNumberOfRequests() > 0) ? " Queue: " + mRequestNotifier.getNumberOfRequests() : " noQueue") +
+        CMS.debug("RunListeners::"
+                + ((mRequestNotifier != null && mRequestNotifier.getNumberOfRequests() > 0) ? " Queue: "
+                        + mRequestNotifier.getNumberOfRequests() : " noQueue") +
                   " " + ((mRequest != null) ? " SingleRequest" : " noSingleRequest"));
         do {
             if (mRequestNotifier != null)
@@ -528,7 +532,9 @@ class RunListeners implements Runnable {
                     mRequestNotifier.updatePublishingStatus(mRequest.getRequestId().toString());
                 }
             }
-            CMS.debug("RunListeners: " + ((mRequestNotifier != null && mRequestNotifier.getNumberOfRequests() > 0) ? " Queue: " + mRequestNotifier.getNumberOfRequests() : " noQueue") +
+            CMS.debug("RunListeners: "
+                    + ((mRequestNotifier != null && mRequestNotifier.getNumberOfRequests() > 0) ? " Queue: "
+                            + mRequestNotifier.getNumberOfRequests() : " noQueue") +
                       " " + ((mRequest != null) ? " SingleRequest" : " noSingleRequest"));
             if (mRequestNotifier != null)
                 mListeners = mRequestNotifier.getListeners();

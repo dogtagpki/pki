@@ -205,7 +205,8 @@ public class GetCertFromRequest extends CMSServlet {
             }
         }
 
-        if (!((r.getRequestType().equals(IRequest.ENROLLMENT_REQUEST)) || (r.getRequestType().equals(IRequest.RENEWAL_REQUEST)))) {
+        if (!((r.getRequestType().equals(IRequest.ENROLLMENT_REQUEST)) || (r.getRequestType()
+                .equals(IRequest.RENEWAL_REQUEST)))) {
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSGW_REQUEST_NOT_ENROLLMENT_1", requestId));
             throw new ECMSGWException(

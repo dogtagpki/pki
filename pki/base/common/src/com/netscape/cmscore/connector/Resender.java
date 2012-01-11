@@ -149,7 +149,8 @@ public class Resender implements IResender {
                 r = mQueue.findRequest(rid);
             } catch (EBaseException e) {
                 // XXX bad case. should we remove the rid now ? 
-                mAuthority.log(ILogger.LL_WARN, CMS.getLogMessage("CMSCORE_CONNECTOR_REQUEST_NOT_FOUND", rid.toString()));
+                mAuthority.log(ILogger.LL_WARN,
+                        CMS.getLogMessage("CMSCORE_CONNECTOR_REQUEST_NOT_FOUND", rid.toString()));
                 continue;
             }
             try {
@@ -163,11 +164,13 @@ public class Resender implements IResender {
 
                     if (completed) {
                         completedRids.addElement(rid);
-                        mAuthority.log(ILogger.LL_INFO, CMS.getLogMessage("CMSCORE_CONNECTOR_REQUEST_COMPLETED", rid.toString()));
+                        mAuthority.log(ILogger.LL_INFO,
+                                CMS.getLogMessage("CMSCORE_CONNECTOR_REQUEST_COMPLETED", rid.toString()));
                     }
                 }
             } catch (IOException e) {
-                mAuthority.log(ILogger.LL_WARN, CMS.getLogMessage("CMSCORE_CONNECTOR_REQUEST_ERROR", rid.toString(), e.toString()));
+                mAuthority.log(ILogger.LL_WARN,
+                        CMS.getLogMessage("CMSCORE_CONNECTOR_REQUEST_ERROR", rid.toString(), e.toString()));
             } catch (EBaseException e) {
                 // if connection is down, don't send the remaining request
                 // as it will sure fail.
@@ -237,7 +240,8 @@ public class Resender implements IResender {
             return true;
         } catch (EBaseException e) {
             // same as not having sent it, so still want to resend.
-            mAuthority.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CONNECTOR_RESEND_ERROR", r.getRequestId().toString(), e.toString()));
+            mAuthority.log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_CONNECTOR_RESEND_ERROR", r.getRequestId().toString(), e.toString()));
             if (e.toString().indexOf("Connection refused by peer") > 0)
                 throw new EBaseException("connection not available");
         }

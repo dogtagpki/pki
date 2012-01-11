@@ -533,7 +533,8 @@ public class LdapEnhancedMap
                 log(ILogger.LL_FAILURE,
                         CMS.getLogMessage("PUBLISH_NO_LDAP_SERVER"));
 
-                throw new ELdapServerDownException(CMS.getUserMessage("CMS_LDAP_SERVER_UNAVAILABLE", conn.getHost(), "" + conn.getPort()));
+                throw new ELdapServerDownException(CMS.getUserMessage("CMS_LDAP_SERVER_UNAVAILABLE", conn.getHost(), ""
+                        + conn.getPort()));
             } else if (e.getLDAPResultCode() ==
                     LDAPException.NO_SUCH_OBJECT && mCreateEntry) {
 

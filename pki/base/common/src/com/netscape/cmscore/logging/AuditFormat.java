@@ -75,13 +75,16 @@ public class AuditFormat {
     public static final String ENROLLMENTFORMAT =
             IRequest.ENROLLMENT_REQUEST + " reqID {0} {1} authenticated by {2} is {3}. DN requested: {4} {5}";
     public static final String RENEWALFORMAT =
-            IRequest.RENEWAL_REQUEST + " reqID {0} {1} authenticated by {2} is {3}. DN requested: {4} old serial number: 0x{5} {6}";
+            IRequest.RENEWAL_REQUEST
+                    + " reqID {0} {1} authenticated by {2} is {3}. DN requested: {4} old serial number: 0x{5} {6}";
     public static final String REVOCATIONFORMAT =
-            IRequest.REVOCATION_REQUEST + " reqID {0} {1} authenticated by {2} is {3}. DN requested: {4} serial number: 0x{5} revocation reason: {6} {7}";
+            IRequest.REVOCATION_REQUEST
+                    + " reqID {0} {1} authenticated by {2} is {3}. DN requested: {4} serial number: 0x{5} revocation reason: {6} {7}";
 
     // 1: fromAgent AgentID: xxx authenticated by xxx
     public static final String DOREVOKEFORMAT =
-            IRequest.REVOCATION_REQUEST + " reqID {0} {1} is {2}. DN requested: {3} serial number: 0x{4} revocation reason: {5}";
+            IRequest.REVOCATION_REQUEST
+                    + " reqID {0} {1} is {2}. DN requested: {3} serial number: 0x{4} revocation reason: {5}";
     // 1: fromAgent AgentID: xxx authenticated by xxx
     public static final String DOUNREVOKEFORMAT =
             IRequest.UNREVOCATION_REQUEST + " reqID {0} {1} is {2}. DN requested: {3} serial number: 0x{4}";

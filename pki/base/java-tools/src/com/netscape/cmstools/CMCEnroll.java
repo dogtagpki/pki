@@ -237,7 +237,8 @@ public class CMCEnroll {
             // SHA1 is the default digest Alg for now.
             DigestAlgorithm digestAlg = null;
             SignatureAlgorithm signAlg = SignatureAlgorithm.RSASignatureWithSHA1Digest;
-            org.mozilla.jss.crypto.PrivateKey.Type signingKeyType = ((org.mozilla.jss.crypto.PrivateKey) privKey).getType();
+            org.mozilla.jss.crypto.PrivateKey.Type signingKeyType = ((org.mozilla.jss.crypto.PrivateKey) privKey)
+                    .getType();
 
             if (signingKeyType.equals(org.mozilla.jss.crypto.PrivateKey.Type.DSA))
                 signAlg = SignatureAlgorithm.DSASignatureWithSHA1Digest;

@@ -198,12 +198,16 @@ public class ExtendedKeyUsageExt extends APolicyRule
             }
         }
         for (int i = 0; i < mNum; i++) {
-            v.addElement(PROP_PURPOSE_ID + Integer.toString(i) + ";string;" +
+            v.addElement(PROP_PURPOSE_ID
+                    + Integer.toString(i)
+                    + ";string;"
+                    +
                     "A unique,valid OID specified in dot-separated numeric component notation. e.g. 2.16.840.1.113730.1.99");
         }
 
         v.addElement(PROP_NUM_IDS + ";number;The total number of policy IDs.");
-        v.addElement(PROP_CRITICAL +
+        v.addElement(PROP_CRITICAL
+                +
                 ";boolean;RFC 2459 recommendation: This extension may, at the option of the certificate issuer, be either critical or non-critical.");
         v.addElement(IExtendedPluginInfo.HELP_TOKEN +
                 ";configuration-policyrules-extendedkeyusage");

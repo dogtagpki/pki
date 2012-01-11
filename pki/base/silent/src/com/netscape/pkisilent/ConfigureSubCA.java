@@ -1084,42 +1084,66 @@ public class ConfigureSubCA {
         parser.addOption("-db_name %s #db name",
                             x_db_name);
         parser.addOption("-secure_conn %s #use ldaps port (optional, default is false)", x_secure_conn);
-        parser.addOption("-remove_data %s #remove existing data under base_dn (optional, default is false) ", x_remove_data);
-        parser.addOption("-clone_start_tls %s #use startTLS for cloning replication agreement (optional, default is false)", x_clone_start_tls);
+        parser.addOption("-remove_data %s #remove existing data under base_dn (optional, default is false) ",
+                x_remove_data);
+        parser.addOption(
+                "-clone_start_tls %s #use startTLS for cloning replication agreement (optional, default is false)",
+                x_clone_start_tls);
 
         // key and algorithm options (default)
         parser.addOption("-key_type %s #Key type [RSA,ECC] (optional, default is RSA)", x_key_type);
         parser.addOption("-key_size %s #Key Size (optional, for RSA default is 2048)", x_key_size);
         parser.addOption("-key_curvename %s #Key Curve Name (optional, for ECC default is nistp256)", x_key_curvename);
-        parser.addOption("-key_algorithm %s #Key algorithm of the CA certificate (optional, default is SHA256withRSA for RSA and SHA256withEC for ECC)", x_key_algorithm);
-        parser.addOption("-signing_algorithm %s #Signing algorithm (optional, default is key_algorithm)", x_signing_algorithm);
+        parser.addOption(
+                "-key_algorithm %s #Key algorithm of the CA certificate (optional, default is SHA256withRSA for RSA and SHA256withEC for ECC)",
+                x_key_algorithm);
+        parser.addOption("-signing_algorithm %s #Signing algorithm (optional, default is key_algorithm)",
+                x_signing_algorithm);
 
         // key and algorithm options for signing certificate (overrides default)
         parser.addOption("-signing_key_type %s #Key type [RSA,ECC] (optional, default is key_type)", x_signing_key_type);
         parser.addOption("-signing_key_size %s #Key Size (optional, for RSA default is key_size)", x_signing_key_size);
-        parser.addOption("-signing_key_curvename %s #Key Curve Name (optional, for ECC default is key_curvename)", x_signing_key_curvename);
-        parser.addOption("-signing_signingalgorithm %s #Algorithm used be CA cert to sign objects (optional, default is signing_algorithm)", x_signing_signingalgorithm);
+        parser.addOption("-signing_key_curvename %s #Key Curve Name (optional, for ECC default is key_curvename)",
+                x_signing_key_curvename);
+        parser.addOption(
+                "-signing_signingalgorithm %s #Algorithm used be CA cert to sign objects (optional, default is signing_algorithm)",
+                x_signing_signingalgorithm);
 
         // key and algorithm options for ocsp_signing certificate (overrides default)
-        parser.addOption("-ocsp_signing_key_type %s #Key type [RSA,ECC] (optional, default is key_type)", x_ocsp_signing_key_type);
-        parser.addOption("-ocsp_signing_key_size %s #Key Size (optional, for RSA default is key_size)", x_ocsp_signing_key_size);
-        parser.addOption("-ocsp_signing_key_curvename %s #Key Curve Name (optional, for ECC default is key_curvename)", x_ocsp_signing_key_curvename);
-        parser.addOption("-ocsp_signing_signingalgorithm %s #Algorithm used by the OCSP signing cert to sign objects (optional, default is signing_algorithm)", x_ocsp_signing_signingalgorithm);
+        parser.addOption("-ocsp_signing_key_type %s #Key type [RSA,ECC] (optional, default is key_type)",
+                x_ocsp_signing_key_type);
+        parser.addOption("-ocsp_signing_key_size %s #Key Size (optional, for RSA default is key_size)",
+                x_ocsp_signing_key_size);
+        parser.addOption("-ocsp_signing_key_curvename %s #Key Curve Name (optional, for ECC default is key_curvename)",
+                x_ocsp_signing_key_curvename);
+        parser.addOption(
+                "-ocsp_signing_signingalgorithm %s #Algorithm used by the OCSP signing cert to sign objects (optional, default is signing_algorithm)",
+                x_ocsp_signing_signingalgorithm);
 
         // key and algorithm options for audit_signing certificate (overrides default)
-        parser.addOption("-audit_signing_key_type %s #Key type [RSA,ECC] (optional, default is key_type)", x_audit_signing_key_type);
-        parser.addOption("-audit_signing_key_size %s #Key Size (optional, for RSA default is key_size)", x_audit_signing_key_size);
-        parser.addOption("-audit_signing_key_curvename %s #Key Curve Name (optional, for ECC default is key_curvename)", x_audit_signing_key_curvename);
+        parser.addOption("-audit_signing_key_type %s #Key type [RSA,ECC] (optional, default is key_type)",
+                x_audit_signing_key_type);
+        parser.addOption("-audit_signing_key_size %s #Key Size (optional, for RSA default is key_size)",
+                x_audit_signing_key_size);
+        parser.addOption(
+                "-audit_signing_key_curvename %s #Key Curve Name (optional, for ECC default is key_curvename)",
+                x_audit_signing_key_curvename);
 
         // key and algorithm options for subsystem certificate (overrides default)
-        parser.addOption("-subsystem_key_type %s #Key type [RSA,ECC] (optional, default is key_type)", x_subsystem_key_type);
-        parser.addOption("-subsystem_key_size %s #Key Size (optional, for RSA default is key_size)", x_subsystem_key_size);
-        parser.addOption("-subsystem_key_curvename %s #Key Curve Name (optional, for ECC default is key_curvename)", x_subsystem_key_curvename);
+        parser.addOption("-subsystem_key_type %s #Key type [RSA,ECC] (optional, default is key_type)",
+                x_subsystem_key_type);
+        parser.addOption("-subsystem_key_size %s #Key Size (optional, for RSA default is key_size)",
+                x_subsystem_key_size);
+        parser.addOption("-subsystem_key_curvename %s #Key Curve Name (optional, for ECC default is key_curvename)",
+                x_subsystem_key_curvename);
 
         // key and algorithm options for sslserver certificate (overrides default)
-        parser.addOption("-sslserver_key_type %s #Key type [RSA,ECC] (optional, default is key_type)", x_sslserver_key_type);
-        parser.addOption("-sslserver_key_size %s #Key Size (optional, for RSA default is key_size)", x_sslserver_key_size);
-        parser.addOption("-sslserver_key_curvename %s #Key Curve Name (optional, for ECC default is key_curvename)", x_sslserver_key_curvename);
+        parser.addOption("-sslserver_key_type %s #Key type [RSA,ECC] (optional, default is key_type)",
+                x_sslserver_key_type);
+        parser.addOption("-sslserver_key_size %s #Key Size (optional, for RSA default is key_size)",
+                x_sslserver_key_size);
+        parser.addOption("-sslserver_key_curvename %s #Key Curve Name (optional, for ECC default is key_curvename)",
+                x_sslserver_key_curvename);
 
         parser.addOption("-token_name %s #HSM/Software Token name",
                             x_token_name);

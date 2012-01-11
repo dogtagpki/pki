@@ -407,8 +407,10 @@ public class AuthAdminServlet extends AdminServlet {
 
                 audit(auditMessage);
 
-                sendResponse(ERROR,
-                        new EAuthException(CMS.getUserMessage(getLocale(req), "CMS_AUTHENTICATION_DUP_MGR_PLUGIN_ID", id)).toString(),
+                sendResponse(
+                        ERROR,
+                        new EAuthException(CMS.getUserMessage(getLocale(req), "CMS_AUTHENTICATION_DUP_MGR_PLUGIN_ID",
+                                id)).toString(),
                         null, resp);
                 return;
             }
@@ -709,8 +711,10 @@ public class AuthAdminServlet extends AdminServlet {
 
                 audit(auditMessage);
 
-                sendResponse(ERROR,
-                        new EAuthMgrPluginNotFound(CMS.getUserMessage(getLocale(req), "CMS_AUTHENTICATION_AUTHMGR_NOT_FOUND", implname)).toString(),
+                sendResponse(
+                        ERROR,
+                        new EAuthMgrPluginNotFound(CMS.getUserMessage(getLocale(req),
+                                "CMS_AUTHENTICATION_AUTHMGR_NOT_FOUND", implname)).toString(),
                         null, resp);
                 return;
             }
@@ -762,8 +766,10 @@ public class AuthAdminServlet extends AdminServlet {
 
                 // cleanup
                 instancesConfig.removeSubStore(id);
-                sendResponse(ERROR,
-                        new EAuthException(CMS.getUserMessage(getLocale(req), "CMS_AUTHENTICATION_LOAD_CLASS_FAIL", className)).toString(),
+                sendResponse(
+                        ERROR,
+                        new EAuthException(CMS.getUserMessage(getLocale(req), "CMS_AUTHENTICATION_LOAD_CLASS_FAIL",
+                                className)).toString(),
                         null, resp);
                 return;
             } catch (InstantiationException e) {
@@ -777,8 +783,10 @@ public class AuthAdminServlet extends AdminServlet {
                 audit(auditMessage);
 
                 instancesConfig.removeSubStore(id);
-                sendResponse(ERROR,
-                        new EAuthException(CMS.getUserMessage(getLocale(req), "CMS_AUTHENTICATION_LOAD_CLASS_FAIL", className)).toString(),
+                sendResponse(
+                        ERROR,
+                        new EAuthException(CMS.getUserMessage(getLocale(req), "CMS_AUTHENTICATION_LOAD_CLASS_FAIL",
+                                className)).toString(),
                         null, resp);
                 return;
             } catch (IllegalAccessException e) {
@@ -792,8 +800,10 @@ public class AuthAdminServlet extends AdminServlet {
                 audit(auditMessage);
 
                 instancesConfig.removeSubStore(id);
-                sendResponse(ERROR,
-                        new EAuthException(CMS.getUserMessage(getLocale(req), "CMS_AUTHENTICATION_LOAD_CLASS_FAIL", className)).toString(),
+                sendResponse(
+                        ERROR,
+                        new EAuthException(CMS.getUserMessage(getLocale(req), "CMS_AUTHENTICATION_LOAD_CLASS_FAIL",
+                                className)).toString(),
                         null, resp);
                 return;
             }
@@ -1011,8 +1021,10 @@ public class AuthAdminServlet extends AdminServlet {
 
                 audit(auditMessage);
 
-                sendResponse(ERROR,
-                        new EAuthMgrPluginNotFound(CMS.getUserMessage(getLocale(req), "CMS_AUTHENTICATION_DUP_MGR_PLUGIN_ID", id)).toString(),
+                sendResponse(
+                        ERROR,
+                        new EAuthMgrPluginNotFound(CMS.getUserMessage(getLocale(req),
+                                "CMS_AUTHENTICATION_DUP_MGR_PLUGIN_ID", id)).toString(),
                         null, resp);
                 return;
             }
@@ -1181,8 +1193,10 @@ public class AuthAdminServlet extends AdminServlet {
 
                 audit(auditMessage);
 
-                sendResponse(ERROR,
-                        new EAuthMgrNotFound(CMS.getUserMessage(getLocale(req), "CMS_AUTHENTICATION_AUTHMGR_NOT_FOUND", id)).toString(),
+                sendResponse(
+                        ERROR,
+                        new EAuthMgrNotFound(CMS.getUserMessage(getLocale(req), "CMS_AUTHENTICATION_AUTHMGR_NOT_FOUND",
+                                id)).toString(),
                         null, resp);
                 return;
             }
@@ -1330,8 +1344,10 @@ public class AuthAdminServlet extends AdminServlet {
 
         // does auth manager instance exist?
         if (mAuths.getInstances().containsKey(id) == false) {
-            sendResponse(ERROR,
-                    new EAuthMgrNotFound(CMS.getUserMessage(getLocale(req), "CMS_AUTHENTICATION_AUTHMGR_NOT_FOUND", id)).toString(),
+            sendResponse(
+                    ERROR,
+                    new EAuthMgrNotFound(CMS.getUserMessage(getLocale(req), "CMS_AUTHENTICATION_AUTHMGR_NOT_FOUND", id))
+                            .toString(),
                     null, resp);
             return;
         }
@@ -1469,8 +1485,10 @@ public class AuthAdminServlet extends AdminServlet {
 
                 audit(auditMessage);
 
-                sendResponse(ERROR,
-                        new EAuthMgrPluginNotFound(CMS.getUserMessage(getLocale(req), "CMS_AUTHENTICATION_AUTHMGR_NOT_FOUND", implname)).toString(),
+                sendResponse(
+                        ERROR,
+                        new EAuthMgrPluginNotFound(CMS.getUserMessage(getLocale(req),
+                                "CMS_AUTHENTICATION_AUTHMGR_NOT_FOUND", implname)).toString(),
                         null, resp);
                 return;
             }
@@ -1546,8 +1564,10 @@ public class AuthAdminServlet extends AdminServlet {
 
                 // cleanup
                 restore(instancesConfig, id, saveParams);
-                sendResponse(ERROR,
-                        new EAuthException(CMS.getUserMessage(getLocale(req), "CMS_AUTHENTICATION_LOAD_CLASS_FAIL", className)).toString(),
+                sendResponse(
+                        ERROR,
+                        new EAuthException(CMS.getUserMessage(getLocale(req), "CMS_AUTHENTICATION_LOAD_CLASS_FAIL",
+                                className)).toString(),
                         null, resp);
                 return;
             } catch (InstantiationException e) {
@@ -1561,8 +1581,10 @@ public class AuthAdminServlet extends AdminServlet {
                 audit(auditMessage);
 
                 restore(instancesConfig, id, saveParams);
-                sendResponse(ERROR,
-                        new EAuthException(CMS.getUserMessage(getLocale(req), "CMS_AUTHENTICATION_LOAD_CLASS_FAIL", className)).toString(),
+                sendResponse(
+                        ERROR,
+                        new EAuthException(CMS.getUserMessage(getLocale(req), "CMS_AUTHENTICATION_LOAD_CLASS_FAIL",
+                                className)).toString(),
                         null, resp);
                 return;
             } catch (IllegalAccessException e) {
@@ -1576,8 +1598,10 @@ public class AuthAdminServlet extends AdminServlet {
                 audit(auditMessage);
 
                 restore(instancesConfig, id, saveParams);
-                sendResponse(ERROR,
-                        new EAuthException(CMS.getUserMessage(getLocale(req), "CMS_AUTHENTICATION_LOAD_CLASS_FAIL", className)).toString(),
+                sendResponse(
+                        ERROR,
+                        new EAuthException(CMS.getUserMessage(getLocale(req), "CMS_AUTHENTICATION_LOAD_CLASS_FAIL",
+                                className)).toString(),
                         null, resp);
                 return;
             }

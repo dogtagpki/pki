@@ -789,7 +789,8 @@ public class CRSPKIMessage {
         } else if (eci.getContentEncryptionAlgorithm().getOID().equals(DES_CBC_ENCRYPTION)) {
             encryptionAlgorithm = "DES";
         } else {
-            throw new Exception("P10 encrypted alg is not supported (not DES): " + eci.getContentEncryptionAlgorithm().getOID());
+            throw new Exception("P10 encrypted alg is not supported (not DES): "
+                    + eci.getContentEncryptionAlgorithm().getOID());
         }
 
         ec = eci.getEncryptedContent().toByteArray();

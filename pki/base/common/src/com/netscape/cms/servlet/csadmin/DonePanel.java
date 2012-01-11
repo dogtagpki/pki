@@ -495,12 +495,14 @@ public class DonePanel extends WizardPanelBase {
                     } else {
                         serialdn = "ou=keyRepository,ou=" + type.toLowerCase() + "," + basedn;
                     }
-                    LDAPAttribute attrSerialNextRange = new LDAPAttribute("nextRange", endSerialNum.add(oneNum).toString());
+                    LDAPAttribute attrSerialNextRange = new LDAPAttribute("nextRange", endSerialNum.add(oneNum)
+                            .toString());
                     LDAPModification serialmod = new LDAPModification(LDAPModification.REPLACE, attrSerialNextRange);
                     conn.modify(serialdn, serialmod);
 
                     String requestdn = "ou=" + type.toLowerCase() + ",ou=requests," + basedn;
-                    LDAPAttribute attrRequestNextRange = new LDAPAttribute("nextRange", endRequestNum.add(oneNum).toString());
+                    LDAPAttribute attrRequestNextRange = new LDAPAttribute("nextRange", endRequestNum.add(oneNum)
+                            .toString());
                     LDAPModification requestmod = new LDAPModification(LDAPModification.REPLACE, attrRequestNextRange);
                     conn.modify(requestdn, requestmod);
 
@@ -540,9 +542,12 @@ public class DonePanel extends WizardPanelBase {
                 cs.putString("cloning." + ss + ".keytype", cs.getString("preop.cert." + ss + ".keytype", ""));
                 cs.putString("cloning." + ss + ".keyalgorithm", cs.getString("preop.cert." + ss + ".keyalgorithm", ""));
                 cs.putString("cloning." + ss + ".privkey.id", cs.getString("preop.cert." + ss + ".privkey.id", ""));
-                cs.putString("cloning." + ss + ".pubkey.exponent", cs.getString("preop.cert." + ss + ".pubkey.exponent", ""));
-                cs.putString("cloning." + ss + ".pubkey.modulus", cs.getString("preop.cert." + ss + ".pubkey.modulus", ""));
-                cs.putString("cloning." + ss + ".pubkey.encoded", cs.getString("preop.cert." + ss + ".pubkey.encoded", ""));
+                cs.putString("cloning." + ss + ".pubkey.exponent",
+                        cs.getString("preop.cert." + ss + ".pubkey.exponent", ""));
+                cs.putString("cloning." + ss + ".pubkey.modulus",
+                        cs.getString("preop.cert." + ss + ".pubkey.modulus", ""));
+                cs.putString("cloning." + ss + ".pubkey.encoded",
+                        cs.getString("preop.cert." + ss + ".pubkey.encoded", ""));
             }
             cs.putString("cloning.module.token", cs.getString("preop.module.token", ""));
             cs.putString("cloning.list", list);
@@ -772,7 +777,12 @@ public class DonePanel extends WizardPanelBase {
         } else {
             CMS.debug("DonePanel: Transport certificate is being setup in " + url);
             String session_id = CMS.getConfigSDSessionId();
-            String content = "ca.connector.KRA.enable=true&ca.connector.KRA.local=false&ca.connector.KRA.timeout=30&ca.connector.KRA.uri=/kra/agent/kra/connector&ca.connector.KRA.host=" + ownagenthost + "&ca.connector.KRA.port=" + ownagentsport + "&ca.connector.KRA.transportCert=" + URLEncoder.encode(transportCert) + "&sessionID=" + session_id;
+            String content = "ca.connector.KRA.enable=true&ca.connector.KRA.local=false&ca.connector.KRA.timeout=30&ca.connector.KRA.uri=/kra/agent/kra/connector&ca.connector.KRA.host="
+                    + ownagenthost
+                    + "&ca.connector.KRA.port="
+                    + ownagentsport
+                    + "&ca.connector.KRA.transportCert="
+                    + URLEncoder.encode(transportCert) + "&sessionID=" + session_id;
 
             updateConnectorInfo(host, port, true, content);
         }

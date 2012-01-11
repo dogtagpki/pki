@@ -1146,7 +1146,8 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         // ensure that any low-level exceptions are reported
         // to the signed audit log and stored as failures
         try {
-            CMS.debug("KeyRecoveryAuthority: in asynchronous doKeyRecovery(), request state =" + r.getRequestStatus().toString());
+            CMS.debug("KeyRecoveryAuthority: in asynchronous doKeyRecovery(), request state ="
+                    + r.getRequestStatus().toString());
             // can only process requests in begin state
             r.setRequestStatus(RequestStatus.BEGIN);
             queue.processRequest(r);
@@ -1420,7 +1421,8 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
                 IConfigStore rq = nc.getSubStore(PROP_REQ_IN_Q_SUBSTORE);
                 IAuthority cSub = (IAuthority) this;
 
-                String requestInQListenerClassName = nc.getString("certificateIssuedListenerClassName", "com.netscape.cms.listeners.RequestInQListener");
+                String requestInQListenerClassName = nc.getString("certificateIssuedListenerClassName",
+                        "com.netscape.cms.listeners.RequestInQListener");
 
                 try {
                     mReqInQListener = (IRequestListener) Class.forName(requestInQListenerClassName).newInstance();

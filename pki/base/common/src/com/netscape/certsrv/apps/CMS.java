@@ -328,7 +328,8 @@ public final class CMS {
      * 
      * @return issuing record
      */
-    public static ICRLIssuingPointRecord createCRLIssuingPointRecord(String id, BigInteger crlNumber, Long crlSize, Date thisUpdate, Date nextUpdate) {
+    public static ICRLIssuingPointRecord createCRLIssuingPointRecord(String id, BigInteger crlNumber, Long crlSize,
+            Date thisUpdate, Date nextUpdate) {
         return _engine.createCRLIssuingPointRecord(id, crlNumber, crlSize, thisUpdate, nextUpdate);
     }
 
@@ -758,7 +759,8 @@ public final class CMS {
      * @param p7 7th parameter
      * @return localized log message
      */
-    public static String getLogMessage(String msgID, String p1, String p2, String p3, String p4, String p5, String p6, String p7) {
+    public static String getLogMessage(String msgID, String p1, String p2, String p3, String p4, String p5, String p6,
+            String p7) {
         return _engine.getLogMessage(msgID, p1, p2, p3, p4, p5, p6, p7);
     }
 
@@ -776,7 +778,8 @@ public final class CMS {
      * @param p8 8th parameter
      * @return localized log message
      */
-    public static String getLogMessage(String msgID, String p1, String p2, String p3, String p4, String p5, String p6, String p7, String p8) {
+    public static String getLogMessage(String msgID, String p1, String p2, String p3, String p4, String p5, String p6,
+            String p7, String p8) {
         return _engine.getLogMessage(msgID, p1, p2, p3, p4, p5, p6, p7, p8);
     }
 
@@ -795,7 +798,8 @@ public final class CMS {
      * @param p9 9th parameter
      * @return localized log message
      */
-    public static String getLogMessage(String msgID, String p1, String p2, String p3, String p4, String p5, String p6, String p7, String p8, String p9) {
+    public static String getLogMessage(String msgID, String p1, String p2, String p3, String p4, String p5, String p6,
+            String p7, String p8, String p9) {
         return _engine.getLogMessage(msgID, p1, p2, p3, p4, p5, p6, p7, p8, p9);
     }
 
@@ -1019,7 +1023,8 @@ public final class CMS {
      * @return general name object
      * @exception EBaseException failed to create general name constraint
      */
-    public static GeneralName form_GeneralNameAsConstraints(String generalNameChoice, String value) throws EBaseException {
+    public static GeneralName form_GeneralNameAsConstraints(String generalNameChoice, String value)
+            throws EBaseException {
         return _engine.form_GeneralName(generalNameChoice, value);
     }
 
@@ -1066,7 +1071,8 @@ public final class CMS {
      * @param isValueConfigured true if value is configured
      * @exception EBaseException failed to create subject alt name configuration
      */
-    public static ISubjAltNameConfig createSubjAltNameConfig(String name, IConfigStore config, boolean isValueConfigured) throws EBaseException {
+    public static ISubjAltNameConfig createSubjAltNameConfig(String name, IConfigStore config, boolean isValueConfigured)
+            throws EBaseException {
         return _engine.createSubjAltNameConfig(
                 name, config, isValueConfigured);
     }
@@ -1152,7 +1158,8 @@ public final class CMS {
      * @param isPolicyEnabled true if policy is enabled
      * @exception EBaseException failed to create subject alt name configuration
      */
-    public static IGeneralNameAsConstraintsConfig createGeneralNameAsConstraintsConfig(String name, IConfigStore config, boolean isValueConfigured,
+    public static IGeneralNameAsConstraintsConfig createGeneralNameAsConstraintsConfig(String name,
+            IConfigStore config, boolean isValueConfigured,
             boolean isPolicyEnabled) throws EBaseException {
         return _engine.createGeneralNameAsConstraintsConfig(
                 name, config, isValueConfigured, isPolicyEnabled);
@@ -1167,7 +1174,8 @@ public final class CMS {
      * @param isPolicyEnabled true if policy is enabled
      * @exception EBaseException failed to create subject alt name configuration
      */
-    public static IGeneralNamesAsConstraintsConfig createGeneralNamesAsConstraintsConfig(String name, IConfigStore config, boolean isValueConfigured,
+    public static IGeneralNamesAsConstraintsConfig createGeneralNamesAsConstraintsConfig(String name,
+            IConfigStore config, boolean isValueConfigured,
             boolean isPolicyEnabled) throws EBaseException {
         return _engine.createGeneralNamesAsConstraintsConfig(
                 name, config, isValueConfigured, isPolicyEnabled);

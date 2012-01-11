@@ -65,7 +65,8 @@ public class IssuerConstraints extends APolicyRule
 
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
-                PROP_ISSUER_DN + ";string;Subject DN of the Issuer. The IssuerDN of the authenticating cert must match what's specified here",
+                PROP_ISSUER_DN
+                        + ";string;Subject DN of the Issuer. The IssuerDN of the authenticating cert must match what's specified here",
                 IExtendedPluginInfo.HELP_TOKEN +
                         ";configuration-policyrules-issuerconstraints",
                 IExtendedPluginInfo.HELP_TEXT +
@@ -131,7 +132,8 @@ public class IssuerConstraints extends APolicyRule
                     log(ILogger.LL_FAILURE,
                             CMS.getLogMessage("CA_GET_ISSUER_NAME_FAILED"));
                     CMS.debug(
-                            NAME + ": apply() - issuerDN mismatch: client issuerDN = " + clientIssuerDN + "; expected issuerDN = " + mIssuerDNString);
+                            NAME + ": apply() - issuerDN mismatch: client issuerDN = " + clientIssuerDN
+                                    + "; expected issuerDN = " + mIssuerDNString);
                 }
             } else {
 
@@ -167,7 +169,8 @@ public class IssuerConstraints extends APolicyRule
                                         getInstanceName()), "");
                         result = PolicyResult.REJECTED;
                         log(ILogger.LL_FAILURE,
-                                NAME + ": apply() - cert issuerDN mismatch: client issuerDN = " + oldIssuer + "; expected issuerDN = " + mIssuerDNString);
+                                NAME + ": apply() - cert issuerDN mismatch: client issuerDN = " + oldIssuer
+                                        + "; expected issuerDN = " + mIssuerDNString);
                     }
                 }
             }

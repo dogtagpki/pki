@@ -191,7 +191,8 @@ public class ProfileSubmitServlet extends ProfileServlet {
 
     }
 
-    private void setCredentialsIntoContext(HttpServletRequest request, IProfileAuthenticator authenticator, IProfileContext ctx) {
+    private void setCredentialsIntoContext(HttpServletRequest request, IProfileAuthenticator authenticator,
+            IProfileContext ctx) {
         Enumeration authIds = authenticator.getValueNames();
 
         if (authIds != null) {
@@ -343,7 +344,8 @@ public class ProfileSubmitServlet extends ProfileServlet {
                         if (request.getParameter(inputName) != null) {
                             // special characters in subject names parameters must be escaped
                             if (inputName.matches("^sn_.*")) {
-                                req.setExtData(inputName, escapeValueRfc1779(request.getParameter(inputName), false).toString());
+                                req.setExtData(inputName, escapeValueRfc1779(request.getParameter(inputName), false)
+                                        .toString());
                             } else {
                                 req.setExtData(inputName, request.getParameter(inputName));
                             }
@@ -713,17 +715,21 @@ public class ProfileSubmitServlet extends ProfileServlet {
                 }
                 ICertRecord rec = (ICertRecord) certDB.readCertificateRecord(certSerial);
                 if (rec == null) {
-                    CMS.debug("ProfileSubmitServlet: renewal cert record not found for serial number " + certSerial.toString());
+                    CMS.debug("ProfileSubmitServlet: renewal cert record not found for serial number "
+                            + certSerial.toString());
                     args.set(ARG_ERROR_CODE, "1");
                     args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
                             "CMS_INTERNAL_ERROR"));
                     outputTemplate(request, response, args);
                     return;
                 } else {
-                    CMS.debug("ProfileSubmitServlet: renewal cert record found for serial number:" + certSerial.toString());
+                    CMS.debug("ProfileSubmitServlet: renewal cert record found for serial number:"
+                            + certSerial.toString());
                     // check to see if the cert is revoked or revoked_expired
-                    if ((rec.getStatus().equals(ICertRecord.STATUS_REVOKED)) || (rec.getStatus().equals(ICertRecord.STATUS_REVOKED_EXPIRED))) {
-                        CMS.debug("ProfileSubmitServlet: renewal cert found to be revoked. Serial number = " + certSerial.toString());
+                    if ((rec.getStatus().equals(ICertRecord.STATUS_REVOKED))
+                            || (rec.getStatus().equals(ICertRecord.STATUS_REVOKED_EXPIRED))) {
+                        CMS.debug("ProfileSubmitServlet: renewal cert found to be revoked. Serial number = "
+                                + certSerial.toString());
                         args.set(ARG_ERROR_CODE, "1");
                         args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
                                 "CMS_CA_CANNOT_RENEW_REVOKED_CERT", certSerial.toString()));
@@ -766,7 +772,8 @@ public class ProfileSubmitServlet extends ProfileServlet {
                                 origSeqNum = origReq.getExtDataInInteger(IEnrollProfile.REQUEST_SEQ_NUM);
 
                             } else { //if origReq
-                                CMS.debug("ProfileSubmitServlet: renewal original request not found for request id " + rid);
+                                CMS.debug("ProfileSubmitServlet: renewal original request not found for request id "
+                                        + rid);
                                 args.set(ARG_ERROR_CODE, "1");
                                 args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
                                         "CMS_INTERNAL_ERROR"));
@@ -774,7 +781,8 @@ public class ProfileSubmitServlet extends ProfileServlet {
                                 return;
                             }
                         } else {
-                            CMS.debug("ProfileSubmitServlet: renewal: cert record locating request id in MetaInfo failed for serial number " + certSerial.toString());
+                            CMS.debug("ProfileSubmitServlet: renewal: cert record locating request id in MetaInfo failed for serial number "
+                                    + certSerial.toString());
                             CMS.debug("ProfileSubmitServlet: renewal: cert may be bootstrapped system cert during installation/configuration - no request record exists");
                             args.set(ARG_ERROR_CODE, "1");
                             args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
@@ -783,7 +791,8 @@ public class ProfileSubmitServlet extends ProfileServlet {
                             return;
                         }
                     } else {
-                        CMS.debug("ProfileSubmitServlet: renewal: cert record locating MetaInfo failed for serial number " + certSerial.toString());
+                        CMS.debug("ProfileSubmitServlet: renewal: cert record locating MetaInfo failed for serial number "
+                                + certSerial.toString());
                         args.set(ARG_ERROR_CODE, "1");
                         args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
                                 "CMS_INTERNAL_ERROR"));
@@ -1188,7 +1197,8 @@ public class ProfileSubmitServlet extends ProfileServlet {
                 // no profile set found
                 CMS.debug("ProfileSubmitServlet: no profile policy set found");
                 if (xmlOutput) {
-                    outputError(response, FAILED, CMS.getUserMessage("CMS_PROFILE_NO_POLICY_SET_FOUND"), reqs[k].getRequestId().toString());
+                    outputError(response, FAILED, CMS.getUserMessage("CMS_PROFILE_NO_POLICY_SET_FOUND"), reqs[k]
+                            .getRequestId().toString());
                 } else {
                     args.set(ARG_ERROR_CODE, "1");
                     args.set(ARG_ERROR_REASON,
@@ -1237,7 +1247,8 @@ public class ProfileSubmitServlet extends ProfileServlet {
                 //  throw new IOException("Profile " + profileId + 
                 //          " cannot populate");
                 if (xmlOutput) {
-                    outputError(response, FAILED, CMS.getUserMessage(locale, "CMS_INTERNAL_ERROR"), reqs[k].getRequestId().toString());
+                    outputError(response, FAILED, CMS.getUserMessage(locale, "CMS_INTERNAL_ERROR"), reqs[k]
+                            .getRequestId().toString());
                 } else {
                     args.set(ARG_ERROR_CODE, "1");
                     args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,

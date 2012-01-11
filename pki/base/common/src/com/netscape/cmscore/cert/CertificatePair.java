@@ -168,7 +168,8 @@ public class CertificatePair implements ASN1Value {
             debug("got cacert public key bytes length=" + caCertBytes.length);
         else {
             debug("cacert public key bytes null");
-            throw new EBaseException("CertificatePair: certOrders() fails to get this CA's signing certificate public key encoded");
+            throw new EBaseException(
+                    "CertificatePair: certOrders() fails to get this CA's signing certificate public key encoded");
         }
 
         byte[] c1Bytes = c1.getPublicKey().getEncoded();
@@ -196,7 +197,8 @@ public class CertificatePair implements ASN1Value {
             return false;
         } else {
             debug("neither c1 nor c2 public key matches with this ca");
-            throw new EBaseException("CertificatePair: need correct forward and reverse relationship to construct CertificatePair");
+            throw new EBaseException(
+                    "CertificatePair: need correct forward and reverse relationship to construct CertificatePair");
         }
     }
 

@@ -656,7 +656,8 @@ public class ProcessCertReq extends CMSServlet {
                                         updateNSExtension(req, nsExtensions);
                                     }
                                 } catch (IOException e) {
-                                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ERROR_PROCESS_NETSCAPE_EXTENSION", e.toString()));
+                                    log(ILogger.LL_FAILURE,
+                                            CMS.getLogMessage("CMSGW_ERROR_PROCESS_NETSCAPE_EXTENSION", e.toString()));
                                 }
 
                                 String pathLength = req.getParameter("pathLenConstraint");
@@ -685,9 +686,13 @@ public class ProcessCertReq extends CMSServlet {
                                             }
                                         }
                                     } catch (IOException e) {
-                                        log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ERROR_PROCESS_CONSTRAINTS_EXTENSION", e.toString()));
+                                        log(ILogger.LL_FAILURE,
+                                                CMS.getLogMessage("CMSGW_ERROR_PROCESS_CONSTRAINTS_EXTENSION",
+                                                        e.toString()));
                                     } catch (NumberFormatException e) {
-                                        log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ERROR_PROCESS_CONSTRAINTS_EXTENSION", e.toString()));
+                                        log(ILogger.LL_FAILURE,
+                                                CMS.getLogMessage("CMSGW_ERROR_PROCESS_CONSTRAINTS_EXTENSION",
+                                                        e.toString()));
                                     }
                                 }
 
@@ -746,7 +751,9 @@ public class ProcessCertReq extends CMSServlet {
                                     } catch (Exception e1) {
                                     }
                                     // create extension
-                                    PresenceServerExtension pseExt = new PresenceServerExtension(Critical, Version, StreetAddress, TelephoneNumber, RFC822Name, IMID, HostName, PortNumber, MaxUsers, ServiceLevel);
+                                    PresenceServerExtension pseExt = new PresenceServerExtension(Critical, Version,
+                                            StreetAddress, TelephoneNumber, RFC822Name, IMID, HostName, PortNumber,
+                                            MaxUsers, ServiceLevel);
 
                                     extensions.set(pseExt.getExtensionId().toString(), pseExt);
                                 }
@@ -925,7 +932,8 @@ public class ProcessCertReq extends CMSServlet {
                                                 "completed",
                                                 issuedCerts[i].getSubjectDN(),
                                                 "cert issued serial number: 0x" +
-                                                        issuedCerts[i].getSerialNumber().toString(16) + " time: " + (endTime - startTime) }
+                                                        issuedCerts[i].getSerialNumber().toString(16) + " time: "
+                                                        + (endTime - startTime) }
                                         );
 
                                 // store a message in the signed audit log file

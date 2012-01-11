@@ -44,7 +44,8 @@ import org.mozilla.jss.crypto.X509Certificate;
 public class AuditVerify {
 
     private static void usage() {
-        System.out.println("Usage: AuditVerify -d <dbdir> -n <signing certificate nickname> -a <log list file> [-P <cert/key db prefix>] [-v]");
+        System.out
+                .println("Usage: AuditVerify -d <dbdir> -n <signing certificate nickname> -a <log list file> [-P <cert/key db prefix>] [-v]");
         System.exit(1);
     }
 

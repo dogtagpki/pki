@@ -41,9 +41,12 @@ public class CMSInstance {
      * Constructor. Takes parameters hostname, adminserverport, adminDN, adminDNpassword, Dominanname, ServerRoot( full path) , instanceID, mnameand sieURL. mname is the fully qualified name of the server ( jupiter2.nscp.aoltw.net) sieURL is ("ldap://jupiter2.nscp.aoltw.net:(ConfigLADPPort)/o=NetscapeRoot"
      */
 
-    private String cs_server_root, cs_tps_root, tps_hostname, tps_fqdn, tps_instanceid, tps_ee_port, tps_agent_port, tps_auth_ldap_host, tps_auth_ldap_port, tps_auth_ldap_suffix, ca_hostname, ca_ee_port, tks_hostname, tks_agent_port, token_db_hostname, token_db_port, token_db_suffix, token_db_passwd;
+    private String cs_server_root, cs_tps_root, tps_hostname, tps_fqdn, tps_instanceid, tps_ee_port, tps_agent_port,
+            tps_auth_ldap_host, tps_auth_ldap_port, tps_auth_ldap_suffix, ca_hostname, ca_ee_port, tks_hostname,
+            tks_agent_port, token_db_hostname, token_db_port, token_db_suffix, token_db_passwd;
 
-    public CMSInstance(String h, String p, String AdDN, String pwd, String domain, String sroot, String insID, String mname, String sieURL) {
+    public CMSInstance(String h, String p, String AdDN, String pwd, String domain, String sroot, String insID,
+            String mname, String sieURL) {
 
         host = h;
         port = p;
@@ -254,7 +257,8 @@ public class CMSInstance {
 
         System.out.println(args.length);
         if (args.length < 10) {
-            System.out.println(
+            System.out
+                    .println(
                     "Usage : <task:Create/REmove> host port AdminDN AdminDNPW adminDomain serverRoot instanceID machineName sieURL");
             System.exit(-1);
         }

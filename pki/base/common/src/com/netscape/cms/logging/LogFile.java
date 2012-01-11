@@ -816,7 +816,8 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
                 try {
                     pushSignature();
                 } catch (ELogException le) {
-                    ConsoleError.send(new SystemEvent(CMS.getUserMessage("CMS_LOG_FLUSH_LOG_FAILED", mFileName, le.toString())));
+                    ConsoleError.send(new SystemEvent(CMS.getUserMessage("CMS_LOG_FLUSH_LOG_FAILED", mFileName,
+                            le.toString())));
                 }
             }
 
@@ -1019,7 +1020,8 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
                     }
                 }
             } catch (IOException e) {
-                ConsoleError.send(new SystemEvent(CMS.getUserMessage("CMS_LOG_WRITE_FAILED", mFileName, entry, e.toString())));
+                ConsoleError.send(new SystemEvent(CMS.getUserMessage("CMS_LOG_WRITE_FAILED", mFileName, entry,
+                        e.toString())));
                 if (mLogSigning) {
                     // Failed to write to audit log, shut down CMS
                     e.printStackTrace();
@@ -1453,7 +1455,8 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
     public String[] getExtendedPluginInfo(Locale locale) {
         if (mType.equals(ILogger.PROP_SIGNED_AUDIT)) {
             String[] params = {
-                    PROP_TYPE + ";choice(transaction,signedAudit,system);The log event type this instance is listening to",
+                    PROP_TYPE
+                            + ";choice(transaction,signedAudit,system);The log event type this instance is listening to",
                     PROP_ON + ";boolean;Turn on the listener",
                     PROP_LEVEL + ";choice(" + ILogger.LL_DEBUG_STRING + "," +
                             ILogger.LL_INFO_STRING + "," +
@@ -1461,10 +1464,12 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
                             ILogger.LL_FAILURE_STRING + "," +
                             ILogger.LL_MISCONF_STRING + "," +
                             ILogger.LL_CATASTRPHE_STRING + "," +
-                            ILogger.LL_SECURITY_STRING + ");Only log message with level higher than this filter will be written by this listener",
+                            ILogger.LL_SECURITY_STRING
+                            + ");Only log message with level higher than this filter will be written by this listener",
                     PROP_FILE_NAME + ";string;The name of the file the log is written to",
                     PROP_BUFFER_SIZE + ";integer;The size of the buffer to receive log messages in kilobytes(KB)",
-                    PROP_FLUSH_INTERVAL + ";integer;The maximum time in seconds before the buffer is flushed to the file",
+                    PROP_FLUSH_INTERVAL
+                            + ";integer;The maximum time in seconds before the buffer is flushed to the file",
                     IExtendedPluginInfo.HELP_TOKEN +
                             ";configuration-logrules-logfile",
                     IExtendedPluginInfo.HELP_TEXT +
@@ -1473,7 +1478,8 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
                             ";boolean;Enable audit logs to be signed",
                     PROP_SIGNED_AUDIT_CERT_NICKNAME +
                             ";string;The nickname of the certificate to be used to sign audit logs",
-                    PROP_SIGNED_AUDIT_EVENTS +
+                    PROP_SIGNED_AUDIT_EVENTS
+                            +
                             ";string;A comma-separated list of strings used to specify particular signed audit log events",
             };
 
@@ -1482,7 +1488,8 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
             // mType.equals( ILogger.PROP_AUDIT )  ||
             // mType.equals( ILogger.PROP_SYSTEM )
             String[] params = {
-                    PROP_TYPE + ";choice(transaction,signedAudit,system);The log event type this instance is listening to",
+                    PROP_TYPE
+                            + ";choice(transaction,signedAudit,system);The log event type this instance is listening to",
                     PROP_ON + ";boolean;Turn on the listener",
                     PROP_LEVEL + ";choice(" + ILogger.LL_DEBUG_STRING + "," +
                             ILogger.LL_INFO_STRING + "," +
@@ -1490,10 +1497,12 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
                             ILogger.LL_FAILURE_STRING + "," +
                             ILogger.LL_MISCONF_STRING + "," +
                             ILogger.LL_CATASTRPHE_STRING + "," +
-                            ILogger.LL_SECURITY_STRING + ");Only log message with level higher than this filter will be written by this listener",
+                            ILogger.LL_SECURITY_STRING
+                            + ");Only log message with level higher than this filter will be written by this listener",
                     PROP_FILE_NAME + ";string;The name of the file the log is written to",
                     PROP_BUFFER_SIZE + ";integer;The size of the buffer to receive log messages in kilobytes(KB)",
-                    PROP_FLUSH_INTERVAL + ";integer;The maximum time in seconds before the buffer is flushed to the file",
+                    PROP_FLUSH_INTERVAL
+                            + ";integer;The maximum time in seconds before the buffer is flushed to the file",
                     IExtendedPluginInfo.HELP_TOKEN +
                             ";configuration-logrules-logfile",
                     IExtendedPluginInfo.HELP_TEXT +

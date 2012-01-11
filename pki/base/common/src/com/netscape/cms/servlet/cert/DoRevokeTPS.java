@@ -390,7 +390,8 @@ public class DoRevokeTPS extends CMSServlet {
 
                 // we do not want to revoke the CA certificate accidentially
                 if (xcert != null && isSystemCertificate(xcert.getSerialNumber())) {
-                    CMS.debug("DoRevokeTPS: skipped revocation request for system certificate " + xcert.getSerialNumber());
+                    CMS.debug("DoRevokeTPS: skipped revocation request for system certificate "
+                            + xcert.getSerialNumber());
                     badCertsRequested = true;
                     continue;
                 }
@@ -506,7 +507,8 @@ public class DoRevokeTPS extends CMSServlet {
             // The SVC_PENDING check has been added for the Cloned CA request
             // that is meant for the Master CA. From Clone's point of view
             // the request is complete
-            if ((stat == RequestStatus.COMPLETE) || ((type.equals(IRequest.CLA_CERT4CRL_REQUEST)) && (stat == RequestStatus.SVC_PENDING))) {
+            if ((stat == RequestStatus.COMPLETE)
+                    || ((type.equals(IRequest.CLA_CERT4CRL_REQUEST)) && (stat == RequestStatus.SVC_PENDING))) {
                 // audit log the error 
                 Integer result = revReq.getExtDataInInteger(IRequest.RESULT);
 
@@ -587,7 +589,8 @@ public class DoRevokeTPS extends CMSServlet {
                                             "completed",
                                             cert.getSubjectDN(),
                                             cert.getSerialNumber().toString(16),
-                                            RevocationReason.fromInt(reason).toString() + " time: " + (endTime - startTime) }
+                                            RevocationReason.fromInt(reason).toString() + " time: "
+                                                    + (endTime - startTime) }
                                     );
                         }
                     }

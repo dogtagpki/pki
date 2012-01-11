@@ -396,8 +396,10 @@ public class TokenServlet extends CMSServlet {
 
                 try {
 
-                    byte macKeyArray[] = com.netscape.cmsutil.util.Utils.SpecialDecode(sconfig.getString("tks." + keySet + ".mac_key"));
-                    CMS.debug("TokenServlet about to try ComputeSessionKey selectedToken=" + selectedToken + " keyNickName=" + keyNickName);
+                    byte macKeyArray[] = com.netscape.cmsutil.util.Utils.SpecialDecode(sconfig.getString("tks."
+                            + keySet + ".mac_key"));
+                    CMS.debug("TokenServlet about to try ComputeSessionKey selectedToken=" + selectedToken
+                            + " keyNickName=" + keyNickName);
                     session_key = SessionKey.ComputeSessionKey(
                             selectedToken, keyNickName, card_challenge,
                             host_challenge, keyInfo, CUID, macKeyArray, useSoftToken_s, keySet, transportKeyName);
@@ -408,7 +410,8 @@ public class TokenServlet extends CMSServlet {
 
                     }
 
-                    byte encKeyArray[] = com.netscape.cmsutil.util.Utils.SpecialDecode(sconfig.getString("tks." + keySet + ".auth_key"));
+                    byte encKeyArray[] = com.netscape.cmsutil.util.Utils.SpecialDecode(sconfig.getString("tks."
+                            + keySet + ".auth_key"));
                     enc_session_key = SessionKey.ComputeEncSessionKey(
                             selectedToken, keyNickName, card_challenge,
                             host_challenge, keyInfo, CUID, encKeyArray, useSoftToken_s, keySet);
@@ -430,7 +433,8 @@ public class TokenServlet extends CMSServlet {
                          **/
                         CMS.debug("TokenServlet: calling ComputeKekKey");
 
-                        byte kekKeyArray[] = com.netscape.cmsutil.util.Utils.SpecialDecode(sconfig.getString("tks." + keySet + ".kek_key"));
+                        byte kekKeyArray[] = com.netscape.cmsutil.util.Utils.SpecialDecode(sconfig.getString("tks."
+                                + keySet + ".kek_key"));
 
                         kek_key = SessionKey.ComputeKekKey(
                                 selectedToken, keyNickName, card_challenge,
@@ -541,7 +545,8 @@ public class TokenServlet extends CMSServlet {
 
                     } // if (serversideKeygen == true)
 
-                    byte authKeyArray[] = com.netscape.cmsutil.util.Utils.SpecialDecode(sconfig.getString("tks." + keySet + ".auth_key"));
+                    byte authKeyArray[] = com.netscape.cmsutil.util.Utils.SpecialDecode(sconfig.getString("tks."
+                            + keySet + ".auth_key"));
                     host_cryptogram = SessionKey.ComputeCryptogram(
                             selectedToken, keyNickName, card_challenge,
                             host_challenge, keyInfo, CUID, 0, authKeyArray, useSoftToken_s, keySet);
@@ -864,7 +869,8 @@ public class TokenServlet extends CMSServlet {
                     " oldKeyNickName=" + oldKeyNickName + " newKeyNickName=" +
                     newKeyNickName);
 
-            byte kekKeyArray[] = com.netscape.cmsutil.util.Utils.SpecialDecode(sconfig.getString("tks." + keySet + ".kek_key"));
+            byte kekKeyArray[] = com.netscape.cmsutil.util.Utils.SpecialDecode(sconfig.getString("tks." + keySet
+                    + ".kek_key"));
             KeySetData = SessionKey.DiversifyKey(oldSelectedToken,
                      newSelectedToken, oldKeyNickName,
                     newKeyNickName, rnewKeyInfo, CUID, kekKeyArray, useSoftToken_s, keySet);
@@ -1068,7 +1074,8 @@ public class TokenServlet extends CMSServlet {
                 keyNickName = st.nextToken();
             }
 
-            byte kekKeyArray[] = com.netscape.cmsutil.util.Utils.SpecialDecode(sconfig.getString("tks." + keySet + ".kek_key"));
+            byte kekKeyArray[] = com.netscape.cmsutil.util.Utils.SpecialDecode(sconfig.getString("tks." + keySet
+                    + ".kek_key"));
             encryptedData = SessionKey.EncryptData(
                        selectedToken, keyNickName, data, keyInfo, CUID, kekKeyArray, useSoftToken_s, keySet);
 

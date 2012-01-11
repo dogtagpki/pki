@@ -128,7 +128,8 @@ public class DBRegistryTest extends CMSBaseTestCase {
                     attrName.toLowerCase().startsWith("extdata-");
         }
 
-        public void mapLDAPAttributeSetToObject(LDAPAttributeSet attrs, String name, IDBObj parent) throws EBaseException {
+        public void mapLDAPAttributeSetToObject(LDAPAttributeSet attrs, String name, IDBObj parent)
+                throws EBaseException {
             mapLDAPAttrsCalled = true;
         }
 

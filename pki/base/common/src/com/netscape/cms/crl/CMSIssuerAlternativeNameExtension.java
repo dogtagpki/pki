@@ -73,7 +73,8 @@ public class CMSIssuerAlternativeNameExtension
         GeneralNames names = null;
 
         try {
-            names = (GeneralNames) ((IssuerAlternativeNameExtension) ext).get(IssuerAlternativeNameExtension.ISSUER_NAME);
+            names = (GeneralNames) ((IssuerAlternativeNameExtension) ext)
+                    .get(IssuerAlternativeNameExtension.ISSUER_NAME);
             issuerAltNameExt = new IssuerAlternativeNameExtension(Boolean.valueOf(critical), names);
         } catch (IOException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_ISSUER_ALT_NAME_EXT", e.toString()));
@@ -102,9 +103,11 @@ public class CMSIssuerAlternativeNameExtension
                 try {
                     nameType = config.getString("nameType" + i);
                 } catch (EPropertyNotFound e) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_ISSUER_UNDEFINED_TYPE", Integer.toString(i), e.toString()));
+                    log(ILogger.LL_FAILURE,
+                            CMS.getLogMessage("CRL_CREATE_ISSUER_UNDEFINED_TYPE", Integer.toString(i), e.toString()));
                 } catch (EBaseException e) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_ISSUER_INVALID_TYPE", Integer.toString(i), e.toString()));
+                    log(ILogger.LL_FAILURE,
+                            CMS.getLogMessage("CRL_CREATE_ISSUER_INVALID_TYPE", Integer.toString(i), e.toString()));
                 }
 
                 if (nameType != null && nameType.length() > 0) {
@@ -113,9 +116,11 @@ public class CMSIssuerAlternativeNameExtension
                     try {
                         name = config.getString("name" + i);
                     } catch (EPropertyNotFound e) {
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_ISSUER_UNDEFINED_TYPE", Integer.toString(i), e.toString()));
+                        log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_ISSUER_UNDEFINED_TYPE",
+                                Integer.toString(i), e.toString()));
                     } catch (EBaseException e) {
-                        log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_ISSUER_INVALID_TYPE", Integer.toString(i), e.toString()));
+                        log(ILogger.LL_FAILURE,
+                                CMS.getLogMessage("CRL_CREATE_ISSUER_INVALID_TYPE", Integer.toString(i), e.toString()));
                     }
 
                     if (name != null && name.length() > 0) {

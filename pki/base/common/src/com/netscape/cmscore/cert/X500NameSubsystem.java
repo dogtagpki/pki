@@ -209,7 +209,8 @@ public class X500NameSubsystem implements ISubsystem {
             } catch (IllegalArgumentException e) {
                 String msg = "unknown DER tag '" + nextTag + "'.";
 
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CERT_UNKNOWN_TAG", PROP_DIR_STR_ENCODING_ORDER, nextTag));
+                log(ILogger.LL_FAILURE,
+                        CMS.getLogMessage("CMSCORE_CERT_UNKNOWN_TAG", PROP_DIR_STR_ENCODING_ORDER, nextTag));
                 throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE",
                             PROP_DIR_STR_ENCODING_ORDER, msg));
             }

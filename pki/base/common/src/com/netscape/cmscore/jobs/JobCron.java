@@ -131,14 +131,16 @@ public class JobCron implements IJobCron {
          * the '*' one will remain empty (no elements)
          */
         // day-of-week
-        if ((sDayOMonth != null) && sDayOMonth.equals(CronItem.ALL) && (sDayOWeek != null) && !sDayOWeek.equals(CronItem.ALL)) {
+        if ((sDayOMonth != null) && sDayOMonth.equals(CronItem.ALL) && (sDayOWeek != null)
+                && !sDayOWeek.equals(CronItem.ALL)) {
             try {
                 cDOW.set(sDayOWeek);
             } catch (EBaseException e) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_JOBS_INVALID_DAY_OF_WEEK", e.toString()));
                 throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_JOB_CRON"));
             }
-        } else if ((sDayOMonth != null) && !sDayOMonth.equals(CronItem.ALL) && (sDayOWeek != null) && sDayOWeek.equals(CronItem.ALL)) {
+        } else if ((sDayOMonth != null) && !sDayOMonth.equals(CronItem.ALL) && (sDayOWeek != null)
+                && sDayOWeek.equals(CronItem.ALL)) {
             try {
                 cDOM.set(sDayOMonth);
             } catch (EBaseException e) {

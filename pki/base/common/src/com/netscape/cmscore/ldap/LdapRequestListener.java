@@ -477,8 +477,10 @@ class LdapUnrevocationListener implements IRequestListener {
                         try {
                             certRecord = (ICertRecord) certdb.readCertificateRecord(serial);
                         } catch (EBaseException e) {
-                            mProcessor.log(ILogger.LL_FAILURE,
-                                    CMS.getLogMessage("CMSCORE_LDAP_GET_CERT_RECORD", serial.toString(16), e.toString()));
+                            mProcessor
+                                    .log(ILogger.LL_FAILURE,
+                                            CMS.getLogMessage("CMSCORE_LDAP_GET_CERT_RECORD", serial.toString(16),
+                                                    e.toString()));
                         }
                     }
                 }

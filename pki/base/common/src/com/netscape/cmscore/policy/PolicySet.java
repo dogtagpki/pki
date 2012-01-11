@@ -229,9 +229,12 @@ public class PolicySet implements IPolicySet {
                 // The policy may have bug. We want to
                 // catch those problems and report
                 // them to the log
-                mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
+                mLogger.log(
+                        ILogger.EV_SYSTEM,
+                        ILogger.S_OTHER,
                         ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSCORE_POLICY_ERROR_RESULT", req.getRequestId().toString(), name, ex.toString()));
+                        CMS.getLogMessage("CMSCORE_POLICY_ERROR_RESULT", req.getRequestId().toString(), name,
+                                ex.toString()));
                 // treat as rejected to prevent request from going into 
                 // a weird state. request queue doesn't handle this case.
                 rejected = true;

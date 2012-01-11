@@ -193,7 +193,9 @@ public class DSAKeyConstraints extends APolicyRule
                     Object[] params = new Object[] {
                             getInstanceName(), String.valueOf(i + 1) };
 
-                    setError(req, CMS.getUserMessage("CMS_POLICY_NO_KEY_PARAMS", getInstanceName(), String.valueOf(i + 1)), "");
+                    setError(req,
+                            CMS.getUserMessage("CMS_POLICY_NO_KEY_PARAMS", getInstanceName(), String.valueOf(i + 1)),
+                            "");
                     return PolicyResult.REJECTED;
                 }
                 BigInteger p = keyParams.getP();

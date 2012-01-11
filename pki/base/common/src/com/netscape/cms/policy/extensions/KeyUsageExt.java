@@ -315,15 +315,24 @@ public class KeyUsageExt extends APolicyRule
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
                 PROP_CRITICAL + ";boolean;RFC 2459 recommendation: SHOULD be critical",
-                PROP_DIGITAL_SIGNATURE + ";choice(true,false,HTTP_INPUT);true means always set this bit, false means don't set this bit, HTTP_INPUT means get this bit from the HTTP input",
-                PROP_NON_REPUDIATION + ";choice(true,false,HTTP_INPUT);true means always set this bit, false means don't set this bit, HTTP_INPUT means get this bit from the HTTP input",
-                PROP_KEY_ENCIPHERMENT + ";choice(true,false,HTTP_INPUT);true means always set this bit, false means don't set this bit, HTTP_INPUT means get this bit from the HTTP input",
-                PROP_DATA_ENCIPHERMENT + ";choice(true,false,HTTP_INPUT);true means always set this bit, false means don't set this bit, HTTP_INPUT means get this bit from the HTTP input",
-                PROP_KEY_AGREEMENT + ";choice(true,false,HTTP_INPUT);true means always set this bit, false means don't set this bit, HTTP_INPUT means get this bit from the HTTP input",
-                PROP_KEY_CERTSIGN + ";choice(true,false,HTTP_INPUT);true means always set this bit, false means don't set this bit, HTTP_INPUT means get this bit from the HTTP input",
-                PROP_CRL_SIGN + ";choice(true,false,HTTP_INPUT);true means always set this bit, false means don't set this bit, HTTP_INPUT means get this bit from the HTTP input",
-                PROP_ENCIPHER_ONLY + ";choice(true,false,HTTP_INPUT);true means always set this bit, false means don't set this bit, HTTP_INPUT means get this bit from the HTTP input",
-                PROP_DECIPHER_ONLY + ";choice(true,false,HTTP_INPUT);true means always set this bit, false means don't set this bit, HTTP_INPUT means get this bit from the HTTP input",
+                PROP_DIGITAL_SIGNATURE
+                        + ";choice(true,false,HTTP_INPUT);true means always set this bit, false means don't set this bit, HTTP_INPUT means get this bit from the HTTP input",
+                PROP_NON_REPUDIATION
+                        + ";choice(true,false,HTTP_INPUT);true means always set this bit, false means don't set this bit, HTTP_INPUT means get this bit from the HTTP input",
+                PROP_KEY_ENCIPHERMENT
+                        + ";choice(true,false,HTTP_INPUT);true means always set this bit, false means don't set this bit, HTTP_INPUT means get this bit from the HTTP input",
+                PROP_DATA_ENCIPHERMENT
+                        + ";choice(true,false,HTTP_INPUT);true means always set this bit, false means don't set this bit, HTTP_INPUT means get this bit from the HTTP input",
+                PROP_KEY_AGREEMENT
+                        + ";choice(true,false,HTTP_INPUT);true means always set this bit, false means don't set this bit, HTTP_INPUT means get this bit from the HTTP input",
+                PROP_KEY_CERTSIGN
+                        + ";choice(true,false,HTTP_INPUT);true means always set this bit, false means don't set this bit, HTTP_INPUT means get this bit from the HTTP input",
+                PROP_CRL_SIGN
+                        + ";choice(true,false,HTTP_INPUT);true means always set this bit, false means don't set this bit, HTTP_INPUT means get this bit from the HTTP input",
+                PROP_ENCIPHER_ONLY
+                        + ";choice(true,false,HTTP_INPUT);true means always set this bit, false means don't set this bit, HTTP_INPUT means get this bit from the HTTP input",
+                PROP_DECIPHER_ONLY
+                        + ";choice(true,false,HTTP_INPUT);true means always set this bit, false means don't set this bit, HTTP_INPUT means get this bit from the HTTP input",
                 IExtendedPluginInfo.HELP_TOKEN +
                         ";configuration-policyrules-keyusage",
                 IExtendedPluginInfo.HELP_TEXT +

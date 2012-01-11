@@ -487,7 +487,8 @@ public class HashEnrollServlet extends CMSServlet {
                 }
 
                 String filter =
-                        "(&(x509cert.subject=" + certBasedOldSubjectDN + ")(!(x509cert.serialNumber=" + certBasedOldSerialNum + "))(certStatus=VALID))";
+                        "(&(x509cert.subject=" + certBasedOldSubjectDN + ")(!(x509cert.serialNumber="
+                                + certBasedOldSerialNum + "))(certStatus=VALID))";
                 ICertRecordList list =
                         (ICertRecordList) mCa.getCertificateRepository().findCertRecordsInList(filter,
                                 null, 10);
@@ -946,7 +947,8 @@ public class HashEnrollServlet extends CMSServlet {
                 // field suggested notBefore and notAfter in CRMF
                 // Tech Support #383184
                 if (certTemplate.getNotBefore() != null || certTemplate.getNotAfter() != null) {
-                    CertificateValidity certValidity = new CertificateValidity(certTemplate.getNotBefore(), certTemplate.getNotAfter());
+                    CertificateValidity certValidity = new CertificateValidity(certTemplate.getNotBefore(),
+                            certTemplate.getNotAfter());
 
                     certInfo.set(X509CertInfo.VALIDITY, certValidity);
                 }

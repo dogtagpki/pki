@@ -52,7 +52,8 @@ public class Request extends TestClient {
     // Cert Detail variables 
 
     private String csrRequestorName, csrRequestorPhone, csrRequestorEmail, subject, subjectdn, reqStatus, certType;
-    private String requestType, requestID, sslclient, clientcert, servercert, emailcert, objectsigningcert, sslcacert, objectsigningcacert, emailcacert, sigAlgo, totalRecord, validitylength, trustedManager;
+    private String requestType, requestID, sslclient, clientcert, servercert, emailcert, objectsigningcert, sslcacert,
+            objectsigningcacert, emailcacert, sigAlgo, totalRecord, validitylength, trustedManager;
 
     private int totalNumApproved = 0;
 
@@ -102,7 +103,8 @@ public class Request extends TestClient {
      * @param trustedManager true/false
      */
 
-    public Request(String h, String p, String aid, String apwd, String cname, String cd, String ctpwd, String snum, String sfrom, String sto, String ty, String rty, String rstate, String aty, String tm) {
+    public Request(String h, String p, String aid, String apwd, String cname, String cd, String ctpwd, String snum,
+            String sfrom, String sto, String ty, String rty, String rstate, String aty, String tm) {
         host = h;
         ports = p;
         adminid = aid;

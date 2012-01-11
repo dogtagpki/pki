@@ -390,7 +390,8 @@ public class CertUtils {
         sb.append("\n");
         sb.append("Encryption Certificate Serial No: " + encryptionCert.getSerialNumber().toString(16).toUpperCase());
         sb.append("\n");
-        sb.append("Validity: From: " + signingCert.getNotBefore().toString() + "  To: " + signingCert.getNotAfter().toString());
+        sb.append("Validity: From: " + signingCert.getNotBefore().toString() + "  To: "
+                + signingCert.getNotAfter().toString());
         sb.append("\n");
         return new String(sb);
     }
@@ -918,7 +919,8 @@ public class CertUtils {
             }
             String certusage = config.getString(subsysType + ".cert." + tag + ".certusage", "");
             if (certusage.equals("")) {
-                CMS.debug("CertUtils: verifySystemCertByTag() certusage for cert tag " + tag + " undefined in CS.cfg, getting current certificate usage");
+                CMS.debug("CertUtils: verifySystemCertByTag() certusage for cert tag " + tag
+                        + " undefined in CS.cfg, getting current certificate usage");
             }
             r = verifySystemCertByNickname(nickname, certusage);
             if (r == true) {
@@ -1030,7 +1032,8 @@ public class CertUtils {
             }
             String certlist = config.getString(subsysType + ".cert.list", "");
             if (certlist.equals("")) {
-                CMS.debug("CertUtils: verifySystemCerts() " + subsysType + ".cert.list not defined in CS.cfg. System certificates verification not done");
+                CMS.debug("CertUtils: verifySystemCerts() " + subsysType
+                        + ".cert.list not defined in CS.cfg. System certificates verification not done");
                 auditMessage = CMS.getLogMessage(
                             LOGGING_SIGNED_AUDIT_CIMC_CERT_VERIFICATION,
                             ILogger.SYSTEM_UID,

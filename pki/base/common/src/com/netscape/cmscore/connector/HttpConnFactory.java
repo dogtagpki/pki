@@ -64,7 +64,8 @@ public class HttpConnFactory {
      * @param maxConns max number of connections to have available. This is
      * @param serverInfo server connection info - host, port, etc.
      */
-    public HttpConnFactory(int minConns, int maxConns, IAuthority source, IRemoteAuthority dest, String nickname, int timeout) throws EBaseException {
+    public HttpConnFactory(int minConns, int maxConns, IAuthority source, IRemoteAuthority dest, String nickname,
+            int timeout) throws EBaseException {
 
         CMS.debug("In HttpConnFactory constructor mTimeout " + timeout);
         mSource = source;

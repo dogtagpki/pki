@@ -395,7 +395,8 @@ public class PropConfigStore implements IConfigStore, Cloneable {
         } else if (value.equalsIgnoreCase("false")) {
             return false;
         } else {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_PROPERTY_1", getName() + "." + name, "boolean", "\"true\" or \"false\""));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_PROPERTY_1", getName() + "." + name,
+                    "boolean", "\"true\" or \"false\""));
         }
     }
 
@@ -458,7 +459,8 @@ public class PropConfigStore implements IConfigStore, Cloneable {
             CMS.traceHashKey(mDebugType, getFullName(name), value);
             return Integer.parseInt(value);
         } catch (NumberFormatException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_PROPERTY_1", getName() + "." + name, "int", "number"));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_PROPERTY_1", getName() + "." + name, "int",
+                    "number"));
         }
     }
 
@@ -521,7 +523,8 @@ public class PropConfigStore implements IConfigStore, Cloneable {
             }
             return new BigInteger(value);
         } catch (NumberFormatException e) {
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_PROPERTY_1", getName() + "." + name, "BigInteger", "number"));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_PROPERTY_1", getName() + "." + name,
+                    "BigInteger", "number"));
         }
     }
 

@@ -82,7 +82,8 @@ public class DirEnroll extends TestClient {
      * @param adminpassword
      */
 
-    public DirEnroll(String hs, String p, String uid, String pw, String certdir, String certtokenpwd, String nickname, String ksz, String kt) {
+    public DirEnroll(String hs, String p, String uid, String pw, String certdir, String certtokenpwd, String nickname,
+            String ksz, String kt) {
 
         host = hs;
         ports = p;

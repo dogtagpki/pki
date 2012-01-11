@@ -877,18 +877,22 @@ public abstract class BasicProfile implements IProfile {
                 // noDefaultImpl, genericExtDefaultImpl
 
                 if ((curDefaultClassId.equals(defaultClassId) &&
-                        !curDefaultClassId.equals(PROP_NO_DEFAULT) && !curDefaultClassId.equals(PROP_GENERIC_EXT_DEFAULT))) {
+                        !curDefaultClassId.equals(PROP_NO_DEFAULT) && !curDefaultClassId
+                        .equals(PROP_GENERIC_EXT_DEFAULT))) {
 
                     matches++;
                     if (createConfig) {
                         if (matches == 1) {
-                            CMS.debug("WARNING attempt to add duplicate Policy " + defaultClassId + ":" + constraintClassId +
+                            CMS.debug("WARNING attempt to add duplicate Policy " + defaultClassId + ":"
+                                    + constraintClassId +
                                     " Contact System Administrator.");
-                            throw new EProfileException("Attempt to add duplicate Policy : " + defaultClassId + ":" + constraintClassId);
+                            throw new EProfileException("Attempt to add duplicate Policy : " + defaultClassId + ":"
+                                    + constraintClassId);
                         }
                     } else {
                         if (matches > 1) {
-                            CMS.debug("WARNING attempt to add duplicate Policy " + defaultClassId + ":" + constraintClassId +
+                            CMS.debug("WARNING attempt to add duplicate Policy " + defaultClassId + ":"
+                                    + constraintClassId +
                                     " Contact System Administrator.");
                         }
                     }

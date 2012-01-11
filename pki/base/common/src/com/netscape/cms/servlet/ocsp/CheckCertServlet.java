@@ -191,7 +191,8 @@ public class CheckCertServlet extends CMSServlet {
         } catch (Exception e) {
             header.addStringValue(ATTR_STATUS, STATUS_UNKNOWN);
         }
-        log(ILogger.EV_AUDIT, AuditFormat.LEVEL, "Checked Certificate Status " + cert.getIssuerDN().getName() + " " + cert.getSerialNumber().toString());
+        log(ILogger.EV_AUDIT, AuditFormat.LEVEL, "Checked Certificate Status " + cert.getIssuerDN().getName() + " "
+                + cert.getSerialNumber().toString());
 
         try {
             ServletOutputStream out = resp.getOutputStream();

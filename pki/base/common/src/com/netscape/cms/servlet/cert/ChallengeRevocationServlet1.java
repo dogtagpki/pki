@@ -213,7 +213,8 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                 certs = new X509CertImpl[serialNoArray.length];
 
                 for (int i = 0; i < serialNoArray.length; i++) {
-                    certs[i] = ((ICertificateAuthority) mAuthority).getCertificateRepository().getX509Certificate(serialNoArray[i]);
+                    certs[i] = ((ICertificateAuthority) mAuthority).getCertificateRepository().getX509Certificate(
+                            serialNoArray[i]);
                 }
 
             } else if (mAuthority instanceof IRegistrationAuthority) {
@@ -370,7 +371,8 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                 Vector serialNumbers = new Vector();
 
                 if (revokeAll != null && revokeAll.length() > 0) {
-                    for (int i = revokeAll.indexOf('='); i < revokeAll.length() && i > -1; i = revokeAll.indexOf('=', i)) {
+                    for (int i = revokeAll.indexOf('='); i < revokeAll.length() && i > -1; i = revokeAll
+                            .indexOf('=', i)) {
                         if (i > -1) {
                             i++;
                             while (i < revokeAll.length() && revokeAll.charAt(i) == ' ') {
@@ -576,14 +578,16 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
 
                         if (updateResult != null) {
                             if (updateResult.equals(IRequest.RES_SUCCESS)) {
-                                CMS.debug("ChallengeRevcationServlet1: " + CMS.getLogMessage("ADMIN_SRVLT_ADDING_HEADER",
-                                        updateStatusStr));
+                                CMS.debug("ChallengeRevcationServlet1: "
+                                        + CMS.getLogMessage("ADMIN_SRVLT_ADDING_HEADER",
+                                                updateStatusStr));
                                 header.addStringValue(updateStatusStr, "yes");
                             } else {
                                 String updateErrorStr = crl.getCrlUpdateErrorStr();
 
-                                CMS.debug("ChallengeRevcationServlet1: " + CMS.getLogMessage("ADMIN_SRVLT_ADDING_HEADER_NO",
-                                        updateStatusStr));
+                                CMS.debug("ChallengeRevcationServlet1: "
+                                        + CMS.getLogMessage("ADMIN_SRVLT_ADDING_HEADER_NO",
+                                                updateStatusStr));
                                 header.addStringValue(updateStatusStr, "no");
                                 String error =
                                         revReq.getExtDataInString(updateErrorStr);

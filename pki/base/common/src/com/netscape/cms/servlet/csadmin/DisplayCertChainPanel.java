@@ -195,9 +195,11 @@ public class DisplayCertChainPanel extends WizardPanelBase {
                 String cs_hostname = cs.getString("machineName", "");
                 int cs_port = cs.getInteger("pkicreate.admin_secure_port", -1);
                 String subsystem = cs.getString("cs.type", "");
-                String urlVal = "https://" + cs_hostname + ":" + cs_port + "/" + toLowerCaseSubsystemType(subsystem) + "/admin/console/config/wizard?p=" + panel + "&subsystem=" + subsystem;
+                String urlVal = "https://" + cs_hostname + ":" + cs_port + "/" + toLowerCaseSubsystemType(subsystem)
+                        + "/admin/console/config/wizard?p=" + panel + "&subsystem=" + subsystem;
                 String encodedValue = URLEncoder.encode(urlVal, "UTF-8");
-                String sdurl = "https://" + sd_hostname + ":" + sd_port + "/ca/admin/ca/securityDomainLogin?url=" + encodedValue;
+                String sdurl = "https://" + sd_hostname + ":" + sd_port + "/ca/admin/ca/securityDomainLogin?url="
+                        + encodedValue;
                 response.sendRedirect(sdurl);
 
                 // The user previously specified the CA Security Domain's

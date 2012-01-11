@@ -69,7 +69,8 @@ public class MigrateSecurityDomain {
             System.out.println("MigrateSecurityDomain getLDAPConn: creating secure (SSL) connection for internal ldap");
             conn = new LDAPConnection(new LdapJssSSLSocketFactory());
         } else {
-            System.out.println("MigrateSecurityDomain getLDAPConn: creating non-secure (non-SSL) connection for internal ldap");
+            System.out
+                    .println("MigrateSecurityDomain getLDAPConn: creating non-secure (non-SSL) connection for internal ldap");
             conn = new LDAPConnection();
         }
 

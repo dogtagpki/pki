@@ -314,7 +314,8 @@ public class LdapCaCertPublisher
                 // "DSA is unavailable" which confuses with DSA PKI.
                 log(ILogger.LL_FAILURE,
                         CMS.getLogMessage("PUBLISH_NO_LDAP_SERVER"));
-                throw new ELdapServerDownException(CMS.getUserMessage("CMS_LDAP_SERVER_UNAVAILABLE", conn.getHost(), "" + conn.getPort()));
+                throw new ELdapServerDownException(CMS.getUserMessage("CMS_LDAP_SERVER_UNAVAILABLE", conn.getHost(), ""
+                        + conn.getPort()));
             } else {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_PUBLISHER_EXCEPTION", "", e.toString()));
                 throw new ELdapException(CMS.getUserMessage("CMS_LDAP_PUBLISH_CACERT_ERROR", e.toString()));
@@ -399,7 +400,8 @@ public class LdapCaCertPublisher
                 // "DSA is unavailable" which confuses with DSA PKI.
                 log(ILogger.LL_FAILURE,
                         CMS.getLogMessage("PUBLISH_NO_LDAP_SERVER"));
-                throw new ELdapServerDownException(CMS.getUserMessage("CMS_LDAP_SERVER_UNAVAILABLE", conn.getHost(), "" + conn.getPort()));
+                throw new ELdapServerDownException(CMS.getUserMessage("CMS_LDAP_SERVER_UNAVAILABLE", conn.getHost(), ""
+                        + conn.getPort()));
             } else {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_UNPUBLISH_ERROR", e.toString()));
                 throw new ELdapException(CMS.getUserMessage("CMS_LDAP_UNPUBLISH_CACERT_ERROR", e.toString()));

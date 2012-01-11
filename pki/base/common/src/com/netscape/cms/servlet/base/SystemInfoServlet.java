@@ -213,7 +213,8 @@ public class SystemInfoServlet extends HttpServlet {
         response.getWriter().println("Free Memory / Total Memory:");
         response.getWriter().println("</td>");
         response.getWriter().println("<td>");
-        response.getWriter().println((Runtime.getRuntime().freeMemory() * 100) / Runtime.getRuntime().totalMemory() + "%");
+        response.getWriter().println(
+                (Runtime.getRuntime().freeMemory() * 100) / Runtime.getRuntime().totalMemory() + "%");
         response.getWriter().println("</td>");
         response.getWriter().println("</tr>");
         response.getWriter().println("</table>");

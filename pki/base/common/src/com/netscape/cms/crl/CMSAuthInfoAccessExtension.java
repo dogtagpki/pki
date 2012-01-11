@@ -139,7 +139,8 @@ public class CMSAuthInfoAccessExtension
                         accessLocation = "http://" + hostname + ":" + port + "/ca/ee/ca/getCAChain?op=downloadBIN";
                     }
                     URIName uriName = new URIName(accessLocation);
-                    authInfoAccessExt.addAccessDescription(AuthInfoAccessExtension.METHOD_CA_ISSUERS, new GeneralName(uriName));
+                    authInfoAccessExt.addAccessDescription(AuthInfoAccessExtension.METHOD_CA_ISSUERS, new GeneralName(
+                            uriName));
                 }
             }
         }

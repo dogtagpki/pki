@@ -697,7 +697,8 @@ public class CRSEnrollment extends HttpServlet {
                 if (attr.getName().equals(ChallengePassword.NAME)) {
                     if (attr.get(ChallengePassword.PASSWORD) != null) {
                         pkcs10Attr = pkcs10Attr +
-                                         "<ChallengePassword><Password>" + (String) attr.get(ChallengePassword.PASSWORD) + "</Password></ChallengePassword>";
+                                         "<ChallengePassword><Password>"
+                                + (String) attr.get(ChallengePassword.PASSWORD) + "</Password></ChallengePassword>";
                     }
 
                 }
@@ -1306,7 +1307,9 @@ public class CRSEnrollment extends HttpServlet {
                 }
 
             } catch (Exception sne) {
-                log(ILogger.LL_INFO, "Unable to use appendDN parameter: " + mAppendDN + ". Error is " + sne.getMessage() + " Using unmodified subjectname");
+                log(ILogger.LL_INFO,
+                        "Unable to use appendDN parameter: " + mAppendDN + ". Error is " + sne.getMessage()
+                                + " Using unmodified subjectname");
             }
 
             if (subject != null)
@@ -1987,7 +1990,8 @@ public class CRSEnrollment extends HttpServlet {
                 BIT_STRING bs = (BIT_STRING) outerSeq.elementAt(1);
                 byte[] encPubKey = bs.getBits();
                 if (bs.getPadCount() != 0) {
-                    throw new CryptoContextException("Internal error: Invalid Public key. Not an integral number of bytes.");
+                    throw new CryptoContextException(
+                            "Internal error: Invalid Public key. Not an integral number of bytes.");
                 }
                 SEQUENCE.Template inner = new SEQUENCE.Template();
                 inner.addElement(INTEGER.getTemplate());
@@ -2004,7 +2008,8 @@ public class CRSEnrollment extends HttpServlet {
                 }
 
             } catch (InvalidBERException e) {
-                throw new CryptoContextException("Internal Error: Bad internal Certificate Representation. Not a valid RSA-signed certificate");
+                throw new CryptoContextException(
+                        "Internal Error: Bad internal Certificate Representation. Not a valid RSA-signed certificate");
             } catch (CryptoManager.NotInitializedException e) {
                 throw new CryptoContextException("Crypto Manager not initialized");
             } catch (NoSuchAlgorithmException e) {

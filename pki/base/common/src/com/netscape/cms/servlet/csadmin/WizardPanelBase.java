@@ -1133,7 +1133,8 @@ public class WizardPanelBase implements IWizardPanel {
                 Vector v_admin_port = parser.getValuesFromContainer(nodeList.item(i),
                         "SecureAdminPort");
 
-                if (v_host.elementAt(0).equals(hostname) && v_admin_port.elementAt(0).equals(new Integer(httpsadminport).toString())) {
+                if (v_host.elementAt(0).equals(hostname)
+                        && v_admin_port.elementAt(0).equals(new Integer(httpsadminport).toString())) {
                     // add security domain CA to the beginning of list
                     v.add(0, v_name.elementAt(0)
                             + " - https://"
@@ -1629,7 +1630,8 @@ public class WizardPanelBase implements IWizardPanel {
             int cs_port = cs.getInteger("pkicreate.admin_secure_port", -1);
             int panel = getPanelNo();
             String subsystem = cs.getString("cs.type", "");
-            String urlVal = "https://" + cs_hostname + ":" + cs_port + "/" + toLowerCaseSubsystemType(subsystem) + "/admin/console/config/wizard?p=" + panel + "&subsystem=" + subsystem;
+            String urlVal = "https://" + cs_hostname + ":" + cs_port + "/" + toLowerCaseSubsystemType(subsystem)
+                    + "/admin/console/config/wizard?p=" + panel + "&subsystem=" + subsystem;
             String encodedValue = URLEncoder.encode(urlVal, "UTF-8");
             String sdurl = "https://" + hostname + ":" + port + "/ca/admin/ca/securityDomainLogin?url=" + encodedValue;
             response.sendRedirect(sdurl);

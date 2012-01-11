@@ -493,21 +493,24 @@ public class CheckRequest extends CMSServlet {
                                             x509cert = ((IRegistrationAuthority) mAuthority).getRACert();
                                         }
                                         if (x509cert == null)
-                                            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_CMC_ERROR", "No signing cert found."));
+                                            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_CMC_ERROR",
+                                                    "No signing cert found."));
 
                                         X509CertImpl cert = new X509CertImpl(x509cert.getEncoded());
                                         ByteArrayInputStream issuer1 = new
                                                 ByteArrayInputStream(((X500Name) cert.getIssuerDN()).getEncoded());
                                         Name issuer = (Name) Name.getTemplate().decode(issuer1);
                                         IssuerAndSerialNumber ias = new
-                                                IssuerAndSerialNumber(issuer, new INTEGER(cert.getSerialNumber().toString()));
+                                                IssuerAndSerialNumber(issuer, new INTEGER(cert.getSerialNumber()
+                                                        .toString()));
                                         SignerIdentifier si = new
                                                 SignerIdentifier(SignerIdentifier.ISSUER_AND_SERIALNUMBER, ias, null);
 
                                         // SHA1 is the default digest Alg for now.
                                         DigestAlgorithm digestAlg = null;
                                         SignatureAlgorithm signAlg = null;
-                                        org.mozilla.jss.crypto.PrivateKey privKey = CryptoManager.getInstance().findPrivKeyByCert(x509cert);
+                                        org.mozilla.jss.crypto.PrivateKey privKey = CryptoManager.getInstance()
+                                                .findPrivKeyByCert(x509cert);
                                         org.mozilla.jss.crypto.PrivateKey.Type keyType = privKey.getType();
 
                                         if (keyType.equals(org.mozilla.jss.crypto.PrivateKey.RSA))
@@ -562,7 +565,8 @@ public class CheckRequest extends CMSServlet {
                                                 SignedData(digestAlgs, ci,
                                                         jsscerts, null, signInfos);
                                         org.mozilla.jss.pkix.cms.ContentInfo fullResponse = new
-                                                org.mozilla.jss.pkix.cms.ContentInfo(org.mozilla.jss.pkix.cms.ContentInfo.SIGNED_DATA, fResponse);
+                                                org.mozilla.jss.pkix.cms.ContentInfo(
+                                                        org.mozilla.jss.pkix.cms.ContentInfo.SIGNED_DATA, fResponse);
                                         ByteArrayOutputStream ostream = new
                                                 ByteArrayOutputStream();
 

@@ -124,7 +124,8 @@ public class SSLClientCertAuthentication implements IAuthManager {
             serialNum = (BigInteger) clientCert.getSerialNumber();
             //serialNum = new BigInteger(s.substring(2), 16);
         } catch (NumberFormatException e) {
-            throw new EAuthUserError(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_ATTRIBUTE_VALUE", "Invalid serial number."));
+            throw new EAuthUserError(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_ATTRIBUTE_VALUE",
+                    "Invalid serial number."));
         }
 
         String clientCertIssuerDN = clientCert.getIssuerDN().toString();

@@ -96,7 +96,8 @@ public class GenSubjectAltNameExt {
 
     public static void doUsage() {
         System.out.println();
-        System.out.println("Usage:  GenSubjectAltNameExt <general_type0> <general_name0> ... <general_typeN> <general_nameN>");
+        System.out
+                .println("Usage:  GenSubjectAltNameExt <general_type0> <general_name0> ... <general_typeN> <general_nameN>");
         System.out.println("where,");
         System.out.println("<general_type> can be one of the following string:");
         System.out.println("\tDNSName");

@@ -493,7 +493,8 @@ public abstract class CMSServlet extends HttpServlet {
             Date endDate = CMS.getCurrentDate();
             long endTime = endDate.getTime();
             if (CMS.debugOn()) {
-                CMS.debug(CMS.DEBUG_INFORM, "CMSServlet: curDate=" + endDate + " id=" + mId + " time=" + (endTime - startTime));
+                CMS.debug(CMS.DEBUG_INFORM, "CMSServlet: curDate=" + endDate + " id=" + mId + " time="
+                        + (endTime - startTime));
             }
             iCommandQueue.unRegisterProccess((Object) cmsRequest, (Object) this);
         } catch (EBaseException e) {

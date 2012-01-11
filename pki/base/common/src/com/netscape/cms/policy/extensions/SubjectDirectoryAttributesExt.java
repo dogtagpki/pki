@@ -236,7 +236,8 @@ public class SubjectDirectoryAttributesExt extends APolicyRule
 
         v.addElement(IExtendedPluginInfo.HELP_TOKEN +
                 ";configuration-policyrules-subjectdirectoryattributes");
-        v.addElement(IExtendedPluginInfo.HELP_TEXT +
+        v.addElement(IExtendedPluginInfo.HELP_TEXT
+                +
                 ";Adds Subject Directory Attributes extension. See RFC 2459 (4.2.1.9). It's not recommended as an essential part of the profile, but may be used in local environments.");
 
         mEPI = com.netscape.cmsutil.util.Utils.getStringArrayFromVector(v);

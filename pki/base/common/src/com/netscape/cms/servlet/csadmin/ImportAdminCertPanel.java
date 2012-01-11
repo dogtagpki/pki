@@ -296,7 +296,8 @@ public class ImportAdminCertPanel extends WizardPanelBase {
             user.setX509Certificates(certs);
             ug.addUserCert(user);
         } catch (LDAPException e) {
-            CMS.debug("ImportAdminCertPanel update: failed to add certificate to the internal database. Exception: " + e.toString());
+            CMS.debug("ImportAdminCertPanel update: failed to add certificate to the internal database. Exception: "
+                    + e.toString());
             if (e.getLDAPResultCode() != LDAPException.ATTRIBUTE_OR_VALUE_EXISTS) {
                 context.put("updateStatus", "failure");
                 throw new IOException(e.toString());

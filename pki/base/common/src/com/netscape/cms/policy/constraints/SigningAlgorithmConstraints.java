@@ -374,7 +374,9 @@ public class SigningAlgorithmConstraints extends APolicyRule
         String[] params = null;
 
         String[] params_BOTH = {
-                PROP_ALGORITHMS + ";" + "choice(MD2withRSA\\,MD5withRSA\\,SHA1withRSA\\,SHA256withRSA\\,SHA512withRSA\\,SHA1withDSA," +
+                PROP_ALGORITHMS + ";"
+                        + "choice(MD2withRSA\\,MD5withRSA\\,SHA1withRSA\\,SHA256withRSA\\,SHA512withRSA\\,SHA1withDSA,"
+                        +
                         "MD2withRSA\\,MD5withRSA\\,SHA1withRSA\\,SHA1withDSA," +
                         "MD2withRSA\\,MD5withRSA\\,SHA1withRSA," +
                         "MD2withRSA\\,SHA1withRSA\\,SHA1withDSA," +

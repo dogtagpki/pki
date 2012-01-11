@@ -474,7 +474,8 @@ public class DoRevoke extends CMSServlet {
 
                     // we do not want to revoke the CA certificate accidentially
                     if (xcert != null && isSystemCertificate(xcert.getSerialNumber())) {
-                        CMS.debug("DoRevoke: skipped revocation request for system certificate " + xcert.getSerialNumber());
+                        CMS.debug("DoRevoke: skipped revocation request for system certificate "
+                                + xcert.getSerialNumber());
                         continue;
                     }
 
@@ -486,7 +487,8 @@ public class DoRevoke extends CMSServlet {
                                 (eeSerialNumber.equals(xcert.getSerialNumber().toString())) &&
                                 rec.getStatus().equals(ICertRecord.STATUS_REVOKED)) {
                             log(ILogger.LL_FAILURE,
-                                    CMS.getLogMessage("CA_CERTIFICATE_ALREADY_REVOKED_1", xcert.getSerialNumber().toString(16)));
+                                    CMS.getLogMessage("CA_CERTIFICATE_ALREADY_REVOKED_1", xcert.getSerialNumber()
+                                            .toString(16)));
 
                             // store a message in the signed audit log file
                             auditMessage = CMS.getLogMessage(
@@ -529,7 +531,8 @@ public class DoRevoke extends CMSServlet {
                 Vector serialNumbers = new Vector();
 
                 if (revokeAll != null && revokeAll.length() > 0) {
-                    for (int i = revokeAll.indexOf('='); i < revokeAll.length() && i > -1; i = revokeAll.indexOf('=', i)) {
+                    for (int i = revokeAll.indexOf('='); i < revokeAll.length() && i > -1; i = revokeAll
+                            .indexOf('=', i)) {
                         if (i > -1) {
                             i++;
                             while (i < revokeAll.length() && revokeAll.charAt(i) == ' ') {
@@ -698,7 +701,8 @@ public class DoRevoke extends CMSServlet {
             // The SVC_PENDING check has been added for the Cloned CA request
             // that is meant for the Master CA. From Clone's point of view
             // the request is complete
-            if ((stat == RequestStatus.COMPLETE) || ((type.equals(IRequest.CLA_CERT4CRL_REQUEST)) && (stat == RequestStatus.SVC_PENDING))) {
+            if ((stat == RequestStatus.COMPLETE)
+                    || ((type.equals(IRequest.CLA_CERT4CRL_REQUEST)) && (stat == RequestStatus.SVC_PENDING))) {
                 // audit log the error 
                 Integer result = revReq.getExtDataInInteger(IRequest.RESULT);
 
@@ -779,7 +783,8 @@ public class DoRevoke extends CMSServlet {
                                             "completed",
                                             cert.getSubjectDN(),
                                             cert.getSerialNumber().toString(16),
-                                            RevocationReason.fromInt(reason).toString() + " time: " + (endTime - startTime) }
+                                            RevocationReason.fromInt(reason).toString() + " time: "
+                                                    + (endTime - startTime) }
                                     );
                         }
                     }
@@ -839,7 +844,8 @@ public class DoRevoke extends CMSServlet {
 
                         if (updateResult != null) {
                             if (updateResult.equals(IRequest.RES_SUCCESS)) {
-                                CMS.debug("DoRevoke: " + CMS.getLogMessage("ADMIN_SRVLT_ADDING_HEADER", updateStatusStr));
+                                CMS.debug("DoRevoke: "
+                                        + CMS.getLogMessage("ADMIN_SRVLT_ADDING_HEADER", updateStatusStr));
                                 header.addStringValue(updateStatusStr, "yes");
                             } else {
                                 String updateErrorStr = crl.getCrlUpdateErrorStr();

@@ -112,7 +112,8 @@ public class AuthzSubsystem implements IAuthzSubsystem {
                 if (plugin == null) {
                     log(ILogger.LL_FAILURE,
                             CMS.getLogMessage("CMSCORE_AUTHZ_PLUGIN_NOT_FOUND", implName));
-                    throw new EAuthzMgrPluginNotFound(CMS.getUserMessage("CMS_AUTHORIZATION_AUTHZMGR_PLUGIN_NOT_FOUND", implName));
+                    throw new EAuthzMgrPluginNotFound(CMS.getUserMessage("CMS_AUTHORIZATION_AUTHZMGR_PLUGIN_NOT_FOUND",
+                            implName));
                 } else {
                     CMS.debug(
                             CMS.getLogMessage("CMSCORE_AUTHZ_PLUGIN_FOUND", implName));
@@ -150,12 +151,14 @@ public class AuthzSubsystem implements IAuthzSubsystem {
                     log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", errMsg));
                     throw new EAuthzException(CMS.getUserMessage("CMS_AUTHORIZATION_LOAD_CLASS_FAIL", className));
                 } catch (EBaseException e) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTHZ_PLUGIN_INIT_FAILED", insName, e.toString()));
+                    log(ILogger.LL_FAILURE,
+                            CMS.getLogMessage("CMSCORE_AUTHZ_PLUGIN_INIT_FAILED", insName, e.toString()));
                     // it is mis-configurated. This give
                     // administrator another chance to
                     // fix the problem via console
                 } catch (Throwable e) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTHZ_PLUGIN_INIT_FAILED", insName, e.toString()));
+                    log(ILogger.LL_FAILURE,
+                            CMS.getLogMessage("CMSCORE_AUTHZ_PLUGIN_INIT_FAILED", insName, e.toString()));
                     // Skip the authorization instance if
                     // it is mis-configurated. This give
                     // administrator another chance to
@@ -273,7 +276,8 @@ public class AuthzSubsystem implements IAuthzSubsystem {
 
         if (plugin == null) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTHZ_PLUGIN_NOT_FOUND", implName));
-            throw new EAuthzMgrPluginNotFound(CMS.getUserMessage("CMS_AUTHORIZATION_AUTHZMGR_PLUGIN_NOT_FOUND", implName));
+            throw new EAuthzMgrPluginNotFound(CMS.getUserMessage("CMS_AUTHORIZATION_AUTHZMGR_PLUGIN_NOT_FOUND",
+                    implName));
         }
 
         // a temporary instance

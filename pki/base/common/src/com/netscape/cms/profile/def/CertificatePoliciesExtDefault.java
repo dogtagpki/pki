@@ -172,7 +172,8 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
                 addConfigName(CONFIG_PREFIX + i + SEPARATOR + CONFIG_PREFIX1 + j + SEPARATOR + CONFIG_USERNOTICE_ENABLE);
                 addConfigName(CONFIG_PREFIX + i + SEPARATOR + CONFIG_PREFIX1 + j + SEPARATOR + CONFIG_CPSURI_VALUE);
                 addConfigName(CONFIG_PREFIX + i + SEPARATOR + CONFIG_PREFIX1 + j + SEPARATOR + CONFIG_USERNOTICE_ORG);
-                addConfigName(CONFIG_PREFIX + i + SEPARATOR + CONFIG_PREFIX1 + j + SEPARATOR + CONFIG_USERNOTICE_NUMBERS);
+                addConfigName(CONFIG_PREFIX + i + SEPARATOR + CONFIG_PREFIX1 + j + SEPARATOR
+                        + CONFIG_USERNOTICE_NUMBERS);
                 addConfigName(CONFIG_PREFIX + i + SEPARATOR + CONFIG_PREFIX1 + j + SEPARATOR + CONFIG_USERNOTICE_TEXT);
             }
         }
@@ -301,23 +302,30 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
                                         locale, "CMS_PROFILE_CERTIFICATE_POLICIES_EMPTY_POLICYID"));
                         CertificatePolicyId cpolicyId = getPolicyId(policyId);
 
-                        String qualifersNum = (String) h.get(CONFIG_PREFIX + i + SEPARATOR + CONFIG_POLICY_QUALIFIERS_NUM);
+                        String qualifersNum = (String) h.get(CONFIG_PREFIX + i + SEPARATOR
+                                + CONFIG_POLICY_QUALIFIERS_NUM);
                         PolicyQualifiers policyQualifiers = new PolicyQualifiers();
                         int num = 0;
                         if (qualifersNum != null && qualifersNum.length() > 0)
                             num = Integer.parseInt(qualifersNum);
                         for (int j = 0; j < num; j++) {
-                            String cpsuriEnable = (String) h.get(CONFIG_PREFIX + i + SEPARATOR + CONFIG_PREFIX1 + j + SEPARATOR + CONFIG_CPSURI_ENABLE);
-                            String usernoticeEnable = (String) h.get(CONFIG_PREFIX + i + SEPARATOR + CONFIG_PREFIX1 + j + SEPARATOR + CONFIG_USERNOTICE_ENABLE);
+                            String cpsuriEnable = (String) h.get(CONFIG_PREFIX + i + SEPARATOR + CONFIG_PREFIX1 + j
+                                    + SEPARATOR + CONFIG_CPSURI_ENABLE);
+                            String usernoticeEnable = (String) h.get(CONFIG_PREFIX + i + SEPARATOR + CONFIG_PREFIX1 + j
+                                    + SEPARATOR + CONFIG_USERNOTICE_ENABLE);
                             if (cpsuriEnable != null && cpsuriEnable.equals("true")) {
-                                String cpsuri = (String) h.get(CONFIG_PREFIX + i + SEPARATOR + CONFIG_PREFIX1 + j + SEPARATOR + CONFIG_CPSURI_VALUE);
+                                String cpsuri = (String) h.get(CONFIG_PREFIX + i + SEPARATOR + CONFIG_PREFIX1 + j
+                                        + SEPARATOR + CONFIG_CPSURI_VALUE);
                                 netscape.security.x509.PolicyQualifierInfo qualifierInfo = createCPSuri(cpsuri);
                                 if (qualifierInfo != null)
                                     policyQualifiers.add(qualifierInfo);
                             } else if (usernoticeEnable != null && enable.equals("true")) {
-                                String org = (String) h.get(CONFIG_PREFIX + i + SEPARATOR + CONFIG_PREFIX1 + j + SEPARATOR + CONFIG_USERNOTICE_ORG);
-                                String noticenumbers = (String) h.get(CONFIG_PREFIX + i + SEPARATOR + CONFIG_PREFIX1 + j + SEPARATOR + CONFIG_USERNOTICE_NUMBERS);
-                                String explicitText = (String) h.get(CONFIG_PREFIX + i + SEPARATOR + CONFIG_PREFIX1 + j + SEPARATOR + CONFIG_USERNOTICE_TEXT);
+                                String org = (String) h.get(CONFIG_PREFIX + i + SEPARATOR + CONFIG_PREFIX1 + j
+                                        + SEPARATOR + CONFIG_USERNOTICE_ORG);
+                                String noticenumbers = (String) h.get(CONFIG_PREFIX + i + SEPARATOR + CONFIG_PREFIX1
+                                        + j + SEPARATOR + CONFIG_USERNOTICE_NUMBERS);
+                                String explicitText = (String) h.get(CONFIG_PREFIX + i + SEPARATOR + CONFIG_PREFIX1 + j
+                                        + SEPARATOR + CONFIG_USERNOTICE_TEXT);
                                 netscape.security.x509.PolicyQualifierInfo qualifierInfo = createUserNotice(org,
                                         noticenumbers, explicitText);
                                 if (qualifierInfo != null)
@@ -447,7 +455,8 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
                     sb.append(":");
                     sb.append("");
                     sb.append("\n");
-                    sb.append(CONFIG_PREFIX + i + SEPARATOR + CONFIG_PREFIX1 + "0" + SEPARATOR + CONFIG_USERNOTICE_ENABLE);
+                    sb.append(CONFIG_PREFIX + i + SEPARATOR + CONFIG_PREFIX1 + "0" + SEPARATOR
+                            + CONFIG_USERNOTICE_ENABLE);
                     sb.append(":");
                     sb.append("false");
                     sb.append("\n");
@@ -455,7 +464,8 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
                     sb.append(":");
                     sb.append("");
                     sb.append("\n");
-                    sb.append(CONFIG_PREFIX + i + SEPARATOR + CONFIG_PREFIX1 + "0" + SEPARATOR + CONFIG_USERNOTICE_NUMBERS);
+                    sb.append(CONFIG_PREFIX + i + SEPARATOR + CONFIG_PREFIX1 + "0" + SEPARATOR
+                            + CONFIG_USERNOTICE_NUMBERS);
                     sb.append(":");
                     sb.append("");
                     sb.append("\n");
@@ -517,7 +527,8 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
                     sb.append(":");
                     sb.append(org);
                     sb.append("\n");
-                    sb.append(CONFIG_PREFIX + i + SEPARATOR + CONFIG_PREFIX1 + j + SEPARATOR + CONFIG_USERNOTICE_NUMBERS);
+                    sb.append(CONFIG_PREFIX + i + SEPARATOR + CONFIG_PREFIX1 + j + SEPARATOR
+                            + CONFIG_USERNOTICE_NUMBERS);
                     sb.append(":");
                     sb.append(noticeNum.toString());
                     sb.append("\n");
@@ -633,7 +644,8 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
                 if (enable != null && enable.equals("true")) {
                     String policyId = substore.getString(CONFIG_POLICY_ID);
                     CertificatePolicyId cpolicyId = getPolicyId(policyId);
-                    CMS.debug("CertificatePoliciesExtension: createExtension: CertificatePolicy " + i + " policyId=" + policyId);
+                    CMS.debug("CertificatePoliciesExtension: createExtension: CertificatePolicy " + i + " policyId="
+                            + policyId);
                     int qualifierNum = getNumQualifiers();
                     PolicyQualifiers policyQualifiers = new PolicyQualifiers();
                     for (int j = 0; j < qualifierNum; j++) {
@@ -709,7 +721,8 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
 
         CPSuri cpsURI = new CPSuri(uri);
         netscape.security.x509.PolicyQualifierInfo policyQualifierInfo2 =
-                new netscape.security.x509.PolicyQualifierInfo(netscape.security.x509.PolicyQualifierInfo.QT_CPS, cpsURI);
+                new netscape.security.x509.PolicyQualifierInfo(netscape.security.x509.PolicyQualifierInfo.QT_CPS,
+                        cpsURI);
 
         return policyQualifierInfo2;
     }
@@ -762,7 +775,8 @@ public class CertificatePoliciesExtDefault extends EnrollExtDefault {
             userNotice = new UserNotice(noticeReference, explicitText);
 
             netscape.security.x509.PolicyQualifierInfo policyQualifierInfo1 =
-                    new netscape.security.x509.PolicyQualifierInfo(netscape.security.x509.PolicyQualifierInfo.QT_UNOTICE, userNotice);
+                    new netscape.security.x509.PolicyQualifierInfo(
+                            netscape.security.x509.PolicyQualifierInfo.QT_UNOTICE, userNotice);
             return policyQualifierInfo1;
         }
 

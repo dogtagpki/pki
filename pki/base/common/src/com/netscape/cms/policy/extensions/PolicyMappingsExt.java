@@ -296,7 +296,8 @@ public class PolicyMappingsExt extends APolicyRule
         Vector theparams = new Vector();
 
         theparams.addElement(PROP_CRITICAL + ";boolean;RFC 2459 recommendation: MUST be non-critical.");
-        theparams.addElement(PROP_NUM_POLICYMAPPINGS + ";number; Number of policy mappings. The value must be greater than or equal to 1");
+        theparams.addElement(PROP_NUM_POLICYMAPPINGS
+                + ";number; Number of policy mappings. The value must be greater than or equal to 1");
 
         String policyInfo =
                 ";string;An object identifier in the form n.n.n.n";

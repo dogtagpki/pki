@@ -331,7 +331,8 @@ public class BasicConstraintsExt extends APolicyRule
                 if (mMaxPathLen > -1) {
                     if (pathLen > mMaxPathLen || pathLen < 0) {
                         log(ILogger.LL_FAILURE,
-                                CMS.getLogMessage("POLICY_MAXPATHLEN_TOO_BIG_3", NAME, "unlimited", String.valueOf(pathLen)));
+                                CMS.getLogMessage("POLICY_MAXPATHLEN_TOO_BIG_3", NAME, "unlimited",
+                                        String.valueOf(pathLen)));
                         if (pathLen < 0)
                             setError(req, CMS.getUserMessage("CMS_POLICY_MAXPATHLEN_TOO_BIG",
                                     NAME, "unlimited", Integer.toString(mMaxPathLen)), "");
@@ -489,7 +490,8 @@ public class BasicConstraintsExt extends APolicyRule
 
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
-                PROP_MAXPATHLEN + ";number;'0' means : no subordinates allowed, 'n' means : at most n subordinates allowed.",
+                PROP_MAXPATHLEN
+                        + ";number;'0' means : no subordinates allowed, 'n' means : at most n subordinates allowed.",
                 PROP_IS_CRITICAL + ";boolean;" +
                         "RFC 2459 recommendation: MUST be critical in CA certs, SHOULD NOT appear in EE certs.",
                 PROP_IS_CA + ";boolean;" +

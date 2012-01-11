@@ -481,7 +481,8 @@ public class AdminPanel extends WizardPanelBase {
         String session_id = CMS.getConfigSDSessionId();
         String subjectDN = HttpInput.getString(request, "subject");
 
-        String content = "profileId=" + profileId + "&cert_request_type=" + cert_request_type + "&cert_request=" + cert_request + "&xmlOutput=true&sessionID=" + session_id + "&subject=" + subjectDN;
+        String content = "profileId=" + profileId + "&cert_request_type=" + cert_request_type + "&cert_request="
+                + cert_request + "&xmlOutput=true&sessionID=" + session_id + "&subject=" + subjectDN;
 
         HttpClient httpclient = new HttpClient();
         String c = null;

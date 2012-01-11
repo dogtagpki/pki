@@ -291,7 +291,8 @@ public class CMSEngine implements ICMSEngine {
                     try {
                         mPasswordStore = (IPasswordStore) Class.forName(pwdClass).newInstance();
                     } catch (Exception e) {
-                        CMS.debug("CMSEngine: getPasswordStore(): password store initialization failure:" + e.toString());
+                        CMS.debug("CMSEngine: getPasswordStore(): password store initialization failure:"
+                                + e.toString());
                     }
                 }
             } else {
@@ -1292,19 +1293,22 @@ public class CMSEngine implements ICMSEngine {
         return getLogMessage(msgID, params);
     }
 
-    public String getLogMessage(String msgID, String p1, String p2, String p3, String p4, String p5, String p6, String p7) {
+    public String getLogMessage(String msgID, String p1, String p2, String p3, String p4, String p5, String p6,
+            String p7) {
         String params[] = { p1, p2, p3, p4, p5, p6, p7 };
 
         return getLogMessage(msgID, params);
     }
 
-    public String getLogMessage(String msgID, String p1, String p2, String p3, String p4, String p5, String p6, String p7, String p8) {
+    public String getLogMessage(String msgID, String p1, String p2, String p3, String p4, String p5, String p6,
+            String p7, String p8) {
         String params[] = { p1, p2, p3, p4, p5, p6, p7, p8 };
 
         return getLogMessage(msgID, params);
     }
 
-    public String getLogMessage(String msgID, String p1, String p2, String p3, String p4, String p5, String p6, String p7, String p8, String p9) {
+    public String getLogMessage(String msgID, String p1, String p2, String p3, String p4, String p5, String p6,
+            String p7, String p8, String p9) {
         String params[] = { p1, p2, p3, p4, p5, p6, p7, p8, p9 };
 
         return getLogMessage(msgID, params);
@@ -1320,7 +1324,8 @@ public class CMSEngine implements ICMSEngine {
         GeneralNameUtil.SubjAltNameGN.getExtendedPluginInfo(name, params);
     }
 
-    public ISubjAltNameConfig createSubjAltNameConfig(String name, IConfigStore config, boolean isValueConfigured) throws EBaseException {
+    public ISubjAltNameConfig createSubjAltNameConfig(String name, IConfigStore config, boolean isValueConfigured)
+            throws EBaseException {
         return new GeneralNameUtil.SubjAltNameGN(name, config, isValueConfigured);
     }
 
@@ -1359,12 +1364,14 @@ public class CMSEngine implements ICMSEngine {
         return new GeneralNameUtil.GeneralNamesConfig(name, config, isValueConfigured, isPolicyEnabled);
     }
 
-    public IGeneralNameAsConstraintsConfig createGeneralNameAsConstraintsConfig(String name, IConfigStore config, boolean isValueConfigured,
+    public IGeneralNameAsConstraintsConfig createGeneralNameAsConstraintsConfig(String name, IConfigStore config,
+            boolean isValueConfigured,
             boolean isPolicyEnabled) throws EBaseException {
         return new GeneralNameUtil.GeneralNameAsConstraintsConfig(name, config, isValueConfigured, isPolicyEnabled);
     }
 
-    public IGeneralNamesAsConstraintsConfig createGeneralNamesAsConstraintsConfig(String name, IConfigStore config, boolean isValueConfigured,
+    public IGeneralNamesAsConstraintsConfig createGeneralNamesAsConstraintsConfig(String name, IConfigStore config,
+            boolean isValueConfigured,
             boolean isPolicyEnabled) throws EBaseException {
         return new GeneralNameUtil.GeneralNamesAsConstraintsConfig(name, config, isValueConfigured, isPolicyEnabled);
     }

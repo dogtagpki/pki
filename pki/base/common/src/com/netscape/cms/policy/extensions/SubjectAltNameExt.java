@@ -306,7 +306,8 @@ public class SubjectAltNameExt extends APolicyRule
         // extended plugin info.
         Vector info = new Vector();
 
-        info.addElement(PROP_CRITICAL + ";boolean;RFC2459 recommendation: If the certificate subject field contains an empty sequence, the extension MUST be marked critical.");
+        info.addElement(PROP_CRITICAL
+                + ";boolean;RFC2459 recommendation: If the certificate subject field contains an empty sequence, the extension MUST be marked critical.");
         info.addElement(IGeneralNameUtil.PROP_NUM_GENERALNAMES_INFO);
         for (int i = 0; i < IGeneralNameUtil.DEF_NUM_GENERALNAMES; i++) {
             CMS.getSubjAltNameConfigExtendedPluginInfo(

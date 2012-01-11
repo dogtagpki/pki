@@ -38,14 +38,19 @@ public class AutoInstaller {
     private static Properties props = null;
 
     // Admin Server and InternalDB varialbes 
-    private String adminDomain, adminID, adminPWD, adminPort, machineName, host, serverID, instanceID, serverRoot, sieURL, dbConnPort, dbConnHost, dbInstanceName, dbPassword, dbLDAPauthDN, dbmode, ldapServerDB;
+    private String adminDomain, adminID, adminPWD, adminPort, machineName, host, serverID, instanceID, serverRoot,
+            sieURL, dbConnPort, dbConnHost, dbInstanceName, dbPassword, dbLDAPauthDN, dbmode, ldapServerDB;
 
     // CMS Subsystem info
 
-    private String certAdminName, certAdminUid, certAdminPWD, kra, subsystems, ca, ra, ocsp, remoteKRA, wirelessSupport, eeHttpPort, eeHttpsPort, agentHttpsPort, radminHttpsPort, tokenName, tokenPWD, certType, keyType, keyLength, SingleSignOnPWD, subjectName, aki, isCA, ski, sslCABit, objectSigningCABit, mailCABit, hashType, caOComponent, certValidityDays, signingCert, tks;
+    private String certAdminName, certAdminUid, certAdminPWD, kra, subsystems, ca, ra, ocsp, remoteKRA,
+            wirelessSupport, eeHttpPort, eeHttpsPort, agentHttpsPort, radminHttpsPort, tokenName, tokenPWD, certType,
+            keyType, keyLength, SingleSignOnPWD, subjectName, aki, isCA, ski, sslCABit, objectSigningCABit, mailCABit,
+            hashType, caOComponent, certValidityDays, signingCert, tks;
 
     // CA info
-    private String caHostname, caPortnum, caTimeout, caEEPort, enpropfile, cdir, tokenpwd, CAadminId, CAadminPwd, CAcertnickname, caAgentPortnum, cloneInstanceId;
+    private String caHostname, caPortnum, caTimeout, caEEPort, enpropfile, cdir, tokenpwd, CAadminId, CAadminPwd,
+            CAcertnickname, caAgentPortnum, cloneInstanceId;
 
     // Program variables 
     private int i;
@@ -228,7 +233,8 @@ public class AutoInstaller {
      * Takes parameters - sID- ServerID e.x cert1, sRoot- ServerRootK kT- keyType "RSA/DSA" , kL - keylength (1024.2048) , cVD- certificate validity dates e.g 365 for 1 year, sdn - subsystems dn, sAdp - subsystem's Admin port, sAgp - subsystems's Agentport,seSP- subsystem's ee SSL port , sep- Subsystems ee port.
      */
 
-    public void setSubSystemInfo(String sID, String sRoot, String kT, String kL, String hT, String cVD, String sdn, String sAdP, String sAgP, String seSP, String seP) {
+    public void setSubSystemInfo(String sID, String sRoot, String kT, String kL, String hT, String cVD, String sdn,
+            String sAdP, String sAgP, String seSP, String seP) {
         serverID = sID;
         instanceID = "cert-" + sID;
 

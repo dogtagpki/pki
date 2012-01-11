@@ -69,7 +69,8 @@ public class HttpPKIMessage implements IHttpPKIMessage {
         reqId = r.getRequestId().toString();
         reqStatus = r.getRequestStatus().toString();
 
-        CMS.debug("HttpPKIMessage.fromRequest: requestId=" + r.getRequestId().toString() + " requestStatus=" + reqStatus + " instance=" + r);
+        CMS.debug("HttpPKIMessage.fromRequest: requestId=" + r.getRequestId().toString() + " requestStatus="
+                + reqStatus + " instance=" + r);
 
         String attrs[] = RequestTransfer.getTransferAttributes(r);
         int len = attrs.length;

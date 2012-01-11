@@ -488,7 +488,8 @@ public class UpdateDir extends CMSServlet {
                             i++;
                         } catch (Exception e) {
                             log(ILogger.LL_FAILURE,
-                                    CMS.getLogMessage("CMSGW_FAIL_PUBLISH_CERT", certRecord.getSerialNumber().toString(16),
+                                    CMS.getLogMessage("CMSGW_FAIL_PUBLISH_CERT",
+                                            certRecord.getSerialNumber().toString(16),
                                             e.toString()));
                             validCertsError +=
                                     "Failed to publish certificate: 0x" +

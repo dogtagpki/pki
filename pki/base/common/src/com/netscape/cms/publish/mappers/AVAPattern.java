@@ -331,7 +331,8 @@ class AVAPattern {
                                 attrNumberBuf1.toString().trim();
 
                         if (attrNumber1.length() == 0) {
-                            throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX", "nth element $req or $ext expected"));
+                            throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX",
+                                    "nth element $req or $ext expected"));
                         }
 
                         try {

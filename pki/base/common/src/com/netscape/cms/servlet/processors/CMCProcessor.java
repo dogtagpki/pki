@@ -117,7 +117,8 @@ public class CMCProcessor extends PKIProcessor {
             org.mozilla.jss.pkix.cms.ContentInfo cmcReq = (org.mozilla.jss.pkix.cms.ContentInfo)
                     org.mozilla.jss.pkix.cms.ContentInfo.getTemplate().decode(cmcBlobIn);
 
-            if (!cmcReq.getContentType().equals(org.mozilla.jss.pkix.cms.ContentInfo.SIGNED_DATA) || !cmcReq.hasContent())
+            if (!cmcReq.getContentType().equals(org.mozilla.jss.pkix.cms.ContentInfo.SIGNED_DATA)
+                    || !cmcReq.hasContent())
                 throw new ECMSGWException(CMS.getUserMessage("CMS_GW_NO_CMC_CONTENT"));
 
             SignedData cmcFullReq = (SignedData)
@@ -304,7 +305,8 @@ public class CMCProcessor extends PKIProcessor {
                     PublicKey signKey = null;
 
                     while (signKey == null && j < numReqs) {
-                        X509Key subjectKeyInfo = (X509Key) ((CertificateX509Key) certInfoArray[j].get(X509CertInfo.KEY)).get(CertificateX509Key.KEY);
+                        X509Key subjectKeyInfo = (X509Key) ((CertificateX509Key) certInfoArray[j].get(X509CertInfo.KEY))
+                                .get(CertificateX509Key.KEY);
                         MessageDigest md = MessageDigest.getInstance("SHA-1");
 
                         md.update(subjectKeyInfo.getEncoded());

@@ -64,11 +64,13 @@ public class DBSSessionDefaultStub implements IDBSSession {
         return null;
     }
 
-    public IDBVirtualList createVirtualList(String base, String filter, String attrs[], String sortKey, int pageSize) throws EBaseException {
+    public IDBVirtualList createVirtualList(String base, String filter, String attrs[], String sortKey, int pageSize)
+            throws EBaseException {
         return null;
     }
 
-    public IDBVirtualList createVirtualList(String base, String filter, String attrs[], String startFrom, String sortKey, int pageSize) throws EBaseException {
+    public IDBVirtualList createVirtualList(String base, String filter, String attrs[], String startFrom,
+            String sortKey, int pageSize) throws EBaseException {
         return null;
     }
 }

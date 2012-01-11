@@ -1162,40 +1162,61 @@ public class ConfigureDRM {
         parser.addOption("-db_name %s #db name",
                             x_db_name);
         parser.addOption("-secure_conn %s #use ldaps port (optional, default is false)", x_secure_conn);
-        parser.addOption("-remove_data %s #remove existing data under base_dn (optional, default is false) ", x_remove_data);
-        parser.addOption("-clone_start_tls %s #use startTLS for cloning replication agreement (optional, default is false)", x_clone_start_tls);
+        parser.addOption("-remove_data %s #remove existing data under base_dn (optional, default is false) ",
+                x_remove_data);
+        parser.addOption(
+                "-clone_start_tls %s #use startTLS for cloning replication agreement (optional, default is false)",
+                x_clone_start_tls);
 
         // key and algorithm options (default)
         parser.addOption("-key_type %s #Key type [RSA,ECC] (optional, default is RSA)", x_key_type);
         parser.addOption("-key_size %s #Key Size (optional, for RSA default is 2048)", x_key_size);
         parser.addOption("-key_curvename %s #Key Curve Name (optional, for ECC default is nistp256)", x_key_curvename);
-        parser.addOption("-signing_algorithm %s #Signing algorithm (optional, default is SHA256withRSA for RSA and SHA256withEC for ECC)", x_signing_algorithm);
+        parser.addOption(
+                "-signing_algorithm %s #Signing algorithm (optional, default is SHA256withRSA for RSA and SHA256withEC for ECC)",
+                x_signing_algorithm);
 
         // key and algorithm options for transport certificate (overrides default)
-        parser.addOption("-transport_key_type %s #Key type [RSA,ECC] (optional, default is key_type)", x_transport_key_type);
-        parser.addOption("-transport_key_size %s #Key Size (optional, for RSA default is key_size)", x_transport_key_size);
-        parser.addOption("-transport_key_curvename %s #Key Curve Name (optional, for ECC default is key_curvename)", x_transport_key_curvename);
-        parser.addOption("-transport_signingalgorithm %s #Algorithm used by the transport cert to sign objects (optional, default is signing_algorithm)", x_transport_signingalgorithm);
+        parser.addOption("-transport_key_type %s #Key type [RSA,ECC] (optional, default is key_type)",
+                x_transport_key_type);
+        parser.addOption("-transport_key_size %s #Key Size (optional, for RSA default is key_size)",
+                x_transport_key_size);
+        parser.addOption("-transport_key_curvename %s #Key Curve Name (optional, for ECC default is key_curvename)",
+                x_transport_key_curvename);
+        parser.addOption(
+                "-transport_signingalgorithm %s #Algorithm used by the transport cert to sign objects (optional, default is signing_algorithm)",
+                x_transport_signingalgorithm);
 
         // key and algorithm options for storage certificate (overrides default)
         parser.addOption("-storage_key_type %s #Key type [RSA,ECC] (optional, default is key_type)", x_storage_key_type);
         parser.addOption("-storage_key_size %s #Key Size (optional, for RSA default is key_size)", x_storage_key_size);
-        parser.addOption("-storage_key_curvename %s #Key Curve Name (optional, for ECC default is key_curvename)", x_storage_key_curvename);
+        parser.addOption("-storage_key_curvename %s #Key Curve Name (optional, for ECC default is key_curvename)",
+                x_storage_key_curvename);
 
         // key and algorithm options for audit_signing certificate (overrides default)
-        parser.addOption("-audit_signing_key_type %s #Key type [RSA,ECC] (optional, default is key_type)", x_audit_signing_key_type);
-        parser.addOption("-audit_signing_key_size %s #Key Size (optional, for RSA default is key_size)", x_audit_signing_key_size);
-        parser.addOption("-audit_signing_key_curvename %s #Key Curve Name (optional, for ECC default is key_curvename)", x_audit_signing_key_curvename);
+        parser.addOption("-audit_signing_key_type %s #Key type [RSA,ECC] (optional, default is key_type)",
+                x_audit_signing_key_type);
+        parser.addOption("-audit_signing_key_size %s #Key Size (optional, for RSA default is key_size)",
+                x_audit_signing_key_size);
+        parser.addOption(
+                "-audit_signing_key_curvename %s #Key Curve Name (optional, for ECC default is key_curvename)",
+                x_audit_signing_key_curvename);
 
         // key and algorithm options for subsystem certificate (overrides default)
-        parser.addOption("-subsystem_key_type %s #Key type [RSA,ECC] (optional, default is key_type)", x_subsystem_key_type);
-        parser.addOption("-subsystem_key_size %s #Key Size (optional, for RSA default is key_size)", x_subsystem_key_size);
-        parser.addOption("-subsystem_key_curvename %s #Key Curve Name (optional, for ECC default is key_curvename)", x_subsystem_key_curvename);
+        parser.addOption("-subsystem_key_type %s #Key type [RSA,ECC] (optional, default is key_type)",
+                x_subsystem_key_type);
+        parser.addOption("-subsystem_key_size %s #Key Size (optional, for RSA default is key_size)",
+                x_subsystem_key_size);
+        parser.addOption("-subsystem_key_curvename %s #Key Curve Name (optional, for ECC default is key_curvename)",
+                x_subsystem_key_curvename);
 
         // key and algorithm options for sslserver certificate (overrides default)
-        parser.addOption("-sslserver_key_type %s #Key type [RSA,ECC] (optional, default is key_type)", x_sslserver_key_type);
-        parser.addOption("-sslserver_key_size %s #Key Size (optional, for RSA default is key_size)", x_sslserver_key_size);
-        parser.addOption("-sslserver_key_curvename %s #Key Curve Name (optional, for ECC default is key_curvename)", x_sslserver_key_curvename);
+        parser.addOption("-sslserver_key_type %s #Key type [RSA,ECC] (optional, default is key_type)",
+                x_sslserver_key_type);
+        parser.addOption("-sslserver_key_size %s #Key Size (optional, for RSA default is key_size)",
+                x_sslserver_key_size);
+        parser.addOption("-sslserver_key_curvename %s #Key Curve Name (optional, for ECC default is key_curvename)",
+                x_sslserver_key_curvename);
 
         parser.addOption("-token_name %s #HSM/Software Token name",
                             x_token_name);
@@ -1237,9 +1258,14 @@ public class ConfigureDRM {
                             x_drm_audit_signing_cert_subject_name);
 
         parser.addOption("-clone %s #Clone of another KRA [true, false] (optional, default false)", x_clone);
-        parser.addOption("-clone_uri %s #URL of Master KRA to clone. It must have the form https://<hostname>:<EE port> (optional, required if -clone=true)", x_clone_uri);
-        parser.addOption("-clone_p12_file %s #File containing pk12 keys of Master KRA (optional, required if -clone=true)", x_clone_p12_file);
-        parser.addOption("-clone_p12_password %s #Password for pk12 file (optional, required if -clone=true)", x_clone_p12_passwd);
+        parser.addOption(
+                "-clone_uri %s #URL of Master KRA to clone. It must have the form https://<hostname>:<EE port> (optional, required if -clone=true)",
+                x_clone_uri);
+        parser.addOption(
+                "-clone_p12_file %s #File containing pk12 keys of Master KRA (optional, required if -clone=true)",
+                x_clone_p12_file);
+        parser.addOption("-clone_p12_password %s #Password for pk12 file (optional, required if -clone=true)",
+                x_clone_p12_passwd);
 
         // and then match the arguments
         String[] unmatched = null;

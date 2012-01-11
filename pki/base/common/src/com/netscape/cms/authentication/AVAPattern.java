@@ -193,9 +193,11 @@ class AVAPattern {
                         in.read() != 'd' ||
                         in.read() != 'n' ||
                         in.read() != '.')
-                    throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX", "Invalid $ syntax, expecting $rdn"));
+                    throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX",
+                            "Invalid $ syntax, expecting $rdn"));
             } catch (IOException e) {
-                throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX", "Invalid $ syntax, expecting $rdn"));
+                throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX",
+                        "Invalid $ syntax, expecting $rdn"));
             }
 
             StringBuffer rdnNumberBuf = new StringBuffer();
@@ -214,11 +216,13 @@ class AVAPattern {
             String rdnNumber = rdnNumberBuf.toString().trim();
 
             if (rdnNumber.length() == 0)
-                throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX", "$rdn number not set in ava pattern"));
+                throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX",
+                        "$rdn number not set in ava pattern"));
             try {
                 mElement = Integer.parseInt(rdnNumber) - 1;
             } catch (NumberFormatException e) {
-                throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX", "Invalid $rdn number in ava pattern"));
+                throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX",
+                        "Invalid $rdn number in ava pattern"));
             }
             return;
         }
@@ -242,7 +246,8 @@ class AVAPattern {
             throw new EAuthException(CMS.getUserMessage("CMS_AUTHENTICATION_INTERNAL_ERROR", e.toString()));
         }
         if (c != '=')
-            throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX", "Missing \"=\" in ava pattern"));
+            throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX",
+                    "Missing \"=\" in ava pattern"));
 
         // read value 
         //System.out.println("reading value");
@@ -257,7 +262,8 @@ class AVAPattern {
             throw new EAuthException(CMS.getUserMessage("CMS_AUTHENTICATION_INTERNAL_ERROR", e.toString()));
         }
         if (c == -1)
-            throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX", "no value after = in ava pattern"));
+            throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX",
+                    "no value after = in ava pattern"));
 
         if (c == '$') {
             // check for $dn or $attr 
@@ -304,7 +310,8 @@ class AVAPattern {
 
             //System.out.println("----- attrName "+attrName);
             if (attrName.length() == 0)
-                throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX", "attribute name expected"));
+                throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX",
+                        "attribute name expected"));
             try {
                 ObjectIdentifier attrOid =
                         mLdapDNStrConverter.parseAVAKeyword(attrName);

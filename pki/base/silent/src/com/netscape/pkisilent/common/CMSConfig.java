@@ -149,7 +149,8 @@ public class CMSConfig extends ServerInfo {
      * Takes parameters : secureConnection( true/false), ldapbinddn, ldapbindnpassword,ldaphostname, lapdaportnumber ( in case of secured connection give ldap secured port), basedn (e.g ou=people,o=mcom.com)
      */
 
-    void EnablePortalAuth(boolean secureConn, String ldaprootDN, String ldaprootDNPW, String lhost, String lport, String lbsuffix) {
+    void EnablePortalAuth(boolean secureConn, String ldaprootDN, String ldaprootDNPW, String lhost, String lport,
+            String lbsuffix) {
         String certnickname = null;
 
         CMSprops.setProperty("auths.instance.PortalEnrollment.pluginName",
@@ -308,7 +309,8 @@ public class CMSConfig extends ServerInfo {
                 "LdapUserCertPublisher");
     }
 
-    public void DisablePublishing(boolean secureConn, String ldaprootDN, String ldaprootDNPW, String lhost, String lport, String base) {
+    public void DisablePublishing(boolean secureConn, String ldaprootDN, String ldaprootDNPW, String lhost,
+            String lport, String base) {
 
         CMSprops.setProperty("ca.publish.enable", "false");
         CMSprops.setProperty("ca.publish.ldappublish.enable", "false");

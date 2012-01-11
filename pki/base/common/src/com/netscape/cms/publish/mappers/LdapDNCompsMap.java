@@ -285,7 +285,8 @@ public class LdapDNCompsMap
                 // "DSA is unavailable" which confuses with DSA PKI.
                 log(ILogger.LL_FAILURE,
                         CMS.getLogMessage("PUBLISH_NO_LDAP_SERVER"));
-                throw new ELdapServerDownException(CMS.getUserMessage("CMS_LDAP_SERVER_UNAVAILABLE", conn.getHost(), "" + conn.getPort()));
+                throw new ELdapServerDownException(CMS.getUserMessage("CMS_LDAP_SERVER_UNAVAILABLE", conn.getHost(), ""
+                        + conn.getPort()));
             } else {
                 log(ILogger.LL_FAILURE,
                         CMS.getLogMessage("PUBLISH_DN_MAP_EXCEPTION", "LDAPException", e.toString()));

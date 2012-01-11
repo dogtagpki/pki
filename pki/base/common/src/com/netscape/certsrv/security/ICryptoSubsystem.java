@@ -467,5 +467,6 @@ public interface ICryptoSubsystem extends ISubsystem {
      * @return certificate
      * @exception EBaseException failed to sign certificate template
      */
-    public X509CertImpl getSignedCert(KeyCertData data, String certType, java.security.PrivateKey priKey) throws EBaseException;
+    public X509CertImpl getSignedCert(KeyCertData data, String certType, java.security.PrivateKey priKey)
+            throws EBaseException;
 }

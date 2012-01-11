@@ -481,7 +481,8 @@ public class UpdateCRL extends CMSServlet {
                                             crlIssuingPoint.getCRLNumber(),
                                             crlIssuingPoint.getLastUpdate(),
                                             crlIssuingPoint.getNextUpdate(),
-                                            Long.toString(crlIssuingPoint.getCRLSize()) + " time: " + (endTime - startTime) }
+                                            Long.toString(crlIssuingPoint.getCRLSize()) + " time: "
+                                                    + (endTime - startTime) }
                                     );
                         } else {
                             mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
@@ -495,7 +496,8 @@ public class UpdateCRL extends CMSServlet {
                                             crlIssuingPoint.getCRLNumber(),
                                             crlIssuingPoint.getLastUpdate(),
                                             "not set",
-                                            Long.toString(crlIssuingPoint.getCRLSize()) + " time: " + (endTime - startTime) }
+                                            Long.toString(crlIssuingPoint.getCRLSize()) + " time: "
+                                                    + (endTime - startTime) }
                                     );
                         }
                     } catch (EBaseException e) {

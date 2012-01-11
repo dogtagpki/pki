@@ -331,7 +331,8 @@ public class EnrollServlet extends CMSServlet {
             log(ILogger.LL_SECURITY,
                     CMS.getLogMessage("ADMIN_SRVLT_ENROLL_ACCESS_AFTER_SETUP"));
             throw new ECMSGWException(
-                    CMS.getUserMessage("CMS_GW_REDIRECTING_ADMINENROLL_ERROR", "Attempt to access adminEnroll after already setup."));
+                    CMS.getUserMessage("CMS_GW_REDIRECTING_ADMINENROLL_ERROR",
+                            "Attempt to access adminEnroll after already setup."));
         }
 
         processX509(cmsReq);
@@ -415,7 +416,8 @@ public class EnrollServlet extends CMSServlet {
         return true;
     }
 
-    private X509CertInfo[] handleCertAuthDual(X509CertInfo certInfo, IAuthToken authToken, X509Certificate sslClientCert,
+    private X509CertInfo[] handleCertAuthDual(X509CertInfo certInfo, IAuthToken authToken,
+            X509Certificate sslClientCert,
             ICertificateAuthority mCa, String certBasedOldSubjectDN,
             BigInteger certBasedOldSerialNum)
             throws EBaseException {
@@ -460,7 +462,8 @@ public class EnrollServlet extends CMSServlet {
         }
 
         String filter =
-                "(&(x509cert.subject=" + certBasedOldSubjectDN + ")(!(x509cert.serialNumber=" + certBasedOldSerialNum + "))(certStatus=VALID))";
+                "(&(x509cert.subject=" + certBasedOldSubjectDN + ")(!(x509cert.serialNumber=" + certBasedOldSerialNum
+                        + "))(certStatus=VALID))";
         ICertRecordList list =
                 (ICertRecordList) mCa.getCertificateRepository().findCertRecordsInList(filter, null, 10);
         int size = list.getSize();

@@ -75,7 +75,8 @@ public class IssuerAltNameExtDefault extends EnrollExtDefault {
                     "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_CRITICAL"));
         } else if (name.equals(CONFIG_TYPE)) {
-            return new Descriptor(IDescriptor.CHOICE, "RFC822Name,DNSName,DirectoryName,EDIPartyName,URIName,IPAddress,OIDName",
+            return new Descriptor(IDescriptor.CHOICE,
+                    "RFC822Name,DNSName,DirectoryName,EDIPartyName,URIName,IPAddress,OIDName",
                     "RFC822Name",
                     CMS.getUserMessage(locale,
                             "CMS_PROFILE_ISSUER_ALT_NAME_TYPE"));

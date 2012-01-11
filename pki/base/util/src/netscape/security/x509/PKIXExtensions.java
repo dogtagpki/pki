@@ -106,7 +106,8 @@ public class PKIXExtensions {
      * Identifies additional directory attributes.
      * This extension is always non-critical.
      */
-    public static final ObjectIdentifier SubjectDirectoryAttributes_Id = new ObjectIdentifier(SubjectDirectoryAttributes_data);
+    public static final ObjectIdentifier SubjectDirectoryAttributes_Id = new ObjectIdentifier(
+            SubjectDirectoryAttributes_data);
 
     /**
      * Identifies whether the subject of the certificate is a CA and how deep
@@ -141,7 +142,8 @@ public class PKIXExtensions {
     /**
      * Identifies the CRL distribution point for a particular CRL.
      */
-    public static final ObjectIdentifier IssuingDistributionPoint_Id = new ObjectIdentifier(IssuingDistributionPoint_data);
+    public static final ObjectIdentifier IssuingDistributionPoint_Id = new ObjectIdentifier(
+            IssuingDistributionPoint_data);
 
     /**
      * Identifies the delta CRL.

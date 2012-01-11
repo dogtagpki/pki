@@ -838,9 +838,15 @@ public class PublisherProcessor implements
         } catch (EBaseException e) {
             // not fatal. just log warning.
             log(ILogger.LL_WARN,
-                    "Cannot mark cert 0x" + serialNo.toString(16) + " published as " + published +
-                            " in the ldap directory. Cert Record not found. Error: " +
-                            e.toString() +
+                    "Cannot mark cert 0x"
+                            + serialNo.toString(16)
+                            + " published as "
+                            + published
+                            +
+                            " in the ldap directory. Cert Record not found. Error: "
+                            +
+                            e.toString()
+                            +
                             " Don't be alarmed if it's a subordinate ca or clone's ca siging cert. Otherwise your internal db may be corrupted.");
         }
     }
@@ -1117,7 +1123,8 @@ public class PublisherProcessor implements
         Enumeration<ILdapRule> rules = getRules("certs", req);
 
         if (rules == null || !rules.hasMoreElements()) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_LDAP_NO_UNPUBLISHING_RULE_FOUND_FOR_REQUEST", "certs", req.getRequestId().toString()));
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_LDAP_NO_UNPUBLISHING_RULE_FOUND_FOR_REQUEST", "certs",
+                    req.getRequestId().toString()));
             throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_RULE_MATCHED",
                     req.getRequestId().toString()));
         }
@@ -1221,7 +1228,8 @@ public class PublisherProcessor implements
                         dn = result;
                         if (!mCreateOwnDNEntry) {
                             if (dn == null) {
-                                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_LDAP_MAPPER_NOT_MAP", rule.getMapper()));
+                                log(ILogger.LL_FAILURE,
+                                        CMS.getLogMessage("CMSCORE_LDAP_MAPPER_NOT_MAP", rule.getMapper()));
                                 throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_MATCH",
                                         crl.getIssuerDN().toString()));
 
@@ -1231,7 +1239,8 @@ public class PublisherProcessor implements
                     publisher = getActivePublisherInstance(rule.getPublisher());
                     if (publisher != null) {
                         if (publisher instanceof com.netscape.cms.publish.publishers.FileBasedPublisher)
-                            ((com.netscape.cms.publish.publishers.FileBasedPublisher) publisher).setIssuingPointId(crlIssuingPointId);
+                            ((com.netscape.cms.publish.publishers.FileBasedPublisher) publisher)
+                                    .setIssuingPointId(crlIssuingPointId);
                         publisher.publish(conn, dn, crl);
                         log(ILogger.LL_INFO, "published crl using rule=" + rule.getInstanceName());
                     }

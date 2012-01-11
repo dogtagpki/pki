@@ -608,7 +608,8 @@ public class SrchCerts extends CMSServlet {
                 CMS.debug("Resetting timelimit from " + timeLimit + " to " + mTimeLimits);
                 timeLimit = mTimeLimits;
             }
-            CMS.debug("Start searching ... " + "filter=" + filter + " maxreturns=" + maxResults + " timelimit=" + timeLimit);
+            CMS.debug("Start searching ... " + "filter=" + filter + " maxreturns=" + maxResults + " timelimit="
+                    + timeLimit);
             Enumeration e = mCertDB.searchCertificates(filter, maxResults, timeLimit);
 
             int count = 0;

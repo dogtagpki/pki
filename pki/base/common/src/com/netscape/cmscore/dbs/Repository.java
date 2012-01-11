@@ -496,6 +496,7 @@ public abstract class Repository implements IRepository {
         mDB.setEnableSerialMgmt(value);
     }
 
-    public abstract BigInteger getLastSerialNumberInRange(BigInteger serial_low_bound, BigInteger serial_upper_bound) throws
+    public abstract BigInteger getLastSerialNumberInRange(BigInteger serial_low_bound, BigInteger serial_upper_bound)
+            throws
             EBaseException;
 }

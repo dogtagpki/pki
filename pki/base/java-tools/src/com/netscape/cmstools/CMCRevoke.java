@@ -73,7 +73,8 @@ public class CMCRevoke {
     private static final String KEYDB = "key3.db";
     public static final String HEADER = "-----BEGIN NEW CERTIFICATE REQUEST-----";
     public static final String TRAILER = "-----END NEW CERTIFICATE REQUEST-----";
-    static String dValue = null, nValue = null, iValue = null, sValue = null, mValue = null, hValue = null, cValue = null;
+    static String dValue = null, nValue = null, iValue = null, sValue = null, mValue = null, hValue = null,
+            cValue = null;
 
     public static final String CMS_BASE_CA_SIGNINGCERT_NOT_FOUND = "CA signing certificate not found";
     public static final String PR_INTERNAL_TOKEN_NAME = "internal";
@@ -144,7 +145,8 @@ public class CMCRevoke {
             // optional parameter
             if (cValue == null)
                 cValue = new String();
-            if (dValue == null || nValue == null || iValue == null || sValue == null || mValue == null || hValue == null)
+            if (dValue == null || nValue == null || iValue == null || sValue == null || mValue == null
+                    || hValue == null)
                 bWrongParam = true;
             else if (dValue.length() == 0 || nValue.length() == 0 || iValue.length() == 0 ||
                     sValue.length() == 0 || mValue.length() == 0 || hValue.length() == 0)
@@ -329,7 +331,8 @@ public class CMCRevoke {
             }
             String sn = com.netscape.osutil.OSUtil.BtoA(dig);
 
-            TaggedAttribute senderNonce = new TaggedAttribute(new INTEGER(bpid++), OBJECT_IDENTIFIER.id_cmc_senderNonce,
+            TaggedAttribute senderNonce = new TaggedAttribute(new INTEGER(bpid++),
+                    OBJECT_IDENTIFIER.id_cmc_senderNonce,
                     new OCTET_STRING(sn.getBytes()));
 
             controlSeq.addElement(senderNonce);
@@ -337,7 +340,8 @@ public class CMCRevoke {
             Name subjectName = new Name();
 
             subjectName.addCommonName(iValue);
-            org.mozilla.jss.pkix.cmmf.RevRequest lRevokeRequest = new org.mozilla.jss.pkix.cmmf.RevRequest(new ANY((new X500Name(iValue)).getEncoded()),
+            org.mozilla.jss.pkix.cmmf.RevRequest lRevokeRequest = new org.mozilla.jss.pkix.cmmf.RevRequest(new ANY(
+                    (new X500Name(iValue)).getEncoded()),
                     new INTEGER(sValue),
                     //org.mozilla.jss.pkix.cmmf.RevRequest.unspecified, 
                     new ENUMERATED((new Integer(mValue)).longValue()),
@@ -352,7 +356,8 @@ public class CMCRevoke {
 
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             //lRevokeRequest.encode(os); // khai
-            TaggedAttribute revokeRequestTag = new TaggedAttribute(new INTEGER(bpid++), OBJECT_IDENTIFIER.id_cmc_revokeRequest,
+            TaggedAttribute revokeRequestTag = new TaggedAttribute(new INTEGER(bpid++),
+                    OBJECT_IDENTIFIER.id_cmc_revokeRequest,
                     lRevokeRequest);
 
             controlSeq.addElement(revokeRequestTag);
@@ -362,7 +367,8 @@ public class CMCRevoke {
             // SHA1 is the default digest Alg for now.
             DigestAlgorithm digestAlg = null;
             SignatureAlgorithm signAlg = SignatureAlgorithm.RSASignatureWithSHA1Digest;
-            org.mozilla.jss.crypto.PrivateKey.Type signingKeyType = ((org.mozilla.jss.crypto.PrivateKey) privKey).getType();
+            org.mozilla.jss.crypto.PrivateKey.Type signingKeyType = ((org.mozilla.jss.crypto.PrivateKey) privKey)
+                    .getType();
 
             if (signingKeyType.equals(org.mozilla.jss.crypto.PrivateKey.Type.DSA))
                 signAlg = SignatureAlgorithm.DSASignatureWithSHA1Digest;

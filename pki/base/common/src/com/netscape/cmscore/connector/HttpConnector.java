@@ -150,7 +150,8 @@ public class HttpConnector implements IConnector {
                     replyStatus == RequestStatus.APPROVED)) {
                 CMS.debug("HttpConn:  remote request id still pending " +
                         r.getRequestId() + " state " + replyStatus);
-                mSource.log(ILogger.LL_INFO, CMS.getLogMessage("CMSCORE_CONNECTOR_REQUEST_NOT_COMPLETED", r.getRequestId().toString()));
+                mSource.log(ILogger.LL_INFO,
+                        CMS.getLogMessage("CMSCORE_CONNECTOR_REQUEST_NOT_COMPLETED", r.getRequestId().toString()));
                 mResender.addRequest(r);
                 return false;
             }
@@ -186,7 +187,8 @@ public class HttpConnector implements IConnector {
                 mResender.addRequest(r);
 
             CMS.debug("HttpConn:  error sending request to cert " + e.toString());
-            mSource.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CONNECTOR_SEND_REQUEST", r.getRequestId().toString(), mDest.getHost(), Integer.toString(mDest.getPort())));
+            mSource.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CONNECTOR_SEND_REQUEST", r.getRequestId()
+                    .toString(), mDest.getHost(), Integer.toString(mDest.getPort())));
             // mSource.log(ILogger.LL_INFO, 
             //    "Queing " + r.getRequestId() + " for resend.");
             return false;

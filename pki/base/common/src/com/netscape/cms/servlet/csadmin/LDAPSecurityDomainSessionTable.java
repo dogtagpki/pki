@@ -78,7 +78,8 @@ public class LDAPSecurityDomainSessionTable
             entry = new LDAPEntry(sessionsdn, attrs);
             conn.add(entry);
         } catch (Exception e) {
-            if ((e instanceof LDAPException) && (((LDAPException) e).getLDAPResultCode() == LDAPException.ENTRY_ALREADY_EXISTS)) {
+            if ((e instanceof LDAPException)
+                    && (((LDAPException) e).getLDAPResultCode() == LDAPException.ENTRY_ALREADY_EXISTS)) {
                 // continue
             } else {
                 CMS.debug("SecurityDomainSessionTable: unable to create ou=sessions:" + e);
@@ -129,7 +130,8 @@ public class LDAPSecurityDomainSessionTable
             conn.delete(dn);
             status = SUCCESS;
         } catch (Exception e) {
-            if ((e instanceof LDAPException) && (((LDAPException) e).getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT)) {
+            if ((e instanceof LDAPException)
+                    && (((LDAPException) e).getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT)) {
                 // continue
             } else {
                 CMS.debug("SecurityDomainSessionTable: unable to delete session " + sessionId + ": " + e);

@@ -379,11 +379,13 @@ public class nsNKeySubjectNameDefault extends EnrollDefault {
                 CMS.debug("nsNKeySubjectNameDefault: getSubjectName(): screen name does not exist");
                 throw new EProfileException("screenname does not exist");
             }
-            CMS.debug("nsNKeySubjectNameDefault: getSubjectName(): retrieved entry for aoluid = " + request.getExtDataInString("aoluid"));
+            CMS.debug("nsNKeySubjectNameDefault: getSubjectName(): retrieved entry for aoluid = "
+                    + request.getExtDataInString("aoluid"));
             ;
 
             LDAPEntry entry = null;
-            CMS.debug("nsNKeySubjectNameDefault: getSubjectName(): about to search with " + mLdapStringAttrs.length + " attributes");
+            CMS.debug("nsNKeySubjectNameDefault: getSubjectName(): about to search with " + mLdapStringAttrs.length
+                    + " attributes");
             LDAPSearchResults results =
                     conn.search(userdn, LDAPv2.SCOPE_BASE, "objectclass=*",
                             mLdapStringAttrs, false);

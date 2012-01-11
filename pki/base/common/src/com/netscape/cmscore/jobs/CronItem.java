@@ -128,7 +128,8 @@ public class CronItem {
                         if (!cr.isValidRange(mMin, mMax)) {
                             // throw...
                             log(ILogger.LL_FAILURE,
-                                    CMS.getLogMessage("CMSCORE_JOBS_INVALID_MIN_MAX_RANGE", Integer.toString(mMin), Integer.toString(mMax)));
+                                    CMS.getLogMessage("CMSCORE_JOBS_INVALID_MIN_MAX_RANGE", Integer.toString(mMin),
+                                            Integer.toString(mMax)));
                             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_JOB_CRON"));
                         }
                         //						System.out.println("CronItem set(): adding a number");

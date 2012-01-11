@@ -353,8 +353,10 @@ public class PublisherAdminServlet extends AdminServlet {
 
         String epi[] = new String[] {
                 "type;choice(cacert,crl,certs,xcert);The certType of the request",
-                "mapper;choice(" + map.toString() + ");Use the mapper to find the ldap dn to publish the certificate or crl",
-                "publisher;choice(" + publish.toString() + ");Use the publisher to publish the certificate or crl a directory etc",
+                "mapper;choice(" + map.toString()
+                        + ");Use the mapper to find the ldap dn to publish the certificate or crl",
+                "publisher;choice(" + publish.toString()
+                        + ");Use the publisher to publish the certificate or crl a directory etc",
                 "enable;boolean;",
                 "predicate;string;"
             };
@@ -713,7 +715,8 @@ public class PublisherAdminServlet extends AdminServlet {
                 try {
                     //certNickName = authInfo.getParms()[0];
                     certNickName = ldap.getSubStore(
-                                ILdapBoundConnFactory.PROP_LDAPAUTHINFO).getString(ILdapAuthInfo.PROP_CLIENTCERTNICKNAME);
+                                ILdapBoundConnFactory.PROP_LDAPAUTHINFO).getString(
+                            ILdapAuthInfo.PROP_CLIENTCERTNICKNAME);
                     conn = new LDAPConnection(CMS.getLdapJssSSLSocketFactory(
                                     certNickName));
                     CMS.debug("Publishing Test certNickName=" + certNickName);
@@ -723,7 +726,8 @@ public class PublisherAdminServlet extends AdminServlet {
                 } catch (Exception ex) {
                     params.add(Constants.PR_CONN_INIT_FAIL,
                             "Create ssl LDAPConnection with certificate: " +
-                                    certNickName + dashes(70 - 44 - certNickName.length()) + " failure\n" + " exception: " + ex);
+                                    certNickName + dashes(70 - 44 - certNickName.length()) + " failure\n"
+                                    + " exception: " + ex);
                     params.add(Constants.PR_SAVE_NOT,
                             "\n \nIf the problem is not fixed then LDAP publishing will fail.\n" +
                                     "Do you want to save the configuration anyway?");
@@ -735,7 +739,8 @@ public class PublisherAdminServlet extends AdminServlet {
                     params.add(Constants.PR_CONN_OK,
                             "Connect to directory server " +
                                     host + " at port " + port +
-                                    dashes(70 - 37 - host.length() - (Integer.valueOf(port)).toString().length()) + " Success");
+                                    dashes(70 - 37 - host.length() - (Integer.valueOf(port)).toString().length())
+                                    + " Success");
                     params.add(Constants.PR_AUTH_OK,
                             "Authentication: SSL client authentication" +
                                     dashes(70 - 41) + " Success" +
@@ -796,7 +801,8 @@ public class PublisherAdminServlet extends AdminServlet {
                     params.add(Constants.PR_CONN_OK,
                             "Connect to directory server " +
                                     host + " at port " + port +
-                                    dashes(70 - 37 - host.length() - (Integer.valueOf(port)).toString().length()) + " Success");
+                                    dashes(70 - 37 - host.length() - (Integer.valueOf(port)).toString().length())
+                                    + " Success");
                 } catch (LDAPException ex) {
                     if (ex.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
                         // need to intercept this because message from LDAP is
@@ -804,13 +810,15 @@ public class PublisherAdminServlet extends AdminServlet {
                         params.add(Constants.PR_CONN_FAIL,
                                 "Connect to directory server " +
                                         host + " at port " + port +
-                                        dashes(70 - 37 - host.length() - (Integer.valueOf(port)).toString().length()) + " Failure" +
+                                        dashes(70 - 37 - host.length() - (Integer.valueOf(port)).toString().length())
+                                        + " Failure" +
                                         "\nerror: server unavailable");
                     } else {
                         params.add(Constants.PR_CONN_FAIL,
                                 "Connect to directory server " +
                                         host + " at port " + port +
-                                        dashes(70 - 37 - host.length() - (Integer.valueOf(port)).toString().length()) + " Failure" +
+                                        dashes(70 - 37 - host.length() - (Integer.valueOf(port)).toString().length())
+                                        + " Failure" +
                                         "\nexception: " + ex);
                     }
                     params.add(Constants.PR_SAVE_NOT,
@@ -1003,7 +1011,8 @@ public class PublisherAdminServlet extends AdminServlet {
         // is the manager id unique?
         if (mProcessor.getMapperPlugins().containsKey((Object) id)) {
             sendResponse(ERROR,
-                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_SRVLT_ILL_PLUGIN_ID", id)).toString(),
+                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_SRVLT_ILL_PLUGIN_ID", id))
+                            .toString(),
                     null, resp);
             return;
         }
@@ -1036,7 +1045,8 @@ public class PublisherAdminServlet extends AdminServlet {
         // is the class an ILdapMapper?
         try {
             if (ILdapMapper.class.isAssignableFrom(newImpl) == false) {
-                sendResponse(ERROR, CMS.getUserMessage(getLocale(req), "CMS_LDAP_SRVLT_ILL_CLASS", classPath), null, resp);
+                sendResponse(ERROR, CMS.getUserMessage(getLocale(req), "CMS_LDAP_SRVLT_ILL_CLASS", classPath), null,
+                        resp);
                 return;
             }
         } catch (NullPointerException e) { // unlikely, only if newImpl null.
@@ -1121,8 +1131,10 @@ public class PublisherAdminServlet extends AdminServlet {
                         implname);
 
         if (plugin == null) {
-            sendResponse(ERROR,
-                    new EMapperPluginNotFound(CMS.getUserMessage(getLocale(req), "CMS_LDAP_MAPPER_PLUGIN_NOT_FOUND", implname)).toString(),
+            sendResponse(
+                    ERROR,
+                    new EMapperPluginNotFound(CMS.getUserMessage(getLocale(req), "CMS_LDAP_MAPPER_PLUGIN_NOT_FOUND",
+                            implname)).toString(),
                     null, resp);
             return;
         }
@@ -1160,19 +1172,22 @@ public class PublisherAdminServlet extends AdminServlet {
             // cleanup
             instancesConfig.removeSubStore(id);
             sendResponse(ERROR,
-                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className)).toString(),
+                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className))
+                            .toString(),
                     null, resp);
             return;
         } catch (InstantiationException e) {
             instancesConfig.removeSubStore(id);
             sendResponse(ERROR,
-                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className)).toString(),
+                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className))
+                            .toString(),
                     null, resp);
             return;
         } catch (IllegalAccessException e) {
             instancesConfig.removeSubStore(id);
             sendResponse(ERROR,
-                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className)).toString(),
+                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className))
+                            .toString(),
                     null, resp);
             return;
         }
@@ -1289,7 +1304,8 @@ public class PublisherAdminServlet extends AdminServlet {
 
         // does a`mapper instance exist?
         if (mProcessor.getMapperInsts().containsKey(id) == false) {
-            sendResponse(ERROR,
+            sendResponse(
+                    ERROR,
                     new EMapperNotFound(CMS.getUserMessage(getLocale(req), "CMS_LDAP_MAPPER_NOT_FOUND", id)).toString(),
                     null, resp);
             return;
@@ -1339,8 +1355,10 @@ public class PublisherAdminServlet extends AdminServlet {
         }
 
         if (mProcessor.getMapperPlugins().containsKey(id) == false) {
-            sendResponse(ERROR,
-                    new EMapperPluginNotFound(CMS.getUserMessage(getLocale(req), "CMS_LDAP_MAPPER_PLUGIN_NOT_FOUND", id)).toString(),
+            sendResponse(
+                    ERROR,
+                    new EMapperPluginNotFound(CMS
+                            .getUserMessage(getLocale(req), "CMS_LDAP_MAPPER_PLUGIN_NOT_FOUND", id)).toString(),
                     null, resp);
             return;
         }
@@ -1428,7 +1446,8 @@ public class PublisherAdminServlet extends AdminServlet {
 
         // does mapper instance exist?
         if (mProcessor.getMapperInsts().containsKey(id) == false) {
-            sendResponse(ERROR,
+            sendResponse(
+                    ERROR,
                     new EMapperNotFound(CMS.getUserMessage(getLocale(req), "CMS_LDAP_MAPPER_NOT_FOUND", id)).toString(),
                     null, resp);
             return;
@@ -1489,8 +1508,10 @@ public class PublisherAdminServlet extends AdminServlet {
                 (MapperPlugin) mProcessor.getMapperPlugins().get(implname);
 
         if (plugin == null) {
-            sendResponse(ERROR,
-                    new EMapperPluginNotFound(CMS.getUserMessage(getLocale(req), "CMS_LDAP_MAPPER_PLUGIN_NOT_FOUND", implname)).toString(),
+            sendResponse(
+                    ERROR,
+                    new EMapperPluginNotFound(CMS.getUserMessage(getLocale(req), "CMS_LDAP_MAPPER_PLUGIN_NOT_FOUND",
+                            implname)).toString(),
                     null, resp);
             return;
         }
@@ -1557,19 +1578,22 @@ public class PublisherAdminServlet extends AdminServlet {
             // cleanup
             restore(instancesConfig, id, saveParams);
             sendResponse(ERROR,
-                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className)).toString(),
+                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className))
+                            .toString(),
                     null, resp);
             return;
         } catch (InstantiationException e) {
             restore(instancesConfig, id, saveParams);
             sendResponse(ERROR,
-                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className)).toString(),
+                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className))
+                            .toString(),
                     null, resp);
             return;
         } catch (IllegalAccessException e) {
             restore(instancesConfig, id, saveParams);
             sendResponse(ERROR,
-                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className)).toString(),
+                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className))
+                            .toString(),
                     null, resp);
             return;
         }
@@ -1630,7 +1654,8 @@ public class PublisherAdminServlet extends AdminServlet {
 
         // is the rule id unique?
         if (mProcessor.getRulePlugins().containsKey((Object) id)) {
-            sendResponse(ERROR,
+            sendResponse(
+                    ERROR,
                     new ELdapException(CMS.getUserMessage("CMS_LDAP_SRVLT_ILL_PLUGIN_ID", id)).toString(getLocale(req)),
                     null, resp);
             return;
@@ -1665,7 +1690,8 @@ public class PublisherAdminServlet extends AdminServlet {
         // is the class an ILdapRule?
         try {
             if (ILdapRule.class.isAssignableFrom(newImpl) == false) {
-                sendResponse(ERROR, CMS.getUserMessage(getLocale(req), "CMS_LDAP_SRVLT_ILL_CLASS", classPath), null, resp);
+                sendResponse(ERROR, CMS.getUserMessage(getLocale(req), "CMS_LDAP_SRVLT_ILL_CLASS", classPath), null,
+                        resp);
                 return;
             }
         } catch (NullPointerException e) { // unlikely, only if newImpl null.
@@ -1739,8 +1765,10 @@ public class PublisherAdminServlet extends AdminServlet {
                         implname);
 
         if (plugin == null) {
-            sendResponse(ERROR,
-                    new EPublisherPluginNotFound(CMS.getUserMessage(getLocale(req), "CMS_LDAP_PUBLISHER_PLUGIN_NOT_FOUND", implname)).toString(),
+            sendResponse(
+                    ERROR,
+                    new EPublisherPluginNotFound(CMS.getUserMessage(getLocale(req),
+                            "CMS_LDAP_PUBLISHER_PLUGIN_NOT_FOUND", implname)).toString(),
                     null, resp);
             return;
         }
@@ -1783,19 +1811,22 @@ public class PublisherAdminServlet extends AdminServlet {
             // cleanup
             instancesConfig.removeSubStore(id);
             sendResponse(ERROR,
-                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className)).toString(),
+                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className))
+                            .toString(),
                     null, resp);
             return;
         } catch (InstantiationException e) {
             instancesConfig.removeSubStore(id);
             sendResponse(ERROR,
-                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className)).toString(),
+                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className))
+                            .toString(),
                     null, resp);
             return;
         } catch (IllegalAccessException e) {
             instancesConfig.removeSubStore(id);
             sendResponse(ERROR,
-                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className)).toString(),
+                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className))
+                            .toString(),
                     null, resp);
             return;
         }
@@ -1912,7 +1943,8 @@ public class PublisherAdminServlet extends AdminServlet {
         // does rule exist?
         if (mProcessor.getRulePlugins().containsKey(id) == false) {
             sendResponse(ERROR,
-                    new ERulePluginNotFound(CMS.getUserMessage(getLocale(req), "CMS_LDAP_RULE_PLUGIN_NOT_FOUND", id)).toString(),
+                    new ERulePluginNotFound(CMS.getUserMessage(getLocale(req), "CMS_LDAP_RULE_PLUGIN_NOT_FOUND", id))
+                            .toString(),
                     null, resp);
             return;
         }
@@ -2185,19 +2217,22 @@ public class PublisherAdminServlet extends AdminServlet {
             // cleanup
             restore(instancesConfig, id, saveParams);
             sendResponse(ERROR,
-                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className)).toString(),
+                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className))
+                            .toString(),
                     null, resp);
             return;
         } catch (InstantiationException e) {
             restore(instancesConfig, id, saveParams);
             sendResponse(ERROR,
-                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className)).toString(),
+                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className))
+                            .toString(),
                     null, resp);
             return;
         } catch (IllegalAccessException e) {
             restore(instancesConfig, id, saveParams);
             sendResponse(ERROR,
-                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className)).toString(),
+                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className))
+                            .toString(),
                     null, resp);
             return;
         }
@@ -2259,7 +2294,8 @@ public class PublisherAdminServlet extends AdminServlet {
         // is the manager id unique?
         if (mProcessor.getPublisherPlugins().containsKey((Object) id)) {
             sendResponse(ERROR,
-                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_SRVLT_ILL_PLUGIN_ID", id)).toString(),
+                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_SRVLT_ILL_PLUGIN_ID", id))
+                            .toString(),
                     null, resp);
             return;
         }
@@ -2293,7 +2329,8 @@ public class PublisherAdminServlet extends AdminServlet {
         // is the class an ILdapPublisher?
         try {
             if (ILdapPublisher.class.isAssignableFrom(newImpl) == false) {
-                sendResponse(ERROR, CMS.getUserMessage(getLocale(req), "CMS_LDAP_SRVLT_ILL_CLASS", classPath), null, resp);
+                sendResponse(ERROR, CMS.getUserMessage(getLocale(req), "CMS_LDAP_SRVLT_ILL_CLASS", classPath), null,
+                        resp);
                 return;
             }
         } catch (NullPointerException e) { // unlikely, only if newImpl null.
@@ -2369,8 +2406,10 @@ public class PublisherAdminServlet extends AdminServlet {
                         implname);
 
         if (plugin == null) {
-            sendResponse(ERROR,
-                    new EPublisherPluginNotFound(CMS.getUserMessage(getLocale(req), "CMS_LDAP_PUBLISHER_PLUGIN_NOT_FOUND", implname)).toString(),
+            sendResponse(
+                    ERROR,
+                    new EPublisherPluginNotFound(CMS.getUserMessage(getLocale(req),
+                            "CMS_LDAP_PUBLISHER_PLUGIN_NOT_FOUND", implname)).toString(),
                     null, resp);
             return;
         }
@@ -2422,19 +2461,22 @@ public class PublisherAdminServlet extends AdminServlet {
             // cleanup
             instancesConfig.removeSubStore(id);
             sendResponse(ERROR,
-                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className)).toString(),
+                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className))
+                            .toString(),
                     null, resp);
             return;
         } catch (InstantiationException e) {
             instancesConfig.removeSubStore(id);
             sendResponse(ERROR,
-                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className)).toString(),
+                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className))
+                            .toString(),
                     null, resp);
             return;
         } catch (IllegalAccessException e) {
             instancesConfig.removeSubStore(id);
             sendResponse(ERROR,
-                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className)).toString(),
+                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className))
+                            .toString(),
                     null, resp);
             return;
         }
@@ -2553,8 +2595,10 @@ public class PublisherAdminServlet extends AdminServlet {
 
         // does publisher exist?
         if (mProcessor.getPublisherPlugins().containsKey(id) == false) {
-            sendResponse(ERROR,
-                    new EPublisherPluginNotFound(CMS.getUserMessage(getLocale(req), "CMS_LDAP_PUBLISHER_PLUGIN_NOT_FOUND", id)).toString(),
+            sendResponse(
+                    ERROR,
+                    new EPublisherPluginNotFound(CMS.getUserMessage(getLocale(req),
+                            "CMS_LDAP_PUBLISHER_PLUGIN_NOT_FOUND", id)).toString(),
                     null, resp);
             return;
         }
@@ -2614,7 +2658,8 @@ public class PublisherAdminServlet extends AdminServlet {
         // does publisher instance exist?
         if (mProcessor.getPublisherInsts().containsKey(id) == false) {
             sendResponse(ERROR,
-                    new EPublisherNotFound(CMS.getUserMessage(getLocale(req), "CMS_LDAP_PUBLISHER_NOT_FOUND", id)).toString(),
+                    new EPublisherNotFound(CMS.getUserMessage(getLocale(req), "CMS_LDAP_PUBLISHER_NOT_FOUND", id))
+                            .toString(),
                     null, resp);
             return;
         }
@@ -2708,7 +2753,8 @@ public class PublisherAdminServlet extends AdminServlet {
         // does publisher instance exist?
         if (mProcessor.getPublisherInsts().containsKey(id) == false) {
             sendResponse(ERROR,
-                    new EPublisherNotFound(CMS.getUserMessage(getLocale(req), "CMS_LDAP_PUBLISHER_NOT_FOUND", id)).toString(),
+                    new EPublisherNotFound(CMS.getUserMessage(getLocale(req), "CMS_LDAP_PUBLISHER_NOT_FOUND", id))
+                            .toString(),
                     null, resp);
             return;
         }
@@ -2779,8 +2825,10 @@ public class PublisherAdminServlet extends AdminServlet {
                 (PublisherPlugin) mProcessor.getPublisherPlugins().get(implname);
 
         if (plugin == null) {
-            sendResponse(ERROR,
-                    new EPublisherPluginNotFound(CMS.getUserMessage(getLocale(req), "CMS_LDAP_PUBLISHER_PLUGIN_NOT_FOUND", implname)).toString(),
+            sendResponse(
+                    ERROR,
+                    new EPublisherPluginNotFound(CMS.getUserMessage(getLocale(req),
+                            "CMS_LDAP_PUBLISHER_PLUGIN_NOT_FOUND", implname)).toString(),
                     null, resp);
             return;
         }
@@ -2872,19 +2920,22 @@ public class PublisherAdminServlet extends AdminServlet {
             // cleanup
             restore(instancesConfig, id, saveParams);
             sendResponse(ERROR,
-                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className)).toString(),
+                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className))
+                            .toString(),
                     null, resp);
             return;
         } catch (InstantiationException e) {
             restore(instancesConfig, id, saveParams);
             sendResponse(ERROR,
-                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className)).toString(),
+                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className))
+                            .toString(),
                     null, resp);
             return;
         } catch (IllegalAccessException e) {
             restore(instancesConfig, id, saveParams);
             sendResponse(ERROR,
-                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className)).toString(),
+                    new ELdapException(CMS.getUserMessage(getLocale(req), "CMS_LDAP_FAIL_LOAD_CLASS", className))
+                            .toString(),
                     null, resp);
             return;
         }

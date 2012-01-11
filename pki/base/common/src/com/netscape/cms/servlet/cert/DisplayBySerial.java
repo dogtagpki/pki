@@ -308,7 +308,8 @@ public class DisplayBySerial extends CMSServlet {
                     String rid = (String) metaInfo.get(ICertRecord.META_REQUEST_ID);
 
                     if (rid != null && mAuthority instanceof ICertificateAuthority) {
-                        IRequest r = ((ICertificateAuthority) mAuthority).getRequestQueue().findRequest(new RequestId(rid));
+                        IRequest r = ((ICertificateAuthority) mAuthority).getRequestQueue().findRequest(
+                                new RequestId(rid));
                         String certType = r.getExtDataInString(IRequest.HTTP_PARAMS, IRequest.CERT_TYPE);
 
                         if (certType != null && certType.equals(IRequest.CLIENT_CERT)) {

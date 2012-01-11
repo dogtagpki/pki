@@ -89,8 +89,10 @@ public class CertificateScopeOfUseExt extends APolicyRule implements
 
         for (int i = 0; i < MAX_ENTRY; i++) {
             v.addElement(PROP_ENTRY + Integer.toString(i) + "_" + PROP_NAME + ";" + IGeneralNameUtil.GENNAME_VALUE_INFO);
-            v.addElement(PROP_ENTRY + Integer.toString(i) + "_" + PROP_NAME_TYPE + ";" + IGeneralNameUtil.GENNAME_CHOICE_INFO);
-            v.addElement(PROP_ENTRY + Integer.toString(i) + "_" + PROP_PORT_NUMBER + ";string;" + "The port number (optional).");
+            v.addElement(PROP_ENTRY + Integer.toString(i) + "_" + PROP_NAME_TYPE + ";"
+                    + IGeneralNameUtil.GENNAME_CHOICE_INFO);
+            v.addElement(PROP_ENTRY + Integer.toString(i) + "_" + PROP_PORT_NUMBER + ";string;"
+                    + "The port number (optional).");
         }
         return com.netscape.cmsutil.util.Utils.getStringArrayFromVector(v);
     }

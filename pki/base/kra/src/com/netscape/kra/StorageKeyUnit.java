@@ -195,7 +195,8 @@ public class StorageKeyUnit extends EncryptionUnit implements
                         }
                     }
                     if (mCert == null) {
-                        mKRA.log(ILogger.LL_FAILURE, "Storage Cert could not be initialized. No cert in token matched kra-cert file");
+                        mKRA.log(ILogger.LL_FAILURE,
+                                "Storage Cert could not be initialized. No cert in token matched kra-cert file");
                         throw new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_ERROR", "mCert == null"));
                     } else {
                         mKRA.log(ILogger.LL_INFO, "Using Storage Cert " + mCert.getSubjectDN());

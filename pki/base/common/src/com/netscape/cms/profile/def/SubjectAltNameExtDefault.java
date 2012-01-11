@@ -183,7 +183,8 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
                     "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_CRITICAL"));
         } else if (name.startsWith(CONFIG_TYPE)) {
-            return new Descriptor(IDescriptor.CHOICE, "RFC822Name,DNSName,DirectoryName,EDIPartyName,URIName,IPAddress,OIDName,OtherName",
+            return new Descriptor(IDescriptor.CHOICE,
+                    "RFC822Name,DNSName,DirectoryName,EDIPartyName,URIName,IPAddress,OIDName,OtherName",
                     "RFC822Name",
                     CMS.getUserMessage(locale,
                             "CMS_PROFILE_SUBJECT_ALT_NAME_TYPE"));
@@ -404,7 +405,8 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
         }
         ;
 
-        return CMS.getUserMessage(locale, "CMS_PROFILE_DEF_SUBJECT_ALT_NAME_EXT", getConfig(CONFIG_CRITICAL), sb.toString());
+        return CMS.getUserMessage(locale, "CMS_PROFILE_DEF_SUBJECT_ALT_NAME_EXT", getConfig(CONFIG_CRITICAL),
+                sb.toString());
     }
 
     /**
@@ -467,7 +469,8 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
                                 // function
                                 gname = mapPattern(randUUID.toString(), request, pattern);
                             } else { //expand more server-gen types here
-                                CMS.debug("SubjectAltNameExtDefault: createExtension - unsupported server-generated type: " + source + ". Supported: UUID4");
+                                CMS.debug("SubjectAltNameExtDefault: createExtension - unsupported server-generated type: "
+                                        + source + ". Supported: UUID4");
                                 continue;
                             }
                         } else {

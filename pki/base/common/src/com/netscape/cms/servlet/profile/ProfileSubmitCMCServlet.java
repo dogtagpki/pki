@@ -140,7 +140,8 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
 
     }
 
-    private void setCredentialsIntoContext(HttpServletRequest request, IProfileAuthenticator authenticator, IProfileContext ctx) {
+    private void setCredentialsIntoContext(HttpServletRequest request, IProfileAuthenticator authenticator,
+            IProfileContext ctx) {
         Enumeration authIds = authenticator.getValueNames();
 
         if (authIds != null) {

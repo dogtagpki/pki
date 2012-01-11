@@ -175,7 +175,8 @@ public class CertUserDBAuthentication implements IAuthManager {
         try {
             user = (User) mCULocator.locateUser(certs);
         } catch (EUsrGrpException e) {
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_AGENT_AUTH_FAILED", x509Certs[0].getSerialNumber().toString(16), x509Certs[0].getSubjectDN().toString(), e.toString()));
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_AGENT_AUTH_FAILED", x509Certs[0].getSerialNumber()
+                    .toString(16), x509Certs[0].getSubjectDN().toString(), e.toString()));
             throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
         } catch (netscape.ldap.LDAPException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_CANNOT_AGENT_AUTH", e.toString()));

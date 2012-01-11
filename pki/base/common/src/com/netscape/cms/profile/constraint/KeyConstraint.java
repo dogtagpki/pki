@@ -55,13 +55,20 @@ public class KeyConstraint extends EnrollConstraint {
     public static final String CONFIG_KEY_TYPE = "keyType"; // (EC, RSA)
     public static final String CONFIG_KEY_PARAMETERS = "keyParameters";
 
-    private static final String[] ecCurves = { "nistp256", "nistp384", "nistp521", "sect163k1", "nistk163", "sect163r1", "sect163r2",
-            "nistb163", "sect193r1", "sect193r2", "sect233k1", "nistk233", "sect233r1", "nistb233", "sect239k1", "sect283k1", "nistk283",
-            "sect283r1", "nistb283", "sect409k1", "nistk409", "sect409r1", "nistb409", "sect571k1", "nistk571", "sect571r1", "nistb571",
-            "secp160k1", "secp160r1", "secp160r2", "secp192k1", "secp192r1", "nistp192", "secp224k1", "secp224r1", "nistp224", "secp256k1",
-            "secp256r1", "secp384r1", "secp521r1", "prime192v1", "prime192v2", "prime192v3", "prime239v1", "prime239v2", "prime239v3", "c2pnb163v1",
-            "c2pnb163v2", "c2pnb163v3", "c2pnb176v1", "c2tnb191v1", "c2tnb191v2", "c2tnb191v3", "c2pnb208w1", "c2tnb239v1", "c2tnb239v2", "c2tnb239v3",
-            "c2pnb272w1", "c2pnb304w1", "c2tnb359w1", "c2pnb368w1", "c2tnb431r1", "secp112r1", "secp112r2", "secp128r1", "secp128r2", "sect113r1", "sect113r2",
+    private static final String[] ecCurves = { "nistp256", "nistp384", "nistp521", "sect163k1", "nistk163",
+            "sect163r1", "sect163r2",
+            "nistb163", "sect193r1", "sect193r2", "sect233k1", "nistk233", "sect233r1", "nistb233", "sect239k1",
+            "sect283k1", "nistk283",
+            "sect283r1", "nistb283", "sect409k1", "nistk409", "sect409r1", "nistb409", "sect571k1", "nistk571",
+            "sect571r1", "nistb571",
+            "secp160k1", "secp160r1", "secp160r2", "secp192k1", "secp192r1", "nistp192", "secp224k1", "secp224r1",
+            "nistp224", "secp256k1",
+            "secp256r1", "secp384r1", "secp521r1", "prime192v1", "prime192v2", "prime192v3", "prime239v1",
+            "prime239v2", "prime239v3", "c2pnb163v1",
+            "c2pnb163v2", "c2pnb163v3", "c2pnb176v1", "c2tnb191v1", "c2tnb191v2", "c2tnb191v3", "c2pnb208w1",
+            "c2tnb239v1", "c2tnb239v2", "c2tnb239v3",
+            "c2pnb272w1", "c2pnb304w1", "c2tnb359w1", "c2pnb368w1", "c2tnb431r1", "secp112r1", "secp112r2",
+            "secp128r1", "secp128r2", "sect113r1", "sect113r2",
             "sect131r1", "sect131r2"
     };
 

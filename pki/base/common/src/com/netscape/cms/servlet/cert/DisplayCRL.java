@@ -397,7 +397,8 @@ public class DisplayCRL extends CMSServlet {
                         } catch (Exception e) {
                             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ERR_DECODE_DELTA_CRL", e.toString()));
                             header.addStringValue("error",
-                                    new ECMSGWException(CMS.getUserMessage(locale, "CMS_GW_DECODE_CRL_FAILED")).toString());
+                                    new ECMSGWException(CMS.getUserMessage(locale, "CMS_GW_DECODE_CRL_FAILED"))
+                                            .toString());
                         }
                         if (deltaCRL != null) {
                             BigInteger crlNumber = crlRecord.getCRLNumber();
@@ -431,7 +432,8 @@ public class DisplayCRL extends CMSServlet {
                                             if (i >= length) {
                                                 IArgBlock rarg = CMS.createArgBlock();
 
-                                                rarg.addStringValue("crlBase64Encoded", crlBase64Encoded.substring(j, k));
+                                                rarg.addStringValue("crlBase64Encoded",
+                                                        crlBase64Encoded.substring(j, k));
                                                 argSet.addRepeatRecord(rarg);
                                             }
                                         } else {
@@ -439,11 +441,13 @@ public class DisplayCRL extends CMSServlet {
                                             IArgBlock rarg = CMS.createArgBlock();
 
                                             if (k > -1) {
-                                                rarg.addStringValue("crlBase64Encoded", crlBase64Encoded.substring(j, k));
+                                                rarg.addStringValue("crlBase64Encoded",
+                                                        crlBase64Encoded.substring(j, k));
                                                 i = k + 1;
                                                 j = i;
                                             } else {
-                                                rarg.addStringValue("crlBase64Encoded", crlBase64Encoded.substring(j, length));
+                                                rarg.addStringValue("crlBase64Encoded",
+                                                        crlBase64Encoded.substring(j, length));
                                                 i = length;
                                             }
                                             argSet.addRepeatRecord(rarg);
@@ -464,8 +468,10 @@ public class DisplayCRL extends CMSServlet {
             }
 
         } else if (!isCRLCacheEnabled && crlDisplayType.equals("cachedCRL")) {
-            header.addStringValue("error", CMS.getUserMessage(locale, "CMS_GW_CRL_CACHE_IS_NOT_ENABLED", crlIssuingPointId));
-            header.addStringValue("crlPrettyPrint", CMS.getUserMessage(locale, "CMS_GW_CRL_CACHE_IS_NOT_ENABLED", crlIssuingPointId));
+            header.addStringValue("error",
+                    CMS.getUserMessage(locale, "CMS_GW_CRL_CACHE_IS_NOT_ENABLED", crlIssuingPointId));
+            header.addStringValue("crlPrettyPrint",
+                    CMS.getUserMessage(locale, "CMS_GW_CRL_CACHE_IS_NOT_ENABLED", crlIssuingPointId));
         } else {
             header.addStringValue("error",
                     new ECMSGWException(CMS.getUserMessage(locale, "CMS_GW_DECODE_CRL_FAILED")).toString());

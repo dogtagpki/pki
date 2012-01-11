@@ -162,9 +162,11 @@ public class IssuingDistributionPointExtension extends Extension
                                                     issuingDistributionPoint.setFullName(fullName);
                                                 }
                                             } catch (GeneralNamesException e) {
-                                                throw new IOException("Invalid encoding of IssuingDistributionPoint " + e);
+                                                throw new IOException("Invalid encoding of IssuingDistributionPoint "
+                                                        + e);
                                             } catch (IOException e) {
-                                                throw new IOException("Invalid encoding of IssuingDistributionPoint " + e);
+                                                throw new IOException("Invalid encoding of IssuingDistributionPoint "
+                                                        + e);
                                             }
                                         } else {
                                             throw new IOException("Invalid encoding of IssuingDistributionPoint");
@@ -180,7 +182,8 @@ public class IssuingDistributionPointExtension extends Extension
                                                     issuingDistributionPoint.setRelativeName(relativeName);
                                                 }
                                             } catch (IOException e) {
-                                                throw new IOException("Invalid encoding of IssuingDistributionPoint " + e);
+                                                throw new IOException("Invalid encoding of IssuingDistributionPoint "
+                                                        + e);
                                             }
                                         } else {
                                             throw new IOException("Invalid encoding of IssuingDistributionPoint");

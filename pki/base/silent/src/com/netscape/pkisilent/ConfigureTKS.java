@@ -999,8 +999,11 @@ public class ConfigureTKS {
         parser.addOption("-db_name %s #db name",
                             x_db_name);
         parser.addOption("-secure_conn %s #use ldaps port (optional, default is false)", x_secure_conn);
-        parser.addOption("-remove_data %s #remove existing data under base_dn (optional, default is false) ", x_remove_data);
-        parser.addOption("-clone_start_tls %s #use startTLS for cloning replication agreement (optional, default is false)", x_clone_start_tls);
+        parser.addOption("-remove_data %s #remove existing data under base_dn (optional, default is false) ",
+                x_remove_data);
+        parser.addOption(
+                "-clone_start_tls %s #use startTLS for cloning replication agreement (optional, default is false)",
+                x_clone_start_tls);
 
         // key and algorithm options (default)
         parser.addOption("-key_type %s #Key type [RSA,ECC] (optional, default is RSA)", x_key_type);
@@ -1008,19 +1011,29 @@ public class ConfigureTKS {
         parser.addOption("-key_curvename %s #Key Curve Name (optional, for ECC default is nistp256)", x_key_curvename);
 
         // key and algorithm options for audit_signing certificate (overrides default)
-        parser.addOption("-audit_signing_key_type %s #Key type [RSA,ECC] (optional, default is key_type)", x_audit_signing_key_type);
-        parser.addOption("-audit_signing_key_size %s #Key Size (optional, for RSA default is key_size)", x_audit_signing_key_size);
-        parser.addOption("-audit_signing_key_curvename %s #Key Curve Name (optional, for ECC default is key_curvename)", x_audit_signing_key_curvename);
+        parser.addOption("-audit_signing_key_type %s #Key type [RSA,ECC] (optional, default is key_type)",
+                x_audit_signing_key_type);
+        parser.addOption("-audit_signing_key_size %s #Key Size (optional, for RSA default is key_size)",
+                x_audit_signing_key_size);
+        parser.addOption(
+                "-audit_signing_key_curvename %s #Key Curve Name (optional, for ECC default is key_curvename)",
+                x_audit_signing_key_curvename);
 
         // key and algorithm options for subsystem certificate (overrides default)
-        parser.addOption("-subsystem_key_type %s #Key type [RSA,ECC] (optional, default is key_type)", x_subsystem_key_type);
-        parser.addOption("-subsystem_key_size %s #Key Size (optional, for RSA default is key_size)", x_subsystem_key_size);
-        parser.addOption("-subsystem_key_curvename %s #Key Curve Name (optional, for ECC default is key_curvename)", x_subsystem_key_curvename);
+        parser.addOption("-subsystem_key_type %s #Key type [RSA,ECC] (optional, default is key_type)",
+                x_subsystem_key_type);
+        parser.addOption("-subsystem_key_size %s #Key Size (optional, for RSA default is key_size)",
+                x_subsystem_key_size);
+        parser.addOption("-subsystem_key_curvename %s #Key Curve Name (optional, for ECC default is key_curvename)",
+                x_subsystem_key_curvename);
 
         // key and algorithm options for sslserver certificate (overrides default)
-        parser.addOption("-sslserver_key_type %s #Key type [RSA,ECC] (optional, default is key_type)", x_sslserver_key_type);
-        parser.addOption("-sslserver_key_size %s #Key Size (optional, for RSA default is key_size)", x_sslserver_key_size);
-        parser.addOption("-sslserver_key_curvename %s #Key Curve Name (optional, for ECC default is key_curvename)", x_sslserver_key_curvename);
+        parser.addOption("-sslserver_key_type %s #Key type [RSA,ECC] (optional, default is key_type)",
+                x_sslserver_key_type);
+        parser.addOption("-sslserver_key_size %s #Key Size (optional, for RSA default is key_size)",
+                x_sslserver_key_size);
+        parser.addOption("-sslserver_key_curvename %s #Key Curve Name (optional, for ECC default is key_curvename)",
+                x_sslserver_key_curvename);
 
         parser.addOption("-token_name %s #HSM/Software Token name",
                             x_token_name);

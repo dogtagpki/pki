@@ -192,9 +192,11 @@ class MapAVAPattern {
                         in.read() != 'd' ||
                         in.read() != 'n' ||
                         in.read() != '.')
-                    throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX", "Invalid $ syntax, expecting $rdn"));
+                    throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX",
+                            "Invalid $ syntax, expecting $rdn"));
             } catch (IOException e) {
-                throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX", "Invalid $ syntax, expecting $rdn"));
+                throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX",
+                        "Invalid $ syntax, expecting $rdn"));
             }
 
             StringBuffer rdnNumberBuf = new StringBuffer();
@@ -214,11 +216,13 @@ class MapAVAPattern {
             String rdnNumber = rdnNumberBuf.toString().trim();
 
             if (rdnNumber.length() == 0)
-                throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX", "$rdn number not set in ava pattern"));
+                throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX",
+                        "$rdn number not set in ava pattern"));
             try {
                 mElement = Integer.parseInt(rdnNumber) - 1;
             } catch (NumberFormatException e) {
-                throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX", "Invalid $rdn number in ava pattern"));
+                throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX",
+                        "Invalid $rdn number in ava pattern"));
             }
             return;
         }
@@ -243,7 +247,8 @@ class MapAVAPattern {
                     CMS.getUserMessage("CMS_LDAP_INTERNAL_ERROR", e.toString()));
         }
         if (c != '=')
-            throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX", "Missing \"=\" in ava pattern"));
+            throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX",
+                    "Missing \"=\" in ava pattern"));
 
         // read value 
         //System.out.println("reading value");
@@ -259,7 +264,8 @@ class MapAVAPattern {
                     CMS.getUserMessage("CMS_LDAP_INTERNAL_ERROR", e.toString()));
         }
         if (c == -1)
-            throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX", "no value after = in ava pattern"));
+            throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX",
+                    "no value after = in ava pattern"));
 
         if (c == '$') {
             // check for $subj $ext or $req 
@@ -323,7 +329,8 @@ class MapAVAPattern {
 
             //System.out.println("----- attrName "+attrName);
             if (attrName.length() == 0)
-                throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX", "attribute name expected"));
+                throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX",
+                        "attribute name expected"));
             mAttr = attrName;
 
             /*
@@ -525,7 +532,8 @@ class MapAVAPattern {
                         if (mValue.equalsIgnoreCase(SubjectAlternativeNameExtension.NAME)) {
                             try {
                                 GeneralNames subjectNames = (GeneralNames)
-                                        ((SubjectAlternativeNameExtension) ext).get(SubjectAlternativeNameExtension.SUBJECT_NAME);
+                                        ((SubjectAlternativeNameExtension) ext)
+                                                .get(SubjectAlternativeNameExtension.SUBJECT_NAME);
 
                                 if (subjectNames.size() == 0)
                                     break;

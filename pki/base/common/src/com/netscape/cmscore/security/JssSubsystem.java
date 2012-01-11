@@ -1447,7 +1447,8 @@ public final class JssSubsystem implements ICryptoSubsystem {
                         pair.setValue(vvalue + ";" + certValue);
                     }
                 } catch (CertificateException e) {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_GET_CA_CERT_FOR", nickname, e.toString()));
+                    log(ILogger.LL_FAILURE,
+                            CMS.getLogMessage("CMSCORE_SECURITY_GET_CA_CERT_FOR", nickname, e.toString()));
                     // allow it to continue with other certs even if one blows
                     // up
                     //            throw new EBaseException(BaseResources.CERT_ERROR);

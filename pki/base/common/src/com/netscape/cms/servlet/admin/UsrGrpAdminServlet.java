@@ -1115,7 +1115,8 @@ public class UsrGrpAdminServlet extends AdminServlet {
                         return;
                     }
 
-                    CMS.debug("UsrGrpAdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_CHAIN_STORED_DB", String.valueOf(p7certs.length)));
+                    CMS.debug("UsrGrpAdminServlet: "
+                            + CMS.getLogMessage("ADMIN_SRVLT_CHAIN_STORED_DB", String.valueOf(p7certs.length)));
 
                     int j = 0;
                     int jBegin = 0;
@@ -1130,7 +1131,9 @@ public class UsrGrpAdminServlet extends AdminServlet {
                     }
                     // store the chain into cert db, except for the user cert
                     for (j = jBegin; j < jEnd; j++) {
-                        CMS.debug("UsrGrpAdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_CERT_IN_CHAIN", String.valueOf(j), String.valueOf(p7certs[j].getSubjectDN())));
+                        CMS.debug("UsrGrpAdminServlet: "
+                                + CMS.getLogMessage("ADMIN_SRVLT_CERT_IN_CHAIN", String.valueOf(j),
+                                        String.valueOf(p7certs[j].getSubjectDN())));
                         org.mozilla.jss.crypto.X509Certificate leafCert =
                                 null;
 

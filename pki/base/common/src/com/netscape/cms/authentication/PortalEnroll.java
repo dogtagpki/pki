@@ -202,11 +202,13 @@ public class PortalEnroll extends DirBasedAuthentication {
             if (res.hasMoreElements()) {
                 LDAPEntry entry = (LDAPEntry) res.nextElement();
 
-                throw new EAuthUserError(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_ATTRIBUTE_VALUE", "UID already exists."));
+                throw new EAuthUserError(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_ATTRIBUTE_VALUE",
+                        "UID already exists."));
             } else {
                 dn = regist(token, uid);
                 if (dn == null)
-                    throw new EAuthUserError(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_ATTRIBUTE_VALUE", "Could not add user " + uid + "."));
+                    throw new EAuthUserError(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_ATTRIBUTE_VALUE",
+                            "Could not add user " + uid + "."));
             }
 
             // bind as user dn and pwd - authenticates user with pwd.
@@ -225,8 +227,10 @@ public class PortalEnroll extends DirBasedAuthentication {
             switch (e.getLDAPResultCode()) {
             case LDAPException.NO_SUCH_OBJECT:
             case LDAPException.LDAP_PARTIAL_RESULTS:
-                log(ILogger.LL_SECURITY, CMS.getLogMessage("CMS_AUTH_ADD_USER_ERROR", conn.getHost(), Integer.toString(conn.getPort())));
-                throw new EAuthInternalError(CMS.getUserMessage("CMS_AUTHENTICATION_INTERNAL_ERROR", "Check Configuration detail."));
+                log(ILogger.LL_SECURITY,
+                        CMS.getLogMessage("CMS_AUTH_ADD_USER_ERROR", conn.getHost(), Integer.toString(conn.getPort())));
+                throw new EAuthInternalError(CMS.getUserMessage("CMS_AUTHENTICATION_INTERNAL_ERROR",
+                        "Check Configuration detail."));
 
             case LDAPException.INVALID_CREDENTIALS:
                 log(ILogger.LL_SECURITY,

@@ -230,15 +230,18 @@ public class CMSEngineDefaultStub implements ICMSEngine {
         return null;
     }
 
-    public String getLogMessage(String msgID, String p1, String p2, String p3, String p4, String p5, String p6, String p7) {
+    public String getLogMessage(String msgID, String p1, String p2, String p3, String p4, String p5, String p6,
+            String p7) {
         return null;
     }
 
-    public String getLogMessage(String msgID, String p1, String p2, String p3, String p4, String p5, String p6, String p7, String p8) {
+    public String getLogMessage(String msgID, String p1, String p2, String p3, String p4, String p5, String p6,
+            String p7, String p8) {
         return null;
     }
 
-    public String getLogMessage(String msgID, String p1, String p2, String p3, String p4, String p5, String p6, String p7, String p8, String p9) {
+    public String getLogMessage(String msgID, String p1, String p2, String p3, String p4, String p5, String p6,
+            String p7, String p8, String p9) {
         return null;
     }
 
@@ -246,7 +249,8 @@ public class CMSEngineDefaultStub implements ICMSEngine {
         return null;
     }
 
-    public ICRLIssuingPointRecord createCRLIssuingPointRecord(String id, BigInteger crlNumber, Long crlSize, Date thisUpdate, Date nextUpdate) {
+    public ICRLIssuingPointRecord createCRLIssuingPointRecord(String id, BigInteger crlNumber, Long crlSize,
+            Date thisUpdate, Date nextUpdate) {
         return null;
     }
 
@@ -335,7 +339,8 @@ public class CMSEngineDefaultStub implements ICMSEngine {
         return null;
     }
 
-    public LDAPConnection getBoundConnection(String host, int port, int version, LDAPSSLSocketFactoryExt fac, String bindDN, String bindPW) throws LDAPException {
+    public LDAPConnection getBoundConnection(String host, int port, int version, LDAPSSLSocketFactoryExt fac,
+            String bindDN, String bindPW) throws LDAPException {
         return null;
     }
 
@@ -472,15 +477,18 @@ public class CMSEngineDefaultStub implements ICMSEngine {
     public void getGeneralNamesConfigExtendedPluginInfo(String name, boolean isValueConfigured, Vector info) {
     }
 
-    public IGeneralNamesConfig createGeneralNamesConfig(String name, IConfigStore config, boolean isValueConfigured, boolean isPolicyEnabled) throws EBaseException {
+    public IGeneralNamesConfig createGeneralNamesConfig(String name, IConfigStore config, boolean isValueConfigured,
+            boolean isPolicyEnabled) throws EBaseException {
         return null;
     }
 
-    public IGeneralNameAsConstraintsConfig createGeneralNameAsConstraintsConfig(String name, IConfigStore config, boolean isValueConfigured, boolean isPolicyEnabled) throws EBaseException {
+    public IGeneralNameAsConstraintsConfig createGeneralNameAsConstraintsConfig(String name, IConfigStore config,
+            boolean isValueConfigured, boolean isPolicyEnabled) throws EBaseException {
         return null;
     }
 
-    public IGeneralNamesAsConstraintsConfig createGeneralNamesAsConstraintsConfig(String name, IConfigStore config, boolean isValueConfigured, boolean isPolicyEnabled) throws EBaseException {
+    public IGeneralNamesAsConstraintsConfig createGeneralNamesAsConstraintsConfig(String name, IConfigStore config,
+            boolean isValueConfigured, boolean isPolicyEnabled) throws EBaseException {
         return null;
     }
 
@@ -490,7 +498,8 @@ public class CMSEngineDefaultStub implements ICMSEngine {
     public void getSubjAltNameConfigExtendedPluginInfo(String name, Vector params) {
     }
 
-    public ISubjAltNameConfig createSubjAltNameConfig(String name, IConfigStore config, boolean isValueConfigured) throws EBaseException {
+    public ISubjAltNameConfig createSubjAltNameConfig(String name, IConfigStore config, boolean isValueConfigured)
+            throws EBaseException {
         return null;
     }
 

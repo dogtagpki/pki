@@ -93,7 +93,8 @@ public class SubjAltNameExt extends APolicyRule
 
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
-                PROP_CRITICAL + ";boolean;RFC 2459 recommendation: If the certificate subject field contains an empty sequence, the subjectAltName extension MUST be marked critical.",
+                PROP_CRITICAL
+                        + ";boolean;RFC 2459 recommendation: If the certificate subject field contains an empty sequence, the subjectAltName extension MUST be marked critical.",
                 IExtendedPluginInfo.HELP_TOKEN +
                         ";configuration-policyrules-subjaltname",
                 IExtendedPluginInfo.HELP_TEXT +
