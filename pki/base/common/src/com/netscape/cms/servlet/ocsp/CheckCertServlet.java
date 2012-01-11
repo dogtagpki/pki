@@ -100,7 +100,8 @@ public class CheckCertServlet extends CMSServlet {
     /**
      * Process the HTTP request.
      * <ul>
-     * <li>http.param cert certificate to check. Base64, DER encoded, wrapped in -----BEGIN CERTIFICATE-----, -----END CERTIFICATE----- strings
+     * <li>http.param cert certificate to check. Base64, DER encoded, wrapped in -----BEGIN CERTIFICATE-----, -----END
+     * CERTIFICATE----- strings
      * </ul>
      * 
      * @param cmsReq the object holding the request and response information

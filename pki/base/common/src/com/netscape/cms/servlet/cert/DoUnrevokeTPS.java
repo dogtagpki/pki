@@ -111,7 +111,9 @@ public class DoUnrevokeTPS extends CMSServlet {
     /**
      * Process the HTTP request.
      * <ul>
-     * <li>http.param serialNumber Decimal serial number of certificate to unrevoke. The certificate must be revoked with a revovcation reason 'on hold' for this operation to succeed. The serial number may be expressed as a hex number by prefixing '0x' to the serialNumber string
+     * <li>http.param serialNumber Decimal serial number of certificate to unrevoke. The certificate must be revoked
+     * with a revovcation reason 'on hold' for this operation to succeed. The serial number may be expressed as a hex
+     * number by prefixing '0x' to the serialNumber string
      * </ul>
      * 
      * @param cmsReq the object holding the request and response information
@@ -229,8 +231,10 @@ public class DoUnrevokeTPS extends CMSServlet {
      * <P>
      * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST used when a cert status change request (e. g. - "revocation") is made (before approval process)
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST_PROCESSED used when a certificate status is changed (taken off-hold)
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST used when a cert status change request (e. g. -
+     * "revocation") is made (before approval process)
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST_PROCESSED used when a certificate status is
+     * changed (taken off-hold)
      * </ul>
      * 
      * @param serialNumbers the serial number of the certificate

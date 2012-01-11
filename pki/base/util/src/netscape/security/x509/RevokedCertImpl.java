@@ -37,7 +37,8 @@ import netscape.security.util.ObjectIdentifier;
 
 /**
  * <p>
- * Abstract class for a revoked certificate in a CRL. This class is for each entry in the <code>revokedCertificates</code>, so it deals with the inner <em>SEQUENCE</em>. The ASN.1 definition for this is:
+ * Abstract class for a revoked certificate in a CRL. This class is for each entry in the
+ * <code>revokedCertificates</code>, so it deals with the inner <em>SEQUENCE</em>. The ASN.1 definition for this is:
  * 
  * <pre>
  * revokedCertificates    SEQUENCE OF SEQUENCE  {

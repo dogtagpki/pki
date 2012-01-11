@@ -27,7 +27,8 @@ import java.security.MessageDigestSpi;
  * fip-180 as superseded by fip-180-1.
  * 
  * <p>
- * It implement JavaSecurity MessageDigest, and can be used by in the Java Security framework, as a pluggable implementation, as a filter for the digest stream classes.
+ * It implement JavaSecurity MessageDigest, and can be used by in the Java Security framework, as a pluggable
+ * implementation, as a filter for the digest stream classes.
  * 
  * @version 1.30 97/12/10
  * @author Roger Riggs

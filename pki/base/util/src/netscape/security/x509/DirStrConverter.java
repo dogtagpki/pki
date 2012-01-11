@@ -32,8 +32,11 @@ import netscape.security.util.DerValue;
  * Universal String (UCS-4), and vice versa.
  * 
  * <p>
- * The string to DerValue conversion is done as follows. If the string has only PrintableString characters it is converted to a ASN.1 Printable String using the PrintableString encoder from the global default ASN1CharStrConvMap. If it has only characters covered in the PrintableString or T.61 character set it is converted to a ASN.1 T.61 string using the T.61 encoder from the ASN1CharStrCovnMap. Otherwise it is converted to a ASN.1 UniversalString (UCS-4 character set) which covers all
- * characters.
+ * The string to DerValue conversion is done as follows. If the string has only PrintableString characters it is
+ * converted to a ASN.1 Printable String using the PrintableString encoder from the global default ASN1CharStrConvMap.
+ * If it has only characters covered in the PrintableString or T.61 character set it is converted to a ASN.1 T.61 string
+ * using the T.61 encoder from the ASN1CharStrCovnMap. Otherwise it is converted to a ASN.1 UniversalString (UCS-4
+ * character set) which covers all characters.
  * 
  * @see AVAValueConverter
  * @see ASN1CharStrConvMap

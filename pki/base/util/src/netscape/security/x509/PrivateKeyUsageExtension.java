@@ -37,7 +37,10 @@ import netscape.security.util.DerValue;
  * This class defines the Private Key Usage Extension.
  * 
  * <p>
- * The Private Key Usage Period extension allows the certificate issuer to specify a different validity period for the private key than the certificate. This extension is intended for use with digital signature keys. This extension consists of two optional components notBefore and notAfter. The private key associated with the certificate should not be used to sign objects before or after the times specified by the two components, respectively.
+ * The Private Key Usage Period extension allows the certificate issuer to specify a different validity period for the
+ * private key than the certificate. This extension is intended for use with digital signature keys. This extension
+ * consists of two optional components notBefore and notAfter. The private key associated with the certificate should
+ * not be used to sign objects before or after the times specified by the two components, respectively.
  * 
  * <pre>
  * PrivateKeyUsagePeriod ::= SEQUENCE {

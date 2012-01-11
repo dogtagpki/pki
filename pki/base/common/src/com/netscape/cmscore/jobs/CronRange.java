@@ -20,9 +20,11 @@ package com.netscape.cmscore.jobs;
 /**
  * class representing one Job cron element
  * <p>
- * here, an "item" refers to one of the 5 fields in a cron string; "element" refers to any comma-deliminated element in an "item"...which includes both numbers and '-' separated ranges.
+ * here, an "item" refers to one of the 5 fields in a cron string; "element" refers to any comma-deliminated element in
+ * an "item"...which includes both numbers and '-' separated ranges.
  * <p>
- * an Element can contain either an integer number or a range specified as CronRange. In case of integer numbers, begin and end are of the same value
+ * an Element can contain either an integer number or a range specified as CronRange. In case of integer numbers, begin
+ * and end are of the same value
  * 
  * @author cfu
  * @version $Revision$, $Date$

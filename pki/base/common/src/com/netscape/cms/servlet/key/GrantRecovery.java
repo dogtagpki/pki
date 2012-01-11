@@ -193,7 +193,8 @@ public class GrantRecovery extends CMSServlet {
      * <P>
      * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_KEY_RECOVERY_AGENT_LOGIN used whenever DRM agents login as recovery agents to approve key recovery requests
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_KEY_RECOVERY_AGENT_LOGIN used whenever DRM agents login as recovery agents
+     * to approve key recovery requests
      * </ul>
      * 
      * @param argSet CMS template parameters

@@ -33,7 +33,11 @@ import netscape.security.util.DerValue;
  * Universal String.
  * 
  * <p>
- * The conversion is done as follows. An encoder is obtained for the all the character sets from the global default ASN1CharStrConvMap. The encoders are then used to convert the string to the smallest character set first -- printableString. If the string contains characters outside of that character set, it is converted to the next character set -- IA5String character set. If that is not enough it is converted to a BMPString, then Universal String which contains all characters.
+ * The conversion is done as follows. An encoder is obtained for the all the character sets from the global default
+ * ASN1CharStrConvMap. The encoders are then used to convert the string to the smallest character set first --
+ * printableString. If the string contains characters outside of that character set, it is converted to the next
+ * character set -- IA5String character set. If that is not enough it is converted to a BMPString, then Universal String
+ * which contains all characters.
  * 
  * @author Lily Hsiao, Slava Galperin at Netscape Communications, Inc.
  * 
@@ -49,7 +53,9 @@ public class GenericValueConverter implements AVAValueConverter {
      * UniversalString. The string is not expected to be encoded in any form.
      * 
      * <p>
-     * If an encoder is not available for a character set that is needed to convert the string, the string cannot be converted and an IOException is thrown. For example, if the string contains characters outside the PrintableString character and only a PrintableString encoder is available then an IOException is thrown.
+     * If an encoder is not available for a character set that is needed to convert the string, the string cannot be
+     * converted and an IOException is thrown. For example, if the string contains characters outside the
+     * PrintableString character and only a PrintableString encoder is available then an IOException is thrown.
      * 
      * @param s A string representing a generic attribute string value.
      * 

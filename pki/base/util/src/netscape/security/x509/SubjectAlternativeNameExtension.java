@@ -34,7 +34,9 @@ import netscape.security.util.DerValue;
  * alternative names.
  * 
  * <p>
- * Extensions are represented as a sequence of the extension identifier (Object Identifier), a boolean flag stating whether the extension is to be treated as being critical and the extension value itself (this is again a DER encoding of the extension value).
+ * Extensions are represented as a sequence of the extension identifier (Object Identifier), a boolean flag stating
+ * whether the extension is to be treated as being critical and the extension value itself (this is again a DER encoding
+ * of the extension value).
  * <p>
  * The ASN.1 syntax for this is:
  * 

@@ -125,7 +125,8 @@ public class DisplayBySerial extends CMSServlet {
     /**
      * Serves HTTP request. The format of this request is as follows:
      * <ul>
-     * <li>http.param serialNumber Decimal serial number of certificate to display (or hex if serialNumber preceded by 0x)
+     * <li>http.param serialNumber Decimal serial number of certificate to display (or hex if serialNumber preceded by
+     * 0x)
      * </ul>
      */
     public void process(CMSRequest cmsReq) throws EBaseException {

@@ -190,7 +190,8 @@ public class DSAKeyPairGenerator extends KeyPairGenerator
     }
 
     /**
-     * Initializes the DSA key pair generator. If <code>genParams</code> is false, a set of pre-computed parameters is used. In this case, <code>modelen</code> must be 512, 768, or 1024.
+     * Initializes the DSA key pair generator. If <code>genParams</code> is false, a set of pre-computed parameters is
+     * used. In this case, <code>modelen</code> must be 512, 768, or 1024.
      */
     public void initialize(int modlen, boolean genParams, SecureRandom random)
             throws InvalidParameterException {

@@ -118,7 +118,9 @@ public class ValidityConstraints extends APolicyRule
      * 
      * The entries probably are of the form:
      * 
-     * ra.Policy.rule.<ruleName>.implName=ValidityConstraints ra.Policy.rule.<ruleName>.enable=true ra.Policy.rule.<ruleName>.minValidity=30 ra.Policy.rule.<ruleName>.maxValidity=180 ra.Policy.rule.<ruleName>.predicate=ou==Sales
+     * ra.Policy.rule.<ruleName>.implName=ValidityConstraints ra.Policy.rule.<ruleName>.enable=true
+     * ra.Policy.rule.<ruleName>.minValidity=30 ra.Policy.rule.<ruleName>.maxValidity=180
+     * ra.Policy.rule.<ruleName>.predicate=ou==Sales
      * 
      * @param config The config store reference
      */

@@ -105,10 +105,13 @@ public class AddCRLServlet extends CMSServlet {
      * <P>
      * 
      * <ul>
-     * <li>http.param crl certificate revocation list, base-64, DER encoded wrapped in -----BEGIN CERTIFICATE REVOCATION LIST-----, -----END CERTIFICATE REVOCATION LIST----- strings
+     * <li>http.param crl certificate revocation list, base-64, DER encoded wrapped in -----BEGIN CERTIFICATE REVOCATION
+     * LIST-----, -----END CERTIFICATE REVOCATION LIST----- strings
      * <li>http.param noui if true, use minimal hardcoded text response
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CRL_RETRIEVAL used when CRLs are retrieved by the OCSP Responder ("agent" or "EE")
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CRL_VALIDATION used when CRL is retrieved and validation process occurs ("agent" or "EE")
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CRL_RETRIEVAL used when CRLs are retrieved by the OCSP Responder ("agent"
+     * or "EE")
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CRL_VALIDATION used when CRL is retrieved and validation process occurs
+     * ("agent" or "EE")
      * </ul>
      * 
      * @param cmsReq the object holding the request and response information

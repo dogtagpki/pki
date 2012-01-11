@@ -62,10 +62,15 @@ import netscape.security.util.ObjectIdentifier;
  * 
  * <P>
  * These certificates are managed and vouched for by <em>Certificate
- * Authorities</em> (CAs). CAs are services which create certificates by placing data in the X.509 standard format and then digitally signing that data. Such signatures are quite difficult to forge. CAs act as trusted third parties, making introductions between agents who have no direct knowledge of each other. CA certificates are either signed by themselves, or by some other CA such as a "root" CA.
+ * Authorities</em> (CAs). CAs are services which create certificates by placing data in the X.509 standard format and
+ * then digitally signing that data. Such signatures are quite difficult to forge. CAs act as trusted third parties,
+ * making introductions between agents who have no direct knowledge of each other. CA certificates are either signed by
+ * themselves, or by some other CA such as a "root" CA.
  * 
  * <P>
- * RFC 1422 is very informative, though it does not describe much of the recent work being done with X.509 certificates. That includes a 1996 version (X.509v3) and a variety of enhancements being made to facilitate an explosion of personal certificates used as "Internet Drivers' Licences", or with SET for credit card transactions.
+ * RFC 1422 is very informative, though it does not describe much of the recent work being done with X.509 certificates.
+ * That includes a 1996 version (X.509v3) and a variety of enhancements being made to facilitate an explosion of
+ * personal certificates used as "Internet Drivers' Licences", or with SET for credit card transactions.
  * 
  * <P>
  * More recent work includes the IETF PKIX Working Group efforts, especially part 1.

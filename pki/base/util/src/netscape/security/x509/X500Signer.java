@@ -28,7 +28,8 @@ import java.security.Signer;
  * is needed in many public key signing applications.
  * 
  * <P>
- * The name of the signer is important, both because knowing it is the whole point of the signature, and because the associated X.509 certificate is always used to verify the signature.
+ * The name of the signer is important, both because knowing it is the whole point of the signature, and because the
+ * associated X.509 certificate is always used to verify the signature.
  * 
  * <P>
  * <em>The X.509 certificate chain is temporarily not associated with

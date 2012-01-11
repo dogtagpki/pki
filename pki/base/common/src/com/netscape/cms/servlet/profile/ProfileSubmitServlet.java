@@ -440,12 +440,14 @@ public class ProfileSubmitServlet extends ProfileServlet {
      * Process the HTTP request
      * <P>
      * 
-     * (Certificate Request Processed - either an automated "EE" profile based cert acceptance, or an automated "EE" profile based cert rejection)
+     * (Certificate Request Processed - either an automated "EE" profile based cert acceptance, or an automated "EE"
+     * profile based cert rejection)
      * <P>
      * 
      * <ul>
      * <li>http.param profileId ID of profile to use to process request
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED used when a certificate request has just been through the approval process
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED used when a certificate request has just been
+     * through the approval process
      * </ul>
      * 
      * @param cmsReq the object holding the request and response information

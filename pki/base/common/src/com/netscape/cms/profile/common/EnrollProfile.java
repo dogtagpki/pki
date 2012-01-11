@@ -1234,11 +1234,13 @@ public abstract class EnrollProfile extends BasicProfile
      * Populate input
      * <P>
      * 
-     * (either all "agent" profile cert requests NOT made through a connector, or all "EE" profile cert requests NOT made through a connector)
+     * (either all "agent" profile cert requests NOT made through a connector, or all "EE" profile cert requests NOT
+     * made through a connector)
      * <P>
      * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_PROFILE_CERT_REQUEST used when a profile cert request is made (before approval process)
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_PROFILE_CERT_REQUEST used when a profile cert request is made (before
+     * approval process)
      * </ul>
      * 
      * @param ctx profile context

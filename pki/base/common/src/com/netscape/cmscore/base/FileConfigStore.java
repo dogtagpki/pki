@@ -148,7 +148,8 @@ public class FileConfigStore extends PropConfigStore implements
     /**
      * Saves in-memory properties to a specified file.
      * <P>
-     * Note that the superclass's save is synchronized. It means no properties can be altered (inserted) at the saving time.
+     * Note that the superclass's save is synchronized. It means no properties can be altered (inserted) at the saving
+     * time.
      * <P>
      * 
      * @param fileName filename

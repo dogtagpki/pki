@@ -26,7 +26,8 @@ import java.util.Vector;
  * enforcer can verify the ACLs with the current
  * context to see if the corresponding resource is accessible.
  * <P>
- * An <code>ACL</code> may contain one or more <code>ACLEntry</code>. However, in case of multiple <code>ACLEntry</code>, a subject must pass ALL of the <code>ACLEntry</code> evaluation for permission to be granted
+ * An <code>ACL</code> may contain one or more <code>ACLEntry</code>. However, in case of multiple <code>ACLEntry</code>
+ * , a subject must pass ALL of the <code>ACLEntry</code> evaluation for permission to be granted
  * <P>
  * 
  * @version $Revision$, $Date$

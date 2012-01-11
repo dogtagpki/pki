@@ -58,7 +58,9 @@ import java.util.Vector;
  * <h3><a name="example">Basic Example</a></h3>
  * 
  * <p>
- * Here is a simple example in which an application has three command line options: <code>-theta</code> (followed by a floating point value), <code>-file</code> (followed by a string value), and <code>-debug</code>, which causes a boolean value to be set.
+ * Here is a simple example in which an application has three command line options: <code>-theta</code> (followed by a
+ * floating point value), <code>-file</code> (followed by a string value), and <code>-debug</code>, which causes a
+ * boolean value to be set.
  * 
  * <pre>
  * 
@@ -95,20 +97,37 @@ import java.util.Vector;
  * </pre>
  * 
  * <p>
- * The application creates an instance of ArgParser and then adds descriptions of the allowed options using {@link #addOption addOption}. The method {@link #matchAllArgs(String[]) matchAllArgs} is then used to match these options against the command line arguments. Values associated with each option are returned in the <code>value</code> field of special ``holder'' classes (e.g., {@link argparser.DoubleHolder DoubleHolder}, {@link argparser.StringHolder StringHolder}, etc.).
+ * The application creates an instance of ArgParser and then adds descriptions of the allowed options using
+ * {@link #addOption addOption}. The method {@link #matchAllArgs(String[]) matchAllArgs} is then used to match these
+ * options against the command line arguments. Values associated with each option are returned in the <code>value</code>
+ * field of special ``holder'' classes (e.g., {@link argparser.DoubleHolder DoubleHolder},
+ * {@link argparser.StringHolder StringHolder}, etc.).
  * 
  * <p>
- * The first argument to {@link #addOption addOption} is a string that specifies (1) the option's name, (2) a conversion code for its associated value (e.g., <code>%f</code> for floating point, <code>%s</code> for a string, <code>%v</code> for a boolean flag), and (3) an optional description (following the <code>#</code> character) which is used for generating help messages. The second argument is the holder object through which the value is returned. This may be either a type-specific object
- * (such as {@link argparser.DoubleHolder DoubleHolder} or {@link argparser.StringHolder
- * StringHolder}), an array of the appropriate type, or <a href=#multipleOptionInvocation> an instance of <code>java.util.Vector</code></a>.
+ * The first argument to {@link #addOption addOption} is a string that specifies (1) the option's name, (2) a conversion
+ * code for its associated value (e.g., <code>%f</code> for floating point, <code>%s</code> for a string,
+ * <code>%v</code> for a boolean flag), and (3) an optional description (following the <code>#</code> character) which
+ * is used for generating help messages. The second argument is the holder object through which the value is returned.
+ * This may be either a type-specific object (such as {@link argparser.DoubleHolder DoubleHolder} or
+ * {@link argparser.StringHolder
+ * StringHolder}), an array of the appropriate type, or <a href=#multipleOptionInvocation> an instance of
+ * <code>java.util.Vector</code></a>.
  * 
  * <p>
- * By default, arguments that don't match the specified options, are <a href=#rangespec>out of range</a>, or are otherwise formatted incorrectly, will cause <code>matchAllArgs</code> to print a message and exit the program. Alternatively, an application can use {@link #matchAllArgs(String[],int,int) matchAllArgs(args,idx,exitFlags)} to obtain an array of unmatched arguments which can then be <a href=#customArgParsing>processed separately</a>
+ * By default, arguments that don't match the specified options, are <a href=#rangespec>out of range</a>, or are
+ * otherwise formatted incorrectly, will cause <code>matchAllArgs</code> to print a message and exit the program.
+ * Alternatively, an application can use {@link #matchAllArgs(String[],int,int) matchAllArgs(args,idx,exitFlags)} to
+ * obtain an array of unmatched arguments which can then be <a href=#customArgParsing>processed separately</a>
  * 
  * <h3><a name="rangespec">Range Specification</a></h3>
  * 
- * The values associated with options can also be given range specifications. A range specification appears in curly braces immediately following the conversion code. In the code fragment below, we show how to specify an option <code>-name</code> that expects to be provided with one of three string values (<code>john</code>, <code>mary</code>, or <code>jane</code>), an option <code>-index</code> that expects to be supplied with a integer value in the range 1 to 256, an option <code>-size</code>
- * that expects to be supplied with integer values of either 1, 2, 4, 8, or 16, and an option <code>-foo</code> that expects to be supplied with floating point values in the ranges -99 < foo <= -50, or 50 <= foo < 99.
+ * The values associated with options can also be given range specifications. A range specification appears in curly
+ * braces immediately following the conversion code. In the code fragment below, we show how to specify an option
+ * <code>-name</code> that expects to be provided with one of three string values (<code>john</code>, <code>mary</code>,
+ * or <code>jane</code>), an option <code>-index</code> that expects to be supplied with a integer value in the range 1
+ * to 256, an option <code>-size</code> that expects to be supplied with integer values of either 1, 2, 4, 8, or 16, and
+ * an option <code>-foo</code> that expects to be supplied with floating point values in the ranges -99 < foo <= -50, or
+ * 50 <= foo < 99.
  * 
  * <pre>
  * StringHolder name = new StringHolder();
@@ -135,7 +154,8 @@ import java.util.Vector;
  * 
  * <h3><a name="singleWordOptions">Single Word Options</a></h3>
  * 
- * Normally, options are assumed to be "multi-word", meaning that any associated value must follow the option as a separate argument string. For example,
+ * Normally, options are assumed to be "multi-word", meaning that any associated value must follow the option as a
+ * separate argument string. For example,
  * 
  * <pre>
  * parser.addOption(&quot;-file %s #file name&quot;);
@@ -147,7 +167,8 @@ import java.util.Vector;
  *    -file someFileName
  * </pre>
  * 
- * However, if there is no white space separting the option's name from it's conversion code, then values associated with that option will be assumed to be part of the same argument string as the option itself. For example,
+ * However, if there is no white space separting the option's name from it's conversion code, then values associated
+ * with that option will be assumed to be part of the same argument string as the option itself. For example,
  * 
  * <pre>
  * parser.addOption(&quot;-file=%s #file name&quot;);
@@ -162,7 +183,9 @@ import java.util.Vector;
  * Such an option is called a "single word" option.
  * 
  * <p>
- * In cases where an option has multiple names, then this single word behavior is invoked if there is no white space between the last indicated name and the conversion code. However, previous names in the list will still be given multi-word behavior if there is white space between the name and the following comma. For example,
+ * In cases where an option has multiple names, then this single word behavior is invoked if there is no white space
+ * between the last indicated name and the conversion code. However, previous names in the list will still be given
+ * multi-word behavior if there is white space between the name and the following comma. For example,
  * 
  * <pre>
  * parser.addOption(&quot;-nb=,-number ,-n%d #number of blocks&quot;);
@@ -178,7 +201,10 @@ import java.util.Vector;
  * 
  * <h3><a name="multipleOptionValues">Multiple Option Values</a></h3>
  * 
- * If may be useful for an option to be followed by several values. For instance, we might have an option <code>-velocity</code> which should be followed by three numbers denoting the x, y, and z components of a velocity vector. We can require multiple values for an option by placing a <i>multiplier</i> specification, of the form <code>X</code>N, where N is an integer, after the conversion code (or range specification, if present). For example,
+ * If may be useful for an option to be followed by several values. For instance, we might have an option
+ * <code>-velocity</code> which should be followed by three numbers denoting the x, y, and z components of a velocity
+ * vector. We can require multiple values for an option by placing a <i>multiplier</i> specification, of the form
+ * <code>X</code>N, where N is an integer, after the conversion code (or range specification, if present). For example,
  * 
  * <pre>
  * double[] pos = new double[3];
@@ -192,15 +218,20 @@ import java.util.Vector;
  *    -position xx yy zz
  * </pre>
  * 
- * in the argument list, where <code>xx</code>, <code>yy</code>, and <code>zz</code> are numbers. The values are stored in the array <code>pos</code>.
+ * in the argument list, where <code>xx</code>, <code>yy</code>, and <code>zz</code> are numbers. The values are stored
+ * in the array <code>pos</code>.
  * 
  * Options requiring multiple values must use arrays to return their values, and cannot be used in single word format.
  * 
  * <h3><a name="multipleOptionInvocation">Multiple Option Invocation</a></h3>
  * 
- * Normally, if an option appears twice in the command list, the value associated with the second instance simply overwrites the value associated with the first instance.
+ * Normally, if an option appears twice in the command list, the value associated with the second instance simply
+ * overwrites the value associated with the first instance.
  * 
- * However, the application can instead arrange for the storage of <i>all</i> values associated with multiple option invocation, by supplying a instance of <code>java.util.Vector</code> to serve as the value holder. Then every time the option appears in the argument list, the parser will create a value holder of appropriate type, set it to the current value, and store the holder in the vector. For example, the construction
+ * However, the application can instead arrange for the storage of <i>all</i> values associated with multiple option
+ * invocation, by supplying a instance of <code>java.util.Vector</code> to serve as the value holder. Then every time
+ * the option appears in the argument list, the parser will create a value holder of appropriate type, set it to the
+ * current value, and store the holder in the vector. For example, the construction
  * 
  * <pre>
  * Vector vec = new Vector(10);
@@ -215,12 +246,18 @@ import java.util.Vector;
  *    -foo 1.2 -foo 1000 -foo -78
  * </pre>
  * 
- * will create three instances of {@link argparser.DoubleHolder DoubleHolder}, initialized to <code>1.2</code>, <code>1000</code>, and <code>-78</code>, and store them in <code>vec</code>.
+ * will create three instances of {@link argparser.DoubleHolder DoubleHolder}, initialized to <code>1.2</code>,
+ * <code>1000</code>, and <code>-78</code>, and store them in <code>vec</code>.
  * 
  * <h3><a name="helpInfo">Generating help information</a></h3>
  * 
- * ArgParser automatically generates help information for the options, and this information may be printed in response to a <i>help</i> option, or may be queried by the application using {@link #getHelpMessage getHelpMessage}. The information for each option consists of the option's name(s), it's required value(s), and an application-supplied description. Value information is generated automaticlly from the conversion code, range, and multiplier specifications (although this can be overriden, as
- * <a href=#valueInfo>described below</a>). The application-supplied description is whatever appears in the specification string after the optional <code>#</code> character. The string returned by {@link #getHelpMessage getHelpMessage} for the <a href=#example>first example above</a> would be
+ * ArgParser automatically generates help information for the options, and this information may be printed in response
+ * to a <i>help</i> option, or may be queried by the application using {@link #getHelpMessage getHelpMessage}. The
+ * information for each option consists of the option's name(s), it's required value(s), and an application-supplied
+ * description. Value information is generated automaticlly from the conversion code, range, and multiplier
+ * specifications (although this can be overriden, as <a href=#valueInfo>described below</a>). The application-supplied
+ * description is whatever appears in the specification string after the optional <code>#</code> character. The string
+ * returned by {@link #getHelpMessage getHelpMessage} for the <a href=#example>first example above</a> would be
  * 
  * <pre>
  * Usage: java argparser.SimpleExample
@@ -232,12 +269,18 @@ import java.util.Vector;
  * -debug                  enables display of debugging info
  * </pre>
  * 
- * The options <code>-help</code> and <code>-?</code> are including in the parser by default as help options, and they automatically cause the help message to be printed. To exclude these options, one should use the constructor {@link #ArgParser(String,boolean)
- * ArgParser(synopsis,false)}. Help options can also be specified by the application using {@link #addOption addOption} and the conversion code <code>%h</code>. Help options can be disabled using {@link #setHelpOptionsEnabled
+ * The options <code>-help</code> and <code>-?</code> are including in the parser by default as help options, and they
+ * automatically cause the help message to be printed. To exclude these options, one should use the constructor
+ * {@link #ArgParser(String,boolean)
+ * ArgParser(synopsis,false)}. Help options can also be specified by the application using {@link #addOption addOption}
+ * and the conversion code <code>%h</code>. Help options can be disabled using {@link #setHelpOptionsEnabled
  * setHelpOptionsEnabled(false)}.
  * 
  * <p>
- * <a name=valueInfo> A description of the required values for an option can be specified explicitly by placing a second <code>#</code> character in the specification string. Everything between the first and second <code>#</code> characters then becomes the value description, and everything after the second <code>#</code> character becomes the option description. For example, if the <code>-theta</code> option above was specified with
+ * <a name=valueInfo> A description of the required values for an option can be specified explicitly by placing a second
+ * <code>#</code> character in the specification string. Everything between the first and second <code>#</code>
+ * characters then becomes the value description, and everything after the second <code>#</code> character becomes the
+ * option description. For example, if the <code>-theta</code> option above was specified with
  * 
  * <pre>
  * parser.addOption(&quot;-theta %f #NUMBER#theta value (in degrees)&quot;, theta);
@@ -257,7 +300,8 @@ import java.util.Vector;
  * 
  * <h3><a name="customArgParsing">Custom Argument Parsing</a></h3>
  * 
- * An application may find it necessary to handle arguments that don't fit into the framework of this class. There are a couple of ways to do this.
+ * An application may find it necessary to handle arguments that don't fit into the framework of this class. There are a
+ * couple of ways to do this.
  * 
  * <p>
  * First, the method {@link #matchAllArgs(String[],int,int)
@@ -271,7 +315,8 @@ import java.util.Vector;
  *     }
  * </pre>
  * 
- * For instance, this would be useful for an applicatoon that accepts an arbitrary number of input file names. The options can be parsed using <code>matchAllArgs</code>, and the remaining unmatched arguments give the file names.
+ * For instance, this would be useful for an applicatoon that accepts an arbitrary number of input file names. The
+ * options can be parsed using <code>matchAllArgs</code>, and the remaining unmatched arguments give the file names.
  * 
  * <p>
  * If we need more control over the parsing, we can parse arguments one at a time using {@link #matchArg matchArg}:
@@ -293,11 +338,16 @@ import java.util.Vector;
  *     }
  * </pre>
  * 
- * {@link #matchArg matchArg(args,idx)} matches one option at location <code>idx</code> in the argument list, and then returns the location value that should be used for the next match. If an argument does not match any option, {@link #getUnmatchedArgument getUnmatchedArgument} will return a copy of the unmatched argument.
+ * {@link #matchArg matchArg(args,idx)} matches one option at location <code>idx</code> in the argument list, and then
+ * returns the location value that should be used for the next match. If an argument does not match any option,
+ * {@link #getUnmatchedArgument getUnmatchedArgument} will return a copy of the unmatched argument.
  * 
  * <h3><a name="argsFromAFile">Reading Arguments From a File</a></h3>
  * 
- * The method {@link #prependArgs prependArgs} can be used to automatically read in a set of arguments from a file and prepend them onto an existing argument list. Argument words correspond to white-space-delimited strings, and the file may contain the comment character <code>#</code> (which comments out everything to the end of the current line). A typical usage looks like this:
+ * The method {@link #prependArgs prependArgs} can be used to automatically read in a set of arguments from a file and
+ * prepend them onto an existing argument list. Argument words correspond to white-space-delimited strings, and the file
+ * may contain the comment character <code>#</code> (which comments out everything to the end of the current line). A
+ * typical usage looks like this:
  * 
  * <pre>
  *    ... create parser and add options ...
@@ -915,7 +965,8 @@ public class ArgParser {
      * Enables or disables help options. Help options are those
      * associated with a conversion code of <code>%h</code>. If
      * help options are enabled, and a help option is matched,
-     * then the string produced by {@link #getHelpMessage getHelpMessage} is printed to the default print stream and the program
+     * then the string produced by {@link #getHelpMessage getHelpMessage} is printed to the default print stream and the
+     * program
      * exits with code 0. Otherwise, arguments which match help
      * options are ignored.
      * 
@@ -1075,7 +1126,9 @@ public class ArgParser {
      * The specification string has the general form
      * 
      * <p>
-     * <var>optionNames</var> <code>%</code><var>conversionCode</var> [<code>{</code><var>rangeSpec</var><code>}</code>] [<code>X</code><var>multiplier</var>] [<code>#</code><var>valueDescription</var>] [<code>#</code><var>optionDescription</var>] </code>
+     * <var>optionNames</var> <code>%</code><var>conversionCode</var> [<code>{</code><var>rangeSpec</var><code>}</code>]
+     * [<code>X</code><var>multiplier</var>] [<code>#</code><var>valueDescription</var>] [<code>#</code>
+     * <var>optionDescription</var>] </code>
      * 
      * <p>
      * where
@@ -1084,7 +1137,8 @@ public class ArgParser {
      * <li><var>optionNames</var> is a comma-separated list of names for the option (such as <code>-f, --file</code>).
      * 
      * <p>
-     * <li><var>conversionCode</var> is a single letter, following a <code>%</code> character, specifying information about what value the option requires:
+     * <li><var>conversionCode</var> is a single letter, following a <code>%</code> character, specifying information
+     * about what value the option requires:
      * 
      * <table>
      * <tr>
@@ -1092,7 +1146,8 @@ public class ArgParser {
      * <td>a floating point number</td>
      * <tr>
      * <td><code>%i</code></td>
-     * <td>an integer, in either decimal, hex (if preceeded by <code>0x</code>), or octal (if preceeded by <code>0</code>)</td>
+     * <td>an integer, in either decimal, hex (if preceeded by <code>0x</code>), or octal (if preceeded by
+     * <code>0</code>)</td>
      * <tr valign=top>
      * <td><code>%d</code></td>
      * <td>a decimal integer</td>
@@ -1104,7 +1159,8 @@ public class ArgParser {
      * <td>a hex integer (without the preceeding <code>0x</code>)</td>
      * <tr valign=top>
      * <td><code>%c</code></td>
-     * <td>a single character, including escape sequences (such as <code>\n</code> or <code>\007</code>), and optionally enclosed in single quotes
+     * <td>a single character, including escape sequences (such as <code>\n</code> or <code>\007</code>), and optionally
+     * enclosed in single quotes
      * <tr valign=top>
      * <td><code>%b</code></td>
      * <td>a boolean value (<code>true</code> or <code>false</code>)</td>
@@ -1113,12 +1169,19 @@ public class ArgParser {
      * <td>a string. This will be the argument string itself (or its remainder, in the case of a single word option)</td>
      * <tr valign=top>
      * <td><code>%v</code></td>
-     * <td>no explicit value is expected, but a boolean value of <code>true</code> (by default) will be stored into the associated result holder if this option is matched. If one wishes to have a value of <code>false</code> stored instead, then the <code>%v</code> should be followed by a "range spec" containing <code>false</code>, as in <code>%v{false}</code>.
+     * <td>no explicit value is expected, but a boolean value of <code>true</code> (by default) will be stored into the
+     * associated result holder if this option is matched. If one wishes to have a value of <code>false</code> stored
+     * instead, then the <code>%v</code> should be followed by a "range spec" containing <code>false</code>, as in
+     * <code>%v{false}</code>.
      * </table>
      * 
      * <p>
-     * <li><var>rangeSpec</var> is an optional range specification, placed inside curly braces, consisting of a comma-separated list of range items each specifying permissible values for the option. A range item may be an individual value, or it may itself be a subrange, consisting of two individual values, separated by a comma, and enclosed in square or round brackets. Square and round brackets denote closed and open endpoints of a subrange, indicating that the associated endpoint value is
-     * included or excluded from the subrange. The values specified in the range spec need to be consistent with the type of value expected by the option.
+     * <li><var>rangeSpec</var> is an optional range specification, placed inside curly braces, consisting of a
+     * comma-separated list of range items each specifying permissible values for the option. A range item may be an
+     * individual value, or it may itself be a subrange, consisting of two individual values, separated by a comma, and
+     * enclosed in square or round brackets. Square and round brackets denote closed and open endpoints of a subrange,
+     * indicating that the associated endpoint value is included or excluded from the subrange. The values specified in
+     * the range spec need to be consistent with the type of value expected by the option.
      * 
      * <p>
      * <b>Examples:</b>
@@ -1127,27 +1190,44 @@ public class ArgParser {
      * A range spec of <code>{2,4,8,16}</code> for an integer value will allow the integers 2, 4, 8, or 16.
      * 
      * <p>
-     * A range spec of <code>{[-1.0,1.0]}</code> for a floating point value will allow any floating point number in the range -1.0 to 1.0.
+     * A range spec of <code>{[-1.0,1.0]}</code> for a floating point value will allow any floating point number in the
+     * range -1.0 to 1.0.
      * 
      * <p>
-     * A range spec of <code>{(-88,100],1000}</code> for an integer value will allow values > -88 and <= 100, as well as 1000.
+     * A range spec of <code>{(-88,100],1000}</code> for an integer value will allow values > -88 and <= 100, as well as
+     * 1000.
      * 
      * <p>
-     * A range spec of <code>{"foo", "bar", ["aaa","zzz")} </code> for a string value will allow strings equal to <code>"foo"</code> or <code>"bar"</code>, plus any string lexically greater than or equal to <code>"aaa"</code> but less then <code>"zzz"</code>.
+     * A range spec of <code>{"foo", "bar", ["aaa","zzz")} </code> for a string value will allow strings equal to
+     * <code>"foo"</code> or <code>"bar"</code>, plus any string lexically greater than or equal to <code>"aaa"</code>
+     * but less then <code>"zzz"</code>.
      * 
      * <p>
-     * <li><var>multiplier</var> is an optional integer, following a <code>X</code> character, indicating the number of values which the option expects. If the multiplier is not specified, it is assumed to be 1. If the multiplier value is greater than 1, then the result holder should be either an array (of appropriate type) with a length greater than or equal to the multiplier value, or a <code>java.util.Vector</code> <a href=#vectorHolder>as discussed below</a>.
+     * <li><var>multiplier</var> is an optional integer, following a <code>X</code> character, indicating the number of
+     * values which the option expects. If the multiplier is not specified, it is assumed to be 1. If the multiplier
+     * value is greater than 1, then the result holder should be either an array (of appropriate type) with a length
+     * greater than or equal to the multiplier value, or a <code>java.util.Vector</code> <a href=#vectorHolder>as
+     * discussed below</a>.
      * 
      * <p>
-     * <li><var>valueDescription</var> is an optional description of the option's value requirements, and consists of all characters between two <code>#</code> characters. The final <code>#</code> character initiates the <i>option description</i>, which may be empty. The value description is used in <a href=#helpInfo>generating help messages</a>.
+     * <li><var>valueDescription</var> is an optional description of the option's value requirements, and consists of
+     * all characters between two <code>#</code> characters. The final <code>#</code> character initiates the <i>option
+     * description</i>, which may be empty. The value description is used in <a href=#helpInfo>generating help
+     * messages</a>.
      * 
      * <p>
-     * <li><var>optionDescription</var> is an optional description of the option itself, consisting of all characters between a <code>#</code> character and the end of the specification string. The option description is used in <a href=#helpInfo>generating help messages</a>.
+     * <li><var>optionDescription</var> is an optional description of the option itself, consisting of all characters
+     * between a <code>#</code> character and the end of the specification string. The option description is used in <a
+     * href=#helpInfo>generating help messages</a>.
      * </ul>
      * 
      * <p>
-     * The result holder must be an object capable of holding a value compatible with the conversion code, or it must be a <code>java.util.Vector</code>. When the option is matched, its associated value is placed in the result holder. If the same option is matched repeatedly, the result holder value will be overwritten, unless the result holder is a <code>java.util.Vector</code>, in which case new holder objects for each match will be allocated and added to the vector. Thus if multiple instances
-     * of an option are desired by the program, the result holder should be a <code>java.util.Vector</code>.
+     * The result holder must be an object capable of holding a value compatible with the conversion code, or it must be
+     * a <code>java.util.Vector</code>. When the option is matched, its associated value is placed in the result holder.
+     * If the same option is matched repeatedly, the result holder value will be overwritten, unless the result holder
+     * is a <code>java.util.Vector</code>, in which case new holder objects for each match will be allocated and added
+     * to the vector. Thus if multiple instances of an option are desired by the program, the result holder should be a
+     * <code>java.util.Vector</code>.
      * 
      * <p>
      * If the result holder is not a <code>Vector</code>, then it must correspond as follows to the conversion code:
@@ -1155,12 +1235,14 @@ public class ArgParser {
      * <table>
      * <tr valign=top>
      * <td><code>%i</code>, <code>%d</code>, <code>%x</code>, <code>%o</code></td>
-     * <td>{@link argparser.IntHolder IntHolder}, {@link argparser.LongHolder LongHolder}, <code>int[]</code>, or <code>long[]</code></td>
+     * <td>{@link argparser.IntHolder IntHolder}, {@link argparser.LongHolder LongHolder}, <code>int[]</code>, or
+     * <code>long[]</code></td>
      * </tr>
      * 
      * <tr valign=top>
      * <td><code>%f</code></td>
-     * <td>{@link argparser.FloatHolder FloatHolder}, {@link argparser.DoubleHolder DoubleHolder}, <code>float[]</code>, or <code>double[]</code></td>
+     * <td>{@link argparser.FloatHolder FloatHolder}, {@link argparser.DoubleHolder DoubleHolder}, <code>float[]</code>,
+     * or <code>double[]</code></td>
      * </tr>
      * 
      * <tr valign=top>
@@ -1180,10 +1262,13 @@ public class ArgParser {
      * </table>
      * 
      * <p>
-     * In addition, if the multiplier is greater than 1, then only the array type indicated above may be used, and the array must be at least as long as the multiplier.
+     * In addition, if the multiplier is greater than 1, then only the array type indicated above may be used, and the
+     * array must be at least as long as the multiplier.
      * 
      * <p>
-     * <a name=vectorHolder>If the result holder is a <code>Vector</code>, then the system will create an appropriate result holder object and add it to the vector. Multiple occurances of the option will cause multiple results to be added to the vector.
+     * <a name=vectorHolder>If the result holder is a <code>Vector</code>, then the system will create an appropriate
+     * result holder object and add it to the vector. Multiple occurances of the option will cause multiple results to
+     * be added to the vector.
      * 
      * <p>
      * The object allocated by the system to store the result will correspond to the conversion code as follows:
@@ -1682,11 +1767,14 @@ public class ArgParser {
      * Matches arguments within an argument list.
      * 
      * <p>
-     * In the event of an erroneous or unmatched argument, the method prints a message and exits the program with code 1.
+     * In the event of an erroneous or unmatched argument, the method prints a message and exits the program with code
+     * 1.
      * 
      * <p>
-     * If help options are enabled and one of the arguments matches a help option, then the result of {@link #getHelpMessage
-     * getHelpMessage} is printed to the default print stream and the program exits with code 0. If help options are not enabled, they are ignored.
+     * If help options are enabled and one of the arguments matches a help option, then the result of
+     * {@link #getHelpMessage
+     * getHelpMessage} is printed to the default print stream and the program exits with code 0. If help options are not
+     * enabled, they are ignored.
      * 
      * @param args argument list
      * @see ArgParser#getDefaultPrintStream
@@ -1702,14 +1790,20 @@ public class ArgParser {
      * unmatched arguments are returned in a String array.
      * 
      * <p>
-     * In the event of an erroneous argument, the method either prints a message and exits the program (if {@link #EXIT_ON_ERROR} is set in <code>exitFlags</code>) or terminates the matching and creates a error message that can be retrieved by {@link #getErrorMessage}.
+     * In the event of an erroneous argument, the method either prints a message and exits the program (if
+     * {@link #EXIT_ON_ERROR} is set in <code>exitFlags</code>) or terminates the matching and creates a error message
+     * that can be retrieved by {@link #getErrorMessage}.
      * 
      * <p>
-     * In the event of an umatched argument, the method will print a message and exit if {@link #EXIT_ON_UNMATCHED} is set in <code>errorFlags</code>. Otherwise, the unmatched argument will be appended to the returned array of unmatched values, and the matching will continue at the next location.
+     * In the event of an umatched argument, the method will print a message and exit if {@link #EXIT_ON_UNMATCHED} is
+     * set in <code>errorFlags</code>. Otherwise, the unmatched argument will be appended to the returned array of
+     * unmatched values, and the matching will continue at the next location.
      * 
      * <p>
-     * If help options are enabled and one of the arguments matches a help option, then the result of {@link #getHelpMessage
-     * getHelpMessage} is printed to the the default print stream and the program exits with code 0. If help options are not enabled, then they will not be matched.
+     * If help options are enabled and one of the arguments matches a help option, then the result of
+     * {@link #getHelpMessage
+     * getHelpMessage} is printed to the the default print stream and the program exits with code 0. If help options are
+     * not enabled, then they will not be matched.
      * 
      * @param args argument list
      * @param idx starting location in list
@@ -1752,13 +1846,19 @@ public class ArgParser {
      * match should begin.
      * 
      * <p>
-     * In the event of an erroneous argument, the method throws an {@link argparser.ArgParseException ArgParseException} with an appropriate error message. This error message can also be retrieved using {@link #getErrorMessage getErrorMessage}.
+     * In the event of an erroneous argument, the method throws an {@link argparser.ArgParseException ArgParseException}
+     * with an appropriate error message. This error message can also be retrieved using {@link #getErrorMessage
+     * getErrorMessage}.
      * 
      * <p>
-     * In the event of an umatched argument, the method will return idx + 1, and {@link #getUnmatchedArgument getUnmatchedArgument} will return a copy of the unmatched argument. If an argument is matched, {@link #getUnmatchedArgument getUnmatchedArgument} will return <code>null</code>.
+     * In the event of an umatched argument, the method will return idx + 1, and {@link #getUnmatchedArgument
+     * getUnmatchedArgument} will return a copy of the unmatched argument. If an argument is matched,
+     * {@link #getUnmatchedArgument getUnmatchedArgument} will return <code>null</code>.
      * 
      * <p>
-     * If help options are enabled and the argument matches a help option, then the result of {@link #getHelpMessage getHelpMessage} is printed to the the default print stream and the program exits with code 0. If help options are not enabled, then they are ignored.
+     * If help options are enabled and the argument matches a help option, then the result of {@link #getHelpMessage
+     * getHelpMessage} is printed to the the default print stream and the program exits with code 0. If help options are
+     * not enabled, then they are ignored.
      * 
      * @param args argument list
      * @param idx location in list where match should start
@@ -1965,7 +2065,8 @@ public class ArgParser {
 
     /**
      * Returns the parser's error message. This is automatically
-     * set whenever an error is encountered in <code>matchArg</code> or <code>matchAllArgs</code>, and is automatically set to <code>null</code> at the beginning of these methods.
+     * set whenever an error is encountered in <code>matchArg</code> or <code>matchAllArgs</code>, and is automatically
+     * set to <code>null</code> at the beginning of these methods.
      * 
      * @return error message
      */
@@ -1974,7 +2075,8 @@ public class ArgParser {
     }
 
     /**
-     * Returns the value of an unmatched argument discovered {@link #matchArg matchArg} or {@link #matchAllArgs(String[],int,int)
+     * Returns the value of an unmatched argument discovered {@link #matchArg matchArg} or
+     * {@link #matchAllArgs(String[],int,int)
      * matchAllArgs}. If there was no unmatched argument, <code>null</code> is returned.
      * 
      * @return unmatched argument

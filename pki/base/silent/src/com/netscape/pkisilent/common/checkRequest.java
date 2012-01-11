@@ -31,7 +31,8 @@ import org.mozilla.jss.ssl.SSLSocket;
 
 /**
  * CMS Test framework .
- * Submits a checkRequestStatus request to the server. parses the response from server and can import cert to the specified client database.
+ * Submits a checkRequestStatus request to the server. parses the response from server and can import cert to the
+ * specified client database.
  * <P>
  */
 
@@ -90,7 +91,8 @@ public class checkRequest extends TestClient {
     }
 
     /**
-     * Constructor . Takes the parameter for hostname , EESSLportnumber , certdbdir, certdbpassword, Requestnumber ,certnickname and ImportCert ( true/false)
+     * Constructor . Takes the parameter for hostname , EESSLportnumber , certdbdir, certdbpassword, Requestnumber
+     * ,certnickname and ImportCert ( true/false)
      * <p>
      */
 

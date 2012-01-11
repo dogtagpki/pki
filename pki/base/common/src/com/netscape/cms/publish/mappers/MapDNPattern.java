@@ -35,7 +35,8 @@ import com.netscape.certsrv.request.IRequest;
  * request attributes and cert subject name.
  * <p>
  * 
- * dnpattern is a string representing a ldap dn pattern to formulate from the certificate subject name attributes and request attributes . If empty or not set, the certificate subject name will be used as the ldap dn.
+ * dnpattern is a string representing a ldap dn pattern to formulate from the certificate subject name attributes and
+ * request attributes . If empty or not set, the certificate subject name will be used as the ldap dn.
  * <p>
  * 
  * The syntax is
@@ -73,7 +74,8 @@ import com.netscape.certsrv.request.IRequest;
  * <p>
  * </pre>
  * 
- * If an request attribute or subject DN component does not exist, the attribute is skipped. There is potential risk that a wrong dn will be mapped into.
+ * If an request attribute or subject DN component does not exist, the attribute is skipped. There is potential risk
+ * that a wrong dn will be mapped into.
  * 
  * @version $Revision$, $Date$
  */

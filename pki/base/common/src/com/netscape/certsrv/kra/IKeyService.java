@@ -103,8 +103,10 @@ public interface IKeyService {
      * <P>
      * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST used whenever a user private key recovery request is made (this is when the DRM receives the request)
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED used whenever a user private key recovery request is processed (this is when the DRM processes the request)
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST used whenever a user private key recovery request is
+     * made (this is when the DRM receives the request)
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED used whenever a user private key recovery
+     * request is processed (this is when the DRM processes the request)
      * </ul>
      * 
      * @param reqID request id

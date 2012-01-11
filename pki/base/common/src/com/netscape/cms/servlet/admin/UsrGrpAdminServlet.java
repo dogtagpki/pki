@@ -650,11 +650,13 @@ public class UsrGrpAdminServlet extends AdminServlet {
      * Adds a new user to LDAP server
      * <P>
      * 
-     * Request/Response Syntax: http://warp.mcom.com/server/certificate/columbo/design/ ui/admin-protocol-definition.html#user-admin
+     * Request/Response Syntax: http://warp.mcom.com/server/certificate/columbo/design/
+     * ui/admin-protocol-definition.html#user-admin
      * <P>
      * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_ROLE used when configuring role information (anything under users/groups)
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_ROLE used when configuring role information (anything under
+     * users/groups)
      * </ul>
      * 
      * @param req HTTP servlet request
@@ -975,11 +977,13 @@ public class UsrGrpAdminServlet extends AdminServlet {
      * Adds a certificate to a user
      * <P>
      * 
-     * Request/Response Syntax: http://warp.mcom.com/server/certificate/columbo/design/ ui/admin-protocol-definition.html#user-admin
+     * Request/Response Syntax: http://warp.mcom.com/server/certificate/columbo/design/
+     * ui/admin-protocol-definition.html#user-admin
      * <P>
      * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_ROLE used when configuring role information (anything under users/groups)
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_ROLE used when configuring role information (anything under
+     * users/groups)
      * </ul>
      * 
      * @param req HTTP servlet request
@@ -1327,14 +1331,16 @@ public class UsrGrpAdminServlet extends AdminServlet {
      * Removes a certificate for a user
      * <P>
      * 
-     * Request/Response Syntax: http://warp.mcom.com/server/certificate/columbo/design/ ui/admin-protocol-definition.html#user-admin
+     * Request/Response Syntax: http://warp.mcom.com/server/certificate/columbo/design/
+     * ui/admin-protocol-definition.html#user-admin
      * <P>
      * 
      * In this method, "certDN" is actually a combination of version, serialNumber, issuerDN, and SubjectDN.
      * <P>
      * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_ROLE used when configuring role information (anything under users/groups)
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_ROLE used when configuring role information (anything under
+     * users/groups)
      * </ul>
      * 
      * @param req HTTP servlet request
@@ -1471,11 +1477,13 @@ public class UsrGrpAdminServlet extends AdminServlet {
      * itself.
      * <P>
      * 
-     * Request/Response Syntax: http://warp.mcom.com/server/certificate/columbo/design/ ui/admin-protocol-definition.html#user-admin
+     * Request/Response Syntax: http://warp.mcom.com/server/certificate/columbo/design/
+     * ui/admin-protocol-definition.html#user-admin
      * <P>
      * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_ROLE used when configuring role information (anything under users/groups)
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_ROLE used when configuring role information (anything under
+     * users/groups)
      * </ul>
      * 
      * @param req HTTP servlet request
@@ -1639,11 +1647,13 @@ public class UsrGrpAdminServlet extends AdminServlet {
      * Adds a new group in local scope.
      * <P>
      * 
-     * Request/Response Syntax: http://warp.mcom.com/server/certificate/columbo/design/ ui/admin-protocol-definition.html#group
+     * Request/Response Syntax: http://warp.mcom.com/server/certificate/columbo/design/
+     * ui/admin-protocol-definition.html#group
      * <P>
      * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_ROLE used when configuring role information (anything under users/groups)
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_ROLE used when configuring role information (anything under
+     * users/groups)
      * </ul>
      * 
      * @param req HTTP servlet request
@@ -1777,11 +1787,13 @@ public class UsrGrpAdminServlet extends AdminServlet {
      * removes a group
      * <P>
      * 
-     * Request/Response Syntax: http://warp.mcom.com/server/certificate/columbo/design/ ui/admin-protocol-definition.html#group
+     * Request/Response Syntax: http://warp.mcom.com/server/certificate/columbo/design/
+     * ui/admin-protocol-definition.html#group
      * <P>
      * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_ROLE used when configuring role information (anything under users/groups)
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_ROLE used when configuring role information (anything under
+     * users/groups)
      * </ul>
      * 
      * @param req HTTP servlet request
@@ -1885,7 +1897,8 @@ public class UsrGrpAdminServlet extends AdminServlet {
      * <P>
      * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_ROLE used when configuring role information (anything under users/groups)
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_ROLE used when configuring role information (anything under
+     * users/groups)
      * </ul>
      * 
      * @param req HTTP servlet request
@@ -2117,11 +2130,13 @@ public class UsrGrpAdminServlet extends AdminServlet {
      * Modifies an existing user in local scope.
      * <P>
      * 
-     * Request/Response Syntax: http://warp.mcom.com/server/certificate/columbo/design/ ui/admin-protocol-definition.html#user-admin
+     * Request/Response Syntax: http://warp.mcom.com/server/certificate/columbo/design/
+     * ui/admin-protocol-definition.html#user-admin
      * <P>
      * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_ROLE used when configuring role information (anything under users/groups)
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_ROLE used when configuring role information (anything under
+     * users/groups)
      * </ul>
      * 
      * @param req HTTP servlet request

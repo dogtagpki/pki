@@ -26,7 +26,8 @@ import java.util.StringTokenizer;
 
 /**
  * CMS Test framework .
- * This class fetches all the necssary ServerInformation to run the test . For example AdminServer information linke port , hsotname, Config LDAP server port, CMS servers Agentport,AdminPort, EESSL port, EE port etc..
+ * This class fetches all the necssary ServerInformation to run the test . For example AdminServer information linke
+ * port , hsotname, Config LDAP server port, CMS servers Agentport,AdminPort, EESSL port, EE port etc..
  */
 
 public class ServerInfo {
@@ -48,7 +49,8 @@ public class ServerInfo {
     }
 
     /**
-     * Constructor. Takes Server root as parameter for example ( /export/qa). Reads and collects information about adminserver and Config LDAP server.
+     * Constructor. Takes Server root as parameter for example ( /export/qa). Reads and collects information about
+     * adminserver and Config LDAP server.
      */
     public ServerInfo(String sroot) {
         serverRoot = sroot;
@@ -58,7 +60,8 @@ public class ServerInfo {
     }
 
     /**
-     * Constructor. Takes Serverroot ( /export/qa) and instanceRoot (/export/qa/cert-jupiter2) as parameters . Reads and collects information about Admin Server , Config LDAP server and CMS server .
+     * Constructor. Takes Serverroot ( /export/qa) and instanceRoot (/export/qa/cert-jupiter2) as parameters . Reads and
+     * collects information about Admin Server , Config LDAP server and CMS server .
      */
 
     public ServerInfo(String sroot, String instRoot) {

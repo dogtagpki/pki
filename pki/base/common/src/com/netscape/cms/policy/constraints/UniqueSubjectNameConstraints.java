@@ -106,7 +106,9 @@ public class UniqueSubjectNameConstraints extends APolicyRule
      * 
      * The entries probably are of the form:
      * 
-     * ca.Policy.rule.<ruleName>.implName=UniqueSubjectName ca.Policy.rule.<ruleName>.enable=true ca.Policy.rule.<ruleName>.enable=true ca.Policy.rule.<ruleName>.enablePreAgentApprovalChecking=true ca.Policy.rule.<ruleName>.enableKeyUsageExtensionChecking=true
+     * ca.Policy.rule.<ruleName>.implName=UniqueSubjectName ca.Policy.rule.<ruleName>.enable=true
+     * ca.Policy.rule.<ruleName>.enable=true ca.Policy.rule.<ruleName>.enablePreAgentApprovalChecking=true
+     * ca.Policy.rule.<ruleName>.enableKeyUsageExtensionChecking=true
      * 
      * @param config The config store reference
      */

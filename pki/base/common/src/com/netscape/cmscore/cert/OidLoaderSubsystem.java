@@ -119,7 +119,8 @@ public class OidLoaderSubsystem implements ISubsystem {
      * subsystem specified in the configuration
      * store.
      * <P>
-     * Note that individual subsystem should be initialized in a separated thread if it has dependency on the initialization of other subsystems.
+     * Note that individual subsystem should be initialized in a separated thread if it has dependency on the
+     * initialization of other subsystems.
      * <P>
      * 
      * @param owner owner of this subsystem

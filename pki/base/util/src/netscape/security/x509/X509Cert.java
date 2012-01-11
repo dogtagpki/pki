@@ -133,10 +133,14 @@ public class X509Cert implements Certificate, Serializable {
      * and are sometimes used as certificate requests.
      * 
      * <P>
-     * Until the certificate has been signed and encoded, some of the mandatory fields in the certificate will not be available via accessor functions: the serial number, issuer name and signing algorithm, and of course the signed certificate. The fields passed to this constructor are available, and must be non-null.
+     * Until the certificate has been signed and encoded, some of the mandatory fields in the certificate will not be
+     * available via accessor functions: the serial number, issuer name and signing algorithm, and of course the signed
+     * certificate. The fields passed to this constructor are available, and must be non-null.
      * 
      * <P>
-     * Note that the public key being signed is generally independent of the signature algorithm being used. So for example Diffie-Hellman keys (which do not support signatures) can be placed in X.509 certificates when some other signature algorithm (e.g. DSS/DSA, or one of the RSA based algorithms) is used.
+     * Note that the public key being signed is generally independent of the signature algorithm being used. So for
+     * example Diffie-Hellman keys (which do not support signatures) can be placed in X.509 certificates when some other
+     * signature algorithm (e.g. DSS/DSA, or one of the RSA based algorithms) is used.
      * 
      * @see CertAndKeyGen
      * 
@@ -511,7 +515,9 @@ public class X509Cert implements Certificate, Serializable {
      * chose not to place in the certificate.
      * 
      * <P>
-     * Two such public key algorithms are: DSS/DSA, where algorithm parameters could be acquired from a CA certificate in the chain of issuers; and Diffie-Hellman, with a similar solution although the CA then needs both a Diffie-Hellman certificate and a signature capable certificate.
+     * Two such public key algorithms are: DSS/DSA, where algorithm parameters could be acquired from a CA certificate
+     * in the chain of issuers; and Diffie-Hellman, with a similar solution although the CA then needs both a
+     * Diffie-Hellman certificate and a signature capable certificate.
      */
     public PublicKey getPublicKey() {
         return pubkey;

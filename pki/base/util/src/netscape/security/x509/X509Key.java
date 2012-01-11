@@ -42,7 +42,10 @@ import netscape.security.util.DerValue;
  * "SubjectPublicKeyInfo".
  * 
  * <P>
- * While this class can represent any kind of X.509 key, it may be desirable to provide subclasses which understand how to parse keying data. For example, RSA public keys have two members, one for the public modulus and one for the prime exponent. If such a class is provided, it is used when parsing X.509 keys. If one is not provided, the key still parses correctly.
+ * While this class can represent any kind of X.509 key, it may be desirable to provide subclasses which understand how
+ * to parse keying data. For example, RSA public keys have two members, one for the public modulus and one for the prime
+ * exponent. If such a class is provided, it is used when parsing X.509 keys. If one is not provided, the key still
+ * parses correctly.
  * 
  * @version 1.74, 97/12/10
  * @author David Brownell
@@ -88,7 +91,9 @@ public class X509Key implements PublicKey {
      * X509Key object is returned.
      * 
      * <P>
-     * This mechanism gurantees that keys (and algorithms) may be freely manipulated and transferred, without risk of losing information. Also, when a key (or algorithm) needs some special handling, that specific need can be accomodated.
+     * This mechanism gurantees that keys (and algorithms) may be freely manipulated and transferred, without risk of
+     * losing information. Also, when a key (or algorithm) needs some special handling, that specific need can be
+     * accomodated.
      * 
      * @param in the DER-encoded SubjectPublicKeyInfo value
      * @exception IOException on data format errors
@@ -121,7 +126,8 @@ public class X509Key implements PublicKey {
      * DSS/DSA keys encapsulate a single unsigned integer.
      * 
      * <P>
-     * This function is called when creating X.509 SubjectPublicKeyInfo values using the X509Key member functions, such as <code>parse</code> and <code>decode</code>.
+     * This function is called when creating X.509 SubjectPublicKeyInfo values using the X509Key member functions, such
+     * as <code>parse</code> and <code>decode</code>.
      * 
      * @exception IOException on parsing errors.
      * @exception InvalidKeyException on invalid key encodings.
@@ -302,16 +308,20 @@ public class X509Key implements PublicKey {
 
     /**
      * Initialize an X509Key object from an input stream. The data on that
-     * input stream must be encoded using DER, obeying the X.509 <code>SubjectPublicKeyInfo</code> format. That is, the data is a
+     * input stream must be encoded using DER, obeying the X.509 <code>SubjectPublicKeyInfo</code> format. That is, the
+     * data is a
      * sequence consisting of an algorithm ID and a bit string which holds
      * the key. (That bit string is often used to encapsulate another DER
      * encoded sequence.)
      * 
      * <P>
-     * Subclasses should not normally redefine this method; they should instead provide a <code>parseKeyBits</code> method to parse any fields inside the <code>key</code> member.
+     * Subclasses should not normally redefine this method; they should instead provide a <code>parseKeyBits</code>
+     * method to parse any fields inside the <code>key</code> member.
      * 
      * <P>
-     * The exception to this rule is that since private keys need not be encoded using the X.509 <code>SubjectPublicKeyInfo</code> format, private keys may override this method, <code>encode</code>, and of course <code>getFormat</code>.
+     * The exception to this rule is that since private keys need not be encoded using the X.509
+     * <code>SubjectPublicKeyInfo</code> format, private keys may override this method, <code>encode</code>, and of
+     * course <code>getFormat</code>.
      * 
      * @param in an input stream with a DER-encoded X.509
      *            SubjectPublicKeyInfo value

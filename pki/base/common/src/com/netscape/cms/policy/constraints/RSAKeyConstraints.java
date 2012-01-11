@@ -100,7 +100,9 @@ public class RSAKeyConstraints extends APolicyRule
      * 
      * The entries probably are of the form:
      * 
-     * ra.Policy.rule.<ruleName>.implName=RSAKeyConstraints ra.Policy.rule.<ruleName>.enable=true ra.Policy.rule.<ruleName>.minSize=512 ra.Policy.rule.<ruleName>.maxSize=2048 ra.Policy.rule.<ruleName>.predicate=ou==Marketing
+     * ra.Policy.rule.<ruleName>.implName=RSAKeyConstraints ra.Policy.rule.<ruleName>.enable=true
+     * ra.Policy.rule.<ruleName>.minSize=512 ra.Policy.rule.<ruleName>.maxSize=2048
+     * ra.Policy.rule.<ruleName>.predicate=ou==Marketing
      * 
      * @param config The config store reference
      */

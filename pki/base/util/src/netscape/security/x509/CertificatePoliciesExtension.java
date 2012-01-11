@@ -32,8 +32,12 @@ import netscape.security.util.ObjectIdentifier;
  * This class defines the Certificate Policies Extension.
  * 
  * <p>
- * The certificate policies extension conatins a sequence of policy information terms, each of which consists of an object identifier (OID) and optional qualifiers. These policy information terms indicate the policy under which the certificate has been issued and the purposes for which the certificate may be used. Aplications with specific policy requirements are expected to have a list of those policies which they will accept and to compare the policy OIDs in the certificate to that list. If
- * this extension is critical, the path validation software must be able to interpret this extension, or must reject the certificate.
+ * The certificate policies extension conatins a sequence of policy information terms, each of which consists of an
+ * object identifier (OID) and optional qualifiers. These policy information terms indicate the policy under which the
+ * certificate has been issued and the purposes for which the certificate may be used. Aplications with specific policy
+ * requirements are expected to have a list of those policies which they will accept and to compare the policy OIDs in
+ * the certificate to that list. If this extension is critical, the path validation software must be able to interpret
+ * this extension, or must reject the certificate.
  * 
  * <pre>
  * CertificatePolicies ::= SEQUENECE OF PolicyInformation

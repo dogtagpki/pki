@@ -1422,8 +1422,11 @@ public class LogAdminServlet extends AdminServlet {
      * 
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_SIGNED_AUDIT used when configuring signedAudit
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_LOG_PATH_CHANGE used when log file name (including any path changes) for any of audit, system, transaction, or other customized log file change is attempted (authorization should not allow, but make sure it's written after the attempt)
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_LOG_EXPIRATION_CHANGE used when log expiration time change is attempted (authorization should not allow, but make sure it's written after the attempt)
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_LOG_PATH_CHANGE used when log file name (including any path changes) for
+     * any of audit, system, transaction, or other customized log file change is attempted (authorization should not
+     * allow, but make sure it's written after the attempt)
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_LOG_EXPIRATION_CHANGE used when log expiration time change is attempted
+     * (authorization should not allow, but make sure it's written after the attempt)
      * </ul>
      * 
      * @param req HTTP servlet request

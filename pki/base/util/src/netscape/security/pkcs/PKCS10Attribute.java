@@ -39,10 +39,12 @@ import netscape.security.x509.OIDMap;
  * Represent a PKCS Attribute.
  * 
  * <p>
- * Attributes are addiitonal attributes which can be inserted in a PKCS certificate request. For example a "Driving License Certificate" could have the driving license number as a attribute.
+ * Attributes are addiitonal attributes which can be inserted in a PKCS certificate request. For example a
+ * "Driving License Certificate" could have the driving license number as a attribute.
  * 
  * <p>
- * Attributes are represented as a sequence of the attribute identifier (Object Identifier) and a set of DER encoded attribute values. The current implementation only supports one value per attribute.
+ * Attributes are represented as a sequence of the attribute identifier (Object Identifier) and a set of DER encoded
+ * attribute values. The current implementation only supports one value per attribute.
  * 
  * ASN.1 definition of Attribute:
  * 

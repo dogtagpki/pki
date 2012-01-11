@@ -406,9 +406,12 @@ public class ConnectorServlet extends CMSServlet {
      * <P>
      * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_PROFILE_CERT_REQUEST used when a profile cert request is made (before approval process)
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED used when a certificate request has just been through the approval process
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_INTER_BOUNDARY_SUCCESS used when inter-CIMC_Boundary data transfer is successful (this is used when data does not need to be captured)
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_PROFILE_CERT_REQUEST used when a profile cert request is made (before
+     * approval process)
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED used when a certificate request has just been
+     * through the approval process
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_INTER_BOUNDARY_SUCCESS used when inter-CIMC_Boundary data transfer is
+     * successful (this is used when data does not need to be captured)
      * </ul>
      * 
      * @param source string containing source

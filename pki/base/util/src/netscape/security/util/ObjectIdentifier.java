@@ -25,10 +25,14 @@ import java.util.StringTokenizer;
  * Represent an ISO Object Identifier.
  * 
  * <P>
- * Object Identifiers are arbitrary length hierarchical identifiers. The individual components are numbers, and they define paths from the root of an ISO-managed identifier space. You will sometimes see a string name used instead of (or in addition to) the numerical id. These are synonyms for the numerical IDs, but are not widely used since most sites do not know all the requisite strings, while all sites can parse the numeric forms.
+ * Object Identifiers are arbitrary length hierarchical identifiers. The individual components are numbers, and they
+ * define paths from the root of an ISO-managed identifier space. You will sometimes see a string name used instead of
+ * (or in addition to) the numerical id. These are synonyms for the numerical IDs, but are not widely used since most
+ * sites do not know all the requisite strings, while all sites can parse the numeric forms.
  * 
  * <P>
- * So for example, JavaSoft has the sole authority to assign the meaning to identifiers below the 1.3.6.1.4.42.2.17 node in the hierarchy, and other organizations can easily acquire the ability to assign such unique identifiers.
+ * So for example, JavaSoft has the sole authority to assign the meaning to identifiers below the 1.3.6.1.4.42.2.17 node
+ * in the hierarchy, and other organizations can easily acquire the ability to assign such unique identifiers.
  * 
  * @version 1.23
  * 
@@ -92,7 +96,8 @@ final public class ObjectIdentifier implements Serializable {
      * In this case, that means a triple { typeId, length, data }.
      * 
      * <P>
-     * <STRONG>NOTE:</STRONG> When an exception is thrown, the input stream has not been returned to its "initial" state.
+     * <STRONG>NOTE:</STRONG> When an exception is thrown, the input stream has not been returned to its "initial"
+     * state.
      * 
      * @param in DER-encoded data holding an object ID
      * @exception IOException indicates a decoding error

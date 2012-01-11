@@ -186,7 +186,8 @@ public class AuthzSubsystem implements IAuthzSubsystem {
      * to be called during the init() method of a servlet.
      * 
      * @param authzMgrName The authorization manager name
-     * @param accessInfo the access information to be initialized. currently it's acl string in the format specified in the authorization manager
+     * @param accessInfo the access information to be initialized. currently it's acl string in the format specified in
+     *            the authorization manager
      */
     public void authzMgrAccessInit(String authzMgrInstName, String accessInfo)
             throws EAuthzMgrNotFound, EBaseException {

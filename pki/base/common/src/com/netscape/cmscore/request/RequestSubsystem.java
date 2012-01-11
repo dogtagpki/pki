@@ -36,7 +36,8 @@ import com.netscape.cmscore.dbs.DBSubsystem;
  * <p>
  * This class is reponsible for managing storage of request objects in the local database.
  * <p>
- * TODO: review this It provides: + registration of LDAP/JAVA mapping classes with the DBSubsystem + creation of RequestQueue storage in the database + retrieval of existing RequestQueue objects from the database
+ * TODO: review this It provides: + registration of LDAP/JAVA mapping classes with the DBSubsystem + creation of
+ * RequestQueue storage in the database + retrieval of existing RequestQueue objects from the database
  * <p>
  * 
  * @author thayes

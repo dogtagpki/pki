@@ -368,12 +368,15 @@ public class ProcessCertReq extends CMSServlet {
      * (Certificate Request - an "agent" cert request for "cloning")
      * <P>
      * 
-     * (Certificate Request Processed - either a manual "agent" non-profile based cert acceptance, a manual "agent" non-profile based cert cancellation, or a manual "agent" non-profile based cert rejection)
+     * (Certificate Request Processed - either a manual "agent" non-profile based cert acceptance, a manual "agent"
+     * non-profile based cert cancellation, or a manual "agent" non-profile based cert rejection)
      * <P>
      * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_NON_PROFILE_CERT_REQUEST used when a non-profile cert request is made (before approval process)
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED used when a certificate request has just been through the approval process
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_NON_PROFILE_CERT_REQUEST used when a non-profile cert request is made
+     * (before approval process)
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED used when a certificate request has just been
+     * through the approval process
      * </ul>
      * 
      * @param cmsReq a certificate enrollment request

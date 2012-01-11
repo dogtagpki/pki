@@ -57,7 +57,8 @@ public class SystemInfoServlet extends HttpServlet {
      * value of the 'op' HTTP parameter.
      * <UL>
      * <LI>op = <i>undefined</i> - display a menu with links to the other functionality of this servlet
-     * <li>op = gc - tell the JVM that we want to do a garbage collection and to run finalizers (@see java.lang.Runtime.getRuntime#gc() )
+     * <li>op = gc - tell the JVM that we want to do a garbage collection and to run finalizers (@see
+     * java.lang.Runtime.getRuntime#gc() )
      * <li>op = general - display information about memory, and other JVM informatino
      * <li>op = thread - display details about each thread.
      * </UL>

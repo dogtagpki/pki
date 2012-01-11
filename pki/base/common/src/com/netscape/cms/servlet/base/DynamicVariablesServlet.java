@@ -42,7 +42,8 @@ import com.netscape.certsrv.base.IConfigStore;
  * Return some javascript to the request which contains the list of
  * dynamic data in the CMS system.
  * <p>
- * This allows the requestor (browser) to make decisions about what to present in the UI, depending on how CMS is configured
+ * This allows the requestor (browser) to make decisions about what to present in the UI, depending on how CMS is
+ * configured
  * 
  * @version $Revision$, $Date$
  */
@@ -119,19 +120,23 @@ public class DynamicVariablesServlet extends CMSServlet {
      * <li><strong>AuthMgr</strong> - the authentication manager to use to authenticate the request
      * <li><strong>GetClientCert</strong> - whether to request client auth for this request
      * <li><strong>authority</strong> - the authority (ca, ra, drm) to return to the client
-     * <li><strong>dynamicVariables</strong> - a string of the form: serverdate=serverdate(),subsystemname=subsystemname(), http=http(),authmgrs=authmgrs(),clacrlurl=clacrlurl()
+     * <li><strong>dynamicVariables</strong> - a string of the form:
+     * serverdate=serverdate(),subsystemname=subsystemname(), http=http(),authmgrs=authmgrs(),clacrlurl=clacrlurl()
      * </ul>
      * The dynamicVariables string is parsed by splitting on commas.
      * When services, the HTTP request provides a piece of javascript
      * code as follows.
      * <p>
-     * Each sub expression "lhs=rhs()" forms a javascript statement of the form <i>lhs=xxx;</i> Where lhs is xxx is the result of 'evaluating' the rhs. The possible values for the rhs() function are:
+     * Each sub expression "lhs=rhs()" forms a javascript statement of the form <i>lhs=xxx;</i> Where lhs is xxx is the
+     * result of 'evaluating' the rhs. The possible values for the rhs() function are:
      * <ul>
-     * <li><strong>serverdate()</strong> - the timestamp of the server (used to ensure that the client clock is set correctly)
+     * <li><strong>serverdate()</strong> - the timestamp of the server (used to ensure that the client clock is set
+     * correctly)
      * <li><strong>subsystemname()</strong>
      * <li><strong>http()</strong> - "true" or "false" - is this an http connection (as opposed to https)
      * <li>authmgrs() - a comma separated list of authentication managers
-     * <li>clacrlurl() - the URL to get the CRL from, in the case of a Clone CA. This is defined in the CMS configuration parameter 'cloning.cloneMasterCrlUrl'
+     * <li>clacrlurl() - the URL to get the CRL from, in the case of a Clone CA. This is defined in the CMS
+     * configuration parameter 'cloning.cloneMasterCrlUrl'
      * </ul>
      * 
      * @see javax.servlet.Servlet#init(ServletConfig)

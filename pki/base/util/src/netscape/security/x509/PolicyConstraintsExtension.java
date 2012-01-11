@@ -33,7 +33,9 @@ import netscape.security.util.DerValue;
  * This class defines the certificate extension which specifies the
  * Policy constraints.
  * <p>
- * The policy constraints extension can be used in certificates issued to CAs. The policy constraints extension constrains path validation in two ways. It can be used to prohibit policy mapping or require that each certificate in a path contain an acceptable policy identifier.
+ * The policy constraints extension can be used in certificates issued to CAs. The policy constraints extension
+ * constrains path validation in two ways. It can be used to prohibit policy mapping or require that each certificate in
+ * a path contain an acceptable policy identifier.
  * <p>
  * The ASN.1 syntax for this is (IMPLICIT tagging is defined in the module definition):
  * 

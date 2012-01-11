@@ -194,8 +194,10 @@ public class ListCerts extends CMSServlet {
      * <ul>
      * <li>http.param maxCount Number of certificates to show
      * <li>http.param queryFilter and ldap style filter specifying the certificates to show
-     * <li>http.param querySentinelDown the serial number of the first certificate to show (default decimal, or hex if prefixed with 0x) when paging down
-     * <li>http.param querySentinelUp the serial number of the first certificate to show (default decimal, or hex if prefixed with 0x) when paging up
+     * <li>http.param querySentinelDown the serial number of the first certificate to show (default decimal, or hex if
+     * prefixed with 0x) when paging down
+     * <li>http.param querySentinelUp the serial number of the first certificate to show (default decimal, or hex if
+     * prefixed with 0x) when paging up
      * <li>http.param direction "up", "down", "begin", or "end"
      * </ul>
      */

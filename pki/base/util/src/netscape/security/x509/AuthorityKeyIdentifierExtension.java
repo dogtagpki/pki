@@ -31,7 +31,9 @@ import netscape.security.util.DerValue;
  * This class represents the Authority Key Identifier Extension.
  * 
  * <p>
- * The authority key identifier extension provides a means of identifying the particular public key used to sign a certificate. This extension would be used where an issuer has multiple signing keys (either due to multiple concurrent key pairs or due to changeover).
+ * The authority key identifier extension provides a means of identifying the particular public key used to sign a
+ * certificate. This extension would be used where an issuer has multiple signing keys (either due to multiple
+ * concurrent key pairs or due to changeover).
  * <p>
  * The ASN.1 syntax for this is:
  * 

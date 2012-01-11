@@ -87,7 +87,8 @@ public class PolicyMappingsExt extends APolicyRule
      * 
      * The entries may be of the form:
      * 
-     * ca.Policy.rule.<ruleName>.predicate=certType==ca ca.Policy.rule.<ruleName>.implName= ca.Policy.rule.<ruleName>.enable=true
+     * ca.Policy.rule.<ruleName>.predicate=certType==ca ca.Policy.rule.<ruleName>.implName=
+     * ca.Policy.rule.<ruleName>.enable=true
      * 
      * @param config The config store reference
      */

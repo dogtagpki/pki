@@ -34,7 +34,9 @@ import netscape.security.util.DerValue;
  * Represent the CRL Invalidity Date Extension.
  * 
  * <p>
- * This CRL entry extension, if present, provides the date on which it is known or suspected that the private key was compromised or that the certificate otherwise became invalid. Invalidity date may be earlier than the revocation date.
+ * This CRL entry extension, if present, provides the date on which it is known or suspected that the private key was
+ * compromised or that the certificate otherwise became invalid. Invalidity date may be earlier than the revocation
+ * date.
  * 
  * @see Extension
  * @see CertAttrSet

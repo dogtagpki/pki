@@ -188,7 +188,8 @@ public interface IRequest {
      * assigned by the originator of the request (for example,
      * the EE servlet or the RA servlet.
      * <p>
-     * The sourceId should be unique so that it can be used to retrieve request later without knowing the locally assigned primary id (RequestID)
+     * The sourceId should be unique so that it can be used to retrieve request later without knowing the locally
+     * assigned primary id (RequestID)
      * <p>
      * 
      * @return

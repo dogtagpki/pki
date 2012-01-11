@@ -31,7 +31,8 @@ import netscape.security.util.DerValue;
  * This class represents the Subject Directory Attributes Extension.
  * 
  * <p>
- * The subject directory attributes extension is not recommended as an essential part of this profile, but it may be used in local environments. This extension MUST be non-critical.
+ * The subject directory attributes extension is not recommended as an essential part of this profile, but it may be
+ * used in local environments. This extension MUST be non-critical.
  * 
  * <pre>
  * The ASN.1 syntax for this extension is:

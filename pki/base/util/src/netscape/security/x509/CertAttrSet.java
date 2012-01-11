@@ -29,7 +29,8 @@ import java.util.Enumeration;
  * Subject Name. A CertAttrSet may compromise one attribute or many
  * attributes.
  * <p>
- * A CertAttrSet itself can also be comprised of other sub-sets. In the case of X.509 V3 certificates, for example, the "extensions" attribute has subattributes, such as those for KeyUsage and AuthorityKeyIdentifier.
+ * A CertAttrSet itself can also be comprised of other sub-sets. In the case of X.509 V3 certificates, for example, the
+ * "extensions" attribute has subattributes, such as those for KeyUsage and AuthorityKeyIdentifier.
  * 
  * @author Amit Kapoor
  * @author Hemma Prafullchandra

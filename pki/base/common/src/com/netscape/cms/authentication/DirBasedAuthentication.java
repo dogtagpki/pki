@@ -173,7 +173,8 @@ public abstract class DirBasedAuthentication
      * 	dnpattern               - dn pattern.
      * </pre>
      * <p>
-     * <i><b>dnpattern</b></i> is a string representing a subject name pattern to formulate from the directory attributes and entry dn. If empty or not set, the ldap entry DN will be used as the certificate subject name.
+     * <i><b>dnpattern</b></i> is a string representing a subject name pattern to formulate from the directory
+     * attributes and entry dn. If empty or not set, the ldap entry DN will be used as the certificate subject name.
      * <p>
      * The syntax is
      * 

@@ -98,9 +98,12 @@ public class AddCAServlet extends CMSServlet {
     /**
      * Process the HTTP request.
      * <ul>
-     * <li>http.param cert ca certificate. The format is base-64, DER encoded, wrapped with -----BEGIN CERTIFICATE-----, -----END CERTIFICATE----- strings
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_OCSP_ADD_CA_REQUEST used when a CA is attempted to be added to the OCSP responder
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_OCSP_ADD_CA_REQUEST_PROCESSED used when an add CA request to the OCSP Responder is processed
+     * <li>http.param cert ca certificate. The format is base-64, DER encoded, wrapped with -----BEGIN CERTIFICATE-----,
+     * -----END CERTIFICATE----- strings
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_OCSP_ADD_CA_REQUEST used when a CA is attempted to be added to the OCSP
+     * responder
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_OCSP_ADD_CA_REQUEST_PROCESSED used when an add CA request to the OCSP
+     * Responder is processed
      * </ul>
      * 
      * @param cmsReq the object holding the request and response information

@@ -31,7 +31,10 @@ import netscape.security.util.PrettyPrintFormat;
 /**
  * This class defines the Name Constraints Extension.
  * <p>
- * The name constraints extension provides permitted and excluded subtrees that place restrictions on names that may be included within a certificate issued by a given CA. Restrictions may apply to the subject distinguished name or subject alternative names. Any name matching a restriction in the excluded subtrees field is invalid regardless of information appearing in the permitted subtrees.
+ * The name constraints extension provides permitted and excluded subtrees that place restrictions on names that may be
+ * included within a certificate issued by a given CA. Restrictions may apply to the subject distinguished name or
+ * subject alternative names. Any name matching a restriction in the excluded subtrees field is invalid regardless of
+ * information appearing in the permitted subtrees.
  * <p>
  * The ASN.1 syntax for this is:
  * 

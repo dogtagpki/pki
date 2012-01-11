@@ -85,7 +85,8 @@ public class AutoInstaller {
 
     // Set InternalDBVInfo
     /**
-     * Set Internal Database Information . Takes parameters internaldatabase hostname, internaldatabase port, internaldatabase name, internaldatabase binddn, internaldatabase password
+     * Set Internal Database Information . Takes parameters internaldatabase hostname, internaldatabase port,
+     * internaldatabase name, internaldatabase binddn, internaldatabase password
      */
 
     public void setInternalDBInfo(String dbh, String dbp, String dbname, String dbdn, String dbpswd) {
@@ -230,7 +231,9 @@ public class AutoInstaller {
     // Set Subsystem Information for Configuring 
 
     /**
-     * Takes parameters - sID- ServerID e.x cert1, sRoot- ServerRootK kT- keyType "RSA/DSA" , kL - keylength (1024.2048) , cVD- certificate validity dates e.g 365 for 1 year, sdn - subsystems dn, sAdp - subsystem's Admin port, sAgp - subsystems's Agentport,seSP- subsystem's ee SSL port , sep- Subsystems ee port.
+     * Takes parameters - sID- ServerID e.x cert1, sRoot- ServerRootK kT- keyType "RSA/DSA" , kL - keylength (1024.2048)
+     * , cVD- certificate validity dates e.g 365 for 1 year, sdn - subsystems dn, sAdp - subsystem's Admin port, sAgp -
+     * subsystems's Agentport,seSP- subsystem's ee SSL port , sep- Subsystems ee port.
      */
 
     public void setSubSystemInfo(String sID, String sRoot, String kT, String kL, String hT, String cVD, String sdn,

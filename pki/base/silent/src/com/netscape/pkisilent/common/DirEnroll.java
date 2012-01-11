@@ -72,7 +72,8 @@ public class DirEnroll extends TestClient {
     }
 
     /**
-     * Constructor. Takes hostname,EESSLportnumber,uid,password,certdbdirectorypath,certdbpassword,certificatenickname,keysize,teytype
+     * Constructor. Takes
+     * hostname,EESSLportnumber,uid,password,certdbdirectorypath,certdbpassword,certificatenickname,keysize,teytype
      * <p>
      * 
      * @param hostname

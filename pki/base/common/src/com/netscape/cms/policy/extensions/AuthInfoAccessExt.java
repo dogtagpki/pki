@@ -136,7 +136,8 @@ public class AuthInfoAccessExt extends APolicyRule implements
      * 
      * The entries may be of the form:
      * 
-     * ca.Policy.rule.<ruleName>.implName=AuthInfoAccessExt ca.Policy.rule.<ruleName>.enable=true ca.Policy.rule.<ruleName>.predicate=
+     * ca.Policy.rule.<ruleName>.implName=AuthInfoAccessExt ca.Policy.rule.<ruleName>.enable=true
+     * ca.Policy.rule.<ruleName>.predicate=
      * 
      * @param config The config store reference
      */

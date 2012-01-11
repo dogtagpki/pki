@@ -38,7 +38,8 @@ public interface IPolicy {
      * determine whether the request can be processed immediately,
      * or should be held pending manual approval.
      * <p>
-     * The policy can update fields in the request, to add additional values or to restrict the values to pre-determined ranges.
+     * The policy can update fields in the request, to add additional values or to restrict the values to pre-determined
+     * ranges.
      * <p>
      * 
      * @param request

@@ -38,7 +38,9 @@ public class CMSInstance {
      */
 
     /**
-     * Constructor. Takes parameters hostname, adminserverport, adminDN, adminDNpassword, Dominanname, ServerRoot( full path) , instanceID, mnameand sieURL. mname is the fully qualified name of the server ( jupiter2.nscp.aoltw.net) sieURL is ("ldap://jupiter2.nscp.aoltw.net:(ConfigLADPPort)/o=NetscapeRoot"
+     * Constructor. Takes parameters hostname, adminserverport, adminDN, adminDNpassword, Dominanname, ServerRoot( full
+     * path) , instanceID, mnameand sieURL. mname is the fully qualified name of the server ( jupiter2.nscp.aoltw.net)
+     * sieURL is ("ldap://jupiter2.nscp.aoltw.net:(ConfigLADPPort)/o=NetscapeRoot"
      */
 
     private String cs_server_root, cs_tps_root, tps_hostname, tps_fqdn, tps_instanceid, tps_ee_port, tps_agent_port,

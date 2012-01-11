@@ -35,7 +35,8 @@ import netscape.security.x509.Extension;
  * Represents Netscape Certificate Type Extension
  * 
  * <p>
- * This deprecated extension, if present, defines both the purpose (e.g., encipherment, signature, certificate signing) and the application (e.g., SSL, S/Mime or Object Signing of the key contained in the certificate.
+ * This deprecated extension, if present, defines both the purpose (e.g., encipherment, signature, certificate signing)
+ * and the application (e.g., SSL, S/Mime or Object Signing of the key contained in the certificate.
  * 
  * @author galperin
  * @version $Revision$, $Date$

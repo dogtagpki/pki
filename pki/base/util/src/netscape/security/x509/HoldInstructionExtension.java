@@ -34,7 +34,8 @@ import netscape.security.util.ObjectIdentifier;
  * Represent the CRL Hold Instruction Code Extension.
  * 
  * <p>
- * The hold instruction code is a non-critical CRL entry extension that provides a registered instruction identifier which indicates the action to be taken after encountering a certificate that has been placed on hold.
+ * The hold instruction code is a non-critical CRL entry extension that provides a registered instruction identifier
+ * which indicates the action to be taken after encountering a certificate that has been placed on hold.
  * 
  * @see Extension
  * @see CertAttrSet

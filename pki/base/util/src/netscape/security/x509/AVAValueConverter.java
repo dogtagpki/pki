@@ -28,7 +28,9 @@ import netscape.security.util.DerValue;
  * directory string, ia5string, etc.
  * 
  * <P>
- * For example, to convert a string, such as an organization name for the "O" attribute to a DerValue, the "O" attribute is mapped to the DirStrConverter which is used to convert the organization name to a DER encoded Directory String which is a DerValue of a ASN.1 PrintableString, T.61String or UniversalString for the organization name.
+ * For example, to convert a string, such as an organization name for the "O" attribute to a DerValue, the "O" attribute
+ * is mapped to the DirStrConverter which is used to convert the organization name to a DER encoded Directory String
+ * which is a DerValue of a ASN.1 PrintableString, T.61String or UniversalString for the organization name.
  * 
  * @author Lily Hsiao, Slava Galperin at Netscape Communications, Inc.
  */

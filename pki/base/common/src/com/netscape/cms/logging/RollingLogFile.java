@@ -285,7 +285,8 @@ public class RollingLogFile extends LogFile {
      * <P>
      * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_LOG_DELETE used AFTER audit log expires (authorization should not allow, but in case authorization gets compromised make sure it is written AFTER the log expiration happens)
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_LOG_DELETE used AFTER audit log expires (authorization should not allow,
+     * but in case authorization gets compromised make sure it is written AFTER the log expiration happens)
      * </ul>
      * 
      * @param expirationSeconds The number of seconds since the expired files

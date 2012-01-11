@@ -1308,7 +1308,8 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
      * 
      * <subsystemId>.Policy.undeletablePolicies=<comma separated rule names>
      * Example:
-     * ra.Policy.undeletablePolicies=DirAuthRule, DefaultUserNameRule, DefaultServerNameRule, DefaultValidityRule, DefaultRenewalValidityRule
+     * ra.Policy.undeletablePolicies=DirAuthRule, DefaultUserNameRule, DefaultServerNameRule, DefaultValidityRule,
+     * DefaultRenewalValidityRule
      * 
      * The predicates if any associated with them may be configured as
      * follows:
@@ -1336,7 +1337,8 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
      * We do n't need to burn in DirAuthRule. We need to configure all
      * other rules except the DirAuthRule as follows:
      * 
-     * ra.Policy.undeletablePolicies = DefaultUserNameRule, DefaultServerNameRule, DefaultValidityRule, DefaultRenewalValidityRule
+     * ra.Policy.undeletablePolicies = DefaultUserNameRule, DefaultServerNameRule, DefaultValidityRule,
+     * DefaultRenewalValidityRule
      * 
      * The following predicates are necessary:
      * 

@@ -213,7 +213,8 @@ public class PolicyPredicateParser {
          * catch (Exception e){e.printStackTrace();}
          * String[] array = { "ou == people AND certtype == client",
          * "ou == servergroup AND certtype == server",
-         * "uid == jdoes, ou==people, o==airius.com OR ou == people AND certType == client OR certType == server AND cn == needles.mcom.com",
+         * "uid == jdoes, ou==people, o==airius.com OR ou == people AND certType == client OR certType == server AND cn == needles.mcom.com"
+         * ,
          * };
          * for (int i = 0; i < array.length; i++)
          * {

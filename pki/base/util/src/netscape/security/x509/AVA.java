@@ -39,7 +39,8 @@ import netscape.security.util.ObjectIdentifier;
  * parsing (and generating) RFC 1779 syntax strings.
  * 
  * <P>
- * AVAs are components of X.500 relative names. Think of them as being individual fields of a database record. The attribute ID is how you identify the field, and the value is part of a particular record.
+ * AVAs are components of X.500 relative names. Think of them as being individual fields of a database record. The
+ * attribute ID is how you identify the field, and the value is part of a particular record.
  * 
  * @see X500Name
  * @see RDN

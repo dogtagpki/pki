@@ -498,7 +498,8 @@ public class HTMLDocument {
     /**
      * Retrieves the contents of the HTML document with all tags removed.
      * 
-     * @return The contents of the HTML document with all tags removed, or <CODE>null</CODE> if a problem occurs while trying to parse the
+     * @return The contents of the HTML document with all tags removed, or <CODE>null</CODE> if a problem occurs while
+     *         trying to parse the
      *         HTML.
      */
     public String getTextData() {
@@ -538,7 +539,8 @@ public class HTMLDocument {
      * that are in the form of links to other content.
      * 
      * @return An array containing a set of URLs parsed from the HTML document
-     *         that are in the form of links to other content, or <CODE>null</CODE> if a problem occurs while trying to parse the
+     *         that are in the form of links to other content, or <CODE>null</CODE> if a problem occurs while trying to
+     *         parse the
      *         HTML.
      */
     public String[] getDocumentLinks() {

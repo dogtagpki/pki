@@ -210,10 +210,13 @@ public class QueryReq extends CMSServlet {
     /**
      * Process the HTTP request.
      * <ul>
-     * <li>http.param reqState request state (one of showAll, showWaiting, showInService, showCancelled, showRejected, showCompleted)
+     * <li>http.param reqState request state (one of showAll, showWaiting, showInService, showCancelled, showRejected,
+     * showCompleted)
      * <li>http.param reqType
-     * <li>http.param seqNumFromDown request ID to start at (decimal, or hex if when paging down seqNumFromDown starts with 0x)
-     * <li>http.param seqNumFromUp request ID to start at (decimal, or hex if when paging up seqNumFromUp starts with 0x)
+     * <li>http.param seqNumFromDown request ID to start at (decimal, or hex if when paging down seqNumFromDown starts
+     * with 0x)
+     * <li>http.param seqNumFromUp request ID to start at (decimal, or hex if when paging up seqNumFromUp starts with
+     * 0x)
      * <li>http.param maxCount maximum number of records to show
      * <li>http.param totalCount total number of records in set of pages
      * <li>http.param direction "up", "down", "begin", or "end"

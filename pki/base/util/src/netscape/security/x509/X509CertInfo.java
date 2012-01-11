@@ -41,13 +41,17 @@ import netscape.security.util.DerValue;
  * X.509 certificates have several base data elements, including:
  * <UL>
  * 
- * <LI>The <em>Subject Name</em>, an X.500 Distinguished Name for the entity (subject) for which the certificate was issued.
+ * <LI>The <em>Subject Name</em>, an X.500 Distinguished Name for the entity (subject) for which the certificate was
+ * issued.
  * 
- * <LI>The <em>Subject Public Key</em>, the public key of the subject. This is one of the most important parts of the certificate.
+ * <LI>The <em>Subject Public Key</em>, the public key of the subject. This is one of the most important parts of the
+ * certificate.
  * 
- * <LI>The <em>Validity Period</em>, a time period (e.g. six months) within which the certificate is valid (unless revoked).
+ * <LI>The <em>Validity Period</em>, a time period (e.g. six months) within which the certificate is valid (unless
+ * revoked).
  * 
- * <LI>The <em>Issuer Name</em>, an X.500 Distinguished Name for the Certificate Authority (CA) which issued the certificate.
+ * <LI>The <em>Issuer Name</em>, an X.500 Distinguished Name for the Certificate Authority (CA) which issued the
+ * certificate.
  * 
  * <LI>A <em>Serial Number</em> assigned by the CA, for use in certificate revocation and other applications.
  * 

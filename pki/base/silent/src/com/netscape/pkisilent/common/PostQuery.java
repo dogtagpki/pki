@@ -31,7 +31,8 @@ import com.netscape.osutil.OSUtil;
 
 /**
  * CMS Test framework .
- * This class submits request to admin server after authenticating with UID and Password. You can get back the response by calling the method. getPage().
+ * This class submits request to admin server after authenticating with UID and Password. You can get back the response
+ * by calling the method. getPage().
  */
 
 public class PostQuery {
@@ -44,7 +45,8 @@ public class PostQuery {
     private StringBuffer stdout = new StringBuffer();
 
     /**
-     * Constructor . Takes the parameters urlstring("http://hostname:<portnumber> , Id for authenticating to the server, password for authentication to the server and query which needs to be submitted to the server
+     * Constructor . Takes the parameters urlstring("http://hostname:<portnumber> , Id for authenticating to the server,
+     * password for authentication to the server and query which needs to be submitted to the server
      */
 
     public PostQuery(String urlstr, String authid, String authpwd, String querystring) {

@@ -51,7 +51,9 @@ import com.netscape.cms.policy.APolicyRule;
  * 
  * Adds the subject alternative name extension depending on the certificate type requested.
  * 
- * Two forms are supported. 1) For S/MIME certificates, email addresses are copied from data stored in the request by the authentication component. Both 'e' and 'altEmail' are supported so that both the primary address and alternative forms may be certified. Only the primary goes in the subjectName position (which should be phased out).
+ * Two forms are supported. 1) For S/MIME certificates, email addresses are copied from data stored in the request by
+ * the authentication component. Both 'e' and 'altEmail' are supported so that both the primary address and alternative
+ * forms may be certified. Only the primary goes in the subjectName position (which should be phased out).
  * 
  * e mailAlternateAddress
  * <P>

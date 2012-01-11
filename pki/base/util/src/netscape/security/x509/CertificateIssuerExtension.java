@@ -32,7 +32,8 @@ import netscape.security.util.DerValue;
  * Represent the CRL Certificate Issuer Extension.
  * 
  * <p>
- * This CRL entry extension identifies the certificate issuer associated with an entry in an indirect CRL, i.e. a CRL that has the indirectCRL indicator set in its issuing distribution point extension.
+ * This CRL entry extension identifies the certificate issuer associated with an entry in an indirect CRL, i.e. a CRL
+ * that has the indirectCRL indicator set in its issuing distribution point extension.
  * 
  * @see Extension
  * @see CertAttrSet

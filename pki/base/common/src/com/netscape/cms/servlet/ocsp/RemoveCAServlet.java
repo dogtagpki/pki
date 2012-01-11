@@ -89,8 +89,11 @@ public class RemoveCAServlet extends CMSServlet {
      * Process the HTTP request.
      * <ul>
      * <li>http.param ca id. The format is string.
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_OCSP_REMOVE_CA_REQUEST used when a CA is attempted to be removed from the OCSP responder
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_OCSP_REMOVE_CA_REQUEST_PROCESSED_SUCCESS and LOGGING_SIGNED_AUDIT_OCSP_REMOVE_CA_REQUEST_PROCESSED_FAILURE are used when a remove CA request to the OCSP Responder is processed successfully or not.
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_OCSP_REMOVE_CA_REQUEST used when a CA is attempted to be removed from the
+     * OCSP responder
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_OCSP_REMOVE_CA_REQUEST_PROCESSED_SUCCESS and
+     * LOGGING_SIGNED_AUDIT_OCSP_REMOVE_CA_REQUEST_PROCESSED_FAILURE are used when a remove CA request to the OCSP
+     * Responder is processed successfully or not.
      * </ul>
      * 
      * @param cmsReq the object holding the request and response information

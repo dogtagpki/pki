@@ -30,8 +30,12 @@ import com.netscape.certsrv.base.ISubsystem;
  * if there is any job to be done, if so, a thread is created to execute
  * the job(s).
  * <p>
- * The interval <b>jobsScheduler.interval</b> in the configuration is specified as number of minutes. If not set, the default is 1 minute. Note that the cron specification for each job CAN NOT be finer than the granularity of the Scheduler daemon interval. For example, if the daemon interval is set to 5 minute, a job cron for every minute at 7am on each Tuesday (e.g. * 7 * * 2) will result in the execution of the job thread only once every 5 minutes during that hour. <b>The inteval value is
- * recommended at 1 minute, setting it otherwise has the potential of forever missing the beat</b>. Use with caution.
+ * The interval <b>jobsScheduler.interval</b> in the configuration is specified as number of minutes. If not set, the
+ * default is 1 minute. Note that the cron specification for each job CAN NOT be finer than the granularity of the
+ * Scheduler daemon interval. For example, if the daemon interval is set to 5 minute, a job cron for every minute at 7am
+ * on each Tuesday (e.g. * 7 * * 2) will result in the execution of the job thread only once every 5 minutes during that
+ * hour. <b>The inteval value is recommended at 1 minute, setting it otherwise has the potential of forever missing the
+ * beat</b>. Use with caution.
  * 
  * @version $Revision$, $Date$
  */

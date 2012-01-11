@@ -32,7 +32,8 @@ import netscape.security.util.DerValue;
  * This class represents the Basic Constraints Extension.
  * 
  * <p>
- * The basic constraints extension identifies whether the subject of the certificate is a CA and how deep a certification path may exist through that CA.
+ * The basic constraints extension identifies whether the subject of the certificate is a CA and how deep a
+ * certification path may exist through that CA.
  * 
  * <pre>
  * The ASN.1 syntax for this extension is:

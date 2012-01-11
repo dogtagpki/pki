@@ -95,7 +95,10 @@ public class DSAKeyConstraints extends APolicyRule
      * Initializes this policy rule.
      * <P>
      * 
-     * The entries probably are of the form ra.Policy.rule.<ruleName>.implName=DSAKeyConstraints ra.Policy.rule.<ruleName>.enable=true ra.Policy.rule.<ruleName>.minSize=512 ra.Policy.rule.<ruleName>.maxSize=1024 ra.Policy.rule.<ruleName>.predicate= ou == engineering AND o == netscape.com
+     * The entries probably are of the form ra.Policy.rule.<ruleName>.implName=DSAKeyConstraints
+     * ra.Policy.rule.<ruleName>.enable=true ra.Policy.rule.<ruleName>.minSize=512
+     * ra.Policy.rule.<ruleName>.maxSize=1024 ra.Policy.rule.<ruleName>.predicate= ou == engineering AND o ==
+     * netscape.com
      * 
      * @param config The config store reference
      */

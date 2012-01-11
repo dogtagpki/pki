@@ -99,7 +99,8 @@ public class TestClient implements SSLCertificateApprovalCallback {
 
     /**
      * Constructor . Takes the parameter for keysize and keytype .
-     * Before creating a new instance of this class make sure you have set TEST_CONFIG_FILE variable in your environnemt.
+     * Before creating a new instance of this class make sure you have set TEST_CONFIG_FILE variable in your
+     * environnemt.
      * Reads the TEST_CONFIG_FILE . Initializes the certificate database. See engage.cfg file for example.
      * 
      * @param keysize

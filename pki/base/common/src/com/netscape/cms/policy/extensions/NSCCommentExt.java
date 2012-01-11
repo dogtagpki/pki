@@ -91,7 +91,8 @@ public class NSCCommentExt extends APolicyRule
      * <p>
      * The entries may be of the form:
      * 
-     * ca.Policy.rule.<ruleName>.implName=NSCCommentExtImpl ca.Policy.rule.<ruleName>.displayText=<n> ca.Policy.rule.<ruleName>.commentFile=<n> ca.Policy.rule.<ruleName>.enable=false
+     * ca.Policy.rule.<ruleName>.implName=NSCCommentExtImpl ca.Policy.rule.<ruleName>.displayText=<n>
+     * ca.Policy.rule.<ruleName>.commentFile=<n> ca.Policy.rule.<ruleName>.enable=false
      * 
      * @param config The config store reference
      */

@@ -85,7 +85,8 @@ public class ProfileApproveServlet extends ProfileServlet {
      * 
      * <ul>
      * <li>http.param profileId the id of the profile to change
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CERT_PROFILE_APPROVAL used when an agent approves/disapproves a cert profile set by the administrator for automatic approval
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CERT_PROFILE_APPROVAL used when an agent approves/disapproves a cert
+     * profile set by the administrator for automatic approval
      * </ul>
      * 
      * @param cmsReq the object holding the request and response information

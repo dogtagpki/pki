@@ -33,7 +33,9 @@ import netscape.security.util.DerValue;
  * Represent the CRL Number Extension.
  * 
  * <p>
- * This extension, if present, conveys a monotonically increasing sequence number for each CRL issued by a given CA through a specific CA X.500 Directory entry or CRL distribution point. This extension allows users to easily determine when a particular CRL supersedes another CRL.
+ * This extension, if present, conveys a monotonically increasing sequence number for each CRL issued by a given CA
+ * through a specific CA X.500 Directory entry or CRL distribution point. This extension allows users to easily
+ * determine when a particular CRL supersedes another CRL.
  * 
  * @author Hemma Prafullchandra
  * @version 1.2

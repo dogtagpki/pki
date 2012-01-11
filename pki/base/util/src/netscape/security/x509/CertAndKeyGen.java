@@ -40,15 +40,19 @@ import netscape.security.pkcs.PKCS10;
  * provided primarily for ease of use.
  * 
  * <P>
- * This provides some simple certificate management functionality. Specifically, it allows you to create self-signed X.509 certificates as well as PKCS 10 based certificate signing requests.
+ * This provides some simple certificate management functionality. Specifically, it allows you to create self-signed
+ * X.509 certificates as well as PKCS 10 based certificate signing requests.
  * 
  * <P>
- * Keys for some public key signature algorithms have algorithm parameters, such as DSS/DSA. Some sites' Certificate Authorities adopt fixed algorithm parameters, which speeds up some operations including key generation and signing. <em>At this time, this interface
+ * Keys for some public key signature algorithms have algorithm parameters, such as DSS/DSA. Some sites' Certificate
+ * Authorities adopt fixed algorithm parameters, which speeds up some operations including key generation and signing.
+ * <em>At this time, this interface
  * does not provide a way to provide such algorithm parameters, e.g.
  * by providing the CA certificate which includes those parameters.</em>
  * 
  * <P>
- * Also, note that at this time only signature-capable keys may be acquired through this interface. Diffie-Hellman keys, used for secure key exchange, may be supported later.
+ * Also, note that at this time only signature-capable keys may be acquired through this interface. Diffie-Hellman keys,
+ * used for secure key exchange, may be supported later.
  * 
  * @author David Brownell
  * @author Hemma Prafullchandra
@@ -95,7 +99,9 @@ public final class CertAndKeyGen {
      * easier to perform such attacks. Small keys are to be avoided.
      * 
      * <P>
-     * Note that not all values of "keyBits" are valid for all algorithms, and not all public key algorithms are currently supported for use in X.509 certificates. If the algorithm you specified does not produce X.509 compatible keys, an invalid key exception is thrown.
+     * Note that not all values of "keyBits" are valid for all algorithms, and not all public key algorithms are
+     * currently supported for use in X.509 certificates. If the algorithm you specified does not produce X.509
+     * compatible keys, an invalid key exception is thrown.
      * 
      * @param keyBits the number of bits in the keys.
      * @exception InvalidKeyException if the environment does not
@@ -150,7 +156,9 @@ public final class CertAndKeyGen {
      * The certificate is immediately valid.
      * 
      * <P>
-     * Such certificates normally are used to identify a "Certificate Authority" (CA). Accordingly, they will not always be accepted by other parties. However, such certificates are also useful when you are bootstrapping your security infrastructure, or deploying system prototypes.
+     * Such certificates normally are used to identify a "Certificate Authority" (CA). Accordingly, they will not always
+     * be accepted by other parties. However, such certificates are also useful when you are bootstrapping your security
+     * infrastructure, or deploying system prototypes.
      * 
      * @deprecated Use the new <a href =
      *             "#getSelfCertificate(netscape.security.x509.X500Name, long)">
@@ -179,7 +187,9 @@ public final class CertAndKeyGen {
      * The certificate is immediately valid. No extensions.
      * 
      * <P>
-     * Such certificates normally are used to identify a "Certificate Authority" (CA). Accordingly, they will not always be accepted by other parties. However, such certificates are also useful when you are bootstrapping your security infrastructure, or deploying system prototypes.
+     * Such certificates normally are used to identify a "Certificate Authority" (CA). Accordingly, they will not always
+     * be accepted by other parties. However, such certificates are also useful when you are bootstrapping your security
+     * infrastructure, or deploying system prototypes.
      * 
      * @param myname X.500 name of the subject (who is also the issuer)
      * @param validity how long the certificate should be valid, in seconds
@@ -233,11 +243,13 @@ public final class CertAndKeyGen {
     }
 
     /**
-     * Returns a PKCS #10 certificate request. The caller uses either <code>PKCS10.print</code> or <code>PKCS10.toByteArray</code> operations on the result, to get the request in an appropriate
+     * Returns a PKCS #10 certificate request. The caller uses either <code>PKCS10.print</code> or
+     * <code>PKCS10.toByteArray</code> operations on the result, to get the request in an appropriate
      * transmission format.
      * 
      * <P>
-     * PKCS #10 certificate requests are sent, along with some proof of identity, to Certificate Authorities (CAs) which then issue X.509 public key certificates.
+     * PKCS #10 certificate requests are sent, along with some proof of identity, to Certificate Authorities (CAs) which
+     * then issue X.509 public key certificates.
      * 
      * @param myname X.500 name of the subject
      * @exception InvalidKeyException on key handling errors.

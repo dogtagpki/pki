@@ -68,9 +68,11 @@ import com.netscape.certsrv.request.RequestStatus;
  * <p>
  * !Put state machine description here!
  * <p>
- * This class defines several abstract protected functions that need to be defined by the concrete implementation. In particular, this class does not implement the operations for storing requests persistantly.
+ * This class defines several abstract protected functions that need to be defined by the concrete implementation. In
+ * particular, this class does not implement the operations for storing requests persistantly.
  * <p>
- * This class also provides several accessor functions for setting fields in the IRequest object. These functions are provided as an aid to saving and restoring the state in the database.
+ * This class also provides several accessor functions for setting fields in the IRequest object. These functions are
+ * provided as an aid to saving and restoring the state in the database.
  * <p>
  * This class also implements the locking operations specified by the IRequestQueue interface.
  * <p>
@@ -89,7 +91,8 @@ public abstract class ARequestQueue
     /**
      * Create a new (unique) RequestId. (abstract)
      * <p>
-     * This method must be implemented by the specialized class to generate a new id from data in the persistant store. This id is used to create a new request object.
+     * This method must be implemented by the specialized class to generate a new id from data in the persistant store.
+     * This id is used to create a new request object.
      * <p>
      * 
      * @return
@@ -106,7 +109,8 @@ public abstract class ARequestQueue
      * <p>
      * This function is called to create the in-memory version of a request object.
      * <p>
-     * The implementation of this object can use the createRequest member function to create a new instance of an IRequest, and use the setRequestStatus, setCreationTime and setModificationTime functions to set those values.
+     * The implementation of this object can use the createRequest member function to create a new instance of an
+     * IRequest, and use the setRequestStatus, setCreationTime and setModificationTime functions to set those values.
      * <p>
      * 
      * @param id
@@ -154,7 +158,9 @@ public abstract class ARequestQueue
      * Get complete list of RequestId values found i this
      * queue.
      * <p>
-     * This method can form the basis for creating other types of search/list operations (although there are probably more efficient ways of doing this. ARequestQueue implements default versions of some of the searching by using this method as a basis.
+     * This method can form the basis for creating other types of search/list operations (although there are probably
+     * more efficient ways of doing this. ARequestQueue implements default versions of some of the searching by using
+     * this method as a basis.
      * <p>
      * TODO: return IRequestList -or- just use listRequests as the basic engine.
      * <p>
@@ -500,7 +506,8 @@ public abstract class ARequestQueue
     /**
      * Implements IRequestQueue.listRequests
      * <p>
-     * Should be overridden by the specialized class if a more efficient method is available for implementing this operation.
+     * Should be overridden by the specialized class if a more efficient method is available for implementing this
+     * operation.
      * <P>
      * 
      * @see IRequestQueue#listRequests
@@ -512,7 +519,8 @@ public abstract class ARequestQueue
     /**
      * Implements IRequestQueue.listRequestsByStatus
      * <p>
-     * Should be overridden by the specialized class if a more efficient method is available for implementing this operation.
+     * Should be overridden by the specialized class if a more efficient method is available for implementing this
+     * operation.
      * <P>
      * 
      * @see IRequestQueue#listRequestsByStatus

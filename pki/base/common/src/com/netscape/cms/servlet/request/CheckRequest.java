@@ -138,7 +138,8 @@ public class CheckRequest extends CMSServlet {
      * Process the HTTP request.
      * <ul>
      * <li>http.param requestId ID of the request to check
-     * <li>http.param format if 'id', then check the request based on the request ID parameter. If set to CMC, then use the 'queryPending' parameter.
+     * <li>http.param format if 'id', then check the request based on the request ID parameter. If set to CMC, then use
+     * the 'queryPending' parameter.
      * <li>http.param queryPending query formatted as a CMC request
      * </ul>
      * 

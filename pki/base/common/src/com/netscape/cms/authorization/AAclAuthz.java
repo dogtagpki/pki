@@ -40,7 +40,8 @@ import com.netscape.cmsutil.util.Utils;
  * An abstract class represents an authorization manager that governs the
  * access of internal resources such as servlets.
  * It parses in the ACLs associated with each protected
- * resources, and provides protected method <CODE>checkPermission</CODE> for code that needs to verify access before performing
+ * resources, and provides protected method <CODE>checkPermission</CODE> for code that needs to verify access before
+ * performing
  * actions.
  * <P>
  * Here is a sample resourceACLS for a resource
@@ -52,7 +53,8 @@ import com.netscape.cmsutil.util.Utils;
  *           allow (execute) group="Administrators";
  * </PRE>
  * 
- * To perform permission checking, code call authz mgr authorize() method to verify access. See AuthzMgr for calling example.
+ * To perform permission checking, code call authz mgr authorize() method to verify access. See AuthzMgr for calling
+ * example.
  * <P>
  * default "evaluators" are used to evaluate the "group=.." or "user=.." rules. See evaluator for more info
  * 
@@ -234,12 +236,19 @@ public abstract class AAclAuthz {
      * marked as privileged, this methods will simply
      * return.
      * <P>
-     * note that if a resource does not exist in the aclResources entry, but a higher level node exist, it will still be evaluated. The highest level node's acl determines the permission. If the higher level node doesn't contain any acl information, then it's passed down to the lower node. If a node has no aci in its resourceACLs, then it's considered passed.
+     * note that if a resource does not exist in the aclResources entry, but a higher level node exist, it will still be
+     * evaluated. The highest level node's acl determines the permission. If the higher level node doesn't contain any
+     * acl information, then it's passed down to the lower node. If a node has no aci in its resourceACLs, then it's
+     * considered passed.
      * <p>
-     * example: certServer.common.users, if failed permission check for "certServer", then it's considered failed, and there is no need to continue the check. If passed permission check for "certServer", then it's considered passed, and no need to continue the check. If certServer contains no aci then "certServer.common" will be checked for permission instead. If down to the leaf level, the node still contains no aci, then it's considered passed. If at the leaf level, no such resource exist, or
-     * no acis, it's considered passed.
+     * example: certServer.common.users, if failed permission check for "certServer", then it's considered failed, and
+     * there is no need to continue the check. If passed permission check for "certServer", then it's considered passed,
+     * and no need to continue the check. If certServer contains no aci then "certServer.common" will be checked for
+     * permission instead. If down to the leaf level, the node still contains no aci, then it's considered passed. If at
+     * the leaf level, no such resource exist, or no acis, it's considered passed.
      * <p>
-     * If there are multiple aci's for a resource, ALL aci's will be checked, and only if all passed permission checks, will the eventual access be granted.
+     * If there are multiple aci's for a resource, ALL aci's will be checked, and only if all passed permission checks,
+     * will the eventual access be granted.
      * 
      * @param name resource name
      * @param perm permission requested
@@ -293,9 +302,13 @@ public abstract class AAclAuthz {
      * Checks if the permission is granted or denied in
      * the current execution context.
      * <P>
-     * An <code>ACL</code> may contain one or more <code>ACLEntry</code>. However, in case of multiple <code>ACLEntry</code>, a subject must pass ALL of the <code>ACLEntry</code> evaluation for permission to be granted
+     * An <code>ACL</code> may contain one or more <code>ACLEntry</code>. However, in case of multiple
+     * <code>ACLEntry</code>, a subject must pass ALL of the <code>ACLEntry</code> evaluation for permission to be
+     * granted
      * <P>
-     * negative ("deny") aclEntries are treated differently than positive ("allow") statements. If a negative aclEntries fails the acl check, the permission check will return "false" right away; while in the case of a positive aclEntry, if the the aclEntry fails the acl check, the next aclEntry will be evaluated.
+     * negative ("deny") aclEntries are treated differently than positive ("allow") statements. If a negative aclEntries
+     * fails the acl check, the permission check will return "false" right away; while in the case of a positive
+     * aclEntry, if the the aclEntry fails the acl check, the next aclEntry will be evaluated.
      * 
      * @param name resource name
      * @param perm permission requested
@@ -447,12 +460,19 @@ public abstract class AAclAuthz {
      * marked as privileged, this methods will simply
      * return.
      * <P>
-     * note that if a resource does not exist in the aclResources entry, but a higher level node exist, it will still be evaluated. The highest level node's acl determines the permission. If the higher level node doesn't contain any acl information, then it's passed down to the lower node. If a node has no aci in its resourceACLs, then it's considered passed.
+     * note that if a resource does not exist in the aclResources entry, but a higher level node exist, it will still be
+     * evaluated. The highest level node's acl determines the permission. If the higher level node doesn't contain any
+     * acl information, then it's passed down to the lower node. If a node has no aci in its resourceACLs, then it's
+     * considered passed.
      * <p>
-     * example: certServer.common.users, if failed permission check for "certServer", then it's considered failed, and there is no need to continue the check. If passed permission check for "certServer", then it's considered passed, and no need to continue the check. If certServer contains no aci then "certServer.common" will be checked for permission instead. If down to the leaf level, the node still contains no aci, then it's considered passed. If at the leaf level, no such resource exist, or
-     * no acis, it's considered passed.
+     * example: certServer.common.users, if failed permission check for "certServer", then it's considered failed, and
+     * there is no need to continue the check. If passed permission check for "certServer", then it's considered passed,
+     * and no need to continue the check. If certServer contains no aci then "certServer.common" will be checked for
+     * permission instead. If down to the leaf level, the node still contains no aci, then it's considered passed. If at
+     * the leaf level, no such resource exist, or no acis, it's considered passed.
      * <p>
-     * If there are multiple aci's for a resource, ALL aci's will be checked, and only if all passed permission checks, will the eventual access be granted.
+     * If there are multiple aci's for a resource, ALL aci's will be checked, and only if all passed permission checks,
+     * will the eventual access be granted.
      * 
      * @param authToken authentication token gotten from authentication
      * @param name resource name

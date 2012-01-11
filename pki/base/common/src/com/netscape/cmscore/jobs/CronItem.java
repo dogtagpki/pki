@@ -27,7 +27,8 @@ import com.netscape.certsrv.logging.ILogger;
 /**
  * class representing one Job cron item
  * <p>
- * here, an "item" refers to one of the 5 fields in a cron string; "element" refers to any comma-deliminated element in an "item"...which includes both numbers and '-' separated ranges.
+ * here, an "item" refers to one of the 5 fields in a cron string; "element" refers to any comma-deliminated element in
+ * an "item"...which includes both numbers and '-' separated ranges.
  * <p>
  * for each of the 5 cron fields, it's represented as a CronItem
  * 

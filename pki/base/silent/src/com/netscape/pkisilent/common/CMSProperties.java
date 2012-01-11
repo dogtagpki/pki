@@ -47,12 +47,20 @@ import java.util.Hashtable;
  * or loaded from a stream. Each key and its corresponding value in
  * the property list is a string.
  * <p>
- * A property list can contain another property list as its "defaults"; this second property list is searched if the property key is not found in the original property list.
+ * A property list can contain another property list as its "defaults"; this second property list is searched if the
+ * property key is not found in the original property list.
  * <p>
- * Because <code>Properties</code> inherits from <code>Hashtable</code>, the <code>put</code> and <code>putAll</code> methods can be applied to a <code>Properties</code> object. Their use is strongly discouraged as they allow the caller to insert entries whose keys or values are not <code>Strings</code>. The <code>setProperty</code> method should be used instead. If the <code>store</code> or <code>save</code> method is called on a "compromised" <code>Properties</code> object that contains a non-
- * <code>String</code> key or value, the call will fail.
+ * Because <code>Properties</code> inherits from <code>Hashtable</code>, the <code>put</code> and <code>putAll</code>
+ * methods can be applied to a <code>Properties</code> object. Their use is strongly discouraged as they allow the
+ * caller to insert entries whose keys or values are not <code>Strings</code>. The <code>setProperty</code> method
+ * should be used instead. If the <code>store</code> or <code>save</code> method is called on a "compromised"
+ * <code>Properties</code> object that contains a non- <code>String</code> key or value, the call will fail.
  * <p>
- * <a name="encoding"></a> When saving properties to a stream or loading them from a stream, the ISO 8859-1 character encoding is used. For characters that cannot be directly represented in this encoding, <a href="http://java.sun.com/docs/books/jls/html/3.doc.html#100850">Unicode escapes</a> are used; however, only a single 'u' character is allowed in an escape sequence. The native2ascii tool can be used to convert property files to and from other character encodings.
+ * <a name="encoding"></a> When saving properties to a stream or loading them from a stream, the ISO 8859-1 character
+ * encoding is used. For characters that cannot be directly represented in this encoding, <a
+ * href="http://java.sun.com/docs/books/jls/html/3.doc.html#100850">Unicode escapes</a> are used; however, only a single
+ * 'u' character is allowed in an escape sequence. The native2ascii tool can be used to convert property files to and
+ * from other character encodings.
  * 
  * @see <a href="../../../tooldocs/solaris/native2ascii.html">native2ascii tool for Solaris</a>
  * @see <a href="../../../tooldocs/win32/native2ascii.html">native2ascii tool for Windows</a>
@@ -120,15 +128,29 @@ class CMSProperties extends Hashtable<String, String> {
      * Reads a property list (key and element pairs) from the input stream.
      * The stream is assumed to be using the ISO 8859-1 character encoding.
      * <p>
-     * Every property occupies one line of the input stream. Each line is terminated by a line terminator (<code>\n</code> or <code>\r</code> or <code>\r\n</code>). Lines from the input stream are processed until end of file is reached on the input stream.
+     * Every property occupies one line of the input stream. Each line is terminated by a line terminator (
+     * <code>\n</code> or <code>\r</code> or <code>\r\n</code>). Lines from the input stream are processed until end of
+     * file is reached on the input stream.
      * <p>
-     * A line that contains only whitespace or whose first non-whitespace character is an ASCII <code>#</code> or <code>!</code> is ignored (thus, <code>#</code> or <code>!</code> indicate comment lines).
+     * A line that contains only whitespace or whose first non-whitespace character is an ASCII <code>#</code> or
+     * <code>!</code> is ignored (thus, <code>#</code> or <code>!</code> indicate comment lines).
      * <p>
-     * Every line other than a blank line or a comment line describes one property to be added to the table (except that if a line ends with \, then the following line, if it exists, is treated as a continuation line, as described below). The key consists of all the characters in the line starting with the first non-whitespace character and up to, but not including, the first ASCII <code>=</code>, <code>:</code>, or whitespace character. All of the key termination characters may be included in
-     * the key by preceding them with a \. Any whitespace after the key is skipped; if the first non-whitespace character after the key is <code>=</code> or <code>:</code>, then it is ignored and any whitespace characters after it are also skipped. All remaining characters on the line become part of the associated element string. Within the element string, the ASCII escape sequences <code>\t</code>, <code>\n</code>, <code>\r</code>, <code>\\</code>, <code>\"</code>, <code>\'</code>,
-     * <code>\ &#32;</code> &#32;(a backslash and a space), and <code>&#92;u</code><i>xxxx</i> are recognized and converted to single characters. Moreover, if the last character on the line is <code>\</code>, then the next line is treated as a continuation of the current line; the <code>\</code> and line terminator are simply discarded, and any leading whitespace characters on the continuation line are also discarded and are not part of the element string.
+     * Every line other than a blank line or a comment line describes one property to be added to the table (except that
+     * if a line ends with \, then the following line, if it exists, is treated as a continuation line, as described
+     * below). The key consists of all the characters in the line starting with the first non-whitespace character and
+     * up to, but not including, the first ASCII <code>=</code>, <code>:</code>, or whitespace character. All of the key
+     * termination characters may be included in the key by preceding them with a \. Any whitespace after the key is
+     * skipped; if the first non-whitespace character after the key is <code>=</code> or <code>:</code>, then it is
+     * ignored and any whitespace characters after it are also skipped. All remaining characters on the line become part
+     * of the associated element string. Within the element string, the ASCII escape sequences <code>\t</code>,
+     * <code>\n</code>, <code>\r</code>, <code>\\</code>, <code>\"</code>, <code>\'</code>, <code>\ &#32;</code> &#32;(a
+     * backslash and a space), and <code>&#92;u</code><i>xxxx</i> are recognized and converted to single characters.
+     * Moreover, if the last character on the line is <code>\</code>, then the next line is treated as a continuation of
+     * the current line; the <code>\</code> and line terminator are simply discarded, and any leading whitespace
+     * characters on the continuation line are also discarded and are not part of the element string.
      * <p>
-     * As an example, each of the following four lines specifies the key <code>"Truth"</code> and the associated element value <code>"Beauty"</code>:
+     * As an example, each of the following four lines specifies the key <code>"Truth"</code> and the associated element
+     * value <code>"Beauty"</code>:
      * <p>
      * 
      * <pre>
@@ -153,7 +175,9 @@ class CMSProperties extends Hashtable<String, String> {
      * &quot;apple, banana, pear, cantaloupe, watermelon,kiwi, mango&quot;
      * </pre>
      * 
-     * Note that a space appears before each <code>\</code> so that a space will appear after each comma in the final result; the <code>\</code>, line terminator, and leading whitespace on the continuation line are merely discarded and are <i>not</i> replaced by one or more other characters.
+     * Note that a space appears before each <code>\</code> so that a space will appear after each comma in the final
+     * result; the <code>\</code>, line terminator, and leading whitespace on the continuation line are merely discarded
+     * and are <i>not</i> replaced by one or more other characters.
      * <p>
      * As a third example, the line:
      * <p>
@@ -451,20 +475,34 @@ class CMSProperties extends Hashtable<String, String> {
     }
 
     /**
-     * Writes this property list (key and element pairs) in this <code>Properties</code> table to the output stream in a format suitable
+     * Writes this property list (key and element pairs) in this <code>Properties</code> table to the output stream in a
+     * format suitable
      * for loading into a <code>Properties</code> table using the <code>load</code> method.
      * The stream is written using the ISO 8859-1 character encoding.
      * <p>
-     * Properties from the defaults table of this <code>Properties</code> table (if any) are <i>not</i> written out by this method.
+     * Properties from the defaults table of this <code>Properties</code> table (if any) are <i>not</i> written out by
+     * this method.
      * <p>
-     * If the header argument is not null, then an ASCII <code>#</code> character, the header string, and a line separator are first written to the output stream. Thus, the <code>header</code> can serve as an identifying comment.
+     * If the header argument is not null, then an ASCII <code>#</code> character, the header string, and a line
+     * separator are first written to the output stream. Thus, the <code>header</code> can serve as an identifying
+     * comment.
      * <p>
-     * Next, a comment line is always written, consisting of an ASCII <code>#</code> character, the current date and time (as if produced by the <code>toString</code> method of <code>Date</code> for the current time), and a line separator as generated by the Writer.
+     * Next, a comment line is always written, consisting of an ASCII <code>#</code> character, the current date and
+     * time (as if produced by the <code>toString</code> method of <code>Date</code> for the current time), and a line
+     * separator as generated by the Writer.
      * <p>
-     * Then every entry in this <code>Properties</code> table is written out, one per line. For each entry the key string is written, then an ASCII <code>=</code>, then the associated element string. Each character of the element string is examined to see whether it should be rendered as an escape sequence. The ASCII characters <code>\</code>, tab, newline, and carriage return are written as <code>\\</code>, <code>\t</code>, <code>\n</code>, and <code>\r</code>, respectively. Characters less
-     * than <code>&#92;u0020</code> and characters greater than <code>&#92;u007E</code> are written as <code>&#92;u</code><i>xxxx</i> for the appropriate hexadecimal value <i>xxxx</i>. Leading space characters, but not embedded or trailing space characters, are written with a preceding <code>\</code>. The key and value characters <code>#</code>, <code>!</code>, <code>=</code>, and <code>:</code> are written with a preceding slash to ensure that they are properly loaded.
+     * Then every entry in this <code>Properties</code> table is written out, one per line. For each entry the key
+     * string is written, then an ASCII <code>=</code>, then the associated element string. Each character of the
+     * element string is examined to see whether it should be rendered as an escape sequence. The ASCII characters
+     * <code>\</code>, tab, newline, and carriage return are written as <code>\\</code>, <code>\t</code>,
+     * <code>\n</code>, and <code>\r</code>, respectively. Characters less than <code>&#92;u0020</code> and characters
+     * greater than <code>&#92;u007E</code> are written as <code>&#92;u</code><i>xxxx</i> for the appropriate
+     * hexadecimal value <i>xxxx</i>. Leading space characters, but not embedded or trailing space characters, are
+     * written with a preceding <code>\</code>. The key and value characters <code>#</code>, <code>!</code>,
+     * <code>=</code>, and <code>:</code> are written with a preceding slash to ensure that they are properly loaded.
      * <p>
-     * After the entries have been written, the output stream is flushed. The output stream remains open after this method returns.
+     * After the entries have been written, the output stream is flushed. The output stream remains open after this
+     * method returns.
      * 
      * @param out an output stream.
      * @param header a description of the property list.
@@ -505,7 +543,8 @@ class CMSProperties extends Hashtable<String, String> {
     /**
      * Searches for the property with the specified key in this property list.
      * If the key is not found in this property list, the default property list,
-     * and its defaults, recursively, are then checked. The method returns <code>null</code> if the property is not found.
+     * and its defaults, recursively, are then checked. The method returns <code>null</code> if the property is not
+     * found.
      * 
      * @param key the property key.
      * @return the value in this property list with the specified key value.

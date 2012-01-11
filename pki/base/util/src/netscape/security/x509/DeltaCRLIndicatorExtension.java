@@ -34,7 +34,9 @@ import netscape.security.util.DerValue;
  * Represent the Delta CRL Indicator Extension.
  * 
  * <p>
- * The delta CRL indicator is a critical CRL extension that identifies a delta-CRL. The value of BaseCRLNumber identifies the CRL number of the base CRL that was used as the starting point in the generation of this delta- CRL. The delta-CRL contains the changes between the base CRL and the current CRL issued along with the delta-CRL.
+ * The delta CRL indicator is a critical CRL extension that identifies a delta-CRL. The value of BaseCRLNumber
+ * identifies the CRL number of the base CRL that was used as the starting point in the generation of this delta- CRL.
+ * The delta-CRL contains the changes between the base CRL and the current CRL issued along with the delta-CRL.
  * 
  * @see Extension
  * @see CertAttrSet

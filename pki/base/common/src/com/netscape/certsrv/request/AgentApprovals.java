@@ -39,7 +39,8 @@ public class AgentApprovals
     /**
      * Adds an approval to approval's list.
      * <p>
-     * If an approval is already present for this user, it is updated with a new date. Otherwise a new value is inserted.
+     * If an approval is already present for this user, it is updated with a new date. Otherwise a new value is
+     * inserted.
      * 
      * @param userName user name of the approving agent
      */

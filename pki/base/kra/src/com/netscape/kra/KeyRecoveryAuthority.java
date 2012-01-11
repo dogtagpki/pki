@@ -725,8 +725,10 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      * <P>
      * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST used whenever a user private key archive request is made (this is when the DRM receives the request)
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST_PROCESSED used whenever a user private key archive request is processed (this is when the DRM processes the request)
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST used whenever a user private key archive
+     * request is made (this is when the DRM receives the request)
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST_PROCESSED used whenever a user private key
+     * archive request is processed (this is when the DRM processes the request)
      * </ul>
      * 
      * @param rec key record to be archived
@@ -971,8 +973,10 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      * <P>
      * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST used whenever a user private key recovery request is made (this is when the DRM receives the request)
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED used whenever a user private key recovery request is processed (this is when the DRM processes the request)
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST used whenever a user private key recovery request is
+     * made (this is when the DRM receives the request)
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED used whenever a user private key recovery
+     * request is processed (this is when the DRM processes the request)
      * </ul>
      * 
      * @param kid key identifier
@@ -1108,8 +1112,10 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
      * <P>
      * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST used whenever a user private key recovery request is made (this is when the DRM receives the request)
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED used whenever a user private key recovery request is processed (this is when the DRM processes the request)
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST used whenever a user private key recovery request is
+     * made (this is when the DRM receives the request)
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED used whenever a user private key recovery
+     * request is processed (this is when the DRM processes the request)
      * </ul>
      * 
      * @param requestID request id

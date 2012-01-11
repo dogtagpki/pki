@@ -351,7 +351,9 @@ public class CAService implements ICAService, IService {
      * <P>
      * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST used whenever a user private key archive request is made. This is an option in a cert enrollment request detected by an RA or a CA, so, if selected, it should be logged immediately following the certificate request.
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST used whenever a user private key archive
+     * request is made. This is an option in a cert enrollment request detected by an RA or a CA, so, if selected, it
+     * should be logged immediately following the certificate request.
      * </ul>
      * 
      * @param request a certificate enrollment request from an RA or CA

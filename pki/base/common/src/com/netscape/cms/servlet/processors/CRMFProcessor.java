@@ -90,7 +90,8 @@ public class CRMFProcessor extends PKIProcessor {
      * <P>
      * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_PROOF_OF_POSSESSION used when proof of possession is checked during certificate enrollment
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_PROOF_OF_POSSESSION used when proof of possession is checked during
+     * certificate enrollment
      * </ul>
      * 
      * @param certReqMsg the certificate request message

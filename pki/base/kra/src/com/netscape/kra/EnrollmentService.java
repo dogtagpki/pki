@@ -82,7 +82,8 @@ import com.netscape.cmscore.dbs.KeyRecord;
  * <P>
  * If policy returns ACCEPTED, the request will be processed immediately.
  * <P>
- * Upon processing, the incoming user key is unwrapped with the transport key of KRA, and then wrapped with the storage key. The encrypted key is stored in the internal database for long term storage.
+ * Upon processing, the incoming user key is unwrapped with the transport key of KRA, and then wrapped with the storage
+ * key. The encrypted key is stored in the internal database for long term storage.
  * <P>
  * 
  * @author thomask (original)

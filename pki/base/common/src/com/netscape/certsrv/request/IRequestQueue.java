@@ -59,7 +59,8 @@ public interface IRequestQueue {
      * except for the sourceID of the original request
      * (remote authority's request Id).
      * <p>
-     * The cloned request that is returned is LOCKED. The caller MUST release the request object by calling releaseRequest().
+     * The cloned request that is returned is LOCKED. The caller MUST release the request object by calling
+     * releaseRequest().
      * 
      * @param r request to be cloned
      * @return cloned request
@@ -112,7 +113,8 @@ public interface IRequestQueue {
      * only valid for requests with status BEGIN. An error is
      * generated for other cases.
      * <p>
-     * This call might be used by agent servlets that want to copy a previous request, and resubmit it. By putting it into PENDING state, the normal agent screens can be used for further processing.
+     * This call might be used by agent servlets that want to copy a previous request, and resubmit it. By putting it
+     * into PENDING state, the normal agent screens can be used for further processing.
      * 
      * @param req
      *            the request to mark PENDING
@@ -127,7 +129,8 @@ public interface IRequestQueue {
      * except for the sourceID of the original request
      * (remote authority's request Id).
      * <p>
-     * The cloned request that is returned is LOCKED. The caller MUST release the request object by calling releaseRequest().
+     * The cloned request that is returned is LOCKED. The caller MUST release the request object by calling
+     * releaseRequest().
      * 
      * @param r request to be cloned
      * @return cloned request mark PENDING
@@ -141,9 +144,11 @@ public interface IRequestQueue {
      * <p>
      * This call will fail if: the request is not in PENDING state the policy modules do not accept the request
      * <p>
-     * If the policy modules reject the request, then the request will remain in the PENDING state. Messages from the policy module can be display to the agent to indicate the source of the problem.
+     * If the policy modules reject the request, then the request will remain in the PENDING state. Messages from the
+     * policy module can be display to the agent to indicate the source of the problem.
      * <p>
-     * The request processing code adds an AgentApproval to this request that contains the authentication id of the agent. This data is retrieved from the Session object (qv).
+     * The request processing code adds an AgentApproval to this request that contains the authentication id of the
+     * agent. This data is retrieved from the Session object (qv).
      * 
      * @param request
      *            the request that is being approved
@@ -157,7 +162,8 @@ public interface IRequestQueue {
      * <p>
      * This call will fail if: the request is not in PENDING state
      * <p>
-     * The agent servlet (or other application) may wish to store AgentMessage values to indicate the reason for the action
+     * The agent servlet (or other application) may wish to store AgentMessage values to indicate the reason for the
+     * action
      * 
      * @param request
      *            the request that is being rejected
@@ -171,7 +177,8 @@ public interface IRequestQueue {
      * <p>
      * This call will fail if: the request is not in PENDING state
      * <p>
-     * The agent servlet (or other application) may wish to store AgentMessage values to indicate the reason for the action
+     * The agent servlet (or other application) may wish to store AgentMessage values to indicate the reason for the
+     * action
      * 
      * @param request
      *            the request that is being canceled
@@ -199,7 +206,8 @@ public interface IRequestQueue {
      * queue. The caller should use the RequestIds to locate
      * each request by calling findRequest().
      * <p>
-     * NOTE: This interface will not be useful for large databases. This needs to be replace by a VLV (paged) search object.
+     * NOTE: This interface will not be useful for large databases. This needs to be replace by a VLV (paged) search
+     * object.
      * 
      * @return request list
      */
@@ -211,7 +219,8 @@ public interface IRequestQueue {
      * requests could be listed by specifying RequestStatus.PENDING
      * as the <i>status</i> argument
      * <p>
-     * NOTE: This interface will not be useful for large databases. This needs to be replace by a VLV (paged) search object.
+     * NOTE: This interface will not be useful for large databases. This needs to be replace by a VLV (paged) search
+     * object.
      * 
      * @param status request status
      * @return request list
@@ -222,7 +231,8 @@ public interface IRequestQueue {
      * Returns an enumerator that lists all RequestIds for requests
      * that match the filter.
      * <p>
-     * NOTE: This interface will not be useful for large databases. This needs to be replace by a VLV (paged) search object.
+     * NOTE: This interface will not be useful for large databases. This needs to be replace by a VLV (paged) search
+     * object.
      * 
      * @param filter search filter
      * @return request list
@@ -233,7 +243,8 @@ public interface IRequestQueue {
      * Returns an enumerator that lists all RequestIds for requests
      * that match the filter.
      * <p>
-     * NOTE: This interface will not be useful for large databases. This needs to be replace by a VLV (paged) search object.
+     * NOTE: This interface will not be useful for large databases. This needs to be replace by a VLV (paged) search
+     * object.
      * 
      * @param filter search filter
      * @param maxSize max size to return
@@ -245,7 +256,8 @@ public interface IRequestQueue {
      * Returns an enumerator that lists all RequestIds for requests
      * that match the filter.
      * <p>
-     * NOTE: This interface will not be useful for large databases. This needs to be replace by a VLV (paged) search object.
+     * NOTE: This interface will not be useful for large databases. This needs to be replace by a VLV (paged) search
+     * object.
      * 
      * @param filter search filter
      * @param maxSize max size to return

@@ -106,7 +106,8 @@ public class X500NameSubsystem implements ISubsystem {
      * X500Name.attr.attribute-name.class=value converter class
      * </pre>
      * 
-     * The value converter class converts a string to a ASN.1 value. It must implement netscape.security.x509.AVAValueConverter interface. Converter classes provided in CMS are:
+     * The value converter class converts a string to a ASN.1 value. It must implement
+     * netscape.security.x509.AVAValueConverter interface. Converter classes provided in CMS are:
      * 
      * <pre>
      *     netscape.security.x509.PrintableConverter - 

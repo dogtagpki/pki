@@ -31,13 +31,18 @@ import com.netscape.certsrv.request.IRequest;
  * the request with additional values.
  * <p>
  * 
- * During request submission process, a default policy is invoked to populate the default values in the request. The default values will later on be used for execution. The default values are like the parameters for the request.
+ * During request submission process, a default policy is invoked to populate the default values in the request. The
+ * default values will later on be used for execution. The default values are like the parameters for the request.
  * <p>
  * 
- * This policy is called in 2 places. For automated enrollment request, this policy is invoked to populate the HTTP parameters into the request. For request that cannot be executed immediately, this policy will be invoked again right after the agent's approval.
+ * This policy is called in 2 places. For automated enrollment request, this policy is invoked to populate the HTTP
+ * parameters into the request. For request that cannot be executed immediately, this policy will be invoked again right
+ * after the agent's approval.
  * <p>
  * 
- * Each default policy may contain zero or more properties that describe the default value. For example, a X509 Key can be described by its key type, key length, and key data. The properties help to describe the default value into human readable values.
+ * Each default policy may contain zero or more properties that describe the default value. For example, a X509 Key can
+ * be described by its key type, key length, and key data. The properties help to describe the default value into human
+ * readable values.
  * <p>
  * 
  * @version $Revision$, $Date$

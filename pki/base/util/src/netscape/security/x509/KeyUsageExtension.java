@@ -32,7 +32,9 @@ import netscape.security.util.DerValue;
  * Represent the Key Usage Extension.
  * 
  * <p>
- * This extension, if present, defines the purpose (e.g., encipherment, signature, certificate signing) of the key contained in the certificate. The usage restriction might be employed when a multipurpose key is to be restricted (e.g., when an RSA key should be used only for signing or only for key encipherment).
+ * This extension, if present, defines the purpose (e.g., encipherment, signature, certificate signing) of the key
+ * contained in the certificate. The usage restriction might be employed when a multipurpose key is to be restricted
+ * (e.g., when an RSA key should be used only for signing or only for key encipherment).
  * 
  * @author Amit Kapoor
  * @author Hemma Prafullchandra

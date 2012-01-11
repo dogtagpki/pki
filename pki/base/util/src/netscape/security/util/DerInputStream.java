@@ -33,10 +33,13 @@ import java.util.Vector;
  * it uses the "Definite" Encoding Rules (DER) not the "Basic" ones (BER).
  * 
  * <P>
- * Note that, like BER/1, DER streams are streams of explicitly tagged data values. Accordingly, this programming interface does not expose any variant of the java.io.InputStream interface, since that kind of input stream holds untagged data values and using that I/O model could prevent correct parsing of the DER data.
+ * Note that, like BER/1, DER streams are streams of explicitly tagged data values. Accordingly, this programming
+ * interface does not expose any variant of the java.io.InputStream interface, since that kind of input stream holds
+ * untagged data values and using that I/O model could prevent correct parsing of the DER data.
  * 
  * <P>
- * At this time, this class supports only a subset of the types of DER data encodings which are defined. That subset is sufficient for parsing most X.509 certificates.
+ * At this time, this class supports only a subset of the types of DER data encodings which are defined. That subset is
+ * sufficient for parsing most X.509 certificates.
  * 
  * @version 1.35
  * 

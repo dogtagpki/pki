@@ -1680,7 +1680,8 @@ public abstract class CMSServlet extends HttpServlet {
      * <P>
      * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_AUTH_FAIL used when authentication fails (in case of SSL-client auth, only webserver env can pick up the SSL violation; CS authMgr can pick up cert mis-match, so this event is used)
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_AUTH_FAIL used when authentication fails (in case of SSL-client auth, only
+     * webserver env can pick up the SSL violation; CS authMgr can pick up cert mis-match, so this event is used)
      * <li>signed.audit LOGGING_SIGNED_AUDIT_AUTH_SUCCESS used when authentication succeeded
      * </ul>
      * 
@@ -1881,7 +1882,8 @@ public abstract class CMSServlet extends HttpServlet {
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_AUTHZ_FAIL used when authorization has failed
      * <li>signed.audit LOGGING_SIGNED_AUDIT_AUTHZ_SUCCESS used when authorization is successful
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_ROLE_ASSUME used when user assumes a role (in current CS that's when one accesses a role port)
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_ROLE_ASSUME used when user assumes a role (in current CS that's when one
+     * accesses a role port)
      * </ul>
      * 
      * @param authzMgrName string representing the name of the authorization

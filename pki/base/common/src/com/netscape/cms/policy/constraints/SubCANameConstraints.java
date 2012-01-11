@@ -78,7 +78,9 @@ public class SubCANameConstraints extends APolicyRule implements IEnrollmentPoli
      * Initializes this policy rule.
      * <P>
      * 
-     * The entries probably are of the form ra.Policy.rule.<ruleName>.implName=KeyAlgorithmConstraints ra.Policy.rule.<ruleName>.algorithms=RSA,DSA ra.Policy.rule.<ruleName>.enable=true ra.Policy.rule.<ruleName>.predicate=ou==Sales
+     * The entries probably are of the form ra.Policy.rule.<ruleName>.implName=KeyAlgorithmConstraints
+     * ra.Policy.rule.<ruleName>.algorithms=RSA,DSA ra.Policy.rule.<ruleName>.enable=true
+     * ra.Policy.rule.<ruleName>.predicate=ou==Sales
      * 
      * @param config The config store reference
      */

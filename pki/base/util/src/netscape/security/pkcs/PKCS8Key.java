@@ -77,7 +77,9 @@ public class PKCS8Key implements PrivateKey {
      * PKCS8Key object is returned.
      * 
      * <P>
-     * This mechanism gurantees that keys (and algorithms) may be freely manipulated and transferred, without risk of losing information. Also, when a key (or algorithm) needs some special handling, that specific need can be accomodated.
+     * This mechanism gurantees that keys (and algorithms) may be freely manipulated and transferred, without risk of
+     * losing information. Also, when a key (or algorithm) needs some special handling, that specific need can be
+     * accomodated.
      * 
      * @param in the DER-encoded SubjectPublicKeyInfo value
      * @exception IOException on data format errors
@@ -118,7 +120,8 @@ public class PKCS8Key implements PrivateKey {
      * DSS/DSA keys encapsulate a single unsigned integer.
      * 
      * <P>
-     * This function is called when creating PKCS#8 SubjectPublicKeyInfo values using the PKCS8Key member functions, such as <code>parse</code> and <code>decode</code>.
+     * This function is called when creating PKCS#8 SubjectPublicKeyInfo values using the PKCS8Key member functions,
+     * such as <code>parse</code> and <code>decode</code>.
      * 
      * @exception IOException if a parsing error occurs.
      * @exception InvalidKeyException if the key encoding is invalid.
@@ -288,7 +291,8 @@ public class PKCS8Key implements PrivateKey {
      * often used to encapsulate another DER encoded sequence.)
      * 
      * <P>
-     * Subclasses should not normally redefine this method; they should instead provide a <code>parseKeyBits</code> method to parse any fields inside the <code>key</code> member.
+     * Subclasses should not normally redefine this method; they should instead provide a <code>parseKeyBits</code>
+     * method to parse any fields inside the <code>key</code> member.
      * 
      * @param in an input stream with a DER-encoded PKCS#8
      *            SubjectPublicKeyInfo value

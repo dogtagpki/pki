@@ -37,10 +37,14 @@ import netscape.security.util.ObjectIdentifier;
  * defined according to OID and (where relevant) parameters.
  * 
  * <P>
- * Subclasses may be used, for example when when the algorithm ID has associated parameters which some code (e.g. code using public keys) needs to have parsed. Two examples of such algorithms are Diffie-Hellman key exchange, and the Digital Signature Standard Algorithm (DSS/DSA).
+ * Subclasses may be used, for example when when the algorithm ID has associated parameters which some code (e.g. code
+ * using public keys) needs to have parsed. Two examples of such algorithms are Diffie-Hellman key exchange, and the
+ * Digital Signature Standard Algorithm (DSS/DSA).
  * 
  * <P>
- * The OID constants defined in this class correspond to some widely used algorithms, for which conventional string names have been defined. This class is not a general repository for OIDs, or for such string names. Note that the mappings between algorithm IDs and algorithm names is not one-to-one.
+ * The OID constants defined in this class correspond to some widely used algorithms, for which conventional string
+ * names have been defined. This class is not a general repository for OIDs, or for such string names. Note that the
+ * mappings between algorithm IDs and algorithm names is not one-to-one.
  * 
  * @version 1.70
  * 
@@ -425,7 +429,8 @@ public class AlgorithmId implements Serializable, DerEncoder {
     /**
      * Returns the ISO OID for this algorithm. This is usually converted
      * to a string and used as part of an algorithm name, for example
-     * "OID.1.3.14.3.2.13" style notation. Use the <code>getName</code> call when you do not need to ensure cross-system portability
+     * "OID.1.3.14.3.2.13" style notation. Use the <code>getName</code> call when you do not need to ensure cross-system
+     * portability
      * of algorithm names, or need a user friendly name.
      */
     final public ObjectIdentifier getOID() {

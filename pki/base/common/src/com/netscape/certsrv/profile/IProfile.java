@@ -46,7 +46,8 @@ import com.netscape.cms.profile.common.ProfilePolicy;
  * The output policy is for building the result page.
  * <p>
  * 
- * Each profile can have multiple policy set. Each set is composed of zero or more default policies and zero or more constraint policies.
+ * Each profile can have multiple policy set. Each set is composed of zero or more default policies and zero or more
+ * constraint policies.
  * <p>
  * 
  * @version $Revision$, $Date$

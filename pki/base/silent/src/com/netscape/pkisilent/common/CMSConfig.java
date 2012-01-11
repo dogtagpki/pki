@@ -85,7 +85,8 @@ public class CMSConfig extends ServerInfo {
 
     // Enable DirectoryBased Authentication
     /**
-     * Takes parameters : secureConnection( true/false), basedn, ldaphostname, lapdaportnumber ( in case of secured connection give ldap secured port)
+     * Takes parameters : secureConnection( true/false), basedn, ldaphostname, lapdaportnumber ( in case of secured
+     * connection give ldap secured port)
      */
 
     public void EnableDirEnrollment(boolean secureConn, String ldapbase, String lhost, String lport) {
@@ -146,7 +147,8 @@ public class CMSConfig extends ServerInfo {
     }
 
     /**
-     * Takes parameters : secureConnection( true/false), ldapbinddn, ldapbindnpassword,ldaphostname, lapdaportnumber ( in case of secured connection give ldap secured port), basedn (e.g ou=people,o=mcom.com)
+     * Takes parameters : secureConnection( true/false), ldapbinddn, ldapbindnpassword,ldaphostname, lapdaportnumber (
+     * in case of secured connection give ldap secured port), basedn (e.g ou=people,o=mcom.com)
      */
 
     void EnablePortalAuth(boolean secureConn, String ldaprootDN, String ldaprootDNPW, String lhost, String lport,
@@ -207,7 +209,8 @@ public class CMSConfig extends ServerInfo {
 
     // Publishing 
     /**
-     * Takes parameters : secureConnection( true/false), ldapbinddn, ldapbindnpassword,ldaphostname, lapdaportnumber ( in case of secured connection give ldap secured port)
+     * Takes parameters : secureConnection( true/false), ldapbinddn, ldapbindnpassword,ldaphostname, lapdaportnumber (
+     * in case of secured connection give ldap secured port)
      */
 
     public void EnablePublishing(boolean secureConn, String ldaprootDN, String ldaprootDNPW, String lhost, String lport) {

@@ -51,9 +51,12 @@ import com.netscape.cmsutil.util.HMACDigest;
  * PKCS#10 certificate request with the public key, and outputs the request
  * to a file.
  * <p>
- * PKCS #10 is a certification request syntax standard defined by RSA. A CA may support multiple types of certificate requests. The Certificate System CA supports KEYGEN, PKCS#10, CRMF, and CMC.
+ * PKCS #10 is a certification request syntax standard defined by RSA. A CA may support multiple types of certificate
+ * requests. The Certificate System CA supports KEYGEN, PKCS#10, CRMF, and CMC.
  * <p>
- * To get a certificate from the CA, the certificate request needs to be submitted to and approved by a CA agent. Once approved, a certificate is created for the request, and certificate attributes, such as extensions, are populated according to certificate profiles.
+ * To get a certificate from the CA, the certificate request needs to be submitted to and approved by a CA agent. Once
+ * approved, a certificate is created for the request, and certificate attributes, such as extensions, are populated
+ * according to certificate profiles.
  * <p>
  * 
  * @version $Revision$, $Date$

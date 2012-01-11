@@ -94,7 +94,9 @@ public class SigningAlgorithmConstraints extends APolicyRule
      * Initializes this policy rule.
      * <P>
      * 
-     * The entries probably are of the form ra.Policy.rule.<ruleName>.implName=SigningAlgorithmConstraints ra.Policy.rule.<ruleName>.algorithms=SHA-1WithRSA, SHA-1WithDSA ra.Policy.rule.<ruleName>.enable=true ra.Policy.rule.<ruleName>.predicate=ou==Sales
+     * The entries probably are of the form ra.Policy.rule.<ruleName>.implName=SigningAlgorithmConstraints
+     * ra.Policy.rule.<ruleName>.algorithms=SHA-1WithRSA, SHA-1WithDSA ra.Policy.rule.<ruleName>.enable=true
+     * ra.Policy.rule.<ruleName>.predicate=ou==Sales
      * 
      * @param config The config store reference
      */

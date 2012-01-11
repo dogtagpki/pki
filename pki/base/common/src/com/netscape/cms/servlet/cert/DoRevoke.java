@@ -378,12 +378,15 @@ public class DoRevoke extends CMSServlet {
      * (Certificate Request - either an "agent" cert status change request, or an "EE" cert status change request)
      * <P>
      * 
-     * (Certificate Request Processed - either an "agent" cert status change request, or an "EE" cert status change request)
+     * (Certificate Request Processed - either an "agent" cert status change request, or an "EE" cert status change
+     * request)
      * <P>
      * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST used when a cert status change request (e. g. - "revocation") is made (before approval process)
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST_PROCESSED used when a certificate status is changed (revoked, expired, on-hold, off-hold)
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST used when a cert status change request (e. g. -
+     * "revocation") is made (before approval process)
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST_PROCESSED used when a certificate status is
+     * changed (revoked, expired, on-hold, off-hold)
      * </ul>
      * 
      * @param argSet CMS template parameters

@@ -37,7 +37,8 @@ import java.lang.reflect.Array;
 import java.util.Vector;
 
 /**
- * Testing class for the class ArgParser. Executing the <code>main</code> method of this class will perform a suite of tests to help verify correct
+ * Testing class for the class ArgParser. Executing the <code>main</code> method of this class will perform a suite of
+ * tests to help verify correct
  * operation of the parser class.
  * 
  * @author John E. Lloyd, Fall 2004

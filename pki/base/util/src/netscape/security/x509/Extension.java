@@ -29,10 +29,13 @@ import netscape.security.util.ObjectIdentifier;
  * Represent a X509 Extension Attribute.
  * 
  * <p>
- * Extensions are addiitonal attributes which can be inserted in a X509 v3 certificate. For example a "Driving License Certificate" could have the driving license number as a extension.
+ * Extensions are addiitonal attributes which can be inserted in a X509 v3 certificate. For example a
+ * "Driving License Certificate" could have the driving license number as a extension.
  * 
  * <p>
- * Extensions are represented as a sequence of the extension identifier (Object Identifier), a boolean flag stating whether the extension is to be treated as being critical and the extension value itself (this is again a DER encoding of the extension value).
+ * Extensions are represented as a sequence of the extension identifier (Object Identifier), a boolean flag stating
+ * whether the extension is to be treated as being critical and the extension value itself (this is again a DER encoding
+ * of the extension value).
  * 
  * <pre>
  * ASN.1 definition of Extension:

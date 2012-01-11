@@ -36,10 +36,13 @@ import netscape.security.x509.GenericValueConverter;
  * ("Definite" encoding) to encode any given value.
  * 
  * <P>
- * All DER-encoded data are triples <em>{type, length, data}</em>. This class represents such tagged values as they have been read (or constructed), and provides structured access to the encoded data.
+ * All DER-encoded data are triples <em>{type, length, data}</em>. This class represents such tagged values as they have
+ * been read (or constructed), and provides structured access to the encoded data.
  * 
  * <P>
- * At this time, this class supports only a subset of the types of DER data encodings which are defined. That subset is sufficient for parsing most X.509 certificates, and working with selected additional formats (such as PKCS #10 certificate requests, and some kinds of PKCS #7 data).
+ * At this time, this class supports only a subset of the types of DER data encodings which are defined. That subset is
+ * sufficient for parsing most X.509 certificates, and working with selected additional formats (such as PKCS #10
+ * certificate requests, and some kinds of PKCS #7 data).
  * 
  * @version 1.43
  * 

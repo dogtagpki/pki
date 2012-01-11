@@ -551,7 +551,8 @@ public class ProfileProcessServlet extends ProfileServlet {
      * <P>
      * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED used when a certificate request has just been through the approval process
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED used when a certificate request has just been
+     * through the approval process
      * </ul>
      * 
      * @param request the servlet request
@@ -607,7 +608,8 @@ public class ProfileProcessServlet extends ProfileServlet {
      * <P>
      * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED used when a certificate request has just been through the approval process
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED used when a certificate request has just been
+     * through the approval process
      * </ul>
      * 
      * @param request the servlet request
@@ -663,7 +665,8 @@ public class ProfileProcessServlet extends ProfileServlet {
      * <P>
      * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED used when a certificate request has just been through the approval process
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED used when a certificate request has just been
+     * through the approval process
      * </ul>
      * 
      * @param request the servlet request

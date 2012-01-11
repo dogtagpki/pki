@@ -220,7 +220,8 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
      * <P>
      * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CMC_SIGNED_REQUEST_SIG_VERIFY used when CMC (agent-pre-signed) cert requests or revocation requests are submitted and signature is verified
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CMC_SIGNED_REQUEST_SIG_VERIFY used when CMC (agent-pre-signed) cert
+     * requests or revocation requests are submitted and signature is verified
      * </ul>
      * 
      * @param authCred Authentication credentials, CRED_UID and CRED_CMC.

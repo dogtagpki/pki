@@ -40,7 +40,8 @@ import com.netscape.certsrv.authentication.ECompSyntaxErr;
  * subject name from ldap attributes and dn.
  * <p>
  * 
- * dnpattern is a string representing a subject name pattern to formulate from the directory attributes and entry dn. If empty or not set, the ldap entry DN will be used as the certificate subject name.
+ * dnpattern is a string representing a subject name pattern to formulate from the directory attributes and entry dn. If
+ * empty or not set, the ldap entry DN will be used as the certificate subject name.
  * <p>
  * 
  * The syntax is

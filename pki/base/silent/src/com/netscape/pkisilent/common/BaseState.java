@@ -48,7 +48,8 @@ public class BaseState {
     }
 
     /**
-     * Set the publishing directory information . Takes the paramters ldaphost,ldapport,ldapDN, ldapDN password, BaseDN , Secure coonection (true/false)
+     * Set the publishing directory information . Takes the paramters ldaphost,ldapport,ldapDN, ldapDN password, BaseDN
+     * , Secure coonection (true/false)
      */
     public void setLDAPInfo(String h, String p, String dn, String pw, String base, boolean sc) {
         ldaphost = h;

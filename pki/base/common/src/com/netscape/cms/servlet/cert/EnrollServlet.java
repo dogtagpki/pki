@@ -315,9 +315,12 @@ public class EnrollServlet extends CMSServlet {
     /**
      * Process the HTTP request.
      * <UL>
-     * <LI>If the request is coming through the admin port, it is only allowed to continue if 'admin enrollment' is enabled in the CMS.cfg file
-     * <LI>If the CMS.cfg parameter useThreadNaming is true, the current thread is renamed with more information about the current request ID
-     * <LI>The request is preprocessed, then processed further in one of the cert request processor classes: KeyGenProcessor, PKCS10Processor, CMCProcessor, CRMFProcessor
+     * <LI>If the request is coming through the admin port, it is only allowed to continue if 'admin enrollment' is
+     * enabled in the CMS.cfg file
+     * <LI>If the CMS.cfg parameter useThreadNaming is true, the current thread is renamed with more information about
+     * the current request ID
+     * <LI>The request is preprocessed, then processed further in one of the cert request processor classes:
+     * KeyGenProcessor, PKCS10Processor, CMCProcessor, CRMFProcessor
      * </UL>
      * 
      * @param cmsReq the object holding the request and response information
@@ -690,15 +693,20 @@ public class EnrollServlet extends CMSServlet {
      * Process X509 certificate enrollment request
      * <P>
      * 
-     * (Certificate Request - either an "admin" cert request for an admin certificate, an "agent" cert request for "bulk enrollment", or an "EE" standard cert request)
+     * (Certificate Request - either an "admin" cert request for an admin certificate, an "agent" cert request for
+     * "bulk enrollment", or an "EE" standard cert request)
      * <P>
      * 
-     * (Certificate Request Processed - either an automated "admin" non-profile based CA admin cert acceptance, an automated "admin" non-profile based CA admin cert rejection, an automated "EE" non-profile based cert acceptance, or an automated "EE" non-profile based cert rejection)
+     * (Certificate Request Processed - either an automated "admin" non-profile based CA admin cert acceptance, an
+     * automated "admin" non-profile based CA admin cert rejection, an automated "EE" non-profile based cert acceptance,
+     * or an automated "EE" non-profile based cert rejection)
      * <P>
      * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_NON_PROFILE_CERT_REQUEST used when a non-profile cert request is made (before approval process)
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED used when a certificate request has just been through the approval process
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_NON_PROFILE_CERT_REQUEST used when a non-profile cert request is made
+     * (before approval process)
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED used when a certificate request has just been
+     * through the approval process
      * </ul>
      * 
      * @param cmsReq a certificate enrollment request

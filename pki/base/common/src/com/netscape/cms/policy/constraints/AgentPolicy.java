@@ -58,7 +58,9 @@ public class AgentPolicy extends APolicyRule
      * 
      * The entries may be of the form:
      * 
-     * ra.Policy.rule.<ruleName>.implName=AgentPolicy ra.Policy.rule.<ruleName>.enable=true ra.Policy.rule.<ruleName>.predicate= ou == engineering AND o == netscape.com ra.Policy.rule.<ruleName>.class=xxxx ra.Policy.rule.<ruleName>.params.*
+     * ra.Policy.rule.<ruleName>.implName=AgentPolicy ra.Policy.rule.<ruleName>.enable=true
+     * ra.Policy.rule.<ruleName>.predicate= ou == engineering AND o == netscape.com ra.Policy.rule.<ruleName>.class=xxxx
+     * ra.Policy.rule.<ruleName>.params.*
      * 
      * @param config The config store reference
      */

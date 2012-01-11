@@ -91,7 +91,8 @@ public class RevocationConstraints extends APolicyRule
      * 
      * The entries probably are of the form:
      * 
-     * ra.Policy.rule.<ruleName>.implName=ValidityConstraints ra.Policy.rule.<ruleName>.enable=true ra.Policy.rule.<ruleName>.allowExpiredCerts=true
+     * ra.Policy.rule.<ruleName>.implName=ValidityConstraints ra.Policy.rule.<ruleName>.enable=true
+     * ra.Policy.rule.<ruleName>.allowExpiredCerts=true
      * 
      * @param config The config store reference
      */

@@ -96,7 +96,8 @@ public class BasicConstraintsExt extends APolicyRule
      * <p>
      * The entries may be of the form:
      * 
-     * ca.Policy.rule.<ruleName>.implName=BasicConstraintsExtImpl ca.Policy.rule.<ruleName>.pathLen=<n>, -1 for undefined. ca.Policy.rule.<ruleName>.enable=true
+     * ca.Policy.rule.<ruleName>.implName=BasicConstraintsExtImpl ca.Policy.rule.<ruleName>.pathLen=<n>, -1 for
+     * undefined. ca.Policy.rule.<ruleName>.enable=true
      * 
      * @param config The config store reference
      */

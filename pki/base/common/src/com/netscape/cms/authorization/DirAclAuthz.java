@@ -254,7 +254,9 @@ public class DirAclAuthz extends AAclAuthz
     /**
      * update acls. when memory update is done, flush to ldap.
      * <p>
-     * Currently, it is possible that when the memory is updated successfully, and the ldap isn't, the memory upates lingers. The result is that the changes will only be done on ldap at the next update, or when the system shuts down, another flush will be attempted.
+     * Currently, it is possible that when the memory is updated successfully, and the ldap isn't, the memory upates
+     * lingers. The result is that the changes will only be done on ldap at the next update, or when the system shuts
+     * down, another flush will be attempted.
      * 
      * @param id is the resource id
      * @param rights The allowable rights for this resource

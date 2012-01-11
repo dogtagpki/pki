@@ -38,7 +38,8 @@ import java.util.TimeZone;
  * that byte array.
  * 
  * <P>
- * At this time, this class supports only a subset of the types of DER data encodings which are defined. That subset is sufficient for generating most X.509 certificates.
+ * At this time, this class supports only a subset of the types of DER data encodings which are defined. That subset is
+ * sufficient for generating most X.509 certificates.
  * 
  * @version 1.32
  * 
@@ -613,7 +614,8 @@ public class DerOutputStream
      * Marshals a DER UTC time/date value.
      * 
      * <P>
-     * YYMMDDhhmmss{Z|+hhmm|-hhmm} ... emits only using Zulu time and with seconds (even if seconds=0) as per IETF-PKIX partI.
+     * YYMMDDhhmmss{Z|+hhmm|-hhmm} ... emits only using Zulu time and with seconds (even if seconds=0) as per IETF-PKIX
+     * partI.
      */
     public void putUTCTime(Date d) throws IOException {
         /*
@@ -642,7 +644,8 @@ public class DerOutputStream
      * Marshals a DER Generalized Time/date value.
      * 
      * <P>
-     * YYYYMMDDhhmmss{Z|+hhmm|-hhmm} ... emits only using Zulu time and with seconds (even if seconds=0) as per IETF-PKIX partI.
+     * YYYYMMDDhhmmss{Z|+hhmm|-hhmm} ... emits only using Zulu time and with seconds (even if seconds=0) as per
+     * IETF-PKIX partI.
      */
     public void putGeneralizedTime(Date d) throws IOException {
         /*

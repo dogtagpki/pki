@@ -22,9 +22,11 @@ import com.netscape.certsrv.request.IRequest;
 /**
  * This interface represents an enrollment profile.
  * <p>
- * An enrollment profile contains a list of enrollment specific input plugins, default policies, constriant policies and output plugins.
+ * An enrollment profile contains a list of enrollment specific input plugins, default policies, constriant policies and
+ * output plugins.
  * <p>
- * This interface also defines a set of enrollment specific attribute names that can be used to retrieve values from an enrollment request.
+ * This interface also defines a set of enrollment specific attribute names that can be used to retrieve values from an
+ * enrollment request.
  * <p>
  * 
  * @version $Revision$, $Date$

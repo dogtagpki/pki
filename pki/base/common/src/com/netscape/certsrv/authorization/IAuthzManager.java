@@ -64,7 +64,8 @@ public interface IAuthzManager {
      * own authorization information before full operation. It is supposed
      * to be called from the authzMgrAccessInit() method of the AuthzSubsystem.
      * <p>
-     * The accessInfo format is determined by each individual authzmgr. For example, for BasicAclAuthz, The accessInfo is the resACLs, whose format should conform to the following:
+     * The accessInfo format is determined by each individual authzmgr. For example, for BasicAclAuthz, The accessInfo
+     * is the resACLs, whose format should conform to the following:
      * 
      * <pre>
      *    <resource ID>:right-1[,right-n]:[allow,deny](right(s))<evaluatorType>=<value>:<comment for this resource acl

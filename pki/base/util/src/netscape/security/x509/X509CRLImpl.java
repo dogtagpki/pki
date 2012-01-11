@@ -55,9 +55,11 @@ import netscape.security.util.ObjectIdentifier;
  * <pre>
  * </pre>
  * <p>
- * CertificateList ::= SEQUENCE { tbsCertList TBSCertList, signatureAlgorithm AlgorithmIdentifier, signature BIT STRING }
+ * CertificateList ::= SEQUENCE { tbsCertList TBSCertList, signatureAlgorithm AlgorithmIdentifier, signature BIT STRING
+ * }
  * <p>
- * A good description and profiling is provided in the IETF PKIX WG draft, Part I: X.509 Certificate and CRL Profile, &lt;draft-ietf-pkix-ipki-part1-06.txt&gt;.
+ * A good description and profiling is provided in the IETF PKIX WG draft, Part I: X.509 Certificate and CRL Profile,
+ * &lt;draft-ietf-pkix-ipki-part1-06.txt&gt;.
  * <p>
  * The ASN.1 definition of <code>tbsCertList</code> is:
  * 

@@ -484,7 +484,8 @@ public class PKCS9Attribute implements DerEncoder {
      * Arrays of length zero are accepted, though probably useless.
      * 
      * <P>
-     * The following table gives the class that <code>value</code> must have for a given attribute. Reasonable variants of these attributes are accepted; in particular, case does not matter.
+     * The following table gives the class that <code>value</code> must have for a given attribute. Reasonable variants
+     * of these attributes are accepted; in particular, case does not matter.
      * 
      * <P>
      * <TABLE BORDER CELLPADDING=8 ALIGN=CENTER>
@@ -761,7 +762,8 @@ public class PKCS9Attribute implements DerEncoder {
      * Write the DER encoding of this attribute to an output stream.
      * 
      * <P>
-     * N.B.: This method always encodes values of ChallengePassword and UnstructuredAddress attributes as ASN.1 <code>PrintableString</code>s, without checking whether they should be encoded as <code>T61String</code>s.
+     * N.B.: This method always encodes values of ChallengePassword and UnstructuredAddress attributes as ASN.1
+     * <code>PrintableString</code>s, without checking whether they should be encoded as <code>T61String</code>s.
      */
     public void derEncode(OutputStream out) throws IOException {
         DerOutputStream temp = new DerOutputStream();
