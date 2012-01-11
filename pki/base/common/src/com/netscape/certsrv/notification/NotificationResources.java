@@ -17,14 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.notification;
 
-
 import java.util.ListResourceBundle;
 
-
 /**
- * A class represents a resource bundle for the 
+ * A class represents a resource bundle for the
  * Mail Notification package
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class NotificationResources extends ListResourceBundle {

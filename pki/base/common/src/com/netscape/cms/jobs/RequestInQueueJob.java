@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.jobs;
 
-
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -37,25 +36,22 @@ import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 
-
 /**
- * A job for the Jobs Scheduler.  This job checks in the internal ldap
+ * A job for the Jobs Scheduler. This job checks in the internal ldap
  * db for requests currently in the request queue and send a summary
  * report to the administrator
  * <p>
  * the $TOKENS that are available for the this jobs's summary outer form are:<br>
  * <UL>
- * $InstanceID
- * $SummaryTotalNum
- * $ExecutionTime
+ * $InstanceID $SummaryTotalNum $ExecutionTime
  * </UL>
- *
+ * 
  * @version $Revision$, $Date$
  * @see com.netscape.certsrv.jobs.IJob
  * @see com.netscape.cms.jobs.AJobBase
  */
 public class RequestInQueueJob extends AJobBase
-    implements IJob, Runnable, IExtendedPluginInfo {
+        implements IJob, Runnable, IExtendedPluginInfo {
     protected static final String PROP_SUBSYSTEM_ID = "subsystemId";
 
     IAuthority mSub = null;
@@ -68,15 +64,15 @@ public class RequestInQueueJob extends AJobBase
      * console.
      */
     protected static String[] mConfigParams =
-        new String[] { 
-            "enabled",
-            "cron",
-            "subsystemId",
-            "summary.enabled",
-            "summary.emailSubject",
-            "summary.emailTemplate",
-            "summary.senderEmail",
-            "summary.recipientEmail"
+            new String[] {
+                    "enabled",
+                    "cron",
+                    "subsystemId",
+                    "summary.enabled",
+                    "summary.emailSubject",
+                    "summary.emailTemplate",
+                    "summary.senderEmail",
+                    "summary.recipientEmail"
         };
 
     /**
@@ -85,30 +81,31 @@ public class RequestInQueueJob extends AJobBase
     public String[] getExtendedPluginInfo(Locale locale) {
         String s[] = {
                 IExtendedPluginInfo.HELP_TEXT +
-                "; A job that checks for enrollment requests in the " +
-                "queue, and reports to recipientEmail",
+                        "; A job that checks for enrollment requests in the " +
+                        "queue, and reports to recipientEmail",
                 "cron;string;Format: minute hour dayOfMonth month " +
-                "dayOfWeek. Use '*' for 'every'. For dayOfWeek, 0 is Sunday",
+                        "dayOfWeek. Use '*' for 'every'. For dayOfWeek, 0 is Sunday",
                 "summary.senderEmail;string;Specify the address to be used " +
-                "as the email's 'sender'. Bounces go to this address.",
+                        "as the email's 'sender'. Bounces go to this address.",
                 "summary.recipientEmail;string;Who should receive summaries",
                 "enabled;boolean;Enable this plugin",
                 "summary.enabled;boolean;Enable the summary. You must enabled " +
-                "this for the job to work.",
+                        "this for the job to work.",
                 "summary.emailSubject;string;Subject of summary email",
                 "summary.emailTemplate;string;Fully qualified pathname of " +
-                "template file of email to be sent",
+                        "template file of email to be sent",
                 "subsystemId;choice(ca,ra);The type of subsystem this job is " +
-                "for",
+                        "for",
                 IExtendedPluginInfo.HELP_TOKEN +
-                ";configuration-jobrules-requestinqueuejob",
+                        ";configuration-jobrules-requestinqueuejob",
             };
 
         return s;
     }
-    
+
     /**
      * initialize from the configuration file
+     * 
      * @param id String name of this instance
      * @param implName string name of this implementation
      * @param config configuration store for this instance
@@ -137,7 +134,7 @@ public class RequestInQueueJob extends AJobBase
         if (mCron == null) {
             return;
         }
-		
+
         // parse cron string into a JobCron class
         IJobsScheduler scheduler = (IJobsScheduler) owner;
 
@@ -162,7 +159,8 @@ public class RequestInQueueJob extends AJobBase
      * summarize the queue status and mail it
      */
     public void run() {
-        if (mSummary == false) return;
+        if (mSummary == false)
+            return;
 
         Date date = CMS.getCurrentDate();
         long now = date.getTime();
@@ -171,7 +169,7 @@ public class RequestInQueueJob extends AJobBase
 
         int count = 0;
         IRequestList list =
-            mReqQ.listRequestsByStatus(RequestStatus.PENDING);
+                mReqQ.listRequestsByStatus(RequestStatus.PENDING);
 
         while (list != null && list.hasMoreElements()) {
             RequestId rid = list.nextRequestId();
@@ -196,23 +194,23 @@ public class RequestInQueueJob extends AJobBase
 
         buildContentParams(IEmailFormProcessor.TOKEN_ID, mId);
         buildContentParams(IEmailFormProcessor.TOKEN_SUMMARY_TOTAL_NUM,
-            String.valueOf(count));
+                String.valueOf(count));
         buildContentParams(IEmailFormProcessor.TOKEN_EXECUTION_TIME,
-            nowString);
+                nowString);
 
         IEmailFormProcessor emailFormProcessor = CMS.getEmailFormProcessor();
         String mailContent =
-            emailFormProcessor.getEmailContent(contentForm,
-                mContentParams);
+                emailFormProcessor.getEmailContent(contentForm,
+                        mContentParams);
 
         mailSummary(mailContent);
     }
 
     /**
-     * Returns a list of configuration parameter names. 
-     * The list is passed to the configuration console so instances of 
+     * Returns a list of configuration parameter names.
+     * The list is passed to the configuration console so instances of
      * this implementation can be configured through the console.
-     *
+     * 
      * @return String array of configuration parameter names.
      */
     public String[] getConfigParams() {

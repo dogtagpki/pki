@@ -17,9 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmsutil.radius;
 
-
 import java.io.IOException;
-
 
 public class PortLimitAttribute extends Attribute {
     private int _port = 0;

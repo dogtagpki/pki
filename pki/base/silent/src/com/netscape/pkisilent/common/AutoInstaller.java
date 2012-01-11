@@ -1,4 +1,5 @@
 package com.netscape.pkisilent.common;
+
 // --- BEGIN COPYRIGHT BLOCK ---
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -26,14 +27,11 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Properties;
 
-
-
 /**
- * CMS Test Framework. 
- * Use this class to Configure a  CA, RA,DRM,OCSP and SubCA subsystem.
+ * CMS Test Framework.
+ * Use this class to Configure a CA, RA,DRM,OCSP and SubCA subsystem.
  * This simulartes the installation wizard functions and helps to configure a CMS subsystem.
  */
-
 
 public class AutoInstaller {
 
@@ -54,10 +52,10 @@ public class AutoInstaller {
     private String configURL, deamonURL, certInstID;
     private String inputLine;
     private boolean st = false;
-  
+
     private String postQuery = null;
     private String propFileName;
-    private StringBuffer  spage = new StringBuffer();
+    private StringBuffer spage = new StringBuffer();
     // 4.5 server String CERTtokenName="Internal Key Storage Token";
     private String CERTtokenName = "internal";
 
@@ -70,7 +68,8 @@ public class AutoInstaller {
 
     // / Constructors 
 
-    public AutoInstaller() {}
+    public AutoInstaller() {
+    }
 
     /**
      * Constructor . Takes parameter Server Root .
@@ -81,7 +80,7 @@ public class AutoInstaller {
 
     // Set InternalDBVInfo
     /**
-     * Set Internal Database Information . Takes parameters internaldatabase hostname, internaldatabase port, internaldatabase name, internaldatabase binddn, internaldatabase password 
+     * Set Internal Database Information . Takes parameters internaldatabase hostname, internaldatabase port, internaldatabase name, internaldatabase binddn, internaldatabase password
      */
 
     public void setInternalDBInfo(String dbh, String dbp, String dbname, String dbdn, String dbpswd) {
@@ -109,7 +108,8 @@ public class AutoInstaller {
         } catch (Exception e) {
             System.out.println("exception " + e.getMessage());
             try {
-                if (f0 != null) f0.close();
+                if (f0 != null)
+                    f0.close();
             } catch (IOException ioe) {
                 System.out.println("IO Exception: " + ioe.getMessage());
             }
@@ -137,23 +137,25 @@ public class AutoInstaller {
             f2.write(b);
 
             f1.close();
-            f2.close(); 
+            f2.close();
             return true;
         } catch (Exception e) {
             System.out.println("exception " + e.getMessage());
             try {
-                if (f1 != null) f1.close();
+                if (f1 != null)
+                    f1.close();
             } catch (IOException ioe) {
                 System.out.println("IO Exception: " + ioe.getMessage());
             }
             try {
-                if (f2 != null) f2.close(); 
+                if (f2 != null)
+                    f2.close();
             } catch (IOException ioe) {
                 System.out.println("IO Exception: " + ioe.getMessage());
             }
             return false;
         }
- 
+
     }
 
     // Get RaSigning Cert 
@@ -199,8 +201,8 @@ public class AutoInstaller {
 
     // Set ClientDB Info;
     /**
-     * Sets Client Database information . Takes paramters : certdbdir, certdbpasswd, certnickanme 
-     */ 
+     * Sets Client Database information . Takes paramters : certdbdir, certdbpasswd, certnickanme
+     */
 
     public void setClientDBInfo(String cd, String pwd, String nickname) {
 
@@ -223,7 +225,7 @@ public class AutoInstaller {
     // Set Subsystem Information for Configuring 
 
     /**
-     * Takes parameters - sID- ServerID e.x cert1,  sRoot- ServerRootK kT- keyType "RSA/DSA" , kL - keylength (1024.2048) , cVD- certificate validity dates e.g 365 for 1 year, sdn - subsystems dn, sAdp - subsystem's Admin port, sAgp - subsystems's Agentport,seSP- subsystem's ee SSL port , sep- Subsystems ee port.
+     * Takes parameters - sID- ServerID e.x cert1, sRoot- ServerRootK kT- keyType "RSA/DSA" , kL - keylength (1024.2048) , cVD- certificate validity dates e.g 365 for 1 year, sdn - subsystems dn, sAdp - subsystem's Admin port, sAgp - subsystems's Agentport,seSP- subsystem's ee SSL port , sep- Subsystems ee port.
      */
 
     public void setSubSystemInfo(String sID, String sRoot, String kT, String kL, String hT, String cVD, String sdn, String sAdP, String sAgP, String seSP, String seP) {
@@ -286,7 +288,7 @@ public class AutoInstaller {
         certAdminUid = aduid;
         certAdminPWD = adp;
         SingleSignOnPWD = ssonpwd;
-        signingCert = "raSigningCert"; 
+        signingCert = "raSigningCert";
         certType = signingCert;
         subsystems = "tks";
         ra = "false";
@@ -440,7 +442,6 @@ public class AutoInstaller {
      * Confiures a RA Subsystem .Takes parameter : adminSubjectDN, adminUID, AdminPasswd, SingleSignonPasswd
      */
 
-
     public boolean ConfigureRA(String adn, String aduid, String adp, String ssonpwd) {
         certAdminName = adn;
         certAdminUid = aduid;
@@ -477,7 +478,6 @@ public class AutoInstaller {
      * Confiures a OCSP Subsystem .Takes parameter : adminSubjectDN, adminUID, AdminPasswd, SingleSignonPasswd
      */
 
-
     public boolean ConfigureOCSP(String adn, String aduid, String adp, String ssonpwd) {
         certAdminName = adn;
         certAdminUid = aduid;
@@ -513,7 +513,6 @@ public class AutoInstaller {
      * Confiures a KRA Subsystem .Takes parameter : adminSubjectDN, adminUID, AdminPasswd, SingleSignonPasswd
      */
 
-
     public boolean ConfigureKRA(String adn, String aduid, String adp, String ssonpwd) {
         certAdminName = adn;
         certAdminUid = aduid;
@@ -547,7 +546,6 @@ public class AutoInstaller {
     /**
      * Confiures a SubCA Subsystem .Takes parameter : adminSubjectDN, adminUID, AdminPasswd, SingleSignonPasswd
      */
-
 
     public boolean ConfigureSubCA(String adn, String aduid, String adp, String ssonpwd) {
         certAdminName = adn;
@@ -594,7 +592,8 @@ public class AutoInstaller {
             System.out.println("exception " + e.getMessage());
         }
         try {
-            if (fis != null) fis.close();
+            if (fis != null)
+                fis.close();
         } catch (IOException ioe) {
             System.out.println("IO Exception: " + ioe.getMessage());
         }
@@ -629,7 +628,7 @@ public class AutoInstaller {
         spage = sm.getPage();
         return st;
     }
-	
+
     private boolean startDeamon() {
         // Set StringURL to connect , set the query string and Connect .Get the result 
         System.out.println("Log Info - configuring Cert Instance : Start Deamon");
@@ -726,13 +725,13 @@ public class AutoInstaller {
         query += "&opType=" + URLEncoder.encode("OP_MODIFY");
         query += "&taskID=" + URLEncoder.encode("selectSubsystems");
         query += "&cmsSeed=0";
-	
+
         if (subsystems.equals("ca")) {
             query += "&internaldb.ldapconn.host="
                     + URLEncoder.encode(dbConnHost);
             query += "&internaldb.ldapconn.port="
                     + URLEncoder.encode(dbConnPort);
-	
+
         }
         if (subsystems.equals("ra")) {
             query += "&caHostname=" + caHostname;
@@ -978,8 +977,8 @@ public class AutoInstaller {
             query += "&aki=true";
             query += "&keyUsage=true";
             query += "&caSigningCertReqFormat=PKCS10";
-        }			
-	
+        }
+
         if (subsystems.equals("ra")) {
             query += "&aki=" + URLEncoder.encode(aki);
             query += "&keyUsage=" + URLEncoder.encode("true");
@@ -1013,7 +1012,7 @@ public class AutoInstaller {
         query += "&taskID=" + URLEncoder.encode("certRequest");
         query += "&caHostname=" + caHostname;
         query += "&caEEPort=" + caEEPort;
-        query += "&cmsSeed=0";	
+        query += "&cmsSeed=0";
 
         setPostQueryString(query);
         if (!Connect(myStringUrl)) {
@@ -1082,7 +1081,7 @@ public class AutoInstaller {
         query += "&serverRoot=" + URLEncoder.encode(serverRoot);
         query += "&caEEPort=" + caEEPort;
         query += "&caHostname=" + host;
-        query += "&caEEType=https";	
+        query += "&caEEType=https";
         query += "&opType=" + URLEncoder.encode("OP_MODIFY");
         query += "&taskID=" + URLEncoder.encode("reqSuccess");
         query += "&cmsSeed=0";
@@ -1103,7 +1102,7 @@ public class AutoInstaller {
 
                 // install cert
                 System.out.println(
-                        "configuring Cert Instance :  install cert :" + cert); 
+                        "configuring Cert Instance :  install cert :" + cert);
                 setConfigURL();
                 myStringUrl = "http://" + host + ":" + adminPort + configURL;
                 System.out.println(myStringUrl);
@@ -1115,7 +1114,7 @@ public class AutoInstaller {
 
                 if (certType.equals("raSigningCert")) {
                     query += "&nickname="
-                            + URLEncoder.encode(certType + " " + instanceID);	
+                            + URLEncoder.encode(certType + " " + instanceID);
                     raSigningCert = "-----BEGIN CERTIFICATE-----" + "\n"
                             + cr.getCert() + "\n"
                             + "-----END CERTIFICATE-----\n";
@@ -1128,30 +1127,30 @@ public class AutoInstaller {
                     kraTransportCert = cCrypto.normalize(cr.getCert());
                 }
 
-                if (certType.equals("serverCert")) {	
+                if (certType.equals("serverCert")) {
                     query += "&nickname="
-                            + URLEncoder.encode("Server-Cert" + " " + instanceID);	
+                            + URLEncoder.encode("Server-Cert" + " " + instanceID);
                 }
 
                 if (certType.equals("ocspSigningCert")) {
                     query += "&nickname="
                             + URLEncoder.encode(certType + " " + instanceID);
                 }
-		
+
                 query += "&pkcs10=" + URLEncoder.encode(cert);
                 query += "&opType=" + URLEncoder.encode("OP_MODIFY");
                 query += "&taskID=" + URLEncoder.encode("installCert");
                 query += "&cmsSeed=0";
 
                 setPostQueryString(query);
-                return(Connect(myStringUrl));	 
+                return (Connect(myStringUrl));
             }
 
         } else {
             System.out.println("Error: Request is not approved");
             return false;
         }
-        return true;     
+        return true;
     }
 
     private String getString(int m) {
@@ -1163,19 +1162,19 @@ public class AutoInstaller {
 
     private boolean createCert() {
         System.out.println("configuring Cert Instance : Create Cert");
-	
+
         // clauclate the validity dates for the cert.
         GregorianCalendar begin = new GregorianCalendar();
         GregorianCalendar end = new GregorianCalendar();
         Integer days = new Integer(certValidityDays);
 
         end.add(GregorianCalendar.DATE, days.intValue());
-	
+
         setConfigURL();
         String myStringUrl = "http://" + host + ":" + adminPort + configURL;
 
         System.out.println(myStringUrl);
-        
+
         String query = "AdminUserPassword=" + URLEncoder.encode(adminPWD);
 
         query += "&";
@@ -1225,7 +1224,7 @@ public class AutoInstaller {
         if (certType.equals("serverCert")) {
             query += "&sslServerBit=" + URLEncoder.encode("true");
             query += "&sslClientBit=" + URLEncoder.encode("true");
-	    
+
         } else {
             query += "&caOComponent=" + URLEncoder.encode(caOComponent);
             query += "&caCComponent=" + URLEncoder.encode("us");
@@ -1237,7 +1236,7 @@ public class AutoInstaller {
             query += "&mailCABit=" + URLEncoder.encode(mailCABit);
             query += "&objectSigningCABit="
                     + URLEncoder.encode(objectSigningCABit);
-	
+
         }
         query += "&hashType=" + URLEncoder.encode(hashType);
 
@@ -1271,7 +1270,7 @@ public class AutoInstaller {
         query += "&pwcTokenname=" + URLEncoder.encode("internal");
 
         query += "&singlesignon=" + URLEncoder.encode(tokenPWD);
-	
+
         query += "&opType=" + URLEncoder.encode("OP_MODIFY");
         query += "&taskID=" + URLEncoder.encode("singleSignon");
         query += "&cmsSeed=0";
@@ -1308,7 +1307,7 @@ public class AutoInstaller {
     }
 
     private boolean exitDeamon() {
- 
+
         System.out.println("configuring Cert Instance : Exit Deamon");
         setDeamonURL();
         String myStringUrl = "http://" + host + ":" + adminPort + configURL;
@@ -2212,12 +2211,12 @@ public class AutoInstaller {
         }
         if (subsystems.equals("ocsp")) {
             return ConfOCSP();
-        } 
+        }
         if (subsystems.equals("kra")) {
             return ConfKRA();
         }
         if (subsystems.equals("subca")) {
-            subca = true;	
+            subca = true;
             subsystems = "ca";
             return ConfSubCA();
         }
@@ -2230,7 +2229,6 @@ public class AutoInstaller {
         // - 1  Configured and server Alive
         // - 0  Configured bur could not sart server 
 
-
         AutoInstaller t = new AutoInstaller();
 
         System.out.println(args.length);
@@ -2239,13 +2237,13 @@ public class AutoInstaller {
         if (args.length < 1) {
             System.out.println("Usage : PropertiesFilePath");
             System.exit(-1);
-        }   
-    
+        }
+
         System.out.println("configuring Cert Instance : Start");
 
         boolean st = t.readProperties();
 
-        if (st) { 
+        if (st) {
             System.out.println("Configuring Cert Instance : Successful");
             System.exit(1);
         } else {

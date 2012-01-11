@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.publish.mappers;
 
-
 import java.security.cert.CRLException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
@@ -34,9 +33,8 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.ILdapMapper;
 import com.netscape.certsrv.request.IRequest;
 
-
-/** 
- * Maps a X509 certificate to a LDAP entry using AVAs in the certificate's 
+/**
+ * Maps a X509 certificate to a LDAP entry using AVAs in the certificate's
  * subject name to form the ldap search dn and filter.
  * Takes a optional root search dn.
  * The DN comps are used to form a LDAP entry to begin a subtree search.
@@ -45,11 +43,11 @@ import com.netscape.certsrv.request.IRequest;
  * If the baseDN is null and none of the DN comps matched, it is an error.
  * If none of the DN comps and filter comps matched, it is an error.
  * If just the filter comps is null, a base search is performed.
- *
+ * 
  * @version $Revision$, $Date$
  */
-public class LdapCertCompsMap 
-    extends LdapDNCompsMap implements ILdapMapper {
+public class LdapCertCompsMap
+        extends LdapDNCompsMap implements ILdapMapper {
     ILogger mLogger = CMS.getLogger();
 
     public LdapCertCompsMap() {
@@ -57,9 +55,9 @@ public class LdapCertCompsMap
         // via configuration
     }
 
-    /** 
+    /**
      * Constructor.
-     *
+     * 
      * The DN comps are used to form a LDAP entry to begin a subtree search.
      * The filter comps are used to form a search filter for the subtree.
      * If none of the DN comps matched, baseDN is used for the subtree.
@@ -67,12 +65,12 @@ public class LdapCertCompsMap
      * If none of the DN comps and filter comps matched, it is an error.
      * If just the filter comps is null, a base search is performed.
      * 
-     * @param baseDN The base DN. 
+     * @param baseDN The base DN.
      * @param dnComps Components to form the LDAP base dn for search.
      * @param filterComps Components to form the LDAP search filter.
      */
     public LdapCertCompsMap(String baseDN, ObjectIdentifier[] dnComps,
-        ObjectIdentifier[] filterComps) {
+            ObjectIdentifier[] filterComps) {
         init(baseDN, dnComps, filterComps);
     }
 
@@ -99,20 +97,20 @@ public class LdapCertCompsMap
     /**
      * constructor using non-standard certificate attribute.
      */
-    public LdapCertCompsMap(String certAttr, String baseDN, 
-        ObjectIdentifier[] dnComps,
-        ObjectIdentifier[] filterComps) {
+    public LdapCertCompsMap(String certAttr, String baseDN,
+            ObjectIdentifier[] dnComps,
+            ObjectIdentifier[] filterComps) {
         super(certAttr, baseDN, dnComps, filterComps);
     }
 
     protected void init(String baseDN, ObjectIdentifier[] dnComps,
-        ObjectIdentifier[] filterComps) {
+            ObjectIdentifier[] filterComps) {
         super.init(baseDN, dnComps, filterComps);
     }
 
     /**
      * Maps a certificate to LDAP entry.
-     * Uses DN components and filter components to form a DN and 
+     * Uses DN components and filter components to form a DN and
      * filter for a LDAP search.
      * If the formed DN is null the baseDN will be used.
      * If the formed DN is null and baseDN is null an error is thrown.
@@ -123,16 +121,16 @@ public class LdapCertCompsMap
      * @param obj - the X509Certificate.
      */
     public String
-    map(LDAPConnection conn, Object obj)
-        throws ELdapException {
+            map(LDAPConnection conn, Object obj)
+                    throws ELdapException {
         if (conn == null)
             return null;
         try {
             X509Certificate cert = (X509Certificate) obj;
             String result = null;
             // form dn and filter for search.
-            X500Name subjectDN = 
-                (X500Name) ((X509Certificate) cert).getSubjectDN();
+            X500Name subjectDN =
+                    (X500Name) ((X509Certificate) cert).getSubjectDN();
 
             CMS.debug("LdapCertCompsMap: " + subjectDN.toString());
 
@@ -148,8 +146,8 @@ public class LdapCertCompsMap
             try {
                 X509CRLImpl crl = (X509CRLImpl) obj;
                 String result = null;
-                X500Name issuerDN = 
-                    (X500Name) ((X509CRLImpl) crl).getIssuerDN();
+                X500Name issuerDN =
+                        (X500Name) ((X509CRLImpl) crl).getIssuerDN();
 
                 CMS.debug("LdapCertCompsMap: " + issuerDN.toString());
 
@@ -168,14 +166,13 @@ public class LdapCertCompsMap
     }
 
     public String map(LDAPConnection conn, IRequest req, Object obj)
-        throws ELdapException {
+            throws ELdapException {
         return map(conn, obj);
     }
 
     private void log(int level, String msg) {
         mLogger.log(ILogger.EV_SYSTEM, ILogger.S_LDAP, level,
-            "LdapCertCompsMap: " + msg);
+                "LdapCertCompsMap: " + msg);
     }
 
 }
-

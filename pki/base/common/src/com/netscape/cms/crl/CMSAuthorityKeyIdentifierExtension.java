@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.crl;
 
-
 import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateParsingException;
@@ -43,21 +42,20 @@ import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.ILogger;
 
-
 /**
  * This represents an authority key identifier extension.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class CMSAuthorityKeyIdentifierExtension
-    implements ICMSCRLExtension, IExtendedPluginInfo {
+        implements ICMSCRLExtension, IExtendedPluginInfo {
     private ILogger mLogger = CMS.getLogger();
 
     public CMSAuthorityKeyIdentifierExtension() {
     }
 
     public Extension setCRLExtensionCriticality(Extension ext,
-        boolean critical) {
+            boolean critical) {
         AuthorityKeyIdentifierExtension authKeyIdExt = null;
         KeyIdentifier keyId = null;
         GeneralNames names = null;
@@ -78,8 +76,8 @@ public class CMSAuthorityKeyIdentifierExtension
     }
 
     public Extension getCRLExtension(IConfigStore config,
-        Object ip,
-        boolean critical) {
+            Object ip,
+            boolean critical) {
         AuthorityKeyIdentifierExtension authKeyIdExt = null;
         ICRLIssuingPoint crlIssuingPoint = (ICRLIssuingPoint) ip;
 
@@ -88,12 +86,12 @@ public class CMSAuthorityKeyIdentifierExtension
 
             try {
                 X509CertInfo info = (X509CertInfo)
-                    ((ICertificateAuthority) crlIssuingPoint.getCertificateAuthority()).getCACert().get(
-                        X509CertImpl.NAME + "." + X509CertImpl.INFO);
+                        ((ICertificateAuthority) crlIssuingPoint.getCertificateAuthority()).getCACert().get(
+                                X509CertImpl.NAME + "." + X509CertImpl.INFO);
 
                 if (info != null) {
-                    CertificateExtensions caCertExtensions = (CertificateExtensions) 
-                        info.get(X509CertInfo.EXTENSIONS);
+                    CertificateExtensions caCertExtensions = (CertificateExtensions)
+                            info.get(X509CertInfo.EXTENSIONS);
 
                     if (caCertExtensions != null) {
                         for (int i = 0; i < caCertExtensions.size(); i++) {
@@ -101,7 +99,7 @@ public class CMSAuthorityKeyIdentifierExtension
 
                             if (caCertExt instanceof SubjectKeyIdentifierExtension) {
                                 SubjectKeyIdentifierExtension id =
-                                    (SubjectKeyIdentifierExtension) caCertExt;
+                                        (SubjectKeyIdentifierExtension) caCertExt;
 
                                 keyId = (KeyIdentifier)
                                         id.get(SubjectKeyIdentifierExtension.KEY_ID);
@@ -148,11 +146,11 @@ public class CMSAuthorityKeyIdentifierExtension
                 "enable;boolean;Check to enable Authority Key Identifier CRL extension.",
                 "critical;boolean;Set criticality for Authority Key Identifier CRL extension.",
                 IExtendedPluginInfo.HELP_TOKEN +
-                ";configuration-ca-edit-crlextension-authoritykeyidentifier",
+                        ";configuration-ca-edit-crlextension-authoritykeyidentifier",
                 IExtendedPluginInfo.HELP_TEXT +
-                ";The authority key identifier extension provides a means " +
-                "of identifying the public key corresponding to the private " +
-                "key used to sign a CRL."
+                        ";The authority key identifier extension provides a means " +
+                        "of identifying the public key corresponding to the private " +
+                        "key used to sign a CRL."
             };
 
         return params;
@@ -160,6 +158,6 @@ public class CMSAuthorityKeyIdentifierExtension
 
     private void log(int level, String msg) {
         mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_CA, level,
-            "CMSAuthorityKeyIdentifierExtension - " + msg);
+                "CMSAuthorityKeyIdentifierExtension - " + msg);
     }
-} 
+}

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.request;
 
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -81,10 +80,9 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 
-
 /**
  * Check the status of a certificate request
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class CheckRequest extends CMSServlet {
@@ -116,15 +114,15 @@ public class CheckRequest extends CMSServlet {
     /**
      * Constructs request query servlet.
      */
-    public CheckRequest() 
-        throws EBaseException {
+    public CheckRequest()
+            throws EBaseException {
         super();
     }
 
     /**
      * initialize the servlet. This servlet uses the template file
      * "requestStatus.template" to process the response.
-     *
+     * 
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -140,12 +138,10 @@ public class CheckRequest extends CMSServlet {
      * Process the HTTP request.
      * <ul>
      * <li>http.param requestId ID of the request to check
-     * <li>http.param format if 'id', then check the request based on
-     *      the request ID parameter. If set to CMC, then use the
-     *      'queryPending' parameter.
+     * <li>http.param format if 'id', then check the request based on the request ID parameter. If set to CMC, then use the 'queryPending' parameter.
      * <li>http.param queryPending query formatted as a CMC request
      * </ul>
-     *
+     * 
      * @param cmsReq the object holding the request and response information
      */
     public void process(CMSRequest cmsReq) throws EBaseException {
@@ -166,10 +162,10 @@ public class CheckRequest extends CMSServlet {
                         mAuthzResourceName, "read");
         } catch (EAuthzAccessDenied e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
         } catch (Exception e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
         }
 
         if (authzToken == null) {
@@ -187,9 +183,9 @@ public class CheckRequest extends CMSServlet {
             form = getTemplate(mFormPath, req, locale);
         } catch (IOException e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()));
+                    CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
 
         IArgBlock header = CMS.createArgBlock();
@@ -212,13 +208,13 @@ public class CheckRequest extends CMSServlet {
                 isCMCReq = true;
                 byte[] cmcBlob = CMS.AtoB(queryPending);
                 ByteArrayInputStream cmcBlobIn =
-                    new ByteArrayInputStream(cmcBlob);
+                        new ByteArrayInputStream(cmcBlob);
 
                 org.mozilla.jss.pkix.cms.ContentInfo cii = (org.mozilla.jss.pkix.cms.ContentInfo)
-                    org.mozilla.jss.pkix.cms.ContentInfo.getTemplate().decode(cmcBlobIn);
+                        org.mozilla.jss.pkix.cms.ContentInfo.getTemplate().decode(cmcBlobIn);
                 SignedData cmcFullReq = (SignedData)
-                    cii.getInterpretedContent();
-			
+                        cii.getInterpretedContent();
+
                 EncapsulatedContentInfo ci = cmcFullReq.getContentInfo();
 
                 OBJECT_IDENTIFIER id = ci.getContentType();
@@ -235,7 +231,7 @@ public class CheckRequest extends CMSServlet {
 
                 for (int i = 0; i < numControls; i++) {
                     // decode message.
-                    TaggedAttribute  taggedAttr = (TaggedAttribute) controlSequence.elementAt(i);
+                    TaggedAttribute taggedAttr = (TaggedAttribute) controlSequence.elementAt(i);
                     OBJECT_IDENTIFIER type = taggedAttr.getType();
 
                     if (type.equals(OBJECT_IDENTIFIER.id_cmc_QueryPending)) {
@@ -246,18 +242,16 @@ public class CheckRequest extends CMSServlet {
                         // We only process one for now.
                         if (numReq > 0) {
                             OCTET_STRING reqId = (OCTET_STRING)
-                                ASN1Util.decode(OCTET_STRING.getTemplate(),
-                                    ASN1Util.encode(requestIds.elementAt(0)));
+                                    ASN1Util.decode(OCTET_STRING.getTemplate(),
+                                            ASN1Util.encode(requestIds.elementAt(0)));
 
                             requestId = new String(reqId.toByteArray());
                         }
                     } else if (type.equals(OBJECT_IDENTIFIER.id_cmc_transactionId)) {
                         transIds = taggedAttr.getValues();
-                    }else if
-                    (type.equals(OBJECT_IDENTIFIER.id_cmc_recipientNonce)) {
+                    } else if (type.equals(OBJECT_IDENTIFIER.id_cmc_recipientNonce)) {
                         rNonces = taggedAttr.getValues();
-                    } else if
-                    (type.equals(OBJECT_IDENTIFIER.id_cmc_senderNonce)) {
+                    } else if (type.equals(OBJECT_IDENTIFIER.id_cmc_senderNonce)) {
                         sNonces = taggedAttr.getValues();
                     }
                 }
@@ -276,7 +270,7 @@ public class CheckRequest extends CMSServlet {
             mCACerts = ((ICertAuthority) mAuthority).getCACertChain().getChain();
         } catch (Exception e) {
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_CA_CHAIN_NOT_AVAILABLE"));
+                    CMS.getUserMessage("CMS_GW_CA_CHAIN_NOT_AVAILABLE"));
         }
 
         if (requestId == null || requestId.trim().equals("")) {
@@ -289,34 +283,34 @@ public class CheckRequest extends CMSServlet {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("BASE_INVALID_NUMBER_FORMAT_1", requestId));
             throw new EBaseException(
                     CMS.getUserMessage(getLocale(req), "CMS_BASE_INVALID_NUMBER_FORMAT_1", requestId));
-        } 
+        }
 
         IRequest r = mQueue.findRequest(new RequestId(requestId));
 
         if (r == null) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_REQUEST_ID_NOT_FOUND_1", requestId));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_REQUEST_ID_NOT_FOUND", requestId));
+                    CMS.getUserMessage("CMS_GW_REQUEST_ID_NOT_FOUND", requestId));
         }
 
         if (authToken != null) {
-          // if RA, requestOwner must match the group
-          String group = authToken.getInString("group");
-          if ((group != null) && (group != "")) {
-            if (group.equals("Registration Manager Agents")) {
-              boolean groupMatched = false;
-              String requestOwner = r.getExtDataInString("requestOwner");
-              if (requestOwner != null) {
-                  if (requestOwner.equals(group))
-                    groupMatched = true;
-              }
-              if (groupMatched == false) {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("BASE_INVALID_NUMBER_FORMAT_1", requestId.toString()));
-                throw new EBaseException(
-                    CMS.getUserMessage(getLocale(req), "CMS_BASE_INVALID_NUMBER_FORMAT_1", requestId));
-              }
+            // if RA, requestOwner must match the group
+            String group = authToken.getInString("group");
+            if ((group != null) && (group != "")) {
+                if (group.equals("Registration Manager Agents")) {
+                    boolean groupMatched = false;
+                    String requestOwner = r.getExtDataInString("requestOwner");
+                    if (requestOwner != null) {
+                        if (requestOwner.equals(group))
+                            groupMatched = true;
+                    }
+                    if (groupMatched == false) {
+                        log(ILogger.LL_FAILURE, CMS.getLogMessage("BASE_INVALID_NUMBER_FORMAT_1", requestId.toString()));
+                        throw new EBaseException(
+                                CMS.getUserMessage(getLocale(req), "CMS_BASE_INVALID_NUMBER_FORMAT_1", requestId));
+                    }
+                }
             }
-          }
         }
 
         RequestStatus status = r.getRequestStatus();
@@ -327,35 +321,35 @@ public class CheckRequest extends CMSServlet {
         header.addStringValue(STATUS, status.toString());
         header.addLongValue(CREATE_ON, r.getCreationTime().getTime() / 1000);
         header.addLongValue(UPDATE_ON, r.getModificationTime().getTime() / 1000);
-        if (note != null && note.length() > 0) 
+        if (note != null && note.length() > 0)
             header.addStringValue("requestNotes", note);
 
         String type = r.getRequestType();
         Integer result = r.getExtDataInInteger(IRequest.RESULT);
 
-/*        if (type.equals(IRequest.ENROLLMENT_REQUEST) && (r.get("profile") != null) && status.equals(RequestStatus.COMPLETE)) { 
-            X509CertImpl cert = (X509CertImpl) r.get(IEnrollProfile.REQUEST_ISSUED_CERT);
-            IArgBlock rarg = CMS.createArgBlock();
+        /*        if (type.equals(IRequest.ENROLLMENT_REQUEST) && (r.get("profile") != null) && status.equals(RequestStatus.COMPLETE)) { 
+                    X509CertImpl cert = (X509CertImpl) r.get(IEnrollProfile.REQUEST_ISSUED_CERT);
+                    IArgBlock rarg = CMS.createArgBlock();
 
-            rarg.addBigIntegerValue("serialNumber",
-                cert.getSerialNumber(), 16);
-            argSet.addRepeatRecord(rarg);
-        }
-*/
+                    rarg.addBigIntegerValue("serialNumber",
+                        cert.getSerialNumber(), 16);
+                    argSet.addRepeatRecord(rarg);
+                }
+        */
         String profileId = r.getExtDataInString("profileId");
         if (profileId != null) {
-           result = IRequest.RES_SUCCESS;
+            result = IRequest.RES_SUCCESS;
         }
         if ((type != null) && (type.equals(IRequest.ENROLLMENT_REQUEST) ||
-                type.equals(IRequest.RENEWAL_REQUEST)) && (status != null) && 
-            status.equals(RequestStatus.COMPLETE) && (result != null) && 
-            result.equals(IRequest.RES_SUCCESS)) {
+                type.equals(IRequest.RENEWAL_REQUEST)) && (status != null) &&
+                status.equals(RequestStatus.COMPLETE) && (result != null) &&
+                result.equals(IRequest.RES_SUCCESS)) {
             Object o = r.getExtDataInCertArray(IRequest.ISSUED_CERTS);
 
             if (profileId != null) {
-               X509CertImpl impl[] = new X509CertImpl[1];
-               impl[0] = r.getExtDataInCert(IEnrollProfile.REQUEST_ISSUED_CERT);
-               o = impl;
+                X509CertImpl impl[] = new X509CertImpl[1];
+                impl[0] = r.getExtDataInCert(IEnrollProfile.REQUEST_ISSUED_CERT);
+                o = impl;
             }
             if (o != null && (o instanceof X509CertImpl[])) {
                 X509CertImpl[] certs = (X509CertImpl[]) o;
@@ -366,11 +360,12 @@ public class CheckRequest extends CMSServlet {
                             IArgBlock rarg = CMS.createArgBlock();
 
                             rarg.addBigIntegerValue("serialNumber",
-                                certs[i].getSerialNumber(), 16);
+                                    certs[i].getSerialNumber(), 16);
                             // add pkcs7 cert for importing
                             if (importCert || isCMCReq) {
                                 //byte[] ba = certs[i].getEncoded();
-                                X509CertImpl[] certsInChain = new X509CertImpl[1];; 
+                                X509CertImpl[] certsInChain = new X509CertImpl[1];
+                                ;
                                 if (mCACerts != null) {
                                     for (int ii = 0; ii < mCACerts.length; ii++) {
                                         if (certs[i].equals(mCACerts[ii])) {
@@ -381,10 +376,10 @@ public class CheckRequest extends CMSServlet {
                                         certsInChain = new X509CertImpl[mCACerts.length + 1];
                                     }
                                 }
-			
+
                                 // Set the EE cert
                                 certsInChain[0] = certs[i];
-			
+
                                 // Set the Ca certificate chain
                                 if (mCACerts != null) {
                                     for (int ii = 0; ii < mCACerts.length; ii++) {
@@ -396,7 +391,7 @@ public class CheckRequest extends CMSServlet {
                                 String p7Str;
 
                                 try {
-                                    PKCS7 p7 = new PKCS7(new AlgorithmId[0], 
+                                    PKCS7 p7 = new PKCS7(new AlgorithmId[0],
                                             new netscape.security.pkcs.ContentInfo(new byte[0]),
                                             certsInChain,
                                             new netscape.security.pkcs.SignerInfo[0]);
@@ -407,7 +402,7 @@ public class CheckRequest extends CMSServlet {
 
                                     p7Str = CMS.BtoA(p7Bytes);
 
-                                    StringTokenizer tokenizer = null;  
+                                    StringTokenizer tokenizer = null;
 
                                     if (File.separator.equals("\\")) {
                                         char[] nl = new char[2];
@@ -438,14 +433,14 @@ public class CheckRequest extends CMSServlet {
                                         if (bodyPartId != null)
                                             bpids.addElement(bodyPartId);
                                         CMCStatusInfo cmcStatusInfo = new
-                                            CMCStatusInfo(CMCStatusInfo.SUCCESS, bpids);
+                                                CMCStatusInfo(CMCStatusInfo.SUCCESS, bpids);
                                         TaggedAttribute ta = new TaggedAttribute(new
                                                 INTEGER(bpid++),
                                                 OBJECT_IDENTIFIER.id_cmc_cMCStatusInfo,
                                                 cmcStatusInfo);
 
                                         controlSeq.addElement(ta);
-                
+
                                         // copy transactionID, senderNonce,
                                         // create recipientNonce
                                         if (transIds != null) {
@@ -455,7 +450,7 @@ public class CheckRequest extends CMSServlet {
                                                         transIds);
                                             controlSeq.addElement(ta);
                                         }
-                					
+
                                         if (sNonces != null) {
                                             ta = new TaggedAttribute(new
                                                         INTEGER(bpid++),
@@ -463,7 +458,7 @@ public class CheckRequest extends CMSServlet {
                                                         sNonces);
                                             controlSeq.addElement(ta);
                                         }
-                
+
                                         String salt = CMSServlet.generateSalt();
                                         byte[] dig;
 
@@ -475,41 +470,40 @@ public class CheckRequest extends CMSServlet {
                                             dig = salt.getBytes();
                                         }
                                         String b64E = CMS.BtoA(dig);
-                                        String[] newNonce = {b64E};
+                                        String[] newNonce = { b64E };
 
                                         ta = new TaggedAttribute(new
                                                     INTEGER(bpid++),
                                                     OBJECT_IDENTIFIER.id_cmc_senderNonce,
                                                     new OCTET_STRING(newNonce[0].getBytes()));
                                         controlSeq.addElement(ta);
-                
+
                                         ResponseBody rb = new ResponseBody(controlSeq, new
                                                 SEQUENCE(), new
                                                 SEQUENCE());
                                         EncapsulatedContentInfo ci = new
-                                            EncapsulatedContentInfo(OBJECT_IDENTIFIER.id_cct_PKIResponse,
-                                                rb);
-                
+                                                EncapsulatedContentInfo(OBJECT_IDENTIFIER.id_cct_PKIResponse,
+                                                        rb);
+
                                         org.mozilla.jss.crypto.X509Certificate x509cert = null;
 
                                         if (mAuthority instanceof ICertificateAuthority) {
                                             x509cert = ((ICertificateAuthority) mAuthority).getCaX509Cert();
-                                        }else if (mAuthority instanceof IRegistrationAuthority) {
+                                        } else if (mAuthority instanceof IRegistrationAuthority) {
                                             x509cert = ((IRegistrationAuthority) mAuthority).getRACert();
                                         }
                                         if (x509cert == null)
-                                            throw new
-                                                ECMSGWException(CMS.getUserMessage("CMS_GW_CMC_ERROR", "No signing cert found.")); 
+                                            throw new ECMSGWException(CMS.getUserMessage("CMS_GW_CMC_ERROR", "No signing cert found."));
 
                                         X509CertImpl cert = new X509CertImpl(x509cert.getEncoded());
                                         ByteArrayInputStream issuer1 = new
-                                            ByteArrayInputStream(((X500Name) cert.getIssuerDN()).getEncoded());
+                                                ByteArrayInputStream(((X500Name) cert.getIssuerDN()).getEncoded());
                                         Name issuer = (Name) Name.getTemplate().decode(issuer1);
                                         IssuerAndSerialNumber ias = new
-                                            IssuerAndSerialNumber(issuer, new INTEGER(cert.getSerialNumber().toString()));
+                                                IssuerAndSerialNumber(issuer, new INTEGER(cert.getSerialNumber().toString()));
                                         SignerIdentifier si = new
-                                            SignerIdentifier(SignerIdentifier.ISSUER_AND_SERIALNUMBER, ias, null);
-            
+                                                SignerIdentifier(SignerIdentifier.ISSUER_AND_SERIALNUMBER, ias, null);
+
                                         // SHA1 is the default digest Alg for now.
                                         DigestAlgorithm digestAlg = null;
                                         SignatureAlgorithm signAlg = null;
@@ -518,7 +512,7 @@ public class CheckRequest extends CMSServlet {
 
                                         if (keyType.equals(org.mozilla.jss.crypto.PrivateKey.RSA))
                                             signAlg = SignatureAlgorithm.RSASignatureWithSHA1Digest;
-                                        else if (keyType.equals(org.mozilla.jss.crypto.PrivateKey.DSA)) 
+                                        else if (keyType.equals(org.mozilla.jss.crypto.PrivateKey.DSA))
                                             signAlg = SignatureAlgorithm.DSASignatureWithSHA1Digest;
                                         MessageDigest SHADigest = null;
                                         byte[] digest = null;
@@ -533,44 +527,44 @@ public class CheckRequest extends CMSServlet {
                                         } catch (NoSuchAlgorithmException ex) {
                                             //log("digest fail");
                                         }
-            
+
                                         org.mozilla.jss.pkix.cms.SignerInfo signInfo = new
-                                            org.mozilla.jss.pkix.cms.SignerInfo(si, null, null,
-                                                OBJECT_IDENTIFIER.id_cct_PKIResponse,
-                                                digest, signAlg,
-                                                privKey);
+                                                org.mozilla.jss.pkix.cms.SignerInfo(si, null, null,
+                                                        OBJECT_IDENTIFIER.id_cct_PKIResponse,
+                                                        digest, signAlg,
+                                                        privKey);
                                         SET signInfos = new SET();
 
                                         signInfos.addElement(signInfo);
-            					
+
                                         SET digestAlgs = new SET();
 
                                         if (digestAlg != null) {
                                             AlgorithmIdentifier ai = new
-                                                AlgorithmIdentifier(digestAlg.toOID(),
-                                                    null);
+                                                    AlgorithmIdentifier(digestAlg.toOID(),
+                                                            null);
 
                                             digestAlgs.addElement(ai);
                                         }
-            					
+
                                         SET jsscerts = new SET();
 
                                         for (int j = 0; j < certsInChain.length; j++) {
                                             ByteArrayInputStream is = new
-                                                ByteArrayInputStream(certsInChain[j].getEncoded());
+                                                    ByteArrayInputStream(certsInChain[j].getEncoded());
                                             org.mozilla.jss.pkix.cert.Certificate certJss = (org.mozilla.jss.pkix.cert.Certificate)
-                                                org.mozilla.jss.pkix.cert.Certificate.getTemplate().decode(is);
+                                                    org.mozilla.jss.pkix.cert.Certificate.getTemplate().decode(is);
 
                                             jsscerts.addElement(certJss);
                                         }
-            						
+
                                         SignedData fResponse = new
-                                            SignedData(digestAlgs, ci,
-                                                jsscerts, null, signInfos);
+                                                SignedData(digestAlgs, ci,
+                                                        jsscerts, null, signInfos);
                                         org.mozilla.jss.pkix.cms.ContentInfo fullResponse = new
-                                            org.mozilla.jss.pkix.cms.ContentInfo(org.mozilla.jss.pkix.cms.ContentInfo.SIGNED_DATA, fResponse);
+                                                org.mozilla.jss.pkix.cms.ContentInfo(org.mozilla.jss.pkix.cms.ContentInfo.SIGNED_DATA, fResponse);
                                         ByteArrayOutputStream ostream = new
-                                            ByteArrayOutputStream();
+                                                ByteArrayOutputStream();
 
                                         fullResponse.encode((OutputStream) ostream);
                                         byte[] fr = ostream.toByteArray();
@@ -579,10 +573,10 @@ public class CheckRequest extends CMSServlet {
                                     }
                                 } catch (Exception e) {
                                     e.printStackTrace();
-                                    log(ILogger.LL_FAILURE, 
-                                        CMS.getLogMessage("CMSGW_ERROR_FORMING_PKCS7_1", e.toString())); 
+                                    log(ILogger.LL_FAILURE,
+                                            CMS.getLogMessage("CMSGW_ERROR_FORMING_PKCS7_1", e.toString()));
                                     throw new ECMSGWException(
-                                      CMS.getUserMessage("CMS_GW_FORMING_PKCS7_ERROR"));
+                                            CMS.getUserMessage("CMS_GW_FORMING_PKCS7_ERROR"));
                                 }
                             }
                             argSet.addRepeatRecord(rarg);
@@ -598,11 +592,11 @@ public class CheckRequest extends CMSServlet {
             if (error == null) {
                 String xmlOutput = req.getParameter("xml");
                 if (xmlOutput != null && xmlOutput.equals("true")) {
-                  outputXML(resp, argSet);
+                    outputXML(resp, argSet);
                 } else {
-                  resp.setContentType("text/html");
-                  form.renderOutput(out, argSet);
-                  cmsReq.setStatus(CMSRequest.SUCCESS);
+                    resp.setContentType("text/html");
+                    form.renderOutput(out, argSet);
+                    cmsReq.setStatus(CMSRequest.SUCCESS);
                 }
             } else {
                 cmsReq.setStatus(CMSRequest.ERROR);
@@ -610,10 +604,9 @@ public class CheckRequest extends CMSServlet {
             }
         } catch (IOException e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()));
+                    CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
     }
 }
-

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.authentication;
 
-
 import java.security.cert.X509Certificate;
 
 import netscape.security.x509.X509CertImpl;
@@ -38,13 +37,12 @@ import com.netscape.certsrv.usrgrp.ICertUserLocator;
 import com.netscape.cmscore.usrgrp.ExactMatchCertUserLocator;
 import com.netscape.cmscore.usrgrp.User;
 
-
 /**
- * Certificate server agent authentication.  
- * Maps a SSL client authenticate certificate to a user (agent) entry in the 
- * internal database. 
+ * Certificate server agent authentication.
+ * Maps a SSL client authenticate certificate to a user (agent) entry in the
+ * internal database.
  * <P>
- *
+ * 
  * @author lhsiao
  * @author cfu
  * @version $Revision$, $Date$
@@ -81,15 +79,15 @@ public class CertUserDBAuthentication implements IAuthManager {
     /**
      * initializes the CertUserDBAuthentication auth manager
      * <p>
-     * called by AuthSubsystem init() method, when initializing
-     * all available authentication managers.
+     * called by AuthSubsystem init() method, when initializing all available authentication managers.
+     * 
      * @param owner - The authentication subsystem that hosts this
-     *   auth manager
+     *            auth manager
      * @param config - The configuration store used by the
-     *	 authentication subsystem
+     *            authentication subsystem
      */
     public void init(String name, String implName, IConfigStore config)
-        throws EBaseException {
+            throws EBaseException {
         mName = name;
         mImplName = implName;
         mConfig = config;
@@ -112,7 +110,7 @@ public class CertUserDBAuthentication implements IAuthManager {
         mCULocator = new ExactMatchCertUserLocator();
         log(ILogger.LL_INFO, CMS.getLogMessage("INIT_DONE", name));
     }
- 
+
     /**
      * Gets the name of this authentication manager.
      */
@@ -126,28 +124,28 @@ public class CertUserDBAuthentication implements IAuthManager {
     public String getImplName() {
         return mImplName;
     }
- 
+
     /**
      * authenticates user(agent) by certificate
      * <p>
-     * called by other subsystems or their servlets to authenticate
-     *	 users (agents)
+     * called by other subsystems or their servlets to authenticate users (agents)
+     * 
      * @param authCred - authentication credential that contains
-     *	 an usrgrp.Certificates of the user (agent)
+     *            an usrgrp.Certificates of the user (agent)
      * @return the authentication token that contains the following
-     *
+     * 
      * @exception com.netscape.certsrv.base.EAuthsException any
-     *	 authentication failure or insufficient credentials
+     *                authentication failure or insufficient credentials
      * @see com.netscape.certsrv.authentication.AuthToken
      * @see com.netscape.certsrv.usrgrp.Certificates
      */
     public IAuthToken authenticate(IAuthCredentials authCred)
-        throws EMissingCredential, EInvalidCredentials, EBaseException {
+            throws EMissingCredential, EInvalidCredentials, EBaseException {
         CMS.debug("CertUserDBAuth: started");
         AuthToken authToken = new AuthToken(this);
         CMS.debug("CertUserDBAuth: Retrieving client certificate");
-        X509Certificate[] x509Certs = 
-            (X509Certificate[]) authCred.get(CRED_CERT);
+        X509Certificate[] x509Certs =
+                (X509Certificate[]) authCred.get(CRED_CERT);
 
         if (x509Certs == null) {
             CMS.debug("CertUserDBAuth: no client certificate found");
@@ -198,7 +196,7 @@ public class CertUserDBAuthentication implements IAuthManager {
         authToken.set(TOKEN_USER_DN, user.getUserDN());
         authToken.set(TOKEN_USERID, user.getUserID());
         authToken.set(TOKEN_UID, user.getUserID());
-        authToken.set(CRED_CERT, certs);  
+        authToken.set(CRED_CERT, certs);
 
         log(ILogger.LL_INFO, CMS.getLogMessage("CMS_AUTH_AUTHENTICATED", user.getUserID()));
         CMS.debug("authenticated " + user.getUserDN());
@@ -208,10 +206,11 @@ public class CertUserDBAuthentication implements IAuthManager {
 
     /**
      * get the list of authentication credential attribute names
-     *	 required by this authentication manager. Generally used by
-     *	 the servlets that handle agent operations to authenticate its
-     *	 users.  It calls this method to know which are the
-     *	 required credentials from the user (e.g. Javascript form data)
+     * required by this authentication manager. Generally used by
+     * the servlets that handle agent operations to authenticate its
+     * users. It calls this method to know which are the
+     * required credentials from the user (e.g. Javascript form data)
+     * 
      * @return attribute names in Vector
      */
     public String[] getRequiredCreds() {
@@ -220,14 +219,15 @@ public class CertUserDBAuthentication implements IAuthManager {
 
     /**
      * get the list of configuration parameter names
-     *	 required by this authentication manager.  Generally used by
-     *	 the Certificate Server Console to display the table for
-     *	 configuration purposes.  CertUserDBAuthentication is currently not
-     *	 exposed in this case, so this method is not to be used.
+     * required by this authentication manager. Generally used by
+     * the Certificate Server Console to display the table for
+     * configuration purposes. CertUserDBAuthentication is currently not
+     * exposed in this case, so this method is not to be used.
+     * 
      * @return configuration parameter names in Hashtable of Vectors
-     *	 where each hashtable entry's key is the substore name, value is a
-     * Vector of parameter names.  If no substore, the parameter name
-     *	 is the Hashtable key itself, with value same as key.
+     *         where each hashtable entry's key is the substore name, value is a
+     *         Vector of parameter names. If no substore, the parameter name
+     *         is the Hashtable key itself, with value same as key.
      */
     public String[] getConfigParams() {
         return (mConfigParams);
@@ -241,7 +241,8 @@ public class CertUserDBAuthentication implements IAuthManager {
 
     /**
      * gets the configuretion substore used by this authentication
-     *  manager
+     * manager
+     * 
      * @return configuration store
      */
     public IConfigStore getConfigStore() {
@@ -252,7 +253,7 @@ public class CertUserDBAuthentication implements IAuthManager {
         if (mLogger == null)
             return;
         mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_AUTHENTICATION,
-            level, msg);
+                level, msg);
     }
 
 }

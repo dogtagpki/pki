@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.publish.mappers;
 
-
 import java.io.IOException;
 import java.io.PushbackReader;
 import java.io.StringReader;
@@ -41,26 +40,26 @@ import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.publish.ECompSyntaxErr;
 import com.netscape.certsrv.request.IRequest;
 
-
 /**
- * class for parsing a DN pattern used to construct a ldap dn from 
- * request attributes and cert subject name.<p>
+ * class for parsing a DN pattern used to construct a ldap dn from
+ * request attributes and cert subject name.
+ * <p>
  * 
- * dnpattern is a string representing a ldap dn pattern to formulate from 
- * the certificate subject name attributes and request attributes . 
- * If empty or not set, the certificate subject name 
- * will be used as the ldap dn. <p>
+ * dnpattern is a string representing a ldap dn pattern to formulate from the certificate subject name attributes and request attributes . If empty or not set, the certificate subject name will be used as the ldap dn.
+ * <p>
  * 
- * The syntax is 
+ * The syntax is
+ * 
  * <pre>
- *		dnPattern := rdnPattern *[ "," rdnPattern ]
- *		rdnPattern := avaPattern *[ "+" avaPattern ]
+ * 	dnPattern := rdnPattern *[ "," rdnPattern ]
+ * 	rdnPattern := avaPattern *[ "+" avaPattern ]
  * 		avaPattern := name "=" value | 
- *				      name "=" "$subj" "." attrName [ "." attrNumber ] | 
- *				      name "=" "$ext" "." extName [ "." nameType ] [ "." attrNumber ] 
- *				      name "=" "$req" "." attrName [ "." attrNumber ] | 
- *				 	  "$rdn" "." number
+ * 			      name "=" "$subj" "." attrName [ "." attrNumber ] | 
+ * 			      name "=" "$ext" "." extName [ "." nameType ] [ "." attrNumber ] 
+ * 			      name "=" "$req" "." attrName [ "." attrNumber ] | 
+ * 			 	  "$rdn" "." number
  * </pre>
+ * 
  * <pre>
  * Example1: <i>cn=Certificate Manager,ou=people,o=mcom.com</i>
  * cert subject name: dn:  CN=Certificate Manager, OU=people, O=mcom.com
@@ -71,7 +70,7 @@ import com.netscape.certsrv.request.IRequest;
  * <p>
  * note: Subordinate ca enrollment will use ca mapper. Use predicate
  * to distinguish the ca itself and the subordinates.
- *
+ * 
  * Example2: <i>UID=$req.HTTP_PARAMS.uid, OU=$subj.ou, OU=people, , O=mcom.com</i>
  * cert subject name: dn:  UID=jjames, OU=IS, OU=people, , O=mcom.com
  * request attributes: uid: cmanager 
@@ -96,10 +95,9 @@ import com.netscape.certsrv.request.IRequest;
  *     O = the string mcom.com. <br>
  * <p>
  * </pre>
- * If an request attribute or subject DN component does not exist,
- * the attribute is skipped. There is potential risk that a wrong dn
- * will be mapped into.
- *
+ * 
+ * If an request attribute or subject DN component does not exist, the attribute is skipped. There is potential risk that a wrong dn will be mapped into.
+ * 
  * @version $Revision$, $Date$
  */
 class MapAVAPattern {
@@ -119,11 +117,11 @@ class MapAVAPattern {
             "EDIName",
             "URIName",
             "IPAddress",
-            "OIDName"};
+            "OIDName" };
     private static final char[] endChars = new char[] { '+', ',' };
 
-    private static final LdapV3DNStrConverter mLdapDNStrConverter = 
-        new LdapV3DNStrConverter();
+    private static final LdapV3DNStrConverter mLdapDNStrConverter =
+            new LdapV3DNStrConverter();
 
     /* the list of request attributes needed by this AVA  */
     protected String[] mReqAttrs = null;
@@ -135,7 +133,7 @@ class MapAVAPattern {
     protected String mType = null;
 
     /* the attribute in the AVA pair */
-    protected String mAttr = null; 
+    protected String mAttr = null;
 
     /* value - could be name of a request  attribute or 
      * cert subject dn attribute. */
@@ -153,19 +151,19 @@ class MapAVAPattern {
     protected String mTestDN = null;
 
     public MapAVAPattern(String component)
-        throws ELdapException {
-        if (component == null || component.length() == 0) 
+            throws ELdapException {
+        if (component == null || component.length() == 0)
             throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX", component));
         parse(new PushbackReader(new StringReader(component)));
     }
 
-    public MapAVAPattern(PushbackReader in) 
-        throws ELdapException {
+    public MapAVAPattern(PushbackReader in)
+            throws ELdapException {
         parse(in);
     }
 
     private void parse(PushbackReader in)
-        throws ELdapException {
+            throws ELdapException {
         int c;
 
         // mark ava beginning.
@@ -181,19 +179,19 @@ class MapAVAPattern {
         } catch (IOException e) {
             throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX", "All blank"));
         }
-        if (c == -1) 
+        if (c == -1)
             throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX", "All blank"));
 
-            // $rdn "." number syntax. 
+        // $rdn "." number syntax. 
 
         if (c == '$') {
             //System.out.println("$rdn syntax");
             mType = TYPE_RDN;
             try {
-                if (in.read() != 'r' || 
-                    in.read() != 'd' || 
-                    in.read() != 'n' || 
-                    in.read() != '.') 
+                if (in.read() != 'r' ||
+                        in.read() != 'd' ||
+                        in.read() != 'n' ||
+                        in.read() != '.')
                     throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX", "Invalid $ syntax, expecting $rdn"));
             } catch (IOException e) {
                 throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX", "Invalid $ syntax, expecting $rdn"));
@@ -215,7 +213,7 @@ class MapAVAPattern {
 
             String rdnNumber = rdnNumberBuf.toString().trim();
 
-            if (rdnNumber.length() == 0) 
+            if (rdnNumber.length() == 0)
                 throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX", "$rdn number not set in ava pattern"));
             try {
                 mElement = Integer.parseInt(rdnNumber) - 1;
@@ -230,15 +228,15 @@ class MapAVAPattern {
         // read name 
         //System.out.println("reading name");
 
-        StringBuffer attrBuf = new StringBuffer(); 
+        StringBuffer attrBuf = new StringBuffer();
 
         try {
             while (c != '=' && c != -1 && c != ',' && c != '+') {
                 attrBuf.append((char) c);
                 c = in.read();
                 //System.out.println("name read "+(char)c);
-            } 
-            if (c == ',' || c == '+') 
+            }
+            if (c == ',' || c == '+')
                 in.unread(c);
         } catch (IOException e) {
             throw new ELdapException(
@@ -247,11 +245,11 @@ class MapAVAPattern {
         if (c != '=')
             throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX", "Missing \"=\" in ava pattern"));
 
-            // read value 
-            //System.out.println("reading value");
+        // read value 
+        //System.out.println("reading value");
 
-            // skip spaces 
-            //System.out.println("skip spaces for value");
+        // skip spaces 
+        //System.out.println("skip spaces for value");
         try {
             while ((c = in.read()) == ' ' || c == '\t') {//System.out.println("spaces2 read "+(char)c);
                 ;
@@ -260,7 +258,7 @@ class MapAVAPattern {
             throw new ELdapException(
                     CMS.getUserMessage("CMS_LDAP_INTERNAL_ERROR", e.toString()));
         }
-        if (c == -1) 
+        if (c == -1)
             throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX", "no value after = in ava pattern"));
 
         if (c == '$') {
@@ -272,14 +270,14 @@ class MapAVAPattern {
                 throw new ELdapException(
                         CMS.getUserMessage("CMS_LDAP_INTERNAL_ERROR", e.toString()));
             }
-            if (c == -1) 
+            if (c == -1)
                 throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX",
                             "expecting $subj or $req in ava pattern"));
             if (c == 'r') {
                 try {
-                    if (in.read() != 'e' || 
-                        in.read() != 'q' || 
-                        in.read() != '.') 
+                    if (in.read() != 'e' ||
+                            in.read() != 'q' ||
+                            in.read() != '.')
                         throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX",
                                     "expecting $req in ava pattern"));
                 } catch (IOException e) {
@@ -290,10 +288,10 @@ class MapAVAPattern {
                 //System.out.println("---- mtype $req");
             } else if (c == 's') {
                 try {
-                    if (in.read() != 'u' || 
-                        in.read() != 'b' || 
-                        in.read() != 'j' || 
-                        in.read() != '.') 
+                    if (in.read() != 'u' ||
+                            in.read() != 'b' ||
+                            in.read() != 'j' ||
+                            in.read() != '.')
                         throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX",
                                     "expecting $subj in ava pattern"));
                 } catch (IOException e) {
@@ -304,10 +302,10 @@ class MapAVAPattern {
                 //System.out.println("----- mtype $subj");
             } else if (c == 'e') {
                 try {
-                    if (in.read() != 'x' || 
-                        in.read() != 't' || 
-                        in.read() != '.') 
-                        throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX", 
+                    if (in.read() != 'x' ||
+                            in.read() != 't' ||
+                            in.read() != '.')
+                        throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX",
                                     "expecting $ext in ava pattern"));
                 } catch (IOException e) {
                     throw new ELdapException(
@@ -317,16 +315,16 @@ class MapAVAPattern {
                 //System.out.println("----- mtype $ext");
             } else {
                 throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX",
-                            "unknown keyword. expecting $subj $ext or $req.")); 
+                            "unknown keyword. expecting $subj $ext or $req."));
             }
 
             // get request attr name of subject dn pattern from above. 
             String attrName = attrBuf.toString().trim();
 
             //System.out.println("----- attrName "+attrName);
-            if (attrName.length() == 0) 
+            if (attrName.length() == 0)
                 throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX", "attribute name expected"));
-            mAttr = attrName;		
+            mAttr = attrName;
 
             /*
              try { 
@@ -345,8 +343,8 @@ class MapAVAPattern {
             StringBuffer valueBuf = new StringBuffer();
 
             try {
-                while ((c = in.read()) != ',' && 
-                    c != -1 && c != '.' && c != '+') {
+                while ((c = in.read()) != ',' &&
+                        c != -1 && c != '.' && c != '+') {
                     //System.out.println("mValue read "+(char)c);
                     valueBuf.append((char) c);
                 }
@@ -358,31 +356,31 @@ class MapAVAPattern {
             }
 
             mValue = valueBuf.toString().trim();
-            if (mValue.length() == 0) 
+            if (mValue.length() == 0)
                 throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX",
                             "$subj or $req attribute name expected"));
-                //System.out.println("----- mValue "+mValue);
+            //System.out.println("----- mValue "+mValue);
 
-                // get nth dn xxx not nth request attribute .
+            // get nth dn xxx not nth request attribute .
             if (c == '.') {
                 StringBuffer attrNumberBuf = new StringBuffer();
 
                 try {
                     while ((c = in.read()) != ',' && c != -1 && c != '.'
-                        && c != '+') {
+                            && c != '+') {
                         //System.out.println("mElement read "+(char)c);
                         attrNumberBuf.append((char) c);
                     }
                     if (c == ',' || c == '+') // either ','  or '+'
-                        in.unread(c);  // pushback last , or +
+                        in.unread(c); // pushback last , or +
                 } catch (IOException e) {
                     throw new ELdapException(
                             CMS.getUserMessage("CMS_LDAP_INTERNAL_ERROR", e.toString()));
                 }
                 String attrNumber = attrNumberBuf.toString().trim();
 
-                if (attrNumber.length() == 0) 
-                    throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX", 
+                if (attrNumber.length() == 0)
+                    throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX",
                                 "nth element $req $ext or $subj expected"));
                 try {
                     mElement = Integer.parseInt(attrNumber) - 1;
@@ -392,11 +390,11 @@ class MapAVAPattern {
                         mValue = attrNumber;
                     } else if (TYPE_EXT.equals(mType)) {
                         mGNType = attrNumber;
-                    } else 
-                        throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX", 
+                    } else
+                        throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX",
                                     "Invalid format in nth element $req $ext or $subj"));
 
-                        // get nth request attribute .
+                    // get nth request attribute .
                     if (c == '.') {
                         StringBuffer attrNumberBuf1 = new StringBuffer();
 
@@ -406,22 +404,22 @@ class MapAVAPattern {
                                 attrNumberBuf1.append((char) c);
                             }
                             if (c != -1) // either ',' or '+'
-                                in.unread(c);  // pushback last , or +
+                                in.unread(c); // pushback last , or +
                         } catch (IOException ex) {
                             throw new ELdapException(
                                     CMS.getUserMessage("CMS_LDAP_INTERNAL_ERROR", ex.toString()));
                         }
                         String attrNumber1 = attrNumberBuf1.toString().trim();
 
-                        if (attrNumber1.length() == 0) 
-                            throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX", 
+                        if (attrNumber1.length() == 0)
+                            throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX",
                                         "nth element $req expected"));
-                        try { 
-                            mElement = Integer.parseInt(attrNumber1) - 1; 
+                        try {
+                            mElement = Integer.parseInt(attrNumber1) - 1;
                         } catch (NumberFormatException ex) {
                             throw new ECompSyntaxErr(CMS.getUserMessage("CMS_AUTHENTICATION_COMPONENT_SYNTAX",
                                         "Invalid format in nth element $req."));
-					
+
                         }
                     }
                 }
@@ -437,8 +435,8 @@ class MapAVAPattern {
             valueBuf.append((char) c);
             // read forward to get attribute value
             try {
-                while ((c = in.read()) != ',' && 
-                    c != -1) {
+                while ((c = in.read()) != ',' &&
+                        c != -1) {
                     valueBuf.append((char) c);
                 }
                 if (c == '+' || c == ',') { // either ',' or '+'
@@ -448,8 +446,8 @@ class MapAVAPattern {
                 throw new ELdapException(
                         CMS.getUserMessage("CMS_LDAP_INTERNAL_ERROR", e.toString()));
             }
-            try { 
-                AVA ava = mLdapDNStrConverter.parseAVA(attrBuf + "=" + valueBuf); 
+            try {
+                AVA ava = mLdapDNStrConverter.parseAVA(attrBuf + "=" + valueBuf);
 
                 mValue = ava.toLdapDNString();
                 //System.out.println("----- mValue "+mValue);
@@ -460,19 +458,19 @@ class MapAVAPattern {
     }
 
     public String formAVA(IRequest req, X500Name subject, CertificateExtensions extensions)
-        throws ELdapException {
+            throws ELdapException {
         if (TYPE_CONSTANT.equals(mType))
             return mValue;
 
         if (TYPE_RDN.equals(mType)) {
             String dn = subject.toString();
 
-            if (mTestDN != null) 
+            if (mTestDN != null)
                 dn = mTestDN;
-                //System.out.println("AVAPattern Using dn "+mTestDN);
+            //System.out.println("AVAPattern Using dn "+mTestDN);
             String[] rdns = LDAPDN.explodeDN(dn, false);
 
-            if (mElement >= rdns.length) 
+            if (mElement >= rdns.length)
                 return null;
             return rdns[mElement];
         }
@@ -480,9 +478,9 @@ class MapAVAPattern {
         if (TYPE_SUBJ.equals(mType)) {
             String dn = subject.toString();
 
-            if (mTestDN != null) 
+            if (mTestDN != null)
                 dn = mTestDN;
-                //System.out.println("AVAPattern Using dn "+mTestDN);
+            //System.out.println("AVAPattern Using dn "+mTestDN);
             String[] rdns = LDAPDN.explodeDN(dn, false);
             String value = null;
             int nFound = -1;
@@ -493,8 +491,8 @@ class MapAVAPattern {
                 for (int j = 0; j < avas.length; j++) {
                     String[] exploded = explodeAVA(avas[j]);
 
-                    if (exploded[0].equalsIgnoreCase(mValue) && 
-                        ++nFound == mElement) {
+                    if (exploded[0].equalsIgnoreCase(mValue) &&
+                            ++nFound == mElement) {
                         value = exploded[1];
                         break;
                     }
@@ -502,10 +500,10 @@ class MapAVAPattern {
             }
             if (value == null) {
                 CMS.debug(
-                    "MapAVAPattern: attr " + mAttr + 
-                    " not formed from: cert subject " +
-                    dn +
-                    "-- no subject component : " + mValue);
+                        "MapAVAPattern: attr " + mAttr +
+                                " not formed from: cert subject " +
+                                dn +
+                                "-- no subject component : " + mValue);
                 return null;
             }
             return mAttr + "=" + value;
@@ -515,21 +513,19 @@ class MapAVAPattern {
             if (extensions != null) {
                 for (int i = 0; i < extensions.size(); i++) {
                     Extension ext = (Extension)
-                        extensions.elementAt(i);
+                            extensions.elementAt(i);
                     String extName = OIDMap.getName(ext.getExtensionId());
                     int index = extName.lastIndexOf(".");
 
                     if (index != -1)
                         extName = extName.substring(index + 1);
-                    if (
-                        extName.equals(mValue)) {
+                    if (extName.equals(mValue)) {
                         // Check the extensions one by one.
                         // For now, just give subjectAltName as an example.
-                        if
-                        (mValue.equalsIgnoreCase(SubjectAlternativeNameExtension.NAME)) {
+                        if (mValue.equalsIgnoreCase(SubjectAlternativeNameExtension.NAME)) {
                             try {
                                 GeneralNames subjectNames = (GeneralNames)
-                                    ((SubjectAlternativeNameExtension) ext).get(SubjectAlternativeNameExtension.SUBJECT_NAME);
+                                        ((SubjectAlternativeNameExtension) ext).get(SubjectAlternativeNameExtension.SUBJECT_NAME);
 
                                 if (subjectNames.size() == 0)
                                     break;
@@ -540,7 +536,8 @@ class MapAVAPattern {
                                     String gname = gn.toString();
 
                                     index = gname.indexOf(":");
-                                    if (index == -1) break;
+                                    if (index == -1)
+                                        break;
                                     String gType = gname.substring(0, index);
 
                                     if (mGNType != null) {
@@ -562,18 +559,18 @@ class MapAVAPattern {
                                         j++;
                                     }
                                 }
-                            } catch (IOException e) { 
+                            } catch (IOException e) {
                                 CMS.debug(
-                                    "MapAVAPattern: Publishing attr not formed from extension." +
-                                    "-- no attr : " + mValue);
+                                        "MapAVAPattern: Publishing attr not formed from extension." +
+                                                "-- no attr : " + mValue);
                             }
                         }
                     }
                 }
             }
             CMS.debug(
-                "MapAVAPattern: Publishing:attr not formed from extension " +
-                "-- no attr : " + mValue);
+                    "MapAVAPattern: Publishing:attr not formed from extension " +
+                            "-- no attr : " + mValue);
 
             return null;
         }
@@ -582,8 +579,7 @@ class MapAVAPattern {
             // mPrefix and mValue are looked up case-insensitive
             String reqAttr = req.getExtDataInString(mPrefix, mValue);
             if (reqAttr == null) {
-                throw new
-                        ELdapException(CMS.getUserMessage("CMS_LDAP_NO_REQUEST",
+                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_REQUEST",
                         mValue, mAttr));
             }
             return mAttr + "=" + reqAttr;
@@ -607,20 +603,20 @@ class MapAVAPattern {
     }
 
     /**
-     * Explode RDN into AVAs. 
-     * Does not handle escaped '+' 
+     * Explode RDN into AVAs.
+     * Does not handle escaped '+'
      * Java ldap library does not yet support multiple avas per rdn.
-     * If RDN is malformed returns empty array. 
+     * If RDN is malformed returns empty array.
      */
     public static String[] explodeRDN(String rdn) {
         int plus = rdn.indexOf('+');
 
-        if (plus == -1) 
+        if (plus == -1)
             return new String[] { rdn };
         Vector avas = new Vector();
         StringTokenizer token = new StringTokenizer(rdn, "+");
 
-        while (token.hasMoreTokens()) 
+        while (token.hasMoreTokens())
             avas.addElement(token.nextToken());
         String[] theAvas = new String[avas.size()];
 
@@ -629,17 +625,16 @@ class MapAVAPattern {
     }
 
     /**
-     * Explode AVA into name and value. 
+     * Explode AVA into name and value.
      * Does not handle escaped '='
      * If AVA is malformed empty array is returned.
      */
     public static String[] explodeAVA(String ava) {
         int equals = ava.indexOf('=');
 
-        if (equals == -1) 
+        if (equals == -1)
             return null;
         return new String[] {
-                ava.substring(0, equals).trim(), ava.substring(equals + 1).trim()};
+                ava.substring(0, equals).trim(), ava.substring(equals + 1).trim() };
     }
 }
-

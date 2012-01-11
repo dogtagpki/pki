@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -38,7 +37,6 @@ import org.mozilla.jss.pkcs11.PK11Module;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.cmsutil.crypto.Module;
-
 
 public class ConfigHSMServlet extends ConfigBaseServlet {
     /**
@@ -131,9 +129,9 @@ public class ConfigHSMServlet extends ConfigBaseServlet {
                 } else {
                     CMS.debug(
                             "ConfigHSMServlet: token " + token.getName()
-                            + " not to be added");
+                                    + " not to be added");
                 }
-			    
+
             } catch (TokenException ex) {
                 CMS.debug("ConfigHSMServlet:" + ex.toString());
             }
@@ -165,11 +163,11 @@ public class ConfigHSMServlet extends ConfigBaseServlet {
                 if ((cn == null) || (cn.equals(""))) {
                     break;
                 }
-		
+
                 CMS.debug("ConfigHSMServlet: got from config module: " + cn);
                 // create a Module object
                 Module module = new Module(cn, pn, img);
-		
+
                 if (mCurrModTable.containsKey(cn)) {
                     CMS.debug("ConfigHSMServlet: module found: " + cn);
                     module.setFound(true);
@@ -178,7 +176,7 @@ public class ConfigHSMServlet extends ConfigBaseServlet {
 
                     loadModTokens(module, m);
                 }
-		
+
                 CMS.debug("ConfigHSMServlet: adding module " + cn);
                 // add module to set
                 if (!mSupportedModules.contains(module)) {
@@ -290,8 +288,8 @@ public class ConfigHSMServlet extends ConfigBaseServlet {
             Context context) {
         try {
             return Velocity.getTemplate("admin/console/config/config_hsm.vm");
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
         return null;
     }
 }
-

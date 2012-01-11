@@ -60,10 +60,9 @@ import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.common.EnrollProfile;
 
-
 /**
  * This class implements an enrollment default policy.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDefault {
@@ -99,7 +98,7 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
     }
 
     public void setConfig(String name, String value)
-        throws EPropertyException {
+            throws EPropertyException {
         if (mConfig.getSubStore("params") == null) {
             //
         } else {
@@ -120,18 +119,17 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
     }
 
     public void init(IProfile profile, IConfigStore config)
-        throws EProfileException {
+            throws EProfileException {
         mConfig = config;
     }
 
     /**
      * Retrieves the localizable description of this policy.
-     *
+     * 
      * @param locale locale of the end user
      * @return localized description of this default policy
      */
     public abstract String getText(Locale locale);
-
 
     public IConfigStore getConfigStore() {
         return mConfig;
@@ -147,60 +145,60 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
 
     /**
      * Populates attributes into the certificate template.
-     *
+     * 
      * @param request enrollment request
      * @param info certificate template
-     * @exception EProfileException  failed to populate attributes
-     *     into request
+     * @exception EProfileException failed to populate attributes
+     *                into request
      */
     public abstract void populate(IRequest request, X509CertInfo info)
-        throws EProfileException;
+            throws EProfileException;
 
     /**
      * Sets values from the approval page into certificate template.
-     *
+     * 
      * @param name name of the attribute
      * @param locale user locale
      * @param info certificate template
      * @param value attribute value
-     * @exception EProfileException  failed to set attributes
-     *     into request
+     * @exception EProfileException failed to set attributes
+     *                into request
      */
-    public abstract void setValue(String name, Locale locale, 
-        X509CertInfo info, String value)
-        throws EPropertyException;
+    public abstract void setValue(String name, Locale locale,
+            X509CertInfo info, String value)
+            throws EPropertyException;
 
     /**
      * Retrieves certificate template values and returns them to
      * the approval page.
-     *
+     * 
      * @param name name of the attribute
      * @param locale user locale
      * @param info certificate template
-     * @exception EProfileException  failed to get attributes
-     *     from request
+     * @exception EProfileException failed to get attributes
+     *                from request
      */
-    public abstract String getValue(String name, Locale locale, 
-        X509CertInfo info)
-        throws EPropertyException;
+    public abstract String getValue(String name, Locale locale,
+            X509CertInfo info)
+            throws EPropertyException;
 
     /**
      * Populates the request with this policy default.
-     *
+     * 
      * The current implementation extracts enrollment specific attributes
      * and calls the populate() method of the subclass.
-     *
+     * 
      * @param request request to be populated
      * @exception EProfileException failed to populate
      */
     public void populate(IRequest request)
-        throws EProfileException {
+            throws EProfileException {
         String name = getClass().getName();
 
         name = name.substring(name.lastIndexOf('.') + 1);
         CMS.debug(name + ": populate start");
         X509CertInfo info =
-            request.getExtDataInCertInfo(IEnrollProfile.REQUEST_CERTINFO);
+                request.getExtDataInCertInfo(IEnrollProfile.REQUEST_CERTINFO);
 
         populate(request, info);
 
@@ -222,21 +220,21 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
 
     /**
      * Sets the value of the given value property by name.
-     *
+     * 
      * The current implementation extracts enrollment specific attributes
      * and calls the setValue() method of the subclass.
-     *
+     * 
      * @param name name of property
      * @param locale locale of the end user
      * @param request request
      * @param value value to be set in the given request
      * @exception EPropertyException failed to set property
      */
-    public void setValue(String name, Locale locale, IRequest request, 
-        String value)
-        throws EPropertyException {
+    public void setValue(String name, Locale locale, IRequest request,
+            String value)
+            throws EPropertyException {
         X509CertInfo info =
-            request.getExtDataInCertInfo(IEnrollProfile.REQUEST_CERTINFO);
+                request.getExtDataInCertInfo(IEnrollProfile.REQUEST_CERTINFO);
 
         setValue(name, locale, info, value);
 
@@ -246,19 +244,19 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
     /**
      * Retrieves the value of the given value
      * property by name.
-     *
+     * 
      * The current implementation extracts enrollment specific attributes
      * and calls the getValue() method of the subclass.
-     *
+     * 
      * @param name name of property
      * @param locale locale of the end user
      * @param request request
      * @exception EPropertyException failed to get property
      */
     public String getValue(String name, Locale locale, IRequest request)
-        throws EPropertyException {
+            throws EPropertyException {
         X509CertInfo info =
-            request.getExtDataInCertInfo(IEnrollProfile.REQUEST_CERTINFO);
+                request.getExtDataInCertInfo(IEnrollProfile.REQUEST_CERTINFO);
 
         String value = getValue(name, locale, info);
         request.setExtData(IEnrollProfile.REQUEST_CERTINFO, info);
@@ -279,8 +277,8 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
     }
 
     protected void refreshConfigAndValueNames() {
-         mConfigNames.removeAllElements();
-         mValueNames.removeAllElements();
+        mConfigNames.removeAllElements();
+        mValueNames.removeAllElements();
     }
 
     protected void deleteExtension(String name, X509CertInfo info) {
@@ -336,18 +334,18 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
     }
 
     protected void addExtension(String name, Extension ext, X509CertInfo info)
-        throws EProfileException {
+            throws EProfileException {
         if (ext == null) {
             throw new EProfileException("extension not found");
         }
         CertificateExtensions exts = null;
 
-        Extension alreadyPresentExtension = getExtension(name,info);
+        Extension alreadyPresentExtension = getExtension(name, info);
 
         if (alreadyPresentExtension != null) {
             String eName = ext.toString();
             CMS.debug("EnrollDefault.addExtension: duplicate extension attempted! Name:  " + eName);
-            throw new EProfileException(CMS.getUserMessage("CMS_PROFILE_DUPLICATE_EXTENSION",eName));
+            throw new EProfileException(CMS.getUserMessage("CMS_PROFILE_DUPLICATE_EXTENSION", eName));
         }
 
         try {
@@ -367,7 +365,7 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
     }
 
     protected void replaceExtension(String name, Extension ext, X509CertInfo info)
-        throws EProfileException {
+            throws EProfileException {
         deleteExtension(name, info);
         addExtension(name, ext, info);
     }
@@ -392,65 +390,62 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
         return getInt(getConfig(value));
     }
 
-    protected boolean isGeneralNameValid(String name)
-    {
+    protected boolean isGeneralNameValid(String name) {
         if (name == null)
-           return false;
+            return false;
         int pos = name.indexOf(':');
         if (pos == -1)
-          return false;
+            return false;
         String nameType = name.substring(0, pos).trim();
         String nameValue = name.substring(pos + 1).trim();
         if (nameValue.equals(""))
-           return false;
+            return false;
         return true;
     }
 
     protected GeneralNameInterface parseGeneralName(String name)
-        throws IOException {
+            throws IOException {
         int pos = name.indexOf(':');
         if (pos == -1)
-          return null;
+            return null;
         String nameType = name.substring(0, pos).trim();
         String nameValue = name.substring(pos + 1).trim();
         return parseGeneralName(nameType, nameValue);
     }
 
-    protected boolean isGeneralNameType(String nameType) 
-    {
+    protected boolean isGeneralNameType(String nameType) {
         if (nameType.equalsIgnoreCase("RFC822Name")) {
-          return true;
+            return true;
         }
         if (nameType.equalsIgnoreCase("DNSName")) {
-          return true;
+            return true;
         }
         if (nameType.equalsIgnoreCase("x400")) {
-          return true;
+            return true;
         }
         if (nameType.equalsIgnoreCase("DirectoryName")) {
-          return true;
+            return true;
         }
         if (nameType.equalsIgnoreCase("EDIPartyName")) {
-          return true;
+            return true;
         }
         if (nameType.equalsIgnoreCase("URIName")) {
-          return true;
+            return true;
         }
         if (nameType.equalsIgnoreCase("IPAddress")) {
-          return true;
+            return true;
         }
         if (nameType.equalsIgnoreCase("OIDName")) {
-          return true;
+            return true;
         }
         if (nameType.equalsIgnoreCase("OtherName")) {
-          return true;
+            return true;
         }
         return false;
     }
 
     protected GeneralNameInterface parseGeneralName(String nameType, String nameValue)
-        throws IOException 
-    {
+            throws IOException {
         if (nameType.equalsIgnoreCase("RFC822Name")) {
             return new RFC822Name(nameValue);
         }
@@ -458,7 +453,7 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
             return new DNSName(nameValue);
         }
         if (nameType.equalsIgnoreCase("x400")) {
-             // XXX
+            // XXX
         }
         if (nameType.equalsIgnoreCase("DirectoryName")) {
             return new X500Name(nameValue);
@@ -476,153 +471,153 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
                 StringTokenizer st = new StringTokenizer(nameValue, "/");
                 String addr = st.nextToken();
                 String netmask = st.nextToken();
-                CMS.debug("addr:" + addr +" netmask: "+netmask);
+                CMS.debug("addr:" + addr + " netmask: " + netmask);
                 return new IPAddressName(addr, netmask);
-             } else {
+            } else {
                 return new IPAddressName(nameValue);
-             }
+            }
         }
         if (nameType.equalsIgnoreCase("OIDName")) {
             try {
-              // check if OID
-              ObjectIdentifier oid = new ObjectIdentifier(nameValue);
+                // check if OID
+                ObjectIdentifier oid = new ObjectIdentifier(nameValue);
             } catch (Exception e) {
-              return null;
+                return null;
             }
             return new OIDName(nameValue);
-        } 
+        }
         if (nameType.equals("OtherName")) {
             if (nameValue == null || nameValue.length() == 0)
                 nameValue = " ";
             if (nameValue.startsWith("(PrintableString)")) {
-              // format: OtherName: (PrintableString)oid,value
-              int pos0 = nameValue.indexOf(')');
-              int pos1 = nameValue.indexOf(',');
-              if (pos1 == -1)
-                return null;
-              String on_oid = nameValue.substring(pos0 + 1, pos1).trim();
-              String on_value = nameValue.substring(pos1 + 1).trim();
-              if (isValidOID(on_oid)) {
-                return new OtherName(new ObjectIdentifier(on_oid), DerValue.tag_PrintableString, on_value);
-              } else {
-                return null;
-              }
+                // format: OtherName: (PrintableString)oid,value
+                int pos0 = nameValue.indexOf(')');
+                int pos1 = nameValue.indexOf(',');
+                if (pos1 == -1)
+                    return null;
+                String on_oid = nameValue.substring(pos0 + 1, pos1).trim();
+                String on_value = nameValue.substring(pos1 + 1).trim();
+                if (isValidOID(on_oid)) {
+                    return new OtherName(new ObjectIdentifier(on_oid), DerValue.tag_PrintableString, on_value);
+                } else {
+                    return null;
+                }
             } else if (nameValue.startsWith("(KerberosName)")) {
                 // Syntax: (KerberosName)Realm|NameType|NameString(s)
-              int pos0 = nameValue.indexOf(')');
-              int pos1 = nameValue.indexOf('|');
-              int pos2 = nameValue.lastIndexOf('|');
-              String realm = nameValue.substring(pos0 + 1, pos1).trim();
-              String name_type = nameValue.substring(pos1 + 1, pos2).trim();
-              String name_strings = nameValue.substring(pos2 + 1).trim();
-              Vector<String> strings = new Vector<String>();
-              StringTokenizer st = new StringTokenizer(name_strings, ",");
-              while (st.hasMoreTokens()) {
-                     strings.addElement(st.nextToken());
-              }
-              KerberosName name = new KerberosName(realm, 
-                    Integer.parseInt(name_type), strings);
-              // krb5 OBJECT IDENTIFIER ::= { iso (1)
-              //                    org (3)
-              //                    dod (6)
-              //                    internet (1)
-              //                    security (5)
-              //                    kerberosv5 (2) }
-              // krb5PrincipalName OBJECT IDENTIFIER ::= { krb5 2 }
-              return new OtherName(KerberosName.KRB5_PRINCIPAL_NAME,
-                       name.toByteArray());
+                int pos0 = nameValue.indexOf(')');
+                int pos1 = nameValue.indexOf('|');
+                int pos2 = nameValue.lastIndexOf('|');
+                String realm = nameValue.substring(pos0 + 1, pos1).trim();
+                String name_type = nameValue.substring(pos1 + 1, pos2).trim();
+                String name_strings = nameValue.substring(pos2 + 1).trim();
+                Vector<String> strings = new Vector<String>();
+                StringTokenizer st = new StringTokenizer(name_strings, ",");
+                while (st.hasMoreTokens()) {
+                    strings.addElement(st.nextToken());
+                }
+                KerberosName name = new KerberosName(realm,
+                        Integer.parseInt(name_type), strings);
+                // krb5 OBJECT IDENTIFIER ::= { iso (1)
+                //                    org (3)
+                //                    dod (6)
+                //                    internet (1)
+                //                    security (5)
+                //                    kerberosv5 (2) }
+                // krb5PrincipalName OBJECT IDENTIFIER ::= { krb5 2 }
+                return new OtherName(KerberosName.KRB5_PRINCIPAL_NAME,
+                        name.toByteArray());
             } else if (nameValue.startsWith("(IA5String)")) {
-              int pos0 = nameValue.indexOf(')');
-              int pos1 = nameValue.indexOf(',');
-              if (pos1 == -1)
-                return null;
-              String on_oid = nameValue.substring(pos0 + 1, pos1).trim();
-              String on_value = nameValue.substring(pos1 + 1).trim();
-              if (isValidOID(on_oid)) {
-                return new OtherName(new ObjectIdentifier(on_oid), DerValue.tag_IA5String, on_value);
-              } else {
-                return null;
-              }
+                int pos0 = nameValue.indexOf(')');
+                int pos1 = nameValue.indexOf(',');
+                if (pos1 == -1)
+                    return null;
+                String on_oid = nameValue.substring(pos0 + 1, pos1).trim();
+                String on_value = nameValue.substring(pos1 + 1).trim();
+                if (isValidOID(on_oid)) {
+                    return new OtherName(new ObjectIdentifier(on_oid), DerValue.tag_IA5String, on_value);
+                } else {
+                    return null;
+                }
             } else if (nameValue.startsWith("(UTF8String)")) {
-              int pos0 = nameValue.indexOf(')');
-              int pos1 = nameValue.indexOf(',');
-              if (pos1 == -1)
-                return null;
-              String on_oid = nameValue.substring(pos0 + 1, pos1).trim();
-              String on_value = nameValue.substring(pos1 + 1).trim();
-              if (isValidOID(on_oid)) {
-                return new OtherName(new ObjectIdentifier(on_oid), DerValue.tag_UTF8String, on_value);
-              } else {
-                return null;
-              }
+                int pos0 = nameValue.indexOf(')');
+                int pos1 = nameValue.indexOf(',');
+                if (pos1 == -1)
+                    return null;
+                String on_oid = nameValue.substring(pos0 + 1, pos1).trim();
+                String on_value = nameValue.substring(pos1 + 1).trim();
+                if (isValidOID(on_oid)) {
+                    return new OtherName(new ObjectIdentifier(on_oid), DerValue.tag_UTF8String, on_value);
+                } else {
+                    return null;
+                }
             } else if (nameValue.startsWith("(BMPString)")) {
-              int pos0 = nameValue.indexOf(')');
-              int pos1 = nameValue.indexOf(',');
-              if (pos1 == -1)
-                return null;
-              String on_oid = nameValue.substring(pos0 + 1, pos1).trim();
-              String on_value = nameValue.substring(pos1 + 1).trim();
-              if (isValidOID(on_oid)) {
-                return new OtherName(new ObjectIdentifier(on_oid), DerValue.tag_BMPString, on_value);
-              } else {
-                return null;
-              }
+                int pos0 = nameValue.indexOf(')');
+                int pos1 = nameValue.indexOf(',');
+                if (pos1 == -1)
+                    return null;
+                String on_oid = nameValue.substring(pos0 + 1, pos1).trim();
+                String on_value = nameValue.substring(pos1 + 1).trim();
+                if (isValidOID(on_oid)) {
+                    return new OtherName(new ObjectIdentifier(on_oid), DerValue.tag_BMPString, on_value);
+                } else {
+                    return null;
+                }
             } else if (nameValue.startsWith("(Any)")) {
-              int pos0 = nameValue.indexOf(')');
-              int pos1 = nameValue.indexOf(',');
-              if (pos1 == -1)
-                return null;
-              String on_oid = nameValue.substring(pos0 + 1, pos1).trim();
-              String on_value = nameValue.substring(pos1 + 1).trim();
-              if (isValidOID(on_oid)) {
-                CMS.debug("OID: " + on_oid + " Value:" + on_value);
-                return new OtherName(new ObjectIdentifier(on_oid), getBytes(on_value));
-              } else {
-                CMS.debug("Invalid OID " + on_oid);
-                return null;
-              }
+                int pos0 = nameValue.indexOf(')');
+                int pos1 = nameValue.indexOf(',');
+                if (pos1 == -1)
+                    return null;
+                String on_oid = nameValue.substring(pos0 + 1, pos1).trim();
+                String on_value = nameValue.substring(pos1 + 1).trim();
+                if (isValidOID(on_oid)) {
+                    CMS.debug("OID: " + on_oid + " Value:" + on_value);
+                    return new OtherName(new ObjectIdentifier(on_oid), getBytes(on_value));
+                } else {
+                    CMS.debug("Invalid OID " + on_oid);
+                    return null;
+                }
             } else {
-               return null;
+                return null;
             }
         }
         return null;
     }
 
-/**
- * Converts string containing pairs of characters in the range of '0' 
- * to '9', 'a' to 'f' to an array of bytes such that each pair of 
- * characters in the string represents an individual byte
- */
+    /**
+     * Converts string containing pairs of characters in the range of '0'
+     * to '9', 'a' to 'f' to an array of bytes such that each pair of
+     * characters in the string represents an individual byte
+     */
     public byte[] getBytes(String string) {
-      if (string == null)
-        return null;
-      int stringLength = string.length();
-      if ((stringLength == 0) || ((stringLength % 2) != 0))
-        return null;
-      byte[] bytes = new byte[ (stringLength / 2) ];
-      for (int i = 0, b = 0; i < stringLength; i += 2, ++b) {
-        String nextByte = string.substring(i, (i + 2));
-        bytes[b] = (byte)Integer.parseInt(nextByte, 0x10);
-      } 
-      return bytes;
+        if (string == null)
+            return null;
+        int stringLength = string.length();
+        if ((stringLength == 0) || ((stringLength % 2) != 0))
+            return null;
+        byte[] bytes = new byte[(stringLength / 2)];
+        for (int i = 0, b = 0; i < stringLength; i += 2, ++b) {
+            String nextByte = string.substring(i, (i + 2));
+            bytes[b] = (byte) Integer.parseInt(nextByte, 0x10);
+        }
+        return bytes;
     }
 
     /**
      * Check if a object identifier in string form is valid,
      * that is a string in the form n.n.n.n and der encode and decode-able.
+     * 
      * @param oid object identifier string.
      * @return true if the oid is valid
      */
-    public boolean isValidOID(String oid)
-    {
-         ObjectIdentifier v = null;
+    public boolean isValidOID(String oid) {
+        ObjectIdentifier v = null;
         try {
             v = ObjectIdentifier.getObjectIdentifier(oid);
         } catch (Exception e) {
-           return false;
+            return false;
         }
         if (v == null)
-           return false;
+            return false;
 
         // if the OID isn't valid (ex. n.n) the error isn't caught til
         // encoding time leaving a bad request in the request queue.
@@ -632,7 +627,7 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
             derOut.putOID(v);
             new ObjectIdentifier(new DerInputStream(derOut.toByteArray()));
         } catch (Exception e) {
-           return false;
+            return false;
         }
         return true;
     }
@@ -658,7 +653,7 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
                 sb.append("\r\n");
             }
             sb.append("\r\n");
-		
+
         }
         return sb.toString();
     }
@@ -678,7 +673,7 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
                 v.addElement(nvps);
                 try {
                     token = (String) st.nextToken();
-                } catch (NoSuchElementException e) { 
+                } catch (NoSuchElementException e) {
                     v.removeElementAt(num);
                     CMS.debug(e.toString());
                     return v;
@@ -688,7 +683,7 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
 
             if (nvps == null)
                 throw new EPropertyException("Bad Input Format");
-       
+
             int pos = token.indexOf(":");
 
             if (pos <= 0) {
@@ -706,8 +701,8 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
         return v;
     }
 
-    protected String getGeneralNameType(GeneralName gn) 
-        throws EPropertyException {
+    protected String getGeneralNameType(GeneralName gn)
+            throws EPropertyException {
         int type = gn.getType();
 
         if (type == GeneralNameInterface.NAME_RFC822)
@@ -762,17 +757,17 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
     }
 
     public String toGeneralNameString(GeneralName gn) {
-        int type = gn.getType(); 
+        int type = gn.getType();
         // Sun's General Name is not consistent, so we need
         // to do a special case for directory string
         if (type == GeneralNameInterface.NAME_DIRECTORY) {
-            return "DirectoryName: " +  gn.toString();
+            return "DirectoryName: " + gn.toString();
         }
         return gn.toString();
     }
 
     protected String mapPattern(IRequest request, String pattern)
-      throws IOException {
+            throws IOException {
         Pattern p = new Pattern(pattern);
         IAttrSet attrSet = null;
         if (request != null) {
@@ -781,30 +776,32 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
         return p.substitute2("request", attrSet);
     }
 
-    protected StringBuffer escapeValueRfc1779(String v, boolean doubleEscape)
-    {
+    protected StringBuffer escapeValueRfc1779(String v, boolean doubleEscape) {
         StringBuffer result = new StringBuffer();
 
         // Do we need to escape any characters
         for (int i = 0; i < v.length(); i++) {
             int c = v.charAt(i);
             if (c == ',' || c == '=' || c == '+' || c == '<' ||
-                c == '>' || c == '#' || c == ';' || c == '\r' ||
-                c == '\n' || c == '\\' || c == '"') {
-                if ((c == 0x5c) && ((i+1) < v.length())) {
-                    int nextC = v.charAt(i+1);
+                    c == '>' || c == '#' || c == ';' || c == '\r' ||
+                    c == '\n' || c == '\\' || c == '"') {
+                if ((c == 0x5c) && ((i + 1) < v.length())) {
+                    int nextC = v.charAt(i + 1);
                     if ((c == 0x5c) && (nextC == ',' || nextC == '=' || nextC == '+' ||
                                         nextC == '<' || nextC == '>' || nextC == '#' ||
                                         nextC == ';' || nextC == '\r' || nextC == '\n' ||
                                         nextC == '\\' || nextC == '"')) {
-                        if (doubleEscape) result.append('\\');
+                        if (doubleEscape)
+                            result.append('\\');
                     } else {
                         result.append('\\');
-                        if (doubleEscape) result.append('\\');
+                        if (doubleEscape)
+                            result.append('\\');
                     }
                 } else {
                     result.append('\\');
-                    if (doubleEscape) result.append('\\');
+                    if (doubleEscape)
+                        result.append('\\');
                 }
             }
             if (c == '\r') {
@@ -812,10 +809,10 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
             } else if (c == '\n') {
                 result.append("0A");
             } else {
-                result.append((char)c);
+                result.append((char) c);
             }
         }
         return result;
     }
- 
+
 }

@@ -30,7 +30,6 @@ public class SmtpProtocolException extends IOException {
     private static final long serialVersionUID = -5586603317525864401L;
 
     SmtpProtocolException(String s) {
-	super(s);
+        super(s);
     }
 }
-

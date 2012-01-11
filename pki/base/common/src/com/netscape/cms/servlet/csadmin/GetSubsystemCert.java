@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-
 import java.io.IOException;
 import java.util.Locale;
 
@@ -39,7 +38,6 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.xml.XMLObject;
 
-
 public class GetSubsystemCert extends CMSServlet {
 
     /**
@@ -55,6 +53,7 @@ public class GetSubsystemCert extends CMSServlet {
 
     /**
      * initialize the servlet.
+     * 
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -62,7 +61,7 @@ public class GetSubsystemCert extends CMSServlet {
     }
 
     /**
-     * Process the HTTP request. 
+     * Process the HTTP request.
      */
     protected void process(CMSRequest cmsReq) throws EBaseException {
         HttpServletRequest httpReq = cmsReq.getHttpReq();
@@ -76,16 +75,16 @@ public class GetSubsystemCert extends CMSServlet {
             nickname = cs.getString("ca.subsystem.nickname", "");
             String tokenname = cs.getString("ca.subsystem.tokenname", "");
             if (!tokenname.equals("internal") && !tokenname.equals("Internal Key Storage Token"))
-                nickname = tokenname+":"+nickname;
+                nickname = tokenname + ":" + nickname;
         } catch (Exception e) {
         }
 
-        CMS.debug("GetSubsystemCert process: nickname="+nickname);
+        CMS.debug("GetSubsystemCert process: nickname=" + nickname);
         String s = "";
         try {
             CryptoManager cm = CryptoManager.getInstance();
             X509Certificate cert = cm.findCertByNickname(nickname);
- 
+
             if (cert == null) {
                 CMS.debug("GetSubsystemCert process: subsystem cert is null");
                 outputError(httpResp, "Error: Failed to get subsystem certificate.");
@@ -95,7 +94,7 @@ public class GetSubsystemCert extends CMSServlet {
             byte[] bytes = cert.getEncoded();
             s = CryptoUtil.normalizeCertStr(CryptoUtil.base64Encode(bytes));
         } catch (Exception e) {
-            CMS.debug("GetSubsystemCert process: exception: "+e.toString());
+            CMS.debug("GetSubsystemCert process: exception: " + e.toString());
         }
 
         try {

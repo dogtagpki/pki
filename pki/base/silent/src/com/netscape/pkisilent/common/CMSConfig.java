@@ -1,4 +1,5 @@
 package com.netscape.pkisilent.common;
+
 // --- BEGIN COPYRIGHT BLOCK ---
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -20,19 +21,16 @@ package com.netscape.pkisilent.common;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
-
 /**
  * CMS Test framework .
- * This class reads,modifies and saves CS.cfg file 
+ * This class reads,modifies and saves CS.cfg file
  */
 
-
-public class CMSConfig extends ServerInfo { 
+public class CMSConfig extends ServerInfo {
 
     /**
      * Constructor . Reads the CS.cfg file .Takes the parameter for Configfile ( Provide fullpath)
      */
-
 
     public CMSConfig(String confFile) {
         CMSConfigFile = confFile;
@@ -57,7 +55,7 @@ public class CMSConfig extends ServerInfo {
     }
 
     /**
-     * Saves the config file 
+     * Saves the config file
      **/
 
     public void saveCMSConfig() {
@@ -84,7 +82,6 @@ public class CMSConfig extends ServerInfo {
     }
 
     // Authentication   
-
 
     // Enable DirectoryBased Authentication
     /**
@@ -560,7 +557,7 @@ public class CMSConfig extends ServerInfo {
 
         // s.EnableDirEnrollment(secureC);	
         s.saveCMSConfig();
-   
+
     }// end of function main
 
 } // end of class 

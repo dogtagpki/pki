@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.profile;
 
-
 import java.util.Enumeration;
 import java.util.Locale;
 
@@ -46,10 +45,9 @@ import com.netscape.certsrv.template.ArgList;
 import com.netscape.certsrv.template.ArgSet;
 import com.netscape.cms.servlet.common.CMSRequest;
 
-
 /**
  * Toggle the approval state of a profile
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class ProfileApproveServlet extends ProfileServlet {
@@ -59,10 +57,10 @@ public class ProfileApproveServlet extends ProfileServlet {
      */
     private static final long serialVersionUID = 3956879326742839550L;
     private static final String PROP_AUTHORITY_ID = "authorityId";
-    private String mAuthorityId = null; 
+    private String mAuthorityId = null;
 
     private final static String LOGGING_SIGNED_AUDIT_CERT_PROFILE_APPROVAL =
-        "LOGGING_SIGNED_AUDIT_CERT_PROFILE_APPROVAL_4";
+            "LOGGING_SIGNED_AUDIT_CERT_PROFILE_APPROVAL_4";
     private final static String OP_APPROVE = "approve";
     private final static String OP_DISAPPROVE = "disapprove";
 
@@ -73,7 +71,7 @@ public class ProfileApproveServlet extends ProfileServlet {
     /**
      * initialize the servlet. This servlet uses the template file
      * "ImportCert.template" to process the response.
-     *
+     * 
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -84,13 +82,12 @@ public class ProfileApproveServlet extends ProfileServlet {
     /**
      * Process the HTTP request.
      * <P>
-     *
+     * 
      * <ul>
      * <li>http.param profileId the id of the profile to change
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CERT_PROFILE_APPROVAL used when an
-     * agent approves/disapproves a cert profile set by the administrator for
-     * automatic approval
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CERT_PROFILE_APPROVAL used when an agent approves/disapproves a cert profile set by the administrator for automatic approval
      * </ul>
+     * 
      * @param cmsReq the object holding the request and response information
      * @exception EBaseException an error has occurred
      */
@@ -126,8 +123,8 @@ public class ProfileApproveServlet extends ProfileServlet {
                 auditSubjectID = auditSubjectID();
                 CMS.debug(e.toString());
                 log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE",
-                        e.toString()));
+                        CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE",
+                                e.toString()));
                 args.set(ARG_ERROR_CODE, "1");
                 args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
                         "CMS_AUTHENTICATION_ERROR"));
@@ -153,12 +150,12 @@ public class ProfileApproveServlet extends ProfileServlet {
                             mAuthzResourceName, "approve");
             } catch (EAuthzAccessDenied e) {
                 log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE",
-                        e.toString()));
+                        CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE",
+                                e.toString()));
             } catch (Exception e) {
                 log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE",
-                        e.toString()));
+                        CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE",
+                                e.toString()));
             }
 
             if (authzToken == null) {
@@ -214,8 +211,8 @@ public class ProfileApproveServlet extends ProfileServlet {
             IAuthority authority = (IAuthority) CMS.getSubsystem(mAuthorityId);
 
             if (authority == null) {
-                CMS.debug("ProfileApproveServlet: Authority " + mAuthorityId + 
-                    " not found");
+                CMS.debug("ProfileApproveServlet: Authority " + mAuthorityId +
+                        " not found");
                 args.set(ARG_ERROR_CODE, "1");
                 args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
                         "CMS_INTERNAL_ERROR"));
@@ -236,8 +233,8 @@ public class ProfileApproveServlet extends ProfileServlet {
             IRequestQueue queue = authority.getRequestQueue();
 
             if (queue == null) {
-                CMS.debug("ProfileApproveServlet: Request Queue of " + 
-                    mAuthorityId + " not found");
+                CMS.debug("ProfileApproveServlet: Request Queue of " +
+                        mAuthorityId + " not found");
                 args.set(ARG_ERROR_CODE, "1");
                 args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
                         "CMS_INTERNAL_ERROR"));
@@ -265,31 +262,31 @@ public class ProfileApproveServlet extends ProfileServlet {
 
             try {
                 if (ps.isProfileEnable(profileId)) {
-                  if (ps.checkOwner()) {
-                    if (ps.getProfileEnableBy(profileId).equals(userid)) {
-                        ps.disableProfile(profileId);
-                    } else {
-                        // only enableBy can disable profile
-                        args.set(ARG_ERROR_CODE, "1");
-                        args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
-                                "CMS_PROFILE_NOT_OWNER"));
-                        outputTemplate(request, response, args); 
+                    if (ps.checkOwner()) {
+                        if (ps.getProfileEnableBy(profileId).equals(userid)) {
+                            ps.disableProfile(profileId);
+                        } else {
+                            // only enableBy can disable profile
+                            args.set(ARG_ERROR_CODE, "1");
+                            args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
+                                    "CMS_PROFILE_NOT_OWNER"));
+                            outputTemplate(request, response, args);
 
-                        // store a message in the signed audit log file
-                        auditMessage = CMS.getLogMessage(
+                            // store a message in the signed audit log file
+                            auditMessage = CMS.getLogMessage(
                                     LOGGING_SIGNED_AUDIT_CERT_PROFILE_APPROVAL,
                                     auditSubjectID,
                                     ILogger.FAILURE,
                                     auditProfileID,
                                     auditProfileOp);
 
-                        audit(auditMessage);
+                            audit(auditMessage);
 
-                        return;
+                            return;
+                        }
+                    } else {
+                        ps.disableProfile(profileId);
                     }
-                  } else {
-                     ps.disableProfile(profileId);
-                  }
                 } else {
                     ps.enableProfile(profileId, userid);
                 }
@@ -305,8 +302,8 @@ public class ProfileApproveServlet extends ProfileServlet {
                 audit(auditMessage);
             } catch (EProfileException e) {
                 // profile not enabled
-                CMS.debug("ProfileApproveServlet: profile not error " + 
-                    e.toString());
+                CMS.debug("ProfileApproveServlet: profile not error " +
+                        e.toString());
                 args.set(ARG_ERROR_CODE, "1");
                 args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
                         "CMS_INTERNAL_ERROR"));
@@ -356,8 +353,8 @@ public class ProfileApproveServlet extends ProfileServlet {
             profile = ps.getProfile(profileId);
         } catch (EProfileException e) {
             // profile not found
-            CMS.debug("ProfileApproveServlet: profile not found " + 
-                e.toString());
+            CMS.debug("ProfileApproveServlet: profile not found " +
+                    e.toString());
             args.set(ARG_ERROR_CODE, "1");
             args.set(ARG_ERROR_REASON, e.toString());
             args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
@@ -386,13 +383,13 @@ public class ProfileApproveServlet extends ProfileServlet {
             while (policyIds.hasMoreElements()) {
                 String id = (String) policyIds.nextElement();
                 IProfilePolicy policy = (IProfilePolicy)
-                    profile.getProfilePolicy(setId, id);
+                        profile.getProfilePolicy(setId, id);
 
                 // (3) query all the profile policies
                 // (4) default plugins convert request parameters
                 //     into string http parameters
                 handlePolicy(list, response, locale,
-                    id, policy);
+                        id, policy);
             }
             ArgSet setArg = new ArgSet();
 
@@ -403,8 +400,8 @@ public class ProfileApproveServlet extends ProfileServlet {
         args.set(ARG_POLICY_SET_LIST, setlist);
 
         args.set(ARG_PROFILE_ID, profileId);
-        args.set(ARG_PROFILE_IS_ENABLED, 
-            Boolean.toString(ps.isProfileEnable(profileId)));
+        args.set(ARG_PROFILE_IS_ENABLED,
+                Boolean.toString(ps.isProfileEnable(profileId)));
         args.set(ARG_PROFILE_ENABLED_BY, ps.getProfileEnableBy(profileId));
         args.set(ARG_PROFILE_NAME, profile.getName(locale));
         args.set(ARG_PROFILE_DESC, profile.getDescription(locale));
@@ -413,8 +410,8 @@ public class ProfileApproveServlet extends ProfileServlet {
         outputTemplate(request, response, args);
     }
 
-    private void handlePolicy(ArgList list, ServletResponse response, 
-        Locale locale, String id, IProfilePolicy policy) {
+    private void handlePolicy(ArgList list, ServletResponse response,
+            Locale locale, String id, IProfilePolicy policy) {
         ArgSet set = new ArgSet();
 
         set.set(ARG_POLICY_ID, id);
@@ -434,19 +431,19 @@ public class ProfileApproveServlet extends ProfileServlet {
                 String defName = (String) defNames.nextElement();
                 IDescriptor defDesc = def.getValueDescriptor(locale, defName);
                 if (defDesc == null) {
-                  CMS.debug("defName=" + defName);
+                    CMS.debug("defName=" + defName);
                 } else {
-                  String defSyntax = defDesc.getSyntax();
-                  String defConstraint = defDesc.getConstraint();
-                  String defValueName = defDesc.getDescription(locale);
-                  String defValue = null;
+                    String defSyntax = defDesc.getSyntax();
+                    String defConstraint = defDesc.getConstraint();
+                    String defValueName = defDesc.getDescription(locale);
+                    String defValue = null;
 
-                  defset.set(ARG_DEF_ID, defName);
-                  defset.set(ARG_DEF_SYNTAX, defSyntax);
-                  defset.set(ARG_DEF_CONSTRAINT, defConstraint);
-                  defset.set(ARG_DEF_NAME, defValueName);
-                  defset.set(ARG_DEF_VAL, defValue);
-                  deflist.add(defset);
+                    defset.set(ARG_DEF_ID, defName);
+                    defset.set(ARG_DEF_SYNTAX, defSyntax);
+                    defset.set(ARG_DEF_CONSTRAINT, defConstraint);
+                    defset.set(ARG_DEF_NAME, defValueName);
+                    defset.set(ARG_DEF_VAL, defValue);
+                    deflist.add(defset);
                 }
             }
         }
@@ -463,11 +460,11 @@ public class ProfileApproveServlet extends ProfileServlet {
 
     /**
      * Signed Audit Log Profile ID
-     *
+     * 
      * This method is called to obtain the "ProfileID" for
      * a signed audit log message.
      * <P>
-     *
+     * 
      * @param req HTTP request
      * @return id string containing the signed audit log message ProfileID
      */
@@ -493,14 +490,14 @@ public class ProfileApproveServlet extends ProfileServlet {
 
     /**
      * Signed Audit Log Profile Operation
-     *
+     * 
      * This method is called to obtain the "Profile Operation" for
      * a signed audit log message.
      * <P>
-     *
+     * 
      * @param req HTTP request
      * @return operation string containing either OP_APPROVE, OP_DISAPPROVE,
-     *     or SIGNED_AUDIT_EMPTY_VALUE
+     *         or SIGNED_AUDIT_EMPTY_VALUE
      */
     private String auditProfileOp(HttpServletRequest req) {
         // if no signed audit object exists, bail
@@ -509,12 +506,12 @@ public class ProfileApproveServlet extends ProfileServlet {
         }
 
         if (mProfileSubId == null ||
-            mProfileSubId.equals("")) {
+                mProfileSubId.equals("")) {
             mProfileSubId = IProfileSubsystem.ID;
         }
 
         IProfileSubsystem ps = (IProfileSubsystem)
-            CMS.getSubsystem(mProfileSubId);
+                CMS.getSubsystem(mProfileSubId);
 
         if (ps == null) {
             return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
@@ -533,4 +530,3 @@ public class ProfileApproveServlet extends ProfileServlet {
         }
     }
 }
-

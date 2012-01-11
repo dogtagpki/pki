@@ -17,12 +17,11 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.property;
 
-
 import com.netscape.certsrv.base.EBaseException;
 
 /**
  * This is the base exception for property handling.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class EPropertyException extends EBaseException {
@@ -34,7 +33,7 @@ public class EPropertyException extends EBaseException {
 
     /**
      * Constructs property exception
-     *
+     * 
      * @param msg exception message
      */
     public EPropertyException(String msg) {

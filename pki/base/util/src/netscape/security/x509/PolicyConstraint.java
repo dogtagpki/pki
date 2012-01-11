@@ -26,7 +26,7 @@ import netscape.security.util.DerValue;
 
 /**
  * This class defines the PolicyConstraint ASN.1 object.
- *
+ * 
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  * @version 1.4
@@ -42,7 +42,7 @@ public class PolicyConstraint {
 
     /**
      * The default constructor for this object
-     *
+     * 
      * @param set the CertificatePolicySet (null for optional).
      * @param require require explicit policy (-1 for optional).
      * @param inhibit inhibit policy mapping (-1 for optional).
@@ -55,35 +55,35 @@ public class PolicyConstraint {
 
     /**
      * Create the PolicyConstraint from the DerValue.
-     *
+     * 
      * @param val the DerValue of the PolicyConstraint.
      * @exception IOException on decoding errors.
      */
     public PolicyConstraint(DerValue val) throws IOException {
         if (val.tag != DerValue.tag_Sequence) {
-  	    throw new IOException("Sequence tag missing for PolicyConstraint.");
-  	}
-	DerInputStream in = val.data;
-	while (in != null && in.available() != 0) {
-  	    DerValue next = in.getDerValue();
-  	    switch (next.tag & 0x1f) {
-  	    case TAG_SET:
-  	        this.set = new CertificatePolicySet(next.data);
-  	        break;
-  	 
-  	    case TAG_REQUIRE:
-  	        next = next.data.getDerValue();
-  	        this.require = (next.getInteger()).toInt();
-  	        break;
-  
-  	    case TAG_INHIBIT:
-  	        next = next.data.getDerValue();
-  	        this.inhibit = (next.getInteger()).toInt();
-  	        break;
-  
-  	    default:
-  	        throw new IOException("Invalid tag option for PolicyConstraint.");
-  	    }
+            throw new IOException("Sequence tag missing for PolicyConstraint.");
+        }
+        DerInputStream in = val.data;
+        while (in != null && in.available() != 0) {
+            DerValue next = in.getDerValue();
+            switch (next.tag & 0x1f) {
+            case TAG_SET:
+                this.set = new CertificatePolicySet(next.data);
+                break;
+
+            case TAG_REQUIRE:
+                next = next.data.getDerValue();
+                this.require = (next.getInteger()).toInt();
+                break;
+
+            case TAG_INHIBIT:
+                next = next.data.getDerValue();
+                this.inhibit = (next.getInteger()).toInt();
+                break;
+
+            default:
+                throw new IOException("Invalid tag option for PolicyConstraint.");
+            }
         }
     }
 
@@ -91,23 +91,23 @@ public class PolicyConstraint {
      * Return user readable form of the object.
      */
     public String toString() {
-	String s = ((set != null) ? 
-        	"PolicyConstraint: [\n"
-		    + "  PolicySet:[" + set.toString() + "]\n"
-		    + "  Require:" + require + "\n"
-		    + "  Inhibit:" + inhibit + "\n"
-		    + "]\n" :
-        	"PolicyConstraint: [\n"
-		    + "  PolicySet:[null]\n"
-		    + "  Require:" + require + "\n"
-		    + "  Inhibit:" + inhibit + "\n"
-		    + "]\n");
+        String s = ((set != null) ?
+                "PolicyConstraint: [\n"
+                        + "  PolicySet:[" + set.toString() + "]\n"
+                        + "  Require:" + require + "\n"
+                        + "  Inhibit:" + inhibit + "\n"
+                        + "]\n" :
+                "PolicyConstraint: [\n"
+                        + "  PolicySet:[null]\n"
+                        + "  Require:" + require + "\n"
+                        + "  Inhibit:" + inhibit + "\n"
+                        + "]\n");
         return (s);
     }
 
     /**
      * Encode the object to the output stream.
-     *
+     * 
      * @param out the DerOutputStream to encode the object to.
      */
     public void encode(DerOutputStream out) throws IOException {
@@ -131,6 +131,6 @@ public class PolicyConstraint {
             tagged.write(DerValue.createTag(DerValue.TAG_CONTEXT,
                                             true, TAG_INHIBIT), tmp);
         }
-        out.write(DerValue.tag_Sequence,tagged);
+        out.write(DerValue.tag_Sequence, tagged);
     }
 }

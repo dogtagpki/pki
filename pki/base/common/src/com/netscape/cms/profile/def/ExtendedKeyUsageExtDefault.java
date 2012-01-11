@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.def;
 
-
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.StringTokenizer;
@@ -35,12 +34,11 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 
-
 /**
  * This class implements an enrollment default policy
  * that populates Extended Key Usage extension
  * into the certificate template.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class ExtendedKeyUsageExtDefault extends EnrollExtDefault {
@@ -60,17 +58,17 @@ public class ExtendedKeyUsageExtDefault extends EnrollExtDefault {
     }
 
     public void init(IProfile profile, IConfigStore config)
-        throws EProfileException {
+            throws EProfileException {
         super.init(profile, config);
     }
 
-    public IDescriptor getConfigDescriptor(Locale locale, String name) { 
+    public IDescriptor getConfigDescriptor(Locale locale, String name) {
         if (name.equals(CONFIG_CRITICAL)) {
-            return new Descriptor(IDescriptor.BOOLEAN, null, 
+            return new Descriptor(IDescriptor.BOOLEAN, null,
                     "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_CRITICAL"));
         } else if (name.equals(CONFIG_OIDS)) {
-            return new Descriptor(IDescriptor.STRING, null, 
+            return new Descriptor(IDescriptor.STRING, null,
                     null,
                     CMS.getUserMessage(locale, "CMS_PROFILE_OIDS"));
         }
@@ -91,51 +89,49 @@ public class ExtendedKeyUsageExtDefault extends EnrollExtDefault {
     }
 
     public void setValue(String name, Locale locale,
-        X509CertInfo info, String value)
-        throws EPropertyException {
+            X509CertInfo info, String value)
+            throws EPropertyException {
         ExtendedKeyUsageExtension ext = null;
-
 
         ext = (ExtendedKeyUsageExtension)
                     getExtension(ExtendedKeyUsageExtension.OID, info);
 
-        if(ext == null)
-        {
+        if (ext == null) {
             try {
-                populate(null,info);
+                populate(null, info);
 
             } catch (EProfileException e) {
-                 throw new EPropertyException(CMS.getUserMessage(
-                      locale, "CMS_INVALID_PROPERTY", name));
+                throw new EPropertyException(CMS.getUserMessage(
+                        locale, "CMS_INVALID_PROPERTY", name));
             }
 
-        } 
-        if (name == null) { 
+        }
+        if (name == null) {
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         }
         if (name.equals(VAL_CRITICAL)) {
             ext = (ExtendedKeyUsageExtension)
-                    getExtension(ExtendedKeyUsageExtension.OID, info); 
-            boolean val = Boolean.valueOf(value).booleanValue(); 
+                    getExtension(ExtendedKeyUsageExtension.OID, info);
+            boolean val = Boolean.valueOf(value).booleanValue();
 
-            if(ext == null) {
+            if (ext == null) {
                 return;
             }
-            ext.setCritical(val);	    
+            ext.setCritical(val);
         } else if (name.equals(VAL_OIDS)) {
             ext = (ExtendedKeyUsageExtension)
                     getExtension(ExtendedKeyUsageExtension.OID, info);
             //		ext.deleteAllOIDs();
             StringTokenizer st = new StringTokenizer(value, ",");
 
-            if(ext == null) {
+            if (ext == null) {
                 return;
             }
             while (st.hasMoreTokens()) {
                 String oid = st.nextToken();
 
-                ext.addOID(new ObjectIdentifier(oid));	
+                ext.addOID(new ObjectIdentifier(oid));
             }
         } else {
             throw new EPropertyException(CMS.getUserMessage(
@@ -151,8 +147,8 @@ public class ExtendedKeyUsageExtDefault extends EnrollExtDefault {
     }
 
     public String getValue(String name, Locale locale,
-        X509CertInfo info)
-        throws EPropertyException {
+            X509CertInfo info)
+            throws EPropertyException {
         if (name == null) {
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
@@ -160,23 +156,21 @@ public class ExtendedKeyUsageExtDefault extends EnrollExtDefault {
 
         ExtendedKeyUsageExtension ext = (ExtendedKeyUsageExtension)
                 getExtension(ExtendedKeyUsageExtension.OID, info);
-       
 
-        if(ext == null)
-        {
+        if (ext == null) {
             try {
-                populate(null,info);
+                populate(null, info);
 
             } catch (EProfileException e) {
-                 throw new EPropertyException(CMS.getUserMessage(
-                      locale, "CMS_INVALID_PROPERTY", name));
+                throw new EPropertyException(CMS.getUserMessage(
+                        locale, "CMS_INVALID_PROPERTY", name));
             }
 
         }
 
         if (name.equals(VAL_CRITICAL)) {
             ext = (ExtendedKeyUsageExtension)
-                getExtension(ExtendedKeyUsageExtension.OID, info);
+                    getExtension(ExtendedKeyUsageExtension.OID, info);
 
             if (ext == null) {
                 return null;
@@ -188,20 +182,20 @@ public class ExtendedKeyUsageExtDefault extends EnrollExtDefault {
             }
         } else if (name.equals(VAL_OIDS)) {
             ext = (ExtendedKeyUsageExtension)
-                getExtension(ExtendedKeyUsageExtension.OID, info);
+                    getExtension(ExtendedKeyUsageExtension.OID, info);
             StringBuffer sb = new StringBuffer();
-            if(ext == null) {
+            if (ext == null) {
                 return "";
             }
             Enumeration e = ext.getOIDs();
 
             while (e.hasMoreElements()) {
                 ObjectIdentifier oid = (ObjectIdentifier)
-                    e.nextElement();
+                        e.nextElement();
 
                 if (!sb.toString().equals("")) {
                     sb.append(",");
-                }	
+                }
                 sb.append(oid.toString());
             }
             return sb.toString();
@@ -213,11 +207,11 @@ public class ExtendedKeyUsageExtDefault extends EnrollExtDefault {
 
     public String getText(Locale locale) {
         String params[] = {
-                getConfig(CONFIG_CRITICAL), 
+                getConfig(CONFIG_CRITICAL),
                 getConfig(CONFIG_OIDS)
             };
 
-        return CMS.getUserMessage(locale, 
+        return CMS.getUserMessage(locale,
                 "CMS_PROFILE_DEF_EXTENDED_KEY_EXT", params);
     }
 
@@ -225,20 +219,20 @@ public class ExtendedKeyUsageExtDefault extends EnrollExtDefault {
      * Populates the request with this policy default.
      */
     public void populate(IRequest request, X509CertInfo info)
-        throws EProfileException {
+            throws EProfileException {
         ExtendedKeyUsageExtension ext = createExtension();
 
         addExtension(ExtendedKeyUsageExtension.OID, ext, info);
     }
 
     public ExtendedKeyUsageExtension createExtension() {
-        ExtendedKeyUsageExtension ext = null; 
+        ExtendedKeyUsageExtension ext = null;
 
         try {
             ext = new ExtendedKeyUsageExtension();
         } catch (Exception e) {
             CMS.debug("ExtendedKeyUsageExtDefault: createExtension " +
-                e.toString());
+                    e.toString());
         }
         if (ext == null)
             return null;
@@ -250,7 +244,7 @@ public class ExtendedKeyUsageExtDefault extends EnrollExtDefault {
         while (st.hasMoreTokens()) {
             String oid = st.nextToken();
 
-            ext.addOID(new ObjectIdentifier(oid));	
+            ext.addOID(new ObjectIdentifier(oid));
         }
         return ext;
     }

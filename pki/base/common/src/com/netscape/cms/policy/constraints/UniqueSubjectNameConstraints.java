@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.policy.constraints;
 
-
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Locale;
@@ -44,35 +43,35 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cms.policy.APolicyRule;
 
-
 /**
  * Checks the uniqueness of the subject name. This policy
- * can only be used (installed) in Certificate Authority 
- * subsystem. 
- *
+ * can only be used (installed) in Certificate Authority
+ * subsystem.
+ * 
  * This policy can perform pre-agent-approval checking or
  * post-agent-approval checking based on configuration
  * setting.
- *
+ * 
  * In some situations, user may want to have 2 certificates with
- * the same subject name. For example, one key for encryption, 
- * and one for signing. This policy does not deal with this case 
+ * the same subject name. For example, one key for encryption,
+ * and one for signing. This policy does not deal with this case
  * directly. But it can be easily extended to do that.
  * <P>
+ * 
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- *
+ * 
  * @deprecated
  * @version $Revision$, $Date$
  */
-public class UniqueSubjectNameConstraints extends APolicyRule 
-    implements IEnrollmentPolicy, IExtendedPluginInfo {
-    protected static final String PROP_PRE_AGENT_APPROVAL_CHECKING = 
-        "enablePreAgentApprovalChecking";
-    protected static final String PROP_KEY_USAGE_EXTENSION_CHECKING = 
-        "enableKeyUsageExtensionChecking";
+public class UniqueSubjectNameConstraints extends APolicyRule
+        implements IEnrollmentPolicy, IExtendedPluginInfo {
+    protected static final String PROP_PRE_AGENT_APPROVAL_CHECKING =
+            "enablePreAgentApprovalChecking";
+    protected static final String PROP_KEY_USAGE_EXTENSION_CHECKING =
+            "enableKeyUsageExtensionChecking";
 
     public ICertificateAuthority mCA = null;
 
@@ -82,17 +81,17 @@ public class UniqueSubjectNameConstraints extends APolicyRule
     public UniqueSubjectNameConstraints() {
         NAME = "UniqueSubjectName";
         DESC = "Ensure the uniqueness of the subject name.";
-    } 
+    }
 
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
                 PROP_PRE_AGENT_APPROVAL_CHECKING + ";boolean;If checked, check subject name uniqueness BEFORE agent approves, (else checks AFTER approval)",
                 PROP_KEY_USAGE_EXTENSION_CHECKING + ";boolean;If checked, allow non-unique subject names if Key Usage Extension differs",
                 IExtendedPluginInfo.HELP_TOKEN +
-                ";configuration-policyrules-uniquesubjectname",
+                        ";configuration-policyrules-uniquesubjectname",
                 IExtendedPluginInfo.HELP_TEXT +
-                ";Rejects a request if there exists an unrevoked, unexpired " +
-                "certificate with the same subject name"
+                        ";Rejects a request if there exists an unrevoked, unexpired " +
+                        "certificate with the same subject name"
             };
 
         return params;
@@ -102,22 +101,18 @@ public class UniqueSubjectNameConstraints extends APolicyRule
     /**
      * Initializes this policy rule.
      * <P>
-     *
+     * 
      * The entries probably are of the form:
-     *
-     *      ca.Policy.rule.<ruleName>.implName=UniqueSubjectName
-     *      ca.Policy.rule.<ruleName>.enable=true
-     *      ca.Policy.rule.<ruleName>.enable=true
-     *      ca.Policy.rule.<ruleName>.enablePreAgentApprovalChecking=true
-     *      ca.Policy.rule.<ruleName>.enableKeyUsageExtensionChecking=true
-     *
-     * @param config	The config store reference
+     * 
+     * ca.Policy.rule.<ruleName>.implName=UniqueSubjectName ca.Policy.rule.<ruleName>.enable=true ca.Policy.rule.<ruleName>.enable=true ca.Policy.rule.<ruleName>.enablePreAgentApprovalChecking=true ca.Policy.rule.<ruleName>.enableKeyUsageExtensionChecking=true
+     * 
+     * @param config The config store reference
      */
-    public void init(ISubsystem owner, IConfigStore config) 
-        throws EBaseException {
+    public void init(ISubsystem owner, IConfigStore config)
+            throws EBaseException {
         // get CA's public key to create authority key id.
         ICertAuthority certAuthority = (ICertAuthority)
-            ((IPolicyProcessor) owner).getAuthority();
+                ((IPolicyProcessor) owner).getAuthority();
 
         if (certAuthority == null) {
             // should never get here.
@@ -131,12 +126,12 @@ public class UniqueSubjectNameConstraints extends APolicyRule
 
         mCA = (ICertificateAuthority) certAuthority;
         try {
-            mPreAgentApprovalChecking = 
+            mPreAgentApprovalChecking =
                     config.getBoolean(PROP_PRE_AGENT_APPROVAL_CHECKING, false);
         } catch (EBaseException e) {
         }
         try {
-            mKeyUsageExtensionChecking = 
+            mKeyUsageExtensionChecking =
                     config.getBoolean(PROP_KEY_USAGE_EXTENSION_CHECKING, true);
         } catch (EBaseException e) {
         }
@@ -145,8 +140,8 @@ public class UniqueSubjectNameConstraints extends APolicyRule
     /**
      * Applies the policy on the given Request.
      * <P>
-     *
-     * @param req	The request on which to apply policy.
+     * 
+     * @param req The request on which to apply policy.
      * @return The policy result object.
      */
     public PolicyResult apply(IRequest req) {
@@ -162,9 +157,9 @@ public class UniqueSubjectNameConstraints extends APolicyRule
             // Get the certificate templates
             X509CertInfo[] certInfos = req.getExtDataInCertInfoArray(
                     IRequest.CERT_INFO);
-			
+
             if (certInfos == null) {
-                setError(req, CMS.getUserMessage("CMS_POLICY_NO_CERT_INFO", 
+                setError(req, CMS.getUserMessage("CMS_POLICY_NO_CERT_INFO",
                         getInstanceName()), "");
                 return PolicyResult.REJECTED;
             }
@@ -172,11 +167,11 @@ public class UniqueSubjectNameConstraints extends APolicyRule
             // retrieve the subject name and check its unqiueness
             for (int i = 0; i < certInfos.length; i++) {
                 CertificateSubjectName subName = (CertificateSubjectName)
-                    certInfos[i].get(X509CertInfo.SUBJECT);
+                        certInfos[i].get(X509CertInfo.SUBJECT);
 
                 // if there is no name set, set one here.
                 if (subName == null) {
-                    setError(req, CMS.getUserMessage("CMS_POLICY_NO_SUBJECT_NAME", 
+                    setError(req, CMS.getUserMessage("CMS_POLICY_NO_SUBJECT_NAME",
                             getInstanceName()), "");
                     return PolicyResult.REJECTED;
                 }
@@ -184,8 +179,8 @@ public class UniqueSubjectNameConstraints extends APolicyRule
                 String filter = "x509Cert.subject=" + certSubjectName;
                 // subject name is indexed, so we only use subject name
                 // in the filter
-                Enumeration matched = 
-                    mCA.getCertificateRepository().findCertRecords(filter);
+                Enumeration matched =
+                        mCA.getCertificateRepository().findCertRecords(filter);
 
                 while (matched.hasMoreElements()) {
                     ICertRecord rec = (ICertRecord) matched.nextElement();
@@ -195,7 +190,7 @@ public class UniqueSubjectNameConstraints extends APolicyRule
                         // accept this only if we have a REVOKED, 
                         // EXPIRED or REVOKED_EXPIRED certificate
                         continue;
-					
+
                     }
                     // you already have an VALID or INVALID (not yet valid) certificate
                     if (mKeyUsageExtensionChecking && agentApproved(req)) {
@@ -210,15 +205,15 @@ public class UniqueSubjectNameConstraints extends APolicyRule
                         }
                     }
 
-                    setError(req, CMS.getUserMessage("CMS_POLICY_SUBJECT_NAME_EXIST", 
+                    setError(req, CMS.getUserMessage("CMS_POLICY_SUBJECT_NAME_EXIST",
                             getInstanceName() + " " + certSubjectName), "");
                     return PolicyResult.REJECTED;
                 }
             }
         } catch (Exception e) {
-            String params[] = {getInstanceName(), e.toString()};
+            String params[] = { getInstanceName(), e.toString() };
 
-            setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR", 
+            setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR",
                     params), "");
             result = PolicyResult.REJECTED;
         }
@@ -229,8 +224,8 @@ public class UniqueSubjectNameConstraints extends APolicyRule
      * Checks if the key extension in the issued certificate
      * is the same as the one in the certificate template.
      */
-    private boolean sameKeyUsageExtension(ICertRecord rec, 
-        X509CertInfo certInfo) {
+    private boolean sameKeyUsageExtension(ICertRecord rec,
+            X509CertInfo certInfo) {
         X509CertImpl impl = rec.getCertificate();
         boolean bits[] = impl.getKeyUsage();
 
@@ -282,25 +277,25 @@ public class UniqueSubjectNameConstraints extends APolicyRule
 
     /**
      * Return configured parameters for a policy rule instance.
-     *
+     * 
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector getInstanceParams() {
         Vector confParams = new Vector();
 
         confParams.addElement(PROP_PRE_AGENT_APPROVAL_CHECKING +
-            "=" + mPreAgentApprovalChecking);
+                "=" + mPreAgentApprovalChecking);
         confParams.addElement(PROP_KEY_USAGE_EXTENSION_CHECKING +
-            "=" + mKeyUsageExtensionChecking);
+                "=" + mKeyUsageExtensionChecking);
         return confParams;
     }
 
     /**
      * Return default parameters for a policy implementation.
-     *
+     * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getDefaultParams() { 
+    public Vector getDefaultParams() {
         Vector defParams = new Vector();
 
         defParams.addElement(PROP_PRE_AGENT_APPROVAL_CHECKING + "=");

@@ -17,17 +17,15 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.publish;
 
-
 import java.util.Vector;
 
 import netscape.ldap.LDAPConnection;
 
 import com.netscape.certsrv.ldap.ELdapException;
 
-
-/** 
- * Interface for publishing certificate or crl to database store. 
- *
+/**
+ * Interface for publishing certificate or crl to database store.
+ * 
  * @version $Revision$ $Date$
  */
 public interface ILdapPublisher extends ILdapPlugin {
@@ -58,30 +56,29 @@ public interface ILdapPublisher extends ILdapPlugin {
     /**
      * Publish an object.
      * 
-     * @param conn a Ldap connection 
-     *        (null for non-LDAP publishing)
+     * @param conn a Ldap connection
+     *            (null for non-LDAP publishing)
      * @param dn dn of the ldap entry to publish cert
-     *        (null for non-LDAP publishing)
+     *            (null for non-LDAP publishing)
      * @param object object to publish
-     *        (java.security.cert.X509Certificate or,
-     *         java.security.cert.X509CRL)
+     *            (java.security.cert.X509Certificate or,
+     *            java.security.cert.X509CRL)
      * @exception ELdapException publish failed.
      */
     public void publish(LDAPConnection conn, String dn, Object object)
-        throws ELdapException;
+            throws ELdapException;
 
     /**
      * Unpublish an object.
-     *
+     * 
      * @param conn the Ldap connection
-     *        (null for non-LDAP publishing)
+     *            (null for non-LDAP publishing)
      * @param dn dn of the ldap entry to unpublish cert
-     *        (null for non-LDAP publishing)
-     * @param object object to unpublish 
-     *        (java.security.cert.X509Certificate)
+     *            (null for non-LDAP publishing)
+     * @param object object to unpublish
+     *            (java.security.cert.X509Certificate)
      * @exception ELdapException unpublish failed.
      */
     public void unpublish(LDAPConnection conn, String dn, Object object)
-        throws ELdapException;
+            throws ELdapException;
 }
-

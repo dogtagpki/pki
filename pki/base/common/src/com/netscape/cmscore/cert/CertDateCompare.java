@@ -17,16 +17,14 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.cert;
 
-
 import java.util.Comparator;
 import java.util.Date;
 
 import netscape.security.x509.X509CertImpl;
 
-
 /**
  * Compares validity dates for use in sorting.
- *
+ * 
  * @author kanda
  * @version $Revision$, $Date$
  */
@@ -44,11 +42,11 @@ public class CertDateCompare implements Comparator {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        if (d1 == d2) return 0;
+        if (d1 == d2)
+            return 0;
         if (d1.after(d2))
             return 1;
         else
             return -1;
     }
 }
-

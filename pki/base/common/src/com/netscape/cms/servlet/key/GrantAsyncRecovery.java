@@ -40,10 +40,9 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 
-
 /**
  * Approve an asynchronous key recovery request
- *
+ * 
  */
 public class GrantAsyncRecovery extends CMSServlet {
 
@@ -69,7 +68,7 @@ public class GrantAsyncRecovery extends CMSServlet {
     private String mFormPath = null;
 
     private final static String LOGGING_SIGNED_AUDIT_KEY_RECOVERY_AGENT_LOGIN =
-        "LOGGING_SIGNED_AUDIT_KEY_RECOVERY_AGENT_LOGIN_4";
+            "LOGGING_SIGNED_AUDIT_KEY_RECOVERY_AGENT_LOGIN_4";
 
     /**
      * Constructs EA servlet.
@@ -81,7 +80,7 @@ public class GrantAsyncRecovery extends CMSServlet {
     /**
      * initialize the servlet. This servlet uses the template file
      * 'grantAsyncRecovery.template' to process the response.
-     *
+     * 
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -98,8 +97,8 @@ public class GrantAsyncRecovery extends CMSServlet {
     /**
      * Returns serlvet information.
      */
-    public String getServletInfo() { 
-        return INFO; 
+    public String getServletInfo() {
+        return INFO;
     }
 
     /**
@@ -107,9 +106,9 @@ public class GrantAsyncRecovery extends CMSServlet {
      * <ul>
      * <li>http.param reqID request ID of the request to approve
      * <li>http.param agentID User ID of the agent approving the request
-
+     * 
      * </ul>
-     *
+     * 
      * @param cmsReq the object holding the request and response information
      */
     public void process(CMSRequest cmsReq) throws EBaseException {
@@ -128,10 +127,10 @@ public class GrantAsyncRecovery extends CMSServlet {
                         mAuthzResourceName, "recover");
         } catch (EAuthzAccessDenied e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
         } catch (Exception e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
         }
 
         if (authzToken == null) {
@@ -146,9 +145,9 @@ public class GrantAsyncRecovery extends CMSServlet {
             form = getTemplate(mFormPath, req, locale);
         } catch (IOException e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()));
+                    CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
 
         IArgBlock header = CMS.createArgBlock();
@@ -161,13 +160,13 @@ public class GrantAsyncRecovery extends CMSServlet {
         CMS.debug("GrantAsyncRecovery: process() agent uid=" + agentID);
         CMS.debug("GrantAsyncRecovery: process() request id=" + req.getParameter("reqID"));
         try {
-            process(argSet, header, 
-                req.getParameter("reqID"),
-                agentID,
-                req, resp, locale[0]);
+            process(argSet, header,
+                    req.getParameter("reqID"),
+                    agentID,
+                    req, resp, locale[0]);
         } catch (NumberFormatException e) {
             header.addStringValue(OUT_ERROR,
-                CMS.getUserMessage(locale[0], "CMS_BASE_INTERNAL_ERROR", e.toString()));
+                    CMS.getUserMessage(locale[0], "CMS_BASE_INTERNAL_ERROR", e.toString()));
         }
         try {
             ServletOutputStream out = resp.getOutputStream();
@@ -176,9 +175,9 @@ public class GrantAsyncRecovery extends CMSServlet {
             form.renderOutput(out, argSet);
         } catch (IOException e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()));
+                    CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
         cmsReq.setStatus(CMSRequest.SUCCESS);
     }
@@ -186,12 +185,11 @@ public class GrantAsyncRecovery extends CMSServlet {
     /**
      * Update agent approval list
      * <P>
-     *
+     * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_KEY_RECOVERY_AGENT_LOGIN used
-     * whenever DRM agents login as recovery agents to approve key recovery
-     * requests
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_KEY_RECOVERY_AGENT_LOGIN used whenever DRM agents login as recovery agents to approve key recovery requests
      * </ul>
+     * 
      * @param argSet CMS template parameters
      * @param header argument block
      * @param reqID string containing the recovery request ID
@@ -201,10 +199,10 @@ public class GrantAsyncRecovery extends CMSServlet {
      * @param locale the system locale
      */
     private void process(CMSTemplateParams argSet,
-        IArgBlock header, String reqID,
-        String agentID,
-        HttpServletRequest req, HttpServletResponse resp,
-        Locale locale) {
+            IArgBlock header, String reqID,
+            String agentID,
+            HttpServletRequest req, HttpServletResponse resp,
+            Locale locale) {
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
         String auditRequestID = reqID;
@@ -234,9 +232,9 @@ public class GrantAsyncRecovery extends CMSServlet {
 
         try {
             header.addStringValue(OUT_OP,
-                req.getParameter(OUT_OP));
+                    req.getParameter(OUT_OP));
             header.addStringValue(OUT_SERVICE_URL,
-                req.getRequestURI());
+                    req.getRequestURI());
 
             // update approving agent list
             mService.addAgentAsyncKeyRecovery(reqID, agentID);
@@ -281,4 +279,3 @@ public class GrantAsyncRecovery extends CMSServlet {
         }
     }
 }
-

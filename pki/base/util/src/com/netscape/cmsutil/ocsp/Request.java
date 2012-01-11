@@ -31,132 +31,117 @@ import org.mozilla.jss.pkix.cert.Extension;
 
 /**
  * RFC 2560:
- *
+ * 
  * <pre>
  *   Request         ::=     SEQUENCE {
  *     reqCert                     CertID,
  *     singleRequestExtensions     [0] EXPLICIT Extensions OPTIONAL }
  * </pre>
- *
+ * 
  * @version $Revision$ $Date$
  */
 
-public class Request implements ASN1Value
-{
-	///////////////////////////////////////////////////////////////////////
-	// members and member access
-	///////////////////////////////////////////////////////////////////////
-	private CertID reqCert = null;
-	private SEQUENCE singleRequestExtensions = null;
-	private SEQUENCE sequence = null;
+public class Request implements ASN1Value {
+    ///////////////////////////////////////////////////////////////////////
+    // members and member access
+    ///////////////////////////////////////////////////////////////////////
+    private CertID reqCert = null;
+    private SEQUENCE singleRequestExtensions = null;
+    private SEQUENCE sequence = null;
 
-	public CertID getCertID()
-	{
-		return reqCert;
-	}
+    public CertID getCertID() {
+        return reqCert;
+    }
 
-	public int getExtensionsCount()
-	{
-		if(singleRequestExtensions == null) {
-			return 0;
-		} else {
-			return singleRequestExtensions.size();
-		}
-	}
+    public int getExtensionsCount() {
+        if (singleRequestExtensions == null) {
+            return 0;
+        } else {
+            return singleRequestExtensions.size();
+        }
+    }
 
-	public Extension getRequestExtensionAt(int index)
-	{
-		if(singleRequestExtensions == null) {
-			throw new ArrayIndexOutOfBoundsException();
-		}
-			return (Extension) singleRequestExtensions.elementAt(index);
-	}
+    public Extension getRequestExtensionAt(int index) {
+        if (singleRequestExtensions == null) {
+            throw new ArrayIndexOutOfBoundsException();
+        }
+        return (Extension) singleRequestExtensions.elementAt(index);
+    }
 
-	public Request(CertID reqCert, SEQUENCE singleRequestExtensions)
-	{
-  		sequence = new SEQUENCE();
+    public Request(CertID reqCert, SEQUENCE singleRequestExtensions) {
+        sequence = new SEQUENCE();
 
-		this.reqCert = reqCert;
-  		sequence.addElement(reqCert);
+        this.reqCert = reqCert;
+        sequence.addElement(reqCert);
 
-		if (singleRequestExtensions != null) {
-			this.singleRequestExtensions = singleRequestExtensions;
-  			sequence.addElement(singleRequestExtensions);
-		}
-	}
+        if (singleRequestExtensions != null) {
+            this.singleRequestExtensions = singleRequestExtensions;
+            sequence.addElement(singleRequestExtensions);
+        }
+    }
 
-	///////////////////////////////////////////////////////////////////////
-	// encode / decode
-	///////////////////////////////////////////////////////////////////////
-	private static final Tag TAG = SEQUENCE.TAG;
+    ///////////////////////////////////////////////////////////////////////
+    // encode / decode
+    ///////////////////////////////////////////////////////////////////////
+    private static final Tag TAG = SEQUENCE.TAG;
 
-	public Tag getTag()
-	{
-		return TAG;
-	}
+    public Tag getTag() {
+        return TAG;
+    }
 
-	public void encode(OutputStream ostream) throws IOException
-	{
-		encode(TAG, ostream);
-	}
+    public void encode(OutputStream ostream) throws IOException {
+        encode(TAG, ostream);
+    }
 
-	public void encode(Tag implicitTag, OutputStream ostream)
-		throws IOException
-	{
-		sequence.encode(implicitTag, ostream);
-	}
+    public void encode(Tag implicitTag, OutputStream ostream)
+            throws IOException {
+        sequence.encode(implicitTag, ostream);
+    }
 
-	private static final Template templateInstance = new Template();
+    private static final Template templateInstance = new Template();
 
-	public static Template getTemplate()
-	{
-		return templateInstance;
-	}
+    public static Template getTemplate() {
+        return templateInstance;
+    }
 
-	/**
- 	* A Template for decoding Request.
- 	*/
-	public static class Template implements ASN1Template
-	{
+    /**
+     * A Template for decoding Request.
+     */
+    public static class Template implements ASN1Template {
 
-		private SEQUENCE.Template seqt;
+        private SEQUENCE.Template seqt;
 
-		public Template()
-		{
-			seqt = new SEQUENCE.Template();
-			seqt.addElement( CertID.getTemplate() );
-			seqt.addOptionalElement(new EXPLICIT.Template(new Tag(0),
-				new SEQUENCE.OF_Template(new Extension.Template()) ));
-		}
+        public Template() {
+            seqt = new SEQUENCE.Template();
+            seqt.addElement(CertID.getTemplate());
+            seqt.addOptionalElement(new EXPLICIT.Template(new Tag(0),
+                    new SEQUENCE.OF_Template(new Extension.Template())));
+        }
 
-		public boolean tagMatch(Tag tag)
-		{
-			return TAG.equals(tag);
-		}
+        public boolean tagMatch(Tag tag) {
+            return TAG.equals(tag);
+        }
 
-		public ASN1Value decode(InputStream istream)
-			throws InvalidBERException, IOException
-		{
-			return decode(TAG, istream);
-		}
+        public ASN1Value decode(InputStream istream)
+                throws InvalidBERException, IOException {
+            return decode(TAG, istream);
+        }
 
-		public ASN1Value decode(Tag implicitTag, InputStream istream)
-				throws InvalidBERException, IOException
-		{
-			SEQUENCE seq = (SEQUENCE) seqt.decode(implicitTag, istream);
+        public ASN1Value decode(Tag implicitTag, InputStream istream)
+                throws InvalidBERException, IOException {
+            SEQUENCE seq = (SEQUENCE) seqt.decode(implicitTag, istream);
 
-			EXPLICIT tag = (EXPLICIT) seq.elementAt(1);
+            EXPLICIT tag = (EXPLICIT) seq.elementAt(1);
 
-			if (tag == null) {
-				return new Request(
-					(CertID)   seq.elementAt(0), 
-					(SEQUENCE) null);
-			}
-			else {
-				return new Request(
-					(CertID)   seq.elementAt(0), 
-					(SEQUENCE) tag.getContent());
-			}
-		}
-	}
+            if (tag == null) {
+                return new Request(
+                        (CertID) seq.elementAt(0),
+                        (SEQUENCE) null);
+            } else {
+                return new Request(
+                        (CertID) seq.elementAt(0),
+                        (SEQUENCE) tag.getContent());
+            }
+        }
+    }
 }

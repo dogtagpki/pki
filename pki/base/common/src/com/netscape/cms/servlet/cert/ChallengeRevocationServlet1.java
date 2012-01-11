@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.cert;
 
-
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.cert.CertificateException;
@@ -66,11 +65,10 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 
-
 /**
- * Takes the certificate info (serial number) and optional challenge phrase, creates a 
+ * Takes the certificate info (serial number) and optional challenge phrase, creates a
  * revocation request and submits it to the authority subsystem for processing
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class ChallengeRevocationServlet1 extends CMSServlet {
@@ -102,10 +100,10 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
     }
 
     /**
-     * Initialize the servlet. This servlet uses the file 
-	 * revocationResult.template for the response
-     *
-	 * @param sc servlet configuration, read from the web.xml file
+     * Initialize the servlet. This servlet uses the file
+     * revocationResult.template for the response
+     * 
+     * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
@@ -125,17 +123,17 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
         mQueue = mAuthority.getRequestQueue();
     }
 
-	/**
-     * Process the HTTP request. 
+    /**
+     * Process the HTTP request.
      * <ul>
      * <li>http.param REASON_CODE the revocation reason
-	 * <li>http.param b64eCertificate the base-64 encoded certificate to revoke
+     * <li>http.param b64eCertificate the base-64 encoded certificate to revoke
      * </ul>
-     *
+     * 
      * @param cmsReq the object holding the request and response information
      */
-    protected void process(CMSRequest cmsReq) 
-        throws EBaseException {
+    protected void process(CMSRequest cmsReq)
+            throws EBaseException {
         IArgBlock httpParams = cmsReq.getHttpParams();
         HttpServletRequest req = cmsReq.getHttpReq();
         HttpServletResponse resp = cmsReq.getHttpResp();
@@ -159,23 +157,23 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
         // for audit log
         IAuthToken authToken = authenticate(cmsReq);
         String authMgr = AuditFormat.NOAUTH;
-		
+
         BigInteger[] serialNoArray = null;
 
         if (authToken != null) {
             serialNoArray = authToken.getInBigIntegerArray(SERIAL_NO);
         }
         // set revocation reason, default to unspecified if not set.
-        int reasonCode = 
-            httpParams.getValueAsInt(REASON_CODE, 0); 
+        int reasonCode =
+                httpParams.getValueAsInt(REASON_CODE, 0);
         //        header.addIntegerValue("reason", reasonCode);
         RevocationReason reason = RevocationReason.fromInt(reasonCode);
 
         String comments = req.getParameter(IRequest.REQUESTOR_COMMENTS);
         Date invalidityDate = null;
         String revokeAll = null;
-        int totalRecordCount = (serialNoArray != null)? serialNoArray.length:0;
-        int verifiedRecordCount = (serialNoArray != null)? serialNoArray.length:0;
+        int totalRecordCount = (serialNoArray != null) ? serialNoArray.length : 0;
+        int verifiedRecordCount = (serialNoArray != null) ? serialNoArray.length : 0;
 
         X509CertImpl[] certs = null;
 
@@ -198,11 +196,11 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
         AuthzToken authzToken = null;
 
         try {
-            authzToken = authorize(mAclMethod, authToken, 
+            authzToken = authorize(mAclMethod, authToken,
                         mAuthzResourceName, "revoke");
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
         }
 
         if (authzToken == null) {
@@ -222,7 +220,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                 IRequest getCertsChallengeReq = null;
 
                 getCertsChallengeReq = mQueue.newRequest(
-                            GETCERTS_FOR_CHALLENGE_REQUEST); 
+                            GETCERTS_FOR_CHALLENGE_REQUEST);
                 getCertsChallengeReq.setExtData(SERIALNO_ARRAY, serialNoArray);
                 mQueue.processRequest(getCertsChallengeReq);
                 RequestStatus status = getCertsChallengeReq.getRequestStatus();
@@ -232,7 +230,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                     header.addStringValue("request", getCertsChallengeReq.getRequestId().toString());
                     mRequestID = getCertsChallengeReq.getRequestId().toString();
                 } else {
-                    log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_FAIL_GET_CERT_CHALL_PWRD")); 
+                    log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_FAIL_GET_CERT_CHALL_PWRD"));
                 }
             }
 
@@ -243,20 +241,20 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                 IArgBlock rarg = CMS.createArgBlock();
 
                 rarg.addBigIntegerValue("serialNumber",
-                    serialNoArray[i], 16);
+                        serialNoArray[i], 16);
                 rarg.addStringValue("subject",
-                    certs[i].getSubjectDN().toString());
+                        certs[i].getSubjectDN().toString());
                 rarg.addLongValue("validNotBefore",
-                    certs[i].getNotBefore().getTime() / 1000);
+                        certs[i].getNotBefore().getTime() / 1000);
                 rarg.addLongValue("validNotAfter",
-                    certs[i].getNotAfter().getTime() / 1000);
+                        certs[i].getNotAfter().getTime() / 1000);
                 //argSet.addRepeatRecord(rarg);
             }
 
             revokeAll = "(|(certRecordId=" + serialNoArray[0].toString() + "))";
             process(argSet, header, reasonCode, invalidityDate, initiative, req, resp,
-                verifiedRecordCount, revokeAll, totalRecordCount,
-                comments, locale[0]);
+                    verifiedRecordCount, revokeAll, totalRecordCount,
+                    comments, locale[0]);
         } else {
             header.addIntegerValue("totalRecordCount", 0);
             header.addIntegerValue("verifiedRecordCount", 0);
@@ -265,10 +263,10 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
         try {
             ServletOutputStream out = resp.getOutputStream();
 
-            if( serialNoArray == null ) {
-                CMS.debug( "ChallengeRevcationServlet1::process() - " +
-                           " serialNoArray is null!" );
-                EBaseException ee = new EBaseException( "No matched certificate is found" );
+            if (serialNoArray == null) {
+                CMS.debug("ChallengeRevcationServlet1::process() - " +
+                           " serialNoArray is null!");
+                EBaseException ee = new EBaseException("No matched certificate is found");
 
                 cmsReq.setError(ee);
                 return;
@@ -282,31 +280,31 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
             } else {
                 String xmlOutput = req.getParameter("xml");
                 if (xmlOutput != null && xmlOutput.equals("true")) {
-                  outputXML(resp, argSet);
+                    outputXML(resp, argSet);
                 } else {
-                  resp.setContentType("text/html");
-                  form.renderOutput(out, argSet);
-                  cmsReq.setStatus(CMSRequest.SUCCESS);
+                    resp.setContentType("text/html");
+                    form.renderOutput(out, argSet);
+                    cmsReq.setStatus(CMSRequest.SUCCESS);
                 }
             }
         } catch (IOException e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("ADMIN_SRVLT_ERR_STREAM_TEMPLATE", e.toString()));
+                    CMS.getLogMessage("ADMIN_SRVLT_ERR_STREAM_TEMPLATE", e.toString()));
             throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"));
         }
     }
 
     private void process(CMSTemplateParams argSet, IArgBlock header,
-        int reason, Date invalidityDate,
-        String initiative,
-        HttpServletRequest req,
-        HttpServletResponse resp,
-        int verifiedRecordCount,
-        String revokeAll,
-        int totalRecordCount,
-        String comments,
-        Locale locale)
-        throws EBaseException {
+            int reason, Date invalidityDate,
+            String initiative,
+            HttpServletRequest req,
+            HttpServletResponse resp,
+            int verifiedRecordCount,
+            String revokeAll,
+            int totalRecordCount,
+            String comments,
+            Locale locale)
+            throws EBaseException {
         try {
             int count = 0;
             Vector oldCertsV = new Vector();
@@ -344,18 +342,18 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                     IArgBlock rarg = CMS.createArgBlock();
 
                     rarg.addBigIntegerValue("serialNumber",
-                        cert.getSerialNumber(), 16);
+                            cert.getSerialNumber(), 16);
 
                     if (rec.getStatus().equals(ICertRecord.STATUS_REVOKED)) {
                         rarg.addStringValue("error", "Certificate " +
-                            cert.getSerialNumber().toString() +
-                            " is already revoked.");
+                                cert.getSerialNumber().toString() +
+                                " is already revoked.");
                     } else {
                         oldCertsV.addElement(cert);
 
                         RevokedCertImpl revCertImpl =
-                            new RevokedCertImpl(cert.getSerialNumber(),
-                                CMS.getCurrentDate(), entryExtn);
+                                new RevokedCertImpl(cert.getSerialNumber(),
+                                        CMS.getCurrentDate(), entryExtn);
 
                         revCertImplsV.addElement(revCertImpl);
                         count++;
@@ -367,14 +365,12 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
             } else if (mAuthority instanceof IRegistrationAuthority) {
                 String reqIdStr = null;
 
-                if (mRequestID != null && mRequestID.length() > 0) 
+                if (mRequestID != null && mRequestID.length() > 0)
                     reqIdStr = mRequestID;
                 Vector serialNumbers = new Vector();
 
                 if (revokeAll != null && revokeAll.length() > 0) {
-                    for (int i = revokeAll.indexOf('=');
-                        i < revokeAll.length() && i > -1;
-                        i = revokeAll.indexOf('=', i)) {
+                    for (int i = revokeAll.indexOf('='); i < revokeAll.length() && i > -1; i = revokeAll.indexOf('=', i)) {
                         if (i > -1) {
                             i++;
                             while (i < revokeAll.length() && revokeAll.charAt(i) == ' ') {
@@ -383,8 +379,8 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                             String legalDigits = "0123456789";
                             int j = i;
 
-                            while (j < revokeAll.length() && 
-                                legalDigits.indexOf(revokeAll.charAt(j)) != -1) {
+                            while (j < revokeAll.length() &&
+                                    legalDigits.indexOf(revokeAll.charAt(j)) != -1) {
                                 j++;
                             }
                             if (j > i) {
@@ -411,12 +407,12 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                             IArgBlock rarg = CMS.createArgBlock();
 
                             rarg.addBigIntegerValue("serialNumber",
-                                certs[i].getSerialNumber(), 16);
+                                    certs[i].getSerialNumber(), 16);
                             oldCertsV.addElement(certs[i]);
 
                             RevokedCertImpl revCertImpl =
-                                new RevokedCertImpl(certs[i].getSerialNumber(),
-                                    CMS.getCurrentDate(), entryExtn);
+                                    new RevokedCertImpl(certs[i].getSerialNumber(),
+                                            CMS.getCurrentDate(), entryExtn);
 
                             revCertImplsV.addElement(revCertImpl);
                             count++;
@@ -433,12 +429,12 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                         IArgBlock rarg = CMS.createArgBlock();
 
                         rarg.addBigIntegerValue("serialNumber",
-                            cert.getSerialNumber(), 16);
+                                cert.getSerialNumber(), 16);
                         oldCertsV.addElement(cert);
 
                         RevokedCertImpl revCertImpl =
-                            new RevokedCertImpl(cert.getSerialNumber(),
-                                CMS.getCurrentDate(), entryExtn);
+                                new RevokedCertImpl(cert.getSerialNumber(),
+                                        CMS.getCurrentDate(), entryExtn);
 
                         revCertImplsV.addElement(revCertImpl);
                         count++;
@@ -459,7 +455,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
             }
 
             IRequest revReq =
-                mQueue.newRequest(IRequest.REVOCATION_REQUEST);
+                    mQueue.newRequest(IRequest.REVOCATION_REQUEST);
 
             revReq.setExtData(IRequest.CERT_INFO, revCertImpls);
             revReq.setExtData(IRequest.REQ_TYPE, IRequest.REVOCATION_REQUEST);
@@ -479,7 +475,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
 
                 if (result.equals(IRequest.RES_ERROR)) {
                     String[] svcErrors =
-                        revReq.getExtDataInStringArray(IRequest.SVCERRORS);
+                            revReq.getExtDataInStringArray(IRequest.SVCERRORS);
 
                     if (svcErrors != null && svcErrors.length > 0) {
                         for (int i = 0; i < svcErrors.length; i++) {
@@ -490,18 +486,18 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                                 for (int j = 0; j < count; j++) {
                                     if (oldCerts[j] != null) {
                                         mLogger.log(ILogger.EV_AUDIT,
-                                            ILogger.S_OTHER,
-                                            AuditFormat.LEVEL,
-                                            AuditFormat.DOREVOKEFORMAT,
-                                            new Object[] {
-                                                revReq.getRequestId(),
-                                                initiative,
-                                                "completed with error: " +
-                                                err,
-                                                oldCerts[j].getSubjectDN(),
-                                                oldCerts[j].getSerialNumber().toString(16),
-                                                RevocationReason.fromInt(reason).toString()}
-                                        );
+                                                ILogger.S_OTHER,
+                                                AuditFormat.LEVEL,
+                                                AuditFormat.DOREVOKEFORMAT,
+                                                new Object[] {
+                                                        revReq.getRequestId(),
+                                                        initiative,
+                                                        "completed with error: " +
+                                                                err,
+                                                        oldCerts[j].getSubjectDN(),
+                                                        oldCerts[j].getSerialNumber().toString(16),
+                                                        RevocationReason.fromInt(reason).toString() }
+                                                );
                                     }
                                 }
                             }
@@ -514,23 +510,23 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                 for (int j = 0; j < count; j++) {
                     if (oldCerts[j] != null) {
                         mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
-                            AuditFormat.LEVEL,
-                            AuditFormat.DOREVOKEFORMAT,
-                            new Object[] {
-                                revReq.getRequestId(),
-                                initiative,
-                                "completed",
-                                oldCerts[j].getSubjectDN(),
-                                oldCerts[j].getSerialNumber().toString(16),
-                                RevocationReason.fromInt(reason).toString()}
-                        );
+                                AuditFormat.LEVEL,
+                                AuditFormat.DOREVOKEFORMAT,
+                                new Object[] {
+                                        revReq.getRequestId(),
+                                        initiative,
+                                        "completed",
+                                        oldCerts[j].getSubjectDN(),
+                                        oldCerts[j].getSerialNumber().toString(16),
+                                        RevocationReason.fromInt(reason).toString() }
+                                );
                     }
                 }
 
                 header.addStringValue("revoked", "yes");
 
                 Integer updateCRLResult =
-                    revReq.getExtDataInInteger(IRequest.CRL_UPDATE_STATUS);
+                        revReq.getExtDataInInteger(IRequest.CRL_UPDATE_STATUS);
 
                 if (updateCRLResult != null) {
                     header.addStringValue("updateCRL", "yes");
@@ -539,15 +535,15 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                     } else {
                         header.addStringValue("updateCRLSuccess", "no");
                         String crlError =
-                            revReq.getExtDataInString(IRequest.CRL_UPDATE_ERROR);
+                                revReq.getExtDataInString(IRequest.CRL_UPDATE_ERROR);
 
                         if (crlError != null)
                             header.addStringValue("updateCRLError",
-                                crlError);
+                                    crlError);
                     }
                     // let known crl publishing status too.
                     Integer publishCRLResult =
-                        revReq.getExtDataInInteger(IRequest.CRL_PUBLISH_STATUS);
+                            revReq.getExtDataInInteger(IRequest.CRL_PUBLISH_STATUS);
 
                     if (publishCRLResult != null) {
                         if (publishCRLResult.equals(IRequest.RES_SUCCESS)) {
@@ -555,22 +551,22 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                         } else {
                             header.addStringValue("publishCRLSuccess", "no");
                             String publError =
-                                revReq.getExtDataInString(IRequest.CRL_PUBLISH_ERROR);
+                                    revReq.getExtDataInString(IRequest.CRL_PUBLISH_ERROR);
 
                             if (publError != null)
                                 header.addStringValue("publishCRLError",
-                                    publError);
+                                        publError);
                         }
                     }
                 }
                 if (mAuthority instanceof ICertificateAuthority) {
                     // let known update and publish status of all crls.
                     Enumeration otherCRLs =
-                        ((ICertificateAuthority) mAuthority).getCRLIssuingPoints();
+                            ((ICertificateAuthority) mAuthority).getCRLIssuingPoints();
 
                     while (otherCRLs.hasMoreElements()) {
                         ICRLIssuingPoint crl = (ICRLIssuingPoint)
-                            otherCRLs.nextElement();
+                                otherCRLs.nextElement();
                         String crlId = crl.getId();
 
                         if (crlId.equals(ICertificateAuthority.PROP_MASTER_CRL))
@@ -580,25 +576,25 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
 
                         if (updateResult != null) {
                             if (updateResult.equals(IRequest.RES_SUCCESS)) {
-                                CMS.debug("ChallengeRevcationServlet1: " + CMS.getLogMessage("ADMIN_SRVLT_ADDING_HEADER", 
+                                CMS.debug("ChallengeRevcationServlet1: " + CMS.getLogMessage("ADMIN_SRVLT_ADDING_HEADER",
                                         updateStatusStr));
                                 header.addStringValue(updateStatusStr, "yes");
                             } else {
                                 String updateErrorStr = crl.getCrlUpdateErrorStr();
 
-                                CMS.debug("ChallengeRevcationServlet1: " + CMS.getLogMessage("ADMIN_SRVLT_ADDING_HEADER_NO", 
+                                CMS.debug("ChallengeRevcationServlet1: " + CMS.getLogMessage("ADMIN_SRVLT_ADDING_HEADER_NO",
                                         updateStatusStr));
                                 header.addStringValue(updateStatusStr, "no");
                                 String error =
-                                    revReq.getExtDataInString(updateErrorStr);
+                                        revReq.getExtDataInString(updateErrorStr);
 
                                 if (error != null)
                                     header.addStringValue(updateErrorStr,
-                                        error);
+                                            error);
                             }
                             String publishStatusStr = crl.getCrlPublishStatusStr();
                             Integer publishResult =
-                                revReq.getExtDataInInteger(publishStatusStr);
+                                    revReq.getExtDataInInteger(publishStatusStr);
 
                             if (publishResult == null)
                                 continue;
@@ -606,15 +602,15 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                                 header.addStringValue(publishStatusStr, "yes");
                             } else {
                                 String publishErrorStr =
-                                    crl.getCrlPublishErrorStr();
+                                        crl.getCrlPublishErrorStr();
 
                                 header.addStringValue(publishStatusStr, "no");
                                 String error =
-                                    revReq.getExtDataInString(publishErrorStr);
+                                        revReq.getExtDataInString(publishErrorStr);
 
                                 if (error != null)
                                     header.addStringValue(
-                                        publishErrorStr, error);
+                                            publishErrorStr, error);
                             }
                         }
                     }
@@ -623,7 +619,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                 if (mPublisherProcessor != null && mPublisherProcessor.ldapEnabled()) {
                     header.addStringValue("dirEnabled", "yes");
                     Integer[] ldapPublishStatus =
-                        revReq.getExtDataInIntegerArray("ldapPublishStatus");
+                            revReq.getExtDataInIntegerArray("ldapPublishStatus");
                     int certsToUpdate = 0;
                     int certsUpdated = 0;
 
@@ -640,11 +636,11 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
 
                     // add crl publishing status.
                     String publError =
-                        revReq.getExtDataInString(IRequest.CRL_PUBLISH_ERROR);
+                            revReq.getExtDataInString(IRequest.CRL_PUBLISH_ERROR);
 
                     if (publError != null) {
                         header.addStringValue("crlPublishError",
-                            publError);
+                                publError);
                     }
                 } else {
                     header.addStringValue("dirEnabled", "no");
@@ -658,16 +654,16 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                 for (int j = 0; j < count; j++) {
                     if (oldCerts[j] != null) {
                         mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
-                            AuditFormat.LEVEL,
-                            AuditFormat.DOREVOKEFORMAT,
-                            new Object[] {
-                                revReq.getRequestId(),
-                                initiative,
-                                "pending",
-                                oldCerts[j].getSubjectDN(),
-                                oldCerts[j].getSerialNumber().toString(16),
-                                RevocationReason.fromInt(reason).toString()}
-                        );
+                                AuditFormat.LEVEL,
+                                AuditFormat.DOREVOKEFORMAT,
+                                new Object[] {
+                                        revReq.getRequestId(),
+                                        initiative,
+                                        "pending",
+                                        oldCerts[j].getSubjectDN(),
+                                        oldCerts[j].getSerialNumber().toString(16),
+                                        RevocationReason.fromInt(reason).toString() }
+                                );
                     }
                 }
 
@@ -686,16 +682,16 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
                 for (int j = 0; j < count; j++) {
                     if (oldCerts[j] != null) {
                         mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
-                            AuditFormat.LEVEL,
-                            AuditFormat.DOREVOKEFORMAT,
-                            new Object[] {
-                                revReq.getRequestId(),
-                                initiative,
-                                stat.toString(),
-                                oldCerts[j].getSubjectDN(),
-                                oldCerts[j].getSerialNumber().toString(16),
-                                RevocationReason.fromInt(reason).toString()}
-                        );
+                                AuditFormat.LEVEL,
+                                AuditFormat.DOREVOKEFORMAT,
+                                new Object[] {
+                                        revReq.getRequestId(),
+                                        initiative,
+                                        stat.toString(),
+                                        oldCerts[j].getSubjectDN(),
+                                        oldCerts[j].getSerialNumber().toString(16),
+                                        RevocationReason.fromInt(reason).toString() }
+                                );
                     }
                 }
             }
@@ -706,7 +702,7 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
             throw e;
         } catch (IOException e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("CMSGW_ERROR_MARKING_CERT_REVOKED", e.toString()));
+                    CMS.getLogMessage("CMSGW_ERROR_MARKING_CERT_REVOKED", e.toString()));
             throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_MARKING_CERT_REVOKED"));
         } catch (Exception e) {
             e.printStackTrace();
@@ -715,4 +711,3 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
         return;
     }
 }
-

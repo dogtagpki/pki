@@ -29,14 +29,12 @@ import netscape.security.util.DerValue;
 
 /**
  * This class represents the Authority Key Identifier Extension.
- *
- * <p>The authority key identifier extension provides a means of
- * identifying the particular public key used to sign a certificate.
- * This extension would be used where an issuer has multiple signing
- * keys (either due to multiple concurrent key pairs or due to
- * changeover).
+ * 
+ * <p>
+ * The authority key identifier extension provides a means of identifying the particular public key used to sign a certificate. This extension would be used where an issuer has multiple signing keys (either due to multiple concurrent key pairs or due to changeover).
  * <p>
  * The ASN.1 syntax for this is:
+ * 
  * <pre>
  * AuthorityKeyIdentifier ::= SEQUENCE {
  *    keyIdentifier             [0] KeyIdentifier           OPTIONAL,
@@ -45,6 +43,7 @@ import netscape.security.util.DerValue;
  * }
  * KeyIdentifier ::= OCTET STRING
  * </pre>
+ * 
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  * @version 1.9
@@ -52,7 +51,7 @@ import netscape.security.util.DerValue;
  * @see CertAttrSet
  */
 public class AuthorityKeyIdentifierExtension extends Extension
-implements CertAttrSet {
+        implements CertAttrSet {
     /**
      *
      */
@@ -60,7 +59,7 @@ implements CertAttrSet {
     /**
      * Identifier for this attribute, to be used with the
      * get, set, delete methods of Certificate, x509 type.
-     */  
+     */
     public static final String IDENT =
                          "x509.info.extensions.AuthorityKeyIdentifier";
     /**
@@ -76,9 +75,9 @@ implements CertAttrSet {
     private static final byte TAG_NAMES = 1;
     private static final byte TAG_SERIAL_NUM = 2;
 
-    private KeyIdentifier	id = null;
-    private GeneralNames	names = null;
-    private SerialNumber	serialNum = null;
+    private KeyIdentifier id = null;
+    private GeneralNames names = null;
+    private SerialNumber serialNum = null;
 
     // Encode only the extension value
     private void encodeThis() throws IOException {
@@ -92,9 +91,9 @@ implements CertAttrSet {
         }
         try {
             if (names != null) {
-	        DerOutputStream tmp1 = new DerOutputStream();
-	        names.encode(tmp1);
-		tmp.writeImplicit(DerValue.createTag(DerValue.TAG_CONTEXT,
+                DerOutputStream tmp1 = new DerOutputStream();
+                names.encode(tmp1);
+                tmp.writeImplicit(DerValue.createTag(DerValue.TAG_CONTEXT,
                                   true, TAG_NAMES), tmp1);
             }
         } catch (Exception e) {
@@ -103,7 +102,7 @@ implements CertAttrSet {
         if (serialNum != null) {
             DerOutputStream tmp1 = new DerOutputStream();
             serialNum.encode(tmp1);
-	    tmp.writeImplicit(DerValue.createTag(DerValue.TAG_CONTEXT,
+            tmp.writeImplicit(DerValue.createTag(DerValue.TAG_CONTEXT,
                               false, TAG_SERIAL_NUM), tmp1);
         }
         seq.write(DerValue.tag_Sequence, tmp);
@@ -113,10 +112,10 @@ implements CertAttrSet {
     /**
      * Exposed critical parameter. 99/11/03
      */
-    public AuthorityKeyIdentifierExtension(boolean critical, 
-			KeyIdentifier kid, GeneralNames name,
+    public AuthorityKeyIdentifierExtension(boolean critical,
+            KeyIdentifier kid, GeneralNames name,
                                           SerialNumber sn)
-    throws IOException {
+            throws IOException {
         this.id = kid;
         this.names = name;
         this.serialNum = sn;
@@ -127,18 +126,18 @@ implements CertAttrSet {
     }
 
     /**
-     * The default constructor for this extension.  Null parameters make
+     * The default constructor for this extension. Null parameters make
      * the element optional (not present).
-     *
+     * 
      * @param id the KeyIdentifier associated with this extension.
      * @param names the GeneralNames associated with this extension
      * @param serialNum the CertificateSerialNumber associated with
-     *         this extension.
+     *            this extension.
      * @exception IOException on error.
      */
     public AuthorityKeyIdentifierExtension(KeyIdentifier kid, GeneralNames name,
                                            SerialNumber sn)
-    throws IOException {
+            throws IOException {
         this.id = kid;
         this.names = name;
         this.serialNum = sn;
@@ -150,13 +149,13 @@ implements CertAttrSet {
 
     /**
      * Create the extension from the passed DER encoded value of the same.
-     *
+     * 
      * @param critical true if the extension is to be treated as critical.
      * @param value Array of DER encoded bytes of the actual value.
      * @exception IOException on error.
      */
     public AuthorityKeyIdentifierExtension(Boolean critical, Object value)
-    throws IOException {
+            throws IOException {
         this.extensionId = PKIXExtensions.AuthorityKey_Id;
         this.critical = critical.booleanValue();
 
@@ -164,7 +163,7 @@ implements CertAttrSet {
             throw new IOException("Illegal argument type");
 
         int len = Array.getLength(value);
-	byte[] extValue = new byte[len];
+        byte[] extValue = new byte[len];
         System.arraycopy(value, 0, extValue, 0, len);
 
         this.extensionValue = extValue;
@@ -182,7 +181,7 @@ implements CertAttrSet {
 
             if (opt.isContextSpecific(TAG_ID) && !opt.isConstructed()) {
                 if (id != null)
-	            throw new IOException("Duplicate KeyIdentifier in " +
+                    throw new IOException("Duplicate KeyIdentifier in " +
                                           "AuthorityKeyIdentifier.");
                 opt.resetTag(DerValue.tag_OctetString);
                 id = new KeyIdentifier(opt);
@@ -190,27 +189,27 @@ implements CertAttrSet {
             } else if (opt.isContextSpecific(TAG_NAMES) &&
                        opt.isConstructed()) {
                 if (names != null)
-	            throw new IOException("Duplicate GeneralNames in " +
+                    throw new IOException("Duplicate GeneralNames in " +
                                           "AuthorityKeyIdentifier.");
-	        try {
+                try {
                     opt.resetTag(DerValue.tag_Sequence);
                     names = new GeneralNames(opt);
-	        } catch (GeneralNamesException e) {
-	            throw new IOException(e.toString());
+                } catch (GeneralNamesException e) {
+                    throw new IOException(e.toString());
                 }
 
             } else if (opt.isContextSpecific(TAG_SERIAL_NUM) &&
                        !opt.isConstructed()) {
                 if (serialNum != null)
-	            throw new IOException("Duplicate SerialNumber in " +
+                    throw new IOException("Duplicate SerialNumber in " +
                                           "AuthorityKeyIdentifier.");
                 opt.resetTag(DerValue.tag_Integer);
                 serialNum = new SerialNumber(opt);
             } else
                 throw new IOException("Invalid encoding of " +
                                       "AuthorityKeyIdentifierExtension.");
-            }
         }
+    }
 
     /**
      * Return the object as a string.
@@ -231,7 +230,7 @@ implements CertAttrSet {
 
     /**
      * Decode the extension from the InputStream.
-     *
+     * 
      * @param in the InputStream to unmarshal the contents from.
      * @exception IOException on decoding or validity errors.
      */
@@ -241,7 +240,7 @@ implements CertAttrSet {
 
     /**
      * Write the extension to the OutputStream.
-     *
+     * 
      * @param out the OutputStream to write the extension to.
      * @exception IOException on error.
      */
@@ -253,7 +252,7 @@ implements CertAttrSet {
             encodeThis();
         }
         super.encode(tmp);
-	out.write(tmp.toByteArray());
+        out.write(tmp.toByteArray());
     }
 
     /**
@@ -261,79 +260,79 @@ implements CertAttrSet {
      */
     public void set(String name, Object obj) throws IOException {
         clearValue();
-	if (name.equalsIgnoreCase(KEY_ID)) {
-	    if (!(obj instanceof KeyIdentifier)) {
-	      throw new IOException("Attribute value should be of " +
+        if (name.equalsIgnoreCase(KEY_ID)) {
+            if (!(obj instanceof KeyIdentifier)) {
+                throw new IOException("Attribute value should be of " +
                                     "type KeyIdentifier.");
-	    }
-	    id = (KeyIdentifier)obj;
-	} else if (name.equalsIgnoreCase(AUTH_NAME)) {
-	    if (!(obj instanceof GeneralNames)) {
-	      throw new IOException("Attribute value should be of " +
+            }
+            id = (KeyIdentifier) obj;
+        } else if (name.equalsIgnoreCase(AUTH_NAME)) {
+            if (!(obj instanceof GeneralNames)) {
+                throw new IOException("Attribute value should be of " +
                                     "type GeneralNames.");
-	    }
-	    names = (GeneralNames)obj;
-	} else if (name.equalsIgnoreCase(SERIAL_NUMBER)) {
-	    if (!(obj instanceof SerialNumber)) {
-	      throw new IOException("Attribute value should be of " +
+            }
+            names = (GeneralNames) obj;
+        } else if (name.equalsIgnoreCase(SERIAL_NUMBER)) {
+            if (!(obj instanceof SerialNumber)) {
+                throw new IOException("Attribute value should be of " +
                                     "type SerialNumber.");
-	    }
-	    serialNum = (SerialNumber)obj;
-	} else {
-	  throw new IOException("Attribute name not recognized by " + 
-			"CertAttrSet:AuthorityKeyIdentifier.");
-	}
+            }
+            serialNum = (SerialNumber) obj;
+        } else {
+            throw new IOException("Attribute name not recognized by " +
+                    "CertAttrSet:AuthorityKeyIdentifier.");
+        }
     }
 
     /**
      * Get the attribute value.
      */
     public Object get(String name) throws IOException {
-	if (name.equalsIgnoreCase(KEY_ID)) {
-	    return (id);
-	} else if (name.equalsIgnoreCase(AUTH_NAME)) {
-	    return (names);
-	} else if (name.equalsIgnoreCase(SERIAL_NUMBER)) {
-	    return (serialNum);
-	} else {
-	  throw new IOException("Attribute name not recognized by " + 
-			"CertAttrSet:AuthorityKeyIdentifier.");
-	}
+        if (name.equalsIgnoreCase(KEY_ID)) {
+            return (id);
+        } else if (name.equalsIgnoreCase(AUTH_NAME)) {
+            return (names);
+        } else if (name.equalsIgnoreCase(SERIAL_NUMBER)) {
+            return (serialNum);
+        } else {
+            throw new IOException("Attribute name not recognized by " +
+                    "CertAttrSet:AuthorityKeyIdentifier.");
+        }
     }
 
     /**
      * Delete the attribute value.
      */
     public void delete(String name) throws IOException {
-	if (name.equalsIgnoreCase(KEY_ID)) {
-	    id = null;
-	} else if (name.equalsIgnoreCase(AUTH_NAME)) {
-	    names = null;
-	} else if (name.equalsIgnoreCase(SERIAL_NUMBER)) {
-	    serialNum = null;
-	} else {
-	  throw new IOException("Attribute name not recognized by " + 
-			"CertAttrSet:AuthorityKeyIdentifier.");
-	}
+        if (name.equalsIgnoreCase(KEY_ID)) {
+            id = null;
+        } else if (name.equalsIgnoreCase(AUTH_NAME)) {
+            names = null;
+        } else if (name.equalsIgnoreCase(SERIAL_NUMBER)) {
+            serialNum = null;
+        } else {
+            throw new IOException("Attribute name not recognized by " +
+                    "CertAttrSet:AuthorityKeyIdentifier.");
+        }
     }
 
     /**
      * Return an enumeration of names of attributes existing within this
      * attribute.
      */
-    public Enumeration<String> getElements () {
+    public Enumeration<String> getElements() {
         Vector<String> elements = new Vector<String>();
         elements.addElement(KEY_ID);
         elements.addElement(AUTH_NAME);
         elements.addElement(SERIAL_NUMBER);
 
-	return (elements.elements());
+        return (elements.elements());
     }
 
     /**
      * Return the name of this attribute.
      */
-    public String getName () {
+    public String getName() {
         return (NAME);
     }
 }

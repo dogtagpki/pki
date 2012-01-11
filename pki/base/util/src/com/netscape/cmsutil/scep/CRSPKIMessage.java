@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmsutil.scep;
 
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.CharConversionException;
@@ -49,70 +48,69 @@ import org.mozilla.jss.pkix.cert.Certificate;
 import org.mozilla.jss.pkix.cert.CertificateInfo;
 import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 
-
 public class CRSPKIMessage {
-  
+
     // OIDs for authenticated attributes
-    public static OBJECT_IDENTIFIER CRS_MESSAGETYPE = 
-        new OBJECT_IDENTIFIER(new long[] {2, 16, 840, 1, 113733, 1, 9, 2}
-        );
-    public static OBJECT_IDENTIFIER CRS_PKISTATUS = 
-        new OBJECT_IDENTIFIER(new long[] {2, 16, 840, 1, 113733, 1, 9, 3}
-        );
-    public static OBJECT_IDENTIFIER CRS_FAILINFO = 
-        new OBJECT_IDENTIFIER(new long[] {2, 16, 840, 1, 113733, 1, 9, 4}
-        );
-    public static OBJECT_IDENTIFIER CRS_SENDERNONCE = 
-        new OBJECT_IDENTIFIER(new long[] {2, 16, 840, 1, 113733, 1, 9, 5}
-        );
-    public static OBJECT_IDENTIFIER CRS_RECIPIENTNONCE = 
-        new OBJECT_IDENTIFIER(new long[] {2, 16, 840, 1, 113733, 1, 9, 6}
-        );
-    public static OBJECT_IDENTIFIER CRS_TRANSID = 
-        new OBJECT_IDENTIFIER(new long[] {2, 16, 840, 1, 113733, 1, 9, 7}
-        );
+    public static OBJECT_IDENTIFIER CRS_MESSAGETYPE =
+            new OBJECT_IDENTIFIER(new long[] { 2, 16, 840, 1, 113733, 1, 9, 2 }
+            );
+    public static OBJECT_IDENTIFIER CRS_PKISTATUS =
+            new OBJECT_IDENTIFIER(new long[] { 2, 16, 840, 1, 113733, 1, 9, 3 }
+            );
+    public static OBJECT_IDENTIFIER CRS_FAILINFO =
+            new OBJECT_IDENTIFIER(new long[] { 2, 16, 840, 1, 113733, 1, 9, 4 }
+            );
+    public static OBJECT_IDENTIFIER CRS_SENDERNONCE =
+            new OBJECT_IDENTIFIER(new long[] { 2, 16, 840, 1, 113733, 1, 9, 5 }
+            );
+    public static OBJECT_IDENTIFIER CRS_RECIPIENTNONCE =
+            new OBJECT_IDENTIFIER(new long[] { 2, 16, 840, 1, 113733, 1, 9, 6 }
+            );
+    public static OBJECT_IDENTIFIER CRS_TRANSID =
+            new OBJECT_IDENTIFIER(new long[] { 2, 16, 840, 1, 113733, 1, 9, 7 }
+            );
     public static OBJECT_IDENTIFIER CRS_EXTENSIONREQ =
-        new OBJECT_IDENTIFIER(new long[] {2, 16, 840, 1, 113733, 1, 9, 8}
-        );
- 
+            new OBJECT_IDENTIFIER(new long[] { 2, 16, 840, 1, 113733, 1, 9, 8 }
+            );
+
     // PKCS9 defined OIDs
 
     public static OBJECT_IDENTIFIER PKCS9_CONTENT_TYPE =
-        new OBJECT_IDENTIFIER(new long[] {1, 2, 840, 113549, 1, 9, 3}
-        );
+            new OBJECT_IDENTIFIER(new long[] { 1, 2, 840, 113549, 1, 9, 3 }
+            );
 
     public static OBJECT_IDENTIFIER PKCS9_MESSAGE_DIGEST =
-        new OBJECT_IDENTIFIER(new long[] {1, 2, 840, 113549, 1, 9, 4}
-        );
+            new OBJECT_IDENTIFIER(new long[] { 1, 2, 840, 113549, 1, 9, 4 }
+            );
 
     /* PKCS 1 - rsaEncryption */
     public static OBJECT_IDENTIFIER RSA_ENCRYPTION =
-        new OBJECT_IDENTIFIER(new long[] {1, 2, 840, 113549, 1, 1, 1}
-        );
-  
+            new OBJECT_IDENTIFIER(new long[] { 1, 2, 840, 113549, 1, 1, 1 }
+            );
+
     public static OBJECT_IDENTIFIER DES_CBC_ENCRYPTION =
-        new OBJECT_IDENTIFIER(new long[] {1, 3, 14, 3, 2, 7}
-        );
+            new OBJECT_IDENTIFIER(new long[] { 1, 3, 14, 3, 2, 7 }
+            );
 
     public static OBJECT_IDENTIFIER DES_EDE3_CBC_ENCRYPTION =
-        new OBJECT_IDENTIFIER(new long[] {1, 2, 840, 113549, 3, 7}
-        );
+            new OBJECT_IDENTIFIER(new long[] { 1, 2, 840, 113549, 3, 7 }
+            );
 
-    public static OBJECT_IDENTIFIER MD5_DIGEST = 
-        new OBJECT_IDENTIFIER(new long[] {1, 2, 840, 113549, 2, 5}
-        );
+    public static OBJECT_IDENTIFIER MD5_DIGEST =
+            new OBJECT_IDENTIFIER(new long[] { 1, 2, 840, 113549, 2, 5 }
+            );
 
-    public static OBJECT_IDENTIFIER SHA1_DIGEST = 
-        new OBJECT_IDENTIFIER(new long[] {1, 3, 14, 3, 2, 26}
-        );
+    public static OBJECT_IDENTIFIER SHA1_DIGEST =
+            new OBJECT_IDENTIFIER(new long[] { 1, 3, 14, 3, 2, 26 }
+            );
 
-    public static OBJECT_IDENTIFIER SHA256_DIGEST = 
-        new OBJECT_IDENTIFIER(new long[] {2, 16, 840, 1, 101, 3, 4, 2, 1}
-        );
+    public static OBJECT_IDENTIFIER SHA256_DIGEST =
+            new OBJECT_IDENTIFIER(new long[] { 2, 16, 840, 1, 101, 3, 4, 2, 1 }
+            );
 
-    public static OBJECT_IDENTIFIER SHA512_DIGEST = 
-        new OBJECT_IDENTIFIER(new long[] {2, 16, 840, 1, 101, 3, 4, 2, 3}
-        );
+    public static OBJECT_IDENTIFIER SHA512_DIGEST =
+            new OBJECT_IDENTIFIER(new long[] { 2, 16, 840, 1, 101, 3, 4, 2, 3 }
+            );
 
     // Strings given in 'messageType' authenticated attribute
     public final static String mType_PKCSReq = "19";
@@ -120,12 +118,12 @@ public class CRSPKIMessage {
     public final static String mType_GetCertInitial = "20";
     public final static String mType_GetCert = "21";
     public final static String mType_GetCRL = "22";
-  
+
     // Strings given in 'PKIStatus' authenticated attribute
     public final static String mStatus_SUCCESS = "0";
     public final static String mStatus_FAILURE = "2";
     public final static String mStatus_PENDING = "3";
-  
+
     // Strings given in 'failInfo' authenticated attribute
     public final static String mFailInfo_badAlg = "0";
     public final static String mFailInfo_badMessageCheck = "1";
@@ -140,65 +138,64 @@ public class CRSPKIMessage {
     public final static String mFailInfo_noKeyReuse = "10";
     public final static String mFailInfo_internalCAError = "11";
     public final static String mFailInfo_tryLater = "12";
-  
+
     // ************************************************************************
     // These private members represent the flattened structure of the PKIMessage
     // ************************************************************************
-   
+
     // top level is just a ContentInfo
-    private ContentInfo   crsci;
+    private ContentInfo crsci;
     // it's content is a signedData
-    private SignedData    sd;
+    private SignedData sd;
 
     // In the signed data, we have:
-    private int           sdv;     // Version
-    private ContentInfo   data;    // The data to be digested
-    private EnvelopedData sded;    // Enveloped data inside of signed data
-    private byte[]        signerCertBytes;
+    private int sdv; // Version
+    private ContentInfo data; // The data to be digested
+    private EnvelopedData sded; // Enveloped data inside of signed data
+    private byte[] signerCertBytes;
     org.mozilla.jss.pkix.cert.Certificate signerCert;
 
-    private SET           sis;     // set of SignerInfos
-    private SignerInfo   si;     // First SignerInfo
+    private SET sis; // set of SignerInfos
+    private SignerInfo si; // First SignerInfo
     private AlgorithmIdentifier digestAlgorithmId = null;
-    private int          siv;  // Version
-    private SET          aa;   // Authenticated Attributes
-    private SET          aa_old;   // Authenticated Attributes
-    private IssuerAndSerialNumber   sgnIASN; // Signer's Issuer Name and Serialnum
-    private OCTET_STRING aa_digest;  // digest of the authenticated attrs
+    private int siv; // Version
+    private SET aa; // Authenticated Attributes
+    private SET aa_old; // Authenticated Attributes
+    private IssuerAndSerialNumber sgnIASN; // Signer's Issuer Name and Serialnum
+    private OCTET_STRING aa_digest; // digest of the authenticated attrs
 
-    private String    messageType;  // these are all authenticated attributes
-    private String    failInfo;
-    private String    pkiStatus;
-    private String    transactionID;
-    private byte[]    senderNonce;
-    private byte[]    recipientNonce;
+    private String messageType; // these are all authenticated attributes
+    private String failInfo;
+    private String pkiStatus;
+    private String transactionID;
+    private byte[] senderNonce;
+    private byte[] recipientNonce;
     private OCTET_STRING msg_digest; // digest of the message
 
     // Inside the sded Enveloped data
-    private RecipientInfo          ri;      // First RecipientInfo
-    private int                  riv;     // Version
-    private AlgorithmIdentifier  riAlgid; // alg that the bulk key is wrapped with
-    private byte[]       riKey;           // bulk key, wrapped with above algorithm
-    private byte[]       cKey;            // * 'clear', unwrapped key (not in ASN.1) *
+    private RecipientInfo ri; // First RecipientInfo
+    private int riv; // Version
+    private AlgorithmIdentifier riAlgid; // alg that the bulk key is wrapped with
+    private byte[] riKey; // bulk key, wrapped with above algorithm
+    private byte[] cKey; // * 'clear', unwrapped key (not in ASN.1) *
     private IssuerAndSerialNumber rcpIASN; // Recipient's Issuer Name and Serial Number
 
     private EncryptedContentInfo eci;
-    private byte[]       iv;              // initialization vector for above key
-    private byte[]       ec;              // encrypted content (P10, in case of request)
-    private byte[]       cc;              // * 'clear' content (not in ASN.1) *
-    private String       encryptionAlgorithm = null;
+    private byte[] iv; // initialization vector for above key
+    private byte[] ec; // encrypted content (P10, in case of request)
+    private byte[] cc; // * 'clear' content (not in ASN.1) *
+    private String encryptionAlgorithm = null;
 
     // For the CertRep, the enveloped content is another signed Data:
-    private SignedData     crsd;
-    private int            rsdVersion;
-    private byte[]         rsdCert;         // certificate to send in response
+    private SignedData crsd;
+    private int rsdVersion;
+    private byte[] rsdCert; // certificate to send in response
 
-    private Object         myP10;
+    private Object myP10;
 
-    private Hashtable      attrs;           // miscellanous
+    private Hashtable attrs; // miscellanous
 
     //   *** END *** //
-
 
     public void debug() {
     }
@@ -211,30 +208,28 @@ public class CRSPKIMessage {
         return attrs.get(a);
     }
 
-    private SignatureAlgorithm getSignatureAlgorithm (String hashAlgorithm)
-    {
+    private SignatureAlgorithm getSignatureAlgorithm(String hashAlgorithm) {
         SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.RSASignatureWithMD5Digest;
         if (hashAlgorithm != null) {
             if (hashAlgorithm.equals("SHA1")) {
                 signatureAlgorithm = SignatureAlgorithm.RSASignatureWithSHA1Digest;
             } else if (hashAlgorithm.equals("SHA256")) {
                 signatureAlgorithm = SignatureAlgorithm.RSASignatureWithSHA256Digest;
-            } else  if (hashAlgorithm.equals("SHA512")) {
+            } else if (hashAlgorithm.equals("SHA512")) {
                 signatureAlgorithm = SignatureAlgorithm.RSASignatureWithSHA512Digest;
             }
         }
         return signatureAlgorithm;
     }
 
-    private OBJECT_IDENTIFIER getAlgorithmOID (String hashAlgorithm)
-    {
+    private OBJECT_IDENTIFIER getAlgorithmOID(String hashAlgorithm) {
         OBJECT_IDENTIFIER oid = MD5_DIGEST;
         if (hashAlgorithm != null) {
             if (hashAlgorithm.equals("SHA1")) {
                 oid = SHA1_DIGEST;
             } else if (hashAlgorithm.equals("SHA256")) {
                 oid = SHA256_DIGEST;
-            } else  if (hashAlgorithm.equals("SHA512")) {
+            } else if (hashAlgorithm.equals("SHA512")) {
                 oid = SHA512_DIGEST;
             }
         }
@@ -242,8 +237,7 @@ public class CRSPKIMessage {
     }
 
     // getHashAlgorithm is added to work around issue 636217
-    private String getHashAlgorithm (OBJECT_IDENTIFIER algorithmOID)
-    {
+    private String getHashAlgorithm(OBJECT_IDENTIFIER algorithmOID) {
         String hashAlgorithm = null;
         OBJECT_IDENTIFIER oid = MD5_DIGEST;
         if (algorithmOID != null) {
@@ -253,7 +247,7 @@ public class CRSPKIMessage {
                 hashAlgorithm = "SHA1";
             } else if (algorithmOID.equals(SHA256_DIGEST)) {
                 hashAlgorithm = "SHA256";
-            } else  if (algorithmOID.equals(SHA512_DIGEST)) {
+            } else if (algorithmOID.equals(SHA512_DIGEST)) {
                 hashAlgorithm = "SHA512";
             }
         }
@@ -263,33 +257,33 @@ public class CRSPKIMessage {
     // These functions are used to initialize the various blobs
 
     public void makeSignedData(int version,
-        byte[] certificate, String hashAlgorithm) {
+            byte[] certificate, String hashAlgorithm) {
 
         try {
             SET digest_algs = new SET();
 
             digest_algs.addElement(new AlgorithmIdentifier(getAlgorithmOID(hashAlgorithm), new NULL()));
-            
+
             //      SET certs = new SET();
             //      certs.addElement(new ANY(certificate));
-            
+
             SET sis = new SET();
 
             sis.addElement(si);
-            
+
             ContentInfo data = this.data;
 
             this.sd = new SignedData(
                         digest_algs,
                         data,
-                        null,     // don't send the certs, he already has them
-                        null,     // crl's
-                        sis);
+                        null, // don't send the certs, he already has them
+                    null, // crl's
+                    sis);
 
         } catch (Exception e) {
         }
     }
-    
+
     public byte[] getResponse() throws IOException, InvalidBERException {
 
         crsci = new ContentInfo(ContentInfo.SIGNED_DATA,
@@ -318,23 +312,23 @@ public class CRSPKIMessage {
      */
 
     public void makeSignerInfo(int version,
-        // issuer and serialnumber
-        org.mozilla.jss.crypto.PrivateKey pk, String hashAlgorithm)
-        throws java.security.NoSuchAlgorithmException,
+            // issuer and serialnumber
+            org.mozilla.jss.crypto.PrivateKey pk, String hashAlgorithm)
+            throws java.security.NoSuchAlgorithmException,
             TokenException,
             java.security.InvalidKeyException,
-            java.security.SignatureException, 
+            java.security.SignatureException,
             org.mozilla.jss.CryptoManager.NotInitializedException {
 
-        si = new SignerInfo(sgnIASN,       // issuer and serialnum
-                    this.aa,       // Authenticated Attributes
-                    null,          // Unauthenticated Attrs
-                    ContentInfo.ENVELOPED_DATA,          // content type
-                    msg_digest.toByteArray(),    // digest
-                    getSignatureAlgorithm(hashAlgorithm),
+        si = new SignerInfo(sgnIASN, // issuer and serialnum
+                this.aa, // Authenticated Attributes
+                null, // Unauthenticated Attrs
+                ContentInfo.ENVELOPED_DATA, // content type
+                msg_digest.toByteArray(), // digest
+                getSignatureAlgorithm(hashAlgorithm),
                     pk);
     }
-    
+
     public void makeAuthenticatedAttributes() {
 
         aa = new SET();
@@ -346,28 +340,28 @@ public class CRSPKIMessage {
                 tidset.addElement((new PrintableString(transactionID)));
                 aa.addElement(new Attribute(CRS_TRANSID, tidset));
             }
-            
+
             if (pkiStatus != null) {
                 SET pkistatusset = new SET();
 
                 pkistatusset.addElement(new PrintableString(pkiStatus));
                 aa.addElement(new Attribute(CRS_PKISTATUS, pkistatusset));
             }
-            
+
             if (messageType != null) {
                 SET aaset = new SET();
 
                 aaset.addElement(new PrintableString(messageType));
-                aa.addElement(new Attribute(CRS_MESSAGETYPE, aaset)); 
+                aa.addElement(new Attribute(CRS_MESSAGETYPE, aaset));
             }
 
             if (failInfo != null) {
                 SET fiset = new SET();
 
                 fiset.addElement(new PrintableString(failInfo));
-                aa.addElement(new Attribute(CRS_FAILINFO, fiset)); 
+                aa.addElement(new Attribute(CRS_FAILINFO, fiset));
             }
-            
+
             if (senderNonce != null) {
                 SET snset = new SET();
 
@@ -383,29 +377,29 @@ public class CRSPKIMessage {
             }
 
             // XXX sender nonce
-            
+
         } catch (CharConversionException e) {
         }
     }
-        
+
     public byte[] makeEnvelopedData(int version) {
 
         byte[] r;
 
         try {
-        
+
             if (this.ri != null) {
                 ContentInfo ci;
 
                 SET ris = new SET();
 
                 ris.addElement(this.ri);
-        
+
                 this.sded = new EnvelopedData(
                             new INTEGER(version),
                             ris,
                             eci);
-        
+
                 ci = new ContentInfo(ContentInfo.ENVELOPED_DATA,
                             sded);
                 ByteArrayOutputStream ba = new ByteArrayOutputStream();
@@ -432,8 +426,8 @@ public class CRSPKIMessage {
         this.riv = version;
 
         this.riAlgid = new AlgorithmIdentifier(RSA_ENCRYPTION, new NULL());
-        this.riKey = riKey;     
-        
+        this.riKey = riKey;
+
         this.ri = new RecipientInfo(
                     new INTEGER(this.riv),
                     rcpIASN,
@@ -469,19 +463,19 @@ public class CRSPKIMessage {
         try {
             SET certs = new SET();
             ANY cert = new ANY(certificate);
-            
+
             certs.addElement(cert);
-            
+
             crsd = new SignedData(
-                        new SET(),         // empty set of digestAlgorithmID's
-                        new ContentInfo(
-                            new OBJECT_IDENTIFIER(new long[] {1, 2, 840, 113549, 1, 7, 1}
+                        new SET(), // empty set of digestAlgorithmID's
+                    new ContentInfo(
+                            new OBJECT_IDENTIFIER(new long[] { 1, 2, 840, 113549, 1, 7, 1 }
                             ),
                             null), //empty content
-                        certs,
-                        null,     // no CRL's
-                        new SET() // empty SignerInfos
-                    );
+                    certs,
+                        null, // no CRL's
+                    new SET() // empty SignerInfos
+            );
             ContentInfo wrap = new ContentInfo(ContentInfo.SIGNED_DATA,
                     crsd);
 
@@ -495,7 +489,7 @@ public class CRSPKIMessage {
             return null;
         }
     }
-    
+
     public String toString() {
         StringBuffer sb = new StringBuffer();
         sb.append("{ messageType=");
@@ -507,15 +501,15 @@ public class CRSPKIMessage {
         sb.append(", transactionID=");
         sb.append(getTransactionID());
         sb.append(", senderNonce=");
-        sb.append( Arrays.toString( getSenderNonce() ) );
+        sb.append(Arrays.toString(getSenderNonce()));
         sb.append(", recipientNonce=");
-        sb.append( Arrays.toString( getRecipientNonce() ) );
+        sb.append(Arrays.toString(getRecipientNonce()));
         sb.append(" }");
- 
+
         String s = sb.toString();
         return s;
     }
-                              
+
     public String getMessageType() {
         return messageType;
     }
@@ -559,7 +553,7 @@ public class CRSPKIMessage {
     public String getDigestAlgorithmName() {
         String name = null;
         if (digestAlgorithmId != null) {
-           name = getHashAlgorithm(digestAlgorithmId.getOID());
+            name = getHashAlgorithm(digestAlgorithmId.getOID());
         }
         return name;
     }
@@ -568,10 +562,10 @@ public class CRSPKIMessage {
         try {
 
             org.mozilla.jss.pkix.cert.Certificate.Template ct = new
-                org.mozilla.jss.pkix.cert.Certificate.Template();
-            
+                    org.mozilla.jss.pkix.cert.Certificate.Template();
+
             ByteArrayInputStream bais = new ByteArrayInputStream(this.signerCertBytes);
-            
+
             signerCert = (org.mozilla.jss.pkix.cert.Certificate) ct.decode(bais);
             return signerCert.getInfo().getSubjectPublicKeyInfo().toPublicKey();
         } catch (Exception e) {
@@ -591,7 +585,7 @@ public class CRSPKIMessage {
 
     }
 
-    public void setAA_old( SET auth_attrs ) {
+    public void setAA_old(SET auth_attrs) {
         aa_old = auth_attrs;
     }
 
@@ -611,15 +605,15 @@ public class CRSPKIMessage {
     public byte[] getAADigest() {
         return aa_digest.toByteArray();
     }
-     
+
     public Object getP10() {
         return myP10;
     }
-   
+
     public void setP10(Object p10) {
         myP10 = p10;
     }
-        
+
     public void setSgnIssuerAndSerialNumber(IssuerAndSerialNumber iasn) {
         this.sgnIASN = iasn;
     }
@@ -629,7 +623,7 @@ public class CRSPKIMessage {
     }
 
     public IssuerAndSerialNumber getSgnIssuerAndSerialNumber() {
-        return this.sgnIASN; 
+        return this.sgnIASN;
     }
 
     public IssuerAndSerialNumber getRcpIssuerAndSerialNumber() {
@@ -662,7 +656,6 @@ public class CRSPKIMessage {
 
     //    public void setCertificate(byte [] cert)       { this.certificate = cert; }
 
-
     public void setMsgDigest(byte[] digest) {
         this.msg_digest = new OCTET_STRING(digest);
     }
@@ -673,53 +666,52 @@ public class CRSPKIMessage {
 
     public void setPending() {
         // setIssuerAndSerialNumber();
-            
+
         setMessageType(mType_CertRep);
         setPKIStatus(mStatus_PENDING);
     };
-        
+
     public void setFailure(String failInfo) {
         setMessageType(mType_CertRep);
         setPKIStatus(mStatus_FAILURE);
         setFailInfo(failInfo);
     }
-        
+
     // Should add a Certificate to this call
     public void setSuccess() {
         setMessageType(mType_CertRep);
         setPKIStatus(mStatus_SUCCESS);
     }
-    
+
     /**
      * Gets a byte array which is the der-encoded blob
      * which gets sent back to the router.
      */
-     
+
     public byte[] getEncoded() {
         //Assert.assert(messageType != null);
         //Assert.assert(pkiStatus != null);
-            
-        return new byte[1];  // blagh
-    }
-            
 
-    private void decodeCRSPKIMessage (ByteArrayInputStream bais) throws InvalidBERException, Exception {
+        return new byte[1]; // blagh
+    }
+
+    private void decodeCRSPKIMessage(ByteArrayInputStream bais) throws InvalidBERException, Exception {
 
         org.mozilla.jss.pkcs7.ContentInfo.Template crscit;
 
         crscit = new ContentInfo.Template();
         crsci = (ContentInfo) crscit.decode(bais);
-           
-        if (!ContentInfo.SIGNED_DATA.equals(crsci.getContentType())) {  
+
+        if (!ContentInfo.SIGNED_DATA.equals(crsci.getContentType())) {
             throw new Exception("ContentType wasn't signed data, it was" + crsci.getContentType());
         }
-            
+
         // Now that we know that the contentInfo is a SignedData, we can decode it
         SignedData.Template sdt = new SignedData.Template();
-            
+
         sd = (SignedData) sdt.decode(
                     new ByteArrayInputStream(
-                        ((ANY) crsci.getContent()).getEncoded()
+                            ((ANY) crsci.getContent()).getEncoded()
                     ));
         this.decodeSD();
     }
@@ -727,34 +719,34 @@ public class CRSPKIMessage {
     public CRSPKIMessage() {
         attrs = new Hashtable();
     }
-        
-    public CRSPKIMessage (ByteArrayInputStream bais) throws InvalidBERException, Exception {
+
+    public CRSPKIMessage(ByteArrayInputStream bais) throws InvalidBERException, Exception {
         attrs = new Hashtable();
         decodeCRSPKIMessage(bais);
     }
 
     private void decodeSD() throws Exception {
-        ContentInfo  sdci;
+        ContentInfo sdci;
 
         sis = sd.getSignerInfos();
-        
+
         decodeSI();
 
         sdci = sd.getContentInfo();
-            
+
         // HACK to work with CRS
         ANY a = (ANY) sdci.getContent();
         ByteArrayInputStream s = new ByteArrayInputStream(a.getEncoded());
         OCTET_STRING os = (OCTET_STRING) (new OCTET_STRING.Template()).decode(s);
-            
+
         ByteArrayInputStream s2 = new ByteArrayInputStream(os.toByteArray());
         ContentInfo ci = (ContentInfo) (new ContentInfo.Template()).decode(s2);
         ByteArrayInputStream s3 = new ByteArrayInputStream(((ANY) ci.getContent()).getEncoded());
-            
+
         EnvelopedData.Template edt = new EnvelopedData.Template();
 
         sded = (EnvelopedData) edt.decode(s3);
-        
+
         SET signerCerts = (SET) sd.getCertificates();
         Certificate firstCert = (Certificate) signerCerts.elementAt(0);
 
@@ -764,10 +756,10 @@ public class CRSPKIMessage {
 
         sgnIASN = new IssuerAndSerialNumber(firstCertInfo.getIssuer(),
                     firstCertInfo.getSerialNumber());
-        
+
         decodeED();
     }
-            
+
     private void decodeSI() throws Exception {
         if (sis.size() == 0) {
             throw new Exception("SignerInfos is empty");
@@ -780,12 +772,12 @@ public class CRSPKIMessage {
 
         aa_digest = new OCTET_STRING(si.getEncryptedDigest());
     }
-        
+
     private void decodeED() throws Exception {
         SET ris;
 
         ris = (SET) sded.getRecipientInfos();
-            
+
         if (ris.size() == 0) {
             throw new Exception("RecipientInfos is empty");
         }
@@ -799,32 +791,32 @@ public class CRSPKIMessage {
         } else {
             throw new Exception("P10 encrypted alg is not supported (not DES): " + eci.getContentEncryptionAlgorithm().getOID());
         }
-        
+
         ec = eci.getEncryptedContent().toByteArray();
 
         OCTET_STRING.Template ost = new OCTET_STRING.Template();
-        
+
         OCTET_STRING os = (OCTET_STRING)
-            ost.decode(new ByteArrayInputStream( 
-                    ((ANY) eci.getContentEncryptionAlgorithm().getParameters()).getEncoded()
-                )
-            );
+                ost.decode(new ByteArrayInputStream(
+                        ((ANY) eci.getContentEncryptionAlgorithm().getParameters()).getEncoded()
+                        )
+                        );
 
         iv = os.toByteArray();
 
         decodeRI();
     }
-        
+
     /**
      * The PKCS10 request is encrypt with a symmetric key.
      * This key in turn is encrypted with the RSA key in the
      * CA certificate.
-     *
-     *   riAlgid  is the algorithm the symm key is encrypted with. It had
-     *            better be RSA
-     *   riKey    is the encrypted symmetric key
+     * 
+     * riAlgid is the algorithm the symm key is encrypted with. It had
+     * better be RSA
+     * riKey is the encrypted symmetric key
      */
-        
+
     private void decodeRI() throws Exception {
 
         // really should get issuer and serial number of our RI, as this
@@ -832,18 +824,18 @@ public class CRSPKIMessage {
         // going to assume that the key is the Signing cert for the server.
 
         riAlgid = ri.getKeyEncryptionAlgorithmID();
-  
+
         if (!riAlgid.getOID().equals(RSA_ENCRYPTION)) {
             throw new Exception("Request is protected by a key which we can't decrypt");
         }
-        
+
         riKey = ri.getEncryptedKey().toByteArray();
-        
+
     }
-        
+
     private void decodeAA() throws InvalidBERException, IOException {
         aa = si.getAuthenticatedAttributes();
-            
+
         int count;
 
         for (count = 0; count < aa.size(); count++) {
@@ -853,20 +845,20 @@ public class CRSPKIMessage {
             PrintableString ps;
             PrintableString.Template pst = new PrintableString.Template();
             OCTET_STRING.Template ost = new OCTET_STRING.Template();
-            
+
             OBJECT_IDENTIFIER oid = a.getType();
 
             if (oid.equals(CRS_MESSAGETYPE)) {
                 ps = (PrintableString) pst.decode(new ByteArrayInputStream(f.getEncoded()));
                 // We make a new string here
                 messageType = ps.toString();
-                
+
             } else if (oid.equals(CRS_PKISTATUS)) {
                 ps = (PrintableString) pst.decode(new ByteArrayInputStream(f.getEncoded()));
-                pkiStatus = new String (ps.toString());
+                pkiStatus = new String(ps.toString());
             } else if (oid.equals(CRS_FAILINFO)) {
                 ps = (PrintableString) pst.decode(new ByteArrayInputStream(f.getEncoded()));
-                failInfo = new String (ps.toString());
+                failInfo = new String(ps.toString());
             } else if (oid.equals(CRS_SENDERNONCE)) {
                 OCTET_STRING oss = (OCTET_STRING) ost.decode(new ByteArrayInputStream(f.getEncoded()));
 
@@ -877,18 +869,18 @@ public class CRSPKIMessage {
                 recipientNonce = osr.toByteArray();
             } else if (oid.equals(CRS_TRANSID)) {
                 ps = (PrintableString) pst.decode(new ByteArrayInputStream(f.getEncoded()));
-                transactionID = new String (ps.toString());
+                transactionID = new String(ps.toString());
             }
-               
+
         }
-        
-    }  // end of decodeAA();
-        
+
+    } // end of decodeAA();
+
     public String getMessageTypeString() {
         if (messageType == null) {
             return null;
         }
-            
+
         if (messageType.equals(mType_PKCSReq)) {
             return "PKCSReq";
         }
@@ -908,5 +900,4 @@ public class CRSPKIMessage {
         //Assert.assert(false);
         return null;
     }
-}    
- 
+}

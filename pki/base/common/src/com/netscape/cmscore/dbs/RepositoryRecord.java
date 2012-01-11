@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.dbs;
 
-
 import java.math.BigInteger;
 import java.util.Enumeration;
 import java.util.Vector;
@@ -26,11 +25,10 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.repository.IRepositoryRecord;
 
-
 /**
  * A class represents a repository record.
  * <P>
- *
+ * 
  * @author thomask
  * @version $Revision$, $Date$
  */

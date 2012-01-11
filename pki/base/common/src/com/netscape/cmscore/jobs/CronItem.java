@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.jobs;
 
-
 import java.util.StringTokenizer;
 import java.util.Vector;
 
@@ -25,15 +24,13 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.logging.ILogger;
 
-
 /**
  * class representing one Job cron item
- * <p>here, an "item" refers to one of the 5 fields in a cron string;
- * "element" refers to any comma-deliminated element in an
- * "item"...which includes both numbers and '-' separated ranges.
+ * <p>
+ * here, an "item" refers to one of the 5 fields in a cron string; "element" refers to any comma-deliminated element in an "item"...which includes both numbers and '-' separated ranges.
  * <p>
  * for each of the 5 cron fields, it's represented as a CronItem
- *
+ * 
  * @author cfu
  * @version $Revision$, $Date$
  */
@@ -49,20 +46,21 @@ public class CronItem {
     // store all elements in a field.
     // elements can either be numbers or ranges (CronRange)
     protected Vector<CronRange> mElements = new Vector<CronRange>();
-	
+
     public CronItem(int min, int max) {
         mMin = min;
         mMax = max;
     }
-	
+
     /**
      * parses and sets a string cron item
+     * 
      * @param sItem the string representing an item of a cron string.
-     * item can be potentially comma separated with ranges specified
-     * with '-'s
+     *            item can be potentially comma separated with ranges specified
+     *            with '-'s
      */
     public void set(String sItem) throws EBaseException {
-		
+
         if (sItem.equals(ALL)) {
             //			System.out.println("CronItem set(): item is ALL");
             CronRange cr = new CronRange();
@@ -90,7 +88,7 @@ public class CronItem {
                     } catch (NumberFormatException e) {
                         // throw ...
                         log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CMSCORE_JOBS_INVALID_TOKEN", tok, e.toString()));
+                                CMS.getLogMessage("CMSCORE_JOBS_INVALID_TOKEN", tok, e.toString()));
                         throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_JOB_CRON"));
                     }
                     String sEnd = tok.substring(r + 1, tok.length());
@@ -100,7 +98,7 @@ public class CronItem {
                     } catch (NumberFormatException e) {
                         // throw ...
                         log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CMSCORE_JOBS_INVALID_TOKEN", tok, e.toString()));
+                                CMS.getLogMessage("CMSCORE_JOBS_INVALID_TOKEN", tok, e.toString()));
                         throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_JOB_CRON"));
                     }
                     // got both begin and end for range
@@ -112,8 +110,8 @@ public class CronItem {
                     if (!cr.isValidRange(mMin, mMax)) {
                         // throw...
                         log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CMSCORE_JOBS_INVALID_RANGE",
-                                tok));
+                                CMS.getLogMessage("CMSCORE_JOBS_INVALID_RANGE",
+                                        tok));
                         throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_JOB_CRON"));
                     }
                     //					System.out.println("CronItem set(): adding a range");
@@ -130,7 +128,7 @@ public class CronItem {
                         if (!cr.isValidRange(mMin, mMax)) {
                             // throw...
                             log(ILogger.LL_FAILURE,
-                                CMS.getLogMessage("CMSCORE_JOBS_INVALID_MIN_MAX_RANGE", Integer.toString(mMin), Integer.toString(mMax)));
+                                    CMS.getLogMessage("CMSCORE_JOBS_INVALID_MIN_MAX_RANGE", Integer.toString(mMin), Integer.toString(mMax)));
                             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_JOB_CRON"));
                         }
                         //						System.out.println("CronItem set(): adding a number");
@@ -138,7 +136,7 @@ public class CronItem {
                     } catch (NumberFormatException e) {
                         // throw...
                         log(ILogger.LL_FAILURE,
-                            "invalid item in cron: " + tok);
+                                "invalid item in cron: " + tok);
                         throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_JOB_CRON"));
                     }
                 }
@@ -148,7 +146,8 @@ public class CronItem {
 
     /**
      * get the vector stuffed with elements where each element is
-     *	 represented as CronRange
+     * represented as CronRange
+     * 
      * @return a vector of CronRanges
      */
     public Vector<CronRange> getElements() {
@@ -162,7 +161,6 @@ public class CronItem {
         if (mLogger == null)
             return;
         mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-            level, "jobs/CronItem: " + msg);
+                level, "jobs/CronItem: " + msg);
     }
 }
-

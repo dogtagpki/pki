@@ -26,7 +26,7 @@ import java.nio.charset.CoderResult;
 /**
  * Converts characters in ASN.1 UniversalString character set to UniversalString
  * bytes.
- *
+ * 
  * @author Lily Hsiao
  * @author Slava Galperin
  */
@@ -48,7 +48,8 @@ public class UniversalCharsetEncoder extends CharsetEncoder {
 
         while (true) {
 
-            if (in.remaining() < 1) return CoderResult.UNDERFLOW;
+            if (in.remaining() < 1)
+                return CoderResult.UNDERFLOW;
 
             in.mark();
             char c = in.get();
@@ -58,10 +59,10 @@ public class UniversalCharsetEncoder extends CharsetEncoder {
                 return CoderResult.OVERFLOW;
             }
 
-            out.put((byte)0);
-            out.put((byte)0);
-            out.put((byte)((c >> 8) & 0xff));
-            out.put((byte)(c & 0xff));
+            out.put((byte) 0);
+            out.put((byte) 0);
+            out.put((byte) ((c >> 8) & 0xff));
+            out.put((byte) (c & 0xff));
         }
     }
 }

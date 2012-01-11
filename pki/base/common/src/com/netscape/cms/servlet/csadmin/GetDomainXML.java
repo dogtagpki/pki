@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Enumeration;
@@ -48,7 +47,6 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 import com.netscape.cmsutil.xml.XMLObject;
 
-
 public class GetDomainXML extends CMSServlet {
 
     /**
@@ -64,6 +62,7 @@ public class GetDomainXML extends CMSServlet {
 
     /**
      * initialize the servlet.
+     * 
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -73,11 +72,12 @@ public class GetDomainXML extends CMSServlet {
     }
 
     /**
-     * Process the HTTP request. 
+     * Process the HTTP request.
      * <ul>
      * <li>http.param op 'downloadBIN' - return the binary certificate chain
      * <li>http.param op 'displayIND' - display pretty-print of certificate chain components
      * </ul>
+     * 
      * @param cmsReq the object holding the request and response information
      */
     protected void process(CMSRequest cmsReq) throws EBaseException {
@@ -95,8 +95,7 @@ public class GetDomainXML extends CMSServlet {
         try {
             secstore = cs.getString("securitydomain.store");
             basedn = cs.getString("internaldb.basedn");
-        }    
-        catch (Exception e)  {
+        } catch (Exception e) {
             CMS.debug("Unable to determine the security domain name or internal basedn. Please run the domaininfo migration script");
         }
 
@@ -129,7 +128,7 @@ public class GetDomainXML extends CMSServlet {
 
                     // this should return CAList, KRAList etc. 
                     LDAPSearchResults res = conn.search(dn, LDAPConnection.SCOPE_ONE, filter,
-                        attrs, true, cons);
+                            attrs, true, cons);
 
                     while (res.hasMoreElements()) {
                         int count = 0;
@@ -137,10 +136,10 @@ public class GetDomainXML extends CMSServlet {
                         String listName = dn.substring(3, dn.indexOf(","));
                         String subType = listName.substring(0, listName.indexOf("List"));
                         Node listNode = xmlObj.createContainer(domainInfo, listName);
-                        
+
                         filter = "objectclass=pkiSubsystem";
-                        LDAPSearchResults res2 = conn.search(dn, LDAPConnection.SCOPE_ONE, filter, 
-                            attrs, false, cons);
+                        LDAPSearchResults res2 = conn.search(dn, LDAPConnection.SCOPE_ONE, filter,
+                                attrs, false, cons);
                         while (res2.hasMoreElements()) {
                             Node node = xmlObj.createContainer(listNode, subType);
                             LDAPEntry entry = res2.next();
@@ -149,32 +148,29 @@ public class GetDomainXML extends CMSServlet {
                             while (attrsInSet.hasMoreElements()) {
                                 LDAPAttribute nextAttr = (LDAPAttribute) attrsInSet.nextElement();
                                 String attrName = nextAttr.getName();
-                                if ((! attrName.equals("cn")) && (! attrName.equals("objectClass"))) {
+                                if ((!attrName.equals("cn")) && (!attrName.equals("objectClass"))) {
                                     String attrValue = (String) nextAttr.getStringValues().nextElement();
                                     xmlObj.addItemToContainer(node, securityDomainLDAPtoXML(attrName), attrValue);
                                 }
                             }
-                            count ++;
-                        }   
+                            count++;
+                        }
                         xmlObj.addItemToContainer(listNode, "SubsystemCount", Integer.toString(count));
                     }
 
                     // Add new xml object as string to response.
                     response.addItemToContainer(root, "DomainInfo", xmlObj.toXMLString());
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     CMS.debug("GetDomainXML: Failed to read domain.xml from ldap " + e.toString());
                     status = FAILED;
-                }
-                finally {
-                    if ((conn != null) && (connFactory!= null)) {
+                } finally {
+                    if ((conn != null) && (connFactory != null)) {
                         CMS.debug("Releasing ldap connection");
                         connFactory.returnConn(conn);
                     }
                 }
-            }
-            else {
-                 // get data from file store
+            } else {
+                // get data from file store
 
                 String path = CMS.getConfigStore().getString("instanceRoot", "")
                         + "/conf/domain.xml";
@@ -194,10 +190,9 @@ public class GetDomainXML extends CMSServlet {
                     CMS.debug("GetDomainXML: Done Reading domain.xml...");
 
                     response.addItemToContainer(root, "DomainInfo", new String(buf));
-                }
-                catch (Exception e) {
-                   CMS.debug("Failed to read domain.xml from file" + e.toString());
-                   status = FAILED;
+                } catch (Exception e) {
+                    CMS.debug("Failed to read domain.xml from file" + e.toString());
+                    status = FAILED;
                 }
             }
 
@@ -211,16 +206,19 @@ public class GetDomainXML extends CMSServlet {
     }
 
     protected String securityDomainLDAPtoXML(String attribute) {
-        if (attribute.equals("host")) return "Host";
-        else return attribute;
+        if (attribute.equals("host"))
+            return "Host";
+        else
+            return attribute;
     }
 
-    protected void setDefaultTemplates(ServletConfig sc) {}
+    protected void setDefaultTemplates(ServletConfig sc) {
+    }
 
     protected void renderTemplate(
             CMSRequest cmsReq, String templateName, ICMSTemplateFiller filler)
-        throws IOException {// do nothing
-    } 
+            throws IOException {// do nothing
+    }
 
     protected void renderResult(CMSRequest cmsReq) throws IOException {// do nothing, ie, it will not return the default javascript.
     }

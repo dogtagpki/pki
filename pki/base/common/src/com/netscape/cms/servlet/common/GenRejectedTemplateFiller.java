@@ -16,7 +16,6 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.common;
- 
 
 import java.util.Enumeration;
 import java.util.Locale;
@@ -27,10 +26,9 @@ import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.request.IRequest;
 
-
 /**
- * default Service Pending template filler 
- *
+ * default Service Pending template filler
+ * 
  * @version $Revision$, $Date$
  */
 public class GenRejectedTemplateFiller implements ICMSTemplateFiller {
@@ -46,7 +44,7 @@ public class GenRejectedTemplateFiller implements ICMSTemplateFiller {
      * @param e unexpected exception e. ignored.
      */
     public CMSTemplateParams getTemplateParams(
-        CMSRequest cmsReq, IAuthority authority, Locale locale, Exception e) {
+            CMSRequest cmsReq, IAuthority authority, Locale locale, Exception e) {
         IArgBlock fixed = CMS.createArgBlock();
         CMSTemplateParams params = new CMSTemplateParams(null, fixed);
 
@@ -54,11 +52,11 @@ public class GenRejectedTemplateFiller implements ICMSTemplateFiller {
         if (cmsReq != null) {
             Integer sts = cmsReq.getStatus();
 
-            if (sts != null) 
+            if (sts != null)
                 fixed.set(ICMSTemplateFiller.REQUEST_STATUS, sts.toString());
         } else {
-            CMS.debug( "GenRejectedTemplateFiller::getTemplateParams() - " +
-                       "cmsReq is null!" );
+            CMS.debug("GenRejectedTemplateFiller::getTemplateParams() - " +
+                       "cmsReq is null!");
             return null;
         }
 
@@ -76,7 +74,7 @@ public class GenRejectedTemplateFiller implements ICMSTemplateFiller {
 
                 while (msgs.hasMoreElements()) {
                     String ex = (String) msgs.nextElement();
-                    IArgBlock messageArgBlock = CMS.createArgBlock(); 
+                    IArgBlock messageArgBlock = CMS.createArgBlock();
 
                     messageArgBlock.set(POLICY_MESSAGE, ex);
                     params.addRepeatRecord(messageArgBlock);
@@ -86,10 +84,9 @@ public class GenRejectedTemplateFiller implements ICMSTemplateFiller {
 
         // this authority
 
-        if (authority != null) 
-            fixed.set(ICMSTemplateFiller.AUTHORITY, 
-                authority.getOfficialName());
+        if (authority != null)
+            fixed.set(ICMSTemplateFiller.AUTHORITY,
+                    authority.getOfficialName());
         return params;
     }
 }
-

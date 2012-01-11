@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.listeners;
 
-
 import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
@@ -45,12 +44,10 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestId;
 
-
 /**
  * a listener for every completed enrollment request
  * <p>
- * Here is a list of available $TOKENs for email notification
- templates if certificate is successfully issued:
+ * Here is a list of available $TOKENs for email notification templates if certificate is successfully issued:
  * <UL>
  * <LI>$InstanceID
  * <LI>$SerialNumber
@@ -66,13 +63,12 @@ import com.netscape.certsrv.request.RequestId;
  * <LI>$RecipientEmail
  * </UL>
  * <p>
- * Here is a list of available $TOKENs for email notification
- templates if certificate request is rejected:
+ * Here is a list of available $TOKENs for email notification templates if certificate request is rejected:
  * <UL>
  * <LI>$RequestId
  * <LI>$InstanceID
  * </UL>
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class CertificateIssuedListener implements IRequestListener {
@@ -107,7 +103,7 @@ public class CertificateIssuedListener implements IRequestListener {
     }
 
     public void init(ISubsystem sub, IConfigStore config)
-        throws EListenersException, EPropertyNotFound, EBaseException {
+            throws EListenersException, EPropertyNotFound, EBaseException {
         mSubsystem = (ICertAuthority) sub;
         mConfig = mSubsystem.getConfigStore();
 
@@ -130,8 +126,8 @@ public class CertificateIssuedListener implements IRequestListener {
 
         if (ridx == -1) {
             CMS.debug("CertificateIssuedListener: file separator: " + File.separator
-                +
-                " not found. Use default /");
+                    +
+                    " not found. Use default /");
             ridx = mFormPath.lastIndexOf("/");
             mDir = mFormPath.substring(0, ridx + 1);
         } else {
@@ -166,9 +162,10 @@ public class CertificateIssuedListener implements IRequestListener {
     }
 
     public void accept(IRequest r) {
-        CMS.debug("CertificateIssuedListener: accept " + 
-            r.getRequestId().toString());
-        if (mEnabled != true) return;
+        CMS.debug("CertificateIssuedListener: accept " +
+                r.getRequestId().toString());
+        if (mEnabled != true)
+            return;
 
         mSubject = mSubject_Success;
         mReqId = r.getRequestId();
@@ -192,15 +189,15 @@ public class CertificateIssuedListener implements IRequestListener {
                 return;
             if ((r.getExtDataInInteger(IRequest.RESULT)).equals(IRequest.RES_ERROR)) {
                 CMS.debug("CertificateIssuedListener: Request errored. " +
-                    "No need to email notify for enrollment request id " +
-                    mReqId);
+                        "No need to email notify for enrollment request id " +
+                        mReqId);
                 return;
             }
         }
         String requestType = r.getRequestType();
 
         if (requestType.equals(IRequest.ENROLLMENT_REQUEST) ||
-            requestType.equals(IRequest.RENEWAL_REQUEST)) {
+                requestType.equals(IRequest.RENEWAL_REQUEST)) {
             CMS.debug("accept() enrollment/renewal request...");
             // Get the certificate from the request
             X509CertImpl issuedCert[] = null;
@@ -224,10 +221,10 @@ public class CertificateIssuedListener implements IRequestListener {
                 try {
                     keys.set(IEmailResolverKeys.KEY_REQUEST, r);
                     keys.set(IEmailResolverKeys.KEY_CERT,
-                        issuedCert[0]);
+                            issuedCert[0]);
                 } catch (EBaseException e) {
                     log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("LISTENERS_CERT_ISSUED_SET_RESOLVER", e.toString()));
+                            CMS.getLogMessage("LISTENERS_CERT_ISSUED_SET_RESOLVER", e.toString()));
                 }
 
                 IEmailResolver er = CMS.getReqCertSANameEmailResolver();
@@ -236,30 +233,30 @@ public class CertificateIssuedListener implements IRequestListener {
                     mEmail = er.getEmail(keys);
                 } catch (ENotificationException e) {
                     log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("LISTENERS_CERT_ISSUED_EXCEPTION",
-                            e.toString()));
+                            CMS.getLogMessage("LISTENERS_CERT_ISSUED_EXCEPTION",
+                                    e.toString()));
                 } catch (EBaseException e) {
                     log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("LISTENERS_CERT_ISSUED_EXCEPTION",
-                            e.toString()));
+                            CMS.getLogMessage("LISTENERS_CERT_ISSUED_EXCEPTION",
+                                    e.toString()));
                 } catch (Exception e) {
                     log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("LISTENERS_CERT_ISSUED_EXCEPTION",
-                            e.toString()));
+                            CMS.getLogMessage("LISTENERS_CERT_ISSUED_EXCEPTION",
+                                    e.toString()));
                 }
-				
+
                 // now we can mail
                 if ((mEmail != null) && (!mEmail.equals(""))) {
                     mailIt(mEmail, issuedCert);
                 } else {
                     log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("LISTENERS_CERT_ISSUED_NOTIFY_ERROR",
-                            issuedCert[0].getSerialNumber().toString(), mReqId.toString()));
+                            CMS.getLogMessage("LISTENERS_CERT_ISSUED_NOTIFY_ERROR",
+                                    issuedCert[0].getSerialNumber().toString(), mReqId.toString()));
                     // send failure notification to "sender"
                     mSubject = "Certificate Issued notification undeliverable";
                     mailIt(mSenderEmail, issuedCert);
                 }
-            }				
+            }
         }
     }
 
@@ -282,7 +279,7 @@ public class CertificateIssuedListener implements IRequestListener {
             if (!template.init()) {
                 return;
             }
-		
+
             buildContentParams(issuedCert, mEmail);
             IEmailFormProcessor et = CMS.getEmailFormProcessor();
             String c = et.getEmailContent(template.toString(), mContentParams);
@@ -293,19 +290,19 @@ public class CertificateIssuedListener implements IRequestListener {
             mn.setContent(c);
         } else {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("LISTENERS_CERT_ISSUED_TEMPLATE_ERROR",
-                    issuedCert[0].getSerialNumber().toString(), mReqId.toString()));
+                    CMS.getLogMessage("LISTENERS_CERT_ISSUED_TEMPLATE_ERROR",
+                            issuedCert[0].getSerialNumber().toString(), mReqId.toString()));
 
             mn.setContent("Serial Number = " +
-                issuedCert[0].getSerialNumber() +
-                "; Request ID = " + mReqId);
+                    issuedCert[0].getSerialNumber() +
+                    "; Request ID = " + mReqId);
         }
-		
+
         try {
             mn.sendNotification();
         } catch (ENotificationException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
-			
+
         } catch (IOException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
         }
@@ -320,7 +317,7 @@ public class CertificateIssuedListener implements IRequestListener {
             keys.set(IEmailResolverKeys.KEY_REQUEST, r);
         } catch (EBaseException e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("LISTENERS_CERT_ISSUED_SET_RESOLVER", e.toString()));
+                    CMS.getLogMessage("LISTENERS_CERT_ISSUED_SET_RESOLVER", e.toString()));
         }
 
         IEmailResolver er = CMS.getReqCertSANameEmailResolver();
@@ -352,17 +349,17 @@ public class CertificateIssuedListener implements IRequestListener {
                 if (!template.init()) {
                     return;
                 }
-			
+
                 if (template.isHTML()) {
                     mn.setContentType("text/html");
                 }
 
                 // build some token data
                 mContentParams.put(IEmailFormProcessor.TOKEN_ID,
-                    mConfig.getName());
+                        mConfig.getName());
                 mReqId = r.getRequestId();
                 mContentParams.put(IEmailFormProcessor.TOKEN_REQUEST_ID,
-                    (Object) mReqId.toString());
+                        (Object) mReqId.toString());
                 IEmailFormProcessor et = CMS.getEmailFormProcessor();
                 String c = et.getEmailContent(template.toString(), mContentParams);
 
@@ -377,48 +374,48 @@ public class CertificateIssuedListener implements IRequestListener {
             } catch (ENotificationException e) {
                 // already logged, lets audit
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
-				
+
             } catch (IOException e) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
             }
         } else {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("LISTENERS_CERT_ISSUED_REJECTION_NOTIFICATION", mReqId.toString()));
+                    CMS.getLogMessage("LISTENERS_CERT_ISSUED_REJECTION_NOTIFICATION", mReqId.toString()));
 
         }
     }
 
     private void buildContentParams(X509CertImpl issuedCert[], String mEmail) {
         mContentParams.put(IEmailFormProcessor.TOKEN_ID,
-            mConfig.getName());
+                mConfig.getName());
         mContentParams.put(IEmailFormProcessor.TOKEN_SERIAL_NUM,
-            (Object) issuedCert[0].getSerialNumber().toString());
+                (Object) issuedCert[0].getSerialNumber().toString());
         mContentParams.put(IEmailFormProcessor.TOKEN_HEX_SERIAL_NUM,
-            (Object) Long.toHexString(issuedCert[0].getSerialNumber().longValue()));
+                (Object) Long.toHexString(issuedCert[0].getSerialNumber().longValue()));
         mContentParams.put(IEmailFormProcessor.TOKEN_REQUEST_ID,
-            (Object) mReqId.toString());
+                (Object) mReqId.toString());
         mContentParams.put(IEmailFormProcessor.TOKEN_HTTP_HOST,
-            (Object) mHttpHost);
+                (Object) mHttpHost);
         mContentParams.put(IEmailFormProcessor.TOKEN_HTTP_PORT,
-            (Object) mHttpPort);
+                (Object) mHttpPort);
         mContentParams.put(IEmailFormProcessor.TOKEN_ISSUER_DN,
-            (Object) issuedCert[0].getIssuerDN().toString());
+                (Object) issuedCert[0].getIssuerDN().toString());
         mContentParams.put(IEmailFormProcessor.TOKEN_SUBJECT_DN,
-            (Object) issuedCert[0].getSubjectDN().toString());
+                (Object) issuedCert[0].getSubjectDN().toString());
 
         Date date = (Date) issuedCert[0].getNotAfter();
 
         mContentParams.put(IEmailFormProcessor.TOKEN_NOT_AFTER,
-            mDateFormat.format(date));
+                mDateFormat.format(date));
 
         date = (Date) issuedCert[0].getNotBefore();
         mContentParams.put(IEmailFormProcessor.TOKEN_NOT_BEFORE,
-            mDateFormat.format(date));
+                mDateFormat.format(date));
 
         mContentParams.put(IEmailFormProcessor.TOKEN_SENDER_EMAIL,
-            (Object) mSenderEmail);
+                (Object) mSenderEmail);
         mContentParams.put(IEmailFormProcessor.TOKEN_RECIPIENT_EMAIL,
-            (Object) mEmail);
+                (Object) mEmail);
         // ... and more
     }
 
@@ -448,7 +445,7 @@ public class CertificateIssuedListener implements IRequestListener {
         if (mLogger == null)
             return;
         mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_OTHER,
-            level, msg);
+                level, msg);
     }
 
 }

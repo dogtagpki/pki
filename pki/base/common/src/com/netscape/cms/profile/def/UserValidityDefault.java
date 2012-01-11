@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.def;
 
-
 import java.io.ByteArrayInputStream;
 import java.util.Date;
 import java.util.Locale;
@@ -35,12 +34,11 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 
-
 /**
  * This class implements an enrollment default policy
  * that populates a user-supplied validity
  * into the certificate template.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class UserValidityDefault extends EnrollDefault {
@@ -55,13 +53,13 @@ public class UserValidityDefault extends EnrollDefault {
     }
 
     public void init(IProfile profile, IConfigStore config)
-        throws EProfileException {
+            throws EProfileException {
         super.init(profile, config);
     }
 
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         if (name.equals(VAL_NOT_BEFORE)) {
-            return new Descriptor(IDescriptor.STRING, 
+            return new Descriptor(IDescriptor.STRING,
                     IDescriptor.READONLY,
                     null,
                     CMS.getUserMessage(locale, "CMS_PROFILE_NOT_BEFORE"));
@@ -76,16 +74,16 @@ public class UserValidityDefault extends EnrollDefault {
     }
 
     public void setValue(String name, Locale locale,
-        X509CertInfo info, String value)
-        throws EPropertyException {
+            X509CertInfo info, String value)
+            throws EPropertyException {
         // this default rule is readonly
     }
 
     public String getValue(String name, Locale locale,
-        X509CertInfo info)
-        throws EPropertyException {
-        if (name == null) { 
-            throw new EPropertyException(CMS.getUserMessage( 
+            X509CertInfo info)
+            throws EPropertyException {
+        if (name == null) {
+            throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         }
         if (name.equals(VAL_NOT_BEFORE)) {
@@ -93,32 +91,32 @@ public class UserValidityDefault extends EnrollDefault {
 
             try {
                 validity = (CertificateValidity)
-                   info.get(X509CertInfo.VALIDITY);
+                        info.get(X509CertInfo.VALIDITY);
                 Date notBefore = (Date)
-                    validity.get(CertificateValidity.NOT_BEFORE);
+                        validity.get(CertificateValidity.NOT_BEFORE);
 
                 return notBefore.toString();
             } catch (Exception e) {
                 CMS.debug("UserValidityDefault: getValue " + e.toString());
-                throw new EPropertyException(CMS.getUserMessage( 
+                throw new EPropertyException(CMS.getUserMessage(
                             locale, "CMS_INVALID_PROPERTY", name));
             }
         } else if (name.equals(VAL_NOT_AFTER)) {
             try {
                 CertificateValidity validity = null;
                 validity = (CertificateValidity)
-                   info.get(X509CertInfo.VALIDITY);
+                        info.get(X509CertInfo.VALIDITY);
                 Date notAfter = (Date)
-                    validity.get(CertificateValidity.NOT_AFTER);
+                        validity.get(CertificateValidity.NOT_AFTER);
 
                 return notAfter.toString();
             } catch (Exception e) {
                 CMS.debug("UserValidityDefault: getValue " + e.toString());
-                throw new EPropertyException(CMS.getUserMessage( 
+                throw new EPropertyException(CMS.getUserMessage(
                             locale, "CMS_INVALID_PROPERTY", name));
             }
         } else {
-            throw new EPropertyException(CMS.getUserMessage( 
+            throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         }
     }
@@ -131,7 +129,7 @@ public class UserValidityDefault extends EnrollDefault {
      * Populates the request with this policy default.
      */
     public void populate(IRequest request, X509CertInfo info)
-        throws EProfileException {
+            throws EProfileException {
         CertificateValidity certValidity = null;
         // authenticate the certificate key, and move
         // the key from request into x509 certinfo

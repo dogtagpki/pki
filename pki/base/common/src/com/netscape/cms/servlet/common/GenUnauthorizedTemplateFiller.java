@@ -16,7 +16,6 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.common;
- 
 
 import java.util.Locale;
 
@@ -24,10 +23,9 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.IArgBlock;
 
-
 /**
- * default Unauthorized template filler 
- *
+ * default Unauthorized template filler
+ * 
  * @version $Revision$, $Date$
  */
 public class GenUnauthorizedTemplateFiller implements ICMSTemplateFiller {
@@ -36,14 +34,15 @@ public class GenUnauthorizedTemplateFiller implements ICMSTemplateFiller {
     }
 
     /**
-     * fill error details and description if any. 
+     * fill error details and description if any.
+     * 
      * @param cmsReq CMS Request
      * @param authority this authority
      * @param locale locale of template.
      * @param e unexpected exception e. ignored.
      */
     public CMSTemplateParams getTemplateParams(
-        CMSRequest cmsReq, IAuthority authority, Locale locale, Exception e) {
+            CMSRequest cmsReq, IAuthority authority, Locale locale, Exception e) {
         IArgBlock fixed = CMS.createArgBlock();
         CMSTemplateParams params = new CMSTemplateParams(null, fixed);
 
@@ -51,19 +50,18 @@ public class GenUnauthorizedTemplateFiller implements ICMSTemplateFiller {
         if (cmsReq != null) {
             Integer sts = cmsReq.getStatus();
 
-            if (sts != null) 
+            if (sts != null)
                 fixed.set(ICMSTemplateFiller.REQUEST_STATUS, sts.toString());
         }
 
         // set unauthorized error
-        fixed.set(ICMSTemplateFiller.ERROR, 
-            new ECMSGWException(CMS.getLogMessage("CMSGW_UNAUTHORIZED")));
+        fixed.set(ICMSTemplateFiller.ERROR,
+                new ECMSGWException(CMS.getLogMessage("CMSGW_UNAUTHORIZED")));
 
         // this authority 
-        if (authority != null) 
-            fixed.set(ICMSTemplateFiller.AUTHORITY, 
-                authority.getOfficialName());
+        if (authority != null)
+            fixed.set(ICMSTemplateFiller.AUTHORITY,
+                    authority.getOfficialName());
         return params;
     }
 }
-

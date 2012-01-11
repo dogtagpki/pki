@@ -20,8 +20,9 @@ package netscape.security.acl;
 import java.security.acl.Permission;
 
 /**
- * The PermissionImpl class implements the permission 
+ * The PermissionImpl class implements the permission
  * interface for permissions that are strings.
+ * 
  * @author Satish Dharmaraj
  */
 public class PermissionImpl implements Permission {
@@ -30,33 +31,35 @@ public class PermissionImpl implements Permission {
 
     /**
      * Construct a permission object using a string.
+     * 
      * @param permission the stringified version of the permission.
      */
     public PermissionImpl(String permission) {
-	this.permission = permission;
+        this.permission = permission;
     }
 
     /**
-     * This function returns true if the object passed matches the permission 
+     * This function returns true if the object passed matches the permission
      * represented in this interface.
+     * 
      * @param another The Permission object to compare with.
      * @return true if the Permission objects are equal, false otherwise
      */
     public boolean equals(Object another) {
-	if (another instanceof Permission) {
-	    Permission p = (Permission) another;
-	    return permission.equals(p.toString());
-	} else {
-	    return false;
-	}
+        if (another instanceof Permission) {
+            Permission p = (Permission) another;
+            return permission.equals(p.toString());
+        } else {
+            return false;
+        }
     }
-    
+
     /**
      * Prints a stringified version of the permission.
+     * 
      * @return the string representation of the Permission.
      */
     public String toString() {
-	return permission;
+        return permission;
     }
 }
-

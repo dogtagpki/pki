@@ -34,27 +34,23 @@ import netscape.security.util.DerInputStream;
 import netscape.security.util.DerOutputStream;
 import netscape.security.util.DerValue;
 
-
 /**
  * The X509CertInfo class represents X.509 certificate information.
- *
- * <P>X.509 certificates have several base data elements, including:<UL>
- *
- * <LI>The <em>Subject Name</em>, an X.500 Distinguished Name for
- *	the entity (subject) for which the certificate was issued.
- *
- * <LI>The <em>Subject Public Key</em>, the public key of the subject.
- *	This is one of the most important parts of the certificate.
- *
- * <LI>The <em>Validity Period</em>, a time period (e.g. six months)
- *	within which the certificate is valid (unless revoked).
- *
- * <LI>The <em>Issuer Name</em>, an X.500 Distinguished Name for the
- *	Certificate Authority (CA) which issued the certificate.
- *
- * <LI>A <em>Serial Number</em> assigned by the CA, for use in
- *	certificate revocation and other applications.
- *
+ * 
+ * <P>
+ * X.509 certificates have several base data elements, including:
+ * <UL>
+ * 
+ * <LI>The <em>Subject Name</em>, an X.500 Distinguished Name for the entity (subject) for which the certificate was issued.
+ * 
+ * <LI>The <em>Subject Public Key</em>, the public key of the subject. This is one of the most important parts of the certificate.
+ * 
+ * <LI>The <em>Validity Period</em>, a time period (e.g. six months) within which the certificate is valid (unless revoked).
+ * 
+ * <LI>The <em>Issuer Name</em>, an X.500 Distinguished Name for the Certificate Authority (CA) which issued the certificate.
+ * 
+ * <LI>A <em>Serial Number</em> assigned by the CA, for use in certificate revocation and other applications.
+ * 
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  * @version 1.16
@@ -70,7 +66,7 @@ public class X509CertInfo implements CertAttrSet, Serializable {
     /**
      * Identifier for this attribute, to be used with the
      * get, set, delete methods of Certificate, x509 type.
-     */  
+     */
     public static final String IDENT = "x509.info";
     // Certificate attribute names
     public static final String NAME = "info";
@@ -87,19 +83,19 @@ public class X509CertInfo implements CertAttrSet, Serializable {
 
     // X509.v1 data
     protected CertificateVersion version = new CertificateVersion();
-    protected CertificateSerialNumber	serialNum = null;
-    protected CertificateAlgorithmId	algId = null;
-    protected CertificateIssuerName	issuer = null;
-    protected CertificateValidity	interval = null;
-    protected CertificateSubjectName	subject = null;
-    protected CertificateX509Key	pubKey = null;
-  
+    protected CertificateSerialNumber serialNum = null;
+    protected CertificateAlgorithmId algId = null;
+    protected CertificateIssuerName issuer = null;
+    protected CertificateValidity interval = null;
+    protected CertificateSubjectName subject = null;
+    protected CertificateX509Key pubKey = null;
+
     // X509.v2 & v3 extensions
-    protected CertificateIssuerUniqueIdentity	issuerUniqueId = null;
-    protected CertificateSubjectUniqueIdentity	subjectUniqueId = null;
-  
+    protected CertificateIssuerUniqueIdentity issuerUniqueId = null;
+    protected CertificateSubjectUniqueIdentity subjectUniqueId = null;
+
     // X509.v3 extensions
-    protected CertificateExtensions	extensions = null;
+    protected CertificateExtensions extensions = null;
 
     // Attribute numbers for internal manipulation
     private static final int ATTR_VERSION = 1;
@@ -114,8 +110,8 @@ public class X509CertInfo implements CertAttrSet, Serializable {
     private static final int ATTR_EXTENSIONS = 10;
 
     // DER encoded CertificateInfo data
-    private byte[]	rawCertInfo = null;
-  
+    private byte[] rawCertInfo = null;
+
     // The certificate attribute name to integer mapping stored here
     private static final Hashtable<String, Integer> map = new Hashtable<String, Integer>();
     static {
@@ -130,7 +126,7 @@ public class X509CertInfo implements CertAttrSet, Serializable {
         map.put(SUBJECT_ID, Integer.valueOf(ATTR_SUBJECT_ID));
         map.put(EXTENSIONS, Integer.valueOf(ATTR_EXTENSIONS));
     }
-  
+
     /**
      * Construct an uninitialized X509CertInfo on which <a href="#decode">
      * decode</a> must later be called (or which may be deserialized).
@@ -140,19 +136,19 @@ public class X509CertInfo implements CertAttrSet, Serializable {
 
     /**
      * Unmarshals a certificate from its encoded form, parsing the
-     * encoded bytes.  This form of constructor is used by agents which
-     * need to examine and use certificate contents.  That is, this is
-     * one of the more commonly used constructors.  Note that the buffer
+     * encoded bytes. This form of constructor is used by agents which
+     * need to examine and use certificate contents. That is, this is
+     * one of the more commonly used constructors. Note that the buffer
      * must include only a certificate, and no "garbage" may be left at
-     * the end.  If you need to ignore data at the end of a certificate,
+     * the end. If you need to ignore data at the end of a certificate,
      * use another constructor.
-     *
+     * 
      * @param cert the encoded bytes, with no trailing data.
      * @exception CertificateParsingException on parsing errors.
      */
     public X509CertInfo(byte[] cert) throws CertificateParsingException {
         try {
-            DerValue	in = new DerValue(cert);
+            DerValue in = new DerValue(cert);
 
             parse(in);
         } catch (IOException e) {
@@ -164,7 +160,7 @@ public class X509CertInfo implements CertAttrSet, Serializable {
      * Unmarshal a certificate from its encoded form, parsing a DER value.
      * This form of constructor is used by agents which need to examine
      * and use certificate contents.
-     *
+     * 
      * @param derVal the der value containing the encoded cert.
      * @exception CertificateParsingException on parsing errors.
      */
@@ -178,35 +174,36 @@ public class X509CertInfo implements CertAttrSet, Serializable {
 
     /**
      * Decode an X.509 certificate from an input stream.
-     *
+     * 
      * @param in an input stream holding at least one certificate
      * @exception CertificateParsingException on decoding errors.
      * @exception IOException on other errors.
      */
     public void decode(InputStream in)
-    throws CertificateParsingException, IOException {
-        DerValue	val = new DerValue(in);
+            throws CertificateParsingException, IOException {
+        DerValue val = new DerValue(in);
 
         parse(val);
     }
 
     /**
      * Appends the certificate to an output stream.
-     *
+     * 
      * @param out an output stream to which the certificate is appended.
      * @exception CertificateException on encoding errors.
      * @exception IOException on other errors.
      */
     public void encode(OutputStream out)
-    throws CertificateException, IOException {
+            throws CertificateException, IOException {
         encode(out, false);
     }
 
     /**
      * Appends the certificate to an output stream.
-     * @param out  An output stream to which the certificate is appended.
-     * @param ignoreCache  Whether to ignore the internal cache when encoding.
-     *                     (the cache can easily become out of date).
+     * 
+     * @param out An output stream to which the certificate is appended.
+     * @param ignoreCache Whether to ignore the internal cache when encoding.
+     *            (the cache can easily become out of date).
      */
     public void encode(OutputStream out, boolean ignoreCache)
             throws IOException, CertificateException {
@@ -235,19 +232,19 @@ public class X509CertInfo implements CertAttrSet, Serializable {
         elements.addElement(SUBJECT_ID);
         elements.addElement(EXTENSIONS);
 
-        return(elements.elements());
+        return (elements.elements());
     }
 
     /**
      * Return the name of this attribute.
      */
     public String getName() {
-        return(NAME);
+        return (NAME);
     }
 
     /**
      * Returns the encoded certificate info.
-     *
+     * 
      * @exception CertificateEncodingException on encoding information errors.
      */
     public byte[] getEncodedInfo() throws CertificateEncodingException {
@@ -272,10 +269,10 @@ public class X509CertInfo implements CertAttrSet, Serializable {
     }
 
     /**
-     * Compares two X509CertInfo objects.  This is false if the
+     * Compares two X509CertInfo objects. This is false if the
      * certificates are not both X.509 certs, otherwise it
      * compares them as binary data.
-     *
+     * 
      * @param other the object being compared with this one
      * @return true iff the certificates are equivalent
      */
@@ -290,37 +287,37 @@ public class X509CertInfo implements CertAttrSet, Serializable {
     /**
      * Compares two certificates, returning false if any data
      * differs between the two.
-     *
+     * 
      * @param other the object being compared with this one
      * @return true iff the certificates are equivalent
      */
     public boolean equals(X509CertInfo other) {
         if (this == other) {
-            return(true);
+            return (true);
         } else if (rawCertInfo == null || other.rawCertInfo == null) {
-            return(false);
+            return (false);
         } else if (rawCertInfo.length != other.rawCertInfo.length) {
-            return(false);
+            return (false);
         }
         for (int i = 0; i < rawCertInfo.length; i++) {
             if (rawCertInfo[i] != other.rawCertInfo[i]) {
-	        return(false);
+                return (false);
             }
         }
-        return(true);
+        return (true);
     }
 
     /**
-     * Calculates a hash code value for the object.  Objects
+     * Calculates a hash code value for the object. Objects
      * which are equal will also have the same hashcode.
      */
     public int hashCode() {
-        int	retval = 0;
+        int retval = 0;
 
         for (int i = 1; i < rawCertInfo.length; i++) {
             retval += rawCertInfo[i] * i;
         }
-        return(retval);
+        return (retval);
     }
 
     /**
@@ -329,8 +326,8 @@ public class X509CertInfo implements CertAttrSet, Serializable {
     public String toString() {
 
         if (subject == null || pubKey == null || interval == null
-	    || issuer == null || algId == null || serialNum == null) {
-                throw new NullPointerException("X.509 cert is incomplete");
+                || issuer == null || algId == null || serialNum == null) {
+            throw new NullPointerException("X.509 cert is incomplete");
         }
         StringBuffer sb = new StringBuffer();
 
@@ -351,11 +348,11 @@ public class X509CertInfo implements CertAttrSet, Serializable {
             sb.append("  Subject Id:\n" + subjectUniqueId.toString() + "\n");
         }
         if (extensions != null) {
-	    netscape.security.util.PrettyPrintFormat pp = 
-		new netscape.security.util.PrettyPrintFormat(" ", 20);
+            netscape.security.util.PrettyPrintFormat pp =
+                    new netscape.security.util.PrettyPrintFormat(" ", 20);
             for (int i = 0; i < extensions.size(); i++) {
-	        sb.append("  Extension[" + i + "] = ");
-                Extension ext = (Extension)extensions.elementAt(i);
+                sb.append("  Extension[" + i + "] = ");
+                Extension ext = (Extension) extensions.elementAt(i);
                 try {
                     if (OIDMap.getClass(ext.getExtensionId()) == null) {
                         sb.append(ext.toString());
@@ -364,7 +361,7 @@ public class X509CertInfo implements CertAttrSet, Serializable {
                             DerOutputStream out = new DerOutputStream();
                             out.putOctetString(extValue);
                             extValue = out.toByteArray();
-			    String extValuebits = pp.toHexString(extValue);
+                            String extValuebits = pp.toHexString(extValue);
                             sb.append("Extension unknown: "
                                       + "DER encoded OCTET string =\n"
                                       + extValuebits);
@@ -382,14 +379,14 @@ public class X509CertInfo implements CertAttrSet, Serializable {
 
     /**
      * Set the certificate attribute.
-     *
+     * 
      * @param name the name of the Certificate attribute.
      * @param val the value of the Certificate attribute.
      * @exception CertificateException on invalid attributes.
      * @exception IOException on other errors.
      */
     public void set(String name, Object val)
-    throws CertificateException, IOException {
+            throws CertificateException, IOException {
         X509AttributeName attrName = new X509AttributeName(name);
 
         int attr = attributeMap(attrName.getPrefix());
@@ -403,81 +400,81 @@ public class X509CertInfo implements CertAttrSet, Serializable {
         switch (attr) {
         case ATTR_VERSION:
             if (attrName.getSuffix() == null) {
-	        setVersion(val);
+                setVersion(val);
             } else {
-	        version.set(attrName.getSuffix(),val);
+                version.set(attrName.getSuffix(), val);
             }
             break;
 
         case ATTR_SERIAL:
             if (attrName.getSuffix() == null) {
-	        setSerialNumber(val);
+                setSerialNumber(val);
             } else {
-	        serialNum.set(attrName.getSuffix(),val);
+                serialNum.set(attrName.getSuffix(), val);
             }
             break;
 
         case ATTR_ALGORITHM:
             if (attrName.getSuffix() == null) {
-	        setAlgorithmId(val);
+                setAlgorithmId(val);
             } else {
-	        algId.set(attrName.getSuffix(),val);
+                algId.set(attrName.getSuffix(), val);
             }
             break;
 
         case ATTR_ISSUER:
             if (attrName.getSuffix() == null) {
-	        setIssuer(val);
+                setIssuer(val);
             } else {
-	        issuer.set(attrName.getSuffix(),val);
+                issuer.set(attrName.getSuffix(), val);
             }
             break;
 
         case ATTR_VALIDITY:
             if (attrName.getSuffix() == null) {
-	        setValidity(val);
+                setValidity(val);
             } else {
-	        interval.set(attrName.getSuffix(),val);
+                interval.set(attrName.getSuffix(), val);
             }
             break;
 
         case ATTR_SUBJECT:
             if (attrName.getSuffix() == null) {
-	        setSubject(val);
+                setSubject(val);
             } else {
-	        subject.set(attrName.getSuffix(),val);
+                subject.set(attrName.getSuffix(), val);
             }
             break;
 
         case ATTR_KEY:
             if (attrName.getSuffix() == null) {
-	        setKey(val);
+                setKey(val);
             } else {
-	        pubKey.set(attrName.getSuffix(),val);
+                pubKey.set(attrName.getSuffix(), val);
             }
             break;
 
         case ATTR_ISSUER_ID:
             if (attrName.getSuffix() == null) {
-	        setIssuerUniqueId(val);
+                setIssuerUniqueId(val);
             } else {
-	        issuerUniqueId.set(attrName.getSuffix(),val);
+                issuerUniqueId.set(attrName.getSuffix(), val);
             }
             break;
 
         case ATTR_SUBJECT_ID:
             if (attrName.getSuffix() == null) {
-	        setSubjectUniqueId(val);
+                setSubjectUniqueId(val);
             } else {
-	        subjectUniqueId.set(attrName.getSuffix(),val);
+                subjectUniqueId.set(attrName.getSuffix(), val);
             }
             break;
 
         case ATTR_EXTENSIONS:
             if (attrName.getSuffix() == null) {
-	        setExtensions(val);
+                setExtensions(val);
             } else {
-	        extensions.set(attrName.getSuffix(),val);
+                extensions.set(attrName.getSuffix(), val);
             }
             break;
         }
@@ -485,13 +482,13 @@ public class X509CertInfo implements CertAttrSet, Serializable {
 
     /**
      * Delete the certificate attribute.
-     *
+     * 
      * @param name the name of the Certificate attribute.
      * @exception CertificateException on invalid attributes.
      * @exception IOException on other errors.
      */
     public void delete(String name)
-    throws CertificateException, IOException {
+            throws CertificateException, IOException {
         X509AttributeName attrName = new X509AttributeName(name);
 
         int attr = attributeMap(attrName.getPrefix());
@@ -505,72 +502,72 @@ public class X509CertInfo implements CertAttrSet, Serializable {
         switch (attr) {
         case ATTR_VERSION:
             if (attrName.getSuffix() == null) {
-	        version = null;
+                version = null;
             } else {
-	        version.delete(attrName.getSuffix());
+                version.delete(attrName.getSuffix());
             }
             break;
         case (ATTR_SERIAL):
             if (attrName.getSuffix() == null) {
-	        serialNum = null;
+                serialNum = null;
             } else {
-	        serialNum.delete(attrName.getSuffix());
+                serialNum.delete(attrName.getSuffix());
             }
             break;
         case (ATTR_ALGORITHM):
             if (attrName.getSuffix() == null) {
-	        algId = null;
+                algId = null;
             } else {
-	        algId.delete(attrName.getSuffix());
+                algId.delete(attrName.getSuffix());
             }
             break;
         case (ATTR_ISSUER):
             if (attrName.getSuffix() == null) {
-	        issuer = null;
+                issuer = null;
             } else {
-	        issuer.delete(attrName.getSuffix());
+                issuer.delete(attrName.getSuffix());
             }
             break;
         case (ATTR_VALIDITY):
             if (attrName.getSuffix() == null) {
-	        interval = null;
+                interval = null;
             } else {
-	        interval.delete(attrName.getSuffix());
+                interval.delete(attrName.getSuffix());
             }
             break;
         case (ATTR_SUBJECT):
             if (attrName.getSuffix() == null) {
-	        subject = null;
+                subject = null;
             } else {
-	        subject.delete(attrName.getSuffix());
+                subject.delete(attrName.getSuffix());
             }
             break;
         case (ATTR_KEY):
             if (attrName.getSuffix() == null) {
-	        pubKey = null;
+                pubKey = null;
             } else {
-	        pubKey.delete(attrName.getSuffix());
+                pubKey.delete(attrName.getSuffix());
             }
             break;
         case (ATTR_ISSUER_ID):
             if (attrName.getSuffix() == null) {
-	        issuerUniqueId = null;
+                issuerUniqueId = null;
             } else {
-	        issuerUniqueId.delete(attrName.getSuffix());
+                issuerUniqueId.delete(attrName.getSuffix());
             }
             break;
         case (ATTR_SUBJECT_ID):
             if (attrName.getSuffix() == null) {
-	        subjectUniqueId = null;
+                subjectUniqueId = null;
             } else {
-	        subjectUniqueId.delete(attrName.getSuffix());
+                subjectUniqueId.delete(attrName.getSuffix());
             }
             break;
         case (ATTR_EXTENSIONS):
             if (attrName.getSuffix() == null) {
-	        extensions = null;
+                extensions = null;
             } else {
-	        extensions.delete(attrName.getSuffix());
+                extensions.delete(attrName.getSuffix());
             }
             break;
         }
@@ -578,14 +575,14 @@ public class X509CertInfo implements CertAttrSet, Serializable {
 
     /**
      * Get the certificate attribute.
-     *
+     * 
      * @param name the name of the Certificate attribute.
-     *
+     * 
      * @exception CertificateException on invalid attributes.
      * @exception IOException on other errors.
      */
     public Object get(String name)
-    throws CertificateException, IOException {
+            throws CertificateException, IOException {
         X509AttributeName attrName = new X509AttributeName(name);
 
         int attr = attributeMap(attrName.getPrefix());
@@ -597,72 +594,72 @@ public class X509CertInfo implements CertAttrSet, Serializable {
         switch (attr) {
         case (ATTR_VERSION):
             if (attrName.getSuffix() == null) {
-	        return(version);
+                return (version);
             } else {
-	        return(version.get(attrName.getSuffix()));
+                return (version.get(attrName.getSuffix()));
             }
         case (ATTR_SERIAL):
             if (attrName.getSuffix() == null) {
-	        return(serialNum);
+                return (serialNum);
             } else {
-	        return(serialNum.get(attrName.getSuffix()));
+                return (serialNum.get(attrName.getSuffix()));
             }
         case (ATTR_ALGORITHM):
             if (attrName.getSuffix() == null) {
-	        return(algId);
+                return (algId);
             } else {
-	        return(algId.get(attrName.getSuffix()));
+                return (algId.get(attrName.getSuffix()));
             }
         case (ATTR_ISSUER):
             if (attrName.getSuffix() == null) {
-	        return(issuer);
+                return (issuer);
             } else {
-	        return(issuer.get(attrName.getSuffix()));
+                return (issuer.get(attrName.getSuffix()));
             }
         case (ATTR_VALIDITY):
             if (attrName.getSuffix() == null) {
-	        return(interval);
+                return (interval);
             } else {
-	        return(interval.get(attrName.getSuffix()));
+                return (interval.get(attrName.getSuffix()));
             }
         case (ATTR_SUBJECT):
             if (attrName.getSuffix() == null) {
-	        return(subject);
+                return (subject);
             } else {
-	        return(subject.get(attrName.getSuffix()));
+                return (subject.get(attrName.getSuffix()));
             }
         case (ATTR_KEY):
             if (attrName.getSuffix() == null) {
-                return(pubKey);
+                return (pubKey);
             } else {
-                return(pubKey.get(attrName.getSuffix()));
+                return (pubKey.get(attrName.getSuffix()));
             }
         case (ATTR_ISSUER_ID):
             if (attrName.getSuffix() == null) {
-	        return(issuerUniqueId);
+                return (issuerUniqueId);
             } else {
                 if (issuerUniqueId == null)
                     return null;
                 else
-	        return(issuerUniqueId.get(attrName.getSuffix()));
+                    return (issuerUniqueId.get(attrName.getSuffix()));
             }
         case (ATTR_SUBJECT_ID):
             if (attrName.getSuffix() == null) {
-	        return(subjectUniqueId);
+                return (subjectUniqueId);
             } else {
                 if (subjectUniqueId == null)
                     return null;
                 else
-	        return(subjectUniqueId.get(attrName.getSuffix()));
+                    return (subjectUniqueId.get(attrName.getSuffix()));
             }
         case (ATTR_EXTENSIONS):
             if (attrName.getSuffix() == null) {
-	        return(extensions);
+                return (extensions);
             } else {
                 if (extensions == null)
                     return null;
                 else
-	        return(extensions.get(attrName.getSuffix()));
+                    return (extensions.get(attrName.getSuffix()));
             }
         }
         return null;
@@ -672,9 +669,9 @@ public class X509CertInfo implements CertAttrSet, Serializable {
      * This routine unmarshals the certificate information.
      */
     private void parse(DerValue val)
-    throws CertificateParsingException, IOException {
-        DerInputStream	in;
-        DerValue	tmp;
+            throws CertificateParsingException, IOException {
+        DerInputStream in;
+        DerValue tmp;
 
         if (val.tag != DerValue.tag_Sequence) {
             throw new CertificateParsingException("signed fields invalid");
@@ -685,11 +682,11 @@ public class X509CertInfo implements CertAttrSet, Serializable {
 
         // Version
         tmp = in.getDerValue();
-        if (tmp.isContextSpecific((byte)0)) {
+        if (tmp.isContextSpecific((byte) 0)) {
             version = new CertificateVersion(tmp);
             tmp = in.getDerValue();
         }
-  
+
         // Serial number ... an integer
         serialNum = new CertificateSerialNumber(tmp);
 
@@ -711,7 +708,7 @@ public class X509CertInfo implements CertAttrSet, Serializable {
         // If more data available, make sure version is not v1.
         if (in.available() != 0) {
             if (version.compare(CertificateVersion.V1) == 0) {
-	        throw new CertificateParsingException("excess cert data");
+                throw new CertificateParsingException("excess cert data");
             }
         } else {
             return;
@@ -719,19 +716,19 @@ public class X509CertInfo implements CertAttrSet, Serializable {
 
         // Get the issuerUniqueId if present
         tmp = in.getDerValue();
-        if (tmp.isContextSpecific((byte)1)) {
+        if (tmp.isContextSpecific((byte) 1)) {
             issuerUniqueId = new CertificateIssuerUniqueIdentity(tmp);
             if (in.available() == 0) {
-	        return;
+                return;
             }
             tmp = in.getDerValue();
         }
 
         // Get the subjectUniqueId if present.
-        if (tmp.isContextSpecific((byte)2)) {
+        if (tmp.isContextSpecific((byte) 2)) {
             subjectUniqueId = new CertificateSubjectUniqueIdentity(tmp);
             if (in.available() == 0) {
-	        return;
+                return;
             }
             tmp = in.getDerValue();
         }
@@ -740,7 +737,7 @@ public class X509CertInfo implements CertAttrSet, Serializable {
         if (version.compare(CertificateVersion.V3) != 0) {
             throw new CertificateParsingException("excess cert data");
         }
-        if (tmp.isConstructed() && tmp.isContextSpecific((byte)3)) {    
+        if (tmp.isConstructed() && tmp.isContextSpecific((byte) 3)) {
             extensions = new CertificateExtensions(tmp.data);
         }
     }
@@ -749,7 +746,7 @@ public class X509CertInfo implements CertAttrSet, Serializable {
      * Marshal the contents of a "raw" certificate into a DER sequence.
      */
     private void emit(DerOutputStream out)
-    throws CertificateException, IOException {
+            throws CertificateException, IOException {
         DerOutputStream tmp = new DerOutputStream();
 
         // version number, iff not V1
@@ -790,7 +787,7 @@ public class X509CertInfo implements CertAttrSet, Serializable {
      * serialization subsystem, then the cert data.)
      */
     private synchronized void writeObject(ObjectOutputStream stream)
-    throws CertificateException, IOException {
+            throws CertificateException, IOException {
         encode(stream);
     }
 
@@ -799,8 +796,8 @@ public class X509CertInfo implements CertAttrSet, Serializable {
      * themselves, and they're parsed when they get read back.
      */
     private synchronized void readObject(ObjectInputStream stream)
-    throws CertificateException, IOException {
-       decode(stream);
+            throws CertificateException, IOException {
+        decode(stream);
     }
 
     /**
@@ -809,14 +806,14 @@ public class X509CertInfo implements CertAttrSet, Serializable {
     private int attributeMap(String name) {
         Integer num = map.get(name);
         if (num == null) {
-            return(0);
+            return (0);
         }
-        return(num.intValue());
+        return (num.intValue());
     }
 
     /**
      * Set the version number of the certificate.
-     *
+     * 
      * @param val the Object class value for the Extensions
      * @exception CertificateException on invalid data.
      */
@@ -824,12 +821,12 @@ public class X509CertInfo implements CertAttrSet, Serializable {
         if (!(val instanceof CertificateVersion)) {
             throw new CertificateException("Version class type invalid.");
         }
-        version = (CertificateVersion)val;
+        version = (CertificateVersion) val;
     }
 
     /**
      * Set the serial number of the certificate.
-     *
+     * 
      * @param val the Object class value for the CertificateSerialNumber
      * @exception CertificateException on invalid data.
      */
@@ -837,82 +834,82 @@ public class X509CertInfo implements CertAttrSet, Serializable {
         if (!(val instanceof CertificateSerialNumber)) {
             throw new CertificateException("SerialNumber class type invalid.");
         }
-        serialNum = (CertificateSerialNumber)val;
+        serialNum = (CertificateSerialNumber) val;
     }
 
     /**
      * Set the algorithm id of the certificate.
-     *
+     * 
      * @param val the Object class value for the AlgorithmId
      * @exception CertificateException on invalid data.
      */
     private void setAlgorithmId(Object val) throws CertificateException {
         if (!(val instanceof CertificateAlgorithmId)) {
             throw new CertificateException(
-			     "AlgorithmId class type invalid.");
+                    "AlgorithmId class type invalid.");
         }
-        algId = (CertificateAlgorithmId)val;
+        algId = (CertificateAlgorithmId) val;
     }
 
     /**
      * Set the issuer name of the certificate.
-     *
+     * 
      * @param val the Object class value for the issuer
      * @exception CertificateException on invalid data.
      */
     private void setIssuer(Object val) throws CertificateException {
         if (!(val instanceof CertificateIssuerName)) {
             throw new CertificateException(
-			     "Issuer class type invalid.");
+                    "Issuer class type invalid.");
         }
-        issuer = (CertificateIssuerName)val;
+        issuer = (CertificateIssuerName) val;
     }
 
     /**
      * Set the validity interval of the certificate.
-     *
+     * 
      * @param val the Object class value for the CertificateValidity
      * @exception CertificateException on invalid data.
      */
     private void setValidity(Object val) throws CertificateException {
         if (!(val instanceof CertificateValidity)) {
             throw new CertificateException(
-			     "CertificateValidity class type invalid.");
+                    "CertificateValidity class type invalid.");
         }
-        interval = (CertificateValidity)val;
+        interval = (CertificateValidity) val;
     }
 
     /**
      * Set the subject name of the certificate.
-     *
+     * 
      * @param val the Object class value for the Subject
      * @exception CertificateException on invalid data.
      */
     private void setSubject(Object val) throws CertificateException {
         if (!(val instanceof CertificateSubjectName)) {
             throw new CertificateException(
-			     "Subject class type invalid.");
+                    "Subject class type invalid.");
         }
-        subject = (CertificateSubjectName)val;
+        subject = (CertificateSubjectName) val;
     }
 
     /**
      * Set the public key in the certificate.
-     *
+     * 
      * @param val the Object class value for the PublicKey
      * @exception CertificateException on invalid data.
      */
     private void setKey(Object val) throws CertificateException {
         if (!(val instanceof CertificateX509Key)) {
             throw new CertificateException(
-			     "Key class type invalid.");
+                    "Key class type invalid.");
         }
-        pubKey = (CertificateX509Key)val;
+        pubKey = (CertificateX509Key) val;
     }
 
     /**
      * Set the Issuer Unique Identity in the certificate.
-     *
+     * 
      * @param val the Object class value for the IssuerUniqueId
      * @exception CertificateException
      */
@@ -922,14 +919,14 @@ public class X509CertInfo implements CertAttrSet, Serializable {
         }
         if (!(val instanceof CertificateIssuerUniqueIdentity)) {
             throw new CertificateException(
-			     "IssuerUniqueId class type invalid.");
+                    "IssuerUniqueId class type invalid.");
         }
-        issuerUniqueId = (CertificateIssuerUniqueIdentity)val;
+        issuerUniqueId = (CertificateIssuerUniqueIdentity) val;
     }
 
     /**
      * Set the Subject Unique Identity in the certificate.
-     *
+     * 
      * @param val the Object class value for the SubjectUniqueId
      * @exception CertificateException
      */
@@ -939,14 +936,14 @@ public class X509CertInfo implements CertAttrSet, Serializable {
         }
         if (!(val instanceof CertificateSubjectUniqueIdentity)) {
             throw new CertificateException(
-			     "SubjectUniqueId class type invalid.");
+                    "SubjectUniqueId class type invalid.");
         }
-        subjectUniqueId = (CertificateSubjectUniqueIdentity)val;
+        subjectUniqueId = (CertificateSubjectUniqueIdentity) val;
     }
 
     /**
      * Set the extensions in the certificate.
-     *
+     * 
      * @param val the Object class value for the Extensions
      * @exception CertificateException
      */
@@ -955,9 +952,9 @@ public class X509CertInfo implements CertAttrSet, Serializable {
             throw new CertificateException("Invalid version");
         }
         if (!(val instanceof CertificateExtensions)) {
-          throw new CertificateException(
-			     "Extensions class type invalid.");
+            throw new CertificateException(
+                    "Extensions class type invalid.");
         }
-        extensions = (CertificateExtensions)val;
+        extensions = (CertificateExtensions) val;
     }
 }

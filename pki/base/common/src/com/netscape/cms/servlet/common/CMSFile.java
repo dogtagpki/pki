@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.common;
 
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -27,10 +26,9 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.logging.ILogger;
 
-
 /**
  * CMSFile represents a file from the filesystem cached in memory
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class CMSFile {

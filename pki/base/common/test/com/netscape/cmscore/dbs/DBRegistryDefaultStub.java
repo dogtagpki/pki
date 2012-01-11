@@ -17,7 +17,6 @@ import com.netscape.certsrv.dbs.IFilterConverter;
  */
 public class DBRegistryDefaultStub implements IDBRegistry {
 
-
     public void registerObjectClass(String className, String ldapNames[]) throws EDBException {
     }
 

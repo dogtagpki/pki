@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.util;
 
-
 import java.text.DateFormat;
 import java.util.Iterator;
 import java.util.Locale;
@@ -30,16 +29,14 @@ import netscape.security.x509.Extension;
 import netscape.security.x509.RevokedCertImpl;
 import netscape.security.x509.X509CRLImpl;
 
-
 /**
  * This class will display the certificate content in predefined
  * format.
- *
+ * 
  * @author Andrew Wnuk
  * @version $Revision$, $Date$
  */
-public class CrlPrettyPrint 
-{
+public class CrlPrettyPrint {
 
     /*==========================================================
      * constants
@@ -69,7 +66,7 @@ public class CrlPrettyPrint
      * This method return string representation of the certificate
      * revocation list in predefined format using specified client
      * local. I18N Support.
-     *
+     * 
      * @param clientLocale Locale to be used for localization
      * @return string representation of the certificate
      */
@@ -100,10 +97,10 @@ public class CrlPrettyPrint
             sb.append((mCRL.getVersion() + 1) + "\n");
             sb.append(pp.indent(12) + resource.getString(
                     PrettyPrintResources.TOKEN_SIGALG) + mCRL.getSigAlgName() +
-                " - " + mCRL.getSigAlgOID() + "\n");
+                    " - " + mCRL.getSigAlgOID() + "\n");
             sb.append(pp.indent(12) + resource.getString(
                     PrettyPrintResources.TOKEN_ISSUER) +
-                mCRL.getIssuerDN().toString() + "\n");
+                    mCRL.getIssuerDN().toString() + "\n");
             // Format thisUpdate
             String thisUpdate = dateFormater.format(mCRL.getThisUpdate());
 
@@ -111,7 +108,7 @@ public class CrlPrettyPrint
             if (TimeZone.getDefault() != null) {
                 tz = TimeZone.getDefault().getDisplayName(
                             TimeZone.getDefault().inDaylightTime(
-                                mCRL.getThisUpdate()),
+                                    mCRL.getThisUpdate()),
                             TimeZone.SHORT,
                             clientLocale);
                 tzid = TimeZone.getDefault().getID();
@@ -120,17 +117,17 @@ public class CrlPrettyPrint
             if (tz.equals(tzid) || tzid.equals(CUSTOM_LOCALE)) {
                 // Do NOT append timezone ID
                 sb.append(pp.indent(12)
-                    + resource.getString(
-                        PrettyPrintResources.TOKEN_THIS_UPDATE)
-                    + thisUpdate
-                    + "\n");
+                        + resource.getString(
+                                PrettyPrintResources.TOKEN_THIS_UPDATE)
+                        + thisUpdate
+                        + "\n");
             } else {
                 // Append timezone ID
                 sb.append(pp.indent(12)
-                    + resource.getString(
-                        PrettyPrintResources.TOKEN_THIS_UPDATE)
-                    + thisUpdate
-                    + " " + tzid + "\n");
+                        + resource.getString(
+                                PrettyPrintResources.TOKEN_THIS_UPDATE)
+                        + thisUpdate
+                        + " " + tzid + "\n");
             }
             // Check for presence of NextUpdate
             if (mCRL.getNextUpdate() != null) {
@@ -141,7 +138,7 @@ public class CrlPrettyPrint
                 if (TimeZone.getDefault() != null) {
                     tz = TimeZone.getDefault().getDisplayName(
                                 TimeZone.getDefault().inDaylightTime(
-                                    mCRL.getNextUpdate()),
+                                        mCRL.getNextUpdate()),
                                 TimeZone.SHORT,
                                 clientLocale);
                 }
@@ -149,17 +146,17 @@ public class CrlPrettyPrint
                 if (tz.equals(tzid) || tzid.equals(CUSTOM_LOCALE)) {
                     // Do NOT append timezone ID
                     sb.append(pp.indent(12)
-                        + resource.getString(
-                            PrettyPrintResources.TOKEN_NEXT_UPDATE)
-                        + nextUpdate
-                        + "\n");
+                            + resource.getString(
+                                    PrettyPrintResources.TOKEN_NEXT_UPDATE)
+                            + nextUpdate
+                            + "\n");
                 } else {
                     // Append timezone ID
                     sb.append(pp.indent(12)
-                        + resource.getString(
-                            PrettyPrintResources.TOKEN_NEXT_UPDATE)
-                        + nextUpdate
-                        + " " + tzid + "\n");
+                            + resource.getString(
+                                    PrettyPrintResources.TOKEN_NEXT_UPDATE)
+                            + nextUpdate
+                            + " " + tzid + "\n");
                 }
             }
 
@@ -167,7 +164,7 @@ public class CrlPrettyPrint
                 sb.append(pp.indent(12) + resource.getString(
                         PrettyPrintResources.TOKEN_REVOKED_CERTIFICATES) + crlSize + "\n");
             } else if ((crlSize == 0 && pageStart == 0 && pageSize == 0) ||
-                (crlSize > 0 && pageStart > 0 && pageSize > 0)) {
+                    (crlSize > 0 && pageStart > 0 && pageSize > 0)) {
                 sb.append(pp.indent(12) + resource.getString(
                         PrettyPrintResources.TOKEN_REVOKED_CERTIFICATES));
                 if (crlSize > 0 && pageStart > 0 && pageSize > 0) {
@@ -185,40 +182,40 @@ public class CrlPrettyPrint
 
                     while ((i.hasNext()) && ((crlSize == 0) || (pageStart + pageSize > l))) {
                         RevokedCertImpl revokedCert =
-                            (RevokedCertImpl) i.next();
+                                (RevokedCertImpl) i.next();
 
                         if ((crlSize == 0) || ((pageStart <= l) && (pageStart + pageSize > l))) {
                             sb.append(pp.indent(16) + resource.getString(
                                     PrettyPrintResources.TOKEN_SERIAL) + "0x" +
-                                revokedCert.getSerialNumber().toString(16).toUpperCase() + "\n");
+                                    revokedCert.getSerialNumber().toString(16).toUpperCase() + "\n");
                             String revocationDate =
-                                dateFormater.format(revokedCert.getRevocationDate());
+                                    dateFormater.format(revokedCert.getRevocationDate());
 
                             // re-get timezone
                             // (just in case it is different . . .)
                             if (TimeZone.getDefault() != null) {
                                 tz = TimeZone.getDefault().getDisplayName(
                                             TimeZone.getDefault().inDaylightTime(
-                                                revokedCert.getRevocationDate()),
+                                                    revokedCert.getRevocationDate()),
                                             TimeZone.SHORT,
                                             clientLocale);
                             }
                             // Specify revocationDate
                             if (tz.equals(tzid) ||
-                                tzid.equals(CUSTOM_LOCALE)) {
+                                    tzid.equals(CUSTOM_LOCALE)) {
                                 // Do NOT append timezone ID
                                 sb.append(pp.indent(16)
-                                    + resource.getString(
-                                        PrettyPrintResources.TOKEN_REVOCATION_DATE)
-                                    + revocationDate
-                                    + "\n");
+                                        + resource.getString(
+                                                PrettyPrintResources.TOKEN_REVOCATION_DATE)
+                                        + revocationDate
+                                        + "\n");
                             } else {
                                 // Append timezone ID
                                 sb.append(pp.indent(16)
-                                    + resource.getString(
-                                        PrettyPrintResources.TOKEN_REVOCATION_DATE)
-                                    + revocationDate
-                                    + " " + tzid + "\n");
+                                        + resource.getString(
+                                                PrettyPrintResources.TOKEN_REVOCATION_DATE)
+                                        + revocationDate
+                                        + " " + tzid + "\n");
                             }
                             if (revokedCert.hasExtensions()) {
                                 sb.append(pp.indent(16) + resource.getString(
@@ -259,7 +256,7 @@ public class CrlPrettyPrint
             //XXX I18N Algorithm Name ?
             sb.append(pp.indent(12) + resource.getString(
                     PrettyPrintResources.TOKEN_ALGORITHM) +
-                mCRL.getSigAlgName() + " - " + mCRL.getSigAlgOID() + "\n");
+                    mCRL.getSigAlgName() + " - " + mCRL.getSigAlgOID() + "\n");
             sb.append(pp.indent(12) + resource.getString(
                     PrettyPrintResources.TOKEN_SIGNATURE) + "\n");
             sb.append(pp.toHexString(mCRL.getSignature(), 16, 16));

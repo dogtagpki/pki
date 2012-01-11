@@ -37,8 +37,7 @@ import com.netscape.cmsutil.xml.XMLObject;
 public class MigrateSecurityDomain {
 
     private static LDAPConnection getLDAPConn(FileConfigStore cs, String passwd)
-            throws IOException
-    {
+            throws IOException {
 
         String host = "";
         String port = "";
@@ -67,11 +66,11 @@ public class MigrateSecurityDomain {
 
         LDAPConnection conn = null;
         if (security.equals("true")) {
-          System.out.println("MigrateSecurityDomain getLDAPConn: creating secure (SSL) connection for internal ldap");
-          conn = new LDAPConnection(new LdapJssSSLSocketFactory());
+            System.out.println("MigrateSecurityDomain getLDAPConn: creating secure (SSL) connection for internal ldap");
+            conn = new LDAPConnection(new LdapJssSSLSocketFactory());
         } else {
-          System.out.println("MigrateSecurityDomain getLDAPConn: creating non-secure (non-SSL) connection for internal ldap");
-          conn = new LDAPConnection();
+            System.out.println("MigrateSecurityDomain getLDAPConn: creating non-secure (non-SSL) connection for internal ldap");
+            conn = new LDAPConnection();
         }
 
         System.out.println("MigrateSecurityDomain connecting to " + host + ":" + p);
@@ -82,15 +81,13 @@ public class MigrateSecurityDomain {
             throw new IOException("Failed to connect to the internal database.");
         }
 
-      return conn;
+        return conn;
     }
 
-
-    public static void main(String args[]) throws Exception
-    {
+    public static void main(String args[]) throws Exception {
         if (args.length != 2) {
-             System.out.println("Usage: MigrateSecurityDomain <instance root path> <directory manager password>");
-             System.exit(0);
+            System.out.println("Usage: MigrateSecurityDomain <instance root path> <directory manager password>");
+            System.exit(0);
         }
 
         String instRoot = args[0];
@@ -103,8 +100,7 @@ public class MigrateSecurityDomain {
             System.out.println("MigrateSecurityDomain: Reading domain.xml from file ...");
             parser = new XMLObject(new FileInputStream(path));
 
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             System.out.println("MigrateSecurityDomain: Unable to get domain info from domain.xml file");
             System.out.println(e.toString());
             System.exit(1);
@@ -113,21 +109,21 @@ public class MigrateSecurityDomain {
         try {
             String configFile = instRoot + "/conf/CS.cfg";
             FileConfigStore cs = new FileConfigStore(configFile);
-            
+
             LDAPConnection conn = null;
             conn = MigrateSecurityDomain.getLDAPConn(cs, dmPass);
             if (conn == null) {
                 System.out.println("MigrateSecurityDomain: Failed to connect to internal database");
                 System.exit(1);
-            } 
+            }
 
             // add new schema elements
             String importFile = "./schema-add.ldif";
             try {
                 LDAPUtil.importLDIF(conn, importFile);
             } catch (Exception e) {
-               System.out.println("MigrateSecurityDomain: Error in adding new schema elements");
-               System.exit(1);
+                System.out.println("MigrateSecurityDomain: Error in adding new schema elements");
+                System.exit(1);
             }
             // create the containers
             String basedn = cs.getString("internaldb.basedn");
@@ -142,7 +138,7 @@ public class MigrateSecurityDomain {
                 attrs = new LDAPAttributeSet();
                 attrs.add(new LDAPAttribute("objectclass", "top"));
                 attrs.add(new LDAPAttribute("objectclass", "organizationalUnit"));
-                attrs.add(new LDAPAttribute("name",  secdomain));
+                attrs.add(new LDAPAttribute("name", secdomain));
                 attrs.add(new LDAPAttribute("ou", "Security Domain"));
                 entry = new LDAPEntry(dn, attrs);
                 conn.add(entry);
@@ -154,8 +150,8 @@ public class MigrateSecurityDomain {
             }
 
             // create list containers
-            String clist[] = {"CAList", "OCSPList", "KRAList", "RAList", "TKSList", "TPSList"};
-            for (int i=0; i< 6; i++) {
+            String clist[] = { "CAList", "OCSPList", "KRAList", "RAList", "TKSList", "TPSList" };
+            for (int i = 0; i < 6; i++) {
                 LDAPEntry entry = null;
                 LDAPAttributeSet attrs = null;
                 String dn = "cn=" + clist[i] + ",ou=Security Domain," + basedn;
@@ -168,16 +164,16 @@ public class MigrateSecurityDomain {
                     conn.add(entry);
                 } catch (LDAPException e) {
                     if (e.getLDAPResultCode() != 68) {
-                        System.out.println("Unable to create security domain list entry " + dn +": "+ e.toString());
+                        System.out.println("Unable to create security domain list entry " + dn + ": " + e.toString());
                         System.exit(1);
                     }
                 }
             }
 
             // create system entries 
-            String tlist[] = {"CA", "OCSP", "KRA", "RA", "TKS", "TPS"};
+            String tlist[] = { "CA", "OCSP", "KRA", "RA", "TKS", "TPS" };
             Document doc = parser.getDocument();
-            for (int j=0; j<6; j++) {
+            for (int j = 0; j < 6; j++) {
                 String type = tlist[j];
                 NodeList nodeList = doc.getElementsByTagName(type);
                 int len = nodeList.getLength();
@@ -187,17 +183,17 @@ public class MigrateSecurityDomain {
                     Vector v_host = parser.getValuesFromContainer(nodeList.item(i), "Host");
                     Vector v_port = parser.getValuesFromContainer(nodeList.item(i), "SecurePort");
 
-                    String cn = (String)v_host.elementAt(0) + ":" + (String)v_port.elementAt(0);
-                    String dn = "cn=" + cn + ",cn=" + type +"List,ou=Security Domain," + basedn;
+                    String cn = (String) v_host.elementAt(0) + ":" + (String) v_port.elementAt(0);
+                    String dn = "cn=" + cn + ",cn=" + type + "List,ou=Security Domain," + basedn;
                     LDAPEntry entry = null;
                     LDAPAttributeSet attrs = null;
                     attrs = new LDAPAttributeSet();
                     attrs.add(new LDAPAttribute("objectclass", "top"));
                     attrs.add(new LDAPAttribute("objectclass", "pkiSubsystem"));
-                    attrs.add(new LDAPAttribute("Host", (String)v_host.elementAt(0)));
-                    attrs.add(new LDAPAttribute("SecurePort", (String)v_port.elementAt(0)));
-                    attrs.add(new LDAPAttribute("Clone", (String)v_clone.elementAt(0)));
-                    attrs.add(new LDAPAttribute("SubsystemName", (String)v_name.elementAt(0)));
+                    attrs.add(new LDAPAttribute("Host", (String) v_host.elementAt(0)));
+                    attrs.add(new LDAPAttribute("SecurePort", (String) v_port.elementAt(0)));
+                    attrs.add(new LDAPAttribute("Clone", (String) v_clone.elementAt(0)));
+                    attrs.add(new LDAPAttribute("SubsystemName", (String) v_name.elementAt(0)));
                     attrs.add(new LDAPAttribute("cn", cn));
                     attrs.add(new LDAPAttribute("DomainManager", "true"));
                     // Since the initial port separation feature didn't occur
@@ -205,16 +201,15 @@ public class MigrateSecurityDomain {
                     // value for BOTH the "SecureAgentPort" and the
                     // "SecureAdminPort", and DON'T store any values for the
                     // "UnSecurePort"
-                    attrs.add(new LDAPAttribute("SecureAgentPort", (String)v_port.elementAt(0)));
-                    attrs.add(new LDAPAttribute("SecureAdminPort", (String)v_port.elementAt(0)));
+                    attrs.add(new LDAPAttribute("SecureAgentPort", (String) v_port.elementAt(0)));
+                    attrs.add(new LDAPAttribute("SecureAdminPort", (String) v_port.elementAt(0)));
                     entry = new LDAPEntry(dn, attrs);
 
                     try {
                         conn.add(entry);
-                    }
-                    catch (LDAPException e) {
+                    } catch (LDAPException e) {
                         if (e.getLDAPResultCode() != 68) {
-                            System.out.println("Unable to create entry " + dn +": "+ e.toString());
+                            System.out.println("Unable to create entry " + dn + ": " + e.toString());
                         }
                     }
                 }

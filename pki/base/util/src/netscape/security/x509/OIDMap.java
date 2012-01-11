@@ -29,9 +29,9 @@ import netscape.security.util.ObjectIdentifier;
 
 /**
  * This class defines the mapping from OID & name to classes and vice
- * versa.  Used by CertificateExtensions & PKCS10 to get the java
+ * versa. Used by CertificateExtensions & PKCS10 to get the java
  * classes associated with a particular OID/name.
- *
+ * 
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  * @version 1.12
@@ -43,9 +43,9 @@ public class OIDMap {
      * the local system.
      */
     public static final String EXTENSIONS_HOME =
-        (System.getProperty("java.home") + File.separator + "lib"
-         + File.separator + "security" + File.separator + "cert"
-         + File.separator);
+            (System.getProperty("java.home") + File.separator + "lib"
+                    + File.separator + "security" + File.separator + "cert"
+            + File.separator);
     /**
      * File names for where OIDs and Classes are registered
      * for V3 extensions.
@@ -59,36 +59,36 @@ public class OIDMap {
                                  X509CertInfo.EXTENSIONS;
     private static final String AUTH_KEY_IDENTIFIER = ROOT + "." +
                                           AuthorityKeyIdentifierExtension.NAME;
-    private static final String SUB_KEY_IDENTIFIER  = ROOT + "." +
+    private static final String SUB_KEY_IDENTIFIER = ROOT + "." +
                                           SubjectKeyIdentifierExtension.NAME;
-    private static final String KEY_USAGE           = ROOT + "." +
+    private static final String KEY_USAGE = ROOT + "." +
                                           KeyUsageExtension.NAME;
-    private static final String PRIVATE_KEY_USAGE   = ROOT + "." +
+    private static final String PRIVATE_KEY_USAGE = ROOT + "." +
                                           PrivateKeyUsageExtension.NAME;
-    private static final String POLICY_MAPPINGS     = ROOT + "." +
+    private static final String POLICY_MAPPINGS = ROOT + "." +
                                           PolicyMappingsExtension.NAME;
-    private static final String SUB_ALT_NAME        = ROOT + "." +
+    private static final String SUB_ALT_NAME = ROOT + "." +
                                           SubjectAlternativeNameExtension.NAME;
-    private static final String ISSUER_ALT_NAME     = ROOT + "." +
+    private static final String ISSUER_ALT_NAME = ROOT + "." +
                                           IssuerAlternativeNameExtension.NAME;
-    private static final String BASIC_CONSTRAINTS   = ROOT + "." +
+    private static final String BASIC_CONSTRAINTS = ROOT + "." +
                                           BasicConstraintsExtension.NAME;
-    private static final String NAME_CONSTRAINTS    = ROOT + "." +
+    private static final String NAME_CONSTRAINTS = ROOT + "." +
                                           NameConstraintsExtension.NAME;
-    private static final String POLICY_CONSTRAINTS  = ROOT + "." +
+    private static final String POLICY_CONSTRAINTS = ROOT + "." +
                                           PolicyConstraintsExtension.NAME;
-    private static final String CERT_POLICIES  = //ROOT + "." +
-                                          CertificatePoliciesExtension.NAME;
-    private static final String SUBJ_DIR_ATTR  = //ROOT + "." +
-                                          SubjectDirAttributesExtension.NAME;
+    private static final String CERT_POLICIES = //ROOT + "." +
+    CertificatePoliciesExtension.NAME;
+    private static final String SUBJ_DIR_ATTR = //ROOT + "." +
+    SubjectDirAttributesExtension.NAME;
     public static final String EXT_KEY_USAGE_NAME = "ExtendedKeyUsageExtension";
     public static final String EXT_INHIBIT_ANY_POLICY_NAME = "InhibitAnyPolicyExtension";
     private static final String EXT_KEY_USAGE = //ROOT + "." +
-                                          EXT_KEY_USAGE_NAME;
+    EXT_KEY_USAGE_NAME;
 
-    private static final String CRL_NUMBER  = ROOT + "." +
+    private static final String CRL_NUMBER = ROOT + "." +
                                           CRLNumberExtension.NAME;
-    private static final String CRL_REASON  = ROOT + "." +
+    private static final String CRL_REASON = ROOT + "." +
                                           CRLReasonExtension.NAME;
 
     private static final Hashtable<ObjectIdentifier, String> oid2Name = new Hashtable<ObjectIdentifier, String>();
@@ -103,25 +103,25 @@ public class OIDMap {
 
     // Load the default name to oid map (EXTENSIONS_OIDS)
     private static void loadNamesDefault(Properties props) {
-        props.put(SUB_KEY_IDENTIFIER,"2.5.29.14");
-        props.put(KEY_USAGE,"2.5.29.15");
-        props.put(PRIVATE_KEY_USAGE,"2.5.29.16");
-        props.put(SUB_ALT_NAME,"2.5.29.17");
-        props.put(ISSUER_ALT_NAME,"2.5.29.18");
-        props.put(BASIC_CONSTRAINTS,"2.5.29.19");
-        props.put(CRL_NUMBER,"2.5.29.20");
-        props.put(CRL_REASON,"2.5.29.21");
-        props.put(NAME_CONSTRAINTS,"2.5.29.30");
-        props.put(POLICY_MAPPINGS,"2.5.29.33");
-        props.put(POLICY_CONSTRAINTS,"2.5.29.36");
-        props.put(CERT_POLICIES,"2.5.29.32");
-        props.put(AUTH_KEY_IDENTIFIER,"2.5.29.35");
-        props.put(SUBJ_DIR_ATTR,"2.5.29.9");
-        props.put(EXT_KEY_USAGE,"2.5.29.37");
+        props.put(SUB_KEY_IDENTIFIER, "2.5.29.14");
+        props.put(KEY_USAGE, "2.5.29.15");
+        props.put(PRIVATE_KEY_USAGE, "2.5.29.16");
+        props.put(SUB_ALT_NAME, "2.5.29.17");
+        props.put(ISSUER_ALT_NAME, "2.5.29.18");
+        props.put(BASIC_CONSTRAINTS, "2.5.29.19");
+        props.put(CRL_NUMBER, "2.5.29.20");
+        props.put(CRL_REASON, "2.5.29.21");
+        props.put(NAME_CONSTRAINTS, "2.5.29.30");
+        props.put(POLICY_MAPPINGS, "2.5.29.33");
+        props.put(POLICY_CONSTRAINTS, "2.5.29.36");
+        props.put(CERT_POLICIES, "2.5.29.32");
+        props.put(AUTH_KEY_IDENTIFIER, "2.5.29.35");
+        props.put(SUBJ_DIR_ATTR, "2.5.29.9");
+        props.put(EXT_KEY_USAGE, "2.5.29.37");
     }
 
     // Load the default name to class map (EXTENSIONS_CLASSES)
-    private static void loadClassDefault (Properties props) {
+    private static void loadClassDefault(Properties props) {
         props.put(AUTH_KEY_IDENTIFIER,
                    "netscape.security.x509.AuthorityKeyIdentifierExtension");
         props.put(SUB_KEY_IDENTIFIER,
@@ -153,7 +153,7 @@ public class OIDMap {
     }
 
     // Return the file along with location
-    private static File certificatePropFile (String fileName) {
+    private static File certificatePropFile(String fileName) {
         return (new File(EXTENSIONS_HOME + fileName));
     }
 
@@ -166,11 +166,11 @@ public class OIDMap {
             loadNamesDefault(props);
         } else {
             try {
-	        FileInputStream fis = new FileInputStream(namesMap);
-	        props.load(fis);
+                FileInputStream fis = new FileInputStream(namesMap);
+                props.load(fis);
                 fis.close();
             } catch (IOException e) {
-	         loadNamesDefault(props);
+                loadNamesDefault(props);
             }
         }
 
@@ -194,10 +194,10 @@ public class OIDMap {
             loadClassDefault(props);
         } else {
             try {
-	        FileInputStream fis = new FileInputStream(classMap);
-	        props.load(fis);
+                FileInputStream fis = new FileInputStream(classMap);
+                props.load(fis);
             } catch (IOException e) {
-	        loadClassDefault(props);
+                loadClassDefault(props);
             }
         }
 
@@ -212,92 +212,92 @@ public class OIDMap {
 
     /**
      * Add a name to lookup table.
-     *
+     * 
      * @param className the name of the fully qualified class implementing
-     *         the asn object.
+     *            the asn object.
      * @param oid the string representation of the object identifier for
-     *         the class.
+     *            the class.
      * @param name the name of the attribute.
      * @exception CertificateException on errors.
      */
     public static void addAttribute(String className, String oid, String name)
-    throws CertificateException {
+            throws CertificateException {
         ObjectIdentifier objId = new ObjectIdentifier(oid);
-	if (oid2Name.get(objId) != null) {
-	    throw new CertificateException("Object identifier already exists.");
-	}
-	if (name2OID.get(name) != null) {
-	    throw new CertificateException("Name already exists.");
-	}
-	if (name2Class.get(className) != null) {
-	    throw new CertificateException("Class already exists.");
-	}
-	oid2Name.put(objId, name);
-	name2OID.put(name, objId);
-	name2Class.put(name, className);
+        if (oid2Name.get(objId) != null) {
+            throw new CertificateException("Object identifier already exists.");
+        }
+        if (name2OID.get(name) != null) {
+            throw new CertificateException("Name already exists.");
+        }
+        if (name2Class.get(className) != null) {
+            throw new CertificateException("Class already exists.");
+        }
+        oid2Name.put(objId, name);
+        name2OID.put(name, objId);
+        name2Class.put(name, className);
     }
 
     /**
      * Return user friendly name associated with the OID.
-     *
+     * 
      * @param oid the name of the object identifier to be returned.
      * @return the user friendly name or null if no name
-     * is registered for this oid. 
+     *         is registered for this oid.
      */
     public static String getName(ObjectIdentifier oid) {
-        return (String)oid2Name.get(oid);
-	}
+        return (String) oid2Name.get(oid);
+    }
 
     /**
      * Return Object identifier for user friendly name.
-     *
+     * 
      * @param name the user friendly name.
-     * @return the Object Identifier or null if no oid 
-     * is registered for this name. 
+     * @return the Object Identifier or null if no oid
+     *         is registered for this name.
      */
     public static ObjectIdentifier getOID(String name) {
-        return (ObjectIdentifier)name2OID.get(name);
-	}
+        return (ObjectIdentifier) name2OID.get(name);
+    }
 
     /**
      * Return the java class object associated with the user friendly name.
-     *
+     * 
      * @param name the user friendly name.
      * @exception CertificateException if class cannot be instantiated.
      */
     public static Class<?> getClass(String name) throws CertificateException {
-        String className = (String)name2Class.get(name);
+        String className = (String) name2Class.get(name);
         if (className == null)
             return null;
         try {
             Class<?> extClass = Class.forName(className);
-	    return (extClass);
-	} catch (Exception e) {
-	  throw new CertificateException("Error instantiating class for "
+            return (extClass);
+        } catch (Exception e) {
+            throw new CertificateException("Error instantiating class for "
                                 + name + " " + e.toString());
-	}
+        }
     }
 
     /**
      * Return the java class object associated with the object identifier..
-     *
+     * 
      * @param oid the name of the object identifier to be returned.
      * @exception CertificateException if class cannot be instatiated.
      */
     public static Class<?> getClass(ObjectIdentifier oid)
-    throws CertificateException {
+            throws CertificateException {
         String name = getName(oid);
         if (name == null)
             return null;
-        String className = (String)name2Class.get(name);
+        String className = (String) name2Class.get(name);
         if (className == null)
             return null;
         try {
             Class<?> extClass = Class.forName(className);
-	    return (extClass);
-	} catch (Exception e) {
-	    throw new CertificateException("Error instantiating class for "
+            return (extClass);
+        } catch (Exception e) {
+            throw new CertificateException("Error instantiating class for "
                                    + name + " " + e.toString());
-	}
+        }
     }
 }

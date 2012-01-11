@@ -17,7 +17,6 @@ import com.netscape.certsrv.dbs.IDBSubsystem;
  */
 public class DBSubsystemDefaultStub implements IDBSubsystem {
 
-
     public String getBaseDN() {
         return null;
     }
@@ -83,91 +82,91 @@ public class DBSubsystemDefaultStub implements IDBSubsystem {
         return null;
     }
 
-	@Override
-	public void setMaxSerialConfig(int repo, String serial)
-			throws EBaseException {
-		// TODO Auto-generated method stub
+    @Override
+    public void setMaxSerialConfig(int repo, String serial)
+            throws EBaseException {
+        // TODO Auto-generated method stub
 
-	}
+    }
 
-	@Override
-	public void setMinSerialConfig(int repo, String serial)
-			throws EBaseException {
-		// TODO Auto-generated method stub
+    @Override
+    public void setMinSerialConfig(int repo, String serial)
+            throws EBaseException {
+        // TODO Auto-generated method stub
 
-	}
+    }
 
-	@Override
-	public void setNextMaxSerialConfig(int repo, String serial)
-			throws EBaseException {
-		// TODO Auto-generated method stub
+    @Override
+    public void setNextMaxSerialConfig(int repo, String serial)
+            throws EBaseException {
+        // TODO Auto-generated method stub
 
-	}
+    }
 
-	@Override
-	public void setNextMinSerialConfig(int repo, String serial)
-			throws EBaseException {
-		// TODO Auto-generated method stub
+    @Override
+    public void setNextMinSerialConfig(int repo, String serial)
+            throws EBaseException {
+        // TODO Auto-generated method stub
 
-	}
+    }
 
-	@Override
-	public String getMinSerialConfig(int repo) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public String getMinSerialConfig(int repo) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public String getMaxSerialConfig(int repo) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public String getMaxSerialConfig(int repo) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public String getNextMaxSerialConfig(int repo) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public String getNextMaxSerialConfig(int repo) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public String getNextMinSerialConfig(int repo) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public String getNextMinSerialConfig(int repo) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public String getLowWaterMarkConfig(int repo) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public String getLowWaterMarkConfig(int repo) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public String getIncrementConfig(int repo) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public String getIncrementConfig(int repo) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public String getNextRange(int repo) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public String getNextRange(int repo) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public boolean hasRangeConflict(int repo) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    public boolean hasRangeConflict(int repo) {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
-	@Override
-	public boolean getEnableSerialMgmt() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    public boolean getEnableSerialMgmt() {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
-	@Override
-	public void setEnableSerialMgmt(boolean value) throws EBaseException {
-		// TODO Auto-generated method stub
+    @Override
+    public void setEnableSerialMgmt(boolean value) throws EBaseException {
+        // TODO Auto-generated method stub
 
-	}
+    }
 }

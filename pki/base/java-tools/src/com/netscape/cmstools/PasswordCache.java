@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmstools;
 
-
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -43,7 +42,7 @@ import org.mozilla.jss.util.Base64OutputStream;
 import org.mozilla.jss.util.Password;
 
 /**
- * Tool for interacting with the PWcache 
+ * Tool for interacting with the PWcache
  * 
  * @version $Revision$, $Date$
  */
@@ -63,15 +62,15 @@ public class PasswordCache {
     private static final String KEYDB = "key3.db";
 
     private static void usage() {
-            System.out.println("This tool has to be run from the same directory where pwcache.db file resides, normally <cms instance>/config directory, unless the file's full path is specified in the -c option..\nUsage: PasswordCache <SSO_PASSWORD> <-d cert/key db directory> <-h tokenName> <-P cert/key db prefix> <-c pwcache.db_file_full_path> <-k file containing Base64EncodedKeyID> <COMMAND> ...");
-            System.out.println("  commands:");
-            System.out.println("     'add <password_name> <password>'");
-            System.out.println("     'change <password_name> <password>'");
-            System.out.println("     'delete <password_name>'");
-            System.out.println("     'rekey'");
-            System.out.println("     'list'");
-            System.out.println("\nExample:\n\tPasswordCache thePassword1 -d /usr/netscape/servers/cms/alias -P cert-instance1-machine1- -c pwcache.db -k keyidFile list");
-            System.exit(1);
+        System.out.println("This tool has to be run from the same directory where pwcache.db file resides, normally <cms instance>/config directory, unless the file's full path is specified in the -c option..\nUsage: PasswordCache <SSO_PASSWORD> <-d cert/key db directory> <-h tokenName> <-P cert/key db prefix> <-c pwcache.db_file_full_path> <-k file containing Base64EncodedKeyID> <COMMAND> ...");
+        System.out.println("  commands:");
+        System.out.println("     'add <password_name> <password>'");
+        System.out.println("     'change <password_name> <password>'");
+        System.out.println("     'delete <password_name>'");
+        System.out.println("     'rekey'");
+        System.out.println("     'list'");
+        System.out.println("\nExample:\n\tPasswordCache thePassword1 -d /usr/netscape/servers/cms/alias -P cert-instance1-machine1- -c pwcache.db -k keyidFile list");
+        System.exit(1);
     }
 
     private static boolean debugMode = false;
@@ -79,14 +78,14 @@ public class PasswordCache {
     public PasswordCache() {
     }
 
-    private static void debug (String s) {
+    private static void debug(String s) {
         if (debugMode == true)
-            System.out.println("PasswordCache debug: "+s);
+            System.out.println("PasswordCache debug: " + s);
     }
 
     /**
      * clean up an argv by removing the trailing, empty arguments
-     *
+     * 
      * This is necessary to support the script wrapper which calls the
      * tool with arguments in quotes such as:
      * "$1" "$2"
@@ -98,7 +97,7 @@ public class PasswordCache {
         int i;
 
         length = s.length;
-        debug("before cleanArgs argv length ="+length);
+        debug("before cleanArgs argv length =" + length);
 
         for (i = length - 1; i >= 0; i--) {
             if (s[i].equals("")) {
@@ -111,16 +110,16 @@ public class PasswordCache {
         String[] new_av = new String[length];
         for (i = 0; i < length; i++) {
             new_av[i] = s[i];
-            debug("arg "+i+" is "+new_av[i]);
+            debug("arg " + i + " is " + new_av[i]);
         }
-        debug("after cleanArgs argv length ="+length);
+        debug("after cleanArgs argv length =" + length);
 
         return new_av;
     }
 
     public static byte[] base64Decode(String s) throws IOException {
-         byte[] d = com.netscape.osutil.OSUtil.AtoB(s);
-         return d;
+        byte[] d = com.netscape.osutil.OSUtil.AtoB(s);
+        return d;
     }
 
     public static String base64Encode(byte[] bytes) throws IOException {
@@ -129,9 +128,9 @@ public class PasswordCache {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         Base64OutputStream b64 = new Base64OutputStream(new
                 PrintStream(new
-                    FilterOutputStream(output)
+                        FilterOutputStream(output)
                 )
-            );
+                );
 
         b64.write(bytes);
         b64.flush();
@@ -141,7 +140,7 @@ public class PasswordCache {
         return output.toString("8859_1");
     }
 
-    public static void main(String[]av) {
+    public static void main(String[] av) {
         // default path is "."
         String mPath = ".";
         String mTokenName = null;
@@ -173,28 +172,33 @@ public class PasswordCache {
         String aPasswd = "";
 
         int i = 0;
-        for ( i = 1; i < argv.length; ++i) {
-            if( argv[i].equals("-d") ) {
-                if( ++i >= argv.length ) usage();
+        for (i = 1; i < argv.length; ++i) {
+            if (argv[i].equals("-d")) {
+                if (++i >= argv.length)
+                    usage();
                 mPath = argv[i];
-            } else if( argv[i].equals("-h") ) {
-                if( ++i >= argv.length ) usage();
+            } else if (argv[i].equals("-h")) {
+                if (++i >= argv.length)
+                    usage();
                 mTokenName = argv[i];
-            } else if( argv[i].equals("-P") ) {
-                if( ++i >= argv.length ) usage();
+            } else if (argv[i].equals("-P")) {
+                if (++i >= argv.length)
+                    usage();
                 mPrefix = argv[i];
-            } else if( argv[i].equals("-c") ) {
-                if( ++i >= argv.length ) usage();
+            } else if (argv[i].equals("-c")) {
+                if (++i >= argv.length)
+                    usage();
                 mCacheFile = argv[i];
-            } else if (argv[i].equals("-k") ) {
-                if( ++i >= argv.length ) usage();
+            } else if (argv[i].equals("-k")) {
+                if (++i >= argv.length)
+                    usage();
                 String keyFile = argv[i];
                 try {
-                BufferedReader r = new BufferedReader(new FileReader(keyFile));
-                String listLine;
-                mKeyIdString  = r.readLine();
+                    BufferedReader r = new BufferedReader(new FileReader(keyFile));
+                    String listLine;
+                    mKeyIdString = r.readLine();
                 } catch (Exception e) {
-                    System.out.println("Error: "+e.toString());
+                    System.out.println("Error: " + e.toString());
                     System.exit(1);
                 }
 
@@ -209,13 +213,13 @@ public class PasswordCache {
                 }
             } else {
                 command = argv[i++];
-                debug("command = "+command);
+                debug("command = " + command);
 
                 if ((command.equals("add")) ||
                         (command.equals("change"))) {
                     aTag = argv[i++];
                     aPasswd = argv[i];
-                    debug("command is "+command+" "+aTag+":"+aPasswd);
+                    debug("command is " + command + " " + aTag + ":" + aPasswd);
                 } else if (command.equals("delete")) {
                     aTag = argv[i];
                 } else if (command.equals("list")) {
@@ -231,9 +235,9 @@ public class PasswordCache {
             System.out.println("cert/key db path = " + mPath);
             System.out.println("password cache file = " + mCacheFile);
 
-            CryptoManager.InitializationValues vals = 
-                new CryptoManager.InitializationValues(mPath, mPrefix,
-                    mPrefix, "secmod.db");
+            CryptoManager.InitializationValues vals =
+                    new CryptoManager.InitializationValues(mPath, mPrefix,
+                            mPrefix, "secmod.db");
 
             CryptoManager.initialize(vals);
 
@@ -244,7 +248,7 @@ public class PasswordCache {
                 System.out.println("token name = internal");
             } else {
                 token = cm.getTokenByName(mTokenName);
-                System.out.println("token name = "+ mTokenName);
+                System.out.println("token name = " + mTokenName);
             }
 
             token.login(pass);
@@ -259,31 +263,31 @@ public class PasswordCache {
             PWsdrCache cache = null;
             try {
                 // compose instance name
-                File passwordCacheDB = new File( mCacheFile );
+                File passwordCacheDB = new File(mCacheFile);
                 pwdPath = passwordCacheDB.getAbsolutePath();
-                int beginIndex = pwdPath.lastIndexOf( "cert-" );
-                instancePath = pwdPath.substring( beginIndex );
+                int beginIndex = pwdPath.lastIndexOf("cert-");
+                instancePath = pwdPath.substring(beginIndex);
                 int endIndex = 0;
-                endIndex = instancePath.lastIndexOf( "config" );
-                instanceName = instancePath.substring( 0, ( endIndex - 1 ) );
+                endIndex = instancePath.lastIndexOf("config");
+                instanceName = instancePath.substring(0, (endIndex - 1));
 
-                cache = new PWsdrCache(mCacheFile,  mTokenName, null, true);
-                cache.deleteUniqueNamedKey( PROP_PWC_NICKNAME
+                cache = new PWsdrCache(mCacheFile, mTokenName, null, true);
+                cache.deleteUniqueNamedKey(PROP_PWC_NICKNAME
                                           + " "
-                                          + instanceName );
+                                          + instanceName);
                 byte[] newKeyId = cache.generateSDRKeyWithNickName(
                                                         PROP_PWC_NICKNAME
-                                                      + " "
-                                                      + instanceName );
+                                                                + " "
+                                                                + instanceName);
                 if (newKeyId != null) {
                     String newKeyIDString = base64Encode(newKeyId);
-                    System.out.println("key generated successfully with key id = "+ 
+                    System.out.println("key generated successfully with key id = " +
                                        newKeyIDString);
                     System.out.println("Save the VALUE portion of this key id in a local file,");
                     System.out.println("and under variable \"pwcKeyid\" in CS.cfg !!");
                     System.out.println("If you have not already done so,");
-                   System.out.println("remove the old pwcache.db and use this local file to add passwords.");
-                   // job is done
+                    System.out.println("remove the old pwcache.db and use this local file to add passwords.");
+                    // job is done
                     System.exit(0);
                 } else {
                     System.out.println("key expected to be generated but wasn't");
@@ -297,10 +301,10 @@ public class PasswordCache {
 
         PWsdrCache cache = null;
         try {
-            cache = new PWsdrCache(mCacheFile,  mTokenName, mKeyId, true);
+            cache = new PWsdrCache(mCacheFile, mTokenName, mKeyId, true);
         } catch (Exception e) {
             System.out.println(e.toString());
-                System.exit(1);
+            System.exit(1);
         }
 
         if ((command.equals("add")) || (command.equals("change"))) {
@@ -310,12 +314,12 @@ public class PasswordCache {
                 System.exit(1);
             }
 
-                try {
-                    System.out.println("adding "+aTag+":"+aPasswd);
-                    cache.addEntry(aTag, aPasswd);
-                } catch (Exception e) {
-                    System.out.println("--failed--"+ e.toString());
-                }
+            try {
+                System.out.println("adding " + aTag + ":" + aPasswd);
+                cache.addEntry(aTag, aPasswd);
+            } catch (Exception e) {
+                System.out.println("--failed--" + e.toString());
+            }
         } else if (command.equals("list")) {
             cache.pprint();
         } else if (command.equals("delete")) {
@@ -325,18 +329,17 @@ public class PasswordCache {
                 System.exit(1);
             }
 
-                try {
-                    cache.deleteEntry(aTag);
-                } catch (Exception e) {
-                    System.out.println("User not found");
-                }
+            try {
+                cache.deleteEntry(aTag);
+            } catch (Exception e) {
+                System.out.println("User not found");
+            }
         } else {
             System.out.println("Illegal command: " + command);
             System.exit(1);
         }
     }
 }
-
 
 /* 
  * A class for managing passwords in the SDR password cache
@@ -371,9 +374,9 @@ class PWsdrCache {
         cm = CryptoManager.getInstance();
         if (mTokenName != null) {
             mToken = cm.getTokenByName(mTokenName);
-            debug("PWsdrCache: mToken = "+mTokenName);
+            debug("PWsdrCache: mToken = " + mTokenName);
         } else {
-            mToken =  cm.getInternalKeyStorageToken();
+            mToken = cm.getInternalKeyStorageToken();
             debug("PWsdrCache: mToken = internal");
         }
     }
@@ -386,24 +389,22 @@ class PWsdrCache {
         return mTokenName;
     }
 
-    public void deleteUniqueNamedKey( String nickName )
-        throws Exception
-    {
-        KeyManager km = new KeyManager( mToken );
-        km.deleteUniqueNamedKey( nickName );
+    public void deleteUniqueNamedKey(String nickName)
+            throws Exception {
+        KeyManager km = new KeyManager(mToken);
+        km.deleteUniqueNamedKey(nickName);
     }
 
     public byte[] generateSDRKey() throws Exception {
-		return generateSDRKeyWithNickName(PROP_PWC_NICKNAME);
+        return generateSDRKeyWithNickName(PROP_PWC_NICKNAME);
     }
 
-    public byte[] generateSDRKeyWithNickName( String nickName )
-        throws Exception
-    {
+    public byte[] generateSDRKeyWithNickName(String nickName)
+            throws Exception {
         try {
             if (mIsTool == true) {
                 // generate SDR key
-            	KeyManager km = new KeyManager(mToken);
+                KeyManager km = new KeyManager(mToken);
                 try {
                     // Bugscape Bug #54838:  Due to the CMS cloning feature,
                     //                       we must check for the presence of
@@ -411,17 +412,17 @@ class PWsdrCache {
                     //                       prior to making an attempt to
                     //                       generate it!
                     //
-                    if( !( km.uniqueNamedKeyExists( nickName ) ) ) {
-                        mKeyID = km.generateUniqueNamedKey( nickName );
+                    if (!(km.uniqueNamedKeyExists(nickName))) {
+                        mKeyID = km.generateUniqueNamedKey(nickName);
                         debug("PWsdrCache: SDR key generated");
                     }
                 } catch (TokenException e) {
-                    log (0, "generateSDRKey() failed on "+e.toString());
+                    log(0, "generateSDRKey() failed on " + e.toString());
                     throw e;
                 }
             }
         } catch (Exception e) {
-            log (0, e.toString());
+            log(0, e.toString());
             throw e;
         }
         return mKeyID;
@@ -442,7 +443,7 @@ class PWsdrCache {
      * add passwd in pwcache.
      */
     public void addEntry(String tag, String pwd, Hashtable tagPwds) throws IOException {
-        System.out.println("PWsdrCache: in addEntry");        
+        System.out.println("PWsdrCache: in addEntry");
         String stringToAdd = null;
         String bufs = null;
 
@@ -455,7 +456,7 @@ class PWsdrCache {
                 tag = (String) enum1.nextElement();
                 pwd = (String) tagPwds.get(tag);
                 debug("password tag: " + tag + " stored in " + mPWcachedb);
-                
+
                 if (stringToAdd == null) {
                     stringToAdd = tag + ":" + pwd + "\n";
                 } else {
@@ -483,7 +484,7 @@ class PWsdrCache {
             debug("adding new tag: " + tag);
             bufs = stringToAdd;
         }
-        
+
         // write update to cache
         writePWcache(bufs);
     }
@@ -513,7 +514,7 @@ class PWsdrCache {
             debug("password cache contains no tags");
             return;
         }
-        
+
         // write update to cache
         writePWcache(bufs);
     }
@@ -584,7 +585,6 @@ class PWsdrCache {
      */
     public void writePWcache(String bufs) throws IOException {
 
-
         try {
             Encryptor sdr = new Encryptor(mToken, mKeyID,
                                 Encryptor.DEFAULT_ENCRYPTION_ALG);
@@ -613,46 +613,46 @@ class PWsdrCache {
 
             // Make certain that this temporary file has
             // the correct permissions.
-            if( !isNT() ) {
-                exec( "chmod 00660 " + tmpPWcache.getAbsolutePath() );
+            if (!isNT()) {
+                exec("chmod 00660 " + tmpPWcache.getAbsolutePath());
             }
 
             File origFile = new File(mPWcachedb);
 
             try {
                 // Always remove any pre-existing target file
-                if( origFile.exists() ) {
+                if (origFile.exists()) {
                     origFile.delete();
                 }
 
                 if (isNT()) {
                     // NT is very picky on the path
                     exec("copy " +
-                        tmpPWcache.getAbsolutePath().replace('/', '\\') + " " +
-                        origFile.getAbsolutePath().replace('/', '\\'));
+                            tmpPWcache.getAbsolutePath().replace('/', '\\') + " " +
+                            origFile.getAbsolutePath().replace('/', '\\'));
                 } else {
                     // Create a copy of the temporary file which
                     // preserves the temporary file's permissions.
                     exec("cp -p " + tmpPWcache.getAbsolutePath() + " " +
-                        origFile.getAbsolutePath());
+                            origFile.getAbsolutePath());
                 }
 
                 // Remove the temporary file if and only if
                 // the "rename" was successful.
-                if( origFile.exists() ) {
+                if (origFile.exists()) {
                     tmpPWcache.delete();
 
                     // Make certain that the final file has
                     // the correct permissions.
-                    if( !isNT() ) {
-                        exec( "chmod 00660 " + origFile.getAbsolutePath() );
+                    if (!isNT()) {
+                        exec("chmod 00660 " + origFile.getAbsolutePath());
                     }
 
                     // report success
-                    debug( "Renaming operation completed for " + mPWcachedb );
+                    debug("Renaming operation completed for " + mPWcachedb);
                 } else {
                     // report failure and exit
-                    debug( "Renaming operation failed for " + mPWcachedb );
+                    debug("Renaming operation failed for " + mPWcachedb);
                     System.exit(1);
                 }
             } catch (IOException exx) {
@@ -678,7 +678,7 @@ class PWsdrCache {
         while (enum1.hasMoreElements()) {
             String tag = (String) enum1.nextElement();
             String pwd = (String) ht.get(tag);
-                
+
             if (returnString == null) {
                 returnString = tag + ":" + pwd + "\n";
             } else {
@@ -797,22 +797,22 @@ class PWsdrCache {
             if (process.exitValue() == 0) {
 
                 /**
-                 pOut = new BufferedReader(
-                 new InputStreamReader(process.getInputStream()));
-                 while ((l = pOut.readLine()) != null) {
-                 System.out.println(l);
-                 }
+                 * pOut = new BufferedReader(
+                 * new InputStreamReader(process.getInputStream()));
+                 * while ((l = pOut.readLine()) != null) {
+                 * System.out.println(l);
+                 * }
                  **/
                 return true;
             } else {
 
                 /**
-                 pOut = new BufferedReader(
-                 new InputStreamReader(process.getErrorStream()));
-                 l = null;
-                 while ((l = pOut.readLine()) != null) {
-                 System.out.println(l);
-                 }
+                 * pOut = new BufferedReader(
+                 * new InputStreamReader(process.getErrorStream()));
+                 * l = null;
+                 * while ((l = pOut.readLine()) != null) {
+                 * System.out.println(l);
+                 * }
                  **/
                 return false;
             }
@@ -860,7 +860,7 @@ class PWsdrCache {
                             line.length());
 
                     debug(tag.trim() +
-                        " : " + passwd.trim());
+                            " : " + passwd.trim());
                 } else {
                     //invalid format...log or throw...later
                     debug("invalid format");

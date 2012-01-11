@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.processors;
 
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -56,11 +55,10 @@ import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ECMSGWException;
 
-
 /**
  * Process CRMF requests, according to RFC 2511
  * See http://www.ietf.org/rfc/rfc2511.txt
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class CRMFProcessor extends PKIProcessor {
@@ -70,7 +68,7 @@ public class CRMFProcessor extends PKIProcessor {
     private boolean enforcePop = false;
 
     private final static String LOGGING_SIGNED_AUDIT_PROOF_OF_POSSESSION =
-        "LOGGING_SIGNED_AUDIT_PROOF_OF_POSSESSION_2";
+            "LOGGING_SIGNED_AUDIT_PROOF_OF_POSSESSION_2";
 
     public CRMFProcessor() {
         super();
@@ -84,22 +82,22 @@ public class CRMFProcessor extends PKIProcessor {
     }
 
     public void process(CMSRequest cmsReq)
-        throws EBaseException {
+            throws EBaseException {
     }
 
     /**
      * Verify Proof of Possession (POP)
      * <P>
-     *
+     * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_PROOF_OF_POSSESSION used when proof
-     * of possession is checked during certificate enrollment
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_PROOF_OF_POSSESSION used when proof of possession is checked during certificate enrollment
      * </ul>
+     * 
      * @param certReqMsg the certificate request message
      * @exception EBaseException an error has occurred
      */
     private void verifyPOP(CertReqMsg certReqMsg)
-        throws EBaseException {
+            throws EBaseException {
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -118,59 +116,59 @@ public class CRMFProcessor extends PKIProcessor {
 
                         // store a message in the signed audit log file
                         auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_PROOF_OF_POSSESSION,
-                            auditSubjectID,
-                            ILogger.SUCCESS );
+                                LOGGING_SIGNED_AUDIT_PROOF_OF_POSSESSION,
+                                auditSubjectID,
+                                ILogger.SUCCESS);
 
-                        audit( auditMessage );
+                        audit(auditMessage);
                     } catch (Exception e) {
                         CMS.debug("CRMFProcessor: Failed POP verify!");
 
                         log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage("CMSGW_ERROR_POP_VERIFY"));
+                                CMS.getLogMessage("CMSGW_ERROR_POP_VERIFY"));
 
                         // store a message in the signed audit log file
                         auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_PROOF_OF_POSSESSION,
-                            auditSubjectID,
-                            ILogger.FAILURE );
+                                LOGGING_SIGNED_AUDIT_PROOF_OF_POSSESSION,
+                                auditSubjectID,
+                                ILogger.FAILURE);
 
-                        audit( auditMessage );
+                        audit(auditMessage);
 
                         throw new ECMSGWException(
-                            CMS.getLogMessage("CMSGW_ERROR_POP_VERIFY"));
+                                CMS.getLogMessage("CMSGW_ERROR_POP_VERIFY"));
                     }
                 }
             } else {
                 if (enforcePop == true) {
                     log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSGW_ERROR_NO_POP"));
+                            CMS.getLogMessage("CMSGW_ERROR_NO_POP"));
 
                     // store a message in the signed audit log file
                     auditMessage = CMS.getLogMessage(
-                        LOGGING_SIGNED_AUDIT_PROOF_OF_POSSESSION,
-                        auditSubjectID,
-                        ILogger.FAILURE );
+                            LOGGING_SIGNED_AUDIT_PROOF_OF_POSSESSION,
+                            auditSubjectID,
+                            ILogger.FAILURE);
 
-                    audit( auditMessage );
+                    audit(auditMessage);
 
                     throw new ECMSGWException(
-                        CMS.getLogMessage("CMSGW_ERROR_NO_POP"));
+                            CMS.getLogMessage("CMSGW_ERROR_NO_POP"));
                 }
             }
-        } catch( EBaseException eAudit1 ) {
+        } catch (EBaseException eAudit1) {
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
-                LOGGING_SIGNED_AUDIT_PROOF_OF_POSSESSION,
-                auditSubjectID,
-                ILogger.FAILURE );
+                    LOGGING_SIGNED_AUDIT_PROOF_OF_POSSESSION,
+                    auditSubjectID,
+                    ILogger.FAILURE);
 
-            audit( auditMessage );
+            audit(auditMessage);
         }
     }
 
-    public X509CertInfo  processIndividualRequest(CertReqMsg certReqMsg, IAuthToken authToken, IArgBlock httpParams)
-        throws EBaseException {
+    public X509CertInfo processIndividualRequest(CertReqMsg certReqMsg, IAuthToken authToken, IArgBlock httpParams)
+            throws EBaseException {
         CMS.debug("CRMFProcessor::processIndividualRequest!");
 
         try {
@@ -205,21 +203,21 @@ public class CRMFProcessor extends PKIProcessor {
             if (certTemplate.hasSubject()) {
                 Name subjectdn = certTemplate.getSubject();
                 ByteArrayOutputStream subjectEncStream =
-                    new ByteArrayOutputStream();
+                        new ByteArrayOutputStream();
 
                 subjectdn.encode(subjectEncStream);
                 byte[] subjectEnc = subjectEncStream.toByteArray();
                 X500Name subject = new X500Name(subjectEnc);
 
                 certInfo.set(X509CertInfo.SUBJECT,
-                    new CertificateSubjectName(subject));
+                        new CertificateSubjectName(subject));
             } else if (authToken == null ||
-                authToken.getInString(AuthToken.TOKEN_CERT_SUBJECT) == null) {
+                    authToken.getInString(AuthToken.TOKEN_CERT_SUBJECT) == null) {
                 // No subject name - error!
                 log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_MISSING_SUBJECT_NAME_FROM_AUTHTOKEN"));
+                        CMS.getLogMessage("CMSGW_MISSING_SUBJECT_NAME_FROM_AUTHTOKEN"));
                 throw new ECMSGWException(
-                  CMS.getUserMessage("CMS_GW_MISSING_SUBJECT_NAME_FROM_AUTHTOKEN"));
+                        CMS.getUserMessage("CMS_GW_MISSING_SUBJECT_NAME_FROM_AUTHTOKEN"));
             }
 
             // get extensions
@@ -243,10 +241,10 @@ public class CRMFProcessor extends PKIProcessor {
 
                 for (int j = 0; j < numexts; j++) {
                     org.mozilla.jss.pkix.cert.Extension jssext =
-                        certTemplate.extensionAt(j);
+                            certTemplate.extensionAt(j);
                     boolean isCritical = jssext.getCritical();
                     org.mozilla.jss.asn1.OBJECT_IDENTIFIER jssoid =
-                        jssext.getExtnId();
+                            jssext.getExtnId();
                     long[] numbers = jssoid.getNumbers();
                     int[] oidNumbers = new int[numbers.length];
 
@@ -254,23 +252,23 @@ public class CRMFProcessor extends PKIProcessor {
                         oidNumbers[k] = (int) numbers[k];
                     }
                     ObjectIdentifier oid =
-                        new ObjectIdentifier(oidNumbers);
+                            new ObjectIdentifier(oidNumbers);
                     org.mozilla.jss.asn1.OCTET_STRING jssvalue =
-                        jssext.getExtnValue();
+                            jssext.getExtnValue();
                     ByteArrayOutputStream jssvalueout =
-                        new ByteArrayOutputStream();
+                            new ByteArrayOutputStream();
 
                     jssvalue.encode(jssvalueout);
                     byte[] extValue = jssvalueout.toByteArray();
 
                     Extension ext =
-                        new Extension(oid, isCritical, extValue);
+                            new Extension(oid, isCritical, extValue);
 
                     extensions.parseExtension(ext);
                 }
 
                 certInfo.set(X509CertInfo.VERSION,
-                    new CertificateVersion(CertificateVersion.V3));
+                        new CertificateVersion(CertificateVersion.V3));
                 certInfo.set(X509CertInfo.EXTENSIONS, extensions);
 
             }
@@ -283,7 +281,7 @@ public class CRMFProcessor extends PKIProcessor {
             // formulation.
             // -- CRMFfillCert
             if (authToken != null &&
-                authToken.getInString(AuthToken.TOKEN_CERT_SUBJECT) != null) {
+                    authToken.getInString(AuthToken.TOKEN_CERT_SUBJECT) != null) {
                 // if authenticated override subect name, validity and
                 // extensions if any from authtoken.
                 fillCertInfoFromAuthToken(certInfo, authToken);
@@ -300,31 +298,31 @@ public class CRMFProcessor extends PKIProcessor {
 
         } catch (CertificateException e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("CMSGW_ERROR_CRMF_TO_CERTINFO_1", e.toString()));
+                    CMS.getLogMessage("CMSGW_ERROR_CRMF_TO_CERTINFO_1", e.toString()));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_CRMF_TO_CERTINFO_ERROR"));
+                    CMS.getUserMessage("CMS_GW_CRMF_TO_CERTINFO_ERROR"));
         } catch (IOException e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("CMSGW_ERROR_CRMF_TO_CERTINFO_1", e.toString()));
+                    CMS.getLogMessage("CMSGW_ERROR_CRMF_TO_CERTINFO_1", e.toString()));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_CRMF_TO_CERTINFO_ERROR"));
+                    CMS.getUserMessage("CMS_GW_CRMF_TO_CERTINFO_ERROR"));
         } /* catch (InvalidBERException e) {
-         log(ILogger.LL_FAILURE,
-         CMS.getLogMessage("CMSGW_ERROR_CRMF_TO_CERTINFO_1",e.toString()));
-         throw new ECMSGWException(
-         CMSGWResources.ERROR_CRMF_TO_CERTINFO);
-         } */ catch (InvalidKeyException e) {
+          log(ILogger.LL_FAILURE,
+          CMS.getLogMessage("CMSGW_ERROR_CRMF_TO_CERTINFO_1",e.toString()));
+          throw new ECMSGWException(
+          CMSGWResources.ERROR_CRMF_TO_CERTINFO);
+          } */catch (InvalidKeyException e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("CMSGW_ERROR_CRMF_TO_CERTINFO_1", e.toString()));
+                    CMS.getLogMessage("CMSGW_ERROR_CRMF_TO_CERTINFO_1", e.toString()));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_CRMF_TO_CERTINFO_ERROR"));
+                    CMS.getUserMessage("CMS_GW_CRMF_TO_CERTINFO_ERROR"));
         }
 
     }
 
     public X509CertInfo[] fillCertInfoArray(
-        String protocolString, IAuthToken authToken, IArgBlock httpParams, IRequest req)
-        throws EBaseException {
+            String protocolString, IAuthToken authToken, IArgBlock httpParams, IRequest req)
+            throws EBaseException {
 
         CMS.debug("CRMFProcessor.fillCertInfoArray!");
 
@@ -333,10 +331,10 @@ public class CRMFProcessor extends PKIProcessor {
         try {
             byte[] crmfBlob = CMS.AtoB(crmf);
             ByteArrayInputStream crmfBlobIn =
-                new ByteArrayInputStream(crmfBlob);
+                    new ByteArrayInputStream(crmfBlob);
 
             SEQUENCE crmfMsgs = (SEQUENCE)
-                new SEQUENCE.OF_Template(new CertReqMsg.Template()).decode(crmfBlobIn);
+                    new SEQUENCE.OF_Template(new CertReqMsg.Template()).decode(crmfBlobIn);
 
             int nummsgs = crmfMsgs.size();
             X509CertInfo[] certInfoArray = new X509CertInfo[nummsgs];
@@ -344,7 +342,7 @@ public class CRMFProcessor extends PKIProcessor {
             for (int i = 0; i < nummsgs; i++) {
                 // decode message.
                 CertReqMsg certReqMsg = (CertReqMsg) crmfMsgs.elementAt(i);
-             
+
                 CertRequest certReq = certReqMsg.getCertReq();
                 INTEGER certReqId = certReq.getCertReqId();
                 int srcId = certReqId.intValue();
@@ -360,15 +358,14 @@ public class CRMFProcessor extends PKIProcessor {
             return certInfoArray;
         } catch (IOException e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("CMSGW_ERROR_CRMF_TO_CERTINFO_1", e.toString()));
+                    CMS.getLogMessage("CMSGW_ERROR_CRMF_TO_CERTINFO_1", e.toString()));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_CRMF_TO_CERTINFO_ERROR"));
+                    CMS.getUserMessage("CMS_GW_CRMF_TO_CERTINFO_ERROR"));
         } catch (InvalidBERException e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("CMSGW_ERROR_CRMF_TO_CERTINFO_1", e.toString()));
+                    CMS.getLogMessage("CMSGW_ERROR_CRMF_TO_CERTINFO_1", e.toString()));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_CRMF_TO_CERTINFO_ERROR"));
+                    CMS.getUserMessage("CMS_GW_CRMF_TO_CERTINFO_ERROR"));
         }
     }
 }
-

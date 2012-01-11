@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.kra;
 
-
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -38,13 +37,12 @@ import com.netscape.certsrv.security.Credential;
 import com.netscape.certsrv.security.IStorageKeyUnit;
 import com.netscape.certsrv.security.ITransportKeyUnit;
 
-
 /**
  * An interface represents key recovery authority. The
  * key recovery authority is responsibile for archiving
  * and recovering user encryption private keys.
  * <P>
- *
+ * 
  * @version $Revision$, $Date$
  */
 public interface IKeyRecoveryAuthority extends ISubsystem {
@@ -71,7 +69,7 @@ public interface IKeyRecoveryAuthority extends ISubsystem {
     /**
      * Returns the name of this subsystem.
      * <P>
-     *
+     * 
      * @return KRA name
      */
     public X500Name getX500Name();
@@ -79,13 +77,13 @@ public interface IKeyRecoveryAuthority extends ISubsystem {
     /**
      * Retrieves KRA request repository.
      * <P>
-     *
+     * 
      * @return request repository
      */
     public IRequestQueue getRequestQueue();
 
     /**
-     * Retrieves the key repository. The key repository 
+     * Retrieves the key repository. The key repository
      * stores archived keys.
      * <P>
      */
@@ -93,13 +91,13 @@ public interface IKeyRecoveryAuthority extends ISubsystem {
 
     /**
      * Retrieves the Replica ID repository.
-     *
+     * 
      * @return KRA's Replica ID repository
      */
     public IReplicaIDRepository getReplicaRepository();
 
     /**
-     * Enables the auto recovery state. Once KRA is in the auto 
+     * Enables the auto recovery state. Once KRA is in the auto
      * recovery state, no recovery agents need to be present for
      * providing credentials. This feature is for enabling
      * user-based recovery operation.
@@ -113,7 +111,7 @@ public interface IKeyRecoveryAuthority extends ISubsystem {
 
     /**
      * Returns the current auto recovery state.
-     *
+     * 
      * @return true if auto recvoery state is on
      */
     public boolean getAutoRecoveryState();
@@ -123,7 +121,7 @@ public interface IKeyRecoveryAuthority extends ISubsystem {
      * In distributed recovery mode, recovery agent login to the
      * agent interface and submit its credential for a particular
      * recovery operation.
-     *
+     * 
      * @param id authorization identifier
      * @param creds list of credentials
      */
@@ -131,7 +129,7 @@ public interface IKeyRecoveryAuthority extends ISubsystem {
 
     /**
      * Removes a particular auto recovery operation.
-     *
+     * 
      * @param id authorization identifier
      */
     public void removeAutoRecovery(String id);
@@ -140,28 +138,28 @@ public interface IKeyRecoveryAuthority extends ISubsystem {
      * Returns the number of required agents. In M-out-of-N
      * recovery schema, only M agents are required even there
      * are N agents. This method returns M.
-     *
+     * 
      * @return number of required agents
      */
     public int getNoOfRequiredAgents() throws EBaseException;
 
     /**
      * Sets the number of required recovery agents
-     *
+     * 
      * @param number number of agents
      */
     public void setNoOfRequiredAgents(int number) throws EBaseException;
 
     /**
      * Returns the current recovery identifier.
-     *
+     * 
      * @return recovery identifier
      */
     public String getRecoveryID();
 
     /**
      * Returns a list of recovery identifiers.
-     *
+     * 
      * @return list of auto recovery identifiers
      */
     public Enumeration<String> getAutoRecoveryIDs();
@@ -169,7 +167,7 @@ public interface IKeyRecoveryAuthority extends ISubsystem {
     /**
      * Returns the storage key unit that manages the
      * stoarge key.
-     *
+     * 
      * @return storage key unit
      */
     public IStorageKeyUnit getStorageKeyUnit();
@@ -177,30 +175,30 @@ public interface IKeyRecoveryAuthority extends ISubsystem {
     /**
      * Returns the transport key unit that manages the
      * transport key.
-     *
+     * 
      * @return transport key unit
      */
     public ITransportKeyUnit getTransportKeyUnit();
 
     /**
      * Returns the token that generates user key pairs for supporting server-side keygen
-     *
+     * 
      * @return keygen token
      */
     public CryptoToken getKeygenToken();
 
     /**
      * Adds entropy to the token used for supporting server-side keygen
-	 * Parameters are set in the config file
+     * Parameters are set in the config file
+     * 
      * @param logflag create log messages at info level to report entropy shortage
      */
-	public void addEntropy(boolean logflag);
-
+    public void addEntropy(boolean logflag);
 
     /**
      * Returns the request listener that listens on
      * the request completion event.
-     *
+     * 
      * @return request listener
      */
     public IRequestListener getRequestInQListener();
@@ -208,42 +206,42 @@ public interface IKeyRecoveryAuthority extends ISubsystem {
     /**
      * Returns policy processor of the key recovery
      * authority.
-     *
+     * 
      * @return policy processor
      */
     public IPolicyProcessor getPolicyProcessor();
 
     /**
      * Returns the nickname of the transport certificate.
-     *
+     * 
      * @return transport certificate nickname.
      */
     public String getNickname();
 
     /**
      * Sets the nickname of the transport certificate.
-     *
+     * 
      * @param str nickname
      */
     public void setNickname(String str);
 
     /**
      * Returns the new nickname of the transport certifiate.
-     *
+     * 
      * @return new nickname
      */
     public String getNewNickName() throws EBaseException;
 
     /**
      * Sets the new nickname of the transport certifiate.
-     *
+     * 
      * @param name new nickname
      */
     public void setNewNickName(String name);
 
     /**
      * Logs event into key recovery authority logging.
-     *
+     * 
      * @param level log level
      * @param msg log message
      */
@@ -255,7 +253,7 @@ public interface IKeyRecoveryAuthority extends ISubsystem {
      * framework will try to serialize all the attribute into
      * persistent storage. Things like passwords are not
      * desirable to be stored.
-     *
+     * 
      * @param id request id
      * @return volatile requests
      */
@@ -263,7 +261,7 @@ public interface IKeyRecoveryAuthority extends ISubsystem {
 
     /**
      * Retrieves the request object.
-     *
+     * 
      * @param id request id
      * @return volatile requests
      */
@@ -271,32 +269,32 @@ public interface IKeyRecoveryAuthority extends ISubsystem {
 
     /**
      * Destroys the request object.
-     *
+     * 
      * @param id request id
      */
     public void destroyVolatileRequest(RequestId id);
 
     public Vector<Credential> getAppAgents(
-        String recoveryID) throws EBaseException;
+            String recoveryID) throws EBaseException;
 
     /**
      * Creates error for a specific recovery operation.
-     *
+     * 
      * @param recoveryID recovery id
      * @param error error
      * @exception EBaseException failed to create error
      */
     public void createError(String recoveryID, String error)
-        throws EBaseException;
+            throws EBaseException;
 
     /**
      * Retrieves error by recovery identifier.
-     *
+     * 
      * @param recoveryID recovery id
      * @return error message
      */
     public String getError(String recoveryID)
-        throws EBaseException;
+            throws EBaseException;
 
     /**
      * Retrieves PKCS12 package by recovery identifier.
@@ -305,16 +303,16 @@ public interface IKeyRecoveryAuthority extends ISubsystem {
      * @return pkcs12 package in bytes
      */
     public byte[] getPk12(String recoveryID)
-        throws EBaseException;
+            throws EBaseException;
 
     /**
      * Creates PKCS12 package in memory.
-     *
+     * 
      * @param recoveryID recovery id
      * @param pk12 package in bytes
-     */ 
+     */
     public void createPk12(String recoveryID, byte[] pk12)
-        throws EBaseException;
+            throws EBaseException;
 
     /**
      * Retrieves the transport certificate.

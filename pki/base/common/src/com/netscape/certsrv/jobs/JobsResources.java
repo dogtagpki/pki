@@ -17,14 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.jobs;
 
-
 import java.util.ListResourceBundle;
 
-
 /**
- * A class represents a resource bundle for the 
+ * A class represents a resource bundle for the
  * Jobs package
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class JobsResources extends ListResourceBundle {

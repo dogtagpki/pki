@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.policy;
 
-
 import java.util.Enumeration;
 import java.util.Vector;
 
@@ -28,13 +27,12 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.cmscore.util.AssertionException;
 import com.netscape.cmscore.util.Debug;
 
-
 /**
  * This class represents an expression of the form var = val,
  * var != val, var < val, var > val, var <= val, var >= val.
- *
+ * 
  * Expressions are used as predicates for policy selection.
- *
+ * 
  * @author kanda
  * @version $Revision$, $Date$
  */
@@ -51,7 +49,7 @@ public class SimpleExpression implements IExpression {
     public static SimpleExpression NULL_EXPRESSION = new SimpleExpression("null", OP_EQUAL, "null");
 
     public static IExpression parse(String input)
-        throws EPolicyException {
+            throws EPolicyException {
         // Get the index of operator
         // Debug.trace("SimpleExpression::input: " + input);
         String var = null;
@@ -118,19 +116,19 @@ public class SimpleExpression implements IExpression {
     }
 
     public boolean evaluate(IRequest req)
-        throws EPolicyException {
+            throws EPolicyException {
         // mPfx and mVar are looked up case-indendently
         String givenVal = req.getExtDataInString(mPfx, mVar);
 
         if (Debug.ON)
-            Debug.trace("mPfx: " + mPfx + " mVar: " + mVar + 
-                ",Given Value: " + givenVal + ", Value to compare with: " + mVal);
+            Debug.trace("mPfx: " + mPfx + " mVar: " + mVar +
+                    ",Given Value: " + givenVal + ", Value to compare with: " + mVal);
 
         return matchValue(givenVal);
     }
 
     private boolean matchVector(Vector value)
-        throws EPolicyException {
+            throws EPolicyException {
         boolean result = false;
         Enumeration e = (Enumeration) value.elements();
 
@@ -143,7 +141,7 @@ public class SimpleExpression implements IExpression {
     }
 
     private boolean matchStringArray(String[] value)
-        throws EPolicyException {
+            throws EPolicyException {
         boolean result = false;
 
         for (int i = 0; i < value.length; i++) {
@@ -155,23 +153,23 @@ public class SimpleExpression implements IExpression {
     }
 
     private boolean matchValue(Object value)
-        throws EPolicyException {
+            throws EPolicyException {
         boolean result;
 
         // There is nothing to compare with!
         if (value == null)
             return false;
 
-            // XXX - Kanda: We need a better way of handling this!.
+        // XXX - Kanda: We need a better way of handling this!.
         if (value instanceof String)
             result = matchStringValue((String) value);
         else if (value instanceof Integer)
             result = matchIntegerValue((Integer) value);
         else if (value instanceof Boolean)
             result = matchBooleanValue((Boolean) value);
-        else if (value instanceof Vector) 
+        else if (value instanceof Vector)
             result = matchVector((Vector) value);
-        else if (value instanceof String[]) 
+        else if (value instanceof String[])
             result = matchStringArray((String[]) value);
         else
             throw new EPolicyException(CMS.getUserMessage("CMS_POLICY_INVALID_ATTR_VALUE",
@@ -180,7 +178,7 @@ public class SimpleExpression implements IExpression {
     }
 
     private boolean matchStringValue(String givenVal)
-        throws EPolicyException {
+            throws EPolicyException {
         boolean result;
 
         switch (mOp) {
@@ -221,7 +219,7 @@ public class SimpleExpression implements IExpression {
     }
 
     private boolean matchIntegerValue(Integer intVal)
-        throws EPolicyException {
+            throws EPolicyException {
         boolean result;
         int storedVal;
         int givenVal = intVal.intValue();
@@ -264,12 +262,11 @@ public class SimpleExpression implements IExpression {
     }
 
     private boolean matchBooleanValue(Boolean givenVal)
-        throws EPolicyException {
+            throws EPolicyException {
         boolean result;
         Boolean storedVal;
 
-        if (!(mVal.equalsIgnoreCase("true") ||
-                mVal.equalsIgnoreCase("false")))
+        if (!(mVal.equalsIgnoreCase("true") || mVal.equalsIgnoreCase("false")))
             throw new EPolicyException(CMS.getUserMessage("CMS_POLICY_INVALID_ATTR_VALUE",
                         mVal));
         storedVal = new Boolean(mVal);
@@ -320,9 +317,9 @@ public class SimpleExpression implements IExpression {
             op = IExpression.LE_STR;
             break;
         }
-        if (mPfx != null && mPfx.length() > 0) 
+        if (mPfx != null && mPfx.length() > 0)
             return mPfx + "." + mVar + " " + op + " " + mVal;
-        else 
+        else
             return mVar + " " + op + " " + mVal;
     }
 
@@ -411,7 +408,6 @@ public class SimpleExpression implements IExpression {
     }
 }
 
-
 class ExpressionComps {
     String attr;
     int op;
@@ -435,4 +431,3 @@ class ExpressionComps {
         return val;
     }
 }
-

@@ -17,17 +17,15 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.logging;
 
-
 import java.util.ListResourceBundle;
 import java.util.ResourceBundle;
 
 import com.netscape.certsrv.base.BaseResources;
 
-
 /**
  * This is the fallback resource bundle for all log events.
  * <P>
- *
+ * 
  * @version $Revision$, $Date$
  * @see java.util.ListResourceBundle
  */
@@ -37,7 +35,7 @@ public class LogResources extends ListResourceBundle {
     /**
      * Contructs a log resource bundle and sets it's parent to the base
      * resource bundle.
-     *
+     * 
      * @see com.netscape.certsrv.base.BaseResources
      */
     public LogResources() {
@@ -47,6 +45,7 @@ public class LogResources extends ListResourceBundle {
 
     /**
      * Returns the content of this resource.
+     * 
      * @return Array of objects making up the contents of this resource.
      */
     public Object[][] getContents() {

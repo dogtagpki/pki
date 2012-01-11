@@ -17,9 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.ldap;
 
-
-
-
 /**
  * Maintains a pool of connections to the LDAP server.
  * CMS requests are processed on a multi threaded basis.
@@ -28,7 +25,7 @@ package com.netscape.certsrv.ldap;
  * max size of this connection pool should be configurable. Once
  * the maximum limit of connections is exceeded, the factory
  * should provide proper synchronization to resolve contention issues.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public interface ILdapBoundConnFactory extends ILdapConnFactory {

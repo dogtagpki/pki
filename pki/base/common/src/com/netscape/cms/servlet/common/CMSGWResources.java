@@ -17,14 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.common;
 
-
 import java.util.ListResourceBundle;
-
 
 /**
  * A class represents a resource bundle for cms gateway.
  * <P>
- *
+ * 
  * @version $Revision$, $Date$
  * @see java.util.ListResourceBundle
  */

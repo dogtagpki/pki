@@ -17,9 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmsutil.radius;
 
-
 import java.io.IOException;
-
 
 public class FramedIPAddressAttribute extends Attribute {
     private byte _value[] = null;
@@ -28,10 +26,10 @@ public class FramedIPAddressAttribute extends Attribute {
     public FramedIPAddressAttribute(byte value[]) {
         super();
         _t = FRAMED_IP_ADDRESS;
-        _addr[0] = value[2];		
-        _addr[1] = value[3];		
-        _addr[2] = value[4];		
-        _addr[3] = value[5];		
+        _addr[0] = value[2];
+        _addr[1] = value[3];
+        _addr[2] = value[4];
+        _addr[3] = value[5];
         _value = value;
     }
 

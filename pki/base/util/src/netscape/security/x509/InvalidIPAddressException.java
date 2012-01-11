@@ -17,16 +17,17 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.x509;
 
-public class InvalidIPAddressException extends RuntimeException
-{
-	/**
+public class InvalidIPAddressException extends RuntimeException {
+    /**
      *
      */
     private static final long serialVersionUID = -1601934234587845028L;
+
     public InvalidIPAddressException() {
-		super();
-	}
-	public InvalidIPAddressException(String ip) {
-		super("Invalid IP Address '"+ip+"'");
-	}
+        super();
+    }
+
+    public InvalidIPAddressException(String ip) {
+        super("Invalid IP Address '" + ip + "'");
+    }
 }

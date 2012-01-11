@@ -1,4 +1,5 @@
 package com.netscape.pkisilent.common;
+
 // --- BEGIN COPYRIGHT BLOCK ---
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -17,15 +18,11 @@ package com.netscape.pkisilent.common;
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-
-
 /**
  * CMS Test framework .
- * This class reads  and sets the values for a CMS subsytems Config file (CS.cfg) 
- * Using this class you can set the server to a base state. 
+ * This class reads and sets the values for a CMS subsytems Config file (CS.cfg)
+ * Using this class you can set the server to a base state.
  */
-
-
 
 public class BaseState {
 
@@ -33,24 +30,25 @@ public class BaseState {
     private CMSConfig cmscfg = null;
     private String ldapbase, ldaphost, ldapport, ldapdn, ldapdnpw;
     private boolean ldapsecConn = false;
+
     // Constructor 
 
-
-
-    public BaseState() {}
+    public BaseState() {
+    }
 
     /**
-     * Constructor . Takes the parameter CMSConfigfilename  ( with fullpath)
+     * Constructor . Takes the parameter CMSConfigfilename ( with fullpath)
+     * 
      * @param CMSConfigfile.
      */
 
-    public BaseState(String cmscfilename) { 
+    public BaseState(String cmscfilename) {
         CMSConfigFile = cmscfilename;
 
     }
 
     /**
-     * Set the publishing directory information . Takes the paramters ldaphost,ldapport,ldapDN, ldapDN password, BaseDN , Secure coonection (true/false) 
+     * Set the publishing directory information . Takes the paramters ldaphost,ldapport,ldapDN, ldapDN password, BaseDN , Secure coonection (true/false)
      */
     public void setLDAPInfo(String h, String p, String dn, String pw, String base, boolean sc) {
         ldaphost = h;
@@ -63,8 +61,8 @@ public class BaseState {
     }
 
     /**
-     * Enable SSL Client authentication for Directory enrollment and publishing 
-     */ 
+     * Enable SSL Client authentication for Directory enrollment and publishing
+     */
 
     public void EnableSSLClientAuth() {
         ldapsecConn = true;
@@ -79,7 +77,7 @@ public class BaseState {
     }
 
     /**
-     * Set to CA 's base state . Enables Directory based enrollment , publishing and Portal enrollment 
+     * Set to CA 's base state . Enables Directory based enrollment , publishing and Portal enrollment
      */
 
     public void CABaseState() {
@@ -98,9 +96,8 @@ public class BaseState {
     }
 
     /**
-     * Set to RA 's base state . Enables Directory based enrollment and Portal enrollment 
+     * Set to RA 's base state . Enables Directory based enrollment and Portal enrollment
      */
-
 
     public void RABaseState() {
         cmscfg = new CMSConfig(CMSConfigFile);
@@ -114,6 +111,7 @@ public class BaseState {
 
     }
 
-    public static void main(String args[]) {}// end of function main
+    public static void main(String args[]) {
+    }// end of function main
 
 }

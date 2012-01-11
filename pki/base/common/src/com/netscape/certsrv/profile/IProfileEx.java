@@ -23,7 +23,7 @@ import com.netscape.certsrv.base.EBaseException;
  * This interface represents the extension version of
  * profile.
  * <p>
- *
+ * 
  * @version $Revision$, $Date$
  */
 public interface IProfileEx extends IProfile {

@@ -17,17 +17,15 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.common;
 
-
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-
 /**
- * A class represents an ordered list of name 
+ * A class represents an ordered list of name
  * value pairs.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class NameValuePairs {
@@ -40,7 +38,7 @@ public class NameValuePairs {
 
     /**
      * Constructs name value pairs.
-     */	 
+     */
     public NameValuePairs() {
     }
 
@@ -48,7 +46,7 @@ public class NameValuePairs {
      * Adds a name value pair into this set.
      * if the name already exist, the value will
      * be replaced.
-     *
+     * 
      * @param name name
      * @param value value
      */
@@ -66,7 +64,7 @@ public class NameValuePairs {
 
     /**
      * Retrieves name value pair from this set.
-     *
+     * 
      * @param name name
      * @return name value pair
      */
@@ -76,7 +74,7 @@ public class NameValuePairs {
 
     /**
      * Returns number of pairs in this set.
-     *
+     * 
      * @return size
      */
     public int size() {
@@ -85,7 +83,7 @@ public class NameValuePairs {
 
     /**
      * Retrieves name value pairs in specific position.
-     *
+     * 
      * @param pos position of the value
      * @return name value pair
      */
@@ -104,7 +102,7 @@ public class NameValuePairs {
     /**
      * Retrieves value of the name value pairs that matches
      * the given name.
-     *
+     * 
      * @param name name
      * @return value
      */
@@ -119,14 +117,14 @@ public class NameValuePairs {
 
     /**
      * Retrieves a list of names.
-     *
+     * 
      * @return a list of names
      */
     public Enumeration<String> getNames() {
         Vector<String> v = new Vector<String>();
-        int size = mPairs.size(); 
+        int size = mPairs.size();
 
-        for (int i = 0; i < size; i++) { 
+        for (int i = 0; i < size; i++) {
             NameValuePair p = (NameValuePair) mPairs.elementAt(i);
 
             v.addElement(p.getName());
@@ -134,11 +132,11 @@ public class NameValuePairs {
         //System.out.println("getNames: "+v.size());
         return v.elements();
     }
-	
+
     /**
      * Show the content of this name value container as
      * string representation.
-     *
+     * 
      * @return string representation
      */
     public String toString() {
@@ -155,7 +153,7 @@ public class NameValuePairs {
 
     /**
      * Parses a string into name value pairs.
-     *
+     * 
      * @param s string
      * @param nvp name value pairs
      * @return true if successful
@@ -174,16 +172,16 @@ public class NameValuePairs {
             String v = t.substring(i + 1);
 
             nvp.add(n, v);
-        }	
+        }
         return true;
     }
 
     /**
      * Returns a list of name value pair object.
-     *
+     * 
      * @return name value objects
      */
     public Enumeration<NameValuePair> elements() {
         return mPairs.elements();
     }
-}    
+}

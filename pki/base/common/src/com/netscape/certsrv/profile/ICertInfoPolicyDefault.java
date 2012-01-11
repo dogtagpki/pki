@@ -27,6 +27,6 @@ public interface ICertInfoPolicyDefault extends IPolicyDefault {
     /**
      * Populates certificate info directly.
      */
-    public void populate(IRequest request, X509CertInfo info) 
+    public void populate(IRequest request, X509CertInfo info)
               throws EBaseException;
 }

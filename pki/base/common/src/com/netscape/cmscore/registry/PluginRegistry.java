@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.registry;
 
-
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Locale;
@@ -31,7 +30,6 @@ import com.netscape.certsrv.registry.ERegistryException;
 import com.netscape.certsrv.registry.IPluginInfo;
 import com.netscape.certsrv.registry.IPluginRegistry;
 
-
 public class PluginRegistry implements IPluginRegistry {
 
     private static final String PROP_TYPES = "types";
@@ -44,7 +42,7 @@ public class PluginRegistry implements IPluginRegistry {
     private IConfigStore mConfig = null;
     private IConfigStore mFileConfig = null;
     private ISubsystem mOwner = null;
-    private Hashtable<String, Hashtable <String ,IPluginInfo>> mTypes = new Hashtable<String, Hashtable<String, IPluginInfo>>();
+    private Hashtable<String, Hashtable<String, IPluginInfo>> mTypes = new Hashtable<String, Hashtable<String, IPluginInfo>>();
 
     public PluginRegistry() {
     }
@@ -53,7 +51,7 @@ public class PluginRegistry implements IPluginRegistry {
      * Retrieves the name of this subsystem.
      */
     public String getId() {
-        return null; 
+        return null;
     }
 
     /**
@@ -66,13 +64,13 @@ public class PluginRegistry implements IPluginRegistry {
      * Initializes this subsystem with the given configuration
      * store.
      * <P>
-     *
+     * 
      * @param owner owner of this subsystem
      * @param config configuration store
      * @exception EBaseException failed to initialize
      */
     public void init(ISubsystem owner, IConfigStore config)
-        throws EBaseException {
+            throws EBaseException {
         CMS.debug("RegistrySubsystem: start init");
         mConfig = config;
         mOwner = owner;
@@ -103,7 +101,7 @@ public class PluginRegistry implements IPluginRegistry {
      * Load plugins of the given type.
      */
     public void loadPlugins(IConfigStore config, String type)
-        throws EBaseException {
+            throws EBaseException {
         String ids_str = null;
 
         try {
@@ -122,7 +120,6 @@ public class PluginRegistry implements IPluginRegistry {
         }
     }
 
-
     public IPluginInfo createPluginInfo(String name, String desc, String classPath) {
         return new PluginInfo(name, desc, classPath);
     }
@@ -131,7 +128,7 @@ public class PluginRegistry implements IPluginRegistry {
      * Load plugins of the given type.
      */
     public void loadPlugin(IConfigStore config, String type, String id)
-        throws EBaseException {
+            throws EBaseException {
         String name = null;
 
         try {
@@ -147,7 +144,7 @@ public class PluginRegistry implements IPluginRegistry {
         String classpath = null;
 
         try {
-            classpath = mFileConfig.getString(type + "." + id + "." + PROP_CLASSPATH, 
+            classpath = mFileConfig.getString(type + "." + id + "." + PROP_CLASSPATH,
                         null);
         } catch (EBaseException e) {
         }
@@ -157,23 +154,23 @@ public class PluginRegistry implements IPluginRegistry {
     }
 
     public void removePluginInfo(String type, String id)
-        throws ERegistryException {
+            throws ERegistryException {
         Hashtable<String, IPluginInfo> plugins = mTypes.get(type);
         if (plugins == null)
-          return;
+            return;
         plugins.remove(id);
         Locale locale = Locale.getDefault();
         rebuildConfigStore(locale);
     }
 
     public void addPluginInfo(String type, String id, IPluginInfo info)
-        throws ERegistryException {
+            throws ERegistryException {
         addPluginInfo(type, id, info, 1);
     }
 
     public void addPluginInfo(String type, String id, IPluginInfo info, int saveConfig)
-        throws ERegistryException {
-        Hashtable<String, IPluginInfo> plugins =  mTypes.get(type);
+            throws ERegistryException {
+        Hashtable<String, IPluginInfo> plugins = mTypes.get(type);
 
         if (plugins == null) {
             plugins = new Hashtable<String, IPluginInfo>();
@@ -181,17 +178,18 @@ public class PluginRegistry implements IPluginRegistry {
         }
         Locale locale = Locale.getDefault();
 
-        CMS.debug("added plugin " + type + " " + id + " " + 
-            info.getName(locale) + " " + info.getDescription(locale) + " " +
-            info.getClassName());
+        CMS.debug("added plugin " + type + " " + id + " " +
+                info.getName(locale) + " " + info.getDescription(locale) + " " +
+                info.getClassName());
         plugins.put(id, info);
 
         // rebuild configuration store
-        if (saveConfig == 1) rebuildConfigStore(locale);
+        if (saveConfig == 1)
+            rebuildConfigStore(locale);
     }
 
     public void rebuildConfigStore(Locale locale)
-        throws ERegistryException {
+            throws ERegistryException {
         Enumeration<String> types = mTypes.keys();
         StringBuffer typesBuf = new StringBuffer();
 
@@ -215,20 +213,20 @@ public class PluginRegistry implements IPluginRegistry {
                 }
                 IPluginInfo plugin = (IPluginInfo) mPlugins.get(id);
 
-                mFileConfig.putString(type + "." + id + ".class", 
-                    plugin.getClassName());
-                mFileConfig.putString(type + "." + id + ".name", 
-                    plugin.getName(locale));
-                mFileConfig.putString(type + "." + id + ".desc", 
-                    plugin.getDescription(locale));
+                mFileConfig.putString(type + "." + id + ".class",
+                        plugin.getClassName());
+                mFileConfig.putString(type + "." + id + ".name",
+                        plugin.getName(locale));
+                mFileConfig.putString(type + "." + id + ".desc",
+                        plugin.getDescription(locale));
             }
             mFileConfig.putString(type + ".ids", idsBuf.toString());
         }
         mFileConfig.putString("types", typesBuf.toString());
         try {
-          mFileConfig.commit(false);
+            mFileConfig.commit(false);
         } catch (EBaseException e) {
-          CMS.debug("PluginRegistry: failed to commit registry.cfg");
+            CMS.debug("PluginRegistry: failed to commit registry.cfg");
         }
     }
 
@@ -252,7 +250,7 @@ public class PluginRegistry implements IPluginRegistry {
     /**
      * Returns the root configuration storage of this system.
      * <P>
-     *
+     * 
      * @return configuration store of this subsystem
      */
     public IConfigStore getConfigStore() {
@@ -274,7 +272,7 @@ public class PluginRegistry implements IPluginRegistry {
      * Returns a list of identifiers of the given type.
      */
     public Enumeration<String> getIds(String type) {
-        Hashtable<String, IPluginInfo> plugins =  mTypes.get(type);
+        Hashtable<String, IPluginInfo> plugins = mTypes.get(type);
 
         if (plugins == null)
             return null;
@@ -285,7 +283,7 @@ public class PluginRegistry implements IPluginRegistry {
      * Retrieves the plugin information.
      */
     public IPluginInfo getPluginInfo(String type, String id) {
-        Hashtable <String ,IPluginInfo> plugins = mTypes.get(type);
+        Hashtable<String, IPluginInfo> plugins = mTypes.get(type);
 
         if (plugins == null)
             return null;

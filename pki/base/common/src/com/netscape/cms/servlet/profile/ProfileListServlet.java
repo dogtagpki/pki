@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.profile;
 
-
 import java.util.Enumeration;
 import java.util.Locale;
 
@@ -38,10 +37,9 @@ import com.netscape.certsrv.template.ArgList;
 import com.netscape.certsrv.template.ArgSet;
 import com.netscape.cms.servlet.common.CMSRequest;
 
-
 /**
  * List all enabled profiles.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class ProfileListServlet extends ProfileServlet {
@@ -53,7 +51,7 @@ public class ProfileListServlet extends ProfileServlet {
 
     private static final String PROP_AUTHORITY_ID = "authorityId";
 
-    private String mAuthorityId = null; 
+    private String mAuthorityId = null;
 
     public ProfileListServlet() {
         super();
@@ -62,7 +60,7 @@ public class ProfileListServlet extends ProfileServlet {
     /**
      * initialize the servlet. This servlet uses the template file
      * "ImportCert.template" to process the response.
-     *
+     * 
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -72,7 +70,7 @@ public class ProfileListServlet extends ProfileServlet {
 
     /**
      * Process the HTTP request.
-     *
+     * 
      * @param cmsReq the object holding the request and response information
      */
     public void process(CMSRequest cmsReq) throws EBaseException {
@@ -93,10 +91,10 @@ public class ProfileListServlet extends ProfileServlet {
                         mAuthzResourceName, "list");
         } catch (EAuthzAccessDenied e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
         } catch (Exception e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
         }
 
         if (authzToken == null) {
@@ -115,17 +113,17 @@ public class ProfileListServlet extends ProfileServlet {
         }
         CMS.debug("ProfileListServlet: SubId=" + mProfileSubId);
         IProfileSubsystem ps = (IProfileSubsystem)
-            CMS.getSubsystem(mProfileSubId);
+                CMS.getSubsystem(mProfileSubId);
 
         if (ps == null) {
-            CMS.debug("ProfileListServlet: ProfileSubsystem " + 
-                mProfileSubId + " not found");
+            CMS.debug("ProfileListServlet: ProfileSubsystem " +
+                    mProfileSubId + " not found");
             args.set(ARG_ERROR_CODE, "1");
             args.set(ARG_ERROR_REASON, CMS.getUserMessage(locale,
                     "CMS_INTERNAL_ERROR"));
             outputTemplate(request, response, args);
             return;
-        } 
+        }
 
         ArgList list = new ArgList();
         Enumeration e = ps.getProfileIds();
@@ -139,13 +137,13 @@ public class ProfileListServlet extends ProfileServlet {
                     profile = ps.getProfile(id);
                 } catch (EBaseException e1) {
                     // skip bad profile
-                    CMS.debug("ProfileListServlet: profile " + id + 
-                        " not found (skipped) " + e1.toString());
+                    CMS.debug("ProfileListServlet: profile " + id +
+                            " not found (skipped) " + e1.toString());
                     continue;
                 }
                 if (profile == null) {
-                    CMS.debug("ProfileListServlet: profile " + id + 
-                        " not found (skipped)");
+                    CMS.debug("ProfileListServlet: profile " + id +
+                            " not found (skipped)");
                     continue;
                 }
 
@@ -155,16 +153,16 @@ public class ProfileListServlet extends ProfileServlet {
                 ArgSet profileArgs = new ArgSet();
 
                 profileArgs.set(ARG_PROFILE_IS_ENABLED,
-                    Boolean.toString(ps.isProfileEnable(id)));
+                        Boolean.toString(ps.isProfileEnable(id)));
                 profileArgs.set(ARG_PROFILE_ENABLED_BY,
-                    ps.getProfileEnableBy(id));
+                        ps.getProfileEnableBy(id));
                 profileArgs.set(ARG_PROFILE_ID, id);
-                profileArgs.set(ARG_PROFILE_IS_VISIBLE, 
-                    Boolean.toString(profile.isVisible()));
+                profileArgs.set(ARG_PROFILE_IS_VISIBLE,
+                        Boolean.toString(profile.isVisible()));
                 profileArgs.set(ARG_PROFILE_NAME, name);
                 profileArgs.set(ARG_PROFILE_DESC, desc);
                 list.add(profileArgs);
-            
+
             }
         }
         args.set(ARG_RECORD, list);

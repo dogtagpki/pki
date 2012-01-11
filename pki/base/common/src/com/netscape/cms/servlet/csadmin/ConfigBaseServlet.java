@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-
 import java.util.Enumeration;
 
 import javax.servlet.http.HttpServletRequest;
@@ -27,7 +26,6 @@ import org.apache.velocity.Template;
 import org.apache.velocity.context.Context;
 
 import com.netscape.certsrv.apps.CMS;
-
 
 public abstract class ConfigBaseServlet extends BaseServlet {
     /**
@@ -50,7 +48,7 @@ public abstract class ConfigBaseServlet extends BaseServlet {
     public abstract void display(HttpServletRequest request,
             HttpServletResponse response, Context context);
 
-    public abstract void update(HttpServletRequest request, 
+    public abstract void update(HttpServletRequest request,
             HttpServletResponse response, Context context);
 
     public abstract Template getTemplate(HttpServletRequest request,
@@ -68,25 +66,25 @@ public abstract class ConfigBaseServlet extends BaseServlet {
             // __ (double underscores); however, in the event that
             // a security parameter slips through, we perform multiple
             // additional checks to insure that it is NOT displayed
-            if( pn.startsWith("__")                         ||
-                pn.endsWith("password")                     ||
-                pn.endsWith("passwd")                       ||
-                pn.endsWith("pwd")                          ||
-                pn.equalsIgnoreCase("admin_password_again") ||
-                pn.equalsIgnoreCase("directoryManagerPwd")  ||
-                pn.equalsIgnoreCase("bindpassword")         ||
-                pn.equalsIgnoreCase("bindpwd")              ||
-                pn.equalsIgnoreCase("passwd")               ||
-                pn.equalsIgnoreCase("password")             ||
-                pn.equalsIgnoreCase("pin")                  ||
-                pn.equalsIgnoreCase("pwd")                  ||
-                pn.equalsIgnoreCase("pwdagain")             ||
-                pn.equalsIgnoreCase("uPasswd") ) {
-               CMS.debug("ConfigBaseServlet::service() param name='" + pn +
-                         "' value='(sensitive)'" );
+            if (pn.startsWith("__") ||
+                    pn.endsWith("password") ||
+                    pn.endsWith("passwd") ||
+                    pn.endsWith("pwd") ||
+                    pn.equalsIgnoreCase("admin_password_again") ||
+                    pn.equalsIgnoreCase("directoryManagerPwd") ||
+                    pn.equalsIgnoreCase("bindpassword") ||
+                    pn.equalsIgnoreCase("bindpwd") ||
+                    pn.equalsIgnoreCase("passwd") ||
+                    pn.equalsIgnoreCase("password") ||
+                    pn.equalsIgnoreCase("pin") ||
+                    pn.equalsIgnoreCase("pwd") ||
+                    pn.equalsIgnoreCase("pwdagain") ||
+                    pn.equalsIgnoreCase("uPasswd")) {
+                CMS.debug("ConfigBaseServlet::service() param name='" + pn +
+                         "' value='(sensitive)'");
             } else {
-               CMS.debug("ConfigBaseServlet::service() param name='" + pn +
-                         "' value='" + httpReq.getParameter(pn) + "'" );
+                CMS.debug("ConfigBaseServlet::service() param name='" + pn +
+                         "' value='" + httpReq.getParameter(pn) + "'");
             }
         }
     }
@@ -97,7 +95,7 @@ public abstract class ConfigBaseServlet extends BaseServlet {
     public Template process(HttpServletRequest request,
             HttpServletResponse response,
             Context context) {
-                                                                                
+
         if (CMS.debugOn()) {
             outputHttpParameters(request);
         }
@@ -107,16 +105,16 @@ public abstract class ConfigBaseServlet extends BaseServlet {
         } else {
             update(request, response, context);
         }
-                                                                                
+
         Template template = null;
-                                                                                
+
         try {
             context.put("name", "Velocity Test");
             template = getTemplate(request, response, context);
         } catch (Exception e) {
             System.err.println("Exception caught: " + e.getMessage());
         }
-                                                                                
+
         return template;
     }
 }

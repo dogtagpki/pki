@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.input;
 
-
 import java.util.Locale;
 
 import netscape.security.x509.X509CertInfo;
@@ -33,19 +32,17 @@ import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cms.profile.common.EnrollProfile;
 
-
 /**
  * This class implements the certificate request input from TPS.
  * This input populates 2 main fields to the enrollment "page":
  * 1/ id, 2/ publickey
  * <p>
  * 
- * This input usually is used by an enrollment profile for
- * certificate requests coming from TPS.
- *
+ * This input usually is used by an enrollment profile for certificate requests coming from TPS.
+ * 
  * @version $Revision$, $Date$
  */
-public class nsNKeyCertReqInput extends EnrollInput implements IProfileInput { 
+public class nsNKeyCertReqInput extends EnrollInput implements IProfileInput {
     public static final String VAL_SN = "screenname";
     public static final String VAL_PUBLIC_KEY = "publickey";
 
@@ -60,7 +57,7 @@ public class nsNKeyCertReqInput extends EnrollInput implements IProfileInput {
      * Initializes this default policy.
      */
     public void init(IProfile profile, IConfigStore config)
-        throws EProfileException {
+            throws EProfileException {
         super.init(profile, config);
 
         mEnrollProfile = (EnrollProfile) profile;
@@ -84,30 +81,30 @@ public class nsNKeyCertReqInput extends EnrollInput implements IProfileInput {
      * Populates the request with this policy default.
      */
     public void populate(IProfileContext ctx, IRequest request)
-        throws EProfileException {
+            throws EProfileException {
         String sn = ctx.get(VAL_SN);
         String pk = ctx.get(VAL_PUBLIC_KEY);
         X509CertInfo info =
-            request.getExtDataInCertInfo(EnrollProfile.REQUEST_CERTINFO);
+                request.getExtDataInCertInfo(EnrollProfile.REQUEST_CERTINFO);
 
         if (sn == null) {
-            CMS.debug("nsNKeyCertReqInput: populate - id not found " + 
-                "");
+            CMS.debug("nsNKeyCertReqInput: populate - id not found " +
+                    "");
             throw new EProfileException(
-                    CMS.getUserMessage(getLocale(request), 
-                        "CMS_PROFILE_TOKENKEY_NO_ID", 
-                        ""));
+                    CMS.getUserMessage(getLocale(request),
+                            "CMS_PROFILE_TOKENKEY_NO_ID",
+                            ""));
         }
         if (pk == null) {
-            CMS.debug("nsNKeyCertReqInput: populate - public key not found " + 
-                "");
+            CMS.debug("nsNKeyCertReqInput: populate - public key not found " +
+                    "");
             throw new EProfileException(
-                    CMS.getUserMessage(getLocale(request), 
-                        "CMS_PROFILE_TOKENKEY_NO_PUBLIC_KEY", 
-                        ""));
+                    CMS.getUserMessage(getLocale(request),
+                            "CMS_PROFILE_TOKENKEY_NO_PUBLIC_KEY",
+                            ""));
         }
 
-		mEnrollProfile.fillNSNKEY(getLocale(request), sn, pk, info, request);	
+        mEnrollProfile.fillNSNKEY(getLocale(request), sn, pk, info, request);
         request.setExtData(EnrollProfile.REQUEST_CERTINFO, info);
     }
 
@@ -120,12 +117,12 @@ public class nsNKeyCertReqInput extends EnrollInput implements IProfileInput {
             return new Descriptor(IDescriptor.STRING, null,
                     null,
                     CMS.getUserMessage(locale,
-                        "CMS_PROFILE_INPUT_TOKENKEY_CERT_REQ_UID"));
+                            "CMS_PROFILE_INPUT_TOKENKEY_CERT_REQ_UID"));
         } else if (name.equals(VAL_PUBLIC_KEY)) {
             return new Descriptor(IDescriptor.STRING, null,
                     null,
                     CMS.getUserMessage(locale,
-                        "CMS_PROFILE_INPUT_TOKENKEY_CERT_REQ_PK"));
+                            "CMS_PROFILE_INPUT_TOKENKEY_CERT_REQ_PK"));
         }
         return null;
     }

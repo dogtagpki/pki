@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.profile;
 
-
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.FileReader;
@@ -46,10 +45,9 @@ import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.Utils;
 
-
 /**
  * This servlet is the base class of all profile servlets.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class ProfileServlet extends CMSServlet {
@@ -67,12 +65,12 @@ public class ProfileServlet extends CMSServlet {
     public final static String ARG_REQUEST_ID = "requestId";
     public final static String ARG_REQUEST_TYPE = "requestType";
     public final static String ARG_REQUEST_STATUS = "requestStatus";
-    public final static String ARG_REQUEST_OWNER = 
-        "requestOwner";
-    public final static String ARG_REQUEST_CREATION_TIME = 
-        "requestCreationTime";
-    public final static String ARG_REQUEST_MODIFICATION_TIME = 
-        "requestModificationTime";
+    public final static String ARG_REQUEST_OWNER =
+            "requestOwner";
+    public final static String ARG_REQUEST_CREATION_TIME =
+            "requestCreationTime";
+    public final static String ARG_REQUEST_MODIFICATION_TIME =
+            "requestModificationTime";
     public final static String ARG_REQUEST_NONCE = "nonce";
 
     public final static String ARG_AUTH_ID = "authId";
@@ -166,15 +164,15 @@ public class ProfileServlet extends CMSServlet {
         super();
     }
 
-	/**
+    /**
      * initialize the servlet. Servlets implementing this method
      * must specify the template to use as a parameter called
      * "templatePath" in the servletConfig
-     *
+     * 
      * @param sc servlet configuration, read from the web.xml file
      */
 
-    public void init(ServletConfig sc) throws ServletException { 
+    public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
         mTemplate = sc.getServletContext().getRealPath(
                     sc.getInitParameter(PROP_TEMPLATE));
@@ -193,47 +191,44 @@ public class ProfileServlet extends CMSServlet {
         }
     }
 
-    protected String escapeXML(String v)
-    {
-       if (v == null) {
-         return "";
-       }
-       v = v.replaceAll("&", "&amp;");
-       return v;
+    protected String escapeXML(String v) {
+        if (v == null) {
+            return "";
+        }
+        v = v.replaceAll("&", "&amp;");
+        return v;
     }
 
-    protected void outputArgValueAsXML(PrintStream ps, String name, IArgValue v)
-    {
-            ps.println("<" + name + ">");
-            if (v != null) {
-              if (v instanceof ArgList) {
-                 ArgList list = (ArgList)v;
-                 ps.println("<list>");
-                 for (int i = 0; i < list.size(); i++) {
-                   outputArgValueAsXML(ps, name, list.get(i));
-                 }
-                 ps.println("</list>");
-              } else if (v instanceof ArgString) {
-                 ArgString str = (ArgString)v;
-                 ps.println(escapeXML(str.getValue()));
-              } else if (v instanceof ArgSet) {
-                 ArgSet set = (ArgSet)v;
-                  ps.println("<set>");
-                  Enumeration names = set.getNames();
-                  while (names.hasMoreElements()) {
-                    String n = (String)names.nextElement();
+    protected void outputArgValueAsXML(PrintStream ps, String name, IArgValue v) {
+        ps.println("<" + name + ">");
+        if (v != null) {
+            if (v instanceof ArgList) {
+                ArgList list = (ArgList) v;
+                ps.println("<list>");
+                for (int i = 0; i < list.size(); i++) {
+                    outputArgValueAsXML(ps, name, list.get(i));
+                }
+                ps.println("</list>");
+            } else if (v instanceof ArgString) {
+                ArgString str = (ArgString) v;
+                ps.println(escapeXML(str.getValue()));
+            } else if (v instanceof ArgSet) {
+                ArgSet set = (ArgSet) v;
+                ps.println("<set>");
+                Enumeration names = set.getNames();
+                while (names.hasMoreElements()) {
+                    String n = (String) names.nextElement();
                     outputArgValueAsXML(ps, n, set.get(n));
-                  }
-                 ps.println("</set>");
-              } else {
-                  ps.println(v);
-              }
+                }
+                ps.println("</set>");
+            } else {
+                ps.println(v);
             }
-            ps.println("</" + name + ">");
+        }
+        ps.println("</" + name + ">");
     }
 
-    protected void outputThisAsXML(ByteArrayOutputStream bos, ArgSet args)
-    {
+    protected void outputThisAsXML(ByteArrayOutputStream bos, ArgSet args) {
         PrintStream ps = new PrintStream(bos);
         ps.println("<xml>");
         outputArgValueAsXML(ps, "output", args);
@@ -241,9 +236,9 @@ public class ProfileServlet extends CMSServlet {
         ps.flush();
     }
 
-    public void outputTemplate(HttpServletRequest request, 
+    public void outputTemplate(HttpServletRequest request,
                    HttpServletResponse response, ArgSet args)
-        throws EBaseException {
+            throws EBaseException {
 
         String xmlOutput = request.getParameter("xml");
         if (xmlOutput != null && xmlOutput.equals("true")) {
@@ -251,32 +246,31 @@ public class ProfileServlet extends CMSServlet {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             outputThisAsXML(bos, args);
             try {
-              response.setContentLength(bos.size());
-              bos.writeTo(response.getOutputStream());
+                response.setContentLength(bos.size());
+                bos.writeTo(response.getOutputStream());
             } catch (Exception e) {
                 CMS.debug("outputTemplate error " + e);
             }
             return;
         }
-        IStatsSubsystem statsSub = (IStatsSubsystem)CMS.getSubsystem("stats");
+        IStatsSubsystem statsSub = (IStatsSubsystem) CMS.getSubsystem("stats");
         if (statsSub != null) {
-          statsSub.startTiming("output_template");
+            statsSub.startTiming("output_template");
         }
         BufferedReader reader = null;
         try {
             reader = new BufferedReader(
-                    new FileReader(mTemplate));		
+                    new FileReader(mTemplate));
 
             response.setContentType("text/html; charset=UTF-8");
 
             PrintWriter writer = response.getWriter();
 
-
             // output template
             String line = null;
 
             do {
-                line = reader.readLine();	
+                line = reader.readLine();
                 if (line != null) {
                     if (line.indexOf("<CMS_TEMPLATE>") == -1) {
                         writer.println(line);
@@ -287,21 +281,20 @@ public class ProfileServlet extends CMSServlet {
                         writer.println("</script>");
                     }
                 }
-            }
-            while (line != null);
+            } while (line != null);
             reader.close();
         } catch (IOException e) {
-           CMS.debug(e);
-           throw new EBaseException(e.toString());
+            CMS.debug(e);
+            throw new EBaseException(e.toString());
         } finally {
-          if (statsSub != null) {
-            statsSub.endTiming("output_template");
-          }
+            if (statsSub != null) {
+                statsSub.endTiming("output_template");
+            }
         }
     }
 
     protected void outputArgList(PrintWriter writer, String name, ArgList list)
-        throws IOException {	
+            throws IOException {
 
         String h_name = null;
 
@@ -342,27 +335,27 @@ public class ProfileServlet extends CMSServlet {
             char c = in[i];
 
             /* presumably this gives better performance */
-            if ((c > 0x23) && (c!= 0x5c) && (c!= 0x3c) && (c!= 0x3e)) { 
+            if ((c > 0x23) && (c != 0x5c) && (c != 0x3c) && (c != 0x3e)) {
                 out[j++] = c;
                 continue;
             }
 
             /* some inputs are coming in as '\' and 'n' */
             /* see BZ 500736 for details */
-            if ((c == 0x5c) && ((i+1)<l) && (in[i+1] == 'n' ||
-                 in[i+1] == 'r' || in[i+1] == 'f' || in[i+1] == 't' ||
-                 in[i+1] == '<' || in[i+1] == '>' ||
-                 in[i+1] == '\"' || in[i+1] == '\'' || in[i+1] == '\\')) {
-                if (in[i+1] == 'x' && ((i+3)<l) && in[i+2] == '3' &&
-                    (in[i+3] == 'c' || in[i+3] == 'e')) {
+            if ((c == 0x5c) && ((i + 1) < l) && (in[i + 1] == 'n' ||
+                    in[i + 1] == 'r' || in[i + 1] == 'f' || in[i + 1] == 't' ||
+                    in[i + 1] == '<' || in[i + 1] == '>' ||
+                    in[i + 1] == '\"' || in[i + 1] == '\'' || in[i + 1] == '\\')) {
+                if (in[i + 1] == 'x' && ((i + 3) < l) && in[i + 2] == '3' &&
+                        (in[i + 3] == 'c' || in[i + 3] == 'e')) {
                     out[j++] = '\\';
-                    out[j++] = in[i+1];
-                    out[j++] = in[i+2];
-                    out[j++] = in[i+3];
+                    out[j++] = in[i + 1];
+                    out[j++] = in[i + 2];
+                    out[j++] = in[i + 3];
                     i += 3;
-                } else { 
+                } else {
                     out[j++] = '\\';
-                    out[j++] = in[i+1];
+                    out[j++] = in[i + 1];
                     i++;
                 }
                 continue;
@@ -421,18 +414,18 @@ public class ProfileServlet extends CMSServlet {
     }
 
     protected void outputArgString(PrintWriter writer, String name, ArgString str)
-        throws IOException {	
+            throws IOException {
         String s = str.getValue();
 
         // sub \n with "\n"
         if (s != null) {
-            s = escapeJavaScriptString(s); 
+            s = escapeJavaScriptString(s);
         }
         writer.println(name + "=\"" + s + "\";");
     }
 
     protected void outputArgSet(PrintWriter writer, String name, ArgSet set)
-        throws IOException {	
+            throws IOException {
         Enumeration e = set.getNames();
 
         while (e.hasMoreElements()) {
@@ -456,7 +449,7 @@ public class ProfileServlet extends CMSServlet {
     }
 
     protected void outputData(PrintWriter writer, ArgSet set)
-        throws IOException {	
+            throws IOException {
         if (set == null)
             return;
         Enumeration e = set.getNames();
@@ -486,12 +479,12 @@ public class ProfileServlet extends CMSServlet {
      */
     protected void log(int event, int level, String msg) {
         mLogger.log(event, mLogCategory, level,
-            "Servlet " + mId + ": " + msg);
+                "Servlet " + mId + ": " + msg);
     }
 
     protected void log(int level, String msg) {
         mLogger.log(ILogger.EV_SYSTEM, mLogCategory, level,
-            "Servlet " + mId + ": " + msg);
+                "Servlet " + mId + ": " + msg);
     }
 
     /**
@@ -512,8 +505,7 @@ public class ProfileServlet extends CMSServlet {
     }
 
     protected void renderResult(CMSRequest cmsReq)
-        throws IOException {
+            throws IOException {
         // do nothing
     }
 }
-

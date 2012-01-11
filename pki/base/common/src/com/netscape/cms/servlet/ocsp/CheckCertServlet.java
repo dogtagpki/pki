@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.ocsp;
 
-
 import java.io.IOException;
 import java.security.cert.X509CRLEntry;
 import java.security.cert.X509Certificate;
@@ -48,10 +47,9 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cmsutil.util.Cert;
 
-
 /**
- * Check the status of a specific certificate 
- *
+ * Check the status of a specific certificate
+ * 
  * @version $Revision$ $Date$
  */
 public class CheckCertServlet extends CMSServlet {
@@ -61,9 +59,9 @@ public class CheckCertServlet extends CMSServlet {
      */
     private static final long serialVersionUID = 7782198059640825050L;
     public static final String BEGIN_HEADER =
-        "-----BEGIN CERTIFICATE-----";
+            "-----BEGIN CERTIFICATE-----";
     public static final String END_HEADER =
-        "-----END CERTIFICATE-----";
+            "-----END CERTIFICATE-----";
 
     public static final String ATTR_STATUS = "status";
     public static final String ATTR_ISSUERDN = "issuerDN";
@@ -85,7 +83,7 @@ public class CheckCertServlet extends CMSServlet {
     /**
      * initialize the servlet. This servlet uses the template file
      * "checkCert.template" to process the response.
-     *
+     * 
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -102,14 +100,13 @@ public class CheckCertServlet extends CMSServlet {
     /**
      * Process the HTTP request.
      * <ul>
-     * <li>http.param cert certificate to check. Base64, DER encoded, wrapped
-     * in -----BEGIN CERTIFICATE-----, -----END CERTIFICATE----- strings
+     * <li>http.param cert certificate to check. Base64, DER encoded, wrapped in -----BEGIN CERTIFICATE-----, -----END CERTIFICATE----- strings
      * </ul>
-     *
+     * 
      * @param cmsReq the object holding the request and response information
      */
     protected void process(CMSRequest cmsReq)
-        throws EBaseException {
+            throws EBaseException {
         HttpServletRequest req = cmsReq.getHttpReq();
         HttpServletResponse resp = cmsReq.getHttpResp();
 
@@ -136,9 +133,9 @@ public class CheckCertServlet extends CMSServlet {
             form = getTemplate(mFormPath, req, locale);
         } catch (IOException e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()));
+                    CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
 
         IArgBlock header = CMS.createArgBlock();
@@ -177,9 +174,9 @@ public class CheckCertServlet extends CMSServlet {
         header.addStringValue(ATTR_SUBJECTDN, cert.getSubjectDN().getName());
         header.addStringValue(ATTR_SERIALNO, "0x" + cert.getSerialNumber().toString(16));
         try {
-            X509CRLImpl	crl = null;
+            X509CRLImpl crl = null;
 
-            crl = new X509CRLImpl(pt.getCRL()); 
+            crl = new X509CRLImpl(pt.getCRL());
             X509CRLEntry crlentry = crl.getRevokedCertificate(cert.getSerialNumber());
 
             if (crlentry == null) {
@@ -201,18 +198,18 @@ public class CheckCertServlet extends CMSServlet {
             String error = null;
 
             String xmlOutput = req.getParameter("xml");
-			if (xmlOutput != null && xmlOutput.equals("true")) {
-			  outputXML(resp, argSet);
-			} else {
-			  resp.setContentType("text/html");
-			  form.renderOutput(out, argSet);
-			  cmsReq.setStatus(CMSRequest.SUCCESS);
-			}
+            if (xmlOutput != null && xmlOutput.equals("true")) {
+                outputXML(resp, argSet);
+            } else {
+                resp.setContentType("text/html");
+                form.renderOutput(out, argSet);
+                cmsReq.setStatus(CMSRequest.SUCCESS);
+            }
         } catch (IOException e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()));
+                    CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
     }
 }

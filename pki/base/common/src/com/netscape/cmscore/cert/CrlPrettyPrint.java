@@ -17,16 +17,14 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.cert;
 
-
 import netscape.security.x509.X509CRLImpl;
 
 import com.netscape.certsrv.base.ICRLPrettyPrint;
 
-
 /**
  * This class will display the certificate content in predefined
  * format.
- *
+ * 
  * @author Andrew Wnuk
  * @version $Revision$, $Date$
  */

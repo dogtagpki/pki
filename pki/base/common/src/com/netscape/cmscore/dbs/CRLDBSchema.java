@@ -17,14 +17,11 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.dbs;
 
-
-
-
 /**
  * A class represents a collection of schema information
  * for CRL.
  * <P>
- *
+ * 
  * @author thomask
  * @version $Revision$, $Date$
  */

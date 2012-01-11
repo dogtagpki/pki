@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.request;
 
-
 //
 // The Schema class contains constant string values for
 // LDAP attribute and object class names used in this package

@@ -17,9 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.request;
 
-
 /**
- * temporary location for cert request constants. 
+ * temporary location for cert request constants.
  * XXX we really need to centralize all these but for now they are here
  * as needed.
  */

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.policy.constraints;
 
-
 import java.util.Locale;
 import java.util.Vector;
 
@@ -41,16 +40,16 @@ import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.certsrv.security.ISigningUnit;
 import com.netscape.cms.policy.APolicyRule;
 
-
 /**
  * This simple policy checks the subordinate CA CSR to see
  * if it is the same as the local CA.
  * <P>
+ * 
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- *
+ * 
  * @deprecated
  * @version $Revision$, $Date$
  */
@@ -66,32 +65,28 @@ public class SubCANameConstraints extends APolicyRule implements IEnrollmentPoli
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
                 IExtendedPluginInfo.HELP_TOKEN +
-                ";configuration-policyrules-subcanamecheck",
+                        ";configuration-policyrules-subcanamecheck",
                 IExtendedPluginInfo.HELP_TEXT +
-                ";Checks if subordinate CA request matches the local CA. There are no parameters to change"
+                        ";Checks if subordinate CA request matches the local CA. There are no parameters to change"
             };
 
         return params;
 
     }
-	
+
     /**
      * Initializes this policy rule.
      * <P>
-     *
-     * The entries probably are of the form
-     *      ra.Policy.rule.<ruleName>.implName=KeyAlgorithmConstraints
-     *      ra.Policy.rule.<ruleName>.algorithms=RSA,DSA
-     *      ra.Policy.rule.<ruleName>.enable=true
-     *      ra.Policy.rule.<ruleName>.predicate=ou==Sales
-     *
-     * @param config	The config store reference
+     * 
+     * The entries probably are of the form ra.Policy.rule.<ruleName>.implName=KeyAlgorithmConstraints ra.Policy.rule.<ruleName>.algorithms=RSA,DSA ra.Policy.rule.<ruleName>.enable=true ra.Policy.rule.<ruleName>.predicate=ou==Sales
+     * 
+     * @param config The config store reference
      */
     public void init(ISubsystem owner, IConfigStore config)
-        throws EBaseException {
+            throws EBaseException {
         // get CA's public key to create authority key id.
-        ICertAuthority certAuthority = (ICertAuthority) 
-            ((IPolicyProcessor) owner).getAuthority();
+        ICertAuthority certAuthority = (ICertAuthority)
+                ((IPolicyProcessor) owner).getAuthority();
 
         if (certAuthority == null) {
             // should never get here.
@@ -106,7 +101,7 @@ public class SubCANameConstraints extends APolicyRule implements IEnrollmentPoli
         }
         mCA = (ICertificateAuthority) certAuthority;
         ISigningUnit su = mCA.getSigningUnit();
-        if( su == null || CMS.isPreOpMode() ) {
+        if (su == null || CMS.isPreOpMode()) {
             return;
         }
 
@@ -124,8 +119,8 @@ public class SubCANameConstraints extends APolicyRule implements IEnrollmentPoli
     /**
      * Applies the policy on the given Request.
      * <P>
-     *
-     * @param req	The request on which to apply policy.
+     * 
+     * @param req The request on which to apply policy.
      * @return The policy result object.
      */
     public PolicyResult apply(IRequest req) {
@@ -136,7 +131,7 @@ public class SubCANameConstraints extends APolicyRule implements IEnrollmentPoli
             // Get the certificate templates
             X509CertInfo[] certInfos = req.getExtDataInCertInfoArray(
                     IRequest.CERT_INFO);
-						
+
             if (certInfos == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("POLICY_NO_CERT_INFO", getInstanceName()));
                 setError(req, CMS.getUserMessage("CMS_POLICY_NO_CERT_INFO", NAME + ":" + getInstanceName()), "");
@@ -163,7 +158,7 @@ public class SubCANameConstraints extends APolicyRule implements IEnrollmentPoli
             }
         } catch (Exception e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("POLICY_NO_SUBJECT_NAME_1", getInstanceName()));
-            String params[] = {getInstanceName(), e.toString()};
+            String params[] = { getInstanceName(), e.toString() };
 
             setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR",
                     params), "");
@@ -174,24 +169,23 @@ public class SubCANameConstraints extends APolicyRule implements IEnrollmentPoli
 
     /**
      * Return configured parameters for a policy rule instance.
-     *
+     * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getInstanceParams() { 
+    public Vector getInstanceParams() {
         Vector v = new Vector();
 
         return v;
     }
-		
+
     /**
      * Return default parameters for a policy implementation.
-     *
+     * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getDefaultParams() { 
+    public Vector getDefaultParams() {
         Vector v = new Vector();
 
         return v;
     }
 }
-

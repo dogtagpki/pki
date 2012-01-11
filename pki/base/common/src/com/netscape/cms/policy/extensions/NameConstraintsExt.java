@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.policy.extensions;
 
-
 import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.util.Locale;
@@ -43,22 +42,22 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cms.policy.APolicyRule;
 
-
 /**
  * Name Constraints Extension Policy
- * Adds the name constraints extension to a (CA) certificate. 
+ * Adds the name constraints extension to a (CA) certificate.
  * Filtering of CA certificates is done through predicates.
  * <P>
+ * 
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- *
+ * 
  * @deprecated
  * @version $Revision$, $Date$
  */
 public class NameConstraintsExt extends APolicyRule
-    implements IEnrollmentPolicy, IExtendedPluginInfo {
+        implements IEnrollmentPolicy, IExtendedPluginInfo {
     protected static final String PROP_CRITICAL = "critical";
     protected static final String PROP_NUM_PERMITTEDSUBTREES = "numPermittedSubtrees";
     protected static final String PROP_NUM_EXCLUDEDSUBTREES = "numExcludedSubtrees";
@@ -90,37 +89,35 @@ public class NameConstraintsExt extends APolicyRule
     /**
      * Initializes this policy rule.
      * <P>
-     *
+     * 
      * The entries may be of the form:
-     *
-     *      ca.Policy.rule.<ruleName>.predicate=certType==ca
-     *      ca.Policy.rule.<ruleName>.implName=
-     *      ca.Policy.rule.<ruleName>.enable=true
-     *
-     * @param config	The config store reference
+     * 
+     * ca.Policy.rule.<ruleName>.predicate=certType==ca ca.Policy.rule.<ruleName>.implName= ca.Policy.rule.<ruleName>.enable=true
+     * 
+     * @param config The config store reference
      */
     public void init(ISubsystem owner, IConfigStore config)
-        throws EBaseException {
+            throws EBaseException {
         mConfig = config;
 
         // XXX should do do this ? 
         // if CA does not allow subordinate CAs by way of basic constraints, 
         // this policy always rejects 
         /*****
-         ICertAuthority certAuthority = (ICertAuthority)
-         ((IPolicyProcessor)owner).getAuthority();
-         if (certAuthority instanceof ICertificateAuthority) {
-         CertificateChain caChain = certAuthority.getCACertChain();
-         X509Certificate caCert = null;
-         // Note that in RA the chain could be null if CA was not up when
-         // RA was started. In that case just set the length to -1 and let
-         // CA reject if it does not allow any subordinate CA certs.
-         if (caChain != null) {
-         caCert = caChain.getFirstCertificate();
-         if (caCert != null) 
-         mCAPathLen = caCert.getBasicConstraints();
-         }
-         }
+         * ICertAuthority certAuthority = (ICertAuthority)
+         * ((IPolicyProcessor)owner).getAuthority();
+         * if (certAuthority instanceof ICertificateAuthority) {
+         * CertificateChain caChain = certAuthority.getCACertChain();
+         * X509Certificate caCert = null;
+         * // Note that in RA the chain could be null if CA was not up when
+         * // RA was started. In that case just set the length to -1 and let
+         * // CA reject if it does not allow any subordinate CA certs.
+         * if (caChain != null) {
+         * caCert = caChain.getFirstCertificate();
+         * if (caCert != null)
+         * mCAPathLen = caCert.getBasicConstraints();
+         * }
+         * }
          ****/
 
         mEnabled = mConfig.getBoolean(
@@ -133,25 +130,25 @@ public class NameConstraintsExt extends APolicyRule
 
         if (mNumPermittedSubtrees < 0) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE",
-                        PROP_NUM_PERMITTEDSUBTREES, 
+                        PROP_NUM_PERMITTEDSUBTREES,
                         "value must be greater than or equal to 0"));
         }
         if (mNumExcludedSubtrees < 0) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE",
-                        PROP_NUM_EXCLUDEDSUBTREES, 
+                        PROP_NUM_EXCLUDEDSUBTREES,
                         "value must be greater than or equal to 0"));
         }
 
         // init permitted subtrees if any.
         if (mNumPermittedSubtrees > 0) {
-            mPermittedSubtrees = 
+            mPermittedSubtrees =
                     form_subtrees(PROP_PERMITTEDSUBTREES, mNumPermittedSubtrees);
             CMS.debug("NameConstraintsExt: formed permitted subtrees");
         }
 
         // init excluded subtrees if any.
         if (mNumExcludedSubtrees > 0) {
-            mExcludedSubtrees = 
+            mExcludedSubtrees =
                     form_subtrees(PROP_EXCLUDEDSUBTREES, mNumExcludedSubtrees);
             CMS.debug("NameConstraintsExt: formed excluded subtrees");
         }
@@ -163,13 +160,13 @@ public class NameConstraintsExt extends APolicyRule
 
                 for (int i = 0; i < mNumPermittedSubtrees; i++) {
                     permittedSubtrees.addElement(
-                        mPermittedSubtrees[i].mGeneralSubtree);
+                            mPermittedSubtrees[i].mGeneralSubtree);
                 }
                 Vector excludedSubtrees = new Vector();
 
                 for (int j = 0; j < mNumExcludedSubtrees; j++) {
                     excludedSubtrees.addElement(
-                        mExcludedSubtrees[j].mGeneralSubtree);
+                            mExcludedSubtrees[j].mGeneralSubtree);
                 }
                 GeneralSubtrees psb = null;
 
@@ -181,44 +178,44 @@ public class NameConstraintsExt extends APolicyRule
                 if (excludedSubtrees.size() > 0) {
                     esb = new GeneralSubtrees(excludedSubtrees);
                 }
-                mNameConstraintsExtension = 
-                        new NameConstraintsExtension(mCritical, 
-                            psb,
-                            esb);
+                mNameConstraintsExtension =
+                        new NameConstraintsExtension(mCritical,
+                                psb,
+                                esb);
                 CMS.debug("NameConstraintsExt: formed Name Constraints Extension " +
-                    mNameConstraintsExtension);
+                        mNameConstraintsExtension);
             } catch (IOException e) {
                 throw new EBaseException(
                         CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR",
-                            "Error initializing Name Constraints Extension: " + e));
+                                "Error initializing Name Constraints Extension: " + e));
             }
         }
 
         // form instance params 
         mInstanceParams.addElement(PROP_CRITICAL + "=" + mCritical);
         mInstanceParams.addElement(
-            PROP_NUM_PERMITTEDSUBTREES + "=" + mNumPermittedSubtrees);
+                PROP_NUM_PERMITTEDSUBTREES + "=" + mNumPermittedSubtrees);
         mInstanceParams.addElement(
-            PROP_NUM_EXCLUDEDSUBTREES + "=" + mNumExcludedSubtrees);
+                PROP_NUM_EXCLUDEDSUBTREES + "=" + mNumExcludedSubtrees);
         if (mNumPermittedSubtrees > 0) {
-            for (int i = 0; i < mPermittedSubtrees.length; i++) 
+            for (int i = 0; i < mPermittedSubtrees.length; i++)
                 mPermittedSubtrees[i].getInstanceParams(mInstanceParams);
         }
         if (mNumExcludedSubtrees > 0) {
-            for (int j = 0; j < mExcludedSubtrees.length; j++) 
+            for (int j = 0; j < mExcludedSubtrees.length; j++)
                 mExcludedSubtrees[j].getInstanceParams(mInstanceParams);
         }
     }
 
-    Subtree[] form_subtrees(String subtreesName, int numSubtrees) 
-        throws EBaseException {
+    Subtree[] form_subtrees(String subtreesName, int numSubtrees)
+            throws EBaseException {
         Subtree[] subtrees = new Subtree[numSubtrees];
 
         for (int i = 0; i < numSubtrees; i++) {
             String subtreeName = subtreesName + i;
             IConfigStore subtreeConfig = mConfig.getSubStore(subtreeName);
-            Subtree subtree = 
-                new Subtree(subtreeName, subtreeConfig, mEnabled);
+            Subtree subtree =
+                    new Subtree(subtreeName, subtreeConfig, mEnabled);
 
             subtrees[i] = subtree;
         }
@@ -228,10 +225,10 @@ public class NameConstraintsExt extends APolicyRule
     /**
      * Adds Name Constraints Extension to a (CA) certificate.
      * 
-     * If a Name constraints Extension is already there, accept it if 
+     * If a Name constraints Extension is already there, accept it if
      * it's been approved by agent, else replace it.
-     *
-     * @param req	The request on which to apply policy.
+     * 
+     * @param req The request on which to apply policy.
      * @return The policy result object.
      */
     public PolicyResult apply(IRequest req) {
@@ -244,12 +241,12 @@ public class NameConstraintsExt extends APolicyRule
         }
 
         // get certInfo from request.
-        X509CertInfo[] ci = 
-            req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
+        X509CertInfo[] ci =
+                req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
 
         if (ci == null || ci[0] == null) {
             setError(req, CMS.getUserMessage("CMS_POLICY_NO_CERT_INFO"), NAME);
-            return PolicyResult.REJECTED; 
+            return PolicyResult.REJECTED;
         }
 
         for (int i = 0; i < ci.length; i++) {
@@ -269,7 +266,7 @@ public class NameConstraintsExt extends APolicyRule
         try {
             NameConstraintsExtension nameConstraintsExt = null;
             CertificateExtensions extensions = (CertificateExtensions)
-                certInfo.get(X509CertInfo.EXTENSIONS);
+                    certInfo.get(X509CertInfo.EXTENSIONS);
 
             try {
                 if (extensions != null) {
@@ -283,65 +280,65 @@ public class NameConstraintsExt extends APolicyRule
             if (nameConstraintsExt != null) {
                 if (agentApproved(req)) {
                     CMS.debug(
-                        "NameConstraintsExt: request id from agent " + req.getRequestId() +
-                        " already has name constraints - accepted");
+                            "NameConstraintsExt: request id from agent " + req.getRequestId() +
+                                    " already has name constraints - accepted");
                     return PolicyResult.ACCEPTED;
                 } else {
                     CMS.debug(
-                        "NameConstraintsExt: request id " + req.getRequestId() + " from user " +
-                        " already has name constraints - deleted");
+                            "NameConstraintsExt: request id " + req.getRequestId() + " from user " +
+                                    " already has name constraints - deleted");
                     extensions.delete(NameConstraintsExtension.NAME);
                 }
             }
 
             if (extensions == null) {
                 certInfo.set(X509CertInfo.VERSION,
-                    new CertificateVersion(CertificateVersion.V3));
+                        new CertificateVersion(CertificateVersion.V3));
                 extensions = new CertificateExtensions();
                 certInfo.set(X509CertInfo.EXTENSIONS, extensions);
             }
             extensions.set(
-                NameConstraintsExtension.NAME, mNameConstraintsExtension);
+                    NameConstraintsExtension.NAME, mNameConstraintsExtension);
             CMS.debug(
-                "NameConstraintsExt: added Name Constraints Extension to request " +
-                req.getRequestId());
+                    "NameConstraintsExt: added Name Constraints Extension to request " +
+                            req.getRequestId());
             return PolicyResult.ACCEPTED;
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("POLICY_ERROR_NAME_CONST_EXTENSION", e.getMessage()));
-            setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"), 
-                NAME, e.getMessage());
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("POLICY_ERROR_NAME_CONST_EXTENSION", e.getMessage()));
+            setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"),
+                    NAME, e.getMessage());
             return PolicyResult.REJECTED;
         } catch (CertificateException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CA_CERT_INFO_ERROR", e.toString()));
-            setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"), 
-                NAME, "Certificate Info Error");
+            setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"),
+                    NAME, "Certificate Info Error");
             return PolicyResult.REJECTED;
         }
     }
 
     /**
      * Return configured parameters for a policy rule instance.
-     *
+     * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getInstanceParams() { 
+    public Vector getInstanceParams() {
         return mInstanceParams;
     }
 
     /**
-     * Default config parameters. 
-     * To add more permitted or excluded subtrees, 
-     * increase the num to greater than 0 and more configuration params 
+     * Default config parameters.
+     * To add more permitted or excluded subtrees,
+     * increase the num to greater than 0 and more configuration params
      * will show up in the console.
      */
     private static Vector mDefParams = new Vector();
     static {
         mDefParams.addElement(PROP_CRITICAL + "=" + DEF_CRITICAL);
         mDefParams.addElement(
-            PROP_NUM_PERMITTEDSUBTREES + "=" + DEF_NUM_PERMITTEDSUBTREES);
+                PROP_NUM_PERMITTEDSUBTREES + "=" + DEF_NUM_PERMITTEDSUBTREES);
         mDefParams.addElement(
-            PROP_NUM_EXCLUDEDSUBTREES + "=" + DEF_NUM_EXCLUDEDSUBTREES);
+                PROP_NUM_EXCLUDEDSUBTREES + "=" + DEF_NUM_EXCLUDEDSUBTREES);
         for (int k = 0; k < DEF_NUM_PERMITTEDSUBTREES; k++) {
             Subtree.getDefaultParams(PROP_PERMITTEDSUBTREES + k, mDefParams);
         }
@@ -352,10 +349,10 @@ public class NameConstraintsExt extends APolicyRule
 
     /**
      * Return default parameters for a policy implementation.
-     *
+     * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getDefaultParams() { 
+    public Vector getDefaultParams() {
         return mDefParams;
     }
 
@@ -364,9 +361,9 @@ public class NameConstraintsExt extends APolicyRule
 
         theparams.addElement(PROP_CRITICAL + ";boolean;RFC 2459 recommendation: MUST be critical.");
         theparams.addElement(
-            PROP_NUM_PERMITTEDSUBTREES + ";number;See RFC 2459 sec 4.2.1.11");
+                PROP_NUM_PERMITTEDSUBTREES + ";number;See RFC 2459 sec 4.2.1.11");
         theparams.addElement(
-            PROP_NUM_EXCLUDEDSUBTREES + ";number;See RFC 2459 sec 4.2.1.11");
+                PROP_NUM_EXCLUDEDSUBTREES + ";number;See RFC 2459 sec 4.2.1.11");
 
         // now do the subtrees.
         for (int k = 0; k < DEF_NUM_PERMITTEDSUBTREES; k++) {
@@ -376,9 +373,9 @@ public class NameConstraintsExt extends APolicyRule
             Subtree.getExtendedPluginInfo(PROP_EXCLUDEDSUBTREES + l, theparams);
         }
         theparams.addElement(IExtendedPluginInfo.HELP_TOKEN +
-            ";configuration-policyrules-nameconstraints");
+                ";configuration-policyrules-nameconstraints");
         theparams.addElement(IExtendedPluginInfo.HELP_TEXT +
-            ";Adds Name Constraints Extension. See RFC 2459");
+                ";Adds Name Constraints Extension. See RFC 2459");
 
         String[] info = new String[theparams.size()];
 
@@ -387,9 +384,8 @@ public class NameConstraintsExt extends APolicyRule
     }
 }
 
-
 /**
- * subtree configuration 
+ * subtree configuration
  */
 class Subtree {
 
@@ -400,8 +396,7 @@ class Subtree {
     protected static final int DEF_MIN = 0;
     protected static final int DEF_MAX = -1; // -1 (less than 0) means not set.
 
-    protected static final String 
-        MINMAX_INFO = "number;See RFC 2459 section 4.2.1.11";
+    protected static final String MINMAX_INFO = "number;See RFC 2459 section 4.2.1.11";
 
     String mName = null;
     IConfigStore mConfig = null;
@@ -414,13 +409,13 @@ class Subtree {
     String mNameDotMax = null;
 
     public Subtree(
-        String subtreeName, IConfigStore config, boolean policyEnabled) 
-        throws EBaseException {
+            String subtreeName, IConfigStore config, boolean policyEnabled)
+            throws EBaseException {
         mName = subtreeName;
         mConfig = config;
 
         if (mName != null) {
-            mNameDot = mName + "."; 
+            mNameDot = mName + ".";
             mNameDotMin = mNameDot + PROP_MIN;
             mNameDotMax = mNameDot + PROP_MAX;
         } else {
@@ -439,13 +434,14 @@ class Subtree {
         // if policy enabled get values to form the general subtree.
         mMin = mConfig.getInteger(PROP_MIN, DEF_MIN);
         mMax = mConfig.getInteger(PROP_MAX, DEF_MAX);
-        if (mMax < -1) mMax = -1;
+        if (mMax < -1)
+            mMax = -1;
         mBase = CMS.createGeneralNameAsConstraintsConfig(
-                    mNameDot + PROP_BASE, mConfig.getSubStore(PROP_BASE), 
+                    mNameDot + PROP_BASE, mConfig.getSubStore(PROP_BASE),
                     true, policyEnabled);
 
         if (policyEnabled) {
-            mGeneralSubtree = 
+            mGeneralSubtree =
                     new GeneralSubtree(mBase.getGeneralName(), mMin, mMax);
         }
     }
@@ -476,4 +472,3 @@ class Subtree {
         info.addElement(nameDot + PROP_MAX + ";" + MINMAX_INFO);
     }
 }
-

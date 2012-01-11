@@ -1,4 +1,5 @@
 package com.netscape.pkisilent;
+
 // --- BEGIN COPYRIGHT BLOCK ---
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -38,8 +39,7 @@ import com.netscape.pkisilent.common.ParseXML;
 import com.netscape.pkisilent.http.HTTPClient;
 import com.netscape.pkisilent.http.HTTPResponse;
 
-public class ConfigureTKS
-{
+public class ConfigureTKS {
 
     public static final String DEFAULT_KEY_TYPE = "RSA";
     public static final String DEFAULT_KEY_SIZE = "2048";
@@ -48,7 +48,7 @@ public class ConfigureTKS
     // define global variables
 
     public static HTTPClient hc = null;
-    
+
     public static String login_uri = "/tks/admin/console/config/login";
     public static String wizard_uri = "/tks/admin/console/config/wizard";
     public static String admin_uri = "/ca/admin/ca/getBySerial";
@@ -132,7 +132,7 @@ public class ConfigureTKS
     public static String tks_audit_signing_cert_req = null;
     public static String tks_audit_signing_cert_pp = null;
     public static String tks_audit_signing_cert_cert = null;
- 
+
     public static String backup_pwd = null;
     public static String backup_fname = null;
 
@@ -142,31 +142,28 @@ public class ConfigureTKS
     public static String subsystem_name = null;
     public static String tks_audit_signing_cert_subject_name = null;
 
-    public ConfigureTKS ()
-    {
+    public ConfigureTKS() {
         // do nothing :)
     }
 
-    public void sleep_time()
-    {
+    public void sleep_time() {
         try {
             System.out.println("Sleeping for 5 secs..");
             Thread.sleep(5000);
-        } catch(Exception e) {
+        } catch (Exception e) {
             System.out.println("ERROR: sleep problem");
         }
     }
 
-    public boolean LoginPanel()
-    {
+    public boolean LoginPanel() {
         boolean st = false;
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
 
-        String query_string = "pin=" + pin + "&xml=true"; 
-    
-        hr = hc.sslConnect(cs_hostname,cs_port,login_uri,query_string);
+        String query_string = "pin=" + pin + "&xml=true";
+
+        hr = hc.sslConnect(cs_hostname, cs_port, login_uri, query_string);
         System.out.println("xml returned: " + hr.getHTML());
 
         // parse xml here - nothing to parse
@@ -174,14 +171,14 @@ public class ConfigureTKS
         // get cookie
         String temp = hr.getCookieValue("JSESSIONID");
 
-        if (temp!=null) {
+        if (temp != null) {
             int index = temp.indexOf(";");
-            HTTPClient.j_session_id = temp.substring(0,index);
+            HTTPClient.j_session_id = temp.substring(0, index);
             st = true;
         }
 
         hr = null;
-        hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,
+        hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri,
                         "p=0&op=next&xml=true");
 
         // parse xml here
@@ -194,8 +191,7 @@ public class ConfigureTKS
         return st;
     }
 
-    public boolean TokenChoicePanel()
-    {
+    public boolean TokenChoicePanel() {
         boolean st = false;
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
@@ -206,10 +202,10 @@ public class ConfigureTKS
         // Software Token
         if (token_name.equalsIgnoreCase("internal")) {
             query_string = "p=1" + "&op=next" + "&xml=true" +
-                            "&choice=" + 
+                            "&choice=" +
                     URLEncoder.encode("Internal Key Storage Token") +
-                                ""; 
-            hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
+                                "";
+            hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
             // parse xml
             bais = new ByteArrayInputStream(hr.getHTML().getBytes());
             px.parse(bais);
@@ -219,23 +215,23 @@ public class ConfigureTKS
         else {
             // login to hsm first
             query_string = "p=2" + "&op=next" + "&xml=true" +
-                            "&uTokName=" + 
+                            "&uTokName=" +
                             URLEncoder.encode(token_name) +
-                            "&__uPasswd=" + 
+                            "&__uPasswd=" +
                             URLEncoder.encode(token_pwd) +
-                            ""; 
-            hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
+                            "";
+            hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
             // parse xml
             bais = new ByteArrayInputStream(hr.getHTML().getBytes());
             px.parse(bais);
             px.prettyprintxml();
-        
+
             // choice with token name now
             query_string = "p=1" + "&op=next" + "&xml=true" +
-                            "&choice=" + 
+                            "&choice=" +
                             URLEncoder.encode(token_name) +
-                            ""; 
-            hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
+                            "";
+            hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
             // parse xml
             bais = new ByteArrayInputStream(hr.getHTML().getBytes());
             px.parse(bais);
@@ -245,24 +241,22 @@ public class ConfigureTKS
         return true;
     }
 
-    public boolean DomainPanel()
-    {
+    public boolean DomainPanel() {
         boolean st = false;
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
 
-
-        String domain_url = "https://" + sd_hostname + ":" + sd_admin_port ;
+        String domain_url = "https://" + sd_hostname + ":" + sd_admin_port;
 
         String query_string = "sdomainURL=" +
                             URLEncoder.encode(domain_url) +
-                            "&choice=existingdomain"+ 
+                            "&choice=existingdomain" +
                             "&p=3" +
                             "&op=next" +
-                            "&xml=true"; 
+                            "&xml=true";
 
-        hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
+        hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
 
         // parse xml
         bais = new ByteArrayInputStream(hr.getHTML().getBytes());
@@ -273,16 +267,15 @@ public class ConfigureTKS
 
     }
 
-    public boolean DisplayChainPanel()
-    {
+    public boolean DisplayChainPanel() {
         boolean st = false;
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
         String query_string = null;
 
-        query_string = "p=4" + "&op=next" + "&xml=true"; 
-        hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
+        query_string = "p=4" + "&op=next" + "&xml=true";
+        hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
         // parse xml
         // bais = new ByteArrayInputStream(hr.getHTML().getBytes());
         // px.parse(bais);
@@ -292,27 +285,25 @@ public class ConfigureTKS
 
     }
 
-    public boolean SecurityDomainLoginPanel()
-    {
+    public boolean SecurityDomainLoginPanel() {
         boolean st = false;
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
 
-
         String tks_url = "https://" + cs_hostname + ":" + cs_port +
                             "/tks/admin/console/config/wizard" +
-                            "?p=5&subsystem=TKS" ;
+                            "?p=5&subsystem=TKS";
 
-        String query_string = "url=" + URLEncoder.encode(tks_url); 
+        String query_string = "url=" + URLEncoder.encode(tks_url);
 
-        hr = hc.sslConnect(sd_hostname,sd_admin_port,sd_login_uri,query_string);
+        hr = hc.sslConnect(sd_hostname, sd_admin_port, sd_login_uri, query_string);
 
         String query_string_1 = "uid=" + sd_admin_name +
                                 "&pwd=" + URLEncoder.encode(sd_admin_password) +
-                                "&url=" + URLEncoder.encode(tks_url) ;
+                                "&url=" + URLEncoder.encode(tks_url);
 
-        hr = hc.sslConnect(sd_hostname,sd_admin_port,sd_get_cookie_uri,
+        hr = hc.sslConnect(sd_hostname, sd_admin_port, sd_get_cookie_uri,
                         query_string_1);
 
         // get session id from security domain
@@ -320,17 +311,17 @@ public class ConfigureTKS
         String tks_session_id = hr.getContentValue("header.session_id");
         String tks_url_1 = hr.getContentValue("header.url");
 
-        System.out.println("TKS_SESSION_ID=" + tks_session_id );
-        System.out.println("TKS_URL=" + tks_url_1 );
+        System.out.println("TKS_SESSION_ID=" + tks_session_id);
+        System.out.println("TKS_URL=" + tks_url_1);
 
         // use session id to connect back to TKS
 
         String query_string_2 = "p=5" +
                                 "&subsystem=TKS" +
                                 "&session_id=" + tks_session_id +
-                                "&xml=true" ;
+                                "&xml=true";
 
-        hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,
+        hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri,
                         query_string_2);
 
         // parse xml
@@ -341,20 +332,19 @@ public class ConfigureTKS
         return true;
 
     }
-    
-    public boolean SubsystemPanel()
-    {
+
+    public boolean SubsystemPanel() {
         boolean st = false;
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
 
-        String query_string = "p=5" + "&op=next" + "&xml=true" + 
+        String query_string = "p=5" + "&op=next" + "&xml=true" +
                         "&subsystemName=" +
                         URLEncoder.encode(subsystem_name) +
-                        "&choice=newsubsystem" ; 
+                        "&choice=newsubsystem";
 
-        hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
+        hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
         // parse xml
         bais = new ByteArrayInputStream(hr.getHTML().getBytes());
         px.parse(bais);
@@ -363,27 +353,25 @@ public class ConfigureTKS
         return true;
     }
 
-    public boolean LdapConnectionPanel()
-    {
+    public boolean LdapConnectionPanel() {
         boolean st = false;
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
 
-
         String query_string = "p=7" + "&op=next" + "&xml=true" +
-                                "&host=" + URLEncoder.encode(ldap_host) + 
+                                "&host=" + URLEncoder.encode(ldap_host) +
                                 "&port=" + URLEncoder.encode(ldap_port) +
                                 "&binddn=" + URLEncoder.encode(bind_dn) +
                             "&__bindpwd=" + URLEncoder.encode(bind_password) +
                                 "&basedn=" + URLEncoder.encode(base_dn) +
                                 "&database=" + URLEncoder.encode(db_name) +
                                 "&display=" + URLEncoder.encode("$displayStr") +
-                                (secure_conn.equals("true")? "&secureConn=on": "") +
-                                (clone_start_tls.equals("true")? "&cloneStartTLS=on": "") + 
-                                (remove_data.equals("true")? "&removeData=true": "");
+                                (secure_conn.equals("true") ? "&secureConn=on" : "") +
+                                (clone_start_tls.equals("true") ? "&cloneStartTLS=on" : "") +
+                                (remove_data.equals("true") ? "&removeData=true" : "");
 
-        hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
+        hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
 
         // parse xml
         bais = new ByteArrayInputStream(hr.getHTML().getBytes());
@@ -393,14 +381,12 @@ public class ConfigureTKS
         return true;
     }
 
-    public boolean KeyPanel()
-    {
+    public boolean KeyPanel() {
         boolean st = false;
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
         ArrayList<String> al = null;
-
 
         String query_string = "p=8" + "&op=next" + "&xml=true" +
                             "&subsystem_custom_size=" + subsystem_key_size +
@@ -411,28 +397,28 @@ public class ConfigureTKS
                             "&sslserver_custom_curvename=" + sslserver_key_curvename +
                             "&audit_signing_custom_curvename=" + audit_signing_key_curvename +
                             "&custom_curvename=" + key_curvename +
-                            "&subsystem_keytype=" + subsystem_key_type + 
-                            "&sslserver_keytype=" + sslserver_key_type + 
+                            "&subsystem_keytype=" + subsystem_key_type +
+                            "&sslserver_keytype=" + sslserver_key_type +
                             "&audit_signing_keytype=" + audit_signing_key_type +
-                            "&keytype=" + key_type + 
-                            "&subsystem_choice=custom"+
-                            "&sslserver_choice=custom"+
+                            "&keytype=" + key_type +
+                            "&subsystem_choice=custom" +
+                            "&sslserver_choice=custom" +
                             "&audit_signing_choice=custom" +
                             "&choice=custom";
 
-        hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
+        hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
 
         // parse xml
         bais = new ByteArrayInputStream(hr.getHTML().getBytes());
         px.parse(bais);
         px.prettyprintxml();
-        
-        al = px.constructValueList("CertReqPair","DN");
+
+        al = px.constructValueList("CertReqPair", "DN");
         // get ca cert subject name
         if (al != null) {
-            for (int i=0; i < al.size(); i++) {
-                String temp =  al.get(i);
-                if (temp.indexOf("TKS Subsystem") > 0 ) {
+            for (int i = 0; i < al.size(); i++) {
+                String temp = al.get(i);
+                if (temp.indexOf("TKS Subsystem") > 0) {
                     tks_subsystem_cert_name = temp;
                 } else if (temp.indexOf("Audit Signing Certificate") > 0) {
                     tks_audit_signing_cert_name = temp;
@@ -441,17 +427,16 @@ public class ConfigureTKS
                 }
             }
         }
-        
-        System.out.println("default: tks_subsystem_cert_name=" + 
+
+        System.out.println("default: tks_subsystem_cert_name=" +
                 tks_subsystem_cert_name);
-        System.out.println("default: server_cert_name=" + 
+        System.out.println("default: server_cert_name=" +
                 server_cert_name);
         System.out.println("default: tks_audit_signing_cert_name=" + tks_audit_signing_cert_name);
         return true;
     }
 
-    public boolean CertSubjectPanel()
-    {
+    public boolean CertSubjectPanel() {
         boolean st = false;
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
@@ -460,52 +445,51 @@ public class ConfigureTKS
         ArrayList<String> cert_list = null;
         ArrayList<String> dn_list = null;
 
-        String domain_url = "https://" + ca_hostname + ":" + ca_ssl_port ;
+        String domain_url = "https://" + ca_hostname + ":" + ca_ssl_port;
 
         String query_string = "p=9" + "&op=next" + "&xml=true" +
-                    "&subsystem=" + 
+                    "&subsystem=" +
                     URLEncoder.encode(tks_subsystem_cert_subject_name) +
-                    "&sslserver=" + 
+                    "&sslserver=" +
                     URLEncoder.encode(tks_server_cert_subject_name) +
                     "&audit_signing=" +
                     URLEncoder.encode(tks_audit_signing_cert_subject_name) +
-                    "&urls=" + 
-                    URLEncoder.encode(domain_url) + 
-                    ""; 
+                    "&urls=" +
+                    URLEncoder.encode(domain_url) +
+                    "";
 
-        hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
+        hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
 
         // parse xml
         bais = new ByteArrayInputStream(hr.getHTML().getBytes());
         px.parse(bais);
         px.prettyprintxml();
-        
-        req_list = px.constructValueList("CertReqPair","Request");
-        cert_list = px.constructValueList("CertReqPair","Certificate");
-        dn_list = px.constructValueList("CertReqPair","Nickname");
+
+        req_list = px.constructValueList("CertReqPair", "Request");
+        cert_list = px.constructValueList("CertReqPair", "Certificate");
+        dn_list = px.constructValueList("CertReqPair", "Nickname");
 
         if (req_list != null && cert_list != null && dn_list != null) {
-            for (int i=0; i < dn_list.size(); i++) {
-                String temp =  dn_list.get(i);
+            for (int i = 0; i < dn_list.size(); i++) {
+                String temp = dn_list.get(i);
 
-                if (temp.indexOf("subsystemCert") >= 0 ) {
-                    tks_subsystem_cert_req =  req_list.get(i);
-                    tks_subsystem_cert_cert =  cert_list.get(i);
-                } else if (temp.indexOf("auditSigningCert") >=0) {
-                    tks_audit_signing_cert_req =  req_list.get(i);
-                    tks_audit_signing_cert_cert =  cert_list.get(i);
+                if (temp.indexOf("subsystemCert") >= 0) {
+                    tks_subsystem_cert_req = req_list.get(i);
+                    tks_subsystem_cert_cert = cert_list.get(i);
+                } else if (temp.indexOf("auditSigningCert") >= 0) {
+                    tks_audit_signing_cert_req = req_list.get(i);
+                    tks_audit_signing_cert_cert = cert_list.get(i);
                 } else {
-                    server_cert_req =  req_list.get(i);
-                    server_cert_cert =  cert_list.get(i);
+                    server_cert_req = req_list.get(i);
+                    server_cert_cert = cert_list.get(i);
                 }
             }
         }
-        
+
         return true;
     }
 
-    public boolean CertificatePanel()
-    {
+    public boolean CertificatePanel() {
         boolean st = false;
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
@@ -515,85 +499,79 @@ public class ConfigureTKS
         ArrayList<String> dn_list = null;
         ArrayList<String> pp_list = null;
 
-
         String query_string = "p=10" + "&op=next" + "&xml=true" +
-                            "&subsystem=" + 
+                            "&subsystem=" +
                             URLEncoder.encode(tks_subsystem_cert_cert) +
-                            "&subsystem_cc=" + 
-                            "&sslserver=" + 
-                            URLEncoder.encode(server_cert_cert) + 
-                            "&sslserver_cc=" + 
+                            "&subsystem_cc=" +
+                            "&sslserver=" +
+                            URLEncoder.encode(server_cert_cert) +
+                            "&sslserver_cc=" +
                             "&audit_signing=" +
                              URLEncoder.encode(tks_audit_signing_cert_cert) +
                             "&audit_signing_cc=" +
-                            ""; 
+                            "";
 
-        hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
+        hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
 
         // parse xml
         bais = new ByteArrayInputStream(hr.getHTML().getBytes());
-    
+
         px.parse(bais);
         px.prettyprintxml();
-        
+
         return true;
     }
 
-    public boolean BackupPanel()
-    {
+    public boolean BackupPanel() {
         boolean st = false;
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
-
 
         String query_string = "p=11" + "&op=next" + "&xml=true" +
-                            "&choice=backupkey" + 
+                            "&choice=backupkey" +
                             "&__pwd=" + URLEncoder.encode(backup_pwd) +
-                            "&__pwdagain=" + URLEncoder.encode(backup_pwd); 
+                            "&__pwdagain=" + URLEncoder.encode(backup_pwd);
 
-        hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
+        hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
 
         // parse xml
         bais = new ByteArrayInputStream(hr.getHTML().getBytes());
         px.parse(bais);
         px.prettyprintxml();
-        
+
         return true;
     }
 
-    public boolean SavePKCS12Panel()
-    {
+    public boolean SavePKCS12Panel() {
         boolean st = false;
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
 
+        String query_string = "";
 
-        String query_string = ""; 
-
-        hr = hc.sslConnect(cs_hostname,cs_port,pkcs12_uri,query_string);
+        hr = hc.sslConnect(cs_hostname, cs_port, pkcs12_uri, query_string);
 
         // dump hr.getResponseData() to file
 
-        try
-        {
+        try {
             FileOutputStream fos = new FileOutputStream(backup_fname);
             fos.write(hr.getResponseData());
             fos.close();
 
             // set file to permissions 600
-            String rtParams[] = { "chmod","600", backup_fname};
+            String rtParams[] = { "chmod", "600", backup_fname };
             Process proc = Runtime.getRuntime().exec(rtParams);
 
             BufferedReader br = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
             String line = null;
-            while ( (line = br.readLine()) != null)
-                System.out.println("Error: "  + line);
+            while ((line = br.readLine()) != null)
+                System.out.println("Error: " + line);
             int exitVal = proc.waitFor();
-            
+
             // verify p12 file
-        
+
             // Decode the P12 file
             FileInputStream fis = new FileInputStream(backup_fname);
             PFX.Template pfxt = new PFX.Template();
@@ -601,14 +579,14 @@ public class ConfigureTKS
             System.out.println("Decoded PFX");
 
             // now peruse it for interesting info
-            System.out.println("Version: "+pfx.getVersion());
+            System.out.println("Version: " + pfx.getVersion());
             AuthenticatedSafes authSafes = pfx.getAuthSafes();
             SEQUENCE asSeq = authSafes.getSequence();
-            System.out.println("AuthSafes has "+
-                asSeq.size()+" SafeContents");
+            System.out.println("AuthSafes has " +
+                    asSeq.size() + " SafeContents");
 
             fis.close();
-        } catch(Exception e) {
+        } catch (Exception e) {
             System.out.println("ERROR: Exception=" + e.getMessage());
             return false;
         }
@@ -616,14 +594,12 @@ public class ConfigureTKS
         return true;
     }
 
-    public boolean AdminCertReqPanel()
-    {
+    public boolean AdminCertReqPanel() {
         boolean st = false;
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
         String admin_cert_request = null;
-
 
         String cert_subject = "CN=tks-" + admin_user;
 
@@ -640,9 +616,8 @@ public class ConfigureTKS
 
         String crmf_request = cCrypt.generateCRMFrequest();
 
-        if (crmf_request == null)
-        {
-        System.out.println("ERROR: AdminCertReqPanel() cert req gen failed");
+        if (crmf_request == null) {
+            System.out.println("ERROR: AdminCertReqPanel() cert req gen failed");
             return false;
         }
 
@@ -655,9 +630,9 @@ public class ConfigureTKS
                             "&__pwd=" + URLEncoder.encode(admin_password) +
                             "&__admin_password_again=" + URLEncoder.encode(admin_password) +
                             "&profileId=" + "caAdminCert" +
-                            "&email=" + 
+                            "&email=" +
                             URLEncoder.encode(admin_email) +
-                            "&cert_request=" + 
+                            "&cert_request=" +
                             URLEncoder.encode(admin_cert_request) +
                             "&subject=" +
                             URLEncoder.encode(agent_cert_subject) +
@@ -665,22 +640,21 @@ public class ConfigureTKS
                             "&import=true" +
                             "&securitydomain=" +
                             URLEncoder.encode(domain_name) +
-                            ""; 
+                            "";
 
-        hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
+        hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
 
         // parse xml
         bais = new ByteArrayInputStream(hr.getHTML().getBytes());
         px.parse(bais);
         px.prettyprintxml();
-        
-        admin_serial_number  = px.getvalue("serialNumber");
+
+        admin_serial_number = px.getvalue("serialNumber");
 
         return true;
     }
 
-    public boolean AdminCertImportPanel()
-    {
+    public boolean AdminCertImportPanel() {
         boolean st = false;
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
@@ -688,14 +662,14 @@ public class ConfigureTKS
 
         String query_string = "serialNumber=" + admin_serial_number +
                             "&importCert=" + "true" +
-                            ""; 
+                            "";
 
-        hr = hc.sslConnect(sd_hostname,sd_admin_port,admin_uri,query_string);
-        
+        hr = hc.sslConnect(sd_hostname, sd_admin_port, admin_uri, query_string);
+
         // get response data
         // String cert_to_import = 
         //         new sun.misc.BASE64Encoder().encode(hr.getResponseData());
-        String cert_to_import = 
+        String cert_to_import =
                 OSUtil.BtoA(hr.getResponseData());
         System.out.println("Imported Cert=" + cert_to_import);
 
@@ -708,10 +682,10 @@ public class ConfigureTKS
         cCrypt.setGenerateRequest(true);
         cCrypt.loginDB();
 
-        String start = "-----BEGIN CERTIFICATE-----\r\n" ;
-        String end = "\r\n-----END CERTIFICATE-----" ;
+        String start = "-----BEGIN CERTIFICATE-----\r\n";
+        String end = "\r\n-----END CERTIFICATE-----";
 
-        st = cCrypt.importCert(start+cert_to_import+end,agent_name);
+        st = cCrypt.importCert(start + cert_to_import + end, agent_name);
         if (!st) {
             System.out.println("ERROR: AdminCertImportPanel() during cert import");
             return false;
@@ -721,8 +695,7 @@ public class ConfigureTKS
         return true;
     }
 
-    public boolean UpdateDomainPanel()
-    {
+    public boolean UpdateDomainPanel() {
         boolean st = false;
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
@@ -731,21 +704,19 @@ public class ConfigureTKS
         String query_string = "p=14" + "&op=next" + "&xml=true" +
                             "&caHost=" + URLEncoder.encode(sd_hostname) +
                             "&caPort=" + URLEncoder.encode(sd_agent_port) +
-                            ""; 
+                            "";
 
-        hr = hc.sslConnect(cs_hostname,cs_port,wizard_uri,query_string);
+        hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
 
         // parse xml
         bais = new ByteArrayInputStream(hr.getHTML().getBytes());
         px.parse(bais);
         px.prettyprintxml();
-        
+
         return true;
     }
 
-
-    public boolean ConfigureTKSInstance()
-    {
+    public boolean ConfigureTKSInstance() {
         // 0. login to cert db
         ComCrypto cCrypt = new ComCrypto(client_certdb_dir,
                                         client_certdb_pwd,
@@ -806,7 +777,7 @@ public class ConfigureTKS
             System.out.println("ERROR: ConfigureTKS: SubsystemPanel() failure");
             return false;
         }
-        
+
         sleep_time();
         // 7. ldap connection panel
         boolean disp_ldap = LdapConnectionPanel();
@@ -892,8 +863,7 @@ public class ConfigureTKS
         }
     }
 
-    public static void main(String args[])
-    {
+    public static void main(String args[]) {
         ConfigureTKS ca = new ConfigureTKS();
 
         // set variables
@@ -974,63 +944,63 @@ public class ConfigureTKS
         // parse the args
         ArgParser parser = new ArgParser("ConfigureTKS");
 
-        parser.addOption ("-cs_hostname %s #CS Hostname",
-                            x_cs_hostname); 
-        parser.addOption ("-cs_port %s #CS SSL Admin port",
-                            x_cs_port); 
+        parser.addOption("-cs_hostname %s #CS Hostname",
+                            x_cs_hostname);
+        parser.addOption("-cs_port %s #CS SSL Admin port",
+                            x_cs_port);
 
-        parser.addOption ("-sd_hostname %s #Security Domain Hostname",
-                            x_sd_hostname); 
-        parser.addOption ("-sd_ssl_port %s #Security Domain SSL EE port",
-                            x_sd_ssl_port); 
-        parser.addOption ("-sd_agent_port %s #Security Domain SSL Agent port",
-                            x_sd_agent_port); 
-        parser.addOption ("-sd_admin_port %s #Security Domain SSL Admin port",
-                            x_sd_admin_port); 
-        parser.addOption ("-sd_admin_name %s #Security Domain Admin Name",
-                            x_sd_admin_name); 
-        parser.addOption ("-sd_admin_password %s #Security Domain Admin password",
-                            x_sd_admin_password); 
+        parser.addOption("-sd_hostname %s #Security Domain Hostname",
+                            x_sd_hostname);
+        parser.addOption("-sd_ssl_port %s #Security Domain SSL EE port",
+                            x_sd_ssl_port);
+        parser.addOption("-sd_agent_port %s #Security Domain SSL Agent port",
+                            x_sd_agent_port);
+        parser.addOption("-sd_admin_port %s #Security Domain SSL Admin port",
+                            x_sd_admin_port);
+        parser.addOption("-sd_admin_name %s #Security Domain Admin Name",
+                            x_sd_admin_name);
+        parser.addOption("-sd_admin_password %s #Security Domain Admin password",
+                            x_sd_admin_password);
 
-        parser.addOption ("-ca_hostname %s #CA Hostname",
-                            x_ca_hostname); 
-        parser.addOption ("-ca_port %s #CA non-SSL EE port",
-                            x_ca_port); 
-        parser.addOption ("-ca_ssl_port %s #CA SSL EE port",
-                            x_ca_ssl_port); 
+        parser.addOption("-ca_hostname %s #CA Hostname",
+                            x_ca_hostname);
+        parser.addOption("-ca_port %s #CA non-SSL EE port",
+                            x_ca_port);
+        parser.addOption("-ca_ssl_port %s #CA SSL EE port",
+                            x_ca_ssl_port);
 
-        parser.addOption ("-client_certdb_dir %s #Client CertDB dir",
-                            x_client_certdb_dir); 
-        parser.addOption ("-client_certdb_pwd %s #client certdb password",
-                            x_client_certdb_pwd); 
-        parser.addOption ("-preop_pin %s #pre op pin",
-                            x_preop_pin); 
-        parser.addOption ("-domain_name %s #domain name",
-                            x_domain_name); 
-        parser.addOption ("-admin_user %s #Admin User Name",
-                            x_admin_user); 
-        parser.addOption ("-admin_email %s #Admin email",
-                            x_admin_email); 
-        parser.addOption ("-admin_password %s #Admin password",
-                            x_admin_password); 
-        parser.addOption ("-agent_name %s #Agent Cert Nickname",
-                            x_agent_name); 
+        parser.addOption("-client_certdb_dir %s #Client CertDB dir",
+                            x_client_certdb_dir);
+        parser.addOption("-client_certdb_pwd %s #client certdb password",
+                            x_client_certdb_pwd);
+        parser.addOption("-preop_pin %s #pre op pin",
+                            x_preop_pin);
+        parser.addOption("-domain_name %s #domain name",
+                            x_domain_name);
+        parser.addOption("-admin_user %s #Admin User Name",
+                            x_admin_user);
+        parser.addOption("-admin_email %s #Admin email",
+                            x_admin_email);
+        parser.addOption("-admin_password %s #Admin password",
+                            x_admin_password);
+        parser.addOption("-agent_name %s #Agent Cert Nickname",
+                            x_agent_name);
 
-        parser.addOption ("-ldap_host %s #ldap host",
-                            x_ldap_host); 
-        parser.addOption ("-ldap_port %s #ldap port",
-                            x_ldap_port); 
-        parser.addOption ("-bind_dn %s #ldap bind dn",
-                            x_bind_dn); 
-        parser.addOption ("-bind_password %s #ldap bind password",
-                            x_bind_password); 
-        parser.addOption ("-base_dn %s #base dn",
-                            x_base_dn); 
-        parser.addOption ("-db_name %s #db name",
-                            x_db_name); 
-        parser.addOption("-secure_conn %s #use ldaps port (optional, default is false)", x_secure_conn); 
-        parser.addOption("-remove_data %s #remove existing data under base_dn (optional, default is false) ", x_remove_data); 
-        parser.addOption("-clone_start_tls %s #use startTLS for cloning replication agreement (optional, default is false)", x_clone_start_tls); 
+        parser.addOption("-ldap_host %s #ldap host",
+                            x_ldap_host);
+        parser.addOption("-ldap_port %s #ldap port",
+                            x_ldap_port);
+        parser.addOption("-bind_dn %s #ldap bind dn",
+                            x_bind_dn);
+        parser.addOption("-bind_password %s #ldap bind password",
+                            x_bind_password);
+        parser.addOption("-base_dn %s #base dn",
+                            x_base_dn);
+        parser.addOption("-db_name %s #db name",
+                            x_db_name);
+        parser.addOption("-secure_conn %s #use ldaps port (optional, default is false)", x_secure_conn);
+        parser.addOption("-remove_data %s #remove existing data under base_dn (optional, default is false) ", x_remove_data);
+        parser.addOption("-clone_start_tls %s #use startTLS for cloning replication agreement (optional, default is false)", x_clone_start_tls);
 
         // key and algorithm options (default)
         parser.addOption("-key_type %s #Key type [RSA,ECC] (optional, default is RSA)", x_key_type);
@@ -1052,44 +1022,44 @@ public class ConfigureTKS
         parser.addOption("-sslserver_key_size %s #Key Size (optional, for RSA default is key_size)", x_sslserver_key_size);
         parser.addOption("-sslserver_key_curvename %s #Key Curve Name (optional, for ECC default is key_curvename)", x_sslserver_key_curvename);
 
-        parser.addOption ("-token_name %s #HSM/Software Token name",
-                            x_token_name); 
-        parser.addOption ("-token_pwd %s #HSM/Software Token password (optional, required for HSM)",
-                            x_token_pwd); 
+        parser.addOption("-token_name %s #HSM/Software Token name",
+                            x_token_name);
+        parser.addOption("-token_pwd %s #HSM/Software Token password (optional, required for HSM)",
+                            x_token_pwd);
 
-        parser.addOption ("-agent_key_size %s #Agent Cert Key Size",
-                            x_agent_key_size); 
-        parser.addOption ("-agent_key_type %s #Agent Cert Key type [rsa]",
-                            x_agent_key_type); 
-        parser.addOption ("-agent_cert_subject %s #Agent Cert Subject",
-                            x_agent_cert_subject); 
+        parser.addOption("-agent_key_size %s #Agent Cert Key Size",
+                            x_agent_key_size);
+        parser.addOption("-agent_key_type %s #Agent Cert Key type [rsa]",
+                            x_agent_key_type);
+        parser.addOption("-agent_cert_subject %s #Agent Cert Subject",
+                            x_agent_cert_subject);
 
-        parser.addOption ("-backup_pwd %s #PKCS12 password",
-                            x_backup_pwd); 
-
-        parser.addOption (
-        "-tks_subsystem_cert_subject_name %s #TKS subsystem cert subject name",
-                            x_tks_subsystem_cert_subject_name); 
-        parser.addOption (
-        "-tks_server_cert_subject_name %s #TKS server cert subject name",
-                            x_tks_server_cert_subject_name); 
-
-        parser.addOption("-backup_fname %s #Backup File for p12, (optional, default /root/tmp-tks.p12", 
-                            x_backup_fname);
-
-        parser.addOption (
-        "-subsystem_name %s #CA subsystem name",
-                            x_subsystem_name); 
+        parser.addOption("-backup_pwd %s #PKCS12 password",
+                            x_backup_pwd);
 
         parser.addOption(
-        "-tks_audit_signing_cert_subject_name %s #TKS audit signing cert subject name",
+                "-tks_subsystem_cert_subject_name %s #TKS subsystem cert subject name",
+                            x_tks_subsystem_cert_subject_name);
+        parser.addOption(
+                "-tks_server_cert_subject_name %s #TKS server cert subject name",
+                            x_tks_server_cert_subject_name);
+
+        parser.addOption("-backup_fname %s #Backup File for p12, (optional, default /root/tmp-tks.p12",
+                            x_backup_fname);
+
+        parser.addOption(
+                "-subsystem_name %s #CA subsystem name",
+                            x_subsystem_name);
+
+        parser.addOption(
+                "-tks_audit_signing_cert_subject_name %s #TKS audit signing cert subject name",
                             x_tks_audit_signing_cert_subject_name);
 
         // and then match the arguments
-        String [] unmatched = null;
-        unmatched = parser.matchAllArgs (args,0,ArgParser.EXIT_ON_UNMATCHED);
+        String[] unmatched = null;
+        unmatched = parser.matchAllArgs(args, 0, ArgParser.EXIT_ON_UNMATCHED);
 
-        if (unmatched!=null) {
+        if (unmatched != null) {
             System.out.println("ERROR: Argument Mismatch");
             System.exit(-1);
         }
@@ -1155,25 +1125,25 @@ public class ConfigureTKS
 
         backup_pwd = x_backup_pwd.value;
         backup_fname = set_default(x_backup_fname.value, "/root/tmp-tks.p12");
-        
-        tks_subsystem_cert_subject_name = 
-            x_tks_subsystem_cert_subject_name.value;
-        tks_server_cert_subject_name = 
-            x_tks_server_cert_subject_name.value ;
-        
-        subsystem_name = x_subsystem_name.value ;
+
+        tks_subsystem_cert_subject_name =
+                x_tks_subsystem_cert_subject_name.value;
+        tks_server_cert_subject_name =
+                x_tks_server_cert_subject_name.value;
+
+        subsystem_name = x_subsystem_name.value;
         tks_audit_signing_cert_subject_name = x_tks_audit_signing_cert_subject_name.value;
 
         boolean st = ca.ConfigureTKSInstance();
-    
+
         if (!st) {
             System.out.println("ERROR: unable to create TKS");
             System.exit(-1);
         }
-    
+
         System.out.println("Certificate System - TKS Instance Configured.");
         System.exit(0);
-        
+
     }
 
 };

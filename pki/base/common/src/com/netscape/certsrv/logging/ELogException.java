@@ -17,12 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.logging;
 
-
 import java.util.Locale;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.MessageFormatter;
-
 
 /**
  * This class implements a Log exception. LogExceptions
@@ -39,14 +37,14 @@ public class ELogException extends EBaseException {
      */
     private static final long serialVersionUID = -8903703675126348145L;
     /**
-    * Resource bundle class name.
-    */
+     * Resource bundle class name.
+     */
     private static final String LOG_RESOURCES = LogResources.class.getName();
 
     /**
      * Constructs a log exception.
      * <P>
-     *
+     * 
      * @param msgFormat Exception details.
      */
     public ELogException(String msgFormat) {
@@ -56,11 +54,12 @@ public class ELogException extends EBaseException {
 
     /**
      * Constructs a log exception with a parameter. For example,
+     * 
      * <PRE>
-     * 		new ELogException("failed to load {0}", fileName);
+     * new ELogException(&quot;failed to load {0}&quot;, fileName);
      * </PRE>
      * <P>
-     *
+     * 
      * @param msgFormat Exception details in message string format.
      * @param param Message string parameter.
      */
@@ -74,6 +73,7 @@ public class ELogException extends EBaseException {
      * Constructs a log exception. It can be used to carry
      * a system exception that may contain information about
      * the context. For example,
+     * 
      * <PRE>
      * 		try {
      *  		...
@@ -82,7 +82,7 @@ public class ELogException extends EBaseException {
      *      }
      * </PRE>
      * <P>
-     *
+     * 
      * @param msgFormat Exception details in message string format.
      * @param param System exception.
      */
@@ -96,7 +96,7 @@ public class ELogException extends EBaseException {
      * Constructs a log exception with a list of parameters
      * that will be substituted into the message format.
      * <P>
-     *
+     * 
      * @param msgFormat Exception details in message string format.
      * @param params List of message format parameters.
      */
@@ -108,7 +108,7 @@ public class ELogException extends EBaseException {
     /**
      * Returns a list of parameters.
      * <P>
-     *
+     * 
      * @return list of message format parameters.
      */
     public Object[] getParameters() {
@@ -119,7 +119,7 @@ public class ELogException extends EBaseException {
      * Returns localized exception string. This method should
      * only be called if a localized string is necessary.
      * <P>
-     *
+     * 
      * @return Details message.
      */
     public String toString() {
@@ -129,7 +129,7 @@ public class ELogException extends EBaseException {
     /**
      * Returns the string based on the given locale.
      * <P>
-     *
+     * 
      * @param locale Locale.
      * @return Details message.
      */
@@ -141,11 +141,12 @@ public class ELogException extends EBaseException {
     /**
      * Retrieves resource bundle name.
      * Subclasses should override this as necessary
+     * 
      * @return String containing name of resource bundle.
      */
 
     protected String getBundleName() {
         return LOG_RESOURCES;
     }
-	
+
 }

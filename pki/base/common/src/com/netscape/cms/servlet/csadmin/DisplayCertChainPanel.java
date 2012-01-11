@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.Locale;
@@ -42,25 +41,26 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
 
 public class DisplayCertChainPanel extends WizardPanelBase {
 
-    public DisplayCertChainPanel() {}
+    public DisplayCertChainPanel() {
+    }
 
     /**
      * Initializes this panel.
      */
-    public void init(ServletConfig config, int panelno) 
-        throws ServletException {
+    public void init(ServletConfig config, int panelno)
+            throws ServletException {
         setPanelNo(panelno);
         setName("Display Certificate Chain");
     }
 
     public void init(WizardServlet servlet, ServletConfig config, int panelno, String id)
-        throws ServletException {
+            throws ServletException {
         setPanelNo(panelno);
         setName("Display Certificate Chain");
         setId(id);
     }
- 
-    public boolean isSubPanel() { 
+
+    public boolean isSubPanel() {
         return true;
     }
 
@@ -70,7 +70,7 @@ public class DisplayCertChainPanel extends WizardPanelBase {
 
     public PropertySet getUsage() {
         PropertySet set = new PropertySet();
-                                                                                
+
         return set;
     }
 
@@ -86,8 +86,8 @@ public class DisplayCertChainPanel extends WizardPanelBase {
         IConfigStore cs = CMS.getConfigStore();
         // if we are root, no need to get the certificate chain.
 
-        try { 
-            String select = cs.getString("securitydomain.select","");
+        try {
+            String select = cs.getString("securitydomain.select", "");
             String type = cs.getString("preop.subsystem.select", "");
             String hierarchy = cs.getString("preop.hierarchy.select", "");
 
@@ -132,7 +132,8 @@ public class DisplayCertChainPanel extends WizardPanelBase {
 
         try {
             certchain_size = cs.getString(certChainConfigName, "");
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
 
         int size = 0;
         Vector v = new Vector();
@@ -140,20 +141,22 @@ public class DisplayCertChainPanel extends WizardPanelBase {
         if (!certchain_size.equals("")) {
             try {
                 size = Integer.parseInt(certchain_size);
-            } catch (Exception e) {}         
+            } catch (Exception e) {
+            }
             for (int i = 0; i < size; i++) {
                 certChainConfigName = "preop." + type + ".certchain." + i;
                 try {
                     String c = cs.getString(certChainConfigName, "");
                     byte[] b_c = CryptoUtil.base64Decode(c);
                     CertPrettyPrint pp = new CertPrettyPrint(
-                            new X509CertImpl(b_c));                
+                            new X509CertImpl(b_c));
 
                     v.addElement(pp.toString(Locale.getDefault()));
-                } catch (Exception e) {}
+                } catch (Exception e) {
+                }
             }
         }
-       
+
         if (getId().equals("securitydomain")) {
             context.put("panelid", "securitydomain");
             context.put("panelname", "Security Domain Trust Verification");
@@ -184,7 +187,7 @@ public class DisplayCertChainPanel extends WizardPanelBase {
         importCertChain(getId());
 
         if (getId().equals("securitydomain")) {
-            int panel = getPanelNo()+1;
+            int panel = getPanelNo() + 1;
             IConfigStore cs = CMS.getConfigStore();
             try {
                 String sd_hostname = cs.getString("securitydomain.host", "");
@@ -192,23 +195,23 @@ public class DisplayCertChainPanel extends WizardPanelBase {
                 String cs_hostname = cs.getString("machineName", "");
                 int cs_port = cs.getInteger("pkicreate.admin_secure_port", -1);
                 String subsystem = cs.getString("cs.type", "");
-                String urlVal = "https://"+cs_hostname+":"+cs_port+"/"+toLowerCaseSubsystemType(subsystem)+"/admin/console/config/wizard?p="+panel+"&subsystem="+subsystem;
+                String urlVal = "https://" + cs_hostname + ":" + cs_port + "/" + toLowerCaseSubsystemType(subsystem) + "/admin/console/config/wizard?p=" + panel + "&subsystem=" + subsystem;
                 String encodedValue = URLEncoder.encode(urlVal, "UTF-8");
-                String sdurl =  "https://"+sd_hostname+":"+sd_port+"/ca/admin/ca/securityDomainLogin?url="+encodedValue;
+                String sdurl = "https://" + sd_hostname + ":" + sd_port + "/ca/admin/ca/securityDomainLogin?url=" + encodedValue;
                 response.sendRedirect(sdurl);
 
                 // The user previously specified the CA Security Domain's
                 // SSL Admin port in the "Security Domain Panel";
                 // now retrieve this specified CA Security Domain's
                 // non-SSL EE, SSL Agent, and SSL EE ports:
-                cs.putString( "securitydomain.httpport", 
-                              getSecurityDomainPort( cs, "UnSecurePort" ) );
-                cs.putString("securitydomain.httpsagentport", 
-                              getSecurityDomainPort( cs, "SecureAgentPort" ) );
-                cs.putString("securitydomain.httpseeport", 
-                              getSecurityDomainPort( cs, "SecurePort" ) );
+                cs.putString("securitydomain.httpport",
+                              getSecurityDomainPort(cs, "UnSecurePort"));
+                cs.putString("securitydomain.httpsagentport",
+                              getSecurityDomainPort(cs, "SecureAgentPort"));
+                cs.putString("securitydomain.httpseeport",
+                              getSecurityDomainPort(cs, "SecurePort"));
             } catch (Exception ee) {
-                CMS.debug("DisplayCertChainPanel Exception="+ee.toString());
+                CMS.debug("DisplayCertChainPanel Exception=" + ee.toString());
             }
         }
         context.put("updateStatus", "success");

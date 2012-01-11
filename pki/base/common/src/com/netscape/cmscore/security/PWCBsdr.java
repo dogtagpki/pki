@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.security;
 
-
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -30,7 +29,6 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cmscore.base.JDialogPasswordCallback;
 
-
 /* 
  * A class to retrieve passwords from the SDR password cache
  *
@@ -41,7 +39,7 @@ import com.netscape.cmscore.base.JDialogPasswordCallback;
 public class PWCBsdr implements PasswordCallback {
     InputStream in = null;
     OutputStream out = null;
-    String mprompt = "";  
+    String mprompt = "";
     boolean firsttime = true;
     private PasswordCallback mCB = null;
     private String mPWcachedb = null;
@@ -50,7 +48,7 @@ public class PWCBsdr implements PasswordCallback {
     public PWCBsdr() {
         this(null);
     }
-  
+
     public PWCBsdr(String prompt) {
         in = System.in;
         out = System.out;
@@ -72,7 +70,7 @@ public class PWCBsdr implements PasswordCallback {
         try {
             mPWcachedb = CMS.getConfigStore().getString("pwCache");
             CMS.debug("got pwCache from configstore: " +
-                mPWcachedb);
+                    mPWcachedb);
         } catch (NullPointerException e) {
             System.out.println("after CMS.getConfigStore got NullPointerException ... testing ok");
         } catch (Exception e) {
@@ -81,7 +79,7 @@ public class PWCBsdr implements PasswordCallback {
         }
 
         //    System.out.println("after CMS.getConfigStore");
-        if (File.separator.equals("/")) {  
+        if (File.separator.equals("/")) {
             // Unix
             mCB = new PWsdrConsolePasswordCallback(prompt);
         } else {
@@ -98,7 +96,7 @@ public class PWCBsdr implements PasswordCallback {
      */
 
     public Password getPasswordFirstAttempt(PasswordCallbackInfo info)
-        throws PasswordCallback.GiveUpException {
+            throws PasswordCallback.GiveUpException {
 
         CMS.debug("in getPasswordFirstAttempt");
 
@@ -144,7 +142,7 @@ public class PWCBsdr implements PasswordCallback {
             if (tmpPrompt == null) { /* no name, fail */
                 System.out.println("Shouldn't get here");
                 throw new PasswordCallback.GiveUpException();
-            } else {  /* get password from password cache */
+            } else { /* get password from password cache */
 
                 CMS.debug("getting tag = " + tmpPrompt);
                 PWsdrCache pwc = new PWsdrCache(mPWcachedb, mLogger);
@@ -174,7 +172,7 @@ public class PWCBsdr implements PasswordCallback {
      * the password to the cache pw cache 
      */
     public Password getPasswordAgain(PasswordCallbackInfo info)
-        throws PasswordCallback.GiveUpException {
+            throws PasswordCallback.GiveUpException {
 
         CMS.debug("in getPasswordAgain");
         try {
@@ -208,11 +206,10 @@ public class PWCBsdr implements PasswordCallback {
         if (mLogger == null) {
             System.out.println(msg);
         } else {
-            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER, level, "PWCBsdr " + msg); 
+            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER, level, "PWCBsdr " + msg);
         }
     }
 }
-
 
 class PWsdrConsolePasswordCallback implements PasswordCallback {
     private String mPrompt = null;
@@ -226,7 +223,7 @@ class PWsdrConsolePasswordCallback implements PasswordCallback {
     }
 
     public Password getPasswordFirstAttempt(PasswordCallbackInfo info)
-        throws PasswordCallback.GiveUpException {
+            throws PasswordCallback.GiveUpException {
         if (mPrompt == null) {
             System.out.println("Get password " + info.getName());
         } else {
@@ -239,7 +236,7 @@ class PWsdrConsolePasswordCallback implements PasswordCallback {
     }
 
     public Password getPasswordAgain(PasswordCallbackInfo info)
-        throws PasswordCallback.GiveUpException {
+            throws PasswordCallback.GiveUpException {
         System.out.println("Password Incorrect.");
         if (mPrompt == null) {
             System.out.println("Get password " + info.getName());
@@ -252,7 +249,6 @@ class PWsdrConsolePasswordCallback implements PasswordCallback {
         return (tmppw);
     }
 }
-
 
 class PWsdrDialogPasswordCallback extends JDialogPasswordCallback {
     private String mPrompt = null;
@@ -270,4 +266,3 @@ class PWsdrDialogPasswordCallback extends JDialogPasswordCallback {
         }
     }
 }
-

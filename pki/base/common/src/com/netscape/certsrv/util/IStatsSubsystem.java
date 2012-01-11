@@ -17,11 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.util;
 
-
 import java.util.Date;
 
 import com.netscape.certsrv.base.ISubsystem;
-
 
 /**
  * A class represents a internal subsystem. This subsystem
@@ -32,10 +30,9 @@ import com.netscape.certsrv.base.ISubsystem;
  * @author thomask
  * @version $Revision$, $Date$
  */
-public interface IStatsSubsystem extends ISubsystem
-{
+public interface IStatsSubsystem extends ISubsystem {
     /**
-     * Retrieves the start time since startup or 
+     * Retrieves the start time since startup or
      * clearing of statistics.
      */
     public Date getStartTime();

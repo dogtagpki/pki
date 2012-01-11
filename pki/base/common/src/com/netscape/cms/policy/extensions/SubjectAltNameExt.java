@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.policy.extensions;
 
-
 import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.util.Enumeration;
@@ -45,32 +44,32 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cms.policy.APolicyRule;
 
-
 /**
  * Subject Alternative Name extension policy.
- *
+ * 
  * Adds the subject alternative name extension as configured.
- *
- * Two forms are supported.  1) For S/MIME certificates, email
+ * 
+ * Two forms are supported. 1) For S/MIME certificates, email
  * addresses are copied from data stored in the request by the
- * authentication component.  Both 'e' and 'altEmail' are supported
+ * authentication component. Both 'e' and 'altEmail' are supported
  * so that both the primary address and alternative forms may be
- * certified.  Only the primary goes in the subjectName position (which
+ * certified. Only the primary goes in the subjectName position (which
  * should be phased out).
- *
+ * 
  * e
  * mailAlternateAddress
  * <P>
+ * 
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- *
+ * 
  * @deprecated
  * @version $Revision$, $Date$
  */
 public class SubjectAltNameExt extends APolicyRule
-    implements IEnrollmentPolicy, IExtendedPluginInfo {
+        implements IEnrollmentPolicy, IExtendedPluginInfo {
     // (standard says SHOULD be marked critical if included.) 
     protected static final String PROP_CRITICAL = "critical";
     protected static final boolean DEF_CRITICAL = false;
@@ -89,11 +88,11 @@ public class SubjectAltNameExt extends APolicyRule
         // default params.
         mDefParams.addElement(PROP_CRITICAL + "=" + DEF_CRITICAL);
         mDefParams.addElement(
-            IGeneralNameUtil.PROP_NUM_GENERALNAMES + "=" + 
-            IGeneralNameUtil.DEF_NUM_GENERALNAMES);
+                IGeneralNameUtil.PROP_NUM_GENERALNAMES + "=" +
+                        IGeneralNameUtil.DEF_NUM_GENERALNAMES);
         for (int i = 0; i < IGeneralNameUtil.DEF_NUM_GENERALNAMES; i++) {
             CMS.getSubjAltNameConfigDefaultParams(
-                IGeneralNameUtil.PROP_GENERALNAME + i, mDefParams);
+                    IGeneralNameUtil.PROP_GENERALNAME + i, mDefParams);
         }
     }
 
@@ -107,16 +106,15 @@ public class SubjectAltNameExt extends APolicyRule
     /**
      * Initializes this policy rule.
      * <P>
-     *
+     * 
      * The entries may be of the form:
-     *
-     *      ra.Policy.rule.<ruleName>.implName=SubjectAltNameExt
-     *      ra.Policy.rule.<ruleName>.enable=true
-     *
-     * @param config	The config store reference
+     * 
+     * ra.Policy.rule.<ruleName>.implName=SubjectAltNameExt ra.Policy.rule.<ruleName>.enable=true
+     * 
+     * @param config The config store reference
      */
     public void init(ISubsystem owner, IConfigStore config)
-        throws EBaseException {
+            throws EBaseException {
         mConfig = config;
 
         // get criticality
@@ -127,11 +125,11 @@ public class SubjectAltNameExt extends APolicyRule
                     IPolicyProcessor.PROP_ENABLE, false);
 
         // get general names configuration.
-        mNumGNs = mConfig.getInteger(IGeneralNameUtil.PROP_NUM_GENERALNAMES); 
+        mNumGNs = mConfig.getInteger(IGeneralNameUtil.PROP_NUM_GENERALNAMES);
         if (mNumGNs <= 0) {
             throw new EBaseException(
-                    CMS.getUserMessage("CMS_BASE_MUST_BE_POSITIVE_NUMBER", 
-                        IGeneralNameUtil.PROP_NUM_GENERALNAMES));
+                    CMS.getUserMessage("CMS_BASE_MUST_BE_POSITIVE_NUMBER",
+                            IGeneralNameUtil.PROP_NUM_GENERALNAMES));
         }
         mGNs = new ISubjAltNameConfig[mNumGNs];
         for (int i = 0; i < mNumGNs; i++) {
@@ -144,7 +142,7 @@ public class SubjectAltNameExt extends APolicyRule
         // init instance params.
         mInstanceParams.addElement(PROP_CRITICAL + "=" + mCritical);
         mInstanceParams.addElement(
-            IGeneralNameUtil.PROP_NUM_GENERALNAMES + "=" + mNumGNs);
+                IGeneralNameUtil.PROP_NUM_GENERALNAMES + "=" + mNumGNs);
         for (int j = 0; j < mGNs.length; j++) {
             mGNs[j].getInstanceParams(mInstanceParams);
         }
@@ -152,21 +150,21 @@ public class SubjectAltNameExt extends APolicyRule
 
     /**
      * Adds the subject alternative names extension if not set already.
-     *
+     * 
      * <P>
-     *
-     * @param req	The request on which to apply policy.
+     * 
+     * @param req The request on which to apply policy.
      * @return The policy result object.
      */
     public PolicyResult apply(IRequest req) {
         PolicyResult res = PolicyResult.ACCEPTED;
 
         // Find the X509CertInfo object in the request
-        X509CertInfo[] ci = 
-            req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
+        X509CertInfo[] ci =
+                req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
 
         if (ci == null || ci[0] == null) {
-            setError(req, CMS.getUserMessage("CMS_POLICY_NO_CERT_INFO"), NAME); 
+            setError(req, CMS.getUserMessage("CMS_POLICY_NO_CERT_INFO"), NAME);
 
             return PolicyResult.REJECTED; // unrecoverable error.
         }
@@ -186,7 +184,7 @@ public class SubjectAltNameExt extends APolicyRule
         try {
             // Find the extensions in the certInfo
             CertificateExtensions extensions = (CertificateExtensions)
-                certInfo.get(X509CertInfo.EXTENSIONS);
+                    certInfo.get(X509CertInfo.EXTENSIONS);
 
             // Remove any previously computed version of the extension
             // unless it is from RA. If from RA, accept what RA put in 
@@ -194,7 +192,7 @@ public class SubjectAltNameExt extends APolicyRule
             if (extensions != null) {
                 String sourceId = req.getSourceId();
 
-                if (sourceId != null && sourceId.length() > 0) 
+                if (sourceId != null && sourceId.length() > 0)
                     return res; // accepted
                 try {
                     extensions.delete(SubjectAlternativeNameExtension.NAME);
@@ -223,8 +221,8 @@ public class SubjectAltNameExt extends APolicyRule
             }
 
             // nothing was found in request to put into extension
-            if (gns.size() == 0) 
-                return res;	// accepted
+            if (gns.size() == 0)
+                return res; // accepted
 
             String subject = certInfo.get(X509CertInfo.SUBJECT).toString();
 
@@ -233,10 +231,9 @@ public class SubjectAltNameExt extends APolicyRule
             if (subject.equals("")) {
                 curCritical = true;
             }
-            
+
             // make the extension 
-            SubjectAlternativeNameExtension 
-                sa = new SubjectAlternativeNameExtension(curCritical, gns);
+            SubjectAlternativeNameExtension sa = new SubjectAlternativeNameExtension(curCritical, gns);
 
             // add it to certInfo.
             if (extensions == null)
@@ -248,19 +245,19 @@ public class SubjectAltNameExt extends APolicyRule
 
         } catch (IOException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("BASE_IO_ERROR", e.getMessage()));
-            setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"), 
-                NAME, e.getMessage());
+            setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"),
+                    NAME, e.getMessage());
             return PolicyResult.REJECTED; // unrecoverable error.
         } catch (CertificateException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CA_CERT_INFO_ERROR", e.getMessage()));
-            setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"), 
-                NAME, "Certificate Info Error");
+            setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"),
+                    NAME, "Certificate Info Error");
             return PolicyResult.REJECTED; // unrecoverable error.
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("BASE_INTERNAL_ERROR_1", e.getMessage()));
-            setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"), 
-                NAME, "Internal Error");
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("BASE_INTERNAL_ERROR_1", e.getMessage()));
+            setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"),
+                    NAME, "Internal Error");
             return PolicyResult.REJECTED; // unrecoverable error.
         }
     }
@@ -268,17 +265,17 @@ public class SubjectAltNameExt extends APolicyRule
     /**
      * Create a new SET of extensions in the certificate info
      * object.
-     *
+     * 
      * This should be a method in the X509CertInfo object
      */
-    protected CertificateExtensions 
-    createCertificateExtensions(X509CertInfo certInfo)
-        throws IOException, CertificateException {
+    protected CertificateExtensions
+            createCertificateExtensions(X509CertInfo certInfo)
+                    throws IOException, CertificateException {
         CertificateExtensions extensions;
 
         // Force version to V3
-        certInfo.set(X509CertInfo.VERSION, 
-            new CertificateVersion(CertificateVersion.V3));
+        certInfo.set(X509CertInfo.VERSION,
+                new CertificateVersion(CertificateVersion.V3));
 
         extensions = new CertificateExtensions();
         certInfo.set(X509CertInfo.EXTENSIONS, extensions);
@@ -288,19 +285,19 @@ public class SubjectAltNameExt extends APolicyRule
 
     /**
      * Return configured parameters for a policy rule instance.
-     *
+     * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getInstanceParams() { 
+    public Vector getInstanceParams() {
         return mInstanceParams;
     }
 
     /**
      * Return default parameters for a policy implementation.
-     *
+     * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getDefaultParams() { 
+    public Vector getDefaultParams() {
         return mDefParams;
     }
 
@@ -313,22 +310,21 @@ public class SubjectAltNameExt extends APolicyRule
         info.addElement(IGeneralNameUtil.PROP_NUM_GENERALNAMES_INFO);
         for (int i = 0; i < IGeneralNameUtil.DEF_NUM_GENERALNAMES; i++) {
             CMS.getSubjAltNameConfigExtendedPluginInfo(
-                IGeneralNameUtil.PROP_GENERALNAME + i, info);
+                    IGeneralNameUtil.PROP_GENERALNAME + i, info);
         }
         info.addElement(IExtendedPluginInfo.HELP_TOKEN +
-            ";configuration-policyrules-subjaltname");
+                ";configuration-policyrules-subjaltname");
         info.addElement(IExtendedPluginInfo.HELP_TEXT +
-            ";This policy inserts the Subject Alternative Name " +
-            "Extension into the certificate. See RFC 2459 (4.2.1.7). " +
-            "* Note: you probably want to use this policy in " +
-            "conjunction with an authentication manager which sets " +
-            "the 'mail' or 'mailalternateaddress' values in the authToken. " +
-            "See the 'ldapStringAttrs' parameter in the Directory-based " +
-            "authentication plugin");
+                ";This policy inserts the Subject Alternative Name " +
+                "Extension into the certificate. See RFC 2459 (4.2.1.7). " +
+                "* Note: you probably want to use this policy in " +
+                "conjunction with an authentication manager which sets " +
+                "the 'mail' or 'mailalternateaddress' values in the authToken. " +
+                "See the 'ldapStringAttrs' parameter in the Directory-based " +
+                "authentication plugin");
         mExtendedPluginInfo = new String[info.size()];
         info.copyInto(mExtendedPluginInfo);
         return mExtendedPluginInfo;
     }
 
 }
-

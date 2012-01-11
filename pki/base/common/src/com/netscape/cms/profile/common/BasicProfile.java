@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.common;
 
-
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Locale;
@@ -49,10 +48,9 @@ import com.netscape.certsrv.registry.IPluginRegistry;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestStatus;
 
-
 /**
  * This class implements a basic profile.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public abstract class BasicProfile implements IProfile {
@@ -76,8 +74,8 @@ public abstract class BasicProfile implements IProfile {
     public static final String PROP_NAME = "name";
     public static final String PROP_DESC = "desc";
     public static final String PROP_NO_DEFAULT = "noDefaultImpl";
-    public static final String PROP_NO_CONSTRAINT= "noConstraintImpl";
-    public static final String PROP_GENERIC_EXT_DEFAULT= "genericExtDefaultImpl";
+    public static final String PROP_NO_CONSTRAINT = "noConstraintImpl";
+    public static final String PROP_GENERIC_EXT_DEFAULT = "genericExtDefaultImpl";
 
     protected IProfileSubsystem mOwner = null;
     protected IConfigStore mConfig = null;
@@ -145,19 +143,19 @@ public abstract class BasicProfile implements IProfile {
     public IProfileAuthenticator getAuthenticator() throws EProfileException {
         try {
             IAuthSubsystem authSub = (IAuthSubsystem)
-                CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);
+                    CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);
             IProfileAuthenticator auth = (IProfileAuthenticator)
-                authSub.get(mAuthInstanceId);
+                    authSub.get(mAuthInstanceId);
 
-            if (mAuthInstanceId != null && mAuthInstanceId.length() > 0 
-                && auth == null) {
-                throw new EProfileException("Cannot load " + 
+            if (mAuthInstanceId != null && mAuthInstanceId.length() > 0
+                    && auth == null) {
+                throw new EProfileException("Cannot load " +
                         mAuthInstanceId);
             }
             return auth;
         } catch (Exception e) {
             if (mAuthInstanceId != null) {
-                throw new EProfileException("Cannot load " + 
+                throw new EProfileException("Cannot load " +
                         mAuthInstanceId);
             }
             return null;
@@ -167,7 +165,7 @@ public abstract class BasicProfile implements IProfile {
     public String getRequestorDN(IRequest request) {
         return null;
     }
-  
+
     public String getAuthenticatorId() {
         return mAuthInstanceId;
     }
@@ -185,7 +183,7 @@ public abstract class BasicProfile implements IProfile {
      * Initializes this profile.
      */
     public void init(IProfileSubsystem owner, IConfigStore config)
-        throws EBaseException { 
+            throws EBaseException {
         CMS.debug("BasicProfile: start init");
         mOwner = owner;
         mConfig = config;
@@ -214,7 +212,7 @@ public abstract class BasicProfile implements IProfile {
             mAuthzAcl = config.getString("authz.acl", "");
         } catch (EBaseException e) {
             CMS.debug("BasicProfile: authentication class not found " +
-                e.toString());
+                    e.toString());
         }
 
         // handle profile input plugins
@@ -224,7 +222,7 @@ public abstract class BasicProfile implements IProfile {
 
         while (input_st.hasMoreTokens()) {
             String input_id = (String) input_st.nextToken();
-            String inputClassId = inputStore.getString(input_id + "." + 
+            String inputClassId = inputStore.getString(input_id + "." +
                     PROP_CLASS_ID);
             IPluginInfo inputInfo = mRegistry.getPluginInfo("profileInput",
                     inputClassId);
@@ -234,12 +232,12 @@ public abstract class BasicProfile implements IProfile {
 
             try {
                 input = (IProfileInput)
-                        Class.forName(inputClass).newInstance(); 
+                        Class.forName(inputClass).newInstance();
             } catch (Exception e) {
                 // throw Exception
-                CMS.debug("BasicProfile: input plugin Class.forName " + 
-                    inputClass + " " + e.toString());
-                throw new EBaseException( e.toString() );
+                CMS.debug("BasicProfile: input plugin Class.forName " +
+                        inputClass + " " + e.toString());
+                throw new EBaseException(e.toString());
             }
             IConfigStore inputConfig = inputStore.getSubStore(input_id);
             input.init(this, inputConfig);
@@ -255,7 +253,7 @@ public abstract class BasicProfile implements IProfile {
         while (output_st.hasMoreTokens()) {
             String output_id = (String) output_st.nextToken();
 
-            String outputClassId = outputStore.getString(output_id + "." + 
+            String outputClassId = outputStore.getString(output_id + "." +
                     PROP_CLASS_ID);
             IPluginInfo outputInfo = mRegistry.getPluginInfo("profileOutput",
                     outputClassId);
@@ -265,12 +263,12 @@ public abstract class BasicProfile implements IProfile {
 
             try {
                 output = (IProfileOutput)
-                        Class.forName(outputClass).newInstance(); 
+                        Class.forName(outputClass).newInstance();
             } catch (Exception e) {
                 // throw Exception
-                CMS.debug("BasicProfile: output plugin Class.forName " + 
-                    outputClass + " " + e.toString());
-                throw new EBaseException( e.toString() );
+                CMS.debug("BasicProfile: output plugin Class.forName " +
+                        outputClass + " " + e.toString());
+                throw new EBaseException(e.toString());
             }
             IConfigStore outputConfig = outputStore.getSubStore(output_id);
             output.init(this, outputConfig);
@@ -286,7 +284,7 @@ public abstract class BasicProfile implements IProfile {
         while (updater_st.hasMoreTokens()) {
             String updater_id = (String) updater_st.nextToken();
 
-            String updaterClassId = updaterStore.getString(updater_id + "." + 
+            String updaterClassId = updaterStore.getString(updater_id + "." +
                     PROP_CLASS_ID);
             IPluginInfo updaterInfo = mRegistry.getPluginInfo("profileUpdater",
                      updaterClassId);
@@ -296,12 +294,12 @@ public abstract class BasicProfile implements IProfile {
 
             try {
                 updater = (IProfileUpdater)
-                        Class.forName(updaterClass).newInstance(); 
+                        Class.forName(updaterClass).newInstance();
             } catch (Exception e) {
                 // throw Exception
-                CMS.debug("BasicProfile: updater plugin Class.forName " + 
-                    updaterClass + " " + e.toString());
-                throw new EBaseException( e.toString() );
+                CMS.debug("BasicProfile: updater plugin Class.forName " +
+                        updaterClass + " " + e.toString());
+                throw new EBaseException(e.toString());
             }
             IConfigStore updaterConfig = updaterStore.getSubStore(updater_id);
             updater.init(this, updaterConfig);
@@ -325,15 +323,15 @@ public abstract class BasicProfile implements IProfile {
                 String id = (String) st1.nextToken();
 
                 String defaultRoot = id + "." + PROP_DEFAULT;
-                String defaultClassId = policyStore.getString(defaultRoot + "." + 
+                String defaultClassId = policyStore.getString(defaultRoot + "." +
                         PROP_CLASS_ID);
 
                 String constraintRoot = id + "." + PROP_CONSTRAINT;
-                String constraintClassId = 
-                    policyStore.getString(constraintRoot + "." + PROP_CLASS_ID);
+                String constraintClassId =
+                        policyStore.getString(constraintRoot + "." + PROP_CLASS_ID);
 
-                createProfilePolicy(setId, id, defaultClassId, 
-                    constraintClassId, false);
+                createProfilePolicy(setId, id, defaultClassId,
+                        constraintClassId, false);
             }
         }
         CMS.debug("BasicProfile: done init");
@@ -380,20 +378,20 @@ public abstract class BasicProfile implements IProfile {
     }
 
     public String getInput(String name, Locale locale, IRequest request)
-        throws EProfileException {
+            throws EProfileException {
         return null;
     }
 
     public void setInput(String name, Locale locale, IRequest request,
-        String value) throws EProfileException {
+            String value) throws EProfileException {
     }
 
     public Enumeration<String> getProfilePolicySetIds() {
         return mPolicySet.keys();
     }
 
-    public void deleteProfilePolicy(String setId, String policyId) 
-        throws EProfileException {
+    public void deleteProfilePolicy(String setId, String policyId)
+            throws EProfileException {
         Vector<ProfilePolicy> policies = mPolicySet.get(setId);
 
         if (policies == null) {
@@ -443,10 +441,10 @@ public abstract class BasicProfile implements IProfile {
                         while (st1.hasMoreTokens()) {
                             String e = st1.nextToken();
 
-                            if (!e.equals(setId)) 
+                            if (!e.equals(setId))
                                 newlist1 = newlist1 + e + ",";
                         }
-                        if (!newlist1.equals("")) 
+                        if (!newlist1.equals(""))
                             newlist1 = newlist1.substring(0, newlist1.length() - 1);
                         policySetSubStore.putString(PROP_POLICY_LIST, newlist1);
                     }
@@ -454,8 +452,8 @@ public abstract class BasicProfile implements IProfile {
                 }
             }
 
-            mConfig.putString("lastModified", 
-               Long.toString(CMS.getCurrentDate().getTime()));
+            mConfig.putString("lastModified",
+                    Long.toString(CMS.getCurrentDate().getTime()));
             mConfig.commit(false);
         } catch (Exception e) {
         }
@@ -496,8 +494,8 @@ public abstract class BasicProfile implements IProfile {
 
             mInputs.remove(inputId);
             mConfig.putString("input." + PROP_INPUT_LIST, newlist);
-            mConfig.putString("lastModified", 
-               Long.toString(CMS.getCurrentDate().getTime()));
+            mConfig.putString("lastModified",
+                    Long.toString(CMS.getCurrentDate().getTime()));
             mConfig.commit(false);
         } catch (Exception e) {
         }
@@ -537,24 +535,23 @@ public abstract class BasicProfile implements IProfile {
 
             mOutputs.remove(outputId);
             mConfig.putString("output." + PROP_OUTPUT_LIST, newlist);
-            mConfig.putString("lastModified", 
-               Long.toString(CMS.getCurrentDate().getTime()));
+            mConfig.putString("lastModified",
+                    Long.toString(CMS.getCurrentDate().getTime()));
             mConfig.commit(false);
         } catch (Exception e) {
         }
     }
 
-    public IProfileOutput createProfileOutput(String id, String outputId, 
-        NameValuePairs nvps)
-        throws EProfileException {
-        return createProfileOutput(id, outputId, nvps, true); 
+    public IProfileOutput createProfileOutput(String id, String outputId,
+            NameValuePairs nvps)
+            throws EProfileException {
+        return createProfileOutput(id, outputId, nvps, true);
     }
 
     public IProfileOutput createProfileOutput(String id, String outputId,
-        NameValuePairs nvps, boolean createConfig)
+            NameValuePairs nvps, boolean createConfig)
 
-
-        throws EProfileException {
+    throws EProfileException {
         IConfigStore outputStore = mConfig.getSubStore("output");
         String output_list = null;
 
@@ -618,7 +615,7 @@ public abstract class BasicProfile implements IProfile {
             String prefix = id + ".";
 
             outputStore.putString(prefix + "name",
-                outputInfo.getName(Locale.getDefault()));
+                    outputInfo.getName(Locale.getDefault()));
             outputStore.putString(prefix + "class_id", outputId);
 
             Enumeration<String> enum1 = nvps.getNames();
@@ -628,17 +625,17 @@ public abstract class BasicProfile implements IProfile {
 
                 outputStore.putString(prefix + "params." + name, nvps.getValue(name));
                 try {
-                   if (output != null) {
-                       output.setConfig(name, nvps.getValue(name));
-                   }
+                    if (output != null) {
+                        output.setConfig(name, nvps.getValue(name));
+                    }
                 } catch (EBaseException e) {
-                   CMS.debug(e.toString());
+                    CMS.debug(e.toString());
                 }
             }
 
             try {
-            mConfig.putString("lastModified", 
-               Long.toString(CMS.getCurrentDate().getTime()));
+                mConfig.putString("lastModified",
+                        Long.toString(CMS.getCurrentDate().getTime()));
                 mConfig.commit(false);
             } catch (EBaseException e) {
                 CMS.debug(e.toString());
@@ -648,15 +645,15 @@ public abstract class BasicProfile implements IProfile {
         return output;
     }
 
-    public IProfileInput createProfileInput(String id, String inputId, 
-        NameValuePairs nvps)
-        throws EProfileException {
-        return createProfileInput(id, inputId, nvps, true); 
+    public IProfileInput createProfileInput(String id, String inputId,
+            NameValuePairs nvps)
+            throws EProfileException {
+        return createProfileInput(id, inputId, nvps, true);
     }
 
     public IProfileInput createProfileInput(String id, String inputId,
-        NameValuePairs nvps, boolean createConfig)
-        throws EProfileException {
+            NameValuePairs nvps, boolean createConfig)
+            throws EProfileException {
         IConfigStore inputStore = mConfig.getSubStore("input");
 
         String input_list = null;
@@ -720,10 +717,10 @@ public abstract class BasicProfile implements IProfile {
             }
             String prefix = id + ".";
 
-            inputStore.putString(prefix + "name", 
-                inputInfo.getName(Locale.getDefault()));
+            inputStore.putString(prefix + "name",
+                    inputInfo.getName(Locale.getDefault()));
             inputStore.putString(prefix + "class_id", inputId);
-            
+
             Enumeration<String> enum1 = nvps.getNames();
 
             while (enum1.hasMoreElements()) {
@@ -731,17 +728,17 @@ public abstract class BasicProfile implements IProfile {
 
                 inputStore.putString(prefix + "params." + name, nvps.getValue(name));
                 try {
-                   if (input != null) {
-                       input.setConfig(name, nvps.getValue(name));
-                   }
+                    if (input != null) {
+                        input.setConfig(name, nvps.getValue(name));
+                    }
                 } catch (EBaseException e) {
-                   CMS.debug(e.toString());
+                    CMS.debug(e.toString());
                 }
             }
 
             try {
-                mConfig.putString("lastModified", 
-                  Long.toString(CMS.getCurrentDate().getTime()));
+                mConfig.putString("lastModified",
+                        Long.toString(CMS.getCurrentDate().getTime()));
                 mConfig.commit(false);
             } catch (EBaseException e) {
                 CMS.debug(e.toString());
@@ -754,33 +751,33 @@ public abstract class BasicProfile implements IProfile {
     /**
      * Creates a profile policy
      */
-    public IProfilePolicy createProfilePolicy(String setId, String id, 
-        String defaultClassId, String constraintClassId)
-        throws EProfileException {
-        return createProfilePolicy(setId, id, defaultClassId, 
+    public IProfilePolicy createProfilePolicy(String setId, String id,
+            String defaultClassId, String constraintClassId)
+            throws EProfileException {
+        return createProfilePolicy(setId, id, defaultClassId,
                 constraintClassId, true);
     }
 
-    public IProfilePolicy createProfilePolicy(String setId, String id, 
-        String defaultClassId, String constraintClassId,
-        boolean createConfig)
-        throws EProfileException {
-        
+    public IProfilePolicy createProfilePolicy(String setId, String id,
+            String defaultClassId, String constraintClassId,
+            boolean createConfig)
+            throws EProfileException {
+
         // String setId ex: policyset.set1
         // String id    Id of policy : examples: p1,p2,p3 
         // String defaultClassId : id of the default plugin ex: validityDefaultImpl
         // String constraintClassId : if of the constraint plugin ex: basicConstraintsExtConstraintImpl
         // boolean createConfig : true : being called from the console. false: being called from server startup code
 
-        Vector<ProfilePolicy> policies =  mPolicySet.get(setId);
+        Vector<ProfilePolicy> policies = mPolicySet.get(setId);
 
         IConfigStore policyStore = mConfig.getSubStore("policyset." + setId);
         if (policies == null) {
             policies = new Vector<ProfilePolicy>();
             mPolicySet.put(setId, policies);
-            if (createConfig) {	
+            if (createConfig) {
                 // re-create policyset.list
-                StringBuffer setlist =new StringBuffer();
+                StringBuffer setlist = new StringBuffer();
                 Enumeration<String> keys = mPolicySet.keys();
 
                 while (keys.hasMoreElements()) {
@@ -794,50 +791,50 @@ public abstract class BasicProfile implements IProfile {
                 mConfig.putString("policyset.list", setlist.toString());
             }
         } else {
-                String ids = null;
+            String ids = null;
 
-                try {
-                    ids = policyStore.getString(PROP_POLICY_LIST, "");
-                } catch (Exception ee) {
-                }
+            try {
+                ids = policyStore.getString(PROP_POLICY_LIST, "");
+            } catch (Exception ee) {
+            }
 
-                if( ids == null ) {
-                    CMS.debug("BasicProfile::createProfilePolicy() - ids is null!" );
-                    return null;
-                }
+            if (ids == null) {
+                CMS.debug("BasicProfile::createProfilePolicy() - ids is null!");
+                return null;
+            }
 
-                StringTokenizer st1 = new StringTokenizer(ids, ",");
-                int appearances = 0;
-                int appearancesTooMany = 0;
-                if (createConfig) 
-                    appearancesTooMany = 1;
-                else
-                    appearancesTooMany = 2;
+            StringTokenizer st1 = new StringTokenizer(ids, ",");
+            int appearances = 0;
+            int appearancesTooMany = 0;
+            if (createConfig)
+                appearancesTooMany = 1;
+            else
+                appearancesTooMany = 2;
 
-                while (st1.hasMoreTokens()) {
-                    String pid = st1.nextToken();
-                    if (pid.equals(id)) {
-                        appearances++;
-                        if (appearances >= appearancesTooMany) {
-                            CMS.debug("WARNING detected duplicate policy id:   " + id + " Profile: "  + mId);
-                            if (createConfig) {
-                                throw new EProfileException("Duplicate policy id: " + id);
-                            }
+            while (st1.hasMoreTokens()) {
+                String pid = st1.nextToken();
+                if (pid.equals(id)) {
+                    appearances++;
+                    if (appearances >= appearancesTooMany) {
+                        CMS.debug("WARNING detected duplicate policy id:   " + id + " Profile: " + mId);
+                        if (createConfig) {
+                            throw new EProfileException("Duplicate policy id: " + id);
                         }
                     }
                 }
+            }
         }
 
         // Now make sure we aren't trying to add a policy that already exists
         IConfigStore policySetStore = mConfig.getSubStore("policyset");
-        String setlist =  null;
+        String setlist = null;
         try {
             setlist = policySetStore.getString("list", "");
         } catch (Exception e) {
         }
         StringTokenizer st = new StringTokenizer(setlist, ",");
 
-        int matches = 0; 
+        int matches = 0;
         while (st.hasMoreTokens()) {
             String sId = (String) st.nextToken();
 
@@ -846,10 +843,10 @@ public abstract class BasicProfile implements IProfile {
                 continue;
             }
             IConfigStore pStore = policySetStore.getSubStore(sId);
-           
+
             String list = null;
             try {
-                list =  pStore.getString(PROP_POLICY_LIST, "");
+                list = pStore.getString(PROP_POLICY_LIST, "");
             } catch (Exception e) {
                 CMS.debug("WARNING, can't get policy id list!");
             }
@@ -862,9 +859,9 @@ public abstract class BasicProfile implements IProfile {
                 String defaultRoot = curId + "." + PROP_DEFAULT;
                 String curDefaultClassId = null;
                 try {
-                    curDefaultClassId =  pStore.getString(defaultRoot + "." +
-                        PROP_CLASS_ID);
-                } catch(Exception e) {
+                    curDefaultClassId = pStore.getString(defaultRoot + "." +
+                            PROP_CLASS_ID);
+                } catch (Exception e) {
                     CMS.debug("WARNING, can't get default plugin id!");
                 }
 
@@ -879,21 +876,20 @@ public abstract class BasicProfile implements IProfile {
                 //Disallow duplicate defaults  with the following exceptions:
                 // noDefaultImpl, genericExtDefaultImpl
 
-                if ((curDefaultClassId.equals(defaultClassId)  && 
-                    !curDefaultClassId.equals(PROP_NO_DEFAULT) && 
-                    !curDefaultClassId.equals(PROP_GENERIC_EXT_DEFAULT)) ) {
+                if ((curDefaultClassId.equals(defaultClassId) &&
+                        !curDefaultClassId.equals(PROP_NO_DEFAULT) && !curDefaultClassId.equals(PROP_GENERIC_EXT_DEFAULT))) {
 
                     matches++;
                     if (createConfig) {
                         if (matches == 1) {
-                              CMS.debug("WARNING attempt to add duplicate Policy "  + defaultClassId + ":" + constraintClassId +
-                                  " Contact System Administrator.");
-                             throw new EProfileException("Attempt to add duplicate Policy : " +  defaultClassId + ":" + constraintClassId);
+                            CMS.debug("WARNING attempt to add duplicate Policy " + defaultClassId + ":" + constraintClassId +
+                                    " Contact System Administrator.");
+                            throw new EProfileException("Attempt to add duplicate Policy : " + defaultClassId + ":" + constraintClassId);
                         }
                     } else {
-                        if( matches > 1) {
-                             CMS.debug("WARNING attempt to add duplicate Policy "  + defaultClassId + ":" + constraintClassId +
-                                  " Contact System Administrator.");
+                        if (matches > 1) {
+                            CMS.debug("WARNING attempt to add duplicate Policy " + defaultClassId + ":" + constraintClassId +
+                                    " Contact System Administrator.");
                         }
                     }
                 }
@@ -919,8 +915,8 @@ public abstract class BasicProfile implements IProfile {
                     Class.forName(defaultClass).newInstance();
         } catch (Exception e) {
             // throw Exception
-            CMS.debug("BasicProfile: default policy " + 
-                defaultClass + " " + e.toString());
+            CMS.debug("BasicProfile: default policy " +
+                    defaultClass + " " + e.toString());
         }
         if (def == null) {
             CMS.debug("BasicProfile: failed to create " + defaultClass);
@@ -931,7 +927,7 @@ public abstract class BasicProfile implements IProfile {
             def.init(this, defStore);
         }
 
-        IPluginInfo conInfo = mRegistry.getPluginInfo("constraintPolicy", 
+        IPluginInfo conInfo = mRegistry.getPluginInfo("constraintPolicy",
                 constraintClassId);
         String constraintClass = conInfo.getClassName();
         IPolicyConstraint constraint = null;
@@ -941,8 +937,8 @@ public abstract class BasicProfile implements IProfile {
                     Class.forName(constraintClass).newInstance();
         } catch (Exception e) {
             // throw Exception
-            CMS.debug("BasicProfile: constraint policy " + 
-                constraintClass + " " + e.toString());
+            CMS.debug("BasicProfile: constraint policy " +
+                    constraintClass + " " + e.toString());
         }
         ProfilePolicy policy = null;
         if (constraint == null) {
@@ -968,21 +964,21 @@ public abstract class BasicProfile implements IProfile {
             } else {
                 policyStore.putString(PROP_POLICY_LIST, list + "," + id);
             }
-            policyStore.putString(id + ".default.name", 
-                defInfo.getName(Locale.getDefault()));
-            policyStore.putString(id + ".default.class_id", 
-                defaultClassId);
-            policyStore.putString(id + ".constraint.name", 
-                conInfo.getName(Locale.getDefault()));
-            policyStore.putString(id + ".constraint.class_id", 
-                constraintClassId);
+            policyStore.putString(id + ".default.name",
+                    defInfo.getName(Locale.getDefault()));
+            policyStore.putString(id + ".default.class_id",
+                    defaultClassId);
+            policyStore.putString(id + ".constraint.name",
+                    conInfo.getName(Locale.getDefault()));
+            policyStore.putString(id + ".constraint.class_id",
+                    constraintClassId);
             try {
-                mConfig.putString("lastModified", 
-                  Long.toString(CMS.getCurrentDate().getTime()));
+                mConfig.putString("lastModified",
+                        Long.toString(CMS.getCurrentDate().getTime()));
                 policyStore.commit(false);
             } catch (EBaseException e) {
-                CMS.debug("BasicProfile: commiting config store " + 
-                    e.toString());
+                CMS.debug("BasicProfile: commiting config store " +
+                        e.toString());
             }
         }
 
@@ -990,7 +986,7 @@ public abstract class BasicProfile implements IProfile {
     }
 
     public IProfilePolicy getProfilePolicy(String setId, String id) {
-        Vector<ProfilePolicy> policies =  mPolicySet.get(setId);
+        Vector<ProfilePolicy> policies = mPolicySet.get(setId);
 
         if (policies == null)
             return null;
@@ -1038,7 +1034,7 @@ public abstract class BasicProfile implements IProfile {
      * Creates request.
      */
     public abstract IRequest[] createRequests(IProfileContext ctx, Locale locale)
-        throws EProfileException;
+            throws EProfileException;
 
     /**
      * Returns the profile description.
@@ -1056,19 +1052,19 @@ public abstract class BasicProfile implements IProfile {
     }
 
     public void populateInput(IProfileContext ctx, IRequest request)
-        throws EProfileException {
+            throws EProfileException {
         Enumeration<String> ids = getProfileInputIds();
 
         while (ids.hasMoreElements()) {
             String id = (String) ids.nextElement();
-            IProfileInput input = getProfileInput(id); 
+            IProfileInput input = getProfileInput(id);
 
             input.populate(ctx, request);
         }
     }
 
     public Vector<ProfilePolicy> getPolicies(String setId) {
-        Vector<ProfilePolicy> policies =  mPolicySet.get(setId);
+        Vector<ProfilePolicy> policies = mPolicySet.get(setId);
 
         return policies;
     }
@@ -1076,34 +1072,34 @@ public abstract class BasicProfile implements IProfile {
     /**
      * Passes the request to the set of default policies that
      * populate the profile information against the profile.
-     */ 
+     */
     public void populate(IRequest request)
-        throws EProfileException {
+            throws EProfileException {
         String setId = getPolicySetId(request);
         Vector<ProfilePolicy> policies = getPolicies(setId);
-        CMS.debug("BasicProfile: populate() policy setid ="+ setId);
+        CMS.debug("BasicProfile: populate() policy setid =" + setId);
 
         for (int i = 0; i < policies.size(); i++) {
             ProfilePolicy policy = (ProfilePolicy)
-                policies.elementAt(i);
+                    policies.elementAt(i);
 
             policy.getDefault().populate(request);
         }
     }
 
     /**
-     * Passes the request to the set of constraint policies 
+     * Passes the request to the set of constraint policies
      * that validate the request against the profile.
-     */ 
+     */
     public void validate(IRequest request)
-        throws ERejectException {
+            throws ERejectException {
         String setId = getPolicySetId(request);
-        CMS.debug("BasicProfile: validate start on setId="+ setId);
+        CMS.debug("BasicProfile: validate start on setId=" + setId);
         Vector<ProfilePolicy> policies = getPolicies(setId);
 
         for (int i = 0; i < policies.size(); i++) {
             ProfilePolicy policy = (ProfilePolicy)
-                policies.elementAt(i);
+                    policies.elementAt(i);
 
             policy.getConstraint().validate(request);
         }
@@ -1130,24 +1126,24 @@ public abstract class BasicProfile implements IProfile {
 
         for (int i = 0; i < policies.size(); i++) {
             ProfilePolicy policy = (ProfilePolicy)
-                policies.elementAt(i);
+                    policies.elementAt(i);
 
-            v.addElement(policy.getId());	
+            v.addElement(policy.getId());
         }
         return v.elements();
     }
 
     public void execute(IRequest request)
-        throws EProfileException {
+            throws EProfileException {
     }
 
     /**
      * Signed Audit Log
-     *
+     * 
      * This method is inherited by all extended "BasicProfile"s,
      * and is called to store messages to the signed audit log.
      * <P>
-     *
+     * 
      * @param msg signed audit log message
      */
     protected void audit(String msg) {
@@ -1159,20 +1155,20 @@ public abstract class BasicProfile implements IProfile {
         }
 
         mSignedAuditLogger.log(ILogger.EV_SIGNED_AUDIT,
-            null,
-            ILogger.S_SIGNED_AUDIT,
-            ILogger.LL_SECURITY,
-            msg);
+                null,
+                ILogger.S_SIGNED_AUDIT,
+                ILogger.LL_SECURITY,
+                msg);
     }
 
     /**
      * Signed Audit Log Subject ID
-     *
+     * 
      * This method is inherited by all extended "BasicProfile"s,
      * and is called to obtain the "SubjectID" for
      * a signed audit log message.
      * <P>
-     *
+     * 
      * @return id string containing the signed audit log message SubjectID
      */
     protected String auditSubjectID() {
@@ -1202,4 +1198,3 @@ public abstract class BasicProfile implements IProfile {
         return subjectID;
     }
 }
-

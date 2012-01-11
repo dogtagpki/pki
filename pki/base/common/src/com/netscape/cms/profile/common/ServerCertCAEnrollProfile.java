@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.common;
 
-
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.NameValuePairs;
@@ -28,91 +27,89 @@ import com.netscape.certsrv.profile.IProfileInput;
 import com.netscape.certsrv.profile.IProfileOutput;
 import com.netscape.certsrv.profile.IProfilePolicy;
 
-
 /**
  * This class implements a Certificate Manager enrollment
  * profile for Server Certificates.
- *
+ * 
  * @version $Revision$, $Date$
  */
-public class ServerCertCAEnrollProfile extends CAEnrollProfile 
-   implements IProfileEx {
+public class ServerCertCAEnrollProfile extends CAEnrollProfile
+        implements IProfileEx {
 
     /**
      * Called after initialization. It populates default
      * policies, inputs, and outputs.
      */
-    public void populate() throws EBaseException
-    {
+    public void populate() throws EBaseException {
         // create inputs
         NameValuePairs inputParams1 = new NameValuePairs();
         IProfileInput input1 =
-          createProfileInput("i1", "certReqInputImpl", inputParams1);
+                createProfileInput("i1", "certReqInputImpl", inputParams1);
         NameValuePairs inputParams2 = new NameValuePairs();
         IProfileInput input2 =
-          createProfileInput("i2", "submitterInfoInputImpl", inputParams2);
+                createProfileInput("i2", "submitterInfoInputImpl", inputParams2);
 
         // create outputs
         NameValuePairs outputParams1 = new NameValuePairs();
         IProfileOutput output1 =
-          createProfileOutput("o1", "certOutputImpl", outputParams1);
+                createProfileOutput("o1", "certOutputImpl", outputParams1);
 
         IProfilePolicy policy1 =
-          createProfilePolicy("set1", "p1",
-            "userSubjectNameDefaultImpl", "noConstraintImpl");
+                createProfilePolicy("set1", "p1",
+                        "userSubjectNameDefaultImpl", "noConstraintImpl");
         IPolicyDefault def1 = policy1.getDefault();
         IConfigStore defConfig1 = def1.getConfigStore();
         IPolicyConstraint con1 = policy1.getConstraint();
         IConfigStore conConfig1 = con1.getConfigStore();
 
         IProfilePolicy policy2 =
-          createProfilePolicy("set1", "p2",
-            "validityDefaultImpl", "noConstraintImpl");
+                createProfilePolicy("set1", "p2",
+                        "validityDefaultImpl", "noConstraintImpl");
         IPolicyDefault def2 = policy2.getDefault();
         IConfigStore defConfig2 = def2.getConfigStore();
-        defConfig2.putString("params.range","180");
-        defConfig2.putString("params.startTime","0");
+        defConfig2.putString("params.range", "180");
+        defConfig2.putString("params.startTime", "0");
         IPolicyConstraint con2 = policy2.getConstraint();
         IConfigStore conConfig2 = con2.getConfigStore();
 
         IProfilePolicy policy3 =
-          createProfilePolicy("set1", "p3",
-            "userKeyDefaultImpl", "noConstraintImpl");
+                createProfilePolicy("set1", "p3",
+                        "userKeyDefaultImpl", "noConstraintImpl");
         IPolicyDefault def3 = policy3.getDefault();
         IConfigStore defConfig3 = def3.getConfigStore();
-        defConfig3.putString("params.keyType","RSA");
-        defConfig3.putString("params.keyMinLength","512");
-        defConfig3.putString("params.keyMaxLength","4096");
+        defConfig3.putString("params.keyType", "RSA");
+        defConfig3.putString("params.keyMinLength", "512");
+        defConfig3.putString("params.keyMaxLength", "4096");
         IPolicyConstraint con3 = policy3.getConstraint();
         IConfigStore conConfig3 = con3.getConfigStore();
 
         IProfilePolicy policy4 =
-          createProfilePolicy("set1", "p4",
-            "signingAlgDefaultImpl", "noConstraintImpl");
+                createProfilePolicy("set1", "p4",
+                        "signingAlgDefaultImpl", "noConstraintImpl");
         IPolicyDefault def4 = policy4.getDefault();
         IConfigStore defConfig4 = def4.getConfigStore();
-        defConfig4.putString("params.signingAlg","-");
+        defConfig4.putString("params.signingAlg", "-");
         defConfig4.putString("params.signingAlgsAllowed",
-          "SHA1withRSA,SHA256withRSA,SHA512withRSA,MD5withRSA,MD2withRSA,SHA1withEC,SHA256withEC,SHA384withEC,SHA512withEC");
+                "SHA1withRSA,SHA256withRSA,SHA512withRSA,MD5withRSA,MD2withRSA,SHA1withEC,SHA256withEC,SHA384withEC,SHA512withEC");
         IPolicyConstraint con4 = policy4.getConstraint();
         IConfigStore conConfig4 = con4.getConfigStore();
 
-        IProfilePolicy policy5 = 
-          createProfilePolicy("set1", "p5", 
-            "keyUsageExtDefaultImpl", "noConstraintImpl"); 
-        IPolicyDefault def5 = policy5.getDefault(); 
-        IConfigStore defConfig5 = def5.getConfigStore(); 
-        defConfig5.putString("params.keyUsageCritical","true"); 
-        defConfig5.putString("params.keyUsageCrlSign","false"); 
-        defConfig5.putString("params.keyUsageDataEncipherment","true"); 
-        defConfig5.putString("params.keyUsageDecipherOnly","false"); 
-        defConfig5.putString("params.keyUsageDigitalSignature","true"); 
-        defConfig5.putString("params.keyUsageEncipherOnly","false"); 
-        defConfig5.putString("params.keyUsageKeyAgreement","false"); 
-        defConfig5.putString("params.keyUsageKeyCertSign","false"); 
-        defConfig5.putString("params.keyUsageKeyEncipherment","true"); 
-        defConfig5.putString("params.keyUsageNonRepudiation","true"); 
-        IPolicyConstraint con5 = policy5.getConstraint(); 
+        IProfilePolicy policy5 =
+                createProfilePolicy("set1", "p5",
+                        "keyUsageExtDefaultImpl", "noConstraintImpl");
+        IPolicyDefault def5 = policy5.getDefault();
+        IConfigStore defConfig5 = def5.getConfigStore();
+        defConfig5.putString("params.keyUsageCritical", "true");
+        defConfig5.putString("params.keyUsageCrlSign", "false");
+        defConfig5.putString("params.keyUsageDataEncipherment", "true");
+        defConfig5.putString("params.keyUsageDecipherOnly", "false");
+        defConfig5.putString("params.keyUsageDigitalSignature", "true");
+        defConfig5.putString("params.keyUsageEncipherOnly", "false");
+        defConfig5.putString("params.keyUsageKeyAgreement", "false");
+        defConfig5.putString("params.keyUsageKeyCertSign", "false");
+        defConfig5.putString("params.keyUsageKeyEncipherment", "true");
+        defConfig5.putString("params.keyUsageNonRepudiation", "true");
+        IPolicyConstraint con5 = policy5.getConstraint();
         IConfigStore conConfig5 = con5.getConfigStore();
 
     }

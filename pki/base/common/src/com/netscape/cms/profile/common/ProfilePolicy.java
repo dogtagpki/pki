@@ -17,17 +17,15 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.common;
 
-
 import com.netscape.certsrv.profile.IPolicyConstraint;
 import com.netscape.certsrv.profile.IPolicyDefault;
 import com.netscape.certsrv.profile.IProfilePolicy;
-
 
 /**
  * This class implements a profile policy that
  * contains a default policy and a constraint
  * policy.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class ProfilePolicy implements IProfilePolicy {

@@ -17,20 +17,18 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.logging;
 
-
 import java.text.MessageFormat;
 import java.util.Locale;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.MessageFormatter;
 
-
 /**
  * The log event object that carries message detail of a log event
- * that goes into the  Signed Audit Event log.  This log has the
+ * that goes into the Signed Audit Event log. This log has the
  * property of being digitally signed for security considerations.
- *
- *
+ * 
+ * 
  * @version $Revision$, $Date$
  * @see java.text.MessageFormat
  * @see com.netscape.certsrv.logging.LogResources
@@ -52,7 +50,7 @@ public class SignedAuditEvent implements IBundleLogEvent {
     private boolean mMultiline = false;
     private long mTimeStamp = System.currentTimeMillis();
 
-    private static final String INVALID_LOG_LEVEL="log level: {0} is invalid, should be 0-6";
+    private static final String INVALID_LOG_LEVEL = "log level: {0} is invalid, should be 0-6";
 
     /**
      * The bundle name for this event.
@@ -63,7 +61,7 @@ public class SignedAuditEvent implements IBundleLogEvent {
     /**
      * Constructs a SignedAuditEvent message event.
      * <P>
-     *
+     * 
      * @param msgFormat The message string.
      */
     public SignedAuditEvent(String msgFormat) {
@@ -73,11 +71,12 @@ public class SignedAuditEvent implements IBundleLogEvent {
 
     /**
      * Constructs a message with a parameter. For example,
+     * 
      * <PRE>
-     * 		new SignedAuditEvent("failed to load {0}", fileName);
+     * new SignedAuditEvent(&quot;failed to load {0}&quot;, fileName);
      * </PRE>
      * <P>
-     *
+     * 
      * @param msgFormat Details in message string format.
      * @param param Message string parameter.
      */
@@ -91,6 +90,7 @@ public class SignedAuditEvent implements IBundleLogEvent {
      * Constructs a message from an exception. It can be used to carry
      * a signed audit exception that may contain information about
      * the context. For example,
+     * 
      * <PRE>
      * 		try {
      *  		...
@@ -99,7 +99,7 @@ public class SignedAuditEvent implements IBundleLogEvent {
      *      }
      * </PRE>
      * <P>
-     *
+     * 
      * @param msgFormat Exception details in message string format.
      * @param exception System exception.
      */
@@ -112,6 +112,7 @@ public class SignedAuditEvent implements IBundleLogEvent {
     /**
      * Constructs a message from a base exception. This will use the msgFormat
      * from the exception itself.
+     * 
      * <PRE>
      * 		try {
      *  		...
@@ -120,7 +121,7 @@ public class SignedAuditEvent implements IBundleLogEvent {
      *      }
      * </PRE>
      * <P>
-     *
+     * 
      * @param e CMS exception.
      */
     public SignedAuditEvent(Exception e) {
@@ -137,7 +138,7 @@ public class SignedAuditEvent implements IBundleLogEvent {
      * Constructs a message event with a list of parameters
      * that will be substituted into the message format.
      * <P>
-     *
+     * 
      * @param msgFormat Message string format.
      * @param params List of message format parameters.
      */
@@ -149,7 +150,7 @@ public class SignedAuditEvent implements IBundleLogEvent {
     /**
      * Returns the current message format string.
      * <P>
-     *
+     * 
      * @return Details message.
      */
     public String getMessage() {
@@ -160,7 +161,7 @@ public class SignedAuditEvent implements IBundleLogEvent {
      * Returns a list of parameters. These parameters can be
      * used to assist in formatting the message.
      * <P>
-     *
+     * 
      * @return List of message format parameters.
      */
     public Object[] getParameters() {
@@ -171,7 +172,7 @@ public class SignedAuditEvent implements IBundleLogEvent {
      * Returns localized message string. This method should
      * only be called if a localized string is necessary.
      * <P>
-     *
+     * 
      * @return Details message.
      */
     public String toContent() {
@@ -181,7 +182,7 @@ public class SignedAuditEvent implements IBundleLogEvent {
     /**
      * Returns the string based on the given locale.
      * <P>
-     *
+     * 
      * @param locale Locale.
      * @return Details message.
      */
@@ -192,8 +193,9 @@ public class SignedAuditEvent implements IBundleLogEvent {
     }
 
     /**
-     * Sets the resource bundle name for this class instance.  This should
+     * Sets the resource bundle name for this class instance. This should
      * be overridden by subclasses who have their own resource bundles.
+     * 
      * @param bundle String with name of resource bundle.
      */
     public void setBundleName(String bundle) {
@@ -202,6 +204,7 @@ public class SignedAuditEvent implements IBundleLogEvent {
 
     /**
      * Retrieves bundle name.
+     * 
      * @return String with name of resource bundle.
      */
     protected String getBundleName() {
@@ -212,6 +215,7 @@ public class SignedAuditEvent implements IBundleLogEvent {
      * Retrieves log source.
      * This is an id of the subsystem responsible
      * for creating the log event.
+     * 
      * @return Integer source id.
      */
     public int getSource() {
@@ -220,6 +224,7 @@ public class SignedAuditEvent implements IBundleLogEvent {
 
     /**
      * Sets log source.
+     * 
      * @param source Integer id of log source.
      */
     public void setSource(int source) {
@@ -230,15 +235,16 @@ public class SignedAuditEvent implements IBundleLogEvent {
      * Retrieves log level.
      * The log level of an event represents its relative importance
      * or severity within CMS.
+     * 
      * @return Integer log level value.
      */
     public int getLevel() {
         return mLevel;
     }
 
-    
     /**
      * Retrieves NT specific log event type.
+     * 
      * @return Integer NTEventType value.
      */
     public int getNTEventType() {
@@ -249,6 +255,7 @@ public class SignedAuditEvent implements IBundleLogEvent {
      * Sets log level, NT log event type.
      * For certain log levels the NT log event type gets
      * set as well.
+     * 
      * @param level Integer log level value.
      */
     public void setLevel(int level) {
@@ -279,8 +286,9 @@ public class SignedAuditEvent implements IBundleLogEvent {
 
     /**
      * Retrieves log multiline attribute.
+     * 
      * @return Boolean whether or not this event is multiline.
-     * A multiline message simply consists of more than one line.
+     *         A multiline message simply consists of more than one line.
      */
     public boolean getMultiline() {
         return mMultiline;
@@ -289,35 +297,36 @@ public class SignedAuditEvent implements IBundleLogEvent {
     /**
      * Sets log multiline attribute. A multiline message consists of
      * more than one line.
+     * 
      * @param multiline Boolean multiline value.
      */
     public void setMultiline(boolean multiline) {
         mMultiline = multiline;
     }
 
-    
     /**
      * Retrieves event time stamp.
+     * 
      * @return Long integer of the time the event was created.
      */
     public long getTimeStamp() {
         return mTimeStamp;
     }
 
-    
     /**
      * Retrieves log event type. Each type of event
      * has an associated String type value.
+     * 
      * @return String containing the type of event.
      */
     public String getEventType() {
         return mEventType;
     }
 
-    
     /**
      * Sets log event type. Each type of event
      * has an associated String type value.
+     * 
      * @param eventType String containing the type of event.
      */
     public void setEventType(String eventType) {
@@ -325,9 +334,10 @@ public class SignedAuditEvent implements IBundleLogEvent {
     }
 
     /**
-    * Return string representation of log message.
-    * @return String containing log message.
-    */
+     * Return string representation of log message.
+     * 
+     * @return String containing log message.
+     */
     public String toString() {
         if (getBundleName() == null) {
             MessageFormat detailMessage = new MessageFormat(mMessage);

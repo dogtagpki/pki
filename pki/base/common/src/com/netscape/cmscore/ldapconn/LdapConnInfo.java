@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.ldapconn;
 
-
 import netscape.ldap.LDAPv2;
 
 import com.netscape.certsrv.apps.CMS;
@@ -26,7 +25,6 @@ import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapConnInfo;
-
 
 /**
  * class for reading ldap connection from the config store.
@@ -49,7 +47,7 @@ public class LdapConnInfo implements ILdapConnInfo {
 
     /**
      * initializes an instance from a config store.
-     * required parms: host, port 
+     * required parms: host, port
      * optional parms: secure connection, authentication method & info.
      */
     public void init(IConfigStore config) throws EBaseException, ELdapException {
@@ -75,13 +73,13 @@ public class LdapConnInfo implements ILdapConnInfo {
             throw new EBaseException(
                     CMS.getUserMessage("CMS_BASE_INVALID_PROPERTY", PROP_PORT));
         }
-        mSecure = config.getBoolean(PROP_SECURE, false); 
-        mFollowReferrals = config.getBoolean(PROP_FOLLOW_REFERRALS, true); 
+        mSecure = config.getBoolean(PROP_SECURE, false);
+        mFollowReferrals = config.getBoolean(PROP_FOLLOW_REFERRALS, true);
     }
 
     public LdapConnInfo(String host, int port, boolean secure) {
-        mHost = host; 
-        mPort = port; 
+        mHost = host;
+        mPort = port;
         mSecure = secure;
         if (mHost == null || mPort <= 0) {
             // XXX log something here 
@@ -90,28 +88,28 @@ public class LdapConnInfo implements ILdapConnInfo {
     }
 
     public LdapConnInfo(String host, int port) {
-        mHost = host; 
-        mPort = port; 
+        mHost = host;
+        mPort = port;
         if (mHost == null || mPort <= 0) {
             // XXX log something here 
             throw new IllegalArgumentException("LDAP host or port is null");
         }
     }
 
-    public String getHost() { 
-        return mHost; 
+    public String getHost() {
+        return mHost;
     }
 
-    public int getPort() { 
-        return mPort; 
+    public int getPort() {
+        return mPort;
     }
 
-    public int getVersion() { 
-        return mVersion; 
+    public int getVersion() {
+        return mVersion;
     }
 
-    public boolean getSecure() { 
-        return mSecure; 
+    public boolean getSecure() {
+        return mSecure;
     }
 
     public boolean getFollowReferrals() {

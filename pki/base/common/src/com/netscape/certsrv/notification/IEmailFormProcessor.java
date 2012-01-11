@@ -17,17 +17,15 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.notification;
 
-
 import java.util.Hashtable;
 import java.util.Vector;
 
-
 /**
- * formulates the final email.  Escape character '\' is understood.
- * '$' is used preceeding a token name.  A token name should not be a
+ * formulates the final email. Escape character '\' is understood.
+ * '$' is used preceeding a token name. A token name should not be a
  * substring of any other token name
  * <p>
- *
+ * 
  * @version $Revision$, $Date$
  */
 public interface IEmailFormProcessor {
@@ -67,7 +65,7 @@ public interface IEmailFormProcessor {
      * @return mail content
      */
     public String getEmailContent(String form,
-        Hashtable<String, Object> tok2vals);
+            Hashtable<String, Object> tok2vals);
 
     /**
      * takes a vector of strings and concatenate them
@@ -79,4 +77,3 @@ public interface IEmailFormProcessor {
      */
     public void log(int level, String msg);
 }
-

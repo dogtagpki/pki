@@ -17,11 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.util;
 
-
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.PrintWriter;
-
 
 public class ExceptionFormatter {
 
@@ -39,7 +37,7 @@ public class ExceptionFormatter {
 
         try {
             PipedOutputStream po = new PipedOutputStream();
-            PipedInputStream  pi = new PipedInputStream(po);
+            PipedInputStream pi = new PipedInputStream(po);
 
             PrintWriter ps = new PrintWriter(po);
 
@@ -48,7 +46,7 @@ public class ExceptionFormatter {
 
             int avail = pi.available();
             byte[] b = new byte[avail];
-		
+
             pi.read(b, 0, avail);
             returnvalue = new String(b);
         } catch (Exception ex) {
@@ -60,7 +58,7 @@ public class ExceptionFormatter {
     /* test code below */
 
     public static void test()
-        throws TestException {
+            throws TestException {
         throw new TestException("** testexception **");
     }
 
@@ -79,7 +77,6 @@ public class ExceptionFormatter {
 
 }
 
-
 class TestException extends Exception {
 
     /**
@@ -95,4 +92,3 @@ class TestException extends Exception {
     }
 
 }
-

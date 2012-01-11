@@ -23,40 +23,41 @@ import java.security.cert.X509CRLEntry;
 import java.util.Date;
 
 /**
- * <p>Abstract class for a revoked certificate in a CRL (Certificate 
- * Revocation List).
- *
+ * <p>
+ * Abstract class for a revoked certificate in a CRL (Certificate Revocation List).
+ * 
  * The ASN.1 definition for <em>revokedCertificates</em> is:
+ * 
  * <pre>
- * revokedCertificates    SEQUENCE OF SEQUENCE  {
- *     userCertificate    CertificateSerialNumber,
- *     revocationDate     ChoiceOfTime,
- *     crlEntryExtensions Extensions OPTIONAL
- *                        -- if present, must be v2
- * }  OPTIONAL
- *<p>
- * CertificateSerialNumber  ::=  INTEGER
- *<p>
- * Extensions  ::=  SEQUENCE SIZE (1..MAX) OF Extension
- *<p>
- * Extension  ::=  SEQUENCE  {
- *     extnId        OBJECT IDENTIFIER,
- *     critical      BOOLEAN DEFAULT FALSE,
- *     extnValue     OCTET STRING
- *                   -- contains a DER encoding of a value
- *                   -- of the type registered for use with
- *                   -- the extnId object identifier value
- * }
+ *  revokedCertificates    SEQUENCE OF SEQUENCE  {
+ *      userCertificate    CertificateSerialNumber,
+ *      revocationDate     ChoiceOfTime,
+ *      crlEntryExtensions Extensions OPTIONAL
+ *                         -- if present, must be v2
+ *  }  OPTIONAL
+ * <p>
+ *  CertificateSerialNumber  ::=  INTEGER
+ * <p>
+ *  Extensions  ::=  SEQUENCE SIZE (1..MAX) OF Extension
+ * <p>
+ *  Extension  ::=  SEQUENCE  {
+ *      extnId        OBJECT IDENTIFIER,
+ *      critical      BOOLEAN DEFAULT FALSE,
+ *      extnValue     OCTET STRING
+ *                    -- contains a DER encoding of a value
+ *                    -- of the type registered for use with
+ *                    -- the extnId object identifier value
+ *  }
  * </pre>
  * 
  * @see X509CRL
- *
+ * 
  * @author Hemma Prafullchandra
  * @version 1.4 97/12/10
  */
 
 public abstract class RevokedCertificate extends X509CRLEntry {
-/* implements X509Extension { */
+    /* implements X509Extension { */
 
     /**
      * Gets the serial number for this RevokedCertificate,
@@ -77,14 +78,14 @@ public abstract class RevokedCertificate extends X509CRLEntry {
     /**
      * Returns true if this revoked certificate entry has
      * extensions.
-     *
+     * 
      * @return true if this entry has extensions, false otherwise.
      */
     public abstract boolean hasExtensions();
 
     /**
      * Returns a string representation of this revoked certificate.
-     *
+     * 
      * @return a string representation of this revoked certificate.
      */
     public abstract String toString();

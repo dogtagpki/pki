@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
@@ -46,7 +45,8 @@ public class ConfigHSMLoginPanel extends WizardPanelBase {
     private CryptoManager mCryptoManager = null;
     private String mPwdFilePath = "";
 
-    public ConfigHSMLoginPanel() {}
+    public ConfigHSMLoginPanel() {
+    }
 
     public void init(ServletConfig config, int panelno) throws ServletException {
         try {
@@ -132,7 +132,7 @@ public class ConfigHSMLoginPanel extends WizardPanelBase {
             CMS.debug("ConfigHSMLoginPanel: passwrd file path: " + e.toString());
         }
         CMS.debug("ConfigHSMLoginPanel: checking if passwd in cache");
-        String tokPwd = pr.getPassword("hardware-"+tokName);
+        String tokPwd = pr.getPassword("hardware-" + tokName);
 
         boolean loggedIn = false;
 
@@ -157,48 +157,48 @@ public class ConfigHSMLoginPanel extends WizardPanelBase {
         password = new Password(tokPwd.toCharArray());
 
         try {
-		    if (token.passwordIsInitialized()) {
-		        CMS.debug(
-		                "ConfigHSMLoginPanel: loginToken():token password is initialized");
-		        if (!token.isLoggedIn()) {
-		            CMS.debug(
-		                    "ConfigHSMLoginPanel: loginToken():Token is not logged in, try it");
-		            token.login(password);
-		            context.put("status", "justLoggedIn");
-		        } else {
-		            CMS.debug(
-		                    "ConfigHSMLoginPanel:Token has already logged on");
-		            context.put("status", "alreadyLoggedIn");
-		        }
-		    } else {
-		        CMS.debug(
-		                "ConfigHSMLoginPanel: loginToken():Token password not initialized");
-		        context.put("status", "tokenPasswordNotInitialized");
-		        rv = false;
-		    }
+            if (token.passwordIsInitialized()) {
+                CMS.debug(
+                        "ConfigHSMLoginPanel: loginToken():token password is initialized");
+                if (!token.isLoggedIn()) {
+                    CMS.debug(
+                            "ConfigHSMLoginPanel: loginToken():Token is not logged in, try it");
+                    token.login(password);
+                    context.put("status", "justLoggedIn");
+                } else {
+                    CMS.debug(
+                            "ConfigHSMLoginPanel:Token has already logged on");
+                    context.put("status", "alreadyLoggedIn");
+                }
+            } else {
+                CMS.debug(
+                        "ConfigHSMLoginPanel: loginToken():Token password not initialized");
+                context.put("status", "tokenPasswordNotInitialized");
+                rv = false;
+            }
 
-		} catch (IncorrectPasswordException e) {
-		    context.put("status", "incorrectPassword");
-		    context.put("errorString", e.toString());
-		    CMS.debug("ConfigHSMLoginPanel: loginToken():" + e.toString());
-		    rv = false;
-		} catch (Exception e) {
-		    CMS.debug("ConfigHSMLoginPanel: loginToken():" + e.toString());
-		    context.put("errorString", e.toString());
-		    rv = false;
-		}
+        } catch (IncorrectPasswordException e) {
+            context.put("status", "incorrectPassword");
+            context.put("errorString", e.toString());
+            CMS.debug("ConfigHSMLoginPanel: loginToken():" + e.toString());
+            rv = false;
+        } catch (Exception e) {
+            CMS.debug("ConfigHSMLoginPanel: loginToken():" + e.toString());
+            context.put("errorString", e.toString());
+            rv = false;
+        }
         return rv;
     }
 
     // XXX how do you do this?
     public PropertySet getUsage() {
         PropertySet set = new PropertySet();
-                                                                                
+
         Descriptor choiceDesc = new Descriptor(IDescriptor.CHOICE, "", "", null); /* no default parameters */
 
         set.add(
                 "choice", choiceDesc);
-                                                                                
+
         return set;
     }
 
@@ -220,10 +220,10 @@ public class ConfigHSMLoginPanel extends WizardPanelBase {
             select = cs.getString("preop.subsystem.select", "");
         } catch (Exception e) {
         }
-     
-//        if (select.equals("clone"))
- //           return;
-      
+
+        //        if (select.equals("clone"))
+        //           return;
+
         CMS.debug("ConfigHSMLoginPanel: in update()");
 
         String uTokName = null;
@@ -233,7 +233,7 @@ public class ConfigHSMLoginPanel extends WizardPanelBase {
             uPasswd = HttpInput.getPassword(request, "__uPasswd");
         } catch (Exception e) {
         }
-     
+
         if (uPasswd == null) {
             CMS.debug("ConfigHSMLoginPanel: password not found");
             context.put("error", "no password");
@@ -270,13 +270,13 @@ public class ConfigHSMLoginPanel extends WizardPanelBase {
                 PlainPasswordWriter pw = new PlainPasswordWriter();
 
                 pw.init(mPwdFilePath);
-                pw.putPassword("hardware-"+uTokName, uPasswd);
+                pw.putPassword("hardware-" + uTokName, uPasswd);
                 pw.commit();
 
             } catch (FileNotFoundException e) {
                 CMS.debug(
                         "ConfigHSMLoginPanel: update(): Exception caught: "
-                                + e.toString() + " writing to "+ mPwdFilePath);
+                                + e.toString() + " writing to " + mPwdFilePath);
                 CMS.debug(
                         "ConfigHSMLoginPanel: update(): password not written to cache");
                 System.err.println("Exception caught: " + e.toString());
@@ -288,7 +288,7 @@ public class ConfigHSMLoginPanel extends WizardPanelBase {
                 System.err.println("Exception caught: " + e.toString());
                 context.put("error", "Exception:" + e.toString());
             }
-	    
+
         } // found password
 
         context.put("panel", "admin/console/config/config_hsmloginpanel.vm");
@@ -308,4 +308,3 @@ public class ConfigHSMLoginPanel extends WizardPanelBase {
         context.put("panel", "admin/console/config/config_hsmloginpanel.vm");
     }
 }
-

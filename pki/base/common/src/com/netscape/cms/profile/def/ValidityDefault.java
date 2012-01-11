@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.def;
 
-
 import java.io.IOException;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
@@ -36,12 +35,11 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 
-
 /**
  * This class implements an enrollment default policy
  * that populates a server-side configurable validity
  * into the certificate template.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class ValidityDefault extends EnrollDefault {
@@ -64,26 +62,26 @@ public class ValidityDefault extends EnrollDefault {
     }
 
     public void init(IProfile profile, IConfigStore config)
-        throws EProfileException {
+            throws EProfileException {
         super.init(profile, config);
     }
 
     public void setConfig(String name, String value)
-        throws EPropertyException {
+            throws EPropertyException {
         if (name.equals(CONFIG_RANGE)) {
-          try {
-            Integer.parseInt(value);
-          } catch (Exception e) {
+            try {
+                Integer.parseInt(value);
+            } catch (Exception e) {
                 throw new EPropertyException(CMS.getUserMessage(
                             "CMS_INVALID_PROPERTY", CONFIG_RANGE));
-          }
+            }
         } else if (name.equals(CONFIG_START_TIME)) {
-          try {
-            Integer.parseInt(value);
-          } catch (Exception e) {
+            try {
+                Integer.parseInt(value);
+            } catch (Exception e) {
                 throw new EPropertyException(CMS.getUserMessage(
                             "CMS_INVALID_PROPERTY", CONFIG_START_TIME));
-          }
+            }
         }
         super.setConfig(name, value);
     }
@@ -91,16 +89,16 @@ public class ValidityDefault extends EnrollDefault {
     public IDescriptor getConfigDescriptor(Locale locale, String name) {
         if (name.equals(CONFIG_RANGE)) {
             return new Descriptor(IDescriptor.STRING,
-                    null, 
+                    null,
                     "2922",
                     CMS.getUserMessage(locale,
-                        "CMS_PROFILE_VALIDITY_RANGE"));
+                            "CMS_PROFILE_VALIDITY_RANGE"));
         } else if (name.equals(CONFIG_START_TIME)) {
             return new Descriptor(IDescriptor.STRING,
-                    null, 
+                    null,
                     "60", /* 1 minute */
                     CMS.getUserMessage(locale,
-                        "CMS_PROFILE_VALIDITY_START_TIME"));
+                            "CMS_PROFILE_VALIDITY_START_TIME"));
         } else {
             return null;
         }
@@ -119,19 +117,19 @@ public class ValidityDefault extends EnrollDefault {
     }
 
     public void setValue(String name, Locale locale,
-        X509CertInfo info, String value)
-        throws EPropertyException {
-        if (name == null) { 
+            X509CertInfo info, String value)
+            throws EPropertyException {
+        if (name == null) {
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         }
-        if (value == null || value.equals("")) { 
+        if (value == null || value.equals("")) {
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         }
         if (name.equals(VAL_NOT_BEFORE)) {
-            SimpleDateFormat formatter = 
-                new SimpleDateFormat(DATE_FORMAT);
+            SimpleDateFormat formatter =
+                    new SimpleDateFormat(DATE_FORMAT);
             ParsePosition pos = new ParsePosition(0);
             Date date = formatter.parse(value, pos);
             CertificateValidity validity = null;
@@ -140,15 +138,15 @@ public class ValidityDefault extends EnrollDefault {
                 validity = (CertificateValidity)
                         info.get(X509CertInfo.VALIDITY);
                 validity.set(CertificateValidity.NOT_BEFORE,
-                    date);
+                        date);
             } catch (Exception e) {
                 CMS.debug("ValidityDefault: setValue " + e.toString());
                 throw new EPropertyException(CMS.getUserMessage(
                             locale, "CMS_INVALID_PROPERTY", name));
             }
         } else if (name.equals(VAL_NOT_AFTER)) {
-            SimpleDateFormat formatter = 
-                new SimpleDateFormat(DATE_FORMAT);
+            SimpleDateFormat formatter =
+                    new SimpleDateFormat(DATE_FORMAT);
             ParsePosition pos = new ParsePosition(0);
             Date date = formatter.parse(value, pos);
             CertificateValidity validity = null;
@@ -157,7 +155,7 @@ public class ValidityDefault extends EnrollDefault {
                 validity = (CertificateValidity)
                         info.get(X509CertInfo.VALIDITY);
                 validity.set(CertificateValidity.NOT_AFTER,
-                    date);
+                        date);
             } catch (Exception e) {
                 CMS.debug("ValidityDefault: setValue " + e.toString());
                 throw new EPropertyException(CMS.getUserMessage(
@@ -170,16 +168,16 @@ public class ValidityDefault extends EnrollDefault {
     }
 
     public String getValue(String name, Locale locale,
-        X509CertInfo info)
-        throws EPropertyException { 
+            X509CertInfo info)
+            throws EPropertyException {
 
         if (name == null)
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
 
         if (name.equals(VAL_NOT_BEFORE)) {
-            SimpleDateFormat formatter = 
-                new SimpleDateFormat(DATE_FORMAT);
+            SimpleDateFormat formatter =
+                    new SimpleDateFormat(DATE_FORMAT);
             CertificateValidity validity = null;
 
             try {
@@ -192,8 +190,8 @@ public class ValidityDefault extends EnrollDefault {
             }
             throw new EPropertyException("Invalid valie");
         } else if (name.equals(VAL_NOT_AFTER)) {
-            SimpleDateFormat formatter = 
-                new SimpleDateFormat(DATE_FORMAT);
+            SimpleDateFormat formatter =
+                    new SimpleDateFormat(DATE_FORMAT);
             CertificateValidity validity = null;
 
             try {
@@ -214,7 +212,7 @@ public class ValidityDefault extends EnrollDefault {
     }
 
     public String getText(Locale locale) {
-        return CMS.getUserMessage(locale, "CMS_PROFILE_DEF_VALIDITY", 
+        return CMS.getUserMessage(locale, "CMS_PROFILE_DEF_VALIDITY",
                 getConfig(CONFIG_RANGE));
     }
 
@@ -222,11 +220,11 @@ public class ValidityDefault extends EnrollDefault {
      * Populates the request with this policy default.
      */
     public void populate(IRequest request, X509CertInfo info)
-        throws EProfileException {
+            throws EProfileException {
         // always + 60 seconds
         String startTimeStr = getConfig(CONFIG_START_TIME);
         try {
-          startTimeStr = mapPattern(request, startTimeStr);
+            startTimeStr = mapPattern(request, startTimeStr);
         } catch (IOException e) {
             CMS.debug("ValidityDefault: populate " + e.toString());
         }
@@ -241,7 +239,7 @@ public class ValidityDefault extends EnrollDefault {
         try {
             String rangeStr = getConfig(CONFIG_RANGE);
             rangeStr = mapPattern(request, rangeStr);
-            notAfterVal = notBefore.getTime() + 
+            notAfterVal = notBefore.getTime() +
                     (mDefault * Integer.parseInt(rangeStr));
         } catch (Exception e) {
             // configured value is not correct
@@ -250,8 +248,8 @@ public class ValidityDefault extends EnrollDefault {
                         getLocale(request), "CMS_INVALID_PROPERTY", CONFIG_RANGE));
         }
         Date notAfter = new Date(notAfterVal);
-        CertificateValidity validity = 
-            new CertificateValidity(notBefore, notAfter);
+        CertificateValidity validity =
+                new CertificateValidity(notBefore, notAfter);
 
         try {
             info.set(X509CertInfo.VALIDITY, validity);

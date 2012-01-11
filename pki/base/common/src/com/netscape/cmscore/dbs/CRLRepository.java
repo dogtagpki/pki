@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.dbs;
 
-
 import java.math.BigInteger;
 import java.util.Date;
 import java.util.Hashtable;
@@ -36,10 +35,10 @@ import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.dbs.crldb.ICRLRepository;
 
 /**
- * A class represents a CRL repository. It stores all the 
+ * A class represents a CRL repository. It stores all the
  * CRL issuing points.
  * <P>
- *
+ * 
  * @author thomask
  * @version $Revision$, $Date$
  */
@@ -52,8 +51,8 @@ public class CRLRepository extends Repository implements ICRLRepository {
     /**
      * Constructs a CRL repository.
      */
-    public CRLRepository(IDBSubsystem dbService, int increment, String baseDN) 
-        throws EDBException {
+    public CRLRepository(IDBSubsystem dbService, int increment, String baseDN)
+            throws EDBException {
         super(dbService, increment, baseDN);
         mBaseDN = baseDN;
         mDBService = dbService;
@@ -61,22 +60,22 @@ public class CRLRepository extends Repository implements ICRLRepository {
         IDBRegistry reg = dbService.getRegistry();
 
         /**
-         String crlRecordOC[] = new String[1];
-         crlRecordOC[0] = Schema.LDAP_OC_CRL_RECORD;
-         reg.registerObjectClass(CRLIssuingPointRecord.class.getName(),
-         crlRecordOC);
-         reg.registerAttribute(ICRLIssuingPointRecord.ATTR_ID, new
-         StringMapper(Schema.LDAP_ATTR_CRL_ID));
-         reg.registerAttribute(ICRLIssuingPointRecord.ATTR_CRL_NUMBER, new
-         BigIntegerMapper(Schema.LDAP_ATTR_CRL_NUMBER));
-         reg.registerAttribute(ICRLIssuingPointRecord.ATTR_CRL_SIZE, new
-         LongMapper(Schema.LDAP_ATTR_CRL_SIZE));
-         reg.registerAttribute(ICRLIssuingPointRecord.ATTR_THIS_UPDATE, new
-         DateMapper(Schema.LDAP_ATTR_THIS_UPDATE));
-         reg.registerAttribute(ICRLIssuingPointRecord.ATTR_NEXT_UPDATE, new
-         DateMapper(Schema.LDAP_ATTR_NEXT_UPDATE));
-         reg.registerAttribute(ICRLIssuingPointRecord.ATTR_CRL, new
-         ByteArrayMapper(Schema.LDAP_ATTR_CRL));
+         * String crlRecordOC[] = new String[1];
+         * crlRecordOC[0] = Schema.LDAP_OC_CRL_RECORD;
+         * reg.registerObjectClass(CRLIssuingPointRecord.class.getName(),
+         * crlRecordOC);
+         * reg.registerAttribute(ICRLIssuingPointRecord.ATTR_ID, new
+         * StringMapper(Schema.LDAP_ATTR_CRL_ID));
+         * reg.registerAttribute(ICRLIssuingPointRecord.ATTR_CRL_NUMBER, new
+         * BigIntegerMapper(Schema.LDAP_ATTR_CRL_NUMBER));
+         * reg.registerAttribute(ICRLIssuingPointRecord.ATTR_CRL_SIZE, new
+         * LongMapper(Schema.LDAP_ATTR_CRL_SIZE));
+         * reg.registerAttribute(ICRLIssuingPointRecord.ATTR_THIS_UPDATE, new
+         * DateMapper(Schema.LDAP_ATTR_THIS_UPDATE));
+         * reg.registerAttribute(ICRLIssuingPointRecord.ATTR_NEXT_UPDATE, new
+         * DateMapper(Schema.LDAP_ATTR_NEXT_UPDATE));
+         * reg.registerAttribute(ICRLIssuingPointRecord.ATTR_CRL, new
+         * ByteArrayMapper(Schema.LDAP_ATTR_CRL));
          **/
     }
 
@@ -97,24 +96,23 @@ public class CRLRepository extends Repository implements ICRLRepository {
     /**
      * Removes all objects with this repository.
      */
-    public void removeAllObjects() throws EBaseException
-    {
+    public void removeAllObjects() throws EBaseException {
     }
 
     /**
      * Adds CRL issuing points.
      */
     public void addCRLIssuingPointRecord(ICRLIssuingPointRecord rec)
-        throws EBaseException {
+            throws EBaseException {
         IDBSSession s = mDBService.createSession();
 
         try {
             String name = mLdapCRLIssuingPointName + "=" +
-                ((CRLIssuingPointRecord) rec).getId().toString() + "," + getDN();
+                    ((CRLIssuingPointRecord) rec).getId().toString() + "," + getDN();
 
             s.add(name, rec);
-        } finally { 
-            if (s != null) 
+        } finally {
+            if (s != null)
                 s.close();
         }
     }
@@ -125,21 +123,21 @@ public class CRLRepository extends Repository implements ICRLRepository {
     public Vector getIssuingPointsNames() throws EBaseException {
         IDBSSession s = mDBService.createSession();
         try {
-            String[] attrs = {ICRLIssuingPointRecord.ATTR_ID, "objectclass"};
+            String[] attrs = { ICRLIssuingPointRecord.ATTR_ID, "objectclass" };
             String filter = "objectclass=" + CMS.getCRLIssuingPointRecordName();
             IDBSearchResults res = s.search(getDN(), filter, attrs);
             Vector v = new Vector();
             while (res.hasMoreElements()) {
-                ICRLIssuingPointRecord nextelement = 
-                  (ICRLIssuingPointRecord)res.nextElement();
+                ICRLIssuingPointRecord nextelement =
+                        (ICRLIssuingPointRecord) res.nextElement();
                 CMS.debug("CRLRepository getIssuingPointsNames(): name = "
-                  +nextelement.getId());
+                        + nextelement.getId());
                 v.addElement(nextelement.getId());
             }
 
             return v;
         } finally {
-            if (s != null) 
+            if (s != null)
                 s.close();
         }
     }
@@ -148,19 +146,20 @@ public class CRLRepository extends Repository implements ICRLRepository {
      * Reads issuing point record.
      */
     public ICRLIssuingPointRecord readCRLIssuingPointRecord(String id)
-        throws EBaseException {
+            throws EBaseException {
         IDBSSession s = mDBService.createSession();
         CRLIssuingPointRecord rec = null;
 
         try {
             String name = mLdapCRLIssuingPointName + "=" + id +
-                "," + getDN();
+                    "," + getDN();
 
             if (s != null) {
                 rec = (CRLIssuingPointRecord) s.read(name);
             }
-        } finally { 
-            if (s != null) s.close();
+        } finally {
+            if (s != null)
+                s.close();
         }
         return rec;
     }
@@ -169,31 +168,35 @@ public class CRLRepository extends Repository implements ICRLRepository {
      * deletes issuing point record.
      */
     public void deleteCRLIssuingPointRecord(String id)
-        throws EBaseException {
+            throws EBaseException {
         IDBSSession s = null;
 
         try {
             s = mDBService.createSession();
             String name = mLdapCRLIssuingPointName + "=" + id +
-                "," + getDN();
+                    "," + getDN();
 
-            if (s != null) s.delete(name);
+            if (s != null)
+                s.delete(name);
         } finally {
-            if (s != null) s.close();
+            if (s != null)
+                s.close();
         }
     }
 
-    public void modifyCRLIssuingPointRecord(String id, 
-        ModificationSet mods) throws EBaseException {
+    public void modifyCRLIssuingPointRecord(String id,
+            ModificationSet mods) throws EBaseException {
         IDBSSession s = mDBService.createSession();
 
         try {
             String name = mLdapCRLIssuingPointName + "=" + id +
-                "," + getDN();
+                    "," + getDN();
 
-            if (s != null) s.modify(name, mods);
-        } finally { 
-            if (s != null) s.close();
+            if (s != null)
+                s.modify(name, mods);
+        } finally {
+            if (s != null)
+                s.close();
         }
     }
 
@@ -201,24 +204,24 @@ public class CRLRepository extends Repository implements ICRLRepository {
      * Updates CRL issuing point record.
      */
     public void updateCRLIssuingPointRecord(String id, byte[] newCRL,
-        Date thisUpdate, Date nextUpdate, BigInteger crlNumber, Long crlSize)
-        throws EBaseException {
+            Date thisUpdate, Date nextUpdate, BigInteger crlNumber, Long crlSize)
+            throws EBaseException {
         ModificationSet mods = new ModificationSet();
 
         if (newCRL != null) {
-            mods.add(ICRLIssuingPointRecord.ATTR_CRL, 
-                Modification.MOD_REPLACE, newCRL);
+            mods.add(ICRLIssuingPointRecord.ATTR_CRL,
+                    Modification.MOD_REPLACE, newCRL);
         }
         if (nextUpdate != null) {
-            mods.add(ICRLIssuingPointRecord.ATTR_NEXT_UPDATE, 
-                Modification.MOD_REPLACE, nextUpdate);
+            mods.add(ICRLIssuingPointRecord.ATTR_NEXT_UPDATE,
+                    Modification.MOD_REPLACE, nextUpdate);
         }
-        mods.add(ICRLIssuingPointRecord.ATTR_THIS_UPDATE, 
-            Modification.MOD_REPLACE, thisUpdate);
-        mods.add(ICRLIssuingPointRecord.ATTR_CRL_NUMBER, 
-            Modification.MOD_REPLACE, crlNumber);
-        mods.add(ICRLIssuingPointRecord.ATTR_CRL_SIZE, 
-            Modification.MOD_REPLACE, crlSize);
+        mods.add(ICRLIssuingPointRecord.ATTR_THIS_UPDATE,
+                Modification.MOD_REPLACE, thisUpdate);
+        mods.add(ICRLIssuingPointRecord.ATTR_CRL_NUMBER,
+                Modification.MOD_REPLACE, crlNumber);
+        mods.add(ICRLIssuingPointRecord.ATTR_CRL_SIZE,
+                Modification.MOD_REPLACE, crlSize);
         modifyCRLIssuingPointRecord(id, mods);
     }
 
@@ -226,40 +229,40 @@ public class CRLRepository extends Repository implements ICRLRepository {
      * Updates CRL issuing point record.
      */
     public void updateCRLIssuingPointRecord(String id, byte[] newCRL,
-        Date thisUpdate, Date nextUpdate, BigInteger crlNumber, Long crlSize,
-        Hashtable revokedCerts, Hashtable unrevokedCerts, Hashtable expiredCerts)
-        throws EBaseException {
+            Date thisUpdate, Date nextUpdate, BigInteger crlNumber, Long crlSize,
+            Hashtable revokedCerts, Hashtable unrevokedCerts, Hashtable expiredCerts)
+            throws EBaseException {
         ModificationSet mods = new ModificationSet();
 
         if (newCRL != null) {
-            mods.add(ICRLIssuingPointRecord.ATTR_CRL, 
-                Modification.MOD_REPLACE, newCRL);
+            mods.add(ICRLIssuingPointRecord.ATTR_CRL,
+                    Modification.MOD_REPLACE, newCRL);
         }
         if (nextUpdate != null) {
-            mods.add(ICRLIssuingPointRecord.ATTR_NEXT_UPDATE, 
-                Modification.MOD_REPLACE, nextUpdate);
+            mods.add(ICRLIssuingPointRecord.ATTR_NEXT_UPDATE,
+                    Modification.MOD_REPLACE, nextUpdate);
         }
-        mods.add(ICRLIssuingPointRecord.ATTR_THIS_UPDATE, 
-            Modification.MOD_REPLACE, thisUpdate);
-        mods.add(ICRLIssuingPointRecord.ATTR_CRL_NUMBER, 
-            Modification.MOD_REPLACE, crlNumber);
-        mods.add(ICRLIssuingPointRecord.ATTR_CRL_SIZE, 
-            Modification.MOD_REPLACE, crlSize);
+        mods.add(ICRLIssuingPointRecord.ATTR_THIS_UPDATE,
+                Modification.MOD_REPLACE, thisUpdate);
+        mods.add(ICRLIssuingPointRecord.ATTR_CRL_NUMBER,
+                Modification.MOD_REPLACE, crlNumber);
+        mods.add(ICRLIssuingPointRecord.ATTR_CRL_SIZE,
+                Modification.MOD_REPLACE, crlSize);
         if (revokedCerts != null) {
-            mods.add(ICRLIssuingPointRecord.ATTR_REVOKED_CERTS, 
-                Modification.MOD_REPLACE, revokedCerts);
+            mods.add(ICRLIssuingPointRecord.ATTR_REVOKED_CERTS,
+                    Modification.MOD_REPLACE, revokedCerts);
         }
         if (unrevokedCerts != null) {
-            mods.add(ICRLIssuingPointRecord.ATTR_UNREVOKED_CERTS, 
-                Modification.MOD_REPLACE, unrevokedCerts);
+            mods.add(ICRLIssuingPointRecord.ATTR_UNREVOKED_CERTS,
+                    Modification.MOD_REPLACE, unrevokedCerts);
         }
         if (expiredCerts != null) {
-            mods.add(ICRLIssuingPointRecord.ATTR_EXPIRED_CERTS, 
-                Modification.MOD_REPLACE, expiredCerts);
+            mods.add(ICRLIssuingPointRecord.ATTR_EXPIRED_CERTS,
+                    Modification.MOD_REPLACE, expiredCerts);
         }
         if (revokedCerts != null || unrevokedCerts != null) {
             mods.add(ICRLIssuingPointRecord.ATTR_FIRST_UNSAVED,
-                Modification.MOD_REPLACE, ICRLIssuingPointRecord.CLEAN_CACHE);
+                    Modification.MOD_REPLACE, ICRLIssuingPointRecord.CLEAN_CACHE);
         }
         modifyCRLIssuingPointRecord(id, mods);
     }
@@ -268,16 +271,16 @@ public class CRLRepository extends Repository implements ICRLRepository {
      * Updates CRL issuing point record with recently revoked certificates info.
      */
     public void updateRevokedCerts(String id, Hashtable revokedCerts,
-        Hashtable unrevokedCerts)
-        throws EBaseException {
+            Hashtable unrevokedCerts)
+            throws EBaseException {
         ModificationSet mods = new ModificationSet();
 
-        mods.add(ICRLIssuingPointRecord.ATTR_REVOKED_CERTS, 
-            Modification.MOD_REPLACE, revokedCerts);
-        mods.add(ICRLIssuingPointRecord.ATTR_UNREVOKED_CERTS, 
-            Modification.MOD_REPLACE, unrevokedCerts);
+        mods.add(ICRLIssuingPointRecord.ATTR_REVOKED_CERTS,
+                Modification.MOD_REPLACE, revokedCerts);
+        mods.add(ICRLIssuingPointRecord.ATTR_UNREVOKED_CERTS,
+                Modification.MOD_REPLACE, unrevokedCerts);
         mods.add(ICRLIssuingPointRecord.ATTR_FIRST_UNSAVED,
-            Modification.MOD_REPLACE, ICRLIssuingPointRecord.CLEAN_CACHE);
+                Modification.MOD_REPLACE, ICRLIssuingPointRecord.CLEAN_CACHE);
         modifyCRLIssuingPointRecord(id, mods);
     }
 
@@ -285,11 +288,11 @@ public class CRLRepository extends Repository implements ICRLRepository {
      * Updates CRL issuing point record with recently expired certificates info.
      */
     public void updateExpiredCerts(String id, Hashtable expiredCerts)
-        throws EBaseException {
+            throws EBaseException {
         ModificationSet mods = new ModificationSet();
 
-        mods.add(ICRLIssuingPointRecord.ATTR_EXPIRED_CERTS, 
-            Modification.MOD_REPLACE, expiredCerts);
+        mods.add(ICRLIssuingPointRecord.ATTR_EXPIRED_CERTS,
+                Modification.MOD_REPLACE, expiredCerts);
         modifyCRLIssuingPointRecord(id, mods);
     }
 
@@ -297,24 +300,24 @@ public class CRLRepository extends Repository implements ICRLRepository {
      * Updates CRL issuing point record with CRL cache info.
      */
     public void updateCRLCache(String id, Long crlSize,
-        Hashtable revokedCerts,
-        Hashtable unrevokedCerts,
-        Hashtable expiredCerts)
-        throws EBaseException {
+            Hashtable revokedCerts,
+            Hashtable unrevokedCerts,
+            Hashtable expiredCerts)
+            throws EBaseException {
         ModificationSet mods = new ModificationSet();
 
         if (crlSize != null) {
-            mods.add(ICRLIssuingPointRecord.ATTR_CRL_SIZE, 
-                Modification.MOD_REPLACE, crlSize);
+            mods.add(ICRLIssuingPointRecord.ATTR_CRL_SIZE,
+                    Modification.MOD_REPLACE, crlSize);
         }
         mods.add(ICRLIssuingPointRecord.ATTR_REVOKED_CERTS,
-            Modification.MOD_REPLACE, revokedCerts);
+                Modification.MOD_REPLACE, revokedCerts);
         mods.add(ICRLIssuingPointRecord.ATTR_UNREVOKED_CERTS,
-            Modification.MOD_REPLACE, unrevokedCerts);
+                Modification.MOD_REPLACE, unrevokedCerts);
         mods.add(ICRLIssuingPointRecord.ATTR_EXPIRED_CERTS,
-            Modification.MOD_REPLACE, expiredCerts);
+                Modification.MOD_REPLACE, expiredCerts);
         mods.add(ICRLIssuingPointRecord.ATTR_FIRST_UNSAVED,
-            Modification.MOD_REPLACE, ICRLIssuingPointRecord.CLEAN_CACHE);
+                Modification.MOD_REPLACE, ICRLIssuingPointRecord.CLEAN_CACHE);
         modifyCRLIssuingPointRecord(id, mods);
     }
 
@@ -324,41 +327,41 @@ public class CRLRepository extends Repository implements ICRLRepository {
     public void updateDeltaCRL(String id, BigInteger deltaCRLNumber,
                                Long deltaCRLSize, Date nextUpdate,
                                byte[] deltaCRL)
-        throws EBaseException {
+            throws EBaseException {
         ModificationSet mods = new ModificationSet();
 
         if (deltaCRLNumber != null) {
             mods.add(ICRLIssuingPointRecord.ATTR_DELTA_NUMBER,
-                Modification.MOD_REPLACE, deltaCRLNumber);
+                    Modification.MOD_REPLACE, deltaCRLNumber);
         }
         if (deltaCRLSize != null) {
-            mods.add(ICRLIssuingPointRecord.ATTR_DELTA_SIZE, 
-                Modification.MOD_REPLACE, deltaCRLSize);
+            mods.add(ICRLIssuingPointRecord.ATTR_DELTA_SIZE,
+                    Modification.MOD_REPLACE, deltaCRLSize);
         }
         if (nextUpdate != null) {
-            mods.add(ICRLIssuingPointRecord.ATTR_NEXT_UPDATE, 
-                Modification.MOD_REPLACE, nextUpdate);
+            mods.add(ICRLIssuingPointRecord.ATTR_NEXT_UPDATE,
+                    Modification.MOD_REPLACE, nextUpdate);
         }
         if (deltaCRL != null) {
-            mods.add(ICRLIssuingPointRecord.ATTR_DELTA_CRL, 
-                Modification.MOD_REPLACE, deltaCRL);
+            mods.add(ICRLIssuingPointRecord.ATTR_DELTA_CRL,
+                    Modification.MOD_REPLACE, deltaCRL);
         }
         modifyCRLIssuingPointRecord(id, mods);
     }
 
     public void updateFirstUnsaved(String id, String firstUnsaved)
-        throws EBaseException {
+            throws EBaseException {
         ModificationSet mods = new ModificationSet();
 
         if (firstUnsaved != null) {
-            mods.add(ICRLIssuingPointRecord.ATTR_FIRST_UNSAVED, 
-                Modification.MOD_REPLACE, firstUnsaved);
+            mods.add(ICRLIssuingPointRecord.ATTR_FIRST_UNSAVED,
+                    Modification.MOD_REPLACE, firstUnsaved);
         }
         modifyCRLIssuingPointRecord(id, mods);
     }
 
-     public BigInteger getLastSerialNumberInRange(BigInteger  serial_low_bound, BigInteger serial_upper_bound)
-        throws EBaseException {
+    public BigInteger getLastSerialNumberInRange(BigInteger serial_low_bound, BigInteger serial_upper_bound)
+            throws EBaseException {
 
         return null;
     }

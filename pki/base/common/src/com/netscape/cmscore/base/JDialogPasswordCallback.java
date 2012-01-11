@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.base;
 
-
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -44,19 +43,18 @@ import org.mozilla.jss.util.Password;
 import org.mozilla.jss.util.PasswordCallback;
 import org.mozilla.jss.util.PasswordCallbackInfo;
 
-
 /**
  * A class to retrieve passwords through a modal Java dialog box
  */
 public class JDialogPasswordCallback implements PasswordCallback {
 
     public Password getPasswordFirstAttempt(PasswordCallbackInfo info)
-        throws PasswordCallback.GiveUpException {
+            throws PasswordCallback.GiveUpException {
         return getPW(info, false);
     }
 
     public Password getPasswordAgain(PasswordCallbackInfo info)
-        throws PasswordCallback.GiveUpException {
+            throws PasswordCallback.GiveUpException {
         return getPW(info, true);
     }
 
@@ -92,7 +90,7 @@ public class JDialogPasswordCallback implements PasswordCallback {
      * extracting the information, and returning it.
      */
     private Password getPW(PasswordCallbackInfo info, boolean retry)
-        throws PasswordCallback.GiveUpException {
+            throws PasswordCallback.GiveUpException {
         // These need to final so they can be accessed from action listeners
         final PWHolder pwHolder = new PWHolder();
         final JFrame f = new JFrame("Password Dialog");
@@ -122,7 +120,7 @@ public class JDialogPasswordCallback implements PasswordCallback {
             //warning.setHighlighter(null);
             contentPane.add(warning, c);
         }
-            
+
         String prompt = getPrompt(info);
         JLabel label = new JLabel(prompt);
 
@@ -141,24 +139,24 @@ public class JDialogPasswordCallback implements PasswordCallback {
 
         // Listener for the text field
         ActionListener getPasswordListener = new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    //input = (JPasswordField)e.getSource();
+            public void actionPerformed(ActionEvent e) {
+                //input = (JPasswordField)e.getSource();
 
-                    // XXX!!! Change to char[] in JDK 1.2
-                    String pwString = pwField.getText();
+                // XXX!!! Change to char[] in JDK 1.2
+                String pwString = pwField.getText();
 
-                    pwHolder.password = new Password(pwString.toCharArray());
-                    pwHolder.cancelled = false;
-                    f.dispose();
-                }
-            };
+                pwHolder.password = new Password(pwString.toCharArray());
+                pwHolder.cancelled = false;
+                f.dispose();
+            }
+        };
 
         // There is a bug in JPasswordField. The cursor is advanced by the
         // width of the character you type, but a '*' is echoed, so the
         // cursor does not stay lined up with the end of the text.
         // We use a monospaced font to workaround this.
 
-        pwField.setFont(new Font("Monospaced", Font.PLAIN, 
+        pwField.setFont(new Font("Monospaced", Font.PLAIN,
                 pwField.getFont().getSize()));
         pwField.setEchoChar('*');
         pwField.addActionListener(getPasswordListener);
@@ -188,11 +186,11 @@ public class JDialogPasswordCallback implements PasswordCallback {
 
         JButton cancel = new JButton("Cancel");
         ActionListener buttonListener = new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    pwHolder.cancelled = true;
-                    f.dispose();
-                }
-            };
+            public void actionPerformed(ActionEvent e) {
+                pwHolder.cancelled = true;
+                f.dispose();
+            }
+        };
 
         cancel.addActionListener(buttonListener);
         resetGBC(c);
@@ -217,10 +215,10 @@ public class JDialogPasswordCallback implements PasswordCallback {
         JDialog d = new JDialog(f, "Fedora Certificate System", true);
 
         WindowListener windowListener = new WindowAdapter() {
-                public void windowOpened(WindowEvent e) {
-                    pwField.requestFocus();
-                }
-            };
+            public void windowOpened(WindowEvent e) {
+                pwField.requestFocus();
+            }
+        };
 
         d.addWindowListener(windowListener);
 
@@ -230,7 +228,7 @@ public class JDialogPasswordCallback implements PasswordCallback {
         Dimension paneSize = d.getSize();
 
         d.setLocation((screenSize.width - paneSize.width) / 2,
-            (screenSize.height - paneSize.height) / 2);
+                (screenSize.height - paneSize.height) / 2);
         d.getRootPane().setDefaultButton(ok);
 
         // toFront seems to cause the dialog to go blank on unix!
@@ -254,7 +252,7 @@ public class JDialogPasswordCallback implements PasswordCallback {
             CryptoManager manager;
 
             CryptoManager.InitializationValues iv = new
-                CryptoManager.InitializationValues(args[0]);
+                    CryptoManager.InitializationValues(args[0]);
 
             CryptoManager.initialize(iv);
             manager = CryptoManager.getInstance();

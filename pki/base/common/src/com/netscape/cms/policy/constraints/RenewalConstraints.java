@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.policy.constraints;
 
-
 import java.util.Date;
 import java.util.Locale;
 import java.util.Vector;
@@ -37,21 +36,22 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cms.policy.APolicyRule;
 
-
 /**
  * Whether to allow renewal of an expired cert.
+ * 
  * @version $Revision$, $Date$
- * <P>
- * <PRE>
+ *          <P>
+ * 
+ *          <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
- * <P>
- *
+ *          <P>
+ * 
  * @deprecated
  * @version $Revision$, $Date$
  */
 public class RenewalConstraints extends APolicyRule
-    implements IRenewalPolicy, IExtendedPluginInfo {
+        implements IRenewalPolicy, IExtendedPluginInfo {
 
     private static final String PROP_ALLOW_EXPIRED_CERTS = "allowExpiredCerts";
     private static final String PROP_RENEWAL_NOT_AFTER = "renewalNotAfter";
@@ -66,7 +66,7 @@ public class RenewalConstraints extends APolicyRule
     static {
         defConfParams.addElement(PROP_ALLOW_EXPIRED_CERTS + "=" + true);
         defConfParams.addElement(PROP_RENEWAL_NOT_AFTER + "=" +
-            DEF_RENEWAL_NOT_AFTER);
+                DEF_RENEWAL_NOT_AFTER);
     }
 
     public RenewalConstraints() {
@@ -79,10 +79,10 @@ public class RenewalConstraints extends APolicyRule
                 PROP_ALLOW_EXPIRED_CERTS + ";boolean;Allow a user to renew an already-expired certificate",
                 PROP_RENEWAL_NOT_AFTER + ";number;Number of days since certificate expiry after which renewal request would be rejected",
                 IExtendedPluginInfo.HELP_TOKEN +
-                ";configuration-policyrules-renewalconstraints",
+                        ";configuration-policyrules-renewalconstraints",
                 IExtendedPluginInfo.HELP_TEXT +
-                ";Permit administrator to decide policy on whether to " +
-                "permit renewals for already-expired certificates"
+                        ";Permit administrator to decide policy on whether to " +
+                        "permit renewals for already-expired certificates"
             };
 
         return params;
@@ -92,24 +92,22 @@ public class RenewalConstraints extends APolicyRule
     /**
      * Initializes this policy rule.
      * <P>
-     *
+     * 
      * The entries probably are of the form:
-     *
-     *      ra.Policy.rule.<ruleName>.implName=ValidityConstraints
-     *      ra.Policy.rule.<ruleName>.enable=true
-     *      ra.Policy.rule.<ruleName>.allowExpiredCerts=true
-     *
-     * @param config	The config store reference
+     * 
+     * ra.Policy.rule.<ruleName>.implName=ValidityConstraints ra.Policy.rule.<ruleName>.enable=true ra.Policy.rule.<ruleName>.allowExpiredCerts=true
+     * 
+     * @param config The config store reference
      */
     public void init(ISubsystem owner, IConfigStore config)
-        throws EPolicyException {
+            throws EPolicyException {
         // Get min and max validity in days and configure them.
         try {
-            mAllowExpiredCerts = 
+            mAllowExpiredCerts =
                     config.getBoolean(PROP_ALLOW_EXPIRED_CERTS, true);
             String val = config.getString(PROP_RENEWAL_NOT_AFTER, null);
 
-            if (val == null) 
+            if (val == null)
                 mRenewalNotAfter = DEF_RENEWAL_NOT_AFTER * DAYS_TO_MS_FACTOR;
             else {
                 mRenewalNotAfter = Long.parseLong(val) * DAYS_TO_MS_FACTOR;
@@ -125,8 +123,8 @@ public class RenewalConstraints extends APolicyRule
     /**
      * Applies the policy on the given Request.
      * <P>
-     *
-     * @param req	The request on which to apply policy.
+     * 
+     * @param req The request on which to apply policy.
      * @return The policy result object.
      */
     public PolicyResult apply(IRequest req) {
@@ -135,25 +133,25 @@ public class RenewalConstraints extends APolicyRule
         try {
             // Get the certificates being renwed.
             X509CertImpl[] oldCerts =
-                req.getExtDataInCertArray(IRequest.OLD_CERTS);
+                    req.getExtDataInCertArray(IRequest.OLD_CERTS);
 
             if (oldCerts == null) {
                 setError(req, CMS.getUserMessage("CMS_POLICY_NO_OLD_CERT",
                         getInstanceName()), "");
                 return PolicyResult.REJECTED;
             }
-			
+
             if (mAllowExpiredCerts) {
                 CMS.debug("checking validity of each cert");
                 // check if each cert to be renewed is expired for more than 		    // allowed days.
                 for (int i = 0; i < oldCerts.length; i++) {
                     X509CertInfo oldCertInfo = (X509CertInfo)
-                        oldCerts[i].get(X509CertImpl.NAME + "." +
-                            X509CertImpl.INFO);
-                    CertificateValidity  oldValidity = (CertificateValidity)
-                        oldCertInfo.get(X509CertInfo.VALIDITY);
+                            oldCerts[i].get(X509CertImpl.NAME + "." +
+                                    X509CertImpl.INFO);
+                    CertificateValidity oldValidity = (CertificateValidity)
+                            oldCertInfo.get(X509CertInfo.VALIDITY);
                     Date notAfter = (Date)
-                        oldValidity.get(CertificateValidity.NOT_AFTER);
+                            oldValidity.get(CertificateValidity.NOT_AFTER);
 
                     // Is the Certificate eligible for renewal ?
 
@@ -166,12 +164,12 @@ public class RenewalConstraints extends APolicyRule
 
                     if (renewedNotAfter.before(now)) {
                         CMS.debug(
-                            "One or more certificates is expired for more than " + (mRenewalNotAfter / DAYS_TO_MS_FACTOR) + " days");
+                                "One or more certificates is expired for more than " + (mRenewalNotAfter / DAYS_TO_MS_FACTOR) + " days");
                         String params[] = { getInstanceName(), Long.toString(mRenewalNotAfter / DAYS_TO_MS_FACTOR) };
 
-                        setError(req, 
-                            CMS.getUserMessage("CMS_POLICY_CANNOT_RENEW_EXPIRED_CERTS_AFTER_ALLOWED_PERIOD",
-                                params), "");
+                        setError(req,
+                                CMS.getUserMessage("CMS_POLICY_CANNOT_RENEW_EXPIRED_CERTS_AFTER_ALLOWED_PERIOD",
+                                        params), "");
                         return PolicyResult.REJECTED;
                     }
                 }
@@ -182,12 +180,12 @@ public class RenewalConstraints extends APolicyRule
             // check if each cert to be renewed is expired.
             for (int i = 0; i < oldCerts.length; i++) {
                 X509CertInfo oldCertInfo = (X509CertInfo)
-                    oldCerts[i].get(
-                        X509CertImpl.NAME + "." + X509CertImpl.INFO);
-                CertificateValidity  oldValidity = (CertificateValidity)
-                    oldCertInfo.get(X509CertInfo.VALIDITY);
+                        oldCerts[i].get(
+                                X509CertImpl.NAME + "." + X509CertImpl.INFO);
+                CertificateValidity oldValidity = (CertificateValidity)
+                        oldCertInfo.get(X509CertInfo.VALIDITY);
                 Date notAfter = (Date)
-                    oldValidity.get(CertificateValidity.NOT_AFTER);
+                        oldValidity.get(CertificateValidity.NOT_AFTER);
 
                 // Is the Certificate still valid?
                 Date now = CMS.getCurrentDate();
@@ -195,19 +193,19 @@ public class RenewalConstraints extends APolicyRule
                 CMS.debug("RenewalConstraints: cert " + i + " notAfter " + notAfter + " now=" + now);
                 if (notAfter.before(now)) {
                     CMS.debug(
-                        "RenewalConstraints: One or more certificates is expired.");
+                            "RenewalConstraints: One or more certificates is expired.");
                     String params[] = { getInstanceName() };
 
-                    setError(req, 
-                        CMS.getUserMessage("CMS_POLICY_CANNOT_RENEW_EXPIRED_CERTS",
-                            params), "");
+                    setError(req,
+                            CMS.getUserMessage("CMS_POLICY_CANNOT_RENEW_EXPIRED_CERTS",
+                                    params), "");
                     result = PolicyResult.REJECTED;
                     break;
                 }
             }
 
         } catch (Exception e) {
-            String params[] = {getInstanceName(), e.toString()};
+            String params[] = { getInstanceName(), e.toString() };
 
             setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR", params), "");
             result = PolicyResult.REJECTED;
@@ -217,22 +215,22 @@ public class RenewalConstraints extends APolicyRule
 
     /**
      * Return configured parameters for a policy rule instance.
-     *
+     * 
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector getInstanceParams() {
         Vector confParams = new Vector();
 
         confParams.addElement(
-            PROP_ALLOW_EXPIRED_CERTS + "=" + mAllowExpiredCerts);
+                PROP_ALLOW_EXPIRED_CERTS + "=" + mAllowExpiredCerts);
         confParams.addElement(PROP_RENEWAL_NOT_AFTER + "=" +
-            mRenewalNotAfter / DAYS_TO_MS_FACTOR);
+                mRenewalNotAfter / DAYS_TO_MS_FACTOR);
         return confParams;
     }
 
     /**
      * Return default parameters for a policy implementation.
-     *
+     * 
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector getDefaultParams() {

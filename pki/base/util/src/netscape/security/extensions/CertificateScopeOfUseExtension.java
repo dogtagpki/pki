@@ -34,24 +34,24 @@ import netscape.security.x509.OIDMap;
 /**
  * This represents the CertificateScopeOfUse extension
  * as defined in draft-thayes-cert-scope-00
- *
+ * 
  * CertificateScopeEntry ::= SEQUENCE {
- *   name GeneralName, -- pattern, as for NameConstraints
- *   portNumber INTEGER OPTIONAL
+ * name GeneralName, -- pattern, as for NameConstraints
+ * portNumber INTEGER OPTIONAL
  * }
  * CertificateScopeOfUse ::= SEQUENCE OF CertificateScopeEntry
- *
+ * 
  * @author thomask
  * @version $Revision$, $Date$
  */
-public class CertificateScopeOfUseExtension extends Extension 
-    implements CertAttrSet {
+public class CertificateScopeOfUseExtension extends Extension
+        implements CertAttrSet {
     /**
      *
      */
     private static final long serialVersionUID = 2143292831971567770L;
     public static final String NAME = "CertificateScopeOfUse";
-    public static final int OID[] = { 2, 16, 840, 1, 113730, 1, 17};
+    public static final int OID[] = { 2, 16, 840, 1, 113730, 1, 17 };
     public static final ObjectIdentifier ID = new ObjectIdentifier(OID);
 
     private Vector mEntries = null;
@@ -59,13 +59,13 @@ public class CertificateScopeOfUseExtension extends Extension
     static {
         try {
             OIDMap.addAttribute(CertificateScopeOfUseExtension.class.getName(),
-                ID.toString(), NAME);
+                    ID.toString(), NAME);
         } catch (CertificateException e) {
         }
     }
 
     public CertificateScopeOfUseExtension(boolean critical, Vector scopeEntries)
-        throws IOException {
+            throws IOException {
         this.extensionId = ID;
         this.critical = critical;
         this.extensionValue = null; // build this when encodeThis() is called
@@ -79,8 +79,8 @@ public class CertificateScopeOfUseExtension extends Extension
         this.extensionValue = null; // build this when encodeThis() is called
     }
 
-    public CertificateScopeOfUseExtension(Boolean critical, Object value) 
-        throws IOException {
+    public CertificateScopeOfUseExtension(Boolean critical, Object value)
+            throws IOException {
         this.extensionId = ID;
         this.critical = critical.booleanValue();
         this.extensionValue = (byte[]) ((byte[]) value).clone();
@@ -146,7 +146,7 @@ public class CertificateScopeOfUseExtension extends Extension
         }
     }
 
-    private void encodeThis() throws IOException {	
+    private void encodeThis() throws IOException {
         DerOutputStream seq = new DerOutputStream();
         DerOutputStream tmp = new DerOutputStream();
 
@@ -155,7 +155,7 @@ public class CertificateScopeOfUseExtension extends Extension
 
         for (int i = 0; i < mEntries.size(); i++) {
             CertificateScopeEntry se = (CertificateScopeEntry)
-                mEntries.elementAt(i);
+                    mEntries.elementAt(i);
 
             se.encode(tmp);
         }
@@ -163,10 +163,10 @@ public class CertificateScopeOfUseExtension extends Extension
         seq.write(DerValue.tag_Sequence, tmp);
         this.extensionValue = seq.toByteArray();
     }
- 
+
     /**
      * Write the extension to the DerOutputStream.
-     *
+     * 
      * @param out the DerOutputStream to write the extension to.
      * @exception IOException on encoding errors.
      */
@@ -189,7 +189,7 @@ public class CertificateScopeOfUseExtension extends Extension
         if (mEntries != null) {
             for (int i = 0; i < mEntries.size(); i++) {
                 CertificateScopeEntry se = (CertificateScopeEntry)
-                    mEntries.elementAt(i);
+                        mEntries.elementAt(i);
 
                 s += se.toString();
             }

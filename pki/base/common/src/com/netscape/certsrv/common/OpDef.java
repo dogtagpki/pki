@@ -17,12 +17,11 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.common;
 
-
 /**
  * This interface defines all the administration operations
  * used in the administration protocol between the console
  * and the server.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public interface OpDef {

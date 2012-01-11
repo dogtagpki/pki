@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.def;
 
-
 import java.util.Locale;
 
 import netscape.security.extensions.OCSPNoCheckExtension;
@@ -32,12 +31,11 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 
-
 /**
  * This class implements an enrollment default policy
  * that populates an OCSP No Check extension
  * into the certificate template.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class OCSPNoCheckExtDefault extends EnrollExtDefault {
@@ -53,13 +51,13 @@ public class OCSPNoCheckExtDefault extends EnrollExtDefault {
     }
 
     public void init(IProfile profile, IConfigStore config)
-        throws EProfileException {
+            throws EProfileException {
         super.init(profile, config);
     }
 
-    public IDescriptor getConfigDescriptor(Locale locale, String name) { 
+    public IDescriptor getConfigDescriptor(Locale locale, String name) {
         if (name.equals(CONFIG_CRITICAL)) {
-            return new Descriptor(IDescriptor.BOOLEAN, null, 
+            return new Descriptor(IDescriptor.BOOLEAN, null,
                     "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_CRITICAL"));
         } else {
@@ -69,7 +67,7 @@ public class OCSPNoCheckExtDefault extends EnrollExtDefault {
 
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         if (name.equals(VAL_CRITICAL)) {
-            return new Descriptor(IDescriptor.BOOLEAN, null, 
+            return new Descriptor(IDescriptor.BOOLEAN, null,
                     "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_CRITICAL"));
         } else {
@@ -78,70 +76,67 @@ public class OCSPNoCheckExtDefault extends EnrollExtDefault {
     }
 
     public void setValue(String name, Locale locale,
-        X509CertInfo info, String value)
-        throws EPropertyException {
-        if (name == null) { 
-            throw new EPropertyException(CMS.getUserMessage( 
+            X509CertInfo info, String value)
+            throws EPropertyException {
+        if (name == null) {
+            throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         }
 
         OCSPNoCheckExtension ext = (OCSPNoCheckExtension)
                 getExtension(OCSPNoCheckExtension.OID, info);
 
-
-        if(ext == null)
-        {
+        if (ext == null) {
             try {
-                populate(null,info);
+                populate(null, info);
 
             } catch (EProfileException e) {
-                 throw new EPropertyException(CMS.getUserMessage(
-                      locale, "CMS_INVALID_PROPERTY", name));
+                throw new EPropertyException(CMS.getUserMessage(
+                        locale, "CMS_INVALID_PROPERTY", name));
             }
 
         }
 
         if (name.equals(VAL_CRITICAL)) {
             ext = (OCSPNoCheckExtension)
-                getExtension(OCSPNoCheckExtension.OID, info);
+                    getExtension(OCSPNoCheckExtension.OID, info);
             boolean val = Boolean.valueOf(value).booleanValue();
 
-            if(ext == null)  {
-               return;
+            if (ext == null) {
+                return;
             }
             ext.setCritical(val);
         } else {
-            throw new EPropertyException(CMS.getUserMessage( 
+            throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         }
     }
 
     public String getValue(String name, Locale locale,
-        X509CertInfo info)
-        throws EPropertyException {
+            X509CertInfo info)
+            throws EPropertyException {
         if (name == null) {
-            throw new EPropertyException(CMS.getUserMessage( 
+            throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         }
 
         OCSPNoCheckExtension ext = (OCSPNoCheckExtension)
                 getExtension(OCSPNoCheckExtension.OID, info);
 
-        if(ext == null)
-        {
+        if (ext == null) {
             try {
-                populate(null,info);
+                populate(null, info);
 
             } catch (EProfileException e) {
-                 throw new EPropertyException(CMS.getUserMessage(
-                      locale, "CMS_INVALID_PROPERTY", name));
+                throw new EPropertyException(CMS.getUserMessage(
+                        locale, "CMS_INVALID_PROPERTY", name));
             }
 
         }
 
         if (name.equals(VAL_CRITICAL)) {
             ext = (OCSPNoCheckExtension)
-                getExtension(OCSPNoCheckExtension.OID, info);
+                    getExtension(OCSPNoCheckExtension.OID, info);
 
             if (ext == null) {
                 return null;
@@ -152,7 +147,7 @@ public class OCSPNoCheckExtDefault extends EnrollExtDefault {
                 return "false";
             }
         } else {
-            throw new EPropertyException(CMS.getUserMessage( 
+            throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         }
     }
@@ -166,20 +161,20 @@ public class OCSPNoCheckExtDefault extends EnrollExtDefault {
      * Populates the request with this policy default.
      */
     public void populate(IRequest request, X509CertInfo info)
-        throws EProfileException {
+            throws EProfileException {
         OCSPNoCheckExtension ext = createExtension();
 
         addExtension(OCSPNoCheckExtension.OID, ext, info);
     }
 
     public OCSPNoCheckExtension createExtension() {
-        OCSPNoCheckExtension ext = null; 
+        OCSPNoCheckExtension ext = null;
 
         try {
             ext = new OCSPNoCheckExtension();
         } catch (Exception e) {
             CMS.debug("OCSPNoCheckExtDefault:  createExtension " +
-                e.toString());
+                    e.toString());
             return null;
         }
         boolean critical = getConfigBoolean(CONFIG_CRITICAL);

@@ -45,7 +45,6 @@ package com.netscape.cmsutil.util;
 // Visit the ACME Labs Java page for up-to-date versions of this and other
 // fine Java utilities: http://www.acme.com/java/
 
-
 /// Some simple single-arg sprintf-like routines.
 // <P>
 // It is apparently impossible to declare a Java method that accepts
@@ -205,7 +204,7 @@ public class Fmt {
             if ((l & 0xf000000000000000L) != 0)
                 return fmt(
                         Long.toString(l >>> 60, 16) +
-                        fmt(l & 0x0fffffffffffffffL, 15, HX | ZF),
+                                fmt(l & 0x0fffffffffffffffL, 15, HX | ZF),
                         minWidth, flags | WN);
             else
                 return fmt(Long.toString(l, 16), minWidth, flags | WN);
@@ -213,7 +212,7 @@ public class Fmt {
             if ((l & 0x8000000000000000L) != 0)
                 return fmt(
                         Long.toString(l >>> 63, 8) +
-                        fmt(l & 0x7fffffffffffffffL, 21, OC | ZF),
+                                fmt(l & 0x7fffffffffffffffL, 21, OC | ZF),
                         minWidth, flags | WN);
             else
                 return fmt(Long.toString(l, 8), minWidth, flags | WN);
@@ -375,8 +374,8 @@ public class Fmt {
         int numFigs = number.length();
         int fracFigs = fraction.length();
 
-        if( ( numFigs == 0 || number.toString().equals( "0" ) ) &&
-            fracFigs > 0 ) {
+        if ((numFigs == 0 || number.toString().equals("0")) &&
+                fracFigs > 0) {
             // Don't count leading zeros in the fraction.
             numFigs = 0;
             for (int i = 0; i < fraction.length(); ++i) {
@@ -394,11 +393,11 @@ public class Fmt {
         } else if (sigFigs < mantFigs && sigFigs >= numFigs) {
             // Want fewer figures in the fraction; chop.
             fraction.setLength(
-                fraction.length() - (fracFigs - (sigFigs - numFigs)));
+                    fraction.length() - (fracFigs - (sigFigs - numFigs)));
             // Round?
         } else if (sigFigs < numFigs) {
             // Want fewer figures in the number; turn them to zeros.
-            fraction.setLength(0);	// should already be zero, but make sure
+            fraction.setLength(0); // should already be zero, but make sure
             for (int i = sigFigs; i < numFigs; ++i)
                 number.setCharAt(i, '0');
             // Round?
@@ -427,7 +426,7 @@ public class Fmt {
         if (d == Double.POSITIVE_INFINITY)
             return "Inf";
 
-            // Grab the sign, and then make the number positive for simplicity.
+        // Grab the sign, and then make the number positive for simplicity.
         boolean negative = false;
 
         if (d < 0.0D) {
@@ -471,19 +470,21 @@ public class Fmt {
         else
             num = Integer.parseInt(numStr);
 
-            // Build the new mantissa.
+        // Build the new mantissa.
         StringBuffer newMantBuf = new StringBuffer(numStr + ".");
         double p = Math.pow(10, exp);
         double frac = d - num * p;
         String digits = "0123456789";
-        int nDigits = 16 - numStr.length();	// about 16 digits in a double
+        int nDigits = 16 - numStr.length(); // about 16 digits in a double
 
         for (int i = 0; i < nDigits; ++i) {
             p /= 10.0D;
             int dig = (int) (frac / p);
 
-            if (dig < 0) dig = 0;
-            if (dig > 9) dig = 9;
+            if (dig < 0)
+                dig = 0;
+            if (dig > 9)
+                dig = 9;
             newMantBuf.append(digits.charAt(dig));
             frac -= dig * p;
         }
@@ -519,86 +520,86 @@ public class Fmt {
 
         while (newMantBuf.charAt(len - 1) == '0')
             newMantBuf.setLength(--len);
-            // And chop a trailing dot, if any.
+        // And chop a trailing dot, if any.
         if (newMantBuf.charAt(len - 1) == '.')
             newMantBuf.setLength(--len);
 
-            // Done.
+        // Done.
         return (negative ? "-" : "") +
-            newMantBuf +
-            (expStr.length() != 0 ? ("e" + expStr) : "");
+                newMantBuf +
+                (expStr.length() != 0 ? ("e" + expStr) : "");
     }
 
     /******************************************************************************
-     /// Test program.
-    public static void main( String[] args )
-    {
-    System.out.println( "Starting tests." );
-    show( Fmt.fmt( "Hello there." ) );
-    show( Fmt.fmt( 123 ) );
-    show( Fmt.fmt( 123, 10 ) );
-    show( Fmt.fmt( 123, 10, Fmt.ZF ) );
-    show( Fmt.fmt( 123, 10, Fmt.LJ ) );
-    show( Fmt.fmt( -123 ) );
-    show( Fmt.fmt( -123, 10 ) );
-    show( Fmt.fmt( -123, 10, Fmt.ZF ) );
-    show( Fmt.fmt( -123, 10, Fmt.LJ ) );
-    show( Fmt.fmt( (byte) 0xbe, 22, Fmt.OC ) );
-    show( Fmt.fmt( (short) 0xbabe, 22, Fmt.OC ) );
-    show( Fmt.fmt( 0xcafebabe, 22, Fmt.OC ) );
-    show( Fmt.fmt( 0xdeadbeefcafebabeL, 22, Fmt.OC ) );
-    show( Fmt.fmt( 0x8000000000000000L, 22, Fmt.OC ) );
-    show( Fmt.fmt( (byte) 0xbe, 16, Fmt.HX ) );
-    show( Fmt.fmt( (short) 0xbabe, 16, Fmt.HX ) );
-    show( Fmt.fmt( 0xcafebabe, 16, Fmt.HX ) );
-    show( Fmt.fmt( 0xdeadbeefcafebabeL, 16, Fmt.HX ) );
-    show( Fmt.fmt( 0x8000000000000000L, 16, Fmt.HX ) );
-    show( Fmt.fmt( 'c' ) );
-    show( Fmt.fmt( new java.util.Date() ) );
-    show( Fmt.fmt( 123.456F ) );
-    show( Fmt.fmt( 123456000000000000.0F ) );
-    show( Fmt.fmt( 123.456F, 0, 8 ) );
-    show( Fmt.fmt( 123.456F, 0, 7 ) );
-    show( Fmt.fmt( 123.456F, 0, 6 ) );
-    show( Fmt.fmt( 123.456F, 0, 5 ) );
-    show( Fmt.fmt( 123.456F, 0, 4 ) );
-    show( Fmt.fmt( 123.456F, 0, 3 ) );
-    show( Fmt.fmt( 123.456F, 0, 2 ) );
-    show( Fmt.fmt( 123.456F, 0, 1 ) );
-    show( Fmt.fmt( 123456000000000000.0F, 0, 4 ) );
-    show( Fmt.fmt( -123.456F, 0, 4 ) );
-    show( Fmt.fmt( -123456000000000000.0F, 0, 4 ) );
-    show( Fmt.fmt( 123.0F ) );
-    show( Fmt.fmt( 123.0D ) );
-    show( Fmt.fmt( 1.234567890123456789F ) );
-    show( Fmt.fmt( 1.234567890123456789D ) );
-    show( Fmt.fmt( 1234567890123456789F ) );
-    show( Fmt.fmt( 1234567890123456789D ) );
-    show( Fmt.fmt( 0.000000000000000000001234567890123456789F ) );
-    show( Fmt.fmt( 0.000000000000000000001234567890123456789D ) );
-    show( Fmt.fmt( 12300.0F ) );
-    show( Fmt.fmt( 12300.0D ) );
-    show( Fmt.fmt( 123000.0F ) );
-    show( Fmt.fmt( 123000.0D ) );
-    show( Fmt.fmt( 1230000.0F ) );
-    show( Fmt.fmt( 1230000.0D ) );
-    show( Fmt.fmt( 12300000.0F ) );
-    show( Fmt.fmt( 12300000.0D ) );
-    show( Fmt.fmt( Float.NaN ) );
-    show( Fmt.fmt( Float.POSITIVE_INFINITY ) );
-    show( Fmt.fmt( Float.NEGATIVE_INFINITY ) );
-    show( Fmt.fmt( Double.NaN ) );
-    show( Fmt.fmt( Double.POSITIVE_INFINITY ) );
-    show( Fmt.fmt( Double.NEGATIVE_INFINITY ) );
-    show( Fmt.fmt( 1.0F / 8.0F ) );
-    show( Fmt.fmt( 1.0D / 8.0D ) );
-    System.out.println( "Done with tests." );
-    }
-
-    private static void show( String str )
-    {
-    System.out.println( "#" + str + "#" );
-    }
-    ******************************************************************************/
+     * /// Test program.
+     * public static void main( String[] args )
+     * {
+     * System.out.println( "Starting tests." );
+     * show( Fmt.fmt( "Hello there." ) );
+     * show( Fmt.fmt( 123 ) );
+     * show( Fmt.fmt( 123, 10 ) );
+     * show( Fmt.fmt( 123, 10, Fmt.ZF ) );
+     * show( Fmt.fmt( 123, 10, Fmt.LJ ) );
+     * show( Fmt.fmt( -123 ) );
+     * show( Fmt.fmt( -123, 10 ) );
+     * show( Fmt.fmt( -123, 10, Fmt.ZF ) );
+     * show( Fmt.fmt( -123, 10, Fmt.LJ ) );
+     * show( Fmt.fmt( (byte) 0xbe, 22, Fmt.OC ) );
+     * show( Fmt.fmt( (short) 0xbabe, 22, Fmt.OC ) );
+     * show( Fmt.fmt( 0xcafebabe, 22, Fmt.OC ) );
+     * show( Fmt.fmt( 0xdeadbeefcafebabeL, 22, Fmt.OC ) );
+     * show( Fmt.fmt( 0x8000000000000000L, 22, Fmt.OC ) );
+     * show( Fmt.fmt( (byte) 0xbe, 16, Fmt.HX ) );
+     * show( Fmt.fmt( (short) 0xbabe, 16, Fmt.HX ) );
+     * show( Fmt.fmt( 0xcafebabe, 16, Fmt.HX ) );
+     * show( Fmt.fmt( 0xdeadbeefcafebabeL, 16, Fmt.HX ) );
+     * show( Fmt.fmt( 0x8000000000000000L, 16, Fmt.HX ) );
+     * show( Fmt.fmt( 'c' ) );
+     * show( Fmt.fmt( new java.util.Date() ) );
+     * show( Fmt.fmt( 123.456F ) );
+     * show( Fmt.fmt( 123456000000000000.0F ) );
+     * show( Fmt.fmt( 123.456F, 0, 8 ) );
+     * show( Fmt.fmt( 123.456F, 0, 7 ) );
+     * show( Fmt.fmt( 123.456F, 0, 6 ) );
+     * show( Fmt.fmt( 123.456F, 0, 5 ) );
+     * show( Fmt.fmt( 123.456F, 0, 4 ) );
+     * show( Fmt.fmt( 123.456F, 0, 3 ) );
+     * show( Fmt.fmt( 123.456F, 0, 2 ) );
+     * show( Fmt.fmt( 123.456F, 0, 1 ) );
+     * show( Fmt.fmt( 123456000000000000.0F, 0, 4 ) );
+     * show( Fmt.fmt( -123.456F, 0, 4 ) );
+     * show( Fmt.fmt( -123456000000000000.0F, 0, 4 ) );
+     * show( Fmt.fmt( 123.0F ) );
+     * show( Fmt.fmt( 123.0D ) );
+     * show( Fmt.fmt( 1.234567890123456789F ) );
+     * show( Fmt.fmt( 1.234567890123456789D ) );
+     * show( Fmt.fmt( 1234567890123456789F ) );
+     * show( Fmt.fmt( 1234567890123456789D ) );
+     * show( Fmt.fmt( 0.000000000000000000001234567890123456789F ) );
+     * show( Fmt.fmt( 0.000000000000000000001234567890123456789D ) );
+     * show( Fmt.fmt( 12300.0F ) );
+     * show( Fmt.fmt( 12300.0D ) );
+     * show( Fmt.fmt( 123000.0F ) );
+     * show( Fmt.fmt( 123000.0D ) );
+     * show( Fmt.fmt( 1230000.0F ) );
+     * show( Fmt.fmt( 1230000.0D ) );
+     * show( Fmt.fmt( 12300000.0F ) );
+     * show( Fmt.fmt( 12300000.0D ) );
+     * show( Fmt.fmt( Float.NaN ) );
+     * show( Fmt.fmt( Float.POSITIVE_INFINITY ) );
+     * show( Fmt.fmt( Float.NEGATIVE_INFINITY ) );
+     * show( Fmt.fmt( Double.NaN ) );
+     * show( Fmt.fmt( Double.POSITIVE_INFINITY ) );
+     * show( Fmt.fmt( Double.NEGATIVE_INFINITY ) );
+     * show( Fmt.fmt( 1.0F / 8.0F ) );
+     * show( Fmt.fmt( 1.0D / 8.0D ) );
+     * System.out.println( "Done with tests." );
+     * }
+     * 
+     * private static void show( String str )
+     * {
+     * System.out.println( "#" + str + "#" );
+     * }
+     ******************************************************************************/
 
 }

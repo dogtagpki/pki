@@ -19,26 +19,26 @@ public class JSSUtil {
         ASN1Value value;
 
         switch (tag) {
-            case DerValue.tag_BMPString:
-                value = new BMPString(string);
-                break;
-            case DerValue.tag_IA5String:
-                value = new IA5String(string);
-                break;
-            case DerValue.tag_PrintableString:
-                value = new PrintableString(string);
-                break;
-            case DerValue.tag_T61String:
-                value = new TeletexString(string);
-                break;
-            case DerValue.tag_UniversalString:
-                value = new UniversalString(string);
-                break;
-            case DerValue.tag_UTF8String:
-                value = new UTF8String(string);
-                break;
-            default:
-                throw new Exception("Unsupported tag: "+tag);
+        case DerValue.tag_BMPString:
+            value = new BMPString(string);
+            break;
+        case DerValue.tag_IA5String:
+            value = new IA5String(string);
+            break;
+        case DerValue.tag_PrintableString:
+            value = new PrintableString(string);
+            break;
+        case DerValue.tag_T61String:
+            value = new TeletexString(string);
+            break;
+        case DerValue.tag_UniversalString:
+            value = new UniversalString(string);
+            break;
+        case DerValue.tag_UTF8String:
+            value = new UTF8String(string);
+            break;
+        default:
+            throw new Exception("Unsupported tag: " + tag);
         }
         return ASN1Util.encode(value);
     }
@@ -47,26 +47,26 @@ public class JSSUtil {
         ASN1Template template;
 
         switch (tag) {
-            case DerValue.tag_BMPString:
-                template = new BMPString.Template();
-                break;
-            case DerValue.tag_IA5String:
-                template = new IA5String.Template();
-                break;
-            case DerValue.tag_PrintableString:
-                template = new PrintableString.Template();
-                break;
-            case DerValue.tag_T61String:
-                template = new TeletexString.Template();
-                break;
-            case DerValue.tag_UniversalString:
-                template = new UniversalString.Template();
-                break;
-            case DerValue.tag_UTF8String:
-                template = new UTF8String.Template();
-                break;
-            default:
-                throw new Exception("Unsupported tag: "+tag);
+        case DerValue.tag_BMPString:
+            template = new BMPString.Template();
+            break;
+        case DerValue.tag_IA5String:
+            template = new IA5String.Template();
+            break;
+        case DerValue.tag_PrintableString:
+            template = new PrintableString.Template();
+            break;
+        case DerValue.tag_T61String:
+            template = new TeletexString.Template();
+            break;
+        case DerValue.tag_UniversalString:
+            template = new UniversalString.Template();
+            break;
+        case DerValue.tag_UTF8String:
+            template = new UTF8String.Template();
+            break;
+        default:
+            throw new Exception("Unsupported tag: " + tag);
         }
         return ASN1Util.decode(new Tag(Tag.UNIVERSAL, tag), template, bytes).toString();
     }

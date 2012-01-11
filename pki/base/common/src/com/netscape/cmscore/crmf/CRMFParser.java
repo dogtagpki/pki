@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.crmf;
 
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Vector;
@@ -34,39 +33,38 @@ import org.mozilla.jss.pkix.primitive.AVA;
 
 import com.netscape.certsrv.apps.CMS;
 
-
 public class CRMFParser {
 
     private static final OBJECT_IDENTIFIER PKIARCHIVEOPTIONS_OID =
-        new OBJECT_IDENTIFIER(new long[] {1, 3, 6, 1, 5, 5, 7, 5, 1, 4}
-        );
+            new OBJECT_IDENTIFIER(new long[] { 1, 3, 6, 1, 5, 5, 7, 5, 1, 4 }
+            );
 
     /**
      * Retrieves PKIArchiveOptions from CRMF request.
-     *
+     * 
      * @param request CRMF request
      * @return PKIArchiveOptions
      * @exception failed to extrace option
      */
-    public static PKIArchiveOptionsContainer[] 
-    getPKIArchiveOptions(String crmfBlob) throws IOException {
+    public static PKIArchiveOptionsContainer[]
+            getPKIArchiveOptions(String crmfBlob) throws IOException {
         Vector options = new Vector();
 
         byte[] crmfBerBlob = null;
 
-        crmfBerBlob = CMS.AtoB(crmfBlob); 
+        crmfBerBlob = CMS.AtoB(crmfBlob);
         if (crmfBerBlob == null)
             throw new IOException("no CRMF data found");
 
-        ByteArrayInputStream crmfBerBlobIn = new 	
-            ByteArrayInputStream(crmfBerBlob);
+        ByteArrayInputStream crmfBerBlobIn = new
+                ByteArrayInputStream(crmfBerBlob);
         SEQUENCE crmfmsgs = null;
 
         try {
-            crmfmsgs = (SEQUENCE) new 
-                    SEQUENCE.OF_Template(new 
-                        CertReqMsg.Template()).decode(
-                        crmfBerBlobIn);
+            crmfmsgs = (SEQUENCE) new
+                    SEQUENCE.OF_Template(new
+                            CertReqMsg.Template()).decode(
+                            crmfBerBlobIn);
         } catch (IOException e) {
             throw new IOException("[crmf msgs]" + e.toString());
         } catch (InvalidBERException e) {
@@ -75,9 +73,9 @@ public class CRMFParser {
 
         for (int z = 0; z < crmfmsgs.size(); z++) {
             CertReqMsg certReqMsg = (CertReqMsg)
-                crmfmsgs.elementAt(z);
-            CertRequest certReq = certReqMsg.getCertReq();	
-			
+                    crmfmsgs.elementAt(z);
+            CertRequest certReq = certReqMsg.getCertReq();
+
             // try to locate PKIArchiveOption control
             AVA archAva = null;
 
@@ -114,7 +112,7 @@ public class CRMFParser {
         if (options.size() == 0) {
             throw new IOException("no PKIArchiveOptions found");
         } else {
-            PKIArchiveOptionsContainer p[] = new PKIArchiveOptionsContainer[options.size()];	
+            PKIArchiveOptionsContainer p[] = new PKIArchiveOptionsContainer[options.size()];
 
             options.copyInto(p);
             //  options.clear();

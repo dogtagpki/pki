@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.util;
 
-
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -38,8 +37,7 @@ import com.netscape.certsrv.util.StatsEvent;
  * @author thomask
  * @version $Revision$, $Date$
  */
-public class StatsSubsystem implements IStatsSubsystem
-{
+public class StatsSubsystem implements IStatsSubsystem {
     private String mId = null;
     private StatsEvent mAllTrans = new StatsEvent(null);
     private Date mStartTime = new Date();
@@ -64,101 +62,91 @@ public class StatsSubsystem implements IStatsSubsystem
     }
 
     /**
-     * Initializes this subsystem with the given 
+     * Initializes this subsystem with the given
      * configuration store.
      * It first initializes resident subsystems,
      * and it loads and initializes loadable
      * subsystem specified in the configuration
      * store.
      * <P>
-     * Note that individual subsystem should be
-     * initialized in a separated thread if
-     * it has dependency on the initialization
-     * of other subsystems.
+     * Note that individual subsystem should be initialized in a separated thread if it has dependency on the initialization of other subsystems.
      * <P>
-     *
+     * 
      * @param owner owner of this subsystem
      * @param config configuration store
      */
     public synchronized void init(ISubsystem owner, IConfigStore config)
-        throws EBaseException 
-    {
+            throws EBaseException {
     }
 
-    public Date getStartTime()
-    {
-      return mStartTime;
+    public Date getStartTime() {
+        return mStartTime;
     }
 
-    public void startTiming(String id)
-    {
-      startTiming(id, false /* not the main */);
+    public void startTiming(String id) {
+        startTiming(id, false /* not the main */);
     }
 
-    public void startTiming(String id, boolean mainAction)
-    {
-      Thread t = Thread.currentThread();
-      Vector milestones = null;
-      if (mHashtable.containsKey(t.toString())) {
-        milestones = (Vector)mHashtable.get(t.toString());
-      } else {
-        milestones = new Vector();
-        mHashtable.put(t.toString(), milestones);
-      }
-      long startTime = CMS.getCurrentDate().getTime();
-      StatsEvent currentST = null;
-      for (int i = 0; i < milestones.size(); i++) {
-        StatsMilestone se = (StatsMilestone)milestones.elementAt(i);
-        if (currentST == null) {
-          currentST = mAllTrans.getSubEvent(se.getId());
+    public void startTiming(String id, boolean mainAction) {
+        Thread t = Thread.currentThread();
+        Vector milestones = null;
+        if (mHashtable.containsKey(t.toString())) {
+            milestones = (Vector) mHashtable.get(t.toString());
         } else {
-          currentST = currentST.getSubEvent(se.getId());
+            milestones = new Vector();
+            mHashtable.put(t.toString(), milestones);
         }
-      }
-      if (currentST == null) {
-          if (!mainAction) {
-            return; /* ignore none main action */
-          }
-          currentST = mAllTrans;
-      }
-      StatsEvent newST = currentST.getSubEvent(id);
-      if (newST == null) {
-        newST = new StatsEvent(currentST);
-        newST.setName(id);
-        currentST.addSubEvent(newST);
-      }
-      milestones.addElement(new StatsMilestone(id, startTime, newST));
+        long startTime = CMS.getCurrentDate().getTime();
+        StatsEvent currentST = null;
+        for (int i = 0; i < milestones.size(); i++) {
+            StatsMilestone se = (StatsMilestone) milestones.elementAt(i);
+            if (currentST == null) {
+                currentST = mAllTrans.getSubEvent(se.getId());
+            } else {
+                currentST = currentST.getSubEvent(se.getId());
+            }
+        }
+        if (currentST == null) {
+            if (!mainAction) {
+                return; /* ignore none main action */
+            }
+            currentST = mAllTrans;
+        }
+        StatsEvent newST = currentST.getSubEvent(id);
+        if (newST == null) {
+            newST = new StatsEvent(currentST);
+            newST.setName(id);
+            currentST.addSubEvent(newST);
+        }
+        milestones.addElement(new StatsMilestone(id, startTime, newST));
     }
 
-    public void endTiming(String id)
-    {
-      long endTime = CMS.getCurrentDate().getTime();
-      Thread t = Thread.currentThread();
-      if (!mHashtable.containsKey(t.toString())) {
-        return; /* error */
-      }
-      Vector milestones = (Vector)mHashtable.get(t.toString());
-      if (milestones.size() == 0) {
-        return; /* error */
-      }
-      StatsMilestone last = (StatsMilestone)milestones.remove(milestones.size() - 1);
-      StatsEvent st = last.getStatsEvent();
-      st.incNoOfOperations(1);
-      st.incTimeTaken(endTime - last.getStartTime());
-      if (milestones.size() == 0) {
-        mHashtable.remove(t.toString());
-      }
+    public void endTiming(String id) {
+        long endTime = CMS.getCurrentDate().getTime();
+        Thread t = Thread.currentThread();
+        if (!mHashtable.containsKey(t.toString())) {
+            return; /* error */
+        }
+        Vector milestones = (Vector) mHashtable.get(t.toString());
+        if (milestones.size() == 0) {
+            return; /* error */
+        }
+        StatsMilestone last = (StatsMilestone) milestones.remove(milestones.size() - 1);
+        StatsEvent st = last.getStatsEvent();
+        st.incNoOfOperations(1);
+        st.incTimeTaken(endTime - last.getStartTime());
+        if (milestones.size() == 0) {
+            mHashtable.remove(t.toString());
+        }
     }
 
-    public void resetCounters()
-    {
-      mStartTime = CMS.getCurrentDate();
-      mAllTrans.resetCounters();
+    public void resetCounters() {
+        mStartTime = CMS.getCurrentDate();
+        mAllTrans.resetCounters();
     }
 
-    public StatsEvent getMainStatsEvent()
-    {
-      return mAllTrans; 
+    public StatsEvent getMainStatsEvent() {
+        return mAllTrans;
     }
 
     public void startup() throws EBaseException {
@@ -181,31 +169,26 @@ public class StatsSubsystem implements IStatsSubsystem
     }
 }
 
-class StatsMilestone
-{
-  private String mId = null;
-  private long mStartTime = 0;
-  private StatsEvent mST = null;
+class StatsMilestone {
+    private String mId = null;
+    private long mStartTime = 0;
+    private StatsEvent mST = null;
 
-  public StatsMilestone(String id, long startTime, StatsEvent st)
-  {
-    mId = id;
-    mStartTime = startTime;
-    mST = st;
-  }
+    public StatsMilestone(String id, long startTime, StatsEvent st) {
+        mId = id;
+        mStartTime = startTime;
+        mST = st;
+    }
 
-  public String getId()
-  {
-    return mId;
-  }
+    public String getId() {
+        return mId;
+    }
 
-  public long getStartTime()
-  {
-    return mStartTime;
-  }
+    public long getStartTime() {
+        return mStartTime;
+    }
 
-  public StatsEvent getStatsEvent()
-  {
-    return mST;
-  }
+    public StatsEvent getStatsEvent() {
+        return mST;
+    }
 }

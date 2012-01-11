@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-
 import java.io.IOException;
 import java.net.URL;
 import java.util.StringTokenizer;
@@ -39,19 +38,20 @@ import com.netscape.cms.servlet.wizard.WizardServlet;
 
 public class CreateSubsystemPanel extends WizardPanelBase {
 
-    public CreateSubsystemPanel() {}
+    public CreateSubsystemPanel() {
+    }
 
     /**
      * Initializes this panel.
      */
-    public void init(ServletConfig config, int panelno) 
-        throws ServletException {
+    public void init(ServletConfig config, int panelno)
+            throws ServletException {
         setPanelNo(panelno);
         setName("Subsystem Selection");
     }
 
     public void init(WizardServlet servlet, ServletConfig config, int panelno, String id)
-        throws ServletException {
+            throws ServletException {
         setPanelNo(panelno);
         setName("Subsystem Type");
         setId(id);
@@ -72,15 +72,16 @@ public class CreateSubsystemPanel extends WizardPanelBase {
             } else {
                 return true;
             }
-        } catch (EBaseException e) {}
+        } catch (EBaseException e) {
+        }
         return false;
     }
 
     public PropertySet getUsage() {
         PropertySet set = new PropertySet();
-                                                                                
+
         /* XXX */
-                                                                                
+
         return set;
     }
 
@@ -112,8 +113,8 @@ public class CreateSubsystemPanel extends WizardPanelBase {
                     context.put("check_newsubsystem", "");
                     context.put("check_clonesubsystem", "checked");
                 }
-                context.put("subsystemName", 
-                   config.getString("preop.subsystem.name"));
+                context.put("subsystemName",
+                        config.getString("preop.subsystem.name"));
             } catch (Exception e) {
                 CMS.debug(e.toString());
             }
@@ -121,8 +122,8 @@ public class CreateSubsystemPanel extends WizardPanelBase {
             context.put("check_newsubsystem", "checked");
             context.put("check_clonesubsystem", "");
             try {
-              context.put("subsystemName", 
-               config.getString("preop.system.fullname"));
+                context.put("subsystemName",
+                        config.getString("preop.system.fullname"));
             } catch (Exception e) {
                 CMS.debug(e.toString());
             }
@@ -144,7 +145,7 @@ public class CreateSubsystemPanel extends WizardPanelBase {
         } catch (EBaseException e) {
         }
 
-        Vector v = getUrlListFromSecurityDomain(config, cstype, "SecurePort" );
+        Vector v = getUrlListFromSecurityDomain(config, cstype, "SecurePort");
 
         StringBuffer list = new StringBuffer();
         int size = v.size();
@@ -164,7 +165,7 @@ public class CreateSubsystemPanel extends WizardPanelBase {
             errorString = "Internal error, cs.type is missing from CS.cfg";
         }
 
-        if (list.length()==0)
+        if (list.length() == 0)
             context.put("disableClone", "true");
 
         context.put("panel", "admin/console/config/createsubsystempanel.vm");
@@ -196,8 +197,8 @@ public class CreateSubsystemPanel extends WizardPanelBase {
             throw new IOException("choice not found");
         }
 
-        config.putString("preop.subsystem.name", 
-              HttpInput.getName(request, "subsystemName"));
+        config.putString("preop.subsystem.name",
+                HttpInput.getName(request, "subsystemName"));
         if (select.equals("newsubsystem")) {
             config.putString("preop.subsystem.select", "new");
             config.putString("subsystem.select", "New");
@@ -209,7 +210,7 @@ public class CreateSubsystemPanel extends WizardPanelBase {
             }
 
             cstype = toLowerCaseSubsystemType(cstype);
-      
+
             config.putString("preop.subsystem.select", "clone");
             config.putString("subsystem.select", "Clone");
 
@@ -223,9 +224,9 @@ public class CreateSubsystemPanel extends WizardPanelBase {
             while (t.hasMoreTokens()) {
                 String tag = t.nextToken();
                 if (tag.equals("sslserver"))
-                    config.putBoolean(PCERT_PREFIX+tag+".enable", true);
-                else 
-                    config.putBoolean(PCERT_PREFIX+tag+".enable", false);
+                    config.putBoolean(PCERT_PREFIX + tag + ".enable", true);
+                else
+                    config.putBoolean(PCERT_PREFIX + tag + ".enable", false);
             }
 
             // get the master CA
@@ -254,10 +255,10 @@ public class CreateSubsystemPanel extends WizardPanelBase {
             String host = u.getHost();
             int https_ee_port = u.getPort();
 
-            String https_admin_port = getSecurityDomainAdminPort( config,
+            String https_admin_port = getSecurityDomainAdminPort(config,
                                                                   host,
                                                                   String.valueOf(https_ee_port),
-                                                                  cstype );
+                                                                  cstype);
 
             config.putString("preop.master.hostname", host);
             config.putInteger("preop.master.httpsport", https_ee_port);
@@ -265,12 +266,12 @@ public class CreateSubsystemPanel extends WizardPanelBase {
 
             ConfigCertApprovalCallback certApprovalCallback = new ConfigCertApprovalCallback();
             if (cstype.equals("ca")) {
-                updateCertChainUsingSecureEEPort( config, "clone", host, https_ee_port,
-                                 true, context, certApprovalCallback );
+                updateCertChainUsingSecureEEPort(config, "clone", host, https_ee_port,
+                                 true, context, certApprovalCallback);
             }
 
-            getTokenInfo(config, cstype, host, https_ee_port, true, context, 
-              certApprovalCallback);
+            getTokenInfo(config, cstype, host, https_ee_port, true, context,
+                    certApprovalCallback);
         } else {
             CMS.debug("CreateSubsystemPanel: invalid choice " + select);
             errorString = "Invalid choice";

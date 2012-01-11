@@ -27,7 +27,7 @@ import java.nio.charset.CodingErrorAction;
 /**
  * Converts characters in ASN.1 PrintableString character set to PrintableString
  * bytes.
- *
+ * 
  * @author Lily Hsiao
  * @author Slava Galperin
  */
@@ -49,13 +49,14 @@ public class PrintableCharsetEncoder extends CharsetEncoder {
 
         while (true) {
 
-            if (in.remaining() < 1) return CoderResult.UNDERFLOW;
+            if (in.remaining() < 1)
+                return CoderResult.UNDERFLOW;
 
             in.mark();
             char c = in.get();
 
             if (CodingErrorAction.REPORT == unmappableCharacterAction() &&
-                !PrintableCharset.isPrintableChar(c)) {
+                    !PrintableCharset.isPrintableChar(c)) {
                 return CoderResult.unmappableForLength(1);
             }
 
@@ -64,7 +65,7 @@ public class PrintableCharsetEncoder extends CharsetEncoder {
                 return CoderResult.OVERFLOW;
             }
 
-            out.put((byte)(c & 0x7f));
+            out.put((byte) (c & 0x7f));
         }
     }
 }

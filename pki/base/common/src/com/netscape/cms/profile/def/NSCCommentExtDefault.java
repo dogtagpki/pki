@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.def;
 
-
 import java.io.IOException;
 import java.util.Locale;
 
@@ -34,12 +33,11 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 
-
 /**
  * This class implements an enrollment default policy
  * that populates a Netscape comment extension
  * into the certificate template.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class NSCCommentExtDefault extends EnrollExtDefault {
@@ -60,13 +58,13 @@ public class NSCCommentExtDefault extends EnrollExtDefault {
     }
 
     public void init(IProfile profile, IConfigStore config)
-        throws EProfileException {
+            throws EProfileException {
         super.init(profile, config);
     }
 
-    public IDescriptor getConfigDescriptor(Locale locale, String name) { 
+    public IDescriptor getConfigDescriptor(Locale locale, String name) {
         if (name.equals(CONFIG_CRITICAL)) {
-            return new Descriptor(IDescriptor.BOOLEAN, null, 
+            return new Descriptor(IDescriptor.BOOLEAN, null,
                     "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_CRITICAL"));
         } else if (name.equals(CONFIG_COMMENT)) {
@@ -80,7 +78,7 @@ public class NSCCommentExtDefault extends EnrollExtDefault {
 
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         if (name.equals(VAL_CRITICAL)) {
-            return new Descriptor(IDescriptor.BOOLEAN, null, 
+            return new Descriptor(IDescriptor.BOOLEAN, null,
                     "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_CRITICAL"));
         } else if (name.equals(VAL_COMMENT)) {
@@ -93,13 +91,13 @@ public class NSCCommentExtDefault extends EnrollExtDefault {
     }
 
     public void setValue(String name, Locale locale,
-        X509CertInfo info, String value)
-        throws EPropertyException {
+            X509CertInfo info, String value)
+            throws EPropertyException {
         try {
             NSCCommentExtension ext = null;
 
             if (name == null) {
-                throw new EPropertyException(CMS.getUserMessage( 
+                throw new EPropertyException(CMS.getUserMessage(
                             locale, "CMS_INVALID_PROPERTY", name));
             }
 
@@ -108,8 +106,8 @@ public class NSCCommentExtDefault extends EnrollExtDefault {
             ext = (NSCCommentExtension)
                         getExtension(oid.toString(), info);
 
-            if(ext == null)  {
-                populate(null,info);
+            if (ext == null) {
+                populate(null, info);
             }
 
             if (name.equals(VAL_CRITICAL)) {
@@ -118,27 +116,27 @@ public class NSCCommentExtDefault extends EnrollExtDefault {
                         getExtension(oid.toString(), info);
                 boolean val = Boolean.valueOf(value).booleanValue();
 
-                if (ext == null)  {
+                if (ext == null) {
                     return;
                 }
-                ext.setCritical(val); 
-            } else if (name.equals(VAL_COMMENT)) { 
+                ext.setCritical(val);
+            } else if (name.equals(VAL_COMMENT)) {
 
                 ext = (NSCCommentExtension)
                         getExtension(oid.toString(), info);
 
-                if (ext == null)  {
+                if (ext == null) {
                     return;
                 }
                 boolean critical = ext.isCritical();
 
                 if (value == null || value.equals(""))
                     ext = new NSCCommentExtension(critical, "");
-                    //                    throw new EPropertyException(name+" cannot be empty");
+                //                    throw new EPropertyException(name+" cannot be empty");
                 else
                     ext = new NSCCommentExtension(critical, value);
             } else {
-                throw new EPropertyException(CMS.getUserMessage( 
+                throw new EPropertyException(CMS.getUserMessage(
                             locale, "CMS_INVALID_PROPERTY", name));
             }
 
@@ -151,12 +149,12 @@ public class NSCCommentExtDefault extends EnrollExtDefault {
     }
 
     public String getValue(String name, Locale locale,
-        X509CertInfo info)
-        throws EPropertyException {
+            X509CertInfo info)
+            throws EPropertyException {
         NSCCommentExtension ext = null;
 
         if (name == null) {
-            throw new EPropertyException(CMS.getUserMessage( 
+            throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         }
 
@@ -165,14 +163,13 @@ public class NSCCommentExtDefault extends EnrollExtDefault {
         ext = (NSCCommentExtension)
                     getExtension(oid.toString(), info);
 
-        if(ext == null)
-        {
+        if (ext == null) {
             try {
-                populate(null,info);
+                populate(null, info);
 
             } catch (EProfileException e) {
-                 throw new EPropertyException(CMS.getUserMessage(
-                      locale, "CMS_INVALID_PROPERTY", name));
+                throw new EPropertyException(CMS.getUserMessage(
+                        locale, "CMS_INVALID_PROPERTY", name));
             }
 
         }
@@ -190,7 +187,7 @@ public class NSCCommentExtDefault extends EnrollExtDefault {
             } else {
                 return "false";
             }
-        } else if (name.equals(VAL_COMMENT)) { 
+        } else if (name.equals(VAL_COMMENT)) {
 
             ext = (NSCCommentExtension)
                     getExtension(oid.toString(), info);
@@ -202,17 +199,17 @@ public class NSCCommentExtDefault extends EnrollExtDefault {
 
             if (comment == null)
                 comment = "";
-   
+
             return comment;
         } else {
-            throw new EPropertyException(CMS.getUserMessage( 
+            throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         }
     }
 
     public String getText(Locale locale) {
         String params[] = {
-                getConfig(CONFIG_CRITICAL), 
+                getConfig(CONFIG_CRITICAL),
                 getConfig(CONFIG_COMMENT)
             };
 
@@ -223,14 +220,14 @@ public class NSCCommentExtDefault extends EnrollExtDefault {
      * Populates the request with this policy default.
      */
     public void populate(IRequest request, X509CertInfo info)
-        throws EProfileException {
+            throws EProfileException {
         NSCCommentExtension ext = createExtension();
 
         addExtension(ext.getExtensionId().toString(), ext, info);
     }
 
     public NSCCommentExtension createExtension() {
-        NSCCommentExtension ext = null; 
+        NSCCommentExtension ext = null;
 
         try {
             boolean critical = getConfigBoolean(CONFIG_CRITICAL);
@@ -241,8 +238,8 @@ public class NSCCommentExtDefault extends EnrollExtDefault {
             else
                 ext = new NSCCommentExtension(critical, comment);
         } catch (Exception e) {
-            CMS.debug("NSCCommentExtension: createExtension " + 
-                e.toString());
+            CMS.debug("NSCCommentExtension: createExtension " +
+                    e.toString());
         }
         return ext;
     }

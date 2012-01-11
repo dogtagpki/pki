@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.ca;
 
-
 import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.util.Enumeration;
@@ -56,7 +55,6 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.crl.CMSIssuingDistributionPointExtension;
 import com.netscape.cmscore.base.SubsystemRegistry;
 
-
 public class CMSCRLExtensions implements ICMSCRLExtensions {
     public static final String PROP_ENABLE = "enable";
     public static final String PROP_EXTENSION = "extension";
@@ -65,7 +63,7 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
     public static final String PROP_CRITICAL = "critical";
     public static final String PROP_CRL_EXT = "CRLExtension";
     public static final String PROP_CRL_ENTRY_EXT = "CRLEntryExtension";
-    
+
     private ICRLIssuingPoint mCRLIssuingPoint = null;
 
     private IConfigStore mConfig = null;
@@ -117,74 +115,74 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
 
         /* CRL extension IDs */
         mDefaultCRLExtensionIDs.put(PKIXExtensions.AuthorityKey_Id.toString(),
-            AuthorityKeyIdentifierExtension.NAME);
+                AuthorityKeyIdentifierExtension.NAME);
         mDefaultCRLExtensionIDs.put(PKIXExtensions.IssuerAlternativeName_Id.toString(),
-            IssuerAlternativeNameExtension.NAME);
+                IssuerAlternativeNameExtension.NAME);
         mDefaultCRLExtensionIDs.put(PKIXExtensions.CRLNumber_Id.toString(),
-            CRLNumberExtension.NAME);
+                CRLNumberExtension.NAME);
         mDefaultCRLExtensionIDs.put(PKIXExtensions.DeltaCRLIndicator_Id.toString(),
-            DeltaCRLIndicatorExtension.NAME);
+                DeltaCRLIndicatorExtension.NAME);
         mDefaultCRLExtensionIDs.put(PKIXExtensions.IssuingDistributionPoint_Id.toString(),
-            IssuingDistributionPointExtension.NAME);
+                IssuingDistributionPointExtension.NAME);
         mDefaultCRLExtensionIDs.put(PKIXExtensions.ReasonCode_Id.toString(),
-            CRLReasonExtension.NAME);
+                CRLReasonExtension.NAME);
         mDefaultCRLExtensionIDs.put(PKIXExtensions.HoldInstructionCode_Id.toString(),
-            HoldInstructionExtension.NAME);
+                HoldInstructionExtension.NAME);
         mDefaultCRLExtensionIDs.put(PKIXExtensions.InvalidityDate_Id.toString(),
-            InvalidityDateExtension.NAME);
+                InvalidityDateExtension.NAME);
         //mDefaultCRLExtensionIDs.put(PKIXExtensions.CertificateIssuer_Id.toString(),
         //                     CertificateIssuerExtension.NAME);
         mDefaultCRLExtensionIDs.put(PKIXExtensions.FreshestCRL_Id.toString(),
-            FreshestCRLExtension.NAME);
+                FreshestCRLExtension.NAME);
         mDefaultCRLExtensionIDs.put(AuthInfoAccessExtension.ID.toString(),
-            AuthInfoAccessExtension.NAME2);
+                AuthInfoAccessExtension.NAME2);
 
         /* Class names */
         mDefaultCRLExtensionClassNames.put(AuthorityKeyIdentifierExtension.NAME,
-            "com.netscape.cms.crl.CMSAuthorityKeyIdentifierExtension");
+                "com.netscape.cms.crl.CMSAuthorityKeyIdentifierExtension");
         mDefaultCRLExtensionClassNames.put(IssuerAlternativeNameExtension.NAME,
-            "com.netscape.cms.crl.CMSIssuerAlternativeNameExtension");
+                "com.netscape.cms.crl.CMSIssuerAlternativeNameExtension");
         mDefaultCRLExtensionClassNames.put(CRLNumberExtension.NAME,
-            "com.netscape.cms.crl.CMSCRLNumberExtension");
+                "com.netscape.cms.crl.CMSCRLNumberExtension");
         mDefaultCRLExtensionClassNames.put(DeltaCRLIndicatorExtension.NAME,
-            "com.netscape.cms.crl.CMSDeltaCRLIndicatorExtension");
+                "com.netscape.cms.crl.CMSDeltaCRLIndicatorExtension");
         mDefaultCRLExtensionClassNames.put(IssuingDistributionPointExtension.NAME,
-            "com.netscape.cms.crl.CMSIssuingDistributionPointExtension");
+                "com.netscape.cms.crl.CMSIssuingDistributionPointExtension");
         mDefaultCRLExtensionClassNames.put(CRLReasonExtension.NAME,
-            "com.netscape.cms.crl.CMSCRLReasonExtension");
+                "com.netscape.cms.crl.CMSCRLReasonExtension");
         mDefaultCRLExtensionClassNames.put(HoldInstructionExtension.NAME,
-            "com.netscape.cms.crl.CMSHoldInstructionExtension");
+                "com.netscape.cms.crl.CMSHoldInstructionExtension");
         mDefaultCRLExtensionClassNames.put(InvalidityDateExtension.NAME,
-            "com.netscape.cms.crl.CMSInvalidityDateExtension");
+                "com.netscape.cms.crl.CMSInvalidityDateExtension");
         //mDefaultCRLExtensionClassNames.put(CertificateIssuerExtension.NAME,
         //        "com.netscape.cms.crl.CMSCertificateIssuerExtension");
         mDefaultCRLExtensionClassNames.put(FreshestCRLExtension.NAME,
-            "com.netscape.cms.crl.CMSFreshestCRLExtension");
+                "com.netscape.cms.crl.CMSFreshestCRLExtension");
         mDefaultCRLExtensionClassNames.put(AuthInfoAccessExtension.NAME2,
-            "com.netscape.cms.crl.CMSAuthInfoAccessExtension");
+                "com.netscape.cms.crl.CMSAuthInfoAccessExtension");
 
         try {
             OIDMap.addAttribute(DeltaCRLIndicatorExtension.class.getName(),
-                DeltaCRLIndicatorExtension.OID,
-                DeltaCRLIndicatorExtension.NAME);
+                    DeltaCRLIndicatorExtension.OID,
+                    DeltaCRLIndicatorExtension.NAME);
         } catch (CertificateException e) {
         }
         try {
             OIDMap.addAttribute(HoldInstructionExtension.class.getName(),
-                HoldInstructionExtension.OID,
-                HoldInstructionExtension.NAME);
+                    HoldInstructionExtension.OID,
+                    HoldInstructionExtension.NAME);
         } catch (CertificateException e) {
         }
         try {
             OIDMap.addAttribute(InvalidityDateExtension.class.getName(),
-                InvalidityDateExtension.OID,
-                InvalidityDateExtension.NAME);
+                    InvalidityDateExtension.OID,
+                    InvalidityDateExtension.NAME);
         } catch (CertificateException e) {
         }
         try {
             OIDMap.addAttribute(FreshestCRLExtension.class.getName(),
-                FreshestCRLExtension.OID,
-                FreshestCRLExtension.NAME);
+                    FreshestCRLExtension.OID,
+                    FreshestCRLExtension.NAME);
         } catch (CertificateException e) {
         }
     }
@@ -195,12 +193,12 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
     public CMSCRLExtensions(ICRLIssuingPoint crlIssuingPoint, IConfigStore config) {
         boolean modifiedConfig = false;
 
-        mConfig = config; 
+        mConfig = config;
         mCRLExtConfig = config.getSubStore(PROP_EXTENSION);
         mCRLIssuingPoint = crlIssuingPoint;
 
-        IConfigStore mFileConfig = 
-            SubsystemRegistry.getInstance().get("MAIN").getConfigStore();
+        IConfigStore mFileConfig =
+                SubsystemRegistry.getInstance().get("MAIN").getConfigStore();
 
         IConfigStore crlExtConfig = (IConfigStore) mFileConfig;
         StringTokenizer st = new StringTokenizer(mCRLExtConfig.getName(), ".");
@@ -212,13 +210,13 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
             if (newConfig != null) {
                 crlExtConfig = newConfig;
             }
-        }	
+        }
 
         if (crlExtConfig != null) {
             Enumeration<String> enumExts = crlExtConfig.getSubStoreNames();
 
             while (enumExts.hasMoreElements()) {
-                String extName =  enumExts.nextElement();
+                String extName = enumExts.nextElement();
                 IConfigStore extConfig = crlExtConfig.getSubStore(extName);
 
                 if (extConfig != null) {
@@ -361,10 +359,10 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
                     Class<ICMSCRLExtension> crlExtClass = (Class<ICMSCRLExtension>) Class.forName(extClass);
 
                     if (crlExtClass != null) {
-                        ICMSCRLExtension cmsCRLExt =  crlExtClass.newInstance();
+                        ICMSCRLExtension cmsCRLExt = crlExtClass.newInstance();
 
                         if (cmsCRLExt != null) {
-                            String id =  cmsCRLExt.getCRLExtOID();
+                            String id = cmsCRLExt.getCRLExtOID();
 
                             if (id != null) {
                                 mCRLExtensionIDs.put(id, extName);
@@ -383,7 +381,7 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
 
             } else {
                 if (mDefaultCRLExtensionClassNames.containsKey(extName)) {
-                    extClass =  mCRLExtensionClassNames.get(extName);
+                    extClass = mCRLExtensionClassNames.get(extName);
                     extConfig.putString(PROP_CLASS, extClass);
                     modifiedConfig = true;
                 }
@@ -391,14 +389,14 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
             }
         } catch (EPropertyNotFound e) {
             if (mDefaultCRLExtensionClassNames.containsKey(extName)) {
-                extClass =  mDefaultCRLExtensionClassNames.get(extName);
+                extClass = mDefaultCRLExtensionClassNames.get(extName);
                 extConfig.putString(PROP_CLASS, extClass);
                 modifiedConfig = true;
             }
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CRLEXTS_CLASS_MISSING", extName));
         } catch (EBaseException e) {
             if (mDefaultCRLExtensionClassNames.containsKey(extName)) {
-                extClass =  mDefaultCRLExtensionClassNames.get(extName);
+                extClass = mDefaultCRLExtensionClassNames.get(extName);
                 extConfig.putString(PROP_CLASS, extClass);
                 modifiedConfig = true;
             }
@@ -416,9 +414,7 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
     }
 
     public boolean isCRLExtensionEnabled(String extName) {
-        return ((mCRLExtensionNames.contains(extName) ||
-                    mCRLEntryExtensionNames.contains(extName)) &&
-                mEnabledCRLExtensions.contains(extName));
+        return ((mCRLExtensionNames.contains(extName) || mCRLEntryExtensionNames.contains(extName)) && mEnabledCRLExtensions.contains(extName));
     }
 
     public boolean isCRLExtensionCritical(String extName) {
@@ -429,7 +425,7 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
         String name = null;
 
         if (mCRLExtensionIDs.containsKey(id)) {
-            name =  mCRLExtensionIDs.get(id);
+            name = mCRLExtensionIDs.get(id);
         }
         return name;
     }
@@ -439,16 +435,16 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
     }
 
     public Vector<String> getCRLEntryExtensionNames() {
-        return new Vector<String>( mCRLEntryExtensionNames);
+        return new Vector<String>(mCRLEntryExtensionNames);
     }
 
     public void addToCRLExtensions(CRLExtensions crlExts, String extName, Extension ext) {
         if (mCRLExtensionClassNames.containsKey(extName)) {
-            String name =  mCRLExtensionClassNames.get(extName);
+            String name = mCRLExtensionClassNames.get(extName);
 
             try {
                 @SuppressWarnings("unchecked")
-                Class<ICMSCRLExtension > extClass = (Class<ICMSCRLExtension>) Class.forName(name);
+                Class<ICMSCRLExtension> extClass = (Class<ICMSCRLExtension>) Class.forName(name);
 
                 if (extClass != null) {
                     ICMSCRLExtension cmsCRLExt = extClass.newInstance();
@@ -488,7 +484,7 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
         NameValuePairs nvp = null;
 
         if (mCRLEntryExtensionNames.contains(id) ||
-            mCRLExtensionNames.contains(id)) {
+                mCRLExtensionNames.contains(id)) {
             nvp = new NameValuePairs();
 
             /*
@@ -517,7 +513,7 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
             }
 
             if (mCRLExtensionClassNames.containsKey(id)) {
-                String name =  mCRLExtensionClassNames.get(id);
+                String name = mCRLExtensionClassNames.get(id);
 
                 if (name != null) {
 
@@ -555,12 +551,12 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
     }
 
     public void setConfigParams(String id, NameValuePairs nvp, IConfigStore config) {
-        ICertificateAuthority ca  = (ICertificateAuthority) CMS.getSubsystem(CMS.SUBSYSTEM_CA);
+        ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem(CMS.SUBSYSTEM_CA);
         String ipId = nvp.getValue("id");
 
-        ICRLIssuingPoint ip =  null;
-        if(ipId != null && ca != null) {
-           ip = ca.getCRLIssuingPoint(ipId);
+        ICRLIssuingPoint ip = null;
+        if (ipId != null && ca != null) {
+            ip = ca.getCRLIssuingPoint(ipId);
         }
 
         for (int i = 0; i < nvp.size(); i++) {
@@ -569,8 +565,7 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
             String value = p.getValue();
 
             if (name.equals(PROP_ENABLE)) {
-                if (!(value.equals(Constants.TRUE) ||
-                        value.equals(Constants.FALSE))) {
+                if (!(value.equals(Constants.TRUE) || value.equals(Constants.FALSE))) {
                     continue;
                 }
                 if (value.equals(Constants.TRUE)) {
@@ -584,8 +579,7 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
             }
 
             if (name.equals(PROP_CRITICAL)) {
-                if (!(value.equals(Constants.TRUE) ||
-                        value.equals(Constants.FALSE))) {
+                if (!(value.equals(Constants.TRUE) || value.equals(Constants.FALSE))) {
                     continue;
                 }
                 if (value.equals(Constants.TRUE)) {
@@ -599,37 +593,36 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
             }
             //Sync the onlyContainsCACerts with similar property in CRLIssuingPoint 
             //called caCertsOnly.
-            if(name.equals(CMSIssuingDistributionPointExtension.PROP_CACERTS)) {
+            if (name.equals(CMSIssuingDistributionPointExtension.PROP_CACERTS)) {
                 NameValuePairs crlIssuingPointPairs = null;
                 boolean crlCACertsOnly = false;
 
                 boolean issuingDistPointExtEnabled = false;
 
                 CMSCRLExtensions cmsCRLExtensions = (CMSCRLExtensions) ip.getCRLExtensions();
-                if(cmsCRLExtensions != null) {
-                    issuingDistPointExtEnabled =  cmsCRLExtensions.isCRLExtensionEnabled(IssuingDistributionPointExtension.NAME); 
+                if (cmsCRLExtensions != null) {
+                    issuingDistPointExtEnabled = cmsCRLExtensions.isCRLExtensionEnabled(IssuingDistributionPointExtension.NAME);
                 }
 
                 CMS.debug("issuingDistPointExtEnabled = " + issuingDistPointExtEnabled);
 
-                if (!(value.equals(Constants.TRUE) ||
-                        value.equals(Constants.FALSE))) {
+                if (!(value.equals(Constants.TRUE) || value.equals(Constants.FALSE))) {
                     continue;
                 }
 
                 //Get value of caCertsOnly from CRLIssuingPoint
-                if((ip != null) && (issuingDistPointExtEnabled == true)) {
+                if ((ip != null) && (issuingDistPointExtEnabled == true)) {
                     crlCACertsOnly = ip.isCACertsOnly();
                     CMS.debug("CRLCACertsOnly is: " + crlCACertsOnly);
                     crlIssuingPointPairs = new NameValuePairs();
-                    
+
                 }
 
                 String newValue = "";
                 boolean modifiedCRLConfig = false;
                 //If the CRLCACertsOnly prop is false change it to true to sync.
-                if(value.equals(Constants.TRUE) && (issuingDistPointExtEnabled == true)) {
-                    if(crlCACertsOnly == false) {
+                if (value.equals(Constants.TRUE) && (issuingDistPointExtEnabled == true)) {
+                    if (crlCACertsOnly == false) {
                         CMS.debug(" value = true and CRLCACertsOnly is already false.");
                         crlIssuingPointPairs.add(Constants.PR_CA_CERTS_ONLY, Constants.TRUE);
                         newValue = Constants.TRUE;
@@ -639,23 +632,23 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
                 }
 
                 //If the CRLCACertsOnly prop is true change it to false to sync.
-                if(value.equals(Constants.FALSE) && (issuingDistPointExtEnabled == true)) {
+                if (value.equals(Constants.FALSE) && (issuingDistPointExtEnabled == true)) {
                     crlIssuingPointPairs.add(Constants.PR_CA_CERTS_ONLY, Constants.FALSE);
-                    if(ip != null) {
+                    if (ip != null) {
                         ip.updateConfig(crlIssuingPointPairs);
                         newValue = Constants.FALSE;
                         modifiedCRLConfig = true;
                     }
                 }
-               
-                if(modifiedCRLConfig == true) {
+
+                if (modifiedCRLConfig == true) {
                     //Commit to this CRL IssuingPoint's config store
                     ICertificateAuthority CA = (ICertificateAuthority) CMS.getSubsystem(CMS.SUBSYSTEM_CA);
                     IConfigStore crlsSubStore = CA.getConfigStore();
-                    crlsSubStore =   crlsSubStore.getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE);
+                    crlsSubStore = crlsSubStore.getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE);
                     crlsSubStore = crlsSubStore.getSubStore(ipId);
                     try {
-                        crlsSubStore.putString(Constants.PR_CA_CERTS_ONLY,newValue);
+                        crlsSubStore.putString(Constants.PR_CA_CERTS_ONLY, newValue);
                         crlsSubStore.commit(true);
                     } catch (EBaseException e) {
                         log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CRLEXTS_SAVE_CONF", e.toString()));
@@ -693,7 +686,6 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
 
     private void log(int level, String msg) {
         mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_CA, level,
-            "CMSCRLExtension - " + msg);
+                "CMSCRLExtension - " + msg);
     }
 }
-

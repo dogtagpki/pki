@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.cert;
 
-
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.StringReader;
@@ -58,25 +57,26 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 
-
 /**
  * Set up HTTP response to import certificate into browsers
  * 
  * The result must have been populate with the set of certificates
  * to return.
+ * 
  * <pre>
  * inputs: certtype.
  * outputs: 
- *		- cert type from http input (if any)
+ * 	- cert type from http input (if any)
  *      - CA chain 
- *		- authority name (RM, CM, DRM)
+ * 	- authority name (RM, CM, DRM)
  *      - scheme:host:port of server.
- *	 array of one or more 
+ *  array of one or more 
  *      - cert serial number
  *      - cert pretty print
- *		- cert in base 64 encoding.
- *		- cmmf blob to import 
+ * 	- cert in base 64 encoding.
+ * 	- cmmf blob to import
  * </pre>
+ * 
  * @version $Revision$, $Date$
  */
 public class ImportCertsTemplateFiller implements ICMSTemplateFiller {
@@ -88,7 +88,7 @@ public class ImportCertsTemplateFiller implements ICMSTemplateFiller {
     public static final String CERT_FINGERPRINT = "certFingerprint"; // cisco
     public static final String CERT_NICKNAME = "certNickname";
     public static final String CMMF_RESP = "cmmfResponse";
-    public static final String PKCS7_RESP = "pkcs7ChainBase64";  // for MSIE
+    public static final String PKCS7_RESP = "pkcs7ChainBase64"; // for MSIE
 
     public ImportCertsTemplateFiller() {
     }
@@ -100,19 +100,19 @@ public class ImportCertsTemplateFiller implements ICMSTemplateFiller {
      * @param e unexpected exception e. ignored.
      */
     public CMSTemplateParams getTemplateParams(
-        CMSRequest cmsReq, IAuthority authority, Locale locale, Exception e) 
-        throws Exception {
+            CMSRequest cmsReq, IAuthority authority, Locale locale, Exception e)
+            throws Exception {
         Certificate[] certs = (Certificate[]) cmsReq.getResult();
 
         if (certs instanceof X509CertImpl[])
-            return 	getX509TemplateParams(cmsReq, authority, locale, e);
+            return getX509TemplateParams(cmsReq, authority, locale, e);
         else
             return null;
     }
-	
+
     public CMSTemplateParams getX509TemplateParams(
-        CMSRequest cmsReq, IAuthority authority, Locale locale, Exception e) 
-        throws Exception {
+            CMSRequest cmsReq, IAuthority authority, Locale locale, Exception e)
+            throws Exception {
         IArgBlock header = CMS.createArgBlock();
         IArgBlock fixed = CMS.createArgBlock();
         CMSTemplateParams params = new CMSTemplateParams(header, fixed);
@@ -123,9 +123,9 @@ public class ImportCertsTemplateFiller implements ICMSTemplateFiller {
         int port = httpReq.getServerPort();
         String scheme = httpReq.getScheme();
         String format = httpReq.getParameter("format");
-        if(format!=null && format.equals("cmc"))
+        if (format != null && format.equals("cmc"))
             fixed.set("importCMC", "false");
-        String agentPort = ""+port;
+        String agentPort = "" + port;
         fixed.set("agentHost", host);
         fixed.set("agentPort", agentPort);
         fixed.set(ICMSTemplateFiller.HOST, host);
@@ -148,33 +148,34 @@ public class ImportCertsTemplateFiller implements ICMSTemplateFiller {
 
         // set cert type.
         IArgBlock httpParams = cmsReq.getHttpParams();
-        String certType = 
-            httpParams.getValueAsString(CERT_TYPE, null);
+        String certType =
+                httpParams.getValueAsString(CERT_TYPE, null);
 
-        if (certType != null) 
+        if (certType != null)
             fixed.set(CERT_TYPE, certType);
 
-            // this authority
-        fixed.set(ICMSTemplateFiller.AUTHORITY, 
-            (String) authority.getOfficialName());
+        // this authority
+        fixed.set(ICMSTemplateFiller.AUTHORITY,
+                (String) authority.getOfficialName());
 
         // CA chain.
-        CertificateChain cachain = 
-            ((ICertAuthority) authority).getCACertChain();
+        CertificateChain cachain =
+                ((ICertAuthority) authority).getCACertChain();
         X509Certificate[] cacerts = cachain.getChain();
 
         String replyTo = httpParams.getValueAsString("replyTo", null);
 
-        if (replyTo != null) fixed.set("replyTo", replyTo);
+        if (replyTo != null)
+            fixed.set("replyTo", replyTo);
 
-            // set user + CA cert chain and pkcs7 for MSIE. 
+        // set user + CA cert chain and pkcs7 for MSIE. 
         X509CertImpl[] userChain = new X509CertImpl[cacerts.length + 1];
         int m = 1, n = 0;
 
-        for (; n < cacerts.length; m++, n++) 
+        for (; n < cacerts.length; m++, n++)
             userChain[m] = (X509CertImpl) cacerts[n];
 
-            // certs. 
+        // certs. 
         X509CertImpl[] certs = (X509CertImpl[]) cmsReq.getResult();
 
         // expose CRMF request id
@@ -196,23 +197,23 @@ public class ImportCertsTemplateFiller implements ICMSTemplateFiller {
         if (CMSServlet.doCMMFResponse(httpParams)) {
             byte[][] caPubs = new byte[cacerts.length][];
 
-            for (int j = 0; j < cacerts.length; j++) 
+            for (int j = 0; j < cacerts.length; j++)
                 caPubs[j] = ((X509CertImpl) cacerts[j]).getEncoded();
             certRepContent = new CertRepContent(caPubs);
 
-            String certnickname = 
-                cmsReq.getHttpParams().getValueAsString(CERT_NICKNAME, null);
+            String certnickname =
+                    cmsReq.getHttpParams().getValueAsString(CERT_NICKNAME, null);
 
             // if nickname is not requested set to subject name by default.
-            if (certnickname == null) 
+            if (certnickname == null)
                 fixed.set(CERT_NICKNAME, certs[0].getSubjectDN().toString());
             else
                 fixed.set(CERT_NICKNAME, certnickname);
         }
 
         // make pkcs7 for MSIE 
-        if (CMSServlet.clientIsMSIE(cmsReq.getHttpReq()) && 
-            (certType == null || certType.equals("client"))) {
+        if (CMSServlet.clientIsMSIE(cmsReq.getHttpReq()) &&
+                (certType == null || certType.equals("client"))) {
             userChain[0] = certs[0];
             PKCS7 p7 = new PKCS7(new AlgorithmId[0],
                     new ContentInfo(new byte[0]),
@@ -234,8 +235,8 @@ public class ImportCertsTemplateFiller implements ICMSTemplateFiller {
             X509CertImpl cert = certs[i];
 
             // set serial number.
-            BigInteger serialNo = 
-                ((X509Certificate) cert).getSerialNumber();
+            BigInteger serialNo =
+                    ((X509Certificate) cert).getSerialNumber();
 
             repeat.addBigIntegerValue(ISSUED_CERT_SERIAL, serialNo, 16);
 
@@ -244,14 +245,14 @@ public class ImportCertsTemplateFiller implements ICMSTemplateFiller {
             //			String b64 = encoder.encodeBuffer(certEncoded);
             String b64 = CMS.BtoA(certEncoded);
             String b64cert = "-----BEGIN CERTIFICATE-----\n" +
-                b64 + "\n-----END CERTIFICATE-----";
+                    b64 + "\n-----END CERTIFICATE-----";
 
             repeat.set(BASE64_CERT, b64cert);
-			
+
             // set cert pretty print.
-			
+
             String prettyPrintRequested =
-                cmsReq.getHttpParams().getValueAsString(CERT_PRETTYPRINT, null);
+                    cmsReq.getHttpParams().getValueAsString(CERT_PRETTYPRINT, null);
 
             if (prettyPrintRequested == null) {
                 prettyPrintRequested = "true";
@@ -266,7 +267,8 @@ public class ImportCertsTemplateFiller implements ICMSTemplateFiller {
             repeat.set(CERT_PRETTYPRINT, ppStr);
 
             // Now formulate a PKCS#7 blob
-            X509CertImpl[] certsInChain = new X509CertImpl[1];; 
+            X509CertImpl[] certsInChain = new X509CertImpl[1];
+            ;
             if (cacerts != null) {
                 for (int j = 0; j < cacerts.length; j++) {
                     if (cert.equals(cacerts[j])) {
@@ -277,10 +279,10 @@ public class ImportCertsTemplateFiller implements ICMSTemplateFiller {
                     certsInChain = new X509CertImpl[cacerts.length + 1];
                 }
             }
-			
+
             // Set the EE cert
             certsInChain[0] = cert;
-			
+
             // Set the Ca certificate chain
             if (cacerts != null) {
                 for (int j = 0; j < cacerts.length; j++) {
@@ -292,7 +294,7 @@ public class ImportCertsTemplateFiller implements ICMSTemplateFiller {
             String p7Str;
 
             try {
-                PKCS7 p7 = new PKCS7(new AlgorithmId[0], 
+                PKCS7 p7 = new PKCS7(new AlgorithmId[0],
                         new ContentInfo(new byte[0]),
                         certsInChain,
                         new SignerInfo[0]);
@@ -308,7 +310,7 @@ public class ImportCertsTemplateFiller implements ICMSTemplateFiller {
                 //p7Str = "PKCS#7 B64 Encoding error - " + ex.toString() 
                 //+ "; Please contact your administrator";
                 throw new ECMSGWException(
-                  CMS.getUserMessage("CMS_GW_FORMING_PKCS7_ERROR"));
+                        CMS.getUserMessage("CMS_GW_FORMING_PKCS7_ERROR"));
             }
 
             // set cert fingerprint (for Cisco routers)
@@ -325,18 +327,18 @@ public class ImportCertsTemplateFiller implements ICMSTemplateFiller {
                 throw new EBaseException(
                         CMS.getUserMessage(locale, "CMS_BASE_INTERNAL_ERROR", ex.toString()));
             }
-            if (fingerprint != null && fingerprint.length() > 0) 
+            if (fingerprint != null && fingerprint.length() > 0)
                 repeat.set(CERT_FINGERPRINT, fingerprint);
 
-                // cmmf response for this cert.
+            // cmmf response for this cert.
             if (CMSServlet.doCMMFResponse(httpParams) && crmfReqId != null &&
-                (certType == null || certType.equals("client"))) {
+                    (certType == null || certType.equals("client"))) {
                 PKIStatusInfo status = new PKIStatusInfo(PKIStatusInfo.granted);
-                CertifiedKeyPair certifiedKP = 
-                    new CertifiedKeyPair(new CertOrEncCert(certEncoded));
-                CertResponse resp = 
-                    new CertResponse(new INTEGER(crmfReqId), status, 
-                        certifiedKP);
+                CertifiedKeyPair certifiedKP =
+                        new CertifiedKeyPair(new CertOrEncCert(certEncoded));
+                CertResponse resp =
+                        new CertResponse(new INTEGER(crmfReqId), status,
+                                certifiedKP);
 
                 certRepContent.addCertResponse(resp);
             }
@@ -352,8 +354,8 @@ public class ImportCertsTemplateFiller implements ICMSTemplateFiller {
             byte[] certRepBytes = certRepOut.toByteArray();
             String certRepB64 = com.netscape.osutil.OSUtil.BtoA(certRepBytes);
             // add CR to each return as required by cartman
-            BufferedReader certRepB64lines = 
-                new BufferedReader(new StringReader(certRepB64));
+            BufferedReader certRepB64lines =
+                    new BufferedReader(new StringReader(certRepB64));
             StringWriter certRepStringOut = new StringWriter();
             String oneLine = null;
             boolean first = true;
@@ -376,4 +378,3 @@ public class ImportCertsTemplateFiller implements ICMSTemplateFiller {
         return params;
     }
 }
-

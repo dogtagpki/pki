@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.notification;
 
-
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
@@ -27,12 +26,12 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
 
-
 /**
- * formulates the final email.  Escape character '\' is understood.
- * '$' is used preceeding a token name.  A token name should not be a
+ * formulates the final email. Escape character '\' is understood.
+ * '$' is used preceeding a token name. A token name should not be a
  * substring of any other token name
  * <p>
+ * 
  * @author cfu
  * @version $Revision$, $Date$
  */
@@ -87,7 +86,7 @@ public class EmailFormProcessor implements IEmailFormProcessor {
      * @return mail content
      */
     public String getEmailContent(String form,
-        Hashtable<String, Object> tok2vals) {
+            Hashtable<String, Object> tok2vals) {
         mTok2vals = tok2vals;
 
         if (form == null) {
@@ -104,11 +103,11 @@ public class EmailFormProcessor implements IEmailFormProcessor {
          * first, take care of the escape characters '\'
          */
         StringTokenizer es = new StringTokenizer(form, TOK_ESC);
-		
+
         if (es.hasMoreTokens() && !form.startsWith(TOK_ESC)) {
             dollarProcess(es.nextToken());
         }
-		
+
         // rest of them start with '\'
         while (es.hasMoreTokens()) {
             String t = es.nextToken();
@@ -183,7 +182,7 @@ public class EmailFormProcessor implements IEmailFormProcessor {
                     matched = true;
 
                     // replaced! bail out.
-                    break; 
+                    break;
                 }
             }
 
@@ -200,7 +199,7 @@ public class EmailFormProcessor implements IEmailFormProcessor {
                     if (t.startsWith(token_keys[i])) {
                         // match,  replace it with the TOK_VALUE_UNKNOWN
                         mContent.add(TOK_VALUE_UNKNOWN);
-					
+
                         // now, put the rest of the non-token string
                         //						in mContent
                         if (t.length() != token_keys[i].length()) {
@@ -228,7 +227,7 @@ public class EmailFormProcessor implements IEmailFormProcessor {
 
         // initialize content with first element
         if (e.hasMoreElements()) {
-            content =  e.nextElement();
+            content = e.nextElement();
         }
 
         while (e.hasMoreElements()) {
@@ -247,7 +246,6 @@ public class EmailFormProcessor implements IEmailFormProcessor {
         if (mLogger == null)
             return;
         mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_OTHER,
-            level, "EmailFormProcessor: " + msg);
+                level, "EmailFormProcessor: " + msg);
     }
 }
-

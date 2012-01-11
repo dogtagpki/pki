@@ -17,41 +17,39 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.request;
 
-
 import java.util.Enumeration;
-
 
 /**
  * An interface providing a list of RequestIds that match
- * some criteria.  It could be a list of all elements in a
+ * some criteria. It could be a list of all elements in a
  * queue, or just some defined sub-set.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public interface IRequestList
-    extends Enumeration {
+        extends Enumeration {
 
     /**
-     * Gets the next RequestId from this list.  null is
-	 * returned when there are no more elements in the list.
-	 * <p>
-	 * Callers should be sure there is another element in the
-	 * list by calling hasMoreElements first.
+     * Gets the next RequestId from this list. null is
+     * returned when there are no more elements in the list.
      * <p>
+     * Callers should be sure there is another element in the list by calling hasMoreElements first.
+     * <p>
+     * 
      * @return next request id
      */
     RequestId nextRequestId();
 
     /**
      * Gets next request from the list.
-     *
+     * 
      * @return next request
      */
     public Object nextRequest();
 
     /**
      * Gets next request Object from the list.
-     *
+     * 
      * @return next request
      */
     public IRequest nextRequestObject();

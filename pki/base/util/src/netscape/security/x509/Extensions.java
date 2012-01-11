@@ -34,14 +34,14 @@ import netscape.security.util.DerValue;
 
 /**
  * This class defines the Extensions attribute for the Certificate.
- *
+ * 
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  * @version 1.11
  * @see CertAttrSet
  */
 public class Extensions extends Vector
-implements CertAttrSet {
+        implements CertAttrSet {
     /**
      *
      */
@@ -49,7 +49,7 @@ implements CertAttrSet {
     /**
      * Identifier for this attribute, to be used with the
      * get, set, delete methods of Certificate, x509 type.
-     */  
+     */
     public static final String IDENT = "x509.info.extensions";
     /**
      * name
@@ -62,7 +62,7 @@ implements CertAttrSet {
     public void parseExtension(Extension ext) throws IOException {
         try {
             Class extClass = OIDMap.getClass(ext.getExtensionId());
-            if (extClass == null) {   // Unsupported extension
+            if (extClass == null) { // Unsupported extension
                 if (ext.isCritical()) {
                     throw new IOException("Unsupported CRITICAL extension: "
                                           + ext.getExtensionId());
@@ -77,23 +77,23 @@ implements CertAttrSet {
 
             byte[] extData = ext.getExtensionValue();
             int extLen = extData.length;
-	    Object value = Array.newInstance(byte.class, extLen);
-                                             
-	    for (int i = 0; i < extLen; i++) {
-	        Array.setByte(value, i, extData[i]);
-	    }
-	    Object[] passed = new Object[] {new Boolean(ext.isCritical()),
-                                                        value};
-            CertAttrSet certExt = (CertAttrSet)cons.newInstance(passed);
-	    map.put(certExt.getName(), certExt);
+            Object value = Array.newInstance(byte.class, extLen);
+
+            for (int i = 0; i < extLen; i++) {
+                Array.setByte(value, i, extData[i]);
+            }
+            Object[] passed = new Object[] { new Boolean(ext.isCritical()),
+                                                        value };
+            CertAttrSet certExt = (CertAttrSet) cons.newInstance(passed);
+            map.put(certExt.getName(), certExt);
             addElement(certExt);
 
         } catch (NoSuchMethodException nosuch) {
             throw new IOException(nosuch.toString());
         } catch (InvocationTargetException invk) {
             throw new IOException(invk.getTargetException().toString());
-	} catch (Exception e) {
-           throw new IOException(e.toString());
+        } catch (Exception e) {
+            throw new IOException(e.toString());
         }
     }
 
@@ -106,12 +106,12 @@ implements CertAttrSet {
 
     /**
      * Create the object, decoding the values from the passed DER stream.
-     *
+     * 
      * @param in the DerInputStream to read the Extension from.
      * @exception IOException on decoding errors.
      */
     public Extensions(DerInputStream in)
-        throws IOException {
+            throws IOException {
 
         map = new Hashtable();
         DerValue[] exts = in.getSequence(5);
@@ -124,7 +124,7 @@ implements CertAttrSet {
 
     /**
      * Decode the extensions from the InputStream.
-     *
+     * 
      * @param in the InputStream to unmarshal the contents from.
      * @exception IOException on decoding or validity errors.
      */
@@ -143,44 +143,45 @@ implements CertAttrSet {
 
     /**
      * Encode the extensions in DER form to the stream.
-     *
+     * 
      * @param out the DerOutputStream to marshal the contents to.
      * @exception CertificateException on encoding errors.
      * @exception IOException on errors.
      */
     public void encode(OutputStream out)
-    throws CertificateException, IOException {
+            throws CertificateException, IOException {
         DerOutputStream extOut = new DerOutputStream();
         for (int i = 0; i < size(); i++) {
             Object thisOne = elementAt(i);
             if (thisOne instanceof CertAttrSet)
-                ((CertAttrSet)thisOne).encode(extOut);
+                ((CertAttrSet) thisOne).encode(extOut);
             else if (thisOne instanceof Extension)
-                ((Extension)thisOne).encode(extOut);
+                ((Extension) thisOne).encode(extOut);
             else
                 throw new CertificateException("Invalid extension object");
         }
 
         DerOutputStream seq = new DerOutputStream();
-        seq.write(DerValue.tag_Sequence,extOut);
-
+        seq.write(DerValue.tag_Sequence, extOut);
 
         out.write(seq.toByteArray());
     }
 
     /**
      * Set the attribute value.
+     * 
      * @param name the extension name used in the cache.
      * @param obj the object to set.
      * @exception IOException if the object could not be cached.
      */
     public void set(String name, Object obj) throws IOException {
-        map.put(name,obj);
+        map.put(name, obj);
         addElement(obj);
     }
 
     /**
      * Get the attribute value.
+     * 
      * @param name the extension name used in the lookup.
      * @exception IOException if named extension is not found.
      */
@@ -194,6 +195,7 @@ implements CertAttrSet {
 
     /**
      * Delete the attribute value.
+     * 
      * @param name the extension name used in the lookup.
      * @exception IOException if named extension is not found.
      */
@@ -210,14 +212,14 @@ implements CertAttrSet {
      * Return an enumeration of names of attributes existing within this
      * attribute.
      */
-    public Enumeration getElements () {
+    public Enumeration getElements() {
         return (map.elements());
     }
 
     /**
      * Return the name of this attribute.
      */
-    public String getName () {
+    public String getName() {
         return (NAME);
     }
 }

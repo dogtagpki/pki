@@ -17,13 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.base;
 
-
 /**
- * This class represents an exception thrown when a 
+ * This class represents an exception thrown when a
  * property is not found in the configuration store.
  * It extends EBaseException and uses the same resource bundle.
  * <p>
- *
+ * 
  * @version $Revision$, $Date$
  * @see com.netscape.certsrv.base.EBaseException
  */
@@ -38,6 +37,7 @@ public class EPropertyNotFound extends EBaseException {
      * Constructs an instance of this exception given the name of the
      * property that's not found.
      * <p>
+     * 
      * @param errorString Detailed error message.
      */
     public EPropertyNotFound(String errorString) {

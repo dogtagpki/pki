@@ -27,18 +27,18 @@ import netscape.security.util.ObjectIdentifier;
 /**
  * This class implements the OtherName as required by the GeneralNames
  * ASN.1 object.
- *
- *  OtherName ::= SEQUENCE {
- *     type-id OBJECT IDENTIFIER,
- *     value [0] EXPLICIT ANY DEFINED BY type-id
- *  }
- *
+ * 
+ * OtherName ::= SEQUENCE {
+ * type-id OBJECT IDENTIFIER,
+ * value [0] EXPLICIT ANY DEFINED BY type-id
+ * }
+ * 
  * @see GeneralName
  * @see GeneralNameInterface
  * @see GeneralNames
- *
+ * 
  * @version 1.2
- *
+ * 
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  */
@@ -52,7 +52,7 @@ public class OtherName implements GeneralNameInterface {
 
     /**
      * Create the IPAddressName object from the passed encoded Der value.
-     *
+     * 
      * @param derValue the encoded DER IPAddressName.
      * @exception IOException on error.
      */
@@ -61,61 +61,60 @@ public class OtherName implements GeneralNameInterface {
     }
 
     public OtherName(ObjectIdentifier oid, byte data[]) {
-      mOID = oid;
-      DerOutputStream dos = new DerOutputStream();
-      try {
-          dos.putDerValue(new DerValue(data));
-      } catch (IOException e) {
-      }
-      mData = dos.toByteArray();
+        mOID = oid;
+        DerOutputStream dos = new DerOutputStream();
+        try {
+            dos.putDerValue(new DerValue(data));
+        } catch (IOException e) {
+        }
+        mData = dos.toByteArray();
     }
 
     /**
      * Constructs a string-based other name.
      */
     public OtherName(ObjectIdentifier oid, byte tag, String value) {
-      mOID = oid;
-      DerOutputStream dos = new DerOutputStream();
-      try {
-        if (tag == DerValue.tag_PrintableString) {
-          dos.putPrintableString(value);
-        } else if (tag == DerValue.tag_IA5String) {
-          dos.putIA5String(value);
-        } else if (tag == DerValue.tag_BMPString) {
-          dos.putBMPString(value);
-        } else if (tag == DerValue.tag_UTF8String) {
-          dos.putUTF8String(value);
+        mOID = oid;
+        DerOutputStream dos = new DerOutputStream();
+        try {
+            if (tag == DerValue.tag_PrintableString) {
+                dos.putPrintableString(value);
+            } else if (tag == DerValue.tag_IA5String) {
+                dos.putIA5String(value);
+            } else if (tag == DerValue.tag_BMPString) {
+                dos.putBMPString(value);
+            } else if (tag == DerValue.tag_UTF8String) {
+                dos.putUTF8String(value);
+            }
+        } catch (IOException e) {
         }
-      } catch (IOException e) {
-      }
-      mData = dos.toByteArray();
+        mData = dos.toByteArray();
     }
 
     public OtherName(ObjectIdentifier oid, String value) {
-      mOID = oid;
-      DerOutputStream dos = new DerOutputStream();
-      try {
-        dos.putPrintableString(value);
-      } catch (IOException e) {
-      }
-      mData = dos.toByteArray();
+        mOID = oid;
+        DerOutputStream dos = new DerOutputStream();
+        try {
+            dos.putPrintableString(value);
+        } catch (IOException e) {
+        }
+        mData = dos.toByteArray();
     }
 
     /**
      * Create the IPAddressName object with the specified name.
-     *
+     * 
      * @param name the IPAddressName.
      */
     public OtherName(byte[] data) {
         try {
-          decodeThis(new DerValue(data));
+            decodeThis(new DerValue(data));
         } catch (IOException e) {
         }
     }
 
-    public ObjectIdentifier getOID()
-    {
-      return mOID;
+    public ObjectIdentifier getOID() {
+        return mOID;
     }
 
     /**
@@ -127,7 +126,7 @@ public class OtherName implements GeneralNameInterface {
 
     /**
      * Encode the IPAddress name into the DerOutputStream.
-     *
+     * 
      * @param out the DER stream to encode the IPAddressName to.
      * @exception IOException on encoding errors.
      */
@@ -139,7 +138,7 @@ public class OtherName implements GeneralNameInterface {
         DerOutputStream tmp1 = new DerOutputStream();
         tmp1.write(mData);
         tmp.write(DerValue.createTag(DerValue.TAG_CONTEXT, true,
-          (byte)0x80), tmp1);
+                (byte) 0x80), tmp1);
 
         out.write(DerValue.tag_SequenceOf, tmp);
     }
@@ -152,10 +151,9 @@ public class OtherName implements GeneralNameInterface {
     // Decode this extension value
     private void decodeThis(DerValue derVal) throws IOException {
 
-    //    if (derVal.tag != DerValue.tag_Sequence) {
-     //       throw new IOException("Invalid encoding for other name");
-      //  }
-
+        //    if (derVal.tag != DerValue.tag_Sequence) {
+        //       throw new IOException("Invalid encoding for other name");
+        //  }
 
         // Decode all the Attributes
         mOID = derVal.data.getOID();
@@ -176,21 +174,21 @@ public class OtherName implements GeneralNameInterface {
     public String toString() {
         if (mData != null) {
             try {
-            DerValue data = new DerValue(mData);
-            if (data.tag == DerValue.tag_PrintableString) {
-              return "OtherName: (PrintableString)" + mOID + "," + data.getPrintableString();
-            } else if (data.tag == DerValue.tag_IA5String) {
-              return "OtherName: (IA5String)" + mOID + "," + data.getIA5String();
-            } else if (data.tag == DerValue.tag_BMPString) {
-              return "OtherName: (BMPString)" + mOID + "," + data.getIA5String();
-            } else if (data.tag == DerValue.tag_UTF8String) {
-              return "OtherName: (UTF8String)" + mOID + "," + data.getUTF8String();
-            } else {
-              return "OtherName: (Any)" + mOID + "," + toStr(data.toByteArray());
-            }
-            }  catch (IOException e) {
-         
-              return "OtherName: (Any)" + mOID + "," + toStr(mData);
+                DerValue data = new DerValue(mData);
+                if (data.tag == DerValue.tag_PrintableString) {
+                    return "OtherName: (PrintableString)" + mOID + "," + data.getPrintableString();
+                } else if (data.tag == DerValue.tag_IA5String) {
+                    return "OtherName: (IA5String)" + mOID + "," + data.getIA5String();
+                } else if (data.tag == DerValue.tag_BMPString) {
+                    return "OtherName: (BMPString)" + mOID + "," + data.getIA5String();
+                } else if (data.tag == DerValue.tag_UTF8String) {
+                    return "OtherName: (UTF8String)" + mOID + "," + data.getUTF8String();
+                } else {
+                    return "OtherName: (Any)" + mOID + "," + toStr(data.toByteArray());
+                }
+            } catch (IOException e) {
+
+                return "OtherName: (Any)" + mOID + "," + toStr(mData);
             }
         } else {
             return "OtherName: ";
@@ -200,13 +198,11 @@ public class OtherName implements GeneralNameInterface {
     public String toStr(byte data[]) {
         StringBuffer b = new StringBuffer();
         for (int i = 0; i < data.length; i++) {
-           if ((data[i] & 0xff) < 16) {
-              b.append("0");
-           }
-           b.append(Integer.toString((int)(data[i] & 0xff), 0x10)); 
+            if ((data[i] & 0xff) < 16) {
+                b.append("0");
+            }
+            b.append(Integer.toString((int) (data[i] & 0xff), 0x10));
         }
         return b.toString();
     }
 }
-
-

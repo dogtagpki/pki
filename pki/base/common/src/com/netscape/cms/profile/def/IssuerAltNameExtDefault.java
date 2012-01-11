@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.def;
 
-
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Locale;
@@ -39,12 +38,11 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 
-
 /**
  * This class implements an enrollment default policy
  * that populates a issuer alternative name extension
  * into the certificate template.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class IssuerAltNameExtDefault extends EnrollExtDefault {
@@ -67,25 +65,25 @@ public class IssuerAltNameExtDefault extends EnrollExtDefault {
     }
 
     public void init(IProfile profile, IConfigStore config)
-        throws EProfileException {
+            throws EProfileException {
         super.init(profile, config);
     }
 
-    public IDescriptor getConfigDescriptor(Locale locale, String name) { 
+    public IDescriptor getConfigDescriptor(Locale locale, String name) {
         if (name.equals(CONFIG_CRITICAL)) {
-            return new Descriptor(IDescriptor.BOOLEAN, null, 
+            return new Descriptor(IDescriptor.BOOLEAN, null,
                     "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_CRITICAL"));
         } else if (name.equals(CONFIG_TYPE)) {
             return new Descriptor(IDescriptor.CHOICE, "RFC822Name,DNSName,DirectoryName,EDIPartyName,URIName,IPAddress,OIDName",
                     "RFC822Name",
-                    CMS.getUserMessage(locale, 
-                        "CMS_PROFILE_ISSUER_ALT_NAME_TYPE"));
+                    CMS.getUserMessage(locale,
+                            "CMS_PROFILE_ISSUER_ALT_NAME_TYPE"));
         } else if (name.equals(CONFIG_PATTERN)) {
-            return new Descriptor(IDescriptor.STRING, null, 
+            return new Descriptor(IDescriptor.STRING, null,
                     null,
-                    CMS.getUserMessage(locale, 
-                        "CMS_PROFILE_ISSUER_ALT_NAME_PATTERN"));
+                    CMS.getUserMessage(locale,
+                            "CMS_PROFILE_ISSUER_ALT_NAME_PATTERN"));
         } else {
             return null;
         }
@@ -93,11 +91,11 @@ public class IssuerAltNameExtDefault extends EnrollExtDefault {
 
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         if (name.equals(VAL_CRITICAL)) {
-            return new Descriptor(IDescriptor.BOOLEAN, null, 
+            return new Descriptor(IDescriptor.BOOLEAN, null,
                     "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_CRITICAL"));
         } else if (name.equals(VAL_GENERAL_NAMES)) {
-            return new Descriptor(IDescriptor.STRING_LIST, null, 
+            return new Descriptor(IDescriptor.STRING_LIST, null,
                     null,
                     CMS.getUserMessage(locale, "CMS_PROFILE_GENERAL_NAMES"));
         } else {
@@ -106,13 +104,13 @@ public class IssuerAltNameExtDefault extends EnrollExtDefault {
     }
 
     public void setValue(String name, Locale locale,
-        X509CertInfo info, String value)
-        throws EPropertyException {
+            X509CertInfo info, String value)
+            throws EPropertyException {
         try {
             IssuerAlternativeNameExtension ext = null;
 
-            if (name == null) { 
-                throw new EPropertyException(CMS.getUserMessage( 
+            if (name == null) {
+                throw new EPropertyException(CMS.getUserMessage(
                             locale, "CMS_INVALID_PROPERTY", name));
             }
 
@@ -120,20 +118,19 @@ public class IssuerAltNameExtDefault extends EnrollExtDefault {
                         (IssuerAlternativeNameExtension)
                         getExtension(PKIXExtensions.IssuerAlternativeName_Id.toString(), info);
 
-            if(ext == null)
-            {
+            if (ext == null) {
                 try {
-                    populate(null,info);
+                    populate(null, info);
 
                 } catch (EProfileException e) {
-                     throw new EPropertyException(CMS.getUserMessage(
-                          locale, "CMS_INVALID_PROPERTY", name));
+                    throw new EPropertyException(CMS.getUserMessage(
+                            locale, "CMS_INVALID_PROPERTY", name));
                 }
 
             }
- 
+
             if (name.equals(VAL_CRITICAL)) {
-                ext = 
+                ext =
                         (IssuerAlternativeNameExtension)
                         getExtension(PKIXExtensions.IssuerAlternativeName_Id.toString(), info);
 
@@ -145,7 +142,7 @@ public class IssuerAltNameExtDefault extends EnrollExtDefault {
 
                 ext.setCritical(critical);
             } else if (name.equals(VAL_GENERAL_NAMES)) {
-                ext = 
+                ext =
                         (IssuerAlternativeNameExtension)
                         getExtension(PKIXExtensions.IssuerAlternativeName_Id.toString(), info);
 
@@ -166,34 +163,34 @@ public class IssuerAltNameExtDefault extends EnrollExtDefault {
 
                     GeneralNameInterface n = parseGeneralName(gname);
                     if (n != null) {
-                      gn.addElement(n);
+                        gn.addElement(n);
                     }
                 }
                 ext.set(IssuerAlternativeNameExtension.ISSUER_NAME, gn);
             } else {
-                throw new EPropertyException(CMS.getUserMessage( 
+                throw new EPropertyException(CMS.getUserMessage(
                             locale, "CMS_INVALID_PROPERTY", name));
             }
             replaceExtension(
-                PKIXExtensions.IssuerAlternativeName_Id.toString(),
-                ext, info);
+                    PKIXExtensions.IssuerAlternativeName_Id.toString(),
+                    ext, info);
         } catch (IOException e) {
             CMS.debug("IssuerAltNameExtDefault: setValue " + e.toString());
-            throw new EPropertyException(CMS.getUserMessage( 
+            throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         } catch (EProfileException e) {
             CMS.debug("IssuerAltNameExtDefault: setValue " + e.toString());
-            throw new EPropertyException(CMS.getUserMessage( 
+            throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         }
     }
 
     public String getValue(String name, Locale locale,
-        X509CertInfo info)
-        throws EPropertyException {
+            X509CertInfo info)
+            throws EPropertyException {
         try {
             if (name == null) {
-                throw new EPropertyException(CMS.getUserMessage( 
+                throw new EPropertyException(CMS.getUserMessage(
                             locale, "CMS_INVALID_PROPERTY", name));
             }
 
@@ -201,23 +198,22 @@ public class IssuerAltNameExtDefault extends EnrollExtDefault {
                     (IssuerAlternativeNameExtension)
                     getExtension(PKIXExtensions.IssuerAlternativeName_Id.toString(), info);
 
-            if(ext == null)
-            {
+            if (ext == null) {
 
                 try {
-                    populate(null,info);
+                    populate(null, info);
 
                 } catch (EProfileException e) {
-                     throw new EPropertyException(CMS.getUserMessage(
-                          locale, "CMS_INVALID_PROPERTY", name));
+                    throw new EPropertyException(CMS.getUserMessage(
+                            locale, "CMS_INVALID_PROPERTY", name));
                 }
 
             }
 
             if (name.equals(VAL_CRITICAL)) {
-                ext = 
-                    (IssuerAlternativeNameExtension)
-                    getExtension(PKIXExtensions.IssuerAlternativeName_Id.toString(), info);
+                ext =
+                        (IssuerAlternativeNameExtension)
+                        getExtension(PKIXExtensions.IssuerAlternativeName_Id.toString(), info);
 
                 if (ext == null) {
                     return null;
@@ -228,16 +224,15 @@ public class IssuerAltNameExtDefault extends EnrollExtDefault {
                     return "false";
                 }
             } else if (name.equals(VAL_GENERAL_NAMES)) {
-                ext = 
-                    (IssuerAlternativeNameExtension)
-                    getExtension(PKIXExtensions.IssuerAlternativeName_Id.toString(), info);
-                if(ext == null)
-                {
+                ext =
+                        (IssuerAlternativeNameExtension)
+                        getExtension(PKIXExtensions.IssuerAlternativeName_Id.toString(), info);
+                if (ext == null) {
                     return "";
                 }
 
                 GeneralNames names = (GeneralNames)
-                    ext.get(IssuerAlternativeNameExtension.ISSUER_NAME);
+                        ext.get(IssuerAlternativeNameExtension.ISSUER_NAME);
                 StringBuffer sb = new StringBuffer();
                 Enumeration e = names.elements();
 
@@ -246,17 +241,17 @@ public class IssuerAltNameExtDefault extends EnrollExtDefault {
 
                     if (!sb.toString().equals("")) {
                         sb.append("\r\n");
-                    }	
+                    }
                     sb.append(toGeneralNameString(gn));
                 }
                 return sb.toString();
             } else {
-                throw new EPropertyException(CMS.getUserMessage( 
+                throw new EPropertyException(CMS.getUserMessage(
                             locale, "CMS_INVALID_PROPERTY", name));
             }
         } catch (IOException e) {
-            CMS.debug("IssuerAltNameExtDefault: getValue " + 
-                e.toString());
+            CMS.debug("IssuerAltNameExtDefault: getValue " +
+                    e.toString());
         }
         return null;
     }
@@ -275,7 +270,7 @@ public class IssuerAltNameExtDefault extends EnrollExtDefault {
      * Populates the request with this policy default.
      */
     public void populate(IRequest request, X509CertInfo info)
-        throws EProfileException {
+            throws EProfileException {
         IssuerAlternativeNameExtension ext = null;
 
         try {
@@ -284,35 +279,35 @@ public class IssuerAltNameExtDefault extends EnrollExtDefault {
         } catch (IOException e) {
             CMS.debug("IssuerAltNameExtDefault: populate " + e.toString());
         }
-        addExtension(PKIXExtensions.IssuerAlternativeName_Id.toString(), 
-            ext, info);
+        addExtension(PKIXExtensions.IssuerAlternativeName_Id.toString(),
+                ext, info);
     }
 
-    public IssuerAlternativeNameExtension createExtension(IRequest request) 
-        throws IOException {
-        IssuerAlternativeNameExtension ext = null; 
+    public IssuerAlternativeNameExtension createExtension(IRequest request)
+            throws IOException {
+        IssuerAlternativeNameExtension ext = null;
 
         try {
             ext = new IssuerAlternativeNameExtension();
         } catch (Exception e) {
             CMS.debug(e.toString());
-            throw new IOException( e.toString() );
+            throw new IOException(e.toString());
         }
         boolean critical = Boolean.valueOf(
-                getConfig(CONFIG_CRITICAL)).booleanValue(); 
+                getConfig(CONFIG_CRITICAL)).booleanValue();
         String pattern = getConfig(CONFIG_PATTERN);
 
         if (!pattern.equals("")) {
-            GeneralNames gn = new GeneralNames(); 
+            GeneralNames gn = new GeneralNames();
 
             String gname = "";
 
-            if(request != null)  {
+            if (request != null) {
                 gname = mapPattern(request, pattern);
             }
 
             gn.addElement(parseGeneralName(
-                    getConfig(CONFIG_TYPE) + ":" + gname)); 
+                    getConfig(CONFIG_TYPE) + ":" + gname));
             ext.set(IssuerAlternativeNameExtension.ISSUER_NAME, gn);
         }
         ext.setCritical(critical);

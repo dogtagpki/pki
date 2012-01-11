@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.usrgrp;
 
-
 import java.security.cert.X509Certificate;
 import java.util.Enumeration;
 import java.util.Vector;
@@ -27,10 +26,9 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.certsrv.usrgrp.IUsrGrp;
 
-
 /**
  * A class represents a user.
- *
+ * 
  * @author cfu
  * @version $Revision$, $Date$
  */
@@ -189,7 +187,7 @@ public class User implements IUser {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
         }
     }
-	
+
     public Object get(String name) throws EBaseException {
         if (name.equals(ATTR_NAME)) {
             return getName();

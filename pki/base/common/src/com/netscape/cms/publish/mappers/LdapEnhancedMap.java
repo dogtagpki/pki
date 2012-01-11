@@ -20,7 +20,6 @@
 
 package com.netscape.cms.publish.mappers;
 
-
 ///////////////////////
 // import statements //
 ///////////////////////
@@ -56,34 +55,31 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.ILdapMapper;
 import com.netscape.certsrv.request.IRequest;
 
-
 //////////////////////
 // class definition //
 //////////////////////
 
-/** 
+/**
  * Maps a request to an entry in the LDAP server.
  * Takes a dnPattern to form the baseDN from the
  * request attributes and certificate subject name.
  * Does a base search for the entry in the directory
- * to publish the cert or crl.  The restriction of
+ * to publish the cert or crl. The restriction of
  * this mapper is that the ldap dn components must
  * be part of certificate subject name or request
- * attributes or constant.  The difference of this
- * mapper and LdapSimpleMap is that if the  ldap
+ * attributes or constant. The difference of this
+ * mapper and LdapSimpleMap is that if the ldap
  * entry is not found, it has the option to create
  * the ldap entry given the dn and attributes
  * formulated.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class LdapEnhancedMap
-    implements ILdapMapper, IExtendedPluginInfo {
+        implements ILdapMapper, IExtendedPluginInfo {
     ////////////////////////
     // default parameters //
     ////////////////////////
-
-
 
     //////////////////////////////////////
     // local LdapEnhancedMap parameters //
@@ -107,7 +103,7 @@ public class LdapEnhancedMap
     ////////////////////////////
 
     /* mapper plug-in fields */
-    protected static final String PROP_DNPATTERN = "dnPattern";  
+    protected static final String PROP_DNPATTERN = "dnPattern";
     protected static final String PROP_CREATE = "createEntry";
     // the object class of the entry to be created. xxxx not done yet  
     protected static final String PROP_OBJCLASS = "objectClass";
@@ -145,9 +141,9 @@ public class LdapEnhancedMap
 
     /* miscellaneous constants local to this mapper plug-in */
     // default dn pattern if left blank or not set in the config
-    public static final String DEFAULT_DNPATTERN = 
-        "UID=$req.HTTP_PARAMS.UID, " +
-        "OU=people, O=$subj.o, C=$subj.c";
+    public static final String DEFAULT_DNPATTERN =
+            "UID=$req.HTTP_PARAMS.UID, " +
+                    "OU=people, O=$subj.o, C=$subj.c";
     private static final int MAX_ATTRS = 10;
     protected static final int DEFAULT_ATTRNUM = 1;
 
@@ -158,8 +154,6 @@ public class LdapEnhancedMap
     ////////////////////////////////////
     // IExtendedPluginInfo parameters //
     ////////////////////////////////////
-
-
 
     ///////////////////////
     // Logger parameters //
@@ -185,14 +179,14 @@ public class LdapEnhancedMap
      * common initialization routine.
      */
     protected void init(String dnPattern)
-        throws EBaseException {
+            throws EBaseException {
         if (mInited) {
             return;
         }
 
         mDnPattern = dnPattern;
         if (mDnPattern == null ||
-            mDnPattern.length() == 0) {
+                mDnPattern.length() == 0) {
             mDnPattern = DEFAULT_DNPATTERN;
         }
 
@@ -202,11 +196,11 @@ public class LdapEnhancedMap
             String[] mCertAttrs = mPattern.getCertAttrs();
         } catch (ELdapException e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("PUBLISH_DN_PATTERN_INIT",
-                    dnPattern, e.toString()));
+                    CMS.getLogMessage("PUBLISH_DN_PATTERN_INIT",
+                            dnPattern, e.toString()));
             throw new EBaseException(
-                    "falied to init with pattern " + 
-                    dnPattern + " " + e);
+                    "falied to init with pattern " +
+                            dnPattern + " " + e);
         }
 
         mInited = true;
@@ -214,43 +208,44 @@ public class LdapEnhancedMap
 
     /**
      * form a dn from component in the request and cert subject name
+     * 
      * @param req The request
      * @param obj The certificate or crl
      */
     private String formDN(IRequest req, Object obj)
-        throws EBaseException {
+            throws EBaseException {
         CertificateExtensions certExt = null;
         X500Name subjectDN = null;
 
         try {
             X509Certificate cert = (X509Certificate) obj;
 
-            subjectDN = 
+            subjectDN =
                     (X500Name) ((X509Certificate) cert).getSubjectDN();
             CMS.debug(
-                "LdapEnhancedMap: cert subject dn:" +
-                subjectDN.toString());
+                    "LdapEnhancedMap: cert subject dn:" +
+                            subjectDN.toString());
 
             //certExt = (CertificateExtensions)
             //          ((X509CertImpl)cert).get(
             //              X509CertInfo.EXTENSIONS);
             X509CertInfo info = (X509CertInfo)
-                ((X509CertImpl) cert).get(
-                    X509CertImpl.NAME +
-                    "." +
-                    X509CertImpl.INFO);
+                    ((X509CertImpl) cert).get(
+                            X509CertImpl.NAME +
+                                    "." +
+                                    X509CertImpl.INFO);
 
             certExt = (CertificateExtensions)
                     info.get(CertificateExtensions.NAME);
         } catch (java.security.cert.CertificateParsingException e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("PUBLISH_CANT_GET_EXT", e.toString()));
+                    CMS.getLogMessage("PUBLISH_CANT_GET_EXT", e.toString()));
         } catch (IOException e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("PUBLISH_CANT_GET_EXT", e.toString()));
+                    CMS.getLogMessage("PUBLISH_CANT_GET_EXT", e.toString()));
         } catch (java.security.cert.CertificateException e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("PUBLISH_CANT_GET_EXT", e.toString()));
+                    CMS.getLogMessage("PUBLISH_CANT_GET_EXT", e.toString()));
         } catch (ClassCastException e) {
 
             try {
@@ -260,14 +255,14 @@ public class LdapEnhancedMap
                         ((X509CRLImpl) crl).getIssuerDN();
 
                 CMS.debug(
-                    "LdapEnhancedMap: crl issuer dn: " +
+                        "LdapEnhancedMap: crl issuer dn: " +
 
-                    subjectDN.toString());
+                        subjectDN.toString());
             } catch (ClassCastException ex) {
                 log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("PUBLISH_PUBLISH_OBJ_NOT_SUPPORTED",
-                        ((req == null) ? ""
-                            : req.getRequestId().toString())));
+                        CMS.getLogMessage("PUBLISH_PUBLISH_OBJ_NOT_SUPPORTED",
+                                ((req == null) ? ""
+                                        : req.getRequestId().toString())));
                 return null;
             }
         }
@@ -289,26 +284,26 @@ public class LdapEnhancedMap
             return dn;
         } catch (ELdapException e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("PUBLISH_CANT_FORM_DN",
-                    ((req == null) ? ""
-                        : req.getRequestId().toString()), e.toString()));
+                    CMS.getLogMessage("PUBLISH_CANT_FORM_DN",
+                            ((req == null) ? ""
+                                    : req.getRequestId().toString()), e.toString()));
 
             throw new EBaseException(
                     "failed to form dn for request: " +
-                    ((req == null) ? ""
-                        : req.getRequestId().toString()) +
-                    " " + e);
+                            ((req == null) ? ""
+                                    : req.getRequestId().toString()) +
+                            " " + e);
         }
     }
 
     private void createEntry(LDAPConnection conn, String dn)
-        throws LDAPException {
+            throws LDAPException {
         LDAPAttributeSet attrs = new LDAPAttributeSet();
 
         // OID 2.5.6.16
-        String caOc[] = { "top", 
-                "person", 
-                "organizationalPerson", 
+        String caOc[] = { "top",
+                "person",
+                "organizationalPerson",
                 "inetOrgPerson" };
 
         DN dnobj = new DN(dn);
@@ -319,10 +314,10 @@ public class LdapEnhancedMap
         attrs.add(new LDAPAttribute("objectclass", caOc));
 
         for (int i = 0; i < mNumAttrs; i++) {
-            if (mLdapNames[i] != null && 
-                !mLdapNames[i].trim().equals("") &&
-                mLdapValues[i] != null &&
-                !mLdapValues[i].trim().equals("")) {
+            if (mLdapNames[i] != null &&
+                    !mLdapNames[i].trim().equals("") &&
+                    mLdapValues[i] != null &&
+                    !mLdapValues[i].trim().equals("")) {
                 attrs.add(new LDAPAttribute(mLdapNames[i],
                         mLdapValues[i]));
             }
@@ -337,14 +332,14 @@ public class LdapEnhancedMap
     // ILdapMapper methods //
     /////////////////////////
 
-    /** 
+    /**
      * for initializing from config store.
-     *
+     * 
      * implementation for extended
      * ILdapPlugin interface method
      */
-    public void init(IConfigStore config) 
-        throws EBaseException {
+    public void init(IConfigStore config)
+            throws EBaseException {
         mConfig = config;
 
         mDnPattern = mConfig.getString(PROP_DNPATTERN,
@@ -364,16 +359,16 @@ public class LdapEnhancedMap
         for (int i = 0; i < mNumAttrs; i++) {
             mLdapNames[i] =
                     mConfig.getString(PROP_ATTR_NAME +
-                        Integer.toString(i),
-                        "");
+                            Integer.toString(i),
+                            "");
 
             mLdapPatterns[i] =
                     mConfig.getString(PROP_ATTR_PATTERN +
-                        Integer.toString(i),
-                        "");
+                            Integer.toString(i),
+                            "");
 
             if (mLdapPatterns[i] != null &&
-                !mLdapPatterns[i].trim().equals("")) {
+                    !mLdapPatterns[i].trim().equals("")) {
                 mPatterns[i] = new AVAPattern(mLdapPatterns[i]);
             }
         }
@@ -381,7 +376,7 @@ public class LdapEnhancedMap
         init(mDnPattern);
     }
 
-    /** 
+    /**
      * implementation for extended
      * ILdapPlugin interface method
      */
@@ -407,34 +402,34 @@ public class LdapEnhancedMap
         try {
             if (mDnPattern == null) {
                 v.addElement(PROP_DNPATTERN + "=");
-            }else {
+            } else {
                 v.addElement(PROP_DNPATTERN + "=" +
-                    mConfig.getString(PROP_DNPATTERN));
+                        mConfig.getString(PROP_DNPATTERN));
             }
 
             v.addElement(PROP_CREATE + "=" +
-                mConfig.getBoolean(PROP_CREATE,
-                    true));
+                    mConfig.getBoolean(PROP_CREATE,
+                            true));
 
             v.addElement(PROP_ATTRNUM + "=" +
-                mConfig.getInteger(PROP_ATTRNUM,
-                    DEFAULT_NUM_ATTRS));
+                    mConfig.getInteger(PROP_ATTRNUM,
+                            DEFAULT_NUM_ATTRS));
 
             for (int i = 0; i < mNumAttrs; i++) {
                 if (mLdapNames[i] != null) {
                     v.addElement(PROP_ATTR_NAME + i +
-                        "=" + mLdapNames[i]);
+                            "=" + mLdapNames[i]);
                 } else {
                     v.addElement(PROP_ATTR_NAME + i +
-                        "=");
+                            "=");
                 }
 
                 if (mLdapPatterns[i] != null) {
                     v.addElement(PROP_ATTR_PATTERN + i +
-                        "=" + mLdapPatterns[i]);
+                            "=" + mLdapPatterns[i]);
                 } else {
                     v.addElement(PROP_ATTR_PATTERN + i +
-                        "=");
+                            "=");
                 }
             }
         } catch (Exception e) {
@@ -447,12 +442,12 @@ public class LdapEnhancedMap
      * Maps an X500 subject name to an LDAP entry.
      * Uses DN pattern to form a DN for an LDAP base search.
      * 
-     * @param     conn            the LDAP connection.
-     * @param     obj             the object to map.
-     * @exception ELdapException  if any LDAP exceptions occurred.
-     */ 
+     * @param conn the LDAP connection.
+     * @param obj the object to map.
+     * @exception ELdapException if any LDAP exceptions occurred.
+     */
     public String map(LDAPConnection conn, Object obj)
-        throws ELdapException {
+            throws ELdapException {
         return map(conn, null, obj);
     }
 
@@ -460,13 +455,13 @@ public class LdapEnhancedMap
      * Maps an X500 subject name to an LDAP entry.
      * Uses DN pattern to form a DN for an LDAP base search.
      * 
-     * @param     conn            the LDAP connection.
-     * @param     req             the request to map.
-     * @param     obj             the object to map.
-     * @exception ELdapException  if any LDAP exceptions occurred.
-     */ 
+     * @param conn the LDAP connection.
+     * @param req the request to map.
+     * @param obj the object to map.
+     * @exception ELdapException if any LDAP exceptions occurred.
+     */
     public String map(LDAPConnection conn, IRequest req, Object obj)
-        throws ELdapException {
+            throws ELdapException {
         if (conn == null) {
             return null;
         }
@@ -477,7 +472,7 @@ public class LdapEnhancedMap
             dn = formDN(req, obj);
             if (dn == null) {
                 log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("PUBLISH_DN_NOT_FORMED"));
+                        CMS.getLogMessage("PUBLISH_DN_NOT_FORMED"));
 
                 String s1 = "";
 
@@ -494,9 +489,9 @@ public class LdapEnhancedMap
             String[] attrs = new String[] { LDAPv3.NO_ATTRS };
 
             log(ILogger.LL_INFO,
-                "searching for dn: " +
-                dn + " filter:" +
-                filter + " scope: base");
+                    "searching for dn: " +
+                            dn + " filter:" +
+                            filter + " scope: base");
 
             LDAPSearchResults results = conn.search(dn,
                     scope,
@@ -508,27 +503,27 @@ public class LdapEnhancedMap
 
             if (results.hasMoreElements()) {
                 log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("PUBLISH_MORE_THAN_ONE_ENTRY",
-                        dn + 
-                        ((req == null) ? ""
-                            : req.getRequestId().toString()))); 
+                        CMS.getLogMessage("PUBLISH_MORE_THAN_ONE_ENTRY",
+                                dn +
+                                        ((req == null) ? ""
+                                                : req.getRequestId().toString())));
 
                 throw new ELdapException(
-                        CMS.getUserMessage("CMS_LDAP_MORE_THAN_ONE_ENTRY", 
-                            ((req == null) ? ""
-                                : req.getRequestId().toString()))); 
+                        CMS.getUserMessage("CMS_LDAP_MORE_THAN_ONE_ENTRY",
+                                ((req == null) ? ""
+                                        : req.getRequestId().toString())));
             }
 
             if (entry != null) {
                 return entry.getDN();
             } else {
-                log(ILogger.LL_FAILURE, 
-                    CMS.getLogMessage("PUBLISH_ENTRY_NOT_FOUND",
-                        dn +
-                        ((req == null) ? ""
-                            : req.getRequestId().toString())));
+                log(ILogger.LL_FAILURE,
+                        CMS.getLogMessage("PUBLISH_ENTRY_NOT_FOUND",
+                                dn +
+                                        ((req == null) ? ""
+                                                : req.getRequestId().toString())));
 
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_MATCH_FOUND", 
+                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_MATCH_FOUND",
                             "null entry"));
             }
         } catch (LDAPException e) {
@@ -536,48 +531,48 @@ public class LdapEnhancedMap
                 // need to intercept this because message from LDAP is
                 // "DSA is unavailable" which confuses with DSA PKI.
                 log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("PUBLISH_NO_LDAP_SERVER"));
+                        CMS.getLogMessage("PUBLISH_NO_LDAP_SERVER"));
 
                 throw new ELdapServerDownException(CMS.getUserMessage("CMS_LDAP_SERVER_UNAVAILABLE", conn.getHost(), "" + conn.getPort()));
             } else if (e.getLDAPResultCode() ==
-                LDAPException.NO_SUCH_OBJECT && mCreateEntry) {
+                    LDAPException.NO_SUCH_OBJECT && mCreateEntry) {
 
                 try {
                     createEntry(conn, dn);
 
                     log(ILogger.LL_INFO,
-                        "Entry " +
-                        dn +
-                        " Created");
+                            "Entry " +
+                                    dn +
+                                    " Created");
 
                     return dn;
                 } catch (LDAPException e1) {
                     log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("PUBLISH_DN_MAP_EXCEPTION",
-                            dn,
-                            e.toString()));
+                            CMS.getLogMessage("PUBLISH_DN_MAP_EXCEPTION",
+                                    dn,
+                                    e.toString()));
 
                     log(ILogger.LL_FAILURE,
-                        "Entry is not created. " +
-                        "This may because there are " +
-                        "entries in the directory " +
-                        "hierachy not exit.");
+                            "Entry is not created. " +
+                                    "This may because there are " +
+                                    "entries in the directory " +
+                                    "hierachy not exit.");
 
                     throw new ELdapException(
                             CMS.getUserMessage("CMS_LDAP_CREATE_ENTRY", dn));
                 }
             } else {
                 log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("PUBLISH_DN_MAP_EXCEPTION",
-                        dn,
-                        e.toString()));
+                        CMS.getLogMessage("PUBLISH_DN_MAP_EXCEPTION",
+                                dn,
+                                e.toString()));
 
                 throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_MATCH_FOUND", e.toString()));
             }
         } catch (EBaseException e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("PUBLISH_EXCEPTION_CAUGHT",
-                    e.toString()));
+                    CMS.getLogMessage("PUBLISH_EXCEPTION_CAUGHT",
+                            e.toString()));
 
             throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_MATCH_FOUND", e.toString()));
         }
@@ -591,46 +586,46 @@ public class LdapEnhancedMap
         Vector v = new Vector();
 
         v.addElement(PROP_DNPATTERN +
-            ";string;Describes how to form the Ldap " +
-            "Subject name in the directory.  " +
-            "Example 1:  'uid=CertMgr, o=Fedora'.  " +
-            "Example 2:  'uid=$req.HTTP_PARAMS.uid, " +
-            "E=$ext.SubjectAlternativeName.RFC822Name, " +
-            "ou=$subj.ou'. " + 
-            "$req means: take the attribute from the " +
-            "request. " + 
-            "$subj means: take the attribute from the " +
-            "certificate subject name. " + 
-            "$ext means: take the attribute from the " +
-            "certificate extension");
+                ";string;Describes how to form the Ldap " +
+                "Subject name in the directory.  " +
+                "Example 1:  'uid=CertMgr, o=Fedora'.  " +
+                "Example 2:  'uid=$req.HTTP_PARAMS.uid, " +
+                "E=$ext.SubjectAlternativeName.RFC822Name, " +
+                "ou=$subj.ou'. " +
+                "$req means: take the attribute from the " +
+                "request. " +
+                "$subj means: take the attribute from the " +
+                "certificate subject name. " +
+                "$ext means: take the attribute from the " +
+                "certificate extension");
         v.addElement(PROP_CREATE +
-            ";boolean;If checked, An entry will be " +
-            "created automatically");
+                ";boolean;If checked, An entry will be " +
+                "created automatically");
         v.addElement(PROP_ATTRNUM +
-            ";string;How many attributes to add.");
+                ";string;How many attributes to add.");
         v.addElement(IExtendedPluginInfo.HELP_TOKEN +
-            ";configuration-ldappublish-mapper-enhancedmapper");
+                ";configuration-ldappublish-mapper-enhancedmapper");
         v.addElement(IExtendedPluginInfo.HELP_TEXT +
-            ";Describes how to form the LDAP DN of the " +
-            "entry to publish to");
+                ";Describes how to form the LDAP DN of the " +
+                "entry to publish to");
 
         for (int i = 0; i < MAX_ATTRS; i++) {
             v.addElement(PROP_ATTR_NAME +
-                Integer.toString(i) +
-                ";string;" +
-                "The name of LDAP attribute " +
-                "to be added. e.g. mail");
+                    Integer.toString(i) +
+                    ";string;" +
+                    "The name of LDAP attribute " +
+                    "to be added. e.g. mail");
             v.addElement(PROP_ATTR_PATTERN +
-                Integer.toString(i) +
-                ";string;" +
-                "How to create the LDAP attribute value. " +
-                "e.g. $req.HTTP_PARAMS.csrRequestorEmail, " +
-                "$subj.E or " +
-                "$ext.SubjectAlternativeName.RFC822Name");
+                    Integer.toString(i) +
+                    ";string;" +
+                    "How to create the LDAP attribute value. " +
+                    "e.g. $req.HTTP_PARAMS.csrRequestorEmail, " +
+                    "$subj.E or " +
+                    "$ext.SubjectAlternativeName.RFC822Name");
         }
 
         String params[] =
-            com.netscape.cmsutil.util.Utils.getStringArrayFromVector(v);
+                com.netscape.cmsutil.util.Utils.getStringArrayFromVector(v);
 
         return params;
     }
@@ -641,7 +636,6 @@ public class LdapEnhancedMap
 
     private void log(int level, String msg) {
         mLogger.log(ILogger.EV_SYSTEM, ILogger.S_LDAP, level,
-            "LdapEnhancedMapper: " + msg);
+                "LdapEnhancedMapper: " + msg);
     }
 }
-

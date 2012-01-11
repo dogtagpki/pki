@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.notification;
 
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -28,12 +27,11 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.notification.IEmailTemplate;
 
-
 /**
  * Files to be processed and returned to the requested parties. It
  * is a template with $tokens to be used by the form/template processor.
- *
- *
+ * 
+ * 
  * @author cfu
  * @version $Revision$, $Date$
  */
@@ -57,9 +55,9 @@ public class EmailTemplate implements IEmailTemplate {
 
     /**
      * Default Constructor
-     *
+     * 
      * @param templateFile File name of the template including the full path and
-     *        file extension
+     *            file extension
      */
     public EmailTemplate(String templatePath) {
         mTemplateFile = templatePath;
@@ -124,14 +122,14 @@ public class EmailTemplate implements IEmailTemplate {
         return mTemplateFile;
     }
 
-    /** 
+    /**
      * @return true if template is an html file, false otherwise
      */
     public boolean isHTML() {
         if (mTemplateFile.endsWith(".html") ||
-            mTemplateFile.endsWith(".HTML") ||
-            mTemplateFile.endsWith(".htm") ||
-            mTemplateFile.endsWith(".HTM"))
+                mTemplateFile.endsWith(".HTML") ||
+                mTemplateFile.endsWith(".htm") ||
+                mTemplateFile.endsWith(".HTM"))
             return true;
         else
             return false;
@@ -178,7 +176,7 @@ public class EmailTemplate implements IEmailTemplate {
         if (mLogger == null)
             return;
         mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_OTHER,
-            level, msg);
+                level, msg);
     }
 
 }

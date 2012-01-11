@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmstools;
 
-
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
@@ -53,13 +52,13 @@ import org.mozilla.jss.pkix.primitive.EncryptedPrivateKeyInfo;
 import org.mozilla.jss.pkix.primitive.PrivateKeyInfo;
 import org.mozilla.jss.util.Password;
 
-
 /**
  * Tool for creating PKCS12 file
  * 
  * <P>
+ * 
  * @version $Revision$, $Date$
- *
+ * 
  */
 public class PKCS12Export {
 
@@ -67,7 +66,7 @@ public class PKCS12Export {
 
     private static void debug(String s) {
         if (debugMode)
-            System.out.println("PKCS12Export debug: " + s);    
+            System.out.println("PKCS12Export debug: " + s);
     }
 
     private static void printUsage() {
@@ -84,7 +83,7 @@ public class PKCS12Export {
             KeyGenerator kg = token.getKeyGenerator(KeyGenAlgorithm.DES3);
             SymmetricKey sk = kg.generate();
             KeyWrapper wrapper = token.getKeyWrapper(KeyWrapAlgorithm.DES3_CBC_PAD);
-            byte iv[] = {0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1};
+            byte iv[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
             IVParameterSpec param = new IVParameterSpec(iv);
             wrapper.initWrap(sk, param);
             byte[] enckey = wrapper.wrap(pkey);
@@ -93,7 +92,7 @@ public class PKCS12Export {
             byte[] recovered = c.doFinal(enckey);
             return recovered;
         } catch (Exception e) {
-            debug("PKCS12Export  getEncodedKey: Exception="+e.toString());
+            debug("PKCS12Export  getEncodedKey: Exception=" + e.toString());
             System.exit(1);
         }
 
@@ -101,30 +100,30 @@ public class PKCS12Export {
     }
 
     private static void addKeyBag(org.mozilla.jss.crypto.PrivateKey pkey, X509Certificate x509cert,
-      Password pass, byte[] localKeyId, SEQUENCE safeContents) {
+            Password pass, byte[] localKeyId, SEQUENCE safeContents) {
         try {
             PasswordConverter passConverter = new PasswordConverter();
-            byte salt[] = {0x01, 0x01, 0x01, 0x01};
+            byte salt[] = { 0x01, 0x01, 0x01, 0x01 };
             byte[] priData = getEncodedKey(pkey);
 
             PrivateKeyInfo pki = (PrivateKeyInfo)
-              ASN1Util.decode(PrivateKeyInfo.getTemplate(), priData);
+                    ASN1Util.decode(PrivateKeyInfo.getTemplate(), priData);
             ASN1Value key = EncryptedPrivateKeyInfo.createPBE(
-              PBEAlgorithm.PBE_SHA1_DES3_CBC,
-              pass, salt, 1, passConverter, pki);
+                    PBEAlgorithm.PBE_SHA1_DES3_CBC,
+                    pass, salt, 1, passConverter, pki);
             SET keyAttrs = createBagAttrs(
-              x509cert.getSubjectDN().toString(), localKeyId);
+                    x509cert.getSubjectDN().toString(), localKeyId);
             SafeBag keyBag = new SafeBag(SafeBag.PKCS8_SHROUDED_KEY_BAG,
-              key, keyAttrs);
+                    key, keyAttrs);
             safeContents.addElement(keyBag);
         } catch (Exception e) {
-            debug("PKCS12Export addKeyBag: Exception="+e.toString());
+            debug("PKCS12Export addKeyBag: Exception=" + e.toString());
             System.exit(1);
         }
     }
 
     private static byte[] addCertBag(X509Certificate x509cert, String nickname,
-      SEQUENCE safeContents) throws IOException {
+            SEQUENCE safeContents) throws IOException {
         byte[] localKeyId = null;
         try {
             ASN1Value cert = new OCTET_STRING(x509cert.getEncoded());
@@ -133,10 +132,10 @@ public class PKCS12Export {
             if (nickname != null)
                 certAttrs = createBagAttrs(nickname, localKeyId);
             SafeBag certBag = new SafeBag(SafeBag.CERT_BAG,
-              new CertBag(CertBag.X509_CERT_TYPE, cert), certAttrs);
+                    new CertBag(CertBag.X509_CERT_TYPE, cert), certAttrs);
             safeContents.addElement(certBag);
         } catch (Exception e) {
-            debug("PKCS12Export addCertBag: "+e.toString());
+            debug("PKCS12Export addCertBag: " + e.toString());
             System.exit(1);
         }
 
@@ -153,7 +152,7 @@ public class PKCS12Export {
             md.update(certDer);
             return md.digest();
         } catch (Exception e) {
-            debug("PKCS12Export createLocalKeyId: Exception: "+e.toString());
+            debug("PKCS12Export createLocalKeyId: Exception: " + e.toString());
             System.exit(1);
         }
 
@@ -161,7 +160,7 @@ public class PKCS12Export {
     }
 
     private static SET createBagAttrs(String nickName, byte localKeyId[])
-      throws IOException {
+            throws IOException {
         try {
             SET attrs = new SET();
             SEQUENCE nickNameAttr = new SEQUENCE();
@@ -182,7 +181,7 @@ public class PKCS12Export {
             attrs.addElement(localKeyAttr);
             return attrs;
         } catch (Exception e) {
-            debug("PKCS12Export createBagAttrs: Exception="+e.toString());
+            debug("PKCS12Export createBagAttrs: Exception=" + e.toString());
             System.exit(1);
         }
 
@@ -200,24 +199,24 @@ public class PKCS12Export {
         String snickname = null;
         String pk12pwdfile = null;
         String pk12output = null;
-        for (int i=0; i<args.length; i++) {
+        for (int i = 0; i < args.length; i++) {
             if (args[i].equals("-d")) {
-                dir = args[i+1];
+                dir = args[i + 1];
             } else if (args[i].equals("-p")) {
-                pwdfile = args[i+1];
+                pwdfile = args[i + 1];
             } else if (args[i].equals("-s")) {
-                snickname = args[i+1];
+                snickname = args[i + 1];
             } else if (args[i].equals("-w")) {
-                pk12pwdfile = args[i+1];
+                pk12pwdfile = args[i + 1];
             } else if (args[i].equals("-o")) {
-                pk12output = args[i+1];
+                pk12output = args[i + 1];
             } else if (args[i].equals("-debug")) {
                 debugMode = true;
             }
         }
 
-        debug("The directory for certdb/keydb is "+dir);
-        debug("The password file for keydb is "+pwdfile);
+        debug("The directory for certdb/keydb is " + dir);
+        debug("The password file for keydb is " + pwdfile);
 
         // get password
         String pwd = null;
@@ -225,7 +224,7 @@ public class PKCS12Export {
             BufferedReader in = new BufferedReader(new FileReader(pwdfile));
             pwd = in.readLine();
         } catch (Exception e) {
-            debug("Failed to read the keydb password from the file. Exception: "+e.toString());
+            debug("Failed to read the keydb password from the file. Exception: " + e.toString());
             System.exit(1);
         }
 
@@ -234,14 +233,14 @@ public class PKCS12Export {
             BufferedReader in = new BufferedReader(new FileReader(pk12pwdfile));
             pk12pwd = in.readLine();
         } catch (Exception e) {
-            debug("Failed to read the keydb password from the file. Exception: "+e.toString());
+            debug("Failed to read the keydb password from the file. Exception: " + e.toString());
             System.exit(1);
         }
 
         CryptoManager cm = null;
         try {
-            CryptoManager.InitializationValues vals = 
-              new CryptoManager.InitializationValues(dir, "", "", "secmod.db");
+            CryptoManager.InitializationValues vals =
+                    new CryptoManager.InitializationValues(dir, "", "", "secmod.db");
             CryptoManager.initialize(vals);
             cm = CryptoManager.getInstance();
         } catch (Exception e) {
@@ -257,16 +256,16 @@ public class PKCS12Export {
             token.login(pass);
             CryptoStore store = token.getCryptoStore();
             X509Certificate[] certs = store.getCertificates();
-            debug("Number of user certificates = "+certs.length);
+            debug("Number of user certificates = " + certs.length);
             Password pass12 = new Password(pk12pwd.toCharArray());
-            for (int i=0; i<certs.length; i++) {
+            for (int i = 0; i < certs.length; i++) {
                 String nickname = certs[i].getNickname();
-                debug("Certificate nickname = "+nickname);
+                debug("Certificate nickname = " + nickname);
                 org.mozilla.jss.crypto.PrivateKey prikey = null;
                 try {
                     prikey = cm.findPrivKeyByCert(certs[i]);
                 } catch (Exception e) {
-                    debug("PKCS12Export Exception: "+e.toString());
+                    debug("PKCS12Export Exception: " + e.toString());
                 }
 
                 if (prikey == null) {
@@ -274,8 +273,8 @@ public class PKCS12Export {
                     byte[] localKeyId = addCertBag(certs[i], null, safeContents);
                 } else {
                     debug("Private key is not null");
-                    byte localKeyId[] = 
-                      addCertBag(certs[i], nickname, safeContents);
+                    byte localKeyId[] =
+                            addCertBag(certs[i], nickname, safeContents);
                     addKeyBag(prikey, certs[i], pass12, localKeyId, encSafeContents);
                 }
             }
@@ -294,7 +293,7 @@ public class PKCS12Export {
             pass.clear();
             pass12.clear();
         } catch (Exception e) {
-            debug("PKCS12Export Exception: "+e.toString());
+            debug("PKCS12Export Exception: " + e.toString());
             System.exit(1);
         }
     }

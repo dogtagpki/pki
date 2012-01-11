@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.def;
 
-
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -37,12 +36,11 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 
-
 /**
  * This class implements an enrollment default policy
  * that populates a Private Key Usage Period extension
  * into the certificate template.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class PrivateKeyUsagePeriodExtDefault extends EnrollExtDefault {
@@ -70,13 +68,13 @@ public class PrivateKeyUsagePeriodExtDefault extends EnrollExtDefault {
     }
 
     public void init(IProfile profile, IConfigStore config)
-        throws EProfileException {
+            throws EProfileException {
         super.init(profile, config);
     }
 
-    public IDescriptor getConfigDescriptor(Locale locale, String name) { 
+    public IDescriptor getConfigDescriptor(Locale locale, String name) {
         if (name.equals(CONFIG_CRITICAL)) {
-            return new Descriptor(IDescriptor.BOOLEAN, null, 
+            return new Descriptor(IDescriptor.BOOLEAN, null,
                     "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_CRITICAL"));
         } else if (name.equals(CONFIG_START_TIME)) {
@@ -93,28 +91,28 @@ public class PrivateKeyUsagePeriodExtDefault extends EnrollExtDefault {
     }
 
     public void setConfig(String name, String value)
-        throws EPropertyException {
+            throws EPropertyException {
         if (name.equals(CONFIG_START_TIME)) {
-          try {
-            Integer.parseInt(value);
-          } catch (Exception e) {
-                throw new EPropertyException(CMS.getUserMessage( 
+            try {
+                Integer.parseInt(value);
+            } catch (Exception e) {
+                throw new EPropertyException(CMS.getUserMessage(
                             "CMS_INVALID_PROPERTY", CONFIG_START_TIME));
-          }
+            }
         } else if (name.equals(CONFIG_DURATION)) {
-          try {
-            Integer.parseInt(value);
-          } catch (Exception e) {
-                throw new EPropertyException(CMS.getUserMessage( 
+            try {
+                Integer.parseInt(value);
+            } catch (Exception e) {
+                throw new EPropertyException(CMS.getUserMessage(
                             "CMS_INVALID_PROPERTY", CONFIG_DURATION));
-          }
+            }
         }
         super.setConfig(name, value);
     }
 
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         if (name.equals(VAL_CRITICAL)) {
-            return new Descriptor(IDescriptor.BOOLEAN, null, 
+            return new Descriptor(IDescriptor.BOOLEAN, null,
                     "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_CRITICAL"));
         } else if (name.equals(VAL_NOT_BEFORE)) {
@@ -131,13 +129,13 @@ public class PrivateKeyUsagePeriodExtDefault extends EnrollExtDefault {
     }
 
     public void setValue(String name, Locale locale,
-        X509CertInfo info, String value)
-        throws EPropertyException {
+            X509CertInfo info, String value)
+            throws EPropertyException {
         try {
             PrivateKeyUsageExtension ext = null;
 
             if (name == null) {
-                throw new EPropertyException(CMS.getUserMessage( 
+                throw new EPropertyException(CMS.getUserMessage(
                             locale, "CMS_INVALID_PROPERTY", name));
             }
 
@@ -146,8 +144,8 @@ public class PrivateKeyUsagePeriodExtDefault extends EnrollExtDefault {
             ext = (PrivateKeyUsageExtension)
                         getExtension(oid.toString(), info);
 
-            if(ext == null)  {
-                populate(null,info);
+            if (ext == null) {
+                populate(null, info);
             }
 
             if (name.equals(VAL_CRITICAL)) {
@@ -156,38 +154,38 @@ public class PrivateKeyUsagePeriodExtDefault extends EnrollExtDefault {
                         getExtension(oid.toString(), info);
                 boolean val = Boolean.valueOf(value).booleanValue();
 
-                if (ext == null)  {
+                if (ext == null) {
                     return;
                 }
-                ext.setCritical(val); 
-            } else if (name.equals(VAL_NOT_BEFORE)) { 
-                SimpleDateFormat formatter = 
-                  new SimpleDateFormat(DATE_FORMAT); 
-                ParsePosition pos = new ParsePosition(0); 
+                ext.setCritical(val);
+            } else if (name.equals(VAL_NOT_BEFORE)) {
+                SimpleDateFormat formatter =
+                        new SimpleDateFormat(DATE_FORMAT);
+                ParsePosition pos = new ParsePosition(0);
                 Date date = formatter.parse(value, pos);
 
                 ext = (PrivateKeyUsageExtension)
                         getExtension(oid.toString(), info);
 
-                if (ext == null)  {
+                if (ext == null) {
                     return;
                 }
                 ext.set(PrivateKeyUsageExtension.NOT_BEFORE, date);
-            } else if (name.equals(VAL_NOT_AFTER)) { 
-                SimpleDateFormat formatter = 
-                  new SimpleDateFormat(DATE_FORMAT); 
-                ParsePosition pos = new ParsePosition(0); 
+            } else if (name.equals(VAL_NOT_AFTER)) {
+                SimpleDateFormat formatter =
+                        new SimpleDateFormat(DATE_FORMAT);
+                ParsePosition pos = new ParsePosition(0);
                 Date date = formatter.parse(value, pos);
 
                 ext = (PrivateKeyUsageExtension)
                         getExtension(oid.toString(), info);
 
-                if (ext == null)  {
+                if (ext == null) {
                     return;
                 }
                 ext.set(PrivateKeyUsageExtension.NOT_AFTER, date);
             } else {
-                throw new EPropertyException(CMS.getUserMessage( 
+                throw new EPropertyException(CMS.getUserMessage(
                             locale, "CMS_INVALID_PROPERTY", name));
             }
 
@@ -200,12 +198,12 @@ public class PrivateKeyUsagePeriodExtDefault extends EnrollExtDefault {
     }
 
     public String getValue(String name, Locale locale,
-        X509CertInfo info)
-        throws EPropertyException {
+            X509CertInfo info)
+            throws EPropertyException {
         PrivateKeyUsageExtension ext = null;
 
         if (name == null) {
-            throw new EPropertyException(CMS.getUserMessage( 
+            throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         }
 
@@ -214,14 +212,13 @@ public class PrivateKeyUsagePeriodExtDefault extends EnrollExtDefault {
         ext = (PrivateKeyUsageExtension)
                     getExtension(oid.toString(), info);
 
-        if(ext == null)
-        {
+        if (ext == null) {
             try {
-                populate(null,info);
+                populate(null, info);
 
             } catch (EProfileException e) {
-                 throw new EPropertyException(CMS.getUserMessage(
-                      locale, "CMS_INVALID_PROPERTY", name));
+                throw new EPropertyException(CMS.getUserMessage(
+                        locale, "CMS_INVALID_PROPERTY", name));
             }
 
         }
@@ -239,9 +236,9 @@ public class PrivateKeyUsagePeriodExtDefault extends EnrollExtDefault {
             } else {
                 return "false";
             }
-        } else if (name.equals(VAL_NOT_BEFORE)) { 
-            SimpleDateFormat formatter = 
-               new SimpleDateFormat(DATE_FORMAT);
+        } else if (name.equals(VAL_NOT_BEFORE)) {
+            SimpleDateFormat formatter =
+                    new SimpleDateFormat(DATE_FORMAT);
 
             ext = (PrivateKeyUsageExtension)
                     getExtension(oid.toString(), info);
@@ -250,9 +247,9 @@ public class PrivateKeyUsagePeriodExtDefault extends EnrollExtDefault {
                 return "";
 
             return formatter.format(ext.getNotBefore());
-        } else if (name.equals(VAL_NOT_AFTER)) { 
-            SimpleDateFormat formatter = 
-               new SimpleDateFormat(DATE_FORMAT);
+        } else if (name.equals(VAL_NOT_AFTER)) {
+            SimpleDateFormat formatter =
+                    new SimpleDateFormat(DATE_FORMAT);
 
             ext = (PrivateKeyUsageExtension)
                     getExtension(oid.toString(), info);
@@ -262,14 +259,14 @@ public class PrivateKeyUsagePeriodExtDefault extends EnrollExtDefault {
 
             return formatter.format(ext.getNotAfter());
         } else {
-            throw new EPropertyException(CMS.getUserMessage( 
+            throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         }
     }
 
     public String getText(Locale locale) {
         String params[] = {
-                getConfig(CONFIG_CRITICAL), 
+                getConfig(CONFIG_CRITICAL),
                 getConfig(CONFIG_START_TIME),
                 getConfig(CONFIG_DURATION)
             };
@@ -281,14 +278,14 @@ public class PrivateKeyUsagePeriodExtDefault extends EnrollExtDefault {
      * Populates the request with this policy default.
      */
     public void populate(IRequest request, X509CertInfo info)
-        throws EProfileException {
+            throws EProfileException {
         PrivateKeyUsageExtension ext = createExtension();
 
         addExtension(ext.getExtensionId().toString(), ext, info);
     }
 
     public PrivateKeyUsageExtension createExtension() {
-        PrivateKeyUsageExtension ext = null; 
+        PrivateKeyUsageExtension ext = null;
 
         try {
             boolean critical = getConfigBoolean(CONFIG_CRITICAL);
@@ -296,12 +293,12 @@ public class PrivateKeyUsagePeriodExtDefault extends EnrollExtDefault {
             // always + 60 seconds 
             String startTimeStr = getConfig(CONFIG_START_TIME);
 
-            if (startTimeStr == null || startTimeStr.equals("")) { 
-              startTimeStr = "60"; 
-            } 
-            int startTime = Integer.parseInt(startTimeStr); 
-            Date notBefore = new Date(CMS.getCurrentDate().getTime() + 
-               (1000 * startTime)); 
+            if (startTimeStr == null || startTimeStr.equals("")) {
+                startTimeStr = "60";
+            }
+            int startTime = Integer.parseInt(startTimeStr);
+            Date notBefore = new Date(CMS.getCurrentDate().getTime() +
+                    (1000 * startTime));
             long notAfterVal = 0;
 
             notAfterVal = notBefore.getTime() +
@@ -309,10 +306,10 @@ public class PrivateKeyUsagePeriodExtDefault extends EnrollExtDefault {
             Date notAfter = new Date(notAfterVal);
 
             ext = new PrivateKeyUsageExtension(notBefore, notAfter);
-            ext.setCritical(critical); 
+            ext.setCritical(critical);
         } catch (Exception e) {
-            CMS.debug("PrivateKeyUsagePeriodExt: createExtension " + 
-                e.toString());
+            CMS.debug("PrivateKeyUsagePeriodExt: createExtension " +
+                    e.toString());
         }
         return ext;
     }

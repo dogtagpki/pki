@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.dbs;
 
-
 import java.math.BigInteger;
 import java.security.cert.Certificate;
 import java.util.Date;
@@ -34,12 +33,11 @@ import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.IRevocationInfo;
 
-
 /**
  * A class represents a serializable certificate record.
  * <P>
- *
- * @author  thomask
+ * 
+ * @author thomask
  * @version $Revision$, $Date$
  */
 public class CertRecord implements IDBObj, ICertRecord {
@@ -83,7 +81,7 @@ public class CertRecord implements IDBObj, ICertRecord {
     }
 
     /**
-     * Constructs certiificate record with certificate 
+     * Constructs certiificate record with certificate
      * and meta info.
      */
     public CertRecord(BigInteger id, Certificate cert, MetaInfo meta) {
@@ -205,8 +203,8 @@ public class CertRecord implements IDBObj, ICertRecord {
     /**
      * Retrieves revocation information.
      */
-    public IRevocationInfo getRevocationInfo() { 
-        return mRevocationInfo; 
+    public IRevocationInfo getRevocationInfo() {
+        return mRevocationInfo;
     }
 
     /**
@@ -271,7 +269,7 @@ public class CertRecord implements IDBObj, ICertRecord {
     public Date getModifyTime() {
         return mModifyTime;
     }
-	
+
     /**
      * String representation
      */

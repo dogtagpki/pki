@@ -51,6 +51,7 @@ public class TokenAuthenticate extends CMSServlet {
 
     /**
      * initialize the servlet.
+     * 
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -58,13 +59,14 @@ public class TokenAuthenticate extends CMSServlet {
     }
 
     /**
-     * Process the HTTP request. 
+     * Process the HTTP request.
+     * 
      * @param cmsReq the object holding the request and response information
      */
     protected void process(CMSRequest cmsReq) throws EBaseException {
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
-	IConfigStore config = CMS.getConfigStore();
+        IConfigStore config = CMS.getConfigStore();
 
         String sessionId = httpReq.getParameter("sessionID");
         CMS.debug("TokenAuthentication: sessionId=" + sessionId);
@@ -85,9 +87,9 @@ public class TokenAuthenticate extends CMSServlet {
             CMS.debug("TokenAuthentication: found session");
             if (checkIP) {
                 String hostname = table.getIP(sessionId);
-                if (! hostname.equals(givenHost)) {
-                    CMS.debug("TokenAuthentication: hostname=" + hostname + " and givenHost=" 
-                        + givenHost + " are different");
+                if (!hostname.equals(givenHost)) {
+                    CMS.debug("TokenAuthentication: hostname=" + hostname + " and givenHost="
+                            + givenHost + " are different");
                     CMS.debug("TokenAuthenticate authenticate failed, wrong hostname.");
                     outputError(httpResp, "Error: Failed Authentication");
                     return;

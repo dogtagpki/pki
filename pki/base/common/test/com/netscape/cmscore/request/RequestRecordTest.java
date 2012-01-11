@@ -69,7 +69,7 @@ public class RequestRecordTest extends CMSBaseTestCase {
 
         requestRecord.add(request);
 
-        assertEquals(request.mExtData,  requestRecord.mExtData);
+        assertEquals(request.mExtData, requestRecord.mExtData);
         assertNotSame(request.mExtData, requestRecord.mExtData);
     }
 
@@ -82,7 +82,6 @@ public class RequestRecordTest extends CMSBaseTestCase {
         extData.put("hashkey", extDataHashValue);
         requestRecord.set(IRequestRecord.ATTR_EXT_DATA, extData);
         requestRecord.mRequestType = "foo";
-
 
         requestRecord.read(new RequestModDefaultStub(), request);
 
@@ -114,11 +113,10 @@ public class RequestRecordTest extends CMSBaseTestCase {
         assertTrue(db.registry.registerObjectClassCalled);
         assertTrue(TestHelper.contains(db.registry.registerObjectClassLdapNames,
                                        "extensibleObject"));
-        
+
         assertTrue(db.registry.registerDynamicMapperCalled);
         assertTrue(db.registry.dynamicMapper instanceof ExtAttrDynMapper);
     }
-
 
     class ModificationSetStub extends ModificationSet {
         public boolean addCalledWithExtData = false;
@@ -132,16 +130,13 @@ public class RequestRecordTest extends CMSBaseTestCase {
         }
     }
 
-
     class DBSubsystemStub extends DBSubsystemDefaultStub {
         DBRegistryStub registry = new DBRegistryStub();
-
 
         public IDBRegistry getRegistry() {
             return registry;
         }
     }
-
 
     class DBRegistryStub extends DBRegistryDefaultStub {
         boolean registerCalledWithExtAttr = false;

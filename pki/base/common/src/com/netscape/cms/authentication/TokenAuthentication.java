@@ -46,13 +46,13 @@ import com.netscape.cmsutil.http.JssSSLSocketFactory;
 import com.netscape.cmsutil.xml.XMLObject;
 
 /**
- * Token authentication.  
+ * Token authentication.
  * Checked if the given token is valid.
  * <P>
- *
+ * 
  * @version $Revision$, $Date$
  */
-public class TokenAuthentication implements IAuthManager, 
+public class TokenAuthentication implements IAuthManager,
         IProfileAuthenticator {
 
     /* result auth token attributes */
@@ -79,21 +79,21 @@ public class TokenAuthentication implements IAuthManager,
     /**
      * initializes the TokenAuthentication auth manager
      * <p>
-     * called by AuthSubsystem init() method, when initializing
-     * all available authentication managers.
+     * called by AuthSubsystem init() method, when initializing all available authentication managers.
+     * 
      * @param name The name of this authentication manager instance.
      * @param implName The name of the authentication manager plugin.
      * @param config The configuration store for this authentication manager.
      */
     public void init(String name, String implName, IConfigStore config)
-        throws EBaseException {
+            throws EBaseException {
         mName = name;
         mImplName = implName;
         mConfig = config;
 
         mUGSub = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
     }
- 
+
     /**
      * Gets the name of this authentication manager.
      */
@@ -107,7 +107,7 @@ public class TokenAuthentication implements IAuthManager,
     public String getImplName() {
         return mImplName;
     }
- 
+
     public boolean isSSLClientRequired() {
         return false;
     }
@@ -115,21 +115,21 @@ public class TokenAuthentication implements IAuthManager,
     /**
      * authenticates user(agent) by certificate
      * <p>
-     * called by other subsystems or their servlets to authenticate
-     *	 users (agents)
+     * called by other subsystems or their servlets to authenticate users (agents)
+     * 
      * @param authCred - authentication credential that contains
-     *	 an usrgrp.Certificates of the user (agent)
+     *            an usrgrp.Certificates of the user (agent)
      * @return the authentication token that contains the following
-     * @exception EMissingCredential If a required credential for this 
-     * authentication manager is missing.
+     * @exception EMissingCredential If a required credential for this
+     *                authentication manager is missing.
      * @exception EInvalidCredentials If credentials cannot be authenticated.
      * @exception EBaseException If an internal error occurred.
      * @see com.netscape.certsrv.authentication.AuthToken
      * @see com.netscape.certsrv.usrgrp.Certificates
      */
     public IAuthToken authenticate(IAuthCredentials authCred)
-        throws EMissingCredential, EInvalidCredentials, EBaseException {
-      
+            throws EMissingCredential, EInvalidCredentials, EBaseException {
+
         CMS.debug("TokenAuthentication: start");
 
         // force SSL handshake
@@ -141,8 +141,8 @@ public class TokenAuthentication implements IAuthManager,
         // get group name from configuration file
         IConfigStore sconfig = CMS.getConfigStore();
 
-        String sessionId = (String)authCred.get(CRED_SESSION_ID);
-        String givenHost = (String)authCred.get("clientHost");
+        String sessionId = (String) authCred.get(CRED_SESSION_ID);
+        String givenHost = (String) authCred.get("clientHost");
         String auth_host = sconfig.getString("securitydomain.host");
         int auth_port = sconfig.getInteger("securitydomain.httpseeport");
 
@@ -151,7 +151,7 @@ public class TokenAuthentication implements IAuthManager,
         try {
             JssSSLSocketFactory factory = new JssSSLSocketFactory();
             httpclient = new HttpClient(factory);
-            String content = CRED_SESSION_ID+"="+sessionId+"&hostname="+givenHost;
+            String content = CRED_SESSION_ID + "=" + sessionId + "&hostname=" + givenHost;
             CMS.debug("TokenAuthentication: content=" + content);
             httpclient.connect(auth_host, auth_port);
             HttpRequest httprequest = new HttpRequest();
@@ -165,8 +165,8 @@ public class TokenAuthentication implements IAuthManager,
             HttpResponse httpresponse = httpclient.send(httprequest);
 
             c = httpresponse.getContent();
-        } catch (Exception e) { 
-            CMS.debug("TokenAuthentication authenticate Exception="+e.toString());
+        } catch (Exception e) {
+            CMS.debug("TokenAuthentication authenticate Exception=" + e.toString());
         }
 
         if (c != null) {
@@ -177,9 +177,9 @@ public class TokenAuthentication implements IAuthManager,
                 try {
                     parser = new XMLObject(bis);
                 } catch (Exception e) {
-                    CMS.debug( "TokenAuthentication::authenticate() - "
-                             + "Exception="+e.toString() );
-                    throw new EBaseException( e.toString() );
+                    CMS.debug("TokenAuthentication::authenticate() - "
+                             + "Exception=" + e.toString());
+                    throw new EBaseException(e.toString());
                 }
                 String status = parser.getValue("Status");
 
@@ -195,13 +195,13 @@ public class TokenAuthentication implements IAuthManager,
                 authToken.set(TOKEN_UID, uid);
                 authToken.set(TOKEN_GID, gid);
 
-                if(context != null)  {
+                if (context != null) {
                     CMS.debug("SessionContext.USER_ID " + uid + " SessionContext.GROUP_ID " + gid);
-                    context.put(SessionContext.USER_ID,  uid );
-                    context.put(SessionContext.GROUP_ID, gid );
+                    context.put(SessionContext.USER_ID, uid);
+                    context.put(SessionContext.GROUP_ID, gid);
                 }
 
-                CMS.debug("TokenAuthentication: authenticated uid="+uid+", gid="+gid);
+                CMS.debug("TokenAuthentication: authenticated uid=" + uid + ", gid=" + gid);
             } catch (EBaseException e) {
                 throw e;
             } catch (Exception e) {
@@ -213,10 +213,11 @@ public class TokenAuthentication implements IAuthManager,
 
     /**
      * get the list of authentication credential attribute names
-     *	 required by this authentication manager. Generally used by
-     *	 the servlets that handle agent operations to authenticate its
-     *	 users.  It calls this method to know which are the
-     *	 required credentials from the user (e.g. Javascript form data)
+     * required by this authentication manager. Generally used by
+     * the servlets that handle agent operations to authenticate its
+     * users. It calls this method to know which are the
+     * required credentials from the user (e.g. Javascript form data)
+     * 
      * @return attribute names in Vector
      */
     public String[] getRequiredCreds() {
@@ -225,14 +226,15 @@ public class TokenAuthentication implements IAuthManager,
 
     /**
      * get the list of configuration parameter names
-     *	 required by this authentication manager.  Generally used by
-     *	 the Certificate Server Console to display the table for
-     *	 configuration purposes.  CertUserDBAuthentication is currently not
-     *	 exposed in this case, so this method is not to be used.
+     * required by this authentication manager. Generally used by
+     * the Certificate Server Console to display the table for
+     * configuration purposes. CertUserDBAuthentication is currently not
+     * exposed in this case, so this method is not to be used.
+     * 
      * @return configuration parameter names in Hashtable of Vectors
-     *	 where each hashtable entry's key is the substore name, value is a
-     * Vector of parameter names.  If no substore, the parameter name
-     *	 is the Hashtable key itself, with value same as key.
+     *         where each hashtable entry's key is the substore name, value is a
+     *         Vector of parameter names. If no substore, the parameter name
+     *         is the Hashtable key itself, with value same as key.
      */
     public String[] getConfigParams() {
         return (mConfigParams);
@@ -246,7 +248,8 @@ public class TokenAuthentication implements IAuthManager,
 
     /**
      * gets the configuretion substore used by this authentication
-     *  manager
+     * manager
+     * 
      * @return configuration store
      */
     public IConfigStore getConfigStore() {
@@ -256,7 +259,7 @@ public class TokenAuthentication implements IAuthManager,
     // Profile-related methods
 
     public void init(IProfile profile, IConfigStore config)
-        throws EProfileException {
+            throws EProfileException {
     }
 
     /**
@@ -296,6 +299,6 @@ public class TokenAuthentication implements IAuthManager,
     }
 
     public void populate(IAuthToken token, IRequest request)
-        throws EProfileException {
+            throws EProfileException {
     }
 }

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.admin;
 
-
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -45,10 +44,9 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 
-
 /**
  * Manage Access Control List configuration
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class ACLAdminServlet extends AdminServlet {
@@ -64,7 +62,7 @@ public class ACLAdminServlet extends AdminServlet {
     private IAuthzManager mAuthzMgr = null;
 
     private final static String LOGGING_SIGNED_AUDIT_CONFIG_ACL =
-        "LOGGING_SIGNED_AUDIT_CONFIG_ACL_3";
+            "LOGGING_SIGNED_AUDIT_CONFIG_ACL_3";
 
     /**
      * Constructs servlet.
@@ -74,17 +72,18 @@ public class ACLAdminServlet extends AdminServlet {
         mUG = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
     }
 
-   /**
-     * initialize the servlet. 
+    /**
+     * initialize the servlet.
      * <ul>
      * <li>http.param OP_TYPE = OP_SEARCH,
      * <li>http.param OP_SCOPE - the scope of the request operation:
-     *  <ul><LI>"impl" ACL implementations
-     *      <LI>"acls" ACL rules
-     *      <LI>"evaluatorTypes" ACL evaluators.
-     *  </ul>
+     * <ul>
+     * <LI>"impl" ACL implementations
+     * <LI>"acls" ACL rules
+     * <LI>"evaluatorTypes" ACL evaluators.
      * </ul>
-     *
+     * </ul>
+     * 
      * @param config servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig config) throws ServletException {
@@ -99,24 +98,24 @@ public class ACLAdminServlet extends AdminServlet {
         return INFO;
     }
 
-   /**
+    /**
      * Process the HTTP request.
-     *
+     * 
      * @param req the object holding the request information
      * @param resp the object holding the response information
      */
 
     public void service(HttpServletRequest req, HttpServletResponse resp)
-        throws ServletException, IOException {
+            throws ServletException, IOException {
 
         String scope = super.getParameter(req, Constants.OP_SCOPE);
         String op = super.getParameter(req, Constants.OP_TYPE);
 
         if (op == null) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_INVALID_PROTOCOL"));
-            sendResponse(ERROR, 
-                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_PROTOCOL"),
-                null, resp);
+            sendResponse(ERROR,
+                    CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_PROTOCOL"),
+                    null, resp);
             return;
         }
 
@@ -126,8 +125,8 @@ public class ACLAdminServlet extends AdminServlet {
             super.authenticate(req);
         } catch (IOException e) {
             log(ILogger.LL_SECURITY, CMS.getLogMessage("ADMIN_SRVLT_FAIL_AUTHS"));
-            sendResponse(ERROR, CMS.getUserMessage(getLocale(req),"CMS_ADMIN_SRVLT_AUTHS_FAILED"),
-                null, resp);
+            sendResponse(ERROR, CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHS_FAILED"),
+                    null, resp);
             return;
         }
 
@@ -141,8 +140,8 @@ public class ACLAdminServlet extends AdminServlet {
         } catch (Exception e) {
             log(ILogger.LL_FAILURE, e.toString());
             sendResponse(ERROR,
-                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_PERFORM_FAILED"),
-                null, resp);
+                    CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_PERFORM_FAILED"),
+                    null, resp);
             return;
         }
 
@@ -152,9 +151,9 @@ public class ACLAdminServlet extends AdminServlet {
             if (op.equals(OpDef.OP_SEARCH)) {
                 mOp = "read";
                 if ((mToken = super.authorize(req)) == null) {
-                    sendResponse(ERROR, 
-                      CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
-                        null, resp);
+                    sendResponse(ERROR,
+                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
+                            null, resp);
                     return;
                 }
                 if (scope.equals(ScopeDef.SC_ACL)) {
@@ -171,8 +170,8 @@ public class ACLAdminServlet extends AdminServlet {
                 mOp = "read";
                 if ((mToken = super.authorize(req)) == null) {
                     sendResponse(ERROR,
-                      CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
-                        null, resp);
+                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
+                            null, resp);
                     return;
                 }
                 if (scope.equals(ScopeDef.SC_ACL)) {
@@ -183,8 +182,8 @@ public class ACLAdminServlet extends AdminServlet {
                 mOp = "modify";
                 if ((mToken = super.authorize(req)) == null) {
                     sendResponse(ERROR,
-                      CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
-                        null, resp);
+                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
+                            null, resp);
                     return;
                 }
                 if (scope.equals(ScopeDef.SC_ACL)) {
@@ -195,8 +194,8 @@ public class ACLAdminServlet extends AdminServlet {
                 mOp = "modify";
                 if ((mToken = super.authorize(req)) == null) {
                     sendResponse(ERROR,
-                      CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
-                        null, resp);
+                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
+                            null, resp);
                     return;
                 }
                 if (scope.equals(ScopeDef.SC_ACL_IMPLS)) {
@@ -207,8 +206,8 @@ public class ACLAdminServlet extends AdminServlet {
                 mOp = "modify";
                 if ((mToken = super.authorize(req)) == null) {
                     sendResponse(ERROR,
-                      CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
-                        null, resp);
+                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
+                            null, resp);
                     return;
                 }
                 if (scope.equals(ScopeDef.SC_ACL_IMPLS)) {
@@ -218,38 +217,38 @@ public class ACLAdminServlet extends AdminServlet {
             } else {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_INVALID_OP_SCOPE"));
                 sendResponse(ERROR,
-                    CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_OP_SCOPE"),
-                    null, resp);
+                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_OP_SCOPE"),
+                        null, resp);
                 return;
             }
         } catch (EBaseException e) {
             log(ILogger.LL_FAILURE, e.toString());
             sendResponse(ERROR, e.toString(getLocale(req)),
-                null, resp);
+                    null, resp);
             return;
         } catch (Exception e) {
             log(ILogger.LL_FAILURE, e.toString());
             log(ILogger.LL_DEBUG, "SRVLT_FAIL_PERFORM 2");
 
             sendResponse(ERROR,
-                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_PERFORM_FAILED"),
-                null, resp);
+                    CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_PERFORM_FAILED"),
+                    null, resp);
             return;
         }
 
         log(ILogger.LL_DEBUG, "SRVLT_FAIL_PERFORM 3");
 
         sendResponse(ERROR,
-            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_PERFORM_FAILED"),
-            null, resp);
+                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_PERFORM_FAILED"),
+                null, resp);
         return;
     }
 
     /**
      * list acls resources by name
      */
-    private void listResources(HttpServletRequest req, 
-        HttpServletResponse resp) throws ServletException, IOException,
+    private void listResources(HttpServletRequest req,
+            HttpServletResponse resp) throws ServletException, IOException,
             EBaseException {
 
         NameValuePairs params = new NameValuePairs();
@@ -260,7 +259,7 @@ public class ACLAdminServlet extends AdminServlet {
             ACL acl = (ACL) res.nextElement();
             String desc = acl.getDescription();
 
-            if (desc == null) 
+            if (desc == null)
                 params.add(acl.getName(), "");
             else
                 params.add(acl.getName(), desc);
@@ -272,8 +271,8 @@ public class ACLAdminServlet extends AdminServlet {
     /**
      * get acls information for a resource
      */
-    private void getResourceACL(HttpServletRequest req, 
-        HttpServletResponse resp) throws ServletException, IOException,
+    private void getResourceACL(HttpServletRequest req,
+            HttpServletResponse resp) throws ServletException, IOException,
             EBaseException {
 
         NameValuePairs params = new NameValuePairs();
@@ -283,8 +282,8 @@ public class ACLAdminServlet extends AdminServlet {
         if (resourceId == null) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
             sendResponse(ERROR,
-                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
-                null, resp);
+                    CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
+                    null, resp);
             return;
         }
 
@@ -295,7 +294,7 @@ public class ACLAdminServlet extends AdminServlet {
 
             StringBuffer rights = new StringBuffer();
 
-			if (rightsEnum.hasMoreElements()) {
+            if (rightsEnum.hasMoreElements()) {
                 while (rightsEnum.hasMoreElements()) {
                     if (rights.length() != 0) {
                         rights.append(",");
@@ -332,8 +331,8 @@ public class ACLAdminServlet extends AdminServlet {
         } else {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("ACLS_SRVLT_RESOURCE_NOT_FOUND"));
             sendResponse(ERROR,
-                CMS.getUserMessage(getLocale(req),"CMS_ACL_RESOURCE_NOT_FOUND"),
-                null, resp);
+                    CMS.getUserMessage(getLocale(req), "CMS_ACL_RESOURCE_NOT_FOUND"),
+                    null, resp);
             return;
         }
     }
@@ -341,19 +340,19 @@ public class ACLAdminServlet extends AdminServlet {
     /**
      * modify acls information for a resource
      * <P>
-     *
+     * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_ACL used when configuring
-     * Access Control List (ACL) information
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_ACL used when configuring Access Control List (ACL) information
      * </ul>
+     * 
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @exception ServletException a servlet error has occurred
      * @exception IOException an input/output error has occurred
      * @exception EBaseException an error has occurred
      */
-    private void updateResources(HttpServletRequest req, 
-        HttpServletResponse resp) throws ServletException, IOException,
+    private void updateResources(HttpServletRequest req,
+            HttpServletResponse resp) throws ServletException, IOException,
             EBaseException {
 
         String auditMessage = null;
@@ -378,15 +377,15 @@ public class ACLAdminServlet extends AdminServlet {
                 audit(auditMessage);
 
                 sendResponse(ERROR,
-                    CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
-                    null, resp);
+                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
+                        null, resp);
                 return;
             }
 
             // get resource acls
             String resourceACLs = super.getParameter(req, Constants.PR_ACI);
             String rights = super.getParameter(req, Constants.PR_ACL_RIGHTS);
-            String desc = super.getParameter(req, Constants.PR_ACL_DESC); 
+            String desc = super.getParameter(req, Constants.PR_ACL_DESC);
 
             try {
                 mAuthzMgr.updateACLs(resourceId, rights, resourceACLs, desc);
@@ -417,8 +416,8 @@ public class ACLAdminServlet extends AdminServlet {
                 audit(auditMessage);
 
                 sendResponse(ERROR,
-                    CMS.getUserMessage(getLocale(req),"CMS_ACL_UPDATE_FAIL"),
-                    null, resp);
+                        CMS.getUserMessage(getLocale(req), "CMS_ACL_UPDATE_FAIL"),
+                        null, resp);
                 return;
             }
             // } catch( EBaseException eAudit1 ) {
@@ -459,18 +458,18 @@ public class ACLAdminServlet extends AdminServlet {
             //     throw eAudit3;
         }
     }
-	
+
     /**
      * list access evaluators by types and class paths
      */
-    private void listACLsEvaluators(HttpServletRequest req, 
-        HttpServletResponse resp) throws ServletException, IOException,
+    private void listACLsEvaluators(HttpServletRequest req,
+            HttpServletResponse resp) throws ServletException, IOException,
             EBaseException {
         NameValuePairs params = new NameValuePairs();
         Enumeration<IAccessEvaluator> res = mAuthzMgr.aclEvaluatorElements();
 
         while (res.hasMoreElements()) {
-            IAccessEvaluator evaluator =  res.nextElement();
+            IAccessEvaluator evaluator = res.nextElement();
 
             // params.add(evaluator.getType(), evaluator.getDescription());
             params.add(evaluator.getType(), evaluator.getClass().getName());
@@ -480,18 +479,18 @@ public class ACLAdminServlet extends AdminServlet {
     }
 
     private void listACLsEvaluatorTypes(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException, IOException,
+            HttpServletResponse resp) throws ServletException, IOException,
             EBaseException {
         NameValuePairs params = new NameValuePairs();
         Enumeration<IAccessEvaluator> res = mAuthzMgr.aclEvaluatorElements();
 
         while (res.hasMoreElements()) {
-            IAccessEvaluator evaluator =  res.nextElement();
+            IAccessEvaluator evaluator = res.nextElement();
             String[] operators = evaluator.getSupportedOperators();
             StringBuffer str = new StringBuffer();
 
             for (int i = 0; i < operators.length; i++) {
-                if (str.length() > 0) 
+                if (str.length() > 0)
                     str.append(",");
                 str.append(operators[i]);
             }
@@ -505,22 +504,22 @@ public class ACLAdminServlet extends AdminServlet {
     /**
      * add access evaluators
      * <P>
-     *
+     * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_ACL used when configuring
-     * Access Control List (ACL) information
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_ACL used when configuring Access Control List (ACL) information
      * </ul>
+     * 
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @param scope string used to obtain the contents of this ACL evaluator's
-     * substore
+     *            substore
      * @exception ServletException a servlet error has occurred
      * @exception IOException an input/output error has occurred
      * @exception EBaseException an error has occurred
      */
-    private synchronized void addACLsEvaluator(HttpServletRequest req, 
-        HttpServletResponse resp, String scope)
-        throws ServletException, IOException, EBaseException {
+    private synchronized void addACLsEvaluator(HttpServletRequest req,
+            HttpServletResponse resp, String scope)
+            throws ServletException, IOException, EBaseException {
 
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
@@ -543,8 +542,8 @@ public class ACLAdminServlet extends AdminServlet {
 
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_NULL_RS_ID"));
                 sendResponse(ERROR,
-                    CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
-                    null, resp);
+                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
+                        null, resp);
                 return;
             }
 
@@ -560,9 +559,9 @@ public class ACLAdminServlet extends AdminServlet {
             String classPath = super.getParameter(req, Constants.PR_ACL_CLASS);
 
             IConfigStore destStore =
-                mConfig.getSubStore(PROP_EVAL);
+                    mConfig.getSubStore(PROP_EVAL);
             IConfigStore mStore =
-                destStore.getSubStore(ScopeDef.SC_ACL_IMPLS);
+                    destStore.getSubStore(ScopeDef.SC_ACL_IMPLS);
 
             // Does the class exist?
             Class<?> newImpl = null;
@@ -584,17 +583,16 @@ public class ACLAdminServlet extends AdminServlet {
                 audit(auditMessage);
 
                 sendResponse(ERROR,
-                    CMS.getUserMessage(getLocale(req),"CMS_ACL_CLASS_LOAD_FAIL"),
-                    null, resp);
+                        CMS.getUserMessage(getLocale(req), "CMS_ACL_CLASS_LOAD_FAIL"),
+                        null, resp);
                 return;
             }
 
             // is the class an IAccessEvaluator?
             try {
-                if
-                (Class.forName("com.netscape.certsrv.evaluators.IAccessEvaluator").isAssignableFrom(newImpl) == false) {
+                if (Class.forName("com.netscape.certsrv.evaluators.IAccessEvaluator").isAssignableFrom(newImpl) == false) {
                     String errMsg = "class not com.netscape.certsrv.evaluators.IAccessEvaluator" +
-                        classPath;
+                            classPath;
 
                     log(ILogger.LL_FAILURE, errMsg);
 
@@ -608,13 +606,13 @@ public class ACLAdminServlet extends AdminServlet {
                     audit(auditMessage);
 
                     sendResponse(ERROR,
-                        CMS.getUserMessage(getLocale(req),"CMS_ACL_ILL_CLASS"),
-                        null, resp);
+                            CMS.getUserMessage(getLocale(req), "CMS_ACL_ILL_CLASS"),
+                            null, resp);
                     return;
                 }
             } catch (Exception e) {
                 String errMsg = "class not com.netscape.certsrv.evaluators.IAccessEvaluator" +
-                    classPath;
+                        classPath;
 
                 log(ILogger.LL_FAILURE, errMsg);
 
@@ -628,8 +626,8 @@ public class ACLAdminServlet extends AdminServlet {
                 audit(auditMessage);
 
                 sendResponse(ERROR,
-                    CMS.getUserMessage(getLocale(req),"CMS_ACL_ILL_CLASS"),
-                    null, resp);
+                        CMS.getUserMessage(getLocale(req), "CMS_ACL_ILL_CLASS"),
+                        null, resp);
                 return;
             }
 
@@ -653,8 +651,8 @@ public class ACLAdminServlet extends AdminServlet {
                 audit(auditMessage);
 
                 sendResponse(ERROR,
-                    CMS.getUserMessage(getLocale(req),"CMS_ACL_COMMIT_FAIL"),
-                    null, resp);
+                        CMS.getUserMessage(getLocale(req), "CMS_ACL_COMMIT_FAIL"),
+                        null, resp);
                 return;
             }
 
@@ -676,8 +674,8 @@ public class ACLAdminServlet extends AdminServlet {
                 audit(auditMessage);
 
                 sendResponse(ERROR,
-                    CMS.getUserMessage(getLocale(req),"CMS_ACL_INST_CLASS_FAIL"),
-                    null, resp);
+                        CMS.getUserMessage(getLocale(req), "CMS_ACL_INST_CLASS_FAIL"),
+                        null, resp);
                 return;
             }
 
@@ -743,21 +741,21 @@ public class ACLAdminServlet extends AdminServlet {
     /**
      * remove access evaluators
      * <P>
-     *
+     * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_ACL used when configuring
-     * Access Control List (ACL) information
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_ACL used when configuring Access Control List (ACL) information
      * </ul>
+     * 
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @param scope string used to obtain the contents of this ACL evaluator's
-     * substore
+     *            substore
      * @exception ServletException a servlet error has occurred
      * @exception IOException an input/output error has occurred
      * @exception EBaseException an error has occurred
      */
-    private synchronized void deleteACLsEvaluator(HttpServletRequest req, 
-        HttpServletResponse resp, String scope) throws ServletException, 
+    private synchronized void deleteACLsEvaluator(HttpServletRequest req,
+            HttpServletResponse resp, String scope) throws ServletException,
             IOException, EBaseException {
 
         String auditMessage = null;
@@ -782,8 +780,8 @@ public class ACLAdminServlet extends AdminServlet {
                 audit(auditMessage);
 
                 sendResponse(ERROR,
-                    CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
-                    null, resp);
+                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
+                        null, resp);
                 return;
             }
 
@@ -803,8 +801,8 @@ public class ACLAdminServlet extends AdminServlet {
                 audit(auditMessage);
 
                 sendResponse(ERROR,
-                    CMS.getUserMessage(getLocale(req),"CMS_ACL_EVAL_NOT_FOUND"),
-                    null, resp);
+                        CMS.getUserMessage(getLocale(req), "CMS_ACL_EVAL_NOT_FOUND"),
+                        null, resp);
                 return;
             }
 
@@ -814,9 +812,9 @@ public class ACLAdminServlet extends AdminServlet {
 
             try {
                 IConfigStore destStore =
-                    mConfig.getSubStore(PROP_EVAL);
+                        mConfig.getSubStore(PROP_EVAL);
                 IConfigStore mStore =
-                    destStore.getSubStore(ScopeDef.SC_ACL_IMPLS);
+                        destStore.getSubStore(ScopeDef.SC_ACL_IMPLS);
 
                 mStore.removeSubStore(id);
             } catch (Exception eeee) {
@@ -838,8 +836,8 @@ public class ACLAdminServlet extends AdminServlet {
                 audit(auditMessage);
 
                 sendResponse(ERROR,
-                    CMS.getUserMessage(getLocale(req),"CMS_ACL_COMMIT_FAIL"),
-                    null, resp);
+                        CMS.getUserMessage(getLocale(req), "CMS_ACL_COMMIT_FAIL"),
+                        null, resp);
                 return;
             }
 
@@ -892,11 +890,11 @@ public class ACLAdminServlet extends AdminServlet {
             //     throw eAudit3;
         }
     }
-	
+
     /**
      * Searchs for certificate requests.
      */
-    
+
     /*
      private void getACLs(HttpServletRequest req, 
      HttpServletResponse resp) throws ServletException, IOException,
@@ -922,7 +920,6 @@ public class ACLAdminServlet extends AdminServlet {
         if (mLogger == null)
             return;
         mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_ACLS,
-            level, "ACLAdminServlet: " + msg);
+                level, "ACLAdminServlet: " + msg);
     }
-}    
-
+}

@@ -40,7 +40,7 @@ public class DBRegistryTest extends CMSBaseTestCase {
         extAttrMapper = new DBDynAttrMapperStub();
         try {
             registry.registerObjectClass(requestRecordStub.getClass().getName(),
-                    new String[] {"ocvalue"} );
+                    new String[] { "ocvalue" });
             registry.registerAttribute(IRequestRecord.ATTR_EXT_DATA, extAttrMapper);
             registry.registerAttribute(IRequestRecord.ATTR_SOURCE_ID,
                     new StringMapper("sourceIdOut"));
@@ -64,7 +64,7 @@ public class DBRegistryTest extends CMSBaseTestCase {
         assertTrue(extAttrMapper.mapObjectCalled);
     }
 
-    public void testGetLDAPAttributesForExtData()  throws EBaseException {
+    public void testGetLDAPAttributesForExtData() throws EBaseException {
         String inAttrs[] = new String[] {
                 "extData-foo",
                 "extData-foo12",
@@ -79,9 +79,10 @@ public class DBRegistryTest extends CMSBaseTestCase {
         assertTrue(TestHelper.contains(outAttrs, "sourceIdOut"));
 
         try {
-            registry.getLDAPAttributes(new String[] {"badattr"});
+            registry.getLDAPAttributes(new String[] { "badattr" });
             fail("Should not be able to map badattr");
-        } catch (EBaseException e) { /* good */ }
+        } catch (EBaseException e) { /* good */
+        }
     }
 
     public void testCreateLDAPAttributeSet() throws EBaseException {
@@ -109,7 +110,6 @@ public class DBRegistryTest extends CMSBaseTestCase {
         assertTrue(extAttrMapper.mapLDAPAttrsCalled);
     }
 
-
     class DBSubsystemStub extends DBSubsystemDefaultStub {
         DBRegistry registry;
 
@@ -117,7 +117,6 @@ public class DBRegistryTest extends CMSBaseTestCase {
             return registry;
         }
     }
-
 
     class DBDynAttrMapperStub extends DBDynAttrMapperDefaultStub {
         boolean mapObjectCalled = false;
@@ -149,7 +148,7 @@ public class DBRegistryTest extends CMSBaseTestCase {
  * DBRegistry.createObject() calls Class.newInstance() to create
  * this stub.  This fails if the class is nested.
  */
- class RequestRecordStub extends RequestRecordDefaultStub {
+class RequestRecordStub extends RequestRecordDefaultStub {
 
     /**
      *

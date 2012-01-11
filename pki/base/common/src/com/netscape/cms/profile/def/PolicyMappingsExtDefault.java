@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.def;
 
-
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Locale;
@@ -40,12 +39,11 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 
-
 /**
  * This class implements an enrollment default policy
  * that populates a policy mappings extension
  * into the certificate template.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class PolicyMappingsExtDefault extends EnrollExtDefault {
@@ -85,27 +83,27 @@ public class PolicyMappingsExtDefault extends EnrollExtDefault {
     }
 
     public void init(IProfile profile, IConfigStore config)
-        throws EProfileException {
+            throws EProfileException {
         super.init(profile, config);
         refreshConfigAndValueNames();
     }
 
-     public void setConfig(String name, String value)
-        throws EPropertyException {
+    public void setConfig(String name, String value)
+            throws EPropertyException {
         int num = 0;
         if (name.equals(CONFIG_NUM_POLICY_MAPPINGS)) {
-          try {
-            num = Integer.parseInt(value);
+            try {
+                num = Integer.parseInt(value);
 
-            if (num >= MAX_NUM_MAPPINGS || num < 0) {
+                if (num >= MAX_NUM_MAPPINGS || num < 0) {
+                    throw new EPropertyException(CMS.getUserMessage(
+                            "CMS_INVALID_PROPERTY", CONFIG_NUM_POLICY_MAPPINGS));
+                }
+
+            } catch (Exception e) {
                 throw new EPropertyException(CMS.getUserMessage(
                             "CMS_INVALID_PROPERTY", CONFIG_NUM_POLICY_MAPPINGS));
             }
-
-          } catch (Exception e) {
-                throw new EPropertyException(CMS.getUserMessage(
-                            "CMS_INVALID_PROPERTY", CONFIG_NUM_POLICY_MAPPINGS));
-          }
         }
         super.setConfig(name, value);
     }
@@ -132,7 +130,7 @@ public class PolicyMappingsExtDefault extends EnrollExtDefault {
         }
     }
 
-    public IDescriptor getConfigDescriptor(Locale locale, String name) { 
+    public IDescriptor getConfigDescriptor(Locale locale, String name) {
         if (name.equals(CONFIG_CRITICAL)) {
             return new Descriptor(IDescriptor.BOOLEAN, null,
                     "false",
@@ -151,8 +149,8 @@ public class PolicyMappingsExtDefault extends EnrollExtDefault {
                     CMS.getUserMessage(locale, "CMS_PROFILE_ENABLE"));
         } else if (name.startsWith(CONFIG_NUM_POLICY_MAPPINGS)) {
             return new Descriptor(IDescriptor.INTEGER, null,
-                   "1",
-                   CMS.getUserMessage(locale, "CMS_PROFILE_NUM_POLICY_MAPPINGS"));
+                    "1",
+                    CMS.getUserMessage(locale, "CMS_PROFILE_NUM_POLICY_MAPPINGS"));
         }
 
         return null;
@@ -160,7 +158,7 @@ public class PolicyMappingsExtDefault extends EnrollExtDefault {
 
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         if (name.equals(VAL_CRITICAL)) {
-            return new Descriptor(IDescriptor.BOOLEAN, null, 
+            return new Descriptor(IDescriptor.BOOLEAN, null,
                     "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_CRITICAL"));
         } else if (name.equals(VAL_DOMAINS)) {
@@ -172,43 +170,43 @@ public class PolicyMappingsExtDefault extends EnrollExtDefault {
     }
 
     public void setValue(String name, Locale locale,
-        X509CertInfo info, String value)
-        throws EPropertyException {
+            X509CertInfo info, String value)
+            throws EPropertyException {
         try {
             PolicyMappingsExtension ext = null;
 
             if (name == null) {
-                throw new EPropertyException(CMS.getUserMessage( 
+                throw new EPropertyException(CMS.getUserMessage(
                             locale, "CMS_INVALID_PROPERTY", name));
             }
 
             ext = (PolicyMappingsExtension)
                         getExtension(PKIXExtensions.PolicyMappings_Id.toString(),
-                            info);
+                                info);
 
-            if(ext == null)  {
-                populate(null,info);
+            if (ext == null) {
+                populate(null, info);
 
             }
 
             if (name.equals(VAL_CRITICAL)) {
                 ext = (PolicyMappingsExtension)
-                        getExtension(PKIXExtensions.PolicyMappings_Id.toString(), 
-                            info);
+                        getExtension(PKIXExtensions.PolicyMappings_Id.toString(),
+                                info);
                 boolean val = Boolean.valueOf(value).booleanValue();
 
-                if(ext == null)  {
+                if (ext == null) {
                     return;
                 }
-                ext.setCritical(val); 
-            } else if (name.equals(VAL_DOMAINS)) { 
+                ext.setCritical(val);
+            } else if (name.equals(VAL_DOMAINS)) {
                 ext = (PolicyMappingsExtension)
-                        getExtension(PKIXExtensions.PolicyMappings_Id.toString(), 
-                            info);
-               
-                if(ext == null)  {
+                        getExtension(PKIXExtensions.PolicyMappings_Id.toString(),
+                                info);
+
+                if (ext == null) {
                     return;
-                } 
+                }
                 Vector v = parseRecords(value);
                 int size = v.size();
 
@@ -232,12 +230,12 @@ public class PolicyMappingsExtDefault extends EnrollExtDefault {
                             enable = nvps.getValue(name1);
                         }
                     }
-                   
+
                     if (enable != null && enable.equals("true")) {
-                        if (issuerPolicyId == null || 
-                            issuerPolicyId.length() == 0 || subjectPolicyId == null ||
-                            subjectPolicyId.length() == 0) 
-                            throw new EPropertyException(CMS.getUserMessage( 
+                        if (issuerPolicyId == null ||
+                                issuerPolicyId.length() == 0 || subjectPolicyId == null ||
+                                subjectPolicyId.length() == 0)
+                            throw new EPropertyException(CMS.getUserMessage(
                                         locale, "CMS_PROFILE_POLICY_ID_NOT_FOUND"));
                         CertificatePolicyMap map = new CertificatePolicyMap(
                                 new CertificatePolicyId(new ObjectIdentifier(issuerPolicyId)),
@@ -248,52 +246,51 @@ public class PolicyMappingsExtDefault extends EnrollExtDefault {
                 }
                 ext.set(PolicyMappingsExtension.MAP, policyMaps);
             } else {
-                throw new EPropertyException(CMS.getUserMessage( 
+                throw new EPropertyException(CMS.getUserMessage(
                             locale, "CMS_INVALID_PROPERTY", name));
             }
 
             replaceExtension(PKIXExtensions.PolicyMappings_Id.toString(),
-                ext, info);
+                    ext, info);
         } catch (EProfileException e) {
             CMS.debug("PolicyMappingsExtDefault: setValue " + e.toString());
-            throw new EPropertyException(CMS.getUserMessage( 
+            throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         } catch (IOException e) {
             CMS.debug("PolicyMappingsExtDefault: setValue " + e.toString());
-            throw new EPropertyException(CMS.getUserMessage( 
+            throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         }
     }
 
     public String getValue(String name, Locale locale,
-        X509CertInfo info)
-        throws EPropertyException {
+            X509CertInfo info)
+            throws EPropertyException {
         PolicyMappingsExtension ext = null;
 
         if (name == null) {
-            throw new EPropertyException(CMS.getUserMessage( 
+            throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         }
 
         ext = (PolicyMappingsExtension)
                     getExtension(PKIXExtensions.PolicyMappings_Id.toString(),
-                        info);
-        if(ext == null)
-        {
+                            info);
+        if (ext == null) {
             try {
-                populate(null,info);
+                populate(null, info);
 
             } catch (EProfileException e) {
-                 throw new EPropertyException(CMS.getUserMessage(
-                      locale, "CMS_INVALID_PROPERTY", name));
+                throw new EPropertyException(CMS.getUserMessage(
+                        locale, "CMS_INVALID_PROPERTY", name));
             }
 
         }
 
         if (name.equals(VAL_CRITICAL)) {
             ext = (PolicyMappingsExtension)
-                    getExtension(PKIXExtensions.PolicyMappings_Id.toString(), 
-                        info);
+                    getExtension(PKIXExtensions.PolicyMappings_Id.toString(),
+                            info);
 
             if (ext == null) {
                 return null;
@@ -303,10 +300,10 @@ public class PolicyMappingsExtDefault extends EnrollExtDefault {
             } else {
                 return "false";
             }
-        } else if (name.equals(VAL_DOMAINS)) { 
+        } else if (name.equals(VAL_DOMAINS)) {
             ext = (PolicyMappingsExtension)
-                    getExtension(PKIXExtensions.PolicyMappings_Id.toString(), 
-                        info);
+                    getExtension(PKIXExtensions.PolicyMappings_Id.toString(),
+                            info);
 
             if (ext == null)
                 return "";
@@ -314,7 +311,7 @@ public class PolicyMappingsExtDefault extends EnrollExtDefault {
             int num_mappings = getNumMappings();
 
             Enumeration maps = ext.getMappings();
-         
+
             int num = 0;
             StringBuffer sb = new StringBuffer();
 
@@ -323,12 +320,12 @@ public class PolicyMappingsExtDefault extends EnrollExtDefault {
             for (int i = 0; i < num_mappings; i++) {
                 NameValuePairs pairs = new NameValuePairs();
 
-                if (maps.hasMoreElements()) { 
-                    CertificatePolicyMap map = 
-                        (CertificatePolicyMap) maps.nextElement();
-                
+                if (maps.hasMoreElements()) {
+                    CertificatePolicyMap map =
+                            (CertificatePolicyMap) maps.nextElement();
+
                     CertificatePolicyId i1 = map.getIssuerIdentifier();
-                    CertificatePolicyId s1 = map.getSubjectIdentifier();               
+                    CertificatePolicyId s1 = map.getSubjectIdentifier();
 
                     pairs.add(ISSUER_POLICY_ID, i1.getIdentifier().toString());
                     pairs.add(SUBJECT_POLICY_ID, s1.getIdentifier().toString());
@@ -337,14 +334,14 @@ public class PolicyMappingsExtDefault extends EnrollExtDefault {
                     pairs.add(ISSUER_POLICY_ID, "");
                     pairs.add(SUBJECT_POLICY_ID, "");
                     pairs.add(POLICY_ID_ENABLE, "false");
-			
+
                 }
                 recs.addElement(pairs);
-            }    
- 
+            }
+
             return buildRecords(recs);
         } else {
-            throw new EPropertyException(CMS.getUserMessage( 
+            throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         }
     }
@@ -368,8 +365,8 @@ public class PolicyMappingsExtDefault extends EnrollExtDefault {
             sb.append(getConfig(CONFIG_ENABLE + i));
             sb.append("}");
         }
-        return CMS.getUserMessage(locale, 
-                "CMS_PROFILE_DEF_POLICY_MAPPINGS_EXT", 
+        return CMS.getUserMessage(locale,
+                "CMS_PROFILE_DEF_POLICY_MAPPINGS_EXT",
                 getConfig(CONFIG_CRITICAL), sb.toString());
     }
 
@@ -377,24 +374,24 @@ public class PolicyMappingsExtDefault extends EnrollExtDefault {
      * Populates the request with this policy default.
      */
     public void populate(IRequest request, X509CertInfo info)
-        throws EProfileException {
+            throws EProfileException {
         PolicyMappingsExtension ext = createExtension();
 
         if (ext == null)
             return;
-        addExtension(PKIXExtensions.PolicyMappings_Id.toString(), 
-            ext, info);
+        addExtension(PKIXExtensions.PolicyMappings_Id.toString(),
+                ext, info);
     }
 
     public PolicyMappingsExtension createExtension() {
-        PolicyMappingsExtension ext = null; 
+        PolicyMappingsExtension ext = null;
 
         try {
             boolean critical = getConfigBoolean(CONFIG_CRITICAL);
             Vector policyMaps = new Vector();
             int num = getNumMappings();
 
-            for (int i = 0; i < num; i++) { 
+            for (int i = 0; i < num; i++) {
                 String enable = getConfig(CONFIG_ENABLE + i);
 
                 if (enable != null && enable.equals("true")) {
@@ -420,8 +417,8 @@ public class PolicyMappingsExtDefault extends EnrollExtDefault {
 
             ext = new PolicyMappingsExtension(critical, policyMaps);
         } catch (Exception e) {
-            CMS.debug("PolicyMappingsExtDefault: createExtension " + 
-                e.toString());
+            CMS.debug("PolicyMappingsExtDefault: createExtension " +
+                    e.toString());
         }
 
         return ext;

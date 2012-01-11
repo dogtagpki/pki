@@ -1,4 +1,5 @@
 package com.netscape.pkisilent.common;
+
 // --- BEGIN COPYRIGHT BLOCK ---
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -24,10 +25,9 @@ import java.io.InputStreamReader;
 import com.netscape.pkisilent.argparser.ArgParser;
 import com.netscape.pkisilent.argparser.StringHolder;
 
-
 /**
  * CS Test framework .
- * This class starts and stops CS server from command line  
+ * This class starts and stops CS server from command line
  */
 
 public class CMSTask {
@@ -38,7 +38,7 @@ public class CMSTask {
     private Process p = null;
 
     /**
-     * Constructor . Takes CMS server root as parameter  
+     * Constructor . Takes CMS server root as parameter
      * for example (/export/qa/cert-jupiter2)
      **/
 
@@ -63,7 +63,7 @@ public class CMSTask {
 
             try {
                 while ((s = br.readLine()) != null) {
-                    if (s.indexOf("started") > 0) { 
+                    if (s.indexOf("started") > 0) {
                         return true;
                     }
                     // do something
@@ -175,7 +175,7 @@ public class CMSTask {
         // set variables
         serverRoot = x_instance_root.value;
         operation = x_operation.value;
-		
+
         boolean st = prof.task();
 
         if (!st) {

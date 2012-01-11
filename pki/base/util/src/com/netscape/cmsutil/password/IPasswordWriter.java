@@ -16,12 +16,15 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmsutil.password;
+
 import java.io.IOException;
 
 public interface IPasswordWriter {
     public void init(String pwdPath)
-	throws IOException;;
+            throws IOException;;
+
     public Object putPassword(String tag, String password);
+
     public void commit()
-	throws IOException, ClassCastException, NullPointerException;
+            throws IOException, ClassCastException, NullPointerException;
 }

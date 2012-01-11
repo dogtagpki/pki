@@ -261,14 +261,15 @@ public class CMSEngineDefaultStub implements ICMSEngine {
     public String getFingerPrints(Certificate cert) throws NoSuchAlgorithmException, CertificateEncodingException {
         return null;
     }/*
-    * Returns the finger print of the given certificate.
-*
-* @param certDer DER byte array of certificate
-* @return finger print of certificate
-*/
-public String getFingerPrints(byte[] certDer) throws NoSuchAlgorithmException {
-    return null;
-}
+     * Returns the finger print of the given certificate.
+     *
+     * @param certDer DER byte array of certificate
+     * @return finger print of certificate
+     */
+
+    public String getFingerPrints(byte[] certDer) throws NoSuchAlgorithmException {
+        return null;
+    }
 
     public IRepositoryRecord createRepositoryRecord() {
         return null;
@@ -560,34 +561,34 @@ public String getFingerPrints(byte[] certDer) throws NoSuchAlgorithmException {
         return null;
     }
 
-	@Override
-	public String getEEClientAuthSSLPort() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public String getEEClientAuthSSLPort() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public boolean verifySystemCerts() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    public boolean verifySystemCerts() {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
-	@Override
-	public boolean verifySystemCertByTag(String tag) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    public boolean verifySystemCertByTag(String tag) {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
-	@Override
-	public boolean verifySystemCertByNickname(String nickname,
-			String certificateUsage) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    @Override
+    public boolean verifySystemCertByNickname(String nickname,
+            String certificateUsage) {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
-	@Override
-	public CertificateUsage getCertificateUsage(String certusage) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public CertificateUsage getCertificateUsage(String certusage) {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }

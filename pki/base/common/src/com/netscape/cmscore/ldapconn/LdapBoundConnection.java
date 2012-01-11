@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.ldapconn;
 
-
 import java.util.Properties;
 
 import netscape.ldap.LDAPConnection;
@@ -29,13 +28,12 @@ import netscape.ldap.LDAPv2;
 
 import com.netscape.certsrv.apps.CMS;
 
-
 /**
  * A LDAP connection that is bound to a server host, port, secure type.
  * and authentication.
  * Makes a LDAP connection and authentication when instantiated.
- * Cannot establish another LDAP connection or authentication after 
- * construction. LDAPConnection connect and authentication methods are 
+ * Cannot establish another LDAP connection or authentication after
+ * construction. LDAPConnection connect and authentication methods are
  * overridden to prevent this.
  */
 public class LdapBoundConnection extends LDAPConnection {
@@ -52,13 +50,13 @@ public class LdapBoundConnection extends LDAPConnection {
      * connection with Ldap basic bind dn & pw authentication.
      */
     public LdapBoundConnection(
-        LdapConnInfo connInfo, LdapAuthInfo authInfo)
-        throws LDAPException {
+            LdapConnInfo connInfo, LdapAuthInfo authInfo)
+            throws LDAPException {
         // this LONG line to satisfy super being the first call. (yuk)
         super(
-            authInfo.getAuthType() == LdapAuthInfo.LDAP_AUTHTYPE_SSLCLIENTAUTH ?
-            new LdapJssSSLSocketFactory(authInfo.getParms()[0]) : 
-            (connInfo.getSecure() ? new LdapJssSSLSocketFactory() : null));
+                authInfo.getAuthType() == LdapAuthInfo.LDAP_AUTHTYPE_SSLCLIENTAUTH ?
+                        new LdapJssSSLSocketFactory(authInfo.getParms()[0]) :
+                        (connInfo.getSecure() ? new LdapJssSSLSocketFactory() : null));
 
         // Set option to automatically follow referrals. 
         // Use the same credentials to follow referrals; this is the easiest 
@@ -69,11 +67,11 @@ public class LdapBoundConnection extends LDAPConnection {
         boolean followReferrals = connInfo.getFollowReferrals();
 
         setOption(LDAPv2.REFERRALS, new Boolean(followReferrals));
-        if (followReferrals && 
-            authInfo.getAuthType() != LdapAuthInfo.LDAP_AUTHTYPE_SSLCLIENTAUTH) {
-            LDAPRebind rebindInfo = 
-                new ARebindInfo(authInfo.getParms()[0], 
-                    authInfo.getParms()[1]);
+        if (followReferrals &&
+                authInfo.getAuthType() != LdapAuthInfo.LDAP_AUTHTYPE_SSLCLIENTAUTH) {
+            LDAPRebind rebindInfo =
+                    new ARebindInfo(authInfo.getParms()[0],
+                            authInfo.getParms()[1]);
 
             setOption(LDAPv2.REFERRALS_REBIND_PROC, rebindInfo);
         }
@@ -82,19 +80,19 @@ public class LdapBoundConnection extends LDAPConnection {
             // will be bound to client auth cert mapped entry.
             super.connect(connInfo.getHost(), connInfo.getPort());
             CMS.debug(
-                "Established LDAP connection with SSL client auth to " +
-                connInfo.getHost() + ":" + connInfo.getPort());
-        } else {  // basic auth
+                    "Established LDAP connection with SSL client auth to " +
+                            connInfo.getHost() + ":" + connInfo.getPort());
+        } else { // basic auth
             String binddn = authInfo.getParms()[0];
             String bindpw = authInfo.getParms()[1];
 
-            super.connect(connInfo.getVersion(), 
-                connInfo.getHost(), connInfo.getPort(), binddn, bindpw);
+            super.connect(connInfo.getVersion(),
+                    connInfo.getHost(), connInfo.getPort(), binddn, bindpw);
             CMS.debug(
-                "Established LDAP connection using basic authentication to" +
-                " host " + connInfo.getHost() +
-                " port " + connInfo.getPort() +
-                " as " + binddn);
+                    "Established LDAP connection using basic authentication to" +
+                            " host " + connInfo.getHost() +
+                            " port " + connInfo.getPort() +
+                            " as " + binddn);
         }
     }
 
@@ -102,26 +100,26 @@ public class LdapBoundConnection extends LDAPConnection {
      * Instantiates a connection to a ldap server, secure or non-secure
      * connection with Ldap basic bind dn & pw authentication.
      */
-    public LdapBoundConnection(String host, int port, int version, 
-        LDAPSocketFactory fac,
-        String bindDN, String bindPW)
-        throws LDAPException {
+    public LdapBoundConnection(String host, int port, int version,
+            LDAPSocketFactory fac,
+            String bindDN, String bindPW)
+            throws LDAPException {
         super(fac);
         if (bindDN != null) {
-            super.connect(version, host, port, bindDN, bindPW); 
+            super.connect(version, host, port, bindDN, bindPW);
             CMS.debug(
-                "Established LDAP connection using basic authentication " +
-                " as " + bindDN + " to " + host + ":" + port);
+                    "Established LDAP connection using basic authentication " +
+                            " as " + bindDN + " to " + host + ":" + port);
         } else {
             if (fac == null && bindDN == null) {
                 throw new IllegalArgumentException(
                         "Ldap bound connection must have authentication info.");
             }
             // automatically authenticated if it's ssl client auth.
-            super.connect(version, host, port, null, null);  
+            super.connect(version, host, port, null, null);
             CMS.debug(
-                "Established LDAP connection using SSL client authentication " +
-                "to " + host + ":" + port);
+                    "Established LDAP connection using SSL client authentication " +
+                            "to " + host + ":" + port);
         }
     }
 
@@ -129,13 +127,13 @@ public class LdapBoundConnection extends LDAPConnection {
      * Overrides same method in LDAPConnection to do prevent re-authentication.
      */
     public void authenticate(int version, String dn, String pw)
-        throws LDAPException {
+            throws LDAPException {
 
         /**
-         if (mAuthenticated) {
-         throw new RuntimeException(
-         "this LdapBoundConnection already authenticated: auth(v,dn,pw)");
-         }
+         * if (mAuthenticated) {
+         * throw new RuntimeException(
+         * "this LdapBoundConnection already authenticated: auth(v,dn,pw)");
+         * }
          **/
         super.authenticate(version, dn, pw);
         mAuthenticated = true;
@@ -145,13 +143,13 @@ public class LdapBoundConnection extends LDAPConnection {
      * Overrides same method in LDAPConnection to do prevent re-authentication.
      */
     public void authenticate(String dn, String pw)
-        throws LDAPException {
+            throws LDAPException {
 
         /**
-         if (mAuthenticated) {
-         throw new RuntimeException(
-         "this LdapBoundConnection already authenticated: auth(dn,pw)");
-         }	
+         * if (mAuthenticated) {
+         * throw new RuntimeException(
+         * "this LdapBoundConnection already authenticated: auth(dn,pw)");
+         * }
          **/
         super.authenticate(3, dn, pw);
         mAuthenticated = true;
@@ -160,15 +158,15 @@ public class LdapBoundConnection extends LDAPConnection {
     /**
      * Overrides same method in LDAPConnection to do prevent re-authentication.
      */
-    public void authenticate(String dn, String mech, String packageName, 
-        Properties props, Object getter)
-        throws LDAPException {
+    public void authenticate(String dn, String mech, String packageName,
+            Properties props, Object getter)
+            throws LDAPException {
 
         /**
-         if (mAuthenticated)  {
-         throw new RuntimeException(
-         "this LdapBoundConnection already authenticated: auth(mech)");
-         }
+         * if (mAuthenticated) {
+         * throw new RuntimeException(
+         * "this LdapBoundConnection already authenticated: auth(mech)");
+         * }
          **/
         super.authenticate(dn, mech, packageName, props, getter);
         mAuthenticated = true;
@@ -177,15 +175,15 @@ public class LdapBoundConnection extends LDAPConnection {
     /**
      * Overrides same method in LDAPConnection to do prevent re-authentication.
      */
-    public void authenticate(String dn, String mechs[], String packageName, 
-        Properties props, Object getter)
-        throws LDAPException {
+    public void authenticate(String dn, String mechs[], String packageName,
+            Properties props, Object getter)
+            throws LDAPException {
 
         /**
-         if (mAuthenticated) {
-         throw new RuntimeException(
-         "this LdapBoundConnection is already authenticated: auth(mechs)");
-         }
+         * if (mAuthenticated) {
+         * throw new RuntimeException(
+         * "this LdapBoundConnection is already authenticated: auth(mechs)");
+         * }
          **/
         super.authenticate(dn, mechs, packageName, props, getter);
         mAuthenticated = true;
@@ -202,13 +200,12 @@ public class LdapBoundConnection extends LDAPConnection {
     /**
      * overrides parent's connect to prevent re-connect.
      */
-    public void connect(int version, String host, int port, 
-        String dn, String pw) throws LDAPException {
+    public void connect(int version, String host, int port,
+            String dn, String pw) throws LDAPException {
         throw new RuntimeException(
                 "this LdapBoundConnection is already connected: conn(version,h,p)");
     }
 }
-
 
 class ARebindInfo implements LDAPRebind {
     private LDAPRebindAuth mRebindAuthInfo = null;

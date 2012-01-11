@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.connector;
 
-
 import com.netscape.certsrv.base.EBaseException;
 
 /**
@@ -26,26 +25,27 @@ import com.netscape.certsrv.base.EBaseException;
  * Multiple threads use this interface to utilize and release
  * the Ldap connection resources. This factory will maintain a
  * list of Http type connections to the remote host.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public interface IHttpConnFactory {
 
-
     /**
      * Request access to a Ldap connection from the pool.
+     * 
      * @exception EBaseException if any error occurs, such as a
      * @return Ldap connection object.
-     * connection is not available
+     *         connection is not available
      */
     public IHttpConnection getConn()
-        throws EBaseException;
+            throws EBaseException;
 
     /**
      * Return connection to the factory. mandatory after a getConn().
+     * 
      * @param conn Ldap connection object to be returned to the free list of the pool.
      * @exception EBaseException On any failure to return the connection.
      */
     public void returnConn(IHttpConnection conn)
-        throws EBaseException;
+            throws EBaseException;
 }

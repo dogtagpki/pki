@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.connector;
 
-
 import java.io.IOException;
 import java.util.StringTokenizer;
 
@@ -33,34 +32,32 @@ import com.netscape.cmsutil.http.HttpRequest;
 import com.netscape.cmsutil.http.HttpResponse;
 import com.netscape.cmsutil.net.ISocketFactory;
 
-
 public class HttpConnection implements IHttpConnection {
     protected IRemoteAuthority mDest = null;
     protected HttpRequest mHttpreq = new HttpRequest();
     protected IRequestEncoder mReqEncoder = null;
     protected HttpClient mHttpClient = null;
 
-    protected boolean Connect(String host, HttpClient client)
-    {
-               StringTokenizer st = new StringTokenizer(host, " ");
-               while (st.hasMoreTokens()) {
-                    String hp = st.nextToken(); // host:port
-                    StringTokenizer st1 = new StringTokenizer(hp, ":");
-                    try {
-                        String h = st1.nextToken();
-                        int p = Integer.parseInt(st1.nextToken());
-                        client.connect(h, p);
-                        return true;
-                    } catch (Exception e) {
-                        // may want to log the failure
-                    }
-                    try {
-                      Thread.sleep(5000); // 5 seconds
-                    } catch (Exception e) {
-                    }
-             
-               }
-               return false;
+    protected boolean Connect(String host, HttpClient client) {
+        StringTokenizer st = new StringTokenizer(host, " ");
+        while (st.hasMoreTokens()) {
+            String hp = st.nextToken(); // host:port
+            StringTokenizer st1 = new StringTokenizer(hp, ":");
+            try {
+                String h = st1.nextToken();
+                int p = Integer.parseInt(st1.nextToken());
+                client.connect(h, p);
+                return true;
+            } catch (Exception e) {
+                // may want to log the failure
+            }
+            try {
+                Thread.sleep(5000); // 5 seconds
+            } catch (Exception e) {
+            }
+
+        }
+        return false;
     }
 
     public HttpConnection(IRemoteAuthority dest, ISocketFactory factory) {
@@ -79,13 +76,13 @@ public class HttpConnection implements IHttpConnection {
             // the format is, for example, 
             // "directory.knowledge.com:1050 people.catalog.com 199.254.1.2"
             if (host != null && host.indexOf(' ') != -1) {
-               // try to do client-side failover
-               boolean connected = false;
-               do {
-                   connected = Connect(host, mHttpClient);
-               } while (!connected);
+                // try to do client-side failover
+                boolean connected = false;
+                do {
+                    connected = Connect(host, mHttpClient);
+                } while (!connected);
             } else {
-               mHttpClient.connect(host, dest.getPort());
+                mHttpClient.connect(host, dest.getPort());
             }
             CMS.debug("HttpConnection: connected to " + dest.getHost() + ":" + dest.getPort());
         } catch (IOException e) {
@@ -117,12 +114,13 @@ public class HttpConnection implements IHttpConnection {
     }
 
     // Insert end
-    /** 
+    /**
      * sends a request to remote RA/CA, returning the result.
-     * @throws EBaseException if request could not be encoded 
+     * 
+     * @throws EBaseException if request could not be encoded
      */
-    public IPKIMessage send(IPKIMessage tomsg) 
-        throws EBaseException {
+    public IPKIMessage send(IPKIMessage tomsg)
+            throws EBaseException {
         IPKIMessage replymsg = null;
 
         CMS.debug("in HttpConnection.send " + this);
@@ -143,8 +141,8 @@ public class HttpConnection implements IHttpConnection {
         }
         boolean reconnect = false;
 
-        mHttpreq.setHeader("Content-Length", 
-            Integer.toString(content.length()));
+        mHttpreq.setHeader("Content-Length",
+                Integer.toString(content.length()));
         if (Debug.ON)
             Debug.trace("request encoded length " + content.length());
         mHttpreq.setContent(content);

@@ -17,17 +17,15 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.dbs;
 
-
 import com.netscape.certsrv.base.EBaseException;
-
 
 /**
  * A interface represents a virtual list of search results.
  * Note that this class must be used with DS4.0.
- *
+ * 
  * @version $Revision$, $Date$
  */
-public interface IDBVirtualList<E>  {
+public interface IDBVirtualList<E> {
 
     /**
      * Sets the paging size of this virtual list.
@@ -42,7 +40,7 @@ public interface IDBVirtualList<E>  {
 
     /**
      * Sets the sort key
-     *
+     * 
      * @param sortKey the attribute to sort by
      * @exception EBaseException failed to set
      */
@@ -50,7 +48,7 @@ public interface IDBVirtualList<E>  {
 
     /**
      * Sets the sort key
-     *
+     * 
      * @param sortKeys the attributes to sort by
      * @exception EBaseException failed to set
      */
@@ -58,60 +56,61 @@ public interface IDBVirtualList<E>  {
 
     /**
      * Retrieves the size of this virtual list.
-     * Recommend to call getSize() before getElementAt() or getElements() 
+     * Recommend to call getSize() before getElementAt() or getElements()
      * since you'd better check if the index is out of bound first.
-     *
+     * 
      * @return current size in list
      */
     public int getSize();
 
     /**
      * Returns current index.
-     *
+     * 
      * @return current index
      */
 
     public int getSizeBeforeJumpTo();
+
     public int getSizeAfterJumpTo();
 
     public int getCurrentIndex();
 
-    /** 
+    /**
      * Get a page starting at "first" (although we may also fetch
      * some preceding entries)
-     * Recommend to call getSize() before getElementAt() or getElements() 
+     * Recommend to call getSize() before getElementAt() or getElements()
      * since you'd better check if the index is out of bound first.
-     *
+     * 
      * @param first the index of the first entry of the page you want to fetch
      */
     public boolean getPage(int first);
 
-    /** 
+    /**
      * Called by application to scroll the list with initial letters.
      * Consider text to be an initial substring of the attribute of the
      * primary sorting key(the first one specified in the sort key array)
      * of an entry.
      * If no entries match, the one just before(or after, if none before)
      * will be returned as mSelectedIndex
-     *
+     * 
      * @param text the prefix of the first entry of the page you want to fetch
      */
     public boolean getPage(String text);
 
-    /** 
+    /**
      * Fetchs data of a single list item
-     * Recommend to call getSize() before getElementAt() or getElements() 
+     * Recommend to call getSize() before getElementAt() or getElements()
      * since you'd better check if the index is out of bound first.
-     * If the index is out of range of the virtual list, an exception 
+     * If the index is out of range of the virtual list, an exception
      * will be thrown and return null
-     *
+     * 
      * @param index the index of the element to fetch
      */
     public E getElementAt(int index);
 
     /**
      * Retrieves and jumps to element in the given position.
-     *
+     * 
      * @param i position
      * @return object
      */
@@ -119,26 +118,26 @@ public interface IDBVirtualList<E>  {
 
     /**
      * Processes elements as soon as it arrives. It is
-     * more memory-efficient. 
-     *
+     * more memory-efficient.
+     * 
      * @param startidx starting index
      * @param endidx ending index
      * @param ep object to call
      * @exception EBaseException failed to process elements
      */
     public void processElements(int startidx, int endidx, IElementProcessor ep)
-        throws EBaseException;
+            throws EBaseException;
 
-    /** 
+    /**
      * Gets the virutal selected index
-     *
+     * 
      * @return selected index
      */
     public int getSelectedIndex();
 
-    /** 
+    /**
      * Gets the top of the buffer
-     *
+     * 
      * @return first index
      */
     public int getFirstIndex();

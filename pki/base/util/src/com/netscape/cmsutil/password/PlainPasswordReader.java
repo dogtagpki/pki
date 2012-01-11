@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Properties;
 
-public class PlainPasswordReader implements IPasswordReader{
+public class PlainPasswordReader implements IPasswordReader {
     private String mPwdPath = "";
     private Properties mPwdStore;
 
@@ -30,24 +30,23 @@ public class PlainPasswordReader implements IPasswordReader{
     }
 
     public void init(String pwdPath)
-	throws IOException
-    {
-	mPwdStore = new Properties();
-	// initialize mPwdStore
-	mPwdPath = pwdPath;
-	mPwdStore = new Properties();
+            throws IOException {
+        mPwdStore = new Properties();
+        // initialize mPwdStore
+        mPwdPath = pwdPath;
+        mPwdStore = new Properties();
 
-	FileInputStream file = new FileInputStream(mPwdPath);
-	mPwdStore.load(file);
-    file.close();
+        FileInputStream file = new FileInputStream(mPwdPath);
+        mPwdStore.load(file);
+        file.close();
     }
 
     public String getPassword(String tag) {
-	return (String) mPwdStore.getProperty(tag);
+        return (String) mPwdStore.getProperty(tag);
     }
 
     // return an array of String-based tag
     public Enumeration getTags() {
-	return mPwdStore.propertyNames();
+        return mPwdStore.propertyNames();
     }
 }

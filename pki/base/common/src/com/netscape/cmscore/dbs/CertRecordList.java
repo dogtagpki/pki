@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.dbs;
 
-
 import java.util.Enumeration;
 import java.util.Vector;
 
@@ -27,11 +26,10 @@ import com.netscape.certsrv.dbs.IElementProcessor;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertRecordList;
 
-
 /**
  * A class represents a list of certificate records.
  * <P>
- *
+ * 
  * @author thomask mzhao
  * @version $Revision$, $Date$
  */
@@ -71,17 +69,17 @@ public class CertRecordList implements ICertRecordList {
     /**
      * Process certificate record as soon as it is returned.
      * kmccarth: changed to ignore startidx and endidx because VLVs don't
-     *           provide a stable list.
+     * provide a stable list.
      */
     public void processCertRecords(int startidx, int endidx,
-        IElementProcessor ep) throws EBaseException {
+            IElementProcessor ep) throws EBaseException {
         int i = 0;
-        while ( i<mVlist.getSize() ) {
-           Object element = mVlist.getElementAt(i);
-           if (element != null && (! (element instanceof String)) ) {
-              ep.process(element);
-           }
-           i++;
+        while (i < mVlist.getSize()) {
+            Object element = mVlist.getElementAt(i);
+            if (element != null && (!(element instanceof String))) {
+                ep.process(element);
+            }
+            i++;
         }
     }
 
@@ -91,7 +89,7 @@ public class CertRecordList implements ICertRecordList {
      * if the startidx, endidx are valid.
      */
     public Enumeration<ICertRecord> getCertRecords(int startidx, int endidx)
-        throws EBaseException {
+            throws EBaseException {
         Vector<ICertRecord> entries = new Vector<ICertRecord>();
 
         for (int i = startidx; i <= endidx; i++) {
@@ -106,10 +104,9 @@ public class CertRecordList implements ICertRecordList {
     }
 
     public ICertRecord getCertRecord(int index)
-        throws EBaseException {
+            throws EBaseException {
 
         return mVlist.getElementAt(index);
-
 
     }
 

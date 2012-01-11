@@ -17,31 +17,30 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.ldap;
 
-
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
-
 
 /**
  * Class on behalf of the Publishing system that controls an instance of an ILdapConnFactory.
  * Allows a factory to be intialized and grants access
  * to the factory to other interested parties.
- *
+ * 
  * @version $Revision$, $Date$
  */
- 
+
 public interface ILdapConnModule {
 
     /**
      * Initialize ldap publishing module with config store.
+     * 
      * @param owner Entity that is interested in this instance of Publishing.
      * @param config Config store containing the info needed to set up Publishing.
      * @exception ELdapException Due to Ldap error.
      * @exception EBaseException Due to config value errors and all other errors.
      */
-    public void init(ISubsystem owner, IConfigStore config) 
-        throws EBaseException, ELdapException;
+    public void init(ISubsystem owner, IConfigStore config)
+            throws EBaseException, ELdapException;
 
     /**
      * Returns the internal ldap connection factory.
@@ -52,10 +51,9 @@ public interface ILdapConnModule {
      * Use ILdapConnFactory.getConn() to get a Ldap connection to the ldap
      * publishing directory.
      * Use ILdapConnFactory.returnConn() to return the connection.
-     *
+     * 
      * @return Instance of ILdapConnFactory.
      */
 
     public ILdapConnFactory getLdapConnFactory();
 }
-

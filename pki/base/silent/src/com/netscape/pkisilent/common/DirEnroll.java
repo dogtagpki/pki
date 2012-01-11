@@ -1,4 +1,5 @@
 package com.netscape.pkisilent.common;
+
 // --- BEGIN COPYRIGHT BLOCK ---
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -17,7 +18,6 @@ package com.netscape.pkisilent.common;
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -29,14 +29,11 @@ import java.util.GregorianCalendar;
 
 import org.mozilla.jss.ssl.SSLSocket;
 
-
-
 /**
- * CMS Test framework - Legacyenrollment forms for Directory based enrollmnet  and Portal based enrollment .
- * Certificate issuance through Legacy Directory based enrollment and Portal based enrollment form. 
- *<P>
+ * CMS Test framework - Legacyenrollment forms for Directory based enrollmnet and Portal based enrollment .
+ * Certificate issuance through Legacy Directory based enrollment and Portal based enrollment form.
+ * <P>
  */
-
 
 public class DirEnroll extends TestClient {
 
@@ -53,7 +50,8 @@ public class DirEnroll extends TestClient {
     /**
      * Constructor . Takes the parameter for Properties file name
      * <p>
-     * @param propfilename  name of the parameter file
+     * 
+     * @param propfilename name of the parameter file
      */
 
     public DirEnroll(String pfile) {
@@ -63,6 +61,7 @@ public class DirEnroll extends TestClient {
     /**
      * Constructor. Takes hostname , EESSLportnumber as parameter
      * <p>
+     * 
      * @param hostname
      * @param portnumber
      */
@@ -73,15 +72,15 @@ public class DirEnroll extends TestClient {
     }
 
     /**
-     * Constructor. Takes hostname,EESSLportnumber,uid,password,certdbdirectorypath,certdbpassword,certificatenickname,keysize,teytype 
+     * Constructor. Takes hostname,EESSLportnumber,uid,password,certdbdirectorypath,certdbpassword,certificatenickname,keysize,teytype
      * <p>
+     * 
      * @param hostname
      * @param portnumber
      * @param subjectdn
      * @param admuserid
      * @param adminpassword
      */
-
 
     public DirEnroll(String hs, String p, String uid, String pw, String certdir, String certtokenpwd, String nickname, String ksz, String kt) {
 
@@ -99,15 +98,15 @@ public class DirEnroll extends TestClient {
     // Set and Get functions 
 
     /**
-     * Use this method to set User Info 
-     */ 
+     * Use this method to set User Info
+     */
     public void setUIDInfo(String uid, String pw) {
         UID = uid;
         PWD = pw;
     }
 
     /**
-     *  Returns a string "UserDir" / "Portal"
+     * Returns a string "UserDir" / "Portal"
      */
 
     public String getAuthenticator() {
@@ -115,16 +114,16 @@ public class DirEnroll extends TestClient {
     }
 
     /**
-     *  Valid values for  s - UserDir for Directory based Authntication
-     *                        Portal  for Portal based Authentication
+     * Valid values for s - UserDir for Directory based Authntication
+     * Portal for Portal based Authentication
      */
-    public void  setAuthenticator(String s) {
+    public void setAuthenticator(String s) {
         Authenticator = s;
     }
 
     public boolean enroll_load() {
         buildquery();
-        return(Send());
+        return (Send());
     }
 
     private boolean pkcs10() {
@@ -134,7 +133,7 @@ public class DirEnroll extends TestClient {
         cCrypt.setKeySize(keysize);
         cCrypt.setKeyType(keytype);
         cCrypt.setTokenPWD(tokenpwd);
-	
+
         cCrypt.setDebug(debug);
         cCrypt.setGenerateRequest(true);
         if (!cCrypt.generateRequest()) {
@@ -147,7 +146,7 @@ public class DirEnroll extends TestClient {
             buildquery();
             System.out.println(query);
             setStatusString("Congratulations, your certificate has been issued.");
-            return(Send());		
+            return (Send());
         } catch (Exception e) {
             System.err.println("some exception:" + e);
         }
@@ -157,10 +156,10 @@ public class DirEnroll extends TestClient {
     }
 
     /**
-     * Enroll for certificate . Before calling this mentod SetAuthenticator and setUIDInfo 
+     * Enroll for certificate . Before calling this mentod SetAuthenticator and setUIDInfo
      */
     public boolean enroll() {
-        return(pkcs10());
+        return (pkcs10());
     }
 
     private boolean readProperties() {
@@ -310,7 +309,7 @@ public class DirEnroll extends TestClient {
                 }
 
                 if (line.indexOf("record.base64Cert=") > -1) {
-                    String  baseCert = line;
+                    String baseCert = line;
 
                     System.out.println("BaseCert : " + baseCert);
                     if (importcert.equals("true")) {
@@ -352,13 +351,13 @@ public class DirEnroll extends TestClient {
         }
 
         return st;
- 
+
     }
 
     private void buildquery() {
 
         StringBuffer queryStrBuf = new StringBuffer();
-	
+
         queryStrBuf.append("certType=client");
         queryStrBuf.append("&importCert=off");
         queryStrBuf.append("&non_repudiation=true");
@@ -376,7 +375,7 @@ public class DirEnroll extends TestClient {
             queryStrBuf.append(URLEncoder.encode(UID));
             queryStrBuf.append("&pwd=");
             queryStrBuf.append(URLEncoder.encode(PWD));
-            queryStrBuf.append("&email=true");	
+            queryStrBuf.append("&email=true");
             queryStrBuf.append("&cryptprovider=1");
 
         }
@@ -412,7 +411,7 @@ public class DirEnroll extends TestClient {
             queryStrBuf.append("&l=");
             queryStrBuf.append(URLEncoder.encode(L));
 
-            queryStrBuf.append("&email=true");	
+            queryStrBuf.append("&email=true");
 
         }
 
@@ -423,7 +422,7 @@ public class DirEnroll extends TestClient {
             queryStrBuf.append(URLEncoder.encode(UID));
             queryStrBuf.append("&pwd=");
             queryStrBuf.append(URLEncoder.encode(PWD));
-            queryStrBuf.append("&email=true");	
+            queryStrBuf.append("&email=true");
 
         }
 
@@ -432,25 +431,25 @@ public class DirEnroll extends TestClient {
         query = queryStrBuf.toString();
 
         System.out.println(query);
-   
+
     }
 
     public static void main(String args[]) {
         // Exit Status - (0) for error/Fail
         // - requestId Pass
         boolean st;
-  
+
         System.out.println(args.length);
         if (args.length < 1) {
             System.out.println("Usage : propertiesfile");
             System.exit(0);
-        }   
+        }
 
         DirEnroll t = new DirEnroll(args[0]);
 
         t.readProperties();
         st = t.enroll();
-        if (st) { 
+        if (st) {
             System.out.println(
                     t.getAuthenticator() + " based enrollment successfull. ");
             System.exit(1);

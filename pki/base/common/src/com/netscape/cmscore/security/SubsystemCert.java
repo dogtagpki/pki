@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.security;
 
-
 import java.io.IOException;
 import java.security.KeyPair;
 
@@ -28,7 +27,6 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.ConfigConstants;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.security.KeyCertData;
-
 
 /**
  * Subsystem certificate.
@@ -81,4 +79,3 @@ public class SubsystemCert extends CertificateInfo {
         return extension;
     }
 }
-

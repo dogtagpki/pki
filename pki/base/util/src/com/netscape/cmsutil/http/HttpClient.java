@@ -60,7 +60,7 @@ public class HttpClient {
     }
 
     public void connect(String host, int port)
-        throws IOException {
+            throws IOException {
         if (mFactory != null) {
             if (mCertApprovalCallback == null) {
                 mSocket = mFactory.makeSocket(host, port);
@@ -76,7 +76,7 @@ public class HttpClient {
 
             throw e;
         }
-		
+
         mInputStream = mSocket.getInputStream();
         mOutputStream = mSocket.getOutputStream();
         mInputStreamReader = new InputStreamReader(mInputStream, "UTF8");
@@ -87,7 +87,7 @@ public class HttpClient {
 
     // Inserted by beomsuk
     public void connect(String host, int port, int timeout)
-        throws IOException {
+            throws IOException {
         if (mFactory != null) {
             mSocket = mFactory.makeSocket(host, port, timeout);
         } else {
@@ -99,7 +99,7 @@ public class HttpClient {
 
             throw e;
         }
-		
+
         mInputStream = mSocket.getInputStream();
         mOutputStream = mSocket.getOutputStream();
         mInputStreamReader = new InputStreamReader(mInputStream, "UTF8");
@@ -114,13 +114,12 @@ public class HttpClient {
     }
 
     /**
-     * Sends a request to http server. 
-     * Returns a http response. 
+     * Sends a request to http server.
+     * Returns a http response.
      */
-    public  HttpResponse send(HttpRequest request) 
-        throws IOException {
+    public HttpResponse send(HttpRequest request)
+            throws IOException {
         HttpResponse resp = new HttpResponse();
-
 
         if (mOutputStream == null)
             throw new IOException("Output stream not initialized");
@@ -137,7 +136,7 @@ public class HttpClient {
     }
 
     public void disconnect()
-        throws IOException {
+            throws IOException {
         mSocket.close();
         mInputStream = null;
         mOutputStream = null;
@@ -172,7 +171,7 @@ public class HttpClient {
      * unit test
      */
     public static void main(String args[])
-        throws Exception {
+            throws Exception {
         HttpClient c = new HttpClient();
         HttpRequest req = new HttpRequest();
         HttpResponse resp = null;
@@ -182,7 +181,7 @@ public class HttpClient {
 
         req.setMethod("GET");
         req.setURI(args[2]);
-        if (args.length >= 4) 
+        if (args.length >= 4)
             req.setHeader("Connection", args[3]);
         resp = c.send(req);
 
@@ -203,7 +202,8 @@ public class HttpClient {
             char[] msgbody;
 
             for (int i = 0; i < 2; i++) {
-                if (i == 1) req.setHeader("Connection", "Close");
+                if (i == 1)
+                    req.setHeader("Connection", "Close");
                 resp = c.send(req);
                 System.out.println("version " + resp.getHttpVers());
                 System.out.println("status code " + resp.getStatusCode());

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.profile;
 
-
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.cert.CertificateEncodingException;
@@ -65,10 +64,9 @@ import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cms.servlet.common.CMCOutputTemplate;
 import com.netscape.cms.servlet.common.CMSRequest;
 
-
 /**
  * This servlet submits end-user request into the profile framework.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class ProfileSubmitCMCServlet extends ProfileServlet {
@@ -89,27 +87,26 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
     private String requestBinary = null;
     private String requestB64 = null;
 
-    private final static String[]
-        SIGNED_AUDIT_AUTOMATED_REJECTION_REASON = new String[] {
-            
-            /* 0 */ "automated profile cert request rejection:  "
+    private final static String[] SIGNED_AUDIT_AUTOMATED_REJECTION_REASON = new String[] {
+
+    /* 0 */"automated profile cert request rejection:  "
             + "indeterminate reason for inability to process "
             + "cert request due to an EBaseException"
         };
     private final static String LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED =
-        "LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED_5";
+            "LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED_5";
 
     public ProfileSubmitCMCServlet() {
     }
 
     /**
-     * initialize the servlet. And instance of this servlet can 
+     * initialize the servlet. And instance of this servlet can
      * be set up to always issue certificates against a certain profile
      * by setting the 'profileId' configuration in the servletConfig
      * If not, the user must specify the profileID when submitting the request
      * 
      * "ImportCert.template" to process the response.
-     *
+     * 
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -158,7 +155,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
     }
 
     public IAuthToken authenticate(IProfileAuthenticator authenticator,
-        HttpServletRequest request)  throws EBaseException {
+            HttpServletRequest request) throws EBaseException {
         AuthCredentials credentials = new AuthCredentials();
 
         // build credential
@@ -177,19 +174,19 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
         IAuthToken authToken = authenticator.authenticate(credentials);
 
         SessionContext sc = SessionContext.getContext();
-        if (sc != null) { 
-          sc.put(SessionContext.AUTH_MANAGER_ID, authenticator.getName()); 
-          String userid = authToken.getInString(IAuthToken.USER_ID);
-          if (userid != null) { 
-            sc.put(SessionContext.USER_ID, userid); 
-          }
+        if (sc != null) {
+            sc.put(SessionContext.AUTH_MANAGER_ID, authenticator.getName());
+            String userid = authToken.getInString(IAuthToken.USER_ID);
+            if (userid != null) {
+                sc.put(SessionContext.USER_ID, userid);
+            }
         }
 
         return authToken;
     }
 
     private void setInputsIntoRequest(HttpServletRequest request, IProfile
-profile, IRequest req) {
+            profile, IRequest req) {
         Enumeration inputIds = profile.getProfileInputIds();
 
         if (inputIds != null) {
@@ -215,15 +212,14 @@ profile, IRequest req) {
      * Process the HTTP request
      * <P>
      * 
-     * (Certificate Request Processed - either an automated "EE" profile based
-     *  cert acceptance, or an automated "EE" profile based cert rejection)
+     * (Certificate Request Processed - either an automated "EE" profile based cert acceptance, or an automated "EE" profile based cert rejection)
      * <P>
      * 
      * <ul>
      * <li>http.param profileId ID of profile to use to process request
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED used when a
-     * certificate request has just been through the approval process
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED used when a certificate request has just been through the approval process
      * </ul>
+     * 
      * @param cmsReq the object holding the request and response information
      * @exception EBaseException an error has occurred
      */
@@ -233,8 +229,8 @@ profile, IRequest req) {
 
         Locale locale = getLocale(request);
         ArgSet args = new ArgSet();
-        String cert_request_type = 
-          mServletConfig.getInitParameter("cert_request_type");
+        String cert_request_type =
+                mServletConfig.getInitParameter("cert_request_type");
         String outputFormat = mServletConfig.getInitParameter("outputFormat");
 
         int reqlen = request.getContentLength();
@@ -272,25 +268,25 @@ profile, IRequest req) {
                 // __ (double underscores); however, in the event that
                 // a security parameter slips through, we perform multiple
                 // additional checks to insure that it is NOT displayed
-                if( paramName.startsWith("__")                         ||
-                    paramName.endsWith("password")                     ||
-                    paramName.endsWith("passwd")                       ||
-                    paramName.endsWith("pwd")                          ||
-                    paramName.equalsIgnoreCase("admin_password_again") ||
-                    paramName.equalsIgnoreCase("directoryManagerPwd")  ||
-                    paramName.equalsIgnoreCase("bindpassword")         ||
-                    paramName.equalsIgnoreCase("bindpwd")              ||
-                    paramName.equalsIgnoreCase("passwd")               ||
-                    paramName.equalsIgnoreCase("password")             ||
-                    paramName.equalsIgnoreCase("pin")                  ||
-                    paramName.equalsIgnoreCase("pwd")                  ||
-                    paramName.equalsIgnoreCase("pwdagain")             ||
-                    paramName.equalsIgnoreCase("uPasswd") ) {
+                if (paramName.startsWith("__") ||
+                        paramName.endsWith("password") ||
+                        paramName.endsWith("passwd") ||
+                        paramName.endsWith("pwd") ||
+                        paramName.equalsIgnoreCase("admin_password_again") ||
+                        paramName.equalsIgnoreCase("directoryManagerPwd") ||
+                        paramName.equalsIgnoreCase("bindpassword") ||
+                        paramName.equalsIgnoreCase("bindpwd") ||
+                        paramName.equalsIgnoreCase("passwd") ||
+                        paramName.equalsIgnoreCase("password") ||
+                        paramName.equalsIgnoreCase("pin") ||
+                        paramName.equalsIgnoreCase("pwd") ||
+                        paramName.equalsIgnoreCase("pwdagain") ||
+                        paramName.equalsIgnoreCase("uPasswd")) {
                     CMS.debug("ProfileSubmitCMCServlet Input Parameter " +
                               paramName + "='(sensitive)'");
                 } else {
                     CMS.debug("ProfileSubmitCMCServlet Input Parameter " +
-                              paramName + "='" + 
+                              paramName + "='" +
                               request.getParameter(paramName) + "'");
                 }
             }
@@ -303,8 +299,8 @@ profile, IRequest req) {
             mProfileSubId = IProfileSubsystem.ID;
         }
         CMS.debug("ProfileSubmitCMCServlet: SubId=" + mProfileSubId);
-        IProfileSubsystem ps = (IProfileSubsystem) 
-            CMS.getSubsystem(mProfileSubId); 
+        IProfileSubsystem ps = (IProfileSubsystem)
+                CMS.getSubsystem(mProfileSubId);
 
         if (ps == null) {
             CMS.debug("ProfileSubmitCMCServlet: ProfileSubsystem not found");
@@ -317,7 +313,7 @@ profile, IRequest req) {
             } catch (Exception ee) {
             }
             template.createFullResponseWithFailedStatus(response, seq,
-              OtherInfo.INTERNAL_CA_ERROR, s);
+                    OtherInfo.INTERNAL_CA_ERROR, s);
             return;
         }
 
@@ -331,14 +327,14 @@ profile, IRequest req) {
             profileId = mProfileId;
         }
 
-        IProfile profile = null; 
+        IProfile profile = null;
 
-        try { 
+        try {
             CMS.debug("ProfileSubmitCMCServlet: profileId " + profileId);
-            profile = ps.getProfile(profileId); 
-        } catch (EProfileException e) { 
-            CMS.debug("ProfileSubmitCMCServlet: profile not found profileId " + 
-                profileId + " " + e.toString());
+            profile = ps.getProfile(profileId);
+        } catch (EProfileException e) {
+            CMS.debug("ProfileSubmitCMCServlet: profile not found profileId " +
+                    profileId + " " + e.toString());
         }
         if (profile == null) {
             CMCOutputTemplate template = new CMCOutputTemplate();
@@ -350,13 +346,13 @@ profile, IRequest req) {
             } catch (Exception ee) {
             }
             template.createFullResponseWithFailedStatus(response, seq,
-              OtherInfo.INTERNAL_CA_ERROR, s);
+                    OtherInfo.INTERNAL_CA_ERROR, s);
             return;
         }
 
         if (!ps.isProfileEnable(profileId)) {
-            CMS.debug("ProfileSubmitCMCServlet: Profile " + profileId + 
-                " not enabled");
+            CMS.debug("ProfileSubmitCMCServlet: Profile " + profileId +
+                    " not enabled");
             CMCOutputTemplate template = new CMCOutputTemplate();
             SEQUENCE seq = new SEQUENCE();
             seq.addElement(new INTEGER(0));
@@ -366,7 +362,7 @@ profile, IRequest req) {
             } catch (Exception ee) {
             }
             template.createFullResponseWithFailedStatus(response, seq,
-              OtherInfo.INTERNAL_CA_ERROR, s);
+                    OtherInfo.INTERNAL_CA_ERROR, s);
             return;
         }
 
@@ -386,8 +382,8 @@ profile, IRequest req) {
         if (authenticator == null) {
             CMS.debug("ProfileSubmitCMCServlet: authenticator not found");
         } else {
-            CMS.debug("ProfileSubmitCMCServlet: authenticator " + 
-                authenticator.getName() + " found");
+            CMS.debug("ProfileSubmitCMCServlet: authenticator " +
+                    authenticator.getName() + " found");
             setCredentialsIntoContext(request, authenticator, ctx);
         }
 
@@ -403,27 +399,27 @@ profile, IRequest req) {
         SessionContext context = SessionContext.getContext();
 
         // insert profile context so that input parameter can be retrieved
-        context.put("profileContext", ctx); 
-        context.put("sslClientCertProvider", 
-            new SSLClientCertProvider(request));
+        context.put("profileContext", ctx);
+        context.put("sslClientCertProvider",
+                new SSLClientCertProvider(request));
         CMS.debug("ProfileSubmitCMCServlet: set sslClientCertProvider");
-        if (authenticator != null) { 
+        if (authenticator != null) {
             try {
                 authToken = authenticate(authenticator, request);
                 // authentication success
             } catch (EBaseException e) {
                 CMCOutputTemplate template = new CMCOutputTemplate();
                 SEQUENCE seq = new SEQUENCE();
-                seq.addElement(new INTEGER(0));  
+                seq.addElement(new INTEGER(0));
                 UTF8String s = null;
                 try {
-                    s = new UTF8String(e.toString()); 
+                    s = new UTF8String(e.toString());
                 } catch (Exception ee) {
                 }
-                template.createFullResponseWithFailedStatus(response, seq, 
-                  OtherInfo.BAD_REQUEST, s); 
-                CMS.debug("ProfileSubmitCMCServlet: authentication error " + 
-                    e.toString());
+                template.createFullResponseWithFailedStatus(response, seq,
+                        OtherInfo.BAD_REQUEST, s);
+                CMS.debug("ProfileSubmitCMCServlet: authentication error " +
+                        e.toString());
                 return;
             }
 
@@ -433,9 +429,9 @@ profile, IRequest req) {
                 CMS.debug("ProfileSubmitCMCServlet authToken not null");
                 try {
                     authzToken = authorize(mAclMethod, authToken,
-                        mAuthzResourceName, "submit");
+                            mAuthzResourceName, "submit");
                 } catch (Exception e) {
-                    CMS.debug("ProfileSubmitCMCServlet authorization failure: "+e.toString());
+                    CMS.debug("ProfileSubmitCMCServlet authorization failure: " + e.toString());
                 }
             }
 
@@ -450,7 +446,7 @@ profile, IRequest req) {
                 } catch (Exception ee) {
                 }
                 template.createFullResponseWithFailedStatus(response, seq,
-                    OtherInfo.BAD_REQUEST, s);
+                        OtherInfo.BAD_REQUEST, s);
                 return;
             }
         }
@@ -473,7 +469,7 @@ profile, IRequest req) {
             } catch (Exception ee) {
             }
             template.createFullResponseWithFailedStatus(response, seq,
-              OtherInfo.INTERNAL_CA_ERROR, s);
+                    OtherInfo.INTERNAL_CA_ERROR, s);
             return;
         } catch (Throwable e) {
             CMS.debug("ProfileSubmitCMCServlet: createRequests " + e.toString());
@@ -486,17 +482,17 @@ profile, IRequest req) {
             } catch (Exception ee) {
             }
             template.createFullResponseWithFailedStatus(response, seq,
-              OtherInfo.INTERNAL_CA_ERROR, s);
+                    OtherInfo.INTERNAL_CA_ERROR, s);
             return;
         }
 
         TaggedAttribute attr =
-          (TaggedAttribute)(context.get(OBJECT_IDENTIFIER.id_cmc_lraPOPWitness));
+                (TaggedAttribute) (context.get(OBJECT_IDENTIFIER.id_cmc_lraPOPWitness));
         if (attr != null) {
             boolean verifyAllow = true;
             try {
                 verifyAllow = CMS.getConfigStore().getBoolean(
-                  "cmc.lraPopWitness.verify.allow", true);
+                        "cmc.lraPopWitness.verify.allow", true);
             } catch (EBaseException ee) {
             }
 
@@ -505,18 +501,18 @@ profile, IRequest req) {
                 SET vals = attr.getValues();
                 if (vals.size() > 0) {
                     try {
-                        lraPop = (LraPopWitness)(ASN1Util.decode(LraPopWitness.getTemplate(),
-                          ASN1Util.encode(vals.elementAt(0))));
+                        lraPop = (LraPopWitness) (ASN1Util.decode(LraPopWitness.getTemplate(),
+                                ASN1Util.encode(vals.elementAt(0))));
                     } catch (InvalidBERException e) {
                         CMS.debug(
-                          CMS.getUserMessage(locale, "CMS_PROFILE_ENCODING_ERROR"));
+                                CMS.getUserMessage(locale, "CMS_PROFILE_ENCODING_ERROR"));
                     }
 
                     SEQUENCE bodyIds = lraPop.getBodyIds();
 
                     CMCOutputTemplate template = new CMCOutputTemplate();
                     template.createFullResponseWithFailedStatus(response, bodyIds,
-                      OtherInfo.POP_FAILED, null);
+                            OtherInfo.POP_FAILED, null);
                     return;
                 }
             }
@@ -524,25 +520,25 @@ profile, IRequest req) {
 
         // for CMC, requests may be zero. Then check if controls exist.
         if (reqs == null) {
-            Integer nums = (Integer)(context.get("numOfControls"));
+            Integer nums = (Integer) (context.get("numOfControls"));
             CMCOutputTemplate template = new CMCOutputTemplate();
             // if there is only one control GetCert, then simple response
             // must be returned. 
             if (nums != null && nums.intValue() == 1) {
-                TaggedAttribute attr1 = (TaggedAttribute)(context.get(OBJECT_IDENTIFIER.id_cmc_getCert));
+                TaggedAttribute attr1 = (TaggedAttribute) (context.get(OBJECT_IDENTIFIER.id_cmc_getCert));
                 if (attr1 != null) {
                     template.createSimpleResponse(response, reqs);
                 } else
-                    template.createFullResponse(response, reqs, 
-                      cert_request_type, null);
+                    template.createFullResponse(response, reqs,
+                            cert_request_type, null);
             } else
-                template.createFullResponse(response, reqs, 
-                  cert_request_type, null);
+                template.createFullResponse(response, reqs,
+                        cert_request_type, null);
             return;
         }
 
         String errorCode = null;
-        String errorReason = null; 
+        String errorReason = null;
 
         ///////////////////////////////////////////////
         // populate request
@@ -553,24 +549,24 @@ profile, IRequest req) {
 
             // serial auth token into request
             if (authToken != null) {
-               Enumeration tokenNames = authToken.getElements();
-               while (tokenNames.hasMoreElements()) {
-                   String tokenName = (String)tokenNames.nextElement();
-                   String[] vals = authToken.getInStringArray(tokenName);
-                   if (vals != null) {
-                       for (int i = 0; i < vals.length; i++) {
-                           reqs[k].setExtData(ARG_AUTH_TOKEN + "." +
-                                   tokenName + "[" + i + "]", vals[i]);
-                       }
-                   } else {
-                       String val = authToken.getInString(tokenName);
-                       if (val != null) {
-                           reqs[k].setExtData(ARG_AUTH_TOKEN + "." + tokenName,
-                                   val);
-                       }
-                   }
-               }
-            }            
+                Enumeration tokenNames = authToken.getElements();
+                while (tokenNames.hasMoreElements()) {
+                    String tokenName = (String) tokenNames.nextElement();
+                    String[] vals = authToken.getInStringArray(tokenName);
+                    if (vals != null) {
+                        for (int i = 0; i < vals.length; i++) {
+                            reqs[k].setExtData(ARG_AUTH_TOKEN + "." +
+                                    tokenName + "[" + i + "]", vals[i]);
+                        }
+                    } else {
+                        String val = authToken.getInString(tokenName);
+                        if (val != null) {
+                            reqs[k].setExtData(ARG_AUTH_TOKEN + "." + tokenName,
+                                    val);
+                        }
+                    }
+                }
+            }
 
             // put profile framework parameters into the request
             reqs[k].setExtData(ARG_PROFILE, "true");
@@ -589,7 +585,7 @@ profile, IRequest req) {
                 } catch (Exception ee) {
                 }
                 template.createFullResponseWithFailedStatus(response, seq,
-                  OtherInfo.INTERNAL_CA_ERROR, s);
+                        OtherInfo.INTERNAL_CA_ERROR, s);
                 return;
             }
 
@@ -598,13 +594,13 @@ profile, IRequest req) {
             reqs[k].setExtData(ARG_PROFILE_REMOTE_HOST, request.getRemoteHost());
             reqs[k].setExtData(ARG_PROFILE_REMOTE_ADDR, request.getRemoteAddr());
 
-            CMS.debug("ProfileSubmitCMCServlet: request " + 
-                reqs[k].getRequestId().toString());
+            CMS.debug("ProfileSubmitCMCServlet: request " +
+                    reqs[k].getRequestId().toString());
 
             try {
                 CMS.debug("ProfileSubmitCMCServlet: populating request inputs");
                 // give authenticator a chance to populate the request
-                if (authenticator != null) { 
+                if (authenticator != null) {
                     authenticator.populate(authToken, reqs[k]);
                 }
                 profile.populateInput(ctx, reqs[k]);
@@ -620,7 +616,7 @@ profile, IRequest req) {
                 } catch (Exception ee) {
                 }
                 template.createFullResponseWithFailedStatus(response, seq,
-                  OtherInfo.BAD_REQUEST, s);
+                        OtherInfo.BAD_REQUEST, s);
                 return;
             } catch (Throwable e) {
                 CMS.debug("ProfileSubmitCMCServlet: populate " + e.toString());
@@ -635,7 +631,7 @@ profile, IRequest req) {
                 } catch (Exception ee) {
                 }
                 template.createFullResponseWithFailedStatus(response, seq,
-                  OtherInfo.INTERNAL_CA_ERROR, s);
+                        OtherInfo.INTERNAL_CA_ERROR, s);
                 return;
             }
         }
@@ -652,23 +648,22 @@ profile, IRequest req) {
             ///////////////////////////////////////////////
             int error_codes[] = null;
             if (reqs != null && reqs.length > 0)
-                error_codes = new int[reqs.length]; 
+                error_codes = new int[reqs.length];
             for (int k = 0; k < reqs.length; k++) {
                 try {
                     // reset the "auditRequesterID"
                     auditRequesterID = auditRequesterID(reqs[k]);
 
-
                     // print request debug
                     if (reqs[k] != null) {
-                      Enumeration reqKeys = reqs[k].getExtDataKeys();
-                      while (reqKeys.hasMoreElements()) {
-                        String reqKey = (String)reqKeys.nextElement();
-                        String reqVal = reqs[k].getExtDataInString(reqKey);
-                        if (reqVal != null) {
-                           CMS.debug("ProfileSubmitCMCServlet: key=$request." + reqKey + "$ value=" + reqVal);
+                        Enumeration reqKeys = reqs[k].getExtDataKeys();
+                        while (reqKeys.hasMoreElements()) {
+                            String reqKey = (String) reqKeys.nextElement();
+                            String reqVal = reqs[k].getExtDataInString(reqKey);
+                            if (reqVal != null) {
+                                CMS.debug("ProfileSubmitCMCServlet: key=$request." + reqKey + "$ value=" + reqVal);
+                            }
                         }
-                      }
                     }
 
                     profile.submit(authToken, reqs[k]);
@@ -698,9 +693,9 @@ profile, IRequest req) {
                     // need to notify
                     INotify notify = profile.getRequestQueue().getPendingNotify();
                     if (notify != null) {
-                       notify.notify(reqs[k]);
+                        notify.notify(reqs[k]);
                     }
-                
+
                     CMS.debug("ProfileSubmitCMCServlet: submit " + e.toString());
                     errorCode = "2";
                     errorReason = CMS.getUserMessage(locale,
@@ -722,7 +717,7 @@ profile, IRequest req) {
                                 "CMS_INTERNAL_ERROR");
                 }
 
-                try { 
+                try {
                     if (errorCode == null) {
                         profile.getRequestQueue().markAsServiced(reqs[k]);
                     } else {
@@ -730,7 +725,7 @@ profile, IRequest req) {
                     }
                 } catch (EBaseException e) {
                     CMS.debug("ProfileSubmitCMCServlet: updateRequest " +
-                        e.toString());
+                            e.toString());
                 }
 
                 if (errorCode != null) {
@@ -778,36 +773,36 @@ profile, IRequest req) {
             // output output list 
             ///////////////////////////////////////////////
 
-           CMS.debug("ProfileSubmitCMCServlet: done serving");
-           CMCOutputTemplate template = new CMCOutputTemplate();
-           if (cert_request_type.equals("pkcs10") || cert_request_type.equals("crmf")) {
+            CMS.debug("ProfileSubmitCMCServlet: done serving");
+            CMCOutputTemplate template = new CMCOutputTemplate();
+            if (cert_request_type.equals("pkcs10") || cert_request_type.equals("crmf")) {
 
-               if (outputFormat != null &&outputFormat.equals("pkcs7")) {
-                   byte[] pkcs7 = CMS.getPKCS7(locale, reqs[0]); 
-                   response.setContentType("application/pkcs7-mime");
-                   response.setContentLength(pkcs7.length);
-                   try {
-                       OutputStream os = response.getOutputStream(); 
-                       os.write(pkcs7);
-                       os.flush();
-                   } catch (Exception ee) {
-                   }
-                   return; 
-               }
-               template.createSimpleResponse(response, reqs);
-           } else if (cert_request_type.equals("cmc")) {
-               Integer nums = (Integer)(context.get("numOfControls"));
-               if (nums != null && nums.intValue() == 1) {
-                   TaggedAttribute attr1 = 
-                     (TaggedAttribute)(context.get(OBJECT_IDENTIFIER.id_cmc_getCert));
-                   if (attr1 != null) {
-                       template.createSimpleResponse(response, reqs);
-                       return;
-                   }
-               } 
-               template.createFullResponse(response, reqs, cert_request_type, 
-                   error_codes);
-           }
+                if (outputFormat != null && outputFormat.equals("pkcs7")) {
+                    byte[] pkcs7 = CMS.getPKCS7(locale, reqs[0]);
+                    response.setContentType("application/pkcs7-mime");
+                    response.setContentLength(pkcs7.length);
+                    try {
+                        OutputStream os = response.getOutputStream();
+                        os.write(pkcs7);
+                        os.flush();
+                    } catch (Exception ee) {
+                    }
+                    return;
+                }
+                template.createSimpleResponse(response, reqs);
+            } else if (cert_request_type.equals("cmc")) {
+                Integer nums = (Integer) (context.get("numOfControls"));
+                if (nums != null && nums.intValue() == 1) {
+                    TaggedAttribute attr1 =
+                            (TaggedAttribute) (context.get(OBJECT_IDENTIFIER.id_cmc_getCert));
+                    if (attr1 != null) {
+                        template.createSimpleResponse(response, reqs);
+                        return;
+                    }
+                }
+                template.createFullResponse(response, reqs, cert_request_type,
+                        error_codes);
+            }
         } finally {
             SessionContext.releaseContext();
         }
@@ -815,11 +810,11 @@ profile, IRequest req) {
 
     /**
      * Signed Audit Log Requester ID
-     *
+     * 
      * This method is called to obtain the "RequesterID" for
      * a signed audit log message.
      * <P>
-     *
+     * 
      * @param request the actual request
      * @return id string containing the signed audit log message RequesterID
      */
@@ -845,11 +840,11 @@ profile, IRequest req) {
 
     /**
      * Signed Audit Log Info Certificate Value
-     *
+     * 
      * This method is called to obtain the certificate from the passed in
      * "X509CertImpl" for a signed audit log message.
      * <P>
-     *
+     * 
      * @param request request containing an X509CertImpl
      * @return cert string containing the certificate
      */

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.crl;
 
-
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Locale;
@@ -34,21 +33,20 @@ import com.netscape.certsrv.ca.ICRLIssuingPoint;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.ILogger;
 
-
 /**
  * This represents a CRL number extension.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class CMSCRLNumberExtension
-    implements ICMSCRLExtension, IExtendedPluginInfo {
+        implements ICMSCRLExtension, IExtendedPluginInfo {
     private ILogger mLogger = CMS.getLogger();
 
     public CMSCRLNumberExtension() {
     }
 
     public Extension setCRLExtensionCriticality(Extension ext,
-        boolean critical) {
+            boolean critical) {
         BigInteger crlNumber = null;
         CRLNumberExtension crlNumberExt = null;
 
@@ -64,8 +62,8 @@ public class CMSCRLNumberExtension
     }
 
     public Extension getCRLExtension(IConfigStore config,
-        Object ip,
-        boolean critical) {
+            Object ip,
+            boolean critical) {
         CRLNumberExtension crlNumberExt = null;
         ICRLIssuingPoint crlIssuingPoint = (ICRLIssuingPoint) ip;
 
@@ -92,11 +90,11 @@ public class CMSCRLNumberExtension
                 "enable;boolean;Check to enable CRL Number extension.",
                 "critical;boolean;Set criticality for CRL Number extension.",
                 IExtendedPluginInfo.HELP_TOKEN +
-                ";configuration-ca-edit-crlextension-crlnumber",
+                        ";configuration-ca-edit-crlextension-crlnumber",
                 IExtendedPluginInfo.HELP_TEXT +
-                ";The CRL number is a non-critical CRL extension " +
-                "which conveys a monotonically increasing sequence number " +
-                "for each CRL issued by a CA"
+                        ";The CRL number is a non-critical CRL extension " +
+                        "which conveys a monotonically increasing sequence number " +
+                        "for each CRL issued by a CA"
             };
 
         return params;
@@ -104,6 +102,6 @@ public class CMSCRLNumberExtension
 
     private void log(int level, String msg) {
         mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_CA, level,
-            "CMSCRLNumberExtension - " + msg);
+                "CMSCRLNumberExtension - " + msg);
     }
-} 
+}

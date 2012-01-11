@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmsutil.http;
 
-
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
@@ -35,12 +34,12 @@ import com.netscape.cmsutil.net.ISocketFactory;
 
 /**
  * Uses NSS ssl socket.
- *
+ * 
  * @version $Revision$ $Date$
  */
 public class JssSSLSocketFactory implements ISocketFactory {
     private String mClientAuthCertNickname = null;
-    private	SSLSocket s = null;
+    private SSLSocket s = null;
 
     public JssSSLSocketFactory() {
     }
@@ -71,51 +70,49 @@ public class JssSSLSocketFactory implements ISocketFactory {
             SSLSocket.TLS_DHE_RSA_WITH_AES_256_CBC_SHA,
             0
         };
-	
+
     static {
         int i;
 
-        for (i = SSLSocket.SSL2_RC4_128_WITH_MD5;
-            i <= SSLSocket.SSL2_RC2_128_CBC_EXPORT40_WITH_MD5; ++i) {
+        for (i = SSLSocket.SSL2_RC4_128_WITH_MD5; i <= SSLSocket.SSL2_RC2_128_CBC_EXPORT40_WITH_MD5; ++i) {
             try {
                 SSLSocket.setCipherPreferenceDefault(i, false);
-            } catch( SocketException e) {
+            } catch (SocketException e) {
             }
         }
 
         //skip SSL_EN_IDEA_128_EDE3_CBC_WITH_MD5
-        for (i = SSLSocket.SSL2_DES_64_CBC_WITH_MD5;
-            i <= SSLSocket.SSL2_DES_192_EDE3_CBC_WITH_MD5; ++i) {
+        for (i = SSLSocket.SSL2_DES_64_CBC_WITH_MD5; i <= SSLSocket.SSL2_DES_192_EDE3_CBC_WITH_MD5; ++i) {
             try {
                 SSLSocket.setCipherPreferenceDefault(i, false);
-            } catch( SocketException e) {
+            } catch (SocketException e) {
             }
         }
         for (i = 0; cipherSuites[i] != 0; ++i) {
             try {
                 SSLSocket.setCipherPreferenceDefault(cipherSuites[i], true);
-            } catch( SocketException e) {
+            } catch (SocketException e) {
             }
         }
     }
 
-    public Socket makeSocket(String host, int port) 
-        throws IOException, UnknownHostException {
+    public Socket makeSocket(String host, int port)
+            throws IOException, UnknownHostException {
         return makeSocket(host, port, null, null);
     }
 
-    public Socket makeSocket(String host, int port, 
-      SSLCertificateApprovalCallback certApprovalCallback,
-      SSLClientCertificateSelectionCallback clientCertCallback) 
-      throws IOException, UnknownHostException {
+    public Socket makeSocket(String host, int port,
+            SSLCertificateApprovalCallback certApprovalCallback,
+            SSLClientCertificateSelectionCallback clientCertCallback)
+            throws IOException, UnknownHostException {
 
         try {
             s = new SSLSocket(host, port, null, 0, certApprovalCallback,
-              clientCertCallback);
+                    clientCertCallback);
             for (int i = 0; cipherSuites[i] != 0; ++i) {
                 try {
                     SSLSocket.setCipherPreferenceDefault(cipherSuites[i], true);
-                } catch( SocketException e) {
+                } catch (SocketException e) {
                 }
             }
 
@@ -154,8 +151,8 @@ public class JssSSLSocketFactory implements ISocketFactory {
         return s;
     }
 
-    public Socket makeSocket(String host, int port, int timeout) 
-        throws IOException, UnknownHostException {
+    public Socket makeSocket(String host, int port, int timeout)
+            throws IOException, UnknownHostException {
         Thread t = new ConnectAsync(this, host, port);
 
         t.start();
@@ -163,7 +160,7 @@ public class JssSSLSocketFactory implements ISocketFactory {
             t.join(1000 * timeout);
         } catch (InterruptedException e) {
         }
-	    
+
         if (t.isAlive()) {
         }
 
@@ -179,9 +176,8 @@ public class JssSSLSocketFactory implements ISocketFactory {
         public ClientHandshakeCB(Object sc) {
             this.sc = sc;
         }
-	 
+
         public void handshakeCompleted(SSLHandshakeCompletedEvent event) {
         }
     }
 }
-

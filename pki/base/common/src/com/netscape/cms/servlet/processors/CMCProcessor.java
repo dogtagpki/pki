@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.processors;
 
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -72,11 +71,10 @@ import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ECMSGWException;
 
-
 /**
  * Process CMC messages according to RFC 2797
  * See http://www.ietf.org/rfc/rfc2797.txt
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class CMCProcessor extends PKIProcessor {
@@ -95,18 +93,18 @@ public class CMCProcessor extends PKIProcessor {
     }
 
     public void process(CMSRequest cmsReq)
-        throws EBaseException {
+            throws EBaseException {
     }
 
     public void fillCertInfo(
-        String protocolString, X509CertInfo certInfo,
-        IAuthToken authToken, IArgBlock httpParams)
-        throws EBaseException {
+            String protocolString, X509CertInfo certInfo,
+            IAuthToken authToken, IArgBlock httpParams)
+            throws EBaseException {
     }
 
     public X509CertInfo[] fillCertInfoArray(
-        String protocolString, IAuthToken authToken, IArgBlock httpParams, IRequest req)
-        throws EBaseException {
+            String protocolString, IAuthToken authToken, IArgBlock httpParams, IRequest req)
+            throws EBaseException {
 
         CMS.debug("CMCProcessor: In CMCProcessor.fillCertInfoArray!");
         String cmc = protocolString;
@@ -114,17 +112,16 @@ public class CMCProcessor extends PKIProcessor {
         try {
             byte[] cmcBlob = CMS.AtoB(cmc);
             ByteArrayInputStream cmcBlobIn =
-                new ByteArrayInputStream(cmcBlob);
+                    new ByteArrayInputStream(cmcBlob);
 
             org.mozilla.jss.pkix.cms.ContentInfo cmcReq = (org.mozilla.jss.pkix.cms.ContentInfo)
-                org.mozilla.jss.pkix.cms.ContentInfo.getTemplate().decode(cmcBlobIn);
+                    org.mozilla.jss.pkix.cms.ContentInfo.getTemplate().decode(cmcBlobIn);
 
-            if
-            (!cmcReq.getContentType().equals(org.mozilla.jss.pkix.cms.ContentInfo.SIGNED_DATA) || !cmcReq.hasContent())
+            if (!cmcReq.getContentType().equals(org.mozilla.jss.pkix.cms.ContentInfo.SIGNED_DATA) || !cmcReq.hasContent())
                 throw new ECMSGWException(CMS.getUserMessage("CMS_GW_NO_CMC_CONTENT"));
 
             SignedData cmcFullReq = (SignedData)
-                cmcReq.getInterpretedContent();
+                    cmcReq.getInterpretedContent();
 
             EncapsulatedContentInfo ci = cmcFullReq.getContentInfo();
 
@@ -132,7 +129,7 @@ public class CMCProcessor extends PKIProcessor {
 
             if (!id.equals(OBJECT_IDENTIFIER.id_cct_PKIData) || !ci.hasContent()) {
                 throw new ECMSGWException(
-                  CMS.getUserMessage("CMS_GW_NO_PKIDATA"));
+                        CMS.getUserMessage("CMS_GW_NO_PKIDATA"));
             }
             OCTET_STRING content = ci.getContent();
 
@@ -144,7 +141,7 @@ public class CMCProcessor extends PKIProcessor {
             int numReqs = reqSequence.size();
             X509CertInfo[] certInfoArray = new X509CertInfo[numReqs];
             String[] reqIdArray = new String[numReqs];
-            
+
             for (int i = 0; i < numReqs; i++) {
                 // decode message.
                 TaggedRequest taggedRequest = (TaggedRequest) reqSequence.elementAt(i);
@@ -158,7 +155,7 @@ public class CMCProcessor extends PKIProcessor {
                     reqIdArray[i] = String.valueOf(p10Id);
 
                     CertificationRequest p10 =
-                        tcr.getCertificationRequest();
+                            tcr.getCertificationRequest();
 
                     // transfer to sun class
                     ByteArrayOutputStream ostream = new ByteArrayOutputStream();
@@ -195,7 +192,7 @@ public class CMCProcessor extends PKIProcessor {
 
                     reqIdArray[i] = String.valueOf(srcId);
 
-                    certInfoArray[i] = crmfProc.processIndividualRequest(crm, authToken, httpParams); 
+                    certInfoArray[i] = crmfProc.processIndividualRequest(crm, authToken, httpParams);
 
                 } else {
                     throw new ECMSGWException(CMS.getUserMessage("CMS_GW_NO_CMC_CONTENT"));
@@ -209,12 +206,12 @@ public class CMCProcessor extends PKIProcessor {
 
             for (int i = 0; i < numDig; i++) {
                 AlgorithmIdentifier dai =
-                    (AlgorithmIdentifier) dais.elementAt(i);
+                        (AlgorithmIdentifier) dais.elementAt(i);
                 String name =
-                    DigestAlgorithm.fromOID(dai.getOID()).toString();
+                        DigestAlgorithm.fromOID(dai.getOID()).toString();
 
                 MessageDigest md =
-                    MessageDigest.getInstance(name);
+                        MessageDigest.getInstance(name);
 
                 byte[] digest = md.digest(content.toByteArray());
 
@@ -226,8 +223,8 @@ public class CMCProcessor extends PKIProcessor {
 
             for (int i = 0; i < numSis; i++) {
                 org.mozilla.jss.pkix.cms.SignerInfo si =
-                    (org.mozilla.jss.pkix.cms.SignerInfo)
-                    sis.elementAt(i);
+                        (org.mozilla.jss.pkix.cms.SignerInfo)
+                        sis.elementAt(i);
 
                 String name = si.getDigestAlgorithm().toString();
                 byte[] digest = (byte[]) digs.get(name);
@@ -243,8 +240,7 @@ public class CMCProcessor extends PKIProcessor {
 
                 SignerIdentifier sid = si.getSignerIdentifier();
 
-                if
-                (sid.getType().equals(SignerIdentifier.ISSUER_AND_SERIALNUMBER)) {
+                if (sid.getType().equals(SignerIdentifier.ISSUER_AND_SERIALNUMBER)) {
                     IssuerAndSerialNumber issuerAndSerialNumber = sid.getIssuerAndSerialNumber();
                     // find from the certs in the signedData
                     X509Certificate cert = null;
@@ -255,20 +251,19 @@ public class CMCProcessor extends PKIProcessor {
 
                         for (int j = 0; j < numCerts; j++) {
                             Certificate certJss =
-                                (Certificate) certs.elementAt(j);
+                                    (Certificate) certs.elementAt(j);
                             CertificateInfo certI =
-                                certJss.getInfo();
+                                    certJss.getInfo();
                             Name issuer = certI.getIssuer();
                             byte[] issuerB = ASN1Util.encode(issuer);
 
                             INTEGER sn = certI.getSerialNumber();
 
-                            if (
-                                new String(issuerB).equals(new
+                            if (new String(issuerB).equals(new
                                     String(ASN1Util.encode(issuerAndSerialNumber.getIssuer())))
-                                && sn.toString().equals(issuerAndSerialNumber.getSerialNumber().toString())) {
+                                    && sn.toString().equals(issuerAndSerialNumber.getSerialNumber().toString())) {
                                 ByteArrayOutputStream os = new
-                                    ByteArrayOutputStream();
+                                        ByteArrayOutputStream();
 
                                 certJss.encode(os);
                                 cert = new X509CertImpl(os.toByteArray());
@@ -296,8 +291,8 @@ public class CMCProcessor extends PKIProcessor {
                         } else {
                         }
                         PK11PubKey pubK =
-                            PK11PubKey.fromRaw(keyType,
-                                ((X509Key) signKey).getKey());
+                                PK11PubKey.fromRaw(keyType,
+                                        ((X509Key) signKey).getKey());
 
                         si.verify(digest, id, pubK);
                     }
@@ -321,8 +316,7 @@ public class CMCProcessor extends PKIProcessor {
                         j++;
                     }
                     if (signKey == null) {
-                        throw new
-                            ECMSGWException(CMS.getUserMessage("CMS_GW_CMC_ERROR",
+                        throw new ECMSGWException(CMS.getUserMessage("CMS_GW_CMC_ERROR",
                                 "SubjectKeyIdentifier in SignerInfo does not match any publicKey in the request."));
                     } else {
                         PrivateKey.Type keyType = null;
@@ -352,7 +346,7 @@ public class CMCProcessor extends PKIProcessor {
 
             for (int i = 0; i < numControls; i++) {
                 TaggedAttribute control =
-                    (TaggedAttribute) controls.elementAt(i);
+                        (TaggedAttribute) controls.elementAt(i);
                 OBJECT_IDENTIFIER type = control.getType();
                 SET values = control.getValues();
                 int numVals = values.size();
@@ -364,7 +358,7 @@ public class CMCProcessor extends PKIProcessor {
                         vals = new String[numVals];
                     for (int j = 0; j < numVals; j++) {
                         ANY val = (ANY)
-                            values.elementAt(j);
+                                values.elementAt(j);
                         INTEGER transId = (INTEGER) ((ANY) val).decodeWith(
                                 INTEGER.getTemplate());
 
@@ -374,17 +368,16 @@ public class CMCProcessor extends PKIProcessor {
                     }
                     if (vals != null)
                         req.setExtData(IRequest.CMC_TRANSID, vals);
-                } else if
-                (type.equals(OBJECT_IDENTIFIER.id_cmc_senderNonce)) {
+                } else if (type.equals(OBJECT_IDENTIFIER.id_cmc_senderNonce)) {
                     String[] vals = null;
 
                     if (numVals > 0)
                         vals = new String[numVals];
                     for (int j = 0; j < numVals; j++) {
                         ANY val = (ANY)
-                            values.elementAt(j);
+                                values.elementAt(j);
                         OCTET_STRING nonce = (OCTET_STRING)
-                            ((ANY) val).decodeWith(OCTET_STRING.getTemplate());
+                                ((ANY) val).decodeWith(OCTET_STRING.getTemplate());
 
                         if (nonce != null) {
                             vals[j] = new String(nonce.toByteArray());
@@ -409,27 +402,27 @@ public class CMCProcessor extends PKIProcessor {
             return certInfoArray;
         } catch (CertificateException e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("CMSGW_ERROR_CMC_TO_CERTINFO_1", e.toString()));
+                    CMS.getLogMessage("CMSGW_ERROR_CMC_TO_CERTINFO_1", e.toString()));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_CMC_TO_CERTINFO_ERROR"));
+                    CMS.getUserMessage("CMS_GW_CMC_TO_CERTINFO_ERROR"));
         } catch (IOException e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("CMSGW_ERROR_CMC_TO_CERTINFO_1", e.toString()));
+                    CMS.getLogMessage("CMSGW_ERROR_CMC_TO_CERTINFO_1", e.toString()));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_CMC_TO_CERTINFO_ERROR"));
+                    CMS.getUserMessage("CMS_GW_CMC_TO_CERTINFO_ERROR"));
         } catch (InvalidBERException e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("CMSGW_ERROR_CMC_TO_CERTINFO_1", e.toString()));
+                    CMS.getLogMessage("CMSGW_ERROR_CMC_TO_CERTINFO_1", e.toString()));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_CMC_TO_CERTINFO_ERROR"));
+                    CMS.getUserMessage("CMS_GW_CMC_TO_CERTINFO_ERROR"));
         } catch (InvalidKeyException e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("CMSGW_ERROR_CMC_TO_CERTINFO_1", e.toString()));
+                    CMS.getLogMessage("CMSGW_ERROR_CMC_TO_CERTINFO_1", e.toString()));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_CMC_TO_CERTINFO_ERROR"));
-        }catch (Exception e) {
+                    CMS.getUserMessage("CMS_GW_CMC_TO_CERTINFO_ERROR"));
+        } catch (Exception e) {
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_CMC_ERROR", e.toString()));
+                    CMS.getUserMessage("CMS_GW_CMC_ERROR", e.toString()));
         }
 
     }

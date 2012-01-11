@@ -29,6 +29,7 @@ public class EAuthzUnknownOperation extends EAuthzException {
 
     /**
      * Constructs a exception for an operation unknown to the authorization manager
+     * 
      * @param errorString Detailed error message.
      */
     public EAuthzUnknownOperation(String errorString) {

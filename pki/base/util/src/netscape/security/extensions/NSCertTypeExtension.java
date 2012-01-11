@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.extensions;
 
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -34,12 +33,10 @@ import netscape.security.x509.Extension;
 /**
  * NSCertTypeExtension
  * Represents Netscape Certificate Type Extension
- *
- * <p>This deprecated extension, if present, defines both the purpose
- * (e.g., encipherment, signature, certificate signing) and the application
- * (e.g., SSL, S/Mime or Object Signing of the key contained in the
- * certificate.
- *
+ * 
+ * <p>
+ * This deprecated extension, if present, defines both the purpose (e.g., encipherment, signature, certificate signing) and the application (e.g., SSL, S/Mime or Object Signing of the key contained in the certificate.
+ * 
  * @author galperin
  * @version $Revision$, $Date$
  */
@@ -57,33 +54,33 @@ public class NSCertTypeExtension extends Extension implements CertAttrSet {
      * Identifies the particular public key used to sign the certificate.
      */
     public static final ObjectIdentifier CertType_Id = new
-        ObjectIdentifier(CertType_data);
+            ObjectIdentifier(CertType_data);
 
-   /**
-    * Attribute names.
-    */
-   public static final String NAME = "NSCertType";
-   public static final String SSL_CLIENT = "ssl_client";
-   public static final String SSL_SERVER = "ssl_server";
-   public static final String EMAIL = "email";
-   public static final String OBJECT_SIGNING = "object_signing";
-   public static final String SSL_CA = "ssl_ca";
-   public static final String EMAIL_CA = "email_ca";
-   public static final String OBJECT_SIGNING_CA = "object_signing_ca";
+    /**
+     * Attribute names.
+     */
+    public static final String NAME = "NSCertType";
+    public static final String SSL_CLIENT = "ssl_client";
+    public static final String SSL_SERVER = "ssl_server";
+    public static final String EMAIL = "email";
+    public static final String OBJECT_SIGNING = "object_signing";
+    public static final String SSL_CA = "ssl_ca";
+    public static final String EMAIL_CA = "email_ca";
+    public static final String OBJECT_SIGNING_CA = "object_signing_ca";
 
-   /**
-    * Attribute names.
-    */
-   public static final int SSL_CLIENT_BIT = 0;
-   public static final int SSL_SERVER_BIT = 1;
-   public static final int EMAIL_BIT = 2;
-   public static final int OBJECT_SIGNING_BIT = 3;
-   // 4 is reserved.
-   public static final int SSL_CA_BIT = 5;
-   public static final int EMAIL_CA_BIT = 6;
-   public static final int OBJECT_SIGNING_CA_BIT = 7;
+    /**
+     * Attribute names.
+     */
+    public static final int SSL_CLIENT_BIT = 0;
+    public static final int SSL_SERVER_BIT = 1;
+    public static final int EMAIL_BIT = 2;
+    public static final int OBJECT_SIGNING_BIT = 3;
+    // 4 is reserved.
+    public static final int SSL_CA_BIT = 5;
+    public static final int EMAIL_CA_BIT = 6;
+    public static final int OBJECT_SIGNING_CA_BIT = 7;
 
-   public static final int NBITS = 8;
+    public static final int NBITS = 8;
 
     /**
      * Identifier for this attribute, to be used with the
@@ -106,14 +103,14 @@ public class NSCertTypeExtension extends Extension implements CertAttrSet {
 
     private static MapEntry[] mMapData =
         {
-            new MapEntry(SSL_CLIENT, 0),
-            new MapEntry(SSL_SERVER, 1),
-            new MapEntry(EMAIL, 2),
-            new MapEntry(OBJECT_SIGNING, 3),
-            // note that bit 4 is reserved
-            new MapEntry(SSL_CA, 5),
-            new MapEntry(EMAIL_CA, 6),
-            new MapEntry(OBJECT_SIGNING_CA, 7),
+                new MapEntry(SSL_CLIENT, 0),
+                new MapEntry(SSL_SERVER, 1),
+                new MapEntry(EMAIL, 2),
+                new MapEntry(OBJECT_SIGNING, 3),
+                // note that bit 4 is reserved
+                new MapEntry(SSL_CA, 5),
+                new MapEntry(EMAIL_CA, 6),
+                new MapEntry(OBJECT_SIGNING_CA, 7),
         };
 
     private static Vector mAttributeNames = new Vector();
@@ -144,7 +141,7 @@ public class NSCertTypeExtension extends Extension implements CertAttrSet {
 
     /**
      * Check if bit is set.
-     *
+     * 
      * @param position the position in the bit string to check.
      */
     public boolean isSet(int position) {
@@ -203,7 +200,7 @@ public class NSCertTypeExtension extends Extension implements CertAttrSet {
     /**
      * Create a NSCertTypeExtension with the passed bit settings.
      * The criticality is set to false.
-     *
+     * 
      * @param bitString the bits to be set for the extension.
      */
     public NSCertTypeExtension(boolean critical, byte[] bitString) throws IOException {
@@ -222,19 +219,19 @@ public class NSCertTypeExtension extends Extension implements CertAttrSet {
 
     /**
      * Create the extension from the passed DER encoded value of the same.
-     *
+     * 
      * @param critical true if the extension is to be treated as critical.
      * @param value Array of DER encoded bytes of the actual value.
      * @exception IOException on error.
      */
     public NSCertTypeExtension(Boolean critical, Object value)
-        throws IOException {
+            throws IOException {
 
         /**
-         Debug.trace("NSCertTypeExtension");
-         this.mBitString = new byte[1];
-         this.mBitString[0] = (byte)0x00;
-         return;
+         * Debug.trace("NSCertTypeExtension");
+         * this.mBitString = new byte[1];
+         * this.mBitString[0] = (byte)0x00;
+         * return;
          **/
 
         this.extensionId = CertType_Id;
@@ -254,10 +251,10 @@ public class NSCertTypeExtension extends Extension implements CertAttrSet {
         this.extensionId = CertType_Id;
         this.critical = false;
         this.mBitString = new byte[0];
-	try {
-		encodeThis();
-	} catch (Exception e) {
-	}
+        try {
+            encodeThis();
+        } catch (Exception e) {
+        }
     }
 
     /**
@@ -265,8 +262,7 @@ public class NSCertTypeExtension extends Extension implements CertAttrSet {
      */
     public void set(String name, Object obj) throws CertificateException {
         if (!(obj instanceof Boolean)) {
-            throw new CertificateException
-                ("Attribute must be of type Boolean.");
+            throw new CertificateException("Attribute must be of type Boolean.");
         }
         boolean val = ((Boolean) obj).booleanValue();
 
@@ -334,7 +330,7 @@ public class NSCertTypeExtension extends Extension implements CertAttrSet {
 
     /**
      * Decode the extension from the InputStream.
-     *
+     * 
      * @param in the InputStream to unmarshal the contents from.
      * @exception IOException on decoding or validity errors.
      */
@@ -344,12 +340,12 @@ public class NSCertTypeExtension extends Extension implements CertAttrSet {
 
     /**
      * Write the extension to the DerOutputStream.
-     *
+     * 
      * @param out the DerOutputStream to write the extension to.
      * @exception IOException on encoding errors.
      */
     public void encode(OutputStream out) throws IOException {
-        DerOutputStream	tmp = new DerOutputStream();
+        DerOutputStream tmp = new DerOutputStream();
 
         encodeThis();
         if (this.extensionValue == null) {

@@ -17,14 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.notification;
 
-
 import com.netscape.certsrv.base.EBaseException;
-
 
 /**
  * A class represents a notification exception.
  * <P>
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class ENotificationException extends EBaseException {

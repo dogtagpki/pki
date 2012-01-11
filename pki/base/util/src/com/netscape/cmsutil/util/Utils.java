@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmsutil.util;
 
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
@@ -36,64 +35,64 @@ import java.util.Date;
 import java.util.Vector;
 
 public class Utils {
-	/**
-	 * Checks if this is NT.
-	 */
-	public static boolean isNT() {
-		return ((File.separator).equals("\\"));
-	}
+    /**
+     * Checks if this is NT.
+     */
+    public static boolean isNT() {
+        return ((File.separator).equals("\\"));
+    }
 
-	public static boolean exec(String cmd) {
-		try {
-			String cmds[] = null;
-			if (isNT()) {
-				// NT
-				cmds = new String[3];
-				cmds[0] = "cmd";
-				cmds[1] = "/c";
-				cmds[2] = cmd;
-			} else {
-				// UNIX
-				cmds = new String[3];
-				cmds[0] = "/bin/sh";
-				cmds[1] = "-c";
-				cmds[2] = cmd;
-			}
-			Process process = Runtime.getRuntime().exec(cmds);
-			process.waitFor();
-			BufferedReader pOut = null;
-			String l = null;
+    public static boolean exec(String cmd) {
+        try {
+            String cmds[] = null;
+            if (isNT()) {
+                // NT
+                cmds = new String[3];
+                cmds[0] = "cmd";
+                cmds[1] = "/c";
+                cmds[2] = cmd;
+            } else {
+                // UNIX
+                cmds = new String[3];
+                cmds[0] = "/bin/sh";
+                cmds[1] = "-c";
+                cmds[2] = cmd;
+            }
+            Process process = Runtime.getRuntime().exec(cmds);
+            process.waitFor();
+            BufferedReader pOut = null;
+            String l = null;
 
-			if (process.exitValue() == 0) {
-				/**
-				pOut = new BufferedReader(
-						new InputStreamReader(process.getInputStream()));
-				while ((l = pOut.readLine()) != null) {
-					System.out.println(l);
-				}
-				**/
-				return true;
-			} else {
-				/**
-				pOut = new BufferedReader(
-						new InputStreamReader(process.getErrorStream()));
-				l = null;
-				while ((l = pOut.readLine()) != null) {
-					System.out.println(l);
-				}
-				**/
-				return false;
-			}
-		} catch (Exception e) {
-			return false;
-		}
-	}
+            if (process.exitValue() == 0) {
+                /**
+                 * pOut = new BufferedReader(
+                 * new InputStreamReader(process.getInputStream()));
+                 * while ((l = pOut.readLine()) != null) {
+                 * System.out.println(l);
+                 * }
+                 **/
+                return true;
+            } else {
+                /**
+                 * pOut = new BufferedReader(
+                 * new InputStreamReader(process.getErrorStream()));
+                 * l = null;
+                 * while ((l = pOut.readLine()) != null) {
+                 * System.out.println(l);
+                 * }
+                 **/
+                return false;
+            }
+        } catch (Exception e) {
+            return false;
+        }
+    }
 
-     public static String SpecialURLDecode(String s) {
+    public static String SpecialURLDecode(String s) {
         if (s == null)
             return null;
         ByteArrayOutputStream out = new ByteArrayOutputStream(s.length());
-        
+
         for (int i = 0; i < s.length(); i++) {
             int c = (int) s.charAt(i);
 
@@ -111,11 +110,11 @@ public class Utils {
         return out.toString();
     }
 
-     public static byte[] SpecialDecode(String s) {
+    public static byte[] SpecialDecode(String s) {
         if (s == null)
             return null;
         ByteArrayOutputStream out = new ByteArrayOutputStream(s.length());
-        
+
         for (int i = 0; i < s.length(); i++) {
             int c = (int) s.charAt(i);
 
@@ -133,17 +132,17 @@ public class Utils {
         return out.toByteArray();
     }
 
-     public static String SpecialEncode(byte data[]) {
+    public static String SpecialEncode(byte data[]) {
         StringBuffer sb = new StringBuffer();
         for (int i = 0; i < data.length; i++) {
-          sb.append("%");
-          if ((data[i] & 0xff) < 16) {
-              sb.append("0");
-          }
-          sb.append(Integer.toHexString((data[i] & 0xff)));
+            sb.append("%");
+            if ((data[i] & 0xff) < 16) {
+                sb.append("0");
+            }
+            sb.append(Integer.toHexString((data[i] & 0xff)));
         }
         return sb.toString().toUpperCase();
-     }
+    }
 
     public static void checkHost(String hostname) throws UnknownHostException {
         InetAddress addr = InetAddress.getByName(hostname);
@@ -151,17 +150,17 @@ public class Utils {
 
     public static void copy(String orig, String dest) {
         try {
-        BufferedReader in = new BufferedReader(new FileReader(orig));
-        PrintWriter out = new PrintWriter(
-          new BufferedWriter(new FileWriter(dest)));
-        String line = "";
-        while (in.ready()) { 
-            line = in.readLine(); 
-            if (line != null)
-                out.println(line);
-        }
-        in.close();
-        out.close();
+            BufferedReader in = new BufferedReader(new FileReader(orig));
+            PrintWriter out = new PrintWriter(
+                    new BufferedWriter(new FileWriter(dest)));
+            String line = "";
+            while (in.ready()) {
+                line = in.readLine();
+                if (line != null)
+                    out.println(line);
+            }
+            in.close();
+            out.close();
         } catch (Exception ee) {
         }
     }
@@ -230,9 +229,10 @@ public class Utils {
         }
         return true;
     }
-    
+
     /**
      * strips out double quotes around String parameter
+     * 
      * @param s the string potentially bracketed with double quotes
      * @return string stripped of surrounding double quotes
      */

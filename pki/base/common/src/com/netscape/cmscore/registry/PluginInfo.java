@@ -17,16 +17,14 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.registry;
 
-
 import java.util.Locale;
 
 import com.netscape.certsrv.registry.IPluginInfo;
 
-
 /**
- * The plugin information includes id, name, 
+ * The plugin information includes id, name,
  * classname, and description.
- *
+ * 
  * @author thomask
  */
 public class PluginInfo implements IPluginInfo {

@@ -21,9 +21,6 @@ import javax.servlet.Servlet;
 
 import com.netscape.cms.servlet.common.CMSRequest;
 
-
-
-
 /**
  * This interface represents a command queue for registeration
  * and unregisteration proccess for clean shutdown
@@ -34,17 +31,18 @@ public interface ICommandQueue {
 
     /**
      * Registers a thread into the command queue.
-     *
+     * 
      * @param currentRequest request object
      * @param currentServlet servlet that serves the request object
      */
     public boolean registerProcess(CMSRequest currentRequest, Servlet currentServlet);
+
     /**
      * UnRegisters a thread from the command queue.
-     *
+     * 
      * @param currentRequest request object
      * @param currentServlet servlet that serves the request object
      */
     public void unRegisterProccess(Object currentRequest, Object currentServlet);
-            
+
 } // CommandQueue

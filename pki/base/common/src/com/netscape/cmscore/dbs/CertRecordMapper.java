@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.dbs;
 
-
 import java.math.BigInteger;
 import java.util.Enumeration;
 import java.util.Vector;
@@ -34,13 +33,12 @@ import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.cmscore.util.Debug;
 
-
 /**
- * A class represents a mapper to serialize 
+ * A class represents a mapper to serialize
  * certificate record into database.
  * <P>
- *
- * @author  thomask
+ * 
+ * @author thomask
  * @version $Revision$, $Date$
  */
 public class CertRecordMapper implements IDBAttrMapper {
@@ -58,9 +56,9 @@ public class CertRecordMapper implements IDBAttrMapper {
         return v.elements();
     }
 
-    public void mapObjectToLDAPAttributeSet(IDBObj parent, String name, 
-        Object obj, LDAPAttributeSet attrs) 
-        throws EBaseException {
+    public void mapObjectToLDAPAttributeSet(IDBObj parent, String name,
+            Object obj, LDAPAttributeSet attrs)
+            throws EBaseException {
         try {
             CertRecord rec = (CertRecord) obj;
 
@@ -74,9 +72,9 @@ public class CertRecordMapper implements IDBAttrMapper {
         }
     }
 
-    public void mapLDAPAttributeSetToObject(LDAPAttributeSet attrs, 
-        String name, IDBObj parent) throws EBaseException {
-        try {	
+    public void mapLDAPAttributeSetToObject(LDAPAttributeSet attrs,
+            String name, IDBObj parent) throws EBaseException {
+        try {
             LDAPAttribute attr = attrs.getAttribute(
                     CertDBSchema.LDAP_ATTR_CERT_RECORD_ID);
 
@@ -95,7 +93,7 @@ public class CertRecordMapper implements IDBAttrMapper {
     }
 
     public String mapSearchFilter(String name, String op, String value)
-        throws EBaseException {
+            throws EBaseException {
         return name + op + value;
     }
 }

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.admin;
 
-
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -56,32 +55,31 @@ import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.servlet.base.UserInfo;
 
-
 /**
  * A class represents an administration servlet that
  * is responsible to serve administrative
  * operation such as configuration parameter updates.
- *
+ * 
  * Since each administration servlet needs to perform
  * authentication information parsing and response
  * formulation, it makes sense to encapsulate the
  * commonalities into this class.
- *
+ * 
  * By extending this serlvet, the subclass does not
  * need to re-implement the request parsing code
  * (i.e. authentication information parsing).
- *
+ * 
  * If a subsystem needs to expose configuration
  * parameters management, it should create an
  * administration servlet (i.e. CAAdminServlet)
  * and register it to RemoteAdmin subsystem.
- *
+ * 
  * <code>
  * public class CAAdminServlet extends AdminServlet {
  *   ...
  * }
  * </code>
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class AdminServlet extends HttpServlet {
@@ -117,8 +115,8 @@ public class AdminServlet extends HttpServlet {
     public final static String AUTHZ_SRC_TYPE = "sourceType";
     public final static String AUTHZ_SRC_LDAP = "ldap";
     public final static String AUTHZ_SRC_XML = "web.xml";
-    public static final String CERT_ATTR = 
-        "javax.servlet.request.X509Certificate";
+    public static final String CERT_ATTR =
+            "javax.servlet.request.X509Certificate";
 
     public final static String SIGNED_AUDIT_SCOPE = "Scope";
     public final static String SIGNED_AUDIT_OPERATION = "Operation";
@@ -130,19 +128,19 @@ public class AdminServlet extends HttpServlet {
     public final static String SIGNED_AUDIT_NAME_VALUE_PAIRS_DELIMITER = "+";
 
     private final static String LOGGING_SIGNED_AUDIT_AUTH_FAIL =
-        "LOGGING_SIGNED_AUDIT_AUTH_FAIL_4";
+            "LOGGING_SIGNED_AUDIT_AUTH_FAIL_4";
     private final static String LOGGING_SIGNED_AUDIT_AUTH_SUCCESS =
-        "LOGGING_SIGNED_AUDIT_AUTH_SUCCESS_3";
+            "LOGGING_SIGNED_AUDIT_AUTH_SUCCESS_3";
     private final static String LOGGING_SIGNED_AUDIT_AUTHZ_FAIL =
-        "LOGGING_SIGNED_AUDIT_AUTHZ_FAIL_4";
+            "LOGGING_SIGNED_AUDIT_AUTHZ_FAIL_4";
     private final static String LOGGING_SIGNED_AUDIT_AUTHZ_SUCCESS =
-        "LOGGING_SIGNED_AUDIT_AUTHZ_SUCCESS_4";
+            "LOGGING_SIGNED_AUDIT_AUTHZ_SUCCESS_4";
     private final static String LOGGING_SIGNED_AUDIT_ROLE_ASSUME =
-        "LOGGING_SIGNED_AUDIT_ROLE_ASSUME_3";
+            "LOGGING_SIGNED_AUDIT_ROLE_ASSUME_3";
     private final static String CERTUSERDB =
-        IAuthSubsystem.CERTUSERDB_AUTHMGR_ID;
+            IAuthSubsystem.CERTUSERDB_AUTHMGR_ID;
     private final static String PASSWDUSERDB =
-        IAuthSubsystem.PASSWDUSERDB_AUTHMGR_ID;
+            IAuthSubsystem.PASSWDUSERDB_AUTHMGR_ID;
 
     /**
      * Constructs generic administration servlet.
@@ -204,45 +202,44 @@ public class AdminServlet extends HttpServlet {
         }
     }
 
-    public void outputHttpParameters(HttpServletRequest httpReq)
-    {
+    public void outputHttpParameters(HttpServletRequest httpReq) {
         CMS.debug("AdminServlet:service() uri = " + httpReq.getRequestURI());
         Enumeration paramNames = httpReq.getParameterNames();
         while (paramNames.hasMoreElements()) {
-            String pn = (String)paramNames.nextElement();
+            String pn = (String) paramNames.nextElement();
             // added this facility so that password can be hidden,
             // all sensitive parameters should be prefixed with 
             // __ (double underscores); however, in the event that
             // a security parameter slips through, we perform multiple
             // additional checks to insure that it is NOT displayed
-            if( pn.startsWith("__")                         ||
-                pn.endsWith("password")                     ||
-                pn.endsWith("passwd")                       ||
-                pn.endsWith("pwd")                          ||
-                pn.equalsIgnoreCase("admin_password_again") ||
-                pn.equalsIgnoreCase("directoryManagerPwd")  ||
-                pn.equalsIgnoreCase("bindpassword")         ||
-                pn.equalsIgnoreCase("bindpwd")              ||
-                pn.equalsIgnoreCase("passwd")               ||
-                pn.equalsIgnoreCase("password")             ||
-                pn.equalsIgnoreCase("pin")                  ||
-                pn.equalsIgnoreCase("pwd")                  ||
-                pn.equalsIgnoreCase("pwdagain")             ||
-                pn.equalsIgnoreCase("uPasswd") ) {
-               CMS.debug("AdminServlet::service() param name='" + pn +
-                         "' value='(sensitive)'" );
+            if (pn.startsWith("__") ||
+                    pn.endsWith("password") ||
+                    pn.endsWith("passwd") ||
+                    pn.endsWith("pwd") ||
+                    pn.equalsIgnoreCase("admin_password_again") ||
+                    pn.equalsIgnoreCase("directoryManagerPwd") ||
+                    pn.equalsIgnoreCase("bindpassword") ||
+                    pn.equalsIgnoreCase("bindpwd") ||
+                    pn.equalsIgnoreCase("passwd") ||
+                    pn.equalsIgnoreCase("password") ||
+                    pn.equalsIgnoreCase("pin") ||
+                    pn.equalsIgnoreCase("pwd") ||
+                    pn.equalsIgnoreCase("pwdagain") ||
+                    pn.equalsIgnoreCase("uPasswd")) {
+                CMS.debug("AdminServlet::service() param name='" + pn +
+                         "' value='(sensitive)'");
             } else {
-               CMS.debug("AdminServlet::service() param name='" + pn +
-                         "' value='" + httpReq.getParameter(pn) + "'" );
+                CMS.debug("AdminServlet::service() param name='" + pn +
+                         "' value='" + httpReq.getParameter(pn) + "'");
             }
         }
     }
-                                                                                
+
     /**
      * Serves HTTP admin request.
      */
     public void service(HttpServletRequest req, HttpServletResponse resp)
-        throws ServletException, IOException {
+            throws ServletException, IOException {
         boolean running_state = CMS.isInRunningState();
 
         if (!running_state)
@@ -250,7 +247,7 @@ public class AdminServlet extends HttpServlet {
                     "CMS server is not ready to serve.");
 
         if (CMS.debugOn()) {
-          outputHttpParameters(req);
+            outputHttpParameters(req);
         }
     }
 
@@ -277,15 +274,12 @@ public class AdminServlet extends HttpServlet {
      * Authenticates to the identity scope with the given
      * userid and password via identity manager.
      * <P>
-     *
+     * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_AUTH_FAIL used when authentication
-     * fails (in case of SSL-client auth, only webserver env can pick up the
-     * SSL violation; CMS authMgr can pick up cert mis-match, so this event
-     * is used)
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_AUTH_SUCCESS used when authentication
-     * succeeded
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_AUTH_FAIL used when authentication fails (in case of SSL-client auth, only webserver env can pick up the SSL violation; CMS authMgr can pick up cert mis-match, so this event is used)
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_AUTH_SUCCESS used when authentication succeeded
      * </ul>
+     * 
      * @exception IOException an input/output error has occurred
      */
     protected void authenticate(HttpServletRequest req) throws
@@ -307,12 +301,12 @@ public class AdminServlet extends HttpServlet {
                 // do nothing for now.
             }
             IAuthSubsystem auth = (IAuthSubsystem)
-                CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);
+                    CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);
             X509Certificate cert = null;
 
             if (authType.equals("sslclientauth")) {
                 X509Certificate[] allCerts =
-                    (X509Certificate[]) req.getAttribute(CERT_ATTR);
+                        (X509Certificate[]) req.getAttribute(CERT_ATTR);
 
                 if (allCerts == null || allCerts.length == 0) {
                     // store a message in the signed audit log file
@@ -362,10 +356,9 @@ public class AdminServlet extends HttpServlet {
                     mServletID));
             try {
                 if (authType.equals("sslclientauth")) {
-                    IAuthManager
-                        authMgr = auth.get(IAuthSubsystem.CERTUSERDB_AUTHMGR_ID);
+                    IAuthManager authMgr = auth.get(IAuthSubsystem.CERTUSERDB_AUTHMGR_ID);
                     IAuthCredentials authCreds =
-                        getAuthCreds(authMgr, cert);
+                            getAuthCreds(authMgr, cert);
 
                     token = (AuthToken) authMgr.authenticate(authCreds);
                 } else {
@@ -441,9 +434,9 @@ public class AdminServlet extends HttpServlet {
 
                 if (tuserid == null) {
                     mLogger.log(
-                        ILogger.EV_SYSTEM, ILogger.S_OTHER, ILogger.LL_FAILURE,
-                        CMS.getLogMessage("ADMIN_SRVLT_NO_AUTH_TOKEN",
-                            tuserid));
+                            ILogger.EV_SYSTEM, ILogger.S_OTHER, ILogger.LL_FAILURE,
+                            CMS.getLogMessage("ADMIN_SRVLT_NO_AUTH_TOKEN",
+                                    tuserid));
 
                     if (authType.equals("sslclientauth")) {
                         // store a message in the signed audit log file
@@ -477,9 +470,9 @@ public class AdminServlet extends HttpServlet {
 
                 if (user == null) {
                     mLogger.log(
-                        ILogger.EV_SYSTEM, ILogger.S_OTHER, ILogger.LL_FAILURE,
-                        CMS.getLogMessage("ADMIN_SRVLT_USER_NOT_FOUND",
-                            tuserid));
+                            ILogger.EV_SYSTEM, ILogger.S_OTHER, ILogger.LL_FAILURE,
+                            CMS.getLogMessage("ADMIN_SRVLT_USER_NOT_FOUND",
+                                    tuserid));
 
                     if (authType.equals("sslclientauth")) {
                         // store a message in the signed audit log file
@@ -515,7 +508,7 @@ public class AdminServlet extends HttpServlet {
                 sessionContext.put(SessionContext.USER, user);
             } catch (EUsrGrpException e) {
                 mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER, ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_USR_GRP_ERR", e.toString()));
+                        CMS.getLogMessage("ADMIN_SRVLT_USR_GRP_ERR", e.toString()));
 
                 if (authType.equals("sslclientauth")) {
                     // store a message in the signed audit log file
@@ -595,8 +588,8 @@ public class AdminServlet extends HttpServlet {
     }
 
     public static AuthCredentials getAuthCreds(
-        IAuthManager authMgr, X509Certificate clientCert)
-        throws EBaseException {
+            IAuthManager authMgr, X509Certificate clientCert)
+            throws EBaseException {
         // get credentials from http parameters.
         String[] reqCreds = authMgr.getRequiredCreds();
         AuthCredentials creds = new AuthCredentials();
@@ -606,8 +599,8 @@ public class AdminServlet extends HttpServlet {
 
             if (reqCred.equals(IAuthManager.CRED_SSL_CLIENT_CERT)) {
                 // cert could be null;
-                creds.set(reqCred, new X509Certificate[] { clientCert}
-                );
+                creds.set(reqCred, new X509Certificate[] { clientCert }
+                        );
             }
         }
         return creds;
@@ -616,15 +609,13 @@ public class AdminServlet extends HttpServlet {
     /**
      * Authorize must occur after Authenticate
      * <P>
-     *
+     * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_AUTHZ_FAIL used when authorization
-     * has failed
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_AUTHZ_SUCCESS used when authorization
-     * is successful
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_ROLE_ASSUME used when user assumes a
-     * role (in current CMS that's when one accesses a role port)
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_AUTHZ_FAIL used when authorization has failed
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_AUTHZ_SUCCESS used when authorization is successful
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_ROLE_ASSUME used when user assumes a role (in current CMS that's when one accesses a role port)
      * </ul>
+     * 
      * @param req HTTP servlet request
      * @return the authorization token
      */
@@ -779,15 +770,15 @@ public class AdminServlet extends HttpServlet {
 
     /**
      * Sends response.
-     *
+     * 
      * @param returnCode return code
      * @param errorMsg localized error message
      * @param params result parameters
      * @param resp HTTP servlet response
      */
     protected void sendResponse(int returnCode, String errorMsg,
-        NameValuePairs params, HttpServletResponse resp)
-        throws IOException {
+            NameValuePairs params, HttpServletResponse resp)
+            throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         DataOutputStream dos = new DataOutputStream(bos);
 
@@ -806,8 +797,8 @@ public class AdminServlet extends HttpServlet {
                     String value = java.net.URLEncoder.encode((String)
                             params.getValue(name));
 
-                    buf.append(java.net.URLEncoder.encode(name) + 
-                        "=" + value);
+                    buf.append(java.net.URLEncoder.encode(name) +
+                            "=" + value);
                     if (e.hasMoreElements())
                         buf.append("&");
                 }
@@ -858,8 +849,8 @@ public class AdminServlet extends HttpServlet {
      * Generic configuration store get operation.
      */
     protected synchronized void getConfig(
-        IConfigStore config, HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            IConfigStore config, HttpServletRequest req,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         NameValuePairs params = new NameValuePairs();
         Enumeration e = req.getParameterNames();
@@ -876,8 +867,8 @@ public class AdminServlet extends HttpServlet {
             if (name.equals(Constants.OP_SCOPE))
                 continue;
 
-                //System.out.println(name);
-                //System.out.println(name+","+config.getString(name));
+            //System.out.println(name);
+            //System.out.println(name+","+config.getString(name));
             params.add(name, config.getString(name));
         }
         sendResponse(SUCCESS, null, params, resp);
@@ -889,8 +880,8 @@ public class AdminServlet extends HttpServlet {
      * calling this, and commit changes after this call.
      */
     protected synchronized void setConfig(
-        IConfigStore config, HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            IConfigStore config, HttpServletRequest req,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         NameValuePairs params = new NameValuePairs();
         Enumeration e = req.getParameterNames();
@@ -906,8 +897,8 @@ public class AdminServlet extends HttpServlet {
                 continue;
             if (name.equals(Constants.OP_SCOPE))
                 continue;
-                // XXX Need validation...
-                // XXX what if update failed
+            // XXX Need validation...
+            // XXX what if update failed
             config.putString(name, req.getParameter(name));
         }
         commit(true);
@@ -918,8 +909,8 @@ public class AdminServlet extends HttpServlet {
      * Lists configuration store.
      */
     protected synchronized void listConfig(
-        IConfigStore config, HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            IConfigStore config, HttpServletRequest req,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         Enumeration e = config.getPropertyNames();
         NameValuePairs params = new NameValuePairs();
@@ -938,14 +929,14 @@ public class AdminServlet extends HttpServlet {
     public boolean authorize(IAuthToken token) throws EBaseException {
         String mGroupNames[] = { "Administrators" };
         boolean mAnd = true;
-	
+
         try {
             String userid = token.getInString("userid");
 
             if (userid == null) {
                 mLogger.log(
-                    ILogger.EV_SYSTEM, ILogger.S_OTHER, ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_GRP_AUTHZ_FAIL", userid));
+                        ILogger.EV_SYSTEM, ILogger.S_OTHER, ILogger.LL_FAILURE,
+                        CMS.getLogMessage("ADMIN_SRVLT_GRP_AUTHZ_FAIL", userid));
                 return false;
             }
 
@@ -955,8 +946,8 @@ public class AdminServlet extends HttpServlet {
 
             if (user == null) {
                 mLogger.log(
-                    ILogger.EV_SYSTEM, ILogger.S_OTHER, ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_USER_NOT_IN_DB", userid));
+                        ILogger.EV_SYSTEM, ILogger.S_OTHER, ILogger.LL_FAILURE,
+                        CMS.getLogMessage("ADMIN_SRVLT_USER_NOT_IN_DB", userid));
                 return false;
             }
 
@@ -973,9 +964,9 @@ public class AdminServlet extends HttpServlet {
                 for (int i = 0; i < mGroupNames.length; i++) {
                     if (!mUG.isMemberOf(user, mGroupNames[i])) {
                         mLogger.log(
-                            ILogger.EV_SYSTEM, ILogger.S_OTHER, ILogger.LL_FAILURE,
-                            CMS.getLogMessage("ADMIN_SRVLT_USER_NOT_IN_GRP", userid,
-                                mGroupNames[i]));
+                                ILogger.EV_SYSTEM, ILogger.S_OTHER, ILogger.LL_FAILURE,
+                                CMS.getLogMessage("ADMIN_SRVLT_USER_NOT_IN_GRP", userid,
+                                        mGroupNames[i]));
                         return false;
                     }
                 }
@@ -984,9 +975,9 @@ public class AdminServlet extends HttpServlet {
                 for (int i = 0; i < mGroupNames.length; i++) {
                     if (mUG.isMemberOf(user, mGroupNames[i])) {
                         mLogger.log(ILogger.EV_SYSTEM,
-                            ILogger.S_OTHER, ILogger.LL_INFO,
-                            CMS.getLogMessage("ADMIN_SRVLT_GRP_AUTH_SUCC_USER", userid,
-                                mGroupNames[i]));
+                                ILogger.S_OTHER, ILogger.LL_INFO,
+                                CMS.getLogMessage("ADMIN_SRVLT_GRP_AUTH_SUCC_USER", userid,
+                                        mGroupNames[i]));
                         return true;
                     }
                 }
@@ -998,24 +989,24 @@ public class AdminServlet extends HttpServlet {
                     groups.append(mGroupNames[j]);
                 }
                 mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                    ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_USER_NOT_ANY_GRP", userid, groups.toString()));
+                        ILogger.LL_FAILURE,
+                        CMS.getLogMessage("ADMIN_SRVLT_USER_NOT_ANY_GRP", userid, groups.toString()));
                 return false;
             }
         } catch (EUsrGrpException e) {
             mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER, ILogger.LL_FAILURE,
-                CMS.getLogMessage("ADMIN_SRVLT_USR_GRP_ERR", e.toString()));
+                    CMS.getLogMessage("ADMIN_SRVLT_USR_GRP_ERR", e.toString()));
             return false;
         }
     }
 
     /**
      * FileConfigStore functionality
-     *
+     * 
      * The original config file is moved to <filename>.<date>.
      * Commits the current properties to the configuration file.
      * <P>
-     *
+     * 
      * @param createBackup true if a backup file should be created
      */
     protected void commit(boolean createBackup) throws EBaseException {
@@ -1026,16 +1017,16 @@ public class AdminServlet extends HttpServlet {
         if (mLogger == null)
             return;
         mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_ADMIN,
-            level, "AdminServlet: " + msg);
+                level, "AdminServlet: " + msg);
     }
 
     /**
      * Signed Audit Log
-     *
+     * 
      * This method is inherited by all extended admin servlets
      * and is called to store messages to the signed audit log.
      * <P>
-     *
+     * 
      * @param msg signed audit log message
      */
     protected void audit(String msg) {
@@ -1047,20 +1038,20 @@ public class AdminServlet extends HttpServlet {
         }
 
         mSignedAuditLogger.log(ILogger.EV_SIGNED_AUDIT,
-            null,
-            ILogger.S_SIGNED_AUDIT,
-            ILogger.LL_SECURITY,
-            msg);
+                null,
+                ILogger.S_SIGNED_AUDIT,
+                ILogger.LL_SECURITY,
+                msg);
     }
 
     /**
      * Signed Audit Log Subject ID
-     *
+     * 
      * This method is inherited by all extended "CMSServlet"s,
      * and is called to obtain the "SubjectID" for
      * a signed audit log message.
      * <P>
-     *
+     * 
      * @return id string containing the signed audit log message SubjectID
      */
     protected String auditSubjectID() {
@@ -1092,13 +1083,13 @@ public class AdminServlet extends HttpServlet {
 
     /**
      * Signed Audit Parameters
-     *
+     * 
      * This method is inherited by all extended admin servlets and
      * is called to extract parameters from the HttpServletRequest
      * and return a string of name;;value pairs separated by a '+'
      * if more than one name;;value pair exists.
      * <P>
-     *
+     * 
      * @param req HTTP servlet request
      * @return a delimited string of one or more delimited name/value pairs
      */
@@ -1176,22 +1167,22 @@ public class AdminServlet extends HttpServlet {
                     //     case-insensitive "password", "pwd", and "passwd"
                     //     name fields, and hide any password values:
                     //
- /* "password" */   if( name.equals( Constants.PASSWORDTYPE )             ||
-                        name.equals( Constants.TYPE_PASSWORD )            ||
-                        name.equals( Constants.PR_USER_PASSWORD )         ||
-                        name.equals( Constants.PT_OLD_PASSWORD )          ||
-                        name.equals( Constants.PT_NEW_PASSWORD )          ||
-                        name.equals( Constants.PT_DIST_STORE )            ||
-                        name.equals( Constants.PT_DIST_EMAIL )            ||
- /* "pwd" */            name.equals( Constants.PR_AUTH_ADMIN_PWD )        ||
-    // ignore this one  name.equals( Constants.PR_BINDPWD_PROMPT )        ||
-                        name.equals( Constants.PR_DIRECTORY_MANAGER_PWD ) ||
-                        name.equals( Constants.PR_OLD_AGENT_PWD )         ||
-                        name.equals( Constants.PR_AGENT_PWD )             ||
-                        name.equals( Constants.PT_PUBLISH_PWD )           ||
- /* "passwd" */         name.equals( Constants.PR_BIND_PASSWD )           ||
-                        name.equals( Constants.PR_BIND_PASSWD_AGAIN )     ||
-                        name.equals( Constants.PR_TOKEN_PASSWD ) ) {
+                    /* "password" */if (name.equals(Constants.PASSWORDTYPE) ||
+                            name.equals(Constants.TYPE_PASSWORD) ||
+                            name.equals(Constants.PR_USER_PASSWORD) ||
+                            name.equals(Constants.PT_OLD_PASSWORD) ||
+                            name.equals(Constants.PT_NEW_PASSWORD) ||
+                            name.equals(Constants.PT_DIST_STORE) ||
+                            name.equals(Constants.PT_DIST_EMAIL) ||
+                            /* "pwd" */name.equals(Constants.PR_AUTH_ADMIN_PWD) ||
+                            // ignore this one  name.equals( Constants.PR_BINDPWD_PROMPT )        ||
+                            name.equals(Constants.PR_DIRECTORY_MANAGER_PWD) ||
+                            name.equals(Constants.PR_OLD_AGENT_PWD) ||
+                            name.equals(Constants.PR_AGENT_PWD) ||
+                            name.equals(Constants.PT_PUBLISH_PWD) ||
+                            /* "passwd" */name.equals(Constants.PR_BIND_PASSWD) ||
+                            name.equals(Constants.PR_BIND_PASSWD_AGAIN) ||
+                            name.equals(Constants.PR_TOKEN_PASSWD)) {
 
                         // hide password value
                         parameters += name
@@ -1216,14 +1207,14 @@ public class AdminServlet extends HttpServlet {
 
     /**
      * Signed Audit Groups
-     *
+     * 
      * This method is called to extract all "groups" associated
      * with the "auditSubjectID()".
      * <P>
-     *
+     * 
      * @param SubjectID string containing the signed audit log message SubjectID
      * @return a delimited string of groups associated
-     *      with the "auditSubjectID()"
+     *         with the "auditSubjectID()"
      */
     private String auditGroups(String SubjectID) {
         // if no signed audit object exists, bail
@@ -1232,7 +1223,7 @@ public class AdminServlet extends HttpServlet {
         }
 
         if ((SubjectID == null) ||
-            (SubjectID.equals(ILogger.UNIDENTIFIED))) {
+                (SubjectID.equals(ILogger.UNIDENTIFIED))) {
             return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
         }
 
@@ -1250,7 +1241,7 @@ public class AdminServlet extends HttpServlet {
             IGroup group = (IGroup) groups.nextElement();
 
             if (group.isMember(SubjectID) == true) {
-                if (membersString.length()!=0) {
+                if (membersString.length() != 0) {
                     membersString.append(", ");
                 }
 
@@ -1258,7 +1249,7 @@ public class AdminServlet extends HttpServlet {
             }
         }
 
-        if (membersString.length()!= 0) {
+        if (membersString.length() != 0) {
             return membersString.toString();
         } else {
             return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
@@ -1266,7 +1257,8 @@ public class AdminServlet extends HttpServlet {
     }
 
     protected NameValuePairs convertStringArrayToNVPairs(String[] s) {
-        if (s == null) return null;
+        if (s == null)
+            return null;
         NameValuePairs nvps = new NameValuePairs();
         int i;
 

@@ -17,9 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.base;
 
-
-
-
 /**
  * This represents a generici CMS plugin.
  * <p>
@@ -41,10 +38,10 @@ public class Plugin {
         mId = id;
         mClassPath = classPath;
     }
-		
+
     /**
      * Returns the plugin identifier.
-     *
+     * 
      * @return plugin id
      */
     public String getId() {
@@ -53,7 +50,7 @@ public class Plugin {
 
     /**
      * Returns the plugin classpath.
-     *
+     * 
      * @return plugin classpath
      */
     public String getClassPath() {

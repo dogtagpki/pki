@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.policy.constraints;
 
-
 import java.math.BigInteger;
 import java.security.interfaces.DSAParams;
 import java.util.Locale;
@@ -40,20 +39,20 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cms.policy.APolicyRule;
 
-
 /**
  * DSAKeyConstraints policy enforces min and max size of the key.
  * <P>
+ * 
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- *
+ * 
  * @deprecated
  * @version $Revision$, $Date$
  */
 public class DSAKeyConstraints extends APolicyRule
-    implements IEnrollmentPolicy, IExtendedPluginInfo {
+        implements IEnrollmentPolicy, IExtendedPluginInfo {
     private int mMinSize;
     private int mMaxSize;
 
@@ -73,7 +72,7 @@ public class DSAKeyConstraints extends APolicyRule
         defConfParams.addElement(PROP_MIN_SIZE + "=" + DEF_MIN_SIZE);
         defConfParams.addElement(PROP_MAX_SIZE + "=" + DEF_MAX_SIZE);
     }
-		
+
     public DSAKeyConstraints() {
         NAME = "DSAKeyConstraints";
         DESC = "Enforces DSA Key Constraints.";
@@ -84,9 +83,9 @@ public class DSAKeyConstraints extends APolicyRule
                 PROP_MIN_SIZE + ";number;Minimum key size",
                 PROP_MAX_SIZE + ";number;Maximum key size",
                 IExtendedPluginInfo.HELP_TOKEN +
-                ";configuration-policyrules-dsakeyconstraints",
+                        ";configuration-policyrules-dsakeyconstraints",
                 IExtendedPluginInfo.HELP_TEXT +
-                ";Rejects request if DSA key size is out of range"
+                        ";Rejects request if DSA key size is out of range"
             };
 
         return params;
@@ -95,18 +94,13 @@ public class DSAKeyConstraints extends APolicyRule
     /**
      * Initializes this policy rule.
      * <P>
-     *
-     * The entries probably are of the form
-     *      ra.Policy.rule.<ruleName>.implName=DSAKeyConstraints
-     *      ra.Policy.rule.<ruleName>.enable=true
-     *      ra.Policy.rule.<ruleName>.minSize=512
-     *      ra.Policy.rule.<ruleName>.maxSize=1024
-     *      ra.Policy.rule.<ruleName>.predicate= ou == engineering AND o == netscape.com
-     *
-     * @param config	The config store reference
+     * 
+     * The entries probably are of the form ra.Policy.rule.<ruleName>.implName=DSAKeyConstraints ra.Policy.rule.<ruleName>.enable=true ra.Policy.rule.<ruleName>.minSize=512 ra.Policy.rule.<ruleName>.maxSize=1024 ra.Policy.rule.<ruleName>.predicate= ou == engineering AND o == netscape.com
+     * 
+     * @param config The config store reference
      */
     public void init(ISubsystem owner, IConfigStore config)
-        throws EPolicyException {
+            throws EPolicyException {
 
         // Get Min and Max sizes
         mConfig = config;
@@ -120,34 +114,34 @@ public class DSAKeyConstraints extends APolicyRule
 
                 log(ILogger.LL_FAILURE, PROP_MAX_SIZE + " " + msg);
                 throw new EBaseException(
-                        CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE", 
-                            PROP_MAX_SIZE, msg));
+                        CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE",
+                                PROP_MAX_SIZE, msg));
             }
             if (mMinSize < DEF_MIN_SIZE) {
                 String msg = "cannot be less than " + DEF_MIN_SIZE;
 
                 log(ILogger.LL_FAILURE, PROP_MIN_SIZE + " " + msg);
                 throw new EBaseException(
-                        CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE", 
-                            PROP_MIN_SIZE, msg));
+                        CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE",
+                                PROP_MIN_SIZE, msg));
             }
             if (mMaxSize % INCREMENT != 0) {
                 String msg = "must be in increments of " + INCREMENT;
 
                 log(ILogger.LL_FAILURE, PROP_MAX_SIZE + " " + msg);
                 throw new EBaseException(
-                        CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE", 
-                            PROP_MIN_SIZE, msg));
+                        CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE",
+                                PROP_MIN_SIZE, msg));
             }
             if (mMaxSize % INCREMENT != 0) {
                 String msg = "must be in increments of " + INCREMENT;
 
                 log(ILogger.LL_FAILURE, PROP_MIN_SIZE + " " + msg);
                 throw new EBaseException(
-                        CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE", 
-                            PROP_MIN_SIZE, msg));
+                        CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE",
+                                PROP_MIN_SIZE, msg));
             }
-			
+
             config.putInteger(PROP_MIN_SIZE, mMinSize);
             config.putInteger(PROP_MAX_SIZE, mMaxSize);
 
@@ -160,8 +154,8 @@ public class DSAKeyConstraints extends APolicyRule
     /**
      * Applies the policy on the given Request.
      * <P>
-     *
-     * @param req	The request on which to apply policy.
+     * 
+     * @param req The request on which to apply policy.
      * @return The policy result object.
      */
     public PolicyResult apply(IRequest req) {
@@ -171,7 +165,7 @@ public class DSAKeyConstraints extends APolicyRule
         try {
             // Get the certificate info from the request
             X509CertInfo ci[] =
-                req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
+                    req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
 
             // There should be a certificate info set.
             if (ci == null || ci[0] == null) {
@@ -182,19 +176,19 @@ public class DSAKeyConstraints extends APolicyRule
             // Else check if the key size(s) are within the limit.
             for (int i = 0; i < ci.length; i++) {
                 CertificateX509Key certKey = (CertificateX509Key)
-                    ci[i].get(X509CertInfo.KEY);
+                        ci[i].get(X509CertInfo.KEY);
                 X509Key key = (X509Key) certKey.get(CertificateX509Key.KEY);
                 String alg = key.getAlgorithmId().toString();
 
                 if (!alg.equalsIgnoreCase(DSA))
                     continue;
 
-                    // Check DSAKey parameters.
-                    // size refers to the p parameter.
+                // Check DSAKey parameters.
+                // size refers to the p parameter.
                 DSAPublicKey dsaKey = new DSAPublicKey(key.getEncoded());
                 DSAParams keyParams = dsaKey.getParams();
 
-                if (keyParams == null) { 
+                if (keyParams == null) {
                     // key parameters could not be parsed.
                     Object[] params = new Object[] {
                             getInstanceName(), String.valueOf(i + 1) };
@@ -205,11 +199,11 @@ public class DSAKeyConstraints extends APolicyRule
                 BigInteger p = keyParams.getP();
                 int len = p.bitLength();
 
-                if (len < mMinSize || len > mMaxSize || 
-                    (len % INCREMENT) != 0) {
-                    String[] parms = new String[] { 
-                            getInstanceName(), 
-                            String.valueOf(len), 
+                if (len < mMinSize || len > mMaxSize ||
+                        (len % INCREMENT) != 0) {
+                    String[] parms = new String[] {
+                            getInstanceName(),
+                            String.valueOf(len),
                             String.valueOf(mMinSize),
                             String.valueOf(mMaxSize),
                             String.valueOf(INCREMENT) };
@@ -220,7 +214,7 @@ public class DSAKeyConstraints extends APolicyRule
             }
         } catch (Exception e) {
             // e.printStackTrace();
-            String[] params = { getInstanceName(), e.toString()};
+            String[] params = { getInstanceName(), e.toString() };
 
             setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR", params), "");
             result = PolicyResult.REJECTED;
@@ -230,27 +224,27 @@ public class DSAKeyConstraints extends APolicyRule
 
     /**
      * Return configured parameters for a policy rule instance.
-     *
+     * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getInstanceParams() { 
+    public Vector getInstanceParams() {
         Vector confParams = new Vector();
 
         try {
             confParams.addElement(PROP_MIN_SIZE + "=" + mConfig.getInteger(PROP_MIN_SIZE, DEF_MIN_SIZE));
             confParams.addElement(PROP_MAX_SIZE + "=" + mConfig.getInteger(PROP_MAX_SIZE, DEF_MAX_SIZE));
-        } catch (EBaseException e) {;
+        } catch (EBaseException e) {
+            ;
         }
         return confParams;
     }
 
     /**
      * Return default parameters for a policy implementation.
-     *
+     * 
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector getDefaultParams() {
         return defConfParams;
     }
 }
-

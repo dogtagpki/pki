@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.ldapconn;
 
-
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -32,9 +31,9 @@ import org.mozilla.jss.ssl.SSLSocket;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.logging.ILogger;
 
-
 /**
  * Uses HCL ssl socket.
+ * 
  * @author Lily Hsiao lhsiao@netscape.com
  */
 public class LdapJssSSLSocketFactory implements LDAPSSLSocketFactoryExt {
@@ -68,14 +67,14 @@ public class LdapJssSSLSocketFactory implements LDAPSSLSocketFactoryExt {
             if (mClientAuthCertNickname != null) {
                 mClientAuth = true;
                 CMS.debug(
-                    "LdapJssSSLSocket set client auth cert nickname" +
-                    mClientAuthCertNickname);
+                        "LdapJssSSLSocket set client auth cert nickname" +
+                                mClientAuthCertNickname);
                 s.setClientCertNickname(mClientAuthCertNickname);
             }
             s.forceHandshake();
         } catch (UnknownHostException e) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSCORE_LDAPCONN_UNKNOWN_HOST"));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_LDAPCONN_UNKNOWN_HOST"));
             throw new LDAPException(
                     "Cannot Create JSS SSL Socket - Unknown host");
         } catch (IOException e) {
@@ -102,10 +101,9 @@ public class LdapJssSSLSocketFactory implements LDAPSSLSocketFactoryExt {
         public ClientHandshakeCB(Object sc) {
             this.sc = sc;
         }
-	 
+
         public void handshakeCompleted(SSLHandshakeCompletedEvent event) {
             CMS.debug("SSL handshake happened");
         }
     }
 }
-

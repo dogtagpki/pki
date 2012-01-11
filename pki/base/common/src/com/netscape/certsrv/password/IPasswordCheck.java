@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.password;
 
-
 /**
  * Password quality checker interface.
  * <P>
@@ -28,6 +27,7 @@ public interface IPasswordCheck {
 
     /**
      * Check if the password meets the quality requirement
+     * 
      * @param pwd the given password
      * @return true if the password meets the quality requirement; otherwise false
      */
@@ -35,9 +35,9 @@ public interface IPasswordCheck {
 
     /**
      * Returns a reason if the password doesnt meet the quality requirement.
+     * 
      * @param pwd the given password
      * @return a reason if the password quality requirement is not met.
      */
     public String getReason(String pwd);
 }
-

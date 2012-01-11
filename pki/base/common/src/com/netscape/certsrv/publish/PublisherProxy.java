@@ -17,24 +17,21 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.publish;
 
-
-
-
 /**
- *
+ * 
  * Class representing a proxy for a ILdapPublisher.
- *
+ * 
  * @version $Revision$ $Date$
  */
-
 
 public class PublisherProxy {
     private boolean mEnable;
     private ILdapPublisher mPublisher;
 
     /**
-     *
+     * 
      * Constructs a PublisherProxy based on a ILdapPublisher object and enabled boolean.
+     * 
      * @param enable Proxy is enabled or not.
      * @param publisher Corresponding ILdapPublisher object.
      */
@@ -45,6 +42,7 @@ public class PublisherProxy {
 
     /**
      * Return if enabled or not.
+     * 
      * @return true if enabled, otherwise false.
      */
     public boolean isEnable() {
@@ -53,6 +51,7 @@ public class PublisherProxy {
 
     /**
      * Return ILdapPublisher object.
+     * 
      * @return Instance of ILdapPublisher.
      */
     public ILdapPublisher getPublisher() {

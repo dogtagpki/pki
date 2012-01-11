@@ -17,15 +17,13 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.common;
 
-
 import java.util.Hashtable;
 
 import com.netscape.certsrv.profile.IProfileContext;
 
-
 /**
  * This class implements the profile context.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class ProfileContext implements IProfileContext {

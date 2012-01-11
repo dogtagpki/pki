@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.extensions;
 
-
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
@@ -34,9 +33,8 @@ import netscape.security.x509.CertificateVersion;
 import netscape.security.x509.X500Name;
 import netscape.security.x509.X509CertInfo;
 
-
 /**
- * Extends X509CertInfo class so that minimal fields are initialized at 
+ * Extends X509CertInfo class so that minimal fields are initialized at
  * creation time so an object of this type is always serializable.
  */
 public class CertInfo extends X509CertInfo {
@@ -54,21 +52,21 @@ public class CertInfo extends X509CertInfo {
     static {
         try {
             // force version 3
-            FORCE_VERSION_3 = 
+            FORCE_VERSION_3 =
                     new CertificateVersion(CertificateVersion.V3);
-            SERIALIZE_SUBJECT = 
+            SERIALIZE_SUBJECT =
                     new CertificateSubjectName(
-                        new X500Name("cn=uninitialized"));
-            SERIALIZE_ISSUER = 
+                            new X500Name("cn=uninitialized"));
+            SERIALIZE_ISSUER =
                     new CertificateIssuerName(
-                        new X500Name("cn=uninitialized"));
-            SERIALIZE_VALIDITY = 
+                            new X500Name("cn=uninitialized"));
+            SERIALIZE_VALIDITY =
                     new CertificateValidity(new Date(0), new Date(0));
-            SERIALIZE_SERIALNO = 
+            SERIALIZE_SERIALNO =
                     new CertificateSerialNumber(new BigInteger("0"));
-            SERIALIZE_ALGOR = 
+            SERIALIZE_ALGOR =
                     new CertificateAlgorithmId(
-                        AlgorithmId.getAlgorithmId("MD5withRSA"));
+                            AlgorithmId.getAlgorithmId("MD5withRSA"));
         } catch (IOException e) {
             // should never happen. If does, system is hosed. 
             System.out.println("**** Impossible Error encountered ****");
@@ -81,7 +79,7 @@ public class CertInfo extends X509CertInfo {
     }
 
     /**
-     * Initializes most fields required by der encoding so object will 
+     * Initializes most fields required by der encoding so object will
      * serialize properly.
      */
     // XXX should write a class to use something else for serialization
@@ -114,7 +112,7 @@ public class CertInfo extends X509CertInfo {
             }
             // key is set later in the request.
         } // these exceptions shouldn't happen here unless the 
-        // whole process is hosed.
+          // whole process is hosed.
         catch (CertificateException e) {
         } catch (IOException e) {
         }

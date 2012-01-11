@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.base;
 
-
 import java.io.IOException;
 
 import javax.servlet.ServletConfig;
@@ -32,11 +31,10 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cms.servlet.common.IndexTemplateFiller;
 
-
 /**
  * This is the servlet that builds the index page in
  * various ports.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class IndexServlet extends CMSServlet {
@@ -91,26 +89,26 @@ public class IndexServlet extends CMSServlet {
      * Serves HTTP request.
      */
     public void process(CMSRequest cmsReq) throws EBaseException {
-        if (CMSGateway.getEnableAdminEnroll() && 
-            mAuthority != null && 
-            mAuthority instanceof ICertificateAuthority) {
+        if (CMSGateway.getEnableAdminEnroll() &&
+                mAuthority != null &&
+                mAuthority instanceof ICertificateAuthority) {
             try {
                 cmsReq.getHttpResp().sendRedirect("/ca/adminEnroll.html");
             } catch (IOException e) {
-                log(ILogger.LL_FAILURE, 
-                    CMS.getLogMessage("CMSGW_FAIL_REDIRECT_ADMIN_ENROLL", e.toString()));
+                log(ILogger.LL_FAILURE,
+                        CMS.getLogMessage("CMSGW_FAIL_REDIRECT_ADMIN_ENROLL", e.toString()));
                 throw new ECMSGWException(
                         CMS.getLogMessage("CMSGW_ERROR_REDIRECTING_ADMINENROLL1",
-                            e.toString()));
+                                e.toString()));
             }
             return;
         } else {
             try {
                 renderTemplate(
-                    cmsReq, mTemplateName, new IndexTemplateFiller());
+                        cmsReq, mTemplateName, new IndexTemplateFiller());
             } catch (IOException e) {
-                log(ILogger.LL_FAILURE, 
-                    CMS.getLogMessage("CMSGW_FAIL_RENDER_TEMPLATE", mTemplateName, e.toString()));
+                log(ILogger.LL_FAILURE,
+                        CMS.getLogMessage("CMSGW_FAIL_RENDER_TEMPLATE", mTemplateName, e.toString()));
                 throw new ECMSGWException(
                         CMS.getLogMessage("CMSG_ERROR_DISPLAY_TEMPLATE"));
             }

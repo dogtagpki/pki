@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-
 import java.io.IOException;
 import java.net.URL;
 import java.util.StringTokenizer;
@@ -39,19 +38,20 @@ import com.netscape.cms.servlet.wizard.WizardServlet;
 
 public class CAInfoPanel extends WizardPanelBase {
 
-    public CAInfoPanel() {}
+    public CAInfoPanel() {
+    }
 
     /**
      * Initializes this panel.
      */
-    public void init(ServletConfig config, int panelno) 
-        throws ServletException {
+    public void init(ServletConfig config, int panelno)
+            throws ServletException {
         setPanelNo(panelno);
         setName("CA Information");
     }
 
-    public void init(WizardServlet servlet, ServletConfig config, int panelno, String id) 
-        throws ServletException {
+    public void init(WizardServlet servlet, ServletConfig config, int panelno, String id)
+            throws ServletException {
         setPanelNo(panelno);
         setName("CA Information");
         setId(id);
@@ -82,14 +82,15 @@ public class CAInfoPanel extends WizardPanelBase {
             } else {
                 return true;
             }
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
 
         return false;
     }
 
     public PropertySet getUsage() {
         PropertySet set = new PropertySet();
-                                                                                
+
         return set;
     }
 
@@ -118,15 +119,18 @@ public class CAInfoPanel extends WizardPanelBase {
 
             try {
                 hostname = cs.getString("preop.ca.hostname");
-            } catch (Exception e) {}
+            } catch (Exception e) {
+            }
 
             try {
                 httpport = cs.getString("preop.ca.httpport");
-            } catch (Exception e) {}
+            } catch (Exception e) {
+            }
 
             try {
                 httpsport = cs.getString("preop.ca.httpsport");
-            } catch (Exception e) {}
+            } catch (Exception e) {
+            }
 
             if (type.equals("sdca")) {
                 context.put("check_sdca", "checked");
@@ -143,12 +147,12 @@ public class CAInfoPanel extends WizardPanelBase {
         String cstype = "CA";
         String portType = "SecurePort";
 
-/*
-        try {
-            cstype = cs.getString("cs.type", "");
-        } catch (EBaseException e) {}
-*/
-                                                                                
+        /*
+                try {
+                    cstype = cs.getString("cs.type", "");
+                } catch (EBaseException e) {}
+        */
+
         CMS.debug("CAInfoPanel: Ready to get url");
         Vector v = getUrlListFromSecurityDomain(cs, cstype, portType);
         v.addElement("External CA");
@@ -163,12 +167,13 @@ public class CAInfoPanel extends WizardPanelBase {
                 list.append(",");
             }
         }
-                                                                                
+
         try {
             cs.putString("preop.ca.list", list.toString());
             cs.commit(false);
-        } catch (Exception e) {}
-                                                                                
+        } catch (Exception e) {
+        }
+
         context.put("urls", v);
 
         context.put("sdcaHostname", hostname);
@@ -213,25 +218,26 @@ public class CAInfoPanel extends WizardPanelBase {
 
         String select = null;
         String index = request.getParameter("urls");
-        String url = ""; 
+        String url = "";
         if (index.startsWith("http")) {
-           // user may submit url directlry
-           url = index;
+            // user may submit url directlry
+            url = index;
         } else {
-          try {
-            int x = Integer.parseInt(index);
-            String list = config.getString("preop.ca.list", "");
-            StringTokenizer tokenizer = new StringTokenizer(list, ",");
-            int counter = 0;
+            try {
+                int x = Integer.parseInt(index);
+                String list = config.getString("preop.ca.list", "");
+                StringTokenizer tokenizer = new StringTokenizer(list, ",");
+                int counter = 0;
 
-            while (tokenizer.hasMoreTokens()) {
-                url = tokenizer.nextToken();
-                if (counter == x) {
-                    break;
+                while (tokenizer.hasMoreTokens()) {
+                    url = tokenizer.nextToken();
+                    if (counter == x) {
+                        break;
+                    }
+                    counter++;
                 }
-                counter++;
+            } catch (Exception e) {
             }
-          } catch (Exception e) {}
         }
 
         URL urlx = null;
@@ -240,7 +246,7 @@ public class CAInfoPanel extends WizardPanelBase {
             select = "otherca";
             config.putString("preop.ca.pkcs7", "");
             config.putInteger("preop.ca.certchain.size", 0);
-        } else { 
+        } else {
             select = "sdca";
 
             // parse URL (CA1 - https://...)
@@ -272,7 +278,8 @@ public class CAInfoPanel extends WizardPanelBase {
 
         try {
             config.commit(false);
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
     }
 
     private void sdca(HttpServletRequest request, Context context, String hostname, String httpsPortStr) throws IOException {
@@ -301,9 +308,9 @@ public class CAInfoPanel extends WizardPanelBase {
         config.putString("preop.ca.hostname", hostname);
         config.putString("preop.ca.httpsport", httpsPortStr);
         ConfigCertApprovalCallback certApprovalCallback = new ConfigCertApprovalCallback();
-        updateCertChainUsingSecureEEPort( config, "ca", hostname,
+        updateCertChainUsingSecureEEPort(config, "ca", hostname,
                                           httpsport, true, context,
-                                          certApprovalCallback );
+                                          certApprovalCallback);
     }
 
     /**

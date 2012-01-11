@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -54,19 +53,20 @@ public class NamePanel extends WizardPanelBase {
     private Vector mCerts = null;
     private WizardServlet mServlet = null;
 
-    public NamePanel() {}
+    public NamePanel() {
+    }
 
     /**
      * Initializes this panel.
      */
-    public void init(ServletConfig config, int panelno) 
-        throws ServletException {
+    public void init(ServletConfig config, int panelno)
+            throws ServletException {
         setPanelNo(panelno);
         setName("Subject Names");
     }
 
     public void init(WizardServlet servlet, ServletConfig config, int panelno, String id)
-        throws ServletException {
+            throws ServletException {
         setPanelNo(panelno);
         setName("Subject Names");
         setId(id);
@@ -80,25 +80,25 @@ public class NamePanel extends WizardPanelBase {
         PropertySet set = new PropertySet();
 
         Descriptor caDN = new Descriptor(IDescriptor.STRING, null, /* no constraint */
-                null, /* no default parameter */ 
+                null, /* no default parameter */
                 "CA Signing Certificate's DN");
 
         set.add("caDN", caDN);
 
         Descriptor sslDN = new Descriptor(IDescriptor.STRING, null, /* no constraint */
-                null, /* no default parameter */ 
+                null, /* no default parameter */
                 "SSL Server Certificate's DN");
 
         set.add("sslDN", sslDN);
 
         Descriptor subsystemDN = new Descriptor(IDescriptor.STRING, null, /* no constraint */
-                null, /* no default parameter */ 
+                null, /* no default parameter */
                 "CA Subsystem Certificate's DN");
 
         set.add("subsystemDN", subsystemDN);
 
         Descriptor ocspDN = new Descriptor(IDescriptor.STRING, null, /* no constraint */
-                null, /* no default parameter */ 
+                null, /* no default parameter */
                 "OCSP Signing Certificate's DN");
 
         set.add("ocspDN", ocspDN);
@@ -124,7 +124,7 @@ public class NamePanel extends WizardPanelBase {
         StringTokenizer st = new StringTokenizer(list, ",");
         while (st.hasMoreTokens()) {
             String t = st.nextToken();
-            cs.remove("preop.cert."+t+".done");
+            cs.remove("preop.cert." + t + ".done");
         }
 
         try {
@@ -142,7 +142,8 @@ public class NamePanel extends WizardPanelBase {
             } else {
                 return true;
             }
-        } catch (EBaseException e) {}
+        } catch (EBaseException e) {
+        }
 
         return false;
     }
@@ -185,10 +186,10 @@ public class NamePanel extends WizardPanelBase {
             cstype = config.getString("cs.type", "");
             context.put("select", select);
             if (cstype.equals("CA") && hselect.equals("root")) {
-                CMS.debug("NamePanel ca is root"); 
+                CMS.debug("NamePanel ca is root");
                 context.put("isRoot", "true");
             } else {
-                CMS.debug("NamePanel not ca or not root"); 
+                CMS.debug("NamePanel not ca or not root");
                 context.put("isRoot", "false");
             }
         } catch (Exception e) {
@@ -227,27 +228,27 @@ public class NamePanel extends WizardPanelBase {
 
                 String type = config.getString(PCERT_PREFIX + certTag + ".type");
                 c.setType(type);
-                boolean enable = config.getBoolean(PCERT_PREFIX+certTag+".enable", true);
+                boolean enable = config.getBoolean(PCERT_PREFIX + certTag + ".enable", true);
                 c.setEnable(enable);
 
-                String cert = config.getString(subsystem +"."+certTag +".cert", "");
-                String certreq = 
-                  config.getString(subsystem + "." +certTag +".certreq", "");
+                String cert = config.getString(subsystem + "." + certTag + ".cert", "");
+                String certreq =
+                        config.getString(subsystem + "." + certTag + ".certreq", "");
 
                 String dn = config.getString(PCERT_PREFIX + certTag + ".dn");
-                boolean override = config.getBoolean(PCERT_PREFIX + certTag + 
-                  ".cncomponent.override", true);
-		//o_sd is to add o=secritydomainname
+                boolean override = config.getBoolean(PCERT_PREFIX + certTag +
+                        ".cncomponent.override", true);
+                //o_sd is to add o=secritydomainname
                 boolean o_sd = config.getBoolean(PCERT_PREFIX + certTag +
-						 "o_securitydomain", true);
-		domainname = config.getString("securitydomain.name", "");
-		CMS.debug("NamePanel: display() override is "+override);
-		CMS.debug("NamePanel: display() o_securitydomain is "+o_sd);
-		CMS.debug("NamePanel: display() domainname is "+domainname);
+                         "o_securitydomain", true);
+                domainname = config.getString("securitydomain.name", "");
+                CMS.debug("NamePanel: display() override is " + override);
+                CMS.debug("NamePanel: display() o_securitydomain is " + o_sd);
+                CMS.debug("NamePanel: display() domainname is " + domainname);
 
                 boolean dnUpdated = false;
                 try {
-                    dnUpdated = config.getBoolean(PCERT_PREFIX+certTag+".updatedDN");
+                    dnUpdated = config.getBoolean(PCERT_PREFIX + certTag + ".updatedDN");
                 } catch (Exception e) {
                 }
 
@@ -259,16 +260,16 @@ public class NamePanel extends WizardPanelBase {
                     if (select.equals("clone") || dnUpdated) {
                         c.setDN(dn);
                     } else if (count != 0 && override && (cert.equals("") || certreq.equals(""))) {
-                        CMS.debug("NamePanel subsystemCount = "+count);
-                        c.setDN(dn + " "+count+ 
-                          ((!instanceId.equals(""))? (",OU=" + instanceId):"") +
-                          ((o_sd)? (",O=" + domainname):""));
-                        config.putBoolean(PCERT_PREFIX+certTag+".updatedDN", true);
+                        CMS.debug("NamePanel subsystemCount = " + count);
+                        c.setDN(dn + " " + count +
+                                ((!instanceId.equals("")) ? (",OU=" + instanceId) : "") +
+                                ((o_sd) ? (",O=" + domainname) : ""));
+                        config.putBoolean(PCERT_PREFIX + certTag + ".updatedDN", true);
                     } else {
-                        c.setDN(dn + 
-                            ((!instanceId.equals(""))? (",OU=" + instanceId):"") +
-                            ((o_sd)? (",O=" + domainname):""));
-                        config.putBoolean(PCERT_PREFIX+certTag+".updatedDN", true);
+                        c.setDN(dn +
+                                ((!instanceId.equals("")) ? (",OU=" + instanceId) : "") +
+                                ((o_sd) ? (",O=" + domainname) : ""));
+                        config.putBoolean(PCERT_PREFIX + certTag + ".updatedDN", true);
                     }
                 }
 
@@ -302,7 +303,8 @@ public class NamePanel extends WizardPanelBase {
         try {
             config.putString("preop.ca.list", list.toString());
             config.commit(false);
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
 
         context.put("urls", v);
 
@@ -338,20 +340,20 @@ public class NamePanel extends WizardPanelBase {
      * update some parameters for clones
      */
     public void updateCloneConfig(IConfigStore config)
-        throws EBaseException, IOException {
+            throws EBaseException, IOException {
         String cstype = config.getString("cs.type", null);
         cstype = toLowerCaseSubsystemType(cstype);
         if (cstype.equals("kra")) {
             String token = config.getString(PRE_CONF_CA_TOKEN);
             if (!token.equals("Internal Key Storage Token")) {
-                CMS.debug("NamePanel: updating configuration for KRA clone with hardware token");        
+                CMS.debug("NamePanel: updating configuration for KRA clone with hardware token");
                 String subsystem = config.getString(PCERT_PREFIX + "storage.subsystem");
                 String storageNickname = getNickname(config, "storage");
                 String transportNickname = getNickname(config, "transport");
 
                 config.putString(subsystem + ".storageUnit.hardware", token);
-                config.putString(subsystem + ".storageUnit.nickName", token+":"+storageNickname);
-                config.putString(subsystem + ".transportUnit.nickName", token+":"+transportNickname);
+                config.putString(subsystem + ".storageUnit.nickName", token + ":" + storageNickname);
+                config.putString(subsystem + ".transportUnit.nickName", token + ":" + transportNickname);
                 config.commit(false);
             } else { // software token
                 // parameters already set
@@ -361,12 +363,12 @@ public class NamePanel extends WizardPanelBase {
         // audit signing cert
         String audit_nn = config.getString(cstype + ".audit_signing" + ".nickname", "");
         String audit_tk = config.getString(cstype + ".audit_signing" + ".tokenname", "");
-	    if (!audit_tk.equals("Internal Key Storage Token") && !audit_tk.equals("")) {
+        if (!audit_tk.equals("Internal Key Storage Token") && !audit_tk.equals("")) {
             config.putString("log.instance.SignedAudit.signedAuditCertNickname",
-                audit_tk + ":" + audit_nn);
+                    audit_tk + ":" + audit_nn);
         } else {
             config.putString("log.instance.SignedAudit.signedAuditCertNickname",
-                audit_nn);
+                    audit_nn);
         }
     }
 
@@ -374,7 +376,7 @@ public class NamePanel extends WizardPanelBase {
      * get some of the "preop" parameters to persisting parameters
      */
     public void updateConfig(IConfigStore config, String certTag)
-        throws EBaseException, IOException {
+            throws EBaseException, IOException {
         String token = config.getString(PRE_CONF_CA_TOKEN);
         String subsystem = config.getString(PCERT_PREFIX + certTag + ".subsystem");
         CMS.debug("NamePanel: subsystem " + subsystem);
@@ -393,30 +395,30 @@ public class NamePanel extends WizardPanelBase {
         String cstype = config.getString("cs.type", null);
         cstype = toLowerCaseSubsystemType(cstype);
         if (cstype.equals("kra")) {
-	    if (!token.equals("Internal Key Storage Token")) {
-	      if (certTag.equals("storage")) {
-                config.putString(subsystem + ".storageUnit.hardware", token);
-                config.putString(subsystem + ".storageUnit.nickName", token+":"+nickname);
-	      } else if (certTag.equals("transport")) {
-                config.putString(subsystem + ".transportUnit.nickName", token+":"+nickname);
-          }
-	    } else { // software token
-	      if (certTag.equals("storage")) {
-                config.putString(subsystem + ".storageUnit.nickName", nickname);
-	      } else if (certTag.equals("transport")) {
-                config.putString(subsystem + ".transportUnit.nickName", nickname);
-              }
-	    }
+            if (!token.equals("Internal Key Storage Token")) {
+                if (certTag.equals("storage")) {
+                    config.putString(subsystem + ".storageUnit.hardware", token);
+                    config.putString(subsystem + ".storageUnit.nickName", token + ":" + nickname);
+                } else if (certTag.equals("transport")) {
+                    config.putString(subsystem + ".transportUnit.nickName", token + ":" + nickname);
+                }
+            } else { // software token
+                if (certTag.equals("storage")) {
+                    config.putString(subsystem + ".storageUnit.nickName", nickname);
+                } else if (certTag.equals("transport")) {
+                    config.putString(subsystem + ".transportUnit.nickName", nickname);
+                }
+            }
         }
 
         String serverCertNickname = nickname;
         String path = CMS.getConfigStore().getString("instanceRoot", "");
         if (certTag.equals("sslserver")) {
-	        if (!token.equals("Internal Key Storage Token")) {
-                serverCertNickname = token+":"+nickname;
+            if (!token.equals("Internal Key Storage Token")) {
+                serverCertNickname = token + ":" + nickname;
             }
-            File file = new File(path+"/conf/serverCertNick.conf");
-            PrintStream ps = new PrintStream(new FileOutputStream(path+"/conf/serverCertNick.conf"));
+            File file = new File(path + "/conf/serverCertNick.conf");
+            PrintStream ps = new PrintStream(new FileOutputStream(path + "/conf/serverCertNick.conf"));
             ps.println(serverCertNickname);
             ps.close();
         }
@@ -424,13 +426,13 @@ public class NamePanel extends WizardPanelBase {
         config.putString(subsystem + "." + certTag + ".nickname", nickname);
         config.putString(subsystem + "." + certTag + ".tokenname", token);
         if (certTag.equals("audit_signing")) {
-	      if (!token.equals("Internal Key Storage Token") && !token.equals("")) {
-            config.putString("log.instance.SignedAudit.signedAuditCertNickname",
-                token + ":" + nickname);
-          } else {
-            config.putString("log.instance.SignedAudit.signedAuditCertNickname",
-                nickname);
-          }
+            if (!token.equals("Internal Key Storage Token") && !token.equals("")) {
+                config.putString("log.instance.SignedAudit.signedAuditCertNickname",
+                        token + ":" + nickname);
+            } else {
+                config.putString("log.instance.SignedAudit.signedAuditCertNickname",
+                        nickname);
+            }
         }
         /*
         config.putString(CERT_PREFIX + certTag + ".defaultSigningAlgorithm",
@@ -438,9 +440,9 @@ public class NamePanel extends WizardPanelBase {
          */
 
         // for system certs verification
-	    if (!token.equals("Internal Key Storage Token") && !token.equals("")) {
+        if (!token.equals("Internal Key Storage Token") && !token.equals("")) {
             config.putString(subsystem + ".cert." + certTag + ".nickname",
-                token + ":" +  nickname);
+                    token + ":" + nickname);
         } else {
             config.putString(subsystem + ".cert." + certTag + ".nickname", nickname);
         }
@@ -459,7 +461,7 @@ public class NamePanel extends WizardPanelBase {
 
         IConfigStore config = CMS.getConfigStore();
         String caType = certObj.getType();
-        CMS.debug("NamePanel: in configCert caType is "+ caType);
+        CMS.debug("NamePanel: in configCert caType is " + caType);
         X509CertImpl cert = null;
         String certTag = certObj.getCertTag();
 
@@ -469,13 +471,13 @@ public class NamePanel extends WizardPanelBase {
                 String v = config.getString("preop.ca.type", "");
 
                 CMS.debug("NamePanel configCert: remote CA");
-                String pkcs10 = CertUtil.getPKCS10(config, PCERT_PREFIX, 
-                  certObj, context);
+                String pkcs10 = CertUtil.getPKCS10(config, PCERT_PREFIX,
+                        certObj, context);
                 certObj.setRequest(pkcs10);
                 String subsystem = config.getString(
                         PCERT_PREFIX + certTag + ".subsystem");
                 config.putString(subsystem + "." + certTag + ".certreq", pkcs10);
-                String profileId = config.getString(PCERT_PREFIX+certTag+".profile");
+                String profileId = config.getString(PCERT_PREFIX + certTag + ".profile");
                 String session_id = CMS.getConfigSDSessionId();
                 String sd_hostname = "";
                 int sd_ee_port = -1;
@@ -483,15 +485,15 @@ public class NamePanel extends WizardPanelBase {
                     sd_hostname = config.getString("securitydomain.host", "");
                     sd_ee_port = config.getInteger("securitydomain.httpseeport", -1);
                 } catch (Exception ee) {
-                    CMS.debug("NamePanel: configCert() exception caught:"+ee.toString());
+                    CMS.debug("NamePanel: configCert() exception caught:" + ee.toString());
                 }
                 String sysType = config.getString("cs.type", "");
                 String machineName = config.getString("machineName", "");
                 String securePort = config.getString("service.securePort", "");
                 if (certTag.equals("subsystem")) {
-                    String content = "requestor_name=" + sysType + "-" + machineName + "-" + securePort + "&profileId="+profileId+"&cert_request_type=pkcs10&cert_request="+URLEncoder.encode(pkcs10, "UTF-8")+"&xmlOutput=true&sessionID="+session_id;
-                    cert = CertUtil.createRemoteCert(sd_hostname, sd_ee_port, 
-                      content, response, this);
+                    String content = "requestor_name=" + sysType + "-" + machineName + "-" + securePort + "&profileId=" + profileId + "&cert_request_type=pkcs10&cert_request=" + URLEncoder.encode(pkcs10, "UTF-8") + "&xmlOutput=true&sessionID=" + session_id;
+                    cert = CertUtil.createRemoteCert(sd_hostname, sd_ee_port,
+                            content, response, this);
                     if (cert == null) {
                         throw new IOException("Error: remote certificate is null");
                     }
@@ -504,18 +506,18 @@ public class NamePanel extends WizardPanelBase {
                     } catch (Exception ee) {
                     }
 
-                    String content = "requestor_name=" + sysType + "-" + machineName + "-" + securePort + "&profileId="+profileId+"&cert_request_type=pkcs10&cert_request="+URLEncoder.encode(pkcs10, "UTF-8")+"&xmlOutput=true&sessionID="+session_id;
-                    cert = CertUtil.createRemoteCert(ca_hostname, ca_port, 
-                      content, response, this);
+                    String content = "requestor_name=" + sysType + "-" + machineName + "-" + securePort + "&profileId=" + profileId + "&cert_request_type=pkcs10&cert_request=" + URLEncoder.encode(pkcs10, "UTF-8") + "&xmlOutput=true&sessionID=" + session_id;
+                    cert = CertUtil.createRemoteCert(ca_hostname, ca_port,
+                            content, response, this);
                     if (cert == null) {
                         throw new IOException("Error: remote certificate is null");
                     }
                 } else if (v.equals("otherca")) {
                     config.putString(subsystem + "." + certTag + ".cert",
                             "...paste certificate here...");
-                } else {  
+                } else {
                     CMS.debug("NamePanel: no preop.ca.type is provided");
-                }    
+                }
             } else { // not remote CA, ie, self-signed or local
                 ISubsystem ca = CMS.getSubsystem(ICertificateAuthority.ID);
 
@@ -524,76 +526,76 @@ public class NamePanel extends WizardPanelBase {
 
                     CMS.debug(
                             "The value for " + s
-                            + " should be remote, nothing else.");
+                                    + " should be remote, nothing else.");
                     throw new IOException(
                             "The value for " + s + " should be remote");
-                } 
-      
+                }
+
                 String pubKeyType = config.getString(
                         PCERT_PREFIX + certTag + ".keytype");
                 if (pubKeyType.equals("rsa")) {
 
-                  String pubKeyModulus = config.getString(
-                        PCERT_PREFIX + certTag + ".pubkey.modulus");
-                  String pubKeyPublicExponent = config.getString(
-                        PCERT_PREFIX + certTag + ".pubkey.exponent");
-                  String subsystem = config.getString(
-                        PCERT_PREFIX + certTag + ".subsystem");
+                    String pubKeyModulus = config.getString(
+                            PCERT_PREFIX + certTag + ".pubkey.modulus");
+                    String pubKeyPublicExponent = config.getString(
+                            PCERT_PREFIX + certTag + ".pubkey.exponent");
+                    String subsystem = config.getString(
+                            PCERT_PREFIX + certTag + ".subsystem");
 
-                  if (certTag.equals("signing")) {
-                    X509Key x509key = CryptoUtil.getPublicX509Key(
-                            CryptoUtil.string2byte(pubKeyModulus),
-                            CryptoUtil.string2byte(pubKeyPublicExponent));
-
-                    cert = CertUtil.createLocalCert(config, x509key,
-                            PCERT_PREFIX, certTag, caType, context);
-                  } else {
-                    String cacert = config.getString("ca.signing.cert", "");
-
-                    if (cacert.equals("") || cacert.startsWith("...")) {
-                        certObj.setCert(
-                                "...certificate be generated internally...");
-                        config.putString(subsystem + "." + certTag + ".cert",
-                                "...certificate be generated internally...");
-                    } else {
+                    if (certTag.equals("signing")) {
                         X509Key x509key = CryptoUtil.getPublicX509Key(
                                 CryptoUtil.string2byte(pubKeyModulus),
                                 CryptoUtil.string2byte(pubKeyPublicExponent));
 
                         cert = CertUtil.createLocalCert(config, x509key,
                                 PCERT_PREFIX, certTag, caType, context);
-                    }
-                  }
-                } else if (pubKeyType.equals("ecc")) {
-                  String pubKeyEncoded = config.getString(
-                        PCERT_PREFIX + certTag + ".pubkey.encoded");
-                  String subsystem = config.getString(
-                        PCERT_PREFIX + certTag + ".subsystem");
-
-                  if (certTag.equals("signing")) {
-
-                    X509Key x509key = CryptoUtil.getPublicX509ECCKey(CryptoUtil.string2byte(pubKeyEncoded));
-                    cert = CertUtil.createLocalCert(config, x509key,
-                            PCERT_PREFIX, certTag, caType, context);
-                  } else {
-                    String cacert = config.getString("ca.signing.cert", "");
-
-                    if (cacert.equals("") || cacert.startsWith("...")) {
-                        certObj.setCert(
-                                "...certificate be generated internally...");
-                        config.putString(subsystem + "." + certTag + ".cert",
-                                "...certificate be generated internally...");
                     } else {
-                        X509Key x509key = CryptoUtil.getPublicX509ECCKey(
-                                CryptoUtil.string2byte(pubKeyEncoded));
+                        String cacert = config.getString("ca.signing.cert", "");
 
+                        if (cacert.equals("") || cacert.startsWith("...")) {
+                            certObj.setCert(
+                                    "...certificate be generated internally...");
+                            config.putString(subsystem + "." + certTag + ".cert",
+                                    "...certificate be generated internally...");
+                        } else {
+                            X509Key x509key = CryptoUtil.getPublicX509Key(
+                                    CryptoUtil.string2byte(pubKeyModulus),
+                                    CryptoUtil.string2byte(pubKeyPublicExponent));
+
+                            cert = CertUtil.createLocalCert(config, x509key,
+                                    PCERT_PREFIX, certTag, caType, context);
+                        }
+                    }
+                } else if (pubKeyType.equals("ecc")) {
+                    String pubKeyEncoded = config.getString(
+                            PCERT_PREFIX + certTag + ".pubkey.encoded");
+                    String subsystem = config.getString(
+                            PCERT_PREFIX + certTag + ".subsystem");
+
+                    if (certTag.equals("signing")) {
+
+                        X509Key x509key = CryptoUtil.getPublicX509ECCKey(CryptoUtil.string2byte(pubKeyEncoded));
                         cert = CertUtil.createLocalCert(config, x509key,
                                 PCERT_PREFIX, certTag, caType, context);
+                    } else {
+                        String cacert = config.getString("ca.signing.cert", "");
+
+                        if (cacert.equals("") || cacert.startsWith("...")) {
+                            certObj.setCert(
+                                    "...certificate be generated internally...");
+                            config.putString(subsystem + "." + certTag + ".cert",
+                                    "...certificate be generated internally...");
+                        } else {
+                            X509Key x509key = CryptoUtil.getPublicX509ECCKey(
+                                    CryptoUtil.string2byte(pubKeyEncoded));
+
+                            cert = CertUtil.createLocalCert(config, x509key,
+                                    PCERT_PREFIX, certTag, caType, context);
+                        }
                     }
-                  }
                 } else {
-                   // invalid key type
-                   CMS.debug("Invalid key type " + pubKeyType);
+                    // invalid key type
+                    CMS.debug("Invalid key type " + pubKeyType);
                 }
                 if (cert != null) {
                     if (certTag.equals("subsystem"))
@@ -605,7 +607,7 @@ public class NamePanel extends WizardPanelBase {
                 byte[] certb = cert.getEncoded();
                 String certs = CryptoUtil.base64Encode(certb);
 
-               // certObj.setCert(certs);
+                // certObj.setCert(certs);
                 String subsystem = config.getString(
                         PCERT_PREFIX + certTag + ".subsystem");
                 config.putString(subsystem + "." + certTag + ".cert", certs);
@@ -617,58 +619,57 @@ public class NamePanel extends WizardPanelBase {
             CMS.debug("NamePanel configCert() exception caught:" + e.toString());
         }
     }
- 
+
     public void configCertWithTag(HttpServletRequest request,
             HttpServletResponse response,
-            Context context, String tag) throws IOException 
-   {
-            CMS.debug("NamePanel: configCertWithTag start");
-            Enumeration c = mCerts.elements();
-            IConfigStore config = CMS.getConfigStore();
-         
-            while (c.hasMoreElements()) {
-                Cert cert = (Cert) c.nextElement();
-                String ct = cert.getCertTag(); 
-                CMS.debug("NamePanel: configCertWithTag ct=" + ct + 
-                        " tag=" +tag);
-                if (ct.equals(tag)) {
-                    try {
-                        String nickname = HttpInput.getNickname(request, ct + "_nick");
-                        if (nickname != null) {
-                            CMS.debug("configCertWithTag: Setting nickname for " + ct + " to " + nickname);
-                            config.putString(PCERT_PREFIX  + ct + ".nickname", nickname);
-                            cert.setNickname(nickname);
-                            config.commit(false);
-			}
-                        String dn = HttpInput.getDN(request, ct);
-                        if (dn != null) {
-                            config.putString(PCERT_PREFIX + ct + ".dn", dn);
-                            config.commit(false);
-                        }
-                    } catch (Exception e) {
-                        CMS.debug("NamePanel: configCertWithTag: Exception in setting nickname for " + ct + ": " + e.toString());
-                    }
+            Context context, String tag) throws IOException {
+        CMS.debug("NamePanel: configCertWithTag start");
+        Enumeration c = mCerts.elements();
+        IConfigStore config = CMS.getConfigStore();
 
-                    configCert(request, response, context, cert);
-                    CMS.debug("NamePanel: configCertWithTag done with tag=" + tag);
-                    return;
+        while (c.hasMoreElements()) {
+            Cert cert = (Cert) c.nextElement();
+            String ct = cert.getCertTag();
+            CMS.debug("NamePanel: configCertWithTag ct=" + ct +
+                        " tag=" + tag);
+            if (ct.equals(tag)) {
+                try {
+                    String nickname = HttpInput.getNickname(request, ct + "_nick");
+                    if (nickname != null) {
+                        CMS.debug("configCertWithTag: Setting nickname for " + ct + " to " + nickname);
+                        config.putString(PCERT_PREFIX + ct + ".nickname", nickname);
+                        cert.setNickname(nickname);
+                        config.commit(false);
+                    }
+                    String dn = HttpInput.getDN(request, ct);
+                    if (dn != null) {
+                        config.putString(PCERT_PREFIX + ct + ".dn", dn);
+                        config.commit(false);
+                    }
+                } catch (Exception e) {
+                    CMS.debug("NamePanel: configCertWithTag: Exception in setting nickname for " + ct + ": " + e.toString());
                 }
-           }
-            CMS.debug("NamePanel: configCertWithTag done");
+
+                configCert(request, response, context, cert);
+                CMS.debug("NamePanel: configCertWithTag done with tag=" + tag);
+                return;
+            }
+        }
+        CMS.debug("NamePanel: configCertWithTag done");
     }
 
     private boolean inputChanged(HttpServletRequest request)
-      throws IOException {
-        IConfigStore config = CMS.getConfigStore();         
-       
+            throws IOException {
+        IConfigStore config = CMS.getConfigStore();
+
         boolean hasChanged = false;
         try {
             Enumeration c = mCerts.elements();
 
             while (c.hasMoreElements()) {
                 Cert cert = (Cert) c.nextElement();
-                String ct = cert.getCertTag(); 
-                boolean enable = config.getBoolean(PCERT_PREFIX+ct+".enable", true);
+                String ct = cert.getCertTag();
+                boolean enable = config.getBoolean(PCERT_PREFIX + ct + ".enable", true);
                 if (!enable)
                     continue;
 
@@ -679,10 +680,10 @@ public class NamePanel extends WizardPanelBase {
                 if (!olddn.equals(dn))
                     hasChanged = true;
 
-               String oldnick = config.getString(PCERT_PREFIX + ct + ".nickname");
-               String nick = HttpInput.getNickname(request, ct + "_nick");
-               if (!oldnick.equals(nick))
-                   hasChanged = true;
+                String oldnick = config.getString(PCERT_PREFIX + ct + ".nickname");
+                String nick = HttpInput.getNickname(request, ct + "_nick");
+                if (!oldnick.equals(nick))
+                    hasChanged = true;
 
             }
         } catch (Exception e) {
@@ -690,34 +691,34 @@ public class NamePanel extends WizardPanelBase {
 
         return hasChanged;
     }
-   
-    public String getURL(HttpServletRequest request, IConfigStore config)
-    {
+
+    public String getURL(HttpServletRequest request, IConfigStore config) {
         String index = request.getParameter("urls");
-        if (index == null){
-          return null;
+        if (index == null) {
+            return null;
         }
         String url = "";
         if (index.startsWith("http")) {
-           // user may submit url directlry
-           url = index;
+            // user may submit url directlry
+            url = index;
         } else {
-          try {
-            int x = Integer.parseInt(index);
-            String list = config.getString("preop.ca.list", "");
-            StringTokenizer tokenizer = new StringTokenizer(list, ",");
-            int counter = 0;
+            try {
+                int x = Integer.parseInt(index);
+                String list = config.getString("preop.ca.list", "");
+                StringTokenizer tokenizer = new StringTokenizer(list, ",");
+                int counter = 0;
 
-            while (tokenizer.hasMoreTokens()) {
-                url = tokenizer.nextToken();
-                if (counter == x) {
-                    break;
+                while (tokenizer.hasMoreTokens()) {
+                    url = tokenizer.nextToken();
+                    if (counter == x) {
+                        break;
+                    }
+                    counter++;
                 }
-                counter++;
+            } catch (Exception e) {
             }
-          } catch (Exception e) {}
         }
-       return url;
+        return url;
     }
 
     /**
@@ -727,7 +728,7 @@ public class NamePanel extends WizardPanelBase {
             HttpServletResponse response,
             Context context) throws IOException {
         CMS.debug("NamePanel: in update()");
-	boolean hasErr = false;
+        boolean hasErr = false;
 
         if (inputChanged(request)) {
             mServlet.cleanUpFromPanel(mServlet.getPanelNo(request));
@@ -736,7 +737,7 @@ public class NamePanel extends WizardPanelBase {
             return;
         }
 
-        IConfigStore config = CMS.getConfigStore();         
+        IConfigStore config = CMS.getConfigStore();
 
         String hselect = "";
         ISubsystem subsystem = CMS.getSubsystem(ICertificateAuthority.ID);
@@ -750,13 +751,13 @@ public class NamePanel extends WizardPanelBase {
                 configCertWithTag(request, response, context, "sslserver");
                 String url = getURL(request, config);
                 if (url != null && !url.equals("External CA")) {
-                   // preop.ca.url and admin port are required for setting KRA connector
-                   url = url.substring(url.indexOf("https"));
-                   config.putString("preop.ca.url", url);
+                    // preop.ca.url and admin port are required for setting KRA connector
+                    url = url.substring(url.indexOf("https"));
+                    config.putString("preop.ca.url", url);
 
-                   URL urlx = new URL(url);
-                   updateCloneSDCAInfo(request, context, urlx.getHost(),
-                        Integer.toString(urlx.getPort()));
+                    URL urlx = new URL(url);
+                    updateCloneSDCAInfo(request, context, urlx.getHost(),
+                            Integer.toString(urlx.getPort()));
 
                 }
                 updateCloneConfig(config);
@@ -771,49 +772,50 @@ public class NamePanel extends WizardPanelBase {
         }
 
         //if no hselect, then not CA
-      if (hselect.equals("") || hselect.equals("join")) {
-        String select = null;
-        String url = getURL(request, config);
+        if (hselect.equals("") || hselect.equals("join")) {
+            String select = null;
+            String url = getURL(request, config);
 
-        URL urlx = null;
+            URL urlx = null;
 
-        if (url.equals("External CA")) {
-            CMS.debug("NamePanel: external CA selected");
-            select = "otherca";
-            config.putString("preop.ca.type", "otherca");
-            if (subsystem != null) {
-                config.putString(PCERT_PREFIX+"signing.type", "remote");
+            if (url.equals("External CA")) {
+                CMS.debug("NamePanel: external CA selected");
+                select = "otherca";
+                config.putString("preop.ca.type", "otherca");
+                if (subsystem != null) {
+                    config.putString(PCERT_PREFIX + "signing.type", "remote");
+                }
+
+                config.putString("preop.ca.pkcs7", "");
+                config.putInteger("preop.ca.certchain.size", 0);
+                context.put("check_otherca", "checked");
+                CMS.debug("NamePanel: update: this is the external CA.");
+            } else {
+                CMS.debug("NamePanel: local CA selected");
+                select = "sdca";
+                // parse URL (CA1 - https://...)
+                url = url.substring(url.indexOf("https"));
+                config.putString("preop.ca.url", url);
+
+                urlx = new URL(url);
+                config.putString("preop.ca.type", "sdca");
+                CMS.debug("NamePanel: update: this is a CA in the security domain.");
+                context.put("check_sdca", "checked");
+                sdca(request, context, urlx.getHost(),
+                        Integer.toString(urlx.getPort()));
+                if (subsystem != null) {
+                    config.putString(PCERT_PREFIX + "signing.type", "remote");
+                    config.putString(PCERT_PREFIX + "signing.profile",
+                            "caInstallCACert");
+                }
             }
 
-            config.putString("preop.ca.pkcs7", "");
-            config.putInteger("preop.ca.certchain.size", 0);
-            context.put("check_otherca", "checked");
-            CMS.debug("NamePanel: update: this is the external CA.");
-        } else {
-            CMS.debug("NamePanel: local CA selected");
-            select = "sdca";
-            // parse URL (CA1 - https://...)
-            url = url.substring(url.indexOf("https"));
-            config.putString("preop.ca.url", url);
-
-            urlx = new URL(url);
-            config.putString("preop.ca.type", "sdca");
-            CMS.debug("NamePanel: update: this is a CA in the security domain.");
-            context.put("check_sdca", "checked");
-            sdca(request, context, urlx.getHost(),
-                    Integer.toString(urlx.getPort()));
-            if (subsystem != null) {
-                config.putString(PCERT_PREFIX + "signing.type", "remote");
-                config.putString(PCERT_PREFIX + "signing.profile",
-                        "caInstallCACert");
+            try {
+                config.commit(false);
+            } catch (Exception e) {
             }
+
         }
-
-        try {
-            config.commit(false);
-        } catch (Exception e) {}
-
-     }
 
         try {
 
@@ -821,13 +823,13 @@ public class NamePanel extends WizardPanelBase {
 
             while (c.hasMoreElements()) {
                 Cert cert = (Cert) c.nextElement();
-                String ct = cert.getCertTag(); 
+                String ct = cert.getCertTag();
                 String tokenname = cert.getTokenname();
-                boolean enable = config.getBoolean(PCERT_PREFIX+ct+".enable", true);
+                boolean enable = config.getBoolean(PCERT_PREFIX + ct + ".enable", true);
                 if (!enable)
                     continue;
 
-                boolean certDone = config.getBoolean(PCERT_PREFIX+ct+".done", false);
+                boolean certDone = config.getBoolean(PCERT_PREFIX + ct + ".done", false);
                 if (certDone)
                     continue;
 
@@ -850,32 +852,32 @@ public class NamePanel extends WizardPanelBase {
 
                 try {
                     configCert(request, response, context, cert);
-                    config.putBoolean("preop.cert."+cert.getCertTag()+".done", 
-                      true);
+                    config.putBoolean("preop.cert." + cert.getCertTag() + ".done",
+                            true);
                     config.commit(false);
                 } catch (Exception e) {
                     CMS.debug(
                             "NamePanel: update() exception caught:"
                                     + e.toString());
-		    hasErr = true;
+                    hasErr = true;
                     System.err.println("Exception caught: " + e.toString());
                 }
 
             } // while 
-	        if (hasErr == false) {
-              config.putBoolean("preop.NamePanel.done", true);
-              config.commit(false);
-	        }
+            if (hasErr == false) {
+                config.putBoolean("preop.NamePanel.done", true);
+                config.commit(false);
+            }
 
         } catch (Exception e) {
             CMS.debug("NamePanel: Exception caught: " + e.toString());
             System.err.println("Exception caught: " + e.toString());
         }// try
 
-
         try {
             config.commit(false);
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
 
         if (!hasErr) {
             context.put("updateStatus", "success");
@@ -897,15 +899,15 @@ public class NamePanel extends WizardPanelBase {
 
         // Retrieve the associated HTTPS Admin port so that it
         // may be stored for use with ImportAdminCertPanel
-        https_admin_port = getSecurityDomainAdminPort( config,
+        https_admin_port = getSecurityDomainAdminPort(config,
                                                        hostname,
                                                        httpsPortStr,
-                                                       "CA" );
+                                                       "CA");
 
         int httpsport = -1;
 
         try {
-             httpsport = Integer.parseInt(httpsPortStr);
+            httpsport = Integer.parseInt(httpsPortStr);
         } catch (Exception e) {
             CMS.debug(
                     "NamePanel update: Https port is not valid. Exception: "
@@ -934,15 +936,15 @@ public class NamePanel extends WizardPanelBase {
 
         // Retrieve the associated HTTPS Admin port so that it
         // may be stored for use with ImportAdminCertPanel
-        https_admin_port = getSecurityDomainAdminPort( config,
+        https_admin_port = getSecurityDomainAdminPort(config,
                                                        hostname,
                                                        httpsPortStr,
-                                                       "CA" );
+                                                       "CA");
 
         int httpsport = -1;
 
         try {
-             httpsport = Integer.parseInt(httpsPortStr);
+            httpsport = Integer.parseInt(httpsPortStr);
         } catch (Exception e) {
             CMS.debug(
                     "NamePanel update: Https port is not valid. Exception: "
@@ -954,21 +956,19 @@ public class NamePanel extends WizardPanelBase {
         config.putString("preop.ca.httpsport", httpsPortStr);
         config.putString("preop.ca.httpsadminport", https_admin_port);
         ConfigCertApprovalCallback certApprovalCallback = new ConfigCertApprovalCallback();
-        updateCertChainUsingSecureEEPort( config, "ca", hostname,
+        updateCertChainUsingSecureEEPort(config, "ca", hostname,
                                           httpsport, true, context,
-                                          certApprovalCallback );
+                                          certApprovalCallback);
         try {
-           CMS.debug("Importing CA chain");
-           importCertChain("ca");
+            CMS.debug("Importing CA chain");
+            importCertChain("ca");
         } catch (Exception e1) {
-           CMS.debug("Failed in importing CA chain");
+            CMS.debug("Failed in importing CA chain");
         }
     }
 
-
     public void initParams(HttpServletRequest request, Context context)
-                   throws IOException
-    {
+                   throws IOException {
         context.put("certs", mCerts);
     }
 
@@ -977,10 +977,9 @@ public class NamePanel extends WizardPanelBase {
      */
     public void displayError(HttpServletRequest request,
             HttpServletResponse response,
-            Context context) 
-    {
+            Context context) {
         try {
-          initParams(request, context);
+            initParams(request, context);
         } catch (IOException e) {
         }
         context.put("title", "Subject Names");

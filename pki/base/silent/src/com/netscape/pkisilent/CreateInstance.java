@@ -1,4 +1,5 @@
 package com.netscape.pkisilent;
+
 // --- BEGIN COPYRIGHT BLOCK ---
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -20,7 +21,6 @@ package com.netscape.pkisilent;
 import java.net.URLEncoder;
 
 import com.netscape.pkisilent.common.PostQuery;
-
 
 public class CreateInstance {
 
@@ -95,7 +95,7 @@ public class CreateInstance {
             adminDomain = args[8];
 
         }
-	
+
         boolean st = newinstance.CreateInstance();
 
         if (!st) {
@@ -105,10 +105,7 @@ public class CreateInstance {
 
         System.out.println("Certificate System - Instance created");
         System.exit(0);
-	
+
     }
 
-}
-
-
-;
+};

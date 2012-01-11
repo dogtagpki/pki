@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.authentication;
 
-
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -50,14 +49,13 @@ import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.util.Debug;
 
-
 /**
  * Challenge phrase based authentication.
  * Maps a certificate to the request in the
  * internal database and further compares the challenge phrase with
  * that from the EE input.
  * <P>
- *
+ * 
  * @author cfu chrisho
  * @version $Revision$, $Date$
  */
@@ -69,7 +67,7 @@ public class ChallengePhraseAuthentication implements IAuthManager {
     /* required credentials */
     public static final String CRED_CERT_SERIAL = IAuthManager.CRED_CERT_SERIAL_TO_REVOKE;
     public static final String CRED_CHALLENGE = "challengePhrase";
-    protected String[] mRequiredCreds = { CRED_CERT_SERIAL, CRED_CHALLENGE};
+    protected String[] mRequiredCreds = { CRED_CERT_SERIAL, CRED_CHALLENGE };
 
     /* config parameters to pass to console (none) */
     protected static String[] mConfigParams = null;
@@ -98,14 +96,14 @@ public class ChallengePhraseAuthentication implements IAuthManager {
     /**
      * initializes the ChallengePhraseAuthentication auth manager
      * <p>
-     * called by AuthSubsystem init() method, when initializing
-     * all available authentication managers.
+     * called by AuthSubsystem init() method, when initializing all available authentication managers.
+     * 
      * @param name The name of this authentication manager instance.
      * @param implName The name of the authentication manager plugin.
      * @param config The configuration store for this authentication manager.
      */
     public void init(String name, String implName, IConfigStore config)
-        throws EBaseException {
+            throws EBaseException {
         mName = name;
         mImplName = implName;
         mConfig = config;
@@ -118,7 +116,7 @@ public class ChallengePhraseAuthentication implements IAuthManager {
 
         log(ILogger.LL_INFO, CMS.getLogMessage("INIT_DONE", name));
     }
- 
+
     /**
      * Gets the name of this authentication manager.
      */
@@ -132,24 +130,24 @@ public class ChallengePhraseAuthentication implements IAuthManager {
     public String getImplName() {
         return mImplName;
     }
- 
+
     /**
      * authenticates revocation of a certification by a challenge phrase
      * <p>
-     * called by other subsystems or their servlets to authenticate
-     *	 a revocation request
+     * called by other subsystems or their servlets to authenticate a revocation request
+     * 
      * @param authCred - authentication credential that contains
-     *	 a Certificate to revoke
+     *            a Certificate to revoke
      * @return the authentication token that contains the request id
-     *
+     * 
      * @exception EMissingCredential If a required credential for this
-     * authentication manager is missing.
+     *                authentication manager is missing.
      * @exception EInvalidCredentials If credentials cannot be authenticated.
      * @exception EBaseException If an internal error occurred.
      * @see com.netscape.certsrv.authentication.AuthToken
      */
     public IAuthToken authenticate(IAuthCredentials authCred)
-        throws EMissingCredential, EInvalidCredentials, EBaseException {
+            throws EMissingCredential, EInvalidCredentials, EBaseException {
         mCA = (ICertificateAuthority)
                 SubsystemRegistry.getInstance().get("ca");
 
@@ -186,7 +184,7 @@ public class ChallengePhraseAuthentication implements IAuthManager {
                     serialNum = new
                             BigInteger(serialNumString);
                 }
-						
+
             } catch (NumberFormatException e) {
                 throw new EAuthUserError(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_ATTRIBUTE_VALUE", "Invalid serial number."));
             }
@@ -240,7 +238,7 @@ public class ChallengePhraseAuthentication implements IAuthManager {
                     if (samepwd) {
                         bigIntArray = new BigInteger[1];
                         bigIntArray[0] = record.getSerialNumber();
-                    } else 
+                    } else
                         throw new EAuthUserError(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_ATTRIBUTE_VALUE", "Invalid password."));
 
                 } else {
@@ -283,7 +281,7 @@ public class ChallengePhraseAuthentication implements IAuthManager {
         if (bigIntArray != null && bigIntArray.length > 0) {
             if (Debug.ON) {
                 Debug.trace("challenge authentication serialno array not null");
-                for (int i = 0; i < bigIntArray.length; i++) 
+                for (int i = 0; i < bigIntArray.length; i++)
                     Debug.trace("challenge auth serialno " + bigIntArray[i]);
             }
         }
@@ -295,8 +293,8 @@ public class ChallengePhraseAuthentication implements IAuthManager {
         return authToken;
     }
 
-    private boolean compareChallengePassword(CertRecord record, String pwd) 
-        throws EBaseException {
+    private boolean compareChallengePassword(CertRecord record, String pwd)
+            throws EBaseException {
         MetaInfo metaInfo = (MetaInfo) record.get(CertRecord.ATTR_META_INFO);
 
         if (metaInfo == null) {
@@ -312,8 +310,8 @@ public class ChallengePhraseAuthentication implements IAuthManager {
         String hashpwd = hashPassword(pwd);
 
         // got metaInfo
-        String challengeString = 
-            (String) metaInfo.get(CertRecord.META_CHALLENGE_PHRASE);
+        String challengeString =
+                (String) metaInfo.get(CertRecord.META_CHALLENGE_PHRASE);
 
         if (challengeString == null) {
             if (Debug.ON) {
@@ -330,16 +328,17 @@ public class ChallengePhraseAuthentication implements IAuthManager {
              "Incorrect challenge phrase password used for revocation");
              throw new EInvalidCredentials();
              */
-        } else 
+        } else
             return true;
     }
 
     /**
      * get the list of authentication credential attribute names
-     *	 required by this authentication manager. Generally used by
-     *	 the servlets that handle agent operations to authenticate its
-     *	 users.  It calls this method to know which are the
-     *	 required credentials from the user (e.g. Javascript form data)
+     * required by this authentication manager. Generally used by
+     * the servlets that handle agent operations to authenticate its
+     * users. It calls this method to know which are the
+     * required credentials from the user (e.g. Javascript form data)
+     * 
      * @return attribute names in Vector
      */
     public String[] getRequiredCreds() {
@@ -348,14 +347,15 @@ public class ChallengePhraseAuthentication implements IAuthManager {
 
     /**
      * get the list of configuration parameter names
-     *	 required by this authentication manager.  Generally used by
-     *	 the Certificate Server Console to display the table for
-     *	 configuration purposes.  ChallengePhraseAuthentication is currently not
-     *	 exposed in this case, so this method is not to be used.
+     * required by this authentication manager. Generally used by
+     * the Certificate Server Console to display the table for
+     * configuration purposes. ChallengePhraseAuthentication is currently not
+     * exposed in this case, so this method is not to be used.
+     * 
      * @return configuration parameter names in Hashtable of Vectors
-     *	 where each hashtable entry's key is the substore name, value is a
-     * Vector of parameter names.  If no substore, the parameter name
-     *	 is the Hashtable key itself, with value same as key.
+     *         where each hashtable entry's key is the substore name, value is a
+     *         Vector of parameter names. If no substore, the parameter name
+     *         is the Hashtable key itself, with value same as key.
      */
     public String[] getConfigParams() {
         return (mConfigParams);
@@ -369,7 +369,8 @@ public class ChallengePhraseAuthentication implements IAuthManager {
 
     /**
      * gets the configuretion substore used by this authentication
-     *  manager
+     * manager
+     * 
      * @return configuration store
      */
     public IConfigStore getConfigStore() {
@@ -380,7 +381,7 @@ public class ChallengePhraseAuthentication implements IAuthManager {
         if (mLogger == null)
             return;
         mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_AUTHENTICATION,
-            level, msg);
+                level, msg);
     }
 
     private IRequestQueue getReqQueue() {
@@ -388,15 +389,15 @@ public class ChallengePhraseAuthentication implements IAuthManager {
 
         try {
             IRegistrationAuthority ra = (IRegistrationAuthority)
-                SubsystemRegistry.getInstance().get("ra");
+                    SubsystemRegistry.getInstance().get("ra");
 
             if (ra != null) {
                 queue = ra.getRequestQueue();
                 mRequestor = IRequest.REQUESTOR_RA;
             }
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE, 
-                " cannot get access to the request queue.");
+            log(ILogger.LL_FAILURE,
+                    " cannot get access to the request queue.");
         }
 
         return queue;

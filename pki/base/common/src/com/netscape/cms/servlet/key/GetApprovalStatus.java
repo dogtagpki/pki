@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.key;
 
-
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -45,10 +44,9 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 
-
 /**
  * Check to see if a Key Recovery Request has been approved
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class GetApprovalStatus extends CMSServlet {
@@ -81,7 +79,7 @@ public class GetApprovalStatus extends CMSServlet {
      * initialize the servlet. This servlet uses the template files
      * "getApprovalStatus.template" and "finishRecovery.template"
      * to process the response.
-     *
+     * 
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -95,8 +93,8 @@ public class GetApprovalStatus extends CMSServlet {
     /**
      * Returns serlvet information.
      */
-    public String getServletInfo() { 
-        return INFO; 
+    public String getServletInfo() {
+        return INFO;
     }
 
     /**
@@ -104,7 +102,7 @@ public class GetApprovalStatus extends CMSServlet {
      * <ul>
      * <li>http.param recoveryID request ID to check
      * </ul>
-     *
+     * 
      * @param cmsReq the object holding the request and response information
      */
     public void process(CMSRequest cmsReq) throws EBaseException {
@@ -148,12 +146,12 @@ public class GetApprovalStatus extends CMSServlet {
 
             if (params == null) {
                 log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_NO_RECOVERY_TOKEN_FOUND_1", recoveryID));
+                        CMS.getLogMessage("CMSGW_NO_RECOVERY_TOKEN_FOUND_1", recoveryID));
                 throw new ECMSGWException(
-                  CMS.getUserMessage("CMS_GW_NO_RECOVERY_TOKEN_FOUND", recoveryID));
+                        CMS.getUserMessage("CMS_GW_NO_RECOVERY_TOKEN_FOUND", recoveryID));
             }
             header.addStringValue("serialNumber",
-                (String) params.get("keyID"));
+                    (String) params.get("keyID"));
 
             int requiredNumber = mService.getNoOfRequiredAgents();
 
@@ -174,7 +172,7 @@ public class GetApprovalStatus extends CMSServlet {
 
                 if (pkcs12 != null) {
                     rComplete = 1;
-                    header.addStringValue(OUT_STATUS, "complete");        
+                    header.addStringValue(OUT_STATUS, "complete");
 
                     /*
                      mService.destroyRecoveryParams(recoveryID);
@@ -193,8 +191,8 @@ public class GetApprovalStatus extends CMSServlet {
                      */
                 } else if (((IKeyRecoveryAuthority) mService).getError(recoveryID) != null) {
                     // error in recovery process 
-                    header.addStringValue(OUT_ERROR, 
-                        ((IKeyRecoveryAuthority) mService).getError(recoveryID));
+                    header.addStringValue(OUT_ERROR,
+                            ((IKeyRecoveryAuthority) mService).getError(recoveryID));
                     rComplete = 1;
                 } else {
                     // pk12 hasn't been created yet.
@@ -210,16 +208,16 @@ public class GetApprovalStatus extends CMSServlet {
                 mFormPath = "/" + ((IAuthority) mService).getId() + "/" + TPL_FINISH;
             } else {
                 mFormPath = "/" + ((IAuthority) mService).getId() + "/" + TPL_FILE;
-            }    
+            }
             if (mOutputTemplatePath != null)
                 mFormPath = mOutputTemplatePath;
             try {
                 form = getTemplate(mFormPath, req, locale);
             } catch (IOException e) {
                 log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()));
+                        CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()));
                 throw new ECMSGWException(
-                  CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+                        CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
             }
 
             ServletOutputStream out = resp.getOutputStream();
@@ -228,9 +226,9 @@ public class GetApprovalStatus extends CMSServlet {
             form.renderOutput(out, argSet);
         } catch (IOException e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()));
+                    CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()));
             throw new ECMSGWException(
-                  CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
 
         cmsReq.setStatus(CMSRequest.SUCCESS);

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.authentication;
 
-
 // ldap java sdk
 import java.util.Enumeration;
 import java.util.Locale;
@@ -47,15 +46,14 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 
-
 /**
  * uid/pwd directory based authentication manager
  * <P>
- *
+ * 
  * @version $Revision$, $Date$
  */
-public class UidPwdDirAuthentication extends DirBasedAuthentication 
-    implements IProfileAuthenticator {
+public class UidPwdDirAuthentication extends DirBasedAuthentication
+        implements IProfileAuthenticator {
 
     /* required credentials to authenticate. uid and pwd are strings. */
     public static final String CRED_UID = "uid";
@@ -67,26 +65,26 @@ public class UidPwdDirAuthentication extends DirBasedAuthentication
      * for instances of this implementation can be configured through the
      * console.
      */
-    protected static String[] mConfigParams = 
-        new String[] {	PROP_DNPATTERN,
-            PROP_LDAPSTRINGATTRS,
-            PROP_LDAPBYTEATTRS,
-            "ldap.ldapconn.host",
-            "ldap.ldapconn.port",
-            "ldap.ldapconn.secureConn",
-            "ldap.ldapconn.version",
-            "ldap.basedn",
-            "ldap.minConns", 
-            "ldap.maxConns",
+    protected static String[] mConfigParams =
+            new String[] { PROP_DNPATTERN,
+                    PROP_LDAPSTRINGATTRS,
+                    PROP_LDAPBYTEATTRS,
+                    "ldap.ldapconn.host",
+                    "ldap.ldapconn.port",
+                    "ldap.ldapconn.secureConn",
+                    "ldap.ldapconn.version",
+                    "ldap.basedn",
+                    "ldap.minConns",
+                    "ldap.maxConns",
         };
 
     static {
         mExtendedPluginInfo.add(IExtendedPluginInfo.HELP_TEXT +
-            ";Authenticate the username and password provided " +
-            "by the user against an LDAP directory. Works with the " +
-            "Dir Based Enrollment HTML form");
+                ";Authenticate the username and password provided " +
+                "by the user against an LDAP directory. Works with the " +
+                "Dir Based Enrollment HTML form");
         mExtendedPluginInfo.add(IExtendedPluginInfo.HELP_TOKEN +
-            ";configuration-authrules-uidpwddirauth");
+                ";configuration-authrules-uidpwddirauth");
     };
 
     /**
@@ -102,12 +100,12 @@ public class UidPwdDirAuthentication extends DirBasedAuthentication
      * @param authCreds The authentication credentials.
      * @return The user's ldap entry dn.
      * @exception EInvalidCredentials If the uid and password are not valid
-     * @exception EBaseException If an internal error occurs. 
+     * @exception EBaseException If an internal error occurs.
      */
-    protected String authenticate(LDAPConnection conn, 
-        IAuthCredentials authCreds,
-        AuthToken token)
-        throws EBaseException {
+    protected String authenticate(LDAPConnection conn,
+            IAuthCredentials authCreds,
+            AuthToken token)
+            throws EBaseException {
         String userdn = null;
         String uid = null;
 
@@ -119,12 +117,12 @@ public class UidPwdDirAuthentication extends DirBasedAuthentication
             if (uid == null) {
                 throw new EMissingCredential(CMS.getUserMessage("CMS_AUTHENTICATION_NULL_CREDENTIAL", CRED_UID));
             }
-	
+
             // get the password.
             String pwd = (String) authCreds.get(CRED_PWD);
 
             if (pwd == null) {
-                throw new EMissingCredential(CMS.getUserMessage("CMS_AUTHENTICATION_NULL_CREDENTIAL",CRED_PWD));
+                throw new EMissingCredential(CMS.getUserMessage("CMS_AUTHENTICATION_NULL_CREDENTIAL", CRED_PWD));
             }
             if (pwd.equals("")) {
                 // anonymous binding not allowed
@@ -133,7 +131,7 @@ public class UidPwdDirAuthentication extends DirBasedAuthentication
             }
 
             // get user dn.
-            CMS.debug("Authenticating: Searching for UID=" + uid + 
+            CMS.debug("Authenticating: Searching for UID=" + uid +
                       " base DN=" + mBaseDN);
             LDAPSearchResults res = conn.search(mBaseDN,
                     LDAPv2.SCOPE_SUB, "(uid=" + uid + ")", null, false);
@@ -160,8 +158,8 @@ public class UidPwdDirAuthentication extends DirBasedAuthentication
             throw e;
         } catch (LDAPException e) {
             switch (e.getLDAPResultCode()) {
-            case LDAPException.NO_SUCH_OBJECT: 
-            case LDAPException.LDAP_PARTIAL_RESULTS: 
+            case LDAPException.NO_SUCH_OBJECT:
+            case LDAPException.LDAP_PARTIAL_RESULTS:
                 log(ILogger.LL_SECURITY, CMS.getLogMessage("USER_NOT_EXIST", uid));
                 throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
 
@@ -174,20 +172,20 @@ public class UidPwdDirAuthentication extends DirBasedAuthentication
                 throw new ELdapException(
                         CMS.getUserMessage("CMS_LDAP_SERVER_UNAVAILABLE", conn.getHost(), "" + conn.getPort()));
 
-            default: 
+            default:
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.getMessage()));
                 throw new ELdapException(
-                        CMS.getUserMessage("CMS_LDAP_OTHER_LDAP_EXCEPTION", 
-                            e.errorCodeToString()));
+                        CMS.getUserMessage("CMS_LDAP_OTHER_LDAP_EXCEPTION",
+                                e.errorCodeToString()));
             }
-        } 
+        }
     }
 
     /**
-     * Returns a list of configuration parameter names. 
-     * The list is passed to the configuration console so instances of 
+     * Returns a list of configuration parameter names.
+     * The list is passed to the configuration console so instances of
      * this implementation can be configured through the console.
-     *
+     * 
      * @return String array of configuration parameter names.
      */
     public String[] getConfigParams() {
@@ -196,6 +194,7 @@ public class UidPwdDirAuthentication extends DirBasedAuthentication
 
     /**
      * Returns array of required credentials for this authentication manager.
+     * 
      * @return Array of required credentials.
      */
     public String[] getRequiredCreds() {
@@ -203,9 +202,9 @@ public class UidPwdDirAuthentication extends DirBasedAuthentication
     }
 
     // Profile-related methods
-      
+
     public void init(IProfile profile, IConfigStore config)
-        throws EProfileException {
+            throws EProfileException {
     }
 
     /**
@@ -247,19 +246,19 @@ public class UidPwdDirAuthentication extends DirBasedAuthentication
      * parameter by name.
      */
     public IDescriptor getValueDescriptor(Locale locale, String name) {
-        if (name.equals(CRED_UID)) { 
+        if (name.equals(CRED_UID)) {
             return new Descriptor(IDescriptor.STRING, null, null,
                     CMS.getUserMessage(locale, "CMS_AUTHENTICATION_LDAP_UID"));
         } else if (name.equals(CRED_PWD)) {
             return new Descriptor(IDescriptor.PASSWORD, null, null,
                     CMS.getUserMessage(locale, "CMS_AUTHENTICATION_LDAP_PWD"));
-	
+
         }
         return null;
     }
 
-    public void populate(IAuthToken token, IRequest request) 
-        throws EProfileException {
+    public void populate(IAuthToken token, IRequest request)
+            throws EProfileException {
         request.setExtData(IProfileAuthenticator.AUTHENTICATED_NAME,
                 token.getInString(USER_DN));
     }

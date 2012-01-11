@@ -33,7 +33,7 @@ import org.mozilla.jss.pkix.cert.Extension;
 
 /**
  * RFC 2560:
- *
+ * 
  * <pre>
  * TBSRequest      ::=     SEQUENCE {
  *  version             [0] EXPLICIT Version DEFAULT v1,
@@ -41,33 +41,29 @@ import org.mozilla.jss.pkix.cert.Extension;
  *  requestList             SEQUENCE OF Request,
  *  requestExtensions   [2] EXPLICIT Extensions OPTIONAL }
  * </pre>
- *
+ * 
  * @version $Revision$ $Date$
  */
 
-public class TBSRequest implements ASN1Value
-{
+public class TBSRequest implements ASN1Value {
     ///////////////////////////////////////////////////////////////////////
     // members and member access
     ///////////////////////////////////////////////////////////////////////
-    private static final INTEGER v1 = new INTEGER (0);
+    private static final INTEGER v1 = new INTEGER(0);
     private INTEGER version;
     private ANY requestorName;
     private SEQUENCE requestList;
     private SEQUENCE requestExtensions;
 
-    public INTEGER getVersion()
-    {
+    public INTEGER getVersion() {
         return version;
     }
 
-    public ANY getRequestorName()
-    {
+    public ANY getRequestorName() {
         return requestorName;
-    }    
+    }
 
-    public int getRequestCount()
-    {
+    public int getRequestCount() {
         if (requestList == null) {
             return 0;
         } else {
@@ -75,13 +71,11 @@ public class TBSRequest implements ASN1Value
         }
     }
 
-    public Request getRequestAt(int index)
-    {
+    public Request getRequestAt(int index) {
         return (Request) requestList.elementAt(index);
     }
 
-    public int getExtensionsCount()
-    {
+    public int getExtensionsCount() {
         if (requestExtensions == null) {
             return 0;
         } else {
@@ -89,18 +83,16 @@ public class TBSRequest implements ASN1Value
         }
     }
 
-    public Extension getRequestExtensionAt(int index)
-    {
+    public Extension getRequestExtensionAt(int index) {
         return (Extension) requestExtensions.elementAt(index);
     }
 
     ///////////////////////////////////////////////////////////////////////
     // constructors
     ///////////////////////////////////////////////////////////////////////
-    
+
     public TBSRequest(INTEGER version, ANY requestorName,
-        SEQUENCE requestList, SEQUENCE requestExtensions)
-    {
+            SEQUENCE requestList, SEQUENCE requestExtensions) {
         this.version = (version != null) ? version : v1;
         this.requestorName = requestorName;
         this.requestList = requestList;
@@ -112,20 +104,17 @@ public class TBSRequest implements ASN1Value
     ///////////////////////////////////////////////////////////////////////
     public static final Tag TAG = SEQUENCE.TAG;
 
-    public Tag getTag()
-    {
+    public Tag getTag() {
         return TAG;
     }
 
     public void encode(OutputStream ostream)
-        throws IOException
-    {
+            throws IOException {
         encode(TAG, ostream);
     }
 
     public void encode(Tag implicitTag, OutputStream ostream)
-        throws IOException
-    {
+            throws IOException {
         SEQUENCE seq = new SEQUENCE();
 
         if (version != v1) {
@@ -150,52 +139,46 @@ public class TBSRequest implements ASN1Value
 
     private static final Template templateInstance = new Template();
 
-    public static Template getTemplate()
-    {
+    public static Template getTemplate() {
         return templateInstance;
     }
 
     /**
      * A Template for decoding TBSRequest.
      */
-    public static class Template implements ASN1Template
-    {
+    public static class Template implements ASN1Template {
 
         private SEQUENCE.Template seqt;
 
-        public Template()
-        {
+        public Template() {
             seqt = new SEQUENCE.Template();
             seqt.addElement(
-                new EXPLICIT.Template(
-                    new Tag(0), new INTEGER.Template()),
-                new EXPLICIT( new Tag(0), new INTEGER(0)) 
-            );
+                    new EXPLICIT.Template(
+                            new Tag(0), new INTEGER.Template()),
+                    new EXPLICIT(new Tag(0), new INTEGER(0))
+                    );
             seqt.addOptionalElement(
-                new EXPLICIT.Template(
-                    new Tag (1), new ANY.Template()) );
-            seqt.addElement( new SEQUENCE.OF_Template(new Request.Template()) );
+                    new EXPLICIT.Template(
+                            new Tag(1), new ANY.Template()));
+            seqt.addElement(new SEQUENCE.OF_Template(new Request.Template()));
             seqt.addOptionalElement(new EXPLICIT.Template(new Tag(2),
-                new SEQUENCE.OF_Template(new Extension.Template())) );
+                    new SEQUENCE.OF_Template(new Extension.Template())));
         }
 
-        public boolean tagMatch(Tag tag)
-        {
+        public boolean tagMatch(Tag tag) {
             return TAG.equals(tag);
         }
 
         public ASN1Value decode(InputStream istream)
-            throws InvalidBERException, IOException
-        {
+                throws InvalidBERException, IOException {
             return decode(TAG, istream);
         }
 
         public ASN1Value decode(Tag implicitTag, InputStream istream)
-                throws InvalidBERException, IOException
-        {
+                throws InvalidBERException, IOException {
             SEQUENCE seq = (SEQUENCE) seqt.decode(implicitTag, istream);
 
-            INTEGER v = v1;  //assume default version
+            INTEGER v = v1; //assume default version
             EXPLICIT e_ver = (EXPLICIT) seq.elementAt(0);
             if (e_ver != null) {
                 v = (INTEGER) e_ver.getContent();
@@ -212,16 +195,16 @@ public class TBSRequest implements ASN1Value
             EXPLICIT exts = (EXPLICIT) seq.elementAt(3);
             SEQUENCE exts_seq;
             if (exts != null) {
-                exts_seq = (SEQUENCE)exts.getContent();
+                exts_seq = (SEQUENCE) exts.getContent();
             } else {
                 exts_seq = null;
             }
 
             return new TBSRequest(
-                v,
-                requestorname,
-                (SEQUENCE) seq.elementAt(2),
-                exts_seq);
+                    v,
+                    requestorname,
+                    (SEQUENCE) seq.elementAt(2),
+                    exts_seq);
         }
     }
 }

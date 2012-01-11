@@ -17,13 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.listeners;
 
-
 import com.netscape.certsrv.base.EBaseException;
-
 
 /**
  * A class represents a listener exception.
  * <P>
+ * 
  * @version $Revision$, $Date$
  */
 public class EListenersException extends EBaseException {
@@ -40,8 +39,9 @@ public class EListenersException extends EBaseException {
     /**
      * Constructs a listeners exception.
      * <P>
+     * 
      * @param msgFormat The error message resource key.
-    */
+     */
     public EListenersException(String msgFormat) {
         super(msgFormat);
     }
@@ -49,6 +49,7 @@ public class EListenersException extends EBaseException {
     /**
      * Constructs a listeners exception.
      * <P>
+     * 
      * @param msgFormat exception details in message string format.
      * @param param message string parameter.
      */
@@ -59,27 +60,31 @@ public class EListenersException extends EBaseException {
     /**
      * Constructs a Listeners exception.
      * <P>
+     * 
      * @param msgFormat The resource key.
      * @param e The parameter as an exception.
      */
     public EListenersException(String msgFormat, Exception e) {
         super(msgFormat, e);
     }
-    
+
     /**
      * Constructs a Listeners exception.
      * <P>
+     * 
      * @param msgFormat The resource key.
      * @param params Array of params.
      */
     public EListenersException(String msgFormat, Object params[]) {
         super(msgFormat, params);
     }
+
     /**
      * get the listener resource class name.
      * <P>
+     * 
      * @return the class name of the resource.
-    */
+     */
     protected String getBundleName() {
         return LISTENERS_RESOURCES;
     }

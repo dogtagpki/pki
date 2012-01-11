@@ -27,49 +27,47 @@ import netscape.security.util.ASN1CharStrConvMap;
 import netscape.security.util.DerValue;
 
 /**
- * A AVAValueConverter that converts a Printable String attribute to a DerValue 
+ * A AVAValueConverter that converts a Printable String attribute to a DerValue
  * and vice versa. An example an attribute that is a printable string is "C".
- *
+ * 
  * @see ASN1CharStrConvMap
  * @see AVAValueConverter
- *
+ * 
  * @author Lily Hsiao, Slava Galperin at Netscape Communications, Inc.
  */
 
-public class PrintableConverter implements AVAValueConverter
-{
+public class PrintableConverter implements AVAValueConverter {
     // public constructors.
 
-    public PrintableConverter()
-    {
+    public PrintableConverter() {
     }
 
     /**
      * Converts a string with ASN.1 Printable characters to a DerValue.
      * 
-     * @param valueString 	a string with Printable characters.
+     * @param valueString a string with Printable characters.
      * 
-     * @return			a DerValue. 
+     * @return a DerValue.
      * 
-     * @exception IOException	if a Printable encoder is not
-     *				available for the conversion.
+     * @exception IOException if a Printable encoder is not
+     *                available for the conversion.
      */
     public DerValue getValue(String valueString)
-	throws IOException
-    {
-	return getValue(valueString, null);
+            throws IOException {
+        return getValue(valueString, null);
     }
 
     public DerValue getValue(String valueString, byte[] tags) throws IOException {
         try {
             CharsetEncoder encoder = ASN1CharStrConvMap.getDefault().getEncoder(DerValue.tag_PrintableString);
-            if (encoder == null) throw new IOException("No encoder for printable");
+            if (encoder == null)
+                throw new IOException("No encoder for printable");
 
             CharBuffer charBuffer = CharBuffer.wrap(valueString.toCharArray());
             ByteBuffer byteBuffer = encoder.encode(charBuffer);
 
             return new DerValue(DerValue.tag_PrintableString,
-                byteBuffer.array(), byteBuffer.arrayOffset(), byteBuffer.limit());
+                    byteBuffer.array(), byteBuffer.arrayOffset(), byteBuffer.limit());
 
         } catch (CharacterCodingException e) {
             throw new IllegalArgumentException("Invalid Printable String AVA Value", e);
@@ -81,38 +79,36 @@ public class PrintableConverter implements AVAValueConverter
      * Checks if the BER encoded value is a PrintableString.
      * NOTE only DER encoded values are currently accepted on input.
      * 
-     * @param berStream 	A byte array of the BER encoded value.
+     * @param berStream A byte array of the BER encoded value.
      * 
-     * @return 			A DerValue. 
+     * @return A DerValue.
      * 
-     * @exception IOException   if the BER value cannot be converted to a 
-     *				PrintableString DER value.
+     * @exception IOException if the BER value cannot be converted to a
+     *                PrintableString DER value.
      */
     public DerValue getValue(byte[] berStream)
-	throws IOException
-    {
-	DerValue value = new DerValue(berStream);
-	if (value.tag != DerValue.tag_PrintableString)
-	    throw new IOException("Invalid Printable String AVA Value");
-	return value;
+            throws IOException {
+        DerValue value = new DerValue(berStream);
+        if (value.tag != DerValue.tag_PrintableString)
+            throw new IOException("Invalid Printable String AVA Value");
+        return value;
     }
 
     /**
-     * Converts a DerValue of PrintableString to a java string with 
-     * PrintableString characters. 
+     * Converts a DerValue of PrintableString to a java string with
+     * PrintableString characters.
      * 
-     * @param avaValue 	a DerValue.
-     *
-     * @return 		a string with PrintableString characters.
-     *
-     * @exception IOException 	if the DerValue is not a PrintableString i.e.
-     *				The DerValue cannot be converted to a string
-     *				with PrintableString characters.
+     * @param avaValue a DerValue.
+     * 
+     * @return a string with PrintableString characters.
+     * 
+     * @exception IOException if the DerValue is not a PrintableString i.e.
+     *                The DerValue cannot be converted to a string
+     *                with PrintableString characters.
      */
     public String getAsString(DerValue avaValue)
-	throws IOException
-    {
-	return avaValue.getPrintableString();
+            throws IOException {
+        return avaValue.getPrintableString();
     }
 
 }

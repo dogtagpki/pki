@@ -1,4 +1,5 @@
 package com.netscape.pkisilent.argparser;
+
 // --- BEGIN COPYRIGHT BLOCK ---
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -18,38 +19,36 @@ package com.netscape.pkisilent.argparser;
 // --- END COPYRIGHT BLOCK ---
 
 /**
-  * Wrapper class which ``holds'' an integer value,
-  * enabling methods to return integer values through
-  * arguments.
-  */
-public class IntHolder implements java.io.Serializable
-{
-	/**
+ * Wrapper class which ``holds'' an integer value,
+ * enabling methods to return integer values through
+ * arguments.
+ */
+public class IntHolder implements java.io.Serializable {
+    /**
      *
      */
     private static final long serialVersionUID = -5303361328570056819L;
     /**
-	 * Value of the integer, set and examined
-	 * by the application as needed.
-	 */
-	public int value;
+     * Value of the integer, set and examined
+     * by the application as needed.
+     */
+    public int value;
 
-	/**
-	 * Constructs a new <code>IntHolder</code> with an initial
-	 * value of 0.
-	 */
-	public IntHolder ()
-	 { value = 0;
-	 }
+    /**
+     * Constructs a new <code>IntHolder</code> with an initial
+     * value of 0.
+     */
+    public IntHolder() {
+        value = 0;
+    }
 
-	/**
-	 * Constructs a new <code>IntHolder</code> with a
-	 * specific initial value.
-	 *
-	 * @param i Initial integer value.
-	 */
-	public IntHolder (int i)
-	 { value = i;
-	 }
+    /**
+     * Constructs a new <code>IntHolder</code> with a
+     * specific initial value.
+     * 
+     * @param i Initial integer value.
+     */
+    public IntHolder(int i) {
+        value = i;
+    }
 }
-

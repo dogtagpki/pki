@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.base;
 
-
 import java.util.Hashtable;
 
 import com.netscape.certsrv.base.ISubsystem;
@@ -38,7 +37,7 @@ public class SubsystemRegistry extends Hashtable<String, ISubsystem> {
     }
 
     public ISubsystem get(String key) {
-        return  super.get(key);
+        return super.get(key);
     }
 
 }

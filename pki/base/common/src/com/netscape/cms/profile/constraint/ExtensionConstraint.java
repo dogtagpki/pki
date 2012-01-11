@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.constraint;
 
-
 import java.util.Locale;
 
 import netscape.security.x509.Extension;
@@ -37,12 +36,11 @@ import com.netscape.cms.profile.def.EnrollExtDefault;
 import com.netscape.cms.profile.def.NoDefault;
 import com.netscape.cms.profile.def.UserExtensionDefault;
 
-
 /**
  * This class implements the general extension constraint.
  * It checks if the extension in the certificate
  * template satisfies the criteria.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class ExtensionConstraint extends EnrollConstraint {
@@ -57,33 +55,32 @@ public class ExtensionConstraint extends EnrollConstraint {
     }
 
     public void init(IProfile profile, IConfigStore config)
-        throws EProfileException {
+            throws EProfileException {
         super.init(profile, config);
     }
 
     public void setConfig(String name, String value)
-        throws EPropertyException {
+            throws EPropertyException {
 
         if (mConfig.getSubStore("params") == null) {
             CMS.debug("ExtensionConstraint: mConfig.getSubStore is null");
         } else {
             CMS.debug("ExtensionConstraint: setConfig name=" + name +
-                 " value=" + value);
+                    " value=" + value);
 
-            if(name.equals(CONFIG_OID))
-            {
-               try {
-                 CMS.checkOID("", value);
-               } catch (Exception e) {
-                   throw new EPropertyException(
-                      CMS.getUserMessage("CMS_PROFILE_PROPERTY_ERROR", value));
-               }
+            if (name.equals(CONFIG_OID)) {
+                try {
+                    CMS.checkOID("", value);
+                } catch (Exception e) {
+                    throw new EPropertyException(
+                            CMS.getUserMessage("CMS_PROFILE_PROPERTY_ERROR", value));
+                }
             }
             mConfig.getSubStore("params").putString(name, value);
         }
     }
 
-    public IDescriptor getConfigDescriptor(Locale locale, String name) { 
+    public IDescriptor getConfigDescriptor(Locale locale, String name) {
         if (name.equals(CONFIG_CRITICAL)) {
             return new Descriptor(IDescriptor.CHOICE, "true,false,-",
                     "-",
@@ -101,16 +98,16 @@ public class ExtensionConstraint extends EnrollConstraint {
      * during the validation.
      */
     public void validate(IRequest request, X509CertInfo info)
-        throws ERejectException {
+            throws ERejectException {
 
-        Extension ext = getExtension(getConfig(CONFIG_OID), info); 
+        Extension ext = getExtension(getConfig(CONFIG_OID), info);
 
         if (ext == null) {
             throw new ERejectException(
                     CMS.getUserMessage(
-                        getLocale(request),
-                        "CMS_PROFILE_EXTENSION_NOT_FOUND",
-                        getConfig(CONFIG_OID)));
+                            getLocale(request),
+                            "CMS_PROFILE_EXTENSION_NOT_FOUND",
+                            getConfig(CONFIG_OID)));
         }
 
         // check criticality 
@@ -119,12 +116,12 @@ public class ExtensionConstraint extends EnrollConstraint {
         if (!isOptional(value)) {
             boolean critical = getBoolean(value);
 
-            if (critical != ext.isCritical()) { 
+            if (critical != ext.isCritical()) {
                 throw new ERejectException(
                         CMS.getUserMessage(getLocale(request),
-                            "CMS_PROFILE_CRITICAL_NOT_MATCHED"));
+                                "CMS_PROFILE_CRITICAL_NOT_MATCHED"));
             }
-        } 
+        }
     }
 
     public String getText(Locale locale) {
@@ -133,7 +130,7 @@ public class ExtensionConstraint extends EnrollConstraint {
                 getConfig(CONFIG_OID)
             };
 
-        return CMS.getUserMessage(locale, 
+        return CMS.getUserMessage(locale,
                 "CMS_PROFILE_CONSTRAINT_EXTENSION_TEXT", params);
     }
 

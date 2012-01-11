@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.cert;
 
-
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Enumeration;
@@ -58,10 +57,9 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 
-
 /**
  * Update the configured LDAP server with specified objects
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class UpdateDir extends CMSServlet {
@@ -85,12 +83,12 @@ public class UpdateDir extends CMSServlet {
     private final static int REVOKED_FROM = 10;
     private final static int REVOKED_TO = 11;
     private final static int CHECK_FLAG = 12;
-    private final static String[] updateName = 
-        {"updateAll", "updateCRL", "updateCA",
-            "updateValid", "validFrom", "validTo",
-            "updateExpired", "expiredFrom", "expiredTo",
-            "updateRevoked", "revokedFrom", "revokedTo",
-            "checkFlag"};
+    private final static String[] updateName =
+        { "updateAll", "updateCRL", "updateCA",
+                "updateValid", "validFrom", "validTo",
+                "updateExpired", "expiredFrom", "expiredTo",
+                "updateRevoked", "revokedFrom", "revokedTo",
+                "checkFlag" };
 
     private String mFormPath = null;
     private ICertificateAuthority mCA = null;
@@ -112,7 +110,7 @@ public class UpdateDir extends CMSServlet {
     public void init(ServletConfig sc) throws ServletException {
         super.init(sc);
 
-        if( mAuthority != null ) {
+        if (mAuthority != null) {
             mFormPath = "/" + mAuthority.getId() + "/" + TPL_FILE;
             if (mAuthority instanceof ICertificateAuthority) {
                 mCA = (ICertificateAuthority) mAuthority;
@@ -129,8 +127,8 @@ public class UpdateDir extends CMSServlet {
     }
 
     /**
-     * Process the HTTP request. 
-     *
+     * Process the HTTP request.
+     * 
      * @param cmsReq the object holding the request and response information
      */
     public void process(CMSRequest cmsReq) throws EBaseException {
@@ -146,10 +144,10 @@ public class UpdateDir extends CMSServlet {
                         mAuthzResourceName, "update");
         } catch (EAuthzAccessDenied e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
         } catch (Exception e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
         }
 
         if (authzToken == null) {
@@ -169,17 +167,17 @@ public class UpdateDir extends CMSServlet {
         try {
             form = getTemplate(mFormPath, req, locale);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
 
         try {
             String crlIssuingPointId = req.getParameter("crlIssuingPoint");
 
             if (mPublisherProcessor == null ||
-                !mPublisherProcessor.enabled())
+                    !mPublisherProcessor.enabled())
                 throw new ECMSGWException(CMS.getUserMessage("CMS_GW_NO_PUB_MODULE"));
 
             String[] updateValue = new String[updateName.length];
@@ -191,7 +189,7 @@ public class UpdateDir extends CMSServlet {
             String masterHost = CMS.getConfigStore().getString("master.ca.agent.host", "");
             String masterPort = CMS.getConfigStore().getString("master.ca.agent.port", "");
             if (masterHost != null && masterHost.length() > 0 &&
-                masterPort != null && masterPort.length() > 0) {
+                    masterPort != null && masterPort.length() > 0) {
                 mClonedCA = true;
             }
 
@@ -206,29 +204,29 @@ public class UpdateDir extends CMSServlet {
             if (error == null) {
                 String xmlOutput = req.getParameter("xml");
                 if (xmlOutput != null && xmlOutput.equals("true")) {
-                  outputXML(resp, argSet);
+                    outputXML(resp, argSet);
                 } else {
-                  resp.setContentType("text/html");
-                  form.renderOutput(out, argSet);
-                  cmsReq.setStatus(CMSRequest.SUCCESS);
+                    resp.setContentType("text/html");
+                    form.renderOutput(out, argSet);
+                    cmsReq.setStatus(CMSRequest.SUCCESS);
                 }
             } else {
                 cmsReq.setStatus(CMSRequest.ERROR);
                 cmsReq.setError(error);
             }
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSGW_ERR_OUT_STREAM_TEMPLATE", e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSGW_ERR_OUT_STREAM_TEMPLATE", e.toString()));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
     }
 
     private void updateCRLIssuingPoint(
-        IArgBlock header, 
-        String crlIssuingPointId,
-        ICRLIssuingPoint crlIssuingPoint,
-        Locale locale) {
+            IArgBlock header,
+            String crlIssuingPointId,
+            ICRLIssuingPoint crlIssuingPoint,
+            Locale locale) {
         SessionContext sc = SessionContext.getContext();
 
         sc.put(ICRLIssuingPoint.SC_ISSUING_POINT_ID, crlIssuingPointId);
@@ -237,28 +235,28 @@ public class UpdateDir extends CMSServlet {
 
         try {
             if (mCRLRepository != null) {
-                crlRecord = (ICRLIssuingPointRecord)mCRLRepository.readCRLIssuingPointRecord(crlIssuingPointId);
+                crlRecord = (ICRLIssuingPointRecord) mCRLRepository.readCRLIssuingPointRecord(crlIssuingPointId);
             }
         } catch (EBaseException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ERR_GET_CRL_RECORD", e.toString()));
         }
 
         if (crlRecord == null) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSGW_CRL_NOT_YET_UPDATED_1", crlIssuingPointId));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSGW_CRL_NOT_YET_UPDATED_1", crlIssuingPointId));
             header.addStringValue("crlPublished", "Failure");
             header.addStringValue("crlError",
-                new ECMSGWException(CMS.getUserMessage(locale, "CMS_GW_CRL_NOT_YET_UPDATED")).toString());
+                    new ECMSGWException(CMS.getUserMessage(locale, "CMS_GW_CRL_NOT_YET_UPDATED")).toString());
         } else {
-            String publishDN = (crlIssuingPoint != null)? crlIssuingPoint.getPublishDN(): null;
+            String publishDN = (crlIssuingPoint != null) ? crlIssuingPoint.getPublishDN() : null;
             byte[] crlbytes = crlRecord.getCRL();
 
             if (crlbytes == null) {
-                log(ILogger.LL_FAILURE, 
-                    CMS.getLogMessage("CMSGW_CRL_NOT_YET_UPDATED_1", ""));
+                log(ILogger.LL_FAILURE,
+                        CMS.getLogMessage("CMSGW_CRL_NOT_YET_UPDATED_1", ""));
                 header.addStringValue("crlPublished", "Failure");
                 header.addStringValue("crlError",
-                    new ECMSGWException(CMS.getUserMessage(locale, "CMS_GW_CRL_NOT_YET_UPDATED")).toString());
+                        new ECMSGWException(CMS.getUserMessage(locale, "CMS_GW_CRL_NOT_YET_UPDATED")).toString());
             } else {
                 X509CRLImpl crl = null;
 
@@ -271,13 +269,13 @@ public class UpdateDir extends CMSServlet {
                 if (crl == null) {
                     header.addStringValue("crlPublished", "Failure");
                     header.addStringValue("crlError",
-                        new ECMSGWException(CMS.getUserMessage(locale,"CMS_GW_DECODE_CRL_FAILED")).toString());
+                            new ECMSGWException(CMS.getUserMessage(locale, "CMS_GW_DECODE_CRL_FAILED")).toString());
                 } else {
                     try {
                         if (publishDN != null) {
                             mPublisherProcessor.publishCRL(publishDN, crl);
                         } else {
-                            mPublisherProcessor.publishCRL(crl,crlIssuingPointId);
+                            mPublisherProcessor.publishCRL(crl, crlIssuingPointId);
                         }
                         header.addStringValue("crlPublished", "Success");
                     } catch (ELdapException e) {
@@ -307,20 +305,20 @@ public class UpdateDir extends CMSServlet {
                     BigInteger deltaNumber = crlRecord.getDeltaCRLNumber();
                     Long deltaCRLSize = crlRecord.getDeltaCRLSize();
                     if (deltaCRLSize != null && deltaCRLSize.longValue() > -1 &&
-                        crlNumber != null && deltaNumber != null &&
-                        deltaNumber.compareTo(crlNumber) >= 0) {
+                            crlNumber != null && deltaNumber != null &&
+                            deltaNumber.compareTo(crlNumber) >= 0) {
                         goodDelta = true;
                     }
                 }
 
                 if (deltaCrl != null && ((mClonedCA && goodDelta) ||
-                    (crlIssuingPoint != null &&
-                     crlIssuingPoint.isThisCurrentDeltaCRL(deltaCrl)))) {
+                        (crlIssuingPoint != null &&
+                        crlIssuingPoint.isThisCurrentDeltaCRL(deltaCrl)))) {
                     try {
                         if (publishDN != null) {
                             mPublisherProcessor.publishCRL(publishDN, deltaCrl);
                         } else {
-                            mPublisherProcessor.publishCRL(deltaCrl,crlIssuingPointId);
+                            mPublisherProcessor.publishCRL(deltaCrl, crlIssuingPointId);
                         }
                     } catch (ELdapException e) {
                         log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ERR_PUBLISH_DELTA_CRL", e.toString()));
@@ -331,16 +329,16 @@ public class UpdateDir extends CMSServlet {
     }
 
     private void process(CMSTemplateParams argSet, IArgBlock header,
-        HttpServletRequest req,
-        HttpServletResponse resp,
-        String crlIssuingPointId,
-        String[] updateValue,
-        Locale locale)
-        throws EBaseException {
+            HttpServletRequest req,
+            HttpServletResponse resp,
+            String crlIssuingPointId,
+            String[] updateValue,
+            Locale locale)
+            throws EBaseException {
         // all or crl
         if ((updateValue[UPDATE_ALL] != null &&
                 updateValue[UPDATE_ALL].equalsIgnoreCase("yes")) ||
-            (updateValue[UPDATE_CRL] != null &&
+                (updateValue[UPDATE_CRL] != null &&
                 updateValue[UPDATE_CRL].equalsIgnoreCase("yes"))) {
             // check if received issuing point ID is known to the server
             if (crlIssuingPointId != null) {
@@ -352,7 +350,8 @@ public class UpdateDir extends CMSServlet {
                     if (crlIssuingPointId.equals(ip.getId())) {
                         break;
                     }
-                    if (!ips.hasMoreElements()) crlIssuingPointId = null;
+                    if (!ips.hasMoreElements())
+                        crlIssuingPointId = null;
                 }
             }
             if (crlIssuingPointId == null) {
@@ -361,7 +360,7 @@ public class UpdateDir extends CMSServlet {
                     Vector ipNames = mCRLRepository.getIssuingPointsNames();
                     if (ipNames != null && ipNames.size() > 0) {
                         for (int i = 0; i < ipNames.size(); i++) {
-                            String ipName = (String)ipNames.elementAt(i);
+                            String ipName = (String) ipNames.elementAt(i);
 
                             updateCRLIssuingPoint(header, ipName, null, locale);
                         }
@@ -377,11 +376,11 @@ public class UpdateDir extends CMSServlet {
                 }
             } else {
                 ICRLIssuingPoint crlIssuingPoint =
-                    mCA.getCRLIssuingPoint(crlIssuingPointId);
+                        mCA.getCRLIssuingPoint(crlIssuingPointId);
                 ICRLIssuingPointRecord crlRecord = null;
 
-                updateCRLIssuingPoint(header, crlIssuingPointId, 
-                    crlIssuingPoint, locale);
+                updateCRLIssuingPoint(header, crlIssuingPointId,
+                        crlIssuingPoint, locale);
             }
         }
 
@@ -390,7 +389,7 @@ public class UpdateDir extends CMSServlet {
         // all or ca
         if ((updateValue[UPDATE_ALL] != null &&
                 updateValue[UPDATE_ALL].equalsIgnoreCase("yes")) ||
-            (updateValue[UPDATE_CA] != null &&
+                (updateValue[UPDATE_CA] != null &&
                 updateValue[UPDATE_CA].equalsIgnoreCase("yes"))) {
             X509CertImpl caCert = mCA.getSigningUnit().getCertImpl();
 
@@ -408,7 +407,7 @@ public class UpdateDir extends CMSServlet {
         // all or valid
         if ((updateValue[UPDATE_ALL] != null &&
                 updateValue[UPDATE_ALL].equalsIgnoreCase("yes")) ||
-            (updateValue[UPDATE_VALID] != null &&
+                (updateValue[UPDATE_VALID] != null &&
                 updateValue[UPDATE_VALID].equalsIgnoreCase("yes"))) {
             if (certificateRepository != null) {
                 if (updateValue[VALID_FROM].startsWith("0x")) {
@@ -420,16 +419,16 @@ public class UpdateDir extends CMSServlet {
                 Enumeration validCerts = null;
 
                 if (updateValue[CHECK_FLAG] != null &&
-                    updateValue[CHECK_FLAG].equalsIgnoreCase("yes")) {
-                    validCerts = 
+                        updateValue[CHECK_FLAG].equalsIgnoreCase("yes")) {
+                    validCerts =
                             certificateRepository.getValidNotPublishedCertificates(
-                                updateValue[VALID_FROM],
-                                updateValue[VALID_TO]);
+                                    updateValue[VALID_FROM],
+                                    updateValue[VALID_TO]);
                 } else {
-                    validCerts = 
+                    validCerts =
                             certificateRepository.getValidCertificates(
-                                updateValue[VALID_FROM],
-                                updateValue[VALID_TO]);
+                                    updateValue[VALID_FROM],
+                                    updateValue[VALID_TO]);
                 }
                 int i = 0;
                 int l = 0;
@@ -438,7 +437,7 @@ public class UpdateDir extends CMSServlet {
                 if (validCerts != null) {
                     while (validCerts.hasMoreElements()) {
                         ICertRecord certRecord =
-                            (ICertRecord) validCerts.nextElement();
+                                (ICertRecord) validCerts.nextElement();
                         //X509CertImpl cert = certRecord.getCertificate();
                         X509CertImpl cert = null;
                         Object o = certRecord.getCertificate();
@@ -454,9 +453,9 @@ public class UpdateDir extends CMSServlet {
                             // ca's self signed signing cert and
                             // server cert has no related request and
                             // have no metaInfo
-                            log(ILogger.LL_FAILURE,					
-                                CMS.getLogMessage("CMSGW_FAIL_GET_ICERT_RECORD",
-                                    cert.getSerialNumber().toString(16)));
+                            log(ILogger.LL_FAILURE,
+                                    CMS.getLogMessage("CMSGW_FAIL_GET_ICERT_RECORD",
+                                            cert.getSerialNumber().toString(16)));
                         } else {
                             ridString = (String) metaInfo.get(ICertRecord.META_REQUEST_ID);
                         }
@@ -465,55 +464,55 @@ public class UpdateDir extends CMSServlet {
 
                         if (ridString != null) {
                             RequestId rid = new RequestId(ridString);
-						
+
                             r = mCA.getRequestQueue().findRequest(rid);
-                        } 
+                        }
 
                         try {
                             l++;
-                            SessionContext sc = SessionContext.getContext();                                
+                            SessionContext sc = SessionContext.getContext();
 
                             if (r == null) {
                                 if (CMS.isEncryptionCert(cert))
                                     sc.put((Object) "isEncryptionCert", (Object) "true");
-                                else 
+                                else
                                     sc.put((Object) "isEncryptionCert", (Object) "false");
                                 mPublisherProcessor.publishCert(cert, null);
                             } else {
                                 if (CMS.isEncryptionCert(cert))
                                     r.setExtData("isEncryptionCert", "true");
-                                else 
+                                else
                                     r.setExtData("isEncryptionCert", "false");
                                 mPublisherProcessor.publishCert(cert, r);
                             }
                             i++;
                         } catch (Exception e) {
-                            log(ILogger.LL_FAILURE, 
-                                CMS.getLogMessage("CMSGW_FAIL_PUBLISH_CERT", certRecord.getSerialNumber().toString(16),
-                                    e.toString()));
+                            log(ILogger.LL_FAILURE,
+                                    CMS.getLogMessage("CMSGW_FAIL_PUBLISH_CERT", certRecord.getSerialNumber().toString(16),
+                                            e.toString()));
                             validCertsError +=
                                     "Failed to publish certificate: 0x" +
-                                    certRecord.getSerialNumber().toString(16) +
-                                    ".\n <BR> &nbsp;&nbsp;&nbsp;&nbsp;";
+                                            certRecord.getSerialNumber().toString(16) +
+                                            ".\n <BR> &nbsp;&nbsp;&nbsp;&nbsp;";
                         }
                     }
                 }
                 if (i > 0 && i == l) {
                     header.addStringValue("validCertsPublished",
-                        "Success");
+                            "Success");
                     if (i == 1)
-                        header.addStringValue("validCertsError", i + 
-                            " valid certificate is published in the directory.");
+                        header.addStringValue("validCertsError", i +
+                                " valid certificate is published in the directory.");
                     else
-                        header.addStringValue("validCertsError", i + 
-                            " valid certificates are published in the directory.");
+                        header.addStringValue("validCertsError", i +
+                                " valid certificates are published in the directory.");
                 } else {
                     if (l == 0) {
                         header.addStringValue("validCertsPublished", "No");
                     } else {
                         header.addStringValue("validCertsPublished", "Failure");
-                        header.addStringValue("validCertsError", 
-                            validCertsError);
+                        header.addStringValue("validCertsError",
+                                validCertsError);
                     }
                 }
             } else {
@@ -525,7 +524,7 @@ public class UpdateDir extends CMSServlet {
         // all or expired
         if ((updateValue[UPDATE_ALL] != null &&
                 updateValue[UPDATE_ALL].equalsIgnoreCase("yes")) ||
-            (updateValue[UPDATE_EXPIRED] != null &&
+                (updateValue[UPDATE_EXPIRED] != null &&
                 updateValue[UPDATE_EXPIRED].equalsIgnoreCase("yes"))) {
             if (certificateRepository != null) {
                 if (updateValue[EXPIRED_FROM].startsWith("0x")) {
@@ -537,25 +536,25 @@ public class UpdateDir extends CMSServlet {
                 Enumeration expiredCerts = null;
 
                 if (updateValue[CHECK_FLAG] != null &&
-                    updateValue[CHECK_FLAG].equalsIgnoreCase("yes")) {
+                        updateValue[CHECK_FLAG].equalsIgnoreCase("yes")) {
                     expiredCerts =
                             certificateRepository.getExpiredPublishedCertificates(
-                                updateValue[EXPIRED_FROM],
-                                updateValue[EXPIRED_TO]);
+                                    updateValue[EXPIRED_FROM],
+                                    updateValue[EXPIRED_TO]);
                 } else {
                     expiredCerts =
                             certificateRepository.getExpiredCertificates(
-                                updateValue[EXPIRED_FROM],
-                                updateValue[EXPIRED_TO]);
+                                    updateValue[EXPIRED_FROM],
+                                    updateValue[EXPIRED_TO]);
                 }
                 int i = 0;
                 int l = 0;
                 StringBuffer expiredCertsError = new StringBuffer();
 
-                if (expiredCerts != null) { 
+                if (expiredCerts != null) {
                     while (expiredCerts.hasMoreElements()) {
                         ICertRecord certRecord =
-                            (ICertRecord) expiredCerts.nextElement();
+                                (ICertRecord) expiredCerts.nextElement();
                         //X509CertImpl cert = certRecord.getCertificate();
                         X509CertImpl cert = null;
                         Object o = certRecord.getCertificate();
@@ -571,9 +570,9 @@ public class UpdateDir extends CMSServlet {
                             // ca's self signed signing cert and
                             // server cert has no related request and
                             // have no metaInfo
-                            log(ILogger.LL_FAILURE,					
-                                CMS.getLogMessage("CMSGW_FAIL_GET_ICERT_RECORD",
-                                    cert.getSerialNumber().toString(16)));
+                            log(ILogger.LL_FAILURE,
+                                    CMS.getLogMessage("CMSGW_FAIL_GET_ICERT_RECORD",
+                                            cert.getSerialNumber().toString(16)));
                         } else {
                             ridString = (String) metaInfo.get(ICertRecord.META_REQUEST_ID);
                         }
@@ -582,9 +581,9 @@ public class UpdateDir extends CMSServlet {
 
                         if (ridString != null) {
                             RequestId rid = new RequestId(ridString);
-						
+
                             r = mCA.getRequestQueue().findRequest(rid);
-                        } 
+                        }
 
                         try {
                             l++;
@@ -595,10 +594,10 @@ public class UpdateDir extends CMSServlet {
                             }
                             i++;
                         } catch (Exception e) {
-                            log(ILogger.LL_FAILURE, 
-                                CMS.getLogMessage("LDAP_ERROR_UNPUBLISH_CERT",
-                                    certRecord.getSerialNumber().toString(16),
-                                    e.toString()));
+                            log(ILogger.LL_FAILURE,
+                                    CMS.getLogMessage("LDAP_ERROR_UNPUBLISH_CERT",
+                                            certRecord.getSerialNumber().toString(16),
+                                            e.toString()));
                             expiredCertsError.append(
                                     "Failed to unpublish certificate: 0x");
                             expiredCertsError.append(
@@ -611,18 +610,18 @@ public class UpdateDir extends CMSServlet {
                 if (i > 0 && i == l) {
                     header.addStringValue("expiredCertsUnpublished", "Success");
                     if (i == 1)
-                        header.addStringValue("expiredCertsError", i + 
-                            " expired certificate is unpublished in the directory.");
+                        header.addStringValue("expiredCertsError", i +
+                                " expired certificate is unpublished in the directory.");
                     else
-                        header.addStringValue("expiredCertsError", i + 
-                            " expired certificates are unpublished in the directory.");
+                        header.addStringValue("expiredCertsError", i +
+                                " expired certificates are unpublished in the directory.");
                 } else {
                     if (l == 0) {
                         header.addStringValue("expiredCertsUnpublished", "No");
                     } else {
                         header.addStringValue("expiredCertsUnpublished", "Failure");
-                        header.addStringValue("expiredCertsError", 
-                            expiredCertsError.toString());
+                        header.addStringValue("expiredCertsError",
+                                expiredCertsError.toString());
                     }
                 }
             } else {
@@ -634,7 +633,7 @@ public class UpdateDir extends CMSServlet {
         // all or revoked
         if ((updateValue[UPDATE_ALL] != null &&
                 updateValue[UPDATE_ALL].equalsIgnoreCase("yes")) ||
-            (updateValue[UPDATE_REVOKED] != null &&
+                (updateValue[UPDATE_REVOKED] != null &&
                 updateValue[UPDATE_REVOKED].equalsIgnoreCase("yes"))) {
             if (certificateRepository != null) {
                 if (updateValue[REVOKED_FROM].startsWith("0x")) {
@@ -646,25 +645,25 @@ public class UpdateDir extends CMSServlet {
                 Enumeration revokedCerts = null;
 
                 if (updateValue[CHECK_FLAG] != null &&
-                    updateValue[CHECK_FLAG].equalsIgnoreCase("yes")) {
+                        updateValue[CHECK_FLAG].equalsIgnoreCase("yes")) {
                     revokedCerts =
                             certificateRepository.getRevokedPublishedCertificates(
-                                updateValue[REVOKED_FROM],
-                                updateValue[REVOKED_TO]);
+                                    updateValue[REVOKED_FROM],
+                                    updateValue[REVOKED_TO]);
                 } else {
                     revokedCerts =
                             certificateRepository.getRevokedCertificates(
-                                updateValue[REVOKED_FROM],
-                                updateValue[REVOKED_TO]);
+                                    updateValue[REVOKED_FROM],
+                                    updateValue[REVOKED_TO]);
                 }
                 int i = 0;
                 int l = 0;
                 String revokedCertsError = "";
 
-                if (revokedCerts != null) { 
+                if (revokedCerts != null) {
                     while (revokedCerts.hasMoreElements()) {
                         ICertRecord certRecord =
-                            (ICertRecord) revokedCerts.nextElement();
+                                (ICertRecord) revokedCerts.nextElement();
                         //X509CertImpl cert = certRecord.getCertificate();
                         X509CertImpl cert = null;
                         Object o = certRecord.getCertificate();
@@ -680,9 +679,9 @@ public class UpdateDir extends CMSServlet {
                             // ca's self signed signing cert and
                             // server cert has no related request and
                             // have no metaInfo
-                            log(ILogger.LL_FAILURE,					
-                                CMS.getLogMessage("CMSGW_FAIL_GET_ICERT_RECORD",
-                                    cert.getSerialNumber().toString(16)));
+                            log(ILogger.LL_FAILURE,
+                                    CMS.getLogMessage("CMSGW_FAIL_GET_ICERT_RECORD",
+                                            cert.getSerialNumber().toString(16)));
                         } else {
                             ridString = (String) metaInfo.get(ICertRecord.META_REQUEST_ID);
                         }
@@ -691,9 +690,9 @@ public class UpdateDir extends CMSServlet {
 
                         if (ridString != null) {
                             RequestId rid = new RequestId(ridString);
-						
+
                             r = mCA.getRequestQueue().findRequest(rid);
-                        } 
+                        }
 
                         try {
                             l++;
@@ -704,32 +703,32 @@ public class UpdateDir extends CMSServlet {
                             }
                             i++;
                         } catch (Exception e) {
-                            log(ILogger.LL_FAILURE, 
-                                CMS.getLogMessage("LDAP_ERROR_UNPUBLISH_CERT",
-                                    certRecord.getSerialNumber().toString(16),
-                                    e.toString()));
+                            log(ILogger.LL_FAILURE,
+                                    CMS.getLogMessage("LDAP_ERROR_UNPUBLISH_CERT",
+                                            certRecord.getSerialNumber().toString(16),
+                                            e.toString()));
                             revokedCertsError +=
                                     "Failed to unpublish certificate: 0x" +
-                                    certRecord.getSerialNumber().toString(16) +
-                                    ".\n <BR> &nbsp;&nbsp;&nbsp;&nbsp;";
+                                            certRecord.getSerialNumber().toString(16) +
+                                            ".\n <BR> &nbsp;&nbsp;&nbsp;&nbsp;";
                         }
                     }
                 }
                 if (i > 0 && i == l) {
                     header.addStringValue("revokedCertsUnpublished", "Success");
                     if (i == 1)
-                        header.addStringValue("revokedCertsError", i + 
-                            " revoked certificate is unpublished in the directory.");
+                        header.addStringValue("revokedCertsError", i +
+                                " revoked certificate is unpublished in the directory.");
                     else
-                        header.addStringValue("revokedCertsError", i + 
-                            " revoked certificates are unpublished in the directory.");
+                        header.addStringValue("revokedCertsError", i +
+                                " revoked certificates are unpublished in the directory.");
                 } else {
                     if (l == 0) {
                         header.addStringValue("revokedCertsUnpublished", "No");
                     } else {
                         header.addStringValue("revokedCertsUnpublished", "Failure");
-                        header.addStringValue("revokedCertsError", 
-                            revokedCertsError);
+                        header.addStringValue("revokedCertsError",
+                                revokedCertsError);
                     }
                 }
             } else {

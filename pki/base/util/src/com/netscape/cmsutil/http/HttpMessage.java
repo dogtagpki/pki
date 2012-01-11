@@ -17,21 +17,19 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmsutil.http;
 
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
-
 /**
- * Basic HTTP Message, excluding message body. 
+ * Basic HTTP Message, excluding message body.
  * Not optimized for performance.
  * Set fields or parse from input.
  */
 public class HttpMessage {
-    protected String mLine = null;  // request or response line.
+    protected String mLine = null; // request or response line.
     protected Hashtable mHeaders = null;
     protected String mContent = null; // arbitrary content chars assumed.
 
@@ -42,14 +40,14 @@ public class HttpMessage {
         mHeaders = new Hashtable();
     }
 
-    /** 
+    /**
      * Set a header field. <br>
      * Content-length is automatically set on write.<br>
      * If value spans multiple lines must be in proper http format for
      * multiple lines.
      */
     public void setHeader(String name, String value) {
-        if (mHeaders == null) 
+        if (mHeaders == null)
             mHeaders = new Hashtable();
         mHeaders.put(name.toLowerCase(), value);
     }
@@ -62,11 +60,11 @@ public class HttpMessage {
     }
 
     /**
-     * write http headers 
-     * does not support values of more than one line 
+     * write http headers
+     * does not support values of more than one line
      */
     public void writeHeaders(OutputStreamWriter writer)
-        throws IOException {
+            throws IOException {
         if (mHeaders != null) {
             Enumeration keys = mHeaders.keys();
             String header, value;
@@ -85,7 +83,7 @@ public class HttpMessage {
      * does not support values of more than one line or multivalue headers.
      */
     public void readHeaders(BufferedReader reader)
-        throws IOException {
+            throws IOException {
         mHeaders = new Hashtable();
 
         int colon;
@@ -93,7 +91,7 @@ public class HttpMessage {
 
         while (true) {
             line = reader.readLine();
-            if (line == null || line.equals("")) 
+            if (line == null || line.equals(""))
                 break;
             colon = line.indexOf(':');
             if (colon == -1) {
@@ -107,7 +105,7 @@ public class HttpMessage {
     }
 
     public void write(OutputStreamWriter writer)
-        throws IOException {
+            throws IOException {
         writer.write(mLine + Http.CRLF);
         writeHeaders(writer);
         writer.flush();
@@ -118,12 +116,12 @@ public class HttpMessage {
     }
 
     public void parse(BufferedReader reader)
-        throws IOException {
+            throws IOException {
         String line = reader.readLine();
 
-//        if (line == null) {
- //           throw new HttpEofException("End of stream reached");
-  //      }
+        //        if (line == null) {
+        //           throw new HttpEofException("End of stream reached");
+        //      }
         if (line.equals("")) {
             throw new HttpProtocolException("Bad Http req/resp line " + line);
         }
@@ -143,7 +141,7 @@ public class HttpMessage {
                 done = reader.read(cbuf, total, len - total);
                 total += done;
             }
-			
+
             mContent = new String(cbuf);
         }
     }

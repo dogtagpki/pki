@@ -17,12 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.constraint;
 
-
 import netscape.security.x509.X509CertImpl;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.ca.ICertificateAuthority;
-
 
 /**
  * This class represents an abstract class for CA enrollment
@@ -42,7 +40,7 @@ public abstract class CAEnrollConstraint extends EnrollConstraint {
      */
     public X509CertImpl getCACert() {
         ICertificateAuthority ca = (ICertificateAuthority)
-            CMS.getSubsystem(CMS.SUBSYSTEM_CA);
+                CMS.getSubsystem(CMS.SUBSYSTEM_CA);
         X509CertImpl caCert = ca.getCACert();
 
         return caCert;

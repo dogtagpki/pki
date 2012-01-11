@@ -17,14 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.util;
 
-
 import java.util.ListResourceBundle;
-
 
 /**
  * A class represents a resource bundle for miscellanous utilities
  * <P>
- *
+ * 
  * @author mikep
  * @version $Revision$, $Date$
  * @see java.util.ListResourceBundle
@@ -57,18 +55,18 @@ public class UtilResources extends ListResourceBundle {
     public final static String RESTART_SIG = "restartSignal";
 
     static final Object[][] contents = {
-            {HASH_FILE_CHECK_USAGE, "usage: HashFileCheck <filename>"},
-            {BAD_ARG_COUNT, "incorrect number of arguments"},
-            {NO_SUCH_FILE_1, "can''t find file {0}"},
-            {FILE_TRUNCATED, "Log file has been truncated."},
-            {DIGEST_MATCH_1, "Hash digest matches log file. {0} OK"},
-            {DIGEST_DONT_MATCH_1, "Hash digest does NOT match log file. {0} and/or hash file is corrupt or the password is incorrect."},
-            {EXCEPTION_1, "Caught unexpected exception {0}"},
-            {LOG_PASSWORD, "Please enter the log file hash digest password: "},
-            {NO_USERID, "No user id in config file.  Running as {0}"},
-            {NO_SUCH_USER_2, "No such user as {0}.  Running as {1}"},
-            {NO_UID_PERMISSION_2, "Can''t change process uid to {0}. Running as {1}"},
-            {SHUTDOWN_SIG, "Received shutdown signal"},
-            {RESTART_SIG, "Received restart signal"},
+            { HASH_FILE_CHECK_USAGE, "usage: HashFileCheck <filename>" },
+            { BAD_ARG_COUNT, "incorrect number of arguments" },
+            { NO_SUCH_FILE_1, "can''t find file {0}" },
+            { FILE_TRUNCATED, "Log file has been truncated." },
+            { DIGEST_MATCH_1, "Hash digest matches log file. {0} OK" },
+            { DIGEST_DONT_MATCH_1, "Hash digest does NOT match log file. {0} and/or hash file is corrupt or the password is incorrect." },
+            { EXCEPTION_1, "Caught unexpected exception {0}" },
+            { LOG_PASSWORD, "Please enter the log file hash digest password: " },
+            { NO_USERID, "No user id in config file.  Running as {0}" },
+            { NO_SUCH_USER_2, "No such user as {0}.  Running as {1}" },
+            { NO_UID_PERMISSION_2, "Can''t change process uid to {0}. Running as {1}" },
+            { SHUTDOWN_SIG, "Received shutdown signal" },
+            { RESTART_SIG, "Received restart signal" },
         };
 }

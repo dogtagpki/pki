@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.crl;
 
-
 import java.io.IOException;
 import java.util.Locale;
 
@@ -40,18 +39,18 @@ import com.netscape.certsrv.logging.ILogger;
 
 /**
  * This represents a certificate issuer extension.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class CMSCertificateIssuerExtension
-    implements ICMSCRLExtension, IExtendedPluginInfo {
+        implements ICMSCRLExtension, IExtendedPluginInfo {
     private ILogger mLogger = CMS.getLogger();
 
     public CMSCertificateIssuerExtension() {
     }
 
     public Extension setCRLExtensionCriticality(Extension ext,
-        boolean critical) {
+            boolean critical) {
         CertificateIssuerExtension certIssuerExt = null;
         GeneralNames names = null;
 
@@ -67,8 +66,8 @@ public class CMSCertificateIssuerExtension
     }
 
     public Extension getCRLExtension(IConfigStore config,
-        Object ip,
-        boolean critical) {
+            Object ip,
+            boolean critical) {
         CertificateIssuerExtension certIssuerExt = null;
         int numNames = 0;
 
@@ -207,10 +206,10 @@ public class CMSCertificateIssuerExtension
                 "nameType2;choice(DirectoryName,URI);Select Certificate Issuer name type.",
                 "name2;string;Enter Certificate Issuer name corresponding to the selected name type.",
                 IExtendedPluginInfo.HELP_TOKEN +
-                ";configuration-ca-edit-crlextension-certificateissuer",
+                        ";configuration-ca-edit-crlextension-certificateissuer",
                 IExtendedPluginInfo.HELP_TEXT +
-                ";This CRL entry extension identifies the certificate issuer" +
-                " associated with an entry in an indirect CRL."
+                        ";This CRL entry extension identifies the certificate issuer" +
+                        " associated with an entry in an indirect CRL."
             };
 
         return params;
@@ -219,4 +218,4 @@ public class CMSCertificateIssuerExtension
     private void log(int level, String msg) {
         mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_CA, level, msg);
     }
-} 
+}

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.def;
 
-
 import java.io.IOException;
 import java.util.Locale;
 
@@ -35,12 +34,11 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 
-
 /**
  * This class implements an enrollment default policy
  * that populates a user-supplied subject name
  * into the certificate template.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class UserSubjectNameDefault extends EnrollDefault {
@@ -53,7 +51,7 @@ public class UserSubjectNameDefault extends EnrollDefault {
     }
 
     public void init(IProfile profile, IConfigStore config)
-        throws EProfileException {
+            throws EProfileException {
         super.init(profile, config);
     }
 
@@ -67,8 +65,8 @@ public class UserSubjectNameDefault extends EnrollDefault {
     }
 
     public void setValue(String name, Locale locale,
-        X509CertInfo info, String value)
-        throws EPropertyException {
+            X509CertInfo info, String value)
+            throws EPropertyException {
         if (name == null) {
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
@@ -84,12 +82,12 @@ public class UserSubjectNameDefault extends EnrollDefault {
             }
             CMS.debug("SubjectNameDefault: setValue name=" + x500name);
             try {
-                info.set(X509CertInfo.SUBJECT, 
-                    new CertificateSubjectName(x500name));
+                info.set(X509CertInfo.SUBJECT,
+                        new CertificateSubjectName(x500name));
             } catch (Exception e) {
                 // failed to insert subject name
                 CMS.debug("UserSubjectNameDefault: setValue " + e.toString());
-                throw new EPropertyException(CMS.getUserMessage( 
+                throw new EPropertyException(CMS.getUserMessage(
                             locale, "CMS_INVALID_PROPERTY", name));
             }
         } else {
@@ -99,10 +97,10 @@ public class UserSubjectNameDefault extends EnrollDefault {
     }
 
     public String getValue(String name, Locale locale,
-        X509CertInfo info)
-        throws EPropertyException {
-        if (name == null) { 
-            throw new EPropertyException(CMS.getUserMessage( 
+            X509CertInfo info)
+            throws EPropertyException {
+        if (name == null) {
+            throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         }
         if (name.equals(VAL_NAME)) {
@@ -115,10 +113,10 @@ public class UserSubjectNameDefault extends EnrollDefault {
             } catch (Exception e) {
                 // nothing
             }
-            throw new EPropertyException(CMS.getUserMessage( 
+            throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         } else {
-            throw new EPropertyException(CMS.getUserMessage( 
+            throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         }
     }
@@ -131,7 +129,7 @@ public class UserSubjectNameDefault extends EnrollDefault {
      * Populates the request with this policy default.
      */
     public void populate(IRequest request, X509CertInfo info)
-        throws EProfileException {
+            throws EProfileException {
         // authenticate the subject name and populate it
         // to the certinfo
         try {

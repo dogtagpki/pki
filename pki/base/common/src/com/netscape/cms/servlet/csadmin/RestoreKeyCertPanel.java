@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
@@ -76,19 +75,20 @@ import com.netscape.cms.servlet.wizard.WizardServlet;
 
 public class RestoreKeyCertPanel extends WizardPanelBase {
 
-    public RestoreKeyCertPanel() {}
+    public RestoreKeyCertPanel() {
+    }
 
     /**
      * Initializes this panel.
      */
-    public void init(ServletConfig config, int panelno) 
-        throws ServletException {
+    public void init(ServletConfig config, int panelno)
+            throws ServletException {
         setPanelNo(panelno);
         setName("Import Keys and Certificates");
     }
 
     public void init(WizardServlet servlet, ServletConfig config, int panelno, String id)
-        throws ServletException {
+            throws ServletException {
         setPanelNo(panelno);
         setName("Import Keys and Certificates");
         setId(id);
@@ -99,18 +99,18 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
      */
     public boolean shouldSkip() {
         CMS.debug("RestoreKeyCertPanel: should skip");
-                                                                                
+
         IConfigStore cs = CMS.getConfigStore();
         // if we are root, no need to get the certificate chain.
-                                                                                
+
         try {
-            String select = cs.getString("preop.subsystem.select","");
+            String select = cs.getString("preop.subsystem.select", "");
             if (select.equals("clone")) {
                 return false;
             }
         } catch (EBaseException e) {
         }
-                                                                                
+
         return true;
     }
 
@@ -138,15 +138,16 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
             } else {
                 return true;
             }
-        } catch (EBaseException e) {}
+        } catch (EBaseException e) {
+        }
         return false;
     }
 
     public PropertySet getUsage() {
         PropertySet set = new PropertySet();
-                                                                                
+
         /* XXX */
-                                                                                
+
         return set;
     }
 
@@ -160,7 +161,7 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
         IConfigStore config = CMS.getConfigStore();
 
         if (isPanelDone()) {
-            
+
             try {
                 String s = config.getString("preop.pk12.path", "");
                 String type = config.getString("preop.subsystem.select", "");
@@ -201,7 +202,6 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
         //    throw new IOException("Path is empty");
         // }
 
-        
         if (s != null && !s.equals("")) {
             s = HttpInput.getPassword(request, "__password");
             if (s == null || s.equals("")) {
@@ -217,15 +217,14 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
      */
     public void update(HttpServletRequest request,
             HttpServletResponse response,
-            Context context) throws IOException 
-    {
+            Context context) throws IOException {
         IConfigStore config = CMS.getConfigStore();
         String path = HttpInput.getString(request, "path");
         if (path == null || path.equals("")) {
-              // skip to next panel
+            // skip to next panel
             config.putBoolean("preop.restorekeycert.done", true);
             try {
-              config.commit(false);
+                config.commit(false);
             } catch (EBaseException e) {
             }
             getConfigEntriesFromMaster(request, response, context);
@@ -233,7 +232,7 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
             return;
         }
         String pwd = HttpInput.getPassword(request, "__password");
-        
+
         String tokenn = "";
         String instanceRoot = "";
 
@@ -246,7 +245,7 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
         if (tokenn.equals("Internal Key Storage Token")) {
             byte b[] = new byte[1000000];
             FileInputStream fis = new FileInputStream(instanceRoot + "/alias/" + path);
-            while (fis.available() > 0) 
+            while (fis.available() > 0)
                 fis.read(b);
             fis.close();
 
@@ -256,10 +255,10 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
             PFX pfx = null;
             boolean verifypfx = false;
             try {
-                pfx = (PFX)(new PFX.Template()).decode(bis);
-                verifypfx = pfx.verifyAuthSafes(password, reason); 
+                pfx = (PFX) (new PFX.Template()).decode(bis);
+                verifypfx = pfx.verifyAuthSafes(password, reason);
             } catch (Exception e) {
-                CMS.debug("RestoreKeyCertPanel update: Exception="+e.toString());
+                CMS.debug("RestoreKeyCertPanel update: Exception=" + e.toString());
             }
 
             if (verifypfx) {
@@ -267,50 +266,50 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
                 AuthenticatedSafes safes = pfx.getAuthSafes();
                 Vector pkeyinfo_collection = new Vector();
                 Vector cert_collection = new Vector();
-                for (int i=0; i<safes.getSize(); i++) {
+                for (int i = 0; i < safes.getSize(); i++) {
                     try {
-                        SEQUENCE scontent = safes.getSafeContentsAt(null, i); 
-                        for (int j=0; j<scontent.size(); j++) {
-                            SafeBag bag = (SafeBag)scontent.elementAt(j);
+                        SEQUENCE scontent = safes.getSafeContentsAt(null, i);
+                        for (int j = 0; j < scontent.size(); j++) {
+                            SafeBag bag = (SafeBag) scontent.elementAt(j);
                             OBJECT_IDENTIFIER oid = bag.getBagType();
                             if (oid.equals(SafeBag.PKCS8_SHROUDED_KEY_BAG)) {
-                                EncryptedPrivateKeyInfo privkeyinfo = 
-                                  (EncryptedPrivateKeyInfo)bag.getInterpretedBagContent();
+                                EncryptedPrivateKeyInfo privkeyinfo =
+                                        (EncryptedPrivateKeyInfo) bag.getInterpretedBagContent();
                                 PasswordConverter passConverter = new PasswordConverter();
                                 PrivateKeyInfo pkeyinfo = privkeyinfo.decrypt(password, new PasswordConverter());
                                 Vector pkeyinfo_v = new Vector();
                                 pkeyinfo_v.addElement(pkeyinfo);
                                 SET bagAttrs = bag.getBagAttributes();
-                                for (int k=0; k<bagAttrs.size(); k++) {
-                                    Attribute attrs = (Attribute)bagAttrs.elementAt(k);
+                                for (int k = 0; k < bagAttrs.size(); k++) {
+                                    Attribute attrs = (Attribute) bagAttrs.elementAt(k);
                                     OBJECT_IDENTIFIER aoid = attrs.getType();
                                     if (aoid.equals(SafeBag.FRIENDLY_NAME)) {
                                         SET val = attrs.getValues();
-                                        ANY ss = (ANY)val.elementAt(0);
+                                        ANY ss = (ANY) val.elementAt(0);
                                         ByteArrayInputStream bbis = new ByteArrayInputStream(ss.getEncoded());
-                                        BMPString sss = (BMPString)(new BMPString.Template()).decode(bbis);
+                                        BMPString sss = (BMPString) (new BMPString.Template()).decode(bbis);
                                         String s = sss.toString();
                                         pkeyinfo_v.addElement(s);
                                     }
                                 }
                                 pkeyinfo_collection.addElement(pkeyinfo_v);
                             } else if (oid.equals(SafeBag.CERT_BAG)) {
-                                CertBag cbag = (CertBag)bag.getInterpretedBagContent();    
-                                OCTET_STRING str = (OCTET_STRING)cbag.getInterpretedCert();
+                                CertBag cbag = (CertBag) bag.getInterpretedBagContent();
+                                OCTET_STRING str = (OCTET_STRING) cbag.getInterpretedCert();
                                 byte[] x509cert = str.toByteArray();
                                 Vector cert_v = new Vector();
                                 cert_v.addElement(x509cert);
                                 SET bagAttrs = bag.getBagAttributes();
-                         
+
                                 if (bagAttrs != null) {
-                                    for (int k=0; k<bagAttrs.size(); k++) {
-                                        Attribute attrs = (Attribute)bagAttrs.elementAt(k);
+                                    for (int k = 0; k < bagAttrs.size(); k++) {
+                                        Attribute attrs = (Attribute) bagAttrs.elementAt(k);
                                         OBJECT_IDENTIFIER aoid = attrs.getType();
                                         if (aoid.equals(SafeBag.FRIENDLY_NAME)) {
                                             SET val = attrs.getValues();
-                                            ANY ss = (ANY)val.elementAt(0);
+                                            ANY ss = (ANY) val.elementAt(0);
                                             ByteArrayInputStream bbis = new ByteArrayInputStream(ss.getEncoded());
-                                            BMPString sss = (BMPString)(new BMPString.Template()).decode(bbis);
+                                            BMPString sss = (BMPString) (new BMPString.Template()).decode(bbis);
                                             String s = sss.toString();
                                             cert_v.addElement(s);
                                         }
@@ -321,10 +320,10 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
                             }
                         }
                     } catch (Exception e) {
-                        CMS.debug("RestoreKeyCertPanel update: Exception="+e.toString());
+                        CMS.debug("RestoreKeyCertPanel update: Exception=" + e.toString());
                     }
                 }
-            
+
                 importkeycert(pkeyinfo_collection, cert_collection);
             } else {
                 context.put("updateStatus", "failure");
@@ -342,7 +341,7 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
         cstype = toLowerCaseSubsystemType(cstype);
 
         if (subsystemtype.equals("clone")) {
-            CMS.debug("RestoreKeyCertPanel: this is the clone subsystem"); 
+            CMS.debug("RestoreKeyCertPanel: this is the clone subsystem");
             boolean cloneReady = isCertdbCloned(request, context);
             if (!cloneReady) {
                 CMS.debug("RestoreKeyCertPanel update: clone does not have all the certificates.");
@@ -363,7 +362,7 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
     }
 
     private void getConfigEntriesFromMaster(HttpServletRequest request,
-      HttpServletResponse response, Context context) throws IOException {
+            HttpServletResponse response, Context context) throws IOException {
         try {
             IConfigStore config = CMS.getConfigStore();
             String cstype = "";
@@ -388,14 +387,14 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
 
                 String content = "";
                 if (cstype.equals("ca") || cstype.equals("kra")) {
-                    content = "type=request&xmlOutput=true&sessionID="+session_id;
+                    content = "type=request&xmlOutput=true&sessionID=" + session_id;
                     CMS.debug("http content=" + content);
                     updateNumberRange(master_hostname, master_ee_port, true, content, "request", response);
 
-                    content = "type=serialNo&xmlOutput=true&sessionID="+session_id;
+                    content = "type=serialNo&xmlOutput=true&sessionID=" + session_id;
                     updateNumberRange(master_hostname, master_ee_port, true, content, "serialNo", response);
 
-                    content = "type=replicaId&xmlOutput=true&sessionID="+session_id;
+                    content = "type=replicaId&xmlOutput=true&sessionID=" + session_id;
                     updateNumberRange(master_hostname, master_ee_port, true, content, "replicaId", response);
                 }
 
@@ -406,7 +405,7 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
                 }
 
                 StringBuffer c1 = new StringBuffer();
-                StringBuffer s1 = new StringBuffer(); 
+                StringBuffer s1 = new StringBuffer();
                 StringTokenizer tok = new StringTokenizer(list, ",");
                 while (tok.hasMoreTokens()) {
                     String t1 = tok.nextToken();
@@ -438,8 +437,7 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
                     c1.append(t1);
                     c1.append(".pubkey.encoded");
 
-
-                    if (s1.length()!=0)
+                    if (s1.length() != 0)
                         s1.append(",");
 
                     s1.append(cstype);
@@ -449,18 +447,18 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
 
                 if (!cstype.equals("ca")) {
                     c1.append(",cloning.ca.hostname,cloning.ca.httpport,cloning.ca.httpsport,cloning.ca.list,cloning.ca.pkcs7,cloning.ca.type");
-                } 
+                }
 
                 if (cstype.equals("ca")) {
                     /* get ca connector details */
-                    if (s1.length()!=0)
+                    if (s1.length() != 0)
                         s1.append(",");
                     s1.append("ca.connector.KRA");
                 }
 
-                content = "op=get&names=cloning.token,instanceId,internaldb.basedn,internaldb.ldapauth.password,internaldb.replication.password,internaldb.ldapconn.host,internaldb.ldapconn.port,internaldb.ldapauth.bindDN"+c1.toString()+"&substores="+s1.toString()+"&xmlOutput=true&sessionID="+session_id;
+                content = "op=get&names=cloning.token,instanceId,internaldb.basedn,internaldb.ldapauth.password,internaldb.replication.password,internaldb.ldapconn.host,internaldb.ldapconn.port,internaldb.ldapauth.bindDN" + c1.toString() + "&substores=" + s1.toString() + "&xmlOutput=true&sessionID=" + session_id;
                 boolean success = updateConfigEntries(master_hostname, master_port, true,
-                  "/"+cstype+"/admin/"+cstype+"/getConfigEntries", content, config, response);
+                        "/" + cstype + "/admin/" + cstype + "/getConfigEntries", content, config, response);
                 if (!success) {
                     context.put("errorString", "Failed to get configuration entries from the master");
                     throw new IOException("Failed to get configuration entries from the master");
@@ -473,7 +471,7 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
             } catch (IOException eee) {
                 throw eee;
             } catch (Exception eee) {
-                CMS.debug("RestoreKeyCertPanel: update exception caught:"+eee.toString());
+                CMS.debug("RestoreKeyCertPanel: update exception caught:" + eee.toString());
             }
 
         } catch (IOException ee) {
@@ -491,38 +489,38 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
                 String s = st.nextToken();
                 if (s.equals("sslserver"))
                     continue;
-                String name = "preop.master."+s+".nickname";
+                String name = "preop.master." + s + ".nickname";
                 String nickname = cs.getString(name, "");
                 CryptoManager cm = CryptoManager.getInstance();
                 X509Certificate xcert = null;
                 try {
                     xcert = cm.findCertByNickname(nickname);
                 } catch (Exception ee) {
-                    CMS.debug("RestoreKeyCertPanel deleteExistingCerts: Exception="+ee.toString());
+                    CMS.debug("RestoreKeyCertPanel deleteExistingCerts: Exception=" + ee.toString());
                 }
                 CryptoToken ct = cm.getInternalKeyStorageToken();
                 CryptoStore store = ct.getCryptoStore();
                 try {
                     store.deleteCert(xcert);
                 } catch (Exception ee) {
-                    CMS.debug("RestoreKeyCertPanel deleteExistingCerts: Exception="+ee.toString());
+                    CMS.debug("RestoreKeyCertPanel deleteExistingCerts: Exception=" + ee.toString());
                 }
             }
         } catch (Exception e) {
-            CMS.debug("RestoreKeyCertPanel deleteExistingCerts: Exception="+e.toString());
-        } 
+            CMS.debug("RestoreKeyCertPanel deleteExistingCerts: Exception=" + e.toString());
+        }
     }
 
     private org.mozilla.jss.crypto.PrivateKey.Type getPrivateKeyType(PublicKey pubkey) {
-      CMS.debug("Key Algorithm '"+pubkey.getAlgorithm()+"'");
-      if (pubkey.getAlgorithm().equals("EC")) {
-        return org.mozilla.jss.crypto.PrivateKey.Type.EC;
-      }
-      return org.mozilla.jss.crypto.PrivateKey.Type.RSA;
+        CMS.debug("Key Algorithm '" + pubkey.getAlgorithm() + "'");
+        if (pubkey.getAlgorithm().equals("EC")) {
+            return org.mozilla.jss.crypto.PrivateKey.Type.EC;
+        }
+        return org.mozilla.jss.crypto.PrivateKey.Type.RSA;
     }
 
-    private void importkeycert(Vector pkeyinfo_collection, 
-      Vector cert_collection) throws IOException {
+    private void importkeycert(Vector pkeyinfo_collection,
+            Vector cert_collection) throws IOException {
         CryptoManager cm = null;
         try {
             cm = CryptoManager.getInstance();
@@ -532,12 +530,12 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
         // delete all existing certificates first
         deleteExistingCerts();
 
-        for (int i=0; i<pkeyinfo_collection.size(); i++) {
+        for (int i = 0; i < pkeyinfo_collection.size(); i++) {
             try {
-                Vector pkeyinfo_v = (Vector)pkeyinfo_collection.elementAt(i);
-                PrivateKeyInfo pkeyinfo = (PrivateKeyInfo)pkeyinfo_v.elementAt(0);
-                String nickname = (String)pkeyinfo_v.elementAt(1);
-                byte[] x509cert = getX509Cert(nickname, cert_collection); 
+                Vector pkeyinfo_v = (Vector) pkeyinfo_collection.elementAt(i);
+                PrivateKeyInfo pkeyinfo = (PrivateKeyInfo) pkeyinfo_v.elementAt(0);
+                String nickname = (String) pkeyinfo_v.elementAt(1);
+                byte[] x509cert = getX509Cert(nickname, cert_collection);
                 X509Certificate cert = cm.importCACertPackage(x509cert);
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
                 pkeyinfo.encode(bos);
@@ -550,32 +548,32 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
                 try {
                     store.deleteCert(cert);
                 } catch (Exception ee) {
-                    CMS.debug("RestoreKeyCertPanel importKeyCert: Exception="+ee.toString());
+                    CMS.debug("RestoreKeyCertPanel importKeyCert: Exception=" + ee.toString());
                 }
 
                 KeyGenerator kg = token.getKeyGenerator(KeyGenAlgorithm.DES3);
                 SymmetricKey sk = kg.generate();
-                byte iv[] = {0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1};
+                byte iv[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
                 IVParameterSpec param = new IVParameterSpec(iv);
                 Cipher c = token.getCipherContext(EncryptionAlgorithm.DES3_CBC_PAD);
                 c.initEncrypt(sk, param);
                 byte[] encpkey = c.doFinal(pkey);
-                
+
                 KeyWrapper wrapper = token.getKeyWrapper(KeyWrapAlgorithm.DES3_CBC_PAD);
                 wrapper.initUnwrap(sk, param);
                 org.mozilla.jss.crypto.PrivateKey pp = wrapper.unwrapPrivate(encpkey, getPrivateKeyType(publickey), publickey);
 
             } catch (Exception e) {
-                CMS.debug("RestoreKeyCertPanel importkeycert: Exception="+e.toString());
+                CMS.debug("RestoreKeyCertPanel importkeycert: Exception=" + e.toString());
             }
         }
 
-        for (int i=0; i<cert_collection.size(); i++) {
+        for (int i = 0; i < cert_collection.size(); i++) {
             try {
-                Vector cert_v = (Vector)cert_collection.elementAt(i);
-                byte[] cert = (byte[])cert_v.elementAt(0);
+                Vector cert_v = (Vector) cert_collection.elementAt(i);
+                byte[] cert = (byte[]) cert_v.elementAt(0);
                 if (cert_v.size() > 1) {
-                    String name = (String)cert_v.elementAt(1);
+                    String name = (String) cert_v.elementAt(1);
                     // we need to delete the trusted CA certificate if it is
                     // the same as the ca signing certificate
                     if (isCASigningCert(name)) {
@@ -586,10 +584,10 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
                             CMS.debug("RestoreKeyCertPanel deleteCert: this is pk11store");
                             if (store instanceof PK11Store) {
                                 try {
-                                    PK11Store pk11store = (PK11Store)store;
+                                    PK11Store pk11store = (PK11Store) store;
                                     pk11store.deleteCertOnly(certchain);
                                 } catch (Exception ee) {
-                                    CMS.debug("RestoreKeyCertPanel importKeyCert: Exception="+ee.toString());
+                                    CMS.debug("RestoreKeyCertPanel importKeyCert: Exception=" + ee.toString());
                                 }
                             }
                         }
@@ -598,18 +596,18 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
                     X509Certificate xcert = cm.importUserCACertPackage(cert, name);
                     if (name.startsWith("caSigningCert")) {
                         // we need to change the trust attribute to CT
-                        InternalCertificate icert = (InternalCertificate)xcert;
-                        icert.setSSLTrust(InternalCertificate.TRUSTED_CA 
-                          | InternalCertificate.TRUSTED_CLIENT_CA
-                          | InternalCertificate.VALID_CA);
+                        InternalCertificate icert = (InternalCertificate) xcert;
+                        icert.setSSLTrust(InternalCertificate.TRUSTED_CA
+                                | InternalCertificate.TRUSTED_CLIENT_CA
+                                | InternalCertificate.VALID_CA);
                     } else if (name.startsWith("auditSigningCert")) {
-                        InternalCertificate icert = (InternalCertificate)xcert;
+                        InternalCertificate icert = (InternalCertificate) xcert;
                         icert.setObjectSigningTrust(InternalCertificate.USER | InternalCertificate.VALID_PEER | InternalCertificate.TRUSTED_PEER);
                     }
                 } else
                     cm.importCACertPackage(cert);
             } catch (Exception e) {
-                CMS.debug("RestoreKeyCertPanel importkeycert: Exception="+e.toString());
+                CMS.debug("RestoreKeyCertPanel importkeycert: Exception=" + e.toString());
             }
         }
     }
@@ -628,15 +626,15 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
         return false;
     }
 
-    private X509Certificate getX509CertFromToken(byte[] cert) 
-      throws IOException {
+    private X509Certificate getX509CertFromToken(byte[] cert)
+            throws IOException {
         try {
             X509CertImpl impl = new X509CertImpl(cert);
             String issuer_impl = impl.getIssuerDN().toString();
             BigInteger serial_impl = impl.getSerialNumber();
             CryptoManager cm = CryptoManager.getInstance();
             X509Certificate[] permcerts = cm.getPermCerts();
-            for (int i=0; i<permcerts.length; i++) {
+            for (int i = 0; i < permcerts.length; i++) {
                 String issuer_p = permcerts[i].getSubjectDN().toString();
                 BigInteger serial_p = permcerts[i].getSerialNumber();
                 if (issuer_p.equals(issuer_impl) && serial_p.compareTo(serial_impl) == 0) {
@@ -644,25 +642,25 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
                 }
             }
         } catch (Exception e) {
-            CMS.debug("RestoreKeyCertPanel getX509CertFromToken: Exception="+e.toString());
+            CMS.debug("RestoreKeyCertPanel getX509CertFromToken: Exception=" + e.toString());
         }
 
         return null;
     }
 
-    private byte[] getX509Cert(String nickname, Vector cert_collection) 
-      throws IOException {
-        for (int i=0; i<cert_collection.size(); i++) {
-            Vector v = (Vector)cert_collection.elementAt(i);
-            byte[] b = (byte[])v.elementAt(0);
+    private byte[] getX509Cert(String nickname, Vector cert_collection)
+            throws IOException {
+        for (int i = 0; i < cert_collection.size(); i++) {
+            Vector v = (Vector) cert_collection.elementAt(i);
+            byte[] b = (byte[]) v.elementAt(0);
             X509CertImpl impl = null;
             try {
                 impl = new X509CertImpl(b);
             } catch (Exception e) {
-                CMS.debug("RestoreKeyCertPanel getX509Cert: Exception="+e.toString());
-                throw new IOException( e.toString() );
+                CMS.debug("RestoreKeyCertPanel getX509Cert: Exception=" + e.toString());
+                throw new IOException(e.toString());
             }
-            Principal subjectdn = impl.getSubjectDN();    
+            Principal subjectdn = impl.getSubjectDN();
             if (LDAPDN.equals(subjectdn.toString(), nickname))
                 return b;
         }
@@ -674,9 +672,8 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
      * If validiate() returns false, this method will be called.
      */
     public void displayError(HttpServletRequest request,
-        HttpServletResponse response,
-        Context context)
-    {
+            HttpServletResponse response,
+            Context context) {
         context.put("title", "Import Keys and Certificates");
         context.put("password", "");
         context.put("path", "");
@@ -684,7 +681,7 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
     }
 
     private boolean isCertdbCloned(HttpServletRequest request,
-      Context context) {
+            Context context) {
         IConfigStore config = CMS.getConfigStore();
         String certList = "";
         try {
@@ -698,13 +695,13 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
                 String tokenname = config.getString("preop.module.token", "");
                 CryptoToken tok = cm.getTokenByName(tokenname);
                 CryptoStore store = tok.getCryptoStore();
-                String name1 = "preop.master."+token+".nickname";
+                String name1 = "preop.master." + token + ".nickname";
                 String nickname = config.getString(name1, "");
                 if (!tokenname.equals("Internal Key Storage Token") &&
-                  !tokenname.equals("internal"))
-                    nickname = tokenname+":"+nickname;
+                        !tokenname.equals("internal"))
+                    nickname = tokenname + ":" + nickname;
 
-                CMS.debug("RestoreKeyCertPanel isCertdbCloned: "+nickname);
+                CMS.debug("RestoreKeyCertPanel isCertdbCloned: " + nickname);
                 X509Certificate cert = cm.findCertByNickname(nickname);
                 if (cert == null)
                     return false;

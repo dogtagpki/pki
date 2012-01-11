@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.crl;
 
-
 import java.io.IOException;
 import java.util.Locale;
 
@@ -33,21 +32,20 @@ import com.netscape.certsrv.ca.ICMSCRLExtension;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.ILogger;
 
-
 /**
  * This represents a CRL reason extension.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class CMSCRLReasonExtension
-    implements ICMSCRLExtension, IExtendedPluginInfo {
+        implements ICMSCRLExtension, IExtendedPluginInfo {
     private ILogger mLogger = CMS.getLogger();
 
     public CMSCRLReasonExtension() {
     }
 
     public Extension setCRLExtensionCriticality(Extension ext,
-        boolean critical) {
+            boolean critical) {
         RevocationReason reason = null;
         CRLReasonExtension crlReasonExt = null;
 
@@ -61,8 +59,8 @@ public class CMSCRLReasonExtension
     }
 
     public Extension getCRLExtension(IConfigStore config,
-        Object crlIssuingPoint,
-        boolean critical) {
+            Object crlIssuingPoint,
+            boolean critical) {
         CRLReasonExtension crlReasonExt = null;
 
         return crlReasonExt;
@@ -82,10 +80,10 @@ public class CMSCRLReasonExtension
                 "enable;boolean;Check to enable reason code CRL entry extension.",
                 "critical;boolean;Set criticality for reason code CRL entry extension.",
                 IExtendedPluginInfo.HELP_TOKEN +
-                ";configuration-ca-edit-crlextension-crlreason",
+                        ";configuration-ca-edit-crlextension-crlreason",
                 IExtendedPluginInfo.HELP_TEXT +
-                ";The CRL reason code is a non-critical CRL entry extension " +
-                "that identifies the reason for the certificate revocation."
+                        ";The CRL reason code is a non-critical CRL entry extension " +
+                        "that identifies the reason for the certificate revocation."
             };
 
         return params;
@@ -93,6 +91,6 @@ public class CMSCRLReasonExtension
 
     private void log(int level, String msg) {
         mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_CA, level,
-            "CMSCRLReasonExtension - " + msg);
+                "CMSCRLReasonExtension - " + msg);
     }
-} 
+}

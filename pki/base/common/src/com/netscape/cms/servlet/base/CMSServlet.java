@@ -99,10 +99,9 @@ import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 import com.netscape.cms.servlet.common.Utils;
 import com.netscape.cmsutil.xml.XMLObject;
 
-
 /**
  * This is the base class of all CS servlet.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public abstract class CMSServlet extends HttpServlet {
@@ -127,76 +126,55 @@ public abstract class CMSServlet extends HttpServlet {
     public final static String AUTHZ_CONFIG_STORE = "authz";
     public final static String AUTHZ_SRC_XML = "web.xml";
     public final static String PROP_AUTHZ_MGR = "AuthzMgr";
-    public final static String PROP_ACL = "ACLinfo";    
+    public final static String PROP_ACL = "ACLinfo";
     public final static String AUTHZ_MGR_BASIC = "BasicAclAuthz";
     public final static String AUTHZ_MGR_LDAP = "DirAclAuthz";
     private final static String FAILED = "1";
     private final static String HDR_LANG = "accept-language";
-	
+
     // final error message - if error and exception templates don't work 
     // send out this text string directly to output.
 
     public final static String PROP_FINAL_ERROR_MSG = "finalErrorMsg";
     public final static String ERROR_MSG_TOKEN = "$ERROR_MSG";
-    public final static String FINAL_ERROR_MSG = 
-        "<HTML>\n" +
-        "<BODY BGCOLOR=white>\n" +
-        "<P>\n" +
-        "The Certificate System has encountered " +
-        "an unrecoverable error.\n" +
-        "<P>\n" +
-        "Error Message:<BR>\n" +
-        "<I>$ERROR_MSG</I>\n" +
-        "<P>\n" +
-        "Please contact your local administrator for assistance.\n" +
-        "</BODY>\n" +
-        "</HTML>\n";
+    public final static String FINAL_ERROR_MSG =
+            "<HTML>\n" +
+                    "<BODY BGCOLOR=white>\n" +
+                    "<P>\n" +
+                    "The Certificate System has encountered " +
+                    "an unrecoverable error.\n" +
+                    "<P>\n" +
+                    "Error Message:<BR>\n" +
+                    "<I>$ERROR_MSG</I>\n" +
+                    "<P>\n" +
+                    "Please contact your local administrator for assistance.\n" +
+                    "</BODY>\n" +
+                    "</HTML>\n";
 
     // properties from configuration.
 
-    protected final static String 
-        PROP_UNAUTHORIZED_TEMPLATE = "unauthorizedTemplate";
-    protected final static String 
-        UNAUTHORIZED_TEMPLATE = "/GenUnauthorized.template";
-    protected final static String 
-        PROP_SUCCESS_TEMPLATE = "successTemplate";
-    protected final static String 
-        SUCCESS_TEMPLATE = "/GenSuccess.template";
-    protected final static String 
-        PROP_PENDING_TEMPLATE = "pendingTemplate";
-    protected final static String 
-        PENDING_TEMPLATE = "/GenPending.template";
-    protected final static String 
-        PROP_SVC_PENDING_TEMPLATE = "svcpendingTemplate";
-    protected final static String 
-        SVC_PENDING_TEMPLATE = "/GenSvcPending.template";
-    protected final static String 
-        PROP_REJECTED_TEMPLATE = "rejectedTemplate";
-    protected final static String 
-        REJECTED_TEMPLATE = "/GenRejected.template";
-    protected final static String 
-        PROP_ERROR_TEMPLATE = "errorTemplate";
-    protected final static String 
-        ERROR_TEMPLATE = "/GenError.template";
-    protected final static String 
-        PROP_EXCEPTION_TEMPLATE = "unexpectedErrorTemplate"; 
-    protected final static String 
-        EXCEPTION_TEMPLATE = "/GenUnexpectedError.template";
+    protected final static String PROP_UNAUTHORIZED_TEMPLATE = "unauthorizedTemplate";
+    protected final static String UNAUTHORIZED_TEMPLATE = "/GenUnauthorized.template";
+    protected final static String PROP_SUCCESS_TEMPLATE = "successTemplate";
+    protected final static String SUCCESS_TEMPLATE = "/GenSuccess.template";
+    protected final static String PROP_PENDING_TEMPLATE = "pendingTemplate";
+    protected final static String PENDING_TEMPLATE = "/GenPending.template";
+    protected final static String PROP_SVC_PENDING_TEMPLATE = "svcpendingTemplate";
+    protected final static String SVC_PENDING_TEMPLATE = "/GenSvcPending.template";
+    protected final static String PROP_REJECTED_TEMPLATE = "rejectedTemplate";
+    protected final static String REJECTED_TEMPLATE = "/GenRejected.template";
+    protected final static String PROP_ERROR_TEMPLATE = "errorTemplate";
+    protected final static String ERROR_TEMPLATE = "/GenError.template";
+    protected final static String PROP_EXCEPTION_TEMPLATE = "unexpectedErrorTemplate";
+    protected final static String EXCEPTION_TEMPLATE = "/GenUnexpectedError.template";
 
-    private final static String 
-        PROP_UNAUTHOR_TEMPLATE_FILLER = "unauthorizedTemplateFiller"; 
-    protected final static String 
-        PROP_SUCCESS_TEMPLATE_FILLER = "successTemplateFiller"; 
-    private final static String 
-        PROP_ERROR_TEMPLATE_FILLER = "errorTemplateFiller"; 
-    private final static String 
-        PROP_PENDING_TEMPLATE_FILLER = "pendingTemplateFiller"; 
-    private final static String 
-        PROP_SVC_PENDING_TEMPLATE_FILLER = "svcpendingTemplateFiller"; 
-    private final static String 
-        PROP_REJECTED_TEMPLATE_FILLER = "rejectedTemplateFiller"; 
-    private final static String 
-        PROP_EXCEPTION_TEMPLATE_FILLER = "exceptionTemplateFiller"; 
+    private final static String PROP_UNAUTHOR_TEMPLATE_FILLER = "unauthorizedTemplateFiller";
+    protected final static String PROP_SUCCESS_TEMPLATE_FILLER = "successTemplateFiller";
+    private final static String PROP_ERROR_TEMPLATE_FILLER = "errorTemplateFiller";
+    private final static String PROP_PENDING_TEMPLATE_FILLER = "pendingTemplateFiller";
+    private final static String PROP_SVC_PENDING_TEMPLATE_FILLER = "svcpendingTemplateFiller";
+    private final static String PROP_REJECTED_TEMPLATE_FILLER = "rejectedTemplateFiller";
+    private final static String PROP_EXCEPTION_TEMPLATE_FILLER = "exceptionTemplateFiller";
 
     protected final static String RA_AGENT_GROUP = "Registration Manager Agents";
     protected final static String CA_AGENT_GROUP = "Certificate Manager Agents";
@@ -206,25 +184,18 @@ public abstract class CMSServlet extends HttpServlet {
     protected final static String ADMIN_GROUP = "Administrators";
 
     // default http params NOT to save in request.(config values added to list )
-    private static final String 
-        PROP_DONT_SAVE_HTTP_PARAMS = "dontSaveHttpParams";
-    private static final String[] 
-        DONT_SAVE_HTTP_PARAMS = { "pwd", "password", "passwd", 
+    private static final String PROP_DONT_SAVE_HTTP_PARAMS = "dontSaveHttpParams";
+    private static final String[] DONT_SAVE_HTTP_PARAMS = { "pwd", "password", "passwd",
             "challengePassword", "confirmChallengePassword" };
 
     // default http headers to save in request. (config values added to list)
-    private static final String 
-        PROP_SAVE_HTTP_HEADERS = "saveHttpHeaders";
-    private static final String[] 
-        SAVE_HTTP_HEADERS = { "accept-language", "user-agent", };
+    private static final String PROP_SAVE_HTTP_HEADERS = "saveHttpHeaders";
+    private static final String[] SAVE_HTTP_HEADERS = { "accept-language", "user-agent", };
 
     // request prefixes to distinguish from other request attributes.
-    public static final String 
-        PFX_HTTP_HEADER = "HTTP_HEADER";
-    public static final String 
-        PFX_HTTP_PARAM = "HTTP_PARAM";
-    public static final String 
-        PFX_AUTH_TOKEN = "AUTH_TOKEN";
+    public static final String PFX_HTTP_HEADER = "HTTP_HEADER";
+    public static final String PFX_HTTP_PARAM = "HTTP_PARAM";
+    public static final String PFX_AUTH_TOKEN = "AUTH_TOKEN";
 
     /* input http params */
     protected final static String AUTHMGR_PARAM = "authenticator";
@@ -232,8 +203,8 @@ public abstract class CMSServlet extends HttpServlet {
     /* fixed credential passed to auth managers */
     protected final static String CERT_AUTH_CRED = "sslClientCert";
 
-    public static final String CERT_ATTR = 
-        "javax.servlet.request.X509Certificate";
+    public static final String CERT_ATTR =
+            "javax.servlet.request.X509Certificate";
 
     // members. 
 
@@ -243,7 +214,7 @@ public abstract class CMSServlet extends HttpServlet {
 
     protected ServletConfig mServletConfig = null;
     protected ServletContext mServletContext = null;
-    private   CMSFileLoader mFileLoader = null;
+    private CMSFileLoader mFileLoader = null;
 
     protected Vector<String> mDontSaveHttpParams = new Vector<String>();
     protected Vector<String> mSaveHttpHeaders = new Vector<String>();
@@ -258,7 +229,7 @@ public abstract class CMSServlet extends HttpServlet {
     // system logger.
     protected ILogger mLogger = CMS.getLogger();
     protected int mLogCategory = ILogger.S_OTHER;
-    private   MessageDigest mSHADigest = null;
+    private MessageDigest mSHADigest = null;
 
     protected String mGetClientCert = "false";
     protected String mAuthMgr = null;
@@ -270,18 +241,18 @@ public abstract class CMSServlet extends HttpServlet {
     protected ILogger mSignedAuditLogger = CMS.getSignedAuditLogger();
     protected String mOutputTemplatePath = null;
     private IUGSubsystem mUG = (IUGSubsystem)
-        CMS.getSubsystem(CMS.SUBSYSTEM_UG);
+            CMS.getSubsystem(CMS.SUBSYSTEM_UG);
 
     private final static String LOGGING_SIGNED_AUDIT_AUTH_FAIL =
-        "LOGGING_SIGNED_AUDIT_AUTH_FAIL_4";
+            "LOGGING_SIGNED_AUDIT_AUTH_FAIL_4";
     private final static String LOGGING_SIGNED_AUDIT_AUTH_SUCCESS =
-        "LOGGING_SIGNED_AUDIT_AUTH_SUCCESS_3";
+            "LOGGING_SIGNED_AUDIT_AUTH_SUCCESS_3";
     private final static String LOGGING_SIGNED_AUDIT_AUTHZ_FAIL =
-        "LOGGING_SIGNED_AUDIT_AUTHZ_FAIL_4";
+            "LOGGING_SIGNED_AUDIT_AUTHZ_FAIL_4";
     private final static String LOGGING_SIGNED_AUDIT_AUTHZ_SUCCESS =
-        "LOGGING_SIGNED_AUDIT_AUTHZ_SUCCESS_4";
+            "LOGGING_SIGNED_AUDIT_AUTHZ_SUCCESS_4";
     private final static String LOGGING_SIGNED_AUDIT_ROLE_ASSUME =
-        "LOGGING_SIGNED_AUDIT_ROLE_ASSUME_3";
+            "LOGGING_SIGNED_AUDIT_ROLE_ASSUME_3";
 
     public CMSServlet() {
     }
@@ -328,33 +299,33 @@ public abstract class CMSServlet extends HttpServlet {
         if (mAuthority != null)
             mRequestQueue = mAuthority.getRequestQueue();
 
-            // set default templates.
+        // set default templates.
         setDefaultTemplates(sc);
 
         // for logging to the right authority category.
         if (mAuthority == null) {
             mLogCategory = ILogger.S_OTHER;
         } else {
-            if (mAuthority instanceof ICertificateAuthority) 
+            if (mAuthority instanceof ICertificateAuthority)
                 mLogCategory = ILogger.S_CA;
-            else if (mAuthority instanceof IRegistrationAuthority) 
+            else if (mAuthority instanceof IRegistrationAuthority)
                 mLogCategory = ILogger.S_RA;
-            else if (mAuthority instanceof IKeyRecoveryAuthority) 
+            else if (mAuthority instanceof IKeyRecoveryAuthority)
                 mLogCategory = ILogger.S_KRA;
-            else 
+            else
                 mLogCategory = ILogger.S_OTHER;
         }
 
         try {
             // get final error message. 
             // used when templates can't even be loaded.
-            String eMsg = 
-                sc.getInitParameter(PROP_FINAL_ERROR_MSG);
+            String eMsg =
+                    sc.getInitParameter(PROP_FINAL_ERROR_MSG);
 
             if (eMsg != null)
                 mFinalErrorMsg = eMsg;
 
-                // get any configured templates.
+            // get any configured templates.
             Enumeration<CMSLoadTemplate> templs = mTemplates.elements();
 
             while (templs.hasMoreElements()) {
@@ -363,13 +334,13 @@ public abstract class CMSServlet extends HttpServlet {
                 if (templ == null || templ.mPropName == null) {
                     continue;
                 }
-                String tName = 
-                    sc.getInitParameter(templ.mPropName);
+                String tName =
+                        sc.getInitParameter(templ.mPropName);
 
                 if (tName != null)
                     templ.mTemplateName = tName;
-                String fillerName = 
-                    sc.getInitParameter(templ.mFillerPropName);
+                String fillerName =
+                        sc.getInitParameter(templ.mFillerPropName);
 
                 if (fillerName != null) {
                     ICMSTemplateFiller filler = newFillerObject(fillerName);
@@ -385,26 +356,26 @@ public abstract class CMSServlet extends HttpServlet {
             getSaveHttpHeaders(sc);
         } catch (Exception e) {
             // should never occur since we provide defaults above. 
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSGW_ERR_CONF_TEMP_PARAMS",
-                    e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSGW_ERR_CONF_TEMP_PARAMS",
+                            e.toString()));
             throw new ServletException(e.toString());
         }
 
         try {
             mSHADigest = MessageDigest.getInstance("SHA1");
         } catch (NoSuchAlgorithmException e) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSGW_ERR_CONF_TEMP_PARAMS",
-                    e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSGW_ERR_CONF_TEMP_PARAMS",
+                            e.toString()));
             throw new ServletException(e.toString());
         }
     }
-   
+
     public String getId() {
         return mId;
     }
- 
+
     public String getAuthMgr() {
         return mAuthMgr;
     }
@@ -416,44 +387,43 @@ public abstract class CMSServlet extends HttpServlet {
             return false;
     }
 
-    public void outputHttpParameters(HttpServletRequest httpReq)
-    {
-	CMS.debug("CMSServlet:service() uri = " + httpReq.getRequestURI());
+    public void outputHttpParameters(HttpServletRequest httpReq) {
+        CMS.debug("CMSServlet:service() uri = " + httpReq.getRequestURI());
         Enumeration<?> paramNames = httpReq.getParameterNames();
         while (paramNames.hasMoreElements()) {
-            String pn = (String)paramNames.nextElement();
+            String pn = (String) paramNames.nextElement();
             // added this facility so that password can be hidden,
             // all sensitive parameters should be prefixed with 
             // __ (double underscores); however, in the event that
             // a security parameter slips through, we perform multiple
             // additional checks to insure that it is NOT displayed
-            if( pn.startsWith("__")                         ||
-                pn.endsWith("password")                     ||
-                pn.endsWith("passwd")                       ||
-                pn.endsWith("pwd")                          ||
-                pn.equalsIgnoreCase("admin_password_again") ||
-                pn.equalsIgnoreCase("directoryManagerPwd")  ||
-                pn.equalsIgnoreCase("bindpassword")         ||
-                pn.equalsIgnoreCase("bindpwd")              ||
-                pn.equalsIgnoreCase("passwd")               ||
-                pn.equalsIgnoreCase("password")             ||
-                pn.equalsIgnoreCase("pin")                  ||
-                pn.equalsIgnoreCase("pwd")                  ||
-                pn.equalsIgnoreCase("pwdagain")             ||
-                pn.startsWith("p12Password")                ||
-                pn.equalsIgnoreCase("uPasswd") ) {
-              CMS.debug("CMSServlet::service() param name='" + pn +
-                        "' value='(sensitive)'" );
+            if (pn.startsWith("__") ||
+                    pn.endsWith("password") ||
+                    pn.endsWith("passwd") ||
+                    pn.endsWith("pwd") ||
+                    pn.equalsIgnoreCase("admin_password_again") ||
+                    pn.equalsIgnoreCase("directoryManagerPwd") ||
+                    pn.equalsIgnoreCase("bindpassword") ||
+                    pn.equalsIgnoreCase("bindpwd") ||
+                    pn.equalsIgnoreCase("passwd") ||
+                    pn.equalsIgnoreCase("password") ||
+                    pn.equalsIgnoreCase("pin") ||
+                    pn.equalsIgnoreCase("pwd") ||
+                    pn.equalsIgnoreCase("pwdagain") ||
+                    pn.startsWith("p12Password") ||
+                    pn.equalsIgnoreCase("uPasswd")) {
+                CMS.debug("CMSServlet::service() param name='" + pn +
+                        "' value='(sensitive)'");
             } else {
-              CMS.debug("CMSServlet::service() param name='" + pn +
-                        "' value='" + httpReq.getParameter(pn) + "'" );
+                CMS.debug("CMSServlet::service() param name='" + pn +
+                        "' value='" + httpReq.getParameter(pn) + "'");
             }
         }
     }
 
-    public void service(HttpServletRequest httpReq, 
-        HttpServletResponse httpResp) 
-        throws ServletException, IOException {
+    public void service(HttpServletRequest httpReq,
+            HttpServletResponse httpResp)
+            throws ServletException, IOException {
 
         boolean running_state = CMS.isInRunningState();
 
@@ -473,7 +443,7 @@ public abstract class CMSServlet extends HttpServlet {
         httpReq.setCharacterEncoding("UTF-8");
 
         if (CMS.debugOn()) {
-          outputHttpParameters(httpReq);
+            outputHttpParameters(httpReq);
         }
         CMS.debug("CMSServlet: " + mId + " start to service.");
         String className = this.getClass().getName();
@@ -482,7 +452,7 @@ public abstract class CMSServlet extends HttpServlet {
         CMSRequest cmsRequest = newCMSRequest();
 
         // set argblock 
-        cmsRequest.setHttpParams(CMS.createArgBlock("http-request-params",toHashtable(httpReq)));
+        cmsRequest.setHttpParams(CMS.createArgBlock("http-request-params", toHashtable(httpReq)));
 
         // set http request
         cmsRequest.setHttpReq(httpReq);
@@ -516,14 +486,14 @@ public abstract class CMSServlet extends HttpServlet {
                 renderResult(cmsRequest);
                 SessionContext.releaseContext();
                 return;
-            } 
+            }
             long startTime = CMS.getCurrentDate().getTime();
             process(cmsRequest);
             renderResult(cmsRequest);
             Date endDate = CMS.getCurrentDate();
             long endTime = endDate.getTime();
             if (CMS.debugOn()) {
-              CMS.debug(CMS.DEBUG_INFORM, "CMSServlet: curDate=" + endDate + " id=" + mId + " time=" + (endTime - startTime));
+                CMS.debug(CMS.DEBUG_INFORM, "CMSServlet: curDate=" + endDate + " id=" + mId + " time=" + (endTime - startTime));
             }
             iCommandQueue.unRegisterProccess((Object) cmsRequest, (Object) this);
         } catch (EBaseException e) {
@@ -551,8 +521,9 @@ public abstract class CMSServlet extends HttpServlet {
 
     /**
      * Create a new CMSRequest object. This should be overriden by servlets
-	 * implementing different types of request
-	 * @return a new CMSRequest object
+     * implementing different types of request
+     * 
+     * @return a new CMSRequest object
      */
     protected CMSRequest newCMSRequest() {
         return new CMSRequest();
@@ -560,30 +531,29 @@ public abstract class CMSServlet extends HttpServlet {
 
     /**
      * process an HTTP request. Servlets must override this with their
-	 * own implementation
-	 * @throws EBaseException if the servlet was unable to satisfactorily
-	 * process the request
+     * own implementation
+     * 
+     * @throws EBaseException if the servlet was unable to satisfactorily
+     *             process the request
      */
-    protected void process(CMSRequest cmsRequest) 
-        throws EBaseException 
-    {
+    protected void process(CMSRequest cmsRequest)
+            throws EBaseException {
     }
-   
 
     /**
-     * Output a template. 
+     * Output a template.
      * If an error occurs while outputing the template the exception template
      * is used to display the error.
      * 
      * @param cmsReq the CS request
      */
     protected void renderResult(CMSRequest cmsReq)
-        throws IOException {
+            throws IOException {
 
         if (!mRenderResult)
             return;
         Integer status = cmsReq.getStatus();
-        
+
         CMSLoadTemplate ltempl = (CMSLoadTemplate) mTemplates.get(status);
 
         if (ltempl == null || ltempl.mTemplateName == null) {
@@ -594,13 +564,12 @@ public abstract class CMSServlet extends HttpServlet {
 
         renderTemplate(cmsReq, ltempl.mTemplateName, filler);
     }
-	
+
     private static final String PRESERVED = "preserved";
     public static final String TEMPLATE_NAME = "templateName";
-			
+
     protected void outputArgBlockAsXML(XMLObject xmlObj, Node parent,
-                                       String argBlockName, IArgBlock argBlock) 
-    {
+                                       String argBlockName, IArgBlock argBlock) {
         Node argBlockContainer = xmlObj.createContainer(parent, argBlockName);
 
         if (argBlock != null) {
@@ -614,15 +583,14 @@ public abstract class CMSServlet extends HttpServlet {
         }
     }
 
-    protected void outputXML(HttpServletResponse httpResp, CMSTemplateParams params)
-    {
+    protected void outputXML(HttpServletResponse httpResp, CMSTemplateParams params) {
         XMLObject xmlObj = null;
         try {
             xmlObj = new XMLObject();
 
             Node root = xmlObj.createRoot("xml");
             outputArgBlockAsXML(xmlObj, root, "header", params.getHeader());
-            outputArgBlockAsXML(xmlObj, root, "fixed",  params.getFixed());
+            outputArgBlockAsXML(xmlObj, root, "fixed", params.getFixed());
 
             Enumeration<IArgBlock> records = params.queryRecords();
             Node recordsNode = xmlObj.createContainer(root, "records");
@@ -645,14 +613,14 @@ public abstract class CMSServlet extends HttpServlet {
     }
 
     protected void renderTemplate(
-        CMSRequest cmsReq, String templateName, ICMSTemplateFiller filler) 
-        throws IOException {
+            CMSRequest cmsReq, String templateName, ICMSTemplateFiller filler)
+            throws IOException {
         try {
             IArgBlock httpParams = cmsReq.getHttpParams();
 
             Locale[] locale = new Locale[1];
             CMSTemplate template =
-                getTemplate(templateName, cmsReq.getHttpReq(), locale);
+                    getTemplate(templateName, cmsReq.getHttpReq(), locale);
             CMSTemplateParams templateParams = null;
 
             if (filler != null) {
@@ -670,20 +638,20 @@ public abstract class CMSServlet extends HttpServlet {
             }
 
             if (httpParams != null) {
-                String httpTemplateName = 
-                    httpParams.getValueAsString(
-                        TEMPLATE_NAME, null);
+                String httpTemplateName =
+                        httpParams.getValueAsString(
+                                TEMPLATE_NAME, null);
 
                 if (httpTemplateName != null) {
                     templateName = httpTemplateName;
                 }
             }
 
-            if (templateParams == null) 
+            if (templateParams == null)
                 templateParams = new CMSTemplateParams(null, null);
 
-                // #359630
-                // inject preserved http parameter into the template
+            // #359630
+            // inject preserved http parameter into the template
             if (httpParams != null) {
                 String preserved = httpParams.getValueAsString(
                         PRESERVED, null);
@@ -704,32 +672,33 @@ public abstract class CMSServlet extends HttpServlet {
             cmsReq.getHttpResp().setContentLength(bos.size());
             bos.writeTo(cmsReq.getHttpResp().getOutputStream());
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSGW_ERR_OUT_TEMPLATE", templateName, e.toString()));
-            renderException(cmsReq, 
-                new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE")));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSGW_ERR_OUT_TEMPLATE", templateName, e.toString()));
+            renderException(cmsReq,
+                    new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE")));
             return;
         }
     }
 
     /**
-     * Output exception (unexpected error) template 
+     * Output exception (unexpected error) template
      * This is different from other templates in that if an exception occurs
-     * while rendering the exception a message is printed out directly. 
-     * If the message gets an error an IOException is thrown. 
-     * In others if an exception occurs while rendering the template the 
-     * exception template (this) is called. 
+     * while rendering the exception a message is printed out directly.
+     * If the message gets an error an IOException is thrown.
+     * In others if an exception occurs while rendering the template the
+     * exception template (this) is called.
      * <p>
+     * 
      * @param cmsReq the CS request to pass to template filler if any.
      * @param e the unexpected exception
      */
-    protected void renderException(CMSRequest cmsReq, EBaseException e) 
-        throws IOException {
+    protected void renderException(CMSRequest cmsReq, EBaseException e)
+            throws IOException {
         try {
             Locale[] locale = new Locale[1];
-            CMSLoadTemplate loadTempl = 
-                (CMSLoadTemplate) mTemplates.get(CMSRequest.EXCEPTION);
-            CMSTemplate template = getTemplate(loadTempl.mTemplateName, 
+            CMSLoadTemplate loadTempl =
+                    (CMSLoadTemplate) mTemplates.get(CMSRequest.EXCEPTION);
+            CMSTemplate template = getTemplate(loadTempl.mTemplateName,
                     cmsReq.getHttpReq(), locale);
             ICMSTemplateFiller filler = loadTempl.mFiller;
             CMSTemplateParams templateParams = null;
@@ -749,7 +718,7 @@ public abstract class CMSServlet extends HttpServlet {
             }
             if (e != null) {
                 templateParams.getFixed().set(
-                    ICMSTemplateFiller.EXCEPTION, e.toString(locale[0]));
+                        ICMSTemplateFiller.EXCEPTION, e.toString(locale[0]));
             }
 
             // just output arg blocks as XML
@@ -772,25 +741,25 @@ public abstract class CMSServlet extends HttpServlet {
         }
     }
 
-    public void renderFinalError(CMSRequest cmsReq, Exception ex) 
-        throws IOException {
+    public void renderFinalError(CMSRequest cmsReq, Exception ex)
+            throws IOException {
         // this template is the last resort for all other unexpected 
         // errors in other templates so we can only output text. 
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
         httpResp.setContentType("text/html");
         ServletOutputStream out = httpResp.getOutputStream();
-	
+
         // replace $ERRORMSG with exception message if included. 
         String finalErrMsg = mFinalErrorMsg;
         int tokenIdx = mFinalErrorMsg.indexOf(ERROR_MSG_TOKEN);
 
         if (tokenIdx != -1) {
-            finalErrMsg = 
+            finalErrMsg =
                     mFinalErrorMsg.substring(0, tokenIdx) +
-                    ex.toString() + 
-                    mFinalErrorMsg.substring(
-                        tokenIdx + ERROR_MSG_TOKEN.length());
+                            ex.toString() +
+                            mFinalErrorMsg.substring(
+                                    tokenIdx + ERROR_MSG_TOKEN.length());
         }
         out.println(finalErrMsg);
         return;
@@ -822,12 +791,12 @@ public abstract class CMSServlet extends HttpServlet {
     }
 
     /**
-     * construct a authentication credentials to pass into authentication 
+     * construct a authentication credentials to pass into authentication
      * manager.
      */
     public static AuthCredentials getAuthCreds(
-        IAuthManager authMgr, IArgBlock argBlock, X509Certificate clientCert) 
-        throws EBaseException {
+            IAuthManager authMgr, IArgBlock argBlock, X509Certificate clientCert)
+            throws EBaseException {
         // get credentials from http parameters.
         String[] reqCreds = authMgr.getRequiredCreds();
         AuthCredentials creds = new AuthCredentials();
@@ -837,8 +806,8 @@ public abstract class CMSServlet extends HttpServlet {
 
             if (reqCred.equals(IAuthManager.CRED_SSL_CLIENT_CERT)) {
                 // cert could be null;
-                creds.set(reqCred, new X509Certificate[] { clientCert}
-                ); 
+                creds.set(reqCred, new X509Certificate[] { clientCert }
+                        );
             } else {
                 String value = argBlock.getValueAsString(reqCred);
 
@@ -854,19 +823,19 @@ public abstract class CMSServlet extends HttpServlet {
     /**
      * get ssl client authenticated certificate
      */
-    protected X509Certificate 
-    getSSLClientCertificate(HttpServletRequest httpReq) 
-        throws EBaseException {
+    protected X509Certificate
+            getSSLClientCertificate(HttpServletRequest httpReq)
+                    throws EBaseException {
 
         X509Certificate cert = null;
 
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER, ILogger.LL_INFO, 
-            CMS.getLogMessage("CMSGW_GETTING_SSL_CLIENT_CERT"));
+        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER, ILogger.LL_INFO,
+                CMS.getLogMessage("CMSGW_GETTING_SSL_CLIENT_CERT"));
 
         // iws60 support Java Servlet Spec V2.2, attribute 
         // javax.servlet.request.X509Certificate now contains array
         // of X509Certificates instead of one X509Certificate object
-        X509Certificate[] allCerts = (X509Certificate[]) httpReq.getAttribute(CERT_ATTR); 
+        X509Certificate[] allCerts = (X509Certificate[]) httpReq.getAttribute(CERT_ATTR);
 
         if (allCerts == null || allCerts.length == 0) {
             throw new EBaseException("You did not provide a valid certificate for this operation");
@@ -876,10 +845,10 @@ public abstract class CMSServlet extends HttpServlet {
 
         if (cert == null) {
             // just don't have a cert.
-            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER, ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSGW_SSL_CL_CERT_FAIL"));
+            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSGW_SSL_CL_CERT_FAIL"));
             return null;
-        } 
+        }
 
         // convert to sun's x509 cert interface.
         try {
@@ -888,53 +857,53 @@ public abstract class CMSServlet extends HttpServlet {
             cert = new X509CertImpl(certEncoded);
         } catch (CertificateEncodingException e) {
             mLogger.log(
-                ILogger.EV_SYSTEM, ILogger.S_OTHER, ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSGW_SSL_CL_CERT_FAIL_ENCODE", e.getMessage()));
+                    ILogger.EV_SYSTEM, ILogger.S_OTHER, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSGW_SSL_CL_CERT_FAIL_ENCODE", e.getMessage()));
             return null;
         } catch (CertificateException e) {
             mLogger.log(
-                ILogger.EV_SYSTEM, ILogger.S_OTHER, ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSGW_SSL_CL_CERT_FAIL_DECODE", e.getMessage()));
+                    ILogger.EV_SYSTEM, ILogger.S_OTHER, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSGW_SSL_CL_CERT_FAIL_DECODE", e.getMessage()));
             return null;
         }
-        return cert; 
+        return cert;
     }
 
     /**
      * get a template based on result status.
      */
     protected CMSTemplate getTemplate(
-        String templateName, HttpServletRequest httpReq, Locale[] locale)
-        throws EBaseException, IOException {
+            String templateName, HttpServletRequest httpReq, Locale[] locale)
+            throws EBaseException, IOException {
         // this converts to system dependent file seperator char.
         if (mServletConfig == null) {
-	        CMS.debug( "CMSServlet:getTemplate() - mServletConfig is null!" );
+            CMS.debug("CMSServlet:getTemplate() - mServletConfig is null!");
             return null;
         }
         if (mServletConfig.getServletContext() == null) {
         }
         if (templateName == null) {
         }
-        String realpath = 
-            mServletConfig.getServletContext().getRealPath("/" + templateName);
+        String realpath =
+                mServletConfig.getServletContext().getRealPath("/" + templateName);
 
         if (realpath == null) {
             mLogger.log(
-                ILogger.EV_SYSTEM, ILogger.S_OTHER, ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSGW_NO_FIND_TEMPLATE", templateName));
+                    ILogger.EV_SYSTEM, ILogger.S_OTHER, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSGW_NO_FIND_TEMPLATE", templateName));
             throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"));
         }
 
         File realpathFile = new File(realpath);
-        File templateFile = 
-            getLangFile(httpReq, realpathFile, locale);
+        File templateFile =
+                getLangFile(httpReq, realpathFile, locale);
         String charSet = httpReq.getCharacterEncoding();
 
         if (charSet == null) {
             charSet = "UTF8";
         }
-        CMSTemplate template = 
-            (CMSTemplate) mFileLoader.getCMSFile(templateFile, charSet);
+        CMSTemplate template =
+                (CMSTemplate) mFileLoader.getCMSFile(templateFile, charSet);
 
         return template;
     }
@@ -943,13 +912,13 @@ public abstract class CMSServlet extends HttpServlet {
      * log according to authority category.
      */
     protected void log(int event, int level, String msg) {
-        mLogger.log(event, mLogCategory, level, 
-            "Servlet " + mId + ": " + msg);
+        mLogger.log(event, mLogCategory, level,
+                "Servlet " + mId + ": " + msg);
     }
 
     protected void log(int level, String msg) {
-        mLogger.log(ILogger.EV_SYSTEM, mLogCategory, level, 
-            "Servlet " + mId + ": " + msg);
+        mLogger.log(ILogger.EV_SYSTEM, mLogCategory, level,
+                "Servlet " + mId + ": " + msg);
     }
 
     /**
@@ -965,8 +934,8 @@ public abstract class CMSServlet extends HttpServlet {
             dontSaveParams = sc.getInitParameter(
                         PROP_DONT_SAVE_HTTP_PARAMS);
             if (dontSaveParams != null) {
-                StringTokenizer params = 
-                    new StringTokenizer(dontSaveParams, ",");
+                StringTokenizer params =
+                        new StringTokenizer(dontSaveParams, ",");
 
                 while (params.hasMoreTokens()) {
                     String param = params.nextToken();
@@ -976,8 +945,8 @@ public abstract class CMSServlet extends HttpServlet {
             }
         } catch (Exception e) {
             // should never happen
-            log(ILogger.LL_WARN, 
-                CMS.getLogMessage("CMSGW_NO_CONFIG_VALUE", PROP_DONT_SAVE_HTTP_PARAMS, e.toString()));
+            log(ILogger.LL_WARN,
+                    CMS.getLogMessage("CMSGW_NO_CONFIG_VALUE", PROP_DONT_SAVE_HTTP_PARAMS, e.toString()));
             // default just in case.
             for (int i = 0; i < DONT_SAVE_HTTP_PARAMS.length; i++) {
                 mDontSaveHttpParams.addElement(DONT_SAVE_HTTP_PARAMS[i]);
@@ -997,12 +966,12 @@ public abstract class CMSServlet extends HttpServlet {
             }
 
             // now get from config file if there's more.
-            String saveHeaders = 
-                sc.getInitParameter(PROP_SAVE_HTTP_HEADERS);
+            String saveHeaders =
+                    sc.getInitParameter(PROP_SAVE_HTTP_HEADERS);
 
-            if (saveHeaders != null) { 
-                StringTokenizer headers = 
-                    new StringTokenizer(saveHeaders, ",");
+            if (saveHeaders != null) {
+                StringTokenizer headers =
+                        new StringTokenizer(saveHeaders, ",");
 
                 while (headers.hasMoreTokens()) {
                     String hdr = headers.nextToken();
@@ -1021,8 +990,8 @@ public abstract class CMSServlet extends HttpServlet {
      * save http headers in a IRequest.
      */
     protected void saveHttpHeaders(
-        HttpServletRequest httpReq, IRequest req)
-        throws EBaseException {
+            HttpServletRequest httpReq, IRequest req)
+            throws EBaseException {
         Hashtable<String, String> headers = new Hashtable<String, String>();
         Enumeration<String> hdrs = mSaveHttpHeaders.elements();
 
@@ -1041,7 +1010,7 @@ public abstract class CMSServlet extends HttpServlet {
      * save http headers in a IRequest.
      */
     protected void saveHttpParams(
-        IArgBlock httpParams, IRequest req) {
+            IArgBlock httpParams, IRequest req) {
         Hashtable<String, String> saveParams = new Hashtable<String, String>();
 
         Enumeration<String> names = httpParams.elements();
@@ -1075,14 +1044,14 @@ public abstract class CMSServlet extends HttpServlet {
      * handy routine for getting a cert record given a serial number.
      */
     protected ICertRecord getCertRecord(BigInteger serialNo) {
-        if (mAuthority == null || 
-            !(mAuthority instanceof ICertificateAuthority)) {
-            log(ILogger.LL_WARN, 
-                CMS.getLogMessage("CMSGW_NON_CERT_AUTH"));
+        if (mAuthority == null ||
+                !(mAuthority instanceof ICertificateAuthority)) {
+            log(ILogger.LL_WARN,
+                    CMS.getLogMessage("CMSGW_NON_CERT_AUTH"));
             return null;
         }
-        ICertificateRepository certdb = 
-            (ICertificateRepository) ((ICertificateAuthority) mAuthority).getCertificateRepository();
+        ICertificateRepository certdb =
+                (ICertificateRepository) ((ICertificateAuthority) mAuthority).getCertificateRepository();
 
         if (certdb == null) {
             log(ILogger.LL_WARN, CMS.getLogMessage("CMSGW_CERT_DB_NULL", mAuthority.toString()));
@@ -1093,8 +1062,8 @@ public abstract class CMSServlet extends HttpServlet {
         try {
             certRecord = certdb.readCertificateRecord(serialNo);
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSGW_NO_CERT_REC", serialNo.toString(16), e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSGW_NO_CERT_REC", serialNo.toString(16), e.toString()));
             return null;
         }
         return certRecord;
@@ -1126,18 +1095,18 @@ public abstract class CMSServlet extends HttpServlet {
     }
 
     /**
-     * handy routine for getting a certificate from the certificate 
+     * handy routine for getting a certificate from the certificate
      * repository. mAuthority must be a CA.
      */
     protected X509Certificate getX509Certificate(BigInteger serialNo) {
-        if (mAuthority == null || 
-            !(mAuthority instanceof ICertificateAuthority)) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSGW_NOT_CERT_AUTH"));
+        if (mAuthority == null ||
+                !(mAuthority instanceof ICertificateAuthority)) {
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSGW_NOT_CERT_AUTH"));
             return null;
         }
-        ICertificateRepository certdb = 
-            (ICertificateRepository) ((ICertificateAuthority) mAuthority).getCertificateRepository();
+        ICertificateRepository certdb =
+                (ICertificateRepository) ((ICertificateAuthority) mAuthority).getCertificateRepository();
 
         if (certdb == null) {
             log(ILogger.LL_WARN, CMS.getLogMessage("CMSGW_CERT_DB_NULL", mAuthority.toString()));
@@ -1148,15 +1117,16 @@ public abstract class CMSServlet extends HttpServlet {
         try {
             cert = certdb.getX509Certificate(serialNo);
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSGW_NO_CERT_REC", serialNo.toString(16), e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSGW_NO_CERT_REC", serialNo.toString(16), e.toString()));
             return null;
         }
         return cert;
     }
 
     /**
-     * instantiate a new filler from a class name, 
+     * instantiate a new filler from a class name,
+     * 
      * @return null if can't be instantiated, new instance otherwise.
      */
     protected ICMSTemplateFiller newFillerObject(String fillerClass) {
@@ -1169,8 +1139,8 @@ public abstract class CMSServlet extends HttpServlet {
             if ((e instanceof RuntimeException)) {
                 throw (RuntimeException) e;
             } else {
-                log(ILogger.LL_WARN, 
-                    CMS.getLogMessage("CMSGW_CANT_LOAD_FILLER", fillerClass, e.toString()));
+                log(ILogger.LL_WARN,
+                        CMS.getLogMessage("CMSGW_CANT_LOAD_FILLER", fillerClass, e.toString()));
                 return null;
             }
         }
@@ -1178,8 +1148,8 @@ public abstract class CMSServlet extends HttpServlet {
     }
 
     /**
-     * set default templates. 
-     * subclasses can override, and should override at least the success 
+     * set default templates.
+     * subclasses can override, and should override at least the success
      * template
      */
     protected void setDefaultTemplates(ServletConfig sc) {
@@ -1211,16 +1181,16 @@ public abstract class CMSServlet extends HttpServlet {
                 successTemplate = SUCCESS_TEMPLATE;
                 if (gateway != null)
                     //successTemplate = "/"+gateway+successTemplate;
-                    successTemplate = "/"+gateway+successTemplate;
+                    successTemplate = "/" + gateway + successTemplate;
             }
 
             errorTemplate = sc.getInitParameter(
                         PROP_ERROR_TEMPLATE);
             if (errorTemplate == null) {
                 errorTemplate = ERROR_TEMPLATE;
-                if (gateway != null) 
+                if (gateway != null)
                     //errorTemplate = "/"+gateway+errorTemplate;
-                    errorTemplate = "/"+gateway+errorTemplate;
+                    errorTemplate = "/" + gateway + errorTemplate;
             }
 
             unauthorizedTemplate = sc.getInitParameter(
@@ -1229,7 +1199,7 @@ public abstract class CMSServlet extends HttpServlet {
                 unauthorizedTemplate = UNAUTHORIZED_TEMPLATE;
                 if (gateway != null)
                     //unauthorizedTemplate = "/"+gateway+unauthorizedTemplate;
-                    unauthorizedTemplate = "/"+gateway+unauthorizedTemplate;
+                    unauthorizedTemplate = "/" + gateway + unauthorizedTemplate;
             }
 
             pendingTemplate = sc.getInitParameter(
@@ -1238,7 +1208,7 @@ public abstract class CMSServlet extends HttpServlet {
                 pendingTemplate = PENDING_TEMPLATE;
                 if (gateway != null)
                     //pendingTemplate = "/"+gateway+pendingTemplate;
-                    pendingTemplate = "/"+gateway+pendingTemplate;
+                    pendingTemplate = "/" + gateway + pendingTemplate;
             }
 
             svcpendingTemplate = sc.getInitParameter(
@@ -1247,7 +1217,7 @@ public abstract class CMSServlet extends HttpServlet {
                 svcpendingTemplate = SVC_PENDING_TEMPLATE;
                 if (gateway != null)
                     //svcpendingTemplate = "/"+gateway+svcpendingTemplate;
-                    svcpendingTemplate = "/"+gateway+svcpendingTemplate;
+                    svcpendingTemplate = "/" + gateway + svcpendingTemplate;
             }
 
             rejectedTemplate = sc.getInitParameter(
@@ -1256,7 +1226,7 @@ public abstract class CMSServlet extends HttpServlet {
                 rejectedTemplate = REJECTED_TEMPLATE;
                 if (gateway != null)
                     //rejectedTemplate = "/"+gateway+rejectedTemplate;
-                    rejectedTemplate = "/"+gateway+rejectedTemplate;
+                    rejectedTemplate = "/" + gateway + rejectedTemplate;
             }
 
             unexpectedErrorTemplate = sc.getInitParameter(
@@ -1265,50 +1235,50 @@ public abstract class CMSServlet extends HttpServlet {
                 unexpectedErrorTemplate = EXCEPTION_TEMPLATE;
                 if (gateway != null)
                     //unexpectedErrorTemplate = "/"+gateway+unexpectedErrorTemplate;
-                    unexpectedErrorTemplate = "/"+gateway+unexpectedErrorTemplate;
+                    unexpectedErrorTemplate = "/" + gateway + unexpectedErrorTemplate;
             }
         } catch (Exception e) {
             // this should never happen. 
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSGW_IMP_INIT_SERV_ERR", e.toString(),
-                    mId));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSGW_IMP_INIT_SERV_ERR", e.toString(),
+                            mId));
         }
 
         mTemplates.put(
-            CMSRequest.UNAUTHORIZED, 
-            new CMSLoadTemplate(
-                PROP_UNAUTHORIZED_TEMPLATE, PROP_UNAUTHOR_TEMPLATE_FILLER,
-                unauthorizedTemplate, null));  
+                CMSRequest.UNAUTHORIZED,
+                new CMSLoadTemplate(
+                        PROP_UNAUTHORIZED_TEMPLATE, PROP_UNAUTHOR_TEMPLATE_FILLER,
+                        unauthorizedTemplate, null));
         mTemplates.put(
-            CMSRequest.SUCCESS, 
-            new CMSLoadTemplate(
-                PROP_SUCCESS_TEMPLATE, PROP_SUCCESS_TEMPLATE_FILLER,
-                successTemplate, new GenSuccessTemplateFiller()));  
+                CMSRequest.SUCCESS,
+                new CMSLoadTemplate(
+                        PROP_SUCCESS_TEMPLATE, PROP_SUCCESS_TEMPLATE_FILLER,
+                        successTemplate, new GenSuccessTemplateFiller()));
         mTemplates.put(
-            CMSRequest.PENDING, 
-            new CMSLoadTemplate(
-                PROP_PENDING_TEMPLATE, PROP_PENDING_TEMPLATE_FILLER,
-                pendingTemplate, new GenPendingTemplateFiller()));
+                CMSRequest.PENDING,
+                new CMSLoadTemplate(
+                        PROP_PENDING_TEMPLATE, PROP_PENDING_TEMPLATE_FILLER,
+                        pendingTemplate, new GenPendingTemplateFiller()));
         mTemplates.put(
-            CMSRequest.SVC_PENDING, 
-            new CMSLoadTemplate(
-                PROP_SVC_PENDING_TEMPLATE, PROP_SVC_PENDING_TEMPLATE_FILLER,
-                svcpendingTemplate, new GenSvcPendingTemplateFiller()));
+                CMSRequest.SVC_PENDING,
+                new CMSLoadTemplate(
+                        PROP_SVC_PENDING_TEMPLATE, PROP_SVC_PENDING_TEMPLATE_FILLER,
+                        svcpendingTemplate, new GenSvcPendingTemplateFiller()));
         mTemplates.put(
-            CMSRequest.REJECTED, 
-            new CMSLoadTemplate(
-                PROP_REJECTED_TEMPLATE, PROP_REJECTED_TEMPLATE_FILLER,
-                rejectedTemplate, new GenRejectedTemplateFiller()));
+                CMSRequest.REJECTED,
+                new CMSLoadTemplate(
+                        PROP_REJECTED_TEMPLATE, PROP_REJECTED_TEMPLATE_FILLER,
+                        rejectedTemplate, new GenRejectedTemplateFiller()));
         mTemplates.put(
-            CMSRequest.ERROR, 
-            new CMSLoadTemplate(
-                PROP_ERROR_TEMPLATE, PROP_ERROR_TEMPLATE_FILLER,
-                errorTemplate, new GenErrorTemplateFiller()));
+                CMSRequest.ERROR,
+                new CMSLoadTemplate(
+                        PROP_ERROR_TEMPLATE, PROP_ERROR_TEMPLATE_FILLER,
+                        errorTemplate, new GenErrorTemplateFiller()));
         mTemplates.put(
-            CMSRequest.EXCEPTION, 
-            new CMSLoadTemplate(
-                PROP_EXCEPTION_TEMPLATE, PROP_EXCEPTION_TEMPLATE_FILLER,
-                unexpectedErrorTemplate, new GenUnexpectedErrorTemplateFiller()));
+                CMSRequest.EXCEPTION,
+                new CMSLoadTemplate(
+                        PROP_EXCEPTION_TEMPLATE, PROP_EXCEPTION_TEMPLATE_FILLER,
+                        unexpectedErrorTemplate, new GenUnexpectedErrorTemplateFiller()));
     }
 
     /**
@@ -1317,8 +1287,8 @@ public abstract class CMSServlet extends HttpServlet {
     public static boolean clientIsNav(HttpServletRequest httpReq) {
         String useragent = httpReq.getHeader("user-agent");
 
-        if (useragent.startsWith("Mozilla") && 
-            useragent.indexOf("MSIE") == -1)
+        if (useragent.startsWith("Mozilla") &&
+                useragent.indexOf("MSIE") == -1)
             return true;
         return false;
     }
@@ -1339,10 +1309,11 @@ public abstract class CMSServlet extends HttpServlet {
      * set using cartman JS. (no other way to tell)
      */
     private static String CMMF_RESPONSE = "cmmfResponse";
+
     public static boolean doCMMFResponse(IArgBlock httpParams) {
         if (httpParams.getValueAsBoolean(CMMF_RESPONSE, false))
             return true;
-        else 
+        else
             return false;
     }
 
@@ -1350,29 +1321,24 @@ public abstract class CMSServlet extends HttpServlet {
     private static final String IMPORT_CHAIN = "importCAChain";
     private static final String IMPORT_CERT_MIME_TYPE = "importCertMimeType";
     // default mime type 
-    private static final String 
-        NS_X509_USER_CERT = "application/x-x509-user-cert";
-    private static final String 
-        NS_X509_EMAIL_CERT = "application/x-x509-email-cert";
+    private static final String NS_X509_USER_CERT = "application/x-x509-user-cert";
+    private static final String NS_X509_EMAIL_CERT = "application/x-x509-email-cert";
 
     // CMC mime types
-    public static final String
-        SIMPLE_ENROLLMENT_REQUEST = "application/pkcs10";
-    public static final String
-        SIMPLE_ENROLLMENT_RESPONSE = "application/pkcs7-mime";
-    public static final String
-        FULL_ENROLLMENT_REQUEST = "application/pkcs7-mime";
-    public static final String
-        FULL_ENROLLMENT_RESPONSE = "application/pkcs7-mime";
+    public static final String SIMPLE_ENROLLMENT_REQUEST = "application/pkcs10";
+    public static final String SIMPLE_ENROLLMENT_RESPONSE = "application/pkcs7-mime";
+    public static final String FULL_ENROLLMENT_REQUEST = "application/pkcs7-mime";
+    public static final String FULL_ENROLLMENT_RESPONSE = "application/pkcs7-mime";
 
     /**
      * handy routine to check if client want full enrollment response
      */
     public static String FULL_RESPONSE = "fullResponse";
+
     public static boolean doFullResponse(IArgBlock httpParams) {
         if (httpParams.getValueAsBoolean(FULL_RESPONSE, false))
             return true;
-        else 
+        else
             return false;
     }
 
@@ -1381,19 +1347,19 @@ public abstract class CMSServlet extends HttpServlet {
      * @return true if import cert directly is true and import cert.
      */
     protected boolean checkImportCertToNav(
-        HttpServletResponse httpResp, IArgBlock httpParams, X509CertImpl cert)
-        throws EBaseException {
+            HttpServletResponse httpResp, IArgBlock httpParams, X509CertImpl cert)
+            throws EBaseException {
         if (!httpParams.getValueAsBoolean(IMPORT_CERT, false)) {
             return false;
         }
         boolean importCAChain =
-            httpParams.getValueAsBoolean(IMPORT_CHAIN, true);
+                httpParams.getValueAsBoolean(IMPORT_CHAIN, true);
         // XXX Temporary workaround because of problem with passing Mime type
         boolean emailCert =
-            httpParams.getValueAsBoolean("emailCert", false);
+                httpParams.getValueAsBoolean("emailCert", false);
         String importMimeType = (emailCert) ?
-            httpParams.getValueAsString(IMPORT_CERT_MIME_TYPE, NS_X509_EMAIL_CERT) :
-            httpParams.getValueAsString(IMPORT_CERT_MIME_TYPE, NS_X509_USER_CERT);
+                httpParams.getValueAsString(IMPORT_CERT_MIME_TYPE, NS_X509_EMAIL_CERT) :
+                httpParams.getValueAsString(IMPORT_CERT_MIME_TYPE, NS_X509_USER_CERT);
 
         //		String importMimeType =
         //			httpParams.getValueAsString(
@@ -1406,17 +1372,17 @@ public abstract class CMSServlet extends HttpServlet {
      * handy routine to import cert to old navigator in nav mime type.
      */
     public void importCertToNav(
-        HttpServletResponse httpResp, X509CertImpl cert, 
-        String contentType, boolean importCAChain)
-        throws EBaseException {
+            HttpServletResponse httpResp, X509CertImpl cert,
+            String contentType, boolean importCAChain)
+            throws EBaseException {
         ServletOutputStream out = null;
         byte[] encoding = null;
 
-        CMS.debug("CMSServlet: importCertToNav " + 
-                       "contentType=" + contentType + " " + 
+        CMS.debug("CMSServlet: importCertToNav " +
+                       "contentType=" + contentType + " " +
                        "importCAChain=" + importCAChain);
-        try { 
-            out = httpResp.getOutputStream(); 
+        try {
+            out = httpResp.getOutputStream();
             // CA chain.
             if (importCAChain) {
                 CertificateChain caChain = null;
@@ -1427,8 +1393,8 @@ public abstract class CMSServlet extends HttpServlet {
                 caCerts = caChain.getChain();
 
                 // set user + CA cert chain in pkcs7 
-                X509CertImpl[] userChain = 
-                    new X509CertImpl[caCerts.length + 1];
+                X509CertImpl[] userChain =
+                        new X509CertImpl[caCerts.length + 1];
 
                 userChain[0] = cert;
                 int m = 1, n = 0;
@@ -1456,16 +1422,16 @@ public abstract class CMSServlet extends HttpServlet {
             }
             httpResp.setContentType(contentType);
             out.write(encoding);
-        } catch (IOException e) { 
-            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER, 
-                ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSGW_RET_CERT_IMPORT_ERR", e.toString()));
+        } catch (IOException e) {
+            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
+                    ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSGW_RET_CERT_IMPORT_ERR", e.toString()));
             throw new ECMSGWException(
                     CMS.getLogMessage("CMSGW_ERROR_RETURNING_CERT"));
         } catch (CertificateEncodingException e) {
-            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER, 
-                ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSGW_NO_ENCODED_IMP_CERT", e.toString()));
+            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
+                    ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSGW_NO_ENCODED_IMP_CERT", e.toString()));
             throw new ECMSGWException(
                     CMS.getLogMessage("CMSGW_ERROR_ENCODING_ISSUED_CERT"));
         }
@@ -1511,13 +1477,13 @@ public abstract class CMSServlet extends HttpServlet {
      * handy routine for getting agent's relative path
      */
     protected String getRelPath(IAuthority authority) {
-        if (authority instanceof ICertificateAuthority) 
+        if (authority instanceof ICertificateAuthority)
             return "ca/";
-        else if (authority instanceof IRegistrationAuthority) 
+        else if (authority instanceof IRegistrationAuthority)
             return "ra/";
-        else if (authority instanceof IKeyRecoveryAuthority) 
+        else if (authority instanceof IKeyRecoveryAuthority)
             return "kra/";
-        else 
+        else
             return "/";
     }
 
@@ -1531,55 +1497,57 @@ public abstract class CMSServlet extends HttpServlet {
         if (!(mAuthority instanceof ICertificateAuthority)) {
             return false;
         }
-        X509Certificate caCert = 
-            ((ICertificateAuthority)mAuthority).getCACert();
+        X509Certificate caCert =
+                ((ICertificateAuthority) mAuthority).getCACert();
         if (caCert != null) {
-          /* only check this if we are self-signed */
-          if (caCert.getSubjectDN().equals(caCert.getIssuerDN())) {
-            if (caCert.getSerialNumber().equals(serialNo)) {
-              return true;
+            /* only check this if we are self-signed */
+            if (caCert.getSubjectDN().equals(caCert.getIssuerDN())) {
+                if (caCert.getSerialNumber().equals(serialNo)) {
+                    return true;
+                }
             }
-          }
         }
         return false;
     }
 
     /**
      * make a CRL entry from a serial number and revocation reason.
+     * 
      * @return a RevokedCertImpl that can be entered in a CRL.
      */
     protected RevokedCertImpl formCRLEntry(
-        BigInteger serialNo, RevocationReason reason)
-        throws EBaseException {
+            BigInteger serialNo, RevocationReason reason)
+            throws EBaseException {
         CRLReasonExtension reasonExt = new CRLReasonExtension(reason);
         CRLExtensions crlentryexts = new CRLExtensions();
 
         try {
             crlentryexts.set(CRLReasonExtension.NAME, reasonExt);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSGW_ERR_CRL_REASON", reason.toString(), e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSGW_ERR_CRL_REASON", reason.toString(), e.toString()));
             throw new ECMSGWException(
                     CMS.getLogMessage("CMSGW_ERROR_SETTING_CRLREASON"));
         }
-        RevokedCertImpl crlentry = 
-            new RevokedCertImpl(serialNo, CMS.getCurrentDate(), crlentryexts);
+        RevokedCertImpl crlentry =
+                new RevokedCertImpl(serialNo, CMS.getCurrentDate(), crlentryexts);
 
         return crlentry;
     }
 
     /**
      * check if a certificate (serial number) is revoked on a CA.
+     * 
      * @return true if cert is marked revoked in the CA's database.
-     * @return false if cert is not marked revoked.  
+     * @return false if cert is not marked revoked.
      */
-    protected boolean certIsRevoked(BigInteger serialNum) 
-        throws EBaseException {
+    protected boolean certIsRevoked(BigInteger serialNum)
+            throws EBaseException {
         ICertRecord certRecord = getCertRecord(serialNum);
 
         if (certRecord == null) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSGW_BAD_CERT_SER_NUM", String.valueOf(serialNum)));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSGW_BAD_CERT_SER_NUM", String.valueOf(serialNum)));
             throw new ECMSGWException(
                     CMS.getLogMessage("CMSGW_INVALID_CERT"));
         }
@@ -1590,7 +1558,7 @@ public abstract class CMSServlet extends HttpServlet {
 
     public static String generateSalt() {
         Random rnd = new Random();
-        String salt = new Integer( rnd.nextInt() ).toString();
+        String salt = new Integer(rnd.nextInt()).toString();
         return salt;
     }
 
@@ -1608,8 +1576,8 @@ public abstract class CMSServlet extends HttpServlet {
      * @param locale array of at least one to be filled with locale found.
      */
     public static File getLangFile(
-        HttpServletRequest req, File realpathFile, Locale[] locale)
-        throws IOException {
+            HttpServletRequest req, File realpathFile, Locale[] locale)
+            throws IOException {
         File file = null;
         String acceptLang = req.getHeader("accept-language");
 
@@ -1626,7 +1594,7 @@ public abstract class CMSServlet extends HttpServlet {
                 }
                 String name = realpathFile.getName();
 
-                if (name == null) {  // filename should never be null.
+                if (name == null) { // filename should never be null.
                     throw new IOException("file has no name");
                 }
                 int i;
@@ -1655,8 +1623,8 @@ public abstract class CMSServlet extends HttpServlet {
                     }
 
                     String langfilepath =
-                        parent + File.separatorChar +
-                        lang + File.separatorChar + name;
+                            parent + File.separatorChar +
+                                    lang + File.separatorChar + name;
 
                     file = new File(langfilepath);
                     if (file.exists()) {
@@ -1688,18 +1656,18 @@ public abstract class CMSServlet extends HttpServlet {
     }
 
     public IAuthToken authenticate(CMSRequest req)
-        throws EBaseException {
+            throws EBaseException {
         return authenticate(req, mAuthMgr);
     }
 
     public IAuthToken authenticate(HttpServletRequest httpReq)
-        throws EBaseException {
+            throws EBaseException {
         return authenticate(httpReq, mAuthMgr);
     }
 
-    public IAuthToken authenticate(CMSRequest req, String authMgrName) 
-        throws EBaseException {
-        IAuthToken authToken = authenticate(req.getHttpReq(), 
+    public IAuthToken authenticate(CMSRequest req, String authMgrName)
+            throws EBaseException {
+        IAuthToken authToken = authenticate(req.getHttpReq(),
                 authMgrName);
 
         saveAuthToken(authToken, req.getIRequest());
@@ -1709,19 +1677,16 @@ public abstract class CMSServlet extends HttpServlet {
     /**
      * Authentication
      * <P>
-     *
+     * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_AUTH_FAIL used when authentication
-     * fails (in case of SSL-client auth, only webserver env can pick up the
-     * SSL violation; CS authMgr can pick up cert mis-match, so this event
-     * is used)
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_AUTH_SUCCESS used when authentication
-     * succeeded
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_AUTH_FAIL used when authentication fails (in case of SSL-client auth, only webserver env can pick up the SSL violation; CS authMgr can pick up cert mis-match, so this event is used)
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_AUTH_SUCCESS used when authentication succeeded
      * </ul>
+     * 
      * @exception EBaseException an error has occurred
      */
     public IAuthToken authenticate(HttpServletRequest httpReq, String authMgrName)
-        throws EBaseException { 
+            throws EBaseException {
         String auditMessage = null;
         String auditSubjectID = ILogger.UNIDENTIFIED;
         String auditAuthMgrID = ILogger.UNIDENTIFIED;
@@ -1750,9 +1715,9 @@ public abstract class CMSServlet extends HttpServlet {
             //
             // check ssl client authentication if specified.
             //
-            X509Certificate clientCert = null; 
+            X509Certificate clientCert = null;
 
-            if (getClientCert != null && getClientCert.equals("true")) { 
+            if (getClientCert != null && getClientCert.equals("true")) {
                 CMS.debug("CMSServlet: retrieving SSL certificate");
                 clientCert = getSSLClientCertificate(httpReq);
             }
@@ -1795,10 +1760,10 @@ public abstract class CMSServlet extends HttpServlet {
             }
             AuthToken authToken = CMSGateway.checkAuthManager(httpReq,
                     httpArgs,
-                    clientCert, 
+                    clientCert,
                     authMgrName);
             if (authToken == null) {
-              return null;
+                return null;
             }
             String userid = authToken.getInString(IAuthToken.USER_ID);
 
@@ -1807,7 +1772,7 @@ public abstract class CMSServlet extends HttpServlet {
             if (userid != null) {
                 ctx.put(SessionContext.USER_ID, userid);
             }
-        
+
             // reset the "auditSubjectID"
             auditSubjectID = auditSubjectID();
 
@@ -1828,7 +1793,7 @@ public abstract class CMSServlet extends HttpServlet {
                         auditSubjectID,
                         ILogger.FAILURE,
                         auditAuthMgrID,
-                        auditUID); 
+                        auditUID);
             audit(auditMessage);
 
             // rethrow the specific exception to be handled later
@@ -1837,7 +1802,7 @@ public abstract class CMSServlet extends HttpServlet {
     }
 
     public AuthzToken authorize(String authzMgrName, String resource, IAuthToken authToken,
-      String exp) throws EBaseException {
+            String exp) throws EBaseException {
         AuthzToken authzToken = null;
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
@@ -1911,29 +1876,27 @@ public abstract class CMSServlet extends HttpServlet {
     /**
      * Authorize must occur after Authenticate
      * <P>
-     *
+     * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_AUTHZ_FAIL used when authorization
-     * has failed
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_AUTHZ_SUCCESS used when authorization
-     * is successful
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_ROLE_ASSUME used when user assumes a
-     * role (in current CS that's when one accesses a role port)
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_AUTHZ_FAIL used when authorization has failed
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_AUTHZ_SUCCESS used when authorization is successful
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_ROLE_ASSUME used when user assumes a role (in current CS that's when one accesses a role port)
      * </ul>
+     * 
      * @param authzMgrName string representing the name of the authorization
-     * manager
+     *            manager
      * @param authToken the authentication token
      * @param resource a string representing the ACL resource id as defined in
-     * the ACL resource list
+     *            the ACL resource list
      * @param operation a string representing one of the operations as defined
-     * within the ACL statement (e. g. - "read" for an ACL statement containing
-     * "(read,write)")
+     *            within the ACL statement (e. g. - "read" for an ACL statement containing
+     *            "(read,write)")
      * @exception EBaseException an error has occurred
      * @return the authorization token
      */
     public AuthzToken authorize(String authzMgrName, IAuthToken authToken,
-        String resource, String operation)
-        throws EBaseException {
+            String resource, String operation)
+            throws EBaseException {
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
         String auditGroupID = auditGroupID();
@@ -1941,19 +1904,18 @@ public abstract class CMSServlet extends HttpServlet {
         String auditACLResource = resource;
         String auditOperation = operation;
 
-
         SessionContext auditContext = SessionContext.getExistingContext();
         String authManagerId = null;
 
-        if(auditContext != null) {
+        if (auditContext != null) {
             authManagerId = (String) auditContext.get(SessionContext.AUTH_MANAGER_ID);
-    
-            if(authManagerId != null && authManagerId.equals("TokenAuth")) {
-               if (auditSubjectID.equals(ILogger.NONROLEUSER) ||
-                   auditSubjectID.equals(ILogger.UNIDENTIFIED)) {
-                   CMS.debug("CMSServlet: in authorize... TokenAuth auditSubjectID unavailable, changing to auditGroupID");
-                   auditID = auditGroupID;  
-               }
+
+            if (authManagerId != null && authManagerId.equals("TokenAuth")) {
+                if (auditSubjectID.equals(ILogger.NONROLEUSER) ||
+                        auditSubjectID.equals(ILogger.UNIDENTIFIED)) {
+                    CMS.debug("CMSServlet: in authorize... TokenAuth auditSubjectID unavailable, changing to auditGroupID");
+                    auditID = auditGroupID;
+                }
             }
         }
 
@@ -2073,11 +2035,11 @@ public abstract class CMSServlet extends HttpServlet {
 
     /**
      * Signed Audit Log
-     *
+     * 
      * This method is inherited by all extended "CMSServlet"s,
      * and is called to store messages to the signed audit log.
      * <P>
-     *
+     * 
      * @param msg signed audit log message
      */
     protected void audit(String msg) {
@@ -2089,20 +2051,20 @@ public abstract class CMSServlet extends HttpServlet {
         }
 
         mSignedAuditLogger.log(ILogger.EV_SIGNED_AUDIT,
-            null,
-            ILogger.S_SIGNED_AUDIT,
-            ILogger.LL_SECURITY,
-            msg);
+                null,
+                ILogger.S_SIGNED_AUDIT,
+                ILogger.LL_SECURITY,
+                msg);
     }
 
     /**
      * Signed Audit Log Subject ID
-     *
+     * 
      * This method is inherited by all extended "CMSServlet"s,
      * and is called to obtain the "SubjectID" for
      * a signed audit log message.
      * <P>
-     *
+     * 
      * @return id string containing the signed audit log message SubjectID
      */
     protected String auditSubjectID() {
@@ -2137,12 +2099,12 @@ public abstract class CMSServlet extends HttpServlet {
 
     /**
      * Signed Audit Log Group ID
-     *
+     * 
      * This method is inherited by all extended "CMSServlet"s,
      * and is called to obtain the "gid" for
      * a signed audit log message.
      * <P>
-     *
+     * 
      * @return id string containing the signed audit log message SubjectID
      */
     protected String auditGroupID() {
@@ -2177,14 +2139,14 @@ public abstract class CMSServlet extends HttpServlet {
 
     /**
      * Signed Audit Groups
-     *
+     * 
      * This method is called to extract all "groups" associated
      * with the "auditSubjectID()".
      * <P>
-     *
+     * 
      * @param id string containing the signed audit log message SubjectID
      * @return a delimited string of groups associated
-     *      with the "auditSubjectID()"
+     *         with the "auditSubjectID()"
      */
     private String auditGroups(String SubjectID) {
         // if no signed audit object exists, bail
@@ -2193,7 +2155,7 @@ public abstract class CMSServlet extends HttpServlet {
         }
 
         if ((SubjectID == null) ||
-            (SubjectID.equals(ILogger.UNIDENTIFIED))) {
+                (SubjectID.equals(ILogger.UNIDENTIFIED))) {
             return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
         }
 
@@ -2211,7 +2173,7 @@ public abstract class CMSServlet extends HttpServlet {
             IGroup group = (IGroup) groups.nextElement();
 
             if (group.isMember(SubjectID) == true) {
-                if (membersString.length()!= 0) {
+                if (membersString.length() != 0) {
                     membersString.append(", ");
                 }
 
@@ -2219,7 +2181,7 @@ public abstract class CMSServlet extends HttpServlet {
             }
         }
 
-        if (membersString.length()!=0) {
+        if (membersString.length() != 0) {
             return membersString.toString();
         } else {
             return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
@@ -2243,18 +2205,18 @@ public abstract class CMSServlet extends HttpServlet {
         return locale;
     }
 
-    protected void outputResult(HttpServletResponse httpResp, 
-      String contentType, byte[] content) {
+    protected void outputResult(HttpServletResponse httpResp,
+            String contentType, byte[] content) {
         try {
             OutputStream os = httpResp.getOutputStream();
-    
+
             httpResp.setContentType(contentType);
             httpResp.setContentLength(content.length);
             os.write(content);
             os.flush();
         } catch (IOException e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("CMSGW_ERR_BAD_SERV_OUT_STREAM", "", e.toString()));
+                    CMS.getLogMessage("CMSGW_ERR_BAD_SERV_OUT_STREAM", "", e.toString()));
             return;
         }
     }
@@ -2288,34 +2250,36 @@ public abstract class CMSServlet extends HttpServlet {
         } catch (Exception ee) {
             CMS.debug("Failed to send XML output to the server.");
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("CMSGW_ERR_BAD_SERV_OUT_STREAM", "", ee.toString()));
+                    CMS.getLogMessage("CMSGW_ERR_BAD_SERV_OUT_STREAM", "", ee.toString()));
         }
     }
 
-    protected StringBuffer escapeValueRfc1779(String v, boolean doubleEscape)
-    {
+    protected StringBuffer escapeValueRfc1779(String v, boolean doubleEscape) {
         StringBuffer result = new StringBuffer();
 
         // Do we need to escape any characters
         for (int i = 0; i < v.length(); i++) {
             int c = v.charAt(i);
             if (c == ',' || c == '=' || c == '+' || c == '<' ||
-                c == '>' || c == '#' || c == ';' || c == '\r' ||
-                c == '\n' || c == '\\' || c == '"') {
-                if ((c == 0x5c) && ((i+1) < v.length())) {
-                    int nextC = v.charAt(i+1);
+                    c == '>' || c == '#' || c == ';' || c == '\r' ||
+                    c == '\n' || c == '\\' || c == '"') {
+                if ((c == 0x5c) && ((i + 1) < v.length())) {
+                    int nextC = v.charAt(i + 1);
                     if ((c == 0x5c) && (nextC == ',' || nextC == '=' || nextC == '+' ||
                                         nextC == '<' || nextC == '>' || nextC == '#' ||
                                         nextC == ';' || nextC == '\r' || nextC == '\n' ||
                                         nextC == '\\' || nextC == '"')) {
-                        if (doubleEscape) result.append('\\');
+                        if (doubleEscape)
+                            result.append('\\');
                     } else {
                         result.append('\\');
-                        if (doubleEscape) result.append('\\');
+                        if (doubleEscape)
+                            result.append('\\');
                     }
                 } else {
                     result.append('\\');
-                    if (doubleEscape) result.append('\\');
+                    if (doubleEscape)
+                        result.append('\\');
                 }
             }
             if (c == '\r') {
@@ -2323,11 +2287,10 @@ public abstract class CMSServlet extends HttpServlet {
             } else if (c == '\n') {
                 result.append("0A");
             } else {
-                result.append((char)c);
+                result.append((char) c);
             }
         }
         return result;
     }
 
 }
-

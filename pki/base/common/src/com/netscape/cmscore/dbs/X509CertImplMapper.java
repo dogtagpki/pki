@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.dbs;
 
-
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.util.Date;
@@ -43,12 +42,11 @@ import com.netscape.certsrv.dbs.IDBAttrMapper;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 
-
 /**
- * A class represents a mapper to serialize 
+ * A class represents a mapper to serialize
  * x509 certificate into database.
- *
- * @author  thomask
+ * 
+ * @author thomask
  * @version $Revision$, $Date$
  */
 public class X509CertImplMapper implements IDBAttrMapper {
@@ -72,23 +70,23 @@ public class X509CertImplMapper implements IDBAttrMapper {
         return v.elements();
     }
 
-    public void mapObjectToLDAPAttributeSet(IDBObj parent, String name, 
-        Object obj, LDAPAttributeSet attrs) throws EBaseException {
+    public void mapObjectToLDAPAttributeSet(IDBObj parent, String name,
+            Object obj, LDAPAttributeSet attrs) throws EBaseException {
         try {
             X509CertImpl cert = (X509CertImpl) obj;
             // make information searchable
             Date notBefore = cert.getNotBefore();
 
             attrs.add(new LDAPAttribute(
-                    CertDBSchema.LDAP_ATTR_NOT_BEFORE, 
+                    CertDBSchema.LDAP_ATTR_NOT_BEFORE,
                     DateMapper.dateToDB(notBefore)));
             Date notAfter = cert.getNotAfter();
 
-            attrs.add(new LDAPAttribute(CertDBSchema.LDAP_ATTR_NOT_AFTER, 
+            attrs.add(new LDAPAttribute(CertDBSchema.LDAP_ATTR_NOT_AFTER,
                     DateMapper.dateToDB(notAfter)));
-            attrs.add(new LDAPAttribute(CertDBSchema.LDAP_ATTR_DURATION, 
+            attrs.add(new LDAPAttribute(CertDBSchema.LDAP_ATTR_DURATION,
                     DBSUtil.longToDB(notAfter.getTime() - notBefore.getTime())));
-            attrs.add(new LDAPAttribute(CertDBSchema.LDAP_ATTR_SUBJECT, 
+            attrs.add(new LDAPAttribute(CertDBSchema.LDAP_ATTR_SUBJECT,
                     cert.getSubjectDN().getName()));
             attrs.add(new LDAPAttribute(CertDBSchema.LDAP_ATTR_PUBLIC_KEY_DATA, cert.getPublicKey().getEncoded()));
             // make extension searchable
@@ -145,19 +143,19 @@ public class X509CertImplMapper implements IDBAttrMapper {
             // not know how to display the certificate in
             // pretty print format.
             attrs.add(new LDAPAttribute(
-                    CertDBSchema.LDAP_ATTR_SIGNED_CERT + ";binary", 
+                    CertDBSchema.LDAP_ATTR_SIGNED_CERT + ";binary",
                     cert.getEncoded()));
 
             attrs.add(new LDAPAttribute(
-                    CertDBSchema.LDAP_ATTR_VERSION, 
+                    CertDBSchema.LDAP_ATTR_VERSION,
                     Integer.toString(cert.getVersion())));
             X509Key pubKey = (X509Key) cert.getPublicKey();
 
             attrs.add(new LDAPAttribute(
-                    CertDBSchema.LDAP_ATTR_ALGORITHM, 
+                    CertDBSchema.LDAP_ATTR_ALGORITHM,
                     pubKey.getAlgorithmId().getOID().toString()));
             attrs.add(new LDAPAttribute(
-                    CertDBSchema.LDAP_ATTR_SIGNING_ALGORITHM, 
+                    CertDBSchema.LDAP_ATTR_SIGNING_ALGORITHM,
                     cert.getSigAlgOID()));
         } catch (CertificateEncodingException e) {
             throw new EDBException(
@@ -203,7 +201,7 @@ public class X509CertImplMapper implements IDBAttrMapper {
             Boolean objectSigning = (Boolean) nsExt.get(
                     NSCertTypeExtension.OBJECT_SIGNING);
 
-            result += "objectSigning=" + 
+            result += "objectSigning=" +
                     objectSigning.toString();
             return result;
         } catch (Exception e) {
@@ -240,8 +238,8 @@ public class X509CertImplMapper implements IDBAttrMapper {
         }
     }
 
-    public void mapLDAPAttributeSetToObject(LDAPAttributeSet attrs, 
-        String name, IDBObj parent) throws EBaseException {
+    public void mapLDAPAttributeSetToObject(LDAPAttributeSet attrs,
+            String name, IDBObj parent) throws EBaseException {
         try {
             // rebuild object quickly using binary image
             // XXX bad! when we add this attribute,
@@ -263,7 +261,7 @@ public class X509CertImplMapper implements IDBAttrMapper {
             }
             if (attr != null) {
                 byte der[] = (byte[])
-                    attr.getByteValues().nextElement();
+                        attr.getByteValues().nextElement();
                 X509CertImpl impl = new X509CertImpl(der);
 
                 parent.set(name, impl);
@@ -276,26 +274,26 @@ public class X509CertImplMapper implements IDBAttrMapper {
             //throw new EDBException(
             //	DBResources.FAILED_TO_DESERIALIZE_1, name);
             parent.set(name, null);
-			
+
         }
     }
 
     public String mapSearchFilter(String name, String op, String value)
-        throws EBaseException {
+            throws EBaseException {
         AttributeNameHelper h = new AttributeNameHelper(name);
         String suffix = h.getSuffix();
 
         if (suffix.equalsIgnoreCase(ICertRecord.X509CERT_NOT_BEFORE)) {
             name = CertDBSchema.LDAP_ATTR_NOT_BEFORE;
             try {
-                value = DateMapper.dateToDB(new 
+                value = DateMapper.dateToDB(new
                             Date(Long.parseLong(value)));
             } catch (NumberFormatException e) {
             }
         } else if (suffix.equalsIgnoreCase(ICertRecord.X509CERT_NOT_AFTER)) {
             name = CertDBSchema.LDAP_ATTR_NOT_AFTER;
             try {
-                value = DateMapper.dateToDB(new 
+                value = DateMapper.dateToDB(new
                             Date(Long.parseLong(value)));
             } catch (NumberFormatException e) {
             }
@@ -313,15 +311,15 @@ public class X509CertImplMapper implements IDBAttrMapper {
         } else if (suffix.equalsIgnoreCase(ICertRecord.X509CERT_SIGNING_ALGORITHM)) {
             name = CertDBSchema.LDAP_ATTR_SIGNING_ALGORITHM;
         } else if (suffix.equalsIgnoreCase(ICertRecord.X509CERT_SERIAL_NUMBER)) {
-            name = CertDBSchema.LDAP_ATTR_CERT_RECORD_ID; 
+            name = CertDBSchema.LDAP_ATTR_CERT_RECORD_ID;
         } else if (suffix.equalsIgnoreCase(ICertRecord.X509CERT_EXTENSION)) {
-            name = CertDBSchema.LDAP_ATTR_EXTENSION; 
+            name = CertDBSchema.LDAP_ATTR_EXTENSION;
         } else if (suffix.equalsIgnoreCase(ICertRecord.ATTR_REVO_INFO)) {
-            name = CertDBSchema.LDAP_ATTR_REVO_INFO; 
+            name = CertDBSchema.LDAP_ATTR_REVO_INFO;
             value = "*;CRLReasonExtension=" + value + "*";
         } else if (suffix.equalsIgnoreCase("nsExtension.SSLClient")) {
             // special case for NS cert type extension
-            name = CertDBSchema.LDAP_ATTR_EXTENSION; 
+            name = CertDBSchema.LDAP_ATTR_EXTENSION;
             if (value.equals("on")) {
                 value = "2.16.840.1.113730.1.1;*SSLClient=true*";
             } else {
@@ -329,7 +327,7 @@ public class X509CertImplMapper implements IDBAttrMapper {
             }
         } else if (suffix.equalsIgnoreCase("nsExtension.SSLServer")) {
             // special case for NS cert type extension
-            name = CertDBSchema.LDAP_ATTR_EXTENSION; 
+            name = CertDBSchema.LDAP_ATTR_EXTENSION;
             if (value.equals("on")) {
                 value = "2.16.840.1.113730.1.1;*SSLServer=true*";
             } else {
@@ -337,7 +335,7 @@ public class X509CertImplMapper implements IDBAttrMapper {
             }
         } else if (suffix.equalsIgnoreCase("nsExtension.SecureEmail")) {
             // special case for NS cert type extension
-            name = CertDBSchema.LDAP_ATTR_EXTENSION; 
+            name = CertDBSchema.LDAP_ATTR_EXTENSION;
             if (value.equals("on")) {
                 value = "2.16.840.1.113730.1.1;*Email=true*";
             } else {
@@ -345,7 +343,7 @@ public class X509CertImplMapper implements IDBAttrMapper {
             }
         } else if (suffix.equalsIgnoreCase("nsExtension.SubordinateSSLCA")) {
             // special case for NS cert type extension
-            name = CertDBSchema.LDAP_ATTR_EXTENSION; 
+            name = CertDBSchema.LDAP_ATTR_EXTENSION;
             if (value.equals("on")) {
                 value = "2.16.840.1.113730.1.1;*SSLCA=true*";
             } else {
@@ -353,7 +351,7 @@ public class X509CertImplMapper implements IDBAttrMapper {
             }
         } else if (suffix.equalsIgnoreCase("nsExtension.SubordinateEmailCA")) {
             // special case for NS cert type extension
-            name = CertDBSchema.LDAP_ATTR_EXTENSION; 
+            name = CertDBSchema.LDAP_ATTR_EXTENSION;
             if (value.equals("on")) {
                 value = "2.16.840.1.113730.1.1;*EmailCA=true*";
             } else {
@@ -361,7 +359,7 @@ public class X509CertImplMapper implements IDBAttrMapper {
             }
         } else if (suffix.equalsIgnoreCase("BasicConstraints.isCA")) {
             // special case for Basic Constraints extension
-            name = CertDBSchema.LDAP_ATTR_EXTENSION; 
+            name = CertDBSchema.LDAP_ATTR_EXTENSION;
             if (value.equals("on")) {
                 value = "2.5.29.19;*isCA=true*";
             } else {

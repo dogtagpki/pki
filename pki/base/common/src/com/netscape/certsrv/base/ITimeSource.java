@@ -17,9 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.base;
 
-
 import java.util.Date;
-
 
 /**
  * This interface represents a time source where
@@ -35,7 +33,7 @@ public interface ITimeSource {
 
     /**
      * Retrieves current time and date.
-     *
+     * 
      * @return current time and date
      */
     public Date getCurrentDate();

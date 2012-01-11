@@ -35,7 +35,7 @@ import org.mozilla.jss.pkix.cert.Extension;
 
 /**
  * RFC 2560:
- *
+ * 
  * <pre>
  * ResponseData ::= SEQUENCE {
  *    version              [0] EXPLICIT Version DEFAULT v1,
@@ -44,13 +44,12 @@ import org.mozilla.jss.pkix.cert.Extension;
  *    responses                SEQUENCE OF SingleResponse,
  *    responseExtensions   [1] EXPLICIT Extensions OPTIONAL }
  * </pre>
- *
+ * 
  * @version $Revision$ $Date$
  */
-public class ResponseData implements ASN1Value
-{
+public class ResponseData implements ASN1Value {
     private static final INTEGER v1 = new INTEGER(0);
-    private INTEGER mVer; 
+    private INTEGER mVer;
     private ResponderID mRID = null;
     private GeneralizedTime mProduced = null;
     private SingleResponse mSR[] = null;
@@ -58,7 +57,7 @@ public class ResponseData implements ASN1Value
 
     private static final Tag TAG = SEQUENCE.TAG;
 
-    public ResponseData(INTEGER ver, ResponderID rid, GeneralizedTime produced, 
+    public ResponseData(INTEGER ver, ResponderID rid, GeneralizedTime produced,
             SingleResponse sr[], Extension exts[]) {
         mVer = (ver != null) ? ver : v1;
         mRID = rid;
@@ -67,30 +66,25 @@ public class ResponseData implements ASN1Value
         mExts = exts;
     }
 
-    public ResponseData(ResponderID rid, GeneralizedTime produced, 
-           SingleResponse sr[])
-    {
+    public ResponseData(ResponderID rid, GeneralizedTime produced,
+            SingleResponse sr[]) {
         this(v1, rid, produced, sr, null);
     }
 
-    public ResponseData(ResponderID rid, GeneralizedTime produced, 
-           SingleResponse sr[], Extension exts[])
-    {
+    public ResponseData(ResponderID rid, GeneralizedTime produced,
+            SingleResponse sr[], Extension exts[]) {
         this(v1, rid, produced, sr, exts);
     }
- 
-    public Tag getTag()
-    {
+
+    public Tag getTag() {
         return TAG;
     }
 
-    public void encode(OutputStream os) throws IOException
-    {    
+    public void encode(OutputStream os) throws IOException {
         encode(null, os);
     }
 
-    public void encode(Tag t, OutputStream os) throws IOException
-    {    
+    public void encode(Tag t, OutputStream os) throws IOException {
         SEQUENCE seq = new SEQUENCE();
 
         if (mVer != v1) {
@@ -116,35 +110,29 @@ public class ResponseData implements ASN1Value
         } else {
             seq.encode(t, os);
         }
-    }    
+    }
 
-    public ResponderID getResponderID()
-    {
+    public ResponderID getResponderID() {
         return mRID;
     }
 
-    public GeneralizedTime getProducedAt()
-    {
+    public GeneralizedTime getProducedAt() {
         return mProduced;
     }
 
-    public int getResponseCount()
-    {
+    public int getResponseCount() {
         return (mSR != null) ? mSR.length : 0;
     }
 
-    public SingleResponse getResponseAt(int pos)
-    {
+    public SingleResponse getResponseAt(int pos) {
         return (mSR != null) ? mSR[pos] : null;
     }
 
-    public int getResponseExtensionCount()
-    {
-        return (mExts != null) ? mExts.length : 0; 
+    public int getResponseExtensionCount() {
+        return (mExts != null) ? mExts.length : 0;
     }
 
-    public Extension getResponseExtensionAt(int pos)
-    {
+    public Extension getResponseExtensionAt(int pos) {
         return (mExts != null) ? mExts[pos] : null;
     }
 
@@ -157,67 +145,62 @@ public class ResponseData implements ASN1Value
     /**
      * A Template for decoding <code>ResponseBytes</code>.
      */
-    public static class Template implements ASN1Template
-    {
+    public static class Template implements ASN1Template {
 
         private SEQUENCE.Template seqt;
 
-        public Template()
-        {
-            seqt = new SEQUENCE.Template(); 
-            seqt.addOptionalElement(new EXPLICIT.Template( 
-                new Tag (0), new INTEGER.Template()) );
-            seqt.addElement(new ANY.Template() );
-            seqt.addElement(new GeneralizedTime.Template() );
-            seqt.addElement(new SEQUENCE.OF_Template(
-            SingleResponse.getTemplate()));
+        public Template() {
+            seqt = new SEQUENCE.Template();
             seqt.addOptionalElement(new EXPLICIT.Template(
-                new Tag(1), new SEQUENCE.OF_Template(
-                    Extension.getTemplate())));
+                    new Tag(0), new INTEGER.Template()));
+            seqt.addElement(new ANY.Template());
+            seqt.addElement(new GeneralizedTime.Template());
+            seqt.addElement(new SEQUENCE.OF_Template(
+                    SingleResponse.getTemplate()));
+            seqt.addOptionalElement(new EXPLICIT.Template(
+                    new Tag(1), new SEQUENCE.OF_Template(
+                            Extension.getTemplate())));
         }
 
-        public boolean tagMatch(Tag tag)
-        {
+        public boolean tagMatch(Tag tag) {
             return TAG.equals(tag);
         }
 
         public ASN1Value decode(InputStream istream)
-            throws InvalidBERException, IOException
-        {
+                throws InvalidBERException, IOException {
             return decode(TAG, istream);
         }
 
         public ASN1Value decode(Tag implicitTag, InputStream istream)
-             throws InvalidBERException, IOException
-        {
-            SEQUENCE seq = (SEQUENCE) seqt.decode(implicitTag, 
-                istream);
+                throws InvalidBERException, IOException {
+            SEQUENCE seq = (SEQUENCE) seqt.decode(implicitTag,
+                    istream);
 
             INTEGER ver = v1;
-            EXPLICIT e_ver = (EXPLICIT)seq.elementAt(0);
+            EXPLICIT e_ver = (EXPLICIT) seq.elementAt(0);
             if (e_ver != null && e_ver.getTag().getNum() == 0) {
-                ver = (INTEGER)e_ver.getContent();
+                ver = (INTEGER) e_ver.getContent();
             }
             ResponderID rid = null;
-            ANY e_rid = (ANY)seq.elementAt(1);
+            ANY e_rid = (ANY) seq.elementAt(1);
             if (e_rid.getTag().getNum() == 1) {
                 // name id
-                rid = (NameID) 
-                    NameID.getTemplate().decode(e_rid.getTag(),
-                    new ByteArrayInputStream(e_rid.getEncoded()));
+                rid = (NameID)
+                        NameID.getTemplate().decode(e_rid.getTag(),
+                                new ByteArrayInputStream(e_rid.getEncoded()));
             } else if (e_rid.getTag().getNum() == 2) {
                 // key hash id
                 rid = (KeyHashID)
-                    KeyHashID.getTemplate().decode(e_rid.getTag(),
-                    new ByteArrayInputStream(e_rid.getEncoded()));
+                        KeyHashID.getTemplate().decode(e_rid.getTag(),
+                                new ByteArrayInputStream(e_rid.getEncoded()));
             }
-            GeneralizedTime producedAt = (GeneralizedTime)  seq.elementAt(2);
-            SEQUENCE responses = (SEQUENCE)seq.elementAt(3);
+            GeneralizedTime producedAt = (GeneralizedTime) seq.elementAt(2);
+            SEQUENCE responses = (SEQUENCE) seq.elementAt(3);
             SingleResponse sr[] = null;
-            if ((responses !=  null) && (responses.size() > 0)) {
+            if ((responses != null) && (responses.size() > 0)) {
                 sr = new SingleResponse[responses.size()];
                 for (int i = 0; i < responses.size(); i++) {
-                    sr[i] = (SingleResponse)responses.elementAt(i);
+                    sr[i] = (SingleResponse) responses.elementAt(i);
                 }
             }
 
@@ -226,14 +209,14 @@ public class ResponseData implements ASN1Value
             SEQUENCE extns_seq;
             Extension[] extns_array = null;
             if (extns_exp != null) {
-                extns_seq = (SEQUENCE)extns_exp.getContent();
+                extns_seq = (SEQUENCE) extns_exp.getContent();
                 extns_array = new Extension[extns_seq.size()];
-                for (int x=0;x<extns_array.length;x++) {
+                for (int x = 0; x < extns_array.length; x++) {
                     extns_array[x] = (Extension) extns_seq.elementAt(x);
                 }
             }
 
             return new ResponseData(ver, rid, producedAt, sr, extns_array);
-       }
-   }
+        }
+    }
 }

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.base;
 
-
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
@@ -34,12 +33,11 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.KeyGenInfo;
 
-
 /**
- * This class represents a set of indexed arguments. 
- * Each argument is indexed by a key, which can be 
+ * This class represents a set of indexed arguments.
+ * Each argument is indexed by a key, which can be
  * used during the argument retrieval.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class ArgBlock implements IArgBlock {
@@ -51,45 +49,40 @@ public class ArgBlock implements IArgBlock {
     /*==========================================================
      * variables
      *==========================================================*/
-    public static final String 
-        CERT_NEW_REQUEST_HEADER = "-----BEGIN NEW CERTIFICATE REQUEST-----";
-    public static final String 
-        CERT_NEW_REQUEST_TRAILER = "-----END NEW CERTIFICATE REQUEST-----";
-    public static final String 
-        CERT_REQUEST_HEADER = "-----BEGIN CERTIFICATE REQUEST-----";
-    public static final String 
-        CERT_REQUEST_TRAILER = "-----END CERTIFICATE REQUEST-----";
-    public static final String 
-        CERT_RENEWAL_HEADER = "-----BEGIN RENEWAL CERTIFICATE REQUEST-----";
-    public static final String 
-        CERT_RENEWAL_TRAILER = "-----END RENEWAL CERTIFICATE REQUEST-----";
+    public static final String CERT_NEW_REQUEST_HEADER = "-----BEGIN NEW CERTIFICATE REQUEST-----";
+    public static final String CERT_NEW_REQUEST_TRAILER = "-----END NEW CERTIFICATE REQUEST-----";
+    public static final String CERT_REQUEST_HEADER = "-----BEGIN CERTIFICATE REQUEST-----";
+    public static final String CERT_REQUEST_TRAILER = "-----END CERTIFICATE REQUEST-----";
+    public static final String CERT_RENEWAL_HEADER = "-----BEGIN RENEWAL CERTIFICATE REQUEST-----";
+    public static final String CERT_RENEWAL_TRAILER = "-----END RENEWAL CERTIFICATE REQUEST-----";
 
     private Hashtable<String, Object> mArgs = new Hashtable<String, Object>();
 
-	private String mType = "unspecified-argblock";
+    private String mType = "unspecified-argblock";
 
     /*==========================================================
      * constructors
      *==========================================================*/
     /**
      * Constructs an argument block with the given hashtable values.
+     * 
      * @param realm the type of argblock - used for debugging the values
      */
     public ArgBlock(String realm, Hashtable<String, String> httpReq) {
-		mType = realm;
-		populate(httpReq);
-	}
-    
+        mType = realm;
+        populate(httpReq);
+    }
+
     /**
      * Constructs an argument block with the given hashtable values.
-     *
+     * 
      * @param httpReq hashtable keys and values
      */
     public ArgBlock(Hashtable<String, String> httpReq) {
-		populate(httpReq);
-	}
+        populate(httpReq);
+    }
 
-	private void populate(Hashtable<String, String> httpReq) {
+    private void populate(Hashtable<String, String> httpReq) {
         // Add all parameters from the request
         Enumeration<String> e = httpReq.keys();
 
@@ -115,12 +108,12 @@ public class ArgBlock implements IArgBlock {
 
     /**
      * Checks if this argument block contains the given key.
-     *
+     * 
      * @param n key
      * @return true if key is present
      */
     public boolean isValuePresent(String n) {
-		CMS.traceHashKey(mType, n);
+        CMS.traceHashKey(mType, n);
         if (mArgs.get(n) != null) {
             return true;
         } else {
@@ -130,7 +123,7 @@ public class ArgBlock implements IArgBlock {
 
     /**
      * Adds string-based value into this argument block.
-     *
+     * 
      * @param n key
      * @param v value
      * @return value
@@ -145,14 +138,14 @@ public class ArgBlock implements IArgBlock {
 
     /**
      * Retrieves argument value as string.
-     *
+     * 
      * @param n key
      * @return argument value as string
      * @exception EBaseException failed to retrieve value
      */
     public String getValueAsString(String n) throws EBaseException {
-		String t= (String)mArgs.get(n);
-		CMS.traceHashKey(mType, n, t);
+        String t = (String) mArgs.get(n);
+        CMS.traceHashKey(mType, n, t);
 
         if (t != null) {
             return t;
@@ -163,14 +156,14 @@ public class ArgBlock implements IArgBlock {
 
     /**
      * Retrieves argument value as string.
-     *
+     * 
      * @param n key
      * @param def default value to be returned if key is not present
      * @return argument value as string
      */
     public String getValueAsString(String n, String def) {
         String val = (String) mArgs.get(n);
-		CMS.traceHashKey(mType, n, val, def);
+        CMS.traceHashKey(mType, n, val, def);
 
         if (val != null) {
             return val;
@@ -181,14 +174,14 @@ public class ArgBlock implements IArgBlock {
 
     /**
      * Retrieves argument value as integer.
-     *
+     * 
      * @param n key
      * @return argument value as int
      * @exception EBaseException failed to retrieve value
      */
     public int getValueAsInt(String n) throws EBaseException {
         if (mArgs.get(n) != null) {
-			CMS.traceHashKey(mType, n, (String)mArgs.get(n));
+            CMS.traceHashKey(mType, n, (String) mArgs.get(n));
             try {
                 return new Integer((String) mArgs.get(n)).intValue();
             } catch (NumberFormatException e) {
@@ -196,20 +189,20 @@ public class ArgBlock implements IArgBlock {
                         CMS.getUserMessage("CMS_BASE_INVALID_ATTR_TYPE", n, e.toString()));
             }
         } else {
-			CMS.traceHashKey(mType, n, "<notpresent>");
+            CMS.traceHashKey(mType, n, "<notpresent>");
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_ATTRIBUTE_NOT_FOUND", n));
         }
     }
 
     /**
      * Retrieves argument value as integer.
-     *
+     * 
      * @param n key
      * @param def default value to be returned if key is not present
      * @return argument value as int
      */
     public int getValueAsInt(String n, int def) {
-		CMS.traceHashKey(mType, n, (String)mArgs.get(n), ""+def);
+        CMS.traceHashKey(mType, n, (String) mArgs.get(n), "" + def);
         if (mArgs.get(n) != null) {
             try {
                 return new Integer((String) mArgs.get(n)).intValue();
@@ -223,13 +216,13 @@ public class ArgBlock implements IArgBlock {
 
     /**
      * Retrieves argument value as big integer.
-     *
+     * 
      * @param n key
      * @return argument value as big integer
      * @exception EBaseException failed to retrieve value
      */
     public BigInteger getValueAsBigInteger(String n)
-        throws EBaseException {
+            throws EBaseException {
         String v = (String) mArgs.get(n);
 
         if (v != null) {
@@ -250,7 +243,7 @@ public class ArgBlock implements IArgBlock {
 
     /**
      * Retrieves argument value as big integer.
-     *
+     * 
      * @param n key
      * @param def default value to be returned if key is not present
      * @return argument value as big integer
@@ -265,7 +258,7 @@ public class ArgBlock implements IArgBlock {
 
     /**
      * Retrieves argument value as object
-     *
+     * 
      * @param n key
      * @return argument value as object
      * @exception EBaseException failed to retrieve value
@@ -280,7 +273,7 @@ public class ArgBlock implements IArgBlock {
 
     /**
      * Retrieves argument value as object
-     *
+     * 
      * @param n key
      * @param def default value to be returned if key is not present
      * @return argument value as object
@@ -295,18 +288,18 @@ public class ArgBlock implements IArgBlock {
 
     /**
      * Gets boolean value. They should be "true" or "false".
-     *
+     * 
      * @param name name of the input type
      * @return boolean type: <code>true</code> or <code>false</code>
      * @exception EBaseException failed to retrieve value
      */
-    public boolean getValueAsBoolean(String name)  throws EBaseException {
+    public boolean getValueAsBoolean(String name) throws EBaseException {
         String val = (String) mArgs.get(name);
-		CMS.traceHashKey(mType, name, val);
+        CMS.traceHashKey(mType, name, val);
 
         if (val != null) {
-            if (val.equalsIgnoreCase("true") || 
-                val.equalsIgnoreCase("on")) 
+            if (val.equalsIgnoreCase("true") ||
+                    val.equalsIgnoreCase("on"))
                 return true;
             else
                 return false;
@@ -317,34 +310,34 @@ public class ArgBlock implements IArgBlock {
 
     /**
      * Gets boolean value. They should be "true" or "false".
-     *
+     * 
      * @param name name of the input type
      * @return boolean type: <code>true</code> or <code>false</code>
      */
     public boolean getValueAsBoolean(String name, boolean def) {
         boolean val;
 
-        try { 
-            val = getValueAsBoolean(name); 
+        try {
+            val = getValueAsBoolean(name);
             return val;
-        } catch (EBaseException e) { 
-            return def; 
+        } catch (EBaseException e) {
+            return def;
         }
     }
 
     /**
      * Gets KeyGenInfo
-     *
+     * 
      * @param name name of the input type
      * @param verify true if signature validation is required
      * @exception EBaseException
      * @return KeyGenInfo object
      */
     public KeyGenInfo getValueAsKeyGenInfo(String name, KeyGenInfo def)
-        throws EBaseException {
+            throws EBaseException {
         KeyGenInfo keyGenInfo;
 
-		CMS.traceHashKey(mType, name);
+        CMS.traceHashKey(mType, name);
         if (mArgs.get(name) != null) {
             try {
                 keyGenInfo = new KeyGenInfo((String) mArgs.get(name));
@@ -359,9 +352,9 @@ public class ArgBlock implements IArgBlock {
     }
 
     /**
-     * Gets PKCS10 request. This pkcs10 attribute does not 
+     * Gets PKCS10 request. This pkcs10 attribute does not
      * contain header information.
-     *
+     * 
      * @param name name of the input type
      * @return pkcs10 request
      * @exception EBaseException failed to retrieve value
@@ -370,22 +363,22 @@ public class ArgBlock implements IArgBlock {
         PKCS10 request;
 
         if (mArgs.get(name) != null) {
-			CMS.traceHashKey(mType, name, (String)mArgs.get(name));
+            CMS.traceHashKey(mType, name, (String) mArgs.get(name));
 
             String tempStr = unwrap((String) mArgs.get(name), false);
 
             if (tempStr == null) {
                 throw new EBaseException(
-                        CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE", name, "Empty Content")); 
+                        CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE", name, "Empty Content"));
             }
             try {
                 request = decodePKCS10(tempStr);
             } catch (Exception e) {
                 throw new EBaseException(
-                        CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE", name, e.toString())); 
+                        CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE", name, e.toString()));
             }
         } else {
-			CMS.traceHashKey(mType, name, "<notpresent>");
+            CMS.traceHashKey(mType, name, "<notpresent>");
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_ATTRIBUTE_NOT_FOUND", name));
         }
 
@@ -393,19 +386,19 @@ public class ArgBlock implements IArgBlock {
     }
 
     /**
-     * Gets PKCS10 request. This pkcs10 attribute does not 
+     * Gets PKCS10 request. This pkcs10 attribute does not
      * contain header information.
-     *
+     * 
      * @param name name of the input type
      * @param def default PKCS10
      * @return pkcs10 request
      * @exception EBaseException failed to retrieve value
      */
     public PKCS10 getValueAsRawPKCS10(String name, PKCS10 def)
-        throws EBaseException {
+            throws EBaseException {
         PKCS10 request;
 
-		CMS.traceHashKey(mType, name);
+        CMS.traceHashKey(mType, name);
         if (mArgs.get(name) != null) {
 
             String tempStr = unwrap((String) mArgs.get(name), false);
@@ -426,30 +419,30 @@ public class ArgBlock implements IArgBlock {
 
     /**
      * Retrieves PKCS10
-     *
-     * @param name name of the  input type
+     * 
+     * @param name name of the input type
      * @param checkheader true if header must be present
      * @return PKCS10 object
      * @exception EBaseException failed to retrieve value
      */
-    public PKCS10 getValueAsPKCS10(String name, boolean checkheader) 
-        throws EBaseException {
+    public PKCS10 getValueAsPKCS10(String name, boolean checkheader)
+            throws EBaseException {
         PKCS10 request;
 
-		CMS.traceHashKey(mType, name);
+        CMS.traceHashKey(mType, name);
         if (mArgs.get(name) != null) {
 
             String tempStr = unwrap((String) mArgs.get(name), checkheader);
 
             if (tempStr == null) {
                 throw new EBaseException(
-                        CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE", name, "Empty Content")); 
+                        CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE", name, "Empty Content"));
             }
             try {
                 request = decodePKCS10(tempStr);
             } catch (Exception e) {
                 throw new EBaseException(
-                        CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE", name, e.toString())); 
+                        CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE", name, e.toString()));
             }
         } else {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_ATTRIBUTE_NOT_FOUND", name));
@@ -460,19 +453,19 @@ public class ArgBlock implements IArgBlock {
 
     /**
      * Retrieves PKCS10
-     *
-     * @param name name of the  input type
+     * 
+     * @param name name of the input type
      * @param checkheader true if header must be present
      * @param def default PKCS10
-     * @return PKCS10 object 
+     * @return PKCS10 object
      * @exception EBaseException
      */
     public PKCS10 getValueAsPKCS10(
-        String name, boolean checkheader, PKCS10 def) 
-        throws EBaseException {
+            String name, boolean checkheader, PKCS10 def)
+            throws EBaseException {
         PKCS10 request;
 
-		CMS.traceHashKey(mType, name);
+        CMS.traceHashKey(mType, name);
 
         if (mArgs.get(name) != null) {
 
@@ -495,17 +488,17 @@ public class ArgBlock implements IArgBlock {
 
     /**
      * Retrieves PKCS10
-     *
-     * @param name name of the  input type
+     * 
+     * @param name name of the input type
      * @param def default PKCS10
-     * @return PKCS10 object 
+     * @return PKCS10 object
      * @exception EBaseException
      */
-    public PKCS10 getValuePKCS10(String name, PKCS10 def) 
-        throws EBaseException {
+    public PKCS10 getValuePKCS10(String name, PKCS10 def)
+            throws EBaseException {
         PKCS10 request;
         String p10b64 = (String) mArgs.get(name);
-		CMS.traceHashKey(mType, name);
+        CMS.traceHashKey(mType, name);
 
         if (p10b64 != null) {
 
@@ -522,7 +515,7 @@ public class ArgBlock implements IArgBlock {
 
     /**
      * Sets argument into this block.
-     *
+     * 
      * @param name key
      * @param ob value
      */
@@ -532,18 +525,18 @@ public class ArgBlock implements IArgBlock {
 
     /**
      * Retrieves argument.
-     *
+     * 
      * @param name key
      * @return object value
      */
     public Object get(String name) {
-		CMS.traceHashKey(mType, name);
+        CMS.traceHashKey(mType, name);
         return mArgs.get(name);
     }
 
     /**
      * Deletes argument by the given key.
-     *
+     * 
      * @param name key
      */
     public void delete(String name) {
@@ -552,7 +545,7 @@ public class ArgBlock implements IArgBlock {
 
     /**
      * Retrieves a list of argument keys.
-     *
+     * 
      * @return a list of string-based keys
      */
     public Enumeration<String> getElements() {
@@ -561,7 +554,7 @@ public class ArgBlock implements IArgBlock {
 
     /**
      * Retrieves a list of argument keys.
-     *
+     * 
      * @return a list of string-based keys
      */
     public Enumeration<String> elements() {
@@ -570,7 +563,7 @@ public class ArgBlock implements IArgBlock {
 
     /**
      * Adds long-type arguments to this block.
-     *
+     * 
      * @param n key
      * @param v value
      * @return value
@@ -581,7 +574,7 @@ public class ArgBlock implements IArgBlock {
 
     /**
      * Adds integer-type arguments to this block.
-     *
+     * 
      * @param n key
      * @param v value
      * @return value
@@ -592,7 +585,7 @@ public class ArgBlock implements IArgBlock {
 
     /**
      * Adds boolean-type arguments to this block.
-     *
+     * 
      * @param n key
      * @param v value
      * @return value
@@ -607,7 +600,7 @@ public class ArgBlock implements IArgBlock {
 
     /**
      * Adds integer-type arguments to this block.
-     *
+     * 
      * @param n key
      * @param v value
      * @param radix radix
@@ -621,16 +614,15 @@ public class ArgBlock implements IArgBlock {
      * private methods
      *==========================================================*/
 
-
     /**
      * Unwrap PKCS10 Package
-     *
+     * 
      * @param request string formated PKCS10 request
      * @exception EBaseException
      * @return Base64Encoded PKCS10 request
      */
     private String unwrap(String request, boolean checkHeader)
-        throws EBaseException {
+            throws EBaseException {
         String unwrapped;
         String header = null;
         int head = -1;
@@ -655,7 +647,7 @@ public class ArgBlock implements IArgBlock {
             // header.
             if (!(head == -1 && trail == -1)) {
                 header = CERT_REQUEST_HEADER;
-		
+
             }
         }
 
@@ -695,22 +687,22 @@ public class ArgBlock implements IArgBlock {
 
     /**
      * Decode Der encoded PKCS10 certifictae Request
-     *
+     * 
      * @param base64Request Base64 Encoded Certificate Request
      * @exception Exception
      * @return PKCS10
      */
     private PKCS10 decodePKCS10(String base64Request)
-        throws EBaseException {
+            throws EBaseException {
         PKCS10 pkcs10 = null;
 
         try {
             byte[] decodedBytes = com.netscape.osutil.OSUtil.AtoB(base64Request);
 
             pkcs10 = new PKCS10(decodedBytes);
-        } catch (NoSuchProviderException e) { 
+        } catch (NoSuchProviderException e) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()));
-        } catch (IOException e) { 
+        } catch (IOException e) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()));
         } catch (SignatureException e) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()));

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.cert;
 
-
 import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
@@ -31,21 +30,21 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 
-
 /**
- * Certificates Template filler. 
- * must have list of certificates in result. 
+ * Certificates Template filler.
+ * must have list of certificates in result.
  * looks at inputs: certtype.
- * outputs: 
- *		- cert type from http input (if any)
- *      - CA chain 
- *		- authority name (RM, CM, DRM)
- *      - scheme:host:port of server.
- *	 array of one or more 
- *      - cert serial number
- *      - cert pretty print
- *		- cert in base 64 encoding.
- *		- cmmf blob to import 
+ * outputs:
+ * - cert type from http input (if any)
+ * - CA chain
+ * - authority name (RM, CM, DRM)
+ * - scheme:host:port of server.
+ * array of one or more
+ * - cert serial number
+ * - cert pretty print
+ * - cert in base 64 encoding.
+ * - cmmf blob to import
+ * 
  * @version $Revision$, $Date$
  */
 class RevocationSuccessTemplateFiller implements ICMSTemplateFiller {
@@ -61,8 +60,8 @@ class RevocationSuccessTemplateFiller implements ICMSTemplateFiller {
      * @param e unexpected exception e. ignored.
      */
     public CMSTemplateParams getTemplateParams(
-        CMSRequest cmsReq, IAuthority authority, Locale locale, Exception e) 
-        throws Exception {
+            CMSRequest cmsReq, IAuthority authority, Locale locale, Exception e)
+            throws Exception {
         IArgBlock fixed = CMS.createArgBlock();
         CMSTemplateParams params = new CMSTemplateParams(null, fixed);
 
@@ -77,13 +76,13 @@ class RevocationSuccessTemplateFiller implements ICMSTemplateFiller {
         fixed.set(ICMSTemplateFiller.SCHEME, scheme);
 
         // this authority
-        fixed.set(ICMSTemplateFiller.AUTHORITY, 
-            (String) authority.getOfficialName());
+        fixed.set(ICMSTemplateFiller.AUTHORITY,
+                (String) authority.getOfficialName());
 
         // XXX CA chain.
 
-        RevokedCertImpl[] revoked = 
-            (RevokedCertImpl[]) cmsReq.getResult();
+        RevokedCertImpl[] revoked =
+                (RevokedCertImpl[]) cmsReq.getResult();
 
         // revoked certs. 
         for (int i = 0; i < revoked.length; i++) {
@@ -96,4 +95,3 @@ class RevocationSuccessTemplateFiller implements ICMSTemplateFiller {
         return params;
     }
 }
-

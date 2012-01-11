@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.base;
 
-
 import java.io.IOException;
 import java.util.Date;
 
@@ -35,10 +34,10 @@ import com.netscape.certsrv.apps.CMS;
  * thread.
  * <p>
  * Also allows user to trigger a new garbage collection
- *
+ * 
  * @version $Revision$, $Date$
  */
-public class SystemInfoServlet extends HttpServlet { 
+public class SystemInfoServlet extends HttpServlet {
 
     /**
      *
@@ -58,16 +57,16 @@ public class SystemInfoServlet extends HttpServlet {
      * value of the 'op' HTTP parameter.
      * <UL>
      * <LI>op = <i>undefined</i> - display a menu with links to the other functionality of this servlet
-     * <li>op = gc - tell the JVM that we want to do a garbage collection and to run finalizers
-     *    (@see java.lang.Runtime.getRuntime#gc() )
-     * <li>op = general  - display information about memory, and other JVM informatino
-     * <li>op = thread  - display details about each thread.
+     * <li>op = gc - tell the JVM that we want to do a garbage collection and to run finalizers (@see java.lang.Runtime.getRuntime#gc() )
+     * <li>op = general - display information about memory, and other JVM informatino
+     * <li>op = thread - display details about each thread.
      * </UL>
+     * 
      * @see javax.servlet.http.HttpServlet#service(HttpServletRequest, HttpServletResponse)
      */
-    public void service(HttpServletRequest request, 
-        HttpServletResponse response)
-        throws ServletException, IOException { 
+    public void service(HttpServletRequest request,
+            HttpServletResponse response)
+            throws ServletException, IOException {
         boolean collect = false;
         String op = request.getParameter("op");
 
@@ -83,9 +82,9 @@ public class SystemInfoServlet extends HttpServlet {
         }
     }
 
-    private void mainMenu(HttpServletRequest request, 
-        HttpServletResponse response)
-        throws ServletException, IOException { 
+    private void mainMenu(HttpServletRequest request,
+            HttpServletResponse response)
+            throws ServletException, IOException {
         response.getWriter().println("<HTML>");
         response.getWriter().println("<H1>");
         response.getWriter().println("<a href=" + request.getServletPath() + ">");
@@ -122,9 +121,9 @@ public class SystemInfoServlet extends HttpServlet {
         response.getWriter().println("</HTML>");
     }
 
-    private void gc(HttpServletRequest request, 
-        HttpServletResponse response)
-        throws ServletException, IOException { 
+    private void gc(HttpServletRequest request,
+            HttpServletResponse response)
+            throws ServletException, IOException {
         java.lang.Runtime.getRuntime().gc();
         java.lang.Runtime.getRuntime().runFinalization();
         response.getWriter().println("<HTML>");
@@ -140,9 +139,9 @@ public class SystemInfoServlet extends HttpServlet {
         response.getWriter().println("</HTML>");
     }
 
-    private void general(HttpServletRequest request, 
-        HttpServletResponse response)
-        throws ServletException, IOException { 
+    private void general(HttpServletRequest request,
+            HttpServletResponse response)
+            throws ServletException, IOException {
         response.getWriter().println("<HTML>");
         response.getWriter().println("<H1>");
         response.getWriter().println("<a href=" + request.getServletPath() + ">");
@@ -221,9 +220,9 @@ public class SystemInfoServlet extends HttpServlet {
         response.getWriter().println("</HTML>");
     }
 
-    private void thread(HttpServletRequest request, 
-        HttpServletResponse response)
-        throws ServletException, IOException { 
+    private void thread(HttpServletRequest request,
+            HttpServletResponse response)
+            throws ServletException, IOException {
         response.getWriter().println("</table>");
         response.getWriter().println("<HTML>");
         response.getWriter().println("<H1>");

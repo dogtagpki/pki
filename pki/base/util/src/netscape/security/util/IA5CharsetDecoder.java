@@ -26,7 +26,7 @@ import java.nio.charset.CodingErrorAction;
 
 /**
  * Converts bytes in ASN.1 IA5String character set to IA5String characters.
- *
+ * 
  * @author Lily Hsiao
  * @author Slava Galperin
  */
@@ -41,7 +41,8 @@ public class IA5CharsetDecoder extends CharsetDecoder {
 
         while (true) {
 
-            if (in.remaining() < 1) return CoderResult.UNDERFLOW;
+            if (in.remaining() < 1)
+                return CoderResult.UNDERFLOW;
 
             in.mark();
             byte b = in.get();
@@ -55,7 +56,7 @@ public class IA5CharsetDecoder extends CharsetDecoder {
                 return CoderResult.OVERFLOW;
             }
 
-            out.put((char)(b & 0x7f));
+            out.put((char) (b & 0x7f));
         }
     }
 }

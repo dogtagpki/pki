@@ -22,27 +22,23 @@ import com.netscape.certsrv.request.IRequest;
 /**
  * This interface represents an enrollment profile.
  * <p>
- * An enrollment profile contains a list of enrollment
- * specific input plugins, default policies, constriant
- * policies and output plugins.
+ * An enrollment profile contains a list of enrollment specific input plugins, default policies, constriant policies and output plugins.
  * <p>
- * This interface also defines a set of enrollment specific
- * attribute names that can be used to retrieve values
- * from an enrollment request.
+ * This interface also defines a set of enrollment specific attribute names that can be used to retrieve values from an enrollment request.
  * <p>
- *
+ * 
  * @version $Revision$, $Date$
  */
 public interface IEnrollProfile extends IProfile {
 
     /**
-     * Name of request attribute that stores the User 
+     * Name of request attribute that stores the User
      * Supplied Certificate Request Type.
      */
     public static final String CTX_CERT_REQUEST_TYPE = "cert_request_type";
 
     /**
-     * Name of request attribute that stores the User 
+     * Name of request attribute that stores the User
      * Supplied Certificate Request.
      */
     public static final String CTX_CERT_REQUEST = "cert_request";
@@ -56,7 +52,7 @@ public interface IEnrollProfile extends IProfile {
     public static final String REQ_TYPE_KEYGEN = "keygen";
 
     /**
-     * Name of request attribute that stores the End-User Locale. 
+     * Name of request attribute that stores the End-User Locale.
      * <p>
      * The value is of type java.util.Locale.
      */
@@ -151,6 +147,7 @@ public interface IEnrollProfile extends IProfile {
 
     /**
      * Set Default X509CertInfo in the request.
+     * 
      * @param request profile-based certificate request.
      * @exception EProfileException failed to set the X509CertInfo.
      */

@@ -17,16 +17,14 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.notification;
 
-
 import com.netscape.certsrv.base.IAttrSet;
-
 
 /**
  * An interface represents email resolver (ordered) keys for resolving
- * emails 
+ * emails
  * e.g. request/cert, cert/request, request, request/cert/subjectalternatename etc.
  * <P>
- *
+ * 
  * @version $Revision$, $Date$
  */
 public interface IEmailResolverKeys extends IAttrSet {

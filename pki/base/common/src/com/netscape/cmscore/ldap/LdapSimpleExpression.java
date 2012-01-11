@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.ldap;
 
-
 import java.util.Enumeration;
 import java.util.Vector;
 
@@ -28,13 +27,12 @@ import com.netscape.certsrv.publish.ILdapExpression;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cmscore.util.AssertionException;
 
-
 /**
  * This class represents an expression of the form var = val,
  * var != val, var < val, var > val, var <= val, var >= val.
- *
+ * 
  * Expressions are used as predicates for publishing rule selection.
- *
+ * 
  * @author mzhao
  * @version $Revision$, $Date$
  */
@@ -51,7 +49,7 @@ public class LdapSimpleExpression implements ILdapExpression {
     public static LdapSimpleExpression NULL_EXPRESSION = new LdapSimpleExpression("null", OP_EQUAL, "null");
 
     public static ILdapExpression parse(String input)
-        throws ELdapException {
+            throws ELdapException {
         // Get the index of operator
         // Debug.trace("LdapSimpleExpression::input: " + input);
         String var = null;
@@ -73,7 +71,7 @@ public class LdapSimpleExpression implements ILdapExpression {
             comps = parseForLT(input);
         if (comps == null)
             throw new ELdapException(CMS.getUserMessage("CMS_LDAP_BAD_LDAP_EXPRESSION", input));
-	
+
         String pfx = null;
         String rawVar = comps.getAttr();
         int dotIdx = rawVar.indexOf('.');
@@ -119,13 +117,13 @@ public class LdapSimpleExpression implements ILdapExpression {
     }
 
     public boolean evaluate(SessionContext sc)
-        throws ELdapException {
+            throws ELdapException {
         Object givenVal;
 
         try {
             // Try exact case first.
             givenVal = (String) sc.get(mVar);
-        }catch (Exception e) {
+        } catch (Exception e) {
             givenVal = (String) null;
         }
 
@@ -135,7 +133,7 @@ public class LdapSimpleExpression implements ILdapExpression {
         if (givenVal == null) {
             try {
                 givenVal = (String) sc.get(mVar.toLowerCase());
-            }catch (Exception e) {
+            } catch (Exception e) {
                 givenVal = (String) null;
             }
         }
@@ -143,7 +141,7 @@ public class LdapSimpleExpression implements ILdapExpression {
         if (givenVal == null) {
             try {
                 givenVal = (String) sc.get(mVar.toUpperCase());
-            }catch (Exception e) {
+            } catch (Exception e) {
                 givenVal = (String) null;
             }
         }
@@ -158,7 +156,7 @@ public class LdapSimpleExpression implements ILdapExpression {
     }
 
     public boolean evaluate(IRequest req)
-        throws ELdapException {
+            throws ELdapException {
         boolean result = false;
         // mPfx and mVar are looked up case-indendently
         if (mPfx != null) {
@@ -170,7 +168,7 @@ public class LdapSimpleExpression implements ILdapExpression {
     }
 
     private boolean matchVector(Vector value)
-        throws ELdapException {
+            throws ELdapException {
         boolean result = false;
         Enumeration e = (Enumeration) value.elements();
 
@@ -183,7 +181,7 @@ public class LdapSimpleExpression implements ILdapExpression {
     }
 
     private boolean matchStringArray(String[] value)
-        throws ELdapException {
+            throws ELdapException {
         boolean result = false;
 
         for (int i = 0; i < value.length; i++) {
@@ -195,7 +193,7 @@ public class LdapSimpleExpression implements ILdapExpression {
     }
 
     private boolean matchValue(Object value)
-        throws ELdapException {
+            throws ELdapException {
         boolean result;
 
         // There is nothing to compare with!
@@ -219,7 +217,7 @@ public class LdapSimpleExpression implements ILdapExpression {
     }
 
     private boolean matchStringValue(String givenVal)
-        throws ELdapException {
+            throws ELdapException {
         boolean result;
 
         switch (mOp) {
@@ -260,7 +258,7 @@ public class LdapSimpleExpression implements ILdapExpression {
     }
 
     private boolean matchIntegerValue(Integer intVal)
-        throws ELdapException {
+            throws ELdapException {
         boolean result;
         int storedVal;
         int givenVal = intVal.intValue();
@@ -303,12 +301,11 @@ public class LdapSimpleExpression implements ILdapExpression {
     }
 
     private boolean matchBooleanValue(Boolean givenVal)
-        throws ELdapException {
+            throws ELdapException {
         boolean result;
         Boolean storedVal;
 
-        if (!(mVal.equalsIgnoreCase("true") ||
-                mVal.equalsIgnoreCase("false")))
+        if (!(mVal.equalsIgnoreCase("true") || mVal.equalsIgnoreCase("false")))
             throw new ELdapException(CMS.getUserMessage("CMS_LDAP_INVALID_ATTR_VALUE",
                     mVal));
         storedVal = new Boolean(mVal);
@@ -359,7 +356,7 @@ public class LdapSimpleExpression implements ILdapExpression {
             op = ILdapExpression.LE_STR;
             break;
         }
-        if (mPfx != null && mPfx.length() > 0) 
+        if (mPfx != null && mPfx.length() > 0)
             return mPfx + "." + mVar + " " + op + " " + mVal;
         else
             return mVar + " " + op + " " + mVal;
@@ -450,7 +447,6 @@ public class LdapSimpleExpression implements ILdapExpression {
     }
 }
 
-
 class ExpressionComps {
     String attr;
     int op;
@@ -474,4 +470,3 @@ class ExpressionComps {
         return val;
     }
 }
-

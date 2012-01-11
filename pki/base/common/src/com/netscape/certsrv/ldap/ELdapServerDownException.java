@@ -17,10 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.ldap;
 
-
 /**
  * This represents exception which indicates Ldap server is down.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class ELdapServerDownException extends ELdapException {
@@ -32,6 +31,7 @@ public class ELdapServerDownException extends ELdapException {
 
     /**
      * Constructs a ldap server down exception with host & port info.
+     * 
      * @param errorString Detailed error message.
      */
     public ELdapServerDownException(String errorString) {

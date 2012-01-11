@@ -17,17 +17,15 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.base;
 
-
 import java.util.Enumeration;
 import java.util.Hashtable;
-
 
 /**
  * A class represents meta information. A meta information
  * object is just a generic hashtable that is embedded into
  * a request object.
  * <P>
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class MetaInfo implements IAttrSet {
@@ -41,7 +39,7 @@ public class MetaInfo implements IAttrSet {
 
     private Hashtable<String, Object> content = new Hashtable<String, Object>();
 
-    /**	
+    /**
      * Constructs a meta information.
      * <P>
      */
@@ -51,7 +49,7 @@ public class MetaInfo implements IAttrSet {
     /**
      * Returns a short string describing this certificate attribute.
      * <P>
-     *
+     * 
      * @return information about this certificate attribute.
      */
     public String toString() {
@@ -69,11 +67,11 @@ public class MetaInfo implements IAttrSet {
         sb.append("]\n");
         return sb.toString();
     }
-    
+
     /**
      * Gets an attribute value.
      * <P>
-     *
+     * 
      * @param name the name of the attribute to return.
      * @exception EBaseException on attribute handling errors.
      */
@@ -83,8 +81,8 @@ public class MetaInfo implements IAttrSet {
 
     /**
      * Sets an attribute value.
-     *
-     * @param name the name of the attribute 
+     * 
+     * @param name the name of the attribute
      * @param obj the attribute object.
      * 
      * @exception EBaseException on attribute handling errors.
@@ -92,18 +90,18 @@ public class MetaInfo implements IAttrSet {
     public void set(String name, Object obj) throws EBaseException {
         content.put(name, obj);
     }
-	
+
     /**
      * Deletes an attribute value from this CertAttrSet.
      * <P>
-     *
+     * 
      * @param name the name of the attribute to delete.
      * @exception EBaseException on attribute handling errors.
      */
     public void delete(String name) throws EBaseException {
         content.remove(name);
     }
-	
+
     /**
      * Returns an enumeration of the names of the attributes existing within
      * this attribute.

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.policy;
 
-
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
@@ -48,20 +47,19 @@ import com.netscape.cmscore.request.ARequestQueue;
 import com.netscape.cmscore.util.AssertionException;
 import com.netscape.cmscore.util.Debug;
 
-
 /**
  * This is a Generic policy processor. The three main functions of
  * this class are:
- *  1. To initialize policies by reading policy configuration from the
- *     config file, and maintain 5 sets of policies - viz Enrollment,
- *      Renewal, Revocation and KeyRecovery and KeyArchival.
- *  2. To apply the configured policies on the given request.
- *  3. To enable policy listing/configuration via MCC console.
- *
+ * 1. To initialize policies by reading policy configuration from the
+ * config file, and maintain 5 sets of policies - viz Enrollment,
+ * Renewal, Revocation and KeyRecovery and KeyArchival.
+ * 2. To apply the configured policies on the given request.
+ * 3. To enable policy listing/configuration via MCC console.
+ * 
  * Since the policy processor also implements the IPolicy interface
  * the processor itself presents itself as one big policy to the
  * request processor.
- *
+ * 
  * @author kanda
  * @version $Revision$, $Date$
  */
@@ -71,12 +69,12 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
     protected IAuthority mAuthority = null;
 
     // Default System Policies
-    public final static String[] DEF_POLICIES = 
-        {"com.netscape.cms.policy.constraints.ManualAuthentication"};
+    public final static String[] DEF_POLICIES =
+        { "com.netscape.cms.policy.constraints.ManualAuthentication" };
 
     // Policies that can't be deleted nor disabled.
     public final static Hashtable<String, IExpression> DEF_UNDELETABLE_POLICIES =
-        new Hashtable<String, IExpression>();
+            new Hashtable<String, IExpression>();
 
     private String mId = "Policy";
     private Vector<String> mPolicyOrder = new Vector<String>();
@@ -125,9 +123,9 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
     }
 
     /**
-     * Returns  the configuration store.
+     * Returns the configuration store.
      * <P>
-     *
+     * 
      * @return configuration store
      */
     public IConfigStore getConfigStore() {
@@ -137,24 +135,24 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
     /**
      * Initializes the PolicyProcessor
      * <P>
-     *
+     * 
      * @param owner owner of this subsystem
      * @param config configuration of this subsystem
      * @exception EBaseException failed to initialize this Subsystem.
      */
     public synchronized void init(ISubsystem owner, IConfigStore config)
-        throws EBaseException {
+            throws EBaseException {
         // Debug.trace("GenericPolicyProcessor::init");
         CMS.debug("GenericPolicyProcessor::init begins");
         mAuthority = (IAuthority) owner;
         mConfig = config;
-        mGlobalStore = 
+        mGlobalStore =
                 SubsystemRegistry.getInstance().get("MAIN").getConfigStore();
 
         try {
             IConfigStore configStore = CMS.getConfigStore();
-            String PKI_Subsystem = configStore.getString( "subsystem.0.id",
-                                                          null );
+            String PKI_Subsystem = configStore.getString("subsystem.0.id",
+                                                          null);
 
             // CMS 6.1 began utilizing the "Certificate Profiles" framework
             // instead of the legacy "Certificate Policies" framework.
@@ -167,31 +165,31 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
             // NOTE:  The "Certificate Policies" framework ONLY applied to
             //        to CA, KRA, and legacy RA (pre-CMS 7.0) subsystems.
             //
-            if( PKI_Subsystem.trim().equalsIgnoreCase( "ca" ) ||
-                PKI_Subsystem.trim().equalsIgnoreCase( "kra" ) ) {
+            if (PKI_Subsystem.trim().equalsIgnoreCase("ca") ||
+                    PKI_Subsystem.trim().equalsIgnoreCase("kra")) {
                 String policyStatus = PKI_Subsystem.trim().toLowerCase()
                                     + "." + "Policy"
                                     + "." + IPolicyProcessor.PROP_ENABLE;
 
-                if( configStore.getBoolean( policyStatus, true ) == true ) {
+                if (configStore.getBoolean(policyStatus, true) == true) {
                     // NOTE:  If "<subsystem>.Policy.enable=<boolean>" is
                     //        missing, then the referenced instance existed
                     //        prior to this name=value pair existing in its
                     //        'CS.cfg' file, and thus we err on the
                     //        side that the user may still need to
                     //        use the policy framework.
-                    CMS.debug( "GenericPolicyProcessor::init Certificate "
+                    CMS.debug("GenericPolicyProcessor::init Certificate "
                              + "Policy Framework (deprecated) "
-                             + "is ENABLED" );
+                             + "is ENABLED");
                 } else {
                     // CS 8.1 Default:  <subsystem>.Policy.enable=false
-                    CMS.debug( "GenericPolicyProcessor::init Certificate "
+                    CMS.debug("GenericPolicyProcessor::init Certificate "
                              + "Policy Framework (deprecated) "
-                             + "is DISABLED" );
+                             + "is DISABLED");
                     return;
                 }
             }
-        } catch( EBaseException e ) {
+        } catch (EBaseException e) {
             throw e;
         }
 
@@ -225,16 +223,16 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
                 throw new EPolicyException(
                         CMS.getUserMessage("CMS_POLICY_SYSTEM_POLICY_CONFIG_ERROR", clPath));
 
-                // Verify if the class is a valid implementation of
-                // IPolicyRule
+            // Verify if the class is a valid implementation of
+            // IPolicyRule
             try {
                 Object o = Class.forName(clPath).newInstance();
 
                 if (!(o instanceof IEnrollmentPolicy) &&
-                    !(o instanceof IRenewalPolicy) &&
-                    !(o instanceof IRevocationPolicy) &&
-                    !(o instanceof IKeyRecoveryPolicy) &&
-                    !(o instanceof IKeyArchivalPolicy))
+                        !(o instanceof IRenewalPolicy) &&
+                        !(o instanceof IRevocationPolicy) &&
+                        !(o instanceof IKeyRecoveryPolicy) &&
+                        !(o instanceof IKeyArchivalPolicy))
                     throw new EPolicyException(
                             CMS.getUserMessage("CMS_POLICY_INVALID_POLICY_IMPL", clPath));
             } catch (EBaseException e) {
@@ -247,7 +245,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
 
             // Register the implementation.
             RegisteredPolicy regPolicy =
-                new RegisteredPolicy(id, clPath);
+                    new RegisteredPolicy(id, clPath);
 
             mImplTable.put(id, regPolicy);
         }
@@ -291,7 +289,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
             String enabledStr = c.getString(PROP_ENABLE, null);
 
             if (enabledStr == null || enabledStr.trim().length() == 0 ||
-                enabledStr.trim().equalsIgnoreCase("true"))
+                    enabledStr.trim().equalsIgnoreCase("true"))
                 enabled = true;
             else
                 enabled = false;
@@ -304,15 +302,15 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
 
             // Make an instance of the specified policy.
             RegisteredPolicy regPolicy =
-                (RegisteredPolicy) mImplTable.get(implName);
+                    (RegisteredPolicy) mImplTable.get(implName);
 
             if (regPolicy == null) {
-                String[] params = {implName, instanceName};
+                String[] params = { implName, instanceName };
 
                 throw new EPolicyException(
                         CMS.getUserMessage("CMS_POLICY_IMPL_NOT_FOUND", params));
             }
-            
+
             String classpath = regPolicy.getClassPath();
 
             try {
@@ -332,8 +330,8 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
             if (rule == null)
                 continue;
 
-                // Read the predicate expression if any associated
-                // with the rule
+            // Read the predicate expression if any associated
+            // with the rule
             String exp = c.getString(GenericPolicyProcessor.PROP_PREDICATE, null);
 
             if (exp != null)
@@ -345,13 +343,13 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
 
             // Add the rule to the instance table
             mInstanceTable.put(instanceName,
-                new PolicyInstance(instanceName, implName, rule, enabled));
+                    new PolicyInstance(instanceName, implName, rule, enabled));
 
             if (!enabled)
                 continue;
 
-                // Add the rule to the policy set according to category if a
-                // rule is enabled.
+            // Add the rule to the policy set according to category if a
+            // rule is enabled.
             addRule(instanceName, rule);
         }
 
@@ -372,8 +370,8 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
 
     /**
      * Apply policies on the given request.
-     *
-     * @param IRequest  The given request
+     * 
+     * @param IRequest The given request
      * @return The policy result object.
      */
     public PolicyResult apply(IRequest req) {
@@ -390,11 +388,11 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
             return PolicyResult.ACCEPTED;
         }
         if (isProfileRequest(req)) {
-            Debug.trace("GenericPolicyProcessor: Profile-base Request " + 
-                req.getRequestId().toString());
+            Debug.trace("GenericPolicyProcessor: Profile-base Request " +
+                    req.getRequestId().toString());
             return PolicyResult.ACCEPTED;
         }
-        CMS.debug("GenericPolicyProcessor: apply not ProfileRequest. op="+op);
+        CMS.debug("GenericPolicyProcessor: apply not ProfileRequest. op=" + op);
 
         if (op.equalsIgnoreCase(IRequest.ENROLLMENT_REQUEST))
             rules = mEnrollmentRules;
@@ -421,11 +419,11 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
             return PolicyResult.ACCEPTED;
 
             /**
-             setError(req, PolicyResources.NO_RULES_CONFIGURED, op);
-             return PolicyResult.REJECTED;
+             * setError(req, PolicyResources.NO_RULES_CONFIGURED, op);
+             * return PolicyResult.REJECTED;
              **/
         }
-        CMS.debug("GenericPolicyProcessor: apply: rules.count="+ rules.count());
+        CMS.debug("GenericPolicyProcessor: apply: rules.count=" + rules.count());
 
         // request must be up to date or can't process it.
         PolicyResult res = PolicyResult.ACCEPTED;
@@ -466,11 +464,11 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         try {
             while (enum1.hasMoreElements()) {
                 RegisteredPolicy regPolicy =
-                    (RegisteredPolicy) enum1.nextElement();
+                        (RegisteredPolicy) enum1.nextElement();
 
                 // Make an Instance of it
                 IPolicyRule ruleImpl = (IPolicyRule)
-                    Class.forName(regPolicy.getClassPath()).newInstance();
+                        Class.forName(regPolicy.getClassPath()).newInstance();
 
                 impls.addElement(ruleImpl);
             }
@@ -489,7 +487,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         try {
             while (enum1.hasMoreElements()) {
                 RegisteredPolicy regPolicy =
-                    (RegisteredPolicy) enum1.nextElement();
+                        (RegisteredPolicy) enum1.nextElement();
 
                 impls.addElement(regPolicy.getId());
 
@@ -503,7 +501,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
 
     public IPolicyRule getPolicyImpl(String id) {
         RegisteredPolicy regImpl = (RegisteredPolicy)
-            mImplTable.get(id);
+                mImplTable.get(id);
 
         if (regImpl == null)
             return null;
@@ -523,7 +521,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
 
         if (rp == null)
             return null;
-        Vector<String>  v = rp.getDefaultParams();
+        Vector<String> v = rp.getDefaultParams();
 
         if (v == null)
             v = new Vector<String>();
@@ -533,16 +531,16 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
     }
 
     public void deletePolicyImpl(String id)
-        throws EBaseException {
+            throws EBaseException {
         // First check if the id is valid;
         RegisteredPolicy regPolicy =
-            (RegisteredPolicy) mImplTable.get(id);
+                (RegisteredPolicy) mImplTable.get(id);
 
         if (regPolicy == null)
             throw new EPolicyException(
                     CMS.getUserMessage("CMS_POLICY_NO_POLICY_IMPL", id));
 
-            // If any instance exists for this impl, can't delete it.
+        // If any instance exists for this impl, can't delete it.
         boolean instanceExist = false;
         Enumeration<PolicyInstance> e = mInstanceTable.elements();
 
@@ -558,12 +556,12 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
             throw new EPolicyException(
                     CMS.getUserMessage("CMS_POLICY_ACTIVE_POLICY_RULES_EXIST", id));
 
-            // Else delete the implementation
+        // Else delete the implementation
         mImplTable.remove(id);
-        IConfigStore policyStore = 
-            mGlobalStore.getSubStore(getPolicySubstoreId());
-        IConfigStore implStore = 
-            policyStore.getSubStore(PROP_IMPL);
+        IConfigStore policyStore =
+                mGlobalStore.getSubStore(getPolicySubstoreId());
+        IConfigStore implStore =
+                policyStore.getSubStore(PROP_IMPL);
 
         implStore.removeSubStore(id);
 
@@ -572,7 +570,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
             mGlobalStore.commit(true);
         } catch (Exception ex) {
             Debug.printStackTrace(ex);
-            String[] params = {"implementation", id};
+            String[] params = { "implementation", id };
 
             throw new EPolicyException(
                     CMS.getUserMessage("CMS_POLICY_DELETING_POLICY_ERROR", params));
@@ -580,49 +578,49 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
     }
 
     public void addPolicyImpl(String id, String classPath)
-        throws EBaseException {
+            throws EBaseException {
         // See if the id is unique
         if (mImplTable.containsKey(id))
             throw new EPolicyException(
                     CMS.getUserMessage("CMS_POLICY_DUPLICATE_IMPL_ID", id));
 
-            // See if the classPath is ok
+        // See if the classPath is ok
         Object impl = null;
 
         try {
             impl = Class.forName(classPath).newInstance();
-        }catch (Exception e) {
+        } catch (Exception e) {
             throw new EPolicyException(CMS.getUserMessage("CMS_POLICY_NO_POLICY_IMPL",
                         id));
         }
 
         // Does the class implement one of the four interfaces?
         if (!(impl instanceof IEnrollmentPolicy) &&
-            !(impl instanceof IRenewalPolicy) &&
-            !(impl instanceof IRevocationPolicy) &&
-            !(impl instanceof IKeyRecoveryPolicy) &&
-            !(impl instanceof IKeyArchivalPolicy))
+                !(impl instanceof IRenewalPolicy) &&
+                !(impl instanceof IRevocationPolicy) &&
+                !(impl instanceof IKeyRecoveryPolicy) &&
+                !(impl instanceof IKeyArchivalPolicy))
             throw new EPolicyException(
                     CMS.getUserMessage("CMS_POLICY_INVALID_POLICY_IMPL", classPath));
 
-            // Add the implementation to the registry
+        // Add the implementation to the registry
         RegisteredPolicy regPolicy =
-            new RegisteredPolicy(id, classPath);
+                new RegisteredPolicy(id, classPath);
 
         mImplTable.put(id, regPolicy);
 
         // Store the impl in the configuration.
-        IConfigStore policyStore = 
-            mGlobalStore.getSubStore(getPolicySubstoreId());
-        IConfigStore implStore = 
-            policyStore.getSubStore(PROP_IMPL);
+        IConfigStore policyStore =
+                mGlobalStore.getSubStore(getPolicySubstoreId());
+        IConfigStore implStore =
+                policyStore.getSubStore(PROP_IMPL);
         IConfigStore newStore = implStore.makeSubStore(id);
 
         newStore.put(PROP_CLASS, classPath);
         try {
             mGlobalStore.commit(true);
         } catch (Exception e) {
-            String[] params = {"implementation", id};
+            String[] params = { "implementation", id };
 
             throw new EPolicyException(
                     CMS.getUserMessage("CMS_POLICY_ADDING_POLICY_ERROR", params));
@@ -637,7 +635,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         try {
             while (enum1.hasMoreElements()) {
                 PolicyInstance instance =
-                    (PolicyInstance) mInstanceTable.get((String) enum1.nextElement());
+                        (PolicyInstance) mInstanceTable.get((String) enum1.nextElement());
 
                 rules.addElement(instance.getRule());
 
@@ -669,14 +667,14 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
 
     public IPolicyRule getPolicyInstance(String id) {
         PolicyInstance policyInstance = (PolicyInstance)
-            mInstanceTable.get(id);
+                mInstanceTable.get(id);
 
         return (policyInstance == null) ? null : policyInstance.getRule();
     }
 
     public Vector<String> getPolicyInstanceConfig(String id) {
         PolicyInstance policyInstance = (PolicyInstance)
-            mInstanceTable.get(id);
+                mInstanceTable.get(id);
 
         if (policyInstance == null)
             return null;
@@ -695,24 +693,24 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
     }
 
     public void deletePolicyInstance(String id)
-        throws EBaseException {
+            throws EBaseException {
         // If the rule is a persistent rule, we can't delete it.
         if (mUndeletablePolicies.containsKey(id))
             throw new EPolicyException(
                     CMS.getUserMessage("CMS_POLICY_CANT_DELETE_PERSISTENT_POLICY", id));
 
-            // First check if the instance is present.
+        // First check if the instance is present.
         PolicyInstance instance =
-            (PolicyInstance) mInstanceTable.get(id);
+                (PolicyInstance) mInstanceTable.get(id);
 
         if (instance == null)
             throw new EPolicyException(
                     CMS.getUserMessage("CMS_POLICY_INVALID_POLICY_INSTANCE", id));
 
         IConfigStore policyStore =
-            mGlobalStore.getSubStore(getPolicySubstoreId());
-        IConfigStore instanceStore = 
-            policyStore.getSubStore(PROP_RULE);
+                mGlobalStore.getSubStore(getPolicySubstoreId());
+        IConfigStore instanceStore =
+                policyStore.getSubStore(PROP_RULE);
 
         instanceStore.removeSubStore(id);
 
@@ -732,7 +730,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
             mPolicyOrder.insertElementAt(id, index);
 
             Debug.printStackTrace(e);
-            String[] params = {"instance", id};
+            String[] params = { "instance", id };
 
             throw new EPolicyException(
                     CMS.getUserMessage("CMS_POLICY_DELETING_POLICY_ERROR", params));
@@ -751,17 +749,17 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         if (rule instanceof IKeyArchivalPolicy)
             mKeyArchivalRules.removeRule(id);
 
-            // Delete the instance
+        // Delete the instance
         mInstanceTable.remove(id);
     }
 
     public void addPolicyInstance(String id, Hashtable<String, String> ht)
-        throws EBaseException {
+            throws EBaseException {
         // The instance id should be unique
         if (getPolicyInstance(id) != null)
             throw new EPolicyException(
                     CMS.getUserMessage("CMS_POLICY_DUPLICATE_INST_ID", id));
-            // There should be an implmentation for this rule.
+        // There should be an implmentation for this rule.
         String implName = (String) ht.get(IPolicyRule.PROP_IMPLNAME);
 
         // See if there is an implementation with this name.
@@ -771,23 +769,23 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
             throw new EPolicyException(
                     CMS.getUserMessage("CMS_POLICY_NO_POLICY_IMPL", implName));
 
-            // Prepare config file entries.
-        IConfigStore policyStore = 
-            mGlobalStore.getSubStore(getPolicySubstoreId());
-        IConfigStore instanceStore = 
-            policyStore.getSubStore(PROP_RULE);
+        // Prepare config file entries.
+        IConfigStore policyStore =
+                mGlobalStore.getSubStore(getPolicySubstoreId());
+        IConfigStore instanceStore =
+                policyStore.getSubStore(PROP_RULE);
         IConfigStore newStore = instanceStore.makeSubStore(id);
 
         for (Enumeration<String> keys = ht.keys(); keys.hasMoreElements();) {
             String key = keys.nextElement();
-            String val =  ht.get(key);
+            String val = ht.get(key);
 
             newStore.put(key, val);
         }
 
         // Set the order string.
         policyStore.put(PROP_ORDER,
-            getRuleOrderString(mPolicyOrder, id));
+                getRuleOrderString(mPolicyOrder, id));
 
         // Try to initialize this rule.
         rule.init(this, newStore);
@@ -797,10 +795,10 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         boolean active = false;
 
         if (enabledStr == null || enabledStr.trim().length() == 0 ||
-            enabledStr.equalsIgnoreCase("true"))
+                enabledStr.equalsIgnoreCase("true"))
             active = true;
 
-            // Set the predicate if any present on the rule.
+        // Set the predicate if any present on the rule.
         String predicate = ((String) ht.get(IPolicyRule.PROP_PREDICATE)).trim();
         IExpression exp = null;
 
@@ -812,7 +810,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         try {
             mGlobalStore.commit(true);
         } catch (Exception e) {
-            String[] params = {"instance", id};
+            String[] params = { "instance", id };
 
             throw new EPolicyException(
                     CMS.getUserMessage("CMS_POLICY_ADDING_POLICY_ERROR", params));
@@ -835,10 +833,10 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
     }
 
     public void modifyPolicyInstance(String id, Hashtable<String, String> ht)
-        throws EBaseException {
+            throws EBaseException {
         // The instance id should be there already
         PolicyInstance policyInstance = (PolicyInstance)
-            mInstanceTable.get(id);
+                mInstanceTable.get(id);
 
         if (policyInstance == null)
             throw new EPolicyException(
@@ -851,38 +849,38 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         if (!implId.equals(policyInstance.getImplId()))
             throw new EPolicyException(
                     CMS.getUserMessage("CMS_POLICY_IMPLCHANGE_ERROR", id));
-					
-            // Make a new rule instance
+
+        // Make a new rule instance
         IPolicyRule newRule = getPolicyImpl(implId);
 
         if (newRule == null) // Can't happen, but just in case..
             throw new EPolicyException(
                     CMS.getUserMessage("CMS_POLICY_INVALID_POLICY_IMPL", implId));
-			
-            // Try to init this rule.
-        IConfigStore policyStore = 
-            mGlobalStore.getSubStore(getPolicySubstoreId());
-        IConfigStore instanceStore = 
-            policyStore.getSubStore(PROP_RULE);
+
+        // Try to init this rule.
+        IConfigStore policyStore =
+                mGlobalStore.getSubStore(getPolicySubstoreId());
+        IConfigStore instanceStore =
+                policyStore.getSubStore(PROP_RULE);
         IConfigStore oldStore = instanceStore.getSubStore(id);
         IConfigStore newStore = new PropConfigStore(id);
-			
+
         // See if the rule is disabled.
         String enabledStr = (String) ht.get(IPolicyRule.PROP_ENABLE);
         boolean active = false;
 
         if (enabledStr == null || enabledStr.trim().length() == 0 ||
-            enabledStr.equalsIgnoreCase("true"))
+                enabledStr.equalsIgnoreCase("true"))
             active = true;
 
-            // Set the predicate expression.
+        // Set the predicate expression.
         String predicate = ((String) ht.get(IPolicyRule.PROP_PREDICATE)).trim();
         IExpression exp = null;
 
         if (predicate.trim().length() > 0)
             exp = PolicyPredicateParser.parse(predicate.trim());
 
-            // See if this a persistent rule.
+        // See if this a persistent rule.
         if (mUndeletablePolicies.containsKey(id)) {
             // A persistent rule can't be disabled.
             if (!active) {
@@ -891,24 +889,24 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
             }
 
             IExpression defPred = (IExpression)
-                mUndeletablePolicies.get(id);
+                    mUndeletablePolicies.get(id);
 
             if (defPred == SimpleExpression.NULL_EXPRESSION)
                 defPred = null;
             if (exp == null && defPred != null) {
-                String[] params = {id, defPred.toString(),
+                String[] params = { id, defPred.toString(),
                         "null" };
 
                 throw new EPolicyException(
                         CMS.getUserMessage("CMS_POLICY_PERSISTENT_RULE_MISCONFIG", params));
             } else if (exp != null && defPred == null) {
-                String[] params = {id, "null", exp.toString()};
+                String[] params = { id, "null", exp.toString() };
 
                 throw new EPolicyException(
                         CMS.getUserMessage("CMS_POLICY_PERSISTENT_RULE_MISCONFIG", params));
             } else if (exp != null && defPred != null) {
                 if (!defPred.toString().equals(exp.toString())) {
-                    String[] params = {id, defPred.toString(),
+                    String[] params = { id, defPred.toString(),
                             exp.toString() };
 
                     throw new EPolicyException(
@@ -921,8 +919,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         ht.put(IPolicyRule.PROP_ENABLE, String.valueOf(active));
 
         // put old config store parameters first. 
-        for (Enumeration<String> oldkeys = oldStore.keys();
-            oldkeys.hasMoreElements();) {
+        for (Enumeration<String> oldkeys = oldStore.keys(); oldkeys.hasMoreElements();) {
             String k = (String) oldkeys.nextElement();
             String v = (String) oldStore.getString(k);
 
@@ -930,15 +927,14 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         }
 
         // put modified params.
-        for (Enumeration<String> newkeys = ht.keys();
-            newkeys.hasMoreElements();) {
+        for (Enumeration<String> newkeys = ht.keys(); newkeys.hasMoreElements();) {
             String k = (String) newkeys.nextElement();
             String v = (String) ht.get(k);
 
             Debug.trace("newstore key " + k + "=" + v);
             if (v != null) {
                 if (!k.equals(Constants.OP_TYPE) && !k.equals(Constants.OP_SCOPE) &&
-                    !k.equals(Constants.RS_ID) && !k.equals("RULENAME")) {
+                        !k.equals(Constants.RS_ID) && !k.equals("RULENAME")) {
                     Debug.trace("newstore.put(" + k + "=" + v + ")");
                     newStore.put(k, v);
                 }
@@ -956,10 +952,9 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
          }
          */
 
-
         // Try to initialize this rule.
         newRule.init(this, newStore);
-			
+
         // If we are successfully initialized, replace the rule 
         // instance
         policyInstance.setRule(newRule);
@@ -969,21 +964,21 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         if (exp != null)
             newRule.setPredicate(exp);
 
-            // Store the changes in the file.
+        // Store the changes in the file.
         try {
             for (Enumeration<String> e = newStore.keys(); e.hasMoreElements();) {
                 String key = (String) e.nextElement();
 
                 if (key != null) {
                     Debug.trace(
-                        "oldstore.put(" + key + "," +
-                        (String) newStore.getString(key) + ")");
+                            "oldstore.put(" + key + "," +
+                                    (String) newStore.getString(key) + ")");
                     oldStore.put(key, (String) newStore.getString(key));
                 }
             }
             mGlobalStore.commit(true);
         } catch (Exception e) {
-            String[] params = {"instance", id};
+            String[] params = { "instance", id };
 
             throw new EPolicyException(
                     CMS.getUserMessage("CMS_POLICY_ADDING_POLICY_ERROR", params));
@@ -1018,8 +1013,8 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
     }
 
     public synchronized void changePolicyInstanceOrdering(
-        String policyOrderStr)
-        throws EBaseException {
+            String policyOrderStr)
+            throws EBaseException {
         Vector<String> policyOrder = new Vector<String>();
         StringTokenizer tokens = new StringTokenizer(policyOrderStr, ",");
 
@@ -1053,9 +1048,9 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
                 String defRuleName = mSystemDefaults[i].substring(
                         mSystemDefaults[i].lastIndexOf('.') + 1);
                 IPolicyRule defRule = (IPolicyRule)
-                    Class.forName(mSystemDefaults[i]).newInstance();
-                IConfigStore ruleConfig = 
-                    mConfig.getSubStore(PROP_DEF_POLICIES + "." + defRuleName);
+                        Class.forName(mSystemDefaults[i]).newInstance();
+                IConfigStore ruleConfig =
+                        mConfig.getSubStore(PROP_DEF_POLICIES + "." + defRuleName);
 
                 defRule.init(this, ruleConfig);
                 if (defRule instanceof IEnrollmentPolicy)
@@ -1072,7 +1067,7 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
             }
         } catch (Throwable e) {
             Debug.printStackTrace(e);
-            EBaseException ex = new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", 
+            EBaseException ex = new EBaseException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR",
                         "Cannot create default policy rule. Error: " + e.getMessage()));
 
             mAuthority.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_POLICY_DEF_CREATE", e.toString()));
@@ -1080,17 +1075,16 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         }
 
         // add rules specified in the new order.
-        for (Enumeration<String> enum1 = policyOrder.elements();
-            enum1.hasMoreElements();) {
+        for (Enumeration<String> enum1 = policyOrder.elements(); enum1.hasMoreElements();) {
             String instanceName = (String) enum1.nextElement();
             PolicyInstance pInstance = (PolicyInstance)
-                mInstanceTable.get(instanceName);
-				
+                    mInstanceTable.get(instanceName);
+
             if (!pInstance.isActive())
                 continue;
 
-                // Add the rule to the policy set according to category if a
-                // rule is enabled.
+            // Add the rule to the policy set according to category if a
+            // rule is enabled.
             IPolicyRule rule = pInstance.getRule();
 
             if (rule instanceof IEnrollmentPolicy)
@@ -1114,8 +1108,8 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         mPolicyOrder = policyOrder;
 
         // Now change the ordering in the config file.
-        IConfigStore policyStore = 
-            mGlobalStore.getSubStore(getPolicySubstoreId());
+        IConfigStore policyStore =
+                mGlobalStore.getSubStore(getPolicySubstoreId());
 
         policyStore.put(PROP_ORDER, policyOrderStr);
 
@@ -1165,24 +1159,24 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
     /**
      * Initializes the default system policies. Currently there is only
      * one policy - ManualAuthentication. More may be added later on.
-     *
+     * 
      * The default policies may be disabled - for example to over-ride
      * agent approval for testing the system by setting the following
      * property in the config file:
      * 
-     *	<subsystemId>.Policy.systemPolicies.enable=false
+     * <subsystemId>.Policy.systemPolicies.enable=false
      * 
-     *  By default the value for this property is true.
-     *
-     * Users can over-ride the default system policies by listing their 
+     * By default the value for this property is true.
+     * 
+     * Users can over-ride the default system policies by listing their
      * 'custom' system policies under the following property:
      * 
-     *	<subsystemId>.Policy.systemPolicies=<system policy1 class path>,
-     *		<system policy2 class path>
-     *
+     * <subsystemId>.Policy.systemPolicies=<system policy1 class path>,
+     * <system policy2 class path>
+     * 
      * There can only be one instance of the system policy in the system
-     * and will apply to all requests, and hence predicates are not used 
-     * for a system policy.  Due to the same reason, these properties are 
+     * and will apply to all requests, and hence predicates are not used
+     * for a system policy. Due to the same reason, these properties are
      * not configurable using the Console.
      * 
      * A System policy may read config properties from a subtree under
@@ -1190,10 +1184,10 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
      * ra.Policy.systemPolicies.ManualAuthentication.param1=value
      */
     private void initSystemPolicies(IConfigStore mConfig)
-        throws EBaseException {
+            throws EBaseException {
         // If system policies are disabled, return. No Deferral of
         // requests may be done.
-        String enable = mConfig.getString(PROP_DEF_POLICIES + "." + 
+        String enable = mConfig.getString(PROP_DEF_POLICIES + "." +
                 PROP_ENABLE, "true").trim();
 
         if (enable.equalsIgnoreCase("false")) {
@@ -1202,17 +1196,17 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         }
 
         // Load default policies that are always present.
-        String configuredDefaults = mConfig.getString(PROP_DEF_POLICIES, 
+        String configuredDefaults = mConfig.getString(PROP_DEF_POLICIES,
                 null);
 
-        if (configuredDefaults == null || 
-            configuredDefaults.trim().length() == 0)
+        if (configuredDefaults == null ||
+                configuredDefaults.trim().length() == 0)
             mSystemDefaults = DEF_POLICIES;
         else {
             Vector<String> rules = new Vector<String>();
-            StringTokenizer tokenizer = new 
-                StringTokenizer(configuredDefaults.trim(), ",");
-	
+            StringTokenizer tokenizer = new
+                    StringTokenizer(configuredDefaults.trim(), ",");
+
             while (tokenizer.hasMoreTokens()) {
                 String rule = tokenizer.nextToken().trim();
 
@@ -1221,10 +1215,10 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
             if (rules.size() > 0) {
                 mSystemDefaults = new String[rules.size()];
                 rules.copyInto(mSystemDefaults);
-            } else 
+            } else
                 mSystemDefaults = DEF_POLICIES;
         }
-	
+
         // Now Initialize the rules. These defaults have only one 
         // instance and the rule name is the name of the class itself.
         // Any configuration parameters required could be read from
@@ -1239,16 +1233,16 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
                 Object o = Class.forName(mSystemDefaults[i]).newInstance();
 
                 if (!(o instanceof IEnrollmentPolicy) &&
-                    !(o instanceof IRenewalPolicy) &&
-                    !(o instanceof IRevocationPolicy) &&
-                    !(o instanceof IKeyRecoveryPolicy) &&
-                    !(o instanceof IKeyArchivalPolicy))
+                        !(o instanceof IRenewalPolicy) &&
+                        !(o instanceof IRevocationPolicy) &&
+                        !(o instanceof IKeyRecoveryPolicy) &&
+                        !(o instanceof IKeyArchivalPolicy))
                     throw new EPolicyException(
                             CMS.getUserMessage("CMS_POLICY_INVALID_POLICY_IMPL",
-                                mSystemDefaults[i]));
-	
+                                    mSystemDefaults[i]));
+
                 IPolicyRule rule = (IPolicyRule) o;
-	
+
                 // Initialize the rule.
                 ruleName = mSystemDefaults[i].substring(
                             mSystemDefaults[i].lastIndexOf('.') + 1);
@@ -1256,14 +1250,14 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
                         PROP_DEF_POLICIES + "." + ruleName);
 
                 rule.init(this, ruleConfig);
-	
+
                 // Add the rule to the appropriate PolicySet.
                 addRule(ruleName, rule);
             } catch (EBaseException e) {
                 throw e;
             } catch (Exception e) {
                 Debug.printStackTrace(e);
-                throw new EPolicyException(CMS.getUserMessage("CMS_POLICY_NO_POLICY_IMPL", 
+                throw new EPolicyException(CMS.getUserMessage("CMS_POLICY_NO_POLICY_IMPL",
                             ruleName));
             }
         }
@@ -1271,101 +1265,101 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
 
     /**
      * Read list of undeletable policies if any configured in the
-     * system. 
-     *
+     * system.
+     * 
      * These are required to protect the system from being misconfigured
      * to the point that the requests wouldn't serialize or certain
-     * fields in the certificate(s) being checked will go unchecked 
+     * fields in the certificate(s) being checked will go unchecked
      * ..etc.
-     *
-     * For now the following policies are undeletable: 
-     *
-     *	DirAuthRule:	This is a default DirectoryAuthentication policy
-     *					for user certificates that interprets directory
-     *					credentials. The presence of this policy is needed
-     *					if the OOTB DirectoryAuthentication-based automatic
-     *					certificate issuance is supported.
-     *
-     *	DefaultUserNameRule: This policy verifies/sets subjectDn for user
-     *						 certificates.
-     *
-     *	DefaultServerNameRule: This policy verifies/sets subjectDn for 
-     *							server certificates.
-     *
-     *	DefaultValidityRule:	Verifies/sets validty for all certificates.
-     *
-     *	DefaultRenewalValidityRule: Verifies/sets validity for certs being
-     *							renewed.
-     *
-     *  The 'undeletables' cannot be deleted from the config file, nor
-     *	can the be disabled. If any predicates are associated with them
-     *	the predicates can't be changed either. But, other config parameters
-     *	such as maxValidity, renewalInterval ..etc can be changed to suit 
-     *	local policy requirements.
-     *
-     *  During start up the policy processor will verify if the undeletables
-     *	are present, and that they are enabled and that their predicates are
-     *	not changed.
-     *
-     *  The rules mentioned above are currently hard coded. If these need to
-     *  read from the config file, the 'undeletables' can be configured as
-     *  as follows:
-     *
-     *	<subsystemId>.Policy.undeletablePolicies=<comma separated rule names>
-     *	Example:
-     *	ra.Policy.undeletablePolicies=DirAuthRule, DefaultUserNameRule, DefaultServerNameRule, DefaultValidityRule, DefaultRenewalValidityRule
-     *
-     *  The predicates if any associated with them may be configured as
-     *  follows:
-     *		<subsystemId>.Policy.undeletablePolicies.DirAuthRule.predicate= certType == client.
-     *
-     *		where subsystemId is ra or ca.
-     *
+     * 
+     * For now the following policies are undeletable:
+     * 
+     * DirAuthRule: This is a default DirectoryAuthentication policy
+     * for user certificates that interprets directory
+     * credentials. The presence of this policy is needed
+     * if the OOTB DirectoryAuthentication-based automatic
+     * certificate issuance is supported.
+     * 
+     * DefaultUserNameRule: This policy verifies/sets subjectDn for user
+     * certificates.
+     * 
+     * DefaultServerNameRule: This policy verifies/sets subjectDn for
+     * server certificates.
+     * 
+     * DefaultValidityRule: Verifies/sets validty for all certificates.
+     * 
+     * DefaultRenewalValidityRule: Verifies/sets validity for certs being
+     * renewed.
+     * 
+     * The 'undeletables' cannot be deleted from the config file, nor
+     * can the be disabled. If any predicates are associated with them
+     * the predicates can't be changed either. But, other config parameters
+     * such as maxValidity, renewalInterval ..etc can be changed to suit
+     * local policy requirements.
+     * 
+     * During start up the policy processor will verify if the undeletables
+     * are present, and that they are enabled and that their predicates are
+     * not changed.
+     * 
+     * The rules mentioned above are currently hard coded. If these need to
+     * read from the config file, the 'undeletables' can be configured as
+     * as follows:
+     * 
+     * <subsystemId>.Policy.undeletablePolicies=<comma separated rule names>
+     * Example:
+     * ra.Policy.undeletablePolicies=DirAuthRule, DefaultUserNameRule, DefaultServerNameRule, DefaultValidityRule, DefaultRenewalValidityRule
+     * 
+     * The predicates if any associated with them may be configured as
+     * follows:
+     * <subsystemId>.Policy.undeletablePolicies.DirAuthRule.predicate= certType == client.
+     * 
+     * where subsystemId is ra or ca.
+     * 
      * If the undeletables are configured in the file,the configured entries
-     * take precedence over the hardcoded ones in this file. If you are 
-     * configuring them in the file, please remember to configure the 
+     * take precedence over the hardcoded ones in this file. If you are
+     * configuring them in the file, please remember to configure the
      * predicates if applicable.
-     *
+     * 
      * During policy configuration from MCC, the policy processor will not
-     * let you delete an 'undeletable', nor will it let you disable it. 
+     * let you delete an 'undeletable', nor will it let you disable it.
      * You will not be able to change the predicate either. Other parameters
      * can be configured as needed.
-     *
-     * If a particular rule needs to be removed from the 'undeletables', 
+     * 
+     * If a particular rule needs to be removed from the 'undeletables',
      * either remove it from the hard coded list above, or configure the
-     * rules required rules only via the config file. The former needs 
+     * rules required rules only via the config file. The former needs
      * recompilation of the source. The later is flexible to be able to
      * make any rule an 'undeletable' or nor an 'undeletable'.
-     *
-     * Example: We want to use only manual forms for enrollment. 
+     * 
+     * Example: We want to use only manual forms for enrollment.
      * We do n't need to burn in DirAuthRule. We need to configure all
      * other rules except the DirAuthRule as follows:
-     *
-     *	ra.Policy.undeletablePolicies = DefaultUserNameRule, DefaultServerNameRule, DefaultValidityRule, DefaultRenewalValidityRule
-     *
+     * 
+     * ra.Policy.undeletablePolicies = DefaultUserNameRule, DefaultServerNameRule, DefaultValidityRule, DefaultRenewalValidityRule
+     * 
      * The following predicates are necessary:
-     *
-     *	ra.Policy.undeletablePolicies.DefaultUserNameRule.predicate = certType == client
-     *	ra.Policy.undeletablePolicies.DefaultServerNameRule.predicate = certType == server
-     *
-     *	The other two rules do not have any predicates.
+     * 
+     * ra.Policy.undeletablePolicies.DefaultUserNameRule.predicate = certType == client
+     * ra.Policy.undeletablePolicies.DefaultServerNameRule.predicate = certType == server
+     * 
+     * The other two rules do not have any predicates.
      */
     private void initUndeletablePolicies(IConfigStore mConfig)
-        throws EBaseException {
+            throws EBaseException {
         // Read undeletable policies if any configured.
-        String configuredUndeletables = 
-            mConfig.getString(PROP_UNDELETABLE_POLICIES, null);
+        String configuredUndeletables =
+                mConfig.getString(PROP_UNDELETABLE_POLICIES, null);
 
-        if (configuredUndeletables == null || 
-            configuredUndeletables.trim().length() == 0) {
+        if (configuredUndeletables == null ||
+                configuredUndeletables.trim().length() == 0) {
             mUndeletablePolicies = DEF_UNDELETABLE_POLICIES;
             return;
         }
 
         Vector<String> rules = new Vector<String>();
-        StringTokenizer tokenizer = new 
-            StringTokenizer(configuredUndeletables.trim(), ",");
-	
+        StringTokenizer tokenizer = new
+                StringTokenizer(configuredUndeletables.trim(), ",");
+
         while (tokenizer.hasMoreTokens()) {
             String rule = tokenizer.nextToken().trim();
 
@@ -1382,13 +1376,13 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
         mUndeletablePolicies = new Hashtable<String, IExpression>();
         for (Enumeration<String> e = rules.elements(); e.hasMoreElements();) {
             String urn = (String) e.nextElement();
-			
+
             // See if there is predicate in the file
             String pred = mConfig.getString(PROP_UNDELETABLE_POLICIES +
                     "." + urn + "." + PROP_PREDICATE, null);
-			
+
             IExpression exp = SimpleExpression.NULL_EXPRESSION;
-			
+
             if (pred != null)
                 exp = PolicyPredicateParser.parse(pred);
             mUndeletablePolicies.put(urn, exp);
@@ -1423,12 +1417,11 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
     }
 
     private void verifyDefaultPolicyConfig()
-        throws EPolicyException {
+            throws EPolicyException {
         // For each policy in undeletable list make sure that
         // the policy is present, is not disabled and its predicate
         // is not tampered with.
-        for (Enumeration<String> e = mUndeletablePolicies.keys();
-            e.hasMoreElements();) {
+        for (Enumeration<String> e = mUndeletablePolicies.keys(); e.hasMoreElements();) {
             String urn = (String) e.nextElement();
 
             // See if the rule is in the instance table.
@@ -1438,14 +1431,14 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
                 throw new EPolicyException(
                         CMS.getUserMessage("CMS_POLICY_MISSING_PERSISTENT_RULE", urn));
 
-                // See if the instance is disabled.
+            // See if the instance is disabled.
             if (!inst.isActive())
                 throw new EPolicyException(
                         CMS.getUserMessage("CMS_POLICY_PERSISTENT_RULE_INACTIVE", urn));
 
-                // See if the predicated is misconfigured.
+            // See if the predicated is misconfigured.
             IExpression defPred = (IExpression)
-                mUndeletablePolicies.get(urn);
+                    mUndeletablePolicies.get(urn);
 
             // We used SimpleExpression.NULL_EXPRESSION to indicate a null.
             if (defPred == SimpleExpression.NULL_EXPRESSION)
@@ -1453,19 +1446,19 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
             IExpression confPred = inst.getRule().getPredicate();
 
             if (defPred == null && confPred != null) {
-                String[] params = {urn, "null", confPred.toString()};
+                String[] params = { urn, "null", confPred.toString() };
 
                 throw new EPolicyException(
                         CMS.getUserMessage("CMS_POLICY_PERSISTENT_RULE_MISCONFIG", params));
             } else if (defPred != null && confPred == null) {
-                String[] params = {urn, defPred.toString(), "null"};
+                String[] params = { urn, defPred.toString(), "null" };
 
                 throw new EPolicyException(
                         CMS.getUserMessage("CMS_POLICY_PERSISTENT_RULE_MISCONFIG", params));
             } else if (defPred != null && confPred != null) {
                 if (!defPred.toString().equals(confPred.toString())) {
-                    String[] params = {urn, defPred.toString(), 
-                            confPred.toString()};
+                    String[] params = { urn, defPred.toString(),
+                            confPred.toString() };
 
                     throw new EPolicyException(
                             CMS.getUserMessage("CMS_POLICY_PERSISTENT_RULE_MISCONFIG", params));
@@ -1475,30 +1468,28 @@ public class GenericPolicyProcessor implements IPolicyProcessor {
     }
 }
 
-
 /**
  * Class to keep track of various configurable implementations.
  */
 class RegisteredPolicy {
     String mId;
     String mClPath;
-    public RegisteredPolicy (String id, String clPath) {
+
+    public RegisteredPolicy(String id, String clPath) {
         if (id == null || clPath == null)
-            throw new 
-                AssertionException("Policy id or classpath can't be null");
+            throw new AssertionException("Policy id or classpath can't be null");
         mId = id;
         mClPath = clPath;
     }
-	
+
     public String getClassPath() {
         return mClPath;
     }
-	
+
     public String getId() {
         return mId;
     }
 }
-
 
 class PolicyInstance {
     String mInstanceId;
@@ -1507,7 +1498,7 @@ class PolicyInstance {
     boolean mIsEnabled;
 
     public PolicyInstance(String instanceId, String implId,
-        IPolicyRule rule, boolean isEnabled) {
+            IPolicyRule rule, boolean isEnabled) {
         mInstanceId = instanceId;
         mImplId = implId;
         mRule = rule;
@@ -1543,9 +1534,8 @@ class PolicyInstance {
     public void setActive(boolean stat) {
         mIsEnabled = stat;
     }
-	
+
     public void setRule(IPolicyRule newRule) {
         mRule = newRule;
     }
-}    
-
+}

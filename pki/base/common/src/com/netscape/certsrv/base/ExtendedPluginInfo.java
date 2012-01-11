@@ -17,14 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.base;
 
-
 import java.util.Locale;
-
 
 /**
  * Plugin which can return extended information to console
  * <p>
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class ExtendedPluginInfo implements IExtendedPluginInfo {
@@ -33,7 +31,7 @@ public class ExtendedPluginInfo implements IExtendedPluginInfo {
 
     /**
      * Constructs an extended plugin info object.
-     *
+     * 
      * @param epi plugin info list
      */
     public ExtendedPluginInfo(String epi[]) {
@@ -41,48 +39,48 @@ public class ExtendedPluginInfo implements IExtendedPluginInfo {
     }
 
     /**
-     *  This method returns an array of strings. Each element of the
-     *  array represents a configurable parameter, or some other
-     *  meta-info (such as help-token)
+     * This method returns an array of strings. Each element of the
+     * array represents a configurable parameter, or some other
+     * meta-info (such as help-token)
      * 
-     *  there is an entry indexed on that parameter name
-     *  <param-name>;<type_info>[,required];<description>;...
-     *  
-     *  Where:
-     *
-     *    type_info is either 'string', 'number', 'boolean', 'password' or 
-     *        'choice(ch1,ch2,ch3,...)'
-     *
-     *    If the marker 'required' is included after the type_info,
-     *    the parameter will has some visually distinctive marking in
-     *    the UI.
+     * there is an entry indexed on that parameter name
+     * <param-name>;<type_info>[,required];<description>;...
      * 
-     *    'description' is a short sentence describing the parameter
-     *    'choice' is rendered as a drop-down list. The first parameter in the
-     *       list will be activated by default
-     *    'boolean' is rendered as a checkbox. The resulting parameter will be
-     *       either 'true' or 'false'
-     *	  'string' allows any characters
-     *	  'number' allows only numbers
-     *    'password' is rendered as a password field (the characters are replaced
-     *       with *'s when being types. This parameter is not passed through to
-     *       the plugin. It is instead inserted directly into the password cache
-     *       keyed on the instance name. The value of the parameter
-     *       'bindPWPrompt' (see example below) is set to the key.
-     *
-     *  In addition to the configurable parameters, the following magic parameters
-     *  may be defined:
-     *  
-     *    HELP_TOKEN;helptoken - a pointer to the online manual section for this plugin
-     *    HELP_TEXT;helptext   - a general help string describing the plugin
-     *
-     *   For example:
-     *    "username;string;The username you wish to login as"
-     *    "bindPWPrompt;password;Enter password to bind as above user with"
-     *    "algorithm;choice(RSA,DSA);Which algorithm do you want to use"
-     *    "enable;boolean;Do you want to run this plugin"
-     *    "port;number;Which port number do you want to use"
-     *
+     * Where:
+     * 
+     * type_info is either 'string', 'number', 'boolean', 'password' or
+     * 'choice(ch1,ch2,ch3,...)'
+     * 
+     * If the marker 'required' is included after the type_info,
+     * the parameter will has some visually distinctive marking in
+     * the UI.
+     * 
+     * 'description' is a short sentence describing the parameter
+     * 'choice' is rendered as a drop-down list. The first parameter in the
+     * list will be activated by default
+     * 'boolean' is rendered as a checkbox. The resulting parameter will be
+     * either 'true' or 'false'
+     * 'string' allows any characters
+     * 'number' allows only numbers
+     * 'password' is rendered as a password field (the characters are replaced
+     * with *'s when being types. This parameter is not passed through to
+     * the plugin. It is instead inserted directly into the password cache
+     * keyed on the instance name. The value of the parameter
+     * 'bindPWPrompt' (see example below) is set to the key.
+     * 
+     * In addition to the configurable parameters, the following magic parameters
+     * may be defined:
+     * 
+     * HELP_TOKEN;helptoken - a pointer to the online manual section for this plugin
+     * HELP_TEXT;helptext - a general help string describing the plugin
+     * 
+     * For example:
+     * "username;string;The username you wish to login as"
+     * "bindPWPrompt;password;Enter password to bind as above user with"
+     * "algorithm;choice(RSA,DSA);Which algorithm do you want to use"
+     * "enable;boolean;Do you want to run this plugin"
+     * "port;number;Which port number do you want to use"
+     * 
      */
     public String[] getExtendedPluginInfo(Locale locale) {
         return _epi;

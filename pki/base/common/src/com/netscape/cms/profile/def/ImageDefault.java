@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.def;
 
-
 import java.util.Locale;
 
 import netscape.security.x509.X509CertInfo;
@@ -31,11 +30,10 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 
-
 /**
  * This class implements an enrollment default policy
  * that shows an image in the approval page.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class ImageDefault extends EnrollDefault {
@@ -50,7 +48,7 @@ public class ImageDefault extends EnrollDefault {
     }
 
     public void init(IProfile profile, IConfigStore config)
-        throws EProfileException {
+            throws EProfileException {
         super.init(profile, config);
     }
 
@@ -68,12 +66,12 @@ public class ImageDefault extends EnrollDefault {
     }
 
     public void setValue(String name, Locale locale,
-        X509CertInfo info, String value)
-        throws EPropertyException {
+            X509CertInfo info, String value)
+            throws EPropertyException {
     }
 
     public String getValue(String name, Locale locale, IRequest request)
-        throws EPropertyException {
+            throws EPropertyException {
 
         if (name == null) {
             throw new EPropertyException(CMS.getUserMessage(
@@ -89,19 +87,19 @@ public class ImageDefault extends EnrollDefault {
     }
 
     public String getValue(String name, Locale locale,
-        X509CertInfo info)
-        throws EPropertyException { 
+            X509CertInfo info)
+            throws EPropertyException {
         return null;
     }
 
     public String getText(Locale locale) {
-        return CMS.getUserMessage(locale, "CMS_PROFILE_DEF_IMAGE" );
+        return CMS.getUserMessage(locale, "CMS_PROFILE_DEF_IMAGE");
     }
 
     /**
      * Populates the request with this policy default.
      */
     public void populate(IRequest request, X509CertInfo info)
-        throws EProfileException {
+            throws EProfileException {
     }
 }

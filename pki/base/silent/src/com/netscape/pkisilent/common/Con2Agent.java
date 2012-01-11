@@ -1,4 +1,5 @@
 package com.netscape.pkisilent.common;
+
 // --- BEGIN COPYRIGHT BLOCK ---
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -35,7 +36,6 @@ import org.mozilla.jss.ssl.SSLClientCertificateSelectionCallback;
 import org.mozilla.jss.ssl.SSLSocket;
 import org.mozilla.jss.util.Password;
 
-
 /**
  * CMS Test framework .
  * Submits a requests to agent port with sslclient authentication.
@@ -51,17 +51,18 @@ public class Con2Agent implements SSLClientCertificateSelectionCallback,
     private BufferedReader stdin = null;
     private StringBuffer stdout = new StringBuffer();
 
-    public Con2Agent() {}
+    public Con2Agent() {
+    }
 
     /**
-     *Constructor. Takes hostname , portnumber , certificate nickname, token password ,client certdb directory 
-     * @param        hostname
+     * Constructor. Takes hostname , portnumber , certificate nickname, token password ,client certdb directory
+     * 
+     * @param hostname
      * @param portnumber
      * @param agent cert nickname
-     * @param token password 
+     * @param token password
      * @param certdb directory
      */
-
 
     public Con2Agent(String hs, int p, String cname, String tpwd, String cdir) {
         host = hs;
@@ -168,7 +169,7 @@ public class Con2Agent implements SSLClientCertificateSelectionCallback,
 
         try {
 
-            if (!loginCertDB()) { 
+            if (!loginCertDB()) {
                 return false;
             }
 
@@ -184,7 +185,7 @@ public class Con2Agent implements SSLClientCertificateSelectionCallback,
             OutputStream rawos = socket.getOutputStream();
             BufferedOutputStream os = new BufferedOutputStream(rawos);
             PrintStream ps = new PrintStream(os);
-	
+
             System.out.println(ACTIONURL);
             System.out.println("Query :" + query);
             ps.println("POST " + ACTIONURL + " HTTP/1.0");
@@ -239,12 +240,12 @@ public class Con2Agent implements SSLClientCertificateSelectionCallback,
         try {
             System.out.println("Step 1: Initializing CryptoManager");
             CryptoManager.initialize(certdir);
-	
-            System.out.println("Step 2: Login to Cert Database");	
+
+            System.out.println("Step 2: Login to Cert Database");
             manager = CryptoManager.getInstance();
             CryptoToken token = (PK11Token) manager.getInternalKeyStorageToken();
 
-            if (token.isLoggedIn()) { 
+            if (token.isLoggedIn()) {
                 System.out.println("Con2Agent: Logged in incorrect");
             }
 
@@ -256,12 +257,12 @@ public class Con2Agent implements SSLClientCertificateSelectionCallback,
             pass1 = new Password((char[]) passchar1.clone());
             token.login(pass1);
 
-            X509Certificate cert2 = manager.findCertByNickname(certnickname);	
+            X509Certificate cert2 = manager.findCertByNickname(certnickname);
 
             certname = cert2.getNickname();
             return true;
 
-        } catch (AlreadyInitializedException  e) {
+        } catch (AlreadyInitializedException e) {
             System.out.println("Crypto manager already initialized");
             return true;
         } catch (NumberFormatException e) {
@@ -276,7 +277,7 @@ public class Con2Agent implements SSLClientCertificateSelectionCallback,
             e.printStackTrace();
             return false;
         }
-		
+
     }
 
     public boolean Send_withGET() {
@@ -285,7 +286,7 @@ public class Con2Agent implements SSLClientCertificateSelectionCallback,
 
         try {
 
-            if (!loginCertDB()) { 
+            if (!loginCertDB()) {
                 return false;
             }
 
@@ -297,7 +298,7 @@ public class Con2Agent implements SSLClientCertificateSelectionCallback,
             OutputStream rawos = socket.getOutputStream();
             BufferedOutputStream os = new BufferedOutputStream(rawos);
             PrintStream ps = new PrintStream(os);
-	
+
             System.out.println("Query in con2agent :" + query);
             System.out.println("ACTIONURL in con2agent : " + ACTIONURL);
 

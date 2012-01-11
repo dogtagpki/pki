@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.listeners;
 
-
 import java.io.IOException;
 import java.util.Hashtable;
 
@@ -39,7 +38,6 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.profile.input.SubjectNameInput;
 import com.netscape.cms.profile.input.SubmitterInfoInput;
 
-
 /**
  * a listener for every request gets into the request queue.
  * <p>
@@ -54,7 +52,7 @@ import com.netscape.cms.profile.input.SubmitterInfoInput;
  * <LI>$SenderEmail
  * <LI>$RecipientEmail
  * </UL>
- *
+ * 
  */
 public class RequestInQListener implements IRequestListener {
     protected static final String PROP_ENABLED = "enabled";
@@ -89,8 +87,8 @@ public class RequestInQListener implements IRequestListener {
      * initializes the listener from the configuration
      */
     public void init(ISubsystem sub, IConfigStore config)
-        throws EListenersException, EPropertyNotFound, EBaseException {
-		
+            throws EListenersException, EPropertyNotFound, EBaseException {
+
         mSubsystem = (ICertAuthority) sub;
         mConfig = mSubsystem.getConfigStore();
 
@@ -118,32 +116,34 @@ public class RequestInQListener implements IRequestListener {
         // make available http host and port for forming url in templates
         mHttpHost = CMS.getAgentHost();
         mAgentPort = CMS.getAgentPort();
-        if (mAgentPort == null) 
+        if (mAgentPort == null)
             log(ILogger.LL_FAILURE, CMS.getLogMessage("LISTENERS_REQUEST_PORT_NOT_FOUND"));
         else
             CMS.debug("RequestInQuListener: agentport = " + mAgentPort);
 
-            // register for this event listener
+        // register for this event listener
         mSubsystem.registerPendingListener(this);
     }
 
     /**
      * carries out the operation when the listener is triggered.
+     * 
      * @param r IRequest structure holding the request information
      * @see com.netscape.certsrv.request.IRequest
      */
     public void accept(IRequest r) {
 
-        if (mEnabled != true) return;
+        if (mEnabled != true)
+            return;
 
-            // regardless of type of request...notify for everything
-            // no need for email resolver here...
+        // regardless of type of request...notify for everything
+        // no need for email resolver here...
         IMailNotification mn = CMS.getMailNotification();
 
         mn.setFrom(mSenderEmail);
         mn.setTo(mRecipientEmail);
         mn.setSubject(mEmailSubject + " (request id: " +
-            r.getRequestId() + ")");
+                r.getRequestId() + ")");
 
         /*
          * get form file from disk
@@ -158,7 +158,7 @@ public class RequestInQListener implements IRequestListener {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("LISTENERS_TEMPLATE_NOT_INIT"));
                 return;
             }
-		
+
             buildContentParams(r);
             IEmailFormProcessor et = CMS.getEmailFormProcessor();
             String c = et.getEmailContent(template.toString(), mContentParams);
@@ -169,8 +169,8 @@ public class RequestInQListener implements IRequestListener {
             mn.setContent(c);
         } else {
             // log and mail
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("LISTENERS_TEMPLATE_NOT_GET"));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("LISTENERS_TEMPLATE_NOT_GET"));
             mn.setContent("Template not retrievable for Request in Queue notification");
         }
 
@@ -179,77 +179,78 @@ public class RequestInQListener implements IRequestListener {
         } catch (ENotificationException e) {
             // already logged, lets audit
             mLogger.log(ILogger.EV_AUDIT, null,
-                ILogger.S_OTHER,
-                ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
-			
+                    ILogger.S_OTHER,
+                    ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
+
             mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                ILogger.LL_FAILURE,
-                CMS.getLogMessage("LISTENERS_SEND_FAILED", e.toString()));
+                    ILogger.LL_FAILURE,
+                    CMS.getLogMessage("LISTENERS_SEND_FAILED", e.toString()));
 
         } catch (IOException e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("LISTENERS_SEND_FAILED", e.toString()));
+                    CMS.getLogMessage("LISTENERS_SEND_FAILED", e.toString()));
         }
     }
 
     private void buildContentParams(IRequest r) {
         mContentParams.clear();
         mContentParams.put(IEmailFormProcessor.TOKEN_ID,
-            mConfig.getName());
+                mConfig.getName());
         Object val = null;
 
         String profileId = r.getExtDataInString("profileId");
 
         if (profileId == null) {
-          val = r.getExtDataInString(IRequest.HTTP_PARAMS, "csrRequestorEmail");
+            val = r.getExtDataInString(IRequest.HTTP_PARAMS, "csrRequestorEmail");
         } else {
-          // use the submitter info if available, otherwise, use the 
-          // subject name input email 
-          val = r.getExtDataInString(SubmitterInfoInput.EMAIL);
+            // use the submitter info if available, otherwise, use the 
+            // subject name input email 
+            val = r.getExtDataInString(SubmitterInfoInput.EMAIL);
 
-          if ((val == null) || (((String) val).compareTo("") == 0)) {
-              val = r.getExtDataInString(SubjectNameInput.VAL_EMAIL);
-          }
+            if ((val == null) || (((String) val).compareTo("") == 0)) {
+                val = r.getExtDataInString(SubjectNameInput.VAL_EMAIL);
+            }
         }
         if (val != null)
             mContentParams.put(IEmailFormProcessor.TOKEN_REQUESTOR_EMAIL,
-                val);
+                    val);
 
         if (profileId == null) {
-          val = r.getExtDataInString(IRequest.HTTP_PARAMS, IRequest.CERT_TYPE);
+            val = r.getExtDataInString(IRequest.HTTP_PARAMS, IRequest.CERT_TYPE);
         } else {
-          val = profileId;
+            val = profileId;
         }
         if (val != null) {
             mContentParams.put(IEmailFormProcessor.TOKEN_CERT_TYPE,
-                val);
+                    val);
         }
 
         RequestId reqId = r.getRequestId();
 
         mContentParams.put(IEmailFormProcessor.TOKEN_REQUEST_ID,
-            (Object) reqId.toString());
+                (Object) reqId.toString());
 
         mContentParams.put(IEmailFormProcessor.TOKEN_ID, mId);
 
         val = r.getRequestType();
         if (val != null)
             mContentParams.put(IEmailFormProcessor.TOKEN_REQUEST_TYPE,
-                val);
+                    val);
 
         mContentParams.put(IEmailFormProcessor.TOKEN_HTTP_HOST,
-            (Object) mHttpHost);
+                (Object) mHttpHost);
         mContentParams.put(IEmailFormProcessor.TOKEN_HTTP_PORT,
-            (Object) mAgentPort);
+                (Object) mAgentPort);
 
         mContentParams.put(IEmailFormProcessor.TOKEN_SENDER_EMAIL,
-            (Object) mSenderEmail);
+                (Object) mSenderEmail);
         mContentParams.put(IEmailFormProcessor.TOKEN_RECIPIENT_EMAIL,
-            (Object) mRecipientEmail);
+                (Object) mRecipientEmail);
     }
 
     /**
      * sets the configurable parameters
+     * 
      * @param name a String represents the name of the configuration parameter to be set
      * @param val a String containing the value to be set for name
      */
@@ -277,7 +278,6 @@ public class RequestInQListener implements IRequestListener {
         if (mLogger == null)
             return;
         mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_OTHER,
-            level, msg);
+                level, msg);
     }
 }
-

@@ -52,6 +52,7 @@ public class GetTokenInfo extends CMSServlet {
 
     /**
      * initialize the servlet.
+     * 
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -60,11 +61,12 @@ public class GetTokenInfo extends CMSServlet {
     }
 
     /**
-     * Process the HTTP request. 
+     * Process the HTTP request.
      * <ul>
      * <li>http.param op 'downloadBIN' - return the binary certificate chain
      * <li>http.param op 'displayIND' - display pretty-print of certificate chain components
      * </ul>
+     * 
      * @param cmsReq the object holding the request and response information
      */
     protected void process(CMSRequest cmsReq) throws EBaseException {
@@ -78,8 +80,8 @@ public class GetTokenInfo extends CMSServlet {
         try {
             xmlObj = new XMLObject();
         } catch (Exception e) {
-            CMS.debug("GetTokenInfo process: Exception: "+e.toString());
-            throw new EBaseException( e.toString() );
+            CMS.debug("GetTokenInfo process: Exception: " + e.toString());
+            throw new EBaseException(e.toString());
         }
 
         Node root = xmlObj.createRoot("XMLResponse");
@@ -97,7 +99,7 @@ public class GetTokenInfo extends CMSServlet {
             String name = t1.nextToken();
             if (name.equals("sslserver"))
                 continue;
-            name = "cloning."+name+".nickname";
+            name = "cloning." + name + ".nickname";
             String value = "";
 
             try {
@@ -105,7 +107,7 @@ public class GetTokenInfo extends CMSServlet {
             } catch (Exception ee) {
                 continue;
             }
-             
+
             Node container = xmlObj.createContainer(root, "Config");
             xmlObj.addItemToContainer(container, "name", name);
             xmlObj.addItemToContainer(container, "value", value);

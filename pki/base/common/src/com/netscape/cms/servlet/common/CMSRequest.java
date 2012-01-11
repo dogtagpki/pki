@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.common;
 
-
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -35,7 +34,7 @@ import com.netscape.certsrv.request.RequestStatus;
 
 /**
  * This represents a user request.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class CMSRequest {
@@ -72,7 +71,7 @@ public class CMSRequest {
     private IRequest mRequest = null;
 
     // whether request processed successfully
-    private Integer mStatus = SUCCESS; 
+    private Integer mStatus = SUCCESS;
 
     // exception message containing error that occured.
     // note exception could also be thrown seperately.
@@ -85,7 +84,7 @@ public class CMSRequest {
     Object mResult = null;
     Hashtable mResults = new Hashtable();
 
-	/**
+    /**
      * Constructor
      */
     public CMSRequest() {
@@ -133,7 +132,7 @@ public class CMSRequest {
         mServletConfig = servletConfig;
     }
 
-	/* 
+    /* 
      * set the servlet context. the servletcontext has detail
      * about the currently running request
      */
@@ -141,20 +140,21 @@ public class CMSRequest {
         mServletContext = servletContext;
     }
 
-	/**
-	 * Set request status. 
-	 * @param status request status. Allowed values are
-     * UNAUTHORIZED, SUCCESS, REJECTED, PENDING,  ERROR, SVC_PENDING
+    /**
+     * Set request status.
+     * 
+     * @param status request status. Allowed values are
+     *            UNAUTHORIZED, SUCCESS, REJECTED, PENDING, ERROR, SVC_PENDING
      * @throws IllegalArgumentException if status is not one of the above values
      */
     public void setStatus(Integer status) {
-        if ( !status.equals( UNAUTHORIZED ) && 
-             !status.equals( SUCCESS )      &&
-             !status.equals( REJECTED )     && 
-             !status.equals( PENDING )      &&
-             !status.equals( ERROR )        && 
-             !status.equals( SVC_PENDING )  &&
-             !status.equals( EXCEPTION ) ) { 
+        if (!status.equals(UNAUTHORIZED) &&
+                !status.equals(SUCCESS) &&
+                !status.equals(REJECTED) &&
+                !status.equals(PENDING) &&
+                !status.equals(ERROR) &&
+                !status.equals(SVC_PENDING) &&
+                !status.equals(EXCEPTION)) {
             throw new IllegalArgumentException(CMS.getLogMessage("CMSGW_BAD_REQ_STATUS"));
         }
         mStatus = status;
@@ -169,9 +169,9 @@ public class CMSRequest {
     }
 
     public void setErrorDescription(String descr) {
-        if (mErrorDescr == null) 
+        if (mErrorDescr == null)
             mErrorDescr = new Vector();
-        mErrorDescr.addElement(descr); 
+        mErrorDescr.addElement(descr);
     }
 
     public void setResult(Object result) {
@@ -259,13 +259,13 @@ public class CMSRequest {
         return null;
     }
 
-    /** 
-     * set default CMS status according to IRequest status. 
+    /**
+     * set default CMS status according to IRequest status.
      */
     public void setIRequestStatus() throws EBaseException {
         if (mRequest == null) {
-            EBaseException e = 
-                new ECMSGWException(CMS.getLogMessage("CMSGW_MISSING_REQUEST"));
+            EBaseException e =
+                    new ECMSGWException(CMS.getLogMessage("CMSGW_MISSING_REQUEST"));
 
             throw e;
         }
@@ -292,8 +292,8 @@ public class CMSRequest {
             RequestId reqId = mRequest.getRequestId();
 
             throw new ECMSGWException(
-                    CMS.getLogMessage("CMSGW_UNEXPECTED_REQUEST_STATUS_2", 
-                        status.toString(), reqId.toString()));
+                    CMS.getLogMessage("CMSGW_UNEXPECTED_REQUEST_STATUS_2",
+                            status.toString(), reqId.toString()));
         }
     }
 

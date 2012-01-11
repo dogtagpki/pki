@@ -20,7 +20,6 @@
 
 package com.netscape.cms.selftests;
 
-
 ///////////////////////
 // import statements //
 ///////////////////////
@@ -37,7 +36,6 @@ import com.netscape.certsrv.selftests.ESelfTestException;
 import com.netscape.certsrv.selftests.ISelfTest;
 import com.netscape.certsrv.selftests.ISelfTestSubsystem;
 
-
 //////////////////////
 // class definition //
 //////////////////////
@@ -51,12 +49,10 @@ import com.netscape.certsrv.selftests.ISelfTestSubsystem;
  * @version $Revision$, $Date$
  */
 public abstract class ASelfTest
-    implements ISelfTest {
+        implements ISelfTest {
     ////////////////////////
     // default parameters //
     ////////////////////////
-
-
 
     //////////////////////////
     // ISelfTest parameters //
@@ -75,8 +71,6 @@ public abstract class ASelfTest
     // default methods //
     /////////////////////
 
-
-
     ///////////////////////
     // ISelfTest methods //
     ///////////////////////
@@ -85,18 +79,18 @@ public abstract class ASelfTest
      * Initializes this subsystem with the configuration store
      * associated with this instance name.
      * <P>
-     *
+     * 
      * @param subsystem the associated subsystem
-     * @param instanceName the name of this self test instance 
+     * @param instanceName the name of this self test instance
      * @param parameters configuration store (self test parameters)
      * @exception EDuplicateSelfTestException subsystem has duplicate name/value
      * @exception EInvalidSelfTestException subsystem has invalid name/value
      * @exception EMissingSelfTestException subsystem has missing name/value
      */
     public void initSelfTest(ISelfTestSubsystem subsystem,
-        String instanceName,
-        IConfigStore parameters)
-        throws EDuplicateSelfTestException,
+            String instanceName,
+            IConfigStore parameters)
+            throws EDuplicateSelfTestException,
             EInvalidSelfTestException,
             EMissingSelfTestException {
         // store individual self test class values for this instance
@@ -108,9 +102,9 @@ public abstract class ASelfTest
             instanceName = instanceName.trim();
         } else {
             mSelfTestSubsystem.log(mSelfTestSubsystem.getSelfTestLogger(),
-                CMS.getLogMessage(
-                    "SELFTESTS_PARAMETER_WAS_NULL",
-                    SELF_TEST_NAME));
+                    CMS.getLogMessage(
+                            "SELFTESTS_PARAMETER_WAS_NULL",
+                            SELF_TEST_NAME));
 
             throw new EMissingSelfTestException();
         }
@@ -124,14 +118,14 @@ public abstract class ASelfTest
         mConfig = parameters.getSubStore(pluginPath);
 
         if ((mConfig != null) &&
-            (mConfig.getName() != null) &&
-            (mConfig.getName() != "")) {
+                (mConfig.getName() != null) &&
+                (mConfig.getName() != "")) {
             mPrefix = mConfig.getName().trim();
         } else {
             mSelfTestSubsystem.log(mSelfTestSubsystem.getSelfTestLogger(),
-                CMS.getLogMessage(
-                    "SELFTESTS_PARAMETER_WAS_NULL",
-                    SELF_TEST_NAME));
+                    CMS.getLogMessage(
+                            "SELFTESTS_PARAMETER_WAS_NULL",
+                            SELF_TEST_NAME));
 
             throw new EMissingSelfTestException();
         }
@@ -142,11 +136,11 @@ public abstract class ASelfTest
     /**
      * Notifies this subsystem if it is in execution mode.
      * <P>
-     *
+     * 
      * @exception ESelfTestException failed to start
      */
     public abstract void startupSelfTest()
-        throws ESelfTestException;
+            throws ESelfTestException;
 
     /**
      * Stops this subsystem. The subsystem may call shutdownSelfTest
@@ -159,7 +153,7 @@ public abstract class ASelfTest
      * Returns the name associated with this self test. This method may
      * return null if the self test has not been intialized.
      * <P>
-     *
+     * 
      * @return instanceName of this self test
      */
     public String getSelfTestName() {
@@ -170,7 +164,7 @@ public abstract class ASelfTest
      * Returns the root configuration storage (self test parameters)
      * associated with this subsystem.
      * <P>
-     *
+     * 
      * @return configuration store (self test parameters) of this subsystem
      */
     public IConfigStore getSelfTestConfigStore() {
@@ -181,7 +175,7 @@ public abstract class ASelfTest
      * Retrieves description associated with an individual self test.
      * This method may return null.
      * <P>
-     *
+     * 
      * @param locale locale of the client that requests the description
      * @return description of self test
      */
@@ -190,11 +184,10 @@ public abstract class ASelfTest
     /**
      * Execute an individual self test.
      * <P>
-     *
+     * 
      * @param logger specifies logging subsystem
      * @exception ESelfTestException self test exception
      */
     public abstract void runSelfTest(ILogEventListener logger)
-        throws ESelfTestException;
+            throws ESelfTestException;
 }
-

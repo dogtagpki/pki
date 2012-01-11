@@ -17,27 +17,21 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.jobs;
 
-
-
-
 /**
  * class representing one Job cron element
- * <p>here, an "item" refers to one of the 5 fields in a cron string;
- * "element" refers to any comma-deliminated element in an
- * "item"...which includes both numbers and '-' separated ranges.
  * <p>
- * an Element can contain either an integer number or a range
- *	 specified as CronRange.  In case of integer numbers, begin
- *	 and end are of the same value
- *
+ * here, an "item" refers to one of the 5 fields in a cron string; "element" refers to any comma-deliminated element in an "item"...which includes both numbers and '-' separated ranges.
+ * <p>
+ * an Element can contain either an integer number or a range specified as CronRange. In case of integer numbers, begin and end are of the same value
+ * 
  * @author cfu
  * @version $Revision$, $Date$
  */
 public class CronRange {
     int mBegin = 0;
     int mEnd = 0;
-		
-    public CronRange () {
+
+    public CronRange() {
     }
 
     /**
@@ -46,7 +40,7 @@ public class CronRange {
     public void setBegin(int i) {
         mBegin = i;
     }
-	
+
     /**
      * gets the lower boundary value of the range
      */
@@ -70,16 +64,17 @@ public class CronRange {
 
     /**
      * checks to see if the lower and higher boundary values are
-     *	 within the min/max.
+     * within the min/max.
+     * 
      * @param min the minimum value one can specify in this field
      * @param max the maximum value one can specify in this field
      * @return a boolean (true/false) on whether the begin/end values
-     *	 are within the min/max passed in the params
+     *         are within the min/max passed in the params
      */
     public boolean isValidRange(int min, int max) {
         if ((mEnd < mBegin) ||
-            (mBegin < min) ||
-            (mEnd > max))
+                (mBegin < min) ||
+                (mEnd > max))
             return false;
         else
             return true;

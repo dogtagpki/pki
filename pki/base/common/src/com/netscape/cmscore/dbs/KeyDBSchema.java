@@ -17,14 +17,11 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.dbs;
 
-
-
-
 /**
- * A class represents a collection of key record 
+ * A class represents a collection of key record
  * specific schema information.
  * <P>
- *
+ * 
  * @author thomask
  * @version $Revision$, $Date$
  */
@@ -43,9 +40,9 @@ public class KeyDBSchema {
     public static final String LDAP_ATTR_KEY_SIZE = "keySize";
     public static final String LDAP_ATTR_ALGORITHM = "algorithm";
     public static final String LDAP_ATTR_STATE = "keyState";
-    public static final String LDAP_ATTR_DATE_OF_RECOVERY = 
-        "dateOfRecovery";
-    public static final String LDAP_ATTR_PUBLIC_KEY_FORMAT = 
-        "publicKeyFormat";
+    public static final String LDAP_ATTR_DATE_OF_RECOVERY =
+            "dateOfRecovery";
+    public static final String LDAP_ATTR_PUBLIC_KEY_FORMAT =
+            "publicKeyFormat";
     public static final String LDAP_ATTR_ARCHIVED_BY = "archivedBy";
 }

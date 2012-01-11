@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-
 import java.io.IOException;
 import java.util.Locale;
 import java.util.StringTokenizer;
@@ -42,19 +41,20 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
 public class CertPrettyPrintPanel extends WizardPanelBase {
     private Vector mCerts = null;
 
-    public CertPrettyPrintPanel() {}
+    public CertPrettyPrintPanel() {
+    }
 
     /**
      * Initializes this panel.
      */
-    public void init(ServletConfig config, int panelno) 
-        throws ServletException {
+    public void init(ServletConfig config, int panelno)
+            throws ServletException {
         setPanelNo(panelno);
         setName("Certificates");
     }
 
     public void init(WizardServlet servlet, ServletConfig config, int panelno, String id)
-        throws ServletException {
+            throws ServletException {
         setPanelNo(panelno);
         setName("Certificates");
         setId(id);
@@ -63,7 +63,7 @@ public class CertPrettyPrintPanel extends WizardPanelBase {
     public PropertySet getUsage() {
         // expects no input from client
         PropertySet set = new PropertySet();
-                                                                                
+
         return set;
     }
 
@@ -83,7 +83,8 @@ public class CertPrettyPrintPanel extends WizardPanelBase {
             } else {
                 return true;
             }
-        } catch (EBaseException e) {}
+        } catch (EBaseException e) {
+        }
 
         return false;
     }
@@ -153,7 +154,7 @@ public class CertPrettyPrintPanel extends WizardPanelBase {
                 } catch (Exception e) {
                     CMS.debug(
                             "CertPrettyPrintPanel: display() certTag " + certTag
-                            + " Exception caught: " + e.toString());
+                                    + " Exception caught: " + e.toString());
                 }
             }
         } catch (Exception e) {
@@ -192,7 +193,7 @@ public class CertPrettyPrintPanel extends WizardPanelBase {
             config.commit(false);
         } catch (EBaseException e) {
             CMS.debug(
-                  "CertPrettyPrintPanel: update() Exception caught at config commit: "
+                    "CertPrettyPrintPanel: update() Exception caught at config commit: "
                             + e.toString());
         }
     }

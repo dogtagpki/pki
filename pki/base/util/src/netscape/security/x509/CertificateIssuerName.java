@@ -29,7 +29,7 @@ import netscape.security.util.DerValue;
 
 /**
  * This class defines the X500Name attribute for the Certificate.
- *
+ * 
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  * @version 1.6
@@ -39,7 +39,7 @@ public class CertificateIssuerName implements CertAttrSet {
     /**
      * Identifier for this attribute, to be used with the
      * get, set, delete methods of Certificate, x509 type.
-     */  
+     */
     public static final String IDENT = "x509.info.issuer";
     /**
      * Sub attributes name for this CertAttrSet.
@@ -48,11 +48,11 @@ public class CertificateIssuerName implements CertAttrSet {
     public static final String DN_NAME = "dname";
 
     // Private data member
-    private X500Name	dnName;
+    private X500Name dnName;
 
     /**
      * Default constructor for the certificate attribute.
-     *
+     * 
      * @param name the X500Name
      */
     public CertificateIssuerName(X500Name name) {
@@ -61,7 +61,7 @@ public class CertificateIssuerName implements CertAttrSet {
 
     /**
      * Create the object, decoding the values from the passed DER stream.
-     *
+     * 
      * @param in the DerInputStream to read the X500Name from.
      * @exception IOException on decoding errors.
      */
@@ -71,7 +71,7 @@ public class CertificateIssuerName implements CertAttrSet {
 
     /**
      * Create the object, decoding the values from the passed stream.
-     *
+     * 
      * @param in the InputStream to read the X500Name from.
      * @exception IOException on decoding errors.
      */
@@ -84,13 +84,14 @@ public class CertificateIssuerName implements CertAttrSet {
      * Return the name as user readable string.
      */
     public String toString() {
-        if (dnName == null) return "";
-        return(dnName.toString());
+        if (dnName == null)
+            return "";
+        return (dnName.toString());
     }
 
     /**
      * Encode the name in DER form to the stream.
-     *
+     * 
      * @param out the DerOutputStream to marshal the contents to.
      * @exception IOException on errors.
      */
@@ -103,7 +104,7 @@ public class CertificateIssuerName implements CertAttrSet {
 
     /**
      * Decode the name in DER form from the stream.
-     *
+     * 
      * @param in the InputStream to marshal the contents from.
      * @exception IOException on errors.
      */
@@ -120,7 +121,7 @@ public class CertificateIssuerName implements CertAttrSet {
             throw new IOException("Attribute must be of type X500Name.");
         }
         if (name.equalsIgnoreCase(DN_NAME)) {
-            this.dnName = (X500Name)obj;
+            this.dnName = (X500Name) obj;
         } else {
             throw new IOException("Attribute name not recognized by " +
                                   "CertAttrSet:CertificateIssuerName.");
@@ -132,7 +133,7 @@ public class CertificateIssuerName implements CertAttrSet {
      */
     public Object get(String name) throws IOException {
         if (name.equalsIgnoreCase(DN_NAME)) {
-            return(dnName);
+            return (dnName);
         } else {
             throw new IOException("Attribute name not recognized by " +
                                   "CertAttrSet:CertificateIssuerName.");
@@ -166,6 +167,6 @@ public class CertificateIssuerName implements CertAttrSet {
      * Return the name of this attribute.
      */
     public String getName() {
-        return(NAME);
+        return (NAME);
     }
 }

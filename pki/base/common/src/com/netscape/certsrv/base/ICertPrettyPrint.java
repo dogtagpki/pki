@@ -17,22 +17,20 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.base;
 
-
 import java.util.Locale;
-
 
 /**
  * This interface represents a certificate pretty print
  * handler. This handler converts certificate object into
  * a printable certificate string.
  * 
- * @version $Revision$, $Date$ 
+ * @version $Revision$, $Date$
  */
 public interface ICertPrettyPrint {
 
     /**
      * Returns printable certificate string.
-     *
+     * 
      * @param clientLocale end user locale
      * @return printable certificate string
      */

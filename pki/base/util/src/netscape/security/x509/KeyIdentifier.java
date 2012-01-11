@@ -24,7 +24,7 @@ import netscape.security.util.DerValue;
 
 /**
  * Represent the Key Identifier ASN.1 object.
- *
+ * 
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  * @version 1.4
@@ -38,7 +38,7 @@ public class KeyIdentifier implements java.io.Serializable {
 
     /**
      * Create a KeyIdentifier with the passed bit settings.
-     *
+     * 
      * @param octetString the octet string identifying the key identifier.
      */
     public KeyIdentifier(byte[] octetString) {
@@ -47,7 +47,7 @@ public class KeyIdentifier implements java.io.Serializable {
 
     /**
      * Create a KeyIdentifier from the DER encoded value.
-     *
+     * 
      * @param val the DerValue
      */
     public KeyIdentifier(DerValue val) throws IOException {
@@ -58,16 +58,16 @@ public class KeyIdentifier implements java.io.Serializable {
      * Return the value of the KeyIdentifier as byte array.
      */
     public byte[] getIdentifier() {
-        return ((byte[])octetString.clone());
+        return ((byte[]) octetString.clone());
     }
 
     /**
      * Returns a printable representation of the KeyUsage.
      */
     public String toString() {
-	netscape.security.util.PrettyPrintFormat pp = 
-		new netscape.security.util.PrettyPrintFormat(" ", 20);
-	String octetbits = pp.toHexString(octetString);
+        netscape.security.util.PrettyPrintFormat pp =
+                new netscape.security.util.PrettyPrintFormat(" ", 20);
+        String octetbits = pp.toHexString(octetString);
 
         String s = "KeyIdentifier [\n";
         s += octetbits;
@@ -77,11 +77,11 @@ public class KeyIdentifier implements java.io.Serializable {
 
     /**
      * Write the KeyIdentifier to the DerOutputStream.
-     *
+     * 
      * @param out the DerOutputStream to write the object to.
      * @exception IOException
      */
-    void encode (DerOutputStream out) throws IOException {
+    void encode(DerOutputStream out) throws IOException {
         out.putOctetString(octetString);
     }
 }

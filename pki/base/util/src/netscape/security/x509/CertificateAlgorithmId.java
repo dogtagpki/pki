@@ -32,7 +32,7 @@ import netscape.security.util.DerValue;
 
 /**
  * This class defines the AlgorithmId for the Certificate.
- *
+ * 
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  * @version 1.7
@@ -43,7 +43,7 @@ public class CertificateAlgorithmId implements CertAttrSet, Serializable {
      */
     private static final long serialVersionUID = 6084780721443376563L;
 
-    private AlgorithmId	algId;
+    private AlgorithmId algId;
 
     /**
      * Identifier for this attribute, to be used with the
@@ -58,7 +58,7 @@ public class CertificateAlgorithmId implements CertAttrSet, Serializable {
 
     /**
      * Default constructor for the certificate attribute.
-     *
+     * 
      * @param algId the Algorithm identifier
      */
     public CertificateAlgorithmId(AlgorithmId algId) {
@@ -67,7 +67,7 @@ public class CertificateAlgorithmId implements CertAttrSet, Serializable {
 
     /**
      * Create the object, decoding the values from the passed DER stream.
-     *
+     * 
      * @param in the DerInputStream to read the serial number from.
      * @exception IOException on decoding errors.
      */
@@ -78,7 +78,7 @@ public class CertificateAlgorithmId implements CertAttrSet, Serializable {
 
     /**
      * Create the object, decoding the values from the passed stream.
-     *
+     * 
      * @param in the InputStream to read the serial number from.
      * @exception IOException on decoding errors.
      */
@@ -91,24 +91,25 @@ public class CertificateAlgorithmId implements CertAttrSet, Serializable {
      * Return the algorithm identifier as user readable string.
      */
     public String toString() {
-        if (algId == null) return "";
+        if (algId == null)
+            return "";
         return (algId.toString() +
                 ", OID = " + (algId.getOID()).toString() + "\n");
     }
 
     private synchronized void writeObject(ObjectOutputStream stream)
-    throws IOException {
+            throws IOException {
         encode(stream);
     }
 
     private synchronized void readObject(ObjectInputStream stream)
-    throws IOException {
-       decode(stream);
+            throws IOException {
+        decode(stream);
     }
 
     /**
      * Encode the algorithm identifier in DER form to the stream.
-     *
+     * 
      * @param out the DerOutputStream to marshal the contents to.
      * @exception IOException on errors.
      */
@@ -121,7 +122,7 @@ public class CertificateAlgorithmId implements CertAttrSet, Serializable {
 
     /**
      * Decode the algorithm identifier from the passed stream.
-     *
+     * 
      * @param in the InputStream to unmarshal the contents from.
      * @exception IOException on errors.
      */
@@ -138,7 +139,7 @@ public class CertificateAlgorithmId implements CertAttrSet, Serializable {
             throw new IOException("Attribute must be of type AlgorithmId.");
         }
         if (name.equalsIgnoreCase(ALGORITHM)) {
-            algId = (AlgorithmId)obj;
+            algId = (AlgorithmId) obj;
         } else {
             throw new IOException("Attribute name not recognized by " +
                               "CertAttrSet:CertificateAlgorithmId.");
@@ -178,11 +179,11 @@ public class CertificateAlgorithmId implements CertAttrSet, Serializable {
         elements.addElement(ALGORITHM);
         return (elements.elements());
     }
- 
-   /**
-    * Return the name of this attribute.
-    */
-   public String getName() {
-      return (NAME);
-   }
+
+    /**
+     * Return the name of this attribute.
+     */
+    public String getName() {
+        return (NAME);
+    }
 }

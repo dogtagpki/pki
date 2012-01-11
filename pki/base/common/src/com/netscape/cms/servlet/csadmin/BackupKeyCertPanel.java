@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-
 import java.io.ByteArrayOutputStream;
 import java.io.CharConversionException;
 import java.io.IOException;
@@ -71,19 +70,20 @@ import com.netscape.cmsutil.crypto.CryptoUtil;
 
 public class BackupKeyCertPanel extends WizardPanelBase {
 
-    public BackupKeyCertPanel() {}
+    public BackupKeyCertPanel() {
+    }
 
     /**
      * Initializes this panel.
      */
-    public void init(ServletConfig config, int panelno) 
-        throws ServletException {
+    public void init(ServletConfig config, int panelno)
+            throws ServletException {
         setPanelNo(panelno);
         setName("Export Keys and Certificates");
     }
 
     public void init(WizardServlet servlet, ServletConfig config, int panelno, String id)
-        throws ServletException {
+            throws ServletException {
         setPanelNo(panelno);
         setName("Export Keys and Certificates");
         setId(id);
@@ -105,11 +105,11 @@ public class BackupKeyCertPanel extends WizardPanelBase {
 
         try {
             String s = cs.getString("preop.module.token", "");
-            if (s.equals("Internal Key Storage Token")) 
+            if (s.equals("Internal Key Storage Token"))
                 return false;
         } catch (Exception e) {
         }
- 
+
         return true;
     }
 
@@ -122,15 +122,16 @@ public class BackupKeyCertPanel extends WizardPanelBase {
             } else {
                 return true;
             }
-        } catch (EBaseException e) {}
+        } catch (EBaseException e) {
+        }
         return false;
     }
 
     public PropertySet getUsage() {
         PropertySet set = new PropertySet();
-                                                                                
+
         /* XXX */
-                                                                                
+
         return set;
     }
 
@@ -170,7 +171,7 @@ public class BackupKeyCertPanel extends WizardPanelBase {
      * Checks if the given parameters are valid.
      */
     public void validate(HttpServletRequest request,
-      HttpServletResponse response, Context context) throws IOException {
+            HttpServletResponse response, Context context) throws IOException {
         String select = HttpInput.getID(request, "choice");
         if (select.equals("backupkey")) {
             String pwd = request.getParameter("__pwd");
@@ -219,9 +220,8 @@ public class BackupKeyCertPanel extends WizardPanelBase {
      * If validiate() returns false, this method will be called.
      */
     public void displayError(HttpServletRequest request,
-        HttpServletResponse response,
-        Context context)
-    {
+            HttpServletResponse response,
+            Context context) {
         String select = "";
         try {
             select = HttpInput.getID(request, "choice");
@@ -242,8 +242,8 @@ public class BackupKeyCertPanel extends WizardPanelBase {
         context.put("panel", "admin/console/config/backupkeycertpanel.vm");
     }
 
-    public void backupKeysCerts(HttpServletRequest request) 
-      throws IOException {
+    public void backupKeysCerts(HttpServletRequest request)
+            throws IOException {
         CMS.debug("BackupKeyCertPanel backupKeysCerts: start");
         IConfigStore cs = CMS.getConfigStore();
         String certlist = "";
@@ -257,9 +257,9 @@ public class BackupKeyCertPanel extends WizardPanelBase {
         try {
             cm = CryptoManager.getInstance();
         } catch (Exception e) {
-            CMS.debug( "BackupKeyCertPanel::backupKeysCerts() - "
-                     + "Exception="+e.toString() );
-            throw new IOException( e.toString() );
+            CMS.debug("BackupKeyCertPanel::backupKeysCerts() - "
+                     + "Exception=" + e.toString());
+            throw new IOException(e.toString());
         }
 
         String pwd = request.getParameter("__pwd");
@@ -273,12 +273,12 @@ public class BackupKeyCertPanel extends WizardPanelBase {
             String nickname = "";
             String modname = "";
             try {
-                nickname = cs.getString("preop.cert."+t+".nickname");
+                nickname = cs.getString("preop.cert." + t + ".nickname");
                 modname = cs.getString("preop.module.token");
             } catch (Exception e) {
             }
             if (!modname.equals("Internal Key Storage Token"))
-                nickname = modname+":"+nickname;
+                nickname = modname + ":" + nickname;
 
             X509Certificate x509cert = null;
             byte localKeyId[] = null;
@@ -288,7 +288,7 @@ public class BackupKeyCertPanel extends WizardPanelBase {
             } catch (IOException e) {
                 throw e;
             } catch (Exception e) {
-                CMS.debug("BackupKeyCertPanel: Exception="+e.toString());
+                CMS.debug("BackupKeyCertPanel: Exception=" + e.toString());
                 throw new IOException("Failed to create pkcs12 file.");
             }
 
@@ -296,14 +296,14 @@ public class BackupKeyCertPanel extends WizardPanelBase {
                 PrivateKey pkey = cm.findPrivKeyByCert(x509cert);
                 addKeyBag(pkey, x509cert, pass, localKeyId, encSafeContents);
             } catch (Exception e) {
-                CMS.debug("BackupKeyCertPanel: Exception="+e.toString());
+                CMS.debug("BackupKeyCertPanel: Exception=" + e.toString());
                 throw new IOException("Failed to create pkcs12 file.");
             }
         } //while loop
-   
+
         X509Certificate[] cacerts = cm.getCACerts();
 
-        for (int i=0; i<cacerts.length; i++) {
+        for (int i = 0; i < cacerts.length; i++) {
             //String nickname = cacerts[i].getSubjectDN().toString();
             String nickname = null;
             try {
@@ -311,7 +311,7 @@ public class BackupKeyCertPanel extends WizardPanelBase {
             } catch (IOException e) {
                 throw e;
             } catch (Exception e) {
-                CMS.debug("BackupKeyCertPanel backKeysCerts: Exception="+e.toString());
+                CMS.debug("BackupKeyCertPanel backKeysCerts: Exception=" + e.toString());
                 throw new IOException("Failed to create pkcs12 file.");
             }
         }
@@ -319,9 +319,9 @@ public class BackupKeyCertPanel extends WizardPanelBase {
         try {
             AuthenticatedSafes authSafes = new AuthenticatedSafes();
             authSafes.addSafeContents(safeContents);
-            authSafes.addSafeContents(encSafeContents);                  
+            authSafes.addSafeContents(encSafeContents);
             PFX pfx = new PFX(authSafes);
-            pfx.computeMacData(pass, null, 5); 
+            pfx.computeMacData(pass, null, 5);
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             pfx.encode(bos);
             byte[] output = bos.toByteArray();
@@ -329,13 +329,13 @@ public class BackupKeyCertPanel extends WizardPanelBase {
             pass.clear();
             cs.commit(false);
         } catch (Exception e) {
-            CMS.debug("BackupKeyCertPanel backupKeysCerts: Exception="+e.toString());
+            CMS.debug("BackupKeyCertPanel backupKeysCerts: Exception=" + e.toString());
         }
     }
 
     private void addKeyBag(PrivateKey pkey, X509Certificate x509cert,
-      Password pass, byte[] localKeyId, SEQUENCE safeContents) 
-      throws IOException {
+            Password pass, byte[] localKeyId, SEQUENCE safeContents)
+            throws IOException {
         try {
             PasswordConverter passConverter = new PasswordConverter();
 
@@ -344,23 +344,23 @@ public class BackupKeyCertPanel extends WizardPanelBase {
             byte[] priData = getEncodedKey(pkey);
 
             PrivateKeyInfo pki = (PrivateKeyInfo)
-              ASN1Util.decode(PrivateKeyInfo.getTemplate(), priData);
+                    ASN1Util.decode(PrivateKeyInfo.getTemplate(), priData);
             ASN1Value key = EncryptedPrivateKeyInfo.createPBE(
-              PBEAlgorithm.PBE_SHA1_DES3_CBC,
-              pass, salt, 1, passConverter, pki);
+                    PBEAlgorithm.PBE_SHA1_DES3_CBC,
+                    pass, salt, 1, passConverter, pki);
             SET keyAttrs = createBagAttrs(
-              x509cert.getSubjectDN().toString(), localKeyId);
-            SafeBag keyBag = new SafeBag(SafeBag.PKCS8_SHROUDED_KEY_BAG, 
-              key, keyAttrs);
+                    x509cert.getSubjectDN().toString(), localKeyId);
+            SafeBag keyBag = new SafeBag(SafeBag.PKCS8_SHROUDED_KEY_BAG,
+                    key, keyAttrs);
             safeContents.addElement(keyBag);
         } catch (Exception e) {
-            CMS.debug("BackupKeyCertPanel getKeyBag: Exception="+e.toString());
+            CMS.debug("BackupKeyCertPanel getKeyBag: Exception=" + e.toString());
             throw new IOException("Failed to create pk12 file.");
         }
     }
 
-    private byte[] addCertBag(X509Certificate x509cert, String nickname, 
-      SEQUENCE safeContents) throws IOException {
+    private byte[] addCertBag(X509Certificate x509cert, String nickname,
+            SEQUENCE safeContents) throws IOException {
         byte[] localKeyId = null;
         try {
             ASN1Value cert = new OCTET_STRING(x509cert.getEncoded());
@@ -369,10 +369,10 @@ public class BackupKeyCertPanel extends WizardPanelBase {
             if (nickname != null)
                 certAttrs = createBagAttrs(nickname, localKeyId);
             SafeBag certBag = new SafeBag(SafeBag.CERT_BAG,
-              new CertBag(CertBag.X509_CERT_TYPE, cert), certAttrs);
+                    new CertBag(CertBag.X509_CERT_TYPE, cert), certAttrs);
             safeContents.addElement(certBag);
         } catch (Exception e) {
-            CMS.debug("BackupKeyCertPanel addCertBag: "+e.toString());
+            CMS.debug("BackupKeyCertPanel addCertBag: " + e.toString());
             throw new IOException("Failed to create pk12 file.");
         }
 
@@ -386,7 +386,7 @@ public class BackupKeyCertPanel extends WizardPanelBase {
             KeyGenerator kg = token.getKeyGenerator(KeyGenAlgorithm.DES3);
             SymmetricKey sk = kg.generate();
             KeyWrapper wrapper = token.getKeyWrapper(KeyWrapAlgorithm.DES3_CBC_PAD);
-            byte iv[] = {0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1};
+            byte iv[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
             IVParameterSpec param = new IVParameterSpec(iv);
             wrapper.initWrap(sk, param);
             byte[] enckey = wrapper.wrap(pkey);
@@ -395,14 +395,14 @@ public class BackupKeyCertPanel extends WizardPanelBase {
             byte[] recovered = c.doFinal(enckey);
             return recovered;
         } catch (Exception e) {
-            CMS.debug("BackupKeyCertPanel getEncodedKey: Exception="+e.toString());
+            CMS.debug("BackupKeyCertPanel getEncodedKey: Exception=" + e.toString());
         }
 
         return null;
     }
 
-    private byte[] createLocalKeyId(X509Certificate cert) 
-      throws IOException {
+    private byte[] createLocalKeyId(X509Certificate cert)
+            throws IOException {
         try {
             // SHA1 hash of the X509Cert der encoding
             byte certDer[] = cert.getEncoded();
@@ -412,16 +412,16 @@ public class BackupKeyCertPanel extends WizardPanelBase {
             md.update(certDer);
             return md.digest();
         } catch (CertificateEncodingException e) {
-            CMS.debug("BackupKeyCertPanel createLocalKeyId: Exception: "+e.toString());
+            CMS.debug("BackupKeyCertPanel createLocalKeyId: Exception: " + e.toString());
             throw new IOException("Failed to encode certificate.");
         } catch (NoSuchAlgorithmException e) {
-            CMS.debug("BackupKeyCertPanel createLocalKeyId: Exception: "+e.toString());
+            CMS.debug("BackupKeyCertPanel createLocalKeyId: Exception: " + e.toString());
             throw new IOException("No such algorithm supported.");
         }
     }
 
     private SET createBagAttrs(String nickName, byte localKeyId[])
-      throws IOException {
+            throws IOException {
         try {
             SET attrs = new SET();
             SEQUENCE nickNameAttr = new SEQUENCE();
@@ -442,7 +442,7 @@ public class BackupKeyCertPanel extends WizardPanelBase {
             attrs.addElement(localKeyAttr);
             return attrs;
         } catch (CharConversionException e) {
-            CMS.debug("BackupKeyCertPanel createBagAttrs: Exception="+e.toString());
+            CMS.debug("BackupKeyCertPanel createBagAttrs: Exception=" + e.toString());
             throw new IOException("Failed to create PKCS12 file.");
         }
     }

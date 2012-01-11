@@ -40,13 +40,11 @@ import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 
-
-
 /**
  * GenerateKeyPairServlet
- *   handles "server-side key pair generation" requests from the
- * netkey RA. 
- *
+ * handles "server-side key pair generation" requests from the
+ * netkey RA.
+ * 
  * @author Christina Fu (cfu)
  * @version $Revision$, $Date$
  */
@@ -68,7 +66,7 @@ public class GenerateKeyPairServlet extends CMSServlet {
 
     /**
      * Constructs GenerateKeyPair servlet.
-     *
+     * 
      */
     public GenerateKeyPairServlet() {
         super();
@@ -82,17 +80,17 @@ public class GenerateKeyPairServlet extends CMSServlet {
         if (authority != null)
             mAuthority = (IAuthority)
                     CMS.getSubsystem(authority);
-        
+
         mAuthSubsystem = (IAuthSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);
     }
 
     /**
      * Returns serlvet information.
-     *
+     * 
      * @return name of this servlet
      */
-    public String getServletInfo() { 
-        return INFO; 
+    public String getServletInfo() {
+        return INFO;
     }
 
     /*
@@ -109,8 +107,7 @@ public class GenerateKeyPairServlet extends CMSServlet {
      *      * recovery blob (used for recovery)
      */
     private void processServerSideKeyGen(HttpServletRequest req,
-      HttpServletResponse resp) throws EBaseException
-    {
+            HttpServletResponse resp) throws EBaseException {
         IRequestQueue queue = mAuthority.getRequestQueue();
         IRequest thisreq = null;
 
@@ -123,8 +120,8 @@ public class GenerateKeyPairServlet extends CMSServlet {
         String rCUID = req.getParameter("CUID");
         String rUserid = req.getParameter("userid");
         String rdesKeyString = req.getParameter("drm_trans_desKey");
-	String rArchive = req.getParameter("archive");
-	String rKeysize = req.getParameter("keysize");
+        String rArchive = req.getParameter("archive");
+        String rKeysize = req.getParameter("keysize");
 
         if ((rCUID == null) || (rCUID.equals(""))) {
             CMS.debug("GenerateKeyPairServlet: processServerSideKeygen(): missing request parameter: CUID");
@@ -136,19 +133,19 @@ public class GenerateKeyPairServlet extends CMSServlet {
             missingParam = true;
         }
 
-	if ((rKeysize == null) || (rKeysize.equals(""))) {
-	    rKeysize = "1024"; // default to 1024
-	}
+        if ((rKeysize == null) || (rKeysize.equals(""))) {
+            rKeysize = "1024"; // default to 1024
+        }
 
         if ((rdesKeyString == null) ||
-            (rdesKeyString.equals(""))) {
+                (rdesKeyString.equals(""))) {
             CMS.debug("GenerateKeyPairServlet: processServerSideKeygen(): missing request parameter: DRM-transportKey-wrapped DES key");
             missingParam = true;
         }
 
         if ((rArchive == null) || (rArchive.equals(""))) {
             CMS.debug("GenerateKeyPairServlet: processServerSideKeygen(): missing key archival flag 'archive' ,default to true");
-	    rArchive = "true";
+            rArchive = "true";
         }
 
         String selectedToken = null;
@@ -160,17 +157,17 @@ public class GenerateKeyPairServlet extends CMSServlet {
             thisreq.setExtData(IRequest.NETKEY_ATTR_CUID, rCUID);
             thisreq.setExtData(IRequest.NETKEY_ATTR_USERID, rUserid);
             thisreq.setExtData(IRequest.NETKEY_ATTR_DRMTRANS_DES_KEY, rdesKeyString);
-	    thisreq.setExtData(IRequest.NETKEY_ATTR_ARCHIVE_FLAG, rArchive);
-	    thisreq.setExtData(IRequest.NETKEY_ATTR_KEY_SIZE, rKeysize);
+            thisreq.setExtData(IRequest.NETKEY_ATTR_ARCHIVE_FLAG, rArchive);
+            thisreq.setExtData(IRequest.NETKEY_ATTR_KEY_SIZE, rKeysize);
 
-            queue.processRequest( thisreq );
+            queue.processRequest(thisreq);
             Integer result = thisreq.getExtDataInInteger(IRequest.RESULT);
             if (result != null) {
-		// sighs!  tps thinks 0 is good, and DRM thinks 1 is good
-		if (result.intValue() == 1)
-		    status = "0";
-		else
-		    status = result.toString();
+                // sighs!  tps thinks 0 is good, and DRM thinks 1 is good
+                if (result.intValue() == 1)
+                    status = "0";
+                else
+                    status = result.toString();
             } else
                 status = "7";
 
@@ -184,40 +181,40 @@ public class GenerateKeyPairServlet extends CMSServlet {
         String wrappedPrivKeyString = "";
         String publicKeyString = "";
 
-        if( thisreq == null ) {
-            CMS.debug( "GenerateKeyPairServlet::processServerSideKeyGen() - "
-                     + "thisreq is null!" );
-            throw new EBaseException( "thisreq is null" );
+        if (thisreq == null) {
+            CMS.debug("GenerateKeyPairServlet::processServerSideKeyGen() - "
+                     + "thisreq is null!");
+            throw new EBaseException("thisreq is null");
         }
 
         publicKeyString = thisreq.getExtDataInString("public_key");
         wrappedPrivKeyString = thisreq.getExtDataInString("wrappedUserPrivate");
 
-	String ivString = thisreq.getExtDataInString("iv_s");
+        String ivString = thisreq.getExtDataInString("iv_s");
 
         /*
           if (selectedToken == null)
           status = "4";
         */
-        if (!status.equals("0")) 
-            value = "status="+status;
+        if (!status.equals("0"))
+            value = "status=" + status;
         else {
             StringBuffer sb = new StringBuffer();
             sb.append("status=0&");
-			sb.append("wrapped_priv_key=");
-			sb.append(wrappedPrivKeyString);
-			sb.append("&iv_param=");
-			sb.append(ivString);
+            sb.append("wrapped_priv_key=");
+            sb.append(wrappedPrivKeyString);
+            sb.append("&iv_param=");
+            sb.append(ivString);
             sb.append("&public_key=");
-			sb.append(publicKeyString);
+            sb.append(publicKeyString);
             value = sb.toString();
 
         }
-        CMS.debug("processServerSideKeyGen:outputString.encode " +value);
+        CMS.debug("processServerSideKeyGen:outputString.encode " + value);
 
-        try{
+        try {
             resp.setContentLength(value.length());
-            CMS.debug("GenerateKeyPairServlet:outputString.length " +value.length());
+            CMS.debug("GenerateKeyPairServlet:outputString.length " + value.length());
             OutputStream ooss = resp.getOutputStream();
             ooss.write(value.getBytes());
             ooss.flush();
@@ -226,7 +223,6 @@ public class GenerateKeyPairServlet extends CMSServlet {
             CMS.debug("GenerateKeyPairServlet: " + e.toString());
         }
     }
-
 
     /* 
     
@@ -258,7 +254,7 @@ public class GenerateKeyPairServlet extends CMSServlet {
 
         if (authzToken == null) {
 
-            try{
+            try {
                 resp.setContentType("text/html");
                 String value = "unauthorized=";
                 CMS.debug("GenerateKeyPairServlet: Unauthorized");
@@ -268,7 +264,7 @@ public class GenerateKeyPairServlet extends CMSServlet {
                 ooss.write(value.getBytes());
                 ooss.flush();
                 mRenderResult = false;
-            }catch (Exception e) {
+            } catch (Exception e) {
                 CMS.debug("GenerateKeyPairServlet: " + e.toString());
             }
 
@@ -277,28 +273,28 @@ public class GenerateKeyPairServlet extends CMSServlet {
         }
 
         // begin Netkey serverSideKeyGen and archival
-	CMS.debug("GenerateKeyPairServlet: processServerSideKeyGen would be called");
-	processServerSideKeyGen(req, resp);
-	return;
+        CMS.debug("GenerateKeyPairServlet: processServerSideKeyGen would be called");
+        processServerSideKeyGen(req, resp);
+        return;
         // end Netkey functions
 
     }
 
-    /** XXX remember tocheck peer SSL cert and get RA id later
-     *
+    /**
+     * XXX remember tocheck peer SSL cert and get RA id later
+     * 
      * Serves HTTP admin request.
-     *
+     * 
      * @param req HTTP request
      * @param resp HTTP response
      */
     public void service(HttpServletRequest req, HttpServletResponse resp)
-        throws ServletException, IOException {
+            throws ServletException, IOException {
         String scope = req.getParameter(Constants.OP_SCOPE);
         String op = req.getParameter(Constants.OP_TYPE);
 
-       super.service(req, resp);
+        super.service(req, resp);
 
- 
     }
 
 }

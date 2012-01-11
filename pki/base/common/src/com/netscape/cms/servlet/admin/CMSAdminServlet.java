@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.admin;
 
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -86,7 +85,7 @@ import com.netscape.symkey.SessionKey;
  * servlet is responsible to serve Certificate Server
  * level administrative operations such as configuration
  * parameter updates.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public final class CMSAdminServlet extends AdminServlet {
@@ -108,13 +107,13 @@ public final class CMSAdminServlet extends AdminServlet {
     private ILogger mSignedAuditLogger = CMS.getSignedAuditLogger();
     private final static byte EOL[] = { Character.LINE_SEPARATOR };
     private final static String LOGGING_SIGNED_AUDIT_CONFIG_ENCRYPTION =
-        "LOGGING_SIGNED_AUDIT_CONFIG_ENCRYPTION_3";
+            "LOGGING_SIGNED_AUDIT_CONFIG_ENCRYPTION_3";
     private final static String LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY =
-        "LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY_3";
+            "LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY_3";
     private final static String LOGGING_SIGNED_AUDIT_KEY_GEN_ASYMMETRIC =
-        "LOGGING_SIGNED_AUDIT_KEY_GEN_ASYMMETRIC_3";
+            "LOGGING_SIGNED_AUDIT_KEY_GEN_ASYMMETRIC_3";
     private final static String LOGGING_SIGNED_AUDIT_SELFTESTS_EXECUTION =
-        "LOGGING_SIGNED_AUDIT_SELFTESTS_EXECUTION_2";
+            "LOGGING_SIGNED_AUDIT_SELFTESTS_EXECUTION_2";
     private final static String LOGGING_SIGNED_AUDIT_CIMC_CERT_VERIFICATION =
             "LOGGING_SIGNED_AUDIT_CIMC_CERT_VERIFICATION_3";
 
@@ -145,13 +144,13 @@ public final class CMSAdminServlet extends AdminServlet {
      * Serves HTTP request.
      */
     public void service(HttpServletRequest req, HttpServletResponse resp)
-        throws ServletException, IOException {
+            throws ServletException, IOException {
         super.service(req, resp);
         try {
             super.authenticate(req);
         } catch (IOException e) {
             sendResponse(ERROR, CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHS_FAILED"),
-                null, resp);
+                    null, resp);
             return;
         }
 
@@ -164,8 +163,8 @@ public final class CMSAdminServlet extends AdminServlet {
                 mOp = "read";
                 if ((mToken = super.authorize(req)) == null) {
                     sendResponse(ERROR,
-                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
-                        null, resp);
+                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
+                            null, resp);
                     return;
                 }
                 getEnv(req, resp);
@@ -175,8 +174,8 @@ public final class CMSAdminServlet extends AdminServlet {
                 mOp = "read";
                 if ((mToken = super.authorize(req)) == null) {
                     sendResponse(ERROR,
-                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
-                        null, resp);
+                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
+                            null, resp);
                     return;
                 }
                 if (scope.equals(ScopeDef.SC_LDAP))
@@ -199,13 +198,13 @@ public final class CMSAdminServlet extends AdminServlet {
                 mOp = "modify";
                 if ((mToken = super.authorize(req)) == null) {
                     sendResponse(ERROR,
-                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
-                        null, resp);
+                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
+                            null, resp);
                     return;
                 }
                 if (scope.equals(ScopeDef.SC_LDAP))
                     setDBConfig(req, resp);
-                else if (scope.equals(ScopeDef.SC_SMTP)) 
+                else if (scope.equals(ScopeDef.SC_SMTP))
                     modifySMTPConfig(req, resp);
                 else if (scope.equals(ScopeDef.SC_TASKS))
                     performTasks(req, resp);
@@ -213,9 +212,9 @@ public final class CMSAdminServlet extends AdminServlet {
                     modifyEncryption(req, resp);
                 else if (scope.equals(ScopeDef.SC_ISSUE_IMPORT_CERT))
                     issueImportCert(req, resp);
-                else if (scope.equals(ScopeDef.SC_INSTALL_CERT)) 
+                else if (scope.equals(ScopeDef.SC_INSTALL_CERT))
                     installCert(req, resp);
-                else if (scope.equals(ScopeDef.SC_IMPORT_CROSS_CERT)) 
+                else if (scope.equals(ScopeDef.SC_IMPORT_CROSS_CERT))
                     importXCert(req, resp);
                 else if (scope.equals(ScopeDef.SC_DELETE_CERTS))
                     deleteCerts(req, resp);
@@ -229,8 +228,8 @@ public final class CMSAdminServlet extends AdminServlet {
                 mOp = "read";
                 if ((mToken = super.authorize(req)) == null) {
                     sendResponse(ERROR,
-                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
-                        null, resp);
+                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
+                            null, resp);
                     return;
                 }
                 if (scope.equals(ScopeDef.SC_SUBSYSTEM))
@@ -239,11 +238,11 @@ public final class CMSAdminServlet extends AdminServlet {
                     getCACerts(req, resp);
                 else if (scope.equals(ScopeDef.SC_ALL_CERTLIST))
                     getAllCertsManage(req, resp);
-                else if (scope.equals(ScopeDef.SC_USERCERTSLIST)) 
+                else if (scope.equals(ScopeDef.SC_USERCERTSLIST))
                     getUserCerts(req, resp);
-                else if (scope.equals(ScopeDef.SC_TKSKEYSLIST)) 
+                else if (scope.equals(ScopeDef.SC_TKSKEYSLIST))
                     getTKSKeys(req, resp);
-                else if (scope.equals(ScopeDef.SC_TOKEN)) 
+                else if (scope.equals(ScopeDef.SC_TOKEN))
                     getAllTokenNames(req, resp);
                 else if (scope.equals(ScopeDef.SC_ROOTCERTSLIST))
                     getRootCerts(req, resp);
@@ -251,21 +250,21 @@ public final class CMSAdminServlet extends AdminServlet {
                 mOp = "delete";
                 if ((mToken = super.authorize(req)) == null) {
                     sendResponse(ERROR,
-                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
-                        null, resp);
+                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
+                            null, resp);
                     return;
                 }
                 if (scope.equals(ScopeDef.SC_ROOTCERTSLIST)) {
                     deleteRootCert(req, resp);
                 } else if (scope.equals(ScopeDef.SC_USERCERTSLIST)) {
-                    deleteUserCert(req,resp);
+                    deleteUserCert(req, resp);
                 }
             } else if (op.equals(OpDef.OP_PROCESS)) {
                 mOp = "modify";
                 if ((mToken = super.authorize(req)) == null) {
                     sendResponse(ERROR,
-                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
-                        null, resp);
+                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
+                            null, resp);
                     return;
                 }
                 if (scope.equals(ScopeDef.SC_CERT_REQUEST))
@@ -282,14 +281,14 @@ public final class CMSAdminServlet extends AdminServlet {
                     checkTokenStatus(req, resp);
                 else if (scope.equals(ScopeDef.SC_SELFTESTS))
                     runSelfTestsOnDemand(req, resp);
-				else if (scope.equals(ScopeDef.SC_TKSKEYSLIST))
+                else if (scope.equals(ScopeDef.SC_TKSKEYSLIST))
                     createMasterKey(req, resp);
             } else if (op.equals(OpDef.OP_VALIDATE)) {
                 mOp = "modify";
                 if ((mToken = super.authorize(req)) == null) {
                     sendResponse(ERROR,
-                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
-                        null, resp);
+                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
+                            null, resp);
                     return;
                 }
                 if (scope.equals(ScopeDef.SC_SUBJECT_NAME))
@@ -303,7 +302,7 @@ public final class CMSAdminServlet extends AdminServlet {
             }
         } catch (EBaseException e) {
             sendResponse(ERROR, e.toString(getLocale(req)),
-                null, resp);
+                    null, resp);
             return;
         } catch (Exception e) {
             StringWriter sw = new StringWriter();
@@ -316,7 +315,7 @@ public final class CMSAdminServlet extends AdminServlet {
     }
 
     private void getEnv(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         NameValuePairs params = new NameValuePairs();
 
@@ -324,16 +323,16 @@ public final class CMSAdminServlet extends AdminServlet {
             params.add(Constants.PR_NT, Constants.TRUE);
         else
             params.add(Constants.PR_NT, Constants.FALSE);
-        
+
         sendResponse(SUCCESS, null, params, resp);
     }
 
     private void getAllTokenNames(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
 
         ICryptoSubsystem jssSubSystem = (ICryptoSubsystem)
-            CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+                CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
         NameValuePairs params = new NameValuePairs();
 
         params.add(Constants.PR_TOKEN_LIST, jssSubSystem.getTokenList());
@@ -342,15 +341,15 @@ public final class CMSAdminServlet extends AdminServlet {
     }
 
     private void getAllNicknames(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
 
         NameValuePairs params = new NameValuePairs();
         ICryptoSubsystem jssSubSystem = (ICryptoSubsystem)
-            CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+                CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
 
         params.add(Constants.PR_ALL_NICKNAMES, jssSubSystem.getAllCerts());
- 
+
         sendResponse(SUCCESS, null, params, resp);
     }
 
@@ -363,16 +362,16 @@ public final class CMSAdminServlet extends AdminServlet {
 
             //get subsystem type
             if ((sys instanceof IKeyRecoveryAuthority) &&
-                subsystem.equals("kra"))
+                    subsystem.equals("kra"))
                 return true;
             else if ((sys instanceof IRegistrationAuthority) &&
-                subsystem.equals("ra"))
+                    subsystem.equals("ra"))
                 return true;
             else if ((sys instanceof ICertificateAuthority) &&
-                subsystem.equals("ca"))
+                    subsystem.equals("ca"))
                 return true;
             else if ((sys instanceof IOCSPAuthority) &&
-                subsystem.equals("ocsp"))
+                    subsystem.equals("ocsp"))
                 return true;
         }
 
@@ -380,7 +379,7 @@ public final class CMSAdminServlet extends AdminServlet {
     }
 
     private void readEncryption(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
 
         Enumeration e = CMS.getSubsystems();
@@ -405,17 +404,17 @@ public final class CMSAdminServlet extends AdminServlet {
                 isOCSPInstalled = true;
             else if (sys instanceof ITKSAuthority)
                 isTKSInstalled = true;
-				
-	        }
+
+        }
 
         ICryptoSubsystem jssSubSystem = (ICryptoSubsystem)
-            CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+                CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
         String caTokenName = "";
 
         NameValuePairs params = new NameValuePairs();
 
         params.add(Constants.PR_CIPHER_VERSION,
-            jssSubSystem.getCipherVersion());
+                jssSubSystem.getCipherVersion());
         params.add(Constants.PR_CIPHER_FORTEZZA, jssSubSystem.isCipherFortezza());
         params.add(Constants.PR_CIPHER_PREF, jssSubSystem.getCipherPreferences());
 
@@ -427,7 +426,7 @@ public final class CMSAdminServlet extends AdminServlet {
         while (tokenizer.hasMoreElements()) {
             String tokenName = (String) tokenizer.nextElement();
             String certs = jssSubSystem.getCertListWithoutTokenName(tokenName);
-  
+
             if (certs.equals(""))
                 continue;
             if (tokenNewList.equals(""))
@@ -457,7 +456,7 @@ public final class CMSAdminServlet extends AdminServlet {
 
         if (isRAInstalled) {
             IRegistrationAuthority ra = (IRegistrationAuthority)
-                CMS.getSubsystem(CMS.SUBSYSTEM_RA);
+                    CMS.getSubsystem(CMS.SUBSYSTEM_RA);
             String raNickname = ra.getNickname();
 
             params.add(Constants.PR_CERT_RA, getCertNickname(raNickname));
@@ -465,17 +464,17 @@ public final class CMSAdminServlet extends AdminServlet {
 
         if (isKRAInstalled) {
             IKeyRecoveryAuthority kra = (IKeyRecoveryAuthority)
-                CMS.getSubsystem(CMS.SUBSYSTEM_KRA);
+                    CMS.getSubsystem(CMS.SUBSYSTEM_KRA);
             String kraNickname = kra.getNickname();
 
             params.add(Constants.PR_CERT_TRANS, getCertNickname(kraNickname));
         }
         if (isTKSInstalled) {
             ITKSAuthority tks = (ITKSAuthority)
-				CMS.getSubsystem(CMS.SUBSYSTEM_TKS);
+                    CMS.getSubsystem(CMS.SUBSYSTEM_TKS);
         }
         String nickName = CMS.getServerCertNickname();
-		
+
         params.add(Constants.PR_CERT_SERVER, getCertNickname(nickName));
 
         sendResponse(SUCCESS, null, params, resp);
@@ -517,17 +516,17 @@ public final class CMSAdminServlet extends AdminServlet {
     /**
      * Modify encryption configuration
      * <P>
-     *
+     * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_ENCRYPTION used when
-     * configuring encryption (cert settings and SSL cipher preferences)
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_ENCRYPTION used when configuring encryption (cert settings and SSL cipher preferences)
      * </ul>
+     * 
      * @exception ServletException a servlet error has occurred
      * @exception IOException an input/output error has occurred
      * @exception EBaseException failed to modify encryption configuration
      */
     private void modifyEncryption(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
 
         String auditMessage = null;
@@ -539,7 +538,7 @@ public final class CMSAdminServlet extends AdminServlet {
             Enumeration enum1 = req.getParameterNames();
             NameValuePairs params = new NameValuePairs();
             ICryptoSubsystem jssSubSystem = (ICryptoSubsystem)
-                CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+                    CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
 
             jssSubSystem.getInternalTokenName();
             Enumeration e = CMS.getSubsystems();
@@ -562,14 +561,14 @@ public final class CMSAdminServlet extends AdminServlet {
                     isCAInstalled = true;
                 else if (sys instanceof IOCSPAuthority)
                     isOCSPInstalled = true;
-               else if (sys instanceof ITKSAuthority)
+                else if (sys instanceof ITKSAuthority)
                     isTKSInstalled = true;
             }
 
-            ICertificateAuthority  ca = null;
+            ICertificateAuthority ca = null;
             IRegistrationAuthority ra = null;
             IKeyRecoveryAuthority kra = null;
-            ITKSAuthority		  tks = null;
+            ITKSAuthority tks = null;
 
             if (isCAInstalled)
                 ca = (ICertificateAuthority) CMS.getSubsystem(CMS.SUBSYSTEM_CA);
@@ -692,19 +691,19 @@ public final class CMSAdminServlet extends AdminServlet {
 
             // rethrow the specific exception to be handled later
             throw eAudit2;
-    // } catch( ServletException eAudit3 ) {
-    //     // store a message in the signed audit log file
-    //     auditMessage = CMS.getLogMessage(
-    //                        LOGGING_SIGNED_AUDIT_CONFIG_ENCRYPTION,
-    //                        auditSubjectID,
-    //                        ILogger.FAILURE,
-    //                        auditParams( req ) );
-    //
-    //     audit( auditMessage );
-    //
-    //     // rethrow the specific exception to be handled later
-    //     throw eAudit3;
-       }
+            // } catch( ServletException eAudit3 ) {
+            //     // store a message in the signed audit log file
+            //     auditMessage = CMS.getLogMessage(
+            //                        LOGGING_SIGNED_AUDIT_CONFIG_ENCRYPTION,
+            //                        auditSubjectID,
+            //                        ILogger.FAILURE,
+            //                        auditParams( req ) );
+            //
+            //     audit( auditMessage );
+            //
+            //     // rethrow the specific exception to be handled later
+            //     throw eAudit3;
+        }
     }
 
     private String getCertConfigNickname(String val) throws EBaseException {
@@ -766,7 +765,7 @@ public final class CMSAdminServlet extends AdminServlet {
      * Performs Server Tasks: RESTART/STOP operation
      */
     private void performTasks(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         String restart = req.getParameter(Constants.PR_SERVER_RESTART);
         String stop = req.getParameter(Constants.PR_SERVER_STOP);
@@ -794,7 +793,7 @@ public final class CMSAdminServlet extends AdminServlet {
      * Reads subsystems that server has loaded with.
      */
     private void readSubsystem(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         NameValuePairs params = new NameValuePairs();
         Enumeration e = CMS.getSubsystems();
@@ -813,7 +812,7 @@ public final class CMSAdminServlet extends AdminServlet {
                 type = Constants.PR_CA_INSTANCE;
             if (sys instanceof IOCSPAuthority)
                 type = Constants.PR_OCSP_INSTANCE;
-			if (sys instanceof ITKSAuthority)
+            if (sys instanceof ITKSAuthority)
                 type = Constants.PR_TKS_INSTANCE;
             if (!type.trim().equals(""))
                 params.add(sys.getId(), type);
@@ -826,7 +825,7 @@ public final class CMSAdminServlet extends AdminServlet {
      * Reads server statistics.
      */
     private void readStat(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         NameValuePairs params = new NameValuePairs();
         IConfigStore cs = CMS.getConfigStore();
@@ -849,9 +848,9 @@ public final class CMSAdminServlet extends AdminServlet {
         }
 
         params.add(Constants.PR_STAT_STARTUP,
-            (new Date(CMS.getStartupTime())).toString());
+                (new Date(CMS.getStartupTime())).toString());
         params.add(Constants.PR_STAT_TIME,
-            (new Date(System.currentTimeMillis())).toString());
+                (new Date(System.currentTimeMillis())).toString());
         sendResponse(SUCCESS, null, params, resp);
     }
 
@@ -859,7 +858,7 @@ public final class CMSAdminServlet extends AdminServlet {
      * Modifies database information.
      */
     private void setDBConfig(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
 
         IConfigStore dbConfig = mConfig.getSubStore(PROP_INTERNAL_DB);
@@ -874,55 +873,52 @@ public final class CMSAdminServlet extends AdminServlet {
                 continue;
             if (key.equals(Constants.OP_SCOPE))
                 continue;
-            
-            dbConfig.putString(key, req.getParameter(key)); 
+
+            dbConfig.putString(key, req.getParameter(key));
         }
 
         sendResponse(RESTART, null, null, resp);
         mConfig.commit(true);
     }
-	 /**
+
+    /**
      * Create Master Key
      */
-private void 	createMasterKey(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+    private void createMasterKey(HttpServletRequest req,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
 
         NameValuePairs params = new NameValuePairs();
         Enumeration e = req.getParameterNames();
-		String newKeyName = null, selectedToken = null;
+        String newKeyName = null, selectedToken = null;
         while (e.hasMoreElements()) {
             String name = (String) e.nextElement();
 
-            if (name.equals(Constants.PR_KEY_LIST))
-            {
-				newKeyName = req.getParameter(name);
-			}
-            if (name.equals(Constants.PR_TOKEN_LIST))
-            {
-				selectedToken = req.getParameter(name);
-			}
-
+            if (name.equals(Constants.PR_KEY_LIST)) {
+                newKeyName = req.getParameter(name);
+            }
+            if (name.equals(Constants.PR_TOKEN_LIST)) {
+                selectedToken = req.getParameter(name);
+            }
 
         }
-		if(selectedToken!=null && newKeyName!=null)
-		{
-		String symKeys = SessionKey.GenMasterKey(selectedToken,newKeyName);
-		CMS.getConfigStore().putString("tks.defaultSlot", selectedToken);
-		String masterKeyPrefix = CMS.getConfigStore().getString("tks.master_key_prefix", null);
+        if (selectedToken != null && newKeyName != null) {
+            String symKeys = SessionKey.GenMasterKey(selectedToken, newKeyName);
+            CMS.getConfigStore().putString("tks.defaultSlot", selectedToken);
+            String masterKeyPrefix = CMS.getConfigStore().getString("tks.master_key_prefix", null);
 
-		SessionKey.SetDefaultPrefix(masterKeyPrefix);
-		params.add(Constants.PR_KEY_LIST, newKeyName);
- 		params.add(Constants.PR_TOKEN_LIST, selectedToken);
-		}
-		sendResponse(SUCCESS, null, params, resp);
-}
+            SessionKey.SetDefaultPrefix(masterKeyPrefix);
+            params.add(Constants.PR_KEY_LIST, newKeyName);
+            params.add(Constants.PR_TOKEN_LIST, selectedToken);
+        }
+        sendResponse(SUCCESS, null, params, resp);
+    }
 
-   /**
+    /**
      * Reads secmod.db
      */
     private void getTKSKeys(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
 
         NameValuePairs params = new NameValuePairs();
@@ -931,57 +927,54 @@ private void 	createMasterKey(HttpServletRequest req,
         while (e.hasMoreElements()) {
             String name = (String) e.nextElement();
 
-            if (name.equals(Constants.PR_TOKEN_LIST))
-            {
-				String selectedToken = req.getParameter(name);
+            if (name.equals(Constants.PR_TOKEN_LIST)) {
+                String selectedToken = req.getParameter(name);
 
-				int         count      = 0;
-				int         keys_found = 0;
+                int count = 0;
+                int keys_found = 0;
 
-				ICryptoSubsystem jssSubSystem = (ICryptoSubsystem)CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
-				
-				CryptoToken token = null;
-				CryptoManager mCryptoManager = null;
-				try {
-					mCryptoManager = CryptoManager.getInstance();
-				} catch (Exception e2) {
-				}
+                ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
 
-				if(!jssSubSystem.isTokenLoggedIn(selectedToken))
-				{
-					PasswordCallback cpcb = new ConsolePasswordCallback();
-					while (true) {
+                CryptoToken token = null;
+                CryptoManager mCryptoManager = null;
+                try {
+                    mCryptoManager = CryptoManager.getInstance();
+                } catch (Exception e2) {
+                }
+
+                if (!jssSubSystem.isTokenLoggedIn(selectedToken)) {
+                    PasswordCallback cpcb = new ConsolePasswordCallback();
+                    while (true) {
                         try {
- 							token = mCryptoManager.getTokenByName(selectedToken);
-				            token.login(cpcb);
+                            token = mCryptoManager.getTokenByName(selectedToken);
+                            token.login(cpcb);
                             break;
                         } catch (Exception e3) {
                             //log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_INCORRECT_PWD"));
                             continue;
                         }
-						}
-				}
-				// String symKeys = new String("key1,key2"); 
-				String symKeys = SessionKey.ListSymmetricKeys(selectedToken);
-				params.add(Constants.PR_TOKEN_LIST, symKeys);
+                    }
+                }
+                // String symKeys = new String("key1,key2"); 
+                String symKeys = SessionKey.ListSymmetricKeys(selectedToken);
+                params.add(Constants.PR_TOKEN_LIST, symKeys);
 
-			}
+            }
         }
         sendResponse(SUCCESS, null, params, resp);
     }
-	
-		
+
     /**
      * Reads database information.
      */
     private void getDBConfig(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         IConfigStore dbConfig = mConfig.getSubStore(PROP_DB);
         IConfigStore ldapConfig = dbConfig.getSubStore("ldap");
         NameValuePairs params = new NameValuePairs();
         Enumeration e = req.getParameterNames();
-       
+
         while (e.hasMoreElements()) {
             String name = (String) e.nextElement();
 
@@ -993,7 +986,7 @@ private void 	createMasterKey(HttpServletRequest req,
                 continue;
             if (name.equals(Constants.PR_SECURE_PORT_ENABLED))
                 params.add(name, ldapConfig.getString(name, "Constants.FALSE"));
-            else 
+            else
                 params.add(name, ldapConfig.getString(name, ""));
         }
         sendResponse(SUCCESS, null, params, resp);
@@ -1003,7 +996,7 @@ private void 	createMasterKey(HttpServletRequest req,
      * Modifies SMTP configuration.
      */
     private void modifySMTPConfig(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         // XXX
         IConfigStore sConfig = mConfig.getSubStore(PROP_SMTP);
@@ -1017,7 +1010,7 @@ private void 	createMasterKey(HttpServletRequest req,
 
         if (port != null)
             sConfig.putString("port", port);
-			
+
         commit(true);
 
         sendResponse(SUCCESS, null, null, resp);
@@ -1027,20 +1020,20 @@ private void 	createMasterKey(HttpServletRequest req,
      * Reads SMTP configuration.
      */
     private void readSMTPConfig(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         IConfigStore dbConfig = mConfig.getSubStore(PROP_SMTP);
         NameValuePairs params = new NameValuePairs();
 
         params.add(Constants.PR_SERVER_NAME,
-            dbConfig.getString("host"));
+                dbConfig.getString("host"));
         params.add(Constants.PR_PORT,
-            dbConfig.getString("port"));
+                dbConfig.getString("port"));
         sendResponse(SUCCESS, null, params, resp);
     }
 
     private void loggedInToken(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         Enumeration enum1 = req.getParameterNames();
         String tokenName = "";
@@ -1058,7 +1051,7 @@ private void 	createMasterKey(HttpServletRequest req,
         }
 
         ICryptoSubsystem jssSubSystem = (ICryptoSubsystem)
-            CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+                CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
 
         jssSubSystem.loggedInToken(tokenName, pwd);
 
@@ -1068,7 +1061,7 @@ private void 	createMasterKey(HttpServletRequest req,
     }
 
     private void checkTokenStatus(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         Enumeration enum1 = req.getParameterNames();
         String key = "";
@@ -1083,7 +1076,7 @@ private void 	createMasterKey(HttpServletRequest req,
         }
 
         ICryptoSubsystem jssSubSystem = (ICryptoSubsystem)
-            CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+                CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
         boolean status = jssSubSystem.isTokenLoggedIn(value);
 
         NameValuePairs params = new NameValuePairs();
@@ -1096,17 +1089,17 @@ private void 	createMasterKey(HttpServletRequest req,
     /**
      * Retrieve a certificate request
      * <P>
-     *
+     * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_KEY_GEN_ASYMMETRIC used when
-     * asymmetric keys are generated
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_KEY_GEN_ASYMMETRIC used when asymmetric keys are generated
      * </ul>
+     * 
      * @exception ServletException a servlet error has occurred
      * @exception IOException an input/output error has occurred
      * @exception EBaseException failed to retrieve certificate request
      */
     private void getCertRequest(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
@@ -1156,10 +1149,10 @@ private void 	createMasterKey(HttpServletRequest req,
             }
 
             pathname = mConfig.getString("instanceRoot", "")
-              + File.separator + "conf" + File.separator;
+                    + File.separator + "conf" + File.separator;
             dir = pathname;
             ICryptoSubsystem jssSubSystem = (ICryptoSubsystem)
-                CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+                    CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
 
             KeyPair keypair = null;
             PQGParams pqgParams = null;
@@ -1202,7 +1195,7 @@ private void 	createMasterKey(HttpServletRequest req,
                     keypair = jssSubSystem.getECCKeyPair(tokenName, keyCurveName, certType);
                 } else { //DSA or RSA
                     if (keyType.equals("DSA"))
-                        pqgParams = jssSubSystem.getPQG(keyLength); 
+                        pqgParams = jssSubSystem.getPQG(keyLength);
                     keypair = jssSubSystem.getKeyPair(tokenName, keyType, keyLength, pqgParams);
                 }
             }
@@ -1281,25 +1274,25 @@ private void 	createMasterKey(HttpServletRequest req,
 
             // rethrow the specific exception to be handled later
             throw eAudit2;
-    // } catch( ServletException eAudit3 ) {
-    //     // store a message in the signed audit log file
-    //     auditMessage = CMS.getLogMessage(
-    //                        LOGGING_SIGNED_AUDIT_KEY_GEN_ASYMMETRIC,
-    //                        auditSubjectID,
-    //                        ILogger.FAILURE,
-    //                        auditPublicKey );
-    //
-    //     audit( auditMessage );
-    //
-    //     // rethrow the specific exception to be handled later
-    //     throw eAudit3;
-       }
+            // } catch( ServletException eAudit3 ) {
+            //     // store a message in the signed audit log file
+            //     auditMessage = CMS.getLogMessage(
+            //                        LOGGING_SIGNED_AUDIT_KEY_GEN_ASYMMETRIC,
+            //                        auditSubjectID,
+            //                        ILogger.FAILURE,
+            //                        auditPublicKey );
+            //
+            //     audit( auditMessage );
+            //
+            //     // rethrow the specific exception to be handled later
+            //     throw eAudit3;
+        }
     }
 
-    private void setCANewnickname(String tokenName, String nickname) 
-        throws EBaseException {
+    private void setCANewnickname(String tokenName, String nickname)
+            throws EBaseException {
         ICertificateAuthority ca = (ICertificateAuthority)
-            CMS.getSubsystem(CMS.SUBSYSTEM_CA);
+                CMS.getSubsystem(CMS.SUBSYSTEM_CA);
         ISigningUnit signingUnit = ca.getSigningUnit();
 
         if (tokenName.equals(Constants.PR_INTERNAL_TOKEN_NAME))
@@ -1314,16 +1307,16 @@ private void 	createMasterKey(HttpServletRequest req,
 
     private String getCANewnickname() throws EBaseException {
         ICertificateAuthority ca = (ICertificateAuthority)
-            CMS.getSubsystem(CMS.SUBSYSTEM_CA);
+                CMS.getSubsystem(CMS.SUBSYSTEM_CA);
         ISigningUnit signingUnit = ca.getSigningUnit();
 
-        return signingUnit.getNewNickName(); 
+        return signingUnit.getNewNickName();
     }
 
     private void setRANewnickname(String tokenName, String nickname)
-        throws EBaseException {
+            throws EBaseException {
         IRegistrationAuthority ra = (IRegistrationAuthority)
-            CMS.getSubsystem(CMS.SUBSYSTEM_RA);
+                CMS.getSubsystem(CMS.SUBSYSTEM_RA);
 
         if (tokenName.equals(Constants.PR_INTERNAL_TOKEN_NAME))
             ra.setNewNickName(nickname);
@@ -1337,13 +1330,13 @@ private void 	createMasterKey(HttpServletRequest req,
 
     private String getRANewnickname() throws EBaseException {
         IRegistrationAuthority ra = (IRegistrationAuthority)
-            CMS.getSubsystem(CMS.SUBSYSTEM_RA);
+                CMS.getSubsystem(CMS.SUBSYSTEM_RA);
 
         return ra.getNewNickName();
     }
 
     private void setOCSPNewnickname(String tokenName, String nickname)
-        throws EBaseException {
+            throws EBaseException {
         IOCSPAuthority ocsp = (IOCSPAuthority) CMS.getSubsystem(CMS.SUBSYSTEM_OCSP);
 
         if (ocsp != null) {
@@ -1359,7 +1352,7 @@ private void 	createMasterKey(HttpServletRequest req,
             }
         } else {
             ICertificateAuthority ca = (ICertificateAuthority)
-                CMS.getSubsystem(CMS.SUBSYSTEM_CA);
+                    CMS.getSubsystem(CMS.SUBSYSTEM_CA);
             ISigningUnit signingUnit = ca.getOCSPSigningUnit();
 
             if (tokenName.equals(Constants.PR_INTERNAL_TOKEN_NAME))
@@ -1379,20 +1372,20 @@ private void 	createMasterKey(HttpServletRequest req,
         if (ocsp != null) {
             ISigningUnit signingUnit = ocsp.getSigningUnit();
 
-            return signingUnit.getNewNickName(); 
+            return signingUnit.getNewNickName();
         } else {
             ICertificateAuthority ca = (ICertificateAuthority)
-                CMS.getSubsystem(CMS.SUBSYSTEM_CA);
+                    CMS.getSubsystem(CMS.SUBSYSTEM_CA);
             ISigningUnit signingUnit = ca.getOCSPSigningUnit();
 
-            return signingUnit.getNewNickName(); 
+            return signingUnit.getNewNickName();
         }
     }
 
-    private void setKRANewnickname(String tokenName, String nickname) 
-        throws EBaseException {
+    private void setKRANewnickname(String tokenName, String nickname)
+            throws EBaseException {
         IKeyRecoveryAuthority kra = (IKeyRecoveryAuthority)
-            CMS.getSubsystem(CMS.SUBSYSTEM_KRA);
+                CMS.getSubsystem(CMS.SUBSYSTEM_KRA);
 
         if (tokenName.equals(Constants.PR_INTERNAL_TOKEN_NAME))
             kra.setNewNickName(nickname);
@@ -1410,8 +1403,8 @@ private void 	createMasterKey(HttpServletRequest req,
         return kra.getNewNickName();
     }
 
-    private void setRADMNewnickname(String tokenName, String nickName) 
-        throws EBaseException {
+    private void setRADMNewnickname(String tokenName, String nickName)
+            throws EBaseException {
         CMS.setServerCertNickname(tokenName, nickName);
 
         /*
@@ -1428,8 +1421,8 @@ private void 	createMasterKey(HttpServletRequest req,
          */
     }
 
-    private String getRADMNewnickname() 
-        throws EBaseException {
+    private String getRADMNewnickname()
+            throws EBaseException {
         // assuming the nickname does not change.
         return CMS.getServerCertNickname();
 
@@ -1441,7 +1434,7 @@ private void 	createMasterKey(HttpServletRequest req,
     }
 
     private void setAgentNewnickname(String tokenName, String nickName)
-        throws EBaseException {
+            throws EBaseException {
         CMS.setServerCertNickname(tokenName, nickName);
 
         /*
@@ -1458,8 +1451,8 @@ private void 	createMasterKey(HttpServletRequest req,
          */
     }
 
-    private String getAgentNewnickname() 
-        throws EBaseException {
+    private String getAgentNewnickname()
+            throws EBaseException {
         // assuming the nickname does not change.
         return CMS.getServerCertNickname();
 
@@ -1473,18 +1466,17 @@ private void 	createMasterKey(HttpServletRequest req,
     /**
      * Issue import certificate
      * <P>
-     *
+     * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY used when
-     * "Certificate Setup Wizard" is used to import CA certs into the 
-     * certificate database
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY used when "Certificate Setup Wizard" is used to import CA certs into the certificate database
      * </ul>
+     * 
      * @exception ServletException a servlet error has occurred
      * @exception IOException an input/output error has occurred
      * @exception EBaseException failed to issue an import certificate
      */
     private void issueImportCert(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
@@ -1509,7 +1501,7 @@ private void 	createMasterKey(HttpServletRequest req,
                 String key = (String) enum1.nextElement();
                 String value = req.getParameter(key);
 
-                if (key.equals("pathname")) { 
+                if (key.equals("pathname")) {
                     configPath = mConfig.getString("instanceRoot", "")
                                + File.separator + "conf" + File.separator;
                     pathname = configPath + value;
@@ -1523,13 +1515,13 @@ private void 	createMasterKey(HttpServletRequest req,
             String certType = (String) properties.get(Constants.RS_ID);
 
             ICryptoSubsystem jssSubSystem = (ICryptoSubsystem)
-                CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+                    CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
             IDBSubsystem dbs = (IDBSubsystem)
-                CMS.getSubsystem(CMS.SUBSYSTEM_DBS);
+                    CMS.getSubsystem(CMS.SUBSYSTEM_DBS);
             ICertificateAuthority ca = (ICertificateAuthority)
-            CMS.getSubsystem(CMS.SUBSYSTEM_CA);
+                    CMS.getSubsystem(CMS.SUBSYSTEM_CA);
             ICertificateRepository repository =
-                (ICertificateRepository) ca.getCertificateRepository();
+                    (ICertificateRepository) ca.getCertificateRepository();
             ISigningUnit signingUnit = ca.getSigningUnit();
             String oldtokenname = null;
             //this is the old nick name
@@ -1557,8 +1549,7 @@ private void 	createMasterKey(HttpServletRequest req,
 
                 audit(auditMessage);
 
-                throw new
-                    EBaseException(CMS.getLogMessage("BASE_CERT_NOT_FOUND"));
+                throw new EBaseException(CMS.getLogMessage("BASE_CERT_NOT_FOUND"));
             }
 
             if (newtokenname == null)
@@ -1578,13 +1569,12 @@ private void 	createMasterKey(HttpServletRequest req,
 
                 audit(auditMessage);
 
-                throw new
-                    EBaseException(CMS.getLogMessage("BASE_CERT_NOT_FOUND"));
+                throw new EBaseException(CMS.getLogMessage("BASE_CERT_NOT_FOUND"));
             }
 
             //xxx renew ca ,use old issuer?
             properties.setIssuerName(
-                jssSubSystem.getCertSubjectName(oldcatokenname,
+                    jssSubSystem.getCertSubjectName(oldcatokenname,
                                                 canicknameWithoutTokenName));
 
             KeyPair pair = null;
@@ -1599,8 +1589,7 @@ private void 	createMasterKey(HttpServletRequest req,
 
                 audit(auditMessage);
 
-                throw new
-                    EBaseException(CMS.getLogMessage("BASE_CERT_NOT_FOUND"));
+                throw new EBaseException(CMS.getLogMessage("BASE_CERT_NOT_FOUND"));
             }
 
             //xxx set to old nickname?
@@ -1624,12 +1613,12 @@ private void 	createMasterKey(HttpServletRequest req,
                     defaultOCSPSigningAlg = properties.getHashType();
                 }
             }
-    
+
             // create a new CA certificate or ssl server cert
             if (properties.getKeyCurveName() != null) { //new ECC
                 CMS.debug("CMSAdminServlet: issueImportCert: generating ECC keys");
                 pair = jssSubSystem.getECCKeyPair(properties);
-                if (certType.equals(Constants.PR_CA_SIGNING_CERT)) 
+                if (certType.equals(Constants.PR_CA_SIGNING_CERT))
                     caKeyPair = pair;
             } else if (properties.getKeyLength() != null) { //new RSA or DSA
                 keyType = properties.getKeyType();
@@ -1642,7 +1631,7 @@ private void 	createMasterKey(HttpServletRequest req,
                     //properties.put(Constants.PR_PQGPARAMS, pqgParams);
                 }
                 pair = jssSubSystem.getKeyPair(properties);
-                if (certType.equals(Constants.PR_CA_SIGNING_CERT)) 
+                if (certType.equals(Constants.PR_CA_SIGNING_CERT))
                     caKeyPair = pair;
                 // renew the CA certificate or ssl server cert
             } else {
@@ -1675,7 +1664,7 @@ private void 	createMasterKey(HttpServletRequest req,
                 properties.setAlgorithmId(jssSubSystem.getAlgorithmId(alg, mConfig));
             }
 
-            if (pair == null) 
+            if (pair == null)
                 CMS.debug("CMSAdminServlet: issueImportCert: key pair is null");
 
             BigInteger nextSerialNo = repository.getNextSerialNumber();
@@ -1686,12 +1675,12 @@ private void 	createMasterKey(HttpServletRequest req,
             //        properties.put(Constants.PR_CA_KEYPAIR, pair);
             properties.put(Constants.PR_CA_KEYPAIR, caKeyPair);
 
-            X509CertImpl signedCert = 
-                jssSubSystem.getSignedCert(properties, certType,
+            X509CertImpl signedCert =
+                    jssSubSystem.getSignedCert(properties, certType,
                                            caKeyPair.getPrivate());
 
-            if (signedCert == null) 
-                CMS.debug("CMSAdminServlet: issueImportCert: signedCert is null"); 
+            if (signedCert == null)
+                CMS.debug("CMSAdminServlet: issueImportCert: signedCert is null");
 
             /* bug 600124
              try {
@@ -1712,7 +1701,7 @@ private void 	createMasterKey(HttpServletRequest req,
                                         certType);
             } catch (EBaseException e) {
                 // if it fails, let use a different nickname to try
-                Date now = new Date();	
+                Date now = new Date();
                 String newNickname = nicknameWithoutTokenName
                                    + "-" + now.getTime();
 
@@ -1737,20 +1726,20 @@ private void 	createMasterKey(HttpServletRequest req,
             if (certType.equals(Constants.PR_CA_SIGNING_CERT)) {
                 try {
                     X509CertInfo certInfo = (X509CertInfo) signedCert.get(
-                        X509CertImpl.NAME + "." + X509CertImpl.INFO);
+                            X509CertImpl.NAME + "." + X509CertImpl.INFO);
                     CertificateExtensions extensions = (CertificateExtensions)
-                        certInfo.get(X509CertInfo.EXTENSIONS);
+                            certInfo.get(X509CertInfo.EXTENSIONS);
 
                     if (extensions != null) {
                         BasicConstraintsExtension basic =
-                            (BasicConstraintsExtension)
-                            extensions.get(BasicConstraintsExtension.NAME);
+                                (BasicConstraintsExtension)
+                                extensions.get(BasicConstraintsExtension.NAME);
 
                         if (basic == null)
                             log(CMS.getLogMessage("ADMIN_SRVLT_BASIC_CONSTRAIN_NULL"));
                         else {
                             Integer pathlen = (Integer)
-                                basic.get(BasicConstraintsExtension.PATH_LEN);
+                                    basic.get(BasicConstraintsExtension.PATH_LEN);
                             int num = pathlen.intValue();
 
                             if (num == 0)
@@ -1767,7 +1756,7 @@ private void 	createMasterKey(HttpServletRequest req,
                 }
             }
 
-		    CMS.debug("CMSAdminServlet: oldtoken:" + oldtokenname
+            CMS.debug("CMSAdminServlet: oldtoken:" + oldtokenname
                     + " newtoken:" + newtokenname + " nickname:" + nickname);
             if ((newtokenname != null &&
                     !newtokenname.equals(oldtokenname)) || nicknameChanged) {
@@ -1777,10 +1766,10 @@ private void 	createMasterKey(HttpServletRequest req,
                                                  newtokenname);
                     } else {
                         signingUnit.updateConfig(newtokenname + ":" +
-                                                 nicknameWithoutTokenName, 
+                                                 nicknameWithoutTokenName,
                                                  newtokenname);
                     }
-                } else  if (certType.equals(Constants.PR_SERVER_CERT)) {
+                } else if (certType.equals(Constants.PR_SERVER_CERT)) {
                     if (newtokenname.equals(Constants.PR_INTERNAL_TOKEN_NAME)) {
                         nickname = nicknameWithoutTokenName;
                     } else {
@@ -1793,8 +1782,8 @@ private void 	createMasterKey(HttpServletRequest req,
                     modifyAgentGatewayCert(nickname);
                     if (isSubsystemInstalled("ra")) {
                         IRegistrationAuthority ra =
-                            (IRegistrationAuthority)
-                            CMS.getSubsystem(CMS.SUBSYSTEM_RA);
+                                (IRegistrationAuthority)
+                                CMS.getSubsystem(CMS.SUBSYSTEM_RA);
 
                         modifyEEGatewayCert(ra, nickname);
                     }
@@ -1811,23 +1800,23 @@ private void 	createMasterKey(HttpServletRequest req,
 
                     modifyRADMCert(nickname);
                 } else if (certType.equals(Constants.PR_OCSP_SIGNING_CERT)) {
-                    if (ca != null) { 
+                    if (ca != null) {
                         ISigningUnit ocspSigningUnit = ca.getOCSPSigningUnit();
 
                         if (newtokenname.equals(Constants.PR_INTERNAL_TOKEN_NAME)) {
                             ocspSigningUnit.updateConfig(
-                                nicknameWithoutTokenName, newtokenname);
+                                    nicknameWithoutTokenName, newtokenname);
                         } else {
                             ocspSigningUnit.updateConfig(newtokenname + ":" +
-                                nicknameWithoutTokenName, 
-                                newtokenname);
+                                    nicknameWithoutTokenName,
+                                    newtokenname);
                         }
                     }
                 }
             }
-  
+
             // set signing algorithms if needed
-            if (certType.equals(Constants.PR_CA_SIGNING_CERT)) 
+            if (certType.equals(Constants.PR_CA_SIGNING_CERT))
                 signingUnit.setDefaultAlgorithm(defaultSigningAlg);
 
             if (defaultOCSPSigningAlg != null) {
@@ -1875,46 +1864,45 @@ private void 	createMasterKey(HttpServletRequest req,
 
             // rethrow the specific exception to be handled later
             throw eAudit2;
-    // } catch( ServletException eAudit3 ) {
-    //     // store a message in the signed audit log file
-    //     auditMessage = CMS.getLogMessage(
-    //                        LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY,
-    //                        auditSubjectID,
-    //                        ILogger.FAILURE,
-    //                        auditParams( req ) );
-    //
-    //     audit( auditMessage );
-    //
-    //     // rethrow the specific exception to be handled later
-    //     throw eAudit3;
-       }
+            // } catch( ServletException eAudit3 ) {
+            //     // store a message in the signed audit log file
+            //     auditMessage = CMS.getLogMessage(
+            //                        LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY,
+            //                        auditSubjectID,
+            //                        ILogger.FAILURE,
+            //                        auditParams( req ) );
+            //
+            //     audit( auditMessage );
+            //
+            //     // rethrow the specific exception to be handled later
+            //     throw eAudit3;
+        }
     }
 
-    private void updateCASignature(String nickname, KeyCertData properties, 
-        ICryptoSubsystem jssSubSystem) throws EBaseException {
+    private void updateCASignature(String nickname, KeyCertData properties,
+            ICryptoSubsystem jssSubSystem) throws EBaseException {
         String alg = jssSubSystem.getSignatureAlgorithm(nickname);
         SignatureAlgorithm sigAlg = Cert.mapAlgorithmToJss(alg);
 
         properties.setSignatureAlgorithm(sigAlg);
         properties.setAlgorithmId(
-            jssSubSystem.getAlgorithmId(alg, mConfig));
+                jssSubSystem.getAlgorithmId(alg, mConfig));
     }
 
     /**
      * Install certificates
      * <P>
-     *
+     * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY used when
-     * "Certificate Setup Wizard" is used to import CA certs into the 
-     * certificate database
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY used when "Certificate Setup Wizard" is used to import CA certs into the certificate database
      * </ul>
+     * 
      * @exception ServletException a servlet error has occurred
      * @exception IOException an input/output error has occurred
      * @exception EBaseException failed to install a certificate
      */
     private void installCert(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
@@ -1936,31 +1924,31 @@ private void 	createMasterKey(HttpServletRequest req,
                 String key = (String) enum1.nextElement();
                 String value = req.getParameter(key);
 
-                if (key.equals(Constants.PR_PKCS10)) 
+                if (key.equals(Constants.PR_PKCS10))
                     pkcs = value;
                 else if (key.equals(Constants.RS_ID))
                     certType = value;
                 else if (key.equals(Constants.PR_NICKNAME))
                     nickname = value;
-                else if (key.equals("pathname")) 
+                else if (key.equals("pathname"))
                     pathname = value;
                 else if (key.equals(Constants.PR_SERVER_ROOT))
                     serverRoot = value;
-                else if (key.equals(Constants.PR_SERVER_ID)) 
+                else if (key.equals(Constants.PR_SERVER_ID))
                     serverID = value;
-                else if (key.equals(Constants.PR_CERT_FILEPATH)) 
+                else if (key.equals(Constants.PR_CERT_FILEPATH))
                     certpath = value;
             }
- 
+
             try {
                 if (pkcs == null || pkcs.equals("")) {
                     if (certpath == null || certpath.equals("")) {
                         // store a message in the signed audit log file
                         auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY,
-                            auditSubjectID,
-                            ILogger.FAILURE,
-                            auditParams(req));
+                                LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY,
+                                auditSubjectID,
+                                ILogger.FAILURE,
+                                auditParams(req));
 
                         audit(auditMessage);
 
@@ -1971,7 +1959,7 @@ private void 	createMasterKey(HttpServletRequest req,
                     } else {
                         FileInputStream in = new FileInputStream(certpath);
                         BufferedReader d =
-                            new BufferedReader(new InputStreamReader(in));
+                                new BufferedReader(new InputStreamReader(in));
                         String content = "";
 
                         pkcs = "";
@@ -1999,7 +1987,7 @@ private void 	createMasterKey(HttpServletRequest req,
                 audit(auditMessage);
 
                 throw new EBaseException(
-                    CMS.getLogMessage("BASE_OPEN_FILE_FAILED"));
+                        CMS.getLogMessage("BASE_OPEN_FILE_FAILED"));
             }
 
             pkcs = pkcs.trim();
@@ -2007,7 +1995,7 @@ private void 	createMasterKey(HttpServletRequest req,
                      + File.separator + "config" + File.separator + pathname;
 
             ICryptoSubsystem jssSubSystem = (ICryptoSubsystem)
-                CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+                    CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
             //String nickname = getNickname(certType);
             String nicknameWithoutTokenName = "";
 
@@ -2029,7 +2017,7 @@ private void 	createMasterKey(HttpServletRequest req,
                 audit(auditMessage);
 
                 throw new EBaseException(
-                    CMS.getLogMessage("BASE_CERT_NOT_FOUND"));
+                        CMS.getLogMessage("BASE_CERT_NOT_FOUND"));
             }
 
             /*
@@ -2084,17 +2072,17 @@ private void 	createMasterKey(HttpServletRequest req,
             //		nickname).
             //
 
-            CMS.debug("CMSAdminServlet.installCert(): About to try jssSubSystem.importCert: "+ nicknameWithoutTokenName);
+            CMS.debug("CMSAdminServlet.installCert(): About to try jssSubSystem.importCert: " + nicknameWithoutTokenName);
             try {
-                jssSubSystem.importCert(pkcs, nicknameWithoutTokenName, 
-                    certType);
+                jssSubSystem.importCert(pkcs, nicknameWithoutTokenName,
+                        certType);
             } catch (EBaseException e) {
 
                 boolean certFound = false;
 
                 String eString = e.toString();
-                if(eString.contains("Failed to find certificate that was just imported")) {
-                    CMS.debug("CMSAdminServlet.installCert(): nickname="+nicknameWithoutTokenName + " TokenException: " + eString);
+                if (eString.contains("Failed to find certificate that was just imported")) {
+                    CMS.debug("CMSAdminServlet.installCert(): nickname=" + nicknameWithoutTokenName + " TokenException: " + eString);
 
                     X509Certificate cert = null;
                     try {
@@ -2106,11 +2094,11 @@ private void 	createMasterKey(HttpServletRequest req,
                     } catch (Exception ex) {
                         CMS.debug("CMSAdminServlet.installCert() Can't find cert just imported: " + ex.toString());
                     }
-                } 
+                }
 
                 if (!certFound) {
                     // if it fails, let use a different nickname to try
-                    Date now = new Date();	
+                    Date now = new Date();
                     String newNickname = nicknameWithoutTokenName + "-" +
                                      now.getTime();
 
@@ -2121,16 +2109,16 @@ private void 	createMasterKey(HttpServletRequest req,
                     } else {
                         nickname = tokenName + ":" + newNickname;
                     }
-                    CMS.debug("CMSAdminServlet: installCert():  After second install attempt following initial error: nickname="+nickname);
-               }
+                    CMS.debug("CMSAdminServlet: installCert():  After second install attempt following initial error: nickname=" + nickname);
+                }
             }
 
             if (certType.equals(Constants.PR_CA_SIGNING_CERT)) {
                 ICertificateAuthority ca =
-                    (ICertificateAuthority) CMS.getSubsystem(CMS.SUBSYSTEM_CA);
+                        (ICertificateAuthority) CMS.getSubsystem(CMS.SUBSYSTEM_CA);
                 ISigningUnit signingUnit = ca.getSigningUnit();
                 String signatureAlg =
-                    jssSubSystem.getSignatureAlgorithm(nickname);
+                        jssSubSystem.getSignatureAlgorithm(nickname);
 
                 signingUnit.setDefaultAlgorithm(signatureAlg);
                 setCANewnickname("", "");
@@ -2139,26 +2127,26 @@ private void 	createMasterKey(HttpServletRequest req,
 
                     if (nickname.equals(nicknameWithoutTokenName)) {
                         signingUnit.updateConfig(nickname,
-                            Constants.PR_INTERNAL_TOKEN_NAME);
+                                Constants.PR_INTERNAL_TOKEN_NAME);
                         extensions = jssSubSystem.getExtensions(
-                            Constants.PR_INTERNAL_TOKEN_NAME, nickname);
+                                Constants.PR_INTERNAL_TOKEN_NAME, nickname);
                     } else {
                         String tokenname1 = nickname.substring(0, index);
 
                         signingUnit.updateConfig(nickname, tokenname1);
                         extensions = jssSubSystem.getExtensions(tokenname1,
-                            nicknameWithoutTokenName);
+                                nicknameWithoutTokenName);
                     }
                     if (extensions != null) {
                         BasicConstraintsExtension basic =
-                            (BasicConstraintsExtension)
-                            extensions.get(BasicConstraintsExtension.NAME);
+                                (BasicConstraintsExtension)
+                                extensions.get(BasicConstraintsExtension.NAME);
 
                         if (basic == null)
                             log(CMS.getLogMessage("ADMIN_SRVLT_BASIC_CONSTRAIN_NULL"));
                         else {
                             Integer pathlen = (Integer)
-                                basic.get(BasicConstraintsExtension.PATH_LEN);
+                                    basic.get(BasicConstraintsExtension.PATH_LEN);
                             int num = pathlen.intValue();
 
                             if (num == 0)
@@ -2177,34 +2165,34 @@ private void 	createMasterKey(HttpServletRequest req,
             } else if (certType.equals(Constants.PR_RA_SIGNING_CERT)) {
                 setRANewnickname("", "");
                 IRegistrationAuthority ra =
-                    (IRegistrationAuthority) CMS.getSubsystem(CMS.SUBSYSTEM_RA);
+                        (IRegistrationAuthority) CMS.getSubsystem(CMS.SUBSYSTEM_RA);
 
                 ra.setNickname(nickname);
             } else if (certType.equals(Constants.PR_OCSP_SIGNING_CERT)) {
                 setOCSPNewnickname("", "");
                 IOCSPAuthority ocsp =
-                    (IOCSPAuthority) CMS.getSubsystem(CMS.SUBSYSTEM_OCSP);
+                        (IOCSPAuthority) CMS.getSubsystem(CMS.SUBSYSTEM_OCSP);
 
                 if (ocsp != null) {
                     ISigningUnit signingUnit = ocsp.getSigningUnit();
 
                     if (nickname.equals(nicknameWithoutTokenName)) {
                         signingUnit.updateConfig(nickname,
-                            Constants.PR_INTERNAL_TOKEN_NAME);
+                                Constants.PR_INTERNAL_TOKEN_NAME);
                     } else {
                         String tokenname1 = nickname.substring(0, index);
 
                         signingUnit.updateConfig(nickname, tokenname1);
                     }
-                } else { 
+                } else {
                     ICertificateAuthority ca =
-                        (ICertificateAuthority)
-                        CMS.getSubsystem(CMS.SUBSYSTEM_CA);
+                            (ICertificateAuthority)
+                            CMS.getSubsystem(CMS.SUBSYSTEM_CA);
                     ISigningUnit signingUnit = ca.getOCSPSigningUnit();
 
                     if (nickname.equals(nicknameWithoutTokenName)) {
                         signingUnit.updateConfig(nickname,
-                            Constants.PR_INTERNAL_TOKEN_NAME);
+                                Constants.PR_INTERNAL_TOKEN_NAME);
                     } else {
                         String tokenname1 = nickname.substring(0, index);
 
@@ -2214,7 +2202,7 @@ private void 	createMasterKey(HttpServletRequest req,
             } else if (certType.equals(Constants.PR_KRA_TRANSPORT_CERT)) {
                 setKRANewnickname("", "");
                 IKeyRecoveryAuthority kra =
-                    (IKeyRecoveryAuthority) CMS.getSubsystem(CMS.SUBSYSTEM_KRA);
+                        (IKeyRecoveryAuthority) CMS.getSubsystem(CMS.SUBSYSTEM_KRA);
 
                 kra.setNickname(nickname);
             } else if (certType.equals(Constants.PR_SERVER_CERT)) {
@@ -2223,15 +2211,15 @@ private void 	createMasterKey(HttpServletRequest req,
                 modifyAgentGatewayCert(nickname);
                 if (isSubsystemInstalled("ra")) {
                     IRegistrationAuthority ra =
-                        (IRegistrationAuthority)
-                        CMS.getSubsystem(CMS.SUBSYSTEM_RA);
+                            (IRegistrationAuthority)
+                            CMS.getSubsystem(CMS.SUBSYSTEM_RA);
 
                     modifyEEGatewayCert(ra, nickname);
                 }
                 if (isSubsystemInstalled("ca")) {
                     ICertificateAuthority ca =
-                        (ICertificateAuthority)
-                        CMS.getSubsystem(CMS.SUBSYSTEM_CA);
+                            (ICertificateAuthority)
+                            CMS.getSubsystem(CMS.SUBSYSTEM_CA);
 
                     modifyCAGatewayCert(ca, nickname);
                 }
@@ -2242,7 +2230,7 @@ private void 	createMasterKey(HttpServletRequest req,
 
             boolean verified = CMS.verifySystemCertByNickname(nickname, null);
             if (verified == true) {
-                CMS.debug("CMSAdminServlet: installCert(): verifySystemCertByNickname() succeeded:"+ nickname);
+                CMS.debug("CMSAdminServlet: installCert(): verifySystemCertByNickname() succeeded:" + nickname);
                 auditMessage = CMS.getLogMessage(
                         LOGGING_SIGNED_AUDIT_CIMC_CERT_VERIFICATION,
                         auditSubjectID,
@@ -2251,7 +2239,7 @@ private void 	createMasterKey(HttpServletRequest req,
 
                 audit(auditMessage);
             } else {
-                CMS.debug("CMSAdminServlet: installCert(): verifySystemCertByNickname() failed:"+ nickname);
+                CMS.debug("CMSAdminServlet: installCert(): verifySystemCertByNickname() failed:" + nickname);
                 auditMessage = CMS.getLogMessage(
                                 LOGGING_SIGNED_AUDIT_CIMC_CERT_VERIFICATION,
                                 auditSubjectID,
@@ -2270,11 +2258,11 @@ private void 	createMasterKey(HttpServletRequest req,
             audit(auditMessage);
 
             mConfig.commit(true);
-            if(verified == true) {
+            if (verified == true) {
                 sendResponse(SUCCESS, null, null, resp);
             } else {
                 sendResponse(ERROR, CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_CERT_VALIDATE_FAILED"),
-                null, resp);
+                        null, resp);
             }
         } catch (EBaseException eAudit1) {
             // store a message in the signed audit log file
@@ -2300,37 +2288,36 @@ private void 	createMasterKey(HttpServletRequest req,
 
             // rethrow the specific exception to be handled later
             throw eAudit2;
-    // } catch( ServletException eAudit3 ) {
-    //     // store a message in the signed audit log file
-    //     auditMessage = CMS.getLogMessage(
-    //                        LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY,
-    //                        auditSubjectID,
-    //                        ILogger.FAILURE,
-    //                        auditParams( req ) );
-    //
-    //     audit( auditMessage );
-    //
-    //     // rethrow the specific exception to be handled later
-    //     throw eAudit3;
-       }
+            // } catch( ServletException eAudit3 ) {
+            //     // store a message in the signed audit log file
+            //     auditMessage = CMS.getLogMessage(
+            //                        LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY,
+            //                        auditSubjectID,
+            //                        ILogger.FAILURE,
+            //                        auditParams( req ) );
+            //
+            //     audit( auditMessage );
+            //
+            //     // rethrow the specific exception to be handled later
+            //     throw eAudit3;
+        }
     }
 
     /**
      * For "importing" cross-signed cert into internal db for further
      * cross pair matching and publishing
      * <P>
-     *
+     * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY used when
-     * "Certificate Setup Wizard" is used to import a CA cross-signed
-     * certificate into the database
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY used when "Certificate Setup Wizard" is used to import a CA cross-signed certificate into the database
      * </ul>
+     * 
      * @exception ServletException a servlet error has occurred
      * @exception IOException an input/output error has occurred
      * @exception EBaseException failed to import a cross-certificate pair
      */
     private void importXCert(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
@@ -2352,29 +2339,29 @@ private void 	createMasterKey(HttpServletRequest req,
                 String value = req.getParameter(key);
 
                 // really should be PR_CERT_CONTENT
-                if (key.equals(Constants.PR_PKCS10)) 
+                if (key.equals(Constants.PR_PKCS10))
                     b64Cert = value;
                 else if (key.equals(Constants.RS_ID))
                     certType = value;
-                else if (key.equals("pathname")) 
+                else if (key.equals("pathname"))
                     pathname = value;
                 else if (key.equals(Constants.PR_SERVER_ROOT))
                     serverRoot = value;
-                else if (key.equals(Constants.PR_SERVER_ID)) 
+                else if (key.equals(Constants.PR_SERVER_ID))
                     serverID = value;
-                else if (key.equals(Constants.PR_CERT_FILEPATH)) 
+                else if (key.equals(Constants.PR_CERT_FILEPATH))
                     certpath = value;
             }
- 
+
             try {
                 if (b64Cert == null || b64Cert.equals("")) {
                     if (certpath == null || certpath.equals("")) {
                         // store a message in the signed audit log file
                         auditMessage = CMS.getLogMessage(
-                            LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY,
-                            auditSubjectID,
-                            ILogger.FAILURE,
-                            auditParams(req));
+                                LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY,
+                                auditSubjectID,
+                                ILogger.FAILURE,
+                                auditParams(req));
 
                         audit(auditMessage);
 
@@ -2385,7 +2372,7 @@ private void 	createMasterKey(HttpServletRequest req,
                     } else {
                         FileInputStream in = new FileInputStream(certpath);
                         BufferedReader d =
-                            new BufferedReader(new InputStreamReader(in));
+                                new BufferedReader(new InputStreamReader(in));
                         String content = "";
 
                         b64Cert = "";
@@ -2412,7 +2399,7 @@ private void 	createMasterKey(HttpServletRequest req,
                 audit(auditMessage);
 
                 throw new EBaseException(
-                    CMS.getLogMessage("BASE_OPEN_FILE_FAILED"));
+                        CMS.getLogMessage("BASE_OPEN_FILE_FAILED"));
             }
             CMS.debug("CMSAdminServlet: got b64Cert");
             b64Cert = Cert.stripBrackets(b64Cert.trim());
@@ -2430,7 +2417,7 @@ private void 	createMasterKey(HttpServletRequest req,
                      + File.separator + "config" + File.separator + pathname;
 
             ICrossCertPairSubsystem ccps =
-                (ICrossCertPairSubsystem) CMS.getSubsystem("CrossCertPair");
+                    (ICrossCertPairSubsystem) CMS.getSubsystem("CrossCertPair");
 
             try {
                 //this will import into internal ldap crossCerts entry
@@ -2469,8 +2456,8 @@ private void 	createMasterKey(HttpServletRequest req,
             }
 
             ICryptoSubsystem jssSubSystem = (ICryptoSubsystem)
-                CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
-            String content = jssSubSystem.getCertPrettyPrint(b64Cert, 
+                    CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+            String content = jssSubSystem.getCertPrettyPrint(b64Cert,
                     super.getLocale(req));
 
             results.add(Constants.PR_NICKNAME, "FBCA cross-signed cert");
@@ -2510,19 +2497,19 @@ private void 	createMasterKey(HttpServletRequest req,
 
             // rethrow the specific exception to be handled later
             throw eAudit2;
-    // } catch( ServletException eAudit3 ) {
-    //     // store a message in the signed audit log file
-    //     auditMessage = CMS.getLogMessage(
-    //                        LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY,
-    //                        auditSubjectID,
-    //                        ILogger.FAILURE,
-    //                        auditParams( req ) );
-    //
-    //     audit( auditMessage );
-    //
-    //     // rethrow the specific exception to be handled later
-    //     throw eAudit3;
-       }
+            // } catch( ServletException eAudit3 ) {
+            //     // store a message in the signed audit log file
+            //     auditMessage = CMS.getLogMessage(
+            //                        LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY,
+            //                        auditSubjectID,
+            //                        ILogger.FAILURE,
+            //                        auditParams( req ) );
+            //
+            //     audit( auditMessage );
+            //
+            //     // rethrow the specific exception to be handled later
+            //     throw eAudit3;
+        }
     }
 
     private String getNickname(String certType) throws EBaseException {
@@ -2530,13 +2517,13 @@ private void 	createMasterKey(HttpServletRequest req,
 
         if (certType.equals(Constants.PR_CA_SIGNING_CERT)) {
             ICertificateAuthority ca =
-                (ICertificateAuthority) CMS.getSubsystem(CMS.SUBSYSTEM_CA);
+                    (ICertificateAuthority) CMS.getSubsystem(CMS.SUBSYSTEM_CA);
             ISigningUnit signingUnit = ca.getSigningUnit();
 
             nickname = signingUnit.getNickname();
         } else if (certType.equals(Constants.PR_OCSP_SIGNING_CERT)) {
             IOCSPAuthority ocsp =
-                (IOCSPAuthority) CMS.getSubsystem(CMS.SUBSYSTEM_OCSP);
+                    (IOCSPAuthority) CMS.getSubsystem(CMS.SUBSYSTEM_OCSP);
 
             if (ocsp == null) {
                 // this is a local CA service
@@ -2551,25 +2538,25 @@ private void 	createMasterKey(HttpServletRequest req,
             }
         } else if (certType.equals(Constants.PR_RA_SIGNING_CERT)) {
             IRegistrationAuthority ra =
-                (IRegistrationAuthority) CMS.getSubsystem(CMS.SUBSYSTEM_RA);
+                    (IRegistrationAuthority) CMS.getSubsystem(CMS.SUBSYSTEM_RA);
 
             nickname = ra.getNickname();
         } else if (certType.equals(Constants.PR_KRA_TRANSPORT_CERT)) {
             IKeyRecoveryAuthority kra =
-                (IKeyRecoveryAuthority) CMS.getSubsystem(CMS.SUBSYSTEM_KRA);
+                    (IKeyRecoveryAuthority) CMS.getSubsystem(CMS.SUBSYSTEM_KRA);
 
             nickname = kra.getNickname();
         } else if (certType.equals(Constants.PR_SERVER_CERT)) {
             nickname = CMS.getServerCertNickname();
         } else if (certType.equals(Constants.PR_SERVER_CERT_RADM)) {
             nickname = CMS.getServerCertNickname();
-        } 
+        }
 
         return nickname;
     }
 
     private void getCertInfo(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         Enumeration enum1 = req.getParameterNames();
         NameValuePairs results = new NameValuePairs();
@@ -2604,7 +2591,7 @@ private void 	createMasterKey(HttpServletRequest req,
                 } else {
                     FileInputStream in = new FileInputStream(path);
                     BufferedReader d =
-                        new BufferedReader(new InputStreamReader(in));
+                            new BufferedReader(new InputStreamReader(in));
                     String content = "";
 
                     pkcs = "";
@@ -2628,7 +2615,7 @@ private void 	createMasterKey(HttpServletRequest req,
         int totalLen = pkcs.length();
 
         if (pkcs.indexOf(BEGIN_HEADER) != 0 ||
-            pkcs.indexOf(END_HEADER) != (totalLen - 25)) {
+                pkcs.indexOf(END_HEADER) != (totalLen - 25)) {
             throw (new EBaseException(CMS.getLogMessage("BASE_INVALID_CERT_FORMAT")));
         }
 
@@ -2653,7 +2640,7 @@ private void 	createMasterKey(HttpServletRequest req,
             nickname = getNickname(certType);
 
         ICryptoSubsystem jssSubSystem = (ICryptoSubsystem)
-            CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+                CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
         String content = jssSubSystem.getCertPrettyPrint(pkcs,
                 super.getLocale(req));
 
@@ -2666,11 +2653,11 @@ private void 	createMasterKey(HttpServletRequest req,
     }
 
     private void getCertPrettyPrint(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         Enumeration enum1 = req.getParameterNames();
         ICryptoSubsystem jssSubSystem = (ICryptoSubsystem)
-            CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+                CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
         String nickname = "";
         String serialno = "";
         String issuername = "";
@@ -2690,7 +2677,7 @@ private void 	createMasterKey(HttpServletRequest req,
             if (key.equals(Constants.PR_NICK_NAME)) {
                 nickname = value;
                 continue;
-            } 
+            }
             if (key.equals(Constants.PR_SERIAL_NUMBER)) {
                 serialno = value;
                 continue;
@@ -2701,19 +2688,19 @@ private void 	createMasterKey(HttpServletRequest req,
             }
         }
 
-        String print = jssSubSystem.getCertPrettyPrintAndFingerPrint(nickname, 
-          serialno, issuername, locale);
+        String print = jssSubSystem.getCertPrettyPrintAndFingerPrint(nickname,
+                serialno, issuername, locale);
         pairs.add(nickname, print);
 
         sendResponse(SUCCESS, null, pairs, resp);
     }
 
     private void getRootCertTrustBit(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         Enumeration enum1 = req.getParameterNames();
         ICryptoSubsystem jssSubSystem = (ICryptoSubsystem)
-            CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+                CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
         String nickname = "";
         String serialno = "";
         String issuername = "";
@@ -2745,91 +2732,91 @@ private void 	createMasterKey(HttpServletRequest req,
         }
 
         String trustbit = jssSubSystem.getRootCertTrustBit(nickname,
-          serialno, issuername);
+                serialno, issuername);
         pairs.add(nickname, trustbit);
 
         sendResponse(SUCCESS, null, pairs, resp);
     }
 
     private void getCACerts(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         ICryptoSubsystem jssSubSystem = (ICryptoSubsystem)
-            CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+                CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
         NameValuePairs pairs = jssSubSystem.getCACerts();
 
         sendResponse(SUCCESS, null, pairs, resp);
     }
 
     private void deleteRootCert(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
 
         String id = req.getParameter(Constants.RS_ID);
         ICryptoSubsystem jssSubSystem = (ICryptoSubsystem)
-          CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+                CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
         int mindex = id.indexOf(":SERIAL#<");
         String nickname = id.substring(0, mindex);
         String sstr1 = id.substring(mindex);
         int lindex = sstr1.indexOf(">");
         String serialno = sstr1.substring(9, lindex);
-        String issuername = sstr1.substring(lindex+1);
+        String issuername = sstr1.substring(lindex + 1);
         jssSubSystem.deleteRootCert(nickname, serialno, issuername);
         sendResponse(SUCCESS, null, null, resp);
     }
 
     private void deleteUserCert(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
 
         String id = req.getParameter(Constants.RS_ID);
         ICryptoSubsystem jssSubSystem = (ICryptoSubsystem)
-          CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+                CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
         int mindex = id.indexOf(":SERIAL#<");
         String nickname = id.substring(0, mindex);
         String sstr1 = id.substring(mindex);
         int lindex = sstr1.indexOf(">");
         String serialno = sstr1.substring(9, lindex);
-        String issuername = sstr1.substring(lindex+1);
+        String issuername = sstr1.substring(lindex + 1);
         jssSubSystem.deleteUserCert(nickname, serialno, issuername);
         sendResponse(SUCCESS, null, null, resp);
     }
 
     private void getRootCerts(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         ICryptoSubsystem jssSubSystem = (ICryptoSubsystem)
-            CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+                CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
         NameValuePairs pairs = jssSubSystem.getRootCerts();
 
         sendResponse(SUCCESS, null, pairs, resp);
     }
 
     private void getAllCertsManage(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         ICryptoSubsystem jssSubSystem = (ICryptoSubsystem)
-            CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+                CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
         NameValuePairs pairs = jssSubSystem.getAllCertsManage();
 
         sendResponse(SUCCESS, null, pairs, resp);
     }
 
     private void getUserCerts(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         ICryptoSubsystem jssSubSystem = (ICryptoSubsystem)
-            CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+                CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
         NameValuePairs pairs = jssSubSystem.getUserCerts();
         sendResponse(SUCCESS, null, pairs, resp);
     }
 
     private void deleteCerts(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         Enumeration enum1 = req.getParameterNames();
         ICryptoSubsystem jssSubSystem = (ICryptoSubsystem)
-            CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+                CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
         String nickname = "";
         String date = "";
 
@@ -2857,7 +2844,7 @@ private void 	createMasterKey(HttpServletRequest req,
     }
 
     private void validateSubjectName(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
 
         Enumeration enum1 = req.getParameterNames();
@@ -2868,17 +2855,17 @@ private void 	createMasterKey(HttpServletRequest req,
 
             if (key.equals(Constants.PR_SUBJECT_NAME)) {
                 ICryptoSubsystem jssSubSystem = (ICryptoSubsystem)
-                    CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+                        CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
 
                 jssSubSystem.isX500DN(value);
             }
         }
 
         sendResponse(SUCCESS, null, null, resp);
-    } 
+    }
 
     private void validateKeyLength(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         Enumeration enum1 = req.getParameterNames();
         String keyType = "RSA";
@@ -2901,14 +2888,14 @@ private void 	createMasterKey(HttpServletRequest req,
         int minKey = mConfig.getInteger(
                 ConfigConstants.PR_RSA_MIN_KEYLENGTH, 512);
         ICryptoSubsystem jssSubSystem = (ICryptoSubsystem)
-            CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+                CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
 
         // jssSubSystem.checkKeyLength(keyType, keyLength, certType, minKey);
         sendResponse(SUCCESS, null, null, resp);
     }
 
     private void validateCurveName(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         Enumeration enum1 = req.getParameterNames();
         String curveName = null;
@@ -2925,7 +2912,7 @@ private void 	createMasterKey(HttpServletRequest req,
         String curveList = mConfig.getString("keys.ecc.curve.list", "nistp521");
         String[] curves = curveList.split(",");
         boolean match = false;
-        for (int i=0; i<curves.length; i++) {
+        for (int i = 0; i < curves.length; i++) {
             if (curves[i].equals(curveName)) {
                 match = true;
             }
@@ -2938,7 +2925,7 @@ private void 	createMasterKey(HttpServletRequest req,
     }
 
     private void validateCertExtension(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         Enumeration enum1 = req.getParameterNames();
         String certExt = "";
@@ -2954,18 +2941,18 @@ private void 	createMasterKey(HttpServletRequest req,
         }
 
         ICryptoSubsystem jssSubSystem = (ICryptoSubsystem)
-            CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+                CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
 
         jssSubSystem.checkCertificateExt(certExt);
         sendResponse(SUCCESS, null, null, resp);
     }
 
     private void getSubjectName(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         NameValuePairs params = new NameValuePairs();
         Enumeration enum1 = req.getParameterNames();
- 
+
         String nickname = "";
         String keyType = "RSA";
         String keyLen = "512";
@@ -2984,7 +2971,7 @@ private void 	createMasterKey(HttpServletRequest req,
         }
 
         ICryptoSubsystem jssSubSystem = (ICryptoSubsystem)
-            CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+                CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
         String subjectName = jssSubSystem.getSubjectDN(nickname);
 
         params.add(Constants.PR_SUBJECT_NAME, subjectName);
@@ -2992,7 +2979,7 @@ private void 	createMasterKey(HttpServletRequest req,
     }
 
     private void processSubjectName(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         NameValuePairs params = new NameValuePairs();
         Enumeration enum1 = req.getParameterNames();
@@ -3013,7 +3000,7 @@ private void 	createMasterKey(HttpServletRequest req,
         }
 
         ICryptoSubsystem jssSubSystem = (ICryptoSubsystem)
-            CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+                CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
         String subjectName = jssSubSystem.getSubjectDN(nickname);
 
         params.add(Constants.PR_SUBJECT_NAME, subjectName);
@@ -3021,7 +3008,7 @@ private void 	createMasterKey(HttpServletRequest req,
     }
 
     public void setRootCertTrust(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
@@ -3033,10 +3020,10 @@ private void 	createMasterKey(HttpServletRequest req,
         CMS.debug("CMSAdminServlet: setRootCertTrust()");
 
         ICryptoSubsystem jssSubSystem = (ICryptoSubsystem)
-            CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+                CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
         try {
             jssSubSystem.setRootCertTrust(nickname, serialno, issuername, trust);
-        } catch  (EBaseException e) {
+        } catch (EBaseException e) {
             auditMessage = CMS.getLogMessage(
                         LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY,
                         auditSubjectID,
@@ -3063,18 +3050,17 @@ private void 	createMasterKey(HttpServletRequest req,
     /**
      * Establish trust of a CA certificate
      * <P>
-     *
+     * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY used when
-     * "Manage Certificate" is used to edit the trustness of certs and
-     * deletion of certs
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY used when "Manage Certificate" is used to edit the trustness of certs and deletion of certs
      * </ul>
+     * 
      * @exception ServletException a servlet error has occurred
      * @exception IOException an input/output error has occurred
      * @exception EBaseException failed to establish CA certificate trust
      */
     private void trustCACert(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
@@ -3086,7 +3072,7 @@ private void 	createMasterKey(HttpServletRequest req,
         try {
             Enumeration enum1 = req.getParameterNames();
             ICryptoSubsystem jssSubSystem = (ICryptoSubsystem)
-                CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
+                    CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
             String trust = "";
 
             while (enum1.hasMoreElements()) {
@@ -3139,41 +3125,41 @@ private void 	createMasterKey(HttpServletRequest req,
 
             // rethrow the specific exception to be handled later
             throw eAudit2;
-    // } catch( ServletException eAudit3 ) {
-    //     // store a message in the signed audit log file
-    //     auditMessage = CMS.getLogMessage(
-    //                        LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY,
-    //                        auditSubjectID,
-    //                        ILogger.FAILURE,
-    //                        auditParams( req ) );
-    //
-    //     audit( auditMessage );
-    //
-    //     // rethrow the specific exception to be handled later
-    //     throw eAudit3;
-       }
+            // } catch( ServletException eAudit3 ) {
+            //     // store a message in the signed audit log file
+            //     auditMessage = CMS.getLogMessage(
+            //                        LOGGING_SIGNED_AUDIT_CONFIG_TRUSTED_PUBLIC_KEY,
+            //                        auditSubjectID,
+            //                        ILogger.FAILURE,
+            //                        auditParams( req ) );
+            //
+            //     audit( auditMessage );
+            //
+            //     // rethrow the specific exception to be handled later
+            //     throw eAudit3;
+        }
     }
 
     /**
      * Execute all self tests specified to be run on demand.
      * <P>
-     *
+     * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_SELFTESTS_EXECUTION used when self
-     * tests are run on demand
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_SELFTESTS_EXECUTION used when self tests are run on demand
      * </ul>
+     * 
      * @exception EMissingSelfTestException a self test plugin instance
-     * property name was missing
+     *                property name was missing
      * @exception ESelfTestException a self test is missing a required
-     * configuration parameter
+     *                configuration parameter
      * @exception IOException an input/output error has occurred
      */
     private synchronized void
-    runSelfTestsOnDemand(HttpServletRequest req,
-        HttpServletResponse resp)
-        throws EMissingSelfTestException,
-            ESelfTestException,
-            IOException {
+            runSelfTestsOnDemand(HttpServletRequest req,
+                    HttpServletResponse resp)
+                    throws EMissingSelfTestException,
+                    ESelfTestException,
+                    IOException {
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -3182,7 +3168,7 @@ private void 	createMasterKey(HttpServletRequest req,
         try {
             if (CMS.debugOn()) {
                 CMS.debug("CMSAdminServlet::runSelfTestsOnDemand():"
-                    + "  ENTERING . . .");
+                        + "  ENTERING . . .");
             }
 
             Enumeration enum1 = req.getParameterNames();
@@ -3203,10 +3189,10 @@ private void 	createMasterKey(HttpServletRequest req,
             }
 
             ISelfTestSubsystem mSelfTestSubsystem = (ISelfTestSubsystem)
-                CMS.getSubsystem(CMS.SUBSYSTEM_SELFTESTS);
+                    CMS.getSubsystem(CMS.SUBSYSTEM_SELFTESTS);
 
             if ((request == null) ||
-                (request.equals(""))) {
+                    (request.equals(""))) {
                 // self test plugin run on demand request parameter was missing
                 // log the error
                 logMessage = CMS.getLogMessage("SELFTESTS_RUN_ON_DEMAND_REQUEST",
@@ -3215,7 +3201,7 @@ private void 	createMasterKey(HttpServletRequest req,
                         );
 
                 mSelfTestSubsystem.log(mSelfTestSubsystem.getSelfTestLogger(),
-                    logMessage);
+                        logMessage);
 
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
@@ -3243,7 +3229,7 @@ private void 	createMasterKey(HttpServletRequest req,
                             getServletInfo());
 
                 mSelfTestSubsystem.log(mSelfTestSubsystem.getSelfTestLogger(),
-                    logMessage);
+                        logMessage);
 
                 // store this information for console notification
                 content += logMessage
@@ -3267,8 +3253,8 @@ private void 	createMasterKey(HttpServletRequest req,
                                     getServletInfo());
 
                         mSelfTestSubsystem.log(
-                            mSelfTestSubsystem.getSelfTestLogger(),
-                            logMessage);
+                                mSelfTestSubsystem.getSelfTestLogger(),
+                                logMessage);
 
                         // store a message in the signed audit log file
                         auditMessage = CMS.getLogMessage(
@@ -3288,7 +3274,7 @@ private void 	createMasterKey(HttpServletRequest req,
                     }
 
                     ISelfTest test = (ISelfTest)
-                        mSelfTestSubsystem.getSelfTest(instanceName);
+                            mSelfTestSubsystem.getSelfTest(instanceName);
 
                     if (test == null) {
                         // self test plugin instance property name is not present
@@ -3298,8 +3284,8 @@ private void 	createMasterKey(HttpServletRequest req,
                                     instanceFullName);
 
                         mSelfTestSubsystem.log(
-                            mSelfTestSubsystem.getSelfTestLogger(),
-                            logMessage);
+                                mSelfTestSubsystem.getSelfTestLogger(),
+                                logMessage);
 
                         // store a message in the signed audit log file
                         auditMessage = CMS.getLogMessage(
@@ -3321,9 +3307,9 @@ private void 	createMasterKey(HttpServletRequest req,
                     try {
                         if (CMS.debugOn()) {
                             CMS.debug("CMSAdminServlet::runSelfTestsOnDemand():"
-                                + "    running \""
-                                + test.getSelfTestName()
-                                + "\"");
+                                    + "    running \""
+                                    + test.getSelfTestName()
+                                    + "\"");
                         }
 
                         // store this information for console notification
@@ -3347,8 +3333,8 @@ private void 	createMasterKey(HttpServletRequest req,
                                         instanceFullName);
 
                             mSelfTestSubsystem.log(
-                                mSelfTestSubsystem.getSelfTestLogger(),
-                                logMessage);
+                                    mSelfTestSubsystem.getSelfTestLogger(),
+                                    logMessage);
 
                             // store a message in the signed audit log file
                             auditMessage = CMS.getLogMessage(
@@ -3380,7 +3366,7 @@ private void 	createMasterKey(HttpServletRequest req,
                 logMessage = CMS.getLogMessage("SELFTESTS_RUN_ON_DEMAND_SUCCEEDED",
                             getServletInfo());
                 mSelfTestSubsystem.log(mSelfTestSubsystem.getSelfTestLogger(),
-                    logMessage);
+                        logMessage);
 
                 // store this information for console notification
                 content += logMessage
@@ -3391,7 +3377,7 @@ private void 	createMasterKey(HttpServletRequest req,
                             getServletInfo());
 
                 mSelfTestSubsystem.log(mSelfTestSubsystem.getSelfTestLogger(),
-                    logMessage);
+                        logMessage);
 
                 // store this information for console notification
                 content += logMessage
@@ -3408,14 +3394,14 @@ private void 	createMasterKey(HttpServletRequest req,
 
             // notify console of SUCCESS
             results.add(Constants.PR_RUN_SELFTESTS_ON_DEMAND_CLASS,
-                CMSAdminServlet.class.getName());
+                    CMSAdminServlet.class.getName());
             results.add(Constants.PR_RUN_SELFTESTS_ON_DEMAND_CONTENT,
-                content);
+                    content);
             sendResponse(SUCCESS, null, results, resp);
 
             if (CMS.debugOn()) {
                 CMS.debug("CMSAdminServlet::runSelfTestsOnDemand():"
-                    + "  EXITING.");
+                        + "  EXITING.");
             }
         } catch (EMissingSelfTestException eAudit1) {
             // store a message in the signed audit log file
@@ -3454,16 +3440,16 @@ private void 	createMasterKey(HttpServletRequest req,
     }
 
     public void log(int level, String msg) {
-        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER, level, "CMSAdminServlet: " + msg); 
+        mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER, level, "CMSAdminServlet: " + msg);
     }
 
     /**
      * Signed Audit Log Public Key
-     *
+     * 
      * This method is called to obtain the public key from the passed in
      * "KeyPair" object for a signed audit log message.
      * <P>
-     *
+     * 
      * @param object a Key Pair Object
      * @return key string containing the public key
      */
@@ -3512,4 +3498,3 @@ private void 	createMasterKey(HttpServletRequest req,
         }
     }
 }
-

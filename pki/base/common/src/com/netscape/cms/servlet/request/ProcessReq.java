@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.request;
 
-
 import java.io.IOException;
 import java.util.Locale;
 
@@ -50,10 +49,9 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 
-
 /**
  * Display Generic Request detail to the user.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class ProcessReq extends CMSServlet {
@@ -74,8 +72,8 @@ public class ProcessReq extends CMSServlet {
     private IReqParser mParser = null;
     private String[] mSigningAlgorithms = null;
 
-    private static String[] DEF_SIGNING_ALGORITHMS = new String[] 
-        {"SHA1withRSA", "SHA256withRSA", "SHA512withRSA", "SHA1withDSA", "MD5withRSA", "MD2withRSA"};
+    private static String[] DEF_SIGNING_ALGORITHMS = new String[]
+        { "SHA1withRSA", "SHA256withRSA", "SHA512withRSA", "SHA1withDSA", "MD5withRSA", "MD2withRSA" };
 
     /**
      * Process request.
@@ -90,11 +88,12 @@ public class ProcessReq extends CMSServlet {
      * The initialization parameter 'parser' is read from the
      * servlet configration, and is used to set the type of request.
      * The value of this parameter can be:
-     * <UL><LI><B>CertReqParser.NODETAIL_PARSER</B> - Show certificate Summary
-     *  <LI><B>CertReqParser.DETAIL_PARSER</B> - Show certificate detail
-     *  <LI><B>KeyReqParser.PARSER</B> - Show key archival detail
-	 * </UL>
-     *
+     * <UL>
+     * <LI><B>CertReqParser.NODETAIL_PARSER</B> - Show certificate Summary
+     * <LI><B>CertReqParser.DETAIL_PARSER</B> - Show certificate detail
+     * <LI><B>KeyReqParser.PARSER</B> - Show key archival detail
+     * </UL>
+     * 
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -111,13 +110,13 @@ public class ProcessReq extends CMSServlet {
                 mParser = CertReqParser.DETAIL_PARSER;
             else if (tmp.trim().equals("KeyReqParser.PARSER"))
                 mParser = KeyReqParser.PARSER;
-        }			
+        }
 
         // override success and error templates to null - 
         // handle templates locally.
         mTemplates.remove(CMSRequest.SUCCESS);
         mTemplates.remove(CMSRequest.ERROR);
-        if (mOutputTemplatePath != null) 
+        if (mOutputTemplatePath != null)
             mFormPath = mOutputTemplatePath;
     }
 
@@ -125,10 +124,9 @@ public class ProcessReq extends CMSServlet {
      * Process the HTTP request.
      * <ul>
      * <li>http.param seqNum
-     * <li>http.param doAssign reassign request. Value can be reassignToMe
-     *       reassignToNobody
+     * <li>http.param doAssign reassign request. Value can be reassignToMe reassignToNobody
      * </ul>
-     *
+     * 
      * @param cmsReq the object holding the request and response information
      */
     public void process(CMSRequest cmsReq) throws EBaseException {
@@ -152,10 +150,10 @@ public class ProcessReq extends CMSServlet {
         try {
             form = getTemplate(mFormPath, req, locale);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, 
-                "Error getting template " + mFormPath + " Error " + e);
+            log(ILogger.LL_FAILURE,
+                    "Error getting template " + mFormPath + " Error " + e);
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
 
         try {
@@ -172,8 +170,8 @@ public class ProcessReq extends CMSServlet {
                     if (doAssign == null) {
                         authzToken = authorize(mAclMethod, authToken,
                                     mAuthzResourceName, "read");
-                    } else if (doAssign.equals("toMe") || 
-                        doAssign.equals("reassignToMe")) {
+                    } else if (doAssign.equals("toMe") ||
+                            doAssign.equals("reassignToMe")) {
                         authzToken = authorize(mAclMethod, authToken,
                                     mAuthzResourceName, "assign");
                     } else if (doAssign.equals("reassignToNobody")) {
@@ -182,10 +180,10 @@ public class ProcessReq extends CMSServlet {
                     }
                 } catch (EAuthzAccessDenied e) {
                     log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                            CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
                 } catch (Exception e) {
                     log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                            CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
                 }
 
                 if (authzToken == null) {
@@ -193,19 +191,19 @@ public class ProcessReq extends CMSServlet {
                     return;
                 }
 
-                process(argSet, header, seqNum, req, resp, 
-                    doAssign, locale[0]);
+                process(argSet, header, seqNum, req, resp,
+                        doAssign, locale[0]);
             } else {
                 log(ILogger.LL_FAILURE, "Invalid sequence number " + seqNum);
                 error = new ECMSGWException(
-                  CMS.getUserMessage("CMS_GW_INVALID_REQUEST_ID",
-                            String.valueOf(seqNum)));
+                        CMS.getUserMessage("CMS_GW_INVALID_REQUEST_ID",
+                                String.valueOf(seqNum)));
             }
         } catch (EBaseException e) {
             error = e;
         } catch (NumberFormatException e) {
             error = new EBaseException(CMS.getUserMessage(locale[0], "CMS_BASE_INVALID_NUMBER_FORMAT"));
-        } 
+        }
 
         try {
             ServletOutputStream out = resp.getOutputStream();
@@ -213,46 +211,46 @@ public class ProcessReq extends CMSServlet {
             if (error == null) {
                 String xmlOutput = req.getParameter("xml");
                 if (xmlOutput != null && xmlOutput.equals("true")) {
-                  outputXML(resp, argSet);
+                    outputXML(resp, argSet);
                 } else {
-                  String output = form.getOutput(argSet);
-                  resp.setContentType("text/html");
-                  form.renderOutput(out, argSet);
-                  cmsReq.setStatus(CMSRequest.SUCCESS);
+                    String output = form.getOutput(argSet);
+                    resp.setContentType("text/html");
+                    form.renderOutput(out, argSet);
+                    cmsReq.setStatus(CMSRequest.SUCCESS);
                 }
             } else {
                 cmsReq.setError(error);
                 cmsReq.setStatus(CMSRequest.ERROR);
             }
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, 
-                "Error getting servlet output stream for rendering template. " +
-                "Error " + e);
+            log(ILogger.LL_FAILURE,
+                    "Error getting servlet output stream for rendering template. " +
+                            "Error " + e);
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
         return;
     }
 
     /**
-     * Sends request information to the calller. 
+     * Sends request information to the calller.
      * returns whether there was an error or not.
      */
     private void process(CMSTemplateParams argSet, IArgBlock header,
-        int seqNum, HttpServletRequest req,
-        HttpServletResponse resp, 
-        String doAssign, Locale locale)
-        throws EBaseException {
+            int seqNum, HttpServletRequest req,
+            HttpServletResponse resp,
+            String doAssign, Locale locale)
+            throws EBaseException {
 
         header.addIntegerValue("seqNum", seqNum);
 
-        IRequest r = 
-            mQueue.findRequest(new RequestId(Integer.toString(seqNum)));
+        IRequest r =
+                mQueue.findRequest(new RequestId(Integer.toString(seqNum)));
 
         if (r != null) {
             if (doAssign != null) {
                 if ((doAssign.equals("toMe"))
-                    || (doAssign.equals("reassignToMe"))) {
+                        || (doAssign.equals("reassignToMe"))) {
                     SessionContext ctx = SessionContext.getContext();
                     String id = (String) ctx.get(SessionContext.USER_ID);
 
@@ -265,14 +263,14 @@ public class ProcessReq extends CMSServlet {
             }
 
             // add authority names to know what privileges can be requested.	
-            if (CMS.getSubsystem("kra") != null) 
+            if (CMS.getSubsystem("kra") != null)
                 header.addStringValue("localkra", "yes");
-            if (CMS.getSubsystem("ca") != null) 
+            if (CMS.getSubsystem("ca") != null)
                 header.addStringValue("localca", "yes");
-            if (CMS.getSubsystem("ra") != null) 
+            if (CMS.getSubsystem("ra") != null)
                 header.addStringValue("localra", "yes");
 
-                // DONT NEED TO DO THIS FOR DRM
+            // DONT NEED TO DO THIS FOR DRM
             if (mAuthority instanceof ICertAuthority) {
                 // Check/set signing algorithms dynamically.
                 // In RA mSigningAlgorithms could be null at startup if CA is not 
@@ -281,15 +279,15 @@ public class ProcessReq extends CMSServlet {
                 String[] allAlgorithms = mSigningAlgorithms;
 
                 if (allAlgorithms == null) {
-                    allAlgorithms = mSigningAlgorithms = 
+                    allAlgorithms = mSigningAlgorithms =
                                     ((ICertAuthority) mAuthority).getCASigningAlgorithms();
                     if (allAlgorithms == null) {
                         CMS.debug(
-                            "ProcessReq: signing algorithms set to All algorithms");
+                                "ProcessReq: signing algorithms set to All algorithms");
                         allAlgorithms = AlgorithmId.ALL_SIGNING_ALGORITHMS;
-                    } else 
+                    } else
                         CMS.debug(
-                            "ProcessReq: First signing algorithms is " + allAlgorithms[0]);
+                                "ProcessReq: First signing algorithms is " + allAlgorithms[0]);
                 }
                 String validAlgorithms = null;
                 StringBuffer sb = new StringBuffer();
@@ -310,10 +308,10 @@ public class ProcessReq extends CMSServlet {
                     if (signingAlgorithm != null)
                         header.addStringValue("caSigningAlgorithm", signingAlgorithm);
                     header.addLongValue("defaultValidityLength",
-                        ((ICertificateAuthority) mAuthority).getDefaultValidity() / 1000);
+                            ((ICertificateAuthority) mAuthority).getDefaultValidity() / 1000);
                 } else if (mAuthority instanceof IRegistrationAuthority) {
                     header.addLongValue("defaultValidityLength",
-                        ((IRegistrationAuthority) mAuthority).getDefaultValidity() / 1000);
+                            ((IRegistrationAuthority) mAuthority).getDefaultValidity() / 1000);
                 }
                 X509CertImpl caCert = ((ICertAuthority) mAuthority).getCACert();
 
@@ -328,8 +326,8 @@ public class ProcessReq extends CMSServlet {
         } else {
             log(ILogger.LL_FAILURE, "Invalid sequence number " + seqNum);
             throw new ECMSGWException(
-                  CMS.getUserMessage("CMS_GW_INVALID_REQUEST_ID",
-                    String.valueOf(seqNum)));
+                    CMS.getUserMessage("CMS_GW_INVALID_REQUEST_ID",
+                            String.valueOf(seqNum)));
         }
 
         return;

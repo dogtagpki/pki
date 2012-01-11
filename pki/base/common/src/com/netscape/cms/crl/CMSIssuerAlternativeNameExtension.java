@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.crl;
 
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Locale;
@@ -47,14 +46,13 @@ import com.netscape.certsrv.ca.ICRLIssuingPoint;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.ILogger;
 
-
 /**
  * This represents a issuer alternative name extension.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class CMSIssuerAlternativeNameExtension
-    implements ICMSCRLExtension, IExtendedPluginInfo {
+        implements ICMSCRLExtension, IExtendedPluginInfo {
     private static final String PROP_RFC822_NAME = "rfc822Name";
     private static final String PROP_DNS_NAME = "dNSName";
     private static final String PROP_DIR_NAME = "directoryName";
@@ -70,7 +68,7 @@ public class CMSIssuerAlternativeNameExtension
     }
 
     public Extension setCRLExtensionCriticality(Extension ext,
-        boolean critical) {
+            boolean critical) {
         IssuerAlternativeNameExtension issuerAltNameExt = null;
         GeneralNames names = null;
 
@@ -84,8 +82,8 @@ public class CMSIssuerAlternativeNameExtension
     }
 
     public Extension getCRLExtension(IConfigStore config,
-        Object ip,
-        boolean critical) {
+            Object ip,
+            boolean critical) {
         ICRLIssuingPoint crlIssuingPoint = (ICRLIssuingPoint) ip;
         IssuerAlternativeNameExtension issuerAltNameExt = null;
         int numNames = 0;
@@ -196,7 +194,7 @@ public class CMSIssuerAlternativeNameExtension
             numNames = config.getInteger("numNames", 0);
         } catch (EBaseException e) {
             log(ILogger.LL_FAILURE, "Invalid numNames property for CRL " +
-                "IssuerAlternativeName extension - " + e);
+                    "IssuerAlternativeName extension - " + e);
         }
         nvp.add("numNames", String.valueOf(numNames));
 
@@ -207,10 +205,10 @@ public class CMSIssuerAlternativeNameExtension
                 nameType = config.getString("nameType" + i);
             } catch (EPropertyNotFound e) {
                 log(ILogger.LL_FAILURE, "Undefined nameType" + i + " property for " +
-                    "CRL IssuerAlternativeName extension - " + e);
+                        "CRL IssuerAlternativeName extension - " + e);
             } catch (EBaseException e) {
                 log(ILogger.LL_FAILURE, "Invalid nameType" + i + " property for " +
-                    "CRL IssuerAlternativeName extension - " + e);
+                        "CRL IssuerAlternativeName extension - " + e);
             }
 
             if (nameType != null && nameType.length() > 0) {
@@ -225,10 +223,10 @@ public class CMSIssuerAlternativeNameExtension
                 name = config.getString("name" + i);
             } catch (EPropertyNotFound e) {
                 log(ILogger.LL_FAILURE, "Undefined name" + i + " property for " +
-                    "CRL IssuerAlternativeName extension - " + e);
+                        "CRL IssuerAlternativeName extension - " + e);
             } catch (EBaseException e) {
                 log(ILogger.LL_FAILURE, "Invalid name" + i + " property for " +
-                    "CRL IssuerAlternativeName extension - " + e);
+                        "CRL IssuerAlternativeName extension - " + e);
             }
 
             if (name != null && name.length() > 0) {
@@ -254,22 +252,22 @@ public class CMSIssuerAlternativeNameExtension
                 "critical;boolean;Set criticality for Issuer Alternative Name CRL extension.",
                 "numNames;number;Set number of alternative names for the CRL issuer.",
                 "nameType0;choice(" + PROP_RFC822_NAME + "," + PROP_DIR_NAME + "," + PROP_DNS_NAME + "," +
-                PROP_EDI_NAME + "," + PROP_URI_NAME + "," + PROP_IP_NAME + "," + PROP_OID_NAME + "," +
-                PROP_OTHER_NAME + ");Select Issuer Alternative Name type.",
+                        PROP_EDI_NAME + "," + PROP_URI_NAME + "," + PROP_IP_NAME + "," + PROP_OID_NAME + "," +
+                        PROP_OTHER_NAME + ");Select Issuer Alternative Name type.",
                 "name0;string;Enter Issuer Alternative Name corresponding to the selected name type.",
                 "nameType1;choice(" + PROP_RFC822_NAME + "," + PROP_DIR_NAME + "," + PROP_DNS_NAME + "," +
-                PROP_EDI_NAME + "," + PROP_URI_NAME + "," + PROP_IP_NAME + "," + PROP_OID_NAME + "," +
-                PROP_OTHER_NAME + ");Select Issuer Alternative Name type.",
+                        PROP_EDI_NAME + "," + PROP_URI_NAME + "," + PROP_IP_NAME + "," + PROP_OID_NAME + "," +
+                        PROP_OTHER_NAME + ");Select Issuer Alternative Name type.",
                 "name1;string;Enter Issuer Alternative Name corresponding to the selected name type.",
                 "nameType2;choice(" + PROP_RFC822_NAME + "," + PROP_DIR_NAME + "," + PROP_DNS_NAME + "," +
-                PROP_EDI_NAME + "," + PROP_URI_NAME + "," + PROP_IP_NAME + "," + PROP_OID_NAME + "," +
-                PROP_OTHER_NAME + ");Select Issuer Alternative Name type.",
+                        PROP_EDI_NAME + "," + PROP_URI_NAME + "," + PROP_IP_NAME + "," + PROP_OID_NAME + "," +
+                        PROP_OTHER_NAME + ");Select Issuer Alternative Name type.",
                 "name2;string;Enter Issuer Alternative Name corresponding to the selected name type.",
                 IExtendedPluginInfo.HELP_TOKEN +
-                ";configuration-ca-edit-crlextension-issueralternativename",
+                        ";configuration-ca-edit-crlextension-issueralternativename",
                 IExtendedPluginInfo.HELP_TEXT +
-                ";The issuer alternative names extension allows additional" +
-                " identities to be associated with the issuer of the CRL."
+                        ";The issuer alternative names extension allows additional" +
+                        " identities to be associated with the issuer of the CRL."
             };
 
         return params;
@@ -277,6 +275,6 @@ public class CMSIssuerAlternativeNameExtension
 
     private void log(int level, String msg) {
         mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_CA, level,
-            "CMSIssuerAlternativeNameExtension - " + msg);
+                "CMSIssuerAlternativeNameExtension - " + msg);
     }
-} 
+}

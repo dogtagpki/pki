@@ -30,6 +30,7 @@ public class EAuthInternalError extends EAuthException {
     /**
      * Constructs an authentication internal error exception
      * with a detailed message.
+     * 
      * @param errorString Detailed error message.
      */
     public EAuthInternalError(String errorString) {

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.connector;
 
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -28,13 +27,12 @@ import java.io.OptionalDataException;
 import com.netscape.certsrv.connector.IRequestEncoder;
 import com.netscape.cmscore.util.Debug;
 
-
 /**
- * encodes a request by serializing it. 
+ * encodes a request by serializing it.
  */
 public class HttpRequestEncoder implements IRequestEncoder {
     public String encode(Object r)
-        throws IOException {
+            throws IOException {
         String s = null;
         byte[] serial;
         ByteArrayOutputStream ba = new ByteArrayOutputStream();
@@ -47,7 +45,7 @@ public class HttpRequestEncoder implements IRequestEncoder {
     }
 
     public Object decode(String s)
-        throws IOException {
+            throws IOException {
         Object result = null;
         byte[] serial = null;
 

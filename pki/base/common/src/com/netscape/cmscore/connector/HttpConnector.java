@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.connector;
 
-
 import java.util.Vector;
 
 import com.netscape.certsrv.apps.CMS;
@@ -36,7 +35,6 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cmsutil.http.JssSSLSocketFactory;
 import com.netscape.cmsutil.net.ISocketFactory;
 
-
 public class HttpConnector implements IConnector {
     protected IAuthority mSource = null;
     protected IRemoteAuthority mDest = null;
@@ -45,13 +43,14 @@ public class HttpConnector implements IConnector {
     // XXX todo make this a pool.
     // XXX use CMMF in the future.
     protected IHttpConnection mConn = null;
-    private Thread mResendThread = null; 
+    private Thread mResendThread = null;
     private IResender mResender = null;
     private int mTimeout;
 
     private HttpConnFactory mConnFactory = null;
+
     public HttpConnector(IAuthority source, String nickName,
-        IRemoteAuthority dest, int resendInterval, IConfigStore config) throws EBaseException {
+            IRemoteAuthority dest, int resendInterval, IConfigStore config) throws EBaseException {
 
         mTimeout = 0;
         mSource = source;
@@ -72,20 +71,20 @@ public class HttpConnector implements IConnector {
 
         //        mConn = CMS.getHttpConnection(dest, mFactory);
         // this will start resending past requests in parallel. 
-        mResender = CMS.getResender(mSource, nickName, dest, resendInterval); 
+        mResender = CMS.getResender(mSource, nickName, dest, resendInterval);
         mResendThread = new Thread(mResender, "HttpConnector");
     }
-	
+
     // Inserted by beomsuk
     public HttpConnector(IAuthority source, String nickName,
-        IRemoteAuthority dest, int resendInterval, IConfigStore config, int timeout) throws EBaseException {
+            IRemoteAuthority dest, int resendInterval, IConfigStore config, int timeout) throws EBaseException {
         mSource = source;
         mDest = dest;
         mTimeout = timeout;
         mFactory = new JssSSLSocketFactory(nickName);
 
         int minConns = config.getInteger("minHttpConns", 1);
-        int maxConns = config.getInteger("maxHttpConns", 15); 
+        int maxConns = config.getInteger("maxHttpConns", 15);
 
         CMS.debug("HttpConn: min " + minConns);
         CMS.debug("HttpConn: max " + maxConns);
@@ -97,14 +96,14 @@ public class HttpConnector implements IConnector {
         }
 
         // this will start resending past requests in parallel. 
-        mResender = CMS.getResender(mSource, nickName, dest, resendInterval); 
+        mResender = CMS.getResender(mSource, nickName, dest, resendInterval);
         mResendThread = new Thread(mResender, "HttpConnector");
     }
 
     // Insert end
-    
-    public  boolean  send(IRequest r)
-        throws EBaseException {
+
+    public boolean send(IRequest r)
+            throws EBaseException {
         IHttpConnection curConn = null;
 
         try {
@@ -144,31 +143,31 @@ public class HttpConnector implements IConnector {
             // XXX hack: don't resend get revocation info requests since 
             // resent results are ignored.
             if ((!r.getRequestType().equals(
-                        IRequest.GETREVOCATIONINFO_REQUEST)) && 
-                (replyStatus == RequestStatus.BEGIN || 
-                    replyStatus == RequestStatus.PENDING ||
-                    replyStatus == RequestStatus.SVC_PENDING ||
+                        IRequest.GETREVOCATIONINFO_REQUEST)) &&
+                    (replyStatus == RequestStatus.BEGIN ||
+                            replyStatus == RequestStatus.PENDING ||
+                            replyStatus == RequestStatus.SVC_PENDING ||
                     replyStatus == RequestStatus.APPROVED)) {
                 CMS.debug("HttpConn:  remote request id still pending " +
-                    r.getRequestId() + " state " + replyStatus);
+                        r.getRequestId() + " state " + replyStatus);
                 mSource.log(ILogger.LL_INFO, CMS.getLogMessage("CMSCORE_CONNECTOR_REQUEST_NOT_COMPLETED", r.getRequestId().toString()));
                 mResender.addRequest(r);
                 return false;
             }
 
             // request was completed.
-            replymsg.toRequest(r);  // this only copies contents.
+            replymsg.toRequest(r); // this only copies contents.
 
             // terminal states other than completed
-            if (replyStatus == RequestStatus.REJECTED || 
-                replyStatus == RequestStatus.CANCELED) {
+            if (replyStatus == RequestStatus.REJECTED ||
+                    replyStatus == RequestStatus.CANCELED) {
                 CMS.debug(
-                    "remote request id " + r.getRequestId() +
-                    " was rejected or cancelled.");
+                        "remote request id " + r.getRequestId() +
+                                " was rejected or cancelled.");
                 r.setExtData(IRequest.REMOTE_STATUS, replyStatus.toString());
                 r.setExtData(IRequest.RESULT, IRequest.RES_ERROR);
                 r.setExtData(IRequest.ERROR,
-                    new EBaseException(CMS.getUserMessage("CMS_BASE_REMOTE_AUTHORITY_ERROR")));
+                        new EBaseException(CMS.getUserMessage("CMS_BASE_REMOTE_AUTHORITY_ERROR")));
                 // XXX overload svcerrors for now. 
                 Vector policyErrors = r.getExtDataInStringVector(IRequest.ERRORS);
 
@@ -178,11 +177,11 @@ public class HttpConnector implements IConnector {
             }
 
             CMS.debug(
-                "remote request id " + r.getRequestId() + " was completed");
+                    "remote request id " + r.getRequestId() + " was completed");
             return true;
         } catch (EBaseException e) {
             CMS.debug("HttpConn: inside EBaseException " + e.toString());
-           
+
             if (!r.getRequestType().equals(IRequest.GETREVOCATIONINFO_REQUEST))
                 mResender.addRequest(r);
 

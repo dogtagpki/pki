@@ -17,15 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.jobs;
 
-
-
-
 /**
  * This class represents a job plugin registered with the
- * JobScheduler.  A Job plugin can be instantiated into a Job instance 
+ * JobScheduler. A Job plugin can be instantiated into a Job instance
  * and scheduled by the JobScheduler to run at a scheduled interval
  * <P>
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class JobPlugin {
@@ -46,6 +43,7 @@ public class JobPlugin {
 
     /**
      * Constructor for a Job plugin.
+     * 
      * @param id job plugin name
      * @param classPath the Java class name of this job plugin
      */
@@ -56,6 +54,7 @@ public class JobPlugin {
 
     /**
      * get the job plugin name
+     * 
      * @return the name of this job plugin
      */
     public String getId() {
@@ -64,6 +63,7 @@ public class JobPlugin {
 
     /**
      * get the Java class name
+     * 
      * @return the Java class name of this plugin
      */
     public String getClassPath() {

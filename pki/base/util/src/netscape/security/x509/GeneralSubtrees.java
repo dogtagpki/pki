@@ -27,19 +27,19 @@ import netscape.security.util.PrettyPrintFormat;
 
 /**
  * Represent the GeneralSubtrees ASN.1 object.
- *
+ * 
  * @version 1.4
- *
+ * 
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  */
 public class GeneralSubtrees {
-    private Vector<GeneralSubtree>	trees;
+    private Vector<GeneralSubtree> trees;
     private PrettyPrintFormat pp = new PrettyPrintFormat(":");
 
     /**
      * The default constructor for the class.
-     *
+     * 
      * @param trees the sequence of GeneralSubtree.
      */
     public GeneralSubtrees(Vector<GeneralSubtree> trees) {
@@ -48,7 +48,7 @@ public class GeneralSubtrees {
 
     /**
      * Create the object from the passed DER encoded form.
-     *
+     * 
      * @param val the DER encoded form of the same.
      */
     public GeneralSubtrees(DerValue val) throws IOException {
@@ -76,28 +76,28 @@ public class GeneralSubtrees {
     public String toPrint(int indent) {
 
         String s = "";
-	GeneralSubtree element;
+        GeneralSubtree element;
 
-	for (Enumeration<GeneralSubtree> e = trees.elements() ; e.hasMoreElements() ;) {
-		element = (GeneralSubtree) e.nextElement();		
-		s = s + pp.indent(indent+4)+ element.toPrint(indent) +"\n";
-	}
+        for (Enumeration<GeneralSubtree> e = trees.elements(); e.hasMoreElements();) {
+            element = (GeneralSubtree) e.nextElement();
+            s = s + pp.indent(indent + 4) + element.toPrint(indent) + "\n";
+        }
 
         return (s);
     }
 
     /**
      * Encode the GeneralSubtrees.
-     *
+     * 
      * @param out the DerOutputStrean to encode this object to.
      */
     public void encode(DerOutputStream out) throws IOException {
         DerOutputStream seq = new DerOutputStream();
 
         for (int i = 0; i < trees.size(); i++) {
-            ((GeneralSubtree)trees.elementAt(i)).encode(seq);
+            ((GeneralSubtree) trees.elementAt(i)).encode(seq);
         }
-        out.write(DerValue.tag_Sequence,seq);
+        out.write(DerValue.tag_Sequence, seq);
     }
 
     public Vector<GeneralSubtree> getSubtrees() {

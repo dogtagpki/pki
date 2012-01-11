@@ -17,9 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmsutil.radius;
 
-
-
-
 public class ChallengeException extends Exception {
     /**
      *

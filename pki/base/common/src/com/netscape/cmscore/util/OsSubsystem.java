@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.util;
 
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -36,13 +35,12 @@ import com.netscape.osutil.Signal;
 import com.netscape.osutil.SignalListener;
 import com.netscape.osutil.UserID;
 
-
 /**
- * This object contains the OS independent interfaces.  It's currently
+ * This object contains the OS independent interfaces. It's currently
  * used for Unix signal and user handling, but could eventually be extended
  * for NT interfaces.
  * <P>
- *
+ * 
  * @author mikep
  * @version $Revision$, $Date$
  */
@@ -89,13 +87,13 @@ public final class OsSubsystem implements ISubsystem {
      * Initializes this subsystem with the given configuration
      * store.
      * <P>
-     *
+     * 
      * @param owner owner of this subsystem
      * @param config configuration store
      * @exception EBaseException failed to initialize
      */
     public void init(ISubsystem owner, IConfigStore config)
-        throws EBaseException {
+            throws EBaseException {
 
         mOwner = owner;
         mConfig = config;
@@ -155,7 +153,7 @@ public final class OsSubsystem implements ISubsystem {
                  * @message OS: <exception thrown>
                  */
                 mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                    ILogger.LL_FAILURE, "OS: " + e.toString());
+                        ILogger.LL_FAILURE, "OS: " + e.toString());
             }
         }
     }
@@ -173,7 +171,7 @@ public final class OsSubsystem implements ISubsystem {
     }
 
     /**
-     * Used to change the process user id usually called after the appropriate 
+     * Used to change the process user id usually called after the appropriate
      * network ports have been opened.
      */
     public void setUserId() throws EBaseException {
@@ -194,10 +192,10 @@ public final class OsSubsystem implements ISubsystem {
              * @arg0 default user id
              */
             mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                ILogger.LL_FAILURE, 
-                "OS: No user id in config file.  Running as {0}", id);
+                    ILogger.LL_FAILURE,
+                    "OS: No user id in config file.  Running as {0}", id);
         } else {
-            Object[] params = {userid, id};
+            Object[] params = { userid, id };
 
             try {
                 UserID.set(userid);
@@ -209,9 +207,9 @@ public final class OsSubsystem implements ISubsystem {
                  * @arg0 supplied user id in config
                  * @arg1 default user id
                  */
-                mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER, 
-                    ILogger.LL_FAILURE,
-                    "OS: No such user as {0}.  Running as {1}", params);
+                mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
+                        ILogger.LL_FAILURE,
+                        "OS: No such user as {0}.  Running as {1}", params);
             } catch (SecurityException e) {
 
                 /*LogDoc
@@ -221,9 +219,9 @@ public final class OsSubsystem implements ISubsystem {
                  * @arg1 default user id
                  */
                 mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                    ILogger.LL_FAILURE, 
-                    "OS: Can't change process uid to {0}. Running as {1}", 
-                    params);
+                        ILogger.LL_FAILURE,
+                        "OS: Can't change process uid to {0}. Running as {1}",
+                        params);
             }
         }
     }
@@ -232,7 +230,7 @@ public final class OsSubsystem implements ISubsystem {
     }
 
     /**
-     * Stops the watchdog.  You need to call this if you want the
+     * Stops the watchdog. You need to call this if you want the
      * server to really shutdown, otherwise the watchdog will just
      * restart us.
      * <P>
@@ -248,8 +246,8 @@ public final class OsSubsystem implements ISubsystem {
              * @phase stop watchdog
              */
             CMS.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                ILogger.LL_INFO, 
-                "OS: stop the NT watchdog!");
+                    ILogger.LL_INFO,
+                    "OS: stop the NT watchdog!");
         }
     }
 
@@ -276,7 +274,7 @@ public final class OsSubsystem implements ISubsystem {
         //	mSignalThread.stop();
         //	mSignalThread = null;
         //}
-		
+
         /* Don't release this signals to protect the process
          Signal.release(Signal.SIGHUP); 
          Signal.release(Signal.SIGTERM);
@@ -298,18 +296,18 @@ public final class OsSubsystem implements ISubsystem {
     public void restart() {
 
         /**
-         if (isUnix()) {
-         restartUnix();
-         } else {
-         restartNT();
-         }
+         * if (isUnix()) {
+         * restartUnix();
+         * } else {
+         * restartNT();
+         * }
          **/
     }
 
     /**
      * Returns the root configuration storage of this system.
      * <P>
-     *
+     * 
      * @return configuration store of this subsystem
      */
     public IConfigStore getConfigStore() {
@@ -319,8 +317,9 @@ public final class OsSubsystem implements ISubsystem {
     /**
      * A universal routine to decide if we are Unix or something else.
      * This is mostly used for signal handling and uids.
-     *
+     * 
      * <P>
+     * 
      * @return true if these OS the JavaVM is running on is some Unix varient
      */
     public static boolean isUnix() {
@@ -329,8 +328,8 @@ public final class OsSubsystem implements ISubsystem {
     }
 
     /**
-     * Unix signal thread.  Sleep for a second and then check on the
-     * signals we're interested in.  If one is set, do the right stuff
+     * Unix signal thread. Sleep for a second and then check on the
+     * signals we're interested in. If one is set, do the right stuff
      */
     final class SignalThread extends Thread {
 
@@ -360,16 +359,16 @@ public final class OsSubsystem implements ISubsystem {
 
                 // wants us to exit?
                 if (Signal.caught(Signal.SIGINT) > 0 ||
-                    Signal.caught(Signal.SIGTERM) > 0) {
+                        Signal.caught(Signal.SIGTERM) > 0) {
 
                     /*LogDoc
                      *
                      * @phase watchdog check
                      */
-                    mLogger.log(ILogger.EV_SYSTEM, 
-                        ILogger.S_OTHER, 
-                        ILogger.LL_INFO,
-                        "OS: Received shutdown signal");
+                    mLogger.log(ILogger.EV_SYSTEM,
+                            ILogger.S_OTHER,
+                            ILogger.LL_INFO,
+                            "OS: Received shutdown signal");
                     SubsystemRegistry.getInstance().get("MAIN").shutdown();
                     return;
                 }
@@ -381,10 +380,10 @@ public final class OsSubsystem implements ISubsystem {
                      *
                      * @phase watchdog check
                      */
-                    mLogger.log(ILogger.EV_SYSTEM, 
-                        ILogger.S_OTHER, 
-                        ILogger.LL_INFO,
-                        "OS: Received restart signal");
+                    mLogger.log(ILogger.EV_SYSTEM,
+                            ILogger.S_OTHER,
+                            ILogger.LL_INFO,
+                            "OS: Received restart signal");
                     restart();
                     return;
                 }
@@ -395,9 +394,9 @@ public final class OsSubsystem implements ISubsystem {
     }
 }
 
-
 class SIGTERMListener extends SignalListener {
     private OsSubsystem mOS;
+
     public SIGTERMListener(OsSubsystem os) {
         mOS = os;
     }
@@ -410,9 +409,9 @@ class SIGTERMListener extends SignalListener {
     }
 }
 
-
 class SIGINTListener extends SignalListener {
     private OsSubsystem mOS;
+
     public SIGINTListener(OsSubsystem os) {
         mOS = os;
     }
@@ -425,9 +424,9 @@ class SIGINTListener extends SignalListener {
     }
 }
 
-
 class SIGHUPListener extends SignalListener {
     private OsSubsystem mOS;
+
     public SIGHUPListener(OsSubsystem os) {
         mOS = os;
     }

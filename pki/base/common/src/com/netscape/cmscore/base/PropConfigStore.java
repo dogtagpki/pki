@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.base;
 
-
 import java.io.ByteArrayOutputStream;
 import java.io.FilterOutputStream;
 import java.io.IOException;
@@ -38,23 +37,24 @@ import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISourceConfigStore;
 
-
 /**
  * A class represents a in-memory configuration store.
  * Note this class takes advantage of the recursive nature of
- * property names.  The current property prefix is kept in
+ * property names. The current property prefix is kept in
  * mStoreName and the mSource usually points back to another
  * occurance of the same PropConfigStore, with longer mStoreName. IE
+ * 
  * <PRE>
- *		cms.ca0.http.service0 -> mSource=PropConfigStore ->
- *			cms.ca0.http -> mSource=PropConfigStore ->
- *				cms.ca0 -> mSource=PropConfigStore ->
+ * 	cms.ca0.http.service0 -> mSource=PropConfigStore ->
+ * 		cms.ca0.http -> mSource=PropConfigStore ->
+ * 			cms.ca0 -> mSource=PropConfigStore ->
  * 					cms -> mSource=SourceConfigStore -> Properties
  * </PRE>
+ * 
  * The chain ends when the store name is reduced down to it's original
  * value.
  * <P>
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class PropConfigStore implements IConfigStore, Cloneable {
@@ -76,14 +76,14 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      */
     protected ISourceConfigStore mSource = null;
 
-	private static String mDebugType="CS.cfg";
+    private static String mDebugType = "CS.cfg";
 
     /**
      * Constructs a property configuration store. This must
      * be a brand new store without properties. The subclass
      * must be a ISourceConfigStore.
      * <P>
-     *
+     * 
      * @param storeName property store name
      * @exception EBaseException failed to create configuration
      */
@@ -98,7 +98,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      * that stores all the parameters. Each substore only
      * store a substore name, and a reference to the source.
      * <P>
-     *
+     * 
      * @param storeName store name
      * @param prop list of properties
      * @exception EBaseException failed to create configuration
@@ -111,7 +111,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
     /**
      * Returns the name of this store.
      * <P>
-     *
+     * 
      * @return store name
      */
     public String getName() {
@@ -121,7 +121,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
     /**
      * Retrieves a property from the configuration file.
      * <P>
-     *
+     * 
      * @param name property name
      * @return property value
      */
@@ -130,10 +130,10 @@ public class PropConfigStore implements IConfigStore, Cloneable {
     }
 
     /**
-     * Retrieves a property from the configuration file.  Does not prepend
+     * Retrieves a property from the configuration file. Does not prepend
      * the config store name to the property.
      * <P>
-     *
+     * 
      * @param name property name
      * @return property value
      */
@@ -146,7 +146,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      * values wont be updated to the file until save
      * method is invoked.
      * <P>
-     *
+     * 
      * @param name property name
      * @param value property value
      */
@@ -156,16 +156,17 @@ public class PropConfigStore implements IConfigStore, Cloneable {
 
     /**
      * Removes a property from the configuration file.
-     *
+     * 
      * @param name property name
      */
     public void remove(String name) {
         ((SourceConfigStore) mSource).remove(getFullName(name));
-    }	
+    }
 
     /**
      * Returns an enumeration of the config store's keys, hidding the store
      * name.
+     * 
      * @see java.util.Hashtable#elements
      * @see java.util.Enumeration
      */
@@ -178,7 +179,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
 
     /**
      * Retrieves the hashtable where all the properties are kept.
-     *
+     * 
      * @return hashtable
      */
     public Hashtable hashtable() {
@@ -202,7 +203,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      * Fills the given hash table with all key/value pairs in the current
      * config store, removing the config store name prefix
      * <P>
-     *
+     * 
      * @param h the hashtable
      */
     private synchronized void enumerate(Hashtable h) {
@@ -224,7 +225,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
 
     /**
      * Reads a config store from an input stream.
-     *
+     * 
      * @param in input stream where properties are located
      * @exception IOException failed to load
      */
@@ -234,7 +235,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
 
     /**
      * Stores this config store to the specified output stream.
-     *
+     * 
      * @param out outputstream where the properties are saved
      * @param header optional header information to be saved
      */
@@ -244,7 +245,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
 
     /**
      * Retrieves a property value.
-     *
+     * 
      * @param name property key
      * @return property value
      * @exception EBaseException failed to retrieve value
@@ -253,7 +254,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
         String str = (String) get(name);
 
         if (str == null) {
-			CMS.traceHashKey(mDebugType,getFullName(name),"<notpresent>");
+            CMS.traceHashKey(mDebugType, getFullName(name), "<notpresent>");
             throw new EPropertyNotFound(CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED", getName() + "." + name));
         }
         // should we check for empty string ? 
@@ -267,14 +268,14 @@ public class PropConfigStore implements IConfigStore, Cloneable {
         } catch (java.io.UnsupportedEncodingException e) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_UTF8_NOT_SUPPORTED"));
         }
-		CMS.traceHashKey(mDebugType,getFullName(name),ret);
+        CMS.traceHashKey(mDebugType, getFullName(name), ret);
         return ret;
     }
 
     /**
      * Retrieves a String from the configuration file.
      * <P>
-     *
+     * 
      * @param name property name
      * @param defval the default object to return if name does not exist
      * @return property value
@@ -287,13 +288,13 @@ public class PropConfigStore implements IConfigStore, Cloneable {
         } catch (EPropertyNotFound e) {
             val = defval;
         }
-		CMS.traceHashKey(mDebugType,getFullName(name),val,defval);
+        CMS.traceHashKey(mDebugType, getFullName(name), val, defval);
         return val;
     }
 
     /**
      * Puts property value into this configuration store.
-     *
+     * 
      * @param name property key
      * @param value property value
      */
@@ -304,17 +305,17 @@ public class PropConfigStore implements IConfigStore, Cloneable {
     /**
      * Retrieves a byte array from the configuration file.
      * <P>
-     *
+     * 
      * @param name property name
      * @exception IllegalArgumentException if name is not set or is null.
-     *
+     * 
      * @return property value
      */
     public byte[] getByteArray(String name) throws EBaseException {
         byte[] arr = getByteArray(name, new byte[0]);
 
         if (arr.length == 0) {
-			CMS.traceHashKey(mDebugType,getFullName(name),"<notpresent>");
+            CMS.traceHashKey(mDebugType, getFullName(name), "<notpresent>");
             throw new EPropertyNotFound(CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED", getName() + "." + name));
         }
         return arr;
@@ -323,34 +324,33 @@ public class PropConfigStore implements IConfigStore, Cloneable {
     /**
      * Retrieves a byte array from the configuration file.
      * <P>
-     *
+     * 
      * @param name property name
      * @param defval the default byte array to return if name does
-     * not exist
-     *
+     *            not exist
+     * 
      * @return property value
      */
-    public byte[] getByteArray(String name, byte defval[]) 
-        throws EBaseException {
+    public byte[] getByteArray(String name, byte defval[])
+            throws EBaseException {
         String str = (String) get(name);
 
-            byte returnval;
+        byte returnval;
 
-            if (str == null || str.length() == 0) {
-				CMS.traceHashKey(mDebugType,getFullName(name),
-					"<notpresent>","<bytearray>");
-                return defval;
-			}
-            else {
-				CMS.traceHashKey(mDebugType,getFullName(name),
-					"<bytearray>","<bytearray>");
-                return com.netscape.osutil.OSUtil.AtoB(str);
-			}
+        if (str == null || str.length() == 0) {
+            CMS.traceHashKey(mDebugType, getFullName(name),
+                    "<notpresent>", "<bytearray>");
+            return defval;
+        } else {
+            CMS.traceHashKey(mDebugType, getFullName(name),
+                    "<bytearray>", "<bytearray>");
+            return com.netscape.osutil.OSUtil.AtoB(str);
+        }
     }
 
     /**
      * Puts byte array into this configuration store.
-     *
+     * 
      * @param name property key
      * @param value byte array
      */
@@ -368,13 +368,13 @@ public class PropConfigStore implements IConfigStore, Cloneable {
             put(name, output.toString("8859_1"));
         } catch (IOException e) {
             System.out.println("Warning: base-64 encoding of configuration " +
-                "information failed");
+                    "information failed");
         }
     }
 
     /**
      * Retrieves boolean-based property value.
-     *
+     * 
      * @param name property key
      * @return boolean value
      * @exception EBaseException failed to retrieve
@@ -383,7 +383,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
         String value = (String) get(name);
 
         if (value == null) {
-			CMS.traceHashKey(mDebugType,getFullName(name),"<notpresent>");
+            CMS.traceHashKey(mDebugType, getFullName(name), "<notpresent>");
             throw new EPropertyNotFound(CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED", getName() + "." + name));
         }
         if (value.length() == 0) {
@@ -401,14 +401,14 @@ public class PropConfigStore implements IConfigStore, Cloneable {
 
     /**
      * Retrieves boolean-based property value.
-     *
+     * 
      * @param name property key
      * @param defval default value
      * @return boolean value
      * @exception EBaseException failed to retrieve
      */
-    public boolean getBoolean(String name, boolean defval) 
-        throws EBaseException {
+    public boolean getBoolean(String name, boolean defval)
+            throws EBaseException {
         boolean val;
 
         try {
@@ -418,14 +418,14 @@ public class PropConfigStore implements IConfigStore, Cloneable {
         } catch (EPropertyNotDefined e) {
             val = defval;
         }
-		CMS.traceHashKey(mDebugType,getFullName(name),
-			val?"true":"false", defval?"true":"false");
+        CMS.traceHashKey(mDebugType, getFullName(name),
+                val ? "true" : "false", defval ? "true" : "false");
         return val;
     }
 
     /**
      * Puts boolean value into the configuration store.
-     *
+     * 
      * @param name property key
      * @param value property value
      */
@@ -439,7 +439,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
 
     /**
      * Retrieves integer value.
-     *
+     * 
      * @param name property key
      * @return property value
      * @exception EBaseException failed to retrieve value
@@ -448,14 +448,14 @@ public class PropConfigStore implements IConfigStore, Cloneable {
         String value = (String) get(name);
 
         if (value == null) {
-			CMS.traceHashKey(mDebugType,getFullName(name),"<notpresent>");
+            CMS.traceHashKey(mDebugType, getFullName(name), "<notpresent>");
             throw new EPropertyNotFound(CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED", getName() + "." + name));
         }
         if (value.length() == 0) {
             throw new EPropertyNotDefined(CMS.getUserMessage("CMS_BASE_GET_PROPERTY_NOVALUE", getName() + "." + name));
         }
         try {
-			CMS.traceHashKey(mDebugType,getFullName(name), value);
+            CMS.traceHashKey(mDebugType, getFullName(name), value);
             return Integer.parseInt(value);
         } catch (NumberFormatException e) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_PROPERTY_1", getName() + "." + name, "int", "number"));
@@ -464,7 +464,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
 
     /**
      * Retrieves integer value.
-     *
+     * 
      * @param name property key
      * @param defval default value
      * @return property value
@@ -480,14 +480,14 @@ public class PropConfigStore implements IConfigStore, Cloneable {
         } catch (EPropertyNotDefined e) {
             val = defval;
         }
-		CMS.traceHashKey(mDebugType,getFullName(name),
-			""+val,""+defval);
+        CMS.traceHashKey(mDebugType, getFullName(name),
+                "" + val, "" + defval);
         return val;
     }
 
     /**
      * Puts an integer value.
-     *
+     * 
      * @param name property key
      * @param val property value
      * @exception EBaseException failed to retrieve value
@@ -498,7 +498,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
 
     /**
      * Retrieves big integer value.
-     *
+     * 
      * @param name property key
      * @return property value
      * @exception EBaseException failed to retrieve value
@@ -507,7 +507,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
         String value = (String) get(name);
 
         if (value == null) {
-			CMS.traceHashKey(mDebugType,getFullName(name),"<notpresent>");
+            CMS.traceHashKey(mDebugType, getFullName(name), "<notpresent>");
             throw new EPropertyNotFound(CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED", getName() + "." + name));
         }
         if (value.length() == 0) {
@@ -527,14 +527,14 @@ public class PropConfigStore implements IConfigStore, Cloneable {
 
     /**
      * Retrieves integer value.
-     *
+     * 
      * @param name property key
      * @param defval default value
      * @return property value
      * @exception EBaseException failed to retrieve value
      */
-    public BigInteger getBigInteger(String name, BigInteger defval) 
-        throws EBaseException {
+    public BigInteger getBigInteger(String name, BigInteger defval)
+            throws EBaseException {
         BigInteger val;
 
         try {
@@ -549,7 +549,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
 
     /**
      * Puts a big integer value.
-     *
+     * 
      * @param name property key
      * @param val default value
      */
@@ -560,7 +560,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
     /**
      * Creates a new sub store.
      * <P>
-     *
+     * 
      * @param name substore name
      * @return substore
      */
@@ -581,13 +581,14 @@ public class PropConfigStore implements IConfigStore, Cloneable {
     }
 
     /**
-     * Removes a sub store.<p>
-     *
+     * Removes a sub store.
+     * <p>
+     * 
      * @param name substore name
      */
     public void removeSubStore(String name) {
         // this operation is expensive!!!
-		
+
         Enumeration e = mSource.keys();
         // We only want the keys which match the current substore name
         // without the current substore prefix.  This code works even
@@ -607,18 +608,21 @@ public class PropConfigStore implements IConfigStore, Cloneable {
     /**
      * Retrieves a sub store. A substore contains a list
      * of properties and substores. For example,
+     * 
      * <PRE>
      *    cms.ldap.host=ds.netscape.com
      *    cms.ldap.port=389
      * </PRE>
+     * 
      * "ldap" is a substore in above example. If the
      * substore property itself is set, this method
      * will treat the value as a reference. For example,
+     * 
      * <PRE>
-     *    cms.ldap=kms.ldap
+     * cms.ldap = kms.ldap
      * </PRE>
      * <P>
-     *
+     * 
      * @param name substore name
      * @return substore
      */
@@ -639,7 +643,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
 
     /**
      * Retrieves a list of property names.
-     *
+     * 
      * @return a list of string-based property names
      */
     public Enumeration getPropertyNames() {
@@ -668,7 +672,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
     /**
      * Returns a list of sub store names.
      * <P>
-     *
+     * 
      * @return list of substore names
      */
     public Enumeration getSubStoreNames() {
@@ -698,7 +702,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      * Retrieves the source configuration store where
      * the properties are stored.
      * <P>
-     *
+     * 
      * @return source configuration store
      */
     public ISourceConfigStore getSourceConfigStore() {
@@ -726,7 +730,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
 
     /**
      * Converts the substore parameters.
-     *
+     * 
      * @param name property name
      * @return fill property name
      */
@@ -739,7 +743,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
 
     /**
      * Cloning of property configuration store.
-     *
+     * 
      * @return a new configuration store
      */
     public Object clone() {
@@ -752,7 +756,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
 
             while (subs.hasMoreElements()) {
                 IConfigStore sub = (IConfigStore)
-                    subs.nextElement();
+                        subs.nextElement();
                 IConfigStore newSub = that.makeSubStore(
                         sub.getName());
                 Enumeration props = sub.getPropertyNames();
@@ -761,8 +765,8 @@ public class PropConfigStore implements IConfigStore, Cloneable {
                     String n = (String) props.nextElement();
 
                     try {
-                        newSub.putString(n, 
-                            sub.getString(n));
+                        newSub.putString(n,
+                                sub.getString(n));
                     } catch (EBaseException ex) {
                     }
                 }

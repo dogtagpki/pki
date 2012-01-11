@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.apps;
 
-
 import java.util.Hashtable;
 
 import javax.servlet.Servlet;
@@ -25,23 +24,22 @@ import javax.servlet.Servlet;
 import com.netscape.certsrv.apps.ICommandQueue;
 import com.netscape.cms.servlet.common.CMSRequest;
 
-
 /*---------------------------------------------------------------
  ** CommandQueue - Class
  */
 
 /**
- *  register and unregister proccess for clean shutdown
+ * register and unregister proccess for clean shutdown
  */
 public class CommandQueue implements Runnable, ICommandQueue {
 
-    public static Hashtable<CMSRequest, Servlet> mCommandQueue = new Hashtable<CMSRequest, Servlet>(); 
+    public static Hashtable<CMSRequest, Servlet> mCommandQueue = new Hashtable<CMSRequest, Servlet>();
     public static boolean mShuttingDown = false;
 
     /*-----------------------------------------------------------
      ** CommandQueue - Constructor
      */
-    
+
     /**
      * Main constructor.
      */
@@ -52,7 +50,7 @@ public class CommandQueue implements Runnable, ICommandQueue {
     /*-----------------------------------------------------------
      ** run
      */
-    
+
     /**
      * Overrides Thread.run(), calls batchPublish().
      */
@@ -65,7 +63,7 @@ public class CommandQueue implements Runnable, ICommandQueue {
         mShuttingDown = true;
         while (mCommandQueue.isEmpty() == false) {
             try {
-				Thread.sleep(5 * 1000);
+                Thread.sleep(5 * 1000);
                 //gcProcess();
             } catch (Exception e) {
 
@@ -78,9 +76,9 @@ public class CommandQueue implements Runnable, ICommandQueue {
             if ((currentServlet instanceof com.netscape.cms.servlet.base.CMSStartServlet) == false)
                 mCommandQueue.put(currentRequest, currentServlet);
             return true;
-        }else
+        } else
             return false;
-        
+
     }
 
     public void unRegisterProccess(Object currentRequest, Object currentServlet) {
@@ -88,13 +86,13 @@ public class CommandQueue implements Runnable, ICommandQueue {
 
         while (e.hasMoreElements()) {
             Object thisRequest = e.nextElement();
-      
+
             if (thisRequest.equals(currentRequest)) {
                 if (mCommandQueue.get(currentRequest).equals(currentServlet))
                     mCommandQueue.remove(currentRequest);
             }
         }
-            
+
     }
 } // CommandQueue
 

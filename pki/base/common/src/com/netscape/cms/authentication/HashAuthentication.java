@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.authentication;
 
-
 // ldap java sdk
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -40,11 +39,10 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cmsutil.util.Utils;
 
-
 /**
  * Hash uid/pwd directory based authentication manager
  * <P>
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class HashAuthentication implements IAuthManager, IExtendedPluginInfo {
@@ -71,18 +69,18 @@ public class HashAuthentication implements IAuthManager, IExtendedPluginInfo {
     private ILogger mLogger = CMS.getLogger();
     private static Vector mExtendedPluginInfo = null;
     private HashAuthData mHosts = null;
-   
+
     static String[] mConfigParams =
-        new String[] {};
+            new String[] {};
 
     static {
         mExtendedPluginInfo = new Vector();
         mExtendedPluginInfo.add(IExtendedPluginInfo.HELP_TEXT +
-            ";Authenticate the username and password provided " +
-            "by the user against an LDAP directory. Works with the " +
-            "Dir Based Enrollment HTML form");
+                ";Authenticate the username and password provided " +
+                "by the user against an LDAP directory. Works with the " +
+                "Dir Based Enrollment HTML form");
         mExtendedPluginInfo.add(IExtendedPluginInfo.HELP_TOKEN +
-            ";configuration-authrules-uidpwddirauth");
+                ";configuration-authrules-uidpwddirauth");
     };
 
     /**
@@ -91,8 +89,8 @@ public class HashAuthentication implements IAuthManager, IExtendedPluginInfo {
     public HashAuthentication() {
     }
 
-    public void init(String name, String implName, IConfigStore config)  
-        throws EBaseException {
+    public void init(String name, String implName, IConfigStore config)
+            throws EBaseException {
         mName = name;
         mImplName = implName;
         mConfig = config;
@@ -124,7 +122,7 @@ public class HashAuthentication implements IAuthManager, IExtendedPluginInfo {
     }
 
     public void createEntry(String host, String dn, long timeout,
-        String secret, long lastLogin) {
+            String secret, long lastLogin) {
         Vector v = new Vector();
 
         v.addElement(dn);
@@ -141,7 +139,7 @@ public class HashAuthentication implements IAuthManager, IExtendedPluginInfo {
     public String getAgentName(String hostname) {
         return mHosts.getAgentName(hostname);
     }
-    
+
     public void setAgentName(String hostname, String agentName) {
         mHosts.setAgentName(hostname, agentName);
     }
@@ -184,7 +182,7 @@ public class HashAuthentication implements IAuthManager, IExtendedPluginInfo {
         if (mLogger == null)
             return;
         mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_AUTHENTICATION,
-            level, msg);
+                level, msg);
     }
 
     public boolean validFingerprint(String host, String pageID, String uid, String fingerprint) {
@@ -192,7 +190,7 @@ public class HashAuthentication implements IAuthManager, IExtendedPluginInfo {
 
         if (val.equals(fingerprint))
             return true;
-        return false; 
+        return false;
     }
 
     public Enumeration getHosts() {
@@ -200,8 +198,8 @@ public class HashAuthentication implements IAuthManager, IExtendedPluginInfo {
     }
 
     public String hashFingerprint(String host, String pageID, String uid) {
-        byte[] hash = 
-            mSHADigest.digest((SALT + pageID + getSecret(host) + uid).getBytes());        
+        byte[] hash =
+                mSHADigest.digest((SALT + pageID + getSecret(host) + uid).getBytes());
         String b64E = com.netscape.osutil.OSUtil.BtoA(hash);
 
         return "{SHA}" + b64E;
@@ -216,18 +214,18 @@ public class HashAuthentication implements IAuthManager, IExtendedPluginInfo {
      * @param authCreds The authentication credentials.
      * @return The user's ldap entry dn.
      * @exception EInvalidCredentials If the uid and password are not valid
-     * @exception EBaseException If an internal error occurs. 
+     * @exception EBaseException If an internal error occurs.
      */
     public IAuthToken authenticate(IAuthCredentials authCreds)
-        throws EBaseException {
+            throws EBaseException {
         AuthToken token = new AuthToken(this);
         String fingerprint = (String) authCreds.get(CRED_FINGERPRINT);
         String pageID = (String) authCreds.get(CRED_PAGEID);
         String uid = (String) authCreds.get(CRED_UID);
         String host = (String) authCreds.get(CRED_HOST);
 
-        if (fingerprint.equals("") || 
-            !validFingerprint(host, pageID, uid, fingerprint)) {
+        if (fingerprint.equals("") ||
+                !validFingerprint(host, pageID, uid, fingerprint)) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMS_AUTH_INVALID_FINGER_PRINT"));
             throw new EAuthException("Invalid Fingerprint");
         }
@@ -240,6 +238,7 @@ public class HashAuthentication implements IAuthManager, IExtendedPluginInfo {
 
     /**
      * Returns array of required credentials for this authentication manager.
+     * 
      * @return Array of required credentials.
      */
     public String[] getRequiredCreds() {
@@ -248,6 +247,7 @@ public class HashAuthentication implements IAuthManager, IExtendedPluginInfo {
 
     /**
      * Gets the configuration substore used by this authentication manager
+     * 
      * @return configuration store
      */
     public IConfigStore getConfigStore() {
@@ -276,14 +276,13 @@ public class HashAuthentication implements IAuthManager, IExtendedPluginInfo {
     }
 
     /**
-     * Returns a list of configuration parameter names. 
-     * The list is passed to the configuration console so instances of 
+     * Returns a list of configuration parameter names.
+     * The list is passed to the configuration console so instances of
      * this implementation can be configured through the console.
-     *
+     * 
      * @return String array of configuration parameter names.
      */
     public String[] getConfigParams() {
         return (mConfigParams);
     }
 }
-

@@ -41,7 +41,7 @@ public class RequestQueueTest extends CMSBaseTestCase {
     }
 
     class RequestStub extends RequestDefaultStub {
-        String[] keys = new String[] {"key1", "key2"};
+        String[] keys = new String[] { "key1", "key2" };
         boolean getExtDataKeysCalled = false;
 
         public Enumeration getExtDataKeys() {

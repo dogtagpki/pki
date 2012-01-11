@@ -17,12 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.request;
 
-
 import java.util.Vector;
 
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestScheduler;
-
 
 /**
  * This class represents a request scheduler that prioritizes
@@ -37,7 +35,7 @@ public class RequestScheduler implements IRequestScheduler {
 
     /**
      * Request entered the request queue processing.
-     *
+     * 
      * @param r request
      */
     public synchronized void requestIn(IRequest r) {
@@ -51,10 +49,10 @@ public class RequestScheduler implements IRequestScheduler {
 
     /**
      * Request exited the request queue processing.
-     *
+     * 
      * @param r request
      */
-    public synchronized void requestOut(IRequest r) { 
+    public synchronized void requestOut(IRequest r) {
         Thread current = Thread.currentThread();
         Thread first = (Thread) mRequestThreads.elementAt(0);
 

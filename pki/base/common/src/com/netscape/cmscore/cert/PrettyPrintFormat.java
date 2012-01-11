@@ -17,14 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.cert;
 
-
 import com.netscape.certsrv.base.IPrettyPrintFormat;
-
 
 /**
  * This class will display the certificate content in predefined
  * format.
- *
+ * 
  * @author Andrew Wnuk
  * @version $Revision$, $Date$
  */
@@ -42,11 +40,11 @@ public class PrettyPrintFormat implements IPrettyPrintFormat {
      *
      *==========================================================*/
     private final static String spaces =
-        "                                                 " +
-        "                                                 " +
-        "                                                 " +
-        "                                                 " +
-        "                                                 ";
+            "                                                 " +
+                    "                                                 " +
+                    "                                                 " +
+                    "                                                 " +
+                    "                                                 ";
 
     /*==========================================================
      * constructors
@@ -70,8 +68,7 @@ public class PrettyPrintFormat implements IPrettyPrintFormat {
     /*==========================================================
      * Private methods
      *==========================================================*/
-	 
-	 
+
     /*==========================================================
      * public methods
      *==========================================================*/
@@ -79,6 +76,7 @@ public class PrettyPrintFormat implements IPrettyPrintFormat {
     /**
      * Provide white space indention
      * stevep - speed improvements. Factor of 10 improvement
+     * 
      * @param numSpace number of white space to be returned
      * @return white spaces
      */
@@ -94,17 +92,18 @@ public class PrettyPrintFormat implements IPrettyPrintFormat {
     /**
      * Convert Byte Array to Hex String Format
      * stevep - speedup by factor of 8
+     * 
      * @param byte array of data to hexify
      * @param indentSize number of spaces to prepend before each line
      * @param lineLen number of bytes to output on each line (0
-     means: put everything on one line
+     *            means: put everything on one line
      * @param separator the first character of this string will be used as
-     the separator between bytes.
+     *            the separator between bytes.
      * @return string representation
      */
 
-    public String toHexString(byte[] in, int indentSize, 
-        int lineLen, String separator) {
+    public String toHexString(byte[] in, int indentSize,
+            int lineLen, String separator) {
         StringBuffer sb = new StringBuffer();
         int hexCount = 0;
         char c[];

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.authentication;
 
-
 // ldap java sdk
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -53,15 +52,14 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 
-
 /**
  * uid/pwd/pin directory based authentication manager
  * <P>
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class UidPwdPinDirAuthentication extends DirBasedAuthentication
-    implements IExtendedPluginInfo, IProfileAuthenticator {
+        implements IExtendedPluginInfo, IProfileAuthenticator {
 
     /* required credentials to authenticate. uid and pwd are strings. */
     public static final String CRED_UID = "uid";
@@ -84,49 +82,49 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication
      * for instances of this implementation can be configured through the
      * console.
      */
-    protected static String[] mConfigParams = 
-        new String[] { PROP_REMOVE_PIN,
-            PROP_PIN_ATTR,
-            PROP_DNPATTERN,
-            PROP_LDAPSTRINGATTRS,
-            PROP_LDAPBYTEATTRS,
-            "ldap.ldapconn.host",
-            "ldap.ldapconn.port",
-            "ldap.ldapconn.secureConn",
-            "ldap.ldapconn.version",
-            "ldap.ldapauth.bindDN",
-            "ldap.ldapauth.bindPWPrompt",
-            "ldap.ldapauth.clientCertNickname",
-            "ldap.ldapauth.authtype",
-            "ldap.basedn",
-            "ldap.minConns", 
-            "ldap.maxConns",
+    protected static String[] mConfigParams =
+            new String[] { PROP_REMOVE_PIN,
+                    PROP_PIN_ATTR,
+                    PROP_DNPATTERN,
+                    PROP_LDAPSTRINGATTRS,
+                    PROP_LDAPBYTEATTRS,
+                    "ldap.ldapconn.host",
+                    "ldap.ldapconn.port",
+                    "ldap.ldapconn.secureConn",
+                    "ldap.ldapconn.version",
+                    "ldap.ldapauth.bindDN",
+                    "ldap.ldapauth.bindPWPrompt",
+                    "ldap.ldapauth.clientCertNickname",
+                    "ldap.ldapauth.authtype",
+                    "ldap.basedn",
+                    "ldap.minConns",
+                    "ldap.maxConns",
         };
 
     static {
         mExtendedPluginInfo.add(
-            PROP_REMOVE_PIN + ";boolean;SEE DOCUMENTATION for pin removal");
+                PROP_REMOVE_PIN + ";boolean;SEE DOCUMENTATION for pin removal");
         mExtendedPluginInfo.add(
-            PROP_PIN_ATTR + ";string;directory attribute to use for pin (default 'pin')");
+                PROP_PIN_ATTR + ";string;directory attribute to use for pin (default 'pin')");
         mExtendedPluginInfo.add(
-            "ldap.ldapauth.bindDN;string;DN to bind as for pin removal. "
-            + "For example 'CN=PinRemoval User'");
+                "ldap.ldapauth.bindDN;string;DN to bind as for pin removal. "
+                        + "For example 'CN=PinRemoval User'");
         mExtendedPluginInfo.add(
-            "ldap.ldapauth.bindPWPrompt;password;Enter password used to bind as " +
-            "the above user");
+                "ldap.ldapauth.bindPWPrompt;password;Enter password used to bind as " +
+                        "the above user");
         mExtendedPluginInfo.add(
-            "ldap.ldapauth.clientCertNickname;string;If you want to use "
-            + "SSL client auth to the directory, set the client "
-            + "cert nickname here");
+                "ldap.ldapauth.clientCertNickname;string;If you want to use "
+                        + "SSL client auth to the directory, set the client "
+                        + "cert nickname here");
         mExtendedPluginInfo.add(
-            "ldap.ldapauth.authtype;choice(BasicAuth,SslClientAuth),required;"
-            + "How to bind to the directory (for pin removal only)");
+                "ldap.ldapauth.authtype;choice(BasicAuth,SslClientAuth),required;"
+                        + "How to bind to the directory (for pin removal only)");
         mExtendedPluginInfo.add(IExtendedPluginInfo.HELP_TEXT
-            + ";Authenticate the username, password and pin provided "
-            + "by the user against an LDAP directory. Works with the "
-            + "Dir/Pin Based Enrollment HTML form");
+                + ";Authenticate the username, password and pin provided "
+                + "by the user against an LDAP directory. Works with the "
+                + "Dir/Pin Based Enrollment HTML form");
         mExtendedPluginInfo.add(IExtendedPluginInfo.HELP_TOKEN +
-            ";configuration-authrules-uidpwdpindirauth");
+                ";configuration-authrules-uidpwdpindirauth");
 
     }
 
@@ -135,12 +133,12 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication
     protected MessageDigest mSHADigest = null;
     protected MessageDigest mMD5Digest = null;
 
-    private   String mBindDN = null;
-    private   String mBindPassword = null;
+    private String mBindDN = null;
+    private String mBindPassword = null;
 
-    private   ILdapConnFactory  removePinLdapFactory = null;
-    private   LDAPConnection        removePinLdapConnection = null;
-    private   IConfigStore          removePinLdapConfigStore = null;
+    private ILdapConnFactory removePinLdapFactory = null;
+    private LDAPConnection removePinLdapConnection = null;
+    private IConfigStore removePinLdapConfigStore = null;
 
     /**
      * Default constructor, initialization must follow.
@@ -149,12 +147,12 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication
         super();
     }
 
-    public void init(String name, String implName, IConfigStore config) 
-        throws EBaseException {
+    public void init(String name, String implName, IConfigStore config)
+            throws EBaseException {
         super.init(name, implName, config);
-        mRemovePin = 
+        mRemovePin =
                 config.getBoolean(PROP_REMOVE_PIN, DEF_REMOVE_PIN);
-        mPinAttr = 
+        mPinAttr =
                 config.getString(PROP_PIN_ATTR, DEF_PIN_ATTR);
         if (mPinAttr.equals("")) {
             mPinAttr = DEF_PIN_ATTR;
@@ -166,7 +164,7 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication
             removePinLdapFactory.init(removePinLdapConfigStore);
             removePinLdapConnection = removePinLdapFactory.getConn();
         }
-        
+
         try {
             mSHADigest = MessageDigest.getInstance("SHA1");
             mMD5Digest = MessageDigest.getInstance("MD5");
@@ -177,7 +175,7 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication
     }
 
     protected void verifyPassword(String Password) {
-    }    
+    }
 
     /**
      * Authenticates a user based on its uid, pwd, pin in the directory.
@@ -185,16 +183,16 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication
      * @param authCreds The authentication credentials with uid, pwd, pin.
      * @return The user's ldap entry dn.
      * @exception EInvalidCredentials If the uid and password are not valid
-     * @exception EBaseException If an internal error occurs. 
+     * @exception EBaseException If an internal error occurs.
      */
-    protected String authenticate(LDAPConnection conn, 
-        IAuthCredentials authCreds,
-        AuthToken token)
-        throws EBaseException {
+    protected String authenticate(LDAPConnection conn,
+            IAuthCredentials authCreds,
+            AuthToken token)
+            throws EBaseException {
         String userdn = null;
-        String uid = null; 
-        String pwd = null; 
-        String pin = null; 
+        String uid = null;
+        String pwd = null;
+        String pin = null;
 
         try {
             // get the uid.
@@ -202,7 +200,7 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication
             if (uid == null) {
                 throw new EMissingCredential(CMS.getUserMessage("CMS_AUTHENTICATION_NULL_CREDENTIAL", CRED_UID));
             }
-	
+
             // get the password.
             pwd = (String) authCreds.get(CRED_PWD);
             if (pwd == null) {
@@ -256,8 +254,8 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication
             throw e;
         } catch (LDAPException e) {
             switch (e.getLDAPResultCode()) {
-            case LDAPException.NO_SUCH_OBJECT: 
-            case LDAPException.LDAP_PARTIAL_RESULTS: 
+            case LDAPException.NO_SUCH_OBJECT:
+            case LDAPException.LDAP_PARTIAL_RESULTS:
                 log(ILogger.LL_SECURITY, CMS.getLogMessage("CMS_AUTH_USER_NOT_EXIST", uid));
                 throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
 
@@ -270,24 +268,24 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication
                 throw new ELdapException(
                         CMS.getUserMessage("CMS_LDAP_SERVER_UNAVAILABLE", conn.getHost(), "" + conn.getPort()));
 
-            default: 
+            default:
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.getMessage()));
                 throw new ELdapException(
-                        CMS.getUserMessage("CMS_LDAP_OTHER_LDAP_EXCEPTION", 
-                            e.errorCodeToString()));
+                        CMS.getUserMessage("CMS_LDAP_OTHER_LDAP_EXCEPTION",
+                                e.errorCodeToString()));
             }
-        } 
+        }
     }
 
-    protected void checkpin(LDAPConnection conn, String userdn, 
-        String uid, String pin)
-        throws EBaseException, LDAPException {
+    protected void checkpin(LDAPConnection conn, String userdn,
+            String uid, String pin)
+            throws EBaseException, LDAPException {
         LDAPSearchResults res = null;
         LDAPEntry entry = null;
 
         // get pin.
 
-        res = conn.search(userdn, LDAPv2.SCOPE_BASE, 
+        res = conn.search(userdn, LDAPv2.SCOPE_BASE,
                     "(objectclass=*)", new String[] { mPinAttr }, false);
         if (res.hasMoreElements()) {
             entry = (LDAPEntry) res.nextElement();
@@ -309,7 +307,7 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication
             log(ILogger.LL_SECURITY, CMS.getLogMessage("CMS_AUTH_NO_PIN_FOUND", uid));
             throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
         }
-        byte[] entrypin = (byte[]) pinValues.nextElement();  
+        byte[] entrypin = (byte[]) pinValues.nextElement();
 
         // compare value digest.
 
@@ -317,14 +315,14 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication
             log(ILogger.LL_SECURITY, CMS.getLogMessage("CMS_AUTH_NO_PIN_FOUND", uid));
             throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
         }
-       
+
         byte hashtype = entrypin[0];
 
         byte[] pinDigest = null;
         String toBeDigested = userdn + pin;
 
         if (hashtype == SENTINEL_SHA) {
-            
+
             pinDigest = mSHADigest.digest(toBeDigested.getBytes());
         } else if (hashtype == SENTINEL_MD5) {
             pinDigest = mMD5Digest.digest(toBeDigested.getBytes());
@@ -343,7 +341,7 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication
         int i;
 
         for (i = 0; i < (entrypin.length - 1); i++) {
-            if (pinDigest[i] != entrypin[i + 1]) 
+            if (pinDigest[i] != entrypin[i + 1])
                 break;
         }
         if (i != (entrypin.length - 1)) {
@@ -354,17 +352,17 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication
         // pin ok. remove pin if so configured
         // Note that this means that a policy may reject this request later,
         // but the user will not be able to enroll again as his pin is gone.
-        
+
         // We remove the pin using a different connection which is bound as
         // a more privileged user.
 
         if (mRemovePin) {
 
             try {
-                removePinLdapConnection.modify(userdn, 
-                    new LDAPModification(
-                        LDAPModification.DELETE,
-                        new LDAPAttribute(mPinAttr, entrypin)));
+                removePinLdapConnection.modify(userdn,
+                        new LDAPModification(
+                                LDAPModification.DELETE,
+                                new LDAPAttribute(mPinAttr, entrypin)));
 
             } catch (LDAPException e) {
                 log(ILogger.LL_SECURITY, CMS.getLogMessage("CMS_AUTH_CANT_REMOVE_PIN", userdn));
@@ -374,10 +372,10 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication
     }
 
     /**
-     * Returns a list of configuration parameter names. 
-     * The list is passed to the configuration console so instances of 
+     * Returns a list of configuration parameter names.
+     * The list is passed to the configuration console so instances of
      * this implementation can be configured through the console.
-     *
+     * 
      * @return String array of configuration parameter names.
      */
     public String[] getConfigParams() {
@@ -386,6 +384,7 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication
 
     /**
      * Returns array of required credentials for this authentication manager.
+     * 
      * @return Array of required credentials.
      */
     public String[] getRequiredCreds() {
@@ -395,7 +394,7 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication
     // Profile-related methods
 
     public void init(IProfile profile, IConfigStore config)
-        throws EProfileException {
+            throws EProfileException {
     }
 
     /**
@@ -453,7 +452,7 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication
     }
 
     public void populate(IAuthToken token, IRequest request)
-        throws EProfileException {
+            throws EProfileException {
         request.setExtData(IProfileAuthenticator.AUTHENTICATED_NAME,
                 token.getInString(USER_DN));
     }
@@ -462,4 +461,3 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication
         return false;
     }
 }
-

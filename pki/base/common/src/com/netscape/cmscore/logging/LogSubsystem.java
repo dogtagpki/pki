@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.logging;
 
-
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -32,7 +31,6 @@ import com.netscape.certsrv.logging.ILogQueue;
 import com.netscape.certsrv.logging.ILogSubsystem;
 import com.netscape.certsrv.logging.LogPlugin;
 import com.netscape.cmscore.util.Debug;
-
 
 /**
  * A class represents a log subsystem.
@@ -77,12 +75,12 @@ public class LogSubsystem implements ILogSubsystem {
     /**
      * Initializes the log subsystem.
      * <P>
-     *
+     * 
      * @param owner owner of this subsystem
      * @param config configuration store
      */
     public void init(ISubsystem owner, IConfigStore config)
-        throws EBaseException {
+            throws EBaseException {
         mConfig = config;
         mLogQueue.init();
 
@@ -100,18 +98,18 @@ public class LogSubsystem implements ILogSubsystem {
         if (Debug.ON)
             Debug.trace("loaded logger plugins");
 
-            // load log instances
+        // load log instances
         c = config.getSubStore(PROP_INSTANCE);
         Enumeration<String> instances = c.getSubStoreNames();
 
         while (instances.hasMoreElements()) {
             String insName = (String) instances.nextElement();
-            String implName = c.getString(insName + "." + 
+            String implName = c.getString(insName + "." +
                     PROP_PLUGIN);
             LogPlugin plugin =
-                (LogPlugin) mLogPlugins.get(implName);
+                    (LogPlugin) mLogPlugins.get(implName);
 
-            if (plugin == null) { 
+            if (plugin == null) {
                 throw new EBaseException(implName);
             }
             String className = plugin.getClassPath();
@@ -121,8 +119,8 @@ public class LogSubsystem implements ILogSubsystem {
             try {
                 logInst = (ILogEventListener)
                         Class.forName(className).newInstance();
-                IConfigStore pConfig = 
-                    c.getSubStore(insName);
+                IConfigStore pConfig =
+                        c.getSubStore(insName);
 
                 logInst.init(this, pConfig);
                 // for view from console
@@ -165,7 +163,7 @@ public class LogSubsystem implements ILogSubsystem {
 
             Debug.trace("about to call inst=" + instName + " in LogSubsystem.startup()");
             ILogEventListener inst = (ILogEventListener)
-                mLogInsts.get(instName);
+                    mLogInsts.get(instName);
 
             inst.startup();
         }
@@ -182,7 +180,7 @@ public class LogSubsystem implements ILogSubsystem {
     /**
      * Returns the root configuration storage of this system.
      * <P>
-     *
+     * 
      * @return configuration store of this subsystem
      */
     public IConfigStore getConfigStore() {
@@ -232,12 +230,12 @@ public class LogSubsystem implements ILogSubsystem {
             ELogException {
         // is this a registered implname?
         LogPlugin plugin = (LogPlugin)
-            mLogPlugins.get(implName);
+                mLogPlugins.get(implName);
 
         if (plugin == null) {
             throw new ELogException(implName);
         }
-			
+
         // a temporary instance
         ILogEventListener LogInst = null;
         String className = plugin.getClassPath();
@@ -272,4 +270,3 @@ public class LogSubsystem implements ILogSubsystem {
         return v;
     }
 }
-

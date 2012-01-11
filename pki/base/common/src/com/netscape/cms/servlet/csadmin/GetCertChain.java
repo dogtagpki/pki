@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Locale;
@@ -40,7 +39,6 @@ import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cmsutil.xml.XMLObject;
 
-
 public class GetCertChain extends CMSServlet {
 
     /**
@@ -56,6 +54,7 @@ public class GetCertChain extends CMSServlet {
 
     /**
      * initialize the servlet.
+     * 
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -63,11 +62,12 @@ public class GetCertChain extends CMSServlet {
     }
 
     /**
-     * Process the HTTP request. 
+     * Process the HTTP request.
      * <ul>
      * <li>http.param op 'downloadBIN' - return the binary certificate chain
      * <li>http.param op 'displayIND' - display pretty-print of certificate chain components
      * </ul>
+     * 
      * @param cmsReq the object holding the request and response information
      */
     protected void process(CMSRequest cmsReq) throws EBaseException {
@@ -95,7 +95,7 @@ public class GetCertChain extends CMSServlet {
         } catch (IOException e) {
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSGW_ERROR_ENCODING_CA_CHAIN_1",
-                    e.toString()));
+                            e.toString()));
             outputError(httpResp,
                     "Error: Failed to encode the certificate chain");
         }

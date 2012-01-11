@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.def;
 
-
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -39,12 +38,11 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 
-
 /**
  * This class implements an enrollment default policy
  * that populates a subject key identifier extension
  * into the certificate template.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class SubjectKeyIdentifierExtDefault extends EnrollExtDefault {
@@ -61,19 +59,19 @@ public class SubjectKeyIdentifierExtDefault extends EnrollExtDefault {
     }
 
     public void init(IProfile profile, IConfigStore config)
-        throws EProfileException {
+            throws EProfileException {
         super.init(profile, config);
     }
 
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         if (name.equals(VAL_CRITICAL)) {
-            return new Descriptor(IDescriptor.STRING, 
-                    IDescriptor.READONLY, 
+            return new Descriptor(IDescriptor.STRING,
+                    IDescriptor.READONLY,
                     null,
                     CMS.getUserMessage(locale, "CMS_PROFILE_CRITICAL"));
         } else if (name.equals(VAL_KEY_ID)) {
-            return new Descriptor(IDescriptor.STRING, 
-                    IDescriptor.READONLY, 
+            return new Descriptor(IDescriptor.STRING,
+                    IDescriptor.READONLY,
                     null,
                     CMS.getUserMessage(locale, "CMS_PROFILE_KEY_ID"));
         } else {
@@ -82,8 +80,8 @@ public class SubjectKeyIdentifierExtDefault extends EnrollExtDefault {
     }
 
     public void setValue(String name, Locale locale,
-        X509CertInfo info, String value)
-        throws EPropertyException {
+            X509CertInfo info, String value)
+            throws EPropertyException {
         if (name == null) {
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
@@ -99,8 +97,8 @@ public class SubjectKeyIdentifierExtDefault extends EnrollExtDefault {
     }
 
     public String getValue(String name, Locale locale,
-        X509CertInfo info)
-        throws EPropertyException {
+            X509CertInfo info)
+            throws EPropertyException {
         if (name == null) {
             throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
@@ -108,24 +106,23 @@ public class SubjectKeyIdentifierExtDefault extends EnrollExtDefault {
 
         SubjectKeyIdentifierExtension ext =
                 (SubjectKeyIdentifierExtension) getExtension(
-                    PKIXExtensions.SubjectKey_Id.toString(), info);
+                        PKIXExtensions.SubjectKey_Id.toString(), info);
 
-        if(ext == null)
-        {
+        if (ext == null) {
             try {
-                populate(null,info);
+                populate(null, info);
 
             } catch (EProfileException e) {
-                 throw new EPropertyException(CMS.getUserMessage(
-                      locale, "CMS_INVALID_PROPERTY", name));
+                throw new EPropertyException(CMS.getUserMessage(
+                        locale, "CMS_INVALID_PROPERTY", name));
             }
 
         }
 
         if (name.equals(VAL_CRITICAL)) {
-            ext = 
-                (SubjectKeyIdentifierExtension) getExtension(
-                    PKIXExtensions.SubjectKey_Id.toString(), info);
+            ext =
+                    (SubjectKeyIdentifierExtension) getExtension(
+                            PKIXExtensions.SubjectKey_Id.toString(), info);
 
             if (ext == null) {
                 return null;
@@ -136,9 +133,9 @@ public class SubjectKeyIdentifierExtDefault extends EnrollExtDefault {
                 return "false";
             }
         } else if (name.equals(VAL_KEY_ID)) {
-            ext = 
-                (SubjectKeyIdentifierExtension) getExtension(
-                    PKIXExtensions.SubjectKey_Id.toString(), info);
+            ext =
+                    (SubjectKeyIdentifierExtension) getExtension(
+                            PKIXExtensions.SubjectKey_Id.toString(), info);
 
             if (ext == null) {
                 return null;
@@ -149,11 +146,11 @@ public class SubjectKeyIdentifierExtDefault extends EnrollExtDefault {
                 kid = (KeyIdentifier)
                         ext.get(SubjectKeyIdentifierExtension.KEY_ID);
             } catch (IOException e) {
-                CMS.debug( "SubjectKeyIdentifierExtDefault::getValue() - " +
-                           "kid is null!" );
-                throw new EPropertyException( CMS.getUserMessage( locale,
+                CMS.debug("SubjectKeyIdentifierExtDefault::getValue() - " +
+                           "kid is null!");
+                throw new EPropertyException(CMS.getUserMessage(locale,
                                                                   "CMS_INVALID_PROPERTY",
-                                                                  name ) );
+                                                                  name));
             }
             return toHexString(kid.getIdentifier());
         } else {
@@ -170,7 +167,7 @@ public class SubjectKeyIdentifierExtDefault extends EnrollExtDefault {
      * Populates the request with this policy default.
      */
     public void populate(IRequest request, X509CertInfo info)
-        throws EProfileException {
+            throws EProfileException {
         SubjectKeyIdentifierExtension ext = createExtension(info);
 
         addExtension(PKIXExtensions.SubjectKey_Id.toString(), ext, info);
@@ -184,36 +181,36 @@ public class SubjectKeyIdentifierExtDefault extends EnrollExtDefault {
             return null;
         }
         SubjectKeyIdentifierExtension ext = null;
-        
+
         boolean critical = Boolean.valueOf(getConfig(CONFIG_CRITICAL)).booleanValue();
 
         try {
             ext = new SubjectKeyIdentifierExtension(critical, kid.getIdentifier());
         } catch (IOException e) {
-            CMS.debug("SubjectKeyIdentifierExtDefault: createExtension " + 
-                e.toString());
+            CMS.debug("SubjectKeyIdentifierExtDefault: createExtension " +
+                    e.toString());
             //
         }
         return ext;
     }
 
-    public KeyIdentifier getKeyIdentifier(X509CertInfo info) { 
-        try { 
-            CertificateX509Key infokey = (CertificateX509Key) 
-                info.get(X509CertInfo.KEY);
+    public KeyIdentifier getKeyIdentifier(X509CertInfo info) {
+        try {
+            CertificateX509Key infokey = (CertificateX509Key)
+                    info.get(X509CertInfo.KEY);
             X509Key key = (X509Key) infokey.get(CertificateX509Key.KEY);
             MessageDigest md = MessageDigest.getInstance("SHA-1");
 
-            md.update(key.getKey()); 
+            md.update(key.getKey());
             byte[] hash = md.digest();
 
             return new KeyIdentifier(hash);
         } catch (NoSuchAlgorithmException e) {
-            CMS.debug("SubjectKeyIdentifierExtDefault: getKeyIdentifier " + 
-                e.toString());
+            CMS.debug("SubjectKeyIdentifierExtDefault: getKeyIdentifier " +
+                    e.toString());
         } catch (Exception e) {
-            CMS.debug("SubjectKeyIdentifierExtDefault: getKeyIdentifier " + 
-                e.toString());
+            CMS.debug("SubjectKeyIdentifierExtDefault: getKeyIdentifier " +
+                    e.toString());
         }
         return null;
     }

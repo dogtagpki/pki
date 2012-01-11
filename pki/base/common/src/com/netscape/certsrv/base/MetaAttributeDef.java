@@ -17,17 +17,15 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.base;
 
-
 import java.util.Enumeration;
 import java.util.Hashtable;
 
 import netscape.security.util.ObjectIdentifier;
 
-
 /**
  * A class representing a meta attribute defintion.
  * <P>
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class MetaAttributeDef {
@@ -40,66 +38,66 @@ public class MetaAttributeDef {
 
     private MetaAttributeDef() {
     }
-	
+
     /**
      * Constructs a MetaAttribute defintion
      * <P>
-     *
+     * 
      * @param name attribute name
      * @param valueClass attribute value class
      * @param oid attribute object identifier
      */
     private MetaAttributeDef(String name, Class<?> valueClass,
-        ObjectIdentifier oid) {
+            ObjectIdentifier oid) {
         mName = name;
         mValueClass = valueClass;
         mOid = oid;
     }
-    
+
     /**
      * Gets an attribute OID.
      * <P>
-     *
+     * 
      * @return returns attribute OID or null if not defined.
      */
-    public ObjectIdentifier getOID() { 
-        return mOid; 
+    public ObjectIdentifier getOID() {
+        return mOid;
     }
 
     /**
      * Gets an Java class for the attribute values
      * <P>
-     *
+     * 
      * @return returns Java class for the attribute values
      */
     public Class<?> getValueClass() {
-        return mValueClass; 
+        return mValueClass;
     }
 
     /**
      * Gets attribute name
      * <P>
-     *
-     * @return returns  attribute name
+     * 
+     * @return returns attribute name
      */
-    public String getName() { 
-        return mName; 
+    public String getName() {
+        return mName;
     }
-    
+
     /**
      * Registers new MetaAttribute defintion
-     * Attribute is defined by name, Java class for attribute values and 
+     * Attribute is defined by name, Java class for attribute values and
      * optional object identifier
      * <P>
-     *
+     * 
      * @param name attribute name
      * @param valueClass attribute value class
      * @param oid attribute object identifier
      * @exception IllegalArgumentException if name or valueClass are null, or
-     * conflicting attribute definition already exists
+     *                conflicting attribute definition already exists
      */
     public static MetaAttributeDef register(String name, Class<?> valueClass,
-        ObjectIdentifier oid) {
+            ObjectIdentifier oid) {
         if (name == null) {
             throw new IllegalArgumentException(
                     "Attribute name must not be null");
@@ -113,13 +111,13 @@ public class MetaAttributeDef {
         MetaAttributeDef oldDef;
 
         if ((oldDef = (MetaAttributeDef) mNameToAttrDef.get(name)) != null &&
-            !oldDef.equals(newDef)) {
+                !oldDef.equals(newDef)) {
             throw new IllegalArgumentException(
                     "Attribute \'" + name + "\' is already defined");
         }
         if (oid != null &&
-            (oldDef = (MetaAttributeDef) mOidToAttrDef.get(oid)) != null &&
-            !oldDef.equals(newDef)) {
+                (oldDef = (MetaAttributeDef) mOidToAttrDef.get(oid)) != null &&
+                !oldDef.equals(newDef)) {
             throw new IllegalArgumentException(
                     "OID \'" + oid + "\' is already in use");
         }
@@ -128,37 +126,37 @@ public class MetaAttributeDef {
             mOidToAttrDef.put(oid, newDef);
         }
         return newDef;
-    }    
-    
+    }
+
     /**
      * Compares this attribute definition with another, for equality.
      * <P>
-     *
-     * @return true iff names, valueClasses and object identifiers 
-     * are identical.
+     * 
+     * @return true iff names, valueClasses and object identifiers
+     *         are identical.
      */
     public boolean equals(Object other) {
         if (other == this)
             return true;
-	  
+
         if (other instanceof MetaAttributeDef) {
             MetaAttributeDef otherDef = (MetaAttributeDef) other;
 
-            if ((mOid != null && otherDef.mOid != null && 
-                    !mOid.equals(otherDef.mOid)) || 
-                (mOid == null && otherDef.mOid != null) ||
-                !mName.equals(otherDef.mName) ||  
-                !mValueClass.equals(otherDef.mValueClass)) {
+            if ((mOid != null && otherDef.mOid != null &&
+                    !mOid.equals(otherDef.mOid)) ||
+                    (mOid == null && otherDef.mOid != null) ||
+                    !mName.equals(otherDef.mName) ||
+                    !mValueClass.equals(otherDef.mValueClass)) {
                 return false;
             }
         }
         return false;
     }
-	
+
     /**
      * Retrieves attribute definition by name
      * <P>
-     *
+     * 
      * @param name attribute name
      * @return attribute definition or null if not found
      */
@@ -169,7 +167,7 @@ public class MetaAttributeDef {
     /**
      * Retrieves attribute definition by object identifier
      * <P>
-     *
+     * 
      * @param oid attribute object identifier
      * @return attribute definition or null if not found
      */
@@ -180,7 +178,7 @@ public class MetaAttributeDef {
     /**
      * Returns enumeration of the registered attribute names
      * <P>
-     *
+     * 
      * @return returns enumeration of the registered attribute names
      */
     public static Enumeration<String> getAttributeNames() {
@@ -190,7 +188,7 @@ public class MetaAttributeDef {
     /**
      * Returns enumeration of the registered attribute object identifiers
      * <P>
-     *
+     * 
      * @return returns enumeration of the attribute object identifiers
      */
     public static Enumeration<ObjectIdentifier> getAttributeNameOids() {

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.input;
 
-
 import java.util.Locale;
 
 import com.netscape.certsrv.apps.CMS;
@@ -30,16 +29,15 @@ import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 
-
 /**
  * This class implements the submitter information
- * input that collects certificate requestor's 
+ * input that collects certificate requestor's
  * information such as name, email and phone.
  * <p>
- *
+ * 
  * @version $Revision$, $Date$
  */
-public class SubmitterInfoInput extends EnrollInput implements IProfileInput { 
+public class SubmitterInfoInput extends EnrollInput implements IProfileInput {
 
     public static final String NAME = "requestor_name";
     public static final String EMAIL = "requestor_email";
@@ -55,7 +53,7 @@ public class SubmitterInfoInput extends EnrollInput implements IProfileInput {
      * Initializes this default policy.
      */
     public void init(IProfile profile, IConfigStore config)
-        throws EProfileException {
+            throws EProfileException {
         super.init(profile, config);
     }
 
@@ -77,7 +75,7 @@ public class SubmitterInfoInput extends EnrollInput implements IProfileInput {
      * Populates the request with this policy default.
      */
     public void populate(IProfileContext ctx, IRequest request)
-        throws EProfileException {
+            throws EProfileException {
         //
     }
 

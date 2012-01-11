@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.publish.mappers;
 
-
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Locale;
@@ -46,8 +45,7 @@ import com.netscape.certsrv.ldap.ELdapServerDownException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.ILdapPlugin;
 
-
-/** 
+/**
  * Maps a Subject name to an entry in the LDAP server.
  * subject name to form the ldap search dn and filter.
  * Takes a optional root search dn.
@@ -57,11 +55,11 @@ import com.netscape.certsrv.publish.ILdapPlugin;
  * If the baseDN is null and none of the DN comps matched, it is an error.
  * If none of the DN comps and filter comps matched, it is an error.
  * If just the filter comps is null, a base search is performed.
- *
+ * 
  * @version $Revision$, $Date$
  */
-public class LdapDNCompsMap 
-    implements ILdapPlugin, IExtendedPluginInfo {
+public class LdapDNCompsMap
+        implements ILdapPlugin, IExtendedPluginInfo {
     //protected String mLdapAttr = null;
     protected String mBaseDN = null;
     protected ObjectIdentifier[] mDnComps = null;
@@ -71,9 +69,9 @@ public class LdapDNCompsMap
     private boolean mInited = false;
     protected IConfigStore mConfig = null;
 
-    /** 
+    /**
      * Constructor.
-     *
+     * 
      * The DN comps are used to form a LDAP entry to begin a subtree search.
      * The filter comps are used to form a search filter for the subtree.
      * If none of the DN comps matched, baseDN is used for the subtree.
@@ -81,13 +79,13 @@ public class LdapDNCompsMap
      * If none of the DN comps and filter comps matched, it is an error.
      * If just the filter comps is null, a base search is performed.
      * 
-     * @param baseDN The base DN. 
+     * @param baseDN The base DN.
      * @param dnComps Components to form the LDAP base dn for search.
      * @param filterComps Components to form the LDAP search filter.
      */
-    public LdapDNCompsMap(String ldapAttr, String baseDN, 
-        ObjectIdentifier[] dnComps,
-        ObjectIdentifier[] filterComps) {
+    public LdapDNCompsMap(String ldapAttr, String baseDN,
+            ObjectIdentifier[] dnComps,
+            ObjectIdentifier[] filterComps) {
         //mLdapAttr = ldapAttr;
         init(baseDN, dnComps, filterComps);
     }
@@ -102,17 +100,17 @@ public class LdapDNCompsMap
         return mConfig;
     }
 
-    /** 
+    /**
      * for initializing from config store.
      */
-    public void init(IConfigStore config) 
-        throws EBaseException {
+    public void init(IConfigStore config)
+            throws EBaseException {
         mConfig = config;
         String baseDN = mConfig.getString("baseDN");
-        ObjectIdentifier[] dnComps = 
-            getCompsFromString(mConfig.getString("dnComps"));
-        ObjectIdentifier[] filterComps = 
-            getCompsFromString(mConfig.getString("filterComps"));
+        ObjectIdentifier[] dnComps =
+                getCompsFromString(mConfig.getString("dnComps"));
+        ObjectIdentifier[] filterComps =
+                getCompsFromString(mConfig.getString("filterComps"));
 
         init(baseDN, dnComps, filterComps);
     }
@@ -131,12 +129,12 @@ public class LdapDNCompsMap
                 "dnComps;string;Comma-separated list of attributes to put in the DN",
                 "filterComps;string;Comma-separated list of attributes to form the filter",
                 IExtendedPluginInfo.HELP_TOKEN +
-                ";configuration-ldappublish-mapper-dncompsmapper",
+                        ";configuration-ldappublish-mapper-dncompsmapper",
                 IExtendedPluginInfo.HELP_TEXT +
-                ";More complex mapper. Used when there is not enough information " +
-                "in the cert request to form the complete LDAP DN. Using this " +
-                "plugin, you can specify additional LDAP filters to narrow down the " +
-                "search"
+                        ";More complex mapper. Used when there is not enough information " +
+                        "in the cert request to form the complete LDAP DN. Using this " +
+                        "plugin, you can specify additional LDAP filters to narrow down the " +
+                        "search"
             };
 
         return s;
@@ -163,14 +161,14 @@ public class LdapDNCompsMap
             if (mDnComps == null) {
                 v.addElement("dnComps=");
             } else {
-                v.addElement("dnComps=" + 
-                    mConfig.getString("dnComps"));
+                v.addElement("dnComps=" +
+                        mConfig.getString("dnComps"));
             }
             if (mFilterComps == null) {
                 v.addElement("filterComps=");
             } else {
-                v.addElement("filterComps=" + 
-                    mConfig.getString("filterComps"));
+                v.addElement("filterComps=" +
+                        mConfig.getString("filterComps"));
             }
         } catch (Exception e) {
         }
@@ -181,8 +179,8 @@ public class LdapDNCompsMap
      * common initialization routine.
      */
     protected void init(String baseDN, ObjectIdentifier[] dnComps,
-        ObjectIdentifier[] filterComps) {
-        if (mInited) 
+            ObjectIdentifier[] filterComps) {
+        if (mInited)
             return;
 
         mBaseDN = baseDN;
@@ -191,36 +189,36 @@ public class LdapDNCompsMap
         if (filterComps != null)
             mFilterComps = (ObjectIdentifier[]) filterComps.clone();
 
-            // log debug info.
+        // log debug info.
         for (int i = 0; i < mDnComps.length; i++) {
             CMS.debug(
-                "LdapDNCompsMap: dnComp " + X500NameAttrMap.getDefault().getName(mDnComps[i]));
+                    "LdapDNCompsMap: dnComp " + X500NameAttrMap.getDefault().getName(mDnComps[i]));
         }
         for (int i = 0; i < mFilterComps.length; i++) {
             CMS.debug("LdapDNCompsMap: filterComp " +
-                X500NameAttrMap.getDefault().getName(mFilterComps[i]));
+                    X500NameAttrMap.getDefault().getName(mFilterComps[i]));
         }
         mInited = true;
     }
 
     /**
      * Maps a X500 subject name to LDAP entry.
-     * Uses DN components and filter components to form a DN and 
+     * Uses DN components and filter components to form a DN and
      * filter for a LDAP search.
      * If the formed DN is null the baseDN will be used.
      * If the formed DN is null and baseDN is null an error is thrown.
      * If the filter is null a base search is performed.
      * If both are null an error is thrown.
      * 
-     * @param conn	the LDAP connection.
-     * @param x500name  	the dn to map.
-     * @param obj 	the object
+     * @param conn the LDAP connection.
+     * @param x500name the dn to map.
+     * @param obj the object
      * @exception ELdapException if any LDAP exceptions occured.
      * @return the DN of the entry.
-     */ 
-    public String map(LDAPConnection conn, X500Name x500name, 
-        byte[] obj)
-        throws ELdapException {
+     */
+    public String map(LDAPConnection conn, X500Name x500name,
+            byte[] obj)
+            throws ELdapException {
         try {
             if (conn == null)
                 return null;
@@ -240,11 +238,11 @@ public class LdapDNCompsMap
                 //		x500name.toString()); 
                 // }
                 if (mBaseDN == null) {
-                    log(ILogger.LL_FAILURE, 
-                        CMS.getLogMessage("PUBLISH_NO_BASE"));
+                    log(ILogger.LL_FAILURE,
+                            CMS.getLogMessage("PUBLISH_NO_BASE"));
                     throw new ELdapException(
-                            CMS.getUserMessage("CMS_LDAP_NO_DN_COMPS_AND_BASEDN", 
-                                x500name.toString()));
+                            CMS.getUserMessage("CMS_LDAP_NO_DN_COMPS_AND_BASEDN",
+                                    x500name.toString()));
                 }
                 dn = mBaseDN;
             }
@@ -261,23 +259,23 @@ public class LdapDNCompsMap
             attrs = new String[] { LDAPv3.NO_ATTRS };
 
             log(ILogger.LL_INFO, "searching for " + dn + " " + filter + " " +
-                ((scope == LDAPv2.SCOPE_SUB) ? "sub" : "base"));
+                    ((scope == LDAPv2.SCOPE_SUB) ? "sub" : "base"));
 
-            LDAPSearchResults results = 
-                conn.search(dn, scope, filter, attrs, false);
+            LDAPSearchResults results =
+                    conn.search(dn, scope, filter, attrs, false);
             LDAPEntry entry = results.next();
 
             if (results.hasMoreElements()) {
-                log(ILogger.LL_FAILURE, 
-                    CMS.getLogMessage("PUBLISH_MORE_THAN_ONE_ENTRY", "", x500name.toString()));
-                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_MORE_THAN_ONE_ENTRY", 
-                            x500name.toString())); 
+                log(ILogger.LL_FAILURE,
+                        CMS.getLogMessage("PUBLISH_MORE_THAN_ONE_ENTRY", "", x500name.toString()));
+                throw new ELdapException(CMS.getUserMessage("CMS_LDAP_MORE_THAN_ONE_ENTRY",
+                            x500name.toString()));
             }
             if (entry != null) {
                 return entry.getDN();
             } else {
-                log(ILogger.LL_FAILURE, 
-                    CMS.getLogMessage("PUBLISH_ENTRY_NOT_FOUND", "", x500name.toString()));
+                log(ILogger.LL_FAILURE,
+                        CMS.getLogMessage("PUBLISH_ENTRY_NOT_FOUND", "", x500name.toString()));
                 throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_MATCH_FOUND",
                             "null entry"));
             }
@@ -286,11 +284,11 @@ public class LdapDNCompsMap
                 // need to intercept this because message from LDAP is
                 // "DSA is unavailable" which confuses with DSA PKI.
                 log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("PUBLISH_NO_LDAP_SERVER"));
+                        CMS.getLogMessage("PUBLISH_NO_LDAP_SERVER"));
                 throw new ELdapServerDownException(CMS.getUserMessage("CMS_LDAP_SERVER_UNAVAILABLE", conn.getHost(), "" + conn.getPort()));
             } else {
-                log(ILogger.LL_FAILURE, 
-                    CMS.getLogMessage("PUBLISH_DN_MAP_EXCEPTION", "LDAPException", e.toString()));
+                log(ILogger.LL_FAILURE,
+                        CMS.getLogMessage("PUBLISH_DN_MAP_EXCEPTION", "LDAPException", e.toString()));
                 throw new ELdapException(CMS.getUserMessage("CMS_LDAP_NO_MATCH_FOUND", e.toString()));
             }
         }
@@ -298,15 +296,16 @@ public class LdapDNCompsMap
 
     private void log(int level, String msg) {
         mLogger.log(ILogger.EV_SYSTEM, ILogger.S_LDAP, level,
-            "LdapDNCompsMap: " + msg);
+                "LdapDNCompsMap: " + msg);
     }
 
     /**
      * form a dn and filter from component in the cert subject name
+     * 
      * @param subjName subject name
      */
     public String[] formDNandFilter(X500Name subjName)
-        throws ELdapException {
+            throws ELdapException {
         Vector<RDN> dnRdns = new Vector<RDN>();
         SearchFilter filter = new SearchFilter();
         X500NameAttrMap attrMap = X500NameAttrMap.getDefault();
@@ -328,16 +327,16 @@ public class LdapDNCompsMap
                             DerValue val = ava.getValue();
                             AVA newAVA = new AVA(mailOid, val);
                             RDN newRDN = new RDN(new AVA[] { newAVA }
-                                );
+                                    );
 
-                            CMS.debug( 
-                                "LdapDNCompsMap: Converted " + rdn.toLdapDNString() + " to " +
-                                newRDN.toLdapDNString() + " in DN");
+                            CMS.debug(
+                                    "LdapDNCompsMap: Converted " + rdn.toLdapDNString() + " to " +
+                                            newRDN.toLdapDNString() + " in DN");
                             rdn = newRDN;
                         }
                         dnRdns.addElement(rdn);
                         CMS.debug(
-                            "LdapDNCompsMap: adding dn comp " + rdn.toLdapDNString());
+                                "LdapDNCompsMap: adding dn comp " + rdn.toLdapDNString());
                         break;
                     }
                 }
@@ -348,13 +347,13 @@ public class LdapDNCompsMap
                             AVA newAVA = new AVA(mailOid, val);
 
                             CMS.debug(
-                                "LdapDNCompsMap: Converted " + ava.toLdapDNString() + " to " +
-                                newAVA.toLdapDNString() + " in filter");
+                                    "LdapDNCompsMap: Converted " + ava.toLdapDNString() + " to " +
+                                            newAVA.toLdapDNString() + " in filter");
                             ava = newAVA;
                         }
                         filter.addElement(ava.toLdapDNString());
                         CMS.debug(
-                            "LdapDNCompsMap: adding filter comp " + ava.toLdapDNString());
+                                "LdapDNCompsMap: adding filter comp " + ava.toLdapDNString());
                         break;
                     }
                 }
@@ -363,14 +362,14 @@ public class LdapDNCompsMap
                 // return to caller to decide.
                 if (dnRdns.size() != 0) {
                     dnStr = new X500Name(dnRdns).toLdapDNString();
-                } 
+                }
                 if (filter.size() != 0) {
                     filterStr = filter.toFilterString();
                 }
             }
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("PUBLISH_FROM_SUBJ_TO_DN", e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("PUBLISH_FROM_SUBJ_TO_DN", e.toString()));
             throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FORM_DN_COMPS_FAILED", e.toString()));
         }
 
@@ -386,12 +385,13 @@ public class LdapDNCompsMap
     }
 
     /**
-     * class for forming search filters for ldap searching from 
+     * class for forming search filters for ldap searching from
      * name=value components. components are anded.
      */
 
     public static class SearchFilter extends Vector<Object> {
         private static final long serialVersionUID = 4210302171279891828L;
+
         public String toFilterString() {
             StringBuffer buf = new StringBuffer();
 
@@ -412,21 +412,22 @@ public class LdapDNCompsMap
     }
 
     /**
-     * useful routine for parsing components given as string to 
-     * arrays of objectidentifiers. 
-     * The string is expected to be comma separated AVA attribute names. 
+     * useful routine for parsing components given as string to
+     * arrays of objectidentifiers.
+     * The string is expected to be comma separated AVA attribute names.
      * For example, "uid,cn,o,ou". Attribute names are case insensitive.
+     * 
      * @param val the string specifying the comps
      * @exception ELdapException if any error occurs.
      */
     public static ObjectIdentifier[] getCompsFromString(String val)
-        throws ELdapException {
+            throws ELdapException {
         StringTokenizer tokens;
         ObjectIdentifier[] comps;
         String attr;
         ObjectIdentifier oid;
 
-        if (val == null || val.length() == 0) 
+        if (val == null || val.length() == 0)
             return new ObjectIdentifier[0];
 
         tokens = new StringTokenizer(val, ", \t\n\r");
@@ -439,7 +440,7 @@ public class LdapDNCompsMap
         while (tokens.hasMoreTokens()) {
             attr = tokens.nextToken().trim();
             // mail -> E hack to look for E in subject names.
-            if (attr.equalsIgnoreCase("mail")) 
+            if (attr.equalsIgnoreCase("mail"))
                 attr = "E";
             oid = X500NameAttrMap.getDefault().getOid(attr);
             if (oid != null) {
@@ -453,4 +454,3 @@ public class LdapDNCompsMap
     }
 
 }
-

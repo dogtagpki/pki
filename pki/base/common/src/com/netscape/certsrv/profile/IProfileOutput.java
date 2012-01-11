@@ -37,34 +37,34 @@ public interface IProfileOutput extends IConfigTemplate {
 
     /**
      * Initializes this default policy.
-     *
+     * 
      * @param profile owner of this policy
      * @param config configuration store
      * @exception EProfileException failed to initialize
      */
     public void init(IProfile profile, IConfigStore config)
-        throws EProfileException;
+            throws EProfileException;
 
     /**
      * Retrieves configuration store.
-     *
+     * 
      * @return configuration store
      */
     public IConfigStore getConfigStore();
 
     /**
      * Populates the request with this policy default.
-     *
+     * 
      * @param ctx profile context
      * @param request request
      * @exception EProfileException failed to populate
      */
     public void populate(IProfileContext ctx, IRequest request)
-        throws EProfileException;
+            throws EProfileException;
 
     /**
      * Retrieves the localizable name of this policy.
-     *
+     * 
      * @param locale user locale
      * @return output policy name
      */
@@ -72,7 +72,7 @@ public interface IProfileOutput extends IConfigTemplate {
 
     /**
      * Retrieves the localizable description of this policy.
-     *
+     * 
      * @param locale user locale
      * @return output policy description
      */
@@ -80,15 +80,15 @@ public interface IProfileOutput extends IConfigTemplate {
 
     /**
      * Retrieves a list of names of the value parameter.
-     *
+     * 
      * @return a list of property names
      */
     public Enumeration<String> getValueNames();
 
     /**
-     * Retrieves the descriptor of the given value 
+     * Retrieves the descriptor of the given value
      * parameter by name.
-     *
+     * 
      * @param locale user locale
      * @param name property name
      * @return property descriptor
@@ -97,7 +97,7 @@ public interface IProfileOutput extends IConfigTemplate {
 
     /**
      * Retrieves the value of the given value parameter by name.
-     *
+     * 
      * @param name property name
      * @param locale user locale
      * @param request request
@@ -105,17 +105,17 @@ public interface IProfileOutput extends IConfigTemplate {
      * @exception EProfileException failed to retrieve value
      */
     public String getValue(String name, Locale locale, IRequest request)
-        throws EProfileException;
+            throws EProfileException;
 
     /**
      * Sets the value of the given value parameter by name.
-     *
+     * 
      * @param name property name
      * @param locale user locale
      * @param request request
      * @param value property value
      * @exception EProfileException failed to retrieve value
      */
-    public void setValue(String name, Locale locale, IRequest request, 
-        String value) throws EPropertyException;
+    public void setValue(String name, Locale locale, IRequest request,
+            String value) throws EPropertyException;
 }

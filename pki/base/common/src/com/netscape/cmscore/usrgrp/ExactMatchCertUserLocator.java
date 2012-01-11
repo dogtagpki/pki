@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.usrgrp;
 
-
 import java.security.cert.X509Certificate;
 
 import netscape.ldap.LDAPException;
@@ -30,13 +29,12 @@ import com.netscape.certsrv.usrgrp.ICertUserLocator;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 
-
 /**
  * This interface defines a strategy on how to match
  * the incoming certificate(s) with the certificate(s)
- * in the scope.  It matches the "description" field which contains a
+ * in the scope. It matches the "description" field which contains a
  * stringied certificate.
- *
+ * 
  * @author thomask
  * @author cfu
  * @version $Revision$, $Date$
@@ -54,9 +52,9 @@ public class ExactMatchCertUserLocator implements ICertUserLocator {
      * Retrieves description.
      */
     public String getDescription() {
-        return "A subject is authenticated if its first" + 
-            " certificate can be matched with one of the" +
-            " certificate in the scope";
+        return "A subject is authenticated if its first" +
+                " certificate can be matched with one of the" +
+                " certificate in the scope";
     }
 
     /**
@@ -78,7 +76,7 @@ public class ExactMatchCertUserLocator implements ICertUserLocator {
         }
 
         String filter = "description=" +
-            mUG.getCertificateString(certificates[pos]);
+                mUG.getCertificateString(certificates[pos]);
 
         return mUG.findUsersByCert(filter);
     }

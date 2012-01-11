@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.cert;
 
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.security.cert.CertificateException;
@@ -34,10 +33,9 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.cert.ICrossCertPairSubsystem;
 
-
 /**
  * This class implements CertificatePair used for Cross Certification
- *
+ * 
  * @author cfu
  * @version $Revision$, $Date$
  */
@@ -47,14 +45,15 @@ public class CertificatePair implements ASN1Value {
     private static final Tag TAG = SEQUENCE.TAG;
 
     /**
-     * construct a CertificatePair.  It doesn't matter which is
-     * forward and which is reverse in the parameters.  It will figure 
+     * construct a CertificatePair. It doesn't matter which is
+     * forward and which is reverse in the parameters. It will figure
      * it out
+     * 
      * @param cert1 one X509Certificate
      * @param cert2 one X509Certificate
      */
-    public CertificatePair (X509Certificate cert1, X509Certificate cert2)
-        throws EBaseException {
+    public CertificatePair(X509Certificate cert1, X509Certificate cert2)
+            throws EBaseException {
         if ((cert1 == null) || (cert2 == null))
             throw new EBaseException("CertificatePair: both certs can not be null");
         debug("in CertificatePair()");
@@ -74,14 +73,15 @@ public class CertificatePair implements ASN1Value {
     }
 
     /**
-     * construct a CertificatePair.  It doesn't matter which is
-     * forward and which is reverse in the parameters.  It will figure 
+     * construct a CertificatePair. It doesn't matter which is
+     * forward and which is reverse in the parameters. It will figure
      * it out
+     * 
      * @param cert1 one certificate byte array
      * @param cert2 one certificate byte array
      */
-    public CertificatePair (byte[] cert1, byte[] cert2)
-        throws EBaseException {
+    public CertificatePair(byte[] cert1, byte[] cert2)
+            throws EBaseException {
         if ((cert1 == null) || (cert2 == null))
             throw new EBaseException("CertificatePair: both certs can not be null");
         boolean rightOrder = certOrders(cert1, cert2);
@@ -100,7 +100,7 @@ public class CertificatePair implements ASN1Value {
      * returns false if c2 is forward and cert1 is reverse
      */
     private boolean certOrders(X509Certificate c1, X509Certificate c2)
-        throws EBaseException {
+            throws EBaseException {
         debug("in certOrders() with X509Cert");
 
         ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem("ca");
@@ -224,10 +224,10 @@ public class CertificatePair implements ASN1Value {
      * returns false if cert2 is forward and cert1 is reverse
      */
     private boolean certOrders(byte[] cert1, byte[] cert2)
-        throws EBaseException {
+            throws EBaseException {
         debug("in certOrders() with byte[]");
         ICrossCertPairSubsystem ccps =
-            (ICrossCertPairSubsystem) CMS.getSubsystem("CrossCertPair");
+                (ICrossCertPairSubsystem) CMS.getSubsystem("CrossCertPair");
         X509Certificate c1 = null;
         X509Certificate c2 = null;
 

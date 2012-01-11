@@ -1,4 +1,5 @@
 package com.netscape.pkisilent.common;
+
 // --- BEGIN COPYRIGHT BLOCK ---
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -31,14 +32,12 @@ import netscape.ldap.LDAPModificationSet;
 import netscape.ldap.LDAPSearchResults;
 import netscape.ldap.LDAPv2;
 
-
 /**
  * CMS Test framework .
  * Using this class you can add a user and user certificate to LDAP server.
- * You can also check if a certificate / CRL is published in LDAP server    
- *  USe this class to turn of SSL and turn on SSL in a LDAP server.
+ * You can also check if a certificate / CRL is published in LDAP server
+ * USe this class to turn of SSL and turn on SSL in a LDAP server.
  */
-
 
 public class CMSLDAP {
 
@@ -47,7 +46,8 @@ public class CMSLDAP {
 
     private LDAPConnection conn = new LDAPConnection();
 
-    public CMSLDAP() {}
+    public CMSLDAP() {
+    }
 
     /**
      * Constructor. Takes parametes ldaphost, ldapport
@@ -68,7 +68,7 @@ public class CMSLDAP {
     }
 
     /**
-     * Connect to ldap server 
+     * Connect to ldap server
      */
 
     public boolean connect() {
@@ -100,11 +100,11 @@ public class CMSLDAP {
 
     /**
      * Search for certificaterevocationList attribute. Takes basedn and filter as parameters
-     */ 
+     */
 
-    public boolean searchCRL(String basedn, String filter) throws LDAPException { 
+    public boolean searchCRL(String basedn, String filter) throws LDAPException {
         int searchScope = LDAPv2.SCOPE_SUB;
-        String getAttrs[] = { "certificateRevocationList;binary"};
+        String getAttrs[] = { "certificateRevocationList;binary" };
         LDAPSearchResults results = conn.search(basedn, searchScope, filter,
                 getAttrs, false);
 
@@ -135,11 +135,9 @@ public class CMSLDAP {
      * Search for attriburte usercertificate. Takes parameters basedn and filter
      */
 
-
-
-    public boolean searchUserCert(String basedn, String filter) throws LDAPException { 
+    public boolean searchUserCert(String basedn, String filter) throws LDAPException {
         int searchScope = LDAPv2.SCOPE_SUB;
-        String getAttrs[] = { "usercertificate;binary"};
+        String getAttrs[] = { "usercertificate;binary" };
         LDAPSearchResults results = conn.search(basedn, searchScope, filter,
                 getAttrs, false);
 
@@ -175,9 +173,9 @@ public class CMSLDAP {
 
             attrSet.add(
                     new LDAPAttribute("objectclass",
-                    new String[] {
-                "top", "person", "organizationalPerson",
-                "inetorgperson"}));
+                            new String[] {
+                                    "top", "person", "organizationalPerson",
+                                    "inetorgperson" }));
             attrSet.add(new LDAPAttribute("cn", cn));
             attrSet.add(new LDAPAttribute("mail", uid + "@netscape.com"));
             attrSet.add(new LDAPAttribute("userpassword", pwd));
@@ -225,7 +223,7 @@ public class CMSLDAP {
                 val += ',';
                 i++;
                 continue;
-            } else { 
+            } else {
                 val += s.charAt(i);
             }
         }
@@ -258,19 +256,19 @@ public class CMSLDAP {
     }
 
     /**
-     * Adds a user of objectclass cmsuser .  Takes cn,sn,uid,password,certificate as parameters.
+     * Adds a user of objectclass cmsuser . Takes cn,sn,uid,password,certificate as parameters.
      */
     public boolean CMSuserAdd(String cn, String sn, String uid, String pwd, byte[] certpack) {
         try {
             X509Certificate cert = getXCertificate(certpack);
- 
+
             LDAPAttributeSet attrSet = new LDAPAttributeSet();
 
             attrSet.add(
                     new LDAPAttribute("objectclass",
-                    new String[] {
-                "top", "person", "organizationalPerson",
-                "inetorgperson", "cmsuser"}));
+                            new String[] {
+                                    "top", "person", "organizationalPerson",
+                                    "inetorgperson", "cmsuser" }));
             attrSet.add(new LDAPAttribute("cn", cn));
             attrSet.add(new LDAPAttribute("mail", uid + "@netscape.com"));
             attrSet.add(new LDAPAttribute("userpassword", pwd));
@@ -301,7 +299,7 @@ public class CMSLDAP {
     }
 
     /**
-     * Adds a user of objectclass cmsuser .  Takes cn,sn,uid,password,certificate as parameters.
+     * Adds a user of objectclass cmsuser . Takes cn,sn,uid,password,certificate as parameters.
      */
 
     public boolean CMSuserAdd(String cn, String sn, String uid, String pwd, X509Certificate cert) {
@@ -310,10 +308,10 @@ public class CMSLDAP {
             LDAPAttributeSet attrSet = new LDAPAttributeSet();
 
             attrSet.add(
-                    new LDAPAttribute("objectclass", 
-                    new String[] {
-                "top", "person", "organizationalPerson", 
-                "inetorgperson", "cmsuser"}));
+                    new LDAPAttribute("objectclass",
+                            new String[] {
+                                    "top", "person", "organizationalPerson",
+                                    "inetorgperson", "cmsuser" }));
             attrSet.add(new LDAPAttribute("cn", cn));
             attrSet.add(new LDAPAttribute("mail", uid + "@netscape.com"));
             attrSet.add(new LDAPAttribute("userpassword", pwd));
@@ -345,7 +343,7 @@ public class CMSLDAP {
     }
 
     /**
-     * adds a cms user  to  Trusted Manager Group. Takes uid as parameter.
+     * adds a cms user to Trusted Manager Group. Takes uid as parameter.
      */
 
     public boolean addCMSUserToTMGroup(String uid) {
@@ -370,7 +368,7 @@ public class CMSLDAP {
     }
 
     /**
-     * adds a cms user  to  Agent Group. Takes subsytem (ca/ra/ocsp/kra) and uid as parameters .
+     * adds a cms user to Agent Group. Takes subsytem (ca/ra/ocsp/kra) and uid as parameters .
      */
 
     public boolean addCMSUserToAgentGroup(String subsystem, String uid) {
@@ -415,7 +413,7 @@ public class CMSLDAP {
     }
 
     /**
-     * Will trun of SSL in LDAP server 
+     * Will trun of SSL in LDAP server
      **/
 
     public boolean TurnOffSSL() {
@@ -429,7 +427,6 @@ public class CMSLDAP {
             LDAPAttribute cauth = new LDAPAttribute("nssslclientauth", "allowed");
 
             // conn.delete("cn=RSA,cn=encryption,cn=config"); 		
-
 
             mods.add(LDAPModification.REPLACE, ssl3);
             mods.add(LDAPModification.DELETE, ssl3ciphers);
@@ -464,7 +461,7 @@ public class CMSLDAP {
     /**
      * Will Turn ON SSL in LDAP server . Takes certPrefix, certificatenickanme and sslport as parameters.
      **/
- 
+
     public boolean TurnOnSSL(String certPrefix, String certName, String sslport) {
         String dn;
         String CIPHERS = "-rsa_null_md5,+rsa_fips_3des_sha,+rsa_fips_des_sha,+rsa_3des_sha,+rsa_rc4_128_md5,+rsa_des_sha,+rsa_rc2_40_md5,+rsa_rc4_40_md5";
@@ -472,8 +469,8 @@ public class CMSLDAP {
         try {
             boolean found = false;
             int searchScope = LDAPv2.SCOPE_SUB;
-            String getAttrs[] = { "nssslactivation"};
-        
+            String getAttrs[] = { "nssslactivation" };
+
             LDAPModificationSet mods = new LDAPModificationSet();
             LDAPAttribute sec = new LDAPAttribute("nsslapd-security", "on");
             LDAPAttribute sp = new LDAPAttribute("nsslapd-securePort", sslport);
@@ -481,7 +478,7 @@ public class CMSLDAP {
             mods.add(LDAPModification.REPLACE, sec);
             mods.add(LDAPModification.REPLACE, sp);
             conn.modify("cn=config", mods);
-            mods.removeElementAt(1); 
+            mods.removeElementAt(1);
             mods.removeElementAt(0);
 
             LDAPAttribute ssl3 = new LDAPAttribute("nsssl3", "on");
@@ -500,7 +497,7 @@ public class CMSLDAP {
             mods.add(LDAPModification.REPLACE, cauth);
 
             conn.modify("cn=encryption,cn=config", mods);
-            int i = 4; 
+            int i = 4;
 
             while (i >= 0) {
                 mods.removeElementAt(i);
@@ -532,7 +529,7 @@ public class CMSLDAP {
 
                 attrSet.add(
                         new LDAPAttribute("objectclass",
-                        new String[] { "top", "nsEncryptionModule"}));
+                                new String[] { "top", "nsEncryptionModule" }));
                 attrSet.add(new LDAPAttribute("cn", "RSA"));
                 attrSet.add(
                         new LDAPAttribute("nsssltoken", "internal (software)"));
@@ -590,7 +587,7 @@ public class CMSLDAP {
 
             // if(!caIdb.searchUserCert("o=mcom.com","uid=test"))
             // System.out.println("USer cert is not published");
-         
+
             // if (!caIdb.CMSuserAdd("ra-trust" ,"ra-trust","ra-trust","netscape",bytes))
             // {System.out.println("Trusted MAnager user Could not be add ");}
 
@@ -609,4 +606,3 @@ public class CMSLDAP {
 
     }
 }
-

@@ -17,14 +17,13 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.policy;
 
-
 import com.netscape.certsrv.policy.IPolicyRule;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 
-
 public class JavaScriptRequestProxy {
     IRequest req;
+
     public JavaScriptRequestProxy(IRequest r) {
         req = r;
     }
@@ -42,4 +41,3 @@ public class JavaScriptRequestProxy {
     }
 
 }
-

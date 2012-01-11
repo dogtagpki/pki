@@ -1,4 +1,5 @@
 package com.netscape.pkisilent.common;
+
 // --- BEGIN COPYRIGHT BLOCK ---
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -25,7 +26,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.URLEncoder;
 
-
 public class CMSInstance {
 
     private int i;
@@ -34,9 +34,8 @@ public class CMSInstance {
 
     /**
      * CMS Test framework .
-     * This class Creates and Removes a CMS server instance 
+     * This class Creates and Removes a CMS server instance
      */
-
 
     /**
      * Constructor. Takes parameters hostname, adminserverport, adminDN, adminDNpassword, Dominanname, ServerRoot( full path) , instanceID, mnameand sieURL. mname is the fully qualified name of the server ( jupiter2.nscp.aoltw.net) sieURL is ("ldap://jupiter2.nscp.aoltw.net:(ConfigLADPPort)/o=NetscapeRoot"
@@ -101,7 +100,7 @@ public class CMSInstance {
         // steps
         // 1. create .cfg file
         // 2. run create.pl with that .cfg file
-	
+
         FileOutputStream out = new FileOutputStream(
                 cs_server_root + "/tps_auto_config.cfg");
         BufferedWriter awriter;
@@ -152,12 +151,12 @@ public class CMSInstance {
             Runtime r = Runtime.getRuntime();
             // String[] se = {"perl", cs_server_root+"/bin/cert/tps/setup/create.pl" , "-i", cs_server_root+"/tps_auto_config.cfg" };
             String[] se = {
-                "perl",
-                "/home/ckannan/cms/src/ns/netkeyra/setup/create.pl", "-i",
-                cs_server_root + "/tps_auto_config.cfg" };
+                    "perl",
+                    "/home/ckannan/cms/src/ns/netkeyra/setup/create.pl", "-i",
+                    cs_server_root + "/tps_auto_config.cfg" };
 
             System.out.println(se);
-            p = r.exec(se);  
+            p = r.exec(se);
             p.waitFor();
             String line;
 
@@ -192,7 +191,7 @@ public class CMSInstance {
                 + startURL;
 
         System.out.println(myStringUrl);
-	
+
         String query = "serverRoot=" + URLEncoder.encode(serverRoot);
 
         query += "&instanceID=" + URLEncoder.encode(instanceID);
@@ -205,7 +204,7 @@ public class CMSInstance {
         PostQuery sm = new PostQuery(myStringUrl, AdminDN, AdminDNPW, query);
 
         return (sm.Send());
-   
+
     }
 
     public boolean RemoveInstance() {
@@ -214,11 +213,11 @@ public class CMSInstance {
         String myStringUrl = "http://" + host + ":" + port + startURL;
 
         System.out.println(myStringUrl);
-	
+
         String query = "serverRoot=" + URLEncoder.encode(serverRoot);
 
         query += "&instanceID=" + URLEncoder.encode(instanceID);
-	
+
         PostQuery sm = new PostQuery(myStringUrl, AdminDN, AdminDNPW, query);
 
         st = sm.Send();
@@ -233,15 +232,15 @@ public class CMSInstance {
         myStringUrl = "http://" + host + ":" + port + startURL;
 
         System.out.println(myStringUrl);
-	
+
         query = "serverRoot=" + URLEncoder.encode(serverRoot);
         query += "&InstanceName=" + URLEncoder.encode(instanceID + "-db");
-	
+
         PostQuery rmdb = new PostQuery(myStringUrl, AdminDN, AdminDNPW, query);
 
         rmdb.setNMCStatus("NMC_Status: 0");
         return (rmdb.Send());
-   
+
     }
 
     public static void main(String args[]) {
@@ -250,38 +249,38 @@ public class CMSInstance {
         // Exit Status - (-1) for error
         // - 0 FAIL
         // - 1 PASS
- 
+
         boolean st;
-  
+
         System.out.println(args.length);
         if (args.length < 10) {
             System.out.println(
                     "Usage : <task:Create/REmove> host port AdminDN AdminDNPW adminDomain serverRoot instanceID machineName sieURL");
             System.exit(-1);
-        }   
+        }
 
         int task = 0;
 
         args[0] = args[0].toLowerCase();
-        if (args[0].equals("create")) { 
+        if (args[0].equals("create")) {
             task = 0;
         }
         if (args[0].equals("remove")) {
             task = 1;
         }
-   
+
         CMSInstance t = new CMSInstance(args[1], args[2], args[3], args[4],
                 args[5], args[6], args[7], args[8], args[9]);
 
         switch (task) {
-        
+
         case 0:
             st = t.CreateInstance();
-            if (st) { 
+            if (st) {
                 System.out.println("server Instance created ");
                 System.exit(1);
             } else {
-	
+
                 System.out.println("Error: Server Instance could not be created");
                 System.exit(0);
             }
@@ -289,11 +288,11 @@ public class CMSInstance {
 
         case 1:
             st = t.RemoveInstance();
-            if (st) { 
+            if (st) {
                 System.out.println("Server instance removed");
                 System.exit(1);
             } else {
-	
+
                 System.out.println("Server instance could not be removed");
                 System.exit(0);
             }

@@ -22,9 +22,13 @@ import java.util.Enumeration;
 
 public interface IPasswordStore {
     public void init(String pwdPath) throws IOException;
+
     public String getPassword(String tag);
+
     public Enumeration getTags();
+
     public Object putPassword(String tag, String password);
+
     public void commit()
-        throws IOException, ClassCastException, NullPointerException;
+            throws IOException, ClassCastException, NullPointerException;
 }

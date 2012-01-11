@@ -17,26 +17,24 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.dbs;
 
-
 import java.util.Enumeration;
 
 import com.netscape.certsrv.base.IAttrSet;
 
-
 /**
  * An interface represents a database object
  * that is serializable.
- *
- * @version $Revision$, $Date$ 
+ * 
+ * @version $Revision$, $Date$
  */
 public interface IDBObj extends IAttrSet {
 
     /**
-     * Returns a list of serializable attribute 
+     * Returns a list of serializable attribute
      * names. This method should return the
      * attribute name even if there is no attribute
      * value for the attribute.
-     *
+     * 
      * @return a list of serializable attribute names
      */
     public Enumeration<String> getSerializableAttrNames();

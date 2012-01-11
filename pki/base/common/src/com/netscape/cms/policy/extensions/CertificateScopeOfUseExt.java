@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.policy.extensions;
 
-
 import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.util.Locale;
@@ -43,31 +42,31 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cms.policy.APolicyRule;
 
-
 /**
  * Certificate Scope Of Use extension policy. This extension
  * is defined in draft-thayes-cert-scope-00.txt
  * <P>
+ * 
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- *
+ * 
  * @deprecated
  * @version $Revision$, $Date$
  */
-public class CertificateScopeOfUseExt extends APolicyRule implements 
+public class CertificateScopeOfUseExt extends APolicyRule implements
         IEnrollmentPolicy, IExtendedPluginInfo {
     protected static final String PROP_CRITICAL =
-        "critical";
+            "critical";
     protected static final String PROP_ENTRY =
-        "entry";
+            "entry";
     protected static final String PROP_NAME =
-        "name";
+            "name";
     protected static final String PROP_NAME_TYPE =
-        "name_type";
+            "name_type";
     protected static final String PROP_PORT_NUMBER =
-        "port_number";
+            "port_number";
 
     public static final int MAX_ENTRY = 5;
 
@@ -82,11 +81,11 @@ public class CertificateScopeOfUseExt extends APolicyRule implements
         Vector v = new Vector();
 
         v.addElement(PROP_CRITICAL +
-            ";boolean; This extension may be either critical or non-critical.");
+                ";boolean; This extension may be either critical or non-critical.");
         v.addElement(IExtendedPluginInfo.HELP_TOKEN +
-            ";configuration-policyrules-certificatescopeofuse");
+                ";configuration-policyrules-certificatescopeofuse");
         v.addElement(IExtendedPluginInfo.HELP_TEXT +
-            ";Adds Certificate Scope of Use Extension.");
+                ";Adds Certificate Scope of Use Extension.");
 
         for (int i = 0; i < MAX_ENTRY; i++) {
             v.addElement(PROP_ENTRY + Integer.toString(i) + "_" + PROP_NAME + ";" + IGeneralNameUtil.GENNAME_VALUE_INFO);
@@ -99,17 +98,15 @@ public class CertificateScopeOfUseExt extends APolicyRule implements
     /**
      * Initializes this policy rule.
      * <P>
-     *
+     * 
      * The entries may be of the form:
-     *
-     *      ca.Policy.rule.<ruleName>.implName=AuthInfoAccessExt
-     *      ca.Policy.rule.<ruleName>.enable=true
-     *      ca.Policy.rule.<ruleName>.predicate=
-     *
-     * @param config	The config store reference
+     * 
+     * ca.Policy.rule.<ruleName>.implName=AuthInfoAccessExt ca.Policy.rule.<ruleName>.enable=true ca.Policy.rule.<ruleName>.predicate=
+     * 
+     * @param config The config store reference
      */
     public void init(ISubsystem owner, IConfigStore config)
-        throws EBaseException {
+            throws EBaseException {
         mConfig = config;
     }
 
@@ -124,7 +121,7 @@ public class CertificateScopeOfUseExt extends APolicyRule implements
         //
         for (int i = 0;; i++) {
             // get port number (optional)
-            String port = mConfig.getString(PROP_ENTRY + 
+            String port = mConfig.getString(PROP_ENTRY +
                     Integer.toString(i) + "_" + PROP_PORT_NUMBER, null);
             BigInt portNumber = null;
 
@@ -137,11 +134,11 @@ public class CertificateScopeOfUseExt extends APolicyRule implements
             // TAG ::= uriName | dirName
             // VALUE ::= [value defined by TAG]
             //
-            String name_type = mConfig.getString(PROP_ENTRY + 
-                    Integer.toString(i) + 
+            String name_type = mConfig.getString(PROP_ENTRY +
+                    Integer.toString(i) +
                     "_" + PROP_NAME_TYPE, null);
-            String name = mConfig.getString(PROP_ENTRY + 
-                    Integer.toString(i) + 
+            String name = mConfig.getString(PROP_ENTRY +
+                    Integer.toString(i) +
                     "_" + PROP_NAME, null);
 
             if (name == null || name.equals(""))
@@ -157,7 +154,7 @@ public class CertificateScopeOfUseExt extends APolicyRule implements
      * If this policy is enabled, add the authority information
      * access extension to the certificate.
      * <P>
-     *
+     * 
      * @param req The request on which to apply policy.
      * @return The policy result object.
      */
@@ -169,7 +166,7 @@ public class CertificateScopeOfUseExt extends APolicyRule implements
                 IRequest.CERT_INFO);
 
         if (ci == null) {
-            setError(req, CMS.getUserMessage("CMS_POLICY_NO_CERT_INFO"), NAME); 
+            setError(req, CMS.getUserMessage("CMS_POLICY_NO_CERT_INFO"), NAME);
             return PolicyResult.REJECTED; // unrecoverable error.
         }
 
@@ -177,29 +174,29 @@ public class CertificateScopeOfUseExt extends APolicyRule implements
 
             certInfo = ci[j];
             if (certInfo == null) {
-                log(ILogger.LL_FAILURE, 
-                    CMS.getLogMessage("CA_CERT_INFO_ERROR", NAME));
-                setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"), 
-                    NAME, "Configuration Info Error");
+                log(ILogger.LL_FAILURE,
+                        CMS.getLogMessage("CA_CERT_INFO_ERROR", NAME));
+                setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"),
+                        NAME, "Configuration Info Error");
                 return PolicyResult.REJECTED; // unrecoverable error.
             }
 
             try {
                 // Find the extensions in the certInfo
                 CertificateExtensions extensions = (CertificateExtensions)
-                    certInfo.get(X509CertInfo.EXTENSIONS);
+                        certInfo.get(X509CertInfo.EXTENSIONS);
 
                 // add access descriptions
                 Vector entries = getScopeEntries();
 
                 if (entries.size() == 0) {
                     return res;
-                }	
-	
+                }
+
                 if (extensions == null) {
                     // create extension if not exist
                     certInfo.set(X509CertInfo.VERSION,
-                        new CertificateVersion(CertificateVersion.V3));
+                            new CertificateVersion(CertificateVersion.V3));
                     extensions = new CertificateExtensions();
                     certInfo.set(X509CertInfo.EXTENSIONS, extensions);
                 } else {
@@ -212,29 +209,29 @@ public class CertificateScopeOfUseExt extends APolicyRule implements
                 }
 
                 // Create the extension
-                CertificateScopeOfUseExtension suExt = new 
-                    CertificateScopeOfUseExtension(mConfig.getBoolean(
-                            PROP_CRITICAL, false), entries);
+                CertificateScopeOfUseExtension suExt = new
+                        CertificateScopeOfUseExtension(mConfig.getBoolean(
+                                PROP_CRITICAL, false), entries);
 
                 extensions.set(CertificateScopeOfUseExtension.NAME, suExt);
 
             } catch (IOException e) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("BASE_IO_ERROR", e.getMessage()));
-                setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"), 
-                    NAME, e.getMessage());
+                setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"),
+                        NAME, e.getMessage());
                 return PolicyResult.REJECTED; // unrecoverable error.
             } catch (EBaseException e) {
-                log(ILogger.LL_FAILURE, 
-                    "Configuration Info Error encountered: " +
-                    e.getMessage());
-                setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"), 
-                    NAME, "Configuration Info Error");
+                log(ILogger.LL_FAILURE,
+                        "Configuration Info Error encountered: " +
+                                e.getMessage());
+                setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"),
+                        NAME, "Configuration Info Error");
                 return PolicyResult.REJECTED; // unrecoverable error.
             } catch (CertificateException e) {
-                log(ILogger.LL_FAILURE, 
-                    CMS.getLogMessage("CA_CERT_INFO_ERROR", e.getMessage()));
-                setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"), 
-                    NAME, "Certificate Info Error");
+                log(ILogger.LL_FAILURE,
+                        CMS.getLogMessage("CA_CERT_INFO_ERROR", e.getMessage()));
+                setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"),
+                        NAME, "Certificate Info Error");
                 return PolicyResult.REJECTED; // unrecoverable error.
             }
         }
@@ -244,15 +241,15 @@ public class CertificateScopeOfUseExt extends APolicyRule implements
 
     /**
      * Return configured parameters for a policy rule instance.
-     *
+     * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getInstanceParams() { 
+    public Vector getInstanceParams() {
         Vector params = new Vector();
 
         try {
-            params.addElement(PROP_CRITICAL + "=" + 
-                mConfig.getBoolean(PROP_CRITICAL, false));
+            params.addElement(PROP_CRITICAL + "=" +
+                    mConfig.getBoolean(PROP_CRITICAL, false));
         } catch (EBaseException e) {
         }
 
@@ -260,50 +257,50 @@ public class CertificateScopeOfUseExt extends APolicyRule implements
             String name_type = null;
 
             try {
-                name_type = mConfig.getString(PROP_ENTRY + 
-                            Integer.toString(i) + "_" + PROP_NAME_TYPE, 
+                name_type = mConfig.getString(PROP_ENTRY +
+                            Integer.toString(i) + "_" + PROP_NAME_TYPE,
                             null);
             } catch (EBaseException e) {
             }
             if (name_type == null)
                 break;
-            params.addElement(PROP_ENTRY + 
-                Integer.toString(i) + 
-                "_" + PROP_NAME_TYPE + "=" + name_type);
+            params.addElement(PROP_ENTRY +
+                    Integer.toString(i) +
+                    "_" + PROP_NAME_TYPE + "=" + name_type);
             String name = null;
 
             try {
-                name = mConfig.getString(PROP_ENTRY + 
-                            Integer.toString(i) + "_" + PROP_NAME, 
+                name = mConfig.getString(PROP_ENTRY +
+                            Integer.toString(i) + "_" + PROP_NAME,
                             null);
             } catch (EBaseException e) {
             }
             if (name == null)
                 break;
-            params.addElement(PROP_ENTRY + 
-                Integer.toString(i) + 
-                "_" + PROP_NAME + "=" + name);
+            params.addElement(PROP_ENTRY +
+                    Integer.toString(i) +
+                    "_" + PROP_NAME + "=" + name);
             String port = null;
 
             try {
-                port = mConfig.getString(PROP_ENTRY + 
-                            Integer.toString(i) + "_" + PROP_PORT_NUMBER, 
+                port = mConfig.getString(PROP_ENTRY +
+                            Integer.toString(i) + "_" + PROP_PORT_NUMBER,
                             "");
             } catch (EBaseException e) {
             }
-            params.addElement(PROP_ENTRY + 
-                Integer.toString(i) + 
-                "_" + PROP_PORT_NUMBER + "=" + port);
+            params.addElement(PROP_ENTRY +
+                    Integer.toString(i) +
+                    "_" + PROP_PORT_NUMBER + "=" + port);
         }
         return params;
     }
 
     /**
      * Return default parameters for a policy implementation.
-     *
+     * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getDefaultParams() { 
+    public Vector getDefaultParams() {
         Vector defParams = new Vector();
 
         defParams.addElement(PROP_CRITICAL + "=false");
@@ -314,14 +311,13 @@ public class CertificateScopeOfUseExt extends APolicyRule implements
         // the CMS.cfg
         //
         for (int i = 0; i < MAX_ENTRY; i++) {
-            defParams.addElement(PROP_ENTRY + Integer.toString(i) + 
-                "_" + PROP_NAME_TYPE + "=");
-            defParams.addElement(PROP_ENTRY + Integer.toString(i) + 
-                "_" + PROP_NAME + "=");
-            defParams.addElement(PROP_ENTRY + Integer.toString(i) + 
-                "_" + PROP_PORT_NUMBER + "=");
+            defParams.addElement(PROP_ENTRY + Integer.toString(i) +
+                    "_" + PROP_NAME_TYPE + "=");
+            defParams.addElement(PROP_ENTRY + Integer.toString(i) +
+                    "_" + PROP_NAME + "=");
+            defParams.addElement(PROP_ENTRY + Integer.toString(i) +
+                    "_" + PROP_PORT_NUMBER + "=");
         }
         return defParams;
     }
 }
-

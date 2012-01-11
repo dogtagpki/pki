@@ -17,14 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.ocsp;
 
-
 import java.util.ListResourceBundle;
-
 
 /**
  * A class represents a resource bundle for OCSP subsystem.
  * <P>
- *
+ * 
  * @version $Revision$ $Date$
  */
 public class OCSPResources extends ListResourceBundle {

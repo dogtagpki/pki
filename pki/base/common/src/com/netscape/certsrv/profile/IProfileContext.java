@@ -17,19 +17,18 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.profile;
 
-
 /**
  * This interface represents a profile context which
  * stores system-wide and user-provided information for
  * assisting request creation.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public interface IProfileContext {
 
     /**
      * Sets a value into the context.
-     *
+     * 
      * @param name property name
      * @param value property value
      */
@@ -37,7 +36,7 @@ public interface IProfileContext {
 
     /**
      * Retrieves a value from the context.
-     *
+     * 
      * @param name property name
      * @return property value
      */

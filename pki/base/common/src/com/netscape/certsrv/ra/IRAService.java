@@ -17,47 +17,45 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.ra;
 
-
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.connector.IConnector;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IService;
 
-
 /**
  * An interface representing a RA request services.
  * <P>
- *
+ * 
  * @version $Revision$, $Date$
  */
-public interface IRAService extends IService { 
+public interface IRAService extends IService {
 
     /**
      * Services request.
-     *
+     * 
      * @param req request data
      */
     public boolean serviceRequest(IRequest req);
 
     /**
      * Services profile request.
-     *
+     * 
      * @param request profile enrollment request information
      * @exception EBaseException failed to service profile enrollment request
      */
     public void serviceProfileRequest(IRequest request)
-        throws EBaseException;
+            throws EBaseException;
 
     /**
      * Returns CA connector.
-     *
+     * 
      * @return CA connector
      */
     public IConnector getCAConnector();
 
     /**
      * Returns KRA connector.
-     *
+     * 
      * @return KRA connector
      */
     public IConnector getKRAConnector();

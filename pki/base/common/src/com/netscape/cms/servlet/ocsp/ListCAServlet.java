@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.ocsp;
 
-
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Date;
@@ -45,10 +44,9 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 
-
 /**
  * Show the list of CA's that the OCSP responder can service
- *
+ * 
  * @version $Revision$ $Date$
  */
 public class ListCAServlet extends CMSServlet {
@@ -58,9 +56,9 @@ public class ListCAServlet extends CMSServlet {
      */
     private static final long serialVersionUID = 3764395161795483452L;
     public static final String BEGIN_HEADER =
-        "-----BEGIN CERTIFICATE-----";
+            "-----BEGIN CERTIFICATE-----";
     public static final String END_HEADER =
-        "-----END CERTIFICATE-----";
+            "-----END CERTIFICATE-----";
 
     private final static String TPL_FILE = "listCAs.template";
     private String mFormPath = null;
@@ -73,7 +71,7 @@ public class ListCAServlet extends CMSServlet {
     /**
      * initialize the servlet. This servlet uses the template file
      * "listCAs.template" to process the response.
-     *
+     * 
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -89,11 +87,11 @@ public class ListCAServlet extends CMSServlet {
 
     /**
      * Process the HTTP request.
-     *
+     * 
      * @param cmsReq the object holding the request and response information
      */
     protected void process(CMSRequest cmsReq)
-        throws EBaseException {
+            throws EBaseException {
         HttpServletRequest req = cmsReq.getHttpReq();
         HttpServletResponse resp = cmsReq.getHttpResp();
 
@@ -120,9 +118,9 @@ public class ListCAServlet extends CMSServlet {
             form = getTemplate(mFormPath, req, locale);
         } catch (IOException e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()));
+                    CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
 
         IArgBlock header = CMS.createArgBlock();
@@ -133,12 +131,12 @@ public class ListCAServlet extends CMSServlet {
         Enumeration recs = defStore.searchAllCRLIssuingPointRecord(100);
 
         // show the current CRL number if present
-        header.addStringValue("stateCount", 
-            Integer.toString(defStore.getStateCount()));
+        header.addStringValue("stateCount",
+                Integer.toString(defStore.getStateCount()));
 
         while (recs.hasMoreElements()) {
-            ICRLIssuingPointRecord rec = 
-                (ICRLIssuingPointRecord) recs.nextElement();
+            ICRLIssuingPointRecord rec =
+                    (ICRLIssuingPointRecord) recs.nextElement();
             IArgBlock rarg = CMS.createArgBlock();
             String thisId = rec.getId();
 
@@ -163,17 +161,17 @@ public class ListCAServlet extends CMSServlet {
                 rarg.addLongValue("NumRevoked", 0);
             } else {
                 if (rc.longValue() == -1) {
-                  rarg.addStringValue("NumRevoked", "UNKNOWN");
-		} else {
-                  rarg.addLongValue("NumRevoked", rc.longValue());
+                    rarg.addStringValue("NumRevoked", "UNKNOWN");
+                } else {
+                    rarg.addLongValue("NumRevoked", rc.longValue());
                 }
             }
 
             BigInteger crlNumber = rec.getCRLNumber();
             if (crlNumber == null || crlNumber.equals(new BigInteger("-1"))) {
-                  rarg.addStringValue("CRLNumber", "UNKNOWN");
+                rarg.addStringValue("CRLNumber", "UNKNOWN");
             } else {
-                  rarg.addStringValue("CRLNumber", crlNumber.toString());
+                rarg.addStringValue("CRLNumber", crlNumber.toString());
             }
 
             rarg.addLongValue("ReqCount", defStore.getReqCount(thisId));
@@ -185,18 +183,18 @@ public class ListCAServlet extends CMSServlet {
             String error = null;
 
             String xmlOutput = req.getParameter("xml");
-			if (xmlOutput != null && xmlOutput.equals("true")) {
-			  outputXML(resp, argSet);
-			} else {
-			  resp.setContentType("text/html");
-			  form.renderOutput(out, argSet);
-			  cmsReq.setStatus(CMSRequest.SUCCESS);
-			}
+            if (xmlOutput != null && xmlOutput.equals("true")) {
+                outputXML(resp, argSet);
+            } else {
+                resp.setContentType("text/html");
+                form.renderOutput(out, argSet);
+                cmsReq.setStatus(CMSRequest.SUCCESS);
+            }
         } catch (IOException e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()));
+                    CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
     }
 }

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.logging;
 
-
 import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -29,49 +28,49 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.common.NameValuePairs;
 
-
 /**
  * A log event listener which sends all log events to the system console/tty
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class ConsoleLog implements ILogEventListener {
 
     /**
-     * Log the given event.  Usually called from a log manager.
-     *
-     * @param	ev	log event
+     * Log the given event. Usually called from a log manager.
+     * 
+     * @param ev log event
      */
     public void log(ILogEvent ev) {
         System.err.println(Thread.currentThread().getName() + ": " + ev);
     }
 
     /**
-     * Flush the system output stream. 
-     *
+     * Flush the system output stream.
+     * 
      */
     public void flush() {
         System.err.flush();
     }
 
-	/**
-	 * All operations need to be cleaned up for shutdown are done here
-	 */
+    /**
+     * All operations need to be cleaned up for shutdown are done here
+     */
     public void shutdown() {
     }
 
-	/**
-	 * get the configuration store that is associated with this
-	 * log listener
-	 * @return the configuration store that is associated with this
-	 * log listener
-	 */
+    /**
+     * get the configuration store that is associated with this
+     * log listener
+     * 
+     * @return the configuration store that is associated with this
+     *         log listener
+     */
     public IConfigStore getConfigStore() {
         return null;
     }
 
-    public void init(ISubsystem owner, IConfigStore config) 
-        throws EBaseException {
+    public void init(ISubsystem owner, IConfigStore config)
+            throws EBaseException {
     }
 
     public void startup() throws EBaseException {
@@ -79,14 +78,15 @@ public class ConsoleLog implements ILogEventListener {
 
     /**
      * Retrieve last "maxLine" number of system log with log lever >"level"
-     * and from  source "source". If the parameter is omitted. All entries
+     * and from source "source". If the parameter is omitted. All entries
      * are sent back.
-	 * @param req a Hashtable containing the required information such as
-	 * log entry, log level, log source, and log name
-	 * @return the content of the log that match the criteria in req
-	 * @exception servletException
-	 * @exception IOException
-	 * @exception EBaseException
+     * 
+     * @param req a Hashtable containing the required information such as
+     *            log entry, log level, log source, and log name
+     * @return the content of the log that match the criteria in req
+     * @exception servletException
+     * @exception IOException
+     * @exception EBaseException
      */
     public synchronized NameValuePairs retrieveLogContent(Hashtable<String, String> req) throws ServletException,
             IOException, EBaseException {
@@ -94,8 +94,8 @@ public class ConsoleLog implements ILogEventListener {
     }
 
     /**
-     * Retrieve log file list.
-	 * <br> unimplemented
+     * Retrieve log file list. <br>
+     * unimplemented
      */
     public synchronized NameValuePairs retrieveLogList(Hashtable<String, String> req) throws ServletException,
             IOException, EBaseException {

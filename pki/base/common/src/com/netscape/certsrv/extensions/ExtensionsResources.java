@@ -17,13 +17,11 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.extensions;
 
-
 import java.util.ListResourceBundle;
-
 
 /**
  * This represents the resources for extensions.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class ExtensionsResources extends ListResourceBundle {

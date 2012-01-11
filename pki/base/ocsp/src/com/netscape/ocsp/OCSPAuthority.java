@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.ocsp;
 
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.MessageDigest;
@@ -67,12 +66,11 @@ import com.netscape.cmsutil.ocsp.OCSPResponse;
 import com.netscape.cmsutil.ocsp.ResponderID;
 import com.netscape.cmsutil.ocsp.ResponseData;
 
-
 /**
  * A class represents a Certificate Authority that is
  * responsible for certificate specific operations.
  * <P>
- *
+ * 
  * @author lhsiao
  * @version $Revision$, $Date$
  */
@@ -91,7 +89,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
     private X509CertImpl mCert = null;
     private String[] mSigningAlgorithms = null;
     private X500Name mName = null;
-    private String mNickname = null;     
+    private String mNickname = null;
     private String[] mOCSPSigningAlgorithms = null;
     private IOCSPStore mDefStore = null;
 
@@ -106,7 +104,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
     /**
      * Retrieves the name of this subsystem.
      */
-    public String getId() {   
+    public String getId() {
         return mId;
     }
 
@@ -121,13 +119,13 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
      * Initializes this subsystem with the given configuration
      * store.
      * <P>
-     *
+     * 
      * @param owner owner of this subsystem
      * @param config configuration store
      * @exception EBaseException failed to initialize
      */
-    public void init(ISubsystem owner, IConfigStore config) 
-        throws EBaseException {
+    public void init(ISubsystem owner, IConfigStore config)
+            throws EBaseException {
         try {
             mConfig = config;
 
@@ -210,15 +208,15 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
          KeyHash ::= OCTET STRING --SHA-1 hash of responder's public key
          --(excluding the tag and length fields)
          */
-        PublicKey publicKey = getSigningUnit().getPublicKey(); 
+        PublicKey publicKey = getSigningUnit().getPublicKey();
         MessageDigest md = null;
 
         try {
-            md = MessageDigest.getInstance("SHA1"); 
+            md = MessageDigest.getInstance("SHA1");
         } catch (NoSuchAlgorithmException e) {
             return null;
         }
-        md.update(publicKey.getEncoded()); 
+        md.update(publicKey.getEncoded());
         byte digested[] = md.digest();
 
         return new KeyHashID(new OCTET_STRING(digested));
@@ -239,47 +237,47 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
         X509Key caPubKey = null;
 
         try {
-            caPubKey = (X509Key) mCert.get(X509CertImpl.PUBLIC_KEY); 
+            caPubKey = (X509Key) mCert.get(X509CertImpl.PUBLIC_KEY);
         } catch (CertificateParsingException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_OCSP_RETRIEVE_KEY", e.toString()));
         }
         if (caPubKey == null) {
-            return null;    // something seriously wrong.
+            return null; // something seriously wrong.
         }
         AlgorithmId alg = caPubKey.getAlgorithmId();
 
         if (alg == null) {
-            return null;    // something seriously wrong.
+            return null; // something seriously wrong.
         }
         mOCSPSigningAlgorithms = AlgorithmId.getSigningAlgorithms(alg);
         if (mOCSPSigningAlgorithms == null) {
             CMS.debug(
-                "OCSP - no signing algorithms for " + alg.getName());
+                    "OCSP - no signing algorithms for " + alg.getName());
         } else {
             CMS.debug("OCSP First signing algorithm ");
         }
         return mOCSPSigningAlgorithms;
     }
 
-    public static final OBJECT_IDENTIFIER MD2 = 
-        new OBJECT_IDENTIFIER("1.2.840.113549.2.2");
-    public static final OBJECT_IDENTIFIER MD5 = 
-        new OBJECT_IDENTIFIER("1.2.840.113549.2.5");
-    public static final OBJECT_IDENTIFIER SHA1 = 
-        new OBJECT_IDENTIFIER("1.3.14.3.2.26");
+    public static final OBJECT_IDENTIFIER MD2 =
+            new OBJECT_IDENTIFIER("1.2.840.113549.2.2");
+    public static final OBJECT_IDENTIFIER MD5 =
+            new OBJECT_IDENTIFIER("1.2.840.113549.2.5");
+    public static final OBJECT_IDENTIFIER SHA1 =
+            new OBJECT_IDENTIFIER("1.3.14.3.2.26");
 
-    public String getDigestName(AlgorithmIdentifier alg) { 
-        if (alg == null) { 
-            return null; 
-        } else if (alg.getOID().equals(MD2)) { 
-            return "MD2"; 
-        } else if (alg.getOID().equals(MD5)) { 
-            return "MD5"; 
-        } else if (alg.getOID().equals(SHA1)) { 
+    public String getDigestName(AlgorithmIdentifier alg) {
+        if (alg == null) {
+            return null;
+        } else if (alg.getOID().equals(MD2)) {
+            return "MD2";
+        } else if (alg.getOID().equals(MD5)) {
+            return "MD5";
+        } else if (alg.getOID().equals(SHA1)) {
             return "SHA1"; // 1.3.14.3.2.26 
-        } else { 
-            return null; 
-        } 
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -303,11 +301,11 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
             // init cert chain
             CryptoManager manager = CryptoManager.getInstance();
             org.mozilla.jss.crypto.X509Certificate[] chain =
-                manager.buildCertificateChain(mSigningUnit.getCert());
+                    manager.buildCertificateChain(mSigningUnit.getCert());
             // XXX do this in case other subsyss expect a X509CertImpl
             // until JSS implements all methods of X509Certificate
             java.security.cert.X509Certificate[] implchain =
-                new java.security.cert.X509Certificate[chain.length];
+                    new java.security.cert.X509Certificate[chain.length];
 
             for (int i = 0; i < chain.length; i++) {
                 implchain[i] = new X509CertImpl(chain[i].getEncoded());
@@ -325,17 +323,17 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
 
         } catch (CryptoManager.NotInitializedException e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("CMSCORE_OCSP_SIGNING", e.toString()));
+                    CMS.getLogMessage("CMSCORE_OCSP_SIGNING", e.toString()));
         } catch (CertificateException e) {
             if (Debug.ON)
                 e.printStackTrace();
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("CMSCORE_OCSP_CHAIN", e.toString()));
+                    CMS.getLogMessage("CMSCORE_OCSP_CHAIN", e.toString()));
         } catch (TokenException e) {
             if (Debug.ON)
                 e.printStackTrace();
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("CMSCORE_OCSP_CHAIN", e.toString()));
+                    CMS.getLogMessage("CMSCORE_OCSP_CHAIN", e.toString()));
         }
     }
 
@@ -358,8 +356,8 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
     /**
      * Process OCSPRequest.
      */
-    public OCSPResponse validate(OCSPRequest request) 
-        throws EBaseException {
+    public OCSPResponse validate(OCSPRequest request)
+            throws EBaseException {
         long startTime = (CMS.getCurrentDate()).getTime();
         OCSPResponse response = mDefStore.validate(request);
         long endTime = (CMS.getCurrentDate()).getTime();
@@ -397,7 +395,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
     /**
      * Returns the root configuration storage of this system.
      * <P>
-     *
+     * 
      * @return configuration store of this subsystem
      */
     public IConfigStore getConfigStore() {
@@ -410,21 +408,22 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
 
     /**
      * logs a message in the CA area.
+     * 
      * @param level the debug level.
      * @param msg the message to debug.
      */
     public void log(int event, int level, String msg) {
         mLogger.log(event, ILogger.S_OCSP,
-            level, msg);
+                level, msg);
     }
 
     public void log(int level, String msg) {
         mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OCSP,
-            level, msg);
+                level, msg);
     }
 
-    public void setDefaultAlgorithm(String algorithm) 
-        throws EBaseException {
+    public void setDefaultAlgorithm(String algorithm)
+            throws EBaseException {
         mSigningUnit.setDefaultAlgorithm(algorithm);
     }
 
@@ -432,16 +431,16 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
      * Signs the Response Data.
      */
     public BasicOCSPResponse sign(ResponseData rd)
-        throws EBaseException {
+            throws EBaseException {
         try {
             DerOutputStream out = new DerOutputStream();
             DerOutputStream tmp = new DerOutputStream();
 
-            String  algname = mSigningUnit.getDefaultAlgorithm();
+            String algname = mSigningUnit.getDefaultAlgorithm();
 
             byte rd_data[] = ASN1Util.encode(rd);
             if (rd_data != null) {
-              mTotalData += rd_data.length;
+                mTotalData += rd_data.length;
             }
             rd.encode(tmp);
             AlgorithmId.get(algname).encode(tmp);
@@ -451,23 +450,22 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
             tmp.putBitString(signature);
             // XXX - optional, put the certificate chains in also
 
-
             DerOutputStream tmpChain = new DerOutputStream();
             DerOutputStream tmp1 = new DerOutputStream();
             DerOutputStream outChain = new DerOutputStream();
             java.security.cert.X509Certificate chains[] =
-                mCertChain.getChain();
+                    mCertChain.getChain();
 
             for (int i = 0; i < chains.length; i++) {
                 tmpChain.putDerValue(new DerValue(chains[i].getEncoded()));
             }
             tmp1.write(DerValue.tag_Sequence, tmpChain);
             tmp.write(DerValue.createTag(DerValue.TAG_CONTEXT, true, (byte) 0),
-                tmp1);
+                    tmp1);
 
             out.write(DerValue.tag_Sequence, tmp);
-	
-            BasicOCSPResponse response = new BasicOCSPResponse(out.toByteArray()); 
+
+            BasicOCSPResponse response = new BasicOCSPResponse(out.toByteArray());
 
             return response;
         } catch (Exception e) {
@@ -482,7 +480,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
     /**
      * Returns default signing unit used by this CA
      * <P>
-     *
+     * 
      * @return request identifier
      */
     public ISigningUnit getSigningUnit() {
@@ -492,6 +490,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
     /**
      * Retrieves the request queue for the Authority.
      * <P>
+     * 
      * @return the request queue.
      */
     public IRequestQueue getRequestQueue() {
@@ -541,115 +540,106 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
      */
 
     /**
-     public OCSPResponse processOCSPRequest(OCSPRequest req, OCSPReqProcessor p)
-     throws EBaseException
-     {
-     try {
-     log(ILogger.LL_INFO, "start OCSP request");
-     TBSRequest tbsReq = request.getTBSRequest();
-
-     Vector singleResponses = new Vector();
-     for (int i = 0; i < tbsReq.getRequestCount(); i++)
-     {
-     com.netscape.certsrv.ocsp.asn1.Request req = 
-     tbsReq.getRequestAt(i);
-     CertID cid = req.getCertID();
-     SingleResponse sr = p.process(cid);
-     singleResponses.addElement(sr);
-     }
-
-
-     SingleResponse res[] = new SingleResponse[singleResponses.size()];
-     singleResponses.copyInto(res);
-
-     X500Name name = getName();
-     Name.Template nameTemplate = new Name.Template();
-     NameID rid = new NameID((Name)nameTemplate.decode(
-     new ByteArrayInputStream(name.getEncoded())));
-     ResponseData rd = new ResponseData(rid, new GeneralizedTime(
-     CMS.getCurrentDate()), res);
-
-     BasicOCSPResponse basicRes = sign(rd);
-
-     OCSPResponse response = new OCSPResponse(
-     OCSPResponseStatus.SUCCESSFUL, 
-     new ResponseBytes(ResponseBytes.OCSP_BASIC, 
-     new OCTET_STRING(ASN1Util.encode(basicRes))));
-
-     log(ILogger.LL_INFO, "done OCSP request");
-     return response;
-     } catch (Exception e) {
-     log(ILogger.LL_FAILURE, "request processing failure " + e);
-     return null;
-     }
-     }
+     * public OCSPResponse processOCSPRequest(OCSPRequest req, OCSPReqProcessor p)
+     * throws EBaseException
+     * {
+     * try {
+     * log(ILogger.LL_INFO, "start OCSP request");
+     * TBSRequest tbsReq = request.getTBSRequest();
+     * 
+     * Vector singleResponses = new Vector();
+     * for (int i = 0; i < tbsReq.getRequestCount(); i++)
+     * {
+     * com.netscape.certsrv.ocsp.asn1.Request req =
+     * tbsReq.getRequestAt(i);
+     * CertID cid = req.getCertID();
+     * SingleResponse sr = p.process(cid);
+     * singleResponses.addElement(sr);
+     * }
+     * 
+     * 
+     * SingleResponse res[] = new SingleResponse[singleResponses.size()];
+     * singleResponses.copyInto(res);
+     * 
+     * X500Name name = getName();
+     * Name.Template nameTemplate = new Name.Template();
+     * NameID rid = new NameID((Name)nameTemplate.decode(
+     * new ByteArrayInputStream(name.getEncoded())));
+     * ResponseData rd = new ResponseData(rid, new GeneralizedTime(
+     * CMS.getCurrentDate()), res);
+     * 
+     * BasicOCSPResponse basicRes = sign(rd);
+     * 
+     * OCSPResponse response = new OCSPResponse(
+     * OCSPResponseStatus.SUCCESSFUL,
+     * new ResponseBytes(ResponseBytes.OCSP_BASIC,
+     * new OCTET_STRING(ASN1Util.encode(basicRes))));
+     * 
+     * log(ILogger.LL_INFO, "done OCSP request");
+     * return response;
+     * } catch (Exception e) {
+     * log(ILogger.LL_FAILURE, "request processing failure " + e);
+     * return null;
+     * }
+     * }
      **/
 
     /**
      * Returns the in-memory count of the processed OCSP requests.
-     *
+     * 
      * @return number of processed OCSP requests in memory
      */
-    public long getNumOCSPRequest()
-    {
+    public long getNumOCSPRequest() {
         return mNumOCSPRequest;
     }
 
     /**
      * Returns the in-memory time (in mini-second) of
      * the processed time for OCSP requests.
-     *
+     * 
      * @return processed times for OCSP requests
      */
-    public long getOCSPRequestTotalTime()
-    {
-         return mTotalTime;
+    public long getOCSPRequestTotalTime() {
+        return mTotalTime;
     }
 
     /**
      * Returns the in-memory time (in mini-second) of
      * the signing time for OCSP requests.
-     *
+     * 
      * @return processed times for OCSP requests
      */
-    public long getOCSPTotalSignTime()
-    {
-         return mSignTime;
+    public long getOCSPTotalSignTime() {
+        return mSignTime;
     }
 
-    public long getOCSPTotalLookupTime()
-    {
-         return mLookupTime;
+    public long getOCSPTotalLookupTime() {
+        return mLookupTime;
     }
 
     /**
      * Returns the total data signed
      * for OCSP requests.
-     *
+     * 
      * @return processed times for OCSP requests
      */
-    public long getOCSPTotalData()
-    {
-         return mTotalData;
+    public long getOCSPTotalData() {
+        return mTotalData;
     }
 
-    public void incTotalTime(long inc)
-    {
+    public void incTotalTime(long inc) {
         mTotalTime += inc;
     }
 
-    public void incSignTime(long inc)
-    {
+    public void incSignTime(long inc) {
         mSignTime += inc;
-    }    
+    }
 
-    public void incLookupTime(long inc)
-    {
+    public void incLookupTime(long inc) {
         mLookupTime += inc;
-    }    
+    }
 
-    public void incNumOCSPRequest(long inc)
-    {
+    public void incNumOCSPRequest(long inc) {
         mNumOCSPRequest += inc;
     }
 }

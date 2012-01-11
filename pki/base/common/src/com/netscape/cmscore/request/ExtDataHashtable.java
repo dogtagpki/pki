@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Subclass of Hashtable returned by IRequest.getExtDataInHashtable.  Its
+ * Subclass of Hashtable returned by IRequest.getExtDataInHashtable. Its
  * purpose is to hide the fact that LDAP doesn't preserve the case of keys.
  * It does this by lowercasing all keys used to access the Hashtable.
  */
@@ -38,7 +38,7 @@ public class ExtDataHashtable extends Hashtable {
 
     public boolean containsKey(Object o) {
         if (o instanceof String) {
-            String key = (String)o;
+            String key = (String) o;
             return super.containsKey(key.toLowerCase());
         }
         return super.containsKey(o);
@@ -46,7 +46,7 @@ public class ExtDataHashtable extends Hashtable {
 
     public Object get(Object o) {
         if (o instanceof String) {
-            String key = (String)o;
+            String key = (String) o;
             return super.get(key.toLowerCase());
         }
         return super.get(o);
@@ -54,7 +54,7 @@ public class ExtDataHashtable extends Hashtable {
 
     public Object put(Object oKey, Object val) {
         if (oKey instanceof String) {
-            String key = (String)oKey;
+            String key = (String) oKey;
             return super.put(key.toLowerCase(), val);
         }
         return super.put(oKey, val);
@@ -62,8 +62,7 @@ public class ExtDataHashtable extends Hashtable {
 
     public void putAll(Map map) {
         Set keys = map.keySet();
-        for (Iterator i = keys.iterator();
-             i.hasNext();) {
+        for (Iterator i = keys.iterator(); i.hasNext();) {
             Object key = i.next();
             put(key, map.get(key));
         }
@@ -71,7 +70,7 @@ public class ExtDataHashtable extends Hashtable {
 
     public Object remove(Object o) {
         if (o instanceof String) {
-            String key = (String)o;
+            String key = (String) o;
             return super.remove(key.toLowerCase());
         }
         return super.remove(o);

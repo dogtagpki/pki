@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.publish.mappers;
 
-
 import java.io.IOException;
 import java.io.PushbackReader;
 import java.io.StringReader;
@@ -30,25 +29,25 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.request.IRequest;
 
-
 /**
- * class for parsing a DN pattern used to construct a ldap dn from 
- * request attributes and cert subject name.<p>
+ * class for parsing a DN pattern used to construct a ldap dn from
+ * request attributes and cert subject name.
+ * <p>
  * 
- * dnpattern is a string representing a ldap dn pattern to formulate from 
- * the certificate subject name attributes and request attributes . 
- * If empty or not set, the certificate subject name 
- * will be used as the ldap dn. <p>
+ * dnpattern is a string representing a ldap dn pattern to formulate from the certificate subject name attributes and request attributes . If empty or not set, the certificate subject name will be used as the ldap dn.
+ * <p>
  * 
- * The syntax is 
+ * The syntax is
+ * 
  * <pre>
- *		dnPattern := rdnPattern *[ "," rdnPattern ]
- *		rdnPattern := avaPattern *[ "+" avaPattern ]
+ * 	dnPattern := rdnPattern *[ "," rdnPattern ]
+ * 	rdnPattern := avaPattern *[ "+" avaPattern ]
  * 		avaPattern := name "=" value | 
- *				      name "=" "$subj" "." attrName [ "." attrNumber ] | 
- *				      name "=" "$req" "." attrName [ "." attrNumber ] | 
- *				 	  "$rdn" "." number
+ * 			      name "=" "$subj" "." attrName [ "." attrNumber ] | 
+ * 			      name "=" "$req" "." attrName [ "." attrNumber ] | 
+ * 			 	  "$rdn" "." number
  * </pre>
+ * 
  * <pre>
  * Example1: <i>cn=Certificate Manager,ou=people,o=mcom.com</i>
  * cert subject name: dn:  CN=Certificate Manager, OU=people, O=mcom.com
@@ -59,7 +58,7 @@ import com.netscape.certsrv.request.IRequest;
  * <p>
  * note: Subordinate ca enrollment will use ca mapper. Use predicate
  * to distinguish the ca itself and the subordinates.
- *
+ * 
  * Example2: <i>UID=$req.HTTP_PARAMS.uid, OU=$subj.ou, O=people, , O=mcom.com</i>
  * cert subject name: dn:  UID=jjames, OU=IS, O=people, , O=mcom.com
  * request attributes: uid: cmanager 
@@ -72,10 +71,9 @@ import com.netscape.certsrv.request.IRequest;
  *     O = the string people, mcom.com. <br>
  * <p>
  * </pre>
- * If an request attribute or subject DN component does not exist,
- * the attribute is skipped.There is potential risk that a wrong dn
- * will be mapped into.
- *
+ * 
+ * If an request attribute or subject DN component does not exist, the attribute is skipped.There is potential risk that a wrong dn will be mapped into.
+ * 
  * @version $Revision$, $Date$
  */
 class MapRDNPattern {
@@ -94,16 +92,17 @@ class MapRDNPattern {
 
     protected String mTestDN = null;
 
-    /** 
+    /**
      * Construct a DN pattern by parsing a pattern string.
+     * 
      * @param pattenr the DN pattern
-     * @exception ELdapException If parsing error occurs. 
+     * @exception ELdapException If parsing error occurs.
      */
     public MapRDNPattern(String pattern)
-        throws ELdapException {
+            throws ELdapException {
         if (pattern == null || pattern.equals("")) {
             CMS.debug(
-                "MapDNPattern: null pattern");			
+                    "MapDNPattern: null pattern");
         } else {
             mPatternString = pattern;
             PushbackReader in = new PushbackReader(new StringReader(pattern));
@@ -113,15 +112,15 @@ class MapRDNPattern {
     }
 
     /**
-     * Construct a DN pattern from a input stream of pattern 
+     * Construct a DN pattern from a input stream of pattern
      */
-    public MapRDNPattern(PushbackReader in) 
-        throws ELdapException {
+    public MapRDNPattern(PushbackReader in)
+            throws ELdapException {
         parse(in);
     }
 
     private void parse(PushbackReader in)
-        throws ELdapException {
+            throws ELdapException {
         //System.out.println("_________ begin rdn _________");
         Vector avaPatterns = new Vector();
         MapAVAPattern avaPattern = null;
@@ -135,18 +134,17 @@ class MapRDNPattern {
             //" mAttr "+avaPattern.mAttr+
             //" mValue "+avaPattern.mValue+
             //" mElement "+avaPattern.mElement);
-            try { 
-                lastChar = in.read(); 
+            try {
+                lastChar = in.read();
             } catch (IOException e) {
                 throw new ELdapException(
                         CMS.getUserMessage("CMS_LDAP_INTERNAL_ERROR", e.toString()));
             }
-        }
-        while (lastChar == '+');
+        } while (lastChar == '+');
 
         if (lastChar != -1) {
             try {
-                in.unread(lastChar);	// pushback last , 
+                in.unread(lastChar); // pushback last , 
             } catch (IOException e) {
                 throw new ELdapException(
                         CMS.getUserMessage("CMS_LDAP_INTERNAL_ERROR", e.toString()));
@@ -161,7 +159,7 @@ class MapRDNPattern {
         for (int i = 0; i < mAVAPatterns.length; i++) {
             String avaAttr = mAVAPatterns[i].getReqAttr();
 
-            if (avaAttr == null || avaAttr.length() == 0) 
+            if (avaAttr == null || avaAttr.length() == 0)
                 continue;
             reqAttrs.addElement(avaAttr);
         }
@@ -173,7 +171,7 @@ class MapRDNPattern {
         for (int i = 0; i < mAVAPatterns.length; i++) {
             String avaAttr = mAVAPatterns[i].getCertAttr();
 
-            if (avaAttr == null || avaAttr.length() == 0) 
+            if (avaAttr == null || avaAttr.length() == 0)
                 continue;
             certAttrs.addElement(avaAttr);
         }
@@ -183,16 +181,17 @@ class MapRDNPattern {
 
     /**
      * Form a Ldap v3 DN string from a request and a cert subject name.
+     * 
      * @param req the request for (un)publish
      * @param subject the subjectDN of the certificate
-     * @return Ldap v3 DN string to use for base ldap search. 
+     * @return Ldap v3 DN string to use for base ldap search.
      */
     public String formRDN(IRequest req, X500Name subject, CertificateExtensions ext)
-        throws ELdapException {
+            throws ELdapException {
         StringBuffer formedRDN = new StringBuffer();
 
         for (int i = 0; i < mAVAPatterns.length; i++) {
-            if (mTestDN != null) 
+            if (mTestDN != null)
                 mAVAPatterns[i].mTestDN = mTestDN;
             String ava = mAVAPatterns[i].formAVA(req, subject, ext);
 

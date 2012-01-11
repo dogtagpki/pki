@@ -17,14 +17,11 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.dbs;
 
-
-
-
 /**
  * A class represents a modification. This is used by the
  * database (dbs) framework for modification operations.
  * It specifices the modification type and values.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class Modification {
@@ -50,7 +47,7 @@ public class Modification {
 
     /**
      * Constructs a role modification.
-     *
+     * 
      * @param name attribute name
      * @param op attribute operation (i.e. MOD_ADD, MOD_DELETE, or MOD_REPLACE)
      * @param value attribute value
@@ -63,7 +60,7 @@ public class Modification {
 
     /**
      * Retrieves attribute name.
-     *
+     * 
      * @return attribute name
      */
     public String getName() {
@@ -72,7 +69,7 @@ public class Modification {
 
     /**
      * Retrieves modification operation type.
-     *
+     * 
      * @return modification type
      */
     public int getOp() {
@@ -81,7 +78,7 @@ public class Modification {
 
     /**
      * Retrieves attribute value.
-     *
+     * 
      * @return attribute value
      */
     public Object getValue() {

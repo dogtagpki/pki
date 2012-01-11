@@ -17,14 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.evaluators;
 
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.evaluators.IAccessEvaluator;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cmsutil.util.Utils;
-
 
 /**
  * A class represents a IP address acls evaluator.
@@ -44,13 +42,14 @@ public class IPAddressAccessEvaluator implements IAccessEvaluator {
     }
 
     /**
-     * initialization.  nothing for now.
+     * initialization. nothing for now.
      */
     public void init() {
     }
 
     /**
      * gets the type name for this acl evaluator
+     * 
      * @return type for this acl evaluator: ipaddress
      */
     public String getType() {
@@ -59,6 +58,7 @@ public class IPAddressAccessEvaluator implements IAccessEvaluator {
 
     /**
      * gets the description for this acl evaluator
+     * 
      * @return description for this acl evaluator
      */
     public String getDescription() {
@@ -75,6 +75,7 @@ public class IPAddressAccessEvaluator implements IAccessEvaluator {
 
     /**
      * Gets the IP address from session context
+     * 
      * @param authToken authentication token
      * @param type must be "ipaddress"
      * @param op must be "=" or "!="
@@ -87,12 +88,13 @@ public class IPAddressAccessEvaluator implements IAccessEvaluator {
 
     /**
      * evaluates uid in SessionContext to see if it has membership in
-     *	 group value
+     * group value
+     * 
      * @param type must be "group"
      * @param op must be "="
      * @param value the group name
      * @return true if SessionContext uid belongs to the group value,
-     *	 false otherwise
+     *         false otherwise
      */
     public boolean evaluate(String type, String op, String value) {
 
@@ -106,13 +108,13 @@ public class IPAddressAccessEvaluator implements IAccessEvaluator {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("EVALUATOR_IPADDRESS_NULL"));
                 return false;
             }
-            if (op.equals("=")) { 
+            if (op.equals("=")) {
                 return ipaddress.matches(value);
             } else {
                 return !(ipaddress.matches(value));
             }
-            
-        } 
+
+        }
 
         return false;
     }
@@ -121,6 +123,6 @@ public class IPAddressAccessEvaluator implements IAccessEvaluator {
         if (mLogger == null)
             return;
         mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_ACLS,
-            level, "GroupAccessEvaluator: " + msg);
+                level, "GroupAccessEvaluator: " + msg);
     }
 }

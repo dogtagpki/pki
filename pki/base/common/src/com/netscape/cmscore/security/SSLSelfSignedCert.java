@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.security;
 
-
 import java.io.IOException;
 import java.security.KeyPair;
 
@@ -29,16 +28,15 @@ import com.netscape.certsrv.common.ConfigConstants;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.security.KeyCertData;
 
-
 /**
- * SSL server certificate 
+ * SSL server certificate
  * 
  * @author Christine Ho
  * @version $Revision$, $Date$
  */
 public class SSLSelfSignedCert extends CertificateInfo {
-    public static final String SUBJECT_NAME = 
-        "CN=SSL, O=Netscape Communications, C=US";
+    public static final String SUBJECT_NAME =
+            "CN=SSL, O=Netscape Communications, C=US";
     private String mTokenname = Constants.PR_INTERNAL_TOKEN_NAME;
 
     public SSLSelfSignedCert(KeyCertData properties) {
@@ -49,8 +47,8 @@ public class SSLSelfSignedCert extends CertificateInfo {
         super(properties, pair);
         String tmp = (String) mProperties.get(Constants.PR_TOKEN_NAME);
 
-        if ((tmp != null) && 
-            (!tmp.equals(Constants.PR_INTERNAL_TOKEN)))   
+        if ((tmp != null) &&
+                (!tmp.equals(Constants.PR_INTERNAL_TOKEN)))
             mTokenname = tmp;
         mProperties.remove(Constants.PR_AKI);
 
@@ -80,7 +78,7 @@ public class SSLSelfSignedCert extends CertificateInfo {
     public String getNickname() {
         String name = (String) mProperties.get(Constants.PR_NICKNAME);
         String instanceName =
-            (String) mProperties.get(ConfigConstants.PR_CERT_INSTANCE_NAME);
+                (String) mProperties.get(ConfigConstants.PR_CERT_INSTANCE_NAME);
 
         if (name != null)
             return name;
@@ -119,4 +117,3 @@ public class SSLSelfSignedCert extends CertificateInfo {
         return extension;
     }
 }
-

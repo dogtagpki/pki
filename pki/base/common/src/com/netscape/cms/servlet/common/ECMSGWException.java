@@ -17,14 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.common;
 
-
 import com.netscape.certsrv.base.EBaseException;
-
 
 /**
  * A class represents a CMS gateway exception.
  * <P>
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class ECMSGWException extends EBaseException {
@@ -36,7 +34,7 @@ public class ECMSGWException extends EBaseException {
     /**
      * CA resource class name.
      */
-    private static final String CMSGW_RESOURCES = CMSGWResources.class.getName();		
+    private static final String CMSGW_RESOURCES = CMSGWResources.class.getName();
 
     /**
      * Constructs a CMS Gateway exception.

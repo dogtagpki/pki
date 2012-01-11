@@ -35,21 +35,16 @@ import netscape.security.util.DerValue;
 
 /**
  * This class defines the Private Key Usage Extension.
- *
- * <p>The Private Key Usage Period extension allows the certificate issuer
- * to specify a different validity period for the private key than the
- * certificate. This extension is intended for use with digital
- * signature keys.  This extension consists of two optional components
- * notBefore and notAfter.  The private key associated with the
- * certificate should not be used to sign objects before or after the
- * times specified by the two components, respectively.
- *
+ * 
+ * <p>
+ * The Private Key Usage Period extension allows the certificate issuer to specify a different validity period for the private key than the certificate. This extension is intended for use with digital signature keys. This extension consists of two optional components notBefore and notAfter. The private key associated with the certificate should not be used to sign objects before or after the times specified by the two components, respectively.
+ * 
  * <pre>
  * PrivateKeyUsagePeriod ::= SEQUENCE {
  *     notBefore  [0]  GeneralizedTime OPTIONAL,
  *     notAfter   [1]  GeneralizedTime OPTIONAL }
  * </pre>
- *
+ * 
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  * @version 1.12
@@ -57,7 +52,7 @@ import netscape.security.util.DerValue;
  * @see CertAttrSet
  */
 public class PrivateKeyUsageExtension extends Extension
-implements CertAttrSet {
+        implements CertAttrSet {
     /**
      *
      */
@@ -65,7 +60,7 @@ implements CertAttrSet {
     /**
      * Identifier for this attribute, to be used with the
      * get, set, delete methods of Certificate, x509 type.
-     */  
+     */
     public static final String IDENT = "x509.info.extensions.PrivateKeyUsage";
     /**
      * Sub attributes name for this CertAttrSet.
@@ -78,8 +73,8 @@ implements CertAttrSet {
     private static final byte TAG_BEFORE = 0;
     private static final byte TAG_AFTER = 1;
 
-    private Date		notBefore;
-    private Date		notAfter;
+    private Date notBefore;
+    private Date notAfter;
 
     // Encode this extension value.
     private void encodeThis() throws IOException {
@@ -104,14 +99,14 @@ implements CertAttrSet {
 
     /**
      * The default constructor for PrivateKeyUsageExtension.
-     *
+     * 
      * @param notBefore the date/time before which the private key
-     *         should not be used.
+     *            should not be used.
      * @param notAfter the date/time after which the private key
-     *         should not be used.
+     *            should not be used.
      */
     public PrivateKeyUsageExtension(Date notBefore, Date notAfter)
-    throws IOException {
+            throws IOException {
         this.notBefore = notBefore;
         this.notAfter = notAfter;
 
@@ -122,15 +117,15 @@ implements CertAttrSet {
 
     /**
      * Create the extension from the passed DER encoded value.
-     *
+     * 
      * @param critical true if the extension is to be treated as critical.
      * @param value Array of DER encoded bytes of the actual value.
-     *
+     * 
      * @exception CertificateException on certificate parsing errors.
      * @exception IOException on error.
      */
     public PrivateKeyUsageExtension(Boolean critical, Object value)
-    throws CertificateException, IOException {
+            throws CertificateException, IOException {
         this.extensionId = PKIXExtensions.PrivateKeyUsage_Id;
         this.critical = critical.booleanValue();
 
@@ -138,38 +133,38 @@ implements CertAttrSet {
             throw new CertificateException("Illegal argument type");
 
         int len = Array.getLength(value);
-	byte[] extValue = new byte[len];
+        byte[] extValue = new byte[len];
         System.arraycopy(value, 0, extValue, 0, len);
 
         this.extensionValue = extValue;
-	DerInputStream str = new DerInputStream(extValue);
-	DerValue[] seq = str.getSequence(2);
+        DerInputStream str = new DerInputStream(extValue);
+        DerValue[] seq = str.getSequence(2);
 
         // NB. this is always encoded with the IMPLICIT tag 
         // The checks only make sense if we assume implicit tagging, 
         // with explicit tagging the form is always constructed. 
-	for (int i = 0; i < seq.length; i++) {
+        for (int i = 0; i < seq.length; i++) {
             DerValue opt = seq[i];
 
-            if (opt.isContextSpecific((byte)TAG_BEFORE) &&
-                !opt.isConstructed()) {
-	        if (notBefore != null) {
+            if (opt.isContextSpecific((byte) TAG_BEFORE) &&
+                    !opt.isConstructed()) {
+                if (notBefore != null) {
                     throw new CertificateParsingException(
-                        "Duplicate notBefore in PrivateKeyUsage.");
-	        }
+                            "Duplicate notBefore in PrivateKeyUsage.");
+                }
                 opt.resetTag(DerValue.tag_GeneralizedTime);
-	        str = new DerInputStream(opt.toByteArray());
-	        notBefore = str.getGeneralizedTime();
+                str = new DerInputStream(opt.toByteArray());
+                notBefore = str.getGeneralizedTime();
 
-            } else if (opt.isContextSpecific((byte)TAG_AFTER) &&
+            } else if (opt.isContextSpecific((byte) TAG_AFTER) &&
                        !opt.isConstructed()) {
-	        if (notAfter != null) {
+                if (notAfter != null) {
                     throw new CertificateParsingException(
-	                "Duplicate notAfter in PrivateKeyUsage.");
-	        }
+                            "Duplicate notAfter in PrivateKeyUsage.");
+                }
                 opt.resetTag(DerValue.tag_GeneralizedTime);
-	        str = new DerInputStream(opt.toByteArray());
-	        notAfter = str.getGeneralizedTime();
+                str = new DerInputStream(opt.toByteArray());
+                notAfter = str.getGeneralizedTime();
             } else
                 throw new IOException("Invalid encoding of " +
                                       "PrivateKeyUsageExtension");
@@ -180,7 +175,7 @@ implements CertAttrSet {
      * Return the printable string.
      */
     public String toString() {
-        return(super.toString() +
+        return (super.toString() +
                 "PrivateKeyUsage: [From: " +
                 ((notBefore == null) ? "" : notBefore.toString()) +
                 ", To: " +
@@ -191,40 +186,40 @@ implements CertAttrSet {
      * Return notBefore date
      */
     public Date getNotBefore() {
-        return(notBefore);
+        return (notBefore);
     }
 
     /**
      * Return notAfter date
      */
     public Date getNotAfter() {
-        return(notAfter);
+        return (notAfter);
     }
 
     /**
      * Verify that that the current time is within the validity period.
-     *
+     * 
      * @exception CertificateExpiredException if the certificate has expired.
      * @exception CertificateNotYetValidException if the certificate is not
-     * yet valid.
-     */  
+     *                yet valid.
+     */
     public void valid()
-    throws CertificateNotYetValidException, CertificateExpiredException {
+            throws CertificateNotYetValidException, CertificateExpiredException {
         Date now = new Date();
         valid(now);
     }
 
     /**
      * Verify that that the passed time is within the validity period.
-     *
+     * 
      * @exception CertificateExpiredException if the certificate has expired
-     * with respect to the <code>Date</code> supplied.
+     *                with respect to the <code>Date</code> supplied.
      * @exception CertificateNotYetValidException if the certificate is not
-     * yet valid with respect to the <code>Date</code> supplied.
-     *
+     *                yet valid with respect to the <code>Date</code> supplied.
+     * 
      */
     public void valid(Date now)
-    throws CertificateNotYetValidException, CertificateExpiredException {
+            throws CertificateNotYetValidException, CertificateExpiredException {
         /*
          * we use the internal Dates rather than the passed in Date
          * because someone could override the Date methods after()
@@ -242,7 +237,7 @@ implements CertAttrSet {
 
     /**
      * Write the extension to the OutputStream.
-     *
+     * 
      * @param out the OutputStream to write the extension to.
      * @exception IOException on encoding errors.
      */
@@ -254,12 +249,12 @@ implements CertAttrSet {
             encodeThis();
         }
         super.encode(tmp);
-	out.write(tmp.toByteArray());
+        out.write(tmp.toByteArray());
     }
 
     /**
      * Decode the extension from the InputStream.
-     *
+     * 
      * @param in the InputStream to unmarshal the contents from.
      * @exception CertificateException on decoding errors.
      */
@@ -269,52 +264,55 @@ implements CertAttrSet {
 
     /**
      * Set the attribute value.
+     * 
      * @exception CertificateException on attribute handling errors.
      */
     public void set(String name, Object obj)
-    throws CertificateException {
-	clearValue();
+            throws CertificateException {
+        clearValue();
         if (!(obj instanceof Date)) {
-	    throw new CertificateException("Attribute must be of type Date.");
-	}
-	if (name.equalsIgnoreCase(NOT_BEFORE)) {
-	    notBefore = (Date)obj;
-	} else if (name.equalsIgnoreCase(NOT_AFTER)) {
-	    notAfter = (Date)obj;
-	} else {
-	  throw new CertificateException("Attribute name not recognized by"
+            throw new CertificateException("Attribute must be of type Date.");
+        }
+        if (name.equalsIgnoreCase(NOT_BEFORE)) {
+            notBefore = (Date) obj;
+        } else if (name.equalsIgnoreCase(NOT_AFTER)) {
+            notAfter = (Date) obj;
+        } else {
+            throw new CertificateException("Attribute name not recognized by"
                            + " CertAttrSet:PrivateKeyUsage.");
-	}
+        }
     }
 
     /**
      * Get the attribute value.
+     * 
      * @exception CertificateException on attribute handling errors.
      */
     public Object get(String name) throws CertificateException {
-      if (name.equalsIgnoreCase(NOT_BEFORE)) {
-          return (new Date(notBefore.getTime()));
-      } else if (name.equalsIgnoreCase(NOT_AFTER)) {
-          return (new Date(notAfter.getTime()));
-      } else {
-	  throw new CertificateException("Attribute name not recognized by"
+        if (name.equalsIgnoreCase(NOT_BEFORE)) {
+            return (new Date(notBefore.getTime()));
+        } else if (name.equalsIgnoreCase(NOT_AFTER)) {
+            return (new Date(notAfter.getTime()));
+        } else {
+            throw new CertificateException("Attribute name not recognized by"
                            + " CertAttrSet:PrivateKeyUsage.");
-      }
-  }
+        }
+    }
 
     /**
      * Delete the attribute value.
+     * 
      * @exception CertificateException on attribute handling errors.
      */
     public void delete(String name) throws CertificateException {
         if (name.equalsIgnoreCase(NOT_BEFORE)) {
-	    notBefore = null;
-	} else if (name.equalsIgnoreCase(NOT_AFTER)) {
-	    notAfter = null;
-	} else {
-	  throw new CertificateException("Attribute name not recognized by"
+            notBefore = null;
+        } else if (name.equalsIgnoreCase(NOT_AFTER)) {
+            notAfter = null;
+        } else {
+            throw new CertificateException("Attribute name not recognized by"
                            + " CertAttrSet:PrivateKeyUsage.");
-	}
+        }
     }
 
     /**
@@ -323,16 +321,16 @@ implements CertAttrSet {
      */
     public Enumeration<String> getElements() {
         Vector<String> elements = new Vector<String>();
-	elements.addElement(NOT_BEFORE);
-	elements.addElement(NOT_AFTER);
-	
-	return(elements.elements());
+        elements.addElement(NOT_BEFORE);
+        elements.addElement(NOT_AFTER);
+
+        return (elements.elements());
     }
 
     /**
      * Return the name of this attribute.
      */
     public String getName() {
-      return(NAME);
+        return (NAME);
     }
 }

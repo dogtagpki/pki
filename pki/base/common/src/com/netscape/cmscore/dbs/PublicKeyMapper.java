@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.dbs;
 
-
 import java.security.PublicKey;
 import java.security.cert.X509Certificate;
 import java.util.Enumeration;
@@ -32,16 +31,15 @@ import com.netscape.certsrv.dbs.IDBAttrMapper;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cmscore.cert.CertUtils;
- 
 
 /**
  * A class represents an attribute mapper that maps
  * a public key data into LDAP attribute and
  * vice versa.
  * <P>
- *
+ * 
  * @author thomask
- * @version $Revision$, $Date$ 
+ * @version $Revision$, $Date$
  */
 public class PublicKeyMapper implements IDBAttrMapper {
 
@@ -68,9 +66,9 @@ public class PublicKeyMapper implements IDBAttrMapper {
     /**
      * Maps object to ldap attribute set.
      */
-    public void mapObjectToLDAPAttributeSet(IDBObj parent, 
-        String name, Object obj, LDAPAttributeSet attrs) 
-        throws EBaseException {
+    public void mapObjectToLDAPAttributeSet(IDBObj parent,
+            String name, Object obj, LDAPAttributeSet attrs)
+            throws EBaseException {
         attrs.add(new LDAPAttribute(mLdapName, (byte[]) obj));
     }
 
@@ -78,8 +76,8 @@ public class PublicKeyMapper implements IDBAttrMapper {
      * Maps LDAP attributes into object, and put the object
      * into 'parent'.
      */
-    public void mapLDAPAttributeSetToObject(LDAPAttributeSet attrs, 
-        String name, IDBObj parent) throws EBaseException {
+    public void mapLDAPAttributeSetToObject(LDAPAttributeSet attrs,
+            String name, IDBObj parent) throws EBaseException {
         LDAPAttribute attr = attrs.getAttribute(mLdapName);
 
         if (attr == null) {
@@ -92,8 +90,8 @@ public class PublicKeyMapper implements IDBAttrMapper {
      * Maps search filters into LDAP search filter. It knows
      * how to extract public key from the certificate.
      */
-    public String mapSearchFilter(String name, String op, 
-        String value) throws EBaseException {
+    public String mapSearchFilter(String name, String op,
+            String value) throws EBaseException {
         int i = value.indexOf("#");
 
         if (i != -1) {
@@ -116,9 +114,9 @@ public class PublicKeyMapper implements IDBAttrMapper {
                  * @phase Maps search filters into LDAP search filter
                  * @message PublicKeyMapper: <exception thrown>
                  */
-                mLogger.log(ILogger.EV_SYSTEM, ILogger.S_DB, ILogger.LL_FAILURE, 
-                    CMS.getLogMessage("CMSCORE_DBS_PUBLICKEY_MAPPER_ERROR",
-                        e.toString()));
+                mLogger.log(ILogger.EV_SYSTEM, ILogger.S_DB, ILogger.LL_FAILURE,
+                        CMS.getLogMessage("CMSCORE_DBS_PUBLICKEY_MAPPER_ERROR",
+                                e.toString()));
             }
         }
         return mLdapName + op + value;

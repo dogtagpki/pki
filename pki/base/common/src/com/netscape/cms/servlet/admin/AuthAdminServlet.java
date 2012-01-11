@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.admin;
 
-
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Locale;
@@ -46,13 +45,12 @@ import com.netscape.certsrv.common.ScopeDef;
 import com.netscape.certsrv.ldap.ILdapAuthInfo;
 import com.netscape.certsrv.logging.ILogger;
 
-
 /**
  * A class representing an administration servlet for the
- * Authentication Management subsystem.  This servlet is responsible
+ * Authentication Management subsystem. This servlet is responsible
  * to serve configuration requests for the Auths Management subsystem.
  * 
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class AuthAdminServlet extends AdminServlet {
@@ -64,13 +62,13 @@ public class AuthAdminServlet extends AdminServlet {
     private final static String INFO = "AuthAdminServlet";
     private IAuthSubsystem mAuths = null;
 
-    private final static String PW_PASSWORD_CACHE_ADD = 
-        "PASSWORD_CACHE_ADD";
+    private final static String PW_PASSWORD_CACHE_ADD =
+            "PASSWORD_CACHE_ADD";
     private final static String VIEW = ";" + Constants.VIEW;
     private final static String EDIT = ";" + Constants.EDIT;
 
     private final static String LOGGING_SIGNED_AUDIT_CONFIG_AUTH =
-        "LOGGING_SIGNED_AUDIT_CONFIG_AUTH_3";
+            "LOGGING_SIGNED_AUDIT_CONFIG_AUTH_3";
 
     public AuthAdminServlet() {
         super();
@@ -88,18 +86,18 @@ public class AuthAdminServlet extends AdminServlet {
     /**
      * Returns serlvet information.
      */
-    public String getServletInfo() { 
-        return INFO; 
+    public String getServletInfo() {
+        return INFO;
     }
 
     /**
      * retrieve extended plugin info such as brief description, type info
      * from policy, authentication,
-     *   need to add: listener, mapper and publishing plugins
+     * need to add: listener, mapper and publishing plugins
      * --- same as policy, should we move this into extendedpluginhelper?
      */
     private void getExtendedPluginInfo(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
 
         String id = req.getParameter(Constants.RS_ID);
@@ -110,7 +108,7 @@ public class AuthAdminServlet extends AdminServlet {
         String implName = id.substring(colon + 1);
 
         NameValuePairs params =
-            getExtendedPluginInfo(getLocale(req), implType, implName);
+                getExtendedPluginInfo(getLocale(req), implType, implName);
 
         sendResponse(SUCCESS, null, params, resp);
     }
@@ -142,7 +140,7 @@ public class AuthAdminServlet extends AdminServlet {
      * Serves HTTP admin request.
      */
     public void service(HttpServletRequest req, HttpServletResponse resp)
-        throws ServletException, IOException {
+            throws ServletException, IOException {
         super.service(req, resp);
 
         String scope = req.getParameter(Constants.OP_SCOPE);
@@ -150,22 +148,22 @@ public class AuthAdminServlet extends AdminServlet {
 
         if (op == null) {
             //System.out.println("SRVLT_INVALID_PROTOCOL");
-            sendResponse(ERROR, 
-                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_PROTOCOL"),
-                null, resp);
+            sendResponse(ERROR,
+                    CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_PROTOCOL"),
+                    null, resp);
             return;
         }
 
         // if it is not authentication, that means it is for CSC admin ping.
         // the best way to do is to define another protocol for ping and move
         // it to the generic servlet which is admin servlet.
-        if (!op.equals(OpDef.OP_AUTH)) { 
+        if (!op.equals(OpDef.OP_AUTH)) {
             if (scope.equals(ScopeDef.SC_AUTH)) {
                 String id = req.getParameter(Constants.RS_ID);
 
                 // for CSC admin ping only
                 if (op.equals(OpDef.OP_READ) &&
-                    id.equals(Constants.RS_ID_CONFIG)) {
+                        id.equals(Constants.RS_ID_CONFIG)) {
 
                     // no need to authenticate this. if we're alive, return true.
                     NameValuePairs params = new NameValuePairs();
@@ -176,8 +174,8 @@ public class AuthAdminServlet extends AdminServlet {
                 } else {
                     //System.out.println("SRVLT_INVALID_OP_TYPE");
                     sendResponse(ERROR,
-                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_OP_TYPE", op),
-                        null, resp);
+                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_OP_TYPE", op),
+                            null, resp);
                     return;
                 }
             }
@@ -186,7 +184,7 @@ public class AuthAdminServlet extends AdminServlet {
         try {
             if (op.equals(OpDef.OP_AUTH)) {
                 if (scope.equals(ScopeDef.SC_AUTHTYPE)) {
-                    IConfigStore configStore = CMS.getConfigStore(); 
+                    IConfigStore configStore = CMS.getConfigStore();
                     String val = configStore.getString("authType", "pwd");
                     NameValuePairs params = new NameValuePairs();
 
@@ -196,8 +194,8 @@ public class AuthAdminServlet extends AdminServlet {
                 }
             }
         } catch (Exception e) {
-            sendResponse(ERROR,CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHS_FAILED"),
-                null, resp);
+            sendResponse(ERROR, CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHS_FAILED"),
+                    null, resp);
             return;
         }
         // for the rest					
@@ -209,8 +207,8 @@ public class AuthAdminServlet extends AdminServlet {
             }
         } catch (IOException e) {
             //System.out.println("SRVLT_FAIL_AUTHS");
-            sendResponse(ERROR,CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHS_FAILED"),
-                null, resp);
+            sendResponse(ERROR, CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHS_FAILED"),
+                    null, resp);
             return;
         }
 
@@ -223,8 +221,8 @@ public class AuthAdminServlet extends AdminServlet {
                         mOp = "read";
                         if ((mToken = super.authorize(req)) == null) {
                             sendResponse(ERROR,
-                              CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
-                                null, resp);
+                                    CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
+                                    null, resp);
                             return;
                         }
                         getExtendedPluginInfo(req, resp);
@@ -238,8 +236,8 @@ public class AuthAdminServlet extends AdminServlet {
                     mOp = "read";
                     if ((mToken = super.authorize(req)) == null) {
                         sendResponse(ERROR,
-                          CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
-                            null, resp);
+                                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
+                                null, resp);
                         return;
                     }
                     if (scope.equals(ScopeDef.SC_AUTH_IMPLS)) {
@@ -249,17 +247,17 @@ public class AuthAdminServlet extends AdminServlet {
                         listAuthMgrInsts(req, resp);
                         return;
                     } else {
-                        sendResponse(ERROR, 
-                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_OP_SCOPE"),
-                            null, resp);
+                        sendResponse(ERROR,
+                                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_OP_SCOPE"),
+                                null, resp);
                         return;
                     }
                 } else if (op.equals(OpDef.OP_READ)) {
                     mOp = "read";
                     if ((mToken = super.authorize(req)) == null) {
                         sendResponse(ERROR,
-                          CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
-                            null, resp);
+                                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
+                                null, resp);
                         return;
                     }
                     if (scope.equals(ScopeDef.SC_AUTH_IMPLS)) {
@@ -269,17 +267,17 @@ public class AuthAdminServlet extends AdminServlet {
                         getInstConfig(req, resp);
                         return;
                     } else {
-                        sendResponse(ERROR, 
-                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_OP_SCOPE"),
-                            null, resp);
+                        sendResponse(ERROR,
+                                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_OP_SCOPE"),
+                                null, resp);
                         return;
                     }
                 } else if (op.equals(OpDef.OP_ADD)) {
                     mOp = "modify";
                     if ((mToken = super.authorize(req)) == null) {
                         sendResponse(ERROR,
-                          CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
-                            null, resp);
+                                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
+                                null, resp);
                         return;
                     }
                     if (scope.equals(ScopeDef.SC_AUTH_IMPLS)) {
@@ -289,17 +287,17 @@ public class AuthAdminServlet extends AdminServlet {
                         addAuthMgrInst(req, resp, scope);
                         return;
                     } else {
-                        sendResponse(ERROR, 
-                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_OP_SCOPE"),
-                            null, resp);
+                        sendResponse(ERROR,
+                                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_OP_SCOPE"),
+                                null, resp);
                         return;
                     }
                 } else if (op.equals(OpDef.OP_DELETE)) {
                     mOp = "modify";
                     if ((mToken = super.authorize(req)) == null) {
                         sendResponse(ERROR,
-                          CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
-                            null, resp);
+                                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
+                                null, resp);
                         return;
                     }
                     if (scope.equals(ScopeDef.SC_AUTH_IMPLS)) {
@@ -309,17 +307,17 @@ public class AuthAdminServlet extends AdminServlet {
                         delAuthMgrInst(req, resp, scope);
                         return;
                     } else {
-                        sendResponse(ERROR, 
-                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_OP_SCOPE"),
-                            null, resp);
+                        sendResponse(ERROR,
+                                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_OP_SCOPE"),
+                                null, resp);
                         return;
                     }
                 } else if (op.equals(OpDef.OP_MODIFY)) {
                     mOp = "modify";
                     if ((mToken = super.authorize(req)) == null) {
                         sendResponse(ERROR,
-                          CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
-                            null, resp);
+                                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
+                                null, resp);
                         return;
                     }
                     if (scope.equals(ScopeDef.SC_AUTH_MGR_INSTANCE)) {
@@ -328,18 +326,18 @@ public class AuthAdminServlet extends AdminServlet {
                     }
                 } else {
                     sendResponse(ERROR,
-                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_OP_SCOPE"),
-                        null, resp);
+                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_OP_SCOPE"),
+                            null, resp);
                     return;
                 }
-            } 
+            }
         } catch (EBaseException e) {
             sendResponse(ERROR, e.toString(getLocale(req)), null, resp);
             return;
-        } 
+        }
         sendResponse(ERROR,
-            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_PERFORM_FAILED"),
-            null, resp);
+                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_PERFORM_FAILED"),
+                null, resp);
         return;
     }
 
@@ -356,23 +354,23 @@ public class AuthAdminServlet extends AdminServlet {
     /**
      * Add authentication manager plug-in
      * <P>
-     *
+     * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_AUTH used when configuring
-     * authentication
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_AUTH used when configuring authentication
      * </ul>
+     * 
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @param scope string used to obtain the contents of this authentication
-     * manager's substore
+     *            manager's substore
      * @exception ServletException a servlet error has occurred
      * @exception IOException an input/output error has occurred
      * @exception EBaseException an error has occurred
      */
-    
-	private synchronized void addAuthMgrPlugin(HttpServletRequest req, 
-        HttpServletResponse resp, String scope)
-        throws ServletException, IOException, EBaseException {
+
+    private synchronized void addAuthMgrPlugin(HttpServletRequest req,
+            HttpServletResponse resp, String scope)
+            throws ServletException, IOException, EBaseException {
 
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
@@ -394,8 +392,8 @@ public class AuthAdminServlet extends AdminServlet {
 
                 //System.out.println("SRVLT_NULL_RS_ID");
                 sendResponse(ERROR,
-                    CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
-                    null, resp);
+                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
+                        null, resp);
                 return;
             }
             // is the manager id unique?
@@ -410,8 +408,8 @@ public class AuthAdminServlet extends AdminServlet {
                 audit(auditMessage);
 
                 sendResponse(ERROR,
-                    new EAuthException(CMS.getUserMessage(getLocale(req),"CMS_AUTHENTICATION_DUP_MGR_PLUGIN_ID", id)).toString(),
-                    null, resp);
+                        new EAuthException(CMS.getUserMessage(getLocale(req), "CMS_AUTHENTICATION_DUP_MGR_PLUGIN_ID", id)).toString(),
+                        null, resp);
                 return;
             }
 
@@ -428,13 +426,13 @@ public class AuthAdminServlet extends AdminServlet {
                 audit(auditMessage);
 
                 sendResponse(ERROR,
-                    CMS.getUserMessage(getLocale(req),"CMS_AUTHENTICATION_NULL_AUTHMGR_CLASSNAME"),
-                    null, resp);
+                        CMS.getUserMessage(getLocale(req), "CMS_AUTHENTICATION_NULL_AUTHMGR_CLASSNAME"),
+                        null, resp);
                 return;
             }
 
             if (classPath.equals("com.netscape.cmscore.authentication.PasswdUserDBAuthentication") ||
-                classPath.equals("com.netscape.cmscore.authentication.CertUserDBAuthentication")) {
+                    classPath.equals("com.netscape.cmscore.authentication.CertUserDBAuthentication")) {
                 // store a message in the signed audit log file
                 auditMessage = CMS.getLogMessage(
                             LOGGING_SIGNED_AUDIT_CONFIG_AUTH,
@@ -445,17 +443,17 @@ public class AuthAdminServlet extends AdminServlet {
                 audit(auditMessage);
 
                 sendResponse(ERROR,
-                    CMS.getUserMessage(getLocale(req), "CMS_BASE_PERMISSION_DENIED"), null, resp);
+                        CMS.getUserMessage(getLocale(req), "CMS_BASE_PERMISSION_DENIED"), null, resp);
                 return;
             }
 
             IConfigStore destStore =
-                mConfig.getSubStore(DestDef.DEST_AUTH_ADMIN);
+                    mConfig.getSubStore(DestDef.DEST_AUTH_ADMIN);
             IConfigStore instancesConfig =
-                destStore.getSubStore(scope);
+                    destStore.getSubStore(scope);
 
             // Does the class exist?
-            
+
             Class<IAuthManager> newImpl = null;
 
             try {
@@ -473,8 +471,8 @@ public class AuthAdminServlet extends AdminServlet {
                 audit(auditMessage);
 
                 sendResponse(ERROR,
-                    CMS.getUserMessage(getLocale(req),"CMS_AUTHENTICATION_AUTHMGR_PLUGIN_NOT_FOUND"),
-                    null, resp);
+                        CMS.getUserMessage(getLocale(req), "CMS_AUTHENTICATION_AUTHMGR_PLUGIN_NOT_FOUND"),
+                        null, resp);
                 return;
             } catch (IllegalArgumentException e) {
                 // store a message in the signed audit log file
@@ -487,8 +485,8 @@ public class AuthAdminServlet extends AdminServlet {
                 audit(auditMessage);
 
                 sendResponse(ERROR,
-                    CMS.getUserMessage(getLocale(req),"CMS_AUTHENTICATION_AUTHMGR_PLUGIN_NOT_FOUND"),
-                    null, resp);
+                        CMS.getUserMessage(getLocale(req), "CMS_AUTHENTICATION_AUTHMGR_PLUGIN_NOT_FOUND"),
+                        null, resp);
                 return;
             }
 
@@ -505,8 +503,8 @@ public class AuthAdminServlet extends AdminServlet {
                     audit(auditMessage);
 
                     sendResponse(ERROR,
-                        CMS.getUserMessage(getLocale(req),"CMS_AUTHENTICATION_ILL_CLASS"),
-                        null, resp);
+                            CMS.getUserMessage(getLocale(req), "CMS_AUTHENTICATION_ILL_CLASS"),
+                            null, resp);
                     return;
                 }
             } catch (NullPointerException e) { // unlikely, only if newImpl null.
@@ -520,8 +518,8 @@ public class AuthAdminServlet extends AdminServlet {
                 audit(auditMessage);
 
                 sendResponse(ERROR,
-                    CMS.getUserMessage(getLocale(req),"CMS_AUTHENTICATION_ILL_CLASS"),
-                    null, resp);
+                        CMS.getUserMessage(getLocale(req), "CMS_AUTHENTICATION_ILL_CLASS"),
+                        null, resp);
                 return;
             }
 
@@ -544,8 +542,8 @@ public class AuthAdminServlet extends AdminServlet {
 
                 //System.out.println("SRVLT_FAIL_COMMIT");
                 sendResponse(ERROR,
-                    CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_COMMIT_FAILED"),
-                    null, resp);
+                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_COMMIT_FAILED"),
+                        null, resp);
                 return;
             }
 
@@ -553,8 +551,8 @@ public class AuthAdminServlet extends AdminServlet {
             AuthMgrPlugin plugin = new AuthMgrPlugin(id, classPath);
 
             mAuths.getPlugins().put(id, plugin);
-            mAuths.log(ILogger.LL_INFO, 
-                CMS.getLogMessage("ADMIN_SRVLT_PLUGIN_ADD", id));
+            mAuths.log(ILogger.LL_INFO,
+                    CMS.getLogMessage("ADMIN_SRVLT_PLUGIN_ADD", id));
 
             NameValuePairs params = new NameValuePairs();
 
@@ -611,22 +609,22 @@ public class AuthAdminServlet extends AdminServlet {
     /**
      * Add authentication manager instance
      * <P>
-     *
+     * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_AUTH used when configuring
-     * authentication
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_AUTH used when configuring authentication
      * </ul>
+     * 
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @param scope string used to obtain the contents of this authentication
-     * manager's substore
+     *            manager's substore
      * @exception ServletException a servlet error has occurred
      * @exception IOException an input/output error has occurred
      * @exception EBaseException an error has occurred
      */
-    private synchronized void addAuthMgrInst(HttpServletRequest req, 
-        HttpServletResponse resp, String scope)
-        throws ServletException, IOException, EBaseException {
+    private synchronized void addAuthMgrInst(HttpServletRequest req,
+            HttpServletResponse resp, String scope)
+            throws ServletException, IOException, EBaseException {
 
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
@@ -647,8 +645,8 @@ public class AuthAdminServlet extends AdminServlet {
                 audit(auditMessage);
 
                 sendResponse(ERROR,
-                    CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
-                    null, resp);
+                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
+                        null, resp);
                 return;
             }
 
@@ -664,8 +662,8 @@ public class AuthAdminServlet extends AdminServlet {
                 audit(auditMessage);
 
                 sendResponse(ERROR,
-                    CMS.getUserMessage(getLocale(req),"CMS_AUTHENTICATION_ILL_MGR_INST_ID"),
-                    null, resp);
+                        CMS.getUserMessage(getLocale(req), "CMS_AUTHENTICATION_ILL_MGR_INST_ID"),
+                        null, resp);
                 return;
             }
 
@@ -685,21 +683,21 @@ public class AuthAdminServlet extends AdminServlet {
                 audit(auditMessage);
 
                 sendResponse(ERROR,
-                    CMS.getUserMessage(getLocale(req),"CMS_AUTHENTICATION_MISSING_PARAMS"),
-                    null, resp);
+                        CMS.getUserMessage(getLocale(req), "CMS_AUTHENTICATION_MISSING_PARAMS"),
+                        null, resp);
                 return;
             }
 
             // prevent agent & admin creation.
             if (implname.equals(IAuthSubsystem.PASSWDUSERDB_PLUGIN_ID) ||
-                implname.equals(IAuthSubsystem.CERTUSERDB_PLUGIN_ID)) {
+                    implname.equals(IAuthSubsystem.CERTUSERDB_PLUGIN_ID)) {
                 sendResponse(ERROR,
-                    CMS.getUserMessage(getLocale(req), "CMS_BASE_PERMISSION_DENIED"), null, resp);
+                        CMS.getUserMessage(getLocale(req), "CMS_BASE_PERMISSION_DENIED"), null, resp);
             }
 
             // check if implementation exists.
             AuthMgrPlugin plugin =
-                (AuthMgrPlugin) mAuths.getPlugins().get(implname);
+                    (AuthMgrPlugin) mAuths.getPlugins().get(implname);
 
             if (plugin == null) {
                 // store a message in the signed audit log file
@@ -712,8 +710,8 @@ public class AuthAdminServlet extends AdminServlet {
                 audit(auditMessage);
 
                 sendResponse(ERROR,
-                    new EAuthMgrPluginNotFound(CMS.getUserMessage(getLocale(req),"CMS_AUTHENTICATION_AUTHMGR_NOT_FOUND", implname)).toString(),
-                    null, resp);
+                        new EAuthMgrPluginNotFound(CMS.getUserMessage(getLocale(req), "CMS_AUTHENTICATION_AUTHMGR_NOT_FOUND", implname)).toString(),
+                        null, resp);
                 return;
             }
 
@@ -723,9 +721,9 @@ public class AuthAdminServlet extends AdminServlet {
             String[] configParams = mAuths.getConfigParams(implname);
 
             IConfigStore destStore =
-                mConfig.getSubStore(DestDef.DEST_AUTH_ADMIN);
+                    mConfig.getSubStore(DestDef.DEST_AUTH_ADMIN);
             IConfigStore instancesConfig =
-                destStore.getSubStore(scope);
+                    destStore.getSubStore(scope);
             IConfigStore substore = instancesConfig.makeSubStore(id);
 
             if (configParams != null) {
@@ -765,8 +763,8 @@ public class AuthAdminServlet extends AdminServlet {
                 // cleanup
                 instancesConfig.removeSubStore(id);
                 sendResponse(ERROR,
-                    new EAuthException(CMS.getUserMessage(getLocale(req),"CMS_AUTHENTICATION_LOAD_CLASS_FAIL", className)).toString(),
-                    null, resp);
+                        new EAuthException(CMS.getUserMessage(getLocale(req), "CMS_AUTHENTICATION_LOAD_CLASS_FAIL", className)).toString(),
+                        null, resp);
                 return;
             } catch (InstantiationException e) {
                 // store a message in the signed audit log file
@@ -780,8 +778,8 @@ public class AuthAdminServlet extends AdminServlet {
 
                 instancesConfig.removeSubStore(id);
                 sendResponse(ERROR,
-                    new EAuthException(CMS.getUserMessage(getLocale(req),"CMS_AUTHENTICATION_LOAD_CLASS_FAIL", className)).toString(),
-                    null, resp);
+                        new EAuthException(CMS.getUserMessage(getLocale(req), "CMS_AUTHENTICATION_LOAD_CLASS_FAIL", className)).toString(),
+                        null, resp);
                 return;
             } catch (IllegalAccessException e) {
                 // store a message in the signed audit log file
@@ -795,8 +793,8 @@ public class AuthAdminServlet extends AdminServlet {
 
                 instancesConfig.removeSubStore(id);
                 sendResponse(ERROR,
-                    new EAuthException(CMS.getUserMessage(getLocale(req),"CMS_AUTHENTICATION_LOAD_CLASS_FAIL", className)).toString(),
-                    null, resp);
+                        new EAuthException(CMS.getUserMessage(getLocale(req), "CMS_AUTHENTICATION_LOAD_CLASS_FAIL", className)).toString(),
+                        null, resp);
                 return;
             }
 
@@ -835,16 +833,16 @@ public class AuthAdminServlet extends AdminServlet {
                 // clean up.
                 instancesConfig.removeSubStore(id);
                 sendResponse(ERROR,
-                    CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_COMMIT_FAILED"),
-                    null, resp);
+                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_COMMIT_FAILED"),
+                        null, resp);
                 return;
             }
 
             // inited and commited ok. now add manager instance to list.
             mAuths.add(id, authMgrInst);
 
-            mAuths.log(ILogger.LL_INFO, 
-                CMS.getLogMessage("ADMIN_SRVLT_AUTH_MGR_ADD", id));
+            mAuths.log(ILogger.LL_INFO,
+                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_MGR_ADD", id));
 
             NameValuePairs params = new NameValuePairs();
 
@@ -900,8 +898,8 @@ public class AuthAdminServlet extends AdminServlet {
         }
     }
 
-    private synchronized void listAuthMgrPlugins(HttpServletRequest req, 
-        HttpServletResponse resp) throws ServletException, 
+    private synchronized void listAuthMgrPlugins(HttpServletRequest req,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
 
         NameValuePairs params = new NameValuePairs();
@@ -909,8 +907,8 @@ public class AuthAdminServlet extends AdminServlet {
 
         while (e.hasMoreElements()) {
             String name = (String) e.nextElement();
-            AuthMgrPlugin value = (AuthMgrPlugin) 
-                mAuths.getPlugins().get(name);
+            AuthMgrPlugin value = (AuthMgrPlugin)
+                    mAuths.getPlugins().get(name);
 
             if (value.isVisible()) {
                 params.add(name, value.getClassPath() + EDIT);
@@ -920,14 +918,13 @@ public class AuthAdminServlet extends AdminServlet {
         return;
     }
 
-    private synchronized void listAuthMgrInsts(HttpServletRequest req, 
-        HttpServletResponse resp) throws ServletException, 
+    private synchronized void listAuthMgrInsts(HttpServletRequest req,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
 
         NameValuePairs params = new NameValuePairs();
 
-        for (Enumeration<?> e = mAuths.getInstances().keys();
-            e.hasMoreElements();) {
+        for (Enumeration<?> e = mAuths.getInstances().keys(); e.hasMoreElements();) {
             String name = (String) e.nextElement();
             AuthManagerProxy proxy = (AuthManagerProxy) mAuths.getInstances().get(name);
             IAuthManager value = proxy.getAuthManager();
@@ -938,7 +935,7 @@ public class AuthAdminServlet extends AdminServlet {
             }
 
             AuthMgrPlugin amgrplugin = (AuthMgrPlugin)
-                mAuths.getPlugins().get(value.getImplName());
+                    mAuths.getPlugins().get(value.getImplName());
 
             if (!amgrplugin.isVisible()) {
                 params.add(name, value.getImplName() + ";invisible;" + enableStr);
@@ -953,21 +950,21 @@ public class AuthAdminServlet extends AdminServlet {
     /**
      * Delete authentication manager plug-in
      * <P>
-     *
+     * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_AUTH used when configuring
-     * authentication
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_AUTH used when configuring authentication
      * </ul>
+     * 
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @param scope string used to obtain the contents of this authentication
-     * manager's substore
+     *            manager's substore
      * @exception ServletException a servlet error has occurred
      * @exception IOException an input/output error has occurred
      * @exception EBaseException an error has occurred
      */
-    private synchronized void delAuthMgrPlugin(HttpServletRequest req, 
-        HttpServletResponse resp, String scope) throws ServletException, 
+    private synchronized void delAuthMgrPlugin(HttpServletRequest req,
+            HttpServletResponse resp, String scope) throws ServletException,
             IOException, EBaseException {
 
         String auditMessage = null;
@@ -991,16 +988,16 @@ public class AuthAdminServlet extends AdminServlet {
 
                 //System.out.println("SRVLT_NULL_RS_ID");
                 sendResponse(ERROR,
-                    CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
-                    null, resp);
+                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
+                        null, resp);
                 return;
             }
 
             // prevent deletion of admin and agent.
             if (id.equals(IAuthSubsystem.PASSWDUSERDB_PLUGIN_ID) ||
-                id.equals(IAuthSubsystem.CERTUSERDB_PLUGIN_ID)) {
+                    id.equals(IAuthSubsystem.CERTUSERDB_PLUGIN_ID)) {
                 sendResponse(ERROR,
-                    CMS.getUserMessage(getLocale(req), "CMS_BASE_PERMISSION_DENIED"), null, resp);
+                        CMS.getUserMessage(getLocale(req), "CMS_BASE_PERMISSION_DENIED"), null, resp);
             }
 
             // does auth manager exist?
@@ -1015,15 +1012,14 @@ public class AuthAdminServlet extends AdminServlet {
                 audit(auditMessage);
 
                 sendResponse(ERROR,
-                    new EAuthMgrPluginNotFound(CMS.getUserMessage(getLocale(req), "CMS_AUTHENTICATION_DUP_MGR_PLUGIN_ID", id)).toString(),
-                    null, resp);
+                        new EAuthMgrPluginNotFound(CMS.getUserMessage(getLocale(req), "CMS_AUTHENTICATION_DUP_MGR_PLUGIN_ID", id)).toString(),
+                        null, resp);
                 return;
             }
 
             // first check if any instances from this auth manager
             // DON'T remove auth manager if any instance
-            for (Enumeration<?> e = mAuths.getInstances().keys();
-                e.hasMoreElements();) {
+            for (Enumeration<?> e = mAuths.getInstances().keys(); e.hasMoreElements();) {
                 IAuthManager authMgr = (IAuthManager) mAuths.get((String) e.nextElement());
 
                 if (authMgr.getImplName() == id) {
@@ -1037,19 +1033,19 @@ public class AuthAdminServlet extends AdminServlet {
                     audit(auditMessage);
 
                     sendResponse(ERROR,
-                        CMS.getUserMessage(getLocale(req),"CMS_AUTHENTICATION_MGR_IN_USE"),
-                        null, resp);
+                            CMS.getUserMessage(getLocale(req), "CMS_AUTHENTICATION_MGR_IN_USE"),
+                            null, resp);
                     return;
                 }
             }
-		
+
             // then delete this auth manager
             mAuths.getPlugins().remove((Object) id);
 
             IConfigStore destStore =
-                mConfig.getSubStore(DestDef.DEST_AUTH_ADMIN);
+                    mConfig.getSubStore(DestDef.DEST_AUTH_ADMIN);
             IConfigStore instancesConfig =
-                destStore.getSubStore(scope);
+                    destStore.getSubStore(scope);
 
             instancesConfig.removeSubStore(id);
             // commiting
@@ -1066,8 +1062,8 @@ public class AuthAdminServlet extends AdminServlet {
                 audit(auditMessage);
 
                 sendResponse(ERROR,
-                    CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_COMMIT_FAILED"),
-                    null, resp);
+                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_COMMIT_FAILED"),
+                        null, resp);
                 return;
             }
 
@@ -1124,21 +1120,21 @@ public class AuthAdminServlet extends AdminServlet {
     /**
      * Delete authentication manager instance
      * <P>
-     *
+     * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_AUTH used when configuring
-     * authentication
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_AUTH used when configuring authentication
      * </ul>
+     * 
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @param scope string used to obtain the contents of this authentication
-     * manager's substore
+     *            manager's substore
      * @exception ServletException a servlet error has occurred
      * @exception IOException an input/output error has occurred
      * @exception EBaseException an error has occurred
      */
-    private synchronized void delAuthMgrInst(HttpServletRequest req, 
-        HttpServletResponse resp, String scope) throws ServletException, 
+    private synchronized void delAuthMgrInst(HttpServletRequest req,
+            HttpServletResponse resp, String scope) throws ServletException,
             IOException, EBaseException {
 
         String auditMessage = null;
@@ -1162,16 +1158,16 @@ public class AuthAdminServlet extends AdminServlet {
 
                 //System.out.println("SRVLT_NULL_RS_ID");
                 sendResponse(ERROR,
-                    CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
-                    null, resp);
+                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
+                        null, resp);
                 return;
             }
 
             // prevent deletion of admin and agent.
             if (id.equals(IAuthSubsystem.PASSWDUSERDB_AUTHMGR_ID) ||
-                id.equals(IAuthSubsystem.CERTUSERDB_AUTHMGR_ID)) {
+                    id.equals(IAuthSubsystem.CERTUSERDB_AUTHMGR_ID)) {
                 sendResponse(ERROR,
-                    CMS.getUserMessage(getLocale(req), "CMS_BASE_PERMISSION_DENIED"), null, resp);
+                        CMS.getUserMessage(getLocale(req), "CMS_BASE_PERMISSION_DENIED"), null, resp);
             }
 
             // does auth manager instance exist?
@@ -1186,8 +1182,8 @@ public class AuthAdminServlet extends AdminServlet {
                 audit(auditMessage);
 
                 sendResponse(ERROR,
-                    new EAuthMgrNotFound(CMS.getUserMessage(getLocale(req),"CMS_AUTHENTICATION_AUTHMGR_NOT_FOUND", id)).toString(),
-                    null, resp);
+                        new EAuthMgrNotFound(CMS.getUserMessage(getLocale(req), "CMS_AUTHENTICATION_AUTHMGR_NOT_FOUND", id)).toString(),
+                        null, resp);
                 return;
             }
 
@@ -1200,9 +1196,9 @@ public class AuthAdminServlet extends AdminServlet {
 
             // remove the configuration.
             IConfigStore destStore =
-                mConfig.getSubStore(DestDef.DEST_AUTH_ADMIN);
+                    mConfig.getSubStore(DestDef.DEST_AUTH_ADMIN);
             IConfigStore instancesConfig =
-                destStore.getSubStore(scope);
+                    destStore.getSubStore(scope);
 
             instancesConfig.removeSubStore(id);
             // commiting
@@ -1220,8 +1216,8 @@ public class AuthAdminServlet extends AdminServlet {
 
                 //System.out.println("SRVLT_FAIL_COMMIT");
                 sendResponse(ERROR,
-                    CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_COMMIT_FAILED"),
-                    null, resp);
+                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_COMMIT_FAILED"),
+                        null, resp);
                 return;
             }
 
@@ -1283,24 +1279,24 @@ public class AuthAdminServlet extends AdminServlet {
 
     /**
      * used for getting the required configuration parameters (with
-     *	 possible default values) for a particular auth manager plugin
-     * implementation name specified in the RS_ID.  Actually, there is
-     *	 no logic in here to set any default value here...there's no
-     *	 default value for any parameter in this authentication subsystem
-     *	 at this point.  Later, if we do have one (or some), it can be
-     *	 added.  The interface remains the same.
+     * possible default values) for a particular auth manager plugin
+     * implementation name specified in the RS_ID. Actually, there is
+     * no logic in here to set any default value here...there's no
+     * default value for any parameter in this authentication subsystem
+     * at this point. Later, if we do have one (or some), it can be
+     * added. The interface remains the same.
      */
-    private synchronized void getConfig(HttpServletRequest req, 
-        HttpServletResponse resp)
-        throws ServletException, IOException, EBaseException {
+    private synchronized void getConfig(HttpServletRequest req,
+            HttpServletResponse resp)
+            throws ServletException, IOException, EBaseException {
 
         String implname = req.getParameter(Constants.RS_ID);
 
         if (implname == null) {
             //System.out.println("SRVLT_NULL_RS_ID");
             sendResponse(ERROR,
-                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
-                null, resp);
+                    CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
+                    null, resp);
             return;
         }
 
@@ -1318,8 +1314,8 @@ public class AuthAdminServlet extends AdminServlet {
         return;
     }
 
-    private synchronized void getInstConfig(HttpServletRequest req, 
-        HttpServletResponse resp) throws ServletException, 
+    private synchronized void getInstConfig(HttpServletRequest req,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
 
         String id = req.getParameter(Constants.RS_ID);
@@ -1327,16 +1323,16 @@ public class AuthAdminServlet extends AdminServlet {
         if (id == null) {
             //System.out.println("SRVLT_NULL_RS_ID");
             sendResponse(ERROR,
-                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
-                null, resp);
+                    CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
+                    null, resp);
             return;
         }
 
         // does auth manager instance exist?
         if (mAuths.getInstances().containsKey(id) == false) {
             sendResponse(ERROR,
-                new EAuthMgrNotFound(CMS.getUserMessage(getLocale(req),"CMS_AUTHENTICATION_AUTHMGR_NOT_FOUND", id)).toString(),
-                null, resp);
+                    new EAuthMgrNotFound(CMS.getUserMessage(getLocale(req), "CMS_AUTHENTICATION_AUTHMGR_NOT_FOUND", id)).toString(),
+                    null, resp);
             return;
         }
 
@@ -1366,28 +1362,28 @@ public class AuthAdminServlet extends AdminServlet {
 
     /**
      * Modify authentication manager instance
-     * This will actually create a new instance with new configuration 
+     * This will actually create a new instance with new configuration
      * parameters and replace the old instance if the new instance is
      * created and initialized successfully.
      * The old instance is left running, so this is very expensive.
      * Restart of server recommended.
      * <P>
-     *
+     * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_AUTH used when configuring
-     * authentication
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_AUTH used when configuring authentication
      * </ul>
+     * 
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @param scope string used to obtain the contents of this authentication
-     * manager's substore
+     *            manager's substore
      * @exception ServletException a servlet error has occurred
      * @exception IOException an input/output error has occurred
      * @exception EBaseException an error has occurred
      */
-    private synchronized void modAuthMgrInst(HttpServletRequest req, 
-        HttpServletResponse resp, String scope)
-        throws ServletException, IOException, EBaseException {
+    private synchronized void modAuthMgrInst(HttpServletRequest req,
+            HttpServletResponse resp, String scope)
+            throws ServletException, IOException, EBaseException {
 
         // expensive operation.
 
@@ -1411,16 +1407,16 @@ public class AuthAdminServlet extends AdminServlet {
 
                 //System.out.println("SRVLT_NULL_RS_ID");
                 sendResponse(ERROR,
-                    CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
-                    null, resp);
+                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
+                        null, resp);
                 return;
             }
 
             // prevent modification of admin and agent.
             if (id.equals(IAuthSubsystem.PASSWDUSERDB_AUTHMGR_ID) ||
-                id.equals(IAuthSubsystem.CERTUSERDB_AUTHMGR_ID)) {
+                    id.equals(IAuthSubsystem.CERTUSERDB_AUTHMGR_ID)) {
                 sendResponse(ERROR,
-                    CMS.getUserMessage(getLocale(req), "CMS_BASE_PERMISSION_DENIED"), null, resp);
+                        CMS.getUserMessage(getLocale(req), "CMS_BASE_PERMISSION_DENIED"), null, resp);
             }
 
             // Does the manager instance exist?
@@ -1435,8 +1431,8 @@ public class AuthAdminServlet extends AdminServlet {
                 audit(auditMessage);
 
                 sendResponse(ERROR,
-                    CMS.getUserMessage("CMS_AUTHENTICATION_MGR_IMPL_NOT_FOUND"),
-                    null, resp);
+                        CMS.getUserMessage("CMS_AUTHENTICATION_MGR_IMPL_NOT_FOUND"),
+                        null, resp);
                 return;
             }
 
@@ -1454,14 +1450,14 @@ public class AuthAdminServlet extends AdminServlet {
                 audit(auditMessage);
 
                 sendResponse(ERROR,
-                    CMS.getUserMessage("CMS_AUTHENTICATION_MISSING_PARAMS"),
-                    null, resp);
+                        CMS.getUserMessage("CMS_AUTHENTICATION_MISSING_PARAMS"),
+                        null, resp);
                 return;
             }
 
             // get plugin for implementation 
             AuthMgrPlugin plugin =
-                (AuthMgrPlugin) mAuths.getPlugins().get(implname);
+                    (AuthMgrPlugin) mAuths.getPlugins().get(implname);
 
             if (plugin == null) {
                 // store a message in the signed audit log file
@@ -1474,15 +1470,15 @@ public class AuthAdminServlet extends AdminServlet {
                 audit(auditMessage);
 
                 sendResponse(ERROR,
-                    new EAuthMgrPluginNotFound(CMS.getUserMessage(getLocale(req),"CMS_AUTHENTICATION_AUTHMGR_NOT_FOUND", implname)).toString(),
-                    null, resp);
+                        new EAuthMgrPluginNotFound(CMS.getUserMessage(getLocale(req), "CMS_AUTHENTICATION_AUTHMGR_NOT_FOUND", implname)).toString(),
+                        null, resp);
                 return;
             }
 
             // save old instance substore params in case new one fails. 
 
-            IAuthManager oldinst = 
-                (IAuthManager) mAuths.get(id);
+            IAuthManager oldinst =
+                    (IAuthManager) mAuths.get(id);
             IConfigStore oldConfig = oldinst.getConfigStore();
 
             String[] oldConfigParms = oldinst.getConfigParams();
@@ -1490,7 +1486,7 @@ public class AuthAdminServlet extends AdminServlet {
 
             // implName is always required so always include it it.
             saveParams.add(IAuthSubsystem.PROP_PLUGIN,
-                (String) oldConfig.get(IAuthSubsystem.PROP_PLUGIN));
+                    (String) oldConfig.get(IAuthSubsystem.PROP_PLUGIN));
             if (oldConfigParms != null) {
                 for (int i = 0; i < oldConfigParms.length; i++) {
                     String key = oldConfigParms[i];
@@ -1507,9 +1503,9 @@ public class AuthAdminServlet extends AdminServlet {
             // remove old substore.
 
             IConfigStore destStore =
-                mConfig.getSubStore(DestDef.DEST_AUTH_ADMIN);
+                    mConfig.getSubStore(DestDef.DEST_AUTH_ADMIN);
             IConfigStore instancesConfig =
-                destStore.getSubStore(scope);
+                    destStore.getSubStore(scope);
 
             instancesConfig.removeSubStore(id);
 
@@ -1551,8 +1547,8 @@ public class AuthAdminServlet extends AdminServlet {
                 // cleanup
                 restore(instancesConfig, id, saveParams);
                 sendResponse(ERROR,
-                    new EAuthException(CMS.getUserMessage(getLocale(req),"CMS_AUTHENTICATION_LOAD_CLASS_FAIL", className)).toString(),
-                    null, resp);
+                        new EAuthException(CMS.getUserMessage(getLocale(req), "CMS_AUTHENTICATION_LOAD_CLASS_FAIL", className)).toString(),
+                        null, resp);
                 return;
             } catch (InstantiationException e) {
                 // store a message in the signed audit log file
@@ -1566,8 +1562,8 @@ public class AuthAdminServlet extends AdminServlet {
 
                 restore(instancesConfig, id, saveParams);
                 sendResponse(ERROR,
-                    new EAuthException(CMS.getUserMessage(getLocale(req),"CMS_AUTHENTICATION_LOAD_CLASS_FAIL", className)).toString(),
-                    null, resp);
+                        new EAuthException(CMS.getUserMessage(getLocale(req), "CMS_AUTHENTICATION_LOAD_CLASS_FAIL", className)).toString(),
+                        null, resp);
                 return;
             } catch (IllegalAccessException e) {
                 // store a message in the signed audit log file
@@ -1581,8 +1577,8 @@ public class AuthAdminServlet extends AdminServlet {
 
                 restore(instancesConfig, id, saveParams);
                 sendResponse(ERROR,
-                    new EAuthException(CMS.getUserMessage(getLocale(req),"CMS_AUTHENTICATION_LOAD_CLASS_FAIL", className)).toString(),
-                    null, resp);
+                        new EAuthException(CMS.getUserMessage(getLocale(req), "CMS_AUTHENTICATION_LOAD_CLASS_FAIL", className)).toString(),
+                        null, resp);
                 return;
             }
 
@@ -1623,8 +1619,8 @@ public class AuthAdminServlet extends AdminServlet {
                 restore(instancesConfig, id, saveParams);
                 //System.out.println("SRVLT_FAIL_COMMIT");
                 sendResponse(ERROR,
-                    CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_COMMIT_FAILED"),
-                    null, resp);
+                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_COMMIT_FAILED"),
+                        null, resp);
                 return;
             }
 
@@ -1632,8 +1628,8 @@ public class AuthAdminServlet extends AdminServlet {
 
             mAuths.add(id, newMgrInst);
 
-            mAuths.log(ILogger.LL_INFO, 
-                CMS.getLogMessage("ADMIN_SRVLT_AUTH_MGR_REPL", id));
+            mAuths.log(ILogger.LL_INFO,
+                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_MGR_REPL", id));
 
             NameValuePairs params = new NameValuePairs();
 
@@ -1688,8 +1684,8 @@ public class AuthAdminServlet extends AdminServlet {
     }
 
     // convenience routine.
-    private static void restore(IConfigStore store, 
-        String id, NameValuePairs saveParams) {
+    private static void restore(IConfigStore store,
+            String id, NameValuePairs saveParams) {
         store.removeSubStore(id);
         IConfigStore rstore = store.makeSubStore(id);
 
@@ -1699,7 +1695,7 @@ public class AuthAdminServlet extends AdminServlet {
             String key = (String) keys.nextElement();
             String value = saveParams.getValue(key);
 
-            if (value != null) 
+            if (value != null)
                 rstore.put(key, value);
         }
     }

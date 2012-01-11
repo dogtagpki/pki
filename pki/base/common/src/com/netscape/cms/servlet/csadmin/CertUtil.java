@@ -64,13 +64,12 @@ import com.netscape.cmsutil.http.HttpResponse;
 import com.netscape.cmsutil.http.JssSSLSocketFactory;
 import com.netscape.cmsutil.xml.XMLObject;
 
-
 public class CertUtil {
     static final int LINE_COUNT = 76;
 
-    public static X509CertImpl createRemoteCert(String hostname, 
-      int port, String content, HttpServletResponse response, WizardPanelBase panel)
-      throws IOException {
+    public static X509CertImpl createRemoteCert(String hostname,
+            int port, String content, HttpServletResponse response, WizardPanelBase panel)
+            throws IOException {
         HttpClient httpclient = new HttpClient();
         String c = null;
         CMS.debug("CertUtil createRemoteCert: content " + content);
@@ -104,9 +103,9 @@ public class CertUtil {
                 try {
                     parser = new XMLObject(bis);
                 } catch (Exception e) {
-                    CMS.debug( "CertUtil::createRemoteCert() - "
-                             + "Exception="+e.toString() );
-                    throw new IOException( e.toString() );
+                    CMS.debug("CertUtil::createRemoteCert() - "
+                             + "Exception=" + e.toString());
+                    throw new IOException(e.toString());
                 }
                 String status = parser.getValue("Status");
 
@@ -136,7 +135,7 @@ public class CertUtil {
         return null;
     }
 
-    public static String getPKCS10(IConfigStore config, String prefix, 
+    public static String getPKCS10(IConfigStore config, String prefix,
             Cert certObj, Context context) throws IOException {
         String certTag = certObj.getCertTag();
 
@@ -147,29 +146,29 @@ public class CertUtil {
             String algorithm = config.getString(
                         prefix + certTag + ".keyalgorithm");
             if (pubKeyType.equals("rsa")) {
-              String pubKeyModulus = config.getString(
-                    prefix + certTag + ".pubkey.modulus");
-              String pubKeyPublicExponent = config.getString(
-                    prefix + certTag + ".pubkey.exponent");
-              pubk = CryptoUtil.getPublicX509Key(
-                    CryptoUtil.string2byte(pubKeyModulus),
-                    CryptoUtil.string2byte(pubKeyPublicExponent));
+                String pubKeyModulus = config.getString(
+                        prefix + certTag + ".pubkey.modulus");
+                String pubKeyPublicExponent = config.getString(
+                        prefix + certTag + ".pubkey.exponent");
+                pubk = CryptoUtil.getPublicX509Key(
+                        CryptoUtil.string2byte(pubKeyModulus),
+                        CryptoUtil.string2byte(pubKeyPublicExponent));
             } else if (pubKeyType.equals("ecc")) {
-                  String pubKeyEncoded = config.getString(
+                String pubKeyEncoded = config.getString(
                         prefix + certTag + ".pubkey.encoded");
-               pubk = CryptoUtil.getPublicX509ECCKey(
-                     CryptoUtil.string2byte(pubKeyEncoded));
+                pubk = CryptoUtil.getPublicX509ECCKey(
+                        CryptoUtil.string2byte(pubKeyEncoded));
             } else {
-               CMS.debug( "CertRequestPanel::getPKCS10() - "
-                        + "public key type is unsupported!" );
-                throw new IOException( "public key type is unsupported" );
+                CMS.debug("CertRequestPanel::getPKCS10() - "
+                        + "public key type is unsupported!");
+                throw new IOException("public key type is unsupported");
             }
 
             if (pubk != null) {
                 CMS.debug("CertRequestPanel: got public key");
             } else {
                 CMS.debug("CertRequestPanel: error getting public key null");
-                throw new IOException( "public key is null" );
+                throw new IOException("public key is null");
             }
             // get private key
             String privKeyID = config.getString(prefix + certTag + ".privkey.id");
@@ -201,15 +200,14 @@ public class CertUtil {
         }
     }
 
-
-/*
- * create requests so renewal can work on these initial certs
- */
+    /*
+     * create requests so renewal can work on these initial certs
+     */
     public static IRequest createLocalRequest(IRequestQueue queue, String serialNum, X509CertInfo info) throws EBaseException {
-//        RequestId rid = new RequestId(serialNum);
+        //        RequestId rid = new RequestId(serialNum);
         // just need a request, no need to get into a queue
-//        IRequest r = new EnrollmentRequest(rid);
-        CMS.debug("CertUtil: createLocalRequest for serial: "+ serialNum);
+        //        IRequest r = new EnrollmentRequest(rid);
+        CMS.debug("CertUtil: createLocalRequest for serial: " + serialNum);
         IRequest req = queue.newRequest("enrollment");
         CMS.debug("certUtil: newRequest called");
         req.setExtData("profile", "true");
@@ -224,7 +222,7 @@ public class CertUtil {
         req.setExtData("requestor_phone", "");
         req.setExtData("profileRemoteHost", "");
         req.setExtData("profileRemoteAddr", "");
-        req.setExtData("requestnotes","");
+        req.setExtData("requestnotes", "");
         req.setExtData("isencryptioncert", "false");
         req.setExtData("profileapprovedby", "system");
 
@@ -235,13 +233,12 @@ public class CertUtil {
         return req;
     }
 
-/**
- * update local cert request with the actual request
- * called from CertRequestPanel.java
- */
-    public static void updateLocalRequest(IConfigStore config, String certTag, String certReq, String reqType, String subjectName)
-    {
-        try { 
+    /**
+     * update local cert request with the actual request
+     * called from CertRequestPanel.java
+     */
+    public static void updateLocalRequest(IConfigStore config, String certTag, String certReq, String reqType, String subjectName) {
+        try {
             CMS.debug("Updating local request... certTag=" + certTag);
             RequestId rid = new RequestId(config.getString("preop.cert." + certTag + ".reqId"));
 
@@ -262,54 +259,56 @@ public class CertUtil {
                 }
                 queue.updateRequest(req);
             } else {
-		CMS.debug("CertUtil:updateLocalRequest - request queue = null");
+                CMS.debug("CertUtil:updateLocalRequest - request queue = null");
             }
         } catch (Exception e) {
             CMS.debug("CertUtil:updateLocalRequest - Exception:" + e.toString());
         }
     }
 
-/**
- * reads from the admin cert profile caAdminCert.profile and takes the first 
- * entry in the list of allowed algorithms.  Users that wish a different algorithm 
- * can specify it in the profile using default.params.signingAlg
- */
+    /**
+     * reads from the admin cert profile caAdminCert.profile and takes the first
+     * entry in the list of allowed algorithms. Users that wish a different algorithm
+     * can specify it in the profile using default.params.signingAlg
+     */
 
     public static String getAdminProfileAlgorithm(IConfigStore config) {
         String algorithm = "SHA256withRSA";
         try {
-            String caSigningKeyType = config.getString("preop.cert.signing.keytype","rsa");
+            String caSigningKeyType = config.getString("preop.cert.signing.keytype", "rsa");
             String pfile = config.getString("profile.caAdminCert.config");
             FileInputStream fis = new FileInputStream(pfile);
             DataInputStream in = new DataInputStream(fis);
             BufferedReader br = new BufferedReader(new InputStreamReader(in));
 
-           String strLine;
-           while ((strLine = br.readLine()) != null) {
-               String marker2 = "default.params.signingAlg=";
-               int indx = strLine.indexOf(marker2);
-               if (indx != -1) {
-                   String alg = strLine.substring(indx + marker2.length());
-                   if ((alg.length() > 0) && (!alg.equals("-"))) {
-                       algorithm = alg;
-                       break;
-                   };
-               };
+            String strLine;
+            while ((strLine = br.readLine()) != null) {
+                String marker2 = "default.params.signingAlg=";
+                int indx = strLine.indexOf(marker2);
+                if (indx != -1) {
+                    String alg = strLine.substring(indx + marker2.length());
+                    if ((alg.length() > 0) && (!alg.equals("-"))) {
+                        algorithm = alg;
+                        break;
+                    }
+                    ;
+                }
+                ;
 
-               String marker = "signingAlgsAllowed=";
-               indx = strLine.indexOf(marker);
-               if (indx != -1) {
-                   String[] algs = strLine.substring(indx + marker.length()).split(",");
-                   for (int i=0; i<algs.length; i++) {
-                       if ((caSigningKeyType.equals("rsa") && (algs[i].indexOf("RSA") != -1)) ||
-                           (caSigningKeyType.equals("ecc") && (algs[i].indexOf("EC" ) != -1)) ) {
-                           algorithm = algs[i];
-                           break;
-                       }
-                   }
-               }
-           }
-           in.close();
+                String marker = "signingAlgsAllowed=";
+                indx = strLine.indexOf(marker);
+                if (indx != -1) {
+                    String[] algs = strLine.substring(indx + marker.length()).split(",");
+                    for (int i = 0; i < algs.length; i++) {
+                        if ((caSigningKeyType.equals("rsa") && (algs[i].indexOf("RSA") != -1)) ||
+                                (caSigningKeyType.equals("ecc") && (algs[i].indexOf("EC") != -1))) {
+                            algorithm = algs[i];
+                            break;
+                        }
+                    }
+                }
+            }
+            in.close();
         } catch (Exception e) {
             CMS.debug("getAdminProfleAlgorithm: exception: " + e);
         }
@@ -324,14 +323,15 @@ public class CertUtil {
 
         try {
             profile = config.getString(prefix + certTag + ".profile");
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
 
         X509CertImpl cert = null;
         ICertificateAuthority ca = null;
         ICertificateRepository cr = null;
         RequestId reqId = null;
         String profileId = null;
-        IRequestQueue queue = null; 
+        IRequestQueue queue = null;
         IRequest req = null;
 
         try {
@@ -355,7 +355,7 @@ public class CertUtil {
                 CMS.debug("Creating local certificate... dn=" + dn);
                 info = CryptoUtil.createX509CertInfo(x509key, serialNo.intValue(), dn, dn, date,
                         date, keyAlgorithm);
-            } else { 
+            } else {
                 String issuerdn = config.getString("preop.cert.signing.dn", "");
                 CMS.debug("Creating local certificate... issuerdn=" + issuerdn);
                 CMS.debug("Creating local certificate... dn=" + dn);
@@ -375,7 +375,7 @@ public class CertUtil {
                 queue = ca.getRequestQueue();
                 if (queue != null) {
                     req = createLocalRequest(queue, serialNo.toString(), info);
-                    CMS.debug("CertUtil profile name= "+profile);
+                    CMS.debug("CertUtil profile name= " + profile);
                     req.setExtData("req_key", x509key.toString());
 
                     // store original profile id in cert request
@@ -387,7 +387,7 @@ public class CertUtil {
                         String name = profile.substring(0, idx);
                         req.setExtData("origprofileid", name);
                     }
-                    
+
                     // store mapped profile ID for use in renewal
                     profileId = processor.getProfileIDMapping();
                     req.setExtData("profileid", profileId);
@@ -399,7 +399,7 @@ public class CertUtil {
                     CMS.debug("certUtil: requestQueue null");
                 }
             } catch (Exception e) {
-                CMS.debug("Creating local request exception:"+e.toString());
+                CMS.debug("Creating local request exception:" + e.toString());
             }
 
             processor.populate(info);
@@ -410,36 +410,36 @@ public class CertUtil {
             PrivateKey caPrik = CryptoUtil.findPrivateKeyFromID(
                     keyIDb);
 
-            if( caPrik == null ) {
-                CMS.debug( "CertUtil::createSelfSignedCert() - "
-                         + "CA private key is null!" );
-                throw new IOException( "CA private key is null" );
+            if (caPrik == null) {
+                CMS.debug("CertUtil::createSelfSignedCert() - "
+                         + "CA private key is null!");
+                throw new IOException("CA private key is null");
             } else {
                 CMS.debug("CertUtil createSelfSignedCert: got CA private key");
             }
 
             String keyAlgo = x509key.getAlgorithm();
             CMS.debug("key algorithm is " + keyAlgo);
-            String caSigningKeyType = 
-                 config.getString("preop.cert.signing.keytype","rsa");
-            String caSigningKeyAlgo = ""; 
-            if (type.equals("selfsign")) { 
-                 caSigningKeyAlgo = config.getString("preop.cert.signing.keyalgorithm","SHA256withRSA");
+            String caSigningKeyType =
+                    config.getString("preop.cert.signing.keytype", "rsa");
+            String caSigningKeyAlgo = "";
+            if (type.equals("selfsign")) {
+                caSigningKeyAlgo = config.getString("preop.cert.signing.keyalgorithm", "SHA256withRSA");
             } else {
-                 caSigningKeyAlgo = config.getString("preop.cert.signing.signingalgorithm","SHA256withRSA");
+                caSigningKeyAlgo = config.getString("preop.cert.signing.signingalgorithm", "SHA256withRSA");
             }
 
             CMS.debug("CA Signing Key type " + caSigningKeyType);
             CMS.debug("CA Signing Key algorithm " + caSigningKeyAlgo);
 
             if (caSigningKeyType.equals("ecc")) {
-              CMS.debug("CA signing cert is ECC");
-              cert = CryptoUtil.signECCCert(caPrik, info,
-                      caSigningKeyAlgo);
+                CMS.debug("CA signing cert is ECC");
+                cert = CryptoUtil.signECCCert(caPrik, info,
+                        caSigningKeyAlgo);
             } else {
-              CMS.debug("CA signing cert is not ecc");
-              cert = CryptoUtil.signCert(caPrik, info,
-                      caSigningKeyAlgo);
+                CMS.debug("CA signing cert is not ecc");
+                cert = CryptoUtil.signCert(caPrik, info,
+                        caSigningKeyAlgo);
             }
 
             if (cert != null) {
@@ -462,13 +462,13 @@ public class CertUtil {
             if (reqId != null) {
                 meta.set(ICertRecord.META_REQUEST_ID, reqId.toString());
             }
-        
+
             meta.set(ICertRecord.META_PROFILE_ID, profileId);
             record = (ICertRecord) cr.createCertRecord(
-                cert.getSerialNumber(), cert, meta);
+                    cert.getSerialNumber(), cert, meta);
         } catch (Exception e) {
             CMS.debug(
-                "NamePanel configCert: failed to add metainfo. Exception: " + e.toString());
+                    "NamePanel configCert: failed to add metainfo. Exception: " + e.toString());
         }
 
         try {
@@ -507,21 +507,21 @@ public class CertUtil {
 
     public static void addUserCertificate(X509CertImpl cert) {
         IConfigStore cs = CMS.getConfigStore();
-        int num=0;
+        int num = 0;
         try {
             num = cs.getInteger("preop.subsystem.count", 0);
         } catch (Exception e) {
         }
         IUGSubsystem system = (IUGSubsystem) (CMS.getSubsystem(IUGSubsystem.ID));
-        String id = "user"+num;
+        String id = "user" + num;
 
-        try { 
-          String sysType = cs.getString("cs.type", "");
-          String machineName = cs.getString("machineName", "");
-          String securePort = cs.getString("service.securePort", "");
-          id = sysType + "-" + machineName + "-" + securePort;
+        try {
+            String sysType = cs.getString("cs.type", "");
+            String machineName = cs.getString("machineName", "");
+            String securePort = cs.getString("service.securePort", "");
+            id = sysType + "-" + machineName + "-" + securePort;
         } catch (Exception e1) {
-          // ignore
+            // ignore
         }
 
         num++;
@@ -566,7 +566,7 @@ public class CertUtil {
             system.addUserCert(user);
             CMS.debug("CertUtil addUserCertificate: successfully add the user certificate");
         } catch (Exception e) {
-            CMS.debug("CertUtil addUserCertificate exception="+e.toString());
+            CMS.debug("CertUtil addUserCertificate exception=" + e.toString());
         }
 
         IGroup group = null;
@@ -603,17 +603,17 @@ public class CertUtil {
         }
         if (content.length() > 0)
             result.append(content);
-            result.append("\n");
+        result.append("\n");
 
         return result.toString();
     }
 
     public static boolean privateKeyExistsOnToken(String certTag,
-      String tokenname, String nickname) {
+            String tokenname, String nickname) {
         IConfigStore cs = CMS.getConfigStore();
         String givenid = "";
         try {
-            givenid = cs.getString("preop.cert."+certTag+".privkey.id");
+            givenid = cs.getString("preop.cert." + certTag + ".privkey.id");
         } catch (Exception e) {
             CMS.debug("CertUtil privateKeyExistsOnToken: we did not generate private key yet.");
             return false;
@@ -624,7 +624,7 @@ public class CertUtil {
         boolean hardware = false;
         if (!tokenname.equals("internal") && !tokenname.equals("Internal Key Storage Token")) {
             hardware = true;
-            fullnickname = tokenname+":"+nickname;
+            fullnickname = tokenname + ":" + nickname;
         }
 
         X509Certificate cert = null;
@@ -633,7 +633,7 @@ public class CertUtil {
             cm = CryptoManager.getInstance();
             cert = cm.findCertByNickname(fullnickname);
         } catch (Exception e) {
-            CMS.debug("CertUtil privateKeyExistsOnToken: nickname="+fullnickname+" Exception:"+e.toString());
+            CMS.debug("CertUtil privateKeyExistsOnToken: nickname=" + fullnickname + " Exception:" + e.toString());
             return false;
         }
 
@@ -641,19 +641,19 @@ public class CertUtil {
         try {
             privKey = cm.findPrivKeyByCert(cert);
         } catch (Exception e) {
-            CMS.debug("CertUtil privateKeyExistsOnToken: cant find private key ("+fullnickname+") exception: "+e.toString());
+            CMS.debug("CertUtil privateKeyExistsOnToken: cant find private key (" + fullnickname + ") exception: " + e.toString());
             return false;
         }
 
         if (privKey == null) {
-            CMS.debug("CertUtil privateKeyExistsOnToken: cant find private key ("+fullnickname+")");
+            CMS.debug("CertUtil privateKeyExistsOnToken: cant find private key (" + fullnickname + ")");
             return false;
         } else {
             String str = "";
             try {
                 str = CryptoUtil.byte2string(privKey.getUniqueID());
             } catch (Exception e) {
-            CMS.debug("CertUtil privateKeyExistsOnToken: encode string Exception: "+e.toString());
+                CMS.debug("CertUtil privateKeyExistsOnToken: encode string Exception: " + e.toString());
             }
 
             if (str.equals(givenid)) {

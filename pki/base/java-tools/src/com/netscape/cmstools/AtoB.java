@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmstools;
 
-
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -26,33 +25,33 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-
 /**
  * The AtoB class is a utility program designed to "translate" an ASCII
- * BASE 64 encoded blob into a BINARY BASE 64 encoded blob.  It assumes
+ * BASE 64 encoded blob into a BINARY BASE 64 encoded blob. It assumes
  * that the name of a data file is passed to the program via the command line,
  * and that the contents contain a blob encoded in an ASCII BASE 64
- * format.  Note that the data file may contain an optional "-----BEGIN" header
+ * format. Note that the data file may contain an optional "-----BEGIN" header
  * and/or an optional "-----END" trailer.
- *
+ * 
  * <P>
  * The program may be invoked as follows:
+ * 
  * <PRE>
- *
+ * 
  *      AtoB &lt;input filename&gt; &lt;output filename&gt;
- *
+ * 
  *      NOTE:  &lt;input filename&gt;   must contain an ASCII
  *                                BASE 64 encoded blob
- *
+ * 
  *             &lt;output filename&gt;  contains a BINARY
  *                                BASE 64 encoded blob
  * </PRE>
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class AtoB {
     // Define constants
-    public static final int    ARGC = 2;
+    public static final int ARGC = 2;
     public static final String HEADER = "-----BEGIN";
     public static final String TRAILER = "-----END";
 
@@ -67,8 +66,8 @@ public class AtoB {
         // (1) Check that two arguments were submitted to the program
         if (argv.length != ARGC) {
             System.out.println("Usage:  AtoB " +
-                "<input filename> " +
-                "<output filename>");
+                    "<input filename> " +
+                    "<output filename>");
             return;
         }
 
@@ -78,11 +77,11 @@ public class AtoB {
         try {
             inputBlob = new BufferedReader(new InputStreamReader(
                             new BufferedInputStream(
-                                new FileInputStream(
-                                    argv[0]))));
+                                    new FileInputStream(
+                                            argv[0]))));
         } catch (FileNotFoundException e) {
             System.out.println("AtoB():  can''t find file " +
-                argv[0] + ":\n" + e);
+                    argv[0] + ":\n" + e);
             return;
         }
 
@@ -93,14 +92,14 @@ public class AtoB {
         try {
             while ((asciiBASE64BlobChunk = inputBlob.readLine()) != null) {
                 if (!(asciiBASE64BlobChunk.startsWith(HEADER)) &&
-                    !(asciiBASE64BlobChunk.startsWith(TRAILER))) {
+                        !(asciiBASE64BlobChunk.startsWith(TRAILER))) {
                     asciiBASE64Blob += asciiBASE64BlobChunk.trim();
                 }
             }
         } catch (IOException e) {
             System.out.println("AtoB():  Unexpected BASE64 " +
-                "encoded error encountered in readLine():\n" +
-                e);
+                    "encoded error encountered in readLine():\n" +
+                    e);
         }
 
         // (4) Close the DataInputStream() object
@@ -108,9 +107,9 @@ public class AtoB {
             inputBlob.close();
         } catch (IOException e) {
             System.out.println("AtoB():  Unexpected BASE64 " +
-                "encoded error encountered in close():\n" + e);
+                    "encoded error encountered in close():\n" + e);
         }
-		
+
         // (5) Decode the ASCII BASE 64 blob enclosed in the
         //     String() object into a BINARY BASE 64 byte[] object
 
@@ -122,7 +121,7 @@ public class AtoB {
             outputBlob = new FileOutputStream(argv[1]);
         } catch (IOException e) {
             System.out.println("AtoB():  unable to open file " +
-                argv[1] + " for writing:\n" + e);
+                    argv[1] + " for writing:\n" + e);
             return;
         }
 
@@ -130,17 +129,16 @@ public class AtoB {
             outputBlob.write(binaryBASE64Blob);
         } catch (IOException e) {
             System.out.println("AtoB():  I/O error " +
-                "encountered during write():\n" +
-                e);
+                    "encountered during write():\n" +
+                    e);
         }
 
         try {
             outputBlob.close();
         } catch (IOException e) {
             System.out.println("AtoB():  Unexpected error " +
-                "encountered while attempting to close() " +
-                argv[1] + ":\n" + e);
+                    "encountered while attempting to close() " +
+                    argv[1] + ":\n" + e);
         }
     }
 }
-

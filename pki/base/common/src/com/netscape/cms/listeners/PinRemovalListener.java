@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.listeners;
 
-
 import java.util.Hashtable;
 
 import netscape.ldap.LDAPAttribute;
@@ -39,10 +38,9 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestId;
 
-
 /**
  * This represnets a listener that removes pin from LDAP directory.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class PinRemovalListener implements IRequestListener {
@@ -87,18 +85,18 @@ public class PinRemovalListener implements IRequestListener {
 
     protected String[] configParams = { "a" };
 
-    public String[] getConfigParams() 
-        throws EBaseException {
+    public String[] getConfigParams()
+            throws EBaseException {
 
         return configParams;
     }
 
     public void init(ISubsystem sub, IConfigStore config) throws EBaseException {
-	init(null, null, config);
+        init(null, null, config);
     }
 
     public void init(String name, String ImplName, IConfigStore config)
-        throws EBaseException {
+            throws EBaseException {
         mName = name;
         mImplName = ImplName;
         mConfig = config;
@@ -115,7 +113,8 @@ public class PinRemovalListener implements IRequestListener {
     }
 
     public void accept(IRequest r) {
-        if (mEnabled != true) return;
+        if (mEnabled != true)
+            return;
 
         mReqId = r.getRequestId();
 
@@ -129,7 +128,7 @@ public class PinRemovalListener implements IRequestListener {
         String requestType = r.getRequestType();
 
         if (requestType.equals(IRequest.ENROLLMENT_REQUEST) ||
-            requestType.equals(IRequest.RENEWAL_REQUEST)) {
+                requestType.equals(IRequest.RENEWAL_REQUEST)) {
 
             String uid = r.getExtDataInString(
                     IRequest.HTTP_PARAMS, "uid");
@@ -144,21 +143,21 @@ public class PinRemovalListener implements IRequestListener {
             try {
                 LDAPSearchResults res = mRemovePinLdapConnection.search(mBaseDN,
                         LDAPv2.SCOPE_SUB, "(uid=" + uid + ")", null, false);
-			
+
                 if (!res.hasMoreElements()) {
                     log(ILogger.LL_SECURITY, "uid " + uid + " does not exist in the ldap " +
-                        " server. Could not remove pin");
+                            " server. Could not remove pin");
                     return;
                 }
 
                 LDAPEntry entry = (LDAPEntry) res.nextElement();
 
                 userdn = entry.getDN();
-	
+
                 mRemovePinLdapConnection.modify(userdn,
-                    new LDAPModification(
-                        LDAPModification.DELETE,
-                        new LDAPAttribute(mPinAttr)));
+                        new LDAPModification(
+                                LDAPModification.DELETE,
+                                new LDAPAttribute(mPinAttr)));
 
                 log(ILogger.LL_INFO, "Removed pin for user \"" + userdn + "\"");
 
@@ -173,10 +172,9 @@ public class PinRemovalListener implements IRequestListener {
         if (mLogger == null)
             return;
         mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_OTHER,
-            level, "PinRemovalListener: " + msg);
+                level, "PinRemovalListener: " + msg);
     }
 
     public void set(String name, String val) {
     }
 }
-

@@ -29,6 +29,7 @@ public class ECompSyntaxErr extends EAuthException {
 
     /**
      * Constructs an component syntax error
+     * 
      * @param errorString Detailed error message.
      */
     public ECompSyntaxErr(String errorString) {

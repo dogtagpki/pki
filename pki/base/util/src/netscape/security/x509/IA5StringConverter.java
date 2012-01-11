@@ -27,23 +27,22 @@ import netscape.security.util.ASN1CharStrConvMap;
 import netscape.security.util.DerValue;
 
 /**
- * A AVAValueConverter that converts a IA5String attribute to a DerValue 
+ * A AVAValueConverter that converts a IA5String attribute to a DerValue
  * and vice versa. An example an attribute that is a IA5String string is "E".
+ * 
  * @see AVAValueConverter
- *
+ * 
  * @author Lily Hsiao, Slava Galperin at Netscape Communications, Inc.
  */
 
-public class IA5StringConverter implements AVAValueConverter
-{
+public class IA5StringConverter implements AVAValueConverter {
     // public constructors 
 
     /* 
      * Contructs a IA5String Converter.
      */
-    public IA5StringConverter()
-    {
-    } 
+    public IA5StringConverter() {
+    }
 
     /*
      * Converts a string with ASN.1 IA5String characters to a DerValue.
@@ -56,21 +55,21 @@ public class IA5StringConverter implements AVAValueConverter
      *				available for the conversion.
      */
     public DerValue getValue(String valueString)
-	throws IOException
-    {
-	return getValue(valueString, null);
+            throws IOException {
+        return getValue(valueString, null);
     }
 
     public DerValue getValue(String valueString, byte[] tags) throws IOException {
         try {
             CharsetEncoder encoder = ASN1CharStrConvMap.getDefault().getEncoder(DerValue.tag_IA5String);
-            if (encoder == null) throw new IOException("No encoder for IA5String");
+            if (encoder == null)
+                throw new IOException("No encoder for IA5String");
 
             CharBuffer charBuffer = CharBuffer.wrap(valueString.toCharArray());
             ByteBuffer byteBuffer = encoder.encode(charBuffer);
 
             return new DerValue(DerValue.tag_IA5String,
-                byteBuffer.array(), byteBuffer.arrayOffset(), byteBuffer.limit());
+                    byteBuffer.array(), byteBuffer.arrayOffset(), byteBuffer.limit());
 
         } catch (CharacterCodingException e) {
             throw new IllegalArgumentException("Invalid IA5String AVA Value string");
@@ -91,14 +90,13 @@ public class IA5StringConverter implements AVAValueConverter
      *				to a IA5String DER value.
      */
     public DerValue getValue(byte[] berStream)
-	throws IOException
-    {
-	DerValue value = new DerValue(berStream);
-	if (value.tag == DerValue.tag_IA5String)
-	    return value;
-	if (value.tag == DerValue.tag_PrintableString)
-	    return value;
-	throw new IOException("Invalid IA5String AVA Value.");
+            throws IOException {
+        DerValue value = new DerValue(berStream);
+        if (value.tag == DerValue.tag_IA5String)
+            return value;
+        if (value.tag == DerValue.tag_PrintableString)
+            return value;
+        throw new IOException("Invalid IA5String AVA Value.");
     }
 
     /*
@@ -113,14 +111,13 @@ public class IA5StringConverter implements AVAValueConverter
      *				The DerValue cannot be converted to a string
      *				with IA5String characters.
      */
-    public String getAsString(DerValue avaValue) 
-	throws IOException
-    {
-	if (avaValue.tag == DerValue.tag_IA5String)
-	return avaValue.getIA5String();
-	if (avaValue.tag == DerValue.tag_PrintableString)
-	return avaValue.getPrintableString();
-	throw new IOException("Invalid IA5String AVA Value.");
+    public String getAsString(DerValue avaValue)
+            throws IOException {
+        if (avaValue.tag == DerValue.tag_IA5String)
+            return avaValue.getIA5String();
+        if (avaValue.tag == DerValue.tag_PrintableString)
+            return avaValue.getPrintableString();
+        throw new IOException("Invalid IA5String AVA Value.");
     }
 
 }

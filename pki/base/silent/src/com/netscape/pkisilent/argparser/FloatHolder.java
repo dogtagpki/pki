@@ -1,4 +1,5 @@
 package com.netscape.pkisilent.argparser;
+
 // --- BEGIN COPYRIGHT BLOCK ---
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -18,39 +19,36 @@ package com.netscape.pkisilent.argparser;
 // --- END COPYRIGHT BLOCK ---
 
 /**
-  * Wrapper class which ``holds'' a float value,
-  * enabling methods to return float values through
-  * arguments.
-  */
-public class FloatHolder implements java.io.Serializable
-{
-	/**
+ * Wrapper class which ``holds'' a float value,
+ * enabling methods to return float values through
+ * arguments.
+ */
+public class FloatHolder implements java.io.Serializable {
+    /**
      *
      */
     private static final long serialVersionUID = -7962968109874934361L;
     /**
-	 * Value of the float, set and examined
-	 * by the application as needed.
-	 */
-	public float value;
+     * Value of the float, set and examined
+     * by the application as needed.
+     */
+    public float value;
 
-	/**
-	 * Constructs a new <code>FloatHolder</code> with an initial
-	 * value of 0.
-	 */
-	public FloatHolder ()
-	 { value = 0;
-	 }
+    /**
+     * Constructs a new <code>FloatHolder</code> with an initial
+     * value of 0.
+     */
+    public FloatHolder() {
+        value = 0;
+    }
 
-	/**
-	 * Constructs a new <code>FloatHolder</code> with a
-	 * specific initial value.
-	 *
-	 * @param f Initial float value.
-	 */
-	public FloatHolder (float f)
-	 { value = f;
-	 }
+    /**
+     * Constructs a new <code>FloatHolder</code> with a
+     * specific initial value.
+     * 
+     * @param f Initial float value.
+     */
+    public FloatHolder(float f) {
+        value = f;
+    }
 }
-
-

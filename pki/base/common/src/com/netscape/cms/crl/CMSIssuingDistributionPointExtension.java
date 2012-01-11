@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.crl;
 
-
 import java.io.IOException;
 import java.util.Locale;
 import java.util.StringTokenizer;
@@ -43,14 +42,13 @@ import com.netscape.certsrv.ca.ICRLIssuingPoint;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.ILogger;
 
-
 /**
  * This represents a issuing distribution point extension.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class CMSIssuingDistributionPointExtension
-    implements ICMSCRLExtension, IExtendedPluginInfo {
+        implements ICMSCRLExtension, IExtendedPluginInfo {
     public static final String PROP_POINTTYPE = "pointType";
     public static final String PROP_POINTNAME = "pointName";
     public static final String PROP_DIRNAME = "DirectoryName";
@@ -61,14 +59,14 @@ public class CMSIssuingDistributionPointExtension
     public static final String PROP_INDIRECT = "indirectCRL";
     public static final String PROP_REASONS = "onlySomeReasons";
 
-    private static final String[] reasonFlags = {"unused",
+    private static final String[] reasonFlags = { "unused",
             "keyCompromise",
             "cACompromise",
             "affiliationChanged",
             "superseded",
             "cessationOfOperation",
             "certificateHold",
-            "privilegeWithdrawn"};
+            "privilegeWithdrawn" };
 
     private ILogger mLogger = CMS.getLogger();
 
@@ -76,9 +74,9 @@ public class CMSIssuingDistributionPointExtension
     }
 
     public Extension setCRLExtensionCriticality(Extension ext,
-        boolean critical) {
+            boolean critical) {
         IssuingDistributionPointExtension issuingDPointExt =
-            (IssuingDistributionPointExtension) ext;
+                (IssuingDistributionPointExtension) ext;
 
         issuingDPointExt.setCritical(critical);
 
@@ -86,8 +84,8 @@ public class CMSIssuingDistributionPointExtension
     }
 
     public Extension getCRLExtension(IConfigStore config,
-        Object ip,
-        boolean critical) {
+            Object ip,
+            boolean critical) {
 
         CMS.debug("in CMSIssuingDistributionPointExtension::getCRLExtension.");
         ICRLIssuingPoint crlIssuingPoint = (ICRLIssuingPoint) ip;
@@ -164,7 +162,7 @@ public class CMSIssuingDistributionPointExtension
         }
         if (reasons != null && reasons.length() > 0) {
 
-            boolean[] bits = {false, false, false, false, false, false, false};
+            boolean[] bits = { false, false, false, false, false, false, false };
             int k = 0;
             StringTokenizer st = new StringTokenizer(reasons, ",");
 
@@ -275,25 +273,25 @@ public class CMSIssuingDistributionPointExtension
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_INVALID_PROPERTY", "caCertsOnly", e.toString()));
         }
         // Disable these for now unitl we support them fully
-/*
-        try {
-            boolean userCertsOnly = config.getBoolean(PROP_USERCERTS, false);
+        /*
+                try {
+                    boolean userCertsOnly = config.getBoolean(PROP_USERCERTS, false);
 
-            nvp.add(PROP_USERCERTS, String.valueOf(userCertsOnly));
-        } catch (EBaseException e) {
-            nvp.add(PROP_USERCERTS, "false");
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_INVALID_PROPERTY", "userCertsOnly", e.toString()));
-        }
+                    nvp.add(PROP_USERCERTS, String.valueOf(userCertsOnly));
+                } catch (EBaseException e) {
+                    nvp.add(PROP_USERCERTS, "false");
+                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_INVALID_PROPERTY", "userCertsOnly", e.toString()));
+                }
 
-        try {
-            boolean indirectCRL = config.getBoolean(PROP_INDIRECT, false);
+                try {
+                    boolean indirectCRL = config.getBoolean(PROP_INDIRECT, false);
 
-            nvp.add(PROP_INDIRECT, String.valueOf(indirectCRL));
-        } catch (EBaseException e) {
-            nvp.add(PROP_INDIRECT, "false");
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_INVALID_PROPERTY", "indirectCRL", e.toString()));
-        }
-*/
+                    nvp.add(PROP_INDIRECT, String.valueOf(indirectCRL));
+                } catch (EBaseException e) {
+                    nvp.add(PROP_INDIRECT, "false");
+                    log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_INVALID_PROPERTY", "indirectCRL", e.toString()));
+                }
+        */
     }
 
     public String[] getExtendedPluginInfo(Locale locale) {
@@ -310,20 +308,20 @@ public class CMSIssuingDistributionPointExtension
                 "enable;boolean;Check to enable Issuing Distribution Point CRL extension.",
                 "critical;boolean;Set criticality for Issuing Distribution Point CRL extension.",
                 PROP_POINTTYPE + ";choice(" + PROP_DIRNAME + "," + PROP_URINAME + "," +
-                PROP_RDNNAME + ");Select Issuing Distribution Point name type.",
+                        PROP_RDNNAME + ");Select Issuing Distribution Point name type.",
                 PROP_POINTNAME + ";string;Enter Issuing Distribution Point name " +
-                "corresponding to the selected point type.",
+                        "corresponding to the selected point type.",
                 PROP_REASONS + ";string;Select any combination of the following reasons: " +
-                sb_reasons.toString(),
+                        sb_reasons.toString(),
                 PROP_CACERTS + ";boolean;Check if CRL contains CA certificates only",
-             //   Remove these from the UI until they can be supported fully.
-             //   PROP_USERCERTS + ";boolean;Check if CRL contains user certificates only",
-             //   PROP_INDIRECT + ";boolean;Check if CRL is built indirectly.",
+                //   Remove these from the UI until they can be supported fully.
+                //   PROP_USERCERTS + ";boolean;Check if CRL contains user certificates only",
+                //   PROP_INDIRECT + ";boolean;Check if CRL is built indirectly.",
                 IExtendedPluginInfo.HELP_TOKEN +
-                ";configuration-ca-edit-crlextension-issuingdistributionpoint",
+                        ";configuration-ca-edit-crlextension-issuingdistributionpoint",
                 IExtendedPluginInfo.HELP_TEXT +
-                ";The issuing distribution point is a critical CRL extension " +
-                "that identifies the CRL distribution point for a particular CRL."
+                        ";The issuing distribution point is a critical CRL extension " +
+                        "that identifies the CRL distribution point for a particular CRL."
             };
 
         return params;
@@ -331,6 +329,6 @@ public class CMSIssuingDistributionPointExtension
 
     private void log(int level, String msg) {
         mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_CA, level,
-            "CMSIssuingDistributionPointExtension - " + msg);
+                "CMSIssuingDistributionPointExtension - " + msg);
     }
-} 
+}

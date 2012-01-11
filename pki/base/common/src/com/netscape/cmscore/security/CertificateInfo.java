@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.security;
 
-
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.InvalidKeyException;
@@ -59,7 +58,6 @@ import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.ConfigConstants;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.security.KeyCertData;
-
 
 /**
  * This base class provides methods to import CA signing cert or get certificate
@@ -118,30 +116,30 @@ public abstract class CertificateInfo {
             notBeforeDate = new Date(Long.parseLong(notBeforeStr));
             notAfterDate = new Date(Long.parseLong(notAfterStr));
         } else {
-            int beginYear = 
-                Integer.parseInt(mProperties.getBeginYear()) - 1900;
-            int afterYear = 
-                Integer.parseInt(mProperties.getAfterYear()) - 1900;
+            int beginYear =
+                    Integer.parseInt(mProperties.getBeginYear()) - 1900;
+            int afterYear =
+                    Integer.parseInt(mProperties.getAfterYear()) - 1900;
             int beginMonth =
-                Integer.parseInt(mProperties.getBeginMonth());
+                    Integer.parseInt(mProperties.getBeginMonth());
             int afterMonth =
-                Integer.parseInt(mProperties.getAfterMonth());
+                    Integer.parseInt(mProperties.getAfterMonth());
             int beginDate =
-                Integer.parseInt(mProperties.getBeginDate());
-            int afterDate = 
-                Integer.parseInt(mProperties.getAfterDate());
+                    Integer.parseInt(mProperties.getBeginDate());
+            int afterDate =
+                    Integer.parseInt(mProperties.getAfterDate());
             int beginHour =
-                Integer.parseInt(mProperties.getBeginHour());
+                    Integer.parseInt(mProperties.getBeginHour());
             int afterHour =
-                Integer.parseInt(mProperties.getAfterHour());
+                    Integer.parseInt(mProperties.getAfterHour());
             int beginMin =
-                Integer.parseInt(mProperties.getBeginMin());
+                    Integer.parseInt(mProperties.getBeginMin());
             int afterMin =
-                Integer.parseInt(mProperties.getAfterMin());
+                    Integer.parseInt(mProperties.getAfterMin());
             int beginSec =
-                Integer.parseInt(mProperties.getBeginSec());
+                    Integer.parseInt(mProperties.getBeginSec());
             int afterSec =
-                Integer.parseInt(mProperties.getAfterSec());
+                    Integer.parseInt(mProperties.getAfterSec());
 
             Calendar calendar = Calendar.getInstance();
             calendar.set(beginYear, beginMonth, beginDate,
@@ -159,11 +157,11 @@ public abstract class CertificateInfo {
 
         try {
             certInfo.set(X509CertInfo.VERSION,
-                new CertificateVersion(CertificateVersion.V3));
+                    new CertificateVersion(CertificateVersion.V3));
             BigInteger serialNumber = mProperties.getSerialNumber();
 
             certInfo.set(X509CertInfo.SERIAL_NUMBER,
-                new CertificateSerialNumber(serialNumber));
+                    new CertificateSerialNumber(serialNumber));
             certInfo.set(X509CertInfo.EXTENSIONS, getExtensions());
             certInfo.set(X509CertInfo.VALIDITY, getCertificateValidity());
             String issuerName = mProperties.getIssuerName();
@@ -172,20 +170,20 @@ public abstract class CertificateInfo {
                 issuerName = getSubjectName();
             }
 
-            certInfo.set(X509CertInfo.ISSUER, 
-                new CertificateIssuerName(new X500Name(issuerName)));
+            certInfo.set(X509CertInfo.ISSUER,
+                    new CertificateIssuerName(new X500Name(issuerName)));
             certInfo.set(X509CertInfo.SUBJECT,
-                new CertificateSubjectName(new X500Name(getSubjectName())));
-            certInfo.set(X509CertInfo.VERSION, 
-                new CertificateVersion(CertificateVersion.V3));
+                    new CertificateSubjectName(new X500Name(getSubjectName())));
+            certInfo.set(X509CertInfo.VERSION,
+                    new CertificateVersion(CertificateVersion.V3));
 
             PublicKey pubk = mKeyPair.getPublic();
             X509Key xKey = KeyCertUtil.convertPublicKeyToX509Key(pubk);
 
             certInfo.set(X509CertInfo.KEY, new CertificateX509Key(xKey));
             //SignatureAlgorithm algm = getSigningAlgorithm();
-            SignatureAlgorithm algm = 
-                (SignatureAlgorithm) mProperties.get(Constants.PR_SIGNATURE_ALGORITHM);
+            SignatureAlgorithm algm =
+                    (SignatureAlgorithm) mProperties.get(Constants.PR_SIGNATURE_ALGORITHM);
 
             if (algm == null) {
                 String hashtype = (String) mProperties.get(ConfigConstants.PR_HASH_TYPE);
@@ -197,16 +195,16 @@ public abstract class CertificateInfo {
             AlgorithmId sigAlgId = getAlgorithmId();
 
             if (sigAlgId == null) {
-                byte[]encodedOID = ASN1Util.encode(algm.toOID());
+                byte[] encodedOID = ASN1Util.encode(algm.toOID());
 
                 sigAlgId = new AlgorithmId(new ObjectIdentifier(
                                 new DerInputStream(encodedOID)));
             }
             certInfo.set(X509CertInfo.ALGORITHM_ID,
-                new CertificateAlgorithmId(sigAlgId));
+                    new CertificateAlgorithmId(sigAlgId));
         } catch (InvalidKeyException e) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_KEY"));
-        } catch (CertificateException e) { 
+        } catch (CertificateException e) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_CERT", e.toString()));
         } catch (IOException e) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_CERT", e.toString()));
@@ -246,7 +244,7 @@ public abstract class CertificateInfo {
 
         if (isKeyUsageEnabled) {
             KeyCertUtil.setKeyUsageExtension(
-                exts, getKeyUsageExtension());
+                    exts, getKeyUsageExtension());
         }
         return exts;
     }
@@ -256,7 +254,7 @@ public abstract class CertificateInfo {
     }
 
     public void setAuthorityKeyIdExt(CertificateExtensions caexts, CertificateExtensions ext)
-        throws IOException, CertificateException, CertificateEncodingException,
+            throws IOException, CertificateException, CertificateEncodingException,
             CertificateParsingException {
         SubjectKeyIdentifierExtension subjKeyExt = null;
 
@@ -272,10 +270,9 @@ public abstract class CertificateInfo {
             KeyIdentifier keyId = (KeyIdentifier) subjKeyExt.get(
                     SubjectKeyIdentifierExtension.KEY_ID);
             AuthorityKeyIdentifierExtension authExt =
-                new AuthorityKeyIdentifierExtension(false, keyId, null, null);
+                    new AuthorityKeyIdentifierExtension(false, keyId, null, null);
 
             ext.set(AuthorityKeyIdentifierExtension.NAME, authExt);
         }
     }
 }
-

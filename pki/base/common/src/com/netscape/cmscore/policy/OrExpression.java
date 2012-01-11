@@ -17,38 +17,38 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.policy;
 
-
 import com.netscape.certsrv.policy.EPolicyException;
 import com.netscape.certsrv.policy.IExpression;
 import com.netscape.certsrv.request.IRequest;
 
-
 /**
  * This class represents an Or expression of the form
  * (var1 op val1 OR var2 op val2).
- *
+ * 
  * Expressions are used as predicates for policy selection.
- *
+ * 
  * @author kanda
  * @version $Revision$, $Date$
  */
 public class OrExpression implements IExpression {
     private IExpression mExp1;
     private IExpression mExp2;
+
     public OrExpression(IExpression exp1, IExpression exp2) {
         mExp1 = exp1;
         mExp2 = exp2;
     }
 
     public boolean evaluate(IRequest req)
-        throws EPolicyException {
+            throws EPolicyException {
         if (mExp1 == null && mExp2 == null)
             return true;
         else if (mExp1 != null && mExp2 != null)
             return mExp1.evaluate(req) || mExp2.evaluate(req);
         else if (mExp1 != null && mExp2 == null)
             return mExp1.evaluate(req);
-        else // (mExp1 == null && mExp2 != null)
+        else
+            // (mExp1 == null && mExp2 != null)
             return mExp2.evaluate(req);
     }
 
@@ -59,7 +59,8 @@ public class OrExpression implements IExpression {
             return mExp1.toString() + " OR " + mExp2.toString();
         else if (mExp1 != null && mExp2 == null)
             return mExp1.toString();
-        else // (mExp1 == null && mExp2 != null)
+        else
+            // (mExp1 == null && mExp2 != null)
             return mExp2.toString();
     }
 }

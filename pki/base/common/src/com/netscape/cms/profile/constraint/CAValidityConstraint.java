@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.constraint;
 
-
 import java.io.IOException;
 import java.util.Date;
 import java.util.Locale;
@@ -38,12 +37,11 @@ import com.netscape.cms.profile.def.NoDefault;
 import com.netscape.cms.profile.def.UserValidityDefault;
 import com.netscape.cms.profile.def.ValidityDefault;
 
-
 /**
  * This class implements the validity constraint.
  * It checks if the validity in the certificate
  * template is within the CA's validity.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class CAValidityConstraint extends CAEnrollConstraint {
@@ -56,7 +54,7 @@ public class CAValidityConstraint extends CAEnrollConstraint {
     }
 
     public void init(IProfile profile, IConfigStore config)
-        throws EProfileException {
+            throws EProfileException {
         super.init(profile, config);
         X509CertImpl caCert = getCACert();
 
@@ -69,7 +67,7 @@ public class CAValidityConstraint extends CAEnrollConstraint {
      * during the validation.
      */
     public void validate(IRequest request, X509CertInfo info)
-        throws ERejectException {
+            throws ERejectException {
         CMS.debug("CAValidityConstraint: validate start");
         CertificateValidity v = null;
 
@@ -99,15 +97,15 @@ public class CAValidityConstraint extends CAEnrollConstraint {
         }
 
         if (mDefNotBefore != null) {
-            CMS.debug("ValidtyConstraint: notBefore=" + notBefore + 
-                " defNotBefore=" + mDefNotBefore);
+            CMS.debug("ValidtyConstraint: notBefore=" + notBefore +
+                    " defNotBefore=" + mDefNotBefore);
             if (notBefore.before(mDefNotBefore)) {
                 throw new ERejectException(CMS.getUserMessage(
                             getLocale(request), "CMS_PROFILE_INVALID_NOT_BEFORE"));
             }
         }
-        CMS.debug("ValidtyConstraint: notAfter=" + notAfter + 
-            " defNotAfter=" + mDefNotAfter);
+        CMS.debug("ValidtyConstraint: notAfter=" + notAfter +
+                " defNotAfter=" + mDefNotAfter);
         if (notAfter.after(mDefNotAfter)) {
             throw new ERejectException(CMS.getUserMessage(
                         getLocale(request), "CMS_PROFILE_INVALID_NOT_AFTER"));
@@ -122,8 +120,8 @@ public class CAValidityConstraint extends CAEnrollConstraint {
                 mDefNotAfter.toString()
             };
 
-        return CMS.getUserMessage(locale, 
-                "CMS_PROFILE_CONSTRAINT_CA_VALIDITY_CONSTRAINT_TEXT", 
+        return CMS.getUserMessage(locale,
+                "CMS_PROFILE_CONSTRAINT_CA_VALIDITY_CONSTRAINT_TEXT",
                 params);
     }
 

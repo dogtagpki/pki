@@ -9,7 +9,7 @@ public class StringTestUtil {
     public final static String NULL_CHARS = "\u0000";
 
     public final static String PRINTABLE_CHARS =
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 \'()+,-./:=?";
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 \'()+,-./:=?";
 
     public final static String NON_PRINTABLE_CHARS = "\"\\";
 
@@ -20,8 +20,9 @@ public class StringTestUtil {
     public static String toString(byte[] array) {
 
         StringBuffer sb = new StringBuffer();
-        for (int i=0; i<array.length; i++) {
-            if (i > 0) sb.append(" ");
+        for (int i = 0; i < array.length; i++) {
+            if (i > 0)
+                sb.append(" ");
             sb.append(Integer.toHexString(0xff & array[i] | 0x100).substring(1).toUpperCase());
         }
 
@@ -39,7 +40,7 @@ public class StringTestUtil {
             int length = value.length() - 2;
 
             DerOutputStream os = new DerOutputStream();
-            os.putTag((byte)0, false, tag);
+            os.putTag((byte) 0, false, tag);
             os.putLength(length);
             os.write(tmp, 2, length);
 
@@ -72,7 +73,7 @@ public class StringTestUtil {
         case DerValue.tag_UTF8String:
             return is.getDerValue().getUTF8String();
         default:
-            throw new Exception("Unsupported tag: "+tag);
+            throw new Exception("Unsupported tag: " + tag);
         }
     }
 }

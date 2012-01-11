@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-
 import java.io.IOException;
 import java.util.Locale;
 
@@ -61,6 +60,7 @@ public class ImportTransportCert extends CMSServlet {
 
     /**
      * initialize the servlet.
+     * 
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -70,7 +70,7 @@ public class ImportTransportCert extends CMSServlet {
     }
 
     /**
-     * Process the HTTP request. 
+     * Process the HTTP request.
      */
     protected void process(CMSRequest cmsReq) throws EBaseException {
         CMS.debug("UpdateUpdater: processing...");
@@ -84,9 +84,9 @@ public class ImportTransportCert extends CMSServlet {
             CMS.debug("ImportTransportCert authentication successful.");
         } catch (Exception e) {
             CMS.debug("ImportTransportCert: authentication failed.");
-            log(ILogger.LL_FAILURE, 
+            log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSGW_ERR_BAD_SERV_OUT_STREAM", "",
-                    e.toString()));
+                            e.toString()));
             outputError(httpResp, AUTH_FAILURE, "Error: Not authenticated");
             return;
         }
@@ -99,19 +99,19 @@ public class ImportTransportCert extends CMSServlet {
 
         AuthzToken authzToken = null;
         try {
-            authzToken = authorize(mAclMethod, authToken, mAuthzResourceName, 
-              "modify");
+            authzToken = authorize(mAclMethod, authToken, mAuthzResourceName,
+                    "modify");
             CMS.debug("ImportTransportCert authorization successful.");
         } catch (EAuthzAccessDenied e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
             outputError(httpResp, "Error: Not authorized");
             return;
         } catch (Exception e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
             outputError(httpResp,
-                "Error: Encountered problem during authorization.");
+                    "Error: Encountered problem during authorization.");
             return;
         }
 
@@ -126,17 +126,17 @@ public class ImportTransportCert extends CMSServlet {
         String certsString = httpReq.getParameter("certificate");
 
         try {
-          CryptoManager cm = CryptoManager.getInstance();
-          CMS.debug("ImportTransportCert: Importing certificate");
-          org.mozilla.jss.crypto.X509Certificate cert = 
-            cm.importCACertPackage(CMS.AtoB(certsString));
-          String nickName = cert.getNickname();
-          CMS.debug("ImportTransportCert: nickname " + nickName);
-          cs.putString("tks.drm_transport_cert_nickname", nickName);
-          CMS.debug("ImportTransportCert: Commiting configuration");
-          cs.commit(false);
+            CryptoManager cm = CryptoManager.getInstance();
+            CMS.debug("ImportTransportCert: Importing certificate");
+            org.mozilla.jss.crypto.X509Certificate cert =
+                    cm.importCACertPackage(CMS.AtoB(certsString));
+            String nickName = cert.getNickname();
+            CMS.debug("ImportTransportCert: nickname " + nickName);
+            cs.putString("tks.drm_transport_cert_nickname", nickName);
+            CMS.debug("ImportTransportCert: Commiting configuration");
+            cs.commit(false);
 
-        // send success status back to the requestor
+            // send success status back to the requestor
             CMS.debug("ImportTransportCert: Sending response");
             XMLObject xmlObj = new XMLObject();
             Node root = xmlObj.createRoot("XMLResponse");
@@ -150,12 +150,13 @@ public class ImportTransportCert extends CMSServlet {
         }
     }
 
-    protected void setDefaultTemplates(ServletConfig sc) {}
+    protected void setDefaultTemplates(ServletConfig sc) {
+    }
 
     protected void renderTemplate(
             CMSRequest cmsReq, String templateName, ICMSTemplateFiller filler)
-        throws IOException {// do nothing
-    } 
+            throws IOException {// do nothing
+    }
 
     protected void renderResult(CMSRequest cmsReq) throws IOException {// do nothing, ie, it will not return the default javascript.
     }

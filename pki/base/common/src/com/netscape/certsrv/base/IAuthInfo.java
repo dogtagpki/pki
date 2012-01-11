@@ -17,9 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.base;
 
-
-
-
 /**
  * An interface represents an authentication context. This
  * is an entity that encapsulates the authentication

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.constraint;
 
-
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.StringTokenizer;
@@ -40,19 +39,18 @@ import com.netscape.cms.profile.def.ExtendedKeyUsageExtDefault;
 import com.netscape.cms.profile.def.NoDefault;
 import com.netscape.cms.profile.def.UserExtensionDefault;
 
-
 /**
  * This class implements the extended key usage extension constraint.
  * It checks if the extended key usage extension in the certificate
  * template satisfies the criteria.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class ExtendedKeyUsageExtConstraint extends EnrollConstraint {
 
     public static final String CONFIG_CRITICAL = "exKeyUsageCritical";
     public static final String CONFIG_OIDS =
-        "exKeyUsageOIDs";
+            "exKeyUsageOIDs";
 
     public ExtendedKeyUsageExtConstraint() {
         super();
@@ -61,20 +59,20 @@ public class ExtendedKeyUsageExtConstraint extends EnrollConstraint {
     }
 
     public void init(IProfile profile, IConfigStore config)
-        throws EProfileException {
+            throws EProfileException {
         super.init(profile, config);
     }
 
-    public IDescriptor getConfigDescriptor(Locale locale, String name) { 
-        if (name.equals(CONFIG_CRITICAL)) { 
-            return new Descriptor(IDescriptor.CHOICE, "true,false,-", 
-                    "-",	
+    public IDescriptor getConfigDescriptor(Locale locale, String name) {
+        if (name.equals(CONFIG_CRITICAL)) {
+            return new Descriptor(IDescriptor.CHOICE, "true,false,-",
+                    "-",
                     CMS.getUserMessage(locale, "CMS_PROFILE_CRITICAL"));
         } else if (name.equals(CONFIG_OIDS)) {
-            return new Descriptor(IDescriptor.STRING, null, 
+            return new Descriptor(IDescriptor.STRING, null,
                     null,
                     CMS.getUserMessage(locale, "CMS_PROFILE_OIDS"));
-        }	
+        }
         return null;
     }
 
@@ -83,16 +81,16 @@ public class ExtendedKeyUsageExtConstraint extends EnrollConstraint {
      * during the validation.
      */
     public void validate(IRequest request, X509CertInfo info)
-        throws ERejectException {
+            throws ERejectException {
         ExtendedKeyUsageExtension ext = (ExtendedKeyUsageExtension)
-            getExtension(ExtendedKeyUsageExtension.OID, info); 
+                getExtension(ExtendedKeyUsageExtension.OID, info);
 
         if (ext == null) {
             throw new ERejectException(
                     CMS.getUserMessage(
-                        getLocale(request),
-                        "CMS_PROFILE_EXTENSION_NOT_FOUND",
-                        ExtendedKeyUsageExtension.OID));
+                            getLocale(request),
+                            "CMS_PROFILE_EXTENSION_NOT_FOUND",
+                            ExtendedKeyUsageExtension.OID));
         }
 
         // check criticality
@@ -104,10 +102,10 @@ public class ExtendedKeyUsageExtConstraint extends EnrollConstraint {
             if (critical != ext.isCritical()) {
                 throw new ERejectException(
                         CMS.getUserMessage(
-                            getLocale(request),
-                            "CMS_PROFILE_CRITICAL_NOT_MATCHED"));
+                                getLocale(request),
+                                "CMS_PROFILE_CRITICAL_NOT_MATCHED"));
             }
-        } 
+        }
 
         // Build local cache of configured OIDs
         Vector mCache = new Vector();
@@ -122,15 +120,15 @@ public class ExtendedKeyUsageExtConstraint extends EnrollConstraint {
         // check OIDs
         Enumeration e = ext.getOIDs();
 
-        while (e.hasMoreElements()) { 
+        while (e.hasMoreElements()) {
             ObjectIdentifier oid = (ObjectIdentifier) e.nextElement();
 
             if (!mCache.contains(oid.toString())) {
                 throw new ERejectException(
                         CMS.getUserMessage(
-                            getLocale(request),
-                            "CMS_PROFILE_OID_NOT_MATCHED",
-                            oid.toString()));
+                                getLocale(request),
+                                "CMS_PROFILE_OID_NOT_MATCHED",
+                                oid.toString()));
             }
         }
     }
@@ -141,7 +139,7 @@ public class ExtendedKeyUsageExtConstraint extends EnrollConstraint {
                 getConfig(CONFIG_OIDS)
             };
 
-        return CMS.getUserMessage(locale, 
+        return CMS.getUserMessage(locale,
                 "CMS_PROFILE_CONSTRAINT_EXTENDED_KEY_EXT_TEXT",
                 params);
     }

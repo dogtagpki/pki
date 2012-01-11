@@ -46,7 +46,7 @@ import com.netscape.certsrv.request.IRequest;
  * This class implements an enrollment default policy
  * that populates a subject directory attributes extension
  * into the certificate template.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class SubjectDirAttributesExtDefault extends EnrollExtDefault {
@@ -71,7 +71,7 @@ public class SubjectDirAttributesExtDefault extends EnrollExtDefault {
     }
 
     public void init(IProfile profile, IConfigStore config)
-        throws EProfileException {
+            throws EProfileException {
         super.init(profile, config);
         refreshConfigAndValueNames();
     }
@@ -95,25 +95,24 @@ public class SubjectDirAttributesExtDefault extends EnrollExtDefault {
     }
 
     public void setConfig(String name, String value)
-        throws EPropertyException {
+            throws EPropertyException {
         int num = 0;
         if (name.equals(DEF_NUM_ATTRS)) {
-          try {
-            num = Integer.parseInt(value);
+            try {
+                num = Integer.parseInt(value);
 
-            if (num >= MAX_NUM_ATTRS || num < 0) {
+                if (num >= MAX_NUM_ATTRS || num < 0) {
+                    throw new EPropertyException(CMS.getUserMessage(
+                            "CMS_INVALID_PROPERTY", CONFIG_NUM_ATTRS));
+                }
+
+            } catch (Exception e) {
                 throw new EPropertyException(CMS.getUserMessage(
                             "CMS_INVALID_PROPERTY", CONFIG_NUM_ATTRS));
             }
-
-          } catch (Exception e) {
-                throw new EPropertyException(CMS.getUserMessage(
-                            "CMS_INVALID_PROPERTY", CONFIG_NUM_ATTRS));
-          }
         }
         super.setConfig(name, value);
     }
-
 
     public Enumeration getConfigNames() {
         refreshConfigAndValueNames();
@@ -136,43 +135,43 @@ public class SubjectDirAttributesExtDefault extends EnrollExtDefault {
         }
     }
 
-    public IDescriptor getConfigDescriptor(Locale locale, String name) { 
-        if (name.equals(CONFIG_CRITICAL)) { 
-            return new Descriptor(IDescriptor.BOOLEAN, null, 
+    public IDescriptor getConfigDescriptor(Locale locale, String name) {
+        if (name.equals(CONFIG_CRITICAL)) {
+            return new Descriptor(IDescriptor.BOOLEAN, null,
                     "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_CRITICAL"));
         } else if (name.startsWith(CONFIG_ATTR_NAME)) {
-            return new Descriptor(IDescriptor.STRING, null, 
+            return new Descriptor(IDescriptor.STRING, null,
                     null,
                     CMS.getUserMessage(locale, "CMS_PROFILE_NUM_ATTRS"));
         } else if (name.startsWith(CONFIG_ATTR_NAME)) {
-            return new Descriptor(IDescriptor.STRING, null, 
+            return new Descriptor(IDescriptor.STRING, null,
                     null,
                     CMS.getUserMessage(locale, "CMS_PROFILE_ATTR_NAME"));
         } else if (name.startsWith(CONFIG_PATTERN)) {
-            return new Descriptor(IDescriptor.STRING, null, 
+            return new Descriptor(IDescriptor.STRING, null,
                     null,
                     CMS.getUserMessage(locale, "CMS_PROFILE_ATTR_VALUE"));
         } else if (name.startsWith(CONFIG_ENABLE)) {
-            return new Descriptor(IDescriptor.BOOLEAN, null, 
+            return new Descriptor(IDescriptor.BOOLEAN, null,
                     null,
                     CMS.getUserMessage(locale, "CMS_PROFILE_ENABLE"));
         } else if (name.startsWith(CONFIG_NUM_ATTRS)) {
             return new Descriptor(IDescriptor.INTEGER, null,
                     "1",
-                    CMS.getUserMessage(locale, "CMS_PROFILE_NUM_ATTRS")); 
-        }  
+                    CMS.getUserMessage(locale, "CMS_PROFILE_NUM_ATTRS"));
+        }
 
         return null;
     }
 
     public IDescriptor getValueDescriptor(Locale locale, String name) {
-        if (name.equals(VAL_CRITICAL)) { 
-            return new Descriptor(IDescriptor.BOOLEAN, null, 
+        if (name.equals(VAL_CRITICAL)) {
+            return new Descriptor(IDescriptor.BOOLEAN, null,
                     "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_CRITICAL"));
         } else if (name.equals(VAL_ATTR)) {
-            return new Descriptor(IDescriptor.STRING_LIST, null, 
+            return new Descriptor(IDescriptor.STRING_LIST, null,
                     null,
                     CMS.getUserMessage(locale, "CMS_PROFILE_SUBJDIR_ATTRS"));
         } else {
@@ -181,48 +180,46 @@ public class SubjectDirAttributesExtDefault extends EnrollExtDefault {
     }
 
     public void setValue(String name, Locale locale,
-        X509CertInfo info, String value)
-        throws EPropertyException {
+            X509CertInfo info, String value)
+            throws EPropertyException {
         try {
             SubjectDirAttributesExtension ext = null;
 
-            if (name == null) { 
-                throw new EPropertyException(CMS.getUserMessage( 
+            if (name == null) {
+                throw new EPropertyException(CMS.getUserMessage(
                             locale, "CMS_INVALID_PROPERTY", name));
             }
 
             ext = (SubjectDirAttributesExtension)
-              getExtension(PKIXExtensions.SubjectDirectoryAttributes_Id.toString(),
-              info);
+                    getExtension(PKIXExtensions.SubjectDirectoryAttributes_Id.toString(),
+                            info);
 
             if (name.equals(VAL_CRITICAL)) {
                 ext = (SubjectDirAttributesExtension)
-                  getExtension(PKIXExtensions.SubjectDirectoryAttributes_Id.toString(),
-                  info);
+                        getExtension(PKIXExtensions.SubjectDirectoryAttributes_Id.toString(),
+                                info);
                 boolean val = Boolean.valueOf(value).booleanValue();
 
-                if(ext == null)
-                {
+                if (ext == null) {
                     return;
                 }
-                ext.setCritical(val); 
-            } else if (name.equals(VAL_ATTR)) { 
+                ext.setCritical(val);
+            } else if (name.equals(VAL_ATTR)) {
                 ext = (SubjectDirAttributesExtension)
-                  getExtension(PKIXExtensions.SubjectDirectoryAttributes_Id.toString(),
-                  info);
+                        getExtension(PKIXExtensions.SubjectDirectoryAttributes_Id.toString(),
+                                info);
 
-                if(ext == null)
-                {
+                if (ext == null) {
                     return;
                 }
                 Vector v = parseRecords(value);
                 int size = v.size();
-              
+
                 boolean critical = ext.isCritical();
 
                 X500NameAttrMap map = X500NameAttrMap.getDefault();
                 Vector attrV = new Vector();
-                for (int i=0; i < size; i++) {
+                for (int i = 0; i < size; i++) {
                     NameValuePairs nvps = (NameValuePairs) v.elementAt(i);
                     Enumeration names = nvps.getNames();
                     String attrName = null;
@@ -241,8 +238,8 @@ public class SubjectDirAttributesExtDefault extends EnrollExtDefault {
                     }
 
                     if (enable.equals("true")) {
-                        AttributeConfig attributeConfig =  
-                          new AttributeConfig(attrName, attrValue); 
+                        AttributeConfig attributeConfig =
+                                new AttributeConfig(attrName, attrValue);
                         Attribute attr = attributeConfig.mAttribute;
                         if (attr != null)
                             attrV.addElement(attr);
@@ -256,43 +253,43 @@ public class SubjectDirAttributesExtDefault extends EnrollExtDefault {
                 } else
                     return;
             } else {
-                throw new EPropertyException(CMS.getUserMessage( 
+                throw new EPropertyException(CMS.getUserMessage(
                             locale, "CMS_INVALID_PROPERTY", name));
             }
 
             replaceExtension(PKIXExtensions.SubjectDirectoryAttributes_Id.toString(),
-                ext, info);
+                    ext, info);
         } catch (EProfileException e) {
-            CMS.debug("SubjectDirAttributesExtDefault: setValue " + 
-                e.toString());
-            throw new EPropertyException(CMS.getUserMessage( 
+            CMS.debug("SubjectDirAttributesExtDefault: setValue " +
+                    e.toString());
+            throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         } catch (IOException e) {
-            CMS.debug("SubjectDirAttributesExtDefault: setValue " + 
-                e.toString());
-            throw new EPropertyException(CMS.getUserMessage( 
+            CMS.debug("SubjectDirAttributesExtDefault: setValue " +
+                    e.toString());
+            throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         }
     }
 
     public String getValue(String name, Locale locale,
-        X509CertInfo info)
-        throws EPropertyException {
+            X509CertInfo info)
+            throws EPropertyException {
         SubjectDirAttributesExtension ext = null;
 
         if (name == null) {
-            throw new EPropertyException(CMS.getUserMessage( 
+            throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         }
 
         ext = (SubjectDirAttributesExtension)
-          getExtension(PKIXExtensions.SubjectDirectoryAttributes_Id.toString(),
-          info);
+                getExtension(PKIXExtensions.SubjectDirectoryAttributes_Id.toString(),
+                        info);
 
         if (name.equals(VAL_CRITICAL)) {
             ext = (SubjectDirAttributesExtension)
-              getExtension(PKIXExtensions.SubjectDirectoryAttributes_Id.toString(), 
-              info);
+                    getExtension(PKIXExtensions.SubjectDirectoryAttributes_Id.toString(),
+                            info);
 
             if (ext == null) {
                 return null;
@@ -302,10 +299,10 @@ public class SubjectDirAttributesExtDefault extends EnrollExtDefault {
             } else {
                 return "false";
             }
-        } else if (name.equals(VAL_ATTR)) { 
+        } else if (name.equals(VAL_ATTR)) {
             ext = (SubjectDirAttributesExtension)
-              getExtension(PKIXExtensions.SubjectDirectoryAttributes_Id.toString(), 
-              info);
+                    getExtension(PKIXExtensions.SubjectDirectoryAttributes_Id.toString(),
+                            info);
 
             if (ext == null)
                 return "";
@@ -315,42 +312,42 @@ public class SubjectDirAttributesExtDefault extends EnrollExtDefault {
             Vector recs = new Vector();
             int num = getNumAttrs();
             Enumeration e = ext.getAttributesList();
-            CMS.debug("SubjectDirAttributesExtDefault: getValue: attributesList="+e);
-            int i=0;
+            CMS.debug("SubjectDirAttributesExtDefault: getValue: attributesList=" + e);
+            int i = 0;
 
             while (e.hasMoreElements()) {
                 NameValuePairs pairs = new NameValuePairs();
                 pairs.add(ENABLE, "true");
-                Attribute attr = (Attribute)(e.nextElement());
-                CMS.debug("SubjectDirAttributesExtDefault: getValue: attribute="+attr);
+                Attribute attr = (Attribute) (e.nextElement());
+                CMS.debug("SubjectDirAttributesExtDefault: getValue: attribute=" + attr);
                 ObjectIdentifier oid = attr.getOid();
-                CMS.debug("SubjectDirAttributesExtDefault: getValue: oid="+oid);
-   
+                CMS.debug("SubjectDirAttributesExtDefault: getValue: oid=" + oid);
+
                 String vv = map.getName(oid);
 
-                if (vv != null) 
+                if (vv != null)
                     pairs.add(ATTR_NAME, vv);
                 else
                     pairs.add(ATTR_NAME, oid.toString());
                 Enumeration v = attr.getValues();
-                
+
                 // just support single value for now
                 StringBuffer ss = new StringBuffer();
                 while (v.hasMoreElements()) {
                     if (ss.length() == 0)
-                        ss.append((String)(v.nextElement()));
+                        ss.append((String) (v.nextElement()));
                     else {
                         ss.append(",");
-                        ss.append((String)(v.nextElement()));
+                        ss.append((String) (v.nextElement()));
                     }
                 }
 
-                pairs .add(ATTR_VALUE, ss.toString());
+                pairs.add(ATTR_VALUE, ss.toString());
                 recs.addElement(pairs);
                 i++;
             }
-                
-            for (;i < num; i++) {
+
+            for (; i < num; i++) {
                 NameValuePairs pairs = new NameValuePairs();
                 pairs.add(ENABLE, "false");
                 pairs.add(ATTR_NAME, "GENERATIONQUALIFIER");
@@ -360,7 +357,7 @@ public class SubjectDirAttributesExtDefault extends EnrollExtDefault {
 
             return buildRecords(recs);
         } else {
-            throw new EPropertyException(CMS.getUserMessage( 
+            throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         }
     }
@@ -383,8 +380,8 @@ public class SubjectDirAttributesExtDefault extends EnrollExtDefault {
             sb.append(getConfig(CONFIG_ENABLE + i));
             sb.append("}");
         }
-        return CMS.getUserMessage(locale, 
-                "CMS_PROFILE_DEF_SUBJECT_DIR_ATTR_EXT", 
+        return CMS.getUserMessage(locale,
+                "CMS_PROFILE_DEF_SUBJECT_DIR_ATTR_EXT",
                 getConfig(CONFIG_CRITICAL),
                 sb.toString());
     }
@@ -393,32 +390,32 @@ public class SubjectDirAttributesExtDefault extends EnrollExtDefault {
      * Populates the request with this policy default.
      */
     public void populate(IRequest request, X509CertInfo info)
-        throws EProfileException {
+            throws EProfileException {
         SubjectDirAttributesExtension ext = createExtension(request);
 
         if (ext == null)
             return;
 
-        addExtension(PKIXExtensions.SubjectDirectoryAttributes_Id.toString(), 
-            ext, info);
+        addExtension(PKIXExtensions.SubjectDirectoryAttributes_Id.toString(),
+                ext, info);
     }
 
     public SubjectDirAttributesExtension createExtension(IRequest request)
-      throws EProfileException {
-        SubjectDirAttributesExtension ext = null; 
+            throws EProfileException {
+        SubjectDirAttributesExtension ext = null;
         int num = 0;
 
         boolean critical = getConfigBoolean(CONFIG_CRITICAL);
 
         num = getNumAttrs();
-         
+
         AttributeConfig attributeConfig = null;
         Vector attrs = new Vector();
         for (int i = 0; i < num; i++) {
-            String enable = getConfig(CONFIG_ENABLE + i); 
+            String enable = getConfig(CONFIG_ENABLE + i);
             if (enable != null && enable.equals("true")) {
                 String attrName = getConfig(CONFIG_ATTR_NAME + i);
-                String pattern = getConfig(CONFIG_PATTERN + i); 
+                String pattern = getConfig(CONFIG_PATTERN + i);
                 if (pattern == null || pattern.equals(""))
                     pattern = " ";
 
@@ -427,8 +424,8 @@ public class SubjectDirAttributesExtDefault extends EnrollExtDefault {
                 int lastpos = pattern.lastIndexOf("$");
                 String attrValue = pattern;
                 if (!pattern.equals("") && startpos != -1 &&
-                  startpos == 0 && lastpos != -1 &&
-                  lastpos == (pattern.length()-1)) {
+                        startpos == 0 && lastpos != -1 &&
+                        lastpos == (pattern.length() - 1)) {
                     if (request != null) {
                         try {
                             attrValue = mapPattern(request, pattern);
@@ -436,7 +433,7 @@ public class SubjectDirAttributesExtDefault extends EnrollExtDefault {
                             throw new EProfileException(e.toString());
                         }
                     }
-                } 
+                }
                 try {
                     attributeConfig = new AttributeConfig(attrName, attrValue);
                 } catch (EPropertyException e) {
@@ -454,7 +451,7 @@ public class SubjectDirAttributesExtDefault extends EnrollExtDefault {
             attrs.copyInto(attrList);
             try {
                 ext =
-                  new SubjectDirAttributesExtension(attrList, critical);
+                        new SubjectDirAttributesExtension(attrList, critical);
             } catch (IOException e) {
                 throw new EProfileException(e.toString());
             }
@@ -470,50 +467,49 @@ class AttributeConfig {
     protected Attribute mAttribute = null;
 
     public AttributeConfig(String attrName, String attrValue)
-      throws EPropertyException {
+            throws EPropertyException {
         X500NameAttrMap map = X500NameAttrMap.getDefault();
-     
+
         if (attrName == null || attrName.length() == 0) {
             throw new EPropertyException(
-              CMS.getUserMessage("CMS_PROFILE_SUBJDIR_EMPTY_ATTRNAME", attrName));
+                    CMS.getUserMessage("CMS_PROFILE_SUBJDIR_EMPTY_ATTRNAME", attrName));
         }
- 
+
         if (attrValue == null || attrValue.length() == 0) {
             throw new EPropertyException(
-              CMS.getUserMessage("CMS_PROFILE_SUBJDIR_EMPTY_ATTRVAL", attrValue));
+                    CMS.getUserMessage("CMS_PROFILE_SUBJDIR_EMPTY_ATTRVAL", attrValue));
         }
 
         try {
             mAttributeOID = new ObjectIdentifier(attrName);
         } catch (Exception e) {
-            CMS.debug("SubjectDirAttributesExtDefault: invalid OID syntax: "+ attrName);
+            CMS.debug("SubjectDirAttributesExtDefault: invalid OID syntax: " + attrName);
         }
 
         if (mAttributeOID == null) {
             mAttributeOID = map.getOid(attrName);
             if (mAttributeOID == null)
                 throw new EPropertyException(
-                  CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", attrName));
+                        CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", attrName));
             try {
                 checkValue(mAttributeOID, attrValue);
             } catch (IOException e) {
                 throw new EPropertyException(CMS.getUserMessage(
-                  "CMS_BASE_INVALID_ATTR_VALUE", e.getMessage()));
+                        "CMS_BASE_INVALID_ATTR_VALUE", e.getMessage()));
             }
         }
 
-
         try {
-            mAttribute = new Attribute(mAttributeOID, 
-              str2MultiValues(attrValue));
+            mAttribute = new Attribute(mAttributeOID,
+                    str2MultiValues(attrValue));
         } catch (IOException e) {
             throw new EPropertyException(CMS.getUserMessage(
-              "CMS_BASE_INVALID_ATTR_VALUE", e.getMessage()));
+                    "CMS_BASE_INVALID_ATTR_VALUE", e.getMessage()));
         }
     }
 
-    private static void checkValue(ObjectIdentifier oid, String val) 
-      throws IOException {
+    private static void checkValue(ObjectIdentifier oid, String val)
+            throws IOException {
         AVAValueConverter c = X500NameAttrMap.getDefault().getValueConverter(oid);
         DerValue derval;
 
@@ -527,7 +523,7 @@ class AttributeConfig {
         while (tokenizer.hasMoreTokens()) {
             v.addElement(tokenizer.nextToken());
         }
- 
+
         return v;
     }
 }

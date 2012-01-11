@@ -28,8 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.netscape.certsrv.apps.CMS;
 
-public class EERequestFilter implements Filter
-{
+public class EERequestFilter implements Filter {
     private static final String HTTP_SCHEME = "http";
     private static final String HTTP_PORT = "http_port";
     private static final String HTTP_ROLE = "EE";
@@ -40,22 +39,21 @@ public class EERequestFilter implements Filter
     private static final String PROXY_HTTP_PORT = "proxy_http_port";
 
     private FilterConfig config;
-    
+
     /* Create a new EERequestFilter */
-    public EERequestFilter() {}
-    
-    public void init( FilterConfig filterConfig )
-                throws ServletException
-    {
+    public EERequestFilter() {
+    }
+
+    public void init(FilterConfig filterConfig)
+                throws ServletException {
         this.config = filterConfig;
     }
-    
-    public void doFilter( ServletRequest request, 
+
+    public void doFilter(ServletRequest request,
                           ServletResponse response,
-                          FilterChain chain )
+                          FilterChain chain)
                 throws java.io.IOException,
-                       ServletException
-    {
+                       ServletException {
         String filterName = getClass().getName();
 
         String scheme = null;
@@ -70,45 +68,45 @@ public class EERequestFilter implements Filter
         String param_active = null;
 
         // CMS.debug("Entering the EE filter");
-        param_active = config.getInitParameter( "active");
+        param_active = config.getInitParameter("active");
 
-        if( request instanceof HttpServletRequest ) {
-            HttpServletResponse resp = ( HttpServletResponse ) response;
+        if (request instanceof HttpServletRequest) {
+            HttpServletResponse resp = (HttpServletResponse) response;
 
             // RFC 1738:  verify that scheme is either "http" or "https"
             scheme = request.getScheme();
-            if( ( ! scheme.equals( HTTP_SCHEME ) ) &&
-                ( ! scheme.equals( HTTPS_SCHEME ) ) ) {
+            if ((!scheme.equals(HTTP_SCHEME)) &&
+                    (!scheme.equals(HTTPS_SCHEME))) {
                 msg = "The scheme MUST be either '" + HTTP_SCHEME
-                    + "' or '" + HTTPS_SCHEME
-                    + "', NOT '" + scheme + "'!";
-                CMS.debug( filterName + ":  " + msg );
-                resp.sendError( HttpServletResponse.SC_UNAUTHORIZED, msg );
-                return; 
+                        + "' or '" + HTTPS_SCHEME
+                        + "', NOT '" + scheme + "'!";
+                CMS.debug(filterName + ":  " + msg);
+                resp.sendError(HttpServletResponse.SC_UNAUTHORIZED, msg);
+                return;
             }
 
             // Always obtain either an "http" or an "https" port from request
             port = request.getLocalPort();
-            request_port = Integer.toString( port );
+            request_port = Integer.toString(port);
 
             // Always obtain the "http" port passed in as a parameter
-            param_http_port = config.getInitParameter( HTTP_PORT );
-            if( param_http_port == null ) {
+            param_http_port = config.getInitParameter(HTTP_PORT);
+            if (param_http_port == null) {
                 msg = "The <param-name> '" + HTTP_PORT
-                    + "' </param-name> " + "MUST be specified in 'web.xml'!";
-                CMS.debug( filterName + ":  " + msg );
-                resp.sendError( HttpServletResponse.SC_NOT_IMPLEMENTED, msg );
-                return; 
+                        + "' </param-name> " + "MUST be specified in 'web.xml'!";
+                CMS.debug(filterName + ":  " + msg);
+                resp.sendError(HttpServletResponse.SC_NOT_IMPLEMENTED, msg);
+                return;
             }
 
             // Always obtain the "https" port passed in as a parameter
-            param_https_port = config.getInitParameter( HTTPS_PORT );
-            if( param_https_port == null ) {
+            param_https_port = config.getInitParameter(HTTPS_PORT);
+            if (param_https_port == null) {
                 msg = "The <param-name> '" + HTTPS_PORT
-                    + "' </param-name> " + "MUST be specified in 'web.xml'!";
-                CMS.debug( filterName + ":  " + msg );
-                resp.sendError( HttpServletResponse.SC_NOT_IMPLEMENTED, msg );
-                return; 
+                        + "' </param-name> " + "MUST be specified in 'web.xml'!";
+                CMS.debug(filterName + ":  " + msg);
+                resp.sendError(HttpServletResponse.SC_NOT_IMPLEMENTED, msg);
+                return;
             }
 
             param_proxy_http_port = config.getInitParameter(PROXY_HTTP_PORT);
@@ -119,58 +117,58 @@ public class EERequestFilter implements Filter
             // the request and param "http" ports;
             // otherwise, if the scheme is "https", compare
             // the request and param "https" ports
-            if( scheme.equals( HTTP_SCHEME ) ) {
-                if( ! param_http_port.equals( request_port ) ) {
+            if (scheme.equals(HTTP_SCHEME)) {
+                if (!param_http_port.equals(request_port)) {
                     String uri = ((HttpServletRequest) request).getRequestURI();
-                    if (param_proxy_http_port != null) {  
+                    if (param_proxy_http_port != null) {
                         if (!param_proxy_http_port.equals(request_port)) {
                             msg = "Use HTTP port '" + param_http_port
-                                + "' or proxy port '" + param_proxy_http_port
-                                + "' instead of '" + request_port
-                                + "' when performing " + HTTP_ROLE + " tasks!";
+                                    + "' or proxy port '" + param_proxy_http_port
+                                    + "' instead of '" + request_port
+                                    + "' when performing " + HTTP_ROLE + " tasks!";
                             bad_port = true;
                         }
                     } else {
                         msg = "Use HTTP port '" + param_http_port
-                            + "' instead of '" + request_port
-                            + "' when performing " + HTTP_ROLE + " tasks!";
+                                + "' instead of '" + request_port
+                                + "' when performing " + HTTP_ROLE + " tasks!";
                         bad_port = true;
                     }
                     if (bad_port) {
-                        CMS.debug( filterName + ":  " + msg );
-                        CMS.debug( filterName + ": uri is " + uri);
-                        if ((param_active != null) &&(param_active.equals("false"))) {
+                        CMS.debug(filterName + ":  " + msg);
+                        CMS.debug(filterName + ": uri is " + uri);
+                        if ((param_active != null) && (param_active.equals("false"))) {
                             CMS.debug("Filter is disabled .. continuing");
                         } else {
-                            resp.sendError( HttpServletResponse.SC_NOT_FOUND, msg );
+                            resp.sendError(HttpServletResponse.SC_NOT_FOUND, msg);
                             return;
                         }
                     }
                 }
-            } else if( scheme.equals( HTTPS_SCHEME ) ) {
-                if( ! param_https_port.equals( request_port ) ) {
+            } else if (scheme.equals(HTTPS_SCHEME)) {
+                if (!param_https_port.equals(request_port)) {
                     String uri = ((HttpServletRequest) request).getRequestURI();
-                    if (param_proxy_port != null) {  
+                    if (param_proxy_port != null) {
                         if (!param_proxy_port.equals(request_port)) {
                             msg = "Use HTTPS port '" + param_https_port
-                                + "' or proxy port '" + param_proxy_port
-                                + "' instead of '" + request_port
-                                + "' when performing " + HTTPS_ROLE + " tasks!";
+                                    + "' or proxy port '" + param_proxy_port
+                                    + "' instead of '" + request_port
+                                    + "' when performing " + HTTPS_ROLE + " tasks!";
                             bad_port = true;
                         }
                     } else {
                         msg = "Use HTTPS port '" + param_https_port
-                            + "' instead of '" + request_port
-                            + "' when performing " + HTTPS_ROLE + " tasks!";
+                                + "' instead of '" + request_port
+                                + "' when performing " + HTTPS_ROLE + " tasks!";
                         bad_port = true;
                     }
                     if (bad_port) {
-                        CMS.debug( filterName + ":  " + msg );
-                        CMS.debug( filterName + ": uri is " + uri);
-                        if ((param_active != null) &&(param_active.equals("false"))) {
+                        CMS.debug(filterName + ":  " + msg);
+                        CMS.debug(filterName + ": uri is " + uri);
+                        if ((param_active != null) && (param_active.equals("false"))) {
                             CMS.debug("Filter is disabled .. continuing");
                         } else {
-                            resp.sendError( HttpServletResponse.SC_NOT_FOUND, msg );
+                            resp.sendError(HttpServletResponse.SC_NOT_FOUND, msg);
                             return;
                         }
                     }
@@ -180,11 +178,9 @@ public class EERequestFilter implements Filter
         }
         // CMS.debug("Exiting the EE filter");
 
-        chain.doFilter( request, response );
+        chain.doFilter(request, response);
     }
-    
-    public void destroy()
-    {
+
+    public void destroy() {
     }
 }
-

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.security;
 
-
 import java.math.BigInteger;
 import java.security.KeyPair;
 import java.util.Properties;
@@ -53,7 +52,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Retrieves the key pair from this container.
-     *
+     * 
      * @return key pair
      */
     public KeyPair getKeyPair() {
@@ -62,7 +61,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Sets key pair into this container.
-     *
+     * 
      * @param keypair key pair
      */
     public void setKeyPair(KeyPair keypair) {
@@ -71,7 +70,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Retrieves the issuer name from this container.
-     *
+     * 
      * @return issuer name
      */
     public String getIssuerName() {
@@ -80,7 +79,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Sets the issuer name in this container.
-     *
+     * 
      * @param name issuer name
      */
     public void setIssuerName(String name) {
@@ -89,7 +88,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Retrieves certificate server instance name.
-     *
+     * 
      * @return instance name
      */
     public String getCertInstanceName() {
@@ -98,7 +97,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Sets certificate server instance name.
-     *
+     * 
      * @param name instance name
      */
     public void setCertInstanceName(String name) {
@@ -107,16 +106,16 @@ public class KeyCertData extends Properties {
 
     /**
      * Retrieves certificate nickname.
-     *
+     * 
      * @return certificate nickname
      */
     public String getCertNickname() {
         return (String) get(Constants.PR_NICKNAME);
     }
-    
+
     /**
      * Sets certificate nickname.
-     *
+     * 
      * @param nickname certificate nickname
      */
     public void setCertNickname(String nickname) {
@@ -125,7 +124,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Retrieves key length.
-     *
+     * 
      * @return key length
      */
     public String getKeyLength() {
@@ -134,7 +133,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Sets key length.
-     *
+     * 
      * @param len key length
      */
     public void setKeyLength(String len) {
@@ -143,7 +142,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Retrieves key type.
-     *
+     * 
      * @return key type
      */
     public String getKeyType() {
@@ -152,7 +151,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Sets key type.
-     *
+     * 
      * @param type key type
      */
     public void setKeyType(String type) {
@@ -161,7 +160,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Retrieves key curve name.
-     *
+     * 
      * @return key curve name
      */
     public String getKeyCurveName() {
@@ -170,7 +169,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Sets key curvename.
-     *
+     * 
      * @param len key curvename
      */
     public void setKeyCurveName(String len) {
@@ -179,7 +178,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Retrieves signature algorithm.
-     *
+     * 
      * @return signature algorithm
      */
     public SignatureAlgorithm getSignatureAlgorithm() {
@@ -188,7 +187,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Sets signature algorithm
-     *
+     * 
      * @param alg signature algorithm
      */
     public void setSignatureAlgorithm(SignatureAlgorithm alg) {
@@ -197,7 +196,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Retrieves algorithm used to sign the root CA Cert.
-     *
+     * 
      * @return signature algorithm
      */
     public String getSignedBy() {
@@ -206,7 +205,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Sets signature algorithm used to sign root CA cert
-     *
+     * 
      * @param alg signature algorithm
      */
     public void setSignedBy(String alg) {
@@ -215,7 +214,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Retrieves signature algorithm.
-     *
+     * 
      * @return signature algorithm
      */
     public AlgorithmId getAlgorithmId() {
@@ -224,7 +223,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Sets algorithm identifier
-     *
+     * 
      * @param id signature algorithm
      */
     public void setAlgorithmId(AlgorithmId id) {
@@ -233,7 +232,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Retrieves serial number.
-     *
+     * 
      * @return serial number
      */
     public BigInteger getSerialNumber() {
@@ -242,7 +241,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Sets serial number.
-     *
+     * 
      * @param num serial number
      */
     public void setSerialNumber(BigInteger num) {
@@ -251,16 +250,16 @@ public class KeyCertData extends Properties {
 
     /**
      * Retrieves configuration file.
-     *
+     * 
      * @return configuration file
      */
     public IConfigStore getConfigFile() {
-        return (IConfigStore)(get("cmsFile"));
+        return (IConfigStore) (get("cmsFile"));
     }
 
     /**
      * Sets configuration file.
-     *
+     * 
      * @param file configuration file
      */
     public void setConfigFile(IConfigStore file) {
@@ -269,7 +268,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Retrieves begining year of validity.
-     *
+     * 
      * @return begining year
      */
     public String getBeginYear() {
@@ -278,7 +277,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Sets begining year of validity.
-     *
+     * 
      * @param year begining year
      */
     public void setBeginYear(String year) {
@@ -287,7 +286,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Retrieves ending year of validity.
-     *
+     * 
      * @return ending year
      */
     public String getAfterYear() {
@@ -296,7 +295,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Sets ending year of validity.
-     *
+     * 
      * @param year ending year
      */
     public void setAfterYear(String year) {
@@ -305,7 +304,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Retrieves begining month of validity.
-     *
+     * 
      * @return begining month
      */
     public String getBeginMonth() {
@@ -314,7 +313,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Sets begining month of validity.
-     *
+     * 
      * @param month begining month
      */
     public void setBeginMonth(String month) {
@@ -323,7 +322,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Retrieves ending month of validity.
-     *
+     * 
      * @return ending month
      */
     public String getAfterMonth() {
@@ -332,7 +331,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Sets ending month of validity.
-     *
+     * 
      * @param month ending month
      */
     public void setAfterMonth(String month) {
@@ -341,7 +340,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Retrieves begining date of validity.
-     *
+     * 
      * @return begining date
      */
     public String getBeginDate() {
@@ -350,7 +349,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Sets begining date of validity.
-     *
+     * 
      * @param date begining date
      */
     public void setBeginDate(String date) {
@@ -359,7 +358,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Retrieves ending date of validity.
-     *
+     * 
      * @return ending date
      */
     public String getAfterDate() {
@@ -368,7 +367,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Sets ending date of validity.
-     *
+     * 
      * @param date ending date
      */
     public void setAfterDate(String date) {
@@ -377,7 +376,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Retrieves starting hour of validity.
-     *
+     * 
      * @return starting hour
      */
     public String getBeginHour() {
@@ -386,7 +385,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Sets starting hour of validity.
-     *
+     * 
      * @param hour starting hour
      */
     public void setBeginHour(String hour) {
@@ -395,7 +394,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Retrieves ending hour of validity.
-     *
+     * 
      * @return ending hour
      */
     public String getAfterHour() {
@@ -404,7 +403,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Sets ending hour of validity.
-     *
+     * 
      * @param hour ending hour
      */
     public void setAfterHour(String hour) {
@@ -413,16 +412,16 @@ public class KeyCertData extends Properties {
 
     /**
      * Retrieves starting minute of validity.
-     *
+     * 
      * @return starting minute
      */
     public String getBeginMin() {
         return (String) get(Constants.PR_BEGIN_MIN);
     }
-  
+
     /**
      * Sets starting minute of validity.
-     *
+     * 
      * @param min starting minute
      */
     public void setBeginMin(String min) {
@@ -431,7 +430,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Retrieves ending minute of validity.
-     *
+     * 
      * @return ending minute
      */
     public String getAfterMin() {
@@ -440,7 +439,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Sets ending minute of validity.
-     *
+     * 
      * @param min ending minute
      */
     public void setAfterMin(String min) {
@@ -449,7 +448,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Retrieves starting second of validity.
-     *
+     * 
      * @return starting second
      */
     public String getBeginSec() {
@@ -458,7 +457,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Sets starting second of validity.
-     *
+     * 
      * @param sec starting second
      */
     public void setBeginSec(String sec) {
@@ -467,7 +466,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Retrieves ending second of validity.
-     *
+     * 
      * @return ending second
      */
     public String getAfterSec() {
@@ -476,7 +475,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Sets ending second of validity.
-     *
+     * 
      * @param sec ending second
      */
     public void setAfterSec(String sec) {
@@ -485,7 +484,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Retrieves CA key pair
-     *
+     * 
      * @return CA key pair
      */
     public KeyPair getCAKeyPair() {
@@ -494,7 +493,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Sets CA key pair
-     *
+     * 
      * @param keypair key pair
      */
     public void setCAKeyPair(KeyPair keypair) {
@@ -503,7 +502,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Retrieves extensions
-     *
+     * 
      * @return extensions
      */
     public String getDerExtension() {
@@ -512,7 +511,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Sets extensions
-     *
+     * 
      * @param ext extensions
      */
     public void setDerExtension(String ext) {
@@ -521,7 +520,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Retrieves isCA
-     *
+     * 
      * @return "true" if it is CA
      */
     public String isCA() {
@@ -530,7 +529,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Sets isCA
-     *
+     * 
      * @param ext "true" if it is CA
      */
     public void setCA(String ext) {
@@ -539,7 +538,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Retrieves key length
-     *
+     * 
      * @return certificate's key length
      */
     public String getCertLen() {
@@ -548,7 +547,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Sets key length
-     *
+     * 
      * @param len certificate's key length
      */
     public void setCertLen(String len) {
@@ -557,7 +556,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Retrieves SSL Client bit
-     *
+     * 
      * @return SSL Client bit
      */
     public String getSSLClientBit() {
@@ -566,7 +565,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Sets SSL Client bit
-     *
+     * 
      * @param sslClientBit SSL Client bit
      */
     public void setSSLClientBit(String sslClientBit) {
@@ -575,7 +574,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Retrieves SSL Server bit
-     *
+     * 
      * @return SSL Server bit
      */
     public String getSSLServerBit() {
@@ -584,7 +583,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Sets SSL Server bit
-     *
+     * 
      * @param sslServerBit SSL Server bit
      */
     public void setSSLServerBit(String sslServerBit) {
@@ -593,7 +592,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Retrieves SSL Mail bit
-     *
+     * 
      * @return SSL Mail bit
      */
     public String getSSLMailBit() {
@@ -602,7 +601,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Sets SSL Mail bit
-     *
+     * 
      * @param sslMailBit SSL Mail bit
      */
     public void setSSLMailBit(String sslMailBit) {
@@ -611,7 +610,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Retrieves SSL CA bit
-     *
+     * 
      * @return SSL CA bit
      */
     public String getSSLCABit() {
@@ -620,7 +619,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Sets SSL CA bit
-     *
+     * 
      * @param cabit SSL CA bit
      */
     public void setSSLCABit(String cabit) {
@@ -629,16 +628,16 @@ public class KeyCertData extends Properties {
 
     /**
      * Retrieves SSL Signing bit
-     *
+     * 
      * @return SSL Signing bit
      */
     public String getObjectSigningBit() {
         return (String) get(Constants.PR_OBJECT_SIGNING_BIT);
     }
 
-    /** 
+    /**
      * Retrieves Time Stamping bit
-     *
+     * 
      * @return Time Stamping bit
      */
     public String getTimeStampingBit() {
@@ -647,7 +646,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Sets SSL Signing bit
-     *
+     * 
      * @param objectSigningBit SSL Signing bit
      */
     public void setObjectSigningBit(String objectSigningBit) {
@@ -656,7 +655,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Retrieves SSL Mail CA bit
-     *
+     * 
      * @return SSL Mail CA bit
      */
     public String getMailCABit() {
@@ -665,7 +664,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Sets SSL Mail CA bit
-     *
+     * 
      * @param mailCABit SSL Mail CA bit
      */
     public void setMailCABit(String mailCABit) {
@@ -674,7 +673,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Retrieves SSL Object Signing bit
-     *
+     * 
      * @return SSL Object Signing bit
      */
     public String getObjectSigningCABit() {
@@ -683,7 +682,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Sets SSL Object Signing bit
-     *
+     * 
      * @param bit SSL Object Signing bit
      */
     public void setObjectSigningCABit(String bit) {
@@ -692,7 +691,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Retrieves OCSP Signing flag
-     *
+     * 
      * @return OCSP Signing flag
      */
     public String getOCSPSigning() {
@@ -701,7 +700,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Sets OCSP Signing flag
-     *
+     * 
      * @param aki OCSP Signing flag
      */
     public void setOCSPSigning(String aki) {
@@ -710,7 +709,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Retrieves OCSP No Check flag
-     *
+     * 
      * @return OCSP No Check flag
      */
     public String getOCSPNoCheck() {
@@ -719,7 +718,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Sets OCSP No Check flag
-     *
+     * 
      * @param noCheck OCSP No Check flag
      */
     public void setOCSPNoCheck(String noCheck) {
@@ -728,7 +727,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Retrieves Authority Information Access flag
-     *
+     * 
      * @return Authority Information Access flag
      */
     public String getAIA() {
@@ -737,7 +736,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Sets Authority Information Access flag
-     *
+     * 
      * @param aia Authority Information Access flag
      */
     public void setAIA(String aia) {
@@ -746,7 +745,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Retrieves Authority Key Identifier flag
-     *
+     * 
      * @return Authority Key Identifier flag
      */
     public String getAKI() {
@@ -755,7 +754,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Sets Authority Key Identifier flag
-     *
+     * 
      * @param aki Authority Key Identifier flag
      */
     public void setAKI(String aki) {
@@ -764,7 +763,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Retrieves Subject Key Identifier flag
-     *
+     * 
      * @return Subject Key Identifier flag
      */
     public String getSKI() {
@@ -773,7 +772,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Sets Subject Key Identifier flag
-     *
+     * 
      * @param ski Subject Key Identifier flag
      */
     public void setSKI(String ski) {
@@ -782,7 +781,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Retrieves key usage extension
-     *
+     * 
      * @return true if key usage extension set
      */
     public boolean getKeyUsageExtension() {
@@ -795,7 +794,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Sets CA extensions
-     *
+     * 
      * @param ext CA extensions
      */
     public void setCAExtensions(CertificateExtensions ext) {
@@ -804,7 +803,7 @@ public class KeyCertData extends Properties {
 
     /**
      * Retrieves CA extensions
-     *
+     * 
      * @return CA extensions
      */
     public CertificateExtensions getCAExtensions() {
@@ -813,11 +812,10 @@ public class KeyCertData extends Properties {
 
     /**
      * Retrieves hash type
-     *
+     * 
      * @return hash type
      */
     public String getHashType() {
         return (String) get(ConfigConstants.PR_HASH_TYPE);
     }
 }
-

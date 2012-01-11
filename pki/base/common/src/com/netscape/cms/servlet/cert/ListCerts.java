@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.cert;
 
-
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.PublicKey;
@@ -57,10 +56,9 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 
-
 /**
  * Retrieve a paged list of certs matching the specified query
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class ListCerts extends CMSServlet {
@@ -80,8 +78,8 @@ public class ListCerts extends CMSServlet {
     private ICertificateRepository mCertDB = null;
     private X500Name mAuthName = null;
     private String mFormPath = null;
-    private boolean  mReverse = false;
-    private boolean  mHardJumpTo = false; //jump to the end
+    private boolean mReverse = false;
+    private boolean mHardJumpTo = false; //jump to the end
     private String mDirection = null;
     private boolean mUseClientFilter = false;
     private Vector mAllowedClientFilters = new Vector();
@@ -97,7 +95,7 @@ public class ListCerts extends CMSServlet {
     /**
      * initialize the servlet. This servlet uses the template file
      * "queryCert.template" to render the response
-     *
+     * 
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -127,23 +125,23 @@ public class ListCerts extends CMSServlet {
            the client applications that submits raw LDAP
            filter into this servlet.  */
         if (sc.getInitParameter(USE_CLIENT_FILTER) != null &&
-              sc.getInitParameter(USE_CLIENT_FILTER).equalsIgnoreCase("true")) {            mUseClientFilter = true;
+                sc.getInitParameter(USE_CLIENT_FILTER).equalsIgnoreCase("true")) {
+            mUseClientFilter = true;
         }
         if (sc.getInitParameter(ALLOWED_CLIENT_FILTERS) == null || sc.getInitParameter(ALLOWED_CLIENT_FILTERS).equals("")) {
-             mAllowedClientFilters.addElement("(certStatus=*)");
-             mAllowedClientFilters.addElement("(certStatus=VALID)");
-             mAllowedClientFilters.addElement("(|(certStatus=VALID)(certStatus=INVALID)(certStatus=EXPIRED))");
-             mAllowedClientFilters.addElement("(|(certStatus=VALID)(certStatus=REVOKED))");
+            mAllowedClientFilters.addElement("(certStatus=*)");
+            mAllowedClientFilters.addElement("(certStatus=VALID)");
+            mAllowedClientFilters.addElement("(|(certStatus=VALID)(certStatus=INVALID)(certStatus=EXPIRED))");
+            mAllowedClientFilters.addElement("(|(certStatus=VALID)(certStatus=REVOKED))");
         } else {
             StringTokenizer st = new StringTokenizer(sc.getInitParameter(ALLOWED_CLIENT_FILTERS), ",");
             while (st.hasMoreTokens()) {
-              mAllowedClientFilters.addElement(st.nextToken());
+                mAllowedClientFilters.addElement(st.nextToken());
             }
         }
     }
 
-    public String buildFilter(HttpServletRequest req)
-    {
+    public String buildFilter(HttpServletRequest req) {
         String queryCertFilter = req.getParameter("queryCertFilter");
 
         com.netscape.certsrv.apps.CMS.debug("client queryCertFilter=" + queryCertFilter);
@@ -153,7 +151,7 @@ public class ListCerts extends CMSServlet {
             Enumeration filters = mAllowedClientFilters.elements();
             // check to see if the filter is allowed
             while (filters.hasMoreElements()) {
-                String filter = (String)filters.nextElement();
+                String filter = (String) filters.nextElement();
                 com.netscape.certsrv.apps.CMS.debug("Comparing filter=" + filter + " queryCertFilter=" + queryCertFilter);
                 if (filter.equals(queryCertFilter)) {
                     return queryCertFilter;
@@ -168,34 +166,33 @@ public class ListCerts extends CMSServlet {
         boolean skipRevoked = false;
         boolean skipNonValid = false;
         if (req.getParameter("skipRevoked") != null &&
-            req.getParameter("skipRevoked").equals("on")) {
+                req.getParameter("skipRevoked").equals("on")) {
             skipRevoked = true;
         }
         if (req.getParameter("skipNonValid") != null &&
-            req.getParameter("skipNonValid").equals("on")) {
+                req.getParameter("skipNonValid").equals("on")) {
             skipNonValid = true;
         }
 
         if (!skipRevoked && !skipNonValid) {
-            queryCertFilter = "(certStatus=*)"; 
-        } else if (skipRevoked && skipNonValid) { 
-            queryCertFilter = "(certStatus=VALID)"; 
-        } else if (skipRevoked) { 
-            queryCertFilter = "(|(certStatus=VALID)(certStatus=INVALID)(certStatus=EXPIRED))"; 
-        } else if (skipNonValid) { 
-            queryCertFilter = "(|(certStatus=VALID)(certStatus=REVOKED))"; 
+            queryCertFilter = "(certStatus=*)";
+        } else if (skipRevoked && skipNonValid) {
+            queryCertFilter = "(certStatus=VALID)";
+        } else if (skipRevoked) {
+            queryCertFilter = "(|(certStatus=VALID)(certStatus=INVALID)(certStatus=EXPIRED))";
+        } else if (skipNonValid) {
+            queryCertFilter = "(|(certStatus=VALID)(certStatus=REVOKED))";
         }
         return queryCertFilter;
     }
 
     /**
-     * Process the HTTP request. 
-	 * <ul>
-	 * <li>http.param maxCount Number of certificates to show
-     * <li>http.param queryFilter and ldap style filter specifying the
-     *         certificates to show
-     * <li>http.param querySentinelDown the serial number of the first certificate to show  (default decimal, or hex if prefixed with 0x) when paging down
-     * <li>http.param querySentinelUp the serial number of the first certificate to show  (default decimal, or hex if prefixed with 0x) when paging up
+     * Process the HTTP request.
+     * <ul>
+     * <li>http.param maxCount Number of certificates to show
+     * <li>http.param queryFilter and ldap style filter specifying the certificates to show
+     * <li>http.param querySentinelDown the serial number of the first certificate to show (default decimal, or hex if prefixed with 0x) when paging down
+     * <li>http.param querySentinelUp the serial number of the first certificate to show (default decimal, or hex if prefixed with 0x) when paging up
      * <li>http.param direction "up", "down", "begin", or "end"
      * </ul>
      */
@@ -234,24 +231,24 @@ public class ListCerts extends CMSServlet {
         try {
             form = getTemplate(mFormPath, req, locale);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, 
-                com.netscape.certsrv.apps.CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()));
+            log(ILogger.LL_FAILURE,
+                    com.netscape.certsrv.apps.CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()));
             throw new ECMSGWException(
-              com.netscape.certsrv.apps.CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+                    com.netscape.certsrv.apps.CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
 
-	mHardJumpTo = false;
+        mHardJumpTo = false;
         try {
 
-	    if (req.getParameter("direction") != null) {
-		mDirection = req.getParameter("direction").trim();
-		mReverse = mDirection.equals("up");
-		if (mReverse)
-		    com.netscape.certsrv.apps.CMS.debug("reverse is true");
-		else
-		    com.netscape.certsrv.apps.CMS.debug("reverse is false");
+            if (req.getParameter("direction") != null) {
+                mDirection = req.getParameter("direction").trim();
+                mReverse = mDirection.equals("up");
+                if (mReverse)
+                    com.netscape.certsrv.apps.CMS.debug("reverse is true");
+                else
+                    com.netscape.certsrv.apps.CMS.debug("reverse is false");
 
-	    }
+            }
 
             if (req.getParameter("maxCount") != null) {
                 maxCount = Integer.parseInt(req.getParameter("maxCount"));
@@ -261,19 +258,19 @@ public class ListCerts extends CMSServlet {
                 maxCount = mMaxReturns;
             }
 
-	    String sentinelStr = "";
-	    if (mReverse) {
-		sentinelStr = req.getParameter("querySentinelUp");
-	    } else if (mDirection.equals("end")) {
-		// this servlet will figure out the end
-		sentinelStr = "0";
-		mReverse = true;
-		mHardJumpTo = true;
-	    } else if (mDirection.equals("down")) {
-		 sentinelStr = req.getParameter("querySentinelDown");
-	    } else
-		sentinelStr = "0";
-	//begin and non-specified have sentinel default "0"
+            String sentinelStr = "";
+            if (mReverse) {
+                sentinelStr = req.getParameter("querySentinelUp");
+            } else if (mDirection.equals("end")) {
+                // this servlet will figure out the end
+                sentinelStr = "0";
+                mReverse = true;
+                mHardJumpTo = true;
+            } else if (mDirection.equals("down")) {
+                sentinelStr = req.getParameter("querySentinelDown");
+            } else
+                sentinelStr = "0";
+            //begin and non-specified have sentinel default "0"
 
             if (sentinelStr != null) {
                 if (sentinelStr.trim().startsWith("0x")) {
@@ -290,7 +287,7 @@ public class ListCerts extends CMSServlet {
 
                 //if (isCertFromCA(caCert))
                 header.addStringValue("caSerialNumber",
-                    caCert.getSerialNumber().toString(16));
+                        caCert.getSerialNumber().toString(16));
             }
 
             // constructs the ldap filter on the server side
@@ -300,7 +297,7 @@ public class ListCerts extends CMSServlet {
                 cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
                 return;
             }
- 
+
             com.netscape.certsrv.apps.CMS.debug("queryCertFilter=" + queryCertFilter);
 
             int totalRecordCount = -1;
@@ -309,16 +306,16 @@ public class ListCerts extends CMSServlet {
                 totalRecordCount = Integer.parseInt(req.getParameter("totalRecordCount"));
             } catch (Exception e) {
             }
-            processCertFilter(argSet, header, maxCount, 
-                  sentinel,
-                  totalRecordCount,
-                  req.getParameter("serialTo"), 
-                  queryCertFilter,
-                  req, resp, revokeAll, locale[0]);
+            processCertFilter(argSet, header, maxCount,
+                    sentinel,
+                    totalRecordCount,
+                    req.getParameter("serialTo"),
+                    queryCertFilter,
+                    req, resp, revokeAll, locale[0]);
         } catch (NumberFormatException e) {
             log(ILogger.LL_FAILURE, com.netscape.certsrv.apps.CMS.getLogMessage("BASE_INVALID_NUMBER_FORMAT"));
-				
-            error = new EBaseException(com.netscape.certsrv.apps.CMS.getUserMessage(getLocale(req),"CMS_BASE_INVALID_NUMBER_FORMAT"));
+
+            error = new EBaseException(com.netscape.certsrv.apps.CMS.getUserMessage(getLocale(req), "CMS_BASE_INVALID_NUMBER_FORMAT"));
         } catch (EBaseException e) {
             error = e;
         }
@@ -331,36 +328,36 @@ public class ListCerts extends CMSServlet {
             if (error == null) {
                 String xmlOutput = req.getParameter("xml");
                 if (xmlOutput != null && xmlOutput.equals("true")) {
-                  outputXML(resp, argSet);
+                    outputXML(resp, argSet);
                 } else {
-                  cmsReq.setStatus(CMSRequest.SUCCESS);
-                  resp.setContentType("text/html");
-                  form.renderOutput(out, argSet);
+                    cmsReq.setStatus(CMSRequest.SUCCESS);
+                    resp.setContentType("text/html");
+                    form.renderOutput(out, argSet);
                 }
             } else {
                 cmsReq.setStatus(CMSRequest.ERROR);
                 cmsReq.setError(error);
             }
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, 
-                com.netscape.certsrv.apps.CMS.getLogMessage("CMSGW_ERR_OUT_STREAM_TEMPLATE", e.toString()));
+            log(ILogger.LL_FAILURE,
+                    com.netscape.certsrv.apps.CMS.getLogMessage("CMSGW_ERR_OUT_STREAM_TEMPLATE", e.toString()));
             throw new ECMSGWException(
-              com.netscape.certsrv.apps.CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+                    com.netscape.certsrv.apps.CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
     }
 
-    private void processCertFilter(CMSTemplateParams argSet, 
-        IArgBlock header, 
-        int maxCount,
-        BigInteger sentinel,	
-        int totalRecordCount,	
-        String serialTo, 
-        String filter, 
-        HttpServletRequest req,
-        HttpServletResponse resp,
-        String revokeAll, 
-        Locale locale
-    ) throws EBaseException {
+    private void processCertFilter(CMSTemplateParams argSet,
+            IArgBlock header,
+            int maxCount,
+            BigInteger sentinel,
+            int totalRecordCount,
+            String serialTo,
+            String filter,
+            HttpServletRequest req,
+            HttpServletResponse resp,
+            String revokeAll,
+            Locale locale
+            ) throws EBaseException {
         BigInteger serialToVal = MINUS_ONE;
 
         try {
@@ -378,21 +375,21 @@ public class ListCerts extends CMSServlet {
         }
 
         String jumpTo = sentinel.toString();
-	int pSize = 0;
-	if (mReverse) {
-	    if (!mHardJumpTo) //reverse gets one more
-		pSize = -1*maxCount-1;
-	    else
-		pSize = -1*maxCount;
-	} else
-	    pSize = maxCount;
+        int pSize = 0;
+        if (mReverse) {
+            if (!mHardJumpTo) //reverse gets one more
+                pSize = -1 * maxCount - 1;
+            else
+                pSize = -1 * maxCount;
+        } else
+            pSize = maxCount;
 
         ICertRecordList list = (ICertRecordList) mCertDB.findCertRecordsInList(
-	       filter, (String[]) null, jumpTo, mHardJumpTo, "serialno",
-	       pSize);
+                filter, (String[]) null, jumpTo, mHardJumpTo, "serialno",
+                pSize);
         // retrive maxCount + 1 entries
 
-        Enumeration e = list.getCertRecords(0, maxCount); 
+        Enumeration e = list.getCertRecords(0, maxCount);
 
         ICertRecordList tolist = null;
         int toCurIndex = 0;
@@ -401,8 +398,8 @@ public class ListCerts extends CMSServlet {
             // if user specify a range, we need to 
             // calculate the totalRecordCount
             tolist = (ICertRecordList) mCertDB.findCertRecordsInList(
-                        filter, 
-                        (String[]) null, serialTo, 
+                        filter,
+                        (String[]) null, serialTo,
                         "serialno", maxCount);
             Enumeration en = tolist.getCertRecords(0, 0);
 
@@ -422,82 +419,82 @@ public class ListCerts extends CMSServlet {
                 }
             }
         }
-	
+
         int curIndex = list.getCurrentIndex();
 
         int count = 0;
-	BigInteger firstSerial = new BigInteger("0");
-	BigInteger curSerial = new BigInteger("0");
-	ICertRecord[] recs = new ICertRecord[maxCount];
-	int rcount = 0;
+        BigInteger firstSerial = new BigInteger("0");
+        BigInteger curSerial = new BigInteger("0");
+        ICertRecord[] recs = new ICertRecord[maxCount];
+        int rcount = 0;
 
         if (e != null) {
-	    /* in reverse (page up), because the sentinel is the one after the
-	     * last item to be displayed, we need to skip it
-	     */
-            while ((count < ((mReverse &&!mHardJumpTo)? (maxCount+1):maxCount)) && e.hasMoreElements()) {
+            /* in reverse (page up), because the sentinel is the one after the
+             * last item to be displayed, we need to skip it
+             */
+            while ((count < ((mReverse && !mHardJumpTo) ? (maxCount + 1) : maxCount)) && e.hasMoreElements()) {
                 ICertRecord rec = (ICertRecord) e.nextElement();
 
                 if (rec == null) {
-		com.netscape.certsrv.apps.CMS.debug("record "+count+" is null");
+                    com.netscape.certsrv.apps.CMS.debug("record " + count + " is null");
                     break;
-		}
+                }
                 curSerial = rec.getSerialNumber();
-		com.netscape.certsrv.apps.CMS.debug("record "+count+" is serial#"+curSerial);
+                com.netscape.certsrv.apps.CMS.debug("record " + count + " is serial#" + curSerial);
 
-		if (count == 0) {
-		    firstSerial = curSerial;
-		    if (mReverse && !mHardJumpTo) {//reverse got one more, skip
-			count++;
-			continue;
-		    }
-		}
+                if (count == 0) {
+                    firstSerial = curSerial;
+                    if (mReverse && !mHardJumpTo) {//reverse got one more, skip
+                        count++;
+                        continue;
+                    }
+                }
 
-                    // DS has a problem where last record will be returned
-                    // even though the filter is not matched. 
-		/*cfu -  is this necessary?  it breaks when paging up
-		if (curSerial.compareTo(sentinel) == -1) {
-			com.netscape.certsrv.apps.CMS.debug("curSerial compare sentinel -1 break...");
+                // DS has a problem where last record will be returned
+                // even though the filter is not matched. 
+                /*cfu -  is this necessary?  it breaks when paging up
+                if (curSerial.compareTo(sentinel) == -1) {
+                	com.netscape.certsrv.apps.CMS.debug("curSerial compare sentinel -1 break...");
 
-			break;
-		    }
-		*/
+                	break;
+                    }
+                */
                 if (!serialToVal.equals(MINUS_ONE)) {
                     // check if we go over the limit
                     if (curSerial.compareTo(serialToVal) == 1) {
-		com.netscape.certsrv.apps.CMS.debug("curSerial compare serialToVal 1 breaking...");
+                        com.netscape.certsrv.apps.CMS.debug("curSerial compare serialToVal 1 breaking...");
                         break;
-		    }
+                    }
                 }
 
-		if (mReverse) {
-		    recs[rcount++] = rec;
-		} else {
+                if (mReverse) {
+                    recs[rcount++] = rec;
+                } else {
 
-		    IArgBlock rarg = com.netscape.certsrv.apps.CMS.createArgBlock();
+                    IArgBlock rarg = com.netscape.certsrv.apps.CMS.createArgBlock();
 
-		    fillRecordIntoArg(rec, rarg);
-		    argSet.addRepeatRecord(rarg);
-		}
+                    fillRecordIntoArg(rec, rarg);
+                    argSet.addRepeatRecord(rarg);
+                }
                 count++;
             }
         } else {
             com.netscape.certsrv.apps.CMS.debug(
-                "ListCerts::processCertFilter() - no Cert Records found!" );
+                    "ListCerts::processCertFilter() - no Cert Records found!");
             return;
         }
 
-	if (mReverse) {
-	// fill records into arg block and argSet
-	for (int ii = rcount-1; ii>= 0; ii--) {
-	    if (recs[ii] != null) {
-                IArgBlock rarg = com.netscape.certsrv.apps.CMS.createArgBlock();
-		//com.netscape.certsrv.apps.CMS.debug("item "+ii+" is serial # "+ recs[ii].getSerialNumber());
-                fillRecordIntoArg(recs[ii], rarg);
-                argSet.addRepeatRecord(rarg);
-	    }
-	}
-	}
+        if (mReverse) {
+            // fill records into arg block and argSet
+            for (int ii = rcount - 1; ii >= 0; ii--) {
+                if (recs[ii] != null) {
+                    IArgBlock rarg = com.netscape.certsrv.apps.CMS.createArgBlock();
+                    //com.netscape.certsrv.apps.CMS.debug("item "+ii+" is serial # "+ recs[ii].getSerialNumber());
+                    fillRecordIntoArg(recs[ii], rarg);
+                    argSet.addRepeatRecord(rarg);
+                }
+            }
+        }
 
         // peek ahead
         ICertRecord nextRec = null;
@@ -521,58 +518,58 @@ public class ListCerts extends CMSServlet {
         if (totalRecordCount == -1) {
             if (!serialToVal.equals(MINUS_ONE)) {
                 totalRecordCount = toCurIndex - curIndex + 1;
-		com.netscape.certsrv.apps.CMS.debug("totalRecordCount="+totalRecordCount);
+                com.netscape.certsrv.apps.CMS.debug("totalRecordCount=" + totalRecordCount);
             } else {
-                totalRecordCount = list.getSize() - 
+                totalRecordCount = list.getSize() -
                         list.getCurrentIndex();
-		com.netscape.certsrv.apps.CMS.debug("totalRecordCount="+totalRecordCount);
+                com.netscape.certsrv.apps.CMS.debug("totalRecordCount=" + totalRecordCount);
             }
         }
 
         header.addIntegerValue("totalRecordCount", totalRecordCount);
-        header.addIntegerValue("currentRecordCount", list.getSize() - 
-            list.getCurrentIndex());
+        header.addIntegerValue("currentRecordCount", list.getSize() -
+                list.getCurrentIndex());
 
-	String qs = "";
-	if (mReverse)
-	    qs = "querySentinelUp";
-	else
-	    qs = "querySentinelDown";
+        String qs = "";
+        if (mReverse)
+            qs = "querySentinelUp";
+        else
+            qs = "querySentinelDown";
 
-	if (mHardJumpTo) {
-	  com.netscape.certsrv.apps.CMS.debug("curSerial added to querySentinelUp:"+ curSerial.toString());
+        if (mHardJumpTo) {
+            com.netscape.certsrv.apps.CMS.debug("curSerial added to querySentinelUp:" + curSerial.toString());
 
-	  header.addStringValue("querySentinelUp", curSerial.toString());
-	} else {
-        if (nextRec == null) {
-            header.addStringValue(qs, null);
-	    com.netscape.certsrv.apps.CMS.debug("nextRec is null");
-	    if (mReverse) {
-		com.netscape.certsrv.apps.CMS.debug("curSerial added to querySentinelUp:"+ curSerial.toString());
-
-		header.addStringValue("querySentinelUp", curSerial.toString());
-	    }
+            header.addStringValue("querySentinelUp", curSerial.toString());
         } else {
-            BigInteger nextRecNo = nextRec.getSerialNumber();
+            if (nextRec == null) {
+                header.addStringValue(qs, null);
+                com.netscape.certsrv.apps.CMS.debug("nextRec is null");
+                if (mReverse) {
+                    com.netscape.certsrv.apps.CMS.debug("curSerial added to querySentinelUp:" + curSerial.toString());
 
-            if (serialToVal.equals(MINUS_ONE)) {
-                header.addStringValue(
-                    qs, nextRecNo.toString());
-            } else {
-                if (nextRecNo.compareTo(serialToVal) <= 0) {
-                    header.addStringValue(
-                        qs, nextRecNo.toString());
-                } else {
-                    header.addStringValue(qs, 
-                        null);
+                    header.addStringValue("querySentinelUp", curSerial.toString());
                 }
-            }
-	    com.netscape.certsrv.apps.CMS.debug("querySentinel "+qs+" = "+nextRecNo.toString());
-        }
-	} // !mHardJumpto
+            } else {
+                BigInteger nextRecNo = nextRec.getSerialNumber();
 
-	header.addStringValue(!mReverse? "querySentinelUp":"querySentinelDown", 
-				  firstSerial.toString());
+                if (serialToVal.equals(MINUS_ONE)) {
+                    header.addStringValue(
+                            qs, nextRecNo.toString());
+                } else {
+                    if (nextRecNo.compareTo(serialToVal) <= 0) {
+                        header.addStringValue(
+                                qs, nextRecNo.toString());
+                    } else {
+                        header.addStringValue(qs,
+                                null);
+                    }
+                }
+                com.netscape.certsrv.apps.CMS.debug("querySentinel " + qs + " = " + nextRecNo.toString());
+            }
+        } // !mHardJumpto
+
+        header.addStringValue(!mReverse ? "querySentinelUp" : "querySentinelDown",
+                  firstSerial.toString());
 
     }
 
@@ -580,7 +577,7 @@ public class ListCerts extends CMSServlet {
      * Fills cert record into argument block.
      */
     private void fillRecordIntoArg(ICertRecord rec, IArgBlock rarg)
-        throws EBaseException {
+            throws EBaseException {
 
         X509CertImpl xcert = rec.getCertificate();
 
@@ -588,9 +585,9 @@ public class ListCerts extends CMSServlet {
             fillX509RecordIntoArg(rec, rarg);
         }
     }
-	
+
     private void fillX509RecordIntoArg(ICertRecord rec, IArgBlock rarg)
-        throws EBaseException {
+            throws EBaseException {
 
         X509CertImpl cert = rec.getCertificate();
 
@@ -633,12 +630,13 @@ public class ListCerts extends CMSServlet {
         rarg.addStringValue("signatureAlgorithm", cert.getSigAlgOID());
         String issuedBy = rec.getIssuedBy();
 
-        if (issuedBy == null) issuedBy = "";
+        if (issuedBy == null)
+            issuedBy = "";
         rarg.addStringValue("issuedBy", issuedBy); // cert.getIssuerDN().toString()
         rarg.addLongValue("issuedOn", rec.getCreateTime().getTime() / 1000);
 
         rarg.addStringValue("revokedBy",
-            ((rec.getRevokedBy() == null) ? "" : rec.getRevokedBy()));
+                ((rec.getRevokedBy() == null) ? "" : rec.getRevokedBy()));
         if (rec.getRevokedOn() == null) {
             rarg.addStringValue("revokedOn", null);
         } else {
@@ -667,4 +665,3 @@ public class ListCerts extends CMSServlet {
         }
     }
 }
-

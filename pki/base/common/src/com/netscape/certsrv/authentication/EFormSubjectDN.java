@@ -29,6 +29,7 @@ public class EFormSubjectDN extends EAuthException {
 
     /**
      * Constructs an Error on formulating the subject dn.
+     * 
      * @param errorString Detailed error message.
      */
     public EFormSubjectDN(String errorString) {

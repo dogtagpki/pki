@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.URLEncoder;
@@ -58,22 +57,23 @@ public class DonePanel extends WizardPanelBase {
     public static final BigInteger BIG_ZERO = new BigInteger("0");
     public static final Long MINUS_ONE = Long.valueOf(-1);
     public static final String RESTART_SERVER_AFTER_CONFIGURATION =
-        "restart_server_after_configuration";
+            "restart_server_after_configuration";
     public static final String PKI_SECURITY_DOMAIN = "pki_security_domain";
 
-    public DonePanel() {}
+    public DonePanel() {
+    }
 
     /**
      * Initializes this panel.
      */
-    public void init(ServletConfig config, int panelno) 
-        throws ServletException {
+    public void init(ServletConfig config, int panelno)
+            throws ServletException {
         setPanelNo(panelno);
         setName("Done");
     }
 
     public void init(WizardServlet servlet, ServletConfig config, int panelno, String id)
-        throws ServletException {
+            throws ServletException {
         setPanelNo(panelno);
         setName("Done");
         setId(id);
@@ -88,15 +88,14 @@ public class DonePanel extends WizardPanelBase {
 
     public PropertySet getUsage() {
         PropertySet set = new PropertySet();
-                                                                                
+
         /* XXX */
-                                                                                
+
         return set;
     }
 
     private LDAPConnection getLDAPConn(Context context)
-            throws IOException
-    {
+            throws IOException {
         IConfigStore cs = CMS.getConfigStore();
 
         String host = "";
@@ -112,8 +111,8 @@ public class DonePanel extends WizardPanelBase {
             pwd = pwdStore.getPassword("internaldb");
         }
 
-        if ( pwd == null) {
-           throw new IOException("DonePanel: Failed to obtain password from password store");
+        if (pwd == null) {
+            throw new IOException("DonePanel: Failed to obtain password from password store");
         }
 
         try {
@@ -138,11 +137,11 @@ public class DonePanel extends WizardPanelBase {
 
         LDAPConnection conn = null;
         if (security.equals("true")) {
-          CMS.debug("DonePanel getLDAPConn: creating secure (SSL) connection for internal ldap");
-          conn = new LDAPConnection(CMS.getLdapJssSSLSocketFactory());
+            CMS.debug("DonePanel getLDAPConn: creating secure (SSL) connection for internal ldap");
+            conn = new LDAPConnection(CMS.getLdapJssSSLSocketFactory());
         } else {
-          CMS.debug("DonePanel getLDAPConn: creating non-secure (non-SSL) connection for internal ldap");
-          conn = new LDAPConnection();
+            CMS.debug("DonePanel getLDAPConn: creating non-secure (non-SSL) connection for internal ldap");
+            conn = new LDAPConnection();
         }
 
         CMS.debug("DonePanel connecting to " + host + ":" + p);
@@ -153,9 +152,8 @@ public class DonePanel extends WizardPanelBase {
             throw new IOException("Failed to connect to the internal database.");
         }
 
-      return conn;
+        return conn;
     }
-
 
     /**
      * Display the panel.
@@ -193,31 +191,32 @@ public class DonePanel extends WizardPanelBase {
             instanceRoot = cs.getString("instanceRoot");
             select = cs.getString("preop.subsystem.select", "");
             systemdService = cs.getString("pkicreate.systemd.servicename", "");
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
 
         String initDaemon = "";
         if (type.equals("CA")) {
-			initDaemon = "pki-cad";
+            initDaemon = "pki-cad";
         } else if (type.equals("KRA")) {
-			initDaemon = "pki-krad";
+            initDaemon = "pki-krad";
         } else if (type.equals("OCSP")) {
-			initDaemon = "pki-ocspd";
+            initDaemon = "pki-ocspd";
         } else if (type.equals("TKS")) {
-			initDaemon = "pki-tksd";
+            initDaemon = "pki-tksd";
         }
-        String os = System.getProperty( "os.name" );
-        if( os.equalsIgnoreCase( "Linux" ) ) {
-            if (! systemdService.equals("")) {
-                context.put( "initCommand", "/bin/systemctl");
-                context.put( "instanceId", systemdService );
+        String os = System.getProperty("os.name");
+        if (os.equalsIgnoreCase("Linux")) {
+            if (!systemdService.equals("")) {
+                context.put("initCommand", "/bin/systemctl");
+                context.put("instanceId", systemdService);
             } else {
-                context.put( "initCommand", "/sbin/service " + initDaemon );
-                context.put( "instanceId", instanceId );
+                context.put("initCommand", "/sbin/service " + initDaemon);
+                context.put("instanceId", instanceId);
             }
         } else {
             /* default case:  e. g. - ( os.equalsIgnoreCase( "SunOS" ) */
-            context.put( "initCommand", "/etc/init.d/" + initDaemon );
-            context.put( "instanceId", instanceId );
+            context.put("initCommand", "/etc/init.d/" + initDaemon);
+            context.put("instanceId", instanceId);
         }
         context.put("title", "Done");
         context.put("panel", "admin/console/config/donepanel.vm");
@@ -233,7 +232,7 @@ public class DonePanel extends WizardPanelBase {
                 return;
             } else
                 context.put("csstate", "0");
-       
+
         } catch (Exception e) {
         }
 
@@ -280,11 +279,11 @@ public class DonePanel extends WizardPanelBase {
                 String basedn = cs.getString("internaldb.basedn");
                 String secdomain = cs.getString("securitydomain.name");
 
-                try {                
+                try {
                     // Create security domain ldap entry
                     String dn = "ou=Security Domain," + basedn;
                     CMS.debug("DonePanel: creating ldap entry : " + dn);
-                 
+
                     LDAPEntry entry = null;
                     LDAPAttributeSet attrs = null;
                     attrs = new LDAPAttributeSet();
@@ -305,10 +304,10 @@ public class DonePanel extends WizardPanelBase {
                     throw e;
                 }
 
-                try { 
+                try {
                     // create list containers
-                    String clist[] = {"CAList", "OCSPList", "KRAList", "RAList", "TKSList", "TPSList"};
-                    for (int i=0; i< clist.length; i++) {
+                    String clist[] = { "CAList", "OCSPList", "KRAList", "RAList", "TKSList", "TPSList" };
+                    for (int i = 0; i < clist.length; i++) {
                         LDAPEntry entry = null;
                         LDAPAttributeSet attrs = null;
                         String dn = "cn=" + clist[i] + ",ou=Security Domain," + basedn;
@@ -320,9 +319,9 @@ public class DonePanel extends WizardPanelBase {
                         conn.add(entry);
                     }
                 } catch (Exception e) {
-                    CMS.debug("Unable to create security domain list groups" );
+                    CMS.debug("Unable to create security domain list groups");
                     throw e;
-                }  
+                }
 
                 try {
                     // Add this host (only CA can create new domain) 
@@ -340,8 +339,8 @@ public class DonePanel extends WizardPanelBase {
                     attrs.add(new LDAPAttribute("SecureAdminPort",
                               ownadminsport));
                     if (owneeclientauthsport != null) {
-                        attrs.add(new LDAPAttribute("SecureEEClientAuthPort", 
-                              owneeclientauthsport));
+                        attrs.add(new LDAPAttribute("SecureEEClientAuthPort",
+                                owneeclientauthsport));
                     }
                     attrs.add(new LDAPAttribute("UnSecurePort", ownport));
                     attrs.add(new LDAPAttribute("Clone", "FALSE"));
@@ -357,28 +356,29 @@ public class DonePanel extends WizardPanelBase {
                 CMS.debug("DonePanel display: finish updating domain info");
                 conn.disconnect();
             } catch (Exception e) {
-                CMS.debug("DonePanel display: "+e.toString());
+                CMS.debug("DonePanel display: " + e.toString());
             }
 
             int sd_admin_port_int = -1;
             try {
-                sd_admin_port_int = Integer.parseInt( sd_admin_port );
+                sd_admin_port_int = Integer.parseInt(sd_admin_port);
             } catch (Exception e) {
             }
 
             try {
                 // Fetch the "new" security domain and display it
-                CMS.debug( "Dump contents of new Security Domain . . ." );
-                String c = getDomainXML( sd_host, sd_admin_port_int, true );
-            } catch( Exception e ) {}
+                CMS.debug("Dump contents of new Security Domain . . .");
+                String c = getDomainXML(sd_host, sd_admin_port_int, true);
+            } catch (Exception e) {
+            }
 
             // Since this instance is a new Security Domain,
             // create an empty file to designate this fact.
             String security_domain = instanceRoot + "/conf/"
                                    + PKI_SECURITY_DOMAIN;
-            if( !Utils.isNT() ) {
-                Utils.exec( "touch " + security_domain );
-                Utils.exec( "chmod 00660 " + security_domain );
+            if (!Utils.isNT()) {
+                Utils.exec("touch " + security_domain);
+                Utils.exec("chmod 00660 " + security_domain);
             }
 
         } else { //existing domain
@@ -398,31 +398,31 @@ public class DonePanel extends WizardPanelBase {
                     cloneStr = "&clone=false";
 
                 String domainMasterStr = "";
-                if (cloneMaster) 
+                if (cloneMaster)
                     domainMasterStr = "&dm=true";
-                else 
-                    domainMasterStr = "&dm=false"; 
+                else
+                    domainMasterStr = "&dm=false";
                 String eecaStr = "";
-                if (owneeclientauthsport != null) 
-                    eecaStr="&eeclientauthsport=" + owneeclientauthsport;
+                if (owneeclientauthsport != null)
+                    eecaStr = "&eeclientauthsport=" + owneeclientauthsport;
 
-                updateDomainXML( sd_host, sd_agent_port_int, true,
-                                 "/ca/agent/ca/updateDomainXML", 
+                updateDomainXML(sd_host, sd_agent_port_int, true,
+                                 "/ca/agent/ca/updateDomainXML",
                                  "list=" + s
-                               + "&type=" + type
-                               + "&host=" + ownhost
-                               + "&name=" + subsystemName
-                               + "&sport=" + ownsport
-                               + domainMasterStr 
-                               + cloneStr
-                               + "&agentsport=" + ownagentsport
-                               + "&adminsport=" + ownadminsport
-                               + eecaStr 
-                               + "&httpport=" + ownport );
+                                         + "&type=" + type
+                                         + "&host=" + ownhost
+                                         + "&name=" + subsystemName
+                                         + "&sport=" + ownsport
+                                         + domainMasterStr
+                                         + cloneStr
+                                         + "&agentsport=" + ownagentsport
+                                         + "&adminsport=" + ownadminsport
+                                         + eecaStr
+                                         + "&httpport=" + ownport);
 
                 // Fetch the "updated" security domain and display it
-                CMS.debug( "Dump contents of updated Security Domain . . ." );
-                String c = getDomainXML( sd_host, sd_admin_port_int, true );
+                CMS.debug("Dump contents of updated Security Domain . . .");
+                String c = getDomainXML(sd_host, sd_admin_port_int, true);
             } catch (Exception e) {
                 context.put("errorString", "Failed to update the security domain on the domain master.");
                 //return;
@@ -438,7 +438,6 @@ public class DonePanel extends WizardPanelBase {
         } catch (Exception e) {
             CMS.debug("DonePanel: exception in adding service.securityDomainPort to CS.cfg" + e);
         }
-
 
         // need to push connector information to the CA
         if (type.equals("KRA") && !ca_host.equals("")) {
@@ -469,7 +468,7 @@ public class DonePanel extends WizardPanelBase {
 
             setupClientAuthUser();
         }
-        
+
         if (!select.equals("clone")) {
             if (type.equals("CA") || type.equals("KRA")) {
                 String beginRequestNumStr = "";
@@ -478,7 +477,7 @@ public class DonePanel extends WizardPanelBase {
                 String endSerialNumStr = "";
                 String requestIncStr = "";
                 String serialIncStr = "";
-              
+
                 try {
                     endRequestNumStr = cs.getString("dbs.endRequestNumber", "");
                     endSerialNumStr = cs.getString("dbs.endSerialNumber", "");
@@ -495,22 +494,22 @@ public class DonePanel extends WizardPanelBase {
                         serialdn = "ou=certificateRepository,ou=" + type.toLowerCase() + "," + basedn;
                     } else {
                         serialdn = "ou=keyRepository,ou=" + type.toLowerCase() + "," + basedn;
-                    } 
-                    LDAPAttribute attrSerialNextRange = new LDAPAttribute( "nextRange", endSerialNum.add(oneNum).toString());
-                    LDAPModification serialmod = new LDAPModification( LDAPModification.REPLACE, attrSerialNextRange );
-                    conn.modify( serialdn, serialmod );
+                    }
+                    LDAPAttribute attrSerialNextRange = new LDAPAttribute("nextRange", endSerialNum.add(oneNum).toString());
+                    LDAPModification serialmod = new LDAPModification(LDAPModification.REPLACE, attrSerialNextRange);
+                    conn.modify(serialdn, serialmod);
 
                     String requestdn = "ou=" + type.toLowerCase() + ",ou=requests," + basedn;
-                    LDAPAttribute attrRequestNextRange = new LDAPAttribute( "nextRange", endRequestNum.add(oneNum).toString());
-                    LDAPModification requestmod = new LDAPModification( LDAPModification.REPLACE, attrRequestNextRange );
-                    conn.modify( requestdn, requestmod );      
+                    LDAPAttribute attrRequestNextRange = new LDAPAttribute("nextRange", endRequestNum.add(oneNum).toString());
+                    LDAPModification requestmod = new LDAPModification(LDAPModification.REPLACE, attrRequestNextRange);
+                    conn.modify(requestdn, requestmod);
 
-                    conn.disconnect();            
+                    conn.disconnect();
                 } catch (Exception e) {
                     CMS.debug("Unable to update global next range numbers: " + e);
-                } 
+                }
             }
-        } 
+        }
 
         if (cloneMaster) {
             // cloning a domain master CA, the clone is also master of its domain
@@ -550,24 +549,30 @@ public class DonePanel extends WizardPanelBase {
 
             // more cloning variables needed for non-ca clones
 
-            if (! type.equals("CA")) {
+            if (!type.equals("CA")) {
                 String val = cs.getString("preop.ca.hostname", "");
-                if (val.compareTo("") != 0) cs.putString("cloning.ca.hostname", val);
+                if (val.compareTo("") != 0)
+                    cs.putString("cloning.ca.hostname", val);
 
                 val = cs.getString("preop.ca.httpport", "");
-                if (val.compareTo("") != 0) cs.putString("cloning.ca.httpport", val);
+                if (val.compareTo("") != 0)
+                    cs.putString("cloning.ca.httpport", val);
 
-                val =  cs.getString("preop.ca.httpsport", "");
-                if (val.compareTo("") != 0) cs.putString("cloning.ca.httpsport", val);
+                val = cs.getString("preop.ca.httpsport", "");
+                if (val.compareTo("") != 0)
+                    cs.putString("cloning.ca.httpsport", val);
 
                 val = cs.getString("preop.ca.list", "");
-                if (val.compareTo("") != 0) cs.putString("cloning.ca.list", val);
+                if (val.compareTo("") != 0)
+                    cs.putString("cloning.ca.list", val);
 
                 val = cs.getString("preop.ca.pkcs7", "");
-                if (val.compareTo("") != 0) cs.putString("cloning.ca.pkcs7", val);
+                if (val.compareTo("") != 0)
+                    cs.putString("cloning.ca.pkcs7", val);
 
                 val = cs.getString("preop.ca.type", "");
-                if (val.compareTo("") != 0) cs.putString("cloning.ca.type", val);
+                if (val.compareTo("") != 0)
+                    cs.putString("cloning.ca.type", val);
             }
 
             // save EC type for sslserver cert (if present)
@@ -581,9 +586,9 @@ public class DonePanel extends WizardPanelBase {
             // been restarted!
             String restart_server = instanceRoot + "/conf/"
                                   + RESTART_SERVER_AFTER_CONFIGURATION;
-            if( !Utils.isNT() ) {
-                Utils.exec( "touch " + restart_server );
-                Utils.exec( "chmod 00660 " + restart_server );
+            if (!Utils.isNT()) {
+                Utils.exec("touch " + restart_server);
+                Utils.exec("chmod 00660 " + restart_server);
             }
 
         } catch (Exception e) {
@@ -593,13 +598,12 @@ public class DonePanel extends WizardPanelBase {
         context.put("csstate", "1");
     }
 
-    private void setupClientAuthUser()
-    {
+    private void setupClientAuthUser() {
         IConfigStore cs = CMS.getConfigStore();
 
         // retrieve CA subsystem certificate from the CA
         IUGSubsystem system =
-          (IUGSubsystem) (CMS.getSubsystem(IUGSubsystem.ID));
+                (IUGSubsystem) (CMS.getSubsystem(IUGSubsystem.ID));
         String id = "";
         try {
             String b64 = getCASubsystemCert();
@@ -640,9 +644,8 @@ public class DonePanel extends WizardPanelBase {
         }
     }
 
-
-    private void updateOCSPConfig(HttpServletResponse response) 
-      throws IOException {
+    private void updateOCSPConfig(HttpServletResponse response)
+            throws IOException {
         IConfigStore config = CMS.getConfigStore();
         String cahost = "";
         int caport = -1;
@@ -661,7 +664,7 @@ public class DonePanel extends WizardPanelBase {
         int ocspport = Integer.parseInt(CMS.getAgentPort());
         int ocspagentport = Integer.parseInt(CMS.getAgentPort());
         String session_id = CMS.getConfigSDSessionId();
-        String content = "xmlOutput=true&sessionID="+session_id+"&ocsp_host="+ocsphost+"&ocsp_port="+ocspport;
+        String content = "xmlOutput=true&sessionID=" + session_id + "&ocsp_host=" + ocsphost + "&ocsp_port=" + ocspport;
 
         updateOCSPConfig(cahost, caport, true, content, response);
     }
@@ -675,7 +678,7 @@ public class DonePanel extends WizardPanelBase {
 
             if (b64.equals(""))
                 throw new IOException("Failed to get certificate chain.");
-  
+
             try {
                 // this could be a chain
                 X509Certificate[] certs = Cert.mapCertFromPKCS7(b64);
@@ -686,9 +689,9 @@ public class DonePanel extends WizardPanelBase {
                     } else {
                         leafCert = certs[0];
                     }
- 
-                    IOCSPAuthority ocsp = 
-                      (IOCSPAuthority)CMS.getSubsystem(IOCSPAuthority.ID);
+
+                    IOCSPAuthority ocsp =
+                            (IOCSPAuthority) CMS.getSubsystem(IOCSPAuthority.ID);
                     IDefStore defStore = ocsp.getDefaultStore();
 
                     // (1) need to normalize (sort) the chain
@@ -696,9 +699,9 @@ public class DonePanel extends WizardPanelBase {
                     // (2) store certificate (and certificate chain) into
                     // database
                     ICRLIssuingPointRecord rec = defStore.createCRLIssuingPointRecord(
-                      leafCert.getSubjectDN().getName(),
-                      BIG_ZERO,
-                      MINUS_ONE, null, null);
+                            leafCert.getSubjectDN().getName(),
+                            BIG_ZERO,
+                            MINUS_ONE, null, null);
 
                     try {
                         rec.set(ICRLIssuingPointRecord.ATTR_CA_CERT, leafCert.getEncoded());
@@ -748,7 +751,7 @@ public class DonePanel extends WizardPanelBase {
     }
 
     private void updateConnectorInfo(String ownagenthost, String ownagentsport)
-      throws IOException {
+            throws IOException {
         IConfigStore cs = CMS.getConfigStore();
         int port = -1;
         String url = "";
@@ -757,21 +760,21 @@ public class DonePanel extends WizardPanelBase {
         try {
             url = cs.getString("preop.ca.url", "");
             if (!url.equals("")) {
-              host = cs.getString("preop.ca.hostname", "");
-              port = cs.getInteger("preop.ca.httpsadminport", -1);
-              transportCert = cs.getString("kra.transport.cert", "");
+                host = cs.getString("preop.ca.hostname", "");
+                port = cs.getInteger("preop.ca.httpsadminport", -1);
+                transportCert = cs.getString("kra.transport.cert", "");
             }
         } catch (Exception e) {
         }
 
         if (host == null) {
-          CMS.debug("DonePanel: preop.ca.url is not defined. External CA selected. No transport certificate setup is required");
+            CMS.debug("DonePanel: preop.ca.url is not defined. External CA selected. No transport certificate setup is required");
         } else {
-          CMS.debug("DonePanel: Transport certificate is being setup in " + url);
-          String session_id = CMS.getConfigSDSessionId();
-          String content = "ca.connector.KRA.enable=true&ca.connector.KRA.local=false&ca.connector.KRA.timeout=30&ca.connector.KRA.uri=/kra/agent/kra/connector&ca.connector.KRA.host="+ownagenthost+"&ca.connector.KRA.port="+ownagentsport+"&ca.connector.KRA.transportCert="+URLEncoder.encode(transportCert)+"&sessionID="+session_id; 
+            CMS.debug("DonePanel: Transport certificate is being setup in " + url);
+            String session_id = CMS.getConfigSDSessionId();
+            String content = "ca.connector.KRA.enable=true&ca.connector.KRA.local=false&ca.connector.KRA.timeout=30&ca.connector.KRA.uri=/kra/agent/kra/connector&ca.connector.KRA.host=" + ownagenthost + "&ca.connector.KRA.port=" + ownagentsport + "&ca.connector.KRA.transportCert=" + URLEncoder.encode(transportCert) + "&sessionID=" + session_id;
 
-          updateConnectorInfo(host, port, true, content);
+            updateConnectorInfo(host, port, true, content);
         }
     }
 
@@ -802,12 +805,14 @@ public class DonePanel extends WizardPanelBase {
      */
     public void update(HttpServletRequest request,
             HttpServletResponse response,
-            Context context) throws IOException {}
+            Context context) throws IOException {
+    }
 
     /**
      * If validiate() returns false, this method will be called.
      */
     public void displayError(HttpServletRequest request,
             HttpServletResponse response,
-            Context context) {/* This should never be called */}
+            Context context) {/* This should never be called */
+    }
 }

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.policy.extensions;
 
-
 import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.util.Locale;
@@ -40,31 +39,29 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cms.policy.APolicyRule;
 
-
 /**
  * Policy Constraints Extension Policy
- * Adds the policy constraints extension to (CA) certificates. 
+ * Adds the policy constraints extension to (CA) certificates.
  * Filtering of CA certificates is done through predicates.
  * <P>
+ * 
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- *
+ * 
  * @deprecated
  * @version $Revision$, $Date$
  */
 public class PolicyConstraintsExt extends APolicyRule
-    implements IEnrollmentPolicy, IExtendedPluginInfo {
+        implements IEnrollmentPolicy, IExtendedPluginInfo {
     protected static final String PROP_CRITICAL = "critical";
-    protected static final String 
-        PROP_REQ_EXPLICIT_POLICY = "reqExplicitPolicy";
-    protected static final String 
-        PROP_INHIBIT_POLICY_MAPPING = "inhibitPolicyMapping";
+    protected static final String PROP_REQ_EXPLICIT_POLICY = "reqExplicitPolicy";
+    protected static final String PROP_INHIBIT_POLICY_MAPPING = "inhibitPolicyMapping";
 
     protected static final boolean DEF_CRITICAL = false;
-    protected static final int DEF_REQ_EXPLICIT_POLICY = -1; 	// not set
-    protected static final int DEF_INHIBIT_POLICY_MAPPING = -1;	// not set
+    protected static final int DEF_REQ_EXPLICIT_POLICY = -1; // not set
+    protected static final int DEF_INHIBIT_POLICY_MAPPING = -1; // not set
 
     protected boolean mEnabled = false;
     protected IConfigStore mConfig = null;
@@ -80,9 +77,9 @@ public class PolicyConstraintsExt extends APolicyRule
     static {
         mDefaultParams.addElement(PROP_CRITICAL + "=" + DEF_CRITICAL);
         mDefaultParams.addElement(
-            PROP_REQ_EXPLICIT_POLICY + "=" + DEF_REQ_EXPLICIT_POLICY);
+                PROP_REQ_EXPLICIT_POLICY + "=" + DEF_REQ_EXPLICIT_POLICY);
         mDefaultParams.addElement(
-            PROP_INHIBIT_POLICY_MAPPING + "=" + DEF_INHIBIT_POLICY_MAPPING);
+                PROP_INHIBIT_POLICY_MAPPING + "=" + DEF_INHIBIT_POLICY_MAPPING);
     }
 
     public PolicyConstraintsExt() {
@@ -93,37 +90,35 @@ public class PolicyConstraintsExt extends APolicyRule
     /**
      * Initializes this policy rule.
      * <P>
-     *
+     * 
      * The entries may be of the form:
-     *
-     *      ca.Policy.rule.<ruleName>.predicate=certType==ca
-     *      ca.Policy.rule.<ruleName>.implName=
-     *      ca.Policy.rule.<ruleName>.enable=true
-     *
-     * @param config	The config store reference
+     * 
+     * ca.Policy.rule.<ruleName>.predicate=certType==ca ca.Policy.rule.<ruleName>.implName= ca.Policy.rule.<ruleName>.enable=true
+     * 
+     * @param config The config store reference
      */
     public void init(ISubsystem owner, IConfigStore config)
-        throws EBaseException {
+            throws EBaseException {
         mConfig = config;
 
         // XXX should do do this ? 
         // if CA does not allow subordinate CAs by way of basic constraints, 
         // this policy always rejects 
         /*****
-         ICertAuthority certAuthority = (ICertAuthority)
-         ((GenericPolicyProcessor)owner).mAuthority;
-         if (certAuthority instanceof ICertificateAuthority) {
-         CertificateChain caChain = certAuthority.getCACertChain();
-         X509Certificate caCert = null;
-         // Note that in RA the chain could be null if CA was not up when
-         // RA was started. In that case just set the length to -1 and let
-         // CA reject if it does not allow any subordinate CA certs.
-         if (caChain != null) {
-         caCert = caChain.getFirstCertificate();
-         if (caCert != null) 
-         mCAPathLen = caCert.getBasicConstraints();
-         }
-         }
+         * ICertAuthority certAuthority = (ICertAuthority)
+         * ((GenericPolicyProcessor)owner).mAuthority;
+         * if (certAuthority instanceof ICertificateAuthority) {
+         * CertificateChain caChain = certAuthority.getCACertChain();
+         * X509Certificate caCert = null;
+         * // Note that in RA the chain could be null if CA was not up when
+         * // RA was started. In that case just set the length to -1 and let
+         * // CA reject if it does not allow any subordinate CA certs.
+         * if (caChain != null) {
+         * caCert = caChain.getFirstCertificate();
+         * if (caCert != null)
+         * mCAPathLen = caCert.getBasicConstraints();
+         * }
+         * }
          ****/
 
         mEnabled = mConfig.getBoolean(
@@ -135,42 +130,42 @@ public class PolicyConstraintsExt extends APolicyRule
         mInhibitPolicyMapping = mConfig.getInteger(
                     PROP_INHIBIT_POLICY_MAPPING, DEF_INHIBIT_POLICY_MAPPING);
 
-        if (mReqExplicitPolicy < -1) 
+        if (mReqExplicitPolicy < -1)
             mReqExplicitPolicy = -1;
-        if (mInhibitPolicyMapping < -1) 
+        if (mInhibitPolicyMapping < -1)
             mInhibitPolicyMapping = -1;
-		
-            // create instance of policy constraings extension 
+
+        // create instance of policy constraings extension 
         try {
-            mPolicyConstraintsExtension = 
-                    new PolicyConstraintsExtension(mCritical, 
-                        mReqExplicitPolicy, mInhibitPolicyMapping);
+            mPolicyConstraintsExtension =
+                    new PolicyConstraintsExtension(mCritical,
+                            mReqExplicitPolicy, mInhibitPolicyMapping);
             CMS.debug(
-                "PolicyConstraintsExt: Created Policy Constraints Extension: " +
-                mPolicyConstraintsExtension);
+                    "PolicyConstraintsExt: Created Policy Constraints Extension: " +
+                            mPolicyConstraintsExtension);
         } catch (IOException e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("POLICY_ERROR_CANT_INIT_POLICY_CONST_EXT", e.toString()));
+                    CMS.getLogMessage("POLICY_ERROR_CANT_INIT_POLICY_CONST_EXT", e.toString()));
             throw new EBaseException(
                     CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR",
-                        "Could not init Policy Constraints Extension. Error: " + e));
+                            "Could not init Policy Constraints Extension. Error: " + e));
         }
 
         // form instance params 
         mInstanceParams.addElement(PROP_CRITICAL + "=" + mCritical);
         mInstanceParams.addElement(
-            PROP_REQ_EXPLICIT_POLICY + "=" + mReqExplicitPolicy);
+                PROP_REQ_EXPLICIT_POLICY + "=" + mReqExplicitPolicy);
         mInstanceParams.addElement(
-            PROP_INHIBIT_POLICY_MAPPING + "=" + mInhibitPolicyMapping);
+                PROP_INHIBIT_POLICY_MAPPING + "=" + mInhibitPolicyMapping);
     }
 
     /**
      * Adds Policy Constraints Extension to a (CA) certificate.
      * 
-     * If a Policy constraints Extension is already there, accept it if 
+     * If a Policy constraints Extension is already there, accept it if
      * it's been approved by agent, else replace it.
-     *
-     * @param req	The request on which to apply policy.
+     * 
+     * @param req The request on which to apply policy.
      * @return The policy result object.
      */
     public PolicyResult apply(IRequest req) {
@@ -181,12 +176,12 @@ public class PolicyConstraintsExt extends APolicyRule
         }
 
         // get certInfo from request.
-        X509CertInfo[] ci = 
-            req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
+        X509CertInfo[] ci =
+                req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
 
         if (ci == null || ci[0] == null) {
             setError(req, CMS.getUserMessage("CMS_POLICY_NO_CERT_INFO"), NAME);
-            return PolicyResult.REJECTED; 
+            return PolicyResult.REJECTED;
         }
 
         for (int i = 0; i < ci.length; i++) {
@@ -206,7 +201,7 @@ public class PolicyConstraintsExt extends APolicyRule
         try {
             PolicyConstraintsExtension policyConstraintsExt = null;
             CertificateExtensions extensions = (CertificateExtensions)
-                certInfo.get(X509CertInfo.EXTENSIONS);
+                    certInfo.get(X509CertInfo.EXTENSIONS);
 
             try {
                 if (extensions != null) {
@@ -227,55 +222,55 @@ public class PolicyConstraintsExt extends APolicyRule
 
             if (extensions == null) {
                 certInfo.set(X509CertInfo.VERSION,
-                    new CertificateVersion(CertificateVersion.V3));
+                        new CertificateVersion(CertificateVersion.V3));
                 extensions = new CertificateExtensions();
                 certInfo.set(X509CertInfo.EXTENSIONS, extensions);
             }
             extensions.set(
-                "PolicyConstriantsExt", mPolicyConstraintsExtension);
+                    "PolicyConstriantsExt", mPolicyConstraintsExtension);
             CMS.debug("PolicyConstraintsExt: added our policy constraints extension");
             return PolicyResult.ACCEPTED;
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("POLICY_ERROR_CANT_PROCESS_POLICY_CONST_EXT", e.toString()));
-            setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"), 
-                NAME, e.getMessage());
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("POLICY_ERROR_CANT_PROCESS_POLICY_CONST_EXT", e.toString()));
+            setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"),
+                    NAME, e.getMessage());
             return PolicyResult.REJECTED;
         } catch (CertificateException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CA_CERT_INFO_ERROR", e.toString()));
-            setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"), 
-                NAME, "Certificate Info Error");
+            setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"),
+                    NAME, "Certificate Info Error");
             return PolicyResult.REJECTED;
         }
     }
 
     /**
      * Return configured parameters for a policy rule instance.
-     *
+     * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getInstanceParams() { 
+    public Vector getInstanceParams() {
         return mInstanceParams;
     }
 
     /**
      * Return default parameters for a policy implementation.
-     *
+     * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getDefaultParams() { 
+    public Vector getDefaultParams() {
         return mDefaultParams;
     }
 
     /**
-     * gets plugin info for pretty console edit displays. 
+     * gets plugin info for pretty console edit displays.
      */
     public String[] getExtendedPluginInfo(Locale locale) {
         mInstanceParams.addElement(PROP_CRITICAL + "=" + mCritical);
         mInstanceParams.addElement(
-            PROP_REQ_EXPLICIT_POLICY + "=" + mReqExplicitPolicy);
+                PROP_REQ_EXPLICIT_POLICY + "=" + mReqExplicitPolicy);
         mInstanceParams.addElement(
-            PROP_INHIBIT_POLICY_MAPPING + "=" + mInhibitPolicyMapping);
+                PROP_INHIBIT_POLICY_MAPPING + "=" + mInhibitPolicyMapping);
 
         String[] params = {
                 PROP_CRITICAL + ";boolean;RFC 2459 recommendation: may be critical or non-critical.",
@@ -287,4 +282,3 @@ public class PolicyConstraintsExt extends APolicyRule
         return params;
     }
 }
-

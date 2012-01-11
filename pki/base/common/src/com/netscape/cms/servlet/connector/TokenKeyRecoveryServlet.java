@@ -39,12 +39,11 @@ import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 
-
 /**
  * TokenKeyRecoveryServlet
- *   handles "key recovery service" requests from the
+ * handles "key recovery service" requests from the
  * netkey TPS
- *
+ * 
  * @author Christina Fu (cfu)
  * @version $Revision$, $Date$
  */
@@ -65,7 +64,7 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
 
     /**
      * Constructs TokenKeyRecovery servlet.
-     *
+     * 
      */
     public TokenKeyRecoveryServlet() {
         super();
@@ -79,25 +78,25 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
         if (authority != null)
             mAuthority = (IAuthority)
                     CMS.getSubsystem(authority);
-        
+
         mAuthSubsystem = (IAuthSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);
     }
 
     /**
      * Returns serlvet information.
-     *
+     * 
      * @return name of this servlet
      */
-    public String getServletInfo() { 
-        return INFO; 
+    public String getServletInfo() {
+        return INFO;
     }
 
-   /**
+    /**
      * Process the HTTP request.
-     *
+     * 
      * @param s The URL to decode
      */
-     protected String URLdecode(String s) {
+    protected String URLdecode(String s) {
         if (s == null)
             return null;
         ByteArrayOutputStream out = new ByteArrayOutputStream(s.length());
@@ -117,7 +116,7 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
             }
         } // end for
         return out.toString();
-     }
+    }
 
     /*
      * processTokenKeyRecovery
@@ -144,12 +143,11 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
      *   desKey-wrapped-userPrivateKey=value2
      */
     private void processTokenKeyRecovery(HttpServletRequest req,
-      HttpServletResponse resp) throws EBaseException
-    {
+            HttpServletResponse resp) throws EBaseException {
         IRequestQueue queue = mAuthority.getRequestQueue();
         IRequest thisreq = null;
-        
-	//        IConfigStore sconfig = CMS.getConfigStore();
+
+        //        IConfigStore sconfig = CMS.getConfigStore();
         boolean missingParam = false;
         String status = "0";
 
@@ -158,7 +156,7 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
         String rCUID = req.getParameter("CUID");
         String rUserid = req.getParameter("userid");
         String rdesKeyString = req.getParameter("drm_trans_desKey");
-	String rCert = req.getParameter("cert");
+        String rCert = req.getParameter("cert");
 
         if ((rCUID == null) || (rCUID.equals(""))) {
             CMS.debug("TokenKeyRecoveryServlet: processTokenKeyRecovery(): missing request parameter: CUID");
@@ -171,7 +169,7 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
         }
 
         if ((rdesKeyString == null) ||
-            (rdesKeyString.equals(""))) {
+                (rdesKeyString.equals(""))) {
             CMS.debug("TokenKeyRecoveryServlet: processTokenKeyRecovery(): missing request parameter: DRM-transportKey-wrapped des key");
             missingParam = true;
         }
@@ -192,18 +190,18 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
             thisreq.setExtData(IRequest.NETKEY_ATTR_DRMTRANS_DES_KEY, rdesKeyString);
             thisreq.setExtData(IRequest.NETKEY_ATTR_USER_CERT, rCert);
 
-	    //XXX auto process for netkey
-	    queue.processRequest( thisreq );
-	    //	    IService svc = (IService) new TokenKeyRecoveryService(kra);
-	    //	    svc.serviceRequest(thisreq);
+            //XXX auto process for netkey
+            queue.processRequest(thisreq);
+            //	    IService svc = (IService) new TokenKeyRecoveryService(kra);
+            //	    svc.serviceRequest(thisreq);
 
             Integer result = thisreq.getExtDataInInteger(IRequest.RESULT);
             if (result != null) {
-		// sighs!  tps thinks 0 is good, and drm thinks 1 is good
-		if (result.intValue() == 1)
-		    status ="0";
-		else
-		    status = result.toString();
+                // sighs!  tps thinks 0 is good, and drm thinks 1 is good
+                if (result.intValue() == 1)
+                    status = "0";
+                else
+                    status = result.toString();
             } else
                 status = "7";
 
@@ -218,25 +216,25 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
         String wrappedPrivKeyString = "";
         String publicKeyString = "";
         String ivString = "";
-	/* if is RECOVERY_PROTOTYPE
-        String recoveryBlobString = "";
+        /* if is RECOVERY_PROTOTYPE
+            String recoveryBlobString = "";
 
-        IKeyRecord kr = (IKeyRecord) thisreq.get("keyRecord");
-        byte publicKey_b[] = kr.getPublicKeyData();
+            IKeyRecord kr = (IKeyRecord) thisreq.get("keyRecord");
+            byte publicKey_b[] = kr.getPublicKeyData();
 
-        BigInteger serialNo = kr.getSerialNumber();
+            BigInteger serialNo = kr.getSerialNumber();
 
-        String serialNumberString =
-            com.netscape.cmsutil.util.Utils.SpecialEncode(serialNo.toByteArray());
+            String serialNumberString =
+                com.netscape.cmsutil.util.Utils.SpecialEncode(serialNo.toByteArray());
 
-        recoveryBlobString = (String)
-            thisreq.get("recoveryBlob");
-	*/
+            recoveryBlobString = (String)
+                thisreq.get("recoveryBlob");
+        */
 
-        if( thisreq == null ) {
-            CMS.debug( "TokenKeyRecoveryServlet::processTokenKeyRecovery() - "
-                     + "thisreq is null!" );
-            throw new EBaseException( "thisreq is null" );
+        if (thisreq == null) {
+            CMS.debug("TokenKeyRecoveryServlet::processTokenKeyRecovery() - "
+                     + "thisreq is null!");
+            throw new EBaseException("thisreq is null");
         }
 
         publicKeyString = thisreq.getExtDataInString("public_key");
@@ -247,8 +245,8 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
           if (selectedToken == null)
           status = "4";
         */
-        if (!status.equals("0")) 
-            value = "status="+status;
+        if (!status.equals("0"))
+            value = "status=" + status;
         else {
             StringBuffer sb = new StringBuffer();
             sb.append("status=0&");
@@ -259,13 +257,13 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
             sb.append("&iv_param=");
             sb.append(ivString);
             value = sb.toString();
-            
-        }
-        CMS.debug("ProcessTokenKeyRecovery:outputString.encode " +value);
 
-        try{
+        }
+        CMS.debug("ProcessTokenKeyRecovery:outputString.encode " + value);
+
+        try {
             resp.setContentLength(value.length());
-            CMS.debug("TokenKeyRecoveryServlet:outputString.length " +value.length());
+            CMS.debug("TokenKeyRecoveryServlet:outputString.length " + value.length());
             OutputStream ooss = resp.getOutputStream();
             ooss.write(value.getBytes());
             ooss.flush();
@@ -274,7 +272,6 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
             CMS.debug("TokenKeyRecoveryServlet: " + e.toString());
         }
     }
-
 
     /* 
      *   For TokenKeyRecovery
@@ -305,7 +302,7 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
 
         if (authzToken == null) {
 
-            try{
+            try {
                 resp.setContentType("text/html");
                 String value = "unauthorized=";
                 CMS.debug("TokenKeyRecoveryServlet: Unauthorized");
@@ -315,7 +312,7 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
                 ooss.write(value.getBytes());
                 ooss.flush();
                 mRenderResult = false;
-            }catch (Exception e) {
+            } catch (Exception e) {
                 CMS.debug("TokenKeyRecoveryServlet: " + e.toString());
             }
 
@@ -324,28 +321,28 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
         }
 
         // begin Netkey serverSideKeyGen and archival
-	CMS.debug("TokenKeyRecoveryServlet: processTokenKeyRecovery would be called");
-	processTokenKeyRecovery(req, resp);
-	return;
+        CMS.debug("TokenKeyRecoveryServlet: processTokenKeyRecovery would be called");
+        processTokenKeyRecovery(req, resp);
+        return;
         // end Netkey functions
 
     }
 
-    /** XXX remember to check peer SSL cert and get RA id later
-     *
+    /**
+     * XXX remember to check peer SSL cert and get RA id later
+     * 
      * Serves HTTP admin request.
-     *
+     * 
      * @param req HTTP request
      * @param resp HTTP response
      */
     public void service(HttpServletRequest req, HttpServletResponse resp)
-        throws ServletException, IOException {
+            throws ServletException, IOException {
         String scope = req.getParameter(Constants.OP_SCOPE);
         String op = req.getParameter(Constants.OP_TYPE);
 
-       super.service(req, resp);
+        super.service(req, resp);
 
- 
     }
 
 }

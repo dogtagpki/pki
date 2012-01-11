@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.extensions;
 
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -31,7 +30,6 @@ import netscape.security.util.ObjectIdentifier;
 import netscape.security.x509.CertAttrSet;
 import netscape.security.x509.Extension;
 import netscape.security.x509.OIDMap;
-
 
 /**
  * This represents the extended key usage extension.
@@ -47,15 +45,15 @@ public class ExtendedKeyUsageExtension extends Extension implements CertAttrSet 
     public static final String OID_OCSPSigning = "1.3.6.1.5.5.7.3.9";
     public static final String OID_CODESigning = "1.3.6.1.5.5.7.3.3";
 
-    public static final int OID_OCSP_SIGNING_STR[] = 
+    public static final int OID_OCSP_SIGNING_STR[] =
         { 1, 3, 6, 1, 5, 5, 7, 3, 9 };
     public static final ObjectIdentifier OID_OCSP_SIGNING = new
-        ObjectIdentifier(OID_OCSP_SIGNING_STR);
+            ObjectIdentifier(OID_OCSP_SIGNING_STR);
 
-    public static final int OID_CODE_SIGNING_STR[] = 
+    public static final int OID_CODE_SIGNING_STR[] =
         { 1, 3, 6, 1, 5, 5, 7, 3, 3 };
     public static final ObjectIdentifier OID_CODE_SIGNING = new
-        ObjectIdentifier(OID_OCSP_SIGNING_STR);
+            ObjectIdentifier(OID_OCSP_SIGNING_STR);
 
     private Vector oidSet = null;
     private byte mCached[] = null;
@@ -63,7 +61,7 @@ public class ExtendedKeyUsageExtension extends Extension implements CertAttrSet 
     static {
         try {
             OIDMap.addAttribute(ExtendedKeyUsageExtension.class.getName(),
-                OID, NAME);
+                    OID, NAME);
         } catch (CertificateException e) {
         }
     }
@@ -75,7 +73,7 @@ public class ExtendedKeyUsageExtension extends Extension implements CertAttrSet 
     public ExtendedKeyUsageExtension(boolean crit, Vector oids) {
         try {
             extensionId = ObjectIdentifier.getObjectIdentifier(OID);
-        } catch (IOException e) {	
+        } catch (IOException e) {
             // never here
         }
         critical = crit;
@@ -87,8 +85,8 @@ public class ExtendedKeyUsageExtension extends Extension implements CertAttrSet 
         encodeExtValue();
     }
 
-    public ExtendedKeyUsageExtension(Boolean crit, Object byteVal) 
-        throws IOException {
+    public ExtendedKeyUsageExtension(Boolean crit, Object byteVal)
+            throws IOException {
         extensionId = ObjectIdentifier.getObjectIdentifier(OID);
         critical = crit.booleanValue();
         extensionValue = (byte[]) ((byte[]) byteVal).clone();
@@ -101,7 +99,7 @@ public class ExtendedKeyUsageExtension extends Extension implements CertAttrSet 
             mCached = null;
         }
     }
-    
+
     public Enumeration getOIDs() {
         if (oidSet == null)
             return null;
@@ -110,24 +108,25 @@ public class ExtendedKeyUsageExtension extends Extension implements CertAttrSet 
 
     public void deleteAllOIDs() {
         if (oidSet == null)
-		return;
-	oidSet.clear();
+            return;
+        oidSet.clear();
     }
 
     public void addOID(ObjectIdentifier oid) {
         if (oidSet == null) {
             oidSet = new Vector();
         }
-        
-        if (oidSet.contains(oid)) return;
+
+        if (oidSet.contains(oid))
+            return;
         oidSet.addElement(oid);
         mCached = null;
     }
-         
+
     public void encode(DerOutputStream out) throws IOException {
         if (mCached == null) {
             encodeExtValue();
-            super.encode(out);  
+            super.encode(out);
             mCached = out.toByteArray();
         }
     }
@@ -144,17 +143,17 @@ public class ExtendedKeyUsageExtension extends Extension implements CertAttrSet 
             for (int i = 0; i < extensionValue.length; i++) {
                 extByteValue += (extensionValue[i] + " ");
             }
-            presentation += extByteValue;    
+            presentation += extByteValue;
         }
         return presentation;
     }
 
-    public void decode(InputStream in) 
-        throws CertificateException, IOException {
+    public void decode(InputStream in)
+            throws CertificateException, IOException {
     }
 
-    public void encode(OutputStream out) 
-        throws CertificateException, IOException {
+    public void encode(OutputStream out)
+            throws CertificateException, IOException {
         if (mCached == null) {
             DerOutputStream temp = new DerOutputStream();
 
@@ -163,8 +162,8 @@ public class ExtendedKeyUsageExtension extends Extension implements CertAttrSet 
         out.write(mCached);
     }
 
-    public void set(String name, Object obj) 
-        throws CertificateException, IOException {
+    public void set(String name, Object obj)
+            throws CertificateException, IOException {
         // NOT USED
     }
 
@@ -178,11 +177,11 @@ public class ExtendedKeyUsageExtension extends Extension implements CertAttrSet 
     }
 
     public String getName() {
-        return NAME;   
+        return NAME;
     }
 
-    public void delete(String name) 
-        throws CertificateException, IOException {
+    public void delete(String name)
+            throws CertificateException, IOException {
         // NOT USED
     }
 
@@ -190,8 +189,7 @@ public class ExtendedKeyUsageExtension extends Extension implements CertAttrSet 
         DerValue val = new DerValue(this.extensionValue);
 
         if (val.tag != DerValue.tag_Sequence) {
-            throw new IOException("Invalid encoding of AuthInfoAccess extension"
-                );
+            throw new IOException("Invalid encoding of AuthInfoAccess extension");
         }
         if (oidSet == null)
             oidSet = new Vector();
@@ -205,7 +203,7 @@ public class ExtendedKeyUsageExtension extends Extension implements CertAttrSet 
     private void encodeExtValue() {
         DerOutputStream out = new DerOutputStream();
         DerOutputStream temp = new DerOutputStream();
- 
+
         if (!oidSet.isEmpty()) {
             Enumeration oidList = oidSet.elements();
 

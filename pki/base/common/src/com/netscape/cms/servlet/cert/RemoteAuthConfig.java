@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.cert;
 
-
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
@@ -54,7 +53,6 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 
-
 /**
  * Allow agent to turn on/off authentication managers
  * 
@@ -89,7 +87,7 @@ public class RemoteAuthConfig extends CMSServlet {
 
     /**
      * Initializes the servlet.
-     *
+     * 
      * Presence of "auths.enableRemoteConfiguration=true" in CMS.cfg
      * enables remote configuration for authentication plugins.
      * List of remotely set instances can be found in CMS.cfg
@@ -133,16 +131,16 @@ public class RemoteAuthConfig extends CMSServlet {
 
     /**
      * Serves HTTPS request. The format of this request is as follows:
-     *   https://host:ee-port/remoteAuthConfig?
-     *                        op="add"|"delete"&
-     *                        instance=<instanceName>&
-     *                        of=<authPluginName>&
-     *                        host=<hostName>&
-     *                        port=<portNumber>&
-     *                        password=<password>&
-     *                        [adminDN=<adminDN>]&
-     *                        [uid=<uid>]&
-     *                        [baseDN=<baseDN>]
+     * https://host:ee-port/remoteAuthConfig?
+     * op="add"|"delete"&
+     * instance=<instanceName>&
+     * of=<authPluginName>&
+     * host=<hostName>&
+     * port=<portNumber>&
+     * password=<password>&
+     * [adminDN=<adminDN>]&
+     * [uid=<uid>]&
+     * [baseDN=<baseDN>]
      */
     public void process(CMSRequest cmsReq) throws EBaseException {
         HttpServletRequest req = cmsReq.getHttpReq();
@@ -201,7 +199,7 @@ public class RemoteAuthConfig extends CMSServlet {
                                     }
                                 } else {
                                     header.addStringValue("error", "Unknown instance " +
-                                        instance + ".");
+                                            instance + ".");
                                 }
                             } else {
                                 header.addStringValue("error", "Unknown plugin name: " + plugin);
@@ -217,7 +215,7 @@ public class RemoteAuthConfig extends CMSServlet {
                                 }
                                 if (isInstanceListed(instance)) {
                                     header.addStringValue("error", "Instance name " +
-                                        instance + " is already in use.");
+                                            instance + " is already in use.");
                                 } else {
                                     errMsg = addInstance(instance, plugin,
                                                 host, port, baseDN,
@@ -253,7 +251,7 @@ public class RemoteAuthConfig extends CMSServlet {
         } catch (IOException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", e.toString()));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
 
         try {
@@ -263,15 +261,15 @@ public class RemoteAuthConfig extends CMSServlet {
             form.renderOutput(out, argSet);
             cmsReq.setStatus(CMSRequest.SUCCESS);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
     }
 
     private String authenticateRemoteAdmin(String host, String port,
-        String adminDN, String password) {
+            String adminDN, String password) {
         if (host == null || host.length() == 0) {
             return "Missing host name.";
         }
@@ -362,8 +360,8 @@ public class RemoteAuthConfig extends CMSServlet {
     }
 
     private String authenticateRemoteAdmin(String host, String port,
-        String uid, String baseDN,
-        String password) {
+            String uid, String baseDN,
+            String password) {
         if (host == null || host.length() == 0) {
             return "Missing host name.";
         }
@@ -473,8 +471,8 @@ public class RemoteAuthConfig extends CMSServlet {
     }
 
     private String addInstance(String instance, String plugin,
-        String host, String port,
-        String baseDN, String dnPattern) {
+            String host, String port,
+            String baseDN, String dnPattern) {
         if (host == null || host.length() == 0) {
             return "Missing host name.";
         }
@@ -516,7 +514,8 @@ public class RemoteAuthConfig extends CMSServlet {
         StringBuffer list = new StringBuffer();
 
         for (int i = 0; i < mRemotelySetInstances.size(); i++) {
-            if (i > 0) list.append(",");
+            if (i > 0)
+                list.append(",");
             list.append((String) mRemotelySetInstances.elementAt(i));
         }
 
@@ -542,7 +541,8 @@ public class RemoteAuthConfig extends CMSServlet {
             StringBuffer list = new StringBuffer();
 
             for (int i = 0; i < mRemotelySetInstances.size(); i++) {
-                if (i > 0) list.append(",");
+                if (i > 0)
+                    list.append(",");
                 list.append((String) mRemotelySetInstances.elementAt(i));
             }
 
@@ -602,17 +602,21 @@ public class RemoteAuthConfig extends CMSServlet {
         int y = now.get(Calendar.YEAR);
         String name = "R" + y;
 
-        if (now.get(Calendar.MONTH) < 10) name += "0";
+        if (now.get(Calendar.MONTH) < 10)
+            name += "0";
         name += now.get(Calendar.MONTH);
-        if (now.get(Calendar.DAY_OF_MONTH) < 10) name += "0";
+        if (now.get(Calendar.DAY_OF_MONTH) < 10)
+            name += "0";
         name += now.get(Calendar.DAY_OF_MONTH);
-        if (now.get(Calendar.HOUR_OF_DAY) < 10) name += "0";
+        if (now.get(Calendar.HOUR_OF_DAY) < 10)
+            name += "0";
         name += now.get(Calendar.HOUR_OF_DAY);
-        if (now.get(Calendar.MINUTE) < 10) name += "0";
+        if (now.get(Calendar.MINUTE) < 10)
+            name += "0";
         name += now.get(Calendar.MINUTE);
-        if (now.get(Calendar.SECOND) < 10) name += "0";
+        if (now.get(Calendar.SECOND) < 10)
+            name += "0";
         name += now.get(Calendar.SECOND);
         return name;
     }
 }
-

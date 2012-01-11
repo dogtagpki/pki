@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.crl;
 
-
 import java.io.IOException;
 import java.util.Locale;
 
@@ -36,14 +35,13 @@ import com.netscape.certsrv.ca.ICRLIssuingPoint;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.ILogger;
 
-
 /**
  * This represents a hold instruction extension.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class CMSHoldInstructionExtension
-    implements ICMSCRLExtension, IExtendedPluginInfo {
+        implements ICMSCRLExtension, IExtendedPluginInfo {
     public static final String PROP_INSTR = "instruction";
     public static final String PROP_INSTR_NONE = "none";
     public static final String PROP_INSTR_CALLISSUER = "callissuer";
@@ -55,12 +53,12 @@ public class CMSHoldInstructionExtension
     }
 
     public Extension setCRLExtensionCriticality(Extension ext,
-        boolean critical) {
+            boolean critical) {
         HoldInstructionExtension holdInstrExt = null;
 
         try {
             ObjectIdentifier holdInstr =
-                ((HoldInstructionExtension) ext).getHoldInstructionCode();
+                    ((HoldInstructionExtension) ext).getHoldInstructionCode();
 
             holdInstrExt = new HoldInstructionExtension(Boolean.valueOf(critical),
                         holdInstr);
@@ -71,8 +69,8 @@ public class CMSHoldInstructionExtension
     }
 
     public Extension getCRLExtension(IConfigStore config,
-        Object ip,
-        boolean critical) {
+            Object ip,
+            boolean critical) {
         HoldInstructionExtension holdInstrExt = null;
         String instruction = null;
 
@@ -121,8 +119,7 @@ public class CMSHoldInstructionExtension
         }
         if (instruction != null) {
             if (!(instruction.equalsIgnoreCase(PROP_INSTR_NONE) ||
-                    instruction.equalsIgnoreCase(PROP_INSTR_CALLISSUER) ||
-                    instruction.equalsIgnoreCase(PROP_INSTR_REJECT))) {
+                    instruction.equalsIgnoreCase(PROP_INSTR_CALLISSUER) || instruction.equalsIgnoreCase(PROP_INSTR_REJECT))) {
                 instruction = PROP_INSTR_NONE;
             }
         } else {
@@ -138,14 +135,14 @@ public class CMSHoldInstructionExtension
                 "enable;boolean;Check to enable Hold Instruction CRL entry extension.",
                 "critical;boolean;Set criticality for Hold Instruction CRL entry extension.",
                 PROP_INSTR + ";choice(" + PROP_INSTR_NONE + "," + PROP_INSTR_CALLISSUER + "," +
-                PROP_INSTR_REJECT + ");Select hold instruction code.",
+                        PROP_INSTR_REJECT + ");Select hold instruction code.",
                 IExtendedPluginInfo.HELP_TOKEN +
-                ";configuration-ca-edit-crlextension-holdinstruction",
+                        ";configuration-ca-edit-crlextension-holdinstruction",
                 IExtendedPluginInfo.HELP_TEXT +
-                ";The hold instruction code is a non-critical CRL entry " +
-                "extension that provides a registered instruction identifier " +
-                "which indicates the action to be taken after encountering " +
-                "a certificate that has been placed on hold."
+                        ";The hold instruction code is a non-critical CRL entry " +
+                        "extension that provides a registered instruction identifier " +
+                        "which indicates the action to be taken after encountering " +
+                        "a certificate that has been placed on hold."
             };
 
         return params;
@@ -153,6 +150,6 @@ public class CMSHoldInstructionExtension
 
     private void log(int level, String msg) {
         mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_CA, level,
-            "CMSHoldInstructionExtension - " + msg);
+                "CMSHoldInstructionExtension - " + msg);
     }
-} 
+}

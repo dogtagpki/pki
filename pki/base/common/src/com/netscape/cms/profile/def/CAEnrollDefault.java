@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.def;
 
-
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -34,12 +33,11 @@ import netscape.security.x509.X509Key;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 
-
 /**
- * This class implements an abstract CA specific 
+ * This class implements an abstract CA specific
  * Enrollment default. This policy can only be
  * used with CA subsystem.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public abstract class CAEnrollDefault extends EnrollDefault {
@@ -48,8 +46,8 @@ public abstract class CAEnrollDefault extends EnrollDefault {
 
     public KeyIdentifier getKeyIdentifier(X509CertInfo info) {
         try {
-            CertificateX509Key ckey = (CertificateX509Key) 
-              info.get(X509CertInfo.KEY);
+            CertificateX509Key ckey = (CertificateX509Key)
+                    info.get(X509CertInfo.KEY);
             X509Key key = (X509Key) ckey.get(CertificateX509Key.KEY);
             MessageDigest md = MessageDigest.getInstance("SHA-1");
 
@@ -59,35 +57,35 @@ public abstract class CAEnrollDefault extends EnrollDefault {
             return new KeyIdentifier(hash);
         } catch (IOException e) {
             CMS.debug("AuthorityKeyIdentifierExtDefault: getKeyId " +
-                e.toString());
+                    e.toString());
         } catch (CertificateException e) {
             CMS.debug("AuthorityKeyIdentifierExtDefault: getKeyId " +
-                e.toString());
+                    e.toString());
         } catch (NoSuchAlgorithmException e) {
             CMS.debug("AuthorityKeyIdentifierExtDefault: getKeyId " +
-                e.toString());
+                    e.toString());
         }
         return null;
     }
 
     public KeyIdentifier getCAKeyIdentifier() {
         ICertificateAuthority ca = (ICertificateAuthority)
-            CMS.getSubsystem(CMS.SUBSYSTEM_CA);
+                CMS.getSubsystem(CMS.SUBSYSTEM_CA);
         X509CertImpl caCert = ca.getCACert();
         if (caCert == null) {
-          // during configuration, we dont have the CA certificate
-          return null;
+            // during configuration, we dont have the CA certificate
+            return null;
         }
         X509Key key = (X509Key) caCert.getPublicKey();
 
         SubjectKeyIdentifierExtension subjKeyIdExt =
-            (SubjectKeyIdentifierExtension)
-             caCert.getExtension(PKIXExtensions.SubjectKey_Id.toString());
+                (SubjectKeyIdentifierExtension)
+                caCert.getExtension(PKIXExtensions.SubjectKey_Id.toString());
         if (subjKeyIdExt != null) {
             try {
-              KeyIdentifier keyId = (KeyIdentifier) subjKeyIdExt.get(
-                 SubjectKeyIdentifierExtension.KEY_ID);
-              return keyId;
+                KeyIdentifier keyId = (KeyIdentifier) subjKeyIdExt.get(
+                        SubjectKeyIdentifierExtension.KEY_ID);
+                return keyId;
             } catch (IOException e) {
             }
         }
@@ -101,7 +99,7 @@ public abstract class CAEnrollDefault extends EnrollDefault {
             return new KeyIdentifier(hash);
         } catch (NoSuchAlgorithmException e) {
             CMS.debug("AuthorityKeyIdentifierExtDefault: getKeyId " +
-                e.toString());
+                    e.toString());
         }
         return null;
     }

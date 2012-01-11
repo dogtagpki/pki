@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.connector;
 
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -32,9 +31,8 @@ import com.netscape.certsrv.connector.IHttpPKIMessage;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.cmscore.util.Debug;
 
-
 /**
- * simple name/value pair message. 
+ * simple name/value pair message.
  */
 public class HttpPKIMessage implements IHttpPKIMessage {
     /**
@@ -118,16 +116,16 @@ public class HttpPKIMessage implements IHttpPKIMessage {
                     r.setExtData(key, (Hashtable) value);
                 } else {
                     CMS.debug("HttpPKIMessage.toRequest(): key: " + key +
-                    " has unexpected type " + value.getClass().toString());
+                            " has unexpected type " + value.getClass().toString());
                 }
             } catch (NoSuchElementException e) {
-              CMS.debug("Incorrect pairing of name/value for " + key);
+                CMS.debug("Incorrect pairing of name/value for " + key);
             }
         }
     }
 
     private void writeObject(java.io.ObjectOutputStream out)
-        throws IOException {
+            throws IOException {
         CMS.debug("writeObject");
         out.writeObject(reqType);
         if (Debug.ON)
@@ -145,34 +143,34 @@ public class HttpPKIMessage implements IHttpPKIMessage {
             Object val = null;
             key = enum1.nextElement();
             try {
-              val = enum1.nextElement();
-              // test if key and value are serializable
-              ObjectOutputStream os = 
-                new ObjectOutputStream(new ByteArrayOutputStream());
-              os.writeObject(key);
-              os.writeObject(val);
+                val = enum1.nextElement();
+                // test if key and value are serializable
+                ObjectOutputStream os =
+                        new ObjectOutputStream(new ByteArrayOutputStream());
+                os.writeObject(key);
+                os.writeObject(val);
 
-              // ok, if we dont have problem serializing the objects,
-              // then write the objects into the real object stream
-              out.writeObject(key);
-              out.writeObject(val);
+                // ok, if we dont have problem serializing the objects,
+                // then write the objects into the real object stream
+                out.writeObject(key);
+                out.writeObject(val);
             } catch (Exception e) {
-              // skip not serialiable attribute in DRM
-              // DRM does not need to store the enrollment request anymore
-              CMS.debug("HttpPKIMessage:skipped key=" + 
-                key.getClass().getName());
-              if (val == null) {
-                CMS.debug("HttpPKIMessage:skipped val= null");
-              } else {
-                CMS.debug("HttpPKIMessage:skipped val=" + 
-                  val.getClass().getName());
-              } 
+                // skip not serialiable attribute in DRM
+                // DRM does not need to store the enrollment request anymore
+                CMS.debug("HttpPKIMessage:skipped key=" +
+                        key.getClass().getName());
+                if (val == null) {
+                    CMS.debug("HttpPKIMessage:skipped val= null");
+                } else {
+                    CMS.debug("HttpPKIMessage:skipped val=" +
+                            val.getClass().getName());
+                }
             }
         }
     }
 
     private void readObject(java.io.ObjectInputStream in)
-        throws IOException, ClassNotFoundException, OptionalDataException {
+            throws IOException, ClassNotFoundException, OptionalDataException {
         reqType = (String) in.readObject();
         reqId = (String) in.readObject();
         reqStatus = (String) in.readObject();
@@ -185,21 +183,21 @@ public class HttpPKIMessage implements IHttpPKIMessage {
             while (true) {
                 boolean skipped = false;
                 try {
-                   keyorval = in.readObject();
+                    keyorval = in.readObject();
                 } catch (OptionalDataException e) {
-                   throw e;
+                    throw e;
                 } catch (IOException e) {
-                   // just skipped parameter
-                  CMS.debug("skipped attribute in request e="+e);
-                  if (!iskey) {
-                     int s = mNameVals.size();
-                     if (s > 0) {
-                       // remove previous key if this is value
-                       mNameVals.removeElementAt(s - 1);
-                       skipped = true;
-                       keyorval = "";
-                     }
-                  }
+                    // just skipped parameter
+                    CMS.debug("skipped attribute in request e=" + e);
+                    if (!iskey) {
+                        int s = mNameVals.size();
+                        if (s > 0) {
+                            // remove previous key if this is value
+                            mNameVals.removeElementAt(s - 1);
+                            skipped = true;
+                            keyorval = "";
+                        }
+                    }
                 }
                 if (iskey) {
                     if (Debug.ON)
@@ -213,9 +211,9 @@ public class HttpPKIMessage implements IHttpPKIMessage {
                 if (Debug.ON)
                     Debug.trace("read " + keyorval);
                 if (!skipped) {
-                  if (keyorval == null) 
-                    break;
-                  mNameVals.addElement(keyorval);
+                    if (keyorval == null)
+                        break;
+                    mNameVals.addElement(keyorval);
                 }
             }
         } catch (OptionalDataException e) {

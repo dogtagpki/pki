@@ -28,17 +28,17 @@ import netscape.security.util.DerValue;
 
 /**
  * Represent the CRLReason Extension of CRL entry.
- *
- * <p>This extension, if present, defines the identifies
- * the reason for the certificate revocation.
- *
+ * 
+ * <p>
+ * This extension, if present, defines the identifies the reason for the certificate revocation.
+ * 
  * @author galperin
  * @version $Revision$, $Date$
  * @see Extension
  * @see CertAttrSet
  */
 
-public final class CRLReasonExtension  extends Extension implements CertAttrSet {
+public final class CRLReasonExtension extends Extension implements CertAttrSet {
 
     /**
      *
@@ -61,8 +61,8 @@ public final class CRLReasonExtension  extends Extension implements CertAttrSet 
     /**
      * Attribute names.
      */
-	public static final String NAME = "CRLReason";
-	public static final String REASON = "value";
+    public static final String NAME = "CRLReason";
+    public static final String REASON = "value";
 
     private RevocationReason mReason = null;
 
@@ -72,19 +72,18 @@ public final class CRLReasonExtension  extends Extension implements CertAttrSet 
 
     /**
      * Default constructor
-     *
+     * 
      */
 
     public CRLReasonExtension() {
         this.extensionId = PKIXExtensions.ReasonCode_Id;
         this.critical = false;
-		mReason = null;
+        mReason = null;
     }
-
 
     /**
      * Create extension value for specific revocation reason
-     *
+     * 
      */
 
     public CRLReasonExtension(RevocationReason reason) {
@@ -94,7 +93,7 @@ public final class CRLReasonExtension  extends Extension implements CertAttrSet 
     }
 
     public CRLReasonExtension(Boolean critical, RevocationReason reason)
-     			throws IOException {
+                throws IOException {
         this.extensionId = PKIXExtensions.ReasonCode_Id;
         this.critical = critical.booleanValue();
         mReason = reason;
@@ -102,18 +101,18 @@ public final class CRLReasonExtension  extends Extension implements CertAttrSet 
 
     /**
      * Create the object from the passed DER encoded value.
-     *
+     * 
      * @param derVal the DerValue decoded from the stream.
      * @exception IOException on decoding errors.
      */
     public CRLReasonExtension(Boolean critical, Object value)
-			throws IOException {
-		this.extensionId = PKIXExtensions.ReasonCode_Id;
+            throws IOException {
+        this.extensionId = PKIXExtensions.ReasonCode_Id;
         this.critical = critical.booleanValue();
 
-		byte[] extValue = (byte[])((byte[])value).clone();
-		this.extensionValue = extValue;
-		DerValue val = new DerValue(extValue);
+        byte[] extValue = (byte[]) ((byte[]) value).clone();
+        this.extensionValue = extValue;
+        DerValue val = new DerValue(extValue);
         int reasonCode = val.getEnumerated();
         mReason = RevocationReason.fromInt(reasonCode);
         if (mReason == null)
@@ -125,36 +124,36 @@ public final class CRLReasonExtension  extends Extension implements CertAttrSet 
      */
     public void set(String name, Object obj) throws IOException {
         if (!(obj instanceof RevocationReason)) {
-	    throw new IOException("Attribute must be of type RevocationReason.");
-	}
+            throw new IOException("Attribute must be of type RevocationReason.");
+        }
 
-	if (name.equalsIgnoreCase(REASON)) {
-    	mReason = (RevocationReason)obj;
-	} else {
-	  throw new IOException("Name not recognized by CRLReason");
-	}
+        if (name.equalsIgnoreCase(REASON)) {
+            mReason = (RevocationReason) obj;
+        } else {
+            throw new IOException("Name not recognized by CRLReason");
+        }
     }
 
     /**
      * Get the attribute value.
      */
     public Object get(String name) throws IOException {
-	if (name.equalsIgnoreCase(REASON)) {
-	    return mReason;
-	} else {
-	  throw new IOException("Name not recognized by CRLReason");
-	}
+        if (name.equalsIgnoreCase(REASON)) {
+            return mReason;
+        } else {
+            throw new IOException("Name not recognized by CRLReason");
+        }
     }
 
     /**
      * Delete the attribute value.
      */
     public void delete(String name) throws IOException {
-	if (name.equalsIgnoreCase(REASON)) {
-	   mReason = null;
-	} else {
-	  throw new IOException("Name not recognized by CRLReason");
-	}
+        if (name.equalsIgnoreCase(REASON)) {
+            mReason = null;
+        } else {
+            throw new IOException("Name not recognized by CRLReason");
+        }
     }
 
     /**
@@ -167,7 +166,7 @@ public final class CRLReasonExtension  extends Extension implements CertAttrSet 
 
     /**
      * Decode the extension from the InputStream.
-     *
+     * 
      * @param in the InputStream to unmarshal the contents from.
      * @exception IOException on decoding or validity errors.
      */
@@ -184,21 +183,20 @@ public final class CRLReasonExtension  extends Extension implements CertAttrSet 
         this.extensionValue = os.toByteArray();
     }
 
-
     /**
      * Write the extension to the DerOutputStream.
-     *
+     * 
      * @param out the OutputStream to write the extension to.
      * @exception IOException on encoding errors.
      */
     public void encode(OutputStream out) throws IOException {
-       DerOutputStream	tmp = new DerOutputStream();
+        DerOutputStream tmp = new DerOutputStream();
 
-       if (this.extensionValue == null) {
-           encodeThis();
-       }
-       super.encode(tmp);
-       out.write(tmp.toByteArray());
+        if (this.extensionValue == null) {
+            encodeThis();
+        }
+        super.encode(tmp);
+        out.write(tmp.toByteArray());
 
     }
 
@@ -206,28 +204,28 @@ public final class CRLReasonExtension  extends Extension implements CertAttrSet 
      * Return an enumeration of names of attributes existing within this
      * attribute.
      */
-    public Enumeration<String> getElements () {
+    public Enumeration<String> getElements() {
         Vector<String> elements = new Vector<String>();
         elements.addElement(REASON);
 
-	return (elements.elements());
+        return (elements.elements());
     }
 
     /**
      * Return the name of this attribute.
      */
-    public String getName () {
+    public String getName() {
         return (NAME);
     }
 
-	public boolean equals(Object other) {
-		if (this == other)
-		  return true;
-		else if (other instanceof CRLReasonExtension)
-		  return ((CRLReasonExtension)other).mReason == mReason &&
-		          ((CRLReasonExtension)other).critical == critical;
-		else
-		  return false;
-	}
+    public boolean equals(Object other) {
+        if (this == other)
+            return true;
+        else if (other instanceof CRLReasonExtension)
+            return ((CRLReasonExtension) other).mReason == mReason &&
+                    ((CRLReasonExtension) other).critical == critical;
+        else
+            return false;
+    }
 
 }

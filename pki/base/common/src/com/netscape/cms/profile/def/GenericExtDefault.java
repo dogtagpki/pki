@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.def;
 
-
 import java.util.Locale;
 
 import netscape.security.util.DerOutputStream;
@@ -34,12 +33,11 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 
-
 /**
  * This class implements an enrollment default policy
  * that populates a Netscape comment extension
  * into the certificate template.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class GenericExtDefault extends EnrollExtDefault {
@@ -62,13 +60,13 @@ public class GenericExtDefault extends EnrollExtDefault {
     }
 
     public void init(IProfile profile, IConfigStore config)
-        throws EProfileException {
+            throws EProfileException {
         super.init(profile, config);
     }
 
-    public IDescriptor getConfigDescriptor(Locale locale, String name) { 
+    public IDescriptor getConfigDescriptor(Locale locale, String name) {
         if (name.equals(CONFIG_CRITICAL)) {
-            return new Descriptor(IDescriptor.BOOLEAN, null, 
+            return new Descriptor(IDescriptor.BOOLEAN, null,
                     "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_CRITICAL"));
         } else if (name.equals(CONFIG_OID)) {
@@ -86,7 +84,7 @@ public class GenericExtDefault extends EnrollExtDefault {
 
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         if (name.equals(VAL_CRITICAL)) {
-            return new Descriptor(IDescriptor.BOOLEAN, null, 
+            return new Descriptor(IDescriptor.BOOLEAN, null,
                     "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_CRITICAL"));
         } else if (name.equals(VAL_DATA)) {
@@ -99,13 +97,13 @@ public class GenericExtDefault extends EnrollExtDefault {
     }
 
     public void setValue(String name, Locale locale,
-        X509CertInfo info, String value)
-        throws EPropertyException {
+            X509CertInfo info, String value)
+            throws EPropertyException {
         try {
             Extension ext = null;
 
             if (name == null) {
-                throw new EPropertyException(CMS.getUserMessage( 
+                throw new EPropertyException(CMS.getUserMessage(
                             locale, "CMS_INVALID_PROPERTY", name));
             }
 
@@ -114,28 +112,28 @@ public class GenericExtDefault extends EnrollExtDefault {
             ext = (Extension)
                         getExtension(oid.toString(), info);
 
-            if(ext == null)  {
-                populate(null,info);
+            if (ext == null) {
+                populate(null, info);
             }
 
             if (name.equals(VAL_CRITICAL)) {
                 ext = (Extension)
                         getExtension(oid.toString(), info);
-                if (ext == null)  {
+                if (ext == null) {
                     return;
                 }
                 boolean val = Boolean.valueOf(value).booleanValue();
-                ext.setCritical(val); 
-            } else if (name.equals(VAL_DATA)) { 
+                ext.setCritical(val);
+            } else if (name.equals(VAL_DATA)) {
                 ext = (Extension)
                         getExtension(oid.toString(), info);
-                if (ext == null)  {
+                if (ext == null) {
                     return;
                 }
                 byte data[] = getBytes(value);
-		ext.setExtensionValue(data);
+                ext.setExtensionValue(data);
             } else {
-                throw new EPropertyException(CMS.getUserMessage( 
+                throw new EPropertyException(CMS.getUserMessage(
                             locale, "CMS_INVALID_PROPERTY", name));
             }
 
@@ -146,12 +144,12 @@ public class GenericExtDefault extends EnrollExtDefault {
     }
 
     public String getValue(String name, Locale locale,
-        X509CertInfo info)
-        throws EPropertyException {
+            X509CertInfo info)
+            throws EPropertyException {
         Extension ext = null;
 
         if (name == null) {
-            throw new EPropertyException(CMS.getUserMessage( 
+            throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         }
 
@@ -160,14 +158,13 @@ public class GenericExtDefault extends EnrollExtDefault {
         ext = (Extension)
                     getExtension(oid.toString(), info);
 
-        if(ext == null)
-        {
+        if (ext == null) {
             try {
-                populate(null,info);
+                populate(null, info);
 
             } catch (EProfileException e) {
-                 throw new EPropertyException(CMS.getUserMessage(
-                      locale, "CMS_INVALID_PROPERTY", name));
+                throw new EPropertyException(CMS.getUserMessage(
+                        locale, "CMS_INVALID_PROPERTY", name));
             }
 
         }
@@ -185,7 +182,7 @@ public class GenericExtDefault extends EnrollExtDefault {
             } else {
                 return "false";
             }
-        } else if (name.equals(VAL_DATA)) { 
+        } else if (name.equals(VAL_DATA)) {
 
             ext = (Extension)
                     getExtension(oid.toString(), info);
@@ -197,17 +194,17 @@ public class GenericExtDefault extends EnrollExtDefault {
 
             if (data == null)
                 return "";
-   
+
             return toStr(data);
         } else {
-            throw new EPropertyException(CMS.getUserMessage( 
+            throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         }
     }
 
     public String getText(Locale locale) {
         String params[] = {
-                getConfig(CONFIG_CRITICAL), 
+                getConfig(CONFIG_CRITICAL),
                 getConfig(CONFIG_OID),
                 getConfig(CONFIG_DATA)
             };
@@ -218,10 +215,10 @@ public class GenericExtDefault extends EnrollExtDefault {
     public String toStr(byte data[]) {
         StringBuffer b = new StringBuffer();
         for (int i = 0; i < data.length; i++) {
-           if ((data[i] & 0xff) < 16) {
-              b.append("0");
-           }
-           b.append(Integer.toString((int)(data[i] & 0xff), 0x10));
+            if ((data[i] & 0xff) < 16) {
+                b.append("0");
+            }
+            b.append(Integer.toString((int) (data[i] & 0xff), 0x10));
         }
         return b.toString();
     }
@@ -230,14 +227,14 @@ public class GenericExtDefault extends EnrollExtDefault {
      * Populates the request with this policy default.
      */
     public void populate(IRequest request, X509CertInfo info)
-        throws EProfileException {
+            throws EProfileException {
         Extension ext = createExtension(request);
 
         addExtension(ext.getExtensionId().toString(), ext, info);
     }
 
     public Extension createExtension(IRequest request) {
-        Extension ext = null; 
+        Extension ext = null;
 
         try {
             boolean critical = getConfigBoolean(CONFIG_CRITICAL);
@@ -250,13 +247,13 @@ public class GenericExtDefault extends EnrollExtDefault {
                 data = getBytes(mapPattern(request, getConfig(CONFIG_DATA)));
             }
 
-	    DerOutputStream out = new DerOutputStream();
+            DerOutputStream out = new DerOutputStream();
             out.putOctetString(data);
 
             ext = new Extension(oid, critical, out.toByteArray());
         } catch (Exception e) {
-            CMS.debug("GenericExtDefault: createExtension " + 
-                e.toString());
+            CMS.debug("GenericExtDefault: createExtension " +
+                    e.toString());
         }
         return ext;
     }

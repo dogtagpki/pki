@@ -27,7 +27,7 @@ import java.nio.charset.CodingErrorAction;
 /**
  * Converts bytes in ASN.1 PrintableString character set to PrintableString
  * characters.
- *
+ * 
  * @author Lily Hsiao
  * @author Slava Galperin
  */
@@ -42,14 +42,15 @@ public class PrintableCharsetDecoder extends CharsetDecoder {
 
         while (true) {
 
-            if (in.remaining() < 1) return CoderResult.UNDERFLOW;
+            if (in.remaining() < 1)
+                return CoderResult.UNDERFLOW;
 
             in.mark();
             byte b = in.get();
-            char c = (char)(b & 0x7f);
+            char c = (char) (b & 0x7f);
 
             if (CodingErrorAction.REPORT == unmappableCharacterAction() &&
-                !PrintableCharset.isPrintableChar(c)) {
+                    !PrintableCharset.isPrintableChar(c)) {
                 /*
                 "bug" fix for 359010
                 return CoderResult.unmappableForLength(1);

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.base;
 
-
 import java.io.IOException;
 import java.util.Date;
 import java.util.Enumeration;
@@ -43,10 +42,9 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 
-
 /**
  * Retrieve information.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class GetStats extends CMSServlet {
@@ -64,7 +62,7 @@ public class GetStats extends CMSServlet {
     /**
      * initialize the servlet. This servlet uses the template
      * file "getOCSPInfo.template" to render the result page.
-     *
+     * 
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -79,14 +77,13 @@ public class GetStats extends CMSServlet {
         mTemplates.remove(CMSRequest.SUCCESS);
     }
 
-
     /**
-	 * Process the HTTP request. 
-     *
+     * Process the HTTP request.
+     * 
      * @param cmsReq the object holding the request and response information
      */
     protected void process(CMSRequest cmsReq)
-        throws EBaseException {
+            throws EBaseException {
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
@@ -98,10 +95,10 @@ public class GetStats extends CMSServlet {
                         mAuthzResourceName, "read");
         } catch (EAuthzAccessDenied e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
         } catch (Exception e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
         }
 
         if (authzToken == null) {
@@ -118,10 +115,10 @@ public class GetStats extends CMSServlet {
         try {
             form = getTemplate(mFormPath, httpReq, locale);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()));
             cmsReq.setError(new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR")));
+                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR")));
             cmsReq.setStatus(CMSRequest.ERROR);
             return;
         }
@@ -130,12 +127,12 @@ public class GetStats extends CMSServlet {
         IArgBlock fixed = CMS.createArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
 
-        IStatsSubsystem statsSub = (IStatsSubsystem)CMS.getSubsystem("stats");
+        IStatsSubsystem statsSub = (IStatsSubsystem) CMS.getSubsystem("stats");
         StatsEvent st = statsSub.getMainStatsEvent();
 
         String op = httpReq.getParameter("op");
         if (op != null && op.equals("clear")) {
-          statsSub.resetCounters();
+            statsSub.resetCounters();
         }
 
         header.addStringValue("startTime", statsSub.getStartTime().toString());
@@ -149,43 +146,42 @@ public class GetStats extends CMSServlet {
             form.renderOutput(out, argSet);
             cmsReq.setStatus(CMSRequest.SUCCESS);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()));
             cmsReq.setError(new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR")));
+                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR")));
             cmsReq.setStatus(CMSRequest.ERROR);
         }
         cmsReq.setStatus(CMSRequest.SUCCESS);
         return;
     }
 
-    public String getSep(int level)
-    {
-      StringBuffer s = new StringBuffer();
-      for (int i = 0; i < level; i++) {
-        s.append("-");
-      }
-      return s.toString();
+    public String getSep(int level) {
+        StringBuffer s = new StringBuffer();
+        for (int i = 0; i < level; i++) {
+            s.append("-");
+        }
+        return s.toString();
     }
 
     public void parse(CMSTemplateParams argSet, StatsEvent st, int level) {
         Enumeration names = st.getSubEventNames();
         while (names.hasMoreElements()) {
-          String name = (String)names.nextElement();
-          StatsEvent subSt = st.getSubEvent(name);
+            String name = (String) names.nextElement();
+            StatsEvent subSt = st.getSubEvent(name);
 
-          IArgBlock rarg = CMS.createArgBlock();
-          rarg.addStringValue("name", getSep(level) + " " + subSt.getName());
-          rarg.addLongValue("noOfOp", subSt.getNoOfOperations());
-          rarg.addLongValue("timeTaken", subSt.getTimeTaken());
-          rarg.addLongValue("max", subSt.getMax());
-          rarg.addLongValue("min", subSt.getMin());
-          rarg.addLongValue("percentage", subSt.getPercentage());
-          rarg.addLongValue("avg", subSt.getAvg());
-          rarg.addLongValue("stddev", subSt.getStdDev());
-          argSet.addRepeatRecord(rarg); 
+            IArgBlock rarg = CMS.createArgBlock();
+            rarg.addStringValue("name", getSep(level) + " " + subSt.getName());
+            rarg.addLongValue("noOfOp", subSt.getNoOfOperations());
+            rarg.addLongValue("timeTaken", subSt.getTimeTaken());
+            rarg.addLongValue("max", subSt.getMax());
+            rarg.addLongValue("min", subSt.getMin());
+            rarg.addLongValue("percentage", subSt.getPercentage());
+            rarg.addLongValue("avg", subSt.getAvg());
+            rarg.addLongValue("stddev", subSt.getStdDev());
+            argSet.addRepeatRecord(rarg);
 
-          parse(argSet, subSt, level+1);
+            parse(argSet, subSt, level + 1);
         }
     }
 }

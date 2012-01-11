@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.key;
 
-
 import java.util.Date;
 
 import com.netscape.certsrv.apps.CMS;
@@ -28,7 +27,7 @@ import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 
 /**
  * Output a 'pretty print' of a Key Archival record
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class KeyRecordParser {
@@ -44,28 +43,27 @@ public class KeyRecordParser {
     public final static String OUT_RECOVERED_BY = "recoveredBy";
     public final static String OUT_RECOVERED_ON = "recoveredOn";
 
-
     /**
      * Fills key record into argument block.
      */
-    public static void fillRecordIntoArg(IKeyRecord rec, IArgBlock rarg) 
-        throws EBaseException {
+    public static void fillRecordIntoArg(IKeyRecord rec, IArgBlock rarg)
+            throws EBaseException {
         if (rec == null)
             return;
         rarg.addStringValue(OUT_STATE,
-            rec.getState().toString());
+                rec.getState().toString());
         rarg.addStringValue(OUT_OWNER_NAME,
-            rec.getOwnerName());
+                rec.getOwnerName());
         rarg.addIntegerValue(OUT_SERIALNO,
-            rec.getSerialNumber().intValue());
+                rec.getSerialNumber().intValue());
         rarg.addStringValue(OUT_KEY_ALGORITHM,
-            rec.getAlgorithm());
+                rec.getAlgorithm());
         // Possible Enhancement: sun's BASE64Encode is not 
         // fast. We may may to have our native implmenetation.
         IPrettyPrintFormat pp = CMS.getPrettyPrintFormat(":");
 
         rarg.addStringValue(OUT_PUBLIC_KEY,
-            pp.toHexString(rec.getPublicKeyData(), 0, 20));
+                pp.toHexString(rec.getPublicKeyData(), 0, 20));
         Integer keySize = rec.getKeySize();
 
         if (keySize == null) {
@@ -74,16 +72,16 @@ public class KeyRecordParser {
             rarg.addIntegerValue(OUT_KEY_LEN, keySize.intValue());
         }
         rarg.addStringValue(OUT_ARCHIVED_BY,
-            rec.getArchivedBy());
+                rec.getArchivedBy());
         rarg.addLongValue(OUT_ARCHIVED_ON,
-            rec.getCreateTime().getTime() / 1000);
+                rec.getCreateTime().getTime() / 1000);
         Date dateOfRevocation[] = rec.getDateOfRevocation();
 
         if (dateOfRevocation != null) {
-            rarg.addStringValue(OUT_RECOVERED_BY, 
-                "null");
-            rarg.addStringValue(OUT_RECOVERED_ON, 
-                "null"); 
+            rarg.addStringValue(OUT_RECOVERED_BY,
+                    "null");
+            rarg.addStringValue(OUT_RECOVERED_ON,
+                    "null");
         }
     }
 }

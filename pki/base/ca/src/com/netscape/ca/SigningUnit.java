@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.ca;
 
-
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
@@ -50,10 +49,9 @@ import com.netscape.certsrv.security.ISigningUnit;
 import com.netscape.cmscore.security.JssSubsystem;
 import com.netscape.cmsutil.util.Cert;
 
-
 /**
  * CA signing unit based on JSS.
- *
+ * 
  * $Revision$ $Date$
  */
 
@@ -81,8 +79,8 @@ public final class SigningUnit implements ISigningUnit {
 
     private ISubsystem mOwner = null;
 
-    private  String mDefSigningAlgname = null; 
-    private  SignatureAlgorithm mDefSigningAlgorithm = null; 
+    private String mDefSigningAlgname = null;
+    private SignatureAlgorithm mDefSigningAlgorithm = null;
 
     public SigningUnit() {
     }
@@ -114,7 +112,7 @@ public final class SigningUnit implements ISigningUnit {
     public PrivateKey getPrivateKey() {
         return mPrivk;
     }
-	
+
     public void updateConfig(String nickname, String tokenname) {
         mConfig.putString(PROP_CERT_NICKNAME, nickname);
         mConfig.putString(PROP_TOKEN_NAME, tokenname);
@@ -133,8 +131,8 @@ public final class SigningUnit implements ISigningUnit {
     }
 
     public void init(ISubsystem owner, IConfigStore config)
-        throws EBaseException {
-        mOwner = owner; 
+            throws EBaseException {
+        mOwner = owner;
         mConfig = config;
 
         String tokenname = null;
@@ -145,23 +143,23 @@ public final class SigningUnit implements ISigningUnit {
 
             tokenname = config.getString(PROP_TOKEN_NAME);
             if (tokenname.equalsIgnoreCase(Constants.PR_INTERNAL_TOKEN) ||
-              tokenname.equalsIgnoreCase("Internal Key Storage Token")) {
+                    tokenname.equalsIgnoreCase("Internal Key Storage Token")) {
                 mToken = mManager.getInternalKeyStorageToken();
-		setNewNickName(mNickname);
+                setNewNickName(mNickname);
             } else {
                 mToken = mManager.getTokenByName(tokenname);
-	        mNickname = tokenname + ":" + mNickname;
-		setNewNickName(mNickname);
-            } 
+                mNickname = tokenname + ":" + mNickname;
+                setNewNickName(mNickname);
+            }
             CMS.debug(config.getName() + " Signing Unit nickname " + mNickname);
             CMS.debug("Got token " + tokenname + " by name");
 
-            PasswordCallback cb = JssSubsystem.getInstance().getPWCB(); 
+            PasswordCallback cb = JssSubsystem.getInstance().getPWCB();
 
             mToken.login(cb); // ONE_TIME by default.
 
             mCert = mManager.findCertByNickname(mNickname);
-            CMS.debug("Found cert by nickname: '"+mNickname+"' with serial number: "+mCert.getSerialNumber());
+            CMS.debug("Found cert by nickname: '" + mNickname + "' with serial number: " + mCert.getSerialNumber());
 
             mCertImpl = new X509CertImpl(mCert.getEncoded());
             CMS.debug("converted to x509CertImpl");
@@ -174,38 +172,38 @@ public final class SigningUnit implements ISigningUnit {
 
             // get def alg and check if def sign alg is valid for token.
             mDefSigningAlgname = config.getString(PROP_DEFAULT_SIGNALG);
-            mDefSigningAlgorithm = 
+            mDefSigningAlgorithm =
                     checkSigningAlgorithmFromName(mDefSigningAlgname);
             CMS.debug(
-                "got signing algorithm " + mDefSigningAlgorithm);
+                    "got signing algorithm " + mDefSigningAlgorithm);
             mInited = true;
         } catch (java.security.cert.CertificateException e) {
-	    CMS.debug("SigningUnit init: debug "+ e.toString());
+            CMS.debug("SigningUnit init: debug " + e.toString());
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_SIGNING_CA_CERT", e.getMessage()));
             throw new ECAException(CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR", e.toString()));
         } catch (CryptoManager.NotInitializedException e) {
-		CMS.debug("SigningUnit init: debug "+ e.toString());
+            CMS.debug("SigningUnit init: debug " + e.toString());
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_SIGNING_TOKEN_INIT", e.toString()));
             throw new ECAException(CMS.getUserMessage("CMS_CA_CRYPTO_NOT_INITIALIZED"));
         } catch (IncorrectPasswordException e) {
-		CMS.debug("SigningUnit init: debug "+ e.toString());
+            CMS.debug("SigningUnit init: debug " + e.toString());
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_SIGNING_WRONG_PWD", e.toString()));
             throw new ECAException(CMS.getUserMessage("CMS_CA_INVALID_PASSWORD"));
         } catch (NoSuchTokenException e) {
-		CMS.debug("SigningUnit init: debug "+ e.toString());
+            CMS.debug("SigningUnit init: debug " + e.toString());
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_SIGNING_TOKEN_NOT_FOUND", tokenname, e.toString()));
             throw new ECAException(CMS.getUserMessage("CMS_CA_TOKEN_NOT_FOUND", tokenname));
         } catch (ObjectNotFoundException e) {
-		CMS.debug("SigningUnit init: debug "+ e.toString());
+            CMS.debug("SigningUnit init: debug " + e.toString());
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_SIGNING_CERT_NOT_FOUND", e.toString()));
             throw new ECAException(CMS.getUserMessage("CMS_CA_CERT_OBJECT_NOT_FOUND"));
         } catch (TokenException e) {
-		CMS.debug("SigningUnit init: debug "+ e.toString());
+            CMS.debug("SigningUnit init: debug " + e.toString());
             log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
             throw new ECAException(CMS.getUserMessage("CMS_CA_TOKEN_ERROR"));
-	} catch (Exception e){
-		CMS.debug("SigningUnit init: debug "+ e.toString());
-	}
+        } catch (Exception e) {
+            CMS.debug("SigningUnit init: debug " + e.toString());
+        }
     }
 
     /**
@@ -218,7 +216,7 @@ public final class SigningUnit implements ISigningUnit {
      * @exception EBaseException if signing algorithm is not supported.
      */
     public SignatureAlgorithm checkSigningAlgorithmFromName(String algname)
-        throws EBaseException {
+            throws EBaseException {
         try {
             SignatureAlgorithm sigalg = null;
 
@@ -252,7 +250,7 @@ public final class SigningUnit implements ISigningUnit {
      * @param algname is expected to be one of JCA's algorithm names.
      */
     public byte[] sign(byte[] data, String algname)
-        throws EBaseException {
+            throws EBaseException {
         if (!mInited) {
             throw new EBaseException("CASigningUnit not initialized!");
         }
@@ -264,11 +262,11 @@ public final class SigningUnit implements ISigningUnit {
             if (algname != null) {
                 signAlg = checkSigningAlgorithmFromName(algname);
             }
-			
+
             // XXX use a pool of signers based on alg ? 
             // XXX Map algor. name to id. hack: use hardcoded define for now.
             CMS.debug(
-                "Getting algorithm context for " + algname + " " + signAlg);
+                    "Getting algorithm context for " + algname + " " + signAlg);
             Signature signer = mToken.getSignatureContext(signAlg);
 
             signer.initSign(mPrivk);
@@ -294,9 +292,9 @@ public final class SigningUnit implements ISigningUnit {
             throw new EBaseException(e.toString());
         }
     }
-	
+
     public boolean verify(byte[] data, byte[] signature, String algname)
-        throws EBaseException {
+            throws EBaseException {
         if (!mInited) {
             throw new EBaseException("CASigningUnit not initialized!");
         }
@@ -337,8 +335,8 @@ public final class SigningUnit implements ISigningUnit {
     private void log(int level, String msg) {
         if (mLogger == null)
             return;
-        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_CA, 
-            level, "CASigningUnit: " + msg);
+        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_CA,
+                level, "CASigningUnit: " + msg);
     }
 
     /**
@@ -356,15 +354,15 @@ public final class SigningUnit implements ISigningUnit {
     }
 
     public void setDefaultAlgorithm(String algorithm) throws EBaseException {
-        mConfig.putString(PROP_DEFAULT_SIGNALG, algorithm);   
+        mConfig.putString(PROP_DEFAULT_SIGNALG, algorithm);
         mDefSigningAlgname = algorithm;
-        log(ILogger.LL_INFO, 
-            "Default signing algorithm is set to " + algorithm);
+        log(ILogger.LL_INFO,
+                "Default signing algorithm is set to " + algorithm);
     }
 
     /**
      * get all possible algorithms for the CA signing key type.
-     */ 
+     */
     public String[] getAllAlgorithms() throws EBaseException {
         byte[] keybytes = mPubk.getEncoded();
         X509Key key = new X509Key();
@@ -389,4 +387,3 @@ public final class SigningUnit implements ISigningUnit {
         return Cert.mapAlgorithmToJss(algname);
     }
 }
-

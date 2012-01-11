@@ -31,112 +31,100 @@ import org.mozilla.jss.asn1.Tag;
 
 /**
  * RFC 2560:
- *
+ * 
  * <pre>
  * ResponseBytes ::=       SEQUENCE {
  *     responseType   OBJECT IDENTIFIER,
  *     response       OCTET STRING }
  * </pre>
- *
+ * 
  * @version $Revision$ $Date$
  */
-public class ResponseBytes implements ASN1Value
-{
-	///////////////////////////////////////////////////////////////////////
-	// Members and member access
-	///////////////////////////////////////////////////////////////////////
-	public final static OBJECT_IDENTIFIER OCSP = 
-		new OBJECT_IDENTIFIER("1.3.6.1.5.5.7.48.1");
-	public final static OBJECT_IDENTIFIER OCSP_BASIC = 
-		new OBJECT_IDENTIFIER("1.3.6.1.5.5.7.48.1.1");
+public class ResponseBytes implements ASN1Value {
+    ///////////////////////////////////////////////////////////////////////
+    // Members and member access
+    ///////////////////////////////////////////////////////////////////////
+    public final static OBJECT_IDENTIFIER OCSP =
+            new OBJECT_IDENTIFIER("1.3.6.1.5.5.7.48.1");
+    public final static OBJECT_IDENTIFIER OCSP_BASIC =
+            new OBJECT_IDENTIFIER("1.3.6.1.5.5.7.48.1.1");
 
-	private OBJECT_IDENTIFIER responseType = null;
-	private OCTET_STRING response = null;
-	private SEQUENCE sequence;
+    private OBJECT_IDENTIFIER responseType = null;
+    private OCTET_STRING response = null;
+    private SEQUENCE sequence;
 
-	public OBJECT_IDENTIFIER getObjectIdentifier()
-	{
-		return responseType;
-	}
+    public OBJECT_IDENTIFIER getObjectIdentifier() {
+        return responseType;
+    }
 
-	public OCTET_STRING getResponse()
-	{
-		return response;
-	}
+    public OCTET_STRING getResponse() {
+        return response;
+    }
 
-	public ResponseBytes(OBJECT_IDENTIFIER responseType, OCTET_STRING response)
-	{
-		sequence = new SEQUENCE();
+    public ResponseBytes(OBJECT_IDENTIFIER responseType, OCTET_STRING response) {
+        sequence = new SEQUENCE();
 
-		this.responseType = responseType;
-		sequence.addElement(responseType);
+        this.responseType = responseType;
+        sequence.addElement(responseType);
 
-		this.response = response;
-		sequence.addElement(response);
-	}
+        this.response = response;
+        sequence.addElement(response);
+    }
 
-	///////////////////////////////////////////////////////////////////////
-	// encoding/decoding
-	///////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////
+    // encoding/decoding
+    ///////////////////////////////////////////////////////////////////////
 
-	private static final Tag TAG = SEQUENCE.TAG;
+    private static final Tag TAG = SEQUENCE.TAG;
 
-	public Tag getTag()
-	{
-		return TAG;
-	}
+    public Tag getTag() {
+        return TAG;
+    }
 
-	public void encode(OutputStream ostream) throws IOException
-	{
-		encode(TAG, ostream);
-	}
+    public void encode(OutputStream ostream) throws IOException {
+        encode(TAG, ostream);
+    }
 
-	public void encode(Tag implicitTag, OutputStream ostream)
-		throws IOException
-	{
-		sequence.encode(implicitTag, ostream);
-	}
+    public void encode(Tag implicitTag, OutputStream ostream)
+            throws IOException {
+        sequence.encode(implicitTag, ostream);
+    }
 
-	private static final Template templateInstance = new Template();
+    private static final Template templateInstance = new Template();
 
-	public static Template getTemplate() {
-		return templateInstance;
-	}
+    public static Template getTemplate() {
+        return templateInstance;
+    }
 
-	/**
-	 * A Template for decoding <code>ResponseBytes</code>.
-	 */
-	public static class Template implements ASN1Template
-	{
+    /**
+     * A Template for decoding <code>ResponseBytes</code>.
+     */
+    public static class Template implements ASN1Template {
 
-		private SEQUENCE.Template seqt;
+        private SEQUENCE.Template seqt;
 
-		public Template()
-		{
-			seqt = new SEQUENCE.Template();
-			seqt.addElement( OBJECT_IDENTIFIER.getTemplate() );
-			seqt.addElement( OCTET_STRING.getTemplate() );
-		}
+        public Template() {
+            seqt = new SEQUENCE.Template();
+            seqt.addElement(OBJECT_IDENTIFIER.getTemplate());
+            seqt.addElement(OCTET_STRING.getTemplate());
+        }
 
-		public boolean tagMatch(Tag tag)
-		{
-			return TAG.equals(tag);
-		}
+        public boolean tagMatch(Tag tag) {
+            return TAG.equals(tag);
+        }
 
-		public ASN1Value decode(InputStream istream)
-			throws InvalidBERException, IOException
-		{
-			return decode(TAG, istream);
-		}
+        public ASN1Value decode(InputStream istream)
+                throws InvalidBERException, IOException {
+            return decode(TAG, istream);
+        }
 
-		public ASN1Value decode(Tag implicitTag, InputStream istream)
-			throws InvalidBERException, IOException
-		{
-			SEQUENCE seq = (SEQUENCE) seqt.decode(implicitTag, istream);
+        public ASN1Value decode(Tag implicitTag, InputStream istream)
+                throws InvalidBERException, IOException {
+            SEQUENCE seq = (SEQUENCE) seqt.decode(implicitTag, istream);
 
-			return new ResponseBytes(
-				(OBJECT_IDENTIFIER) seq.elementAt(0),
-				(OCTET_STRING) seq.elementAt(1));
-		}
-	}
+            return new ResponseBytes(
+                    (OBJECT_IDENTIFIER) seq.elementAt(0),
+                    (OCTET_STRING) seq.elementAt(1));
+        }
+    }
 }

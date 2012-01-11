@@ -27,7 +27,7 @@ import java.nio.charset.CodingErrorAction;
 /**
  * Converts bytes in ASN.1 UniversalString character set to UniversalString
  * characters.
- *
+ * 
  * @author Lily Hsiao
  * @author Slava Galperin
  */
@@ -44,7 +44,8 @@ public class UniversalCharsetDecoder extends CharsetDecoder {
             // XXX we do not know what to do with truly UCS-4 characters here
             // we also assumed network byte order
 
-            if (in.remaining() < 4) return CoderResult.UNDERFLOW;
+            if (in.remaining() < 4)
+                return CoderResult.UNDERFLOW;
 
             in.mark();
             byte b0 = in.get();
@@ -53,7 +54,7 @@ public class UniversalCharsetDecoder extends CharsetDecoder {
             byte b3 = in.get();
 
             if (CodingErrorAction.REPORT == unmappableCharacterAction() &&
-                !((b0 == 0 && b1 == 0) || (b2 == 0 && b3 == 0))) {
+                    !((b0 == 0 && b1 == 0) || (b2 == 0 && b3 == 0))) {
                 return CoderResult.unmappableForLength(4);
             }
 
@@ -74,7 +75,7 @@ public class UniversalCharsetDecoder extends CharsetDecoder {
                 // 0000100   e  \0  \0  \0   )  \0  \0  \0   .  \0  \0  \0   c  \0  \0  \0
                 // 0000120   o  \0  \0  \0   m  \0  \0  \0
                 // 0000130
-                c = (char)(((b1 << 8) & 0xff00) + (b0 & 0x00ff));
+                c = (char) (((b1 << 8) & 0xff00) + (b0 & 0x00ff));
 
             } else { // (b0 == 0 && b1 == 0)
                 // This should be the right order.
@@ -83,7 +84,7 @@ public class UniversalCharsetDecoder extends CharsetDecoder {
                 // 0000020 0000 006e 0000 0020 0000 0051 0000 0041
                 // 0000040
 
-                c = (char)(((b2 << 8) & 0xff00) + (b3 & 0x00ff));
+                c = (char) (((b2 << 8) & 0xff00) + (b3 & 0x00ff));
             }
 
             if (out.remaining() < 1) {

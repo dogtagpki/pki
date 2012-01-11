@@ -17,11 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.util;
 
-
 /**
  * This class will display the certificate content in predefined
  * format.
- *
+ * 
  * @author Andrew Wnuk
  * @version $Revision$, $Date$
  */
@@ -31,92 +30,87 @@ public class PrettyPrintFormat {
      * variables
      *==========================================================*/
     private String mSeparator = "";
-	private int mIndentSize = 0;
-	private int mLineLen = 0;
+    private int mIndentSize = 0;
+    private int mLineLen = 0;
 
     /*==========================================================
      * constants
      *
-	 *==========================================================*/
-	private final static String spaces=
-        "                                                 "+
-        "                                                 "+
-        "                                                 "+
-        "                                                 "+
-        "                                                 ";
+     *==========================================================*/
+    private final static String spaces =
+            "                                                 " +
+                    "                                                 " +
+                    "                                                 " +
+                    "                                                 " +
+                    "                                                 ";
 
-	/*==========================================================
+    /*==========================================================
      * constructors
      *==========================================================*/
 
-    public PrettyPrintFormat(String separator)
-    {
-		mSeparator = separator;
+    public PrettyPrintFormat(String separator) {
+        mSeparator = separator;
     }
 
-    public PrettyPrintFormat(String separator, int lineLen)
-    {
-		mSeparator = separator;
-		mLineLen = lineLen;
+    public PrettyPrintFormat(String separator, int lineLen) {
+        mSeparator = separator;
+        mLineLen = lineLen;
     }
 
-    public PrettyPrintFormat(String separator, int lineLen, int indentSize)
-    {
-		mSeparator = separator;
-		mLineLen = lineLen;
-		mIndentSize = indentSize;
+    public PrettyPrintFormat(String separator, int lineLen, int indentSize) {
+        mSeparator = separator;
+        mLineLen = lineLen;
+        mIndentSize = indentSize;
     }
 
     /*==========================================================
      * Private methods
      *==========================================================*/
-	 
-	 
+
     /*==========================================================
      * public methods
      *==========================================================*/
 
     /**
      * Provide white space indention
-	 * stevep - speed improvements. Factor of 10 improvement
+     * stevep - speed improvements. Factor of 10 improvement
+     * 
      * @param numSpace number of white space to be returned
      * @return white spaces
      */
-	public String indent(int size) {
-		return spaces.substring(0,size);
-	}
+    public String indent(int size) {
+        return spaces.substring(0, size);
+    }
 
     private static final char[] hexdigits = {
-        '0','1','2','3','4','5','6','7','8','9',
-        'A','B','C','D','E','F'
+            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+            'A', 'B', 'C', 'D', 'E', 'F'
     };
-
 
     /**
      * Convert Byte Array to Hex String Format
-	 * stevep - speedup by factor of 8
+     * stevep - speedup by factor of 8
+     * 
      * @param byte array of data to hexify
-	 * @param indentSize number of spaces to prepend before each line
-	 * @param lineLen number of bytes to output on each line (0
-					 means: put everything on one line
-	 * @param separator the first character of this string will be used as
-					 the separator between bytes.
+     * @param indentSize number of spaces to prepend before each line
+     * @param lineLen number of bytes to output on each line (0
+     *            means: put everything on one line
+     * @param separator the first character of this string will be used as
+     *            the separator between bytes.
      * @return string representation
      */
 
-	public String toHexString(byte[] in, int indentSize, 
-			int lineLen, String separator)
- 	{
+    public String toHexString(byte[] in, int indentSize,
+            int lineLen, String separator) {
         StringBuffer sb = new StringBuffer();
         int hexCount = 0;
         char c[];
-        int j=0;
+        int j = 0;
 
-        if (lineLen ==0) {
-            c = new char[in.length*3+1];
-        }
-        else {
-            c = new char[lineLen*3+1];
+        if (lineLen == 0) {
+            c = new char[in.length * 3 + 1];
+        } else {
+            c = new char[lineLen * 3 + 1];
         }
 
         char sep = separator.charAt(0);
@@ -125,16 +119,16 @@ public class PrettyPrintFormat {
         for (int i = 0; i < in.length; i++) {
             if (lineLen > 0 && hexCount == lineLen) {
                 c[j++] = '\n';
-                sb.append(c,0,j);
+                sb.append(c, 0, j);
                 sb.append(indent(indentSize));
-                hexCount =0;
-                j=0;
+                hexCount = 0;
+                j = 0;
             }
             byte x = in[i];
 
             // output hex digits to buffer
             c[j++] = hexdigits[(char) ((x >> 4) & 0xf)];
-            c[j++] = hexdigits[(char) (x&0xf)];
+            c[j++] = hexdigits[(char) (x & 0xf)];
 
             // if not last char, output separator
             if (i != in.length - 1) {
@@ -143,25 +137,24 @@ public class PrettyPrintFormat {
 
             hexCount++;
         }
-        if (j>0) {
+        if (j > 0) {
             c[j++] = '\n';
-            sb.append(c,0,j);
+            sb.append(c, 0, j);
         }
-//        sb.append("\n");
+        //        sb.append("\n");
 
         return sb.toString();
     }
 
-
     public String toHexString(byte[] in, int indentSize, int lineLen) {
-		return toHexString(in,indentSize,lineLen,mSeparator);
+        return toHexString(in, indentSize, lineLen, mSeparator);
     }
 
     public String toHexString(byte[] in, int indentSize) {
-		return toHexString(in,indentSize,mLineLen);
+        return toHexString(in, indentSize, mLineLen);
     }
 
     public String toHexString(byte[] in) {
-		return toHexString(in,mIndentSize);
-	}
+        return toHexString(in, mIndentSize);
+    }
 }

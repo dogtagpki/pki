@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.util;
 
-
 import java.security.PublicKey;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -25,11 +24,10 @@ import java.util.ResourceBundle;
 import netscape.security.provider.RSAPublicKey;
 import netscape.security.x509.X509Key;
 
-
 /**
  * This class will display the certificate content in predefined
  * format.
- *
+ * 
  * @author Jack Pan-Chen
  * @author Andrew Wnuk
  * @version $Revision$, $Date$
@@ -49,7 +47,7 @@ public class PubKeyPrettyPrint {
     public PubKeyPrettyPrint(PublicKey key) {
         if (key instanceof X509Key)
             mX509Key = (X509Key) key;
-			
+
         pp = new PrettyPrintFormat(":");
     }
 
@@ -60,7 +58,7 @@ public class PubKeyPrettyPrint {
     /**
      * This method return string representation of the certificate
      * in predefined format using specified client local. I18N Support.
-     *
+     * 
      * @param clientLocale Locale to be used for localization
      * @return string representation of the certificate
      */
@@ -71,9 +69,8 @@ public class PubKeyPrettyPrint {
         else
             return null;
     }
-	
-    public String X509toString(Locale clientLocale, int indentSize, int lineLen) {
 
+    public String X509toString(Locale clientLocale, int indentSize, int lineLen) {
 
         //get I18N resources
         ResourceBundle resource = ResourceBundle.getBundle(
@@ -87,8 +84,8 @@ public class PubKeyPrettyPrint {
             //XXX I18N Algorithm Name ?
             sb.append(pp.indent(indentSize) + resource.getString(
                     PrettyPrintResources.TOKEN_ALGORITHM) +
-                alg + " - " +
-                mX509Key.getAlgorithmId().getOID().toString() + "\n");
+                    alg + " - " +
+                    mX509Key.getAlgorithmId().getOID().toString() + "\n");
 
             if (alg.equals("RSA")) {
 
@@ -98,12 +95,12 @@ public class PubKeyPrettyPrint {
                         PrettyPrintResources.TOKEN_PUBLIC_KEY) + "\n");
                 sb.append(pp.indent(indentSize + 4) + resource.getString(
                         PrettyPrintResources.TOKEN_PUBLIC_KEY_EXPONENT) +
-                    rsakey.getPublicExponent().toInt() + "\n");
+                        rsakey.getPublicExponent().toInt() + "\n");
                 sb.append(pp.indent(indentSize + 4) + resource.getString(
                         PrettyPrintResources.TOKEN_PUBLIC_KEY_MODULUS) +
-                    "(" + rsakey.getKeySize() + " bits) :\n");
+                        "(" + rsakey.getKeySize() + " bits) :\n");
                 sb.append(pp.toHexString(
-                        rsakey.getModulus().toByteArray(), 
+                        rsakey.getModulus().toByteArray(),
                         indentSize + 8, lineLen));
             } else {
 

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.crl;
 
-
 import java.io.IOException;
 import java.util.Locale;
 
@@ -40,14 +39,13 @@ import com.netscape.certsrv.ca.ICRLIssuingPoint;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.ILogger;
 
-
 /**
  * This represents a freshest CRL extension.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class CMSFreshestCRLExtension
-    implements ICMSCRLExtension, IExtendedPluginInfo {
+        implements ICMSCRLExtension, IExtendedPluginInfo {
     public static final String PROP_NUM_POINTS = "numPoints";
     public static final String PROP_POINTTYPE = "pointType";
     public static final String PROP_POINTNAME = "pointName";
@@ -60,7 +58,7 @@ public class CMSFreshestCRLExtension
     }
 
     public Extension setCRLExtensionCriticality(Extension ext,
-        boolean critical) {
+            boolean critical) {
         FreshestCRLExtension freshestCRLExt = (FreshestCRLExtension) ext;
 
         freshestCRLExt.setCritical(critical);
@@ -69,7 +67,7 @@ public class CMSFreshestCRLExtension
     }
 
     public Extension getCRLExtension(IConfigStore config, Object ip,
-        boolean critical) {
+            boolean critical) {
         ICRLIssuingPoint crlIssuingPoint = (ICRLIssuingPoint) ip;
         FreshestCRLExtension freshestCRLExt = null;
 
@@ -159,7 +157,7 @@ public class CMSFreshestCRLExtension
             numPoints = config.getInteger(PROP_NUM_POINTS, 0);
         } catch (EBaseException e) {
             log(ILogger.LL_FAILURE, "Invalid numPoints property for CRL " +
-                "Freshest CRL extension - " + e);
+                    "Freshest CRL extension - " + e);
         }
         nvp.add(PROP_NUM_POINTS, String.valueOf(numPoints));
 
@@ -204,26 +202,26 @@ public class CMSFreshestCRLExtension
                 "critical;boolean;Set criticality for Freshest CRL extension.",
                 PROP_NUM_POINTS + ";number;Set number of CRL distribution points.",
                 PROP_POINTTYPE + "0;choice(" + PROP_DIRNAME + "," + PROP_URINAME +
-                ");Select CRL distribution point name type.",
+                        ");Select CRL distribution point name type.",
                 PROP_POINTNAME + "0;string;Enter CRL distribution point name " +
-                "corresponding to the selected point type.",
+                        "corresponding to the selected point type.",
                 IExtendedPluginInfo.HELP_TOKEN +
-                ";configuration-ca-edit-crlextension-issuingdistributionpoint",
+                        ";configuration-ca-edit-crlextension-issuingdistributionpoint",
                 PROP_POINTTYPE + "1;choice(" + PROP_DIRNAME + "," + PROP_URINAME +
-                ");Select CRL distribution point name type.",
+                        ");Select CRL distribution point name type.",
                 PROP_POINTNAME + "1;string;Enter CRL distribution point name " +
-                "corresponding to the selected point type.",
+                        "corresponding to the selected point type.",
                 IExtendedPluginInfo.HELP_TOKEN +
-                ";configuration-ca-edit-crlextension-issuingdistributionpoint",
+                        ";configuration-ca-edit-crlextension-issuingdistributionpoint",
                 PROP_POINTTYPE + "2;choice(" + PROP_DIRNAME + "," + PROP_URINAME +
-                ");Select CRL distribution point name type.",
+                        ");Select CRL distribution point name type.",
                 PROP_POINTNAME + "2;string;Enter CRL distribution point name " +
-                "corresponding to the selected point type.",
+                        "corresponding to the selected point type.",
                 IExtendedPluginInfo.HELP_TOKEN +
-                ";configuration-ca-edit-crlextension-issuingdistributionpoint",
+                        ";configuration-ca-edit-crlextension-issuingdistributionpoint",
                 IExtendedPluginInfo.HELP_TEXT +
-                ";The Freshest CRL is a non critical CRL extension " +
-                "that identifies the delta CRL distribution points for a particular CRL."
+                        ";The Freshest CRL is a non critical CRL extension " +
+                        "that identifies the delta CRL distribution points for a particular CRL."
             };
 
         return params;
@@ -231,6 +229,6 @@ public class CMSFreshestCRLExtension
 
     private void log(int level, String msg) {
         mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_CA, level,
-            "CMSFreshestCRLExtension - " + msg);
+                "CMSFreshestCRLExtension - " + msg);
     }
-} 
+}

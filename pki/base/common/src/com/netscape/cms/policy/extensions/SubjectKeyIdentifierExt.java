@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.policy.extensions;
 
-
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -46,21 +45,21 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cms.policy.APolicyRule;
 
-
 /**
  * Subject Public Key Extension Policy
- * Adds the subject public key id extension to certificates. 
+ * Adds the subject public key id extension to certificates.
  * <P>
+ * 
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- *
+ * 
  * @deprecated
  * @version $Revision$, $Date$
  */
 public class SubjectKeyIdentifierExt extends APolicyRule
-    implements IEnrollmentPolicy, IExtendedPluginInfo {
+        implements IEnrollmentPolicy, IExtendedPluginInfo {
     protected static final String PROP_CRITICAL = "critical";
     protected static final String PROP_KEYID_TYPE = "keyIdentifierType";
     protected static final String PROP_REQATTR_NAME = "requestAttrName";
@@ -102,17 +101,15 @@ public class SubjectKeyIdentifierExt extends APolicyRule
     /**
      * Initializes this policy rule.
      * <P>
-     *
+     * 
      * The entries may be of the form:
-     *
-     *      ca.Policy.rule.<ruleName>.predicate=
-     *      ca.Policy.rule.<ruleName>.implName=
-     *      ca.Policy.rule.<ruleName>.enable=true
-     *
-     * @param config	The config store reference
+     * 
+     * ca.Policy.rule.<ruleName>.predicate= ca.Policy.rule.<ruleName>.implName= ca.Policy.rule.<ruleName>.enable=true
+     * 
+     * @param config The config store reference
      */
     public void init(ISubsystem owner, IConfigStore config)
-        throws EBaseException {
+            throws EBaseException {
         mConfig = config;
 
         mEnabled = mConfig.getBoolean(
@@ -126,26 +123,26 @@ public class SubjectKeyIdentifierExt extends APolicyRule
          */
 
         // parse key id type
-        if (mKeyIdType.equalsIgnoreCase(KEYID_TYPE_SHA1)) 
+        if (mKeyIdType.equalsIgnoreCase(KEYID_TYPE_SHA1))
             mKeyIdType = KEYID_TYPE_SHA1;
-        else if (mKeyIdType.equalsIgnoreCase(KEYID_TYPE_TYPEFIELD)) 
+        else if (mKeyIdType.equalsIgnoreCase(KEYID_TYPE_TYPEFIELD))
             mKeyIdType = KEYID_TYPE_TYPEFIELD;
 
-            /*
-             else if (mKeyIdType.equalsIgnoreCase(KEYID_TYPE_REQATTR)
-             mKeyIdType = KEYID_TYPE_REQATTR;
-             */
-        else if (mKeyIdType.equalsIgnoreCase(KEYID_TYPE_SPKISHA1)) 
+        /*
+         else if (mKeyIdType.equalsIgnoreCase(KEYID_TYPE_REQATTR)
+         mKeyIdType = KEYID_TYPE_REQATTR;
+         */
+        else if (mKeyIdType.equalsIgnoreCase(KEYID_TYPE_SPKISHA1))
             mKeyIdType = KEYID_TYPE_SPKISHA1;
         else {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("KRA_UNKNOWN_KEY_ID_TYPE", mKeyIdType));
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE", 
-                        PROP_KEYID_TYPE, 
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("KRA_UNKNOWN_KEY_ID_TYPE", mKeyIdType));
+            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE",
+                        PROP_KEYID_TYPE,
                         "value must be one of " +
-                        KEYID_TYPE_SHA1 + ", " +
-                        KEYID_TYPE_TYPEFIELD + ", " +
-                        KEYID_TYPE_SPKISHA1));
+                                KEYID_TYPE_SHA1 + ", " +
+                                KEYID_TYPE_TYPEFIELD + ", " +
+                                KEYID_TYPE_SPKISHA1));
         }
 
         // form instance params 
@@ -160,18 +157,18 @@ public class SubjectKeyIdentifierExt extends APolicyRule
     /**
      * Adds Subject Key identifier Extension to a certificate.
      * If the extension is already there, accept it.
-     *
-     * @param req	The request on which to apply policy.
+     * 
+     * @param req The request on which to apply policy.
      * @return The policy result object.
      */
     public PolicyResult apply(IRequest req) {
         // get certInfo from request.
-        X509CertInfo[] ci = 
-            req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
-		
+        X509CertInfo[] ci =
+                req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
+
         if (ci == null || ci[0] == null) {
             setError(req, CMS.getUserMessage("CMS_POLICY_NO_CERT_INFO"), NAME);
-            return PolicyResult.REJECTED; 
+            return PolicyResult.REJECTED;
         }
 
         for (int i = 0; i < ci.length; i++) {
@@ -189,7 +186,7 @@ public class SubjectKeyIdentifierExt extends APolicyRule
             // if subject key id extension already exists, leave it if approved.
             SubjectKeyIdentifierExtension subjectKeyIdExt = null;
             CertificateExtensions extensions = (CertificateExtensions)
-                certInfo.get(X509CertInfo.EXTENSIONS);
+                    certInfo.get(X509CertInfo.EXTENSIONS);
 
             try {
                 if (extensions != null) {
@@ -202,14 +199,14 @@ public class SubjectKeyIdentifierExt extends APolicyRule
             if (subjectKeyIdExt != null) {
                 if (agentApproved(req)) {
                     CMS.debug(
-                        "SubjectKeyIdentifierExt: agent approved request id " + req.getRequestId() +
-                        " already has subject key id extension with value " +
-                        subjectKeyIdExt);
+                            "SubjectKeyIdentifierExt: agent approved request id " + req.getRequestId() +
+                                    " already has subject key id extension with value " +
+                                    subjectKeyIdExt);
                     return PolicyResult.ACCEPTED;
                 } else {
                     CMS.debug(
-                        "SubjectKeyIdentifierExt: request id from user " + req.getRequestId() +
-                        " had subject key identifier - deleted to be replaced");
+                            "SubjectKeyIdentifierExt: request id from user " + req.getRequestId() +
+                                    " had subject key identifier - deleted to be replaced");
                     extensions.delete(SubjectKeyIdentifierExtension.NAME);
                 }
             }
@@ -217,38 +214,38 @@ public class SubjectKeyIdentifierExt extends APolicyRule
             // create subject key id extension.
             KeyIdentifier keyId = null;
 
-            try { 
-                keyId = formKeyIdentifier(certInfo, req); 
+            try {
+                keyId = formKeyIdentifier(certInfo, req);
             } catch (EBaseException e) {
                 setPolicyException(req, e);
                 return PolicyResult.REJECTED;
             }
-            subjectKeyIdExt = 
+            subjectKeyIdExt =
                     new SubjectKeyIdentifierExtension(
-                        mCritical, keyId.getIdentifier());
+                            mCritical, keyId.getIdentifier());
 
             // add subject key id extension.
             if (extensions == null) {
                 certInfo.set(X509CertInfo.VERSION,
-                    new CertificateVersion(CertificateVersion.V3));
+                        new CertificateVersion(CertificateVersion.V3));
                 extensions = new CertificateExtensions();
                 certInfo.set(X509CertInfo.EXTENSIONS, extensions);
             }
             extensions.set(
-                SubjectKeyIdentifierExtension.NAME, subjectKeyIdExt);
+                    SubjectKeyIdentifierExtension.NAME, subjectKeyIdExt);
             CMS.debug(
-                "SubjectKeyIdentifierExt: added subject key id ext to request " + req.getRequestId());
+                    "SubjectKeyIdentifierExt: added subject key id ext to request " + req.getRequestId());
             return PolicyResult.ACCEPTED;
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("POLICY_UNEXPECTED_POLICY_ERROR,NAME", e.getMessage()));
-            setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"), 
-                NAME, e.getMessage());
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("POLICY_UNEXPECTED_POLICY_ERROR,NAME", e.getMessage()));
+            setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"),
+                    NAME, e.getMessage());
             return PolicyResult.REJECTED;
         } catch (CertificateException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CA_CERT_INFO_ERROR", e.getMessage()));
-            setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"), 
-                NAME, "Certificate Info Error");
+            setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"),
+                    NAME, "Certificate Info Error");
             return PolicyResult.REJECTED;
         }
     }
@@ -256,12 +253,13 @@ public class SubjectKeyIdentifierExt extends APolicyRule
     /**
      * Form the Key Identifier in the Subject Key Identifier extension.
      * <p>
+     * 
      * @param certInfo Certificate Info
      * @param req request
      * @return A Key Identifier.
      */
     protected KeyIdentifier formKeyIdentifier(
-        X509CertInfo certInfo, IRequest req) throws EBaseException {
+            X509CertInfo certInfo, IRequest req) throws EBaseException {
         KeyIdentifier keyId = null;
 
         if (mKeyIdType == KEYID_TYPE_SHA1) {
@@ -269,10 +267,10 @@ public class SubjectKeyIdentifierExt extends APolicyRule
         } else if (mKeyIdType == KEYID_TYPE_TYPEFIELD) {
             keyId = formTypeFieldKeyId(certInfo);
         } /*
-         else if (mKeyIdType == KEYID_TYPE_REQATTR) {
-         keyId = formReqAttrKeyId(certInfo, req);
-         }
-         */ else if (mKeyIdType == KEYID_TYPE_SPKISHA1) {
+          else if (mKeyIdType == KEYID_TYPE_REQATTR) {
+          keyId = formReqAttrKeyId(certInfo, req);
+          }
+          */else if (mKeyIdType == KEYID_TYPE_SPKISHA1) {
             keyId = formSpkiSHA1KeyId(certInfo);
         } else {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE",
@@ -282,22 +280,23 @@ public class SubjectKeyIdentifierExt extends APolicyRule
     }
 
     /**
-     * Form key identifier from a type field value of 0100 followed by 
-     * the least significate 60 bits of the sha-1 hash of the subject 
-     * public key BIT STRING in accordance with RFC 2459. 
+     * Form key identifier from a type field value of 0100 followed by
+     * the least significate 60 bits of the sha-1 hash of the subject
+     * public key BIT STRING in accordance with RFC 2459.
      * <p>
+     * 
      * @param certInfo - certificate info
      * @return A Key Identifier with value formulatd as described.
      */
 
     protected KeyIdentifier formTypeFieldKeyId(X509CertInfo certInfo)
-        throws EBaseException {
+            throws EBaseException {
         KeyIdentifier keyId = null;
         X509Key key = null;
 
         try {
             CertificateX509Key certKey =
-                (CertificateX509Key) certInfo.get(X509CertInfo.KEY);
+                    (CertificateX509Key) certInfo.get(X509CertInfo.KEY);
 
             if (certKey == null) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("POLICY_MISSING_KEY_1", NAME));
@@ -309,13 +308,13 @@ public class SubjectKeyIdentifierExt extends APolicyRule
                 throw new EPolicyException(CMS.getUserMessage("CMS_POLICY_MISSING_KEY", NAME));
             }
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("POLICY_ERROR_GET_KEY_FROM_CERT", e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("POLICY_ERROR_GET_KEY_FROM_CERT", e.toString()));
             throw new EPolicyException(
                     CMS.getUserMessage("CMS_POLICY_SUBJECT_KEY_ID_ERROR", NAME));
         } catch (CertificateException e) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("POLICY_ERROR_GET_KEY_FROM_CERT", e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("POLICY_ERROR_GET_KEY_FROM_CERT", e.toString()));
             throw new EPolicyException(
                     CMS.getUserMessage("CMS_POLICY_SUBJECT_KEY_ID_ERROR", NAME));
         }
@@ -330,8 +329,8 @@ public class SubjectKeyIdentifierExt extends APolicyRule
             octetString[0] &= (0x08f & octetString[0]);
             keyId = new KeyIdentifier(octetString);
         } catch (NoSuchAlgorithmException e) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("POLICY_ERROR_SUBJECT_KEY_ID_1", NAME));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("POLICY_ERROR_SUBJECT_KEY_ID_1", NAME));
             throw new EPolicyException(
                     CMS.getUserMessage("CMS_POLICY_SUBJECT_KEY_ID_ERROR", NAME));
         }
@@ -340,40 +339,39 @@ public class SubjectKeyIdentifierExt extends APolicyRule
 
     /**
      * Return configured parameters for a policy rule instance.
-     *
+     * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getInstanceParams() { 
+    public Vector getInstanceParams() {
         return mInstanceParams;
     }
 
     /**
      * Return default parameters for a policy implementation.
-     *
+     * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getDefaultParams() { 
+    public Vector getDefaultParams() {
         return mDefaultParams;
     }
 
     /**
-     * Gets extended plugin info for pretty Console displays. 
+     * Gets extended plugin info for pretty Console displays.
      */
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
                 PROP_CRITICAL + ";boolean;RFC 2459 recommendation: MUST NOT be marked critical.",
                 PROP_KEYID_TYPE + ";" +
-                "choice(" + KEYID_TYPE_SHA1 + "," +
-                KEYID_TYPE_TYPEFIELD + "," +
-                KEYID_TYPE_SPKISHA1 + ");" +
-                "Method to derive the Key Identifier.",
+                        "choice(" + KEYID_TYPE_SHA1 + "," +
+                        KEYID_TYPE_TYPEFIELD + "," +
+                        KEYID_TYPE_SPKISHA1 + ");" +
+                        "Method to derive the Key Identifier.",
                 IExtendedPluginInfo.HELP_TOKEN +
-                ";configuration-policyrules-subjectkeyidentifier",
+                        ";configuration-policyrules-subjectkeyidentifier",
                 IExtendedPluginInfo.HELP_TEXT +
-                ";Adds the Subject Key Identifier extension. See RFC 2459 (4.2.1.2)"
+                        ";Adds the Subject Key Identifier extension. See RFC 2459 (4.2.1.2)"
             };
 
         return params;
     }
 }
-

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmsutil.radius;
 
-
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.net.DatagramPacket;
@@ -27,7 +26,6 @@ import java.net.SocketException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Properties;
-
 
 /**
  * This class implements RFC2865 - Remote Authentication Dial In
@@ -52,20 +50,20 @@ public class RadiusConn {
     private int _maxRetries = MAX_RETRIES;
     private SecureRandom _rand = null;
 
-    public RadiusConn(String host1, String host2, int port, String secret, 
-        int timeout) throws SocketException {
+    public RadiusConn(String host1, String host2, int port, String secret,
+            int timeout) throws SocketException {
         this(host1, port, host2, port, secret, timeout, null, null);
     }
 
     public RadiusConn(String host, int port, String secret, byte seed[],
-        Properties options) 
-        throws SocketException {
+            Properties options)
+            throws SocketException {
         this(host, port, host, port, secret, DEFAULT_TIMEOUT, seed, options);
     }
 
-    public RadiusConn(String host1, int port1, String host2, int port2, 
-        String secret, int timeout, byte seed[], Properties options)
-        throws SocketException {
+    public RadiusConn(String host1, int port1, String host2, int port2,
+            String secret, int timeout, byte seed[], Properties options)
+            throws SocketException {
         _host[0] = host1;
         _port[0] = port1;
         _host[1] = host2;
@@ -73,7 +71,7 @@ public class RadiusConn {
         _selected = 0;
         _secret = secret;
         _options = options;
-        _socket = new DatagramSocket(); 
+        _socket = new DatagramSocket();
         _socket.setSoTimeout(timeout * 1000);
         if (seed == null) {
             _rand = new SecureRandom();
@@ -86,8 +84,8 @@ public class RadiusConn {
         _socket.disconnect();
     }
 
-    public void authenticate(String name, String password) 
-        throws IOException, NoSuchAlgorithmException, 
+    public void authenticate(String name, String password)
+            throws IOException, NoSuchAlgorithmException,
             RejectException, ChallengeException {
         int retries = 0;
         Packet res = null;
@@ -104,7 +102,7 @@ public class RadiusConn {
             send(req, _host[_selected], _port[_selected]);
             try {
                 retries++;
-                res = receive(); 
+                res = receive();
                 if (res instanceof AccessReject) {
                     throw new RejectException((AccessReject) res);
                 } else if (res instanceof AccessChallenge) {
@@ -121,24 +119,23 @@ public class RadiusConn {
                     }
                     // throw e;
                 }
-	
+
             }
-        }
-        while (res == null);
+        } while (res == null);
     }
 
     public void replyChallenge(String password, ChallengeException ce)
-        throws IOException, NoSuchAlgorithmException, 
+            throws IOException, NoSuchAlgorithmException,
             RejectException, ChallengeException {
         replyChallenge(null, password, ce);
     }
 
-    public void replyChallenge(String name, String password, 
-        ChallengeException ce)
-        throws IOException, NoSuchAlgorithmException, 
+    public void replyChallenge(String name, String password,
+            ChallengeException ce)
+            throws IOException, NoSuchAlgorithmException,
             RejectException, ChallengeException {
         StateAttribute state = (StateAttribute)
-            ce.getAttributeSet().getAttributeByType(Attribute.STATE);
+                ce.getAttributeSet().getAttributeByType(Attribute.STATE);
 
         if (state == null)
             throw new IOException("State not found in challenge");
@@ -154,7 +151,7 @@ public class RadiusConn {
         req.addAttribute(new NASPortAttribute(_socket.getLocalPort()));
 
         send(req, _host[_selected], _port[_selected]);
-        Packet res = receive(); 
+        Packet res = receive();
 
         if (res instanceof AccessReject) {
             throw new RejectException((AccessReject) res);
@@ -164,7 +161,7 @@ public class RadiusConn {
     }
 
     public void replyChallenge(String name, String password, String state)
-        throws IOException, NoSuchAlgorithmException, 
+            throws IOException, NoSuchAlgorithmException,
             RejectException, ChallengeException {
         if (state == null)
             throw new IOException("State not found in challenge");
@@ -178,7 +175,7 @@ public class RadiusConn {
         req.addAttribute(new NASPortAttribute(_socket.getLocalPort()));
 
         send(req, _host[_selected], _port[_selected]);
-        Packet res = receive(); 
+        Packet res = receive();
 
         if (res instanceof AccessReject) {
             throw new RejectException((AccessReject) res);
@@ -192,12 +189,12 @@ public class RadiusConn {
     }
 
     private void send(NASPacket packet, String host, int port)
-        throws IOException { 
-        DatagramPacket dp = new DatagramPacket(new byte[4096], 4096); 
+            throws IOException {
+        DatagramPacket dp = new DatagramPacket(new byte[4096], 4096);
 
-        dp.setPort(port); 
-        dp.setAddress(InetAddress.getByName(host)); 
-        byte data[] = packet.getData(); 
+        dp.setPort(port);
+        dp.setAddress(InetAddress.getByName(host));
+        byte data[] = packet.getData();
 
         dp.setLength(data.length);
         dp.setData(data);
@@ -207,10 +204,10 @@ public class RadiusConn {
     }
 
     private ServerPacket receive()
-        throws IOException {
-        DatagramPacket dp = new DatagramPacket(new byte[4096], 4096); 
+            throws IOException {
+        DatagramPacket dp = new DatagramPacket(new byte[4096], 4096);
 
-        _socket.receive(dp); 
+        _socket.receive(dp);
         byte data[] = dp.getData();
         ServerPacket p = PacketFactory.createServerPacket(data);
 

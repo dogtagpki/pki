@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.cert;
 
-
 import java.io.IOException;
 import java.util.Date;
 import java.util.Locale;
@@ -45,10 +44,9 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 
-
 /**
  * 'Face-to-face' certificate enrollment.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class DirAuthServlet extends CMSServlet {
@@ -64,8 +62,9 @@ public class DirAuthServlet extends CMSServlet {
         super();
     }
 
-	/**
+    /**
      * initialize the servlet.
+     * 
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -81,15 +80,14 @@ public class DirAuthServlet extends CMSServlet {
         mTemplates.remove(CMSRequest.SUCCESS);
     }
 
-
-	/**
+    /**
      * Process the HTTP request. This servlet reads configuration information
-	 * from the hashDirEnrollment configuration substore
-     *
+     * from the hashDirEnrollment configuration substore
+     * 
      * @param cmsReq the object holding the request and response information
      */
     protected void process(CMSRequest cmsReq)
-        throws EBaseException {
+            throws EBaseException {
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
@@ -112,8 +110,8 @@ public class DirAuthServlet extends CMSServlet {
         try {
             form = getTemplate(mFormPath, httpReq, locale);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"));
             cmsReq.setError(new ECMSGWException(
                     CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE")));
             cmsReq.setStatus(CMSRequest.ERROR);
@@ -166,7 +164,7 @@ public class DirAuthServlet extends CMSServlet {
             printError(cmsReq, "2");
             cmsReq.setStatus(CMSRequest.SUCCESS);
             return;
-        }  
+        }
 
         mgr.setLastLogin(reqHost, currTime);
 
@@ -176,11 +174,11 @@ public class DirAuthServlet extends CMSServlet {
 
         mgr.addAuthToken(pageID, authToken);
 
-        header.addStringValue("pageID", pageID); 
+        header.addStringValue("pageID", pageID);
         header.addStringValue("uid", uid);
         header.addStringValue("fingerprint", mgr.hashFingerprint(reqHost, pageID, uid));
         header.addStringValue("hostname", reqHost);
-  
+
         try {
             ServletOutputStream out = httpResp.getOutputStream();
 
@@ -188,8 +186,8 @@ public class DirAuthServlet extends CMSServlet {
             form.renderOutput(out, argSet);
             cmsReq.setStatus(CMSRequest.SUCCESS);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("ADMIN_SRVLT_ERR_STREAM_TEMPLATE", e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("ADMIN_SRVLT_ERR_STREAM_TEMPLATE", e.toString()));
             cmsReq.setError(new ECMSGWException(
                     CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE")));
             cmsReq.setStatus(CMSRequest.ERROR);
@@ -199,7 +197,7 @@ public class DirAuthServlet extends CMSServlet {
     }
 
     private void printError(CMSRequest cmsReq, String errorCode)
-        throws EBaseException {
+            throws EBaseException {
         IArgBlock httpParams = cmsReq.getHttpParams();
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
@@ -219,7 +217,7 @@ public class DirAuthServlet extends CMSServlet {
             form = getTemplate(formPath, httpReq, locale);
         } catch (IOException e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("ADMIN_SRVLT_ERR_GET_TEMPLATE", formPath, e.toString()));
+                    CMS.getLogMessage("ADMIN_SRVLT_ERR_GET_TEMPLATE", formPath, e.toString()));
             cmsReq.setError(new ECMSGWException(
                     CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE")));
             cmsReq.setStatus(CMSRequest.ERROR);
@@ -234,7 +232,7 @@ public class DirAuthServlet extends CMSServlet {
             cmsReq.setStatus(CMSRequest.SUCCESS);
         } catch (IOException e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("ADMIN_SRVLT_ERR_STREAM_TEMPLATE", e.toString()));
+                    CMS.getLogMessage("ADMIN_SRVLT_ERR_STREAM_TEMPLATE", e.toString()));
             cmsReq.setError(new ECMSGWException(
                     CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE")));
             cmsReq.setStatus(CMSRequest.ERROR);

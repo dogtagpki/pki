@@ -17,18 +17,17 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.policy;
 
-
 import com.netscape.certsrv.request.IRequest;
-
 
 /**
  * Interface for a policy expression.
  * <P>
+ * 
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- *
+ * 
  * @deprecated
  * @version $Revision$, $Date$
  */
@@ -48,12 +47,12 @@ public interface IExpression {
 
     /**
      * Evaluate the Expression.
-     *
-     * @param req	The PKIRequest on which we are applying the condition.
-     * @return 		The return value.
+     * 
+     * @param req The PKIRequest on which we are applying the condition.
+     * @return The return value.
      */
     boolean evaluate(IRequest req)
-        throws EPolicyException;
+            throws EPolicyException;
 
     /**
      * Convert to a string.

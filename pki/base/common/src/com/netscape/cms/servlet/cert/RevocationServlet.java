@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.cert;
 
-
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.cert.CertificateEncodingException;
@@ -57,10 +56,9 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 
-
 /**
  * Perform the first step in revoking a certificate
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class RevocationServlet extends CMSServlet {
@@ -85,15 +83,15 @@ public class RevocationServlet extends CMSServlet {
     private Random mRandom = null;
     private Nonces mNonces = null;
 
-
     public RevocationServlet() {
         super();
     }
 
     /**
-     * initialize the servlet. This servlet uses 
-	 * the template file "reasonToRevoke.template" to render the
-     * result. 
+     * initialize the servlet. This servlet uses
+     * the template file "reasonToRevoke.template" to render the
+     * result.
+     * 
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -115,7 +113,7 @@ public class RevocationServlet extends CMSServlet {
                 }
             }
 
-                // set to false by revokeByDN=false in web.xml
+            // set to false by revokeByDN=false in web.xml
             mRevokeByDN = false;
             String tmp = sc.getInitParameter(PROP_REVOKEBYDN);
 
@@ -127,17 +125,16 @@ public class RevocationServlet extends CMSServlet {
         }
     }
 
-
     /**
-     * Process the HTTP request.  Note that this servlet does not
-	 * actually perform the certificate revocation. This is the first
-	 * step in the multi-step revocation process. (the next step is
+     * Process the HTTP request. Note that this servlet does not
+     * actually perform the certificate revocation. This is the first
+     * step in the multi-step revocation process. (the next step is
      * in the ReasonToRevoke servlet.
-     *
+     * 
      * @param cmsReq the object holding the request and response information
      */
-    protected void process(CMSRequest cmsReq) 
-        throws EBaseException {
+    protected void process(CMSRequest cmsReq)
+            throws EBaseException {
         IArgBlock httpParams = cmsReq.getHttpParams();
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
@@ -148,7 +145,7 @@ public class RevocationServlet extends CMSServlet {
         //		- old certs from auth manager
         // 	- coming from agent or trusted RA: 
         //  	- serial no of cert to be revoked. 
-		
+
         BigInteger old_serial_no = null;
         X509CertImpl old_cert = null;
         String revokeAll = null;
@@ -159,10 +156,10 @@ public class RevocationServlet extends CMSServlet {
         try {
             form = getTemplate(mFormPath, httpReq, locale);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
 
         IArgBlock header = CMS.createArgBlock();
@@ -178,17 +175,17 @@ public class RevocationServlet extends CMSServlet {
                         mAuthzResourceName, "submit");
         } catch (EAuthzAccessDenied e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
         } catch (Exception e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
         }
 
         if (authzToken == null) {
             cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
             return;
         }
-        
+
         // coming from agent 
         if (mAuthMgr != null && mAuthMgr.equals(IAuthSubsystem.CERTUSERDB_AUTHMGR_ID)) {
             X509Certificate[] cert = new X509Certificate[1];
@@ -199,7 +196,7 @@ public class RevocationServlet extends CMSServlet {
         else {
             // from auth manager 
             X509CertImpl[] cert = new X509CertImpl[1];
-            
+
             old_serial_no = getCertFromAuthMgr(authToken, cert);
             old_cert = cert[0];
         }
@@ -212,7 +209,7 @@ public class RevocationServlet extends CMSServlet {
 
         if (mNonces != null) {
             long n = mRandom.nextLong();
-            long m = mNonces.addNonce(n, (X509Certificate)old_cert);
+            long m = mNonces.addNonce(n, (X509Certificate) old_cert);
             if ((n + m) != 0) {
                 header.addStringValue("nonce", Long.toString(m));
             }
@@ -229,12 +226,12 @@ public class RevocationServlet extends CMSServlet {
         } else if (mAuthority instanceof IRegistrationAuthority) {
             IRequest req = mRequestQueue.newRequest(IRequest.GETCERTS_REQUEST);
             String filter = "(&(" + ICertRecord.ATTR_X509CERT + "." +
-                X509CertInfo.SUBJECT + "=" +
-                old_cert.getSubjectDN().toString() + ")(|(" +
-                ICertRecord.ATTR_CERT_STATUS + "=" +
-                ICertRecord.STATUS_VALID + ")(" +
-                ICertRecord.ATTR_CERT_STATUS + "=" +
-                ICertRecord.STATUS_EXPIRED + ")))";
+                    X509CertInfo.SUBJECT + "=" +
+                    old_cert.getSubjectDN().toString() + ")(|(" +
+                    ICertRecord.ATTR_CERT_STATUS + "=" +
+                    ICertRecord.STATUS_VALID + ")(" +
+                    ICertRecord.ATTR_CERT_STATUS + "=" +
+                    ICertRecord.STATUS_EXPIRED + ")))";
 
             req.setExtData(IRequest.CERT_FILTER, filter);
             mRequestQueue.processRequest(req);
@@ -271,8 +268,8 @@ public class RevocationServlet extends CMSServlet {
 
         if (!noInfo && (certsToRevoke == null || certsToRevoke.length == 0 ||
                 (!authorized))) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CA_CERT_ALREADY_REVOKED_1", old_serial_no.toString(16)));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CA_CERT_ALREADY_REVOKED_1", old_serial_no.toString(16)));
             throw new ECMSGWException(CMS.getUserMessage("CMS_GW_CERT_ALREADY_REVOKED"));
         }
 
@@ -296,15 +293,15 @@ public class RevocationServlet extends CMSServlet {
                 IArgBlock rarg = CMS.createArgBlock();
 
                 rarg.addStringValue("serialNumber",
-                    certsToRevoke[i].getSerialNumber().toString(16));
+                        certsToRevoke[i].getSerialNumber().toString(16));
                 rarg.addStringValue("serialNumberDecimal",
-                    certsToRevoke[i].getSerialNumber().toString());
+                        certsToRevoke[i].getSerialNumber().toString());
                 rarg.addStringValue("subject",
-                    certsToRevoke[i].getSubjectDN().toString());
+                        certsToRevoke[i].getSubjectDN().toString());
                 rarg.addLongValue("validNotBefore",
-                    certsToRevoke[i].getNotBefore().getTime() / 1000);
+                        certsToRevoke[i].getNotBefore().getTime() / 1000);
                 rarg.addLongValue("validNotAfter",
-                    certsToRevoke[i].getNotAfter().getTime() / 1000);
+                        certsToRevoke[i].getNotAfter().getTime() / 1000);
                 argSet.addRepeatRecord(rarg);
             }
         } else {
@@ -313,7 +310,7 @@ public class RevocationServlet extends CMSServlet {
         }
 
         // set revocation reason, default to unspecified if not set.
-        int reasonCode = httpParams.getValueAsInt(REASON_CODE, 0); 
+        int reasonCode = httpParams.getValueAsInt(REASON_CODE, 0);
 
         header.addIntegerValue("reason", reasonCode);
 
@@ -324,10 +321,10 @@ public class RevocationServlet extends CMSServlet {
             form.renderOutput(out, argSet);
             cmsReq.setStatus(CMSRequest.SUCCESS);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSGW_ERR_OUT_STREAM_TEMPLATE", e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSGW_ERR_OUT_STREAM_TEMPLATE", e.toString()));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
 
         return;
@@ -337,28 +334,28 @@ public class RevocationServlet extends CMSServlet {
      * get cert to revoke from agent.
      */
     private BigInteger getCertFromAgent(
-        IArgBlock httpParams, X509Certificate[] certContainer)
-        throws EBaseException {
+            IArgBlock httpParams, X509Certificate[] certContainer)
+            throws EBaseException {
         BigInteger serialno = null;
         X509Certificate cert = null;
 
         // get serial no
         serialno = httpParams.getValueAsBigInteger(SERIAL_NO, null);
         if (serialno == null) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSGW_MISSING_SERIALNO_FOR_REVOKE"));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSGW_MISSING_SERIALNO_FOR_REVOKE"));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_MISSING_SERIALNO_FOR_REVOKE"));
+                    CMS.getUserMessage("CMS_GW_MISSING_SERIALNO_FOR_REVOKE"));
         }
 
         // get cert from db if we're cert authority.
         if (mAuthority instanceof ICertificateAuthority) {
             cert = getX509Certificate(serialno);
             if (cert == null) {
-                log(ILogger.LL_FAILURE, 
-                    CMS.getLogMessage("CMSGW_INVALID_CERT_FOR_REVOCATION"));
+                log(ILogger.LL_FAILURE,
+                        CMS.getLogMessage("CMSGW_INVALID_CERT_FOR_REVOCATION"));
                 throw new ECMSGWException(
-                  CMS.getUserMessage("CMS_GW_INVALID_CERT_FOR_REVOCATION"));
+                        CMS.getUserMessage("CMS_GW_INVALID_CERT_FOR_REVOCATION"));
             }
         }
         certContainer[0] = cert;
@@ -369,22 +366,22 @@ public class RevocationServlet extends CMSServlet {
      * get cert to revoke from auth manager
      */
     private BigInteger getCertFromAuthMgr(
-        IAuthToken authToken, X509Certificate[] certContainer) 
-        throws EBaseException {
+            IAuthToken authToken, X509Certificate[] certContainer)
+            throws EBaseException {
         X509CertImpl cert =
-            authToken.getInCert(AuthToken.TOKEN_CERT);
+                authToken.getInCert(AuthToken.TOKEN_CERT);
 
         if (cert == null) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSGW_MISSING_CERTS_REVOKE_FROM_AUTHMGR"));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSGW_MISSING_CERTS_REVOKE_FROM_AUTHMGR"));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_MISSING_CERTS_REVOKE_FROM_AUTHMGR"));
+                    CMS.getUserMessage("CMS_GW_MISSING_CERTS_REVOKE_FROM_AUTHMGR"));
         }
-        if (mAuthority instanceof ICertificateAuthority && 
-            !isCertFromCA(cert)) {
+        if (mAuthority instanceof ICertificateAuthority &&
+                !isCertFromCA(cert)) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_INVALID_CERT_FOR_REVOCATION"));
             throw new ECMSGWException(
-                  CMS.getUserMessage("CMS_GW_INVALID_CERT_FOR_REVOCATION"));
+                    CMS.getUserMessage("CMS_GW_INVALID_CERT_FOR_REVOCATION"));
         }
         certContainer[0] = cert;
         BigInteger serialno = ((X509Certificate) cert).getSerialNumber();
@@ -393,4 +390,3 @@ public class RevocationServlet extends CMSServlet {
     }
 
 }
-

@@ -23,12 +23,11 @@ import java.util.Vector;
 import netscape.security.util.DerOutputStream;
 import netscape.security.util.DerValue;
 
-
 /**
  * Represent the PolicyQualifiers.
- *
+ * 
  * policyQualifiers ::= SEQUENCE SIZE (1..MAX) OF PolicyQualifierInfo
- *
+ * 
  * @author Thomas Kwan
  */
 public class PolicyQualifiers implements java.io.Serializable {
@@ -41,7 +40,7 @@ public class PolicyQualifiers implements java.io.Serializable {
 
     /**
      * Create a PolicyQualifiers with the ObjectIdentifier.
-     *
+     * 
      * @param id the ObjectIdentifier for the policy id.
      */
     public PolicyQualifiers() {
@@ -49,29 +48,28 @@ public class PolicyQualifiers implements java.io.Serializable {
 
     /**
      * Create the object from its Der encoded value.
-     *
+     * 
      * @param val the DER encoded value for the same.
      */
     public PolicyQualifiers(DerValue val) throws IOException {
-	if (val.tag != DerValue.tag_Sequence) {
-           throw new IOException("Invalid encoding for " + "PolicyQualifiers.");
-	}
-	while (val.data.available() != 0) {
-          DerValue pq = val.data.getDerValue();
-          PolicyQualifierInfo info = new PolicyQualifierInfo(pq);
-          add(info);
-	}
+        if (val.tag != DerValue.tag_Sequence) {
+            throw new IOException("Invalid encoding for " + "PolicyQualifiers.");
+        }
+        while (val.data.available() != 0) {
+            DerValue pq = val.data.getDerValue();
+            PolicyQualifierInfo info = new PolicyQualifierInfo(pq);
+            add(info);
+        }
     }
 
     public void add(PolicyQualifierInfo info) {
         mInfo.addElement(info);
     }
 
-    public int size() 
-    {
+    public int size() {
         return mInfo.size();
     }
- 
+
     public PolicyQualifierInfo getInfoAt(int i) {
         return mInfo.elementAt(i);
     }
@@ -82,8 +80,8 @@ public class PolicyQualifiers implements java.io.Serializable {
     public String toString() {
         String s = "PolicyQualifiers: [";
         for (int i = 0; i < mInfo.size(); i++) {
-          PolicyQualifierInfo pq = mInfo.elementAt(i);
-          s = s + pq.toString();
+            PolicyQualifierInfo pq = mInfo.elementAt(i);
+            s = s + pq.toString();
         }
         s = s + "]\n";
 
@@ -92,17 +90,17 @@ public class PolicyQualifiers implements java.io.Serializable {
 
     /**
      * Write the PolicyQualifiers to the DerOutputStream.
-     *
+     * 
      * @param out the DerOutputStream to write the object to.
      * @exception IOException on errors.
      */
     public void encode(DerOutputStream out) throws IOException {
         DerOutputStream tmp = new DerOutputStream();
-	
+
         for (int i = 0; i < mInfo.size(); i++) {
-          PolicyQualifierInfo pq = mInfo.elementAt(i);
-          pq.encode(tmp);
-	}
+            PolicyQualifierInfo pq = mInfo.elementAt(i);
+            pq.encode(tmp);
+        }
 
         out.write(DerValue.tag_Sequence, tmp);
     }

@@ -17,16 +17,14 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmsutil.http;
 
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 
-
 /**
  * Basic HTTP Request. not optimized for performance.
  * Set fields or parse from input.
- * Handles text content. 
+ * Handles text content.
  */
 public class HttpRequest extends HttpMessage {
     public static final String GET = "GET";
@@ -48,9 +46,9 @@ public class HttpRequest extends HttpMessage {
      * set set request method.
      */
     public void setMethod(String method)
-        throws HttpProtocolException {
-        if (!method.equals(GET) && !method.equals(HEAD) && 
-            !method.equals(POST))
+            throws HttpProtocolException {
+        if (!method.equals(GET) && !method.equals(HEAD) &&
+                !method.equals(POST))
             throw new HttpProtocolException("No such method " + method);
         mMethod = method;
     }
@@ -66,7 +64,7 @@ public class HttpRequest extends HttpMessage {
      * write request to the http client
      */
     public void write(OutputStreamWriter writer)
-        throws IOException {
+            throws IOException {
         if (mMethod == null || mURI == null) {
             HttpProtocolException e = new HttpProtocolException(
                     "Http request method or uri not initialized");
@@ -83,17 +81,17 @@ public class HttpRequest extends HttpMessage {
      * parse a http request from a http client
      */
     public void parse(BufferedReader reader)
-        throws IOException {
+            throws IOException {
         super.parse(reader);
 
         int method = mLine.indexOf(Http.SP);
 
         mMethod = mLine.substring(0, method);
-        if (!mMethod.equals(GET) && !mMethod.equals(POST) && 
-            !mMethod.equals(HEAD)) {
+        if (!mMethod.equals(GET) && !mMethod.equals(POST) &&
+                !mMethod.equals(HEAD)) {
             reset();
             throw new HttpProtocolException("Bad Http request method");
-        }	
+        }
 
         int uri = mLine.lastIndexOf(Http.SP);
 
@@ -101,8 +99,8 @@ public class HttpRequest extends HttpMessage {
 
         mHttpVers = mLine.substring(uri + 1);
         if (!mHttpVers.equals("")) {
-            if (!mHttpVers.equals(Http.Vers1_0) && 
-                !mHttpVers.equals(Http.Vers1_1)) {
+            if (!mHttpVers.equals(Http.Vers1_0) &&
+                    !mHttpVers.equals(Http.Vers1_1)) {
                 reset();
                 throw new HttpProtocolException("Bad Http version in request");
             }

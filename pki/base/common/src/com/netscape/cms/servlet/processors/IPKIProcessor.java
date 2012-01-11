@@ -17,19 +17,17 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.processors;
 
-
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cms.servlet.common.CMSRequest;
 
-
 /**
  * This represents the request parser.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public interface IPKIProcessor {
 
     public void process(CMSRequest cmsReq)
-        throws EBaseException;
+            throws EBaseException;
 
 }

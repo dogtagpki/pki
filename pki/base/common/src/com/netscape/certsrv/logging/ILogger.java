@@ -17,22 +17,20 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.logging;
 
-
 import java.util.Properties;
-
 
 /**
  * An interface represents a logger for certificate server. This object is used to
- * issue log messages for the various types of logging event types.  A log message results
- * in a  ILogEvent being created.  This event is then placed on a ILogQueue to be ultimately
- * written to the destination log file.  This object also maintains a collection of ILogFactory objects
+ * issue log messages for the various types of logging event types. A log message results
+ * in a ILogEvent being created. This event is then placed on a ILogQueue to be ultimately
+ * written to the destination log file. This object also maintains a collection of ILogFactory objects
  * which are used to create the supported types of ILogEvents. CMS comes out of the box with three event
- * types:  "signedAudit", "system", and "audit".
- *
+ * types: "signedAudit", "system", and "audit".
+ * 
  * @version $Revision$, $Date$
  */
 public interface ILogger {
-    
+
     //List of defined log classes.
     /**
      * log class: audit event.
@@ -41,20 +39,20 @@ public interface ILogger {
     public static final String PROP_AUDIT = "transaction";
 
     /**
-     * log class: system event. 
+     * log class: system event.
      * System event with log level >= LL_FAILURE will also be logged in error log
      */
     public static final int EV_SYSTEM = 1;
     public static final String PROP_SYSTEM = "system";
 
     /**
-     * log class: SignedAudit event. 
+     * log class: SignedAudit event.
      */
     public static final int EV_SIGNED_AUDIT = 2;
     public static final String PROP_SIGNED_AUDIT = "signedAudit";
 
     //List of defined log sources.
-	
+
     /**
      * log source: used by servlet to retrieve all logs
      */
@@ -136,13 +134,12 @@ public interface ILogger {
      */
 
     public static final int S_TKS = 16;
-    
+
     /**
      * log source: identify the log entry is from other subsystem
      * eg. policy, security, connector,registration
      */
     public static final int S_OTHER = 20;
-
 
     // List of defined log levels.
     /**
@@ -154,12 +151,12 @@ public interface ILogger {
     /**
      * log level: indicate this log entry is debug info
      */
-    
+
     /**
      * Debug level is depreciated since CMS6.1. Please use
      * CMS.debug() to output messages to debugging file.
      */
-    public static final int LL_DEBUG = 0;  // depreciated
+    public static final int LL_DEBUG = 0; // depreciated
     public static final String LL_DEBUG_STRING = "Debug";
 
     /**
@@ -221,7 +218,7 @@ public interface ILogger {
      */
     public static final String SUCCESS = "Success";
     public static final String FAILURE = "Failure";
-    
+
     /**
      * A constant string value used to denote a "non-applicable"
      * data value in signed audit log messages
@@ -258,7 +255,7 @@ public interface ILogger {
      * NT event type: correspont to log level LL_FAILURE and above
      */
     public static final int NT_ERROR = 1;
-    
+
     // List of defined log multiline attribute.
     /**
      * indicate the log message has more than one line
@@ -272,7 +269,7 @@ public interface ILogger {
 
     /**
      * Logs an event to the log queue.
-     *
+     * 
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM or EV_SIGNED_AUDIT.
      * @param source The source of the log event.
      * @param msg The detail message to be logged.
@@ -281,7 +278,7 @@ public interface ILogger {
 
     /**
      * Logs an event to the log queue.
-     *
+     * 
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM or EV_SIGNED_AUDIT.
      * @param props The resource bundle used for the detailed message.
      * @param source The source of the log event.
@@ -291,7 +288,7 @@ public interface ILogger {
 
     /**
      * Logs an event to the log queue.
-     *
+     * 
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM or EV_SIGNED_AUDIT.
      * @param source The source of the log event.
      * @param level The level of the log event.
@@ -301,7 +298,7 @@ public interface ILogger {
 
     /**
      * Logs an event to the log queue.
-     *
+     * 
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM or EV_SIGNED_AUDIT.
      * @param props The resource bundle used for the detailed message.
      * @param source The source of the log event.
@@ -312,7 +309,7 @@ public interface ILogger {
 
     /**
      * Logs an event to the log queue.
-     *
+     * 
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM or EV_SIGNED_AUDIT.
      * @param source The source of the log event.
      * @param level The level of the log event.
@@ -323,7 +320,7 @@ public interface ILogger {
 
     /**
      * Logs an event to the log queue.
-     *
+     * 
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM or EV_SIGNED_AUDIT.
      * @param source The source of the log event.
      * @param level The level of the log event.
@@ -334,7 +331,7 @@ public interface ILogger {
 
     /**
      * Logs an event to the log queue.
-     *
+     * 
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM or EV_SIGNED_AUDIT.
      * @param props The resource bundle used for the detailed message.
      * @param source The source of the log event.
@@ -345,7 +342,7 @@ public interface ILogger {
 
     /**
      * Logs an event to the log queue.
-     *
+     * 
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM or EV_SIGNED_AUDIT.
      * @param props The resource bundle used for the detailed message.
      * @param source The source of the log event.
@@ -354,11 +351,11 @@ public interface ILogger {
      * @param param The parameter in the detail message.
      */
     public void log(int evtClass, Properties props, int source, int level, String msg,
-        Object param);
+            Object param);
 
     /**
      * Logs an event to the log queue.
-     *
+     * 
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM or EV_SIGNED_AUDIT.
      * @param prop The resource bundle used for the detailed message.
      * @param source The source of the log event.
@@ -367,13 +364,13 @@ public interface ILogger {
      * @param params The parameters in the detail message.
      */
     public void log(int evtClass, Properties prop, int source, int level, String msg,
-        Object params[]);
+            Object params[]);
 
     //multiline log
 
     /**
      * Logs an event to the log queue.
-     *
+     * 
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM or EV_SIGNED_AUDIT.
      * @param source The source of the log event.
      * @param msg The detail message to be logged.
@@ -383,7 +380,7 @@ public interface ILogger {
 
     /**
      * Logs an event to the log queue.
-     *
+     * 
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM or EV_SIGNED_AUDIT.
      * @param props The resource bundle used for the detailed message.
      * @param source The source of the log event.
@@ -394,7 +391,7 @@ public interface ILogger {
 
     /**
      * Logs an event to the log queue.
-     *
+     * 
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM or EV_SIGNED_AUDIT.
      * @param source The source of the log event.
      * @param level The level of the log event.
@@ -405,7 +402,7 @@ public interface ILogger {
 
     /**
      * Logs an event to the log queue.
-     *
+     * 
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM or EV_SIGNED_AUDIT.
      * @param props The resource bundle used for the detailed message.
      * @param source The source of the log event.
@@ -417,7 +414,7 @@ public interface ILogger {
 
     /**
      * Logs an event to the log queue.
-     *
+     * 
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM or EV_SIGNED_AUDIT.
      * @param source The source of the log event.
      * @param level The level of the log event.
@@ -429,7 +426,7 @@ public interface ILogger {
 
     /**
      * Logs an event to the log queue.
-     *
+     * 
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM or EV_SIGNED_AUDIT.
      * @param props The resource bundle used for the detailed message.
      * @param source TTTTsource of the log event.
@@ -441,7 +438,7 @@ public interface ILogger {
 
     /**
      * Logs an event to the log queue.
-     *
+     * 
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM or EV_SIGNED_AUDIT.
      * @param props The resource bundle used for the detailed message.
      * @param source The source of the log event.
@@ -451,11 +448,11 @@ public interface ILogger {
      * @param multiline True if the message has more than one line, otherwise false.
      */
     public void log(int evtClass, Properties props, int source, int level, String msg,
-        Object param, boolean multiline);
+            Object param, boolean multiline);
 
     /**
      * Logs an event to the log queue.
-     *
+     * 
      * @param evtClass What kind of event it is: EV_AUDIT or EV_SYSTEM or EV_SIGNED_AUDIT.
      * @param prop The resource bundle used for the detailed message.
      * @param source The source of the log event.
@@ -465,7 +462,7 @@ public interface ILogger {
      * @param multiline True if the message has more than one line, otherwise false.
      */
     public void log(int evtClass, Properties prop, int source, int level, String msg,
-        Object params[], boolean multiline);
+            Object params[], boolean multiline);
 
     /*
      * Generates an ILogEvent
@@ -479,7 +476,7 @@ public interface ILogger {
      * @return ILogEvent, a log event.
      */
     public ILogEvent create(int evtClass, Properties prop, int source, int level,
-        String msg, Object params[], boolean multiline);
+            String msg, Object params[], boolean multiline);
 
     /**
      * Register a log event factory. Which will create the desired ILogEvents.
@@ -487,7 +484,7 @@ public interface ILogger {
     public void register(int evtClass, ILogEventFactory f);
 
     /**
-     * Retrieves the associated log queue.  The log queue is where issued log events
+     * Retrieves the associated log queue. The log queue is where issued log events
      * are collected for later processing.
      */
     public ILogQueue getLogQueue();

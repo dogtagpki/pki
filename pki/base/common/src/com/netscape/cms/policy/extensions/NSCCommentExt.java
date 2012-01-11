@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.policy.extensions;
 
-
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -45,21 +44,21 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cms.policy.APolicyRule;
 
-
 /**
  * Netscape comment
  * Adds Netscape comment policy
  * <P>
+ * 
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- *
+ * 
  * @deprecated
  * @version $Revision$, $Date$
  */
 public class NSCCommentExt extends APolicyRule
-    implements IEnrollmentPolicy, IExtendedPluginInfo {
+        implements IEnrollmentPolicy, IExtendedPluginInfo {
 
     protected static final String PROP_USER_NOTICE_DISPLAY_TEXT = "displayText";
     protected static final String PROP_COMMENT_FILE = "commentFile";
@@ -68,17 +67,17 @@ public class NSCCommentExt extends APolicyRule
     protected static final String TEXT = "Text";
     protected static final String FILE = "File";
 
-    protected String  mUserNoticeDisplayText;
-    protected String  mCommentFile;
-    protected String  mInputType;
+    protected String mUserNoticeDisplayText;
+    protected String mCommentFile;
+    protected String mInputType;
     protected boolean mCritical;
     private Vector mParams = new Vector();
 
-    protected String  tempCommentFile;
+    protected String tempCommentFile;
     protected boolean certApplied = false;
 
     /**
-     * Adds the  Netscape comment in the end-entity certificates or
+     * Adds the Netscape comment in the end-entity certificates or
      * CA certificates. The policy is set to be non-critical with the
      * provided OID.
      */
@@ -91,16 +90,13 @@ public class NSCCommentExt extends APolicyRule
      * Initializes this policy rule.
      * <p>
      * The entries may be of the form:
-     *
-     *	  ca.Policy.rule.<ruleName>.implName=NSCCommentExtImpl
-     *	  ca.Policy.rule.<ruleName>.displayText=<n>
-     *	  ca.Policy.rule.<ruleName>.commentFile=<n>
-     *	  ca.Policy.rule.<ruleName>.enable=false
-     *
-     * @param config		The config store reference
+     * 
+     * ca.Policy.rule.<ruleName>.implName=NSCCommentExtImpl ca.Policy.rule.<ruleName>.displayText=<n> ca.Policy.rule.<ruleName>.commentFile=<n> ca.Policy.rule.<ruleName>.enable=false
+     * 
+     * @param config The config store reference
      */
     public void init(ISubsystem owner, IConfigStore config)
-        throws EBaseException {
+            throws EBaseException {
 
         FileInputStream fileStream = null;
 
@@ -138,11 +134,11 @@ public class NSCCommentExt extends APolicyRule
 
             mParams.addElement(PROP_COMMENT_FILE + "=" + mCommentFile);
         } catch (FileNotFoundException e) {
-            Object[] params = {getInstanceName(), "File not found : " + tempCommentFile};
+            Object[] params = { getInstanceName(), "File not found : " + tempCommentFile };
 
             throw new EPolicyException(CMS.getUserMessage("CMS_POLICY_INVALID_POLICY_CONFIG"), params);
         } catch (Exception e) {
-            Object[] params = {getInstanceName(), e.getMessage()};
+            Object[] params = { getInstanceName(), e.getMessage() };
 
             throw new EPolicyException(CMS.getUserMessage("CMS_POLICY_INVALID_POLICY_CONFIG"), params);
         }
@@ -151,16 +147,16 @@ public class NSCCommentExt extends APolicyRule
     /**
      * Applies the policy on the given Request.
      * <p>
-     *
-     * @param req   The request on which to apply policy.
+     * 
+     * @param req The request on which to apply policy.
      * @return The policy result object.
      */
     public PolicyResult apply(IRequest req) {
         PolicyResult res = PolicyResult.ACCEPTED;
 
         // get cert info.
-        X509CertInfo[] ci = 
-            req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
+        X509CertInfo[] ci =
+                req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
 
         if (ci == null || ci[0] == null) {
             setError(req, CMS.getUserMessage("CMS_POLICY_NO_CERT_INFO"), NAME);
@@ -191,8 +187,8 @@ public class NSCCommentExt extends APolicyRule
         if (extensions == null) {
             extensions = new CertificateExtensions();
             try {
-                certInfo.set(X509CertInfo.VERSION, 
-                    new CertificateVersion(CertificateVersion.V3));
+                certInfo.set(X509CertInfo.VERSION,
+                        new CertificateVersion(CertificateVersion.V3));
                 certInfo.set(X509CertInfo.EXTENSIONS, extensions);
             } catch (Exception e) {
             }
@@ -200,7 +196,7 @@ public class NSCCommentExt extends APolicyRule
             // remove any previously computed version of the extension
             try {
                 extensions.delete(NSCCommentExtension.NAME);
-			
+
             } catch (IOException e) {
                 // this is the hack: for some reason, the key which is the name
                 // of the policy has been converted into the OID 
@@ -225,9 +221,9 @@ public class NSCCommentExt extends APolicyRule
                 fis.close();
             } catch (IOException e) {
                 setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"),
-                    NAME, " Comment Text file not found : " + mCommentFile);
+                        NAME, " Comment Text file not found : " + mCommentFile);
                 log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("POLICY_COMMENT_FILE_NOT_FOUND", e.toString()));
+                        CMS.getLogMessage("POLICY_COMMENT_FILE_NOT_FOUND", e.toString()));
                 return PolicyResult.REJECTED;
 
             }
@@ -235,20 +231,20 @@ public class NSCCommentExt extends APolicyRule
         }
 
         certApplied = true;
-	
+
         DisplayText displayText =
-            new DisplayText(DisplayText.tag_IA5String, mUserNoticeDisplayText);
+                new DisplayText(DisplayText.tag_IA5String, mUserNoticeDisplayText);
 
         try {
-            NSCCommentExtension cpExt = 
-                new NSCCommentExtension(mCritical, mUserNoticeDisplayText);
+            NSCCommentExtension cpExt =
+                    new NSCCommentExtension(mCritical, mUserNoticeDisplayText);
 
             extensions.set(NSCCommentExtension.NAME, cpExt);
         } catch (Exception e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("POLICY_ERROR_CERTIFICATE_POLICIES_1", NAME));
+                    CMS.getLogMessage("POLICY_ERROR_CERTIFICATE_POLICIES_1", NAME));
             setError(req,
-                CMS.getUserMessage("CMS_POLICY_CERTIFICATE_POLICIES_ERROR"), NAME);
+                    CMS.getUserMessage("CMS_POLICY_CERTIFICATE_POLICIES_ERROR"), NAME);
             return PolicyResult.REJECTED;
         }
         return PolicyResult.ACCEPTED;
@@ -258,16 +254,16 @@ public class NSCCommentExt extends APolicyRule
         String[] params = {
                 PROP_CRITICAL + ";boolean;Netscape recommendation: non-critical.",
                 PROP_INPUT_TYPE + ";choice(Text,File);Whether the comments " +
-                "would be entered in the displayText field or come from " +
-                "a file.",
+                        "would be entered in the displayText field or come from " +
+                        "a file.",
                 PROP_USER_NOTICE_DISPLAY_TEXT + ";string;The comment that may be " +
-                "displayed to the user when the certificate is viewed.",
+                        "displayed to the user when the certificate is viewed.",
                 PROP_COMMENT_FILE + ";string; If data source is 'File', specify " +
-                "the file name with full path.",
+                        "the file name with full path.",
                 IExtendedPluginInfo.HELP_TOKEN +
-                ";configuration-policyrules-nsccomment",
+                        ";configuration-policyrules-nsccomment",
                 IExtendedPluginInfo.HELP_TEXT +
-                ";Adds 'netscape comment' extension. See manual"
+                        ";Adds 'netscape comment' extension. See manual"
             };
 
         return params;
@@ -276,19 +272,19 @@ public class NSCCommentExt extends APolicyRule
 
     /**
      * Return configured parameters for a policy rule instance.
-     *
+     * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getInstanceParams() { 
+    public Vector getInstanceParams() {
         return mParams;
     }
 
     /**
      * Return default parameters for a policy implementation.
-     *
+     * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getDefaultParams() { 
+    public Vector getDefaultParams() {
         Vector defParams = new Vector();
 
         defParams.addElement(PROP_CRITICAL + "=false");

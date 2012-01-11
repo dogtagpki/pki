@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.listeners;
 
-
 import java.io.File;
 import java.io.IOException;
 import java.security.cert.X509Certificate;
@@ -47,12 +46,10 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.RequestId;
 
-
 /**
  * a listener for every completed enrollment request
  * <p>
- * Here is a list of available $TOKENs for email notification
- templates if certificate is successfully issued:
+ * Here is a list of available $TOKENs for email notification templates if certificate is successfully issued:
  * <UL>
  * <LI>$InstanceID
  * <LI>$SerialNumber
@@ -68,13 +65,12 @@ import com.netscape.certsrv.request.RequestId;
  * <LI>$RecipientEmail
  * </UL>
  * <p>
- * Here is a list of available $TOKENs for email notification
- templates if certificate request is revoked:
+ * Here is a list of available $TOKENs for email notification templates if certificate request is revoked:
  * <UL>
  * <LI>$RequestId
  * <LI>$InstanceID
  * </UL>
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class CertificateRevokedListener implements IRequestListener {
@@ -109,7 +105,7 @@ public class CertificateRevokedListener implements IRequestListener {
     }
 
     public void init(ISubsystem sub, IConfigStore config)
-        throws EListenersException, EPropertyNotFound, EBaseException {
+            throws EListenersException, EPropertyNotFound, EBaseException {
         mSubsystem = (ICertAuthority) sub;
         mConfig = mSubsystem.getConfigStore();
 
@@ -132,8 +128,8 @@ public class CertificateRevokedListener implements IRequestListener {
 
         if (ridx == -1) {
             CMS.debug("CertificateRevokedListener: file separator: " + File.separator
-                +
-                " not found. Use default /");
+                    +
+                    " not found. Use default /");
             ridx = mFormPath.lastIndexOf("/");
             mDir = mFormPath.substring(0, ridx + 1);
         } else {
@@ -168,7 +164,8 @@ public class CertificateRevokedListener implements IRequestListener {
     }
 
     public void accept(IRequest r) {
-        if (mEnabled != true) return;
+        if (mEnabled != true)
+            return;
 
         mSubject = mSubject_Success;
         mReqId = r.getRequestId();
@@ -190,18 +187,18 @@ public class CertificateRevokedListener implements IRequestListener {
 
         if ((r.getExtDataInInteger(IRequest.RESULT)).equals(IRequest.RES_ERROR)) {
             CMS.debug("CertificateRevokedListener: Request errored. " +
-                "No need to email notify for enrollment request id " +
-                mReqId);
+                    "No need to email notify for enrollment request id " +
+                    mReqId);
             return;
         }
-     
+
         if (requestType.equals(IRequest.REVOCATION_REQUEST)) {
             CMS.debug("CertificateRevokedListener: accept() revocation request...");
             // Get the certificate from the request
             //X509CertImpl issuedCert[] =
             //    (X509CertImpl[])
             RevokedCertImpl crlentries[] =
-                r.getExtDataInRevokedCertArray(IRequest.CERT_INFO);
+                    r.getExtDataInRevokedCertArray(IRequest.CERT_INFO);
 
             if (crlentries != null) {
                 CMS.debug("CertificateRevokedListener: Sending email notification..");
@@ -213,10 +210,10 @@ public class CertificateRevokedListener implements IRequestListener {
                 try {
                     keys.set(IEmailResolverKeys.KEY_REQUEST, r);
                     keys.set(IEmailResolverKeys.KEY_CERT,
-                        crlentries[0]);
+                            crlentries[0]);
                 } catch (EBaseException e) {
                     log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("LISTENERS_CERT_ISSUED_SET_RESOLVER", e.toString()));
+                            CMS.getLogMessage("LISTENERS_CERT_ISSUED_SET_RESOLVER", e.toString()));
                 }
 
                 IEmailResolver er = CMS.getReqCertSANameEmailResolver();
@@ -225,30 +222,30 @@ public class CertificateRevokedListener implements IRequestListener {
                     mEmail = er.getEmail(keys);
                 } catch (ENotificationException e) {
                     log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("LISTENERS_CERT_ISSUED_EXCEPTION",
-                            e.toString()));
+                            CMS.getLogMessage("LISTENERS_CERT_ISSUED_EXCEPTION",
+                                    e.toString()));
                 } catch (EBaseException e) {
                     log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("LISTENERS_CERT_ISSUED_EXCEPTION",
-                            e.toString()));
+                            CMS.getLogMessage("LISTENERS_CERT_ISSUED_EXCEPTION",
+                                    e.toString()));
                 } catch (Exception e) {
                     log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("LISTENERS_CERT_ISSUED_EXCEPTION",
-                            e.toString()));
+                            CMS.getLogMessage("LISTENERS_CERT_ISSUED_EXCEPTION",
+                                    e.toString()));
                 }
-				
+
                 // now we can mail
                 if ((mEmail != null) && (!mEmail.equals(""))) {
                     mailIt(mEmail, crlentries);
                 } else {
                     log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("LISTENERS_CERT_ISSUED_NOTIFY_ERROR",
-                            crlentries[0].getSerialNumber().toString(), mReqId.toString()));
+                            CMS.getLogMessage("LISTENERS_CERT_ISSUED_NOTIFY_ERROR",
+                                    crlentries[0].getSerialNumber().toString(), mReqId.toString()));
                     // send failure notification to "sender"
                     mSubject = "Certificate Issued notification undeliverable";
                     mailIt(mSenderEmail, crlentries);
                 }
-            }				
+            }
         }
     }
 
@@ -271,7 +268,7 @@ public class CertificateRevokedListener implements IRequestListener {
             if (!template.init()) {
                 return;
             }
-		
+
             buildContentParams(crlentries, mEmail);
             IEmailFormProcessor et = CMS.getEmailFormProcessor();
             String c = et.getEmailContent(template.toString(), mContentParams);
@@ -282,19 +279,19 @@ public class CertificateRevokedListener implements IRequestListener {
             mn.setContent(c);
         } else {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("LISTENERS_CERT_ISSUED_TEMPLATE_ERROR",
-                    crlentries[0].getSerialNumber().toString(), mReqId.toString()));
+                    CMS.getLogMessage("LISTENERS_CERT_ISSUED_TEMPLATE_ERROR",
+                            crlentries[0].getSerialNumber().toString(), mReqId.toString()));
 
             mn.setContent("Serial Number = " +
-                crlentries[0].getSerialNumber() +
-                "; Request ID = " + mReqId);
+                    crlentries[0].getSerialNumber() +
+                    "; Request ID = " + mReqId);
         }
-		
+
         try {
             mn.sendNotification();
         } catch (ENotificationException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
-			
+
         } catch (IOException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("OPERATION_ERROR", e.toString()));
         }
@@ -302,18 +299,18 @@ public class CertificateRevokedListener implements IRequestListener {
 
     private void buildContentParams(RevokedCertImpl crlentries[], String mEmail) {
         mContentParams.put(IEmailFormProcessor.TOKEN_ID,
-            mConfig.getName());
+                mConfig.getName());
         mContentParams.put(IEmailFormProcessor.TOKEN_SERIAL_NUM,
-            (Object) crlentries[0].getSerialNumber().toString());
+                (Object) crlentries[0].getSerialNumber().toString());
         mContentParams.put(IEmailFormProcessor.TOKEN_HEX_SERIAL_NUM,
-            (Object) Long.toHexString(crlentries[0].getSerialNumber().longValue()));
+                (Object) Long.toHexString(crlentries[0].getSerialNumber().longValue()));
         mContentParams.put(IEmailFormProcessor.TOKEN_REQUEST_ID,
-            (Object) mReqId.toString());
+                (Object) mReqId.toString());
         mContentParams.put(IEmailFormProcessor.TOKEN_HTTP_HOST,
-            (Object) mHttpHost);
+                (Object) mHttpHost);
         mContentParams.put(IEmailFormProcessor.TOKEN_HTTP_PORT,
-            (Object) mHttpPort);
-        
+                (Object) mHttpPort);
+
         try {
             RevokedCertImpl revCert = (RevokedCertImpl) crlentries[0];
             ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem(CMS.SUBSYSTEM_CA);
@@ -321,22 +318,22 @@ public class CertificateRevokedListener implements IRequestListener {
             X509Certificate cert = certDB.getX509Certificate(revCert.getSerialNumber());
 
             mContentParams.put(IEmailFormProcessor.TOKEN_ISSUER_DN,
-                (Object) cert.getIssuerDN().toString());
+                    (Object) cert.getIssuerDN().toString());
             mContentParams.put(IEmailFormProcessor.TOKEN_SUBJECT_DN,
-                (Object) cert.getSubjectDN().toString());
+                    (Object) cert.getSubjectDN().toString());
             Date date = (Date) crlentries[0].getRevocationDate();
-            
+
             mContentParams.put(IEmailFormProcessor.TOKEN_REVOCATION_DATE,
-                mDateFormat.format(date));
+                    mDateFormat.format(date));
         } catch (EBaseException e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("LISTENERS_CERT_ISSUED_SET_RESOLVER", e.toString()));
+                    CMS.getLogMessage("LISTENERS_CERT_ISSUED_SET_RESOLVER", e.toString()));
         }
 
         mContentParams.put(IEmailFormProcessor.TOKEN_SENDER_EMAIL,
-            (Object) mSenderEmail);
+                (Object) mSenderEmail);
         mContentParams.put(IEmailFormProcessor.TOKEN_RECIPIENT_EMAIL,
-            (Object) mEmail);
+                (Object) mEmail);
         // ... and more
     }
 
@@ -366,7 +363,7 @@ public class CertificateRevokedListener implements IRequestListener {
         if (mLogger == null)
             return;
         mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_OTHER,
-            level, msg);
+                level, msg);
     }
 
 }

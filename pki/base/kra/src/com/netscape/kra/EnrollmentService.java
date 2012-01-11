@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.kra;
 
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -76,21 +75,16 @@ import com.netscape.cmscore.crmf.CRMFParser;
 import com.netscape.cmscore.crmf.PKIArchiveOptionsContainer;
 import com.netscape.cmscore.dbs.KeyRecord;
 
-
 /**
- * A class represents archival request processor. It 
- * passes the request to the policy processor, and 
+ * A class represents archival request processor. It
+ * passes the request to the policy processor, and
  * process the request according to the policy decision.
  * <P>
- * If policy returns ACCEPTED, the request will be
- * processed immediately.
+ * If policy returns ACCEPTED, the request will be processed immediately.
  * <P>
- * Upon processing, the incoming user key is unwrapped
- * with the transport key of KRA, and then wrapped
- * with the storage key. The encrypted key is stored
- * in the internal database for long term storage.
+ * Upon processing, the incoming user key is unwrapped with the transport key of KRA, and then wrapped with the storage key. The encrypted key is stored in the internal database for long term storage.
  * <P>
- *
+ * 
  * @author thomask (original)
  * @author cfu (non-RSA keys; private keys secure handling);
  * @version $Revision$, $Date$
@@ -100,8 +94,8 @@ public class EnrollmentService implements IService {
     // constants
     public static final String CRMF_REQUEST = "CRMFRequest";
     public final static String ATTR_KEY_RECORD = "keyRecord";
-    public final static String ATTR_PROOF_OF_ARCHIVAL = 	
-        "proofOfArchival";
+    public final static String ATTR_PROOF_OF_ARCHIVAL =
+            "proofOfArchival";
 
     // private 
     private IKeyRecoveryAuthority mKRA = null;
@@ -109,18 +103,16 @@ public class EnrollmentService implements IService {
     private IStorageKeyUnit mStorageUnit = null;
     private ILogger mSignedAuditLogger = CMS.getSignedAuditLogger();
 
-
     private final static byte EOL[] = { Character.LINE_SEPARATOR };
-    private final static String
-        LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST =
-        "LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST_4";
-    private final static String
-        LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST_PROCESSED =
-        "LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST_PROCESSED_3";
+    private final static String LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST =
+            "LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST_4";
+    private final static String LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST_PROCESSED =
+            "LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST_PROCESSED_3";
     private final static String LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST =
-        "LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_4";
+            "LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_4";
     private final static String LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED =
-        "LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED_4";
+            "LOGGING_SIGNED_AUDIT_KEY_RECOVERY_REQUEST_PROCESSED_4";
+
     /**
      * Constructs request processor.
      * <P>
@@ -145,21 +137,21 @@ public class EnrollmentService implements IService {
         }
         return archOpts;
     }
-	
+
     /**
      * Services an enrollment/archival request.
      * <P>
-     *
+     * 
      * @param request enrollment request
      * @return serving successful or not
      * @exception EBaseException failed to serve
      */
-    public boolean serviceRequest(IRequest request) 
-        throws EBaseException {
+    public boolean serviceRequest(IRequest request)
+            throws EBaseException {
 
-        IStatsSubsystem statsSub = (IStatsSubsystem)CMS.getSubsystem("stats");
+        IStatsSubsystem statsSub = (IStatsSubsystem) CMS.getSubsystem("stats");
         if (statsSub != null) {
-          statsSub.startTiming("archival", true /* main action */);
+            statsSub.startTiming("archival", true /* main action */);
         }
 
         String auditMessage = null;
@@ -206,35 +198,35 @@ public class EnrollmentService implements IService {
         } else {
             // profile-based request
             PKIArchiveOptions options = (PKIArchiveOptions)
-                toPKIArchiveOptions(
+                    toPKIArchiveOptions(
                     request.getExtDataInByteArray(IEnrollProfile.REQUEST_ARCHIVE_OPTIONS));
 
             aOpts = new PKIArchiveOptionsContainer[1];
-            aOpts[0] = new PKIArchiveOptionsContainer(options, 
+            aOpts[0] = new PKIArchiveOptionsContainer(options,
                         0/* not matter */);
 
             request.setExtData("dbStatus", "NOT_UPDATED");
-        } 
+        }
 
         for (int i = 0; i < aOpts.length; i++) {
             ArchiveOptions opts = new ArchiveOptions(aOpts[i].mAO);
 
             if (statsSub != null) {
-              statsSub.startTiming("decrypt_user_key");
+                statsSub.startTiming("decrypt_user_key");
             }
             mKRA.log(ILogger.LL_INFO, "KRA decrypts external private");
             if (CMS.debugOn())
-               CMS.debug("EnrollmentService::about to decryptExternalPrivate");
+                CMS.debug("EnrollmentService::about to decryptExternalPrivate");
             unwrapped = mTransportUnit.decryptExternalPrivate(
-                        opts.getEncSymmKey(), 
-                        opts.getSymmAlgOID(), 
-                        opts.getSymmAlgParams(), 
+                        opts.getEncSymmKey(),
+                        opts.getSymmAlgOID(),
+                        opts.getSymmAlgParams(),
                         opts.getEncValue());
             if (statsSub != null) {
-              statsSub.endTiming("decrypt_user_key");
+                statsSub.endTiming("decrypt_user_key");
             }
             if (CMS.debugOn())
-               CMS.debug("EnrollmentService::finished decryptExternalPrivate");
+                CMS.debug("EnrollmentService::finished decryptExternalPrivate");
             if (unwrapped == null) {
                 mKRA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_UNWRAP_USER_KEY"));
 
@@ -255,9 +247,8 @@ public class EnrollmentService implements IService {
             byte publicKeyData[] = publicKey.getEncoded();
 
             if (publicKeyData == null) {
-                mKRA.log(ILogger.LL_FAILURE, 
-                    CMS.getLogMessage("CMSCORE_KRA_PUBLIC_NOT_FOUND"));
-
+                mKRA.log(ILogger.LL_FAILURE,
+                        CMS.getLogMessage("CMSCORE_KRA_PUBLIC_NOT_FOUND"));
 
                 auditMessage = CMS.getLogMessage(
                         LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST,
@@ -274,12 +265,11 @@ public class EnrollmentService implements IService {
             /* Bugscape #54948 - verify public and private key before archiving key */
 
             if (statsSub != null) {
-              statsSub.startTiming("verify_key");
+                statsSub.startTiming("verify_key");
             }
             if (verifyKeyPair(publicKeyData, unwrapped) == false) {
-                mKRA.log(ILogger.LL_FAILURE, 
-                    CMS.getLogMessage("CMSCORE_KRA_PUBLIC_NOT_FOUND"));
-
+                mKRA.log(ILogger.LL_FAILURE,
+                        CMS.getLogMessage("CMSCORE_KRA_PUBLIC_NOT_FOUND"));
 
                 auditMessage = CMS.getLogMessage(
                         LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST,
@@ -293,11 +283,11 @@ public class EnrollmentService implements IService {
                         CMS.getUserMessage("CMS_KRA_INVALID_PUBLIC_KEY"));
             }
             if (statsSub != null) {
-              statsSub.endTiming("verify_key");
+                statsSub.endTiming("verify_key");
             }
 
             /**
-             mTransportKeyUnit.verify(pKey, unwrapped);
+             * mTransportKeyUnit.verify(pKey, unwrapped);
              **/
             // retrieve owner name
             String owner = getOwnerName(request, aOpts[i].mReqPos);
@@ -324,12 +314,12 @@ public class EnrollmentService implements IService {
             //
             mKRA.log(ILogger.LL_INFO, "KRA encrypts internal private");
             if (statsSub != null) {
-              statsSub.startTiming("encrypt_user_key");
+                statsSub.startTiming("encrypt_user_key");
             }
             byte privateKeyData[] = mStorageUnit.encryptInternalPrivate(
                     unwrapped);
             if (statsSub != null) {
-              statsSub.endTiming("encrypt_user_key");
+                statsSub.endTiming("encrypt_user_key");
             }
 
             if (privateKeyData == null) {
@@ -348,8 +338,8 @@ public class EnrollmentService implements IService {
             }
 
             // create key record
-            KeyRecord rec = new KeyRecord(null, publicKeyData, 
-                    privateKeyData, owner, 
+            KeyRecord rec = new KeyRecord(null, publicKeyData,
+                    privateKeyData, owner,
                     publicKey.getAlgorithmId().getOID().toString(), agentId);
 
             // we deal with RSA key only
@@ -370,13 +360,11 @@ public class EnrollmentService implements IService {
                 throw new EKRAException(CMS.getUserMessage("CMS_KRA_INVALID_KEYRECORD"));
             }
 
-            
             // if record alreay has a serial number, yell out.
             if (rec.getSerialNumber() != null) {
-                mKRA.log(ILogger.LL_FAILURE, 
-                    CMS.getLogMessage("CMSCORE_KRA_INVALID_SERIAL_NUMBER",
-                        rec.getSerialNumber().toString()));
-
+                mKRA.log(ILogger.LL_FAILURE,
+                        CMS.getLogMessage("CMSCORE_KRA_INVALID_SERIAL_NUMBER",
+                                rec.getSerialNumber().toString()));
 
                 auditMessage = CMS.getLogMessage(
                         LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST,
@@ -392,8 +380,8 @@ public class EnrollmentService implements IService {
             BigInteger serialNo = storage.getNextSerialNumber();
 
             if (serialNo == null) {
-                mKRA.log(ILogger.LL_FAILURE, 
-                    CMS.getLogMessage("CMSCORE_KRA_GET_NEXT_SERIAL"));
+                mKRA.log(ILogger.LL_FAILURE,
+                        CMS.getLogMessage("CMSCORE_KRA_GET_NEXT_SERIAL"));
 
                 auditMessage = CMS.getLogMessage(
                         LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST,
@@ -415,43 +403,42 @@ public class EnrollmentService implements IService {
 
             mKRA.log(ILogger.LL_INFO, "KRA adding key record " + serialNo);
             if (statsSub != null) {
-              statsSub.startTiming("store_key");
+                statsSub.startTiming("store_key");
             }
             storage.addKeyRecord(rec);
             if (statsSub != null) {
-              statsSub.endTiming("store_key");
+                statsSub.endTiming("store_key");
             }
-	
+
             if (CMS.debugOn())
                 CMS.debug("EnrollmentService: key record 0x" + serialNo.toString(16)
-                    + " (" + owner + ") archived");
+                        + " (" + owner + ") archived");
 
-            mKRA.log(ILogger.LL_INFO, "key record 0x" + 
-                serialNo.toString(16)
-                + " (" + owner + ") archived");
+            mKRA.log(ILogger.LL_INFO, "key record 0x" +
+                    serialNo.toString(16)
+                    + " (" + owner + ") archived");
 
             // for audit log
             String authMgr = AuditFormat.NOAUTH;
-	        
+
             if (authToken != null) {
                 authMgr =
                         authToken.getInString(AuthToken.TOKEN_AUTHMGR_INST_NAME);
             }
             CMS.getLogger().log(ILogger.EV_AUDIT,
-                ILogger.S_KRA,
-                AuditFormat.LEVEL,
-                AuditFormat.FORMAT,
-                new Object[] {
-                    IRequest.KEYARCHIVAL_REQUEST,
-                    request.getRequestId(),
-                    AuditFormat.FROMAGENT + " agentID: " + agentId,
-                    authMgr,
-                    "completed",
-                    owner,
-                    "serial number: 0x" + serialNo.toString(16)}
-            );
+                    ILogger.S_KRA,
+                    AuditFormat.LEVEL,
+                    AuditFormat.FORMAT,
+                    new Object[] {
+                            IRequest.KEYARCHIVAL_REQUEST,
+                            request.getRequestId(),
+                            AuditFormat.FROMAGENT + " agentID: " + agentId,
+                            authMgr,
+                            "completed",
+                            owner,
+                            "serial number: 0x" + serialNo.toString(16) }
+                    );
 
-           
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
                         LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST,
@@ -486,7 +473,7 @@ public class EnrollmentService implements IService {
                 request.setExtData(ATTR_PROOF_OF_ARCHIVAL + i,
                         mProofOut.toByteArray());
             }
-		
+
         } // for
 
         /*
@@ -505,65 +492,64 @@ public class EnrollmentService implements IService {
         mKRA.getRequestQueue().updateRequest(request);
 
         if (statsSub != null) {
-          statsSub.endTiming("archival");
+            statsSub.endTiming("archival");
         }
-		
+
         return true;
     }
 
-    public boolean verifyKeyPair(byte publicKeyData[],  byte privateKeyData[]) 
-    {
-      try {
-          DerValue publicKeyVal = new DerValue(publicKeyData); 
-          DerInputStream publicKeyIn = publicKeyVal.data;
-          publicKeyIn.getSequence(0);
-          DerValue publicKeyDer = new DerValue(publicKeyIn.getBitString()); 
-          DerInputStream publicKeyDerIn = publicKeyDer.data;
-          BigInt publicKeyModulus = publicKeyDerIn.getInteger();
-          BigInt publicKeyExponent = publicKeyDerIn.getInteger();
+    public boolean verifyKeyPair(byte publicKeyData[], byte privateKeyData[]) {
+        try {
+            DerValue publicKeyVal = new DerValue(publicKeyData);
+            DerInputStream publicKeyIn = publicKeyVal.data;
+            publicKeyIn.getSequence(0);
+            DerValue publicKeyDer = new DerValue(publicKeyIn.getBitString());
+            DerInputStream publicKeyDerIn = publicKeyDer.data;
+            BigInt publicKeyModulus = publicKeyDerIn.getInteger();
+            BigInt publicKeyExponent = publicKeyDerIn.getInteger();
 
-          DerValue privateKeyVal = new DerValue(privateKeyData); 
-          if (privateKeyVal.tag != DerValue.tag_Sequence) 
-              return false;
-          DerInputStream privateKeyIn = privateKeyVal.data;
-          privateKeyIn.getInteger();
-          privateKeyIn.getSequence(0);
-          DerValue privateKeyDer = new DerValue(privateKeyIn.getOctetString()); 
-          DerInputStream privateKeyDerIn = privateKeyDer.data;
-          BigInt privateKeyVersion = privateKeyDerIn.getInteger();
-          BigInt privateKeyModulus = privateKeyDerIn.getInteger();
-          BigInt privateKeyExponent = privateKeyDerIn.getInteger();
+            DerValue privateKeyVal = new DerValue(privateKeyData);
+            if (privateKeyVal.tag != DerValue.tag_Sequence)
+                return false;
+            DerInputStream privateKeyIn = privateKeyVal.data;
+            privateKeyIn.getInteger();
+            privateKeyIn.getSequence(0);
+            DerValue privateKeyDer = new DerValue(privateKeyIn.getOctetString());
+            DerInputStream privateKeyDerIn = privateKeyDer.data;
+            BigInt privateKeyVersion = privateKeyDerIn.getInteger();
+            BigInt privateKeyModulus = privateKeyDerIn.getInteger();
+            BigInt privateKeyExponent = privateKeyDerIn.getInteger();
 
-          if (!publicKeyModulus.equals(privateKeyModulus)) {
-              CMS.debug("verifyKeyPair modulus mismatch publicKeyModulus=" + publicKeyModulus + " privateKeyModulus=" + privateKeyModulus);
-              return false;
-          }
+            if (!publicKeyModulus.equals(privateKeyModulus)) {
+                CMS.debug("verifyKeyPair modulus mismatch publicKeyModulus=" + publicKeyModulus + " privateKeyModulus=" + privateKeyModulus);
+                return false;
+            }
 
-          if (!publicKeyExponent.equals(privateKeyExponent)) {
-              CMS.debug("verifyKeyPair exponent mismatch publicKeyExponent=" + publicKeyExponent + " privateKeyExponent=" + privateKeyExponent);
-              return false;
-          }
+            if (!publicKeyExponent.equals(privateKeyExponent)) {
+                CMS.debug("verifyKeyPair exponent mismatch publicKeyExponent=" + publicKeyExponent + " privateKeyExponent=" + privateKeyExponent);
+                return false;
+            }
 
-          return true;
-       } catch (Exception e) {
-          CMS.debug("verifyKeyPair error " + e);
-          return false;
-       }
+            return true;
+        } catch (Exception e) {
+            CMS.debug("verifyKeyPair error " + e);
+            return false;
+        }
     }
 
     private static final OBJECT_IDENTIFIER PKIARCHIVEOPTIONS_OID =
-        new OBJECT_IDENTIFIER(new long[] {1, 3, 6, 1, 5, 5, 7, 5, 1, 4}
-        );
+            new OBJECT_IDENTIFIER(new long[] { 1, 3, 6, 1, 5, 5, 7, 5, 1, 4 }
+            );
 
     /**
      * Retrieves PKIArchiveOptions from CRMF request.
-     *
+     * 
      * @param crmfBlob CRMF request
      * @return PKIArchiveOptions
      * @exception EBaseException failed to extrace option
      */
-    public static PKIArchiveOptionsContainer[] getPKIArchiveOptions(String crmfBlob) 
-        throws EBaseException {
+    public static PKIArchiveOptionsContainer[] getPKIArchiveOptions(String crmfBlob)
+            throws EBaseException {
         Vector options = new Vector();
 
         if (CMS.debugOn())
@@ -571,15 +557,15 @@ public class EnrollmentService implements IService {
         byte[] crmfBerBlob = null;
 
         crmfBerBlob = com.netscape.osutil.OSUtil.AtoB(crmfBlob);
-        ByteArrayInputStream crmfBerBlobIn = new 	
-            ByteArrayInputStream(crmfBerBlob);
+        ByteArrayInputStream crmfBerBlobIn = new
+                ByteArrayInputStream(crmfBerBlob);
         SEQUENCE crmfmsgs = null;
 
         try {
-            crmfmsgs = (SEQUENCE) new 
-                    SEQUENCE.OF_Template(new 
-                        CertReqMsg.Template()).decode(
-                        crmfBerBlobIn);
+            crmfmsgs = (SEQUENCE) new
+                    SEQUENCE.OF_Template(new
+                            CertReqMsg.Template()).decode(
+                            crmfBerBlobIn);
         } catch (IOException e) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", "[crmf msgs]" + e.toString()));
         } catch (InvalidBERException e) {
@@ -588,9 +574,9 @@ public class EnrollmentService implements IService {
 
         for (int z = 0; z < crmfmsgs.size(); z++) {
             CertReqMsg certReqMsg = (CertReqMsg)
-                crmfmsgs.elementAt(z);
-            CertRequest certReq = certReqMsg.getCertReq();	
-			
+                    crmfmsgs.elementAt(z);
+            CertRequest certReq = certReqMsg.getCertReq();
+
             // try to locate PKIArchiveOption control
             AVA archAva = null;
 
@@ -627,7 +613,7 @@ public class EnrollmentService implements IService {
         if (options.size() == 0) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", "PKIArchiveOptions found"));
         } else {
-            PKIArchiveOptionsContainer p[] = new PKIArchiveOptionsContainer[options.size()];	
+            PKIArchiveOptionsContainer p[] = new PKIArchiveOptionsContainer[options.size()];
 
             options.copyInto(p);
             return p;
@@ -636,7 +622,7 @@ public class EnrollmentService implements IService {
 
     /**
      * Retrieves public key from request.
-     *
+     * 
      * @param request CRMF request
      * @return JSS public key
      * @exception EBaseException failed to retrieve public key
@@ -662,19 +648,19 @@ public class EnrollmentService implements IService {
 
         // retrieve x509 Key from request
         X509CertInfo certInfo[] =
-            request.getExtDataInCertInfoArray(IRequest.CERT_INFO);
+                request.getExtDataInCertInfoArray(IRequest.CERT_INFO);
         CertificateX509Key pX509Key = null;
 
         try {
             pX509Key = (CertificateX509Key)
                     certInfo[i].get(X509CertInfo.KEY);
         } catch (IOException e) {
-            mKRA.log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSCORE_KRA_GET_PUBLIC_KEY", e.toString()));
+            mKRA.log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_GET_PUBLIC_KEY", e.toString()));
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", "[" + X509CertInfo.KEY + "]" + e.toString()));
         } catch (CertificateException e) {
-            mKRA.log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSCORE_KRA_GET_PUBLIC_KEY", e.toString()));
+            mKRA.log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_GET_PUBLIC_KEY", e.toString()));
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", "[" + X509CertInfo.KEY + "]" + e.toString()));
         }
         X509Key pKey = null;
@@ -683,8 +669,8 @@ public class EnrollmentService implements IService {
             pKey = (X509Key) pX509Key.get(
                         CertificateX509Key.KEY);
         } catch (IOException e) {
-            mKRA.log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSCORE_KRA_GET_PUBLIC_KEY", e.toString()));
+            mKRA.log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_GET_PUBLIC_KEY", e.toString()));
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", "[" + CertificateX509Key.KEY + "]" + e.toString()));
         }
         return pKey;
@@ -692,13 +678,13 @@ public class EnrollmentService implements IService {
 
     /**
      * Retrieves key's owner name from request.
-     *
+     * 
      * @param request CRMF request
      * @return owner name (subject name)
      * @exception EBaseException failed to retrieve public key
      */
-    private String getOwnerName(IRequest request, int i) 
-        throws EBaseException {
+    private String getOwnerName(IRequest request, int i)
+            throws EBaseException {
 
         String profileId = request.getExtDataInString("profileId");
 
@@ -711,19 +697,19 @@ public class EnrollmentService implements IService {
         }
 
         X509CertInfo certInfo[] =
-            request.getExtDataInCertInfoArray(IRequest.CERT_INFO);
+                request.getExtDataInCertInfoArray(IRequest.CERT_INFO);
         CertificateSubjectName pSub = null;
 
         try {
             pSub = (CertificateSubjectName)
                     certInfo[0].get(X509CertInfo.SUBJECT);
         } catch (IOException e) {
-            mKRA.log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSCORE_KRA_GET_OWNER_NAME", e.toString()));
+            mKRA.log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_GET_OWNER_NAME", e.toString()));
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", "[" + X509CertInfo.SUBJECT + "]" + e.toString()));
         } catch (CertificateException e) {
-            mKRA.log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSCORE_KRA_GET_OWNER_NAME", e.toString()));
+            mKRA.log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_GET_OWNER_NAME", e.toString()));
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", "[" + X509CertInfo.SUBJECT + "]" + e.toString()));
         }
         String owner = pSub.toString();
@@ -733,11 +719,11 @@ public class EnrollmentService implements IService {
 
     /**
      * Signed Audit Log Public Key
-     *
+     * 
      * This method is called to obtain the public key from the passed in
      * "KeyRecord" for a signed audit log message.
      * <P>
-     *
+     * 
      * @param rec a Key Record
      * @return key string containing the certificate's public key
      */
@@ -770,29 +756,30 @@ public class EnrollmentService implements IService {
             // extract all line separators from the "base64Data"
             StringTokenizer st = new StringTokenizer(base64Data, "\r\n");
             while (st.hasMoreTokens()) {
-              key += st.nextToken();
+                key += st.nextToken();
             }
         }
 
         key = key.trim();
 
-		if (key.equals("")) {
-		    return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
-		} else {
-		    return key;
-		}
+        if (key.equals("")) {
+            return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
+        } else {
+            return key;
+        }
     }
+
     /**
      * Signed Audit Log Subject ID
-     *
+     * 
      * This method is called to obtain the "SubjectID" for
      * a signed audit log message.
      * <P>
-     *
+     * 
      * @return id string containing the signed audit log message SubjectID
      */
 
-     private String auditSubjectID() {
+    private String auditSubjectID() {
         // if no signed audit object exists, bail
         if (mSignedAuditLogger == null) {
             return null;
@@ -818,13 +805,14 @@ public class EnrollmentService implements IService {
 
         return subjectID;
     }
+
     /**
      * Signed Audit Log Requester ID
-     *
+     * 
      * This method is called to obtain the "RequesterID" for
      * a signed audit log message.
      * <P>
-     *
+     * 
      * @return id string containing the signed audit log message RequesterID
      */
     private String auditRequesterID() {
@@ -856,10 +844,10 @@ public class EnrollmentService implements IService {
 
     /**
      * Signed Audit Log
-     *
+     * 
      * This method is called to store messages to the signed audit log.
      * <P>
-     *
+     * 
      * @param msg signed audit log message
      */
     private void audit(String msg) {
@@ -871,13 +859,12 @@ public class EnrollmentService implements IService {
         }
 
         mSignedAuditLogger.log(ILogger.EV_SIGNED_AUDIT,
-            null,
-            ILogger.S_SIGNED_AUDIT,
-            ILogger.LL_SECURITY,
-            msg);
+                null,
+                ILogger.S_SIGNED_AUDIT,
+                ILogger.LL_SECURITY,
+                msg);
     }
 }
-
 
 /**
  * Parsed and Flattened structure of PKIArchiveOptions.
@@ -887,6 +874,7 @@ class ArchiveOptions {
     private byte mSymmAlgParams[] = null;
     private byte mEncSymmKey[] = null;
     private byte mEncValue[] = null;
+
     public ArchiveOptions(PKIArchiveOptions opts) throws EBaseException {
         try {
             EncryptedKey key = opts.getEncryptedKey();
@@ -901,7 +889,7 @@ class ArchiveOptions {
                 enveloped_val = key.getEnvelopedData();
                 byte[] env_b = enveloped_val.getEncoded();
                 EnvelopedData.Template env_template = new EnvelopedData.Template();
-                EnvelopedData env_data = 
+                EnvelopedData env_data =
                         (EnvelopedData) env_template.decode(new ByteArrayInputStream(env_b));
                 EncryptedContentInfo eCI = env_data.getEncryptedContentInfo();
                 symmAlg = eCI.getContentEncryptionAlgorithm();
@@ -910,8 +898,8 @@ class ArchiveOptions {
 
                 SET recipients = env_data.getRecipientInfos();
                 if (recipients.size() <= 0) {
-                  CMS.debug("EnrollService: ArchiveOptions() - missing recipient information ");
-                  throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", "[PKIArchiveOptions] missing recipient information "));
+                    CMS.debug("EnrollService: ArchiveOptions() - missing recipient information ");
+                    throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", "[PKIArchiveOptions] missing recipient information "));
                 }
                 //check recpient - later
                 //we only handle one recipient here anyways.  so, either the key
@@ -948,11 +936,11 @@ class ArchiveOptions {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", "[PKIArchiveOptions]" + e.toString()));
         } catch (IOException e) {
             CMS.debug("EnrollService: ArchiveOptions(): " + e.toString());
-            throw new EBaseException("ArchiveOptions() exception caught: "+
+            throw new EBaseException("ArchiveOptions() exception caught: " +
                     e.toString());
         } catch (Exception e) {
             CMS.debug("EnrollService: ArchiveOptions(): " + e.toString());
-            throw new EBaseException("ArchiveOptions() exception caught: "+
+            throw new EBaseException("ArchiveOptions() exception caught: " +
                     e.toString());
         }
 

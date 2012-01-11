@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.cert;
 
-
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.PublicKey;
@@ -61,10 +60,9 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 
-
 /**
  * Search for certificates matching complex query filter
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class SrchCerts extends CMSServlet {
@@ -96,8 +94,9 @@ public class SrchCerts extends CMSServlet {
     }
 
     /**
-	 * initialize the servlet. This servlet uses srchCert.template
-	 * to render the response
+     * initialize the servlet. This servlet uses srchCert.template
+     * to render the response
+     * 
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -145,15 +144,14 @@ public class SrchCerts extends CMSServlet {
            the client applications that submits raw LDAP
            filter into this servlet.  */
         if (sc.getInitParameter("useClientFilter") != null &&
-              sc.getInitParameter("useClientFilter").equalsIgnoreCase("true")) {
+                sc.getInitParameter("useClientFilter").equalsIgnoreCase("true")) {
             mUseClientFilter = true;
         }
     }
 
-    private boolean isOn(HttpServletRequest req, String name) 
-    {
+    private boolean isOn(HttpServletRequest req, String name) {
         String inUse = req.getParameter(name);
-        if (inUse == null)  {
+        if (inUse == null) {
             return false;
         }
         if (inUse.equals("on")) {
@@ -162,10 +160,9 @@ public class SrchCerts extends CMSServlet {
         return false;
     }
 
-    private boolean isOff(HttpServletRequest req, String name) 
-    {
+    private boolean isOff(HttpServletRequest req, String name) {
         String inUse = req.getParameter(name);
-        if (inUse == null)  {
+        if (inUse == null) {
             return false;
         }
         if (inUse.equals("off")) {
@@ -174,8 +171,7 @@ public class SrchCerts extends CMSServlet {
         return false;
     }
 
-    private void buildCertStatusFilter(HttpServletRequest req, StringBuffer filter) 
-    {
+    private void buildCertStatusFilter(HttpServletRequest req, StringBuffer filter) {
         if (!isOn(req, "statusInUse")) {
             return;
         }
@@ -185,8 +181,7 @@ public class SrchCerts extends CMSServlet {
         filter.append(")");
     }
 
-    private void buildProfileFilter(HttpServletRequest req, StringBuffer filter) 
-    {
+    private void buildProfileFilter(HttpServletRequest req, StringBuffer filter) {
         if (!isOn(req, "profileInUse")) {
             return;
         }
@@ -196,16 +191,14 @@ public class SrchCerts extends CMSServlet {
         filter.append(")");
     }
 
-    private void buildBasicConstraintsFilter(HttpServletRequest req, StringBuffer filter) 
-    {
+    private void buildBasicConstraintsFilter(HttpServletRequest req, StringBuffer filter) {
         if (!isOn(req, "basicConstraintsInUse")) {
             return;
         }
         filter.append("(x509cert.BasicConstraints.isCA=on)");
     }
 
-    private void buildSerialNumberRangeFilter(HttpServletRequest req, StringBuffer filter) 
-    {
+    private void buildSerialNumberRangeFilter(HttpServletRequest req, StringBuffer filter) {
         if (!isOn(req, "serialNumberRangeInUse")) {
             return;
         }
@@ -225,9 +218,8 @@ public class SrchCerts extends CMSServlet {
         }
     }
 
-    private void buildAVAFilter(HttpServletRequest req, String paramName, 
-                                 String avaName, StringBuffer lf, String match)
-    {
+    private void buildAVAFilter(HttpServletRequest req, String paramName,
+                                 String avaName, StringBuffer lf, String match) {
         String val = req.getParameter(paramName);
         if (val != null && !val.equals("")) {
             if (match != null && match.equals("exact")) {
@@ -254,8 +246,7 @@ public class SrchCerts extends CMSServlet {
         }
     }
 
-    private void buildSubjectFilter(HttpServletRequest req, StringBuffer filter) 
-    {
+    private void buildSubjectFilter(HttpServletRequest req, StringBuffer filter) {
         if (!isOn(req, "subjectInUse")) {
             return;
         }
@@ -286,9 +277,8 @@ public class SrchCerts extends CMSServlet {
         }
     }
 
-    private void buildRevokedByFilter(HttpServletRequest req, 
-                                      StringBuffer filter) 
-    {
+    private void buildRevokedByFilter(HttpServletRequest req,
+                                      StringBuffer filter) {
         if (!isOn(req, "revokedByInUse")) {
             return;
         }
@@ -302,10 +292,9 @@ public class SrchCerts extends CMSServlet {
         }
     }
 
-    private void buildDateFilter(HttpServletRequest req, String prefix, 
+    private void buildDateFilter(HttpServletRequest req, String prefix,
                                    String outStr, long adjustment,
-                                   StringBuffer filter)
-    {
+                                   StringBuffer filter) {
         String queryCertFilter = null;
         long epoch = 0;
         try {
@@ -324,19 +313,17 @@ public class SrchCerts extends CMSServlet {
     }
 
     private void buildRevokedOnFilter(HttpServletRequest req,
-                                      StringBuffer filter) 
-    {
+                                      StringBuffer filter) {
         if (!isOn(req, "revokedOnInUse")) {
             return;
         }
         buildDateFilter(req, "revokedOnFrom", "certRevokedOn>=", 0, filter);
-        buildDateFilter(req, "revokedOnTo", "certRevokedOn<=", 86399999, 
+        buildDateFilter(req, "revokedOnTo", "certRevokedOn<=", 86399999,
                         filter);
     }
 
     private void buildRevocationReasonFilter(HttpServletRequest req,
-                                             StringBuffer filter) 
-    {
+                                             StringBuffer filter) {
         if (!isOn(req, "revocationReasonInUse")) {
             return;
         }
@@ -347,23 +334,22 @@ public class SrchCerts extends CMSServlet {
         String queryCertFilter = null;
         StringTokenizer st = new StringTokenizer(reasons, ",");
         if (st.hasMoreTokens()) {
-          filter.append("(|");
-          while (st.hasMoreTokens()) {
-              String token = st.nextToken();
-              if (queryCertFilter == null) {
-                  queryCertFilter = "";
-              } 
-              filter.append("(x509cert.certRevoInfo=");
-              filter.append(token);
-              filter.append(")");
-          }
-          filter.append(")");
+            filter.append("(|");
+            while (st.hasMoreTokens()) {
+                String token = st.nextToken();
+                if (queryCertFilter == null) {
+                    queryCertFilter = "";
+                }
+                filter.append("(x509cert.certRevoInfo=");
+                filter.append(token);
+                filter.append(")");
+            }
+            filter.append(")");
         }
     }
 
-    private void buildIssuedByFilter(HttpServletRequest req, 
-                                      StringBuffer filter) 
-    {
+    private void buildIssuedByFilter(HttpServletRequest req,
+                                      StringBuffer filter) {
         if (!isOn(req, "issuedByInUse")) {
             return;
         }
@@ -378,43 +364,39 @@ public class SrchCerts extends CMSServlet {
     }
 
     private void buildIssuedOnFilter(HttpServletRequest req,
-                                      StringBuffer filter) 
-    {
+                                      StringBuffer filter) {
         if (!isOn(req, "issuedOnInUse")) {
             return;
         }
         buildDateFilter(req, "issuedOnFrom", "certCreateTime>=", 0, filter);
-        buildDateFilter(req, "issuedOnTo", "certCreateTime<=", 86399999, 
+        buildDateFilter(req, "issuedOnTo", "certCreateTime<=", 86399999,
                         filter);
     }
 
     private void buildValidNotBeforeFilter(HttpServletRequest req,
-                                      StringBuffer filter) 
-    {
+                                      StringBuffer filter) {
         if (!isOn(req, "validNotBeforeInUse")) {
             return;
         }
-        buildDateFilter(req, "validNotBeforeFrom", "x509cert.notBefore>=", 
+        buildDateFilter(req, "validNotBeforeFrom", "x509cert.notBefore>=",
                         0, filter);
-        buildDateFilter(req, "validNotBeforeTo", "x509cert.notBefore<=", 
+        buildDateFilter(req, "validNotBeforeTo", "x509cert.notBefore<=",
                         86399999, filter);
     }
 
     private void buildValidNotAfterFilter(HttpServletRequest req,
-                                      StringBuffer filter) 
-    {
+                                      StringBuffer filter) {
         if (!isOn(req, "validNotAfterInUse")) {
             return;
         }
-        buildDateFilter(req, "validNotAfterFrom", "x509cert.notAfter>=", 
+        buildDateFilter(req, "validNotAfterFrom", "x509cert.notAfter>=",
                         0, filter);
-        buildDateFilter(req, "validNotAfterTo", "x509cert.notAfter<=", 
+        buildDateFilter(req, "validNotAfterTo", "x509cert.notAfter<=",
                         86399999, filter);
     }
 
     private void buildValidityLengthFilter(HttpServletRequest req,
-                                      StringBuffer filter) 
-    {
+                                      StringBuffer filter) {
         if (!isOn(req, "validityLengthInUse")) {
             return;
         }
@@ -439,8 +421,7 @@ public class SrchCerts extends CMSServlet {
     }
 
     private void buildCertTypeFilter(HttpServletRequest req,
-                                      StringBuffer filter) 
-    {
+                                      StringBuffer filter) {
         if (!isOn(req, "certTypeInUse")) {
             return;
         }
@@ -471,8 +452,7 @@ public class SrchCerts extends CMSServlet {
         }
     }
 
-    public String buildFilter(HttpServletRequest req) 
-    {
+    public String buildFilter(HttpServletRequest req) {
         String queryCertFilter = req.getParameter("queryCertFilter");
 
         StringBuffer filter = new StringBuffer();
@@ -504,10 +484,10 @@ public class SrchCerts extends CMSServlet {
 
     /**
      * Serves HTTP request. This format of this request is as follows:
-     *   queryCert?
-     *     [maxCount=<number>]
-     *     [queryFilter=<filter>]
-     *     [revokeAll=<filter>]
+     * queryCert?
+     * [maxCount=<number>]
+     * [queryFilter=<filter>]
+     * [revokeAll=<filter>]
      */
     public void process(CMSRequest cmsReq) throws EBaseException {
         HttpServletRequest req = cmsReq.getHttpReq();
@@ -522,10 +502,10 @@ public class SrchCerts extends CMSServlet {
                         mAuthzResourceName, "list");
         } catch (EAuthzAccessDenied e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
         } catch (Exception e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
         }
 
         if (authzToken == null) {
@@ -551,10 +531,10 @@ public class SrchCerts extends CMSServlet {
         try {
             form = getTemplate(mFormPath, req, locale);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", e.toString()));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
 
         try {
@@ -571,10 +551,10 @@ public class SrchCerts extends CMSServlet {
 
             String queryCertFilter = buildFilter(req);
             process(argSet, header, queryCertFilter,
-                revokeAll, maxResults, timeLimit, req, resp, locale[0]);
+                    revokeAll, maxResults, timeLimit, req, resp, locale[0]);
         } catch (NumberFormatException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("BASE_INVALID_NUMBER_FORMAT"));
-            error = new EBaseException(CMS.getUserMessage(getLocale(req),"CMS_BASE_INVALID_NUMBER_FORMAT"));
+            error = new EBaseException(CMS.getUserMessage(getLocale(req), "CMS_BASE_INVALID_NUMBER_FORMAT"));
         } catch (EBaseException e) {
             error = e;
         }
@@ -585,33 +565,33 @@ public class SrchCerts extends CMSServlet {
             if (error == null) {
                 String xmlOutput = req.getParameter("xml");
                 if (xmlOutput != null && xmlOutput.equals("true")) {
-                  outputXML(resp, argSet);
+                    outputXML(resp, argSet);
                 } else {
-                  cmsReq.setStatus(CMSRequest.SUCCESS);
-                  resp.setContentType("text/html");
-                  form.renderOutput(out, argSet);
+                    cmsReq.setStatus(CMSRequest.SUCCESS);
+                    resp.setContentType("text/html");
+                    form.renderOutput(out, argSet);
                 }
             } else {
                 cmsReq.setStatus(CMSRequest.ERROR);
                 cmsReq.setError(error);
             }
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSGW_ERR_OUT_STREAM_TEMPLATE", e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSGW_ERR_OUT_STREAM_TEMPLATE", e.toString()));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
     }
 
     /**
      * Process the key search.
      */
-    private void process(CMSTemplateParams argSet, IArgBlock header, 
-        String filter, String revokeAll,
-        int maxResults, int timeLimit,
-        HttpServletRequest req, HttpServletResponse resp,
-        Locale locale)
-        throws EBaseException {
+    private void process(CMSTemplateParams argSet, IArgBlock header,
+            String filter, String revokeAll,
+            int maxResults, int timeLimit,
+            HttpServletRequest req, HttpServletResponse resp,
+            Locale locale)
+            throws EBaseException {
         try {
             long startTime = CMS.getCurrentDate().getTime();
 
@@ -671,7 +651,8 @@ public class SrchCerts extends CMSServlet {
         int i = filter.indexOf(CURRENT_TIME, k);
 
         while (i > -1) {
-            if (now == null) now = new Date();
+            if (now == null)
+                now = new Date();
             newFilter.append(filter.substring(k, i));
             newFilter.append(now.getTime());
             k = i + CURRENT_TIME.length();
@@ -687,7 +668,7 @@ public class SrchCerts extends CMSServlet {
      * Fills cert record into argument block.
      */
     private void fillRecordIntoArg(ICertRecord rec, IArgBlock rarg)
-        throws EBaseException {
+            throws EBaseException {
 
         X509CertImpl xcert = rec.getCertificate();
 
@@ -695,9 +676,9 @@ public class SrchCerts extends CMSServlet {
             fillX509RecordIntoArg(rec, rarg);
         }
     }
-	
+
     private void fillX509RecordIntoArg(ICertRecord rec, IArgBlock rarg)
-        throws EBaseException {
+            throws EBaseException {
 
         X509CertImpl cert = rec.getCertificate();
 
@@ -708,7 +689,7 @@ public class SrchCerts extends CMSServlet {
         String subject = (String) cert.getSubjectDN().toString();
 
         if (subject.equals("")) {
-            rarg.addStringValue("subject", " "); 
+            rarg.addStringValue("subject", " ");
         } else {
             rarg.addStringValue("subject", subject);
 
@@ -744,12 +725,13 @@ public class SrchCerts extends CMSServlet {
         rarg.addStringValue("signatureAlgorithm", cert.getSigAlgOID());
         String issuedBy = rec.getIssuedBy();
 
-        if (issuedBy == null) issuedBy = "";
+        if (issuedBy == null)
+            issuedBy = "";
         rarg.addStringValue("issuedBy", issuedBy); // cert.getIssuerDN().toString()
         rarg.addLongValue("issuedOn", rec.getCreateTime().getTime() / 1000);
 
         rarg.addStringValue("revokedBy",
-            ((rec.getRevokedBy() == null) ? "" : rec.getRevokedBy()));
+                ((rec.getRevokedBy() == null) ? "" : rec.getRevokedBy()));
         if (rec.getRevokedOn() == null) {
             rarg.addStringValue("revokedOn", null);
         } else {

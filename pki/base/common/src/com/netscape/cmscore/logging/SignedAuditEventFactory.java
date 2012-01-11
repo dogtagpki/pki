@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.logging;
 
-
 import java.util.Properties;
 
 import com.netscape.certsrv.logging.IBundleLogEvent;
@@ -27,12 +26,11 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.SignedAuditEvent;
 import com.netscape.cmscore.util.Debug;
 
-
 /**
  * A log event object for handling system messages
  * <P>
- *
- * @author mikep 
+ * 
+ * @author mikep
  * @author mzhao
  * @author cfu
  * @version $Revision$, $Date$
@@ -52,7 +50,7 @@ public class SignedAuditEventFactory implements ILogEventFactory {
 
     /**
      * Creates an log event.
-     *
+     * 
      * @param evtClass the event type
      * @param prop the resource bundle
      * @param source the subsystem ID who creates the log event
@@ -60,10 +58,9 @@ public class SignedAuditEventFactory implements ILogEventFactory {
      * @param multiline the log message has more than one line or not
      * @param msg the detail message of the log
      * @param params the parameters in the detail log message
-     
      */
     public ILogEvent create(int evtClass, Properties prop, int source,
-        int level, boolean multiline, String msg, Object params[]) {
+            int level, boolean multiline, String msg, Object params[]) {
         if (evtClass != ILogger.EV_SIGNED_AUDIT)
             return null;
 
@@ -101,8 +98,8 @@ public class SignedAuditEventFactory implements ILogEventFactory {
 
     /**
      * Set the resource bundle of the log event.
-     *
-     * @param prop the properties 
+     * 
+     * @param prop the properties
      * @param event the log event
      */
     protected void setProperties(Properties prop, IBundleLogEvent event) {
@@ -119,7 +116,7 @@ public class SignedAuditEventFactory implements ILogEventFactory {
 
     /**
      * Releases an log event.
-     *
+     * 
      * @param e the log event
      */
     public void release(ILogEvent e) {

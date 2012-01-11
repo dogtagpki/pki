@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.admin;
 
-
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Locale;
@@ -41,7 +40,6 @@ import com.netscape.certsrv.jobs.IJob;
 import com.netscape.certsrv.jobs.IJobsScheduler;
 import com.netscape.certsrv.jobs.JobPlugin;
 import com.netscape.certsrv.logging.ILogger;
-
 
 /**
  * A class representing an administration servlet for the
@@ -82,16 +80,16 @@ public class JobsAdminServlet extends AdminServlet {
     /**
      * Returns serlvet information.
      */
-    public String getServletInfo() { 
-        return INFO; 
+    public String getServletInfo() {
+        return INFO;
     }
 
-    /** 
+    /**
      * retrieve extended plugin info such as brief description, type info
      * from jobs
      */
     private void getExtendedPluginInfo(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         String id = req.getParameter(Constants.RS_ID);
 
@@ -100,8 +98,8 @@ public class JobsAdminServlet extends AdminServlet {
         String implType = id.substring(0, colon);
         String implName = id.substring(colon + 1);
 
-        NameValuePairs params = 
-            getExtendedPluginInfo(getLocale(req), implType, implName);
+        NameValuePairs params =
+                getExtendedPluginInfo(getLocale(req), implType, implName);
 
         sendResponse(SUCCESS, null, params, resp);
     }
@@ -111,7 +109,7 @@ public class JobsAdminServlet extends AdminServlet {
         Object impl = null;
 
         JobPlugin jp =
-            (JobPlugin) mJobsSched.getPlugins().get(implName);
+                (JobPlugin) mJobsSched.getPlugins().get(implName);
 
         if (jp != null)
             impl = getClassByNameAsExtendedPluginInfo(jp.getClassPath());
@@ -137,7 +135,7 @@ public class JobsAdminServlet extends AdminServlet {
      * Serves HTTP admin request.
      */
     public void service(HttpServletRequest req, HttpServletResponse resp)
-        throws ServletException, IOException {
+            throws ServletException, IOException {
         super.service(req, resp);
 
         String scope = req.getParameter(Constants.OP_SCOPE);
@@ -145,17 +143,17 @@ public class JobsAdminServlet extends AdminServlet {
 
         if (op == null) {
             //System.out.println("SRVLT_INVALID_PROTOCOL");
-            sendResponse(ERROR, 
-                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_PROTOCOL"),
-                null, resp);
+            sendResponse(ERROR,
+                    CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_PROTOCOL"),
+                    null, resp);
             return;
         }
 
         try {
             super.authenticate(req);
         } catch (IOException e) {
-            sendResponse(ERROR,CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHS_FAILED"), 
-                null, resp);
+            sendResponse(ERROR, CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHS_FAILED"),
+                    null, resp);
             return;
         }
 
@@ -165,8 +163,8 @@ public class JobsAdminServlet extends AdminServlet {
                 mOp = "read";
                 if ((mToken = super.authorize(req)) == null) {
                     sendResponse(ERROR,
-                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
-                        null, resp);
+                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
+                            null, resp);
                     return;
                 }
                 if (scope.equals(ScopeDef.SC_JOBS))
@@ -174,27 +172,27 @@ public class JobsAdminServlet extends AdminServlet {
                 else if (scope.equals(ScopeDef.SC_JOBS_IMPLS))
                     getConfig(req, resp);
                 else if (scope.equals(ScopeDef.SC_JOBS_INSTANCE))
-                    getInstConfig(req, resp); 
+                    getInstConfig(req, resp);
                 else if (scope.equals(ScopeDef.SC_EXTENDED_PLUGIN_INFO)) {
-                    try { 
-                      getExtendedPluginInfo(req, resp); 
-                    } catch (EBaseException e) { 
-                      sendResponse(ERROR, e.toString(getLocale(req)), null, resp); 
-                      return; 
+                    try {
+                        getExtendedPluginInfo(req, resp);
+                    } catch (EBaseException e) {
+                        sendResponse(ERROR, e.toString(getLocale(req)), null, resp);
+                        return;
                     }
                 } else {
                     //System.out.println("SRVLT_INVALID_OP_SCOPE");
-                    sendResponse(ERROR, 
-                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_OP_SCOPE"),
-                        null, resp);
+                    sendResponse(ERROR,
+                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_OP_SCOPE"),
+                            null, resp);
                     return;
                 }
             } else if (op.equals(OpDef.OP_MODIFY)) {
                 mOp = "modify";
                 if ((mToken = super.authorize(req)) == null) {
                     sendResponse(ERROR,
-                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
-                        null, resp);
+                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
+                            null, resp);
                     return;
                 }
                 if (scope.equals(ScopeDef.SC_JOBS)) {
@@ -202,17 +200,17 @@ public class JobsAdminServlet extends AdminServlet {
                 } else if (scope.equals(ScopeDef.SC_JOBS_INSTANCE)) {
                     modJobsInst(req, resp, scope);
                 } else {
-                    sendResponse(ERROR, 
-                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_OP_SCOPE"),
-                        null, resp);
+                    sendResponse(ERROR,
+                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_OP_SCOPE"),
+                            null, resp);
                     return;
                 }
             } else if (op.equals(OpDef.OP_SEARCH)) {
                 mOp = "read";
                 if ((mToken = super.authorize(req)) == null) {
                     sendResponse(ERROR,
-                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
-                        null, resp);
+                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
+                            null, resp);
                     return;
                 }
                 if (scope.equals(ScopeDef.SC_JOBS_IMPLS))
@@ -221,17 +219,17 @@ public class JobsAdminServlet extends AdminServlet {
                     listJobsInsts(req, resp);
                 else {
                     //System.out.println("SRVLT_INVALID_OP_SCOPE");
-                    sendResponse(ERROR, 
-                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_OP_SCOPE"),
-                        null, resp);
+                    sendResponse(ERROR,
+                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_OP_SCOPE"),
+                            null, resp);
                     return;
                 }
             } else if (op.equals(OpDef.OP_ADD)) {
                 mOp = "modify";
                 if ((mToken = super.authorize(req)) == null) {
                     sendResponse(ERROR,
-                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
-                        null, resp);
+                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
+                            null, resp);
                     return;
                 }
                 if (scope.equals(ScopeDef.SC_JOBS_IMPLS))
@@ -240,17 +238,17 @@ public class JobsAdminServlet extends AdminServlet {
                     addJobsInst(req, resp, scope);
                 else {
                     //System.out.println("SRVLT_INVALID_OP_SCOPE");
-                    sendResponse(ERROR, 
-                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_OP_SCOPE"),
-                        null, resp);
+                    sendResponse(ERROR,
+                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_OP_SCOPE"),
+                            null, resp);
                     return;
                 }
             } else if (op.equals(OpDef.OP_DELETE)) {
                 mOp = "modify";
                 if ((mToken = super.authorize(req)) == null) {
                     sendResponse(ERROR,
-                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
-                        null, resp);
+                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
+                            null, resp);
                     return;
                 }
                 if (scope.equals(ScopeDef.SC_JOBS_IMPLS))
@@ -259,41 +257,41 @@ public class JobsAdminServlet extends AdminServlet {
                     delJobsInst(req, resp, scope);
                 else {
                     //System.out.println("SRVLT_INVALID_OP_SCOPE");
-                    sendResponse(ERROR, 
-                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_OP_SCOPE"),
-                        null, resp);
+                    sendResponse(ERROR,
+                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_OP_SCOPE"),
+                            null, resp);
                     return;
                 }
             } else {
                 sendResponse(ERROR,
-                    CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_OP_TYPE", op),
-                    null, resp);
+                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_OP_TYPE", op),
+                        null, resp);
                 return;
             }
         } catch (EBaseException e) {
             sendResponse(ERROR, e.toString(getLocale(req)), null, resp);
             return;
-        } 
+        }
     }
 
-    private synchronized void addJobPlugin(HttpServletRequest req, 
-        HttpServletResponse resp, String scope)
-        throws ServletException, IOException, EBaseException {
+    private synchronized void addJobPlugin(HttpServletRequest req,
+            HttpServletResponse resp, String scope)
+            throws ServletException, IOException, EBaseException {
 
         String id = req.getParameter(Constants.RS_ID);
 
         if (id == null) {
             //System.out.println("SRVLT_NULL_RS_ID");
             sendResponse(ERROR,
-                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
-                null, resp);
+                    CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
+                    null, resp);
             return;
         }
         // is the job plugin id unique?
         if (mJobsSched.getPlugins().containsKey((Object) id)) {
             sendResponse(ERROR,
-                new EJobsException(CMS.getUserMessage(getLocale(req),"CMS_JOB_SRVLT_ILL_JOB_PLUGIN_ID", id)).toString(),
-                null, resp);
+                    new EJobsException(CMS.getUserMessage(getLocale(req), "CMS_JOB_SRVLT_ILL_JOB_PLUGIN_ID", id)).toString(),
+                    null, resp);
             return;
         }
 
@@ -301,15 +299,15 @@ public class JobsAdminServlet extends AdminServlet {
 
         if (classPath == null) {
             sendResponse(ERROR,
-                    CMS.getUserMessage(getLocale(req),"CMS_JOB_SRVLT_NULL_CLASS"),
-                null, resp);
+                    CMS.getUserMessage(getLocale(req), "CMS_JOB_SRVLT_NULL_CLASS"),
+                    null, resp);
             return;
         }
 
         IConfigStore destStore =
-            mConfig.getSubStore(DestDef.DEST_JOBS_ADMIN);
+                mConfig.getSubStore(DestDef.DEST_JOBS_ADMIN);
         IConfigStore instancesConfig =
-            destStore.getSubStore(scope);
+                destStore.getSubStore(scope);
 
         // Does the class exist?
         Class newImpl = null;
@@ -318,13 +316,13 @@ public class JobsAdminServlet extends AdminServlet {
             newImpl = Class.forName(classPath);
         } catch (ClassNotFoundException e) {
             sendResponse(ERROR,
-                    CMS.getUserMessage(getLocale(req),"CMS_JOB_SRVLT_NO_CLASS"),
-                null, resp);
+                    CMS.getUserMessage(getLocale(req), "CMS_JOB_SRVLT_NO_CLASS"),
+                    null, resp);
             return;
         } catch (IllegalArgumentException e) {
             sendResponse(ERROR,
-                    CMS.getUserMessage(getLocale(req),"CMS_JOB_SRVLT_NO_CLASS"),
-                null, resp);
+                    CMS.getUserMessage(getLocale(req), "CMS_JOB_SRVLT_NO_CLASS"),
+                    null, resp);
             return;
         }
 
@@ -332,14 +330,14 @@ public class JobsAdminServlet extends AdminServlet {
         try {
             if (IJob.class.isAssignableFrom(newImpl) == false) {
                 sendResponse(ERROR,
-                        CMS.getUserMessage(getLocale(req),"CMS_JOB_SRVLT_ILL_CLASS"),
-                    null, resp);
+                        CMS.getUserMessage(getLocale(req), "CMS_JOB_SRVLT_ILL_CLASS"),
+                        null, resp);
                 return;
             }
         } catch (NullPointerException e) { // unlikely, only if newImpl null.
             sendResponse(ERROR,
-                    CMS.getUserMessage(getLocale(req),"CMS_JOB_SRVLT_ILL_CLASS"),
-                null, resp);
+                    CMS.getUserMessage(getLocale(req), "CMS_JOB_SRVLT_ILL_CLASS"),
+                    null, resp);
             return;
         }
 
@@ -353,8 +351,8 @@ public class JobsAdminServlet extends AdminServlet {
         } catch (EBaseException e) {
             //System.out.println("SRVLT_FAIL_COMMIT");
             sendResponse(ERROR,
-                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_COMMIT_FAILED"),
-                null, resp);
+                    CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_COMMIT_FAILED"),
+                    null, resp);
             return;
         }
 
@@ -362,8 +360,8 @@ public class JobsAdminServlet extends AdminServlet {
         JobPlugin plugin = new JobPlugin(id, classPath);
 
         mJobsSched.getPlugins().put(id, plugin);
-        mJobsSched.log(ILogger.LL_INFO, 
-            CMS.getLogMessage("ADMIN_SRVLT_JS_PLUGIN_ADD", id));
+        mJobsSched.log(ILogger.LL_INFO,
+                CMS.getLogMessage("ADMIN_SRVLT_JS_PLUGIN_ADD", id));
 
         NameValuePairs params = new NameValuePairs();
 
@@ -371,24 +369,24 @@ public class JobsAdminServlet extends AdminServlet {
         return;
     }
 
-    private synchronized void addJobsInst(HttpServletRequest req, 
-        HttpServletResponse resp, String scope)
-        throws ServletException, IOException, EBaseException {
+    private synchronized void addJobsInst(HttpServletRequest req,
+            HttpServletResponse resp, String scope)
+            throws ServletException, IOException, EBaseException {
 
         String id = req.getParameter(Constants.RS_ID);
 
         if (id == null) {
             sendResponse(ERROR,
-                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
-                null, resp);
+                    CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
+                    null, resp);
             return;
         }
 
         // is the job instance id unique?
         if (mJobsSched.getInstances().containsKey((Object) id)) {
             sendResponse(ERROR,
-                    CMS.getUserMessage(getLocale(req),"CMS_JOB_SRVLT_ILL_JOB_INST_ID"),
-                null, resp);
+                    CMS.getUserMessage(getLocale(req), "CMS_JOB_SRVLT_ILL_JOB_INST_ID"),
+                    null, resp);
             return;
         }
 
@@ -399,21 +397,21 @@ public class JobsAdminServlet extends AdminServlet {
 
         if (implname == null) {
             sendResponse(ERROR,
-                    CMS.getUserMessage(getLocale(req),"CMS_JOB_SRVLT_ADD_MISSING_PARAMS"),
-                null, resp);
+                    CMS.getUserMessage(getLocale(req), "CMS_JOB_SRVLT_ADD_MISSING_PARAMS"),
+                    null, resp);
             return;
         }
 
         // check if implementation exists.
         JobPlugin plugin =
-            (JobPlugin) mJobsSched.getPlugins().get(implname);
+                (JobPlugin) mJobsSched.getPlugins().get(implname);
 
         if (plugin == null) {
             sendResponse(ERROR,
-                new
-                EJobsException(CMS.getUserMessage(getLocale(req),"CMS_JOB_SRVLT_JOB_PLUGIN_NOT_FOUND",
-                    id)).toString(),
-                null, resp);
+                    new
+                    EJobsException(CMS.getUserMessage(getLocale(req), "CMS_JOB_SRVLT_JOB_PLUGIN_NOT_FOUND",
+                            id)).toString(),
+                    null, resp);
             return;
         }
 
@@ -423,9 +421,9 @@ public class JobsAdminServlet extends AdminServlet {
         String[] configParams = mJobsSched.getConfigParams(implname);
 
         IConfigStore destStore =
-            mConfig.getSubStore(DestDef.DEST_JOBS_ADMIN);
+                mConfig.getSubStore(DestDef.DEST_JOBS_ADMIN);
         IConfigStore instancesConfig =
-            destStore.getSubStore(scope);
+                destStore.getSubStore(scope);
         IConfigStore substore = instancesConfig.makeSubStore(id);
 
         if (configParams != null) {
@@ -437,10 +435,10 @@ public class JobsAdminServlet extends AdminServlet {
                     substore.put(key, val);
                 } else if (!key.equals("profileId")) {
                     sendResponse(ERROR,
-                        new
-                        EJobsException(CMS.getUserMessage(getLocale(req),"CMS_JOB_SRVLT_MISSING_INST_PARAM_VAL",
-                            key)).toString(),
-                        null, resp);
+                            new
+                            EJobsException(CMS.getUserMessage(getLocale(req), "CMS_JOB_SRVLT_MISSING_INST_PARAM_VAL",
+                                    key)).toString(),
+                            null, resp);
                     return;
                 }
             }
@@ -458,28 +456,28 @@ public class JobsAdminServlet extends AdminServlet {
             // cleanup
             instancesConfig.removeSubStore(id);
             sendResponse(ERROR,
-                new EJobsException(
-                  CMS.getUserMessage(getLocale(req),"CMS_JOB_LOAD_CLASS_FAILED", className)).toString(),
-                null, resp);
+                    new EJobsException(
+                            CMS.getUserMessage(getLocale(req), "CMS_JOB_LOAD_CLASS_FAILED", className)).toString(),
+                    null, resp);
             return;
         } catch (InstantiationException e) {
             instancesConfig.removeSubStore(id);
             sendResponse(ERROR,
-                new EJobsException(
-                  CMS.getUserMessage(getLocale(req),"CMS_JOB_LOAD_CLASS_FAILED", className)).toString(),
-                null, resp);
+                    new EJobsException(
+                            CMS.getUserMessage(getLocale(req), "CMS_JOB_LOAD_CLASS_FAILED", className)).toString(),
+                    null, resp);
             return;
         } catch (IllegalAccessException e) {
             instancesConfig.removeSubStore(id);
             sendResponse(ERROR,
-                new EJobsException(
-                  CMS.getUserMessage(getLocale(req),"CMS_JOB_LOAD_CLASS_FAILED", className)).toString(),
-                null, resp);
+                    new EJobsException(
+                            CMS.getUserMessage(getLocale(req), "CMS_JOB_LOAD_CLASS_FAILED", className)).toString(),
+                    null, resp);
             return;
         }
-		
+
         IJobsScheduler scheduler = (IJobsScheduler)
-            CMS.getSubsystem(CMS.SUBSYSTEM_JOBS);
+                CMS.getSubsystem(CMS.SUBSYSTEM_JOBS);
 
         // initialize the job plugin
         try {
@@ -498,16 +496,16 @@ public class JobsAdminServlet extends AdminServlet {
             // clean up.
             instancesConfig.removeSubStore(id);
             sendResponse(ERROR,
-                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_COMMIT_FAILED"),
-                null, resp);
+                    CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_COMMIT_FAILED"),
+                    null, resp);
             return;
         }
 
         // inited and commited ok. now add manager instance to list.
         mJobsSched.getInstances().put(id, jobsInst);
 
-        mJobsSched.log(ILogger.LL_INFO, 
-            CMS.getLogMessage("ADMIN_SRVLT_JOB_INST_ADD", id));
+        mJobsSched.log(ILogger.LL_INFO,
+                CMS.getLogMessage("ADMIN_SRVLT_JOB_INST_ADD", id));
 
         NameValuePairs params = new NameValuePairs();
 
@@ -516,8 +514,8 @@ public class JobsAdminServlet extends AdminServlet {
         return;
     }
 
-    private synchronized void listJobPlugins(HttpServletRequest req, 
-        HttpServletResponse resp) throws ServletException, 
+    private synchronized void listJobPlugins(HttpServletRequest req,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
 
         NameValuePairs params = new NameValuePairs();
@@ -525,8 +523,8 @@ public class JobsAdminServlet extends AdminServlet {
 
         while (e.hasMoreElements()) {
             String name = (String) e.nextElement();
-            JobPlugin value = (JobPlugin) 
-                mJobsSched.getPlugins().get(name);
+            JobPlugin value = (JobPlugin)
+                    mJobsSched.getPlugins().get(name);
 
             params.add(name, value.getClassPath());
             //				params.add(name, value.getClassPath()+EDIT);
@@ -535,29 +533,28 @@ public class JobsAdminServlet extends AdminServlet {
         return;
     }
 
-    private synchronized void listJobsInsts(HttpServletRequest req, 
-        HttpServletResponse resp) throws ServletException, 
+    private synchronized void listJobsInsts(HttpServletRequest req,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
 
         NameValuePairs params = new NameValuePairs();
 
-        for (Enumeration e = mJobsSched.getInstances().keys();
-            e.hasMoreElements();) {
+        for (Enumeration e = mJobsSched.getInstances().keys(); e.hasMoreElements();) {
             String name = (String) e.nextElement();
-            IJob value = (IJob) 
-                mJobsSched.getInstances().get((Object) name);
+            IJob value = (IJob)
+                    mJobsSched.getInstances().get((Object) name);
 
             //				params.add(name, value.getImplName());
             params.add(name, value.getImplName() + VISIBLE +
-                (value.isEnabled() ? ENABLED : DISABLED)
-            );
+                    (value.isEnabled() ? ENABLED : DISABLED)
+                    );
         }
         sendResponse(SUCCESS, null, params, resp);
         return;
     }
 
-    private synchronized void delJobPlugin(HttpServletRequest req, 
-        HttpServletResponse resp, String scope) throws ServletException, 
+    private synchronized void delJobPlugin(HttpServletRequest req,
+            HttpServletResponse resp, String scope) throws ServletException,
             IOException, EBaseException {
 
         NameValuePairs params = new NameValuePairs();
@@ -566,42 +563,41 @@ public class JobsAdminServlet extends AdminServlet {
         if (id == null) {
             //System.out.println("SRVLT_NULL_RS_ID");
             sendResponse(ERROR,
-                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
-                null, resp);
+                    CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
+                    null, resp);
             return;
         }
 
         // does this job plugin exist?
         if (mJobsSched.getPlugins().containsKey(id) == false) {
             sendResponse(ERROR,
-                new
-                EJobsException(CMS.getUserMessage(getLocale(req),"CMS_JOB_SRVLT_JOB_PLUGIN_NOT_FOUND",
-                    id)).toString(),
-                null, resp);
+                    new
+                    EJobsException(CMS.getUserMessage(getLocale(req), "CMS_JOB_SRVLT_JOB_PLUGIN_NOT_FOUND",
+                            id)).toString(),
+                    null, resp);
             return;
         }
 
         // first check if any instances from this job plugin
         // DON'T remove job plugin if any instance
-        for (Enumeration e = mJobsSched.getInstances().elements();
-            e.hasMoreElements();) {
+        for (Enumeration e = mJobsSched.getInstances().elements(); e.hasMoreElements();) {
             IJob jobs = (IJob) e.nextElement();
 
             if ((jobs.getImplName()).equals(id)) {
                 sendResponse(ERROR,
-                        CMS.getUserMessage(getLocale(req),"CMS_JOB_SRVLT_JOB_IN_USE"),
-                    null, resp);
+                        CMS.getUserMessage(getLocale(req), "CMS_JOB_SRVLT_JOB_IN_USE"),
+                        null, resp);
                 return;
             }
         }
-		
+
         // then delete this job plugin
         mJobsSched.getPlugins().remove((Object) id);
 
         IConfigStore destStore =
-            mConfig.getSubStore(DestDef.DEST_JOBS_ADMIN);
+                mConfig.getSubStore(DestDef.DEST_JOBS_ADMIN);
         IConfigStore instancesConfig =
-            destStore.getSubStore(scope);
+                destStore.getSubStore(scope);
 
         instancesConfig.removeSubStore(id);
         // commiting
@@ -609,8 +605,8 @@ public class JobsAdminServlet extends AdminServlet {
             mConfig.commit(true);
         } catch (EBaseException e) {
             sendResponse(ERROR,
-                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_COMMIT_FAILED"),
-                null, resp);
+                    CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_COMMIT_FAILED"),
+                    null, resp);
             return;
         }
 
@@ -618,8 +614,8 @@ public class JobsAdminServlet extends AdminServlet {
         return;
     }
 
-    private synchronized void delJobsInst(HttpServletRequest req, 
-        HttpServletResponse resp, String scope) throws ServletException, 
+    private synchronized void delJobsInst(HttpServletRequest req,
+            HttpServletResponse resp, String scope) throws ServletException,
             IOException, EBaseException {
 
         NameValuePairs params = new NameValuePairs();
@@ -628,17 +624,17 @@ public class JobsAdminServlet extends AdminServlet {
         if (id == null) {
             //System.out.println("SRVLT_NULL_RS_ID");
             sendResponse(ERROR,
-                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
-                null, resp);
+                    CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
+                    null, resp);
             return;
         }
 
         // does job plugin instance exist?
         if (mJobsSched.getInstances().containsKey(id) == false) {
             sendResponse(ERROR,
-                new EJobsException(CMS.getUserMessage(getLocale(req),"CMS_JOB_SRVLT_JOB_NOT_FOUND",
-                    id)).toString(),
-                null, resp);
+                    new EJobsException(CMS.getUserMessage(getLocale(req), "CMS_JOB_SRVLT_JOB_NOT_FOUND",
+                            id)).toString(),
+                    null, resp);
             return;
         }
 
@@ -651,9 +647,9 @@ public class JobsAdminServlet extends AdminServlet {
 
         // remove the configuration.
         IConfigStore destStore =
-            mConfig.getSubStore(DestDef.DEST_JOBS_ADMIN);
+                mConfig.getSubStore(DestDef.DEST_JOBS_ADMIN);
         IConfigStore instancesConfig =
-            destStore.getSubStore(scope);
+                destStore.getSubStore(scope);
 
         instancesConfig.removeSubStore(id);
         // commiting
@@ -662,8 +658,8 @@ public class JobsAdminServlet extends AdminServlet {
         } catch (EBaseException e) {
             //System.out.println("SRVLT_FAIL_COMMIT");
             sendResponse(ERROR,
-                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_COMMIT_FAILED"),
-                null, resp);
+                    CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_COMMIT_FAILED"),
+                    null, resp);
             return;
         }
 
@@ -673,24 +669,24 @@ public class JobsAdminServlet extends AdminServlet {
 
     /**
      * used for getting the required configuration parameters (with
-     *	 possible default values) for a particular job plugin
-     * implementation name specified in the RS_ID.  Actually, there is
-     *	 no logic in here to set any default value here...there's no
-     *	 default value for any parameter in this job scheduler subsystem
-     *	 at this point.  Later, if we do have one (or some), it can be
-     *	 added.  The interface remains the same.
+     * possible default values) for a particular job plugin
+     * implementation name specified in the RS_ID. Actually, there is
+     * no logic in here to set any default value here...there's no
+     * default value for any parameter in this job scheduler subsystem
+     * at this point. Later, if we do have one (or some), it can be
+     * added. The interface remains the same.
      */
-    private synchronized void getConfig(HttpServletRequest req, 
-        HttpServletResponse resp)
-        throws ServletException, IOException, EBaseException {
+    private synchronized void getConfig(HttpServletRequest req,
+            HttpServletResponse resp)
+            throws ServletException, IOException, EBaseException {
 
         String implname = req.getParameter(Constants.RS_ID);
 
         if (implname == null) {
             //System.out.println("SRVLT_NULL_RS_ID");
             sendResponse(ERROR,
-                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
-                null, resp);
+                    CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
+                    null, resp);
             return;
         }
 
@@ -708,25 +704,25 @@ public class JobsAdminServlet extends AdminServlet {
         return;
     }
 
-    private synchronized void getInstConfig(HttpServletRequest req, 
-        HttpServletResponse resp) throws ServletException, 
+    private synchronized void getInstConfig(HttpServletRequest req,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         String id = req.getParameter(Constants.RS_ID);
 
         if (id == null) {
             //System.out.println("SRVLT_NULL_RS_ID");
             sendResponse(ERROR,
-                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
-                null, resp);
+                    CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
+                    null, resp);
             return;
         }
 
         // does job plugin instance exist?
         if (mJobsSched.getInstances().containsKey(id) == false) {
             sendResponse(ERROR,
-                new EJobsException(CMS.getUserMessage(getLocale(req),"CMS_JOB_SRVLT_JOB_NOT_FOUND",
-                    id)).toString(),
-                null, resp);
+                    new EJobsException(CMS.getUserMessage(getLocale(req), "CMS_JOB_SRVLT_JOB_NOT_FOUND",
+                            id)).toString(),
+                    null, resp);
             return;
         }
 
@@ -758,15 +754,15 @@ public class JobsAdminServlet extends AdminServlet {
 
     /**
      * Modify job plugin instance.
-     * This will actually create a new instance with new configuration 
-     * parameters and replace the old instance, if the new instance 
+     * This will actually create a new instance with new configuration
+     * parameters and replace the old instance, if the new instance
      * created and initialized successfully.
      * The old instance is left running. so this is very expensive.
      * Restart of server recommended.
      */
-    private synchronized void modJobsInst(HttpServletRequest req, 
-        HttpServletResponse resp, String scope)
-        throws ServletException, IOException, EBaseException {
+    private synchronized void modJobsInst(HttpServletRequest req,
+            HttpServletResponse resp, String scope)
+            throws ServletException, IOException, EBaseException {
 
         // expensive operation.
 
@@ -775,16 +771,16 @@ public class JobsAdminServlet extends AdminServlet {
         if (id == null) {
             //System.out.println("SRVLT_NULL_RS_ID");
             sendResponse(ERROR,
-                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
-                null, resp);
+                    CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
+                    null, resp);
             return;
         }
 
         // Does the job instance exist?
         if (!mJobsSched.getInstances().containsKey((Object) id)) {
             sendResponse(ERROR,
-                    CMS.getUserMessage(getLocale(req),"CMS_JOB_SRVLT_ILL_JOB_INST_ID"),
-                null, resp);
+                    CMS.getUserMessage(getLocale(req), "CMS_JOB_SRVLT_ILL_JOB_INST_ID"),
+                    null, resp);
             return;
         }
 
@@ -793,27 +789,27 @@ public class JobsAdminServlet extends AdminServlet {
 
         if (implname == null) {
             sendResponse(ERROR,
-                    CMS.getUserMessage(getLocale(req),"CMS_JOB_SRVLT_ADD_MISSING_PARAMS"),
-                null, resp);
+                    CMS.getUserMessage(getLocale(req), "CMS_JOB_SRVLT_ADD_MISSING_PARAMS"),
+                    null, resp);
             return;
         }
 
         // get plugin for implementation 
         JobPlugin plugin =
-            (JobPlugin) mJobsSched.getPlugins().get(implname);
+                (JobPlugin) mJobsSched.getPlugins().get(implname);
 
         if (plugin == null) {
             sendResponse(ERROR,
-                new EJobsException(CMS.getUserMessage(getLocale(req),"CMS_JOB_SRVLT_JOB_PLUGIN_NOT_FOUND",
-                    id)).toString(),
-                null, resp);
+                    new EJobsException(CMS.getUserMessage(getLocale(req), "CMS_JOB_SRVLT_JOB_PLUGIN_NOT_FOUND",
+                            id)).toString(),
+                    null, resp);
             return;
         }
 
         // save old instance substore params in case new one fails. 
 
-        IJob oldinst = 
-            (IJob) mJobsSched.getInstances().get((Object) id);
+        IJob oldinst =
+                (IJob) mJobsSched.getInstances().get((Object) id);
         IConfigStore oldConfig = oldinst.getConfigStore();
 
         String[] oldConfigParms = oldinst.getConfigParams();
@@ -821,7 +817,7 @@ public class JobsAdminServlet extends AdminServlet {
 
         // implName is always required so always include it it.
         saveParams.add(IJobsScheduler.PROP_PLUGIN,
-            (String) oldConfig.get(IJobsScheduler.PROP_PLUGIN));
+                (String) oldConfig.get(IJobsScheduler.PROP_PLUGIN));
         if (oldConfigParms != null) {
             for (int i = 0; i < oldConfigParms.length; i++) {
                 String key = oldConfigParms[i];
@@ -838,9 +834,9 @@ public class JobsAdminServlet extends AdminServlet {
         // remove old substore.
 
         IConfigStore destStore =
-            mConfig.getSubStore(DestDef.DEST_JOBS_ADMIN);
+                mConfig.getSubStore(DestDef.DEST_JOBS_ADMIN);
         IConfigStore instancesConfig =
-            destStore.getSubStore(scope);
+                destStore.getSubStore(scope);
 
         instancesConfig.removeSubStore(id);
 
@@ -861,10 +857,10 @@ public class JobsAdminServlet extends AdminServlet {
                 } else if (!key.equals("profileId")) {
                     restore(instancesConfig, id, saveParams);
                     sendResponse(ERROR,
-                        new
-                        EJobsException(CMS.getUserMessage(getLocale(req),"CMS_JOB_SRVLT_MISSING_INST_PARAM_VAL",
-                            key)).toString(),
-                        null, resp);
+                            new
+                            EJobsException(CMS.getUserMessage(getLocale(req), "CMS_JOB_SRVLT_MISSING_INST_PARAM_VAL",
+                                    key)).toString(),
+                            null, resp);
                     return;
                 }
             }
@@ -880,30 +876,30 @@ public class JobsAdminServlet extends AdminServlet {
             // cleanup
             restore(instancesConfig, id, saveParams);
             sendResponse(ERROR,
-                new EJobsException(
-                  CMS.getUserMessage(getLocale(req),"CMS_JOB_LOAD_CLASS_FAILED", className)).toString(),
-                null, resp);
+                    new EJobsException(
+                            CMS.getUserMessage(getLocale(req), "CMS_JOB_LOAD_CLASS_FAILED", className)).toString(),
+                    null, resp);
             return;
         } catch (InstantiationException e) {
             restore(instancesConfig, id, saveParams);
             sendResponse(ERROR,
-                new EJobsException(
-                  CMS.getUserMessage(getLocale(req),"CMS_JOB_LOAD_CLASS_FAILED", className)).toString(),
-                null, resp);
+                    new EJobsException(
+                            CMS.getUserMessage(getLocale(req), "CMS_JOB_LOAD_CLASS_FAILED", className)).toString(),
+                    null, resp);
             return;
         } catch (IllegalAccessException e) {
             restore(instancesConfig, id, saveParams);
             sendResponse(ERROR,
-                new EJobsException(
-                  CMS.getUserMessage(getLocale(req),"CMS_JOB_LOAD_CLASS_FAILED", className)).toString(),
-                null, resp);
+                    new EJobsException(
+                            CMS.getUserMessage(getLocale(req), "CMS_JOB_LOAD_CLASS_FAILED", className)).toString(),
+                    null, resp);
             return;
         }
 
         // initialize the job plugin
 
         IJobsScheduler scheduler = (IJobsScheduler)
-            CMS.getSubsystem(CMS.SUBSYSTEM_JOBS);
+                CMS.getSubsystem(CMS.SUBSYSTEM_JOBS);
 
         try {
             newJobInst.init(scheduler, id, implname, substore);
@@ -928,8 +924,8 @@ public class JobsAdminServlet extends AdminServlet {
             restore(instancesConfig, id, saveParams);
             //System.out.println("SRVLT_FAIL_COMMIT");
             sendResponse(ERROR,
-                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_COMMIT_FAILED"),
-                null, resp);
+                    CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_COMMIT_FAILED"),
+                    null, resp);
             return;
         }
 
@@ -937,8 +933,8 @@ public class JobsAdminServlet extends AdminServlet {
 
         mJobsSched.getInstances().put(id, newJobInst);
 
-        mJobsSched.log(ILogger.LL_INFO, 
-            CMS.getLogMessage("ADMIN_SRVLT_JOB_INST_REP", id));
+        mJobsSched.log(ILogger.LL_INFO,
+                CMS.getLogMessage("ADMIN_SRVLT_JOB_INST_REP", id));
 
         NameValuePairs params = new NameValuePairs();
 
@@ -947,24 +943,24 @@ public class JobsAdminServlet extends AdminServlet {
     }
 
     private void getSettings(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         NameValuePairs params = new NameValuePairs();
         IConfigStore config = mConfig.getSubStore(DestDef.DEST_JOBS_ADMIN);
 
-        params.add(Constants.PR_ENABLE, 
-            config.getString(IJobsScheduler.PROP_ENABLED,
-                Constants.FALSE));
+        params.add(Constants.PR_ENABLE,
+                config.getString(IJobsScheduler.PROP_ENABLED,
+                        Constants.FALSE));
         // default 1 minute
-        params.add(Constants.PR_JOBS_FREQUENCY, 
-            config.getString(IJobsScheduler.PROP_INTERVAL, "1"));
+        params.add(Constants.PR_JOBS_FREQUENCY,
+                config.getString(IJobsScheduler.PROP_INTERVAL, "1"));
 
         //System.out.println("Send: "+params.toString());
         sendResponse(SUCCESS, null, params, resp);
     }
 
     private void setSettings(HttpServletRequest req, HttpServletResponse resp)
-        throws ServletException, IOException, EBaseException {
+            throws ServletException, IOException, EBaseException {
         //Save New Settings to the config file
         IConfigStore config = mConfig.getSubStore(DestDef.DEST_JOBS_ADMIN);
 
@@ -980,12 +976,12 @@ public class JobsAdminServlet extends AdminServlet {
 
         //set frequency
         String interval =
-            req.getParameter(Constants.PR_JOBS_FREQUENCY);
+                req.getParameter(Constants.PR_JOBS_FREQUENCY);
 
         if (interval != null) {
             config.putString(IJobsScheduler.PROP_INTERVAL, interval);
             mJobsSched.setInterval(
-                config.getInteger(IJobsScheduler.PROP_INTERVAL));
+                    config.getInteger(IJobsScheduler.PROP_INTERVAL));
         }
 
         if (enabledChanged == true) {
@@ -999,8 +995,8 @@ public class JobsAdminServlet extends AdminServlet {
     }
 
     // convenience routine.
-    private static void restore(IConfigStore store, 
-        String id, NameValuePairs saveParams) {
+    private static void restore(IConfigStore store,
+            String id, NameValuePairs saveParams) {
         store.removeSubStore(id);
         IConfigStore rstore = store.makeSubStore(id);
 
@@ -1010,7 +1006,7 @@ public class JobsAdminServlet extends AdminServlet {
             String key = (String) keys.nextElement();
             String value = saveParams.getValue(key);
 
-            if (!value.equals("")) 
+            if (!value.equals(""))
                 rstore.put(key, value);
         }
     }

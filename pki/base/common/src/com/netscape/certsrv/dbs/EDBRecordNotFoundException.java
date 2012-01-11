@@ -17,10 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.dbs;
 
-
 /**
  * Indicates internal db is down.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class EDBRecordNotFoundException extends EDBException {
@@ -32,7 +31,7 @@ public class EDBRecordNotFoundException extends EDBException {
 
     /**
      * Constructs a ldap server down exception with host & port info.
-     *
+     * 
      * @param errorString Detailed error message.
      */
     public EDBRecordNotFoundException(String errorString) {

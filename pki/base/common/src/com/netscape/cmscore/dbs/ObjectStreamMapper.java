@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.dbs;
 
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -35,15 +34,14 @@ import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBAttrMapper;
 import com.netscape.certsrv.dbs.IDBObj;
 import com.netscape.certsrv.logging.ILogger;
- 
 
 /**
  * A class represents ann attribute mapper that maps
  * a Java object into LDAP attribute,
  * and vice versa.
- *
+ * 
  * @author thomask
- * @version $Revision$, $Date$ 
+ * @version $Revision$, $Date$
  */
 public class ObjectStreamMapper implements IDBAttrMapper {
 
@@ -69,9 +67,9 @@ public class ObjectStreamMapper implements IDBAttrMapper {
     /**
      * Maps object to ldap attribute set.
      */
-    public void mapObjectToLDAPAttributeSet(IDBObj parent, String name, 
-        Object obj, LDAPAttributeSet attrs) 	
-        throws EBaseException {
+    public void mapObjectToLDAPAttributeSet(IDBObj parent, String name,
+            Object obj, LDAPAttributeSet attrs)
+            throws EBaseException {
         try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             ObjectOutputStream os = new ObjectOutputStream(bos);
@@ -79,13 +77,13 @@ public class ObjectStreamMapper implements IDBAttrMapper {
             os.writeObject(obj);
             byte data[] = bos.toByteArray();
             if (data == null) {
-               CMS.debug("ObjectStreamMapper:mapObjectToLDAPAttributeSet " +
+                CMS.debug("ObjectStreamMapper:mapObjectToLDAPAttributeSet " +
                            name + " size=0");
             } else {
-               CMS.debug("ObjectStreamMapper:mapObjectToLDAPAttributeSet " +
+                CMS.debug("ObjectStreamMapper:mapObjectToLDAPAttributeSet " +
                            name + " size=" + data.length);
             }
-            attrs.add(new LDAPAttribute(mLdapName, 
+            attrs.add(new LDAPAttribute(mLdapName,
                     data));
         } catch (IOException e) {
 
@@ -94,9 +92,9 @@ public class ObjectStreamMapper implements IDBAttrMapper {
              * @phase Maps object to ldap attribute set
              * @message ObjectStreamMapper: <exception thrown>
              */
-            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_DB, ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSCORE_DBS_OBJECTSTREAM_MAPPER_ERROR",
-                    e.toString()));
+            mLogger.log(ILogger.EV_SYSTEM, ILogger.S_DB, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_DBS_OBJECTSTREAM_MAPPER_ERROR",
+                            e.toString()));
             throw new EDBException(
                     CMS.getUserMessage("CMS_DBS_SERIALIZE_FAILED", name));
         }
@@ -106,8 +104,8 @@ public class ObjectStreamMapper implements IDBAttrMapper {
      * Maps LDAP attributes into object, and put the object
      * into 'parent'.
      */
-    public void mapLDAPAttributeSetToObject(LDAPAttributeSet attrs, 
-        String name, IDBObj parent) throws EBaseException {
+    public void mapLDAPAttributeSetToObject(LDAPAttributeSet attrs,
+            String name, IDBObj parent) throws EBaseException {
         try {
             LDAPAttribute attr = attrs.getAttribute(mLdapName);
 
@@ -131,8 +129,8 @@ public class ObjectStreamMapper implements IDBAttrMapper {
     /**
      * Maps search filters into LDAP search filter.
      */
-    public String mapSearchFilter(String name, String op, 
-        String value) throws EBaseException {
+    public String mapSearchFilter(String name, String op,
+            String value) throws EBaseException {
         return mLdapName + op + value;
     }
 }

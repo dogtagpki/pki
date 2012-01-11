@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.security;
 
-
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.KeyPair;
@@ -34,7 +33,6 @@ import com.netscape.certsrv.common.ConfigConstants;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.security.KeyCertData;
 
-
 /**
  * CA signing certificate.
  * 
@@ -43,8 +41,8 @@ import com.netscape.certsrv.security.KeyCertData;
  */
 public class CASigningCert extends CertificateInfo {
 
-    public static final String SUBJECT_NAME = 
-        "CN=Certificate Authority, O=Netscape Communications, C=US";
+    public static final String SUBJECT_NAME =
+            "CN=Certificate Authority, O=Netscape Communications, C=US";
 
     public CASigningCert(KeyCertData properties) {
         this(properties, null);
@@ -107,7 +105,7 @@ public class CASigningCert extends CertificateInfo {
             BigInteger P = new BigInteger(p);
             BigInteger Q = new BigInteger(q);
             BigInteger G = new BigInteger(g);
-            BigInteger pqgSeed = new BigInteger(seed); 
+            BigInteger pqgSeed = new BigInteger(seed);
             BigInteger pqgH = new BigInteger(H);
 
             return new PQGParams(P, Q, G, pqgSeed, counter, pqgH);
@@ -135,7 +133,7 @@ public class CASigningCert extends CertificateInfo {
             cmsFileTmp.putString("ca.signing.cacertnickname", nickname);
         else
             cmsFileTmp.putString("ca.signing.cacertnickname",
-                tokenname + ":" + nickname);
+                    tokenname + ":" + nickname);
         cmsFileTmp.commit(false);
     }
 
@@ -162,4 +160,3 @@ public class CASigningCert extends CertificateInfo {
         return extension;
     }
 }
-

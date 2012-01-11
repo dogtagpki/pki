@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.publish.mappers;
 
-
 import java.util.Locale;
 import java.util.Vector;
 
@@ -30,10 +29,9 @@ import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.publish.ILdapMapper;
 import com.netscape.certsrv.request.IRequest;
 
-
-/** 
+/**
  * No Map
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class NoMap implements ILdapMapper, IExtendedPluginInfo {
@@ -56,14 +54,14 @@ public class NoMap implements ILdapMapper, IExtendedPluginInfo {
     }
 
     public IConfigStore getConfigStore() {
-         return mConfig;
+        return mConfig;
     }
 
-    /** 
+    /**
      * for initializing from config store.
      */
-    public void init(IConfigStore config) 
-        throws EBaseException {
+    public void init(IConfigStore config)
+            throws EBaseException {
         mConfig = config;
     }
 
@@ -71,17 +69,17 @@ public class NoMap implements ILdapMapper, IExtendedPluginInfo {
      * Maps a X500 subject name to LDAP entry.
      * Uses DN pattern to form a DN for a LDAP base search.
      * 
-     * @param conn	the LDAP connection.
-     * @param obj   the object to map.
+     * @param conn the LDAP connection.
+     * @param obj the object to map.
      * @exception ELdapException if any LDAP exceptions occured.
-     */ 
+     */
     public String map(LDAPConnection conn, Object obj)
-        throws ELdapException {
+            throws ELdapException {
         return null;
     }
 
     public String map(LDAPConnection conn, IRequest req, Object obj)
-         throws ELdapException {
+            throws ELdapException {
         return null;
     }
 

@@ -17,15 +17,13 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.dbs;
 
-
 import java.util.Enumeration;
 import java.util.Vector;
-
 
 /**
  * A class represents a modification set. A modification
  * set contains zero or more modifications.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class ModificationSet {
@@ -43,7 +41,7 @@ public class ModificationSet {
 
     /**
      * Adds modification to this set.
-     *
+     * 
      * @param name attribute name
      * @param op modification operation
      * @param value attribute value
@@ -54,7 +52,7 @@ public class ModificationSet {
 
     /**
      * Retrieves a list of modifications.
-     *
+     * 
      * @return a list of Modifications
      */
     public Enumeration<Modification> getModifications() {

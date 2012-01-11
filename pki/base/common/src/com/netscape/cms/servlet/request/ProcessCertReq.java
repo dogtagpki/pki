@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.request;
 
-
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
@@ -79,12 +78,11 @@ import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 
-
 /**
  * Agent operations on Certificate requests. This servlet is used
  * by an Agent to approve, reject, reassign, or change a certificate
  * request.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class ProcessCertReq extends CMSServlet {
@@ -105,101 +103,92 @@ public class ProcessCertReq extends CMSServlet {
     private boolean mExtraAgentParams = false;
 
     // for RA only since it does not have a database.
-    private final static String 
-        REQ_COMPLETED_TEMPLATE = "ra/RequestCompleted.template";
-    private final static String 
-        PROP_REQ_COMPLETED_TEMPLATE = "requestCompletedTemplate";
-    private final static String 
-        PROP_EXTRA_AGENT_PARAMS = "extraAgentParams";
-    private static ICMSTemplateFiller 
-        REQ_COMPLETED_FILLER = new RAReqCompletedFiller();
+    private final static String REQ_COMPLETED_TEMPLATE = "ra/RequestCompleted.template";
+    private final static String PROP_REQ_COMPLETED_TEMPLATE = "requestCompletedTemplate";
+    private final static String PROP_EXTRA_AGENT_PARAMS = "extraAgentParams";
+    private static ICMSTemplateFiller REQ_COMPLETED_FILLER = new RAReqCompletedFiller();
     private String mReqCompletedTemplate = null;
-    private final static String 
-        CERT_TYPE = "certType";
+    private final static String CERT_TYPE = "certType";
 
     private String auditServiceID = ILogger.UNIDENTIFIED;
     private final static String AGENT_CA_CLONE_ENROLLMENT_SERVLET =
-        "caProcessCertReq";
+            "caProcessCertReq";
     private final static String AGENT_RA_CLONE_ENROLLMENT_SERVLET =
-        "raProcessCertReq";
+            "raProcessCertReq";
     private final static String SIGNED_AUDIT_ACCEPTANCE = "accept";
     private final static String SIGNED_AUDIT_CANCELLATION = "cancel";
     private final static String SIGNED_AUDIT_CLONING = "clone";
     private final static String SIGNED_AUDIT_REJECTION = "reject";
     private final static byte EOL[] = { Character.LINE_SEPARATOR };
-    private final static String[]
-        SIGNED_AUDIT_MANUAL_CANCELLATION_REASON = new String[] {
-            
-            /* 0 */ "manual non-profile cert request cancellation:  "
+    private final static String[] SIGNED_AUDIT_MANUAL_CANCELLATION_REASON = new String[] {
+
+    /* 0 */"manual non-profile cert request cancellation:  "
             + "request cannot be processed due to an "
             + "authorization failure",
-            
-            /* 1 */ "manual non-profile cert request cancellation:  "
+
+    /* 1 */"manual non-profile cert request cancellation:  "
             + "no reason has been given for cancelling this "
             + "cert request",
-            
-            /* 2 */ "manual non-profile cert request cancellation:  "
+
+    /* 2 */"manual non-profile cert request cancellation:  "
             + "indeterminate reason for inability to process "
             + "cert request due to an EBaseException",
-            
-            /* 3 */ "manual non-profile cert request cancellation:  "
+
+    /* 3 */"manual non-profile cert request cancellation:  "
             + "indeterminate reason for inability to process "
             + "cert request due to an IOException",
-            
-            /* 4 */ "manual non-profile cert request cancellation:  "
+
+    /* 4 */"manual non-profile cert request cancellation:  "
             + "indeterminate reason for inability to process "
             + "cert request due to a CertificateException",
-            
-            /* 5 */ "manual non-profile cert request cancellation:  "
+
+    /* 5 */"manual non-profile cert request cancellation:  "
             + "indeterminate reason for inability to process "
             + "cert request due to a NoSuchAlgorithmException"
         };
-    private final static String[]
-        SIGNED_AUDIT_MANUAL_REJECTION_REASON = new String[] {
-            
-            /* 0 */ "manual non-profile cert request rejection:  "
+    private final static String[] SIGNED_AUDIT_MANUAL_REJECTION_REASON = new String[] {
+
+    /* 0 */"manual non-profile cert request rejection:  "
             + "request cannot be processed due to an "
             + "authorization failure",
-            
-            /* 1 */ "manual non-profile cert request rejection:  "
+
+    /* 1 */"manual non-profile cert request rejection:  "
             + "no reason has been given for rejecting this "
             + "cert request",
-            
-            /* 2 */ "manual non-profile cert request rejection:  "
+
+    /* 2 */"manual non-profile cert request rejection:  "
             + "indeterminate reason for inability to process "
             + "cert request due to an EBaseException",
-            
-            /* 3 */ "manual non-profile cert request rejection:  "
+
+    /* 3 */"manual non-profile cert request rejection:  "
             + "indeterminate reason for inability to process "
             + "cert request due to an IOException",
-            
-            /* 4 */ "manual non-profile cert request rejection:  "
+
+    /* 4 */"manual non-profile cert request rejection:  "
             + "indeterminate reason for inability to process "
             + "cert request due to a CertificateException",
-            
-            /* 5 */ "manual non-profile cert request rejection:  "
+
+    /* 5 */"manual non-profile cert request rejection:  "
             + "indeterminate reason for inability to process "
             + "cert request due to a NoSuchAlgorithmException"
         };
-    private final static String
-        LOGGING_SIGNED_AUDIT_NON_PROFILE_CERT_REQUEST =
-        "LOGGING_SIGNED_AUDIT_NON_PROFILE_CERT_REQUEST_5";
-    private final static String
-        LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED =
-        "LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED_5";
+    private final static String LOGGING_SIGNED_AUDIT_NON_PROFILE_CERT_REQUEST =
+            "LOGGING_SIGNED_AUDIT_NON_PROFILE_CERT_REQUEST_5";
+    private final static String LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED =
+            "LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED_5";
 
     /**
      * Process request.
      */
     public ProcessCertReq()
-        throws EBaseException {
+            throws EBaseException {
         super();
     }
 
     /**
      * initialize the servlet. This servlet uses the template file
      * "processCertReq.template" to process the response.
-     *
+     * 
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -212,8 +201,8 @@ public class ProcessCertReq extends CMSServlet {
             if (id != null) {
                 if (!(auditServiceID.equals(
                             AGENT_CA_CLONE_ENROLLMENT_SERVLET))
-                    && !(auditServiceID.equals(
-                            AGENT_RA_CLONE_ENROLLMENT_SERVLET))) {
+                        && !(auditServiceID.equals(
+                                AGENT_RA_CLONE_ENROLLMENT_SERVLET))) {
                     auditServiceID = ILogger.UNIDENTIFIED;
                 } else {
                     auditServiceID = id.trim();
@@ -252,25 +241,19 @@ public class ProcessCertReq extends CMSServlet {
         }
     }
 
-
     /**
      * Process the HTTP request.
      * <ul>
-     * <li>http.param seqNum           request id
-     * <li>http.param notValidBefore   certificate validity
-	 *    - notBefore - in seconds since jan 1, 1970
-     * <li>http.param notValidAfter    certificate validity
-     *    - notAfter - in seconds since jan 1, 1970
-     * <li>http.param subject          certificate subject name
-     * <li>http.param toDo             requested action
-     *    (can be one of: clone, reject, accept, cancel)
+     * <li>http.param seqNum request id
+     * <li>http.param notValidBefore certificate validity - notBefore - in seconds since jan 1, 1970
+     * <li>http.param notValidAfter certificate validity - notAfter - in seconds since jan 1, 1970
+     * <li>http.param subject certificate subject name
+     * <li>http.param toDo requested action (can be one of: clone, reject, accept, cancel)
      * <li>http.param signatureAlgorithm certificate signing algorithm
-     * <li>http.param addExts          base-64, DER encoded Extension or
-     *    SEQUENCE OF Extensions to add to certificate
-     * <li>http.param pathLenConstraint integer path length constraint to
-     *    use in BasicConstraint extension if applicable
+     * <li>http.param addExts base-64, DER encoded Extension or SEQUENCE OF Extensions to add to certificate
+     * <li>http.param pathLenConstraint integer path length constraint to use in BasicConstraint extension if applicable
      * </ul>
-     *
+     * 
      * @param cmsReq the object holding the request and response information
      */
     public void process(CMSRequest cmsReq) throws EBaseException {
@@ -297,15 +280,15 @@ public class ProcessCertReq extends CMSServlet {
             form = getTemplate(mFormPath, req, locale);
         } catch (IOException e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()));
+                    CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
 
         try {
             if (req.getParameter(SEQNUM) != null) {
                 CMS.debug(
-                    "ProcessCertReq: parameter seqNum " + req.getParameter(SEQNUM));
+                        "ProcessCertReq: parameter seqNum " + req.getParameter(SEQNUM));
                 seqNum = Integer.parseInt(req.getParameter(SEQNUM));
             }
             String notValidBeforeStr = req.getParameter("notValidBefore");
@@ -326,7 +309,6 @@ public class ProcessCertReq extends CMSServlet {
             subject = req.getParameter("subject");
             signatureAlgorithm = req.getParameter("signatureAlgorithm");
 
-
             IRequest r = null;
 
             if (seqNum > -1) {
@@ -334,23 +316,22 @@ public class ProcessCertReq extends CMSServlet {
                             Integer.toString(seqNum)));
             }
 
-            if(seqNum > -1 && r != null)
-            {
+            if (seqNum > -1 && r != null) {
                 processX509(cmsReq, argSet, header, seqNum, req, resp,
-                    toDo, signatureAlgorithm, subject,
-                    notValidBefore, notValidAfter, locale[0], startTime);
+                        toDo, signatureAlgorithm, subject,
+                        notValidBefore, notValidAfter, locale[0], startTime);
             } else {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_INVALID_REQUEST_ID_1", String.valueOf(seqNum)));
                 error = new ECMSGWException(
-                  CMS.getUserMessage("CMS_GW_INVALID_REQUEST_ID", 
-                            String.valueOf(seqNum)));
+                        CMS.getUserMessage("CMS_GW_INVALID_REQUEST_ID",
+                                String.valueOf(seqNum)));
             }
         } catch (EBaseException e) {
             error = e;
         } catch (NumberFormatException e) {
             log(ILogger.LL_FAILURE, "Error " + e);
-            error = new EBaseException(CMS.getUserMessage(getLocale(req),"CMS_BASE_INVALID_NUMBER_FORMAT"));
-        } 
+            error = new EBaseException(CMS.getUserMessage(getLocale(req), "CMS_BASE_INVALID_NUMBER_FORMAT"));
+        }
 
         try {
             ServletOutputStream out = resp.getOutputStream();
@@ -358,46 +339,43 @@ public class ProcessCertReq extends CMSServlet {
             if (error == null) {
                 String xmlOutput = req.getParameter("xml");
                 if (xmlOutput != null && xmlOutput.equals("true")) {
-                  outputXML(resp, argSet);
+                    outputXML(resp, argSet);
                 } else {
-                  String output = form.getOutput(argSet);
-                  resp.setContentType("text/html");
-                  form.renderOutput(out, argSet);
-                  cmsReq.setStatus(CMSRequest.SUCCESS);
+                    String output = form.getOutput(argSet);
+                    resp.setContentType("text/html");
+                    form.renderOutput(out, argSet);
+                    cmsReq.setStatus(CMSRequest.SUCCESS);
                 }
             } else {
                 cmsReq.setStatus(CMSRequest.ERROR);
                 cmsReq.setError(error);
             }
-				
+
         } catch (IOException e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()));
+                    CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
         return;
     }
 
     /**
      * Process X509 certificate enrollment request and send request information
-     * to the caller. 
+     * to the caller.
      * <P>
-     *
+     * 
      * (Certificate Request - an "agent" cert request for "cloning")
      * <P>
-     *
-     * (Certificate Request Processed -  either a manual "agent" non-profile
-     *  based cert acceptance, a manual "agent" non-profile based cert
-     *  cancellation, or a manual "agent" non-profile based cert rejection)
+     * 
+     * (Certificate Request Processed - either a manual "agent" non-profile based cert acceptance, a manual "agent" non-profile based cert cancellation, or a manual "agent" non-profile based cert rejection)
      * <P>
-     *
+     * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_NON_PROFILE_CERT_REQUEST used when a
-     * non-profile cert request is made (before approval process)
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED used when a
-     * certificate request has just been through the approval process
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_NON_PROFILE_CERT_REQUEST used when a non-profile cert request is made (before approval process)
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED used when a certificate request has just been through the approval process
      * </ul>
+     * 
      * @param cmsReq a certificate enrollment request
      * @param argSet CMS template parameters
      * @param header argument block
@@ -405,26 +383,26 @@ public class ProcessCertReq extends CMSServlet {
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @param toDo string representing the requested action (can be one of:
-     * clone, reject, accept, cancel)
+     *            clone, reject, accept, cancel)
      * @param signatureAlgorithm string containing the signature algorithm
      * @param subject string containing the subject name of the certificate
      * @param notValidBefore certificate validity - notBefore - in seconds
-     * since Jan 1, 1970
+     *            since Jan 1, 1970
      * @param notValidAfter certificate validity - notAfter - in seconds since
-     * Jan 1, 1970
+     *            Jan 1, 1970
      * @param locale the system locale
      * @param startTime the current date
      * @exception EBaseException an error has occurred
      */
     private void processX509(CMSRequest cmsReq,
-        CMSTemplateParams argSet, IArgBlock header,
-        int seqNum, HttpServletRequest req,
-        HttpServletResponse resp,
-        String toDo, String signatureAlgorithm,
-        String subject,
-        long notValidBefore, long notValidAfter,
-        Locale locale, long startTime)
-        throws EBaseException {
+            CMSTemplateParams argSet, IArgBlock header,
+            int seqNum, HttpServletRequest req,
+            HttpServletResponse resp,
+            String toDo, String signatureAlgorithm,
+            String subject,
+            long notValidBefore, long notValidAfter,
+            Locale locale, long startTime)
+            throws EBaseException {
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = ILogger.UNIDENTIFIED;
@@ -453,7 +431,7 @@ public class ProcessCertReq extends CMSServlet {
                 }
             }
 
-            if (mAuthority != null) 
+            if (mAuthority != null)
                 header.addStringValue("authorityid", mAuthority.getId());
 
             if (toDo != null) {
@@ -466,12 +444,12 @@ public class ProcessCertReq extends CMSServlet {
                                 mAuthzResourceName, "execute");
                 } catch (EAuthzAccessDenied e) {
                     log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", 
-                            e.toString()));
+                            CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE",
+                                    e.toString()));
                 } catch (Exception e) {
                     log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", 
-                            e.toString()));
+                            CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE",
+                                    e.toString()));
                 }
 
                 if (authzToken == null) {
@@ -546,37 +524,37 @@ public class ProcessCertReq extends CMSServlet {
                         int alterationCounter = 0;
 
                         for (int i = 0; i < certInfo.length; i++) {
-                            CertificateAlgorithmId certAlgId = 
-                                (CertificateAlgorithmId)
-                                certInfo[i].get(X509CertInfo.ALGORITHM_ID);
+                            CertificateAlgorithmId certAlgId =
+                                    (CertificateAlgorithmId)
+                                    certInfo[i].get(X509CertInfo.ALGORITHM_ID);
 
                             AlgorithmId algId = (AlgorithmId)
-                                certAlgId.get(CertificateAlgorithmId.ALGORITHM);
+                                    certAlgId.get(CertificateAlgorithmId.ALGORITHM);
 
                             if (!(algId.getName().equals(signatureAlgorithm))) {
                                 alterationCounter++;
                                 AlgorithmId newAlgId = AlgorithmId.getAlgorithmId(signatureAlgorithm);
 
                                 certInfo[i].set(X509CertInfo.ALGORITHM_ID,
-                                    new CertificateAlgorithmId(newAlgId));
+                                        new CertificateAlgorithmId(newAlgId));
                             }
 
-                            CertificateSubjectName certSubject = 
-                                (CertificateSubjectName)
-                                certInfo[i].get(X509CertInfo.SUBJECT);
+                            CertificateSubjectName certSubject =
+                                    (CertificateSubjectName)
+                                    certInfo[i].get(X509CertInfo.SUBJECT);
 
-                            if (subject != null && 
-                                !(certSubject.toString().equals(subject))) {
+                            if (subject != null &&
+                                    !(certSubject.toString().equals(subject))) {
 
                                 alterationCounter++;
                                 certInfo[i].set(X509CertInfo.SUBJECT,
-                                    new CertificateSubjectName(
-                                        (new X500Name(subject))));
+                                        new CertificateSubjectName(
+                                                (new X500Name(subject))));
                             }
 
-                            CertificateValidity certValidity = 
-                                (CertificateValidity)
-                                certInfo[i].get(X509CertInfo.VALIDITY);
+                            CertificateValidity certValidity =
+                                    (CertificateValidity)
+                                    certInfo[i].get(X509CertInfo.VALIDITY);
                             Date currentTime = CMS.getCurrentDate();
                             boolean validityChanged = false;
 
@@ -586,26 +564,26 @@ public class ProcessCertReq extends CMSServlet {
                                         CertificateValidity.NOT_BEFORE);
 
                                 if (notBefore.getTime() == 0 ||
-                                    notBefore.getTime() != notValidBefore) {
+                                        notBefore.getTime() != notValidBefore) {
                                     Date validFrom = new Date(notValidBefore);
 
                                     notBefore = (notValidBefore == 0) ? currentTime : validFrom;
                                     certValidity.set(CertificateValidity.NOT_BEFORE,
-                                        notBefore);
+                                            notBefore);
                                     validityChanged = true;
                                 }
                             }
                             if (notValidAfter > 0) {
                                 Date validTo = new Date(notValidAfter);
                                 Date notAfter = (Date)
-                                    certValidity.get(CertificateValidity.NOT_AFTER);
+                                        certValidity.get(CertificateValidity.NOT_AFTER);
 
                                 if (notAfter.getTime() == 0 ||
-                                    notAfter.getTime() != notValidAfter) {
+                                        notAfter.getTime() != notValidAfter) {
                                     notAfter = currentTime;
                                     notAfter = (notValidAfter == 0) ? currentTime : validTo;
                                     certValidity.set(CertificateValidity.NOT_AFTER,
-                                        notAfter);
+                                            notAfter);
                                     validityChanged = true;
                                 }
                             }
@@ -618,8 +596,8 @@ public class ProcessCertReq extends CMSServlet {
 
                             if (certInfo[i].get(X509CertInfo.VERSION) == null) {
                                 certInfo[i].set(X509CertInfo.VERSION,
-                                    new CertificateVersion(
-                                        CertificateVersion.V3));
+                                        new CertificateVersion(
+                                                CertificateVersion.V3));
                             }
 
                             CertificateExtensions extensions = null;
@@ -669,14 +647,14 @@ public class ProcessCertReq extends CMSServlet {
 
                             if (extensions != null) {
                                 try {
-                                    NSCertTypeExtension nsExtensions = 
-                                        (NSCertTypeExtension)
-                                        extensions.get(
-                                            NSCertTypeExtension.NAME);
+                                    NSCertTypeExtension nsExtensions =
+                                            (NSCertTypeExtension)
+                                            extensions.get(
+                                                    NSCertTypeExtension.NAME);
 
                                     if (nsExtensions != null) {
                                         updateNSExtension(req, nsExtensions);
-                                    } 
+                                    }
                                 } catch (IOException e) {
                                     log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ERROR_PROCESS_NETSCAPE_EXTENSION", e.toString()));
                                 }
@@ -686,20 +664,20 @@ public class ProcessCertReq extends CMSServlet {
                                 if (pathLength != null) {
                                     try {
                                         int pathLen = Integer.parseInt(pathLength);
-                                        BasicConstraintsExtension bcExt = 
-                                            (BasicConstraintsExtension)
-                                            extensions.get(
-                                                BasicConstraintsExtension.NAME);
+                                        BasicConstraintsExtension bcExt =
+                                                (BasicConstraintsExtension)
+                                                extensions.get(
+                                                        BasicConstraintsExtension.NAME);
 
                                         if (bcExt != null) {
                                             Integer bcPathLen = (Integer) bcExt.get(BasicConstraintsExtension.PATH_LEN);
                                             Boolean isCA = (Boolean) bcExt.get(BasicConstraintsExtension.IS_CA);
 
                                             if (bcPathLen != null &&
-                                                bcPathLen.intValue() != pathLen &&
-                                                isCA != null) {
+                                                    bcPathLen.intValue() != pathLen &&
+                                                    isCA != null) {
                                                 BasicConstraintsExtension bcExt0 =
-                                                    new BasicConstraintsExtension(isCA.booleanValue(), pathLen);
+                                                        new BasicConstraintsExtension(isCA.booleanValue(), pathLen);
 
                                                 extensions.delete(BasicConstraintsExtension.NAME);
                                                 extensions.set(BasicConstraintsExtension.NAME, (Extension) bcExt0);
@@ -818,100 +796,100 @@ public class ProcessCertReq extends CMSServlet {
                     if (r.getRequestStatus().equals(RequestStatus.PENDING)) {
                         cmsReq.setResult(r);
                         cmsReq.setStatus(CMSRequest.PENDING);
-                        if (certInfo != null) {            
+                        if (certInfo != null) {
                             for (int i = 0; i < certInfo.length; i++) {
-                                mLogger.log(ILogger.EV_AUDIT, 
-                                    ILogger.S_OTHER,
-                                    AuditFormat.LEVEL,
-                                    AuditFormat.FORMAT,
-                                    new Object[] {
-                                        r.getRequestType(),
-                                        r.getRequestId(), 
-                                        initiative,
-                                        authMgr,
-                                        "pending",
-                                        certInfo[i].get(X509CertInfo.SUBJECT),
-                                        ""} 
-                                );
+                                mLogger.log(ILogger.EV_AUDIT,
+                                        ILogger.S_OTHER,
+                                        AuditFormat.LEVEL,
+                                        AuditFormat.FORMAT,
+                                        new Object[] {
+                                                r.getRequestType(),
+                                                r.getRequestId(),
+                                                initiative,
+                                                authMgr,
+                                                "pending",
+                                                certInfo[i].get(X509CertInfo.SUBJECT),
+                                                "" }
+                                        );
                             }
                         } else {
                             if (subject != null) {
-                                mLogger.log(ILogger.EV_AUDIT, 
-                                    ILogger.S_OTHER,
-                                    AuditFormat.LEVEL,
-                                    AuditFormat.FORMAT,
-                                    new Object[] {
-                                        r.getRequestType(),
-                                        r.getRequestId(),
-                                        initiative,
-                                        authMgr,
-                                        "pending",
-                                        subject,
-                                        ""}
-                                );
+                                mLogger.log(ILogger.EV_AUDIT,
+                                        ILogger.S_OTHER,
+                                        AuditFormat.LEVEL,
+                                        AuditFormat.FORMAT,
+                                        new Object[] {
+                                                r.getRequestType(),
+                                                r.getRequestId(),
+                                                initiative,
+                                                authMgr,
+                                                "pending",
+                                                subject,
+                                                "" }
+                                        );
                             } else {
-                                mLogger.log(ILogger.EV_AUDIT, 
-                                    ILogger.S_OTHER,
-                                    AuditFormat.LEVEL,
-                                    AuditFormat.NODNFORMAT,
-                                    new Object[] {
-                                        r.getRequestType(),
-                                        r.getRequestId(),
-                                        initiative,
-                                        authMgr,
-                                        "pending"}
-                                );
+                                mLogger.log(ILogger.EV_AUDIT,
+                                        ILogger.S_OTHER,
+                                        AuditFormat.LEVEL,
+                                        AuditFormat.NODNFORMAT,
+                                        new Object[] {
+                                                r.getRequestType(),
+                                                r.getRequestId(),
+                                                initiative,
+                                                authMgr,
+                                                "pending" }
+                                        );
                             }
                         }
                     } else if (r.getRequestStatus().equals(
                             RequestStatus.APPROVED) ||
-                        r.getRequestStatus().equals(
-                            RequestStatus.SVC_PENDING)) {
+                            r.getRequestStatus().equals(
+                                    RequestStatus.SVC_PENDING)) {
                         cmsReq.setResult(r);
                         cmsReq.setStatus(CMSRequest.SVC_PENDING);
                         if (certInfo != null) {
                             for (int i = 0; i < certInfo.length; i++) {
-                                mLogger.log(ILogger.EV_AUDIT, 
-                                    ILogger.S_OTHER,
-                                    AuditFormat.LEVEL,
-                                    AuditFormat.FORMAT,
-                                    new Object[] {
-                                        r.getRequestType(),
-                                        r.getRequestId(),
-                                        initiative,
-                                        authMgr,
-                                        r.getRequestStatus(),
-                                        certInfo[i].get(X509CertInfo.SUBJECT),
-                                        ""}
-                                );
+                                mLogger.log(ILogger.EV_AUDIT,
+                                        ILogger.S_OTHER,
+                                        AuditFormat.LEVEL,
+                                        AuditFormat.FORMAT,
+                                        new Object[] {
+                                                r.getRequestType(),
+                                                r.getRequestId(),
+                                                initiative,
+                                                authMgr,
+                                                r.getRequestStatus(),
+                                                certInfo[i].get(X509CertInfo.SUBJECT),
+                                                "" }
+                                        );
                             }
                         } else {
                             if (subject != null) {
-                                mLogger.log(ILogger.EV_AUDIT, 
-                                    ILogger.S_OTHER,
-                                    AuditFormat.LEVEL,
-                                    AuditFormat.FORMAT,
-                                    new Object[] {
-                                        r.getRequestType(),
-                                        r.getRequestId(),
-                                        initiative,
-                                        authMgr,
-                                        r.getRequestStatus(),
-                                        subject,
-                                        ""}
-                                );
+                                mLogger.log(ILogger.EV_AUDIT,
+                                        ILogger.S_OTHER,
+                                        AuditFormat.LEVEL,
+                                        AuditFormat.FORMAT,
+                                        new Object[] {
+                                                r.getRequestType(),
+                                                r.getRequestId(),
+                                                initiative,
+                                                authMgr,
+                                                r.getRequestStatus(),
+                                                subject,
+                                                "" }
+                                        );
                             } else {
-                                mLogger.log(ILogger.EV_AUDIT, 
-                                    ILogger.S_OTHER,
-                                    AuditFormat.LEVEL,
-                                    AuditFormat.NODNFORMAT,
-                                    new Object[] {
-                                        r.getRequestType(),
-                                        r.getRequestId(),
-                                        initiative,
-                                        authMgr,
-                                        r.getRequestStatus()}
-                                );
+                                mLogger.log(ILogger.EV_AUDIT,
+                                        ILogger.S_OTHER,
+                                        AuditFormat.LEVEL,
+                                        AuditFormat.NODNFORMAT,
+                                        new Object[] {
+                                                r.getRequestType(),
+                                                r.getRequestId(),
+                                                initiative,
+                                                authMgr,
+                                                r.getRequestStatus() }
+                                        );
                             }
                         }
                     } else if (r.getRequestStatus().equals(
@@ -921,7 +899,7 @@ public class ProcessCertReq extends CMSServlet {
                         // XXX make the repeat record.
                         // Get the certificate(s) from the request
                         X509CertImpl issuedCerts[] =
-                            r.getExtDataInCertArray(IRequest.ISSUED_CERTS);
+                                r.getExtDataInCertArray(IRequest.ISSUED_CERTS);
 
                         // return potentially more than one certificates. 
                         if (issuedCerts != null) {
@@ -931,24 +909,24 @@ public class ProcessCertReq extends CMSServlet {
                             //header.addBigIntegerValue("serialNumber", 
                             //issuedCerts[0].getSerialNumber(),16);
                             for (int i = 0; i < issuedCerts.length; i++) {
-                                if (i != 0) 
+                                if (i != 0)
                                     sbuf.append(", ");
                                 sbuf.append("0x" +
-                                    issuedCerts[i].getSerialNumber().toString(16));
-                                mLogger.log(ILogger.EV_AUDIT, 
-                                    ILogger.S_OTHER,
-                                    AuditFormat.LEVEL,
-                                    AuditFormat.FORMAT,
-                                    new Object[] {
-                                        r.getRequestType(),
-                                        r.getRequestId(),
-                                        initiative,
-                                        authMgr,
-                                        "completed",
-                                        issuedCerts[i].getSubjectDN(),
-                                        "cert issued serial number: 0x" +
-                                        issuedCerts[i].getSerialNumber().toString(16) + " time: " + (endTime - startTime)}
-                                );
+                                        issuedCerts[i].getSerialNumber().toString(16));
+                                mLogger.log(ILogger.EV_AUDIT,
+                                        ILogger.S_OTHER,
+                                        AuditFormat.LEVEL,
+                                        AuditFormat.FORMAT,
+                                        new Object[] {
+                                                r.getRequestType(),
+                                                r.getRequestId(),
+                                                initiative,
+                                                authMgr,
+                                                "completed",
+                                                issuedCerts[i].getSubjectDN(),
+                                                "cert issued serial number: 0x" +
+                                                        issuedCerts[i].getSerialNumber().toString(16) + " time: " + (endTime - startTime) }
+                                        );
 
                                 // store a message in the signed audit log file
                                 // (one for each manual "agent"
@@ -964,34 +942,34 @@ public class ProcessCertReq extends CMSServlet {
                                 audit(auditMessage);
                             }
                             header.addStringValue(
-                                "serialNumber", sbuf.toString());
+                                    "serialNumber", sbuf.toString());
                         } else {
                             if (subject != null) {
-                                mLogger.log(ILogger.EV_AUDIT, 
-                                    ILogger.S_OTHER,
-                                    AuditFormat.LEVEL,
-                                    AuditFormat.FORMAT,
-                                    new Object[] {
-                                        r.getRequestType(),
-                                        r.getRequestId(),
-                                        initiative,
-                                        authMgr,
-                                        "completed",
-                                        subject,
-                                        ""}
-                                );
+                                mLogger.log(ILogger.EV_AUDIT,
+                                        ILogger.S_OTHER,
+                                        AuditFormat.LEVEL,
+                                        AuditFormat.FORMAT,
+                                        new Object[] {
+                                                r.getRequestType(),
+                                                r.getRequestId(),
+                                                initiative,
+                                                authMgr,
+                                                "completed",
+                                                subject,
+                                                "" }
+                                        );
                             } else {
-                                mLogger.log(ILogger.EV_AUDIT, 
-                                    ILogger.S_OTHER,
-                                    AuditFormat.LEVEL,
-                                    AuditFormat.NODNFORMAT,
-                                    new Object[] {
-                                        r.getRequestType(),
-                                        r.getRequestId(),
-                                        initiative,
-                                        authMgr,
-                                        "completed"}
-                                );
+                                mLogger.log(ILogger.EV_AUDIT,
+                                        ILogger.S_OTHER,
+                                        AuditFormat.LEVEL,
+                                        AuditFormat.NODNFORMAT,
+                                        new Object[] {
+                                                r.getRequestType(),
+                                                r.getRequestId(),
+                                                initiative,
+                                                authMgr,
+                                                "completed" }
+                                        );
                             }
 
                             // store a message in the signed audit log file
@@ -1011,7 +989,7 @@ public class ProcessCertReq extends CMSServlet {
                         // grant trusted manager or agent privileges  
                         Object grantError = null;
 
-                        try { 
+                        try {
                             int res = grant_privileges(
                                     cmsReq, r, issuedCerts, header);
 
@@ -1042,30 +1020,29 @@ public class ProcessCertReq extends CMSServlet {
 
                         String scheme = req.getScheme();
 
-                        if (scheme.equals("http") && 
-                            connectionIsSSL(req)) scheme = "https";
+                        if (scheme.equals("http") &&
+                                connectionIsSSL(req))
+                            scheme = "https";
 
-                            /*
-                             header.addStringValue(
-                             "authorityid", mAuthority.getId());
-                             header.addStringValue("serviceURL", scheme +"://"+
-                             req.getServerName() + ":"+
-                             req.getServerPort() + 
-                             req.getRequestURI());
-                             */
+                        /*
+                         header.addStringValue(
+                         "authorityid", mAuthority.getId());
+                         header.addStringValue("serviceURL", scheme +"://"+
+                         req.getServerName() + ":"+
+                         req.getServerPort() + 
+                         req.getRequestURI());
+                         */
 
                         if (mPublisherProcessor != null && mPublisherProcessor.ldapEnabled()) {
                             header.addStringValue("dirEnabled", "yes");
 
-                            Integer[] ldapPublishStatus = 
-                                r.getExtDataInIntegerArray("ldapPublishStatus");
+                            Integer[] ldapPublishStatus =
+                                    r.getExtDataInIntegerArray("ldapPublishStatus");
                             int certsUpdated = 0;
 
                             if (ldapPublishStatus != null) {
-                                for (int i = 0; 
-                                    i < ldapPublishStatus.length; i++) {
-                                    if (ldapPublishStatus[i] == 
-                                        IRequest.RES_SUCCESS) {
+                                for (int i = 0; i < ldapPublishStatus.length; i++) {
+                                    if (ldapPublishStatus[i] == IRequest.RES_SUCCESS) {
                                         certsUpdated++;
                                     }
                                 }
@@ -1081,47 +1058,47 @@ public class ProcessCertReq extends CMSServlet {
                     mQueue.rejectRequest(r);
                     if (certInfo != null) {
                         for (int i = 0; i < certInfo.length; i++) {
-                            mLogger.log(ILogger.EV_AUDIT, 
-                                ILogger.S_OTHER,
-                                AuditFormat.LEVEL,
-                                AuditFormat.FORMAT,
-                                new Object[] {
-                                    r.getRequestType(),
-                                    r.getRequestId(),
-                                    initiative,
-                                    authMgr,
-                                    "rejected",
-                                    certInfo[i].get(X509CertInfo.SUBJECT),
-                                    ""}
-                            );
+                            mLogger.log(ILogger.EV_AUDIT,
+                                    ILogger.S_OTHER,
+                                    AuditFormat.LEVEL,
+                                    AuditFormat.FORMAT,
+                                    new Object[] {
+                                            r.getRequestType(),
+                                            r.getRequestId(),
+                                            initiative,
+                                            authMgr,
+                                            "rejected",
+                                            certInfo[i].get(X509CertInfo.SUBJECT),
+                                            "" }
+                                    );
                         }
                     } else {
                         if (subject != null) {
-                            mLogger.log(ILogger.EV_AUDIT, 
-                                ILogger.S_OTHER,
-                                AuditFormat.LEVEL,
-                                AuditFormat.FORMAT,
-                                new Object[] {
-                                    r.getRequestType(),
-                                    r.getRequestId(),
-                                    initiative,
-                                    authMgr,
-                                    "rejected",
-                                    subject,
-                                    ""}
-                            );
+                            mLogger.log(ILogger.EV_AUDIT,
+                                    ILogger.S_OTHER,
+                                    AuditFormat.LEVEL,
+                                    AuditFormat.FORMAT,
+                                    new Object[] {
+                                            r.getRequestType(),
+                                            r.getRequestId(),
+                                            initiative,
+                                            authMgr,
+                                            "rejected",
+                                            subject,
+                                            "" }
+                                    );
                         } else {
-                            mLogger.log(ILogger.EV_AUDIT, 
-                                ILogger.S_OTHER,
-                                AuditFormat.LEVEL,
-                                AuditFormat.NODNFORMAT,
-                                new Object[] {
-                                    r.getRequestType(),
-                                    r.getRequestId(),
-                                    initiative,
-                                    authMgr,
-                                    "rejected"}
-                            );
+                            mLogger.log(ILogger.EV_AUDIT,
+                                    ILogger.S_OTHER,
+                                    AuditFormat.LEVEL,
+                                    AuditFormat.NODNFORMAT,
+                                    new Object[] {
+                                            r.getRequestType(),
+                                            r.getRequestId(),
+                                            initiative,
+                                            authMgr,
+                                            "rejected" }
+                                    );
                         }
                     }
 
@@ -1142,47 +1119,47 @@ public class ProcessCertReq extends CMSServlet {
 
                     if (certInfo != null) {
                         for (int i = 0; i < certInfo.length; i++) {
-                            mLogger.log(ILogger.EV_AUDIT, 
-                                ILogger.S_OTHER,
-                                AuditFormat.LEVEL,
-                                AuditFormat.FORMAT,
-                                new Object[] {
-                                    r.getRequestType(),
-                                    r.getRequestId(),
-                                    initiative,
-                                    authMgr,
-                                    "canceled",
-                                    certInfo[i].get(X509CertInfo.SUBJECT),
-                                    ""}
-                            );
+                            mLogger.log(ILogger.EV_AUDIT,
+                                    ILogger.S_OTHER,
+                                    AuditFormat.LEVEL,
+                                    AuditFormat.FORMAT,
+                                    new Object[] {
+                                            r.getRequestType(),
+                                            r.getRequestId(),
+                                            initiative,
+                                            authMgr,
+                                            "canceled",
+                                            certInfo[i].get(X509CertInfo.SUBJECT),
+                                            "" }
+                                    );
                         }
                     } else {
                         if (subject != null) {
-                            mLogger.log(ILogger.EV_AUDIT, 
-                                ILogger.S_OTHER,
-                                AuditFormat.LEVEL,
-                                AuditFormat.FORMAT,
-                                new Object[] {
-                                    r.getRequestType(),
-                                    r.getRequestId(),
-                                    initiative,
-                                    authMgr,
-                                    "canceled",
-                                    subject,
-                                    ""}
-                            );
+                            mLogger.log(ILogger.EV_AUDIT,
+                                    ILogger.S_OTHER,
+                                    AuditFormat.LEVEL,
+                                    AuditFormat.FORMAT,
+                                    new Object[] {
+                                            r.getRequestType(),
+                                            r.getRequestId(),
+                                            initiative,
+                                            authMgr,
+                                            "canceled",
+                                            subject,
+                                            "" }
+                                    );
                         } else {
-                            mLogger.log(ILogger.EV_AUDIT, 
-                                ILogger.S_OTHER,
-                                AuditFormat.LEVEL,
-                                AuditFormat.NODNFORMAT,
-                                new Object[] {
-                                    r.getRequestType(),
-                                    r.getRequestId(),
-                                    initiative,
-                                    authMgr,
-                                    "canceled"}
-                            );
+                            mLogger.log(ILogger.EV_AUDIT,
+                                    ILogger.S_OTHER,
+                                    AuditFormat.LEVEL,
+                                    AuditFormat.NODNFORMAT,
+                                    new Object[] {
+                                            r.getRequestType(),
+                                            r.getRequestId(),
+                                            initiative,
+                                            authMgr,
+                                            "canceled" }
+                                    );
                         }
 
                     }
@@ -1203,54 +1180,54 @@ public class ProcessCertReq extends CMSServlet {
                     IRequest clonedRequest = mQueue.cloneAndMarkPending(r);
 
                     header.addStringValue("clonedRequestId",
-                        clonedRequest.getRequestId().toString());
+                            clonedRequest.getRequestId().toString());
 
                     if (certInfo != null) {
                         for (int i = 0; i < certInfo.length; i++) {
-                            mLogger.log(ILogger.EV_AUDIT, 
-                                ILogger.S_OTHER,
-                                AuditFormat.LEVEL,
-                                AuditFormat.FORMAT,
-                                new Object[] {
-                                    r.getRequestType(),
-                                    r.getRequestId(),
-                                    initiative,
-                                    authMgr,
-                                    "cloned to reqID: " +
-                                    clonedRequest.getRequestId().toString(),
-                                    certInfo[i].get(X509CertInfo.SUBJECT),
-                                    ""}
-                            );
+                            mLogger.log(ILogger.EV_AUDIT,
+                                    ILogger.S_OTHER,
+                                    AuditFormat.LEVEL,
+                                    AuditFormat.FORMAT,
+                                    new Object[] {
+                                            r.getRequestType(),
+                                            r.getRequestId(),
+                                            initiative,
+                                            authMgr,
+                                            "cloned to reqID: " +
+                                                    clonedRequest.getRequestId().toString(),
+                                            certInfo[i].get(X509CertInfo.SUBJECT),
+                                            "" }
+                                    );
                         }
                     } else {
                         if (subject != null) {
-                            mLogger.log(ILogger.EV_AUDIT, 
-                                ILogger.S_OTHER,
-                                AuditFormat.LEVEL,
-                                AuditFormat.FORMAT,
-                                new Object[] {
-                                    r.getRequestType(),
-                                    r.getRequestId(),
-                                    initiative,
-                                    authMgr,
-                                    "cloned to reqID: " +
-                                    clonedRequest.getRequestId().toString(),
-                                    subject,
-                                    ""}
-                            );
+                            mLogger.log(ILogger.EV_AUDIT,
+                                    ILogger.S_OTHER,
+                                    AuditFormat.LEVEL,
+                                    AuditFormat.FORMAT,
+                                    new Object[] {
+                                            r.getRequestType(),
+                                            r.getRequestId(),
+                                            initiative,
+                                            authMgr,
+                                            "cloned to reqID: " +
+                                                    clonedRequest.getRequestId().toString(),
+                                            subject,
+                                            "" }
+                                    );
                         } else {
-                            mLogger.log(ILogger.EV_AUDIT, 
-                                ILogger.S_OTHER,
-                                AuditFormat.LEVEL,
-                                AuditFormat.NODNFORMAT,
-                                new Object[] {
-                                    r.getRequestType(),
-                                    r.getRequestId(),
-                                    initiative,
-                                    authMgr,
-                                    "cloned to reqID: " +
-                                    clonedRequest.getRequestId().toString()}
-                            );
+                            mLogger.log(ILogger.EV_AUDIT,
+                                    ILogger.S_OTHER,
+                                    AuditFormat.LEVEL,
+                                    AuditFormat.NODNFORMAT,
+                                    new Object[] {
+                                            r.getRequestType(),
+                                            r.getRequestId(),
+                                            initiative,
+                                            authMgr,
+                                            "cloned to reqID: " +
+                                                    clonedRequest.getRequestId().toString() }
+                                    );
                         }
                     }
 
@@ -1269,11 +1246,11 @@ public class ProcessCertReq extends CMSServlet {
             }
 
             // add authority names to know what privileges can be requested.	
-            if (CMS.getSubsystem("kra") != null) 
+            if (CMS.getSubsystem("kra") != null)
                 header.addStringValue("localkra", "yes");
-            if (CMS.getSubsystem("ca") != null) 
+            if (CMS.getSubsystem("ca") != null)
                 header.addStringValue("localca", "yes");
-            if (CMS.getSubsystem("ra") != null) 
+            if (CMS.getSubsystem("ra") != null)
                 header.addStringValue("localra", "yes");
 
             header.addIntegerValue("seqNum", seqNum);
@@ -1388,7 +1365,7 @@ public class ProcessCertReq extends CMSServlet {
             }
 
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_ENCODING_ISSUED_CERT_ERROR"));
+                    CMS.getUserMessage("CMS_GW_ENCODING_ISSUED_CERT_ERROR"));
         } catch (CertificateException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_IO_ERROR_REMOTE_REQUEST", e.toString()));
 
@@ -1442,7 +1419,7 @@ public class ProcessCertReq extends CMSServlet {
             }
 
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_ENCODING_ISSUED_CERT_ERROR"));
+                    CMS.getUserMessage("CMS_GW_ENCODING_ISSUED_CERT_ERROR"));
         } catch (NoSuchAlgorithmException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_IO_ERROR_REMOTE_REQUEST", e.toString()));
 
@@ -1499,9 +1476,9 @@ public class ProcessCertReq extends CMSServlet {
         }
         return;
     }
-	
-    private void updateNSExtension(HttpServletRequest req, 
-        NSCertTypeExtension ext) throws IOException {
+
+    private void updateNSExtension(HttpServletRequest req,
+            NSCertTypeExtension ext) throws IOException {
         try {
 
             if (req.getParameter("certTypeSSLServer") == null) {
@@ -1561,95 +1538,91 @@ public class ProcessCertReq extends CMSServlet {
     private int updateExtensionsInRequest(HttpServletRequest req, IRequest r) {
         int nChanges = 0;
 
-            if (req.getParameter("certTypeSSLServer") != null) {
-                r.setExtData(NSCertTypeExtension.SSL_SERVER, "true");
-                nChanges++;
-            } else {
-                r.deleteExtData(NSCertTypeExtension.SSL_SERVER);
-                nChanges++;
-            }
+        if (req.getParameter("certTypeSSLServer") != null) {
+            r.setExtData(NSCertTypeExtension.SSL_SERVER, "true");
+            nChanges++;
+        } else {
+            r.deleteExtData(NSCertTypeExtension.SSL_SERVER);
+            nChanges++;
+        }
 
-            if (req.getParameter("certTypeSSLClient") != null) {
-                r.setExtData(NSCertTypeExtension.SSL_CLIENT, "true");
-                nChanges++;
-            } else {
-                r.deleteExtData(NSCertTypeExtension.SSL_CLIENT);
-                nChanges++;
-            }
+        if (req.getParameter("certTypeSSLClient") != null) {
+            r.setExtData(NSCertTypeExtension.SSL_CLIENT, "true");
+            nChanges++;
+        } else {
+            r.deleteExtData(NSCertTypeExtension.SSL_CLIENT);
+            nChanges++;
+        }
 
-            if (req.getParameter("certTypeEmail") != null) {
-                r.setExtData(NSCertTypeExtension.EMAIL, "true");
-                nChanges++;
-            } else {
-                r.deleteExtData(NSCertTypeExtension.EMAIL);
-                nChanges++;
-            }
+        if (req.getParameter("certTypeEmail") != null) {
+            r.setExtData(NSCertTypeExtension.EMAIL, "true");
+            nChanges++;
+        } else {
+            r.deleteExtData(NSCertTypeExtension.EMAIL);
+            nChanges++;
+        }
 
-            if (req.getParameter("certTypeObjSigning") != null) {
-                r.setExtData(NSCertTypeExtension.OBJECT_SIGNING, "true");
-                nChanges++;
-            } else {
-                r.deleteExtData(NSCertTypeExtension.OBJECT_SIGNING);
-                nChanges++;
-            }
+        if (req.getParameter("certTypeObjSigning") != null) {
+            r.setExtData(NSCertTypeExtension.OBJECT_SIGNING, "true");
+            nChanges++;
+        } else {
+            r.deleteExtData(NSCertTypeExtension.OBJECT_SIGNING);
+            nChanges++;
+        }
 
-            if (req.getParameter("certTypeEmailCA") != null) {
-                r.setExtData(NSCertTypeExtension.EMAIL_CA, "true");
-                nChanges++;
-            } else {
-                r.deleteExtData(NSCertTypeExtension.EMAIL_CA);
-                nChanges++;
-            }
+        if (req.getParameter("certTypeEmailCA") != null) {
+            r.setExtData(NSCertTypeExtension.EMAIL_CA, "true");
+            nChanges++;
+        } else {
+            r.deleteExtData(NSCertTypeExtension.EMAIL_CA);
+            nChanges++;
+        }
 
-            if (req.getParameter("certTypeSSLCA") != null) {
-                r.setExtData(NSCertTypeExtension.SSL_CA, "true");
-                nChanges++;
-            } else {
-                r.deleteExtData(NSCertTypeExtension.SSL_CA);
-                nChanges++;
-            }
+        if (req.getParameter("certTypeSSLCA") != null) {
+            r.setExtData(NSCertTypeExtension.SSL_CA, "true");
+            nChanges++;
+        } else {
+            r.deleteExtData(NSCertTypeExtension.SSL_CA);
+            nChanges++;
+        }
 
-            if (req.getParameter("certTypeObjSigningCA") != null) {
-                r.setExtData(NSCertTypeExtension.OBJECT_SIGNING_CA, "true");
-                nChanges++;
-            } else {
-                r.deleteExtData(NSCertTypeExtension.OBJECT_SIGNING_CA);
-                nChanges++;
-            }
+        if (req.getParameter("certTypeObjSigningCA") != null) {
+            r.setExtData(NSCertTypeExtension.OBJECT_SIGNING_CA, "true");
+            nChanges++;
+        } else {
+            r.deleteExtData(NSCertTypeExtension.OBJECT_SIGNING_CA);
+            nChanges++;
+        }
 
         return nChanges;
     }
-	
+
     protected static final String GRANT_ERROR = "grantError";
 
-    public static final String 
-        GRANT_TRUSTEDMGR_PRIVILEGE = "grantTrustedManagerPrivilege";
-    public static final String 
-        GRANT_CMAGENT_PRIVILEGE = "grantCMAgentPrivilege";
-    public static final String 
-        GRANT_RMAGENT_PRIVILEGE = "grantRMAgentPrivilege";
-    public static final String 
-        GRANT_DRMAGENT_PRIVILEGE = "grantDRMAgentPrivilege";
+    public static final String GRANT_TRUSTEDMGR_PRIVILEGE = "grantTrustedManagerPrivilege";
+    public static final String GRANT_CMAGENT_PRIVILEGE = "grantCMAgentPrivilege";
+    public static final String GRANT_RMAGENT_PRIVILEGE = "grantRMAgentPrivilege";
+    public static final String GRANT_DRMAGENT_PRIVILEGE = "grantDRMAgentPrivilege";
     public static final String GRANT_UID = "grantUID";
     public static final String GRANT_PRIVILEGE = "grantPrivilege";
 
     protected int grant_privileges(
-        CMSRequest cmsReq, IRequest req, Certificate[] certs, IArgBlock header)
-        throws EBaseException {
+            CMSRequest cmsReq, IRequest req, Certificate[] certs, IArgBlock header)
+            throws EBaseException {
         // get privileges to grant
         IArgBlock httpParams = cmsReq.getHttpParams();
 
-        boolean grantTrustedMgr = 
-            httpParams.getValueAsBoolean(GRANT_TRUSTEDMGR_PRIVILEGE, false);
-        boolean grantRMAgent = 
-            httpParams.getValueAsBoolean(GRANT_RMAGENT_PRIVILEGE, false);
-        boolean grantCMAgent = 
-            httpParams.getValueAsBoolean(GRANT_CMAGENT_PRIVILEGE, false);
-        boolean grantDRMAgent = 
-            httpParams.getValueAsBoolean(GRANT_DRMAGENT_PRIVILEGE, false);
+        boolean grantTrustedMgr =
+                httpParams.getValueAsBoolean(GRANT_TRUSTEDMGR_PRIVILEGE, false);
+        boolean grantRMAgent =
+                httpParams.getValueAsBoolean(GRANT_RMAGENT_PRIVILEGE, false);
+        boolean grantCMAgent =
+                httpParams.getValueAsBoolean(GRANT_CMAGENT_PRIVILEGE, false);
+        boolean grantDRMAgent =
+                httpParams.getValueAsBoolean(GRANT_DRMAGENT_PRIVILEGE, false);
 
-        if (!grantTrustedMgr && 
-            !grantCMAgent && !grantRMAgent && !grantDRMAgent) {
+        if (!grantTrustedMgr &&
+                !grantCMAgent && !grantRMAgent && !grantDRMAgent) {
             return 0;
         } else {
             IAuthToken authToken = getAuthToken(req);
@@ -1668,7 +1641,7 @@ public class ProcessCertReq extends CMSServlet {
 
                 if (grantTrustedMgr)
                     obj[0] = TRUSTED_RA_GROUP;
-                else if (grantRMAgent) 
+                else if (grantRMAgent)
                     obj[0] = RA_AGENT_GROUP;
                 else if (grantCMAgent)
                     obj[0] = CA_AGENT_GROUP;
@@ -1695,22 +1668,22 @@ public class ProcessCertReq extends CMSServlet {
             groupname = TRUSTED_RA_GROUP;
             userType = Constants.PR_SUBSYSTEM_TYPE;
         } else {
-            if (grantCMAgent) 
+            if (grantCMAgent)
                 groupname = CA_AGENT_GROUP;
-            else if (grantRMAgent) 
+            else if (grantRMAgent)
                 groupname = RA_AGENT_GROUP;
 
             if (grantDRMAgent) {
-                if (groupname != null) 
+                if (groupname != null)
                     groupname1 = KRA_AGENT_GROUP;
-                else 	
+                else
                     groupname = KRA_AGENT_GROUP;
             }
             userType = Constants.PR_AGENT_TYPE;
         }
 
-        String privilege = 
-            (groupname1 == null) ? groupname : groupname + " and " + groupname1;
+        String privilege =
+                (groupname1 == null) ? groupname : groupname + " and " + groupname1;
 
         header.addStringValue(GRANT_PRIVILEGE, privilege);
 
@@ -1726,23 +1699,23 @@ public class ProcessCertReq extends CMSServlet {
         IGroup group = ug.findGroup(groupname), group1 = null;
 
         if (group == null) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSGW_ERROR_FIND_GROUP_1", groupname));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSGW_ERROR_FIND_GROUP_1", groupname));
             throw new ECMSGWException(CMS.getUserMessage("CMS_GW_FIND_GROUP_ERROR", groupname));
         }
         if (groupname1 != null) {
             group1 = ug.findGroup(groupname1);
             if (group1 == null) {
-                log(ILogger.LL_FAILURE, 
-                    CMS.getLogMessage("CMSGW_ERROR_FIND_GROUP_1", groupname));
+                log(ILogger.LL_FAILURE,
+                        CMS.getLogMessage("CMSGW_ERROR_FIND_GROUP_1", groupname));
                 throw new ECMSGWException(CMS.getUserMessage("CMS_GW_FIND_GROUP_ERROR", groupname1));
             }
         }
         try {
             ug.addUser(user);
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSGW_ERROR_ADDING_USER_1", uid));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSGW_ERROR_ADDING_USER_1", uid));
             throw new ECMSGWException(CMS.getUserMessage("CMS_GW_ADDING_USER_ERROR", uid));
         }
         try {
@@ -1751,11 +1724,11 @@ public class ProcessCertReq extends CMSServlet {
 
                 user.setX509Certificates(tmp);
             }
-			
+
             ug.addUserCert(user);
         } catch (Exception e) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSGW_ERROR_ADDING_CERT_1", uid));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSGW_ERROR_ADDING_CERT_1", uid));
             throw new ECMSGWException(CMS.getUserMessage("CMS_GW_ADDING_CERT_ERROR", uid));
         }
         try {
@@ -1764,44 +1737,44 @@ public class ProcessCertReq extends CMSServlet {
             // for audit log
             SessionContext sContext = SessionContext.getContext();
             String adminId = (String) sContext.get(SessionContext.USER_ID);
-                
+
             mLogger.log(ILogger.EV_AUDIT, ILogger.S_USRGRP,
-                AuditFormat.LEVEL, AuditFormat.ADDUSERGROUPFORMAT,
-                new Object[] {adminId, uid, groupname}
-            );
+                    AuditFormat.LEVEL, AuditFormat.ADDUSERGROUPFORMAT,
+                    new Object[] { adminId, uid, groupname }
+                    );
 
             if (group1 != null) {
                 group1.addMemberName(uid);
                 ug.modifyGroup(group1);
-				
+
                 mLogger.log(ILogger.EV_AUDIT, ILogger.S_USRGRP,
-                    AuditFormat.LEVEL, AuditFormat.ADDUSERGROUPFORMAT,
-                    new Object[] {adminId, uid, groupname1}
-                );
+                        AuditFormat.LEVEL, AuditFormat.ADDUSERGROUPFORMAT,
+                        new Object[] { adminId, uid, groupname1 }
+                        );
 
             }
         } catch (Exception e) {
-            String msg = 
-                "Could not add user " + uid + " to group " + groupname;
+            String msg =
+                    "Could not add user " + uid + " to group " + groupname;
 
             if (group1 != null)
                 msg += " or group " + groupname1;
             log(ILogger.LL_FAILURE, msg);
-            if (group1 == null) 
-                throw new ECMSGWException(CMS.getUserMessage("CMS_GW_ADDING_MEMBER", uid, groupname)); 
-            else 
-                throw new ECMSGWException(CMS.getUserMessage("CMS_GW_ADDING_MEMBER_1", uid, groupname, groupname1)); 
+            if (group1 == null)
+                throw new ECMSGWException(CMS.getUserMessage("CMS_GW_ADDING_MEMBER", uid, groupname));
+            else
+                throw new ECMSGWException(CMS.getUserMessage("CMS_GW_ADDING_MEMBER_1", uid, groupname, groupname1));
         }
         return 1;
     }
 
     /**
      * Signed Audit Log Info Name
-     *
+     * 
      * This method is called to obtain the "InfoName" for
      * a signed audit log message.
      * <P>
-     *
+     * 
      * @param type signed audit log request processing type
      * @return id string containing the signed audit log message InfoName
      */
@@ -1832,11 +1805,11 @@ public class ProcessCertReq extends CMSServlet {
 
     /**
      * Signed Audit Log Info Certificate Value
-     *
+     * 
      * This method is called to obtain the certificate from the passed in
      * "X509CertImpl" for a signed audit log message.
      * <P>
-     *
+     * 
      * @param x509cert an X509CertImpl
      * @return cert string containing the certificate
      */
@@ -1890,38 +1863,38 @@ public class ProcessCertReq extends CMSServlet {
     }
 }
 
-
 class RAReqCompletedFiller extends ImportCertsTemplateFiller {
     private static final String RA_AGENT_GROUP = "Registration Manager Agents";
     private static final String KRA_AGENT_GROUP = "Data Recovery Manager Agents";
+
     public RAReqCompletedFiller() {
         super();
     }
 
     public CMSTemplateParams getTemplateParams(
-        CMSRequest cmsReq, IAuthority authority, Locale locale, Exception e) 
-        throws Exception {
+            CMSRequest cmsReq, IAuthority authority, Locale locale, Exception e)
+            throws Exception {
 
         Object[] results = (Object[]) cmsReq.getResult();
         Object grantError = results[1];
         //X509CertImpl[] issuedCerts = (X509CertImpl[])results[0];
         Certificate[] issuedCerts = (Certificate[]) results[0];
-			
+
         cmsReq.setResult(issuedCerts);
-        CMSTemplateParams params = 
-            super.getTemplateParams(cmsReq, authority, locale, e);
+        CMSTemplateParams params =
+                super.getTemplateParams(cmsReq, authority, locale, e);
 
         if (grantError != null) {
             IArgBlock header = params.getHeader();
 
             if (grantError instanceof String) {
                 header.addStringValue(
-                    ProcessCertReq.GRANT_ERROR, (String) grantError);
+                        ProcessCertReq.GRANT_ERROR, (String) grantError);
             } else {
                 EBaseException ex = (EBaseException) grantError;
 
                 header.addStringValue(
-                    ProcessCertReq.GRANT_ERROR, ex.toString(locale));
+                        ProcessCertReq.GRANT_ERROR, ex.toString(locale));
             }
             IArgBlock httpParams = cmsReq.getHttpParams();
             String uid = httpParams.getValueAsString(
@@ -1940,7 +1913,7 @@ class RAReqCompletedFiller extends ImportCertsTemplateFiller {
             if (grantDRMAgent) {
                 if (privilege != null)
                     privilege += " and " + KRA_AGENT_GROUP;
-                else 
+                else
                     privilege = KRA_AGENT_GROUP;
             }
             header.addStringValue(ProcessCertReq.GRANT_PRIVILEGE, privilege);
@@ -1948,4 +1921,3 @@ class RAReqCompletedFiller extends ImportCertsTemplateFiller {
         return params;
     }
 }
-

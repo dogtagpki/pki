@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.publish.publishers;
 
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,10 +28,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Vector;
 
-
 /**
  * Publisher utility class.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class Utils {
@@ -104,9 +102,10 @@ public class Utils {
         }
         return true;
     }
-    
+
     /**
      * strips out double quotes around String parameter
+     * 
      * @param s the string potentially bracketed with double quotes
      * @return string stripped of surrounding double quotes
      */

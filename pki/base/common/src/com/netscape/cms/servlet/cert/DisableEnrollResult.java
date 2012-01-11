@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.cert;
 
-
 import java.io.IOException;
 import java.security.cert.X509Certificate;
 import java.util.Locale;
@@ -45,10 +44,9 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 
-
 /**
  * For Face-to-face enrollment, disable EE enrollment feature
- *
+ * 
  * @version $Revision$, $Date$
  * @see com.netscape.cms.servlet.cert.EnableEnrollResult
  */
@@ -83,7 +81,7 @@ public class DisableEnrollResult extends CMSServlet {
      * Services the request
      */
     protected void process(CMSRequest cmsReq)
-        throws EBaseException {
+            throws EBaseException {
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
@@ -125,10 +123,10 @@ public class DisableEnrollResult extends CMSServlet {
         try {
             form = getTemplate(mFormPath, httpReq, locale);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("ADMIN_SRVLT_ERR_GET_TEMPLATE", mFormPath, e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("ADMIN_SRVLT_ERR_GET_TEMPLATE", mFormPath, e.toString()));
             cmsReq.setError(new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR")));
+                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR")));
             cmsReq.setStatus(CMSRequest.ERROR);
             return;
         }
@@ -162,10 +160,10 @@ public class DisableEnrollResult extends CMSServlet {
             form.renderOutput(out, argSet);
             cmsReq.setStatus(CMSRequest.SUCCESS);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("ADMIN_SRVLT_ERR_STREAM_TEMPLATE", e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("ADMIN_SRVLT_ERR_STREAM_TEMPLATE", e.toString()));
             cmsReq.setError(new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR")));
+                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR")));
             cmsReq.setStatus(CMSRequest.ERROR);
         }
         cmsReq.setStatus(CMSRequest.SUCCESS);

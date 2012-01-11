@@ -36,7 +36,6 @@ import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cmsutil.xml.XMLObject;
 
-
 public class CheckIdentity extends CMSServlet {
 
     /**
@@ -52,6 +51,7 @@ public class CheckIdentity extends CMSServlet {
 
     /**
      * initialize the servlet.
+     * 
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -61,7 +61,8 @@ public class CheckIdentity extends CMSServlet {
     }
 
     /**
-     * Process the HTTP request. 
+     * Process the HTTP request.
+     * 
      * @param cmsReq the object holding the request and response information
      */
     protected void process(CMSRequest cmsReq) throws EBaseException {
@@ -74,12 +75,12 @@ public class CheckIdentity extends CMSServlet {
             authToken = authenticate(cmsReq);
         } catch (Exception e) {
             CMS.debug("CheckIdentity authentication failed");
-            log(ILogger.LL_FAILURE, 
+            log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSGW_ERR_BAD_SERV_OUT_STREAM", "",
-                    e.toString()));
+                            e.toString()));
             outputError(httpResp, "Error: Not authenticated");
             return;
-        } 
+        }
 
         try {
             XMLObject xmlObj = null;

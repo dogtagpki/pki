@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.dbs;
 
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -31,12 +30,11 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.IDBAttrMapper;
 import com.netscape.certsrv.dbs.IDBObj;
 
-
 /**
  * A class represents ann attribute mapper that maps
  * a Java Date object into LDAP attribute,
  * and vice versa.
- *
+ * 
  * @author thomask
  * @version $Revision$, $Date$
  */
@@ -45,7 +43,7 @@ public class DateMapper implements IDBAttrMapper {
     private String mLdapName = null;
     private Vector v = new Vector();
     private static SimpleDateFormat formatter = new
-        SimpleDateFormat("yyyyMMddHHmmss'Z'");
+            SimpleDateFormat("yyyyMMddHHmmss'Z'");
 
     /**
      * Constructs date mapper.
@@ -66,9 +64,9 @@ public class DateMapper implements IDBAttrMapper {
      * Maps object to ldap attribute set.
      */
     public void mapObjectToLDAPAttributeSet(IDBObj parent,
-        String name, Object obj, LDAPAttributeSet attrs)
-        throws EBaseException {
-        attrs.add(new LDAPAttribute(mLdapName, 
+            String name, Object obj, LDAPAttributeSet attrs)
+            throws EBaseException {
+        attrs.add(new LDAPAttribute(mLdapName,
                 dateToDB((Date) obj)));
     }
 
@@ -77,7 +75,7 @@ public class DateMapper implements IDBAttrMapper {
      * into 'parent'.
      */
     public void mapLDAPAttributeSetToObject(LDAPAttributeSet attrs,
-        String name, IDBObj parent) throws EBaseException {
+            String name, IDBObj parent) throws EBaseException {
         LDAPAttribute attr = attrs.getAttribute(mLdapName);
 
         if (attr == null)
@@ -90,7 +88,7 @@ public class DateMapper implements IDBAttrMapper {
      * Maps search filters into LDAP search filter.
      */
     public String mapSearchFilter(String name, String op,
-        String value) throws EBaseException {
+            String value) throws EBaseException {
         String val = null;
 
         try {

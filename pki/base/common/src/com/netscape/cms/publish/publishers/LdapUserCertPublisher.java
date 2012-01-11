@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.publish.publishers;
 
-
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.Enumeration;
@@ -43,10 +42,9 @@ import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.ILdapPublisher;
 
-
-/** 
- * Interface for mapping a X509 certificate to a LDAP entry 
- *
+/**
+ * Interface for mapping a X509 certificate to a LDAP entry
+ * 
  * @version $Revision$, $Date$
  */
 public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInfo {
@@ -72,9 +70,9 @@ public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInf
         String[] params = {
                 "certAttr;string;LDAP attribute in which to store the certificate",
                 IExtendedPluginInfo.HELP_TOKEN +
-                ";configuration-ldappublish-publisher-usercertpublisher",
+                        ";configuration-ldappublish-publisher-usercertpublisher",
                 IExtendedPluginInfo.HELP_TEXT +
-                ";This plugin knows how to publish user certificates"
+                        ";This plugin knows how to publish user certificates"
             };
 
         return params;
@@ -100,7 +98,7 @@ public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInf
     }
 
     public void init(IConfigStore config)
-        throws EBaseException {
+            throws EBaseException {
         if (mInited)
             return;
         mConfig = config;
@@ -119,10 +117,10 @@ public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInf
      * 
      * @param conn the LDAP connection
      * @param dn dn of the entry to publish the certificate
-     * @param certObj the certificate  object.
+     * @param certObj the certificate object.
      */
     public void publish(LDAPConnection conn, String dn, Object certObj)
-        throws ELdapException {
+            throws ELdapException {
         if (conn == null)
             return;
 
@@ -130,28 +128,28 @@ public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInf
         // see if we should create local connection
         LDAPConnection altConn = null;
         try {
-  	  String host = mConfig.getString("host", null);
-	  String port = mConfig.getString("port", null);
-          if (host != null && port != null) {
-            int portVal = Integer.parseInt(port);
-	    int version = Integer.parseInt(mConfig.getString("version", "2"));
-	    String cert_nick = mConfig.getString("clientCertNickname", null);
-            LDAPSSLSocketFactoryExt sslSocket = null;
-            if (cert_nick != null) {
-                sslSocket = CMS.getLdapJssSSLSocketFactory(cert_nick);
-            }
-	    String mgr_dn = mConfig.getString("bindDN", null);
-	    String mgr_pwd = mConfig.getString("bindPWD", null);
+            String host = mConfig.getString("host", null);
+            String port = mConfig.getString("port", null);
+            if (host != null && port != null) {
+                int portVal = Integer.parseInt(port);
+                int version = Integer.parseInt(mConfig.getString("version", "2"));
+                String cert_nick = mConfig.getString("clientCertNickname", null);
+                LDAPSSLSocketFactoryExt sslSocket = null;
+                if (cert_nick != null) {
+                    sslSocket = CMS.getLdapJssSSLSocketFactory(cert_nick);
+                }
+                String mgr_dn = mConfig.getString("bindDN", null);
+                String mgr_pwd = mConfig.getString("bindPWD", null);
 
-            altConn = CMS.getBoundConnection(host, portVal,
-               version, 
-	       sslSocket, mgr_dn, mgr_pwd); 
-            conn = altConn;
-          }
+                altConn = CMS.getBoundConnection(host, portVal,
+                        version,
+                        sslSocket, mgr_dn, mgr_pwd);
+                conn = altConn;
+            }
         } catch (LDAPException e) {
-	  CMS.debug("Failed to create alt connection " + e);
+            CMS.debug("Failed to create alt connection " + e);
         } catch (EBaseException e) {
-	  CMS.debug("Failed to create alt connection " + e);
+            CMS.debug("Failed to create alt connection " + e);
         }
 
         if (!(certObj instanceof X509Certificate))
@@ -169,7 +167,7 @@ public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInf
             byte[] certEnc = cert.getEncoded();
 
             // check if cert already exists.
-            LDAPSearchResults res = conn.search(dn, LDAPv2.SCOPE_BASE, 
+            LDAPSearchResults res = conn.search(dn, LDAPv2.SCOPE_BASE,
                     "(objectclass=*)", new String[] { mCertAttr }, false);
             LDAPEntry entry = res.next();
 
@@ -181,23 +179,23 @@ public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInf
             // publish 
             LDAPModification mod = null;
             if (deleteCert) {
-               mod = new LDAPModification(LDAPModification.REPLACE,
-                    new LDAPAttribute(mCertAttr, certEnc));
+                mod = new LDAPModification(LDAPModification.REPLACE,
+                        new LDAPAttribute(mCertAttr, certEnc));
             } else {
-               mod = new LDAPModification(LDAPModification.ADD,
-                    new LDAPAttribute(mCertAttr, certEnc));
+                mod = new LDAPModification(LDAPModification.ADD,
+                        new LDAPAttribute(mCertAttr, certEnc));
             }
 
-            conn.modify(dn, mod); 
+            conn.modify(dn, mod);
 
             // log a successful message to the "transactions" log
-            mLogger.log( ILogger.EV_AUDIT,
+            mLogger.log(ILogger.EV_AUDIT,
                          ILogger.S_LDAP,
                          ILogger.LL_INFO,
                          AuditFormat.LDAP_PUBLISHED_FORMAT,
                          new Object[] { "LdapUserCertPublisher",
                                         cert.getSerialNumber().toString(16),
-                                        cert.getSubjectDN() } );
+                                        cert.getSubjectDN() });
         } catch (CertificateEncodingException e) {
             CMS.debug("LdapUserCertPublisher: error in publish: " + e.toString());
             throw new ELdapException(CMS.getUserMessage("CMS_LDAP_GET_DER_ENCODED_CERT_FAILED", e.toString()));
@@ -206,31 +204,31 @@ public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInf
                 // need to intercept this because message from LDAP is
                 // "DSA is unavailable" which confuses with DSA PKI.
                 log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("PUBLISH_NO_LDAP_SERVER"));
+                        CMS.getLogMessage("PUBLISH_NO_LDAP_SERVER"));
                 throw new ELdapServerDownException(CMS.getUserMessage("CMS_LDAP_SERVER_UNAVAILABLE", conn.getHost(), "" + conn.getPort()));
             } else {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_PUBLISH_ERROR", e.toString()));
                 throw new ELdapException(CMS.getUserMessage("CMS_LDAP_PUBLISH_USERCERT_ERROR", e.toString()));
             }
         } finally {
-          if (altConn != null) {
-             try {
-		altConn.disconnect();
-             } catch (LDAPException e) {
-                // safely ignored
-             }
-          }
+            if (altConn != null) {
+                try {
+                    altConn.disconnect();
+                } catch (LDAPException e) {
+                    // safely ignored
+                }
+            }
         }
         return;
     }
 
     /**
-     * unpublish a user certificate 
+     * unpublish a user certificate
      * deletes the certificate from the list of certificates.
      * does not check if certificate is already there.
      */
     public void unpublish(LDAPConnection conn, String dn, Object certObj)
-        throws ELdapException {
+            throws ELdapException {
 
         boolean disableUnpublish = false;
         try {
@@ -239,8 +237,8 @@ public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInf
         }
 
         if (disableUnpublish) {
-           CMS.debug("UserCertPublisher: disable unpublish");
-           return;
+            CMS.debug("UserCertPublisher: disable unpublish");
+            return;
         }
 
         if (!(certObj instanceof X509Certificate))
@@ -252,7 +250,7 @@ public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInf
             byte[] certEnc = cert.getEncoded();
 
             // check if cert already deleted.
-            LDAPSearchResults res = conn.search(dn, LDAPv2.SCOPE_BASE, 
+            LDAPSearchResults res = conn.search(dn, LDAPv2.SCOPE_BASE,
                     "(objectclass=*)", new String[] { mCertAttr }, false);
             LDAPEntry entry = res.next();
 
@@ -264,7 +262,7 @@ public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInf
             LDAPModification mod = new LDAPModification(LDAPModification.DELETE,
                     new LDAPAttribute(mCertAttr, certEnc));
 
-            conn.modify(dn, mod); 
+            conn.modify(dn, mod);
         } catch (CertificateEncodingException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_UNPUBLISH_ERROR", e.toString()));
             throw new ELdapException(CMS.getUserMessage("CMS_LDAP_GET_DER_ENCODED_CERT_FAILED", e.toString()));
@@ -273,7 +271,7 @@ public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInf
                 // need to intercept this because message from LDAP is
                 // "DSA is unavailable" which confuses with DSA PKI.
                 log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("PUBLISH_NO_LDAP_SERVER"));
+                        CMS.getLogMessage("PUBLISH_NO_LDAP_SERVER"));
                 throw new ELdapServerDownException(CMS.getUserMessage("CMS_LDAP_SERVER_UNAVAILABLE", conn.getHost(), "" + conn.getPort()));
             } else {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_UNPUBLISH_ERROR"));
@@ -285,7 +283,7 @@ public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInf
 
     private void log(int level, String msg) {
         mLogger.log(ILogger.EV_SYSTEM, ILogger.S_LDAP, level,
-            "LdapUserCertPublisher: " + msg);
+                "LdapUserCertPublisher: " + msg);
     }
 
     /**

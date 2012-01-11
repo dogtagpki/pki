@@ -22,11 +22,10 @@ import java.util.Hashtable;
 
 /**
  * This class represents a set of arguments.
- * Unlike ArgList, this set of arguments is 
+ * Unlike ArgList, this set of arguments is
  * not ordered.
  * <p>
- * Each argument in the set is tagged with
- * a name (key).
+ * Each argument in the set is tagged with a name (key).
  * <p>
  * 
  * @version $Revision$, $Date$
@@ -36,7 +35,7 @@ public class ArgSet implements IArgValue {
 
     /**
      * Returns a list of argument names.
-     *
+     * 
      * @return list of argument names
      */
     public Enumeration<String> getNames() {
@@ -45,17 +44,17 @@ public class ArgSet implements IArgValue {
 
     /**
      * Sets string argument into the set with the given name.
-     *
+     * 
      * @param name argument name
      * @param arg argument in string
      */
     public void set(String name, String arg) {
-        mArgs.put(name, new ArgString (arg));
+        mArgs.put(name, new ArgString(arg));
     }
 
     /**
      * Sets argument into the set with the given name.
-     *
+     * 
      * @param name argument name
      * @param arg argument value
      */
@@ -65,7 +64,7 @@ public class ArgSet implements IArgValue {
 
     /**
      * Retrieves argument from the set.
-     *
+     * 
      * @param name argument name
      * @return argument value
      */

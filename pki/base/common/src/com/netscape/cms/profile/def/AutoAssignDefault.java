@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.def;
 
-
 import java.util.Locale;
 
 import netscape.security.x509.X509CertInfo;
@@ -31,11 +30,10 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 
-
 /**
  * This class implements an enrollment default policy
  * that automatically assign request to agent.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class AutoAssignDefault extends EnrollDefault {
@@ -48,15 +46,15 @@ public class AutoAssignDefault extends EnrollDefault {
     }
 
     public void init(IProfile profile, IConfigStore config)
-        throws EProfileException {
+            throws EProfileException {
         super.init(profile, config);
     }
 
-    public IDescriptor getConfigDescriptor(Locale locale, String name) { 
-        if (name.equals(CONFIG_ASSIGN_TO)) { 
-            return new Descriptor(IDescriptor.STRING, 
+    public IDescriptor getConfigDescriptor(Locale locale, String name) {
+        if (name.equals(CONFIG_ASSIGN_TO)) {
+            return new Descriptor(IDescriptor.STRING,
                     null, "admin", CMS.getUserMessage(locale,
-                        "CMS_PROFILE_AUTO_ASSIGN"));
+                            "CMS_PROFILE_AUTO_ASSIGN"));
         } else {
             return null;
         }
@@ -67,29 +65,29 @@ public class AutoAssignDefault extends EnrollDefault {
     }
 
     public void setValue(String name, Locale locale,
-        X509CertInfo info, String value)
-        throws EPropertyException {
+            X509CertInfo info, String value)
+            throws EPropertyException {
     }
 
     public String getValue(String name, Locale locale,
-        X509CertInfo info)
-        throws EPropertyException {
+            X509CertInfo info)
+            throws EPropertyException {
         return null;
     }
 
     public String getText(Locale locale) {
         return CMS.getUserMessage(locale, "CMS_PROFILE_DEF_AUTO_ASSIGN",
-		getConfig(CONFIG_ASSIGN_TO));
+                getConfig(CONFIG_ASSIGN_TO));
     }
 
     /**
      * Populates the request with this policy default.
      */
     public void populate(IRequest request, X509CertInfo info)
-        throws EProfileException {
+            throws EProfileException {
         try {
-	    request.setRequestOwner(
-		mapPattern(request, getConfig(CONFIG_ASSIGN_TO)));
+            request.setRequestOwner(
+                    mapPattern(request, getConfig(CONFIG_ASSIGN_TO)));
         } catch (Exception e) {
             // failed to insert subject name
             CMS.debug("AutoAssignDefault: populate " + e.toString());

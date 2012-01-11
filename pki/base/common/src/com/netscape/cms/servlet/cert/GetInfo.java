@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.cert;
 
-
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Enumeration;
@@ -49,10 +48,9 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 
-
 /**
  * Get detailed information about CA CRL processing
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class GetInfo extends CMSServlet {
@@ -76,6 +74,7 @@ public class GetInfo extends CMSServlet {
 
     /**
      * initialize the servlet.
+     * 
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -90,11 +89,11 @@ public class GetInfo extends CMSServlet {
     }
 
     /**
-	 * XXX Process the HTTP request. 
+     * XXX Process the HTTP request.
      * <ul>
      * <li>http.param template filename of template to use to render the result
      * </ul>
-     *
+     * 
      * @param cmsReq the object holding the request and response information
      */
     public void process(CMSRequest cmsReq) throws EBaseException {
@@ -109,10 +108,10 @@ public class GetInfo extends CMSServlet {
                         mAuthzResourceName, "read");
         } catch (EAuthzAccessDenied e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
         } catch (Exception e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
         }
 
         if (authzToken == null) {
@@ -129,35 +128,34 @@ public class GetInfo extends CMSServlet {
         String template = req.getParameter("template");
         String formFile = "";
 
-/*
-        for (int i = 0; ((template != null) && (i < template.length())); i++) {
-            char c = template.charAt(i);
-            if (!Character.isLetterOrDigit(c) && c != '_' && c != '-') {
-                template = null;
-                break;
-            }
-        }
-*/
-
+        /*
+                for (int i = 0; ((template != null) && (i < template.length())); i++) {
+                    char c = template.charAt(i);
+                    if (!Character.isLetterOrDigit(c) && c != '_' && c != '-') {
+                        template = null;
+                        break;
+                    }
+                }
+        */
 
         if (template != null) {
             formFile = template + ".template";
         } else {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE_1"));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
 
         CMSTemplate form = null;
         Locale[] locale = new Locale[1];
 
-CMS.debug("*** formFile = "+formFile);
+        CMS.debug("*** formFile = " + formFile);
         try {
             form = getTemplate(formFile, req, locale);
         } catch (IOException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", formFile, e.toString()));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
 
         try {
@@ -172,29 +170,29 @@ CMS.debug("*** formFile = "+formFile);
             if (error == null) {
                 String xmlOutput = req.getParameter("xml");
                 if (xmlOutput != null && xmlOutput.equals("true")) {
-                  outputXML(resp, argSet);
+                    outputXML(resp, argSet);
                 } else {
-                  resp.setContentType("text/html");
-                  form.renderOutput(out, argSet);
-                  cmsReq.setStatus(CMSRequest.SUCCESS);
+                    resp.setContentType("text/html");
+                    form.renderOutput(out, argSet);
+                    cmsReq.setStatus(CMSRequest.SUCCESS);
                 }
             } else {
                 cmsReq.setStatus(CMSRequest.ERROR);
                 cmsReq.setError(error);
             }
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
     }
 
     private void process(CMSTemplateParams argSet, IArgBlock header,
-        HttpServletRequest req,
-        HttpServletResponse resp,
-        Locale locale)
-        throws EBaseException {
+            HttpServletRequest req,
+            HttpServletResponse resp,
+            Locale locale)
+            throws EBaseException {
         if (mCA != null) {
             String crlIssuingPoints = "";
             String crlNumbers = "";
@@ -209,15 +207,15 @@ CMS.debug("*** formFile = "+formFile);
 
             String masterHost = CMS.getConfigStore().getString("master.ca.agent.host", "");
             String masterPort = CMS.getConfigStore().getString("master.ca.agent.port", "");
-            
+
             if (masterHost != null && masterHost.length() > 0 &&
-                masterPort != null && masterPort.length() > 0) {
+                    masterPort != null && masterPort.length() > 0) {
 
                 ICRLRepository crlRepository = mCA.getCRLRepository();
 
                 Vector ipNames = crlRepository.getIssuingPointsNames();
                 for (int i = 0; i < ipNames.size(); i++) {
-                    String ipName = (String)ipNames.elementAt(i);
+                    String ipName = (String) ipNames.elementAt(i);
                     ICRLIssuingPointRecord crlRecord = null;
                     try {
                         crlRecord = crlRepository.readCRLIssuingPointRecord(ipName);
@@ -236,8 +234,8 @@ CMS.debug("*** formFile = "+formFile);
 
                         if (crlSizes.length() > 0)
                             crlSizes += "+";
-                        crlSizes += ((crlRecord.getCRLSize() != null)? 
-                                      crlRecord.getCRLSize().toString(): "-1");
+                        crlSizes += ((crlRecord.getCRLSize() != null) ?
+                                      crlRecord.getCRLSize().toString() : "-1");
 
                         if (deltaSizes.length() > 0)
                             deltaSizes += "+";
@@ -307,7 +305,7 @@ CMS.debug("*** formFile = "+formFile);
                             recentChanges += "Publishing CRL #" + ip.getCRLNumber();
                         } else if (ip.isCRLUpdateInProgress() == ICRLIssuingPoint.CRL_UPDATE_STARTED) {
                             recentChanges += "Creating CRL #" + ip.getNextCRLNumber();
-                        } else {  // ip.CRL_UPDATE_DONE
+                        } else { // ip.CRL_UPDATE_DONE
                             recentChanges += ip.getNumberOfRecentlyRevokedCerts() + ", " +
                                     ip.getNumberOfRecentlyUnrevokedCerts() + ", " +
                                     ip.getNumberOfRecentlyExpiredCerts();
@@ -326,7 +324,7 @@ CMS.debug("*** formFile = "+formFile);
 
                         if (crlTesting.length() > 0)
                             crlTesting += "+";
-                        crlTesting += ((ip.isCRLCacheTestingEnabled())?"1":"0");
+                        crlTesting += ((ip.isCRLCacheTestingEnabled()) ? "1" : "0");
                     }
                 }
 

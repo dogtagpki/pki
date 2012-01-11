@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.dbs;
 
-
 import java.util.Enumeration;
 
 import netscape.ldap.LDAPEntry;
@@ -27,15 +26,14 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.dbs.IDBRegistry;
 import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.logging.ILogger;
- 
 
 /**
  * A class represents the search results. A search
  * results object contain a enumeration of
  * Java objects that are just read from the database.
- *
+ * 
  * @author thomask
- * @version $Revision$, $Date$ 
+ * @version $Revision$, $Date$
  */
 public class DBSearchResults implements IDBSearchResults {
 
@@ -71,13 +69,13 @@ public class DBSearchResults implements IDBSearchResults {
                 entry = (LDAPEntry) o;
                 return mRegistry.createObject(entry.getAttributeSet());
             } else {
-                if (o instanceof LDAPException) 
+                if (o instanceof LDAPException)
                     ;
-                    // doing nothing because the last object in the search
-                    // results is always LDAPException
+                // doing nothing because the last object in the search
+                // results is always LDAPException
                 else
                     mLogger.log(ILogger.EV_SYSTEM, ILogger.S_DB,
-                      ILogger.LL_FAILURE, "DBSearchResults: result format error class=" + o.getClass().getName());
+                            ILogger.LL_FAILURE, "DBSearchResults: result format error class=" + o.getClass().getName());
             }
         } catch (Exception e) {
 
@@ -88,7 +86,7 @@ public class DBSearchResults implements IDBSearchResults {
              * @message DBSearchResults: <exception thrown>
              */
             mLogger.log(ILogger.EV_SYSTEM, ILogger.S_DB,
-                ILogger.LL_FAILURE, "DBSearchResults: " + e.toString());
+                    ILogger.LL_FAILURE, "DBSearchResults: " + e.toString());
         }
         return null;
     }

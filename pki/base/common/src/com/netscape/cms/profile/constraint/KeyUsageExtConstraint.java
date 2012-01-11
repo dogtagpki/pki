@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.constraint;
 
-
 import java.util.Locale;
 
 import netscape.security.x509.KeyUsageExtension;
@@ -37,25 +36,24 @@ import com.netscape.cms.profile.def.KeyUsageExtDefault;
 import com.netscape.cms.profile.def.NoDefault;
 import com.netscape.cms.profile.def.UserExtensionDefault;
 
-
 /**
  * This class implements the key usage extension constraint.
  * It checks if the key usage constraint in the certificate
  * template satisfies the criteria.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class KeyUsageExtConstraint extends EnrollConstraint {
 
     public static final String CONFIG_CRITICAL = "keyUsageCritical";
     public static final String CONFIG_DIGITAL_SIGNATURE =
-        "keyUsageDigitalSignature";
+            "keyUsageDigitalSignature";
     public static final String CONFIG_NON_REPUDIATION =
-        "keyUsageNonRepudiation";
+            "keyUsageNonRepudiation";
     public static final String CONFIG_KEY_ENCIPHERMENT =
-        "keyUsageKeyEncipherment";
+            "keyUsageKeyEncipherment";
     public static final String CONFIG_DATA_ENCIPHERMENT =
-        "keyUsageDataEncipherment";
+            "keyUsageDataEncipherment";
     public static final String CONFIG_KEY_AGREEMENT = "keyUsageKeyAgreement";
     public static final String CONFIG_KEY_CERTSIGN = "keyUsageKeyCertSign";
     public static final String CONFIG_CRL_SIGN = "keyUsageCrlSign";
@@ -77,12 +75,12 @@ public class KeyUsageExtConstraint extends EnrollConstraint {
     }
 
     public void init(IProfile profile, IConfigStore config)
-        throws EProfileException {
+            throws EProfileException {
         super.init(profile, config);
 
     }
 
-    public IDescriptor getConfigDescriptor(Locale locale, String name) { 
+    public IDescriptor getConfigDescriptor(Locale locale, String name) {
         if (name.equals(CONFIG_CRITICAL)) {
             return new Descriptor(IDescriptor.CHOICE, "true,false,-",
                     "-",
@@ -138,16 +136,16 @@ public class KeyUsageExtConstraint extends EnrollConstraint {
      * during the validation.
      */
     public void validate(IRequest request, X509CertInfo info)
-        throws ERejectException {
-        KeyUsageExtension ext = (KeyUsageExtension) 
-            getExtension(PKIXExtensions.KeyUsage_Id.toString(), info);
+            throws ERejectException {
+        KeyUsageExtension ext = (KeyUsageExtension)
+                getExtension(PKIXExtensions.KeyUsage_Id.toString(), info);
 
         if (ext == null) {
             throw new ERejectException(
                     CMS.getUserMessage(
-                        getLocale(request),
-                        "CMS_PROFILE_EXTENSION_NOT_FOUND",
-                        PKIXExtensions.KeyUsage_Id.toString()));
+                            getLocale(request),
+                            "CMS_PROFILE_EXTENSION_NOT_FOUND",
+                            PKIXExtensions.KeyUsage_Id.toString()));
         }
 
         boolean[] bits = ext.getBits();
@@ -156,10 +154,10 @@ public class KeyUsageExtConstraint extends EnrollConstraint {
         if (!isOptional(value)) {
             boolean critical = getBoolean(value);
 
-            if (critical != ext.isCritical()) { 
-                throw new ERejectException( 
-                        CMS.getUserMessage(getLocale(request), 
-                            "CMS_PROFILE_CRITICAL_NOT_MATCHED"));
+            if (critical != ext.isCritical()) {
+                throw new ERejectException(
+                        CMS.getUserMessage(getLocale(request),
+                                "CMS_PROFILE_CRITICAL_NOT_MATCHED"));
             }
         }
         value = getConfig(CONFIG_DIGITAL_SIGNATURE);
@@ -167,99 +165,99 @@ public class KeyUsageExtConstraint extends EnrollConstraint {
             boolean bit = getBoolean(value);
 
             if (bit != isSet(bits, 0)) {
-                throw new ERejectException( 
-                        CMS.getUserMessage(getLocale(request), 
-                            "CMS_PROFILE_DIGITAL_SIGNATURE_NOT_MATCHED",
-                            value));
-            } 
+                throw new ERejectException(
+                        CMS.getUserMessage(getLocale(request),
+                                "CMS_PROFILE_DIGITAL_SIGNATURE_NOT_MATCHED",
+                                value));
+            }
         }
         value = getConfig(CONFIG_NON_REPUDIATION);
         if (!isOptional(value)) {
             boolean bit = getBoolean(value);
 
             if (bit != isSet(bits, 1)) {
-                throw new ERejectException( 
-                        CMS.getUserMessage(getLocale(request), 
-                            "CMS_PROFILE_NON_REPUDIATION_NOT_MATCHED",
-                            value));
-            } 
+                throw new ERejectException(
+                        CMS.getUserMessage(getLocale(request),
+                                "CMS_PROFILE_NON_REPUDIATION_NOT_MATCHED",
+                                value));
+            }
         }
         value = getConfig(CONFIG_KEY_ENCIPHERMENT);
         if (!isOptional(value)) {
             boolean bit = getBoolean(value);
 
             if (bit != isSet(bits, 2)) {
-                throw new ERejectException( 
-                        CMS.getUserMessage(getLocale(request), 
-                            "CMS_PROFILE_KEY_ENCIPHERMENT_NOT_MATCHED",
-                            value));
-            } 
+                throw new ERejectException(
+                        CMS.getUserMessage(getLocale(request),
+                                "CMS_PROFILE_KEY_ENCIPHERMENT_NOT_MATCHED",
+                                value));
+            }
         }
         value = getConfig(CONFIG_DATA_ENCIPHERMENT);
         if (!isOptional(value)) {
             boolean bit = getBoolean(value);
 
             if (bit != isSet(bits, 3)) {
-                throw new ERejectException( 
-                        CMS.getUserMessage(getLocale(request), 
-                            "CMS_PROFILE_DATA_ENCIPHERMENT_NOT_MATCHED",
-                            value));
-            } 
+                throw new ERejectException(
+                        CMS.getUserMessage(getLocale(request),
+                                "CMS_PROFILE_DATA_ENCIPHERMENT_NOT_MATCHED",
+                                value));
+            }
         }
         value = getConfig(CONFIG_KEY_AGREEMENT);
         if (!isOptional(value)) {
             boolean bit = getBoolean(value);
 
             if (bit != isSet(bits, 4)) {
-                throw new ERejectException( 
-                        CMS.getUserMessage(getLocale(request), 
-                            "CMS_PROFILE_KEY_AGREEMENT_NOT_MATCHED",
-                            value));
-            } 
+                throw new ERejectException(
+                        CMS.getUserMessage(getLocale(request),
+                                "CMS_PROFILE_KEY_AGREEMENT_NOT_MATCHED",
+                                value));
+            }
         }
         value = getConfig(CONFIG_KEY_CERTSIGN);
         if (!isOptional(value)) {
             boolean bit = getBoolean(value);
 
             if (bit != isSet(bits, 5)) {
-                throw new ERejectException( 
-                        CMS.getUserMessage(getLocale(request), 
-                            "CMS_PROFILE_KEY_CERTSIGN_NOT_MATCHED",
-                            value));
-            } 
+                throw new ERejectException(
+                        CMS.getUserMessage(getLocale(request),
+                                "CMS_PROFILE_KEY_CERTSIGN_NOT_MATCHED",
+                                value));
+            }
         }
         value = getConfig(CONFIG_CRL_SIGN);
         if (!isOptional(value)) {
             boolean bit = getBoolean(value);
 
             if (bit != isSet(bits, 6)) {
-                throw new ERejectException( 
-                        CMS.getUserMessage(getLocale(request), 
-                            "CMS_PROFILE_CRL_SIGN_NOT_MATCHED",
-                            value));
-            } 
+                throw new ERejectException(
+                        CMS.getUserMessage(getLocale(request),
+                                "CMS_PROFILE_CRL_SIGN_NOT_MATCHED",
+                                value));
+            }
         }
         value = getConfig(CONFIG_ENCIPHER_ONLY);
         if (!isOptional(value)) {
             boolean bit = getBoolean(value);
 
             if (bit != isSet(bits, 7)) {
-                throw new ERejectException( 
-                        CMS.getUserMessage(getLocale(request), 
-                            "CMS_PROFILE_ENCIPHER_ONLY_NOT_MATCHED",
-                            value));
-            } 
+                throw new ERejectException(
+                        CMS.getUserMessage(getLocale(request),
+                                "CMS_PROFILE_ENCIPHER_ONLY_NOT_MATCHED",
+                                value));
+            }
         }
         value = getConfig(CONFIG_DECIPHER_ONLY);
         if (!isOptional(value)) {
             boolean bit = getBoolean(value);
 
             if (bit != isSet(bits, 8)) {
-                throw new ERejectException( 
-                        CMS.getUserMessage(getLocale(request), 
-                            "CMS_PROFILE_DECIPHER_ONLY_NOT_MATCHED",
-                            value));
-            } 
+                throw new ERejectException(
+                        CMS.getUserMessage(getLocale(request),
+                                "CMS_PROFILE_DECIPHER_ONLY_NOT_MATCHED",
+                                value));
+            }
         }
     }
 
@@ -277,7 +275,7 @@ public class KeyUsageExtConstraint extends EnrollConstraint {
                 getConfig(CONFIG_DECIPHER_ONLY)
             };
 
-        return CMS.getUserMessage(locale, 
+        return CMS.getUserMessage(locale,
                 "CMS_PROFILE_CONSTRAINT_KEY_USAGE_EXT_TEXT", params);
     }
 

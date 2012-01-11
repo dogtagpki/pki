@@ -17,11 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.apps;
 
-
 /**
  * A class represents a PKIServer event.
  * <P>
- *
+ * 
  * @author thomask
  * @version $Revision$, $Date$
  */

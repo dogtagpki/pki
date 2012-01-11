@@ -17,13 +17,11 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.property;
 
-
 import java.util.Locale;
-
 
 /**
  * This interface represents a property descriptor.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public interface IDescriptor {
@@ -54,26 +52,26 @@ public interface IDescriptor {
 
     /**
      * Returns the syntax of the property.
-     *
+     * 
      * @return syntax
      */
     public String getSyntax();
 
     /**
      * Constraint for the given syntax. For example,
-     *   - number(1-5): 1-5 is the constraint, and it indicates
-     *     that the number must be in the range of 1 to 5.
-     *   - choice(cert,crl): cert,crl is the constraint
-     *     for choice
+     * - number(1-5): 1-5 is the constraint, and it indicates
+     * that the number must be in the range of 1 to 5.
+     * - choice(cert,crl): cert,crl is the constraint
+     * for choice
      * If null, no constraint shall be enforced.
-     *
+     * 
      * @return constraint
      */
     public String getConstraint();
 
     /**
      * Retrieves the description of the property.
-     *
+     * 
      * @param locale user locale
      * @return localized description
      */
@@ -81,7 +79,7 @@ public interface IDescriptor {
 
     /**
      * Retrieves the default value of the property.
-     *
+     * 
      * @return default value
      */
     public String getDefaultValue();

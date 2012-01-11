@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.logging;
 
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
@@ -41,12 +40,11 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.SystemEvent;
 import com.netscape.cmsutil.util.Utils;
 
-
 /**
  * A rotating log file for Certificate log events. This class loosely follows
  * the Netscape Common Log API implementing rollover interval, size and file
  * naming conventions. It does not yet implement Disk Usage.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class RollingLogFile extends LogFile {
@@ -105,7 +103,7 @@ public class RollingLogFile extends LogFile {
     private Object mExpLock = new Object();
 
     private final static String LOGGING_SIGNED_AUDIT_LOG_DELETE =
-        "LOGGING_SIGNED_AUDIT_LOG_DELETE_3";
+            "LOGGING_SIGNED_AUDIT_LOG_DELETE_3";
 
     /**
      * Construct a RollingLogFile
@@ -115,7 +113,7 @@ public class RollingLogFile extends LogFile {
 
     /**
      * Initialize and open a RollingLogFile using the prop config store
-     *
+     * 
      * @param config The property config store to find values in
      */
     public void init(IConfigStore config) throws IOException,
@@ -123,8 +121,8 @@ public class RollingLogFile extends LogFile {
         super.init(config);
 
         rl_init(config.getInteger(PROP_MAX_FILE_SIZE, MAX_FILE_SIZE),
-            config.getString(PROP_ROLLOVER_INTERVAL, ROLLOVER_INTERVAL),
-            config.getString(PROP_EXPIRATION_TIME, EXPIRATION_TIME));
+                config.getString(PROP_ROLLOVER_INTERVAL, ROLLOVER_INTERVAL),
+                config.getString(PROP_EXPIRATION_TIME, EXPIRATION_TIME));
     }
 
     /**
@@ -132,7 +130,7 @@ public class RollingLogFile extends LogFile {
      * attributes.
      */
     protected void rl_init(int maxFileSize, String rolloverInterval,
-        String expirationTime) {
+            String expirationTime) {
         mMaxFileSize = maxFileSize * 1024;
         setRolloverTime(rolloverInterval);
         setExpirationTime(expirationTime);
@@ -153,9 +151,9 @@ public class RollingLogFile extends LogFile {
 
     /**
      * Set the rollover interval
-     *
-     * @param	rolloverSeconds The amount of time in seconds until the log
-     * is rotated.  A value of 0 will disable log rollover.
+     * 
+     * @param rolloverSeconds The amount of time in seconds until the log
+     *            is rotated. A value of 0 will disable log rollover.
      **/
     public synchronized void setRolloverTime(String rolloverSeconds) {
         mRolloverInterval = Long.valueOf(rolloverSeconds).longValue() * 1000;
@@ -171,8 +169,8 @@ public class RollingLogFile extends LogFile {
 
     /**
      * Get the rollover interval
-     *
-     * @return   The interval in seconds in which the log is rotated
+     * 
+     * @return The interval in seconds in which the log is rotated
      **/
     public synchronized int getRolloverTime() {
         return (int) (mRolloverInterval / 1000);
@@ -180,9 +178,9 @@ public class RollingLogFile extends LogFile {
 
     /**
      * Set the file expiration time
-     *
-     * @param	expirationSeconds The amount of time in seconds until log files
-     * are deleted
+     * 
+     * @param expirationSeconds The amount of time in seconds until log files
+     *            are deleted
      **/
     public void setExpirationTime(String expirationSeconds) {
 
@@ -205,8 +203,8 @@ public class RollingLogFile extends LogFile {
 
     /**
      * Get the expiration time
-     *
-     * @return   The age in seconds in which log files are delete
+     * 
+     * @return The age in seconds in which log files are delete
      **/
     public int getExpirationTime() {
         return (int) (mExpirationTime / 1000);
@@ -217,7 +215,7 @@ public class RollingLogFile extends LogFile {
      * extension
      **/
     public synchronized void rotate()
-        throws IOException {
+            throws IOException {
 
         //File backupFile = new File(mFileName + "." + mFileNumber);
         File backupFile = new File(mFileName + "." + mLogFileDateFormat.format(mDate));
@@ -225,54 +223,54 @@ public class RollingLogFile extends LogFile {
         // close, backup, and reopen the log file zeroizing its contents
         super.close();
         try {
-            if( Utils.isNT() ) {
+            if (Utils.isNT()) {
                 // NT is very picky on the path
-                Utils.exec( "copy " +
-                            mFile.getCanonicalPath().replace( '/', '\\' ) +
+                Utils.exec("copy " +
+                            mFile.getCanonicalPath().replace('/', '\\') +
                             " " +
-                            backupFile.getCanonicalPath().replace( '/',
-                                                                   '\\' ) );
+                            backupFile.getCanonicalPath().replace('/',
+                                                                   '\\'));
             } else {
                 // Create a copy of the original file which
                 // preserves the original file permissions.
-                Utils.exec( "cp -p " + mFile.getCanonicalPath() + " " +
-                             backupFile.getCanonicalPath() );
+                Utils.exec("cp -p " + mFile.getCanonicalPath() + " " +
+                             backupFile.getCanonicalPath());
             }
 
             // Zeroize the original file if and only if
             // the backup copy was successful.
-            if( backupFile.exists() ) {
+            if (backupFile.exists()) {
 
                 // Make certain that the backup file has
                 // the correct permissions.
-                if( !Utils.isNT() ) {
-                    Utils.exec( "chmod 00640 " + backupFile.getCanonicalPath() );
+                if (!Utils.isNT()) {
+                    Utils.exec("chmod 00640 " + backupFile.getCanonicalPath());
                 }
 
                 try {
                     // Open and close the original file
                     // to zeroize its contents.
-                    PrintWriter pw = new PrintWriter( mFile );
+                    PrintWriter pw = new PrintWriter(mFile);
                     pw.close();
 
                     // Make certain that the original file retains
                     // the correct permissions.
-                    if( !Utils.isNT() ) {
-                        Utils.exec( "chmod 00640 " + mFile.getCanonicalPath() );
+                    if (!Utils.isNT()) {
+                        Utils.exec("chmod 00640 " + mFile.getCanonicalPath());
                     }
-                } catch ( FileNotFoundException e ) {
-                    CMS.debug( "Unable to zeroize "
-                             + mFile.toString() );
+                } catch (FileNotFoundException e) {
+                    CMS.debug("Unable to zeroize "
+                             + mFile.toString());
                 }
             } else {
-                CMS.debug( "Unable to backup "
+                CMS.debug("Unable to backup "
                          + mFile.toString() + " to "
-                         + backupFile.toString() );
+                         + backupFile.toString());
             }
-        } catch( Exception e ) {
-            CMS.debug( "Unable to backup "
+        } catch (Exception e) {
+            CMS.debug("Unable to backup "
                      + mFile.toString() + " to "
-                     + backupFile.toString() );
+                     + backupFile.toString());
         }
         super.open(); // will reset mBytesWritten
         mFileNumber++;
@@ -282,17 +280,16 @@ public class RollingLogFile extends LogFile {
      * Remove any log files which have not been modified in the specified
      * time
      * <P>
-     *
-     * NOTE:  automatic removal of log files is currently NOT supported!
+     * 
+     * NOTE: automatic removal of log files is currently NOT supported!
      * <P>
-     *
+     * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_LOG_DELETE used AFTER audit log
-     * expires (authorization should not allow, but in case authorization gets
-     * compromised make sure it is written AFTER the log expiration happens)
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_LOG_DELETE used AFTER audit log expires (authorization should not allow, but in case authorization gets compromised make sure it is written AFTER the log expiration happens)
      * </ul>
+     * 
      * @param expirationSeconds The number of seconds since the expired files
-     * have been modified.
+     *            have been modified.
      * @return the time in milliseconds when the next file expires
      **/
     public long expire(long expirationSeconds) throws ELogException {
@@ -322,7 +319,7 @@ public class RollingLogFile extends LogFile {
             pathName = fileName.substring(0, index);
             baseName = fileName.substring(index + 1);
             dirName = dirName.concat("/" + pathName);
-        }else { // "/" NOT exist in fileName
+        } else { // "/" NOT exist in fileName
             baseName = fileName;
         }
 
@@ -330,8 +327,7 @@ public class RollingLogFile extends LogFile {
         String[] filelist = dir.list(ff);
 
         if (filelist == null) { // Crap!  Something is wrong.
-            throw new
-                ELogException(CMS.getUserMessage("CMS_LOG_DIRECTORY_LIST_FAILED",
+            throw new ELogException(CMS.getUserMessage("CMS_LOG_DIRECTORY_LIST_FAILED",
                     dirName, ff.toString()));
         }
 
@@ -340,10 +336,10 @@ public class RollingLogFile extends LogFile {
         for (int i = 0; i < filelist.length; i++) {
             if (pathName != null) {
                 filelist[i] = pathName + "/" + filelist[i];
-            }else {
+            } else {
                 filelist[i] = dirName + "/" + filelist[i];
             }
-            
+
             String fullname = dirName + File.separatorChar + filelist[i];
             File file = new File(fullname);
             long fileTime = file.lastModified();
@@ -392,7 +388,7 @@ public class RollingLogFile extends LogFile {
     //
 
     /**
-     * Log rotation thread.  Sleep for the rollover interval and rotate the
+     * Log rotation thread. Sleep for the rollover interval and rotate the
      * log. Changing rollover interval to 0 will cause this thread to exit.
      */
     final class RolloverThread extends Thread {
@@ -414,7 +410,7 @@ public class RollingLogFile extends LogFile {
                     } catch (InterruptedException e) {
                         // This shouldn't happen very often
                         CMS.getLogger().getLogQueue().log(new
-                            SystemEvent(CMS.getUserMessage("CMS_LOG_THREAD_INTERRUPT", "rollover")));
+                                SystemEvent(CMS.getUserMessage("CMS_LOG_THREAD_INTERRUPT", "rollover")));
                     }
                 }
 
@@ -427,7 +423,7 @@ public class RollingLogFile extends LogFile {
                         rotate();
                     } catch (IOException e) {
                         ConsoleError.send(new
-                            SystemEvent(CMS.getUserMessage("CMS_LOG_ROTATE_LOG_FAILED", mFile.getName(), e.toString())));
+                                SystemEvent(CMS.getUserMessage("CMS_LOG_ROTATE_LOG_FAILED", mFile.getName(), e.toString())));
                         break;
                     }
                 }
@@ -439,9 +435,8 @@ public class RollingLogFile extends LogFile {
         }
     }
 
-
     /**
-     * Log expiration thread.  Sleep for the expiration interval and
+     * Log expiration thread. Sleep for the expiration interval and
      * delete any files which are too old.
      * Changing expiration interval to 0 will cause this thread to exit.
      */
@@ -467,11 +462,11 @@ public class RollingLogFile extends LogFile {
                         wakeupTime = expire((long) (mExpirationTime / 1000));
                     } catch (SecurityException e) {
                         ConsoleError.send(new
-                            SystemEvent(CMS.getUserMessage("CMS_LOG_EXPIRE_LOG_FAILED", e.toString())));
+                                SystemEvent(CMS.getUserMessage("CMS_LOG_EXPIRE_LOG_FAILED", e.toString())));
                         break;
                     } catch (ELogException e) {
                         ConsoleError.send(new
-                            SystemEvent(CMS.getUserMessage("CMS_LOG_EXPIRE_LOG_FAILED", e.toString())));
+                                SystemEvent(CMS.getUserMessage("CMS_LOG_EXPIRE_LOG_FAILED", e.toString())));
                         break;
                     }
 
@@ -488,7 +483,7 @@ public class RollingLogFile extends LogFile {
                         } catch (InterruptedException e) {
                             // This shouldn't happen very often
                             ConsoleError.send(new
-                                SystemEvent(CMS.getUserMessage("CMS_LOG_THREAD_INTERRUPT", "expiration")));
+                                    SystemEvent(CMS.getUserMessage("CMS_LOG_THREAD_INTERRUPT", "expiration")));
                         }
                     }
                 }
@@ -499,8 +494,8 @@ public class RollingLogFile extends LogFile {
 
     /**
      * Write an event to the log file
-     *
-     * @param  ev The event to be logged.
+     * 
+     * @param ev The event to be logged.
      **/
     public synchronized void log(ILogEvent ev) throws ELogException {
         //xxx, Shall we log first without checking if it exceed the maximum?
@@ -519,9 +514,9 @@ public class RollingLogFile extends LogFile {
     /**
      * Retrieve log file list.
      */
-    public synchronized NameValuePairs retrieveLogList(Hashtable<String, String>  req
-        ) throws ServletException,
-            IOException, EBaseException {
+    public synchronized NameValuePairs retrieveLogList(Hashtable<String, String> req
+            ) throws ServletException,
+                    IOException, EBaseException {
         NameValuePairs params = new NameValuePairs();
         String[] files = null;
 
@@ -534,7 +529,7 @@ public class RollingLogFile extends LogFile {
 
     /**
      * Get the log file list in the log directory
-     *
+     * 
      * @return an array of filenames with related path to cert server root
      */
     protected String[] fileList() {
@@ -552,10 +547,10 @@ public class RollingLogFile extends LogFile {
             } else {
                 dirName = dirName.concat("/" + pathName);
             }
-        }else { // "/" NOT exist in fileName
+        } else { // "/" NOT exist in fileName
             baseName = fileName;
         }
-			
+
         File dir = new File(dirName);
 
         fileFilter ff = new fileFilter(baseName + ".");
@@ -563,13 +558,13 @@ public class RollingLogFile extends LogFile {
         //error,logs,logs/error jdk115
         //logs/system,., logs/system jdk116
         //System.out.println(mFile.getName()+","+dirName+","+mFile.getPath()); //log/system,.
-		
+
         String[] filelist = dir.list(ff);
 
         for (int i = 0; i < filelist.length; i++) {
             if (pathName != null) {
                 filelist[i] = pathName + "/" + filelist[i];
-            }else {
+            } else {
                 filelist[i] = dirName + "/" + filelist[i];
             }
         }
@@ -627,10 +622,10 @@ public class RollingLogFile extends LogFile {
         info.addElement(PROP_ROLLOVER_INTERVAL + ";choice(Hourly,Daily,Weekly,Monthly,Yearly);The frequency of the log being rotated.");
         info.addElement(PROP_EXPIRATION_TIME + ";integer;The amount of time before a backed up log is removed in seconds");
         info.addElement(IExtendedPluginInfo.HELP_TOKEN +
-            //";configuration-logrules-rollinglogfile");
-            ";configuration-adminbasics");
+                //";configuration-logrules-rollinglogfile");
+                ";configuration-adminbasics");
         info.addElement(IExtendedPluginInfo.HELP_TEXT +
-            ";Write the log messages to a file which will be rotated automatically.");
+                ";Write the log messages to a file which will be rotated automatically.");
         String[] params = new String[info.size()];
 
         info.copyInto(params);
@@ -639,14 +634,13 @@ public class RollingLogFile extends LogFile {
     }
 }
 
-
 /**
  * A file filter to select the file with a given prefix
  */
 class fileFilter implements FilenameFilter {
     String patternToMatch = null;
 
-    public fileFilter (String pattern) {
+    public fileFilter(String pattern) {
         patternToMatch = pattern;
     }
 

@@ -17,16 +17,14 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.cert;
 
-
 import netscape.security.x509.Extension;
 
 import com.netscape.certsrv.base.IExtPrettyPrint;
 
-
 /**
  * This class will display the certificate content in predefined
  * format.
- *
+ * 
  * @author Andrew Wnuk
  * @version $Revision$, $Date$
  */
@@ -36,4 +34,3 @@ public class ExtPrettyPrint extends netscape.security.util.ExtPrettyPrint implem
         super(ext, indentSize);
     }
 }
-

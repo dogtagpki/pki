@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.cert;
 
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -47,23 +46,21 @@ import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.publish.IXcertPublisherProcessor;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 
-
 /**
  * Subsystem for handling cross certificate pairing and publishing
  * Intended use:
  * <ul>
- *   <li> when signing a subordinate CA cert which is intended to be
- * part of the crossCertificatePair
- *   <li> when this ca submits a request (with existing CA signing key 
- * material to another ca for cross-signing
- *</ul>
- *   In both cases, administrator needs to "import" the crossSigned
- * certificates via the admin console.  When importCert() is called,
+ * <li>when signing a subordinate CA cert which is intended to be part of the crossCertificatePair
+ * <li>when this ca submits a request (with existing CA signing key material to another ca for cross-signing
+ * </ul>
+ * In both cases, administrator needs to "import" the crossSigned
+ * certificates via the admin console. When importCert() is called,
  * the imported cert will be stored in the internal db
  * first until it's pairing cert shows up.
  * If it happens that the above two cases finds its pairing
  * cert already there, then a CertifiatePair is created and put
  * in the internal db "crosscertificatepair;binary" attribute
+ * 
  * @author cfu
  * @version $Revision$, $Date$
  */
@@ -100,7 +97,7 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
     }
 
     public void init(ISubsystem owner, IConfigStore config)
-        throws EBaseException {
+            throws EBaseException {
         try {
             mConfig = config;
             mLogger = CMS.getLogger();
@@ -112,21 +109,21 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
 
             if (ldapConfig == null) {
                 log(ILogger.LL_MISCONF,
-                    CMS.getLogMessage("CMSCORE_DBS_CONF_ERROR",
-                    PROP_LDAP));
+                        CMS.getLogMessage("CMSCORE_DBS_CONF_ERROR",
+                                PROP_LDAP));
                 return;
             }
 
             mBaseDN = ldapConfig.getString(PROP_BASEDN, null);
-    
+
             mLdapConnFactory = new LdapBoundConnFactory();
 
             if (mLdapConnFactory != null)
                 mLdapConnFactory.init(ldapConfig);
             else {
                 log(ILogger.LL_MISCONF,
-                    CMS.getLogMessage("CMSCORE_DBS_CONF_ERROR",
-                        PROP_LDAP));
+                        CMS.getLogMessage("CMSCORE_DBS_CONF_ERROR",
+                                PROP_LDAP));
                 return;
             }
         } catch (EBaseException e) {
@@ -144,7 +141,7 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
      * If it happens that it finds its pairing
      * cert already there, then a CertifiatePair is created and put
      * in the internal db "crosscertificatepair;binary" attribute
-     *
+     * 
      * @param certBytes cert in byte array to be imported
      */
     public void importCert(byte[] certBytes) throws EBaseException {
@@ -169,7 +166,7 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
      * If it happens that it finds its pairing
      * cert already there, then a CertifiatePair is created and put
      * in the internal db "crosscertificatepair;binary" attribute
-     *
+     * 
      * @param certBytes cert in byte array to be imported
      */
     public synchronized void importCert(Object certObj) throws EBaseException {
@@ -208,7 +205,7 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
                 }
 
                 Enumeration en = caCerts.getByteValues();
-				
+
                 if ((en == null) || (en.hasMoreElements() == false)) {
                     debug("1st potential xcert");
                     addCAcert(conn, cert.getEncoded());
@@ -232,8 +229,8 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
                             // caCertificate attr, and publish if so configured
                             debug("found a pair!");
                             CertificatePair cp = new
-                                //								CertificatePair(inCert.getEncoded(), cert.getEncoded());
-                                CertificatePair(inCert, cert);
+                                    //								CertificatePair(inCert.getEncoded(), cert.getEncoded());
+                                    CertificatePair(inCert, cert);
 
                             addXCertPair(conn, certPairs, cp);
                             deleteCAcert(conn, inCert.getEncoded());
@@ -279,27 +276,28 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
 
     /**
      * are cert1 and cert2 cross-signed certs?
+     * 
      * @param cert1 the cert for comparison in our internal db
      * @param cert2 the cert that's being considered
      */
     protected boolean arePair(X509Certificate cert1, X509Certificate cert2) {
         // 1. does cert1's issuer match cert2's subject?
         // 2. does cert2's issuer match cert1's subject?
-        if ((cert1.getIssuerDN().equals((Object) cert2.getSubjectDN())) 
-            && (cert2.getIssuerDN().equals((Object) cert1.getSubjectDN())))
+        if ((cert1.getIssuerDN().equals((Object) cert2.getSubjectDN()))
+                && (cert2.getIssuerDN().equals((Object) cert1.getSubjectDN())))
             return true;
         else
             return false;
     }
 
-    public X509Certificate byteArray2X509Cert(byte[] certBytes) 
-        throws CertificateException {
+    public X509Certificate byteArray2X509Cert(byte[] certBytes)
+            throws CertificateException {
         debug("in bytearray2X509Cert()");
         ByteArrayInputStream inStream = new
-            ByteArrayInputStream(certBytes);
+                ByteArrayInputStream(certBytes);
 
         CertificateFactory cf =
-            CertificateFactory.getInstance("X.509");
+                CertificateFactory.getInstance("X.509");
 
         X509Certificate cert = (X509Certificate) cf.generateCertificate(inStream);
 
@@ -308,12 +306,12 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
     }
 
     public synchronized void addXCertPair(LDAPConnection conn,
-        LDAPAttribute certPairs, CertificatePair pair)
-        throws LDAPException, IOException {
+            LDAPAttribute certPairs, CertificatePair pair)
+            throws LDAPException, IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
         pair.encode(bos);
-		
+
         if (ByteValueExists(certPairs, bos.toByteArray()) == true) {
             debug("cross cert pair exists in internal db, don't add again");
             return;
@@ -322,9 +320,9 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
         // add certificatePair
         LDAPModificationSet modSet = new LDAPModificationSet();
 
-        modSet.add(LDAPModification.ADD, 
-            new LDAPAttribute(LDAP_ATTR_XCERT_PAIR, bos.toByteArray()));
-        conn.modify(DN_XCERTS + "," + mBaseDN, modSet); 
+        modSet.add(LDAPModification.ADD,
+                new LDAPAttribute(LDAP_ATTR_XCERT_PAIR, bos.toByteArray()));
+        conn.modify(DN_XCERTS + "," + mBaseDN, modSet);
     }
 
     /**
@@ -366,24 +364,24 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
         debug("exiting byteArraysAreEqual(): true");
         return true;
     }
-    
+
     public synchronized void addCAcert(LDAPConnection conn, byte[] certEnc)
-        throws LDAPException {
+            throws LDAPException {
         LDAPModificationSet modSet = new
-            LDAPModificationSet();
-						
+                LDAPModificationSet();
+
         modSet.add(LDAPModification.ADD,
-            new LDAPAttribute(LDAP_ATTR_CA_CERT, certEnc));
+                new LDAPAttribute(LDAP_ATTR_CA_CERT, certEnc));
         conn.modify(DN_XCERTS + "," + mBaseDN, modSet);
     }
 
     public synchronized void deleteCAcert(LDAPConnection conn, byte[] certEnc)
-        throws LDAPException {
+            throws LDAPException {
         LDAPModificationSet modSet = new
-            LDAPModificationSet();
+                LDAPModificationSet();
 
         modSet.add(LDAPModification.DELETE,
-            new LDAPAttribute(LDAP_ATTR_CA_CERT, certEnc));
+                new LDAPAttribute(LDAP_ATTR_CA_CERT, certEnc));
         conn.modify(DN_XCERTS + "," + mBaseDN, modSet);
     }
 
@@ -394,7 +392,7 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
         LDAPConnection conn = null;
 
         if ((mPublisherProcessor == null) ||
-            !mPublisherProcessor.enabled())
+                !mPublisherProcessor.enabled())
             return;
 
         try {
@@ -421,7 +419,7 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
                 }
 
                 Enumeration en = xcerts.getByteValues();
-				
+
                 if ((en == null) || (en.hasMoreElements() == false)) {
                     debug("publishCertPair found no pairs in internal db");
                     return;
@@ -476,7 +474,7 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
             try {
                 mLdapConnFactory.reset();
             } catch (ELdapException e) {
-                CMS.debug("CrossCertPairSubsystem shutdown exception: "+e.toString()); 
+                CMS.debug("CrossCertPairSubsystem shutdown exception: " + e.toString());
             }
         }
         mLdapConnFactory = null;
@@ -494,7 +492,7 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
 
     protected void log(int level, String msg) {
         mLogger.log(ILogger.EV_SYSTEM,
-            ILogger.S_XCERT, level, msg);
+                ILogger.S_XCERT, level, msg);
     }
 
     private static void debug(String msg) {

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.admin;
 
-
 import java.io.File;
 import java.io.IOException;
 import java.net.UnknownHostException;
@@ -45,13 +44,12 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.cmsutil.util.Utils;
 
-
 /**
  * A class representings an administration servlet for Certificate
- * Authority. This servlet is responsible to serve CA 
- * administrative operations such as configuration parameter 
+ * Authority. This servlet is responsible to serve CA
+ * administrative operations such as configuration parameter
  * updates.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class CAAdminServlet extends AdminServlet {
@@ -66,7 +64,7 @@ public class CAAdminServlet extends AdminServlet {
     private final static String INFO = "CAAdminServlet";
 
     private final static String LOGGING_SIGNED_AUDIT_CONFIG_CRL_PROFILE =
-        "LOGGING_SIGNED_AUDIT_CONFIG_CRL_PROFILE_3";
+            "LOGGING_SIGNED_AUDIT_CONFIG_CRL_PROFILE_3";
 
     private ICertificateAuthority mCA = null;
     protected static final String PROP_ENABLED = "enabled";
@@ -98,9 +96,9 @@ public class CAAdminServlet extends AdminServlet {
      * the authenticate manager.
      */
     public void service(HttpServletRequest req, HttpServletResponse resp)
-        throws ServletException, IOException {
+            throws ServletException, IOException {
         super.service(req, resp);
-			    
+
         //get all operational flags
         String op = req.getParameter(Constants.OP_TYPE);
         String scope = req.getParameter(Constants.OP_SCOPE);
@@ -109,7 +107,7 @@ public class CAAdminServlet extends AdminServlet {
         if ((op == null) || (scope == null)) {
             sendResponse(1, "Invalid Protocol", null, resp);
             return;
-        }			    
+        }
 
         super.authenticate(req);
 
@@ -120,8 +118,8 @@ public class CAAdminServlet extends AdminServlet {
                     mOp = "read";
                     if ((mToken = super.authorize(req)) == null) {
                         sendResponse(ERROR,
-                          CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
-                            null, resp);
+                                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
+                                null, resp);
                         return;
                     }
                     getExtendedPluginInfo(req, resp);
@@ -135,8 +133,8 @@ public class CAAdminServlet extends AdminServlet {
                 mOp = "read";
                 if ((mToken = super.authorize(req)) == null) {
                     sendResponse(ERROR,
-                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
-                        null, resp);
+                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
+                            null, resp);
                     return;
                 }
                 if (scope.equals(ScopeDef.SC_GENERAL))
@@ -159,8 +157,8 @@ public class CAAdminServlet extends AdminServlet {
                 mOp = "modify";
                 if ((mToken = super.authorize(req)) == null) {
                     sendResponse(ERROR,
-                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
-                        null, resp);
+                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
+                            null, resp);
                     return;
                 }
                 if (scope.equals(ScopeDef.SC_GENERAL))
@@ -171,9 +169,9 @@ public class CAAdminServlet extends AdminServlet {
                     setCRLIPsConfig(req, resp);
                 else if (scope.equals(ScopeDef.SC_CRL))
                     setCRLConfig(req, resp);
-                else if (scope.equals(ScopeDef.SC_NOTIFICATION_REQ_COMP)) 
+                else if (scope.equals(ScopeDef.SC_NOTIFICATION_REQ_COMP))
                     setNotificationReqCompConfig(req, resp);
-                else if (scope.equals(ScopeDef.SC_NOTIFICATION_REV_COMP)) 
+                else if (scope.equals(ScopeDef.SC_NOTIFICATION_REV_COMP))
                     setNotificationRevCompConfig(req, resp);
                 else if (scope.equals(ScopeDef.SC_NOTIFICATION_RIQ))
                     setNotificationRIQConfig(req, resp);
@@ -183,8 +181,8 @@ public class CAAdminServlet extends AdminServlet {
                 mOp = "read";
                 if ((mToken = super.authorize(req)) == null) {
                     sendResponse(ERROR,
-                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
-                        null, resp);
+                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
+                            null, resp);
                     return;
                 }
                 if (scope.equals(ScopeDef.SC_CRLEXTS_RULES))
@@ -195,8 +193,8 @@ public class CAAdminServlet extends AdminServlet {
                 mOp = "modify";
                 if ((mToken = super.authorize(req)) == null) {
                     sendResponse(ERROR,
-                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
-                        null, resp);
+                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
+                            null, resp);
                     return;
                 }
                 if (scope.equals(ScopeDef.SC_CRLIPS))
@@ -205,8 +203,8 @@ public class CAAdminServlet extends AdminServlet {
                 mOp = "modify";
                 if ((mToken = super.authorize(req)) == null) {
                     sendResponse(ERROR,
-                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
-                        null, resp);
+                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
+                            null, resp);
                     return;
                 }
                 if (scope.equals(ScopeDef.SC_CRLIPS))
@@ -223,20 +221,20 @@ public class CAAdminServlet extends AdminServlet {
     /*==========================================================
      * private methods
      *==========================================================*/
-    
+
     /*
      * handle request completion (cert issued) notification config requests
      */
     private void getNotificationCompConfig(HttpServletRequest req,
-        HttpServletResponse resp, IConfigStore rc) throws ServletException,
+            HttpServletResponse resp, IConfigStore rc) throws ServletException,
             IOException, EBaseException {
-         
+
         NameValuePairs params = new NameValuePairs();
         Enumeration e = req.getParameterNames();
-        
+
         while (e.hasMoreElements()) {
             String name = (String) e.nextElement();
-            
+
             if (name.equals(Constants.OP_TYPE))
                 continue;
             if (name.equals(Constants.RS_ID))
@@ -247,33 +245,33 @@ public class CAAdminServlet extends AdminServlet {
                 continue;
             params.add(name, rc.getString(name, ""));
         }
-        
+
         params.add(Constants.PR_ENABLE,
-            rc.getString(PROP_ENABLED, Constants.FALSE));
+                rc.getString(PROP_ENABLED, Constants.FALSE));
         sendResponse(SUCCESS, null, params, resp);
     }
-    
+
     private void getNotificationRevCompConfig(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
-        
+
         IConfigStore config = mCA.getConfigStore();
         IConfigStore nc =
-            config.getSubStore(ICertificateAuthority.PROP_NOTIFY_SUBSTORE);
+                config.getSubStore(ICertificateAuthority.PROP_NOTIFY_SUBSTORE);
         IConfigStore rc = nc.getSubStore(ICertificateAuthority.PROP_CERT_REVOKED_SUBSTORE);
-        
+
         getNotificationCompConfig(req, resp, rc);
     }
-    
+
     private void getNotificationReqCompConfig(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
-        
+
         IConfigStore config = mCA.getConfigStore();
         IConfigStore nc =
-            config.getSubStore(ICertificateAuthority.PROP_NOTIFY_SUBSTORE);
+                config.getSubStore(ICertificateAuthority.PROP_NOTIFY_SUBSTORE);
         IConfigStore rc = nc.getSubStore(ICertificateAuthority.PROP_CERT_ISSUED_SUBSTORE);
-        
+
         getNotificationCompConfig(req, resp, rc);
     }
 
@@ -281,14 +279,14 @@ public class CAAdminServlet extends AdminServlet {
      * handle getting request in queue notification config info
      */
     private void getNotificationRIQConfig(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
 
         NameValuePairs params = new NameValuePairs();
 
         IConfigStore config = mCA.getConfigStore();
         IConfigStore nc =
-            config.getSubStore(ICertificateAuthority.PROP_NOTIFY_SUBSTORE);
+                config.getSubStore(ICertificateAuthority.PROP_NOTIFY_SUBSTORE);
 
         IConfigStore riq = nc.getSubStore(ICertificateAuthority.PROP_REQ_IN_Q_SUBSTORE);
 
@@ -308,8 +306,8 @@ public class CAAdminServlet extends AdminServlet {
             params.add(name, riq.getString(name, ""));
         }
 
-        params.add(Constants.PR_ENABLE, 
-            riq.getString(PROP_ENABLED, Constants.FALSE));
+        params.add(Constants.PR_ENABLE,
+                riq.getString(PROP_ENABLED, Constants.FALSE));
         sendResponse(SUCCESS, null, params, resp);
     }
 
@@ -317,11 +315,11 @@ public class CAAdminServlet extends AdminServlet {
      * handle setting request in queue notification config info
      */
     private void setNotificationRIQConfig(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         IConfigStore config = mCA.getConfigStore();
         IConfigStore nc =
-            config.getSubStore(ICertificateAuthority.PROP_NOTIFY_SUBSTORE);
+                config.getSubStore(ICertificateAuthority.PROP_NOTIFY_SUBSTORE);
 
         IConfigStore riq = nc.getSubStore(ICertificateAuthority.PROP_REQ_IN_Q_SUBSTORE);
 
@@ -346,15 +344,15 @@ public class CAAdminServlet extends AdminServlet {
                 File template = new File(val);
 
                 if ((!template.exists()) || (!template.canRead())
-                    || (template.isDirectory())) {
+                        || (template.isDirectory())) {
                     String error =
-                        "Template: " + val + " does not exist or invalid";
+                            "Template: " + val + " does not exist or invalid";
 
                     log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_INVALID_PATH"));
 
                     sendResponse(ERROR,
-                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_PATH"),
-                        null, resp);
+                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_PATH"),
+                            null, resp);
                     return;
                 }
             }
@@ -377,9 +375,9 @@ public class CAAdminServlet extends AdminServlet {
      * handle setting request complete notification config info
      */
     private void setNotificationCompConfig(HttpServletRequest req,
-        HttpServletResponse resp, IConfigStore rc, IRequestListener thisListener) throws ServletException,
+            HttpServletResponse resp, IConfigStore rc, IRequestListener thisListener) throws ServletException,
             IOException, EBaseException {
- 
+
         //set rest of the parameters
         Enumeration e = req.getParameterNames();
 
@@ -401,15 +399,15 @@ public class CAAdminServlet extends AdminServlet {
                 File template = new File(val);
 
                 if ((!template.exists()) || (!template.canRead())
-                    || (template.isDirectory())) {
+                        || (template.isDirectory())) {
                     String error =
-                        "Template: " + val + " does not exist or invalid";
+                            "Template: " + val + " does not exist or invalid";
 
                     log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_INVALID_PATH"));
 
                     sendResponse(ERROR,
-                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_PATH"),
-                        null, resp);
+                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_PATH"),
+                            null, resp);
                     return;
                 }
             }
@@ -429,23 +427,23 @@ public class CAAdminServlet extends AdminServlet {
     }
 
     private void setNotificationRevCompConfig(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         IConfigStore config = mCA.getConfigStore();
         IConfigStore nc =
-            config.getSubStore(ICertificateAuthority.PROP_NOTIFY_SUBSTORE);
+                config.getSubStore(ICertificateAuthority.PROP_NOTIFY_SUBSTORE);
 
-        IConfigStore rc = nc.getSubStore(ICertificateAuthority.PROP_CERT_REVOKED_SUBSTORE);  
+        IConfigStore rc = nc.getSubStore(ICertificateAuthority.PROP_CERT_REVOKED_SUBSTORE);
 
         setNotificationCompConfig(req, resp, rc, mCA.getCertRevokedListener());
-    }            
+    }
 
     private void setNotificationReqCompConfig(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         IConfigStore config = mCA.getConfigStore();
         IConfigStore nc =
-            config.getSubStore(ICertificateAuthority.PROP_NOTIFY_SUBSTORE);
+                config.getSubStore(ICertificateAuthority.PROP_NOTIFY_SUBSTORE);
 
         IConfigStore rc = nc.getSubStore(ICertificateAuthority.PROP_CERT_ISSUED_SUBSTORE);
 
@@ -454,8 +452,8 @@ public class CAAdminServlet extends AdminServlet {
     }
 
     private void listCRLIPsConfig(HttpServletRequest req,
-        HttpServletResponse resp)
-        throws ServletException, IOException, EBaseException {
+            HttpServletResponse resp)
+            throws ServletException, IOException, EBaseException {
         NameValuePairs params = new NameValuePairs();
 
         Enumeration ips = mCA.getCRLIssuingPoints();
@@ -469,16 +467,16 @@ public class CAAdminServlet extends AdminServlet {
                 if (ipId != null && ipId.length() > 0)
                     params.add(ipId, ip.getDescription());
                 params.add(ipId + "." + Constants.PR_ENABLED,
-                    (Boolean.valueOf(ip.isCRLIssuingPointEnabled())).toString());
+                        (Boolean.valueOf(ip.isCRLIssuingPointEnabled())).toString());
             }
         }
-            
+
         sendResponse(SUCCESS, null, params, resp);
     }
 
     private void getCRLIPsConfig(HttpServletRequest req,
-        HttpServletResponse resp)
-        throws ServletException, IOException, EBaseException {
+            HttpServletResponse resp)
+            throws ServletException, IOException, EBaseException {
         NameValuePairs params = new NameValuePairs();
 
         String id = req.getParameter(Constants.RS_ID);
@@ -518,11 +516,11 @@ public class CAAdminServlet extends AdminServlet {
     /**
      * Add CRL issuing points configuration
      * <P>
-     *
+     * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_CRL_PROFILE used when
-     * configuring CRL profile (extensions, frequency, CRL format)
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_CRL_PROFILE used when configuring CRL profile (extensions, frequency, CRL format)
      * </ul>
+     * 
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @exception ServletException a servlet error has occurred
@@ -530,8 +528,8 @@ public class CAAdminServlet extends AdminServlet {
      * @exception EBaseException an error has occurred
      */
     private void addCRLIPsConfig(HttpServletRequest req,
-        HttpServletResponse resp)
-        throws ServletException, IOException, EBaseException {
+            HttpServletResponse resp)
+            throws ServletException, IOException, EBaseException {
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -578,7 +576,7 @@ public class CAAdminServlet extends AdminServlet {
             boolean enable = true;
 
             if (sEnable != null && sEnable.length() > 0 &&
-                sEnable.equalsIgnoreCase(Constants.FALSE)) {
+                    sEnable.equalsIgnoreCase(Constants.FALSE)) {
                 enable = false;
                 params.add(Constants.PR_ENABLED, Constants.FALSE);
             } else {
@@ -586,7 +584,7 @@ public class CAAdminServlet extends AdminServlet {
             }
 
             IConfigStore crlSubStore =
-                mCA.getConfigStore().getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE);
+                    mCA.getConfigStore().getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE);
             Enumeration crlNames = crlSubStore.getSubStoreNames();
 
             while (crlNames.hasMoreElements()) {
@@ -673,11 +671,11 @@ public class CAAdminServlet extends AdminServlet {
     /**
      * Set CRL issuing points configuration
      * <P>
-     *
+     * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_CRL_PROFILE used when
-     * configuring CRL profile (extensions, frequency, CRL format)
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_CRL_PROFILE used when configuring CRL profile (extensions, frequency, CRL format)
      * </ul>
+     * 
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @exception ServletException a servlet error has occurred
@@ -685,8 +683,8 @@ public class CAAdminServlet extends AdminServlet {
      * @exception EBaseException an error has occurred
      */
     private void setCRLIPsConfig(HttpServletRequest req,
-        HttpServletResponse resp)
-        throws ServletException, IOException, EBaseException {
+            HttpServletResponse resp)
+            throws ServletException, IOException, EBaseException {
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -733,7 +731,7 @@ public class CAAdminServlet extends AdminServlet {
             boolean enable = true;
 
             if (sEnable != null && sEnable.length() > 0 &&
-                sEnable.equalsIgnoreCase(Constants.FALSE)) {
+                    sEnable.equalsIgnoreCase(Constants.FALSE)) {
                 enable = false;
                 params.add(Constants.PR_ENABLED, Constants.FALSE);
             } else {
@@ -741,7 +739,7 @@ public class CAAdminServlet extends AdminServlet {
             }
 
             IConfigStore crlSubStore =
-                mCA.getConfigStore().getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE);
+                    mCA.getConfigStore().getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE);
             boolean done = false;
             Enumeration crlNames = crlSubStore.getSubStoreNames();
 
@@ -759,8 +757,8 @@ public class CAAdminServlet extends AdminServlet {
 
                     if (c != null) {
                         c.putString(Constants.PR_DESCRIPTION, desc);
-                        c.putString(Constants.PR_ENABLED, 
-                            (enable) ? Constants.TRUE : Constants.FALSE);
+                        c.putString(Constants.PR_ENABLED,
+                                (enable) ? Constants.TRUE : Constants.FALSE);
                     }
                     done = true;
                     break;
@@ -833,11 +831,11 @@ public class CAAdminServlet extends AdminServlet {
     /**
      * Delete CRL issuing points configuration
      * <P>
-     *
+     * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_CRL_PROFILE used when
-     * configuring CRL profile (extensions, frequency, CRL format)
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_CRL_PROFILE used when configuring CRL profile (extensions, frequency, CRL format)
      * </ul>
+     * 
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @exception ServletException a servlet error has occurred
@@ -845,8 +843,8 @@ public class CAAdminServlet extends AdminServlet {
      * @exception EBaseException an error has occurred
      */
     private void deleteCRLIPsConfig(HttpServletRequest req,
-        HttpServletResponse resp)
-        throws ServletException, IOException, EBaseException {
+            HttpServletResponse resp)
+            throws ServletException, IOException, EBaseException {
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -859,7 +857,7 @@ public class CAAdminServlet extends AdminServlet {
 
             if (id != null && id.length() > 0) {
                 IConfigStore crlSubStore =
-                    mCA.getConfigStore().getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE);
+                        mCA.getConfigStore().getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE);
                 boolean done = false;
                 Enumeration crlNames = crlSubStore.getSubStoreNames();
 
@@ -938,8 +936,8 @@ public class CAAdminServlet extends AdminServlet {
     }
 
     private void getCRLExtsConfig(HttpServletRequest req,
-        HttpServletResponse resp)
-        throws ServletException, IOException, EBaseException {
+            HttpServletResponse resp)
+            throws ServletException, IOException, EBaseException {
         NameValuePairs params = new NameValuePairs();
 
         String ipId = null;
@@ -974,11 +972,11 @@ public class CAAdminServlet extends AdminServlet {
     /**
      * Delete CRL extensions configuration
      * <P>
-     *
+     * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_CRL_PROFILE used when
-     * configuring CRL profile (extensions, frequency, CRL format)
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_CRL_PROFILE used when configuring CRL profile (extensions, frequency, CRL format)
      * </ul>
+     * 
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @exception ServletException a servlet error has occurred
@@ -986,8 +984,8 @@ public class CAAdminServlet extends AdminServlet {
      * @exception EBaseException an error has occurred
      */
     private void setCRLExtsConfig(HttpServletRequest req,
-        HttpServletResponse resp)
-        throws ServletException, IOException, EBaseException {
+            HttpServletResponse resp)
+            throws ServletException, IOException, EBaseException {
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -1007,10 +1005,10 @@ public class CAAdminServlet extends AdminServlet {
 
             IConfigStore config = mCA.getConfigStore();
             IConfigStore crlsSubStore =
-                config.getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE);
+                    config.getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE);
             IConfigStore crlSubStore = crlsSubStore.getSubStore(ipId);
             IConfigStore crlExtsSubStore =
-                crlSubStore.getSubStore(ICertificateAuthority.PROP_CRLEXT_SUBSTORE);
+                    crlSubStore.getSubStore(ICertificateAuthority.PROP_CRLEXT_SUBSTORE);
 
             String id = req.getParameter(Constants.RS_ID);
 
@@ -1092,8 +1090,8 @@ public class CAAdminServlet extends AdminServlet {
     }
 
     private void listCRLExtsConfig(HttpServletRequest req,
-        HttpServletResponse resp)
-        throws ServletException, IOException, EBaseException {
+            HttpServletResponse resp)
+            throws ServletException, IOException, EBaseException {
         NameValuePairs params = new NameValuePairs();
 
         String id = req.getParameter(Constants.PR_ID);
@@ -1130,12 +1128,12 @@ public class CAAdminServlet extends AdminServlet {
         sendResponse(SUCCESS, null, params, resp);
     }
 
-    /** 
+    /**
      * retrieve extended plugin info such as brief description,
      * type info from CRL extensions
      */
     private void getExtendedPluginInfo(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         String id = req.getParameter(Constants.RS_ID);
         int colon = id.indexOf(':');
@@ -1143,8 +1141,8 @@ public class CAAdminServlet extends AdminServlet {
         String implType = id.substring(0, colon);
         String implName = id.substring(colon + 1);
 
-        NameValuePairs params = 
-            getExtendedPluginInfo(getLocale(req), implType, implName);
+        NameValuePairs params =
+                getExtendedPluginInfo(getLocale(req), implType, implName);
 
         sendResponse(SUCCESS, null, params, resp);
     }
@@ -1191,11 +1189,11 @@ public class CAAdminServlet extends AdminServlet {
     /**
      * Set CRL configuration
      * <P>
-     *
+     * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_CRL_PROFILE used when
-     * configuring CRL profile (extensions, frequency, CRL format)
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_CRL_PROFILE used when configuring CRL profile (extensions, frequency, CRL format)
      * </ul>
+     * 
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @exception ServletException a servlet error has occurred
@@ -1203,7 +1201,7 @@ public class CAAdminServlet extends AdminServlet {
      * @exception EBaseException an error has occurred
      */
     private void setCRLConfig(HttpServletRequest req, HttpServletResponse resp)
-        throws ServletException, IOException, EBaseException {
+            throws ServletException, IOException, EBaseException {
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -1215,7 +1213,7 @@ public class CAAdminServlet extends AdminServlet {
             String id = req.getParameter(Constants.RS_ID);
 
             if (id == null || id.length() <= 0 ||
-                id.equals(Constants.RS_ID_CONFIG)) {
+                    id.equals(Constants.RS_ID_CONFIG)) {
                 id = ICertificateAuthority.PROP_MASTER_CRL;
             }
             ICRLIssuingPoint ip = mCA.getCRLIssuingPoint(id);
@@ -1301,7 +1299,7 @@ public class CAAdminServlet extends AdminServlet {
     }
 
     private void getCRLConfig(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
 
         NameValuePairs params = new NameValuePairs();
@@ -1309,11 +1307,11 @@ public class CAAdminServlet extends AdminServlet {
         String id = req.getParameter(Constants.RS_ID);
 
         if (id == null || id.length() <= 0 ||
-            id.equals(Constants.RS_ID_CONFIG)) {
+                id.equals(Constants.RS_ID_CONFIG)) {
             id = ICertificateAuthority.PROP_MASTER_CRL;
         }
         IConfigStore crlsSubStore =
-            mCA.getConfigStore().getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE);
+                mCA.getConfigStore().getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE);
         IConfigStore crlSubStore = crlsSubStore.getSubStore(id);
 
         Enumeration e = req.getParameterNames();
@@ -1335,9 +1333,9 @@ public class CAAdminServlet extends AdminServlet {
         getSigningAlgConfig(params);
         sendResponse(SUCCESS, null, params, resp);
     }
-     
+
     private void getConnectorConfig(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         IConfigStore caConfig = mCA.getConfigStore();
         IConfigStore connectorConfig = caConfig.getSubStore("connector");
@@ -1370,14 +1368,14 @@ public class CAAdminServlet extends AdminServlet {
     }
 
     private void setConnectorConfig(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
 
         IConfigStore caConfig = mCA.getConfigStore();
         IConfigStore connectorConfig = caConfig.getSubStore("connector");
         IConfigStore caConnectorConfig = null;
 
-//        String nickname = CMS.getServerCertNickname();
+        //        String nickname = CMS.getServerCertNickname();
 
         if (isKRAConnector(req)) {
             caConnectorConfig = connectorConfig.getSubStore("KRA");
@@ -1397,12 +1395,12 @@ public class CAAdminServlet extends AdminServlet {
                     continue;
                 if (name.equals(Constants.OP_SCOPE))
                     continue;
-/*
-                if (name.equals("nickName")) {
-                    caConnectorConfig.putString(name, nickname);
-                    continue;
-                }
-*/
+                /*
+                                if (name.equals("nickName")) {
+                                    caConnectorConfig.putString(name, nickname);
+                                    continue;
+                                }
+                */
                 if (name.equals("host")) {
                     try {
                         Utils.checkHost(req.getParameter("host"));
@@ -1456,7 +1454,7 @@ public class CAAdminServlet extends AdminServlet {
     }
 
     private void getGeneralConfig(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
 
         NameValuePairs params = new NameValuePairs();
@@ -1476,7 +1474,6 @@ public class CAAdminServlet extends AdminServlet {
          params.add(Constants.PR_EE_ENABLED, value);
          */
 
-
         IConfigStore caConfig = mCA.getConfigStore();
 
         value = caConfig.getString(ICertificateAuthority.PROP_ENABLE_PAST_CATIME, "false");
@@ -1485,18 +1482,18 @@ public class CAAdminServlet extends AdminServlet {
         getSigningAlgConfig(params);
         getSerialConfig(params);
         getMaxSerialConfig(params);
-  
+
         sendResponse(SUCCESS, null, params, resp);
     }
 
     private void getSigningAlgConfig(NameValuePairs params) {
         params.add(Constants.PR_DEFAULT_ALGORITHM,
-            mCA.getDefaultAlgorithm());
+                mCA.getDefaultAlgorithm());
         String[] algorithms = mCA.getCASigningAlgorithms();
         StringBuffer algorStr = new StringBuffer();
 
         for (int i = 0; i < algorithms.length; i++) {
-            if (i == 0) 
+            if (i == 0)
                 algorStr.append(algorithms[i]);
             else {
                 algorStr.append(":");
@@ -1508,16 +1505,16 @@ public class CAAdminServlet extends AdminServlet {
 
     private void getSerialConfig(NameValuePairs params) {
         params.add(Constants.PR_SERIAL,
-            mCA.getStartSerial());
+                mCA.getStartSerial());
     }
 
     private void getMaxSerialConfig(NameValuePairs params) {
         params.add(Constants.PR_MAXSERIAL,
-            mCA.getMaxSerial());
+                mCA.getMaxSerial());
     }
 
     private void setGeneralConfig(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
 
         ISubsystem eeGateway = null;
@@ -1573,6 +1570,6 @@ public class CAAdminServlet extends AdminServlet {
         if (mLogger == null)
             return;
         mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_OTHER,
-            level, "CAAdminServlet: " + msg);
+                level, "CAAdminServlet: " + msg);
     }
-}    
+}

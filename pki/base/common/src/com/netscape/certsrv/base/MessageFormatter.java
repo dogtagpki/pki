@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.base;
 
-
 import java.lang.reflect.Method;
 import java.text.MessageFormat;
 import java.util.Date;
@@ -25,13 +24,12 @@ import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
-
 /**
- * Factors out common function of formatting internatinalized 
- * messages taking arguments and using  java.util.ResourceBundle 
+ * Factors out common function of formatting internatinalized
+ * messages taking arguments and using java.util.ResourceBundle
  * and java.text.MessageFormat mechanism.
  * <P>
- *
+ * 
  * @version $Revision$, $Date$
  * @see java.text.MessageFormat
  * @see java.util.ResourceBundle
@@ -42,22 +40,22 @@ public class MessageFormatter {
 
     /**
      * Retrieves the localized string.
-     *
+     * 
      * @param locale end user locale
      * @param resourceBundleBaseName resource bundle class name
      * @param formatString format string
      * @return localized string
      */
     public static String getLocalizedString(
-        Locale locale, String resourceBundleBaseName,
-        String formatString) {
-        return getLocalizedString(locale, resourceBundleBaseName, 
+            Locale locale, String resourceBundleBaseName,
+            String formatString) {
+        return getLocalizedString(locale, resourceBundleBaseName,
                 formatString, null);
     }
 
     /**
      * Retrieves the localized string.
-     *
+     * 
      * @param locale end user locale
      * @param resourceBundleBaseName resource bundle class name
      * @param formatString format string
@@ -65,18 +63,18 @@ public class MessageFormatter {
      * @return localized string
      */
     public static String getLocalizedString(
-        Locale locale, String resourceBundleBaseName,
-        String formatString, Object params) {
+            Locale locale, String resourceBundleBaseName,
+            String formatString, Object params) {
         Object o[] = new Object[1];
 
         o[0] = params;
-        return getLocalizedString(locale, resourceBundleBaseName, 
+        return getLocalizedString(locale, resourceBundleBaseName,
                 formatString, o);
     }
 
     /**
      * Retrieves the localized string.
-     *
+     * 
      * @param locale end user locale
      * @param resourceBundleBaseName resource bundle class name
      * @param formatString format string
@@ -84,8 +82,8 @@ public class MessageFormatter {
      * @return localized string
      */
     public static String getLocalizedString(
-        Locale locale, String resourceBundleBaseName,
-        String formatString, Object[] params) {
+            Locale locale, String resourceBundleBaseName,
+            String formatString, Object[] params) {
 
         String localizedFormat = null;
 
@@ -100,7 +98,7 @@ public class MessageFormatter {
                             resourceBundleBaseName, locale).getString(formatString);
             } catch (MissingResourceException e) {
                 return formatString;
-				
+
             }
             Object[] localizedParams = params;
             Object[] localeArg = null;
@@ -108,8 +106,8 @@ public class MessageFormatter {
             if (params != null) {
                 for (int i = 0; i < params.length; ++i) {
                     if (!(params[i] instanceof String) ||
-                        !(params[i] instanceof Date) ||
-                        !(params[i] instanceof Number)) {
+                            !(params[i] instanceof Date) ||
+                            !(params[i] instanceof Number)) {
                         if (localizedParams == params) {
 
                             // only done once
@@ -121,7 +119,7 @@ public class MessageFormatter {
 
                             localizedParams = new Object[params.length];
                             System.arraycopy(params, 0, localizedParams, 0,
-                                params.length);
+                                    params.length);
                         }
                         try {
                             Method toStringMethod = params[i].getClass().getMethod(

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.evaluators;
 
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
@@ -27,7 +26,6 @@ import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cmsutil.util.Utils;
-
 
 /**
  * A class represents a group acls evaluator.
@@ -54,7 +52,7 @@ public class GroupAccessEvaluator implements IAccessEvaluator {
     }
 
     /**
-     * initialization.  nothing for now.
+     * initialization. nothing for now.
      */
     public void init() {
         CMS.debug("GroupAccessEvaluator: init");
@@ -62,6 +60,7 @@ public class GroupAccessEvaluator implements IAccessEvaluator {
 
     /**
      * gets the type name for this acl evaluator
+     * 
      * @return type for this acl evaluator: "group" or "at_group"
      */
     public String getType() {
@@ -70,6 +69,7 @@ public class GroupAccessEvaluator implements IAccessEvaluator {
 
     /**
      * gets the description for this acl evaluator
+     * 
      * @return description for this acl evaluator
      */
     public String getDescription() {
@@ -86,13 +86,14 @@ public class GroupAccessEvaluator implements IAccessEvaluator {
 
     /**
      * evaluates uid in AuthToken to see if it has membership in
-     *	 group value
+     * group value
+     * 
      * @param authToken authentication token
      * @param type must be "at_group"
      * @param op must be "="
      * @param value the group name
      * @return true if AuthToken uid belongs to the group value,
-     *	 false otherwise
+     *         false otherwise
      */
     public boolean evaluate(IAuthToken authToken, String type, String op, String value) {
 
@@ -104,17 +105,17 @@ public class GroupAccessEvaluator implements IAccessEvaluator {
             if (uid == null) {
                 uid = authToken.getInString("uid");
                 if (uid == null) {
-                  CMS.debug("GroupAccessEvaluator: evaluate: uid null");
-                  log(ILogger.LL_FAILURE, CMS.getLogMessage("EVALUTOR_UID_NULL"));
-                  return false;
+                    CMS.debug("GroupAccessEvaluator: evaluate: uid null");
+                    log(ILogger.LL_FAILURE, CMS.getLogMessage("EVALUTOR_UID_NULL"));
+                    return false;
                 }
             }
-            CMS.debug("GroupAccessEvaluator: evaluate: uid="+uid +" value="+value);
+            CMS.debug("GroupAccessEvaluator: evaluate: uid=" + uid + " value=" + value);
 
             String groupname = authToken.getInString("gid");
 
             if (groupname != null) {
-                CMS.debug("GroupAccessEvaluator: evaluate: authToken gid="+groupname);
+                CMS.debug("GroupAccessEvaluator: evaluate: authToken gid=" + groupname);
                 if (op.equals("=")) {
                     return groupname.equals(Utils.stripQuotes(value));
                 } else if (op.equals("!=")) {
@@ -123,12 +124,12 @@ public class GroupAccessEvaluator implements IAccessEvaluator {
             } else {
                 CMS.debug("GroupAccessEvaluator: evaluate: no gid in authToken");
                 IUser id = null;
-                try { 
-                    id = mUG.getUser(uid); 
-                } catch (EBaseException e) { 
+                try {
+                    id = mUG.getUser(uid);
+                } catch (EBaseException e) {
                     CMS.debug("GroupAccessEvaluator: " + e.toString());
                     return false;
-                } 
+                }
 
                 if (op.equals("=")) {
                     return mUG.isMemberOf(id, Utils.stripQuotes(value));
@@ -143,12 +144,13 @@ public class GroupAccessEvaluator implements IAccessEvaluator {
 
     /**
      * evaluates uid in SessionContext to see if it has membership in
-     *	 group value
+     * group value
+     * 
      * @param type must be "group"
      * @param op must be "="
      * @param value the group name
      * @return true if SessionContext uid belongs to the group value,
-     *	 false otherwise
+     *         false otherwise
      */
     public boolean evaluate(String type, String op, String value) {
 
@@ -161,12 +163,12 @@ public class GroupAccessEvaluator implements IAccessEvaluator {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("EVALUTOR_UID_NULL"));
                 return false;
             }
-            if (op.equals("=")) 
+            if (op.equals("="))
                 return mUG.isMemberOf(id, Utils.stripQuotes(value));
             else
                 return !(mUG.isMemberOf(id, Utils.stripQuotes(value)));
-            
-        } 
+
+        }
 
         return false;
     }
@@ -175,7 +177,7 @@ public class GroupAccessEvaluator implements IAccessEvaluator {
         if (mLogger == null)
             return;
         mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_ACLS,
-            level, "GroupAccessEvaluator: " + msg);
+                level, "GroupAccessEvaluator: " + msg);
     }
 
 }

@@ -20,7 +20,6 @@
 
 package com.netscape.cmscore.selftests;
 
-
 ///////////////////////
 // import statements //
 ///////////////////////
@@ -49,7 +48,6 @@ import com.netscape.certsrv.selftests.ESelfTestException;
 import com.netscape.certsrv.selftests.ISelfTest;
 import com.netscape.certsrv.selftests.ISelfTestSubsystem;
 
-
 //////////////////////
 // class definition //
 //////////////////////
@@ -63,18 +61,14 @@ import com.netscape.certsrv.selftests.ISelfTestSubsystem;
  * @version $Revision$, $Date$
  */
 public class SelfTestSubsystem
-    implements ISelfTestSubsystem {
+        implements ISelfTestSubsystem {
     ////////////////////////
     // default parameters //
     ////////////////////////
 
-
-
     ///////////////////////
     // helper parameters //
     ///////////////////////
-
-
 
     //////////////////////////////////
     // SelfTestSubsystem parameters //
@@ -102,13 +96,11 @@ public class SelfTestSubsystem
     private static final String CRITICAL = "critical";
 
     private static final String LOGGING_SIGNED_AUDIT_SELFTESTS_EXECUTION =
-        "LOGGING_SIGNED_AUDIT_SELFTESTS_EXECUTION_2";
+            "LOGGING_SIGNED_AUDIT_SELFTESTS_EXECUTION_2";
 
     /////////////////////
     // default methods //
     /////////////////////
-
-
 
     ////////////////////
     // helper methods //
@@ -116,10 +108,10 @@ public class SelfTestSubsystem
 
     /**
      * Signed Audit Log
-     *
+     * 
      * This helper method is called to store messages to the signed audit log.
      * <P>
-     *
+     * 
      * @param msg signed audit log message
      */
     private void audit(String msg) {
@@ -131,10 +123,10 @@ public class SelfTestSubsystem
         }
 
         mSignedAuditLogger.log(ILogger.EV_SIGNED_AUDIT,
-            null,
-            ILogger.S_SIGNED_AUDIT,
-            ILogger.LL_SECURITY,
-            msg);
+                null,
+                ILogger.S_SIGNED_AUDIT,
+                ILogger.LL_SECURITY,
+                msg);
     }
 
     /**
@@ -142,13 +134,13 @@ public class SelfTestSubsystem
      * substore name prepended in front of the plugin/parameter name). This
      * method may return null.
      * <P>
-     *
+     * 
      * @param instancePrefix full name of configuration store
      * @param instanceName instance name of self test
      * @return fullname of this self test plugin
      */
     private String getFullName(String instancePrefix,
-        String instanceName) {
+            String instanceName) {
         String instanceFullName = null;
 
         // strip preceding/trailing whitespace
@@ -161,9 +153,9 @@ public class SelfTestSubsystem
         }
 
         if ((instancePrefix != null) &&
-            (instancePrefix != "")) {
+                (instancePrefix != "")) {
             if ((instanceName != null) &&
-                (instanceName != "")) {
+                    (instanceName != "")) {
                 instanceFullName = instancePrefix
                         + "."
                         + instanceName;
@@ -179,13 +171,13 @@ public class SelfTestSubsystem
      * This helper method checks to see if an instance name/value
      * pair exists for the corresponding ordered list element.
      * <P>
-     *
+     * 
      * @param element owner of this subsystem
      * @param instanceName instance name of self test
      * @exception EMissingSelfTestException subsystem has missing name/value
      */
     private void checkInstance(SelfTestOrderedInstance element)
-        throws EInvalidSelfTestException, EMissingSelfTestException {
+            throws EInvalidSelfTestException, EMissingSelfTestException {
         String instanceFullName = null;
         String instanceName = null;
         String instanceValue = null;
@@ -200,8 +192,8 @@ public class SelfTestSubsystem
                         instanceName);
         } else {
             log(mLogger,
-                CMS.getLogMessage(
-                    "CMSCORE_SELFTESTS_PROPERTY_NAME_IS_NULL"));
+                    CMS.getLogMessage(
+                            "CMSCORE_SELFTESTS_PROPERTY_NAME_IS_NULL"));
 
             throw new EMissingSelfTestException();
         }
@@ -211,16 +203,15 @@ public class SelfTestSubsystem
             instanceValue = instanceConfig.getString(instanceName);
 
             if ((instanceValue == null) ||
-                (instanceValue.equals(""))) {
+                    (instanceValue.equals(""))) {
                 // self test plugin instance property name exists,
                 // but it contains no value(s)
                 log(mLogger,
-                    CMS.getLogMessage(
-                        "CMSCORE_SELFTESTS_PROPERTY_MISSING_VALUES",
-                        instanceFullName));
+                        CMS.getLogMessage(
+                                "CMSCORE_SELFTESTS_PROPERTY_MISSING_VALUES",
+                                instanceFullName));
 
-                throw new
-                    EMissingSelfTestException(instanceFullName,
+                throw new EMissingSelfTestException(instanceFullName,
                         instanceValue);
             } else {
                 instanceValue = instanceValue.trim();
@@ -229,18 +220,18 @@ public class SelfTestSubsystem
         } catch (EPropertyNotFound e) {
             // self test plugin instance property name is not present
             log(mLogger,
-                CMS.getLogMessage(
-                    "CMSCORE_SELFTESTS_PROPERTY_MISSING_NAME",
-                    instanceFullName));
+                    CMS.getLogMessage(
+                            "CMSCORE_SELFTESTS_PROPERTY_MISSING_NAME",
+                            instanceFullName));
 
             throw new EMissingSelfTestException(instanceFullName);
         } catch (EBaseException e) {
             // self test plugin instance EBaseException
             log(mLogger,
-                CMS.getLogMessage(
-                    "CMSCORE_SELFTESTS_PROPERTY_THREW_EBASEEXCEPTION",
-                    instanceFullName,
-                    instanceValue));
+                    CMS.getLogMessage(
+                            "CMSCORE_SELFTESTS_PROPERTY_THREW_EBASEEXCEPTION",
+                            instanceFullName,
+                            instanceValue));
 
             throw new EInvalidSelfTestException(instanceFullName,
                     instanceValue);
@@ -259,7 +250,7 @@ public class SelfTestSubsystem
      * List the instance names of all the self tests enabled to run on demand
      * (in execution order); may return null.
      * <P>
-     *
+     * 
      * @return list of self test instance names run on demand
      */
     public String[] listSelfTestsEnabledOnDemand() {
@@ -271,7 +262,7 @@ public class SelfTestSubsystem
             mList = new String[numElements];
         } else {
             return null;
-        } 
+        }
 
         // loop through all self test plugin instances
         // specified to be executed on demand
@@ -281,7 +272,7 @@ public class SelfTestSubsystem
 
         while (instances.hasMoreElements()) {
             SelfTestOrderedInstance instance = (SelfTestOrderedInstance)
-                instances.nextElement();
+                    instances.nextElement();
 
             mList[i] = instance.getSelfTestName();
             if (mList[i] != null) {
@@ -296,24 +287,24 @@ public class SelfTestSubsystem
     /**
      * Enable the specified self test to be executed on demand.
      * <P>
-     *
+     * 
      * @param instanceName instance name of self test
      * @param isCritical isCritical is either a critical failure (true) or
-     * a non-critical failure (false)
+     *            a non-critical failure (false)
      * @exception EInvalidSelfTestException subsystem has invalid name/value
      * @exception EMissingSelfTestException subsystem has missing name/value
      */
     public void enableSelfTestOnDemand(String instanceName,
-        boolean isCritical)
-        throws EInvalidSelfTestException, EMissingSelfTestException {
+            boolean isCritical)
+            throws EInvalidSelfTestException, EMissingSelfTestException {
         // strip preceding/trailing whitespace
         // from passed-in String parameters
         if (instanceName != null) {
             instanceName = instanceName.trim();
         } else {
             log(mLogger,
-                CMS.getLogMessage(
-                    "CMSCORE_SELFTESTS_PROPERTY_NAME_IS_NULL"));
+                    CMS.getLogMessage(
+                            "CMSCORE_SELFTESTS_PROPERTY_NAME_IS_NULL"));
 
             throw new EMissingSelfTestException();
         }
@@ -324,7 +315,7 @@ public class SelfTestSubsystem
 
         while (instances.hasMoreElements()) {
             SelfTestOrderedInstance instance = (SelfTestOrderedInstance)
-                instances.nextElement();
+                    instances.nextElement();
 
             if (instanceName.equals(instance.getSelfTestName())) {
                 instance.setSelfTestCriticalMode(isCritical);
@@ -358,12 +349,12 @@ public class SelfTestSubsystem
     /**
      * Disable the specified self test from being able to be executed on demand.
      * <P>
-     *
+     * 
      * @param instanceName instance name of self test
      * @exception EMissingSelfTestException subsystem has missing name
      */
     public void disableSelfTestOnDemand(String instanceName)
-        throws EMissingSelfTestException {
+            throws EMissingSelfTestException {
         String instanceFullName = null;
 
         // strip preceding/trailing whitespace
@@ -374,8 +365,8 @@ public class SelfTestSubsystem
                         instanceName);
         } else {
             log(mLogger,
-                CMS.getLogMessage(
-                    "CMSCORE_SELFTESTS_PROPERTY_NAME_IS_NULL"));
+                    CMS.getLogMessage(
+                            "CMSCORE_SELFTESTS_PROPERTY_NAME_IS_NULL"));
 
             throw new EMissingSelfTestException();
         }
@@ -386,7 +377,7 @@ public class SelfTestSubsystem
 
         while (instances.hasMoreElements()) {
             SelfTestOrderedInstance instance = (SelfTestOrderedInstance)
-                instances.nextElement();
+                    instances.nextElement();
 
             if (instanceName.equals(instance.getSelfTestName())) {
                 mOnDemandOrder.remove(instance);
@@ -396,9 +387,9 @@ public class SelfTestSubsystem
 
         // self test plugin instance property name is not present
         log(mLogger,
-            CMS.getLogMessage(
-                "CMSCORE_SELFTESTS_PROPERTY_MISSING_NAME",
-                instanceFullName));
+                CMS.getLogMessage(
+                        "CMSCORE_SELFTESTS_PROPERTY_MISSING_NAME",
+                        instanceFullName));
 
         throw new EMissingSelfTestException(instanceFullName);
     }
@@ -406,21 +397,21 @@ public class SelfTestSubsystem
     /**
      * Determine if the specified self test is enabled to be executed on demand.
      * <P>
-     *
+     * 
      * @param instanceName instance name of self test
      * @return true if the specified self test is enabled on demand
      * @exception EMissingSelfTestException subsystem has missing name
      */
     public boolean isSelfTestEnabledOnDemand(String instanceName)
-        throws EMissingSelfTestException {
+            throws EMissingSelfTestException {
         // strip preceding/trailing whitespace
         // from passed-in String parameters
         if (instanceName != null) {
             instanceName = instanceName.trim();
         } else {
             log(mLogger,
-                CMS.getLogMessage(
-                    "CMSCORE_SELFTESTS_PROPERTY_NAME_IS_NULL"));
+                    CMS.getLogMessage(
+                            "CMSCORE_SELFTESTS_PROPERTY_NAME_IS_NULL"));
 
             throw new EMissingSelfTestException();
         }
@@ -431,7 +422,7 @@ public class SelfTestSubsystem
 
         while (instances.hasMoreElements()) {
             SelfTestOrderedInstance instance = (SelfTestOrderedInstance)
-                instances.nextElement();
+                    instances.nextElement();
 
             if (instanceName.equals(instance.getSelfTestName())) {
                 return true;
@@ -442,17 +433,17 @@ public class SelfTestSubsystem
     }
 
     /**
-     * Determine if failure of the specified self test is fatal when 
+     * Determine if failure of the specified self test is fatal when
      * it is executed on demand.
      * <P>
-     *
+     * 
      * @param instanceName instance name of self test
      * @return true if failure of the specified self test is fatal when
-     * it is executed on demand
+     *         it is executed on demand
      * @exception EMissingSelfTestException subsystem has missing name
      */
     public boolean isSelfTestCriticalOnDemand(String instanceName)
-        throws EMissingSelfTestException {
+            throws EMissingSelfTestException {
         String instanceFullName = null;
 
         // strip preceding/trailing whitespace
@@ -463,8 +454,8 @@ public class SelfTestSubsystem
                         instanceName);
         } else {
             log(mLogger,
-                CMS.getLogMessage(
-                    "CMSCORE_SELFTESTS_PROPERTY_NAME_IS_NULL"));
+                    CMS.getLogMessage(
+                            "CMSCORE_SELFTESTS_PROPERTY_NAME_IS_NULL"));
 
             throw new EMissingSelfTestException();
         }
@@ -475,7 +466,7 @@ public class SelfTestSubsystem
 
         while (instances.hasMoreElements()) {
             SelfTestOrderedInstance instance = (SelfTestOrderedInstance)
-                instances.nextElement();
+                    instances.nextElement();
 
             if (instanceName.equals(instance.getSelfTestName())) {
                 if (instance.isSelfTestCritical()) {
@@ -488,9 +479,9 @@ public class SelfTestSubsystem
 
         // self test plugin instance property name is not present
         log(mLogger,
-            CMS.getLogMessage(
-                "CMSCORE_SELFTESTS_PROPERTY_MISSING_NAME",
-                instanceFullName));
+                CMS.getLogMessage(
+                        "CMSCORE_SELFTESTS_PROPERTY_MISSING_NAME",
+                        instanceFullName));
 
         throw new EMissingSelfTestException(instanceFullName);
     }
@@ -498,15 +489,15 @@ public class SelfTestSubsystem
     /**
      * Execute all self tests specified to be run on demand.
      * <P>
-     *
+     * 
      * @exception EMissingSelfTestException subsystem has missing name
      * @exception ESelfTestException self test exception
      */
     public void runSelfTestsOnDemand()
-        throws EMissingSelfTestException, ESelfTestException {
+            throws EMissingSelfTestException, ESelfTestException {
         if (CMS.debugOn()) {
             CMS.debug("SelfTestSubsystem::runSelfTestsOnDemand():"
-                + "  ENTERING . . .");
+                    + "  ENTERING . . .");
         }
 
         // loop through all self test plugin instances
@@ -515,7 +506,7 @@ public class SelfTestSubsystem
 
         while (instances.hasMoreElements()) {
             SelfTestOrderedInstance instance = (SelfTestOrderedInstance)
-                instances.nextElement();
+                    instances.nextElement();
 
             String instanceFullName = null;
             String instanceName = instance.getSelfTestName();
@@ -526,22 +517,22 @@ public class SelfTestSubsystem
                             instanceName);
             } else {
                 log(mLogger,
-                    CMS.getLogMessage(
-                        "CMSCORE_SELFTESTS_PROPERTY_NAME_IS_NULL"));
+                        CMS.getLogMessage(
+                                "CMSCORE_SELFTESTS_PROPERTY_NAME_IS_NULL"));
 
                 throw new EMissingSelfTestException();
             }
 
             if (mSelfTestInstances.containsKey(instanceName)) {
                 ISelfTest test = (ISelfTest)
-                    mSelfTestInstances.get(instanceName);
+                        mSelfTestInstances.get(instanceName);
 
                 try {
                     if (CMS.debugOn()) {
                         CMS.debug("SelfTestSubsystem::runSelfTestsOnDemand():"
-                            + "    running \""
-                            + test.getSelfTestName()
-                            + "\"");
+                                + "    running \""
+                                + test.getSelfTestName()
+                                + "\"");
                     }
 
                     test.runSelfTest(mLogger);
@@ -549,9 +540,9 @@ public class SelfTestSubsystem
                     // Check to see if the self test was critical:
                     if (isSelfTestCriticalOnDemand(instanceName)) {
                         log(mLogger,
-                            CMS.getLogMessage(
-                                "CMSCORE_SELFTESTS_RUN_ON_DEMAND_FAILED",
-                                instanceFullName));
+                                CMS.getLogMessage(
+                                        "CMSCORE_SELFTESTS_RUN_ON_DEMAND_FAILED",
+                                        instanceFullName));
 
                         // shutdown the system gracefully
                         CMS.shutdown();
@@ -562,9 +553,9 @@ public class SelfTestSubsystem
             } else {
                 // self test plugin instance property name is not present
                 log(mLogger,
-                    CMS.getLogMessage(
-                        "CMSCORE_SELFTESTS_PROPERTY_MISSING_NAME",
-                        instanceFullName));
+                        CMS.getLogMessage(
+                                "CMSCORE_SELFTESTS_PROPERTY_MISSING_NAME",
+                                instanceFullName));
 
                 throw new EMissingSelfTestException(instanceFullName);
             }
@@ -572,7 +563,7 @@ public class SelfTestSubsystem
 
         if (CMS.debugOn()) {
             CMS.debug("SelfTestSubsystem::runSelfTestsOnDemand():"
-                + "  EXITING.");
+                    + "  EXITING.");
         }
     }
 
@@ -584,7 +575,7 @@ public class SelfTestSubsystem
      * List the instance names of all the self tests enabled to run
      * at server startup (in execution order); may return null.
      * <P>
-     *
+     * 
      * @return list of self test instance names run at server startup
      */
     public String[] listSelfTestsEnabledAtStartup() {
@@ -596,7 +587,7 @@ public class SelfTestSubsystem
             mList = new String[numElements];
         } else {
             return null;
-        } 
+        }
 
         // loop through all self test plugin instances
         // specified to be executed at server startup
@@ -606,7 +597,7 @@ public class SelfTestSubsystem
 
         while (instances.hasMoreElements()) {
             SelfTestOrderedInstance instance = (SelfTestOrderedInstance)
-                instances.nextElement();
+                    instances.nextElement();
 
             mList[i] = instance.getSelfTestName();
             if (mList[i] != null) {
@@ -621,24 +612,24 @@ public class SelfTestSubsystem
     /**
      * Enable the specified self test at server startup.
      * <P>
-     *
+     * 
      * @param instanceName instance name of self test
      * @param isCritical isCritical is either a critical failure (true) or
-     * a non-critical failure (false)
+     *            a non-critical failure (false)
      * @exception EInvalidSelfTestException subsystem has invalid name/value
      * @exception EMissingSelfTestException subsystem has missing name/value
      */
     public void enableSelfTestAtStartup(String instanceName,
-        boolean isCritical)
-        throws EInvalidSelfTestException, EMissingSelfTestException {
+            boolean isCritical)
+            throws EInvalidSelfTestException, EMissingSelfTestException {
         // strip preceding/trailing whitespace
         // from passed-in String parameters
         if (instanceName != null) {
             instanceName = instanceName.trim();
         } else {
             log(mLogger,
-                CMS.getLogMessage(
-                    "CMSCORE_SELFTESTS_PROPERTY_NAME_IS_NULL"));
+                    CMS.getLogMessage(
+                            "CMSCORE_SELFTESTS_PROPERTY_NAME_IS_NULL"));
 
             throw new EMissingSelfTestException();
         }
@@ -649,7 +640,7 @@ public class SelfTestSubsystem
 
         while (instances.hasMoreElements()) {
             SelfTestOrderedInstance instance = (SelfTestOrderedInstance)
-                instances.nextElement();
+                    instances.nextElement();
 
             if (instanceName.equals(instance.getSelfTestName())) {
                 instance.setSelfTestCriticalMode(isCritical);
@@ -683,12 +674,12 @@ public class SelfTestSubsystem
     /**
      * Disable the specified self test at server startup.
      * <P>
-     *
+     * 
      * @param instanceName instance name of self test
      * @exception EMissingSelfTestException subsystem has missing name
      */
     public void disableSelfTestAtStartup(String instanceName)
-        throws EMissingSelfTestException {
+            throws EMissingSelfTestException {
         String instanceFullName = null;
 
         // strip preceding/trailing whitespace
@@ -699,8 +690,8 @@ public class SelfTestSubsystem
                         instanceName);
         } else {
             log(mLogger,
-                CMS.getLogMessage(
-                    "CMSCORE_SELFTESTS_PROPERTY_NAME_IS_NULL"));
+                    CMS.getLogMessage(
+                            "CMSCORE_SELFTESTS_PROPERTY_NAME_IS_NULL"));
 
             throw new EMissingSelfTestException();
         }
@@ -711,7 +702,7 @@ public class SelfTestSubsystem
 
         while (instances.hasMoreElements()) {
             SelfTestOrderedInstance instance = (SelfTestOrderedInstance)
-                instances.nextElement();
+                    instances.nextElement();
 
             if (instanceName.equals(instance.getSelfTestName())) {
                 mStartupOrder.remove(instance);
@@ -721,9 +712,9 @@ public class SelfTestSubsystem
 
         // self test plugin instance property name is not present
         log(mLogger,
-            CMS.getLogMessage(
-                "CMSCORE_SELFTESTS_PROPERTY_MISSING_NAME",
-                instanceFullName));
+                CMS.getLogMessage(
+                        "CMSCORE_SELFTESTS_PROPERTY_MISSING_NAME",
+                        instanceFullName));
 
         throw new EMissingSelfTestException(instanceFullName);
     }
@@ -732,21 +723,21 @@ public class SelfTestSubsystem
      * Determine if the specified self test is executed automatically
      * at server startup.
      * <P>
-     *
+     * 
      * @param instanceName instance name of self test
      * @return true if the specified self test is executed at server startup
      * @exception EMissingSelfTestException subsystem has missing name
      */
     public boolean isSelfTestEnabledAtStartup(String instanceName)
-        throws EMissingSelfTestException {
+            throws EMissingSelfTestException {
         // strip preceding/trailing whitespace
         // from passed-in String parameters
         if (instanceName != null) {
             instanceName = instanceName.trim();
         } else {
             log(mLogger,
-                CMS.getLogMessage(
-                    "CMSCORE_SELFTESTS_PROPERTY_NAME_IS_NULL"));
+                    CMS.getLogMessage(
+                            "CMSCORE_SELFTESTS_PROPERTY_NAME_IS_NULL"));
 
             throw new EMissingSelfTestException();
         }
@@ -757,7 +748,7 @@ public class SelfTestSubsystem
 
         while (instances.hasMoreElements()) {
             SelfTestOrderedInstance instance = (SelfTestOrderedInstance)
-                instances.nextElement();
+                    instances.nextElement();
 
             if (instanceName.equals(instance.getSelfTestName())) {
                 return true;
@@ -771,14 +762,14 @@ public class SelfTestSubsystem
      * Determine if failure of the specified self test is fatal to
      * server startup.
      * <P>
-     *
+     * 
      * @param instanceName instance name of self test
      * @return true if failure of the specified self test is fatal to
-     * server startup
+     *         server startup
      * @exception EMissingSelfTestException subsystem has missing name
      */
     public boolean isSelfTestCriticalAtStartup(String instanceName)
-        throws EMissingSelfTestException {
+            throws EMissingSelfTestException {
         String instanceFullName = null;
 
         // strip preceding/trailing whitespace
@@ -789,8 +780,8 @@ public class SelfTestSubsystem
                         instanceName);
         } else {
             log(mLogger,
-                CMS.getLogMessage(
-                    "CMSCORE_SELFTESTS_PROPERTY_NAME_IS_NULL"));
+                    CMS.getLogMessage(
+                            "CMSCORE_SELFTESTS_PROPERTY_NAME_IS_NULL"));
 
             throw new EMissingSelfTestException();
         }
@@ -801,7 +792,7 @@ public class SelfTestSubsystem
 
         while (instances.hasMoreElements()) {
             SelfTestOrderedInstance instance = (SelfTestOrderedInstance)
-                instances.nextElement();
+                    instances.nextElement();
 
             if (instanceName.equals(instance.getSelfTestName())) {
                 if (instance.isSelfTestCritical()) {
@@ -814,9 +805,9 @@ public class SelfTestSubsystem
 
         // self test plugin instance property name is not present
         log(mLogger,
-            CMS.getLogMessage(
-                "CMSCORE_SELFTESTS_PROPERTY_MISSING_NAME",
-                instanceFullName));
+                CMS.getLogMessage(
+                        "CMSCORE_SELFTESTS_PROPERTY_MISSING_NAME",
+                        instanceFullName));
 
         throw new EMissingSelfTestException(instanceFullName);
     }
@@ -824,16 +815,16 @@ public class SelfTestSubsystem
     /**
      * Execute all self tests specified to be run at server startup.
      * <P>
-     *
+     * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_SELFTESTS_EXECUTION used when self
-     * tests are run at server startup
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_SELFTESTS_EXECUTION used when self tests are run at server startup
      * </ul>
+     * 
      * @exception EMissingSelfTestException subsystem has missing name
      * @exception ESelfTestException self test exception
      */
     public void runSelfTestsAtStartup()
-        throws EMissingSelfTestException, ESelfTestException {
+            throws EMissingSelfTestException, ESelfTestException {
         String auditMessage = null;
 
         // ensure that any low-level exceptions are reported
@@ -841,7 +832,7 @@ public class SelfTestSubsystem
         try {
             if (CMS.debugOn()) {
                 CMS.debug("SelfTestSubsystem::runSelfTestsAtStartup():"
-                    + "  ENTERING . . .");
+                        + "  ENTERING . . .");
             }
 
             // loop through all self test plugin instances
@@ -850,7 +841,7 @@ public class SelfTestSubsystem
 
             while (instances.hasMoreElements()) {
                 SelfTestOrderedInstance instance = (SelfTestOrderedInstance)
-                    instances.nextElement();
+                        instances.nextElement();
 
                 String instanceFullName = null;
                 String instanceName = instance.getSelfTestName();
@@ -861,8 +852,8 @@ public class SelfTestSubsystem
                                 instanceName);
                 } else {
                     log(mLogger,
-                        CMS.getLogMessage(
-                            "CMSCORE_SELFTESTS_PROPERTY_NAME_IS_NULL"));
+                            CMS.getLogMessage(
+                                    "CMSCORE_SELFTESTS_PROPERTY_NAME_IS_NULL"));
 
                     // store a message in the signed audit log file
                     auditMessage = CMS.getLogMessage(
@@ -877,14 +868,14 @@ public class SelfTestSubsystem
 
                 if (mSelfTestInstances.containsKey(instanceName)) {
                     ISelfTest test = (ISelfTest)
-                        mSelfTestInstances.get(instanceName);
+                            mSelfTestInstances.get(instanceName);
 
                     try {
                         if (CMS.debugOn()) {
                             CMS.debug("SelfTestSubsystem::runSelfTestsAtStartup():"
-                                + "    running \""
-                                + test.getSelfTestName()
-                                + "\"");
+                                    + "    running \""
+                                    + test.getSelfTestName()
+                                    + "\"");
                         }
 
                         test.runSelfTest(mLogger);
@@ -892,9 +883,9 @@ public class SelfTestSubsystem
                         // Check to see if the self test was critical:
                         if (isSelfTestCriticalAtStartup(instanceName)) {
                             log(mLogger,
-                                CMS.getLogMessage(
-                                    "CMSCORE_SELFTESTS_RUN_AT_STARTUP_FAILED",
-                                    instanceFullName));
+                                    CMS.getLogMessage(
+                                            "CMSCORE_SELFTESTS_RUN_AT_STARTUP_FAILED",
+                                            instanceFullName));
 
                             // store a message in the signed audit log file
                             auditMessage = CMS.getLogMessage(
@@ -913,9 +904,9 @@ public class SelfTestSubsystem
                 } else {
                     // self test plugin instance property name is not present
                     log(mLogger,
-                        CMS.getLogMessage(
-                            "CMSCORE_SELFTESTS_PROPERTY_MISSING_NAME",
-                            instanceFullName));
+                            CMS.getLogMessage(
+                                    "CMSCORE_SELFTESTS_PROPERTY_MISSING_NAME",
+                                    instanceFullName));
 
                     // store a message in the signed audit log file
                     auditMessage = CMS.getLogMessage(
@@ -939,7 +930,7 @@ public class SelfTestSubsystem
 
             if (CMS.debugOn()) {
                 CMS.debug("SelfTestSubsystem::runSelfTestsAtStartup():"
-                    + "  EXITING.");
+                        + "  EXITING.");
             }
         } catch (EMissingSelfTestException eAudit1) {
             // store a message in the signed audit log file
@@ -964,9 +955,9 @@ public class SelfTestSubsystem
 
     /**
      * Retrieve an individual self test from the instances list
-     * given its instance name.  This method may return null.
+     * given its instance name. This method may return null.
      * <P>
-     *
+     * 
      * @param instanceName instance name of self test
      * @return individual self test
      */
@@ -1001,7 +992,7 @@ public class SelfTestSubsystem
      * Returns the ILogEventListener of this subsystem.
      * This method may return null.
      * <P>
-     *
+     * 
      * @return ILogEventListener of this subsystem
      */
     public ILogEventListener getSelfTestLogger() {
@@ -1011,7 +1002,7 @@ public class SelfTestSubsystem
     /**
      * This method represents the log interface for the self test subsystem.
      * <P>
-     *
+     * 
      * @param logger log event listener
      * @param msg self test log message
      */
@@ -1027,21 +1018,21 @@ public class SelfTestSubsystem
             ev.setLevel(ILogger.LL_INFO);
             try {
                 logger.log(ev);
-            } catch( ELogException le ) { 
+            } catch (ELogException le) {
                 // log the message to the "transactions" log
                 mErrorLogger.log(ILogger.EV_AUDIT,
-                    null,
-                    ILogger.S_OTHER,
-                    ILogger.LL_INFO,
-                    msg + " - " + le.toString() );
+                        null,
+                        ILogger.S_OTHER,
+                        ILogger.LL_INFO,
+                        msg + " - " + le.toString());
             }
         } else {
             // log the message to the "transactions" log
             mErrorLogger.log(ILogger.EV_AUDIT,
-                null,
-                ILogger.S_OTHER,
-                ILogger.LL_INFO,
-                msg);
+                    null,
+                    ILogger.S_OTHER,
+                    ILogger.LL_INFO,
+                    msg);
         }
     }
 
@@ -1050,19 +1041,19 @@ public class SelfTestSubsystem
      * on the "on demand" list (note that the specified self test
      * will be appended to the end of each list).
      * <P>
-     *
+     * 
      * @param instanceName instance name of self test
      * @param isCritical isCritical is either a critical failure (true) or
-     * a non-critical failure (false)
+     *            a non-critical failure (false)
      * @param instance individual self test
      * @exception EDuplicateSelfTestException subsystem has duplicate name
      * @exception EInvalidSelfTestException subsystem has invalid name/value
      * @exception EMissingSelfTestException subsystem has missing name/value
      */
     public void registerSelfTestOnDemand(String instanceName,
-        boolean isCritical,
-        ISelfTest instance)
-        throws EDuplicateSelfTestException,
+            boolean isCritical,
+            ISelfTest instance)
+            throws EDuplicateSelfTestException,
             EInvalidSelfTestException,
             EMissingSelfTestException {
         String instanceFullName = null;
@@ -1075,8 +1066,8 @@ public class SelfTestSubsystem
                         instanceName);
         } else {
             log(mLogger,
-                CMS.getLogMessage(
-                    "CMSCORE_SELFTESTS_PROPERTY_NAME_IS_NULL"));
+                    CMS.getLogMessage(
+                            "CMSCORE_SELFTESTS_PROPERTY_NAME_IS_NULL"));
 
             throw new EMissingSelfTestException();
         }
@@ -1084,9 +1075,9 @@ public class SelfTestSubsystem
         if (mSelfTestInstances.containsKey(instanceName)) {
             // self test plugin instance property name is a duplicate
             log(mLogger,
-                CMS.getLogMessage(
-                    "CMSCORE_SELFTESTS_PROPERTY_DUPLICATE_NAME",
-                    instanceFullName));
+                    CMS.getLogMessage(
+                            "CMSCORE_SELFTESTS_PROPERTY_DUPLICATE_NAME",
+                            instanceFullName));
 
             throw new EDuplicateSelfTestException(instanceFullName);
         } else {
@@ -1103,12 +1094,12 @@ public class SelfTestSubsystem
      * on the "on demand" list (note that the specified self test
      * will be removed from each list).
      * <P>
-     *
+     * 
      * @param instanceName instance name of self test
      * @exception EMissingSelfTestException subsystem has missing name
      */
     public void deregisterSelfTestOnDemand(String instanceName)
-        throws EMissingSelfTestException {
+            throws EMissingSelfTestException {
         String instanceFullName = null;
 
         // strip preceding/trailing whitespace
@@ -1119,8 +1110,8 @@ public class SelfTestSubsystem
                         instanceName);
         } else {
             log(mLogger,
-                CMS.getLogMessage(
-                    "CMSCORE_SELFTESTS_PROPERTY_NAME_IS_NULL"));
+                    CMS.getLogMessage(
+                            "CMSCORE_SELFTESTS_PROPERTY_NAME_IS_NULL"));
 
             throw new EMissingSelfTestException();
         }
@@ -1131,9 +1122,9 @@ public class SelfTestSubsystem
         if (test == null) {
             // self test plugin instance property name is not present
             log(mLogger,
-                CMS.getLogMessage(
-                    "CMSCORE_SELFTESTS_PROPERTY_MISSING_NAME",
-                    instanceFullName));
+                    CMS.getLogMessage(
+                            "CMSCORE_SELFTESTS_PROPERTY_MISSING_NAME",
+                            instanceFullName));
 
             throw new EMissingSelfTestException(instanceFullName);
         } else {
@@ -1150,19 +1141,19 @@ public class SelfTestSubsystem
      * on the "startup" list (note that the specified self test
      * will be appended to the end of each list).
      * <P>
-     *
+     * 
      * @param instanceName instance name of self test
      * @param isCritical isCritical is either a critical failure (true) or
-     * a non-critical failure (false)
+     *            a non-critical failure (false)
      * @param instance individual self test
      * @exception EDuplicateSelfTestException subsystem has duplicate name
      * @exception EInvalidSelfTestException subsystem has invalid name/value
      * @exception EMissingSelfTestException subsystem has missing name/value
      */
     public void registerSelfTestAtStartup(String instanceName,
-        boolean isCritical,
-        ISelfTest instance)
-        throws EDuplicateSelfTestException,
+            boolean isCritical,
+            ISelfTest instance)
+            throws EDuplicateSelfTestException,
             EInvalidSelfTestException,
             EMissingSelfTestException {
         String instanceFullName = null;
@@ -1175,8 +1166,8 @@ public class SelfTestSubsystem
                         instanceName);
         } else {
             log(mLogger,
-                CMS.getLogMessage(
-                    "CMSCORE_SELFTESTS_PROPERTY_NAME_IS_NULL"));
+                    CMS.getLogMessage(
+                            "CMSCORE_SELFTESTS_PROPERTY_NAME_IS_NULL"));
 
             throw new EMissingSelfTestException();
         }
@@ -1184,9 +1175,9 @@ public class SelfTestSubsystem
         if (mSelfTestInstances.containsKey(instanceName)) {
             // self test plugin instance property name is a duplicate
             log(mLogger,
-                CMS.getLogMessage(
-                    "CMSCORE_SELFTESTS_PROPERTY_DUPLICATE_NAME",
-                    instanceFullName));
+                    CMS.getLogMessage(
+                            "CMSCORE_SELFTESTS_PROPERTY_DUPLICATE_NAME",
+                            instanceFullName));
 
             throw new EDuplicateSelfTestException(instanceFullName);
         } else {
@@ -1203,12 +1194,12 @@ public class SelfTestSubsystem
      * on the "startup" list (note that the specified self test
      * will be removed from each list).
      * <P>
-     *
+     * 
      * @param instanceName instance name of self test
      * @exception EMissingSelfTestException subsystem has missing name
      */
     public void deregisterSelfTestAtStartup(String instanceName)
-        throws EMissingSelfTestException {
+            throws EMissingSelfTestException {
         String instanceFullName = null;
 
         // strip preceding/trailing whitespace
@@ -1219,8 +1210,8 @@ public class SelfTestSubsystem
                         instanceName);
         } else {
             log(mLogger,
-                CMS.getLogMessage(
-                    "CMSCORE_SELFTESTS_PROPERTY_NAME_IS_NULL"));
+                    CMS.getLogMessage(
+                            "CMSCORE_SELFTESTS_PROPERTY_NAME_IS_NULL"));
 
             throw new EMissingSelfTestException();
         }
@@ -1231,9 +1222,9 @@ public class SelfTestSubsystem
         if (test == null) {
             // self test plugin instance property name is not present
             log(mLogger,
-                CMS.getLogMessage(
-                    "CMSCORE_SELFTESTS_PROPERTY_MISSING_NAME",
-                    instanceFullName));
+                    CMS.getLogMessage(
+                            "CMSCORE_SELFTESTS_PROPERTY_MISSING_NAME",
+                            instanceFullName));
 
             throw new EMissingSelfTestException(instanceFullName);
         } else {
@@ -1250,10 +1241,10 @@ public class SelfTestSubsystem
     ////////////////////////
 
     /**
-     * This method retrieves the name of this subsystem.  This method
+     * This method retrieves the name of this subsystem. This method
      * may return null.
      * <P>
-     *
+     * 
      * @return identification of this subsystem
      */
     public String getId() {
@@ -1263,20 +1254,20 @@ public class SelfTestSubsystem
     /**
      * This method sets information specific to this subsystem.
      * <P>
-     *
+     * 
      * @param id identification of this subsystem
      * @exception EBaseException base CMS exception
      */
     public void setId(String id)
-        throws EBaseException {
+            throws EBaseException {
         // strip preceding/trailing whitespace
         // from passed-in String parameters
         if (id != null) {
             id = id.trim();
         } else {
             log(mLogger,
-                CMS.getLogMessage(
-                    "CMSCORE_SELFTESTS_PROPERTY_NAME_IS_NULL"));
+                    CMS.getLogMessage(
+                            "CMSCORE_SELFTESTS_PROPERTY_NAME_IS_NULL"));
 
             throw new EBaseException("id is null");
         }
@@ -1287,29 +1278,29 @@ public class SelfTestSubsystem
     /**
      * This method initializes this subsystem.
      * <P>
-     *
+     * 
      * @param owner owner of this subsystem
      * @param config configuration store
      * @exception EBaseException base CMS exception
      */
     public void init(ISubsystem owner, IConfigStore config)
-        throws EBaseException {
+            throws EBaseException {
         if (CMS.debugOn()) {
             CMS.debug("SelfTestSubsystem::init():"
-                + "  ENTERING . . .");
+                    + "  ENTERING . . .");
         }
 
-        if( config == null ) {
-            CMS.debug( "SelfTestSubsystem::init() - config is null!" );
-            throw new EBaseException( "config is null" );
+        if (config == null) {
+            CMS.debug("SelfTestSubsystem::init() - config is null!");
+            throw new EBaseException("config is null");
         }
 
         mOwner = owner;
         mConfig = config;
 
         if ((mConfig != null) &&
-            (mConfig.getName() != null) &&
-            (mConfig.getName() != "")) {
+                (mConfig.getName() != null) &&
+                (mConfig.getName() != "")) {
             mRootPrefix = mConfig.getName().trim();
         }
 
@@ -1325,7 +1316,7 @@ public class SelfTestSubsystem
 
         if (CMS.debugOn()) {
             CMS.debug("SelfTestSubsystem::init():"
-                + "    loading self test logger parameters");
+                    + "    loading self test logger parameters");
         }
 
         String loggerPrefix = null;
@@ -1338,19 +1329,19 @@ public class SelfTestSubsystem
         IConfigStore loggerConfig = mConfig.getSubStore(loggerPath);
 
         if ((loggerConfig != null) &&
-            (loggerConfig.getName() != null) &&
-            (loggerConfig.getName() != "")) {
+                (loggerConfig.getName() != null) &&
+                (loggerConfig.getName() != "")) {
             loggerPrefix = loggerConfig.getName().trim();
         } else {
             // NOTE:  These messages can only be logged to the "transactions"
             //        log, since the "selftests.log" will not exist!
             log(mLogger,
-                CMS.getLogMessage(
-                    "CMSCORE_SELFTESTS_INITIALIZATION_NOTIFICATION"));
+                    CMS.getLogMessage(
+                            "CMSCORE_SELFTESTS_INITIALIZATION_NOTIFICATION"));
 
             log(mLogger,
-                CMS.getLogMessage(
-                    "CMSCORE_SELFTESTS_PROPERTY_NAME_IS_NULL"));
+                    CMS.getLogMessage(
+                            "CMSCORE_SELFTESTS_PROPERTY_NAME_IS_NULL"));
 
             throw new EMissingSelfTestException();
         }
@@ -1376,12 +1367,11 @@ public class SelfTestSubsystem
                     //        "transactions" log, since the "selftests.log"
                     //        will not exist!
                     log(mLogger,
-                        CMS.getLogMessage(
-                            "CMSCORE_SELFTESTS_PROPERTY_MISSING_VALUES",
-                            loggerFullName));
+                            CMS.getLogMessage(
+                                    "CMSCORE_SELFTESTS_PROPERTY_MISSING_VALUES",
+                                    loggerFullName));
 
-                    throw new
-                        EMissingSelfTestException(loggerFullName,
+                    throw new EMissingSelfTestException(loggerFullName,
                             loggerValue);
                 }
 
@@ -1392,14 +1382,14 @@ public class SelfTestSubsystem
                     //        "transactions" log, since the "selftests.log"
                     //        will not exist!
                     log(mLogger,
-                        CMS.getLogMessage(
-                            "CMSCORE_SELFTESTS_INITIALIZATION_NOTIFICATION"));
+                            CMS.getLogMessage(
+                                    "CMSCORE_SELFTESTS_INITIALIZATION_NOTIFICATION"));
 
                     log(mLogger,
-                        CMS.getLogMessage(
-                            "CMSCORE_SELFTESTS_PROPERTY_INVALID_INSTANCE",
-                            loggerFullName,
-                            loggerValue));
+                            CMS.getLogMessage(
+                                    "CMSCORE_SELFTESTS_PROPERTY_INVALID_INSTANCE",
+                                    loggerFullName,
+                                    loggerValue));
 
                     throw new EInvalidSelfTestException(loggerFullName,
                             loggerValue);
@@ -1415,14 +1405,14 @@ public class SelfTestSubsystem
                 //        "transactions" log, since the "selftests.log"
                 //        will not exist!
                 log(mLogger,
-                    CMS.getLogMessage(
-                        "CMSCORE_SELFTESTS_INITIALIZATION_NOTIFICATION"));
+                        CMS.getLogMessage(
+                                "CMSCORE_SELFTESTS_INITIALIZATION_NOTIFICATION"));
 
                 log(mLogger,
-                    CMS.getLogMessage(
-                        "CMSCORE_SELFTESTS_PROPERTY_THREW_EBASEEXCEPTION",
-                        loggerFullName,
-                        loggerValue));
+                        CMS.getLogMessage(
+                                "CMSCORE_SELFTESTS_PROPERTY_THREW_EBASEEXCEPTION",
+                                loggerFullName,
+                                loggerValue));
 
                 throw new EInvalidSelfTestException(loggerFullName,
                         loggerValue);
@@ -1431,14 +1421,14 @@ public class SelfTestSubsystem
                 //        "transactions" log, since the "selftests.log"
                 //        will not exist!
                 log(mLogger,
-                    CMS.getLogMessage(
-                        "CMSCORE_SELFTESTS_INITIALIZATION_NOTIFICATION"));
+                        CMS.getLogMessage(
+                                "CMSCORE_SELFTESTS_INITIALIZATION_NOTIFICATION"));
 
                 log(mLogger,
-                    CMS.getLogMessage(
-                        "CMSCORE_SELFTESTS_PROPERTY_THREW_EXCEPTION",
-                        loggerFullName,
-                        loggerValue));
+                        CMS.getLogMessage(
+                                "CMSCORE_SELFTESTS_PROPERTY_THREW_EXCEPTION",
+                                loggerFullName,
+                                loggerValue));
 
                 CMS.debugStackTrace();
 
@@ -1454,20 +1444,20 @@ public class SelfTestSubsystem
             //        "transactions" log, since the "selftests.log"
             //        will not exist!
             log(mLogger,
-                CMS.getLogMessage(
-                    "CMSCORE_SELFTESTS_INITIALIZATION_NOTIFICATION"));
+                    CMS.getLogMessage(
+                            "CMSCORE_SELFTESTS_INITIALIZATION_NOTIFICATION"));
 
             log(mLogger,
-                CMS.getLogMessage(
-                    "CMSCORE_SELFTESTS_DONT_LOAD_LOGGER_PARAMETERS"));
+                    CMS.getLogMessage(
+                            "CMSCORE_SELFTESTS_DONT_LOAD_LOGGER_PARAMETERS"));
         } else {
             log(mLogger,
-                CMS.getLogMessage(
-                    "CMSCORE_SELFTESTS_INITIALIZATION_NOTIFICATION"));
+                    CMS.getLogMessage(
+                            "CMSCORE_SELFTESTS_INITIALIZATION_NOTIFICATION"));
 
             log(mLogger,
-                CMS.getLogMessage(
-                    "CMSCORE_SELFTESTS_LOAD_LOGGER_PARAMETERS"));
+                    CMS.getLogMessage(
+                            "CMSCORE_SELFTESTS_LOAD_LOGGER_PARAMETERS"));
         }
 
         ////////////////////////////////////////
@@ -1476,7 +1466,7 @@ public class SelfTestSubsystem
 
         if (CMS.debugOn()) {
             CMS.debug("SelfTestSubsystem::init():"
-                + "    loading self test plugins");
+                    + "    loading self test plugins");
         }
 
         // compose self test plugins instance property prefix
@@ -1484,13 +1474,13 @@ public class SelfTestSubsystem
         IConfigStore instanceConfig = mConfig.getSubStore(instancePath);
 
         if ((instanceConfig != null) &&
-            (instanceConfig.getName() != null) &&
-            (instanceConfig.getName() != "")) {
+                (instanceConfig.getName() != null) &&
+                (instanceConfig.getName() != "")) {
             mPrefix = instanceConfig.getName().trim();
         } else {
             log(mLogger,
-                CMS.getLogMessage(
-                    "CMSCORE_SELFTESTS_PROPERTY_NAME_IS_NULL"));
+                    CMS.getLogMessage(
+                            "CMSCORE_SELFTESTS_PROPERTY_NAME_IS_NULL"));
 
             throw new EMissingSelfTestException();
         }
@@ -1499,12 +1489,12 @@ public class SelfTestSubsystem
 
         if (instances.hasMoreElements()) {
             loadStatus++;
-  
+
             log(mLogger,
-                CMS.getLogMessage("CMSCORE_SELFTESTS_LOAD_PLUGINS"));
+                    CMS.getLogMessage("CMSCORE_SELFTESTS_LOAD_PLUGINS"));
         } else {
             log(mLogger,
-                CMS.getLogMessage("CMSCORE_SELFTESTS_DONT_LOAD_PLUGINS"));
+                    CMS.getLogMessage("CMSCORE_SELFTESTS_DONT_LOAD_PLUGINS"));
         }
 
         // load all self test plugin instances
@@ -1522,8 +1512,8 @@ public class SelfTestSubsystem
                             instanceName);
             } else {
                 log(mLogger,
-                    CMS.getLogMessage(
-                        "CMSCORE_SELFTESTS_PROPERTY_NAME_IS_NULL"));
+                        CMS.getLogMessage(
+                                "CMSCORE_SELFTESTS_PROPERTY_NAME_IS_NULL"));
 
                 throw new EMissingSelfTestException();
             }
@@ -1531,9 +1521,9 @@ public class SelfTestSubsystem
             if (mSelfTestInstances.containsKey(instanceName)) {
                 // self test plugin instance property name is a duplicate
                 log(mLogger,
-                    CMS.getLogMessage(
-                        "CMSCORE_SELFTESTS_PROPERTY_DUPLICATE_NAME",
-                        instanceFullName));
+                        CMS.getLogMessage(
+                                "CMSCORE_SELFTESTS_PROPERTY_DUPLICATE_NAME",
+                                instanceFullName));
 
                 throw new EDuplicateSelfTestException(instanceFullName);
             }
@@ -1547,21 +1537,20 @@ public class SelfTestSubsystem
                     // self test plugin instance property name exists,
                     // but it contains no value(s)
                     log(mLogger,
-                        CMS.getLogMessage(
-                            "CMSCORE_SELFTESTS_PROPERTY_MISSING_VALUES",
-                            instanceFullName));
+                            CMS.getLogMessage(
+                                    "CMSCORE_SELFTESTS_PROPERTY_MISSING_VALUES",
+                                    instanceFullName));
 
-                    throw new
-                        EMissingSelfTestException(instanceFullName,
+                    throw new EMissingSelfTestException(instanceFullName,
                             instanceValue);
                 }
             } catch (EBaseException e) {
                 // self test property name EBaseException
                 log(mLogger,
-                    CMS.getLogMessage(
-                        "CMSCORE_SELFTESTS_PROPERTY_THREW_EBASEEXCEPTION",
-                        instanceFullName,
-                        instanceValue));
+                        CMS.getLogMessage(
+                                "CMSCORE_SELFTESTS_PROPERTY_THREW_EBASEEXCEPTION",
+                                instanceFullName,
+                                instanceValue));
 
                 throw new EInvalidSelfTestException(instanceFullName,
                         instanceValue);
@@ -1575,20 +1564,20 @@ public class SelfTestSubsystem
 
                 if (!(o instanceof ISelfTest)) {
                     log(mLogger,
-                        CMS.getLogMessage(
-                            "CMSCORE_SELFTESTS_PROPERTY_INVALID_INSTANCE",
-                            instanceFullName,
-                            instanceValue));
+                            CMS.getLogMessage(
+                                    "CMSCORE_SELFTESTS_PROPERTY_INVALID_INSTANCE",
+                                    instanceFullName,
+                                    instanceValue));
 
                     throw new EInvalidSelfTestException(instanceFullName,
                             instanceValue);
                 }
             } catch (Exception e) {
                 log(mLogger,
-                    CMS.getLogMessage(
-                        "CMSCORE_SELFTESTS_PROPERTY_THREW_EXCEPTION",
-                        instanceFullName,
-                        instanceValue));
+                        CMS.getLogMessage(
+                                "CMSCORE_SELFTESTS_PROPERTY_THREW_EXCEPTION",
+                                instanceFullName,
+                                instanceValue));
 
                 CMS.debugStackTrace();
 
@@ -1603,12 +1592,12 @@ public class SelfTestSubsystem
 
                     if (CMS.debugOn()) {
                         CMS.debug("SelfTestSubsystem::init():"
-                            + "    loading self test plugin parameters");
+                                + "    loading self test plugin parameters");
                     }
 
                     log(mLogger,
-                        CMS.getLogMessage(
-                            "CMSCORE_SELFTESTS_LOAD_PLUGIN_PARAMETERS"));
+                            CMS.getLogMessage(
+                                    "CMSCORE_SELFTESTS_LOAD_PLUGIN_PARAMETERS"));
                 }
 
                 ISelfTest test = (ISelfTest) o;
@@ -1619,26 +1608,26 @@ public class SelfTestSubsystem
                 mSelfTestInstances.put(instanceName, test);
             } catch (EDuplicateSelfTestException e) {
                 log(mLogger,
-                    CMS.getLogMessage(
-                        "CMSCORE_SELFTESTS_PLUGIN_DUPLICATE_PARAMETER",
-                        instanceFullName,
-                        e.getInstanceParameter()));
+                        CMS.getLogMessage(
+                                "CMSCORE_SELFTESTS_PLUGIN_DUPLICATE_PARAMETER",
+                                instanceFullName,
+                                e.getInstanceParameter()));
 
                 throw e;
             } catch (EMissingSelfTestException e) {
                 log(mLogger,
-                    CMS.getLogMessage(
-                        "CMSCORE_SELFTESTS_PLUGIN_MISSING_PARAMETER",
-                        instanceFullName,
-                        e.getInstanceParameter()));
+                        CMS.getLogMessage(
+                                "CMSCORE_SELFTESTS_PLUGIN_MISSING_PARAMETER",
+                                instanceFullName,
+                                e.getInstanceParameter()));
 
                 throw e;
             } catch (EInvalidSelfTestException e) {
                 log(mLogger,
-                    CMS.getLogMessage(
-                        "CMSCORE_SELFTESTS_PLUGIN_INVALID_PARAMETER",
-                        instanceFullName,
-                        e.getInstanceParameter()));
+                        CMS.getLogMessage(
+                                "CMSCORE_SELFTESTS_PLUGIN_INVALID_PARAMETER",
+                                instanceFullName,
+                                e.getInstanceParameter()));
 
                 throw e;
             }
@@ -1650,13 +1639,13 @@ public class SelfTestSubsystem
 
         if (CMS.debugOn()) {
             CMS.debug("SelfTestSubsystem::init():"
-                + "    loading on demand self tests");
+                    + "    loading on demand self tests");
         }
 
         // compose self test plugins on-demand ordering property name
         String onDemandOrderName = PROP_CONTAINER + "."
-            + PROP_ORDER + "."
-            + PROP_ON_DEMAND;
+                + PROP_ORDER + "."
+                + PROP_ON_DEMAND;
         String onDemandOrderFullName = getFullName(mRootPrefix,
                 onDemandOrderName);
         String onDemandOrderValues = null;
@@ -1672,23 +1661,23 @@ public class SelfTestSubsystem
             loadStatus++;
 
             log(mLogger,
-                CMS.getLogMessage(
-                    "CMSCORE_SELFTESTS_LOAD_PLUGINS_ON_DEMAND"));
+                    CMS.getLogMessage(
+                            "CMSCORE_SELFTESTS_LOAD_PLUGINS_ON_DEMAND"));
 
             if ((onDemandOrderValues == null) ||
-                (onDemandOrderValues.equals(""))) {
+                    (onDemandOrderValues.equals(""))) {
                 // self test plugins on-demand ordering property name
                 // exists, but it contains no values, which means that
                 // no self tests are configured to run on-demand
-                if( ( onDemandOrderFullName != null ) &&
-                    ( !onDemandOrderFullName.equals( "" ) ) ) {
+                if ((onDemandOrderFullName != null) &&
+                        (!onDemandOrderFullName.equals(""))) {
                     log(mLogger,
-                        CMS.getLogMessage(
-                            "CMSCORE_SELFTESTS_MISSING_ON_DEMAND_VALUES",
-                            onDemandOrderFullName));
+                            CMS.getLogMessage(
+                                    "CMSCORE_SELFTESTS_MISSING_ON_DEMAND_VALUES",
+                                    onDemandOrderFullName));
                 }
-                throw new EBaseException( "onDemandOrderValues is null "
-                                        + "or empty" );
+                throw new EBaseException("onDemandOrderValues is null "
+                                        + "or empty");
             }
 
             StringTokenizer tokens = new StringTokenizer(onDemandOrderValues,
@@ -1715,17 +1704,17 @@ public class SelfTestSubsystem
 
             // presently, we merely log this fact
             log(mLogger,
-                CMS.getLogMessage(
-                    "CMSCORE_SELFTESTS_DONT_LOAD_PLUGINS_ON_DEMAND"));
+                    CMS.getLogMessage(
+                            "CMSCORE_SELFTESTS_DONT_LOAD_PLUGINS_ON_DEMAND"));
 
             // throw new EMissingSelfTestException( onDemandOrderFullName );
         } catch (EBaseException e) {
             // self test property name EBaseException
             log(mLogger,
-                CMS.getLogMessage(
-                    "CMSCORE_SELFTESTS_PROPERTY_THREW_EBASEEXCEPTION",
-                    onDemandOrderFullName,
-                    onDemandOrderValues));
+                    CMS.getLogMessage(
+                            "CMSCORE_SELFTESTS_PROPERTY_THREW_EBASEEXCEPTION",
+                            onDemandOrderFullName,
+                            onDemandOrderValues));
 
             throw new EInvalidSelfTestException(onDemandOrderFullName,
                     onDemandOrderValues);
@@ -1737,13 +1726,13 @@ public class SelfTestSubsystem
 
         if (CMS.debugOn()) {
             CMS.debug("SelfTestSubsystem::init():"
-                + "    loading startup self tests");
+                    + "    loading startup self tests");
         }
 
         // compose self test plugins startup ordering property name
         String startupOrderName = PROP_CONTAINER + "."
-            + PROP_ORDER + "."
-            + PROP_STARTUP;
+                + PROP_ORDER + "."
+                + PROP_STARTUP;
         String startupOrderFullName = getFullName(mRootPrefix,
                 startupOrderName);
         String startupOrderValues = null;
@@ -1759,20 +1748,20 @@ public class SelfTestSubsystem
             loadStatus++;
 
             log(mLogger,
-                CMS.getLogMessage(
-                    "CMSCORE_SELFTESTS_LOAD_PLUGINS_AT_STARTUP"));
+                    CMS.getLogMessage(
+                            "CMSCORE_SELFTESTS_LOAD_PLUGINS_AT_STARTUP"));
 
             if ((startupOrderValues == null) ||
-                (startupOrderValues.equals(""))) {
+                    (startupOrderValues.equals(""))) {
                 // self test plugins startup ordering property name
                 // exists, but it contains no values, which means that
                 // no self tests are configured to run at server startup
-                if( ( startupOrderFullName != null ) &&
-                    ( !startupOrderFullName.equals( "" ) ) ) {
+                if ((startupOrderFullName != null) &&
+                        (!startupOrderFullName.equals(""))) {
                     log(mLogger,
-                        CMS.getLogMessage(
-                            "CMSCORE_SELFTESTS_MISSING_STARTUP_VALUES",
-                            startupOrderFullName));
+                            CMS.getLogMessage(
+                                    "CMSCORE_SELFTESTS_MISSING_STARTUP_VALUES",
+                                    startupOrderFullName));
                 }
             }
 
@@ -1800,17 +1789,17 @@ public class SelfTestSubsystem
 
             // presently, we merely log this fact
             log(mLogger,
-                CMS.getLogMessage(
-                    "CMSCORE_SELFTESTS_DONT_LOAD_PLUGINS_AT_STARTUP"));
+                    CMS.getLogMessage(
+                            "CMSCORE_SELFTESTS_DONT_LOAD_PLUGINS_AT_STARTUP"));
 
             // throw new EMissingSelfTestException( startupOrderFullName );
         } catch (EBaseException e) {
             // self test property name EBaseException
             log(mLogger,
-                CMS.getLogMessage(
-                    "CMSCORE_SELFTESTS_PROPERTY_THREW_EBASEEXCEPTION",
-                    startupOrderFullName,
-                    startupOrderValues));
+                    CMS.getLogMessage(
+                            "CMSCORE_SELFTESTS_PROPERTY_THREW_EBASEEXCEPTION",
+                            startupOrderFullName,
+                            startupOrderValues));
 
             throw new EInvalidSelfTestException(startupOrderFullName,
                     startupOrderValues);
@@ -1819,28 +1808,28 @@ public class SelfTestSubsystem
         // notify user whether or not self test plugins have been loaded
         if (loadStatus == 0) {
             log(mLogger,
-                CMS.getLogMessage(
-                    "CMSCORE_SELFTESTS_PLUGINS_NONE_LOADED"));
+                    CMS.getLogMessage(
+                            "CMSCORE_SELFTESTS_PLUGINS_NONE_LOADED"));
         } else {
             log(mLogger,
-                CMS.getLogMessage(
-                    "CMSCORE_SELFTESTS_PLUGINS_LOADED"));
+                    CMS.getLogMessage(
+                            "CMSCORE_SELFTESTS_PLUGINS_LOADED"));
         }
 
         if (CMS.debugOn()) {
             CMS.debug("SelfTestSubsystem::init():"
-                + "  EXITING.");
+                    + "  EXITING.");
         }
     }
 
     /**
      * Notifies this subsystem if owner is in running mode.
      * <P>
-     *
+     * 
      * @exception EBaseException base CMS exception
      */
     public void startup()
-        throws EBaseException {
+            throws EBaseException {
         // loop through all self test plugin instances
         Enumeration<ISelfTest> instances = mSelfTestInstances.elements();
 
@@ -1857,8 +1846,8 @@ public class SelfTestSubsystem
             if (selftests.hasMoreElements()) {
                 // log that execution of startup self tests has begun
                 log(mLogger,
-                    CMS.getLogMessage(
-                        "CMSCORE_SELFTESTS_RUN_AT_STARTUP"));
+                        CMS.getLogMessage(
+                                "CMSCORE_SELFTESTS_RUN_AT_STARTUP"));
 
                 // execute all startup self tests
                 runSelfTestsAtStartup();
@@ -1866,12 +1855,12 @@ public class SelfTestSubsystem
                 // log that execution of all "critical" startup self tests
                 // has completed "successfully"
                 log(mLogger,
-                    CMS.getLogMessage(
-                        "CMSCORE_SELFTESTS_RUN_AT_STARTUP_SUCCEEDED"));
+                        CMS.getLogMessage(
+                                "CMSCORE_SELFTESTS_RUN_AT_STARTUP_SUCCEEDED"));
             } else {
                 log(mLogger,
-                    CMS.getLogMessage(
-                        "CMSCORE_SELFTESTS_NOT_RUN_AT_STARTUP"));
+                        CMS.getLogMessage(
+                                "CMSCORE_SELFTESTS_NOT_RUN_AT_STARTUP"));
             }
         }
     }
@@ -1883,7 +1872,7 @@ public class SelfTestSubsystem
      */
     public void shutdown() {
         // reverse order of all self test plugin instances
-        Collection<ISelfTest>  collection = mSelfTestInstances.values();
+        Collection<ISelfTest> collection = mSelfTestInstances.values();
         Vector<ISelfTest> list = new Vector<ISelfTest>(collection);
 
         Collections.reverse(list);
@@ -1902,11 +1891,10 @@ public class SelfTestSubsystem
      * Returns the root configuration storage of this subsystem.
      * This method may return null.
      * <P>
-     *
+     * 
      * @return configuration store of this subsystem
      */
     public IConfigStore getConfigStore() {
         return mConfig;
     }
 }
-

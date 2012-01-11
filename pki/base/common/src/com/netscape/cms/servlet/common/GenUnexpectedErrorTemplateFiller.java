@@ -16,7 +16,6 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.common;
- 
 
 import java.util.Locale;
 
@@ -25,10 +24,9 @@ import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 
-
 /**
- * default unexpected error template filler 
- *
+ * default unexpected error template filler
+ * 
  * @version $Revision$, $Date$
  */
 public class GenUnexpectedErrorTemplateFiller implements ICMSTemplateFiller {
@@ -37,41 +35,42 @@ public class GenUnexpectedErrorTemplateFiller implements ICMSTemplateFiller {
     }
 
     /**
-     * fill error details and description if any. 
+     * fill error details and description if any.
+     * 
      * @param cmsReq CMS Request
      * @param authority this authority
      * @param locale locale of template.
      * @param e unexpected exception e. ignored.
      */
     public CMSTemplateParams getTemplateParams(
-        CMSRequest cmsReq, IAuthority authority, Locale locale, Exception e) {
+            CMSRequest cmsReq, IAuthority authority, Locale locale, Exception e) {
         IArgBlock fixed = CMS.createArgBlock();
         CMSTemplateParams params = new CMSTemplateParams(null, fixed);
-		
+
         // When an exception occurs the exit is non-local which probably
         // will leave the requestStatus value set to something other
         // than CMSRequest.EXCEPTION, so force the requestStatus to 
         // EXCEPTION since it must be that if we're here. 
         Integer sts = CMSRequest.EXCEPTION;
-        if (cmsReq != null) cmsReq.setStatus(sts);
+        if (cmsReq != null)
+            cmsReq.setStatus(sts);
         fixed.set(ICMSTemplateFiller.REQUEST_STATUS, sts.toString());
 
         // the unexpected error (exception)
-        if (e == null) 
+        if (e == null)
             e = new EBaseException(CMS.getLogMessage("BASE_UNKNOWN_ERROR"));
         String errMsg = null;
 
-        if (e instanceof EBaseException) 
+        if (e instanceof EBaseException)
             errMsg = ((EBaseException) e).toString(locale);
-        else 
+        else
             errMsg = e.toString();
         fixed.set(ICMSTemplateFiller.EXCEPTION, errMsg);
 
         // this authority
-        if (authority != null) 
-            fixed.set(ICMSTemplateFiller.AUTHORITY, 
-                authority.getOfficialName());
+        if (authority != null)
+            fixed.set(ICMSTemplateFiller.AUTHORITY,
+                    authority.getOfficialName());
         return params;
     }
 }
-

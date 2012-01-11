@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.policy;
 
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Enumeration;
@@ -50,9 +49,8 @@ import com.netscape.certsrv.policy.IGeneralNamesConfig;
 import com.netscape.certsrv.policy.ISubjAltNameConfig;
 import com.netscape.cmscore.util.Debug;
 
-
-/** 
- * Class that can be used to form general names from configuration file. 
+/**
+ * Class that can be used to form general names from configuration file.
  * Used by policies and extension commands.
  */
 public class GeneralNameUtil implements IGeneralNameUtil {
@@ -64,9 +62,9 @@ public class GeneralNameUtil implements IGeneralNameUtil {
      * are NameConstraints, CertificateScopeOfUse extensions. In such
      * cases, IPAddress may contain netmask component.
      */
-    static public GeneralName 
-    form_GeneralNameAsConstraints(String generalNameChoice, String value)
-        throws EBaseException {
+    static public GeneralName
+            form_GeneralNameAsConstraints(String generalNameChoice, String value)
+                    throws EBaseException {
         try {
             if (generalNameChoice.equalsIgnoreCase(GENNAME_CHOICE_IPADDRESS)) {
                 StringTokenizer st = new StringTokenizer(value, ",");
@@ -87,15 +85,16 @@ public class GeneralNameUtil implements IGeneralNameUtil {
 
     /**
      * Form a General Name from a General Name choice and value.
-     * The General Name choice must be one of the General Name Choice Strings 
+     * The General Name choice must be one of the General Name Choice Strings
      * defined in this class.
-     * @param generalNameChoice General Name choice. Must be one of the General 
-     * Name choices defined in this class.
+     * 
+     * @param generalNameChoice General Name choice. Must be one of the General
+     *            Name choices defined in this class.
      * @param value String value of the general name to form.
      */
-    static public GeneralName 
-    form_GeneralName(String generalNameChoice, String value)
-        throws EBaseException {
+    static public GeneralName
+            form_GeneralName(String generalNameChoice, String value)
+                    throws EBaseException {
         GeneralNameInterface generalNameI = null;
         DerValue derVal = null;
         GeneralName generalName = null;
@@ -112,10 +111,12 @@ public class GeneralNameUtil implements IGeneralNameUtil {
             } else if (generalNameChoice.equalsIgnoreCase(GENNAME_CHOICE_DNSNAME)) {
                 generalNameI = new DNSName(value);
                 Debug.trace("dnsName formed");
-            } /** not supported -- no sun class 
-             else if (generalNameChoice.equalsIgnoreCase(GENNAME_CHOICE_X400ADDRESS)) {
-             }
-             **/ else if (generalNameChoice.equalsIgnoreCase(GENNAME_CHOICE_DIRECTORYNAME)) {
+            }/**
+             * not supported -- no sun class
+             * else if (generalNameChoice.equalsIgnoreCase(GENNAME_CHOICE_X400ADDRESS)) {
+             * }
+             **/
+            else if (generalNameChoice.equalsIgnoreCase(GENNAME_CHOICE_DIRECTORYNAME)) {
                 generalNameI = new X500Name(value);
                 Debug.trace("X500Name formed");
             } else if (generalNameChoice.equalsIgnoreCase(GENNAME_CHOICE_EDIPARTYNAME)) {
@@ -135,35 +136,35 @@ public class GeneralNameUtil implements IGeneralNameUtil {
                 } catch (Exception e) {
                     throw new EBaseException(
                             CMS.getUserMessage("CMS_BASE_INVALID_VALUE_FOR_TYPE",
-                                generalNameChoice,
-                                "value must be a valid OID in the form n.n.n.n"));
+                                    generalNameChoice,
+                                    "value must be a valid OID in the form n.n.n.n"));
                 }
                 generalNameI = new OIDName(oid);
                 Debug.trace("oidname formed");
             } else {
                 throw new EBaseException(
                         CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE",
-                            new String[] { 
-                                PROP_GENNAME_CHOICE,
-                                "value must be one of: " +
-                                GENNAME_CHOICE_OTHERNAME + ", " +
-                                GENNAME_CHOICE_RFC822NAME + ", " +
-                                GENNAME_CHOICE_DNSNAME + ", " +
-                            
-                                /* GENNAME_CHOICE_X400ADDRESS +", "+ */
-                                GENNAME_CHOICE_DIRECTORYNAME + ", " +
-                                GENNAME_CHOICE_EDIPARTYNAME + ", " +
-                                GENNAME_CHOICE_URL + ", " +
-                                GENNAME_CHOICE_IPADDRESS + ", or " +
-                                GENNAME_CHOICE_REGISTEREDID + "."
+                                new String[] {
+                                        PROP_GENNAME_CHOICE,
+                                        "value must be one of: " +
+                                                GENNAME_CHOICE_OTHERNAME + ", " +
+                                                GENNAME_CHOICE_RFC822NAME + ", " +
+                                                GENNAME_CHOICE_DNSNAME + ", " +
+
+                                                /* GENNAME_CHOICE_X400ADDRESS +", "+ */
+                                                GENNAME_CHOICE_DIRECTORYNAME + ", " +
+                                                GENNAME_CHOICE_EDIPARTYNAME + ", " +
+                                                GENNAME_CHOICE_URL + ", " +
+                                                GENNAME_CHOICE_IPADDRESS + ", or " +
+                                                GENNAME_CHOICE_REGISTEREDID + "."
                             }
-                        ));
+                                ));
             }
         } catch (IOException e) {
             Debug.printStackTrace(e);
             throw new EBaseException(
                     CMS.getUserMessage("CMS_BASE_INVALID_VALUE_FOR_TYPE",
-                        generalNameChoice, e.toString()));
+                            generalNameChoice, e.toString()));
         } catch (InvalidIPAddressException e) {
             Debug.printStackTrace(e);
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_IP_ADDR", value));
@@ -187,62 +188,63 @@ public class GeneralNameUtil implements IGeneralNameUtil {
     }
 
     /**
-     * Checks if given string is a valid General Name choice and returns 
+     * Checks if given string is a valid General Name choice and returns
      * the actual string that can be passed into form_GeneralName().
+     * 
      * @param generalNameChoice a General Name choice string.
-     * @return one of General Name choices defined in this class that can be 
-     * passed into form_GeneralName().
+     * @return one of General Name choices defined in this class that can be
+     *         passed into form_GeneralName().
      */
-    static public String check_GeneralNameChoice(String generalNameChoice) 
-        throws EBaseException {
+    static public String check_GeneralNameChoice(String generalNameChoice)
+            throws EBaseException {
         String theGeneralNameChoice = null;
 
-        if (generalNameChoice.equalsIgnoreCase(GENNAME_CHOICE_OTHERNAME)) 
+        if (generalNameChoice.equalsIgnoreCase(GENNAME_CHOICE_OTHERNAME))
             theGeneralNameChoice = GENNAME_CHOICE_OTHERNAME;
-        else if (generalNameChoice.equalsIgnoreCase(GENNAME_CHOICE_RFC822NAME)) 
+        else if (generalNameChoice.equalsIgnoreCase(GENNAME_CHOICE_RFC822NAME))
             theGeneralNameChoice = GENNAME_CHOICE_RFC822NAME;
-        else if (generalNameChoice.equalsIgnoreCase(GENNAME_CHOICE_DNSNAME)) 
+        else if (generalNameChoice.equalsIgnoreCase(GENNAME_CHOICE_DNSNAME))
             theGeneralNameChoice = GENNAME_CHOICE_DNSNAME;
 
-            /* X400Address not supported.
-             else if (generalNameChoice.equalsIgnoreCase(GENNAME_CHOICE_X400ADDRESS)) 
-             theGeneralNameChoice = GENNAME_CHOICE_X400ADDRESS;
-             */
-        else if (generalNameChoice.equalsIgnoreCase(GENNAME_CHOICE_DIRECTORYNAME)) 
+        /* X400Address not supported.
+         else if (generalNameChoice.equalsIgnoreCase(GENNAME_CHOICE_X400ADDRESS)) 
+         theGeneralNameChoice = GENNAME_CHOICE_X400ADDRESS;
+         */
+        else if (generalNameChoice.equalsIgnoreCase(GENNAME_CHOICE_DIRECTORYNAME))
             theGeneralNameChoice = GENNAME_CHOICE_DIRECTORYNAME;
-        else if (generalNameChoice.equalsIgnoreCase(GENNAME_CHOICE_EDIPARTYNAME)) 
+        else if (generalNameChoice.equalsIgnoreCase(GENNAME_CHOICE_EDIPARTYNAME))
             theGeneralNameChoice = GENNAME_CHOICE_EDIPARTYNAME;
-        else if (generalNameChoice.equalsIgnoreCase(GENNAME_CHOICE_URL)) 
+        else if (generalNameChoice.equalsIgnoreCase(GENNAME_CHOICE_URL))
             theGeneralNameChoice = GENNAME_CHOICE_URL;
-        else if (generalNameChoice.equalsIgnoreCase(GENNAME_CHOICE_IPADDRESS)) 
+        else if (generalNameChoice.equalsIgnoreCase(GENNAME_CHOICE_IPADDRESS))
             theGeneralNameChoice = GENNAME_CHOICE_IPADDRESS;
-        else if (generalNameChoice.equalsIgnoreCase(GENNAME_CHOICE_REGISTEREDID)) 
+        else if (generalNameChoice.equalsIgnoreCase(GENNAME_CHOICE_REGISTEREDID))
             theGeneralNameChoice = GENNAME_CHOICE_REGISTEREDID;
         else {
             throw new EBaseException(
                     CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE",
-                        new String[] { 
-                            PROP_GENNAME_CHOICE + "=" + generalNameChoice,
-                            "value must be one of: " +
-                            GENNAME_CHOICE_OTHERNAME + ", " +
-                            GENNAME_CHOICE_RFC822NAME + ", " +
-                            GENNAME_CHOICE_DNSNAME + ", " +
-                        
-                            /* GENNAME_CHOICE_X400ADDRESS +", "+ */
-                            GENNAME_CHOICE_DIRECTORYNAME + ", " +
-                            GENNAME_CHOICE_EDIPARTYNAME + ", " +
-                            GENNAME_CHOICE_URL + ", " +
-                            GENNAME_CHOICE_IPADDRESS + ", " +
-                            GENNAME_CHOICE_REGISTEREDID + "."
+                            new String[] {
+                                    PROP_GENNAME_CHOICE + "=" + generalNameChoice,
+                                    "value must be one of: " +
+                                            GENNAME_CHOICE_OTHERNAME + ", " +
+                                            GENNAME_CHOICE_RFC822NAME + ", " +
+                                            GENNAME_CHOICE_DNSNAME + ", " +
+
+                                            /* GENNAME_CHOICE_X400ADDRESS +", "+ */
+                                            GENNAME_CHOICE_DIRECTORYNAME + ", " +
+                                            GENNAME_CHOICE_EDIPARTYNAME + ", " +
+                                            GENNAME_CHOICE_URL + ", " +
+                                            GENNAME_CHOICE_IPADDRESS + ", " +
+                                            GENNAME_CHOICE_REGISTEREDID + "."
                         }
-                    ));
+                            ));
         }
         return theGeneralNameChoice;
     }
 
     static public class GeneralNamesConfig implements IGeneralNamesConfig {
         public String mName = null; // substore name of config if any.
-        public GeneralNameConfig[] mGenNameConfigs = null; 
+        public GeneralNameConfig[] mGenNameConfigs = null;
         public IConfigStore mConfig = null;
         public boolean mIsValueConfigured = true;
         public boolean mIsPolicyEnabled = true;
@@ -252,17 +254,17 @@ public class GeneralNameUtil implements IGeneralNameUtil {
         private String mNameDotGeneralName = mName + DOT + PROP_GENERALNAME;
 
         public GeneralNamesConfig(
-            String name, 
-            IConfigStore config, 
-            boolean isValueConfigured,
-            boolean isPolicyEnabled)
-            throws EBaseException {
+                String name,
+                IConfigStore config,
+                boolean isValueConfigured,
+                boolean isPolicyEnabled)
+                throws EBaseException {
             mIsValueConfigured = isValueConfigured;
             mIsPolicyEnabled = isPolicyEnabled;
             mName = name;
-            if (mName != null) 
+            if (mName != null)
                 mNameDotGeneralName = mName + DOT + PROP_GENERALNAME;
-            else 
+            else
                 mNameDotGeneralName = PROP_GENERALNAME;
             mConfig = config;
 
@@ -271,19 +273,19 @@ public class GeneralNameUtil implements IGeneralNameUtil {
             if (numGNs < 0) {
                 throw new EBaseException(
                         CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE",
-                            new String[] { 
-                                PROP_NUM_GENERALNAMES + "=" + numGNs, 
-                                "value must be greater than or equal to 0."}
-                        ));
+                                new String[] {
+                                        PROP_NUM_GENERALNAMES + "=" + numGNs,
+                                        "value must be greater than or equal to 0." }
+                                ));
             }
             mGenNameConfigs = new GeneralNameConfig[numGNs];
             for (int i = 0; i < numGNs; i++) {
                 String storeName = mNameDotGeneralName + i;
 
-                mGenNameConfigs[i] = 
+                mGenNameConfigs[i] =
                         newGeneralNameConfig(
-                            storeName, mConfig.getSubStore(storeName), 
-                            mIsValueConfigured, mIsPolicyEnabled);
+                                storeName, mConfig.getSubStore(storeName),
+                                mIsValueConfigured, mIsPolicyEnabled);
             }
 
             if (mIsValueConfigured && mIsPolicyEnabled) {
@@ -299,9 +301,9 @@ public class GeneralNameUtil implements IGeneralNameUtil {
         }
 
         protected GeneralNameConfig newGeneralNameConfig(
-            String name, IConfigStore config, 
-            boolean isValueConfigured, boolean isPolicyEnabled) 
-            throws EBaseException {
+                String name, IConfigStore config,
+                boolean isValueConfigured, boolean isPolicyEnabled)
+                throws EBaseException {
             return new GeneralNameConfig(
                     name, config, isValueConfigured, isPolicyEnabled);
         }
@@ -334,20 +336,20 @@ public class GeneralNameUtil implements IGeneralNameUtil {
             return mDefNumGenNames;
         }
 
-        /** 
-         * adds params to default 
+        /**
+         * adds params to default
          */
         public static void getDefaultParams(
-            String name, boolean isValueConfigured, Vector<String> params) {
+                String name, boolean isValueConfigured, Vector<String> params) {
             String nameDot = "";
 
-            if (name != null) 
+            if (name != null)
                 nameDot = name + DOT;
             params.addElement(
-                nameDot + PROP_NUM_GENERALNAMES + '=' + DEF_NUM_GENERALNAMES);
+                    nameDot + PROP_NUM_GENERALNAMES + '=' + DEF_NUM_GENERALNAMES);
             for (int i = 0; i < DEF_NUM_GENERALNAMES; i++) {
                 GeneralNameConfig.getDefaultParams(
-                    nameDot + PROP_GENERALNAME + i, isValueConfigured, params);
+                        nameDot + PROP_GENERALNAME + i, isValueConfigured, params);
             }
         }
 
@@ -356,7 +358,7 @@ public class GeneralNameUtil implements IGeneralNameUtil {
          */
         public void getInstanceParams(Vector<String> params) {
             params.addElement(
-                PROP_NUM_GENERALNAMES + '=' + mGenNameConfigs.length);
+                    PROP_NUM_GENERALNAMES + '=' + mGenNameConfigs.length);
             for (int i = 0; i < mGenNameConfigs.length; i++) {
                 mGenNameConfigs[i].getInstanceParams(params);
             }
@@ -366,7 +368,7 @@ public class GeneralNameUtil implements IGeneralNameUtil {
          * Get extended plugin info.
          */
         public static void getExtendedPluginInfo(
-            String name, boolean isValueConfigured, Vector<String> info) {
+                String name, boolean isValueConfigured, Vector<String> info) {
             String nameDot = "";
 
             if (name != null && name.length() > 0)
@@ -374,32 +376,30 @@ public class GeneralNameUtil implements IGeneralNameUtil {
             info.addElement(PROP_NUM_GENERALNAMES + ";" + NUM_GENERALNAMES_INFO);
             for (int i = 0; i < DEF_NUM_GENERALNAMES; i++) {
                 GeneralNameConfig.getExtendedPluginInfo(
-                    nameDot + PROP_GENERALNAME + i, isValueConfigured, info);
+                        nameDot + PROP_GENERALNAME + i, isValueConfigured, info);
             }
         }
 
     }
 
-
     static public class GeneralNamesAsConstraintsConfig extends GeneralNamesConfig implements IGeneralNamesAsConstraintsConfig {
         public GeneralNamesAsConstraintsConfig(
-            String name, 
-            IConfigStore config, 
-            boolean isValueConfigured,
-            boolean isPolicyEnabled)
-            throws EBaseException {
+                String name,
+                IConfigStore config,
+                boolean isValueConfigured,
+                boolean isPolicyEnabled)
+                throws EBaseException {
             super(name, config, isValueConfigured, isPolicyEnabled);
         }
 
         protected GeneralNameConfig newGeneralNameConfig(
-            String name, IConfigStore config, 
-            boolean isValueConfigured, boolean isPolicyEnabled) 
-            throws EBaseException {
-            return new GeneralNameAsConstraintsConfig(name, config, 
+                String name, IConfigStore config,
+                boolean isValueConfigured, boolean isPolicyEnabled)
+                throws EBaseException {
+            return new GeneralNameAsConstraintsConfig(name, config,
                     isValueConfigured, isPolicyEnabled);
         }
     }
-
 
     /**
      * convenience class for policies use.
@@ -418,11 +418,11 @@ public class GeneralNameUtil implements IGeneralNameUtil {
         public String mNameDotValue = null;
 
         public GeneralNameConfig(
-            String name, 
-            IConfigStore config, 
-            boolean isValueConfigured, 
-            boolean isPolicyEnabled) 
-            throws EBaseException {
+                String name,
+                IConfigStore config,
+                boolean isValueConfigured,
+                boolean isPolicyEnabled)
+                throws EBaseException {
             mIsValueConfigured = isValueConfigured;
             mIsPolicyEnabled = isPolicyEnabled;
             mName = name;
@@ -461,7 +461,7 @@ public class GeneralNameUtil implements IGeneralNameUtil {
                     mGeneralName = formGeneralName(mGenNameChoice, mValue);
                 } else {
                     mValue = mConfig.getString(PROP_GENNAME_VALUE, "");
-                    if (mValue != null && mValue.length() > 0) 
+                    if (mValue != null && mValue.length() > 0)
                         mGeneralName = formGeneralName(mGenNameChoice, mValue);
                 }
             }
@@ -470,23 +470,23 @@ public class GeneralNameUtil implements IGeneralNameUtil {
         /**
          * Form a general name from the value string.
          */
-        public GeneralName formGeneralName(String value) 
-            throws EBaseException {
+        public GeneralName formGeneralName(String value)
+                throws EBaseException {
             return formGeneralName(mGenNameChoice, value);
         }
 
-        public GeneralName formGeneralName(String choice, String value) 
-            throws EBaseException {
+        public GeneralName formGeneralName(String choice, String value)
+                throws EBaseException {
             return form_GeneralName(choice, value);
         }
 
-        /** 
-         * @return a vector of General names from a value that can be 
-         * either a Vector of strings, string array or just a string.
-         * Returned Vector can be null if value is not of expected type.
+        /**
+         * @return a vector of General names from a value that can be
+         *         either a Vector of strings, string array or just a string.
+         *         Returned Vector can be null if value is not of expected type.
          */
-        public Vector<GeneralName> formGeneralNames(Object value) 
-            throws EBaseException {
+        public Vector<GeneralName> formGeneralNames(Object value)
+                throws EBaseException {
             Vector<GeneralName> gns = new Vector<GeneralName>();
             GeneralName gn = null;
 
@@ -513,7 +513,7 @@ public class GeneralNameUtil implements IGeneralNameUtil {
                     Object val = n.nextElement();
 
                     if (val != null && (val instanceof String) &&
-                        ((String) (val = ((String) val).trim())).length() > 0) {
+                            ((String) (val = ((String) val).trim())).length() > 0) {
                         gn = formGeneralName(mGenNameChoice, (String) val);
                         gns.addElement(gn);
                     }
@@ -553,7 +553,7 @@ public class GeneralNameUtil implements IGeneralNameUtil {
          */
 
         public static void getDefaultParams(
-            String name, boolean isValueConfigured, Vector<String> params) {
+                String name, boolean isValueConfigured, Vector<String> params) {
             String nameDot = "";
 
             if (name != null)
@@ -565,14 +565,14 @@ public class GeneralNameUtil implements IGeneralNameUtil {
         }
 
         /**
-         * Get instance params 
+         * Get instance params
          */
         public void getInstanceParams(Vector<String> params) {
             String value = (mValue == null) ? "" : mValue;
             String choice = (mGenNameChoice == null) ? "" : mGenNameChoice;
 
             params.addElement(mNameDotChoice + "=" + choice);
-            if (mIsValueConfigured) 
+            if (mIsValueConfigured)
                 params.addElement(mNameDotValue + "=" + value);
         }
 
@@ -580,31 +580,30 @@ public class GeneralNameUtil implements IGeneralNameUtil {
          * Get extended plugin info
          */
         public static void getExtendedPluginInfo(
-            String name, boolean isValueConfigured, Vector<String> info) {
+                String name, boolean isValueConfigured, Vector<String> info) {
             String nameDot = "";
 
-            if (name != null && name.length() > 0) 
+            if (name != null && name.length() > 0)
                 nameDot = name + ".";
             info.addElement(
-                nameDot + PROP_GENNAME_CHOICE + ";" + GENNAME_CHOICE_INFO);
-            if (isValueConfigured) 
+                    nameDot + PROP_GENNAME_CHOICE + ";" + GENNAME_CHOICE_INFO);
+            if (isValueConfigured)
                 info.addElement(
-                    nameDot + PROP_GENNAME_VALUE + ";" + GENNAME_VALUE_INFO);
+                        nameDot + PROP_GENNAME_VALUE + ";" + GENNAME_VALUE_INFO);
         }
     }
-
 
     /**
      * convenience class for policies use.
      */
     static public class GeneralNameAsConstraintsConfig extends GeneralNameConfig implements IGeneralNameAsConstraintsConfig {
-		
+
         public GeneralNameAsConstraintsConfig(
-            String name,
-            IConfigStore config,
-            boolean isValueConfigured,
-            boolean isPolicyEnabled)
-            throws EBaseException {
+                String name,
+                IConfigStore config,
+                boolean isValueConfigured,
+                boolean isPolicyEnabled)
+                throws EBaseException {
             super(name, config, isValueConfigured, isPolicyEnabled);
         }
 
@@ -615,18 +614,17 @@ public class GeneralNameUtil implements IGeneralNameUtil {
         /**
          * Form a general name from the value string.
          */
-        public GeneralName formGeneralName(String choice, String value) 
-            throws EBaseException {
+        public GeneralName formGeneralName(String choice, String value)
+                throws EBaseException {
             return form_GeneralNameAsConstraints(choice, value);
         }
     }
 
-
     public static class SubjAltNameGN extends GeneralNameUtil.GeneralNameConfig implements ISubjAltNameConfig {
         static final String REQUEST_ATTR_INFO =
-            "string;Request attribute name. " +
-            "The value of the request attribute will be used to form a " +
-            "General Name in the Subject Alternative Name extension.";
+                "string;Request attribute name. " +
+                        "The value of the request attribute will be used to form a " +
+                        "General Name in the Subject Alternative Name extension.";
 
         static final String PROP_REQUEST_ATTR = "requestAttr";
 
@@ -635,8 +633,8 @@ public class GeneralNameUtil implements IGeneralNameUtil {
         String mAttr = null;
 
         public SubjAltNameGN(
-            String name, IConfigStore config, boolean isPolicyEnabled)
-            throws EBaseException {
+                String name, IConfigStore config, boolean isPolicyEnabled)
+                throws EBaseException {
             super(name, config, false, isPolicyEnabled);
 
             mRequestAttr = mConfig.getString(PROP_REQUEST_ATTR, null);
@@ -645,7 +643,7 @@ public class GeneralNameUtil implements IGeneralNameUtil {
                 mRequestAttr = "";
             }
             if (isPolicyEnabled && mRequestAttr.length() == 0) {
-                throw new EPropertyNotFound(CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED", 
+                throw new EPropertyNotFound(CMS.getUserMessage("CMS_BASE_GET_PROPERTY_FAILED",
                             mConfig.getName() + "." + PROP_REQUEST_ATTR));
             }
             int x = mRequestAttr.indexOf('.');

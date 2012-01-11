@@ -20,13 +20,11 @@
 
 package com.netscape.cmscore.selftests;
 
-
 ///////////////////////
 // import statements //
 ///////////////////////
 
 import java.util.StringTokenizer;
-
 
 //////////////////////
 // class definition //
@@ -53,7 +51,7 @@ public class SelfTestOrderedInstance {
     // SelfTestOrderedInstance parameters //
     ////////////////////////////////////////
 
-    private String  mInstanceName = null;
+    private String mInstanceName = null;
     private boolean mCritical = false;
 
     /////////////////////
@@ -65,9 +63,9 @@ public class SelfTestOrderedInstance {
      * A "listElement" contains a string of the form "[instanceName]" or
      * "[instanceName]:critical".
      * <P>
-     *
+     * 
      * @param listElement a string containing the "instanceName" and
-     * information indictating whether or not the instance is "critical"
+     *            information indictating whether or not the instance is "critical"
      */
     public SelfTestOrderedInstance(String listElement) {
         // strip preceding/trailing whitespace
@@ -108,7 +106,7 @@ public class SelfTestOrderedInstance {
     /**
      * Returns the name associated with this self test; may be null.
      * <P>
-     *
+     * 
      * @return instanceName of this self test
      */
     public String getSelfTestName() {
@@ -118,9 +116,9 @@ public class SelfTestOrderedInstance {
     /**
      * Returns the criticality associated with this self test.
      * <P>
-     *
+     * 
      * @return true if failure of this self test is fatal when
-     * it is executed; otherwise return false
+     *         it is executed; otherwise return false
      */
     public boolean isSelfTestCritical() {
         return mCritical;
@@ -129,11 +127,10 @@ public class SelfTestOrderedInstance {
     /**
      * Sets/resets the criticality associated with this self test.
      * <P>
-     *
+     * 
      * @param criticalMode the criticality of this self test
      */
     public void setSelfTestCriticalMode(boolean criticalMode) {
         mCritical = criticalMode;
     }
 }
-

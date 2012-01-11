@@ -28,22 +28,18 @@ import java.util.Vector;
 import netscape.security.util.DerOutputStream;
 import netscape.security.util.DerValue;
 
-
 /**
  * Represent the CRL Certificate Issuer Extension.
- *
- * <p>This CRL entry extension identifies the certificate
- * issuer associated with an entry in an indirect CRL,
- * i.e. a CRL that has the indirectCRL indicator set
- * in its issuing distribution point extension.
- *
+ * 
+ * <p>
+ * This CRL entry extension identifies the certificate issuer associated with an entry in an indirect CRL, i.e. a CRL that has the indirectCRL indicator set in its issuing distribution point extension.
+ * 
  * @see Extension
  * @see CertAttrSet
  */
 
 public class CertificateIssuerExtension extends Extension
-                                        implements CertAttrSet
-{
+                                        implements CertAttrSet {
     /**
      *
      */
@@ -66,9 +62,9 @@ public class CertificateIssuerExtension extends Extension
         try {
             OIDMap.addAttribute(CertificateIssuerExtension.class.getName(),
                                 OID, NAME);
-        } catch (CertificateException e) {}
+        } catch (CertificateException e) {
+        }
     }
-
 
     // Encode this extension
     private void encodeThis() throws IOException {
@@ -84,29 +80,27 @@ public class CertificateIssuerExtension extends Extension
     /**
      * Create a CertificateIssuerExtension with the passed GeneralNames
      * and criticality.
-     *
+     * 
      * @param critical true if the extension is to be treated as critical.
      * @param names the GeneralNames for the issuer.
      * @exception IOException on error.
      */
     public CertificateIssuerExtension(Boolean critical, GeneralNames names)
-        throws IOException
-    {
+            throws IOException {
         this.names = names;
         this.extensionId = PKIXExtensions.CertificateIssuer_Id;
         this.critical = critical.booleanValue();
         encodeThis();
     }
 
-     /**
+    /**
      * Create a CertificateIssuerExtension with the passed GeneralNames.
-     *
+     * 
      * @param names the GeneralNames for the issuer.
      * @exception IOException on error.
      */
     public CertificateIssuerExtension(GeneralNames names)
-        throws IOException
-    {
+            throws IOException {
         this.names = names;
         this.extensionId = PKIXExtensions.CertificateIssuer_Id;
         this.critical = true;
@@ -124,14 +118,13 @@ public class CertificateIssuerExtension extends Extension
 
     /**
      * Create the extension from the passed DER encoded value.
-     *
+     * 
      * @param critical true if the extension is to be treated as critical.
      * @param value Array of DER encoded bytes of the actual value.
      * @exception IOException on error.
      */
     public CertificateIssuerExtension(Boolean critical, Object value)
-        throws IOException
-    {
+            throws IOException {
         this.extensionId = PKIXExtensions.CertificateIssuer_Id;
         this.critical = critical.booleanValue();
 
@@ -148,21 +141,22 @@ public class CertificateIssuerExtension extends Extension
             throw new IOException("CertificateIssuerExtension: " +
                                   e.toString());
         }
-     }
+    }
 
-     /**
-      * Returns a printable representation of the CertificateIssuerName.
-      */
-     public String toString() {
-         if (names == null) return "";
-         String s = super.toString() + "CertificateIssuerName [\n"
+    /**
+     * Returns a printable representation of the CertificateIssuerName.
+     */
+    public String toString() {
+        if (names == null)
+            return "";
+        String s = super.toString() + "CertificateIssuerName [\n"
                   + names.toString() + "]\n";
-         return (s);
-     }
+        return (s);
+    }
 
     /**
      * Decode the extension from the InputStream.
-     *
+     * 
      * @param in the InputStream to unmarshal the contents from.
      * @exception IOException on decoding or validity errors.
      */
@@ -172,7 +166,7 @@ public class CertificateIssuerExtension extends Extension
 
     /**
      * Write the extension to the OutputStream.
-     *
+     * 
      * @param out the OutputStream to write the extension to.
      * @exception IOException on encoding error.
      */
@@ -196,9 +190,9 @@ public class CertificateIssuerExtension extends Extension
                 throw new IOException("Attribute value should be of" +
                                       " type GeneralNames.");
             }
-            names = (GeneralNames)obj;
+            names = (GeneralNames) obj;
         } else {
-            throw new IOException("Attribute name not recognized by " + 
+            throw new IOException("Attribute name not recognized by " +
                                   "CertAttrSet:CertificateIssuerName.");
         }
     }
@@ -210,7 +204,7 @@ public class CertificateIssuerExtension extends Extension
         if (name.equalsIgnoreCase(CERTIFICATE_ISSUER)) {
             return (names);
         } else {
-            throw new IOException("Attribute name not recognized by " + 
+            throw new IOException("Attribute name not recognized by " +
                                   "CertAttrSet:CertificateIssuerName.");
         }
     }
@@ -222,7 +216,7 @@ public class CertificateIssuerExtension extends Extension
         if (name.equalsIgnoreCase(CERTIFICATE_ISSUER)) {
             names = null;
         } else {
-            throw new IOException("Attribute name not recognized by " + 
+            throw new IOException("Attribute name not recognized by " +
                                   "CertAttrSet:CertificateIssuerName.");
         }
     }
@@ -245,4 +239,3 @@ public class CertificateIssuerExtension extends Extension
         return (NAME);
     }
 }
-

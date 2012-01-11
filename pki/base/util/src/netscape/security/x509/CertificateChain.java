@@ -16,6 +16,7 @@
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.x509;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -26,116 +27,111 @@ import netscape.security.pkcs.ContentInfo;
 import netscape.security.pkcs.PKCS7;
 import netscape.security.pkcs.SignerInfo;
 
-public class CertificateChain implements Serializable
-{
-	public CertificateChain() { }
+public class CertificateChain implements Serializable {
+    public CertificateChain() {
+    }
 
-	/**
-	 * constructs a certificate chain from a certificate.
-	 * @param cert a certificate
-	 */
-	public CertificateChain(X509Certificate cert)
-	{
-		mChain = new X509Certificate[1];
-		mChain[0] = cert;
-	}
+    /**
+     * constructs a certificate chain from a certificate.
+     * 
+     * @param cert a certificate
+     */
+    public CertificateChain(X509Certificate cert) {
+        mChain = new X509Certificate[1];
+        mChain[0] = cert;
+    }
 
-	/**
-	 * constructs a certificate chain from a X509 certificate array.
-	 * @param chain a certificate array.
-	 */
-	public CertificateChain(X509Certificate[] chain)
-	{
-		mChain = (X509Certificate[])chain.clone();
-	}
+    /**
+     * constructs a certificate chain from a X509 certificate array.
+     * 
+     * @param chain a certificate array.
+     */
+    public CertificateChain(X509Certificate[] chain) {
+        mChain = (X509Certificate[]) chain.clone();
+    }
 
-	/**
-	 * returns the certificate at specified index in chain.
-	 * @param index the index.
-	 * @return the X509 certificate at the given index.
-	 */
-	public X509Certificate getCertificate(int index)
-	{
-		return mChain[index];
-	}
+    /**
+     * returns the certificate at specified index in chain.
+     * 
+     * @param index the index.
+     * @return the X509 certificate at the given index.
+     */
+    public X509Certificate getCertificate(int index) {
+        return mChain[index];
+    }
 
-	/**
-	 * returns the first certificate in chain.
-	 * @return the X509 certificate at the given index.
-	 */
-	public X509Certificate getFirstCertificate()
-	{
-		return mChain[0];
-	}
+    /**
+     * returns the first certificate in chain.
+     * 
+     * @return the X509 certificate at the given index.
+     */
+    public X509Certificate getFirstCertificate() {
+        return mChain[0];
+    }
 
-	/**
-	 * returns the certificate chain as an array of X509 certificates.
-	 * @return an array of X509 Certificates.
-	 */
-	public X509Certificate[] getChain()
-	{
-		return (X509Certificate[])mChain.clone();
-	}
+    /**
+     * returns the certificate chain as an array of X509 certificates.
+     * 
+     * @return an array of X509 Certificates.
+     */
+    public X509Certificate[] getChain() {
+        return (X509Certificate[]) mChain.clone();
+    }
 
-	public void encode(OutputStream out) 
-		throws IOException 
-	{
-		encode(out, true);
-	}
+    public void encode(OutputStream out)
+            throws IOException {
+        encode(out, true);
+    }
 
-	/**
-	 * encode in PKCS7 blob.
-	 */
-	public void encode(OutputStream out, boolean sort) 
-		throws IOException
-	{
-		PKCS7 p7 = new PKCS7(new AlgorithmId[0],
+    /**
+     * encode in PKCS7 blob.
+     */
+    public void encode(OutputStream out, boolean sort)
+            throws IOException {
+        PKCS7 p7 = new PKCS7(new AlgorithmId[0],
                              new ContentInfo(new byte[0]), mChain,
                              new SignerInfo[0]);
-		p7.encodeSignedData(out, sort);
-	}
+        p7.encodeSignedData(out, sort);
+    }
 
-	/**
-	 * decode from PKCS7 blob.
-	 */
-	public void decode(InputStream in) 
-		throws IOException
-	{
-		PKCS7 p7 = new PKCS7(in); 
-		mChain = p7.getCertificates();
-	}
+    /**
+     * decode from PKCS7 blob.
+     */
+    public void decode(InputStream in)
+            throws IOException {
+        PKCS7 p7 = new PKCS7(in);
+        mChain = p7.getCertificates();
+    }
 
-	/**
-	 * for serialization
-	 */
-	private void writeObject(java.io.ObjectOutputStream out)
-		throws IOException
-	{
-		encode(out);
-	}
+    /**
+     * for serialization
+     */
+    private void writeObject(java.io.ObjectOutputStream out)
+            throws IOException {
+        encode(out);
+    }
 
-	/**
-	 * for serialization
-	 */
-	private void readObject(java.io.ObjectInputStream in)
-		throws IOException
-	{
-		decode(in);
-	}
+    /**
+     * for serialization
+     */
+    private void readObject(java.io.ObjectInputStream in)
+            throws IOException {
+        decode(in);
+    }
 
-	/**
-	 * Converts the certificate chain to a readable string.
-	 */
-	public String toString() {
-		String s = "[\n";
-		if (mChain == null) 
-			return "[empty]";
-		for (int i = 0; i < mChain.length; i++) {
-			s += mChain[i].toString();
-		}
-		s += "]\n";
-		return s;
-	}
+    /**
+     * Converts the certificate chain to a readable string.
+     */
+    public String toString() {
+        String s = "[\n";
+        if (mChain == null)
+            return "[empty]";
+        for (int i = 0; i < mChain.length; i++) {
+            s += mChain[i].toString();
+        }
+        s += "]\n";
+        return s;
+    }
 
-	private X509Certificate[] mChain = null;
+    private X509Certificate[] mChain = null;
 }

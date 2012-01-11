@@ -1,4 +1,5 @@
 package com.netscape.pkisilent.http;
+
 // --- BEGIN COPYRIGHT BLOCK ---
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -21,28 +22,24 @@ import java.util.Vector;
 
 import org.mozilla.jss.ssl.SSLClientCertificateSelectionCallback;
 
+public class CertSelection implements SSLClientCertificateSelectionCallback {
 
-public class CertSelection implements SSLClientCertificateSelectionCallback
-{
+    // make the select() call to use this client cert
+    public static String client_cert = null;
 
-	// make the select() call to use this client cert
-	public static String client_cert = null;
+    public void setClientCert(String nickname) {
+        client_cert = nickname;
+    }
 
-	public void setClientCert(String nickname)
-	{
-		client_cert = nickname;
-	}
+    public String select(@SuppressWarnings("rawtypes") Vector nicknames) {
 
-	public String select(@SuppressWarnings("rawtypes") Vector nicknames)
-	{
+        // when this method is called by SSLSocket we get a vector
+        // of nicknames to select similar to the way the browser presents
+        // the list.
 
-		// when this method is called by SSLSocket we get a vector
-		// of nicknames to select similar to the way the browser presents
-		// the list.
+        // We will just use the one thats set by setClientCert()
 
-		// We will just use the one thats set by setClientCert()
-
-		return client_cert;
-	}
+        return client_cert;
+    }
 
 }; // end class

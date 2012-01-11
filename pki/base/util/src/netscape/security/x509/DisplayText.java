@@ -22,47 +22,46 @@ import java.io.IOException;
 import netscape.security.util.DerOutputStream;
 import netscape.security.util.DerValue;
 
-
 /**
  * Represent the DisplayText.
- *
+ * 
  * DisplayText ::= CHOICE {
- *   visibleString VisibleString (SIZE (1..200)),
- *   bmpString BMPString (SIZE (1..200)),
- *   utf8String UTF8String (SIZE (1..200)),
+ * visibleString VisibleString (SIZE (1..200)),
+ * bmpString BMPString (SIZE (1..200)),
+ * utf8String UTF8String (SIZE (1..200)),
  * }
- *
+ * 
  * @author Thomas Kwan
  */
 public class DisplayText {
 
     /** Tag value indicating an ASN.1 "BMPString" value. */
-    public final static byte    tag_IA5String = 0x16;
-    public final static byte    tag_BMPString = 0x1E;
-    public final static byte    tag_VisibleString = 0x1A;
-    public final static byte    tag_UTF8String = 0x0C; 
+    public final static byte tag_IA5String = 0x16;
+    public final static byte tag_BMPString = 0x1E;
+    public final static byte tag_VisibleString = 0x1A;
+    public final static byte tag_UTF8String = 0x0C;
 
     private byte mTag;
     private String mS = null;
 
     public DisplayText(byte tag, String s) {
-      mTag = tag;
-      mS = s;
+        mTag = tag;
+        mS = s;
     }
 
     public DisplayText(DerValue val) throws IOException {
-	mTag = val.tag;
-	mS = val.getAsString();
+        mTag = val.tag;
+        mS = val.getAsString();
     }
 
     /**
      * Write the DisplayText to the DerOutputStream.
-     *
+     * 
      * @param out the DerOutputStream to write the object to.
      * @exception IOException on errors.
      */
     public void encode(DerOutputStream out) throws IOException {
-	out.putStringType(mTag, mS);
+        out.putStringType(mTag, mS);
     }
 
     public String getText() {
@@ -72,14 +71,11 @@ public class DisplayText {
     public String toString() {
         if (mTag == tag_IA5String) {
             return "IA5String: " + mS;
-        }
-	else if (mTag == tag_BMPString) {
+        } else if (mTag == tag_BMPString) {
             return "BMPString: " + mS;
-        }
-        else if (mTag == tag_VisibleString) {
+        } else if (mTag == tag_VisibleString) {
             return "VisibleString: " + mS;
-        }
-        else {
+        } else {
             return "UTF8String: " + mS;
         }
     }

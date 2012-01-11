@@ -31,34 +31,34 @@ public class Module {
     private Vector mTokens = null;
     private boolean mFound = false;
 
-    public Module (String name, String printName) {
-	mCommonName = name;
-	mUserFriendlyName = printName;
-	mTokens = new Vector();
+    public Module(String name, String printName) {
+        mCommonName = name;
+        mUserFriendlyName = printName;
+        mTokens = new Vector();
     }
 
-    public Module (String name, String printName, String image) {
-	mCommonName = name;
-	mUserFriendlyName = printName;
-	mImagePath = image;
-	mTokens = new Vector();
+    public Module(String name, String printName, String image) {
+        mCommonName = name;
+        mUserFriendlyName = printName;
+        mImagePath = image;
+        mTokens = new Vector();
     }
 
     public void addToken(CryptoToken t) {
-	Token token = new Token(t);
-	mTokens.addElement(token);
+        Token token = new Token(t);
+        mTokens.addElement(token);
     }
 
     public String getCommonName() {
-	return mCommonName;
+        return mCommonName;
     }
 
     public String getUserFriendlyName() {
-	return mUserFriendlyName;
+        return mUserFriendlyName;
     }
 
     public String getImagePath() {
-	return mImagePath;
+        return mImagePath;
     }
 
     public boolean isFound() {
@@ -70,6 +70,6 @@ public class Module {
     }
 
     public Vector getTokens() {
-	return mTokens;
+        return mTokens;
     }
 }

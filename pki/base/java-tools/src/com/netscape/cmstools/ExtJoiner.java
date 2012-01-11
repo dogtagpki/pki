@@ -17,31 +17,30 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmstools;
 
-
 import java.io.FileInputStream;
 import java.io.IOException;
 
 import netscape.security.util.DerOutputStream;
 import netscape.security.util.DerValue;
 
-
 /**
- * This program joins a sequence of extensions together 
+ * This program joins a sequence of extensions together
  * so that the final output can be used in configuration
  * wizard for specifing extra extensions in default
  * certificates (i.e. CA certificate, SSL certificate).
- *
+ * 
  * Usage:
+ * 
  * <pre>
  *  ExtJoiner \
  *    &lt;ext_file0&gt; &lt;ext_file1&gt; ... &lt;ext_fileN&gt;
- *
+ * 
  *  where,
  *    &lt;ext_file&gt; is a file that has the base64 
  *    encoded DER encoding of an X509 Extension
  * 
  *  ExtensionSequence ::= SEQUENCE OF Extension;
- *
+ * 
  *  0 30  142: SEQUENCE {
  *  3 30   69:   SEQUENCE {
  *  5 06    3:     OBJECT IDENTIFIER issuerAltName (2 5 29 18)
@@ -61,7 +60,7 @@ import netscape.security.util.DerValue;
  *           :     }
  *           :   }
  * </pre>
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class ExtJoiner {
@@ -88,8 +87,8 @@ public class ExtJoiner {
         }
     }
 
-    public static byte[] getFileData(String fileName) 
-        throws IOException {
+    public static byte[] getFileData(String fileName)
+            throws IOException {
         FileInputStream fis = new FileInputStream(fileName);
 
         byte data[] = new byte[fis.available()];
@@ -98,6 +97,6 @@ public class ExtJoiner {
         } finally {
             fis.close();
         }
-        return  com.netscape.osutil.OSUtil.AtoB(new String(data));
+        return com.netscape.osutil.OSUtil.AtoB(new String(data));
     }
 }

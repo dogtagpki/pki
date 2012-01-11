@@ -27,11 +27,11 @@ import com.netscape.certsrv.base.ISubsystem;
 /**
  * An interface that represents an authorization component
  * <P>
- *
+ * 
  * @version $Revision$, $Date$
  */
 public interface IAuthzSubsystem extends ISubsystem {
-    
+
     /**
      * Constant for auths.
      */
@@ -40,17 +40,17 @@ public interface IAuthzSubsystem extends ISubsystem {
     /**
      * Constant for class.
      */
-    public static final String PROP_CLASS = "class"; 
+    public static final String PROP_CLASS = "class";
 
     /**
      * Constant for impl
      */
-    public static final String PROP_IMPL = "impl"; 
+    public static final String PROP_IMPL = "impl";
 
     /**
      * Constant for pluginName.
      */
-    public static final String PROP_PLUGIN = "pluginName"; 
+    public static final String PROP_PLUGIN = "pluginName";
 
     /**
      * Constant for instance.
@@ -60,6 +60,7 @@ public interface IAuthzSubsystem extends ISubsystem {
     /**
      * authorize the user associated with the given authToken for a given
      * operation with the given authorization manager name
+     * 
      * @param authzMgrName The authorization manager name
      * @param authToken the authenticaton token associated with a user
      * @param resource the resource protected by the authorization system
@@ -68,14 +69,15 @@ public interface IAuthzSubsystem extends ISubsystem {
      * @exception EBaseException If an error occurs during authorization.
      */
     public AuthzToken authorize(String authzMgrName, IAuthToken authToken,
-        String resource, String operation)
-        throws EBaseException;
+            String resource, String operation)
+            throws EBaseException;
 
     public AuthzToken authorize(String authzMgrName, IAuthToken authToken,
-        String exp) throws EBaseException;
+            String exp) throws EBaseException;
 
     /**
      * Adds (registers) the given authorization manager.
+     * 
      * @param name The authorization manager name
      * @param authzMgr The authorization manager instance.
      */
@@ -83,12 +85,14 @@ public interface IAuthzSubsystem extends ISubsystem {
 
     /**
      * Deletes (deregisters) the given authorization manager.
+     * 
      * @param name The authorization manager name to delete.
      */
     public void delete(String name);
 
     /**
      * Gets the Authorization manager instance of the specified name.
+     * 
      * @param name The authorization manager's name.
      * @return an authorization manager interface
      */
@@ -97,6 +101,7 @@ public interface IAuthzSubsystem extends ISubsystem {
     /**
      * Gets an enumeration of authorization managers registered to the
      * authorization component.
+     * 
      * @return a list of authorization managers
      */
     public Enumeration<IAuthzManager> getAuthzManagers();
@@ -112,12 +117,14 @@ public interface IAuthzSubsystem extends ISubsystem {
 
     /**
      * Gets an enumeration of authorization manager plugins.
+     * 
      * @return list of authorization manager plugins
      */
-    public Enumeration<AuthzMgrPlugin>  getAuthzManagerPlugins();
+    public Enumeration<AuthzMgrPlugin> getAuthzManagerPlugins();
 
     /**
      * Gets a single authorization manager plugin implementation
+     * 
      * @param name given authorization plugin name
      * @return authorization manager plugin
      */
@@ -125,6 +132,7 @@ public interface IAuthzSubsystem extends ISubsystem {
 
     /**
      * Log error message.
+     * 
      * @param level log level
      * @param msg error message
      */
@@ -132,21 +140,23 @@ public interface IAuthzSubsystem extends ISubsystem {
 
     /**
      * Get a hashtable containing all authentication plugins.
+     * 
      * @return all authentication plugins.
      */
     public Hashtable<String, AuthzMgrPlugin> getPlugins();
 
     /**
      * Get a hashtable containing all authentication instances.
+     * 
      * @return all authentication instances.
      */
     public Hashtable<String, AuthzManagerProxy> getInstances();
 
     /**
      * Get an authorization manager interface for the given name.
+     * 
      * @param name given authorization manager name.
      * @return an authorization manager interface
      */
     public IAuthzManager get(String name);
 }
-

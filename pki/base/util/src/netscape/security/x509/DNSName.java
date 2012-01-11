@@ -25,7 +25,7 @@ import netscape.security.util.DerValue;
 /**
  * This class implements the DNSName as required by the GeneralNames
  * ASN.1 object.
- *
+ * 
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  * @version 1.4
@@ -39,7 +39,7 @@ public class DNSName implements GeneralNameInterface {
 
     /**
      * Create the DNSName object from the passed encoded Der value.
-     *
+     * 
      * @param derValue the encoded DER DNSName.
      * @exception IOException on error.
      */
@@ -49,7 +49,7 @@ public class DNSName implements GeneralNameInterface {
 
     /**
      * Create the DNSName object with the specified name.
-     *
+     * 
      * @param name the DNSName.
      */
     public DNSName(String name) {
@@ -65,7 +65,7 @@ public class DNSName implements GeneralNameInterface {
 
     /**
      * Encode the DNS name into the DerOutputStream.
-     *
+     * 
      * @param out the DER stream to encode the DNSName to.
      * @exception IOException on encoding errors.
      */

@@ -17,14 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.evaluators;
 
-
 import com.netscape.certsrv.authentication.IAuthToken;
 
-
 /**
- * A class represents an evaluator.  An evaluator is used to
- * evaluate an expression.  For example, one can write an evaluator to 
- * evaluate if a user belongs to a certain group.  An evaluator is
+ * A class represents an evaluator. An evaluator is used to
+ * evaluate an expression. For example, one can write an evaluator to
+ * evaluate if a user belongs to a certain group. An evaluator is
  * generally used for access control expression evaluation, however, it
  * can be used for other evaluation-related operations.
  * <P>
@@ -39,14 +37,16 @@ public interface IAccessEvaluator {
     public void init();
 
     /**
-     * Gets the type of the evaluator.  Type is defined by each
-     * evaluator plugin.  Each evaluator plugin should have a unique type.
+     * Gets the type of the evaluator. Type is defined by each
+     * evaluator plugin. Each evaluator plugin should have a unique type.
+     * 
      * @return type of the evaluator
      */
     public String getType();
 
     /**
      * Gets the description of the evaluator
+     * 
      * @return a text description for this evaluator
      */
     public String getDescription();
@@ -54,12 +54,13 @@ public interface IAccessEvaluator {
     /**
      * Evaluates if the given value satisfies the access
      * control in current context.
+     * 
      * @param type Type of the evaluator, eg, user, group etc
      * @param op Operator of the evaluator, eg, =, !=
      * @param value Part of the expression that can be used to
-     * evaluate, e.g, value can be the name of the group if the
-     * purpose of the evaluator is to evaluate if the user is a member 
-     * of the group.
+     *            evaluate, e.g, value can be the name of the group if the
+     *            purpose of the evaluator is to evaluate if the user is a member
+     *            of the group.
      * @return true if the evaluation expression is matched; false otherwise.
      */
     public boolean evaluate(String type, String op, String value);
@@ -67,19 +68,21 @@ public interface IAccessEvaluator {
     /**
      * Evaluates if the given value satisfies the access
      * control in authToken obtained from Authentication.
+     * 
      * @param authToken Authentication token
      * @param type Type of the evaluator, eg, user, group etc
      * @param op Operator of the evaluator, eg, =, !=
      * @param value Part of the expression that can be used to
-     * evaluate, e.g, value can be the name of the group if the
-     * purpose of the evaluator is to evaluate if the user is a member 
-     * of the group.
+     *            evaluate, e.g, value can be the name of the group if the
+     *            purpose of the evaluator is to evaluate if the user is a member
+     *            of the group.
      * @return true if the evaluation expression is matched; false otherwise.
      */
     public boolean evaluate(IAuthToken authToken, String type, String op, String value);
 
     /**
      * Get the supported operators for this evaluator
+     * 
      * @return Supported operators in string array
      */
     public String[] getSupportedOperators();

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.def;
 
-
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Locale;
@@ -45,12 +44,11 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 
-
 /**
  * This class implements an enrollment default policy
  * that populates a CRL Distribution points extension
  * into the certificate template.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class CRLDistributionPointsExtDefault extends EnrollExtDefault {
@@ -84,31 +82,30 @@ public class CRLDistributionPointsExtDefault extends EnrollExtDefault {
     }
 
     public void init(IProfile profile, IConfigStore config)
-        throws EProfileException {
+            throws EProfileException {
         super.init(profile, config);
         refreshConfigAndValueNames();
     }
 
-     public void setConfig(String name, String value)
-        throws EPropertyException {
+    public void setConfig(String name, String value)
+            throws EPropertyException {
         int num = 0;
         if (name.equals(CONFIG_NUM_POINTS)) {
-          try {
-            num = Integer.parseInt(value);
+            try {
+                num = Integer.parseInt(value);
 
-            if (num >= MAX_NUM_POINTS || num < 0) {
+                if (num >= MAX_NUM_POINTS || num < 0) {
+                    throw new EPropertyException(CMS.getUserMessage(
+                            "CMS_INVALID_PROPERTY", CONFIG_NUM_POINTS));
+                }
+
+            } catch (Exception e) {
                 throw new EPropertyException(CMS.getUserMessage(
                             "CMS_INVALID_PROPERTY", CONFIG_NUM_POINTS));
             }
-
-          } catch (Exception e) {
-                throw new EPropertyException(CMS.getUserMessage(
-                            "CMS_INVALID_PROPERTY", CONFIG_NUM_POINTS));
-          }
         }
         super.setConfig(name, value);
     }
-
 
     public Enumeration getConfigNames() {
         refreshConfigAndValueNames();
@@ -147,39 +144,39 @@ public class CRLDistributionPointsExtDefault extends EnrollExtDefault {
             }
         }
 
-        if (num >= MAX_NUM_POINTS) 
+        if (num >= MAX_NUM_POINTS)
             num = DEF_NUM_POINTS;
 
         return num;
     }
 
-    public IDescriptor getConfigDescriptor(Locale locale, String name) { 
-        if (name.equals(CONFIG_CRITICAL)) { 
-            return new Descriptor(IDescriptor.BOOLEAN, null, 
+    public IDescriptor getConfigDescriptor(Locale locale, String name) {
+        if (name.equals(CONFIG_CRITICAL)) {
+            return new Descriptor(IDescriptor.BOOLEAN, null,
                     "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_CRITICAL"));
         } else if (name.startsWith(CONFIG_POINT_TYPE)) {
-            return new Descriptor(IDescriptor.STRING, null, 
+            return new Descriptor(IDescriptor.STRING, null,
                     null,
                     CMS.getUserMessage(locale, "CMS_PROFILE_POINT_TYPE"));
         } else if (name.startsWith(CONFIG_POINT_NAME)) {
-            return new Descriptor(IDescriptor.STRING, null, 
+            return new Descriptor(IDescriptor.STRING, null,
                     null,
                     CMS.getUserMessage(locale, "CMS_PROFILE_POINT_NAME"));
         } else if (name.startsWith(CONFIG_REASONS)) {
-            return new Descriptor(IDescriptor.STRING, null, 
+            return new Descriptor(IDescriptor.STRING, null,
                     null,
                     CMS.getUserMessage(locale, "CMS_PROFILE_REASONS"));
         } else if (name.startsWith(CONFIG_ISSUER_TYPE)) {
-            return new Descriptor(IDescriptor.STRING, null, 
+            return new Descriptor(IDescriptor.STRING, null,
                     null,
                     CMS.getUserMessage(locale, "CMS_PROFILE_ISSUER_TYPE"));
         } else if (name.startsWith(CONFIG_ISSUER_NAME)) {
-            return new Descriptor(IDescriptor.STRING, null, 
+            return new Descriptor(IDescriptor.STRING, null,
                     null,
                     CMS.getUserMessage(locale, "CMS_PROFILE_ISSUER_NAME"));
         } else if (name.startsWith(CONFIG_ENABLE)) {
-            return new Descriptor(IDescriptor.BOOLEAN, null, 
+            return new Descriptor(IDescriptor.BOOLEAN, null,
                     null,
                     CMS.getUserMessage(locale, "CMS_PROFILE_ENABLE"));
         } else if (name.startsWith(CONFIG_NUM_POINTS)) {
@@ -193,12 +190,12 @@ public class CRLDistributionPointsExtDefault extends EnrollExtDefault {
     }
 
     public IDescriptor getValueDescriptor(Locale locale, String name) {
-        if (name.equals(VAL_CRITICAL)) { 
-            return new Descriptor(IDescriptor.BOOLEAN, null, 
+        if (name.equals(VAL_CRITICAL)) {
+            return new Descriptor(IDescriptor.BOOLEAN, null,
                     "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_CRITICAL"));
         } else if (name.equals(VAL_CRL_DISTRIBUTION_POINTS)) {
-            return new Descriptor(IDescriptor.STRING_LIST, null, 
+            return new Descriptor(IDescriptor.STRING_LIST, null,
                     null,
                     CMS.getUserMessage(locale, "CMS_PROFILE_CRL_DISTRIBUTION_POINTS"));
         } else {
@@ -207,47 +204,45 @@ public class CRLDistributionPointsExtDefault extends EnrollExtDefault {
     }
 
     public void setValue(String name, Locale locale,
-        X509CertInfo info, String value)
-        throws EPropertyException {
+            X509CertInfo info, String value)
+            throws EPropertyException {
         try {
             CRLDistributionPointsExtension ext = null;
 
-            if (name == null) { 
-                throw new EPropertyException(CMS.getUserMessage( 
+            if (name == null) {
+                throw new EPropertyException(CMS.getUserMessage(
                             locale, "CMS_INVALID_PROPERTY", name));
             }
 
             ext = (CRLDistributionPointsExtension)
                         getExtension(PKIXExtensions.CRLDistributionPoints_Id.toString(),
-                            info);
+                                info);
 
-            if(ext == null)  {
-                populate(locale,info); 
+            if (ext == null) {
+                populate(locale, info);
             }
 
             if (name.equals(VAL_CRITICAL)) {
                 ext = (CRLDistributionPointsExtension)
-                        getExtension(PKIXExtensions.CRLDistributionPoints_Id.toString(), 
-                            info);
+                        getExtension(PKIXExtensions.CRLDistributionPoints_Id.toString(),
+                                info);
                 boolean val = Boolean.valueOf(value).booleanValue();
 
-                if(ext == null)
-                {
+                if (ext == null) {
                     return;
                 }
-                ext.setCritical(val); 
-            } else if (name.equals(VAL_CRL_DISTRIBUTION_POINTS)) { 
+                ext.setCritical(val);
+            } else if (name.equals(VAL_CRL_DISTRIBUTION_POINTS)) {
                 ext = (CRLDistributionPointsExtension)
-                        getExtension(PKIXExtensions.CRLDistributionPoints_Id.toString(), 
-                            info);
+                        getExtension(PKIXExtensions.CRLDistributionPoints_Id.toString(),
+                                info);
 
-                if(ext == null)
-                {
+                if (ext == null) {
                     return;
                 }
                 Vector v = parseRecords(value);
                 int size = v.size();
-              
+
                 boolean critical = ext.isCritical();
                 int i = 0;
 
@@ -285,7 +280,7 @@ public class CRLDistributionPointsExtDefault extends EnrollExtDefault {
                         if (issuerType != null)
                             addIssuer(locale, cdp, issuerType, issuerValue);
 
-                            // this is the first distribution point
+                        // this is the first distribution point
                         if (i == 0) {
                             ext = new CRLDistributionPointsExtension(cdp);
                             ext.setCritical(critical);
@@ -295,51 +290,51 @@ public class CRLDistributionPointsExtDefault extends EnrollExtDefault {
                     }
                 }
             } else {
-                throw new EPropertyException(CMS.getUserMessage( 
+                throw new EPropertyException(CMS.getUserMessage(
                             locale, "CMS_INVALID_PROPERTY", name));
             }
 
             replaceExtension(PKIXExtensions.CRLDistributionPoints_Id.toString(),
-                ext, info);
+                    ext, info);
         } catch (EProfileException e) {
-            CMS.debug("CRLDistributionPointsExtDefault: setValue " + 
-                e.toString());
-            throw new EPropertyException(CMS.getUserMessage( 
+            CMS.debug("CRLDistributionPointsExtDefault: setValue " +
+                    e.toString());
+            throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         }
     }
 
     private void addCRLPoint(Locale locale, CRLDistributionPoint cdp, String type,
-        String value) throws EPropertyException {
+            String value) throws EPropertyException {
         try {
             if (value == null || value.length() == 0)
                 return;
-        
+
             if (type.equals(RELATIVETOISSUER)) {
                 cdp.setRelativeName(new RDN(value));
             } else if (isGeneralNameType(type)) {
                 GeneralNames gen = new GeneralNames();
-                gen.addElement(parseGeneralName(type,value));
+                gen.addElement(parseGeneralName(type, value));
                 cdp.setFullName(gen);
             } else {
-                throw new EPropertyException(CMS.getUserMessage( 
+                throw new EPropertyException(CMS.getUserMessage(
                             locale, "CMS_INVALID_PROPERTY", type));
             }
         } catch (IOException e) {
-            CMS.debug("CRLDistributionPointsExtDefault: addCRLPoint " + 
-                e.toString());
-            throw new EPropertyException(CMS.getUserMessage( 
+            CMS.debug("CRLDistributionPointsExtDefault: addCRLPoint " +
+                    e.toString());
+            throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", type));
         } catch (GeneralNamesException e) {
-            CMS.debug("CRLDistributionPointsExtDefault: addCRLPoint " + 
-                e.toString());
-            throw new EPropertyException(CMS.getUserMessage( 
+            CMS.debug("CRLDistributionPointsExtDefault: addCRLPoint " +
+                    e.toString());
+            throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", type));
         }
     }
 
     private void addIssuer(Locale locale, CRLDistributionPoint cdp, String type,
-        String value) throws EPropertyException {
+            String value) throws EPropertyException {
         if (value == null || value.length() == 0)
             return;
         try {
@@ -349,20 +344,20 @@ public class CRLDistributionPointsExtDefault extends EnrollExtDefault {
                 gen.addElement(parseGeneralName(type, value));
                 cdp.setCRLIssuer(gen);
             } else {
-                throw new EPropertyException(CMS.getUserMessage( 
+                throw new EPropertyException(CMS.getUserMessage(
                             locale, "CMS_INVALID_PROPERTY", type));
             }
         } catch (IOException e) {
-            CMS.debug("CRLDistributionPointsExtDefault: addIssuer " + 
-                e.toString());
+            CMS.debug("CRLDistributionPointsExtDefault: addIssuer " +
+                    e.toString());
         } catch (GeneralNamesException e) {
-            CMS.debug("CRLDistributionPointsExtDefault: addIssuer " + 
-                e.toString());
+            CMS.debug("CRLDistributionPointsExtDefault: addIssuer " +
+                    e.toString());
         }
     }
 
-    private void addReasons(Locale locale, CRLDistributionPoint cdp, String type, 
-        String value) throws EPropertyException {
+    private void addReasons(Locale locale, CRLDistributionPoint cdp, String type,
+            String value) throws EPropertyException {
         if (value == null || value.length() == 0)
             return;
         if (type.equals(REASONS)) {
@@ -376,7 +371,7 @@ public class CRLDistributionPointsExtDefault extends EnrollExtDefault {
 
                     if (r == null) {
                         CMS.debug("CRLDistributeionPointsExtDefault: addReasons Unknown reason: " + s);
-                        throw new EPropertyException(CMS.getUserMessage( 
+                        throw new EPropertyException(CMS.getUserMessage(
                                     locale, "CMS_INVALID_PROPERTY", s));
                     } else {
                         reasonBits |= r.getBitMask();
@@ -384,47 +379,46 @@ public class CRLDistributionPointsExtDefault extends EnrollExtDefault {
                 }
 
                 if (reasonBits != 0) {
-                    BitArray ba = new BitArray(8, new byte[] {reasonBits}
-                        );
+                    BitArray ba = new BitArray(8, new byte[] { reasonBits }
+                            );
 
                     cdp.setReasons(ba);
                 }
             }
         } else {
-            throw new EPropertyException(CMS.getUserMessage( 
+            throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", type));
         }
     }
 
     public String getValue(String name, Locale locale,
-        X509CertInfo info)
-        throws EPropertyException {
+            X509CertInfo info)
+            throws EPropertyException {
         CRLDistributionPointsExtension ext = null;
 
         if (name == null) {
-            throw new EPropertyException(CMS.getUserMessage( 
+            throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         }
 
         ext = (CRLDistributionPointsExtension)
                     getExtension(PKIXExtensions.CRLDistributionPoints_Id.toString(),
-                        info);
+                            info);
 
-        if(ext == null)
-        {
+        if (ext == null) {
             try {
-                populate(locale,info);
+                populate(locale, info);
 
             } catch (EProfileException e) {
-                 throw new EPropertyException(CMS.getUserMessage(
-                      locale, "CMS_INVALID_PROPERTY", name));
+                throw new EPropertyException(CMS.getUserMessage(
+                        locale, "CMS_INVALID_PROPERTY", name));
             }
         }
 
         if (name.equals(VAL_CRITICAL)) {
             ext = (CRLDistributionPointsExtension)
-                    getExtension(PKIXExtensions.CRLDistributionPoints_Id.toString(), 
-                        info);
+                    getExtension(PKIXExtensions.CRLDistributionPoints_Id.toString(),
+                            info);
 
             if (ext == null) {
                 return null;
@@ -434,10 +428,10 @@ public class CRLDistributionPointsExtDefault extends EnrollExtDefault {
             } else {
                 return "false";
             }
-        } else if (name.equals(VAL_CRL_DISTRIBUTION_POINTS)) { 
+        } else if (name.equals(VAL_CRL_DISTRIBUTION_POINTS)) {
             ext = (CRLDistributionPointsExtension)
-                    getExtension(PKIXExtensions.CRLDistributionPoints_Id.toString(), 
-                        info);
+                    getExtension(PKIXExtensions.CRLDistributionPoints_Id.toString(),
+                            info);
 
             if (ext == null)
                 return "";
@@ -451,7 +445,7 @@ public class CRLDistributionPointsExtDefault extends EnrollExtDefault {
                 NameValuePairs pairs = null;
 
                 if (i < ext.getNumPoints()) {
-                    CRLDistributionPoint p = ext.getPointAt(i); 
+                    CRLDistributionPoint p = ext.getPointAt(i);
                     GeneralNames gns = p.getFullName();
 
                     pairs = buildGeneralNames(gns, p);
@@ -461,10 +455,10 @@ public class CRLDistributionPointsExtDefault extends EnrollExtDefault {
                     recs.addElement(pairs);
                 }
             }
-                
+
             return buildRecords(recs);
         } else {
-            throw new EPropertyException(CMS.getUserMessage( 
+            throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         }
     }
@@ -482,7 +476,7 @@ public class CRLDistributionPointsExtDefault extends EnrollExtDefault {
     }
 
     protected NameValuePairs buildGeneralNames(GeneralNames gns, CRLDistributionPoint p)
-        throws EPropertyException {
+            throws EPropertyException {
 
         NameValuePairs pairs = new NameValuePairs();
 
@@ -551,14 +545,14 @@ public class CRLDistributionPointsExtDefault extends EnrollExtDefault {
         if (reasons != null) {
             byte[] b = reasons.toByteArray();
             Reason[] reasonArray = Reason.bitArrayToReasonArray(b);
-    
+
             for (int i = 0; i < reasonArray.length; i++) {
                 if (sb.length() > 0)
                     sb.append(",");
                 sb.append(reasonArray[i].getName());
             }
         }
- 
+
         return sb.toString();
     }
 
@@ -589,8 +583,8 @@ public class CRLDistributionPointsExtDefault extends EnrollExtDefault {
             sb.append(getConfig(CONFIG_ENABLE + i));
             sb.append("}");
         }
-        return CMS.getUserMessage(locale, 
-                "CMS_PROFILE_DEF_CRL_DIST_POINTS_EXT", 
+        return CMS.getUserMessage(locale,
+                "CMS_PROFILE_DEF_CRL_DIST_POINTS_EXT",
                 getConfig(CONFIG_CRITICAL),
                 sb.toString());
     }
@@ -599,29 +593,30 @@ public class CRLDistributionPointsExtDefault extends EnrollExtDefault {
      * Populates the request with this policy default.
      */
     private void populate(Locale locale, X509CertInfo info)
-        throws EProfileException {
+            throws EProfileException {
         CRLDistributionPointsExtension ext = createExtension(locale);
 
         if (ext == null)
             return;
         addExtension(PKIXExtensions.CRLDistributionPoints_Id.toString(),
-            ext, info);
+                ext, info);
     }
+
     /**
      * Populates the request with this policy default.
      */
     public void populate(IRequest request, X509CertInfo info)
-        throws EProfileException {
+            throws EProfileException {
         CRLDistributionPointsExtension ext = createExtension(request);
 
         if (ext == null)
             return;
-        addExtension(PKIXExtensions.CRLDistributionPoints_Id.toString(), 
-            ext, info);
+        addExtension(PKIXExtensions.CRLDistributionPoints_Id.toString(),
+                ext, info);
     }
 
     public CRLDistributionPointsExtension createExtension(IRequest request) {
-        CRLDistributionPointsExtension ext = null; 
+        CRLDistributionPointsExtension ext = null;
         int num = 0;
 
         try {
@@ -631,8 +626,8 @@ public class CRLDistributionPointsExtDefault extends EnrollExtDefault {
             for (int i = 0; i < num; i++) {
                 CRLDistributionPoint cdp = new CRLDistributionPoint();
 
-                String enable = getConfig(CONFIG_ENABLE + i); 
-                String pointType = getConfig(CONFIG_POINT_TYPE + i); 
+                String enable = getConfig(CONFIG_ENABLE + i);
+                String pointType = getConfig(CONFIG_POINT_TYPE + i);
                 String pointName = getConfig(CONFIG_POINT_NAME + i);
                 String reasons = getConfig(CONFIG_REASONS + i);
                 String issuerType = getConfig(CONFIG_ISSUER_TYPE + i);
@@ -644,7 +639,7 @@ public class CRLDistributionPointsExtDefault extends EnrollExtDefault {
                     if (issuerType != null)
                         addIssuer(getLocale(request), cdp, issuerType, issuerName);
                     if (reasons != null)
-                      addReasons(getLocale(request), cdp, REASONS, reasons);
+                        addReasons(getLocale(request), cdp, REASONS, reasons);
 
                     if (i == 0) {
                         ext = new CRLDistributionPointsExtension(cdp);
@@ -656,7 +651,7 @@ public class CRLDistributionPointsExtDefault extends EnrollExtDefault {
             }
         } catch (Exception e) {
             CMS.debug("CRLDistribtionPointsExtDefault: createExtension " +
-                e.toString());
+                    e.toString());
             CMS.debug(e);
         }
 
@@ -698,7 +693,7 @@ public class CRLDistributionPointsExtDefault extends EnrollExtDefault {
             }
         } catch (Exception e) {
             CMS.debug("CRLDistribtionPointsExtDefault: createExtension " +
-                e.toString());
+                    e.toString());
             CMS.debug(e);
         }
 

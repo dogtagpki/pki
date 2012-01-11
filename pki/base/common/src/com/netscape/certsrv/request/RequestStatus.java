@@ -17,21 +17,20 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.request;
 
-
 /**
  * The RequestStatus class represents the current state of a request
- * in a request queue.  The state of the request changes as actions
+ * in a request queue. The state of the request changes as actions
  * are performed on it.
- *
+ * 
  * The request is created in the BEGIN state, then general progresses
  * through the PENDING, APPROVED, SVC_PENDING, and COMPLETE states.
  * Some requests may bypass the PENDING state if no agent action is
  * required.
- *
- * Requests may be CANCELED (not implemented) or REJECTED.  These are
+ * 
+ * Requests may be CANCELED (not implemented) or REJECTED. These are
  * error conditions, and usually result because the request was invalid
  * or was not approved by an agent.
- *
+ * 
  * @version $Revision$ $Date$
  */
 public final class RequestStatus {
@@ -46,7 +45,7 @@ public final class RequestStatus {
     /**
      * The initial state of a request. Requests in this state have not
      * been review by policy.
-     *
+     * 
      * While in this state the source of the request (usually the servlet,
      * but it could be some other protocol module, such as email)
      * should populate the request with data need to service it.
@@ -57,7 +56,7 @@ public final class RequestStatus {
      * The state of a request that is waiting for action by an agent.
      * When the agent approves or rejects the request, process will
      * continue as appropriate.
-     *
+     * 
      * In this state there may be PolicyMessages present that indicate
      * the reason for the pending status.
      */
@@ -67,7 +66,7 @@ public final class RequestStatus {
      * The state of a request that has been approved by an agent, or
      * automatically by the policy engine, but have not been successfully
      * transmitted to the service module.
-     *
+     * 
      * These requests are resent to the service during the recovery
      * process that runs at server startup.
      */
@@ -75,24 +74,24 @@ public final class RequestStatus {
 
     /**
      * The state of a request that has been sent to the service, but
-     * has not been fully processed.  The service will invoke the
+     * has not been fully processed. The service will invoke the
      * serviceComplete() method to cause processing to continue.
      */
     public static RequestStatus SVC_PENDING =
-        new RequestStatus(SVC_PENDING_STRING);
+            new RequestStatus(SVC_PENDING_STRING);
 
     /**
-     * Not implemented.  This is intended to be a final state that is
+     * Not implemented. This is intended to be a final state that is
      * reached when a request is removed from the processing queue without
-     * normal notification occurring.  (see REJECTED)
+     * normal notification occurring. (see REJECTED)
      */
     public static RequestStatus CANCELED = new RequestStatus(CANCELED_STRING);
 
     /**
-     * The state of a request after it is rejected.  When a request is
+     * The state of a request after it is rejected. When a request is
      * rejected, the notifier is called prior to making the finl status
      * change.
-     *
+     * 
      * Rejected requests may have PolicyMessages indicating the reason for
      * the rejection, or AgentMessages, which allow the agent to give
      * reasons for the action.
@@ -100,8 +99,8 @@ public final class RequestStatus {
     public static RequestStatus REJECTED = new RequestStatus(REJECTED_STRING);
 
     /**
-     * The normal final state of a request.  The completion status attribute
-     * gives other information about the request.  The request is not
+     * The normal final state of a request. The completion status attribute
+     * gives other information about the request. The request is not
      * necessarily successful, but may indicated that service processing
      * did not succeed.
      */
@@ -111,19 +110,27 @@ public final class RequestStatus {
      * Converts a string name for a request status into the
      * request status enum object.
      * <p>
+     * 
      * @param s
-     *    The string representation of the state.
+     *            The string representation of the state.
      * @return
-     *    request status
+     *         request status
      */
     public static RequestStatus fromString(String s) {
-        if (s.equals(BEGIN_STRING)) return BEGIN;
-        if (s.equals(PENDING_STRING)) return PENDING;
-        if (s.equals(APPROVED_STRING)) return APPROVED;
-        if (s.equals(SVC_PENDING_STRING)) return SVC_PENDING;
-        if (s.equals(CANCELED_STRING)) return CANCELED;
-        if (s.equals(REJECTED_STRING)) return REJECTED;
-        if (s.equals(COMPLETE_STRING)) return COMPLETE;
+        if (s.equals(BEGIN_STRING))
+            return BEGIN;
+        if (s.equals(PENDING_STRING))
+            return PENDING;
+        if (s.equals(APPROVED_STRING))
+            return APPROVED;
+        if (s.equals(SVC_PENDING_STRING))
+            return SVC_PENDING;
+        if (s.equals(CANCELED_STRING))
+            return CANCELED;
+        if (s.equals(REJECTED_STRING))
+            return REJECTED;
+        if (s.equals(COMPLETE_STRING))
+            return COMPLETE;
 
         return null;
     }
@@ -131,16 +138,16 @@ public final class RequestStatus {
     /**
      * Returns the string form of the RequestStatus, which may be used
      * to record the status in a database.
-	 *
+     * 
      * @return request status
      */
     public String toString() {
         return mString;
     }
- 
+
     /**
      * Class constructor. Creates request status from the string.
-	 *
+     * 
      * @param string string describing request status
      */
     private RequestStatus(String string) {
@@ -151,21 +158,25 @@ public final class RequestStatus {
 
     /**
      * Compares request status with specified string.
-	 *
+     * 
      * @param string string describing request status
      */
     public boolean equals(String string) {
-        if (string.equals(mString)) return true;
-        else return false;
+        if (string.equals(mString))
+            return true;
+        else
+            return false;
     }
-  
+
     /**
      * Compares current request status with request status.
-	 *
+     * 
      * @param rs request status
      */
     public boolean equals(RequestStatus rs) {
-        if (mString.equals(rs.mString)) return true;
-        else return false;
+        if (mString.equals(rs.mString))
+            return true;
+        else
+            return false;
     }
 }

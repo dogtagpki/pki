@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.ldap;
 
-
 import netscape.ldap.LDAPConnection;
 
 import com.netscape.certsrv.apps.CMS;
@@ -34,7 +33,6 @@ import com.netscape.cmscore.ldapconn.LdapAuthInfo;
 import com.netscape.cmscore.ldapconn.LdapBoundConnFactory;
 import com.netscape.cmscore.ldapconn.LdapConnInfo;
 
-
 public class LdapConnModule implements ILdapConnModule {
     protected IConfigStore mConfig = null;
     protected LdapBoundConnFactory mLdapConnFactory = null;
@@ -42,7 +40,7 @@ public class LdapConnModule implements ILdapConnModule {
     private boolean mInited = false;
 
     /**
-     * instantiate connection factory. 
+     * instantiate connection factory.
      */
 
     public static final String PROP_LDAP = "ldap";
@@ -58,13 +56,13 @@ public class LdapConnModule implements ILdapConnModule {
     protected ISubsystem mPubProcessor;
 
     public void init(ISubsystem p,
-        IConfigStore config)
-        throws EBaseException {
+            IConfigStore config)
+            throws EBaseException {
 
         CMS.debug("LdapConnModule: init called");
         if (mInited) {
             CMS.debug("LdapConnModule: already initialized. return.");
-             return;
+            return;
         }
         CMS.debug("LdapConnModule: init begins");
 
@@ -85,16 +83,16 @@ public class LdapConnModule implements ILdapConnModule {
         ILdapConnInfo connInfo =
                 CMS.getLdapConnInfo(ldapconn);
         LdapAuthInfo authInfo =
-            new LdapAuthInfo(authinfo, ldapconn.getString("host"),
-                ldapconn.getInteger("port"), connInfo.getSecure());
+                new LdapAuthInfo(authinfo, ldapconn.getString("host"),
+                        ldapconn.getInteger("port"), connInfo.getSecure());
 
         int minConns = mConfig.getInteger(ILdapBoundConnFactory.PROP_MINCONNS, 3);
         int maxConns = mConfig.getInteger(ILdapBoundConnFactory.PROP_MAXCONNS, 15);
         // must get authInfo from the config, don't default to internaldb!!!
 
-        CMS.debug("Creating LdapBoundConnFactory for LdapConnModule."); 
+        CMS.debug("Creating LdapBoundConnFactory for LdapConnModule.");
         mLdapConnFactory =
-             new LdapBoundConnFactory(minConns, maxConns, (LdapConnInfo)connInfo, authInfo);
+                new LdapBoundConnFactory(minConns, maxConns, (LdapConnInfo) connInfo, authInfo);
 
         mInited = true;
 
@@ -102,15 +100,15 @@ public class LdapConnModule implements ILdapConnModule {
     }
 
     /**
-     * Returns the internal ldap connection factory. 
-     * This can be useful to get a ldap connection to the 
-     * ldap publishing directory without having to get it again from the 
-     * config file. Note that this means sharing a ldap connection pool 
+     * Returns the internal ldap connection factory.
+     * This can be useful to get a ldap connection to the
+     * ldap publishing directory without having to get it again from the
+     * config file. Note that this means sharing a ldap connection pool
      * with the ldap publishing module so be sure to return connections to pool.
-     * Use ILdapConnFactory.getConn() to get a Ldap connection to the ldap 
-     * publishing directory. 
-     * Use ILdapConnFactory.returnConn() to return the connection. 
-     *
+     * Use ILdapConnFactory.getConn() to get a Ldap connection to the ldap
+     * publishing directory.
+     * Use ILdapConnFactory.returnConn() to return the connection.
+     * 
      * @see com.netscape.certsrv.ldap.ILdapBoundConnFactory
      * @see com.netscape.certsrv.ldap.ILdapConnFactory
      */
@@ -127,9 +125,8 @@ public class LdapConnModule implements ILdapConnModule {
     }
 
     public void log(int level, String msg) {
-        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_LDAP, level, 
-            "LdapPublishModule: " + msg);
+        mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_LDAP, level,
+                "LdapPublishModule: " + msg);
     }
-	
-}
 
+}

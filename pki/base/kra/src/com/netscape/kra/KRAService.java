@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.kra;
 
-
 import java.util.Hashtable;
 
 import com.netscape.certsrv.apps.CMS;
@@ -28,7 +27,6 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IService;
 import com.netscape.cmscore.util.Debug;
 
-
 /**
  * A class represents a KRA request queue service. This
  * is the service object that is registered with
@@ -37,14 +35,14 @@ import com.netscape.cmscore.util.Debug;
  * services. This service registration allows us to support
  * new request easier.
  * <P>
- *
+ * 
  * @author thomask
  * @version $Revision$, $Date$
  */
 public class KRAService implements IService {
 
-    public final static String ENROLLMENT = 
-        IRequest.ENROLLMENT_REQUEST;
+    public final static String ENROLLMENT =
+            IRequest.ENROLLMENT_REQUEST;
     public final static String RECOVERY = IRequest.KEYRECOVERY_REQUEST;
     public final static String NETKEY_KEYGEN = IRequest.NETKEY_KEYGEN_REQUEST;
     public final static String NETKEY_KEYRECOVERY = IRequest.NETKEY_KEYRECOVERY_REQUEST;
@@ -60,23 +58,23 @@ public class KRAService implements IService {
         mKRA = kra;
         mServices.put(ENROLLMENT, new EnrollmentService(kra));
         mServices.put(RECOVERY, new RecoveryService(kra));
-	mServices.put(NETKEY_KEYGEN, new NetkeyKeygenService(kra));
-	mServices.put(NETKEY_KEYRECOVERY, new TokenKeyRecoveryService(kra));
+        mServices.put(NETKEY_KEYGEN, new NetkeyKeygenService(kra));
+        mServices.put(NETKEY_KEYRECOVERY, new TokenKeyRecoveryService(kra));
     }
 
     /**
      * Processes a KRA request. This method is invoked by
      * request subsystem.
-     *
+     * 
      * @param r request from request subsystem
      * @exception EBaseException failed to serve
      */
     public boolean serviceRequest(IRequest r) throws EBaseException {
         if (Debug.ON)
-            Debug.trace("KRA services request " + 
-                r.getRequestId().toString());
+            Debug.trace("KRA services request " +
+                    r.getRequestId().toString());
         mKRA.log(ILogger.LL_INFO, "KRA services request " +
-            r.getRequestId().toString());
+                r.getRequestId().toString());
         IService s = (IService) mServices.get(
                 r.getRequestType());
 

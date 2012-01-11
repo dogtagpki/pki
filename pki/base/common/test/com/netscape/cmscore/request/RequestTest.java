@@ -87,8 +87,8 @@ public class RequestTest extends CMSBaseTestCase {
 
         request.setExtData("UPPER", "CASE");
         assertEquals("CASE", request.mExtData.get("upper"));
-        
-        assertFalse(request.setExtData("key", (String)null));
+
+        assertFalse(request.setExtData("key", (String) null));
     }
 
     public void testVerifyValidExtDataHashtable() {
@@ -131,8 +131,8 @@ public class RequestTest extends CMSBaseTestCase {
 
         valueHash.put("", "value");
         assertFalse(request.setExtData("topkey2", valueHash));
-        
-        assertFalse(request.setExtData("topkey3", (Hashtable)null));
+
+        assertFalse(request.setExtData("topkey3", (Hashtable) null));
     }
 
     public void testGetExtDataInString() {
@@ -213,9 +213,9 @@ public class RequestTest extends CMSBaseTestCase {
         assertFalse(value.containsKey(""));
 
         // Illegal values
-        assertFalse(request.setExtData((String)null, "b", "c"));
-        assertFalse(request.setExtData("a", (String)null, "c"));
-        assertFalse(request.setExtData("a", "b", (String)null));
+        assertFalse(request.setExtData((String) null, "b", "c"));
+        assertFalse(request.setExtData("a", (String) null, "c"));
+        assertFalse(request.setExtData("a", "b", (String) null));
     }
 
     public void testGetExtDataSubkeyValue() {
@@ -223,7 +223,7 @@ public class RequestTest extends CMSBaseTestCase {
         value.put("subkey", "value");
 
         request.setExtData("topkey", value);
-        
+
         assertEquals("value", request.getExtDataInString("topkey", "SUBKEY"));
         assertNull(request.getExtDataInString("badkey", "subkey"));
         assertNull(request.getExtDataInString("topkey", "badkey"));
@@ -242,7 +242,7 @@ public class RequestTest extends CMSBaseTestCase {
         assertNull(request.getExtDataInInteger("strkey"));
         assertNull(request.getExtDataInInteger("notfound"));
 
-        assertFalse(request.setExtData("key", (Integer)null));
+        assertFalse(request.setExtData("key", (Integer) null));
     }
 
     public void testGetSetExtDataIntegerArray() {
@@ -265,7 +265,7 @@ public class RequestTest extends CMSBaseTestCase {
         request.setExtData("topkey2", hashValue);
         assertNull(request.getExtDataInIntegerArray("topkey2"));
 
-        assertFalse(request.setExtData("key", (Integer[])null));
+        assertFalse(request.setExtData("key", (Integer[]) null));
     }
 
     public void testGetSetExtDataBigInteger() {
@@ -281,7 +281,7 @@ public class RequestTest extends CMSBaseTestCase {
         assertNull(request.getExtDataInBigInteger("strkey"));
         assertNull(request.getExtDataInBigInteger("notfound"));
 
-        assertFalse(request.setExtData("key", (BigInteger)null));
+        assertFalse(request.setExtData("key", (BigInteger) null));
     }
 
     public void testGetSetExtDataBigIntegerArray() {
@@ -304,7 +304,7 @@ public class RequestTest extends CMSBaseTestCase {
         request.setExtData("topkey2", hashValue);
         assertNull(request.getExtDataInBigIntegerArray("topkey2"));
 
-        assertFalse(request.setExtData("key", (BigInteger[])null));
+        assertFalse(request.setExtData("key", (BigInteger[]) null));
     }
 
     public void testSetExtDataThrowable() {
@@ -314,7 +314,7 @@ public class RequestTest extends CMSBaseTestCase {
 
         assertEquals(e.toString(), request.mExtData.get("key"));
 
-        assertFalse(request.setExtData("key", (Throwable)null));
+        assertFalse(request.setExtData("key", (Throwable) null));
     }
 
     public void testGetSetByteArray() {
@@ -330,7 +330,7 @@ public class RequestTest extends CMSBaseTestCase {
         assertTrue(cmsStub.aToBCalled);
         assertEquals(data, out);
 
-        assertFalse(request.setExtData("key", (byte[])null));
+        assertFalse(request.setExtData("key", (byte[]) null));
     }
 
     public void testGetSetCert() throws CertificateException {
@@ -345,7 +345,7 @@ public class RequestTest extends CMSBaseTestCase {
         assertTrue(cmsStub.aToBCalled);
         assertEquals(cert, retval);
 
-        assertFalse(request.setExtData("key", (X509CertImpl)null));
+        assertFalse(request.setExtData("key", (X509CertImpl) null));
     }
 
     public void testGetSetCertArray() throws CertificateException {
@@ -357,7 +357,7 @@ public class RequestTest extends CMSBaseTestCase {
         };
 
         assertTrue(request.setExtData("key", vals));
-        Hashtable hashVals = (Hashtable)request.mExtData.get("key");
+        Hashtable hashVals = (Hashtable) request.mExtData.get("key");
         assertEquals(2, hashVals.keySet().size());
 
         assertFalse(cmsStub.aToBCalled);
@@ -368,15 +368,15 @@ public class RequestTest extends CMSBaseTestCase {
         assertEquals(vals[0], retval[0]);
         assertEquals(vals[1], retval[1]);
 
-        assertFalse(request.setExtData("key", (X509CertImpl[])null));
+        assertFalse(request.setExtData("key", (X509CertImpl[]) null));
     }
 
     public void testGetSetStringArray() {
-        String[] value = new String[] {"blue", "green", "red", "orange"};
+        String[] value = new String[] { "blue", "green", "red", "orange" };
         assertTrue(request.setExtData("key", value));
 
         assertTrue(request.mExtData.containsKey("key"));
-        Hashtable hashValue = (Hashtable)request.mExtData.get("key");
+        Hashtable hashValue = (Hashtable) request.mExtData.get("key");
         assertTrue(hashValue.containsKey("0"));
         assertTrue(hashValue.containsKey("1"));
         assertTrue(hashValue.containsKey("2"));
@@ -417,7 +417,7 @@ public class RequestTest extends CMSBaseTestCase {
         request.setExtData("cory", hashValue);
         assertNull(request.getExtDataInStringArray("cory"));
 
-        assertFalse(request.setExtData("key", (String[])null));
+        assertFalse(request.setExtData("key", (String[]) null));
 
     }
 
@@ -431,7 +431,7 @@ public class RequestTest extends CMSBaseTestCase {
         assertTrue(request.setExtData("key", stringVector));
 
         assertTrue(request.mExtData.containsKey("key"));
-        Hashtable hashValue = (Hashtable)request.mExtData.get("key");
+        Hashtable hashValue = (Hashtable) request.mExtData.get("key");
         assertTrue(hashValue.containsKey("0"));
         assertTrue(hashValue.containsKey("1"));
         assertTrue(hashValue.containsKey("2"));
@@ -455,7 +455,7 @@ public class RequestTest extends CMSBaseTestCase {
         request.setExtData("cory", hashValue);
         assertNull(request.getExtDataInStringVector("cory"));
 
-        assertFalse(request.setExtData("key", (Vector)null));
+        assertFalse(request.setExtData("key", (Vector) null));
     }
 
     public void testGetSetCertInfo() {
@@ -472,7 +472,7 @@ public class RequestTest extends CMSBaseTestCase {
         request.getExtDataInCertInfo("key");
         assertTrue(cmsStub.aToBCalled);
 
-        assertFalse(request.setExtData("key", (X509CertInfo)null));
+        assertFalse(request.setExtData("key", (X509CertInfo) null));
     }
 
     public void testGetSetCertInfoArray() {
@@ -482,14 +482,14 @@ public class RequestTest extends CMSBaseTestCase {
         };
 
         assertTrue(request.setExtData("key", vals));
-        Hashtable hashVals = (Hashtable)request.mExtData.get("key");
+        Hashtable hashVals = (Hashtable) request.mExtData.get("key");
         assertEquals(2, hashVals.keySet().size());
 
         assertFalse(cmsStub.aToBCalled);
         request.getExtDataInCertInfoArray("key");
         assertTrue(cmsStub.aToBCalled);
 
-        assertFalse(request.setExtData("key", (X509CertInfo[])null));
+        assertFalse(request.setExtData("key", (X509CertInfo[]) null));
     }
 
     public void testGetBoolean() {
@@ -532,14 +532,14 @@ public class RequestTest extends CMSBaseTestCase {
         };
 
         assertTrue(request.setExtData("key", vals));
-        Hashtable hashVals = (Hashtable)request.mExtData.get("key");
+        Hashtable hashVals = (Hashtable) request.mExtData.get("key");
         assertEquals(2, hashVals.keySet().size());
 
         assertFalse(cmsStub.aToBCalled);
         request.getExtDataInCertInfoArray("key");
         assertTrue(cmsStub.aToBCalled);
 
-        assertFalse(request.setExtData("key", (RevokedCertImpl[])null));
+        assertFalse(request.setExtData("key", (RevokedCertImpl[]) null));
     }
 
     public void testGetSetCertExts() throws IOException {
@@ -560,7 +560,7 @@ public class RequestTest extends CMSBaseTestCase {
         assertNotNull(retval);
         assertEquals(1, retval.size());
 
-        assertFalse(request.setExtData("key", (CertificateExtensions)null));
+        assertFalse(request.setExtData("key", (CertificateExtensions) null));
     }
 
     public void testGetSetCertSubjectName() throws IOException {
@@ -572,10 +572,10 @@ public class RequestTest extends CMSBaseTestCase {
         CertificateSubjectName retval = request.getExtDataInCertSubjectName("key");
         assertNotNull(retval);
         // the 'CN=' is uppercased at some point
-        assertEquals("cn=kevin", 
+        assertEquals("cn=kevin",
                 retval.get(CertificateSubjectName.DN_NAME).toString().toLowerCase());
 
-        assertFalse(request.setExtData("key", (CertificateSubjectName)null));
+        assertFalse(request.setExtData("key", (CertificateSubjectName) null));
     }
 
     public void testGetSetAuthToken() {
@@ -593,14 +593,14 @@ public class RequestTest extends CMSBaseTestCase {
         assertEquals(token.getInString("key2"), retval.getInString("key2"));
         assertEquals(token.getInInteger("key3"), retval.getInInteger("key3"));
 
-        assertFalse(request.setExtData("key", (AuthToken)null));
+        assertFalse(request.setExtData("key", (AuthToken) null));
     }
-    
+
     /**
      * CMSMemoryStub
-     *
+     * 
      * This class is used to help test methods that rely on setting and then
-     * getting a value out.  It assumes BtoA is always called first, stores
+     * getting a value out. It assumes BtoA is always called first, stores
      * the value passed in, and then returns that value for BtoA.
      */
     class CMSMemoryStub extends CMSEngineDefaultStub {
@@ -645,7 +645,6 @@ public class RequestTest extends CMSBaseTestCase {
          */
         private static final long serialVersionUID = -9088436260566619005L;
         boolean getEncodedCalled = false;
-
 
         public byte[] getEncoded() throws CRLException {
             getEncodedCalled = true;

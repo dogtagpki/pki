@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-
 import java.io.IOException;
 
 import javax.servlet.ServletConfig;
@@ -36,19 +35,20 @@ import com.netscape.cms.servlet.wizard.WizardServlet;
 
 public class AuthenticatePanel extends WizardPanelBase {
 
-    public AuthenticatePanel() {}
+    public AuthenticatePanel() {
+    }
 
     /**
      * Initializes this panel.
      */
-    public void init(ServletConfig config, int panelno) 
-        throws ServletException {
+    public void init(ServletConfig config, int panelno)
+            throws ServletException {
         setPanelNo(panelno);
         setName("Authentication");
     }
 
     public void init(WizardServlet servlet, ServletConfig config, int panelno, String id)
-        throws ServletException {
+            throws ServletException {
         setPanelNo(panelno);
         setName("Authentication");
         setId(id);
@@ -62,21 +62,22 @@ public class AuthenticatePanel extends WizardPanelBase {
     public boolean isPanelDone() {
         IConfigStore cs = CMS.getConfigStore();
         try {
-            String s = cs.getString("preop.ca.agent.uid","");
+            String s = cs.getString("preop.ca.agent.uid", "");
             if (s == null || s.equals("")) {
                 return false;
             } else {
                 return true;
             }
-        } catch (EBaseException e) {}
+        } catch (EBaseException e) {
+        }
         return false;
     }
 
     public PropertySet getUsage() {
         PropertySet set = new PropertySet();
-                                                                                
+
         /* XXX */
-                                                                                
+
         return set;
     }
 
@@ -90,14 +91,14 @@ public class AuthenticatePanel extends WizardPanelBase {
         IConfigStore config = CMS.getConfigStore();
 
         if (isPanelDone()) {
-            
+
             try {
                 String s = config.getString("preop.ca.agent.uid", "");
                 String type = config.getString("preop.hierarchy.select", "");
                 if (type.equals("root"))
                     context.put("uid", "");
                 else
-                    context.put("uid", s); 
+                    context.put("uid", s);
             } catch (Exception e) {
                 CMS.debug(e.toString());
             }
@@ -151,30 +152,31 @@ public class AuthenticatePanel extends WizardPanelBase {
             try {
                 host = config.getString("preop.ca.hostname");
             } catch (Exception e) {
-                CMS.debug("AuthenticatePanel update: "+e.toString());
+                CMS.debug("AuthenticatePanel update: " + e.toString());
                 context.put("errorString", "Missing hostname");
                 throw new IOException("Missing hostname");
             }
-         
+
             try {
                 httpsport = config.getInteger("preop.ca.httpsport");
             } catch (Exception e) {
-                CMS.debug("AuthenticatePanel update: "+e.toString());
+                CMS.debug("AuthenticatePanel update: " + e.toString());
                 context.put("errorString", "Missing port");
                 throw new IOException("Missing port");
             }
 
-             boolean authenticated = authenticate(host, httpsport, true,
-             "/ca/ee/ca/configSubsystem", "uid="+uid+"&pwd="+pwd);
+            boolean authenticated = authenticate(host, httpsport, true,
+                    "/ca/ee/ca/configSubsystem", "uid=" + uid + "&pwd=" + pwd);
 
-             if (!authenticated) {
-                 context.put("errorString", "Wrong user id or password");
-                 throw new IOException("Wrong user id or password");
-             }
+            if (!authenticated) {
+                context.put("errorString", "Wrong user id or password");
+                throw new IOException("Wrong user id or password");
+            }
 
             try {
                 config.commit(false);
-            } catch (EBaseException e) {}
+            } catch (EBaseException e) {
+            }
         }
     }
 
@@ -182,9 +184,8 @@ public class AuthenticatePanel extends WizardPanelBase {
      * If validiate() returns false, this method will be called.
      */
     public void displayError(HttpServletRequest request,
-        HttpServletResponse response,
-        Context context)
-    {
+            HttpServletResponse response,
+            Context context) {
         context.put("password", "");
         context.put("panel", "admin/console/config/authenticatepanel.vm");
     }

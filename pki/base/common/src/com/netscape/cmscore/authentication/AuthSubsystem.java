@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.authentication;
 
-
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -40,11 +39,10 @@ import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cmscore.util.Debug;
 
-
 /**
  * Default authentication subsystem
  * <P>
- *
+ * 
  * @author cfu
  * @author lhsiao
  * @version $Revision$, $Date$
@@ -75,27 +73,28 @@ public class AuthSubsystem implements IAuthSubsystem {
     /**
      * Initializes the authentication subsystem from the config store.
      * Load Authentication manager plugins, create and initialize
-     * initialize authentication manager instances. 
+     * initialize authentication manager instances.
+     * 
      * @param owner The owner of this module.
      * @param config The configuration store.
      */
     public void init(ISubsystem owner, IConfigStore config)
-        throws EBaseException {
+            throws EBaseException {
         try {
             mLogger = CMS.getLogger();
             mConfig = config;
-    
+
             // hardcode admin and agent plugins required for the server to be 
             // functional.
 
             AuthMgrPlugin newPlugin = null;
 
-            newPlugin = new AuthMgrPlugin(PASSWDUSERDB_PLUGIN_ID, 
+            newPlugin = new AuthMgrPlugin(PASSWDUSERDB_PLUGIN_ID,
                     PasswdUserDBAuthentication.class.getName());
             newPlugin.setVisible(false);
             mAuthMgrPlugins.put(PASSWDUSERDB_PLUGIN_ID, newPlugin);
 
-            newPlugin = new AuthMgrPlugin(CERTUSERDB_PLUGIN_ID, 
+            newPlugin = new AuthMgrPlugin(CERTUSERDB_PLUGIN_ID,
                     CertUserDBAuthentication.class.getName());
             newPlugin.setVisible(false);
             mAuthMgrPlugins.put(CERTUSERDB_PLUGIN_ID, newPlugin);
@@ -128,7 +127,7 @@ public class AuthSubsystem implements IAuthSubsystem {
             while (mImpls.hasMoreElements()) {
                 String id = (String) mImpls.nextElement();
                 String pluginPath = c.getString(id + "." + PROP_CLASS);
-			
+
                 AuthMgrPlugin plugin = new AuthMgrPlugin(id, pluginPath);
 
                 mAuthMgrPlugins.put(id, plugin);
@@ -143,8 +142,8 @@ public class AuthSubsystem implements IAuthSubsystem {
             IAuthManager passwdUserDBAuth = new PasswdUserDBAuthentication();
 
             passwdUserDBAuth.init(PASSWDUSERDB_AUTHMGR_ID, PASSWDUSERDB_PLUGIN_ID, null);
-            mAuthMgrInsts.put(PASSWDUSERDB_AUTHMGR_ID, new 
-                AuthManagerProxy(true, passwdUserDBAuth));
+            mAuthMgrInsts.put(PASSWDUSERDB_AUTHMGR_ID, new
+                    AuthManagerProxy(true, passwdUserDBAuth));
             if (Debug.ON) {
                 Debug.trace("loaded password based auth manager");
             }
@@ -164,7 +163,7 @@ public class AuthSubsystem implements IAuthSubsystem {
             if (Debug.ON) {
                 Debug.trace("loaded challenge phrase auth manager");
             }
-        
+
             IAuthManager cmcAuth = new com.netscape.cms.authentication.CMCAuth();
 
             cmcAuth.init(CMCAUTH_AUTHMGR_ID, CMCAUTH_PLUGIN_ID, config);
@@ -172,7 +171,7 @@ public class AuthSubsystem implements IAuthSubsystem {
             if (Debug.ON) {
                 Debug.trace("loaded cmc auth manager");
             }
-        
+
             // #56659
             // IAuthManager nullAuth = new NullAuthentication();
 
@@ -197,8 +196,8 @@ public class AuthSubsystem implements IAuthSubsystem {
             while (instances.hasMoreElements()) {
                 String insName = (String) instances.nextElement();
                 String implName = c.getString(insName + "." + PROP_PLUGIN);
-                AuthMgrPlugin plugin = 
-                    (AuthMgrPlugin) mAuthMgrPlugins.get(implName);
+                AuthMgrPlugin plugin =
+                        (AuthMgrPlugin) mAuthMgrPlugins.get(implName);
 
                 if (plugin == null) {
                     log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_CANT_FIND_PLUGIN", implName));
@@ -211,8 +210,8 @@ public class AuthSubsystem implements IAuthSubsystem {
                 IAuthManager authMgrInst = null;
 
                 try {
-                    authMgrInst = (IAuthManager) 
-                        Class.forName(className).newInstance();
+                    authMgrInst = (IAuthManager)
+                            Class.forName(className).newInstance();
                     IConfigStore authMgrConfig = c.getSubStore(insName);
 
                     authMgrInst.init(insName, implName, authMgrConfig);
@@ -221,16 +220,13 @@ public class AuthSubsystem implements IAuthSubsystem {
                     log(ILogger.LL_INFO, CMS.getLogMessage("CMSCORE_AUTH_ADD_AUTH_INSTANCE", insName));
                 } catch (ClassNotFoundException e) {
                     log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_AUTHSUB_ERROR", e.toString()));
-                    throw new
-                        EAuthException(CMS.getUserMessage("CMS_ACL_CLASS_LOAD_FAIL", className));
+                    throw new EAuthException(CMS.getUserMessage("CMS_ACL_CLASS_LOAD_FAIL", className));
                 } catch (IllegalAccessException e) {
                     log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_AUTHSUB_ERROR", e.toString()));
-                    throw new
-                        EAuthException(CMS.getUserMessage("CMS_ACL_CLASS_LOAD_FAIL", className));
+                    throw new EAuthException(CMS.getUserMessage("CMS_ACL_CLASS_LOAD_FAIL", className));
                 } catch (InstantiationException e) {
                     log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_AUTHSUB_ERROR", e.toString()));
-                    throw new
-                        EAuthException(CMS.getUserMessage("CMS_ACL_CLASS_LOAD_FAIL", className));
+                    throw new EAuthException(CMS.getUserMessage("CMS_ACL_CLASS_LOAD_FAIL", className));
                 } catch (EBaseException e) {
                     log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_AUTH_INIT_ERROR", insName, e.toString()));
                     // Skip the authenticaiton instance if
@@ -245,8 +241,8 @@ public class AuthSubsystem implements IAuthSubsystem {
                     // fix the problem via console
                 }
                 // add manager instance to list.
-                mAuthMgrInsts.put(insName, new 
-                    AuthManagerProxy(isEnable, authMgrInst));
+                mAuthMgrInsts.put(insName, new
+                        AuthManagerProxy(isEnable, authMgrInst));
                 if (Debug.ON) {
                     Debug.trace("loaded auth instance " + insName + " impl " + implName);
                 }
@@ -262,23 +258,24 @@ public class AuthSubsystem implements IAuthSubsystem {
     /**
      * Authenticate to the named authentication manager instance
      * <p>
+     * 
      * @param authCred authentication credentials subject to the
-     *  requirements of each authentication manager
+     *            requirements of each authentication manager
      * @param authMgrName name of the authentication manager instance
-     * @return authentication token with individualized authenticated 
-     * information.
+     * @return authentication token with individualized authenticated
+     *         information.
      * @exception EMissingCredential If a required credential for the
-     * authentication manager is missing.
+     *                authentication manager is missing.
      * @exception EInvalidCredentials If the credentials cannot be authenticated
      * @exception EAuthMgrNotFound The auth manager is not found.
      * @exception EBaseException If an internal error occurred.
      */
     public IAuthToken authenticate(
-        IAuthCredentials authCred, String authMgrInstName)
-        throws EMissingCredential, EInvalidCredentials, 
+            IAuthCredentials authCred, String authMgrInstName)
+            throws EMissingCredential, EInvalidCredentials,
             EAuthMgrNotFound, EBaseException {
         AuthManagerProxy proxy = (AuthManagerProxy)
-            mAuthMgrInsts.get(authMgrInstName);
+                mAuthMgrInsts.get(authMgrInstName);
 
         if (proxy == null) {
             throw new EAuthMgrNotFound(CMS.getUserMessage("CMS_AUTHENTICATION_AUTHMGR_NOT_FOUND", authMgrInstName));
@@ -296,10 +293,10 @@ public class AuthSubsystem implements IAuthSubsystem {
 
     /**
      * Gets a list of required authentication credential names
-     * of the specified authentication manager.  
+     * of the specified authentication manager.
      */
     public String[] getRequiredCreds(String authMgrInstName)
-        throws EAuthMgrNotFound {
+            throws EAuthMgrNotFound {
         IAuthManager authMgrInst = get(authMgrInstName);
 
         if (authMgrInst == null) {
@@ -309,13 +306,14 @@ public class AuthSubsystem implements IAuthSubsystem {
     }
 
     /**
-     * Gets configuration parameters for the given 
+     * Gets configuration parameters for the given
      * authentication manager plugin.
+     * 
      * @param implName Name of the authentication plugin.
      * @return Hashtable of required parameters.
      */
     public String[] getConfigParams(String implName)
-        throws EAuthMgrPluginNotFound, EBaseException {
+            throws EAuthMgrPluginNotFound, EBaseException {
         // is this a registered implname?
         AuthMgrPlugin plugin = (AuthMgrPlugin) mAuthMgrPlugins.get(implName);
 
@@ -334,21 +332,19 @@ public class AuthSubsystem implements IAuthSubsystem {
             return (authMgrInst.getConfigParams());
         } catch (InstantiationException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_INSTANCE_NOT_CREATED", e.toString()));
-            throw new
-                EAuthException(CMS.getUserMessage("CMS_ACL_CLASS_LOAD_FAIL", className));
+            throw new EAuthException(CMS.getUserMessage("CMS_ACL_CLASS_LOAD_FAIL", className));
         } catch (ClassNotFoundException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_INSTANCE_NOT_CREATED", e.toString()));
-            throw new 
-                EAuthException(CMS.getUserMessage("CMS_ACL_CLASS_LOAD_FAIL", className));
+            throw new EAuthException(CMS.getUserMessage("CMS_ACL_CLASS_LOAD_FAIL", className));
         } catch (IllegalAccessException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_AUTH_INSTANCE_NOT_CREATED", e.toString()));
-            throw new 
-                EAuthException(CMS.getUserMessage("CMS_ACL_CLASS_LOAD_FAIL", className));
+            throw new EAuthException(CMS.getUserMessage("CMS_ACL_CLASS_LOAD_FAIL", className));
         }
     }
 
     /**
      * Add an authentication manager instance.
+     * 
      * @param name name of the authentication manager instance
      * @param authMgr the authentication manager instance to be added
      */
@@ -366,6 +362,7 @@ public class AuthSubsystem implements IAuthSubsystem {
 
     /**
      * Gets the authentication manager instance of the specified name.
+     * 
      * @param name name of the authentication manager instance
      * @return the named authentication manager instance
      */
@@ -385,7 +382,7 @@ public class AuthSubsystem implements IAuthSubsystem {
         Enumeration<String> e = mAuthMgrInsts.keys();
 
         while (e.hasMoreElements()) {
-            IAuthManager p = get( e.nextElement());
+            IAuthManager p = get(e.nextElement());
 
             if (p != null) {
                 inst.addElement(p);
@@ -409,9 +406,9 @@ public class AuthSubsystem implements IAuthSubsystem {
     }
 
     /**
-     * Retrieve a single auth manager instance 
+     * Retrieve a single auth manager instance
      */
-    
+
     /* getconfigparams above should be recoded to use this func */
     public IAuthManager getAuthManagerPlugin(String name) {
         AuthMgrPlugin plugin = (AuthMgrPlugin) mAuthMgrPlugins.get(name);
@@ -429,16 +426,18 @@ public class AuthSubsystem implements IAuthSubsystem {
 
     /**
      * Retrieves id (name) of this subsystem.
+     * 
      * @return name of the authentication subsystem
      */
     public String getId() {
         return (mId);
     }
-  
+
     /**
      * Sets id string to this subsystem.
      * <p>
-     * Use with caution.  Should not do it when sharing with others
+     * Use with caution. Should not do it when sharing with others
+     * 
      * @param id name to be applied to an authentication sybsystem
      */
     public void setId(String id) throws EBaseException {
@@ -455,12 +454,11 @@ public class AuthSubsystem implements IAuthSubsystem {
     }
 
     /**
-     * shuts down authentication managers one by one. 
+     * shuts down authentication managers one by one.
      * <P>
      */
     public void shutdown() {
-        for (Enumeration<String> e = mAuthMgrInsts.keys();
-            e.hasMoreElements();) {
+        for (Enumeration<String> e = mAuthMgrInsts.keys(); e.hasMoreElements();) {
 
             IAuthManager mgr = (IAuthManager) get((String) e.nextElement());
 
@@ -486,7 +484,7 @@ public class AuthSubsystem implements IAuthSubsystem {
     /**
      * Returns the root configuration storage of this system.
      * <P>
-     *
+     * 
      * @return configuration store of this subsystem
      */
     public IConfigStore getConfigStore() {
@@ -495,6 +493,7 @@ public class AuthSubsystem implements IAuthSubsystem {
 
     /**
      * gets the named authentication manager
+     * 
      * @param name of the authentication manager
      * @return the named authentication manager
      */
@@ -509,7 +508,7 @@ public class AuthSubsystem implements IAuthSubsystem {
         if (mLogger == null)
             return;
         mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_AUTHENTICATION,
-            level, msg);
+                level, msg);
     }
 
 }

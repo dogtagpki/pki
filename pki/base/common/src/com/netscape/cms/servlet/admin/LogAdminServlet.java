@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.admin;
 
-
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -45,13 +44,12 @@ import com.netscape.certsrv.logging.ILogSubsystem;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.logging.LogPlugin;
 
-
 /**
  * A class representings an administration servlet for logging
  * subsystem. This servlet is responsible to serve
  * logging administrative operation such as configuration
  * parameter updates and log retriever.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class LogAdminServlet extends AdminServlet {
@@ -70,11 +68,11 @@ public class LogAdminServlet extends AdminServlet {
 
     private final static String SIGNED_AUDIT_LOG_TYPE = "SignedAudit";
     private final static String LOGGING_SIGNED_AUDIT_CONFIG_SIGNED_AUDIT =
-        "LOGGING_SIGNED_AUDIT_CONFIG_SIGNED_AUDIT_3";
+            "LOGGING_SIGNED_AUDIT_CONFIG_SIGNED_AUDIT_3";
     private final static String LOGGING_SIGNED_AUDIT_LOG_PATH_CHANGE =
-        "LOGGING_SIGNED_AUDIT_LOG_PATH_CHANGE_4";
+            "LOGGING_SIGNED_AUDIT_LOG_PATH_CHANGE_4";
     private final static String LOGGING_SIGNED_AUDIT_LOG_EXPIRATION_CHANGE =
-        "LOGGING_SIGNED_AUDIT_LOG_EXPIRATION_CHANGE_4";
+            "LOGGING_SIGNED_AUDIT_LOG_EXPIRATION_CHANGE_4";
 
     /**
      * Constructs Log servlet.
@@ -114,15 +112,15 @@ public class LogAdminServlet extends AdminServlet {
      * Serves HTTP admin request.
      */
     public void service(HttpServletRequest req, HttpServletResponse resp)
-        throws ServletException, IOException {
+            throws ServletException, IOException {
         super.service(req, resp);
 
         String op = req.getParameter(Constants.OP_TYPE);
 
         if (op == null) {
             sendResponse(ERROR,
-                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_PROTOCOL"),
-                null, resp);
+                    CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_PROTOCOL"),
+                    null, resp);
             return;
         }
 
@@ -138,8 +136,8 @@ public class LogAdminServlet extends AdminServlet {
                     mOp = "read";
                     if ((mToken = super.authorize(req)) == null) {
                         sendResponse(ERROR,
-                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
-                            null, resp);
+                                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
+                                null, resp);
                         return;
                     }
                     try {
@@ -155,8 +153,8 @@ public class LogAdminServlet extends AdminServlet {
                     mOp = "read";
                     if ((mToken = super.authorize(req)) == null) {
                         sendResponse(ERROR,
-                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
-                            null, resp);
+                                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
+                                null, resp);
                         return;
                     }
 
@@ -169,17 +167,17 @@ public class LogAdminServlet extends AdminServlet {
                     } else if (scope.equals(ScopeDef.SC_GENERAL)) {
                         getGeneralConfig(req, resp);
                     } else {
-                        sendResponse(ERROR, 
-                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_OP_SCOPE"),
-                            null, resp);
+                        sendResponse(ERROR,
+                                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_OP_SCOPE"),
+                                null, resp);
                         return;
                     }
                 } else if (op.equals(OpDef.OP_DELETE)) {
                     mOp = "modify";
                     if ((mToken = super.authorize(req)) == null) {
                         sendResponse(ERROR,
-                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
-                            null, resp);
+                                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
+                                null, resp);
                         return;
                     }
 
@@ -190,17 +188,17 @@ public class LogAdminServlet extends AdminServlet {
                         delLogInst(req, resp, scope);
                         return;
                     } else {
-                        sendResponse(ERROR, 
-                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_OP_SCOPE"),
-                            null, resp);
+                        sendResponse(ERROR,
+                                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_OP_SCOPE"),
+                                null, resp);
                         return;
                     }
                 } else if (op.equals(OpDef.OP_ADD)) {
                     mOp = "modify";
                     if ((mToken = super.authorize(req)) == null) {
                         sendResponse(ERROR,
-                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
-                            null, resp);
+                                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
+                                null, resp);
                         return;
                     }
 
@@ -211,9 +209,9 @@ public class LogAdminServlet extends AdminServlet {
                         addLogInst(req, resp, scope);
                         return;
                     } else {
-                        sendResponse(ERROR, 
-                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_OP_SCOPE"),
-                            null, resp);
+                        sendResponse(ERROR,
+                                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_OP_SCOPE"),
+                                null, resp);
                         return;
                     }
                 } else if (op.equals(OpDef.OP_MODIFY)) {
@@ -221,8 +219,8 @@ public class LogAdminServlet extends AdminServlet {
                     mOp = "modify";
                     if ((mToken = super.authorize(req)) == null) {
                         sendResponse(ERROR,
-                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
-                            null, resp);
+                                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
+                                null, resp);
                         return;
                     }
 
@@ -232,17 +230,17 @@ public class LogAdminServlet extends AdminServlet {
                     } else if (scope.equals(ScopeDef.SC_GENERAL)) {
                         setGeneralConfig(req, resp);
                     } else {
-                        sendResponse(ERROR, 
-                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_OP_SCOPE"),
-                            null, resp);
+                        sendResponse(ERROR,
+                                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_OP_SCOPE"),
+                                null, resp);
                         return;
                     }
                 } else if (op.equals(OpDef.OP_SEARCH)) {
                     mOp = "read";
                     if ((mToken = super.authorize(req)) == null) {
                         sendResponse(ERROR,
-                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
-                            null, resp);
+                                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
+                                null, resp);
                         return;
                     }
                     if (scope.equals(ScopeDef.SC_LOG_IMPLS)) {
@@ -268,13 +266,13 @@ public class LogAdminServlet extends AdminServlet {
                         mOp = "read";
                         if ((mToken = super.authorize(req)) == null) {
                             sendResponse(ERROR,
-                                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
-                                null, resp);
+                                    CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
+                                    null, resp);
                             return;
                         }
 
                         ILogEventListener loginst =
-                            mSys.getLogInstance(instName);
+                                mSys.getLogInstance(instName);
 
                         if (loginst != null) {
                             NameValuePairs nvps = loginst.retrieveLogContent(toHashtable(req));
@@ -296,12 +294,12 @@ public class LogAdminServlet extends AdminServlet {
                         mOp = "read";
                         if ((mToken = super.authorize(req)) == null) {
                             sendResponse(ERROR,
-                                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
-                                null, resp);
+                                    CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
+                                    null, resp);
                             return;
                         }
                         ILogEventListener loginst =
-                            mSys.getLogInstance(instName);
+                                mSys.getLogInstance(instName);
 
                         if (loginst != null) {
                             NameValuePairs nvps = loginst.retrieveLogList(toHashtable(req));
@@ -310,15 +308,15 @@ public class LogAdminServlet extends AdminServlet {
                         }
                         return;
                     } else {
-                        sendResponse(ERROR, 
-                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_OP_SCOPE"),
-                            null, resp);
+                        sendResponse(ERROR,
+                                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_OP_SCOPE"),
+                                null, resp);
                         return;
                     }
                 } else {
-                    sendResponse(ERROR, 
-                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_OP_TYPE", op),
-                        null, resp);
+                    sendResponse(ERROR,
+                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_OP_TYPE", op),
+                            null, resp);
                     return;
                 }
             }
@@ -329,15 +327,15 @@ public class LogAdminServlet extends AdminServlet {
             System.out.println("XXX >>>" + e.toString() + "<<<");
             e.printStackTrace();
             sendResponse(ERROR,
-                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_PROTOCOL"),
-                null, resp);
+                    CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_INVALID_PROTOCOL"),
+                    null, resp);
         }
 
         return;
     }
 
-    private synchronized void listLogInsts(HttpServletRequest req, 
-        HttpServletResponse resp, boolean all) throws ServletException, 
+    private synchronized void listLogInsts(HttpServletRequest req,
+            HttpServletResponse resp, boolean all) throws ServletException,
             IOException, EBaseException {
 
         NameValuePairs params = new NameValuePairs();
@@ -351,9 +349,9 @@ public class LogAdminServlet extends AdminServlet {
             if (value == null)
                 continue;
             String pName = mSys.getLogPluginName(value);
-            LogPlugin pClass = (LogPlugin) 
-                mSys.getLogPlugins().get(pName);
-            String c = pClass.getClassPath();	
+            LogPlugin pClass = (LogPlugin)
+                    mSys.getLogPlugins().get(pName);
+            String c = pClass.getClassPath();
 
             // not show ntEventlog here
             if (all || (!all && !c.endsWith("NTEventLog")))
@@ -363,12 +361,12 @@ public class LogAdminServlet extends AdminServlet {
         return;
     }
 
-    /** 
+    /**
      * retrieve extended plugin info such as brief description, type info
      * from logging
      */
     private void getExtendedPluginInfo(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         String id = req.getParameter(Constants.RS_ID);
 
@@ -381,10 +379,10 @@ public class LogAdminServlet extends AdminServlet {
         sendResponse(SUCCESS, null, params, resp);
     }
 
-    private NameValuePairs getExtendedPluginInfo(Locale locale, String implType, String implName) { 
-        IExtendedPluginInfo ext_info = null; 
+    private NameValuePairs getExtendedPluginInfo(Locale locale, String implType, String implName) {
+        IExtendedPluginInfo ext_info = null;
         Object impl = null;
-        LogPlugin lp = (LogPlugin) mSys.getLogPlugins().get(implName); 
+        LogPlugin lp = (LogPlugin) mSys.getLogPlugins().get(implName);
 
         if (lp != null) {
             impl = getClassByNameAsExtendedPluginInfo(lp.getClassPath());
@@ -410,11 +408,11 @@ public class LogAdminServlet extends AdminServlet {
     /**
      * Add log plug-in
      * <P>
-     *
+     * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_SIGNED_AUDIT used when
-     * configuring signedAudit
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_SIGNED_AUDIT used when configuring signedAudit
      * </ul>
+     * 
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @param scope string used to obtain the contents of the log's substore
@@ -423,9 +421,9 @@ public class LogAdminServlet extends AdminServlet {
      * @exception EBaseException an error has occurred
      */
     @SuppressWarnings("unchecked")
-	private synchronized void addLogPlugin(HttpServletRequest req,
-        HttpServletResponse resp, String scope)
-        throws ServletException, IOException, EBaseException {
+    private synchronized void addLogPlugin(HttpServletRequest req,
+            HttpServletResponse resp, String scope)
+            throws ServletException, IOException, EBaseException {
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -457,8 +455,8 @@ public class LogAdminServlet extends AdminServlet {
                 }
 
                 sendResponse(ERROR,
-                    CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
-                    null, resp);
+                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
+                        null, resp);
                 return;
             }
 
@@ -476,8 +474,8 @@ public class LogAdminServlet extends AdminServlet {
                 }
 
                 sendResponse(ERROR,
-                    new ELogException(CMS.getUserMessage(getLocale(req),"CMS_LOG_SRVLT_ILL_PLUGIN_ID", id)).toString(),
-                    null, resp);
+                        new ELogException(CMS.getUserMessage(getLocale(req), "CMS_LOG_SRVLT_ILL_PLUGIN_ID", id)).toString(),
+                        null, resp);
                 return;
             }
 
@@ -496,8 +494,8 @@ public class LogAdminServlet extends AdminServlet {
                 }
 
                 sendResponse(ERROR,
-                        CMS.getUserMessage(getLocale(req),"CMS_LOG_SRVLT_NULL_CLASS"), 
-                    null, resp);
+                        CMS.getUserMessage(getLocale(req), "CMS_LOG_SRVLT_NULL_CLASS"),
+                        null, resp);
                 return;
             }
 
@@ -505,7 +503,7 @@ public class LogAdminServlet extends AdminServlet {
 
             destStore = mConfig.getSubStore("log");
             IConfigStore instancesConfig =
-                destStore.getSubStore("impl");
+                    destStore.getSubStore("impl");
 
             // Does the class exist?
             Class<ILogEventListener> newImpl = null;
@@ -525,8 +523,8 @@ public class LogAdminServlet extends AdminServlet {
                 }
 
                 sendResponse(ERROR,
-                        CMS.getUserMessage(getLocale(req),"CMS_LOG_SRVLT_NO_CLASS"), 
-                    null, resp);
+                        CMS.getUserMessage(getLocale(req), "CMS_LOG_SRVLT_NO_CLASS"),
+                        null, resp);
                 return;
             } catch (IllegalArgumentException e) {
                 // store a message in the signed audit log file
@@ -541,8 +539,8 @@ public class LogAdminServlet extends AdminServlet {
                 }
 
                 sendResponse(ERROR,
-                        CMS.getUserMessage(getLocale(req),"CMS_LOG_SRVLT_NO_CLASS"), 
-                    null, resp);
+                        CMS.getUserMessage(getLocale(req), "CMS_LOG_SRVLT_NO_CLASS"),
+                        null, resp);
                 return;
             }
 
@@ -561,8 +559,8 @@ public class LogAdminServlet extends AdminServlet {
                     }
 
                     sendResponse(ERROR,
-                            CMS.getUserMessage(getLocale(req),"CMS_LOG_SRVLT_ILL_CLASS"), 
-                        null, resp);
+                            CMS.getUserMessage(getLocale(req), "CMS_LOG_SRVLT_ILL_CLASS"),
+                            null, resp);
                     return;
                 }
             } catch (NullPointerException e) { // unlikely, only if newImpl null.
@@ -578,8 +576,8 @@ public class LogAdminServlet extends AdminServlet {
                 }
 
                 sendResponse(ERROR,
-                        CMS.getUserMessage(getLocale(req),"CMS_LOG_SRVLT_ILL_CLASS"), 
-                    null, resp);
+                        CMS.getUserMessage(getLocale(req), "CMS_LOG_SRVLT_ILL_CLASS"),
+                        null, resp);
                 return;
             }
 
@@ -605,8 +603,8 @@ public class LogAdminServlet extends AdminServlet {
                 }
 
                 sendResponse(ERROR,
-                    CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_COMMIT_FAILED"),
-                    null, resp);
+                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_COMMIT_FAILED"),
+                        null, resp);
                 return;
             }
 
@@ -682,11 +680,11 @@ public class LogAdminServlet extends AdminServlet {
     /**
      * Add log instance
      * <P>
-     *
+     * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_SIGNED_AUDIT used when
-     * configuring signedAudit
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_SIGNED_AUDIT used when configuring signedAudit
      * </ul>
+     * 
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @param scope string used to obtain the contents of the log's substore
@@ -694,9 +692,9 @@ public class LogAdminServlet extends AdminServlet {
      * @exception IOException an input/output error has occurred
      * @exception EBaseException an error has occurred
      */
-    private synchronized void addLogInst(HttpServletRequest req, 
-        HttpServletResponse resp, String scope)
-        throws ServletException, IOException, EBaseException {
+    private synchronized void addLogInst(HttpServletRequest req,
+            HttpServletResponse resp, String scope)
+            throws ServletException, IOException, EBaseException {
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -726,8 +724,8 @@ public class LogAdminServlet extends AdminServlet {
                 }
 
                 sendResponse(ERROR,
-                    CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
-                    null, resp);
+                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
+                        null, resp);
                 return;
             }
 
@@ -743,8 +741,8 @@ public class LogAdminServlet extends AdminServlet {
                     audit(auditMessage);
                 }
 
-                sendResponse(ERROR, "Invalid ID '" + id + "'", 
-                    null, resp);
+                sendResponse(ERROR, "Invalid ID '" + id + "'",
+                        null, resp);
                 return;
             }
 
@@ -761,8 +759,8 @@ public class LogAdminServlet extends AdminServlet {
                 }
 
                 sendResponse(ERROR,
-                        CMS.getUserMessage(getLocale(req),"CMS_LOG_SRVLT_ILL_INST_ID"), 
-                    null, resp);
+                        CMS.getUserMessage(getLocale(req), "CMS_LOG_SRVLT_ILL_INST_ID"),
+                        null, resp);
                 return;
             }
 
@@ -783,15 +781,15 @@ public class LogAdminServlet extends AdminServlet {
                 }
 
                 sendResponse(ERROR,
-                        CMS.getUserMessage(getLocale(req),"CMS_LOG_SRVLT_ADD_MISSING_PARAMS"),
-                    null, resp);
+                        CMS.getUserMessage(getLocale(req), "CMS_LOG_SRVLT_ADD_MISSING_PARAMS"),
+                        null, resp);
                 return;
             }
 
             // check if implementation exists.
             LogPlugin plugin =
-                (LogPlugin) mSys.getLogPlugins().get(
-                    implname);
+                    (LogPlugin) mSys.getLogPlugins().get(
+                            implname);
 
             if (plugin == null) {
                 // store a message in the signed audit log file
@@ -806,17 +804,17 @@ public class LogAdminServlet extends AdminServlet {
                 }
 
                 sendResponse(ERROR,
-                    new ELogPluginNotFound(CMS.getUserMessage(getLocale(req), "CMS_LOG_PLUGIN_NOT_FOUND",implname)).toString(),
-                    null, resp);
+                        new ELogPluginNotFound(CMS.getUserMessage(getLocale(req), "CMS_LOG_PLUGIN_NOT_FOUND", implname)).toString(),
+                        null, resp);
                 return;
             }
 
             Vector<String> configParams = mSys.getLogDefaultParams(implname);
 
             IConfigStore destStore =
-                mConfig.getSubStore("log");
+                    mConfig.getSubStore("log");
             IConfigStore instancesConfig =
-                destStore.getSubStore("instance");
+                    destStore.getSubStore("instance");
             IConfigStore substore = instancesConfig.makeSubStore(id);
 
             if (configParams != null) {
@@ -826,11 +824,11 @@ public class LogAdminServlet extends AdminServlet {
                     String val = req.getParameter(kv.substring(0, index));
 
                     if (val == null) {
-                        substore.put(kv.substring(0, index), 
-                            kv.substring(index + 1));
+                        substore.put(kv.substring(0, index),
+                                kv.substring(index + 1));
                     } else {
-                        substore.put(kv.substring(0, index), 
-                            val);
+                        substore.put(kv.substring(0, index),
+                                val);
                     }
                 }
             }
@@ -864,8 +862,8 @@ public class LogAdminServlet extends AdminServlet {
                 }
 
                 sendResponse(ERROR,
-                    new ELogException(CMS.getUserMessage(getLocale(req),"CMS_LOG_LOAD_CLASS_FAIL", className)).toString(),
-                    null, resp);
+                        new ELogException(CMS.getUserMessage(getLocale(req), "CMS_LOG_LOAD_CLASS_FAIL", className)).toString(),
+                        null, resp);
                 return;
             } catch (InstantiationException e) {
                 instancesConfig.removeSubStore(id);
@@ -882,8 +880,8 @@ public class LogAdminServlet extends AdminServlet {
                 }
 
                 sendResponse(ERROR,
-                    new ELogException(CMS.getUserMessage(getLocale(req),"CMS_LOG_LOAD_CLASS_FAIL", className)).toString(),
-                    null, resp);
+                        new ELogException(CMS.getUserMessage(getLocale(req), "CMS_LOG_LOAD_CLASS_FAIL", className)).toString(),
+                        null, resp);
                 return;
             } catch (IllegalAccessException e) {
                 instancesConfig.removeSubStore(id);
@@ -900,8 +898,8 @@ public class LogAdminServlet extends AdminServlet {
                 }
 
                 sendResponse(ERROR,
-                    new ELogException(CMS.getUserMessage(getLocale(req),"CMS_LOG_LOAD_CLASS_FAIL", className)).toString(),
-                    null, resp);
+                        new ELogException(CMS.getUserMessage(getLocale(req), "CMS_LOG_LOAD_CLASS_FAIL", className)).toString(),
+                        null, resp);
                 return;
             }
 
@@ -962,8 +960,8 @@ public class LogAdminServlet extends AdminServlet {
                 }
 
                 sendResponse(ERROR,
-                    CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_COMMIT_FAILED"),
-                    null, resp);
+                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_COMMIT_FAILED"),
+                        null, resp);
                 return;
             }
 
@@ -1026,28 +1024,28 @@ public class LogAdminServlet extends AdminServlet {
         }
     }
 
-    private synchronized void listLogPlugins(HttpServletRequest req, 
-        HttpServletResponse resp) throws ServletException, 
+    private synchronized void listLogPlugins(HttpServletRequest req,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         NameValuePairs params = new NameValuePairs();
         Enumeration<String> e = mSys.getLogPlugins().keys();
 
         while (e.hasMoreElements()) {
             String name = (String) e.nextElement();
-            LogPlugin value = (LogPlugin) 
-                mSys.getLogPlugins().get(name);
+            LogPlugin value = (LogPlugin)
+                    mSys.getLogPlugins().get(name);
             // get Description
-            String c = value.getClassPath();	
+            String c = value.getClassPath();
             String desc = "unknown";
 
             try {
                 ILogEventListener lp = (ILogEventListener)
-                    Class.forName(c).newInstance();
+                        Class.forName(c).newInstance();
 
                 desc = lp.getDescription();
             } catch (Exception exp) {
-                sendResponse(ERROR, exp.toString(), null, 
-                    resp);
+                sendResponse(ERROR, exp.toString(), null,
+                        resp);
                 return;
             }
             params.add(name, value.getClassPath() + "," + desc);
@@ -1069,11 +1067,11 @@ public class LogAdminServlet extends AdminServlet {
     /**
      * Delete log instance
      * <P>
-     *
+     * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_SIGNED_AUDIT used when
-     * configuring signedAudit
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_SIGNED_AUDIT used when configuring signedAudit
      * </ul>
+     * 
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @param scope string used to obtain the contents of the log's substore
@@ -1081,9 +1079,9 @@ public class LogAdminServlet extends AdminServlet {
      * @exception IOException an input/output error has occurred
      * @exception EBaseException an error has occurred
      */
-    private synchronized void delLogInst(HttpServletRequest req, 
-        HttpServletResponse resp, String scope) 
-        throws ServletException, IOException, EBaseException {
+    private synchronized void delLogInst(HttpServletRequest req,
+            HttpServletResponse resp, String scope)
+            throws ServletException, IOException, EBaseException {
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -1116,8 +1114,8 @@ public class LogAdminServlet extends AdminServlet {
                 }
 
                 sendResponse(ERROR,
-                    CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
-                    null, resp);
+                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
+                        null, resp);
                 return;
             }
 
@@ -1135,8 +1133,8 @@ public class LogAdminServlet extends AdminServlet {
                 }
 
                 sendResponse(ERROR,
-                    new ELogNotFound(CMS.getUserMessage(getLocale(req), "CMS_LOG_INSTANCE_NOT_FOUND",id)).toString(),
-                    null, resp);
+                        new ELogNotFound(CMS.getUserMessage(getLocale(req), "CMS_LOG_INSTANCE_NOT_FOUND", id)).toString(),
+                        null, resp);
                 return;
             }
 
@@ -1144,15 +1142,15 @@ public class LogAdminServlet extends AdminServlet {
             // cannot shutdown because we don't keep track of whether it's
             // being used. 
             ILogEventListener logInst = (ILogEventListener)
-                mSys.getLogInstance(id);
+                    mSys.getLogInstance(id);
 
             mSys.getLogInsts().remove((Object) id);
 
             // remove the configuration.
             IConfigStore destStore =
-                mConfig.getSubStore("log");
+                    mConfig.getSubStore("log");
             IConfigStore instancesConfig =
-                destStore.getSubStore("instance");
+                    destStore.getSubStore("instance");
 
             instancesConfig.removeSubStore(id);
             // commiting
@@ -1173,8 +1171,8 @@ public class LogAdminServlet extends AdminServlet {
                 }
 
                 sendResponse(ERROR,
-                    CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_COMMIT_FAILED"),
-                    null, resp);
+                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_COMMIT_FAILED"),
+                        null, resp);
                 return;
             }
 
@@ -1233,11 +1231,11 @@ public class LogAdminServlet extends AdminServlet {
     /**
      * Delete log plug-in
      * <P>
-     *
+     * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_SIGNED_AUDIT used when
-     * configuring signedAudit
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_SIGNED_AUDIT used when configuring signedAudit
      * </ul>
+     * 
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @param scope string used to obtain the contents of the log's substore
@@ -1245,9 +1243,9 @@ public class LogAdminServlet extends AdminServlet {
      * @exception IOException an input/output error has occurred
      * @exception EBaseException an error has occurred
      */
-    private synchronized void delLogPlugin(HttpServletRequest req, 
-        HttpServletResponse resp, String scope) 
-        throws ServletException, IOException, EBaseException {
+    private synchronized void delLogPlugin(HttpServletRequest req,
+            HttpServletResponse resp, String scope)
+            throws ServletException, IOException, EBaseException {
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -1280,8 +1278,8 @@ public class LogAdminServlet extends AdminServlet {
                 }
 
                 sendResponse(ERROR,
-                    CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
-                    null, resp);
+                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
+                        null, resp);
                 return;
             }
 
@@ -1298,15 +1296,14 @@ public class LogAdminServlet extends AdminServlet {
                 }
 
                 sendResponse(ERROR,
-                    new ELogPluginNotFound(CMS.getUserMessage(getLocale(req),"CMS_LOG_PLUGIN_NOT_FOUND",id)).toString(),
-                    null, resp);
+                        new ELogPluginNotFound(CMS.getUserMessage(getLocale(req), "CMS_LOG_PLUGIN_NOT_FOUND", id)).toString(),
+                        null, resp);
                 return;
             }
 
             // first check if any instances from this log
             // DON'T remove log if any instance
-            for (Enumeration<String> e = mSys.getLogInsts().keys();
-                e.hasMoreElements();) {
+            for (Enumeration<String> e = mSys.getLogInsts().keys(); e.hasMoreElements();) {
                 String name = (String) e.nextElement();
                 ILogEventListener log = mSys.getLogInstance(name);
 
@@ -1323,19 +1320,19 @@ public class LogAdminServlet extends AdminServlet {
                     }
 
                     sendResponse(ERROR,
-                            CMS.getUserMessage(getLocale(req),"CMS_LOG_SRVLT_IN_USE"), 
-                        null, resp);
+                            CMS.getUserMessage(getLocale(req), "CMS_LOG_SRVLT_IN_USE"),
+                            null, resp);
                     return;
                 }
             }
-		
+
             // then delete this log
             mSys.getLogPlugins().remove((Object) id);
 
             IConfigStore destStore =
-                mConfig.getSubStore("log");
+                    mConfig.getSubStore("log");
             IConfigStore instancesConfig =
-                destStore.getSubStore("impl");
+                    destStore.getSubStore("impl");
 
             instancesConfig.removeSubStore(id);
             // commiting
@@ -1354,8 +1351,8 @@ public class LogAdminServlet extends AdminServlet {
                 }
 
                 sendResponse(ERROR,
-                    CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_COMMIT_FAILED"),
-                    null, resp);
+                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_COMMIT_FAILED"),
+                        null, resp);
                 return;
             }
 
@@ -1414,18 +1411,13 @@ public class LogAdminServlet extends AdminServlet {
     /**
      * Modify log instance
      * <P>
-     *
+     * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_SIGNED_AUDIT used when
-     * configuring signedAudit
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_LOG_PATH_CHANGE used when log file
-     * name (including any path changes) for any of audit, system, transaction, 
-     * or other customized log file change is attempted (authorization should
-     * not allow, but make sure it's written after the attempt)
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_LOG_EXPIRATION_CHANGE used when log
-     * expiration time change is attempted (authorization should not allow, but
-     * make sure it's written after the attempt)
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_SIGNED_AUDIT used when configuring signedAudit
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_LOG_PATH_CHANGE used when log file name (including any path changes) for any of audit, system, transaction, or other customized log file change is attempted (authorization should not allow, but make sure it's written after the attempt)
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_LOG_EXPIRATION_CHANGE used when log expiration time change is attempted (authorization should not allow, but make sure it's written after the attempt)
      * </ul>
+     * 
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @param scope string used to obtain the contents of the log's substore
@@ -1433,9 +1425,9 @@ public class LogAdminServlet extends AdminServlet {
      * @exception IOException an input/output error has occurred
      * @exception EBaseException an error has occurred
      */
-    private synchronized void modLogInst(HttpServletRequest req, 
-        HttpServletResponse resp, String scope)
-        throws ServletException, IOException, EBaseException {
+    private synchronized void modLogInst(HttpServletRequest req,
+            HttpServletResponse resp, String scope)
+            throws ServletException, IOException, EBaseException {
 
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
@@ -1490,8 +1482,8 @@ public class LogAdminServlet extends AdminServlet {
                 }
 
                 sendResponse(ERROR,
-                    CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
-                    null, resp);
+                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
+                        null, resp);
                 return;
             }
 
@@ -1509,8 +1501,8 @@ public class LogAdminServlet extends AdminServlet {
                 }
 
                 sendResponse(ERROR,
-                        CMS.getUserMessage(getLocale(req),"CMS_LOG_SRVLT_ILL_INST_ID"),
-                    null, resp);
+                        CMS.getUserMessage(getLocale(req), "CMS_LOG_SRVLT_ILL_INST_ID"),
+                        null, resp);
                 return;
             }
 
@@ -1530,14 +1522,14 @@ public class LogAdminServlet extends AdminServlet {
                 }
 
                 sendResponse(ERROR,
-                        CMS.getUserMessage(getLocale(req),"CMS_LOG_SRVLT_ADD_MISSING_PARAMS"),
+                        CMS.getUserMessage(getLocale(req), "CMS_LOG_SRVLT_ADD_MISSING_PARAMS"),
 
-                    null, resp);
+                        null, resp);
                 return;
             }
             // get plugin for implementation
             LogPlugin plugin =
-                (LogPlugin) mSys.getLogPlugins().get(implname);
+                    (LogPlugin) mSys.getLogPlugins().get(implname);
 
             if (plugin == null) {
                 // store a message in the signed audit log file
@@ -1552,14 +1544,14 @@ public class LogAdminServlet extends AdminServlet {
                 }
 
                 sendResponse(ERROR,
-                    new ELogPluginNotFound(CMS.getUserMessage(getLocale(req),"CMS_LOG_PLUGIN_NOT_FOUND",implname)).toString(), null, resp);
+                        new ELogPluginNotFound(CMS.getUserMessage(getLocale(req), "CMS_LOG_PLUGIN_NOT_FOUND", implname)).toString(), null, resp);
                 return;
             }
 
             // save old instance substore params in case new one fails.
 
             ILogEventListener oldinst =
-                (ILogEventListener) mSys.getLogInstance(id);
+                    (ILogEventListener) mSys.getLogInstance(id);
             Vector<String> oldConfigParms = oldinst.getInstanceParams();
             NameValuePairs saveParams = new NameValuePairs();
 
@@ -1571,7 +1563,7 @@ public class LogAdminServlet extends AdminServlet {
                     int index = kv.indexOf('=');
 
                     saveParams.add(kv.substring(0, index),
-                        kv.substring(index + 1));
+                            kv.substring(index + 1));
                 }
             }
 
@@ -1580,9 +1572,9 @@ public class LogAdminServlet extends AdminServlet {
             // remove old substore.
 
             IConfigStore destStore =
-                mConfig.getSubStore("log");
+                    mConfig.getSubStore("log");
             IConfigStore instancesConfig =
-                destStore.getSubStore("instance");
+                    destStore.getSubStore("instance");
 
             // create new substore.
 
@@ -1627,16 +1619,15 @@ public class LogAdminServlet extends AdminServlet {
 
             if (configParams != null) {
                 for (int i = 0; i < configParams.size(); i++) {
-                    AUTHZ_RES_NAME = 
+                    AUTHZ_RES_NAME =
                             "certServer.log.configuration";
                     String kv = (String) configParams.elementAt(i);
                     int index = kv.indexOf('=');
                     String key = kv.substring(0, index);
                     String val = req.getParameter(key);
 
-                    if
-                    (key.equals("level")) {
-                        if (val.equals(ILogger.LL_DEBUG_STRING)) 
+                    if (key.equals("level")) {
+                        if (val.equals(ILogger.LL_DEBUG_STRING))
                             val = "0";
                         else if (val.equals(ILogger.LL_INFO_STRING))
                             val = "1";
@@ -1653,9 +1644,8 @@ public class LogAdminServlet extends AdminServlet {
 
                     }
 
-                    if
-                    (key.equals("rolloverInterval")) {
-                        if (val.equals("Hourly")) 
+                    if (key.equals("rolloverInterval")) {
+                        if (val.equals("Hourly"))
                             val = Integer.toString(60 * 60);
                         else if (val.equals("Daily"))
                             val = Integer.toString(60 * 60 * 24);
@@ -1667,8 +1657,7 @@ public class LogAdminServlet extends AdminServlet {
                             val = Integer.toString(60 * 60 * 24 * 365);
                     }
 
-                    if
-                    (key.equals(Constants.PR_LOG_TYPE)) {
+                    if (key.equals(Constants.PR_LOG_TYPE)) {
                         type = val;
                     }
 
@@ -1679,7 +1668,7 @@ public class LogAdminServlet extends AdminServlet {
                             val = val.trim();
                             newLogPath = val;
                             if (!val.equals(origVal.trim())) {
-                                AUTHZ_RES_NAME = 
+                                AUTHZ_RES_NAME =
                                         "certServer.log.configuration.fileName";
                                 mOp = "modify";
                                 if ((mToken = super.authorize(req)) == null) {
@@ -1709,58 +1698,58 @@ public class LogAdminServlet extends AdminServlet {
                                     }
 
                                     sendResponse(ERROR,
-                                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
-                                        null, resp);
+                                            CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
+                                            null, resp);
                                     return;
                                 }
                             }
                         }
-/*
-                        if (key.equals("expirationTime")) {
-                            String origVal = substore.getString(key);
+                        /*
+                                                if (key.equals("expirationTime")) {
+                                                    String origVal = substore.getString(key);
 
-                            val = val.trim();
-                            newExpirationTime = val;
-                            if (!val.equals(origVal.trim())) {
-                                if (id.equals(SIGNED_AUDIT_LOG_TYPE)) {
-                                    AUTHZ_RES_NAME = 
-                                            "certServer.log.configuration.signedAudit.expirationTime";
-                                }
-                                mOp = "modify";
-                                if ((mToken = super.authorize(req)) == null) {
-                                    // store a message in the signed audit log
-                                    // file (regardless of logType)
-                                    if (!(newExpirationTime.equals(origExpirationTime))) {
-                                        auditMessage = CMS.getLogMessage(
-                                                    LOGGING_SIGNED_AUDIT_LOG_EXPIRATION_CHANGE,
-                                                    auditSubjectID,
-                                                    ILogger.FAILURE,
-                                                    logType,
-                                                    newExpirationTime);
+                                                    val = val.trim();
+                                                    newExpirationTime = val;
+                                                    if (!val.equals(origVal.trim())) {
+                                                        if (id.equals(SIGNED_AUDIT_LOG_TYPE)) {
+                                                            AUTHZ_RES_NAME = 
+                                                                    "certServer.log.configuration.signedAudit.expirationTime";
+                                                        }
+                                                        mOp = "modify";
+                                                        if ((mToken = super.authorize(req)) == null) {
+                                                            // store a message in the signed audit log
+                                                            // file (regardless of logType)
+                                                            if (!(newExpirationTime.equals(origExpirationTime))) {
+                                                                auditMessage = CMS.getLogMessage(
+                                                                            LOGGING_SIGNED_AUDIT_LOG_EXPIRATION_CHANGE,
+                                                                            auditSubjectID,
+                                                                            ILogger.FAILURE,
+                                                                            logType,
+                                                                            newExpirationTime);
 
-                                        audit(auditMessage);
-                                    }
+                                                                audit(auditMessage);
+                                                            }
 
-                                    // store a message in the signed audit log
-                                    // file
-                                    if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
-                                        auditMessage = CMS.getLogMessage(
-                                                    LOGGING_SIGNED_AUDIT_CONFIG_SIGNED_AUDIT,
-                                                    auditSubjectID,
-                                                    ILogger.FAILURE,
-                                                    auditParams(req));
+                                                            // store a message in the signed audit log
+                                                            // file
+                                                            if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
+                                                                auditMessage = CMS.getLogMessage(
+                                                                            LOGGING_SIGNED_AUDIT_CONFIG_SIGNED_AUDIT,
+                                                                            auditSubjectID,
+                                                                            ILogger.FAILURE,
+                                                                            auditParams(req));
 
-                                        audit(auditMessage);
-                                    }
+                                                                audit(auditMessage);
+                                                            }
 
-                                    sendResponse(ERROR,
-                                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
-                                        null, resp);
-                                    return;
-                                }
-                            }
-                        }
-*/
+                                                            sendResponse(ERROR,
+                                                                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
+                                                                null, resp);
+                                                            return;
+                                                        }
+                                                    }
+                                                }
+                        */
                         substore.put(key, val);
                     }
                 }
@@ -1772,7 +1761,7 @@ public class LogAdminServlet extends AdminServlet {
             ILogEventListener newMgrInst = null;
 
             try {
-                newMgrInst = (ILogEventListener) 
+                newMgrInst = (ILogEventListener)
                         Class.forName(className).newInstance();
             } catch (ClassNotFoundException e) {
                 // check to see if the log file path parameter was changed
@@ -1823,8 +1812,8 @@ public class LogAdminServlet extends AdminServlet {
                 }
 
                 sendResponse(ERROR,
-                    new ELogException(CMS.getUserMessage(getLocale(req),"CMS_LOG_LOAD_CLASS_FAIL", className)).toString(),
-                    null, resp);
+                        new ELogException(CMS.getUserMessage(getLocale(req), "CMS_LOG_LOAD_CLASS_FAIL", className)).toString(),
+                        null, resp);
                 return;
             } catch (InstantiationException e) {
                 // check to see if the log file path parameter was changed
@@ -1873,8 +1862,8 @@ public class LogAdminServlet extends AdminServlet {
                 }
 
                 sendResponse(ERROR,
-                    new ELogException(CMS.getUserMessage(getLocale(req),"CMS_LOG_LOAD_CLASS_FAIL", className)).toString(),
-                    null, resp);
+                        new ELogException(CMS.getUserMessage(getLocale(req), "CMS_LOG_LOAD_CLASS_FAIL", className)).toString(),
+                        null, resp);
                 return;
             } catch (IllegalAccessException e) {
                 // check to see if the log file path parameter was changed
@@ -1923,8 +1912,8 @@ public class LogAdminServlet extends AdminServlet {
                 }
 
                 sendResponse(ERROR,
-                    new ELogException(CMS.getUserMessage(getLocale(req),"CMS_LOG_LOAD_CLASS_FAIL", className)).toString(),
-                    null, resp);
+                        new ELogException(CMS.getUserMessage(getLocale(req), "CMS_LOG_LOAD_CLASS_FAIL", className)).toString(),
+                        null, resp);
                 return;
             }
             // initialize the log
@@ -1981,16 +1970,16 @@ public class LogAdminServlet extends AdminServlet {
                 }
 
                 sendResponse(ERROR,
-                    CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_COMMIT_FAILED"),
-                    null, resp);
+                        CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_COMMIT_FAILED"),
+                        null, resp);
                 return;
             }
 
             // commited ok. replace instance.
 
-			// REMOVED - we didn't do anything to shut off the old instance
-			// so, it will still be running at this point. You'd have two
-			// log isntances writing to the same file - this would be a big PROBLEM!!!
+            // REMOVED - we didn't do anything to shut off the old instance
+            // so, it will still be running at this point. You'd have two
+            // log isntances writing to the same file - this would be a big PROBLEM!!!
 
             //mSys.getLogInsts().put(id, newMgrInst);
 
@@ -2184,24 +2173,24 @@ public class LogAdminServlet extends AdminServlet {
 
     /**
      * used for getting the required configuration parameters (with
-     *	 possible default values) for a particular  plugin
-     * implementation name specified in the RS_ID.  Actually, there is
-     *	 no logic in here to set any default value here...there's no
-     *	 default value for any parameter in this log subsystem
-     *	 at this point.  Later, if we do have one (or some), it can be
-     *	 added.  The interface remains the same.
+     * possible default values) for a particular plugin
+     * implementation name specified in the RS_ID. Actually, there is
+     * no logic in here to set any default value here...there's no
+     * default value for any parameter in this log subsystem
+     * at this point. Later, if we do have one (or some), it can be
+     * added. The interface remains the same.
      */
-    private synchronized void getConfig(HttpServletRequest req, 
-        HttpServletResponse resp)
-        throws ServletException, IOException, EBaseException {
+    private synchronized void getConfig(HttpServletRequest req,
+            HttpServletResponse resp)
+            throws ServletException, IOException, EBaseException {
 
         String implname = req.getParameter(Constants.RS_ID);
 
         if (implname == null) {
             //System.out.println("SRVLT_NULL_RS_ID");
             sendResponse(ERROR,
-                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
-                null, resp);
+                    CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
+                    null, resp);
             return;
         }
 
@@ -2218,8 +2207,8 @@ public class LogAdminServlet extends AdminServlet {
                 if (index == -1) {
                     params.add(kv, "");
                 } else {
-                    params.add(kv.substring(0, index), 
-                        kv.substring(index + 1));
+                    params.add(kv.substring(0, index),
+                            kv.substring(index + 1));
                 }
             }
         }
@@ -2227,8 +2216,8 @@ public class LogAdminServlet extends AdminServlet {
         return;
     }
 
-    private synchronized void getInstConfig(HttpServletRequest req, 
-        HttpServletResponse resp) throws ServletException, 
+    private synchronized void getInstConfig(HttpServletRequest req,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
 
         String id = req.getParameter(Constants.RS_ID);
@@ -2236,34 +2225,34 @@ public class LogAdminServlet extends AdminServlet {
         if (id == null) {
             //System.out.println("SRVLT_NULL_RS_ID");
             sendResponse(ERROR,
-                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
-                null, resp);
+                    CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_NULL_RS_ID"),
+                    null, resp);
             return;
         }
 
         // does log instance exist?
         if (mSys.getLogInsts().containsKey(id) == false) {
             sendResponse(ERROR,
-                new ELogNotFound(CMS.getUserMessage(getLocale(req),"CMS_LOG_INSTANCE_NOT_FOUND",id)).toString(),
-                null, resp);
+                    new ELogNotFound(CMS.getUserMessage(getLocale(req), "CMS_LOG_INSTANCE_NOT_FOUND", id)).toString(),
+                    null, resp);
             return;
         }
 
         ILogEventListener logInst = (ILogEventListener)
-            mSys.getLogInstance(id);
+                mSys.getLogInstance(id);
         Vector<String> configParams = logInst.getInstanceParams();
         NameValuePairs params = new NameValuePairs();
 
-        params.add(Constants.PR_LOG_IMPL_NAME, 
-            getLogPluginName(logInst));
+        params.add(Constants.PR_LOG_IMPL_NAME,
+                getLogPluginName(logInst));
         // implName is always required so always send it.
         if (configParams != null) {
             for (int i = 0; i < configParams.size(); i++) {
                 String kv = (String) configParams.elementAt(i);
                 int index = kv.indexOf('=');
 
-                params.add(kv.substring(0, index), 
-                    kv.substring(index + 1));
+                params.add(kv.substring(0, index),
+                        kv.substring(index + 1));
             }
         }
 
@@ -2272,8 +2261,8 @@ public class LogAdminServlet extends AdminServlet {
     }
 
     // convenience routine.
-    private static void restore(IConfigStore store, 
-        String id, NameValuePairs saveParams) {
+    private static void restore(IConfigStore store,
+            String id, NameValuePairs saveParams) {
         store.removeSubStore(id);
         IConfigStore rstore = store.makeSubStore(id);
 
@@ -2283,17 +2272,17 @@ public class LogAdminServlet extends AdminServlet {
             String key = (String) keys.nextElement();
             String value = saveParams.getValue(key);
 
-            if (value != null) 
+            if (value != null)
                 rstore.put(key, value);
         }
     }
 
     /**
      * Signed Audit Check Log Path
-     *
+     * 
      * This method is called to extract the log file path.
      * <P>
-     *
+     * 
      * @param req http servlet request
      * @return a string containing the log file path
      */
@@ -2311,7 +2300,7 @@ public class LogAdminServlet extends AdminServlet {
     }
 
     private void getGeneralConfig(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
 
         NameValuePairs params = new NameValuePairs();
@@ -2327,11 +2316,11 @@ public class LogAdminServlet extends AdminServlet {
     }
 
     private void setGeneralConfig(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
 
         @SuppressWarnings("unchecked")
-		Enumeration<String> enum1 = req.getParameterNames();
+        Enumeration<String> enum1 = req.getParameterNames();
         boolean restart = false;
 
         while (enum1.hasMoreElements()) {
@@ -2353,7 +2342,7 @@ public class LogAdminServlet extends AdminServlet {
                     CMS.debug("setGeneralConfig: Invalid value for " + Constants.PR_DEBUG_LOG_LEVEL + ": " + value);
                     throw new EBaseException("Invalid value for " + Constants.PR_DEBUG_LOG_LEVEL);
                 }
-            } 
+            }
         }
 
         mConfig.commit(true);
@@ -2365,4 +2354,3 @@ public class LogAdminServlet extends AdminServlet {
     }
 
 }
-

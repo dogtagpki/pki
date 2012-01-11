@@ -20,13 +20,11 @@
 
 package com.netscape.certsrv.selftests;
 
-
 ///////////////////////
 // import statements //
 ///////////////////////
 
 import com.netscape.certsrv.base.EBaseException;
-
 
 //////////////////////
 // class definition //
@@ -36,19 +34,17 @@ import com.netscape.certsrv.base.EBaseException;
  * This class implements a self test exception. ESelfTestExceptions
  * are derived from EBaseExceptions in order to allow users
  * to easily do self tests without try-catch clauses.
- *
+ * 
  * ESelfTestExceptions should be caught by SelfTestSubsystem managers.
  * <P>
  * 
  * @version $Revision$, $Date$
  */
 public class ESelfTestException
-    extends EBaseException {
+        extends EBaseException {
     ////////////////////////
     // default parameters //
     ////////////////////////
-
-
 
     ///////////////////////////////////
     // ESelfTestException parameters //
@@ -60,7 +56,6 @@ public class ESelfTestException
     private static final long serialVersionUID = -8001373369705595891L;
     private static final String SELFTEST_RESOURCES = SelfTestResources.class.getName();
 
-
     ///////////////////////////////////////////
     // EBaseException parameters (inherited) //
     ///////////////////////////////////////////
@@ -71,8 +66,6 @@ public class ESelfTestException
      * public Object mParams[];
      */
 
-
-
     /////////////////////
     // default methods //
     /////////////////////
@@ -80,13 +73,12 @@ public class ESelfTestException
     /**
      * Constructs a self test exception.
      * <P>
-     *
+     * 
      * @param msg exception details
      */
     public ESelfTestException(String msg) {
         super(msg);
     }
-
 
     ////////////////////////////////
     // ESelfTestException methods //
@@ -95,12 +87,12 @@ public class ESelfTestException
     /**
      * Returns the bundle file name.
      * <P>
+     * 
      * @return name of bundle class associated with this exception.
      */
     protected String getBundleName() {
         return SELFTEST_RESOURCES;
     }
-
 
     ////////////////////////////////////////
     // EBaseException methods (inherited) //
@@ -124,4 +116,3 @@ public class ESelfTestException
      * public String toString( Locale locale );
      */
 }
-

@@ -21,9 +21,9 @@ import java.security.GeneralSecurityException;
 
 /**
  * X.509 Extension Exception.
- *
+ * 
  * @author Hemma Prafullchandra
- * 1.2
+ *         1.2
  */
 public class X509ExtensionException extends GeneralSecurityException {
 
@@ -44,8 +44,8 @@ public class X509ExtensionException extends GeneralSecurityException {
     /**
      * Constructs the exception with the specified detail
      * message. A detail message is a String that describes this
-     * particular exception. 
-     *
+     * particular exception.
+     * 
      * @param message the detail message.
      */
     public X509ExtensionException(String message) {

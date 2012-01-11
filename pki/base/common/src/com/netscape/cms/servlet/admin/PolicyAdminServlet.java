@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.admin;
 
-
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -44,14 +43,13 @@ import com.netscape.certsrv.policy.IPolicyProcessor;
 import com.netscape.certsrv.policy.IPolicyRule;
 import com.netscape.certsrv.ra.IRegistrationAuthority;
 
-
 /**
  * This class is an administration servlet for policy management.
- *
+ * 
  * Each service (CA, KRA, RA) should be responsible
  * for registering an instance of this with the remote
  * administration subsystem.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class PolicyAdminServlet extends AdminServlet {
@@ -63,8 +61,8 @@ public class PolicyAdminServlet extends AdminServlet {
     public final static String PROP_AUTHORITY = "authority";
 
     private final static String INFO = "PolicyAdminServlet";
-    private final static String PW_PASSWORD_CACHE_ADD = 
-        "PASSWORD_CACHE_ADD";
+    private final static String PW_PASSWORD_CACHE_ADD =
+            "PASSWORD_CACHE_ADD";
 
     public final static String PROP_PREDICATE = "predicate";
     private IPolicyProcessor mProcessor = null;
@@ -85,7 +83,7 @@ public class PolicyAdminServlet extends AdminServlet {
     public static String MISSING_POLICY_ORDERING = "Missing policy ordering";
 
     private final static String LOGGING_SIGNED_AUDIT_CONFIG_CERT_POLICY =
-        "LOGGING_SIGNED_AUDIT_CONFIG_CERT_POLICY_3";
+            "LOGGING_SIGNED_AUDIT_CONFIG_CERT_POLICY_3";
 
     /**
      * Constructs administration servlet.
@@ -102,7 +100,7 @@ public class PolicyAdminServlet extends AdminServlet {
         String authority = config.getInitParameter(PROP_AUTHORITY);
         String policyStatus = null;
 
-        CMS.debug( "PolicyAdminServlet: In Policy Admin Servlet init!" );
+        CMS.debug("PolicyAdminServlet: In Policy Admin Servlet init!");
 
         // CMS 6.1 began utilizing the "Certificate Profiles" framework
         // instead of the legacy "Certificate Policies" framework.
@@ -138,28 +136,28 @@ public class PolicyAdminServlet extends AdminServlet {
                     policyStatus = ICertificateAuthority.ID
                                  + "." + "Policy"
                                  + "." + IPolicyProcessor.PROP_ENABLE;
-                    if( mConfig.getBoolean( policyStatus, true ) == true ) {
+                    if (mConfig.getBoolean(policyStatus, true) == true) {
                         // NOTE:  If "ca.Policy.enable=<boolean>" is missing,
                         //        then the referenced instance existed prior
                         //        to this name=value pair existing in its
                         //        'CS.cfg' file, and thus we err on the
                         //        side that the user may still need to
                         //        use the policy framework.
-                        CMS.debug( "PolicyAdminServlet::init "
+                        CMS.debug("PolicyAdminServlet::init "
                                  + "Certificate Policy Framework (deprecated) "
-                                 + "is ENABLED" );
+                                 + "is ENABLED");
                     } else {
                         // CS 8.1 Default:  ca.Policy.enable=false
-                        CMS.debug( "PolicyAdminServlet::init "
+                        CMS.debug("PolicyAdminServlet::init "
                                  + "Certificate Policy Framework (deprecated) "
-                                 + "is DISABLED" );
-                        return; 
+                                 + "is DISABLED");
+                        return;
                     }
-                } catch( EBaseException e ) {
-                    throw new ServletException( authority
+                } catch (EBaseException e) {
+                    throw new ServletException(authority
                                               + " does not have a "
                                               + "master policy switch called '"
-                                              + policyStatus + "'" );
+                                              + policyStatus + "'");
                 }
             } else if (mAuthority instanceof IRegistrationAuthority) {
                 // this refers to the legacy RA (pre-CMS 7.0)
@@ -167,34 +165,34 @@ public class PolicyAdminServlet extends AdminServlet {
             } else if (mAuthority instanceof IKeyRecoveryAuthority) {
                 mProcessor = ((IKeyRecoveryAuthority) mAuthority).getPolicyProcessor();
                 try {
-                   policyStatus = IKeyRecoveryAuthority.ID
+                    policyStatus = IKeyRecoveryAuthority.ID
                                 + "." + "Policy"
                                 + "." + IPolicyProcessor.PROP_ENABLE;
-                    if( mConfig.getBoolean( policyStatus, true ) == true ) {
+                    if (mConfig.getBoolean(policyStatus, true) == true) {
                         // NOTE:  If "kra.Policy.enable=<boolean>" is missing,
                         //        then the referenced instance existed prior
                         //        to this name=value pair existing in its
                         //        'CS.cfg' file, and thus we err on the
                         //        side that the user may still need to
                         //        use the policy framework.
-                        CMS.debug( "PolicyAdminServlet::init "
+                        CMS.debug("PolicyAdminServlet::init "
                                  + "Certificate Policy Framework (deprecated) "
-                                 + "is ENABLED" );
+                                 + "is ENABLED");
                     } else {
                         // CS 8.1 Default:  kra.Policy.enable=false
-                        CMS.debug( "PolicyAdminServlet::init "
+                        CMS.debug("PolicyAdminServlet::init "
                                  + "Certificate Policy Framework (deprecated) "
-                                 + "is DISABLED" );
-                        return; 
+                                 + "is DISABLED");
+                        return;
                     }
-                } catch( EBaseException e ) {
-                    throw new ServletException( authority
+                } catch (EBaseException e) {
+                    throw new ServletException(authority
                                               + " does not have a "
                                               + "master policy switch called '"
-                                              + policyStatus + "'" );
+                                              + policyStatus + "'");
                 }
-            } else 
-                throw new ServletException(authority + "  does not have policy processor!"); 
+            } else
+                throw new ServletException(authority + "  does not have policy processor!");
     }
 
     /**
@@ -204,15 +202,15 @@ public class PolicyAdminServlet extends AdminServlet {
         return INFO;
     }
 
-    /** 
+    /**
      * retrieve extended plugin info such as brief description, type info
-     * from policy, authentication, 
-     *   need to add: listener, mapper and publishing plugins
+     * from policy, authentication,
+     * need to add: listener, mapper and publishing plugins
      */
     private void getExtendedPluginInfo(HttpServletRequest req,
-        HttpServletResponse resp) throws ServletException,
+            HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
-       
+
         if (!readAuthorize(req, resp))
             return;
         String id = req.getParameter(Constants.RS_ID);
@@ -248,27 +246,27 @@ public class PolicyAdminServlet extends AdminServlet {
                 ext_info = (IExtendedPluginInfo) impl;
             }
         }
-		
+
         NameValuePairs nvps = null;
-		
+
         if (ext_info == null) {
             nvps = new NameValuePairs();
         } else {
             nvps = convertStringArrayToNVPairs(ext_info.getExtendedPluginInfo(locale));
         }
-		
+
         return nvps;
     }
 
     public NameValuePairs getExtendedPluginInfo(Locale locale, String pluginType,
-        String implName,
-        String instName) {
+            String implName,
+            String instName) {
         IExtendedPluginInfo ext_info = null;
 
         Object impl = null;
 
         IPolicyRule policy = mProcessor.getPolicyInstance(instName);
-		
+
         impl = policy;
         if (impl == null) {
             impl = mProcessor.getPolicyImpl(implName);
@@ -313,8 +311,8 @@ public class PolicyAdminServlet extends AdminServlet {
      * Serves HTTP admin request.
      */
     public void service(HttpServletRequest req,
-        HttpServletResponse resp)
-        throws ServletException, IOException {
+            HttpServletResponse resp)
+            throws ServletException, IOException {
         super.service(req, resp);
 
         super.authenticate(req);
@@ -332,30 +330,30 @@ public class PolicyAdminServlet extends AdminServlet {
             } catch (EBaseException e) {
                 sendResponse(ERROR, e.toString(getLocale(req)), null, resp);
                 return;
-            } 
+            }
         } else
             sendResponse(ERROR, INVALID_POLICY_SCOPE, null, resp);
     }
 
-    private boolean readAuthorize(HttpServletRequest req, 
-        HttpServletResponse resp) throws IOException {
+    private boolean readAuthorize(HttpServletRequest req,
+            HttpServletResponse resp) throws IOException {
         mOp = "read";
         if ((mToken = super.authorize(req)) == null) {
             sendResponse(ERROR,
-                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
-                null, resp);
+                    CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
+                    null, resp);
             return false;
         }
         return true;
     }
 
-    private boolean modifyAuthorize(HttpServletRequest req, 
-        HttpServletResponse resp) throws IOException {
+    private boolean modifyAuthorize(HttpServletRequest req,
+            HttpServletResponse resp) throws IOException {
         mOp = "modify";
         if ((mToken = super.authorize(req)) == null) {
             sendResponse(ERROR,
-                CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
-                null, resp);
+                    CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHZ_FAILED"),
+                    null, resp);
             return false;
         }
         return true;
@@ -365,8 +363,8 @@ public class PolicyAdminServlet extends AdminServlet {
      * Process Policy Implementation Management.
      */
     public void processPolicyImplMgmt(HttpServletRequest req,
-        HttpServletResponse resp)
-        throws ServletException, IOException {
+            HttpServletResponse resp)
+            throws ServletException, IOException {
         // Get operation type
         String op = req.getParameter(Constants.OP_TYPE);
 
@@ -388,12 +386,12 @@ public class PolicyAdminServlet extends AdminServlet {
             addPolicyImpl(req, resp);
         } else
             sendResponse(ERROR, INVALID_POLICY_IMPL_OP,
-                null, resp);
+                    null, resp);
     }
 
     public void processPolicyRuleMgmt(HttpServletRequest req,
-        HttpServletResponse resp)
-        throws ServletException, IOException {
+            HttpServletResponse resp)
+            throws ServletException, IOException {
         // Get operation type
         String op = req.getParameter(Constants.OP_TYPE);
 
@@ -424,17 +422,17 @@ public class PolicyAdminServlet extends AdminServlet {
                 modifyPolicyInstance(req, resp);
         } else
             sendResponse(ERROR, INVALID_POLICY_IMPL_OP,
-                null, resp);
+                    null, resp);
     }
 
     public void listPolicyImpls(HttpServletRequest req,
-        HttpServletResponse resp)
-        throws ServletException, IOException {
+            HttpServletResponse resp)
+            throws ServletException, IOException {
         Enumeration policyImplNames = mProcessor.getPolicyImplsInfo();
         Enumeration policyImpls = mProcessor.getPolicyImpls();
 
         if (policyImplNames == null ||
-            policyImpls == null) {
+                policyImpls == null) {
             sendResponse(ERROR, INVALID_POLICY_IMPL_CONFIG, null, resp);
             return;
         }
@@ -443,12 +441,12 @@ public class PolicyAdminServlet extends AdminServlet {
         NameValuePairs nvp = new NameValuePairs();
 
         while (policyImplNames.hasMoreElements() &&
-            policyImpls.hasMoreElements()) {
+                policyImpls.hasMoreElements()) {
             String id = (String) policyImplNames.nextElement();
             IPolicyRule impl = (IPolicyRule)
-                policyImpls.nextElement();
+                    policyImpls.nextElement();
             String className =
-                impl.getClass().getName();
+                    impl.getClass().getName();
             String desc = impl.getDescription();
 
             nvp.add(id, className + "," + desc);
@@ -457,8 +455,8 @@ public class PolicyAdminServlet extends AdminServlet {
     }
 
     public void listPolicyInstances(HttpServletRequest req,
-        HttpServletResponse resp)
-        throws ServletException, IOException {
+            HttpServletResponse resp)
+            throws ServletException, IOException {
         Enumeration instancesInfo = mProcessor.getPolicyInstancesInfo();
 
         if (instancesInfo == null) {
@@ -475,7 +473,7 @@ public class PolicyAdminServlet extends AdminServlet {
             int i = info.indexOf(";");
 
             nvp.add(info.substring(0, i), info.substring(i + 1));
-			
+
         }
         sendResponse(SUCCESS, null, nvp, resp);
     }
@@ -483,19 +481,19 @@ public class PolicyAdminServlet extends AdminServlet {
     /**
      * Delete policy implementation
      * <P>
-     *
+     * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_CERT_POLICY used when
-     * configuring cert policy constraints and extensions
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_CERT_POLICY used when configuring cert policy constraints and extensions
      * </ul>
+     * 
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @exception ServletException a servlet error has occurred
      * @exception IOException an input/output error has occurred
      */
     public void deletePolicyImpl(HttpServletRequest req,
-        HttpServletResponse resp)
-        throws ServletException, IOException {
+            HttpServletResponse resp)
+            throws ServletException, IOException {
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -574,8 +572,8 @@ public class PolicyAdminServlet extends AdminServlet {
     }
 
     public void getPolicyImplConfig(HttpServletRequest req,
-        HttpServletResponse resp)
-        throws ServletException, IOException {
+            HttpServletResponse resp)
+            throws ServletException, IOException {
         // Get the policy impl id.
         String id = req.getParameter(Constants.RS_ID);
 
@@ -604,19 +602,19 @@ public class PolicyAdminServlet extends AdminServlet {
     /**
      * Add policy implementation
      * <P>
-     *
+     * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_CERT_POLICY used when
-     * configuring cert policy constraints and extensions
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_CERT_POLICY used when configuring cert policy constraints and extensions
      * </ul>
+     * 
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @exception ServletException a servlet error has occurred
      * @exception IOException an input/output error has occurred
      */
     public void addPolicyImpl(HttpServletRequest req,
-        HttpServletResponse resp)
-        throws ServletException, IOException {
+            HttpServletResponse resp)
+            throws ServletException, IOException {
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -710,19 +708,19 @@ public class PolicyAdminServlet extends AdminServlet {
     /**
      * Delete policy instance
      * <P>
-     *
+     * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_CERT_POLICY used when
-     * configuring cert policy constraints and extensions
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_CERT_POLICY used when configuring cert policy constraints and extensions
      * </ul>
+     * 
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @exception ServletException a servlet error has occurred
      * @exception IOException an input/output error has occurred
      */
     public void deletePolicyInstance(HttpServletRequest req,
-        HttpServletResponse resp)
-        throws ServletException, IOException {
+            HttpServletResponse resp)
+            throws ServletException, IOException {
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -801,8 +799,8 @@ public class PolicyAdminServlet extends AdminServlet {
     }
 
     public void getPolicyInstanceConfig(HttpServletRequest req,
-        HttpServletResponse resp)
-        throws ServletException, IOException {
+            HttpServletResponse resp)
+            throws ServletException, IOException {
         // Get the policy rule id.
         String id = req.getParameter(Constants.RS_ID).trim();
 
@@ -836,7 +834,7 @@ public class PolicyAdminServlet extends AdminServlet {
     }
 
     public void
-    putUserPWPair(String combo) {
+            putUserPWPair(String combo) {
         int semicolon;
 
         semicolon = combo.indexOf(";");
@@ -849,19 +847,19 @@ public class PolicyAdminServlet extends AdminServlet {
     /**
      * Add policy instance
      * <P>
-     *
+     * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_CERT_POLICY used when
-     * configuring cert policy constraints and extensions
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_CERT_POLICY used when configuring cert policy constraints and extensions
      * </ul>
+     * 
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @exception ServletException a servlet error has occurred
      * @exception IOException an input/output error has occurred
      */
     public void addPolicyInstance(HttpServletRequest req,
-        HttpServletResponse resp)
-        throws ServletException, IOException {
+            HttpServletResponse resp)
+            throws ServletException, IOException {
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -1005,19 +1003,19 @@ public class PolicyAdminServlet extends AdminServlet {
     /**
      * Change ordering of policy instances
      * <P>
-     *
+     * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_CERT_POLICY used when
-     * configuring cert policy constraints and extensions
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_CERT_POLICY used when configuring cert policy constraints and extensions
      * </ul>
+     * 
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @exception ServletException a servlet error has occurred
      * @exception IOException an input/output error has occurred
      */
     public void changePolicyInstanceOrdering(HttpServletRequest req,
-        HttpServletResponse resp)
-        throws ServletException, IOException {
+            HttpServletResponse resp)
+            throws ServletException, IOException {
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -1025,7 +1023,7 @@ public class PolicyAdminServlet extends AdminServlet {
         // to the signed audit log and stored as failures
         try {
             String policyOrder =
-                req.getParameter(Constants.PR_POLICY_ORDER);
+                    req.getParameter(Constants.PR_POLICY_ORDER);
 
             if (policyOrder == null) {
                 // store a message in the signed audit log file
@@ -1095,19 +1093,19 @@ public class PolicyAdminServlet extends AdminServlet {
     /**
      * Modify policy instance
      * <P>
-     *
+     * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_CERT_POLICY used when
-     * configuring cert policy constraints and extensions
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CONFIG_CERT_POLICY used when configuring cert policy constraints and extensions
      * </ul>
+     * 
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
      * @exception ServletException a servlet error has occurred
      * @exception IOException an input/output error has occurred
      */
     public void modifyPolicyInstance(HttpServletRequest req,
-        HttpServletResponse resp)
-        throws ServletException, IOException {
+            HttpServletResponse resp)
+            throws ServletException, IOException {
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
@@ -1252,4 +1250,3 @@ public class PolicyAdminServlet extends AdminServlet {
         }
     }
 }
-

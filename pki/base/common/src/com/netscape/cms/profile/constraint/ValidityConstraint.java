@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.constraint;
 
-
 import java.io.IOException;
 import java.util.Date;
 import java.util.Locale;
@@ -40,12 +39,11 @@ import com.netscape.cms.profile.def.NoDefault;
 import com.netscape.cms.profile.def.UserValidityDefault;
 import com.netscape.cms.profile.def.ValidityDefault;
 
-
 /**
  * This class implements the validity constraint.
  * It checks if the validity in the certificate
  * template satisfies the criteria.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class ValidityConstraint extends EnrollConstraint {
@@ -68,20 +66,20 @@ public class ValidityConstraint extends EnrollConstraint {
     }
 
     public void init(IProfile profile, IConfigStore config)
-        throws EProfileException {
+            throws EProfileException {
         super.init(profile, config);
     }
 
     public void setConfig(String name, String value)
-        throws EPropertyException {
+            throws EPropertyException {
         if (name.equals(CONFIG_RANGE) ||
-            name.equals(CONFIG_NOT_BEFORE_GRACE_PERIOD)) {
-          try {
-            Integer.parseInt(value);
-          } catch (Exception e) {
+                name.equals(CONFIG_NOT_BEFORE_GRACE_PERIOD)) {
+            try {
+                Integer.parseInt(value);
+            } catch (Exception e) {
                 throw new EPropertyException(CMS.getUserMessage(
                             "CMS_INVALID_PROPERTY", name));
-          }
+            }
         }
         super.setConfig(name, value);
     }
@@ -108,7 +106,7 @@ public class ValidityConstraint extends EnrollConstraint {
      * during the validation.
      */
     public void validate(IRequest request, X509CertInfo info)
-        throws ERejectException {
+            throws ERejectException {
         CertificateValidity v = null;
 
         try {
@@ -144,14 +142,14 @@ public class ValidityConstraint extends EnrollConstraint {
 
         long millisDiff = notAfter.getTime() - notBefore.getTime();
         CMS.debug("ValidityConstraint: millisDiff=" + millisDiff + " notAfter=" + notAfter.getTime() + " notBefore=" + notBefore.getTime());
-        long long_days = (millisDiff / 1000 ) / 86400;
-        CMS.debug("ValidityConstraint: long_days: "+long_days);
-        int days = (int)long_days;
-        CMS.debug("ValidityConstraint: days: "+days);
+        long long_days = (millisDiff / 1000) / 86400;
+        CMS.debug("ValidityConstraint: long_days: " + long_days);
+        int days = (int) long_days;
+        CMS.debug("ValidityConstraint: days: " + days);
 
         if (days > Integer.parseInt(getConfig(CONFIG_RANGE))) {
             throw new ERejectException(CMS.getUserMessage(getLocale(request),
-                        "CMS_PROFILE_VALIDITY_OUT_OF_RANGE", 
+                        "CMS_PROFILE_VALIDITY_OUT_OF_RANGE",
                         Integer.toString(days)));
         }
 
@@ -167,7 +165,7 @@ public class ValidityConstraint extends EnrollConstraint {
         if (notBeforeCheckStr == null || notBeforeCheckStr.equals("")) {
             notBeforeCheckStr = "false";
         }
-        notBeforeCheck = Boolean.valueOf(notBeforeCheckStr).booleanValue(); 
+        notBeforeCheck = Boolean.valueOf(notBeforeCheckStr).booleanValue();
 
         String notAfterCheckStr = getConfig(CONFIG_CHECK_NOT_AFTER);
         boolean notAfterCheck;
@@ -175,7 +173,7 @@ public class ValidityConstraint extends EnrollConstraint {
         if (notAfterCheckStr == null || notAfterCheckStr.equals("")) {
             notAfterCheckStr = "false";
         }
-        notAfterCheck = Boolean.valueOf(notAfterCheckStr).booleanValue(); 
+        notAfterCheck = Boolean.valueOf(notAfterCheckStr).booleanValue();
 
         String notBeforeGracePeriodStr = getConfig(CONFIG_NOT_BEFORE_GRACE_PERIOD);
         if (notBeforeGracePeriodStr == null || notBeforeGracePeriodStr.equals("")) {
@@ -186,7 +184,7 @@ public class ValidityConstraint extends EnrollConstraint {
         Date current = CMS.getCurrentDate();
         if (notBeforeCheck) {
             if (notBefore.getTime() > (current.getTime() + notBeforeGracePeriod)) {
-                CMS.debug("ValidityConstraint: notBefore (" + notBefore + ") > current + "+
+                CMS.debug("ValidityConstraint: notBefore (" + notBefore + ") > current + " +
                           "gracePeriod (" + new Date(current.getTime() + notBeforeGracePeriod) + ")");
                 throw new ERejectException(CMS.getUserMessage(getLocale(request),
                             "CMS_PROFILE_NOT_BEFORE_AFTER_CURRENT"));

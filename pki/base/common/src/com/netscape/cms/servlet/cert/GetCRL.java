@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.cert;
 
-
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.cert.CRLException;
@@ -48,10 +47,9 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 
-
 /**
  * Retrieve CRL for a Certificate Authority
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class GetCRL extends CMSServlet {
@@ -68,6 +66,7 @@ public class GetCRL extends CMSServlet {
 
     /**
      * initialize the servlet.
+     * 
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -79,15 +78,14 @@ public class GetCRL extends CMSServlet {
             mFormPath = mOutputTemplatePath;
     }
 
-
     /**
-     * Process the HTTP request. 
-     *
+     * Process the HTTP request.
+     * 
      * @param cmsReq the object holding the request and response information
-	 * @see DisplayCRL#process
+     * @see DisplayCRL#process
      */
     protected void process(CMSRequest cmsReq)
-        throws EBaseException {
+            throws EBaseException {
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
@@ -100,10 +98,10 @@ public class GetCRL extends CMSServlet {
                         mAuthzResourceName, "read");
         } catch (EAuthzAccessDenied e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
         } catch (Exception e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
         }
 
         if (authzToken == null) {
@@ -117,7 +115,7 @@ public class GetCRL extends CMSServlet {
         if (!(mAuthority instanceof ICertificateAuthority)) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_CA_FROM_RA_NOT_IMP"));
             cmsReq.setError(new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_NOT_YET_IMPLEMENTED")));
+                    CMS.getUserMessage("CMS_GW_NOT_YET_IMPLEMENTED")));
             cmsReq.setStatus(CMSRequest.ERROR);
             return;
         }
@@ -125,14 +123,14 @@ public class GetCRL extends CMSServlet {
         CMSTemplate form = null;
         Locale[] locale = new Locale[1];
 
-CMS.debug("**** mFormPath before getTemplate = "+mFormPath);
+        CMS.debug("**** mFormPath before getTemplate = " + mFormPath);
         try {
             form = getTemplate(mFormPath, httpReq, locale);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()));
             cmsReq.setError(new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR")));
+                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR")));
             cmsReq.setStatus(CMSRequest.ERROR);
             return;
         }
@@ -150,14 +148,14 @@ CMS.debug("**** mFormPath before getTemplate = "+mFormPath);
         if (op == null) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_NO_OPTIONS_SELECTED"));
             cmsReq.setError(new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_NO_OPTIONS_SELECTED")));
+                    CMS.getUserMessage("CMS_GW_NO_OPTIONS_SELECTED")));
             cmsReq.setStatus(CMSRequest.ERROR);
             return;
         }
         if (crlId == null) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_NO_CRL_ISSUING_POINT"));
             cmsReq.setError(new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_NO_CRL_SELECTED")));
+                    CMS.getUserMessage("CMS_GW_NO_CRL_SELECTED")));
             cmsReq.setStatus(CMSRequest.ERROR);
             return;
         }
@@ -165,23 +163,24 @@ CMS.debug("**** mFormPath before getTemplate = "+mFormPath);
         ICRLIssuingPointRecord crlRecord = null;
         ICertificateAuthority ca = (ICertificateAuthority) mAuthority;
         ICRLIssuingPoint crlIP = null;
-        if (ca != null) crlIP = ca.getCRLIssuingPoint(crlId);
+        if (ca != null)
+            crlIP = ca.getCRLIssuingPoint(crlId);
 
         try {
             crlRecord = (ICRLIssuingPointRecord) ca.getCRLRepository().readCRLIssuingPointRecord(crlId);
         } catch (EBaseException e) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSGW_NO_CRL_ISSUING_POINT_FOUND", crlId));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSGW_NO_CRL_ISSUING_POINT_FOUND", crlId));
             cmsReq.setError(new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_CRL_NOT_FOUND")));
+                    CMS.getUserMessage("CMS_GW_CRL_NOT_FOUND")));
             cmsReq.setStatus(CMSRequest.ERROR);
             return;
         }
         if (crlRecord == null) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSGW_CRL_NOT_YET_UPDATED_1", crlId));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSGW_CRL_NOT_YET_UPDATED_1", crlId));
             cmsReq.setError(new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_CRL_NOT_UPDATED")));
+                    CMS.getUserMessage("CMS_GW_CRL_NOT_UPDATED")));
             cmsReq.setStatus(CMSRequest.ERROR);
             return;
         }
@@ -201,12 +200,12 @@ CMS.debug("**** mFormPath before getTemplate = "+mFormPath);
         }
 
         if ((op.equals("checkCRLcache") ||
-             (op.equals("displayCRL") && crlDisplayType != null && crlDisplayType.equals("cachedCRL"))) &&
-              (crlIP == null || (!crlIP.isCRLCacheEnabled()) || crlIP.isCRLCacheEmpty())) {
+                (op.equals("displayCRL") && crlDisplayType != null && crlDisplayType.equals("cachedCRL"))) &&
+                (crlIP == null || (!crlIP.isCRLCacheEnabled()) || crlIP.isCRLCacheEmpty())) {
             cmsReq.setError(
-                CMS.getUserMessage(
-                    ((crlIP != null && crlIP.isCRLCacheEnabled() && crlIP.isCRLCacheEmpty())?
-                        "CMS_GW_CRL_CACHE_IS_EMPTY":"CMS_GW_CRL_CACHE_IS_NOT_ENABLED"), crlId));
+                    CMS.getUserMessage(
+                            ((crlIP != null && crlIP.isCRLCacheEnabled() && crlIP.isCRLCacheEmpty()) ?
+                                    "CMS_GW_CRL_CACHE_IS_EMPTY" : "CMS_GW_CRL_CACHE_IS_NOT_ENABLED"), crlId));
             cmsReq.setStatus(CMSRequest.ERROR);
             return;
         }
@@ -214,26 +213,26 @@ CMS.debug("**** mFormPath before getTemplate = "+mFormPath);
         byte[] crlbytes = null;
 
         if (op.equals("importDeltaCRL") || op.equals("getDeltaCRL") ||
-            (op.equals("displayCRL") && crlDisplayType != null &&
-             crlDisplayType.equals("deltaCRL"))) {
+                (op.equals("displayCRL") && crlDisplayType != null &&
+                crlDisplayType.equals("deltaCRL"))) {
             crlbytes = crlRecord.getDeltaCRL();
         } else if (op.equals("importCRL") || op.equals("getCRL") ||
                    op.equals("checkCRL") ||
                    (op.equals("displayCRL") &&
-                    crlDisplayType != null &&
+                           crlDisplayType != null &&
                     (crlDisplayType.equals("entireCRL") ||
-                     crlDisplayType.equals("crlHeader") ||
+                            crlDisplayType.equals("crlHeader") ||
                      crlDisplayType.equals("base64Encoded")))) {
             crlbytes = crlRecord.getCRL();
-        } 
+        }
 
         if (crlbytes == null && (!op.equals("checkCRLcache")) &&
-            (!(op.equals("displayCRL") && crlDisplayType != null &&
-               crlDisplayType.equals("cachedCRL")))) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSGW_CRL_NOT_YET_UPDATED_1", crlId));
+                (!(op.equals("displayCRL") && crlDisplayType != null &&
+                crlDisplayType.equals("cachedCRL")))) {
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSGW_CRL_NOT_YET_UPDATED_1", crlId));
             cmsReq.setError(new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_CRL_NOT_UPDATED")));
+                    CMS.getUserMessage("CMS_GW_CRL_NOT_UPDATED")));
             cmsReq.setStatus(CMSRequest.ERROR);
             return;
         }
@@ -242,15 +241,15 @@ CMS.debug("**** mFormPath before getTemplate = "+mFormPath);
         X509CRLImpl crl = null;
 
         if (op.equals("checkCRL") || op.equals("importCRL") ||
-            op.equals("importDeltaCRL") ||
-            (op.equals("displayCRL") && crlDisplayType != null &&
-             (crlDisplayType.equals("entireCRL") ||
-              crlDisplayType.equals("crlHeader") ||
-              crlDisplayType.equals("base64Encoded") ||
-              crlDisplayType.equals("deltaCRL")))) {
+                op.equals("importDeltaCRL") ||
+                (op.equals("displayCRL") && crlDisplayType != null &&
+                (crlDisplayType.equals("entireCRL") ||
+                        crlDisplayType.equals("crlHeader") ||
+                        crlDisplayType.equals("base64Encoded") ||
+                crlDisplayType.equals("deltaCRL")))) {
             try {
                 if (op.equals("displayCRL") && crlDisplayType != null &&
-                    crlDisplayType.equals("crlHeader")) {
+                        crlDisplayType.equals("crlHeader")) {
                     crl = new X509CRLImpl(crlbytes, false);
                 } else {
                     crl = new X509CRLImpl(crlbytes);
@@ -258,25 +257,25 @@ CMS.debug("**** mFormPath before getTemplate = "+mFormPath);
             } catch (Exception e) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_FAILED_DECODE_CRL_1", e.toString()));
                 cmsReq.setError(new ECMSGWException(
-                  CMS.getUserMessage("CMS_GW_DECODE_CRL_FAILED")));
+                        CMS.getUserMessage("CMS_GW_DECODE_CRL_FAILED")));
                 cmsReq.setStatus(CMSRequest.ERROR);
                 return;
             }
             if ((op.equals("importDeltaCRL") || (op.equals("displayCRL") &&
-                 crlDisplayType != null && crlDisplayType.equals("deltaCRL"))) &&
-                  ((!(crlIP != null && crlIP.isThisCurrentDeltaCRL(crl))) &&
-                   (crlRecord.getCRLNumber() == null ||
-                    crlRecord.getDeltaCRLNumber() == null || 
-                    crlRecord.getDeltaCRLNumber().compareTo(crlRecord.getCRLNumber()) < 0 ||
-                    crlRecord.getDeltaCRLSize() == null ||
+                    crlDisplayType != null && crlDisplayType.equals("deltaCRL"))) &&
+                    ((!(crlIP != null && crlIP.isThisCurrentDeltaCRL(crl))) &&
+                    (crlRecord.getCRLNumber() == null ||
+                            crlRecord.getDeltaCRLNumber() == null ||
+                            crlRecord.getDeltaCRLNumber().compareTo(crlRecord.getCRLNumber()) < 0 ||
+                            crlRecord.getDeltaCRLSize() == null ||
                     crlRecord.getDeltaCRLSize().longValue() == -1))) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ERR_NO_DELTA_CRL_1"));
                 cmsReq.setError(new ECMSGWException(
-                  CMS.getUserMessage("CMS_GW_CRL_NOT_UPDATED")));
+                        CMS.getUserMessage("CMS_GW_CRL_NOT_UPDATED")));
                 cmsReq.setStatus(CMSRequest.ERROR);
                 return;
             }
-        } 
+        }
 
         String mimeType = "application/x-pkcs7-crl";
 
@@ -300,13 +299,13 @@ CMS.debug("**** mFormPath before getTemplate = "+mFormPath);
 
             if (op.equals("checkCRL")) {
                 header.addBooleanValue("isOnCRL",
-                    crl.isRevoked(new BigInteger(certSerialNumber)));
+                        crl.isRevoked(new BigInteger(certSerialNumber)));
             }
 
             if (op.equals("displayCRL")) {
                 if (crlDisplayType.equals("entireCRL") || crlDisplayType.equals("cachedCRL")) {
-                    ICRLPrettyPrint crlDetails = (crlDisplayType.equals("entireCRL"))?
-                                                    CMS.getCRLPrettyPrint(crl):
+                    ICRLPrettyPrint crlDetails = (crlDisplayType.equals("entireCRL")) ?
+                                                    CMS.getCRLPrettyPrint(crl) :
                                                     CMS.getCRLCachePrettyPrint(crlIP);
                     String pageStart = args.getValueAsString("pageStart", null);
                     String pageSize = args.getValueAsString("pageSize", null);
@@ -315,22 +314,23 @@ CMS.debug("**** mFormPath before getTemplate = "+mFormPath);
                         long lPageStart = new Long(pageStart).longValue();
                         long lPageSize = new Long(pageSize).longValue();
 
-                        if (lPageStart < 1) lPageStart = 1;
+                        if (lPageStart < 1)
+                            lPageStart = 1;
 
                         header.addStringValue("crlPrettyPrint",
                                  crlDetails.toString(locale[0],
-                                 lCRLSize, lPageStart, lPageSize));
+                                         lCRLSize, lPageStart, lPageSize));
                         header.addLongValue("pageStart", lPageStart);
                         header.addLongValue("pageSize", lPageSize);
                     } else {
                         header.addStringValue(
-                            "crlPrettyPrint", crlDetails.toString(locale[0]));
+                                "crlPrettyPrint", crlDetails.toString(locale[0]));
                     }
                 } else if (crlDisplayType.equals("crlHeader")) {
                     ICRLPrettyPrint crlDetails = CMS.getCRLPrettyPrint(crl);
 
                     header.addStringValue(
-                        "crlPrettyPrint", crlDetails.toString(locale[0], lCRLSize, 0, 0));
+                            "crlPrettyPrint", crlDetails.toString(locale[0], lCRLSize, 0, 0));
                 } else if (crlDisplayType.equals("base64Encoded")) {
                     try {
                         byte[] ba = crl.getEncoded();
@@ -365,12 +365,12 @@ CMS.debug("**** mFormPath before getTemplate = "+mFormPath);
                     }
                 } else if (crlDisplayType.equals("deltaCRL")) {
                     header.addIntegerValue("deltaCRLSize",
-                        crl.getNumberOfRevokedCertificates());
+                            crl.getNumberOfRevokedCertificates());
 
                     ICRLPrettyPrint crlDetails = CMS.getCRLPrettyPrint(crl);
 
                     header.addStringValue(
-                        "crlPrettyPrint", crlDetails.toString(locale[0], 0, 0, 0));
+                            "crlPrettyPrint", crlDetails.toString(locale[0], 0, 0, 0));
 
                     try {
                         byte[] ba = crl.getEncoded();
@@ -413,10 +413,10 @@ CMS.debug("**** mFormPath before getTemplate = "+mFormPath);
                 form.renderOutput(out, argSet);
                 cmsReq.setStatus(CMSRequest.SUCCESS);
             } catch (IOException e) {
-                log(ILogger.LL_FAILURE, 
-                    CMS.getLogMessage("CMSGW_ERR_OUT_STREAM_TEMPLATE", e.toString()));
+                log(ILogger.LL_FAILURE,
+                        CMS.getLogMessage("CMSGW_ERR_OUT_STREAM_TEMPLATE", e.toString()));
                 cmsReq.setError(new ECMSGWException(
-                  CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR")));
+                        CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR")));
                 cmsReq.setStatus(CMSRequest.ERROR);
             }
             return;
@@ -428,15 +428,15 @@ CMS.debug("**** mFormPath before getTemplate = "+mFormPath);
         } else if (op.equals("getCRL")) {
             mimeType = "application/octet-stream";
             httpResp.setHeader("Content-disposition",
-                "attachment; filename=" + crlId + ".crl");
+                    "attachment; filename=" + crlId + ".crl");
         } else if (op.equals("getDeltaCRL")) {
             mimeType = "application/octet-stream";
             httpResp.setHeader("Content-disposition",
-                "attachment; filename=delta-" + crlId + ".crl");
+                    "attachment; filename=delta-" + crlId + ".crl");
         } else {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_INVALID_OPTIONS_SELECTED"));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_INVALID_OPTIONS_SELECTED"));
+                    CMS.getUserMessage("CMS_GW_INVALID_OPTIONS_SELECTED"));
         }
 
         try {
@@ -450,7 +450,7 @@ CMS.debug("**** mFormPath before getTemplate = "+mFormPath);
         } catch (IOException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ERROR_DISPLAYING_CRLINFO"));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_DISPLAYING_CRLINFO_ERROR"));
+                    CMS.getUserMessage("CMS_GW_DISPLAYING_CRLINFO_ERROR"));
         }
         //		cmsReq.setResult(null);
         cmsReq.setStatus(CMSRequest.SUCCESS);

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.crl;
 
-
 import java.io.IOException;
 import java.util.Locale;
 
@@ -38,14 +37,13 @@ import com.netscape.certsrv.ca.ICRLIssuingPoint;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.ILogger;
 
-
 /**
  * This represents a Authority Information Access CRL extension.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class CMSAuthInfoAccessExtension
-    implements ICMSCRLExtension, IExtendedPluginInfo {
+        implements ICMSCRLExtension, IExtendedPluginInfo {
     public static final String PROP_NUM_ADS = "numberOfAccessDescriptions";
     public static final String PROP_ACCESS_METHOD = "accessMethod";
     public static final String PROP_ACCESS_LOCATION_TYPE = "accessLocationType";
@@ -62,7 +60,7 @@ public class CMSAuthInfoAccessExtension
     }
 
     public Extension setCRLExtensionCriticality(Extension ext,
-        boolean critical) {
+            boolean critical) {
         AuthInfoAccessExtension authInfoAccessExt = (AuthInfoAccessExtension) ext;
 
         authInfoAccessExt.setCritical(critical);
@@ -71,7 +69,7 @@ public class CMSAuthInfoAccessExtension
     }
 
     public Extension getCRLExtension(IConfigStore config, Object ip,
-        boolean critical) {
+            boolean critical) {
         ICRLIssuingPoint crlIssuingPoint = (ICRLIssuingPoint) ip;
         AuthInfoAccessExtension authInfoAccessExt = new AuthInfoAccessExtension(critical);
 
@@ -138,7 +136,7 @@ public class CMSAuthInfoAccessExtension
                     String hostname = CMS.getEENonSSLHost();
                     String port = CMS.getEENonSSLPort();
                     if (hostname != null && port != null) {
-                        accessLocation = "http://"+hostname+":"+port+"/ca/ee/ca/getCAChain?op=downloadBIN";
+                        accessLocation = "http://" + hostname + ":" + port + "/ca/ee/ca/getCAChain?op=downloadBIN";
                     }
                     URIName uriName = new URIName(accessLocation);
                     authInfoAccessExt.addAccessDescription(AuthInfoAccessExtension.METHOD_CA_ISSUERS, new GeneralName(uriName));
@@ -211,7 +209,7 @@ public class CMSAuthInfoAccessExtension
                 String hostname = CMS.getEENonSSLHost();
                 String port = CMS.getEENonSSLPort();
                 if (hostname != null && port != null) {
-                    accessLocation = "http://"+hostname+":"+port+"/ca/ee/ca/getCAChain?op=downloadBIN";
+                    accessLocation = "http://" + hostname + ":" + port + "/ca/ee/ca/getCAChain?op=downloadBIN";
                 }
                 nvp.add(PROP_ACCESS_LOCATION + i, accessLocation);
             }
@@ -224,32 +222,32 @@ public class CMSAuthInfoAccessExtension
                 "critical;boolean;Set criticality for Authority Information Access extension.",
                 PROP_NUM_ADS + ";number;Set number of Access Descriptions.",
                 PROP_ACCESS_METHOD + "0;choice(" + PROP_ACCESS_METHOD_CAISSUERS + "," +
-                PROP_ACCESS_METHOD_OCSP +");Select access description method.",
+                        PROP_ACCESS_METHOD_OCSP + ");Select access description method.",
                 PROP_ACCESS_LOCATION_TYPE + "0;choice(" + PROP_URINAME + "," +
-                PROP_DIRNAME + ");Select access location type.",
+                        PROP_DIRNAME + ");Select access location type.",
                 PROP_ACCESS_LOCATION + "0;string;Enter access location " +
-                "corresponding to the selected access location type.",
+                        "corresponding to the selected access location type.",
                 IExtendedPluginInfo.HELP_TOKEN +
-                ";configuration-ca-edit-crlextension-authorityinformationaccess",
+                        ";configuration-ca-edit-crlextension-authorityinformationaccess",
                 PROP_ACCESS_METHOD + "1;choice(" + PROP_ACCESS_METHOD_CAISSUERS + "," +
-                PROP_ACCESS_METHOD_OCSP +");Select access description method.",
+                        PROP_ACCESS_METHOD_OCSP + ");Select access description method.",
                 PROP_ACCESS_LOCATION_TYPE + "1;choice(" + PROP_URINAME + "," +
-                PROP_DIRNAME + ");Select access location type.",
+                        PROP_DIRNAME + ");Select access location type.",
                 PROP_ACCESS_LOCATION + "1;string;Enter access location " +
-                "corresponding to the selected access location type.",
+                        "corresponding to the selected access location type.",
                 IExtendedPluginInfo.HELP_TOKEN +
-                ";configuration-ca-edit-crlextension-authorityinformationaccess",
+                        ";configuration-ca-edit-crlextension-authorityinformationaccess",
                 PROP_ACCESS_METHOD + "2;choice(" + PROP_ACCESS_METHOD_CAISSUERS + "," +
-                PROP_ACCESS_METHOD_OCSP +");Select access description method.",
+                        PROP_ACCESS_METHOD_OCSP + ");Select access description method.",
                 PROP_ACCESS_LOCATION_TYPE + "2;choice(" + PROP_URINAME + "," +
-                PROP_DIRNAME + ");Select access location type.",
+                        PROP_DIRNAME + ");Select access location type.",
                 PROP_ACCESS_LOCATION + "2;string;Enter access location " +
-                "corresponding to the selected access location type.",
+                        "corresponding to the selected access location type.",
                 IExtendedPluginInfo.HELP_TOKEN +
-                ";configuration-ca-edit-crlextension-authorityinformationaccess",
+                        ";configuration-ca-edit-crlextension-authorityinformationaccess",
                 IExtendedPluginInfo.HELP_TEXT +
-                ";The Freshest CRL is a non critical CRL extension " +
-                "that identifies the delta CRL distribution points for a particular CRL."
+                        ";The Freshest CRL is a non critical CRL extension " +
+                        "that identifies the delta CRL distribution points for a particular CRL."
             };
 
         return params;
@@ -257,6 +255,6 @@ public class CMSAuthInfoAccessExtension
 
     private void log(int level, String msg) {
         mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_CA, level,
-            "CMSAuthInfoAccessExtension - " + msg);
+                "CMSAuthInfoAccessExtension - " + msg);
     }
-} 
+}

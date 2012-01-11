@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.cert;
 
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigInteger;
@@ -55,11 +54,10 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.ECMSGWException;
 
-
 /**
  * 'Unrevoke' a certificate. (For certificates that are on-hold only,
  * take them off-hold)
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class DoUnrevokeTPS extends CMSServlet {
@@ -81,19 +79,18 @@ public class DoUnrevokeTPS extends CMSServlet {
 
     private final static String OFF_HOLD = "off-hold";
     private final static int OFF_HOLD_REASON = 6;
-    private final static String
-        LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST =
-        "LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST_5";
-    private final static String
-        LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST_PROCESSED =
-        "LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST_PROCESSED_7";
-    
+    private final static String LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST =
+            "LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST_5";
+    private final static String LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST_PROCESSED =
+            "LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST_PROCESSED_7";
+
     public DoUnrevokeTPS() {
         super();
     }
 
     /**
      * initialize the servlet.
+     * 
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -112,14 +109,11 @@ public class DoUnrevokeTPS extends CMSServlet {
     }
 
     /**
-     * Process the HTTP request. 
+     * Process the HTTP request.
      * <ul>
-     * <li>http.param serialNumber Decimal serial number of certificate to unrevoke. The
-	 *   certificate must be revoked with a revovcation reason 'on hold' for this
-	 *   operation to succeed. The serial number may be expressed as a hex number by
-	 *   prefixing '0x' to the serialNumber string
+     * <li>http.param serialNumber Decimal serial number of certificate to unrevoke. The certificate must be revoked with a revovcation reason 'on hold' for this operation to succeed. The serial number may be expressed as a hex number by prefixing '0x' to the serialNumber string
      * </ul>
-     *
+     * 
      * @param cmsReq the object holding the request and response information
      */
     public void process(CMSRequest cmsReq) throws EBaseException {
@@ -133,16 +127,16 @@ public class DoUnrevokeTPS extends CMSServlet {
 
         Locale[] locale = new Locale[1];
 
-/*
-        try {
-            form = getTemplate(mFormPath, req, locale);
-        } catch (IOException e) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", e.toString()));
-            throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
-        }
-*/
+        /*
+                try {
+                    form = getTemplate(mFormPath, req, locale);
+                } catch (IOException e) {
+                    log(ILogger.LL_FAILURE, 
+                        CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", e.toString()));
+                    throw new ECMSGWException(
+                      CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+                }
+        */
 
         try {
             serialNumbers = getSerialNumbers(req);
@@ -150,17 +144,17 @@ public class DoUnrevokeTPS extends CMSServlet {
             //for audit log.
             IAuthToken authToken = authenticate(cmsReq);
             String authMgr = AuditFormat.NOAUTH;
-        
+
             if (authToken != null) {
                 authMgr =
                         authToken.getInString(AuthToken.TOKEN_AUTHMGR_INST_NAME);
-            } else {    
-                CMS.debug( "DoUnrevokeTPS::process() -  authToken is null!" );
+            } else {
+                CMS.debug("DoUnrevokeTPS::process() -  authToken is null!");
                 return;
-            }    
+            }
             String agentID = authToken.getInString("userid");
             String initiative = AuditFormat.FROMAGENT + " agentID: " + agentID
-                + " authenticated by " + authMgr;
+                    + " authenticated by " + authMgr;
 
             AuthzToken authzToken = null;
 
@@ -169,17 +163,17 @@ public class DoUnrevokeTPS extends CMSServlet {
                             mAuthzResourceName, "unrevoke");
             } catch (EAuthzAccessDenied e) {
                 log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                        CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
             } catch (Exception e) {
                 log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                        CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
             }
 
             if (authzToken == null) {
                 cmsReq.setStatus(CMSRequest.UNAUTHORIZED);
                 o_status = "status=3";
                 errorString = "error=unauthorized";
-                String pp = o_status+"\n"+errorString;
+                String pp = o_status + "\n" + errorString;
                 byte[] b = pp.getBytes();
                 resp.setContentType("text/html");
                 resp.setContentLength(b.length);
@@ -192,7 +186,7 @@ public class DoUnrevokeTPS extends CMSServlet {
             process(serialNumbers, req, resp, locale[0], initiative);
         } catch (NumberFormatException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_INVALID_SERIAL_NUM_FORMAT"));
-            error = new EBaseException(CMS.getUserMessage(getLocale(req),"CMS_BASE_INVALID_NUMBER_FORMAT"));
+            error = new EBaseException(CMS.getUserMessage(getLocale(req), "CMS_BASE_INVALID_NUMBER_FORMAT"));
         } catch (EBaseException e) {
             error = e;
         } catch (IOException e) {
@@ -206,10 +200,10 @@ public class DoUnrevokeTPS extends CMSServlet {
                 errorString = "error=";
             } else {
                 o_status = "status=3";
-                errorString = "error="+error.toString();
+                errorString = "error=" + error.toString();
             }
 
-            String pp = o_status+"\n"+errorString;
+            String pp = o_status + "\n" + errorString;
             byte[] b = pp.getBytes();
             resp.setContentType("text/html");
             resp.setContentLength(b.length);
@@ -217,33 +211,28 @@ public class DoUnrevokeTPS extends CMSServlet {
             os.write(b);
             os.flush();
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("ADMIN_SRVLT_ERR_STREAM_TEMPLATE", e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("ADMIN_SRVLT_ERR_STREAM_TEMPLATE", e.toString()));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
+                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR"));
         }
     }
 
-	
     /**
      * Process X509 cert status change request
      * <P>
-     *
-     * (Certificate Request - an "agent" cert status change request to take
-     *  a certificate off-hold)
+     * 
+     * (Certificate Request - an "agent" cert status change request to take a certificate off-hold)
      * <P>
-     *
-     * (Certificate Request Processed -  an "agent" cert status change request
-     *  to take a certificate off-hold)
+     * 
+     * (Certificate Request Processed - an "agent" cert status change request to take a certificate off-hold)
      * <P>
-     *
+     * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST used when
-     * a cert status change request (e. g. - "revocation") is made (before
-     * approval process)
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST_PROCESSED
-     * used when a certificate status is changed (taken off-hold)
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST used when a cert status change request (e. g. - "revocation") is made (before approval process)
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST_PROCESSED used when a certificate status is changed (taken off-hold)
      * </ul>
+     * 
      * @param serialNumbers the serial number of the certificate
      * @param req HTTP servlet request
      * @param resp HTTP servlet response
@@ -252,10 +241,10 @@ public class DoUnrevokeTPS extends CMSServlet {
      * @exception EBaseException an error has occurred
      */
     private void process(BigInteger[] serialNumbers,
-        HttpServletRequest req,
-        HttpServletResponse resp,
-        Locale locale, String initiative)
-        throws EBaseException {
+            HttpServletRequest req,
+            HttpServletResponse resp,
+            Locale locale, String initiative)
+            throws EBaseException {
         boolean auditRequest = true;
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
@@ -271,8 +260,9 @@ public class DoUnrevokeTPS extends CMSServlet {
             // certs are for old cloning and they should be removed as soon as possible
             X509CertImpl[] certs = new X509CertImpl[serialNumbers.length];
             for (int i = 0; i < serialNumbers.length; i++) {
-                certs[i] = (X509CertImpl)getX509Certificate(serialNumbers[i]);
-                if (snList.length() > 0) snList += ", ";
+                certs[i] = (X509CertImpl) getX509Certificate(serialNumbers[i]);
+                if (snList.length() > 0)
+                    snList += ", ";
                 snList += "0x" + serialNumbers[i].toString(16);
             }
 
@@ -313,76 +303,76 @@ public class DoUnrevokeTPS extends CMSServlet {
                 if (result != null && result.equals(IRequest.RES_SUCCESS)) {
                     if (certs[0] != null) {
                         mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
-                            AuditFormat.LEVEL,
-                            AuditFormat.DOUNREVOKEFORMAT,
-                            new Object[] {
-                                unrevReq.getRequestId(),
-                                initiative,
-                                "completed",
-                                certs[0].getSubjectDN(),
-                                "0x" + serialNumbers[0].toString(16)}
-                        );
+                                AuditFormat.LEVEL,
+                                AuditFormat.DOUNREVOKEFORMAT,
+                                new Object[] {
+                                        unrevReq.getRequestId(),
+                                        initiative,
+                                        "completed",
+                                        certs[0].getSubjectDN(),
+                                        "0x" + serialNumbers[0].toString(16) }
+                                );
                     }
                 } else {
                     String error = unrevReq.getExtDataInString(IRequest.ERROR);
 
                     if (error != null) {
                         o_status = "status=3";
-                        errorString = "error="+error;
+                        errorString = "error=" + error;
                         if (certs[0] != null) {
                             mLogger.log(ILogger.EV_AUDIT,
-                                ILogger.S_OTHER,
-                                AuditFormat.LEVEL,
-                                AuditFormat.DOUNREVOKEFORMAT,
-                                new Object[] {
-                                    unrevReq.getRequestId(),
-                                    initiative,
-                                    "completed with error: " +
-                                    error,
-                                    certs[0].getSubjectDN(),
-                                    "0x" + serialNumbers[0].toString(16)}
-                            );
+                                    ILogger.S_OTHER,
+                                    AuditFormat.LEVEL,
+                                    AuditFormat.DOUNREVOKEFORMAT,
+                                    new Object[] {
+                                            unrevReq.getRequestId(),
+                                            initiative,
+                                            "completed with error: " +
+                                                    error,
+                                            certs[0].getSubjectDN(),
+                                            "0x" + serialNumbers[0].toString(16) }
+                                    );
                         }
                     }
                 }
 
-                Integer updateCRLResult = 
-                    unrevReq.getExtDataInInteger(IRequest.CRL_UPDATE_STATUS);
+                Integer updateCRLResult =
+                        unrevReq.getExtDataInInteger(IRequest.CRL_UPDATE_STATUS);
 
                 if (updateCRLResult != null) {
                     if (!updateCRLResult.equals(IRequest.RES_SUCCESS)) {
                         String crlError =
-                            unrevReq.getExtDataInString(IRequest.CRL_UPDATE_ERROR);
+                                unrevReq.getExtDataInString(IRequest.CRL_UPDATE_ERROR);
 
                         if (crlError != null) {
                             o_status = "status=3";
-                            errorString = "error="+crlError;
+                            errorString = "error=" + crlError;
                         }
                     }
                     // let known crl publishing status too.
-                    Integer publishCRLResult = 
-                        unrevReq.getExtDataInInteger(IRequest.CRL_PUBLISH_STATUS);
+                    Integer publishCRLResult =
+                            unrevReq.getExtDataInInteger(IRequest.CRL_PUBLISH_STATUS);
 
                     if (publishCRLResult != null) {
                         if (!publishCRLResult.equals(IRequest.RES_SUCCESS)) {
                             String publError =
-                                unrevReq.getExtDataInString(IRequest.CRL_PUBLISH_ERROR);
+                                    unrevReq.getExtDataInString(IRequest.CRL_PUBLISH_ERROR);
 
                             if (publError != null) {
                                 o_status = "status=3";
-                                errorString = "error="+publError;
+                                errorString = "error=" + publError;
                             }
                         }
                     }
                 }
 
                 // let known update and publish status of all crls. 
-                Enumeration otherCRLs = 
-                    ((ICertificateAuthority) mAuthority).getCRLIssuingPoints();
+                Enumeration otherCRLs =
+                        ((ICertificateAuthority) mAuthority).getCRLIssuingPoints();
 
                 while (otherCRLs.hasMoreElements()) {
                     ICRLIssuingPoint crl = (ICRLIssuingPoint)
-                        otherCRLs.nextElement();
+                            otherCRLs.nextElement();
                     String crlId = crl.getId();
 
                     if (crlId.equals(ICertificateAuthority.PROP_MASTER_CRL))
@@ -394,37 +384,37 @@ public class DoUnrevokeTPS extends CMSServlet {
                         if (!updateResult.equals(IRequest.RES_SUCCESS)) {
                             String updateErrorStr = crl.getCrlUpdateErrorStr();
                             String error =
-                                unrevReq.getExtDataInString(updateErrorStr);
+                                    unrevReq.getExtDataInString(updateErrorStr);
 
                             if (error != null) {
                                 o_status = "status=3";
-                                errorString = "error="+error;
+                                errorString = "error=" + error;
                             }
                         }
                         String publishStatusStr = crl.getCrlPublishStatusStr();
                         Integer publishResult =
-                            unrevReq.getExtDataInInteger(publishStatusStr);
+                                unrevReq.getExtDataInInteger(publishStatusStr);
 
-                        if (publishResult == null) 
+                        if (publishResult == null)
                             continue;
                         if (!publishResult.equals(IRequest.RES_SUCCESS)) {
-                            String publishErrorStr = 
-                                crl.getCrlPublishErrorStr();
+                            String publishErrorStr =
+                                    crl.getCrlPublishErrorStr();
 
                             String error =
-                                unrevReq.getExtDataInString(publishErrorStr);
+                                    unrevReq.getExtDataInString(publishErrorStr);
 
                             if (error != null) {
                                 o_status = "status=3";
-                                errorString = "error="+error;
+                                errorString = "error=" + error;
                             }
                         }
                     }
                 }
 
                 if (mPublisherProcessor != null && mPublisherProcessor.ldapEnabled()) {
-                    Integer[] ldapPublishStatus = 
-                        unrevReq.getExtDataInIntegerArray("ldapPublishStatus");
+                    Integer[] ldapPublishStatus =
+                            unrevReq.getExtDataInIntegerArray("ldapPublishStatus");
 
                     if (ldapPublishStatus != null) {
                         if (ldapPublishStatus[0] != IRequest.RES_SUCCESS) {
@@ -432,25 +422,25 @@ public class DoUnrevokeTPS extends CMSServlet {
                             errorString = "error=Problem in publishing to LDAP";
                         }
                     }
-                } else if (mPublisherProcessor == null || (! mPublisherProcessor.ldapEnabled())) {
+                } else if (mPublisherProcessor == null || (!mPublisherProcessor.ldapEnabled())) {
                     o_status = "status=3";
                     errorString = "error=LDAP Publisher not enabled";
                 }
 
             } else if (status == RequestStatus.PENDING) {
                 o_status = "status=2";
-                errorString = "error="+status.toString();
+                errorString = "error=" + status.toString();
                 if (certs[0] != null) {
                     mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
-                        AuditFormat.LEVEL,
-                        AuditFormat.DOUNREVOKEFORMAT,
-                        new Object[] {
-                            unrevReq.getRequestId(),
-                            initiative,
-                            "pending",
-                            certs[0].getSubjectDN(),
-                            "0x" + serialNumbers[0].toString(16)}
-                    );
+                            AuditFormat.LEVEL,
+                            AuditFormat.DOUNREVOKEFORMAT,
+                            new Object[] {
+                                    unrevReq.getRequestId(),
+                                    initiative,
+                                    "pending",
+                                    certs[0].getSubjectDN(),
+                                    "0x" + serialNumbers[0].toString(16) }
+                            );
                 }
             } else {
                 o_status = "status=2";
@@ -458,15 +448,15 @@ public class DoUnrevokeTPS extends CMSServlet {
 
                 if (certs[0] != null) {
                     mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
-                        AuditFormat.LEVEL,
-                        AuditFormat.DOUNREVOKEFORMAT,
-                        new Object[] {
-                            unrevReq.getRequestId(),
-                            initiative,
-                            status.toString(),
-                            certs[0].getSubjectDN(),
-                            "0x" + serialNumbers[0].toString(16)}
-                    );
+                            AuditFormat.LEVEL,
+                            AuditFormat.DOUNREVOKEFORMAT,
+                            new Object[] {
+                                    unrevReq.getRequestId(),
+                                    initiative,
+                                    status.toString(),
+                                    certs[0].getSubjectDN(),
+                                    "0x" + serialNumbers[0].toString(16) }
+                            );
                 }
             }
 
@@ -474,9 +464,8 @@ public class DoUnrevokeTPS extends CMSServlet {
             // if and only if "auditApprovalStatus" is
             // "complete", "revoked", or "canceled"
             if ((auditApprovalStatus.equals(RequestStatus.COMPLETE_STRING))
-                || (auditApprovalStatus.equals(RequestStatus.REJECTED_STRING))
-                || (auditApprovalStatus.equals(RequestStatus.CANCELED_STRING))
-            ) {
+                    || (auditApprovalStatus.equals(RequestStatus.REJECTED_STRING))
+                    || (auditApprovalStatus.equals(RequestStatus.CANCELED_STRING))) {
                 auditMessage = CMS.getLogMessage(
                             LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST_PROCESSED,
                             auditSubjectID,
@@ -510,10 +499,10 @@ public class DoUnrevokeTPS extends CMSServlet {
                 // "complete", "revoked", or "canceled"
                 if ((auditApprovalStatus.equals(
                             RequestStatus.COMPLETE_STRING)) ||
-                    (auditApprovalStatus.equals(
-                            RequestStatus.REJECTED_STRING)) ||
-                    (auditApprovalStatus.equals(
-                            RequestStatus.CANCELED_STRING))) {
+                        (auditApprovalStatus.equals(
+                                RequestStatus.REJECTED_STRING)) ||
+                        (auditApprovalStatus.equals(
+                                RequestStatus.CANCELED_STRING))) {
                     auditMessage = CMS.getLogMessage(
                                 LOGGING_SIGNED_AUDIT_CERT_STATUS_CHANGE_REQUEST_PROCESSED,
                                 auditSubjectID,
@@ -533,7 +522,7 @@ public class DoUnrevokeTPS extends CMSServlet {
     }
 
     private BigInteger[] getSerialNumbers(HttpServletRequest req)
-        throws NumberFormatException {
+            throws NumberFormatException {
         String serialNumString = req.getParameter("serialNumber");
 
         StringTokenizer snList = new StringTokenizer(serialNumString, " ");
@@ -554,7 +543,7 @@ public class DoUnrevokeTPS extends CMSServlet {
                 biList.addElement(bi);
             } else {
                 throw new NumberFormatException();
-            } 
+            }
         }
         if (biList.size() < 1) {
             throw new NumberFormatException();
@@ -570,11 +559,11 @@ public class DoUnrevokeTPS extends CMSServlet {
 
     /**
      * Signed Audit Log Requester ID
-     *
+     * 
      * This method is called to obtain the "RequesterID" for
      * a signed audit log message.
      * <P>
-     *
+     * 
      * @param req HTTP request
      * @return id string containing the signed audit log message RequesterID
      */
@@ -600,11 +589,11 @@ public class DoUnrevokeTPS extends CMSServlet {
 
     /**
      * Signed Audit Log Serial Number
-     *
+     * 
      * This method is called to obtain the serial number of the certificate
      * whose status is to be changed for a signed audit log message.
      * <P>
-     *
+     * 
      * @param eeSerialNumber a string containing the un-normalized serialNumber
      * @return id string containing the signed audit log message RequesterID
      */
@@ -623,7 +612,7 @@ public class DoUnrevokeTPS extends CMSServlet {
             // convert it to hexadecimal
             serialNumber = "0x"
                     + Integer.toHexString(
-                        Integer.valueOf(serialNumber).intValue());
+                            Integer.valueOf(serialNumber).intValue());
         } else {
             serialNumber = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
         }
@@ -631,4 +620,3 @@ public class DoUnrevokeTPS extends CMSServlet {
         return serialNumber;
     }
 }
-

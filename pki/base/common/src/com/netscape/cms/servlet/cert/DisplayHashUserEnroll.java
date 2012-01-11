@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.cert;
 
-
 import java.io.IOException;
 import java.util.Date;
 import java.util.Locale;
@@ -45,11 +44,10 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 
-
 /**
  * Servlet to report the status, ie, the agent-initiated user
  * enrollment is enabled or disabled.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class DisplayHashUserEnroll extends CMSServlet {
@@ -90,7 +88,7 @@ public class DisplayHashUserEnroll extends CMSServlet {
      * Services the request
      */
     protected void process(CMSRequest cmsReq)
-        throws EBaseException {
+            throws EBaseException {
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
@@ -117,7 +115,7 @@ public class DisplayHashUserEnroll extends CMSServlet {
         if (!(mAuthority instanceof IRegistrationAuthority)) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_ERR_GET_TEMPLATE"));
             cmsReq.setError(new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_NOT_YET_IMPLEMENTED")));
+                    CMS.getUserMessage("CMS_GW_NOT_YET_IMPLEMENTED")));
             cmsReq.setStatus(CMSRequest.ERROR);
             return;
         }
@@ -152,7 +150,7 @@ public class DisplayHashUserEnroll extends CMSServlet {
             printError(cmsReq, "2");
             cmsReq.setStatus(CMSRequest.SUCCESS);
             return;
-        }  
+        }
 
         mgr.setLastLogin(reqHost, currTime);
 
@@ -162,10 +160,10 @@ public class DisplayHashUserEnroll extends CMSServlet {
         try {
             form = getTemplate(mFormPath, httpReq, locale);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("ADMIN_SRVLT_ERR_GET_TEMPLATE", mFormPath, e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("ADMIN_SRVLT_ERR_GET_TEMPLATE", mFormPath, e.toString()));
             cmsReq.setError(new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR")));
+                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR")));
             cmsReq.setStatus(CMSRequest.ERROR);
             return;
         }
@@ -177,10 +175,10 @@ public class DisplayHashUserEnroll extends CMSServlet {
             form.renderOutput(out, argSet);
             cmsReq.setStatus(CMSRequest.SUCCESS);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSGW_ERR_OUT_STREAM_TEMPLATE", e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSGW_ERR_OUT_STREAM_TEMPLATE", e.toString()));
             cmsReq.setError(new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR")));
+                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR")));
             cmsReq.setStatus(CMSRequest.ERROR);
         }
         cmsReq.setStatus(CMSRequest.SUCCESS);
@@ -188,7 +186,7 @@ public class DisplayHashUserEnroll extends CMSServlet {
     }
 
     private void printError(CMSRequest cmsReq, String errorCode)
-        throws EBaseException {
+            throws EBaseException {
         IArgBlock httpParams = cmsReq.getHttpParams();
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
@@ -208,9 +206,9 @@ public class DisplayHashUserEnroll extends CMSServlet {
             form = getTemplate(formPath, httpReq, locale);
         } catch (IOException e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("ADMIN_SRVLT_ERR_GET_TEMPLATE", formPath, e.toString()));
+                    CMS.getLogMessage("ADMIN_SRVLT_ERR_GET_TEMPLATE", formPath, e.toString()));
             cmsReq.setError(new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR")));
+                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR")));
             cmsReq.setStatus(CMSRequest.ERROR);
             return;
         }
@@ -223,10 +221,10 @@ public class DisplayHashUserEnroll extends CMSServlet {
             cmsReq.setStatus(CMSRequest.SUCCESS);
         } catch (IOException e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("CMSGW_ERR_BAD_SERV_OUT_STREAM", "", e.toString()));
+                    CMS.getLogMessage("CMSGW_ERR_BAD_SERV_OUT_STREAM", "", e.toString()));
 
             cmsReq.setError(new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR")));
+                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR")));
             cmsReq.setStatus(CMSRequest.ERROR);
         }
     }

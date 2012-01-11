@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Locale;
@@ -45,7 +44,6 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 import com.netscape.cmsutil.xml.XMLObject;
 
-
 public class UpdateNumberRange extends CMSServlet {
 
     /**
@@ -56,7 +54,7 @@ public class UpdateNumberRange extends CMSServlet {
     private final static String FAILED = "1";
     private final static String AUTH_FAILURE = "2";
     private final static String LOGGING_SIGNED_AUDIT_CONFIG_SERIAL_NUMBER =
-        "LOGGING_SIGNED_AUDIT_CONFIG_SERIAL_NUMBER_1";
+            "LOGGING_SIGNED_AUDIT_CONFIG_SERIAL_NUMBER_1";
 
     public UpdateNumberRange() {
         super();
@@ -64,6 +62,7 @@ public class UpdateNumberRange extends CMSServlet {
 
     /**
      * initialize the servlet.
+     * 
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -73,11 +72,12 @@ public class UpdateNumberRange extends CMSServlet {
     }
 
     /**
-     * Process the HTTP request. 
+     * Process the HTTP request.
      * <ul>
      * <li>http.param op 'downloadBIN' - return the binary certificate chain
      * <li>http.param op 'displayIND' - display pretty-print of certificate chain components
      * </ul>
+     * 
      * @param cmsReq the object holding the request and response information
      */
     protected void process(CMSRequest cmsReq) throws EBaseException {
@@ -96,18 +96,18 @@ public class UpdateNumberRange extends CMSServlet {
         AuthzToken authzToken = null;
 
         try {
-            authzToken = authorize(mAclMethod, authToken, mAuthzResourceName, 
-                "modify");
+            authzToken = authorize(mAclMethod, authToken, mAuthzResourceName,
+                    "modify");
         } catch (EAuthzAccessDenied e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
             outputError(httpResp, "Error: Not authorized");
             return;
         } catch (Exception e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
             outputError(httpResp,
-                "Error: Encountered problem during authorization.");
+                    "Error: Encountered problem during authorization.");
             return;
         }
         if (authzToken == null) {
@@ -131,13 +131,13 @@ public class UpdateNumberRange extends CMSServlet {
             BigInteger oneNum = new BigInteger("1");
             String endNumConfig = null;
             String cloneNumConfig = null;
-            String nextEndConfig = null; 
+            String nextEndConfig = null;
             int radix = 10;
 
             IRepository repo = null;
             if (cstype.equals("KRA")) {
                 IKeyRecoveryAuthority kra = (IKeyRecoveryAuthority) CMS.getSubsystem(
-                     IKeyRecoveryAuthority.ID);
+                        IKeyRecoveryAuthority.ID);
                 if (type.equals("request")) {
                     repo = kra.getRequestQueue().getRequestRepository();
                 } else if (type.equals("serialNo")) {
@@ -147,7 +147,7 @@ public class UpdateNumberRange extends CMSServlet {
                 }
             } else { // CA
                 ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem(
-                     ICertificateAuthority.ID);
+                        ICertificateAuthority.ID);
                 if (type.equals("request")) {
                     repo = ca.getRequestQueue().getRequestRepository();
                 } else if (type.equals("serialNo")) {
@@ -161,22 +161,22 @@ public class UpdateNumberRange extends CMSServlet {
             // This needs to be done beforehand to ensure that we always have enough 
             // replica numbers
             if (type.equals("replicaId")) {
-               CMS.debug("Checking replica number ranges");
-               repo.checkRanges();
+                CMS.debug("Checking replica number ranges");
+                repo.checkRanges();
             }
-               
+
             if (type.equals("request")) {
                 radix = 10;
                 endNumConfig = "dbs.endRequestNumber";
                 cloneNumConfig = "dbs.requestCloneTransferNumber";
                 nextEndConfig = "dbs.nextEndRequestNumber";
             } else if (type.equals("serialNo")) {
-                radix=16;
+                radix = 16;
                 endNumConfig = "dbs.endSerialNumber";
                 cloneNumConfig = "dbs.serialCloneTransferNumber";
                 nextEndConfig = "dbs.nextEndSerialNumber";
             } else if (type.equals("replicaId")) {
-                radix=10;
+                radix = 10;
                 endNumConfig = "dbs.endReplicaNumber";
                 cloneNumConfig = "dbs.replicaCloneTransferNumber";
                 nextEndConfig = "dbs.nextEndReplicaNumber";
@@ -192,11 +192,11 @@ public class UpdateNumberRange extends CMSServlet {
                 String nextEndNumStr = cs.getString(nextEndConfig, "");
                 BigInteger endNum2 = new BigInteger(nextEndNumStr, radix);
                 CMS.debug("Transferring from the end of on-deck range");
-				String newValStr = endNum2.subtract(decrement).toString(radix);
-				repo.setNextMaxSerial(newValStr);
-				cs.putString(nextEndConfig, newValStr);
-				beginNum = endNum2.subtract(decrement).add(oneNum);
-				endNum = endNum2;
+                String newValStr = endNum2.subtract(decrement).toString(radix);
+                repo.setNextMaxSerial(newValStr);
+                cs.putString(nextEndConfig, newValStr);
+                beginNum = endNum2.subtract(decrement).add(oneNum);
+                endNum = endNum2;
             } else {
                 CMS.debug("Transferring from the end of the current range");
                 String newValStr = beginNum.subtract(oneNum).toString(radix);
@@ -204,10 +204,9 @@ public class UpdateNumberRange extends CMSServlet {
                 cs.putString(endNumConfig, newValStr);
             }
 
-
-            if( beginNum == null ) {
-                CMS.debug( "UpdateNumberRange::process() - " +
-                           "beginNum is null!" );
+            if (beginNum == null) {
+                CMS.debug("UpdateNumberRange::process() - " +
+                           "beginNum is null!");
                 auditMessage = CMS.getLogMessage(
                                    LOGGING_SIGNED_AUDIT_CONFIG_SERIAL_NUMBER,
                                    auditSubjectID,
@@ -219,7 +218,7 @@ public class UpdateNumberRange extends CMSServlet {
 
             // Enable serial number management in master for certs and requests
             if (type.equals("replicaId")) {
-               repo.setEnableSerialMgmt(true);
+                repo.setEnableSerialMgmt(true);
             }
 
             // insert info
@@ -248,7 +247,7 @@ public class UpdateNumberRange extends CMSServlet {
             audit(auditMessage);
 
         } catch (Exception e) {
-            CMS.debug("UpdateNumberRange: Failed to update number range. Exception: "+e.toString());
+            CMS.debug("UpdateNumberRange: Failed to update number range. Exception: " + e.toString());
 
             auditMessage = CMS.getLogMessage(
                                LOGGING_SIGNED_AUDIT_CONFIG_SERIAL_NUMBER,
@@ -261,12 +260,13 @@ public class UpdateNumberRange extends CMSServlet {
         }
     }
 
-    protected void setDefaultTemplates(ServletConfig sc) {}
+    protected void setDefaultTemplates(ServletConfig sc) {
+    }
 
     protected void renderTemplate(
             CMSRequest cmsReq, String templateName, ICMSTemplateFiller filler)
-        throws IOException {// do nothing
-    } 
+            throws IOException {// do nothing
+    }
 
     protected void renderResult(CMSRequest cmsReq) throws IOException {// do nothing, ie, it will not return the default javascript.
     }

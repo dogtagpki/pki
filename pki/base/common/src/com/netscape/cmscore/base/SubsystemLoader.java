@@ -17,14 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.base;
 
-
 import java.util.Vector;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
-
 
 /**
  * A class represents a subsystem loader.
@@ -34,7 +32,7 @@ import com.netscape.certsrv.base.ISubsystem;
  * @version $Revision$, $Date$
  */
 public class SubsystemLoader {
-	
+
     private static final String PROP_SUBSYSTEM = "subsystem";
     private static final String PROP_CLASSNAME = "class";
     private static final String PROP_ID = "id";

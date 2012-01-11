@@ -17,10 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmsutil.radius;
 
-
 import java.io.IOException;
 import java.net.InetAddress;
-
 
 public class NASIPAddressAttribute extends Attribute {
     private InetAddress _ip = null;

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.constraint;
 
-
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Vector;
@@ -34,17 +33,16 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 
-
 /**
  * This class implements no constraint.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class NoConstraint implements IPolicyConstraint {
 
     public static final String CONFIG_NAME = "name";
 
-    private IConfigStore mConfig = null; 
+    private IConfigStore mConfig = null;
     private Vector mNames = new Vector();
 
     public Enumeration getConfigNames() {
@@ -56,7 +54,7 @@ public class NoConstraint implements IPolicyConstraint {
     }
 
     public void setConfig(String name, String value)
-        throws EPropertyException {
+            throws EPropertyException {
     }
 
     public String getConfig(String name) {
@@ -68,7 +66,7 @@ public class NoConstraint implements IPolicyConstraint {
     }
 
     public void init(IProfile profile, IConfigStore config)
-        throws EProfileException {
+            throws EProfileException {
         mConfig = config;
     }
 
@@ -81,11 +79,11 @@ public class NoConstraint implements IPolicyConstraint {
      * during the validation.
      */
     public void validate(IRequest request)
-        throws ERejectException {
+            throws ERejectException {
     }
 
     public String getText(Locale locale) {
-        return CMS.getUserMessage(locale, 
+        return CMS.getUserMessage(locale,
                 "CMS_PROFILE_CONSTRAINT_NO_CONSTRAINT_TEXT");
     }
 

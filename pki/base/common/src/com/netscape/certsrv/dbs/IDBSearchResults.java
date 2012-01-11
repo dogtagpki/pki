@@ -17,29 +17,27 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.dbs;
 
-
 import java.util.Enumeration;
- 
 
 /**
  * A class represents the search results. A search
  * results object contain a enumeration of
  * Java objects that are just read from the database.
- *
- * @version $Revision$, $Date$ 
+ * 
+ * @version $Revision$, $Date$
  */
 public interface IDBSearchResults extends Enumeration<Object> {
 
     /**
      * Checks if any element is available.
-     *
+     * 
      * @return true if there is more elements
      */
     public boolean hasMoreElements();
 
     /**
      * Retrieves next element.
-     *
+     * 
      * @return next element
      */
     public Object nextElement();

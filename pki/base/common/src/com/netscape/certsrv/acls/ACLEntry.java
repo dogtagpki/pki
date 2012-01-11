@@ -17,15 +17,14 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.acls;
 
-
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
 
-
 /**
  * A class represents an ACI entry of an access control list.
  * <P>
+ * 
  * @version $Revision$, $Date$
  */
 public class ACLEntry implements IACLEntry, java.io.Serializable {
@@ -47,6 +46,7 @@ public class ACLEntry implements IACLEntry, java.io.Serializable {
 
     /**
      * Checks if this ACL entry is set to negative.
+     * 
      * @return true if this ACL entry expression is for "deny";
      *         false if this ACL entry expression is for "allow"
      */
@@ -63,8 +63,10 @@ public class ACLEntry implements IACLEntry, java.io.Serializable {
 
     /**
      * Sets the ACL entry string
+     * 
      * @param s string in the following format:
-     * <PRE>
+     * 
+     *            <PRE>
      *   allow|deny (right[,right...]) attribute_expression
      * </PRE>
      */
@@ -72,10 +74,12 @@ public class ACLEntry implements IACLEntry, java.io.Serializable {
         mACLEntryString = s;
     }
 
-    /** 
+    /**
      * Gets the ACL Entry String
+     * 
      * @return ACL Entry string in the following format:
-     * <PRE>
+     * 
+     *         <PRE>
      *   allow|deny (right[,right...]) attribute_expression
      * </PRE>
      */
@@ -86,9 +90,10 @@ public class ACLEntry implements IACLEntry, java.io.Serializable {
     /**
      * Adds permission to this entry. Permission must be one of the
      * "rights" defined for each protected resource in its ACL
+     * 
      * @param acl the acl instance that this aclEntry is associated with
      * @param permission one of the "rights" defined for each
-     *              	 protected resource in its ACL
+     *            protected resource in its ACL
      */
     public void addPermission(IACL acl, String permission) {
         if (acl.checkRight(permission) == true) {
@@ -101,6 +106,7 @@ public class ACLEntry implements IACLEntry, java.io.Serializable {
     /**
      * Returns a list of permissions associated with
      * this entry.
+     * 
      * @return a list of permissions for this ACL entry
      */
     public Enumeration<String> permissions() {
@@ -109,8 +115,9 @@ public class ACLEntry implements IACLEntry, java.io.Serializable {
 
     /**
      * Sets the expression associated with this entry.
+     * 
      * @param expressions the evaluator expressions. For example,
-     *                    group="Administrators"
+     *            group="Administrators"
      */
     public void setAttributeExpressions(String expressions) {
         mExpressions = expressions;
@@ -118,8 +125,9 @@ public class ACLEntry implements IACLEntry, java.io.Serializable {
 
     /**
      * Retrieves the expression associated with this entry.
-     * @return the evaluator expressions.  For example,
-     *                group="Administrators"
+     * 
+     * @return the evaluator expressions. For example,
+     *         group="Administrators"
      */
     public String getAttributeExpressions() {
         return mExpressions;
@@ -128,10 +136,11 @@ public class ACLEntry implements IACLEntry, java.io.Serializable {
     /**
      * Checks to see if this <code>ACLEntry</code> contains a
      * particular permission
+     * 
      * @param permission one of the "rights" defined for each
-     *              	 protected resource in its ACL
+     *            protected resource in its ACL
      * @return true if permission contained in the permission list
-     *              for this <code>ACLEntry</code>; false otherwise.
+     *         for this <code>ACLEntry</code>; false otherwise.
      */
     public boolean containPermission(String permission) {
         return (mPerms.get(permission) != null);
@@ -139,11 +148,12 @@ public class ACLEntry implements IACLEntry, java.io.Serializable {
 
     /**
      * Checks if this entry has the given permission.
+     * 
      * @param permission one of the "rights" defined for each
-     *              	 protected resource in its ACL
+     *            protected resource in its ACL
      * @return true if the permission is allowed; false if the
-     *           	 permission is denied.  If a permission is not
-     *          	 recognized by this ACL, it is considered denied
+     *         permission is denied. If a permission is not
+     *         recognized by this ACL, it is considered denied
      */
     public boolean checkPermission(String permission) {
         // default - if we dont know about the requested permission,
@@ -159,10 +169,13 @@ public class ACLEntry implements IACLEntry, java.io.Serializable {
 
     /**
      * Parse string in the following format:
+     * 
      * <PRE>
      *   allow|deny (right[,right...]) attribute_expression
      * </PRE>
+     * 
      * into an instance of the <code>ACLEntry</code> class
+     * 
      * @param acl the acl instance associated with this aclentry
      * @param aclEntryString aclEntryString in the specified format
      * @return an instance of the <code>ACLEntry</code> class
@@ -175,7 +188,7 @@ public class ACLEntry implements IACLEntry, java.io.Serializable {
         String te = aclEntryString.trim();
 
         // locate first space
-        int i = te.indexOf(' '); 
+        int i = te.indexOf(' ');
         // prefix should be "allowed" or "deny"
         String prefix = te.substring(0, i);
         String suffix = te.substring(i + 1).trim();
@@ -189,7 +202,7 @@ public class ACLEntry implements IACLEntry, java.io.Serializable {
             return null;
         }
         // locate the second space
-        i = suffix.indexOf(' '); 
+        i = suffix.indexOf(' ');
         // this prefix should be rights list, delimited by ","
         prefix = suffix.substring(1, i - 1);
         // the suffix is the rest, which is the "expressions"
@@ -206,6 +219,7 @@ public class ACLEntry implements IACLEntry, java.io.Serializable {
 
     /**
      * Returns the string representation of this ACLEntry
+     * 
      * @return string representation of this ACLEntry
      */
     public String toString() {

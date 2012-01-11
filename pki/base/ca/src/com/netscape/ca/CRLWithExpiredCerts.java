@@ -17,44 +17,42 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.ca;
 
-
 import java.math.BigInteger;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cmscore.dbs.CertRecord;
 
-
 /**
- * A CRL Issuing point that contains revoked certs, include onces that 
+ * A CRL Issuing point that contains revoked certs, include onces that
  * have expired.
  */
 public class CRLWithExpiredCerts extends CRLIssuingPoint {
 
     /**
-     * overrides getRevokedCerts in CRLIssuingPoint to include 
+     * overrides getRevokedCerts in CRLIssuingPoint to include
      * all revoked certs, including once that have expired.
-     *
+     * 
      * @param thisUpdate parameter is ignored.
-     *
+     * 
      * @exception EBaseException if an exception occured getting revoked
-     * certificates from the database.
+     *                certificates from the database.
      */
     public String getFilter() {
         // PLEASE DONT CHANGE THE FILTER. It is indexed.
         // Changing it will degrade performance. See
         // also com.netscape.certsetup.LDAPUtil.java
         String filter =
-            "(|(" + CertRecord.ATTR_CERT_STATUS + "=" +
-            CertRecord.STATUS_REVOKED + ")" +
-            "(" + CertRecord.ATTR_CERT_STATUS + "=" +
-            CertRecord.STATUS_REVOKED_EXPIRED + "))";
+                "(|(" + CertRecord.ATTR_CERT_STATUS + "=" +
+                        CertRecord.STATUS_REVOKED + ")" +
+                        "(" + CertRecord.ATTR_CERT_STATUS + "=" +
+                        CertRecord.STATUS_REVOKED_EXPIRED + "))";
 
         // check if any ranges specified.
-        if (mBeginSerial != null) 
+        if (mBeginSerial != null)
             filter += "(" + CertRecord.ATTR_ID + ">=" + mBeginSerial.toString() + ")";
         if (mEndSerial != null)
             filter += "(" + CertRecord.ATTR_ID + "<=" + mEndSerial.toString() + ")";
-            // get all revoked non-expired certs.
+        // get all revoked non-expired certs.
         if (mEndSerial != null || mBeginSerial != null) {
             filter = "(&" + filter + ")";
         }

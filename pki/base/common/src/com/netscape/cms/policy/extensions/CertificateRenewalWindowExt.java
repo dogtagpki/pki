@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.policy.extensions;
 
-
 import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.util.Date;
@@ -40,20 +39,20 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cms.policy.APolicyRule;
 
-
 /**
  * Certificate Renewal Window Extension Policy
  * <P>
+ * 
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- *
+ * 
  * @deprecated
  * @version $Revision$, $Date$
  */
 public class CertificateRenewalWindowExt extends APolicyRule
-    implements IEnrollmentPolicy, IExtendedPluginInfo {
+        implements IEnrollmentPolicy, IExtendedPluginInfo {
 
     protected static final String PROP_END_TIME = "relativeEndTime";
     protected static final String PROP_BEGIN_TIME = "relativeBeginTime";
@@ -64,7 +63,7 @@ public class CertificateRenewalWindowExt extends APolicyRule
     protected String mEndTime;
 
     /**
-     * Adds the  Netscape comment in the end-entity certificates or
+     * Adds the Netscape comment in the end-entity certificates or
      * CA certificates. The policy is set to be non-critical with the
      * provided OID.
      */
@@ -75,11 +74,11 @@ public class CertificateRenewalWindowExt extends APolicyRule
 
     /**
      * Initializes this policy rule.
-     *
-     * @param config        The config store reference
+     * 
+     * @param config The config store reference
      */
     public void init(ISubsystem owner, IConfigStore config)
-        throws EBaseException {
+            throws EBaseException {
         mCritical = config.getBoolean(PROP_CRITICAL, false);
         mBeginTime = config.getString(PROP_BEGIN_TIME, null);
         mEndTime = config.getString(PROP_END_TIME, null);
@@ -89,16 +88,16 @@ public class CertificateRenewalWindowExt extends APolicyRule
     /**
      * Applies the policy on the given Request.
      * <p>
-     *
-     * @param req   The request on which to apply policy.
+     * 
+     * @param req The request on which to apply policy.
      * @return The policy result object.
      */
     public PolicyResult apply(IRequest req) {
         PolicyResult res = PolicyResult.ACCEPTED;
 
         // get cert info.
-        X509CertInfo[] ci = 
-            req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
+        X509CertInfo[] ci =
+                req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
 
         if (ci == null || ci[0] == null) {
             setError(req, CMS.getUserMessage("CMS_POLICY_NO_CERT_INFO"), NAME);
@@ -128,8 +127,8 @@ public class CertificateRenewalWindowExt extends APolicyRule
         if (extensions == null) {
             extensions = new CertificateExtensions();
             try {
-                certInfo.set(X509CertInfo.VERSION, 
-                    new CertificateVersion(CertificateVersion.V3));
+                certInfo.set(X509CertInfo.VERSION,
+                        new CertificateVersion(CertificateVersion.V3));
                 certInfo.set(X509CertInfo.EXTENSIONS, extensions);
             } catch (Exception e) {
             }
@@ -137,7 +136,7 @@ public class CertificateRenewalWindowExt extends APolicyRule
             // remove any previously computed version of the extension
             try {
                 extensions.delete(CertificateRenewalWindowExtension.NAME);
-				
+
             } catch (IOException e) {
                 // this is the hack: for some reason, the key which is the name
                 // of the policy has been converted into the OID 
@@ -154,22 +153,22 @@ public class CertificateRenewalWindowExt extends APolicyRule
 
             if (mEndTime == null || mEndTime.equals("")) {
                 crwExt = new CertificateRenewalWindowExtension(
-                            mCritical, 
+                            mCritical,
                             getDateValue(now, mBeginTime),
                             null);
             } else {
                 crwExt = new CertificateRenewalWindowExtension(
-                            mCritical, 
+                            mCritical,
                             getDateValue(now, mBeginTime),
                             getDateValue(now, mEndTime));
             }
-            extensions.set(CertificateRenewalWindowExtension.NAME, 
-                crwExt);
+            extensions.set(CertificateRenewalWindowExtension.NAME,
+                    crwExt);
         } catch (Exception e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("POLICY_ERROR_CERTIFICATE_POLICIES_1", NAME));
+                    CMS.getLogMessage("POLICY_ERROR_CERTIFICATE_POLICIES_1", NAME));
             setError(req,
-                CMS.getUserMessage("CMS_POLICY_CERTIFICATE_POLICIES_ERROR"), NAME);
+                    CMS.getUserMessage("CMS_POLICY_CERTIFICATE_POLICIES_ERROR"), NAME);
             return PolicyResult.REJECTED;
         }
         return PolicyResult.ACCEPTED;
@@ -179,13 +178,13 @@ public class CertificateRenewalWindowExt extends APolicyRule
         long time;
 
         if (s.endsWith("s")) {
-            time = 1000 * Long.parseLong(s.substring(0, 
+            time = 1000 * Long.parseLong(s.substring(0,
                             s.length() - 1));
         } else if (s.endsWith("m")) {
-            time = 60 * 1000 * Long.parseLong(s.substring(0, 
+            time = 60 * 1000 * Long.parseLong(s.substring(0,
                             s.length() - 1));
         } else if (s.endsWith("h")) {
-            time = 60 * 60 * 1000 * Long.parseLong(s.substring(0, 
+            time = 60 * 60 * 1000 * Long.parseLong(s.substring(0,
                             s.length() - 1));
         } else if (s.endsWith("D")) {
             time = 24 * 60 * 60 * 1000 * Long.parseLong(
@@ -206,9 +205,9 @@ public class CertificateRenewalWindowExt extends APolicyRule
                 PROP_BEGIN_TIME + ";string;Start Time in seconds (Relative to the time of issuance). Optionally, time unit (s - seconds, m - minutes, h - hours, D - days, M - months) can be specified right after the value. For example, 5 days can be expressed as 5D.",
                 PROP_END_TIME + ";string;End Time in seconds (Optional, Relative to the time of issuance). Optionally, time unit (s - seconds, m - minutes, h - hours, D - days, M - months) can be specified right after the value. For example, 5 days can be expressed as 5D.",
                 IExtendedPluginInfo.HELP_TOKEN +
-                ";configuration-policyrules-certificaterenewalwindow",
+                        ";configuration-policyrules-certificaterenewalwindow",
                 IExtendedPluginInfo.HELP_TEXT +
-                ";Adds 'Certificate Renewal Window' extension. See manual"
+                        ";Adds 'Certificate Renewal Window' extension. See manual"
             };
 
         return params;
@@ -217,10 +216,10 @@ public class CertificateRenewalWindowExt extends APolicyRule
 
     /**
      * Return configured parameters for a policy rule instance.
-     *
+     * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getInstanceParams() { 
+    public Vector getInstanceParams() {
         Vector params = new Vector();
 
         params.addElement(PROP_CRITICAL + "=" + mCritical);
@@ -239,10 +238,10 @@ public class CertificateRenewalWindowExt extends APolicyRule
 
     /**
      * Return default parameters for a policy implementation.
-     *
+     * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getDefaultParams() { 
+    public Vector getDefaultParams() {
         Vector defParams = new Vector();
 
         defParams.addElement(PROP_CRITICAL + "=false");

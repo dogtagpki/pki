@@ -17,23 +17,22 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.policy;
 
-
 import java.util.Vector;
 
 import netscape.security.x509.GeneralName;
 
 import com.netscape.certsrv.base.EBaseException;
 
-
-/** 
- * Class that can be used to form general names from configuration file. 
- * Used by policies and extension commands.  
+/**
+ * Class that can be used to form general names from configuration file.
+ * Used by policies and extension commands.
  * <P>
+ * 
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- *
+ * 
  * @deprecated
  * @version $Revision$, $Date$
  */
@@ -41,27 +40,27 @@ public interface IGeneralNameConfig {
 
     /**
      * Forms a general name from string.
-     *
+     * 
      * @param value general name in string
      * @return general name object
      * @exception EBaseException failed to form general name
      */
-    public GeneralName formGeneralName(String value) 
-        throws EBaseException;
+    public GeneralName formGeneralName(String value)
+            throws EBaseException;
 
     /**
      * Forms general names from the given value.
-     *
+     * 
      * @param value general name in string
      * @return a vector of general names
      * @exception EBaseException failed to form general name
      */
     public Vector<GeneralName> formGeneralNames(Object value)
-        throws EBaseException;
+            throws EBaseException;
 
     /**
      * Retrieves the instance parameters.
-     *
+     * 
      * @param params parameters
      */
     public void getInstanceParams(Vector<String> params);

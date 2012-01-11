@@ -1,4 +1,5 @@
 package com.netscape.pkisilent.argparser;
+
 // --- BEGIN COPYRIGHT BLOCK ---
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -18,37 +19,36 @@ package com.netscape.pkisilent.argparser;
 // --- END COPYRIGHT BLOCK ---
 import java.io.IOException;
 
-/** 
-  * Exception class used by <code>ArgParser</code> when
-  * command line arguments contain an error.
-  * 
-  * @author John E. Lloyd, Fall 2004
-  * @see ArgParser
-  */
-public class ArgParseException extends IOException
-{
-	/**
+/**
+ * Exception class used by <code>ArgParser</code> when
+ * command line arguments contain an error.
+ * 
+ * @author John E. Lloyd, Fall 2004
+ * @see ArgParser
+ */
+public class ArgParseException extends IOException {
+    /**
      *
      */
     private static final long serialVersionUID = -604960834535589460L;
 
     /**
-	  * Creates a new ArgParseException with the given message. 
-	  * 
-	  * @param msg Exception message
-	  */
-	public ArgParseException (String msg)
-	 { super (msg);
-	 }
+     * Creates a new ArgParseException with the given message.
+     * 
+     * @param msg Exception message
+     */
+    public ArgParseException(String msg) {
+        super(msg);
+    }
 
-	/** 
-	  * Creates a new ArgParseException from the given
-	  * argument and message. 
-	  * 
-	  * @param arg Offending argument
-	  * @param msg Error message
-	  */
-	public ArgParseException (String arg, String msg)
-	 { super (arg + ": " + msg);
-	 }
+    /**
+     * Creates a new ArgParseException from the given
+     * argument and message.
+     * 
+     * @param arg Offending argument
+     * @param msg Error message
+     */
+    public ArgParseException(String arg, String msg) {
+        super(arg + ": " + msg);
+    }
 }

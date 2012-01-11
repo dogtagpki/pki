@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -50,19 +49,21 @@ public class ModulePanel extends WizardPanelBase {
     private Vector mOtherModules = null;
     private Hashtable mCurrModTable = new Hashtable();
     private WizardServlet mServlet = null;
-    public ModulePanel() {}
+
+    public ModulePanel() {
+    }
 
     /**
      * Initializes this panel.
      */
-    public void init(ServletConfig config, int panelno) 
-        throws ServletException {
+    public void init(ServletConfig config, int panelno)
+            throws ServletException {
         setPanelNo(panelno);
         setName("Key Store");
     }
 
     public void init(WizardServlet servlet, ServletConfig config, int panelno, String id)
-        throws ServletException {
+            throws ServletException {
         setPanelNo(panelno);
         setName("Key Store");
         setId(id);
@@ -71,7 +72,7 @@ public class ModulePanel extends WizardPanelBase {
 
     public void cleanUp() throws IOException {
         IConfigStore cs = CMS.getConfigStore();
-        cs.putBoolean("preop.ModulePanel.done",false);
+        cs.putBoolean("preop.ModulePanel.done", false);
     }
 
     public void loadCurrModTable() {
@@ -142,14 +143,14 @@ public class ModulePanel extends WizardPanelBase {
                 CMS.debug("ModulePanel: token logged in?" + token.isLoggedIn());
                 CMS.debug("ModulePanel: token is present?" + token.isPresent());
                 if (!token.getName().equals("Internal Crypto Services Token") &&
-                   !token.getName().equals("NSS Generic Crypto Services")) {
+                        !token.getName().equals("NSS Generic Crypto Services")) {
                     module.addToken(token);
                 } else {
                     CMS.debug(
                             "ModulePanel: token " + token.getName()
-                            + " not to be added");
+                                    + " not to be added");
                 }
-			    
+
             } catch (TokenException ex) {
                 CMS.debug("ModulePanel:" + ex.toString());
             }
@@ -181,11 +182,11 @@ public class ModulePanel extends WizardPanelBase {
                 if ((cn == null) || (cn.equals(""))) {
                     break;
                 }
-		
+
                 CMS.debug("ModulePanel: got from config module: " + cn);
                 // create a Module object
                 Module module = new Module(cn, pn, img);
-		
+
                 if (mCurrModTable.containsKey(cn)) {
                     CMS.debug("ModulePanel: module found: " + cn);
                     module.setFound(true);
@@ -194,7 +195,7 @@ public class ModulePanel extends WizardPanelBase {
 
                     loadModTokens(module, m);
                 }
-		
+
                 CMS.debug("ModulePanel: adding module " + cn);
                 // add module to set
                 if (!mSupportedModules.contains(module)) {
@@ -214,13 +215,13 @@ public class ModulePanel extends WizardPanelBase {
         // it a token choice.  Available tokens are discovered dynamically so
         // can't be a real CHOICE
         PropertySet set = new PropertySet();
-                                                                                
+
         Descriptor tokenDesc = new Descriptor(IDescriptor.STRING, null, /* no constraint */
                 null, /* default parameter */
                 "module token selection");
 
         set.add("choice", tokenDesc);
-                                                                                
+
         return set;
     }
 
@@ -235,7 +236,8 @@ public class ModulePanel extends WizardPanelBase {
             } else {
                 return true;
             }
-        } catch (EBaseException e) {}
+        } catch (EBaseException e) {
+        }
 
         return false;
     }
@@ -272,8 +274,8 @@ public class ModulePanel extends WizardPanelBase {
         context.put("oms", mOtherModules);
         context.put("sms", mSupportedModules);
         // context.put("status_token", "None");
-        String subpanelno =  String.valueOf(getPanelNo()+1);
-        CMS.debug("ModulePanel subpanelno =" +subpanelno);
+        String subpanelno = String.valueOf(getPanelNo() + 1);
+        CMS.debug("ModulePanel subpanelno =" + subpanelno);
         context.put("subpanelno", subpanelno);
         context.put("panel", "admin/console/config/modulepanel.vm");
     }
@@ -292,7 +294,7 @@ public class ModulePanel extends WizardPanelBase {
     public void update(HttpServletRequest request,
             HttpServletResponse response,
             Context context) throws IOException {
-	boolean hasErr = false;
+        boolean hasErr = false;
 
         try {
             // get the value of the choice
@@ -306,13 +308,13 @@ public class ModulePanel extends WizardPanelBase {
 
             IConfigStore config = CMS.getConfigStore();
             String oldtokenname = config.getString("preop.module.token", "");
-            if (!oldtokenname.equals(select)) 
+            if (!oldtokenname.equals(select))
                 mServlet.cleanUpFromPanel(mServlet.getPanelNo(request));
 
-	    if (hasErr == false) {
-              config.putString("preop.module.token", select);
-              config.putBoolean("preop.ModulePanel.done", true);
-	    }
+            if (hasErr == false) {
+                config.putString("preop.module.token", select);
+                config.putBoolean("preop.ModulePanel.done", true);
+            }
             config.commit(false);
             context.put("updateStatus", "success");
         } catch (Exception e) {

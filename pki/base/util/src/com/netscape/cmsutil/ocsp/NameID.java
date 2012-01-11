@@ -30,88 +30,77 @@ import org.mozilla.jss.pkix.primitive.Name;
 
 /**
  * RFC 2560:
- *
+ * 
  * <pre>
  * ResponderID ::= CHOICE {
  *    byName               [1] EXPLICIT Name,
  *    byKey                [2] EXPLICIT KeyHash }
  * </pre>
- *
+ * 
  * @version $Revision$ $Date$
  */
-public class NameID implements ResponderID
-{
-	private Name _name = null; 
-        private static final Tag TAG = SEQUENCE.TAG;
+public class NameID implements ResponderID {
+    private Name _name = null;
+    private static final Tag TAG = SEQUENCE.TAG;
 
-	public NameID(Name n)
-	{
-		_name = n;
-	}
+    public NameID(Name n) {
+        _name = n;
+    }
 
-	public Tag getTag()
-	{
-		return Tag.get(1);
-	}
+    public Tag getTag() {
+        return Tag.get(1);
+    }
 
-	public void encode(Tag tag, OutputStream os) throws IOException
-	{
-		_name.encode(os);
-	}
+    public void encode(Tag tag, OutputStream os) throws IOException {
+        _name.encode(os);
+    }
 
-	public void encode(OutputStream os) throws IOException
-	{
-		_name.encode(os);
-	}
+    public void encode(OutputStream os) throws IOException {
+        _name.encode(os);
+    }
 
-	public Name getName()
-	{
-		return _name;
-	}
+    public Name getName() {
+        return _name;
+    }
 
-        private static final Template templateInstance = new Template();
+    private static final Template templateInstance = new Template();
 
-        public static Template getTemplate() {
-                return templateInstance;
+    public static Template getTemplate() {
+        return templateInstance;
+    }
+
+    /**
+     * A Template for decoding <code>ResponseBytes</code>.
+     */
+    public static class Template implements ASN1Template {
+
+        private SEQUENCE.Template seqt;
+
+        public Template() {
+            seqt = new SEQUENCE.Template();
+            // seqt.addElement(new EXPLICIT.Template(
+            //   new Tag (1), new Name.Template()) );
+            seqt.addElement(new Name.Template());
+
         }
 
-        /**
-         * A Template for decoding <code>ResponseBytes</code>.
-         */
-        public static class Template implements ASN1Template
-        {
+        public boolean tagMatch(Tag tag) {
+            return TAG.equals(tag);
+        }
 
-                private SEQUENCE.Template seqt;
+        public ASN1Value decode(InputStream istream)
+                        throws InvalidBERException, IOException {
+            return decode(TAG, istream);
+        }
 
-                public Template()
-                {
-                     seqt = new SEQUENCE.Template();
-                    // seqt.addElement(new EXPLICIT.Template(
-                     //   new Tag (1), new Name.Template()) );
-                     seqt.addElement(new Name.Template());
-
-                }
-
-                public boolean tagMatch(Tag tag)
-                {
-                        return TAG.equals(tag);
-                }
-
-                public ASN1Value decode(InputStream istream)
-                        throws InvalidBERException, IOException
-                {
-                        return decode(TAG, istream);
-                }
-
-                public ASN1Value decode(Tag implicitTag, InputStream istream)
-                        throws InvalidBERException, IOException
-                {
-                        SEQUENCE seq = (SEQUENCE) seqt.decode(implicitTag,
+        public ASN1Value decode(Tag implicitTag, InputStream istream)
+                        throws InvalidBERException, IOException {
+            SEQUENCE seq = (SEQUENCE) seqt.decode(implicitTag,
                                 istream);
-		      
-                       // EXPLICIT e_name = (EXPLICIT) seq.elementAt(0);
- 	                Name name = (Name)seq.elementAt(0);
-			return new NameID(name);
-                }
-       }
+
+            // EXPLICIT e_name = (EXPLICIT) seq.elementAt(0);
+            Name name = (Name) seq.elementAt(0);
+            return new NameID(name);
+        }
+    }
 }

@@ -26,12 +26,13 @@ import netscape.security.util.DerValue;
 /**
  * This class defines the EDIPartyName of the GeneralName choice.
  * The ASN.1 syntax for this is:
+ * 
  * <pre>
  * EDIPartyName ::= SEQUENCE {
  *     nameAssigner  [0]  DirectoryString OPTIONAL,
  *     partyName     [1]  DirectoryString }
  * </pre>
- *
+ * 
  * @author Hemma Prafullchandra
  * @version 1.2
  * @see GeneralName
@@ -53,7 +54,7 @@ public class EDIPartyName implements GeneralNameInterface {
 
     /**
      * Create the EDIPartyName object from the specified names.
-     *
+     * 
      * @param assignerName the name of the assigner
      * @param partyName the name of the EDI party.
      */
@@ -64,7 +65,7 @@ public class EDIPartyName implements GeneralNameInterface {
 
     /**
      * Create the EDIPartyName object from the specified name.
-     *
+     * 
      * @param partyName the name of the EDI party.
      */
     public EDIPartyName(String partyName) {
@@ -73,10 +74,10 @@ public class EDIPartyName implements GeneralNameInterface {
 
     /**
      * Create the EDIPartyName object from the passed encoded Der value.
-     *   
+     * 
      * @param derValue the encoded DER EDIPartyName.
      * @exception IOException on error.
-     */  
+     */
     public EDIPartyName(DerValue derValue) throws IOException {
         DerInputStream in = new DerInputStream(derValue.toByteArray());
         DerValue[] seq = in.getSequence(2);
@@ -87,20 +88,20 @@ public class EDIPartyName implements GeneralNameInterface {
 
         for (int i = 0; i < len; i++) {
             DerValue opt = seq[i];
-            if (opt.isContextSpecific((byte)TAG_ASSIGNER) &&
-                !opt.isConstructed()) {
+            if (opt.isContextSpecific((byte) TAG_ASSIGNER) &&
+                    !opt.isConstructed()) {
                 if (assigner != null)
                     throw new IOException("Duplicate nameAssigner found in"
                                           + " EDIPartyName");
-                opt = opt.data.getDerValue(); 
+                opt = opt.data.getDerValue();
                 assigner = opt.getAsString();
             }
-            if (opt.isContextSpecific((byte)TAG_PARTYNAME) &&
-                !opt.isConstructed()) {
+            if (opt.isContextSpecific((byte) TAG_PARTYNAME) &&
+                    !opt.isConstructed()) {
                 if (party != null)
                     throw new IOException("Duplicate partyName found in"
                                           + " EDIPartyName");
-                opt = opt.data.getDerValue(); 
+                opt = opt.data.getDerValue();
                 party = opt.getAsString();
             }
         }
@@ -115,7 +116,7 @@ public class EDIPartyName implements GeneralNameInterface {
 
     /**
      * Encode the EDI party name into the DerOutputStream.
-     *   
+     * 
      * @param out the DER stream to encode the EDIPartyName to.
      * @exception IOException on encoding errors.
      */
@@ -131,7 +132,7 @@ public class EDIPartyName implements GeneralNameInterface {
                                  false, TAG_ASSIGNER), tmp2);
         }
         if (party == null)
-            throw  new IOException("Cannot have null partyName");
+            throw new IOException("Cannot have null partyName");
 
         // XXX - shd check is chars fit into PrintableString
         tmp.putPrintableString(party);
@@ -145,9 +146,9 @@ public class EDIPartyName implements GeneralNameInterface {
      * Return the printable string.
      */
     public String toString() {
-        return ("EDIPartyName: " + 
+        return ("EDIPartyName: " +
                  ((assigner == null) ? "" :
-                   ("  nameAssigner = " + assigner + ","))
+                         ("  nameAssigner = " + assigner + ","))
                  + "  partyName = " + party);
     }
 }

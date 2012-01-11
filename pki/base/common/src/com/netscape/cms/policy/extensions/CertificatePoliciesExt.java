@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.policy.extensions;
 
-
 import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.util.Locale;
@@ -50,21 +49,21 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cms.policy.APolicyRule;
 
-
 /**
  * Certificate Policies.
  * Adds certificate policies extension.
  * <P>
+ * 
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- *
+ * 
  * @deprecated
  * @version $Revision$, $Date$
  */
 public class CertificatePoliciesExt extends APolicyRule
-    implements IEnrollmentPolicy, IExtendedPluginInfo {
+        implements IEnrollmentPolicy, IExtendedPluginInfo {
     protected static final String PROP_CRITICAL = "critical";
     protected static final String PROP_NUM_CERTPOLICIES = "numCertPolicies";
 
@@ -91,17 +90,15 @@ public class CertificatePoliciesExt extends APolicyRule
     /**
      * Initializes this policy rule.
      * <P>
-     *
+     * 
      * The entries may be of the form:
-     *
-     *      ca.Policy.rule.<ruleName>.predicate=certType==ca
-     *      ca.Policy.rule.<ruleName>.implName=
-     *      ca.Policy.rule.<ruleName>.enable=true
-     *
-     * @param config	The config store reference
+     * 
+     * ca.Policy.rule.<ruleName>.predicate=certType==ca ca.Policy.rule.<ruleName>.implName= ca.Policy.rule.<ruleName>.enable=true
+     * 
+     * @param config The config store reference
      */
     public void init(ISubsystem owner, IConfigStore config)
-        throws EBaseException {
+            throws EBaseException {
         mConfig = config;
 
         mEnabled = mConfig.getBoolean(
@@ -126,7 +123,7 @@ public class CertificatePoliciesExt extends APolicyRule
                 mCertPolicies[i] = new CertPolicy(subtreeName, mConfig, mEnabled);
             } catch (EBaseException e) {
                 log(ILogger.LL_FAILURE, NAME + ": " +
-                    CMS.getLogMessage("POLICY_ERROR_CREATE_CERT_POLICY", e.toString()));
+                        CMS.getLogMessage("POLICY_ERROR_CREATE_CERT_POLICY", e.toString()));
                 throw e;
             }
         }
@@ -138,21 +135,21 @@ public class CertificatePoliciesExt extends APolicyRule
 
                 for (int j = 0; j < mNumCertPolicies; j++) {
                     CertPolicies.addElement(
-                        mCertPolicies[j].mCertificatePolicyInfo);
+                            mCertPolicies[j].mCertificatePolicyInfo);
                 }
-                mCertificatePoliciesExtension = 
+                mCertificatePoliciesExtension =
                         new CertificatePoliciesExtension(mCritical, CertPolicies);
             } catch (IOException e) {
                 throw new EBaseException(
                         CMS.getUserMessage("CMS_BASE_INTERNAL_ERROR",
-                            "Error initializing " + NAME + " Error: " + e));
+                                "Error initializing " + NAME + " Error: " + e));
             }
         }
 
         // form instance params 
         mInstanceParams.addElement(PROP_CRITICAL + "=" + mCritical);
         mInstanceParams.addElement(
-            PROP_NUM_CERTPOLICIES + "=" + mNumCertPolicies);
+                PROP_NUM_CERTPOLICIES + "=" + mNumCertPolicies);
         for (int i = 0; i < mNumCertPolicies; i++) {
             mCertPolicies[i].getInstanceParams(mInstanceParams);
         }
@@ -161,19 +158,19 @@ public class CertificatePoliciesExt extends APolicyRule
     /**
      * Applies the policy on the given Request.
      * <p>
-     *
-     * @param req	The request on which to apply policy.
+     * 
+     * @param req The request on which to apply policy.
      * @return The policy result object.
      */
     public PolicyResult apply(IRequest req) {
 
         // get certInfo from request.
-        X509CertInfo[] ci = 
-            req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
-		
+        X509CertInfo[] ci =
+                req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
+
         if (ci == null || ci[0] == null) {
             setError(req, CMS.getUserMessage("CMS_POLICY_NO_CERT_INFO"), NAME);
-            return PolicyResult.REJECTED; 
+            return PolicyResult.REJECTED;
         }
 
         for (int i = 0; i < ci.length; i++) {
@@ -194,8 +191,8 @@ public class CertificatePoliciesExt extends APolicyRule
             if (extensions == null) {
                 extensions = new CertificateExtensions();
                 try {
-                    certInfo.set(X509CertInfo.VERSION, 
-                        new CertificateVersion(CertificateVersion.V3));
+                    certInfo.set(X509CertInfo.VERSION,
+                            new CertificateVersion(CertificateVersion.V3));
                     certInfo.set(X509CertInfo.EXTENSIONS, extensions);
                 } catch (Exception e) {
                 }
@@ -213,24 +210,24 @@ public class CertificatePoliciesExt extends APolicyRule
                 }
             }
             extensions.set(CertificatePoliciesExtension.NAME,
-                mCertificatePoliciesExtension);
+                    mCertificatePoliciesExtension);
         } catch (IOException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("POLICY_ERROR_CERTIFICATE_POLICIES_1",
                     e.toString()));
             setError(req,
-                CMS.getUserMessage("CMS_POLICY_CERTIFICATE_POLICIES_ERROR"), NAME);
+                    CMS.getUserMessage("CMS_POLICY_CERTIFICATE_POLICIES_ERROR"), NAME);
             return PolicyResult.REJECTED;
         } catch (CertificateException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("POLICY_ERROR_CERTIFICATE_POLICIES_1",
                     e.toString()));
             setError(req,
-                CMS.getUserMessage("CMS_POLICY_CERTIFICATE_POLICIES_ERROR"), NAME);
+                    CMS.getUserMessage("CMS_POLICY_CERTIFICATE_POLICIES_ERROR"), NAME);
             return PolicyResult.REJECTED;
         } catch (Exception e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("POLICY_ERROR_CERTIFICATE_POLICIES_1",
                     e.toString()));
             setError(req,
-                CMS.getUserMessage("CMS_POLICY_CERTIFICATE_POLICIES_ERROR"), NAME);
+                    CMS.getUserMessage("CMS_POLICY_CERTIFICATE_POLICIES_ERROR"), NAME);
             return PolicyResult.REJECTED;
         }
         return PolicyResult.ACCEPTED;
@@ -238,51 +235,51 @@ public class CertificatePoliciesExt extends APolicyRule
 
     /**
      * Return configured parameters for a policy rule instance.
-     *
+     * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getInstanceParams() { 
+    public Vector getInstanceParams() {
         return mInstanceParams;
     }
 
     /**
-     * Default config parameters. 
-     * To add more permitted or excluded subtrees, 
-     * increase the num to greater than 0 and more configuration params 
+     * Default config parameters.
+     * To add more permitted or excluded subtrees,
+     * increase the num to greater than 0 and more configuration params
      * will show up in the console.
      */
     private static Vector mDefParams = new Vector();
     static {
         mDefParams.addElement(PROP_CRITICAL + "=" + DEF_CRITICAL);
         mDefParams.addElement(
-            PROP_NUM_CERTPOLICIES + "=" + DEF_NUM_CERTPOLICIES);
+                PROP_NUM_CERTPOLICIES + "=" + DEF_NUM_CERTPOLICIES);
         String certPolicy0Dot = PROP_CERTPOLICY + "0.";
 
         mDefParams.addElement(
-            certPolicy0Dot + CertPolicy.PROP_POLICY_IDENTIFIER + "=" + "");
+                certPolicy0Dot + CertPolicy.PROP_POLICY_IDENTIFIER + "=" + "");
         mDefParams.addElement(
-            certPolicy0Dot + CertPolicy.PROP_NOTICE_REF_ORG + "=" + "");
+                certPolicy0Dot + CertPolicy.PROP_NOTICE_REF_ORG + "=" + "");
         mDefParams.addElement(
-            certPolicy0Dot + CertPolicy.PROP_NOTICE_REF_NUMS + "=" + "");
+                certPolicy0Dot + CertPolicy.PROP_NOTICE_REF_NUMS + "=" + "");
         mDefParams.addElement(
-            certPolicy0Dot + CertPolicy.PROP_USER_NOTICE_TEXT + "=" + "");
+                certPolicy0Dot + CertPolicy.PROP_USER_NOTICE_TEXT + "=" + "");
         mDefParams.addElement(
-            certPolicy0Dot + CertPolicy.PROP_CPS_URI + "=" + "");
+                certPolicy0Dot + CertPolicy.PROP_CPS_URI + "=" + "");
 
     }
 
     /**
      * Return default parameters for a policy implementation.
-     *
+     * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getDefaultParams() { 
+    public Vector getDefaultParams() {
         return mDefParams;
     }
 
     public String[] getExtendedPluginInfo(Locale locale) {
         Vector theparams = new Vector();
-		
+
         theparams.addElement(PROP_CRITICAL + ";boolean;RFC 3280 recommendation: MUST be non-critical.");
         theparams.addElement(PROP_NUM_CERTPOLICIES + ";number; Number of certificate policies. The value must be greater than or equal to 1");
 
@@ -290,22 +287,22 @@ public class CertificatePoliciesExt extends APolicyRule
             String certPolicykDot = PROP_CERTPOLICY + k + ".";
 
             theparams.addElement(certPolicykDot +
-                CertPolicy.PROP_POLICY_IDENTIFIER + ";string,required;An object identifier in the form n.n.n.n");
+                    CertPolicy.PROP_POLICY_IDENTIFIER + ";string,required;An object identifier in the form n.n.n.n");
             theparams.addElement(certPolicykDot +
-                CertPolicy.PROP_NOTICE_REF_ORG + ";string;See RFC 3280 sec 4.2.1.5");
+                    CertPolicy.PROP_NOTICE_REF_ORG + ";string;See RFC 3280 sec 4.2.1.5");
             theparams.addElement(certPolicykDot +
-                CertPolicy.PROP_NOTICE_REF_NUMS +
-                ";string;comma-separated list of numbers. See RFC 3280 sec 4.2.1.5");
+                    CertPolicy.PROP_NOTICE_REF_NUMS +
+                    ";string;comma-separated list of numbers. See RFC 3280 sec 4.2.1.5");
             theparams.addElement(certPolicykDot +
-                CertPolicy.PROP_USER_NOTICE_TEXT + ";string;See RFC 3280 sec 4.2.1.5");
+                    CertPolicy.PROP_USER_NOTICE_TEXT + ";string;See RFC 3280 sec 4.2.1.5");
             theparams.addElement(certPolicykDot +
-                CertPolicy.PROP_CPS_URI + ";string;See RFC 3280 sec 4.2.1.5");
+                    CertPolicy.PROP_CPS_URI + ";string;See RFC 3280 sec 4.2.1.5");
         }
 
         theparams.addElement(IExtendedPluginInfo.HELP_TOKEN +
-            ";configuration-policyrules-certificatepolicies");
+                ";configuration-policyrules-certificatepolicies");
         theparams.addElement(IExtendedPluginInfo.HELP_TEXT +
-            ";Adds Certificate Policies Extension. See RFC 3280 (4.2.1.5)");
+                ";Adds Certificate Policies Extension. See RFC 3280 (4.2.1.5)");
 
         String[] params = new String[theparams.size()];
 
@@ -313,7 +310,6 @@ public class CertificatePoliciesExt extends APolicyRule
         return params;
     }
 }
-
 
 class CertPolicy {
 
@@ -337,34 +333,35 @@ class CertPolicy {
 
     /**
      * forms policy map parameters.
+     * 
      * @param name name of this policy map, for example certPolicy0
      * @param config parent's config from where we find this configuration.
      * @param enabled whether policy was enabled.
      */
-    protected CertPolicy(String name, IConfigStore config, boolean enabled) 
-        throws EBaseException {
+    protected CertPolicy(String name, IConfigStore config, boolean enabled)
+            throws EBaseException {
         mName = name;
         mConfig = config.getSubStore(mName);
         mNameDot = mName + ".";
 
-        if( mConfig == null ) {
-            CMS.debug( "CertificatePoliciesExt::CertPolicy - mConfig is " +
-                       "null!" );
-            throw new EBaseException( "mConfig is null" );
+        if (mConfig == null) {
+            CMS.debug("CertificatePoliciesExt::CertPolicy - mConfig is " +
+                       "null!");
+            throw new EBaseException("mConfig is null");
         }
 
         // if there's no configuration for this policy put it there.
         if (mConfig.size() == 0) {
-            config.putString(mNameDot + PROP_POLICY_IDENTIFIER, ""); 
-            config.putString(mNameDot + PROP_NOTICE_REF_ORG, ""); 
-            config.putString(mNameDot + PROP_NOTICE_REF_NUMS, ""); 
-            config.putString(mNameDot + PROP_USER_NOTICE_TEXT, ""); 
-            config.putString(mNameDot + PROP_CPS_URI, ""); 
+            config.putString(mNameDot + PROP_POLICY_IDENTIFIER, "");
+            config.putString(mNameDot + PROP_NOTICE_REF_ORG, "");
+            config.putString(mNameDot + PROP_NOTICE_REF_NUMS, "");
+            config.putString(mNameDot + PROP_USER_NOTICE_TEXT, "");
+            config.putString(mNameDot + PROP_CPS_URI, "");
             mConfig = config.getSubStore(mName);
-            if(mConfig == null || mConfig.size() == 0) {
-	            CMS.debug( "CertificatePoliciesExt::CertPolicy - mConfig " +
-                           "is null or empty!" );
-                throw new EBaseException( "mConfig is null or empty" );
+            if (mConfig == null || mConfig.size() == 0) {
+                CMS.debug("CertificatePoliciesExt::CertPolicy - mConfig " +
+                           "is null or empty!");
+                throw new EBaseException("mConfig is null or empty");
             }
         }
 
@@ -376,28 +373,28 @@ class CertPolicy {
         mCpsUri = mConfig.getString(PROP_CPS_URI, null);
 
         // adjust for "" and console returning "null"
-        if (mPolicyId != null && 
-            (mPolicyId.length() == 0 || 
+        if (mPolicyId != null &&
+                (mPolicyId.length() == 0 ||
                 mPolicyId.equals("null"))) {
             mPolicyId = null;
         }
-        if (mNoticeRefOrg != null && 
-            (mNoticeRefOrg.length() == 0 || 
+        if (mNoticeRefOrg != null &&
+                (mNoticeRefOrg.length() == 0 ||
                 mNoticeRefOrg.equals("null"))) {
             mNoticeRefOrg = null;
         }
-        if (mNoticeRefNums != null && 
-            (mNoticeRefNums.length() == 0 || 
+        if (mNoticeRefNums != null &&
+                (mNoticeRefNums.length() == 0 ||
                 mNoticeRefNums.equals("null"))) {
             mNoticeRefNums = null;
         }
-        if (mNoticeRefExplicitText != null && 
-            (mNoticeRefExplicitText.length() == 0 || 
+        if (mNoticeRefExplicitText != null &&
+                (mNoticeRefExplicitText.length() == 0 ||
                 mNoticeRefExplicitText.equals("null"))) {
             mNoticeRefExplicitText = null;
         }
-        if (mCpsUri != null && 
-            (mCpsUri.length() == 0 || 
+        if (mCpsUri != null &&
+                (mCpsUri.length() == 0 ||
                 mCpsUri.equals("null"))) {
             mCpsUri = null;
         }
@@ -405,42 +402,43 @@ class CertPolicy {
         // policy ids cannot be null if policy is enabled.
         String msg = "value cannot be null.";
 
-        if (mPolicyId == null && enabled) 
+        if (mPolicyId == null && enabled)
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE",
                         mNameDot + PROP_POLICY_IDENTIFIER, msg));
         msg = "NoticeReference is optional; If chosen to include, NoticeReference must at least has 'organization'";
-        if (mNoticeRefOrg == null && mNoticeRefNums != null && enabled) 
+        if (mNoticeRefOrg == null && mNoticeRefNums != null && enabled)
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTR_VALUE",
                         mNameDot + PROP_NOTICE_REF_ORG, msg));
-		
-            // if a policy id is not null check that it is a valid OID.
+
+        // if a policy id is not null check that it is a valid OID.
         ObjectIdentifier policyId = null;
 
-        if (mPolicyId != null) 
+        if (mPolicyId != null)
             policyId = CMS.checkOID(
                         mNameDot + PROP_POLICY_IDENTIFIER, mPolicyId);
-		
-            // if enabled, form CertificatePolicyInfo to be encoded in
-            // extension. Policy ids should be all set.
+
+        // if enabled, form CertificatePolicyInfo to be encoded in
+        // extension. Policy ids should be all set.
         if (enabled) {
-	    CMS.debug("CertPolicy: in CertPolicy");
+            CMS.debug("CertPolicy: in CertPolicy");
             DisplayText displayText = null;
 
-            if (mNoticeRefExplicitText != null && 
-                !mNoticeRefExplicitText.equals(""))
+            if (mNoticeRefExplicitText != null &&
+                    !mNoticeRefExplicitText.equals(""))
                 displayText = new DisplayText(DisplayText.tag_VisibleString, mNoticeRefExplicitText);
-                //		  new DisplayText(DisplayText.tag_IA5String, mNoticeRefExplicitText);
+            //		  new DisplayText(DisplayText.tag_IA5String, mNoticeRefExplicitText);
             DisplayText orgName = null;
 
-            if (mNoticeRefOrg != null && 
-                !mNoticeRefOrg.equals(""))
+            if (mNoticeRefOrg != null &&
+                    !mNoticeRefOrg.equals(""))
                 orgName =
                         new DisplayText(DisplayText.tag_VisibleString, mNoticeRefOrg);
-                //		  new DisplayText(DisplayText.tag_VisibleString, mNoticeRefOrg);
+            //		  new DisplayText(DisplayText.tag_VisibleString, mNoticeRefOrg);
 
-            int[] nums = new int[0];;
-            if (mNoticeRefNums != null && 
-                !mNoticeRefNums.equals("")) {
+            int[] nums = new int[0];
+            ;
+            if (mNoticeRefNums != null &&
+                    !mNoticeRefNums.equals("")) {
 
                 // should add a method to NoticeReference to take a
                 // Vector...but let's do this for now
@@ -468,24 +466,23 @@ class CertPolicy {
             try {
                 cpolicyId = new CertificatePolicyId(ObjectIdentifier.getObjectIdentifier(mPolicyId));
             } catch (Exception e) {
-                throw new
-                    EBaseException(CMS.getUserMessage("CMS_POLICY_CERTIFICATE_POLICIES_ERROR", mPolicyId));
+                throw new EBaseException(CMS.getUserMessage("CMS_POLICY_CERTIFICATE_POLICIES_ERROR", mPolicyId));
             }
 
             PolicyQualifiers policyQualifiers = new PolicyQualifiers();
-			
+
             NoticeReference noticeReference = null;
-			
+
             if (orgName != null)
                 noticeReference = new NoticeReference(orgName, nums);
 
             UserNotice userNotice = null;
 
             if (displayText != null || noticeReference != null) {
-                userNotice = new UserNotice (noticeReference, displayText);
-				
+                userNotice = new UserNotice(noticeReference, displayText);
+
                 PolicyQualifierInfo policyQualifierInfo1 =
-                    new PolicyQualifierInfo(PolicyQualifierInfo.QT_UNOTICE, userNotice);
+                        new PolicyQualifierInfo(PolicyQualifierInfo.QT_UNOTICE, userNotice);
 
                 policyQualifiers.add(policyQualifierInfo1);
             }
@@ -493,25 +490,25 @@ class CertPolicy {
             CPSuri cpsUri = null;
 
             if (mCpsUri != null && mCpsUri.length() > 0) {
-                cpsUri = new CPSuri (mCpsUri);
+                cpsUri = new CPSuri(mCpsUri);
                 PolicyQualifierInfo policyQualifierInfo2 =
-                    new PolicyQualifierInfo(PolicyQualifierInfo.QT_CPS, cpsUri);
-				
+                        new PolicyQualifierInfo(PolicyQualifierInfo.QT_CPS, cpsUri);
+
                 policyQualifiers.add(policyQualifierInfo2);
             }
 
             if ((mNoticeRefOrg == null || mNoticeRefOrg.equals("")) &&
-                (mNoticeRefExplicitText == null || mNoticeRefExplicitText.equals("")) &&
-                (mCpsUri == null || mCpsUri.equals(""))) {
-		CMS.debug("CertPolicy mNoticeRefOrg = "+mNoticeRefOrg);
-		CMS.debug("CertPolicy mNoticeRefExplicitText = "+mNoticeRefExplicitText);
-		CMS.debug("CertPolicy mCpsUri = "+mCpsUri);
+                    (mNoticeRefExplicitText == null || mNoticeRefExplicitText.equals("")) &&
+                    (mCpsUri == null || mCpsUri.equals(""))) {
+                CMS.debug("CertPolicy mNoticeRefOrg = " + mNoticeRefOrg);
+                CMS.debug("CertPolicy mNoticeRefExplicitText = " + mNoticeRefExplicitText);
+                CMS.debug("CertPolicy mCpsUri = " + mCpsUri);
 
                 mCertificatePolicyInfo = new CertificatePolicyInfo(cpolicyId);
             } else {
-		CMS.debug("CertPolicy mNoticeRefOrg = "+mNoticeRefOrg);
-		CMS.debug("CertPolicy mNoticeRefExplicitText = "+mNoticeRefExplicitText);
-		CMS.debug("CertPolicy mCpsUri = "+mCpsUri);
+                CMS.debug("CertPolicy mNoticeRefOrg = " + mNoticeRefOrg);
+                CMS.debug("CertPolicy mNoticeRefExplicitText = " + mNoticeRefExplicitText);
+                CMS.debug("CertPolicy mCpsUri = " + mCpsUri);
                 mCertificatePolicyInfo = new CertificatePolicyInfo(cpolicyId, policyQualifiers);
             }
         }
@@ -519,20 +516,19 @@ class CertPolicy {
 
     protected void getInstanceParams(Vector instanceParams) {
         instanceParams.addElement(
-            mNameDot + PROP_POLICY_IDENTIFIER + "=" + (mPolicyId == null ? "" :
-                mPolicyId));
+                mNameDot + PROP_POLICY_IDENTIFIER + "=" + (mPolicyId == null ? "" :
+                        mPolicyId));
         instanceParams.addElement(
-            mNameDot + PROP_NOTICE_REF_ORG + "=" + (mNoticeRefOrg == null ? "" :
-                mNoticeRefOrg));
+                mNameDot + PROP_NOTICE_REF_ORG + "=" + (mNoticeRefOrg == null ? "" :
+                        mNoticeRefOrg));
         instanceParams.addElement(
-            mNameDot + PROP_NOTICE_REF_NUMS + "=" + (mNoticeRefNums == null ? "" :
-                mNoticeRefNums));
+                mNameDot + PROP_NOTICE_REF_NUMS + "=" + (mNoticeRefNums == null ? "" :
+                        mNoticeRefNums));
         instanceParams.addElement(
-            mNameDot + PROP_USER_NOTICE_TEXT + "=" + (mNoticeRefExplicitText == null ? "" :
-                mNoticeRefExplicitText));
+                mNameDot + PROP_USER_NOTICE_TEXT + "=" + (mNoticeRefExplicitText == null ? "" :
+                        mNoticeRefExplicitText));
         instanceParams.addElement(
-            mNameDot + PROP_CPS_URI + "=" + (mCpsUri == null ? "" :
-                mCpsUri));
+                mNameDot + PROP_CPS_URI + "=" + (mCpsUri == null ? "" :
+                        mCpsUri));
     }
 }
-

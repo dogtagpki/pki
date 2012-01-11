@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.policy.extensions;
 
-
 import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -46,30 +45,30 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cms.policy.APolicyRule;
 
-
 /**
  * NS Cert Type policy.
  * Adds the ns cert type extension depending on cert type requested.
  * <P>
+ * 
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- *
+ * 
  * @deprecated
  * @version $Revision$, $Date$
  */
 public class NSCertTypeExt extends APolicyRule
-    implements IEnrollmentPolicy, IExtendedPluginInfo {
+        implements IEnrollmentPolicy, IExtendedPluginInfo {
     protected static final String PROP_SET_DEFAULT_BITS = "setDefaultBits";
     protected static final boolean DEF_SET_DEFAULT_BITS = true;
-    protected static final String DEF_SET_DEFAULT_BITS_VAL = 
-        Boolean.valueOf(DEF_SET_DEFAULT_BITS).toString();
+    protected static final String DEF_SET_DEFAULT_BITS_VAL =
+            Boolean.valueOf(DEF_SET_DEFAULT_BITS).toString();
 
     protected static final int DEF_PATHLEN = -1;
 
-    protected static final boolean[] DEF_BITS = 
-        new boolean[NSCertTypeExtension.NBITS];
+    protected static final boolean[] DEF_BITS =
+            new boolean[NSCertTypeExtension.NBITS];
 
     // XXX for future use. currenlty always allow. 
     protected static final String PROP_AGENT_OVERR = "allowAgentOverride";
@@ -112,16 +111,15 @@ public class NSCertTypeExt extends APolicyRule
     /**
      * Initializes this policy rule.
      * <P>
-     *
+     * 
      * The entries may be of the form:
-     *
-     *      ra.Policy.rule.<ruleName>.implName=nsCertTypeExt
-     *      ra.Policy.rule.<ruleName>.enable=true
-     *
-     * @param config	The config store reference
+     * 
+     * ra.Policy.rule.<ruleName>.implName=nsCertTypeExt ra.Policy.rule.<ruleName>.enable=true
+     * 
+     * @param config The config store reference
      */
     public void init(ISubsystem owner, IConfigStore config)
-        throws EBaseException {
+            throws EBaseException {
         mConfig = config;
 
         // XXX future use.
@@ -130,7 +128,7 @@ public class NSCertTypeExt extends APolicyRule
         mCritical = config.getBoolean(PROP_CRITICAL, false);
 
         ICertAuthority certAuthority = (ICertAuthority)
-            ((IPolicyProcessor) owner).getAuthority();
+                ((IPolicyProcessor) owner).getAuthority();
 
         if (certAuthority instanceof ICertificateAuthority) {
             CertificateChain caChain = certAuthority.getCACertChain();
@@ -141,7 +139,7 @@ public class NSCertTypeExt extends APolicyRule
             // CA reject if it does not allow any subordinate CA certs.
             if (caChain != null) {
                 caCert = caChain.getFirstCertificate();
-                if (caCert != null) 
+                if (caCert != null)
                     mCAPathLen = caCert.getBasicConstraints();
             }
         }
@@ -155,21 +153,21 @@ public class NSCertTypeExt extends APolicyRule
      * reads ns cert type choices from form. If no choices from form
      * will defaults to all.
      * <P>
-     *
-     * @param req	The request on which to apply policy.
+     * 
+     * @param req The request on which to apply policy.
      * @return The policy result object.
      */
     public PolicyResult apply(IRequest req) {
         CMS.debug("NSCertTypeExt: Impl: " + NAME + ", Instance: " + getInstanceName() + "::apply()");
         PolicyResult res = PolicyResult.ACCEPTED;
 
-        X509CertInfo[] ci = 
-            req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
-		
+        X509CertInfo[] ci =
+                req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
+
         X509CertInfo certInfo = null;
 
         if (ci == null || (certInfo = ci[0]) == null) {
-            setError(req, CMS.getUserMessage("CMS_POLICY_NO_CERT_INFO"), NAME); 
+            setError(req, CMS.getUserMessage("CMS_POLICY_NO_CERT_INFO"), NAME);
             return PolicyResult.REJECTED; // unrecoverable error.
         }
 
@@ -184,10 +182,10 @@ public class NSCertTypeExt extends APolicyRule
 
     public PolicyResult applyCert(IRequest req, X509CertInfo certInfo) {
         try {
-            String certType = 
-                req.getExtDataInString(IRequest.HTTP_PARAMS, IRequest.CERT_TYPE);
+            String certType =
+                    req.getExtDataInString(IRequest.HTTP_PARAMS, IRequest.CERT_TYPE);
             CertificateExtensions extensions = (CertificateExtensions)
-                certInfo.get(X509CertInfo.EXTENSIONS);
+                    certInfo.get(X509CertInfo.EXTENSIONS);
             NSCertTypeExtension nsCertTypeExt = null;
 
             if (extensions != null) {
@@ -201,13 +199,13 @@ public class NSCertTypeExt extends APolicyRule
                 }
                 // XXX agent servlet currently sets this. it should be
                 // delayed to here.
-                if (nsCertTypeExt != null && 
-                    extensionIsGood(nsCertTypeExt, req)) {
+                if (nsCertTypeExt != null &&
+                        extensionIsGood(nsCertTypeExt, req)) {
                     CMS.debug(
-                        "NSCertTypeExt: already has correct ns cert type ext");
+                            "NSCertTypeExt: already has correct ns cert type ext");
                     return PolicyResult.ACCEPTED;
-                } else if ((nsCertTypeExt != null) && 
-                    (certType.equals("ocspResponder"))) {
+                } else if ((nsCertTypeExt != null) &&
+                        (certType.equals("ocspResponder"))) {
                     // Fix for #528732 : Always delete
                     // this extension from OCSP signing cert
                     extensions.delete(NSCertTypeExtension.NAME);
@@ -216,12 +214,12 @@ public class NSCertTypeExt extends APolicyRule
             } else {
                 // create extensions set if none.
                 if (extensions == null) {
-                    certInfo.set(X509CertInfo.VERSION, 
-                        new CertificateVersion(CertificateVersion.V3));
+                    certInfo.set(X509CertInfo.VERSION,
+                            new CertificateVersion(CertificateVersion.V3));
                     extensions = new CertificateExtensions();
                     certInfo.set(X509CertInfo.EXTENSIONS, extensions);
                     CMS.debug(
-                        "NSCertTypeExt: Created extensions for adding ns cert type..");
+                            "NSCertTypeExt: Created extensions for adding ns cert type..");
                 }
             }
             // add ns cert type extension if not set or not set correctly.
@@ -230,12 +228,12 @@ public class NSCertTypeExt extends APolicyRule
             bits = getBitsFromRequest(req, mSetDefaultBits);
 
             // check if ca doesn't allow any subordinate ca 
-            if (mCAPathLen == 0 && bits != null) {   
-                if (bits[NSCertTypeExtension.SSL_CA_BIT] || 
-                    bits[NSCertTypeExtension.EMAIL_CA_BIT] || 
-                    bits[NSCertTypeExtension.OBJECT_SIGNING_CA_BIT]) {
-                    setError(req, 
-                        CMS.getUserMessage("CMS_POLICY_NO_SUB_CA_CERTS_ALLOWED"), NAME);
+            if (mCAPathLen == 0 && bits != null) {
+                if (bits[NSCertTypeExtension.SSL_CA_BIT] ||
+                        bits[NSCertTypeExtension.EMAIL_CA_BIT] ||
+                        bits[NSCertTypeExtension.OBJECT_SIGNING_CA_BIT]) {
+                    setError(req,
+                            CMS.getUserMessage("CMS_POLICY_NO_SUB_CA_CERTS_ALLOWED"), NAME);
                     return PolicyResult.REJECTED;
                 }
             }
@@ -249,11 +247,12 @@ public class NSCertTypeExt extends APolicyRule
             int j;
 
             for (j = 0; bits != null && j < bits.length; j++)
-                if (bits[j]) break;
+                if (bits[j])
+                    break;
             if (bits == null || j == bits.length) {
                 if (!mSetDefaultBits) {
                     CMS.debug(
-                        "NSCertTypeExt: no bits requested, not setting default.");
+                            "NSCertTypeExt: no bits requested, not setting default.");
                     return PolicyResult.ACCEPTED;
                 } else
                     bits = DEF_BITS;
@@ -264,26 +263,26 @@ public class NSCertTypeExt extends APolicyRule
             return PolicyResult.ACCEPTED;
         } catch (IOException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("BASE_IO_ERROR", e.getMessage()));
-            setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"), 
-                NAME, e.getMessage());
+            setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"),
+                    NAME, e.getMessage());
             return PolicyResult.REJECTED; // unrecoverable error.
         } catch (CertificateException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CA_CERT_INFO_ERROR", e.getMessage()));
 
-            setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"), 
-                NAME, "Certificate Info Error");
+            setError(req, CMS.getUserMessage("CMS_POLICY_UNEXPECTED_POLICY_ERROR"),
+                    NAME, "Certificate Info Error");
             return PolicyResult.REJECTED; // unrecoverable error.
         }
     }
 
     /**
-     * check if ns cert type extension is set correctly, 
-     * correct bits if not. 
+     * check if ns cert type extension is set correctly,
+     * correct bits if not.
      * if not authorized to set extension, bits will be replaced.
      */
     protected boolean extensionIsGood(
-        NSCertTypeExtension nsCertTypeExt, IRequest req)
-        throws IOException, CertificateException {
+            NSCertTypeExtension nsCertTypeExt, IRequest req)
+            throws IOException, CertificateException {
         // always return false for now to make sure minimum is set.
         // agents and ee can add others.
 
@@ -295,7 +294,7 @@ public class NSCertTypeExt extends APolicyRule
             // don't know where this came from.
             // set all bits to false to reset.
             CMS.debug(
-                "NSCertTypeExt: unknown origin: setting ns cert type bits to false");
+                    "NSCertTypeExt: unknown origin: setting ns cert type bits to false");
             boolean[] bits = new boolean[8];
 
             for (int i = bits.length - 1; i >= 0; i--) {
@@ -316,36 +315,36 @@ public class NSCertTypeExt extends APolicyRule
             }
             if (certType.equals(IRequest.CA_CERT)) {
                 if (!nsCertTypeExt.isSet(NSCertTypeExtension.SSL_CA_BIT) &&
-                    !nsCertTypeExt.isSet(NSCertTypeExtension.EMAIL_CA_BIT) &&
-                    !nsCertTypeExt.isSet(
-                        NSCertTypeExtension.OBJECT_SIGNING_CA_BIT)) {
+                        !nsCertTypeExt.isSet(NSCertTypeExtension.EMAIL_CA_BIT) &&
+                        !nsCertTypeExt.isSet(
+                                NSCertTypeExtension.OBJECT_SIGNING_CA_BIT)) {
                     // min not set so set all.
                     CMS.debug(
-                        "NSCertTypeExt: is extension good: no ca bits set. set all");
+                            "NSCertTypeExt: is extension good: no ca bits set. set all");
 
-                    nsCertTypeExt.set(NSCertTypeExtension.SSL_CA, 
-                        Boolean.valueOf(true));
+                    nsCertTypeExt.set(NSCertTypeExtension.SSL_CA,
+                            Boolean.valueOf(true));
                     nsCertTypeExt.set(NSCertTypeExtension.EMAIL_CA,
-                        Boolean.valueOf(true));
+                            Boolean.valueOf(true));
                     nsCertTypeExt.set(NSCertTypeExtension.OBJECT_SIGNING_CA,
-                        Boolean.valueOf(true));
+                            Boolean.valueOf(true));
                 }
                 return true;
             } else if (certType.equals(IRequest.CLIENT_CERT)) {
                 if (!nsCertTypeExt.isSet(NSCertTypeExtension.SSL_CLIENT_BIT) &&
-                    !nsCertTypeExt.isSet(NSCertTypeExtension.EMAIL_BIT) &&
-                    !nsCertTypeExt.isSet(NSCertTypeExtension.SSL_SERVER_BIT) &&
-                    !nsCertTypeExt.isSet(
-                        NSCertTypeExtension.OBJECT_SIGNING_BIT)) {
+                        !nsCertTypeExt.isSet(NSCertTypeExtension.EMAIL_BIT) &&
+                        !nsCertTypeExt.isSet(NSCertTypeExtension.SSL_SERVER_BIT) &&
+                        !nsCertTypeExt.isSet(
+                                NSCertTypeExtension.OBJECT_SIGNING_BIT)) {
                     // min not set so set all.
                     CMS.debug(
-                        "NSCertTypeExt: is extension good: no cl bits set. set all");
-                    nsCertTypeExt.set(NSCertTypeExtension.SSL_CLIENT, 
-                        new Boolean(true));
+                            "NSCertTypeExt: is extension good: no cl bits set. set all");
+                    nsCertTypeExt.set(NSCertTypeExtension.SSL_CLIENT,
+                            new Boolean(true));
                     nsCertTypeExt.set(NSCertTypeExtension.EMAIL,
-                        new Boolean(true));
+                            new Boolean(true));
                     nsCertTypeExt.set(NSCertTypeExtension.OBJECT_SIGNING,
-                        new Boolean(true));
+                            new Boolean(true));
                 }
                 return true;
             } else if (certType.equals(IRequest.SERVER_CERT)) {
@@ -359,13 +358,13 @@ public class NSCertTypeExt extends APolicyRule
 
     /**
      * Gets ns cert type bits from request.
-     * If none set, use cert type to determine correct bits. 
-     * If no cert type, use default. 
-     */ 
+     * If none set, use cert type to determine correct bits.
+     * If no cert type, use default.
+     */
 
     protected boolean[] getBitsFromRequest(IRequest req, boolean setDefault) {
         boolean[] bits = null;
-		
+
         CMS.debug("NSCertTypeExt: ns cert type getting ns cert type vars");
         bits = getNSCertTypeBits(req);
         if (bits == null && setDefault) {
@@ -440,14 +439,14 @@ public class NSCertTypeExt extends APolicyRule
      */
     protected boolean[] getCertTypeBits(IRequest req) {
         String certType =
-            req.getExtDataInString(IRequest.HTTP_PARAMS, IRequest.CERT_TYPE);
+                req.getExtDataInString(IRequest.HTTP_PARAMS, IRequest.CERT_TYPE);
 
-        if (certType == null || certType.length() == 0) 
+        if (certType == null || certType.length() == 0)
             return null;
 
         boolean[] bits = new boolean[KeyUsageExtension.NBITS];
 
-        for (int i = bits.length - 1; i >= 0; i--) 
+        for (int i = bits.length - 1; i >= 0; i--)
             bits[i] = false;
 
         if (certType.equals(IRequest.CLIENT_CERT)) {
@@ -477,7 +476,7 @@ public class NSCertTypeExt extends APolicyRule
     }
 
     /**
-     * merge bits with those set from form. 
+     * merge bits with those set from form.
      * make sure required minimum is set. Agent or auth can set others.
      * XXX form shouldn't set the extension
      */
@@ -492,10 +491,10 @@ public class NSCertTypeExt extends APolicyRule
 
     /**
      * Return configured parameters for a policy rule instance.
-     *
+     * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getInstanceParams() { 
+    public Vector getInstanceParams() {
         Vector params = new Vector();
 
         params.addElement(PROP_CRITICAL + "=" + mCritical);
@@ -507,22 +506,22 @@ public class NSCertTypeExt extends APolicyRule
     private static Vector mDefParams = new Vector();
     static {
         mDefParams.addElement(
-            PROP_CRITICAL + "=false");
+                PROP_CRITICAL + "=false");
         mDefParams.addElement(
-            PROP_SET_DEFAULT_BITS + "=" + DEF_SET_DEFAULT_BITS);
+                PROP_SET_DEFAULT_BITS + "=" + DEF_SET_DEFAULT_BITS);
     }
 
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
                 PROP_CRITICAL + ";boolean;Netscape recommendation: non-critical.",
                 PROP_SET_DEFAULT_BITS + ";boolean;Specify whether to set the Netscape certificate " +
-                "type extension with default bits ('ssl client' and 'email') in certificates " +
-                "specified by the predicate " +
-                "expression.",
+                        "type extension with default bits ('ssl client' and 'email') in certificates " +
+                        "specified by the predicate " +
+                        "expression.",
                 IExtendedPluginInfo.HELP_TOKEN +
-                ";configuration-policyrules-nscerttype",
+                        ";configuration-policyrules-nscerttype",
                 IExtendedPluginInfo.HELP_TEXT +
-                ";Adds Netscape Certificate Type extension."
+                        ";Adds Netscape Certificate Type extension."
             };
 
         return params;
@@ -530,11 +529,10 @@ public class NSCertTypeExt extends APolicyRule
 
     /**
      * Return default parameters for a policy implementation.
-     *
+     * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getDefaultParams() { 
+    public Vector getDefaultParams() {
         return mDefParams;
     }
 }
-

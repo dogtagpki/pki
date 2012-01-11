@@ -24,7 +24,7 @@ import netscape.security.util.DerValue;
 
 /**
  * Represent the CertificatePolicyMap ASN.1 object.
- *
+ * 
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  * @version 1.5
@@ -35,7 +35,7 @@ public class CertificatePolicyMap {
 
     /**
      * Create a CertificatePolicyMap with the passed CertificatePolicyId's.
-     *
+     * 
      * @param issuer the CertificatePolicyId for the issuer CA.
      * @param subject the CertificatePolicyId for the subject CA.
      */
@@ -47,7 +47,7 @@ public class CertificatePolicyMap {
 
     /**
      * Create the CertificatePolicyMap from the DER encoded value.
-     *
+     * 
      * @param val the DER encoded value of the same.
      */
     public CertificatePolicyMap(DerValue val) throws IOException {
@@ -86,7 +86,7 @@ public class CertificatePolicyMap {
 
     /**
      * Write the CertificatePolicyMap to the DerOutputStream.
-     *
+     * 
      * @param out the DerOutputStream to write the object to.
      * @exception IOException on errors.
      */
@@ -95,6 +95,6 @@ public class CertificatePolicyMap {
 
         issuerDomain.encode(tmp);
         subjectDomain.encode(tmp);
-        out.write(DerValue.tag_Sequence,tmp);
+        out.write(DerValue.tag_Sequence, tmp);
     }
 }

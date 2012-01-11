@@ -1,4 +1,5 @@
 package com.netscape.pkisilent.common;
+
 // --- BEGIN COPYRIGHT BLOCK ---
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -84,7 +85,7 @@ public class Utilities {
         StringBuffer buf = new StringBuffer();
         int end = token.length();
         int begin = 0;
-		
+
         if (token.endsWith(";")) {
             end--;
         }
@@ -180,7 +181,7 @@ public class Utilities {
                 }
                 tempBuffer.append(temp);
             }
-			
+
             return tempBuffer.toString();
         } catch (Exception e) {
             System.out.println("ERROR: getcertfromfile" + e.toString());
@@ -227,7 +228,7 @@ public class Utilities {
 
                 tempBuffer.append(temp);
             }
-			
+
             return tempBuffer.toString();
         } catch (Exception e) {
             System.out.println("ERROR: getcrlfromfile" + e.toString());
@@ -254,7 +255,7 @@ public class Utilities {
 
                 tempBuffer.append(temp);
             }
-			
+
             return tempBuffer.toString();
         } catch (Exception e) {
             System.out.println("ERROR: getcafromfile" + e.toString());
@@ -269,7 +270,7 @@ public class Utilities {
      */
     public static String escapeBinaryData(byte data[]) {
         String result = "";
-                                                                                
+
         for (int i = 0; i < data.length; i++) {
             String s = Integer.toHexString((int) (0xff & data[i]));
 
@@ -328,7 +329,7 @@ public class Utilities {
                     certinfo.get(X509CertInfo.SUBJECT);
 
             @SuppressWarnings("unchecked")
-			Enumeration<String> en = csn1.getElements();
+            Enumeration<String> en = csn1.getElements();
 
             X500Name dname = (X500Name) csn1.get(CertificateSubjectName.DN_NAME);
 
@@ -351,7 +352,4 @@ public class Utilities {
 
     }
 
-}
-
-
-; // end class
+}; // end class

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.cert;
 
-
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Locale;
@@ -45,10 +44,9 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 
-
 /**
  * Servlet to get the enrollment status, enable or disable.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class GetEnableStatus extends CMSServlet {
@@ -64,7 +62,8 @@ public class GetEnableStatus extends CMSServlet {
     }
 
     /**
-	 * initialize the servlet.
+     * initialize the servlet.
+     * 
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -80,15 +79,15 @@ public class GetEnableStatus extends CMSServlet {
     }
 
     /**
-     * Process the HTTP request. 
+     * Process the HTTP request.
      * <ul>
      * <li>http.param
      * </ul>
-     *
+     * 
      * @param cmsReq the object holding the request and response information
      */
     protected void process(CMSRequest cmsReq)
-        throws EBaseException {
+            throws EBaseException {
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
@@ -115,7 +114,7 @@ public class GetEnableStatus extends CMSServlet {
         if (!(mAuthority instanceof IRegistrationAuthority)) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_CA_FROM_RA_NOT_IMP"));
             cmsReq.setError(new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_NOT_YET_IMPLEMENTED")));
+                    CMS.getUserMessage("CMS_GW_NOT_YET_IMPLEMENTED")));
             cmsReq.setStatus(CMSRequest.ERROR);
             return;
         }
@@ -126,11 +125,11 @@ public class GetEnableStatus extends CMSServlet {
         try {
             form = getTemplate(mFormPath, httpReq, locale);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE",
-                    mFormPath, e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE",
+                            mFormPath, e.toString()));
             cmsReq.setError(new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR")));
+                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR")));
             cmsReq.setStatus(CMSRequest.ERROR);
             return;
         }
@@ -164,10 +163,10 @@ public class GetEnableStatus extends CMSServlet {
             form.renderOutput(out, argSet);
             cmsReq.setStatus(CMSRequest.SUCCESS);
         } catch (IOException e) {
-            log(ILogger.LL_FAILURE, 
-                CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()));
+            log(ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSGW_ERR_STREAM_TEMPLATE", e.toString()));
             cmsReq.setError(new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR")));
+                    CMS.getUserMessage("CMS_GW_DISPLAY_TEMPLATE_ERROR")));
             cmsReq.setStatus(CMSRequest.ERROR);
         }
         cmsReq.setStatus(CMSRequest.SUCCESS);

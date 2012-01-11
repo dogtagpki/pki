@@ -17,13 +17,11 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmsutil.radius;
 
-
 import java.io.IOException;
-
 
 public class AttributeFactory {
     public static Attribute createAttribute(byte data[])
-        throws IOException {
+            throws IOException {
         switch (data[0] & 0xFF) {
         case Attribute.USER_NAME: // 1
             return new UserNameAttribute(data);

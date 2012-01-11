@@ -17,25 +17,24 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.notification;
 
-
 import com.netscape.certsrv.base.EBaseException;
-
 
 /**
  * An email resolver that first checks the request email, if none,
  * then follows by checking the subjectDN of the certificate
  * <p>
- *
+ * 
  * @version $Revision$, $Date$
  */
 public interface IEmailResolver {
 
     /**
-     * returns an email address by using the resolver keys.  The
-     *	 return value can possibly be null
+     * returns an email address by using the resolver keys. The
+     * return value can possibly be null
+     * 
      * @param keys list of keys used for resolving the email address
      */
-    public String getEmail(IEmailResolverKeys keys) 
-        throws EBaseException, ENotificationException;
+    public String getEmail(IEmailResolverKeys keys)
+            throws EBaseException, ENotificationException;
 
 }

@@ -1,4 +1,5 @@
 package com.netscape.pkisilent.common;
+
 // --- BEGIN COPYRIGHT BLOCK ---
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -33,8 +34,6 @@ import com.netscape.osutil.OSUtil;
  * This class submits request to admin server after authenticating with UID and Password. You can get back the response by calling the method. getPage().
  */
 
-
-
 public class PostQuery {
 
     private boolean st;
@@ -45,10 +44,10 @@ public class PostQuery {
     private StringBuffer stdout = new StringBuffer();
 
     /**
-     * Constructor . Takes the parameters urlstring("http://hostname:<portnumber> , Id for authenticating to the server, password for authentication to the server and query which needs to be submitted to the server 
+     * Constructor . Takes the parameters urlstring("http://hostname:<portnumber> , Id for authenticating to the server, password for authentication to the server and query which needs to be submitted to the server
      */
 
-    public PostQuery(String urlstr, String authid, String authpwd, String querystring) {   
+    public PostQuery(String urlstr, String authid, String authpwd, String querystring) {
 
         URLString = urlstr;
         adminID = authid;
@@ -82,7 +81,7 @@ public class PostQuery {
 
         try {
 
-            BufferedReader mbufferedReader = null; 
+            BufferedReader mbufferedReader = null;
             URL myUrl = new URL(URLString);
             String userPassword = adminID + ":" + adminPWD;
 
@@ -103,7 +102,7 @@ public class PostQuery {
             // URLCon.setRequestMethod("POST");
             System.out.println("After post");
 
-            DataOutputStream os = new DataOutputStream(URLCon.getOutputStream()); 
+            DataOutputStream os = new DataOutputStream(URLCon.getOutputStream());
 
             System.out.println("Query: " + postQuery);
 
@@ -112,7 +111,7 @@ public class PostQuery {
             os.writeBytes(postQuery);
             os.flush();
             os.close();
-        
+
             InputStream Content = (InputStream) URLCon.getInputStream();
 
             System.out.println("Configuring Cert Instance : Return Response");
@@ -127,12 +126,12 @@ public class PostQuery {
                 if (st) {
                     break;
                 }
-            } 
+            }
             URLCon.disconnect();
         } // try 
         catch (MalformedURLException e) {
             System.out.println(URLString + " is not a valid URL.");
-	
+
         } catch (IOException e) {
             System.out.println("exception : " + e.getMessage());
         }

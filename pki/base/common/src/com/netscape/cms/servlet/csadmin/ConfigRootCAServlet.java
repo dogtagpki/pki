@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-
 import java.util.Vector;
 
 import javax.servlet.http.HttpServletRequest;
@@ -31,7 +30,6 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.profile.CertInfoProfile;
-
 
 public class ConfigRootCAServlet extends ConfigBaseServlet {
 
@@ -54,12 +52,13 @@ public class ConfigRootCAServlet extends ConfigBaseServlet {
 
     public boolean isPanelModified() {
         IConfigStore config = CMS.getConfigStore();
-      
+
         String profile = null;
 
         try {
             profile = config.getString("preop.hierarchy.profile", null);
-        } catch (EBaseException e) {}
+        } catch (EBaseException e) {
+        }
         if (profile == null || profile.equals("")) {
             return false;
         } else {
@@ -73,7 +72,8 @@ public class ConfigRootCAServlet extends ConfigBaseServlet {
 
         try {
             instancePath = config.getString("instanceRoot");
-        } catch (EBaseException e) {}
+        } catch (EBaseException e) {
+        }
         String p[] = { "caCert.profile" };
         Vector profiles = new Vector();
 
@@ -81,13 +81,14 @@ public class ConfigRootCAServlet extends ConfigBaseServlet {
             try {
                 profiles.addElement(
                         new CertInfoProfile(instancePath + "/conf/" + p[i]));
-            } catch (Exception e) {}
+            } catch (Exception e) {
+            }
         }
         return profiles;
     }
 
     public void display(HttpServletRequest request,
-            HttpServletResponse response, 
+            HttpServletResponse response,
             Context context) {
         IConfigStore config = CMS.getConfigStore();
         String profile = null;
@@ -95,7 +96,8 @@ public class ConfigRootCAServlet extends ConfigBaseServlet {
         if (isPanelModified()) {
             try {
                 profile = config.getString("preop.hierarchy.profile", null);
-            } catch (EBaseException e) {}
+            } catch (EBaseException e) {
+            }
         }
         if (profile == null) {
             profile = "caCert.profile";
@@ -108,15 +110,16 @@ public class ConfigRootCAServlet extends ConfigBaseServlet {
     }
 
     public void update(HttpServletRequest request,
-            HttpServletResponse response, 
+            HttpServletResponse response,
             Context context) {
         String profile = request.getParameter("profile");
         IConfigStore config = CMS.getConfigStore();
 
         config.putString("preop.hierarchy.profile", profile);
         try {
-            config.commit(false); 
-        } catch (Exception e) {}
+            config.commit(false);
+        } catch (Exception e) {
+        }
         context.put("status", "update");
         context.put("error", "");
         Vector profiles = getProfiles();
@@ -124,7 +127,7 @@ public class ConfigRootCAServlet extends ConfigBaseServlet {
         context.put("profiles", profiles);
         context.put("selected_profile_id", profile);
     }
-                                                                                
+
     public Template getTemplate(HttpServletRequest request,
             HttpServletResponse response,
             Context context) {

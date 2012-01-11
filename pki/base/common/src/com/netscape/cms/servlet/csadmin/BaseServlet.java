@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-
 import java.io.IOException;
 import java.util.Enumeration;
 
@@ -29,7 +28,6 @@ import org.apache.velocity.context.Context;
 import org.apache.velocity.servlet.VelocityServlet;
 
 import com.netscape.certsrv.apps.CMS;
-
 
 public class BaseServlet extends VelocityServlet {
 
@@ -53,7 +51,8 @@ public class BaseServlet extends VelocityServlet {
         if (pin == null) {
             try {
                 response.sendRedirect("login");
-            } catch (IOException e) {}
+            } catch (IOException e) {
+            }
             return false;
         }
         return true;
@@ -70,25 +69,25 @@ public class BaseServlet extends VelocityServlet {
             // __ (double underscores); however, in the event that
             // a security parameter slips through, we perform multiple
             // additional checks to insure that it is NOT displayed
-            if( pn.startsWith("__")                         ||
-                pn.endsWith("password")                     ||
-                pn.endsWith("passwd")                       ||
-                pn.endsWith("pwd")                          ||
-                pn.equalsIgnoreCase("admin_password_again") ||
-                pn.equalsIgnoreCase("directoryManagerPwd")  ||
-                pn.equalsIgnoreCase("bindpassword")         ||
-                pn.equalsIgnoreCase("bindpwd")              ||
-                pn.equalsIgnoreCase("passwd")               ||
-                pn.equalsIgnoreCase("password")             ||
-                pn.equalsIgnoreCase("pin")                  ||
-                pn.equalsIgnoreCase("pwd")                  ||
-                pn.equalsIgnoreCase("pwdagain")             ||
-                pn.equalsIgnoreCase("uPasswd") ) {
-               CMS.debug("BaseServlet::service() param name='" + pn +
-                         "' value='(sensitive)'" );
+            if (pn.startsWith("__") ||
+                    pn.endsWith("password") ||
+                    pn.endsWith("passwd") ||
+                    pn.endsWith("pwd") ||
+                    pn.equalsIgnoreCase("admin_password_again") ||
+                    pn.equalsIgnoreCase("directoryManagerPwd") ||
+                    pn.equalsIgnoreCase("bindpassword") ||
+                    pn.equalsIgnoreCase("bindpwd") ||
+                    pn.equalsIgnoreCase("passwd") ||
+                    pn.equalsIgnoreCase("password") ||
+                    pn.equalsIgnoreCase("pin") ||
+                    pn.equalsIgnoreCase("pwd") ||
+                    pn.equalsIgnoreCase("pwdagain") ||
+                    pn.equalsIgnoreCase("uPasswd")) {
+                CMS.debug("BaseServlet::service() param name='" + pn +
+                         "' value='(sensitive)'");
             } else {
-               CMS.debug("BaseServlet::service() param name='" + pn +
-                         "' value='" + httpReq.getParameter(pn) + "'" );
+                CMS.debug("BaseServlet::service() param name='" + pn +
+                         "' value='" + httpReq.getParameter(pn) + "'");
             }
         }
     }

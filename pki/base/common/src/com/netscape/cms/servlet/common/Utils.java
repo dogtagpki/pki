@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.common;
 
-
 import java.util.StringTokenizer;
 
 import javax.servlet.ServletConfig;
@@ -28,10 +27,9 @@ import com.netscape.certsrv.authorization.IAuthzSubsystem;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 
-
 /**
  * Utility class
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class Utils {
@@ -45,13 +43,13 @@ public class Utils {
     public final static String AUTHZ_MGR_BASIC = "BasicAclAuthz";
     public final static String AUTHZ_MGR_LDAP = "DirAclAuthz";
 
-    public static String initializeAuthz(ServletConfig sc, 
-        IAuthzSubsystem authz, String id) throws ServletException {
+    public static String initializeAuthz(ServletConfig sc,
+            IAuthzSubsystem authz, String id) throws ServletException {
         String srcType = AUTHZ_SRC_LDAP;
 
         try {
             IConfigStore authzConfig =
-                CMS.getConfigStore().getSubStore(AUTHZ_CONFIG_STORE);
+                    CMS.getConfigStore().getSubStore(AUTHZ_CONFIG_STORE);
 
             srcType = authzConfig.getString(AUTHZ_SRC_TYPE, AUTHZ_SRC_LDAP);
         } catch (EBaseException e) {
@@ -64,7 +62,7 @@ public class Utils {
             CMS.debug(CMS.getLogMessage("ADMIN_SRVLT_AUTHZ_INITED", ""));
             aclMethod = sc.getInitParameter(PROP_AUTHZ_MGR);
             if (aclMethod != null &&
-                aclMethod.equalsIgnoreCase(AUTHZ_MGR_BASIC)) {
+                    aclMethod.equalsIgnoreCase(AUTHZ_MGR_BASIC)) {
                 String aclInfo = sc.getInitParameter(PROP_ACL);
 
                 if (aclInfo != null) {
@@ -95,7 +93,7 @@ public class Utils {
     }
 
     public static void addACLInfo(IAuthzSubsystem authz, String aclMethod,
-        String aclInfo) throws EBaseException {
+            String aclInfo) throws EBaseException {
 
         StringTokenizer tokenizer = new StringTokenizer(aclInfo, "#");
 

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.processors;
 
-
 import java.io.IOException;
 import java.security.cert.CertificateException;
 
@@ -46,12 +45,11 @@ import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ECMSGWException;
 
-
 /**
  * PKCS10Processor process Certificate Requests in
  * PKCS10 format, as defined here:
  * http://www.rsasecurity.com/rsalabs/pkcs/pkcs-10/index.html
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class PKCS10Processor extends PKIProcessor {
@@ -61,7 +59,7 @@ public class PKCS10Processor extends PKIProcessor {
     private final String USE_INTERNAL_PKCS10 = "internal";
 
     public PKCS10Processor() {
-    
+
         super();
     }
 
@@ -71,24 +69,24 @@ public class PKCS10Processor extends PKIProcessor {
     }
 
     public void process(CMSRequest cmsReq)
-        throws EBaseException {
+            throws EBaseException {
     }
 
-    public    void fillCertInfo(
-        PKCS10 pkcs10, X509CertInfo certInfo,
-        IAuthToken authToken, IArgBlock httpParams)
-        throws EBaseException {
+    public void fillCertInfo(
+            PKCS10 pkcs10, X509CertInfo certInfo,
+            IAuthToken authToken, IArgBlock httpParams)
+            throws EBaseException {
 
         mPkcs10 = pkcs10;
-    
-        fillCertInfo(USE_INTERNAL_PKCS10, certInfo, authToken, httpParams); 
+
+        fillCertInfo(USE_INTERNAL_PKCS10, certInfo, authToken, httpParams);
 
     }
 
     public void fillCertInfo(
-        String protocolString, X509CertInfo certInfo,
-        IAuthToken authToken, IArgBlock httpParams)
-        throws EBaseException {
+            String protocolString, X509CertInfo certInfo,
+            IAuthToken authToken, IArgBlock httpParams)
+            throws EBaseException {
 
         PKCS10 p10 = null;
 
@@ -99,8 +97,8 @@ public class PKCS10Processor extends PKIProcessor {
         } else if (protocolString.equals(USE_INTERNAL_PKCS10)) {
             p10 = mPkcs10;
         } else {
-            CMS.debug( "PKCS10Processor::fillCertInfo() - p10 is null!" );
-            throw new EBaseException( "p10 is null" );
+            CMS.debug("PKCS10Processor::fillCertInfo() - p10 is null!");
+            throw new EBaseException("p10 is null");
         }
 
         if (mServlet == null) {
@@ -123,7 +121,7 @@ public class PKCS10Processor extends PKIProcessor {
             certInfo.set(X509CertInfo.KEY, certKey);
         } catch (CertificateException e) {
             EBaseException ex = new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_SET_KEY_FROM_P10_FAILED", e.toString()));
+                    CMS.getUserMessage("CMS_GW_SET_KEY_FROM_P10_FAILED", e.toString()));
 
             log(ILogger.LL_FAILURE, ex.toString());
             throw ex;
@@ -140,31 +138,31 @@ public class PKCS10Processor extends PKIProcessor {
         if (subject != null) {
             try {
                 certInfo.set(X509CertInfo.SUBJECT,
-                    new CertificateSubjectName(subject));
+                        new CertificateSubjectName(subject));
                 log(ILogger.LL_INFO,
-                    "Setting subject name " + subject + " from p10.");
+                        "Setting subject name " + subject + " from p10.");
             } catch (CertificateException e) {
                 log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_FAILED_SET_SUBJECT_FROM_P10", e.toString()));
+                        CMS.getLogMessage("CMSGW_FAILED_SET_SUBJECT_FROM_P10", e.toString()));
                 throw new ECMSGWException(
-                  CMS.getUserMessage("CMS_GW_SET_SUBJECT_FROM_P10_FAILED", e.toString()));
+                        CMS.getUserMessage("CMS_GW_SET_SUBJECT_FROM_P10_FAILED", e.toString()));
             } catch (IOException e) {
                 log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_FAILED_SET_SUBJECT_FROM_P10", e.toString()));
+                        CMS.getLogMessage("CMSGW_FAILED_SET_SUBJECT_FROM_P10", e.toString()));
                 throw new ECMSGWException(
-                  CMS.getUserMessage("CMS_GW_SET_SUBJECT_FROM_P10_FAILED", e.toString()));
+                        CMS.getUserMessage("CMS_GW_SET_SUBJECT_FROM_P10_FAILED", e.toString()));
             } catch (Exception e) {
                 // if anything bad happens in X500 name parsing,
                 // this will catch it.
                 log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_FAILED_SET_SUBJECT_FROM_P10", e.toString()));
+                        CMS.getLogMessage("CMSGW_FAILED_SET_SUBJECT_FROM_P10", e.toString()));
                 throw new ECMSGWException(
-                  CMS.getUserMessage("CMS_GW_SET_SUBJECT_FROM_P10_FAILED", e.toString()));
+                        CMS.getUserMessage("CMS_GW_SET_SUBJECT_FROM_P10_FAILED", e.toString()));
             }
         } else if (authToken == null ||
-            authToken.getInString(AuthToken.TOKEN_CERT_SUBJECT) == null) {
+                authToken.getInString(AuthToken.TOKEN_CERT_SUBJECT) == null) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("CMSGW_MISSING_SUBJECT_IN_P10"));
+                    CMS.getLogMessage("CMSGW_MISSING_SUBJECT_IN_P10"));
             throw new ECMSGWException(CMS.getUserMessage("CMS_GW_MISSING_SUBJECT_IN_P10"));
         }
 
@@ -177,12 +175,12 @@ public class PKCS10Processor extends PKIProcessor {
 
             if (p10Attrs != null) {
                 PKCS10Attribute p10Attr = (PKCS10Attribute)
-                    (p10Attrs.getAttribute(CertificateExtensions.NAME));
+                        (p10Attrs.getAttribute(CertificateExtensions.NAME));
 
                 if (p10Attr != null && p10Attr.getAttributeId().equals(
                         PKCS9Attribute.EXTENSION_REQUEST_OID)) {
                     Extensions exts0 = (Extensions)
-                        (p10Attr.getAttributeValue());
+                            (p10Attr.getAttributeValue());
                     DerOutputStream extOut = new DerOutputStream();
 
                     exts0.encode(extOut);
@@ -196,23 +194,23 @@ public class PKCS10Processor extends PKIProcessor {
                 }
             }
             CMS.debug(
-                "PKCS10Processor: Seted cert extensions from pkcs10. ");
+                    "PKCS10Processor: Seted cert extensions from pkcs10. ");
         } catch (IOException e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("CMSGW_FAILED_SET_EXTENSIONS_FROM_P10", e.toString()));
+                    CMS.getLogMessage("CMSGW_FAILED_SET_EXTENSIONS_FROM_P10", e.toString()));
             throw new ECMSGWException(
                     CMS.getUserMessage("CMS_GW_SET_KEY_FROM_P10_FAILED", e.toString()));
 
         } catch (CertificateException e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("CMSGW_FAILED_SET_EXTENSIONS_FROM_P10", e.toString()));
+                    CMS.getLogMessage("CMSGW_FAILED_SET_EXTENSIONS_FROM_P10", e.toString()));
             throw new ECMSGWException(
                     CMS.getUserMessage("CMS_GW_SET_KEY_FROM_P10_FAILED", e.toString()));
         } catch (Exception e) {
             // if anything bad happens in extensions parsing,
             // this will catch it.
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("CMSGW_FAILED_SET_EXTENSIONS_FROM_P10", e.toString()));
+                    CMS.getLogMessage("CMSGW_FAILED_SET_EXTENSIONS_FROM_P10", e.toString()));
             throw new ECMSGWException(
                     CMS.getUserMessage("CMS_GW_SET_KEY_FROM_P10_FAILED", e.toString()));
         }
@@ -223,8 +221,8 @@ public class PKCS10Processor extends PKIProcessor {
         String authMgr = mServlet.getAuthMgr();
 
         if (authToken != null &&
-            authToken.getInString(AuthToken.TOKEN_CERT_SUBJECT) != null &&
-            !(authMgr.equals(IAuthSubsystem.PASSWDUSERDB_AUTHMGR_ID))) { 
+                authToken.getInString(AuthToken.TOKEN_CERT_SUBJECT) != null &&
+                !(authMgr.equals(IAuthSubsystem.PASSWDUSERDB_AUTHMGR_ID))) {
             fillCertInfoFromAuthToken(certInfo, authToken);
         }
 
@@ -233,12 +231,12 @@ public class PKCS10Processor extends PKIProcessor {
         // from the http parameters.
         if (mServletId.equals(PKIProcessor.ADMIN_ENROLL_SERVLET_ID)) {
             fillValidityFromForm(certInfo, httpParams);
-        }    
-      
+        }
+
     }
 
     private PKCS10 getPKCS10(IArgBlock httpParams)
-        throws EBaseException {
+            throws EBaseException {
 
         PKCS10 pkcs10 = null;
 
@@ -277,7 +275,7 @@ public class PKCS10Processor extends PKIProcessor {
             try {
                 // coming from server cut & paste blob.
                 pkcs10 = httpParams.getValueAsPKCS10(PKIProcessor.PKCS10_REQUEST, false, null);
-            }catch (Exception ex) {
+            } catch (Exception ex) {
                 ex.printStackTrace();
             }
         }
@@ -286,4 +284,4 @@ public class PKCS10Processor extends PKIProcessor {
 
     }
 
-}  
+}

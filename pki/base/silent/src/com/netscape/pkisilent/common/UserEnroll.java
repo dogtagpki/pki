@@ -1,4 +1,5 @@
 package com.netscape.pkisilent.common;
+
 // --- BEGIN COPYRIGHT BLOCK ---
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -17,7 +18,6 @@ package com.netscape.pkisilent.common;
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -29,14 +29,11 @@ import java.util.GregorianCalendar;
 
 import org.mozilla.jss.ssl.SSLSocket;
 
-
-
 /**
  * CMS Test framework .
  * Submits Legacy Manual User Enrollment request from EESSL port. Parses the response from server and return RequestID.
- *<P>
+ * <P>
  */
-
 
 public class UserEnroll extends TestClient {
 
@@ -46,14 +43,13 @@ public class UserEnroll extends TestClient {
     private long elapsedTime;
 
     // Constructor
-    public UserEnroll() {}
+    public UserEnroll() {
+    }
 
     /**
-     * Constructor . Takes the parameter hostname and EESSLport 
+     * Constructor . Takes the parameter hostname and EESSLport
      * <p>
      */
-
-
 
     public UserEnroll(String h, String p) {
         host = h;
@@ -63,9 +59,9 @@ public class UserEnroll extends TestClient {
     /**
      * Constructor . Takes the parameter for Properties file name
      * <p>
-     * @param propfilename  name of the parameter file
+     * 
+     * @param propfilename name of the parameter file
      */
-
 
     public UserEnroll(String pfile) {
         propfileName = pfile;
@@ -75,11 +71,11 @@ public class UserEnroll extends TestClient {
      * Constructor . Takes the parameter for hostname, EESSLportnumber, subjectdn, E, CN,UID,OU,O, CertdbDirecrory(fullpath) , certdbPassword, keysize, keytype, requestorName,requestorEmail and Certtype.
      * valid values for Certtype - "ca","ra","ocsp"
      * <p>
-     * @param propfilename  name of the parameter file
+     * 
+     * @param propfilename name of the parameter file
      */
 
-
-    public UserEnroll(String h, String p, String dn, String e, String cn, String uid, String ou, String o, String cd, String tpwd, String sslcl, String ksize, String keyty, String reqname, String reqemail, String ctype) { 
+    public UserEnroll(String h, String p, String dn, String e, String cn, String uid, String ou, String o, String cd, String tpwd, String sslcl, String ksize, String keyty, String reqname, String reqemail, String ctype) {
 
         host = h;
         ports = p;
@@ -115,7 +111,7 @@ public class UserEnroll extends TestClient {
     }
 
     /**
-     * Set Certificate Request information. Takes parameters - subjectdn,E,CN,UID,OU,O 
+     * Set Certificate Request information. Takes parameters - subjectdn,E,CN,UID,OU,O
      */
 
     public void setUserInfo(String dn, String e, String cn, String uid, String ou, String o) {
@@ -158,7 +154,7 @@ public class UserEnroll extends TestClient {
     public boolean enroll_load() {
         buildquery();
         setStatusString("");
-        return(Send());
+        return (Send());
     }
 
     private boolean pkcs10() {
@@ -171,7 +167,7 @@ public class UserEnroll extends TestClient {
         cCrypt.setKeyType(keytype);
         cCrypt.setTokenPWD(tokenpwd);
         cCrypt.setDebug(true);
-        if (pkcs10request != null) {	
+        if (pkcs10request != null) {
             cCrypt.setGenerateRequest(false);
             cCrypt.loginDB();
         } else {
@@ -190,12 +186,12 @@ public class UserEnroll extends TestClient {
                 System.out.println(query);
             }
             setStatusString("");
-            return(Send());
+            return (Send());
         } catch (Exception e) {
             System.err.println("some exception:" + e);
         }
 
-        return(false);
+        return (false);
 
     }
 
@@ -222,7 +218,7 @@ public class UserEnroll extends TestClient {
 
         try {
 
-            if (debug) {  
+            if (debug) {
                 System.out.println("Step 3 : Socket initialize");
             }
 
@@ -268,7 +264,7 @@ public class UserEnroll extends TestClient {
                 if (line.indexOf("fixed.requestId = ") != -1) {
                     requestId = line.substring("fixed.requestId = ".length() + 1,
                             line.indexOf(";") - 1);
-                } 
+                }
 
                 if (getError(line)) {
                     st = false;
@@ -296,7 +292,7 @@ public class UserEnroll extends TestClient {
         }
 
         return st;
- 
+
     }
 
     private void buildquery() {
@@ -331,12 +327,12 @@ public class UserEnroll extends TestClient {
                 queryStrBuf.append("&csrRequestorEmail=");
                 queryStrBuf.append(URLEncoder.encode(requestorEmail));
                 queryStrBuf.append("&email=true");
-	
+
             } else {
                 queryStrBuf.append("&email=false");
             }
-     
-            if (requestorPhone.length() > 0) { 
+
+            if (requestorPhone.length() > 0) {
                 queryStrBuf.append("&csrRequestorPhone=");
                 queryStrBuf.append(URLEncoder.encode(requestorPhone));
             }
@@ -344,7 +340,7 @@ public class UserEnroll extends TestClient {
                 queryStrBuf.append("&csrRequestorComments=");
                 queryStrBuf.append(URLEncoder.encode(requestorComments));
             }
-            System.out.println("buidlquery client E ");	
+            System.out.println("buidlquery client E ");
             if (E.length() > 0) {
                 queryStrBuf.append("&E=");
                 queryStrBuf.append(E);
@@ -412,7 +408,7 @@ public class UserEnroll extends TestClient {
         query = queryStrBuf.toString();
 
         System.out.println(query);
-        queryStrBuf = null;   
+        queryStrBuf = null;
     }
 
     public int getRequestId() {
@@ -430,16 +426,16 @@ public class UserEnroll extends TestClient {
         certType = "client";
         ssl_client = "true";
         debug = true;
-        return(pkcs10());
+        return (pkcs10());
     }
 
     public boolean Enroll() {
         debug = true;
-        return(pkcs10());
+        return (pkcs10());
     }
 
     /**
-     * Read the properties file 
+     * Read the properties file
      **/
 
     public boolean readProperties() {
@@ -493,12 +489,12 @@ public class UserEnroll extends TestClient {
             debug = false;
         } else if (de.equals("true")) {
             debug = true;
-        } else { 
+        } else {
             debug = false;
         }
 
         // Enroll using a pkscks10 request
-        return(pkcs10());
+        return (pkcs10());
     }
 
     public static void main(String args[]) {
@@ -512,7 +508,7 @@ public class UserEnroll extends TestClient {
                 "secret12", "true", "1024", "RSA", "rn", "re", "client");
 
         e.clientCertEnroll();
-  
+
         /* if ( args.length < 1)
          {
          System.out.println("Usage : propertiesfile");

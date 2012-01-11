@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.processors;
 
-
 import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.util.Date;
@@ -42,10 +41,9 @@ import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ECMSGWException;
 
-
 /**
  * Process Certificate Requests
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class PKIProcessor implements IPKIProcessor {
@@ -57,7 +55,7 @@ public class PKIProcessor implements IPKIProcessor {
     public static final String PKCS10_REQUEST = "pkcs10Request";
     public static final String SUBJECT_KEYGEN_INFO = "subjectKeyGenInfo";
 
-    protected CMSRequest mRequest = null;   
+    protected CMSRequest mRequest = null;
 
     protected HttpServletRequest httpReq = null;
     protected String mServletId = null;
@@ -84,18 +82,18 @@ public class PKIProcessor implements IPKIProcessor {
     }
 
     public void process(CMSRequest cmsReq)
-        throws EBaseException {
+            throws EBaseException {
     }
 
     protected void fillCertInfo(
-        String protocolString, X509CertInfo certInfo, 
-        IAuthToken authToken, IArgBlock httpParams)
-        throws EBaseException { 
+            String protocolString, X509CertInfo certInfo,
+            IAuthToken authToken, IArgBlock httpParams)
+            throws EBaseException {
     }
 
     protected X509CertInfo[] fillCertInfoArray(
-        String protocolString, IAuthToken authToken, IArgBlock httpParams, IRequest req)
-        throws EBaseException {
+            String protocolString, IAuthToken authToken, IArgBlock httpParams, IRequest req)
+            throws EBaseException {
         return null;
     }
 
@@ -106,8 +104,8 @@ public class PKIProcessor implements IPKIProcessor {
      * requests not authenticated will need to be approved by an agent.
      */
     public static void fillCertInfoFromAuthToken(
-        X509CertInfo certInfo, IAuthToken authToken)
-        throws EBaseException {
+            X509CertInfo certInfo, IAuthToken authToken)
+            throws EBaseException {
         // override subject, validity and extensions from auth token
         // CA determines algorithm, version and issuer.
         // take key from keygen, cmc, pkcs10 or crmf.
@@ -116,60 +114,60 @@ public class PKIProcessor implements IPKIProcessor {
         // subject name.
         try {
             String subjectname =
-                authToken.getInString(AuthToken.TOKEN_CERT_SUBJECT);
+                    authToken.getInString(AuthToken.TOKEN_CERT_SUBJECT);
 
             if (subjectname != null) {
                 CertificateSubjectName certSubject = (CertificateSubjectName)
-                    new CertificateSubjectName(new X500Name(subjectname));
+                        new CertificateSubjectName(new X500Name(subjectname));
 
                 certInfo.set(X509CertInfo.SUBJECT, certSubject);
                 log(ILogger.LL_INFO,
-                    "cert subject set to " + certSubject + " from authtoken");
+                        "cert subject set to " + certSubject + " from authtoken");
             }
         } catch (CertificateException e) {
             log(ILogger.LL_WARN,
-                CMS.getLogMessage("CMSGW_ERROR_SET_SUBJECT_NAME_1",
-                    e.toString()));
+                    CMS.getLogMessage("CMSGW_ERROR_SET_SUBJECT_NAME_1",
+                            e.toString()));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_SET_SUBJECT_NAME_ERROR"));
+                    CMS.getUserMessage("CMS_GW_SET_SUBJECT_NAME_ERROR"));
         } catch (IOException e) {
             log(ILogger.LL_WARN,
-                CMS.getLogMessage("CMSGW_ERROR_SET_SUBJECT_NAME",
-                    e.toString()));
+                    CMS.getLogMessage("CMSGW_ERROR_SET_SUBJECT_NAME",
+                            e.toString()));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_SET_SUBJECT_NAME_ERROR"));
+                    CMS.getUserMessage("CMS_GW_SET_SUBJECT_NAME_ERROR"));
         }
 
         // validity
         try {
             CertificateValidity validity = null;
             Date notBefore =
-                authToken.getInDate(AuthToken.TOKEN_CERT_NOTBEFORE);
+                    authToken.getInDate(AuthToken.TOKEN_CERT_NOTBEFORE);
             Date notAfter =
-                authToken.getInDate(AuthToken.TOKEN_CERT_NOTAFTER);
+                    authToken.getInDate(AuthToken.TOKEN_CERT_NOTAFTER);
 
             if (notBefore != null && notAfter != null) {
                 validity = new CertificateValidity(notBefore, notAfter);
                 certInfo.set(X509CertInfo.VALIDITY, validity);
                 log(ILogger.LL_INFO,
-                    "cert validity set to " + validity + " from authtoken");
+                        "cert validity set to " + validity + " from authtoken");
             }
         } catch (CertificateException e) {
             log(ILogger.LL_WARN,
-                CMS.getLogMessage("CMSGW_ERROR_SET_VALIDITY_1", e.toString()));
+                    CMS.getLogMessage("CMSGW_ERROR_SET_VALIDITY_1", e.toString()));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_SET_VALIDITY_ERROR"));
+                    CMS.getUserMessage("CMS_GW_SET_VALIDITY_ERROR"));
         } catch (IOException e) {
             log(ILogger.LL_WARN,
-                CMS.getLogMessage("CMSGW_ERROR_SET_VALIDITY_1", e.toString()));
+                    CMS.getLogMessage("CMSGW_ERROR_SET_VALIDITY_1", e.toString()));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_SET_VALIDITY_ERROR"));
+                    CMS.getUserMessage("CMS_GW_SET_VALIDITY_ERROR"));
         }
 
         // extensions
         try {
             CertificateExtensions extensions =
-                authToken.getInCertExts(X509CertInfo.EXTENSIONS);
+                    authToken.getInCertExts(X509CertInfo.EXTENSIONS);
 
             if (extensions != null) {
                 certInfo.set(X509CertInfo.EXTENSIONS, extensions);
@@ -177,14 +175,14 @@ public class PKIProcessor implements IPKIProcessor {
             }
         } catch (CertificateException e) {
             log(ILogger.LL_WARN,
-                CMS.getLogMessage("CMSGW_ERROR_SET_EXTENSIONS_1", e.toString()));
+                    CMS.getLogMessage("CMSGW_ERROR_SET_EXTENSIONS_1", e.toString()));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_SET_EXTENSIONS_ERROR"));
+                    CMS.getUserMessage("CMS_GW_SET_EXTENSIONS_ERROR"));
         } catch (IOException e) {
             log(ILogger.LL_WARN,
-                CMS.getLogMessage("CMSGW_ERROR_SET_EXTENSIONS_1", e.toString()));
+                    CMS.getLogMessage("CMSGW_ERROR_SET_EXTENSIONS_1", e.toString()));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_SET_EXTENSIONS_ERROR"));
+                    CMS.getUserMessage("CMS_GW_SET_EXTENSIONS_ERROR"));
         }
     }
 
@@ -195,8 +193,8 @@ public class PKIProcessor implements IPKIProcessor {
      * all be seen by and agent.
      */
     public static void fillCertInfoFromForm(
-        X509CertInfo certInfo, IArgBlock httpParams)
-        throws EBaseException {
+            X509CertInfo certInfo, IArgBlock httpParams)
+            throws EBaseException {
 
         CMS.debug("PKIProcessor: fillCertInfoFromForm");
         // subject name.
@@ -205,41 +203,41 @@ public class PKIProcessor implements IPKIProcessor {
 
             if (subject == null) {
                 throw new ECMSGWException(
-                  CMS.getUserMessage("CMS_GW_MISSING_SUBJECT_FROM_FORM"));
+                        CMS.getUserMessage("CMS_GW_MISSING_SUBJECT_FROM_FORM"));
             }
 
             X500Name x500name = new X500Name(subject);
 
             certInfo.set(
-                X509CertInfo.SUBJECT, new CertificateSubjectName(x500name));
+                    X509CertInfo.SUBJECT, new CertificateSubjectName(x500name));
 
             fillValidityFromForm(certInfo, httpParams);
         } catch (CertificateException e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("CMSGW_ERROR_SET_SUBJECT_NAME_1", e.toString()));
+                    CMS.getLogMessage("CMSGW_ERROR_SET_SUBJECT_NAME_1", e.toString()));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_SET_SUBJECT_NAME_ERROR"));
+                    CMS.getUserMessage("CMS_GW_SET_SUBJECT_NAME_ERROR"));
         } catch (IOException e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("CMSGW_ERROR_SET_SUBJECT_NAME_1", e.toString()));
+                    CMS.getLogMessage("CMSGW_ERROR_SET_SUBJECT_NAME_1", e.toString()));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_SET_SUBJECT_NAME_ERROR"));
+                    CMS.getUserMessage("CMS_GW_SET_SUBJECT_NAME_ERROR"));
         } catch (IllegalArgumentException e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("CMSGW_ERROR_SET_SUBJECT_NAME_1", e.toString()));
+                    CMS.getLogMessage("CMSGW_ERROR_SET_SUBJECT_NAME_1", e.toString()));
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("CMSGW_REQ_ILLEGAL_CHARACTERS"));
+                    CMS.getLogMessage("CMSGW_REQ_ILLEGAL_CHARACTERS"));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_CONVERT_DN_TO_X500NAME_ERROR"));
+                    CMS.getUserMessage("CMS_GW_CONVERT_DN_TO_X500NAME_ERROR"));
         }
 
         // requested extensions.
         // let polcies form extensions from http input.
     }
 
-    public static  void fillValidityFromForm(
-        X509CertInfo certInfo, IArgBlock httpParams)
-        throws EBaseException {
+    public static void fillValidityFromForm(
+            X509CertInfo certInfo, IArgBlock httpParams)
+            throws EBaseException {
         CMS.debug("PKIProcessor: fillValidityFromForm!");
         try {
             String notValidBeforeStr = httpParams.getValueAsString("notValidBefore", null);
@@ -267,43 +265,43 @@ public class PKIProcessor implements IPKIProcessor {
                         validity = new CertificateValidity(notBefore, notAfter);
                         certInfo.set(X509CertInfo.VALIDITY, validity);
                         log(ILogger.LL_INFO,
-                            "cert validity set to " + validity + " from authtoken");
+                                "cert validity set to " + validity + " from authtoken");
                     }
                 }
             }
         } catch (CertificateException e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("CMSGW_ERROR_SET_SUBJECT_NAME_1", e.toString()));
+                    CMS.getLogMessage("CMSGW_ERROR_SET_SUBJECT_NAME_1", e.toString()));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_SET_SUBJECT_NAME_ERROR"));
+                    CMS.getUserMessage("CMS_GW_SET_SUBJECT_NAME_ERROR"));
         } catch (IOException e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("CMSGW_ERROR_SET_SUBJECT_NAME_1", e.toString()));
+                    CMS.getLogMessage("CMSGW_ERROR_SET_SUBJECT_NAME_1", e.toString()));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_SET_SUBJECT_NAME_ERROR"));
+                    CMS.getUserMessage("CMS_GW_SET_SUBJECT_NAME_ERROR"));
         }
     }
 
     /**
      * log according to authority category.
      */
-    public static void  log(int event, int level, String msg) {
+    public static void log(int event, int level, String msg) {
         CMS.getLogger().log(event, ILogger.S_OTHER, level,
-            "PKIProcessor " + ": " + msg);
+                "PKIProcessor " + ": " + msg);
     }
 
     public static void log(int level, String msg) {
         CMS.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER, level,
-            "PKIProcessor " + ": " + msg);
+                "PKIProcessor " + ": " + msg);
     }
 
     /**
      * Signed Audit Log
-     *
+     * 
      * This method is inherited by all extended "CMSServlet"s,
      * and is called to store messages to the signed audit log.
      * <P>
-     *
+     * 
      * @param msg signed audit log message
      */
     protected void audit(String msg) {
@@ -315,20 +313,20 @@ public class PKIProcessor implements IPKIProcessor {
         }
 
         mSignedAuditLogger.log(ILogger.EV_SIGNED_AUDIT,
-            null,
-            ILogger.S_SIGNED_AUDIT,
-            ILogger.LL_SECURITY,
-            msg);
+                null,
+                ILogger.S_SIGNED_AUDIT,
+                ILogger.LL_SECURITY,
+                msg);
     }
 
     /**
      * Signed Audit Log Subject ID
-     *
+     * 
      * This method is inherited by all extended "CMSServlet"s,
      * and is called to obtain the "SubjectID" for
      * a signed audit log message.
      * <P>
-     *
+     * 
      * @return id string containing the signed audit log message SubjectID
      */
     protected String auditSubjectID() {
@@ -358,4 +356,3 @@ public class PKIProcessor implements IPKIProcessor {
         return subjectID;
     }
 }
-

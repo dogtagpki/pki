@@ -1,4 +1,5 @@
 package com.netscape.pkisilent.argparser;
+
 // --- BEGIN COPYRIGHT BLOCK ---
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -18,38 +19,36 @@ package com.netscape.pkisilent.argparser;
 // --- END COPYRIGHT BLOCK ---
 
 /**
-  * Wrapper class which ``holds'' a double value,
-  * enabling methods to return double values through
-  * arguments.
-  */
-public class DoubleHolder implements java.io.Serializable
-{
-	/**
+ * Wrapper class which ``holds'' a double value,
+ * enabling methods to return double values through
+ * arguments.
+ */
+public class DoubleHolder implements java.io.Serializable {
+    /**
      *
      */
     private static final long serialVersionUID = 5461991811517552431L;
     /**
-	 * Value of the double, set and examined
-	 * by the application as needed.
-	 */
-	public double value;
+     * Value of the double, set and examined
+     * by the application as needed.
+     */
+    public double value;
 
-	/**
-	 * Constructs a new <code>DoubleHolder</code> with an initial
-	 * value of 0.
-	 */
-	public DoubleHolder ()
-	 { value = 0;
-	 }
+    /**
+     * Constructs a new <code>DoubleHolder</code> with an initial
+     * value of 0.
+     */
+    public DoubleHolder() {
+        value = 0;
+    }
 
-	/**
-	 * Constructs a new <code>DoubleHolder</code> with a
-	 * specific initial value.
-	 *
-	 * @param d Initial double value.
-	 */
-	public DoubleHolder (double d)
-	 { value = d;
-	 }
+    /**
+     * Constructs a new <code>DoubleHolder</code> with a
+     * specific initial value.
+     * 
+     * @param d Initial double value.
+     */
+    public DoubleHolder(double d) {
+        value = d;
+    }
 }
-

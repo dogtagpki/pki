@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-
 import java.io.IOException;
 
 import javax.servlet.ServletConfig;
@@ -36,19 +35,20 @@ import com.netscape.cms.servlet.wizard.WizardServlet;
 
 public class ImportCAChainPanel extends WizardPanelBase {
 
-    public ImportCAChainPanel() {}
+    public ImportCAChainPanel() {
+    }
 
     /**
      * Initializes this panel.
      */
-    public void init(ServletConfig config, int panelno) 
-        throws ServletException {
+    public void init(ServletConfig config, int panelno)
+            throws ServletException {
         setPanelNo(panelno);
         setName("Import CA's Certificate Chain");
     }
 
     public void init(WizardServlet servlet, ServletConfig config, int panelno, String id)
-        throws ServletException {
+            throws ServletException {
         setPanelNo(panelno);
         setName("Import CA's Certificate Chain");
         setId(id);
@@ -89,7 +89,7 @@ public class ImportCAChainPanel extends WizardPanelBase {
             context.put("https_port", cs.getString("pkicreate.ee_secure_port"));
             context.put("http_port", cs.getString("pkicreate.unsecure_port"));
         } catch (EBaseException e) {
-            CMS.debug("ImportCACertChain:display: Exception: " + e.toString()); 
+            CMS.debug("ImportCACertChain:display: Exception: " + e.toString());
             context.put("errorString", "Error loading values for Import CA Certificate Panel");
         }
 
@@ -119,7 +119,6 @@ public class ImportCAChainPanel extends WizardPanelBase {
             Context context) throws IOException {
         IConfigStore cs = CMS.getConfigStore();
 
-
         context.put("errorString", "");
         context.put("title", "Import CA's Certificate Chain");
         context.put("panel", "admin/console/config/importcachainpanel.vm");
@@ -141,6 +140,7 @@ public class ImportCAChainPanel extends WizardPanelBase {
             context.put("http_port", cs.getString("pkicreate.unsecure_port"));
             context.put("title", "Import CA's Certificate Chain");
             context.put("panel", "admin/console/config/importcachainpanel.vm");
-        } catch (EBaseException e) {}
+        } catch (EBaseException e) {
+        }
     }
 }

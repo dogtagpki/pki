@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.dbs;
 
-
 import java.util.Enumeration;
 import java.util.StringTokenizer;
 import java.util.Vector;
@@ -30,20 +29,19 @@ import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.dbs.IDBAttrMapper;
 import com.netscape.certsrv.dbs.IDBObj;
 
-
 /**
  * A class represent mapper for metainfo attribute. Metainfo
  * is in format of the following:
- *
+ * 
  * <PRE>
  * metaInfoType:metaInfoValue
  * metaInfoType:metaInfoValue
  * metaInfoType:metaInfoValue
  * metaInfoType:metaInfoValue
  * </PRE>
- *
+ * 
  * @author thomask
- * @version $Revision$, $Date$ 
+ * @version $Revision$, $Date$
  */
 public class MetaInfoMapper implements IDBAttrMapper {
 
@@ -71,8 +69,8 @@ public class MetaInfoMapper implements IDBAttrMapper {
      * Maps object into ldap attribute set.
      */
     public void mapObjectToLDAPAttributeSet(IDBObj parent,
-        String name, Object obj, LDAPAttributeSet attrs)
-        throws EBaseException {
+            String name, Object obj, LDAPAttributeSet attrs)
+            throws EBaseException {
         MetaInfo info = (MetaInfo) obj;
         Enumeration e = info.getElements();
 
@@ -96,7 +94,7 @@ public class MetaInfoMapper implements IDBAttrMapper {
      * 'parent'.
      */
     public void mapLDAPAttributeSetToObject(LDAPAttributeSet attrs,
-        String name, IDBObj parent) throws EBaseException {
+            String name, IDBObj parent) throws EBaseException {
         LDAPAttribute attr = attrs.getAttribute(mLdapName);
 
         if (attr == null)
@@ -119,7 +117,7 @@ public class MetaInfoMapper implements IDBAttrMapper {
      * (&(metaInfo=reserver0:value0)(metaInfo=reserved1:value1))
      */
     public String mapSearchFilter(String name, String op,
-        String value) throws EBaseException {
+            String value) throws EBaseException {
         return mLdapName + op + value;
     }
 }

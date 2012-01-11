@@ -22,13 +22,13 @@ import java.net.SocketException;
 
 /**
  * Interface for all connection objects.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public interface IConnection {
 
     /**
-     *  Send request to the server using this connection
+     * Send request to the server using this connection
      */
     public int sendRequest(String req) throws IOException;
 
@@ -41,11 +41,10 @@ public interface IConnection {
      * Close the connection
      */
     public void disconnect();
-    
+
     /**
      * SetTimeout
      */
     public void setSoTimeout(int timeout) throws SocketException;
- 
- 
+
 }

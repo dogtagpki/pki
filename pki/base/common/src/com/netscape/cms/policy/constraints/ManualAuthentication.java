@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.policy.constraints;
 
-
 import java.util.Vector;
 
 import com.netscape.certsrv.authentication.IAuthToken;
@@ -29,23 +28,23 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cms.policy.APolicyRule;
 
-
 /**
  * ManualAuthentication is an enrollment policy that queues
  * all requests for issuing agent's approval if no authentication
  * is present. The policy rejects a request if any of the auth tokens
  * indicates authentication failure.
  * <P>
+ * 
  * <PRE>
  * NOTE:  The Policy Framework has been replaced by the Profile Framework.
  * </PRE>
  * <P>
- *
+ * 
  * @deprecated
  * @version $Revision$, $Date$
  */
 public class ManualAuthentication extends APolicyRule
-    implements IEnrollmentPolicy {
+        implements IEnrollmentPolicy {
     public ManualAuthentication() {
         NAME = "ManualAuthentication";
         DESC = "Manual Authentication Policy";
@@ -54,30 +53,28 @@ public class ManualAuthentication extends APolicyRule
     /**
      * Initializes this policy rule.
      * <P>
-     *
+     * 
      * The entries may be of the form:
-     *
-     *      ra.Policy.rule.<ruleName>.implName=ManualAuthentication
-     *      ra.Policy.rule.<ruleName>.enable=true
-     *      ra.Policy.rule.<ruleName>.predicate= ou == engineering AND o == netscape.com
-     *
-     * @param config	The config store reference
+     * 
+     * ra.Policy.rule.<ruleName>.implName=ManualAuthentication ra.Policy.rule.<ruleName>.enable=true ra.Policy.rule.<ruleName>.predicate= ou == engineering AND o == netscape.com
+     * 
+     * @param config The config store reference
      */
     public void init(ISubsystem owner, IConfigStore config)
-        throws EPolicyException {
+            throws EPolicyException {
     }
 
     /**
      * Applies the policy on the given Request.
      * <P>
-     *
-     * @param req	The request on which to apply policy.
+     * 
+     * @param req The request on which to apply policy.
      * @return The policy result object.
      */
     public PolicyResult apply(IRequest req) {
         IAuthToken authToken = req.getExtDataInAuthToken(IRequest.AUTH_TOKEN);
 
-        if (authToken == null) 
+        if (authToken == null)
             return deferred(req);
 
         return PolicyResult.ACCEPTED;
@@ -85,7 +82,7 @@ public class ManualAuthentication extends APolicyRule
 
     /**
      * Return configured parameters for a policy rule instance.
-     *
+     * 
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector getInstanceParams() {
@@ -94,11 +91,10 @@ public class ManualAuthentication extends APolicyRule
 
     /**
      * Return default parameters for a policy implementation.
-     *
+     * 
      * @return nvPairs A Vector of name/value pairs.
      */
     public Vector getDefaultParams() {
         return null;
     }
 }
-

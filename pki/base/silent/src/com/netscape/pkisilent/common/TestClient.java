@@ -1,4 +1,5 @@
 package com.netscape.pkisilent.common;
+
 // --- BEGIN COPYRIGHT BLOCK ---
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -26,14 +27,10 @@ import java.util.Properties;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 
-
-
 /**
  * CMS Test framework .
  * Before createing an instance of this class make sure you havae set an environment variable TEST_CONFIG_FILE.
  */
-
-
 
 public class TestClient implements SSLCertificateApprovalCallback {
 
@@ -54,16 +51,16 @@ public class TestClient implements SSLCertificateApprovalCallback {
     private int i;
     private String testConfigFile;
 
-    public String  caAgentCertName = "ca-agent";
-    public String  raAgentCertName = "ra-agent";
-    public String  ocspAgentCertName = "ocsp-agent";
-    public String  kraAgentCertName = "kra-agent";
-    public String  tksAgentCertName = "tks-agent";
-    public String  singleSignOnPWD = "secret12";
+    public String caAgentCertName = "ca-agent";
+    public String raAgentCertName = "ra-agent";
+    public String ocspAgentCertName = "ocsp-agent";
+    public String kraAgentCertName = "kra-agent";
+    public String tksAgentCertName = "tks-agent";
+    public String singleSignOnPWD = "secret12";
     public String adminCertName = "cn=admin";
     private String ldapBaseSuffix = "dc=netscape,dc=com";
-    private String  admDN = "admin";
-    private String  admDNPW = "admin";
+    private String admDN = "admin";
+    private String admDNPW = "admin";
     private String TmpDir;
     private String TestLogFile;
     private String startupTests, cleanupTests;
@@ -82,11 +79,11 @@ public class TestClient implements SSLCertificateApprovalCallback {
 
     public String ErrorDetail;
 
-    private String serverKeyType, serverKeySize, serverKeyAlgo; 
+    private String serverKeyType, serverKeySize, serverKeyAlgo;
 
     private String unauth[] = {
-        "Unauthorized Access", "Server Error",
-        "Not Found", "Generic Unauthorized"};
+            "Unauthorized Access", "Server Error",
+            "Not Found", "Generic Unauthorized" };
 
     public boolean approve(X509Certificate x509, SSLCertificateApprovalCallback.ValidityStatus status) {
         SSLServerCert = x509;
@@ -95,22 +92,21 @@ public class TestClient implements SSLCertificateApprovalCallback {
 
     // Constructor 
 
-
     public TestClient() {
         keysize = "1024";
         keytype = "RSA";
     }
 
     /**
-     * Constructor . Takes the parameter for keysize and keytype . 
-     * Before creating a new instance of this class make sure you have set TEST_CONFIG_FILE variable in your environnemt. 
-     * Reads the TEST_CONFIG_FILE . Initializes the certificate database. See engage.cfg file for example. 
+     * Constructor . Takes the parameter for keysize and keytype .
+     * Before creating a new instance of this class make sure you have set TEST_CONFIG_FILE variable in your environnemt.
+     * Reads the TEST_CONFIG_FILE . Initializes the certificate database. See engage.cfg file for example.
+     * 
      * @param keysize
-     * @param keytype 
+     * @param keytype
      */
 
-
-    public TestClient(String ks, String kt) { 
+    public TestClient(String ks, String kt) {
 
         testConfigFile = ReadEnv("TEST_CONFIG_FILE");
 
@@ -175,7 +171,6 @@ public class TestClient implements SSLCertificateApprovalCallback {
      * This function returns true if you choose to executeCleanupTests
      */
 
-
     public boolean executeCleanupTests() {
 
         if (cleanupTests == null) {
@@ -214,7 +209,7 @@ public class TestClient implements SSLCertificateApprovalCallback {
 
     public String GetLDAPDNPW() {
         return ldaprootDNPW;
-    } 
+    }
 
     public String GetLDAPBASE() {
         return ldapBaseSuffix;
@@ -298,10 +293,10 @@ public class TestClient implements SSLCertificateApprovalCallback {
 
     public void setTestLogFile(String s) {
         TestLogFile = s;
-    } 
+    }
 
     /**
-     * parses a http page and returns true  if any error is returned by server  
+     * parses a http page and returns true if any error is returned by server
      **/
 
     public boolean getError(String line) {
@@ -352,7 +347,7 @@ public class TestClient implements SSLCertificateApprovalCallback {
             ErrorDetail = line.substring(ret + ("errorReason=").length());
             return true;
         }
-	
+
         return false;
     }
 
@@ -372,7 +367,7 @@ public class TestClient implements SSLCertificateApprovalCallback {
 
     }
 
-    public String  ReadEnv(String str) {
+    public String ReadEnv(String str) {
         try {
             Process p = null;
             Runtime r = Runtime.getRuntime();
@@ -467,7 +462,7 @@ public class TestClient implements SSLCertificateApprovalCallback {
     }
 
     /**
-     * returns FreePort in this machine . Takes a parmater portnumber. For example getFreePort("4026"). 
+     * returns FreePort in this machine . Takes a parmater portnumber. For example getFreePort("4026").
      */
     public String getFreePort(String s) {
         Integer x = new Integer(s);
@@ -501,7 +496,7 @@ public class TestClient implements SSLCertificateApprovalCallback {
     }
 
     /**
-     * Reads a file and returns the cert request as string 
+     * Reads a file and returns the cert request as string
      **/
 
     public String readRequest(String filename) {
@@ -533,13 +528,11 @@ public class TestClient implements SSLCertificateApprovalCallback {
          *******************************************************************
          */
 
-
         /*
          ********************************************************************
          * To Test AutoInstaller 
          *******************************************************************
          */
-
 
         /*
          AutoInstaller a = new AutoInstaller(t.GetServerRoot());
@@ -589,12 +582,10 @@ public class TestClient implements SSLCertificateApprovalCallback {
          ******************************************************
          */
 
-	
-	
         ServerInfo s = new ServerInfo(t.GetServerRoot(), t.GetInstanceRoot());
 
         t.setHostName(s.GetHostName());
-    
+
         System.out.println("AgentPort " + s.GetAgentPort());
         System.out.println("EESSLPort " + s.GetEESSLPort());
         System.out.println("EEPort " + s.GetEEPort());
@@ -604,8 +595,8 @@ public class TestClient implements SSLCertificateApprovalCallback {
         System.out.println("CASigningCert:" + s.GetCASigningCert());
         System.out.println("RASigningCert:" + s.GetRASigningCert());
         System.out.println("ServerCert" + s.GetServerCertNickName());
-        System.out.println("------------------------------------------"); 
-        System.out.println(" Internal Database Test:"); 
+        System.out.println("------------------------------------------");
+        System.out.println(" Internal Database Test:");
         System.out.println(" LDAP Port : " + s.GetConfigLDAPPort());
         System.out.println("Hostname " + s.GetHostName());
 
@@ -641,7 +632,6 @@ public class TestClient implements SSLCertificateApprovalCallback {
          pr.clientCertEnroll();
          */
 
-
         /* ****************************************************************
          * OCSP Client stuff
          ************************************************************
@@ -655,7 +645,6 @@ public class TestClient implements SSLCertificateApprovalCallback {
          ocspclient.SendOCSPRequest();
          */
 
-	
         /*
          *****************************************************
          * Test CRMFcleint and KRA REcovery and Archival
@@ -667,7 +656,6 @@ public class TestClient implements SSLCertificateApprovalCallback {
          * OCSP Agent stuff
          *********************************************************
          */
-
 
         /* Retrieval rtr = new Retrieval(s.GetHostName(),s.GetEESSLPort());
          rtr.getCACert();
@@ -681,7 +669,6 @@ public class TestClient implements SSLCertificateApprovalCallback {
          ocspAgent.setCACert(cert);
          ocspAgent.addCA();
          */
-
 
         /*
          ***************************************************************
@@ -747,8 +734,8 @@ public class TestClient implements SSLCertificateApprovalCallback {
          *************************************************************
          *   Example to Connect oto Config Directory port  
          *************************************************************
-         */	
-        
+         */
+
         /*
          CMSLDAP cmsldap = new CMSLDAP(s.GetHostName(),s.GetConfigLDAPPort(),t.GetLDAPDN(),t.GetLDAPDNPW());
          if(cmsldap.connect())
@@ -762,12 +749,11 @@ public class TestClient implements SSLCertificateApprovalCallback {
 
          */
 
-	
         /*
          *************************************************************
          *   Example to Submit a CRMFCleint request to CA  
          *************************************************************
-         */	
+         */
 
         String TransportCert = "MIICJTCCAY6gAwIBAgIBBTANBgkqhkiG9w0BAQQFADBDMRswGQYDVQQKExJhY2NlcHRhY25ldGVzdDEwMjQxFzAVBgNVBAsTDmFjY2VwdGFuY2V0ZXN0MQswCQYDVQQDEwJjYTAeFw0wMzA0MTgyMjMwMDhaFw0wNDA0MTcxMDI2MDhaMDkxETAPBgNVBAoTCHRlc3QxMDI0MRcwFQYDVQQLEw5hY2NlcHRhbmNldGVzdDELMAkGA1UEAxMCcmEwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAN6sQ3mSU8mL6i6gTZIXDLzOZPhYOkQLpnJjit5hcPZ0JMn0CQVXo4QjKN1xvuZv8qVlZoQw9czmzp/knTa0sCDgFKd0r+u0TnLeZkJMSimgFnma9CnChlaDHnBd8Beu4vyaHmo7rJ0xA4etn7HjhmKbaQZOcv/aP0SW9JXRga7ZAgMBAAGjMzAxMA4GA1UdDwEB/wQEAwIFIDAfBgNVHSMEGDAWgBSC3fsQHb7fddr2vL0UdkM2dAmUWzANBgkqhkiG9w0BAQQFAAOBgQBkAGbgd9HIqwoLKAr+V6bj9oWesDmDH80gPPxj10qyWSQYIs8PofOs/75yGS9nxhydtgSMFoBgCPdroUI31kZQQlFzxtudGoKD+5MWSXho79XzPwpjheOBYgpX6ch+L4tMLFDpqeraB1yZESO5EEeKm20DGVBOKVWxHhddO1BenA==";
 
@@ -782,7 +768,7 @@ public class TestClient implements SSLCertificateApprovalCallback {
          if(!CrmfClient.Enroll())
          {System.out.println("CRMFClient : could not submit  request");}
          */
-    
+
         /* KRA Agent list archived request */
 
         /* ServerInfo KRAsvrInfo = new ServerInfo(t.GetServerRoot());
@@ -803,7 +789,6 @@ public class TestClient implements SSLCertificateApprovalCallback {
          }
 
          */
-	
 
         // cmsldap.disconnect();
 
@@ -900,7 +885,6 @@ public class TestClient implements SSLCertificateApprovalCallback {
 
          */
 
-
         /*
          *************************************************************
          *   Example  agent ro revoke request  
@@ -950,8 +934,6 @@ public class TestClient implements SSLCertificateApprovalCallback {
          task.CMSStop();
          task.CMSStart();
          */
-
-
 
     }// end of function main
 

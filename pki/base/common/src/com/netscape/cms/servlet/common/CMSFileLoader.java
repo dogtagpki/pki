@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.common;
 
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Enumeration;
@@ -26,10 +25,9 @@ import java.util.Hashtable;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 
-
 /**
  * CMSFileLoader - file cache.
- *
+ * 
  * @version $Revision$, $Date$
  */
 
@@ -52,7 +50,7 @@ public class CMSFileLoader {
     private int mMaxSize = MAX_SIZE;
 
     // number of files to clear when max is reached.
-    private int mClearSize = CLEAR_SIZE;  
+    private int mClearSize = CLEAR_SIZE;
 
     // whether to cache templates and forms only.
     private boolean mCacheTemplatesOnly = true;
@@ -63,7 +61,7 @@ public class CMSFileLoader {
     public void init(IConfigStore config) throws EBaseException {
         mMaxSize = config.getInteger(PROP_MAX_SIZE, MAX_SIZE);
         mClearSize = config.getInteger(PROP_CLEAR_SIZE, CLEAR_SIZE);
-        mCacheTemplatesOnly = 
+        mCacheTemplatesOnly =
                 config.getBoolean(PROP_CACHE_TEMPLATES_ONLY, true);
     }
 
@@ -103,7 +101,7 @@ public class CMSFileLoader {
         if (cmsFile == null || modified != lastModified) {
             // Changed by bskim
             //cmsFile = updateFile(absPath, file); 
-            cmsFile = updateFile(absPath, file, enc); 
+            cmsFile = updateFile(absPath, file, enc);
             // Change end
         }
         cmsFile.setLastAccess(System.currentTimeMillis());
@@ -112,9 +110,9 @@ public class CMSFileLoader {
 
     // Changed by bskim
     //private CMSFile updateFile(String absPath, File file) 
-    private CMSFile updateFile(String absPath, File file, String enc) 
-        // Change end
-        throws EBaseException, IOException {
+    private CMSFile updateFile(String absPath, File file, String enc)
+            // Change end
+            throws EBaseException, IOException {
         // clear if cache size exceeded.
         if (mLoadedFiles.size() >= mMaxSize) {
             clearSomeFiles();
@@ -131,18 +129,18 @@ public class CMSFileLoader {
         } else {
             cmsFile = new CMSFile(file);
         }
-        mLoadedFiles.put(absPath, cmsFile);  // replace old one if any.
+        mLoadedFiles.put(absPath, cmsFile); // replace old one if any.
         return cmsFile;
     }
 
     private synchronized void clearSomeFiles() {
 
         // recheck this in case some other thread has cleared it.
-        if (mLoadedFiles.size() < mMaxSize) 
+        if (mLoadedFiles.size() < mMaxSize)
             return;
 
-            // remove the LRU files.
-            // XXX could be optimized more.
+        // remove the LRU files.
+        // XXX could be optimized more.
         Enumeration elements = mLoadedFiles.elements();
 
         for (int i = mClearSize; i > 0; i--) {
@@ -160,4 +158,3 @@ public class CMSFileLoader {
         }
     }
 }
-

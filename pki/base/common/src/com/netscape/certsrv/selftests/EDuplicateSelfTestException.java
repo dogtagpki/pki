@@ -20,12 +20,9 @@
 
 package com.netscape.certsrv.selftests;
 
-
 ///////////////////////
 // import statements //
 ///////////////////////
-
-
 
 //////////////////////
 // class definition //
@@ -35,19 +32,17 @@ package com.netscape.certsrv.selftests;
  * This class implements a duplicate self test exception.
  * EDuplicateSelfTestExceptions are derived from ESelfTestExceptions
  * in order to allow users to easily do self tests without try-catch clauses.
- *
+ * 
  * EDuplicateSelfTestExceptions should be caught by SelfTestSubsystem managers.
  * <P>
  * 
  * @version $Revision$, $Date$
  */
 public class EDuplicateSelfTestException
-    extends ESelfTestException {
+        extends ESelfTestException {
     ////////////////////////
     // default parameters //
     ////////////////////////
-
-
 
     ///////////////////////
     // helper parameters //
@@ -66,13 +61,9 @@ public class EDuplicateSelfTestException
     // EDuplicateSelfTestException parameters //
     ////////////////////////////////////////////
 
-
-
     ///////////////////////////////////////////////
     // ESelfTestException parameters (inherited) //
     ///////////////////////////////////////////////
-
-
 
     /////////////////////
     // default methods //
@@ -81,13 +72,13 @@ public class EDuplicateSelfTestException
     /**
      * Constructs a "duplicate" self test exception.
      * <P>
-     *
+     * 
      * @param instanceName duplicate "instanceName" exception details
      */
     public EDuplicateSelfTestException(String instanceName) {
         super("The self test plugin property named "
-            + instanceName
-            + " already exists.");
+                + instanceName
+                + " already exists.");
 
         // strip preceding/trailing whitespace
         // from passed-in String parameters
@@ -103,17 +94,17 @@ public class EDuplicateSelfTestException
      * Constructs a "duplicate" self test exception where the value is always
      * a duplicate from a name/value pair
      * <P>
-     *
+     * 
      * @param instanceName duplicate "instanceName" exception details
      * @param instanceValue duplicate "instanceValue" exception details
      */
     public EDuplicateSelfTestException(String instanceName,
-        String instanceValue) {
+            String instanceValue) {
         super("The self test plugin property named "
-            + instanceName
-            + " contains a value of "
-            + instanceValue
-            + " which already exists.");
+                + instanceName
+                + " contains a value of "
+                + instanceValue
+                + " which already exists.");
 
         // strip preceding/trailing whitespace
         // from passed-in String parameters
@@ -134,18 +125,18 @@ public class EDuplicateSelfTestException
      * duplicate from a substore.parameter/value pair; (the value passed in may
      * be null).
      * <P>
-     *
+     * 
      * @param instanceStore duplicate "instanceStore" exception details
      * @param instanceParameter duplicate "instanceParameter" exception details
      * @param instanceValue duplicate "instanceValue" exception details
-     * (may be null)
+     *            (may be null)
      */
     public EDuplicateSelfTestException(String instanceStore,
-        String instanceParameter,
-        String instanceValue) {
+            String instanceParameter,
+            String instanceValue) {
         super("The self test plugin property named "
-            + instanceStore + "." + instanceParameter
-            + " is a duplicate.");
+                + instanceStore + "." + instanceParameter
+                + " is a duplicate.");
 
         // strip preceding/trailing whitespace
         // from passed-in String parameters
@@ -172,7 +163,7 @@ public class EDuplicateSelfTestException
     /**
      * Returns the instance name associated with this self test.
      * <P>
-     *
+     * 
      * @return name portion of the name/value pair
      */
     public String getInstanceName() {
@@ -182,7 +173,7 @@ public class EDuplicateSelfTestException
     /**
      * Returns the store associated with this self test.
      * <P>
-     *
+     * 
      * @return substore portion of the substore.parameter/value pair
      */
     public String getInstanceStore() {
@@ -192,7 +183,7 @@ public class EDuplicateSelfTestException
     /**
      * Returns the parameter associated with this self test.
      * <P>
-     *
+     * 
      * @return parameter portion of the substore.parameter/value pair
      */
     public String getInstanceParameter() {
@@ -202,7 +193,7 @@ public class EDuplicateSelfTestException
     /**
      * Returns the value associated with this self test.
      * <P>
-     *
+     * 
      * @return value portion of the name/value pair
      */
     public String getInstanceValue() {
@@ -212,8 +203,6 @@ public class EDuplicateSelfTestException
     /////////////////////////////////////////
     // EDuplicateSelfTestException methods //
     /////////////////////////////////////////
-
-
 
     ////////////////////////////////////////////
     // ESelfTestException methods (inherited) //
@@ -225,4 +214,3 @@ public class EDuplicateSelfTestException
      * public ESelfTestException( String msg );
      */
 }
-

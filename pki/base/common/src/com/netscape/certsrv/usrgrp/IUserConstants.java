@@ -17,12 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.usrgrp;
 
-
-
-
 /**
  * This interface defines the attribute names for a user entry
- *
+ * 
  * @version $Revision$, $Date$
  */
 public interface IUserConstants {

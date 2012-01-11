@@ -1,4 +1,5 @@
 package com.netscape.pkisilent.common;
+
 // --- BEGIN COPYRIGHT BLOCK ---
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -64,12 +65,10 @@ import org.mozilla.jss.util.Password;
 
 import com.netscape.osutil.OSUtil;
 
-
 /**
  * CMS Test framework .
  * Use this class to initalize,add a certificate ,generate a certificate request from certificate database.
  */
-
 
 public class ComCrypto {
 
@@ -98,18 +97,18 @@ public class ComCrypto {
 
     private String certprefix = null;
 
-    public ComCrypto() {}
-    ;
+    public ComCrypto() {
+    };
 
     /**
      * Constructor . Takes the parameter certificatedbdirectory , passwordfor cert database, certificatenickname,keysize, keytype(RSA/DSA)
+     * 
      * @param certdbdirectory.
-     * @param certdbpassword 
-     * @param certnickname 
+     * @param certdbpassword
+     * @param certnickname
      * @param keysize (1024/2048/4096)
      * @param keytype (RSA/DSA)
      */
-
 
     public ComCrypto(String cd, String tpwd, String cn, String ks, String kt) {
         cdir = cd;
@@ -190,9 +189,8 @@ public class ComCrypto {
     }
 
     /**
-     *  Finds and returns  Certificate . Takes certificatenickname as parameter.
+     * Finds and returns Certificate . Takes certificatenickname as parameter.
      */
-
 
     public X509Certificate findCert(String certname) {
         try {
@@ -211,7 +209,6 @@ public class ComCrypto {
     /**
      * Imports a certificate to Certificate Database. Takes certificate and nickname as parameters.
      */
-
 
     public boolean importCert(X509Certificate xcert, String nickname) {
         try {
@@ -235,7 +232,6 @@ public class ComCrypto {
      * Imports a certificate to Certificate Database. Takes certificate and nickname as parameters.
      */
 
-
     public boolean importCert(String cpack, String cn) {
 
         System.out.println("importCert string: importing with nickname: " + cn);
@@ -243,7 +239,7 @@ public class ComCrypto {
 
             String tmp = normalize(cpack);
 
-            if (DBlogin) { 
+            if (DBlogin) {
                 System.out.println("Already logged into to DB");
             }
 
@@ -272,10 +268,10 @@ public class ComCrypto {
         try {
             String tmp = normalize(cpack);
 
-            if (DBlogin) { 
+            if (DBlogin) {
                 System.out.println("Already logged into to DB");
             }
-	
+
             if (manager == null) {
                 System.out.println("Manager object is null");
             }
@@ -295,7 +291,6 @@ public class ComCrypto {
     /**
      * Normalizes a given certificate string . Removes the extra \\ in the certificate returned by CMS server.
      */
-
 
     public String normalize(String s) {
 
@@ -321,7 +316,6 @@ public class ComCrypto {
      * Normalizes a given certificate string . Removes the extra \\ in the certificate returned by CMS server.
      */
 
-
     public String normalizeForLDAP(String s) {
 
         String val = "";
@@ -345,7 +339,6 @@ public class ComCrypto {
     /**
      * Convert to pkcs7 format
      */
-
 
     public String pkcs7Convertcert(String s) {
 
@@ -396,14 +389,13 @@ public class ComCrypto {
      * Creates a new certificate database
      **/
 
-
     public boolean CreateCertDB() {
         return loginDB();
 
     }
 
     /**
-     *  Login to cert database
+     * Login to cert database
      **/
 
     public boolean loginDB() {
@@ -439,15 +431,15 @@ public class ComCrypto {
             token.login(pass1);
             pass1.clear();
 
-        } catch (AlreadyInitializedException  e) {
+        } catch (AlreadyInitializedException e) {
             if (debug) {
                 System.out.println("Crypto manager already initialized");
             }
         } catch (Exception e) {
-            try { 
+            try {
                 if (!token.isLoggedIn()) {
                     token.initPassword(pass1, pass1);
-                }	
+                }
                 return true;
             } catch (Exception er) {
                 System.err.println("some exception:" + e);
@@ -507,14 +499,14 @@ public class ComCrypto {
         int num = 1;
         long total_time = 0;
         KeyPair pair = null;
-		
-        System.out.println("Debug : initialize crypto Manager");		
+
+        System.out.println("Debug : initialize crypto Manager");
         try {
 
             // Step 1. initialize crypto Manager
-            try { 
+            try {
                 CryptoManager.initialize(cdir);
-            } catch (Exception e) { 
+            } catch (Exception e) {
                 // it is ok if it is already initialized 
                 System.out.println("INITIALIZATION ERROR: " + e.toString());
                 System.out.println("cdir = " + cdir);
@@ -525,17 +517,17 @@ public class ComCrypto {
 
                 System.out.println("Debug : before getInstance");
 
-                manager = CryptoManager.getInstance(); 
+                manager = CryptoManager.getInstance();
                 String token_pwd = tokenpwd;
 
                 System.out.println("Debug : before get token");
 
-                token = manager.getInternalKeyStorageToken(); 
-                password = new Password(token_pwd.toCharArray()); 
+                token = manager.getInternalKeyStorageToken();
+                password = new Password(token_pwd.toCharArray());
 
                 System.out.println("Debug : before login password");
 
-                token.login(password); 
+                token.login(password);
 
                 System.out.println("Debug : after login password");
             } catch (Exception e) {
@@ -548,7 +540,7 @@ public class ComCrypto {
 
             // Generating CRMF request 
 
-            KeyPairGenerator kg = token.getKeyPairGenerator(KeyPairAlgorithm.RSA); 
+            KeyPairGenerator kg = token.getKeyPairGenerator(KeyPairAlgorithm.RSA);
 
             Integer x = new Integer(keysize);
             int key_len = x.intValue();
@@ -556,7 +548,7 @@ public class ComCrypto {
             kg.initialize(key_len);
 
             // 1st key pair
-            pair = kg.genKeyPair(); 
+            pair = kg.genKeyPair();
 
             // create CRMF
             CertTemplate certTemplate = new CertTemplate();
@@ -565,7 +557,7 @@ public class ComCrypto {
 
             if (certnickname != null) {
                 X500Name name = new X500Name(certnickname);
-                ByteArrayInputStream cs = new ByteArrayInputStream(name.getEncoded()); 
+                ByteArrayInputStream cs = new ByteArrayInputStream(name.getEncoded());
                 Name n = (Name) Name.getTemplate().decode(cs);
                 certTemplate.setSubject(n);
             }
@@ -575,7 +567,7 @@ public class ComCrypto {
             SEQUENCE seq = new SEQUENCE();
             CertRequest certReq = new CertRequest(new INTEGER(1), certTemplate,
                     seq);
-            byte popdata[] = { 0x0, 0x3, 0x0};
+            byte popdata[] = { 0x0, 0x3, 0x0 };
 
             ProofOfPossession pop = ProofOfPossession.createKeyEncipherment(
                     POPOPrivKey.createThisMessage(new BIT_STRING(popdata, 3)));
@@ -583,24 +575,24 @@ public class ComCrypto {
             CertReqMsg crmfMsg = new CertReqMsg(certReq, pop, null);
 
             SEQUENCE s1 = new SEQUENCE();
-			
+
             // 1st : Encryption key 
 
             s1.addElement(crmfMsg);
 
             // 2nd : Signing Key
-	
+
             if (dualkey) {
                 System.out.println("dualkey = true");
                 SEQUENCE seq1 = new SEQUENCE();
                 CertRequest certReqSigning = new CertRequest(new INTEGER(1),
                         certTemplate, seq1);
-                CertReqMsg signingMsg = new CertReqMsg(certReqSigning, pop, null);		
+                CertReqMsg signingMsg = new CertReqMsg(certReqSigning, pop, null);
 
                 s1.addElement(signingMsg);
-            }		
+            }
 
-            byte encoded[] = ASN1Util.encode(s1); 
+            byte encoded[] = ASN1Util.encode(s1);
 
             // BASE64Encoder encoder = new BASE64Encoder(); 
             // String Req1 = encoder.encodeBuffer(encoded);
@@ -611,7 +603,7 @@ public class ComCrypto {
 
             System.out.println("CRMF_REQUEST = " + CRMF_REQUEST);
 
-        } catch (Exception e) { 
+        } catch (Exception e) {
             System.out.println("ERROR: " + e.toString());
             e.printStackTrace();
             return null;
@@ -636,9 +628,9 @@ public class ComCrypto {
 
         try {
             // Step 1. initialize crypto Manager
-            try { 
+            try {
                 CryptoManager.initialize(cdir);
-            } catch (Exception e) { 
+            } catch (Exception e) {
                 // it is ok if it is already initialized 
                 System.out.println("INITIALIZATION ERROR: " + e.toString());
                 System.out.println("cdir = " + cdir);
@@ -648,18 +640,18 @@ public class ComCrypto {
             try {
 
                 System.out.println("Debug : before getInstance");
-	
-                manager = CryptoManager.getInstance(); 
+
+                manager = CryptoManager.getInstance();
                 String token_pwd = tokenpwd;
-	
+
                 System.out.println("Debug : before get token");
-	
-                token = manager.getInternalKeyStorageToken(); 
-                password = new Password(token_pwd.toCharArray()); 
+
+                token = manager.getInternalKeyStorageToken();
+                password = new Password(token_pwd.toCharArray());
 
                 System.out.println("Debug : before login password");
 
-                token.login(password); 
+                token.login(password);
 
                 System.out.println("Debug : after login password");
             } catch (Exception e) {
@@ -669,7 +661,7 @@ public class ComCrypto {
                     token.initPassword(password, password);
                 }
             }
-	
+
             // Key Pair Generation
             KeyPairGenerator kg = token.getKeyPairGenerator(KeyPairAlgorithm.RSA);
             Integer x = new Integer(keysize);
@@ -686,7 +678,7 @@ public class ComCrypto {
 
             X509Certificate tcert = manager.importCACertPackage(transport);
 
-            byte iv[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1};
+            byte iv[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
 
             KeyGenerator kg1 = token.getKeyGenerator(KeyGenAlgorithm.DES3);
             SymmetricKey sk = kg1.generate();
@@ -742,7 +734,7 @@ public class ComCrypto {
                     seq);
 
             // Adding proof of possesion data
-            byte popdata[] = { 0x0, 0x3, 0x0};
+            byte popdata[] = { 0x0, 0x3, 0x0 };
             ProofOfPossession pop = ProofOfPossession.createKeyEncipherment(
                     POPOPrivKey.createThisMessage(new BIT_STRING(popdata, 3)));
 
@@ -754,19 +746,19 @@ public class ComCrypto {
             s1.addElement(crmfMsg);
 
             // 2nd : Signing Key
-	
+
             if (dualkey) {
                 System.out.println("dualkey = true");
                 SEQUENCE seq1 = new SEQUENCE();
                 CertRequest certReqSigning = new CertRequest(new INTEGER(1),
                         certTemplate, seq1);
-                CertReqMsg signingMsg = new CertReqMsg(certReqSigning, pop, null);		
+                CertReqMsg signingMsg = new CertReqMsg(certReqSigning, pop, null);
 
                 s1.addElement(signingMsg);
-            }		
+            }
 
             byte encoded[] = ASN1Util.encode(s1);
-	
+
             // BASE64Encoder encoder = new BASE64Encoder();
 
             // CRMF_REQUEST = encoder.encodeBuffer(encoded);
@@ -781,7 +773,7 @@ public class ComCrypto {
         } catch (Exception e) {
             System.out.println("Exception: " + e.getMessage());
         }
-		
+
         return CRMF_REQUEST;
     }
 

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package netscape.security.util;
 
-
 import java.security.MessageDigest;
 import java.security.PublicKey;
 import java.security.cert.Certificate;
@@ -38,16 +37,14 @@ import org.mozilla.jss.asn1.SET;
 import org.mozilla.jss.pkcs7.ContentInfo;
 import org.mozilla.jss.pkcs7.SignedData;
 
-
 /**
  * This class will display the certificate content in predefined
  * format.
- *
+ * 
  * @author Jack Pan-Chen
  * @version $Revision$, $Date$
  */
-public class CertPrettyPrint 
-{
+public class CertPrettyPrint {
 
     /*==========================================================
      * constants
@@ -69,10 +66,10 @@ public class CertPrettyPrint
     public CertPrettyPrint(Certificate cert) {
         if (cert instanceof X509CertImpl)
             mX509Cert = (X509CertImpl) cert;
-		
+
         pp = new PrettyPrintFormat(":");
     }
- 
+
     public CertPrettyPrint(byte[] certb) {
         mCert_b = certb;
         pp = new PrettyPrintFormat(":");
@@ -85,7 +82,7 @@ public class CertPrettyPrint
     /**
      * This method return string representation of the certificate
      * in predefined format using specified client local. I18N Support.
-     *
+     * 
      * @param clientLocale Locale to be used for localization
      * @return string representation of the certificate
      */
@@ -93,25 +90,25 @@ public class CertPrettyPrint
 
         if (mX509Cert != null)
             return X509toString(clientLocale);
-        else if (mCert_b != null) 
+        else if (mCert_b != null)
             return pkcs7toString(clientLocale);
         else
             return null;
     }
-	
+
     public String pkcs7toString(Locale clientLocale) {
         String content = "";
 
         try {
             mX509Cert = new X509CertImpl(mCert_b);
             return toString(clientLocale);
-        } catch (Exception e) {  
+        } catch (Exception e) {
         }
 
         ContentInfo ci = null;
         try {
             ci = (ContentInfo)
-              ASN1Util.decode(ContentInfo.getTemplate(), mCert_b);
+                    ASN1Util.decode(ContentInfo.getTemplate(), mCert_b);
         } catch (Exception e) {
             return "";
         }
@@ -132,7 +129,7 @@ public class CertPrettyPrint
                     X509CertImpl certImpl = null;
                     try {
                         certImpl = new X509CertImpl(
-                            ASN1Util.encode(cert));
+                                ASN1Util.encode(cert));
                     } catch (Exception e) {
                     }
 
@@ -150,17 +147,17 @@ public class CertPrettyPrint
 
     public String stripCertBrackets(String s) {
         if (s == null) {
-            return s; 
-        } 
+            return s;
+        }
 
         if ((s.startsWith("-----BEGIN CERTIFICATE-----")) &&
-            (s.endsWith("-----END CERTIFICATE-----"))) {
+                (s.endsWith("-----END CERTIFICATE-----"))) {
             return (s.substring(27, (s.length() - 25)));
         }
 
         // To support Thawte's header and footer
         if ((s.startsWith("-----BEGIN PKCS #7 SIGNED DATA-----")) &&
-            (s.endsWith("-----END PKCS #7 SIGNED DATA-----"))) {
+                (s.endsWith("-----END PKCS #7 SIGNED DATA-----"))) {
             return (s.substring(35, (s.length() - 33)));
         }
 
@@ -195,7 +192,7 @@ public class CertPrettyPrint
         //get timezone and timezone ID
         String tz = " ";
         String tzid = " ";
-        
+
         StringBuffer sb = new StringBuffer();
 
         try {
@@ -229,11 +226,11 @@ public class CertPrettyPrint
             //XXX I18N Algorithm Name ?
             sb.append(pp.indent(12) + resource.getString(
                     PrettyPrintResources.TOKEN_SIGALG) + mX509Cert.getSigAlgName() +
-                " - " + mX509Cert.getSigAlgOID() + "\n");
+                    " - " + mX509Cert.getSigAlgOID() + "\n");
             //XXX I18N IssuerDN ?
             sb.append(pp.indent(12) + resource.getString(
                     PrettyPrintResources.TOKEN_ISSUER) +
-                mX509Cert.getIssuerDN().toString() + "\n");
+                    mX509Cert.getIssuerDN().toString() + "\n");
             sb.append(pp.indent(12) + resource.getString(
                     PrettyPrintResources.TOKEN_VALIDITY) + "\n");
             String notBefore = dateFormater.format(mX509Cert.getNotBefore());
@@ -243,7 +240,7 @@ public class CertPrettyPrint
             if (TimeZone.getDefault() != null) {
                 tz = TimeZone.getDefault().getDisplayName(
                             TimeZone.getDefault().inDaylightTime(
-                                mX509Cert.getNotBefore()),
+                                    mX509Cert.getNotBefore()),
                             TimeZone.SHORT,
                             clientLocale);
                 tzid = TimeZone.getDefault().getID();
@@ -252,23 +249,23 @@ public class CertPrettyPrint
             if (tz.equals(tzid) || tzid.equals(CUSTOM_LOCALE)) {
                 // Do NOT append timezone ID
                 sb.append(pp.indent(16)
-                    + resource.getString(
-                        PrettyPrintResources.TOKEN_NOT_BEFORE)
-                    + notBefore
-                    + "\n");
+                        + resource.getString(
+                                PrettyPrintResources.TOKEN_NOT_BEFORE)
+                        + notBefore
+                        + "\n");
             } else {
                 // Append timezone ID
                 sb.append(pp.indent(16)
-                    + resource.getString(
-                        PrettyPrintResources.TOKEN_NOT_BEFORE)
-                    + notBefore
-                    + " " + tzid + "\n");
+                        + resource.getString(
+                                PrettyPrintResources.TOKEN_NOT_BEFORE)
+                        + notBefore
+                        + " " + tzid + "\n");
             }
             // re-get timezone (just in case it is different . . .)
             if (TimeZone.getDefault() != null) {
                 tz = TimeZone.getDefault().getDisplayName(
                             TimeZone.getDefault().inDaylightTime(
-                                mX509Cert.getNotAfter()),
+                                    mX509Cert.getNotAfter()),
                             TimeZone.SHORT,
                             clientLocale);
             }
@@ -276,22 +273,22 @@ public class CertPrettyPrint
             if (tz.equals(tzid) || tzid.equals(CUSTOM_LOCALE)) {
                 // Do NOT append timezone ID
                 sb.append(pp.indent(16)
-                    + resource.getString(
-                        PrettyPrintResources.TOKEN_NOT_AFTER)
-                    + notAfter
-                    + "\n");
+                        + resource.getString(
+                                PrettyPrintResources.TOKEN_NOT_AFTER)
+                        + notAfter
+                        + "\n");
             } else {
                 // Append timezone ID
                 sb.append(pp.indent(16)
-                    + resource.getString(
-                        PrettyPrintResources.TOKEN_NOT_AFTER)
-                    + notAfter
-                    + " " + tzid + "\n");
+                        + resource.getString(
+                                PrettyPrintResources.TOKEN_NOT_AFTER)
+                        + notAfter
+                        + " " + tzid + "\n");
             }
             //XXX I18N SubjectDN ?
             sb.append(pp.indent(12) + resource.getString(
                     PrettyPrintResources.TOKEN_SUBJECT) +
-                mX509Cert.getSubjectDN().toString() + "\n");
+                    mX509Cert.getSubjectDN().toString() + "\n");
             sb.append(pp.indent(12) + resource.getString(
                     PrettyPrintResources.TOKEN_SPKI) + "\n");
 
@@ -300,8 +297,8 @@ public class CertPrettyPrint
             sb.append(pkpp.toString(clientLocale, 16, 16));
 
             //take care of extensions
-            CertificateExtensions extensions = (CertificateExtensions) 
-                info.get(X509CertInfo.EXTENSIONS);
+            CertificateExtensions extensions = (CertificateExtensions)
+                    info.get(X509CertInfo.EXTENSIONS);
 
             sb.append(pp.indent(12) + resource.getString(
                     PrettyPrintResources.TOKEN_EXTENSIONS) + "\n");
@@ -313,19 +310,19 @@ public class CertPrettyPrint
                     sb.append(extpp.toString());
                 }
 
-                //take care of signature
+            //take care of signature
             sb.append(pp.indent(8) + resource.getString(
                     PrettyPrintResources.TOKEN_SIGNATURE) + "\n");
             //XXX I18N Algorithm Name ?
             sb.append(pp.indent(12) + resource.getString(
                     PrettyPrintResources.TOKEN_ALGORITHM) +
-                mX509Cert.getSigAlgName() + " - " + mX509Cert.getSigAlgOID() + "\n");
+                    mX509Cert.getSigAlgName() + " - " + mX509Cert.getSigAlgOID() + "\n");
             sb.append(pp.indent(12) + resource.getString(
                     PrettyPrintResources.TOKEN_SIGNATURE) + "\n");
             sb.append(pp.toHexString(mX509Cert.getSignature(), 16, 16));
 
             // fingerprints
-            String[] hashes = new String[] {"MD2", "MD5", "SHA1", "SHA256", "SHA512"};
+            String[] hashes = new String[] { "MD2", "MD5", "SHA1", "SHA256", "SHA512" };
             String certFingerprints = "";
 
             sb.append(pp.indent(8) + "FingerPrint\n");
@@ -334,7 +331,7 @@ public class CertPrettyPrint
 
                 md.update(mX509Cert.getEncoded());
                 certFingerprints += pp.indent(12) + hashes[i] + ":\n" +
-                    pp.toHexString(md.digest(), 16, 16);
+                        pp.toHexString(md.digest(), 16, 16);
             }
 
             sb.append(certFingerprints);
@@ -343,5 +340,5 @@ public class CertPrettyPrint
 
         return sb.toString();
     }
-	
+
 }

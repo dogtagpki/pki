@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.dbs;
 
-
 import java.util.Hashtable;
 
 import com.netscape.certsrv.base.AttributeNameHelper;
@@ -25,14 +24,13 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.IDBAttrMapper;
 import com.netscape.certsrv.dbs.IFilterConverter;
 
-
 /**
  * A class represents a filter converter
  * that understands how to convert a attribute
  * type from one defintion to another.
  * 
  * @author thomask
- * @version $Revision$, $Date$ 
+ * @version $Revision$, $Date$
  */
 public class LdapFilterConverter implements IFilterConverter {
 

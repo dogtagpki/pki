@@ -56,7 +56,7 @@ public class LoggerDefaultStub implements ILogger {
 
     public void log(int evtClass, Properties prop, int source, int level, String msg, Object params[], boolean multiline) {
     }
-    
+
     public ILogEvent create(int evtClass, Properties prop, int source, int level, String msg, Object params[], boolean multiline) {
         return null;
     }

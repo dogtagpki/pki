@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.def;
 
-
 import java.io.IOException;
 import java.util.Locale;
 
@@ -34,12 +33,11 @@ import com.netscape.certsrv.property.EPropertyException;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.request.IRequest;
 
-
 /**
  * This class implements an enrollment default policy
  * that populates a policy constraints extension
  * into the certificate template.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class PolicyConstraintsExtDefault extends EnrollExtDefault {
@@ -64,17 +62,17 @@ public class PolicyConstraintsExtDefault extends EnrollExtDefault {
     }
 
     public void init(IProfile profile, IConfigStore config)
-        throws EProfileException {
+            throws EProfileException {
         super.init(profile, config);
     }
 
-    public IDescriptor getConfigDescriptor(Locale locale, String name) { 
+    public IDescriptor getConfigDescriptor(Locale locale, String name) {
         if (name.equals(CONFIG_CRITICAL)) {
-            return new Descriptor(IDescriptor.BOOLEAN, null, 
+            return new Descriptor(IDescriptor.BOOLEAN, null,
                     "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_CRITICAL"));
         } else if (name.equals(CONFIG_REQ_EXPLICIT_POLICY)) {
-            return new Descriptor(IDescriptor.INTEGER, null, 
+            return new Descriptor(IDescriptor.INTEGER, null,
                     null,
                     CMS.getUserMessage(locale, "CMS_PROFILE_REQUIRED_EXPLICIT_POLICY"));
         } else if (name.equals(CONFIG_INHIBIT_POLICY_MAPPING)) {
@@ -87,11 +85,11 @@ public class PolicyConstraintsExtDefault extends EnrollExtDefault {
 
     public IDescriptor getValueDescriptor(Locale locale, String name) {
         if (name.equals(VAL_CRITICAL)) {
-            return new Descriptor(IDescriptor.BOOLEAN, null, 
+            return new Descriptor(IDescriptor.BOOLEAN, null,
                     "false",
                     CMS.getUserMessage(locale, "CMS_PROFILE_CRITICAL"));
         } else if (name.equals(VAL_REQ_EXPLICIT_POLICY)) {
-            return new Descriptor(IDescriptor.INTEGER, null, 
+            return new Descriptor(IDescriptor.INTEGER, null,
                     null,
                     CMS.getUserMessage(locale, "CMS_PROFILE_REQUIRED_EXPLICIT_POLICY"));
         } else if (name.equals(VAL_INHIBIT_POLICY_MAPPING)) {
@@ -103,104 +101,103 @@ public class PolicyConstraintsExtDefault extends EnrollExtDefault {
     }
 
     public void setValue(String name, Locale locale,
-        X509CertInfo info, String value)
-        throws EPropertyException {
+            X509CertInfo info, String value)
+            throws EPropertyException {
         try {
             PolicyConstraintsExtension ext = null;
 
-            if (name == null) { 
-                throw new EPropertyException(CMS.getUserMessage( 
+            if (name == null) {
+                throw new EPropertyException(CMS.getUserMessage(
                             locale, "CMS_INVALID_PROPERTY", name));
             }
 
             ext = (PolicyConstraintsExtension)
                         getExtension(PKIXExtensions.PolicyConstraints_Id.toString(),
-                            info);
+                                info);
 
-            if(ext == null)  {
-                populate(null,info);
+            if (ext == null) {
+                populate(null, info);
             }
 
             if (name.equals(VAL_CRITICAL)) {
                 ext = (PolicyConstraintsExtension)
-                        getExtension(PKIXExtensions.PolicyConstraints_Id.toString(), 
-                            info);
+                        getExtension(PKIXExtensions.PolicyConstraints_Id.toString(),
+                                info);
                 boolean val = Boolean.valueOf(value).booleanValue();
 
-                if(ext == null)  {
+                if (ext == null) {
                     return;
                 }
-                ext.setCritical(val); 
-            } else if (name.equals(VAL_REQ_EXPLICIT_POLICY)) { 
+                ext.setCritical(val);
+            } else if (name.equals(VAL_REQ_EXPLICIT_POLICY)) {
                 ext = (PolicyConstraintsExtension)
-                        getExtension(PKIXExtensions.PolicyConstraints_Id.toString(), 
-                            info);
-               
-                if(ext == null)  {
+                        getExtension(PKIXExtensions.PolicyConstraints_Id.toString(),
+                                info);
+
+                if (ext == null) {
                     return;
-                } 
+                }
                 Integer num = new Integer(value);
 
                 ext.set(PolicyConstraintsExtension.REQUIRE, num);
-            } else if (name.equals(VAL_INHIBIT_POLICY_MAPPING)) { 
+            } else if (name.equals(VAL_INHIBIT_POLICY_MAPPING)) {
                 ext = (PolicyConstraintsExtension)
-                        getExtension(PKIXExtensions.PolicyConstraints_Id.toString(), 
-                            info);
+                        getExtension(PKIXExtensions.PolicyConstraints_Id.toString(),
+                                info);
 
-                if(ext == null)  {
+                if (ext == null) {
                     return;
                 }
                 Integer num = new Integer(value);
 
                 ext.set(PolicyConstraintsExtension.INHIBIT, num);
             } else {
-                throw new EPropertyException(CMS.getUserMessage( 
+                throw new EPropertyException(CMS.getUserMessage(
                             locale, "CMS_INVALID_PROPERTY", name));
             }
 
             replaceExtension(PKIXExtensions.PolicyConstraints_Id.toString(),
-                ext, info);
+                    ext, info);
         } catch (EProfileException e) {
             CMS.debug("PolicyConstraintsExtDefault: setValue " + e.toString());
-            throw new EPropertyException(CMS.getUserMessage( 
+            throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         } catch (IOException e) {
             CMS.debug("PolicyConstraintsExtDefault: setValue " + e.toString());
-            throw new EPropertyException(CMS.getUserMessage( 
+            throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         }
     }
 
     public String getValue(String name, Locale locale,
-        X509CertInfo info)
-        throws EPropertyException {
+            X509CertInfo info)
+            throws EPropertyException {
         PolicyConstraintsExtension ext = null;
 
         if (name == null) {
-            throw new EPropertyException(CMS.getUserMessage( 
+            throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         }
 
         ext = (PolicyConstraintsExtension)
                     getExtension(PKIXExtensions.PolicyConstraints_Id.toString(),
-                        info);
-        if(ext == null)
-        {
+                            info);
+        if (ext == null) {
 
             try {
-                populate(null,info);
+                populate(null, info);
 
             } catch (EProfileException e) {
-                 throw new EPropertyException(CMS.getUserMessage(
-                      locale, "CMS_INVALID_PROPERTY", name));
+                throw new EPropertyException(CMS.getUserMessage(
+                        locale, "CMS_INVALID_PROPERTY", name));
             }
 
         }
 
         if (name.equals(VAL_CRITICAL)) {
             ext = (PolicyConstraintsExtension)
-                    getExtension(PKIXExtensions.PolicyConstraints_Id.toString(), 
-                        info);
+                    getExtension(PKIXExtensions.PolicyConstraints_Id.toString(),
+                            info);
 
             if (ext == null) {
                 return null;
@@ -210,10 +207,10 @@ public class PolicyConstraintsExtDefault extends EnrollExtDefault {
             } else {
                 return "false";
             }
-        } else if (name.equals(VAL_REQ_EXPLICIT_POLICY)) { 
+        } else if (name.equals(VAL_REQ_EXPLICIT_POLICY)) {
             ext = (PolicyConstraintsExtension)
-                    getExtension(PKIXExtensions.PolicyConstraints_Id.toString(), 
-                        info);
+                    getExtension(PKIXExtensions.PolicyConstraints_Id.toString(),
+                            info);
 
             if (ext == null)
                 return "";
@@ -223,8 +220,8 @@ public class PolicyConstraintsExtDefault extends EnrollExtDefault {
             return "" + num;
         } else if (name.equals(VAL_INHIBIT_POLICY_MAPPING)) {
             ext = (PolicyConstraintsExtension)
-                    getExtension(PKIXExtensions.PolicyConstraints_Id.toString(), 
-                        info);
+                    getExtension(PKIXExtensions.PolicyConstraints_Id.toString(),
+                            info);
 
             if (ext == null)
                 return "";
@@ -233,15 +230,15 @@ public class PolicyConstraintsExtDefault extends EnrollExtDefault {
 
             return "" + num;
         } else {
-            throw new EPropertyException(CMS.getUserMessage( 
+            throw new EPropertyException(CMS.getUserMessage(
                         locale, "CMS_INVALID_PROPERTY", name));
         }
     }
 
     public String getText(Locale locale) {
         String params[] = {
-                getConfig(CONFIG_CRITICAL), 
-                getConfig(CONFIG_REQ_EXPLICIT_POLICY), 
+                getConfig(CONFIG_CRITICAL),
+                getConfig(CONFIG_REQ_EXPLICIT_POLICY),
                 getConfig(CONFIG_INHIBIT_POLICY_MAPPING)
             };
 
@@ -252,17 +249,17 @@ public class PolicyConstraintsExtDefault extends EnrollExtDefault {
      * Populates the request with this policy default.
      */
     public void populate(IRequest request, X509CertInfo info)
-        throws EProfileException {
+            throws EProfileException {
         PolicyConstraintsExtension ext = createExtension();
 
         if (ext == null)
             return;
-        addExtension(PKIXExtensions.PolicyConstraints_Id.toString(), 
-            ext, info);
+        addExtension(PKIXExtensions.PolicyConstraints_Id.toString(),
+                ext, info);
     }
 
     public PolicyConstraintsExtension createExtension() {
-        PolicyConstraintsExtension ext = null; 
+        PolicyConstraintsExtension ext = null;
 
         try {
             boolean critical = getConfigBoolean(CONFIG_CRITICAL);
@@ -281,8 +278,8 @@ public class PolicyConstraintsExtDefault extends EnrollExtDefault {
             }
             ext = new PolicyConstraintsExtension(critical, reqNum, inhibitNum);
         } catch (Exception e) {
-            CMS.debug("PolicyConstraintsExtDefault: createExtension " + 
-                e.toString());
+            CMS.debug("PolicyConstraintsExtDefault: createExtension " +
+                    e.toString());
         }
 
         return ext;

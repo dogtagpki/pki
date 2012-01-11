@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.cert;
 
-
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.cert.CertificateEncodingException;
@@ -75,10 +74,9 @@ import com.netscape.cms.servlet.processors.KeyGenProcessor;
 import com.netscape.cms.servlet.processors.PKCS10Processor;
 import com.netscape.cms.servlet.processors.PKIProcessor;
 
-
 /**
  * Submit a Certificate Enrollment request
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class EnrollServlet extends CMSServlet {
@@ -90,8 +88,7 @@ public class EnrollServlet extends CMSServlet {
     public final static String ADMIN_ENROLL_SERVLET_ID = "caadminEnroll";
 
     // enrollment templates.
-    public static final String 
-        ENROLL_SUCCESS_TEMPLATE = "EnrollSuccess.template";
+    public static final String ENROLL_SUCCESS_TEMPLATE = "EnrollSuccess.template";
 
     // http params 
     public static final String OLD_CERT_TYPE = "csrCertType";
@@ -116,8 +113,7 @@ public class EnrollServlet extends CMSServlet {
 
     private boolean mAuthTokenOverride = true;
     private String mEnrollSuccessTemplate = null;
-    private ICMSTemplateFiller 
-        mEnrollSuccessFiller = new ImportCertsTemplateFiller();
+    private ICMSTemplateFiller mEnrollSuccessFiller = new ImportCertsTemplateFiller();
 
     ICertificateAuthority mCa = null;
     ICertificateRepository mRepository = null;
@@ -126,55 +122,55 @@ public class EnrollServlet extends CMSServlet {
 
     private String auditServiceID = ILogger.UNIDENTIFIED;
     private final static String ADMIN_CA_ENROLLMENT_SERVLET =
-        "caadminEnroll";
+            "caadminEnroll";
     private final static String AGENT_CA_BULK_ENROLLMENT_SERVLET =
-        "cabulkissuance";
+            "cabulkissuance";
     private final static String AGENT_RA_BULK_ENROLLMENT_SERVLET =
-        "rabulkissuance";
+            "rabulkissuance";
     private final static String EE_CA_CERT_BASED_ENROLLMENT_SERVLET =
-        "cacertbasedenrollment";
+            "cacertbasedenrollment";
     private final static String EE_CA_ENROLLMENT_SERVLET =
-        "caenrollment";
+            "caenrollment";
     private final static String EE_RA_CERT_BASED_ENROLLMENT_SERVLET =
-        "racertbasedenrollment";
+            "racertbasedenrollment";
     private final static String EE_RA_ENROLLMENT_SERVLET =
-        "raenrollment";
+            "raenrollment";
     private final static byte EOL[] = { Character.LINE_SEPARATOR };
-    private final static String[]
-        SIGNED_AUDIT_AUTOMATED_REJECTION_REASON = new String[] {
-            
-            /* 0 */ "automated non-profile cert request rejection:  "
+    private final static String[] SIGNED_AUDIT_AUTOMATED_REJECTION_REASON = new String[] {
+
+    /* 0 */"automated non-profile cert request rejection:  "
             + "unable to render OLD_CERT_TYPE response",
-            
-            /* 1 */ "automated non-profile cert request rejection:  "
+
+    /* 1 */"automated non-profile cert request rejection:  "
             + "unable to complete handleEnrollAuditLog() method",
-            
-            /* 2 */ "automated non-profile cert request rejection:  "
+
+    /* 2 */"automated non-profile cert request rejection:  "
             + "unable to render success template",
-            
-            /* 3 */ "automated non-profile cert request rejection:  "
+
+    /* 3 */"automated non-profile cert request rejection:  "
             + "indeterminate reason for inability to process "
             + "cert request due to an EBaseException"
         };
-    private final static String
-        LOGGING_SIGNED_AUDIT_NON_PROFILE_CERT_REQUEST =
-        "LOGGING_SIGNED_AUDIT_NON_PROFILE_CERT_REQUEST_5";
-    private final static String
-        LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED =
-        "LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED_5";
- 
+    private final static String LOGGING_SIGNED_AUDIT_NON_PROFILE_CERT_REQUEST =
+            "LOGGING_SIGNED_AUDIT_NON_PROFILE_CERT_REQUEST_5";
+    private final static String LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED =
+            "LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED_5";
+
     private static final String HEADER = "-----BEGIN NEW CERTIFICATE REQUEST-----";
     private static final String TRAILER = "-----END NEW CERTIFICATE REQUEST-----";
-    
+
     public EnrollServlet() {
         super();
     }
 
     /**
-     * initialize the servlet.<p>
-	 * the following parameters are read from the servlet config:
-	 * <ul><li>CMSServlet.PROP_ID - ID for signed audit log messages
-	 *     <li>CMSServlet.PROP_SUCCESS_TEMPLATE - success template file
+     * initialize the servlet.
+     * <p>
+     * the following parameters are read from the servlet config:
+     * <ul>
+     * <li>CMSServlet.PROP_ID - ID for signed audit log messages
+     * <li>CMSServlet.PROP_SUCCESS_TEMPLATE - success template file
+     * 
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -185,8 +181,8 @@ public class EnrollServlet extends CMSServlet {
 
             try {
                 IConfigStore configStore = CMS.getConfigStore();
-                String PKI_Subsystem = configStore.getString( "subsystem.0.id",
-                                                              null );
+                String PKI_Subsystem = configStore.getString("subsystem.0.id",
+                                                              null);
 
                 // CMS 6.1 began utilizing the "Certificate Profiles" framework
                 // instead of the legacy "Certificate Policies" framework.
@@ -213,35 +209,35 @@ public class EnrollServlet extends CMSServlet {
                 //        The "EnrollServlet.java" servlet is NOT used by
                 //        the KRA.
                 //
-                if( PKI_Subsystem.trim().equalsIgnoreCase( "ca" ) ) {
+                if (PKI_Subsystem.trim().equalsIgnoreCase("ca")) {
                     String policyStatus = PKI_Subsystem.trim().toLowerCase()
                                         + "." + "Policy"
                                         + "." + IPolicyProcessor.PROP_ENABLE;
 
-                    if( configStore.getBoolean( policyStatus, true ) == true ) {
+                    if (configStore.getBoolean(policyStatus, true) == true) {
                         // NOTE:  If "<subsystem>.Policy.enable=<boolean>"
                         //        is missing, then the referenced instance
                         //        existed prior to this name=value pair
                         //        existing in its 'CS.cfg' file, and thus
                         //        we err on the side that the user may
                         //        still need to use the policy framework.
-                        CMS.debug( "EnrollServlet::init Certificate "
+                        CMS.debug("EnrollServlet::init Certificate "
                                  + "Policy Framework (deprecated) "
-                                 + "is ENABLED" );
+                                 + "is ENABLED");
                     } else {
                         // CS 8.1 Default:  <subsystem>.Policy.enable=false
-                        CMS.debug( "EnrollServlet::init Certificate "
+                        CMS.debug("EnrollServlet::init Certificate "
                                  + "Policy Framework (deprecated) "
-                                 + "is DISABLED" );
+                                 + "is DISABLED");
                         return;
                     }
                 }
-            } catch( EBaseException e ) {
-                throw new ServletException( "EnrollServlet::init - "
+            } catch (EBaseException e) {
+                throw new ServletException("EnrollServlet::init - "
                                           + "EBaseException:  "
                                           + "Unable to initialize "
                                           + "Certificate Policy Framework "
-                                          + "(deprecated)" );
+                                          + "(deprecated)");
             }
 
             // override success template to allow direct import of keygen certs.
@@ -254,18 +250,18 @@ public class EnrollServlet extends CMSServlet {
                 if (id != null) {
                     if (!(auditServiceID.equals(
                                 ADMIN_CA_ENROLLMENT_SERVLET))
-                        && !(auditServiceID.equals(
-                                AGENT_CA_BULK_ENROLLMENT_SERVLET))
-                        && !(auditServiceID.equals(
-                                AGENT_RA_BULK_ENROLLMENT_SERVLET))
-                        && !(auditServiceID.equals(
-                                EE_CA_CERT_BASED_ENROLLMENT_SERVLET))
-                        && !(auditServiceID.equals(
-                                EE_CA_ENROLLMENT_SERVLET))
-                        && !(auditServiceID.equals(
-                                EE_RA_CERT_BASED_ENROLLMENT_SERVLET))
-                        && !(auditServiceID.equals(
-                                EE_RA_ENROLLMENT_SERVLET))) {
+                            && !(auditServiceID.equals(
+                                    AGENT_CA_BULK_ENROLLMENT_SERVLET))
+                            && !(auditServiceID.equals(
+                                    AGENT_RA_BULK_ENROLLMENT_SERVLET))
+                            && !(auditServiceID.equals(
+                                    EE_CA_CERT_BASED_ENROLLMENT_SERVLET))
+                            && !(auditServiceID.equals(
+                                    EE_CA_ENROLLMENT_SERVLET))
+                            && !(auditServiceID.equals(
+                                    EE_RA_CERT_BASED_ENROLLMENT_SERVLET))
+                            && !(auditServiceID.equals(
+                                    EE_RA_ENROLLMENT_SERVLET))) {
                         auditServiceID = ILogger.UNIDENTIFIED;
                     } else {
                         auditServiceID = id.trim();
@@ -282,7 +278,7 @@ public class EnrollServlet extends CMSServlet {
                 if (fillername != null) {
                     ICMSTemplateFiller filler = newFillerObject(fillername);
 
-                    if (filler != null) 
+                    if (filler != null)
                         mEnrollSuccessFiller = filler;
                 }
 
@@ -292,9 +288,9 @@ public class EnrollServlet extends CMSServlet {
                 init_testbed_hack(mConfig);
             } catch (Exception e) {
                 // this should never happen. 
-                log(ILogger.LL_FAILURE, 
-                    CMS.getLogMessage("CMSGW_IMP_INIT_SERV_ERR",
-                        e.toString(), mId));
+                log(ILogger.LL_FAILURE,
+                        CMS.getLogMessage("CMSGW_IMP_INIT_SERV_ERR",
+                                e.toString(), mId));
             }
         } catch (ServletException eAudit1) {
             // rethrow caught exception
@@ -302,46 +298,43 @@ public class EnrollServlet extends CMSServlet {
         }
     }
 
-
-	/**
-	 * XXX (SHOULD CHANGE TO READ FROM Servletconfig)
-     *  Getter method to see if Proof of Posession checking is enabled. 
-	 * this value is set in the CMS.cfg filem with the parameter 
-	 * "enrollment.enforcePop". It defaults to false
-	 * @return true if user is required to Prove that they possess the 
-	 * private key corresponding to the public key in the certificate
-	 * request they are submitting 
-	 */
+    /**
+     * XXX (SHOULD CHANGE TO READ FROM Servletconfig)
+     * Getter method to see if Proof of Posession checking is enabled.
+     * this value is set in the CMS.cfg filem with the parameter
+     * "enrollment.enforcePop". It defaults to false
+     * 
+     * @return true if user is required to Prove that they possess the
+     *         private key corresponding to the public key in the certificate
+     *         request they are submitting
+     */
     public boolean getEnforcePop() {
         return enforcePop;
     }
 
     /**
-     * Process the HTTP request. 
-	 * <UL><LI>If the request is coming through the admin port, it is only
-	 * allowed to continue if 'admin enrollment' is enabled in the CMS.cfg file
-	 * <LI>If the CMS.cfg parameter useThreadNaming is true, the current thread is
-	 * renamed with more information about the current request ID
-	 * <LI>The request is preprocessed, then processed further in one
-	 * of the cert request processor classes: KeyGenProcessor, PKCS10Processor,
-	 * CMCProcessor, CRMFProcessor
-	 * </UL>
-     *
+     * Process the HTTP request.
+     * <UL>
+     * <LI>If the request is coming through the admin port, it is only allowed to continue if 'admin enrollment' is enabled in the CMS.cfg file
+     * <LI>If the CMS.cfg parameter useThreadNaming is true, the current thread is renamed with more information about the current request ID
+     * <LI>The request is preprocessed, then processed further in one of the cert request processor classes: KeyGenProcessor, PKCS10Processor, CMCProcessor, CRMFProcessor
+     * </UL>
+     * 
      * @param cmsReq the object holding the request and response information
      */
-    protected void process(CMSRequest cmsReq) 
-        throws EBaseException {
+    protected void process(CMSRequest cmsReq)
+            throws EBaseException {
         // SPECIAL CASE:
         // if it is adminEnroll servlet,check if it's enabled
         if (mId.equals(ADMIN_ENROLL_SERVLET_ID) &&
-            !CMSGateway.getEnableAdminEnroll()) {
-            log(ILogger.LL_SECURITY, 
-                CMS.getLogMessage("ADMIN_SRVLT_ENROLL_ACCESS_AFTER_SETUP"));
+                !CMSGateway.getEnableAdminEnroll()) {
+            log(ILogger.LL_SECURITY,
+                    CMS.getLogMessage("ADMIN_SRVLT_ENROLL_ACCESS_AFTER_SETUP"));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_REDIRECTING_ADMINENROLL_ERROR", "Attempt to access adminEnroll after already setup."));
+                    CMS.getUserMessage("CMS_GW_REDIRECTING_ADMINENROLL_ERROR", "Attempt to access adminEnroll after already setup."));
         }
 
-        processX509(cmsReq); 
+        processX509(cmsReq);
     }
 
     private boolean getCertAuthEnrollStatus(IArgBlock httpParams) {
@@ -359,7 +352,7 @@ public class EnrollServlet extends CMSServlet {
         boolean certAuthEnroll = false;
 
         String certAuthEnrollOn =
-            httpParams.getValueAsString("certauthEnroll", null);
+                httpParams.getValueAsString("certauthEnroll", null);
 
         if ((certAuthEnrollOn != null) && (certAuthEnrollOn.equals("on"))) {
             certAuthEnroll = true;
@@ -371,7 +364,7 @@ public class EnrollServlet extends CMSServlet {
     }
 
     private String getCertAuthEnrollType(IArgBlock httpParams, boolean certAuthEnroll)
-        throws EBaseException {
+            throws EBaseException {
 
         String certauthEnrollType = null;
 
@@ -387,53 +380,53 @@ public class EnrollServlet extends CMSServlet {
                     CMS.debug("EnrollServlet: certauthEnrollType is single");
                 } else {
                     log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSGW_INVALID_CERTAUTH_ENROLL_TYPE_1", certauthEnrollType));
+                            CMS.getLogMessage("CMSGW_INVALID_CERTAUTH_ENROLL_TYPE_1", certauthEnrollType));
                     throw new ECMSGWException(
-                      CMS.getUserMessage("CMS_GW_INVALID_CERTAUTH_ENROLL_TYPE"));
+                            CMS.getUserMessage("CMS_GW_INVALID_CERTAUTH_ENROLL_TYPE"));
                 }
             } else {
                 log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("MSGW_MISSING_CERTAUTH_ENROLL_TYPE"));
+                        CMS.getLogMessage("MSGW_MISSING_CERTAUTH_ENROLL_TYPE"));
                 throw new ECMSGWException(
-                  CMS.getUserMessage("CMS_GW_MISSING_CERTAUTH_ENROLL_TYPE"));
+                        CMS.getUserMessage("CMS_GW_MISSING_CERTAUTH_ENROLL_TYPE"));
             }
         }
-               
+
         return certauthEnrollType;
-           
+
     }
 
     private boolean checkClientCertSigningOnly(X509Certificate sslClientCert)
-        throws EBaseException {
+            throws EBaseException {
         if ((CMS.isSigningCert((X509CertImpl) sslClientCert) ==
                 false) ||
-            ((CMS.isSigningCert((X509CertImpl) sslClientCert) ==
+                ((CMS.isSigningCert((X509CertImpl) sslClientCert) ==
                     true) &&
                 (CMS.isEncryptionCert((X509CertImpl) sslClientCert) ==
                     true))) {
 
             // either it's not a signing cert, or it's a dual cert
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("CMSGW_INVALID_CERT_TYPE"));
+                    CMS.getLogMessage("CMSGW_INVALID_CERT_TYPE"));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_INVALID_CERT_TYPE"));
+                    CMS.getUserMessage("CMS_GW_INVALID_CERT_TYPE"));
         }
 
         return true;
     }
-	
+
     private X509CertInfo[] handleCertAuthDual(X509CertInfo certInfo, IAuthToken authToken, X509Certificate sslClientCert,
-        ICertificateAuthority mCa, String certBasedOldSubjectDN,
-        BigInteger certBasedOldSerialNum)
-        throws EBaseException {
-      
+            ICertificateAuthority mCa, String certBasedOldSubjectDN,
+            BigInteger certBasedOldSerialNum)
+            throws EBaseException {
+
         CMS.debug("EnrollServlet: In handleCertAuthDual!");
- 
+
         if (mCa == null) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("CMSGW_NOT_A_CA"));
+                    CMS.getLogMessage("CMSGW_NOT_A_CA"));
             throw new ECMSGWException(
-                CMS.getUserMessage("CMS_GW_NOT_A_CA"));
+                    CMS.getUserMessage("CMS_GW_NOT_A_CA"));
         }
 
         // first, make sure the client cert is indeed a
@@ -456,20 +449,20 @@ public class EnrollServlet extends CMSServlet {
             certInfo.set(X509CertInfo.KEY, new CertificateX509Key(key));
         } catch (CertificateException e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("CMSGW_FAILED_SET_KEY_FROM_CERT_AUTH_ENROLL_1", e.toString()));
+                    CMS.getLogMessage("CMSGW_FAILED_SET_KEY_FROM_CERT_AUTH_ENROLL_1", e.toString()));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_SET_KEY_FROM_CERT_AUTH_ENROLL_FAILED", e.toString()));
+                    CMS.getUserMessage("CMS_GW_SET_KEY_FROM_CERT_AUTH_ENROLL_FAILED", e.toString()));
         } catch (IOException e) {
             log(ILogger.LL_FAILURE,
-                CMS.getLogMessage("CMSGW_FAILED_SET_KEY_FROM_CERT_AUTH_ENROLL_IO", e.toString()));
+                    CMS.getLogMessage("CMSGW_FAILED_SET_KEY_FROM_CERT_AUTH_ENROLL_IO", e.toString()));
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_SET_KEY_FROM_CERT_AUTH_ENROLL_FAILED", e.toString()));
+                    CMS.getUserMessage("CMS_GW_SET_KEY_FROM_CERT_AUTH_ENROLL_FAILED", e.toString()));
         }
 
         String filter =
-            "(&(x509cert.subject=" + certBasedOldSubjectDN + ")(!(x509cert.serialNumber=" + certBasedOldSerialNum + "))(certStatus=VALID))";
+                "(&(x509cert.subject=" + certBasedOldSubjectDN + ")(!(x509cert.serialNumber=" + certBasedOldSerialNum + "))(certStatus=VALID))";
         ICertRecordList list =
-            (ICertRecordList) mCa.getCertificateRepository().findCertRecordsInList(filter, null, 10);
+                (ICertRecordList) mCa.getCertificateRepository().findCertRecordsInList(filter, null, 10);
         int size = list.getSize();
         Enumeration en = list.getCertRecords(0, size - 1);
         boolean gotEncCert = false;
@@ -482,8 +475,8 @@ public class EnrollServlet extends CMSServlet {
             // pairing encryption cert not found
         } else {
             X509CertInfo encCertInfo = CMS.getDefaultX509CertInfo();
-            X509CertInfo[] cInfoArray = new X509CertInfo[] {certInfo,
-                    encCertInfo};
+            X509CertInfo[] cInfoArray = new X509CertInfo[] { certInfo,
+                    encCertInfo };
             int i = 1;
 
             boolean encCertFound = false;
@@ -494,7 +487,7 @@ public class EnrollServlet extends CMSServlet {
 
                 // if not encryption cert only, try next one
                 if ((CMS.isEncryptionCert(cert) == false) ||
-                    ((CMS.isEncryptionCert(cert) == true) &&
+                        ((CMS.isEncryptionCert(cert) == true) &&
                         (CMS.isSigningCert(cert) == true))) {
 
                     CMS.debug("EnrollServlet: Not encryption only cert, will try next one.");
@@ -508,27 +501,27 @@ public class EnrollServlet extends CMSServlet {
                 try {
                     encCertInfo = (X509CertInfo)
                             cert.get(
-                                X509CertImpl.NAME + "." + X509CertImpl.INFO);
+                                    X509CertImpl.NAME + "." + X509CertImpl.INFO);
 
                 } catch (CertificateParsingException ex) {
                     log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSGW_MISSING_CERTINFO_ENCRYPT_CERT"));
+                            CMS.getLogMessage("CMSGW_MISSING_CERTINFO_ENCRYPT_CERT"));
                     throw new ECMSGWException(
-                      CMS.getUserMessage("CMS_GW_MISSING_CERTINFO"));
+                            CMS.getUserMessage("CMS_GW_MISSING_CERTINFO"));
                 }
 
                 try {
                     encCertInfo.set(X509CertInfo.KEY, new CertificateX509Key(key));
                 } catch (CertificateException e) {
                     log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSGW_FAILED_SET_KEY_FROM_CERT_AUTH_ENROLL_1", e.toString()));
+                            CMS.getLogMessage("CMSGW_FAILED_SET_KEY_FROM_CERT_AUTH_ENROLL_1", e.toString()));
                     throw new ECMSGWException(
-                      CMS.getUserMessage("CMS_GW_SET_KEY_FROM_CERT_AUTH_ENROLL_FAILED", e.toString()));
+                            CMS.getUserMessage("CMS_GW_SET_KEY_FROM_CERT_AUTH_ENROLL_FAILED", e.toString()));
                 } catch (IOException e) {
                     log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSGW_FAILED_SET_KEY_FROM_CERT_AUTH_ENROLL_1", e.toString()));
+                            CMS.getLogMessage("CMSGW_FAILED_SET_KEY_FROM_CERT_AUTH_ENROLL_1", e.toString()));
                     throw new ECMSGWException(
-                      CMS.getUserMessage("CMS_GW_SET_KEY_FROM_CERT_AUTH_ENROLL_FAILED", e.toString()));
+                            CMS.getUserMessage("CMS_GW_SET_KEY_FROM_CERT_AUTH_ENROLL_FAILED", e.toString()));
                 }
 
                 CMS.debug("EnrollServlet: About to fillCertInfoFromAuthToken!");
@@ -545,13 +538,13 @@ public class EnrollServlet extends CMSServlet {
 
             CMS.debug("EnrollServlet: returning cInfoArray of length " + cInfoArray.length);
             return cInfoArray;
-        }     
+        }
 
     }
 
     private boolean handleEnrollAuditLog(IRequest req, CMSRequest cmsReq, String authMgr, IAuthToken authToken,
-        X509CertInfo certInfo, long startTime)
-        throws EBaseException {
+            X509CertInfo certInfo, long startTime)
+            throws EBaseException {
         //for audit log
 
         String initiative = null;
@@ -563,7 +556,7 @@ public class EnrollServlet extends CMSServlet {
         } else {
             agentID = authToken.getInString("userid");
             initiative = AuditFormat.FROMAGENT + " agentID: " + agentID;
-        }      
+        }
 
         // if service not complete return standard templates.
         RequestStatus status = req.getRequestStatus();
@@ -584,54 +577,54 @@ public class EnrollServlet extends CMSServlet {
                             wholeMsg.append(msgs.nextElement());
                         }
                         mLogger.log(ILogger.EV_AUDIT,
-                            ILogger.S_OTHER,
-                            AuditFormat.LEVEL,
-                            AuditFormat.ENROLLMENTFORMAT,
-                            new Object[] {
-                                req.getRequestId(),
-                                initiative,
-                                authMgr,
-                                status.toString(),
-                                certInfo.get(X509CertInfo.SUBJECT),
-                                " violation: " +
-                                wholeMsg.toString()}
-                        );
+                                ILogger.S_OTHER,
+                                AuditFormat.LEVEL,
+                                AuditFormat.ENROLLMENTFORMAT,
+                                new Object[] {
+                                        req.getRequestId(),
+                                        initiative,
+                                        authMgr,
+                                        status.toString(),
+                                        certInfo.get(X509CertInfo.SUBJECT),
+                                        " violation: " +
+                                                wholeMsg.toString() }
+                                );
                     } else { // no policy violation, from agent
                         mLogger.log(ILogger.EV_AUDIT,
-                            ILogger.S_OTHER,
-                            AuditFormat.LEVEL,
-                            AuditFormat.ENROLLMENTFORMAT,
-                            new Object[] {
-                                req.getRequestId(),
-                                initiative,
-                                authMgr,
-                                status.toString(),
-                                certInfo.get(X509CertInfo.SUBJECT), ""}
-                        );
+                                ILogger.S_OTHER,
+                                AuditFormat.LEVEL,
+                                AuditFormat.ENROLLMENTFORMAT,
+                                new Object[] {
+                                        req.getRequestId(),
+                                        initiative,
+                                        authMgr,
+                                        status.toString(),
+                                        certInfo.get(X509CertInfo.SUBJECT), "" }
+                                );
                     }
                 } else { // other imcomplete status
                     long endTime = CMS.getCurrentDate().getTime();
 
                     mLogger.log(ILogger.EV_AUDIT,
-                        ILogger.S_OTHER,
-                        AuditFormat.LEVEL,
-                        AuditFormat.ENROLLMENTFORMAT,
-                        new Object[] {
-                            req.getRequestId(),
-                            initiative,
-                            authMgr,
-                            status.toString(),
-                            certInfo.get(X509CertInfo.SUBJECT) + " time: " + (endTime - startTime), ""}
-                    );
+                            ILogger.S_OTHER,
+                            AuditFormat.LEVEL,
+                            AuditFormat.ENROLLMENTFORMAT,
+                            new Object[] {
+                                    req.getRequestId(),
+                                    initiative,
+                                    authMgr,
+                                    status.toString(),
+                                    certInfo.get(X509CertInfo.SUBJECT) + " time: " + (endTime - startTime), "" }
+                            );
                 }
             } catch (IOException e) {
                 log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_CANT_GET_CERT_SUBJ_AUDITING",
-                        e.toString()));
+                        CMS.getLogMessage("CMSGW_CANT_GET_CERT_SUBJ_AUDITING",
+                                e.toString()));
             } catch (CertificateException e) {
                 log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSGW_CANT_GET_CERT_SUBJ_AUDITING",
-                        e.toString()));
+                        CMS.getLogMessage("CMSGW_CANT_GET_CERT_SUBJ_AUDITING",
+                                e.toString()));
             }
             return false;
         }
@@ -643,7 +636,7 @@ public class EnrollServlet extends CMSServlet {
             cmsReq.setStatus(CMSRequest.ERROR);
             cmsReq.setError(req.getExtDataInString(IRequest.ERROR));
             String[] svcErrors =
-                req.getExtDataInStringArray(IRequest.SVCERRORS);
+                    req.getExtDataInStringArray(IRequest.SVCERRORS);
 
             if (svcErrors != null && svcErrors.length > 0) {
                 for (int i = 0; i < svcErrors.length; i++) {
@@ -657,26 +650,26 @@ public class EnrollServlet extends CMSServlet {
                         // audit log the error
                         try {
                             mLogger.log(ILogger.EV_AUDIT,
-                                ILogger.S_OTHER,
-                                AuditFormat.LEVEL,
-                                AuditFormat.ENROLLMENTFORMAT,
-                                new Object[] {
-                                    req.getRequestId(),
-                                    initiative,
-                                    authMgr,
-                                    "completed with error: " +
-                                    err,
-                                    certInfo.get(X509CertInfo.SUBJECT), ""
+                                    ILogger.S_OTHER,
+                                    AuditFormat.LEVEL,
+                                    AuditFormat.ENROLLMENTFORMAT,
+                                    new Object[] {
+                                            req.getRequestId(),
+                                            initiative,
+                                            authMgr,
+                                            "completed with error: " +
+                                                    err,
+                                            certInfo.get(X509CertInfo.SUBJECT), ""
                                 }
-                            );
+                                    );
                         } catch (IOException e) {
                             log(ILogger.LL_FAILURE,
-                                CMS.getLogMessage("CMSGW_CANT_GET_CERT_SUBJ_AUDITING",
-                                    e.toString()));
+                                    CMS.getLogMessage("CMSGW_CANT_GET_CERT_SUBJ_AUDITING",
+                                            e.toString()));
                         } catch (CertificateException e) {
                             log(ILogger.LL_FAILURE,
-                                CMS.getLogMessage("CMSGW_CANT_GET_CERT_SUBJ_AUDITING",
-                                    e.toString()));
+                                    CMS.getLogMessage("CMSGW_CANT_GET_CERT_SUBJ_AUDITING",
+                                            e.toString()));
                         }
 
                     }
@@ -693,29 +686,23 @@ public class EnrollServlet extends CMSServlet {
     /**
      * Process X509 certificate enrollment request
      * <P>
-     *
-     * (Certificate Request - either an "admin" cert request for an admin
-     *  certificate, an "agent" cert request for "bulk enrollment", or
-     *  an "EE" standard cert request)
+     * 
+     * (Certificate Request - either an "admin" cert request for an admin certificate, an "agent" cert request for "bulk enrollment", or an "EE" standard cert request)
      * <P>
-     *
-     * (Certificate Request Processed - either an automated "admin" non-profile
-     *  based CA admin cert acceptance, an automated "admin" non-profile based
-     *  CA admin cert rejection, an automated "EE" non-profile based cert
-     *  acceptance, or an automated "EE" non-profile based cert rejection)
+     * 
+     * (Certificate Request Processed - either an automated "admin" non-profile based CA admin cert acceptance, an automated "admin" non-profile based CA admin cert rejection, an automated "EE" non-profile based cert acceptance, or an automated "EE" non-profile based cert rejection)
      * <P>
-     *
+     * 
      * <ul>
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_NON_PROFILE_CERT_REQUEST used when a
-     * non-profile cert request is made (before approval process)
-     * <li>signed.audit LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED used when a
-     * certificate request has just been through the approval process
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_NON_PROFILE_CERT_REQUEST used when a non-profile cert request is made (before approval process)
+     * <li>signed.audit LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED used when a certificate request has just been through the approval process
      * </ul>
+     * 
      * @param cmsReq a certificate enrollment request
      * @exception EBaseException an error has occurred
      */
-    protected void processX509(CMSRequest cmsReq) 
-        throws EBaseException {
+    protected void processX509(CMSRequest cmsReq)
+            throws EBaseException {
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
         String auditRequesterID = ILogger.UNIDENTIFIED;
@@ -733,7 +720,7 @@ public class EnrollServlet extends CMSServlet {
 
         IConfigStore configStore = CMS.getConfigStore();
 
-		/* XXX shouldn't we read this from ServletConfig at init time? */
+        /* XXX shouldn't we read this from ServletConfig at init time? */
         enforcePop = configStore.getBoolean("enrollment.enforcePop", false);
         CMS.debug("EnrollServlet: enforcePop " + enforcePop);
 
@@ -743,7 +730,7 @@ public class EnrollServlet extends CMSServlet {
             startTime = CMS.getCurrentDate().getTime();
             httpParams = cmsReq.getHttpParams();
             httpReq = cmsReq.getHttpReq();
-            if (mAuthMgr != null) { 
+            if (mAuthMgr != null) {
                 authToken = authenticate(cmsReq);
             }
 
@@ -752,10 +739,10 @@ public class EnrollServlet extends CMSServlet {
                             mAuthzResourceName, "submit");
             } catch (EAuthzAccessDenied e) {
                 log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                        CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
             } catch (Exception e) {
                 log(ILogger.LL_FAILURE,
-                    CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
+                        CMS.getLogMessage("ADMIN_SRVLT_AUTH_FAILURE", e.toString()));
             }
 
             if (authzToken == null) {
@@ -791,14 +778,14 @@ public class EnrollServlet extends CMSServlet {
             }
 
             try {
-                if (CMS.getConfigStore().getBoolean("useThreadNaming", false)) { 
-                    String currentName = Thread.currentThread().getName(); 
+                if (CMS.getConfigStore().getBoolean("useThreadNaming", false)) {
+                    String currentName = Thread.currentThread().getName();
 
                     Thread.currentThread().setName(currentName
-                        + "-request-"
-                        + req.getRequestId().toString()
-                        + "-"
-                        + (new Date()).getTime());
+                            + "-request-"
+                            + req.getRequestId().toString()
+                            + "-"
+                            + (new Date()).getTime());
                 }
             } catch (Exception e) {
             }
@@ -844,7 +831,7 @@ public class EnrollServlet extends CMSServlet {
             CMS.debug("EnrollServlet: In EnrollServlet.processX509!");
             CMS.debug("EnrollServlet: certAuthEnroll " + certAuthEnroll);
             CMS.debug("EnrollServlet: certauthEnrollType " + certauthEnrollType);
-            
+
             String challengePassword = httpParams.getValueAsString(
                     "challengePassword", "");
 
@@ -865,7 +852,7 @@ public class EnrollServlet extends CMSServlet {
                 sslClientCert = getSSLClientCertificate(httpReq);
                 if (sslClientCert == null) {
                     log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSGW_MISSING_SSL_CLIENT_CERT"));
+                            CMS.getLogMessage("CMSGW_MISSING_SSL_CLIENT_CERT"));
 
                     // store a message in the signed audit log file
                     // (either an "admin" cert request for an admin certificate,
@@ -882,7 +869,7 @@ public class EnrollServlet extends CMSServlet {
                     audit(auditMessage);
 
                     throw new ECMSGWException(
-                      CMS.getUserMessage("CMS_GW_MISSING_SSL_CLIENT_CERT"));
+                            CMS.getUserMessage("CMS_GW_MISSING_SSL_CLIENT_CERT"));
                 }
 
                 certBasedOldSubjectDN = (String)
@@ -904,10 +891,10 @@ public class EnrollServlet extends CMSServlet {
                 try {
                     certInfo = (X509CertInfo)
                             ((X509CertImpl) sslClientCert).get(
-                                X509CertImpl.NAME + "." + X509CertImpl.INFO);
+                                    X509CertImpl.NAME + "." + X509CertImpl.INFO);
                 } catch (CertificateParsingException ex) {
                     log(ILogger.LL_FAILURE,
-                        CMS.getLogMessage("CMSGW_MISSING_CERTINFO"));
+                            CMS.getLogMessage("CMSGW_MISSING_CERTINFO"));
 
                     // store a message in the signed audit log file
                     // (either an "admin" cert request for an admin certificate,
@@ -924,14 +911,14 @@ public class EnrollServlet extends CMSServlet {
                     audit(auditMessage);
 
                     throw new ECMSGWException(
-                      CMS.getUserMessage(getLocale(httpReq), "CMS_GW_MISSING_CERTINFO"));
+                            CMS.getUserMessage(getLocale(httpReq), "CMS_GW_MISSING_CERTINFO"));
                 }
             } else {
                 CMS.debug("EnrollServlet: No CertAuthEnroll.");
                 certInfo = CMS.getDefaultX509CertInfo();
             }
 
-            X509CertInfo[] certInfoArray = new X509CertInfo[] {certInfo};
+            X509CertInfo[] certInfoArray = new X509CertInfo[] { certInfo };
 
             X509CertInfo authCertInfo = null;
             String authMgr = AuditFormat.NOAUTH;
@@ -943,12 +930,12 @@ public class EnrollServlet extends CMSServlet {
                 // don't store agent token in request. 
                 // agent currently used for bulk issuance. 
                 // if (!authMgr.equals(AuthSubsystem.CERTUSERDB_AUTHMGR_ID)) {
-                log(ILogger.LL_INFO, 
-                    "Enrollment request was authenticated by " +
-                    authToken.getInString(AuthToken.TOKEN_AUTHMGR_INST_NAME));
+                log(ILogger.LL_INFO,
+                        "Enrollment request was authenticated by " +
+                                authToken.getInString(AuthToken.TOKEN_AUTHMGR_INST_NAME));
 
                 PKIProcessor.fillCertInfoFromAuthToken(certInfo,
-                    authToken);
+                        authToken);
                 // save authtoken attrs to request directly
                 // (for policy use)
                 saveAuthToken(authToken, req);
@@ -964,8 +951,8 @@ public class EnrollServlet extends CMSServlet {
                 //     "from ssl client cert");
                 if (authToken == null) {
                     // authToken is null, can't match to anyone; bail!
-                    log(ILogger.LL_FAILURE, 
-                        CMS.getLogMessage("CMSGW_ERR_PROCESS_ENROLL_NO_AUTH"));
+                    log(ILogger.LL_FAILURE,
+                            CMS.getLogMessage("CMSGW_ERR_PROCESS_ENROLL_NO_AUTH"));
 
                     // store a message in the signed audit log file
                     // (either an "admin" cert request for an admin certificate,
@@ -1039,24 +1026,23 @@ public class EnrollServlet extends CMSServlet {
                     ex.printStackTrace();
                 }
             }
-            
+
             String cmc = null;
             String asciiBASE64Blob = httpParams.getValueAsString(CMC_REQUEST, null);
-            
-            if(asciiBASE64Blob!=null)
-            {
-            int startIndex = asciiBASE64Blob.indexOf(HEADER);
-            int endIndex = asciiBASE64Blob.indexOf(TRAILER);
-            if (startIndex!= -1 && endIndex!=-1) {
-                startIndex = startIndex + HEADER.length();
-                cmc=asciiBASE64Blob.substring(startIndex, endIndex);
-            }else
-                cmc = asciiBASE64Blob;
-            CMS.debug("EnrollServlet: cmc " + cmc);
+
+            if (asciiBASE64Blob != null) {
+                int startIndex = asciiBASE64Blob.indexOf(HEADER);
+                int endIndex = asciiBASE64Blob.indexOf(TRAILER);
+                if (startIndex != -1 && endIndex != -1) {
+                    startIndex = startIndex + HEADER.length();
+                    cmc = asciiBASE64Blob.substring(startIndex, endIndex);
+                } else
+                    cmc = asciiBASE64Blob;
+                CMS.debug("EnrollServlet: cmc " + cmc);
             }
-            
+
             String crmf = httpParams.getValueAsString(CRMF_REQUEST, null);
-            
+
             CMS.debug("EnrollServlet: crmf " + crmf);
 
             if (certAuthEnroll == true) {
@@ -1066,7 +1052,7 @@ public class EnrollServlet extends CMSServlet {
                 // for dual certs
                 if (certauthEnrollType.equals(CERT_AUTH_DUAL)) {
 
-                    CMS.debug("EnrollServlet: Attempting CERT_AUTH_DUAL"); 
+                    CMS.debug("EnrollServlet: Attempting CERT_AUTH_DUAL");
                     boolean gotEncCert = false;
                     X509CertInfo[] cInfoArray = null;
 
@@ -1103,8 +1089,8 @@ public class EnrollServlet extends CMSServlet {
                     if (gotEncCert == false) {
                         // encryption cert not found, bail
                         log(ILogger.LL_FAILURE,
-                            CMS.getLogMessage(
-                                "CMSGW_ENCRYPTION_CERT_NOT_FOUND"));
+                                CMS.getLogMessage(
+                                        "CMSGW_ENCRYPTION_CERT_NOT_FOUND"));
 
                         // store a message in the signed audit log file
                         // (either an "admin" cert request for an admin
@@ -1121,7 +1107,7 @@ public class EnrollServlet extends CMSServlet {
                         audit(auditMessage);
 
                         throw new ECMSGWException(
-                          CMS.getUserMessage("CMS_GW_ENCRYPTION_CERT_NOT_FOUND"));
+                                CMS.getUserMessage("CMS_GW_ENCRYPTION_CERT_NOT_FOUND"));
                     }
 
                 } else if (certauthEnrollType.equals(CERT_AUTH_ENCRYPTION)) {
@@ -1158,12 +1144,12 @@ public class EnrollServlet extends CMSServlet {
                                 this);
 
                         keyGenProc.fillCertInfo(null, certInfo,
-                            authToken, httpParams);
+                                authToken, httpParams);
 
                         req.setExtData(CLIENT_ISSUER,
-                            sslClientCert.getIssuerDN().toString());
+                                sslClientCert.getIssuerDN().toString());
                         CMS.debug("EnrollServlet: sslClientCert issuerDN = " +
-                            sslClientCert.getIssuerDN().toString());
+                                sslClientCert.getIssuerDN().toString());
                     } else if (crmf != null && crmf != "") {
                         CRMFProcessor crmfProc = new CRMFProcessor(cmsReq, this, enforcePop);
 
@@ -1173,13 +1159,13 @@ public class EnrollServlet extends CMSServlet {
                                     req);
 
                         req.setExtData(CLIENT_ISSUER,
-                            sslClientCert.getIssuerDN().toString());
+                                sslClientCert.getIssuerDN().toString());
                         CMS.debug("EnrollServlet: sslClientCert issuerDN = " +
-                            sslClientCert.getIssuerDN().toString());
+                                sslClientCert.getIssuerDN().toString());
                     } else {
-                        log(ILogger.LL_FAILURE, 
-                            CMS.getLogMessage("CMSGW_CANT_PROCESS_ENROLL_REQ") +
-                            CMS.getLogMessage("CMSGW_MISSING_KEYGEN_INFO"));
+                        log(ILogger.LL_FAILURE,
+                                CMS.getLogMessage("CMSGW_CANT_PROCESS_ENROLL_REQ") +
+                                        CMS.getLogMessage("CMSGW_MISSING_KEYGEN_INFO"));
 
                         // store a message in the signed audit log file
                         // (either an "admin" cert request for an admin
@@ -1196,7 +1182,7 @@ public class EnrollServlet extends CMSServlet {
                         audit(auditMessage);
 
                         throw new ECMSGWException(
-                          CMS.getUserMessage(getLocale(httpReq), "CMS_GW_MISSING_KEYGEN_INFO"));
+                                CMS.getUserMessage(getLocale(httpReq), "CMS_GW_MISSING_KEYGEN_INFO"));
                     }
 
                 } else if (certauthEnrollType.equals(CERT_AUTH_SINGLE)) {
@@ -1208,13 +1194,13 @@ public class EnrollServlet extends CMSServlet {
                                 this);
 
                         keyGenProc.fillCertInfo(null, certInfo,
-                            authToken, httpParams);
+                                authToken, httpParams);
                     } else if (pkcs10 != null) {
                         PKCS10Processor pkcs10Proc = new PKCS10Processor(cmsReq,
                                 this);
 
                         pkcs10Proc.fillCertInfo(pkcs10, certInfo,
-                            authToken, httpParams); 
+                                authToken, httpParams);
                     } else if (cmc != null && cmc != "") {
                         CMCProcessor cmcProc = new CMCProcessor(cmsReq, this, enforcePop);
 
@@ -1230,9 +1216,9 @@ public class EnrollServlet extends CMSServlet {
                                     httpParams,
                                     req);
                     } else {
-                        log(ILogger.LL_FAILURE, 
-                            CMS.getLogMessage("CMSGW_CANT_PROCESS_ENROLL_REQ") +
-                            CMS.getLogMessage("CMSGW_MISSING_KEYGEN_INFO"));
+                        log(ILogger.LL_FAILURE,
+                                CMS.getLogMessage("CMSGW_CANT_PROCESS_ENROLL_REQ") +
+                                        CMS.getLogMessage("CMSGW_MISSING_KEYGEN_INFO"));
 
                         // store a message in the signed audit log file
                         // (either an "admin" cert request for an admin
@@ -1249,10 +1235,10 @@ public class EnrollServlet extends CMSServlet {
                         audit(auditMessage);
 
                         throw new ECMSGWException(
-                          CMS.getUserMessage(getLocale(httpReq), "CMS_GW_MISSING_KEYGEN_INFO"));
+                                CMS.getUserMessage(getLocale(httpReq), "CMS_GW_MISSING_KEYGEN_INFO"));
                     }
                     req.setExtData(CLIENT_ISSUER,
-                        sslClientCert.getIssuerDN().toString());
+                            sslClientCert.getIssuerDN().toString());
                 }
 
             } else if (keyGenInfo != null) {
@@ -1279,9 +1265,9 @@ public class EnrollServlet extends CMSServlet {
                 certInfoArray = crmfProc.fillCertInfoArray(crmf, authToken,
                             httpParams, req);
             } else {
-                log(ILogger.LL_FAILURE, 
-                    CMS.getLogMessage("CMSGW_CANT_PROCESS_ENROLL_REQ") +
-                    CMS.getLogMessage("CMSGW_MISSING_KEYGEN_INFO"));
+                log(ILogger.LL_FAILURE,
+                        CMS.getLogMessage("CMSGW_CANT_PROCESS_ENROLL_REQ") +
+                                CMS.getLogMessage("CMSGW_MISSING_KEYGEN_INFO"));
 
                 // store a message in the signed audit log file
                 // (either an "admin" cert request for an admin certificate,
@@ -1300,27 +1286,25 @@ public class EnrollServlet extends CMSServlet {
                 throw new ECMSGWException(CMS.getUserMessage(getLocale(httpReq), "CMS_GW_MISSING_KEYGEN_INFO"));
             }
 
-
             // if ca, fill in default signing alg here
-       
+
             try {
-              ICertificateAuthority caSub = 
-               (ICertificateAuthority) CMS.getSubsystem("ca");
-              if (certInfoArray != null && caSub != null) {
-                for (int ix = 0; ix < certInfoArray.length; ix++) {
-                   X509CertInfo ci = (X509CertInfo)certInfoArray[ix];
-                   String defaultSig = caSub.getDefaultAlgorithm(); 
-                   AlgorithmId algid = AlgorithmId.get(defaultSig);
-                   ci.set(X509CertInfo.ALGORITHM_ID,
-                      new CertificateAlgorithmId(algid));
+                ICertificateAuthority caSub =
+                        (ICertificateAuthority) CMS.getSubsystem("ca");
+                if (certInfoArray != null && caSub != null) {
+                    for (int ix = 0; ix < certInfoArray.length; ix++) {
+                        X509CertInfo ci = (X509CertInfo) certInfoArray[ix];
+                        String defaultSig = caSub.getDefaultAlgorithm();
+                        AlgorithmId algid = AlgorithmId.get(defaultSig);
+                        ci.set(X509CertInfo.ALGORITHM_ID,
+                                new CertificateAlgorithmId(algid));
+                    }
                 }
-              }
             } catch (Exception e) {
-              CMS.debug("Failed to set signing alg to certinfo " + e.toString());
+                CMS.debug("Failed to set signing alg to certinfo " + e.toString());
             }
 
             req.setExtData(IRequest.CERT_INFO, certInfoArray);
-
 
             if (challengePassword != null && !challengePassword.equals("")) {
                 String pwd = hashPassword(challengePassword);
@@ -1379,7 +1363,7 @@ public class EnrollServlet extends CMSServlet {
 
                     issuedCerts =
                             cmsReq.getIRequest().getExtDataInCertArray(
-                                IRequest.ISSUED_CERTS);
+                                    IRequest.ISSUED_CERTS);
 
                     for (int i = 0; i < issuedCerts.length; i++) {
                         // (automated "agent" cert request processed
@@ -1449,27 +1433,27 @@ public class EnrollServlet extends CMSServlet {
             // audit log the success.
             long endTime = CMS.getCurrentDate().getTime();
 
-            mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER, 
-                AuditFormat.LEVEL,
-                AuditFormat.ENROLLMENTFORMAT,
-                new Object[]
-                { req.getRequestId(), 
-                    initiative,
-                    mAuthMgr,
-                    "completed",
-                    issuedCerts[0].getSubjectDN(),
-                    "cert issued serial number: 0x" +
-                    issuedCerts[0].getSerialNumber().toString(16) +
-                    " time: " +
-                    (endTime - startTime) }
-            );
+            mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
+                    AuditFormat.LEVEL,
+                    AuditFormat.ENROLLMENTFORMAT,
+                    new Object[]
+                { req.getRequestId(),
+                        initiative,
+                        mAuthMgr,
+                        "completed",
+                        issuedCerts[0].getSubjectDN(),
+                        "cert issued serial number: 0x" +
+                                issuedCerts[0].getSerialNumber().toString(16) +
+                                " time: " +
+                                (endTime - startTime) }
+                    );
 
             // handle initial admin enrollment if in adminEnroll mode.
             checkAdminEnroll(cmsReq, issuedCerts);
 
             // return cert as mime type binary if requested.
             if (checkImportCertToNav(cmsReq.getHttpResp(),
-                    httpParams, issuedCerts[0])) { 
+                    httpParams, issuedCerts[0])) {
                 cmsReq.setStatus(CMSRequest.SUCCESS);
 
                 for (int i = 0; i < issuedCerts.length; i++) {
@@ -1490,10 +1474,10 @@ public class EnrollServlet extends CMSServlet {
 
             // use success template.
             try {
-                cmsReq.setResult(issuedCerts); 
-                renderTemplate(cmsReq, mEnrollSuccessTemplate, 
-                    mEnrollSuccessFiller);
-                cmsReq.setStatus(CMSRequest.SUCCESS); 
+                cmsReq.setResult(issuedCerts);
+                renderTemplate(cmsReq, mEnrollSuccessTemplate,
+                        mEnrollSuccessFiller);
+                cmsReq.setStatus(CMSRequest.SUCCESS);
 
                 for (int i = 0; i < issuedCerts.length; i++) {
                     // (automated "agent" cert request processed - "accepted")
@@ -1508,10 +1492,10 @@ public class EnrollServlet extends CMSServlet {
                     audit(auditMessage);
                 }
             } catch (IOException e) {
-                log(ILogger.LL_FAILURE, 
-                    CMS.getLogMessage("CMSGW_TEMP_REND_ERR",
-                        mEnrollSuccessFiller.toString(),
-                        e.toString()));
+                log(ILogger.LL_FAILURE,
+                        CMS.getLogMessage("CMSGW_TEMP_REND_ERR",
+                                mEnrollSuccessFiller.toString(),
+                                e.toString()));
 
                 // (automated "agent" cert request processed - "rejected")
                 auditMessage = CMS.getLogMessage(
@@ -1525,7 +1509,7 @@ public class EnrollServlet extends CMSServlet {
                 audit(auditMessage);
 
                 throw new ECMSGWException(
-                  CMS.getUserMessage("CMS_GW_RETURNING_RESULT_ERROR"));
+                        CMS.getUserMessage("CMS_GW_RETURNING_RESULT_ERROR"));
             }
         } catch (EBaseException eAudit1) {
             // store a message in the signed audit log file
@@ -1548,10 +1532,10 @@ public class EnrollServlet extends CMSServlet {
 
     /**
      * check if this is first enroll from admin enroll.
-     * If so disable admin enroll from here on. 
+     * If so disable admin enroll from here on.
      */
     protected void checkAdminEnroll(CMSRequest cmsReq, X509CertImpl[] issuedCerts)
-        throws EBaseException {
+            throws EBaseException {
         // this is special case, get the admin certificate
         if (mAuthMgr != null && mAuthMgr.equals(IAuthSubsystem.PASSWDUSERDB_AUTHMGR_ID)) {
             addAdminAgent(cmsReq, issuedCerts);
@@ -1559,8 +1543,8 @@ public class EnrollServlet extends CMSServlet {
         }
     }
 
-    protected void addAdminAgent(CMSRequest cmsReq, X509CertImpl[] issuedCerts) 
-        throws EBaseException {
+    protected void addAdminAgent(CMSRequest cmsReq, X509CertImpl[] issuedCerts)
+            throws EBaseException {
         String userid = cmsReq.getHttpParams().getValueAsString("uid");
         IUGSubsystem ug = (IUGSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_UG);
 
@@ -1571,13 +1555,13 @@ public class EnrollServlet extends CMSServlet {
             ug.addUserCert(adminuser);
         } catch (netscape.ldap.LDAPException e) {
             CMS.debug(
-                "EnrollServlet: Cannot add admin's certificate to its entry in the " +
-                "user group database. Error " + e);
+                    "EnrollServlet: Cannot add admin's certificate to its entry in the " +
+                            "user group database. Error " + e);
             throw new ECMSGWException(
-              CMS.getUserMessage("CMS_GW_ADDING_ADMIN_CERT_ERROR", e.toString()));
+                    CMS.getUserMessage("CMS_GW_ADDING_ADMIN_CERT_ERROR", e.toString()));
         }
-        IGroup agentGroup = 
-            ug.getGroupFromName(CA_AGENT_GROUP);
+        IGroup agentGroup =
+                ug.getGroupFromName(CA_AGENT_GROUP);
 
         if (agentGroup != null) {
             // add user to the group if necessary
@@ -1585,15 +1569,15 @@ public class EnrollServlet extends CMSServlet {
                 agentGroup.addMemberName(userid);
                 ug.modifyGroup(agentGroup);
                 mLogger.log(ILogger.EV_AUDIT, ILogger.S_USRGRP,
-                    AuditFormat.LEVEL, AuditFormat.ADDUSERGROUPFORMAT,
-                    new Object[] {userid, userid, CA_AGENT_GROUP}
-                );
+                        AuditFormat.LEVEL, AuditFormat.ADDUSERGROUPFORMAT,
+                        new Object[] { userid, userid, CA_AGENT_GROUP }
+                        );
 
             }
         } else {
             String msg = "Cannot add admin to the " +
-                CA_AGENT_GROUP +
-                " group: Group does not exist.";
+                    CA_AGENT_GROUP +
+                    " group: Group does not exist.";
 
             CMS.debug("EnrollServlet: " + msg);
             throw new ECMSGWException(CMS.getUserMessage("CMS_GW_ADDING_ADMIN_ERROR"));
@@ -1635,19 +1619,19 @@ public class EnrollServlet extends CMSServlet {
             out.println("<P>");
             out.println("<PRE>");
             X509CertImpl certs[] =
-                cmsReq.getIRequest().getExtDataInCertArray(IRequest.ISSUED_CERTS);
+                    cmsReq.getIRequest().getExtDataInCertArray(IRequest.ISSUED_CERTS);
 
             out.println(CMS.getEncodedCert(certs[0]));
             out.println("</PRE>");
             out.println("<P>");
             out.println("<!HTTP_OUTPUT REQUEST_CREATION_TIME=" +
-                cmsReq.getIRequest().getCreationTime().toString() + ">");
-            out.println("<!HTTP_OUTPUT REQUEST_STATUS=" + 
-                cmsReq.getStatus().toString() + ">");
-            out.println("<!HTTP_OUTPUT REQUEST_ID=" + 
-                cmsReq.getIRequest().getRequestId().toString() + ">");
+                    cmsReq.getIRequest().getCreationTime().toString() + ">");
+            out.println("<!HTTP_OUTPUT REQUEST_STATUS=" +
+                    cmsReq.getStatus().toString() + ">");
+            out.println("<!HTTP_OUTPUT REQUEST_ID=" +
+                    cmsReq.getIRequest().getRequestId().toString() + ">");
             out.println("<!HTTP_OUTPUT X509_CERTIFICATE=" +
-                CMS.getEncodedCert(certs[0]) + ">");
+                    CMS.getEncodedCert(certs[0]) + ">");
         } else if (cmsReq.getIRequest().getRequestStatus().equals(RequestStatus.PENDING)) {
             out.println("<H1>");
             out.println("PENDING");
@@ -1664,11 +1648,11 @@ public class EnrollServlet extends CMSServlet {
             out.println(cmsReq.getIRequest().getRequestId().toString());
             out.println("<P>");
             out.println("<!HTTP_OUTPUT REQUEST_CREATION_TIME=" +
-                cmsReq.getIRequest().getCreationTime().toString() + ">");
-            out.println("<!HTTP_OUTPUT REQUEST_STATUS=" + 
-                cmsReq.getStatus().toString() + ">");
-            out.println("<!HTTP_OUTPUT REQUEST_ID=" + 
-                cmsReq.getIRequest().getRequestId().toString() + ">");
+                    cmsReq.getIRequest().getCreationTime().toString() + ">");
+            out.println("<!HTTP_OUTPUT REQUEST_STATUS=" +
+                    cmsReq.getStatus().toString() + ">");
+            out.println("<!HTTP_OUTPUT REQUEST_ID=" +
+                    cmsReq.getIRequest().getRequestId().toString() + ">");
         } else {
             out.println("<H1>");
             out.println("ERROR");
@@ -1683,21 +1667,21 @@ public class EnrollServlet extends CMSServlet {
             out.println("Error: ");
             out.println(cmsReq.getError()); // XXX - need to parse in Locale
             out.println("<P>");
-            out.println("<!HTTP_OUTPUT REQUEST_STATUS=" + 
-                cmsReq.getStatus().toString() + ">");
-            out.println("<!HTTP_OUTPUT ERROR=" + 
-                cmsReq.getError() + ">");
+            out.println("<!HTTP_OUTPUT REQUEST_STATUS=" +
+                    cmsReq.getStatus().toString() + ">");
+            out.println("<!HTTP_OUTPUT ERROR=" +
+                    cmsReq.getError() + ">");
         }
 
         /**
-         // include all the input data
-         ArgBlock args = cmsReq.getHttpParams();
-         Enumeration ele = args.getElements();
-         while (ele.hasMoreElements()) {
-         String eleT = (String)ele.nextElement();
-         out.println("<!HTTP_INPUT " + eleT + "=" + 
-         args.get(eleT) + ">");
-         }
+         * // include all the input data
+         * ArgBlock args = cmsReq.getHttpParams();
+         * Enumeration ele = args.getElements();
+         * while (ele.hasMoreElements()) {
+         * String eleT = (String)ele.nextElement();
+         * out.println("<!HTTP_INPUT " + eleT + "=" +
+         * args.get(eleT) + ">");
+         * }
          **/
 
         out.println("</HTML>");
@@ -1712,18 +1696,18 @@ public class EnrollServlet extends CMSServlet {
 
     private boolean mIsTestBed = false;
 
-    private void init_testbed_hack(IConfigStore config) 
-        throws EBaseException {
+    private void init_testbed_hack(IConfigStore config)
+            throws EBaseException {
         mIsTestBed = config.getBoolean("isTestBed", true);
     }
 
     /**
      * Signed Audit Log Info Certificate Value
-     *
+     * 
      * This method is called to obtain the certificate from the passed in
      * "X509CertImpl" for a signed audit log message.
      * <P>
-     *
+     * 
      * @param x509cert an X509CertImpl
      * @return cert string containing the certificate
      */
@@ -1776,4 +1760,3 @@ public class EnrollServlet extends CMSServlet {
         }
     }
 }
-

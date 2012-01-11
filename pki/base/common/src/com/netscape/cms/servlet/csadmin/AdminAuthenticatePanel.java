@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-
 import java.io.IOException;
 import java.util.StringTokenizer;
 
@@ -41,19 +40,20 @@ import com.netscape.cms.servlet.wizard.WizardServlet;
 
 public class AdminAuthenticatePanel extends WizardPanelBase {
 
-    public AdminAuthenticatePanel() {}
+    public AdminAuthenticatePanel() {
+    }
 
     /**
      * Initializes this panel.
      */
-    public void init(ServletConfig config, int panelno) 
-        throws ServletException {
+    public void init(ServletConfig config, int panelno)
+            throws ServletException {
         setPanelNo(panelno);
         setName("Admin Authentication");
     }
 
     public void init(WizardServlet servlet, ServletConfig config, int panelno, String id)
-        throws ServletException {
+            throws ServletException {
         setPanelNo(panelno);
         setName("Admin Authentication");
         setId(id);
@@ -62,24 +62,24 @@ public class AdminAuthenticatePanel extends WizardPanelBase {
     public boolean isSubPanel() {
         return true;
     }
-                                                                                
+
     /**
      * Should we skip this panel for the configuration.
      */
     public boolean shouldSkip() {
         CMS.debug("AdminAuthenticatePanel: should skip");
-                                                                                
+
         IConfigStore cs = CMS.getConfigStore();
         // if we are root, no need to get the certificate chain.
-                                                                                
+
         try {
-            String select = cs.getString("preop.subsystem.select","");
+            String select = cs.getString("preop.subsystem.select", "");
             if (select.equals("new")) {
                 return true;
             }
         } catch (EBaseException e) {
         }
-                                                                                
+
         return false;
     }
 
@@ -103,15 +103,16 @@ public class AdminAuthenticatePanel extends WizardPanelBase {
             } else {
                 return true;
             }
-        } catch (EBaseException e) {}
+        } catch (EBaseException e) {
+        }
         return false;
     }
 
     public PropertySet getUsage() {
         PropertySet set = new PropertySet();
-                                                                                
+
         /* XXX */
-                                                                                
+
         return set;
     }
 
@@ -125,12 +126,12 @@ public class AdminAuthenticatePanel extends WizardPanelBase {
         IConfigStore config = CMS.getConfigStore();
 
         if (isPanelDone()) {
-            
+
             try {
                 String s = config.getString("preop.master.admin.uid", "");
                 String type = config.getString("preop.subsystem.select", "");
                 if (type.equals("clone"))
-                    context.put("uid", s); 
+                    context.put("uid", s);
                 else
                     context.put("uid", "");
             } catch (Exception e) {
@@ -170,7 +171,7 @@ public class AdminAuthenticatePanel extends WizardPanelBase {
         cstype = toLowerCaseSubsystemType(cstype);
 
         if (subsystemtype.equals("clone")) {
-            CMS.debug("AdminAuthenticatePanel: this is the clone subsystem"); 
+            CMS.debug("AdminAuthenticatePanel: this is the clone subsystem");
             String uid = HttpInput.getUID(request, "uid");
             if (uid == null) {
                 context.put("errorString", "Uid is empty");
@@ -185,7 +186,7 @@ public class AdminAuthenticatePanel extends WizardPanelBase {
             try {
                 host = config.getString("preop.master.hostname");
             } catch (Exception e) {
-                CMS.debug("AdminAuthenticatePanel update: "+e.toString());
+                CMS.debug("AdminAuthenticatePanel update: " + e.toString());
                 context.put("errorString", "Missing hostname for master");
                 throw new IOException("Missing hostname");
             }
@@ -193,7 +194,7 @@ public class AdminAuthenticatePanel extends WizardPanelBase {
             try {
                 httpsport = config.getInteger("preop.master.httpsadminport");
             } catch (Exception e) {
-                CMS.debug("AdminAuthenticatePanel update: "+e.toString());
+                CMS.debug("AdminAuthenticatePanel update: " + e.toString());
                 context.put("errorString", "Missing port for master");
                 throw new IOException("Missing port");
             }
@@ -235,10 +236,10 @@ public class AdminAuthenticatePanel extends WizardPanelBase {
                 c1.append("cloning.");
                 c1.append(t1);
                 c1.append(".pubkey.encoded");
-                
-                if (s1.length()!=0)
+
+                if (s1.length() != 0)
                     s1.append(",");
- 
+
                 s1.append(cstype);
                 s1.append(".");
                 s1.append(t1);
@@ -248,11 +249,11 @@ public class AdminAuthenticatePanel extends WizardPanelBase {
                 c1.append(",preop.ca.hostname,preop.ca.httpport,preop.ca.httpsport,preop.ca.list,preop.ca.pkcs7,preop.ca.type");
             }
 
-            String content = "uid="+uid+"&pwd="+pwd+"&op=get&names=cloning.module.token,instanceId,internaldb.basedn,internaldb.ldapauth.password,internaldb.replication.password,internaldb.ldapconn.host,internaldb.ldapconn.port,internaldb.ldapauth.bindDN"+c1.toString()+"&substores="+s1.toString();
+            String content = "uid=" + uid + "&pwd=" + pwd + "&op=get&names=cloning.module.token,instanceId,internaldb.basedn,internaldb.ldapauth.password,internaldb.replication.password,internaldb.ldapconn.host,internaldb.ldapconn.port,internaldb.ldapauth.bindDN" + c1.toString() + "&substores=" + s1.toString();
 
             boolean success = updateConfigEntries(host, httpsport, true,
-              "/"+cstype+"/admin/"+cstype+"/getConfigEntries", content, config,
-              response);
+                    "/" + cstype + "/admin/" + cstype + "/getConfigEntries", content, config,
+                    response);
 
             try {
                 config.commit(false);
@@ -285,16 +286,15 @@ public class AdminAuthenticatePanel extends WizardPanelBase {
      * If validiate() returns false, this method will be called.
      */
     public void displayError(HttpServletRequest request,
-        HttpServletResponse response,
-        Context context)
-    {
+            HttpServletResponse response,
+            Context context) {
         context.put("title", "Admin Authentication");
         context.put("password", "");
         context.put("panel", "admin/console/config/adminauthenticatepanel.vm");
     }
 
     private boolean isCertdbCloned(HttpServletRequest request,
-      Context context) {
+            Context context) {
         IConfigStore config = CMS.getConfigStore();
         String certList = "";
         try {
@@ -306,13 +306,13 @@ public class AdminAuthenticatePanel extends WizardPanelBase {
                 String tokenname = config.getString("preop.module.token", "");
                 CryptoToken tok = cm.getTokenByName(tokenname);
                 CryptoStore store = tok.getCryptoStore();
-                String name1 = "preop.master."+token+".nickname";
+                String name1 = "preop.master." + token + ".nickname";
                 String nickname = config.getString(name1, "");
                 if (!tokenname.equals("Internal Key Storage Token") &&
-                  !tokenname.equals("internal"))
-                    nickname = tokenname+":"+nickname;
+                        !tokenname.equals("internal"))
+                    nickname = tokenname + ":" + nickname;
 
-                CMS.debug("AdminAuthenticatePanel isCertdbCloned: "+nickname);
+                CMS.debug("AdminAuthenticatePanel isCertdbCloned: " + nickname);
                 X509Certificate cert = cm.findCertByNickname(nickname);
                 if (cert == null)
                     return false;

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.logging;
 
-
 import java.util.Vector;
 
 import com.netscape.certsrv.logging.ELogException;
@@ -25,9 +24,8 @@ import com.netscape.certsrv.logging.ILogEvent;
 import com.netscape.certsrv.logging.ILogEventListener;
 import com.netscape.certsrv.logging.ILogQueue;
 
-
 /**
- * A class represents a log queue. 
+ * A class represents a log queue.
  * <P>
  * 
  * @author mzhao
@@ -51,11 +49,11 @@ public class LogQueue implements ILogQueue {
     /**
      * Initializes the log queue.
      * <P>
-     *
+     * 
      */
     public void init() {
         mListeners = new Vector();
-        
+
     }
 
     /**
@@ -63,7 +61,7 @@ public class LogQueue implements ILogQueue {
      * <P>
      */
     public void shutdown() {
-        if (mListeners == null) 
+        if (mListeners == null)
             return;
         for (int i = 0; i < mListeners.size(); i++) {
             ((ILogEventListener) mListeners.elementAt(i)).shutdown();
@@ -73,7 +71,7 @@ public class LogQueue implements ILogQueue {
 
     /**
      * Adds an event listener.
-     *
+     * 
      * @param listener the log event listener
      */
     public void addLogEventListener(ILogEventListener listener) {
@@ -84,7 +82,7 @@ public class LogQueue implements ILogQueue {
 
     /**
      * Removes an event listener.
-     *
+     * 
      * @param listener the log event listener
      */
     public void removeLogEventListener(ILogEventListener listener) {
@@ -93,12 +91,12 @@ public class LogQueue implements ILogQueue {
 
     /**
      * Logs an event, and notifies logger to reuse the event.
-     *
+     * 
      * @param event the log event
      */
     public void log(ILogEvent event) {
         if (mListeners == null)
-           return;
+            return;
         for (int i = 0; i < mListeners.size(); i++) {
             try {
                 ((ILogEventListener) mListeners.elementAt(i)).log(event);
@@ -109,14 +107,13 @@ public class LogQueue implements ILogQueue {
                 //          event.getEventType(), e.toString())));
 
                 // Don't do this again.  
-                removeLogEventListener((ILogEventListener)
-                    mListeners.elementAt(i));
+                removeLogEventListener((ILogEventListener) mListeners.elementAt(i));
             }
         }
     }
 
     /**
-     *  Flushes the log buffers (if any)
+     * Flushes the log buffers (if any)
      */
     public void flush() {
         for (int i = 0; i < mListeners.size(); i++) {
@@ -124,4 +121,3 @@ public class LogQueue implements ILogQueue {
         }
     }
 }
-

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.profile.common;
 
-
 import java.util.Enumeration;
 
 import netscape.security.x509.X500Name;
@@ -35,11 +34,10 @@ import com.netscape.certsrv.request.IRequestListener;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestStatus;
 
-
 /**
- * This class implements a Registration Manager 
+ * This class implements a Registration Manager
  * enrollment profile.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class RAEnrollProfile extends EnrollProfile {
@@ -49,8 +47,8 @@ public class RAEnrollProfile extends EnrollProfile {
     }
 
     public IAuthority getAuthority() {
-        IAuthority authority = (IAuthority) 
-            CMS.getSubsystem(CMS.SUBSYSTEM_RA);
+        IAuthority authority = (IAuthority)
+                CMS.getSubsystem(CMS.SUBSYSTEM_RA);
 
         if (authority == null)
             return null;
@@ -59,15 +57,14 @@ public class RAEnrollProfile extends EnrollProfile {
 
     public X500Name getIssuerName() {
         IRegistrationAuthority ra = (IRegistrationAuthority)
-            CMS.getSubsystem(CMS.SUBSYSTEM_RA);
+                CMS.getSubsystem(CMS.SUBSYSTEM_RA);
         X500Name issuerName = ra.getX500Name();
 
         return issuerName;
     }
 
     public void execute(IRequest request)
-        throws EProfileException {
-
+            throws EProfileException {
 
         if (!isEnable()) {
             CMS.debug("CAEnrollProfile: Profile Not Enabled");
@@ -75,13 +72,12 @@ public class RAEnrollProfile extends EnrollProfile {
         }
 
         IRegistrationAuthority ra =
-            (IRegistrationAuthority) getAuthority();
+                (IRegistrationAuthority) getAuthority();
         IRAService raService = (IRAService) ra.getRAService();
 
         if (raService == null) {
             throw new EProfileException("No RA Service");
         }
-
 
         IRequestQueue queue = ra.getRequestQueue();
 
@@ -94,13 +90,13 @@ public class RAEnrollProfile extends EnrollProfile {
             } else {
                 caConnector.send(request);
                 // check response
-                if (!request.isSuccess()) { 
+                if (!request.isSuccess()) {
                     CMS.debug("RAEnrollProfile error talking to CA setting req status to SVC_PENDING");
 
                     request.setRequestStatus(RequestStatus.SVC_PENDING);
 
                     try {
-                       queue.updateRequest(request);
+                        queue.updateRequest(request);
                     } catch (EBaseException e) {
                         CMS.debug("RAEnrollProfile: Update request " + e.toString());
                     }

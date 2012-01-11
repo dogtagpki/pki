@@ -17,10 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.request;
 
-
 //import java.io.Serializable;
-
-
 
 /**
  * This is an interface to a request scheduler that prioritizes
@@ -34,14 +31,14 @@ public interface IRequestScheduler {
 
     /**
      * Request entered the request queue processing.
-     *
+     * 
      * @param r request
      */
     public void requestIn(IRequest r);
 
     /**
      * Request exited the request queue processing.
-     *
+     * 
      * @param r request
      */
     public void requestOut(IRequest r);

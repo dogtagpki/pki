@@ -17,14 +17,12 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.ocsp;
 
-
 import com.netscape.certsrv.base.EBaseException;
-
 
 /**
  * A class represents a OCSP exception.
  * <P>
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class EOCSPException extends EBaseException {

@@ -17,10 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.logging;
 
-
 /**
  * Exception for log not found.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class ELogNotFound extends ELogException {
@@ -32,6 +31,7 @@ public class ELogNotFound extends ELogException {
 
     /**
      * Constructs a exception for a missing required log.
+     * 
      * @param errorString Detailed error message.
      */
     public ELogNotFound(String errorString) {

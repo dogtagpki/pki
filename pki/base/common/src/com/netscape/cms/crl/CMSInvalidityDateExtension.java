@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.crl;
 
-
 import java.io.IOException;
 import java.util.Date;
 import java.util.Locale;
@@ -33,21 +32,20 @@ import com.netscape.certsrv.ca.ICMSCRLExtension;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.ILogger;
 
-
 /**
  * This represents a invalidity date extension.
- *
+ * 
  * @version $Revision$, $Date$
  */
 public class CMSInvalidityDateExtension
-    implements ICMSCRLExtension, IExtendedPluginInfo {
+        implements ICMSCRLExtension, IExtendedPluginInfo {
     private ILogger mLogger = CMS.getLogger();
 
     public CMSInvalidityDateExtension() {
     }
 
     public Extension setCRLExtensionCriticality(Extension ext,
-        boolean critical) {
+            boolean critical) {
         InvalidityDateExtension invalidityDateExt = null;
 
         try {
@@ -62,8 +60,8 @@ public class CMSInvalidityDateExtension
     }
 
     public Extension getCRLExtension(IConfigStore config,
-        Object crlIssuingPoint,
-        boolean critical) {
+            Object crlIssuingPoint,
+            boolean critical) {
         InvalidityDateExtension invalidityDateExt = null;
 
         return invalidityDateExt;
@@ -83,12 +81,12 @@ public class CMSInvalidityDateExtension
                 "enable;boolean;Check to enable Invalidity Date CRL entry extension.",
                 "critical;boolean;Set criticality for Invalidity Date CRL entry extension.",
                 IExtendedPluginInfo.HELP_TOKEN +
-                ";configuration-ca-edit-crlextension-invaliditydate",
+                        ";configuration-ca-edit-crlextension-invaliditydate",
                 IExtendedPluginInfo.HELP_TEXT +
-                ";The invalidity date is a non-critical CRL entry extension " +
-                "that provides the date on which it is known or suspected " +
-                "that the private key was compromised or that the certificate" +
-                " otherwise became invalid."
+                        ";The invalidity date is a non-critical CRL entry extension " +
+                        "that provides the date on which it is known or suspected " +
+                        "that the private key was compromised or that the certificate" +
+                        " otherwise became invalid."
             };
 
         return params;
@@ -96,6 +94,6 @@ public class CMSInvalidityDateExtension
 
     private void log(int level, String msg) {
         mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_CA, level,
-            "CMSInvalidityDateExtension - " + msg);
+                "CMSInvalidityDateExtension - " + msg);
     }
-} 
+}
