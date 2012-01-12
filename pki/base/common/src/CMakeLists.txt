@@ -56,6 +56,13 @@ find_file(XERCES_JAR
         /usr/share/java
 )
 
+find_file(JAXRS_API_JAR
+    NAMES
+        jaxrs-api-2.2.1.GA.jar
+    PATHS
+        /usr/share/candlepin/lib
+)
+
 set(pki-certsrv_java_SRCS
     com/netscape/certsrv/apps/ICommandQueue.java
     com/netscape/certsrv/apps/CMS.java
@@ -512,6 +519,7 @@ set(pki-cms_java_SRCS
     com/netscape/cms/servlet/cert/CMCRevReqServlet.java
     com/netscape/cms/servlet/cert/GetBySerial.java
     com/netscape/cms/servlet/cert/DisplayCRL.java
+    com/netscape/cms/servlet/cert/model/CertificateData.java
     com/netscape/cms/servlet/admin/OCSPAdminServlet.java
     com/netscape/cms/servlet/admin/CMSAdminServlet.java
     com/netscape/cms/servlet/admin/JobsAdminServlet.java
@@ -529,6 +537,7 @@ set(pki-cms_java_SRCS
     com/netscape/cms/servlet/admin/LogAdminServlet.java
     com/netscape/cms/servlet/admin/RAAdminServlet.java
     com/netscape/cms/servlet/admin/AdminResources.java
+    com/netscape/cms/servlet/admin/SystemCertificateResource.java
     com/netscape/cms/servlet/key/DisplayBySerial.java
     com/netscape/cms/servlet/key/SrchKey.java
     com/netscape/cms/servlet/key/DisplayTransport.java
@@ -543,9 +552,16 @@ set(pki-cms_java_SRCS
     com/netscape/cms/servlet/key/RecoverBySerial.java
     com/netscape/cms/servlet/key/KeyRecordParser.java
     com/netscape/cms/servlet/key/DisplayBySerialForRecovery.java
+    com/netscape/cms/servlet/key/KeyResource.java
+    com/netscape/cms/servlet/key/KeysResource.java
+    com/netscape/cms/servlet/key/model/KeyDAO.java
+    com/netscape/cms/servlet/key/model/KeyDataInfo.java
+    com/netscape/cms/servlet/key/model/KeyDataInfos.java
+    com/netscape/cms/servlet/key/model/KeyData.java
     com/netscape/cms/servlet/base/IndexServlet.java
     com/netscape/cms/servlet/base/UserInfo.java
     com/netscape/cms/servlet/base/PortsServlet.java
+    com/netscape/cms/servlet/base/CMSResource.java
     com/netscape/cms/servlet/base/CMSServlet.java
     com/netscape/cms/servlet/base/CMSStartServlet.java
     com/netscape/cms/servlet/base/ProxyServlet.java
@@ -553,6 +569,7 @@ set(pki-cms_java_SRCS
     com/netscape/cms/servlet/base/GetStats.java
     com/netscape/cms/servlet/base/SystemInfoServlet.java
     com/netscape/cms/servlet/base/DisplayHtmlServlet.java
+    com/netscape/cms/servlet/base/model/Link.java
     com/netscape/cms/servlet/csadmin/BaseServlet.java
     com/netscape/cms/servlet/csadmin/ConfigCertReqServlet.java
     com/netscape/cms/servlet/csadmin/ImportAdminCertPanel.java
@@ -633,6 +650,13 @@ set(pki-cms_java_SRCS
     com/netscape/cms/servlet/request/ProcessCertReq.java
     com/netscape/cms/servlet/request/CertReqParser.java
     com/netscape/cms/servlet/request/KeyReqParser.java
+    com/netscape/cms/servlet/request/KeyRequestResource.java
+    com/netscape/cms/servlet/request/KeyRequestsResource.java
+    com/netscape/cms/servlet/request/model/ArchivalRequestData.java
+    com/netscape/cms/servlet/request/model/KeyRequestDAO.java
+    com/netscape/cms/servlet/request/model/KeyRequestInfo.java
+    com/netscape/cms/servlet/request/model/KeyRequestInfos.java
+    com/netscape/cms/servlet/request/model/RecoveryRequestData.java
     com/netscape/cms/servlet/tks/TokenServlet.java
     com/netscape/cms/servlet/connector/CloneServlet.java
     com/netscape/cms/servlet/connector/TokenKeyRecoveryServlet.java
@@ -994,7 +1018,7 @@ set(pki-cmsbundle_RCS
 set(CMAKE_JAVA_INCLUDE_PATH
     ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR}
     ${LDAPJDK_JAR} ${SERVLET_JAR} ${VELOCITY_JAR} ${XALAN_JAR} ${XERCES_JAR}
-    ${JSS_JAR} ${OSUTIL_JAR} ${SYMKEY_JAR})
+    ${JSS_JAR} ${OSUTIL_JAR} ${SYMKEY_JAR} ${JAXRS_API_JAR})
 
 set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
 
