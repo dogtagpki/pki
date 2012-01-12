@@ -17,9 +17,11 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.request.model;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
@@ -29,8 +31,10 @@ import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestList;
 import com.netscape.certsrv.request.IRequestQueue;
+import com.netscape.certsrv.request.IRequestVirtualList;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.cms.servlet.base.model.Link;
 
 /**
  * @author alee
@@ -39,6 +43,19 @@ import com.netscape.certsrv.request.RequestStatus;
 public class KeyRequestDAO {
     private IRequestQueue queue;
     
+    private String[] vlvFilters = {
+            "(requeststate=*)", "(requesttype=enrollment)",
+            "(requesttype=recovery)", "(requeststate=canceled)",
+            "(&(requeststate=canceled)(requesttype=enrollment))",
+            "(&(requeststate=canceled)(requesttype=recovery))", 
+            "(requeststate=rejected)", 
+            "(&(requeststate=rejected)(requesttype=enrollment))",
+            "(&(requeststate=rejected)(requesttype=recovery))",
+            "(requeststate=complete)",
+            "(&(requeststate=complete)(requesttype=enrollment))",
+            "(&(requeststate=complete)(requesttype=recovery))"
+    };
+    
     public KeyRequestDAO() {
         IKeyRecoveryAuthority kra = null;
         kra = ( IKeyRecoveryAuthority ) CMS.getSubsystem( "kra" );
@@ -46,20 +63,88 @@ public class KeyRequestDAO {
     }
 
     /**
-     * This will find the requests in the database matching the specified search parameters
-     * Needs input validation and probably paging, maybe using the vlv functions
-     * @throws EBaseException 
+     * Finds list of requests matching the specified search filter.  
+     * 
+     * If the filter corresponds to a VLV search, then that search is executed and the pageSize 
+     * and start parameters are used.  Otherwise, the maxResults and maxTime parameters are
+     * used in the regularly indexed search.
+     * 
+     * @param filter - ldap search filter
+     * @param start - start position for VLV search
+     * @param pageSize - page size for VLV search
+     * @param maxResults - max results to be returned in normal search
+     * @param maxTime - max time for normal search
+     * @param uriInfo - uri context of request
+     * @return collection of key request info
+     * @throws EBaseException
      */
-    public List<KeyRequestInfo> listRequests(String filter, UriInfo uriInfo) throws EBaseException {
-        List <KeyRequestInfo> list = new ArrayList<KeyRequestInfo>();  
-        IRequestList requests = queue.listRequestsByFilter(filter);
-        while (requests.hasMoreElements()) {
-            RequestId rid = (RequestId) requests.nextElement();
-            IRequest request;
-            request = queue.findRequest(rid);
-            list.add(createKeyRequestInfo(request, uriInfo));
+    public KeyRequestInfos listRequests(String filter, int start, int pageSize, int maxResults, int maxTime, 
+            UriInfo uriInfo) throws EBaseException {
+        List <KeyRequestInfo> list = new ArrayList<KeyRequestInfo>();
+        List <Link> links = new ArrayList<Link>();
+        int totalSize = 0;
+        int current = 0;
+        
+        if (isVLVSearch(filter)) {
+            RequestId id = new RequestId(Integer.toString(start));
+            IRequestVirtualList vlvlist = queue.getPagedRequestsByFilter(id, false, filter, 
+                                                                         pageSize +1 , "requestId");
+            totalSize = vlvlist.getSize();
+            current = vlvlist.getCurrentIndex();
+            
+            int numRecords = (totalSize > (current + pageSize)) ? pageSize :
+                totalSize - current;
+            
+            for (int i=0; i < numRecords; i++) {
+                IRequest request = vlvlist.getElementAt(i);
+                list.add(createKeyRequestInfo(request, uriInfo));
+            }
+        } else {
+            // The non-vlv requests are indexed, but are not paginated.
+            // We should think about whether they should be, or if we need to
+            // limit the number of results returned.
+            IRequestList requests = queue.listRequestsByFilter(filter, maxResults, maxTime);
+            while (requests.hasMoreElements()) {
+                RequestId rid = (RequestId) requests.nextElement();
+                IRequest request = queue.findRequest(rid);
+                if (request != null) {
+                    list.add(createKeyRequestInfo(request, uriInfo));
+                }
+            }
         }
-        return list;
+        
+        // builder for vlv links
+        MultivaluedMap<String, String> params = uriInfo.getQueryParameters();
+        UriBuilder builder = uriInfo.getAbsolutePathBuilder();
+        if (params.containsKey("requestState")) {
+            builder.queryParam("requestState", params.getFirst("requestState"));
+        }
+        if (params.containsKey("requestType")) {
+            builder.queryParam("requestType", params.getFirst("requestType"));
+        }
+        builder.queryParam("start", "{start}");
+        builder.queryParam("pageSize", "{pageSize}");
+        
+        // next link
+        if (totalSize > current + pageSize) {
+            int next = current + pageSize + 1;
+            URI nextUri = builder.clone().build(next,pageSize);
+            Link nextLink = new Link("next", nextUri.toString(), "application/xml");
+            links.add(nextLink);
+        }
+        
+        // previous link
+        if (current >0) {
+            int previous = current - pageSize;
+            URI previousUri = builder.clone().build(previous,pageSize);
+            Link previousLink = new Link("previous", previousUri.toString(), "application/xml");
+            links.add(previousLink);
+        }
+        
+        KeyRequestInfos ret = new KeyRequestInfos();
+        ret.setRequests(list);
+        ret.setLinks(links);
+        return ret;
     }
     
     /**
@@ -134,5 +219,14 @@ public class KeyRequestDAO {
         ret.setKeyURL(keyBuilder.build().toString());
         
         return ret;
+    }
+    
+    private boolean isVLVSearch(String filter) {
+        for (int i=0; i < vlvFilters.length; i++) {
+            if (vlvFilters[i].equalsIgnoreCase(filter)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

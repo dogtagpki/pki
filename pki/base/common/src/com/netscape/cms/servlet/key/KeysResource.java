@@ -20,21 +20,22 @@
  */
 package com.netscape.cms.servlet.key;
 
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
  
-import java.util.List;
-
+import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cms.servlet.base.CMSResource;
 import com.netscape.cms.servlet.key.model.KeyDAO;
-import com.netscape.cms.servlet.key.model.KeyDataInfo;
+import com.netscape.cms.servlet.key.model.KeyDataInfos;
 
 /**
  * @author alee
@@ -42,6 +43,9 @@ import com.netscape.cms.servlet.key.model.KeyDataInfo;
  */
 @Path("/keys")
 public class KeysResource extends CMSResource {
+
+    private static final String DEFAULT_MAXTIME = "10";
+    private static final String DEFAULT_MAXRESULTS = "100";
 
     @Context
     UriInfo uriInfo;
@@ -51,20 +55,51 @@ public class KeysResource extends CMSResource {
      */
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-    public List<KeyDataInfo> listKeys() {
+    public KeyDataInfos listKeys(@QueryParam("clientID") String clientID,
+                                 @QueryParam("status") String status,
+                                 @DefaultValue(DEFAULT_MAXRESULTS) @QueryParam("maxResults") int maxResults,
+                                 @DefaultValue(DEFAULT_MAXTIME) @QueryParam("maxTime") int maxTime) {
         // auth and authz
-        // parse search parameters from uriInfo and create search filter
-        // String clientID = uriInfo.getQueryParameters().getFirst(CLIENT_ID);
-        String filter = "objectClass=keyRecord";
+        
+        // get ldap filter
+        String filter = createSearchFilter(status, clientID);
+        CMS.debug("listKeys: filter is " + filter);
+       
         KeyDAO dao = new KeyDAO();
-        List<KeyDataInfo> info;
+        KeyDataInfos infos;
         try {
-            info = dao.listKeys(filter, uriInfo);
+            infos = dao.listKeys(filter, maxResults, maxTime, uriInfo);
         } catch (EBaseException e) {
             e.printStackTrace();
             throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
         }
-        return info;
+        return infos;
+    }
+    
+    private String createSearchFilter(String status, String clientID) {
+        String filter = "";
+        int matches = 0;
+        
+        if ((status == null) && (clientID == null)) {
+            filter = "(serialno=*)";
+            return filter;
+        }
+        
+        if (status != null) {
+            filter += "(status=" + status + ")";
+            matches ++;
+        }
+        
+        if (clientID != null) {
+            filter += "(clientID=" + clientID + ")";
+            matches ++;
+        }
+        
+        if (matches > 1) {
+            filter = "(&" + filter + ")";
+        }
+        
+        return filter;
     }
 
 }

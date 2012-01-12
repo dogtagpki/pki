@@ -38,8 +38,6 @@ import com.netscape.cms.servlet.request.model.RecoveryRequestData;
 public class KeyDAO {
 
     private IKeyRepository repo;
-    private int maxSize = 100;
-    private int maxTime = 20;
     
     public KeyDAO() {
         IKeyRecoveryAuthority kra = null;
@@ -47,25 +45,37 @@ public class KeyDAO {
         repo = kra.getKeyRepository();
     }
     /**
-     * This will find the keys in the database matching the specified search parameters
-     * Needs input validation and probably paging, maybe using the vlv functions
-     * @throws EBaseException 
+     * Returns list of keys meeting specified search filter.
+     * Currently, vlv searches are not used for keys.
+     * 
+     * @param filter
+     * @param maxResults
+     * @param maxTime
+     * @param uriInfo
+     * @return
+     * @throws EBaseException
      */
-    public List<KeyDataInfo> listKeys(String filter, UriInfo uriInfo) throws EBaseException {
-        List <KeyDataInfo> list = new ArrayList<KeyDataInfo>();         
+    public KeyDataInfos listKeys(String filter, int maxResults, int maxTime, UriInfo uriInfo) 
+        throws EBaseException {
+        List <KeyDataInfo> list = new ArrayList<KeyDataInfo>();
         Enumeration<IKeyRecord> e = null;
         
-        e = repo.searchKeys(filter, maxSize, maxTime);
-         
+        e = repo.searchKeys(filter, maxResults, maxTime); 
         if (e == null) {
             throw new EBaseException("search results are null");
         }
         
         while (e.hasMoreElements()) {
             IKeyRecord rec = e.nextElement();
-            list.add(createKeyDataInfo(rec, uriInfo));
+            if (rec != null) {
+                list.add(createKeyDataInfo(rec, uriInfo));
+            }
         }
-        return list;
+        
+        KeyDataInfos ret = new KeyDataInfos();
+        ret.setKeyInfos(list);
+        
+        return ret;
     }
     
     public KeyData getKey(String keyId, RecoveryRequestData data) throws EBaseException {

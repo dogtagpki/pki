@@ -18,11 +18,11 @@
  
 package com.netscape.cms.servlet.request;
 
-import java.util.List;
-
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -33,7 +33,7 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cms.servlet.base.CMSResource;
 import com.netscape.cms.servlet.request.model.KeyRequestDAO;
-import com.netscape.cms.servlet.request.model.KeyRequestInfo;
+import com.netscape.cms.servlet.request.model.KeyRequestInfos;
  
 /**
  * @author alee
@@ -41,7 +41,12 @@ import com.netscape.cms.servlet.request.model.KeyRequestInfo;
  */
 @Path("/keyrequests")
 public class KeyRequestsResource extends CMSResource {
- 
+
+    private static final int DEFAULT_START = 0;
+    private static final String DEFAULT_PAGESIZE = "20";
+    private static final String DEFAULT_MAXRESULTS = "100";
+    private static final String DEFAULT_MAXTIME = "10";
+
     @Context
     UriInfo uriInfo;
 
@@ -50,24 +55,75 @@ public class KeyRequestsResource extends CMSResource {
      */
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-    public List<KeyRequestInfo> listRequests() {
+    public KeyRequestInfos listRequests(@QueryParam("requestState") String requestState,
+                                        @QueryParam("requestType") String requestType,
+                                        @QueryParam("clientID") String clientID,
+                                        @QueryParam("start") String start_s,
+                                        @DefaultValue(DEFAULT_PAGESIZE) @QueryParam("pageSize") int pageSize,
+                                        @DefaultValue(DEFAULT_MAXRESULTS) @QueryParam("maxResults") int maxResults,
+                                        @DefaultValue(DEFAULT_MAXTIME) @QueryParam("maxTime") int maxTime) {
         // auth and authz
-        // parse search parameters from uriInfo and create search filter
-        // String clientID = uriInfo.getQueryParameters().getFirst(CLIENT_ID);
-        String filter = "requestState=complete";
+        
+        // get ldap filter
+        String filter = createSearchFilter(requestState, requestType, clientID);
+        CMS.debug("listRequests: filter is " + filter);
+       
+        
+        // get start marker
+        int start = DEFAULT_START;
+        if (start_s != null) {
+            try {
+                if (start_s.trim().startsWith("0x")) {
+                    start = Integer.parseInt(start_s.trim().substring(2), 16);
+                } else {
+                    start = Integer.parseInt(start_s.trim());
+                }
+            } catch (NumberFormatException e) {
+                CMS.debug("listRequests: NumberformatException: Invalid value for start " + start_s);
+                throw new WebApplicationException(Response.Status.NOT_FOUND);
+            }
+        }
+        
         KeyRequestDAO reqDAO = new KeyRequestDAO();
-        List<KeyRequestInfo> requests;
+        KeyRequestInfos requests;
         try {
-            CMS.debug("alee: getting requests");
-            requests = reqDAO.listRequests(filter, uriInfo);
-            CMS.debug("alee: got request");
+            requests = reqDAO.listRequests(filter, start, pageSize, maxResults, maxTime, uriInfo);
         } catch (EBaseException e) {
-            // log error
+            CMS.debug("listRequests: error in obtaining request results" + e);
             e.printStackTrace();
             throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
         }
-        CMS.debug("going into return");
         return requests;
     }
+
+    private String createSearchFilter(String requestState, String requestType, String clientID) {
+        String filter = "";
+        int matches = 0;
         
+        if ((requestState == null) && (requestType == null) && (clientID == null)) {
+            filter = "(requeststate=*)";
+            return filter;
+        }
+        
+        if (requestState != null) {
+            filter += "(requeststate=" + requestState + ")";
+            matches ++;
+        }
+        
+        if (requestType != null) {
+            filter += "(requesttype=" + requestType + ")";
+            matches ++;
+        }
+        
+        if (clientID != null) {
+            filter += "(clientID=" + clientID + ")";
+            matches ++;
+        }
+        
+        if (matches > 1) {
+            filter = "(&" + filter + ")";
+        }
+        
+        return filter;
+    }
 }
