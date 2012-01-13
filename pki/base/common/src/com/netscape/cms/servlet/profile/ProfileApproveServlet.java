@@ -371,20 +371,19 @@ public class ProfileApproveServlet extends ProfileServlet {
             return;
         }
 
-        Enumeration policySetIds = profile.getProfilePolicySetIds();
+        Enumeration<String> policySetIds = profile.getProfilePolicySetIds();
 
         ArgList setlist = new ArgList();
 
         while (policySetIds.hasMoreElements()) {
-            String setId = (String) policySetIds.nextElement();
+            String setId = policySetIds.nextElement();
 
-            Enumeration policyIds = profile.getProfilePolicyIds(setId);
+            Enumeration<String> policyIds = profile.getProfilePolicyIds(setId);
             ArgList list = new ArgList();
 
             while (policyIds.hasMoreElements()) {
-                String id = (String) policyIds.nextElement();
-                IProfilePolicy policy = (IProfilePolicy)
-                        profile.getProfilePolicy(setId, id);
+                String id = policyIds.nextElement();
+                IProfilePolicy policy = profile.getProfilePolicy(setId, id);
 
                 // (3) query all the profile policies
                 // (4) default plugins convert request parameters
@@ -424,12 +423,12 @@ public class ProfileApproveServlet extends ProfileServlet {
         set.set(ARG_DEF_DESC, dDesc);
 
         ArgList deflist = new ArgList();
-        Enumeration defNames = def.getValueNames();
+        Enumeration<String> defNames = def.getValueNames();
 
         if (defNames != null) {
             while (defNames.hasMoreElements()) {
                 ArgSet defset = new ArgSet();
-                String defName = (String) defNames.nextElement();
+                String defName = defNames.nextElement();
                 IDescriptor defDesc = def.getValueDescriptor(locale, defName);
                 if (defDesc == null) {
                     CMS.debug("defName=" + defName);

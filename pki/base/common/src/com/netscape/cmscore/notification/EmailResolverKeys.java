@@ -35,10 +35,10 @@ public class EmailResolverKeys implements IEmailResolverKeys {
      *
      */
     private static final long serialVersionUID = -8823197350102151516L;
-    private Hashtable mKeys = null;
+    private Hashtable<String, Object> mKeys = null;
 
     public EmailResolverKeys() {
-        mKeys = new Hashtable();
+        mKeys = new Hashtable<String, Object>();
     }
 
     /**
@@ -65,7 +65,7 @@ public class EmailResolverKeys implements IEmailResolverKeys {
      * @return the named email resolver key
      */
     public Object get(String name) {
-        return ((Object) mKeys.get(name));
+        return mKeys.get(name);
     }
 
     /**
@@ -87,7 +87,7 @@ public class EmailResolverKeys implements IEmailResolverKeys {
      * @return an enumeration of the values in this key set
      * @see java.util.Enumeration
      */
-    public Enumeration getElements() {
-        return (mKeys.elements());
+    public Enumeration<Object> getElements() {
+        return mKeys.elements();
     }
 }

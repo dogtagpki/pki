@@ -79,10 +79,10 @@ public class CMSGateway {
 
     public static Hashtable toHashtable(HttpServletRequest req) {
         Hashtable httpReqHash = new Hashtable();
-        Enumeration names = req.getParameterNames();
+        Enumeration<String> names = req.getParameterNames();
 
         while (names.hasMoreElements()) {
-            String name = (String) names.nextElement();
+            String name = names.nextElement();
 
             httpReqHash.put(name, req.getParameter(name));
         }

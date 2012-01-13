@@ -21,7 +21,7 @@ import java.util.Enumeration;
 import java.util.Vector;
 
 public class AttributeSet {
-    private Vector _attrs = new Vector();
+    private Vector<Attribute> _attrs = new Vector<Attribute>();
 
     public AttributeSet() {
     }
@@ -34,7 +34,7 @@ public class AttributeSet {
         return _attrs.size();
     }
 
-    public Enumeration getAttributes() {
+    public Enumeration<Attribute> getAttributes() {
         return _attrs.elements();
     }
 
@@ -51,6 +51,6 @@ public class AttributeSet {
     }
 
     public Attribute getAttributeAt(int pos) {
-        return (Attribute) _attrs.elementAt(pos);
+        return _attrs.elementAt(pos);
     }
 }

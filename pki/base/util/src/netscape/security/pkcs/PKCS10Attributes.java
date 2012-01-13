@@ -35,19 +35,19 @@ import netscape.security.util.DerValue;
  * @author Hemma Prafullchandra
  * @version 1.10
  */
-public class PKCS10Attributes extends Vector implements DerEncoder {
+public class PKCS10Attributes extends Vector<PKCS10Attribute> implements DerEncoder {
 
     /**
      *
      */
     private static final long serialVersionUID = 1362260612357629542L;
-    private Hashtable map;
+    private Hashtable<String, PKCS10Attribute> map;
 
     /**
      * Default constructor for the certificate attribute.
      */
     public PKCS10Attributes() {
-        map = new Hashtable();
+        map = new Hashtable<String, PKCS10Attribute>();
     }
 
     /**
@@ -59,7 +59,7 @@ public class PKCS10Attributes extends Vector implements DerEncoder {
     public PKCS10Attributes(DerInputStream in)
             throws IOException {
 
-        map = new Hashtable();
+        map = new Hashtable<String, PKCS10Attribute>();
         DerValue[] attrs = in.getSet(5, true);
 
         if (attrs != null) {
@@ -107,41 +107,41 @@ public class PKCS10Attributes extends Vector implements DerEncoder {
     /**
      * Set the attribute value.
      */
-    public void setAttribute(String name, Object obj) throws IOException {
-        map.put(name, obj);
-        addElement(obj);
+    public void setAttribute(String name, PKCS10Attribute attr) throws IOException {
+        map.put(name, attr);
+        addElement(attr);
     }
 
     /**
      * Get the attribute value.
      */
-    public Object getAttribute(String name) throws IOException {
-        Object obj = map.get(name);
+    public PKCS10Attribute getAttribute(String name) throws IOException {
+        PKCS10Attribute attr = map.get(name);
         /*
-        if (obj == null) {
+        if (attr == null) {
             throw new IOException("No attribute found with name " + name);
         }
         */
-        return (obj);
+        return (attr);
     }
 
     /**
      * Delete the attribute value.
      */
     public void deleteAttribute(String name) throws IOException {
-        Object obj = map.get(name);
-        if (obj == null) {
+        PKCS10Attribute attr = map.get(name);
+        if (attr == null) {
             throw new IOException("No attribute found with name " + name);
         }
         map.remove(name);
-        removeElement(obj);
+        removeElement(attr);
     }
 
     /**
      * Return an enumeration of names of attributes existing within this
      * attribute.
      */
-    public Enumeration getElements() {
-        return (map.elements());
+    public Enumeration<PKCS10Attribute> getElements() {
+        return map.elements();
     }
 }

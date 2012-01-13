@@ -39,7 +39,7 @@ import com.netscape.certsrv.dbs.IDBObj;
 public class DateArrayMapper implements IDBAttrMapper {
 
     private String mLdapName = null;
-    private Vector v = new Vector();
+    private Vector<String> v = new Vector<String>();
 
     /**
      * Constructs a date array mapper.
@@ -52,7 +52,7 @@ public class DateArrayMapper implements IDBAttrMapper {
     /**
      * Retrieves a list of support ldap attributes.
      */
-    public Enumeration getSupportedLDAPAttributeNames() {
+    public Enumeration<String> getSupportedLDAPAttributeNames() {
         return v.elements();
     }
 
@@ -84,12 +84,12 @@ public class DateArrayMapper implements IDBAttrMapper {
 
         if (attr == null)
             return;
-        Enumeration e = attr.getStringValues();
-        Vector v = new Vector();
+        @SuppressWarnings("unchecked")
+        Enumeration<String> e = attr.getStringValues();
+        Vector<Date> v = new Vector<Date>();
 
         while (e.hasMoreElements()) {
-            v.addElement(DateMapper.dateFromDB((String)
-                    e.nextElement()));
+            v.addElement(DateMapper.dateFromDB(e.nextElement()));
         }
         if (v.size() == 0)
             return;

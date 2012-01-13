@@ -77,13 +77,13 @@ public class GenErrorTemplateFiller implements ICMSTemplateFiller {
         // Change end
 
         // error description if any.
-        Vector descr = cmsReq.getErrorDescr();
+        Vector<String> descr = cmsReq.getErrorDescr();
 
         if (descr != null) {
-            Enumeration num = descr.elements();
+            Enumeration<String> num = descr.elements();
 
             while (num.hasMoreElements()) {
-                String elem = (String) num.nextElement();
+                String elem = num.nextElement();
                 //System.out.println("Setting description "+elem.toString());
                 IArgBlock argBlock = CMS.createArgBlock();
 

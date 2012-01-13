@@ -108,7 +108,7 @@ public class ExtendedKeyUsageExtConstraint extends EnrollConstraint {
         }
 
         // Build local cache of configured OIDs
-        Vector mCache = new Vector();
+        Vector<String> mCache = new Vector<String>();
         StringTokenizer st = new StringTokenizer(getConfig(CONFIG_OIDS), ",");
 
         while (st.hasMoreTokens()) {
@@ -118,10 +118,10 @@ public class ExtendedKeyUsageExtConstraint extends EnrollConstraint {
         }
 
         // check OIDs
-        Enumeration e = ext.getOIDs();
+        Enumeration<ObjectIdentifier> e = ext.getOIDs();
 
         while (e.hasMoreElements()) {
-            ObjectIdentifier oid = (ObjectIdentifier) e.nextElement();
+            ObjectIdentifier oid = e.nextElement();
 
             if (!mCache.contains(oid.toString())) {
                 throw new ERejectException(

@@ -34,7 +34,7 @@ public class StatsEvent {
     private long mTimeTaken = 0;
     private long mTimeTakenSqSum = 0;
     private long mNoOfOperations = 0;
-    private Vector mSubEvents = new Vector();
+    private Vector<StatsEvent> mSubEvents = new Vector<StatsEvent>();
     private StatsEvent mParent = null;
 
     public StatsEvent(StatsEvent parent) {
@@ -59,11 +59,11 @@ public class StatsEvent {
     /**
      * Retrieves a list of sub transaction names.
      */
-    public Enumeration getSubEventNames() {
-        Vector names = new Vector();
-        Enumeration e = mSubEvents.elements();
+    public Enumeration<String> getSubEventNames() {
+        Vector<String> names = new Vector<String>();
+        Enumeration<StatsEvent> e = mSubEvents.elements();
         while (e.hasMoreElements()) {
-            StatsEvent st = (StatsEvent) e.nextElement();
+            StatsEvent st = e.nextElement();
             names.addElement(st.getName());
         }
         return names.elements();
@@ -73,9 +73,9 @@ public class StatsEvent {
      * Retrieves a sub transaction.
      */
     public StatsEvent getSubEvent(String name) {
-        Enumeration e = mSubEvents.elements();
+        Enumeration<StatsEvent> e = mSubEvents.elements();
         while (e.hasMoreElements()) {
-            StatsEvent st = (StatsEvent) e.nextElement();
+            StatsEvent st = e.nextElement();
             if (st.getName().equals(name)) {
                 return st;
             }
@@ -89,9 +89,9 @@ public class StatsEvent {
         mNoOfOperations = 0;
         mTimeTaken = 0;
         mTimeTakenSqSum = 0;
-        Enumeration e = getSubEventNames();
+        Enumeration<String> e = getSubEventNames();
         while (e.hasMoreElements()) {
-            String n = (String) e.nextElement();
+            String n = e.nextElement();
             StatsEvent c = getSubEvent(n);
             c.resetCounters();
         }

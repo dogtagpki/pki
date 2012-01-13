@@ -57,7 +57,7 @@ public class KeyRecord implements IDBObj, IKeyRecord {
     private Date mModifyTime = null;
     private String mArchivedBy = null;
 
-    protected static Vector mNames = new Vector();
+    protected static Vector<String> mNames = new Vector<String>();
     static {
         mNames.addElement(ATTR_STATE);
         mNames.addElement(ATTR_ID);
@@ -179,14 +179,14 @@ public class KeyRecord implements IDBObj, IKeyRecord {
      * Retrieves an enumeration of attributes.
      * <P>
      */
-    public Enumeration getElements() {
+    public Enumeration<String> getElements() {
         return mNames.elements();
     }
 
     /**
      * Retrieves serializable attribute names.
      */
-    public Enumeration getSerializableAttrNames() {
+    public Enumeration<String> getSerializableAttrNames() {
         return mNames.elements();
     }
 

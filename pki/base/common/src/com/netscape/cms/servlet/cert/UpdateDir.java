@@ -416,7 +416,7 @@ public class UpdateDir extends CMSServlet {
                 if (updateValue[VALID_TO].startsWith("0x")) {
                     updateValue[VALID_TO] = hexToDecimal(updateValue[VALID_TO]);
                 }
-                Enumeration validCerts = null;
+                Enumeration<ICertRecord> validCerts = null;
 
                 if (updateValue[CHECK_FLAG] != null &&
                         updateValue[CHECK_FLAG].equalsIgnoreCase("yes")) {
@@ -437,7 +437,7 @@ public class UpdateDir extends CMSServlet {
                 if (validCerts != null) {
                     while (validCerts.hasMoreElements()) {
                         ICertRecord certRecord =
-                                (ICertRecord) validCerts.nextElement();
+                                validCerts.nextElement();
                         //X509CertImpl cert = certRecord.getCertificate();
                         X509CertImpl cert = null;
                         Object o = certRecord.getCertificate();
@@ -534,7 +534,7 @@ public class UpdateDir extends CMSServlet {
                 if (updateValue[EXPIRED_TO].startsWith("0x")) {
                     updateValue[EXPIRED_TO] = hexToDecimal(updateValue[EXPIRED_TO]);
                 }
-                Enumeration expiredCerts = null;
+                Enumeration<ICertRecord> expiredCerts = null;
 
                 if (updateValue[CHECK_FLAG] != null &&
                         updateValue[CHECK_FLAG].equalsIgnoreCase("yes")) {
@@ -554,8 +554,7 @@ public class UpdateDir extends CMSServlet {
 
                 if (expiredCerts != null) {
                     while (expiredCerts.hasMoreElements()) {
-                        ICertRecord certRecord =
-                                (ICertRecord) expiredCerts.nextElement();
+                        ICertRecord certRecord = expiredCerts.nextElement();
                         //X509CertImpl cert = certRecord.getCertificate();
                         X509CertImpl cert = null;
                         Object o = certRecord.getCertificate();
@@ -643,7 +642,7 @@ public class UpdateDir extends CMSServlet {
                 if (updateValue[REVOKED_TO].startsWith("0x")) {
                     updateValue[REVOKED_TO] = hexToDecimal(updateValue[REVOKED_TO]);
                 }
-                Enumeration revokedCerts = null;
+                Enumeration<ICertRecord> revokedCerts = null;
 
                 if (updateValue[CHECK_FLAG] != null &&
                         updateValue[CHECK_FLAG].equalsIgnoreCase("yes")) {
@@ -663,8 +662,7 @@ public class UpdateDir extends CMSServlet {
 
                 if (revokedCerts != null) {
                     while (revokedCerts.hasMoreElements()) {
-                        ICertRecord certRecord =
-                                (ICertRecord) revokedCerts.nextElement();
+                        ICertRecord certRecord = revokedCerts.nextElement();
                         //X509CertImpl cert = certRecord.getCertificate();
                         X509CertImpl cert = null;
                         Object o = certRecord.getCertificate();

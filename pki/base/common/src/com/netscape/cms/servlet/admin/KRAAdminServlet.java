@@ -188,14 +188,15 @@ public class KRAAdminServlet extends AdminServlet {
     private void setGeneralConfig(HttpServletRequest req,
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
-        Enumeration enum1 = req.getParameterNames();
+        @SuppressWarnings("unchecked")
+        Enumeration<String> enum1 = req.getParameterNames();
         boolean restart = false;
 
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
 
         while (enum1.hasMoreElements()) {
-            String key = (String) enum1.nextElement();
+            String key = enum1.nextElement();
             String value = req.getParameter(key);
 
             if (key.equals(Constants.PR_NO_OF_REQUIRED_RECOVERY_AGENTS)) {

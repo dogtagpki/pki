@@ -295,11 +295,12 @@ public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInf
         if (attr == null) {
             return false;
         }
-        Enumeration vals = attr.getByteValues();
+        @SuppressWarnings("unchecked")
+        Enumeration<byte[]> vals = attr.getByteValues();
         byte[] val = null;
 
         while (vals.hasMoreElements()) {
-            val = (byte[]) vals.nextElement();
+            val = vals.nextElement();
             if (val.length == 0)
                 continue;
             if (Utils.byteArraysAreEqual(val, bval)) {
@@ -316,11 +317,12 @@ public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInf
         if (attr == null) {
             return false;
         }
-        Enumeration vals = attr.getStringValues();
+        @SuppressWarnings("unchecked")
+        Enumeration<String> vals = attr.getStringValues();
         String val = null;
 
         while (vals.hasMoreElements()) {
-            val = (String) vals.nextElement();
+            val = vals.nextElement();
             if (val.equalsIgnoreCase(sval)) {
                 return true;
             }

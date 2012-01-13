@@ -29,7 +29,7 @@ import java.util.Vector;
  * 
  * @version $Revision$, $Date$
  */
-public class HashAuthData extends Hashtable {
+public class HashAuthData extends Hashtable<String, Vector<Object>> {
 
     /**
      *
@@ -42,7 +42,7 @@ public class HashAuthData extends Hashtable {
     }
 
     public String getAgentName(String hostname) {
-        Vector val = (Vector) get(hostname);
+        Vector<Object> val = get(hostname);
 
         if (val != null)
             return (String) val.elementAt(0);
@@ -50,17 +50,17 @@ public class HashAuthData extends Hashtable {
     }
 
     public void setAgentName(String hostname, String agentName) {
-        Vector val = (Vector) get(hostname);
+        Vector<Object> val = get(hostname);
 
         if (val == null) {
-            val = new Vector();
+            val = new Vector<Object>();
             put(hostname, val);
         }
         val.setElementAt(agentName, 0);
     }
 
     public long getTimeout(String hostname) {
-        Vector val = (Vector) get(hostname);
+        Vector<Object> val = get(hostname);
 
         if (val != null) {
             return ((Long) val.elementAt(1)).longValue();
@@ -69,17 +69,17 @@ public class HashAuthData extends Hashtable {
     }
 
     public void setTimeout(String hostname, long timeout) {
-        Vector val = (Vector) get(hostname);
+        Vector<Object> val = get(hostname);
 
         if (val == null) {
-            val = new Vector();
+            val = new Vector<Object>();
             put(hostname, val);
         }
         val.setElementAt(Long.valueOf(timeout), 1);
     }
 
     public String getSecret(String hostname) {
-        Vector val = (Vector) get(hostname);
+        Vector<Object> val = get(hostname);
 
         if (val != null) {
             return (String) val.elementAt(2);
@@ -88,17 +88,17 @@ public class HashAuthData extends Hashtable {
     }
 
     public void setSecret(String hostname, String secret) {
-        Vector val = (Vector) get(hostname);
+        Vector<Object> val = get(hostname);
 
         if (val == null) {
-            val = new Vector();
+            val = new Vector<Object>();
             put(hostname, val);
         }
         val.setElementAt(secret, 2);
     }
 
     public long getLastLogin(String hostname) {
-        Vector val = (Vector) get(hostname);
+        Vector<Object> val = get(hostname);
 
         if (val != null) {
             return ((Long) val.elementAt(3)).longValue();
@@ -107,10 +107,10 @@ public class HashAuthData extends Hashtable {
     }
 
     public void setLastLogin(String hostname, long lastLogin) {
-        Vector val = (Vector) get(hostname);
+        Vector<Object> val = get(hostname);
 
         if (val == null) {
-            val = new Vector();
+            val = new Vector<Object>();
             put(hostname, val);
         }
         val.setElementAt(Long.valueOf(lastLogin), 3);

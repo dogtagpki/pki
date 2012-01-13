@@ -43,7 +43,7 @@ public class HttpPKIMessage implements IHttpPKIMessage {
     public String reqType = "";
     public String reqId = "";
     protected String reqStatus = "";
-    protected Vector mNameVals = new Vector(); // sequence of name/vals.
+    protected Vector<Object> mNameVals = new Vector<Object>(); // sequence of name/vals.
 
     public HttpPKIMessage() {
     }
@@ -94,6 +94,7 @@ public class HttpPKIMessage implements IHttpPKIMessage {
     /**
      * copy contents to request.
      */
+    @SuppressWarnings("unchecked")
     public void toRequest(IRequest r) {
         // id, type and status 
         // type had to have been set in instantiation.
@@ -105,7 +106,7 @@ public class HttpPKIMessage implements IHttpPKIMessage {
         int len = RequestTransfer.getTransferAttributes(r).length;
         String key;
         Object value;
-        Enumeration enum1 = mNameVals.elements();
+        Enumeration<Object> enum1 = mNameVals.elements();
 
         while (enum1.hasMoreElements()) {
             key = (String) enum1.nextElement();
@@ -137,7 +138,7 @@ public class HttpPKIMessage implements IHttpPKIMessage {
         out.writeObject(reqStatus);
         if (Debug.ON)
             Debug.trace("read object req source status " + reqStatus);
-        Enumeration enum1 = mNameVals.elements();
+        Enumeration<Object> enum1 = mNameVals.elements();
 
         while (enum1.hasMoreElements()) {
             Object key = null;
@@ -175,7 +176,7 @@ public class HttpPKIMessage implements IHttpPKIMessage {
         reqType = (String) in.readObject();
         reqId = (String) in.readObject();
         reqStatus = (String) in.readObject();
-        mNameVals = new Vector();
+        mNameVals = new Vector<Object>();
         Object keyorval = null;
 
         try {

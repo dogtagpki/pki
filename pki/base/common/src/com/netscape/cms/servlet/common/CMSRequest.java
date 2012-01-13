@@ -78,7 +78,7 @@ public class CMSRequest {
     private String mError = null;
 
     // any error description.
-    private Vector mErrorDescr = null;
+    private Vector<String> mErrorDescr = null;
 
     // any request resulting data;
     Object mResult = null;
@@ -170,7 +170,7 @@ public class CMSRequest {
 
     public void setErrorDescription(String descr) {
         if (mErrorDescr == null)
-            mErrorDescr = new Vector();
+            mErrorDescr = new Vector<String>();
         mErrorDescr.addElement(descr);
     }
 
@@ -215,7 +215,7 @@ public class CMSRequest {
         return mError;
     }
 
-    public Vector getErrorDescr() {
+    public Vector<String> getErrorDescr() {
         return mErrorDescr;
     }
 

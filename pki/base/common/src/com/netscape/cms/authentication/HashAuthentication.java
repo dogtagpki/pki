@@ -123,7 +123,7 @@ public class HashAuthentication implements IAuthManager, IExtendedPluginInfo {
 
     public void createEntry(String host, String dn, long timeout,
             String secret, long lastLogin) {
-        Vector v = new Vector();
+        Vector<Object> v = new Vector<Object>();
 
         v.addElement(dn);
         v.addElement(Long.valueOf(timeout));
@@ -193,7 +193,7 @@ public class HashAuthentication implements IAuthManager, IExtendedPluginInfo {
         return false;
     }
 
-    public Enumeration getHosts() {
+    public Enumeration<String> getHosts() {
         return mHosts.keys();
     }
 

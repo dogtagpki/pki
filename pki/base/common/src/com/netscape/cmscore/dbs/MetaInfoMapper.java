@@ -48,7 +48,7 @@ public class MetaInfoMapper implements IDBAttrMapper {
     public static final String SEP = ":";
 
     private String mLdapName = null;
-    private Vector v = new Vector();
+    private Vector<String> v = new Vector<String>();
 
     /**
      * Constructs a metainfo object.
@@ -61,7 +61,7 @@ public class MetaInfoMapper implements IDBAttrMapper {
     /**
      * Returns a list of supported ldap attribute names.
      */
-    public Enumeration getSupportedLDAPAttributeNames() {
+    public Enumeration<String> getSupportedLDAPAttributeNames() {
         return v.elements();
     }
 
@@ -72,7 +72,7 @@ public class MetaInfoMapper implements IDBAttrMapper {
             String name, Object obj, LDAPAttributeSet attrs)
             throws EBaseException {
         MetaInfo info = (MetaInfo) obj;
-        Enumeration e = info.getElements();
+        Enumeration<String> e = info.getElements();
 
         if (!e.hasMoreElements())
             return; // dont add anything
@@ -80,7 +80,7 @@ public class MetaInfoMapper implements IDBAttrMapper {
 
         while (e.hasMoreElements()) {
             String s = null;
-            String attrName = (String) e.nextElement();
+            String attrName = e.nextElement();
             String value = (String) info.get(attrName);
 
             s = attrName + SEP + value;
@@ -99,11 +99,12 @@ public class MetaInfoMapper implements IDBAttrMapper {
 
         if (attr == null)
             return;
-        Enumeration values = attr.getStringValues();
+        @SuppressWarnings("unchecked")
+        Enumeration<String> values = attr.getStringValues();
         MetaInfo info = new MetaInfo();
 
         while (values.hasMoreElements()) {
-            String s = (String) values.nextElement();
+            String s = values.nextElement();
             StringTokenizer st = new StringTokenizer(s, SEP);
 
             info.set(st.nextToken(), st.nextToken());

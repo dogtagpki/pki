@@ -254,11 +254,12 @@ public class LdapCertSubjPublisher implements ILdapPublisher {
             if (certs != null) {
                 hasCert = LdapUserCertPublisher.ByteValueExists(certs, certEnc);
                 // check for other certs with the same subject name
-                Enumeration vals = certs.getByteValues();
+                @SuppressWarnings("unchecked")
+                Enumeration<byte[]> vals = certs.getByteValues();
                 byte[] val = null;
 
                 while (vals.hasMoreElements()) {
-                    val = (byte[]) vals.nextElement();
+                    val = vals.nextElement();
                     if (Utils.byteArraysAreEqual(certEnc, val)) {
                         hasCert = true;
                         continue;

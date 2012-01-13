@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.apps;
 
+import java.util.Enumeration;
 import java.util.Hashtable;
 
 import javax.servlet.Servlet;
@@ -82,7 +83,7 @@ public class CommandQueue implements Runnable, ICommandQueue {
     }
 
     public void unRegisterProccess(Object currentRequest, Object currentServlet) {
-        java.util.Enumeration e = mCommandQueue.keys();
+        Enumeration<CMSRequest> e = mCommandQueue.keys();
 
         while (e.hasMoreElements()) {
             Object thisRequest = e.nextElement();

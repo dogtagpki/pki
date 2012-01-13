@@ -189,7 +189,7 @@ public class UnpublishExpiredJob extends AJobBase
         // a test for without CertRecord.META_LDAPPUBLISH
         //String filter = "(x509Cert.notAfter<="+ now +")";
 
-        Enumeration expired = null;
+        Enumeration<Object> expired = null;
 
         try {
             expired = mRepository.findCertRecs(filter);

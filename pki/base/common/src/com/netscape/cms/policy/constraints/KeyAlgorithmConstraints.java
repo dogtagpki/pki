@@ -52,7 +52,7 @@ import com.netscape.cms.policy.APolicyRule;
  */
 public class KeyAlgorithmConstraints extends APolicyRule
         implements IEnrollmentPolicy, IExtendedPluginInfo {
-    private Vector mAlgorithms;
+    private Vector<String> mAlgorithms;
     private final static String DEF_KEY_ALGORITHM = "RSA,DSA";
     private final static String PROP_ALGORITHMS = "algorithms";
     private final static String[] supportedAlgorithms =
@@ -96,7 +96,7 @@ public class KeyAlgorithmConstraints extends APolicyRule
     public void init(ISubsystem owner, IConfigStore config)
             throws EPolicyException {
 
-        mAlgorithms = new Vector();
+        mAlgorithms = new Vector<String>();
 
         if (config == null || config.size() == 0) {
             mAlgorithms.addElement(DEF_KEY_ALGORITHM);
@@ -130,9 +130,9 @@ public class KeyAlgorithmConstraints extends APolicyRule
         }
 
         // Check if configured algorithms are supported.
-        for (Enumeration e = mAlgorithms.elements(); e.hasMoreElements();) {
+        for (Enumeration<String> e = mAlgorithms.elements(); e.hasMoreElements();) {
             int i;
-            String configuredAlg = (String) e.nextElement();
+            String configuredAlg = e.nextElement();
 
             // See if it is a supported algorithm.
             for (i = 0; i < supportedAlgorithms.length; i++) {
@@ -200,12 +200,12 @@ public class KeyAlgorithmConstraints extends APolicyRule
      * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getInstanceParams() {
-        Vector v = new Vector();
+    public Vector<String> getInstanceParams() {
+        Vector<String> v = new Vector<String>();
         StringBuffer sb = new StringBuffer();
 
-        for (Enumeration e = mAlgorithms.elements(); e.hasMoreElements();) {
-            sb.append((String) e.nextElement());
+        for (Enumeration<String> e = mAlgorithms.elements(); e.hasMoreElements();) {
+            sb.append(e.nextElement());
             sb.append(",");
         }
         if (sb.length() > 0)

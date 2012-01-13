@@ -215,9 +215,9 @@ public class ProfileServlet extends CMSServlet {
             } else if (v instanceof ArgSet) {
                 ArgSet set = (ArgSet) v;
                 ps.println("<set>");
-                Enumeration names = set.getNames();
+                Enumeration<String> names = set.getNames();
                 while (names.hasMoreElements()) {
-                    String n = (String) names.nextElement();
+                    String n = names.nextElement();
                     outputArgValueAsXML(ps, n, set.get(n));
                 }
                 ps.println("</set>");
@@ -426,10 +426,10 @@ public class ProfileServlet extends CMSServlet {
 
     protected void outputArgSet(PrintWriter writer, String name, ArgSet set)
             throws IOException {
-        Enumeration e = set.getNames();
+        Enumeration<String> e = set.getNames();
 
         while (e.hasMoreElements()) {
-            String n = (String) e.nextElement();
+            String n = e.nextElement();
             IArgValue val = set.get(n);
 
             if (val instanceof ArgSet) {
@@ -452,10 +452,10 @@ public class ProfileServlet extends CMSServlet {
             throws IOException {
         if (set == null)
             return;
-        Enumeration e = set.getNames();
+        Enumeration<String> e = set.getNames();
 
         while (e.hasMoreElements()) {
-            String n = (String) e.nextElement();
+            String n = e.nextElement();
             IArgValue val = set.get(n);
 
             if (val instanceof ArgSet) {

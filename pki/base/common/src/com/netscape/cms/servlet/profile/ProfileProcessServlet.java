@@ -60,6 +60,7 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.template.ArgList;
 import com.netscape.certsrv.template.ArgSet;
 import com.netscape.certsrv.util.IStatsSubsystem;
+import com.netscape.cms.profile.common.ProfilePolicy;
 import com.netscape.cms.servlet.common.CMSRequest;
 
 /**
@@ -691,11 +692,11 @@ public class ProfileProcessServlet extends ProfileServlet {
             req.setRequestStatus(RequestStatus.COMPLETE);
 
             ArgList outputlist = new ArgList();
-            Enumeration outputIds = profile.getProfileOutputIds();
+            Enumeration<String> outputIds = profile.getProfileOutputIds();
 
             if (outputIds != null) {
                 while (outputIds.hasMoreElements()) {
-                    String outputId = (String) outputIds.nextElement();
+                    String outputId = outputIds.nextElement();
                     IProfileOutput profileOutput = profile.getProfileOutput(
                             outputId);
 
@@ -779,11 +780,11 @@ public class ProfileProcessServlet extends ProfileServlet {
             throws ERejectException, EDeferException, EPropertyException {
         String profileSetId = req.getExtDataInString("profileSetId");
 
-        Enumeration policies = profile.getProfilePolicies(profileSetId);
+        Enumeration<ProfilePolicy> policies = profile.getProfilePolicies(profileSetId);
         int count = 0;
 
         while (policies.hasMoreElements()) {
-            IProfilePolicy policy = (IProfilePolicy) policies.nextElement();
+            ProfilePolicy policy = policies.nextElement();
 
             setValue(locale, count, policy, req, request);
             count++;
@@ -792,7 +793,7 @@ public class ProfileProcessServlet extends ProfileServlet {
         policies = profile.getProfilePolicies(profileSetId);
         count = 0;
         while (policies.hasMoreElements()) {
-            IProfilePolicy policy = (IProfilePolicy) policies.nextElement();
+            ProfilePolicy policy = policies.nextElement();
 
             validate(locale, count, policy, req, request);
             count++;
@@ -821,10 +822,10 @@ public class ProfileProcessServlet extends ProfileServlet {
             throws EPropertyException {
         // handle default policy
         IPolicyDefault def = policy.getDefault();
-        Enumeration defNames = def.getValueNames();
+        Enumeration<String> defNames = def.getValueNames();
 
         while (defNames.hasMoreElements()) {
-            String defName = (String) defNames.nextElement();
+            String defName = defNames.nextElement();
             String defValue = request.getParameter(defName);
 
             def.setValue(defName, locale, req, defValue);

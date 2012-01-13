@@ -44,7 +44,7 @@ public class CMSFileLoader {
     public final String PROP_CACHE_TEMPLATES_ONLY = "cacheTemplatesOnly";
 
     // hash of files to their content. 
-    private Hashtable mLoadedFiles = new Hashtable();
+    private Hashtable<String, CMSFile> mLoadedFiles = new Hashtable<String, CMSFile>();
 
     // max number of files 
     private int mMaxSize = MAX_SIZE;
@@ -141,14 +141,14 @@ public class CMSFileLoader {
 
         // remove the LRU files.
         // XXX could be optimized more.
-        Enumeration elements = mLoadedFiles.elements();
+        Enumeration<CMSFile> elements = mLoadedFiles.elements();
 
         for (int i = mClearSize; i > 0; i--) {
             long lru = java.lang.Long.MAX_VALUE;
             CMSFile lruFile = null;
 
             while (elements.hasMoreElements()) {
-                CMSFile cmsFile = (CMSFile) elements.nextElement();
+                CMSFile cmsFile = elements.nextElement();
 
                 if (cmsFile.getLastAccess() < lru) {
                     lruFile = cmsFile;

@@ -54,7 +54,7 @@ import com.netscape.cms.servlet.wizard.WizardServlet;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 public class CertRequestPanel extends WizardPanelBase {
-    private Vector mCerts = null;
+    private Vector<Cert> mCerts = null;
     private WizardServlet mServlet = null;
 
     public CertRequestPanel() {
@@ -386,7 +386,7 @@ public class CertRequestPanel extends WizardPanelBase {
         context.put("title", "Requests and Certificates");
 
         try {
-            mCerts = new Vector();
+            mCerts = new Vector<Cert>();
 
             IConfigStore config = CMS.getConfigStore();
 
@@ -499,7 +499,7 @@ public class CertRequestPanel extends WizardPanelBase {
         }
 
         try {
-            Enumeration c = mCerts.elements();
+            Enumeration<Cert> c = mCerts.elements();
 
             String tokenname = "";
             try {

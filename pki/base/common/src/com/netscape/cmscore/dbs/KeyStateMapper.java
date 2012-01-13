@@ -43,8 +43,8 @@ public class KeyStateMapper implements IDBAttrMapper {
         mLdapName = ldapName;
     }
 
-    public Enumeration getSupportedLDAPAttributeNames() {
-        Vector v = new Vector();
+    public Enumeration<String> getSupportedLDAPAttributeNames() {
+        Vector<String> v = new Vector<String>();
 
         v.addElement(mLdapName);
         return v.elements();

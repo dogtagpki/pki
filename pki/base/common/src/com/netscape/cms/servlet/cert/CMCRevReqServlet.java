@@ -410,7 +410,7 @@ public class CMCRevReqServlet extends CMSServlet {
                 Enumeration<ICertRecord> e = list.getCertRecords(0, totalRecordCount - 1);
 
                 while (e != null && e.hasMoreElements()) {
-                    ICertRecord rec = (ICertRecord) e.nextElement();
+                    ICertRecord rec = e.nextElement();
                     X509CertImpl cert = rec.getCertificate();
                     IArgBlock rarg = CMS.createArgBlock();
 

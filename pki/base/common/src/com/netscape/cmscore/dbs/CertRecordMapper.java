@@ -49,8 +49,8 @@ public class CertRecordMapper implements IDBAttrMapper {
         mDB = db;
     }
 
-    public Enumeration getSupportedLDAPAttributeNames() {
-        Vector v = new Vector();
+    public Enumeration<String> getSupportedLDAPAttributeNames() {
+        Vector<String> v = new Vector<String>();
 
         v.addElement(CertDBSchema.LDAP_ATTR_CERT_RECORD_ID);
         return v.elements();

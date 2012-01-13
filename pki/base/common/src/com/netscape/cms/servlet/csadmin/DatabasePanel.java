@@ -1467,9 +1467,10 @@ public class DatabasePanel extends WizardPanelBase {
             LDAPEntry entry = results.next();
             LDAPAttribute attr = entry.getAttribute("nsds5replicalastinitstatus");
             if (attr != null) {
-                Enumeration valsInAttr = attr.getStringValues();
+                @SuppressWarnings("unchecked")
+                Enumeration<String> valsInAttr = attr.getStringValues();
                 if (valsInAttr.hasMoreElements()) {
-                    return (String) valsInAttr.nextElement();
+                    return valsInAttr.nextElement();
                 } else {
                     throw new IOException("No value returned for nsds5replicalastinitstatus");
                 }
@@ -1496,14 +1497,16 @@ public class DatabasePanel extends WizardPanelBase {
                 String dn = entry.getDN();
                 CMS.debug("DatabasePanel getInstanceDir: DN for storing nsslapd-directory: " + dn);
                 LDAPAttributeSet entryAttrs = entry.getAttributeSet();
-                Enumeration attrsInSet = entryAttrs.getAttributes();
+                @SuppressWarnings("unchecked")
+                Enumeration<LDAPAttribute> attrsInSet = entryAttrs.getAttributes();
                 while (attrsInSet.hasMoreElements()) {
-                    LDAPAttribute nextAttr = (LDAPAttribute) attrsInSet.nextElement();
+                    LDAPAttribute nextAttr = attrsInSet.nextElement();
                     String attrName = nextAttr.getName();
                     CMS.debug("DatabasePanel getInstanceDir: attribute name: " + attrName);
-                    Enumeration valsInAttr = nextAttr.getStringValues();
+                    @SuppressWarnings("unchecked")
+                    Enumeration<String> valsInAttr = nextAttr.getStringValues();
                     while (valsInAttr.hasMoreElements()) {
-                        String nextValue = (String) valsInAttr.nextElement();
+                        String nextValue = valsInAttr.nextElement();
                         if (attrName.equalsIgnoreCase("nsslapd-directory")) {
                             CMS.debug("DatabasePanel getInstanceDir: instanceDir=" + nextValue);
                             return nextValue.substring(0, nextValue.lastIndexOf("/db"));

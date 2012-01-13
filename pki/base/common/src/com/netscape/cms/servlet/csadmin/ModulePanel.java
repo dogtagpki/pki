@@ -45,9 +45,9 @@ import com.netscape.cmsutil.crypto.Module;
 
 public class ModulePanel extends WizardPanelBase {
     private CryptoManager mCryptoManager = null;
-    private Vector mSupportedModules = null;
-    private Vector mOtherModules = null;
-    private Hashtable mCurrModTable = new Hashtable();
+    private Vector<Module> mSupportedModules = null;
+    private Vector<Module> mOtherModules = null;
+    private Hashtable<String, PK11Module> mCurrModTable = new Hashtable<String, PK11Module>();
     private WizardServlet mServlet = null;
 
     public ModulePanel() {
@@ -79,10 +79,11 @@ public class ModulePanel extends WizardPanelBase {
         try {
             // getting existing modules
             mCryptoManager = CryptoManager.getInstance();
-            Enumeration modules = mCryptoManager.getModules();
+            @SuppressWarnings("unchecked")
+            Enumeration<PK11Module> modules = mCryptoManager.getModules();
 
             while (modules.hasMoreElements()) {
-                PK11Module mod = (PK11Module) modules.nextElement();
+                PK11Module mod = modules.nextElement();
 
                 CMS.debug("ModulePanel: got module " + mod.getName());
                 mCurrModTable.put(mod.getName(), mod);
@@ -99,16 +100,16 @@ public class ModulePanel extends WizardPanelBase {
      * Modules not listed as supported modules
      */
     public void loadOtherModules() {
-        Enumeration m = mCurrModTable.elements();
+        Enumeration<PK11Module> m = mCurrModTable.elements();
 
-        mOtherModules = new Vector();
+        mOtherModules = new Vector<Module>();
         while (m.hasMoreElements()) {
-            PK11Module mod = (PK11Module) m.nextElement();
-            Enumeration s = mSupportedModules.elements();
+            PK11Module mod = m.nextElement();
+            Enumeration<Module> s = mSupportedModules.elements();
             boolean found = false;
 
             while (s.hasMoreElements()) {
-                Module sm = (Module) s.nextElement();
+                Module sm = s.nextElement();
 
                 if (mod.getName().equals(sm.getCommonName())) {
                     found = true;
@@ -123,7 +124,7 @@ public class ModulePanel extends WizardPanelBase {
 
                 loadModTokens(module, mod);
                 module.setFound(true);
-                mOtherModules.addElement((Object) module);
+                mOtherModules.addElement(module);
                 break;
             }
         }// while
@@ -133,11 +134,12 @@ public class ModulePanel extends WizardPanelBase {
      * find all tokens belonging to a module and load the Module
      */
     public void loadModTokens(Module module, PK11Module mod) {
-        Enumeration tokens = mod.getTokens();
+        @SuppressWarnings("unchecked")
+        Enumeration<CryptoToken> tokens = mod.getTokens();
 
         while (tokens.hasMoreElements()) {
             try {
-                CryptoToken token = (CryptoToken) tokens.nextElement();
+                CryptoToken token = tokens.nextElement();
 
                 CMS.debug("ModulePanel: token nick name=" + token.getName());
                 CMS.debug("ModulePanel: token logged in?" + token.isLoggedIn());
@@ -164,7 +166,7 @@ public class ModulePanel extends WizardPanelBase {
 
         // getting supported security modules
         // a Vectgor of Modules
-        mSupportedModules = new Vector();
+        mSupportedModules = new Vector<Module>();
         // read from conf store all supported modules
         try {
             int count = CMS.getConfigStore().getInteger(
@@ -191,7 +193,7 @@ public class ModulePanel extends WizardPanelBase {
                     CMS.debug("ModulePanel: module found: " + cn);
                     module.setFound(true);
                     // add token info to module vector
-                    PK11Module m = (PK11Module) mCurrModTable.get(cn);
+                    PK11Module m = mCurrModTable.get(cn);
 
                     loadModTokens(module, m);
                 }
@@ -199,7 +201,7 @@ public class ModulePanel extends WizardPanelBase {
                 CMS.debug("ModulePanel: adding module " + cn);
                 // add module to set
                 if (!mSupportedModules.contains(module)) {
-                    mSupportedModules.addElement((Object) module);
+                    mSupportedModules.addElement(module);
                 }
             }// for
 

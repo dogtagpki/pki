@@ -172,8 +172,8 @@ public class FileConfigStore extends PropConfigStore implements
             String name) throws EBaseException,
             IOException {
         // print keys
-        Enumeration e0 = store.getPropertyNames();
-        Vector v = new Vector();
+        Enumeration<String> e0 = store.getPropertyNames();
+        Vector<String> v = new Vector<String>();
 
         while (e0.hasMoreElements()) {
             v.addElement(e0.nextElement());
@@ -197,7 +197,7 @@ public class FileConfigStore extends PropConfigStore implements
         }
 
         // print substores
-        Enumeration e1 = store.getSubStoreNames();
+        Enumeration<String> e1 = store.getSubStoreNames();
 
         while (e1.hasMoreElements()) {
             v.addElement(e1.nextElement());

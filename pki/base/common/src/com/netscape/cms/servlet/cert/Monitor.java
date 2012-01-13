@@ -288,7 +288,7 @@ public class Monitor extends CMSServlet {
                 if (mCertDB != null) {
                     filter = Filter(ICertRecord.ATTR_CREATE_TIME, startTime, endTime);
 
-                    Enumeration e = mCertDB.findCertRecs(filter);
+                    Enumeration<Object> e = mCertDB.findCertRecs(filter);
 
                     int count = 0;
 

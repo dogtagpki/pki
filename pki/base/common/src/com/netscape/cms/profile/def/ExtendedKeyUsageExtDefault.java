@@ -187,11 +187,10 @@ public class ExtendedKeyUsageExtDefault extends EnrollExtDefault {
             if (ext == null) {
                 return "";
             }
-            Enumeration e = ext.getOIDs();
+            Enumeration<ObjectIdentifier> e = ext.getOIDs();
 
             while (e.hasMoreElements()) {
-                ObjectIdentifier oid = (ObjectIdentifier)
-                        e.nextElement();
+                ObjectIdentifier oid = e.nextElement();
 
                 if (!sb.toString().equals("")) {
                     sb.append(",");

@@ -50,7 +50,7 @@ import com.netscape.cms.servlet.wizard.WizardServlet;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 public class NamePanel extends WizardPanelBase {
-    private Vector mCerts = null;
+    private Vector<Cert> mCerts = null;
     private WizardServlet mServlet = null;
 
     public NamePanel() {
@@ -172,7 +172,7 @@ public class NamePanel extends WizardPanelBase {
             CMS.setConfigSDSessionId(session_id);
         }
 
-        mCerts = new Vector();
+        mCerts = new Vector<Cert>();
 
         String domainname = "";
         IConfigStore config = CMS.getConfigStore();
@@ -320,10 +320,10 @@ public class NamePanel extends WizardPanelBase {
     public void validate(HttpServletRequest request,
             HttpServletResponse response,
             Context context) throws IOException {
-        Enumeration c = mCerts.elements();
+        Enumeration<Cert> c = mCerts.elements();
 
         while (c.hasMoreElements()) {
-            Cert cert = (Cert) c.nextElement();
+            Cert cert = c.nextElement();
             // get the dn's and put in config
             if (cert.isEnable()) {
                 String dn = HttpInput.getDN(request, cert.getCertTag());
@@ -632,11 +632,11 @@ public class NamePanel extends WizardPanelBase {
             HttpServletResponse response,
             Context context, String tag) throws IOException {
         CMS.debug("NamePanel: configCertWithTag start");
-        Enumeration c = mCerts.elements();
+        Enumeration<Cert> c = mCerts.elements();
         IConfigStore config = CMS.getConfigStore();
 
         while (c.hasMoreElements()) {
-            Cert cert = (Cert) c.nextElement();
+            Cert cert = c.nextElement();
             String ct = cert.getCertTag();
             CMS.debug("NamePanel: configCertWithTag ct=" + ct +
                         " tag=" + tag);
@@ -673,10 +673,10 @@ public class NamePanel extends WizardPanelBase {
 
         boolean hasChanged = false;
         try {
-            Enumeration c = mCerts.elements();
+            Enumeration<Cert> c = mCerts.elements();
 
             while (c.hasMoreElements()) {
-                Cert cert = (Cert) c.nextElement();
+                Cert cert = c.nextElement();
                 String ct = cert.getCertTag();
                 boolean enable = config.getBoolean(PCERT_PREFIX + ct + ".enable", true);
                 if (!enable)
@@ -828,10 +828,10 @@ public class NamePanel extends WizardPanelBase {
 
         try {
 
-            Enumeration c = mCerts.elements();
+            Enumeration<Cert> c = mCerts.elements();
 
             while (c.hasMoreElements()) {
-                Cert cert = (Cert) c.nextElement();
+                Cert cert = c.nextElement();
                 String ct = cert.getCertTag();
                 String tokenname = cert.getTokenname();
                 boolean enable = config.getBoolean(PCERT_PREFIX + ct + ".enable", true);

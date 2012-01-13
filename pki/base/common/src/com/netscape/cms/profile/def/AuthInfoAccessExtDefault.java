@@ -114,7 +114,7 @@ public class AuthInfoAccessExtDefault extends EnrollExtDefault {
         super.setConfig(name, value);
     }
 
-    public Enumeration getConfigNames() {
+    public Enumeration<String> getConfigNames() {
         refreshConfigAndValueNames();
         return super.getConfigNames();
     }
@@ -236,10 +236,10 @@ public class AuthInfoAccessExtDefault extends EnrollExtDefault {
 
                 for (int i = 0; i < size; i++) {
                     NameValuePairs nvps = (NameValuePairs) v.elementAt(i);
-                    Enumeration names = nvps.getNames();
+                    Enumeration<String> names = nvps.getNames();
 
                     while (names.hasMoreElements()) {
-                        String name1 = (String) names.nextElement();
+                        String name1 = names.nextElement();
 
                         if (name1.equals(AD_METHOD)) {
                             method = nvps.getValue(name1);

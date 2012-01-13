@@ -56,7 +56,7 @@ public class CRLIssuingPointRecord implements ICRLIssuingPointRecord, IDBObj {
     protected Hashtable mUnrevokedCerts = null;
     protected Hashtable mExpiredCerts = null;
     protected byte mDeltaCRL[] = null;
-    protected static Vector mNames = new Vector();
+    protected static Vector<String> mNames = new Vector<String>();
     static {
         mNames.addElement(ATTR_ID);
         mNames.addElement(ATTR_CRL_NUMBER);
@@ -197,11 +197,11 @@ public class CRLIssuingPointRecord implements ICRLIssuingPointRecord, IDBObj {
         throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
     }
 
-    public Enumeration getElements() {
+    public Enumeration<String> getElements() {
         return mNames.elements();
     }
 
-    public Enumeration getSerializableAttrNames() {
+    public Enumeration<String> getSerializableAttrNames() {
         return mNames.elements();
     }
 

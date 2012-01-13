@@ -86,7 +86,7 @@ public class DynamicVariablesServlet extends CMSServlet {
     private long mAuthMgrCacheTime = 0;
     private final int AUTHMGRCACHE = 10; //number of seconds to cache list of
     // authmanagers for
-    private Hashtable dynvars = null;
+    private Hashtable<Integer, String> dynvars = null;
     private String mGetClientCert = "false";
     private String mAuthMgr = null;
 
@@ -156,7 +156,7 @@ public class DynamicVariablesServlet extends CMSServlet {
             String dynvarconfig = sc.getInitParameter(PROP_DYNVAR);
             StringTokenizer s = new StringTokenizer(dynvarconfig, ",");
 
-            dynvars = new Hashtable();
+            dynvars = new Hashtable<Integer, String>();
 
             while (s.hasMoreTokens()) {
                 String token = s.nextToken();
@@ -181,7 +181,7 @@ public class DynamicVariablesServlet extends CMSServlet {
                     throw new ServletException("bad configuration parameter in " + PROP_DYNVAR);
                 }
                 if (varcode != null) {
-                    dynvars.put(varcode, (Object) varname);
+                    dynvars.put(varcode, varname);
                 }
             }
         } catch (Exception e) {
@@ -216,11 +216,11 @@ public class DynamicVariablesServlet extends CMSServlet {
 
             if (os != null) {
                 if (dynvars != null) {
-                    Enumeration k = dynvars.keys();
+                    Enumeration<Integer> k = dynvars.keys();
 
                     while (k.hasMoreElements()) {
                         String toBeWritten;
-                        Integer varcode = (Integer) k.nextElement();
+                        Integer varcode = k.nextElement();
 
                         if (varcode.equals(VAR_SERVERDATE)) {
                             toBeWritten = dynvars.get(varcode) +
@@ -264,7 +264,7 @@ public class DynamicVariablesServlet extends CMSServlet {
                         if (varcode.equals(VAR_AUTHMGRS)) {
                             toBeWritten = "";
                             IAuthSubsystem as = (IAuthSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_AUTH);
-                            Enumeration ame = as.getAuthManagers();
+                            Enumeration<IAuthManager> ame = as.getAuthManagers();
 
                             Date d = CMS.getCurrentDate();
                             long now = d.getTime();
@@ -274,7 +274,7 @@ public class DynamicVariablesServlet extends CMSServlet {
 
                                 StringBuffer sb = new StringBuffer();
                                 while (ame.hasMoreElements()) {
-                                    IAuthManager am = (IAuthManager) ame.nextElement();
+                                    IAuthManager am = ame.nextElement();
                                     String amName = am.getImplName();
 
                                     AuthMgrPlugin ap = as.getAuthManagerPluginImpl(amName);

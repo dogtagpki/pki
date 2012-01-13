@@ -412,7 +412,7 @@ public class ListCerts extends CMSServlet {
                 toCurIndex = list.getSize() - 1;
             } else {
                 toCurIndex = tolist.getCurrentIndex();
-                ICertRecord rx = (ICertRecord) en.nextElement();
+                ICertRecord rx = en.nextElement();
                 BigInteger curToSerial = rx.getSerialNumber();
 
                 if (curToSerial.compareTo(serialToVal) == -1) {

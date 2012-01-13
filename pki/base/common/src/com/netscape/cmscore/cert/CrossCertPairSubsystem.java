@@ -204,7 +204,8 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
                     return;
                 }
 
-                Enumeration en = caCerts.getByteValues();
+                @SuppressWarnings("unchecked")
+                Enumeration<byte[]> en = caCerts.getByteValues();
 
                 if ((en == null) || (en.hasMoreElements() == false)) {
                     debug("1st potential xcert");
@@ -216,7 +217,7 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
                 boolean match = false;
 
                 while (en.hasMoreElements()) {
-                    val = (byte[]) en.nextElement();
+                    val = en.nextElement();
                     debug("val =" + val.length);
                     if (val.length == 0) {
                         continue;
@@ -332,11 +333,12 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
         if (attr == null) {
             return false;
         }
-        Enumeration vals = attr.getByteValues();
+        @SuppressWarnings("unchecked")
+        Enumeration<byte[]> vals = attr.getByteValues();
         byte[] val = null;
 
         while (vals.hasMoreElements()) {
-            val = (byte[]) vals.nextElement();
+            val = vals.nextElement();
             if (val.length == 0)
                 continue;
             if (byteArraysAreEqual(val, bval)) {
@@ -418,7 +420,8 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
                     return;
                 }
 
-                Enumeration en = xcerts.getByteValues();
+                @SuppressWarnings("unchecked")
+                Enumeration<byte[]> en = xcerts.getByteValues();
 
                 if ((en == null) || (en.hasMoreElements() == false)) {
                     debug("publishCertPair found no pairs in internal db");
@@ -427,7 +430,7 @@ public class CrossCertPairSubsystem implements ICrossCertPairSubsystem {
                 byte[] val = null;
 
                 while (en.hasMoreElements()) {
-                    val = (byte[]) en.nextElement();
+                    val = en.nextElement();
                     debug("val =" + val.length);
                     if (val.length == 0) {
                         continue;

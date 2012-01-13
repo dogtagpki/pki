@@ -185,7 +185,7 @@ public class PublishCertsJob extends AJobBase
                 "(!(certMetainfo=" + ICertRecord.META_LDAPPUBLISH +
                         ":true))";
 
-        Enumeration unpublishedCerts = null;
+        Enumeration<Object> unpublishedCerts = null;
 
         try {
             unpublishedCerts = mRepository.findCertRecs(filter);

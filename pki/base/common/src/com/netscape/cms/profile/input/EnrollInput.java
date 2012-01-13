@@ -51,8 +51,8 @@ public abstract class EnrollInput implements IProfileInput {
             "LOGGING_SIGNED_AUDIT_PROOF_OF_POSSESSION_2";
 
     protected IConfigStore mConfig = null;
-    protected Vector mValueNames = new Vector();
-    protected Vector mConfigNames = new Vector();
+    protected Vector<String> mValueNames = new Vector<String>();
+    protected Vector<String> mConfigNames = new Vector<String>();
     protected IProfile mProfile = null;
 
     protected ILogger mSignedAuditLogger = CMS.getSignedAuditLogger();
@@ -113,7 +113,7 @@ public abstract class EnrollInput implements IProfileInput {
     /**
      * Retrieves a list of names of the value parameter.
      */
-    public Enumeration getValueNames() {
+    public Enumeration<String> getValueNames() {
         return mValueNames.elements();
     }
 
@@ -121,7 +121,7 @@ public abstract class EnrollInput implements IProfileInput {
         mConfigNames.addElement(name);
     }
 
-    public Enumeration getConfigNames() {
+    public Enumeration<String> getConfigNames() {
         return mConfigNames.elements();
     }
 

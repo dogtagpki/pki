@@ -78,7 +78,7 @@ public interface ICertRecordList {
      * @param endidx ending index
      * @exception EBaseException failed to retrieve
      */
-    public Enumeration getCertRecords(int startidx, int endidx)
+    public Enumeration<ICertRecord> getCertRecords(int startidx, int endidx)
             throws EBaseException;
 
     /**

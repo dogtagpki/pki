@@ -120,16 +120,16 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
     private void setInputsIntoContext(HttpServletRequest request, IProfile profile, IProfileContext ctx) {
 
         // passing inputs into context
-        Enumeration inputIds = profile.getProfileInputIds();
+        Enumeration<String> inputIds = profile.getProfileInputIds();
 
         if (inputIds != null) {
             while (inputIds.hasMoreElements()) {
-                String inputId = (String) inputIds.nextElement();
+                String inputId = inputIds.nextElement();
                 IProfileInput profileInput = profile.getProfileInput(inputId);
-                Enumeration inputNames = profileInput.getValueNames();
+                Enumeration<String> inputNames = profileInput.getValueNames();
 
                 while (inputNames.hasMoreElements()) {
-                    String inputName = (String) inputNames.nextElement();
+                    String inputName = inputNames.nextElement();
 
                     if (request.getParameter(inputName) != null) {
                         ctx.set(inputName, request.getParameter(inputName));
@@ -142,11 +142,11 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
 
     private void setCredentialsIntoContext(HttpServletRequest request, IProfileAuthenticator authenticator,
             IProfileContext ctx) {
-        Enumeration authIds = authenticator.getValueNames();
+        Enumeration<String> authIds = authenticator.getValueNames();
 
         if (authIds != null) {
             while (authIds.hasMoreElements()) {
-                String authName = (String) authIds.nextElement();
+                String authName = authIds.nextElement();
 
                 if (request.getParameter(authName) != null) {
                     ctx.set(authName, request.getParameter(authName));
@@ -160,11 +160,11 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
         AuthCredentials credentials = new AuthCredentials();
 
         // build credential
-        Enumeration authNames = authenticator.getValueNames();
+        Enumeration<String> authNames = authenticator.getValueNames();
 
         if (authNames != null) {
             while (authNames.hasMoreElements()) {
-                String authName = (String) authNames.nextElement();
+                String authName = authNames.nextElement();
 
                 if (authName.equals("cert_request"))
                     credentials.set(authName, requestB64);
@@ -188,17 +188,17 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
 
     private void setInputsIntoRequest(HttpServletRequest request, IProfile
             profile, IRequest req) {
-        Enumeration inputIds = profile.getProfileInputIds();
+        Enumeration<String> inputIds = profile.getProfileInputIds();
 
         if (inputIds != null) {
             while (inputIds.hasMoreElements()) {
-                String inputId = (String) inputIds.nextElement();
+                String inputId = inputIds.nextElement();
                 IProfileInput profileInput = profile.getProfileInput(inputId);
-                Enumeration inputNames = profileInput.getValueNames();
+                Enumeration<String> inputNames = profileInput.getValueNames();
 
                 if (inputNames != null) {
                     while (inputNames.hasMoreElements()) {
-                        String inputName = (String) inputNames.nextElement();
+                        String inputName = inputNames.nextElement();
 
                         if (request.getParameter(inputName) != null) {
                             req.setExtData(inputName, request.getParameter(inputName));
@@ -262,10 +262,11 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
 
         if (CMS.debugOn()) {
             CMS.debug("Start of ProfileSubmitCMCServlet Input Parameters");
-            Enumeration paramNames = request.getParameterNames();
+            @SuppressWarnings("unchecked")
+            Enumeration<String> paramNames = request.getParameterNames();
 
             while (paramNames.hasMoreElements()) {
-                String paramName = (String) paramNames.nextElement();
+                String paramName = paramNames.nextElement();
                 // added this facility so that password can be hidden,
                 // all sensitive parameters should be prefixed with 
                 // __ (double underscores); however, in the event that
@@ -552,9 +553,9 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
 
             // serial auth token into request
             if (authToken != null) {
-                Enumeration tokenNames = authToken.getElements();
+                Enumeration<String> tokenNames = authToken.getElements();
                 while (tokenNames.hasMoreElements()) {
-                    String tokenName = (String) tokenNames.nextElement();
+                    String tokenName = tokenNames.nextElement();
                     String[] vals = authToken.getInStringArray(tokenName);
                     if (vals != null) {
                         for (int i = 0; i < vals.length; i++) {
@@ -659,9 +660,9 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
 
                     // print request debug
                     if (reqs[k] != null) {
-                        Enumeration reqKeys = reqs[k].getExtDataKeys();
+                        Enumeration<String> reqKeys = reqs[k].getExtDataKeys();
                         while (reqKeys.hasMoreElements()) {
-                            String reqKey = (String) reqKeys.nextElement();
+                            String reqKey = reqKeys.nextElement();
                             String reqVal = reqs[k].getExtDataInString(reqKey);
                             if (reqVal != null) {
                                 CMS.debug("ProfileSubmitCMCServlet: key=$request." + reqKey + "$ value=" + reqVal);

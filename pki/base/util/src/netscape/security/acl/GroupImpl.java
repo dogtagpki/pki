@@ -28,7 +28,7 @@ import java.util.Vector;
  * @author Satish Dharmaraj
  */
 public class GroupImpl implements Group {
-    private Vector groupMembers = new Vector(50, 100);
+    private Vector<Principal> groupMembers = new Vector<Principal>(50, 100);
     private String group;
 
     /**
@@ -73,7 +73,7 @@ public class GroupImpl implements Group {
     /**
      * returns the enumeration of the members in the group.
      */
-    public Enumeration members() {
+    public Enumeration<Principal> members() {
         return groupMembers.elements();
     }
 
@@ -118,7 +118,7 @@ public class GroupImpl implements Group {
         if (groupMembers.contains(member)) {
             return true;
         } else {
-            Vector alreadySeen = new Vector(10);
+            Vector<Group> alreadySeen = new Vector<Group>(10);
             return isMemberRecurse(member, alreadySeen);
         }
     }
@@ -136,11 +136,11 @@ public class GroupImpl implements Group {
     // a vector of already seen groups. Only new groups are considered, 
     // thereby avoiding loops.
     //
-    boolean isMemberRecurse(Principal member, Vector alreadySeen) {
-        Enumeration e = members();
+    boolean isMemberRecurse(Principal member, Vector<Group> alreadySeen) {
+        Enumeration<Principal> e = members();
         while (e.hasMoreElements()) {
             boolean mem = false;
-            Principal p = (Principal) e.nextElement();
+            Principal p = e.nextElement();
 
             // if the member is in this collection, return true
             if (p.equals(member)) {

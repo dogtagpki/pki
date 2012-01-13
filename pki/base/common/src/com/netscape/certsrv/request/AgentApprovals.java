@@ -82,7 +82,7 @@ public class AgentApprovals
 
         // search
         for (int i = 0; i < mVector.size(); i++) {
-            a = (AgentApproval) mVector.elementAt(i);
+            a = mVector.elementAt(i);
 
             if (a.mUserName.equals(userName))
                 break;
@@ -96,7 +96,7 @@ public class AgentApprovals
      * 
      * @return an enumeration of the agent approvals
      */
-    public Enumeration elements() {
+    public Enumeration<AgentApproval> elements() {
         return mVector.elements();
     }
 
@@ -110,8 +110,8 @@ public class AgentApprovals
      * 
      * @return The string vector.
      */
-    public Vector toStringVector() {
-        Vector retval = new Vector(mVector.size());
+    public Vector<String> toStringVector() {
+        Vector<String> retval = new Vector<String>(mVector.size());
         for (int i = 0; i < mVector.size(); i++) {
             AgentApproval a = (AgentApproval) mVector.elementAt(i);
             retval.add(a.getDate().getTime() + ";" + a.getUserName());
@@ -155,5 +155,5 @@ public class AgentApprovals
         return approvals;
     }
 
-    protected Vector mVector = new Vector();
+    protected Vector<AgentApproval> mVector = new Vector<AgentApproval>();
 }

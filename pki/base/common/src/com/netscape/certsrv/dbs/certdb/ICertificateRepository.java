@@ -404,7 +404,7 @@ public interface ICertificateRepository extends IRepository {
      * @return a list of certificate records
      * @exception EBaseException failed to retrieve cert records
      */
-    public Enumeration findCertRecs(String filter)
+    public Enumeration<Object> findCertRecs(String filter)
             throws EBaseException;
 
     /**
@@ -438,7 +438,7 @@ public interface ICertificateRepository extends IRepository {
      * @return a list of certificates
      * @exception EBaseException failed to retrieve
      */
-    public Enumeration getValidNotPublishedCertificates(String from, String to)
+    public Enumeration<ICertRecord> getValidNotPublishedCertificates(String from, String to)
             throws EBaseException;
 
     /**
@@ -449,7 +449,7 @@ public interface ICertificateRepository extends IRepository {
      * @return a list of certificates
      * @exception EBaseException failed to retrieve
      */
-    public Enumeration getExpiredPublishedCertificates(String from, String to)
+    public Enumeration<ICertRecord> getExpiredPublishedCertificates(String from, String to)
             throws EBaseException;
 
     /**
@@ -460,7 +460,7 @@ public interface ICertificateRepository extends IRepository {
      * @return a list of certificates
      * @exception EBaseException failed to retrieve
      */
-    public Enumeration getRevokedPublishedCertificates(String from, String to)
+    public Enumeration<ICertRecord> getRevokedPublishedCertificates(String from, String to)
             throws EBaseException;
 
     /**
@@ -471,7 +471,7 @@ public interface ICertificateRepository extends IRepository {
      * @return a list of certificates
      * @exception EBaseException failed to retrieve
      */
-    public Enumeration getValidCertificates(String from, String to)
+    public Enumeration<ICertRecord> getValidCertificates(String from, String to)
             throws EBaseException;
 
     /**
@@ -482,7 +482,7 @@ public interface ICertificateRepository extends IRepository {
      * @return a list of certificates
      * @exception EBaseException failed to retrieve
      */
-    public Enumeration getExpiredCertificates(String from, String to)
+    public Enumeration<ICertRecord> getExpiredCertificates(String from, String to)
             throws EBaseException;
 
     /**
@@ -493,7 +493,7 @@ public interface ICertificateRepository extends IRepository {
      * @return a list of certificates
      * @exception EBaseException failed to retrieve
      */
-    public Enumeration getRevokedCertificates(String from, String to)
+    public Enumeration<ICertRecord> getRevokedCertificates(String from, String to)
             throws EBaseException;
 
     /**

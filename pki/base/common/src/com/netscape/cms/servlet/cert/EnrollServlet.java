@@ -489,7 +489,7 @@ public class EnrollServlet extends CMSServlet {
             boolean encCertFound = false;
 
             while (en.hasMoreElements()) {
-                ICertRecord record = (ICertRecord) en.nextElement();
+                ICertRecord record = en.nextElement();
                 X509CertImpl cert = record.getCertificate();
 
                 // if not encryption cert only, try next one

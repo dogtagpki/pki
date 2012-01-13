@@ -38,7 +38,7 @@ import com.netscape.certsrv.dbs.IDBObj;
 public class IntegerMapper implements IDBAttrMapper {
 
     private String mLdapName = null;
-    private Vector v = new Vector();
+    private Vector<String> v = new Vector<String>();
 
     /**
      * Constructs mapper to deal with Integer.
@@ -51,7 +51,7 @@ public class IntegerMapper implements IDBAttrMapper {
     /**
      * Retrieves a list of supported ldap attributes.
      */
-    public Enumeration getSupportedLDAPAttributeNames() {
+    public Enumeration<String> getSupportedLDAPAttributeNames() {
         return v.elements();
     }
 

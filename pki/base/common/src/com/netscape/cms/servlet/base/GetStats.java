@@ -165,9 +165,9 @@ public class GetStats extends CMSServlet {
     }
 
     public void parse(CMSTemplateParams argSet, StatsEvent st, int level) {
-        Enumeration names = st.getSubEventNames();
+        Enumeration<String> names = st.getSubEventNames();
         while (names.hasMoreElements()) {
-            String name = (String) names.nextElement();
+            String name = names.nextElement();
             StatsEvent subSt = st.getSubEvent(name);
 
             IArgBlock rarg = CMS.createArgBlock();

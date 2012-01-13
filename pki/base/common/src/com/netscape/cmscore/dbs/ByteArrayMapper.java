@@ -39,7 +39,7 @@ import com.netscape.certsrv.dbs.IDBObj;
 public class ByteArrayMapper implements IDBAttrMapper {
 
     private String mLdapName = null;
-    private Vector v = new Vector();
+    private Vector<String> v = new Vector<String>();
 
     /**
      * Constructs a byte array mapper.
@@ -52,7 +52,7 @@ public class ByteArrayMapper implements IDBAttrMapper {
     /**
      * Lists a list of supported ldap attribute names.
      */
-    public Enumeration getSupportedLDAPAttributeNames() {
+    public Enumeration<String> getSupportedLDAPAttributeNames() {
         return v.elements();
     }
 

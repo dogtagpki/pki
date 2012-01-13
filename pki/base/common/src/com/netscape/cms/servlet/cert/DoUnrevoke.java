@@ -410,12 +410,11 @@ public class DoUnrevoke extends CMSServlet {
                 }
 
                 // let known update and publish status of all crls. 
-                Enumeration otherCRLs =
+                Enumeration<ICRLIssuingPoint> otherCRLs =
                         ((ICertificateAuthority) mAuthority).getCRLIssuingPoints();
 
                 while (otherCRLs.hasMoreElements()) {
-                    ICRLIssuingPoint crl = (ICRLIssuingPoint)
-                            otherCRLs.nextElement();
+                    ICRLIssuingPoint crl = otherCRLs.nextElement();
                     String crlId = crl.getId();
 
                     if (crlId.equals(ICertificateAuthority.PROP_MASTER_CRL))

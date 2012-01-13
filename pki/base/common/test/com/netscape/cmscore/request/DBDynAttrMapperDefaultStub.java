@@ -16,7 +16,7 @@ public class DBDynAttrMapperDefaultStub implements IDBDynAttrMapper {
         return false;
     }
 
-    public Enumeration getSupportedLDAPAttributeNames() {
+    public Enumeration<String> getSupportedLDAPAttributeNames() {
         return null;
     }
 

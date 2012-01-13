@@ -350,7 +350,7 @@ class AttributeSet implements IAttrSet {
      *
      */
     private static final long serialVersionUID = -3155846653754028803L;
-    Hashtable ht = new Hashtable();
+    Hashtable<String, Object> ht = new Hashtable<String, Object>();
 
     public AttributeSet() {
     }
@@ -372,7 +372,7 @@ class AttributeSet implements IAttrSet {
         ht.put(name, ob);
     }
 
-    public Enumeration getElements() {
+    public Enumeration<Object> getElements() {
         return ht.elements();
     }
 }

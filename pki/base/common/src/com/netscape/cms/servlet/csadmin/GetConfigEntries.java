@@ -141,7 +141,7 @@ public class GetConfigEntries extends CMSServlet {
             while (t.hasMoreTokens()) {
                 String name1 = t.nextToken();
                 IConfigStore cs = config.getSubStore(name1);
-                Enumeration enum1 = cs.getPropertyNames();
+                Enumeration<String> enum1 = cs.getPropertyNames();
 
                 while (enum1.hasMoreElements()) {
                     String name = name1 + "." + enum1.nextElement();

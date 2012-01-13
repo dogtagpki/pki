@@ -206,9 +206,10 @@ public class AdminServlet extends HttpServlet {
 
     public void outputHttpParameters(HttpServletRequest httpReq) {
         CMS.debug("AdminServlet:service() uri = " + httpReq.getRequestURI());
-        Enumeration paramNames = httpReq.getParameterNames();
+        @SuppressWarnings("unchecked")
+        Enumeration<String> paramNames = httpReq.getParameterNames();
         while (paramNames.hasMoreElements()) {
-            String pn = (String) paramNames.nextElement();
+            String pn = paramNames.nextElement();
             // added this facility so that password can be hidden,
             // all sensitive parameters should be prefixed with 
             // __ (double underscores); however, in the event that
@@ -793,11 +794,11 @@ public class AdminServlet extends HttpServlet {
         StringBuffer buf = new StringBuffer();
 
         if (params != null) {
-            Enumeration e = params.getNames();
+            Enumeration<String> e = params.getNames();
 
             if (e.hasMoreElements()) {
                 while (e.hasMoreElements()) {
-                    String name = (String) e.nextElement();
+                    String name = e.nextElement();
                     String value = java.net.URLEncoder.encode((String)
                             params.getValue(name));
 
@@ -857,10 +858,11 @@ public class AdminServlet extends HttpServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         NameValuePairs params = new NameValuePairs();
-        Enumeration e = req.getParameterNames();
+        @SuppressWarnings("unchecked")
+        Enumeration<String> e = req.getParameterNames();
 
         while (e.hasMoreElements()) {
-            String name = (String) e.nextElement();
+            String name = e.nextElement();
 
             //if (name.equals(Constants.PT_OP))
             //	continue;
@@ -888,10 +890,11 @@ public class AdminServlet extends HttpServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         NameValuePairs params = new NameValuePairs();
-        Enumeration e = req.getParameterNames();
+        @SuppressWarnings("unchecked")
+        Enumeration<String> e = req.getParameterNames();
 
         while (e.hasMoreElements()) {
-            String name = (String) e.nextElement();
+            String name = e.nextElement();
 
             //if (name.equals(Constants.PT_OP))
             //	continue;
@@ -916,11 +919,11 @@ public class AdminServlet extends HttpServlet {
             IConfigStore config, HttpServletRequest req,
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
-        Enumeration e = config.getPropertyNames();
+        Enumeration<String> e = config.getPropertyNames();
         NameValuePairs params = new NameValuePairs();
 
         while (e.hasMoreElements()) {
-            String s = (String) e.nextElement();
+            String s = e.nextElement();
 
             params.add(s, config.getString(s));
         }
@@ -1132,10 +1135,11 @@ public class AdminServlet extends HttpServlet {
         }
 
         // identify any remaining request parameters
-        Enumeration e = req.getParameterNames();
+        @SuppressWarnings("unchecked")
+        Enumeration<String> e = req.getParameterNames();
 
         while (e.hasMoreElements()) {
-            String name = (String) e.nextElement();
+            String name = e.nextElement();
 
             // skip previously extracted parameters
             if (name.equals(Constants.OP_SCOPE)) {
@@ -1231,7 +1235,7 @@ public class AdminServlet extends HttpServlet {
             return ILogger.SIGNED_AUDIT_EMPTY_VALUE;
         }
 
-        Enumeration groups = null;
+        Enumeration<IGroup> groups = null;
 
         try {
             groups = mUG.findGroups("*");
@@ -1242,7 +1246,7 @@ public class AdminServlet extends HttpServlet {
         StringBuffer membersString = new StringBuffer();
 
         while (groups.hasMoreElements()) {
-            IGroup group = (IGroup) groups.nextElement();
+            IGroup group = groups.nextElement();
 
             if (group.isMember(SubjectID) == true) {
                 if (membersString.length() != 0) {

@@ -34,7 +34,7 @@ public class AgentApprovalsTest extends CMSBaseTestCase {
         agentApprovals.mVector.add(approval2);
         agentApprovals.mVector.add(approval3);
 
-        Vector stringVector = agentApprovals.toStringVector();
+        Vector<String> stringVector = agentApprovals.toStringVector();
         assertNotNull(stringVector);
         assertEquals(3, stringVector.size());
         assertEquals(approval1.getDate().getTime() + ";" + approval1.getUserName(),

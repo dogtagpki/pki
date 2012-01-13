@@ -431,20 +431,20 @@ class PWsdrCache {
     }
 
     public void addEntry(String tag, String pwd) throws IOException {
-        addEntry(tag, pwd, (Hashtable) null);
+        addEntry(tag, pwd, (Hashtable<String, String>) null);
     }
 
     /*
      * Store passwd in pwcache.
      */
-    public void addEntry(Hashtable ht) throws IOException {
+    public void addEntry(Hashtable<String, String> ht) throws IOException {
         addEntry((String) null, (String) null, ht);
     }
 
     /*
      * add passwd in pwcache.
      */
-    public void addEntry(String tag, String pwd, Hashtable tagPwds) throws IOException {
+    public void addEntry(String tag, String pwd, Hashtable<String, String> tagPwds) throws IOException {
         System.out.println("PWsdrCache: in addEntry");
         String stringToAdd = null;
         String bufs = null;
@@ -452,11 +452,11 @@ class PWsdrCache {
         if (tagPwds == null) {
             stringToAdd = tag + ":" + pwd + "\n";
         } else {
-            Enumeration enum1 = tagPwds.keys();
+            Enumeration<String> enum1 = tagPwds.keys();
 
             while (enum1.hasMoreElements()) {
-                tag = (String) enum1.nextElement();
-                pwd = (String) tagPwds.get(tag);
+                tag = enum1.nextElement();
+                pwd = tagPwds.get(tag);
                 debug("password tag: " + tag + " stored in " + mPWcachedb);
 
                 if (stringToAdd == null) {
@@ -472,7 +472,7 @@ class PWsdrCache {
         if (dcrypts != null) {
             // converts to Hashtable, replace if tag exists, add
             //                if tag doesn't exist
-            Hashtable ht = string2Hashtable(dcrypts);
+            Hashtable<String, String> ht = string2Hashtable(dcrypts);
 
             if (ht.containsKey(tag) == false) {
                 debug("adding new tag: " + tag);
@@ -502,7 +502,7 @@ class PWsdrCache {
         if (dcrypts != null) {
             // converts to Hashtable, replace if tag exists, add
             //                if tag doesn't exist
-            Hashtable ht = string2Hashtable(dcrypts);
+            Hashtable<String, String> ht = string2Hashtable(dcrypts);
 
             if (ht.containsKey(tag) == false) {
                 debug("tag: " + tag + " does not exist");
@@ -673,13 +673,13 @@ class PWsdrCache {
         }
     }
 
-    public String hashtable2String(Hashtable ht) {
-        Enumeration enum1 = ht.keys();
+    public String hashtable2String(Hashtable<String, String> ht) {
+        Enumeration<String> enum1 = ht.keys();
         String returnString = null;
 
         while (enum1.hasMoreElements()) {
-            String tag = (String) enum1.nextElement();
-            String pwd = (String) ht.get(tag);
+            String tag = enum1.nextElement();
+            String pwd = ht.get(tag);
 
             if (returnString == null) {
                 returnString = tag + ":" + pwd + "\n";
@@ -690,8 +690,8 @@ class PWsdrCache {
         return returnString;
     }
 
-    public Hashtable string2Hashtable(String cache) {
-        Hashtable ht = new Hashtable();
+    public Hashtable<String, String> string2Hashtable(String cache) {
+        Hashtable<String, String> ht = new Hashtable<String, String>();
 
         // first, break into lines
         StringTokenizer st = new StringTokenizer(cache, "\n");
@@ -727,7 +727,7 @@ class PWsdrCache {
      * if tag not found, return null, which will cause it to give up
      */
     public Password getEntry(String tag) {
-        Hashtable pwTable = null;
+        Hashtable<String, String> pwTable = null;
         String pw = null;
 
         debug("in getEntry, tag=" + tag);

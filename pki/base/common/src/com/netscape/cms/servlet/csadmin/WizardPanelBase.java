@@ -1077,10 +1077,10 @@ public class WizardPanelBase implements IWizardPanel {
         return v;
     }
 
-    public Vector getUrlListFromSecurityDomain(IConfigStore config,
+    public Vector<String> getUrlListFromSecurityDomain(IConfigStore config,
                                                 String type,
                                                 String portType) {
-        Vector v = new Vector();
+        Vector<String> v = new Vector<String>();
 
         try {
             String hostname = config.getString("securitydomain.host");
@@ -1124,13 +1124,13 @@ public class WizardPanelBase implements IWizardPanel {
 
             CMS.debug("Len " + len);
             for (int i = 0; i < len; i++) {
-                Vector v_name = parser.getValuesFromContainer(nodeList.item(i),
+                Vector<String> v_name = parser.getValuesFromContainer(nodeList.item(i),
                         "SubsystemName");
-                Vector v_host = parser.getValuesFromContainer(nodeList.item(i),
+                Vector<String> v_host = parser.getValuesFromContainer(nodeList.item(i),
                         "Host");
-                Vector v_port = parser.getValuesFromContainer(nodeList.item(i),
+                Vector<String> v_port = parser.getValuesFromContainer(nodeList.item(i),
                         portType);
-                Vector v_admin_port = parser.getValuesFromContainer(nodeList.item(i),
+                Vector<String> v_admin_port = parser.getValuesFromContainer(nodeList.item(i),
                         "SecureAdminPort");
 
                 if (v_host.elementAt(0).equals(hostname)

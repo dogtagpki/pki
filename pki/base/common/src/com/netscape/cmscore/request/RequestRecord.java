@@ -869,7 +869,7 @@ class ExtAttrDynMapper implements IDBDynAttrMapper {
 
     protected final static String extAttrPrefix = "extdata-";
 
-    protected final static Vector mAttrs = new Vector();
+    protected final static Vector<String> mAttrs = new Vector<String>();
 
     static {
         mAttrs.add(Schema.LDAP_ATTR_EXT_ATTR);

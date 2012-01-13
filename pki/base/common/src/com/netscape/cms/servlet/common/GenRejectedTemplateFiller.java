@@ -67,13 +67,13 @@ public class GenRejectedTemplateFiller implements ICMSTemplateFiller {
             fixed.set(ICMSTemplateFiller.REQUEST_ID, req.getRequestId());
 
             // policy errors (rejection reasons)
-            Vector messages = req.getExtDataInStringVector(IRequest.ERRORS);
+            Vector<String> messages = req.getExtDataInStringVector(IRequest.ERRORS);
 
             if (messages != null) {
-                Enumeration msgs = messages.elements();
+                Enumeration<String> msgs = messages.elements();
 
                 while (msgs.hasMoreElements()) {
-                    String ex = (String) msgs.nextElement();
+                    String ex = msgs.nextElement();
                     IArgBlock messageArgBlock = CMS.createArgBlock();
 
                     messageArgBlock.set(POLICY_MESSAGE, ex);

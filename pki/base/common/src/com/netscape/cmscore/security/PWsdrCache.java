@@ -217,20 +217,20 @@ public class PWsdrCache {
     }
 
     public void addEntry(String tag, String pwd) throws EBaseException {
-        addEntry(tag, pwd, (Hashtable) null);
+        addEntry(tag, pwd, (Hashtable<String, String>) null);
     }
 
     /*
      * Store passwd in pwcache.
      */
-    public void addEntry(Hashtable ht) throws EBaseException {
+    public void addEntry(Hashtable<String, String> ht) throws EBaseException {
         addEntry((String) null, (String) null, ht);
     }
 
     /*
      * add passwd in pwcache.
      */
-    public void addEntry(String tag, String pwd, Hashtable tagPwds) throws EBaseException {
+    public void addEntry(String tag, String pwd, Hashtable<String, String> tagPwds) throws EBaseException {
 
         String stringToAdd = null;
         String bufs = null;
@@ -238,11 +238,11 @@ public class PWsdrCache {
         if (tagPwds == null) {
             stringToAdd = tag + ":" + pwd + "\n";
         } else {
-            Enumeration enum1 = tagPwds.keys();
+            Enumeration<String> enum1 = tagPwds.keys();
 
             while (enum1.hasMoreElements()) {
-                tag = (String) enum1.nextElement();
-                pwd = (String) tagPwds.get(tag);
+                tag = enum1.nextElement();
+                pwd = tagPwds.get(tag);
                 debug("password tag: " + tag + " stored in " + mPWcachedb);
 
                 if (stringToAdd == null) {
@@ -435,13 +435,13 @@ public class PWsdrCache {
         }
     }
 
-    public String hashtable2String(Hashtable ht) {
-        Enumeration enum1 = ht.keys();
+    public String hashtable2String(Hashtable<String, String> ht) {
+        Enumeration<String> enum1 = ht.keys();
         String returnString = null;
 
         while (enum1.hasMoreElements()) {
-            String tag = (String) enum1.nextElement();
-            String pwd = (String) ht.get(tag);
+            String tag = enum1.nextElement();
+            String pwd = ht.get(tag);
 
             if (returnString == null) {
                 returnString = tag + ":" + pwd + "\n";
@@ -452,8 +452,8 @@ public class PWsdrCache {
         return returnString;
     }
 
-    public Hashtable string2Hashtable(String cache) {
-        Hashtable ht = new Hashtable();
+    public Hashtable<String, String> string2Hashtable(String cache) {
+        Hashtable<String, String> ht = new Hashtable<String, String>();
 
         // first, break into lines
         StringTokenizer st = new StringTokenizer(cache, "\n");

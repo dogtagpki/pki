@@ -60,10 +60,10 @@ public class BaseServlet extends VelocityServlet {
 
     public void outputHttpParameters(HttpServletRequest httpReq) {
         CMS.debug("BaseServlet:service() uri = " + httpReq.getRequestURI());
-        Enumeration paramNames = httpReq.getParameterNames();
+        Enumeration<String> paramNames = httpReq.getParameterNames();
 
         while (paramNames.hasMoreElements()) {
-            String pn = (String) paramNames.nextElement();
+            String pn = paramNames.nextElement();
             // added this facility so that password can be hidden,
             // all sensitive parameters should be prefixed with 
             // __ (double underscores); however, in the event that

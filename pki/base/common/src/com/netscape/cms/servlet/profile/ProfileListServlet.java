@@ -126,7 +126,7 @@ public class ProfileListServlet extends ProfileServlet {
         }
 
         ArgList list = new ArgList();
-        Enumeration e = ps.getProfileIds();
+        Enumeration<String> e = ps.getProfileIds();
 
         if (e != null) {
             while (e.hasMoreElements()) {

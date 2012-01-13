@@ -230,10 +230,11 @@ public class CAAdminServlet extends AdminServlet {
             IOException, EBaseException {
 
         NameValuePairs params = new NameValuePairs();
-        Enumeration e = req.getParameterNames();
+        @SuppressWarnings("unchecked")
+        Enumeration<String> e = req.getParameterNames();
 
         while (e.hasMoreElements()) {
-            String name = (String) e.nextElement();
+            String name = e.nextElement();
 
             if (name.equals(Constants.OP_TYPE))
                 continue;
@@ -290,10 +291,11 @@ public class CAAdminServlet extends AdminServlet {
 
         IConfigStore riq = nc.getSubStore(ICertificateAuthority.PROP_REQ_IN_Q_SUBSTORE);
 
-        Enumeration e = req.getParameterNames();
+        @SuppressWarnings("unchecked")
+        Enumeration<String> e = req.getParameterNames();
 
         while (e.hasMoreElements()) {
-            String name = (String) e.nextElement();
+            String name = e.nextElement();
 
             if (name.equals(Constants.OP_TYPE))
                 continue;
@@ -324,10 +326,11 @@ public class CAAdminServlet extends AdminServlet {
         IConfigStore riq = nc.getSubStore(ICertificateAuthority.PROP_REQ_IN_Q_SUBSTORE);
 
         //set rest of the parameters
-        Enumeration e = req.getParameterNames();
+        @SuppressWarnings("unchecked")
+        Enumeration<String> e = req.getParameterNames();
 
         while (e.hasMoreElements()) {
-            String name = (String) e.nextElement();
+            String name = e.nextElement();
 
             if (name.equals(Constants.OP_TYPE))
                 continue;
@@ -379,10 +382,11 @@ public class CAAdminServlet extends AdminServlet {
             IOException, EBaseException {
 
         //set rest of the parameters
-        Enumeration e = req.getParameterNames();
+        @SuppressWarnings("unchecked")
+        Enumeration<String> e = req.getParameterNames();
 
         while (e.hasMoreElements()) {
-            String name = (String) e.nextElement();
+            String name = e.nextElement();
 
             if (name.equals(Constants.OP_TYPE))
                 continue;
@@ -456,10 +460,10 @@ public class CAAdminServlet extends AdminServlet {
             throws ServletException, IOException, EBaseException {
         NameValuePairs params = new NameValuePairs();
 
-        Enumeration ips = mCA.getCRLIssuingPoints();
+        Enumeration<ICRLIssuingPoint> ips = mCA.getCRLIssuingPoints();
 
         while (ips.hasMoreElements()) {
-            ICRLIssuingPoint ip = (ICRLIssuingPoint) ips.nextElement();
+            ICRLIssuingPoint ip = ips.nextElement();
 
             if (ip != null) {
                 String ipId = ip.getId();
@@ -486,11 +490,12 @@ public class CAAdminServlet extends AdminServlet {
 
             if (ip != null) {
 
-                Enumeration e = req.getParameterNames();
+                @SuppressWarnings("unchecked")
+                Enumeration<String> e = req.getParameterNames();
                 String value = "";
 
                 while (e.hasMoreElements()) {
-                    String name = (String) e.nextElement();
+                    String name = e.nextElement();
 
                     if (name.equals(Constants.PR_ENABLED)) {
                         if (ip.isCRLIssuingPointEnabled()) {
@@ -586,10 +591,10 @@ public class CAAdminServlet extends AdminServlet {
 
             IConfigStore crlSubStore =
                     mCA.getConfigStore().getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE);
-            Enumeration crlNames = crlSubStore.getSubStoreNames();
+            Enumeration<String> crlNames = crlSubStore.getSubStoreNames();
 
             while (crlNames.hasMoreElements()) {
-                String name = (String) crlNames.nextElement();
+                String name = crlNames.nextElement();
 
                 if (ipId.equals(name)) {
                     // store a message in the signed audit log file
@@ -743,10 +748,10 @@ public class CAAdminServlet extends AdminServlet {
             IConfigStore crlSubStore =
                     mCA.getConfigStore().getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE);
             boolean done = false;
-            Enumeration crlNames = crlSubStore.getSubStoreNames();
+            Enumeration<String> crlNames = crlSubStore.getSubStoreNames();
 
             while (crlNames.hasMoreElements()) {
-                String name = (String) crlNames.nextElement();
+                String name = crlNames.nextElement();
 
                 if (ipId.equals(name)) {
                     ICRLIssuingPoint ip = mCA.getCRLIssuingPoint(ipId);
@@ -862,10 +867,10 @@ public class CAAdminServlet extends AdminServlet {
                 IConfigStore crlSubStore =
                         mCA.getConfigStore().getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE);
                 boolean done = false;
-                Enumeration crlNames = crlSubStore.getSubStoreNames();
+                Enumeration<String> crlNames = crlSubStore.getSubStoreNames();
 
                 while (crlNames.hasMoreElements()) {
-                    String name = (String) crlNames.nextElement();
+                    String name = crlNames.nextElement();
 
                     if (id.equals(name)) {
                         mCA.deleteCRLIssuingPoint(crlSubStore, id);
@@ -944,10 +949,11 @@ public class CAAdminServlet extends AdminServlet {
         NameValuePairs params = new NameValuePairs();
 
         String ipId = null;
-        Enumeration e = req.getParameterNames();
+        @SuppressWarnings("unchecked")
+        Enumeration<String> e = req.getParameterNames();
 
         while (e.hasMoreElements()) {
-            String name = (String) e.nextElement();
+            String name = e.nextElement();
 
             if (name.equals(Constants.OP_TYPE))
                 continue;
@@ -1019,10 +1025,11 @@ public class CAAdminServlet extends AdminServlet {
             if (id != null) {
                 IConfigStore crlExtSubStore = crlExtsSubStore.getSubStore(id);
 
-                Enumeration e = req.getParameterNames();
+                @SuppressWarnings("unchecked")
+                Enumeration<String> e = req.getParameterNames();
 
                 while (e.hasMoreElements()) {
-                    String name = (String) e.nextElement();
+                    String name = e.nextElement();
 
                     if (name.equals(Constants.OP_TYPE))
                         continue;
@@ -1110,16 +1117,16 @@ public class CAAdminServlet extends AdminServlet {
         IConfigStore crlExtsSubStore = crlSubStore.getSubStore(ICertificateAuthority.PROP_CRLEXT_SUBSTORE);
 
         if (crlExtsSubStore != null) {
-            Enumeration enumExts = crlExtsSubStore.getSubStoreNames();
+            Enumeration<String> enumExts = crlExtsSubStore.getSubStoreNames();
 
             while (enumExts.hasMoreElements()) {
-                String extName = (String) enumExts.nextElement();
+                String extName = enumExts.nextElement();
                 boolean crlExtEnabled = false;
                 IConfigStore crlExtSubStore = crlExtsSubStore.getSubStore(extName);
-                Enumeration properties = crlExtSubStore.getPropertyNames();
+                Enumeration<String> properties = crlExtSubStore.getPropertyNames();
 
                 while (properties.hasMoreElements()) {
-                    String name = (String) properties.nextElement();
+                    String name = properties.nextElement();
 
                     if (name.equals(Constants.PR_ENABLE)) {
                         crlExtEnabled = crlExtSubStore.getBoolean(name, false);
@@ -1158,9 +1165,9 @@ public class CAAdminServlet extends AdminServlet {
         String ipId = null;
         String name = null;
 
-        Enumeration ips = mCA.getCRLIssuingPoints();
+        Enumeration<ICRLIssuingPoint> ips = mCA.getCRLIssuingPoints();
         if (ips.hasMoreElements()) {
-            ICRLIssuingPoint ip = (ICRLIssuingPoint) ips.nextElement();
+            ICRLIssuingPoint ip = ips.nextElement();
             if (ip != null) {
                 ipId = ip.getId();
             }
@@ -1229,10 +1236,11 @@ public class CAAdminServlet extends AdminServlet {
             IConfigStore crlSubStore = crlsSubStore.getSubStore(id);
 
             //set reset of the parameters
-            Enumeration e = req.getParameterNames();
+            @SuppressWarnings("unchecked")
+            Enumeration<String> e = req.getParameterNames();
 
             while (e.hasMoreElements()) {
-                String name = (String) e.nextElement();
+                String name = e.nextElement();
 
                 if (name.equals(Constants.OP_TYPE))
                     continue;
@@ -1319,10 +1327,11 @@ public class CAAdminServlet extends AdminServlet {
                 mCA.getConfigStore().getSubStore(ICertificateAuthority.PROP_CRL_SUBSTORE);
         IConfigStore crlSubStore = crlsSubStore.getSubStore(id);
 
-        Enumeration e = req.getParameterNames();
+        @SuppressWarnings("unchecked")
+        Enumeration<String> e = req.getParameterNames();
 
         while (e.hasMoreElements()) {
-            String name = (String) e.nextElement();
+            String name = e.nextElement();
 
             if (name.equals(Constants.OP_TYPE))
                 continue;
@@ -1352,12 +1361,13 @@ public class CAAdminServlet extends AdminServlet {
             caConnectorConfig = connectorConfig.getSubStore("CLA");
         }
 
-        Enumeration enum1 = req.getParameterNames();
+        @SuppressWarnings("unchecked")
+        Enumeration<String> enum1 = req.getParameterNames();
         NameValuePairs params = new NameValuePairs();
 
         if (caConnectorConfig != null) {
             while (enum1.hasMoreElements()) {
-                String name = (String) enum1.nextElement();
+                String name = enum1.nextElement();
 
                 if (name.equals(Constants.RS_ID))
                     continue;
@@ -1388,11 +1398,12 @@ public class CAAdminServlet extends AdminServlet {
             caConnectorConfig = connectorConfig.getSubStore("CLA");
         }
 
-        Enumeration enum1 = req.getParameterNames();
+        @SuppressWarnings("unchecked")
+        Enumeration<String> enum1 = req.getParameterNames();
 
         if (caConnectorConfig != null) {
             while (enum1.hasMoreElements()) {
-                String name = (String) enum1.nextElement();
+                String name = enum1.nextElement();
 
                 if (name.equals(Constants.OP_TYPE))
                     continue;
@@ -1423,10 +1434,11 @@ public class CAAdminServlet extends AdminServlet {
     }
 
     private boolean isKRAConnector(HttpServletRequest req) {
-        Enumeration enum1 = req.getParameterNames();
+        @SuppressWarnings("unchecked")
+        Enumeration<String> enum1 = req.getParameterNames();
 
         while (enum1.hasMoreElements()) {
-            String key = (String) enum1.nextElement();
+            String key = enum1.nextElement();
 
             if (key.equals("RS_ID")) {
                 String val = req.getParameter(key);
@@ -1441,10 +1453,11 @@ public class CAAdminServlet extends AdminServlet {
     }
 
     private boolean isCLAConnector(HttpServletRequest req) {
-        Enumeration enum1 = req.getParameterNames();
+        @SuppressWarnings("unchecked")
+        Enumeration<String> enum1 = req.getParameterNames();
 
         while (enum1.hasMoreElements()) {
-            String key = (String) enum1.nextElement();
+            String key = enum1.nextElement();
 
             if (key.equals("RS_ID")) {
                 String val = req.getParameter(key);
@@ -1532,12 +1545,12 @@ public class CAAdminServlet extends AdminServlet {
 
         IConfigStore caConfig = mCA.getConfigStore();
 
-        Enumeration enum1 = req.getParameterNames();
+        Enumeration<String> enum1 = req.getParameterNames();
         boolean restart = false;
 
         //mCA.setMaxSerial("");
         while (enum1.hasMoreElements()) {
-            String key = (String) enum1.nextElement();
+            String key = enum1.nextElement();
             String value = req.getParameter(key);
 
             if (key.equals(Constants.PR_EE_ENABLED)) {

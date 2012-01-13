@@ -137,8 +137,8 @@ public class XMLObject {
         return v;
     }
 
-    public Vector getValuesFromContainer(Node container, String tagname) {
-        Vector v = new Vector();
+    public Vector<String> getValuesFromContainer(Node container, String tagname) {
+        Vector<String> v = new Vector<String>();
         NodeList c = container.getChildNodes();
         int len = c.getLength();
         for (int i = 0; i < len; i++) {

@@ -168,7 +168,7 @@ class RequestRecordStub extends RequestRecordDefaultStub {
         return "foo";
     }
 
-    public Enumeration getSerializableAttrNames() {
+    public Enumeration<String> getSerializableAttrNames() {
         getSerializedAttrNamesCalled = true;
         return Collections.enumeration(Arrays.asList(attrs));
     }

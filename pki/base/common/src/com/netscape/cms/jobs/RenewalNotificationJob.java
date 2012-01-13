@@ -423,10 +423,10 @@ public class RenewalNotificationJob
                 //CertRecordList list = mCertDB.findCertRecordsInList(filter, null, "serialno", 5);
                 //list.processCertRecords(0, list.getSize() - 1, cp);
 
-                Enumeration en = mCertDB.findCertRecs(filter);
+                Enumeration<Object> en = mCertDB.findCertRecs(filter);
 
                 while (en.hasMoreElements()) {
-                    Object element = (Object) en.nextElement();
+                    Object element = en.nextElement();
 
                     try {
                         cp.process(element);

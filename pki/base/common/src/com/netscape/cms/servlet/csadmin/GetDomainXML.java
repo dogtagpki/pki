@@ -144,9 +144,10 @@ public class GetDomainXML extends CMSServlet {
                             Node node = xmlObj.createContainer(listNode, subType);
                             LDAPEntry entry = res2.next();
                             LDAPAttributeSet entryAttrs = entry.getAttributeSet();
-                            Enumeration attrsInSet = entryAttrs.getAttributes();
+                            @SuppressWarnings("unchecked")
+                            Enumeration<LDAPAttribute> attrsInSet = entryAttrs.getAttributes();
                             while (attrsInSet.hasMoreElements()) {
-                                LDAPAttribute nextAttr = (LDAPAttribute) attrsInSet.nextElement();
+                                LDAPAttribute nextAttr = attrsInSet.nextElement();
                                 String attrName = nextAttr.getName();
                                 if ((!attrName.equals("cn")) && (!attrName.equals("objectClass"))) {
                                     String attrValue = (String) nextAttr.getStringValues().nextElement();

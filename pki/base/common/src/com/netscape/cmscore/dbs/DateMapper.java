@@ -41,7 +41,7 @@ import com.netscape.certsrv.dbs.IDBObj;
 public class DateMapper implements IDBAttrMapper {
 
     private String mLdapName = null;
-    private Vector v = new Vector();
+    private Vector<String> v = new Vector<String>();
     private static SimpleDateFormat formatter = new
             SimpleDateFormat("yyyyMMddHHmmss'Z'");
 
@@ -56,7 +56,7 @@ public class DateMapper implements IDBAttrMapper {
     /**
      * Retrieves a list of ldap attribute names.
      */
-    public Enumeration getSupportedLDAPAttributeNames() {
+    public Enumeration<String> getSupportedLDAPAttributeNames() {
         return v.elements();
     }
 

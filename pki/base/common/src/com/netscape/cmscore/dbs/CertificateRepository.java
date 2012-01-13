@@ -752,10 +752,10 @@ public class CertificateRepository extends Repository
         modifyCertificateRecord(id, mods);
     }
 
-    public Enumeration searchCertificates(String filter, int maxSize)
+    public Enumeration<Object> searchCertificates(String filter, int maxSize)
             throws EBaseException {
         IDBSSession s = mDBService.createSession();
-        Enumeration e = null;
+        Enumeration<Object> e = null;
 
         CMS.debug("searchCertificates filter " + filter + " maxSize " + maxSize);
         try {
@@ -767,10 +767,10 @@ public class CertificateRepository extends Repository
         return e;
     }
 
-    public Enumeration searchCertificates(String filter, int maxSize, int timeLimit)
+    public Enumeration<Object> searchCertificates(String filter, int maxSize, int timeLimit)
             throws EBaseException {
         IDBSSession s = mDBService.createSession();
-        Enumeration e = null;
+        Enumeration<Object> e = null;
 
         CMS.debug("searchCertificateswith time limit filter " + filter);
         try {
@@ -787,11 +787,11 @@ public class CertificateRepository extends Repository
      * 
      * @deprecated replaced by <code>findCertificatesInList</code>
      */
-    public Enumeration findCertRecs(String filter)
+    public Enumeration<Object> findCertRecs(String filter)
             throws EBaseException {
         CMS.debug("findCertRecs " + filter);
         IDBSSession s = mDBService.createSession();
-        Enumeration e = null;
+        Enumeration<Object> e = null;
         try {
             e = s.search(getDN(), filter);
         } finally {
@@ -801,13 +801,13 @@ public class CertificateRepository extends Repository
         return e;
     }
 
-    public Enumeration findCertRecs(String filter, String[] attrs)
+    public Enumeration<Object> findCertRecs(String filter, String[] attrs)
             throws EBaseException {
 
         CMS.debug("findCertRecs " + filter
                  + "attrs " + Arrays.toString(attrs));
         IDBSSession s = mDBService.createSession();
-        Enumeration e = null;
+        Enumeration<Object> e = null;
         try {
             e = s.search(getDN(), filter, attrs);
         } finally {
@@ -820,11 +820,11 @@ public class CertificateRepository extends Repository
 
     public Enumeration<X509CertImpl> findCertificates(String filter)
             throws EBaseException {
-        Enumeration e = findCertRecords(filter);
+        Enumeration<ICertRecord> e = findCertRecords(filter);
         Vector<X509CertImpl> v = new Vector<X509CertImpl>();
 
         while (e.hasMoreElements()) {
-            CertRecord rec = (CertRecord) e.nextElement();
+            ICertRecord rec = e.nextElement();
 
             v.addElement(rec.getCertificate());
         }
@@ -837,10 +837,10 @@ public class CertificateRepository extends Repository
      * If you are going to process everything in the list,
      * use this.
      */
-    public Enumeration findCertRecords(String filter)
+    public Enumeration<ICertRecord> findCertRecords(String filter)
             throws EBaseException {
         IDBSSession s = mDBService.createSession();
-        Enumeration e = null;
+        Enumeration<ICertRecord> e = null;
 
         try {
             //e = s.search(getDN(), filter);
@@ -1066,7 +1066,7 @@ public class CertificateRepository extends Repository
 
             list = findCertRecordsInList(filter, null, "serialno", 10);
             int size = list.getSize();
-            Enumeration e = list.getCertRecords(0, size - 1);
+            Enumeration<ICertRecord> e = list.getCertRecords(0, size - 1);
 
             tab = new Hashtable<String, RenewableCertificateCollection>();
             while (e.hasMoreElements()) {
@@ -1134,7 +1134,7 @@ public class CertificateRepository extends Repository
 
             list = findCertRecordsInList(filter, null, "serialno", 10);
             int size = list.getSize();
-            Enumeration e = list.getCertRecords(0, size - 1);
+            Enumeration<ICertRecord> e = list.getCertRecords(0, size - 1);
 
             Vector<X509CertImpl> v = new Vector<X509CertImpl>();
 
@@ -1161,7 +1161,7 @@ public class CertificateRepository extends Repository
         X509CertImpl certs[] = null;
 
         try {
-            Enumeration e = null;
+            Enumeration<ICertRecord> e = null;
 
             if (filter != null && filter.length() > 0) {
                 //e = s.search(getDN(), filter);
@@ -1197,10 +1197,10 @@ public class CertificateRepository extends Repository
      * @param from The starting point of the serial number range.
      * @param to The ending point of the serial number range.
      */
-    public Enumeration<CertRecord> getValidCertificates(String from, String to)
+    public Enumeration<ICertRecord> getValidCertificates(String from, String to)
             throws EBaseException {
         IDBSSession s = mDBService.createSession();
-        Vector<CertRecord> v = new Vector<CertRecord>();
+        Vector<ICertRecord> v = new Vector<ICertRecord>();
 
         try {
 
@@ -1256,10 +1256,10 @@ public class CertificateRepository extends Repository
     /**
      * Retrives all valid certificates excluding ones already revoked.
      */
-    public Enumeration getAllValidCertificates()
+    public Enumeration<ICertRecord> getAllValidCertificates()
             throws EBaseException {
         IDBSSession s = mDBService.createSession();
-        Enumeration e = null;
+        Enumeration<ICertRecord> e = null;
 
         try {
             Date now = CMS.getCurrentDate();
@@ -1293,10 +1293,10 @@ public class CertificateRepository extends Repository
      * @param from The starting point of the serial number range.
      * @param to The ending point of the serial number range.
      */
-    public Enumeration getValidNotPublishedCertificates(String from, String to)
+    public Enumeration<ICertRecord> getValidNotPublishedCertificates(String from, String to)
             throws EBaseException {
         IDBSSession s = mDBService.createSession();
-        Enumeration e = null;
+        Enumeration<ICertRecord> e = null;
 
         try {
             Date now = CMS.getCurrentDate();
@@ -1335,10 +1335,10 @@ public class CertificateRepository extends Repository
      * Retrives all valid not published certificates
      * excluding ones already revoked.
      */
-    public Enumeration getAllValidNotPublishedCertificates()
+    public Enumeration<ICertRecord> getAllValidNotPublishedCertificates()
             throws EBaseException {
         IDBSSession s = mDBService.createSession();
-        Enumeration e = null;
+        Enumeration<ICertRecord> e = null;
 
         try {
             Date now = CMS.getCurrentDate();
@@ -1374,10 +1374,10 @@ public class CertificateRepository extends Repository
      * @param from The starting point of the serial number range.
      * @param to The ending point of the serial number range.
      */
-    public Enumeration getExpiredCertificates(String from, String to)
+    public Enumeration<ICertRecord> getExpiredCertificates(String from, String to)
             throws EBaseException {
         IDBSSession s = mDBService.createSession();
-        Enumeration e = null;
+        Enumeration<ICertRecord> e = null;
 
         try {
             Date now = CMS.getCurrentDate();
@@ -1409,10 +1409,10 @@ public class CertificateRepository extends Repository
     /**
      * Retrives all expired certificates.
      */
-    public Enumeration getAllExpiredCertificates()
+    public Enumeration<ICertRecord> getAllExpiredCertificates()
             throws EBaseException {
         IDBSSession s = mDBService.createSession();
-        Enumeration e = null;
+        Enumeration<ICertRecord> e = null;
 
         try {
             Date now = CMS.getCurrentDate();
@@ -1441,10 +1441,10 @@ public class CertificateRepository extends Repository
      * @param from The starting point of the serial number range.
      * @param to The ending point of the serial number range.
      */
-    public Enumeration getExpiredPublishedCertificates(String from, String to)
+    public Enumeration<ICertRecord> getExpiredPublishedCertificates(String from, String to)
             throws EBaseException {
         IDBSSession s = mDBService.createSession();
-        Enumeration e = null;
+        Enumeration<ICertRecord> e = null;
 
         try {
             Date now = CMS.getCurrentDate();
@@ -1480,10 +1480,10 @@ public class CertificateRepository extends Repository
     /**
      * Retrives all expired publishedcertificates.
      */
-    public Enumeration getAllExpiredPublishedCertificates()
+    public Enumeration<ICertRecord> getAllExpiredPublishedCertificates()
             throws EBaseException {
         IDBSSession s = mDBService.createSession();
-        Enumeration e = null;
+        Enumeration<ICertRecord> e = null;
 
         try {
             Date now = CMS.getCurrentDate();
@@ -1621,10 +1621,10 @@ public class CertificateRepository extends Repository
      * @param from The starting point of the serial number range.
      * @param to The ending point of the serial number range.
      */
-    public Enumeration getRevokedCertificates(String from, String to)
+    public Enumeration<ICertRecord> getRevokedCertificates(String from, String to)
             throws EBaseException {
         IDBSSession s = mDBService.createSession();
-        Enumeration e = null;
+        Enumeration<ICertRecord> e = null;
 
         try {
             String ldapfilter = "(&(" + CertRecord.ATTR_REVO_INFO + "=*)";
@@ -1653,10 +1653,10 @@ public class CertificateRepository extends Repository
      * Retrives all revoked certificates including ones already expired or
      * not yet valid.
      */
-    public Enumeration getAllRevokedCertificates()
+    public Enumeration<ICertRecord> getAllRevokedCertificates()
             throws EBaseException {
         IDBSSession s = mDBService.createSession();
-        Enumeration e = null;
+        Enumeration<ICertRecord> e = null;
         // index is setup for this filter
         String ldapfilter = "(|(" + CertRecord.ATTR_CERT_STATUS + "=" + CertRecord.STATUS_REVOKED + ")("
                 + CertRecord.ATTR_CERT_STATUS + "=" + CertRecord.STATUS_REVOKED_EXPIRED + "))";
@@ -1682,10 +1682,10 @@ public class CertificateRepository extends Repository
      * @param from The starting point of the serial number range.
      * @param to The ending point of the serial number range.
      */
-    public Enumeration getRevokedPublishedCertificates(String from, String to)
+    public Enumeration<ICertRecord> getRevokedPublishedCertificates(String from, String to)
             throws EBaseException {
         IDBSSession s = mDBService.createSession();
-        Enumeration e = null;
+        Enumeration<ICertRecord> e = null;
 
         try {
             String ldapfilter = "(&(" + CertRecord.ATTR_REVO_INFO + "=*)";
@@ -1717,10 +1717,10 @@ public class CertificateRepository extends Repository
      * Retrives all revoked published certificates including ones
      * already expired or not yet valid.
      */
-    public Enumeration getAllRevokedPublishedCertificates()
+    public Enumeration<ICertRecord> getAllRevokedPublishedCertificates()
             throws EBaseException {
         IDBSSession s = mDBService.createSession();
-        Enumeration e = null;
+        Enumeration<ICertRecord> e = null;
         // index is setup for this filter
         String ldapfilter = "(&(|(" + CertRecord.ATTR_CERT_STATUS + "=" + CertRecord.STATUS_REVOKED + ")("
                 + CertRecord.ATTR_CERT_STATUS + "=" + CertRecord.STATUS_REVOKED_EXPIRED + "))";
@@ -1746,10 +1746,10 @@ public class CertificateRepository extends Repository
     /**
      * Retrieves all revoked certificates that have not expired.
      */
-    public Enumeration getRevokedCertificates(Date asOfDate)
+    public Enumeration<ICertRecord> getRevokedCertificates(Date asOfDate)
             throws EBaseException {
         IDBSSession s = mDBService.createSession();
-        Enumeration e = null;
+        Enumeration<ICertRecord> e = null;
 
         try {
 
@@ -1778,10 +1778,10 @@ public class CertificateRepository extends Repository
     /**
      * Retrives all revoked certificates excluing ones already expired.
      */
-    public Enumeration getAllRevokedNonExpiredCertificates()
+    public Enumeration<ICertRecord> getAllRevokedNonExpiredCertificates()
             throws EBaseException {
         IDBSSession s = mDBService.createSession();
-        Enumeration e = null;
+        Enumeration<ICertRecord> e = null;
         String ldapfilter = "(" + CertRecord.ATTR_CERT_STATUS + "=" + CertRecord.STATUS_REVOKED + ")"; // index is setup for this filter
 
         try {

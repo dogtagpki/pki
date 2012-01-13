@@ -156,12 +156,13 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
             }
             LDAPEntry entry = results.next();
             LDAPAttribute crls = entry.getAttribute(mCACertAttr);
-            Enumeration vals = crls.getByteValues();
+            @SuppressWarnings("unchecked")
+            Enumeration<byte[]> vals = crls.getByteValues();
 
             if (!vals.hasMoreElements()) {
                 throw new EBaseException("error - no values");
             }
-            byte caCertData[] = (byte[]) vals.nextElement();
+            byte caCertData[] = vals.nextElement();
             X509CertImpl caCert = new X509CertImpl(caCertData);
 
             return caCert;
@@ -188,12 +189,13 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
             }
             LDAPEntry entry = results.next();
             LDAPAttribute crls = entry.getAttribute(mCRLAttr);
-            Enumeration vals = crls.getByteValues();
+            @SuppressWarnings("unchecked")
+            Enumeration<byte[]> vals = crls.getByteValues();
 
             if (!vals.hasMoreElements()) {
                 throw new EBaseException("error - no values");
             }
-            byte crlData[] = (byte[]) vals.nextElement();
+            byte crlData[] = vals.nextElement();
             X509CRLImpl crl = new X509CRLImpl(crlData);
 
             return crl;
@@ -457,10 +459,10 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
         X509CertImpl theCert = null;
         X509CRLImpl theCRL = null;
 
-        Enumeration caCerts = mCRLs.keys();
+        Enumeration<X509CertImpl> caCerts = mCRLs.keys();
 
         while (caCerts.hasMoreElements()) {
-            X509CertImpl caCert = (X509CertImpl) caCerts.nextElement();
+            X509CertImpl caCert = caCerts.nextElement();
             MessageDigest md = null;
 
             try {
@@ -565,10 +567,10 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
 
     public void setConfigParameters(NameValuePairs pairs)
             throws EBaseException {
-        Enumeration k = pairs.getNames();
+        Enumeration<String> k = pairs.getNames();
 
         while (k.hasMoreElements()) {
-            String key = (String) k.nextElement();
+            String key = k.nextElement();
 
             mConfig.put(key, pairs.getValue(key));
         }

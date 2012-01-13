@@ -234,15 +234,15 @@ public class ProfileReviewServlet extends ProfileServlet {
         String profileSetId = req.getExtDataInString("profileSetId");
 
         CMS.debug("ProfileReviewServlet: profileSetId=" + profileSetId);
-        Enumeration policyIds = (profileSetId != null && profileSetId.length() > 0) ?
+        Enumeration<String> policyIds = (profileSetId != null && profileSetId.length() > 0) ?
                                  profile.getProfilePolicyIds(profileSetId) : null;
         int count = 0;
         ArgList list = new ArgList();
 
         if (policyIds != null) {
             while (policyIds.hasMoreElements()) {
-                String id = (String) policyIds.nextElement();
-                IProfilePolicy policy = (IProfilePolicy)
+                String id = policyIds.nextElement();
+                IProfilePolicy policy =
                         profile.getProfilePolicy(req.getExtDataInString("profileSetId"),
                                 id);
 
@@ -306,19 +306,19 @@ public class ProfileReviewServlet extends ProfileServlet {
         // populate authentication parameters
 
         // populate input parameters
-        Enumeration inputIds = profile.getProfileInputIds();
+        Enumeration<String> inputIds = profile.getProfileInputIds();
 
         if (inputIds != null) {
             while (inputIds.hasMoreElements()) {
-                String inputId = (String) inputIds.nextElement();
+                String inputId = inputIds.nextElement();
                 IProfileInput profileInput = profile.getProfileInput(inputId);
 
-                Enumeration inputNames = profileInput.getValueNames();
+                Enumeration<String> inputNames = profileInput.getValueNames();
 
                 if (inputNames != null) {
                     while (inputNames.hasMoreElements()) {
                         ArgSet inputset = new ArgSet();
-                        String inputName = (String) inputNames.nextElement();
+                        String inputName = inputNames.nextElement();
 
                         IDescriptor inputDesc = profileInput.getValueDescriptor(locale, inputName);
 
@@ -350,20 +350,20 @@ public class ProfileReviewServlet extends ProfileServlet {
         // if request in complete state
 
         ArgList outputlist = new ArgList();
-        Enumeration outputIds = profile.getProfileOutputIds();
+        Enumeration<String> outputIds = profile.getProfileOutputIds();
 
         if (outputIds != null) {
             while (outputIds.hasMoreElements()) {
-                String outputId = (String) outputIds.nextElement();
+                String outputId = outputIds.nextElement();
                 IProfileOutput profileOutput = profile.getProfileOutput(outputId
                         );
 
-                Enumeration outputNames = profileOutput.getValueNames();
+                Enumeration<String> outputNames = profileOutput.getValueNames();
 
                 if (outputNames != null) {
                     while (outputNames.hasMoreElements()) {
                         ArgSet outputset = new ArgSet();
-                        String outputName = (String) outputNames.nextElement
+                        String outputName = outputNames.nextElement
                                 ();
                         IDescriptor outputDesc =
                                 profileOutput.getValueDescriptor(locale, outputName);
@@ -412,12 +412,12 @@ public class ProfileReviewServlet extends ProfileServlet {
 
         set.set(ARG_DEF_DESC, dDesc);
         ArgList deflist = new ArgList();
-        Enumeration defNames = def.getValueNames();
+        Enumeration<String> defNames = def.getValueNames();
 
         if (defNames != null) {
             while (defNames.hasMoreElements()) {
                 ArgSet defset = new ArgSet();
-                String defName = (String) defNames.nextElement();
+                String defName = defNames.nextElement();
                 IDescriptor defDesc = def.getValueDescriptor(locale, defName);
 
                 if (defDesc == null)

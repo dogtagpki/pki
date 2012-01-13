@@ -30,14 +30,14 @@ import java.util.Hashtable;
  */
 public class HttpMessage {
     protected String mLine = null; // request or response line.
-    protected Hashtable mHeaders = null;
+    protected Hashtable<String, String> mHeaders = null;
     protected String mContent = null; // arbitrary content chars assumed.
 
     /**
      * Instantiate a HttpResponse for write to http client.
      */
     public HttpMessage() {
-        mHeaders = new Hashtable();
+        mHeaders = new Hashtable<String, String>();
     }
 
     /**
@@ -48,7 +48,7 @@ public class HttpMessage {
      */
     public void setHeader(String name, String value) {
         if (mHeaders == null)
-            mHeaders = new Hashtable();
+            mHeaders = new Hashtable<String, String>();
         mHeaders.put(name.toLowerCase(), value);
     }
 
@@ -66,12 +66,12 @@ public class HttpMessage {
     public void writeHeaders(OutputStreamWriter writer)
             throws IOException {
         if (mHeaders != null) {
-            Enumeration keys = mHeaders.keys();
+            Enumeration<String> keys = mHeaders.keys();
             String header, value;
 
             while (keys.hasMoreElements()) {
-                header = (String) keys.nextElement();
-                value = (String) mHeaders.get(header);
+                header = keys.nextElement();
+                value = mHeaders.get(header);
                 writer.write(header + ":" + value + Http.CRLF);
             }
         }
@@ -84,7 +84,7 @@ public class HttpMessage {
      */
     public void readHeaders(BufferedReader reader)
             throws IOException {
-        mHeaders = new Hashtable();
+        mHeaders = new Hashtable<String, String>();
 
         int colon;
         String line, key, value;
@@ -129,7 +129,7 @@ public class HttpMessage {
         readHeaders(reader);
 
         // won't work if content length is not set.
-        String lenstr = (String) mHeaders.get("content-length");
+        String lenstr = mHeaders.get("content-length");
 
         if (lenstr != null) {
             int len = Integer.parseInt(lenstr);

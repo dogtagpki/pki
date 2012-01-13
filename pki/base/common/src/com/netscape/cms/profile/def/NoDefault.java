@@ -41,10 +41,10 @@ public class NoDefault implements IPolicyDefault {
     public static final String PROP_NAME = "name";
 
     protected Vector mValues = new Vector();
-    protected Vector mNames = new Vector();
+    protected Vector<String> mNames = new Vector<String>();
     protected IConfigStore mConfig = null;
 
-    public Enumeration getConfigNames() {
+    public Enumeration<String> getConfigNames() {
         return mNames.elements();
     }
 

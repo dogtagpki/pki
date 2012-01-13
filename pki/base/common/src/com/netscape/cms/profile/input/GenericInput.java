@@ -94,8 +94,8 @@ public class GenericInput extends EnrollInput implements IProfileInput {
     /**
      * Returns selected value names based on the configuration.
      */
-    public Enumeration getValueNames() {
-        Vector v = new Vector();
+    public Enumeration<String> getValueNames() {
+        Vector<String> v = new Vector<String>();
         int num = getNum();
         for (int i = 0; i < num; i++) {
             String enable = getConfig(CONFIG_ENABLE + i);

@@ -149,10 +149,10 @@ public class GetEnableStatus extends CMSServlet {
         header.addStringValue("timeout", "" + timeout);
         header.addStringValue("reqHost", reqHost);
 
-        for (Enumeration hosts = mgr.getHosts(); hosts.hasMoreElements();) {
+        for (Enumeration<String> hosts = mgr.getHosts(); hosts.hasMoreElements();) {
             IArgBlock rarg = CMS.createArgBlock();
 
-            rarg.addStringValue("hosts", (String) hosts.nextElement());
+            rarg.addStringValue("hosts", hosts.nextElement());
             argSet.addRepeatRecord(rarg);
         }
 

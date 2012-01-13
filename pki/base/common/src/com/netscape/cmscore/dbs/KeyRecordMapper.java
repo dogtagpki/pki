@@ -50,8 +50,8 @@ public class KeyRecordMapper implements IDBAttrMapper {
         mDB = db;
     }
 
-    public Enumeration getSupportedLDAPAttributeNames() {
-        Vector v = new Vector();
+    public Enumeration<String> getSupportedLDAPAttributeNames() {
+        Vector<String> v = new Vector<String>();
 
         v.addElement(KeyDBSchema.LDAP_ATTR_KEY_RECORD_ID);
         return v.elements();

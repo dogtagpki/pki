@@ -946,8 +946,8 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
     /**
      * Retrieves a list of names of the value parameter.
      */
-    public Enumeration getValueNames() {
-        Vector v = new Vector();
+    public Enumeration<String> getValueNames() {
+        Vector<String> v = new Vector<String>();
         v.addElement("cert_request");
         return v.elements();
     }

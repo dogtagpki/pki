@@ -189,18 +189,18 @@ public class ProfileSelectServlet extends ProfileServlet {
         }
 
         ArgList setlist = new ArgList();
-        Enumeration policySetIds = profile.getProfilePolicySetIds();
+        Enumeration<String> policySetIds = profile.getProfilePolicySetIds();
 
         if (policySetIds != null) {
             while (policySetIds.hasMoreElements()) {
-                String setId = (String) policySetIds.nextElement();
+                String setId = policySetIds.nextElement();
 
                 ArgList list = new ArgList();
-                Enumeration policyIds = profile.getProfilePolicyIds(setId);
+                Enumeration<String> policyIds = profile.getProfilePolicyIds(setId);
 
                 if (policyIds != null) {
                     while (policyIds.hasMoreElements()) {
-                        String id = (String) policyIds.nextElement();
+                        String id = policyIds.nextElement();
                         IProfilePolicy policy = (IProfilePolicy)
                                 profile.getProfilePolicy(setId, id);
 
@@ -264,12 +264,12 @@ public class ProfileSelectServlet extends ProfileServlet {
         }
 
         if (authenticator != null) {
-            Enumeration authNames = authenticator.getValueNames();
+            Enumeration<String> authNames = authenticator.getValueNames();
 
             if (authNames != null) {
                 while (authNames.hasMoreElements()) {
                     ArgSet authset = new ArgSet();
-                    String authName = (String) authNames.nextElement();
+                    String authName = authNames.nextElement();
                     IDescriptor authDesc =
                             authenticator.getValueDescriptor(locale, authName);
 
@@ -296,11 +296,11 @@ public class ProfileSelectServlet extends ProfileServlet {
         // build input list
         ArgList inputlist = new ArgList();
         ArgList inputPluginlist = new ArgList();
-        Enumeration inputIds = profile.getProfileInputIds();
+        Enumeration<String> inputIds = profile.getProfileInputIds();
 
         if (inputIds != null) {
             while (inputIds.hasMoreElements()) {
-                String inputId = (String) inputIds.nextElement();
+                String inputId = inputIds.nextElement();
                 IProfileInput profileInput = profile.getProfileInput(inputId);
 
                 if (profileInput != null) {
@@ -313,12 +313,12 @@ public class ProfileSelectServlet extends ProfileServlet {
                             profileInput.getText(locale));
                     inputPluginlist.add(inputpluginset);
 
-                    Enumeration inputNames = profileInput.getValueNames();
+                    Enumeration<String> inputNames = profileInput.getValueNames();
 
                     if (inputNames != null) {
                         while (inputNames.hasMoreElements()) {
                             ArgSet inputset = new ArgSet();
-                            String inputName = (String) inputNames.nextElement();
+                            String inputName = inputNames.nextElement();
                             IDescriptor inputDesc = profileInput.getValueDescriptor(
                                     locale, inputName);
 
@@ -362,12 +362,12 @@ public class ProfileSelectServlet extends ProfileServlet {
 
         set.set(ARG_DEF_DESC, dDesc);
         ArgList deflist = new ArgList();
-        Enumeration defNames = def.getValueNames();
+        Enumeration<String> defNames = def.getValueNames();
 
         if (defNames != null) {
             while (defNames.hasMoreElements()) {
                 ArgSet defset = new ArgSet();
-                String defName = (String) defNames.nextElement();
+                String defName = defNames.nextElement();
                 IDescriptor defDesc = def.getValueDescriptor(locale, defName);
 
                 if (defDesc == null)
@@ -393,11 +393,11 @@ public class ProfileSelectServlet extends ProfileServlet {
 
         set.set(ARG_CON_DESC, conDesc);
         ArgList conlist = new ArgList();
-        Enumeration conNames = con.getConfigNames();
+        Enumeration<String> conNames = con.getConfigNames();
         if (conNames != null) {
             while (conNames.hasMoreElements()) {
                 ArgSet conset = new ArgSet();
-                String conName = (String) conNames.nextElement();
+                String conName = conNames.nextElement();
                 conset.set(ARG_CON_NAME, conName);
                 conset.set(ARG_CON_VALUE, con.getConfig(conName));
                 conlist.add(conset);

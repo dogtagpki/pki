@@ -170,8 +170,8 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      * @see java.util.Hashtable#elements
      * @see java.util.Enumeration
      */
-    public Enumeration keys() {
-        Hashtable h = new Hashtable();
+    public Enumeration<String> keys() {
+        Hashtable<String, Object> h = new Hashtable<String, Object>();
 
         enumerate(h);
         return h.keys();
@@ -182,8 +182,8 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      * 
      * @return hashtable
      */
-    public Hashtable hashtable() {
-        Hashtable h = new Hashtable();
+    public Hashtable<String, Object> hashtable() {
+        Hashtable<String, Object> h = new Hashtable<String, Object>();
 
         enumerate(h);
         return h;
@@ -193,7 +193,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      * Return the number of items in this substore
      */
     public int size() {
-        Hashtable h = new Hashtable();
+        Hashtable<String, Object> h = new Hashtable<String, Object>();
 
         enumerate(h);
         return h.size();
@@ -206,8 +206,8 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      * 
      * @param h the hashtable
      */
-    private synchronized void enumerate(Hashtable h) {
-        Enumeration e = mSource.keys();
+    private synchronized void enumerate(Hashtable<String, Object> h) {
+        Enumeration<String> e = mSource.keys();
         // We only want the keys which match the current substore name
         // without the current substore prefix.  This code works even
         // if mStoreName is null.
@@ -215,7 +215,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
         int kIndex = fullName.length();
 
         while (e.hasMoreElements()) {
-            String key = (String) e.nextElement();
+            String key = e.nextElement();
 
             if (key.startsWith(fullName)) {
                 h.put(key.substring(kIndex), nakedGet(key));
@@ -589,10 +589,11 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      * 
      * @param name substore name
      */
+    @SuppressWarnings("unchecked")
     public void removeSubStore(String name) {
         // this operation is expensive!!!
 
-        Enumeration e = mSource.keys();
+        Enumeration<String> e = mSource.keys();
         // We only want the keys which match the current substore name
         // without the current substore prefix.  This code works even
         // if mStoreName is null.
@@ -600,10 +601,10 @@ public class PropConfigStore implements IConfigStore, Cloneable {
         int kIndex = fullName.length();
 
         while (e.hasMoreElements()) {
-            String key = (String) e.nextElement();
+            String key = e.nextElement();
 
             if (key.startsWith(fullName + ".")) {
-                ((Hashtable) mSource).remove(key);
+                ((Hashtable<String, String>) mSource).remove(key);
             }
         }
     }
@@ -649,16 +650,16 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      * 
      * @return a list of string-based property names
      */
-    public Enumeration getPropertyNames() {
+    public Enumeration<String> getPropertyNames() {
         // XXX - this operation is expensive!!!
-        Hashtable h = new Hashtable();
+        Hashtable<String, Object> h = new Hashtable<String, Object>();
 
         enumerate(h);
-        Enumeration e = h.keys();
-        Vector v = new Vector();
+        Enumeration<String> e = h.keys();
+        Vector<String> v = new Vector<String>();
 
         while (e.hasMoreElements()) {
-            String pname = (String) e.nextElement();
+            String pname = e.nextElement();
             int i = pname.indexOf('.'); // substores have "."
 
             if (i == -1) {
@@ -678,16 +679,16 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      * 
      * @return list of substore names
      */
-    public Enumeration getSubStoreNames() {
+    public Enumeration<String> getSubStoreNames() {
         // XXX - this operation is expensive!!!
-        Hashtable h = new Hashtable();
+        Hashtable<String, Object> h = new Hashtable<String, Object>();
 
         enumerate(h);
-        Enumeration e = h.keys();
-        Vector v = new Vector();
+        Enumeration<String> e = h.keys();
+        Vector<String> v = new Vector<String>();
 
         while (e.hasMoreElements()) {
-            String pname = (String) e.nextElement();
+            String pname = e.nextElement();
             int i = pname.indexOf('.'); // substores have "."
 
             if (i != -1) {
@@ -717,10 +718,10 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      * substore.
      */
     public void printProperties() {
-        Enumeration keys = mSource.keys();
+        Enumeration<String> keys = mSource.keys();
 
         while (keys.hasMoreElements()) {
-            String key = (String) keys.nextElement();
+            String key = keys.nextElement();
 
             if (mStoreName == null) {
                 System.out.println(key);
@@ -762,10 +763,10 @@ public class PropConfigStore implements IConfigStore, Cloneable {
                         subs.nextElement();
                 IConfigStore newSub = that.makeSubStore(
                         sub.getName());
-                Enumeration props = sub.getPropertyNames();
+                Enumeration<String> props = sub.getPropertyNames();
 
                 while (props.hasMoreElements()) {
-                    String n = (String) props.nextElement();
+                    String n = props.nextElement();
 
                     try {
                         newSub.putString(n,

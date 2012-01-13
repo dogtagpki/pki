@@ -64,7 +64,7 @@ public final class Attribute implements Serializable, DerEncoder {
     private static final long serialVersionUID = -931486084625476764L;
     //private variables
     ObjectIdentifier oid;
-    Vector valueSet = new Vector();
+    Vector<String> valueSet = new Vector<String>();
     transient protected X500NameAttrMap attrMap;
 
     //========== CONSTRUCTOR ==================================
@@ -93,7 +93,7 @@ public final class Attribute implements Serializable, DerEncoder {
      * @param oid the object identifier of the attribute type
      * @param values String value vector
      */
-    public Attribute(ObjectIdentifier oid, Vector values)
+    public Attribute(ObjectIdentifier oid, Vector<String> values)
             throws IOException {
 
         //pre-condition verification
@@ -104,13 +104,9 @@ public final class Attribute implements Serializable, DerEncoder {
         this.oid = oid;
 
         //copy the value into the valueSet list
-        Enumeration vals = values.elements();
+        Enumeration<String> vals = values.elements();
         while (vals.hasMoreElements()) {
-            Object obj = vals.nextElement();
-            if (obj instanceof String)
-                valueSet.addElement(obj);
-            else
-                throw new IOException("values vectore must consist of String object");
+            valueSet.addElement(vals.nextElement());
         }
     }
 
@@ -120,7 +116,7 @@ public final class Attribute implements Serializable, DerEncoder {
      * @param oid attribute type string CN,OU,O,C,L,TITLE,ST,STREET,UID,MAIL,E,DC
      * @param values String value vector
      */
-    public Attribute(String attr, Vector values)
+    public Attribute(String attr, Vector<String> values)
             throws IOException {
 
         //pre-condition verification
@@ -143,13 +139,9 @@ public final class Attribute implements Serializable, DerEncoder {
         this.oid = id;
 
         //copy the value into the valueSet list
-        Enumeration vals = values.elements();
+        Enumeration<String> vals = values.elements();
         while (vals.hasMoreElements()) {
-            Object obj = vals.nextElement();
-            if (obj instanceof String)
-                valueSet.addElement(obj);
-            else
-                throw new IOException("Values vectore must consist of String object");
+            valueSet.addElement(vals.nextElement());
         }
     }
 
@@ -188,7 +180,7 @@ public final class Attribute implements Serializable, DerEncoder {
      * 
      * @return Enumeration of values of this Attribute.
      */
-    public Enumeration getValues() {
+    public Enumeration<String> getValues() {
         if (valueSet == null)
             return null;
         return valueSet.elements();
@@ -223,11 +215,11 @@ public final class Attribute implements Serializable, DerEncoder {
     public String toString() {
         String theoid = "Attribute: " + oid + "\n";
         String values = "Values: ";
-        Enumeration n = valueSet.elements();
+        Enumeration<String> n = valueSet.elements();
         if (n.hasMoreElements()) {
-            values += (String) n.nextElement();
+            values += n.nextElement();
             while (n.hasMoreElements())
-                values += "," + (String) n.nextElement();
+                values += "," + n.nextElement();
         }
         return theoid + values + "\n";
     }
@@ -260,9 +252,9 @@ public final class Attribute implements Serializable, DerEncoder {
         }
 
         //loop through all the values and encode
-        Enumeration vals = valueSet.elements();
+        Enumeration<String> vals = valueSet.elements();
         while (vals.hasMoreElements()) {
-            String val = (String) vals.nextElement();
+            String val = vals.nextElement();
             DerValue derobj = converter.getValue(val);
             derobj.encode(tmp);
         }

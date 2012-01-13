@@ -355,14 +355,14 @@ public class PortalEnroll extends DirBasedAuthentication {
             attr.addValue((String) objectclass_values.elementAt(i));
         attrs.add(attr);
 
-        Enumeration objClasses = mRequiredAttrs.elements();
-        Enumeration attrnames = null;
+        Enumeration<Enumeration<String>> objClasses = mRequiredAttrs.elements();
+        Enumeration<String> attrnames = null;
 
         while (objClasses.hasMoreElements()) {
-            attrnames = (Enumeration) objClasses.nextElement();
+            attrnames = objClasses.nextElement();
             CMS.debug("PortalEnroll: Required attrs:");
             while (attrnames.hasMoreElements()) {
-                String attrname = (String) attrnames.nextElement();
+                String attrname = attrnames.nextElement();
                 String attrval = null;
 
                 CMS.debug("PortalEnroll: attrname is: " + attrname);
@@ -385,10 +385,10 @@ public class PortalEnroll extends DirBasedAuthentication {
         attrnames = null;
 
         while (objClasses.hasMoreElements()) {
-            attrnames = (Enumeration) objClasses.nextElement();
+            attrnames = objClasses.nextElement();
             CMS.debug("PortalEnroll: Optional attrs:");
             while (attrnames.hasMoreElements()) {
-                String attrname = (String) attrnames.nextElement();
+                String attrname = attrnames.nextElement();
                 String attrval = null;
 
                 CMS.debug("PortalEnroll: attrname is: " + attrname);

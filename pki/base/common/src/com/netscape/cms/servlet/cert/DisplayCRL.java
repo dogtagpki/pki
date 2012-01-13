@@ -216,10 +216,10 @@ public class DisplayCRL extends CMSServlet {
             }
         } else {
             if (crlIssuingPointId != null) {
-                Enumeration ips = mCA.getCRLIssuingPoints();
+                Enumeration<ICRLIssuingPoint> ips = mCA.getCRLIssuingPoints();
 
                 while (ips.hasMoreElements()) {
-                    ICRLIssuingPoint ip = (ICRLIssuingPoint) ips.nextElement();
+                    ICRLIssuingPoint ip = ips.nextElement();
 
                     if (crlIssuingPointId.equals(ip.getId())) {
                         crlIP = ip;

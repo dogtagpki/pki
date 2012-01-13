@@ -188,10 +188,10 @@ public class LdapPublishModule implements ILdapPublishModule {
                 System.out.println("No ldap publishing configurations.");
             return;
         }
-        Enumeration substores = types.getSubStoreNames();
+        Enumeration<String> substores = types.getSubStoreNames();
 
         while (substores.hasMoreElements()) {
-            String certType = (String) substores.nextElement();
+            String certType = substores.nextElement();
             IConfigStore current = types.getSubStore(certType);
 
             if (current == null || current.size() <= 0) {

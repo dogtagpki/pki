@@ -344,10 +344,11 @@ public class OCSPAdminServlet extends AdminServlet {
 
             IOCSPStore store = mOCSP.getOCSPStore(id);
 
-            Enumeration e = req.getParameterNames();
+            @SuppressWarnings("unchecked")
+            Enumeration<String> e = req.getParameterNames();
 
             while (e.hasMoreElements()) {
-                String name = (String) e.nextElement();
+                String name = e.nextElement();
 
                 if (name.equals(Constants.OP_TYPE))
                     continue;
@@ -422,10 +423,10 @@ public class OCSPAdminServlet extends AdminServlet {
         IConfigStore config = mOCSP.getConfigStore();
         String defStore = config.getString(IOCSPAuthority.PROP_DEF_STORE_ID);
         IConfigStore SubStore = config.getSubStore(IOCSPAuthority.PROP_STORE);
-        Enumeration enumStores = SubStore.getSubStoreNames();
+        Enumeration<String> enumStores = SubStore.getSubStoreNames();
 
         while (enumStores.hasMoreElements()) {
-            String storeName = (String) enumStores.nextElement();
+            String storeName = enumStores.nextElement();
             boolean storeEnabled = false;
 
             if (storeName.equals(defStore)) {
@@ -488,7 +489,8 @@ public class OCSPAdminServlet extends AdminServlet {
         // ensure that any low-level exceptions are reported
         // to the signed audit log and stored as failures
         try {
-            Enumeration enum1 = req.getParameterNames();
+            @SuppressWarnings("unchecked")
+            Enumeration<String> enum1 = req.getParameterNames();
             boolean restart = false;
 
             while (enum1.hasMoreElements()) {

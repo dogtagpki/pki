@@ -226,9 +226,9 @@ public class CAEnrollProfile extends EnrollProfile {
         request.setRequestStatus(RequestStatus.COMPLETE);
 
         // notifies updater plugins
-        Enumeration updaterIds = getProfileUpdaterIds();
+        Enumeration<String> updaterIds = getProfileUpdaterIds();
         while (updaterIds.hasMoreElements()) {
-            String updaterId = (String) updaterIds.nextElement();
+            String updaterId = updaterIds.nextElement();
             IProfileUpdater updater = getProfileUpdater(updaterId);
             updater.update(request, RequestStatus.COMPLETE);
         }

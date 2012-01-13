@@ -428,8 +428,8 @@ public class PolicyAdminServlet extends AdminServlet {
     public void listPolicyImpls(HttpServletRequest req,
             HttpServletResponse resp)
             throws ServletException, IOException {
-        Enumeration policyImplNames = mProcessor.getPolicyImplsInfo();
-        Enumeration policyImpls = mProcessor.getPolicyImpls();
+        Enumeration<String> policyImplNames = mProcessor.getPolicyImplsInfo();
+        Enumeration<IPolicyRule> policyImpls = mProcessor.getPolicyImpls();
 
         if (policyImplNames == null ||
                 policyImpls == null) {
@@ -442,9 +442,8 @@ public class PolicyAdminServlet extends AdminServlet {
 
         while (policyImplNames.hasMoreElements() &&
                 policyImpls.hasMoreElements()) {
-            String id = (String) policyImplNames.nextElement();
-            IPolicyRule impl = (IPolicyRule)
-                    policyImpls.nextElement();
+            String id = policyImplNames.nextElement();
+            IPolicyRule impl = policyImpls.nextElement();
             String className =
                     impl.getClass().getName();
             String desc = impl.getDescription();
@@ -457,7 +456,7 @@ public class PolicyAdminServlet extends AdminServlet {
     public void listPolicyInstances(HttpServletRequest req,
             HttpServletResponse resp)
             throws ServletException, IOException {
-        Enumeration instancesInfo = mProcessor.getPolicyInstancesInfo();
+        Enumeration<String> instancesInfo = mProcessor.getPolicyInstancesInfo();
 
         if (instancesInfo == null) {
             sendResponse(ERROR, INVALID_POLICY_INSTANCE_CONFIG, null, resp);
@@ -469,7 +468,7 @@ public class PolicyAdminServlet extends AdminServlet {
         String instName, rest;
 
         while (instancesInfo.hasMoreElements()) {
-            String info = (String) instancesInfo.nextElement();
+            String info = instancesInfo.nextElement();
             int i = info.indexOf(";");
 
             nvp.add(info.substring(0, i), info.substring(i + 1));
@@ -583,7 +582,7 @@ public class PolicyAdminServlet extends AdminServlet {
             return;
         }
 
-        Vector v = mProcessor.getPolicyImplConfig(id);
+        Vector<String> v = mProcessor.getPolicyImplConfig(id);
 
         if (v == null) {
             sendResponse(ERROR, INVALID_POLICY_IMPL_ID, null, resp);
@@ -591,8 +590,8 @@ public class PolicyAdminServlet extends AdminServlet {
         }
         NameValuePairs nvp = new NameValuePairs();
 
-        for (Enumeration e = v.elements(); e.hasMoreElements();) {
-            String nv = (String) e.nextElement();
+        for (Enumeration<String> e = v.elements(); e.hasMoreElements();) {
+            String nv = e.nextElement();
             int index = nv.indexOf("=");
 
             nvp.add(nv.substring(0, index), nv.substring(index + 1));
@@ -812,7 +811,7 @@ public class PolicyAdminServlet extends AdminServlet {
             return;
         }
 
-        Vector v = mProcessor.getPolicyInstanceConfig(id);
+        Vector<String> v = mProcessor.getPolicyInstanceConfig(id);
 
         if (v == null) {
             sendResponse(ERROR, INVALID_POLICY_INST_ID, null, resp);
@@ -820,8 +819,8 @@ public class PolicyAdminServlet extends AdminServlet {
         }
         NameValuePairs nvp = new NameValuePairs();
 
-        for (Enumeration e = v.elements(); e.hasMoreElements();) {
-            String nv = (String) e.nextElement();
+        for (Enumeration<String> e = v.elements(); e.hasMoreElements();) {
+            String nv = e.nextElement();
             int index = nv.indexOf("=");
             String name = nv.substring(0, index);
             String value = nv.substring(index + 1);
@@ -907,7 +906,7 @@ public class PolicyAdminServlet extends AdminServlet {
             // We need to fetch parameters: enable, predicate and implname
             // always, and any additional parameters as required by the
             // implementation.
-            Hashtable ht = new Hashtable();
+            Hashtable<String, String> ht = new Hashtable<String, String>();
             String val = req.getParameter(IPolicyRule.PROP_ENABLE).trim();
 
             if (val == null)
@@ -919,7 +918,7 @@ public class PolicyAdminServlet extends AdminServlet {
                 ht.put(IPolicyRule.PROP_PREDICATE, val);
             ht.put(IPolicyRule.PROP_IMPLNAME, implName);
 
-            Vector v = mProcessor.getPolicyImplConfig(implName);
+            Vector<String> v = mProcessor.getPolicyImplConfig(implName);
 
             if (v == null) {
                 // Invalid impl id
@@ -936,8 +935,8 @@ public class PolicyAdminServlet extends AdminServlet {
                 sendResponse(ERROR, INVALID_POLICY_IMPL_ID, null, resp);
                 return;
             }
-            for (Enumeration e = v.elements(); e.hasMoreElements();) {
-                String nv = (String) e.nextElement();
+            for (Enumeration<String> e = v.elements(); e.hasMoreElements();) {
+                String nv = e.nextElement();
                 int index = nv.indexOf("=");
                 String key = nv.substring(0, index);
 
@@ -1155,7 +1154,7 @@ public class PolicyAdminServlet extends AdminServlet {
             // We need to fetch parameters: enable, predicate and implname
             // always, and any additional parameters as required by the
             // implementation.
-            Hashtable ht = new Hashtable();
+            Hashtable<String, String> ht = new Hashtable<String, String>();
             String val = req.getParameter(IPolicyRule.PROP_ENABLE).trim();
 
             if (val == null)
@@ -1166,7 +1165,7 @@ public class PolicyAdminServlet extends AdminServlet {
             if (val != null)
                 ht.put(IPolicyRule.PROP_PREDICATE, val);
             ht.put(IPolicyRule.PROP_IMPLNAME, implName);
-            Vector v = mProcessor.getPolicyImplConfig(implName);
+            Vector<String> v = mProcessor.getPolicyImplConfig(implName);
 
             if (v == null) {
                 // Invalid impl id
@@ -1184,9 +1183,10 @@ public class PolicyAdminServlet extends AdminServlet {
                 return;
             }
             // XXX 
-            for (Enumeration n = req.getParameterNames(); n.hasMoreElements();) {
-                String p = (String) n.nextElement();
-                String l = (String) req.getParameter(p);
+            for (@SuppressWarnings("unchecked")
+            Enumeration<String> n = req.getParameterNames(); n.hasMoreElements();) {
+                String p = n.nextElement();
+                String l = req.getParameter(p);
 
                 if (l != null)
                     ht.put(p, l);

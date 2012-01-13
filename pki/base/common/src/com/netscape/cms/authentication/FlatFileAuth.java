@@ -121,7 +121,7 @@ public class FlatFileAuth
      * Hashtable of entries from Auth File. Hash index is the
      * concatenation of the attributes from matchAttributes property
      */
-    protected Hashtable entries = null;
+    protected Hashtable<String, Hashtable<String, String>> entries = null;
 
     /**
      * Get the named property
@@ -241,7 +241,7 @@ public class FlatFileAuth
      */
 
     public String[] unionOfStrings(String[][] stringArrays) {
-        Hashtable ht = new Hashtable();
+        Hashtable<String, String> ht = new Hashtable<String, String>();
 
         for (int i = 0; i < stringArrays.length; i++) {
             String[] sa = stringArrays[i];
@@ -253,10 +253,10 @@ public class FlatFileAuth
         }
 
         String[] s = new String[ht.size()];
-        Enumeration e = ht.keys();
+        Enumeration<String> e = ht.keys();
 
         for (int i = 0; e.hasMoreElements(); i++) {
-            s[i] = (String) e.nextElement();
+            s[i] = e.nextElement();
         }
         return s;
 
@@ -412,7 +412,7 @@ public class FlatFileAuth
      *            key
      * @return a hashtable of hashtables.
      */
-    protected Hashtable readFile(File f, String[] keys)
+    protected Hashtable<String, Hashtable<String, String>> readFile(File f, String[] keys)
             throws IOException {
         log(ILogger.LL_INFO, "Reading file: " + f.getName());
         BufferedReader file = new BufferedReader(
@@ -420,8 +420,8 @@ public class FlatFileAuth
                 );
 
         String line;
-        Hashtable allusers = new Hashtable();
-        Hashtable entry = null;
+        Hashtable<String, Hashtable<String, String>> allusers = new Hashtable<String, Hashtable<String, String>>();
+        Hashtable<String, String> entry = null;
         int linenum = 0;
 
         while ((line = file.readLine()) != null) {
@@ -433,7 +433,7 @@ public class FlatFileAuth
             int colon = line.indexOf(':');
 
             if (entry == null) {
-                entry = new Hashtable();
+                entry = new Hashtable<String, String>();
             }
 
             if (colon == -1) { // no colon -> empty line signifies end of record
@@ -464,8 +464,8 @@ public class FlatFileAuth
         return allusers;
     }
 
-    private void putEntry(Hashtable allUsers,
-            Hashtable entry,
+    private void putEntry(Hashtable<String, Hashtable<String, String>> allUsers,
+            Hashtable<String, String> entry,
             String[] keys) {
         if (entry == null) {
             return;
@@ -474,7 +474,7 @@ public class FlatFileAuth
 
         print("keys.length = " + keys.length);
         for (int i = 0; i < keys.length; i++) {
-            String s = (String) entry.get(keys[i]);
+            String s = entry.get(keys[i]);
 
             print(" concatenating: " + s);
             if (s != null) {
@@ -486,17 +486,17 @@ public class FlatFileAuth
     }
 
     void printAllEntries() {
-        Enumeration e = entries.keys();
+        Enumeration<String> e = entries.keys();
 
         while (e.hasMoreElements()) {
-            String key = (String) e.nextElement();
+            String key = e.nextElement();
 
             print("* " + key + " *");
-            Hashtable ht = (Hashtable) entries.get(key);
-            Enumeration f = ht.keys();
+            Hashtable<String, String> ht = entries.get(key);
+            Enumeration<String> f = ht.keys();
 
             while (f.hasMoreElements()) {
-                String fkey = (String) f.nextElement();
+                String fkey = f.nextElement();
 
                 print("   " + fkey + " -> " + ht.get(fkey));
             }
@@ -509,7 +509,7 @@ public class FlatFileAuth
      * 
      */
 
-    private IAuthToken doAuthentication(Hashtable user, IAuthCredentials authCred)
+    private IAuthToken doAuthentication(Hashtable<String, String> user, IAuthCredentials authCred)
             throws EMissingCredential, EInvalidCredentials, EBaseException {
         AuthToken authToken = new AuthToken(this);
 
@@ -567,7 +567,7 @@ public class FlatFileAuth
         }
         print("authenticating user: finding user from key: " + keyForUser);
 
-        Hashtable user = (Hashtable) entries.get(keyForUser);
+        Hashtable<String, String> user = entries.get(keyForUser);
 
         try {
             if (user != null) {
@@ -660,7 +660,7 @@ public class FlatFileAuth
     /**
      * Retrieves a list of names of the value parameter.
      */
-    public Enumeration getValueNames() {
+    public Enumeration<String> getValueNames() {
         return null;
     }
 

@@ -191,9 +191,9 @@ public class UniqueKeyConstraint extends EnrollConstraint {
                         sjname_in_req =
                                 (X500Name) subName.get(CertificateSubjectName.DN_NAME);
                         CMS.debug("UniqueKeyConstraint: cert request subject DN =" + sjname_in_req.toString());
-                        Enumeration e = list.getCertRecords(0, size - 1);
+                        Enumeration<ICertRecord> e = list.getCertRecords(0, size - 1);
                         while (e != null && e.hasMoreElements()) {
-                            ICertRecord rec = (ICertRecord) e.nextElement();
+                            ICertRecord rec = e.nextElement();
                             X509CertImpl cert = rec.getCertificate();
                             String certDN =
                                     cert.getSubjectDN().toString();

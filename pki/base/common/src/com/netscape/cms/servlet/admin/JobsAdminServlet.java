@@ -520,12 +520,11 @@ public class JobsAdminServlet extends AdminServlet {
             IOException, EBaseException {
 
         NameValuePairs params = new NameValuePairs();
-        Enumeration e = mJobsSched.getPlugins().keys();
+        Enumeration<String> e = mJobsSched.getPlugins().keys();
 
         while (e.hasMoreElements()) {
-            String name = (String) e.nextElement();
-            JobPlugin value = (JobPlugin)
-                    mJobsSched.getPlugins().get(name);
+            String name = e.nextElement();
+            JobPlugin value = mJobsSched.getPlugins().get(name);
 
             params.add(name, value.getClassPath());
             //				params.add(name, value.getClassPath()+EDIT);
@@ -540,10 +539,9 @@ public class JobsAdminServlet extends AdminServlet {
 
         NameValuePairs params = new NameValuePairs();
 
-        for (Enumeration e = mJobsSched.getInstances().keys(); e.hasMoreElements();) {
-            String name = (String) e.nextElement();
-            IJob value = (IJob)
-                    mJobsSched.getInstances().get((Object) name);
+        for (Enumeration<String> e = mJobsSched.getInstances().keys(); e.hasMoreElements();) {
+            String name = e.nextElement();
+            IJob value = mJobsSched.getInstances().get((Object) name);
 
             //				params.add(name, value.getImplName());
             params.add(name, value.getImplName() + VISIBLE +
@@ -581,8 +579,8 @@ public class JobsAdminServlet extends AdminServlet {
 
         // first check if any instances from this job plugin
         // DON'T remove job plugin if any instance
-        for (Enumeration e = mJobsSched.getInstances().elements(); e.hasMoreElements();) {
-            IJob jobs = (IJob) e.nextElement();
+        for (Enumeration<IJob> e = mJobsSched.getInstances().elements(); e.hasMoreElements();) {
+            IJob jobs = e.nextElement();
 
             if ((jobs.getImplName()).equals(id)) {
                 sendResponse(ERROR,
@@ -1001,10 +999,10 @@ public class JobsAdminServlet extends AdminServlet {
         store.removeSubStore(id);
         IConfigStore rstore = store.makeSubStore(id);
 
-        Enumeration keys = saveParams.getNames();
+        Enumeration<String> keys = saveParams.getNames();
 
         while (keys.hasMoreElements()) {
-            String key = (String) keys.nextElement();
+            String key = keys.nextElement();
             String value = saveParams.getValue(key);
 
             if (!value.equals(""))

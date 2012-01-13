@@ -43,9 +43,9 @@ public class NoConstraint implements IPolicyConstraint {
     public static final String CONFIG_NAME = "name";
 
     private IConfigStore mConfig = null;
-    private Vector mNames = new Vector();
+    private Vector<String> mNames = new Vector<String>();
 
-    public Enumeration getConfigNames() {
+    public Enumeration<String> getConfigNames() {
         return mNames.elements();
     }
 

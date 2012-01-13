@@ -142,7 +142,7 @@ public class GetApprovalStatus extends CMSServlet {
 
             header.addStringValue("recoveryID", recoveryID);
 
-            Hashtable params = mService.getRecoveryParams(recoveryID);
+            Hashtable<String, Object> params = mService.getRecoveryParams(recoveryID);
 
             if (params == null) {
                 log(ILogger.LL_FAILURE,
@@ -157,13 +157,13 @@ public class GetApprovalStatus extends CMSServlet {
 
             header.addIntegerValue("noOfRequiredAgents", requiredNumber);
 
-            Vector dc = ((IKeyRecoveryAuthority) mService).getAppAgents(recoveryID);
-            Enumeration agents = dc.elements();
+            Vector<Credential> dc = ((IKeyRecoveryAuthority) mService).getAppAgents(recoveryID);
+            Enumeration<Credential> agents = dc.elements();
 
             while (agents.hasMoreElements()) {
                 IArgBlock rarg = CMS.createArgBlock();
 
-                rarg.addStringValue("agentName", ((Credential) agents.nextElement()).getIdentifier());
+                rarg.addStringValue("agentName", agents.nextElement().getIdentifier());
                 argSet.addRepeatRecord(rarg);
             }
             if (dc.size() >= requiredNumber) {

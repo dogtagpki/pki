@@ -265,10 +265,10 @@ public class GetInfo extends CMSServlet {
                 }
 
             } else {
-                Enumeration ips = mCA.getCRLIssuingPoints();
+                Enumeration<ICRLIssuingPoint> ips = mCA.getCRLIssuingPoints();
 
                 while (ips.hasMoreElements()) {
-                    ICRLIssuingPoint ip = (ICRLIssuingPoint) ips.nextElement();
+                    ICRLIssuingPoint ip = ips.nextElement();
 
                     if (ip.isCRLIssuingPointEnabled()) {
                         if (crlIssuingPoints.length() > 0)

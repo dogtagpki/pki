@@ -35,14 +35,14 @@ public class AuthCredentials implements IAuthCredentials {
      *
      */
     private static final long serialVersionUID = -5995164231849154265L;
-    private Hashtable authCreds = null;
+    private Hashtable<String, Object> authCreds = null;
     // Inserted by bskim 
     private IArgBlock argblk = null;
 
     // Insert end
 
     public AuthCredentials() {
-        authCreds = new Hashtable();
+        authCreds = new Hashtable<String, Object>();
     }
 
     /**
@@ -68,7 +68,7 @@ public class AuthCredentials implements IAuthCredentials {
      * @return the named authentication credential
      */
     public Object get(String name) {
-        return ((Object) authCreds.get(name));
+        return authCreds.get(name);
     }
 
     /**
@@ -90,8 +90,8 @@ public class AuthCredentials implements IAuthCredentials {
      * @return an enumeration of the values in this credential set
      * @see java.util.Enumeration
      */
-    public Enumeration getElements() {
-        return (authCreds.elements());
+    public Enumeration<Object> getElements() {
+        return authCreds.elements();
     }
 
     // Inserted by bskim
