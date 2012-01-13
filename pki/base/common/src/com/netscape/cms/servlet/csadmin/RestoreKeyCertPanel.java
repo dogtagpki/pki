@@ -456,8 +456,13 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
                     s1.append("ca.connector.KRA");
                 }
 
-                content = "op=get&names=cloning.token,instanceId,internaldb.basedn,internaldb.ldapauth.password,internaldb.replication.password,internaldb.ldapconn.host,internaldb.ldapconn.port,internaldb.ldapauth.bindDN"
-                        + c1.toString() + "&substores=" + s1.toString() + "&xmlOutput=true&sessionID=" + session_id;
+                content =
+                        "op=get&names=cloning.token,instanceId,internaldb.basedn,internaldb.ldapauth.password,internaldb.replication.password,internaldb.ldapconn.host,internaldb.ldapconn.port,internaldb.ldapauth.bindDN"
+                                + c1.toString()
+                                + "&substores="
+                                + s1.toString()
+                                + "&xmlOutput=true&sessionID="
+                                + session_id;
                 boolean success = updateConfigEntries(master_hostname, master_port, true,
                         "/" + cstype + "/admin/" + cstype + "/getConfigEntries", content, config, response);
                 if (!success) {
@@ -562,8 +567,8 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
 
                 KeyWrapper wrapper = token.getKeyWrapper(KeyWrapAlgorithm.DES3_CBC_PAD);
                 wrapper.initUnwrap(sk, param);
-                org.mozilla.jss.crypto.PrivateKey pp = wrapper.unwrapPrivate(encpkey, getPrivateKeyType(publickey),
-                        publickey);
+                org.mozilla.jss.crypto.PrivateKey pp =
+                        wrapper.unwrapPrivate(encpkey, getPrivateKeyType(publickey), publickey);
 
             } catch (Exception e) {
                 CMS.debug("RestoreKeyCertPanel importkeycert: Exception=" + e.toString());
@@ -604,8 +609,8 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
                                 | InternalCertificate.VALID_CA);
                     } else if (name.startsWith("auditSigningCert")) {
                         InternalCertificate icert = (InternalCertificate) xcert;
-                        icert.setObjectSigningTrust(InternalCertificate.USER | InternalCertificate.VALID_PEER
-                                | InternalCertificate.TRUSTED_PEER);
+                        icert.setObjectSigningTrust(InternalCertificate.USER
+                                | InternalCertificate.VALID_PEER | InternalCertificate.TRUSTED_PEER);
                     }
                 } else
                     cm.importCACertPackage(cert);

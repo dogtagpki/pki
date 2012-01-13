@@ -623,8 +623,8 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
 
                 CMSCRLExtensions cmsCRLExtensions = (CMSCRLExtensions) ip.getCRLExtensions();
                 if (cmsCRLExtensions != null) {
-                    issuingDistPointExtEnabled = cmsCRLExtensions
-                            .isCRLExtensionEnabled(IssuingDistributionPointExtension.NAME);
+                    issuingDistPointExtEnabled =
+                            cmsCRLExtensions.isCRLExtensionEnabled(IssuingDistributionPointExtension.NAME);
                 }
 
                 CMS.debug("issuingDistPointExtEnabled = " + issuingDistPointExtEnabled);

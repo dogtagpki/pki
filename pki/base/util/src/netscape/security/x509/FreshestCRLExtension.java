@@ -233,8 +233,11 @@ public class FreshestCRLExtension extends Extension
                 "CertAttrSet:FreshestCRLExtension");
     }
 
-    public Enumeration getElements() {
-        return (new Vector()).elements();
+    /*
+     * TODO replacewith empty collection
+     */
+    public Enumeration<String> getAttributeNames() {
+        return (new Vector<String>()).elements();
     }
 
     public String getName() {

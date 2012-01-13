@@ -71,7 +71,7 @@ public class NSCCommentExt extends APolicyRule
     protected String mCommentFile;
     protected String mInputType;
     protected boolean mCritical;
-    private Vector mParams = new Vector();
+    private Vector<String> mParams = new Vector<String>();
 
     protected String tempCommentFile;
     protected boolean certApplied = false;
@@ -276,7 +276,7 @@ public class NSCCommentExt extends APolicyRule
      * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getInstanceParams() {
+    public Vector<String> getInstanceParams() {
         return mParams;
     }
 
@@ -285,8 +285,8 @@ public class NSCCommentExt extends APolicyRule
      * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getDefaultParams() {
-        Vector defParams = new Vector();
+    public Vector<String> getDefaultParams() {
+        Vector<String> defParams = new Vector<String>();
 
         defParams.addElement(PROP_CRITICAL + "=false");
         defParams.addElement(PROP_INPUT_TYPE + "=" + TEXT);

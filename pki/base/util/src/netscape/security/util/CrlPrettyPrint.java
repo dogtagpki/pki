@@ -26,7 +26,7 @@ import java.util.TimeZone;
 
 import netscape.security.x509.CRLExtensions;
 import netscape.security.x509.Extension;
-import netscape.security.x509.RevokedCertImpl;
+import netscape.security.x509.RevokedCertificate;
 import netscape.security.x509.X509CRLImpl;
 
 /**
@@ -174,15 +174,14 @@ public class CrlPrettyPrint {
                 }
                 sb.append("\n");
 
-                Set revokedCerts = mCRL.getRevokedCertificates();
+                Set<RevokedCertificate> revokedCerts = mCRL.getRevokedCertificates();
 
                 if (revokedCerts != null) {
-                    Iterator i = revokedCerts.iterator();
+                    Iterator<RevokedCertificate> i = revokedCerts.iterator();
                     long l = 1;
 
                     while ((i.hasNext()) && ((crlSize == 0) || (pageStart + pageSize > l))) {
-                        RevokedCertImpl revokedCert =
-                                (RevokedCertImpl) i.next();
+                        RevokedCertificate revokedCert = i.next();
 
                         if ((crlSize == 0) || ((pageStart <= l) && (pageStart + pageSize > l))) {
                             sb.append(pp.indent(16) + resource.getString(

@@ -114,17 +114,18 @@ public class PKCS10Attribute implements DerEncoder, Serializable {
             }
         }
         byte[] val = inAttrValue.toByteArray();
-        Class[] params = { Object.class };
+        Class<?>[] params = { Object.class };
         try {
-            Class extClass = OIDMap.getClass(attributeId);
+            @SuppressWarnings("unchecked")
+            Class<CertAttrSet> extClass = (Class<CertAttrSet>) OIDMap.getClass(attributeId);
             if (extClass != null) {
-                Constructor cons = extClass.getConstructor(params);
+                Constructor<CertAttrSet> cons = (Constructor<CertAttrSet>) extClass.getConstructor(params);
                 Object value = Array.newInstance(byte.class, val.length);
                 for (int i = 0; i < val.length; i++) {
                     Array.setByte(value, i, val[i]);
                 }
                 Object[] passed = new Object[] { value };
-                attributeValue = (CertAttrSet) cons.newInstance(passed);
+                attributeValue = cons.newInstance(passed);
             } else {
                 // attribute classes are usable for PKCS10 attributes. 
                 // this is used where the attributes are not actual 

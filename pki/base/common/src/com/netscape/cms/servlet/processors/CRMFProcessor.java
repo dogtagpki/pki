@@ -196,8 +196,8 @@ public class CRMFProcessor extends PKIProcessor {
             // field suggested notBefore and notAfter in CRMF
             // Tech Support #383184
             if (certTemplate.getNotBefore() != null || certTemplate.getNotAfter() != null) {
-                CertificateValidity certValidity = new CertificateValidity(certTemplate.getNotBefore(),
-                        certTemplate.getNotAfter());
+                CertificateValidity certValidity =
+                        new CertificateValidity(certTemplate.getNotBefore(), certTemplate.getNotAfter());
 
                 certInfo.set(X509CertInfo.VALIDITY, certValidity);
             }

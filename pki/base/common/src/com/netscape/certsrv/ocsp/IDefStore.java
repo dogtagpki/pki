@@ -110,7 +110,7 @@ public interface IDefStore extends IOCSPStore {
      * @return Enumeration a list of the CRL issuing points
      * @exception EBaseException occurs when no CRL issuing point exists
      */
-    public Enumeration searchAllCRLIssuingPointRecord(
+    public Enumeration<Object> searchAllCRLIssuingPointRecord(
             int maxSize)
             throws EBaseException;
 

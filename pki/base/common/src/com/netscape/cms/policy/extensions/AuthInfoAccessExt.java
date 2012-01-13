@@ -18,6 +18,7 @@
 package com.netscape.cms.policy.extensions;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.security.cert.CertificateException;
 import java.util.Enumeration;
 import java.util.Locale;
@@ -104,7 +105,7 @@ public class AuthInfoAccessExt extends APolicyRule implements
     }
 
     public String[] getExtendedPluginInfo(Locale locale) {
-        Vector v = new Vector();
+        Vector<String> v = new Vector<String>();
 
         v.addElement(PROP_CRITICAL +
                 ";boolean;RFC 2459 recommendation: This extension MUST be non-critical.");
@@ -122,10 +123,10 @@ public class AuthInfoAccessExt extends APolicyRule implements
                     + PROP_METHOD
                     + ";string;"
                     + "A unique,valid OID specified in dot-separated numeric component notation. e.g. 1.3.6.1.5.5.7.48.1 (ocsp), 1.3.6.1.5.5.7.48.2 (caIssuers), 2.16.840.1.113730.1.16.1 (renewal)");
-            v.addElement(PROP_AD + Integer.toString(i) + "_" + PROP_LOCATION_TYPE + ";"
-                    + IGeneralNameUtil.GENNAME_CHOICE_INFO);
-            v.addElement(PROP_AD + Integer.toString(i) + "_" + PROP_LOCATION + ";"
-                    + IGeneralNameUtil.GENNAME_VALUE_INFO);
+            v.addElement(PROP_AD
+                    + Integer.toString(i) + "_" + PROP_LOCATION_TYPE + ";" + IGeneralNameUtil.GENNAME_CHOICE_INFO);
+            v.addElement(PROP_AD
+                    + Integer.toString(i) + "_" + PROP_LOCATION + ";" + IGeneralNameUtil.GENNAME_VALUE_INFO);
         }
         return com.netscape.cmsutil.util.Utils.getStringArrayFromVector(v);
     }
@@ -149,8 +150,8 @@ public class AuthInfoAccessExt extends APolicyRule implements
     /**
      * Returns a sequence of access descriptions.
      */
-    private Enumeration getAccessDescriptions() throws EBaseException {
-        Vector ads = new Vector();
+    private Enumeration<Vector<Serializable>> getAccessDescriptions() throws EBaseException {
+        Vector<Vector<Serializable>> ads = new Vector<Vector<Serializable>>();
 
         //
         // read until there is *NO* ad<NUM>_method
@@ -200,7 +201,7 @@ public class AuthInfoAccessExt extends APolicyRule implements
             if (location == null)
                 break;
             GeneralName gn = CMS.form_GeneralName(location_type, location);
-            Vector e = new Vector();
+            Vector<Serializable> e = new Vector<Serializable>();
 
             e.addElement(methodOID);
             e.addElement(gn);
@@ -245,7 +246,7 @@ public class AuthInfoAccessExt extends APolicyRule implements
                         certInfo.get(X509CertInfo.EXTENSIONS);
 
                 // add access descriptions
-                Enumeration e = getAccessDescriptions();
+                Enumeration<Vector<Serializable>> e = getAccessDescriptions();
 
                 if (!e.hasMoreElements()) {
                     return res;
@@ -261,7 +262,8 @@ public class AuthInfoAccessExt extends APolicyRule implements
                     // check to see if AIA is already exist
                     try {
                         extensions.delete(AuthInfoAccessExtension.NAME);
-                        log(ILogger.LL_WARN, "Previous extension deleted: " + AuthInfoAccessExtension.NAME);
+                        log(ILogger.LL_WARN,
+                                "Previous extension deleted: " + AuthInfoAccessExtension.NAME);
                     } catch (IOException ex) {
                     }
                 }
@@ -272,7 +274,7 @@ public class AuthInfoAccessExt extends APolicyRule implements
                                 PROP_CRITICAL, false));
 
                 while (e.hasMoreElements()) {
-                    Vector ad = (Vector) e.nextElement();
+                    Vector<Serializable> ad = e.nextElement();
                     ObjectIdentifier oid = (ObjectIdentifier) ad.elementAt(0);
                     GeneralName gn = (GeneralName) ad.elementAt(1);
 
@@ -306,8 +308,8 @@ public class AuthInfoAccessExt extends APolicyRule implements
      * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getInstanceParams() {
-        Vector params = new Vector();
+    public Vector<String> getInstanceParams() {
+        Vector<String> params = new Vector<String>();
 
         try {
             params.addElement(PROP_CRITICAL + "=" +
@@ -368,8 +370,8 @@ public class AuthInfoAccessExt extends APolicyRule implements
      * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getDefaultParams() {
-        Vector defParams = new Vector();
+    public Vector<String> getDefaultParams() {
+        Vector<String> defParams = new Vector<String>();
 
         defParams.addElement(PROP_CRITICAL + "=false");
         defParams.addElement(PROP_NUM_ADS + "=" + MAX_AD);

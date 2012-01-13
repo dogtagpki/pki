@@ -66,13 +66,13 @@ import netscape.security.util.ObjectIdentifier;
  * @version 1.6 97/12/10
  */
 
-public class RevokedCertImpl extends RevokedCertificate
-        implements Serializable {
+public class RevokedCertImpl extends RevokedCertificate implements Serializable {
 
     /**
      *
      */
     private static final long serialVersionUID = -3449642360223397701L;
+
     private SerialNumber serialNumber;
     private Date revocationDate;
     private CRLExtensions extensions = null;
@@ -86,11 +86,13 @@ public class RevokedCertImpl extends RevokedCertificate
     }
 
     /**
-     * Constructs a revoked certificate entry using the
-     * serial number and revocation date.
+     * Constructs a revoked certificate entry using the serial number and
+     * revocation date.
      * 
-     * @param num the serial number of the revoked certificate.
-     * @param date the Date on which revocation took place.
+     * @param num
+     *            the serial number of the revoked certificate.
+     * @param date
+     *            the Date on which revocation took place.
      */
     public RevokedCertImpl(BigInteger num, Date date) {
         this.serialNumber = new SerialNumber(num);
@@ -98,16 +100,17 @@ public class RevokedCertImpl extends RevokedCertificate
     }
 
     /**
-     * Constructs a revoked certificate entry using the
-     * serial number, revocation date and the entry
-     * extensions.
+     * Constructs a revoked certificate entry using the serial number,
+     * revocation date and the entry extensions.
      * 
-     * @param num the serial number of the revoked certificate.
-     * @param date the Date on which revocation took place.
-     * @param crlEntryExts the extensions for this entry.
+     * @param num
+     *            the serial number of the revoked certificate.
+     * @param date
+     *            the Date on which revocation took place.
+     * @param crlEntryExts
+     *            the extensions for this entry.
      */
-    public RevokedCertImpl(BigInteger num, Date date,
-                           CRLExtensions crlEntryExts) {
+    public RevokedCertImpl(BigInteger num, Date date, CRLExtensions crlEntryExts) {
         this.serialNumber = new SerialNumber(num);
         this.revocationDate = date;
         this.extensions = crlEntryExts;
@@ -120,7 +123,7 @@ public class RevokedCertImpl extends RevokedCertificate
             try {
                 encode(os);
             } catch (Exception e) {
-                //	revokedCert = null;
+                // revokedCert = null;
             }
             revokedCert = os.toByteArray();
         }
@@ -135,7 +138,8 @@ public class RevokedCertImpl extends RevokedCertificate
     /**
      * Sets extensions for this impl.
      * 
-     * @param crlEntryExts CRLExtensions
+     * @param crlEntryExts
+     *            CRLExtensions
      */
     public void setExtensions(CRLExtensions crlEntryExts) {
         this.extensions = crlEntryExts;
@@ -144,12 +148,15 @@ public class RevokedCertImpl extends RevokedCertificate
     /**
      * Unmarshals a revoked certificate from its encoded form.
      * 
-     * @param revokedCert the encoded bytes.
-     * @exception CRLException on parsing errors.
-     * @exception X509ExtensionException on extension handling errors.
+     * @param revokedCert
+     *            the encoded bytes.
+     * @exception CRLException
+     *                on parsing errors.
+     * @exception X509ExtensionException
+     *                on extension handling errors.
      */
-    public RevokedCertImpl(byte[] revokedCert)
-            throws CRLException, X509ExtensionException {
+    public RevokedCertImpl(byte[] revokedCert) throws CRLException,
+            X509ExtensionException {
         try {
             DerValue derValue = new DerValue(revokedCert);
             parse(derValue);
@@ -161,21 +168,23 @@ public class RevokedCertImpl extends RevokedCertificate
     /**
      * Unmarshals a revoked certificate from its encoded form.
      * 
-     * @param derValue the DER value containing the revoked certificate.
-     * @exception CRLException on parsing errors.
-     * @exception X509ExtensionException on extension handling errors.
+     * @param derValue
+     *            the DER value containing the revoked certificate.
+     * @exception CRLException
+     *                on parsing errors.
+     * @exception X509ExtensionException
+     *                on extension handling errors.
      */
-    public RevokedCertImpl(DerValue derValue)
-            throws CRLException, X509ExtensionException {
+    public RevokedCertImpl(DerValue derValue) throws CRLException,
+            X509ExtensionException {
         parse(derValue);
     }
 
     /**
-     * Returns true if this revoked certificate entry has
-     * extensions, otherwise false.
+     * Returns true if this revoked certificate entry has extensions, otherwise
+     * false.
      * 
-     * @return true if this CRL entry has extensions, otherwise
-     *         false.
+     * @return true if this CRL entry has extensions, otherwise false.
      */
     public boolean hasExtensions() {
         if (extensions == null)
@@ -187,13 +196,15 @@ public class RevokedCertImpl extends RevokedCertificate
     /**
      * Decode a revoked certificate from an input stream.
      * 
-     * @param inStrm an input stream holding at least one revoked
-     *            certificate
-     * @exception CRLException on parsing errors.
-     * @exception X509ExtensionException on extension handling errors.
+     * @param inStrm
+     *            an input stream holding at least one revoked certificate
+     * @exception CRLException
+     *                on parsing errors.
+     * @exception X509ExtensionException
+     *                on extension handling errors.
      */
-    public void decode(InputStream inStrm)
-            throws CRLException, X509ExtensionException {
+    public void decode(InputStream inStrm) throws CRLException,
+            X509ExtensionException {
         try {
             DerValue derValue = new DerValue(inStrm);
             parse(derValue);
@@ -205,13 +216,16 @@ public class RevokedCertImpl extends RevokedCertificate
     /**
      * Encodes the revoked certificate to an output stream.
      * 
-     * @param outStrm an output stream to which the encoded revoked
-     *            certificate is written.
-     * @exception CRLException on encoding errors.
-     * @exception X509ExtensionException on extension handling errors.
+     * @param outStrm
+     *            an output stream to which the encoded revoked certificate is
+     *            written.
+     * @exception CRLException
+     *                on encoding errors.
+     * @exception X509ExtensionException
+     *                on extension handling errors.
      */
-    public void encode(DerOutputStream outStrm)
-            throws CRLException, X509ExtensionException {
+    public void encode(DerOutputStream outStrm) throws CRLException,
+            X509ExtensionException {
         try {
             if (revokedCert == null) {
                 DerOutputStream tmp = new DerOutputStream();
@@ -236,8 +250,7 @@ public class RevokedCertImpl extends RevokedCertificate
     }
 
     /**
-     * Gets the serial number for this RevokedCertificate,
-     * the <em>userCertificate</em>.
+     * Gets the serial number for this RevokedCertificate, the <em>userCertificate</em>.
      * 
      * @return the serial number.
      */
@@ -246,8 +259,7 @@ public class RevokedCertImpl extends RevokedCertificate
     }
 
     /**
-     * Gets the revocation date for this RevokedCertificate,
-     * the <em>revocationDate</em>.
+     * Gets the revocation date for this RevokedCertificate, the <em>revocationDate</em>.
      * 
      * @return the revocation date.
      */
@@ -277,8 +289,8 @@ public class RevokedCertImpl extends RevokedCertificate
         if (extensions != null) {
             sb.append("\n");
             for (int i = 0; i < extensions.size(); i++)
-                sb.append("Entry Extension[" + i + "]: " +
-                        ((Extension) (extensions.elementAt(i))).toString());
+                sb.append("Entry Extension[" + i + "]: "
+                        + ((Extension) (extensions.elementAt(i))).toString());
         }
         sb.append("\n");
         return (sb.toString());
@@ -299,7 +311,7 @@ public class RevokedCertImpl extends RevokedCertificate
         for (Enumeration<Extension> e = extensions.getElements(); e.hasMoreElements();) {
             ex = e.nextElement();
             if (ex.isCritical())
-                extSet.add(((ObjectIdentifier) ex.getExtensionId()).toString());
+                extSet.add(ex.getExtensionId().toString());
         }
         return extSet;
     }
@@ -317,9 +329,9 @@ public class RevokedCertImpl extends RevokedCertificate
         Set<String> extSet = new LinkedHashSet<String>();
         Extension ex;
         for (Enumeration<Extension> e = extensions.getElements(); e.hasMoreElements();) {
-            ex = (Extension) e.nextElement();
+            ex = e.nextElement();
             if (!ex.isCritical())
-                extSet.add(((ObjectIdentifier) ex.getExtensionId()).toString());
+                extSet.add(ex.getExtensionId().toString());
         }
         return extSet;
     }
@@ -348,7 +360,7 @@ public class RevokedCertImpl extends RevokedCertificate
                 Extension ex = null;
                 ObjectIdentifier inCertOID;
                 for (Enumeration<Extension> e = extensions.getElements(); e.hasMoreElements();) {
-                    ex = (Extension) e.nextElement();
+                    ex = e.nextElement();
                     inCertOID = ex.getExtensionId();
                     if (inCertOID.equals(findOID)) {
                         crlExt = ex;
@@ -419,10 +431,9 @@ public class RevokedCertImpl extends RevokedCertificate
     }
 
     /**
-     * Serialization write ... X.509 certificates serialize as
-     * themselves, and they're parsed when they get read back.
-     * (Actually they serialize as some type data from the
-     * serialization subsystem, then the cert data.)
+     * Serialization write ... X.509 certificates serialize as themselves, and
+     * they're parsed when they get read back. (Actually they serialize as some
+     * type data from the serialization subsystem, then the cert data.)
      */
     private synchronized void writeObject(ObjectOutputStream stream)
             throws CRLException, X509ExtensionException, IOException {
@@ -432,8 +443,8 @@ public class RevokedCertImpl extends RevokedCertificate
     }
 
     /**
-     * Serialization read ... X.509 certificates serialize as
-     * themselves, and they're parsed when they get read back.
+     * Serialization read ... X.509 certificates serialize as themselves, and
+     * they're parsed when they get read back.
      */
     private synchronized void readObject(ObjectInputStream stream)
             throws CRLException, X509ExtensionException, IOException {

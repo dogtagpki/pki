@@ -127,7 +127,7 @@ public class CertReqParser extends ReqParser {
         arg.addStringValue("certExtsEnabled", "yes");
 
         int saCounter = 0;
-        Enumeration enum1 = req.getExtDataKeys();
+        Enumeration<String> enum1 = req.getExtDataKeys();
 
         // gross hack
         String prefix = "record.";
@@ -136,14 +136,14 @@ public class CertReqParser extends ReqParser {
             prefix = "header.";
 
         while (enum1.hasMoreElements()) {
-            String name = (String) enum1.nextElement();
+            String name = enum1.nextElement();
 
             if (mDetails) {
                 // show all http parameters stored in request.
                 if (name.equalsIgnoreCase(IRequest.HTTP_PARAMS)) {
-                    Hashtable http_params = req.getExtDataInHashtable(name);
+                    Hashtable<String, String> http_params = req.getExtDataInHashtable(name);
                     // show certType specially 
-                    String certType = (String) http_params.get(IRequest.CERT_TYPE);
+                    String certType = http_params.get(IRequest.CERT_TYPE);
 
                     if (certType != null) {
                         arg.addStringValue(IRequest.CERT_TYPE, certType);
@@ -155,13 +155,13 @@ public class CertReqParser extends ReqParser {
                     }
                     // show all http parameters in request
                     int counter = 0;
-                    Enumeration elms = http_params.keys();
+                    Enumeration<String> elms = http_params.keys();
 
                     while (elms.hasMoreElements()) {
                         String parami =
                                 IRequest.HTTP_PARAMS + LB + String.valueOf(counter++) + RB;
                         // hack
-                        String n = (String) elms.nextElement();
+                        String n = elms.nextElement();
                         String rawJS = "new Object;\n\r" +
                                 prefix + parami + ".name=\"" +
                                 CMSTemplate.escapeJavaScriptString(n) + "\";\n\r" +
@@ -173,15 +173,15 @@ public class CertReqParser extends ReqParser {
                     }
                 } // show all http headers stored in request.
                 else if (name.equalsIgnoreCase(IRequest.HTTP_HEADERS)) {
-                    Hashtable http_hdrs = req.getExtDataInHashtable(name);
-                    Enumeration elms = http_hdrs.keys();
+                    Hashtable<String, String> http_hdrs = req.getExtDataInHashtable(name);
+                    Enumeration<String> elms = http_hdrs.keys();
                     int counter = 0;
 
                     while (elms.hasMoreElements()) {
                         String parami =
                                 IRequest.HTTP_HEADERS + LB + String.valueOf(counter++) + RB;
                         // hack
-                        String n = (String) elms.nextElement();
+                        String n = elms.nextElement();
                         String rawJS = "new Object;\n\r" +
                                 prefix + parami + ".name=\"" +
                                 CMSTemplate.escapeJavaScriptString(n) + "\";\n\r" +
@@ -194,14 +194,14 @@ public class CertReqParser extends ReqParser {
                 } // show all auth token stored in request.
                 else if (name.equalsIgnoreCase(IRequest.AUTH_TOKEN)) {
                     IAuthToken auth_token = req.getExtDataInAuthToken(name);
-                    Enumeration elms = auth_token.getElements();
+                    Enumeration<String> elms = auth_token.getElements();
                     int counter = 0;
 
                     while (elms.hasMoreElements()) {
                         String parami =
                                 IRequest.AUTH_TOKEN + LB + String.valueOf(counter++) + RB;
                         // hack
-                        String n = (String) elms.nextElement();
+                        String n = elms.nextElement();
                         Object authTokenValue = auth_token.getInStringArray(n);
                         if (authTokenValue == null) {
                             authTokenValue = auth_token.getInString(n);
@@ -274,7 +274,7 @@ public class CertReqParser extends ReqParser {
             }
 
             if (name.equalsIgnoreCase(IRequest.ERRORS)) {
-                Vector errorStrings = req.getExtDataInStringVector(name);
+                Vector<String> errorStrings = req.getExtDataInStringVector(name);
                 if (errorStrings != null) {
                     StringBuffer errInfo = new StringBuffer();
 
@@ -346,10 +346,10 @@ public class CertReqParser extends ReqParser {
                         } catch (Exception e) {
                         }
                         if (extensions != null) {
-                            Enumeration exts = extensions.getElements();
+                            Enumeration<Extension> exts = extensions.getAttributes();
 
                             while (exts.hasMoreElements()) {
-                                Extension ext = (Extension) exts.nextElement();
+                                Extension ext = exts.nextElement();
 
                                 // only know about ns cert type
                                 if (ext instanceof NSCertTypeExtension) {
@@ -526,16 +526,16 @@ public class CertReqParser extends ReqParser {
                 }
             }
             if (name.equalsIgnoreCase(IRequest.FINGERPRINTS) && mDetails) {
-                Hashtable fingerprints =
+                Hashtable<String, String> fingerprints =
                         req.getExtDataInHashtable(IRequest.FINGERPRINTS);
 
                 if (fingerprints != null) {
                     String namesAndHashes = null;
-                    Enumeration enumFingerprints = fingerprints.keys();
+                    Enumeration<String> enumFingerprints = fingerprints.keys();
 
                     while (enumFingerprints.hasMoreElements()) {
-                        String hashname = (String) enumFingerprints.nextElement();
-                        String hashvalue = (String) fingerprints.get(hashname);
+                        String hashname = enumFingerprints.nextElement();
+                        String hashvalue = fingerprints.get(hashname);
                         byte[] fingerprint = CMS.AtoB(hashvalue);
                         String ppFingerprint = pp.toHexString(fingerprint, 0);
 
@@ -568,7 +568,8 @@ public class CertReqParser extends ReqParser {
                 int j = 0;
 
                 StringBuffer sb = new StringBuffer();
-                for (Enumeration n = ((Vector) v).elements(); n.hasMoreElements(); j++) {
+                for (@SuppressWarnings("unchecked")
+                Enumeration<String> n = ((Vector<String>) v).elements(); n.hasMoreElements(); j++) {
                     sb.append(";\n");
                     sb.append(valuename);
                     sb.append(LB);
@@ -678,7 +679,7 @@ public class CertReqParser extends ReqParser {
         }
 
         int saCounter = 0;
-        Enumeration enum1 = req.getExtDataKeys();
+        Enumeration<String> enum1 = req.getExtDataKeys();
 
         // gross hack
         String prefix = "record.";
@@ -692,16 +693,16 @@ public class CertReqParser extends ReqParser {
             if (mDetails) {
                 // show all http parameters stored in request.
                 if (name.equalsIgnoreCase(IRequest.HTTP_PARAMS)) {
-                    Hashtable http_params = req.getExtDataInHashtable(name);
+                    Hashtable<String, String> http_params = req.getExtDataInHashtable(name);
                     // show certType specially 
-                    String certType = (String) http_params.get(IRequest.CERT_TYPE);
+                    String certType = http_params.get(IRequest.CERT_TYPE);
 
                     if (certType != null) {
                         arg.addStringValue(IRequest.CERT_TYPE, certType);
                     }
                     // show all http parameters in request
                     int counter = 0;
-                    Enumeration elms = http_params.keys();
+                    Enumeration<String> elms = http_params.keys();
 
                     while (elms.hasMoreElements()) {
                         String parami =
@@ -719,15 +720,15 @@ public class CertReqParser extends ReqParser {
                     }
                 } // show all http headers stored in request.
                 else if (name.equalsIgnoreCase(IRequest.HTTP_HEADERS)) {
-                    Hashtable http_hdrs = req.getExtDataInHashtable(name);
-                    Enumeration elms = http_hdrs.keys();
+                    Hashtable<String, String> http_hdrs = req.getExtDataInHashtable(name);
+                    Enumeration<String> elms = http_hdrs.keys();
                     int counter = 0;
 
                     while (elms.hasMoreElements()) {
                         String parami =
                                 IRequest.HTTP_HEADERS + LB + String.valueOf(counter++) + RB;
                         // hack
-                        String n = (String) elms.nextElement();
+                        String n = elms.nextElement();
                         String rawJS = "new Object;\n\r" +
                                 prefix + parami + ".name=\"" +
                                 CMSTemplate.escapeJavaScriptString(n) + "\";\n\r" +
@@ -740,7 +741,7 @@ public class CertReqParser extends ReqParser {
                 } // show all auth token stored in request.
                 else if (name.equalsIgnoreCase(IRequest.AUTH_TOKEN)) {
                     IAuthToken auth_token = req.getExtDataInAuthToken(name);
-                    Enumeration elms = auth_token.getElements();
+                    Enumeration<String> elms = auth_token.getElements();
                     int counter = 0;
 
                     while (elms.hasMoreElements()) {
@@ -801,7 +802,7 @@ public class CertReqParser extends ReqParser {
             }
 
             if (name.equalsIgnoreCase(IRequest.ERRORS)) {
-                Vector errorsVector = req.getExtDataInStringVector(name);
+                Vector<String> errorsVector = req.getExtDataInStringVector(name);
                 if (errorsVector != null) {
                     StringBuffer errInfo = new StringBuffer();
 

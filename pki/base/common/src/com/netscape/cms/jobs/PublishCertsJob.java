@@ -182,8 +182,8 @@ public class PublishCertsJob extends AJobBase
 
         // form filter
         String filter = // might need to use "metaInfo"
-        "(!(certMetainfo=" + ICertRecord.META_LDAPPUBLISH +
-                ":true))";
+                "(!(certMetainfo=" + ICertRecord.META_LDAPPUBLISH +
+                        ":true))";
 
         Enumeration unpublishedCerts = null;
 

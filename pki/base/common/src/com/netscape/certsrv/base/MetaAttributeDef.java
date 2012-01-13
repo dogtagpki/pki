@@ -34,7 +34,8 @@ public class MetaAttributeDef {
     private ObjectIdentifier mOid;
     private Class<?> mValueClass;
     private static Hashtable<String, MetaAttributeDef> mNameToAttrDef = new Hashtable<String, MetaAttributeDef>();
-    private static Hashtable<ObjectIdentifier, MetaAttributeDef> mOidToAttrDef = new Hashtable<ObjectIdentifier, MetaAttributeDef>();
+    private static Hashtable<ObjectIdentifier, MetaAttributeDef> mOidToAttrDef =
+            new Hashtable<ObjectIdentifier, MetaAttributeDef>();
 
     private MetaAttributeDef() {
     }

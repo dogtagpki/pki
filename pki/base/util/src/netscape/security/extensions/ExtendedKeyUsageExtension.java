@@ -55,13 +55,13 @@ public class ExtendedKeyUsageExtension extends Extension implements CertAttrSet 
     public static final ObjectIdentifier OID_CODE_SIGNING = new
             ObjectIdentifier(OID_OCSP_SIGNING_STR);
 
-    private Vector oidSet = null;
+    private Vector<ObjectIdentifier> oidSet = null;
     private byte mCached[] = null;
 
     static {
         try {
             OIDMap.addAttribute(ExtendedKeyUsageExtension.class.getName(),
-                    OID, NAME);
+                    OID, ExtendedKeyUsageExtension.NAME);
         } catch (CertificateException e) {
         }
     }
@@ -70,7 +70,7 @@ public class ExtendedKeyUsageExtension extends Extension implements CertAttrSet 
         this(false, null);
     }
 
-    public ExtendedKeyUsageExtension(boolean crit, Vector oids) {
+    public ExtendedKeyUsageExtension(boolean crit, Vector<ObjectIdentifier> oids) {
         try {
             extensionId = ObjectIdentifier.getObjectIdentifier(OID);
         } catch (IOException e) {
@@ -78,9 +78,9 @@ public class ExtendedKeyUsageExtension extends Extension implements CertAttrSet 
         }
         critical = crit;
         if (oids != null) {
-            oidSet = (Vector) oids.clone();
+            oidSet = new Vector<ObjectIdentifier>(oids);
         } else {
-            oidSet = new Vector();
+            oidSet = new Vector<ObjectIdentifier>();
         }
         encodeExtValue();
     }
@@ -100,7 +100,7 @@ public class ExtendedKeyUsageExtension extends Extension implements CertAttrSet 
         }
     }
 
-    public Enumeration getOIDs() {
+    public Enumeration<ObjectIdentifier> getOIDs() {
         if (oidSet == null)
             return null;
         return oidSet.elements();
@@ -114,7 +114,7 @@ public class ExtendedKeyUsageExtension extends Extension implements CertAttrSet 
 
     public void addOID(ObjectIdentifier oid) {
         if (oidSet == null) {
-            oidSet = new Vector();
+            oidSet = new Vector<ObjectIdentifier>();
         }
 
         if (oidSet.contains(oid))
@@ -172,7 +172,7 @@ public class ExtendedKeyUsageExtension extends Extension implements CertAttrSet 
         return null;
     }
 
-    public Enumeration getElements() {
+    public Enumeration<String> getAttributeNames() {
         return null;
     }
 
@@ -192,7 +192,7 @@ public class ExtendedKeyUsageExtension extends Extension implements CertAttrSet 
             throw new IOException("Invalid encoding of AuthInfoAccess extension");
         }
         if (oidSet == null)
-            oidSet = new Vector();
+            oidSet = new Vector<ObjectIdentifier>();
         while (val.data.available() != 0) {
             DerValue oidVal = val.data.getDerValue();
 
@@ -205,7 +205,7 @@ public class ExtendedKeyUsageExtension extends Extension implements CertAttrSet 
         DerOutputStream temp = new DerOutputStream();
 
         if (!oidSet.isEmpty()) {
-            Enumeration oidList = oidSet.elements();
+            Enumeration<ObjectIdentifier> oidList = oidSet.elements();
 
             try {
                 while (oidList.hasMoreElements()) {

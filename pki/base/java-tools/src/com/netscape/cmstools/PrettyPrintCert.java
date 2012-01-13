@@ -190,7 +190,7 @@ public class PrettyPrintCert {
                 CertificateSubjectName csn = (CertificateSubjectName)
                         certinfo.get(X509CertInfo.SUBJECT);
 
-                Enumeration en = csn.getElements();
+                Enumeration<String> en = csn.getAttributeNames();
 
                 X500Name dname = (X500Name) csn.get(CertificateSubjectName.DN_NAME);
 

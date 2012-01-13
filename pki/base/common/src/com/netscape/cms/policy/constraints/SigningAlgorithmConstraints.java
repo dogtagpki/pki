@@ -376,7 +376,8 @@ public class SigningAlgorithmConstraints extends APolicyRule
         String[] params = null;
 
         String[] params_BOTH = {
-                PROP_ALGORITHMS + ";"
+                PROP_ALGORITHMS
+                        + ";"
                         + "choice(MD2withRSA\\,MD5withRSA\\,SHA1withRSA\\,SHA256withRSA\\,SHA512withRSA\\,SHA1withDSA,"
                         +
                         "MD2withRSA\\,MD5withRSA\\,SHA1withRSA\\,SHA1withDSA," +
@@ -399,7 +400,7 @@ public class SigningAlgorithmConstraints extends APolicyRule
                 IExtendedPluginInfo.HELP_TEXT +
                         ";Restricts the requested signing algorithm to be one of" +
                         " the algorithms supported by Certificate System"
-            };
+        };
 
         String[] params_RSA = {
                 PROP_ALGORITHMS + ";" + "choice(MD2withRSA\\,MD5withRSA\\,SHA1withRSA," +
@@ -414,7 +415,7 @@ public class SigningAlgorithmConstraints extends APolicyRule
                 IExtendedPluginInfo.HELP_TEXT +
                         ";Restricts the requested signing algorithm to be one of" +
                         " the algorithms supported by Certificate System"
-            };
+        };
 
         String[] params_DSA = {
                 PROP_ALGORITHMS + ";" + "choice(SHA1withDSA);Restrict the requested signing " +
@@ -424,7 +425,7 @@ public class SigningAlgorithmConstraints extends APolicyRule
                 IExtendedPluginInfo.HELP_TEXT +
                         ";Restricts the requested signing algorithm to be one of" +
                         " the algorithms supported by Certificate System"
-            };
+        };
 
         switch (mDefaultAllowedAlgs.length) {
         case 1:

@@ -62,9 +62,6 @@ import netscape.security.x509.URIName;
  * @version $Revision$, $Date$
  */
 public class AuthInfoAccessExtension extends Extension implements CertAttrSet {
-    /**
-     *
-     */
     private static final long serialVersionUID = 7373316523212538446L;
     public static final String NAME = "AuthInfoAccessExtension";
     public static final String NAME2 = "AuthorityInformationAccess";
@@ -80,7 +77,7 @@ public class AuthInfoAccessExtension extends Extension implements CertAttrSet {
     public static final int OID[] = { 1, 3, 6, 1, 5, 5, 7, 1, 1 };
     public static final ObjectIdentifier ID = new ObjectIdentifier(OID);
 
-    private Vector mDesc = new Vector();
+    private Vector<AccessDescription> mDesc = new Vector<AccessDescription>();
 
     /**
      * Create the extension from the passed DER encoded value of the same.
@@ -136,7 +133,7 @@ public class AuthInfoAccessExtension extends Extension implements CertAttrSet {
      * Return an enumeration of names of attributes existing within this
      * attribute.
      */
-    public Enumeration getElements() {
+    public Enumeration<String> getAttributeNames() {
         // NOT USED
         return null;
     }
@@ -159,7 +156,7 @@ public class AuthInfoAccessExtension extends Extension implements CertAttrSet {
     }
 
     public AccessDescription getAccessDescription(int pos) {
-        return (AccessDescription) mDesc.elementAt(pos);
+        return mDesc.elementAt(pos);
     }
 
     /**
@@ -190,7 +187,7 @@ public class AuthInfoAccessExtension extends Extension implements CertAttrSet {
 
         for (int i = 0; i < mDesc.size(); i++) {
             DerOutputStream tmp0 = new DerOutputStream();
-            AccessDescription ad = (AccessDescription) mDesc.elementAt(i);
+            AccessDescription ad = mDesc.elementAt(i);
 
             tmp0.putOID(ad.getMethod());
             ad.getLocation().encode(tmp0);
@@ -223,7 +220,7 @@ public class AuthInfoAccessExtension extends Extension implements CertAttrSet {
         String s = super.toString() + "AuthInfoAccess [\n";
 
         for (int i = 0; i < mDesc.size(); i++) {
-            AccessDescription ad = (AccessDescription) mDesc.elementAt(i);
+            AccessDescription ad = mDesc.elementAt(i);
 
             s += "(" + i + ")";
             s += " ";

@@ -236,8 +236,9 @@ public class CMCRevReqServlet extends CMSServlet {
                 certs = new X509CertImpl[serialNoArray.length];
 
                 for (int i = 0; i < serialNoArray.length; i++) {
-                    certs[i] = ((ICertificateAuthority) mAuthority).getCertificateRepository().getX509Certificate(
-                            serialNoArray[i]);
+                    certs[i] =
+                            ((ICertificateAuthority) mAuthority).getCertificateRepository().getX509Certificate(
+                                    serialNoArray[i]);
                 }
 
             } else if (mAuthority instanceof IRegistrationAuthority) {
@@ -379,8 +380,8 @@ public class CMCRevReqServlet extends CMSServlet {
 
         try {
             int count = 0;
-            Vector oldCertsV = new Vector();
-            Vector revCertImplsV = new Vector();
+            Vector<X509CertImpl> oldCertsV = new Vector<X509CertImpl>();
+            Vector<RevokedCertImpl> revCertImplsV = new Vector<RevokedCertImpl>();
 
             // Construct a CRL reason code extension.
             RevocationReason revReason = RevocationReason.fromInt(reason);
@@ -406,7 +407,7 @@ public class CMCRevReqServlet extends CMSServlet {
             if (mAuthority instanceof ICertificateAuthority) {
                 ICertRecordList list = (ICertRecordList) mCertDB.findCertRecordsInList(
                         revokeAll, null, totalRecordCount);
-                Enumeration e = list.getCertRecords(0, totalRecordCount - 1);
+                Enumeration<ICertRecord> e = list.getCertRecords(0, totalRecordCount - 1);
 
                 while (e != null && e.hasMoreElements()) {
                     ICertRecord rec = (ICertRecord) e.nextElement();
@@ -439,11 +440,11 @@ public class CMCRevReqServlet extends CMSServlet {
 
                 if (mRequestID != null && mRequestID.length() > 0)
                     reqIdStr = mRequestID;
-                Vector serialNumbers = new Vector();
+                Vector<String> serialNumbers = new Vector<String>();
 
                 if (revokeAll != null && revokeAll.length() > 0) {
-                    for (int i = revokeAll.indexOf('='); i < revokeAll.length() && i > -1; i = revokeAll
-                            .indexOf('=', i)) {
+                    for (int i = revokeAll.indexOf('='); i < revokeAll.length() && i > -1; i =
+                            revokeAll.indexOf('=', i)) {
                         if (i > -1) {
                             i++;
                             while (i < revokeAll.length() && revokeAll.charAt(i) == ' ') {
@@ -654,7 +655,7 @@ public class CMCRevReqServlet extends CMSServlet {
                 }
                 if (mAuthority instanceof ICertificateAuthority) {
                     // let known update and publish status of all crls.
-                    Enumeration otherCRLs =
+                    Enumeration<ICRLIssuingPoint> otherCRLs =
                             ((ICertificateAuthority) mAuthority).getCRLIssuingPoints();
 
                     while (otherCRLs.hasMoreElements()) {
@@ -761,7 +762,7 @@ public class CMCRevReqServlet extends CMSServlet {
                 }
 
             } else {
-                Vector errors = revReq.getExtDataInStringVector(IRequest.ERRORS);
+                Vector<String> errors = revReq.getExtDataInStringVector(IRequest.ERRORS);
                 StringBuffer errorStr = new StringBuffer();
 
                 if (errors != null && errors.size() > 0) {

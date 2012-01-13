@@ -78,7 +78,7 @@ public class CertificateScopeOfUseExt extends APolicyRule implements
     }
 
     public String[] getExtendedPluginInfo(Locale locale) {
-        Vector v = new Vector();
+        Vector<String> v = new Vector<String>();
 
         v.addElement(PROP_CRITICAL +
                 ";boolean; This extension may be either critical or non-critical.");
@@ -89,10 +89,10 @@ public class CertificateScopeOfUseExt extends APolicyRule implements
 
         for (int i = 0; i < MAX_ENTRY; i++) {
             v.addElement(PROP_ENTRY + Integer.toString(i) + "_" + PROP_NAME + ";" + IGeneralNameUtil.GENNAME_VALUE_INFO);
-            v.addElement(PROP_ENTRY + Integer.toString(i) + "_" + PROP_NAME_TYPE + ";"
-                    + IGeneralNameUtil.GENNAME_CHOICE_INFO);
-            v.addElement(PROP_ENTRY + Integer.toString(i) + "_" + PROP_PORT_NUMBER + ";string;"
-                    + "The port number (optional).");
+            v.addElement(PROP_ENTRY
+                    + Integer.toString(i) + "_" + PROP_NAME_TYPE + ";" + IGeneralNameUtil.GENNAME_CHOICE_INFO);
+            v.addElement(PROP_ENTRY
+                    + Integer.toString(i) + "_" + PROP_PORT_NUMBER + ";string;" + "The port number (optional).");
         }
         return com.netscape.cmsutil.util.Utils.getStringArrayFromVector(v);
     }
@@ -116,8 +116,8 @@ public class CertificateScopeOfUseExt extends APolicyRule implements
     /**
      * Returns a sequence of scope entry.
      */
-    private Vector getScopeEntries() throws EBaseException {
-        Vector entries = new Vector();
+    private Vector<CertificateScopeEntry> getScopeEntries() throws EBaseException {
+        Vector<CertificateScopeEntry> entries = new Vector<CertificateScopeEntry>();
 
         //
         // read until there is *NO* ad<NUM>_method
@@ -190,7 +190,7 @@ public class CertificateScopeOfUseExt extends APolicyRule implements
                         certInfo.get(X509CertInfo.EXTENSIONS);
 
                 // add access descriptions
-                Vector entries = getScopeEntries();
+                Vector<CertificateScopeEntry> entries = getScopeEntries();
 
                 if (entries.size() == 0) {
                     return res;
@@ -247,8 +247,8 @@ public class CertificateScopeOfUseExt extends APolicyRule implements
      * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getInstanceParams() {
-        Vector params = new Vector();
+    public Vector<String> getInstanceParams() {
+        Vector<String> params = new Vector<String>();
 
         try {
             params.addElement(PROP_CRITICAL + "=" +
@@ -303,8 +303,8 @@ public class CertificateScopeOfUseExt extends APolicyRule implements
      * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getDefaultParams() {
-        Vector defParams = new Vector();
+    public Vector<String> getDefaultParams() {
+        Vector<String> defParams = new Vector<String>();
 
         defParams.addElement(PROP_CRITICAL + "=false");
 

@@ -24,7 +24,6 @@ import java.security.cert.X509Certificate;
 import java.util.Enumeration;
 
 import netscape.security.x509.CertificateExtensions;
-import netscape.security.x509.GeneralName;
 import netscape.security.x509.GeneralNameInterface;
 import netscape.security.x509.GeneralNames;
 import netscape.security.x509.RevokedCertImpl;
@@ -187,18 +186,15 @@ public class ReqCertSANameEmailResolver implements IEmailResolver {
                             GeneralNames gn =
                                     (GeneralNames) ext.get(SubjectAlternativeNameExtension.SUBJECT_NAME);
 
-                            Enumeration e = gn.elements();
+                            Enumeration<GeneralNameInterface> e = gn.elements();
 
                             while (e.hasMoreElements()) {
-                                Object g = (Object) e.nextElement();
-
-                                GeneralName gni =
-                                        (GeneralName) g;
+                                GeneralNameInterface gni = e.nextElement();
 
                                 if (gni.getType() == GeneralNameInterface.NAME_RFC822) {
                                     CMS.debug("got an subjectalternatename email");
 
-                                    String nameString = g.toString();
+                                    String nameString = gni.toString();
 
                                     // "RFC822Name: " + name
                                     mEmail =

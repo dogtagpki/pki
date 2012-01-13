@@ -108,7 +108,7 @@ public class PolicyMappingsExtDefault extends EnrollExtDefault {
         super.setConfig(name, value);
     }
 
-    public Enumeration getConfigNames() {
+    public Enumeration<String> getConfigNames() {
         refreshConfigAndValueNames();
         return super.getConfigNames();
     }
@@ -207,17 +207,17 @@ public class PolicyMappingsExtDefault extends EnrollExtDefault {
                 if (ext == null) {
                     return;
                 }
-                Vector v = parseRecords(value);
+                Vector<NameValuePairs> v = parseRecords(value);
                 int size = v.size();
 
                 String issuerPolicyId = null;
                 String subjectPolicyId = null;
                 String enable = null;
-                Vector policyMaps = new Vector();
+                Vector<CertificatePolicyMap> policyMaps = new Vector<CertificatePolicyMap>();
 
                 for (int i = 0; i < size; i++) {
                     NameValuePairs nvps = (NameValuePairs) v.elementAt(i);
-                    Enumeration names = nvps.getNames();
+                    Enumeration<String> names = nvps.getNames();
 
                     while (names.hasMoreElements()) {
                         String name1 = (String) names.nextElement();
@@ -310,12 +310,12 @@ public class PolicyMappingsExtDefault extends EnrollExtDefault {
 
             int num_mappings = getNumMappings();
 
-            Enumeration maps = ext.getMappings();
+            Enumeration<CertificatePolicyMap> maps = ext.getMappings();
 
             int num = 0;
             StringBuffer sb = new StringBuffer();
 
-            Vector recs = new Vector();
+            Vector<NameValuePairs> recs = new Vector<NameValuePairs>();
 
             for (int i = 0; i < num_mappings; i++) {
                 NameValuePairs pairs = new NameValuePairs();
@@ -388,7 +388,7 @@ public class PolicyMappingsExtDefault extends EnrollExtDefault {
 
         try {
             boolean critical = getConfigBoolean(CONFIG_CRITICAL);
-            Vector policyMaps = new Vector();
+            Vector<CertificatePolicyMap> policyMaps = new Vector<CertificatePolicyMap>();
             int num = getNumMappings();
 
             for (int i = 0; i < num; i++) {

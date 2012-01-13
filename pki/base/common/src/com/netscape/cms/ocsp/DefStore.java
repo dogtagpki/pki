@@ -101,12 +101,12 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     private final static String PROP_INCLUDE_NEXT_UPDATE =
             "includeNextUpdate";
 
-    protected Hashtable mReqCounts = new Hashtable();
+    protected Hashtable<String, Long> mReqCounts = new Hashtable<String, Long>();
     protected boolean mNotFoundGood = true;
     protected boolean mUseCache = true;
     protected boolean mByName = true;
     protected boolean mIncludeNextUpdate = false;
-    protected Hashtable mCacheCRLIssuingPoints = new Hashtable();
+    protected Hashtable<String, CRLIPContainer> mCacheCRLIssuingPoints = new Hashtable<String, CRLIPContainer>();
     private IOCSPAuthority mOCSPAuthority = null;
     private IConfigStore mConfig = null;
     private String mId = null;
@@ -122,13 +122,13 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     }
 
     public String[] getExtendedPluginInfo(Locale locale) {
-        Vector v = new Vector();
+        Vector<String> v = new Vector<String>();
 
-        v.addElement(PROP_NOT_FOUND_GOOD + ";boolean; "
-                + CMS.getUserMessage(locale, "CMS_OCSP_DEFSTORE_PROP_NOT_FOUND_GOOD"));
+        v.addElement(PROP_NOT_FOUND_GOOD
+                + ";boolean; " + CMS.getUserMessage(locale, "CMS_OCSP_DEFSTORE_PROP_NOT_FOUND_GOOD"));
         v.addElement(PROP_BY_NAME + ";boolean; " + CMS.getUserMessage(locale, "CMS_OCSP_DEFSTORE_PROP_BY_NAME"));
-        v.addElement(PROP_INCLUDE_NEXT_UPDATE + ";boolean; "
-                + CMS.getUserMessage(locale, "CMS_OCSP_DEFSTORE_PROP_INCLUDE_NEXT_UPDATE"));
+        v.addElement(PROP_INCLUDE_NEXT_UPDATE
+                + ";boolean; " + CMS.getUserMessage(locale, "CMS_OCSP_DEFSTORE_PROP_INCLUDE_NEXT_UPDATE"));
         v.addElement(IExtendedPluginInfo.HELP_TEXT + "; " + CMS.getUserMessage(locale, "CMS_OCSP_DEFSTORE_DESC"));
         v.addElement(IExtendedPluginInfo.HELP_TOKEN + ";configuration-ocspstores-defstore");
         return com.netscape.cmsutil.util.Utils.getStringArrayFromVector(v);
@@ -226,7 +226,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
      * new one is totally committed.
      */
     public void deleteOldCRLs() throws EBaseException {
-        Enumeration recs = searchCRLIssuingPointRecord(
+        Enumeration<Object> recs = searchCRLIssuingPointRecord(
                 "objectclass=" +
                         CMS.getCRLIssuingPointRecordName(),
                 100);
@@ -234,9 +234,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         ICRLIssuingPointRecord theRec = null;
 
         while (recs.hasMoreElements()) {
-            ICRLIssuingPointRecord rec = (ICRLIssuingPointRecord)
-                    recs.nextElement();
-
+            ICRLIssuingPointRecord rec = (ICRLIssuingPointRecord) recs.nextElement();
             deleteOldCRLsInCA(rec.getId());
         }
     }
@@ -254,15 +252,14 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
                 return; // nothing to do
             String thisUpdate = Long.toString(
                     cp.getThisUpdate().getTime());
-            Enumeration e = searchRepository(
+            Enumeration<Object> e = searchRepository(
                     caName,
                     "(!" + IRepositoryRecord.ATTR_SERIALNO + "=" +
                             thisUpdate + ")");
 
             while (e != null && e.hasMoreElements()) {
-                IRepositoryRecord r = (IRepositoryRecord)
-                        e.nextElement();
-                Enumeration recs =
+                IRepositoryRecord r = (IRepositoryRecord) e.nextElement();
+                Enumeration<Object> recs =
                         searchCertRecord(caName,
                                 r.getSerialNumber().toString(),
                                 ICertRecord.ATTR_ID + "=*");
@@ -339,7 +336,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
 
             // (3) look into database to check the
             //     certificate's status
-            Vector singleResponses = new Vector();
+            Vector<SingleResponse> singleResponses = new Vector<SingleResponse>();
             if (statsSub != null) {
                 statsSub.startTiming("lookup");
             }
@@ -440,7 +437,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
                     mCacheCRLIssuingPoints.get(new String(keyhsh));
 
             if (matched == null) {
-                Enumeration recs = searchCRLIssuingPointRecord(
+                Enumeration<Object> recs = searchCRLIssuingPointRecord(
                         "objectclass=" +
                                 CMS.getCRLIssuingPointRecordName(),
                         100);
@@ -524,7 +521,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
                     // if crl is not available, we can try crl cache
                     if (theRec != null) {
                         CMS.debug("DefStore: evaluating crl cache");
-                        Hashtable cache = theRec.getCRLCacheNoClone();
+                        Hashtable<BigInteger, RevokedCertificate> cache = theRec.getCRLCacheNoClone();
                         if (cache != null) {
                             RevokedCertificate rc = (RevokedCertificate)
                                     cache.get(new BigInteger(serialNo.toString()));
@@ -582,7 +579,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         return mDBService.getBaseDN();
     }
 
-    public Enumeration searchAllCRLIssuingPointRecord(int maxSize)
+    public Enumeration<Object> searchAllCRLIssuingPointRecord(int maxSize)
             throws EBaseException {
         return searchCRLIssuingPointRecord(
                 "objectclass=" +
@@ -590,11 +587,11 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
                 maxSize);
     }
 
-    public Enumeration searchCRLIssuingPointRecord(String filter,
+    public Enumeration<Object> searchCRLIssuingPointRecord(String filter,
             int maxSize)
             throws EBaseException {
         IDBSSession s = mDBService.createSession();
-        Enumeration e = null;
+        Enumeration<Object> e = null;
 
         try {
             e = s.search(getBaseDN(), filter, maxSize);
@@ -688,10 +685,10 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         }
     }
 
-    public Enumeration searchRepository(String name, String filter)
+    public Enumeration<Object> searchRepository(String name, String filter)
             throws EBaseException {
         IDBSSession s = mDBService.createSession();
-        Enumeration e = null;
+        Enumeration<Object> e = null;
 
         try {
             e = s.search("cn=" + transformDN(name) + "," + getBaseDN(),
@@ -739,10 +736,10 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         }
     }
 
-    public Enumeration searchCertRecord(String name, String thisUpdate,
+    public Enumeration<Object> searchCertRecord(String name, String thisUpdate,
             String filter) throws EBaseException {
         IDBSSession s = mDBService.createSession();
-        Enumeration e = null;
+        Enumeration<Object> e = null;
 
         try {
             e = s.search("ou=" + thisUpdate + ",cn=" +
@@ -814,7 +811,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
 
     public void setConfigParameters(NameValuePairs pairs)
             throws EBaseException {
-        Enumeration k = pairs.getNames();
+        Enumeration<String> k = pairs.getNames();
 
         while (k.hasMoreElements()) {
             String key = (String) k.nextElement();
@@ -938,10 +935,10 @@ class CRLIPContainer {
 }
 
 class DefStoreCRLUpdater extends Thread {
-    private Hashtable mCache = null;
+    private Hashtable<String, CRLIPContainer> mCache = null;
     private int mSec = 0;
 
-    public DefStoreCRLUpdater(Hashtable cache, int sec) {
+    public DefStoreCRLUpdater(Hashtable<String, CRLIPContainer> cache, int sec) {
         mCache = cache;
         mSec = sec;
     }

@@ -388,7 +388,7 @@ public class GenericASN1Ext extends APolicyRule implements
                 // Create the extension
                 GenericASN1Extension priExt = mkExtension();
 
-                extensions.set(GenericASN1Extension.NAME, priExt);
+                extensions.set(priExt.getName(), priExt);
 
             } catch (IOException e) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("BASE_IO_ERROR", e.getMessage()));
@@ -429,9 +429,9 @@ public class GenericASN1Ext extends APolicyRule implements
             throws IOException, EBaseException, ParseException {
         GenericASN1Extension ext;
 
-        Hashtable h = new Hashtable();
+        Hashtable<String, String> h = new Hashtable<String, String>();
         // This only show one level, not substores!
-        Enumeration e = mConfig.getPropertyNames();
+        Enumeration<String> e = mConfig.getPropertyNames();
 
         while (e.hasMoreElements()) {
             String n = (String) e.nextElement();
@@ -456,9 +456,9 @@ public class GenericASN1Ext extends APolicyRule implements
      * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getInstanceParams() {
+    public Vector<String> getInstanceParams() {
         int idx = 0;
-        Vector params = new Vector();
+        Vector<String> params = new Vector<String>();
 
         try {
             params.addElement(PROP_CRITICAL + "=" + mConfig.getBoolean(PROP_CRITICAL, false));
@@ -488,10 +488,10 @@ public class GenericASN1Ext extends APolicyRule implements
      * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getDefaultParams() {
+    public Vector<String> getDefaultParams() {
         int idx = 0;
 
-        Vector defParams = new Vector();
+        Vector<String> defParams = new Vector<String>();
 
         defParams.addElement(PROP_CRITICAL + "=false");
         defParams.addElement(PROP_NAME + "=");

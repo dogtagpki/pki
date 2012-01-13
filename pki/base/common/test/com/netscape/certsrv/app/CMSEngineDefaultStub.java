@@ -126,11 +126,11 @@ public class CMSEngineDefaultStub implements ICMSEngine {
         return false;
     }
 
-    public Enumeration getSubsystemNames() {
+    public Enumeration<String> getSubsystemNames() {
         return null;
     }
 
-    public Enumeration getSubsystems() {
+    public Enumeration<ISubsystem> getSubsystems() {
         return null;
     }
 
@@ -465,18 +465,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
         return null;
     }
 
-    public void getGeneralNameConfigDefaultParams(String name, boolean isValueConfigured, Vector params) {
-    }
-
-    public void getGeneralNamesConfigDefaultParams(String name, boolean isValueConfigured, Vector params) {
-    }
-
-    public void getGeneralNameConfigExtendedPluginInfo(String name, boolean isValueConfigured, Vector info) {
-    }
-
-    public void getGeneralNamesConfigExtendedPluginInfo(String name, boolean isValueConfigured, Vector info) {
-    }
-
     public IGeneralNamesConfig createGeneralNamesConfig(String name, IConfigStore config, boolean isValueConfigured,
             boolean isPolicyEnabled) throws EBaseException {
         return null;
@@ -490,12 +478,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
     public IGeneralNamesAsConstraintsConfig createGeneralNamesAsConstraintsConfig(String name, IConfigStore config,
             boolean isValueConfigured, boolean isPolicyEnabled) throws EBaseException {
         return null;
-    }
-
-    public void getSubjAltNameConfigDefaultParams(String name, Vector params) {
-    }
-
-    public void getSubjAltNameConfigExtendedPluginInfo(String name, Vector params) {
     }
 
     public ISubjAltNameConfig createSubjAltNameConfig(String name, IConfigStore config, boolean isValueConfigured)
@@ -534,14 +516,6 @@ public class CMSEngineDefaultStub implements ICMSEngine {
     }
 
     public IArgBlock createArgBlock() {
-        return null;
-    }
-
-    public IArgBlock createArgBlock(String realm, Hashtable httpReq) {
-        return null;
-    }
-
-    public IArgBlock createArgBlock(Hashtable httpReq) {
         return null;
     }
 
@@ -597,6 +571,61 @@ public class CMSEngineDefaultStub implements ICMSEngine {
 
     @Override
     public CertificateUsage getCertificateUsage(String certusage) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void getGeneralNameConfigDefaultParams(String name,
+            boolean isValueConfigured, Vector<String> params) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void getGeneralNamesConfigDefaultParams(String name,
+            boolean isValueConfigured, Vector<String> params) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void getGeneralNameConfigExtendedPluginInfo(String name,
+            boolean isValueConfigured, Vector<String> info) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void getGeneralNamesConfigExtendedPluginInfo(String name,
+            boolean isValueConfigured, Vector<String> info) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void getSubjAltNameConfigDefaultParams(String name,
+            Vector<String> params) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void getSubjAltNameConfigExtendedPluginInfo(String name,
+            Vector<String> params) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public IArgBlock createArgBlock(String realm,
+            Hashtable<String, String> httpReq) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public IArgBlock createArgBlock(Hashtable<String, String> httpReq) {
         // TODO Auto-generated method stub
         return null;
     }

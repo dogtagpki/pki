@@ -53,9 +53,9 @@ public class KerberosName {
 
     private String m_realm = null;
     private int m_name_type = 0;
-    private Vector m_name_strings = null;
+    private Vector<String> m_name_strings = null;
 
-    public KerberosName(String realm, int name_type, Vector name_strings) {
+    public KerberosName(String realm, int name_type, Vector<String> name_strings) {
         m_realm = realm;
         m_name_type = name_type;
         m_name_strings = name_strings;
@@ -119,7 +119,7 @@ public class KerberosName {
     }
 
     public static void main(String[] argv) {
-        Vector strings = new Vector();
+        Vector<String> strings = new Vector<String>();
         strings.addElement("name");
         KerberosName k = new KerberosName("realm", 0, strings);
 

@@ -89,15 +89,15 @@ public class LdapEncryptCertPublisher implements ILdapPublisher, IExtendedPlugin
 
     }
 
-    public Vector getInstanceParams() {
-        Vector v = new Vector();
+    public Vector<String> getInstanceParams() {
+        Vector<String> v = new Vector<String>();
 
         v.addElement("certAttr=" + mCertAttr);
         return v;
     }
 
-    public Vector getDefaultParams() {
-        Vector v = new Vector();
+    public Vector<String> getDefaultParams() {
+        Vector<String> v = new Vector<String>();
 
         v.addElement("certAttr=" + mCertAttr);
         return v;
@@ -247,11 +247,12 @@ public class LdapEncryptCertPublisher implements ILdapPublisher, IExtendedPlugin
             return at;
         }
 
-        Enumeration vals = attr.getByteValues();
+        @SuppressWarnings("unchecked")
+        Enumeration<byte[]> vals = attr.getByteValues();
         byte[] val = null;
 
         while (vals.hasMoreElements()) {
-            val = (byte[]) vals.nextElement();
+            val = vals.nextElement();
             try {
                 X509CertImpl cert = new X509CertImpl(val);
 
@@ -322,7 +323,8 @@ public class LdapEncryptCertPublisher implements ILdapPublisher, IExtendedPlugin
         if (attr == null) {
             return false;
         }
-        Enumeration vals = attr.getByteValues();
+        @SuppressWarnings("unchecked")
+        Enumeration<byte[]> vals = attr.getByteValues();
         byte[] val = null;
 
         while (vals.hasMoreElements()) {
@@ -341,11 +343,12 @@ public class LdapEncryptCertPublisher implements ILdapPublisher, IExtendedPlugin
         if (attr == null) {
             return false;
         }
-        Enumeration vals = attr.getStringValues();
+        @SuppressWarnings("unchecked")
+        Enumeration<String> vals = attr.getStringValues();
         String val = null;
 
         while (vals.hasMoreElements()) {
-            val = (String) vals.nextElement();
+            val = vals.nextElement();
             if (val.equalsIgnoreCase(sval)) {
                 return true;
             }

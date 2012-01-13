@@ -370,10 +370,11 @@ public class CRMFPopClient {
 
                 certTemplate.setPublicKey(new SubjectPublicKeyInfo(pair.getPublic()));
                 // set extension
-                AlgorithmIdentifier algS = new AlgorithmIdentifier(new OBJECT_IDENTIFIER("1.2.840.113549.3.7"),
-                        new OCTET_STRING(iv));
-                EncryptedValue encValue = new EncryptedValue(null, algS, new BIT_STRING(session_data, 0), null, null,
-                        new BIT_STRING(key_data, 0));
+                AlgorithmIdentifier algS =
+                        new AlgorithmIdentifier(new OBJECT_IDENTIFIER("1.2.840.113549.3.7"), new OCTET_STRING(iv));
+                EncryptedValue encValue =
+                        new EncryptedValue(null, algS, new BIT_STRING(session_data, 0), null, null, new BIT_STRING(
+                                key_data, 0));
                 EncryptedKey key = new EncryptedKey(encValue);
                 PKIArchiveOptions opt = new PKIArchiveOptions(key);
                 SEQUENCE seq = new SEQUENCE();
@@ -493,10 +494,12 @@ public class CRMFPopClient {
 
                 // post PKCS10 
 
-                url = new URL("http://" + HOST + ":" + PORT
-                        + "/ca/ee/ca/profileSubmit?cert_request_type=crmf&cert_request=" + Req + "&renewal=false&uid="
-                        + USER_NAME + "&xmlOutput=false&&profileId=" + profileName + "&sn_uid=" + USER_NAME
-                        + "&SubId=profile&requestor_name=" + REQUESTOR_NAME);
+                url =
+                        new URL("http://"
+                                + HOST + ":" + PORT + "/ca/ee/ca/profileSubmit?cert_request_type=crmf&cert_request="
+                                + Req + "&renewal=false&uid=" + USER_NAME + "&xmlOutput=false&&profileId="
+                                + profileName + "&sn_uid=" + USER_NAME + "&SubId=profile&requestor_name="
+                                + REQUESTOR_NAME);
                 //System.out.println("Posting " + url);
 
                 System.out.println("");

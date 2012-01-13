@@ -10,7 +10,7 @@ import java.util.Set;
  * purpose is to hide the fact that LDAP doesn't preserve the case of keys.
  * It does this by lowercasing all keys used to access the Hashtable.
  */
-public class ExtDataHashtable extends Hashtable {
+public class ExtDataHashtable<V> extends Hashtable<String, V> {
 
     /**
      *
@@ -29,7 +29,7 @@ public class ExtDataHashtable extends Hashtable {
         super(i, v);
     }
 
-    public ExtDataHashtable(Map map) {
+    public ExtDataHashtable(Map<? extends String, ? extends V> map) {
         // the super constructor seems to call putAll, but I can't
         // rely on that behaviour
         super();
@@ -44,7 +44,7 @@ public class ExtDataHashtable extends Hashtable {
         return super.containsKey(o);
     }
 
-    public Object get(Object o) {
+    public V get(Object o) {
         if (o instanceof String) {
             String key = (String) o;
             return super.get(key.toLowerCase());
@@ -52,7 +52,7 @@ public class ExtDataHashtable extends Hashtable {
         return super.get(o);
     }
 
-    public Object put(Object oKey, Object val) {
+    public V put(String oKey, V val) {
         if (oKey instanceof String) {
             String key = (String) oKey;
             return super.put(key.toLowerCase(), val);
@@ -60,15 +60,15 @@ public class ExtDataHashtable extends Hashtable {
         return super.put(oKey, val);
     }
 
-    public void putAll(Map map) {
-        Set keys = map.keySet();
-        for (Iterator i = keys.iterator(); i.hasNext();) {
+    public void putAll(Map<? extends String, ? extends V> map) {
+        Set<? extends String> keys = map.keySet();
+        for (Iterator<? extends String> i = keys.iterator(); i.hasNext();) {
             Object key = i.next();
-            put(key, map.get(key));
+            put((String) key, map.get(key));
         }
     }
 
-    public Object remove(Object o) {
+    public V remove(Object o) {
         if (o instanceof String) {
             String key = (String) o;
             return super.remove(key.toLowerCase());

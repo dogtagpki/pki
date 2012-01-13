@@ -210,7 +210,7 @@ public class CertificateRenewalWindowExt extends APolicyRule
                         ";configuration-policyrules-certificaterenewalwindow",
                 IExtendedPluginInfo.HELP_TEXT +
                         ";Adds 'Certificate Renewal Window' extension. See manual"
-            };
+        };
 
         return params;
 
@@ -221,8 +221,8 @@ public class CertificateRenewalWindowExt extends APolicyRule
      * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getInstanceParams() {
-        Vector params = new Vector();
+    public Vector<String> getInstanceParams() {
+        Vector<String> params = new Vector<String>();
 
         params.addElement(PROP_CRITICAL + "=" + mCritical);
         if (mBeginTime == null) {
@@ -243,8 +243,8 @@ public class CertificateRenewalWindowExt extends APolicyRule
      * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getDefaultParams() {
-        Vector defParams = new Vector();
+    public Vector<String> getDefaultParams() {
+        Vector<String> defParams = new Vector<String>();
 
         defParams.addElement(PROP_CRITICAL + "=false");
         defParams.addElement(PROP_BEGIN_TIME + "=");

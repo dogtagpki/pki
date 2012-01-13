@@ -70,11 +70,12 @@ public class SizePanel extends WizardPanelBase {
     public PropertySet getUsage() {
         PropertySet set = new PropertySet();
 
-        Descriptor choiceDesc = new Descriptor(
-                IDescriptor.CHOICE,
-                "default,custom",
-                null, /* no default parameter */
-                "If 'default', the key size will be configured automatically. If 'custom', the key size will be set to the value of the parameter 'custom_size'.");
+        Descriptor choiceDesc =
+                new Descriptor(
+                        IDescriptor.CHOICE,
+                        "default,custom",
+                        null, /* no default parameter */
+                        "If 'default', the key size will be configured automatically. If 'custom', the key size will be set to the value of the parameter 'custom_size'.");
 
         set.add("choice", choiceDesc);
 
@@ -625,8 +626,9 @@ public class SizePanel extends WizardPanelBase {
             s = config.getString("preop.ecc.algorithm.list", "SHA256withEC,SHA1withEC,SHA384withEC,SHA512withEC");
             context.put("ecclist", s);
 
-            s = config.getString("preop.rsa.algorithm.list",
-                    "SHA256withRSA,SHA1withRSA,SHA512withRSA,MD5withRSA,MD2withRSA");
+            s =
+                    config.getString("preop.rsa.algorithm.list",
+                            "SHA256withRSA,SHA1withRSA,SHA512withRSA,MD5withRSA,MD2withRSA");
             context.put("rsalist", s);
 
             s = config.getString("keys.ecc.curve.list", "nistp256");

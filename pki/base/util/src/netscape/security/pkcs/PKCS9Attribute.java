@@ -100,7 +100,8 @@ public class PKCS9Attribute implements DerEncoder {
      * attributes to their OIDs. This table contains all name forms
      * that occur in PKCS9, in lower case.
      */
-    private static final Hashtable NAME_OID_TABLE = new Hashtable(28);
+    private static final Hashtable<String, ObjectIdentifier> NAME_OID_TABLE = new Hashtable<String, ObjectIdentifier>(
+            28);
 
     static { // static initializer for PCKS9_NAMES
         NAME_OID_TABLE.put("emailaddress", PKCS9_OIDS[1]);
@@ -124,7 +125,8 @@ public class PKCS9Attribute implements DerEncoder {
      * Hashtable mapping attribute OIDs defined in PKCS9 to the
      * corresponding attribute value type.
      */
-    private static final Hashtable OID_NAME_TABLE = new Hashtable(14);
+    private static final Hashtable<ObjectIdentifier, String> OID_NAME_TABLE = new Hashtable<ObjectIdentifier, String>(
+            14);
     static {
         OID_NAME_TABLE.put(PKCS9_OIDS[1], EMAIL_ADDRESS_STR);
         OID_NAME_TABLE.put(PKCS9_OIDS[2], UNSTRUCTURED_NAME_STR);
@@ -167,7 +169,7 @@ public class PKCS9Attribute implements DerEncoder {
             null, //PublicKey
             null, //SigningDescription
             { Byte.valueOf(DerValue.tag_Sequence) } //ExtensionRequest
-    };
+            };
 
     /**
      * Class types required for values for a given PKCS9
@@ -286,35 +288,25 @@ public class PKCS9Attribute implements DerEncoder {
      * 
      * </TABLE>
      */
-    private static final Class[] VALUE_CLASSES = new Class[15];
+    private static final Class<?>[] VALUE_CLASSES = new Class[15];
 
     static {
-        try {
-            Class str = Class.forName("[Ljava.lang.String;");
+        VALUE_CLASSES[0] = null; // not used
+        VALUE_CLASSES[1] = String[].class; // EMailAddress
+        VALUE_CLASSES[2] = String[].class; // UnstructuredName
+        VALUE_CLASSES[3] = ObjectIdentifier.class; // ContentType
+        VALUE_CLASSES[4] = byte[].class; // MessageDigest (byte[])
+        VALUE_CLASSES[5] = Date.class; // SigningTime
+        VALUE_CLASSES[6] = SignerInfo[].class; // Countersignature
+        VALUE_CLASSES[7] = String.class; // ChallengePassword
+        VALUE_CLASSES[8] = String[].class; // UnstructuredAddress
+        VALUE_CLASSES[9] = null; // ExtendedCertificateAttributes
 
-            VALUE_CLASSES[0] = null; // not used
-            VALUE_CLASSES[1] = str; // EMailAddress
-            VALUE_CLASSES[2] = str; // UnstructuredName
-            VALUE_CLASSES[3] = // ContentType
-            Class.forName("netscape.security.util.ObjectIdentifier");
-            VALUE_CLASSES[4] = Class.forName("[B"); // MessageDigest (byte[])
-            VALUE_CLASSES[5] = Class.forName("java.util.Date"); // SigningTime
-            VALUE_CLASSES[6] = // Countersignature
-            Class.forName("[Lnetscape.security.pkcs.SignerInfo;");
-            VALUE_CLASSES[7] = // ChallengePassword
-            Class.forName("java.lang.String");
-            VALUE_CLASSES[8] = str; // UnstructuredAddress
-            VALUE_CLASSES[9] = null; // ExtendedCertificateAttributes
-
-            VALUE_CLASSES[10] = null; // IssuerAndSerialNumber
-            VALUE_CLASSES[11] = null; // PasswordCheck
-            VALUE_CLASSES[12] = null; // PublicKey
-            VALUE_CLASSES[13] = null; // SigningDescription
-            VALUE_CLASSES[14] = // ExtensionRequest
-            Class.forName("netscape.security.x509.CertificateExtensions"); //xxxx
-        } catch (ClassNotFoundException e) {
-            throw new ExceptionInInitializerError(e.toString());
-        }
+        VALUE_CLASSES[10] = null; // IssuerAndSerialNumber
+        VALUE_CLASSES[11] = null; // PasswordCheck
+        VALUE_CLASSES[12] = null; // PublicKey
+        VALUE_CLASSES[13] = null; // SigningDescription
+        VALUE_CLASSES[14] = CertificateExtensions.class; // ExtensionRequest
     }
 
     /**

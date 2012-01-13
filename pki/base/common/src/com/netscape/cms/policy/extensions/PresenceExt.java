@@ -41,7 +41,7 @@ import com.netscape.cms.policy.APolicyRule;
  * @version $Revision$, $Date$
  */
 public class PresenceExt extends APolicyRule {
-    private static Vector mDefParams = new Vector();
+    private static Vector<String> mDefParams = new Vector<String>();
     private IConfigStore mConfig = null;
     private String mOID = null;
     private boolean mCritical;
@@ -106,8 +106,8 @@ public class PresenceExt extends APolicyRule {
         return res;
     }
 
-    public Vector getInstanceParams() {
-        Vector params = new Vector();
+    public Vector<String> getInstanceParams() {
+        Vector<String> params = new Vector<String>();
 
         params.addElement(PROP_IS_CRITICAL + "=" + mCritical);
         params.addElement(PROP_OID + "=" + mOID);
@@ -151,7 +151,7 @@ public class PresenceExt extends APolicyRule {
      * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getDefaultParams() {
+    public Vector<String> getDefaultParams() {
         return mDefParams;
     }
 }

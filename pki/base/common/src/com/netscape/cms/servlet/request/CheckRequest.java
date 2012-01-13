@@ -502,7 +502,8 @@ public class CheckRequest extends CMSServlet {
                                         ByteArrayInputStream issuer1 = new
                                                 ByteArrayInputStream(((X500Name) cert.getIssuerDN()).getEncoded());
                                         Name issuer = (Name) Name.getTemplate().decode(issuer1);
-                                        IssuerAndSerialNumber ias = new
+                                        IssuerAndSerialNumber ias =
+                                                new
                                                 IssuerAndSerialNumber(issuer, new INTEGER(cert.getSerialNumber()
                                                         .toString()));
                                         SignerIdentifier si = new
@@ -511,8 +512,8 @@ public class CheckRequest extends CMSServlet {
                                         // SHA1 is the default digest Alg for now.
                                         DigestAlgorithm digestAlg = null;
                                         SignatureAlgorithm signAlg = null;
-                                        org.mozilla.jss.crypto.PrivateKey privKey = CryptoManager.getInstance()
-                                                .findPrivKeyByCert(x509cert);
+                                        org.mozilla.jss.crypto.PrivateKey privKey =
+                                                CryptoManager.getInstance().findPrivKeyByCert(x509cert);
                                         org.mozilla.jss.crypto.PrivateKey.Type keyType = privKey.getType();
 
                                         if (keyType.equals(org.mozilla.jss.crypto.PrivateKey.RSA))
@@ -557,7 +558,8 @@ public class CheckRequest extends CMSServlet {
                                         for (int j = 0; j < certsInChain.length; j++) {
                                             ByteArrayInputStream is = new
                                                     ByteArrayInputStream(certsInChain[j].getEncoded());
-                                            org.mozilla.jss.pkix.cert.Certificate certJss = (org.mozilla.jss.pkix.cert.Certificate)
+                                            org.mozilla.jss.pkix.cert.Certificate certJss =
+                                                    (org.mozilla.jss.pkix.cert.Certificate)
                                                     org.mozilla.jss.pkix.cert.Certificate.getTemplate().decode(is);
 
                                             jsscerts.addElement(certJss);
@@ -566,7 +568,8 @@ public class CheckRequest extends CMSServlet {
                                         SignedData fResponse = new
                                                 SignedData(digestAlgs, ci,
                                                         jsscerts, null, signInfos);
-                                        org.mozilla.jss.pkix.cms.ContentInfo fullResponse = new
+                                        org.mozilla.jss.pkix.cms.ContentInfo fullResponse =
+                                                new
                                                 org.mozilla.jss.pkix.cms.ContentInfo(
                                                         org.mozilla.jss.pkix.cms.ContentInfo.SIGNED_DATA, fResponse);
                                         ByteArrayOutputStream ostream = new

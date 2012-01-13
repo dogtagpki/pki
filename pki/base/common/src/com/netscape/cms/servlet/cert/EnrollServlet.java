@@ -465,12 +465,13 @@ public class EnrollServlet extends CMSServlet {
         }
 
         String filter =
-                "(&(x509cert.subject=" + certBasedOldSubjectDN + ")(!(x509cert.serialNumber=" + certBasedOldSerialNum
+                "(&(x509cert.subject="
+                        + certBasedOldSubjectDN + ")(!(x509cert.serialNumber=" + certBasedOldSerialNum
                         + "))(certStatus=VALID))";
         ICertRecordList list =
                 (ICertRecordList) mCa.getCertificateRepository().findCertRecordsInList(filter, null, 10);
         int size = list.getSize();
-        Enumeration en = list.getCertRecords(0, size - 1);
+        Enumeration<ICertRecord> en = list.getCertRecords(0, size - 1);
         boolean gotEncCert = false;
 
         CMS.debug("EnrollServlet: signing cert filter " + filter);
@@ -572,10 +573,10 @@ public class EnrollServlet extends CMSServlet {
             // audit log the status
             try {
                 if (status == RequestStatus.REJECTED) {
-                    Vector messages = req.getExtDataInStringVector(IRequest.ERRORS);
+                    Vector<String> messages = req.getExtDataInStringVector(IRequest.ERRORS);
 
                     if (messages != null) {
-                        Enumeration msgs = messages.elements();
+                        Enumeration<String> msgs = messages.elements();
                         StringBuffer wholeMsg = new StringBuffer();
 
                         while (msgs.hasMoreElements()) {

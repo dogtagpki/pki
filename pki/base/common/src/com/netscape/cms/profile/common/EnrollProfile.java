@@ -729,15 +729,16 @@ public abstract class EnrollProfile extends BasicProfile
                 INTEGER num = (INTEGER) (bodyIds.elementAt(i));
                 if (num.toString().equals(reqId.toString())) {
                     donePOP = true;
-                    CMS.debug("EnrollProfile: skip POP for request: " + reqId.toString()
-                            + " because LRA POP Witness control is found.");
+                    CMS.debug("EnrollProfile: skip POP for request: "
+                            + reqId.toString() + " because LRA POP Witness control is found.");
                     break;
                 }
             }
         }
 
         if (!donePOP) {
-            CMS.debug("EnrollProfile: not skip POP for request: " + reqId.toString()
+            CMS.debug("EnrollProfile: not skip POP for request: "
+                    + reqId.toString()
                     + " because this request id is not part of the body list in LRA Pop witness control.");
             verifyPOP(locale, crm);
         }

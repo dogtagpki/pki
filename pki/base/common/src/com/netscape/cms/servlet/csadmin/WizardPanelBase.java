@@ -1630,8 +1630,10 @@ public class WizardPanelBase implements IWizardPanel {
             int cs_port = cs.getInteger("pkicreate.admin_secure_port", -1);
             int panel = getPanelNo();
             String subsystem = cs.getString("cs.type", "");
-            String urlVal = "https://" + cs_hostname + ":" + cs_port + "/" + toLowerCaseSubsystemType(subsystem)
-                    + "/admin/console/config/wizard?p=" + panel + "&subsystem=" + subsystem;
+            String urlVal =
+                    "https://"
+                            + cs_hostname + ":" + cs_port + "/" + toLowerCaseSubsystemType(subsystem)
+                            + "/admin/console/config/wizard?p=" + panel + "&subsystem=" + subsystem;
             String encodedValue = URLEncoder.encode(urlVal, "UTF-8");
             String sdurl = "https://" + hostname + ":" + port + "/ca/admin/ca/securityDomainLogin?url=" + encodedValue;
             response.sendRedirect(sdurl);

@@ -47,7 +47,7 @@ public class Setup {
             { "auths.impl.PortalEnroll.class", "com.netscape.cms.authentication.PortalEnroll"
             },
             { "auths.revocationChecking.bufferSize", "50" },
-        };
+    };
 
     public static void installAuthImpls(IConfigStore c)
             throws EBaseException {
@@ -331,12 +331,18 @@ public class Setup {
             { "ca.publish.mapper.impl.LdapSubjAttrMap.class", "com.netscape.cms.publish.LdapCertSubjMap" },
             { "ca.publish.mapper.impl.LdapDNExactMap.class", "com.netscape.cms.publish.LdapCertExactMap" },
             //{"ca.publish.mapper.impl.LdapCrlIssuerCompsMap.class","com.netscape.cms.publish.LdapCrlIssuerCompsMap"},
-            { "ca.publish.publisher.impl.LdapUserCertPublisher.class", "com.netscape.cms.publish.LdapUserCertPublisher" },
-            { "ca.publish.publisher.impl.LdapCaCertPublisher.class", "com.netscape.cms.publish.LdapCaCertPublisher" },
+            {
+                    "ca.publish.publisher.impl.LdapUserCertPublisher.class",
+                    "com.netscape.cms.publish.LdapUserCertPublisher" },
+            {
+                    "ca.publish.publisher.impl.LdapCaCertPublisher.class",
+                    "com.netscape.cms.publish.LdapCaCertPublisher" },
             { "ca.publish.publisher.impl.LdapCrlPublisher.class", "com.netscape.cms.publish.LdapCrlPublisher" },
-            { "ca.publish.publisher.impl.FileBasedPublisher.class", "com.netscape.cms.publish.FileBasedPublisher" },
+            {
+                    "ca.publish.publisher.impl.FileBasedPublisher.class",
+                    "com.netscape.cms.publish.FileBasedPublisher" },
             { "ca.publish.publisher.impl.OCSPPublisher.class", "com.netscape.cms.publish.OCSPPublisher" },
             { "ca.publish.rule.impl.Rule.class", "com.netscape.cmscore.ldap.LdapRule" },
-        };
+    };
 
 }

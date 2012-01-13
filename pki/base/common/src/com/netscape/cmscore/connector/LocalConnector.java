@@ -59,8 +59,9 @@ public class LocalConnector implements IConnector {
      */
     public boolean send(IRequest r) throws EBaseException {
         if (Debug.ON) {
-            Debug.print("send request type " + r.getRequestType() + " status=" + r.getRequestStatus() + " to "
-                    + mDest.getId() + " id=" + r.getRequestId() + "\n");
+            Debug.print("send request type "
+                    + r.getRequestType() + " status=" + r.getRequestStatus() + " to " + mDest.getId() + " id="
+                    + r.getRequestId() + "\n");
         }
         CMS.debug("send request type " + r.getRequestType() +
                 " to " + mDest.getId());

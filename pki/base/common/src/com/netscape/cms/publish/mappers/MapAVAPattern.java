@@ -29,6 +29,7 @@ import netscape.security.x509.AVA;
 import netscape.security.x509.CertificateExtensions;
 import netscape.security.x509.Extension;
 import netscape.security.x509.GeneralName;
+import netscape.security.x509.GeneralNameInterface;
 import netscape.security.x509.GeneralNames;
 import netscape.security.x509.LdapV3DNStrConverter;
 import netscape.security.x509.OIDMap;
@@ -533,7 +534,8 @@ class MapAVAPattern {
                         // For now, just give subjectAltName as an example.
                         if (mValue.equalsIgnoreCase(SubjectAlternativeNameExtension.NAME)) {
                             try {
-                                GeneralNames subjectNames = (GeneralNames)
+                                GeneralNames subjectNames =
+                                        (GeneralNames)
                                         ((SubjectAlternativeNameExtension) ext)
                                                 .get(SubjectAlternativeNameExtension.SUBJECT_NAME);
 
@@ -541,7 +543,7 @@ class MapAVAPattern {
                                     break;
                                 int j = 0;
 
-                                for (Enumeration n = subjectNames.elements(); n.hasMoreElements();) {
+                                for (Enumeration<GeneralNameInterface> n = subjectNames.elements(); n.hasMoreElements();) {
                                     GeneralName gn = (GeneralName) n.nextElement();
                                     String gname = gn.toString();
 
@@ -623,7 +625,7 @@ class MapAVAPattern {
 
         if (plus == -1)
             return new String[] { rdn };
-        Vector avas = new Vector();
+        Vector<String> avas = new Vector<String>();
         StringTokenizer token = new StringTokenizer(rdn, "+");
 
         while (token.hasMoreTokens())

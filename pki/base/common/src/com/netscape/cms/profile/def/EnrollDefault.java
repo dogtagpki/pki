@@ -289,10 +289,10 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
                     info.get(X509CertInfo.EXTENSIONS);
             if (exts == null)
                 return;
-            Enumeration<?> e = exts.getNames();
+            Enumeration<String> e = exts.getNames();
 
             while (e.hasMoreElements()) {
-                String n = (String) e.nextElement();
+                String n = e.nextElement();
                 Extension ext = (Extension) exts.get(n);
 
                 if (ext.getExtensionId().toString().equals(name)) {
@@ -321,10 +321,10 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
     protected Extension getExtension(String name, CertificateExtensions exts) {
         if (exts == null)
             return null;
-        Enumeration<?> e = exts.getElements();
+        Enumeration<Extension> e = exts.getAttributes();
 
         while (e.hasMoreElements()) {
-            Extension ext = (Extension) e.nextElement();
+            Extension ext = e.nextElement();
 
             if (ext.getExtensionId().toString().equals(name)) {
                 return ext;
@@ -632,19 +632,19 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
         return true;
     }
 
-    protected String buildRecords(Vector<?> recs) throws EPropertyException {
+    protected String buildRecords(Vector<NameValuePairs> recs) throws EPropertyException {
         StringBuffer sb = new StringBuffer();
 
         for (int i = 0; i < recs.size(); i++) {
-            NameValuePairs pairs = (NameValuePairs) recs.elementAt(i);
+            NameValuePairs pairs = recs.elementAt(i);
 
             sb.append("Record #");
             sb.append(i);
             sb.append("\r\n");
-            Enumeration<?> e = pairs.getNames();
+            Enumeration<String> e = pairs.getNames();
 
             while (e.hasMoreElements()) {
-                String key = (String) e.nextElement();
+                String key = e.nextElement();
                 String val = pairs.getValue(key);
 
                 sb.append(key);
@@ -665,14 +665,14 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
         NameValuePairs nvps = null;
 
         while (st.hasMoreTokens()) {
-            String token = (String) st.nextToken();
+            String token = st.nextToken();
 
             if (token.equals("Record #" + num)) {
                 CMS.debug("parseRecords: Record" + num);
                 nvps = new NameValuePairs();
                 v.addElement(nvps);
                 try {
-                    token = (String) st.nextToken();
+                    token = st.nextToken();
                 } catch (NoSuchElementException e) {
                     v.removeElementAt(num);
                     CMS.debug(e.toString());
@@ -756,7 +756,7 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
         return locale;
     }
 
-    public String toGeneralNameString(GeneralName gn) {
+    public String toGeneralNameString(GeneralNameInterface gn) {
         int type = gn.getType();
         // Sun's General Name is not consistent, so we need
         // to do a special case for directory string

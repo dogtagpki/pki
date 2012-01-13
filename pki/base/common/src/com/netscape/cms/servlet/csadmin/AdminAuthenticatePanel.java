@@ -249,12 +249,13 @@ public class AdminAuthenticatePanel extends WizardPanelBase {
                 c1.append(",preop.ca.hostname,preop.ca.httpport,preop.ca.httpsport,preop.ca.list,preop.ca.pkcs7,preop.ca.type");
             }
 
-            String content = "uid="
-                    + uid
-                    + "&pwd="
-                    + pwd
-                    + "&op=get&names=cloning.module.token,instanceId,internaldb.basedn,internaldb.ldapauth.password,internaldb.replication.password,internaldb.ldapconn.host,internaldb.ldapconn.port,internaldb.ldapauth.bindDN"
-                    + c1.toString() + "&substores=" + s1.toString();
+            String content =
+                    "uid="
+                            + uid
+                            + "&pwd="
+                            + pwd
+                            + "&op=get&names=cloning.module.token,instanceId,internaldb.basedn,internaldb.ldapauth.password,internaldb.replication.password,internaldb.ldapconn.host,internaldb.ldapconn.port,internaldb.ldapauth.bindDN"
+                            + c1.toString() + "&substores=" + s1.toString();
 
             boolean success = updateConfigEntries(host, httpsport, true,
                     "/" + cstype + "/admin/" + cstype + "/getConfigEntries", content, config,

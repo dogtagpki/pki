@@ -608,14 +608,14 @@ public class SrchCerts extends CMSServlet {
                 CMS.debug("Resetting timelimit from " + timeLimit + " to " + mTimeLimits);
                 timeLimit = mTimeLimits;
             }
-            CMS.debug("Start searching ... " + "filter=" + filter + " maxreturns=" + maxResults + " timelimit="
-                    + timeLimit);
-            Enumeration e = mCertDB.searchCertificates(filter, maxResults, timeLimit);
+            CMS.debug("Start searching ... "
+                    + "filter=" + filter + " maxreturns=" + maxResults + " timelimit=" + timeLimit);
+            Enumeration<ICertRecord> e = mCertDB.searchCertificates(filter, maxResults, timeLimit);
 
             int count = 0;
 
             while (e != null && e.hasMoreElements()) {
-                ICertRecord rec = (ICertRecord) e.nextElement();
+                ICertRecord rec = e.nextElement();
 
                 if (rec != null) {
                     count++;
@@ -744,11 +744,11 @@ public class SrchCerts extends CMSServlet {
                 CRLExtensions crlExts = revocationInfo.getCRLEntryExtensions();
 
                 if (crlExts != null) {
-                    Enumeration enum1 = crlExts.getElements();
+                    Enumeration<Extension> enum1 = crlExts.getElements();
                     int reason = 0;
 
                     while (enum1.hasMoreElements()) {
-                        Extension ext = (Extension) enum1.nextElement();
+                        Extension ext = enum1.nextElement();
 
                         if (ext instanceof CRLReasonExtension) {
                             reason = ((CRLReasonExtension) ext).getReason().toInt();

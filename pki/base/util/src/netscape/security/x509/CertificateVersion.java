@@ -224,7 +224,7 @@ public class CertificateVersion implements CertAttrSet {
      * Return an enumeration of names of attributes existing within this
      * attribute.
      */
-    public Enumeration<String> getElements() {
+    public Enumeration<String> getAttributeNames() {
         Vector<String> elements = new Vector<String>();
         elements.addElement(VERSION);
 

@@ -119,7 +119,7 @@ public class FreshestCRLExtDefault extends EnrollExtDefault {
         super.setConfig(name, value);
     }
 
-    public Enumeration getConfigNames() {
+    public Enumeration<String> getConfigNames() {
         refreshConfigAndValueNames();
         return super.getConfigNames();
     }
@@ -224,7 +224,7 @@ public class FreshestCRLExtDefault extends EnrollExtDefault {
                         getExtension(FreshestCRLExtension.OID,
                                 info);
 
-                Vector v = parseRecords(value);
+                Vector<NameValuePairs> v = parseRecords(value);
                 int size = v.size();
 
                 boolean critical = ext.isCritical();
@@ -232,7 +232,7 @@ public class FreshestCRLExtDefault extends EnrollExtDefault {
 
                 for (; i < size; i++) {
                     NameValuePairs nvps = (NameValuePairs) v.elementAt(i);
-                    Enumeration names = nvps.getNames();
+                    Enumeration<String> names = nvps.getNames();
                     String pointType = null;
                     String pointValue = null;
                     String issuerType = null;
@@ -384,7 +384,7 @@ public class FreshestCRLExtDefault extends EnrollExtDefault {
 
             StringBuffer sb = new StringBuffer();
 
-            Vector recs = new Vector();
+            Vector<NameValuePairs> recs = new Vector<NameValuePairs>();
             int num = getNumPoints();
             for (int i = 0; i < num; i++) {
                 NameValuePairs pairs = null;

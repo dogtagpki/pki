@@ -58,7 +58,7 @@ public class NSCCommentExtension extends Extension
     public String mComment = null;
 
     // Private data members 
-    private Vector mInfos;
+    private Vector<Object> mInfos;
 
     private PrettyPrintFormat pp = new PrettyPrintFormat(":");
 
@@ -90,7 +90,7 @@ public class NSCCommentExtension extends Extension
     public NSCCommentExtension(boolean critical) {
         this.extensionId = new ObjectIdentifier("2.16.840.1.113730.1.13");
         this.critical = critical;
-        mInfos = new Vector(1, 1);
+        mInfos = new Vector<Object>(1, 1);
     }
 
     /**
@@ -171,6 +171,7 @@ public class NSCCommentExtension extends Extension
     /**
      * Set the attribute value.
      */
+    @SuppressWarnings("unchecked")
     public void set(String name, Object obj) throws IOException {
         clearValue();
         if (name.equalsIgnoreCase(INFOS)) {
@@ -178,7 +179,7 @@ public class NSCCommentExtension extends Extension
                 throw new IOException("Attribute value should be of" +
                                     " type Vector.");
             }
-            mInfos = (Vector) obj;
+            mInfos = (Vector<Object>) obj;
         } else {
             throw new IOException("Attribute name not recognized by " +
                         "CertAttrSet:NSCCommentExtension.");
@@ -213,9 +214,9 @@ public class NSCCommentExtension extends Extension
      * Return an enumeration of names of attributes existing within this
      * attribute.
      */
-    public Enumeration getElements() {
-        Vector elements = new Vector();
-        elements.addElement(mInfos);
+    public Enumeration<String> getAttributeNames() {
+        Vector<String> elements = new Vector<String>();
+        elements.addElement(INFOS);
         return (elements.elements());
     }
 

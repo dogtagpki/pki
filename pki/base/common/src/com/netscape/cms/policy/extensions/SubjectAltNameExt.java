@@ -80,10 +80,10 @@ public class SubjectAltNameExt extends APolicyRule
     protected int mNumGNs = 0;
     protected ISubjAltNameConfig[] mGNs = null;
 
-    Vector mInstanceParams = new Vector();
+    Vector<String> mInstanceParams = new Vector<String>();
 
     // init default params and extended plugin info.
-    private static Vector mDefParams = new Vector();
+    private static Vector<String> mDefParams = new Vector<String>();
     static {
         // default params.
         mDefParams.addElement(PROP_CRITICAL + "=" + DEF_CRITICAL);
@@ -211,12 +211,12 @@ public class SubjectAltNameExt extends APolicyRule
                 if (value == null) {
                     continue;
                 }
-                Vector gn = mGNs[i].formGeneralNames(value);
+                Vector<GeneralName> gn = mGNs[i].formGeneralNames(value);
 
                 if (gn.size() == 0)
                     continue;
-                for (Enumeration n = gn.elements(); n.hasMoreElements();) {
-                    gns.addElement((GeneralName) n.nextElement());
+                for (Enumeration<GeneralName> n = gn.elements(); n.hasMoreElements();) {
+                    gns.addElement(n.nextElement());
                 }
             }
 
@@ -288,7 +288,7 @@ public class SubjectAltNameExt extends APolicyRule
      * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getInstanceParams() {
+    public Vector<String> getInstanceParams() {
         return mInstanceParams;
     }
 
@@ -297,14 +297,14 @@ public class SubjectAltNameExt extends APolicyRule
      * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getDefaultParams() {
+    public Vector<String> getDefaultParams() {
         return mDefParams;
     }
 
     public String[] getExtendedPluginInfo(Locale locale) {
 
         // extended plugin info.
-        Vector info = new Vector();
+        Vector<String> info = new Vector<String>();
 
         info.addElement(PROP_CRITICAL
                 + ";boolean;RFC2459 recommendation: If the certificate subject field contains an empty sequence, the extension MUST be marked critical.");

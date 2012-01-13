@@ -206,9 +206,10 @@ public class CRSEnrollment extends HttpServlet {
     public CRSEnrollment() {
     }
 
-    public static Hashtable toHashtable(HttpServletRequest req) {
-        Hashtable httpReqHash = new Hashtable();
-        Enumeration names = req.getParameterNames();
+    public static Hashtable<String, String> toHashtable(HttpServletRequest req) {
+        Hashtable<String, String> httpReqHash = new Hashtable<String, String>();
+        @SuppressWarnings("unchecked")
+        Enumeration<String> names = req.getParameterNames();
         while (names.hasMoreElements()) {
             String name = (String) names.nextElement();
             httpReqHash.put(name, req.getParameter(name));
@@ -416,7 +417,7 @@ public class CRSEnrollment extends HttpServlet {
             HttpServletRequest request) throws EBaseException {
 
         // build credential
-        Enumeration authNames = authenticator.getValueNames();
+        Enumeration<String> authNames = authenticator.getValueNames();
 
         if (authNames != null) {
             while (authNames.hasMoreElements()) {
@@ -536,7 +537,7 @@ public class CRSEnrollment extends HttpServlet {
 
     public String getPasswordFromP10(PKCS10 p10) {
         PKCS10Attributes p10atts = p10.getAttributes();
-        Enumeration e = p10atts.getElements();
+        Enumeration<PKCS10Attribute> e = p10atts.getElements();
 
         try {
             while (e.hasMoreElements()) {
@@ -688,7 +689,7 @@ public class CRSEnrollment extends HttpServlet {
 
             String pkcs10Attr = "";
             PKCS10Attributes p10atts = p10.getAttributes();
-            Enumeration e = p10atts.getElements();
+            Enumeration<PKCS10Attribute> e = p10atts.getElements();
 
             while (e.hasMoreElements()) {
                 PKCS10Attribute p10a = (PKCS10Attribute) e.nextElement();
@@ -696,18 +697,21 @@ public class CRSEnrollment extends HttpServlet {
 
                 if (attr.getName().equals(ChallengePassword.NAME)) {
                     if (attr.get(ChallengePassword.PASSWORD) != null) {
-                        pkcs10Attr = pkcs10Attr +
+                        pkcs10Attr =
+                                pkcs10Attr
+                                        +
                                          "<ChallengePassword><Password>"
-                                + (String) attr.get(ChallengePassword.PASSWORD) + "</Password></ChallengePassword>";
+                                        + (String) attr.get(ChallengePassword.PASSWORD)
+                                        + "</Password></ChallengePassword>";
                     }
 
                 }
                 String extensionsStr = "";
                 if (attr.getName().equals(ExtensionsRequested.NAME)) {
 
-                    Enumeration exts = ((ExtensionsRequested) attr).getExtensions().elements();
+                    Enumeration<Extension> exts = ((ExtensionsRequested) attr).getExtensions().elements();
                     while (exts.hasMoreElements()) {
-                        Extension ext = (Extension) exts.nextElement();
+                        Extension ext = exts.nextElement();
 
                         if (ext.getExtensionId().equals(
                                 OIDMap.getOID(SubjectAlternativeNameExtension.IDENT))) {
@@ -716,14 +720,16 @@ public class CRSEnrollment extends HttpServlet {
                                     Boolean.valueOf(false), // noncritical
                                     ext.getExtensionValue());
 
-                            Vector v =
-                                    (Vector) sane.get(SubjectAlternativeNameExtension.SUBJECT_NAME);
+                            @SuppressWarnings("unchecked")
+                            Vector<GeneralNameInterface> v =
+                                    (Vector<GeneralNameInterface>) sane
+                                            .get(SubjectAlternativeNameExtension.SUBJECT_NAME);
 
-                            Enumeration gne = v.elements();
+                            Enumeration<GeneralNameInterface> gne = v.elements();
 
                             StringBuffer subjAltNameStr = new StringBuffer();
                             while (gne.hasMoreElements()) {
-                                GeneralNameInterface gni = (GeneralNameInterface) gne.nextElement();
+                                GeneralNameInterface gni = gne.nextElement();
                                 if (gni instanceof GeneralName) {
                                     GeneralName genName = (GeneralName) gni;
 
@@ -974,14 +980,14 @@ public class CRSEnrollment extends HttpServlet {
         IRequestQueue rq = ca.getRequestQueue();
         IRequest foundRequest = null;
 
-        Enumeration rids = rq.findRequestsBySourceId(txid);
+        Enumeration<RequestId> rids = rq.findRequestsBySourceId(txid);
         if (rids == null) {
             return null;
         }
 
         int count = 0;
         while (rids.hasMoreElements()) {
-            RequestId rid = (RequestId) rids.nextElement();
+            RequestId rid = rids.nextElement();
             if (rid == null) {
                 continue;
             }
@@ -1151,12 +1157,11 @@ public class CRSEnrollment extends HttpServlet {
 
         IRequest issueReq = null;
         X509CertImpl issuedCert = null;
-        Vector extensionsRequested = null;
         SubjectAlternativeNameExtension sane = null;
         CertAttrSet requested_ext = null;
 
         try {
-            PKCS10 p10 = (PKCS10) req.getP10();
+            PKCS10 p10 = req.getP10();
 
             if (p10 == null) {
                 crsResp.setFailInfo(CRSPKIMessage.mFailInfo_badMessageCheck);
@@ -1185,10 +1190,10 @@ public class CRSEnrollment extends HttpServlet {
             //   one RDN, with many AVA's    to
             //   many RDN's with one AVA in each.
 
-            Enumeration rdne = p10subject.getRDNs();
-            Vector rdnv = new Vector();
+            Enumeration<RDN> rdne = p10subject.getRDNs();
+            Vector<RDN> rdnv = new Vector<RDN>();
 
-            Hashtable sanehash = new Hashtable();
+            Hashtable<String, String> sanehash = new Hashtable<String, String>();
 
             X500NameAttrMap xnap = X500NameAttrMap.getDefault();
             while (rdne.hasMoreElements()) {
@@ -1228,7 +1233,7 @@ public class CRSEnrollment extends HttpServlet {
             kue.set(KeyUsageExtension.KEY_ENCIPHERMENT, Boolean.valueOf(true));
 
             PKCS10Attributes p10atts = p10.getAttributes();
-            Enumeration e = p10atts.getElements();
+            Enumeration<PKCS10Attribute> e = p10atts.getElements();
 
             while (e.hasMoreElements()) {
                 PKCS10Attribute p10a = (PKCS10Attribute) e.nextElement();
@@ -1246,9 +1251,9 @@ public class CRSEnrollment extends HttpServlet {
 
                 if (attr.getName().equals(ExtensionsRequested.NAME)) {
 
-                    Enumeration exts = ((ExtensionsRequested) attr).getExtensions().elements();
+                    Enumeration<Extension> exts = ((ExtensionsRequested) attr).getExtensions().elements();
                     while (exts.hasMoreElements()) {
-                        Extension ext = (Extension) exts.nextElement();
+                        Extension ext = exts.nextElement();
 
                         if (ext.getExtensionId().equals(
                                 OIDMap.getOID(KeyUsageExtension.IDENT))) {
@@ -1265,10 +1270,12 @@ public class CRSEnrollment extends HttpServlet {
                                     new Boolean(false), // noncritical
                                     ext.getExtensionValue());
 
-                            Vector v =
-                                    (Vector) sane.get(SubjectAlternativeNameExtension.SUBJECT_NAME);
+                            @SuppressWarnings("unchecked")
+                            Vector<GeneralNameInterface> v =
+                                    (Vector<GeneralNameInterface>) sane
+                                            .get(SubjectAlternativeNameExtension.SUBJECT_NAME);
 
-                            Enumeration gne = v.elements();
+                            Enumeration<GeneralNameInterface> gne = v.elements();
 
                             while (gne.hasMoreElements()) {
                                 GeneralNameInterface gni = (GeneralNameInterface) gne.nextElement();
@@ -1308,8 +1315,8 @@ public class CRSEnrollment extends HttpServlet {
 
             } catch (Exception sne) {
                 log(ILogger.LL_INFO,
-                        "Unable to use appendDN parameter: " + mAppendDN + ". Error is " + sne.getMessage()
-                                + " Using unmodified subjectname");
+                        "Unable to use appendDN parameter: "
+                                + mAppendDN + ". Error is " + sne.getMessage() + " Using unmodified subjectname");
             }
 
             if (subject != null)
@@ -1350,7 +1357,7 @@ public class CRSEnrollment extends HttpServlet {
         } // NEED TO FIX
     }
 
-    private SubjectAlternativeNameExtension makeDefaultSubjectAltName(Hashtable ht) {
+    private SubjectAlternativeNameExtension makeDefaultSubjectAltName(Hashtable<String, String> ht) {
 
         // if no subjectaltname extension was requested, we try to make it up
         // from some of the elements of the subject name
@@ -1359,7 +1366,7 @@ public class CRSEnrollment extends HttpServlet {
         GeneralNameInterface[] gn = new GeneralNameInterface[ht.size()];
 
         itemCount = 0;
-        Enumeration en = ht.keys();
+        Enumeration<String> en = ht.keys();
         while (en.hasMoreElements()) {
             String key = (String) en.nextElement();
             if (key.equals(SANE_DNSNAME)) {
@@ -1445,15 +1452,15 @@ public class CRSEnrollment extends HttpServlet {
         return authenticationFailed;
     }
 
-    private boolean areFingerprintsEqual(IRequest req, Hashtable fingerprints) {
+    private boolean areFingerprintsEqual(IRequest req, Hashtable<String, byte[]> fingerprints) {
 
-        Hashtable old_fprints = req.getExtDataInHashtable(IRequest.FINGERPRINTS);
+        Hashtable<String, String> old_fprints = req.getExtDataInHashtable(IRequest.FINGERPRINTS);
         if (old_fprints == null) {
             return false;
         }
 
-        byte[] old_md5 = CMS.AtoB((String) old_fprints.get("MD5"));
-        byte[] new_md5 = (byte[]) fingerprints.get("MD5");
+        byte[] old_md5 = CMS.AtoB(old_fprints.get("MD5"));
+        byte[] new_md5 = fingerprints.get("MD5");
 
         if (old_md5.length != new_md5.length)
             return false;
@@ -1474,7 +1481,7 @@ public class CRSEnrollment extends HttpServlet {
 
         try {
             unwrapPKCS10(req, cx);
-            Hashtable fingerprints = makeFingerPrints(req);
+            Hashtable<String, byte[]> fingerprints = makeFingerPrints(req);
 
             if (cmsRequest != null) {
                 if (areFingerprintsEqual(cmsRequest, fingerprints)) {
@@ -1562,7 +1569,7 @@ public class CRSEnrollment extends HttpServlet {
 
         // use profile framework to handle SCEP
         if (mProfileId != null) {
-            PKCS10 pkcs10data = (PKCS10) req.getP10();
+            PKCS10 pkcs10data = req.getP10();
             String pkcs10blob = CMS.BtoA(pkcs10data.toByteArray());
 
             // XXX authentication handling
@@ -1673,10 +1680,10 @@ public class CRSEnrollment extends HttpServlet {
         } catch (Exception pwex) {
         }
 
-        Hashtable fingerprints = (Hashtable) req.get(IRequest.FINGERPRINTS);
+        Hashtable<?, ?> fingerprints = (Hashtable<?, ?>) req.get(IRequest.FINGERPRINTS);
         if (fingerprints.size() > 0) {
-            Hashtable encodedPrints = new Hashtable(fingerprints.size());
-            Enumeration e = fingerprints.keys();
+            Hashtable<String, String> encodedPrints = new Hashtable<String, String>(fingerprints.size());
+            Enumeration<?> e = fingerprints.keys();
             while (e.hasMoreElements()) {
                 String key = (String) e.nextElement();
                 byte[] value = (byte[]) fingerprints.get(key);
@@ -1706,8 +1713,8 @@ public class CRSEnrollment extends HttpServlet {
         return pkiReq;
     }
 
-    public Hashtable makeFingerPrints(CRSPKIMessage req) {
-        Hashtable fingerprints = new Hashtable();
+    public Hashtable<String, byte[]> makeFingerPrints(CRSPKIMessage req) {
+        Hashtable<String, byte[]> fingerprints = new Hashtable<String, byte[]>();
 
         MessageDigest md;
         String[] hashes = new String[] { "MD2", "MD5", "SHA1", "SHA256", "SHA512" };
@@ -1936,7 +1943,7 @@ public class CRSEnrollment extends HttpServlet {
         private CryptoToken keyStorageToken;
         private CryptoToken internalKeyStorageToken;
         private KeyGenerator DESkg;
-        private Enumeration externalTokens = null;
+        private Enumeration<?> externalTokens = null;
         private org.mozilla.jss.crypto.X509Certificate signingCert;
         private org.mozilla.jss.crypto.PrivateKey signingCertPrivKey;
         private int signingCertKeySize = 0;
@@ -2033,11 +2040,11 @@ public class CRSEnrollment extends HttpServlet {
             return internalToken;
         }
 
-        public void setExternalTokens(Enumeration tokens) {
+        public void setExternalTokens(Enumeration<?> tokens) {
             externalTokens = tokens;
         }
 
-        public Enumeration getExternalTokens() {
+        public Enumeration<?> getExternalTokens() {
             return externalTokens;
         }
 

@@ -124,7 +124,7 @@ class MapRDNPattern {
     private void parse(PushbackReader in)
             throws ELdapException {
         //System.out.println("_________ begin rdn _________");
-        Vector avaPatterns = new Vector();
+        Vector<MapAVAPattern> avaPatterns = new Vector<MapAVAPattern>();
         MapAVAPattern avaPattern = null;
         int lastChar;
 
@@ -156,7 +156,7 @@ class MapRDNPattern {
         mAVAPatterns = new MapAVAPattern[avaPatterns.size()];
         avaPatterns.copyInto(mAVAPatterns);
 
-        Vector reqAttrs = new Vector();
+        Vector<String> reqAttrs = new Vector<String>();
 
         for (int i = 0; i < mAVAPatterns.length; i++) {
             String avaAttr = mAVAPatterns[i].getReqAttr();
@@ -168,7 +168,7 @@ class MapRDNPattern {
         mReqAttrs = new String[reqAttrs.size()];
         reqAttrs.copyInto(mReqAttrs);
 
-        Vector certAttrs = new Vector();
+        Vector<String> certAttrs = new Vector<String>();
 
         for (int i = 0; i < mAVAPatterns.length; i++) {
             String avaAttr = mAVAPatterns[i].getCertAttr();

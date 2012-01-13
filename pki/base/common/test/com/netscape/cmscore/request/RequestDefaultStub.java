@@ -71,7 +71,7 @@ public class RequestDefaultStub implements IRequest {
         return null;
     }
 
-    public Enumeration getAttrNames() {
+    public Enumeration<String> getAttrNames() {
         return null;
     }
 
@@ -103,7 +103,7 @@ public class RequestDefaultStub implements IRequest {
         return false;
     }
 
-    public boolean setExtData(String key, Hashtable value) {
+    public boolean setExtData(String key, Hashtable<String, String> value) {
         return false;
     }
 
@@ -115,11 +115,11 @@ public class RequestDefaultStub implements IRequest {
         return null;
     }
 
-    public Hashtable getExtDataInHashtable(String key) {
+    public Hashtable<String, String> getExtDataInHashtable(String key) {
         return null;
     }
 
-    public Enumeration getExtDataKeys() {
+    public Enumeration<String> getExtDataKeys() {
         return null;
     }
 
@@ -223,11 +223,11 @@ public class RequestDefaultStub implements IRequest {
         return new RevokedCertImpl[0];
     }
 
-    public boolean setExtData(String key, Vector data) {
+    public boolean setExtData(String key, Vector<?> data) {
         return false;
     }
 
-    public Vector getExtDataInStringVector(String key) {
+    public Vector<String> getExtDataInStringVector(String key) {
         return null;
     }
 

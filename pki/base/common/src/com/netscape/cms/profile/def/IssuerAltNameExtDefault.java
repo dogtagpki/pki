@@ -235,7 +235,7 @@ public class IssuerAltNameExtDefault extends EnrollExtDefault {
                 GeneralNames names = (GeneralNames)
                         ext.get(IssuerAlternativeNameExtension.ISSUER_NAME);
                 StringBuffer sb = new StringBuffer();
-                Enumeration e = names.elements();
+                Enumeration<GeneralNameInterface> e = names.elements();
 
                 while (e.hasMoreElements()) {
                     GeneralName gn = (GeneralName) e.nextElement();

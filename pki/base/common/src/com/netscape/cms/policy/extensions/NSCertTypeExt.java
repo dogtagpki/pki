@@ -494,8 +494,8 @@ public class NSCertTypeExt extends APolicyRule
      * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getInstanceParams() {
-        Vector params = new Vector();
+    public Vector<String> getInstanceParams() {
+        Vector<String> params = new Vector<String>();
 
         params.addElement(PROP_CRITICAL + "=" + mCritical);
         params.addElement(PROP_SET_DEFAULT_BITS + "=" + mSetDefaultBits);
@@ -503,7 +503,7 @@ public class NSCertTypeExt extends APolicyRule
         return params;
     }
 
-    private static Vector mDefParams = new Vector();
+    private static Vector<String> mDefParams = new Vector<String>();
     static {
         mDefParams.addElement(
                 PROP_CRITICAL + "=false");
@@ -532,7 +532,7 @@ public class NSCertTypeExt extends APolicyRule
      * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getDefaultParams() {
+    public Vector<String> getDefaultParams() {
         return mDefParams;
     }
 }

@@ -190,6 +190,7 @@ public class PolicyMappingsExtension extends Extension
     /**
      * Set the attribute value.
      */
+    @SuppressWarnings("unchecked")
     public void set(String name, Object obj) throws IOException {
         clearValue();
         if (name.equalsIgnoreCase(MAP)) {
@@ -232,7 +233,7 @@ public class PolicyMappingsExtension extends Extension
      * Return an enumeration of names of attributes existing within this
      * attribute.
      */
-    public Enumeration<String> getElements() {
+    public Enumeration<String> getAttributeNames() {
         Vector<String> elements = new Vector<String>();
         elements.addElement(MAP);
 

@@ -84,7 +84,7 @@ public class RenewalConstraints extends APolicyRule
                 IExtendedPluginInfo.HELP_TEXT +
                         ";Permit administrator to decide policy on whether to " +
                         "permit renewals for already-expired certificates"
-            };
+        };
 
         return params;
 

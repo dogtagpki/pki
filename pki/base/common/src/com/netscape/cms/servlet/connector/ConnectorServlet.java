@@ -833,10 +833,10 @@ public class ConnectorServlet extends CMSServlet {
                         int reason = 0;
 
                         if (crlExts != null) {
-                            Enumeration enum1 = crlExts.getElements();
+                            Enumeration<Extension> enum1 = crlExts.getElements();
 
                             while (enum1.hasMoreElements()) {
-                                Extension ext = (Extension) enum1.nextElement();
+                                Extension ext = enum1.nextElement();
 
                                 if (ext instanceof CRLReasonExtension) {
                                     reason = ((CRLReasonExtension) ext).getReason().toInt();

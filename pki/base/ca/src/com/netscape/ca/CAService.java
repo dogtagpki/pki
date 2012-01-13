@@ -45,6 +45,7 @@ import netscape.security.x509.CertificateIssuerName;
 import netscape.security.x509.CertificateSerialNumber;
 import netscape.security.x509.CertificateSubjectName;
 import netscape.security.x509.CertificateValidity;
+import netscape.security.x509.Extension;
 import netscape.security.x509.LdapV3DNStrConverter;
 import netscape.security.x509.PKIXExtensions;
 import netscape.security.x509.RevocationReason;
@@ -104,11 +105,11 @@ public class CAService implements ICAService, IService {
     protected static IConnector mCLAConnector = null;
 
     private ICertificateAuthority mCA = null;
-    private Hashtable mServants = new Hashtable();
+    private Hashtable<String, IServant> mServants = new Hashtable<String, IServant>();
     private IConnector mKRAConnector = null;
     private IConfigStore mConfig = null;
     private boolean mArchivalRequired = true;
-    private Hashtable mCRLIssuingPoints = new Hashtable();
+    private Hashtable<String, ICRLIssuingPoint> mCRLIssuingPoints = new Hashtable<String, ICRLIssuingPoint>();
 
     private ILogger mSignedAuditLogger = CMS.getSignedAuditLogger();
     private final static String LOGGING_SIGNED_AUDIT_PRIVATE_KEY_ARCHIVE_REQUEST =
@@ -289,7 +290,8 @@ public class CAService implements ICAService, IService {
             if (timeout == 0)
                 connector = new HttpConnector((IAuthority) mCA, nickname, remauthority, resendInterval, config);
             else
-                connector = new HttpConnector((IAuthority) mCA, nickname, remauthority, resendInterval, config, timeout);
+                connector =
+                        new HttpConnector((IAuthority) mCA, nickname, remauthority, resendInterval, config, timeout);
             // Change end			
 
             // log(ILogger.LL_INFO, "remote authority "+ 
@@ -370,8 +372,8 @@ public class CAService implements ICAService, IService {
         // short cut profile-based request
         if (isProfileRequest(request)) {
             try {
-                CMS.debug("CAServic: x0 requestStatus=" + request.getRequestStatus().toString() + " instance="
-                        + request);
+                CMS.debug("CAServic: x0 requestStatus="
+                        + request.getRequestStatus().toString() + " instance=" + request);
                 serviceProfileRequest(request);
                 request.setExtData(IRequest.RESULT, IRequest.RES_SUCCESS);
                 CMS.debug("CAServic: x1 requestStatus=" + request.getRequestStatus().toString());
@@ -530,7 +532,7 @@ public class CAService implements ICAService, IService {
     /**
      * get CRL Issuing Point
      */
-    public Hashtable getCRLIssuingPoints() {
+    public Hashtable<String, ICRLIssuingPoint> getCRLIssuingPoints() {
         return mCRLIssuingPoints;
     }
 
@@ -683,7 +685,7 @@ public class CAService implements ICAService, IService {
                 exts = (CertificateExtensions)
                         certi.get(X509CertInfo.EXTENSIONS);
                 if (exts != null) {
-                    Enumeration e = exts.getElements();
+                    Enumeration<Extension> e = exts.getAttributes();
 
                     while (e.hasMoreElements()) {
                         netscape.security.x509.Extension ext = (netscape.security.x509.Extension) e.nextElement();
@@ -918,7 +920,7 @@ public class CAService implements ICAService, IService {
                 } else {
                     if (Debug.ON) {
                         System.out.println("Old meta info");
-                        Enumeration n = oldMeta.getElements();
+                        Enumeration<String> n = oldMeta.getElements();
 
                         while (n.hasMoreElements()) {
                             String name = (String) n.nextElement();
@@ -945,7 +947,7 @@ public class CAService implements ICAService, IService {
                             mCA.getCertificateRepository().readCertificateRecord(oldSerialNo);
                     MetaInfo meta = check.getMetaInfo();
 
-                    Enumeration n = oldMeta.getElements();
+                    Enumeration<String> n = oldMeta.getElements();
 
                     while (n.hasMoreElements()) {
                         String name = (String) n.nextElement();
@@ -1012,7 +1014,7 @@ public class CAService implements ICAService, IService {
             mCA.log(ILogger.LL_INFO, CMS.getLogMessage("CMSCORE_CA_CERT_REVOKED",
                     serialno.toString(16)));
             // inform all CRLIssuingPoints about revoked certificate
-            Enumeration eIPs = mCRLIssuingPoints.elements();
+            Enumeration<ICRLIssuingPoint> eIPs = mCRLIssuingPoints.elements();
 
             while (eIPs.hasMoreElements()) {
                 ICRLIssuingPoint ip = (ICRLIssuingPoint) eIPs.nextElement();
@@ -1100,7 +1102,7 @@ public class CAService implements ICAService, IService {
                         certRec.getRevokedOn(), certRec.getRevokedBy());
                 mCA.log(ILogger.LL_INFO, CMS.getLogMessage("CMSCORE_CA_CERT_UNREVOKED", serialNo.toString(16)));
                 // inform all CRLIssuingPoints about unrevoked certificate
-                Enumeration eIPs = mCRLIssuingPoints.elements();
+                Enumeration<ICRLIssuingPoint> eIPs = mCRLIssuingPoints.elements();
 
                 while (eIPs.hasMoreElements()) {
                     ICRLIssuingPoint ip = (ICRLIssuingPoint) eIPs.nextElement();
@@ -1620,15 +1622,15 @@ class serviceCheckChallenge implements IServant {
                 String filter = "(&(x509cert.subject=" + subjectName + ")(certStatus=VALID))";
                 ICertRecordList list = certDB.findCertRecordsInList(filter, null, 10);
                 int size = list.getSize();
-                Enumeration en = list.getCertRecords(0, size - 1);
+                Enumeration<ICertRecord> en = list.getCertRecords(0, size - 1);
 
                 if (!en.hasMoreElements()) {
                     bigIntArray = new BigInteger[0];
                 } else {
-                    Vector idv = new Vector();
+                    Vector<BigInteger> idv = new Vector<BigInteger>();
 
                     while (en.hasMoreElements()) {
-                        CertRecord record = (CertRecord) en.nextElement();
+                        ICertRecord record = en.nextElement();
                         boolean samepwd = compareChallengePassword(record, pwd);
 
                         if (samepwd) {
@@ -1650,7 +1652,7 @@ class serviceCheckChallenge implements IServant {
         return true;
     }
 
-    private boolean compareChallengePassword(CertRecord record, String pwd)
+    private boolean compareChallengePassword(ICertRecord record, String pwd)
             throws EBaseException {
         MetaInfo metaInfo = (MetaInfo) record.get(CertRecord.ATTR_META_INFO);
 
@@ -1931,7 +1933,7 @@ class serviceGetRevocationInfo implements IServant {
 
     public boolean service(IRequest request)
             throws EBaseException {
-        Enumeration enum1 = request.getExtDataKeys();
+        Enumeration<String> enum1 = request.getExtDataKeys();
 
         while (enum1.hasMoreElements()) {
             String name = (String) enum1.nextElement();
@@ -1971,7 +1973,7 @@ class serviceGetCertificates implements IServant {
 
     public boolean service(IRequest request)
             throws EBaseException {
-        Enumeration enum1 = request.getExtDataKeys();
+        Enumeration<String> enum1 = request.getExtDataKeys();
 
         while (enum1.hasMoreElements()) {
             String name = (String) enum1.nextElement();
@@ -2040,8 +2042,8 @@ class serviceCert4Crl implements IServant {
                 //				mService.revokeCert(crlentries[i]);
                 recordedCerts[i] = revokedCertRecs[i];
                 // inform all CRLIssuingPoints about revoked certificate
-                Hashtable hips = mService.getCRLIssuingPoints();
-                Enumeration eIPs = hips.elements();
+                Hashtable<String, ICRLIssuingPoint> hips = mService.getCRLIssuingPoints();
+                Enumeration<ICRLIssuingPoint> eIPs = hips.elements();
 
                 while (eIPs.hasMoreElements()) {
                     ICRLIssuingPoint ip = (ICRLIssuingPoint) eIPs.nextElement();
@@ -2102,8 +2104,8 @@ class serviceUnCert4Crl implements IServant {
             try {
                 mCA.getCertificateRepository().deleteCertificateRecord(oldSerialNo[i]);
                 // inform all CRLIssuingPoints about unrevoked certificate
-                Hashtable hips = mService.getCRLIssuingPoints();
-                Enumeration eIPs = hips.elements();
+                Hashtable<String, ICRLIssuingPoint> hips = mService.getCRLIssuingPoints();
+                Enumeration<ICRLIssuingPoint> eIPs = hips.elements();
 
                 while (eIPs.hasMoreElements()) {
                     ICRLIssuingPoint ip = (ICRLIssuingPoint) eIPs.nextElement();

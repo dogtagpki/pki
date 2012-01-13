@@ -101,7 +101,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
     private boolean mByName = true;
     private String mCACertAttr = null;
     protected Hashtable mReqCounts = new Hashtable();
-    private Hashtable mCRLs = new Hashtable();
+    private Hashtable<X509CertImpl, Object> mCRLs = new Hashtable<X509CertImpl, Object>();
 
     /**
      * Constructs the default store.
@@ -112,15 +112,15 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
     public String[] getExtendedPluginInfo(Locale locale) {
         Vector v = new Vector();
 
-        v.addElement(PROP_NOT_FOUND_GOOD + ";boolean; "
-                + CMS.getUserMessage(locale, "CMS_OCSP_LDAPSTORE_PROP_NOT_FOUND_GOOD"));
-        v.addElement(PROP_INCLUDE_NEXT_UPDATE + ";boolean; "
-                + CMS.getUserMessage(locale, "CMS_OCSP_LDAPSTORE_PROP_INCLUDE_NEXT_UPDATE"));
+        v.addElement(PROP_NOT_FOUND_GOOD
+                + ";boolean; " + CMS.getUserMessage(locale, "CMS_OCSP_LDAPSTORE_PROP_NOT_FOUND_GOOD"));
+        v.addElement(PROP_INCLUDE_NEXT_UPDATE
+                + ";boolean; " + CMS.getUserMessage(locale, "CMS_OCSP_LDAPSTORE_PROP_INCLUDE_NEXT_UPDATE"));
         v.addElement(PROP_NUM_CONNS + ";number; " + CMS.getUserMessage(locale, "CMS_OCSP_LDAPSTORE_PROP_NUM_CONNS"));
         v.addElement(PROP_BY_NAME + ";boolean; " + CMS.getUserMessage(locale, "CMS_OCSP_LDAPSTORE_PROP_BY_NAME"));
         v.addElement(PROP_CRL_ATTR + ";string; " + CMS.getUserMessage(locale, "CMS_OCSP_LDAPSTORE_PROP_CRL_ATTR"));
-        v.addElement(PROP_CA_CERT_ATTR + ";string; "
-                + CMS.getUserMessage(locale, "CMS_OCSP_LDAPSTORE_PROP_CA_CERT_ATTR"));
+        v.addElement(PROP_CA_CERT_ATTR
+                + ";string; " + CMS.getUserMessage(locale, "CMS_OCSP_LDAPSTORE_PROP_CA_CERT_ATTR"));
         v.addElement(IExtendedPluginInfo.HELP_TEXT + "; " + CMS.getUserMessage(locale, "CMS_OCSP_LDAPSTORE_DESC"));
         v.addElement(IExtendedPluginInfo.HELP_TOKEN + ";configuration-ocspstores-ldapstore");
         return com.netscape.cmsutil.util.Utils.getStringArrayFromVector(v);
@@ -393,13 +393,13 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
         throw new EBaseException("NOT SUPPORTED");
     }
 
-    public Enumeration searchAllCRLIssuingPointRecord(int maxSize)
+    public Enumeration<Object> searchAllCRLIssuingPointRecord(int maxSize)
             throws EBaseException {
         Vector recs = new Vector();
-        Enumeration keys = mCRLs.keys();
+        Enumeration<X509CertImpl> keys = mCRLs.keys();
 
         while (keys.hasMoreElements()) {
-            X509CertImpl caCert = (X509CertImpl) keys.nextElement();
+            X509CertImpl caCert = keys.nextElement();
             X509CRLImpl crl = (X509CRLImpl) mCRLs.get(caCert);
 
             recs.addElement(new TempCRLIssuingPointRecord(caCert, crl));

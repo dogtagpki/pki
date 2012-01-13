@@ -114,7 +114,7 @@ public class NSCertTypeExtension extends Extension implements CertAttrSet {
                 new MapEntry(OBJECT_SIGNING_CA, 7),
         };
 
-    private static Vector mAttributeNames = new Vector();
+    private static Vector<String> mAttributeNames = new Vector<String>();
 
     static {
         for (int i = 0; i < mMapData.length; ++i) {
@@ -361,7 +361,7 @@ public class NSCertTypeExtension extends Extension implements CertAttrSet {
      * Return an enumeration of names of attributes existing within this
      * attribute.
      */
-    public Enumeration getElements() {
+    public Enumeration<String> getAttributeNames() {
         return mAttributeNames.elements();
     }
 

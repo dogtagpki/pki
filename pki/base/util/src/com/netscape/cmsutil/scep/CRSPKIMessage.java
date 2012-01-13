@@ -25,6 +25,8 @@ import java.security.PublicKey;
 import java.util.Arrays;
 import java.util.Hashtable;
 
+import netscape.security.pkcs.PKCS10;
+
 import org.mozilla.jss.asn1.ANY;
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.INTEGER;
@@ -191,16 +193,16 @@ public class CRSPKIMessage {
     private int rsdVersion;
     private byte[] rsdCert; // certificate to send in response
 
-    private Object myP10;
+    private PKCS10 myP10;
 
-    private Hashtable attrs; // miscellanous
+    private Hashtable<String, Object> attrs; // miscellanous
 
     //   *** END *** //
 
     public void debug() {
     }
 
-    public void put(Object a, Object b) {
+    public void put(String a, Object b) {
         attrs.put(a, b);
     }
 
@@ -475,7 +477,7 @@ public class CRSPKIMessage {
                     certs,
                         null, // no CRL's
                     new SET() // empty SignerInfos
-            );
+                    );
             ContentInfo wrap = new ContentInfo(ContentInfo.SIGNED_DATA,
                     crsd);
 
@@ -606,11 +608,11 @@ public class CRSPKIMessage {
         return aa_digest.toByteArray();
     }
 
-    public Object getP10() {
+    public PKCS10 getP10() {
         return myP10;
     }
 
-    public void setP10(Object p10) {
+    public void setP10(PKCS10 p10) {
         myP10 = p10;
     }
 
@@ -717,11 +719,11 @@ public class CRSPKIMessage {
     }
 
     public CRSPKIMessage() {
-        attrs = new Hashtable();
+        attrs = new Hashtable<String, Object>();
     }
 
     public CRSPKIMessage(ByteArrayInputStream bais) throws InvalidBERException, Exception {
-        attrs = new Hashtable();
+        attrs = new Hashtable<String, Object>();
         decodeCRSPKIMessage(bais);
     }
 

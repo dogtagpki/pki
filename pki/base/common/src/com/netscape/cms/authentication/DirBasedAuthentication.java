@@ -120,10 +120,10 @@ public abstract class DirBasedAuthentication
             "E=$attr.mail, CN=$attr.cn, O=$dn.o, C=$dn.c";
 
     /* Vector of extendedPluginInfo strings */
-    protected static Vector mExtendedPluginInfo = null;
+    protected static Vector<String> mExtendedPluginInfo = null;
 
     static {
-        mExtendedPluginInfo = new Vector();
+        mExtendedPluginInfo = new Vector<String>();
         mExtendedPluginInfo.add(PROP_DNPATTERN + ";string;Template for cert" +
                 " Subject Name. ($dn.xxx - get value from user's LDAP " +
                 "DN.  $attr.yyy - get value from LDAP attributes in " +
@@ -570,8 +570,9 @@ public abstract class DirBasedAuthentication
         if (values == null)
             return;
 
-        Vector v = new Vector();
-        Enumeration e = values.getStringValues();
+        Vector<String> v = new Vector<String>();
+        @SuppressWarnings("unchecked")
+        Enumeration<String> e = values.getStringValues();
 
         while (e.hasMoreElements()) {
             v.addElement(e.nextElement());
@@ -591,8 +592,9 @@ public abstract class DirBasedAuthentication
         if (values == null)
             return;
 
-        Vector v = new Vector();
-        Enumeration e = values.getByteValues();
+        Vector<byte[]> v = new Vector<byte[]>();
+        @SuppressWarnings("unchecked")
+        Enumeration<byte[]> e = values.getByteValues();
 
         while (e.hasMoreElements()) {
             v.addElement(e.nextElement());

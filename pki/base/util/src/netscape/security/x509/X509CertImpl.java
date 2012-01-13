@@ -912,8 +912,8 @@ public class X509CertImpl extends X509Certificate
                 return null;
             Set<String> extSet = new LinkedHashSet<String>();
             Extension ex;
-            for (Enumeration e = exts.getElements(); e.hasMoreElements();) {
-                ex = (Extension) e.nextElement();
+            for (Enumeration<Extension> e = exts.getAttributes(); e.hasMoreElements();) {
+                ex = e.nextElement();
                 if (ex.isCritical())
                     extSet.add(((ObjectIdentifier) ex.getExtensionId()).toString());
             }
@@ -941,8 +941,8 @@ public class X509CertImpl extends X509Certificate
 
             Set<String> extSet = new LinkedHashSet<String>();
             Extension ex;
-            for (Enumeration e = exts.getElements(); e.hasMoreElements();) {
-                ex = (Extension) e.nextElement();
+            for (Enumeration<Extension> e = exts.getAttributes(); e.hasMoreElements();) {
+                ex = e.nextElement();
                 if (!ex.isCritical())
                     extSet.add(((ObjectIdentifier) ex.getExtensionId()).toString());
             }
@@ -962,8 +962,8 @@ public class X509CertImpl extends X509Certificate
             Extension ex = null;
             ;
             ObjectIdentifier inCertOID;
-            for (Enumeration e = exts.getElements(); e.hasMoreElements();) {
-                ex = (Extension) e.nextElement();
+            for (Enumeration<Extension> e = exts.getAttributes(); e.hasMoreElements();) {
+                ex = e.nextElement();
                 inCertOID = ex.getExtensionId();
                 if (inCertOID.equals(findOID)) {
                     return ex;
@@ -996,8 +996,8 @@ public class X509CertImpl extends X509Certificate
                 Extension ex = null;
                 ;
                 ObjectIdentifier inCertOID;
-                for (Enumeration e = exts.getElements(); e.hasMoreElements();) {
-                    ex = (Extension) e.nextElement();
+                for (Enumeration<Extension> e = exts.getAttributes(); e.hasMoreElements();) {
+                    ex = e.nextElement();
                     inCertOID = ex.getExtensionId();
                     if (inCertOID.equals(findOID)) {
                         certExt = ex;

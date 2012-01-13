@@ -179,14 +179,14 @@ public class UniqueSubjectNameConstraint extends EnrollConstraint {
         else {
             certsubjectname = sn.toString();
             String filter = "x509Cert.subject=" + certsubjectname;
-            Enumeration sameSubjRecords = null;
+            Enumeration<ICertRecord> sameSubjRecords = null;
             try {
                 sameSubjRecords = certdb.findCertRecords(filter);
             } catch (EBaseException e) {
                 CMS.debug("UniqueSubjectNameConstraint exception: " + e.toString());
             }
             while (sameSubjRecords != null && sameSubjRecords.hasMoreElements()) {
-                ICertRecord rec = (ICertRecord) sameSubjRecords.nextElement();
+                ICertRecord rec = sameSubjRecords.nextElement();
                 String status = rec.getStatus();
 
                 IRevocationInfo revocationInfo = rec.getRevocationInfo();
@@ -196,10 +196,10 @@ public class UniqueSubjectNameConstraint extends EnrollConstraint {
                     CRLExtensions crlExts = revocationInfo.getCRLEntryExtensions();
 
                     if (crlExts != null) {
-                        Enumeration enumx = crlExts.getElements();
+                        Enumeration<Extension> enumx = crlExts.getElements();
 
                         while (enumx.hasMoreElements()) {
-                            Extension ext = (Extension) enumx.nextElement();
+                            Extension ext = enumx.nextElement();
 
                             if (ext instanceof CRLReasonExtension) {
                                 reason = ((CRLReasonExtension) ext).getReason();

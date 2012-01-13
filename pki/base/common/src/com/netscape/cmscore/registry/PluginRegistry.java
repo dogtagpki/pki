@@ -42,7 +42,8 @@ public class PluginRegistry implements IPluginRegistry {
     private IConfigStore mConfig = null;
     private IConfigStore mFileConfig = null;
     private ISubsystem mOwner = null;
-    private Hashtable<String, Hashtable<String, IPluginInfo>> mTypes = new Hashtable<String, Hashtable<String, IPluginInfo>>();
+    private Hashtable<String, Hashtable<String, IPluginInfo>> mTypes =
+            new Hashtable<String, Hashtable<String, IPluginInfo>>();
 
     public PluginRegistry() {
     }

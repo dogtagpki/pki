@@ -350,14 +350,14 @@ public class RecoveryService implements IService {
             BigInt privateKeyExponent = privateKeyDerIn.getInteger();
 
             if (!publicKeyModulus.equals(privateKeyModulus)) {
-                CMS.debug("verifyKeyPair modulus mismatch publicKeyModulus=" + publicKeyModulus + " privateKeyModulus="
-                        + privateKeyModulus);
+                CMS.debug("verifyKeyPair modulus mismatch publicKeyModulus="
+                        + publicKeyModulus + " privateKeyModulus=" + privateKeyModulus);
                 return false;
             }
 
             if (!publicKeyExponent.equals(privateKeyExponent)) {
-                CMS.debug("verifyKeyPair exponent mismatch publicKeyExponent=" + publicKeyExponent
-                        + " privateKeyExponent=" + privateKeyExponent);
+                CMS.debug("verifyKeyPair exponent mismatch publicKeyExponent="
+                        + publicKeyExponent + " privateKeyExponent=" + privateKeyExponent);
                 return false;
             }
 

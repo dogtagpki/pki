@@ -54,7 +54,7 @@ public class GenExtKeyUsage {
             }
 
             // Generate vector of object identifiers from command line
-            Vector oids = new Vector();
+            Vector<ObjectIdentifier> oids = new Vector<ObjectIdentifier>();
 
             for (int i = 1; i < args.length; i++) {
                 ObjectIdentifier oid = new ObjectIdentifier(args[i]);
@@ -66,7 +66,7 @@ public class GenExtKeyUsage {
             DerOutputStream contents = new DerOutputStream();
 
             for (int i = 0; i < oids.size(); i++) {
-                contents.putOID((ObjectIdentifier) oids.elementAt(i));
+                contents.putOID(oids.elementAt(i));
             }
 
             // stuff the object identifiers into a SEQUENCE

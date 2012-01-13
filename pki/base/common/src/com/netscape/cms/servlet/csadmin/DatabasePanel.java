@@ -1035,8 +1035,8 @@ public class DatabasePanel extends WizardPanelBase {
         // setup replication after indexes have been created
         if (select.equals("clone")) {
             CMS.debug("Start setting up replication.");
-            setupReplication(request, context, (secure.equals("on") ? "true" : "false"),
-                    (cloneStartTLS.equals("on") ? "true" : "false"));
+            setupReplication(request, context, (secure.equals("on") ? "true" : "false"), (cloneStartTLS.equals("on")
+                    ? "true" : "false"));
             CMS.debug("Finish setting up replication.");
 
             try {
@@ -1318,8 +1318,8 @@ public class DatabasePanel extends WizardPanelBase {
                 }
                 return id;
             } else {
-                CMS.debug("DatabasePanel enableReplication: Failed to create " + replicadn + " entry. Exception: "
-                        + e.toString());
+                CMS.debug("DatabasePanel enableReplication: Failed to create "
+                        + replicadn + " entry. Exception: " + e.toString());
                 return id;
             }
         }
@@ -1378,8 +1378,8 @@ public class DatabasePanel extends WizardPanelBase {
                     throw ee;
                 }
             } else {
-                CMS.debug("DatabasePanel createReplicationAgreement: Failed to create " + dn + " entry. Exception: "
-                        + e.toString());
+                CMS.debug("DatabasePanel createReplicationAgreement: Failed to create "
+                        + dn + " entry. Exception: " + e.toString());
                 throw e;
             }
         }
@@ -1391,8 +1391,8 @@ public class DatabasePanel extends WizardPanelBase {
             String name) {
         String dn = "cn=" + name + "," + replicadn;
         CMS.debug("DatabasePanel initializeConsumer: initializeConsumer dn: " + dn);
-        CMS.debug("DatabasePanel initializeConsumer: initializeConsumer host: " + conn.getHost() + " port: "
-                + conn.getPort());
+        CMS.debug("DatabasePanel initializeConsumer: initializeConsumer host: "
+                + conn.getHost() + " port: " + conn.getPort());
         try {
             LDAPAttribute attr = new LDAPAttribute("nsds5beginreplicarefresh",
                     "start");
@@ -1487,9 +1487,9 @@ public class DatabasePanel extends WizardPanelBase {
         try {
             String filter = "(objectclass=*)";
             String[] attrs = { "nsslapd-directory" };
-            LDAPSearchResults results = conn.search("cn=config,cn=ldbm database,cn=plugins,cn=config",
-                    LDAPv3.SCOPE_SUB,
-                    filter, attrs, false);
+            LDAPSearchResults results =
+                    conn.search("cn=config,cn=ldbm database,cn=plugins,cn=config", LDAPv3.SCOPE_SUB,
+                            filter, attrs, false);
 
             while (results.hasMoreElements()) {
                 LDAPEntry entry = results.next();

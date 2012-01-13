@@ -487,13 +487,14 @@ public class HashEnrollServlet extends CMSServlet {
                 }
 
                 String filter =
-                        "(&(x509cert.subject=" + certBasedOldSubjectDN + ")(!(x509cert.serialNumber="
-                                + certBasedOldSerialNum + "))(certStatus=VALID))";
+                        "(&(x509cert.subject="
+                                + certBasedOldSubjectDN + ")(!(x509cert.serialNumber=" + certBasedOldSerialNum
+                                + "))(certStatus=VALID))";
                 ICertRecordList list =
                         (ICertRecordList) mCa.getCertificateRepository().findCertRecordsInList(filter,
                                 null, 10);
                 int size = list.getSize();
-                Enumeration en = list.getCertRecords(0, size - 1);
+                Enumeration<ICertRecord> en = list.getCertRecords(0, size - 1);
                 boolean gotEncCert = false;
 
                 if (!en.hasMoreElements()) {
@@ -656,10 +657,10 @@ public class HashEnrollServlet extends CMSServlet {
             // audit log the status 
             try {
                 if (status == RequestStatus.REJECTED) {
-                    Vector messages = req.getExtDataInStringVector(IRequest.ERRORS);
+                    Vector<String> messages = req.getExtDataInStringVector(IRequest.ERRORS);
 
                     if (messages != null) {
-                        Enumeration msgs = messages.elements();
+                        Enumeration<String> msgs = messages.elements();
                         StringBuffer wholeMsg = new StringBuffer();
 
                         while (msgs.hasMoreElements()) {
@@ -947,8 +948,8 @@ public class HashEnrollServlet extends CMSServlet {
                 // field suggested notBefore and notAfter in CRMF
                 // Tech Support #383184
                 if (certTemplate.getNotBefore() != null || certTemplate.getNotAfter() != null) {
-                    CertificateValidity certValidity = new CertificateValidity(certTemplate.getNotBefore(),
-                            certTemplate.getNotAfter());
+                    CertificateValidity certValidity =
+                            new CertificateValidity(certTemplate.getNotBefore(), certTemplate.getNotAfter());
 
                     certInfo.set(X509CertInfo.VALIDITY, certValidity);
                 }

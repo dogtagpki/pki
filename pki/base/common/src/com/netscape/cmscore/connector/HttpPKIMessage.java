@@ -69,8 +69,8 @@ public class HttpPKIMessage implements IHttpPKIMessage {
         reqId = r.getRequestId().toString();
         reqStatus = r.getRequestStatus().toString();
 
-        CMS.debug("HttpPKIMessage.fromRequest: requestId=" + r.getRequestId().toString() + " requestStatus="
-                + reqStatus + " instance=" + r);
+        CMS.debug("HttpPKIMessage.fromRequest: requestId="
+                + r.getRequestId().toString() + " requestStatus=" + reqStatus + " instance=" + r);
 
         String attrs[] = RequestTransfer.getTransferAttributes(r);
         int len = attrs.length;
@@ -114,7 +114,7 @@ public class HttpPKIMessage implements IHttpPKIMessage {
                 if (value instanceof String) {
                     r.setExtData(key, (String) value);
                 } else if (value instanceof Hashtable) {
-                    r.setExtData(key, (Hashtable) value);
+                    r.setExtData(key, (Hashtable<String, String>) value);
                 } else {
                     CMS.debug("HttpPKIMessage.toRequest(): key: " + key +
                             " has unexpected type " + value.getClass().toString());

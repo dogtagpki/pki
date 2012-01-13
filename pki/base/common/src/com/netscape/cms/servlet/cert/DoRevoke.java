@@ -439,8 +439,8 @@ public class DoRevoke extends CMSServlet {
 
         try {
             int count = 0;
-            Vector oldCertsV = new Vector();
-            Vector revCertImplsV = new Vector();
+            Vector<X509CertImpl> oldCertsV = new Vector<X509CertImpl>();
+            Vector<RevokedCertImpl> revCertImplsV = new Vector<RevokedCertImpl>();
 
             // Construct a CRL reason code extension.
             RevocationReason revReason = RevocationReason.fromInt(reason);
@@ -465,11 +465,11 @@ public class DoRevoke extends CMSServlet {
 
             if (mAuthority instanceof ICertificateAuthority) {
 
-                Enumeration e = mCertDB.searchCertificates(revokeAll,
+                Enumeration<ICertRecord> e = mCertDB.searchCertificates(revokeAll,
                         totalRecordCount, mTimeLimits);
 
                 while (e != null && e.hasMoreElements()) {
-                    ICertRecord rec = (ICertRecord) e.nextElement();
+                    ICertRecord rec = e.nextElement();
 
                     if (rec == null)
                         continue;
@@ -532,7 +532,7 @@ public class DoRevoke extends CMSServlet {
 
             } else if (mAuthority instanceof IRegistrationAuthority) {
                 String reqIdStr = req.getParameter("requestId");
-                Vector serialNumbers = new Vector();
+                Vector<String> serialNumbers = new Vector<String>();
 
                 if (revokeAll != null && revokeAll.length() > 0) {
                     for (int i = revokeAll.indexOf('='); i < revokeAll.length() && i > -1; 
@@ -787,8 +787,8 @@ public class DoRevoke extends CMSServlet {
                                             "completed",
                                             cert.getSubjectDN(),
                                             cert.getSerialNumber().toString(16),
-                                            RevocationReason.fromInt(reason).toString() + " time: "
-                                                    + (endTime - startTime) }
+                                            RevocationReason.fromInt(reason).toString()
+                                                    + " time: " + (endTime - startTime) }
                                     );
                         }
                     }
@@ -833,7 +833,7 @@ public class DoRevoke extends CMSServlet {
 
                 if (mAuthority instanceof ICertificateAuthority) {
                     // let known update and publish status of all crls. 
-                    Enumeration otherCRLs =
+                    Enumeration<ICRLIssuingPoint> otherCRLs =
                             ((ICertificateAuthority) mAuthority).getCRLIssuingPoints();
 
                     while (otherCRLs.hasMoreElements()) {
@@ -925,7 +925,7 @@ public class DoRevoke extends CMSServlet {
                 } else {
                     header.addStringValue("revoked", "no");
                 }
-                Vector errors = revReq.getExtDataInStringVector(IRequest.ERRORS);
+                Vector<String> errors = revReq.getExtDataInStringVector(IRequest.ERRORS);
                 if (errors != null) {
                     StringBuffer errInfo = new StringBuffer();
                     for (int i = 0; i < errors.size(); i++) {

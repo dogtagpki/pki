@@ -126,7 +126,7 @@ public class ACertAttrSet implements CertAttrSet {
      * 
      * @return an enumeration of the attribute names.
      */
-    public Enumeration getElements() {
+    public Enumeration<String> getAttributeNames() {
         return null;
     }
 

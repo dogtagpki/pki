@@ -504,7 +504,7 @@ public class ExtPrettyPrint {
             sb.append(pp.indent(mIndentSize + 4) + mResource.getString(
                     PrettyPrintResources.TOKEN_EXTENDED_KEY_USAGE) + "\n");
             ExtendedKeyUsageExtension usage = (ExtendedKeyUsageExtension) mExt;
-            Enumeration e = usage.getOIDs();
+            Enumeration<ObjectIdentifier> e = usage.getOIDs();
 
             if (e != null) {
                 while (e.hasMoreElements()) {
@@ -589,8 +589,8 @@ public class ExtPrettyPrint {
 
         try {
             sb.append(pp.indent(mIndentSize) + mResource.getString(PrettyPrintResources.TOKEN_IDENTIFIER));
-            sb.append(mResource.getString(PrettyPrintResources.TOKEN_CERT_TYPE) + "- "
-                    + mExt.getExtensionId().toString() + "\n");
+            sb.append(mResource.getString(PrettyPrintResources.TOKEN_CERT_TYPE)
+                    + "- " + mExt.getExtensionId().toString() + "\n");
             sb.append(pp.indent(mIndentSize + 4) + mResource.getString(PrettyPrintResources.TOKEN_CRITICAL));
             if (mExt.isCritical()) {
                 sb.append(mResource.getString(PrettyPrintResources.TOKEN_YES) + "\n");
@@ -619,8 +619,8 @@ public class ExtPrettyPrint {
                 sb.append(pp.indent(mIndentSize + 8) + mResource.getString(NSCertTypeExtension.EMAIL_CA) + "\n");
             }
             if (((Boolean) type.get(NSCertTypeExtension.OBJECT_SIGNING_CA)).booleanValue()) {
-                sb.append(pp.indent(mIndentSize + 8) + mResource.getString(NSCertTypeExtension.OBJECT_SIGNING_CA)
-                        + "\n");
+                sb.append(pp.indent(mIndentSize + 8)
+                        + mResource.getString(NSCertTypeExtension.OBJECT_SIGNING_CA) + "\n");
             }
             return sb.toString();
         } catch (Exception e) {
@@ -637,8 +637,8 @@ public class ExtPrettyPrint {
 
         try {
             sb.append(pp.indent(mIndentSize) + mResource.getString(PrettyPrintResources.TOKEN_IDENTIFIER));
-            sb.append(mResource.getString(PrettyPrintResources.TOKEN_SKI) + "- " + mExt.getExtensionId().toString()
-                    + "\n");
+            sb.append(mResource.getString(PrettyPrintResources.TOKEN_SKI)
+                    + "- " + mExt.getExtensionId().toString() + "\n");
             sb.append(pp.indent(mIndentSize + 4) + mResource.getString(PrettyPrintResources.TOKEN_CRITICAL));
             if (mExt.isCritical()) {
                 sb.append(mResource.getString(PrettyPrintResources.TOKEN_YES) + "\n");
@@ -666,8 +666,8 @@ public class ExtPrettyPrint {
 
         try {
             sb.append(pp.indent(mIndentSize) + mResource.getString(PrettyPrintResources.TOKEN_IDENTIFIER));
-            sb.append(mResource.getString(PrettyPrintResources.TOKEN_AKI) + "- " + mExt.getExtensionId().toString()
-                    + "\n");
+            sb.append(mResource.getString(PrettyPrintResources.TOKEN_AKI)
+                    + "- " + mExt.getExtensionId().toString() + "\n");
             sb.append(pp.indent(mIndentSize + 4) + mResource.getString(PrettyPrintResources.TOKEN_CRITICAL));
             if (mExt.isCritical()) {
                 sb.append(mResource.getString(PrettyPrintResources.TOKEN_YES) + "\n");
@@ -973,12 +973,12 @@ public class ExtPrettyPrint {
             sb.append(pp.indent(mIndentSize + 4) + mResource.getString(PrettyPrintResources.TOKEN_CRITICAL));
             CertificateScopeOfUseExtension ext = (CertificateScopeOfUseExtension) mExt;
 
-            if (((Extension) mExt).isCritical()) {
+            if (mExt.isCritical()) {
                 sb.append(mResource.getString(PrettyPrintResources.TOKEN_YES) + "\n");
             } else {
                 sb.append(mResource.getString(PrettyPrintResources.TOKEN_NO) + "\n");
             }
-            Vector entries = ext.getCertificateScopeEntries();
+            Vector<CertificateScopeEntry> entries = ext.getCertificateScopeEntries();
 
             if (entries != null) {
                 sb.append(pp.indent(mIndentSize + 4) +
@@ -1474,7 +1474,7 @@ public class ExtPrettyPrint {
             }
 
             PolicyMappingsExtension ext = (PolicyMappingsExtension) mExt;
-            Enumeration maps = ext.getMappings();
+            Enumeration<CertificatePolicyMap> maps = ext.getMappings();
 
             sb.append(pp.indent(mIndentSize + 4) +
                     mResource.getString(PrettyPrintResources.TOKEN_MAPPINGS));
@@ -1530,7 +1530,7 @@ public class ExtPrettyPrint {
 
             sb.append(pp.indent(mIndentSize + 4) +
                     mResource.getString(PrettyPrintResources.TOKEN_ATTRIBUTES));
-            Enumeration attrs = ext.getAttributesList();
+            Enumeration<Attribute> attrs = ext.getAttributesList();
 
             if (attrs == null || !attrs.hasMoreElements()) {
                 sb.append(
@@ -1550,7 +1550,7 @@ public class ExtPrettyPrint {
                     sb.append(pp.indent(mIndentSize + 12) +
                             mResource.getString(
                                     PrettyPrintResources.TOKEN_VALUES));
-                    Enumeration values = attr.getValues();
+                    Enumeration<String> values = attr.getValues();
 
                     if (values == null || !values.hasMoreElements()) {
                         sb.append(mResource.getString(
@@ -1593,15 +1593,16 @@ public class ExtPrettyPrint {
             sb.append(pp.indent(mIndentSize + 4) + mResource.getString(
                     PrettyPrintResources.TOKEN_CERT_POLICIES) + "\n");
             CertificatePoliciesExtension cp = (CertificatePoliciesExtension) mExt;
-            Vector cpv = (Vector) cp.get("infos");
-            Enumeration e = cpv.elements();
+            @SuppressWarnings("unchecked")
+            Vector<CertificatePolicyInfo> cpv = (Vector<CertificatePolicyInfo>) cp.get("infos");
+            Enumeration<CertificatePolicyInfo> e = cpv.elements();
 
             if (e != null) {
                 while (e.hasMoreElements()) {
-                    CertificatePolicyInfo cpi = (CertificatePolicyInfo) e.nextElement();
+                    CertificatePolicyInfo cpi = e.nextElement();
 
-                    sb.append(pp.indent(mIndentSize + 8) + "Policy Identifier: "
-                            + cpi.getPolicyIdentifier().getIdentifier().toString() + "\n");
+                    sb.append(pp.indent(mIndentSize + 8)
+                            + "Policy Identifier: " + cpi.getPolicyIdentifier().getIdentifier().toString() + "\n");
                     PolicyQualifiers cpq = cpi.getPolicyQualifiers();
                     if (cpq != null) {
                         for (int i = 0; i < cpq.size(); i++) {
@@ -1611,8 +1612,8 @@ public class ExtPrettyPrint {
                                 sb.append(pp.indent(mIndentSize + 12)
                                         + "Policy Qualifier Identifier: CPS Pointer Qualifier - "
                                         + pq.getId() + "\n");
-                                sb.append(pp.indent(mIndentSize + 12) + "Policy Qualifier Data: "
-                                        + ((CPSuri) q).getURI() + "\n");
+                                sb.append(pp.indent(mIndentSize + 12)
+                                        + "Policy Qualifier Data: " + ((CPSuri) q).getURI() + "\n");
                             } else if (q instanceof UserNotice) {
                                 sb.append(pp.indent(mIndentSize + 12)
                                         + "Policy Qualifier Identifier: CPS User Notice Qualifier - "
@@ -1621,8 +1622,8 @@ public class ExtPrettyPrint {
                                 DisplayText dt = ((UserNotice) q).getDisplayText();
                                 sb.append(pp.indent(mIndentSize + 12) + "Policy Qualifier Data: \n");
                                 if (nref != null) {
-                                    sb.append(pp.indent(mIndentSize + 16) + "Organization: "
-                                            + nref.getOrganization().toString() + "\n");
+                                    sb.append(pp.indent(mIndentSize + 16)
+                                            + "Organization: " + nref.getOrganization().toString() + "\n");
                                     sb.append(pp.indent(mIndentSize + 16) + "Notice Numbers: ");
                                     int[] nums = nref.getNumbers();
                                     for (int k = 0; k < nums.length; k++) {

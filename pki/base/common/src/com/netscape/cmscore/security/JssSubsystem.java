@@ -127,8 +127,9 @@ public final class JssSubsystem implements ICryptoSubsystem {
     protected PasswordCallback mPWCB = null;
 
     private static JssSubsystem mInstance = new JssSubsystem();
-    private Hashtable mNicknameMapCertsTable = new Hashtable();
-    private Hashtable mNicknameMapUserCertsTable = new Hashtable();
+    private Hashtable<String, X509Certificate[]> mNicknameMapCertsTable = new Hashtable<String, X509Certificate[]>();
+    private Hashtable<String, X509Certificate[]> mNicknameMapUserCertsTable =
+            new Hashtable<String, X509Certificate[]>();
 
     private FileInputStream devRandomInputStream = null;
 
@@ -144,7 +145,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
     private static final String PROP_SSL_CIPHERPREF = Constants.PR_CIPHER_PREF;
     private static final String PROP_SSL_ECTYPE = Constants.PR_ECTYPE;
 
-    private static Hashtable mCipherNames = new Hashtable();
+    private static Hashtable<String, Integer> mCipherNames = new Hashtable<String, Integer>();
 
     /* default sslv2 and sslv3 cipher suites(all), set if no prefs in config.*/
     private static final String DEFAULT_CIPHERPREF =
@@ -514,12 +515,13 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
     public String getTokenList() throws EBaseException {
         String tokenList = "";
-        Enumeration tokens = mCryptoManager.getExternalTokens();
+        @SuppressWarnings("unchecked")
+        Enumeration<CryptoToken> tokens = mCryptoManager.getExternalTokens();
         int num = 0;
 
         try {
             while (tokens.hasMoreElements()) {
-                CryptoToken c = (CryptoToken) tokens.nextElement();
+                CryptoToken c = tokens.nextElement();
 
                 // skip builtin object token
                 if (c.getName() != null && c.getName().equals("Builtin Object Token")) {
@@ -603,10 +605,11 @@ public final class JssSubsystem implements ICryptoSubsystem {
         String certNames = "";
 
         try {
-            Enumeration enums = mCryptoManager.getAllTokens();
+            @SuppressWarnings("unchecked")
+            Enumeration<CryptoToken> enums = mCryptoManager.getAllTokens();
 
             while (enums.hasMoreElements()) {
-                CryptoToken token = (CryptoToken) enums.nextElement();
+                CryptoToken token = enums.nextElement();
                 CryptoStore store = token.getCryptoStore();
                 X509Certificate[] list = store.getCertificates();
 
@@ -1155,12 +1158,13 @@ public final class JssSubsystem implements ICryptoSubsystem {
     public NameValuePairs getRootCerts() throws EBaseException {
         NameValuePairs nvps = new NameValuePairs();
         try {
-            Enumeration enums = mCryptoManager.getAllTokens();
+            @SuppressWarnings("unchecked")
+            Enumeration<CryptoToken> enums = mCryptoManager.getAllTokens();
             if (mNicknameMapCertsTable != null)
                 mNicknameMapCertsTable.clear();
 
             // a temp hashtable with vectors
-            Hashtable vecTable = new Hashtable();
+            Hashtable<String, Vector<X509Certificate>> vecTable = new Hashtable<String, Vector<X509Certificate>>();
 
             while (enums.hasMoreElements()) {
                 CryptoToken token = (CryptoToken) enums.nextElement();
@@ -1183,11 +1187,11 @@ public final class JssSubsystem implements ICryptoSubsystem {
                         X509CertImpl impl = null;
 
                         try {
-                            Vector v;
+                            Vector<X509Certificate> v;
                             if (vecTable.containsKey((Object) nickname) == true) {
-                                v = (Vector) vecTable.get(nickname);
+                                v = vecTable.get(nickname);
                             } else {
-                                v = new Vector();
+                                v = new Vector<X509Certificate>();
                             }
                             v.addElement(list[i]);
                             vecTable.put(nickname, v);
@@ -1208,11 +1212,11 @@ public final class JssSubsystem implements ICryptoSubsystem {
                     }
                 }
                 // convert hashtable of vectors to hashtable of arrays
-                Enumeration elms = vecTable.keys();
+                Enumeration<String> elms = vecTable.keys();
 
                 while (elms.hasMoreElements()) {
                     String key = (String) elms.nextElement();
-                    Vector v = (Vector) vecTable.get((Object) key);
+                    Vector<X509Certificate> v = vecTable.get((Object) key);
                     X509Certificate[] a = new X509Certificate[v.size()];
 
                     v.copyInto((Object[]) a);
@@ -1231,7 +1235,8 @@ public final class JssSubsystem implements ICryptoSubsystem {
     public NameValuePairs getUserCerts() throws EBaseException {
         NameValuePairs nvps = new NameValuePairs();
         try {
-            Enumeration enums = mCryptoManager.getAllTokens();
+            @SuppressWarnings("unchecked")
+            Enumeration<CryptoToken> enums = mCryptoManager.getAllTokens();
 
             while (enums.hasMoreElements()) {
                 CryptoToken token = (CryptoToken) enums.nextElement();
@@ -1297,7 +1302,8 @@ public final class JssSubsystem implements ICryptoSubsystem {
             mNicknameMapUserCertsTable.clear();
 
         try {
-            Enumeration enums = mCryptoManager.getAllTokens();
+            @SuppressWarnings("unchecked")
+            Enumeration<CryptoToken> enums = mCryptoManager.getAllTokens();
 
             while (enums.hasMoreElements()) {
                 CryptoToken token = (CryptoToken) enums.nextElement();
@@ -1378,36 +1384,36 @@ public final class JssSubsystem implements ICryptoSubsystem {
         }
 
         // a temp hashtable with vectors
-        Hashtable vecTable = new Hashtable();
+        Hashtable<String, Vector<X509Certificate>> vecTable = new Hashtable<String, Vector<X509Certificate>>();
 
         for (int i = 0; i < certs.length; i++) {
             String nickname = certs[i].getNickname();
 
             /* build a table of our own */
-            Vector v;
+            Vector<X509Certificate> v;
 
             if (vecTable.containsKey((Object) nickname) == true) {
-                v = (Vector) vecTable.get(nickname);
+                v = vecTable.get(nickname);
             } else {
-                v = new Vector();
+                v = new Vector<X509Certificate>();
             }
             v.addElement(certs[i]);
             vecTable.put(nickname, v);
         }
 
         // convert hashtable of vectors to hashtable of arrays
-        Enumeration elms = vecTable.keys();
+        Enumeration<String> elms = vecTable.keys();
 
         while (elms.hasMoreElements()) {
             String key = (String) elms.nextElement();
-            Vector v = (Vector) vecTable.get((Object) key);
+            Vector<X509Certificate> v = vecTable.get((Object) key);
             X509Certificate[] a = new X509Certificate[v.size()];
 
             v.copyInto((Object[]) a);
             mNicknameMapCertsTable.put(key, a);
         }
 
-        Enumeration keys = mNicknameMapCertsTable.keys();
+        Enumeration<String> keys = mNicknameMapCertsTable.keys();
 
         while (keys.hasMoreElements()) {
             String nickname = (String) keys.nextElement();

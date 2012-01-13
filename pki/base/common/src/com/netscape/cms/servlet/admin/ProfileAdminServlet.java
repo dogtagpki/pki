@@ -1981,7 +1981,8 @@ public class ProfileAdminServlet extends AdminServlet {
                 nvp.add(name, ";" + ";" + rule.getConfig(name));
             } else {
                 nvp.add(name,
-                        desc.getSyntax() + ";" + ";" + getNonNull(desc.getConstraint()) + ";"
+                        desc.getSyntax()
+                                + ";" + ";" + getNonNull(desc.getConstraint()) + ";"
                                 + desc.getDescription(getLocale(req)) + ";" + rule.getConfig(name));
             }
         }
@@ -2031,8 +2032,9 @@ public class ProfileAdminServlet extends AdminServlet {
                 nvp.add(name, ";" + rule.getConfig(name));
             } else {
                 nvp.add(name,
-                        desc.getSyntax() + ";" + getNonNull(desc.getConstraint()) + ";"
-                                + desc.getDescription(getLocale(req)) + ";" + rule.getConfig(name));
+                        desc.getSyntax()
+                                + ";" + getNonNull(desc.getConstraint()) + ";" + desc.getDescription(getLocale(req))
+                                + ";" + rule.getConfig(name));
             }
         }
         sendResponse(SUCCESS, null, nvp, resp);

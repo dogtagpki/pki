@@ -72,7 +72,7 @@ public class IssuerConstraints extends APolicyRule
                 IExtendedPluginInfo.HELP_TEXT +
                         ";Rejects the request if the issuer in the certificate is" +
                         "not of the one specified"
-            };
+        };
 
         return params;
 

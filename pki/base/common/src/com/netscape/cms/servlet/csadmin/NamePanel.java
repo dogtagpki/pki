@@ -491,9 +491,11 @@ public class NamePanel extends WizardPanelBase {
                 String machineName = config.getString("machineName", "");
                 String securePort = config.getString("service.securePort", "");
                 if (certTag.equals("subsystem")) {
-                    String content = "requestor_name=" + sysType + "-" + machineName + "-" + securePort + "&profileId="
-                            + profileId + "&cert_request_type=pkcs10&cert_request="
-                            + URLEncoder.encode(pkcs10, "UTF-8") + "&xmlOutput=true&sessionID=" + session_id;
+                    String content =
+                            "requestor_name="
+                                    + sysType + "-" + machineName + "-" + securePort + "&profileId=" + profileId
+                                    + "&cert_request_type=pkcs10&cert_request=" + URLEncoder.encode(pkcs10, "UTF-8")
+                                    + "&xmlOutput=true&sessionID=" + session_id;
                     cert = CertUtil.createRemoteCert(sd_hostname, sd_ee_port,
                             content, response, this);
                     if (cert == null) {
@@ -508,9 +510,11 @@ public class NamePanel extends WizardPanelBase {
                     } catch (Exception ee) {
                     }
 
-                    String content = "requestor_name=" + sysType + "-" + machineName + "-" + securePort + "&profileId="
-                            + profileId + "&cert_request_type=pkcs10&cert_request="
-                            + URLEncoder.encode(pkcs10, "UTF-8") + "&xmlOutput=true&sessionID=" + session_id;
+                    String content =
+                            "requestor_name="
+                                    + sysType + "-" + machineName + "-" + securePort + "&profileId=" + profileId
+                                    + "&cert_request_type=pkcs10&cert_request=" + URLEncoder.encode(pkcs10, "UTF-8")
+                                    + "&xmlOutput=true&sessionID=" + session_id;
                     cert = CertUtil.createRemoteCert(ca_hostname, ca_port,
                             content, response, this);
                     if (cert == null) {
@@ -651,8 +655,8 @@ public class NamePanel extends WizardPanelBase {
                         config.commit(false);
                     }
                 } catch (Exception e) {
-                    CMS.debug("NamePanel: configCertWithTag: Exception in setting nickname for " + ct + ": "
-                            + e.toString());
+                    CMS.debug("NamePanel: configCertWithTag: Exception in setting nickname for "
+                            + ct + ": " + e.toString());
                 }
 
                 configCert(request, response, context, cert);

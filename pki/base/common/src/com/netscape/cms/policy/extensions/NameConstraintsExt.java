@@ -79,7 +79,7 @@ public class NameConstraintsExt extends APolicyRule
     protected Subtree[] mExcludedSubtrees = null;
     protected NameConstraintsExtension mNameConstraintsExtension = null;
 
-    protected Vector mInstanceParams = new Vector();
+    protected Vector<String> mInstanceParams = new Vector<String>();
 
     public NameConstraintsExt() {
         NAME = "NameConstraintsExt";
@@ -157,13 +157,13 @@ public class NameConstraintsExt extends APolicyRule
         // create instance of name constraints extension if enabled.
         if (mEnabled) {
             try {
-                Vector permittedSubtrees = new Vector();
+                Vector<GeneralSubtree> permittedSubtrees = new Vector<GeneralSubtree>();
 
                 for (int i = 0; i < mNumPermittedSubtrees; i++) {
                     permittedSubtrees.addElement(
                             mPermittedSubtrees[i].mGeneralSubtree);
                 }
-                Vector excludedSubtrees = new Vector();
+                Vector<GeneralSubtree> excludedSubtrees = new Vector<GeneralSubtree>();
 
                 for (int j = 0; j < mNumExcludedSubtrees; j++) {
                     excludedSubtrees.addElement(
@@ -323,7 +323,7 @@ public class NameConstraintsExt extends APolicyRule
      * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getInstanceParams() {
+    public Vector<String> getInstanceParams() {
         return mInstanceParams;
     }
 
@@ -333,7 +333,7 @@ public class NameConstraintsExt extends APolicyRule
      * increase the num to greater than 0 and more configuration params
      * will show up in the console.
      */
-    private static Vector mDefParams = new Vector();
+    private static Vector<String> mDefParams = new Vector<String>();
     static {
         mDefParams.addElement(PROP_CRITICAL + "=" + DEF_CRITICAL);
         mDefParams.addElement(
@@ -353,12 +353,12 @@ public class NameConstraintsExt extends APolicyRule
      * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getDefaultParams() {
+    public Vector<String> getDefaultParams() {
         return mDefParams;
     }
 
     public String[] getExtendedPluginInfo(Locale locale) {
-        Vector theparams = new Vector();
+        Vector<String> theparams = new Vector<String>();
 
         theparams.addElement(PROP_CRITICAL + ";boolean;RFC 2459 recommendation: MUST be critical.");
         theparams.addElement(
@@ -447,13 +447,13 @@ class Subtree {
         }
     }
 
-    void getInstanceParams(Vector instanceParams) {
+    void getInstanceParams(Vector<String> instanceParams) {
         mBase.getInstanceParams(instanceParams);
         instanceParams.addElement(mNameDotMin + "=" + mMin);
         instanceParams.addElement(mNameDotMax + "=" + mMax);
     }
 
-    static void getDefaultParams(String name, Vector params) {
+    static void getDefaultParams(String name, Vector<String> params) {
         String nameDot = "";
 
         if (name != null && name.length() >= 0)
@@ -463,7 +463,7 @@ class Subtree {
         params.addElement(nameDot + PROP_MAX + "=" + DEF_MAX);
     }
 
-    static void getExtendedPluginInfo(String name, Vector info) {
+    static void getExtendedPluginInfo(String name, Vector<String> info) {
         String nameDot = "";
 
         if (name != null && name.length() > 0)

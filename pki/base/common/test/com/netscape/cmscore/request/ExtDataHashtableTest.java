@@ -9,14 +9,14 @@ import com.netscape.cmscore.test.CMSBaseTestCase;
 
 public class ExtDataHashtableTest extends CMSBaseTestCase {
 
-    ExtDataHashtable hash;
+    ExtDataHashtable<String> hash;
 
     public ExtDataHashtableTest(String name) {
         super(name);
     }
 
     public void cmsTestSetUp() {
-        hash = new ExtDataHashtable();
+        hash = new ExtDataHashtable<String>();
     }
 
     public void cmsTestTearDown() {
@@ -46,7 +46,7 @@ public class ExtDataHashtableTest extends CMSBaseTestCase {
     }
 
     public void testPutAll() {
-        Hashtable hash2 = new Hashtable();
+        Hashtable<String, String> hash2 = new Hashtable<String, String>();
         hash2.put("KEY1", "VAL1");
         hash2.put("KEY2", "val2");
 
@@ -67,11 +67,11 @@ public class ExtDataHashtableTest extends CMSBaseTestCase {
     }
 
     public void testMapConstructor() {
-        Hashtable hash2 = new Hashtable();
+        Hashtable<String, String> hash2 = new Hashtable<String, String>();
         hash2.put("KEY1", "VAL1");
         hash2.put("KEY2", "val2");
 
-        hash = new ExtDataHashtable(hash2);
+        hash = new ExtDataHashtable<String>(hash2);
 
         assertTrue(hash.containsKey("key1"));
         assertEquals("VAL1", hash.get("key1"));

@@ -130,13 +130,13 @@ public class ProfileSubmitServlet extends ProfileServlet {
 
     private void setInputsIntoContext(HttpServletRequest request, IProfile profile, IProfileContext ctx) {
         // passing inputs into context
-        Enumeration inputIds = profile.getProfileInputIds();
+        Enumeration<String> inputIds = profile.getProfileInputIds();
 
         if (inputIds != null) {
             while (inputIds.hasMoreElements()) {
                 String inputId = (String) inputIds.nextElement();
                 IProfileInput profileInput = profile.getProfileInput(inputId);
-                Enumeration inputNames = profileInput.getValueNames();
+                Enumeration<String> inputNames = profileInput.getValueNames();
 
                 while (inputNames.hasMoreElements()) {
                     String inputName = (String) inputNames.nextElement();
@@ -161,13 +161,13 @@ public class ProfileSubmitServlet extends ProfileServlet {
      */
     private void setInputsIntoContext(IRequest request, IProfile profile, IProfileContext ctx, Locale locale) {
         // passing inputs into context
-        Enumeration inputIds = profile.getProfileInputIds();
+        Enumeration<String> inputIds = profile.getProfileInputIds();
 
         if (inputIds != null) {
             while (inputIds.hasMoreElements()) {
                 String inputId = (String) inputIds.nextElement();
                 IProfileInput profileInput = profile.getProfileInput(inputId);
-                Enumeration inputNames = profileInput.getValueNames();
+                Enumeration<String> inputNames = profileInput.getValueNames();
 
                 while (inputNames.hasMoreElements()) {
                     String inputName = (String) inputNames.nextElement();
@@ -193,7 +193,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
 
     private void setCredentialsIntoContext(HttpServletRequest request, IProfileAuthenticator authenticator,
             IProfileContext ctx) {
-        Enumeration authIds = authenticator.getValueNames();
+        Enumeration<String> authIds = authenticator.getValueNames();
 
         if (authIds != null) {
             CMS.debug("ProfileSubmitServlet:setCredentialsIntoContext() authNames not null");
@@ -303,7 +303,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
         AuthCredentials credentials = new AuthCredentials();
 
         // build credential
-        Enumeration authNames = authenticator.getValueNames();
+        Enumeration<String> authNames = authenticator.getValueNames();
 
         if (authNames != null) {
             while (authNames.hasMoreElements()) {
@@ -329,13 +329,13 @@ public class ProfileSubmitServlet extends ProfileServlet {
     }
 
     private void setInputsIntoRequest(HttpServletRequest request, IProfile profile, IRequest req) {
-        Enumeration inputIds = profile.getProfileInputIds();
+        Enumeration<String> inputIds = profile.getProfileInputIds();
 
         if (inputIds != null) {
             while (inputIds.hasMoreElements()) {
                 String inputId = (String) inputIds.nextElement();
                 IProfileInput profileInput = profile.getProfileInput(inputId);
-                Enumeration inputNames = profileInput.getValueNames();
+                Enumeration<String> inputNames = profileInput.getValueNames();
 
                 if (inputNames != null) {
                     while (inputNames.hasMoreElements()) {
@@ -363,13 +363,13 @@ public class ProfileSubmitServlet extends ProfileServlet {
      */
     private void setInputsIntoRequest(IRequest request, IProfile profile, IRequest req, Locale locale) {
         // passing inputs into request
-        Enumeration inputIds = profile.getProfileInputIds();
+        Enumeration<String> inputIds = profile.getProfileInputIds();
 
         if (inputIds != null) {
             while (inputIds.hasMoreElements()) {
                 String inputId = (String) inputIds.nextElement();
                 IProfileInput profileInput = profile.getProfileInput(inputId);
-                Enumeration inputNames = profileInput.getValueNames();
+                Enumeration<String> inputNames = profileInput.getValueNames();
 
                 while (inputNames.hasMoreElements()) {
                     String inputName = (String) inputNames.nextElement();
@@ -394,14 +394,14 @@ public class ProfileSubmitServlet extends ProfileServlet {
     }
 
     private void setOutputIntoArgs(IProfile profile, ArgList outputlist, Locale locale, IRequest req) {
-        Enumeration outputIds = profile.getProfileOutputIds();
+        Enumeration<String> outputIds = profile.getProfileOutputIds();
 
         if (outputIds != null) {
             while (outputIds.hasMoreElements()) {
                 String outputId = (String) outputIds.nextElement();
                 IProfileOutput profileOutput = profile.getProfileOutput(outputId);
 
-                Enumeration outputNames = profileOutput.getValueNames();
+                Enumeration<String> outputNames = profileOutput.getValueNames();
 
                 if (outputNames != null) {
                     while (outputNames.hasMoreElements()) {
@@ -483,10 +483,11 @@ public class ProfileSubmitServlet extends ProfileServlet {
 
         if (CMS.debugOn()) {
             CMS.debug("Start of ProfileSubmitServlet Input Parameters");
-            Enumeration paramNames = request.getParameterNames();
+            @SuppressWarnings("unchecked")
+            Enumeration<String> paramNames = request.getParameterNames();
 
             while (paramNames.hasMoreElements()) {
-                String paramName = (String) paramNames.nextElement();
+                String paramName = paramNames.nextElement();
                 // added this facility so that password can be hidden,
                 // all sensitive parameters should be prefixed with 
                 // __ (double underscores); however, in the event that
@@ -749,7 +750,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
                             if (origReq != null) {
                                 CMS.debug("ProfileSubmitServlet: renewal: found original enrollment request id:" + rid);
                                 // debug: print the extData keys
-                                Enumeration en = origReq.getExtDataKeys();
+                                Enumeration<String> en = origReq.getExtDataKeys();
                                 /*
                                                                 CMS.debug("ProfileSubmitServlet: renewal: origRequest extdata key print BEGINS");
                                                                 while (en.hasMoreElements()) {
@@ -973,11 +974,11 @@ public class ProfileSubmitServlet extends ProfileServlet {
             CMS.debug("ProfileSubmitServlet: authentication required.");
             String uid_cred = "Unidentified";
             String uid_attempted_cred = "Unidentified";
-            Enumeration authIds = authenticator.getValueNames();
+            Enumeration<String> authIds = authenticator.getValueNames();
             //Attempt to possibly fetch attemped uid, may not always be available.
             if (authIds != null) {
                 while (authIds.hasMoreElements()) {
-                    String authName = (String) authIds.nextElement();
+                    String authName = authIds.nextElement();
                     String value = request.getParameter(authName);
                     if (value != null) {
                         if (authName.equals("uid")) {
@@ -1156,9 +1157,9 @@ public class ProfileSubmitServlet extends ProfileServlet {
 
             // serial auth token into request
             if (authToken != null) {
-                Enumeration tokenNames = authToken.getElements();
+                Enumeration<String> tokenNames = authToken.getElements();
                 while (tokenNames.hasMoreElements()) {
-                    String tokenName = (String) tokenNames.nextElement();
+                    String tokenName = tokenNames.nextElement();
                     String[] tokenVals = authToken.getInStringArray(tokenName);
                     if (tokenVals != null) {
                         for (int i = 0; i < tokenVals.length; i++) {
@@ -1286,9 +1287,9 @@ public class ProfileSubmitServlet extends ProfileServlet {
                     // print request debug
                     if (reqs[k] != null) {
                         requestIds += "  " + reqs[k].getRequestId().toString();
-                        Enumeration reqKeys = reqs[k].getExtDataKeys();
+                        Enumeration<String> reqKeys = reqs[k].getExtDataKeys();
                         while (reqKeys.hasMoreElements()) {
-                            String reqKey = (String) reqKeys.nextElement();
+                            String reqKey = reqKeys.nextElement();
                             String reqVal = reqs[k].getExtDataInString(reqKey);
                             if (reqVal != null) {
                                 CMS.debug("ProfileSubmitServlet: key=$request." + reqKey + "$ value=" + reqVal);
@@ -1491,15 +1492,15 @@ public class ProfileSubmitServlet extends ProfileServlet {
                 } else {
                     CMS.debug("ProfileSubmitServlet xmlOutput: no certInfo found in request");
                 }
-                Enumeration outputIds = profile.getProfileOutputIds();
+                Enumeration<String> outputIds = profile.getProfileOutputIds();
                 if (outputIds != null) {
                     while (outputIds.hasMoreElements()) {
-                        String outputId = (String) outputIds.nextElement();
+                        String outputId = outputIds.nextElement();
                         IProfileOutput profileOutput = profile.getProfileOutput(outputId);
-                        Enumeration outputNames = profileOutput.getValueNames();
+                        Enumeration<String> outputNames = profileOutput.getValueNames();
                         if (outputNames != null) {
                             while (outputNames.hasMoreElements()) {
-                                String outputName = (String) outputNames.nextElement();
+                                String outputName = outputNames.nextElement();
                                 if (!outputName.equals("b64_cert") && !outputName.equals("pkcs7"))
                                     continue;
                                 try {

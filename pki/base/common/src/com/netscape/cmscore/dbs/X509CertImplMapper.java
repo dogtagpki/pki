@@ -54,8 +54,8 @@ public class X509CertImplMapper implements IDBAttrMapper {
     public X509CertImplMapper() {
     }
 
-    public Enumeration getSupportedLDAPAttributeNames() {
-        Vector v = new Vector();
+    public Enumeration<String> getSupportedLDAPAttributeNames() {
+        Vector<String> v = new Vector<String>();
 
         v.addElement(CertDBSchema.LDAP_ATTR_NOT_BEFORE);
         v.addElement(CertDBSchema.LDAP_ATTR_NOT_AFTER);
@@ -90,11 +90,11 @@ public class X509CertImplMapper implements IDBAttrMapper {
                     cert.getSubjectDN().getName()));
             attrs.add(new LDAPAttribute(CertDBSchema.LDAP_ATTR_PUBLIC_KEY_DATA, cert.getPublicKey().getEncoded()));
             // make extension searchable
-            Set nonCritSet = cert.getNonCriticalExtensionOIDs();
+            Set<String> nonCritSet = cert.getNonCriticalExtensionOIDs();
 
             if (nonCritSet != null) {
-                for (Iterator i = nonCritSet.iterator(); i.hasNext();) {
-                    String oid = (String) i.next();
+                for (Iterator<String> i = nonCritSet.iterator(); i.hasNext();) {
+                    String oid = i.next();
 
                     if (oid.equals("2.16.840.1.113730.1.1")) {
                         String extVal = getCertTypeExtensionInfo(cert);
@@ -113,11 +113,11 @@ public class X509CertImplMapper implements IDBAttrMapper {
                             CertDBSchema.LDAP_ATTR_EXTENSION, oid));
                 }
             }
-            Set critSet = cert.getCriticalExtensionOIDs();
+            Set<String> critSet = cert.getCriticalExtensionOIDs();
 
             if (critSet != null) {
-                for (Iterator i = critSet.iterator(); i.hasNext();) {
-                    String oid = (String) i.next();
+                for (Iterator<String> i = critSet.iterator(); i.hasNext();) {
+                    String oid = i.next();
 
                     if (oid.equals("2.16.840.1.113730.1.1")) {
                         String extVal = getCertTypeExtensionInfo(cert);

@@ -23,7 +23,6 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.UUID;
 
-import netscape.security.x509.GeneralName;
 import netscape.security.x509.GeneralNameInterface;
 import netscape.security.x509.GeneralNames;
 import netscape.security.x509.PKIXExtensions;
@@ -156,7 +155,7 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
         super.setConfig(name, value);
     }
 
-    public Enumeration getConfigNames() {
+    public Enumeration<String> getConfigNames() {
         refreshConfigAndValueNames();
         return super.getConfigNames();
     }
@@ -354,13 +353,10 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
                 GeneralNames names = (GeneralNames)
                         ext.get(SubjectAlternativeNameExtension.SUBJECT_NAME);
                 StringBuffer sb = new StringBuffer();
-                Enumeration e = names.elements();
+                Enumeration<GeneralNameInterface> e = names.elements();
 
                 while (e.hasMoreElements()) {
-                    Object o = (Object) e.nextElement();
-                    if (!(o instanceof GeneralName))
-                        continue;
-                    GeneralName gn = (GeneralName) o;
+                    GeneralNameInterface gn = e.nextElement();
 
                     if (!sb.toString().equals("")) {
                         sb.append("\r\n");

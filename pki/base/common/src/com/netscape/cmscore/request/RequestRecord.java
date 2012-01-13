@@ -250,7 +250,7 @@ public class RequestRecord
             if (value instanceof String) {
                 r.setExtData(key, (String) value);
             } else if (value instanceof Hashtable) {
-                r.setExtData(key, (Hashtable) value);
+                r.setExtData(key, (Hashtable<String, String>) value);
             } else {
                 throw new EDBException("Illegal data value in RequestRecord: " +
                         r.toString());

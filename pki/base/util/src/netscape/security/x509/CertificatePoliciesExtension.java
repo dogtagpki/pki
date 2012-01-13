@@ -21,6 +21,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Array;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Vector;
 
@@ -221,13 +223,21 @@ public class CertificatePoliciesExtension extends Extension
     }
 
     /**
-     * Return an enumeration of names of attributes existing within this
+     * Return an enumeration of attributes existing within this
      * attribute.
      */
-    public Enumeration<Vector<CertificatePolicyInfo>> getElements() {
+    public Enumeration<Vector<CertificatePolicyInfo>> getAttributes() {
         Vector<Vector<CertificatePolicyInfo>> elements = new Vector<Vector<CertificatePolicyInfo>>();
         elements.addElement(mInfos);
         return (elements.elements());
+    }
+
+    private static final String[] NAMES = { INFOS };
+
+    @Override
+    public Enumeration<String> getAttributeNames() {
+        // TODO Auto-generated method stub
+        return Collections.enumeration(Arrays.asList(NAMES));
     }
 
     /**
@@ -322,4 +332,5 @@ public class CertificatePoliciesExtension extends Extension
             System.out.println(e.toString());
         }
     }
+
 }

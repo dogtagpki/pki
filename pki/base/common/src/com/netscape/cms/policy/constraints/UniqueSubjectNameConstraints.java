@@ -94,7 +94,7 @@ public class UniqueSubjectNameConstraints extends APolicyRule
                 IExtendedPluginInfo.HELP_TEXT +
                         ";Rejects a request if there exists an unrevoked, unexpired " +
                         "certificate with the same subject name"
-            };
+        };
 
         return params;
 
@@ -185,14 +185,15 @@ public class UniqueSubjectNameConstraints extends APolicyRule
                 String filter = "x509Cert.subject=" + certSubjectName;
                 // subject name is indexed, so we only use subject name
                 // in the filter
-                Enumeration matched =
+                Enumeration<ICertRecord> matched =
                         mCA.getCertificateRepository().findCertRecords(filter);
 
                 while (matched.hasMoreElements()) {
-                    ICertRecord rec = (ICertRecord) matched.nextElement();
+                    ICertRecord rec = matched.nextElement();
                     String status = rec.getStatus();
 
-                    if (status.equals(ICertRecord.STATUS_REVOKED) || status.equals(ICertRecord.STATUS_EXPIRED)
+                    if (status.equals(ICertRecord.STATUS_REVOKED)
+                            || status.equals(ICertRecord.STATUS_EXPIRED)
                             || status.equals(ICertRecord.STATUS_REVOKED_EXPIRED)) {
                         // accept this only if we have a REVOKED, 
                         // EXPIRED or REVOKED_EXPIRED certificate
@@ -287,8 +288,8 @@ public class UniqueSubjectNameConstraints extends APolicyRule
      * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getInstanceParams() {
-        Vector confParams = new Vector();
+    public Vector<String> getInstanceParams() {
+        Vector<String> confParams = new Vector<String>();
 
         confParams.addElement(PROP_PRE_AGENT_APPROVAL_CHECKING +
                 "=" + mPreAgentApprovalChecking);
@@ -302,8 +303,8 @@ public class UniqueSubjectNameConstraints extends APolicyRule
      * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getDefaultParams() {
-        Vector defParams = new Vector();
+    public Vector<String> getDefaultParams() {
+        Vector<String> defParams = new Vector<String>();
 
         defParams.addElement(PROP_PRE_AGENT_APPROVAL_CHECKING + "=");
         defParams.addElement(PROP_KEY_USAGE_EXTENSION_CHECKING + "=");

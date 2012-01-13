@@ -30,6 +30,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
@@ -168,7 +169,7 @@ public abstract class ARequestQueue
      * @return
      *         an Enumeration that generates RequestId objects.
      */
-    abstract protected Enumeration getRawList();
+    abstract protected Enumeration<RequestId> getRawList();
 
     /**
      * protected access for setting the current state of a request.
@@ -435,7 +436,7 @@ public abstract class ARequestQueue
             throw new EBaseException("Missing agent information");
 
         aas.addApproval(agentName);
-        r.setExtData(AgentApprovals.class.getName(), aas.toStringVector());
+        r.setExtData(AgentApprovals.class.getName(), (Vector<?>) aas.toStringVector());
 
         PolicyResult pr = mPolicy.apply(r);
 
@@ -878,7 +879,9 @@ class Request
             if (!((key instanceof String) && isValidExtDataKey((String) key))) {
                 return false;
             }
-
+            /*
+             * 	TODO  should the Value type be String?
+             */
             Object value = hash.get(key);
             if (!(value instanceof String)) {
                 return false;
@@ -900,12 +903,13 @@ class Request
         return true;
     }
 
-    public boolean setExtData(String key, Hashtable value) {
+    @SuppressWarnings("unchecked")
+    public boolean setExtData(String key, Hashtable<String, String> value) {
         if (!(isValidExtDataKey(key) && isValidExtDataHashtableValue(value))) {
             return false;
         }
 
-        mExtData.put(key, new ExtDataHashtable(value));
+        mExtData.put(key, new ExtDataHashtable<String>(value));
         return true;
     }
 
@@ -924,7 +928,7 @@ class Request
         return (String) value;
     }
 
-    public Hashtable getExtDataInHashtable(String key) {
+    public Hashtable<String, String> getExtDataInHashtable(String key) {
         Object value = mExtData.get(key);
         if (value == null) {
             return null;
@@ -932,10 +936,10 @@ class Request
         if (!(value instanceof Hashtable)) {
             return null;
         }
-        return new ExtDataHashtable((Hashtable) value);
+        return new ExtDataHashtable<String>((Hashtable<String, String>) value);
     }
 
-    public Enumeration getExtDataKeys() {
+    public Enumeration<String> getExtDataKeys() {
         return mExtData.keys();
     }
 
@@ -954,9 +958,10 @@ class Request
             return false;
         }
 
-        Hashtable existingValue = (Hashtable) mExtData.get(key);
+        @SuppressWarnings("unchecked")
+        Hashtable<String, String> existingValue = (Hashtable<String, String>) mExtData.get(key);
         if (existingValue == null) {
-            existingValue = new ExtDataHashtable();
+            existingValue = new ExtDataHashtable<String>();
             mExtData.put(key, existingValue);
         }
         existingValue.put(subkey, value);
@@ -964,11 +969,11 @@ class Request
     }
 
     public String getExtDataInString(String key, String subkey) {
-        Hashtable value = getExtDataInHashtable(key);
+        Hashtable<String, String> value = getExtDataInHashtable(key);
         if (value == null) {
             return null;
         }
-        return (String) value.get(subkey);
+        return value.get(subkey);
     }
 
     public boolean setExtData(String key, Integer value) {
@@ -1226,7 +1231,7 @@ class Request
         return certArray;
     }
 
-    public boolean setExtData(String key, Vector stringVector) {
+    public boolean setExtData(String key, Vector<?> stringVector) {
         String[] stringArray;
         if (stringVector == null) {
             return false;
@@ -1239,12 +1244,12 @@ class Request
         return setExtData(key, stringArray);
     }
 
-    public Vector getExtDataInStringVector(String key) {
+    public Vector<String> getExtDataInStringVector(String key) {
         String[] stringArray = getExtDataInStringArray(key);
         if (stringArray == null) {
             return null;
         }
-        return new Vector(Arrays.asList(stringArray));
+        return new Vector<String>(Arrays.asList(stringArray));
     }
 
     public boolean getExtDataInBoolean(String key, boolean defVal) {
@@ -1265,11 +1270,11 @@ class Request
         if (data == null) {
             return false;
         }
-        Hashtable hash = new Hashtable();
-        Enumeration keys = data.getElements();
+        Hashtable<String, String> hash = new Hashtable<String, String>();
+        Enumeration<String> keys = data.getElements();
         while (keys.hasMoreElements()) {
             try {
-                String authKey = (String) keys.nextElement();
+                String authKey = keys.nextElement();
                 hash.put(authKey, data.getInString(authKey));
             } catch (ClassCastException e) {
                 return false;
@@ -1279,12 +1284,12 @@ class Request
     }
 
     public IAuthToken getExtDataInAuthToken(String key) {
-        Hashtable hash = getExtDataInHashtable(key);
+        Hashtable<String, String> hash = getExtDataInHashtable(key);
         if (hash == null) {
             return null;
         }
         AuthToken authToken = new AuthToken(null);
-        Enumeration keys = hash.keys();
+        Enumeration<String> keys = hash.keys();
         while (keys.hasMoreElements()) {
             try {
                 String hashKey = (String) keys.nextElement();
@@ -1360,7 +1365,7 @@ class Request
         if (values == null) {
             return false;
         }
-        Hashtable hashValue = new Hashtable();
+        Hashtable<String, String> hashValue = new Hashtable<String, String>();
         for (int index = 0; index < values.length; index++) {
             hashValue.put(Integer.toString(index), values[index]);
         }
@@ -1370,7 +1375,7 @@ class Request
     public String[] getExtDataInStringArray(String key) {
         int index;
 
-        Hashtable hashValue = getExtDataInHashtable(key);
+        Hashtable<String, String> hashValue = getExtDataInHashtable(key);
         if (hashValue == null) {
             String s = getExtDataInString(key);
             if (s == null) {
@@ -1380,10 +1385,10 @@ class Request
                 return sa;
             }
         }
-        Set arrayKeys = hashValue.keySet();
-        Vector listValue = new Vector(arrayKeys.size());
-        for (Iterator iter = arrayKeys.iterator(); iter.hasNext();) {
-            String arrayKey = (String) iter.next();
+        Set<String> arrayKeys = hashValue.keySet();
+        Vector<Object> listValue = new Vector<Object>(arrayKeys.size());
+        for (Iterator<String> iter = arrayKeys.iterator(); iter.hasNext();) {
+            String arrayKey = iter.next();
             try {
                 index = Integer.parseInt(arrayKey);
             } catch (NumberFormatException e) {
@@ -1395,7 +1400,7 @@ class Request
             listValue.set(index,
                     hashValue.get(arrayKey));
         }
-        return (String[]) listValue.toArray(new String[0]);
+        return listValue.toArray(new String[0]);
     }
 
     public IAttrSet asIAttrSet() {
@@ -1415,7 +1420,7 @@ class Request
     protected String mOwner;
     protected String mRequestType;
     protected String mContext; // string for now.
-    protected ExtDataHashtable mExtData = new ExtDataHashtable();
+    protected ExtDataHashtable<Object> mExtData = new ExtDataHashtable<Object>();
 
     Date mCreationTime = CMS.getCurrentDate();
     Date mModificationTime = CMS.getCurrentDate();
@@ -1448,7 +1453,7 @@ class RequestIAttrSetWrapper implements IAttrSet {
         mRequest.deleteExtData(name);
     }
 
-    public Enumeration getElements() {
+    public Enumeration<String> getElements() {
         return mRequest.getExtDataKeys();
     }
 }
@@ -1478,7 +1483,7 @@ class RequestListByStatus
         return null;
     }
 
-    public Object nextElement() {
+    public RequestId nextElement() {
         RequestId next = mNext;
 
         update();
@@ -1494,7 +1499,7 @@ class RequestListByStatus
         return next;
     }
 
-    public RequestListByStatus(Enumeration e, RequestStatus s, IRequestQueue q) {
+    public RequestListByStatus(Enumeration<RequestId> e, RequestStatus s, IRequestQueue q) {
         mEnumeration = e;
         mStatus = s;
         mQueue = q;
@@ -1511,7 +1516,7 @@ class RequestListByStatus
             if (!mEnumeration.hasMoreElements())
                 break;
 
-            rId = (RequestId) mEnumeration.nextElement();
+            rId = mEnumeration.nextElement();
 
             try {
                 IRequest r = mQueue.findRequest(rId);
@@ -1527,7 +1532,7 @@ class RequestListByStatus
 
     protected RequestStatus mStatus;
     protected IRequestQueue mQueue;
-    protected Enumeration mEnumeration;
+    protected Enumeration<RequestId> mEnumeration;
     protected RequestId mNext;
 }
 
@@ -1537,7 +1542,7 @@ class RequestList
         return mEnumeration.hasMoreElements();
     }
 
-    public Object nextElement() {
+    public RequestId nextElement() {
         return mEnumeration.nextElement();
     }
 
@@ -1553,11 +1558,11 @@ class RequestList
         return null;
     }
 
-    public RequestList(Enumeration e) {
+    public RequestList(Enumeration<RequestId> e) {
         mEnumeration = e;
     }
 
-    protected Enumeration mEnumeration;
+    protected Enumeration<RequestId> mEnumeration;
 }
 
 class RecoverThread extends Thread {

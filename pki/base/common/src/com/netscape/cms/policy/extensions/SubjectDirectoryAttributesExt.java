@@ -73,9 +73,9 @@ public class SubjectDirectoryAttributesExt extends APolicyRule
     protected IConfigStore mConfig;
     protected SubjectDirAttributesExtension mExt = null;
 
-    protected Vector mParams = new Vector();
+    protected Vector<String> mParams = new Vector<String>();
     private String[] mEPI = null; // extended plugin info
-    protected static Vector mDefParams = new Vector();
+    protected static Vector<String> mDefParams = new Vector<String>();
 
     static {
         setDefaultParams();
@@ -190,11 +190,11 @@ public class SubjectDirectoryAttributesExt extends APolicyRule
         }
     }
 
-    public Vector getInstanceParams() {
+    public Vector<String> getInstanceParams() {
         return mParams; // inited in init()
     }
 
-    public Vector getDefaultParams() {
+    public Vector<String> getDefaultParams() {
         return mDefParams;
     }
 
@@ -223,7 +223,7 @@ public class SubjectDirectoryAttributesExt extends APolicyRule
     }
 
     private void setExtendedPluginInfo() {
-        Vector v = new Vector();
+        Vector<String> v = new Vector<String>();
 
         v.addElement(PROP_CRITICAL + ";boolean;" +
                 "RFC 2459 recommendation: MUST be non-critical.");
@@ -245,7 +245,7 @@ public class SubjectDirectoryAttributesExt extends APolicyRule
 
     private SubjectDirAttributesExtension formExt(IRequest req)
             throws IOException {
-        Vector attrs = new Vector();
+        Vector<Attribute> attrs = new Vector<Attribute>();
 
         // if we're called from init and one attribute is from request attribute
         // the ext can't be formed yet.
@@ -369,7 +369,7 @@ class AttributeConfig {
         }
     }
 
-    public static void getDefaultParams(String name, Vector v) {
+    public static void getDefaultParams(String name, Vector<String> v) {
         String nameDot = name + ".";
 
         v.addElement(nameDot + PROP_ATTRIBUTE_NAME + "=");
@@ -377,7 +377,7 @@ class AttributeConfig {
         v.addElement(nameDot + PROP_VALUE + "=");
     }
 
-    public static void getExtendedPluginInfo(String name, Vector v) {
+    public static void getExtendedPluginInfo(String name, Vector<String> v) {
         String nameDot = name + ".";
         String attrChoices = getAllNames();
 
@@ -387,7 +387,7 @@ class AttributeConfig {
         v.addElement(nameDot + VALUE_INFO);
     }
 
-    public void getInstanceParams(Vector v) {
+    public void getInstanceParams(Vector<String> v) {
         String nameDot = mName + ".";
 
         v.addElement(nameDot + PROP_ATTRIBUTE_NAME + "=" + mAttributeName);
@@ -407,9 +407,9 @@ class AttributeConfig {
     }
 
     static private String getAllNames() {
-        Enumeration n = X500NameAttrMap.getDefault().getAllNames();
+        Enumeration<String> n = X500NameAttrMap.getDefault().getAllNames();
         StringBuffer sb = new StringBuffer();
-        sb.append((String) n.nextElement());
+        sb.append(n.nextElement());
 
         while (n.hasMoreElements()) {
             sb.append(",");

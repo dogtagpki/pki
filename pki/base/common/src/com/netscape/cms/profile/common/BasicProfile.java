@@ -883,16 +883,16 @@ public abstract class BasicProfile implements IProfile {
                     matches++;
                     if (createConfig) {
                         if (matches == 1) {
-                            CMS.debug("WARNING attempt to add duplicate Policy " + defaultClassId + ":"
-                                    + constraintClassId +
+                            CMS.debug("WARNING attempt to add duplicate Policy "
+                                    + defaultClassId + ":" + constraintClassId +
                                     " Contact System Administrator.");
-                            throw new EProfileException("Attempt to add duplicate Policy : " + defaultClassId + ":"
-                                    + constraintClassId);
+                            throw new EProfileException("Attempt to add duplicate Policy : "
+                                    + defaultClassId + ":" + constraintClassId);
                         }
                     } else {
                         if (matches > 1) {
-                            CMS.debug("WARNING attempt to add duplicate Policy " + defaultClassId + ":"
-                                    + constraintClassId +
+                            CMS.debug("WARNING attempt to add duplicate Policy "
+                                    + defaultClassId + ":" + constraintClassId +
                                     " Contact System Administrator.");
                         }
                     }

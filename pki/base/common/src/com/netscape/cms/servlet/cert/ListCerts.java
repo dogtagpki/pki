@@ -68,10 +68,8 @@ public class ListCerts extends CMSServlet {
      */
     private static final long serialVersionUID = -3568155814023099576L;
     private final static String TPL_FILE = "queryCert.template";
-    private final static String INFO = "ListCerts";
     private final static BigInteger MINUS_ONE = new BigInteger("-1");
 
-    private final static String CURRENT_TIME = "currentTime";
     private final static String USE_CLIENT_FILTER = "useClientFilter";
     private final static String ALLOWED_CLIENT_FILTERS = "allowedClientFilters";
 
@@ -82,7 +80,7 @@ public class ListCerts extends CMSServlet {
     private boolean mHardJumpTo = false; //jump to the end
     private String mDirection = null;
     private boolean mUseClientFilter = false;
-    private Vector mAllowedClientFilters = new Vector();
+    private Vector<String> mAllowedClientFilters = new Vector<String>();
     private int mMaxReturns = 2000;
 
     /**
@@ -149,18 +147,18 @@ public class ListCerts extends CMSServlet {
 
         if (mUseClientFilter) {
             com.netscape.certsrv.apps.CMS.debug("useClientFilter=true");
-            Enumeration filters = mAllowedClientFilters.elements();
+            Enumeration<String> filters = mAllowedClientFilters.elements();
             // check to see if the filter is allowed
             while (filters.hasMoreElements()) {
                 String filter = (String) filters.nextElement();
-                com.netscape.certsrv.apps.CMS.debug("Comparing filter=" + filter + " queryCertFilter="
-                        + queryCertFilter);
+                com.netscape.certsrv.apps.CMS.debug("Comparing filter="
+                        + filter + " queryCertFilter=" + queryCertFilter);
                 if (filter.equals(queryCertFilter)) {
                     return queryCertFilter;
                 }
             }
-            com.netscape.certsrv.apps.CMS.debug("Requested filter '" + queryCertFilter
-                    + "' is not allowed. Please check the " + ALLOWED_CLIENT_FILTERS + "parameter");
+            com.netscape.certsrv.apps.CMS.debug("Requested filter '"
+                    + queryCertFilter + "' is not allowed. Please check the " + ALLOWED_CLIENT_FILTERS + "parameter");
             return null;
         } else {
             com.netscape.certsrv.apps.CMS.debug("useClientFilter=false");
@@ -320,8 +318,9 @@ public class ListCerts extends CMSServlet {
         } catch (NumberFormatException e) {
             log(ILogger.LL_FAILURE, com.netscape.certsrv.apps.CMS.getLogMessage("BASE_INVALID_NUMBER_FORMAT"));
 
-            error = new EBaseException(com.netscape.certsrv.apps.CMS.getUserMessage(getLocale(req),
-                    "CMS_BASE_INVALID_NUMBER_FORMAT"));
+            error =
+                    new EBaseException(com.netscape.certsrv.apps.CMS.getUserMessage(getLocale(req),
+                            "CMS_BASE_INVALID_NUMBER_FORMAT"));
         } catch (EBaseException e) {
             error = e;
         }
@@ -395,7 +394,7 @@ public class ListCerts extends CMSServlet {
                 pSize);
         // retrive maxCount + 1 entries
 
-        Enumeration e = list.getCertRecords(0, maxCount);
+        Enumeration<ICertRecord> e = list.getCertRecords(0, maxCount);
 
         ICertRecordList tolist = null;
         int toCurIndex = 0;
@@ -407,7 +406,7 @@ public class ListCerts extends CMSServlet {
                         filter,
                         (String[]) null, serialTo,
                         "serialno", maxCount);
-            Enumeration en = tolist.getCertRecords(0, 0);
+            Enumeration<ICertRecord> en = tolist.getCertRecords(0, 0);
 
             if (en == null || (!en.hasMoreElements())) {
                 toCurIndex = list.getSize() - 1;
@@ -654,7 +653,7 @@ public class ListCerts extends CMSServlet {
                 CRLExtensions crlExts = revocationInfo.getCRLEntryExtensions();
 
                 if (crlExts != null) {
-                    Enumeration enum1 = crlExts.getElements();
+                    Enumeration<Extension> enum1 = crlExts.getElements();
                     int reason = 0;
 
                     while (enum1.hasMoreElements()) {

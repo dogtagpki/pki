@@ -109,7 +109,7 @@ public interface CertAttrSet {
      * 
      * @return an enumeration of the attribute names.
      */
-    Enumeration getElements();
+    Enumeration<String> getAttributeNames();
 
     /**
      * Returns the name (identifier) of this CertAttrSet.

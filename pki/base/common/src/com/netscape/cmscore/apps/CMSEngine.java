@@ -118,6 +118,7 @@ import com.netscape.certsrv.ra.IRegistrationAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.csadmin.LDAPSecurityDomainSessionTable;
 import com.netscape.cms.servlet.csadmin.SecurityDomainSessionTable;
 import com.netscape.cms.servlet.csadmin.SessionTimer;
@@ -1521,7 +1522,7 @@ public class CMSEngine implements ICMSEngine {
     }
 
     public void terminateRequests() {
-        Enumeration e = CommandQueue.mCommandQueue.keys();
+        Enumeration<CMSRequest> e = CommandQueue.mCommandQueue.keys();
 
         while (e.hasMoreElements()) {
             Object thisRequest = e.nextElement();
@@ -1840,10 +1841,10 @@ public class CMSEngine implements ICMSEngine {
                         RequestStatus status = checkRevReq.getRequestStatus();
 
                         if (status == RequestStatus.COMPLETE) {
-                            Enumeration enum1 = checkRevReq.getExtDataKeys();
+                            Enumeration<String> enum1 = checkRevReq.getExtDataKeys();
 
                             while (enum1.hasMoreElements()) {
-                                String name = (String) enum1.nextElement();
+                                String name = enum1.nextElement();
 
                                 if (name.equals(IRequest.REVOKED_CERTS)) {
                                     revoked = true;
@@ -1920,7 +1921,7 @@ class WarningListener implements ILogEventListener {
      * and from source "source". If the parameter is omitted. All entries
      * are sent back.
      */
-    public synchronized NameValuePairs retrieveLogContent(Hashtable req) throws ServletException,
+    public synchronized NameValuePairs retrieveLogContent(Hashtable<String, String> req) throws ServletException,
             IOException, EBaseException {
         return null;
     }
@@ -1928,7 +1929,7 @@ class WarningListener implements ILogEventListener {
     /**
      * Retrieve log file list.
      */
-    public synchronized NameValuePairs retrieveLogList(Hashtable req) throws ServletException,
+    public synchronized NameValuePairs retrieveLogList(Hashtable<String, String> req) throws ServletException,
             IOException, EBaseException {
         return null;
     }
@@ -1941,14 +1942,14 @@ class WarningListener implements ILogEventListener {
         return "ConsoleLog";
     }
 
-    public Vector getDefaultParams() {
-        Vector v = new Vector();
+    public Vector<String> getDefaultParams() {
+        Vector<String> v = new Vector<String>();
 
         return v;
     }
 
-    public Vector getInstanceParams() {
-        Vector v = new Vector();
+    public Vector<String> getInstanceParams() {
+        Vector<String> v = new Vector<String>();
 
         return v;
     }

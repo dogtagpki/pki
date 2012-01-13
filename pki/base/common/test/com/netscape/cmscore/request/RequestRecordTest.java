@@ -62,7 +62,7 @@ public class RequestRecordTest extends CMSBaseTestCase {
 
     public void testAddExtData() throws EBaseException {
         request.setExtData("foo", "bar");
-        Hashtable requestHashValue = new Hashtable();
+        Hashtable<String, String> requestHashValue = new Hashtable<String, String>();
         requestHashValue.put("red", "rum");
         requestHashValue.put("blue", "gin");
         request.setExtData("hashkey", requestHashValue);
@@ -74,9 +74,9 @@ public class RequestRecordTest extends CMSBaseTestCase {
     }
 
     public void testReadExtData() throws EBaseException {
-        Hashtable extData = new Hashtable();
+        Hashtable<String, Object> extData = new Hashtable<String, Object>();
         extData.put("foo", "bar");
-        Hashtable extDataHashValue = new Hashtable();
+        Hashtable<String, String> extDataHashValue = new Hashtable<String, String>();
         extDataHashValue.put("red", "rum");
         extDataHashValue.put("blue", "gin");
         extData.put("hashkey", extDataHashValue);

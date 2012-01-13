@@ -46,7 +46,7 @@ import com.netscape.cmscore.util.Debug;
  */
 public class RevocationInfoMapper implements IDBAttrMapper {
 
-    protected static Vector mNames = new Vector();
+    protected static Vector<String> mNames = new Vector<String>();
     static {
         mNames.addElement(CertDBSchema.LDAP_ATTR_REVO_INFO);
     }
@@ -57,7 +57,7 @@ public class RevocationInfoMapper implements IDBAttrMapper {
     public RevocationInfoMapper() {
     }
 
-    public Enumeration getSupportedLDAPAttributeNames() {
+    public Enumeration<String> getSupportedLDAPAttributeNames() {
         return mNames.elements();
     }
 
@@ -74,10 +74,10 @@ public class RevocationInfoMapper implements IDBAttrMapper {
             CRLExtensions exts = info.getCRLEntryExtensions();
             // CRLExtension's DER encoding and decoding does not work!
             // That is why we need to do our own serialization.
-            Enumeration e = exts.getElements();
+            Enumeration<Extension> e = exts.getElements();
 
             while (e.hasMoreElements()) {
-                Extension ext = (Extension) e.nextElement();
+                Extension ext = e.nextElement();
 
                 if (ext instanceof CRLReasonExtension) {
                     RevocationReason reason =

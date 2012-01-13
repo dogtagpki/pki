@@ -89,4 +89,7 @@ public abstract class RevokedCertificate extends X509CRLEntry {
      * @return a string representation of this revoked certificate.
      */
     public abstract String toString();
+
+    public abstract CRLExtensions getExtensions();
+
 }

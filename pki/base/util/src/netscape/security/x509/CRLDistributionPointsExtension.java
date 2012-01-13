@@ -227,8 +227,11 @@ public class CRLDistributionPointsExtension extends Extension
                 "CertAttrSet:CRLDistributionPointsExtension");
     }
 
-    public Enumeration getElements() {
-        return (new Vector()).elements();
+    /*
+     *	TODO use an empty collection to generate these
+     */
+    public Enumeration<String> getAttributeNames() {
+        return (new Vector<String>()).elements();
     }
 
     public String getName() {

@@ -75,14 +75,14 @@ class NameType {
         stringRep = s;
     }
 
-    private static Hashtable map = new Hashtable();
+    private static Hashtable<String, NameType> map = new Hashtable<String, NameType>();
 
     /**
      * Looks up a NameType from its string representation. Returns null
      * if no matching NameType was found.
      */
     public static NameType fromString(String s) {
-        return (NameType) map.get(s);
+        return map.get(s);
     }
 
     public String toString() {
@@ -144,9 +144,9 @@ public class CRLDistributionPointsExt extends APolicyRule
     // PKIX specifies the that the extension SHOULD NOT be critical
     public static final boolean DEFAULT_CRITICALITY = false;
 
-    private Vector defaultParams = new Vector();
+    private Vector<String> defaultParams = new Vector<String>();
 
-    private Vector mParams = new Vector();
+    private Vector<String> mParams = new Vector<String>();
     private String mExtParams[] = null;
     private CRLDistributionPointsExtension mCrldpExt = null;
 
@@ -165,7 +165,7 @@ public class CRLDistributionPointsExt extends APolicyRule
     }
 
     private void setExtendedPluginInfo() {
-        Vector v = new Vector();
+        Vector<String> v = new Vector<String>();
 
         // should replace MAX_POINTS with mNumPoints if bug 385118 is fixed
         for (int i = 0; i < MAX_POINTS; i++) {
@@ -462,7 +462,7 @@ public class CRLDistributionPointsExt extends APolicyRule
     }
 
     // parameters must be entered in the config file
-    public Vector getDefaultParams() {
+    public Vector<String> getDefaultParams() {
         for (int i = DEFAULT_NUM_BLANK_POINTS; i < mNumPoints; i++) {
             defaultParams.addElement(PROP_POINT_NAME + i + "=");
             defaultParams.addElement(PROP_POINT_TYPE + i + "=");
@@ -478,7 +478,7 @@ public class CRLDistributionPointsExt extends APolicyRule
      * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getInstanceParams() {
+    public Vector<String> getInstanceParams() {
         return mParams;
     }
 }

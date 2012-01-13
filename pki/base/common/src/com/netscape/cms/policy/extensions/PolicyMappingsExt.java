@@ -74,7 +74,7 @@ public class PolicyMappingsExt extends APolicyRule
     protected PolicyMap[] mPolicyMaps = null;
     protected PolicyMappingsExtension mPolicyMappingsExtension = null;
 
-    protected Vector mInstanceParams = new Vector();
+    protected Vector<String> mInstanceParams = new Vector<String>();
 
     public PolicyMappingsExt() {
         NAME = "PolicyMappingsExt";
@@ -146,7 +146,7 @@ public class PolicyMappingsExt extends APolicyRule
         // create instance of policy mappings extension if enabled.
         if (mEnabled) {
             try {
-                Vector certPolicyMaps = new Vector();
+                Vector<CertificatePolicyMap> certPolicyMaps = new Vector<CertificatePolicyMap>();
 
                 for (int j = 0; j < mNumPolicyMappings; j++) {
                     certPolicyMaps.addElement(
@@ -261,7 +261,7 @@ public class PolicyMappingsExt extends APolicyRule
      * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getInstanceParams() {
+    public Vector<String> getInstanceParams() {
         return mInstanceParams;
     }
 
@@ -271,7 +271,7 @@ public class PolicyMappingsExt extends APolicyRule
      * increase the num to greater than 0 and more configuration params
      * will show up in the console.
      */
-    private static Vector mDefParams = new Vector();
+    private static Vector<String> mDefParams = new Vector<String>();
     static {
         mDefParams.addElement(PROP_CRITICAL + "=" + DEF_CRITICAL);
         mDefParams.addElement(
@@ -289,12 +289,12 @@ public class PolicyMappingsExt extends APolicyRule
      * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getDefaultParams() {
+    public Vector<String> getDefaultParams() {
         return mDefParams;
     }
 
     public String[] getExtendedPluginInfo(Locale locale) {
-        Vector theparams = new Vector();
+        Vector<String> theparams = new Vector<String>();
 
         theparams.addElement(PROP_CRITICAL + ";boolean;RFC 2459 recommendation: MUST be non-critical.");
         theparams.addElement(PROP_NUM_POLICYMAPPINGS
@@ -414,7 +414,7 @@ class PolicyMap {
         }
     }
 
-    protected void getInstanceParams(Vector instanceParams) {
+    protected void getInstanceParams(Vector<String> instanceParams) {
         instanceParams.addElement(
                 mNameDot + PROP_ISSUER_DOMAIN_POLICY + "=" + (mIssuerDomainPolicy == null ? "" :
                         mIssuerDomainPolicy));

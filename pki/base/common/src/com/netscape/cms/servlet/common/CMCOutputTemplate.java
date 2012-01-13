@@ -778,12 +778,14 @@ public class CMCOutputTemplate {
                                 SignedData msgData =
                                         (SignedData) msgValue.decodeWith(SignedData.getTemplate());
                                 if (!verifyRevRequestSignature(msgData)) {
-                                    OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL, new INTEGER(
-                                            OtherInfo.BAD_MESSAGE_CHECK), null);
+                                    OtherInfo otherInfo =
+                                            new OtherInfo(OtherInfo.FAIL, new INTEGER(OtherInfo.BAD_MESSAGE_CHECK),
+                                                    null);
                                     SEQUENCE failed_bpids = new SEQUENCE();
                                     failed_bpids.addElement(attrbpid);
-                                    cmcStatusInfo = new CMCStatusInfo(CMCStatusInfo.FAILED, failed_bpids,
-                                            (String) null, otherInfo);
+                                    cmcStatusInfo =
+                                            new CMCStatusInfo(CMCStatusInfo.FAILED, failed_bpids, (String) null,
+                                                    otherInfo);
                                     tagattr = new TaggedAttribute(
                                             new INTEGER(bpid++),
                                             OBJECT_IDENTIFIER.id_cmc_cMCStatusInfo, cmcStatusInfo);
@@ -825,8 +827,8 @@ public class CMCOutputTemplate {
 
                     if (!sharedSecretFound) {
                         CMS.debug("CMCOutputTemplate: class for shared secret was not found.");
-                        OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL, new INTEGER(OtherInfo.INTERNAL_CA_ERROR),
-                                null);
+                        OtherInfo otherInfo =
+                                new OtherInfo(OtherInfo.FAIL, new INTEGER(OtherInfo.INTERNAL_CA_ERROR), null);
                         SEQUENCE failed_bpids = new SEQUENCE();
                         failed_bpids.addElement(attrbpid);
                         cmcStatusInfo = new CMCStatusInfo(CMCStatusInfo.FAILED, failed_bpids, (String) null, otherInfo);
@@ -845,8 +847,8 @@ public class CMCOutputTemplate {
 
                     if (sharedSecret == null) {
                         CMS.debug("CMCOutputTemplate: class for shared secret was not found.");
-                        OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL, new INTEGER(OtherInfo.INTERNAL_CA_ERROR),
-                                null);
+                        OtherInfo otherInfo =
+                                new OtherInfo(OtherInfo.FAIL, new INTEGER(OtherInfo.INTERNAL_CA_ERROR), null);
                         SEQUENCE failed_bpids = new SEQUENCE();
                         failed_bpids.addElement(attrbpid);
                         cmcStatusInfo = new CMCStatusInfo(CMCStatusInfo.FAILED, failed_bpids, (String) null, otherInfo);
@@ -864,8 +866,8 @@ public class CMCOutputTemplate {
                         revoke = true;
                     } else {
                         CMS.debug("CMCOutputTemplate: Both client and server shared secret are not the same, cant revoke certificate.");
-                        OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL, new INTEGER(OtherInfo.BAD_MESSAGE_CHECK),
-                                null);
+                        OtherInfo otherInfo =
+                                new OtherInfo(OtherInfo.FAIL, new INTEGER(OtherInfo.BAD_MESSAGE_CHECK), null);
                         SEQUENCE failed_bpids = new SEQUENCE();
                         failed_bpids.addElement(attrbpid);
                         cmcStatusInfo = new CMCStatusInfo(CMCStatusInfo.FAILED, failed_bpids, (String) null, otherInfo);
@@ -929,8 +931,8 @@ public class CMCOutputTemplate {
                         entryExtn.set(crlReasonExtn.getName(), crlReasonExtn);
                     }
 
-                    RevokedCertImpl revCertImpl = new RevokedCertImpl(impl.getSerialNumber(), CMS.getCurrentDate(),
-                            entryExtn);
+                    RevokedCertImpl revCertImpl =
+                            new RevokedCertImpl(impl.getSerialNumber(), CMS.getCurrentDate(), entryExtn);
                     RevokedCertImpl[] revCertImpls = new RevokedCertImpl[1];
                     revCertImpls[0] = revCertImpl;
                     IRequestQueue queue = ca.getRequestQueue();
@@ -950,12 +952,12 @@ public class CMCOutputTemplate {
                         if (result.equals(IRequest.RES_ERROR)) {
                             CMS.debug("CMCOutputTemplate: revReq exception: " +
                                     revReq.getExtDataInString(IRequest.ERROR));
-                            OtherInfo otherInfo = new OtherInfo(OtherInfo.FAIL, new INTEGER(OtherInfo.BAD_REQUEST),
-                                    null);
+                            OtherInfo otherInfo =
+                                    new OtherInfo(OtherInfo.FAIL, new INTEGER(OtherInfo.BAD_REQUEST), null);
                             SEQUENCE failed_bpids = new SEQUENCE();
                             failed_bpids.addElement(attrbpid);
-                            cmcStatusInfo = new CMCStatusInfo(CMCStatusInfo.FAILED, failed_bpids, (String) null,
-                                    otherInfo);
+                            cmcStatusInfo =
+                                    new CMCStatusInfo(CMCStatusInfo.FAILED, failed_bpids, (String) null, otherInfo);
                             tagattr = new TaggedAttribute(
                                     new INTEGER(bpid++),
                                     OBJECT_IDENTIFIER.id_cmc_cMCStatusInfo, cmcStatusInfo);
@@ -1039,7 +1041,7 @@ public class CMCOutputTemplate {
 
             SET dias = msgData.getDigestAlgorithmIdentifiers();
             int numDig = dias.size();
-            Hashtable digs = new Hashtable();
+            Hashtable<String, byte[]> digs = new Hashtable<String, byte[]>();
             for (int i = 0; i < numDig; i++) {
                 AlgorithmIdentifier dai =
                         (AlgorithmIdentifier) dias.elementAt(i);
@@ -1057,7 +1059,7 @@ public class CMCOutputTemplate {
                 org.mozilla.jss.pkix.cms.SignerInfo si =
                         (org.mozilla.jss.pkix.cms.SignerInfo) sis.elementAt(i);
                 String name = si.getDigestAlgorithm().toString();
-                byte[] digest = (byte[]) digs.get(name);
+                byte[] digest = digs.get(name);
                 if (digest == null) {
                     MessageDigest md = MessageDigest.getInstance(name);
                     ByteArrayOutputStream ostream = new ByteArrayOutputStream();

@@ -694,7 +694,7 @@ public class X500Name implements Principal, GeneralNameInterface {
      */
 
     private static final int ipAddress_data[] = // SKIP
-    { 1, 3, 6, 1, 4, 1, 42, 2, 11, 2, 1 };
+            { 1, 3, 6, 1, 4, 1, 42, 2, 11, 2, 1 };
 
     /** OID for "IP=" IP address attributes, used with SKIP. */
     public static final ObjectIdentifier ipAddress_oid = new ObjectIdentifier(ipAddress_data);

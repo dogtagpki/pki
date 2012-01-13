@@ -230,7 +230,7 @@ public class PresenceServerExtension extends Extension implements CertAttrSet {
         throw new IOException("Method not to be called directly.");
     }
 
-    public Enumeration getElements() {
+    public Enumeration<String> getAttributeNames() {
         return null;
     }
 

@@ -643,8 +643,8 @@ public class CertUtil {
         try {
             privKey = cm.findPrivKeyByCert(cert);
         } catch (Exception e) {
-            CMS.debug("CertUtil privateKeyExistsOnToken: cant find private key (" + fullnickname + ") exception: "
-                    + e.toString());
+            CMS.debug("CertUtil privateKeyExistsOnToken: cant find private key ("
+                    + fullnickname + ") exception: " + e.toString());
             return false;
         }
 

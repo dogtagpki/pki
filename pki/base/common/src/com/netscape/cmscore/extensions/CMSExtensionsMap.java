@@ -47,8 +47,8 @@ public class CMSExtensionsMap implements ISubsystem {
 
     private static final String PROP_CLASS = "class";
 
-    private Hashtable mName2Ext = new Hashtable();
-    private Hashtable mOID2Ext = new Hashtable();
+    private Hashtable<String, ICMSExtension> mName2Ext = new Hashtable<String, ICMSExtension>();
+    private Hashtable<String, ICMSExtension> mOID2Ext = new Hashtable<String, ICMSExtension>();
     private ISubsystem mOwner = null;
     private IConfigStore mConfig = null;
 
@@ -62,7 +62,7 @@ public class CMSExtensionsMap implements ISubsystem {
         mOwner = owner;
         mConfig = config;
 
-        Enumeration sstores = mConfig.getSubStoreNames();
+        Enumeration<String> sstores = mConfig.getSubStoreNames();
 
         while (sstores.hasMoreElements()) {
             String name = (String) sstores.nextElement();

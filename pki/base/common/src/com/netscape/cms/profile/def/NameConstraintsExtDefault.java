@@ -315,9 +315,9 @@ public class NameConstraintsExtDefault extends EnrollExtDefault {
                     return;
                 }
 
-                Vector v = parseRecords(value);
+                Vector<NameValuePairs> v = parseRecords(value);
 
-                Vector permittedSubtrees = createSubtrees(locale, v);
+                Vector<GeneralSubtree> permittedSubtrees = createSubtrees(locale, v);
 
                 ext.set(NameConstraintsExtension.PERMITTED_SUBTREES,
                         new GeneralSubtrees(permittedSubtrees));
@@ -333,9 +333,9 @@ public class NameConstraintsExtDefault extends EnrollExtDefault {
                               "blank value for excluded subtrees ... returning");
                     return;
                 }
-                Vector v = parseRecords(value);
+                Vector<NameValuePairs> v = parseRecords(value);
 
-                Vector excludedSubtrees = createSubtrees(locale, v);
+                Vector<GeneralSubtree> excludedSubtrees = createSubtrees(locale, v);
 
                 ext.set(NameConstraintsExtension.EXCLUDED_SUBTREES,
                         new GeneralSubtrees(excludedSubtrees));
@@ -356,18 +356,18 @@ public class NameConstraintsExtDefault extends EnrollExtDefault {
         }
     }
 
-    private Vector createSubtrees(Locale locale, Vector v) throws EPropertyException {
+    private Vector<GeneralSubtree> createSubtrees(Locale locale, Vector<NameValuePairs> v) throws EPropertyException {
         int size = v.size();
         String choice = null;
         String val = "";
         String minS = null;
         String maxS = null;
 
-        Vector subtrees = new Vector();
+        Vector<GeneralSubtree> subtrees = new Vector<GeneralSubtree>();
 
         for (int i = 0; i < size; i++) {
             NameValuePairs nvps = (NameValuePairs) v.elementAt(i);
-            Enumeration names = nvps.getNames();
+            Enumeration<String> names = nvps.getNames();
 
             while (names.hasMoreElements()) {
                 String name1 = (String) names.nextElement();
@@ -512,10 +512,10 @@ public class NameConstraintsExtDefault extends EnrollExtDefault {
 
     private String getSubtreesInfo(NameConstraintsExtension ext,
             GeneralSubtrees subtrees) throws EPropertyException {
-        Vector trees = subtrees.getSubtrees();
+        Vector<GeneralSubtree> trees = subtrees.getSubtrees();
         int size = trees.size();
 
-        Vector recs = new Vector();
+        Vector<NameValuePairs> recs = new Vector<NameValuePairs>();
 
         for (int i = 0; i < size; i++) {
             GeneralSubtree tree = (GeneralSubtree) trees.elementAt(i);
@@ -601,7 +601,7 @@ public class NameConstraintsExtDefault extends EnrollExtDefault {
 
             boolean critical = getConfigBoolean(CONFIG_CRITICAL);
 
-            Vector v = new Vector();
+            Vector<GeneralSubtree> v = new Vector<GeneralSubtree>();
 
             for (int i = 0; i < num; i++) {
                 String enable = getConfig(CONFIG_PERMITTED_ENABLE + i);
@@ -616,7 +616,7 @@ public class NameConstraintsExtDefault extends EnrollExtDefault {
                 }
             }
 
-            Vector v1 = new Vector();
+            Vector<GeneralSubtree> v1 = new Vector<GeneralSubtree>();
 
             num = getNumExcluded();
             for (int i = 0; i < num; i++) {

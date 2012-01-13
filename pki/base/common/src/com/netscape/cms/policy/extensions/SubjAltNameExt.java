@@ -107,7 +107,7 @@ public class SubjAltNameExt extends APolicyRule
                         "the 'mail' or 'mailalternateaddress' values in the authToken. " +
                         "See the 'ldapStringAttrs' parameter in the Directory-based " +
                         "authentication plugin"
-            };
+        };
 
         return params;
 
@@ -208,7 +208,7 @@ public class SubjAltNameExt extends APolicyRule
             if (tok == null)
                 break apply;
 
-            Vector emails = getEmailList(tok);
+            Vector<String> emails = getEmailList(tok);
 
             if (emails == null)
                 break apply;
@@ -251,10 +251,10 @@ public class SubjAltNameExt extends APolicyRule
      * Generate a String Vector containing all the email addresses
      * found in this Authentication token
      */
-    protected Vector /* of String */
-    getEmailList(IAuthToken tok) {
+    protected Vector /* of String */<String>
+            getEmailList(IAuthToken tok) {
 
-        Vector v = new Vector();
+        Vector<String> v = new Vector<String>();
 
         addValues(tok, "mail", v);
         addValues(tok, "mailalternateaddress", v);
@@ -269,7 +269,7 @@ public class SubjAltNameExt extends APolicyRule
      * Add attribute values from an LDAP attribute to a vector
      */
     protected void
-            addValues(IAuthToken tok, String attrName, Vector v) {
+            addValues(IAuthToken tok, String attrName, Vector<String> v) {
         String attr[] = tok.getInStringArray(attrName);
 
         if (attr == null)
@@ -284,13 +284,13 @@ public class SubjAltNameExt extends APolicyRule
      * Make a Subject name extension given a list of email addresses
      */
     protected SubjectAlternativeNameExtension
-            mkExt(Vector emails)
+            mkExt(Vector<String> emails)
                     throws IOException {
         SubjectAlternativeNameExtension sa;
         GeneralNames gns = new GeneralNames();
 
         for (int i = 0; i < emails.size(); i++) {
-            String email = (String) emails.elementAt(i);
+            String email = emails.elementAt(i);
 
             gns.addElement(new RFC822Name(email));
         }
@@ -326,8 +326,8 @@ public class SubjAltNameExt extends APolicyRule
      * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getInstanceParams() {
-        Vector params = new Vector();
+    public Vector<String> getInstanceParams() {
+        Vector<String> params = new Vector<String>();
 
         //params.addElement("PROP_AGENT_OVERR = " + mAllowAgentOverride);
         //params.addElement("PROP_EE_OVERR = " + mAllowEEOverride);
@@ -342,8 +342,8 @@ public class SubjAltNameExt extends APolicyRule
      * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getDefaultParams() {
-        Vector defParams = new Vector();
+    public Vector<String> getDefaultParams() {
+        Vector<String> defParams = new Vector<String>();
 
         //defParams.addElement("PROP_AGENT_OVERR = " + DEF_AGENT_OVERR);
         //defParams.addElement("PROP_EE_OVERR = " + DEF_EE_OVERR);

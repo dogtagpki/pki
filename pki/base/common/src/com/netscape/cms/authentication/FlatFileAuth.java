@@ -210,8 +210,8 @@ public class FlatFileAuth
             CMS.debug("FlatFileAuth: " + CMS.getLogMessage("CMS_AUTH_READ_ENTRIES", mFilename));
             // printAllEntries();
         } catch (IOException e) {
-            throw new EBaseException(mName + " authentication: Could not open file " + mFilename + "   ("
-                    + e.getMessage() + ")");
+            throw new EBaseException(mName
+                    + " authentication: Could not open file " + mFilename + "   (" + e.getMessage() + ")");
         } catch (java.lang.StringIndexOutOfBoundsException ee) {
             CMS.debug("FlatFileAuth: " + CMS.getLogMessage("OPERATION_ERROR", ee.toString()));
         }

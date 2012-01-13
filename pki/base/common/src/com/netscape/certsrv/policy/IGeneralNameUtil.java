@@ -54,7 +54,8 @@ public interface IGeneralNameUtil {
     /**
      * Default extended plugin info.
      */
-    public static String NUM_GENERALNAMES_INFO = "number;The total number of alternative names or identities permitted in the extension.";
+    public static String NUM_GENERALNAMES_INFO =
+            "number;The total number of alternative names or identities permitted in the extension.";
     public static String GENNAME_CHOICE_INFO =
             "choice(" +
                     IGeneralNameUtil.GENNAME_CHOICE_RFC822NAME + "," +

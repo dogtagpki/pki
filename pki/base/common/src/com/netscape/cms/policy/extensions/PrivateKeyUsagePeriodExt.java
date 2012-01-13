@@ -78,13 +78,13 @@ public class PrivateKeyUsagePeriodExt extends APolicyRule
     protected String mNotAfter;
     protected boolean mCritical;
 
-    private static Vector defaultParams;
+    private static Vector<String> defaultParams;
 
     static {
 
         formatter.setLenient(false);
 
-        defaultParams = new Vector();
+        defaultParams = new Vector<String>();
         defaultParams.addElement(PROP_IS_CRITICAL + "=" + DEFAULT_CRITICALITY);
         defaultParams.addElement(PROP_NOT_BEFORE + "=" + DEFAULT_NOT_BEFORE);
         defaultParams.addElement(PROP_NOT_AFTER + "=" + DEFAULT_NOT_AFTER);
@@ -230,8 +230,8 @@ public class PrivateKeyUsagePeriodExt extends APolicyRule
      * @return Empty Vector since this policy has no configuration parameters.
      *         for this policy instance.
      */
-    public Vector getInstanceParams() {
-        Vector params = new Vector();
+    public Vector<String> getInstanceParams() {
+        Vector<String> params = new Vector<String>();
 
         params.addElement(PROP_IS_CRITICAL + "=" + mCritical);
         params.addElement(PROP_NOT_BEFORE + "=" + mNotBefore);
@@ -245,8 +245,8 @@ public class PrivateKeyUsagePeriodExt extends APolicyRule
      * @return Empty Vector since this policy implementation has no
      *         configuration parameters.
      */
-    public Vector getDefaultParams() {
-        Vector defParams = new Vector();
+    public Vector<String> getDefaultParams() {
+        Vector<String> defParams = new Vector<String>();
 
         defParams.addElement(PROP_IS_CRITICAL + "=" + DEFAULT_CRITICALITY);
         defParams.addElement(PROP_NOT_BEFORE + "=" + DEFAULT_NOT_BEFORE);

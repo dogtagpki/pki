@@ -406,8 +406,8 @@ public class nsTokenUserKeySubjectNameDefault extends EnrollDefault {
                 CMS.debug("nsTokenUserKeySubjectNameDefault: getSubjectName(): " + searchName + " does not exist");
                 throw new EProfileException("id does not exist");
             }
-            CMS.debug("nsTokenUserKeySubjectNameDefault: getSubjectName(): retrieved entry for " + searchName + " = "
-                    + request.getExtDataInString("uid"));
+            CMS.debug("nsTokenUserKeySubjectNameDefault: getSubjectName(): retrieved entry for "
+                    + searchName + " = " + request.getExtDataInString("uid"));
 
             LDAPEntry entry = null;
             CMS.debug("nsTokenUserKeySubjectNameDefault: getSubjectName(): about to search with "

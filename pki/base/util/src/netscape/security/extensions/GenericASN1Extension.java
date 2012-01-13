@@ -34,7 +34,6 @@ import netscape.security.util.BigInt;
 import netscape.security.util.DerOutputStream;
 import netscape.security.util.DerValue;
 import netscape.security.util.ObjectIdentifier;
-
 import netscape.security.x509.CertAttrSet;
 import netscape.security.x509.Extension;
 import netscape.security.x509.OIDMap;
@@ -73,9 +72,9 @@ public class GenericASN1Extension extends Extension
      * Identifier for this attribute, to be used with the
      * get, set, delete methods of Certificate, x509 type.
      */
-    public static String NAME = null;
+    private String name;
     public static String OID = null;
-    public static Hashtable mConfig = null;
+    public static Hashtable<String, String> mConfig = null;
     public static String pattern = null;
     private int index = 0;
 
@@ -177,10 +176,11 @@ public class GenericASN1Extension extends Extension
      * 
      * @param the values to be set for the extension.
      */
-    public GenericASN1Extension(String name, String oid, String pattern, boolean critical, Hashtable config)
+    public GenericASN1Extension(String name, String oid, String pattern, boolean critical,
+            Hashtable<String, String> config)
             throws IOException, ParseException {
         ObjectIdentifier tmpid = new ObjectIdentifier(oid);
-        NAME = name;
+        this.name = name;
         OID = oid;
         mConfig = config;
         this.pattern = pattern;
@@ -202,17 +202,17 @@ public class GenericASN1Extension extends Extension
      * 
      * @param the values to be set for the extension.
      */
-    public GenericASN1Extension(Hashtable config)
+    public GenericASN1Extension(Hashtable<String, String> config)
             throws IOException, ParseException {
         mConfig = config;
         ObjectIdentifier tmpid = new ObjectIdentifier((String) mConfig.get(PROP_OID));
-        NAME = (String) mConfig.get(PROP_NAME);
+        name = (String) mConfig.get(PROP_NAME);
         OID = (String) mConfig.get(PROP_OID);
         pattern = (String) mConfig.get(PROP_PATTERN);
 
         try {
             if (OIDMap.getName(tmpid) == null)
-                OIDMap.addAttribute("GenericASN1Extension", OID, NAME);
+                OIDMap.addAttribute("GenericASN1Extension", OID, name);
         } catch (CertificateException e) {
         }
 
@@ -311,14 +311,14 @@ public class GenericASN1Extension extends Extension
      * Return the name of this attribute.
      */
     public String getName() {
-        return (NAME);
+        return name;
     }
 
     /**
      * Set the name of this attribute.
      */
     public void setName(String name) {
-        NAME = name;
+        this.name = name;
     }
 
     /**
@@ -339,7 +339,7 @@ public class GenericASN1Extension extends Extension
      * Return an enumeration of names of attributes existing within this
      * attribute.
      */
-    public Enumeration getElements() {
+    public Enumeration<String> getAttributeNames() {
         Vector<String> elements = new Vector<String>();
         elements.addElement("octet");
 

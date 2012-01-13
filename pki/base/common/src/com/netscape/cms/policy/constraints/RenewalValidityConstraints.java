@@ -86,8 +86,10 @@ public class RenewalValidityConstraints extends APolicyRule
 
     public String[] getExtendedPluginInfo(Locale locale) {
         String[] params = {
-                PROP_MIN_VALIDITY + ";number;Specifies the minimum validity period, in days, for renewed certificates.",
-                PROP_MAX_VALIDITY + ";number;Specifies the maximum validity period, in days, for renewed certificates.",
+                PROP_MIN_VALIDITY
+                        + ";number;Specifies the minimum validity period, in days, for renewed certificates.",
+                PROP_MAX_VALIDITY
+                        + ";number;Specifies the maximum validity period, in days, for renewed certificates.",
                 PROP_RENEWAL_INTERVAL
                         + ";number;Specifies how many days before its expiration that a certificate can be renewed.",
                 IExtendedPluginInfo.HELP_TOKEN +
@@ -95,7 +97,7 @@ public class RenewalValidityConstraints extends APolicyRule
                 IExtendedPluginInfo.HELP_TEXT +
                         ";Reject renewal request if the certificate is too far " +
                         "before it's expiry date"
-            };
+        };
 
         return params;
 

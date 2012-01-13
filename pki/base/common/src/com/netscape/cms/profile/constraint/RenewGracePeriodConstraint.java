@@ -122,8 +122,8 @@ public class RenewGracePeriodConstraint extends EnrollConstraint {
 
         Date current = CMS.getCurrentDate();
         long millisDiff = origExpDate.getTime() - current.getTime();
-        CMS.debug("validateRenewGracePeriod: millisDiff=" + millisDiff + " origExpDate=" + origExpDate.getTime()
-                + " current=" + current.getTime());
+        CMS.debug("validateRenewGracePeriod: millisDiff="
+                + millisDiff + " origExpDate=" + origExpDate.getTime() + " current=" + current.getTime());
 
         /*
          * "days", if positive, has to be less than renew_grace_before

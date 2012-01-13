@@ -54,10 +54,10 @@ public class ReplicaIDRepository extends Repository
      */
     public BigInteger getLastSerialNumberInRange(BigInteger serial_low_bound, BigInteger serial_upper_bound)
             throws EBaseException {
-        CMS.debug("ReplicaIDReposoitory: in getLastSerialNumberInRange: low " + serial_low_bound + " high "
-                + serial_upper_bound);
-        if (serial_low_bound == null || serial_upper_bound == null
-                || serial_low_bound.compareTo(serial_upper_bound) >= 0) {
+        CMS.debug("ReplicaIDReposoitory: in getLastSerialNumberInRange: low "
+                + serial_low_bound + " high " + serial_upper_bound);
+        if (serial_low_bound == null
+                || serial_upper_bound == null || serial_low_bound.compareTo(serial_upper_bound) >= 0) {
             return null;
         }
         BigInteger ret = new BigInteger(getMinSerial());

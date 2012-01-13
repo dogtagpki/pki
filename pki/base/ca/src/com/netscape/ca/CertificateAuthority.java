@@ -1561,12 +1561,13 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
             if (nc != null && nc.size() > 0) {
                 // Initialize Certificate Issued notification listener
 
-                String certificateIssuedListenerClassName = nc.getString("certificateIssuedListenerClassName",
-                        "com.netscape.cms.listeners.CertificateIssuedListener");
+                String certificateIssuedListenerClassName =
+                        nc.getString("certificateIssuedListenerClassName",
+                                "com.netscape.cms.listeners.CertificateIssuedListener");
 
                 try {
-                    mCertIssuedListener = (IRequestListener) Class.forName(certificateIssuedListenerClassName)
-                            .newInstance();
+                    mCertIssuedListener =
+                            (IRequestListener) Class.forName(certificateIssuedListenerClassName).newInstance();
                     mCertIssuedListener.init(this, nc);
                 } catch (Exception e1) {
                     log(ILogger.LL_FAILURE,
@@ -1575,12 +1576,13 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
 
                 // Initialize Revoke Request notification listener
 
-                String certificateRevokedListenerClassName = nc.getString("certificateIssuedListenerClassName",
-                        "com.netscape.cms.listeners.CertificateRevokedListener");
+                String certificateRevokedListenerClassName =
+                        nc.getString("certificateIssuedListenerClassName",
+                                "com.netscape.cms.listeners.CertificateRevokedListener");
 
                 try {
-                    mCertRevokedListener = (IRequestListener) Class.forName(certificateRevokedListenerClassName)
-                            .newInstance();
+                    mCertRevokedListener =
+                            (IRequestListener) Class.forName(certificateRevokedListenerClassName).newInstance();
                     mCertRevokedListener.init(this, nc);
                 } catch (Exception e1) {
                     log(ILogger.LL_FAILURE,
@@ -1590,8 +1592,9 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
                 // Initialize Request In Queue notification listener
                 IConfigStore rq = nc.getSubStore(PROP_REQ_IN_Q_SUBSTORE);
 
-                String requestInQListenerClassName = nc.getString("certificateIssuedListenerClassName",
-                        "com.netscape.cms.listeners.RequestInQListener");
+                String requestInQListenerClassName =
+                        nc.getString("certificateIssuedListenerClassName",
+                                "com.netscape.cms.listeners.RequestInQListener");
 
                 try {
                     mReqInQListener = (IRequestListener) Class.forName(requestInQListenerClassName).newInstance();
@@ -1701,6 +1704,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
                     "initializing crl issue point " + issuePointId);
             IConfigStore issuePointConfig = null;
             String issuePointClassName = null;
+            @SuppressWarnings("unchecked")
             Class<CRLIssuingPoint> issuePointClass = null;
             CRLIssuingPoint issuePoint = null;
 

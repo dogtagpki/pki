@@ -62,14 +62,14 @@ public class IssuerAltNameExt extends APolicyRule
     // PKIX specifies the that the extension SHOULD NOT be critical
     public static final boolean DEFAULT_CRITICALITY = false;
 
-    private static Vector defaultParams = new Vector();
+    private static Vector<String> defaultParams = new Vector<String>();
     private static String[] mInfo = null;
 
     static {
         defaultParams.addElement(PROP_CRITICAL + "=" + DEFAULT_CRITICALITY);
         CMS.getGeneralNamesConfigDefaultParams(null, true, defaultParams);
 
-        Vector info = new Vector();
+        Vector<String> info = new Vector<String>();
 
         info.addElement(PROP_CRITICAL + ";boolean;RFC 2459 recommendation: SHOULD NOT be marked critical.");
         info.addElement(IExtendedPluginInfo.HELP_TOKEN +
@@ -84,7 +84,7 @@ public class IssuerAltNameExt extends APolicyRule
         info.copyInto(mInfo);
     }
 
-    private Vector mParams = new Vector();
+    private Vector<String> mParams = new Vector<String>();
     private IConfigStore mConfig = null;
     private boolean mCritical = DEFAULT_CRITICALITY;
     private boolean mEnabled = false;
@@ -230,7 +230,7 @@ public class IssuerAltNameExt extends APolicyRule
      * @return Empty Vector since this policy has no configuration parameters.
      *         for this policy instance.
      */
-    public Vector getInstanceParams() {
+    public Vector<String> getInstanceParams() {
         return mParams;
     }
 
@@ -240,7 +240,7 @@ public class IssuerAltNameExt extends APolicyRule
      * @return Empty Vector since this policy implementation has no
      *         configuration parameters.
      */
-    public Vector getDefaultParams() {
+    public Vector<String> getDefaultParams() {
         return defaultParams;
     }
 

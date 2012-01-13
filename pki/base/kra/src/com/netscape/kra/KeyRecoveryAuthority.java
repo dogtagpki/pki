@@ -119,7 +119,8 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     protected IRequestNotifier mPNotify = null;
     protected ISubsystem mOwner = null;
     protected int mRecoveryIDCounter = 0;
-    protected Hashtable<String, Hashtable<String, Object>> mRecoveryParams = new Hashtable<String, Hashtable<String, Object>>();
+    protected Hashtable<String, Hashtable<String, Object>> mRecoveryParams =
+            new Hashtable<String, Hashtable<String, Object>>();
     protected org.mozilla.jss.crypto.X509Certificate mJssCert = null;
     protected CryptoToken mKeygenToken = null;
 
@@ -1427,8 +1428,9 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
                 IConfigStore rq = nc.getSubStore(PROP_REQ_IN_Q_SUBSTORE);
                 IAuthority cSub = (IAuthority) this;
 
-                String requestInQListenerClassName = nc.getString("certificateIssuedListenerClassName",
-                        "com.netscape.cms.listeners.RequestInQListener");
+                String requestInQListenerClassName =
+                        nc.getString("certificateIssuedListenerClassName",
+                                "com.netscape.cms.listeners.RequestInQListener");
 
                 try {
                     mReqInQListener = (IRequestListener) Class.forName(requestInQListenerClassName).newInstance();
@@ -1481,7 +1483,8 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
     }
     */
 
-    public Hashtable<String, Hashtable<String, Object>> mVolatileRequests = new Hashtable<String, Hashtable<String, Object>>();
+    public Hashtable<String, Hashtable<String, Object>> mVolatileRequests =
+            new Hashtable<String, Hashtable<String, Object>>();
 
     /**
      * Creates a request object to store attributes that

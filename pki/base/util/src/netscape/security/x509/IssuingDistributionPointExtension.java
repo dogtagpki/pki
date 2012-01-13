@@ -340,7 +340,7 @@ public class IssuingDistributionPointExtension extends Extension
         }
     }
 
-    public Enumeration<String> getElements() {
+    public Enumeration<String> getAttributeNames() {
         Vector<String> elements = new Vector<String>();
         elements.addElement(ISSUING_DISTRIBUTION_POINT);
         return (elements.elements());

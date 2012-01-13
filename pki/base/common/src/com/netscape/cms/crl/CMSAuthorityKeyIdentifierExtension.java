@@ -121,9 +121,10 @@ public class CMSAuthorityKeyIdentifierExtension
 
                 gNames.addElement(((ICertificateAuthority) crlIssuingPoint.getCertificateAuthority()).getX500Name());
 
-                authKeyIdExt = new AuthorityKeyIdentifierExtension(critical, null, gNames,
-                            new SerialNumber(((ICertificateAuthority) crlIssuingPoint.getCertificateAuthority())
-                                    .getCACert().getSerialNumber()));
+                authKeyIdExt =
+                        new AuthorityKeyIdentifierExtension(critical, null, gNames,
+                                new SerialNumber(((ICertificateAuthority) crlIssuingPoint.getCertificateAuthority())
+                                        .getCACert().getSerialNumber()));
             }
 
         } catch (IOException e) {

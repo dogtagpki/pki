@@ -20,7 +20,6 @@ package com.netscape.pkisilent.common;
 
 import java.io.DataInputStream;
 import java.io.FileInputStream;
-import java.util.Enumeration;
 
 import netscape.security.x509.CertificateSerialNumber;
 import netscape.security.x509.CertificateSubjectName;
@@ -33,10 +32,6 @@ import netscape.security.x509.X509CertInfo;
 import com.netscape.osutil.OSUtil;
 
 public class Utilities {
-    private static final String keyValueSeparators = "=: \t\r\n\f";
-    private static final String strictKeyValueSeparators = "=:";
-    private static final String specialSaveChars = " \t\r\n\f";
-    private static final String whiteSpaceChars = " \t\r\n\f";
 
     public Utilities() {// Do nothing
     }
@@ -327,9 +322,6 @@ public class Utilities {
 
             CertificateSubjectName csn1 = (CertificateSubjectName)
                     certinfo.get(X509CertInfo.SUBJECT);
-
-            @SuppressWarnings("unchecked")
-            Enumeration<String> en = csn1.getElements();
 
             X500Name dname = (X500Name) csn1.get(CertificateSubjectName.DN_NAME);
 

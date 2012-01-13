@@ -384,8 +384,8 @@ public class nsNKeySubjectNameDefault extends EnrollDefault {
             ;
 
             LDAPEntry entry = null;
-            CMS.debug("nsNKeySubjectNameDefault: getSubjectName(): about to search with " + mLdapStringAttrs.length
-                    + " attributes");
+            CMS.debug("nsNKeySubjectNameDefault: getSubjectName(): about to search with "
+                    + mLdapStringAttrs.length + " attributes");
             LDAPSearchResults results =
                     conn.search(userdn, LDAPv2.SCOPE_BASE, "objectclass=*",
                             mLdapStringAttrs, false);

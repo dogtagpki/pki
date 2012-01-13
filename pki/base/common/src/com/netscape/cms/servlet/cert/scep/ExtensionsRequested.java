@@ -23,7 +23,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.cert.CertificateException;
 import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.Vector;
 
 import netscape.security.util.DerInputStream;
@@ -41,7 +40,7 @@ public class ExtensionsRequested implements CertAttrSet {
     private String kue_digital_signature = "false";
     private String kue_key_encipherment = "false";
 
-    private Vector exts = new Vector();
+    private Vector<Extension> exts = new Vector<Extension>();
 
     public ExtensionsRequested(Object stuff) throws IOException {
         ByteArrayInputStream is = new ByteArrayInputStream((byte[]) stuff);
@@ -85,8 +84,8 @@ public class ExtensionsRequested implements CertAttrSet {
             throws CertificateException, IOException {
     }
 
-    public Enumeration getElements() {
-        return (new Hashtable()).elements();
+    public Enumeration<String> getAttributeNames() {
+        return (new Vector<String>()).elements();
     }
 
     public String getName() {
@@ -171,7 +170,7 @@ public class ExtensionsRequested implements CertAttrSet {
 
     }
 
-    public Vector getExtensions() {
+    public Vector<Extension> getExtensions() {
         return exts;
     }
 

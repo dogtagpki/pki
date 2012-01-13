@@ -615,7 +615,7 @@ public class ProcessCertReq extends CMSServlet {
                             String addExts = req.getParameter("addExts");
 
                             if (addExts != null && !addExts.trim().equals("")) {
-                                Vector extsToBeAdded = new Vector();
+                                Vector<Extension> extsToBeAdded = new Vector<Extension>();
 
                                 byte[] b = (byte[]) (com.netscape.osutil.OSUtil.AtoB(addExts));
 
@@ -683,7 +683,8 @@ public class ProcessCertReq extends CMSServlet {
                                                         new BasicConstraintsExtension(isCA.booleanValue(), pathLen);
 
                                                 extensions.delete(BasicConstraintsExtension.NAME);
-                                                extensions.set(BasicConstraintsExtension.NAME, (Extension) bcExt0);
+                                                extensions.set(BasicConstraintsExtension.NAME,
+                                                        (Extension) bcExt0);
                                                 alterationCounter++;
                                             }
                                         }
@@ -753,22 +754,24 @@ public class ProcessCertReq extends CMSServlet {
                                     } catch (Exception e1) {
                                     }
                                     // create extension
-                                    PresenceServerExtension pseExt = new PresenceServerExtension(Critical, Version,
-                                            StreetAddress, TelephoneNumber, RFC822Name, IMID, HostName, PortNumber,
-                                            MaxUsers, ServiceLevel);
+                                    PresenceServerExtension pseExt =
+                                            new PresenceServerExtension(Critical, Version, StreetAddress,
+                                                    TelephoneNumber, RFC822Name, IMID, HostName, PortNumber, MaxUsers,
+                                                    ServiceLevel);
 
                                     extensions.set(pseExt.getExtensionId().toString(), pseExt);
                                 }
 
                                 if (mExtraAgentParams) {
-                                    Enumeration extraparams = req.getParameterNames();
+                                    @SuppressWarnings("unchecked")
+                                    Enumeration<String> extraparams = req.getParameterNames();
                                     int l = IRequest.AGENT_PARAMS.length() + 1;
                                     int ap_counter = 0;
-                                    Hashtable agentparamsargblock = new Hashtable();
+                                    Hashtable<String, String> agentparamsargblock = new Hashtable<String, String>();
 
                                     if (extraparams != null) {
                                         while (extraparams.hasMoreElements()) {
-                                            String s = (String) extraparams.nextElement();
+                                            String s = extraparams.nextElement();
 
                                             if (s.startsWith(IRequest.AGENT_PARAMS)) {
                                                 String param_value = req.getParameter(s);
@@ -933,7 +936,8 @@ public class ProcessCertReq extends CMSServlet {
                                                 authMgr,
                                                 "completed",
                                                 issuedCerts[i].getSubjectDN(),
-                                                "cert issued serial number: 0x" +
+                                                "cert issued serial number: 0x"
+                                                        +
                                                         issuedCerts[i].getSerialNumber().toString(16) + " time: "
                                                         + (endTime - startTime) }
                                         );

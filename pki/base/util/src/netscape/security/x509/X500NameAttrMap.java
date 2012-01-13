@@ -206,7 +206,8 @@ public class X500NameAttrMap {
 
     Hashtable<String, ObjectIdentifier> name2OID = new Hashtable<String, ObjectIdentifier>();
     Hashtable<ObjectIdentifier, String> oid2Name = new Hashtable<ObjectIdentifier, String>();
-    Hashtable<ObjectIdentifier, AVAValueConverter> oid2ValueConverter = new Hashtable<ObjectIdentifier, AVAValueConverter>();
+    Hashtable<ObjectIdentifier, AVAValueConverter> oid2ValueConverter =
+            new Hashtable<ObjectIdentifier, AVAValueConverter>();
 
     //
     // global defaults.

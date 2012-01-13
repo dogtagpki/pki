@@ -945,10 +945,11 @@ public class CryptoUtil {
             throws CryptoManager.NotInitializedException,
                 TokenException {
         CryptoManager cm = CryptoManager.getInstance();
-        Enumeration enums = cm.getAllTokens();
+        @SuppressWarnings("unchecked")
+        Enumeration<CryptoToken> enums = cm.getAllTokens();
 
         while (enums.hasMoreElements()) {
-            CryptoToken token = (CryptoToken) enums.nextElement();
+            CryptoToken token = enums.nextElement();
             String tokenName = token.getName();
             CryptoStore store = token.getCryptoStore();
             PrivateKey keys[] = store.getPrivateKeys();
@@ -970,9 +971,10 @@ public class CryptoUtil {
     public static X509CertImpl[] getAllUserCerts()
             throws CryptoManager.NotInitializedException,
                 TokenException {
-        Vector certs = new Vector();
+        Vector<X509CertImpl> certs = new Vector<X509CertImpl>();
         CryptoManager cm = CryptoManager.getInstance();
-        Enumeration enums = cm.getAllTokens();
+        @SuppressWarnings("unchecked")
+        Enumeration<CryptoToken> enums = cm.getAllTokens();
 
         while (enums.hasMoreElements()) {
             CryptoToken token = (CryptoToken) enums.nextElement();

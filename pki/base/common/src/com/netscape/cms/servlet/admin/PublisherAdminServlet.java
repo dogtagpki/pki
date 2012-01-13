@@ -353,13 +353,15 @@ public class PublisherAdminServlet extends AdminServlet {
 
         String epi[] = new String[] {
                 "type;choice(cacert,crl,certs,xcert);The certType of the request",
-                "mapper;choice(" + map.toString()
+                "mapper;choice("
+                        + map.toString()
                         + ");Use the mapper to find the ldap dn to publish the certificate or crl",
-                "publisher;choice(" + publish.toString()
+                "publisher;choice("
+                        + publish.toString()
                         + ");Use the publisher to publish the certificate or crl a directory etc",
                 "enable;boolean;",
                 "predicate;string;"
-            };
+        };
 
         return new ExtendedPluginInfo(epi);
     }
@@ -714,9 +716,10 @@ public class PublisherAdminServlet extends AdminServlet {
             if (authType.equals(ILdapAuthInfo.LDAP_SSLCLIENTAUTH_STR)) {
                 try {
                     //certNickName = authInfo.getParms()[0];
-                    certNickName = ldap.getSubStore(
-                                ILdapBoundConnFactory.PROP_LDAPAUTHINFO).getString(
-                            ILdapAuthInfo.PROP_CLIENTCERTNICKNAME);
+                    certNickName =
+                            ldap.getSubStore(
+                                    ILdapBoundConnFactory.PROP_LDAPAUTHINFO).getString(
+                                    ILdapAuthInfo.PROP_CLIENTCERTNICKNAME);
                     conn = new LDAPConnection(CMS.getLdapJssSSLSocketFactory(
                                     certNickName));
                     CMS.debug("Publishing Test certNickName=" + certNickName);
@@ -725,7 +728,8 @@ public class PublisherAdminServlet extends AdminServlet {
                                     certNickName + dashes(70 - 44 - certNickName.length()) + " Success");
                 } catch (Exception ex) {
                     params.add(Constants.PR_CONN_INIT_FAIL,
-                            "Create ssl LDAPConnection with certificate: " +
+                            "Create ssl LDAPConnection with certificate: "
+                                    +
                                     certNickName + dashes(70 - 44 - certNickName.length()) + " failure\n"
                                     + " exception: " + ex);
                     params.add(Constants.PR_SAVE_NOT,
@@ -737,7 +741,8 @@ public class PublisherAdminServlet extends AdminServlet {
                 try {
                     conn.connect(host, port);
                     params.add(Constants.PR_CONN_OK,
-                            "Connect to directory server " +
+                            "Connect to directory server "
+                                    +
                                     host + " at port " + port +
                                     dashes(70 - 37 - host.length() - (Integer.valueOf(port)).toString().length())
                                     + " Success");
@@ -799,7 +804,8 @@ public class PublisherAdminServlet extends AdminServlet {
                 try {
                     conn.connect(host, port);
                     params.add(Constants.PR_CONN_OK,
-                            "Connect to directory server " +
+                            "Connect to directory server "
+                                    +
                                     host + " at port " + port +
                                     dashes(70 - 37 - host.length() - (Integer.valueOf(port)).toString().length())
                                     + " Success");
@@ -808,14 +814,16 @@ public class PublisherAdminServlet extends AdminServlet {
                         // need to intercept this because message from LDAP is
                         // "DSA is unavailable" which confuses with DSA PKI.
                         params.add(Constants.PR_CONN_FAIL,
-                                "Connect to directory server " +
+                                "Connect to directory server "
+                                        +
                                         host + " at port " + port +
                                         dashes(70 - 37 - host.length() - (Integer.valueOf(port)).toString().length())
                                         + " Failure" +
                                         "\nerror: server unavailable");
                     } else {
                         params.add(Constants.PR_CONN_FAIL,
-                                "Connect to directory server " +
+                                "Connect to directory server "
+                                        +
                                         host + " at port " + port +
                                         dashes(70 - 37 - host.length() - (Integer.valueOf(port)).toString().length())
                                         + " Failure" +

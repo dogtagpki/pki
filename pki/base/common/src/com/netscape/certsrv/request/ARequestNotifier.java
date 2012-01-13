@@ -245,8 +245,8 @@ public class ARequestNotifier implements IRequestNotifier {
                     }
                     if (mRequests.size() < mMaxRequests) {
                         mRequests.addElement(r.getRequestId().toString());
-                        CMS.debug("getRequest  added " + r.getRequestType() + " request " + r.getRequestId().toString()
-                                +
+                        CMS.debug("getRequest  added "
+                                + r.getRequestType() + " request " + r.getRequestId().toString() +
                                   " to mRequests: " + mRequests.size() + " (" + mMaxRequests + ")");
                     } else {
                         break;

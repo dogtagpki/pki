@@ -79,7 +79,7 @@ public class CertificatePoliciesExt extends APolicyRule
     protected int mNumCertPolicies = DEF_NUM_CERTPOLICIES;
     protected CertPolicy[] mCertPolicies = null;
 
-    protected Vector mInstanceParams = new Vector();
+    protected Vector<String> mInstanceParams = new Vector<String>();
     protected CertificatePoliciesExtension mCertificatePoliciesExtension = null;
 
     public CertificatePoliciesExt() {
@@ -132,7 +132,7 @@ public class CertificatePoliciesExt extends APolicyRule
         // create instance of certificate policy extension if enabled.
         if (mEnabled) {
             try {
-                Vector CertPolicies = new Vector();
+                Vector<CertificatePolicyInfo> CertPolicies = new Vector<CertificatePolicyInfo>();
 
                 for (int j = 0; j < mNumCertPolicies; j++) {
                     CertPolicies.addElement(
@@ -239,7 +239,7 @@ public class CertificatePoliciesExt extends APolicyRule
      * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getInstanceParams() {
+    public Vector<String> getInstanceParams() {
         return mInstanceParams;
     }
 
@@ -249,7 +249,7 @@ public class CertificatePoliciesExt extends APolicyRule
      * increase the num to greater than 0 and more configuration params
      * will show up in the console.
      */
-    private static Vector mDefParams = new Vector();
+    private static Vector<String> mDefParams = new Vector<String>();
     static {
         mDefParams.addElement(PROP_CRITICAL + "=" + DEF_CRITICAL);
         mDefParams.addElement(
@@ -274,12 +274,12 @@ public class CertificatePoliciesExt extends APolicyRule
      * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getDefaultParams() {
+    public Vector<String> getDefaultParams() {
         return mDefParams;
     }
 
     public String[] getExtendedPluginInfo(Locale locale) {
-        Vector theparams = new Vector();
+        Vector<String> theparams = new Vector<String>();
 
         theparams.addElement(PROP_CRITICAL + ";boolean;RFC 3280 recommendation: MUST be non-critical.");
         theparams.addElement(PROP_NUM_CERTPOLICIES
@@ -445,7 +445,7 @@ class CertPolicy {
                 // should add a method to NoticeReference to take a
                 // Vector...but let's do this for now
 
-                Vector numsVector = new Vector();
+                Vector<String> numsVector = new Vector<String>();
                 StringTokenizer tokens = new StringTokenizer(mNoticeRefNums,
                         ",");
 
@@ -458,7 +458,7 @@ class CertPolicy {
                 nums = new int[numsVector.size()];
 
                 for (int i = 0; i < numsVector.size(); i++) {
-                    Integer ii = new Integer((String) numsVector.elementAt(i));
+                    Integer ii = new Integer(numsVector.elementAt(i));
 
                     nums[i] = ii.intValue();
                 }
@@ -516,7 +516,7 @@ class CertPolicy {
         }
     }
 
-    protected void getInstanceParams(Vector instanceParams) {
+    protected void getInstanceParams(Vector<String> instanceParams) {
         instanceParams.addElement(
                 mNameDot + PROP_POLICY_IDENTIFIER + "=" + (mPolicyId == null ? "" :
                         mPolicyId));

@@ -47,12 +47,12 @@ public abstract class EnrollConstraint implements IPolicyConstraint {
     public static final String CONFIG_NAME = "name";
 
     protected IConfigStore mConfig = null;
-    protected Vector mConfigNames = new Vector();
+    protected Vector<String> mConfigNames = new Vector<String>();
 
     public EnrollConstraint() {
     }
 
-    public Enumeration getConfigNames() {
+    public Enumeration<String> getConfigNames() {
         return mConfigNames.elements();
     }
 
@@ -173,10 +173,10 @@ public abstract class EnrollConstraint implements IPolicyConstraint {
         }
         if (exts == null)
             return null;
-        Enumeration e = exts.getElements();
+        Enumeration<Extension> e = exts.getAttributes();
 
         while (e.hasMoreElements()) {
-            Extension ext = (Extension) e.nextElement();
+            Extension ext = e.nextElement();
 
             if (ext.getExtensionId().toString().equals(name)) {
                 return ext;

@@ -464,8 +464,8 @@ public class BasicConstraintsExt extends APolicyRule
      * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getInstanceParams() {
-        Vector params = new Vector();
+    public Vector<String> getInstanceParams() {
+        Vector<String> params = new Vector<String>();
 
         // Because of one of the UI bugs 385273, we should leave the empty space
         // as is. Do not convert the space to some definite numbers.
@@ -480,8 +480,8 @@ public class BasicConstraintsExt extends APolicyRule
      * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getDefaultParams() {
-        Vector defParams = new Vector();
+    public Vector<String> getDefaultParams() {
+        Vector<String> defParams = new Vector<String>();
 
         defParams.addElement(PROP_IS_CRITICAL + "=true");
         defParams.addElement(PROP_MAXPATHLEN + "=");
@@ -501,7 +501,7 @@ public class BasicConstraintsExt extends APolicyRule
                         ";configuration-policyrules-basicconstraints",
                 IExtendedPluginInfo.HELP_TEXT +
                         ";Adds the Basic Constraints extension. See RFC 2459 (4.2.1.10)"
-            };
+        };
 
         return params;
     }

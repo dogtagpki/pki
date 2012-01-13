@@ -54,7 +54,7 @@ public class CertificateScopeOfUseExtension extends Extension
     public static final int OID[] = { 2, 16, 840, 1, 113730, 1, 17 };
     public static final ObjectIdentifier ID = new ObjectIdentifier(OID);
 
-    private Vector mEntries = null;
+    private Vector<CertificateScopeEntry> mEntries = null;
 
     static {
         try {
@@ -64,7 +64,7 @@ public class CertificateScopeOfUseExtension extends Extension
         }
     }
 
-    public CertificateScopeOfUseExtension(boolean critical, Vector scopeEntries)
+    public CertificateScopeOfUseExtension(boolean critical, Vector<CertificateScopeEntry> scopeEntries)
             throws IOException {
         this.extensionId = ID;
         this.critical = critical;
@@ -91,7 +91,7 @@ public class CertificateScopeOfUseExtension extends Extension
         return NAME;
     }
 
-    public Vector getCertificateScopeEntries() {
+    public Vector<CertificateScopeEntry> getCertificateScopeEntries() {
         return mEntries;
     }
 
@@ -128,7 +128,7 @@ public class CertificateScopeOfUseExtension extends Extension
      * Return an enumeration of names of attributes existing within this
      * attribute.
      */
-    public Enumeration getElements() {
+    public Enumeration<String> getAttributeNames() {
         // NOT USED
         return null;
     }
@@ -139,7 +139,7 @@ public class CertificateScopeOfUseExtension extends Extension
         if (val.tag != DerValue.tag_Sequence) {
             throw new IOException("Invalid encoding of CertificateWindow extension");
         }
-        mEntries = new Vector();
+        mEntries = new Vector<CertificateScopeEntry>();
         while (val.data.available() != 0) {
             mEntries.addElement(new CertificateScopeEntry(
                     val.data.getDerValue()));

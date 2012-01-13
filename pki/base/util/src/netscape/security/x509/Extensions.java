@@ -40,7 +40,7 @@ import netscape.security.util.DerValue;
  * @version 1.11
  * @see CertAttrSet
  */
-public class Extensions extends Vector
+public class Extensions extends Vector<Extension>
         implements CertAttrSet {
     /**
      *
@@ -56,12 +56,13 @@ public class Extensions extends Vector
      */
     public static final String NAME = "extensions";
 
-    private Hashtable map;
+    private Hashtable<String, Extension> map;
 
     // Parse the encoded extension
     public void parseExtension(Extension ext) throws IOException {
         try {
-            Class extClass = OIDMap.getClass(ext.getExtensionId());
+            @SuppressWarnings("unchecked")
+            Class<CertAttrSet> extClass = (Class<CertAttrSet>) OIDMap.getClass(ext.getExtensionId());
             if (extClass == null) { // Unsupported extension
                 if (ext.isCritical()) {
                     throw new IOException("Unsupported CRITICAL extension: "
@@ -72,8 +73,8 @@ public class Extensions extends Vector
                     return;
                 }
             }
-            Class[] params = { Boolean.class, Object.class };
-            Constructor cons = extClass.getConstructor(params);
+            Class<?>[] params = { Boolean.class, Object.class };
+            Constructor<CertAttrSet> cons = extClass.getConstructor(params);
 
             byte[] extData = ext.getExtensionValue();
             int extLen = extData.length;
@@ -84,9 +85,9 @@ public class Extensions extends Vector
             }
             Object[] passed = new Object[] { new Boolean(ext.isCritical()),
                                                         value };
-            CertAttrSet certExt = (CertAttrSet) cons.newInstance(passed);
-            map.put(certExt.getName(), certExt);
-            addElement(certExt);
+            CertAttrSet certExt = cons.newInstance(passed);
+            map.put(certExt.getName(), (Extension) certExt);
+            addElement((Extension) certExt);
 
         } catch (NoSuchMethodException nosuch) {
             throw new IOException(nosuch.toString());
@@ -101,7 +102,7 @@ public class Extensions extends Vector
      * Default constructor for the certificate attribute.
      */
     public Extensions() {
-        map = new Hashtable();
+        map = new Hashtable<String, Extension>();
     }
 
     /**
@@ -113,7 +114,7 @@ public class Extensions extends Vector
     public Extensions(DerInputStream in)
             throws IOException {
 
-        map = new Hashtable();
+        map = new Hashtable<String, Extension>();
         DerValue[] exts = in.getSequence(5);
 
         for (int i = 0; i < exts.length; i++) {
@@ -132,7 +133,7 @@ public class Extensions extends Vector
         DerValue val = new DerValue(in);
         DerInputStream str = val.toDerInputStream();
 
-        map = new Hashtable();
+        map = new Hashtable<String, Extension>();
         DerValue[] exts = str.getSequence(5);
 
         for (int i = 0; i < exts.length; i++) {
@@ -175,8 +176,8 @@ public class Extensions extends Vector
      * @exception IOException if the object could not be cached.
      */
     public void set(String name, Object obj) throws IOException {
-        map.put(name, obj);
-        addElement(obj);
+        map.put(name, (Extension) obj);
+        addElement((Extension) obj);
     }
 
     /**
@@ -212,8 +213,8 @@ public class Extensions extends Vector
      * Return an enumeration of names of attributes existing within this
      * attribute.
      */
-    public Enumeration getElements() {
-        return (map.elements());
+    public Enumeration<String> getAttributeNames() {
+        return map.keys();
     }
 
     /**

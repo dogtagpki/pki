@@ -125,8 +125,8 @@ public class CertPrettyPrint {
                 SET certs = sd.getCertificates();
 
                 for (int i = 0; i < certs.size(); i++) {
-                    org.mozilla.jss.pkix.cert.Certificate cert = (org.mozilla.jss.pkix.cert.Certificate) certs
-                            .elementAt(i);
+                    org.mozilla.jss.pkix.cert.Certificate cert =
+                            (org.mozilla.jss.pkix.cert.Certificate) certs.elementAt(i);
                     X509CertImpl certImpl = null;
                     try {
                         certImpl = new X509CertImpl(

@@ -69,7 +69,7 @@ public class RequestTest extends CMSBaseTestCase {
 
     public void testIsSimpleExtDataValue() {
         request.mExtData.put("simple1", "foo");
-        request.mExtData.put("complex1", new Hashtable());
+        request.mExtData.put("complex1", new Hashtable<String, Object>());
 
         assertTrue(request.isSimpleExtDataValue("simple1"));
         assertFalse(request.isSimpleExtDataValue("complex1"));
@@ -91,8 +91,9 @@ public class RequestTest extends CMSBaseTestCase {
         assertFalse(request.setExtData("key", (String) null));
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public void testVerifyValidExtDataHashtable() {
-        Hashtable valueHash = new Hashtable();
+        Hashtable<String, String> valueHash = new Hashtable<String, String>();
 
         valueHash.put("key1", "val1");
         valueHash.put("key;2", "val2");
@@ -101,26 +102,18 @@ public class RequestTest extends CMSBaseTestCase {
         valueHash.clear();
         valueHash.put("", "bar");
         assertFalse(request.isValidExtDataHashtableValue(valueHash));
-
-        valueHash.clear();
-        valueHash.put(new Integer("0"), "bar");
-        assertFalse(request.isValidExtDataHashtableValue(valueHash));
-
-        valueHash.clear();
-        valueHash.put("okay", new Integer(5));
-        assertFalse(request.isValidExtDataHashtableValue(valueHash));
-
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public void testSetExtHashtableData() {
-        Hashtable valueHash = new Hashtable();
+        Hashtable<String, String> valueHash = new Hashtable<String, String>();
 
         valueHash.put("key1", "val1");
         valueHash.put("KEY2", "val2");
 
         request.setExtData("TOPKEY", valueHash);
 
-        Hashtable out = request.getExtDataInHashtable("topkey");
+        Hashtable<String, String> out = request.getExtDataInHashtable("topkey");
         assertNotNull(out);
 
         assertTrue(out.containsKey("key1"));
@@ -137,7 +130,7 @@ public class RequestTest extends CMSBaseTestCase {
 
     public void testGetExtDataInString() {
         request.mExtData.put("strkey", "strval");
-        Hashtable hashValue = new Hashtable();
+        Hashtable<String, String> hashValue = new Hashtable<String, String>();
         hashValue.put("uh", "oh");
         request.mExtData.put("hashkey", hashValue);
 
@@ -150,11 +143,11 @@ public class RequestTest extends CMSBaseTestCase {
 
     public void testGetExtDataInHashtable() {
         request.mExtData.put("strkey", "strval");
-        Hashtable hashValue = new Hashtable();
+        Hashtable<String, String> hashValue = new Hashtable<String, String>();
         hashValue.put("uh", "oh");
         request.mExtData.put("hashkey", hashValue);
 
-        Hashtable out = request.getExtDataInHashtable("HASHKEY");
+        Hashtable<String, String> out = request.getExtDataInHashtable("HASHKEY");
         assertNotNull(out);
         assertNull(request.getExtDataInHashtable("notfound"));
         assertNull(request.getExtDataInHashtable("strkey"));
@@ -171,7 +164,7 @@ public class RequestTest extends CMSBaseTestCase {
 
     public void testGetExtDataKeys() {
         request.setExtData("FOO", "val1");
-        request.setExtData("bar", new Hashtable());
+        request.setExtData("bar", new Hashtable<String, String>());
 
         assertTrue(TestHelper.enumerationContains(request.getExtDataKeys(), "foo"));
         assertTrue(TestHelper.enumerationContains(request.getExtDataKeys(), "bar"));
@@ -181,14 +174,14 @@ public class RequestTest extends CMSBaseTestCase {
         // creates hashtable first time
         assertNull(request.getExtDataInHashtable("topkey"));
         request.setExtData("TOPKEY", "SUBKEY", "value");
-        Hashtable value = request.getExtDataInHashtable("topkey");
+        Hashtable<String, String> value = request.getExtDataInHashtable("topkey");
         assertNotNull(value);
         assertTrue(value.containsKey("subkey"));
         assertEquals("value", value.get("subkey"));
 
         // adds to existing hashtable
         assertNull(request.getExtDataInHashtable("topkey2"));
-        value = new Hashtable();
+        value = new Hashtable<String, String>();
         value.put("subkey2", "value2");
         request.setExtData("topkey2", value);
         request.setExtData("TOPKEY2", "subkey3", "value3");
@@ -219,7 +212,7 @@ public class RequestTest extends CMSBaseTestCase {
     }
 
     public void testGetExtDataSubkeyValue() {
-        Hashtable value = new Hashtable();
+        Hashtable<String, String> value = new Hashtable<String, String>();
         value.put("subkey", "value");
 
         request.setExtData("topkey", value);
@@ -259,7 +252,7 @@ public class RequestTest extends CMSBaseTestCase {
         assertEquals(data[2], retval[2]);
 
         // invalid conversion
-        Hashtable hashValue = new Hashtable();
+        Hashtable<String, String> hashValue = new Hashtable<String, String>();
         hashValue.put("0", "5");
         hashValue.put("1", "bar");
         request.setExtData("topkey2", hashValue);
@@ -298,7 +291,7 @@ public class RequestTest extends CMSBaseTestCase {
         assertEquals(data[2], retval[2]);
 
         // invalid conversion
-        Hashtable hashValue = new Hashtable();
+        Hashtable<String, String> hashValue = new Hashtable<String, String>();
         hashValue.put("0", "5");
         hashValue.put("1", "bar");
         request.setExtData("topkey2", hashValue);
@@ -357,7 +350,7 @@ public class RequestTest extends CMSBaseTestCase {
         };
 
         assertTrue(request.setExtData("key", vals));
-        Hashtable hashVals = (Hashtable) request.mExtData.get("key");
+        Hashtable<?, ?> hashVals = (Hashtable<?, ?>) request.mExtData.get("key");
         assertEquals(2, hashVals.keySet().size());
 
         assertFalse(cmsStub.aToBCalled);
@@ -376,7 +369,8 @@ public class RequestTest extends CMSBaseTestCase {
         assertTrue(request.setExtData("key", value));
 
         assertTrue(request.mExtData.containsKey("key"));
-        Hashtable hashValue = (Hashtable) request.mExtData.get("key");
+        @SuppressWarnings("unchecked")
+        Hashtable<String, String> hashValue = (Hashtable<String, String>) request.mExtData.get("key");
         assertTrue(hashValue.containsKey("0"));
         assertTrue(hashValue.containsKey("1"));
         assertTrue(hashValue.containsKey("2"));
@@ -394,7 +388,7 @@ public class RequestTest extends CMSBaseTestCase {
         assertEquals("orange", retval[3]);
 
         // Try with sparse input
-        hashValue = new Hashtable();
+        hashValue = new Hashtable<String, String>();
         hashValue.put("0", "square");
         hashValue.put("4", "triangle");
         hashValue.put("6", "octogon");
@@ -411,7 +405,7 @@ public class RequestTest extends CMSBaseTestCase {
         assertEquals("octogon", retval[6]);
 
         // invalid conversion
-        hashValue = new Hashtable();
+        hashValue = new Hashtable<String, String>();
         hashValue.put("0", "foo");
         hashValue.put("badkey", "bar");
         request.setExtData("cory", hashValue);
@@ -422,7 +416,7 @@ public class RequestTest extends CMSBaseTestCase {
     }
 
     public void testGetSetStringVector() {
-        Vector stringVector = new Vector();
+        Vector<String> stringVector = new Vector<String>();
         stringVector.add("blue");
         stringVector.add("green");
         stringVector.add("red");
@@ -431,7 +425,8 @@ public class RequestTest extends CMSBaseTestCase {
         assertTrue(request.setExtData("key", stringVector));
 
         assertTrue(request.mExtData.containsKey("key"));
-        Hashtable hashValue = (Hashtable) request.mExtData.get("key");
+        @SuppressWarnings("unchecked")
+        Hashtable<String, String> hashValue = (Hashtable<String, String>) request.mExtData.get("key");
         assertTrue(hashValue.containsKey("0"));
         assertTrue(hashValue.containsKey("1"));
         assertTrue(hashValue.containsKey("2"));
@@ -441,7 +436,7 @@ public class RequestTest extends CMSBaseTestCase {
         assertEquals("red", hashValue.get("2"));
         assertEquals("orange", hashValue.get("3"));
 
-        Vector retval = request.getExtDataInStringVector("key");
+        Vector<String> retval = request.getExtDataInStringVector("key");
         assertEquals(4, retval.size());
         assertEquals("blue", retval.elementAt(0));
         assertEquals("green", retval.elementAt(1));
@@ -449,13 +444,13 @@ public class RequestTest extends CMSBaseTestCase {
         assertEquals("orange", retval.elementAt(3));
 
         // invalid conversion
-        hashValue = new Hashtable();
+        hashValue = new Hashtable<String, String>();
         hashValue.put("0", "foo");
         hashValue.put("badkey", "bar");
         request.setExtData("cory", hashValue);
         assertNull(request.getExtDataInStringVector("cory"));
 
-        assertFalse(request.setExtData("key", (Vector) null));
+        assertFalse(request.setExtData("key", (Vector<?>) null));
     }
 
     public void testGetSetCertInfo() {
@@ -482,7 +477,7 @@ public class RequestTest extends CMSBaseTestCase {
         };
 
         assertTrue(request.setExtData("key", vals));
-        Hashtable hashVals = (Hashtable) request.mExtData.get("key");
+        Hashtable<?, ?> hashVals = (Hashtable<?, ?>) request.mExtData.get("key");
         assertEquals(2, hashVals.keySet().size());
 
         assertFalse(cmsStub.aToBCalled);
@@ -493,7 +488,7 @@ public class RequestTest extends CMSBaseTestCase {
     }
 
     public void testGetBoolean() {
-        Hashtable hashValue = new Hashtable();
+        Hashtable<String, String> hashValue = new Hashtable<String, String>();
         hashValue.put("one", "false");
         hashValue.put("two", "true");
         hashValue.put("three", "on");
@@ -532,7 +527,7 @@ public class RequestTest extends CMSBaseTestCase {
         };
 
         assertTrue(request.setExtData("key", vals));
-        Hashtable hashVals = (Hashtable) request.mExtData.get("key");
+        Hashtable<?, ?> hashVals = (Hashtable<?, ?>) request.mExtData.get("key");
         assertEquals(2, hashVals.keySet().size());
 
         assertFalse(cmsStub.aToBCalled);

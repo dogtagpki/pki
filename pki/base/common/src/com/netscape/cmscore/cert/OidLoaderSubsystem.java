@@ -133,7 +133,7 @@ public class OidLoaderSubsystem implements ISubsystem {
         }
         mConfig = config;
 
-        Enumeration names = mConfig.getSubStoreNames();
+        Enumeration<String> names = mConfig.getSubStoreNames();
 
         // load static (build-in) extensions
 

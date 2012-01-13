@@ -80,10 +80,10 @@ public class AuthorityKeyIdentifierExt extends APolicyRule
     protected AuthorityKeyIdentifierExtension mTheExtension = null;
 
     // instance params for console
-    protected Vector mInstanceParams = new Vector();
+    protected Vector<String> mInstanceParams = new Vector<String>();
 
     // default params for console.
-    protected static Vector mDefaultParams = new Vector();
+    protected static Vector<String> mDefaultParams = new Vector<String>();
     static {
         // form static default params.
         mDefaultParams.addElement(PROP_CRITICAL + "=" + DEF_CRITICAL);
@@ -390,7 +390,7 @@ public class AuthorityKeyIdentifierExt extends APolicyRule
      * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getInstanceParams() {
+    public Vector<String> getInstanceParams() {
         return mInstanceParams;
     }
 
@@ -399,7 +399,7 @@ public class AuthorityKeyIdentifierExt extends APolicyRule
      * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getDefaultParams() {
+    public Vector<String> getDefaultParams() {
         return mDefaultParams;
     }
 

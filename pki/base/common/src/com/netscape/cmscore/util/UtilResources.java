@@ -70,5 +70,5 @@ public class UtilResources extends ListResourceBundle {
             { NO_UID_PERMISSION_2, "Can''t change process uid to {0}. Running as {1}" },
             { SHUTDOWN_SIG, "Received shutdown signal" },
             { RESTART_SIG, "Received restart signal" },
-        };
+    };
 }

@@ -120,7 +120,7 @@ public class LdapEnhancedMap
      * for instances of this implementation can be configured through the
      * console.
      */
-    private static Vector defaultParams = new Vector();
+    private static Vector<String> defaultParams = new Vector<String>();
 
     static {
         defaultParams.addElement(PROP_DNPATTERN + "=");
@@ -392,12 +392,12 @@ public class LdapEnhancedMap
         return "LdapEnhancedMap";
     }
 
-    public Vector getDefaultParams() {
+    public Vector<String> getDefaultParams() {
         return defaultParams;
     }
 
-    public Vector getInstanceParams() {
-        Vector v = new Vector();
+    public Vector<String> getInstanceParams() {
+        Vector<String> v = new Vector<String>();
 
         try {
             if (mDnPattern == null) {
@@ -584,7 +584,7 @@ public class LdapEnhancedMap
     /////////////////////////////////
 
     public String[] getExtendedPluginInfo(Locale locale) {
-        Vector v = new Vector();
+        Vector<String> v = new Vector<String>();
 
         v.addElement(PROP_DNPATTERN +
                 ";string;Describes how to form the Ldap " +

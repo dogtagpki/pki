@@ -105,11 +105,11 @@ public class CertificateRepository extends Repository
     public BigInteger getLastSerialNumberInRange(BigInteger serial_low_bound, BigInteger serial_upper_bound)
             throws EBaseException {
 
-        CMS.debug("CertificateRepository:  in getLastSerialNumberInRange: low " + serial_low_bound + " high "
-                + serial_upper_bound);
+        CMS.debug("CertificateRepository:  in getLastSerialNumberInRange: low "
+                + serial_low_bound + " high " + serial_upper_bound);
 
-        if (serial_low_bound == null || serial_upper_bound == null
-                || serial_low_bound.compareTo(serial_upper_bound) >= 0) {
+        if (serial_low_bound == null
+                || serial_upper_bound == null || serial_low_bound.compareTo(serial_upper_bound) >= 0) {
             return null;
 
         }
@@ -118,8 +118,8 @@ public class CertificateRepository extends Repository
 
         String[] attrs = null;
 
-        ICertRecordList recList = findCertRecordsInList(ldapfilter, attrs, serial_upper_bound.toString(10), "serialno",
-                5 * -1);
+        ICertRecordList recList =
+                findCertRecordsInList(ldapfilter, attrs, serial_upper_bound.toString(10), "serialno", 5 * -1);
 
         int size = recList.getSize();
 

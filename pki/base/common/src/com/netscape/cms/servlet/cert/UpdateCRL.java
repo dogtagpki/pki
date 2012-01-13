@@ -50,6 +50,7 @@ import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.logging.AuditFormat;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.certsrv.publish.ILdapRule;
 import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cms.servlet.base.CMSServlet;
@@ -72,7 +73,7 @@ public class UpdateCRL extends CMSServlet {
     private final static String INFO = "UpdateCRL";
     private final static String TPL_FILE = "updateCRL.template";
 
-    private static Vector mTesting = new Vector();
+    private static Vector<String> mTesting = new Vector<String>();
 
     private String mFormPath = null;
     private ICertificateAuthority mCA = null;
@@ -278,7 +279,7 @@ public class UpdateCRL extends CMSServlet {
         rarg.addStringValue("crlSizes", crlSizes);
 
         StringBuffer crlSplits = new StringBuffer();
-        Vector splits = crlIssuingPoint.getSplitTimes();
+        Vector<Long> splits = crlIssuingPoint.getSplitTimes();
         for (int i = 0; i < splits.size(); i++) {
             crlSplits.append(splits.elementAt(i));
             if (i + 1 < splits.size())
@@ -311,10 +312,10 @@ public class UpdateCRL extends CMSServlet {
         String results = req.getParameter("results");
 
         if (crlIssuingPointId != null) {
-            Enumeration ips = mCA.getCRLIssuingPoints();
+            Enumeration<ICRLIssuingPoint> ips = mCA.getCRLIssuingPoints();
 
             while (ips.hasMoreElements()) {
-                ICRLIssuingPoint ip = (ICRLIssuingPoint) ips.nextElement();
+                ICRLIssuingPoint ip = ips.nextElement();
 
                 if (crlIssuingPointId.equals(ip.getId())) {
                     break;
@@ -447,7 +448,7 @@ public class UpdateCRL extends CMSServlet {
                         }
 
                         if (lpm != null && lpm.enabled()) {
-                            Enumeration rules = lpm.getRules(IPublisherProcessor.PROP_LOCAL_CRL);
+                            Enumeration<ILdapRule> rules = lpm.getRules(IPublisherProcessor.PROP_LOCAL_CRL);
                             if (rules != null && rules.hasMoreElements()) {
                                 if (publishError != null) {
                                     header.addStringValue("crlPublished", "Failure");
@@ -481,8 +482,8 @@ public class UpdateCRL extends CMSServlet {
                                             crlIssuingPoint.getCRLNumber(),
                                             crlIssuingPoint.getLastUpdate(),
                                             crlIssuingPoint.getNextUpdate(),
-                                            Long.toString(crlIssuingPoint.getCRLSize()) + " time: "
-                                                    + (endTime - startTime) }
+                                            Long.toString(crlIssuingPoint.getCRLSize())
+                                                    + " time: " + (endTime - startTime) }
                                     );
                         } else {
                             mLogger.log(ILogger.EV_AUDIT, ILogger.S_OTHER,
@@ -496,8 +497,8 @@ public class UpdateCRL extends CMSServlet {
                                             crlIssuingPoint.getCRLNumber(),
                                             crlIssuingPoint.getLastUpdate(),
                                             "not set",
-                                            Long.toString(crlIssuingPoint.getCRLSize()) + " time: "
-                                                    + (endTime - startTime) }
+                                            Long.toString(crlIssuingPoint.getCRLSize())
+                                                    + " time: " + (endTime - startTime) }
                                     );
                         }
                     } catch (EBaseException e) {

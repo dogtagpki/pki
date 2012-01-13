@@ -36,7 +36,7 @@ public class X509CertificateFactory extends CertificateFactorySpi {
         return new X509CertImpl(inStream);
     }
 
-    public Collection engineGenerateCertificates(InputStream inStream)
+    public Collection<Certificate> engineGenerateCertificates(InputStream inStream)
             throws CertificateException {
         return null;
     }
@@ -53,7 +53,7 @@ public class X509CertificateFactory extends CertificateFactorySpi {
         return crl;
     }
 
-    public Collection engineGenerateCRLs(InputStream inStream)
+    public Collection<CRL> engineGenerateCRLs(InputStream inStream)
             throws CRLException {
         return null;
     }

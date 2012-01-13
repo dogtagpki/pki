@@ -464,7 +464,8 @@ public class CMSLDAP {
 
     public boolean TurnOnSSL(String certPrefix, String certName, String sslport) {
         String dn;
-        String CIPHERS = "-rsa_null_md5,+rsa_fips_3des_sha,+rsa_fips_des_sha,+rsa_3des_sha,+rsa_rc4_128_md5,+rsa_des_sha,+rsa_rc2_40_md5,+rsa_rc4_40_md5";
+        String CIPHERS =
+                "-rsa_null_md5,+rsa_fips_3des_sha,+rsa_fips_des_sha,+rsa_3des_sha,+rsa_rc4_128_md5,+rsa_des_sha,+rsa_rc2_40_md5,+rsa_rc4_40_md5";
 
         try {
             boolean found = false;
@@ -558,7 +559,8 @@ public class CMSLDAP {
         String PASSWORD = args[3];
         String BASEDN = args[4];
 
-        String s = "MIICFzCCAYCgAwIBAgIBBjANBgkqhkiG9w0BAQQFADBDMRswGQYDVQQKExJhY2NlcHRhY25ldGVz\ndDEwMjQxFzAVBgNVBAsTDmFjY2VwdGFuY2V0ZXN0MQswCQYDVQQDEwJjYTAeFw0wMzA0MTEyMTUx\nMzZaFw0wNDA0MTAwOTQ2NTVaMFwxCzAJBgNVBAYTAlVTMQwwCgYDVQQKEwNTU0wxHTAbBgNVBAsT\nFHNzbHRlc3QxMDUwMDk3ODkzNzQ1MSAwHgYDVQQDExdqdXBpdGVyMi5uc2NwLmFvbHR3Lm5ldDBc\nMA0GCSqGSIb3DQEBAQUAA0sAMEgCQQDCsCTIIQ+bJMfPHi6kwa7HF+/xSTVHcpZ5zsodXsNWjPlD\noRu/5KAO8NotfwGnYmALWdYnqXCF0q0gkaJQalQTAgMBAAGjRjBEMA4GA1UdDwEB/wQEAwIFoDAR\nBglghkgBhvhCAQEEBAMCBkAwHwYDVR0jBBgwFoAUzxZkSySZT/Y3SxGMEiNyHnLUOPAwDQYJKoZI\nhvcNAQEEBQADgYEALtpqMOtZt6j5KlghDFgdg/dvf36nWiZwC1ap6+ka22shLkA/RjmOix97btzT\nQ+8LcmdkAW5iap4YbtrCu0wdN6IbIEXoQI1QGZBoKO2o02utssXANmTnRCyH/GX2KefQlp1NSRj9\nZNZ+GRT2Qk/8G5Ds9vVjm1I5+/AkzI9jS14=";
+        String s =
+                "MIICFzCCAYCgAwIBAgIBBjANBgkqhkiG9w0BAQQFADBDMRswGQYDVQQKExJhY2NlcHRhY25ldGVz\ndDEwMjQxFzAVBgNVBAsTDmFjY2VwdGFuY2V0ZXN0MQswCQYDVQQDEwJjYTAeFw0wMzA0MTEyMTUx\nMzZaFw0wNDA0MTAwOTQ2NTVaMFwxCzAJBgNVBAYTAlVTMQwwCgYDVQQKEwNTU0wxHTAbBgNVBAsT\nFHNzbHRlc3QxMDUwMDk3ODkzNzQ1MSAwHgYDVQQDExdqdXBpdGVyMi5uc2NwLmFvbHR3Lm5ldDBc\nMA0GCSqGSIb3DQEBAQUAA0sAMEgCQQDCsCTIIQ+bJMfPHi6kwa7HF+/xSTVHcpZ5zsodXsNWjPlD\noRu/5KAO8NotfwGnYmALWdYnqXCF0q0gkaJQalQTAgMBAAGjRjBEMA4GA1UdDwEB/wQEAwIFoDAR\nBglghkgBhvhCAQEEBAMCBkAwHwYDVR0jBBgwFoAUzxZkSySZT/Y3SxGMEiNyHnLUOPAwDQYJKoZI\nhvcNAQEEBQADgYEALtpqMOtZt6j5KlghDFgdg/dvf36nWiZwC1ap6+ka22shLkA/RjmOix97btzT\nQ+8LcmdkAW5iap4YbtrCu0wdN6IbIEXoQI1QGZBoKO2o02utssXANmTnRCyH/GX2KefQlp1NSRj9\nZNZ+GRT2Qk/8G5Ds9vVjm1I5+/AkzI9jS14=";
 
         s = "-----BEGIN CERTIFICATE-----" + "\n" + s + "\n"
                 + "-----END CERTIFICATE-----\n";

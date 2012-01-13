@@ -137,7 +137,7 @@ public class OCSPNoCheckExtension extends Extension implements CertAttrSet {
         return null;
     }
 
-    public Enumeration getElements() {
+    public Enumeration<String> getAttributeNames() {
         // NOT USED
         return null;
     }

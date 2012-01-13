@@ -355,7 +355,7 @@ public interface IRequest {
      *            the Hashtable contains an illegal key.
      * @return false if the key or hashtable keys are invalid
      */
-    public boolean setExtData(String key, Hashtable value);
+    public boolean setExtData(String key, Hashtable<String, String> value);
 
     /**
      * Checks whether the key is storing a simple String value, or a complex
@@ -391,14 +391,14 @@ public interface IRequest {
      * @return The hashtable value associated with the key. null if not found
      *         or if the key is associated with a string-value.
      */
-    public Hashtable getExtDataInHashtable(String key);
+    public Hashtable<String, String> getExtDataInHashtable(String key);
 
     /**
      * Returns all the keys stored in ExtData
      * 
      * @return Enumeration of all the keys.
      */
-    public Enumeration getExtDataKeys();
+    public Enumeration<String> getExtDataKeys();
 
     /**
      * Stores an array of Strings in ExtData.
@@ -652,7 +652,7 @@ public interface IRequest {
      * @param data A vector of Strings to store
      * @return False on key error or invalid data.
      */
-    public boolean setExtData(String key, Vector data);
+    public boolean setExtData(String key, Vector<?> data);
 
     /**
      * Returns a vector of strings for the key.

@@ -476,7 +476,10 @@ public class Request extends TestClient {
         }
         // System.out.println("Debug : Retrieving cert details ");
 
-        sslclient = clientcert = servercert = emailcert = objectsigningcert = sslcacert = objectsigningcacert = emailcacert = "false";
+        sslclient =
+                clientcert =
+                        servercert =
+                                emailcert = objectsigningcert = sslcacert = objectsigningcacert = emailcacert = "false";
         ret = res.indexOf("header.sslclient =");
         if (ret > 0) {
             sslclient = res.substring(ret + "header.sslclient = ".length() + 1,

@@ -211,7 +211,7 @@ public class CRLNumberExtension extends Extension
      * Return an enumeration of names of attributes existing within this
      * attribute.
      */
-    public Enumeration<String> getElements() {
+    public Enumeration<String> getAttributeNames() {
         Vector<String> elements = new Vector<String>();
         elements.addElement(NUMBER);
         return (elements.elements());

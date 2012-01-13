@@ -26,7 +26,7 @@ import java.util.TimeZone;
 
 import netscape.security.x509.CRLExtensions;
 import netscape.security.x509.Extension;
-import netscape.security.x509.RevokedCertImpl;
+import netscape.security.x509.RevokedCertificate;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.ICRLPrettyPrint;
@@ -181,14 +181,15 @@ public class CrlCachePrettyPrint implements ICRLPrettyPrint {
                 }
                 sb.append("\n");
 
-                Set revokedCerts = mIP.getRevokedCertificates((int) (pageStart - 1), (int) upperLimit);
+                Set<RevokedCertificate> revokedCerts =
+                        mIP.getRevokedCertificates((int) (pageStart - 1), (int) upperLimit);
 
                 if (revokedCerts != null) {
-                    Iterator i = revokedCerts.iterator();
+                    Iterator<RevokedCertificate> i = revokedCerts.iterator();
                     long l = 1;
 
                     while ((i.hasNext()) && ((crlSize == 0) || (upperLimit - pageStart + 1 >= l))) {
-                        RevokedCertImpl revokedCert = (RevokedCertImpl) i.next();
+                        RevokedCertificate revokedCert = i.next();
 
                         if ((crlSize == 0) || (upperLimit - pageStart + 1 >= l)) {
                             sb.append(pp.indent(16) + resource.getString(

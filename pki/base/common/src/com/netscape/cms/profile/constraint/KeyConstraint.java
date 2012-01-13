@@ -55,8 +55,8 @@ public class KeyConstraint extends EnrollConstraint {
     public static final String CONFIG_KEY_TYPE = "keyType"; // (EC, RSA)
     public static final String CONFIG_KEY_PARAMETERS = "keyParameters";
 
-    private static final String[] ecCurves = { "nistp256", "nistp384", "nistp521", "sect163k1", "nistk163",
-            "sect163r1", "sect163r2",
+    private static final String[] ecCurves = {
+            "nistp256", "nistp384", "nistp521", "sect163k1", "nistk163", "sect163r1", "sect163r2",
             "nistb163", "sect193r1", "sect193r2", "sect233k1", "nistk233", "sect233r1", "nistb233", "sect239k1",
             "sect283k1", "nistk283",
             "sect283r1", "nistb283", "sect409k1", "nistk409", "sect409r1", "nistb409", "sect571k1", "nistk571",

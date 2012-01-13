@@ -23,7 +23,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.cert.CertificateException;
 import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.Vector;
 
 import netscape.security.util.DerValue;
 import netscape.security.x509.CertAttrSet;
@@ -127,8 +127,8 @@ public class ChallengePassword implements CertAttrSet {
     /**
      * @return an empty set of elements
      */
-    public Enumeration getElements() {
-        return (new Hashtable()).elements();
+    public Enumeration<String> getAttributeNames() {
+        return (new Vector<String>()).elements();
     }
 
     /**

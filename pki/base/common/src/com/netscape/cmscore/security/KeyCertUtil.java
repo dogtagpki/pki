@@ -156,7 +156,8 @@ public class KeyCertUtil {
     public static String getTokenNames(CryptoManager manager)
             throws TokenException {
         String tokenList = "";
-        Enumeration tokens = manager.getExternalTokens();
+        @SuppressWarnings("unchecked")
+        Enumeration<CryptoToken> tokens = manager.getExternalTokens();
         int num = 0;
 
         while (tokens.hasMoreElements()) {
@@ -981,7 +982,7 @@ public class KeyCertUtil {
         String signing = properties.getOCSPSigning();
 
         if ((signing != null) && (signing.equals(Constants.TRUE))) {
-            Vector oidSet = new Vector();
+            Vector<ObjectIdentifier> oidSet = new Vector<ObjectIdentifier>();
             oidSet.addElement(
                     ObjectIdentifier.getObjectIdentifier(
                             ExtendedKeyUsageExtension.OID_OCSPSigning));

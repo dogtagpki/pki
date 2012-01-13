@@ -43,7 +43,7 @@ import netscape.security.util.DerValue;
  * @version 1.11
  * @see CertAttrSet
  */
-public class CertificateExtensions extends Vector
+public class CertificateExtensions extends Vector<Extension>
         implements CertAttrSet, Serializable {
     /**
      *
@@ -59,12 +59,13 @@ public class CertificateExtensions extends Vector
      */
     public static final String NAME = "extensions";
 
-    private Hashtable<String, Object> map;
+    private Hashtable<String, Extension> map;
 
     // Parse the encoded extension
     public void parseExtension(Extension ext) throws IOException {
         try {
-            Class extClass = OIDMap.getClass(ext.getExtensionId());
+            @SuppressWarnings("unchecked")
+            Class<CertAttrSet> extClass = (Class<CertAttrSet>) OIDMap.getClass(ext.getExtensionId());
             if (extClass == null) { // Unsupported extension
                 if (ext.isCritical()) {
                     throw new IOException("Unsupported CRITICAL extension: "
@@ -75,8 +76,8 @@ public class CertificateExtensions extends Vector
                     return;
                 }
             }
-            Class[] params = { Boolean.class, Object.class };
-            Constructor cons = extClass.getConstructor(params);
+            Class<?>[] params = { Boolean.class, Object.class };
+            Constructor<CertAttrSet> cons = extClass.getConstructor(params);
 
             byte[] extData = ext.getExtensionValue();
             int extLen = extData.length;
@@ -87,7 +88,7 @@ public class CertificateExtensions extends Vector
             }
             Object[] passed = new Object[] { new Boolean(ext.isCritical()),
                     value };
-            CertAttrSet certExt = (CertAttrSet) cons.newInstance(passed);
+            CertAttrSet certExt = cons.newInstance(passed);
             if (certExt != null && certExt.getName() != null) {
                 map.put(certExt.getName(), (Extension) certExt);
                 addElement((Extension) certExt);
@@ -105,7 +106,7 @@ public class CertificateExtensions extends Vector
      * Default constructor for the certificate attribute.
      */
     public CertificateExtensions() {
-        map = new Hashtable();
+        map = new Hashtable<String, Extension>();
     }
 
     /**
@@ -117,7 +118,7 @@ public class CertificateExtensions extends Vector
     public CertificateExtensions(DerInputStream in)
             throws IOException {
 
-        map = new Hashtable();
+        map = new Hashtable<String, Extension>();
         DerValue[] exts = in.getSequence(5);
 
         for (int i = 0; i < exts.length; i++) {
@@ -136,7 +137,7 @@ public class CertificateExtensions extends Vector
         DerValue val = new DerValue(in);
         DerInputStream str = val.toDerInputStream();
 
-        map = new Hashtable();
+        map = new Hashtable<String, Extension>();
         DerValue[] exts = str.getSequence(5);
 
         for (int i = 0; i < exts.length; i++) {
@@ -160,7 +161,7 @@ public class CertificateExtensions extends Vector
             str = val.toDerInputStream();
         }
 
-        map = new Hashtable();
+        map = new Hashtable<String, Extension>();
         DerValue[] exts = str.getSequence(5);
 
         for (int i = 0; i < exts.length; i++) {
@@ -217,8 +218,8 @@ public class CertificateExtensions extends Vector
      * @exception IOException if the object could not be cached.
      */
     public void set(String name, Object obj) throws IOException {
-        map.put(name, obj);
-        addElement(obj);
+        map.put(name, (Extension) obj);
+        addElement((Extension) obj);
     }
 
     /**
@@ -250,7 +251,7 @@ public class CertificateExtensions extends Vector
         removeElement(obj);
     }
 
-    public Enumeration getNames() {
+    public Enumeration<String> getNames() {
         return map.keys();
     }
 
@@ -258,8 +259,12 @@ public class CertificateExtensions extends Vector
      * Return an enumeration of names of attributes existing within this
      * attribute.
      */
-    public Enumeration getElements() {
+    public Enumeration<Extension> getAttributes() {
         return (map.elements());
+    }
+
+    public Enumeration<String> getAttributeNames() {
+        return (map.keys());
     }
 
     /**

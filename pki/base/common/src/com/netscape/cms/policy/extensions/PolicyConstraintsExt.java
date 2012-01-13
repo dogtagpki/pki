@@ -71,9 +71,9 @@ public class PolicyConstraintsExt extends APolicyRule
     protected int mInhibitPolicyMapping = DEF_INHIBIT_POLICY_MAPPING;
     protected PolicyConstraintsExtension mPolicyConstraintsExtension = null;
 
-    protected Vector mInstanceParams = new Vector();
+    protected Vector<String> mInstanceParams = new Vector<String>();
 
-    protected static Vector mDefaultParams = new Vector();
+    protected static Vector<String> mDefaultParams = new Vector<String>();
     static {
         mDefaultParams.addElement(PROP_CRITICAL + "=" + DEF_CRITICAL);
         mDefaultParams.addElement(
@@ -250,7 +250,7 @@ public class PolicyConstraintsExt extends APolicyRule
      * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getInstanceParams() {
+    public Vector<String> getInstanceParams() {
         return mInstanceParams;
     }
 
@@ -259,7 +259,7 @@ public class PolicyConstraintsExt extends APolicyRule
      * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getDefaultParams() {
+    public Vector<String> getDefaultParams() {
         return mDefaultParams;
     }
 
@@ -280,7 +280,7 @@ public class PolicyConstraintsExt extends APolicyRule
                 PROP_INHIBIT_POLICY_MAPPING
                         + ";integer;Number of addional certificates that may appear in the path before policy mapping is no longer permitted. If less than 0 this field is unset in the extension.",
                 IExtendedPluginInfo.HELP_TOKEN + ";configuration-policyrules-policyconstraints"
-            };
+        };
 
         return params;
     }

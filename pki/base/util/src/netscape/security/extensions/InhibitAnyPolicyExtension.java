@@ -131,7 +131,7 @@ public class InhibitAnyPolicyExtension
         return null;
     }
 
-    public Enumeration getElements() {
+    public Enumeration<String> getAttributeNames() {
         return null;
     }
 
