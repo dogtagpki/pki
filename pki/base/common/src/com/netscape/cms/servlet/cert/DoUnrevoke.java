@@ -662,9 +662,7 @@ public class DoUnrevoke extends CMSServlet {
             serialNumber = eeSerialNumber.trim();
 
             // convert it to hexadecimal
-            serialNumber = "0x"
-                    + Integer.toHexString(
-                            Integer.valueOf(serialNumber).intValue());
+            serialNumber = "0x" + (new BigInteger(serialNumber)).toString(16);
         } else {
             serialNumber = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
         }

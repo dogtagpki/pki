@@ -147,12 +147,11 @@ public class DisplayBySerial extends CMSServlet {
         IArgBlock header = CMS.createArgBlock();
         IArgBlock fixed = CMS.createArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
-        int seqNum = -1;
+        BigInteger seqNum = BigInteger.ZERO;
 
         try {
             if (req.getParameter(IN_SERIALNO) != null) {
-                seqNum = Integer.parseInt(
-                            req.getParameter(IN_SERIALNO));
+                seqNum = new BigInteger(req.getParameter(IN_SERIALNO));
             }
             process(argSet, header, seqNum, req, resp, locale[0]);
         } catch (NumberFormatException e) {
@@ -177,7 +176,7 @@ public class DisplayBySerial extends CMSServlet {
      * Display information about a particular key.
      */
     private void process(CMSTemplateParams argSet,
-            IArgBlock header, int seq,
+            IArgBlock header, BigInteger seq,
             HttpServletRequest req, HttpServletResponse resp,
             Locale locale) {
         try {
@@ -185,8 +184,7 @@ public class DisplayBySerial extends CMSServlet {
                     req.getParameter(OUT_OP));
             header.addStringValue(OUT_SERVICE_URL,
                     req.getRequestURI());
-            IKeyRecord rec = (IKeyRecord) mKeyDB.readKeyRecord(new
-                    BigInteger(Integer.toString(seq)));
+            IKeyRecord rec = (IKeyRecord) mKeyDB.readKeyRecord(seq);
 
             KeyRecordParser.fillRecordIntoArg(rec, header);
         } catch (EBaseException e) {

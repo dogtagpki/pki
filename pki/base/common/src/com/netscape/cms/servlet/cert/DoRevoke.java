@@ -24,6 +24,7 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.Vector;
+import java.math.BigInteger;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -1161,31 +1162,28 @@ public class DoRevoke extends CMSServlet {
 
             // find out if the value is hex or decimal
 
-            int value = -1;
+            BigInteger value = BigInteger.ONE.negate();
 
             //try int 
             try {
-                value = Integer.parseInt(serialNumber, 10);
+                value = new BigInteger(serialNumber, 10);
             } catch (NumberFormatException e) {
             }
 
             //try hex
-            if (value == -1) {
+            if (value.compareTo(BigInteger.ONE.negate()) == 0) {
                 try {
-                    value = Integer.parseInt(serialNumber, 16);
-
+                    value = new BigInteger(serialNumber, 16);
                 } catch (NumberFormatException e) {
                 }
             }
             // give up if it isn't hex or dec
-            if (value == -1) {
+            if (value.compareTo(BigInteger.ONE.negate()) == 0) {
                 throw new NumberFormatException();
             }
 
             // convert it to hexadecimal
-            serialNumber = "0x"
-                    + Integer.toHexString(
-                            value);
+            serialNumber = "0x" + value.toString(16);
         } else {
             serialNumber = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
         }

@@ -18,6 +18,7 @@
 package com.netscape.cms.servlet.request;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateEncodingException;
@@ -263,7 +264,7 @@ public class ProcessCertReq extends CMSServlet {
         String signatureAlgorithm = null;
         long notValidBefore = 0;
         long notValidAfter = 0;
-        int seqNum = -1;
+        BigInteger seqNum = BigInteger.ONE.negate();
         EBaseException error = null;
 
         HttpServletRequest req = cmsReq.getHttpReq();
@@ -289,7 +290,7 @@ public class ProcessCertReq extends CMSServlet {
             if (req.getParameter(SEQNUM) != null) {
                 CMS.debug(
                         "ProcessCertReq: parameter seqNum " + req.getParameter(SEQNUM));
-                seqNum = Integer.parseInt(req.getParameter(SEQNUM));
+                seqNum = new BigInteger(req.getParameter(SEQNUM));
             }
             String notValidBeforeStr = req.getParameter("notValidBefore");
 
@@ -311,20 +312,19 @@ public class ProcessCertReq extends CMSServlet {
 
             IRequest r = null;
 
-            if (seqNum > -1) {
-                r = mQueue.findRequest(new RequestId(
-                            Integer.toString(seqNum)));
+            if (seqNum.compareTo(BigInteger.ONE.negate()) > 0) {
+                r = mQueue.findRequest(new RequestId(seqNum.toString()));
             }
 
-            if (seqNum > -1 && r != null) {
+            if (seqNum.compareTo(BigInteger.ONE.negate()) > 0 && r != null) {
                 processX509(cmsReq, argSet, header, seqNum, req, resp,
                         toDo, signatureAlgorithm, subject,
                         notValidBefore, notValidAfter, locale[0], startTime);
             } else {
-                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_INVALID_REQUEST_ID_1", String.valueOf(seqNum)));
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_INVALID_REQUEST_ID_1", seqNum.toString()));
                 error = new ECMSGWException(
                         CMS.getUserMessage("CMS_GW_INVALID_REQUEST_ID",
-                                String.valueOf(seqNum)));
+                                seqNum.toString()));
             }
         } catch (EBaseException e) {
             error = e;
@@ -399,7 +399,7 @@ public class ProcessCertReq extends CMSServlet {
      */
     private void processX509(CMSRequest cmsReq,
             CMSTemplateParams argSet, IArgBlock header,
-            int seqNum, HttpServletRequest req,
+            BigInteger seqNum, HttpServletRequest req,
             HttpServletResponse resp,
             String toDo, String signatureAlgorithm,
             String subject,
@@ -423,8 +423,7 @@ public class ProcessCertReq extends CMSServlet {
         }
 
         try {
-            IRequest r = mQueue.findRequest(new RequestId(
-                        Integer.toString(seqNum)));
+            IRequest r = mQueue.findRequest(new RequestId(seqNum.toString()));
 
             if (r != null) {
                 // overwrite "auditRequesterID" if and only if "id" != null
@@ -1264,7 +1263,7 @@ public class ProcessCertReq extends CMSServlet {
             if (CMS.getSubsystem("ra") != null)
                 header.addStringValue("localra", "yes");
 
-            header.addIntegerValue("seqNum", seqNum);
+            header.addBigIntegerValue("seqNum", seqNum, 10);
             mParser.fillRequestIntoArg(locale, r, argSet, header);
             String rid = r.getExtDataInString(IRequest.REMOTE_REQID);
 

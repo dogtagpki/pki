@@ -19,6 +19,7 @@ package com.netscape.cms.servlet.cert;
 
 import java.io.IOException;
 import java.util.Locale;
+import java.math.BigInteger;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -169,7 +170,7 @@ public class GetCertFromRequest extends CMSServlet {
         }
         // check if request Id is valid.
         try {
-            Integer.parseInt(requestId);
+            new BigInteger(requestId);
         } catch (NumberFormatException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_INVALID_REQ_ID_FORMAT", requestId));
             throw new EBaseException(

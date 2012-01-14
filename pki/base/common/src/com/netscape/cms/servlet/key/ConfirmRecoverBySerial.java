@@ -130,12 +130,11 @@ public class ConfirmRecoverBySerial extends CMSServlet {
         IArgBlock fixed = CMS.createArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
 
-        int seqNum = -1;
+        BigInteger seqNum = BigInteger.ZERO;
 
         try {
             if (req.getParameter(IN_SERIALNO) != null) {
-                seqNum = Integer.parseInt(
-                            req.getParameter(IN_SERIALNO));
+                seqNum = new BigInteger(req.getParameter(IN_SERIALNO));
             }
 
             // make sure this page, which contains password
@@ -167,11 +166,11 @@ public class ConfirmRecoverBySerial extends CMSServlet {
      * Requests for a list of agent passwords.
      */
     private void process(CMSTemplateParams argSet,
-            IArgBlock header, int seq,
+            IArgBlock header, BigInteger seq,
             HttpServletRequest req, HttpServletResponse resp,
             Locale locale) {
         try {
-            header.addIntegerValue(OUT_SERIALNO, seq);
+            header.addBigIntegerValue(OUT_SERIALNO, seq, 10);
             header.addIntegerValue(OUT_M,
                     mRecoveryService.getNoOfRequiredAgents());
             header.addStringValue(OUT_OP,
@@ -179,8 +178,7 @@ public class ConfirmRecoverBySerial extends CMSServlet {
             header.addStringValue(OUT_SERVICE_URL,
                     req.getRequestURI());
 
-            IKeyRecord rec = (IKeyRecord) mKeyDB.readKeyRecord(new BigInteger(
-                        Integer.toString(seq)));
+            IKeyRecord rec = (IKeyRecord) mKeyDB.readKeyRecord(seq);
 
             KeyRecordParser.fillRecordIntoArg(rec, header);
         } catch (EBaseException e) {

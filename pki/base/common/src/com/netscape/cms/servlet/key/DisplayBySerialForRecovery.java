@@ -150,12 +150,11 @@ public class DisplayBySerialForRecovery extends CMSServlet {
         IArgBlock fixed = CMS.createArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
 
-        int seqNum = -1;
+        BigInteger seqNum = BigInteger.ZERO;
 
         try {
             if (req.getParameter(IN_SERIALNO) != null) {
-                seqNum = Integer.parseInt(
-                            req.getParameter(IN_SERIALNO));
+                seqNum = new BigInteger(req.getParameter(IN_SERIALNO));
             }
             process(argSet, header,
                     req.getParameter("publicKeyData"),
@@ -185,7 +184,7 @@ public class DisplayBySerialForRecovery extends CMSServlet {
      * Display information about a particular key.
      */
     private synchronized void process(CMSTemplateParams argSet,
-            IArgBlock header, String publicKeyData, int seq,
+            IArgBlock header, String publicKeyData, BigInteger seq,
             HttpServletRequest req, HttpServletResponse resp,
             Locale locale) {
         try {
@@ -201,8 +200,7 @@ public class DisplayBySerialForRecovery extends CMSServlet {
                 header.addStringValue("publicKeyData",
                         publicKeyData);
             }
-            IKeyRecord rec = (IKeyRecord) mKeyDB.readKeyRecord(new
-                    BigInteger(Integer.toString(seq)));
+            IKeyRecord rec = (IKeyRecord) mKeyDB.readKeyRecord(seq);
 
             KeyRecordParser.fillRecordIntoArg(rec, header);
 
