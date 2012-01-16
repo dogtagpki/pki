@@ -1,6 +1,6 @@
 Name:             pki-core
 Version:          9.0.16
-Release:          2%{?dist}
+Release:          3%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -26,7 +26,7 @@ BuildRequires:    selinux-policy-devel
 BuildRequires:    velocity
 BuildRequires:    xalan-j2
 BuildRequires:    xerces-j2
-BuildRequires:    candlepin-deps
+BuildRequires:    candlepin-deps >= 0.0.21-1
 %if 0%{?fedora} >= 16
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
 BuildRequires:    jss >= 4.2.6-19.1
@@ -275,7 +275,7 @@ Group:            System Environment/Base
 BuildArch:        noarch
 
 Requires:         java >= 1:1.6.0
-Requires:         candlepin-deps
+Requires:         candlepin-deps >= 0.0.21-1
 Requires:         javassist
 Requires:         jettison
 Requires:         pki-common-theme >= 9.0.0
@@ -595,6 +595,7 @@ fi
 %if 0%{?fedora} >= 16
 %{_bindir}/pkicontrol
 %endif
+%{_javadir}/resteasy-jettison-provider-2.3-RC1.jar
 
 
 %files -n pki-symkey
@@ -726,6 +727,9 @@ fi
 
 
 %changelog
+* Mon Jan 16 2012 Ade Lee <alee@redhat.com> 9.0.16-3
+- Added resteasy-jettison-provider-2.3-RC1.jar to pki-setup
+
 * Mon Nov 28 2011 Endi S. Dewata <edewata@redhat.com> 9.0.16-2
 - Added JUnit tests
  

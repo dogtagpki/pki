@@ -184,6 +184,7 @@ our $default_ldapmodify_command    = undef;
 our $default_modutil_command       = undef;
 our $default_initscripts_path      = undef;
 our $default_registry_path         = undef;
+my  $candlepin_java_path           = "/usr/share/candlepin/lib";
 
 our $default_dir_permissions       = 00770;
 our $default_exe_permissions       = 00770;
@@ -219,7 +220,7 @@ if ($^O eq "linux") {
         $default_java_path             = "/usr/share/java";
         $default_pki_java_path         = "/usr/share/java/pki";
         $default_system_jni_java_path  = "/usr/lib/java";
-        @default_jar_path = ($default_pki_java_path, $default_java_path, $default_system_jni_java_path);
+        @default_jar_path = ($default_pki_java_path, $default_java_path, $default_system_jni_java_path, $candlepin_java_path);
     } elsif ($default_hardware_platform eq "x86_64") {
         # 64-bit Linux
         $default_system_binaries       = "/bin";
@@ -230,7 +231,8 @@ if ($^O eq "linux") {
         $default_pki_java_path         = "/usr/share/java/pki";
         $default_x86_64_jni_java_path  = "/usr/lib64/java";
         $default_system_jni_java_path  = "/usr/lib/java";
-        @default_jar_path = ($default_pki_java_path, $default_java_path, $default_x86_64_jni_java_path, $default_system_jni_java_path);
+        @default_jar_path = ($default_pki_java_path, $default_java_path, $default_x86_64_jni_java_path,
+                             $default_system_jni_java_path, $candlepin_java_path);
     } else {
         emit("Unsupported '$^O' hardware platform '$default_hardware_platform'!", "error");
         exit 255;

@@ -186,6 +186,15 @@ my $tomcatjss_jar_base_name       = "tomcatjss.jar";       # CA, KRA, OCSP, TKS
 my $velocity_jar_base_name        = "velocity.jar";        # CA, KRA, OCSP, TKS
 my $xerces_jar_base_name          = "xerces-j2.jar";       # CA, KRA, OCSP, TKS
 
+# resteasy jars
+my $javassist_jar_base_name       = "javassist-3.9.0.GA.jar";                      # CA, KRA, OCSP, TKS
+my $jaxrs_api_jar_base_name       = "jaxrs-api-2.2.1.GA.jar";                      # CA, KRA, OCSP, TKS
+my $resteasy_jaxb_provider_jar_base_name = "resteasy-jaxb-provider-2.2.1.GA.jar";  # CA, KRA, OCSP, TKS
+my $resteasy_jaxrs_jar_base_name  = "resteasy-jaxrs-2.2.1.GA.jar";                 # CA, KRA, OCSP, TKS
+my $scannotation_jar_base_name    = "scannotation-1.0.2.jar";                      # CA, KRA, OCSP, TKS
+my $jettison_jar_base_name        = "jettison.jar";                                # CA, KRA, OCSP, TKS
+my $resteasy_jettison_provider_jar_base_name = "resteasy-jettison-provider-2.3-RC1.jar"; # CA, KRA, OCSP, TKS
+
 my $apache_commons_collections_jar_base_name  = "apache-commons-collections.jar";
 my $jakarta_commons_collections_jar_base_name = "jakarta-commons-collections.jar";
 my $apache_commons_logging_jar_base_name  = "apache-commons-logging.jar";
@@ -465,6 +474,20 @@ my $pki_cmscore_jar_file_path                    = undef;  # CA, KRA, OCSP, TKS
 my $pki_cmscore_jar_symlink_path                 = undef;  # CA, KRA, OCSP, TKS
 my $pki_cmsutil_jar_file_path                    = undef;  # CA, KRA, OCSP, TKS
 my $pki_cmsutil_jar_symlink_path                 = undef;  # CA, KRA, OCSP, TKS
+my $javassist_jar_file_path                      = undef;  # CA, KRA, OCSP, TKS
+my $javassist_jar_symlink_path                   = undef;  # CA, KRA, OCSP, TKS
+my $jaxrs_api_jar_file_path                      = undef;  # CA, KRA, OCSP, TKS
+my $jaxrs_api_jar_symlink_path                   = undef;  # CA, KRA, OCSP, TKS
+my $resteasy_jaxb_provider_jar_file_path         = undef;  # CA, KRA, OCSP, TKS
+my $resteasy_jaxb_provider_jar_symlink_path      = undef;  # CA, KRA, OCSP, TKS
+my $resteasy_jaxrs_jar_file_path                 = undef;  # CA, KRA, OCSP, TKS
+my $resteasy_jaxrs_jar_symlink_path              = undef;  # CA, KRA, OCSP, TKS
+my $scannotation_jar_file_path                   = undef;  # CA, KRA, OCSP, TKS
+my $scannotation_jar_symlink_path                = undef;  # CA, KRA, OCSP, TKS
+my $jettison_jar_file_path                       = undef;  # CA, KRA, OCSP, TKS
+my $jettison_jar_symlink_path                    = undef;  # CA, KRA, OCSP, TKS
+my $resteasy_jettison_provider_jar_file_path     = undef;  # CA, KRA, OCSP, TKS
+my $resteasy_jettison_provider_jar_symlink_path  = undef;  # CA, KRA, OCSP, TKS
 my $commons_collections_jar_file_path            = undef;  # CA, KRA, OCSP, TKS
 my $commons_collections_jar_symlink_path         = undef;  # CA, KRA, OCSP, TKS
 my $commons_lang_jar_file_path                   = undef;  # CA, KRA, OCSP, TKS
@@ -1850,6 +1873,41 @@ sub initialize_subdirectory_paths
             return 0;
         }
 
+        if (!defined($javassist_jar_file_path = find_jar($javassist_jar_base_name))) {
+            emit("could not find jar: $javassist_jar_base_name", "error");
+            return 0;
+        }
+
+        if (!defined($jaxrs_api_jar_file_path = find_jar($jaxrs_api_jar_base_name))) {
+            emit("could not find jar: $jaxrs_api_jar_base_name", "error");
+            return 0;
+        }
+
+        if (!defined($resteasy_jaxb_provider_jar_file_path = find_jar($resteasy_jaxb_provider_jar_base_name))) {
+            emit("could not find jar: $resteasy_jaxb_provider_jar_base_name", "error");
+            return 0;
+        }
+
+        if (!defined($resteasy_jaxrs_jar_file_path = find_jar($resteasy_jaxrs_jar_base_name))) {
+            emit("could not find jar: $resteasy_jaxrs_jar_base_name", "error");
+            return 0;
+        }
+
+        if (!defined($scannotation_jar_file_path = find_jar($scannotation_jar_base_name))) {
+            emit("could not find jar: $scannotation_jar_base_name", "error");
+            return 0;
+        }
+
+        if (!defined($resteasy_jettison_provider_jar_file_path = find_jar($resteasy_jettison_provider_jar_base_name))) {
+            emit("could not find jar: $resteasy_jettison_provider_jar_base_name", "error");
+            return 0;
+        }
+
+        if (!defined($jettison_jar_file_path = find_jar($jettison_jar_base_name))) {
+            emit("could not find jar: $jettison_jar_base_name", "error");
+            return 0;
+        }
+
         $webinf_instance_path              = $webapps_instance_path
                                            . "/" . $subsystem_type
                                            . "/" . $webinf_base_instance_dir;
@@ -1902,6 +1960,22 @@ sub initialize_subdirectory_paths
                                            . "/" . $xml_commons_apis_jar_base_name;
         $xml_commons_resolver_jar_symlink_path = $webinf_lib_instance_path
                                            . "/" . $xml_commons_resolver_jar_base_name;
+
+        #resteasy
+        $javassist_jar_symlink_path                  = $webinf_lib_instance_path
+                                                     . "/" . $javassist_jar_base_name;
+        $jaxrs_api_jar_symlink_path                  = $webinf_lib_instance_path
+                                                     . "/" . $jaxrs_api_jar_base_name;
+        $resteasy_jaxb_provider_jar_symlink_path     = $webinf_lib_instance_path
+                                                     . "/" . $resteasy_jaxb_provider_jar_base_name;
+        $resteasy_jaxrs_jar_symlink_path             = $webinf_lib_instance_path
+                                                     . "/" . $resteasy_jaxrs_jar_base_name;
+        $scannotation_jar_symlink_path               = $webinf_lib_instance_path
+                                                     . "/" . $scannotation_jar_base_name;
+        $resteasy_jettison_provider_jar_symlink_path = $webinf_lib_instance_path
+                                                     . "/" . $resteasy_jettison_provider_jar_base_name;
+        $jettison_jar_symlink_path                   = $webinf_lib_instance_path
+                                                     . "/" . $jettison_jar_base_name;
 
 
         $webapps_root_instance_path        = $webapps_instance_path
@@ -2918,6 +2992,36 @@ sub process_pki_files_and_symlinks
         # create instance symlink to "xml_commons_resolver.jar"
         return 0 if !create_symlink($xml_commons_resolver_jar_symlink_path, $xml_commons_resolver_jar_file_path,
                                     $pki_user, $pki_group);
+
+        #resteasy
+        # create instance symlink to "javassist.jar"
+        return 0 if !create_symlink($javassist_jar_symlink_path, $javassist_jar_file_path,
+                                    $pki_user, $pki_group);
+
+        # create instance symlink to "jaxrs-api.jar"
+        return 0 if !create_symlink($jaxrs_api_jar_symlink_path, $jaxrs_api_jar_file_path,
+                                    $pki_user, $pki_group);
+
+        # create instance symlink to "pki-resteasy_jaxb_provider.jar"
+        return 0 if !create_symlink($resteasy_jaxb_provider_jar_symlink_path, $resteasy_jaxb_provider_jar_file_path,
+                                    $pki_user, $pki_group);
+
+        # create instance symlink to "resteasy_jaxrs.jar"
+        return 0 if !create_symlink($resteasy_jaxrs_jar_symlink_path, $resteasy_jaxrs_jar_file_path,
+                                    $pki_user, $pki_group);
+
+        # create instance symlink to "scannotation.jar"
+        return 0 if !create_symlink($scannotation_jar_symlink_path, $scannotation_jar_file_path,
+                                    $pki_user, $pki_group);
+
+        # create instance symlink to "pki-resteasy_jettison_provider.jar"
+        return 0 if !create_symlink($resteasy_jettison_provider_jar_symlink_path, $resteasy_jettison_provider_jar_file_path,
+                                    $pki_user, $pki_group);
+
+        # create instance symlink to "jettison.jar"
+        return 0 if !create_symlink($jettison_jar_symlink_path, $jettison_jar_file_path,
+                                    $pki_user, $pki_group);
+
 
     }
 
