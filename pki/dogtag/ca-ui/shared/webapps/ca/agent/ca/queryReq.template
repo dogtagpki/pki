@@ -397,12 +397,15 @@ var seqNum=parseInt(result.recordSet[result.recordSet.length-1].seqNum) + 1;
 //"<div align=center> \n"+
 "<FORM NAME='nextForm' METHOD='POST' ACTION=''>\n"+ renderHidden("op"));
 
-var disabled = "";
-//(result.header.seqNumFromDown== null) ? "disabled='true'" : "";
+var disabledDown = ((result.fixed.maxCount > result.header.currentRecordCount) ||
+                    (result.header.currentRecordCount == result.header.totalRecordCount)) ?
+                    "disabled='true'" : "";
+var disabledUp = (result.header.firstEntryOnPage != null &&
+                  result.header.firstEntryOnPage <= 1) ? "disabled='true'" : "";
 
 document.write(
 "<button NAME='begin' onClick='doNext(this)' VALUE='|<<' width='72'>|&lt;&lt;</button>\n"+
-"<button NAME='previous' onClick='doNext(this)' VALUE='<' width='72'>&lt;</button>\n"+
+"<button "+disabledUp+" NAME='previous' onClick='doNext(this)' VALUE='<' width='72'>&lt;</button>\n"+
 "<INPUT TYPE='hidden' NAME='totalRecordCount' VALUE='"+
 result.header.totalRecordCount+ "'>\n"+
 "<INPUT TYPE='hidden' NAME='op' VALUE='"+ "queryReq"+ "'>\n"+
@@ -429,8 +432,8 @@ result.header.totalRecordCount+ "'>\n"+
 
     document.write("<INPUT style='padding-left: 2px;' TYPE=text SIZE=16 NAME=maxCount VALUE='"+
 result.fixed.maxCount+ "'>\n"+
-"<button "+disabled+" NAME='next' onClick='doNext(this)' VALUE='>' width='72'>&gt;</button>\n"+
-"<button "+disabled+" NAME='end' onClick='doNext(this)' VALUE='>>|' width='72'>&gt;&gt;|</button>\n"+
+"<button "+disabledDown+" NAME='next' onClick='doNext(this)' VALUE='>' width='72'>&gt;</button>\n"+
+"<button NAME='end' onClick='doNext(this)' VALUE='>>|' width='72'>&gt;&gt;|</button>\n"+
 "</FORM>\n");
 }
 }
