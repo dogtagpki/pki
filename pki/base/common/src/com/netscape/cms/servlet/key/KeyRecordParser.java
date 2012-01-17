@@ -69,8 +69,8 @@ public class KeyRecordParser {
             rec.getState().toString());
         rarg.addStringValue(OUT_OWNER_NAME,
             rec.getOwnerName());
-        rarg.addIntegerValue(OUT_SERIALNO,
-            rec.getSerialNumber().intValue());
+        rarg.addBigIntegerValue(OUT_SERIALNO,
+            rec.getSerialNumber(), 10);
         rarg.addStringValue(OUT_KEY_ALGORITHM,
             rec.getAlgorithm());
         // Possible Enhancement: sun's BASE64Encode is not 

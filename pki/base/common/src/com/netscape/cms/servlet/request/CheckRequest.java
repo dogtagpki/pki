@@ -256,7 +256,7 @@ public class CheckRequest extends CMSServlet {
             throw new ECMSGWException(CMS.getUserMessage("CMS_GW_NO_REQUEST_ID_PROVIDED"));
         }
         try {
-            Integer.parseInt(requestId);
+            new BigInteger(requestId);
         } catch (NumberFormatException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("BASE_INVALID_NUMBER_FORMAT_1", requestId));
             throw new EBaseException(

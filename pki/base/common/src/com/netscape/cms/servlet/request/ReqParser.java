@@ -62,8 +62,8 @@ public class ReqParser implements IReqParser {
     public void fillRequestIntoArg(Locale l, IRequest req, CMSTemplateParams argSet, IArgBlock arg)
         throws EBaseException {
         arg.addStringValue(TYPE, req.getRequestType());
-        arg.addLongValue("seqNum", 
-            Long.parseLong(req.getRequestId().toString()));
+        arg.addBigIntegerValue("seqNum",
+            new BigInteger(req.getRequestId().toString()), 10);
         arg.addStringValue(STATUS, 
             req.getRequestStatus().toString());
         arg.addLongValue(CREATE_ON, 

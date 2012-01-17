@@ -22,6 +22,7 @@ import com.netscape.cms.servlet.common.*;
 import com.netscape.cms.servlet.base.*;
 import java.io.*;
 import java.util.*;
+import java.math.*;
 import java.security.cert.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
@@ -888,9 +889,7 @@ public class DoRevokeTPS extends CMSServlet {
             serialNumber = eeSerialNumber.trim();
 
             // convert it to hexadecimal
-            serialNumber = "0x"
-                    + Integer.toHexString(
-                        Integer.valueOf(serialNumber).intValue());
+            serialNumber = "0x" + (new BigInteger(serialNumber)).toString(16);
         } else {
             serialNumber = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
         }

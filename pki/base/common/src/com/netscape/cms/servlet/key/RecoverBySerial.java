@@ -266,7 +266,7 @@ public class RecoverBySerial extends CMSServlet {
         }
         X509CertImpl x509cert = null;
 
-        if (cert == null) {
+        if (cert == null || cert.trim().length() == 0) {
             header.addStringValue(OUT_ERROR, "certificate not found");
             return;
         } else {
@@ -330,7 +330,7 @@ public class RecoverBySerial extends CMSServlet {
         }
         X509CertImpl x509cert = null;
 
-        if (cert == null) {
+        if (cert == null || cert.trim().length() == 0) {
             // perform recovery
             header.addStringValue(OUT_ERROR, "certificate not found");
             return null;
@@ -402,8 +402,8 @@ public class RecoverBySerial extends CMSServlet {
 
             header.addStringValue(OUT_OP,
                 req.getParameter(OUT_OP));
-            header.addIntegerValue(OUT_SERIALNO, 
-                Integer.parseInt(seq));
+            header.addBigIntegerValue(OUT_SERIALNO,
+                new BigInteger(seq), 10);
             header.addStringValue(OUT_SERVICE_URL,
                 req.getRequestURI());
             byte pkcs12[] = mService.doKeyRecovery(
