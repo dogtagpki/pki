@@ -77,7 +77,7 @@ public class FileSigningInput extends EnrollInput implements IProfileInput {
         StringBuffer sb = new StringBuffer();
         for (int i = 0; i < data.length; i++) {
             int v = data[i] & 0xff;
-            if (v <= 9) {
+            if (v < 16) {
               sb.append("0");
             }
             sb.append(Integer.toHexString(v));
