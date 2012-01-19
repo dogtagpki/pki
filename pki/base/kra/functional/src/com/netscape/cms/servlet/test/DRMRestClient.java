@@ -81,7 +81,7 @@ public class DRMRestClient {
         RecoveryRequestData data = new RecoveryRequestData();
         data.setKeyId(keyId);
         if (rpwd != null) {
-            data.setTransWrappedPassphrase(com.netscape.osutil.OSUtil.BtoA(rpwd));
+            data.setSessionWrappedPassphrase(com.netscape.osutil.OSUtil.BtoA(rpwd));
         }
         if (rkey != null) {
             data.setTransWrappedSessionKey(com.netscape.osutil.OSUtil.BtoA(rkey));
@@ -102,8 +102,9 @@ public class DRMRestClient {
         data.setRequestId(requestId);
         if (rkey != null) {
             data.setTransWrappedSessionKey(com.netscape.osutil.OSUtil.BtoA(rkey));
-        } else {
-            data.setTransWrappedPassphrase(com.netscape.osutil.OSUtil.BtoA(rpwd));
+        }
+        if (rpwd != null) {
+            data.setSessionWrappedPassphrase(com.netscape.osutil.OSUtil.BtoA(rpwd));
         }
         KeyData key = keyClient.retrieveKey(data);
         return key;

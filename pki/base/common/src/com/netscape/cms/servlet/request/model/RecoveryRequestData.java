@@ -38,7 +38,7 @@ public class RecoveryRequestData {
     private static final String KEY_ID = "keyId";
     private static final String REQUEST_ID = "requestId";
     private static final String TRANS_WRAPPED_SESSION_KEY = "transWrappedSessionKey";
-    private static final String TRANS_WRAPPED_PASSPHRASE = "transWrappedPassphrase";
+    private static final String SESSION_WRAPPED_PASSPHRASE = "sessionWrappedPassphrase";
 
     @XmlElement
     protected String keyId;
@@ -50,7 +50,7 @@ public class RecoveryRequestData {
     protected String transWrappedSessionKey;
     
     @XmlElement
-    protected String transWrappedPassphrase;
+    protected String sessionWrappedPassphrase;
     
     public RecoveryRequestData() {
         // required for JAXB (defaults)
@@ -60,7 +60,7 @@ public class RecoveryRequestData {
         keyId = form.getFirst(KEY_ID);
         requestId = form.getFirst(REQUEST_ID);
         transWrappedSessionKey = form.getFirst(TRANS_WRAPPED_SESSION_KEY);
-        transWrappedPassphrase = form.getFirst(TRANS_WRAPPED_PASSPHRASE);
+        sessionWrappedPassphrase = form.getFirst(SESSION_WRAPPED_PASSPHRASE);
     }
 
     /**
@@ -106,17 +106,17 @@ public class RecoveryRequestData {
     }
 
     /**
-     * @return the transWrappedPassphrase
+     * @return the sessionWrappedPassphrase
      */
-    public String getTransWrappedPassphrase() {
-        return transWrappedPassphrase;
+    public String getSessionWrappedPassphrase() {
+        return sessionWrappedPassphrase;
     }
 
     /**
-     * @param transWrappedPassphrase the transWrappedPassphrase to set
+     * @param sessionWrappedPassphrase the sessionWrappedPassphrase to set
      */
-    public void setTransWrappedPassphrase(String transWrappedPassphrase) {
-        this.transWrappedPassphrase = transWrappedPassphrase;
+    public void setSessionWrappedPassphrase(String sessionWrappedPassphrase) {
+        this.sessionWrappedPassphrase = sessionWrappedPassphrase;
     }
 
 }
