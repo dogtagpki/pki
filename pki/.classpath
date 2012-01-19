@@ -13,6 +13,7 @@
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/tks/src"/>
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/util/src"/>
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/silent/src"/>
+	<classpathentry kind="src" path="base/kra/functional/src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="/usr/share/java/idm-console-mcc.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/idm-console-base.jar"/>
@@ -25,5 +26,7 @@
 	<classpathentry kind="lib" path="/usr/share/java/xerces-j2.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/junit4.jar"/>
 	<classpathentry kind="lib" path="/usr/share/candlepin/lib/jaxrs-api-2.2.1.GA.jar"/>
+	<classpathentry kind="lib" path="/usr/share/candlepin/lib/resteasy-jaxrs-2.2.1.GA.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/apache-commons-cli.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

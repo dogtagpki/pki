@@ -538,6 +538,7 @@ set(pki-cms_java_SRCS
     com/netscape/cms/servlet/admin/RAAdminServlet.java
     com/netscape/cms/servlet/admin/AdminResources.java
     com/netscape/cms/servlet/admin/SystemCertificateResource.java
+    com/netscape/cms/servlet/admin/SystemCertificateResourceService.java
     com/netscape/cms/servlet/key/DisplayBySerial.java
     com/netscape/cms/servlet/key/SrchKey.java
     com/netscape/cms/servlet/key/DisplayTransport.java
@@ -553,7 +554,9 @@ set(pki-cms_java_SRCS
     com/netscape/cms/servlet/key/KeyRecordParser.java
     com/netscape/cms/servlet/key/DisplayBySerialForRecovery.java
     com/netscape/cms/servlet/key/KeyResource.java
+    com/netscape/cms/servlet/key/KeyResourceService.java
     com/netscape/cms/servlet/key/KeysResource.java
+    com/netscape/cms/servlet/key/KeysResourceService.java
     com/netscape/cms/servlet/key/model/KeyDAO.java
     com/netscape/cms/servlet/key/model/KeyDataInfo.java
     com/netscape/cms/servlet/key/model/KeyDataInfos.java
@@ -561,7 +564,7 @@ set(pki-cms_java_SRCS
     com/netscape/cms/servlet/base/IndexServlet.java
     com/netscape/cms/servlet/base/UserInfo.java
     com/netscape/cms/servlet/base/PortsServlet.java
-    com/netscape/cms/servlet/base/CMSResource.java
+    com/netscape/cms/servlet/base/CMSResourceService.java
     com/netscape/cms/servlet/base/CMSServlet.java
     com/netscape/cms/servlet/base/CMSStartServlet.java
     com/netscape/cms/servlet/base/ProxyServlet.java
@@ -651,7 +654,9 @@ set(pki-cms_java_SRCS
     com/netscape/cms/servlet/request/CertReqParser.java
     com/netscape/cms/servlet/request/KeyReqParser.java
     com/netscape/cms/servlet/request/KeyRequestResource.java
+    com/netscape/cms/servlet/request/KeyRequestResourceService.java
     com/netscape/cms/servlet/request/KeyRequestsResource.java
+    com/netscape/cms/servlet/request/KeyRequestsResourceService.java
     com/netscape/cms/servlet/request/model/ArchivalRequestData.java
     com/netscape/cms/servlet/request/model/KeyRequestDAO.java
     com/netscape/cms/servlet/request/model/KeyRequestInfo.java
