@@ -1002,7 +1002,8 @@ public class CertUtils {
         String auditMessage = null;
         IConfigStore config = CMS.getConfigStore();
         String certlsit = "";
-        boolean r = true;
+        boolean verifyResult = true;
+        boolean r = true; /* the final return value */
         try {
             String subsysType = config.getString("cs.type", "");
             if (subsysType.equals("")) {
@@ -1014,8 +1015,7 @@ public class CertUtils {
                             "");
 
                 audit(auditMessage);
-                r = false;
-                return r;
+                return false;
             }
             subsysType = toLowerCaseSubsystemType(subsysType);
             if (subsysType == null) {
@@ -1027,8 +1027,7 @@ public class CertUtils {
                             "");
 
                 audit(auditMessage);
-                r = false;
-                return r;
+                return false;
             }
             String certlist = config.getString(subsysType + ".cert.list", "");
             if (certlist.equals("")) {
@@ -1041,15 +1040,16 @@ public class CertUtils {
                             "");
 
                 audit(auditMessage);
-                r = false;
-                return r;
+                return false;
             }
             StringTokenizer tokenizer = new StringTokenizer(certlist, ",");
             while (tokenizer.hasMoreTokens()) {
                 String tag = tokenizer.nextToken();
                 tag = tag.trim();
                 CMS.debug("CertUtils: verifySystemCerts() cert tag=" + tag);
-                r = verifySystemCertByTag(tag);
+                verifyResult = verifySystemCertByTag(tag);
+                if (verifyResult == false)
+                    r = false; //r captures the value for final return
             }
         } catch (Exception e) {
             // audit here
