@@ -113,8 +113,43 @@ public class DRMTest {
             usage(options);
         }
 
-        // Initialize token
+        // used for crypto operations
+        byte iv[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
+        IVParameterSpec IV = null;
+        IV = new IVParameterSpec(iv);
+        CryptoManager manager = null;
+        CryptoToken token = null;
+        KeyGenerator kg1 = null;
         String db_dir = "./";
+        
+        // used for wrapping to send data to DRM
+        String transportCert = null;
+        
+        // Data to be archived
+        SymmetricKey vek = null;
+        String passphrase = null;
+        
+        // Session keys and passphrases for recovery
+        SymmetricKey recoveryKey = null;
+        byte[] wrappedRecoveryKey = null;
+        String recoveryPassphrase = null;
+        byte[] wrappedRecoveryPassphrase = null;
+        
+        // retrieved data (should match archived data)
+        String wrappedRecoveredKey = null;
+        String recoveredKey = null;
+        
+        // various ids used in recovery/archival operations
+        String keyId = null;
+        String clientId = null;
+        String recoveryRequestId = null;
+        
+        // Variables for data structures from calls
+        KeyRequestInfo requestInfo = null;
+        KeyData keyData = null;
+        KeyDataInfo keyInfo = null;
+         
+        // Initialize token
         try {
             CryptoManager.initialize(db_dir);
         } catch (AlreadyInitializedException e) {
@@ -125,8 +160,6 @@ public class DRMTest {
         }
 
         // log into token
-        CryptoManager manager = null;
-        CryptoToken token = null;
         try {
             manager = CryptoManager.getInstance();
             token = manager.getInternalKeyStorageToken();
@@ -142,14 +175,13 @@ public class DRMTest {
         } catch (Exception e) {
             log("Exception in logging into token:" + e.toString());
         }
-
-        // Set base URI
+        
+        // Set base URI and get client
         String baseUri = "http://" + host + ":" + port + "/pki";
-
         DRMRestClient client = new DRMRestClient(baseUri);
 
         // Test 1: Get transport certificate from DRM
-        String transportCert = client.getTransportCert();
+        transportCert = client.getTransportCert();
         log("Transport Cert retrieved from DRM: " + transportCert);
 
         // Test 2: Get list of completed key archival requests
@@ -172,10 +204,7 @@ public class DRMTest {
 
         // Test 4: Generate and archive a symmetric key
         log("Archiving symmetric key");
-        SymmetricKey vek = null;
-        String keyId = null;
-        KeyGenerator kg1 = null;
-        String clientId = "UUID: 123-45-6789 VEK " + Calendar.getInstance().getTime().toString();
+        clientId = "UUID: 123-45-6789 VEK " + Calendar.getInstance().getTime().toString();
         try {
             kg1 = token.getKeyGenerator(KeyGenAlgorithm.DES3);
             vek = kg1.generate();
@@ -192,7 +221,7 @@ public class DRMTest {
 
         //Test 5: Get keyId for active key with client ID
         log("Getting key ID for symmetric key");
-        KeyDataInfo keyInfo = client.getKeyData(clientId, "active");
+        keyInfo = client.getKeyData(clientId, "active");
         String keyId2 = getId(keyInfo.getKeyURL());
         if (keyId2 == null) {
             log("No archived key found");
@@ -206,9 +235,6 @@ public class DRMTest {
 
         // Test 6: Submit a recovery request for the symmetric key using a session key
         log("Submitting a recovery request for the  symmetric key using session key");
-        SymmetricKey recoveryKey = null;
-        String recoveryRequestId = null;
-        byte[] wrappedRecoveryKey = null;
         try {
             recoveryKey = kg1.generate();
             wrappedRecoveryKey = wrapSymmetricKey(manager, token, transportCert, recoveryKey);
@@ -225,9 +251,14 @@ public class DRMTest {
         // Test 8: Get key
         log("Getting key: " + keyId);
 
-        KeyData keyData = client.retrieveKey(keyId, recoveryRequestId, null, wrappedRecoveryKey);
-        String wrappedRecoveredKey = keyData.getWrappedPrivateData();
-        String recoveredKey = unwrap(wrappedRecoveredKey, recoveryKey);
+        keyData = client.retrieveKey(keyId, recoveryRequestId, null, wrappedRecoveryKey);
+        wrappedRecoveredKey = keyData.getWrappedPrivateData();
+        try {
+            recoveredKey = unwrap(token, IV, wrappedRecoveredKey.getBytes("ISO-8859-1"), recoveryKey);
+        } catch (Exception e) {
+            log("Exception in unwrapping key: " + e.toString());
+            e.printStackTrace();
+        }
 
         if (!recoveredKey.equals(com.netscape.osutil.OSUtil.BtoA(vek.getEncoded()))) {
             log("Error: recovered and archived keys do not match!");
@@ -235,19 +266,14 @@ public class DRMTest {
 
         // Test 9: Submit a recovery request for the symmetric key using a passphrase
         log("Submitting a recovery request for the  symmetric key using a passphrase");
-        String recoveryPassphrase = "Gimme me keys please";
-        byte[] wrappedRecoveryPassphrase = null;
-        KeyRequestInfo info = null;
-        byte iv[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
-        IVParameterSpec IV = null;
-        IV = new IVParameterSpec(iv);
-        
+        recoveryPassphrase = "Gimme me keys please";
+
         try {
             recoveryKey = kg1.generate();
             wrappedRecoveryPassphrase = wrapPassphrase(token, recoveryPassphrase, IV, recoveryKey);
             wrappedRecoveryKey = wrapSymmetricKey(manager, token, transportCert, recoveryKey);
-            info = client.requestRecovery(keyId, wrappedRecoveryPassphrase, wrappedRecoveryKey);
-            recoveryRequestId = getId(info.getRequestURL());
+            requestInfo = client.requestRecovery(keyId, wrappedRecoveryPassphrase, wrappedRecoveryKey);
+            recoveryRequestId = getId(requestInfo.getRequestURL());
         } catch (Exception e) {
             log("Exception in recovering symmetric key using passphrase" + e.toString());
             e.printStackTrace();
@@ -268,19 +294,18 @@ public class DRMTest {
         }
 
         // Test 12: Generate and archive a passphrase
-        String passphrase = "Green Eggs and Ham 123";
         clientId = "UUID: 123-45-6789 RKEK " + Calendar.getInstance().getTime().toString();
         try {
             byte[] encoded = createPKIArchiveOptions(manager, token, transportCert, null, passphrase, kg1);
-            info = client.archiveSecurityData(encoded, clientId);
+            requestInfo = client.archiveSecurityData(encoded, clientId);
             log("Archival Results:");
-            printRequestInfo(info);
-            keyId = getId(info.getKeyURL());
+            printRequestInfo(requestInfo);
+            keyId = getId(requestInfo.getKeyURL());
         } catch (Exception e) {
             log("Exception in archiving symmetric key:" + e.toString());
             e.printStackTrace();
         }
-        
+
         //Test 13: Get keyId for active passphrase with client ID
         log("Getting key ID for passphrase");
         keyInfo = client.getKeyData(clientId, "active");
@@ -294,7 +319,7 @@ public class DRMTest {
         if (!keyId.equals(keyId2)) {
             log("Error: key ids from search and archival do not match");
         }
-        
+
         // Test 14: Submit a recovery request for the passphrase using a session key
         log("Submitting a recovery request for the passphrase using session key");
         recoveryKey = null;
@@ -303,12 +328,12 @@ public class DRMTest {
         try {
             recoveryKey = kg1.generate();
             wrappedRecoveryKey = wrapSymmetricKey(manager, token, transportCert, recoveryKey);
-            info = client.requestRecovery(keyId, null, wrappedRecoveryKey);
-            recoveryRequestId = getId(info.getRequestURL());
+            requestInfo = client.requestRecovery(keyId, null, wrappedRecoveryKey);
+            recoveryRequestId = getId(requestInfo.getRequestURL());
         } catch (Exception e) {
             log("Exception in recovering passphrase using session key: " + e.getMessage());
         }
-        
+
         // Test 15: Approve recovery
         log("Approving recovery request: " + recoveryRequestId);
         client.approveRecovery(recoveryRequestId);
@@ -318,16 +343,21 @@ public class DRMTest {
 
         keyData = client.retrieveKey(keyId, recoveryRequestId, null, wrappedRecoveryKey);
         wrappedRecoveredKey = keyData.getWrappedPrivateData();
-        recoveredKey = unwrap(wrappedRecoveredKey, recoveryKey);
+        try {
+            recoveredKey = unwrap(token, IV, wrappedRecoveredKey.getBytes("ISO-8859-1"), recoveryKey);
+        } catch (Exception e) {
+            log("Exception in unwrapping key: " + e.toString());
+            e.printStackTrace();
+        }
 
         if (!recoveredKey.equals(passphrase)) {
             log("Error: recovered and archived passphrases do not match!");
         }
-         
+
         // Test 17: Submit a recovery request for the passphrase using a passphrase
         log("Submitting a recovery request for the passphrase using a passphrase");
-        info = client.requestRecovery(keyId, wrappedRecoveryPassphrase, wrappedRecoveryKey);
-        recoveryRequestId = getId(info.getRequestURL());
+        requestInfo = client.requestRecovery(keyId, wrappedRecoveryPassphrase, wrappedRecoveryKey);
+        recoveryRequestId = getId(requestInfo.getRequestURL());
 
         //Test 18: Approve recovery
         log("Approving recovery request: " + recoveryRequestId);
@@ -342,7 +372,7 @@ public class DRMTest {
         if (!recoveredKey.equals(passphrase)) {
             log("Error: recovered and archived passphrases do not match!");
         }
-        
+
     }
 
     private static String unwrap(String wrappedRecoveredKey, String recoveryPassphrase) {
@@ -355,9 +385,20 @@ public class DRMTest {
         System.out.println(string);
     }
 
-    private static String unwrap(String wrappedRecoveredKey, SymmetricKey recoveryKey) {
-        // TODO Auto-generated method stub
-        return null;
+    private static String unwrap(CryptoToken token, IVParameterSpec IV, byte[] wrappedRecoveredKey,
+            SymmetricKey recoveryKey) throws NoSuchAlgorithmException, TokenException, BadPaddingException,
+            IllegalBlockSizeException, InvalidKeyException, InvalidAlgorithmParameterException {
+
+        if (wrappedRecoveredKey == null || recoveryKey == null || token == null) {
+            return null;
+        }
+
+        Cipher decryptor = token.getCipherContext(EncryptionAlgorithm.DES3_CBC_PAD);
+        decryptor.initDecrypt(recoveryKey, IV);
+        byte[] unwrappedData = decryptor.doFinal(wrappedRecoveredKey);
+        String unwrappedS = new String(unwrappedData);
+
+        return unwrappedS;
     }
 
     private static String getId(String link) {
@@ -408,27 +449,32 @@ public class DRMTest {
     private static byte[] wrapPassphrase(CryptoToken token, String passphrase, IVParameterSpec IV, SymmetricKey sk)
             throws NoSuchAlgorithmException, TokenException, InvalidKeyException,
             InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException, IOException {
-        byte[] key_data = null;
-        Cipher cipher = null;
-        EncryptionAlgorithm encryptionAlgorithm = EncryptionAlgorithm.DES3_CBC_PAD;
-        cipher = token.getCipherContext(encryptionAlgorithm);
-        log("cipher " + cipher);
+        byte[] wrappedPassphrase = null;
+        Cipher encryptor = null;
 
-        if (cipher != null) {
-            cipher.initEncrypt(sk, IV);
-            key_data = cipher.doFinal(passphrase.getBytes());
-            log("Pass phrase mode key_data: " + key_data);
+        if (passphrase == null || sk == null || token == null || IV == null) {
+            return null;
+        }
+
+        encryptor = token.getCipherContext(EncryptionAlgorithm.DES3_CBC_PAD);
+        log("cipher " + encryptor);
+
+        if (encryptor != null) {
+            encryptor.initEncrypt(sk, IV);
+            wrappedPassphrase = encryptor.doFinal(passphrase.getBytes());
+            log("Pass phrase mode key_data: " + wrappedPassphrase);
 
             // Try to decrypt
-            cipher.initDecrypt(sk, IV);
-            byte[] decrypted = cipher.doFinal(key_data);
-            String s = new String(decrypted);
-            log("Re decrypted pass phrase " + s);
-
+            String wrappedS = new String(wrappedPassphrase, "ISO-8859-1");
+            byte[] pPhrase = wrappedS.getBytes("ISO-8859-1");
+            encryptor.initDecrypt(sk, IV);
+            byte[] decrypted = encryptor.doFinal(pPhrase);
+            String s = new String(decrypted, "ISO-8859-1");
+            log("Re decrypted pass phrase " + s + " decrypted.size " + decrypted.length);
         } else {
             throw new IOException("Failed to create cipher");
         }
-        return key_data;
+        return wrappedPassphrase;
     }
 
     private static byte[] wrapSymmetricKey(CryptoManager manager, CryptoToken token, String transportCert,
