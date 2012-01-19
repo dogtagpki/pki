@@ -98,31 +98,6 @@ install(
 
 install(
     DIRECTORY
-        forms/esc/demo
-        forms/esc/home
-        forms/esc/so
-        forms/esc/sow
-        forms/tps
-    DESTINATION
-        ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}/docroot
-    PATTERN
-        "forms/esc/sow/css" EXCLUDE
-    PATTERN
-        "forms/esc/sow/images"EXCLUDE
-    PATTERN
-        "forms/esc/sow/js"EXCLUDE
-    PATTERN
-        "forms/tps/admin/console/css"EXCLUDE
-)
-
-install(
-    DIRECTORY
-    DESTINATION
-        ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}/docroot/tokendb
-)
-
-install(
-    DIRECTORY
         lib
     DESTINATION
         ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}
@@ -163,5 +138,71 @@ install(
     DIRECTORY
     DESTINATION
         ${VAR_INSTALL_DIR}/run/pki/tps
+)
+
+install(
+    DIRECTORY
+    DESTINATION
+        ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}/docroot/demo
+)
+
+install(
+    DIRECTORY
+    DESTINATION
+        ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}/docroot/home
+)
+
+install(
+    DIRECTORY
+    DESTINATION
+        ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}/docroot/so
+)
+
+install(
+    DIRECTORY
+    DESTINATION
+        ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}/docroot/sow
+)
+
+install(
+    DIRECTORY
+    DESTINATION
+        ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}/docroot/tokendb
+)
+
+install(
+    DIRECTORY
+    DESTINATION
+        ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}/docroot/tps
+)
+
+install(
+    DIRECTORY
+    DESTINATION
+        ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}/docroot/tps/admin
+)
+
+install(
+    DIRECTORY
+    DESTINATION
+        ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}/docroot/tps/admin/console
+)
+
+install(
+    DIRECTORY
+    DESTINATION
+        ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}/docroot/tps/admin/console/config
+)
+
+install(
+    DIRECTORY
+    DESTINATION
+        ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}/docroot/tps/admin/console/img
+)
+
+install(
+    DIRECTORY
+    DESTINATION
+        ${SHARE_INSTALL_PREFIX}/${APPLICATION_NAME}/${PROJECT_NAME}/docroot/tps/admin/console/js
 )
 
