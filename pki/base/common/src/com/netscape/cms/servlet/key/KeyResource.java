@@ -28,5 +28,6 @@ public interface KeyResource {
     @POST
     @Path("retrieve")
     @Produces(MediaType.TEXT_XML)
+    @Consumes({ MediaType.APPLICATION_FORM_URLENCODED})
     public KeyData retrieveKey(MultivaluedMap<String, String> form);
 }

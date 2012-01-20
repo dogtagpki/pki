@@ -76,7 +76,7 @@ public class KeysResourceService extends CMSResourceService implements KeysResou
         }
         
         if (clientID != null) {
-            filter += "(clientID=" + clientID + ")";
+            filter += "(clientID=\'" + clientID + "\')";
             matches ++;
         }
         

@@ -35,8 +35,8 @@ import com.netscape.cms.servlet.cert.model.CertificateData;
  * 
  */
 public class CMSResourceService {
-    protected static final String HEADER = "-----BEGIN NEW CERTIFICATE REQUEST-----";
-    protected static final String TRAILER = "-----END NEW CERTIFICATE REQUEST-----";
+    public static final String HEADER = "-----BEGIN NEW CERTIFICATE REQUEST-----";
+    public static final String TRAILER = "-----END NEW CERTIFICATE REQUEST-----";
 
     // caching parameters
     protected static final int DEFAULT_LONG_CACHE_LIFETIME = 1000;

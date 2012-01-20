@@ -27,6 +27,7 @@ public interface KeyRequestResource {
     @POST
     @Path("archive")
     @Produces({ MediaType.TEXT_XML })
+    @Consumes({ MediaType.APPLICATION_FORM_URLENCODED})
     public KeyRequestInfo archiveKey(MultivaluedMap<String, String> form);
 
     @POST
@@ -39,6 +40,7 @@ public interface KeyRequestResource {
     @POST
     @Path("recover")
     @Produces({ MediaType.TEXT_XML })
+    @Consumes({ MediaType.APPLICATION_FORM_URLENCODED})
     public KeyRequestInfo recoverKey(MultivaluedMap<String, String> form);
 
     @POST

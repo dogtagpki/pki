@@ -59,6 +59,8 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
+
+import com.netscape.cms.servlet.base.CMSResourceService;
 import com.netscape.cms.servlet.key.model.KeyData;
 import com.netscape.cms.servlet.key.model.KeyDataInfo;
 import com.netscape.cms.servlet.request.model.KeyRequestInfo;
@@ -76,12 +78,14 @@ public class DRMTest {
         String host = null;
         String port = null;
         String token_pwd = null;
+        String db_dir = "./";
 
         // parse command line arguments
         Options options = new Options();
         options.addOption("h", true, "Hostname of the DRM");
         options.addOption("p", true, "Port of the DRM");
         options.addOption("w", true, "Token password");
+        options.addOption("d", true, "Directory for tokendb");
 
         try {
             CommandLineParser parser = new PosixParser();
@@ -108,6 +112,10 @@ public class DRMTest {
                 usage(options);
             }
 
+            if (cmd.hasOption("d")) {
+                db_dir = cmd.getOptionValue("d");
+            }
+
         } catch (ParseException e) {
             System.err.println("Error in parsing command line options: " + e.getMessage());
             usage(options);
@@ -120,35 +128,34 @@ public class DRMTest {
         CryptoManager manager = null;
         CryptoToken token = null;
         KeyGenerator kg1 = null;
-        String db_dir = "./";
-        
+
         // used for wrapping to send data to DRM
         String transportCert = null;
-        
+
         // Data to be archived
         SymmetricKey vek = null;
         String passphrase = null;
-        
+
         // Session keys and passphrases for recovery
         SymmetricKey recoveryKey = null;
         byte[] wrappedRecoveryKey = null;
         String recoveryPassphrase = null;
         byte[] wrappedRecoveryPassphrase = null;
-        
+
         // retrieved data (should match archived data)
         String wrappedRecoveredKey = null;
         String recoveredKey = null;
-        
+
         // various ids used in recovery/archival operations
         String keyId = null;
         String clientId = null;
         String recoveryRequestId = null;
-        
+
         // Variables for data structures from calls
         KeyRequestInfo requestInfo = null;
         KeyData keyData = null;
         KeyDataInfo keyInfo = null;
-         
+
         // Initialize token
         try {
             CryptoManager.initialize(db_dir);
@@ -175,31 +182,42 @@ public class DRMTest {
         } catch (Exception e) {
             log("Exception in logging into token:" + e.toString());
         }
-        
+
         // Set base URI and get client
-        String baseUri = "http://" + host + ":" + port + "/pki";
+        String baseUri = "http://" + host + ":" + port + "/kra/pki";
         DRMRestClient client = new DRMRestClient(baseUri);
 
         // Test 1: Get transport certificate from DRM
         transportCert = client.getTransportCert();
+        transportCert = transportCert.substring(CMSResourceService.HEADER.length(),
+                                                transportCert.indexOf(CMSResourceService.TRAILER));
+
         log("Transport Cert retrieved from DRM: " + transportCert);
 
         // Test 2: Get list of completed key archival requests
         log("\n\nList of completed archival requests");
-        Collection<KeyRequestInfo> list = client.listRequests("complete", "enrolment");
-        Iterator<KeyRequestInfo> iter = list.iterator();
-        while (iter.hasNext()) {
-            KeyRequestInfo info = iter.next();
-            printRequestInfo(info);
+        Collection<KeyRequestInfo> list = client.listRequests("complete", "enrollment");
+        if (list == null) {
+            log("No requests found");
+        } else {
+            Iterator<KeyRequestInfo> iter = list.iterator();
+            while (iter.hasNext()) {
+                KeyRequestInfo info = iter.next();
+                printRequestInfo(info);
+            }
         }
 
         // Test 3: Get list of key recovery requests
         log("\n\nList of completed recovery requests");
         Collection<KeyRequestInfo> list2 = client.listRequests("complete", "recovery");
-        Iterator<KeyRequestInfo> iter2 = list2.iterator();
-        while (iter2.hasNext()) {
-            KeyRequestInfo info = iter2.next();
-            printRequestInfo(info);
+        if (list2 == null) {
+            log("No requests found");
+        } else {
+            Iterator<KeyRequestInfo> iter2 = list2.iterator();
+            while (iter2.hasNext()) {
+                KeyRequestInfo info = iter2.next();
+                printRequestInfo(info);
+            }
         }
 
         // Test 4: Generate and archive a symmetric key

@@ -3,10 +3,8 @@ package com.netscape.cms.servlet.test;
 import java.util.Collection;
 import java.util.Iterator;
 
-import javax.ws.rs.core.Response;
-
+import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.client.ProxyFactory;
-
 import com.netscape.cms.servlet.admin.SystemCertificateResource;
 import com.netscape.cms.servlet.cert.model.CertificateData;
 import com.netscape.cms.servlet.key.KeyResource;
@@ -38,8 +36,9 @@ public class DRMRestClient {
     }
     
     public String getTransportCert() {
-        Response response = systemCertClient.getTransportCert();
-        CertificateData certData = (CertificateData) response.getEntity();
+        @SuppressWarnings("unchecked")
+        ClientResponse<CertificateData> response = (ClientResponse<CertificateData>) systemCertClient.getTransportCert();
+        CertificateData certData = response.getEntity();
         String transportCert = certData.getB64();
         return transportCert;
     }

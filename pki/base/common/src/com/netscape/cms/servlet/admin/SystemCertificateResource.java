@@ -6,6 +6,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.jboss.resteasy.annotations.ClientResponseType;
+
+import com.netscape.cms.servlet.cert.model.CertificateData;
+
 @Path("/config/cert")
 public interface SystemCertificateResource {
 
@@ -14,7 +18,7 @@ public interface SystemCertificateResource {
      */
     @GET
     @Path("/transport")
-    //@ClientResponseType(CertificateData.class)
+    @ClientResponseType(entityType=CertificateData.class)
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
     public Response getTransportCert();
 
