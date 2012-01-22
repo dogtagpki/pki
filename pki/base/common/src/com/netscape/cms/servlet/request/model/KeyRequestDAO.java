@@ -19,9 +19,12 @@ package com.netscape.cms.servlet.request.model;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
 
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
@@ -35,6 +38,9 @@ import com.netscape.certsrv.request.IRequestVirtualList;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.base.model.Link;
+import com.netscape.cms.servlet.key.model.KeyDAO;
+import com.netscape.cms.servlet.key.model.KeyDataInfos;
+import com.netscape.certsrv.profile.IEnrollProfile;
 
 /**
  * @author alee
@@ -42,6 +48,9 @@ import com.netscape.cms.servlet.base.model.Link;
  */
 public class KeyRequestDAO {
     private IRequestQueue queue;
+    private IKeyRecoveryAuthority kra;
+
+    private static String REQUEST_ARCHIVE_OPTIONS = IEnrollProfile.REQUEST_ARCHIVE_OPTIONS;
     
     private String[] vlvFilters = {
             "(requeststate=*)", "(requesttype=enrollment)",
@@ -56,8 +65,9 @@ public class KeyRequestDAO {
             "(&(requeststate=complete)(requesttype=recovery))"
     };
     
+    public static final String ATTR_SERIALNO = "serialNumber";
+
     public KeyRequestDAO() {
-        IKeyRecoveryAuthority kra = null;
         kra = ( IKeyRecoveryAuthority ) CMS.getSubsystem( "kra" );
         queue = kra.getRequestQueue();
     }
@@ -104,6 +114,10 @@ public class KeyRequestDAO {
             // We should think about whether they should be, or if we need to
             // limit the number of results returned.
             IRequestList requests = queue.listRequestsByFilter(filter, maxResults, maxTime);
+
+            if (requests == null) {
+                return null;
+            }
             while (requests.hasMoreElements()) {
                 RequestId rid = (RequestId) requests.nextElement();
                 IRequest request = queue.findRequest(rid);
@@ -168,10 +182,26 @@ public class KeyRequestDAO {
      * @throws EBaseException 
      */
     public KeyRequestInfo submitRequest(ArchivalRequestData data, UriInfo uriInfo) throws EBaseException {
+        String clientId = data.getClientId();
+        String wrappedSecurityData = data.getWrappedPrivateData();
+        String dataType = data.getDataType();
+
+        boolean keyExists = doesKeyExist(clientId, "active", uriInfo);
+
+        if(keyExists == true) {
+            throw new EBaseException("Can not archive already active existing key!");
+        }
+
         IRequest request = queue.newRequest(IRequest.SECURITY_DATA_ENROLLMENT_REQUEST);
-        //TODO : 
-        //set data using request.setExtData(field, data)
+
+        request.setExtData(REQUEST_ARCHIVE_OPTIONS, wrappedSecurityData);
+        request.setExtData(IRequest.SECURITY_DATA_CLIENT_ID, clientId);
+        request.setExtData(IRequest.SECURITY_DATA_TYPE, dataType);
+
         queue.processRequest(request);
+
+        queue.markAsServiced(request);
+
         return createKeyRequestInfo(request, uriInfo);
     }
     /**
@@ -181,25 +211,61 @@ public class KeyRequestDAO {
      * @throws EBaseException 
      */
     public KeyRequestInfo submitRequest(RecoveryRequestData data, UriInfo uriInfo) throws EBaseException { 
-        IRequest request = queue.newRequest(IRequest.SECURITY_DATA_RECOVERY_REQUEST);
+
         // set data using request.setExtData(field, data)
+
+        String wrappedSessionKeyStr = data.getTransWrappedSessionKey();
+        String wrappedPassPhraseStr = data.getSessionWrappedPassphrase();
+        String nonceDataStr = data.getNonceData();
+
+        IRequest request = queue.newRequest(IRequest.SECURITY_DATA_RECOVERY_REQUEST);
+
+        String keyId = data.getKeyId();
+
+        Hashtable<String, Object> requestParams;
+        requestParams = kra.createVolatileRequest(request.getRequestId());
+
+        if(requestParams == null) {
+            throw new EBaseException("Can not create Volatile params in submitRequest!");
+        }
+
+        CMS.debug("Create volatile  params for recovery request. " + requestParams);
+
+        if (wrappedPassPhraseStr != null) {
+            requestParams.put(IRequest.SECURITY_DATA_SESS_PASS_PHRASE, wrappedPassPhraseStr);
+        }
+
+        if (wrappedSessionKeyStr != null) {
+            requestParams.put(IRequest.SECURITY_DATA_TRANS_SESS_KEY, wrappedSessionKeyStr);
+        }
+
+        if (nonceDataStr != null) {
+            requestParams.put(IRequest.SECURITY_DATA_IV_STRING_IN, nonceDataStr);
+        }
+
+        request.setExtData(ATTR_SERIALNO,keyId);
+
         queue.processRequest(request);
+
         return createKeyRequestInfo(request, uriInfo);
     }
 
     public void approveRequest(String id) throws EBaseException {
         IRequest request = queue.findRequest(new RequestId(id));
         request.setRequestStatus(RequestStatus.APPROVED);
+        queue.updateRequest(request);
     }
     
     public void rejectRequest(String id) throws EBaseException {
         IRequest request = queue.findRequest(new RequestId(id));
         request.setRequestStatus(RequestStatus.CANCELED);
+        queue.updateRequest(request);
     }
     
     public void cancelRequest(String id) throws EBaseException {
         IRequest request = queue.findRequest(new RequestId(id));
         request.setRequestStatus(RequestStatus.REJECTED);
+        queue.updateRequest(request);
     }
     
     public KeyRequestInfo createKeyRequestInfo(IRequest request, UriInfo uriInfo) {
@@ -228,5 +294,28 @@ public class KeyRequestDAO {
             }
         }
         return false;
+    }
+
+    //We only care if the key exists or not
+    private boolean doesKeyExist(String clientId, String keyStatus, UriInfo uriInfo) {
+        boolean ret = false;
+        String state = "active";
+
+        KeyDAO  keys = new KeyDAO();
+
+        KeyDataInfos existingKeys;
+        String filter = "(&(" + IRequest.SECURITY_DATA_CLIENT_ID + "=" + clientId + ")"
+                    + "(" + IRequest.SECURITY_DATA_STATUS + "=" + state + "))";
+        try {
+            existingKeys =  keys.listKeys(filter, 1, 10,  uriInfo);
+
+            if(existingKeys != null && existingKeys.getKeyInfos().size() > 0) {
+                ret = true;
+            }
+        } catch (EBaseException e) {
+            ret= false;
+        }
+
+        return ret;
     }
 }

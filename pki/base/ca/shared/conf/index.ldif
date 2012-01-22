@@ -19,6 +19,27 @@ nsIndexType: eq
 nsSystemIndex: false
 cn: publicKeyData
 
+dn: cn=clientId,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsIndexType: eq
+nsSystemIndex: false
+cn: clientId
+
+dn: cn=dataType,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsIndexType: eq
+nsSystemIndex: false
+cn: dataType
+
+dn: cn=status,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
+objectClass: top
+objectClass: nsIndex
+nsIndexType: eq
+nsSystemIndex: false
+cn: status
+
 dn: cn=description,cn=index,cn={database},cn=ldbm database, cn=plugins, cn=config
 objectClass: top
 objectClass: nsIndex

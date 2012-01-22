@@ -69,8 +69,6 @@ public interface IRequest {
     public static final String CLA_UNCERT4CRL_REQUEST = "uncert4crl";
     public static final String NETKEY_KEYGEN_REQUEST = "netkeyKeygen";
     public static final String NETKEY_KEYRECOVERY_REQUEST = "netkeyKeyRecovery";
-    public static final String SECURITY_DATA_ENROLLMENT_REQUEST = "securityDataEnrollment";
-    public static final String SECURITY_DATA_RECOVERY_REQUEST = "securityDataRecovery";
 
     public static final String REQUESTOR_NAME = "csrRequestorName";
     public static final String REQUESTOR_PHONE = "csrRequestorPhone";
@@ -151,6 +149,18 @@ public interface IRequest {
     public final static String NETKEY_ATTR_ENC_PRIVKEY_FLAG = "encryptPrivKey";
     public final static String NETKEY_ATTR_USER_CERT = "cert";
     public final static String NETKEY_ATTR_KEY_SIZE = "keysize";
+
+    //Security Data request attributes
+    public static final String SECURITY_DATA_ENROLLMENT_REQUEST = "securityDataEnrollment";
+    public static final String SECURITY_DATA_RECOVERY_REQUEST = "securityDataRecovery";
+    public static final String SECURITY_DATA_CLIENT_ID = "clientID";
+    public static final String SECURITY_DATA_TYPE = "dataType";
+    public static final String SECURITY_DATA_STATUS = "status";
+    public static final String SECURITY_DATA_TRANS_SESS_KEY = "transWrappedSessionKey";
+    public static final String SECURITY_DATA_SESS_PASS_PHRASE = "sessionWrappedPassphrase";
+    public static final String SECURITY_DATA_IV_STRING_IN = "iv_in";
+    public static final String SECURITY_DATA_IV_STRING_OUT = "iv_out";
+
 
     // requestor type values.
     public static final String REQUESTOR_EE = "EE";

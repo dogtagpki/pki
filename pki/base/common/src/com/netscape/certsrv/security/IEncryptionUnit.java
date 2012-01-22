@@ -20,6 +20,7 @@ package com.netscape.certsrv.security;
 import java.security.PublicKey;
 
 import org.mozilla.jss.crypto.PrivateKey;
+import org.mozilla.jss.crypto.SymmetricKey;
 
 import com.netscape.certsrv.base.EBaseException;
 
@@ -48,6 +49,16 @@ public interface IEncryptionUnit extends IToken {
     public byte[] wrap(PrivateKey priKey) throws EBaseException;
 
     /**
+     * Wraps data. The given key will be wrapped by the
+     * private key in this unit.
+     *
+     * @param symKey symmetric key to be wrapped
+     * @return wrapped data
+     * @exception EBaseException failed to wrap
+     */
+    public byte[] wrap(SymmetricKey symKey) throws EBaseException;
+
+    /**
      * Verifies the given key pair.
      * 
      * @param publicKey public key
@@ -72,6 +83,46 @@ public interface IEncryptionUnit extends IToken {
             byte symmAlgParams[], byte privateKey[],
             PublicKey pubKey)
             throws EBaseException;
+
+    /**
+     * Unwraps symmetric key data. This method rebuilds the symmetric key by
+     * unwrapping the private data blob.
+     *
+     * @param wrappedKeyData symmetric key data wrapped up with session key
+     * @return Symmetric key object
+     * @exception EBaseException failed to unwrap
+     */
+
+    public SymmetricKey unwrap(byte wrappedKeyData[])
+            throws EBaseException;
+
+    /**
+     * Unwraps symmetric key . This method
+     * unwraps the symmetric key.
+     *
+     * @param sessionKey session key that unwrap the symmetric key
+     * @param symmAlgOID symmetric algorithm
+     * @param symmAlgParams symmetric algorithm parameters
+     * @param symmetricKey  symmetric key data
+     * @return Symmetric key object
+     * @exception EBaseException failed to unwrap
+     */
+
+    public SymmetricKey unwrap_symmetric(byte sessionKey[], String symmAlgOID,
+            byte symmAlgParams[], byte symmetricKey[])
+            throws EBaseException;
+
+    /**
+     * Unwraps symmetric key . This method
+     * unwraps the symmetric key.
+     *
+     * @param encSymmKey wrapped symmetric key to be unwrapped
+     * @return Symmetric key object
+     * @exception EBaseException failed to unwrap
+     */
+
+    public SymmetricKey unwrap_sym(byte encSymmKey[],
+            SymmetricKey.Usage usage);
 
     /**
      * Unwraps data. This method rebuilds the private key by

@@ -69,6 +69,14 @@ public class KeyRequestResourceService extends CMSResourceService implements Key
 
     public KeyRequestInfo archiveKey(ArchivalRequestData data) {
         // auth and authz
+        // Catch this before internal server processing has to deal with it
+
+        if (data == null || data.getClientId() == null
+                || data.getWrappedPrivateData() == null
+                || data.getDataType() == null) {
+            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+        }
+
         KeyRequestDAO dao = new KeyRequestDAO();
         KeyRequestInfo info;
         try {
@@ -89,6 +97,15 @@ public class KeyRequestResourceService extends CMSResourceService implements Key
 
     public KeyRequestInfo recoverKey(RecoveryRequestData data) {
         // auth and authz
+
+        //Check for entirely illegal data combination here
+        //Catch this before the internal server processing has to deal with it
+        //If data has been provided, we need at least the wrapped session key,
+        //or the command is invalid.
+        if (data == null || (data.getTransWrappedSessionKey() == null
+                && data.getSessionWrappedPassphrase() != null)) {
+            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+        }
         KeyRequestDAO dao = new KeyRequestDAO();
         KeyRequestInfo info;
         try {
@@ -102,6 +119,9 @@ public class KeyRequestResourceService extends CMSResourceService implements Key
     }
     
     public void approveRequest(@PathParam("id") String id) {
+        if ( id == null) {
+            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+        }
         // auth and authz
         KeyRequestDAO dao = new KeyRequestDAO();
         try {
@@ -114,6 +134,9 @@ public class KeyRequestResourceService extends CMSResourceService implements Key
     }
     
     public void rejectRequest(@PathParam("id") String id) {
+        if ( id == null) {
+            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+        }
         // auth and authz
         KeyRequestDAO dao = new KeyRequestDAO();
         try {
@@ -126,6 +149,9 @@ public class KeyRequestResourceService extends CMSResourceService implements Key
     }
          
     public void cancelRequest(@PathParam("id") String id) {
+        if ( id == null) {
+            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+        }
         // auth and authz
         KeyRequestDAO dao = new KeyRequestDAO();
         try {

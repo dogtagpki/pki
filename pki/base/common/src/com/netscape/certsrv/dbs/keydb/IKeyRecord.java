@@ -40,6 +40,10 @@ public interface IKeyRecord {
     public static final String ATTR_MODIFY_TIME = "keyModifyTime";
     public static final String ATTR_META_INFO = "keyMetaInfo";
     public static final String ATTR_ARCHIVED_BY = "keyArchivedBy";
+    public static final String ATTR_CLIENT_ID = "clientId";
+    public static final String ATTR_DATA_TYPE = "dataType";
+    public static final String ATTR_STATUS = "status";
+
 
     // key state
     public static final String STATUS_ANY = "ANY";
@@ -86,10 +90,35 @@ public interface IKeyRecord {
     public Integer getKeySize() throws EBaseException;
 
     /**
+     * Retrieves client ID.
+     *
+     * @return client id
+     * @exception EBaseException failed to retrieve client id
+     */
+    public String getClientId() throws EBaseException;
+
+    /**
+     * Retrieves key data type.
+     *
+     * @return data type
+     * @exception EBaseException failed to retrieve data type
+     */
+    public String getDataType() throws EBaseException;
+
+    /**
+     * Retrieves key status.
+     *
+     * @return key status
+     * @exception EBaseException failed to retrieve key status
+     */
+    public String getKeyStatus() throws EBaseException;
+
+    /**
      * Retrieves archiver identifier.
      * 
      * @return archiver uid
      */
+
     public String getArchivedBy();
 
     /**

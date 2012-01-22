@@ -129,6 +129,19 @@ public class KeyRepository extends Repository implements IKeyRepository {
             reg.registerAttribute(KeyRecord.ATTR_ARCHIVED_BY, new
                     StringMapper(KeyDBSchema.LDAP_ATTR_ARCHIVED_BY));
         }
+        if (!reg.isAttributeRegistered(KeyRecord.ATTR_CLIENT_ID)) {
+            reg.registerAttribute(KeyRecord.ATTR_CLIENT_ID, new
+                    StringMapper(KeyDBSchema.LDAP_ATTR_CLIENT_ID));
+        }
+        if (!reg.isAttributeRegistered(KeyRecord.ATTR_STATUS)) {
+            reg.registerAttribute(KeyRecord.ATTR_STATUS, new
+                    StringMapper(KeyDBSchema.LDAP_ATTR_STATUS));
+        }
+        if (!reg.isAttributeRegistered(KeyRecord.ATTR_DATA_TYPE)) {
+            reg.registerAttribute(KeyRecord.ATTR_DATA_TYPE, new
+                    StringMapper(KeyDBSchema.LDAP_ATTR_DATA_TYPE));
+        }
+
     }
 
     public void setKeyStatusUpdateInterval(IRepository requestRepo, int interval) {

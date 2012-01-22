@@ -35,25 +35,15 @@ import netscape.security.x509.CertificateX509Key;
 import netscape.security.x509.X509CertInfo;
 import netscape.security.x509.X509Key;
 
-import org.mozilla.jss.asn1.ANY;
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.ASN1Value;
-import org.mozilla.jss.asn1.BIT_STRING;
 import org.mozilla.jss.asn1.InvalidBERException;
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
-import org.mozilla.jss.asn1.OCTET_STRING;
 import org.mozilla.jss.asn1.SEQUENCE;
-import org.mozilla.jss.asn1.SET;
-import org.mozilla.jss.pkix.cms.EncryptedContentInfo;
-import org.mozilla.jss.pkix.cms.EnvelopedData;
-import org.mozilla.jss.pkix.cms.RecipientInfo;
 import org.mozilla.jss.pkix.crmf.CertReqMsg;
 import org.mozilla.jss.pkix.crmf.CertRequest;
-import org.mozilla.jss.pkix.crmf.EncryptedKey;
-import org.mozilla.jss.pkix.crmf.EncryptedValue;
 import org.mozilla.jss.pkix.crmf.PKIArchiveOptions;
 import org.mozilla.jss.pkix.primitive.AVA;
-import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
@@ -73,6 +63,7 @@ import com.netscape.certsrv.security.ITransportKeyUnit;
 import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cmscore.crmf.CRMFParser;
 import com.netscape.cmscore.crmf.PKIArchiveOptionsContainer;
+import com.netscape.kra.ArchiveOptions;
 import com.netscape.cmscore.dbs.KeyRecord;
 
 /**
@@ -553,7 +544,7 @@ public class EnrollmentService implements IService {
      */
     public static PKIArchiveOptionsContainer[] getPKIArchiveOptions(String crmfBlob)
             throws EBaseException {
-        Vector options = new Vector();
+        Vector<Object> options = new Vector<Object>();
 
         if (CMS.debugOn())
             CMS.debug("EnrollmentService::getPKIArchiveOptions> crmfBlob=" + crmfBlob);
@@ -874,109 +865,5 @@ public class EnrollmentService implements IService {
                 ILogger.S_SIGNED_AUDIT,
                 ILogger.LL_SECURITY,
                 msg);
-    }
-}
-
-/**
- * Parsed and Flattened structure of PKIArchiveOptions.
- */
-class ArchiveOptions {
-    private String mSymmAlgOID = null;
-    private byte mSymmAlgParams[] = null;
-    private byte mEncSymmKey[] = null;
-    private byte mEncValue[] = null;
-
-    public ArchiveOptions(PKIArchiveOptions opts) throws EBaseException {
-        try {
-            EncryptedKey key = opts.getEncryptedKey();
-            ANY enveloped_val = null;
-            EncryptedValue val = null;
-            AlgorithmIdentifier symmAlg = null;
-
-            if (key.getType() == org.mozilla.jss.pkix.crmf.EncryptedKey.ENVELOPED_DATA) {
-                CMS.debug("EnrollService: ArchiveOptions() EncryptedKey type= ENVELOPED_DATA");
-                // this is the new RFC4211 EncryptedKey that should
-                // have EnvelopedData to replace the deprecated EncryptedValue
-                enveloped_val = key.getEnvelopedData();
-                byte[] env_b = enveloped_val.getEncoded();
-                EnvelopedData.Template env_template = new EnvelopedData.Template();
-                EnvelopedData env_data =
-                        (EnvelopedData) env_template.decode(new ByteArrayInputStream(env_b));
-                EncryptedContentInfo eCI = env_data.getEncryptedContentInfo();
-                symmAlg = eCI.getContentEncryptionAlgorithm();
-                mSymmAlgOID = symmAlg.getOID().toString();
-                mSymmAlgParams =
-                        ((OCTET_STRING) ((ANY) symmAlg.getParameters()).decodeWith(OCTET_STRING.getTemplate()))
-                                .toByteArray();
-
-                SET recipients = env_data.getRecipientInfos();
-                if (recipients.size() <= 0) {
-                    CMS.debug("EnrollService: ArchiveOptions() - missing recipient information ");
-                    throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE",
-                            "[PKIArchiveOptions] missing recipient information "));
-                }
-                //check recpient - later
-                //we only handle one recipient here anyways.  so, either the key
-                //can be decrypted or it can't. No risk here.
-                RecipientInfo ri = (RecipientInfo) recipients.elementAt(0);
-                OCTET_STRING key_o = ri.getEncryptedKey();
-                mEncSymmKey = key_o.toByteArray();
-
-                OCTET_STRING oString = eCI.getEncryptedContent();
-                BIT_STRING encVal = new BIT_STRING(oString.toByteArray(), 0);
-                mEncValue = encVal.getBits();
-                CMS.debug("EnrollService: ArchiveOptions() EncryptedKey type= ENVELOPED_DATA done");
-            } else if (key.getType() == org.mozilla.jss.pkix.crmf.EncryptedKey.ENCRYPTED_VALUE) {
-                CMS.debug("EnrollService: ArchiveOptions() EncryptedKey type= ENCRYPTED_VALUE");
-                // this is deprecated: EncryptedValue
-                val = key.getEncryptedValue();
-                symmAlg = val.getSymmAlg();
-                mSymmAlgOID = symmAlg.getOID().toString();
-                mSymmAlgParams =
-                        ((OCTET_STRING) ((ANY) symmAlg.getParameters()).decodeWith(OCTET_STRING.getTemplate()))
-                                .toByteArray();
-                BIT_STRING encSymmKey = val.getEncSymmKey();
-
-                mEncSymmKey = encSymmKey.getBits();
-                BIT_STRING encVal = val.getEncValue();
-
-                mEncValue = encVal.getBits();
-                CMS.debug("EnrollService: ArchiveOptions() EncryptedKey type= ENCRYPTED_VALUE done");
-            } else {
-                CMS.debug("EnrollService: ArchiveOptions() invalid EncryptedKey type");
-                throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", "[PKIArchiveOptions] type "
-                        + key.getType()));
-            }
-
-        } catch (InvalidBERException e) {
-            CMS.debug("EnrollService: ArchiveOptions(): " + e.toString());
-            throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE",
-                    "[PKIArchiveOptions]" + e.toString()));
-        } catch (IOException e) {
-            CMS.debug("EnrollService: ArchiveOptions(): " + e.toString());
-            throw new EBaseException("ArchiveOptions() exception caught: " +
-                    e.toString());
-        } catch (Exception e) {
-            CMS.debug("EnrollService: ArchiveOptions(): " + e.toString());
-            throw new EBaseException("ArchiveOptions() exception caught: " +
-                    e.toString());
-        }
-
-    }
-
-    public String getSymmAlgOID() {
-        return mSymmAlgOID;
-    }
-
-    public byte[] getSymmAlgParams() {
-        return mSymmAlgParams;
-    }
-
-    public byte[] getEncSymmKey() {
-        return mEncSymmKey;
-    }
-
-    public byte[] getEncValue() {
-        return mEncValue;
     }
 }

@@ -54,6 +54,7 @@ import com.netscape.cmscore.util.Debug;
  * @author thomask
  * @version $Revision$, $Date$
  */
+@SuppressWarnings("deprecation")
 public abstract class EncryptionUnit implements IEncryptionUnit {
 
     /* Establish one constant IV for base class, to be used for
@@ -168,96 +169,13 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
         }
     }
 
-    /**
-     * Wraps the data using transport public key.
-     */
-    public byte[] wrap(PrivateKey priKey) throws EBaseException {
-        try {
-
-            CMS.debug("EncryptionUnit.wrap");
-            CryptoToken token = getToken();
-
-            // (1) generate session key
-            org.mozilla.jss.crypto.KeyGenerator kg =
-                        token.getKeyGenerator(KeyGenAlgorithm.DES3);
-            // internalToken.getKeyGenerator(KeyGenAlgorithm.DES3);
-            SymmetricKey.Usage usages[] = new SymmetricKey.Usage[2];
-            usages[0] = SymmetricKey.Usage.WRAP;
-            usages[1] = SymmetricKey.Usage.UNWRAP;
-            kg.setKeyUsages(usages);
-            kg.temporaryKeys(true);
-            SymmetricKey sk = kg.generate();
-            CMS.debug("EncryptionUnit:wrap() session key generated on slot: " + token.getName());
-
-            // (2) wrap private key with session key
-            // KeyWrapper wrapper = internalToken.getKeyWrapper(
-            KeyWrapper wrapper = token.getKeyWrapper(
-                    KeyWrapAlgorithm.DES3_CBC_PAD);
-
-            wrapper.initWrap(sk, IV);
-            byte pri[] = wrapper.wrap(priKey);
-            CMS.debug("EncryptionUnit:wrap() privKey wrapped");
-
-            // (3) wrap session with transport public
-            KeyWrapper rsaWrap = token.getKeyWrapper(
-                    KeyWrapAlgorithm.RSA);
-
-            rsaWrap.initWrap(getPublicKey(), null);
-            byte session[] = rsaWrap.wrap(sk);
-            CMS.debug("EncryptionUnit:wrap() sessin key wrapped");
-
-            // use MY own structure for now:
-            // SEQUENCE {
-            //     encryptedSession OCTET STRING,
-            //     encryptedPrivate OCTET STRING
-            // }
-
-            DerOutputStream tmp = new DerOutputStream();
-            DerOutputStream out = new DerOutputStream();
-
-            tmp.putOctetString(session);
-            tmp.putOctetString(pri);
-            out.write(DerValue.tag_Sequence, tmp);
-
-            return out.toByteArray();
-        } catch (TokenException e) {
-            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_WRAP", e.toString()));
-            Debug.trace("EncryptionUnit::wrap " + e.toString());
-            return null;
-        } catch (NoSuchAlgorithmException e) {
-            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_WRAP", e.toString()));
-            Debug.trace("EncryptionUnit::wrap " + e.toString());
-            return null;
-        } catch (CharConversionException e) {
-            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_WRAP", e.toString()));
-            Debug.trace("EncryptionUnit::wrap " + e.toString());
-            return null;
-        } catch (InvalidAlgorithmParameterException e) {
-            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_WRAP", e.toString()));
-            Debug.trace("EncryptionUnit::wrap " + e.toString());
-            return null;
-        } catch (InvalidKeyException e) {
-            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_WRAP", e.toString()));
-            Debug.trace("EncryptionUnit::wrap " + e.toString());
-            return null;
-        } catch (IOException e) {
-            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_WRAP", e.toString()));
-            Debug.trace("EncryptionUnit::wrap " + e.toString());
-            return null;
-        } catch (Exception e) {
-            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
-                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_WRAP", e.toString()));
-            Debug.trace("EncryptionUnit::wrap " + e.toString());
-            return null;
-        }
+    public byte[] wrap(PrivateKey privKey) throws EBaseException {
+        return _wrap(privKey,null);
     }
 
+    public byte[] wrap(SymmetricKey symmKey) throws EBaseException {
+        return _wrap(null,symmKey);
+    }
     /**
      * External unwrapping. Unwraps the data using
      * the transport private key.
@@ -367,13 +285,13 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
     }
 
     /**
-     * External unwrapping. Unwraps the data using
+     * External unwrapping. Unwraps the symmetric key using
      * the transport private key.
      */
-    public PrivateKey unwrap(byte encSymmKey[],
-            String symmAlgOID, byte symmAlgParams[],
-            byte encValue[], PublicKey pubKey)
-            throws EBaseException {
+    public SymmetricKey unwrap_symmetric(byte encSymmKey[],
+        String symmAlgOID, byte symmAlgParams[],
+        byte encValue[])
+        throws EBaseException {
         try {
             CryptoToken token = getToken();
 
@@ -386,7 +304,7 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
                     SymmetricKey.DES3, SymmetricKey.Usage.UNWRAP,
                     0);
 
-            // (2) unwrap the pri
+            // (2) unwrap the sym key
             KeyWrapper wrapper = token.getKeyWrapper(
                     KeyWrapAlgorithm.DES3_CBC_PAD // XXX
                     );
@@ -394,19 +312,9 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
             wrapper.initUnwrap(sk, new IVParameterSpec(
                     symmAlgParams));
 
-            PrivateKey.Type keytype = null;
-            String alg = pubKey.getAlgorithm();
-            if (alg.equals("DSA")) {
-                keytype = PrivateKey.DSA;
-            } else if (alg.equals("EC")) {
-                keytype = PrivateKey.EC;
-            } else {
-                keytype = PrivateKey.RSA;
-            }
-            PrivateKey pk = wrapper.unwrapTemporaryPrivate(encValue,
-                    keytype, pubKey);
+            SymmetricKey symKey = wrapper.unwrapSymmetric(encValue, SymmetricKey.DES3, SymmetricKey.Usage.DECRYPT, 0);
 
-            return pk;
+            return symKey;
         } catch (TokenException e) {
             CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_UNWRAP", e.toString()));
@@ -432,6 +340,74 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
             return null;
         }
     }
+
+    /**
+     * External unwrapping. Unwraps the data using
+     * the transport private key.
+     */
+    public PrivateKey unwrap(byte encSymmKey[],
+        String symmAlgOID, byte symmAlgParams[],
+        byte encValue[], PublicKey pubKey)
+        throws EBaseException {
+        try {
+            CryptoToken token = getToken();
+
+            // (1) unwrap the session
+            KeyWrapper rsaWrap = token.getKeyWrapper(
+                    KeyWrapAlgorithm.RSA);
+
+            rsaWrap.initUnwrap(getPrivateKey(), null);
+            SymmetricKey sk = rsaWrap.unwrapSymmetric(encSymmKey,
+                    SymmetricKey.DES3, SymmetricKey.Usage.UNWRAP,
+                    0);
+
+            // (2) unwrap the pri
+            KeyWrapper wrapper = token.getKeyWrapper(
+                    KeyWrapAlgorithm.DES3_CBC_PAD // XXX
+                );
+
+            wrapper.initUnwrap(sk, new IVParameterSpec(
+                    symmAlgParams));
+
+           PrivateKey.Type keytype = null;
+            String alg = pubKey.getAlgorithm();
+            if (alg.equals("DSA")) {
+                keytype = PrivateKey.DSA;
+            } else if (alg.equals("EC")) {
+                keytype = PrivateKey.EC;
+            } else {
+                keytype = PrivateKey.RSA;
+            }
+            PrivateKey pk = wrapper.unwrapTemporaryPrivate(encValue,
+                    keytype , pubKey);
+
+            return pk;
+        } catch (TokenException e) {
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_UNWRAP", e.toString()));
+            Debug.trace("EncryptionUnit::unwrap " + e.toString());
+            return null;
+        } catch (NoSuchAlgorithmException e) {
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_UNWRAP", e.toString()));
+            Debug.trace("EncryptionUnit::unwrap " + e.toString());
+            return null;
+        } catch (InvalidAlgorithmParameterException e) {
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_UNWRAP", e.toString()));
+            Debug.trace("EncryptionUnit::unwrap " + e.toString());
+            return null;
+        } catch (InvalidKeyException e) {
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_UNWRAP", e.toString()));
+            Debug.trace("EncryptionUnit::unwrap " + e.toString());
+            return null;
+        } catch (Exception e) {
+            CMS.debug("EncryptionUnit.unwrap : Exception:"+e.toString());
+            return null;
+        }
+    }
+
+    /**
+     * External unwrapping. Unwraps the data using
+     * the transport private key.
+     */
 
     public byte[] decryptInternalPrivate(byte wrappedKeyData[])
             throws EBaseException {
@@ -501,6 +477,72 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
             CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_DECRYPT", e.toString()));
             Debug.trace("EncryptionUnit::decryptInternalPrivate " + e.toString());
+            return null;
+        }
+    }
+
+    /**
+     * External unwrapping of stored symmetric key.
+     */
+    public SymmetricKey unwrap(byte wrappedKeyData[])
+            throws EBaseException {
+        try {
+            DerValue val = new DerValue(wrappedKeyData);
+            // val.tag == DerValue.tag_Sequence
+            DerInputStream in = val.data;
+            DerValue dSession = in.getDerValue();
+            byte session[] = dSession.getOctetString();
+            DerValue dPri = in.getDerValue();
+            byte pri[] = dPri.getOctetString();
+
+            CryptoToken token = getToken();
+            // (1) unwrap the session key
+            KeyWrapper rsaWrap = token.getKeyWrapper(
+                    KeyWrapAlgorithm.RSA);
+
+            rsaWrap.initUnwrap(getPrivateKey(), null);
+            SymmetricKey sk = rsaWrap.unwrapSymmetric(session,
+                    SymmetricKey.DES3, SymmetricKey.Usage.UNWRAP, 0);
+
+            // (2) unwrap the symmetric key
+            KeyWrapper wrapper = token.getKeyWrapper(
+                    KeyWrapAlgorithm.DES3_CBC_PAD);
+
+            wrapper.initUnwrap(sk, IV);
+
+            SymmetricKey sk_ret = wrapper.unwrapSymmetric(pri,
+                    SymmetricKey.DES3, SymmetricKey.Usage.UNWRAP,
+                    0);
+
+            return sk_ret;
+        } catch (TokenException e) {
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_UNWRAP", e.toString()));
+            Debug.trace("EncryptionUnit::unwrap " + e.toString());
+            CMS.debug(e);
+            return null;
+        } catch (NoSuchAlgorithmException e) {
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_UNWRAP", e.toString()));
+            Debug.trace("EncryptionUnit::unwrap " + e.toString());
+            return null;
+        } catch (InvalidAlgorithmParameterException e) {
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_UNWRAP", e.toString()));
+            Debug.trace("EncryptionUnit::unwrap " + e.toString());
+            return null;
+        } catch (InvalidKeyException e) {
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_UNWRAP", e.toString()));
+            Debug.printStackTrace(e);
+            return null;
+        } catch (IOException e) {
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_UNWRAP", e.toString()));
+            Debug.trace("EncryptionUnit::unwrap " + e.toString());
+            return null;
+        } catch (Exception e) {
+            Debug.printStackTrace(e);
             return null;
         }
     }
@@ -588,6 +630,105 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
             return null;
         } catch (Exception e) {
             Debug.printStackTrace(e);
+            return null;
+        }
+    }
+
+    /***
+     * Internal wrap, accounts for either private or symmetric key
+     */
+    private byte[] _wrap(PrivateKey priKey, SymmetricKey symmKey) throws EBaseException {
+        try {
+            if ((priKey == null && symmKey == null) || (priKey != null && symmKey != null)) {
+                return null;
+            }
+            CMS.debug("EncryptionUnit.wrap interal.");
+            CryptoToken token = getToken();
+
+            // (1) generate session key
+            org.mozilla.jss.crypto.KeyGenerator kg =
+                        token.getKeyGenerator(KeyGenAlgorithm.DES3);
+            // internalToken.getKeyGenerator(KeyGenAlgorithm.DES3);
+            SymmetricKey.Usage usages[] = new SymmetricKey.Usage[2];
+            usages[0] = SymmetricKey.Usage.WRAP;
+            usages[1] = SymmetricKey.Usage.UNWRAP;
+            kg.setKeyUsages(usages);
+            kg.temporaryKeys(true);
+            SymmetricKey sk = kg.generate();
+            CMS.debug("EncryptionUnit:wrap() session key generated on slot: " + token.getName());
+
+            // (2) wrap private key with session key
+            // KeyWrapper wrapper = internalToken.getKeyWrapper(
+            KeyWrapper wrapper = token.getKeyWrapper(
+                    KeyWrapAlgorithm.DES3_CBC_PAD);
+
+            wrapper.initWrap(sk, IV);
+
+            byte pri[] = null;
+
+            if ( priKey != null) {
+                pri = wrapper.wrap(priKey);
+            } else if ( symmKey != null) {
+                pri = wrapper.wrap(symmKey);
+            }
+            CMS.debug("EncryptionUnit:wrap() privKey wrapped");
+
+            // (3) wrap session with transport public
+            KeyWrapper rsaWrap = token.getKeyWrapper(
+                    KeyWrapAlgorithm.RSA);
+
+            rsaWrap.initWrap(getPublicKey(), null);
+            byte session[] = rsaWrap.wrap(sk);
+            CMS.debug("EncryptionUnit:wrap() sessin key wrapped");
+
+            // use MY own structure for now:
+            // SEQUENCE {
+            //     encryptedSession OCTET STRING,
+            //     encryptedPrivate OCTET STRING
+            // }
+
+            DerOutputStream tmp = new DerOutputStream();
+            DerOutputStream out = new DerOutputStream();
+
+            tmp.putOctetString(session);
+            tmp.putOctetString(pri);
+            out.write(DerValue.tag_Sequence, tmp);
+
+            return out.toByteArray();
+        } catch (TokenException e) {
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_WRAP", e.toString()));
+            Debug.trace("EncryptionUnit::wrap " + e.toString());
+            return null;
+        } catch (NoSuchAlgorithmException e) {
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_WRAP", e.toString()));
+            Debug.trace("EncryptionUnit::wrap " + e.toString());
+            return null;
+        } catch (CharConversionException e) {
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_WRAP", e.toString()));
+            Debug.trace("EncryptionUnit::wrap " + e.toString());
+            return null;
+        } catch (InvalidAlgorithmParameterException e) {
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_WRAP", e.toString()));
+            Debug.trace("EncryptionUnit::wrap " + e.toString());
+            return null;
+        } catch (InvalidKeyException e) {
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_WRAP", e.toString()));
+            Debug.trace("EncryptionUnit::wrap " + e.toString());
+            return null;
+        } catch (IOException e) {
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_WRAP", e.toString()));
+            Debug.trace("EncryptionUnit::wrap " + e.toString());
+            return null;
+        } catch (Exception e) {
+            CMS.getLogger().log(ILogger.EV_SYSTEM, null, ILogger.S_KRA, ILogger.LL_FAILURE,
+                    CMS.getLogMessage("CMSCORE_KRA_ENCRYPTION_WRAP", e.toString()));
+            Debug.trace("EncryptionUnit::wrap " + e.toString());
             return null;
         }
     }

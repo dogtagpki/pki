@@ -49,12 +49,13 @@ public class DRMRestClient {
         return list;
     }
     
-    public KeyRequestInfo archiveSecurityData(byte[] encoded, String clientId) {
+    public KeyRequestInfo archiveSecurityData(byte[] encoded, String clientId, String dataType) {
         // create archival request
         ArchivalRequestData data = new ArchivalRequestData();
         String req1 = com.netscape.osutil.OSUtil.BtoA(encoded);
         data.setWrappedPrivateData(req1);
         data.setClientId(clientId);
+        data.setDataType(dataType);
 
         KeyRequestInfo info = keyRequestClient.archiveKey(data);
         return info;
@@ -75,7 +76,7 @@ public class DRMRestClient {
         return null;
     }
     
-    public KeyRequestInfo requestRecovery(String keyId, byte[] rpwd, byte[] rkey) {
+    public KeyRequestInfo requestRecovery(String keyId, byte[] rpwd, byte[] rkey, byte[] nonceData) {
         // create recovery request
         RecoveryRequestData data = new RecoveryRequestData();
         data.setKeyId(keyId);
@@ -86,6 +87,10 @@ public class DRMRestClient {
             data.setTransWrappedSessionKey(com.netscape.osutil.OSUtil.BtoA(rkey));
         }
 
+        if (nonceData != null) {
+            data.setNonceData(com.netscape.osutil.OSUtil.BtoA(nonceData));
+        }
+
         KeyRequestInfo info = keyRequestClient.recoverKey(data);
         return info;
     }
@@ -94,7 +99,7 @@ public class DRMRestClient {
         keyRequestClient.approveRequest(recoveryId);
     }
     
-    public KeyData retrieveKey(String keyId, String requestId, byte[] rpwd, byte[] rkey) { 
+    public KeyData retrieveKey(String keyId, String requestId, byte[] rpwd, byte[] rkey, byte[] nonceData) {
         // create recovery request
         RecoveryRequestData data = new RecoveryRequestData();
         data.setKeyId(keyId);
@@ -105,6 +110,11 @@ public class DRMRestClient {
         if (rpwd != null) {
             data.setSessionWrappedPassphrase(com.netscape.osutil.OSUtil.BtoA(rpwd));
         }
+
+        if (nonceData != null) {
+            data.setNonceData(com.netscape.osutil.OSUtil.BtoA(nonceData));
+        }
+
         KeyData key = keyClient.retrieveKey(data);
         return key;
     }

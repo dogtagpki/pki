@@ -45,4 +45,7 @@ public class KeyDBSchema {
     public static final String LDAP_ATTR_PUBLIC_KEY_FORMAT =
             "publicKeyFormat";
     public static final String LDAP_ATTR_ARCHIVED_BY = "archivedBy";
+    public static final String LDAP_ATTR_CLIENT_ID = "clientId";
+    public static final String LDAP_ATTR_STATUS = "status";
+    public static final String LDAP_ATTR_DATA_TYPE = "dataType";
 }

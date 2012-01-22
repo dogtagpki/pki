@@ -46,10 +46,13 @@ public class KRAService implements IService {
     public final static String RECOVERY = IRequest.KEYRECOVERY_REQUEST;
     public final static String NETKEY_KEYGEN = IRequest.NETKEY_KEYGEN_REQUEST;
     public final static String NETKEY_KEYRECOVERY = IRequest.NETKEY_KEYRECOVERY_REQUEST;
+    public final static String SECURITY_DATA_ENROLLMENT = IRequest.SECURITY_DATA_ENROLLMENT_REQUEST;
+    public final static String SECURITY_DATA_RECOVERY = IRequest.SECURITY_DATA_RECOVERY_REQUEST;
+
 
     // private variables
     private IKeyRecoveryAuthority mKRA = null;
-    private Hashtable mServices = new Hashtable();
+    private Hashtable<String,IService> mServices = new Hashtable<String,IService>();
 
     /**
      * Constructs KRA service.
@@ -60,6 +63,8 @@ public class KRAService implements IService {
         mServices.put(RECOVERY, new RecoveryService(kra));
         mServices.put(NETKEY_KEYGEN, new NetkeyKeygenService(kra));
         mServices.put(NETKEY_KEYRECOVERY, new TokenKeyRecoveryService(kra));
+        mServices.put(SECURITY_DATA_ENROLLMENT, new SecurityDataService(kra));
+        mServices.put(SECURITY_DATA_RECOVERY, new SecurityDataRecoveryService(kra));
     }
 
     /**

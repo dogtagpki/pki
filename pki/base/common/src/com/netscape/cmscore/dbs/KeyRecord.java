@@ -56,6 +56,10 @@ public class KeyRecord implements IDBObj, IKeyRecord {
     private Date mCreateTime = null;
     private Date mModifyTime = null;
     private String mArchivedBy = null;
+    private String mClientId = null;
+    private String mStatus = null;
+    private String mDataType = null;
+
 
     protected static Vector<String> mNames = new Vector<String>();
     static {
@@ -71,6 +75,9 @@ public class KeyRecord implements IDBObj, IKeyRecord {
         mNames.addElement(ATTR_CREATE_TIME);
         mNames.addElement(ATTR_MODIFY_TIME);
         mNames.addElement(ATTR_ARCHIVED_BY);
+        mNames.addElement(ATTR_CLIENT_ID);
+        mNames.addElement(ATTR_STATUS);
+        mNames.addElement(ATTR_DATA_TYPE);
     }
 
     /**
@@ -128,6 +135,12 @@ public class KeyRecord implements IDBObj, IKeyRecord {
             mModifyTime = (Date) object;
         } else if (name.equalsIgnoreCase(ATTR_ARCHIVED_BY)) {
             mArchivedBy = (String) object;
+        } else if (name.equalsIgnoreCase(ATTR_CLIENT_ID)) {
+            mClientId = (String) object;
+        } else if (name.equalsIgnoreCase(ATTR_DATA_TYPE)) {
+            mDataType = (String) object;
+        } else if (name.equalsIgnoreCase(ATTR_STATUS)) {
+            mStatus = (String) object;
         } else {
             throw new EBaseException(com.netscape.certsrv.apps.CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
         }
@@ -162,6 +175,12 @@ public class KeyRecord implements IDBObj, IKeyRecord {
             return mMetaInfo;
         } else if (name.equalsIgnoreCase(ATTR_ARCHIVED_BY)) {
             return mArchivedBy;
+        } else if (name.equalsIgnoreCase(ATTR_CLIENT_ID)) {
+            return mClientId;
+        } else if (name.equalsIgnoreCase(ATTR_DATA_TYPE)) {
+            return mDataType;
+        } else if (name.equalsIgnoreCase(ATTR_STATUS)) {
+            return mStatus;
         } else {
             throw new EBaseException(com.netscape.certsrv.apps.CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
         }
@@ -341,5 +360,27 @@ public class KeyRecord implements IDBObj, IKeyRecord {
      */
     public Date getModifyTime() {
         return mModifyTime;
+    }
+
+    /**
+     * Retrieves the client ID of this record.
+     */
+    public String getClientId() throws EBaseException {
+        return mClientId ;
+    }
+
+    /**
+     * Retrieves the key status of this record.
+     */
+    public String getKeyStatus() throws EBaseException {
+        return mStatus;
+
+    }
+
+    /**
+     * Retrieves the key data type of this record.
+     */
+    public String getDataType() throws EBaseException {
+        return mDataType;
     }
 }

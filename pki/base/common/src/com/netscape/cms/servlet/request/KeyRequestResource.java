@@ -14,6 +14,9 @@ import com.netscape.cms.servlet.request.model.RecoveryRequestData;
 
 @Path("/keyrequest")
 public interface KeyRequestResource {
+    public final String SYMMETRIC_KEY_TYPE = "symmetricKey";
+    public final String PASS_PHRASE_TYPE = "passPhrase";
+    public final String ASYMMETRIC_KEY_TYPE = "asymmetricKey";
 
     /**
      * Used to retrieve key request info for a specific request

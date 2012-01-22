@@ -39,6 +39,7 @@ public class RecoveryRequestData {
     private static final String REQUEST_ID = "requestId";
     private static final String TRANS_WRAPPED_SESSION_KEY = "transWrappedSessionKey";
     private static final String SESSION_WRAPPED_PASSPHRASE = "sessionWrappedPassphrase";
+    private static final String NONCE_DATA = "nonceData";
 
     @XmlElement
     protected String keyId;
@@ -52,6 +53,9 @@ public class RecoveryRequestData {
     @XmlElement
     protected String sessionWrappedPassphrase;
     
+    @XmlElement
+    protected String nonceData;
+
     public RecoveryRequestData() {
         // required for JAXB (defaults)
     }
@@ -61,6 +65,7 @@ public class RecoveryRequestData {
         requestId = form.getFirst(REQUEST_ID);
         transWrappedSessionKey = form.getFirst(TRANS_WRAPPED_SESSION_KEY);
         sessionWrappedPassphrase = form.getFirst(SESSION_WRAPPED_PASSPHRASE);
+        nonceData = form.getFirst(NONCE_DATA);
     }
 
     /**
@@ -117,6 +122,22 @@ public class RecoveryRequestData {
      */
     public void setSessionWrappedPassphrase(String sessionWrappedPassphrase) {
         this.sessionWrappedPassphrase = sessionWrappedPassphrase;
+    }
+
+    /**
+     * @return nonceData
+     */
+
+    public String getNonceData() {
+        return nonceData;
+    }
+
+    /**
+     * @param nonceData the nonceData to set
+     */
+
+    public void setNonceData(String nonceData) {
+        this.nonceData = nonceData;
     }
 
 }

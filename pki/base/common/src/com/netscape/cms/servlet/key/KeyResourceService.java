@@ -18,6 +18,7 @@
 
 package com.netscape.cms.servlet.key;
 
+
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MultivaluedMap;
@@ -73,11 +74,6 @@ public class KeyResourceService extends CMSResourceService implements KeyResourc
     }
     
     private String validateRequest(RecoveryRequestData data) {
-        // confirm that at least one wrapping method exists
-        if ((data.getTransWrappedSessionKey() == null) && (data.getTransWrappedSessionKey() == null)) {
-            // log error
-            throw new WebApplicationException(Response.Status.BAD_REQUEST);
-        }
         
         // confirm request exists
         String reqId = data.getRequestId();
@@ -85,6 +81,14 @@ public class KeyResourceService extends CMSResourceService implements KeyResourc
             // log error
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
+
+        // confirm that at least one wrapping method exists
+        // There must be at least the wrapped session key method.
+        if ((data.getTransWrappedSessionKey() == null)) {
+            // log error
+            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+        }
+
         KeyRequestDAO reqDAO = new KeyRequestDAO();
         KeyRequestInfo reqInfo;
         try {
@@ -117,7 +121,7 @@ public class KeyResourceService extends CMSResourceService implements KeyResourc
         }
         
         String keyURL = reqInfo.getKeyURL();
-        return keyURL.substring(keyURL.lastIndexOf("/")); 
+        return keyURL.substring(keyURL.lastIndexOf("/") + 1);
     }
 
 }

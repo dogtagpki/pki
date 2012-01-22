@@ -36,6 +36,9 @@ public class KeyData {
     @XmlElement
     String wrappedPrivateData;
     
+    @XmlElement
+    String nonceData;
+
     public KeyData() {
         // required for JAXB (defaults)
     }
@@ -54,4 +57,20 @@ public class KeyData {
         this.wrappedPrivateData = wrappedPrivateData;
     }
     
+    /**
+     * @return the nonceData
+     */
+
+    public String getNonceData() {
+        return nonceData;
+    }
+
+    /**
+     * @param nonceData the nonceData to set
+     */
+
+    public void setNonceData(String nonceData) {
+        this.nonceData = nonceData;
+    }
+
 }
