@@ -792,9 +792,6 @@
       <url-pattern>  /log                </url-pattern>
       <url-pattern>  /ug                 </url-pattern>
       <url-pattern>  /acl                </url-pattern>
-<!--
-      <url-pattern>  /jobsScheduler      </url-pattern>
--->
       <url-pattern>  /kra                </url-pattern>
    </filter-mapping>
 
