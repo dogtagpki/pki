@@ -31,7 +31,7 @@ PKI_PWD=`pwd`
 ##
 
 PKI_KRA="pki-kra"
-PKI_KRA_VERSION="9.0.9"
+PKI_KRA_VERSION="10.0.0.a1"
 
 
 ##

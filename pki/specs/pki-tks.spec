@@ -1,6 +1,13 @@
+# for a pre-release, define the prerel field e.g. .a1 .rc2 - comment out for official release
+# also remove the space between % and global - this space is needed because
+# fedpkg verrel stupidly ignores comment lines
+%global prerel .a1
+# also need the relprefix field for a pre-release e.g. .0 - also comment out for official release
+%global relprefix 0.
+
 Name:             pki-tks
-Version:          9.0.8
-Release:          1%{?dist}
+Version:          10.0.0
+Release:          %{?relprefix}1%{?prerel}%{?dist}
 Summary:          Certificate System - Token Key Service
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -64,7 +71,7 @@ Requires(postun): initscripts
 %endif
 %endif
 
-Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}.tar.gz
+Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}%{?prerel}.tar.gz
 
 %description
 Certificate System (CS) is an enterprise software system designed
@@ -113,7 +120,7 @@ Additionally, Certificate System requires ONE AND ONLY ONE of the following
 %prep
 
 
-%setup -q
+%setup -q -n %{name}-%{version}%{?prerel}
 
 
 %clean
@@ -238,6 +245,9 @@ fi
 
 
 %changelog
+* Wed Feb  1 2012 Nathan Kinder <nkinder@redhat.com> 10.0.0-0.1.a1
+- Updated package version number
+
 * Fri Oct 28 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.8-1
 - Bugzilla Bug #749945 - Installation error reported during CA, DRM,
   OCSP, and TKS package installation . . .

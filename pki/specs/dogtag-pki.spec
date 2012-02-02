@@ -1,7 +1,14 @@
+# for a pre-release, define the prerel field e.g. .a1 .rc2 - comment out for official release
+# also remove the space between % and global - this space is needed because
+# fedpkg verrel stupidly ignores comment lines
+%global prerel .a1
+# also need the relprefix field for a pre-release e.g. .0 - also comment out for official release
+%global relprefix 0.
+
 Summary:          Dogtag Public Key Infrastructure (PKI) Suite
 Name:             dogtag-pki
-Version:          9.0.0
-Release:          8%{?dist}
+Version:          10.0.0
+Release:          %{?relprefix}1%{?prerel}%{?dist}
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
 License:          GPLv2 and LGPLv2
 URL:              http://pki.fedoraproject.org/
@@ -11,58 +18,44 @@ BuildArch:        noarch
 
 # Establish MINIMUM package versions based upon platform
 %if 0%{?fedora} >= 17
-%define dogtag_pki_theme_version   9.0.9
+%define dogtag_pki_theme_version   10.0.0
 %define esc_version                1.1.0
 %define jss_version                4.2.6-21
 %define osutil_version             2.0.2
-%define pki_core_version           9.0.16
-%define pki_kra_version            9.0.9
-%define pki_ocsp_version           9.0.8
-%define pki_ra_version             9.0.4
-%define pki_tks_version            9.0.8
-%define pki_tps_version            9.0.7
-%define pki_console_version        9.0.5
+%define pki_core_version           10.0.0
+%define pki_kra_version            10.0.0
+%define pki_ocsp_version           10.0.0
+%define pki_ra_version             10.0.0
+%define pki_tks_version            10.0.0
+%define pki_tps_version            10.0.0
+%define pki_console_version        10.0.0
 %define tomcatjss_version          6.0.2
 %else
 %if 0%{?fedora} >= 16
-%define dogtag_pki_theme_version   9.0.9
+%define dogtag_pki_theme_version   10.0.0
 %define esc_version                1.1.0
 %define jss_version                4.2.6-19.1
 %define osutil_version             2.0.2
-%define pki_core_version           9.0.15
-%define pki_kra_version            9.0.8
-%define pki_ocsp_version           9.0.7
-%define pki_ra_version             9.0.4
-%define pki_tks_version            9.0.7
-%define pki_tps_version            9.0.7
-%define pki_console_version        9.0.5
+%define pki_core_version           10.0.0
+%define pki_kra_version            10.0.0
+%define pki_ocsp_version           10.0.0
+%define pki_ra_version             10.0.0
+%define pki_tks_version            10.0.0
+%define pki_tps_version            10.0.0
+%define pki_console_version        10.0.0
 %define tomcatjss_version          6.0.2
 %else
-%if 0%{?fedora} >= 15
-%define dogtag_pki_theme_version   9.0.0
-%define esc_version                1.1.0
-%define jss_version                4.2.6-17
-%define osutil_version             2.0.1
-%define pki_core_version           9.0.0
-%define pki_kra_version            9.0.0
-%define pki_ocsp_version           9.0.0
-%define pki_ra_version             9.0.0
-%define pki_tks_version            9.0.0
-%define pki_tps_version            9.0.0
-%define pki_console_version        9.0.0
-%define tomcatjss_version          6.0.0
-%else
-%define dogtag_pki_theme_version   9.0.0
+%define dogtag_pki_theme_version   10.0.0
 %define esc_version                1.1.0
 %define jss_version                4.2.6-17
 %define osutil_version             2.0.0
-%define pki_core_version           9.0.0
-%define pki_kra_version            9.0.0
-%define pki_ocsp_version           9.0.0
-%define pki_ra_version             9.0.0
-%define pki_tks_version            9.0.0
-%define pki_tps_version            9.0.0
-%define pki_console_version        9.0.0
+%define pki_core_version           10.0.0
+%define pki_kra_version            10.0.0
+%define pki_ocsp_version           10.0.0
+%define pki_ra_version             10.0.0
+%define pki_tks_version            10.0.0
+%define pki_tps_version            10.0.0
+%define pki_console_version        10.0.0
 %define tomcatjss_version          2.0.0
 %endif
 %endif
@@ -194,6 +187,9 @@ rm -rf %{buildroot}
 %doc README
 
 %changelog
+* Wed Feb  1 2012 Nathan Kinder <nkinder@redhat.com> 10.0.0-0.1.a1
+- Updated package version number
+
 * Fri Oct 28 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.8-1
 - Bugzilla Bug #749927 - Java class conflicts using Java 7 in Fedora 17
   (rawhide) . . .

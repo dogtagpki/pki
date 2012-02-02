@@ -1,6 +1,13 @@
+# for a pre-release, define the prerel field e.g. .a1 .rc2 - comment out for official release
+# also remove the space between % and global - this space is needed because
+# fedpkg verrel stupidly ignores comment lines
+%global prerel .a1
+# also need the relprefix field for a pre-release e.g. .0 - also comment out for official release
+%global relprefix 0.
+
 Name:             ipa-pki-theme
-Version:          9.0.5
-Release:          1%{?dist}
+Version:          10.0.0
+Release:          %{?relprefix}1%{?prerel}%{?dist}
 Summary:          Certificate System - IPA PKI Theme Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -12,7 +19,7 @@ BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:    cmake
 
-Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}.tar.gz
+Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}%{?prerel}.tar.gz
 
 %if 0%{?rhel}
 ExcludeArch:      ppc ppc64 s390 s390x
@@ -92,7 +99,7 @@ This package is used by the Certificate System utilized by IPA.
 %prep
 
 
-%setup -q
+%setup -q -n %{name}-%{version}%{?prerel}
 
 
 %clean
@@ -126,6 +133,9 @@ cd build
 
 
 %changelog
+* Wed Feb  1 2012 Nathan Kinder <nkinder@redhat.com> 10.0.0-0.1.a1
+- Updated package version number
+
 * Tue Aug 23 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.5-1
 - 'ipa-pki-ca-theme'
 -      Bugzilla Bug #695015 - Serial No. of a revoked certificate is not

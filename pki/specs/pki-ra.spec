@@ -1,6 +1,13 @@
+# for a pre-release, define the prerel field e.g. .a1 .rc2 - comment out for official release
+# also remove the space between % and global - this space is needed because
+# fedpkg verrel stupidly ignores comment lines
+%global prerel .a1
+# also need the relprefix field for a pre-release e.g. .0 - also comment out for official release
+%global relprefix 0.
+
 Name:             pki-ra
-Version:          9.0.4
-Release:          1%{?dist}
+Version:          10.0.0
+Release:          %{?relprefix}1%{?prerel}%{?dist}
 Summary:          Certificate System - Registration Authority
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -37,7 +44,7 @@ Requires(postun): initscripts
 Requires:         initscripts
 %endif
 
-Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}.tar.gz
+Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}%{?prerel}.tar.gz
 
 %description
 Certificate System (CS) is an enterprise software system designed
@@ -74,7 +81,7 @@ Additionally, Certificate System requires ONE AND ONLY ONE of the following
 %prep
 
 
-%setup -q
+%setup -q -n %{name}-%{version}%{?prerel}
 
 cat << \EOF > %{name}-prov
 #!/bin/sh
@@ -82,7 +89,7 @@ cat << \EOF > %{name}-prov
 sed -e '/perl(PKI.*)/d' -e '/perl(Template.*)/d'
 EOF
 
-%global __perl_provides %{_builddir}/%{name}-%{version}/%{name}-prov
+%global __perl_provides %{_builddir}/%{name}-%{version}%{?prerel}/%{name}-prov
 chmod +x %{__perl_provides}
 
 cat << \EOF > %{name}-req
@@ -91,7 +98,7 @@ cat << \EOF > %{name}-req
 sed -e '/perl(PKI.*)/d' -e '/perl(Template.*)/d'
 EOF
 
-%global __perl_requires %{_builddir}/%{name}-%{version}/%{name}-req
+%global __perl_requires %{_builddir}/%{name}-%{version}%{?prerel}/%{name}-req
 chmod +x %{__perl_requires}
 
 
@@ -181,6 +188,9 @@ fi
 
 
 %changelog
+* Wed Feb  1 2012 Nathan Kinder <nkinder@redhat.com> 10.0.0-0.1.a1
+- Updated package version number
+
 * Thu Sep 22 2011 Ade Lee <alee@redhat.com> 9.0.4-1
 - Bugzilla Bug #733065 - User enrollment with RA -- this fails with
   CA Connection Error

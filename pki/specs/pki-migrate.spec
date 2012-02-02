@@ -1,6 +1,13 @@
+# for a pre-release, define the prerel field e.g. .a1 .rc2 - comment out for official release
+# also remove the space between % and global - this space is needed because
+# fedpkg verrel stupidly ignores comment lines
+%global prerel .a1
+# also need the relprefix field for a pre-release e.g. .0 - also comment out for official release
+%global relprefix 0.
+
 Name:             pki-migrate
-Version:          9.0.2
-Release:          1%{?dist}
+Version:          10.0.0
+Release:          %{?relprefix}1%{?prerel}%{?dist}
 Summary:          Red Hat Certificate System - PKI Migration Scripts
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -19,7 +26,7 @@ BuildRequires:    jpackage-utils
 
 Requires:         java >= 1:1.6.0
 
-Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}.tar.gz
+Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}%{?prerel}.tar.gz
 
 %global _binaries_in_noarch_packages_terminate_build   0
 
@@ -40,7 +47,7 @@ hardware platforms as well as earlier versions of this operating system.
 %prep
 
 
-%setup -q
+%setup -q -n %{name}-%{version}%{?prerel}
 
 
 %clean
@@ -68,6 +75,9 @@ cd build
 
 
 %changelog
+* Wed Feb  1 2012 Nathan Kinder <nkinder@redhat.com> 10.0.0-0.1.a1
+- Updated package version number
+
 * Fri Oct 28 2011 Andrew Wnuk <awnuk@redhat.com> 9.0.2-1
 - Bugzilla Bug #737216 - unnecessary empty lines in "cert-info" attributes
   created in 7.1->8.0 migration
