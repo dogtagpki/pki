@@ -224,8 +224,8 @@ public class UidPwdDirAuthentication extends DirBasedAuthentication
     /**
      * Retrieves a list of names of the value parameter.
      */
-    public Enumeration getValueNames() {
-        Vector v = new Vector();
+    public Enumeration<String> getValueNames() {
+        Vector<String> v = new Vector<String>();
 
         v.addElement(CRED_UID);
         v.addElement(CRED_PWD);

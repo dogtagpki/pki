@@ -70,5 +70,5 @@ public interface IGroup extends IAttrSet, IGroupConstants {
      * 
      * @return a list of member names for this group.
      */
-    public Enumeration getMemberNames();
+    public Enumeration<String> getMemberNames();
 }

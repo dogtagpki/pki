@@ -135,8 +135,7 @@ public class ListCAServlet extends CMSServlet {
                 Integer.toString(defStore.getStateCount()));
 
         while (recs.hasMoreElements()) {
-            ICRLIssuingPointRecord rec =
-                    (ICRLIssuingPointRecord) recs.nextElement();
+            ICRLIssuingPointRecord rec = (ICRLIssuingPointRecord) recs.nextElement();
             IArgBlock rarg = CMS.createArgBlock();
             String thisId = rec.getId();
 

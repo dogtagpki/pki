@@ -278,10 +278,10 @@ public class RenewalServlet extends CMSServlet {
             cmsReq.setIRequestStatus();
             // audit log the status
             if (status == RequestStatus.REJECTED) {
-                Vector messages = req.getExtDataInStringVector(IRequest.ERRORS);
+                Vector<String> messages = req.getExtDataInStringVector(IRequest.ERRORS);
 
                 if (messages != null) {
-                    Enumeration msgs = messages.elements();
+                    Enumeration<String> msgs = messages.elements();
                     StringBuffer wholeMsg = new StringBuffer();
 
                     while (msgs.hasMoreElements()) {

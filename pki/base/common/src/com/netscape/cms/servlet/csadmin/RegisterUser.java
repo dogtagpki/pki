@@ -252,13 +252,13 @@ public class RegisterUser extends CMSServlet {
         auditParams = "Scope;;groups+Operation;;OP_MODIFY+source;;RegisterUser" +
                       "+Resource;;" + mGroupName;
         try {
-            Enumeration groups = ugsys.findGroups(mGroupName);
-            IGroup group = (IGroup) groups.nextElement();
+            Enumeration<IGroup> groups = ugsys.findGroups(mGroupName);
+            IGroup group = groups.nextElement();
 
             auditParams += "+user;;";
-            Enumeration members = group.getMemberNames();
+            Enumeration<String> members = group.getMemberNames();
             while (members.hasMoreElements()) {
-                auditParams += (String) members.nextElement();
+                auditParams += members.nextElement();
                 if (members.hasMoreElements()) {
                     auditParams += ",";
                 }

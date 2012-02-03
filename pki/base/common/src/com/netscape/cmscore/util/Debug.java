@@ -70,7 +70,7 @@ public class Debug
     private static int mDebugLevel = VERBOSE;
 
     private static PrintStream mOut = null;
-    private static Hashtable mHK = null;
+    private static Hashtable<String, String> mHK = null;
 
     static {
         if (TRACE_ON == true) {
@@ -348,7 +348,7 @@ public class Debug
                 if (hashkeytypes != null) {
                     StringTokenizer st = new StringTokenizer(hashkeytypes,
                             ",", false);
-                    mHK = new Hashtable();
+                    mHK = new Hashtable<String, String>();
                     while (st.hasMoreElements()) {
                         String hkr = st.nextToken();
                         mHK.put(hkr, "true");

@@ -213,9 +213,9 @@ public class GetInfo extends CMSServlet {
 
                 ICRLRepository crlRepository = mCA.getCRLRepository();
 
-                Vector ipNames = crlRepository.getIssuingPointsNames();
+                Vector<String> ipNames = crlRepository.getIssuingPointsNames();
                 for (int i = 0; i < ipNames.size(); i++) {
-                    String ipName = (String) ipNames.elementAt(i);
+                    String ipName = ipNames.elementAt(i);
                     ICRLIssuingPointRecord crlRecord = null;
                     try {
                         crlRecord = crlRepository.readCRLIssuingPointRecord(ipName);

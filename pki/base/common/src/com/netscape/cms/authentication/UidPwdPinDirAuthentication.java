@@ -301,13 +301,14 @@ public class UidPwdPinDirAuthentication extends DirBasedAuthentication
             throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
         }
 
-        Enumeration pinValues = pinAttr.getByteValues();
+        @SuppressWarnings("unchecked")
+        Enumeration<byte[]> pinValues = pinAttr.getByteValues();
 
         if (!pinValues.hasMoreElements()) {
             log(ILogger.LL_SECURITY, CMS.getLogMessage("CMS_AUTH_NO_PIN_FOUND", uid));
             throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
         }
-        byte[] entrypin = (byte[]) pinValues.nextElement();
+        byte[] entrypin = pinValues.nextElement();
 
         // compare value digest.
 

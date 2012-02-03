@@ -55,7 +55,6 @@ import netscape.security.x509.RevocationReason;
 import netscape.security.x509.RevokedCertImpl;
 import netscape.security.x509.X509CertImpl;
 
-import org.mozilla.jss.ssl.SSLSocket;
 import org.w3c.dom.Node;
 
 import com.netscape.certsrv.apps.CMS;
@@ -446,7 +445,6 @@ public abstract class CMSServlet extends HttpServlet {
             outputHttpParameters(httpReq);
         }
         CMS.debug("CMSServlet: " + mId + " start to service.");
-        String className = this.getClass().getName();
 
         // get a cms request 
         CMSRequest cmsRequest = newCMSRequest();
@@ -770,7 +768,6 @@ public abstract class CMSServlet extends HttpServlet {
      * Invalidates a SSL Session. So client auth will happen again.
      */
     protected static void invalidateSSLSession(HttpServletRequest httpReq) {
-        SSLSocket s = null;
 
         /*
          try {
@@ -1811,9 +1808,6 @@ public abstract class CMSServlet extends HttpServlet {
         String auditGroupID = auditGroupID();
         String auditACLResource = resource;
         String auditOperation = "enroll";
-
-        SessionContext auditContext = SessionContext.getExistingContext();
-        String authManagerId = null;
 
         try {
             authzToken = mAuthz.authorize(authzMgrName, authToken, exp);

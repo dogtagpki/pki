@@ -89,9 +89,8 @@ public class CertificateIssuedListener implements IRequestListener {
     private String mSubject_Success = null;
     private String mFormPath = null;
     private String mRejectPath = null;
-    private Hashtable mContentParams = new Hashtable();
+    private Hashtable<String, Object> mContentParams = new Hashtable<String, Object>();
 
-    private ICertAuthority mSub = null;
     private IConfigStore mConfig = null;
     private DateFormat mDateFormat = null;
     private ICertAuthority mSubsystem = null;
@@ -389,19 +388,19 @@ public class CertificateIssuedListener implements IRequestListener {
         mContentParams.put(IEmailFormProcessor.TOKEN_ID,
                 mConfig.getName());
         mContentParams.put(IEmailFormProcessor.TOKEN_SERIAL_NUM,
-                (Object) issuedCert[0].getSerialNumber().toString());
+                issuedCert[0].getSerialNumber().toString());
         mContentParams.put(IEmailFormProcessor.TOKEN_HEX_SERIAL_NUM,
-                (Object) Long.toHexString(issuedCert[0].getSerialNumber().longValue()));
+                Long.toHexString(issuedCert[0].getSerialNumber().longValue()));
         mContentParams.put(IEmailFormProcessor.TOKEN_REQUEST_ID,
-                (Object) mReqId.toString());
+                mReqId.toString());
         mContentParams.put(IEmailFormProcessor.TOKEN_HTTP_HOST,
-                (Object) mHttpHost);
+                mHttpHost);
         mContentParams.put(IEmailFormProcessor.TOKEN_HTTP_PORT,
-                (Object) mHttpPort);
+                mHttpPort);
         mContentParams.put(IEmailFormProcessor.TOKEN_ISSUER_DN,
-                (Object) issuedCert[0].getIssuerDN().toString());
+                issuedCert[0].getIssuerDN().toString());
         mContentParams.put(IEmailFormProcessor.TOKEN_SUBJECT_DN,
-                (Object) issuedCert[0].getSubjectDN().toString());
+                issuedCert[0].getSubjectDN().toString());
 
         Date date = (Date) issuedCert[0].getNotAfter();
 
@@ -413,9 +412,9 @@ public class CertificateIssuedListener implements IRequestListener {
                 mDateFormat.format(date));
 
         mContentParams.put(IEmailFormProcessor.TOKEN_SENDER_EMAIL,
-                (Object) mSenderEmail);
+                mSenderEmail);
         mContentParams.put(IEmailFormProcessor.TOKEN_RECIPIENT_EMAIL,
-                (Object) mEmail);
+                mEmail);
         // ... and more
     }
 

@@ -74,7 +74,7 @@ public class DBSubsystem implements IDBSubsystem {
     private String mBaseDN = null;
     private ISubsystem mOwner = null;
 
-    private Hashtable[] mRepos = null;
+    private Hashtable<String, String>[] mRepos = null;
 
     private BigInteger mNextSerialConfig = null;
     private boolean mEnableSerialMgmt = false;
@@ -247,7 +247,7 @@ public class DBSubsystem implements IDBSubsystem {
      * @return min serial number
      */
     public String getMinSerialConfig(int repo) {
-        return (String) (mRepos[repo]).get(PROP_MIN);
+        return mRepos[repo].get(PROP_MIN);
     }
 
     /**
@@ -257,7 +257,7 @@ public class DBSubsystem implements IDBSubsystem {
      * @return max serial number
      */
     public String getMaxSerialConfig(int repo) {
-        return (String) (mRepos[repo]).get(PROP_MAX);
+        return mRepos[repo].get(PROP_MAX);
     }
 
     /**
@@ -267,7 +267,7 @@ public class DBSubsystem implements IDBSubsystem {
      * @return min serial number in next range
      */
     public String getNextMinSerialConfig(int repo) {
-        String ret = (String) (mRepos[repo]).get(PROP_NEXT_MIN);
+        String ret = mRepos[repo].get(PROP_NEXT_MIN);
         if (ret.equals("-1")) {
             return null;
         } else {
@@ -282,7 +282,7 @@ public class DBSubsystem implements IDBSubsystem {
      * @return max serial number in next range
      */
     public String getNextMaxSerialConfig(int repo) {
-        String ret = (String) (mRepos[repo]).get(PROP_NEXT_MAX);
+        String ret = mRepos[repo].get(PROP_NEXT_MAX);
         if (ret.equals("-1")) {
             return null;
         } else {
@@ -297,7 +297,7 @@ public class DBSubsystem implements IDBSubsystem {
      * @return low water mark
      */
     public String getLowWaterMarkConfig(int repo) {
-        return (String) (mRepos[repo]).get(PROP_LOW_WATER_MARK);
+        return mRepos[repo].get(PROP_LOW_WATER_MARK);
     }
 
     /**
@@ -307,7 +307,7 @@ public class DBSubsystem implements IDBSubsystem {
      * @return range increment
      */
     public String getIncrementConfig(int repo) {
-        return (String) (mRepos[repo]).get(PROP_INCREMENT);
+        return mRepos[repo].get(PROP_INCREMENT);
     }
 
     /**
@@ -319,7 +319,7 @@ public class DBSubsystem implements IDBSubsystem {
      */
     public void setMaxSerialConfig(int repo, String serial)
             throws EBaseException {
-        Hashtable h = mRepos[repo];
+        Hashtable<String, String> h = mRepos[repo];
         CMS.debug("DBSubsystem: Setting max serial number for " + h.get(NAME) + ": " + serial);
 
         //persist to file
@@ -340,7 +340,7 @@ public class DBSubsystem implements IDBSubsystem {
      */
     public void setMinSerialConfig(int repo, String serial)
             throws EBaseException {
-        Hashtable h = mRepos[repo];
+        Hashtable<String, String> h = mRepos[repo];
         CMS.debug("DBSubsystem: Setting min serial number for " + h.get(NAME) + ": " + serial);
 
         //persist to file
@@ -361,7 +361,7 @@ public class DBSubsystem implements IDBSubsystem {
      */
     public void setNextMaxSerialConfig(int repo, String serial)
             throws EBaseException {
-        Hashtable h = mRepos[repo];
+        Hashtable<String, String> h = mRepos[repo];
         if (serial == null) {
             CMS.debug("DBSubsystem: Removing next max " + h.get(NAME) + " number");
             mDBConfig.remove((String) h.get(PROP_NEXT_MAX_NAME));
@@ -372,7 +372,7 @@ public class DBSubsystem implements IDBSubsystem {
         IConfigStore rootStore = getOwner().getConfigStore();
         rootStore.commit(false);
         if (serial == null) {
-            Object o2 = h.remove(PROP_NEXT_MAX);
+            h.remove(PROP_NEXT_MAX);
         } else {
             h.put(PROP_NEXT_MAX, serial);
         }
@@ -388,7 +388,7 @@ public class DBSubsystem implements IDBSubsystem {
      */
     public void setNextMinSerialConfig(int repo, String serial)
             throws EBaseException {
-        Hashtable h = mRepos[repo];
+        Hashtable<String, String> h = mRepos[repo];
         if (serial == null) {
             CMS.debug("DBSubsystem: Removing next min " + h.get(NAME) + " number");
             mDBConfig.remove((String) h.get(PROP_NEXT_MIN_NAME));
@@ -399,7 +399,7 @@ public class DBSubsystem implements IDBSubsystem {
         IConfigStore rootStore = getOwner().getConfigStore();
         rootStore.commit(false);
         if (serial == null) {
-            Object o2 = h.remove(PROP_NEXT_MIN);
+            h.remove(PROP_NEXT_MIN);
         } else {
             h.put(PROP_NEXT_MIN, serial);
         }
@@ -418,7 +418,7 @@ public class DBSubsystem implements IDBSubsystem {
         LDAPConnection conn = null;
         String nextRange = null;
         try {
-            Hashtable h = mRepos[repo];
+            Hashtable<String, String> h = mRepos[repo];
             conn = mLdapConnFactory.getConn();
             String dn = (String) h.get(PROP_BASEDN) + "," + mBaseDN;
             String rangeDN = (String) h.get(PROP_RANGE_DN) + "," + mBaseDN;
@@ -484,7 +484,7 @@ public class DBSubsystem implements IDBSubsystem {
             if (nextRangeStart == null) {
                 return false;
             }
-            Hashtable h = mRepos[repo];
+            Hashtable<String, String> h = mRepos[repo];
             conn = mLdapConnFactory.getConn();
             String rangedn = (String) h.get(PROP_RANGE_DN) + "," + mBaseDN;
             String filter = "(&(nsds5ReplConflict=*)(objectClass=pkiRange)(host= " +
@@ -546,7 +546,7 @@ public class DBSubsystem implements IDBSubsystem {
             mEnableSerialMgmt = mDBConfig.getBoolean(PROP_ENABLE_SERIAL_MGMT, false);
 
             // populate the certs hash entry
-            Hashtable certs = new Hashtable();
+            Hashtable<String, String> certs = new Hashtable<String, String>();
             certs.put(NAME, "certs");
             certs.put(PROP_BASEDN, mDBConfig.getString(PROP_SERIAL_BASEDN, ""));
             certs.put(PROP_RANGE_DN, mDBConfig.getString(PROP_SERIAL_RANGE_DN, ""));
@@ -578,7 +578,7 @@ public class DBSubsystem implements IDBSubsystem {
             mRepos[CERTS] = certs;
 
             // populate the requests hash entry
-            Hashtable requests = new Hashtable();
+            Hashtable<String, String> requests = new Hashtable<String, String>();
             requests.put(NAME, "requests");
             requests.put(PROP_BASEDN, mDBConfig.getString(PROP_REQUEST_BASEDN, ""));
             requests.put(PROP_RANGE_DN, mDBConfig.getString(PROP_REQUEST_RANGE_DN, ""));
@@ -610,7 +610,7 @@ public class DBSubsystem implements IDBSubsystem {
             mRepos[REQUESTS] = requests;
 
             // populate replica ID hash entry
-            Hashtable replicaID = new Hashtable();
+            Hashtable<String, String> replicaID = new Hashtable<String, String>();
             replicaID.put(NAME, "requests");
             replicaID.put(PROP_BASEDN, mDBConfig.getString(PROP_REPLICA_BASEDN, ""));
             replicaID.put(PROP_RANGE_DN, mDBConfig.getString(PROP_REPLICA_RANGE_DN, ""));

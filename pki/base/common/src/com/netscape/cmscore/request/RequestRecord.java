@@ -69,7 +69,7 @@ public class RequestRecord
         return mRequestId;
     }
 
-    public Enumeration getAttrNames() {
+    public Enumeration<String> getAttrNames() {
         return mAttrTable.keys();
     }
 
@@ -92,7 +92,7 @@ public class RequestRecord
         else if (name.equals(IRequestRecord.ATTR_EXT_DATA))
             return mExtData;
         else {
-            RequestAttr ra = (RequestAttr) mAttrTable.get(name);
+            RequestAttr ra = mAttrTable.get(name);
 
             if (ra != null)
                 return ra.get(this);
@@ -119,9 +119,9 @@ public class RequestRecord
         else if (name.equals(IRequestRecord.ATTR_REQUEST_OWNER))
             mOwner = (String) o;
         else if (name.equals(IRequestRecord.ATTR_EXT_DATA))
-            mExtData = (Hashtable) o;
+            mExtData = (Hashtable<String, Object>) o;
         else {
-            RequestAttr ra = (RequestAttr) mAttrTable.get(name);
+            RequestAttr ra = mAttrTable.get(name);
 
             if (ra != null)
                 ra.set(this, o);
@@ -135,12 +135,12 @@ public class RequestRecord
     }
 
     // IDBObj.getElements
-    public Enumeration getElements() {
+    public Enumeration<String> getElements() {
         return mAttrs.elements();
     }
 
     // IDBObj.getSerializableAttrNames
-    public Enumeration getSerializableAttrNames() {
+    public Enumeration<String> getSerializableAttrNames() {
         return mAttrs.elements();
     }
 
@@ -226,12 +226,12 @@ public class RequestRecord
     protected static final String mOC[] =
         { Schema.LDAP_OC_TOP, Schema.LDAP_OC_REQUEST, Schema.LDAP_OC_EXTENSIBLE };
 
-    protected static Hashtable loadExtDataFromRequest(IRequest r) throws EBaseException {
-        Hashtable h = new Hashtable();
+    protected static Hashtable<String, Object> loadExtDataFromRequest(IRequest r) throws EBaseException {
+        Hashtable<String, Object> h = new Hashtable<String, Object>();
 
-        Enumeration e = r.getExtDataKeys();
+        Enumeration<String> e = r.getExtDataKeys();
         while (e.hasMoreElements()) {
-            String key = (String) e.nextElement();
+            String key = e.nextElement();
             if (r.isSimpleExtDataValue(key)) {
                 h.put(key, r.getExtDataInString(key));
             } else {
@@ -242,10 +242,11 @@ public class RequestRecord
         return h;
     }
 
+    @SuppressWarnings("unchecked")
     protected void storeExtDataIntoRequest(IRequest r) throws EBaseException {
-        Enumeration e = mExtData.keys();
+        Enumeration<String> e = mExtData.keys();
         while (e.hasMoreElements()) {
-            String key = (String) e.nextElement();
+            String key = e.nextElement();
             Object value = mExtData.get(key);
             if (value instanceof String) {
                 r.setExtData(key, (String) value);
@@ -258,9 +259,9 @@ public class RequestRecord
         }
     }
 
-    protected static Vector mAttrs = new Vector();
+    protected static Vector<String> mAttrs = new Vector<String>();
 
-    static Hashtable mAttrTable = new Hashtable();
+    static Hashtable<String, RequestAttr> mAttrTable = new Hashtable<String, RequestAttr>();
 
     /*
      * This table contains attribute handlers for attributes
@@ -330,7 +331,7 @@ class RequestStateMapper
 
     //
     //
-    public Enumeration getSupportedLDAPAttributeNames() {
+    public Enumeration<String> getSupportedLDAPAttributeNames() {
         return mAttrs.elements();
     }
 
@@ -360,7 +361,7 @@ class RequestStateMapper
         return Schema.LDAP_ATTR_REQUEST_STATE + op + value;
     }
 
-    protected final static Vector mAttrs = new Vector();
+    protected final static Vector<String> mAttrs = new Vector<String>();
 
     static {
         mAttrs.add(Schema.LDAP_ATTR_REQUEST_STATE);
@@ -381,7 +382,7 @@ class RequestIdMapper
 
     //
     //
-    public Enumeration getSupportedLDAPAttributeNames() {
+    public Enumeration<String> getSupportedLDAPAttributeNames() {
         return mAttrs.elements();
     }
 
@@ -420,7 +421,7 @@ class RequestIdMapper
         return Schema.LDAP_ATTR_REQUEST_ID + op + v;
     }
 
-    protected final static Vector mAttrs = new Vector();
+    protected final static Vector<String> mAttrs = new Vector<String>();
 
     static {
         mAttrs.add(Schema.LDAP_ATTR_REQUEST_ID);
@@ -443,15 +444,16 @@ class RequestAttrsMapper
 
     //
     //
-    public Enumeration getSupportedLDAPAttributeNames() {
+    public Enumeration<String> getSupportedLDAPAttributeNames() {
         return mAttrs.elements();
     }
 
     //
     public void mapObjectToLDAPAttributeSet(IDBObj parent,
             String name, Object obj, LDAPAttributeSet attrs) {
-        Hashtable ht = (Hashtable) obj;
-        Enumeration e = ht.keys();
+        @SuppressWarnings("unchecked")
+        Hashtable<String, Object> ht = (Hashtable<String, Object>) obj;
+        Enumeration<String> e = ht.keys();
 
         try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -461,7 +463,7 @@ class RequestAttrsMapper
             Object value = null;
 
             while (e.hasMoreElements()) {
-                key = (String) e.nextElement();
+                key = e.nextElement();
                 value = ht.get(key);
                 byte data[] = null;
 
@@ -517,9 +519,9 @@ class RequestAttrsMapper
         return is.readObject();
     }
 
-    private Hashtable decodeHashtable(byte[] data)
+    private Hashtable<String, Object> decodeHashtable(byte[] data)
             throws ObjectStreamException, IOException, ClassNotFoundException {
-        Hashtable ht = new Hashtable();
+        Hashtable<String, Object> ht = new Hashtable<String, Object>();
         ByteArrayInputStream bis = new ByteArrayInputStream(data);
         ObjectInputStream is = new ObjectInputStream(bis);
 
@@ -561,7 +563,7 @@ class RequestAttrsMapper
     public void mapLDAPAttributeSetToObject(LDAPAttributeSet attrs,
             String name, IDBObj parent)
             throws EBaseException {
-        Hashtable ht = null;
+        Hashtable<String, Object> ht = null;
 
         //
         // Data is stored in a (single valued) binary attribute
@@ -574,7 +576,8 @@ class RequestAttrsMapper
             attr = attrs.getAttribute(Schema.LDAP_ATTR_REQUEST_ATTRS);
 
             if (attr != null) {
-                Enumeration values = attr.getByteValues();
+                @SuppressWarnings("unchecked")
+                Enumeration<byte[]> values = attr.getByteValues();
 
                 value = (byte[]) values.nextElement();
 
@@ -596,7 +599,7 @@ class RequestAttrsMapper
         return Schema.LDAP_ATTR_REQUEST_ID + op + value;
     }
 
-    protected final static Vector mAttrs = new Vector();
+    protected final static Vector<String> mAttrs = new Vector<String>();
 
     static {
         mAttrs.add(Schema.LDAP_ATTR_REQUEST_ATTRS);
@@ -774,12 +777,13 @@ class ExtAttrDynMapper implements IDBDynAttrMapper {
     public void mapObjectToLDAPAttributeSet(IDBObj parent, String name,
                                             Object obj, LDAPAttributeSet attrs)
             throws EBaseException {
-        Hashtable ht = (Hashtable) obj;
-        Enumeration e = ht.keys();
+        @SuppressWarnings("unchecked")
+        Hashtable<String, Object> ht = (Hashtable<String, Object>) obj;
+        Enumeration<String> e = ht.keys();
 
         try {
             while (e.hasMoreElements()) {
-                String key = (String) e.nextElement();
+                String key = e.nextElement();
                 Object value = ht.get(key);
                 if (value instanceof String) {
                     String stringValue = (String) value;
@@ -787,11 +791,12 @@ class ExtAttrDynMapper implements IDBDynAttrMapper {
                             extAttrPrefix + encodeKey(key),
                             stringValue));
                 } else if (value instanceof Hashtable) {
-                    Hashtable innerHash = (Hashtable) value;
-                    Enumeration innerHashEnum = innerHash.keys();
+                    @SuppressWarnings("unchecked")
+                    Hashtable<String, String> innerHash = (Hashtable<String, String>) value;
+                    Enumeration<String> innerHashEnum = innerHash.keys();
                     while (innerHashEnum.hasMoreElements()) {
-                        String innerKey = (String) innerHashEnum.nextElement();
-                        String innerValue = (String) innerHash.get(innerKey);
+                        String innerKey = innerHashEnum.nextElement();
+                        String innerValue = innerHash.get(innerKey);
                         attrs.add(new LDAPAttribute(
                                 extAttrPrefix + encodeKey(key) + ";" + encodeKey(innerKey),
                                 innerValue));
@@ -807,15 +812,16 @@ class ExtAttrDynMapper implements IDBDynAttrMapper {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public void mapLDAPAttributeSetToObject(LDAPAttributeSet attrs, String name,
                                             IDBObj parent)
             throws EBaseException {
-        Hashtable ht = new Hashtable();
-        Hashtable valueHashtable;
+        Hashtable<String, Object> ht = new Hashtable<String, Object>();
+        Hashtable<String, String> valueHashtable;
 
-        Enumeration attrEnum = attrs.getAttributes();
+        Enumeration<LDAPAttribute> attrEnum = attrs.getAttributes();
         while (attrEnum.hasMoreElements()) {
-            LDAPAttribute attr = (LDAPAttribute) attrEnum.nextElement();
+            LDAPAttribute attr = attrEnum.nextElement();
             String baseName = attr.getBaseName();
             if (baseName.toLowerCase().startsWith(extAttrPrefix)) {
                 String keyName = decodeKey(
@@ -848,9 +854,9 @@ class ExtAttrDynMapper implements IDBDynAttrMapper {
                         Debug.trace(message);
                         throw new EBaseException(message);
                     }
-                    valueHashtable = (Hashtable) value;
+                    valueHashtable = (Hashtable<String, String>) value;
                     if (valueHashtable == null) {
-                        valueHashtable = new Hashtable();
+                        valueHashtable = new Hashtable<String, String>();
                         ht.put(keyName, valueHashtable);
                     }
                     valueHashtable.put(decodeKey(subTypes[0]), values[0]);

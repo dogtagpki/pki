@@ -49,7 +49,7 @@ import netscape.security.x509.AlgIdDSA;
 public class DSAKeyPairGenerator extends KeyPairGenerator
         implements java.security.interfaces.DSAKeyPairGenerator {
 
-    private static Hashtable precomputedParams;
+    private static Hashtable<Integer, AlgIdDSA> precomputedParams;
 
     static {
 
@@ -63,7 +63,7 @@ public class DSAKeyPairGenerator extends KeyPairGenerator
            hash.  
            */
 
-        precomputedParams = new Hashtable();
+        precomputedParams = new Hashtable<Integer, AlgIdDSA>();
 
         /*
          * L = 512
@@ -182,7 +182,7 @@ public class DSAKeyPairGenerator extends KeyPairGenerator
         /* Find the precomputed parameters, if any */
         if (!generateNewParameters) {
             Integer mod = Integer.valueOf(this.modlen);
-            params = (DSAParams) precomputedParams.get(mod);
+            params = precomputedParams.get(mod);
         }
         if (params != null) {
             setParams(params);

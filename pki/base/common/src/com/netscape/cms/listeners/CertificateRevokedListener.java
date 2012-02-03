@@ -91,9 +91,8 @@ public class CertificateRevokedListener implements IRequestListener {
     private String mSubject_Success = null;
     private String mFormPath = null;
     private String mRejectPath = null;
-    private Hashtable mContentParams = new Hashtable();
+    private Hashtable<String, Object> mContentParams = new Hashtable<String, Object>();
 
-    private ICertAuthority mSub = null;
     private IConfigStore mConfig = null;
     private DateFormat mDateFormat = null;
     private ICertAuthority mSubsystem = null;
@@ -301,15 +300,15 @@ public class CertificateRevokedListener implements IRequestListener {
         mContentParams.put(IEmailFormProcessor.TOKEN_ID,
                 mConfig.getName());
         mContentParams.put(IEmailFormProcessor.TOKEN_SERIAL_NUM,
-                (Object) crlentries[0].getSerialNumber().toString());
+                crlentries[0].getSerialNumber().toString());
         mContentParams.put(IEmailFormProcessor.TOKEN_HEX_SERIAL_NUM,
-                (Object) Long.toHexString(crlentries[0].getSerialNumber().longValue()));
+                Long.toHexString(crlentries[0].getSerialNumber().longValue()));
         mContentParams.put(IEmailFormProcessor.TOKEN_REQUEST_ID,
-                (Object) mReqId.toString());
+                mReqId.toString());
         mContentParams.put(IEmailFormProcessor.TOKEN_HTTP_HOST,
-                (Object) mHttpHost);
+                mHttpHost);
         mContentParams.put(IEmailFormProcessor.TOKEN_HTTP_PORT,
-                (Object) mHttpPort);
+                mHttpPort);
 
         try {
             RevokedCertImpl revCert = (RevokedCertImpl) crlentries[0];
@@ -318,9 +317,9 @@ public class CertificateRevokedListener implements IRequestListener {
             X509Certificate cert = certDB.getX509Certificate(revCert.getSerialNumber());
 
             mContentParams.put(IEmailFormProcessor.TOKEN_ISSUER_DN,
-                    (Object) cert.getIssuerDN().toString());
+                    cert.getIssuerDN().toString());
             mContentParams.put(IEmailFormProcessor.TOKEN_SUBJECT_DN,
-                    (Object) cert.getSubjectDN().toString());
+                    cert.getSubjectDN().toString());
             Date date = (Date) crlentries[0].getRevocationDate();
 
             mContentParams.put(IEmailFormProcessor.TOKEN_REVOCATION_DATE,
@@ -331,9 +330,9 @@ public class CertificateRevokedListener implements IRequestListener {
         }
 
         mContentParams.put(IEmailFormProcessor.TOKEN_SENDER_EMAIL,
-                (Object) mSenderEmail);
+                mSenderEmail);
         mContentParams.put(IEmailFormProcessor.TOKEN_RECIPIENT_EMAIL,
-                (Object) mEmail);
+                mEmail);
         // ... and more
     }
 

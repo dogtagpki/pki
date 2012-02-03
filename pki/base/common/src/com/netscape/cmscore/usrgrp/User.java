@@ -51,7 +51,7 @@ public class User implements IUser {
     private String mUserType = null;
     private X509Certificate mx509Certs[] = null;
 
-    private static final Vector mNames = new Vector();
+    private static final Vector<String> mNames = new Vector<String>();
     static {
         mNames.addElement(ATTR_NAME);
         mNames.addElement(ATTR_ID);
@@ -212,7 +212,7 @@ public class User implements IUser {
         throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_ATTRIBUTE", name));
     }
 
-    public Enumeration getElements() {
+    public Enumeration<String> getElements() {
         return mNames.elements();
     }
 }

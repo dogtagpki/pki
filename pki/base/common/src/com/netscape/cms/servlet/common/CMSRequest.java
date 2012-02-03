@@ -82,7 +82,7 @@ public class CMSRequest {
 
     // any request resulting data;
     Object mResult = null;
-    Hashtable mResults = new Hashtable();
+    Hashtable<String, Object> mResults = new Hashtable<String, Object>();
 
     /**
      * Constructor

@@ -183,7 +183,7 @@ public class DisplayCRL extends CMSServlet {
         boolean isCRLCacheEnabled = false;
         String masterHost = null;
         String masterPort = null;
-        Vector ipNames = null;
+        Vector<String> ipNames = null;
         String ipId = crlIssuingPointId;
         ICRLRepository crlRepository = mCA.getCRLRepository();
 
@@ -203,7 +203,7 @@ public class DisplayCRL extends CMSServlet {
                 if (ipNames != null && ipNames.size() > 0) {
                     int i;
                     for (i = 0; i < ipNames.size(); i++) {
-                        String ipName = (String) ipNames.elementAt(i);
+                        String ipName = ipNames.elementAt(i);
                         if (crlIssuingPointId.equals(ipName)) {
                             break;
                         }

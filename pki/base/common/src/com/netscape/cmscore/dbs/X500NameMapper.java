@@ -43,7 +43,7 @@ import com.netscape.certsrv.logging.ILogger;
 public class X500NameMapper implements IDBAttrMapper {
 
     private String mLdapName = null;
-    private Vector v = new Vector();
+    private Vector<String> v = new Vector<String>();
 
     private ILogger mLogger = CMS.getLogger();
 
@@ -58,7 +58,7 @@ public class X500NameMapper implements IDBAttrMapper {
     /**
      * Retrieves a list of ldap attributes.
      */
-    public Enumeration getSupportedLDAPAttributeNames() {
+    public Enumeration<String> getSupportedLDAPAttributeNames() {
         return v.elements();
     }
 

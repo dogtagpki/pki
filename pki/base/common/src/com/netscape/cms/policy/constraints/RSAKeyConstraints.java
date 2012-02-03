@@ -55,7 +55,7 @@ import com.netscape.cms.policy.APolicyRule;
  */
 public class RSAKeyConstraints extends APolicyRule
         implements IEnrollmentPolicy, IExtendedPluginInfo {
-    private Vector mExponents;
+    private Vector<BigInt> mExponents;
     private int mMinSize;
     private int mMaxSize;
 
@@ -66,7 +66,7 @@ public class RSAKeyConstraints extends APolicyRule
     private final static String PROP_EXPONENTS = "exponents";
     private final static String RSA = "RSA";
 
-    private final static Vector defConfParams = new Vector();
+    private final static Vector<String> defConfParams = new Vector<String>();
 
     static {
         defConfParams.addElement(PROP_MIN_SIZE + "=" + DEF_MIN_SIZE);
@@ -130,7 +130,7 @@ public class RSAKeyConstraints extends APolicyRule
             throw new EBaseException(
                     CMS.getUserMessage("CMS_BASE_A_GREATER_THAN_EQUAL_B", PROP_MIN_SIZE, PROP_MAX_SIZE));
 
-        mExponents = new Vector();
+        mExponents = new Vector<BigInt>();
 
         // Get exponents
         exponents = config.getString(PROP_EXPONENTS, null);
@@ -223,7 +223,7 @@ public class RSAKeyConstraints extends APolicyRule
                     if (!mExponents.contains(exp)) {
                         StringBuffer sb = new StringBuffer();
 
-                        for (Enumeration e = mExponents.elements(); e.hasMoreElements();) {
+                        for (Enumeration<BigInt> e = mExponents.elements(); e.hasMoreElements();) {
                             BigInt bi = (BigInt) e.nextElement();
 
                             sb.append(bi.toBigInteger().toString());
@@ -252,15 +252,15 @@ public class RSAKeyConstraints extends APolicyRule
      * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getInstanceParams() {
-        Vector confParams = new Vector();
+    public Vector<String> getInstanceParams() {
+        Vector<String> confParams = new Vector<String>();
 
         confParams.addElement(PROP_MIN_SIZE + "=" + mMinSize);
         confParams.addElement(PROP_MAX_SIZE + "=" + mMaxSize);
         StringBuffer sb = new StringBuffer();
 
-        for (Enumeration e = mExponents.elements(); e.hasMoreElements();) {
-            sb.append(((BigInt) e.nextElement()).toInt());
+        for (Enumeration<BigInt> e = mExponents.elements(); e.hasMoreElements();) {
+            sb.append(e.nextElement().toInt());
             sb.append(",");
         }
         if (sb.length() > 0)
@@ -274,7 +274,7 @@ public class RSAKeyConstraints extends APolicyRule
      * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getDefaultParams() {
+    public Vector<String> getDefaultParams() {
         return defConfParams;
     }
 }

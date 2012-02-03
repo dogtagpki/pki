@@ -928,6 +928,7 @@ class Request
         return (String) value;
     }
 
+    @SuppressWarnings("unchecked")
     public Hashtable<String, String> getExtDataInHashtable(String key) {
         Object value = mExtData.get(key);
         if (value == null) {

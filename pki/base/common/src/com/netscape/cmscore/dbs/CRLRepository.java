@@ -120,13 +120,13 @@ public class CRLRepository extends Repository implements ICRLRepository {
     /**
      * Retrieves all issuing points' names
      */
-    public Vector getIssuingPointsNames() throws EBaseException {
+    public Vector<String> getIssuingPointsNames() throws EBaseException {
         IDBSSession s = mDBService.createSession();
         try {
             String[] attrs = { ICRLIssuingPointRecord.ATTR_ID, "objectclass" };
             String filter = "objectclass=" + CMS.getCRLIssuingPointRecordName();
             IDBSearchResults res = s.search(getDN(), filter, attrs);
-            Vector v = new Vector();
+            Vector<String> v = new Vector<String>();
             while (res.hasMoreElements()) {
                 ICRLIssuingPointRecord nextelement =
                         (ICRLIssuingPointRecord) res.nextElement();

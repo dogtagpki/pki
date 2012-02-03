@@ -342,10 +342,10 @@ public class UpdateDir extends CMSServlet {
                 updateValue[UPDATE_CRL].equalsIgnoreCase("yes"))) {
             // check if received issuing point ID is known to the server
             if (crlIssuingPointId != null) {
-                Enumeration ips = mCA.getCRLIssuingPoints();
+                Enumeration<ICRLIssuingPoint> ips = mCA.getCRLIssuingPoints();
 
                 while (ips.hasMoreElements()) {
-                    ICRLIssuingPoint ip = (ICRLIssuingPoint) ips.nextElement();
+                    ICRLIssuingPoint ip = ips.nextElement();
 
                     if (crlIssuingPointId.equals(ip.getId())) {
                         break;
@@ -357,19 +357,19 @@ public class UpdateDir extends CMSServlet {
             if (crlIssuingPointId == null) {
                 // publish all issuing points
                 if (mClonedCA && mCRLRepository != null) {
-                    Vector ipNames = mCRLRepository.getIssuingPointsNames();
+                    Vector<String> ipNames = mCRLRepository.getIssuingPointsNames();
                     if (ipNames != null && ipNames.size() > 0) {
                         for (int i = 0; i < ipNames.size(); i++) {
-                            String ipName = (String) ipNames.elementAt(i);
+                            String ipName = ipNames.elementAt(i);
 
                             updateCRLIssuingPoint(header, ipName, null, locale);
                         }
                     }
                 } else {
-                    Enumeration oips = mCA.getCRLIssuingPoints();
+                    Enumeration<ICRLIssuingPoint> oips = mCA.getCRLIssuingPoints();
 
                     while (oips.hasMoreElements()) {
-                        ICRLIssuingPoint oip = (ICRLIssuingPoint) oips.nextElement();
+                        ICRLIssuingPoint oip = oips.nextElement();
 
                         updateCRLIssuingPoint(header, oip.getId(), oip, locale);
                     }

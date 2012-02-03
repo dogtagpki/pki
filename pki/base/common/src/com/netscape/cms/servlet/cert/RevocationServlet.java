@@ -239,10 +239,10 @@ public class RevocationServlet extends CMSServlet {
 
             if (status == RequestStatus.COMPLETE) {
                 header.addStringValue("request", req.getRequestId().toString());
-                Enumeration enum1 = req.getExtDataKeys();
+                Enumeration<String> enum1 = req.getExtDataKeys();
 
                 while (enum1.hasMoreElements()) {
-                    String name = (String) enum1.nextElement();
+                    String name = enum1.nextElement();
 
                     if (name.equals(IRequest.OLD_CERTS)) {
                         X509CertImpl[] certs = req.getExtDataInCertArray(IRequest.OLD_CERTS);

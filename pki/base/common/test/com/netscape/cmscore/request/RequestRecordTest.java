@@ -40,7 +40,7 @@ public class RequestRecordTest extends CMSBaseTestCase {
     }
 
     public void testGetExtData() {
-        Hashtable hash = new Hashtable();
+        Hashtable<String, Object> hash = new Hashtable<String, Object>();
 
         assertNotSame(hash, requestRecord.get(IRequestRecord.ATTR_EXT_DATA));
         requestRecord.mExtData = hash;
@@ -48,7 +48,7 @@ public class RequestRecordTest extends CMSBaseTestCase {
     }
 
     public void testSetExtData() {
-        Hashtable hash = new Hashtable();
+        Hashtable<String, Object> hash = new Hashtable<String, Object>();
 
         assertNotSame(requestRecord.mExtData, hash);
         requestRecord.set(IRequestRecord.ATTR_EXT_DATA, hash);

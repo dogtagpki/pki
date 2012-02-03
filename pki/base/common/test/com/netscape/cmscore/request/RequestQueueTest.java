@@ -44,7 +44,7 @@ public class RequestQueueTest extends CMSBaseTestCase {
         String[] keys = new String[] { "key1", "key2" };
         boolean getExtDataKeysCalled = false;
 
-        public Enumeration getExtDataKeys() {
+        public Enumeration<String> getExtDataKeys() {
             getExtDataKeysCalled = true;
             return Collections.enumeration(Arrays.asList(keys));
         }

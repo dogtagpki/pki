@@ -46,7 +46,7 @@ public class PlainPasswordReader implements IPasswordReader {
     }
 
     // return an array of String-based tag
-    public Enumeration getTags() {
+    public Enumeration<?> getTags() {
         return mPwdStore.propertyNames();
     }
 }

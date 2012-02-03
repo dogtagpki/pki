@@ -90,8 +90,6 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
     private IUGSubsystem mMgr = null;
 
-    private IAuthzSubsystem mAuthz = null;
-
     private static String[] mMultiRoleGroupEnforceList = null;
     private final static String MULTI_ROLE_ENABLE = "multiroles.enable";
     private final static String MULTI_ROLE_ENFORCE_GROUP_LIST = "multiroles.false.groupEnforceList";
@@ -345,7 +343,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
         NameValuePairs params = new NameValuePairs();
 
-        Enumeration e = null;
+        Enumeration<IUser> e = null;
 
         try {
             e = mMgr.listUsers("*");
@@ -359,7 +357,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
         int i = 0;
 
         while (e.hasMoreElements()) {
-            IUser user = (IUser) e.nextElement();
+            IUser user = e.nextElement();
 
             if (i > 0) {
                 sb.append(";");
@@ -424,7 +422,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
             // get list of groups, and get a list of those that this
             //			uid belongs to
-            Enumeration e = null;
+            Enumeration<IGroup> e = null;
 
             try {
                 e = mMgr.findGroups("*");
@@ -438,7 +436,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             StringBuffer grpString = new StringBuffer();
 
             while (e.hasMoreElements()) {
-                IGroup group = (IGroup) e.nextElement();
+                IGroup group = e.nextElement();
 
                 if (group.isMember(id) == true) {
                     if (grpString.length() != 0) {
@@ -553,7 +551,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             IOException, EBaseException {
         NameValuePairs params = new NameValuePairs();
 
-        Enumeration e = null;
+        Enumeration<IGroup> e = null;
 
         try {
             e = mMgr.listGroups("*");
@@ -564,7 +562,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
         }
 
         while (e.hasMoreElements()) {
-            IGroup group = (IGroup) e.nextElement();
+            IGroup group = e.nextElement();
             String desc = group.getDescription();
 
             if (desc != null) {
@@ -600,7 +598,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             return;
         }
 
-        Enumeration e = null;
+        Enumeration<IGroup> e = null;
 
         try {
             e = mMgr.findGroups(id);
@@ -611,13 +609,13 @@ public class UsrGrpAdminServlet extends AdminServlet {
         }
 
         if (e.hasMoreElements()) {
-            IGroup group = (IGroup) e.nextElement();
+            IGroup group = e.nextElement();
 
             params.add(Constants.PR_GROUP_GROUP, group.getGroupID());
             params.add(Constants.PR_GROUP_DESC,
                     group.getDescription());
 
-            Enumeration members = group.getMemberNames();
+            Enumeration<String> members = group.getMemberNames();
             StringBuffer membersString = new StringBuffer();
 
             if (members != null) {
@@ -626,7 +624,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                         membersString.append(", ");
                     }
 
-                    String mn = (String) members.nextElement();
+                    String mn = members.nextElement();
 
                     membersString.append(mn);
                 }
@@ -814,7 +812,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                         Constants.PR_USER_GROUP);
 
                 if (groupName != null) {
-                    Enumeration e = null;
+                    Enumeration<IGroup> e = null;
 
                     try {
                         e = mMgr.findGroups(groupName);
@@ -836,7 +834,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                     }
 
                     if (e.hasMoreElements()) {
-                        IGroup group = (IGroup) e.nextElement();
+                        IGroup group = e.nextElement();
 
                         group.addMemberName(id);
                         try {
@@ -902,8 +900,6 @@ public class UsrGrpAdminServlet extends AdminServlet {
                 }
                 return;
             } catch (LDAPException e) {
-                String errMsg = "addUser()" + e.toString();
-
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_ADD_USER_FAIL", e.toString()));
 
                 // store a message in the signed audit log file
@@ -1530,7 +1526,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                 return;
             }
             // get list of groups, and see if uid belongs to any
-            Enumeration e = null;
+            Enumeration<IGroup> e = null;
 
             try {
                 e = mMgr.findGroups("*");
@@ -2090,7 +2086,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
     }
 
     private boolean isDuplicate(String groupName, String memberName) {
-        Enumeration groups = null;
+        Enumeration<IGroup> groups = null;
 
         // Let's not mess with users that are already a member of this group
         boolean isMember = false;
@@ -2105,15 +2101,15 @@ public class UsrGrpAdminServlet extends AdminServlet {
         try {
             groups = mMgr.listGroups("*");
             while (groups.hasMoreElements()) {
-                IGroup group = (IGroup) groups.nextElement();
+                IGroup group = groups.nextElement();
                 String name = group.getName();
-                Enumeration g = mMgr.findGroups(name);
-                IGroup g1 = (IGroup) g.nextElement();
+                Enumeration<IGroup> g = mMgr.findGroups(name);
+                IGroup g1 = g.nextElement();
                 if (!name.equals(groupName)) {
                     if (isGroupInMultiRoleEnforceList(name)) {
-                        Enumeration members = g1.getMemberNames();
+                        Enumeration<String> members = g1.getMemberNames();
                         while (members.hasMoreElements()) {
-                            String m1 = (String) members.nextElement();
+                            String m1 = members.nextElement();
                             if (m1.equals(memberName))
                                 return true;
                         }

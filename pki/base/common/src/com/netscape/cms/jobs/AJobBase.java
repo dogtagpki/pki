@@ -71,8 +71,8 @@ public abstract class AJobBase implements IJob, Runnable {
     protected String mItemForm = null;
     protected String mSummarySenderEmail = null;
     protected String mSummaryReceiverEmail = null;
-    protected Hashtable mContentParams = new Hashtable();
-    protected Hashtable mItemParams = new Hashtable();
+    protected Hashtable<String, Object> mContentParams = new Hashtable<String, Object>();
+    protected Hashtable<String, Object> mItemParams = new Hashtable<String, Object>();
 
     public AJobBase() {
     }

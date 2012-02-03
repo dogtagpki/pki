@@ -38,7 +38,7 @@ import com.netscape.certsrv.dbs.IDBObj;
 public class StringVectorMapper implements IDBAttrMapper {
 
     private String mLdapName = null;
-    private Vector v = new Vector();
+    private Vector<String> v = new Vector<String>();
 
     /**
      * Constructs string vector mapper.
@@ -51,7 +51,7 @@ public class StringVectorMapper implements IDBAttrMapper {
     /**
      * Retrieves a list of supported ldap attributes.
      */
-    public Enumeration getSupportedLDAPAttributeNames() {
+    public Enumeration<String> getSupportedLDAPAttributeNames() {
         return v.elements();
     }
 
@@ -61,7 +61,8 @@ public class StringVectorMapper implements IDBAttrMapper {
     public void mapObjectToLDAPAttributeSet(IDBObj parent,
             String name, Object obj, LDAPAttributeSet attrs)
             throws EBaseException {
-        Vector v = (Vector) obj;
+        @SuppressWarnings("unchecked")
+        Vector<String> v = (Vector<String>) obj;
         int s = v.size();
 
         if (s == 0) {
@@ -70,7 +71,7 @@ public class StringVectorMapper implements IDBAttrMapper {
         String m[] = new String[s];
 
         for (int i = 0; i < s; i++) {
-            m[i] = (String) v.elementAt(i);
+            m[i] = v.elementAt(i);
         }
         attrs.add(new LDAPAttribute(mLdapName, m));
     }
@@ -85,11 +86,12 @@ public class StringVectorMapper implements IDBAttrMapper {
 
         if (attr == null)
             return;
-        Enumeration e = attr.getStringValues();
-        Vector v = new Vector();
+        @SuppressWarnings("unchecked")
+        Enumeration<String> e = attr.getStringValues();
+        Vector<String> v = new Vector<String>();
 
         while (e.hasMoreElements()) {
-            v.addElement((String) e.nextElement());
+            v.addElement(e.nextElement());
         }
         if (v.size() == 0)
             return;

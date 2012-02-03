@@ -54,8 +54,8 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
     private EnrollProfile mEnrollProfile = null;
     private IConfigStore mConfig = null;
     private ILogger mSignedAuditLogger = CMS.getSignedAuditLogger();
-    private Vector mConfigNames = new Vector();
-    private Vector mValueNames = new Vector();
+    private Vector<String> mConfigNames = new Vector<String>();
+    private Vector<String> mValueNames = new Vector<String>();
 
     private final static String LOGGING_SIGNED_AUDIT_CONFIG_ROLE =
             "LOGGING_SIGNED_AUDIT_CONFIG_ROLE_3";
@@ -74,7 +74,7 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
         mEnrollProfile = (EnrollProfile) profile;
     }
 
-    public Enumeration getConfigNames() {
+    public Enumeration<String> getConfigNames() {
         return mConfigNames.elements();
     }
 
@@ -239,9 +239,9 @@ public class SubsystemGroupUpdater implements IProfileUpdater {
             group = system.getGroupFromName(groupName);
 
             auditParams += "+user;;";
-            Enumeration members = group.getMemberNames();
+            Enumeration<String> members = group.getMemberNames();
             while (members.hasMoreElements()) {
-                auditParams += (String) members.nextElement();
+                auditParams += members.nextElement();
                 if (members.hasMoreElements()) {
                     auditParams += ",";
                 }

@@ -122,9 +122,10 @@ public class UpdateConnector extends CMSServlet {
 
         IConfigStore cs = CMS.getConfigStore();
 
-        Enumeration list = httpReq.getParameterNames();
+        @SuppressWarnings("unchecked")
+        Enumeration<String> list = httpReq.getParameterNames();
         while (list.hasMoreElements()) {
-            String name = (String) list.nextElement();
+            String name = list.nextElement();
             String val = httpReq.getParameter(name);
             if (name != null && name.startsWith("ca.connector")) {
                 CMS.debug("Adding connector update name=" + name + " val=" + val);

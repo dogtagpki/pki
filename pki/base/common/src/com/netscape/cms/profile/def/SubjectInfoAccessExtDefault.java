@@ -112,7 +112,7 @@ public class SubjectInfoAccessExtDefault extends EnrollExtDefault {
         super.setConfig(name, value);
     }
 
-    public Enumeration getConfigNames() {
+    public Enumeration<String> getConfigNames() {
         refreshConfigAndValueNames();
         return super.getConfigNames();
     }
@@ -220,7 +220,7 @@ public class SubjectInfoAccessExtDefault extends EnrollExtDefault {
                 }
                 boolean critical = ext.isCritical();
 
-                Vector v = parseRecords(value);
+                Vector<NameValuePairs> v = parseRecords(value);
                 int size = v.size();
 
                 ext = new SubjectInfoAccessExtension(critical);
@@ -230,11 +230,11 @@ public class SubjectInfoAccessExtDefault extends EnrollExtDefault {
                 String enable = null;
 
                 for (int i = 0; i < size; i++) {
-                    NameValuePairs nvps = (NameValuePairs) v.elementAt(i);
-                    Enumeration names = nvps.getNames();
+                    NameValuePairs nvps = v.elementAt(i);
+                    Enumeration<String> names = nvps.getNames();
 
                     while (names.hasMoreElements()) {
-                        String name1 = (String) names.nextElement();
+                        String name1 = names.nextElement();
 
                         if (name1.equals(AD_METHOD)) {
                             method = nvps.getValue(name1);

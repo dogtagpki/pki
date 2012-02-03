@@ -7,7 +7,7 @@ import java.util.Enumeration;
  */
 public class TestHelper {
 
-    public static boolean enumerationContains(Enumeration enumeration,
+    public static boolean enumerationContains(Enumeration<?> enumeration,
                                               Object element) {
         while (enumeration.hasMoreElements()) {
             if (enumeration.nextElement().equals(element)) {

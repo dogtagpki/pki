@@ -71,11 +71,11 @@ public class RequestTransfer {
             // copy everything in the request
             CMS.debug("RequestTransfer: profile request " +
                     r.getRequestId().toString());
-            Enumeration e = r.getExtDataKeys();
-            Vector v = new Vector();
+            Enumeration<String> e = r.getExtDataKeys();
+            Vector<String> v = new Vector<String>();
 
             while (e.hasMoreElements()) {
-                String k = (String) e.nextElement();
+                String k = e.nextElement();
 
                 if (k.equals("requestType"))
                     continue;

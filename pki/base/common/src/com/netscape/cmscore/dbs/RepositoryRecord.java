@@ -41,7 +41,7 @@ public class RepositoryRecord implements IRepositoryRecord {
     private BigInteger mSerialNo = null;
     private String mPublishingStatus = null;
 
-    protected static Vector mNames = new Vector();
+    protected static Vector<String> mNames = new Vector<String>();
     static {
         mNames.addElement(IRepositoryRecord.ATTR_SERIALNO);
         mNames.addElement(IRepositoryRecord.ATTR_PUB_STATUS);
@@ -90,11 +90,11 @@ public class RepositoryRecord implements IRepositoryRecord {
     /**
      * Retrieves a list of attribute names.
      */
-    public Enumeration getElements() {
+    public Enumeration<String> getElements() {
         return mNames.elements();
     }
 
-    public Enumeration getSerializableAttrNames() {
+    public Enumeration<String> getSerializableAttrNames() {
         return mNames.elements();
     }
 

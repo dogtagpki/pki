@@ -127,10 +127,10 @@ public class SimpleExpression implements IExpression {
         return matchValue(givenVal);
     }
 
-    private boolean matchVector(Vector value)
+    private boolean matchVector(Vector<?> value)
             throws EPolicyException {
         boolean result = false;
-        Enumeration e = (Enumeration) value.elements();
+        Enumeration<?> e = (Enumeration<?>) value.elements();
 
         for (; e.hasMoreElements();) {
             result = matchValue(e.nextElement());
@@ -168,7 +168,7 @@ public class SimpleExpression implements IExpression {
         else if (value instanceof Boolean)
             result = matchBooleanValue((Boolean) value);
         else if (value instanceof Vector)
-            result = matchVector((Vector) value);
+            result = matchVector((Vector<?>) value);
         else if (value instanceof String[])
             result = matchStringArray((String[]) value);
         else

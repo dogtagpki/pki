@@ -38,5 +38,5 @@ class ARequestRecord {
     String mSourceId;
     String mOwner;
     String mRequestType;
-    Hashtable mExtData;
+    Hashtable<String, Object> mExtData;
 };

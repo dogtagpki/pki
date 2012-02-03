@@ -50,7 +50,7 @@ public class Resender implements IResender {
     protected IRemoteAuthority mDest = null;
 
     /* Vector of Request Id *Strings* */
-    protected Vector mRequestIds = new Vector();
+    protected Vector<String> mRequestIds = new Vector<String>();
 
     protected HttpConnection mConn = null;
 
@@ -130,15 +130,16 @@ public class Resender implements IResender {
 
     private void resend() {
         // clone a seperate list so mRequestIds can be modified
-        Vector rids = (Vector) mRequestIds.clone();
-        Vector completedRids = new Vector();
+        @SuppressWarnings("unchecked")
+        Vector<String> rids = (Vector<String>) mRequestIds.clone();
+        Vector<RequestId> completedRids = new Vector<RequestId>();
 
         // resend each request to CA to ping for status.
-        Enumeration enum1 = rids.elements();
+        Enumeration<String> enum1 = rids.elements();
 
         while (enum1.hasMoreElements()) {
             // request ids are added as strings.
-            String ridString = (String) enum1.nextElement();
+            String ridString = enum1.nextElement();
             RequestId rid = new RequestId(ridString);
             IRequest r = null;
 
@@ -181,11 +182,11 @@ public class Resender implements IResender {
         }
 
         // remove completed ones from list so they won't be resent.
-        Enumeration en = completedRids.elements();
+        Enumeration<RequestId> en = completedRids.elements();
 
         synchronized (mRequestIds) {
             while (en.hasMoreElements()) {
-                RequestId id = (RequestId) en.nextElement();
+                RequestId id = en.nextElement();
 
                 CMS.debug(
                         "Connector: Removed request " + id + " from re-send queue");
@@ -200,7 +201,6 @@ public class Resender implements IResender {
     // this is almost the same as connector's send.
     private boolean send(IRequest r)
             throws IOException, EBaseException {
-        IRequest reply = null;
 
         try {
             HttpPKIMessage tomsg = new HttpPKIMessage();

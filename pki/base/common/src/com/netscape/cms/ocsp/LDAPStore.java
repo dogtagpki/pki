@@ -100,8 +100,8 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
     private String mCRLAttr = null;
     private boolean mByName = true;
     private String mCACertAttr = null;
-    protected Hashtable mReqCounts = new Hashtable();
-    private Hashtable<X509CertImpl, Object> mCRLs = new Hashtable<X509CertImpl, Object>();
+    protected Hashtable<String, Long> mReqCounts = new Hashtable<String, Long>();
+    private Hashtable<X509CertImpl, X509CRLImpl> mCRLs = new Hashtable<X509CertImpl, X509CRLImpl>();
 
     /**
      * Constructs the default store.
@@ -110,7 +110,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
     }
 
     public String[] getExtendedPluginInfo(Locale locale) {
-        Vector v = new Vector();
+        Vector<String> v = new Vector<String>();
 
         v.addElement(PROP_NOT_FOUND_GOOD
                 + ";boolean; " + CMS.getUserMessage(locale, "CMS_OCSP_LDAPSTORE_PROP_NOT_FOUND_GOOD"));
@@ -209,7 +209,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
 
     public void updateCRLHash(X509CertImpl caCert, X509CRLImpl crl)
             throws EBaseException {
-        X509CRLImpl oldCRL = (X509CRLImpl) mCRLs.get(caCert);
+        X509CRLImpl oldCRL = mCRLs.get(caCert);
 
         if (oldCRL != null) {
             if (oldCRL.getThisUpdate().getTime() >= crl.getThisUpdate().getTime()) {
@@ -278,7 +278,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
             mOCSPAuthority.log(ILogger.LL_INFO, "start OCSP request");
             TBSRequest tbsReq = request.getTBSRequest();
 
-            Vector singleResponses = new Vector();
+            Vector<SingleResponse> singleResponses = new Vector<SingleResponse>();
 
             if (statsSub != null) {
                 statsSub.startTiming("lookup");
@@ -364,7 +364,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
     }
 
     public long getReqCount(String id) {
-        Long c = (Long) mReqCounts.get(id);
+        Long c = mReqCounts.get(id);
 
         if (c == null)
             return 0;
@@ -397,12 +397,12 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
 
     public Enumeration<Object> searchAllCRLIssuingPointRecord(int maxSize)
             throws EBaseException {
-        Vector recs = new Vector();
+        Vector<Object> recs = new Vector<Object>();
         Enumeration<X509CertImpl> keys = mCRLs.keys();
 
         while (keys.hasMoreElements()) {
             X509CertImpl caCert = keys.nextElement();
-            X509CRLImpl crl = (X509CRLImpl) mCRLs.get(caCert);
+            X509CRLImpl crl = mCRLs.get(caCert);
 
             recs.addElement(new TempCRLIssuingPointRecord(caCert, crl));
         }
@@ -483,7 +483,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
             if (mOCSPAuthority.arraysEqual(digest, keyhsh)) {
                 theCert = caCert;
                 incReqCount(caCert.getSubjectDN().toString());
-                theCRL = (X509CRLImpl) mCRLs.get(caCert);
+                theCRL = mCRLs.get(caCert);
                 break;
             }
         }

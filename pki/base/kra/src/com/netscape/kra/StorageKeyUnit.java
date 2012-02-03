@@ -517,8 +517,8 @@ public class StorageKeyUnit extends EncryptionUnit implements
     /**
      * Returns a list of recovery agent identifiers.
      */
-    public Enumeration getAgentIdentifiers() {
-        Vector v = new Vector();
+    public Enumeration<String> getAgentIdentifiers() {
+        Vector<String> v = new Vector<String>();
 
         for (int i = 0;; i++) {
             try {
@@ -884,7 +884,7 @@ public class StorageKeyUnit extends EncryptionUnit implements
             throws EBaseException {
         // sort the credential according to the order in
         // configuration file
-        Hashtable v = new Hashtable();
+        Hashtable<String, byte[]> v = new Hashtable<String, byte[]>();
 
         for (int i = 0;; i++) {
             String uid = null;
@@ -938,10 +938,10 @@ public class StorageKeyUnit extends EncryptionUnit implements
             CMS.debug("Failed to initialize JoinShares");
             throw new EBaseException(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
         }
-        Enumeration e = v.keys();
+        Enumeration<String> e = v.keys();
 
         while (e.hasMoreElements()) {
-            String next = (String) e.nextElement();
+            String next = e.nextElement();
 
             j.addShare(Integer.parseInt(next) + 1,
                     (byte[]) v.get(next));

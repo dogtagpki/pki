@@ -47,7 +47,7 @@ public class PlainPasswordFile implements IPasswordStore {
     }
 
     // return an array of String-based tag
-    public Enumeration getTags() {
+    public Enumeration<?> getTags() {
         return mPwdStore.propertyNames();
     }
 

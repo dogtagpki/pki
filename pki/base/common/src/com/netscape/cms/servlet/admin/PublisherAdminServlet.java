@@ -327,13 +327,13 @@ public class PublisherAdminServlet extends AdminServlet {
 
     private IExtendedPluginInfo getExtendedPluginInfo(IPublisherProcessor
             p) {
-        Enumeration mappers = p.getMapperInsts().keys();
-        Enumeration publishers = p.getPublisherInsts().keys();
+        Enumeration<String> mappers = p.getMapperInsts().keys();
+        Enumeration<String> publishers = p.getPublisherInsts().keys();
 
         StringBuffer map = new StringBuffer();
 
         for (; mappers.hasMoreElements();) {
-            String name = (String) mappers.nextElement();
+            String name = mappers.nextElement();
 
             if (map.length() == 0) {
                 map.append(name);
@@ -372,7 +372,7 @@ public class PublisherAdminServlet extends AdminServlet {
 
         if (implType.equals(Constants.PR_EXT_PLUGIN_IMPLTYPE_PUBLISHRULE)) {
             IPublisherProcessor p_processor = mProcessor;
-            Plugin plugin = (Plugin) p_processor.getRulePlugins().get(implName);
+            RulePlugin plugin = p_processor.getRulePlugins().get(implName);
 
             // Should get the registered rules from processor
             // instead of plugin
@@ -439,10 +439,11 @@ public class PublisherAdminServlet extends AdminServlet {
         IConfigStore ldapcfg = publishcfg.getSubStore(IPublisherProcessor.PROP_LDAP_PUBLISH_SUBSTORE);
         IConfigStore ldap = ldapcfg.getSubStore(IPublisherProcessor.PROP_LDAP);
 
-        Enumeration e = req.getParameterNames();
+        @SuppressWarnings("unchecked")
+        Enumeration<String> e = req.getParameterNames();
 
         while (e.hasMoreElements()) {
-            String name = (String) e.nextElement();
+            String name = e.nextElement();
 
             if (name.equals(Constants.OP_TYPE))
                 continue;
@@ -502,7 +503,6 @@ public class PublisherAdminServlet extends AdminServlet {
 
     private void setLDAPDest(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException, EBaseException {
-        NameValuePairs params = new NameValuePairs();
 
         //Save New Settings to the config file
         IConfigStore config = mAuth.getConfigStore();
@@ -521,11 +521,12 @@ public class PublisherAdminServlet extends AdminServlet {
         }
 
         //set reset of the parameters
-        Enumeration e = req.getParameterNames();
+        @SuppressWarnings("unchecked")
+        Enumeration<String> e = req.getParameterNames();
         String pwd = null;
 
         while (e.hasMoreElements()) {
-            String name = (String) e.nextElement();
+            String name = e.nextElement();
 
             if (name.equals(Constants.OP_TYPE))
                 continue;
@@ -641,11 +642,12 @@ public class PublisherAdminServlet extends AdminServlet {
         }
 
         //set reset of the parameters
-        Enumeration e = req.getParameterNames();
+        @SuppressWarnings("unchecked")
+        Enumeration<String> e = req.getParameterNames();
         String pwd = null;
 
         while (e.hasMoreElements()) {
-            String name = (String) e.nextElement();
+            String name = e.nextElement();
 
             if (name.equals(Constants.OP_TYPE))
                 continue;
@@ -1038,7 +1040,7 @@ public class PublisherAdminServlet extends AdminServlet {
         IConfigStore instancesConfig = destStore.getSubStore("impl");
 
         // Does the class exist?
-        Class newImpl = null;
+        Class<?> newImpl = null;
 
         try {
             newImpl = Class.forName(classPath);
@@ -1147,7 +1149,7 @@ public class PublisherAdminServlet extends AdminServlet {
             return;
         }
 
-        Vector configParams = mProcessor.getMapperDefaultParams(implname);
+        Vector<String> configParams = mProcessor.getMapperDefaultParams(implname);
 
         IConfigStore destStore = mConfig.getSubStore(mAuth.getId() + ".publish.mapper");
         IConfigStore instancesConfig = destStore.getSubStore("instance");
@@ -1243,10 +1245,10 @@ public class PublisherAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         NameValuePairs params = new NameValuePairs();
-        Enumeration e = mProcessor.getMapperPlugins().keys();
+        Enumeration<String> e = mProcessor.getMapperPlugins().keys();
 
         while (e.hasMoreElements()) {
-            String name = (String) e.nextElement();
+            String name = e.nextElement();
             MapperPlugin value = (MapperPlugin)
                     mProcessor.getMapperPlugins().get(name);
             // get Description
@@ -1284,10 +1286,10 @@ public class PublisherAdminServlet extends AdminServlet {
             IOException, EBaseException {
 
         NameValuePairs params = new NameValuePairs();
-        Enumeration e = mProcessor.getMapperInsts().keys();
+        Enumeration<String> e = mProcessor.getMapperInsts().keys();
 
         for (; e.hasMoreElements();) {
-            String name = (String) e.nextElement();
+            String name = e.nextElement();
             ILdapMapper value = mProcessor.getMapperInstance(name);
 
             params.add(name, getMapperPluginName(value) + ";visible");
@@ -1373,7 +1375,7 @@ public class PublisherAdminServlet extends AdminServlet {
 
         // first check if any instances from this mapper
         // DON'T remove mapper if any instance
-        for (Enumeration e = mProcessor.getMapperInsts().keys(); e.hasMoreElements();) {
+        for (Enumeration<String> e = mProcessor.getMapperInsts().keys(); e.hasMoreElements();) {
             String name = (String) e.nextElement();
             ILdapMapper mapper = mProcessor.getMapperInstance(name);
 
@@ -1421,14 +1423,14 @@ public class PublisherAdminServlet extends AdminServlet {
             return;
         }
 
-        Vector configParams = mProcessor.getMapperDefaultParams(implname);
+        Vector<String> configParams = mProcessor.getMapperDefaultParams(implname);
         NameValuePairs params = new NameValuePairs();
 
         // implName is always required so always send it.
         params.add(Constants.PR_MAPPER_IMPL_NAME, "");
         if (configParams != null) {
             for (int i = 0; i < configParams.size(); i++) {
-                String kv = (String) configParams.elementAt(i);
+                String kv = configParams.elementAt(i);
                 int index = kv.indexOf('=');
 
                 params.add(kv.substring(0, index),
@@ -1463,7 +1465,7 @@ public class PublisherAdminServlet extends AdminServlet {
 
         ILdapMapper mapperInst = (ILdapMapper)
                 mProcessor.getMapperInstance(id);
-        Vector configParams = mapperInst.getInstanceParams();
+        Vector<String> configParams = mapperInst.getInstanceParams();
         NameValuePairs params = new NameValuePairs();
 
         params.add(Constants.PR_MAPPER_IMPL_NAME,
@@ -1471,7 +1473,7 @@ public class PublisherAdminServlet extends AdminServlet {
         // implName is always required so always send it.
         if (configParams != null) {
             for (int i = 0; i < configParams.size(); i++) {
-                String kv = (String) configParams.elementAt(i);
+                String kv = configParams.elementAt(i);
                 int index = kv.indexOf('=');
 
                 params.add(kv.substring(0, index),
@@ -1528,14 +1530,14 @@ public class PublisherAdminServlet extends AdminServlet {
 
         ILdapMapper oldinst =
                 (ILdapMapper) mProcessor.getMapperInstance(id);
-        Vector oldConfigParms = oldinst.getInstanceParams();
+        Vector<String> oldConfigParms = oldinst.getInstanceParams();
         NameValuePairs saveParams = new NameValuePairs();
 
         // implName is always required so always include it it.
         saveParams.add("pluginName", implname);
         if (oldConfigParms != null) {
             for (int i = 0; i < oldConfigParms.size(); i++) {
-                String kv = (String) oldConfigParms.elementAt(i);
+                String kv = oldConfigParms.elementAt(i);
                 int index = kv.indexOf('=');
 
                 saveParams.add(kv.substring(0, index),
@@ -1554,7 +1556,7 @@ public class PublisherAdminServlet extends AdminServlet {
 
         // create new substore.
 
-        Vector configParams = mProcessor.getMapperInstanceParams(id);
+        Vector<String> configParams = mProcessor.getMapperInstanceParams(id);
 
         instancesConfig.removeSubStore(id);
 
@@ -1563,7 +1565,7 @@ public class PublisherAdminServlet extends AdminServlet {
         substore.put("pluginName", implname);
         if (configParams != null) {
             for (int i = 0; i < configParams.size(); i++) {
-                String kv = (String) configParams.elementAt(i);
+                String kv = configParams.elementAt(i);
                 int index = kv.indexOf('=');
                 String key = kv.substring(0, index);
                 String val = req.getParameter(key);
@@ -1683,7 +1685,7 @@ public class PublisherAdminServlet extends AdminServlet {
         IConfigStore instancesConfig = destStore.getSubStore("impl");
 
         // Does the class exist?
-        Class newImpl = null;
+        Class<?> newImpl = null;
 
         try {
             newImpl = Class.forName(classPath);
@@ -1781,7 +1783,7 @@ public class PublisherAdminServlet extends AdminServlet {
             return;
         }
 
-        Vector configParams = mProcessor.getRuleDefaultParams(implname);
+        Vector<String> configParams = mProcessor.getRuleDefaultParams(implname);
 
         IConfigStore destStore =
                 mConfig.getSubStore(mAuth.getId()
@@ -1792,7 +1794,7 @@ public class PublisherAdminServlet extends AdminServlet {
 
         if (configParams != null) {
             for (int i = 0; i < configParams.size(); i++) {
-                String kv = (String) configParams.elementAt(i);
+                String kv = configParams.elementAt(i);
                 int index = kv.indexOf('=');
                 String val = req.getParameter(kv.substring(0, index));
 
@@ -1882,10 +1884,10 @@ public class PublisherAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         NameValuePairs params = new NameValuePairs();
-        Enumeration e = mProcessor.getRulePlugins().keys();
+        Enumeration<String> e = mProcessor.getRulePlugins().keys();
 
         while (e.hasMoreElements()) {
-            String name = (String) e.nextElement();
+            String name = e.nextElement();
             RulePlugin value = (RulePlugin)
                     mProcessor.getRulePlugins().get(name);
             // get Description
@@ -1909,11 +1911,10 @@ public class PublisherAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
         NameValuePairs params = new NameValuePairs();
-        String insts = null;
-        Enumeration e = mProcessor.getRuleInsts().keys();
+        Enumeration<String> e = mProcessor.getRuleInsts().keys();
 
         for (; e.hasMoreElements();) {
-            String name = (String) e.nextElement();
+            String name = e.nextElement();
             ILdapRule value = (ILdapRule)
                     mProcessor.getRuleInsts().get((Object) name);
             String enabled = value.enabled() ? "enabled" : "disabled";
@@ -1959,9 +1960,8 @@ public class PublisherAdminServlet extends AdminServlet {
 
         // first check if any instances from this rule
         // DON'T remove rule if any instance
-        for (Enumeration e = mProcessor.getRuleInsts().elements(); e.hasMoreElements();) {
-            ILdapRule rule = (ILdapRule)
-                    e.nextElement();
+        for (Enumeration<ILdapRule> e = mProcessor.getRuleInsts().elements(); e.hasMoreElements();) {
+            ILdapRule rule = e.nextElement();
 
             if (id.equals(getRulePluginName(rule))) {
                 sendResponse(ERROR, CMS.getUserMessage(getLocale(req), "CMS_LDAP_SRVLT_IN_USE"), null, resp);
@@ -2058,7 +2058,7 @@ public class PublisherAdminServlet extends AdminServlet {
             return;
         }
 
-        Vector configParams = mProcessor.getRuleDefaultParams(implname);
+        Vector<String> configParams = mProcessor.getRuleDefaultParams(implname);
         NameValuePairs params = new NameValuePairs();
 
         // implName is always required so always send it.
@@ -2099,7 +2099,7 @@ public class PublisherAdminServlet extends AdminServlet {
 
         ILdapRule ruleInst = (ILdapRule)
                 mProcessor.getRuleInsts().get(id);
-        Vector configParams = ruleInst.getInstanceParams();
+        Vector<String> configParams = ruleInst.getInstanceParams();
         NameValuePairs params = new NameValuePairs();
 
         params.add(Constants.PR_RULE_IMPL_NAME,
@@ -2163,14 +2163,14 @@ public class PublisherAdminServlet extends AdminServlet {
 
         ILdapRule oldinst =
                 (ILdapRule) mProcessor.getRuleInsts().get((Object) id);
-        Vector oldConfigParms = oldinst.getInstanceParams();
+        Vector<String> oldConfigParms = oldinst.getInstanceParams();
         NameValuePairs saveParams = new NameValuePairs();
 
         // implName is always required so always include it it.
         saveParams.add("pluginName", implname);
         if (oldConfigParms != null) {
             for (int i = 0; i < oldConfigParms.size(); i++) {
-                String kv = (String) oldConfigParms.elementAt(i);
+                String kv = oldConfigParms.elementAt(i);
                 int index = kv.indexOf('=');
 
                 saveParams.add(kv.substring(0, index),
@@ -2189,7 +2189,7 @@ public class PublisherAdminServlet extends AdminServlet {
 
         // create new substore.
 
-        Vector configParams = mProcessor.getRuleDefaultParams(implname);
+        Vector<String> configParams = mProcessor.getRuleDefaultParams(implname);
 
         instancesConfig.removeSubStore(id);
 
@@ -2198,7 +2198,7 @@ public class PublisherAdminServlet extends AdminServlet {
         substore.put("pluginName", implname);
         if (configParams != null) {
             for (int i = 0; i < configParams.size(); i++) {
-                String kv = (String) configParams.elementAt(i);
+                String kv = configParams.elementAt(i);
                 int index = kv.indexOf('=');
                 String key = kv.substring(0, index);
                 String val = req.getParameter(key);
@@ -2322,7 +2322,7 @@ public class PublisherAdminServlet extends AdminServlet {
         IConfigStore instancesConfig = destStore.getSubStore("impl");
 
         // Does the class exist?
-        Class newImpl = null;
+        Class<?> newImpl = null;
 
         try {
             newImpl = Class.forName(classPath);
@@ -2422,7 +2422,7 @@ public class PublisherAdminServlet extends AdminServlet {
             return;
         }
 
-        Vector configParams = mProcessor.getPublisherDefaultParams(implname);
+        Vector<String> configParams = mProcessor.getPublisherDefaultParams(implname);
 
         IConfigStore destStore =
                 mConfig.getSubStore(mAuth.getId() + ".publish.publisher");
@@ -2431,7 +2431,7 @@ public class PublisherAdminServlet extends AdminServlet {
 
         if (configParams != null) {
             for (int i = 0; i < configParams.size(); i++) {
-                String kv = (String) configParams.elementAt(i);
+                String kv = configParams.elementAt(i);
                 int index = kv.indexOf('=');
                 String val = null;
 
@@ -2533,10 +2533,10 @@ public class PublisherAdminServlet extends AdminServlet {
             IOException, EBaseException {
 
         NameValuePairs params = new NameValuePairs();
-        Enumeration e = mProcessor.getPublisherPlugins().keys();
+        Enumeration<String> e = mProcessor.getPublisherPlugins().keys();
 
         while (e.hasMoreElements()) {
-            String name = (String) e.nextElement();
+            String name = e.nextElement();
             PublisherPlugin value = (PublisherPlugin)
                     mProcessor.getPublisherPlugins().get(name);
             // get Description
@@ -2571,11 +2571,10 @@ public class PublisherAdminServlet extends AdminServlet {
             IOException, EBaseException {
 
         NameValuePairs params = new NameValuePairs();
-        String insts = null;
-        Enumeration e = mProcessor.getPublisherInsts().keys();
+        Enumeration<String> e = mProcessor.getPublisherInsts().keys();
 
         for (; e.hasMoreElements();) {
-            String name = (String) e.nextElement();
+            String name = e.nextElement();
             ILdapPublisher value = mProcessor.getPublisherInstance(name);
 
             if (value == null)
@@ -2613,8 +2612,8 @@ public class PublisherAdminServlet extends AdminServlet {
 
         // first check if any instances from this publisher
         // DON'T remove publisher if any instance
-        for (Enumeration e = mProcessor.getPublisherInsts().keys(); e.hasMoreElements();) {
-            String name = (String) e.nextElement();
+        for (Enumeration<String> e = mProcessor.getPublisherInsts().keys(); e.hasMoreElements();) {
+            String name = e.nextElement();
             ILdapPublisher publisher =
                     mProcessor.getPublisherInstance(name);
 
@@ -2722,7 +2721,7 @@ public class PublisherAdminServlet extends AdminServlet {
             return;
         }
 
-        Vector configParams = mProcessor.getPublisherDefaultParams(implname);
+        Vector<String> configParams = mProcessor.getPublisherDefaultParams(implname);
         NameValuePairs params = new NameValuePairs();
 
         // implName is always required so always send it.
@@ -2769,7 +2768,7 @@ public class PublisherAdminServlet extends AdminServlet {
 
         ILdapPublisher publisherInst = (ILdapPublisher)
                 mProcessor.getPublisherInstance(id);
-        Vector configParams = publisherInst.getInstanceParams();
+        Vector<String> configParams = publisherInst.getInstanceParams();
         NameValuePairs params = new NameValuePairs();
 
         params.add(Constants.PR_PUBLISHER_IMPL_NAME,
@@ -2844,7 +2843,7 @@ public class PublisherAdminServlet extends AdminServlet {
         // save old instance substore params in case new one fails. 
 
         ILdapPublisher oldinst = mProcessor.getPublisherInstance(id);
-        Vector oldConfigParms = oldinst.getInstanceParams();
+        Vector<String> oldConfigParms = oldinst.getInstanceParams();
         NameValuePairs saveParams = new NameValuePairs();
         String pubType = "";
 
@@ -2886,7 +2885,7 @@ public class PublisherAdminServlet extends AdminServlet {
 
         // create new substore.
 
-        Vector configParams = mProcessor.getPublisherInstanceParams(id);
+        Vector<String> configParams = mProcessor.getPublisherInstanceParams(id);
 
         instancesConfig.removeSubStore(id);
 
@@ -3107,10 +3106,10 @@ public class PublisherAdminServlet extends AdminServlet {
         store.removeSubStore(id);
         IConfigStore rstore = store.makeSubStore(id);
 
-        Enumeration keys = saveParams.getNames();
+        Enumeration<String> keys = saveParams.getNames();
 
         while (keys.hasMoreElements()) {
-            String key = (String) keys.nextElement();
+            String key = keys.nextElement();
             String value = saveParams.getValue(key);
 
             if (value != null)

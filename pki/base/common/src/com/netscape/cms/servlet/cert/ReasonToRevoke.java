@@ -249,7 +249,6 @@ public class ReasonToRevoke extends CMSServlet {
                     totalRecordCount, mTimeLimits);
 
             int count = 0;
-            String errorMsg = null;
 
             while (e != null && e.hasMoreElements()) {
                 ICertRecord rec = (ICertRecord) e.nextElement();

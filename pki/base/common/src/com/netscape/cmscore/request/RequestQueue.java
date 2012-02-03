@@ -20,6 +20,7 @@ package com.netscape.cmscore.request;
 import java.math.BigInteger;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.Hashtable;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
@@ -329,7 +330,6 @@ public class RequestQueue
 
         // Need only the requestid in the result of the search
         // TODO: generic search returning RequestId
-        String attrs[] = { IRequestRecord.ATTR_REQUEST_ID };
         String filter = "(" + IRequestRecord.ATTR_SOURCE_ID + "=" + id + ")";
 
         try {
@@ -357,7 +357,6 @@ public class RequestQueue
     protected Enumeration getRawList() {
         IDBSearchResults results = null;
         IDBSSession dbs = null;
-        String attrs[] = { IRequestRecord.ATTR_REQUEST_ID };
 
         try {
             dbs = mDB.createSession();
@@ -385,7 +384,6 @@ public class RequestQueue
     public IRequestList listRequestsByFilter(String f) {
         IDBSearchResults results = null;
         IDBSSession dbs = null;
-        String attrs[] = { IRequestRecord.ATTR_REQUEST_ID };
 
         try {
             dbs = mDB.createSession();
@@ -413,7 +411,6 @@ public class RequestQueue
     public IRequestList listRequestsByFilter(String f, int maxSize) {
         IDBSearchResults results = null;
         IDBSSession dbs = null;
-        String attrs[] = { IRequestRecord.ATTR_REQUEST_ID };
 
         try {
             dbs = mDB.createSession();
@@ -441,7 +438,6 @@ public class RequestQueue
     public IRequestList listRequestsByFilter(String f, int maxSize, int timeLimit) {
         IDBSearchResults results = null;
         IDBSSession dbs = null;
-        String attrs[] = { IRequestRecord.ATTR_REQUEST_ID };
 
         try {
             dbs = mDB.createSession();
@@ -467,7 +463,6 @@ public class RequestQueue
     public IRequestList listRequestsByStatus(RequestStatus s) {
         IDBSearchResults results = null;
         IDBSSession dbs = null;
-        String attrs[] = { IRequestRecord.ATTR_REQUEST_ID };
 
         try {
             String f1;
@@ -588,12 +583,12 @@ public class RequestQueue
     /*
      * list record attributes (debugging output)
      */
-    static void listRecordAttrs(String s, java.util.Hashtable h) {
+    static void listRecordAttrs(String s, Hashtable<String, Object> h) {
         System.err.println(s);
-        java.util.Enumeration e = h.keys();
+        Enumeration<String> e = h.keys();
 
         while (e.hasMoreElements()) {
-            String name = (String) e.nextElement();
+            String name = e.nextElement();
 
             System.err.println("Attr: " + name + " Value: " + h.get(name));
         }

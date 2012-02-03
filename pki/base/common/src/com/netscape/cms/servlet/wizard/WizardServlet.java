@@ -52,7 +52,7 @@ public class WizardServlet extends VelocityServlet {
      */
     private static final long serialVersionUID = -4513510177445656799L;
     private String name = null;
-    private Vector mPanels = new Vector();
+    private Vector<IWizardPanel> mPanels = new Vector<IWizardPanel>();
 
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
@@ -84,8 +84,8 @@ public class WizardServlet extends VelocityServlet {
     public void exposePanels(HttpServletRequest request,
                             HttpServletResponse response,
                             Context context) {
-        Enumeration e = mPanels.elements();
-        Vector panels = new Vector();
+        Enumeration<IWizardPanel> e = mPanels.elements();
+        Vector<IWizardPanel> panels = new Vector<IWizardPanel>();
         while (e.hasMoreElements()) {
             IWizardPanel p = (IWizardPanel) e.nextElement();
             panels.addElement(p);
@@ -106,7 +106,7 @@ public class WizardServlet extends VelocityServlet {
     }
 
     public IWizardPanel getPanelByNo(int p) {
-        IWizardPanel panel = (IWizardPanel) mPanels.elementAt(p);
+        IWizardPanel panel = mPanels.elementAt(p);
         if (panel.shouldSkip()) {
             panel = getPanelByNo(p + 1);
         }
@@ -153,8 +153,8 @@ public class WizardServlet extends VelocityServlet {
             ret += ((Integer) v).toString();
         } else if (v instanceof Vector) {
             ret += "<Vector>";
-            Vector v1 = (Vector) v;
-            Enumeration e = v1.elements();
+            Vector<?> v1 = (Vector<?>) v;
+            Enumeration<?> e = v1.elements();
             StringBuffer sb = new StringBuffer();
             while (e.hasMoreElements()) {
                 sb.append(xml_value_flatten(e.nextElement()));
@@ -227,7 +227,7 @@ public class WizardServlet extends VelocityServlet {
         if (request.getParameter("panelname") != null) {
             String name = request.getParameter("panelname");
             for (int i = 0; i < mPanels.size(); i++) {
-                IWizardPanel panel = (IWizardPanel) mPanels.elementAt(i);
+                IWizardPanel panel = mPanels.elementAt(i);
                 if (panel.getId().equals(name)) {
                     return i;
                 }
@@ -239,19 +239,18 @@ public class WizardServlet extends VelocityServlet {
     }
 
     public String getNameFromPanelNo(int p) {
-        IWizardPanel wp = (IWizardPanel) mPanels.elementAt(p);
+        IWizardPanel wp = mPanels.elementAt(p);
         return wp.getId();
     }
 
     public IWizardPanel getPreviousPanel(int p) {
         CMS.debug("getPreviousPanel input p=" + p);
-        IWizardPanel backpanel = (IWizardPanel) mPanels.elementAt(p - 1);
+        IWizardPanel backpanel = mPanels.elementAt(p - 1);
         if (backpanel.isSubPanel()) {
-            backpanel = (IWizardPanel) mPanels.elementAt(p - 1 - 1);
+            backpanel = mPanels.elementAt(p - 1 - 1);
         }
         while (backpanel.shouldSkip()) {
-            backpanel = (IWizardPanel)
-                         mPanels.elementAt(backpanel.getPanelNo() - 1);
+            backpanel = mPanels.elementAt(backpanel.getPanelNo() - 1);
         }
         CMS.debug("getPreviousPanel output p=" + backpanel.getPanelNo());
         return backpanel;
@@ -259,9 +258,9 @@ public class WizardServlet extends VelocityServlet {
 
     public IWizardPanel getNextPanel(int p) {
         CMS.debug("getNextPanel input p=" + p);
-        IWizardPanel panel = (IWizardPanel) mPanels.elementAt(p);
+        IWizardPanel panel = mPanels.elementAt(p);
         if (p == (mPanels.size() - 1)) {
-            p = p;
+            // p = p;
         } else if (panel.isSubPanel()) {
             if (panel.isLoopbackPanel()) {
                 p = p - 1; // Login Panel is a loop back panel
@@ -303,7 +302,7 @@ public class WizardServlet extends VelocityServlet {
         else
             CMS.debug("WizardServlet: in next " + p);
 
-        IWizardPanel panel = (IWizardPanel) mPanels.elementAt(p);
+        IWizardPanel panel = mPanels.elementAt(p);
         try {
             panel.validate(request, response, context);
             try {
@@ -419,9 +418,9 @@ public class WizardServlet extends VelocityServlet {
 
     public void outputHttpParameters(HttpServletRequest httpReq) {
         CMS.debug("WizardServlet:service() uri = " + httpReq.getRequestURI());
-        Enumeration paramNames = httpReq.getParameterNames();
+        Enumeration<String> paramNames = httpReq.getParameterNames();
         while (paramNames.hasMoreElements()) {
-            String pn = (String) paramNames.nextElement();
+            String pn = paramNames.nextElement();
             // added this facility so that password can be hidden,
             // all sensitive parameters should be prefixed with 
             // __ (double underscores); however, in the event that

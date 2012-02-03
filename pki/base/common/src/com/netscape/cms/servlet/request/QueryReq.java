@@ -437,19 +437,19 @@ public class QueryReq extends CMSServlet {
 
             int numEntries = list.getSize() - list.getCurrentIndex();
 
-            Vector v = fetchRecords(list, maxCount);
+            Vector<IRequest> v = fetchRecords(list, maxCount);
             v = normalizeOrder(v);
             trim(v, id);
 
             int currentCount = 0;
             BigInteger curNum = BigInteger.ZERO;
             BigInteger firstNum = BigInteger.ONE.negate();
-            Enumeration requests = v.elements();
+            Enumeration<IRequest> requests = v.elements();
 
             while (requests.hasMoreElements()) {
                 IRequest request = null;
                 try {
-                    request = (IRequest) requests.nextElement();
+                    request = requests.nextElement();
                 } catch (Exception e) {
                     CMS.debug("Error displaying request:" + e.getMessage());
                     // handled below
@@ -493,9 +493,9 @@ public class QueryReq extends CMSServlet {
      * @param v The vector to trim
      * @param marker the marker to look for.
      */
-    private void trim(Vector v, RequestId marker) {
+    private void trim(Vector<IRequest> v, RequestId marker) {
         int i = v.size() - 1;
-        if (((IRequest) v.elementAt(i)).getRequestId().toString().equals(
+        if (v.elementAt(i).getRequestId().toString().equals(
                 marker.toString())) {
             v.remove(i);
         }
@@ -508,9 +508,9 @@ public class QueryReq extends CMSServlet {
      * @param list
      * @return
      */
-    private Vector fetchRecords(IRequestVirtualList list, int maxCount) {
+    private Vector<IRequest> fetchRecords(IRequestVirtualList list, int maxCount) {
 
-        Vector v = new Vector();
+        Vector<IRequest> v = new Vector<IRequest>();
         int count = list.getSize();
         int c = 0;
         for (int i = 0; i < count; i++) {
@@ -533,20 +533,20 @@ public class QueryReq extends CMSServlet {
      * @param list
      * @return
      */
-    private Vector normalizeOrder(Vector list) {
+    private Vector<IRequest> normalizeOrder(Vector<IRequest> list) {
 
-        BigInteger firstrequestnum = new BigInteger(((IRequest) list.elementAt(0))
+        BigInteger firstrequestnum = new BigInteger(list.elementAt(0)
                 .getRequestId().toString());
-        BigInteger lastrequestnum = new BigInteger(((IRequest) list.elementAt(list
-                .size() - 1)).getRequestId().toString());
+        BigInteger lastrequestnum = new BigInteger(list.elementAt(list
+                .size() - 1).getRequestId().toString());
         boolean reverse = false;
         if (firstrequestnum.compareTo(lastrequestnum) > 0) {
             reverse = true; // if the order is backwards, place items at the beginning
         }
-        Vector v = new Vector();
+        Vector<IRequest> v = new Vector<IRequest>();
         int count = list.size();
         for (int i = 0; i < count; i++) {
-            Object request = list.elementAt(i);
+            IRequest request = list.elementAt(i);
             if (request != null) {
                 if (reverse)
                     v.add(0, request);

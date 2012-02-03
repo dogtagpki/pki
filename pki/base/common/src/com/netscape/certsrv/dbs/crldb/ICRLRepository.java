@@ -48,7 +48,7 @@ public interface ICRLRepository {
      * @return A list of issuing points' names.
      * @exception EBaseException failed to retrieve all the issuing points' names.
      */
-    public Vector getIssuingPointsNames() throws EBaseException;
+    public Vector<String> getIssuingPointsNames() throws EBaseException;
 
     /**
      * Reads issuing point record.

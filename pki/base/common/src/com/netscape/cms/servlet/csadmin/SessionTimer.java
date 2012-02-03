@@ -37,9 +37,9 @@ public class SessionTimer extends TimerTask {
     }
 
     public void run() {
-        Enumeration keys = m_sessiontable.getSessionIds();
+        Enumeration<String> keys = m_sessiontable.getSessionIds();
         while (keys.hasMoreElements()) {
-            String sessionId = (String) keys.nextElement();
+            String sessionId = keys.nextElement();
             long beginTime = m_sessiontable.getBeginTime(sessionId);
             Date nowDate = new Date();
             long nowTime = nowDate.getTime();

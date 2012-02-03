@@ -46,7 +46,7 @@ import com.netscape.cms.servlet.wizard.WizardServlet;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 public class SizePanel extends WizardPanelBase {
-    private Vector mCerts = null;
+    private Vector<Cert> mCerts = null;
     private WizardServlet mServlet = null;
 
     private String default_ecc_curve_name;
@@ -128,7 +128,7 @@ public class SizePanel extends WizardPanelBase {
 
         context.put("firsttime", "false");
         String errorString = "";
-        mCerts = new Vector();
+        mCerts = new Vector<Cert>();
 
         IConfigStore config = CMS.getConfigStore();
         try {
@@ -251,10 +251,10 @@ public class SizePanel extends WizardPanelBase {
         String token = "";
         try {
             token = config.getString(PRE_CONF_CA_TOKEN, "");
-            Enumeration c = mCerts.elements();
+            Enumeration<Cert> c = mCerts.elements();
 
             while (c.hasMoreElements()) {
-                Cert cert = (Cert) c.nextElement();
+                Cert cert = c.nextElement();
                 String ct = cert.getCertTag();
                 boolean enable = config.getBoolean(PCERT_PREFIX + ct + ".enable", true);
                 if (!enable)
@@ -411,10 +411,10 @@ public class SizePanel extends WizardPanelBase {
         }
 
         // generate key pair 
-        Enumeration c = mCerts.elements();
+        Enumeration<Cert> c = mCerts.elements();
 
         while (c.hasMoreElements()) {
-            Cert cert = (Cert) c.nextElement();
+            Cert cert = c.nextElement();
             String ct = cert.getCertTag();
             String friendlyName = ct;
             boolean enable = true;

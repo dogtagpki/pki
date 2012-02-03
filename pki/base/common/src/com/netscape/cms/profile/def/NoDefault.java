@@ -40,7 +40,7 @@ public class NoDefault implements IPolicyDefault {
 
     public static final String PROP_NAME = "name";
 
-    protected Vector mValues = new Vector();
+    protected Vector<String> mValues = new Vector<String>();
     protected Vector<String> mNames = new Vector<String>();
     protected IConfigStore mConfig = null;
 
@@ -80,7 +80,7 @@ public class NoDefault implements IPolicyDefault {
             throws EProfileException {
     }
 
-    public Enumeration getValueNames() {
+    public Enumeration<String> getValueNames() {
         return mValues.elements();
     }
 

@@ -167,10 +167,10 @@ public class LdapSimpleExpression implements ILdapExpression {
         return result;
     }
 
-    private boolean matchVector(Vector value)
+    private boolean matchVector(Vector<Object> value)
             throws ELdapException {
         boolean result = false;
-        Enumeration e = (Enumeration) value.elements();
+        Enumeration<Object> e = (Enumeration<Object>) value.elements();
 
         for (; e.hasMoreElements();) {
             result = matchValue(e.nextElement());
@@ -185,13 +185,14 @@ public class LdapSimpleExpression implements ILdapExpression {
         boolean result = false;
 
         for (int i = 0; i < value.length; i++) {
-            result = matchValue((Object) value[i]);
+            result = matchValue(value[i]);
             if (result)
                 break;
         }
         return result;
     }
 
+    @SuppressWarnings("unchecked")
     private boolean matchValue(Object value)
             throws ELdapException {
         boolean result;
@@ -207,7 +208,7 @@ public class LdapSimpleExpression implements ILdapExpression {
         else if (value instanceof Boolean)
             result = matchBooleanValue((Boolean) value);
         else if (value instanceof Vector)
-            result = matchVector((Vector) value);
+            result = matchVector((Vector<Object>) value);
         else if (value instanceof String[])
             result = matchStringArray((String[]) value);
         else

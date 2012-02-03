@@ -75,7 +75,7 @@ public class RemoteAuthConfig extends CMSServlet {
     private IAuthSubsystem mAuthSubsystem = null;
     private IConfigStore mAuthConfig = null;
     private IConfigStore mFileConfig = null;
-    private Vector mRemotelySetInstances = new Vector();
+    private Vector<String> mRemotelySetInstances = new Vector<String>();
     private boolean mEnableRemoteConfiguration = false;
 
     /**
@@ -302,10 +302,11 @@ public class RemoteAuthConfig extends CMSServlet {
                 LDAPAttribute attr = entry.getAttribute(MEMBER_OF);
 
                 if (attr != null) {
-                    Enumeration eVals = attr.getStringValues();
+                    @SuppressWarnings("unchecked")
+                    Enumeration<String> eVals = attr.getStringValues();
 
                     while (eVals.hasMoreElements()) {
-                        String nextValue = (String) eVals.nextElement();
+                        String nextValue = eVals.nextElement();
 
                         if (nextValue.indexOf("Administrator") > -1) {
                             LDAPEntry groupEntry = c.read(nextValue);
@@ -314,10 +315,11 @@ public class RemoteAuthConfig extends CMSServlet {
                                 LDAPAttribute gAttr = groupEntry.getAttribute(UNIQUE_MEMBER);
 
                                 if (gAttr != null) {
-                                    Enumeration eValues = gAttr.getStringValues();
+                                    @SuppressWarnings("unchecked")
+                                    Enumeration<String> eValues = gAttr.getStringValues();
 
                                     while (eValues.hasMoreElements()) {
-                                        String value = (String) eValues.nextElement();
+                                        String value = eValues.nextElement();
 
                                         if (value.equals(entry.getDN())) {
                                             c.disconnect();
@@ -409,10 +411,11 @@ public class RemoteAuthConfig extends CMSServlet {
 
                     if (attr != null) {
                         memberOf = true;
-                        Enumeration eVals = attr.getStringValues();
+                        @SuppressWarnings("unchecked")
+                        Enumeration<String> eVals = attr.getStringValues();
 
                         while (eVals.hasMoreElements()) {
-                            String nextValue = (String) eVals.nextElement();
+                            String nextValue = eVals.nextElement();
 
                             if (nextValue.indexOf("Administrator") > -1) {
                                 LDAPEntry groupEntry = c.read(nextValue);
@@ -421,10 +424,11 @@ public class RemoteAuthConfig extends CMSServlet {
                                     LDAPAttribute gAttr = groupEntry.getAttribute(UNIQUE_MEMBER);
 
                                     if (gAttr != null) {
-                                        Enumeration eValues = gAttr.getStringValues();
+                                        @SuppressWarnings("unchecked")
+                                        Enumeration<String> eValues = gAttr.getStringValues();
 
                                         while (eValues.hasMoreElements()) {
-                                            String value = (String) eValues.nextElement();
+                                            String value = eValues.nextElement();
 
                                             if (value.equals(entry.getDN())) {
                                                 c.disconnect();
@@ -516,7 +520,7 @@ public class RemoteAuthConfig extends CMSServlet {
         for (int i = 0; i < mRemotelySetInstances.size(); i++) {
             if (i > 0)
                 list.append(",");
-            list.append((String) mRemotelySetInstances.elementAt(i));
+            list.append(mRemotelySetInstances.elementAt(i));
         }
 
         mAuthConfig.putString(REMOTELY_SET_INSTANCES, list.toString());
@@ -543,7 +547,7 @@ public class RemoteAuthConfig extends CMSServlet {
             for (int i = 0; i < mRemotelySetInstances.size(); i++) {
                 if (i > 0)
                     list.append(",");
-                list.append((String) mRemotelySetInstances.elementAt(i));
+                list.append(mRemotelySetInstances.elementAt(i));
             }
 
             mAuthConfig.putString(REMOTELY_SET_INSTANCES, list.toString());
@@ -563,10 +567,10 @@ public class RemoteAuthConfig extends CMSServlet {
         boolean isListed = false;
 
         if (pluginName != null && pluginName.length() > 0) {
-            Enumeration e = mAuthSubsystem.getAuthManagerPlugins();
+            Enumeration<AuthMgrPlugin> e = mAuthSubsystem.getAuthManagerPlugins();
 
             while (e.hasMoreElements()) {
-                AuthMgrPlugin plugin = (AuthMgrPlugin) e.nextElement();
+                AuthMgrPlugin plugin = e.nextElement();
 
                 if (pluginName.equals(plugin.getId())) {
                     isListed = true;
@@ -582,10 +586,10 @@ public class RemoteAuthConfig extends CMSServlet {
         boolean isListed = false;
 
         if (instanceName != null && instanceName.length() > 0) {
-            Enumeration e = mAuthSubsystem.getAuthManagers();
+            Enumeration<IAuthManager> e = mAuthSubsystem.getAuthManagers();
 
             while (e.hasMoreElements()) {
-                IAuthManager authManager = (IAuthManager) e.nextElement();
+                IAuthManager authManager = e.nextElement();
 
                 if (instanceName.equals(authManager.getName())) {
                     isListed = true;
