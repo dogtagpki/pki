@@ -371,9 +371,9 @@ public class AdminServlet extends HttpServlet {
                             authToken.lastIndexOf(' ') + 1);
                     String authCode = new String(com.netscape.osutil.OSUtil.AtoB(b64s));
                     String userid = authCode.substring(0,
-                            authCode.lastIndexOf(':'));
+                            authCode.indexOf(':'));
                     String password = authCode.substring(
-                            authCode.lastIndexOf(':') + 1);
+                            authCode.indexOf(':') + 1);
                     AuthCredentials cred = new AuthCredentials();
 
                     // save the "userid" of this certificate in case it
