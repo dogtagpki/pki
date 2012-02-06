@@ -111,8 +111,6 @@ public class CMSTemplate extends CMSFile {
      * @return true if successful
      */
     public boolean init(File template) throws EBaseException, IOException {
-        StringBuffer buf = new StringBuffer();
-
         /* load template */
         String content = loadFile(template);
 

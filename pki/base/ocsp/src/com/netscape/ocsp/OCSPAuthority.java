@@ -81,13 +81,12 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
 
     public final static OBJECT_IDENTIFIER OCSP_NONCE = new OBJECT_IDENTIFIER("1.3.6.1.5.5.7.48.1.2");
 
-    private Hashtable mStores = new Hashtable();
+    private Hashtable<String, IOCSPStore> mStores = new Hashtable<String, IOCSPStore>();
     private String mId = "ocsp";
     private IConfigStore mConfig = null;
     private SigningUnit mSigningUnit;
     private CertificateChain mCertChain = null;
     private X509CertImpl mCert = null;
-    private String[] mSigningAlgorithms = null;
     private X500Name mName = null;
     private String mNickname = null;
     private String[] mOCSPSigningAlgorithms = null;
@@ -172,7 +171,7 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
      * Retrieves the specificed OCSP store.
      */
     public IOCSPStore getOCSPStore(String id) {
-        return (IOCSPStore) mStores.get(id);
+        return mStores.get(id);
     }
 
     public IConfigStore getOCSPStoreConfig(String id) {
@@ -452,7 +451,6 @@ public class OCSPAuthority implements IOCSPAuthority, IOCSPService, ISubsystem, 
 
             DerOutputStream tmpChain = new DerOutputStream();
             DerOutputStream tmp1 = new DerOutputStream();
-            DerOutputStream outChain = new DerOutputStream();
             java.security.cert.X509Certificate chains[] =
                     mCertChain.getChain();
 

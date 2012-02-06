@@ -110,11 +110,11 @@ public class RAEnrollProfile extends EnrollProfile {
         }
 
         // request handling
-        Enumeration names = ra.getRequestListenerNames();
+        Enumeration<String> names = ra.getRequestListenerNames();
 
         if (names != null) {
             while (names.hasMoreElements()) {
-                String name = (String) names.nextElement();
+                String name = names.nextElement();
 
                 CMS.debug("CAEnrollProfile: listener " + name);
                 IRequestListener listener = ra.getRequestListener(name);

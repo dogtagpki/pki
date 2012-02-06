@@ -295,7 +295,6 @@ public class SrchCerts extends CMSServlet {
     private void buildDateFilter(HttpServletRequest req, String prefix,
                                    String outStr, long adjustment,
                                    StringBuffer filter) {
-        String queryCertFilter = null;
         long epoch = 0;
         try {
             epoch = Long.parseLong(req.getParameter(prefix));

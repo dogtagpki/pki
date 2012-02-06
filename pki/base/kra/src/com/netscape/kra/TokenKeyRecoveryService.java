@@ -225,7 +225,7 @@ public class TokenKeyRecoveryService implements IService {
                     (String) sContext.get(SessionContext.USER_ID);
         }
 
-        Hashtable params = mKRA.getVolatileRequest(
+        Hashtable<String, Object> params = mKRA.getVolatileRequest(
                  request.getRequestId());
 
         if (params == null) {
@@ -579,7 +579,7 @@ public class TokenKeyRecoveryService implements IService {
     /**
      * Recovers key.
      */
-    public synchronized byte[] recoverKey(Hashtable request, KeyRecord keyRecord)
+    public synchronized byte[] recoverKey(Hashtable<String, Object> request, KeyRecord keyRecord)
             throws EBaseException {
         /*
             Credential creds[] = (Credential[])

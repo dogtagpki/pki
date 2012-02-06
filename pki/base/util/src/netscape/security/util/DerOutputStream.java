@@ -460,7 +460,7 @@ public class DerOutputStream
      * @param order the order to use when sorting encodings of components.
      */
     private void putOrderedSet(byte tag, DerEncoder[] set,
-                   Comparator order) throws IOException {
+                   Comparator<byte[]> order) throws IOException {
         DerOutputStream[] streams = new DerOutputStream[set.length];
 
         for (int i = 0; i < set.length; i++) {

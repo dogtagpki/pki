@@ -33,6 +33,7 @@ import netscape.ldap.LDAPEntry;
 import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSearchResults;
 import netscape.ldap.LDAPv2;
+import netscape.security.x509.RevokedCertificate;
 import netscape.security.x509.X509CRLImpl;
 import netscape.security.x509.X509CertImpl;
 import netscape.security.x509.X509Key;
@@ -395,9 +396,9 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
         throw new EBaseException("NOT SUPPORTED");
     }
 
-    public Enumeration<Object> searchAllCRLIssuingPointRecord(int maxSize)
+    public Enumeration<ICRLIssuingPointRecord> searchAllCRLIssuingPointRecord(int maxSize)
             throws EBaseException {
-        Vector<Object> recs = new Vector<Object>();
+        Vector<ICRLIssuingPointRecord> recs = new Vector<ICRLIssuingPointRecord>();
         Enumeration<X509CertImpl> keys = mCRLs.keys();
 
         while (keys.hasMoreElements()) {
@@ -409,7 +410,7 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
         return recs.elements();
     }
 
-    public Enumeration searchCRLIssuingPointRecord(String filter,
+    public Enumeration<ICRLIssuingPointRecord> searchCRLIssuingPointRecord(String filter,
             int maxSize)
             throws EBaseException {
         return null;
@@ -672,11 +673,11 @@ class TempCRLIssuingPointRecord implements ICRLIssuingPointRecord {
         return null;
     }
 
-    public Hashtable getCRLCacheNoClone() {
+    public Hashtable<BigInteger, RevokedCertificate> getCRLCacheNoClone() {
         return null;
     }
 
-    public Hashtable getCRLCache() {
+    public Hashtable<BigInteger, RevokedCertificate> getCRLCache() {
         return null;
     }
 
@@ -717,25 +718,25 @@ class TempCRLIssuingPointRecord implements ICRLIssuingPointRecord {
     /**
      * Retrieves cache info of revoked certificates.
      */
-    public Hashtable getRevokedCerts() {
+    public Hashtable<BigInteger, RevokedCertificate> getRevokedCerts() {
         return mCRL.getListOfRevokedCertificates();
     }
 
     /**
      * Retrieves cache info of unrevoked certificates.
      */
-    public Hashtable getUnrevokedCerts() {
+    public Hashtable<BigInteger, RevokedCertificate> getUnrevokedCerts() {
         return null;
     }
 
     /**
      * Retrieves cache info of expired certificates.
      */
-    public Hashtable getExpiredCerts() {
+    public Hashtable<BigInteger, RevokedCertificate> getExpiredCerts() {
         return null;
     }
 
-    public Enumeration getSerializableAttrNames() {
+    public Enumeration<String> getSerializableAttrNames() {
         return null;
     }
 
@@ -750,7 +751,7 @@ class TempCRLIssuingPointRecord implements ICRLIssuingPointRecord {
 
     }
 
-    public Enumeration getElements() {
+    public Enumeration<Object> getElements() {
         return null;
     }
 }

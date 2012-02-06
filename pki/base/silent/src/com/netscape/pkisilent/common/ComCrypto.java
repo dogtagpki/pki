@@ -248,7 +248,7 @@ public class ComCrypto {
                 System.out.println("Manager object is null");
             }
 
-            X509Certificate cert = manager.importCertPackage(tmp.getBytes(), cn);
+            manager.importCertPackage(tmp.getBytes(), cn);
 
             return true;
 
@@ -277,7 +277,7 @@ public class ComCrypto {
                 System.out.println("Manager object is null");
             }
 
-            X509Certificate cert = manager.importCACertPackage(tmp.getBytes());
+            manager.importCACertPackage(tmp.getBytes());
 
             return true;
 

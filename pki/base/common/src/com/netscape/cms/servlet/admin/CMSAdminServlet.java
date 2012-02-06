@@ -799,7 +799,6 @@ public final class CMSAdminServlet extends AdminServlet {
             IOException, EBaseException {
         NameValuePairs params = new NameValuePairs();
         Enumeration<ISubsystem> e = CMS.getSubsystems();
-        StringBuffer buff = new StringBuffer();
 
         while (e.hasMoreElements()) {
             String type = "";

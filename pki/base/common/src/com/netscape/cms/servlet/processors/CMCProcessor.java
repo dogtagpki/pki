@@ -203,7 +203,7 @@ public class CMCProcessor extends PKIProcessor {
             // verify the signerInfo
             SET dais = cmcFullReq.getDigestAlgorithmIdentifiers();
             int numDig = dais.size();
-            Hashtable digs = new Hashtable();
+            Hashtable<String, byte[]> digs = new Hashtable<String, byte[]>();
 
             for (int i = 0; i < numDig; i++) {
                 AlgorithmIdentifier dai =

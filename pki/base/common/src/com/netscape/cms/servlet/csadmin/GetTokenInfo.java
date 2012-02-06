@@ -30,7 +30,6 @@ import org.w3c.dom.Node;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
@@ -70,11 +69,7 @@ public class GetTokenInfo extends CMSServlet {
      * @param cmsReq the object holding the request and response information
      */
     protected void process(CMSRequest cmsReq) throws EBaseException {
-        HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
-
-        // Construct an ArgBlock
-        IArgBlock args = cmsReq.getHttpParams();
 
         XMLObject xmlObj = null;
         try {

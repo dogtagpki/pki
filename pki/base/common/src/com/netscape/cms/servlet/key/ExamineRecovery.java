@@ -217,7 +217,7 @@ public class ExamineRecovery extends CMSServlet {
                     req.getRequestURI());
             header.addStringValue("keySplitting",
                     CMS.getConfigStore().getString("kra.keySplitting"));
-            Hashtable params = mService.getRecoveryParams(
+            Hashtable<String, Object> params = mService.getRecoveryParams(
                     recoveryID);
 
             if (params == null) {

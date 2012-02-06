@@ -508,6 +508,8 @@ public class EnrollmentService implements IService {
             privateKeyIn.getSequence(0);
             DerValue privateKeyDer = new DerValue(privateKeyIn.getOctetString());
             DerInputStream privateKeyDerIn = privateKeyDer.data;
+
+            @SuppressWarnings("unused")
             BigInt privateKeyVersion = privateKeyDerIn.getInteger();
             BigInt privateKeyModulus = privateKeyDerIn.getInteger();
             BigInt privateKeyExponent = privateKeyDerIn.getInteger();
@@ -544,7 +546,7 @@ public class EnrollmentService implements IService {
      */
     public static PKIArchiveOptionsContainer[] getPKIArchiveOptions(String crmfBlob)
             throws EBaseException {
-        Vector<Object> options = new Vector<Object>();
+        Vector<PKIArchiveOptionsContainer> options = new Vector<PKIArchiveOptionsContainer>();
 
         if (CMS.debugOn())
             CMS.debug("EnrollmentService::getPKIArchiveOptions> crmfBlob=" + crmfBlob);

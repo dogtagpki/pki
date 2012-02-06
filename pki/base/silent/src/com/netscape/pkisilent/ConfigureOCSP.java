@@ -207,7 +207,6 @@ public class ConfigureOCSP {
     }
 
     public boolean TokenChoicePanel() {
-        boolean st = false;
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -257,7 +256,6 @@ public class ConfigureOCSP {
     }
 
     public boolean DomainPanel() {
-        boolean st = false;
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -283,14 +281,10 @@ public class ConfigureOCSP {
     }
 
     public boolean DisplayChainPanel() {
-        boolean st = false;
-        HTTPResponse hr = null;
-        ByteArrayInputStream bais = null;
-        ParseXML px = new ParseXML();
         String query_string = null;
 
         query_string = "p=4" + "&op=next" + "&xml=true";
-        hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
+        hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
         // parse xml
         // bais = new ByteArrayInputStream(hr.getHTML().getBytes());
         // px.parse(bais);
@@ -301,10 +295,7 @@ public class ConfigureOCSP {
     }
 
     public boolean SecurityDomainLoginPanel() {
-        boolean st = false;
         HTTPResponse hr = null;
-        ByteArrayInputStream bais = null;
-        ParseXML px = new ParseXML();
 
         String ocsp_url = "https://" + cs_hostname + ":" + cs_port +
                             "/ocsp/admin/console/config/wizard" +
@@ -349,7 +340,6 @@ public class ConfigureOCSP {
     }
 
     public boolean SubsystemPanel() {
-        boolean st = false;
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -369,7 +359,6 @@ public class ConfigureOCSP {
     }
 
     public boolean LdapConnectionPanel() {
-        boolean st = false;
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -397,7 +386,6 @@ public class ConfigureOCSP {
     }
 
     public boolean KeyPanel() {
-        boolean st = false;
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -460,7 +448,6 @@ public class ConfigureOCSP {
     }
 
     public boolean CertSubjectPanel() {
-        boolean st = false;
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -518,14 +505,9 @@ public class ConfigureOCSP {
     }
 
     public boolean CertificatePanel() {
-        boolean st = false;
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
-        ArrayList<String> req_list = null;
-        ArrayList<String> cert_list = null;
-        ArrayList<String> dn_list = null;
-        ArrayList<String> pp_list = null;
 
         String query_string = "p=10" + "&op=next" + "&xml=true" +
                             "&subsystem=" +
@@ -556,7 +538,6 @@ public class ConfigureOCSP {
     }
 
     public boolean BackupPanel() {
-        boolean st = false;
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -577,10 +558,7 @@ public class ConfigureOCSP {
     }
 
     public boolean SavePKCS12Panel() {
-        boolean st = false;
         HTTPResponse hr = null;
-        ByteArrayInputStream bais = null;
-        ParseXML px = new ParseXML();
 
         String query_string = "";
 
@@ -601,7 +579,7 @@ public class ConfigureOCSP {
             String line = null;
             while ((line = br.readLine()) != null)
                 System.out.println("Error: " + line);
-            int exitVal = proc.waitFor();
+            proc.waitFor();
 
             // verify p12 file
 
@@ -628,7 +606,6 @@ public class ConfigureOCSP {
     }
 
     public boolean AdminCertReqPanel() {
-        boolean st = false;
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -690,8 +667,6 @@ public class ConfigureOCSP {
     public boolean AdminCertImportPanel() {
         boolean st = false;
         HTTPResponse hr = null;
-        ByteArrayInputStream bais = null;
-        ParseXML px = new ParseXML();
 
         String query_string = "serialNumber=" + admin_serial_number +
                             "&importCert=" + "true" +
@@ -729,7 +704,6 @@ public class ConfigureOCSP {
     }
 
     public boolean UpdateDomainPanel() {
-        boolean st = false;
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();

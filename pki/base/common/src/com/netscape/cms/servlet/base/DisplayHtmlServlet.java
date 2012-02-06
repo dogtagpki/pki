@@ -26,7 +26,6 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 
 import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -63,7 +62,7 @@ public class DisplayHtmlServlet extends CMSServlet {
     public void process(CMSRequest cmsReq) throws EBaseException {
         CMS.debug("DisplayHtmlServlet about to service ");
 
-        IAuthToken authToken = authenticate(cmsReq);
+        authenticate(cmsReq);
 
         try {
             String realpath =

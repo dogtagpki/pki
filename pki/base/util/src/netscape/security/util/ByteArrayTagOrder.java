@@ -19,7 +19,7 @@ package netscape.security.util;
 
 import java.util.Comparator;
 
-public class ByteArrayTagOrder implements Comparator {
+public class ByteArrayTagOrder implements Comparator<byte[]> {
 
     /**
      * Compare two byte arrays, by the order of their tags,
@@ -34,10 +34,7 @@ public class ByteArrayTagOrder implements Comparator {
      * @exception <code>ClassCastException</code> if either argument is not a byte array.
      */
 
-    public final int compare(Object obj1, Object obj2) {
-
-        byte[] bytes1 = (byte[]) obj1;
-        byte[] bytes2 = (byte[]) obj2;
+    public final int compare(byte[] bytes1, byte[] bytes2) {
 
         // tag order is same as byte order ignoring any difference in 
         // the constructivity bit (0x02)

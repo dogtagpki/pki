@@ -227,7 +227,7 @@ public class X500NameSubsystem implements ISubsystem {
     private static String BMPSTRING = "BMPString";
     private static String UNIVERSALSTRING = "UniversalString";
     private static String UFT8STRING = "UTF8String";
-    private static Hashtable mDerStr2TagHash = new Hashtable();
+    private static Hashtable<String, Byte> mDerStr2TagHash = new Hashtable<String, Byte>();
 
     static {
         mDerStr2TagHash.put(
@@ -249,7 +249,7 @@ public class X500NameSubsystem implements ISubsystem {
     private byte derStr2Tag(String s) {
         if (s == null || s.length() == 0)
             throw new IllegalArgumentException();
-        Byte tag = (Byte) mDerStr2TagHash.get(s);
+        Byte tag = mDerStr2TagHash.get(s);
 
         if (tag == null)
             throw new IllegalArgumentException();

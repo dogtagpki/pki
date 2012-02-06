@@ -263,7 +263,7 @@ public class SrchKey extends CMSServlet {
                 timeLimit = mTimeLimits;
             }
             CMS.debug("Start searching ... timelimit=" + timeLimit);
-            Enumeration e = mKeyDB.searchKeys(filter,
+            Enumeration<IKeyRecord> e = mKeyDB.searchKeys(filter,
                     maxResults, timeLimit);
             int count = 0;
 
@@ -272,8 +272,7 @@ public class SrchKey extends CMSServlet {
                         null);
             } else {
                 while (e.hasMoreElements()) {
-                    IKeyRecord rec = (IKeyRecord)
-                            e.nextElement();
+                    IKeyRecord rec = e.nextElement();
                     // rec is null when we specify maxResults
                     // DS will return an err=4, which triggers
                     // a LDAPException.SIZE_LIMIT_ExCEEDED

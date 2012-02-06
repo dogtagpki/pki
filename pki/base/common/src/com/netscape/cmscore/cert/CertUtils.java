@@ -1001,7 +1001,6 @@ public class CertUtils {
     public static boolean verifySystemCerts() {
         String auditMessage = null;
         IConfigStore config = CMS.getConfigStore();
-        String certlsit = "";
         boolean verifyResult = true;
         boolean r = true; /* the final return value */
         try {

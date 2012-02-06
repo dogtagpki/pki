@@ -19,7 +19,6 @@ package com.netscape.cms.servlet.cert;
 
 import java.io.IOException;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.StringTokenizer;
@@ -42,7 +41,6 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthMgrPlugin;
 import com.netscape.certsrv.authentication.IAuthManager;
 import com.netscape.certsrv.authentication.IAuthSubsystem;
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
@@ -146,7 +144,7 @@ public class RemoteAuthConfig extends CMSServlet {
         HttpServletRequest req = cmsReq.getHttpReq();
         HttpServletResponse resp = cmsReq.getHttpResp();
 
-        IAuthToken authToken = authenticate(cmsReq);
+        authenticate(cmsReq);
 
         IArgBlock header = CMS.createArgBlock();
         IArgBlock ctx = CMS.createArgBlock();

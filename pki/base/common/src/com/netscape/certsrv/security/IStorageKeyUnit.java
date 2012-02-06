@@ -59,7 +59,7 @@ public interface IStorageKeyUnit extends IEncryptionUnit {
      * 
      * @return a list of string-based agent identifiers
      */
-    public Enumeration getAgentIdentifiers();
+    public Enumeration<String> getAgentIdentifiers();
 
     /**
      * Changes agent password.

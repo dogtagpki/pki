@@ -177,7 +177,6 @@ public class CRMFProcessor extends PKIProcessor {
             verifyPOP(certReqMsg);
 
             CertRequest certReq = certReqMsg.getCertReq();
-            INTEGER certReqId = certReq.getCertReqId();
 
             CertTemplate certTemplate = certReq.getCertTemplate();
             X509CertInfo certInfo = CMS.getDefaultX509CertInfo();

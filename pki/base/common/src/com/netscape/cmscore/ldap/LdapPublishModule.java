@@ -43,7 +43,6 @@ import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.ldap.ILdapConnFactory;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.certsrv.publish.ILdapCrlMapper;
 import com.netscape.certsrv.publish.ILdapMapper;
 import com.netscape.certsrv.publish.ILdapPlugin;
 import com.netscape.certsrv.publish.ILdapPublishModule;
@@ -74,13 +73,13 @@ public class LdapPublishModule implements ILdapPublishModule {
      * to publish the crl.
      * When publishers are null, the certs are not published.
      */
-    protected Hashtable mMappers = new Hashtable();
+    protected Hashtable<String, LdapMappers> mMappers = new Hashtable<String, LdapMappers>();
 
     /**
      * handlers for request types (events)
      * values implement IRequestListener
      */
-    protected Hashtable mEventHandlers = new Hashtable();
+    protected Hashtable<String, IRequestListener> mEventHandlers = new Hashtable<String, IRequestListener>();
 
     /**
      * instantiate connection factory.
@@ -274,9 +273,8 @@ public class LdapPublishModule implements ILdapPublishModule {
 
     public void accept(IRequest r) {
         String type = r.getRequestType();
-        boolean error = false;
 
-        IRequestListener handler = (IRequestListener) mEventHandlers.get(type);
+        IRequestListener handler = mEventHandlers.get(type);
 
         if (handler == null) {
             CMS.debug(
@@ -432,8 +430,6 @@ public class LdapPublishModule implements ILdapPublishModule {
      */
     public void publish(X509CRLImpl crl)
             throws ELdapException {
-        ILdapCrlMapper mapper = null;
-        ILdapPublisher publisher = null;
 
         LdapMappers mappers = getMappers(PROP_TYPE_CRL);
 
@@ -575,7 +571,6 @@ class HandleEnrollment implements IRequestListener {
 
         // publish
         Integer results[] = new Integer[certs.length];
-        X509CertImpl cert;
 
         for (int i = 0; i < certs.length; i++) {
             try {

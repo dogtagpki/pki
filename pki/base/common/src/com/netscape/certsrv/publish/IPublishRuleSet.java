@@ -103,7 +103,7 @@ public interface IPublishRuleSet {
      * 
      * @return An enumeration of publishing rules.
      */
-    Enumeration getRules();
+    Enumeration<ILdapRule> getRules();
 
     /**
      * Apply publishing rules on a request.

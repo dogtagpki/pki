@@ -97,7 +97,7 @@ public interface IKeyRepository extends IRepository {
      * @return a list of private key records
      * @exception EBaseException failed to search keys
      */
-    public Enumeration searchKeys(String filter, int maxSize)
+    public Enumeration<IKeyRecord> searchKeys(String filter, int maxSize)
             throws EBaseException;
 
     /**
@@ -109,7 +109,7 @@ public interface IKeyRepository extends IRepository {
      * @return a list of private key records
      * @exception EBaseException failed to search keys
      */
-    public Enumeration searchKeys(String filter, int maxSize, int timeLimt)
+    public Enumeration<IKeyRecord> searchKeys(String filter, int maxSize, int timeLimt)
             throws EBaseException;
 
     /**

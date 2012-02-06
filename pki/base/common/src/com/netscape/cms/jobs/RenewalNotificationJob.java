@@ -19,7 +19,6 @@ package com.netscape.cms.jobs;
 
 import java.io.IOException;
 import java.text.DateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Locale;

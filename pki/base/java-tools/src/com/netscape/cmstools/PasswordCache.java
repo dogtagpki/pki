@@ -835,7 +835,6 @@ class PWsdrCache {
      * list passwds in pwcache.
      */
     public boolean pprint() {
-        String bufs = null;
         String dcrypts = null;
 
         try {

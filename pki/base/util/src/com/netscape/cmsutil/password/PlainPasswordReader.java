@@ -21,6 +21,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Properties;
+import java.util.Vector;
 
 public class PlainPasswordReader implements IPasswordReader {
     private String mPwdPath = "";
@@ -46,7 +47,12 @@ public class PlainPasswordReader implements IPasswordReader {
     }
 
     // return an array of String-based tag
-    public Enumeration<?> getTags() {
-        return mPwdStore.propertyNames();
+    public Enumeration<String> getTags() {
+        Enumeration<?> e = mPwdStore.propertyNames();
+        Vector<String> v = new Vector<String>();
+        while (e.hasMoreElements()) {
+            v.add((String) e.nextElement());
+        }
+        return v.elements();
     }
 }

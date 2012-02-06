@@ -184,7 +184,7 @@ public class PKCS8Key implements PrivateKey {
                 throw new InstantiationException();
             }
 
-            Class keyClass = Class.forName(classname);
+            Class<?> keyClass = Class.forName(classname);
             Object inst;
             PKCS8Key result;
 

@@ -233,7 +233,7 @@ public class ACLEntry implements IACLEntry, java.io.Serializable {
         Enumeration<String> e = permissions();
 
         for (; e.hasMoreElements();) {
-            String p = (String) e.nextElement();
+            String p = e.nextElement();
 
             entry += p;
             if (e.hasMoreElements())

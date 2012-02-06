@@ -311,7 +311,7 @@ public class JobsAdminServlet extends AdminServlet {
                 destStore.getSubStore(scope);
 
         // Does the class exist?
-        Class newImpl = null;
+        Class<?> newImpl = null;
 
         try {
             newImpl = Class.forName(classPath);

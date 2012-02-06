@@ -193,7 +193,6 @@ public class RDN {
         }
 
         public AVA nextElement() {
-            AVA ava = null;
             if (index >= assertion.length)
                 return null;
             return assertion[index++];

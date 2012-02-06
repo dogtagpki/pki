@@ -106,9 +106,6 @@ public class GetStats extends CMSServlet {
             return;
         }
 
-        // Construct an ArgBlock
-        IArgBlock args = cmsReq.getHttpParams();
-
         CMSTemplate form = null;
         Locale[] locale = new Locale[1];
 

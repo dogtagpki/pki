@@ -39,7 +39,7 @@ public class LocalConnector implements IConnector {
     ILogger mLogger = CMS.getLogger();
     ICertAuthority mSource = null;
     IAuthority mDest = null;
-    Hashtable mSourceReqs = new Hashtable();
+    Hashtable<String, IRequest> mSourceReqs = new Hashtable<String, IRequest>();
 
     public LocalConnector(ICertAuthority source, IAuthority dest) {
         mSource = source;
@@ -184,7 +184,7 @@ public class LocalConnector implements IConnector {
             // are persistent before the servicing.
             // Please see stateEngine() function in 
             // ARequestQueue.java for details.
-            r = (IRequest) mSourceReqs.get(rId);
+            r = mSourceReqs.get(rId);
             if (r != null) {
                 if (r.getRequestStatus() != RequestStatus.SVC_PENDING) {
                     mSource.log(ILogger.LL_FAILURE,

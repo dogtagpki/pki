@@ -22,8 +22,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Vector;
 
-import netscape.security.x509.X509CertImpl;
-
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
 import com.netscape.certsrv.authentication.EAuthException;
@@ -211,7 +209,6 @@ public class ChallengePhraseAuthentication implements IAuthManager {
          }
          */
 
-        X509CertImpl[] certsToRevoke = null;
         BigInteger[] bigIntArray = null;
 
         // check challenge phrase against request

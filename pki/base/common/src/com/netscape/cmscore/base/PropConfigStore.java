@@ -335,8 +335,6 @@ public class PropConfigStore implements IConfigStore, Cloneable {
             throws EBaseException {
         String str = (String) get(name);
 
-        byte returnval;
-
         if (str == null || str.length() == 0) {
             CMS.traceHashKey(mDebugType, getFullName(name),
                     "<notpresent>", "<bytearray>");
@@ -598,7 +596,6 @@ public class PropConfigStore implements IConfigStore, Cloneable {
         // without the current substore prefix.  This code works even
         // if mStoreName is null.
         String fullName = getFullName(name);
-        int kIndex = fullName.length();
 
         while (e.hasMoreElements()) {
             String key = e.nextElement();
@@ -756,13 +753,14 @@ public class PropConfigStore implements IConfigStore, Cloneable {
 
             mStoreName = getName();
             mSource = new SourceConfigStore();
-            Enumeration subs = getSubStoreNames();
+            Enumeration<String> subs = getSubStoreNames();
 
             while (subs.hasMoreElements()) {
-                IConfigStore sub = (IConfigStore)
-                        subs.nextElement();
-                IConfigStore newSub = that.makeSubStore(
-                        sub.getName());
+                String name = subs.nextElement();
+
+                IConfigStore sub = getSubStore(name);
+                IConfigStore newSub = that.makeSubStore(sub.getName());
+
                 Enumeration<String> props = sub.getPropertyNames();
 
                 while (props.hasMoreElements()) {

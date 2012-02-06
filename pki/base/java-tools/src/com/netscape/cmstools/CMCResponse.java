@@ -106,8 +106,6 @@ public class CMCResponse {
 
             int numControls = controlSequence.size();
             System.out.println("Number of controls is " + numControls);
-            INTEGER bodyPartId = null;
-            String error = "";
 
             for (int i = 0; i < numControls; i++) {
                 TaggedAttribute taggedAttr = (TaggedAttribute) controlSequence.elementAt(i);

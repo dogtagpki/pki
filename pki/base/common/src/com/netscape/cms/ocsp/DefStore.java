@@ -27,7 +27,6 @@ import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Vector;
 
-import netscape.security.x509.CRLNumberExtension;
 import netscape.security.x509.RevokedCertificate;
 import netscape.security.x509.X509CRLImpl;
 import netscape.security.x509.X509CertImpl;
@@ -48,6 +47,7 @@ import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.dbs.IDBRegistry;
 import com.netscape.certsrv.dbs.IDBSSession;
+import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.dbs.IDBSubsystem;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
@@ -111,8 +111,6 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
     private IConfigStore mConfig = null;
     private String mId = null;
     private IDBSubsystem mDBService = null;
-    private X509CRLImpl mCRLImpl = null;
-    private CRLNumberExtension mCRLNumberExt = null;
     private int mStateCount = 0;
 
     /**
@@ -226,15 +224,12 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
      * new one is totally committed.
      */
     public void deleteOldCRLs() throws EBaseException {
-        Enumeration<Object> recs = searchCRLIssuingPointRecord(
+        Enumeration<ICRLIssuingPointRecord> recs = searchCRLIssuingPointRecord(
                 "objectclass=" +
                         CMS.getCRLIssuingPointRecordName(),
                 100);
-        X509CertImpl theCert = null;
-        ICRLIssuingPointRecord theRec = null;
-
         while (recs.hasMoreElements()) {
-            ICRLIssuingPointRecord rec = (ICRLIssuingPointRecord) recs.nextElement();
+            ICRLIssuingPointRecord rec = recs.nextElement();
             deleteOldCRLsInCA(rec.getId());
         }
     }
@@ -252,14 +247,14 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
                 return; // nothing to do
             String thisUpdate = Long.toString(
                     cp.getThisUpdate().getTime());
-            Enumeration<Object> e = searchRepository(
+            Enumeration<IRepositoryRecord> e = searchRepository(
                     caName,
                     "(!" + IRepositoryRecord.ATTR_SERIALNO + "=" +
                             thisUpdate + ")");
 
             while (e != null && e.hasMoreElements()) {
-                IRepositoryRecord r = (IRepositoryRecord) e.nextElement();
-                Enumeration<Object> recs =
+                IRepositoryRecord r = e.nextElement();
+                Enumeration<ICertRecord> recs =
                         searchCertRecord(caName,
                                 r.getSerialNumber().toString(),
                                 ICertRecord.ATTR_ID + "=*");
@@ -437,14 +432,13 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
                     mCacheCRLIssuingPoints.get(new String(keyhsh));
 
             if (matched == null) {
-                Enumeration<Object> recs = searchCRLIssuingPointRecord(
+                Enumeration<ICRLIssuingPointRecord> recs = searchCRLIssuingPointRecord(
                         "objectclass=" +
                                 CMS.getCRLIssuingPointRecordName(),
                         100);
 
                 while (recs.hasMoreElements()) {
-                    ICRLIssuingPointRecord rec = (ICRLIssuingPointRecord)
-                            recs.nextElement();
+                    ICRLIssuingPointRecord rec = recs.nextElement();
                     byte certdata[] = rec.getCACert();
                     X509CertImpl cert = null;
 
@@ -579,7 +573,7 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         return mDBService.getBaseDN();
     }
 
-    public Enumeration<Object> searchAllCRLIssuingPointRecord(int maxSize)
+    public Enumeration<ICRLIssuingPointRecord> searchAllCRLIssuingPointRecord(int maxSize)
             throws EBaseException {
         return searchCRLIssuingPointRecord(
                 "objectclass=" +
@@ -587,19 +581,22 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
                 maxSize);
     }
 
-    public Enumeration<Object> searchCRLIssuingPointRecord(String filter,
+    public Enumeration<ICRLIssuingPointRecord> searchCRLIssuingPointRecord(String filter,
             int maxSize)
             throws EBaseException {
         IDBSSession s = mDBService.createSession();
-        Enumeration<Object> e = null;
+        Vector<ICRLIssuingPointRecord> v = new Vector<ICRLIssuingPointRecord>();
 
         try {
-            e = s.search(getBaseDN(), filter, maxSize);
+            IDBSearchResults sr = s.search(getBaseDN(), filter, maxSize);
+            while (sr.hasMoreElements()) {
+                v.add((ICRLIssuingPointRecord) sr.nextElement());
+            }
         } finally {
             if (s != null)
                 s.close();
         }
-        return e;
+        return v.elements();
     }
 
     public synchronized void modifyCRLIssuingPointRecord(String name,
@@ -685,19 +682,22 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         }
     }
 
-    public Enumeration<Object> searchRepository(String name, String filter)
+    public Enumeration<IRepositoryRecord> searchRepository(String name, String filter)
             throws EBaseException {
         IDBSSession s = mDBService.createSession();
-        Enumeration<Object> e = null;
+        Vector<IRepositoryRecord> v = new Vector<IRepositoryRecord>();
 
         try {
-            e = s.search("cn=" + transformDN(name) + "," + getBaseDN(),
+            IDBSearchResults sr = s.search("cn=" + transformDN(name) + "," + getBaseDN(),
                         filter);
+            while (sr.hasMoreElements()) {
+                v.add((IRepositoryRecord) sr.nextElement());
+            }
         } finally {
             if (s != null)
                 s.close();
         }
-        return e;
+        return v.elements();
     }
 
     /**
@@ -736,20 +736,23 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         }
     }
 
-    public Enumeration<Object> searchCertRecord(String name, String thisUpdate,
+    public Enumeration<ICertRecord> searchCertRecord(String name, String thisUpdate,
             String filter) throws EBaseException {
         IDBSSession s = mDBService.createSession();
-        Enumeration<Object> e = null;
+        Vector<ICertRecord> v = new Vector<ICertRecord>();
 
         try {
-            e = s.search("ou=" + thisUpdate + ",cn=" +
+            IDBSearchResults sr = s.search("ou=" + thisUpdate + ",cn=" +
                         transformDN(name) + "," + getBaseDN(),
                         filter);
+            while (sr.hasMoreElements()) {
+                v.add((ICertRecord) sr.nextElement());
+            }
         } finally {
             if (s != null)
                 s.close();
         }
-        return e;
+        return v.elements();
     }
 
     public ICertRecord readCertRecord(String name, String thisUpdate,

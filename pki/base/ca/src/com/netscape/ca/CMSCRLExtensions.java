@@ -200,7 +200,7 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
         IConfigStore mFileConfig =
                 SubsystemRegistry.getInstance().get("MAIN").getConfigStore();
 
-        IConfigStore crlExtConfig = (IConfigStore) mFileConfig;
+        IConfigStore crlExtConfig = mFileConfig;
         StringTokenizer st = new StringTokenizer(mCRLExtConfig.getName(), ".");
 
         while (st.hasMoreTokens()) {
@@ -471,11 +471,11 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
                     if (cmsCRLExt != null) {
                         if (ext != null) {
                             if (isCRLExtensionCritical(extName) ^ ext.isCritical()) {
-                                ext = (Extension) cmsCRLExt.setCRLExtensionCriticality(
+                                ext = cmsCRLExt.setCRLExtensionCriticality(
                                             ext, isCRLExtensionCritical(extName));
                             }
                         } else {
-                            ext = (Extension) cmsCRLExt.getCRLExtension(mCRLExtConfig.getSubStore(extName),
+                            ext = cmsCRLExt.getCRLExtension(mCRLExtConfig.getSubStore(extName),
                                         mCRLIssuingPoint,
                                         isCRLExtensionCritical(extName));
                         }

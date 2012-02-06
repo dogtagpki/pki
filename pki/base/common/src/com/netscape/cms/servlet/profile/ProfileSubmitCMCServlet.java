@@ -59,7 +59,6 @@ import com.netscape.certsrv.profile.IProfileSubsystem;
 import com.netscape.certsrv.request.INotify;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.RequestStatus;
-import com.netscape.certsrv.template.ArgSet;
 import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cms.servlet.common.CMCOutputTemplate;
 import com.netscape.cms.servlet.common.CMSRequest;
@@ -231,7 +230,6 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
         HttpServletResponse response = cmsReq.getHttpResp();
 
         Locale locale = getLocale(request);
-        ArgSet args = new ArgSet();
         String cert_request_type =
                 mServletConfig.getInitParameter("cert_request_type");
         String outputFormat = mServletConfig.getInitParameter("outputFormat");
@@ -645,7 +643,6 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
         String auditRequesterID = ILogger.UNIDENTIFIED;
         String auditInfoCertValue = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
 
-        int responseType = 0;
         try {
             ///////////////////////////////////////////////
             // submit request

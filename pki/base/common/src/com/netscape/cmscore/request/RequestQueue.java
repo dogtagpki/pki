@@ -354,7 +354,7 @@ public class RequestQueue
 
     }
 
-    protected Enumeration getRawList() {
+    protected Enumeration<RequestId> getRawList() {
         IDBSearchResults results = null;
         IDBSSession dbs = null;
 
@@ -517,7 +517,7 @@ public class RequestQueue
     public IRequestVirtualList
             getPagedRequestsByFilter(RequestId from, boolean jumpToEnd, String filter, int pageSize,
                     String sortKey) {
-        IDBVirtualList results = null;
+        IDBVirtualList<Object> results = null;
         IDBSSession dbs = null;
 
         try {
@@ -633,7 +633,7 @@ class SearchEnumeration
         return mResults.hasMoreElements();
     }
 
-    public Object nextElement() {
+    public RequestId nextElement() {
         return nextRequestId();
     }
 
@@ -699,11 +699,11 @@ class ListEnumeration
 
     }
 
-    ListEnumeration(RequestQueue queue, IDBVirtualList list) {
+    ListEnumeration(RequestQueue queue, IDBVirtualList<Object> list) {
         mQueue = queue;
         mList = list;
     }
 
     protected RequestQueue mQueue;
-    protected IDBVirtualList mList;
+    protected IDBVirtualList<Object> mList;
 }

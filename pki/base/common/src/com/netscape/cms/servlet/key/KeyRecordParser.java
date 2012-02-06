@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.key;
 
-import java.math.BigInteger;
 import java.util.Date;
 
 import com.netscape.certsrv.apps.CMS;

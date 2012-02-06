@@ -37,10 +37,9 @@ public class OldShare implements IShare {
 
     public void initialize(byte[] secret, int threshold) throws Exception {
         try {
-            Class c = Class.forName("com.netscape.cmscore.shares.Share");
-            Class types[] = { secret.getClass(), int.class };
-            Constructor cs[] = c.getConstructors();
-            Constructor con = c.getConstructor(types);
+            Class<?> c = Class.forName("com.netscape.cmscore.shares.Share");
+            Class<?> types[] = { secret.getClass(), int.class };
+            Constructor<?> con = c.getConstructor(types);
             Object params[] = { secret, Integer.valueOf(threshold) };
             mOldImpl = con.newInstance(params);
         } catch (Exception e) {
@@ -51,8 +50,8 @@ public class OldShare implements IShare {
         if (mOldImpl == null)
             return null;
         try {
-            Class types[] = { int.class };
-            Class c = mOldImpl.getClass();
+            Class<?> types[] = { int.class };
+            Class<?> c = mOldImpl.getClass();
             Method method = c.getMethod("createShare", types);
             Object params[] = { Integer.valueOf(sharenumber) };
             return (byte[]) method.invoke(mOldImpl, params);

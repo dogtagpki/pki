@@ -1035,7 +1035,6 @@ public class CryptoUtil {
      */
     public static void deletePrivateKey(PrivateKey prikey)
             throws CryptoManager.NotInitializedException, TokenException {
-        CryptoManager cm = CryptoManager.getInstance();
 
         try {
             CryptoToken token = prikey.getOwningToken();

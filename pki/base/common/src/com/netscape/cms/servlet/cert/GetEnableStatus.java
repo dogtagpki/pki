@@ -108,9 +108,6 @@ public class GetEnableStatus extends CMSServlet {
 
         String reqHost = httpReq.getRemoteHost();
 
-        // Construct an ArgBlock
-        IArgBlock args = cmsReq.getHttpParams();
-
         if (!(mAuthority instanceof IRegistrationAuthority)) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_CA_FROM_RA_NOT_IMP"));
             cmsReq.setError(new ECMSGWException(

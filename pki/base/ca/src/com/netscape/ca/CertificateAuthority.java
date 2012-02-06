@@ -93,7 +93,6 @@ import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.DBSubsystem;
 import com.netscape.cmscore.dbs.ReplicaIDRepository;
-import com.netscape.cmscore.dbs.Repository;
 import com.netscape.cmscore.ldap.PublisherProcessor;
 import com.netscape.cmscore.listeners.ListenerPlugin;
 import com.netscape.cmscore.request.RequestSubsystem;
@@ -590,7 +589,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
     public String getStartSerial() {
         try {
             BigInteger serial =
-                    ((Repository) mCertRepot).getTheSerialNumber();
+                    mCertRepot.getTheSerialNumber();
 
             if (serial == null)
                 return "";
@@ -603,11 +602,11 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
     }
 
     public void setStartSerial(String serial) throws EBaseException {
-        ((Repository) mCertRepot).setTheSerialNumber(new BigInteger(serial));
+        mCertRepot.setTheSerialNumber(new BigInteger(serial));
     }
 
     public String getMaxSerial() {
-        String serial = ((Repository) mCertRepot).getMaxSerial();
+        String serial = mCertRepot.getMaxSerial();
 
         if (serial != null)
             return serial;
@@ -616,7 +615,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
     }
 
     public void setMaxSerial(String serial) throws EBaseException {
-        ((Repository) mCertRepot).setMaxSerial(serial);
+        mCertRepot.setMaxSerial(serial);
     }
 
     /**
@@ -658,7 +657,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
      * @return CRL issuing point
      */
     public ICRLIssuingPoint getCRLIssuingPoint(String id) {
-        return (CRLIssuingPoint) mCRLIssuePoints.get(id);
+        return mCRLIssuePoints.get(id);
     }
 
     /**
@@ -1491,7 +1490,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
                 Enumeration<String> names = implc.getSubStoreNames();
 
                 while (names.hasMoreElements()) {
-                    String id = (String) names.nextElement();
+                    String id = names.nextElement();
 
                     if (Debug.ON)
                         Debug.trace("registering listener impl: " + id);
@@ -1698,7 +1697,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
         // a Master/full crl must exist.
 
         while (issuePointIdEnum.hasMoreElements()) {
-            String issuePointId = (String) issuePointIdEnum.nextElement();
+            String issuePointId = issuePointIdEnum.nextElement();
 
             CMS.debug(
                     "initializing crl issue point " + issuePointId);
@@ -1923,7 +1922,6 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
 
             DerOutputStream tmpChain = new DerOutputStream();
             DerOutputStream tmp1 = new DerOutputStream();
-            DerOutputStream outChain = new DerOutputStream();
             java.security.cert.X509Certificate chains[] =
                     mOCSPCertChain.getChain();
 

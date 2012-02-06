@@ -128,14 +128,14 @@ public class ListCAServlet extends CMSServlet {
         CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
 
         IDefStore defStore = mOCSPAuthority.getDefaultStore();
-        Enumeration<Object> recs = defStore.searchAllCRLIssuingPointRecord(100);
+        Enumeration<ICRLIssuingPointRecord> recs = defStore.searchAllCRLIssuingPointRecord(100);
 
         // show the current CRL number if present
         header.addStringValue("stateCount",
                 Integer.toString(defStore.getStateCount()));
 
         while (recs.hasMoreElements()) {
-            ICRLIssuingPointRecord rec = (ICRLIssuingPointRecord) recs.nextElement();
+            ICRLIssuingPointRecord rec = recs.nextElement();
             IArgBlock rarg = CMS.createArgBlock();
             String thisId = rec.getId();
 

@@ -245,13 +245,13 @@ public class ReasonToRevoke extends CMSServlet {
              * revokeAll, null, totalRecordCount);
              * Enumeration e = list.getCertRecords(0, totalRecordCount - 1);
              **/
-            Enumeration e = mCertDB.searchCertificates(revokeAll,
+            Enumeration<ICertRecord> e = mCertDB.searchCertificates(revokeAll,
                     totalRecordCount, mTimeLimits);
 
             int count = 0;
 
             while (e != null && e.hasMoreElements()) {
-                ICertRecord rec = (ICertRecord) e.nextElement();
+                ICertRecord rec = e.nextElement();
 
                 if (rec == null)
                     continue;

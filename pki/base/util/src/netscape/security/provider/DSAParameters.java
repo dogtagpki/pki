@@ -86,13 +86,14 @@ public class DSAParameters extends AlgorithmParametersSpi {
         engineInit(params);
     }
 
-    protected AlgorithmParameterSpec engineGetParameterSpec(Class paramSpec)
+    @SuppressWarnings("unchecked")
+    protected <T extends AlgorithmParameterSpec> T engineGetParameterSpec(Class<T> paramSpec)
             throws InvalidParameterSpecException {
         try {
-            Class dsaParamSpec = Class.forName
+            Class<?> dsaParamSpec = Class.forName
                     ("java.security.spec.DSAParameterSpec");
             if (dsaParamSpec.isAssignableFrom(paramSpec)) {
-                return new DSAParameterSpec(this.p, this.q, this.g);
+                return (T) new DSAParameterSpec(this.p, this.q, this.g);
             } else {
                 throw new InvalidParameterSpecException("Inappropriate parameter Specification");
             }

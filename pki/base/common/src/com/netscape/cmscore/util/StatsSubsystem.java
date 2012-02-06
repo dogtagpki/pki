@@ -41,7 +41,7 @@ public class StatsSubsystem implements IStatsSubsystem {
     private String mId = null;
     private StatsEvent mAllTrans = new StatsEvent(null);
     private Date mStartTime = new Date();
-    private Hashtable mHashtable = new Hashtable();
+    private Hashtable<String, Vector<StatsMilestone>> mHashtable = new Hashtable<String, Vector<StatsMilestone>>();
 
     /**
      * Constructs a certificate server.
@@ -90,11 +90,11 @@ public class StatsSubsystem implements IStatsSubsystem {
 
     public void startTiming(String id, boolean mainAction) {
         Thread t = Thread.currentThread();
-        Vector milestones = null;
+        Vector<StatsMilestone> milestones = null;
         if (mHashtable.containsKey(t.toString())) {
-            milestones = (Vector) mHashtable.get(t.toString());
+            milestones = mHashtable.get(t.toString());
         } else {
-            milestones = new Vector();
+            milestones = new Vector<StatsMilestone>();
             mHashtable.put(t.toString(), milestones);
         }
         long startTime = CMS.getCurrentDate().getTime();
@@ -128,11 +128,11 @@ public class StatsSubsystem implements IStatsSubsystem {
         if (!mHashtable.containsKey(t.toString())) {
             return; /* error */
         }
-        Vector milestones = (Vector) mHashtable.get(t.toString());
+        Vector<StatsMilestone> milestones = mHashtable.get(t.toString());
         if (milestones.size() == 0) {
             return; /* error */
         }
-        StatsMilestone last = (StatsMilestone) milestones.remove(milestones.size() - 1);
+        StatsMilestone last = milestones.remove(milestones.size() - 1);
         StatsEvent st = last.getStatsEvent();
         st.incNoOfOperations(1);
         st.incTimeTaken(endTime - last.getStartTime());

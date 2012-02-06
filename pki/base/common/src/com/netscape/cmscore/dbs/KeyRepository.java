@@ -21,6 +21,7 @@ import java.math.BigInteger;
 import java.security.PublicKey;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.Vector;
 
 import netscape.security.x509.X500Name;
 
@@ -372,32 +373,38 @@ public class KeyRepository extends Repository implements IKeyRepository {
         return result;
     }
 
-    public Enumeration<Object> searchKeys(String filter, int maxSize)
+    public Enumeration<IKeyRecord> searchKeys(String filter, int maxSize)
             throws EBaseException {
         IDBSSession s = mDBService.createSession();
-        Enumeration<Object> e = null;
+        Vector<IKeyRecord> v = new Vector<IKeyRecord>();
 
         try {
-            e = s.search(getDN(), filter, maxSize);
+            IDBSearchResults sr = s.search(getDN(), filter, maxSize);
+            while (sr.hasMoreElements()) {
+                v.add((IKeyRecord) sr.nextElement());
+            }
         } finally {
             if (s != null)
                 s.close();
         }
-        return e;
+        return v.elements();
     }
 
-    public Enumeration<Object> searchKeys(String filter, int maxSize, int timeLimit)
+    public Enumeration<IKeyRecord> searchKeys(String filter, int maxSize, int timeLimit)
             throws EBaseException {
         IDBSSession s = mDBService.createSession();
-        Enumeration<Object> e = null;
+        Vector<IKeyRecord> v = new Vector<IKeyRecord>();
 
         try {
-            e = s.search(getDN(), filter, maxSize, timeLimit);
+            IDBSearchResults sr = s.search(getDN(), filter, maxSize, timeLimit);
+            while (sr.hasMoreElements()) {
+                v.add((IKeyRecord) sr.nextElement());
+            }
         } finally {
             if (s != null)
                 s.close();
         }
-        return e;
+        return v.elements();
     }
 
     /**
@@ -418,7 +425,7 @@ public class KeyRepository extends Repository implements IKeyRepository {
         try {
             if (s != null) {
                 list = new KeyRecordList(
-                        s.createVirtualList(getDN(), "(&(objectclass=" +
+                        s.<IKeyRecord>createVirtualList(getDN(), "(&(objectclass=" +
                                 KeyRecord.class.getName() + ")" + filter + ")",
                                 attrs, sortKey, pageSize));
             }
@@ -448,7 +455,7 @@ public class KeyRepository extends Repository implements IKeyRepository {
         try {
             if (s != null) {
                 list = new KeyRecordList(
-                        s.createVirtualList(getDN(), "(&(objectclass=" +
+                        s.<IKeyRecord>createVirtualList(getDN(), "(&(objectclass=" +
                                 KeyRecord.class.getName() + ")" + filter + ")",
                                 attrs, jumpToVal, sortKey, pageSize));
             }

@@ -1692,7 +1692,6 @@ public final class JssSubsystem implements ICryptoSubsystem {
                 for (int i = 0; i < allcerts.length; i++) {
                     try {
                         X509CertImpl certImpl = new X509CertImpl(allcerts[i].getEncoded());
-                        String certIssuerName = certImpl.getSubjectDN().getName();
                         Principal certPrincipal = certImpl.getSubjectDN();
                         DN certdn = new DN(certPrincipal.getName());
                         BigInteger certSerialNo = certImpl.getSerialNumber();

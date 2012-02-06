@@ -635,7 +635,6 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
         Vector<String> listedProfiles = new Vector<String>();
 
         StringTokenizer elements = new StringTokenizer(list, ",", true);
-        int t0 = -1;
         int n = 0;
         while (elements.hasMoreTokens()) {
             String element = elements.nextToken().trim();
@@ -3151,7 +3150,7 @@ class CertRecProcessor implements IElementProcessor {
             boolean includeCert = checkRevokedCertExtensions(crlExts);
 
             if (includeCert == true) {
-                mCRLCerts.put(serialNumber, (RevokedCertificate) newRevokedCert);
+                mCRLCerts.put(serialNumber, newRevokedCert);
                 if (serialNumber != null) {
                     CMS.debug("Putting certificate serial: 0x" + serialNumber.toString(16) + " into CRL hashtable");
                 }

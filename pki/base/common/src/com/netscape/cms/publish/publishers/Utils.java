@@ -35,7 +35,7 @@ import java.util.Vector;
  */
 public class Utils {
     public static void checkHost(String hostname) throws UnknownHostException {
-        InetAddress addr = InetAddress.getByName(hostname);
+        InetAddress.getByName(hostname);
     }
 
     public static void copyStream(InputStream in, OutputStream out) throws IOException {

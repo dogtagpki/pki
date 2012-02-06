@@ -59,11 +59,11 @@ public class ProxyServlet extends HttpServlet {
     private String mDestContext = null;
     private String mSrcContext = null;
     private String mAppendPathInfo = null;
-    private Vector mMatchStrings = new Vector();
+    private Vector<String> mMatchStrings = new Vector<String>();
     private String mDestServletOnNoMatch = null;
     private String mAppendPathInfoOnNoMatch = null;
-    private Map mParamMap = new HashMap();
-    private Map mParamValue = new HashMap();
+    private Map<String, String> mParamMap = new HashMap<String, String>();
+    private Map<String, String[]> mParamValue = new HashMap<String, String[]>();
 
     public ProxyServlet() {
     }
@@ -130,7 +130,7 @@ public class ProxyServlet extends HttpServlet {
         if (mMatchStrings.size() != 0) {
             boolean matched = false;
             for (int i = 0; i < mMatchStrings.size(); i++) {
-                String t = (String) mMatchStrings.elementAt(i);
+                String t = mMatchStrings.elementAt(i);
                 if (uri.indexOf(t) != -1) {
                     matched = true;
                 }
@@ -171,21 +171,22 @@ public class ProxyServlet extends HttpServlet {
 }
 
 class ProxyWrapper extends HttpServletRequestWrapper {
-    private Map mMap = null;
-    private Map mValueMap = null;
+    private Map<String, String> mMap = null;
+    private Map<String, String[]> mValueMap = null;
 
     public ProxyWrapper(HttpServletRequest req) {
         super(req);
     }
 
-    public void setParameterMapAndValue(Map m, Map v) {
+    public void setParameterMapAndValue(Map<String, String> m, Map<String, String[]> v) {
         if (m != null)
             mMap = m;
         if (v != null)
             mValueMap = v;
     }
 
-    public Map getParameterMap() {
+    @SuppressWarnings("unchecked")
+    public Map<String, String[]> getParameterMap() {
         try {
             // If we haven't specified any parameter mapping, just
             // use the regular implementation
@@ -193,15 +194,15 @@ class ProxyWrapper extends HttpServletRequestWrapper {
                 return super.getParameterMap();
             else {
                 // Make a new Map for us to put stuff in
-                Map n = new HashMap();
+                Map<String, String[]> n = new HashMap<String, String[]>();
                 // get the HTTP parameters the user supplied.
-                Map m = super.getParameterMap();
-                Set s = m.entrySet();
-                Iterator i = s.iterator();
+                Map<String, String[]> m = super.getParameterMap();
+                Set<Map.Entry<String, String[]>> s = m.entrySet();
+                Iterator<Map.Entry<String, String[]>> i = s.iterator();
                 while (i.hasNext()) {
-                    Map.Entry me = (Map.Entry) i.next();
-                    String name = (String) me.getKey();
-                    String[] values = (String[]) (me.getValue());
+                    Map.Entry<String, String[]> me = i.next();
+                    String name = me.getKey();
+                    String[] values = me.getValue();
                     String newname = null;
                     if (name != null) {
                         newname = (String) mMap.get(name);
@@ -223,14 +224,14 @@ class ProxyWrapper extends HttpServletRequestWrapper {
                 }
                 // Now, deal with static values set in the config 
                 // which weren't set in the HTTP request
-                Set s2 = mValueMap.entrySet();
-                Iterator i2 = s2.iterator();
+                Set<Map.Entry<String, String[]>> s2 = mValueMap.entrySet();
+                Iterator<Map.Entry<String, String[]>> i2 = s2.iterator();
                 // Cycle through all the static values
                 while (i2.hasNext()) {
-                    Map.Entry me2 = (Map.Entry) i2.next();
-                    String name2 = (String) me2.getKey();
+                    Map.Entry<String, String[]> me2 = i2.next();
+                    String name2 = me2.getKey();
                     if (n.get(name2) == null) {
-                        String[] values2 = (String[]) me2.getValue();
+                        String[] values2 = me2.getValue();
                         // If the parameter is not set in the map
                         // Set it now
                         n.put(name2, values2);

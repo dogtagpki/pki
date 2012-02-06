@@ -28,7 +28,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.w3c.dom.Node;
 
 import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.servlet.base.CMSServlet;
@@ -66,13 +65,10 @@ public class CheckIdentity extends CMSServlet {
      * @param cmsReq the object holding the request and response information
      */
     protected void process(CMSRequest cmsReq) throws EBaseException {
-        HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
-        IAuthToken authToken = null;
-
         try {
-            authToken = authenticate(cmsReq);
+            authenticate(cmsReq);
         } catch (Exception e) {
             CMS.debug("CheckIdentity authentication failed");
             log(ILogger.LL_FAILURE,

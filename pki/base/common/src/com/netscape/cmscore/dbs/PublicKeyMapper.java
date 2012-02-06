@@ -44,7 +44,7 @@ import com.netscape.cmscore.cert.CertUtils;
 public class PublicKeyMapper implements IDBAttrMapper {
 
     private String mLdapName = null;
-    private Vector v = new Vector();
+    private Vector<String> v = new Vector<String>();
 
     private ILogger mLogger = CMS.getLogger();
 
@@ -59,7 +59,7 @@ public class PublicKeyMapper implements IDBAttrMapper {
     /**
      * Lists a list of supported ldap attribute names.
      */
-    public Enumeration getSupportedLDAPAttributeNames() {
+    public Enumeration<String> getSupportedLDAPAttributeNames() {
         return v.elements();
     }
 
@@ -95,7 +95,7 @@ public class PublicKeyMapper implements IDBAttrMapper {
         int i = value.indexOf("#");
 
         if (i != -1) {
-            String tag = value.substring(0, i);
+            //String tag = value.substring(0, i);
             String val = value.substring(i + 1);
 
             try {

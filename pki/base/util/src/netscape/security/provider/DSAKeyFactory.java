@@ -122,7 +122,8 @@ public class DSAKeyFactory extends KeyFactorySpi {
      *                inappropriate for the given key, or the given key cannot be processed
      *                (e.g., the given key has an unrecognized algorithm or format).
      */
-    protected KeySpec engineGetKeySpec(Key key, Class keySpec)
+    @SuppressWarnings("unchecked")
+    protected <T extends KeySpec> T engineGetKeySpec(Key key, Class<T> keySpec)
             throws InvalidKeySpecException {
 
         DSAParams params;
@@ -132,21 +133,21 @@ public class DSAKeyFactory extends KeyFactorySpi {
             if (key instanceof java.security.interfaces.DSAPublicKey) {
 
                 // Determine valid key specs
-                Class dsaPubKeySpec = Class.forName
+                Class<?> dsaPubKeySpec = Class.forName
                         ("java.security.spec.DSAPublicKeySpec");
-                Class x509KeySpec = Class.forName
+                Class<?> x509KeySpec = Class.forName
                         ("java.security.spec.X509EncodedKeySpec");
 
                 if (dsaPubKeySpec.isAssignableFrom(keySpec)) {
                     java.security.interfaces.DSAPublicKey dsaPubKey = (java.security.interfaces.DSAPublicKey) key;
                     params = dsaPubKey.getParams();
-                    return new DSAPublicKeySpec(dsaPubKey.getY(),
+                    return (T) new DSAPublicKeySpec(dsaPubKey.getY(),
                             params.getP(),
                             params.getQ(),
                             params.getG());
 
                 } else if (x509KeySpec.isAssignableFrom(keySpec)) {
-                    return new X509EncodedKeySpec(key.getEncoded());
+                    return (T) new X509EncodedKeySpec(key.getEncoded());
 
                 } else {
                     throw new InvalidKeySpecException("Inappropriate key specification");
@@ -155,21 +156,21 @@ public class DSAKeyFactory extends KeyFactorySpi {
             } else if (key instanceof java.security.interfaces.DSAPrivateKey) {
 
                 // Determine valid key specs
-                Class dsaPrivKeySpec = Class.forName
+                Class<?> dsaPrivKeySpec = Class.forName
                         ("java.security.spec.DSAPrivateKeySpec");
-                Class pkcs8KeySpec = Class.forName
+                Class<?> pkcs8KeySpec = Class.forName
                         ("java.security.spec.PKCS8EncodedKeySpec");
 
                 if (dsaPrivKeySpec.isAssignableFrom(keySpec)) {
                     java.security.interfaces.DSAPrivateKey dsaPrivKey = (java.security.interfaces.DSAPrivateKey) key;
                     params = dsaPrivKey.getParams();
-                    return new DSAPrivateKeySpec(dsaPrivKey.getX(),
+                    return (T) new DSAPrivateKeySpec(dsaPrivKey.getX(),
                             params.getP(),
                             params.getQ(),
                             params.getG());
 
                 } else if (pkcs8KeySpec.isAssignableFrom(keySpec)) {
-                    return new PKCS8EncodedKeySpec(key.getEncoded());
+                    return (T) new PKCS8EncodedKeySpec(key.getEncoded());
 
                 } else {
                     throw new InvalidKeySpecException("Inappropriate key specification");
@@ -205,8 +206,7 @@ public class DSAKeyFactory extends KeyFactorySpi {
                     return key;
                 }
                 // Convert key to spec
-                DSAPublicKeySpec dsaPubKeySpec = (DSAPublicKeySpec) engineGetKeySpec
-                        (key, DSAPublicKeySpec.class);
+                DSAPublicKeySpec dsaPubKeySpec = engineGetKeySpec(key, DSAPublicKeySpec.class);
                 // Create key from spec, and return it
                 return engineGeneratePublic(dsaPubKeySpec);
 
@@ -216,8 +216,7 @@ public class DSAKeyFactory extends KeyFactorySpi {
                     return key;
                 }
                 // Convert key to spec
-                DSAPrivateKeySpec dsaPrivKeySpec = (DSAPrivateKeySpec) engineGetKeySpec
-                        (key, DSAPrivateKeySpec.class);
+                DSAPrivateKeySpec dsaPrivKeySpec = engineGetKeySpec(key, DSAPrivateKeySpec.class);
                 // Create key from spec, and return it
                 return engineGeneratePrivate(dsaPrivKeySpec);
 

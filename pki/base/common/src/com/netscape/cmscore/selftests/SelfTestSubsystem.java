@@ -82,9 +82,9 @@ public class SelfTestSubsystem
     private String mRootPrefix = null;
     private String mPrefix = null;
 
-    public Hashtable mSelfTestInstances = new Hashtable();
-    public Vector mOnDemandOrder = new Vector();
-    public Vector mStartupOrder = new Vector();
+    public Hashtable<String, ISelfTest> mSelfTestInstances = new Hashtable<String, ISelfTest>();
+    public Vector<SelfTestOrderedInstance> mOnDemandOrder = new Vector<SelfTestOrderedInstance>();
+    public Vector<SelfTestOrderedInstance> mStartupOrder = new Vector<SelfTestOrderedInstance>();
 
     ///////////////////////////
     // ISubsystem parameters //

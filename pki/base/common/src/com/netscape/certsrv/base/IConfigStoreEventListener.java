@@ -34,7 +34,7 @@ public interface IConfigStoreEventListener {
      * @exception EBaseException failed to validate
      */
     public void validateConfigParams(String action,
-            Hashtable params) throws EBaseException;
+            Hashtable<String, String> params) throws EBaseException;
 
     /**
      * Validates the config store parameters that changed
@@ -44,5 +44,5 @@ public interface IConfigStoreEventListener {
      * @exception EBaseException failed to validate
      */
     public void doConfigParams(String action,
-            Hashtable params) throws EBaseException;
+            Hashtable<String, String> params) throws EBaseException;
 }

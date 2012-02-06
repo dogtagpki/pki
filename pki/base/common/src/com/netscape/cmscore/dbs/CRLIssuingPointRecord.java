@@ -23,6 +23,8 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import netscape.security.x509.RevokedCertificate;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.IDBObj;
@@ -51,10 +53,10 @@ public class CRLIssuingPointRecord implements ICRLIssuingPointRecord, IDBObj {
     protected String mFirstUnsaved = null;
     protected byte mCRL[] = null;
     protected byte mCACert[] = null;
-    protected Hashtable mCRLCache = null;
-    protected Hashtable mRevokedCerts = null;
-    protected Hashtable mUnrevokedCerts = null;
-    protected Hashtable mExpiredCerts = null;
+    protected Hashtable<BigInteger, RevokedCertificate> mCRLCache = null;
+    protected Hashtable<BigInteger, RevokedCertificate> mRevokedCerts = null;
+    protected Hashtable<BigInteger, RevokedCertificate> mUnrevokedCerts = null;
+    protected Hashtable<BigInteger, RevokedCertificate> mExpiredCerts = null;
     protected byte mDeltaCRL[] = null;
     protected static Vector<String> mNames = new Vector<String>();
     static {
@@ -106,7 +108,9 @@ public class CRLIssuingPointRecord implements ICRLIssuingPointRecord, IDBObj {
      */
     public CRLIssuingPointRecord(String id, BigInteger crlNumber, Long crlSize,
             Date thisUpdate, Date nextUpdate, BigInteger deltaCRLNumber, Long deltaCRLSize,
-            Hashtable revokedCerts, Hashtable unrevokedCerts, Hashtable expiredCerts) {
+            Hashtable<BigInteger, RevokedCertificate> revokedCerts,
+            Hashtable<BigInteger, RevokedCertificate> unrevokedCerts,
+            Hashtable<BigInteger, RevokedCertificate> expiredCerts) {
         mId = id;
         mCRLNumber = crlNumber;
         mCRLSize = crlSize;
@@ -121,6 +125,7 @@ public class CRLIssuingPointRecord implements ICRLIssuingPointRecord, IDBObj {
         mExpiredCerts = expiredCerts;
     }
 
+    @SuppressWarnings({ "unchecked" })
     public void set(String name, Object obj) throws EBaseException {
         if (name.equalsIgnoreCase(ATTR_ID)) {
             mId = (String) obj;
@@ -143,13 +148,13 @@ public class CRLIssuingPointRecord implements ICRLIssuingPointRecord, IDBObj {
         } else if (name.equalsIgnoreCase(ATTR_CA_CERT)) {
             mCACert = (byte[]) obj;
         } else if (name.equalsIgnoreCase(ATTR_CRL_CACHE)) {
-            mCRLCache = (Hashtable) obj;
+            mCRLCache = (Hashtable<BigInteger, RevokedCertificate>) obj;
         } else if (name.equalsIgnoreCase(ATTR_REVOKED_CERTS)) {
-            mRevokedCerts = (Hashtable) obj;
+            mRevokedCerts = (Hashtable<BigInteger, RevokedCertificate>) obj;
         } else if (name.equalsIgnoreCase(ATTR_UNREVOKED_CERTS)) {
-            mUnrevokedCerts = (Hashtable) obj;
+            mUnrevokedCerts = (Hashtable<BigInteger, RevokedCertificate>) obj;
         } else if (name.equalsIgnoreCase(ATTR_EXPIRED_CERTS)) {
-            mExpiredCerts = (Hashtable) obj;
+            mExpiredCerts = (Hashtable<BigInteger, RevokedCertificate>) obj;
         } else if (name.equalsIgnoreCase(ATTR_DELTA_CRL)) {
             mDeltaCRL = (byte[]) obj;
         } else {
@@ -279,47 +284,51 @@ public class CRLIssuingPointRecord implements ICRLIssuingPointRecord, IDBObj {
         return mCACert;
     }
 
-    public Hashtable getCRLCacheNoClone() {
+    public Hashtable<BigInteger, RevokedCertificate> getCRLCacheNoClone() {
         if (mCRLCache == null)
             return null;
         else
-            return (Hashtable) mCRLCache;
+            return mCRLCache;
     }
 
-    public Hashtable getCRLCache() {
+    @SuppressWarnings("unchecked")
+    public Hashtable<BigInteger, RevokedCertificate> getCRLCache() {
         if (mCRLCache == null)
             return null;
         else
-            return (Hashtable) mCRLCache.clone();
+            return (Hashtable<BigInteger, RevokedCertificate>) mCRLCache.clone();
     }
 
     /**
      * Retrieves cache info of revoked certificates.
      */
-    public Hashtable getRevokedCerts() {
+    @SuppressWarnings("unchecked")
+    public Hashtable<BigInteger, RevokedCertificate> getRevokedCerts() {
         if (mRevokedCerts == null)
             return null;
         else
-            return (Hashtable) mRevokedCerts.clone();
+            return (Hashtable<BigInteger, RevokedCertificate>) mRevokedCerts.clone();
     }
 
     /**
      * Retrieves cache info of unrevoked certificates.
      */
-    public Hashtable getUnrevokedCerts() {
+    @SuppressWarnings("unchecked")
+    public Hashtable<BigInteger, RevokedCertificate> getUnrevokedCerts() {
         if (mUnrevokedCerts == null)
             return null;
         else
-            return (Hashtable) mUnrevokedCerts.clone();
+            return (Hashtable<BigInteger, RevokedCertificate>) mUnrevokedCerts.clone();
     }
 
     /**
      * Retrieves cache info of expired certificates.
      */
-    public Hashtable getExpiredCerts() {
+    @SuppressWarnings("unchecked")
+    public Hashtable<BigInteger, RevokedCertificate> getExpiredCerts() {
         if (mExpiredCerts == null)
             return null;
         else
-            return (Hashtable) mExpiredCerts.clone();
+            return (Hashtable<BigInteger, RevokedCertificate>) mExpiredCerts.clone();
     }
 }

@@ -134,8 +134,6 @@ public class LdapV3DNStrConverter extends LdapDNStrConverter {
             throws IOException {
         StringReader rdn_reader = new StringReader(rdn);
         PushbackReader in = new PushbackReader(rdn_reader, 5);
-        Vector<AVA> avaVector = new Vector<AVA>();
-        AVA[] assertion;
 
         return parseRDN(in, null);
     }
@@ -649,7 +647,7 @@ public class LdapV3DNStrConverter extends LdapDNStrConverter {
          * production as practical.
          */
         StringBuffer retval = new StringBuffer(30);
-        int i, j;
+        int i;
         String temp = null;
         AVAValueConverter valueConverter;
 

@@ -29,7 +29,6 @@ import java.util.Vector;
 
 import netscape.security.util.BitArray;
 import netscape.security.util.DerOutputStream;
-import netscape.security.x509.FreshestCRLExtension.Reason;
 
 import org.mozilla.jss.asn1.ASN1Util;
 import org.mozilla.jss.asn1.InvalidBERException;

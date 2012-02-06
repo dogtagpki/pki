@@ -154,7 +154,6 @@ public class GetPk12 extends CMSServlet {
         IArgBlock header = CMS.createArgBlock();
         IArgBlock fixed = CMS.createArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
-        int seq = -1;
 
         // get status and populate argSet
         try {
@@ -162,7 +161,7 @@ public class GetPk12 extends CMSServlet {
 
             header.addStringValue("recoveryID", recoveryID);
 
-            Hashtable params = mService.getRecoveryParams(recoveryID);
+            Hashtable<String, Object> params = mService.getRecoveryParams(recoveryID);
 
             if (params == null) {
                 log(ILogger.LL_FAILURE,

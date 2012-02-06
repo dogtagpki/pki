@@ -18,12 +18,12 @@
 package com.netscape.cmscore.request;
 
 import java.math.BigInteger;
-import java.util.Enumeration;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBSSession;
+import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.dbs.IDBSubsystem;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
@@ -109,10 +109,10 @@ class RequestRepository
     public void removeAllObjects() throws EBaseException {
         IDBSSession s = mDB.createSession();
         try {
-            Enumeration e = s.search(getBaseDN(),
+            IDBSearchResults sr = s.search(getBaseDN(),
                                "(" + RequestRecord.ATTR_REQUEST_ID + "=*)");
-            while (e.hasMoreElements()) {
-                RequestRecord r = (RequestRecord) e.nextElement();
+            while (sr.hasMoreElements()) {
+                RequestRecord r = (RequestRecord) sr.nextElement();
                 String name = "cn" + "=" +
                         r.getRequestId().toString() + "," + getBaseDN();
                 s.delete(name);

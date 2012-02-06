@@ -168,7 +168,7 @@ public class RecoveryService implements IService {
         // byte publicKey[] = (byte[])request.get(ATTR_PUBLIC_KEY_DATA);
         // X500Name owner = (X500Name)request.get(ATTR_OWNER_NAME);
 
-        Hashtable params = mKRA.getVolatileRequest(
+        Hashtable<String, Object> params = mKRA.getVolatileRequest(
                 request.getRequestId());
 
         if (params == null) {
@@ -345,6 +345,8 @@ public class RecoveryService implements IService {
             privateKeyIn.getSequence(0);
             DerValue privateKeyDer = new DerValue(privateKeyIn.getOctetString());
             DerInputStream privateKeyDerIn = privateKeyDer.data;
+
+            @SuppressWarnings("unused")
             BigInt privateKeyVersion = privateKeyDerIn.getInteger();
             BigInt privateKeyModulus = privateKeyDerIn.getInteger();
             BigInt privateKeyExponent = privateKeyDerIn.getInteger();
@@ -372,7 +374,7 @@ public class RecoveryService implements IService {
      * Recovers key. (using unwrapping/wrapping on token)
      * - used when allowEncDecrypt_recovery is false
      */
-    public synchronized PrivateKey recoverKey(Hashtable request, KeyRecord keyRecord, boolean isRSA)
+    public synchronized PrivateKey recoverKey(Hashtable<String, Object> request, KeyRecord keyRecord, boolean isRSA)
             throws EBaseException {
 
         if (!isRSA) {
@@ -437,7 +439,7 @@ public class RecoveryService implements IService {
      * @param priKey private key handle
      * @exception EBaseException failed to create P12 file
      */
-    public void createPFX(IRequest request, Hashtable params,
+    public void createPFX(IRequest request, Hashtable<String, Object> params,
             PrivateKey priKey, CryptoToken ct) throws EBaseException {
         CMS.debug("RecoverService: createPFX() allowEncDecrypt_recovery=false");
         try {
@@ -531,7 +533,7 @@ public class RecoveryService implements IService {
      * Recovers key.
      * - used when allowEncDecrypt_recovery is true
      */
-    public synchronized byte[] recoverKey(Hashtable request, KeyRecord keyRecord)
+    public synchronized byte[] recoverKey(Hashtable<String, Object> request, KeyRecord keyRecord)
             throws EBaseException {
         if (CMS.getConfigStore().getBoolean("kra.keySplitting")) {
             Credential creds[] = (Credential[])
@@ -562,7 +564,7 @@ public class RecoveryService implements IService {
      * @param priData decrypted private key (PrivateKeyInfo)
      * @exception EBaseException failed to create P12 file
      */
-    public void createPFX(IRequest request, Hashtable params,
+    public void createPFX(IRequest request, Hashtable<String, Object> params,
             byte priData[]) throws EBaseException {
         CMS.debug("RecoverService: createPFX() allowEncDecrypt_recovery=true");
         try {

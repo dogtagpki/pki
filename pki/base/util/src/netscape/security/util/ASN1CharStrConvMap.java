@@ -20,7 +20,6 @@ package netscape.security.util;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CharsetEncoder;
-import java.nio.charset.CodingErrorAction;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;

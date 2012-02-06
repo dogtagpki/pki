@@ -31,7 +31,6 @@ import netscape.security.extensions.NSCertTypeExtension;
 import netscape.security.x509.BasicConstraintsExtension;
 import netscape.security.x509.Extension;
 import netscape.security.x509.X509CertImpl;
-import netscape.security.x509.X509CertInfo;
 import netscape.security.x509.X509Key;
 
 import com.netscape.certsrv.apps.CMS;
@@ -250,7 +249,6 @@ public class X509CertImplMapper implements IDBAttrMapper {
             //      LDAPAttribute attr = attrs.getAttribute(
             //  	  Schema.LDAP_ATTR_SIGNED_CERT);
 
-            X509CertInfo certinfo = new X509CertInfo();
             LDAPAttribute attr = attrs.getAttribute(
                     CertDBSchema.LDAP_ATTR_SIGNED_CERT);
 

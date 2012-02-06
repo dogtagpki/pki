@@ -132,7 +132,7 @@ public class JssSSLSocketFactory implements ISocketFactory {
                 // report error if the nickName is invalid.
                 // So we check this ourself using
                 // findCertByNickname
-                X509Certificate cert = CryptoManager.getInstance().findCertByNickname(mClientAuthCertNickname);
+                CryptoManager.getInstance().findCertByNickname(mClientAuthCertNickname);
 
                 s.setClientCertNickname(mClientAuthCertNickname);
             }

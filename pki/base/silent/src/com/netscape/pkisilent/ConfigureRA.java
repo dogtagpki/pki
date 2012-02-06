@@ -20,7 +20,6 @@ package com.netscape.pkisilent;
 
 import java.io.ByteArrayInputStream;
 import java.net.URLEncoder;
-import java.util.ArrayList;
 
 import com.netscape.osutil.OSUtil;
 import com.netscape.pkisilent.argparser.ArgParser;
@@ -160,7 +159,6 @@ public class ConfigureRA {
     }
 
     public boolean DomainPanel() {
-        boolean st = false;
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -186,24 +184,15 @@ public class ConfigureRA {
     }
 
     public boolean DisplayChainPanel() {
-        boolean st = false;
-        HTTPResponse hr = null;
-        ByteArrayInputStream bais = null;
-        ParseXML px = new ParseXML();
-        String query_string = null;
-
-        query_string = "p=2" + "&op=next" + "&xml=true";
-        hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
+        String query_string = "p=2" + "&op=next" + "&xml=true";
+        hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
 
         return true;
 
     }
 
     public boolean SecurityDomainLoginPanel() {
-        boolean st = false;
         HTTPResponse hr = null;
-        ByteArrayInputStream bais = null;
-        ParseXML px = new ParseXML();
 
         String ra_url = "https://" + cs_hostname + ":" + cs_port +
                             "/ra/admin/console/config/wizard" +
@@ -247,7 +236,6 @@ public class ConfigureRA {
     }
 
     public boolean SubsystemPanel() {
-        boolean st = false;
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -285,7 +273,6 @@ public class ConfigureRA {
     }
 
     public boolean DBPanel() {
-        boolean st = false;
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -305,7 +292,6 @@ public class ConfigureRA {
     }
 
     public boolean TokenChoicePanel() {
-        boolean st = false;
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -363,7 +349,6 @@ public class ConfigureRA {
     }
 
     public boolean KeyPanel() {
-        boolean st = false;
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -392,13 +377,9 @@ public class ConfigureRA {
     }
 
     public boolean CertSubjectPanel() {
-        boolean st = false;
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
-        ArrayList<String> req_list = null;
-        ArrayList<String> cert_list = null;
-        ArrayList<String> dn_list = null;
 
         String ca_url = "https://" + ca_hostname + ":" + ca_ssl_port;
 
@@ -426,7 +407,6 @@ public class ConfigureRA {
     }
 
     public boolean CertificatePanel() {
-        boolean st = false;
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -450,7 +430,6 @@ public class ConfigureRA {
     }
 
     public boolean AdminCertReqPanel() {
-        boolean st = false;
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();

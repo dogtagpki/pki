@@ -451,7 +451,6 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
                                     // }
 
                                     INTEGER temp = revRequest.getSerialNumber();
-                                    int temp2 = temp.intValue();
 
                                     bigIntArray[j] = temp;
                                     authToken.set(TOKEN_CERT_SERIAL, bigIntArray);
@@ -783,7 +782,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
 
             SET dais = cmcFullReq.getDigestAlgorithmIdentifiers();
             int numDig = dais.size();
-            Hashtable digs = new Hashtable();
+            Hashtable<String, byte[]> digs = new Hashtable<String, byte[]>();
 
             //if request key is used for signing, there MUST be only one signerInfo
             //object in the signedData object.

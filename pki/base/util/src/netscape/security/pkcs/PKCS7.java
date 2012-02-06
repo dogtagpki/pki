@@ -272,9 +272,6 @@ public class PKCS7 {
         // contentInfo
         contentInfo.encode(signedData);
 
-        // certificates
-        DerOutputStream certs = new DerOutputStream();
-
         // cast to X509CertImpl[] since X509CertImpl implements DerEncoder
         X509CertImpl implCerts[] = new X509CertImpl[certificates.length];
         try {

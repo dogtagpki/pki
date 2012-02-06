@@ -410,7 +410,7 @@ public class CAService implements ICAService, IService {
         }
 
         String type = request.getRequestType();
-        IServant servant = (IServant) mServants.get(type);
+        IServant servant = mServants.get(type);
 
         if (servant == null) {
             mCA.log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_INVALID_REQUEST_TYPE", type));
@@ -923,7 +923,7 @@ public class CAService implements ICAService, IService {
                         Enumeration<String> n = oldMeta.getElements();
 
                         while (n.hasMoreElements()) {
-                            String name = (String) n.nextElement();
+                            String name = n.nextElement();
 
                             System.out.println("name " + name + " value " +
                                     oldMeta.get(name));
@@ -950,7 +950,7 @@ public class CAService implements ICAService, IService {
                     Enumeration<String> n = oldMeta.getElements();
 
                     while (n.hasMoreElements()) {
-                        String name = (String) n.nextElement();
+                        String name = n.nextElement();
 
                     }
                 }
@@ -1105,7 +1105,7 @@ public class CAService implements ICAService, IService {
                 Enumeration<ICRLIssuingPoint> eIPs = mCRLIssuingPoints.elements();
 
                 while (eIPs.hasMoreElements()) {
-                    ICRLIssuingPoint ip = (ICRLIssuingPoint) eIPs.nextElement();
+                    ICRLIssuingPoint ip = eIPs.nextElement();
 
                     if (ip != null) {
                         boolean b = true;
@@ -1434,7 +1434,7 @@ class serviceRenewal implements IServant {
 
                     if (renewed != null) {
                         BigInteger serial = new BigInteger(renewed);
-                        X509CertImpl cert = (X509CertImpl)
+                        X509CertImpl cert =
                                 mCA.getCertificateRepository().getX509Certificate(serial);
 
                         if (cert == null) {
@@ -1898,7 +1898,7 @@ class serviceGetCRL implements IServant {
             throws EBaseException {
         try {
             ICRLIssuingPointRecord crlRec =
-                    (ICRLIssuingPointRecord) mCA.getCRLRepository().readCRLIssuingPointRecord(
+                    mCA.getCRLRepository().readCRLIssuingPointRecord(
                             ICertificateAuthority.PROP_MASTER_CRL);
             X509CRLImpl crl = new X509CRLImpl(crlRec.getCRL());
 
@@ -1936,7 +1936,7 @@ class serviceGetRevocationInfo implements IServant {
         Enumeration<String> enum1 = request.getExtDataKeys();
 
         while (enum1.hasMoreElements()) {
-            String name = (String) enum1.nextElement();
+            String name = enum1.nextElement();
 
             if (name.equals(IRequest.ISSUED_CERTS)) {
                 X509CertImpl certsToCheck[] =
@@ -1976,7 +1976,7 @@ class serviceGetCertificates implements IServant {
         Enumeration<String> enum1 = request.getExtDataKeys();
 
         while (enum1.hasMoreElements()) {
-            String name = (String) enum1.nextElement();
+            String name = enum1.nextElement();
 
             if (name.equals(IRequest.CERT_FILTER)) {
                 String filter = request.getExtDataInString(IRequest.CERT_FILTER);
@@ -2046,7 +2046,7 @@ class serviceCert4Crl implements IServant {
                 Enumeration<ICRLIssuingPoint> eIPs = hips.elements();
 
                 while (eIPs.hasMoreElements()) {
-                    ICRLIssuingPoint ip = (ICRLIssuingPoint) eIPs.nextElement();
+                    ICRLIssuingPoint ip = eIPs.nextElement();
                     // form RevokedCertImpl
                     RevokedCertImpl rci =
                             new RevokedCertImpl(revokedCertRecs[i].getSerialNumber(),
@@ -2108,7 +2108,7 @@ class serviceUnCert4Crl implements IServant {
                 Enumeration<ICRLIssuingPoint> eIPs = hips.elements();
 
                 while (eIPs.hasMoreElements()) {
-                    ICRLIssuingPoint ip = (ICRLIssuingPoint) eIPs.nextElement();
+                    ICRLIssuingPoint ip = eIPs.nextElement();
 
                     if (ip != null) {
                         ip.addUnrevokedCert(oldSerialNo[i]);

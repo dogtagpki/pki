@@ -22,6 +22,8 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import netscape.security.x509.RevokedCertificate;
+
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.EDBException;
@@ -230,7 +232,9 @@ public class CRLRepository extends Repository implements ICRLRepository {
      */
     public void updateCRLIssuingPointRecord(String id, byte[] newCRL,
             Date thisUpdate, Date nextUpdate, BigInteger crlNumber, Long crlSize,
-            Hashtable revokedCerts, Hashtable unrevokedCerts, Hashtable expiredCerts)
+            Hashtable<BigInteger, RevokedCertificate> revokedCerts,
+            Hashtable<BigInteger, RevokedCertificate> unrevokedCerts,
+            Hashtable<BigInteger, RevokedCertificate> expiredCerts)
             throws EBaseException {
         ModificationSet mods = new ModificationSet();
 
@@ -270,8 +274,9 @@ public class CRLRepository extends Repository implements ICRLRepository {
     /**
      * Updates CRL issuing point record with recently revoked certificates info.
      */
-    public void updateRevokedCerts(String id, Hashtable revokedCerts,
-            Hashtable unrevokedCerts)
+    public void updateRevokedCerts(String id,
+            Hashtable<BigInteger, RevokedCertificate> revokedCerts,
+            Hashtable<BigInteger, RevokedCertificate> unrevokedCerts)
             throws EBaseException {
         ModificationSet mods = new ModificationSet();
 
@@ -287,7 +292,7 @@ public class CRLRepository extends Repository implements ICRLRepository {
     /**
      * Updates CRL issuing point record with recently expired certificates info.
      */
-    public void updateExpiredCerts(String id, Hashtable expiredCerts)
+    public void updateExpiredCerts(String id, Hashtable<BigInteger, RevokedCertificate> expiredCerts)
             throws EBaseException {
         ModificationSet mods = new ModificationSet();
 
@@ -300,9 +305,9 @@ public class CRLRepository extends Repository implements ICRLRepository {
      * Updates CRL issuing point record with CRL cache info.
      */
     public void updateCRLCache(String id, Long crlSize,
-            Hashtable revokedCerts,
-            Hashtable unrevokedCerts,
-            Hashtable expiredCerts)
+            Hashtable<BigInteger, RevokedCertificate> revokedCerts,
+            Hashtable<BigInteger, RevokedCertificate> unrevokedCerts,
+            Hashtable<BigInteger, RevokedCertificate> expiredCerts)
             throws EBaseException {
         ModificationSet mods = new ModificationSet();
 

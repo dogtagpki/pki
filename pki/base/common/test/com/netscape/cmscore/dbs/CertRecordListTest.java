@@ -22,6 +22,7 @@ import junit.framework.TestSuite;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.IElementProcessor;
+import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.cmscore.test.CMSBaseTestCase;
 
 public class CertRecordListTest extends CMSBaseTestCase {
@@ -41,7 +42,7 @@ public class CertRecordListTest extends CMSBaseTestCase {
     }
 
     public void testProcessCertRecordsUsesSize() throws EBaseException {
-        DBVirtualListStub dbList = new DBVirtualListStub();
+        DBVirtualListStub<ICertRecord> dbList = new DBVirtualListStub<ICertRecord>();
         dbList.size = 5;
 
         CertRecordList certList = new CertRecordList(dbList);
@@ -57,12 +58,12 @@ public class CertRecordListTest extends CMSBaseTestCase {
         assertEquals(7, dbList.lastIndexGetElementAtCalledWith);
     }
 
-    public class DBVirtualListStub extends DBVirtualListDefaultStub {
+    public class DBVirtualListStub<T> extends DBVirtualListDefaultStub<T> {
         public int size = 0;
         public int getElementAtCallCount = 0;
         public int lastIndexGetElementAtCalledWith = 0;
 
-        public Object getElementAt(int index) {
+        public T getElementAt(int index) {
             getElementAtCallCount++;
             lastIndexGetElementAtCalledWith = index;
 

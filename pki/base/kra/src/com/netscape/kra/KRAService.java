@@ -52,7 +52,7 @@ public class KRAService implements IService {
 
     // private variables
     private IKeyRecoveryAuthority mKRA = null;
-    private Hashtable<String,IService> mServices = new Hashtable<String,IService>();
+    private Hashtable<String, IService> mServices = new Hashtable<String, IService>();
 
     /**
      * Constructs KRA service.
@@ -80,8 +80,7 @@ public class KRAService implements IService {
                     r.getRequestId().toString());
         mKRA.log(ILogger.LL_INFO, "KRA services request " +
                 r.getRequestId().toString());
-        IService s = (IService) mServices.get(
-                r.getRequestType());
+        IService s = mServices.get(r.getRequestType());
 
         if (s == null) {
             r.setExtData(IRequest.RESULT, IRequest.RES_ERROR);

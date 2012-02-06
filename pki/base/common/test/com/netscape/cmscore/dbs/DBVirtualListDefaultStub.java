@@ -29,7 +29,7 @@ import com.netscape.certsrv.dbs.IElementProcessor;
  * 
  * Do not put any behaviour in this class.
  */
-public class DBVirtualListDefaultStub implements IDBVirtualList {
+public class DBVirtualListDefaultStub<T> implements IDBVirtualList<T> {
 
     public void setPageSize(int size) {
     }
@@ -64,11 +64,11 @@ public class DBVirtualListDefaultStub implements IDBVirtualList {
         return false;
     }
 
-    public Object getElementAt(int index) {
+    public T getElementAt(int index) {
         return null;
     }
 
-    public Object getJumpToElementAt(int i) {
+    public T getJumpToElementAt(int i) {
         return null;
     }
 

@@ -34,12 +34,12 @@ import com.netscape.certsrv.dbs.IFilterConverter;
  */
 public class LdapFilterConverter implements IFilterConverter {
 
-    private Hashtable mReg = null;
+    private Hashtable<String, IDBAttrMapper> mReg = null;
 
     /**
      * Constructs filter convertor.
      */
-    public LdapFilterConverter(Hashtable reg) {
+    public LdapFilterConverter(Hashtable<String, IDBAttrMapper> reg) {
         mReg = reg;
     }
 

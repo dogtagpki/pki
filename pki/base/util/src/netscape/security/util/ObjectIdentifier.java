@@ -19,6 +19,7 @@ package netscape.security.util;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Hashtable;
 import java.util.StringTokenizer;
 
 /**
@@ -376,7 +377,7 @@ final public class ObjectIdentifier implements Serializable {
      * This function never returns null. IOException is raised
      * in error conditions.
      */
-    public static java.util.Hashtable mOIDs = new java.util.Hashtable();
+    public static Hashtable<String, ObjectIdentifier> mOIDs = new Hashtable<String, ObjectIdentifier>();
 
     public static ObjectIdentifier getObjectIdentifier(String oid)
             throws IOException {
@@ -387,7 +388,7 @@ final public class ObjectIdentifier implements Serializable {
 
         oid = oid.trim();
 
-        ObjectIdentifier thisOID = (ObjectIdentifier) mOIDs.get(oid);
+        ObjectIdentifier thisOID = mOIDs.get(oid);
         if (thisOID != null)
             return thisOID;
 

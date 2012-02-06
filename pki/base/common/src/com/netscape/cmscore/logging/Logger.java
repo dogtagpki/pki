@@ -38,7 +38,7 @@ public class Logger implements ILogger {
 
     protected static Logger mLogger = new Logger();
     protected ILogQueue mLogQueue = null;
-    protected Hashtable mFactories = new Hashtable();
+    protected Hashtable<Integer, ILogEventFactory> mFactories = new Hashtable<Integer, ILogEventFactory>();
 
     /**
      * Constructs a generic logger, and registers a list
@@ -74,7 +74,7 @@ public class Logger implements ILogger {
      * @param f the event factory name
      */
     public void register(int evtClass, ILogEventFactory f) {
-        mFactories.put(Integer.toString(evtClass), f);
+        mFactories.put(evtClass, f);
     }
 
     //************** default level ****************
@@ -354,8 +354,7 @@ public class Logger implements ILogger {
     //XXXXXXXXXXX prop is out dated!!!! XXXXXXXXXXXXXXX
     public ILogEvent create(int evtClass, Properties prop, int source, int level,
             String msg, Object params[], boolean multiline) {
-        ILogEventFactory f = (ILogEventFactory) mFactories.get(
-                Integer.toString(evtClass));
+        ILogEventFactory f = mFactories.get(evtClass);
 
         if (f == null)
             return null;

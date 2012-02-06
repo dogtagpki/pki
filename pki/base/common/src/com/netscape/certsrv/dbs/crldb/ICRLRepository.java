@@ -22,6 +22,8 @@ import java.util.Date;
 import java.util.Hashtable;
 import java.util.Vector;
 
+import netscape.security.x509.RevokedCertificate;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.ModificationSet;
 
@@ -109,7 +111,9 @@ public interface ICRLRepository {
      */
     public void updateCRLIssuingPointRecord(String id, byte[] newCRL,
             Date thisUpdate, Date nextUpdate, BigInteger crlNumber, Long crlSize,
-            Hashtable revokedCerts, Hashtable unrevokedCerts, Hashtable expiredCerts)
+            Hashtable<BigInteger, RevokedCertificate> revokedCerts,
+            Hashtable<BigInteger, RevokedCertificate> unrevokedCerts,
+            Hashtable<BigInteger, RevokedCertificate> expiredCerts)
             throws EBaseException;
 
     /**
@@ -120,7 +124,7 @@ public interface ICRLRepository {
      * @param unrevokedCerts list of released from hold certificates
      * @exception EBaseException failed to update issuing point record
      */
-    public void updateRevokedCerts(String id, Hashtable revokedCerts, Hashtable unrevokedCerts)
+    public void updateRevokedCerts(String id, Hashtable<BigInteger, RevokedCertificate> revokedCerts, Hashtable<BigInteger, RevokedCertificate> unrevokedCerts)
             throws EBaseException;
 
     /**
@@ -130,7 +134,7 @@ public interface ICRLRepository {
      * @param expiredCerts list of expired certificates
      * @exception EBaseException failed to update issuing point record
      */
-    public void updateExpiredCerts(String id, Hashtable expiredCerts)
+    public void updateExpiredCerts(String id, Hashtable<BigInteger, RevokedCertificate> expiredCerts)
             throws EBaseException;
 
     /**
@@ -144,9 +148,9 @@ public interface ICRLRepository {
      * @exception EBaseException failed to update issuing point record
      */
     public void updateCRLCache(String id, Long crlSize,
-            Hashtable revokedCerts,
-            Hashtable unrevokedCerts,
-            Hashtable expiredCerts)
+            Hashtable<BigInteger, RevokedCertificate> revokedCerts,
+            Hashtable<BigInteger, RevokedCertificate> unrevokedCerts,
+            Hashtable<BigInteger, RevokedCertificate> expiredCerts)
             throws EBaseException;
 
     /**

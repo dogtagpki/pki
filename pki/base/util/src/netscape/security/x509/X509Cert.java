@@ -444,7 +444,6 @@ public class X509Cert implements Certificate, Serializable {
      */
     public Signature getVerifier(String algorithm)
             throws NoSuchAlgorithmException, InvalidKeyException {
-        String algName;
         Signature sig;
 
         sig = Signature.getInstance(algorithm);

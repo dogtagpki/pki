@@ -22,6 +22,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Properties;
+import java.util.Vector;
 
 public class PlainPasswordFile implements IPasswordStore {
     private String mPwdPath = "";
@@ -47,8 +48,13 @@ public class PlainPasswordFile implements IPasswordStore {
     }
 
     // return an array of String-based tag
-    public Enumeration<?> getTags() {
-        return mPwdStore.propertyNames();
+    public Enumeration<String> getTags() {
+        Enumeration<?> e = mPwdStore.propertyNames();
+        Vector<String> v = new Vector<String>();
+        while (e.hasMoreElements()) {
+            v.add((String) e.nextElement());
+        }
+        return v.elements();
     }
 
     public Object putPassword(String tag, String password) {

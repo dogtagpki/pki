@@ -25,5 +25,5 @@ public interface IPasswordReader {
 
     public String getPassword(String tag);
 
-    public Enumeration getTags();
+    public Enumeration<String> getTags();
 }

@@ -175,12 +175,9 @@ public class RecoverBySerial extends CMSServlet {
         fixed.set(PORT, Integer.valueOf(port));
         fixed.set(SCHEME, scheme);
 
-        int seq = -1;
-
         SessionContext ctx = null;
 
         try {
-            String localAgents = req.getParameter("localAgents");
             String initAsyncRecovery = req.getParameter("initAsyncRecovery");
 
             // this information is needed within the server for
@@ -367,7 +364,7 @@ public class RecoverBySerial extends CMSServlet {
                         header.addStringValue(OUT_ERROR, "No recovery ID specified");
                         return null;
                     }
-                    Hashtable params = mService.createRecoveryParams(recoveryID);
+                    Hashtable<String, Object> params = mService.createRecoveryParams(recoveryID);
 
                     params.put("keyID", req.getParameter(IN_SERIALNO));
 
@@ -383,7 +380,7 @@ public class RecoverBySerial extends CMSServlet {
                     waitThread.start();
                     return null;
                 } else {
-                    Vector v = new Vector();
+                    Vector<Credential> v = new Vector<Credential>();
 
                     for (int i = 0; i < mService.getNoOfRequiredAgents(); i++) {
                         String uid = req.getParameter(IN_UID + i);
@@ -424,7 +421,7 @@ public class RecoverBySerial extends CMSServlet {
                     header.addStringValue(OUT_ERROR, "No recovery ID specified");
                     return null;
                 }
-                Hashtable params = mService.createRecoveryParams(recoveryID);
+                Hashtable<String, Object> params = mService.createRecoveryParams(recoveryID);
 
                 params.put("keyID", req.getParameter(IN_SERIALNO));
 

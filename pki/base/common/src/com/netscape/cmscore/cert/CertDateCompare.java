@@ -28,17 +28,17 @@ import netscape.security.x509.X509CertImpl;
  * @author kanda
  * @version $Revision$, $Date$
  */
-public class CertDateCompare implements Comparator {
+public class CertDateCompare implements Comparator<X509CertImpl> {
     public CertDateCompare() {
     }
 
-    public int compare(Object cert1, Object cert2) {
+    public int compare(X509CertImpl cert1, X509CertImpl cert2) {
         Date d1 = null;
         Date d2 = null;
 
         try {
-            d1 = ((X509CertImpl) cert1).getNotAfter();
-            d2 = ((X509CertImpl) cert2).getNotAfter();
+            d1 = cert1.getNotAfter();
+            d2 = cert2.getNotAfter();
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.Hashtable;
 
 import netscape.security.x509.RevokedCertImpl;
+import netscape.security.x509.RevokedCertificate;
 import netscape.security.x509.X500Name;
 import netscape.security.x509.X509CRLImpl;
 
@@ -76,10 +77,10 @@ public class TestCRLSigning {
         // generate revoked certificates
         long startPutting = System.currentTimeMillis();
         Date curDate = new Date();
-        Hashtable badCerts = new Hashtable();
+        Hashtable<BigInteger, RevokedCertificate> badCerts = new Hashtable<BigInteger, RevokedCertificate>();
         int n = Integer.parseInt(num);
         for (int i = 0; i < n; i++) {
-            badCerts.put(Integer.toString(i),
+            badCerts.put(new BigInteger(Integer.toString(i)),
                     new RevokedCertImpl(new BigInteger(Integer.toString(i)), curDate));
         }
         long endPutting = System.currentTimeMillis();

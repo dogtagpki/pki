@@ -17,8 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.listeners;
 
-import java.util.Hashtable;
-
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.LDAPConnection;
 import netscape.ldap.LDAPEntry;
@@ -28,7 +26,6 @@ import netscape.ldap.LDAPSearchResults;
 import netscape.ldap.LDAPv2;
 
 import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.authority.ICertAuthority;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
@@ -56,9 +53,7 @@ public class PinRemovalListener implements IRequestListener {
 
     private boolean mEnabled = false;
     private ILogger mLogger = CMS.getLogger();
-    private Hashtable mContentParams = new Hashtable();
 
-    private ICertAuthority mSub = null;
     private IConfigStore mConfig = null;
     private IConfigStore mLdapConfig = null;
     private RequestId mReqId = null;

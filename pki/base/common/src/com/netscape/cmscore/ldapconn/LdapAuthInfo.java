@@ -38,7 +38,7 @@ public class LdapAuthInfo implements ILdapAuthInfo {
 
     private boolean mInited = false;
 
-    private static Hashtable passwords = new Hashtable();
+    private static Hashtable<String, String> passwords = new Hashtable<String, String>();
 
     /**
      * must call init(config) after this constructor.
@@ -148,7 +148,7 @@ public class LdapAuthInfo implements ILdapAuthInfo {
 
             if (mParms[1] == null) {
                 CMS.debug("LdapAuthInfo: init: try getting from memory cache");
-                mParms[1] = (String) passwords.get(prompt);
+                mParms[1] = passwords.get(prompt);
                 if (mParms[1] != null) {
                     inMem = true;
                     CMS.debug("LdapAuthInfo: init: got password from memory");

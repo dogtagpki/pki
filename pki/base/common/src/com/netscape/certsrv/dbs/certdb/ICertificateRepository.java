@@ -30,6 +30,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.dbs.repository.IRepository;
+import com.netscape.cmscore.dbs.CertificateRepository.RenewableCertificateCollection;
 
 /**
  * An interface represents a CMS certificate repository.
@@ -205,7 +206,7 @@ public interface ICertificateRepository extends IRepository {
      * @return a list of certificates
      * @exception EBaseException failed to search
      */
-    public Enumeration searchCertificates(String filter, int maxSize)
+    public Enumeration<Object> searchCertificates(String filter, int maxSize)
             throws EBaseException;
 
     /**
@@ -218,7 +219,7 @@ public interface ICertificateRepository extends IRepository {
      * @return a list of certificates
      * @exception EBaseException failed to search
      */
-    public Enumeration searchCertificates(String filter, int maxSize,
+    public Enumeration<ICertRecord> searchCertificates(String filter, int maxSize,
             int timeLimit) throws EBaseException;
 
     /**
@@ -308,7 +309,7 @@ public interface ICertificateRepository extends IRepository {
      * @return a list of revoked certificates
      * @exception EBaseException failed to retrieve
      */
-    public Enumeration getRevokedCertificates(Date asOfDate)
+    public Enumeration<ICertRecord> getRevokedCertificates(Date asOfDate)
             throws EBaseException;
 
     /**
@@ -318,7 +319,7 @@ public interface ICertificateRepository extends IRepository {
      * @return a list of revoked certificates
      * @exception EBaseException failed to search
      */
-    public Enumeration getAllRevokedCertificates()
+    public Enumeration<ICertRecord> getAllRevokedCertificates()
             throws EBaseException;
 
     /**
@@ -327,7 +328,7 @@ public interface ICertificateRepository extends IRepository {
      * @return a list of revoked certificates
      * @exception EBaseException failed to search
      */
-    public Enumeration getAllRevokedNonExpiredCertificates()
+    public Enumeration<ICertRecord> getAllRevokedNonExpiredCertificates()
             throws EBaseException;
 
     /**
@@ -337,7 +338,7 @@ public interface ICertificateRepository extends IRepository {
      * @return a list of certificates
      * @exception EBaseException failed to search
      */
-    public Enumeration findCertificates(String filter)
+    public Enumeration<X509CertImpl> findCertificates(String filter)
             throws EBaseException;
 
     /**
@@ -347,7 +348,7 @@ public interface ICertificateRepository extends IRepository {
      * @return a list of certificates
      * @exception EBaseException failed to search
      */
-    public Enumeration findCertRecords(String filter)
+    public Enumeration<ICertRecord> findCertRecords(String filter)
             throws EBaseException;
 
     /**
@@ -414,7 +415,7 @@ public interface ICertificateRepository extends IRepository {
      * @return certificates
      * @exception EBaseException failed to retrieve
      */
-    public Hashtable getRenewableCertificates(String renewalTime)
+    public Hashtable<String, RenewableCertificateCollection> getRenewableCertificates(String renewalTime)
             throws EBaseException;
 
     /**

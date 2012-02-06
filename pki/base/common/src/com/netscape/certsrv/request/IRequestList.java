@@ -27,7 +27,7 @@ import java.util.Enumeration;
  * @version $Revision$, $Date$
  */
 public interface IRequestList
-        extends Enumeration {
+        extends Enumeration<RequestId> {
 
     /**
      * Gets the next RequestId from this list. null is

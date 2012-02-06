@@ -25,7 +25,7 @@ import java.util.Comparator;
  * @version 1.4 97/12/10
  * @author D. N. Hoover
  */
-public class ByteArrayLexOrder implements Comparator {
+public class ByteArrayLexOrder implements Comparator<byte[]> {
 
     /**
      * Perform lexicographical comparison of two byte arrays,
@@ -41,10 +41,7 @@ public class ByteArrayLexOrder implements Comparator {
      * 
      * @exception <code>ClassCastException</code> if either argument is not a byte array.
      */
-    public final int compare(Object obj1, Object obj2) {
-
-        byte[] bytes1 = (byte[]) obj1;
-        byte[] bytes2 = (byte[]) obj2;
+    public final int compare(byte[] bytes1, byte[] bytes2) {
 
         int diff;
         for (int i = 0; i < bytes1.length && i < bytes2.length; i++) {

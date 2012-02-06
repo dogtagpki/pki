@@ -244,7 +244,7 @@ public class GrantRecovery extends CMSServlet {
             header.addStringValue(OUT_SERVICE_URL,
                     req.getRequestURI());
 
-            Hashtable h = mService.getRecoveryParams(recoveryID);
+            Hashtable<String, Object> h = mService.getRecoveryParams(recoveryID);
 
             if (h == null) {
                 header.addStringValue(OUT_ERROR,

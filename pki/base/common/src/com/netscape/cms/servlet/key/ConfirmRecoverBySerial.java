@@ -28,7 +28,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
@@ -112,7 +111,7 @@ public class ConfirmRecoverBySerial extends CMSServlet {
         HttpServletRequest req = cmsReq.getHttpReq();
         HttpServletResponse resp = cmsReq.getHttpResp();
 
-        IAuthToken authToken = authenticate(cmsReq);
+        authenticate(cmsReq);
 
         CMSTemplate form = null;
         Locale[] locale = new Locale[1];

@@ -39,7 +39,6 @@ import org.w3c.dom.Node;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authority.IAuthority;
-import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.base.SessionContext;
@@ -1071,7 +1070,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
             if (acl != null && acl.length() > 0) {
                 try {
                     String resource = profileId + ".authz.acl";
-                    AuthzToken authzToken = authorize(mAclMethod, resource, authToken, acl);
+                    authorize(mAclMethod, resource, authToken, acl);
                 } catch (Exception e) {
                     CMS.debug("ProfileSubmitServlet authorize: " + e.toString());
                     if (xmlOutput) {

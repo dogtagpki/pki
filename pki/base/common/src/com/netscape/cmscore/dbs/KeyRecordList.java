@@ -34,12 +34,12 @@ import com.netscape.certsrv.dbs.keydb.IKeyRecordList;
  */
 public class KeyRecordList implements IKeyRecordList {
 
-    private IDBVirtualList<Object> mVlist = null;
+    private IDBVirtualList<IKeyRecord> mVlist = null;
 
     /**
      * Constructs a key list.
      */
-    public KeyRecordList(IDBVirtualList<Object> vlist) {
+    public KeyRecordList(IDBVirtualList<IKeyRecord> vlist) {
         mVlist = vlist;
     }
 
@@ -62,7 +62,7 @@ public class KeyRecordList implements IKeyRecordList {
     }
 
     public IKeyRecord getKeyRecord(int i) {
-        IKeyRecord record = (IKeyRecord) mVlist.getElementAt(i);
+        IKeyRecord record = mVlist.getElementAt(i);
 
         if (record == null)
             return null;
@@ -78,7 +78,7 @@ public class KeyRecordList implements IKeyRecordList {
         Vector<IKeyRecord> entries = new Vector<IKeyRecord>();
 
         for (int i = startidx; i <= endidx; i++) {
-            IKeyRecord element = (IKeyRecord) mVlist.getElementAt(i);
+            IKeyRecord element = mVlist.getElementAt(i);
 
             if (element != null) {
                 entries.addElement(element);

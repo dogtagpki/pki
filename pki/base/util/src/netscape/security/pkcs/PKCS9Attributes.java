@@ -38,12 +38,12 @@ public class PKCS9Attributes {
     /**
      * Attributes in this set indexed by OID.
      */
-    private final Hashtable attributes = new Hashtable(3);
+    private final Hashtable<ObjectIdentifier, PKCS9Attribute> attributes = new Hashtable<ObjectIdentifier, PKCS9Attribute>(3);
 
     /**
      * The keys of this hashtable are the OIDs of permitted attributes.
      */
-    private final Hashtable permittedAttributes;
+    private final Hashtable<ObjectIdentifier, ObjectIdentifier> permittedAttributes;
 
     /**
      * The DER encoding of this attribute set. The tag byte must be
@@ -73,7 +73,7 @@ public class PKCS9Attributes {
                DerInputStream in) throws IOException {
         if (permittedAttributes != null) {
             this.permittedAttributes =
-                    new Hashtable(permittedAttributes.length);
+                    new Hashtable<ObjectIdentifier, ObjectIdentifier>(permittedAttributes.length);
 
             for (int i = 0; i < permittedAttributes.length; i++)
                 this.permittedAttributes.put(permittedAttributes[i],
@@ -157,7 +157,6 @@ public class PKCS9Attributes {
 
         PKCS9Attribute attrib;
         ObjectIdentifier oid;
-        int index;
 
         for (int i = 0; i < derVals.length; i++) {
             attrib = new PKCS9Attribute(derVals[i]);
@@ -213,14 +212,14 @@ public class PKCS9Attributes {
      * Get an attribute from this set.
      */
     public PKCS9Attribute getAttribute(ObjectIdentifier oid) {
-        return (PKCS9Attribute) attributes.get(oid);
+        return attributes.get(oid);
     }
 
     /**
      * Get an attribute from this set.
      */
     public PKCS9Attribute getAttribute(String name) {
-        return (PKCS9Attribute) attributes.get(PKCS9Attribute.getOID(name));
+        return attributes.get(PKCS9Attribute.getOID(name));
     }
 
     /**
@@ -228,7 +227,6 @@ public class PKCS9Attributes {
      */
     public PKCS9Attribute[] getAttributes() {
         PKCS9Attribute[] attribs = new PKCS9Attribute[attributes.size()];
-        ObjectIdentifier oid;
 
         int j = 0;
         for (int i = 1; i < PKCS9Attribute.PKCS9_OIDS.length &&
@@ -275,7 +273,6 @@ public class PKCS9Attributes {
         StringBuffer buf = new StringBuffer(200);
         buf.append("PKCS9 Attributes: [\n\t");
 
-        ObjectIdentifier oid;
         PKCS9Attribute value;
 
         boolean first = true;

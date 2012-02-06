@@ -48,7 +48,7 @@ public class LdapRequestListener implements IRequestListener {
      * handlers for request types (events)
      * each handler implement IRequestListener
      */
-    private Hashtable mRequestListeners = new Hashtable();
+    private Hashtable<String, IRequestListener> mRequestListeners = new Hashtable<String, IRequestListener>();
 
     private IPublisherProcessor mPublisherProcessor = null;
 
@@ -151,7 +151,7 @@ public class LdapRequestListener implements IRequestListener {
     public void accept(IRequest r) {
         String type = r.getRequestType();
 
-        IRequestListener handler = (IRequestListener) mRequestListeners.get(type);
+        IRequestListener handler = mRequestListeners.get(type);
 
         if (handler == null) {
             CMS.debug(

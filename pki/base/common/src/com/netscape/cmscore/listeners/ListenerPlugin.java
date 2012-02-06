@@ -27,7 +27,7 @@ package com.netscape.cmscore.listeners;
 public class ListenerPlugin {
     protected String mId = null;
     protected String mClassPath = null;
-    protected Class mClass = null;
+    protected Class<?> mClass = null;
 
     /**
      * Constructs a Listener plugin.

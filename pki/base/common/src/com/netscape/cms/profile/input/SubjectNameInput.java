@@ -113,8 +113,8 @@ public class SubjectNameInput extends EnrollInput implements IProfileInput {
     /**
      * Returns selected value names based on the configuration.
      */
-    public Enumeration getValueNames() {
-        Vector v = new Vector();
+    public Enumeration<String> getValueNames() {
+        Vector<String> v = new Vector<String>();
         String c_uid = getConfig(CONFIG_UID);
         if (c_uid == null || c_uid.equals("")) {
             v.addElement(VAL_UID); // default case

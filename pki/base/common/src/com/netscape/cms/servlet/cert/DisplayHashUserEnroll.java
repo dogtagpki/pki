@@ -109,9 +109,6 @@ public class DisplayHashUserEnroll extends CMSServlet {
 
         String reqHost = httpReq.getRemoteHost();
 
-        // Construct an ArgBlock
-        IArgBlock args = cmsReq.getHttpParams();
-
         if (!(mAuthority instanceof IRegistrationAuthority)) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_ERR_GET_TEMPLATE"));
             cmsReq.setError(new ECMSGWException(

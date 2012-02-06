@@ -45,6 +45,7 @@ import com.netscape.certsrv.ca.ICRLIssuingPoint;
 import com.netscape.certsrv.dbs.EDBException;
 import com.netscape.certsrv.dbs.IDBRegistry;
 import com.netscape.certsrv.dbs.IDBSSession;
+import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.dbs.IDBSubsystem;
 import com.netscape.certsrv.dbs.IDBVirtualList;
 import com.netscape.certsrv.dbs.Modification;
@@ -450,9 +451,6 @@ public class CertificateRepository extends Repository
             }
         }
 
-        CertRecord cRec = null;
-        BigInteger serial = null;
-
         transitCertList(cList, CertRecord.STATUS_EXPIRED);
     }
 
@@ -622,7 +620,6 @@ public class CertificateRepository extends Repository
      */
     public X509CertImpl getX509Certificate(BigInteger serialNo)
             throws EBaseException {
-        X509CertImpl cert = null;
         ICertRecord cr = readCertificateRecord(serialNo);
 
         return (cr.getCertificate());
@@ -767,19 +764,22 @@ public class CertificateRepository extends Repository
         return e;
     }
 
-    public Enumeration<Object> searchCertificates(String filter, int maxSize, int timeLimit)
+    public Enumeration<ICertRecord> searchCertificates(String filter, int maxSize, int timeLimit)
             throws EBaseException {
         IDBSSession s = mDBService.createSession();
-        Enumeration<Object> e = null;
+        Vector<ICertRecord> v = new Vector<ICertRecord>();
 
         CMS.debug("searchCertificateswith time limit filter " + filter);
         try {
-            e = s.search(getDN(), filter, maxSize, timeLimit);
+            IDBSearchResults sr = s.search(getDN(), filter, maxSize, timeLimit);
+            while (sr.hasMoreElements()) {
+                v.add((ICertRecord) sr.nextElement());
+            }
         } finally {
             if (s != null)
                 s.close();
         }
-        return e;
+        return v.elements();
     }
 
     /**
@@ -894,7 +894,7 @@ public class CertificateRepository extends Repository
         CertRecordList list = null;
 
         try {
-            IDBVirtualList<ICertRecord> vlist = s.createVirtualList(getDN(), filter, attrs,
+            IDBVirtualList<ICertRecord> vlist = s.<ICertRecord>createVirtualList(getDN(), filter, attrs,
                     sortKey, pageSize);
 
             list = new CertRecordList(vlist);
@@ -1212,7 +1212,7 @@ public class CertificateRepository extends Repository
             String fromVal = "0";
             try {
                 if (from != null) {
-                    int fv = Integer.parseInt(from);
+                    Integer.parseInt(from);
                     fromVal = from;
                 }
             } catch (Exception e1) {
@@ -1515,8 +1515,6 @@ public class CertificateRepository extends Repository
     public ICertRecordList getInvalidCertsByNotBeforeDate(Date date, int pageSize)
             throws EBaseException {
 
-        String now = null;
-
         Date rightNow = CMS.getCurrentDate();
 
         ICertRecordList list = null;
@@ -1554,8 +1552,6 @@ public class CertificateRepository extends Repository
 
     public ICertRecordList getValidCertsByNotAfterDate(Date date, int pageSize)
             throws EBaseException {
-
-        String now = null;
 
         ICertRecordList list = null;
         IDBSSession s = mDBService.createSession();

@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.security;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -258,7 +257,7 @@ public class PWsdrCache {
         if (dcrypts != null) {
             // converts to Hashtable, replace if tag exists, add
             //                if tag doesn't exist
-            Hashtable ht = string2Hashtable(dcrypts);
+            Hashtable<String, String> ht = string2Hashtable(dcrypts);
 
             if (ht.containsKey(tag) == false) {
                 debug("adding new tag: " + tag);
@@ -288,7 +287,7 @@ public class PWsdrCache {
         if (dcrypts != null) {
             // converts to Hashtable, replace if tag exists, add
             //                if tag doesn't exist
-            Hashtable ht = string2Hashtable(dcrypts);
+            Hashtable<String, String> ht = string2Hashtable(dcrypts);
 
             if (ht.containsKey(tag) == false) {
                 debug("tag: " + tag + " does not exist");
@@ -489,7 +488,7 @@ public class PWsdrCache {
      * if tag not found, return null, which will cause it to give up
      */
     public Password getEntry(String tag) {
-        Hashtable pwTable = null;
+        Hashtable<String, String> pwTable = null;
         String pw = null;
 
         debug("in getEntry, tag=" + tag);
@@ -555,8 +554,6 @@ public class PWsdrCache {
             Process process = Runtime.getRuntime().exec(cmds);
 
             process.waitFor();
-            BufferedReader pOut = null;
-            String l = null;
 
             if (process.exitValue() == 0) {
 
@@ -604,7 +601,6 @@ public class PWsdrCache {
      * list passwds in pwcache.
      */
     public boolean pprint() {
-        String bufs = null;
         String dcrypts = null;
 
         try {

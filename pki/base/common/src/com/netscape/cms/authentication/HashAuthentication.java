@@ -62,19 +62,19 @@ public class HashAuthentication implements IAuthManager, IExtendedPluginInfo {
     private String mHost;
     private long mLastLogin = 0;
     private MessageDigest mSHADigest = null;
-    private Hashtable mData = null;
+    private Hashtable<String, IAuthToken> mData = null;
     private IConfigStore mConfig;
     private String mName = null;
     private String mImplName = null;
     private ILogger mLogger = CMS.getLogger();
-    private static Vector mExtendedPluginInfo = null;
+    private static Vector<String> mExtendedPluginInfo = null;
     private HashAuthData mHosts = null;
 
     static String[] mConfigParams =
             new String[] {};
 
     static {
-        mExtendedPluginInfo = new Vector();
+        mExtendedPluginInfo = new Vector<String>();
         mExtendedPluginInfo.add(IExtendedPluginInfo.HELP_TEXT +
                 ";Authenticate the username and password provided " +
                 "by the user against an LDAP directory. Works with the " +
@@ -94,7 +94,7 @@ public class HashAuthentication implements IAuthManager, IExtendedPluginInfo {
         mName = name;
         mImplName = implName;
         mConfig = config;
-        mData = new Hashtable();
+        mData = new Hashtable<String, IAuthToken>();
         mHosts = new HashAuthData();
 
         try {
@@ -106,7 +106,7 @@ public class HashAuthentication implements IAuthManager, IExtendedPluginInfo {
     }
 
     public IAuthToken getAuthToken(String key) {
-        return (IAuthToken) mData.remove(key);
+        return mData.remove(key);
     }
 
     public void addAuthToken(String pageID, IAuthToken token) {
@@ -114,7 +114,7 @@ public class HashAuthentication implements IAuthManager, IExtendedPluginInfo {
     }
 
     public void deleteToken(String pageID) {
-        IAuthToken token = (IAuthToken) mData.remove(pageID);
+        mData.remove(pageID);
     }
 
     public HashAuthData getData() {
