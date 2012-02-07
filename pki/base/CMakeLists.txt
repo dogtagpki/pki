@@ -3,6 +3,7 @@ project(base)
 # The order is important!
 if (APPLICATION_FLAVOR_PKI_CORE)
     add_subdirectory(test)
+    add_subdirectory(deploy)
     add_subdirectory(setup)
     add_subdirectory(symkey)
     add_subdirectory(native-tools)
