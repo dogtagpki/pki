@@ -57,40 +57,40 @@ public class GeneratePKIArchiveOptions {
     public static byte[] read(String fname) throws IOException {
         File file = new File(fname);
         byte[] result = new byte[(int) file.length()];
+        InputStream input = null;
         try {
-            InputStream input = null;
-            try {
-                int totalBytesRead = 0;
-                input = new BufferedInputStream(new FileInputStream(file));
-                while (totalBytesRead < result.length) {
-                    int bytesRemaining = result.length - totalBytesRead;
-                    //input.read() returns -1, 0, or more :
-                    int bytesRead = input.read(result, totalBytesRead, bytesRemaining);
-                    if (bytesRead > 0) {
-                        totalBytesRead = totalBytesRead + bytesRead;
-                    }
+            int totalBytesRead = 0;
+            input = new BufferedInputStream(new FileInputStream(file));
+            while (totalBytesRead < result.length) {
+                int bytesRemaining = result.length - totalBytesRead;
+                //input.read() returns -1, 0, or more :
+                int bytesRead = input.read(result, totalBytesRead, bytesRemaining);
+                if (bytesRead > 0) {
+                    totalBytesRead = totalBytesRead + bytesRead;
                 }
-            } finally {
-                input.close();
             }
         } catch (Exception e) {
             throw new IOException(e);
+        } finally {
+            if (input != null) {
+                input.close();
+            }
         }
 
         return result;
     }
     
     public static void write(byte[] aInput, String outFile) throws IOException {
+        OutputStream output = null;
         try {
-            OutputStream output = null;
-            try {
-                output = new BufferedOutputStream(new FileOutputStream(outFile));
-                output.write(aInput);
-            } finally {
-                output.close();
-            }
+            output = new BufferedOutputStream(new FileOutputStream(outFile));
+            output.write(aInput);
         } catch (Exception e) {
             throw new IOException(e);
+        } finally {
+            if (output != null) {
+                output.close();
+            }
         }
     }
     
