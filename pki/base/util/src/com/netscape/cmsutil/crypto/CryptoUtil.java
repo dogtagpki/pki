@@ -24,6 +24,7 @@ import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.math.BigInteger;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
@@ -64,35 +65,53 @@ import netscape.security.x509.X509CertInfo;
 import netscape.security.x509.X509Key;
 
 import org.mozilla.jss.CryptoManager;
+import org.mozilla.jss.CryptoManager.NotInitializedException;
 import org.mozilla.jss.NoSuchTokenException;
 import org.mozilla.jss.asn1.ASN1Util;
+import org.mozilla.jss.asn1.BIT_STRING;
 import org.mozilla.jss.asn1.InvalidBERException;
 import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
+import org.mozilla.jss.asn1.OCTET_STRING;
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.crypto.Algorithm;
+import org.mozilla.jss.crypto.BadPaddingException;
+import org.mozilla.jss.crypto.Cipher;
 import org.mozilla.jss.crypto.CryptoStore;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.DigestAlgorithm;
+import org.mozilla.jss.crypto.EncryptionAlgorithm;
+import org.mozilla.jss.crypto.IVParameterSpec;
+import org.mozilla.jss.crypto.IllegalBlockSizeException;
 import org.mozilla.jss.crypto.InternalCertificate;
 import org.mozilla.jss.crypto.InvalidKeyFormatException;
 import org.mozilla.jss.crypto.KeyGenAlgorithm;
 import org.mozilla.jss.crypto.KeyGenerator;
 import org.mozilla.jss.crypto.KeyPairAlgorithm;
 import org.mozilla.jss.crypto.KeyPairGenerator;
+import org.mozilla.jss.crypto.KeyWrapAlgorithm;
+import org.mozilla.jss.crypto.KeyWrapper;
 import org.mozilla.jss.crypto.NoSuchItemOnTokenException;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
+import org.mozilla.jss.crypto.PBEAlgorithm;
 import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.Signature;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.crypto.X509Certificate;
+import org.mozilla.jss.pkcs12.PasswordConverter;
+import org.mozilla.jss.pkcs7.EncryptedContentInfo;
 import org.mozilla.jss.pkix.crmf.CertReqMsg;
 import org.mozilla.jss.pkix.crmf.CertRequest;
 import org.mozilla.jss.pkix.crmf.CertTemplate;
+import org.mozilla.jss.pkix.crmf.EncryptedKey;
+import org.mozilla.jss.pkix.crmf.EncryptedValue;
+import org.mozilla.jss.pkix.crmf.PKIArchiveOptions;
+import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 import org.mozilla.jss.pkix.primitive.Name;
 import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 import org.mozilla.jss.util.Base64OutputStream;
+import org.mozilla.jss.util.Password;
 
 import com.netscape.cmsutil.util.Cert;
 import com.netscape.osutil.OSUtil;
@@ -1127,6 +1146,130 @@ public class CryptoUtil {
         java.security.cert.X509Certificate[] certs = certchain.getChain();
 
         return certs;
+    }
+    
+    @SuppressWarnings("deprecation")
+    public static String unwrapUsingPassphrase(String wrappedRecoveredKey, String recoveryPassphrase)
+            throws IOException, InvalidBERException, InvalidKeyException, IllegalStateException,
+            NoSuchAlgorithmException, InvalidAlgorithmParameterException, NotInitializedException, TokenException,
+            IllegalBlockSizeException, BadPaddingException {
+        EncryptedContentInfo cInfo = null;
+        String unwrappedData = null;
+
+        //We have to do this to get the decoding to work.
+        @SuppressWarnings("unused")
+        PBEAlgorithm pbeAlg = PBEAlgorithm.PBE_SHA1_DES3_CBC;
+
+        Password pass = new Password(recoveryPassphrase.toCharArray());
+        PasswordConverter passConverter = new
+                    PasswordConverter();
+
+        byte[] encoded = com.netscape.osutil.OSUtil.AtoB(wrappedRecoveredKey);
+
+        ByteArrayInputStream inStream = new ByteArrayInputStream(encoded);
+        cInfo = (EncryptedContentInfo)
+                      new EncryptedContentInfo.Template().decode(inStream);
+
+        byte[] decodedData = cInfo.decrypt(pass, passConverter);
+
+        unwrappedData = com.netscape.osutil.OSUtil.BtoA(decodedData);
+
+        return unwrappedData;
+    }
+
+    @SuppressWarnings("deprecation")
+    public static String unwrapUsingSymmetricKey(CryptoToken token, IVParameterSpec IV, byte[] wrappedRecoveredKey,
+            SymmetricKey recoveryKey, EncryptionAlgorithm alg) throws NoSuchAlgorithmException, TokenException,
+            BadPaddingException,
+            IllegalBlockSizeException, InvalidKeyException, InvalidAlgorithmParameterException {
+
+        Cipher decryptor = token.getCipherContext(alg);
+        decryptor.initDecrypt(recoveryKey, IV);
+        byte[] unwrappedData = decryptor.doFinal(wrappedRecoveredKey);
+        String unwrappedS = com.netscape.osutil.OSUtil.BtoA(unwrappedData);
+
+        return unwrappedS;
+    }
+
+    @SuppressWarnings("deprecation")
+    public static byte[] wrapPassphrase(CryptoToken token, String passphrase, IVParameterSpec IV, SymmetricKey sk,
+            EncryptionAlgorithm alg)
+            throws NoSuchAlgorithmException, TokenException, InvalidKeyException,
+            InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException, IOException {
+        byte[] wrappedPassphrase = null;
+        Cipher encryptor = null;
+
+        encryptor = token.getCipherContext(alg);
+
+        if (encryptor != null) {
+            encryptor.initEncrypt(sk, IV);
+            wrappedPassphrase = encryptor.doFinal(passphrase.getBytes("UTF-8"));
+        } else {
+            throw new IOException("Failed to create cipher");
+        }
+
+        return wrappedPassphrase;
+    }
+
+    @SuppressWarnings("deprecation")
+    public static byte[] wrapSymmetricKey(CryptoManager manager, CryptoToken token, String transportCert,
+            SymmetricKey sk) throws CertificateEncodingException, TokenException, NoSuchAlgorithmException,
+            InvalidKeyException, InvalidAlgorithmParameterException {
+        byte transport[] = com.netscape.osutil.OSUtil.AtoB(transportCert);
+        X509Certificate tcert = manager.importCACertPackage(transport);
+        KeyWrapper rsaWrap = token.getKeyWrapper(KeyWrapAlgorithm.RSA);
+        rsaWrap.initWrap(tcert.getPublicKey(), null);
+        byte session_data[] = rsaWrap.wrap(sk);
+        return session_data;
+    }
+
+    @SuppressWarnings("deprecation")
+    public static byte[] createPKIArchiveOptions(CryptoManager manager, CryptoToken token, String transportCert,
+            SymmetricKey vek, String passphrase, KeyGenAlgorithm keyGenAlg, IVParameterSpec IV) throws TokenException,
+            CharConversionException,
+            NoSuchAlgorithmException, InvalidKeyException, InvalidAlgorithmParameterException,
+            CertificateEncodingException, IOException, IllegalStateException, IllegalBlockSizeException,
+            BadPaddingException, InvalidBERException {
+        byte[] key_data = null;
+
+        //generate session key
+        SymmetricKey sk = CryptoUtil.generateKey(token, keyGenAlg);
+
+        if (passphrase != null) {
+            key_data = wrapPassphrase(token, passphrase, IV, sk, EncryptionAlgorithm.DES3_CBC_PAD);
+        } else {
+            // wrap payload using session key
+            KeyWrapper wrapper1 = token.getKeyWrapper(KeyWrapAlgorithm.DES3_CBC_PAD);
+            wrapper1.initWrap(sk, IV);
+            key_data = wrapper1.wrap(vek);
+        }
+
+        // wrap session key using transport key
+        byte[] session_data = wrapSymmetricKey(manager, token, transportCert, sk);
+
+        // create PKIArchiveOptions structure
+        AlgorithmIdentifier algS = new AlgorithmIdentifier(new OBJECT_IDENTIFIER("1.2.840.113549.3.7"),
+                new OCTET_STRING(IV.getIV()));
+        EncryptedValue encValue = new EncryptedValue(null, algS, new BIT_STRING(session_data, 0), null, null,
+                new BIT_STRING(key_data, 0));
+        EncryptedKey key = new EncryptedKey(encValue);
+        PKIArchiveOptions opt = new PKIArchiveOptions(key);
+
+        byte[] encoded = null;
+
+        //Let's make sure we can decode the encoded PKIArchiveOptions..
+        ByteArrayOutputStream oStream = new ByteArrayOutputStream();
+
+        opt.encode(oStream);
+
+        encoded = oStream.toByteArray();
+        ByteArrayInputStream inStream = new ByteArrayInputStream(encoded);
+        
+        @SuppressWarnings("unused")
+        PKIArchiveOptions options = (PKIArchiveOptions)
+                  (new PKIArchiveOptions.Template()).decode(inStream);
+
+        return encoded;
     }
 }
 

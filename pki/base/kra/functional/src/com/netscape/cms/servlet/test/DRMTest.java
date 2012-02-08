@@ -17,45 +17,18 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.test;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.CharConversionException;
-import java.io.IOException;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateEncodingException;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Random;
 
 import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.asn1.BIT_STRING;
-import org.mozilla.jss.asn1.InvalidBERException;
-import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
-import org.mozilla.jss.asn1.OCTET_STRING;
 import org.mozilla.jss.crypto.AlreadyInitializedException;
-import org.mozilla.jss.crypto.BadPaddingException;
-import org.mozilla.jss.crypto.Cipher;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.EncryptionAlgorithm;
 import org.mozilla.jss.crypto.IVParameterSpec;
-import org.mozilla.jss.crypto.IllegalBlockSizeException;
 import org.mozilla.jss.crypto.KeyGenAlgorithm;
-import org.mozilla.jss.crypto.KeyGenerator;
-import org.mozilla.jss.crypto.KeyWrapAlgorithm;
-import org.mozilla.jss.crypto.KeyWrapper;
-import org.mozilla.jss.crypto.PBEAlgorithm;
 import org.mozilla.jss.crypto.SymmetricKey;
-import org.mozilla.jss.crypto.TokenException;
-import org.mozilla.jss.crypto.X509Certificate;
-import org.mozilla.jss.pkcs12.PasswordConverter;
-import org.mozilla.jss.pkcs7.EncryptedContentInfo;
-import org.mozilla.jss.pkix.crmf.EncryptedKey;
-import org.mozilla.jss.pkix.crmf.EncryptedValue;
-import org.mozilla.jss.pkix.crmf.PKIArchiveOptions;
-import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 import org.mozilla.jss.util.Password;
 
 import org.apache.commons.cli.CommandLine;
@@ -70,8 +43,8 @@ import com.netscape.cms.servlet.key.model.KeyData;
 import com.netscape.cms.servlet.key.model.KeyDataInfo;
 import com.netscape.cms.servlet.request.KeyRequestResource;
 import com.netscape.cms.servlet.request.model.KeyRequestInfo;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 
-@SuppressWarnings("deprecation")
 public class DRMTest {
 
     public static void usage(Options options) {
@@ -128,20 +101,19 @@ public class DRMTest {
         }
 
         // used for crypto operations
-        byte iv[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
-        IVParameterSpec ivSpec;
-        IVParameterSpec ivSpecServer;
+        byte iv[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 }; 
+        IVParameterSpec ivps = null;
+        IVParameterSpec ivps_server = null;
 
         try {
-            ivSpec = genIV(8);
+            ivps = genIV(8);
         } catch (Exception e) {
-            log("Can't generate initialization vector use default: " + e);
-            ivSpec = new IVParameterSpec(iv);
+            log("Can't generate initialization vector use default: " + e.toString());
+            ivps = new IVParameterSpec(iv);
         }
 
         CryptoManager manager = null;
         CryptoToken token = null;
-        KeyGenerator kg1 = null;
 
         // used for wrapping to send data to DRM
         String transportCert = null;
@@ -238,10 +210,9 @@ public class DRMTest {
         log("Archiving symmetric key");
         clientId = "UUID: 123-45-6789 VEK " + Calendar.getInstance().getTime().toString();
         try {
-            kg1 = token.getKeyGenerator(KeyGenAlgorithm.DES3);
-            vek = kg1.generate();
-
-            byte[] encoded = createPKIArchiveOptions(manager, token, transportCert, vek, null, kg1, ivSpec);
+            vek = CryptoUtil.generateKey(token, KeyGenAlgorithm.DES3);
+            byte[] encoded = CryptoUtil.createPKIArchiveOptions(manager, token, transportCert, vek, null,
+                    KeyGenAlgorithm.DES3, ivps);
 
             KeyRequestInfo info = client.archiveSecurityData(encoded, clientId, KeyRequestResource.SYMMETRIC_KEY_TYPE);
             log("Archival Results:");
@@ -272,9 +243,9 @@ public class DRMTest {
         // Test 6: Submit a recovery request for the symmetric key using a session key
         log("Submitting a recovery request for the  symmetric key using session key");
         try {
-            recoveryKey = kg1.generate();
-            wrappedRecoveryKey = wrapSymmetricKey(manager, token, transportCert, recoveryKey);
-            KeyRequestInfo info = client.requestRecovery(keyId, null, wrappedRecoveryKey, ivSpec.getIV());
+            recoveryKey = CryptoUtil.generateKey(token, KeyGenAlgorithm.DES3);
+            wrappedRecoveryKey = CryptoUtil.wrapSymmetricKey(manager, token, transportCert, recoveryKey);
+            KeyRequestInfo info = client.requestRecovery(keyId, null, wrappedRecoveryKey, ivps.getIV());
             recoveryRequestId = getId(info.getRequestURL());
         } catch (Exception e) {
             log("Exception in recovering symmetric key using session key: " + e.getMessage());
@@ -287,12 +258,14 @@ public class DRMTest {
         // Test 8: Get key
         log("Getting key: " + keyId);
 
-        keyData = client.retrieveKey(keyId, recoveryRequestId, null, wrappedRecoveryKey, ivSpec.getIV());
+        keyData = client.retrieveKey(keyId, recoveryRequestId, null, wrappedRecoveryKey, ivps.getIV());
         wrappedRecoveredKey = keyData.getWrappedPrivateData();
 
-        ivSpecServer = new IVParameterSpec( com.netscape.osutil.OSUtil.AtoB(keyData.getNonceData()));
+        ivps_server = new IVParameterSpec(com.netscape.osutil.OSUtil.AtoB(keyData.getNonceData()));
         try {
-            recoveredKey = unwrap(token, ivSpecServer,com.netscape.osutil.OSUtil.AtoB(wrappedRecoveredKey), recoveryKey);
+            recoveredKey = CryptoUtil.unwrapUsingSymmetricKey(token, ivps_server, 
+                    com.netscape.osutil.OSUtil.AtoB(wrappedRecoveredKey),
+                    recoveryKey, EncryptionAlgorithm.DES3_CBC_PAD);
         } catch (Exception e) {
             log("Exception in unwrapping key: " + e.toString());
             e.printStackTrace();
@@ -309,11 +282,12 @@ public class DRMTest {
         recoveryPassphrase = "Gimme me keys please";
 
         try {
-            recoveryKey = kg1.generate();
-            wrappedRecoveryPassphrase = wrapPassphrase(token, recoveryPassphrase, ivSpec, recoveryKey);
-            wrappedRecoveryKey = wrapSymmetricKey(manager, token, transportCert, recoveryKey);
+            recoveryKey = CryptoUtil.generateKey(token, KeyGenAlgorithm.DES3);
+            wrappedRecoveryPassphrase = CryptoUtil.wrapPassphrase(token, recoveryPassphrase, ivps, recoveryKey,
+                    EncryptionAlgorithm.DES3_CBC_PAD);
+            wrappedRecoveryKey = CryptoUtil.wrapSymmetricKey(manager, token, transportCert, recoveryKey);
 
-            requestInfo = client.requestRecovery(keyId, wrappedRecoveryPassphrase, wrappedRecoveryKey, ivSpec.getIV());
+            requestInfo = client.requestRecovery(keyId, wrappedRecoveryPassphrase, wrappedRecoveryKey, ivps.getIV());
             recoveryRequestId = getId(requestInfo.getRequestURL());
         } catch (Exception e) {
             log("Exception in recovering symmetric key using passphrase" + e.toString());
@@ -326,11 +300,15 @@ public class DRMTest {
 
         // Test 11: Get key
         log("Getting key: " + keyId);
-        keyData = client.retrieveKey(keyId, recoveryRequestId, wrappedRecoveryPassphrase, wrappedRecoveryKey, ivSpec.getIV());
+        keyData = client.retrieveKey(keyId, recoveryRequestId, wrappedRecoveryPassphrase, wrappedRecoveryKey, ivps.getIV());
         wrappedRecoveredKey = keyData.getWrappedPrivateData();
 
-        recoveredKey = unwrap(wrappedRecoveredKey, recoveryPassphrase);
-
+        try {
+            recoveredKey = CryptoUtil.unwrapUsingPassphrase(wrappedRecoveredKey, recoveryPassphrase);
+        } catch (Exception e) {
+            log("Error: unable to unwrap key using passphrase");
+            e.printStackTrace();
+        }
 
         if (recoveredKey == null || !recoveredKey.equals(com.netscape.osutil.OSUtil.BtoA(vek.getEncoded()))) {
             log("Error: recovered and archived keys do not match!");
@@ -343,7 +321,8 @@ public class DRMTest {
         // Test 12: Generate and archive a passphrase
         clientId = "UUID: 123-45-6789 RKEK " + Calendar.getInstance().getTime().toString();
         try {
-            byte[] encoded = createPKIArchiveOptions(manager, token, transportCert, null, passphrase, kg1, ivSpec);
+            byte[] encoded = CryptoUtil.createPKIArchiveOptions(manager, token, transportCert, null, passphrase,
+                    KeyGenAlgorithm.DES3, ivps);
             requestInfo = client.archiveSecurityData(encoded, clientId, KeyRequestResource.PASS_PHRASE_TYPE);
             log("Archival Results:");
             printRequestInfo(requestInfo);
@@ -375,10 +354,11 @@ public class DRMTest {
         recoveryRequestId = null;
         wrappedRecoveryKey = null;
         try {
-            recoveryKey = kg1.generate();
-            wrappedRecoveryKey = wrapSymmetricKey(manager, token, transportCert, recoveryKey);
-            wrappedRecoveryPassphrase = wrapPassphrase(token, recoveryPassphrase, ivSpec, recoveryKey);
-            requestInfo = client.requestRecovery(keyId, null, wrappedRecoveryKey, ivSpec.getIV());
+            recoveryKey = CryptoUtil.generateKey(token, KeyGenAlgorithm.DES3);
+            wrappedRecoveryKey = CryptoUtil.wrapSymmetricKey(manager, token, transportCert, recoveryKey);
+            wrappedRecoveryPassphrase = CryptoUtil.wrapPassphrase(token, recoveryPassphrase, ivps, recoveryKey,
+                    EncryptionAlgorithm.DES3_CBC_PAD);
+            requestInfo = client.requestRecovery(keyId, null, wrappedRecoveryKey, ivps.getIV());
             recoveryRequestId = getId(requestInfo.getRequestURL());
         } catch (Exception e) {
             log("Exception in recovering passphrase using session key: " + e.getMessage());
@@ -391,11 +371,13 @@ public class DRMTest {
         // Test 16: Get key
         log("Getting passphrase: " + keyId);
 
-        keyData = client.retrieveKey(keyId, recoveryRequestId, null, wrappedRecoveryKey, ivSpec.getIV());
+        keyData = client.retrieveKey(keyId, recoveryRequestId, null, wrappedRecoveryKey, ivps.getIV());
         wrappedRecoveredKey = keyData.getWrappedPrivateData();
-        ivSpecServer = new IVParameterSpec( com.netscape.osutil.OSUtil.AtoB(keyData.getNonceData()));
+        ivps_server = new IVParameterSpec( com.netscape.osutil.OSUtil.AtoB(keyData.getNonceData()));
         try {
-            recoveredKey = unwrap(token, ivSpecServer, com.netscape.osutil.OSUtil.AtoB(wrappedRecoveredKey), recoveryKey);
+            recoveredKey = CryptoUtil.unwrapUsingSymmetricKey(token, ivps_server, 
+                    com.netscape.osutil.OSUtil.AtoB(wrappedRecoveredKey),
+                    recoveryKey, EncryptionAlgorithm.DES3_CBC_PAD);
             recoveredKey = new String(com.netscape.osutil.OSUtil.AtoB(recoveredKey), "UTF-8");
         } catch (Exception e) {
             log("Exception in unwrapping key: " + e.toString());
@@ -410,7 +392,7 @@ public class DRMTest {
 
         // Test 17: Submit a recovery request for the passphrase using a passphrase
         log("Submitting a recovery request for the passphrase using a passphrase");
-        requestInfo = client.requestRecovery(keyId, wrappedRecoveryPassphrase, wrappedRecoveryKey, ivSpec.getIV());
+        requestInfo = client.requestRecovery(keyId, wrappedRecoveryPassphrase, wrappedRecoveryKey, ivps.getIV());
         recoveryRequestId = getId(requestInfo.getRequestURL());
 
         //Test 18: Approve recovery
@@ -419,13 +401,14 @@ public class DRMTest {
 
         // Test 19: Get key
         log("Getting passphrase: " + keyId);
-        keyData = client.retrieveKey(keyId, recoveryRequestId, wrappedRecoveryPassphrase, wrappedRecoveryKey, ivSpec.getIV());
+        keyData = client.retrieveKey(keyId, recoveryRequestId, wrappedRecoveryPassphrase, wrappedRecoveryKey, ivps.getIV());
         wrappedRecoveredKey = keyData.getWrappedPrivateData();
-        recoveredKey = unwrap(wrappedRecoveredKey, recoveryPassphrase);
         try {
+            recoveredKey = CryptoUtil.unwrapUsingPassphrase(wrappedRecoveredKey, recoveryPassphrase);
             recoveredKey = new String(com.netscape.osutil.OSUtil.AtoB(recoveredKey), "UTF-8");
         } catch (Exception e) {
-            log("Error: Can't convert recovered passphrase from binary to ascii!");
+            log("Error: cannot unwrap key using passphrase");
+            e.printStackTrace();
         }
 
         if (recoveredKey == null || !recoveredKey.equals(passphrase)) {
@@ -447,13 +430,14 @@ public class DRMTest {
 
         // Test 22: Get key
         log("Getting passphrase: " + keyId);
-        keyData = client.retrieveKey(keyId, recoveryRequestId, wrappedRecoveryPassphrase, wrappedRecoveryKey, ivSpec.getIV());
+        keyData = client.retrieveKey(keyId, recoveryRequestId, wrappedRecoveryPassphrase, wrappedRecoveryKey, ivps.getIV());
         wrappedRecoveredKey = keyData.getWrappedPrivateData();
-        recoveredKey = unwrap(wrappedRecoveredKey, recoveryPassphrase);
         try {
+            recoveredKey = CryptoUtil.unwrapUsingPassphrase(wrappedRecoveredKey, recoveryPassphrase);
             recoveredKey = new String(com.netscape.osutil.OSUtil.AtoB(recoveredKey), "UTF-8");
         } catch (Exception e) {
-            log("Error: Can't convert recovered passphrase from binary to ascii!");
+            log("Error: Can't unwrap recovered key using passphrase");
+            e.printStackTrace();
         }
 
         if (recoveredKey == null || !recoveredKey.equals(passphrase)) {
@@ -463,143 +447,13 @@ public class DRMTest {
         }
     }
 
-    private static String unwrap(String wrappedRecoveredKey, String recoveryPassphrase) {
-
-        EncryptedContentInfo cInfo = null;
-        String unwrappedData = null;
-
-        //We have to do this to get the decoding to work.
-        PBEAlgorithm pbeAlg = PBEAlgorithm.PBE_SHA1_DES3_CBC;
-
-        log("pbeAlg: " + pbeAlg);
-        try {
-            Password pass = new Password(recoveryPassphrase.toCharArray());
-            PasswordConverter passConverter = new
-                    PasswordConverter();
-
-            byte[] encoded = com.netscape.osutil.OSUtil.AtoB(wrappedRecoveredKey);
-
-            ByteArrayInputStream inStream = new ByteArrayInputStream(encoded);
-            cInfo = (EncryptedContentInfo)
-                      new EncryptedContentInfo.Template().decode(inStream);
-
-            byte[] decodedData = cInfo.decrypt(pass, passConverter);
-
-            unwrappedData = com.netscape.osutil.OSUtil.BtoA(decodedData);
-
-        } catch (Exception e) {
-            log("Problem unwraping PBE wrapped datat! " + e.toString());
-
-        }
-
-        return unwrappedData;
-    }
-
     private static void log(String string) {
         // TODO Auto-generated method stub
         System.out.println(string);
     }
 
-    private static String unwrap(CryptoToken token, IVParameterSpec IV, byte[] wrappedRecoveredKey,
-            SymmetricKey recoveryKey) throws NoSuchAlgorithmException, TokenException, BadPaddingException,
-            IllegalBlockSizeException, InvalidKeyException, InvalidAlgorithmParameterException {
-
-        Cipher decryptor = token.getCipherContext(EncryptionAlgorithm.DES3_CBC_PAD);
-        decryptor.initDecrypt(recoveryKey, IV);
-        byte[] unwrappedData = decryptor.doFinal(wrappedRecoveredKey);
-        String unwrappedS = com.netscape.osutil.OSUtil.BtoA( unwrappedData);
-
-        return unwrappedS;
-    }
-
     private static String getId(String link) {
         return link.substring(link.lastIndexOf("/") + 1);
-    }
-
-    private static byte[] createPKIArchiveOptions(CryptoManager manager, CryptoToken token, String transportCert,
-            SymmetricKey vek, String passphrase, KeyGenerator kg1, IVParameterSpec IV) throws TokenException, CharConversionException,
-            NoSuchAlgorithmException, InvalidKeyException, InvalidAlgorithmParameterException,
-            CertificateEncodingException, IOException, IllegalStateException, IllegalBlockSizeException,
-            BadPaddingException {
-        byte[] key_data = null;
-
-        //generate session key
-        SymmetricKey sk = kg1.generate();
-
-        if (passphrase != null) {
-            key_data = wrapPassphrase(token, passphrase, IV, sk);
-        } else {
-            // wrap payload using session key
-            KeyWrapper wrapper1 = token.getKeyWrapper(KeyWrapAlgorithm.DES3_CBC_PAD);
-            wrapper1.initWrap(sk, IV);
-            key_data = wrapper1.wrap(vek);
-        }
-
-        // wrap session key using transport key
-        byte[] session_data = wrapSymmetricKey(manager, token, transportCert, sk);
-
-        // create PKIArchiveOptions structure
-        AlgorithmIdentifier algS = new AlgorithmIdentifier(new OBJECT_IDENTIFIER("1.2.840.113549.3.7"),
-                new OCTET_STRING(IV.getIV()));
-        EncryptedValue encValue = new EncryptedValue(null, algS, new BIT_STRING(session_data, 0), null, null,
-                new BIT_STRING(key_data, 0));
-        EncryptedKey key = new EncryptedKey(encValue);
-        PKIArchiveOptions opt = new PKIArchiveOptions(key);
-
-        byte[] encoded = null;
-
-        try {
-
-            //Let's make sure we can decode the encoded PKIArchiveOptions..
-          ByteArrayOutputStream oStream = new ByteArrayOutputStream();
-
-          opt.encode(oStream);
-
-          encoded = oStream.toByteArray();
-          ByteArrayInputStream inStream = new ByteArrayInputStream( encoded);
-          PKIArchiveOptions  options = (PKIArchiveOptions)
-                    new PKIArchiveOptions.Template().decode(inStream);
-          log("Decoded PKIArchiveOptions: " + options);
-        } catch (IOException e) {
-            log("Problem with PKIArchiveOptions: " + e.toString());
-            return null;
-
-        } catch (InvalidBERException e) {
-            log("Problem with PKIArchiveOptions: " + e.toString());
-            return null;
-        }
-
-        return encoded;
-    }
-
-    private static byte[] wrapPassphrase(CryptoToken token, String passphrase, IVParameterSpec IV, SymmetricKey sk)
-            throws NoSuchAlgorithmException, TokenException, InvalidKeyException,
-            InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException, IOException {
-        byte[] wrappedPassphrase = null;
-        Cipher encryptor = null;
-
-        encryptor = token.getCipherContext(EncryptionAlgorithm.DES3_CBC_PAD);
-        log("cipher " + encryptor);
-
-        if (encryptor != null) {
-            encryptor.initEncrypt(sk, IV);
-            wrappedPassphrase = encryptor.doFinal(passphrase.getBytes("UTF-8"));
-        } else {
-            throw new IOException("Failed to create cipher");
-        }
-
-        return wrappedPassphrase;
-    }
-
-    private static byte[] wrapSymmetricKey(CryptoManager manager, CryptoToken token, String transportCert,
-            SymmetricKey sk) throws CertificateEncodingException, TokenException, NoSuchAlgorithmException,
-            InvalidKeyException, InvalidAlgorithmParameterException {
-        byte transport[] = com.netscape.osutil.OSUtil.AtoB(transportCert);
-        X509Certificate tcert = manager.importCACertPackage(transport);
-        KeyWrapper rsaWrap = token.getKeyWrapper(KeyWrapAlgorithm.RSA);
-        rsaWrap.initWrap(tcert.getPublicKey(), null);
-        byte session_data[] = rsaWrap.wrap(sk);
-        return session_data;
     }
 
     private static void printRequestInfo(KeyRequestInfo info) {
