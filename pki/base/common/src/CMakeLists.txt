@@ -63,6 +63,13 @@ find_file(JAXRS_API_JAR
         /usr/share/candlepin/lib
 )
 
+find_file(RESTEASY_JAXRS_JAR
+    NAMES
+        resteasy-jaxrs-2.2.1.GA.jar
+    PATHS
+        /usr/share/candlepin/lib
+)
+
 set(pki-certsrv_java_SRCS
     com/netscape/certsrv/apps/ICommandQueue.java
     com/netscape/certsrv/apps/CMS.java
@@ -1023,7 +1030,7 @@ set(pki-cmsbundle_RCS
 set(CMAKE_JAVA_INCLUDE_PATH
     ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR}
     ${LDAPJDK_JAR} ${SERVLET_JAR} ${VELOCITY_JAR} ${XALAN_JAR} ${XERCES_JAR}
-    ${JSS_JAR} ${OSUTIL_JAR} ${SYMKEY_JAR} ${JAXRS_API_JAR})
+    ${JSS_JAR} ${OSUTIL_JAR} ${SYMKEY_JAR} ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR})
 
 set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
 
