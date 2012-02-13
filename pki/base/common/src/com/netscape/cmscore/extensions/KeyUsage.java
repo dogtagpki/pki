@@ -19,7 +19,6 @@ package com.netscape.cmscore.extensions;
 
 import java.io.IOException;
 
-import netscape.security.util.DerOutputStream;
 import netscape.security.util.ObjectIdentifier;
 import netscape.security.x509.Extension;
 import netscape.security.x509.KeyUsageExtension;
@@ -196,7 +195,6 @@ public class KeyUsage implements ICMSExtension {
             ext = (KeyUsageExtension) extension;
         } else {
             try {
-                DerOutputStream der = new DerOutputStream();
                 byte[] value = extension.getExtensionValue();
 
                 ext = new KeyUsageExtension(new Boolean(true), value);

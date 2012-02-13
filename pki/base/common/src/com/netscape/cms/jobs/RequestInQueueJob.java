@@ -163,7 +163,6 @@ public class RequestInQueueJob extends AJobBase
             return;
 
         Date date = CMS.getCurrentDate();
-        long now = date.getTime();
         DateFormat dateFormat = DateFormat.getDateTimeInstance();
         String nowString = dateFormat.format(date);
 

@@ -584,8 +584,6 @@ public class RenewalNotificationJob
         if (mHTML == true)
             mn.setContentType("text/html");
 
-        String failedString = null;
-
         mn.setContent(msg);
 
         mn.sendNotification();

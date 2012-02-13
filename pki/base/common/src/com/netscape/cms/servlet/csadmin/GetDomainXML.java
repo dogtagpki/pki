@@ -23,7 +23,6 @@ import java.util.Enumeration;
 import java.util.Locale;
 
 import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -83,9 +82,7 @@ public class GetDomainXML extends CMSServlet {
     protected void process(CMSRequest cmsReq) throws EBaseException {
         CMS.debug("GetDomainXML: processing...");
 
-        HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
-        ServletContext context = cmsReq.getServletContext();
 
         String status = SUCCESS;
         String basedn = null;
@@ -108,7 +105,6 @@ public class GetDomainXML extends CMSServlet {
                 LDAPConnection conn = null;
                 try {
                     // get data from ldap
-                    String[] entries = {};
                     String filter = "objectclass=pkiSecurityGroup";
                     LDAPSearchConstraints cons = null;
                     String[] attrs = null;

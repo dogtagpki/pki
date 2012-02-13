@@ -241,7 +241,6 @@ public class CRSPKIMessage {
     // getHashAlgorithm is added to work around issue 636217
     private String getHashAlgorithm(OBJECT_IDENTIFIER algorithmOID) {
         String hashAlgorithm = null;
-        OBJECT_IDENTIFIER oid = MD5_DIGEST;
         if (algorithmOID != null) {
             if (algorithmOID.equals(MD5_DIGEST)) {
                 hashAlgorithm = "MD5";

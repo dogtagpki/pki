@@ -190,7 +190,6 @@ public class CAInfoPanel extends WizardPanelBase {
     public void validate(HttpServletRequest request,
             HttpServletResponse response,
             Context context) throws IOException {
-        IConfigStore config = CMS.getConfigStore();
     }
 
     /**

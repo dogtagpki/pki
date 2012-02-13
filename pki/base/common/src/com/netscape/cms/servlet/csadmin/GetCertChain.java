@@ -71,10 +71,7 @@ public class GetCertChain extends CMSServlet {
      * @param cmsReq the object holding the request and response information
      */
     protected void process(CMSRequest cmsReq) throws EBaseException {
-        HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
-
-        String outputString = null;
 
         CertificateChain certChain = ((ICertAuthority) mAuthority).getCACertChain();
 

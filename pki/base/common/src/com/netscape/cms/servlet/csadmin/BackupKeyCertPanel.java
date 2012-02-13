@@ -93,7 +93,8 @@ public class BackupKeyCertPanel extends WizardPanelBase {
         IConfigStore cs = CMS.getConfigStore();
         /* clean up if necessary */
         try {
-            boolean done = cs.getBoolean("preop.backupkeycert.done");
+            @SuppressWarnings("unused")
+            boolean done = cs.getBoolean("preop.backupkeycert.done"); // check for errors
             cs.putBoolean("preop.backupkeycert.done", false);
             cs.commit(false);
         } catch (Exception e) {
@@ -307,7 +308,7 @@ public class BackupKeyCertPanel extends WizardPanelBase {
             //String nickname = cacerts[i].getSubjectDN().toString();
             String nickname = null;
             try {
-                byte[] localKeyId = addCertBag(cacerts[i], nickname, safeContents);
+                addCertBag(cacerts[i], nickname, safeContents);
             } catch (IOException e) {
                 throw e;
             } catch (Exception e) {

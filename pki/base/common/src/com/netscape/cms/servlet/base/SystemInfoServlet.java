@@ -68,7 +68,6 @@ public class SystemInfoServlet extends HttpServlet {
     public void service(HttpServletRequest request,
             HttpServletResponse response)
             throws ServletException, IOException {
-        boolean collect = false;
         String op = request.getParameter("op");
 
         response.setContentType("text/html");

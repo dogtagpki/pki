@@ -1564,13 +1564,11 @@ public final class CMS {
 
         String classname = "com.netscape.cmscore.apps.CMSEngine";
 
-        CMS cms = null;
-
         try {
             ICMSEngine engine = (ICMSEngine)
                     Class.forName(classname).newInstance();
 
-            cms = new CMS(engine);
+            CMS.setCMSEngine(engine);
             IConfigStore mainConfig = createFileConfigStore(path);
             CMS.init(null, mainConfig);
             CMS.startup();

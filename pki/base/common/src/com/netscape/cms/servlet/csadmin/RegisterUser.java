@@ -36,7 +36,6 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.usrgrp.ICertUserLocator;
 import com.netscape.certsrv.usrgrp.IGroup;
@@ -136,8 +135,6 @@ public class RegisterUser extends CMSServlet {
             outputError(httpResp, "Error: Not authorized");
             return;
         }
-
-        IConfigStore cs = CMS.getConfigStore();
 
         // create user and add certificate
         String uid = httpReq.getParameter("uid");

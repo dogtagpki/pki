@@ -150,8 +150,6 @@ public class PasswordCache {
         String mPrefix = "";
         String mKeyIdString = null;
         byte[] mKeyId = null;
-        String mCertDB = CERTDB;
-        String mKeyDB = KEYDB;
         String mCacheFile = "pwcache.db";
 
         String pwdPath = null;
@@ -197,7 +195,6 @@ public class PasswordCache {
                 String keyFile = argv[i];
                 try {
                     BufferedReader r = new BufferedReader(new FileReader(keyFile));
-                    String listLine;
                     mKeyIdString = r.readLine();
                 } catch (Exception e) {
                     System.out.println("Error: " + e.toString());
@@ -793,8 +790,6 @@ class PWsdrCache {
             Process process = Runtime.getRuntime().exec(cmds);
 
             process.waitFor();
-            BufferedReader pOut = null;
-            String l = null;
 
             if (process.exitValue() == 0) {
 

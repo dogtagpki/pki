@@ -170,7 +170,8 @@ public class DatabasePanel extends WizardPanelBase {
         String secure = "false";
         String cloneStartTLS = "false";
         try {
-            String s = cs.getString("preop.database.removeData");
+            @SuppressWarnings("unused")
+            String s = cs.getString("preop.database.removeData"); // check whether it's first time
         } catch (Exception e) {
             context.put("firsttime", "true");
         }
@@ -276,7 +277,8 @@ public class DatabasePanel extends WizardPanelBase {
         IConfigStore cs = CMS.getConfigStore();
         context.put("firsttime", "false");
         try {
-            String s = cs.getString("preop.database.removeData");
+            @SuppressWarnings("unused")
+            String s = cs.getString("preop.database.removeData"); // check whether it's first time
         } catch (Exception e) {
             context.put("firsttime", "true");
         }
@@ -348,10 +350,8 @@ public class DatabasePanel extends WizardPanelBase {
         }
 
         if (portStr != null && portStr.length() > 0) {
-            int port = -1;
-
             try {
-                port = Integer.parseInt(portStr);
+                Integer.parseInt(portStr); // check for errors
             } catch (Exception e) {
                 cs.putString("preop.database.errorString", "Port is invalid");
                 context.put("updateStatus", "validate-failure");
@@ -872,25 +872,21 @@ public class DatabasePanel extends WizardPanelBase {
         IConfigStore cs = CMS.getConfigStore();
         boolean hasErr = false;
 
-        boolean firsttime = false;
         context.put("firsttime", "false");
         try {
-            String v = cs.getString("preop.database.removeData");
+            String s = cs.getString("preop.database.removeData"); // check whether it's first time
         } catch (Exception e) {
             context.put("firsttime", "true");
-            firsttime = true;
         }
 
         String hostname1 = "";
         String portStr1 = "";
         String database1 = "";
-        String basedn1 = "";
 
         try {
             hostname1 = cs.getString("internaldb.ldapconn.host", "");
             portStr1 = cs.getString("internaldb.ldapconn.port", "");
             database1 = cs.getString("internaldb.database", "");
-            basedn1 = cs.getString("internaldb.basedn", "");
         } catch (Exception e) {
         }
 
@@ -1258,7 +1254,7 @@ public class DatabasePanel extends WizardPanelBase {
             attrs.add(new LDAPAttribute("objectclass", "extensibleObject"));
             attrs.add(new LDAPAttribute("cn", "changelog5"));
             attrs.add(new LDAPAttribute("nsslapd-changelogdir", dir));
-            entry = new LDAPEntry("cn=changelog5,cn=config", attrs);
+            entry = new LDAPEntry(dn, attrs);
             conn.add(entry);
         } catch (LDAPException e) {
             if (e.getLDAPResultCode() == LDAPException.ENTRY_ALREADY_EXISTS) {
@@ -1452,7 +1448,6 @@ public class DatabasePanel extends WizardPanelBase {
         String dn = "cn=" + name + "," + replicadn;
         String filter = "(objectclass=*)";
         String[] attrs = { "nsds5replicalastinitstatus" };
-        String status = null;
 
         CMS.debug("DatabasePanel replicationStatus: dn: " + dn);
         try {

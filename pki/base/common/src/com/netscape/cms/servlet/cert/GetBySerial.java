@@ -215,7 +215,6 @@ public class GetBySerial extends CMSServlet {
 
         X509CertImpl cert = certRecord.getCertificate();
 
-        String browser1 = req.getParameter("browser");
         if (cert != null) {
             // if there's a crmf request id, set that too.
             if (browser != null && browser.equals("ie")) {

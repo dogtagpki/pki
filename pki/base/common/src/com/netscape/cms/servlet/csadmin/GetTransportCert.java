@@ -33,7 +33,6 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.authorization.EAuthzAccessDenied;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.security.ITransportKeyUnit;
@@ -77,7 +76,6 @@ public class GetTransportCert extends CMSServlet {
     protected void process(CMSRequest cmsReq) throws EBaseException {
         CMS.debug("UpdateUpdater: processing...");
 
-        HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
 
         IAuthToken authToken = null;
@@ -121,8 +119,6 @@ public class GetTransportCert extends CMSServlet {
             outputError(httpResp, "Error: Not authorized");
             return;
         }
-
-        IConfigStore cs = CMS.getConfigStore();
 
         IKeyRecoveryAuthority kra =
                 (IKeyRecoveryAuthority) mAuthority;

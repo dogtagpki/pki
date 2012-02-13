@@ -127,9 +127,6 @@ public abstract class AAclAuthz {
                 evaluator =
                         (IAccessEvaluator) Class.forName(evalClassPath).newInstance();
             } catch (Exception e) {
-                String errMsg = "init(): failed to load class: " +
-                        evalClassPath + ":" + e.toString();
-
                 throw new EACLsException(CMS.getUserMessage("CMS_ACL_CLASS_LOAD_FAIL",
                             evalClassPath));
             }
@@ -139,8 +136,6 @@ public abstract class AAclAuthz {
                 // store evaluator
                 registerEvaluator(type, evaluator);
             } else {
-                String errMsg = "access evaluator " + type + " is null";
-
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("AUTHZ_EVALUATOR_NULL", type));
             }
         }
@@ -277,9 +272,6 @@ public abstract class AAclAuthz {
 
                 params[0] = name;
                 params[1] = perm;
-
-                String errMsg = "checkPermission(): permission denied for the resource " +
-                        name + " on operation " + perm;
 
                 log(ILogger.LL_SECURITY, CMS.getLogMessage("AUTHZ_EVALUATOR_ACCESS_DENIED", name, perm));
 
@@ -441,8 +433,6 @@ public abstract class AAclAuthz {
         IAccessEvaluator evaluator = (IAccessEvaluator) mEvaluators.get(type);
 
         if (evaluator == null) {
-            String errMsg = "evaluator for type " + type + "not found";
-
             log(ILogger.LL_FAILURE, CMS.getLogMessage("AUTHZ_EVALUATOR_NOT_FOUND", type));
             return false;
         }
@@ -535,9 +525,6 @@ public abstract class AAclAuthz {
 
             params[0] = name;
             params[1] = perm;
-
-            String errMsg = "checkPermission(): permission denied for the resource " +
-                    name + " on operation " + perm;
 
             log(ILogger.LL_SECURITY,
                     CMS.getLogMessage("AUTHZ_EVALUATOR_ACCESS_DENIED", name, perm));
@@ -707,8 +694,6 @@ public abstract class AAclAuthz {
         IAccessEvaluator evaluator = (IAccessEvaluator) mEvaluators.get(type);
 
         if (evaluator == null) {
-            String errMsg = "evaluator for type " + type + "not found";
-
             log(ILogger.LL_FAILURE, CMS.getLogMessage("AUTHZ_EVALUATOR_NOT_FOUND", type));
             return false;
         }
@@ -765,8 +750,6 @@ public abstract class AAclAuthz {
      */
     public void updateACLs(String id, String rights, String strACLs,
             String desc) throws EACLsException {
-        ACL acl = (ACL) getACL(id);
-
         String resourceACLs = id;
 
         if (rights != null)

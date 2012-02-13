@@ -129,7 +129,6 @@ public class SSLClientCertAuthentication implements IAuthManager {
         }
 
         String clientCertIssuerDN = clientCert.getIssuerDN().toString();
-        BigInteger[] bigIntArray = null;
 
         if (mCertDB != null) { /* is CA */
             ICertRecord record = null;

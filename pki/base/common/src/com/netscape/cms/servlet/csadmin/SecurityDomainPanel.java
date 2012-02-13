@@ -96,13 +96,11 @@ public class SecurityDomainPanel extends WizardPanelBase {
         String errorString = "";
         String default_admin_url = "";
         String name = "";
-        String cstype = "";
         String systemdService = "";
 
         try {
             default_admin_url = config.getString("preop.securitydomain.admin_url", "");
             name = config.getString("preop.securitydomain.name", "");
-            cstype = config.getString("cs.type", "");
             systemdService = config.getString("pkicreate.systemd.servicename", "");
         } catch (Exception e) {
             CMS.debug(e.toString());
@@ -362,12 +360,6 @@ public class SecurityDomainPanel extends WizardPanelBase {
             try {
                 config.commit(false);
             } catch (EBaseException e) {
-            }
-
-            String instanceRoot = "";
-            try {
-                instanceRoot = config.getString("instanceRoot", "");
-            } catch (Exception e) {
             }
 
         } else if (select.equals("existingdomain")) {

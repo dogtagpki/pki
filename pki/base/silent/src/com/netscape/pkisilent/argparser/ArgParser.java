@@ -811,7 +811,6 @@ public class ArgParser {
             }
             }
             if (outOfRange) {
-                String errmsg = "value " + s + " not in range ";
                 throw new ArgParseException(
                         name, "value '" + s + "' not in range " + rangeDesc);
             }
@@ -1040,7 +1039,6 @@ public class ArgParser {
     private void scanRangeSpec(Record rec, String s)
             throws IllegalArgumentException {
         StringScanner scanner = new StringScanner(s);
-        int i0, i = 1;
         char c, c0, c1;
 
         scanner.setStringDelimiters(")],}");

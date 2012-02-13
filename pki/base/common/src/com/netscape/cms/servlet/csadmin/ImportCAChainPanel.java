@@ -117,7 +117,6 @@ public class ImportCAChainPanel extends WizardPanelBase {
     public void update(HttpServletRequest request,
             HttpServletResponse response,
             Context context) throws IOException {
-        IConfigStore cs = CMS.getConfigStore();
 
         context.put("errorString", "");
         context.put("title", "Import CA's Certificate Chain");

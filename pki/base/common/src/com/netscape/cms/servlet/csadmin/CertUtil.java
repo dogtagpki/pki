@@ -256,7 +256,7 @@ public class CertUtil {
                     req.setExtData("cert_request_type", reqType);
                     if (subjectName != null) {
                         req.setExtData("subject", subjectName);
-                        X500Name x5Name = new X500Name(subjectName);
+                        new X500Name(subjectName); // check for errors
                     }
                 }
                 queue.updateRequest(req);
@@ -596,7 +596,6 @@ public class CertUtil {
 
         StringBuffer result = new StringBuffer();
         result.append("Fingerprints:\n");
-        int index = 0;
 
         while (content.length() >= LINE_COUNT) {
             result.append(content.substring(0, LINE_COUNT));
@@ -623,9 +622,7 @@ public class CertUtil {
 
         String fullnickname = nickname;
 
-        boolean hardware = false;
         if (!tokenname.equals("internal") && !tokenname.equals("Internal Key Storage Token")) {
-            hardware = true;
             fullnickname = tokenname + ":" + nickname;
         }
 

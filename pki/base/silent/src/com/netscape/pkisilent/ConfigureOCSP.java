@@ -611,8 +611,6 @@ public class ConfigureOCSP {
         ParseXML px = new ParseXML();
         String admin_cert_request = null;
 
-        String cert_subject = "CN=ocsp-" + admin_user;
-
         ComCrypto cCrypt = new ComCrypto(client_certdb_dir,
                                         client_certdb_pwd,
                                         agent_cert_subject,

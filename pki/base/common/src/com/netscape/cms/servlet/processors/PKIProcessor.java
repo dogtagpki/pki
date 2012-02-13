@@ -77,8 +77,6 @@ public class PKIProcessor implements IPKIProcessor {
 
         mServletId = servlet.getId();
 
-        HttpServletRequest httpReq = mRequest.getHttpReq();
-
     }
 
     public void process(CMSRequest cmsReq)

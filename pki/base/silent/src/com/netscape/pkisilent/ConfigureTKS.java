@@ -268,14 +268,8 @@ public class ConfigureTKS {
     }
 
     public boolean DisplayChainPanel() {
-        boolean st = false;
-        HTTPResponse hr = null;
-        ByteArrayInputStream bais = null;
-        ParseXML px = new ParseXML();
-        String query_string = null;
-
-        query_string = "p=4" + "&op=next" + "&xml=true";
-        hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
+        String query_string = "p=4" + "&op=next" + "&xml=true";
+        hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
         // parse xml
         // bais = new ByteArrayInputStream(hr.getHTML().getBytes());
         // px.parse(bais);
@@ -286,18 +280,13 @@ public class ConfigureTKS {
     }
 
     public boolean SecurityDomainLoginPanel() {
-        boolean st = false;
-        HTTPResponse hr = null;
-        ByteArrayInputStream bais = null;
-        ParseXML px = new ParseXML();
-
         String tks_url = "https://" + cs_hostname + ":" + cs_port +
                             "/tks/admin/console/config/wizard" +
                             "?p=5&subsystem=TKS";
 
         String query_string = "url=" + URLEncoder.encode(tks_url);
 
-        hr = hc.sslConnect(sd_hostname, sd_admin_port, sd_login_uri, query_string);
+        HTTPResponse hr = hc.sslConnect(sd_hostname, sd_admin_port, sd_login_uri, query_string);
 
         String query_string_1 = "uid=" + sd_admin_name +
                                 "&pwd=" + URLEncoder.encode(sd_admin_password) +
@@ -490,14 +479,9 @@ public class ConfigureTKS {
     }
 
     public boolean CertificatePanel() {
-        boolean st = false;
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
-        ArrayList<String> req_list = null;
-        ArrayList<String> cert_list = null;
-        ArrayList<String> dn_list = null;
-        ArrayList<String> pp_list = null;
 
         String query_string = "p=10" + "&op=next" + "&xml=true" +
                             "&subsystem=" +
@@ -544,14 +528,9 @@ public class ConfigureTKS {
     }
 
     public boolean SavePKCS12Panel() {
-        boolean st = false;
-        HTTPResponse hr = null;
-        ByteArrayInputStream bais = null;
-        ParseXML px = new ParseXML();
-
         String query_string = "";
 
-        hr = hc.sslConnect(cs_hostname, cs_port, pkcs12_uri, query_string);
+        HTTPResponse hr = hc.sslConnect(cs_hostname, cs_port, pkcs12_uri, query_string);
 
         // dump hr.getResponseData() to file
 
@@ -595,13 +574,10 @@ public class ConfigureTKS {
     }
 
     public boolean AdminCertReqPanel() {
-        boolean st = false;
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
         String admin_cert_request = null;
-
-        String cert_subject = "CN=tks-" + admin_user;
 
         ComCrypto cCrypt = new ComCrypto(client_certdb_dir,
                                         client_certdb_pwd,
@@ -656,15 +632,12 @@ public class ConfigureTKS {
 
     public boolean AdminCertImportPanel() {
         boolean st = false;
-        HTTPResponse hr = null;
-        ByteArrayInputStream bais = null;
-        ParseXML px = new ParseXML();
 
         String query_string = "serialNumber=" + admin_serial_number +
                             "&importCert=" + "true" +
                             "";
 
-        hr = hc.sslConnect(sd_hostname, sd_admin_port, admin_uri, query_string);
+        HTTPResponse hr = hc.sslConnect(sd_hostname, sd_admin_port, admin_uri, query_string);
 
         // get response data
         // String cert_to_import = 

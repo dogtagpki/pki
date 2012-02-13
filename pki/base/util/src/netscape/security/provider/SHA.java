@@ -112,7 +112,6 @@ public class SHA extends MessageDigestSpi implements Cloneable {
      */
     public void engineUpdate(byte b[], int off, int len) {
         int word;
-        int offset;
 
         if ((off < 0) || (len < 0) || (off + len > b.length))
             throw new ArrayIndexOutOfBoundsException();
@@ -179,7 +178,7 @@ public class SHA extends MessageDigestSpi implements Cloneable {
         byte hashvalue[] = new byte[SHA_LENGTH];
 
         try {
-            int outLen = engineDigest(hashvalue, 0, hashvalue.length);
+            engineDigest(hashvalue, 0, hashvalue.length);
         } catch (DigestException e) {
             throw new InternalError("");
         }

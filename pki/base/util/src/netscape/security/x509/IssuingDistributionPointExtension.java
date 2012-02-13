@@ -196,7 +196,9 @@ public class IssuingDistributionPointExtension extends Extension
                                 try {
                                     BitArray reasons = opt.getUnalignedBitString();
                                     issuingDistributionPoint.setOnlySomeReasons(reasons);
-                                    byte[] a = reasons.toByteArray();
+
+                                    @SuppressWarnings("unused")
+                                    byte[] a = reasons.toByteArray(); // check for errors
                                 } catch (IOException e) {
                                     throw new IOException("Invalid encoding of IssuingDistributionPoint " + e);
                                 }

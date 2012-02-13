@@ -176,7 +176,6 @@ public class PublishCertsJob extends AJobBase
                        getId() + " : run()");
         // get time now..."now" is before the loop
         Date date = CMS.getCurrentDate();
-        long now = date.getTime();
         DateFormat dateFormat = DateFormat.getDateTimeInstance();
         String nowString = dateFormat.format(date);
 

@@ -33,7 +33,6 @@ import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ca.ICMSCRLExtension;
-import com.netscape.certsrv.ca.ICRLIssuingPoint;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.ILogger;
 
@@ -70,7 +69,6 @@ public class CMSAuthInfoAccessExtension
 
     public Extension getCRLExtension(IConfigStore config, Object ip,
             boolean critical) {
-        ICRLIssuingPoint crlIssuingPoint = (ICRLIssuingPoint) ip;
         AuthInfoAccessExtension authInfoAccessExt = new AuthInfoAccessExtension(critical);
 
         int numberOfAccessDescriptions = 0;

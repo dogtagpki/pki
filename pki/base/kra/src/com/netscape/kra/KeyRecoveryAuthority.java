@@ -1133,7 +1133,6 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         String auditSubjectID = auditSubjectID();
         String auditRecoveryID = reqID;
         String auditAgents = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
-        String auditPublicKey = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
 
         IRequestQueue queue = null;
         IRequest r = null;
@@ -1426,7 +1425,6 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             if (nc != null && nc.size() > 0) {
                 // Initialize Request In Queue notification listener
                 IConfigStore rq = nc.getSubStore(PROP_REQ_IN_Q_SUBSTORE);
-                IAuthority cSub = (IAuthority) this;
 
                 String requestInQListenerClassName =
                         nc.getString("certificateIssuedListenerClassName",

@@ -92,7 +92,8 @@ public class SizePanel extends WizardPanelBase {
         IConfigStore cs = CMS.getConfigStore();
         /* clean up if necessary*/
         try {
-            boolean done = cs.getBoolean("preop.SizePanel.done");
+            @SuppressWarnings("unused")
+            boolean done = cs.getBoolean("preop.SizePanel.done"); // check for errors
             cs.putBoolean("preop.SizePanel.done", false);
             cs.commit(false);
         } catch (Exception e) {
@@ -132,7 +133,8 @@ public class SizePanel extends WizardPanelBase {
 
         IConfigStore config = CMS.getConfigStore();
         try {
-            boolean done = config.getBoolean("preop.SizePanel.done");
+            @SuppressWarnings("unused")
+            boolean done = config.getBoolean("preop.SizePanel.done"); // check whether it's first time
         } catch (Exception e) {
             context.put("firsttime", "true");
         }
@@ -233,9 +235,9 @@ public class SizePanel extends WizardPanelBase {
         }
 
         context.put("firsttime", "false");
-        boolean done = false;
         try {
-            done = config.getBoolean("preop.SizePanel.done");
+            @SuppressWarnings("unused")
+            boolean done = config.getBoolean("preop.SizePanel.done"); // check whether it's first time
         } catch (Exception e) {
             context.put("firsttime", "true");
             if (select1.equals("clone")) {
@@ -429,7 +431,6 @@ public class SizePanel extends WizardPanelBase {
 
             try {
                 String keytype = config.getString(PCERT_PREFIX + ct + ".keytype");
-                String keyalgorithm = config.getString(PCERT_PREFIX + ct + ".keyalgorithm");
 
                 if (keytype.equals("rsa")) {
                     int keysize = config.getInteger(

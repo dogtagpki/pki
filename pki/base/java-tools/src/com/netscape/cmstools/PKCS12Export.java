@@ -272,7 +272,7 @@ public class PKCS12Export {
 
                 if (prikey == null) {
                     debug("Private key is null");
-                    byte[] localKeyId = addCertBag(certs[i], null, safeContents);
+                    addCertBag(certs[i], null, safeContents);
                 } else {
                     debug("Private key is not null");
                     byte localKeyId[] =

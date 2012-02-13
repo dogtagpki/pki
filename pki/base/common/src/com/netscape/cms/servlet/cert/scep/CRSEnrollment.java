@@ -41,7 +41,6 @@ import netscape.ldap.LDAPEntry;
 import netscape.security.pkcs.PKCS10;
 import netscape.security.pkcs.PKCS10Attribute;
 import netscape.security.pkcs.PKCS10Attributes;
-import netscape.security.util.DerOutputStream;
 import netscape.security.util.ObjectIdentifier;
 import netscape.security.x509.AVA;
 import netscape.security.x509.CertAttrSet;
@@ -674,9 +673,6 @@ public class CRSEnrollment extends HttpServlet {
             responseData = responseData +
                     "<RemoteHost>" + httpReq.getRemoteHost() + "</RemoteHost>";
 
-            // Deal with Nonces
-            byte[] sn = req.getSenderNonce();
-
             // Deal with message type
             String mt = req.getMessageType();
             responseData = responseData +
@@ -715,7 +711,6 @@ public class CRSEnrollment extends HttpServlet {
 
                         if (ext.getExtensionId().equals(
                                 OIDMap.getOID(SubjectAlternativeNameExtension.IDENT))) {
-                            DerOutputStream dos = new DerOutputStream();
                             SubjectAlternativeNameExtension sane = new SubjectAlternativeNameExtension(
                                     Boolean.valueOf(false), // noncritical
                                     ext.getExtensionValue());
@@ -985,7 +980,6 @@ public class CRSEnrollment extends HttpServlet {
             return null;
         }
 
-        int count = 0;
         while (rids.hasMoreElements()) {
             RequestId rid = rids.nextElement();
             if (rid == null) {
@@ -1048,8 +1042,11 @@ public class CRSEnrollment extends HttpServlet {
 
         // Get Signed Data
 
-        byte[] reqAAbytes = req.getAA();
-        byte[] reqAAsig = req.getAADigest();
+        @SuppressWarnings("unused")
+        byte[] reqAAbytes = req.getAA(); // check for errors
+
+        @SuppressWarnings("unused")
+        byte[] reqAAsig = req.getAADigest(); // check for errors
 
     }
 
@@ -1155,10 +1152,7 @@ public class CRSEnrollment extends HttpServlet {
     private void getDetailFromRequest(CRSPKIMessage req, CRSPKIMessage crsResp)
             throws CRSFailureException {
 
-        IRequest issueReq = null;
-        X509CertImpl issuedCert = null;
         SubjectAlternativeNameExtension sane = null;
-        CertAttrSet requested_ext = null;
 
         try {
             PKCS10 p10 = req.getP10();
@@ -1171,7 +1165,6 @@ public class CRSEnrollment extends HttpServlet {
 
             AuthCredentials authCreds = new AuthCredentials();
 
-            String challengePassword = null;
             // Here, we make a new CertInfo - it's a new start for a certificate
 
             X509CertInfo certInfo = CMS.getDefaultX509CertInfo();
@@ -1265,7 +1258,6 @@ public class CRSEnrollment extends HttpServlet {
 
                         if (ext.getExtensionId().equals(
                                 OIDMap.getOID(SubjectAlternativeNameExtension.IDENT))) {
-                            DerOutputStream dos = new DerOutputStream();
                             sane = new SubjectAlternativeNameExtension(
                                     new Boolean(false), // noncritical
                                     ext.getExtensionValue());
@@ -1309,7 +1301,8 @@ public class CRSEnrollment extends HttpServlet {
             try {
                 if (mAppendDN != null && !mAppendDN.equals("")) {
 
-                    X500Name newSubject = new X500Name(subject.toString());
+                    new X500Name(subject.toString()); // check for errors
+
                     subject = new X500Name(subject.toString().concat("," + mAppendDN));
                 }
 

@@ -63,11 +63,8 @@ public class GetStatus extends CMSServlet {
      * @param cmsReq the object holding the request and response information
      */
     protected void process(CMSRequest cmsReq) throws EBaseException {
-        HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
         IConfigStore config = CMS.getConfigStore();
-
-        String outputString = null;
 
         String state = config.getString("cs.state", "");
         String type = config.getString("cs.type", "");

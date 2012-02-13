@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -109,7 +108,8 @@ public class NamePanel extends WizardPanelBase {
     public void cleanUp() throws IOException {
         IConfigStore cs = CMS.getConfigStore();
         try {
-            boolean done = cs.getBoolean("preop.NamePanel.done");
+            @SuppressWarnings("unused")
+            boolean done = cs.getBoolean("preop.NamePanel.done"); // check for errors
             cs.putBoolean("preop.NamePanel.done", false);
             cs.commit(false);
         } catch (Exception e) {
@@ -253,7 +253,8 @@ public class NamePanel extends WizardPanelBase {
                 }
 
                 try {
-                    boolean done = config.getBoolean("preop.NamePanel.done");
+                    @SuppressWarnings("unused")
+                    boolean done = config.getBoolean("preop.NamePanel.done"); // check for errors
                     c.setDN(dn);
                 } catch (Exception e) {
                     String instanceId = config.getString("service.instanceID", "");
@@ -417,7 +418,6 @@ public class NamePanel extends WizardPanelBase {
             if (!token.equals("Internal Key Storage Token")) {
                 serverCertNickname = token + ":" + nickname;
             }
-            File file = new File(path + "/conf/serverCertNick.conf");
             PrintStream ps = new PrintStream(new FileOutputStream(path + "/conf/serverCertNick.conf"));
             ps.println(serverCertNickname);
             ps.close();
@@ -914,10 +914,8 @@ public class NamePanel extends WizardPanelBase {
                                                        httpsPortStr,
                                                        "CA");
 
-        int httpsport = -1;
-
         try {
-            httpsport = Integer.parseInt(httpsPortStr);
+            Integer.parseInt(httpsPortStr); // check for errors
         } catch (Exception e) {
             CMS.debug(
                     "NamePanel update: Https port is not valid. Exception: "

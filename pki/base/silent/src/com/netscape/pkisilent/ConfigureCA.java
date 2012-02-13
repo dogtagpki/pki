@@ -261,7 +261,6 @@ public class ConfigureCA {
 
     public boolean TokenChoicePanel() {
         try {
-            boolean st = false;
             HTTPResponse hr = null;
             String query_string = null;
 
@@ -332,9 +331,8 @@ public class ConfigureCA {
 
     public boolean DisplayCertChainPanel() {
         try {
-            HTTPResponse hr = null;
             String query_string = "p=4" + "&op=next" + "&xml=true";
-            hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
+            hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
             return true;
         } catch (Exception e) {
             System.out.println("Exception in DisplayCertChainPanel(): " + e.toString());
@@ -345,7 +343,6 @@ public class ConfigureCA {
 
     public boolean SecurityDomainLoginPanel() {
         try {
-            boolean st = false;
             HTTPResponse hr = null;
 
             String subca_url = "https://" + cs_hostname + ":" + cs_port +
@@ -394,7 +391,6 @@ public class ConfigureCA {
 
     public boolean CreateCAPanel() {
         try {
-            boolean st = false;
             HTTPResponse hr = null;
             String query_string = null;
 
@@ -454,7 +450,6 @@ public class ConfigureCA {
 
     public boolean HierarchyPanel() {
         try {
-            boolean st = false;
             HTTPResponse hr = null;
 
             String query_string = "p=8" + "&op=next" + "&xml=true";
@@ -479,7 +474,6 @@ public class ConfigureCA {
 
     public boolean LdapConnectionPanel() {
         try {
-            boolean st = false;
             HTTPResponse hr = null;
 
             String query_string = "p=9" + "&op=next" + "&xml=true" + "&host="
@@ -509,7 +503,6 @@ public class ConfigureCA {
 
     public boolean KeyPanel() {
         try {
-            boolean st = false;
             HTTPResponse hr = null;
             ByteArrayInputStream bais = null;
             ParseXML px = new ParseXML();
@@ -602,7 +595,6 @@ public class ConfigureCA {
 
     public boolean CertSubjectPanel() {
         try {
-            boolean st = false;
             HTTPResponse hr = null;
             ByteArrayInputStream bais = null;
             ParseXML px = new ParseXML();
@@ -749,7 +741,6 @@ public class ConfigureCA {
 
     public boolean CertificatePanel() {
         try {
-            boolean st = false;
             HTTPResponse hr = null;
 
             String query_string = "p=12" + "&op=next" + "&xml=true" + "&subsystem="
@@ -778,14 +769,12 @@ public class ConfigureCA {
 
     public boolean CertificatePanelExternal() {
         try {
-            boolean st = false;
             HTTPResponse hr = null;
             ByteArrayInputStream bais = null;
             ParseXML px = new ParseXML();
             ArrayList<String> req_list = null;
             ArrayList<String> cert_list = null;
             ArrayList<String> dn_list = null;
-            ArrayList<String> pp_list = null;
             String genString = "...certificate be generated internally...";
 
             String query_string = "p=12" + "&op=apply" + "&xml=true" + "&subsystem="
@@ -873,7 +862,6 @@ public class ConfigureCA {
 
     public boolean BackupPanel() {
         try {
-            boolean st = false;
             HTTPResponse hr = null;
 
             if (save_p12.equalsIgnoreCase("true")) {
@@ -906,7 +894,7 @@ public class ConfigureCA {
                     String line = null;
                     while ((line = br.readLine()) != null)
                         System.out.println("Error: " + line);
-                    int exitVal = proc.waitFor();
+                    proc.waitFor();
 
                     // verify p12 file
                     // Decode the P12 file
@@ -977,7 +965,6 @@ public class ConfigureCA {
 
     public boolean AdminCertReqPanel() {
         try {
-            boolean st = false;
             HTTPResponse hr = null;
             ByteArrayInputStream bais = null;
             ParseXML px = new ParseXML();
@@ -1087,7 +1074,6 @@ public class ConfigureCA {
 
     public boolean UpdateDomainPanel() {
         try {
-            boolean st = false;
             HTTPResponse hr = null;
             ByteArrayInputStream bais = null;
             ParseXML px = new ParseXML();

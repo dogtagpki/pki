@@ -164,9 +164,7 @@ public class NSCertTypeExt extends APolicyRule
         X509CertInfo[] ci =
                 req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
 
-        X509CertInfo certInfo = null;
-
-        if (ci == null || (certInfo = ci[0]) == null) {
+        if (ci == null || ci[0] == null) {
             setError(req, CMS.getUserMessage("CMS_POLICY_NO_CERT_INFO"), NAME);
             return PolicyResult.REJECTED; // unrecoverable error.
         }

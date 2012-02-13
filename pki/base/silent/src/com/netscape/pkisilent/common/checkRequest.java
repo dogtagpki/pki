@@ -257,7 +257,6 @@ public class checkRequest extends TestClient {
                 FileOutputStream fos = new FileOutputStream(certfile);
 
                 if (ldapformat.equals("true")) {
-                    Integer m = new Integer("1");
                     String tmp = "description: 2;"
                             + Integer.parseInt(serialNumber, 16) + ";" + issuer
                             + ";" + subject + "\n";

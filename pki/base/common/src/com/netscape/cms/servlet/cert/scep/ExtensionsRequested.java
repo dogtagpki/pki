@@ -127,16 +127,15 @@ public class ExtensionsRequested implements CertAttrSet {
     private void construct(DerValue dv) throws IOException {
 
         DerInputStream stream = null;
-        DerValue[] dvs;
 
         try { // try decoding as sequence first
 
             stream = dv.toDerInputStream();
 
-            DerValue stream_dv = stream.getDerValue();
+            stream.getDerValue(); // consume stream
             stream.reset();
 
-            dvs = stream.getSequence(2);
+            stream.getSequence(2); // consume stream
         } catch (IOException ioe) {
             // if it failed, the outer sequence may be
             // encapsulated in an octet string, as in the first
@@ -150,7 +149,7 @@ public class ExtensionsRequested implements CertAttrSet {
             dv = new DerValue(octet_string);
 
             stream = dv.toDerInputStream();
-            dvs = stream.getSequence(2);
+            stream.getSequence(2); // consume stream
         }
 
         // now, the stream will be in the correct format

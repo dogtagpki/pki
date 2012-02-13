@@ -38,12 +38,10 @@ import netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.MetaInfo;
 import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.ca.ICRLIssuingPoint;
 import com.netscape.certsrv.dbs.EDBException;
-import com.netscape.certsrv.dbs.IDBRegistry;
 import com.netscape.certsrv.dbs.IDBSSession;
 import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.dbs.IDBSubsystem;
@@ -90,13 +88,7 @@ public class CertificateRepository extends Repository
             throws EDBException {
         super(dbService, increment, baseDN);
         mBaseDN = certRepoBaseDN;
-
         mDBService = dbService;
-
-        // registers CMS database attributes
-        IDBRegistry reg = dbService.getRegistry();
-
-        IConfigStore cfg = mDBService.getConfigStore();
     }
 
     public ICertRecord createCertRecord(BigInteger id, Certificate cert, MetaInfo meta) {

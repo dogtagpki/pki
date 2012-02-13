@@ -136,7 +136,8 @@ public class DirAclAuthz extends AAclAuthz
         mBaseDN = ldapConfig.getString(PROP_BASEDN, null);
 
         try {
-            String name1 = ldapConfig.getString("ldapconn.host");
+            @SuppressWarnings("unused")
+            String hostname = ldapConfig.getString("ldapconn.host"); // check for errors
         } catch (EBaseException e) {
             if (CMS.isPreOpMode())
                 return;
@@ -172,8 +173,6 @@ public class DirAclAuthz extends AAclAuthz
                 log(ILogger.LL_INFO, "ldap search found no cn=aclResources");
             }
         } catch (LDAPException e) {
-            String errMsg = "init() -" + e.toString();
-
             log(ILogger.LL_FAILURE, CMS.getLogMessage("AUTHZ_EVALUATOR_INIT_ERROR", e.toString()));
             throw new EACLsException(CMS.getUserMessage("CMS_ACL_CONNECT_LDAP_FAIL", mBaseDN));
         } catch (EBaseException e) {
@@ -273,9 +272,6 @@ public class DirAclAuthz extends AAclAuthz
         } catch (EACLsException ex) {
             // flushing failed, set flag
             needsFlush = true;
-
-            String errMsg = "updateACLs: failed to flushResourceACLs(): "
-                    + ex.toString();
 
             log(ILogger.LL_FAILURE, CMS.getLogMessage("AUTHZ_EVALUATOR_FLUSH_RESOURCES", ex.toString()));
 

@@ -1195,7 +1195,8 @@ public class X509CertImpl extends X509Certificate
          */
         protected Object readResolve() throws java.io.ObjectStreamException {
             try {
-                CertificateFactory cf = CertificateFactory.getInstance(type1);
+                @SuppressWarnings("unused")
+                CertificateFactory cf = CertificateFactory.getInstance(type1); // check for errors
                 return new X509CertImpl(data1);
 
                 /*

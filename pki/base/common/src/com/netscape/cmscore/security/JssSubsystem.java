@@ -852,7 +852,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
     public void isX500DN(String dn) throws EBaseException {
         try {
-            X500Name name = new X500Name(dn);
+            new X500Name(dn); // check for errors
         } catch (IOException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_X500_NAME", e.toString()));
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_X500_NAME", dn));
@@ -944,7 +944,6 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
     public KeyPair getECCKeyPair(KeyCertData properties) throws EBaseException {
         String token = Constants.PR_INTERNAL_TOKEN_NAME;
-        String keyType = "ECC";
         String keyCurve = "nistp512";
         String certType = null;
         KeyPair pair = null;
@@ -1067,7 +1066,6 @@ public final class JssSubsystem implements ICryptoSubsystem {
             X509Certificate cert = getCertificate(nickname, serialno, issuername);
             if (cert instanceof TokenCertificate) {
                 TokenCertificate tcert = (TokenCertificate) cert;
-                CryptoStore store = tcert.getOwningToken().getCryptoStore();
 
                 CMS.debug("*** deleting this token cert");
                 tcert.getOwningToken().getCryptoStore().deleteCert(tcert);
@@ -1120,7 +1118,6 @@ public final class JssSubsystem implements ICryptoSubsystem {
                             CMS.debug("*** removing root cert");
                             if (cert instanceof TokenCertificate) {
                                 TokenCertificate tcert = (TokenCertificate) cert;
-                                CryptoStore store = tcert.getOwningToken().getCryptoStore();
 
                                 CMS.debug("*** deleting this token cert");
                                 tcert.getOwningToken().getCryptoStore().deleteCert(tcert);
@@ -1175,8 +1172,9 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
                 for (int i = 0; i < list.length; i++) {
                     try {
+                        @SuppressWarnings("unused")
                         PrivateKey key =
-                                CryptoManager.getInstance().findPrivKeyByCert(list[i]);
+                                CryptoManager.getInstance().findPrivKeyByCert(list[i]); // check for errors
                         Debug.trace("JssSubsystem getRootCerts: find private key "
                                 + list[i].getNickname());
                     } catch (ObjectNotFoundException e) {
@@ -1247,8 +1245,9 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
                 for (int i = 0; i < list.length; i++) {
                     try {
+                        @SuppressWarnings("unused")
                         PrivateKey key =
-                                CryptoManager.getInstance().findPrivKeyByCert(list[i]);
+                                CryptoManager.getInstance().findPrivKeyByCert(list[i]); // check for errors
                         String nickname = list[i].getNickname();
                         if (tokenName.equals(Constants.PR_INTERNAL_TOKEN_NAME) ||
                                 tokenName.equals(Constants.PR_FULL_INTERNAL_TOKEN_NAME)) {
@@ -1307,7 +1306,6 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
             while (enums.hasMoreElements()) {
                 CryptoToken token = (CryptoToken) enums.nextElement();
-                String tokenName = token.getName();
 
                 CryptoStore store = token.getCryptoStore();
                 X509Certificate[] list = store.getCertificates();
@@ -1538,7 +1536,6 @@ public final class JssSubsystem implements ICryptoSubsystem {
                         if (notAfter.equals(qualifier)) {
                             if (cert instanceof TokenCertificate) {
                                 TokenCertificate tcert = (TokenCertificate) cert;
-                                CryptoStore store = tcert.getOwningToken().getCryptoStore();
 
                                 tcert.getOwningToken().getCryptoStore().deleteCert(tcert);
                             } else {
@@ -1620,7 +1617,6 @@ public final class JssSubsystem implements ICryptoSubsystem {
                     if (notAfter.equals(qualifier)) {
                         if (cert instanceof TokenCertificate) {
                             TokenCertificate tcert = (TokenCertificate) cert;
-                            CryptoStore store = tcert.getOwningToken().getCryptoStore();
 
                             tcert.getOwningToken().getCryptoStore().deleteCert(tcert);
                         } else {
@@ -1660,7 +1656,6 @@ public final class JssSubsystem implements ICryptoSubsystem {
     public void deleteTokenCertificate(String nickname, String pathname) throws EBaseException {
         try {
             X509Certificate cert = CryptoManager.getInstance().findCertByNickname(nickname);
-            String issuerName = cert.getSubjectDN().getName();
             Principal principal = cert.getSubjectDN();
             DN dn = new DN(principal.getName());
             BigInteger serialno = cert.getSerialNumber();
@@ -1674,7 +1669,6 @@ public final class JssSubsystem implements ICryptoSubsystem {
             stream.close();
             if (cert instanceof TokenCertificate) {
                 TokenCertificate tcert = (TokenCertificate) cert;
-                CryptoStore store = tcert.getOwningToken().getCryptoStore();
 
                 tcert.getOwningToken().getCryptoStore().deleteCert(tcert);
             } else

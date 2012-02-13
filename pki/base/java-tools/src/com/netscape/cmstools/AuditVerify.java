@@ -153,7 +153,7 @@ public class AuditVerify {
             }
 
             // get list of log files
-            Vector logFiles = new Vector();
+            Vector<String> logFiles = new Vector<String>();
             BufferedReader r = new BufferedReader(new FileReader(logListFile));
             String listLine;
             while ((listLine = r.readLine()) != null) {
@@ -230,8 +230,6 @@ public class AuditVerify {
             String sigStartFile = (String) logFiles.elementAt(0);
             String sigStopFile = null;
             int signedLines = 1;
-
-            boolean lastLineWasSig = false;
 
             for (int curfile = 0; curfile < logFiles.size(); ++curfile) {
                 String curfileName = (String) logFiles.elementAt(curfile);

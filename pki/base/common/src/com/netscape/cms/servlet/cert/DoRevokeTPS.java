@@ -165,12 +165,12 @@ public class DoRevokeTPS extends CMSServlet {
         int reason = -1;
         boolean authorized = true;
         Date invalidityDate = null;
-        CMSTemplate form = null;
         Locale[] locale = new Locale[1];
 
         CMS.debug("DoRevokeTPS before getTemplate");
         try {
-            form = getTemplate(mFormPath, req, locale);
+            @SuppressWarnings("unused")
+            CMSTemplate form = getTemplate(mFormPath, req, locale); // check for errors
         } catch (IOException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSGW_ERR_GET_TEMPLATE", mFormPath, e.toString()));
             throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"));

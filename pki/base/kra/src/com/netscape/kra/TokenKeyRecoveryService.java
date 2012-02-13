@@ -197,9 +197,7 @@ public class TokenKeyRecoveryService implements IService {
     public boolean serviceRequest(IRequest request) throws EBaseException {
         String auditMessage = null;
         String auditSubjectID = null;
-        String auditRequesterID = "TPSagent";
         String auditRecoveryID = ILogger.UNIDENTIFIED;
-        String auditPublicKey = ILogger.UNIDENTIFIED;
         String iv_s = "";
 
         CMS.debug("KRA services token key recovery request");
@@ -553,7 +551,9 @@ public class TokenKeyRecoveryService implements IService {
             privateKeyIn.getSequence(0);
             DerValue privateKeyDer = new DerValue(privateKeyIn.getOctetString());
             DerInputStream privateKeyDerIn = privateKeyDer.data;
-            BigInt privateKeyVersion = privateKeyDerIn.getInteger();
+
+            @SuppressWarnings("unused")
+            BigInt privateKeyVersion = privateKeyDerIn.getInteger(); // consume stream
             BigInt privateKeyModulus = privateKeyDerIn.getInteger();
             BigInt privateKeyExponent = privateKeyDerIn.getInteger();
 

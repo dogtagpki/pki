@@ -179,9 +179,6 @@ public class BasicAclAuthz extends AAclAuthz
             // flushing failed, set flag
             needsFlush = true;
 
-            String errMsg = "updateACLs: failed to flushResourceACLs(): "
-                    + ex.toString();
-
             log(ILogger.LL_FAILURE, CMS.getLogMessage("AUTHZ_EVALUATOR_FLUSH_RESOURCES", ex.toString()));
 
             throw new EACLsException(CMS.getUserMessage("CMS_ACL_UPDATE_FAIL"));

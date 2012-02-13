@@ -640,9 +640,7 @@ public class JobsAdminServlet extends AdminServlet {
         // only remove from memory
         // cannot shutdown because we don't keep track of whether it's
         // being used. 
-        IJob jobInst = (IJob) mJobsSched.getInstances().get(id);
-
-        mJobsSched.getInstances().remove((Object) id);
+        mJobsSched.getInstances().remove(id);
 
         // remove the configuration.
         IConfigStore destStore =

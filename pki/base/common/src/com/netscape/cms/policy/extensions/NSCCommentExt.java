@@ -28,7 +28,6 @@ import java.util.Vector;
 
 import netscape.security.x509.CertificateExtensions;
 import netscape.security.x509.CertificateVersion;
-import netscape.security.x509.DisplayText;
 import netscape.security.x509.NSCCommentExtension;
 import netscape.security.x509.X509CertInfo;
 
@@ -232,9 +231,6 @@ public class NSCCommentExt extends APolicyRule
         }
 
         certApplied = true;
-
-        DisplayText displayText =
-                new DisplayText(DisplayText.tag_IA5String, mUserNoticeDisplayText);
 
         try {
             NSCCommentExtension cpExt =

@@ -136,12 +136,9 @@ public class PrivateKeyUsagePeriodExt extends APolicyRule
             mNotAfter = config.getString(PROP_NOT_AFTER, null);
             mCritical = config.getBoolean(PROP_IS_CRITICAL, false);
 
-            // Check the parameter formats
-            String notBefore;
-            String notAfter;
-
-            notBefore = formatter.format(formatter.parse(mNotBefore.trim()));
-            notAfter = formatter.format(formatter.parse(mNotAfter.trim()));
+            // Check the parameter formats for errors
+            formatter.format(formatter.parse(mNotBefore.trim()));
+            formatter.format(formatter.parse(mNotAfter.trim()));
         } catch (Exception e) {
             // e.printStackTrace();
             Object[] params = { getInstanceName(), e };

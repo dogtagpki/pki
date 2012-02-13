@@ -932,7 +932,6 @@ public class EnrollServlet extends CMSServlet {
 
             X509CertInfo[] certInfoArray = new X509CertInfo[] { certInfo };
 
-            X509CertInfo authCertInfo = null;
             String authMgr = AuditFormat.NOAUTH;
 
             // if authentication

@@ -31,7 +31,6 @@ import java.security.Provider;
 import java.security.Security;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
-import java.util.Properties;
 
 import netscape.security.util.BigInt;
 import netscape.security.util.DerOutputStream;
@@ -171,8 +170,6 @@ public class PKCS8Key implements PrivateKey {
          */
         String classname = "";
         try {
-            Properties props;
-            String keytype;
             Provider sunProvider;
 
             sunProvider = Security.getProvider("SUN");

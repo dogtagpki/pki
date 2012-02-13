@@ -25,7 +25,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.security.cert.CertificateException;
-import java.util.Enumeration;
 import java.util.Locale;
 
 import netscape.security.util.CertPrettyPrint;
@@ -189,8 +188,6 @@ public class PrettyPrintCert {
 
                 CertificateSubjectName csn = (CertificateSubjectName)
                         certinfo.get(X509CertInfo.SUBJECT);
-
-                Enumeration<String> en = csn.getAttributeNames();
 
                 X500Name dname = (X500Name) csn.get(CertificateSubjectName.DN_NAME);
 

@@ -62,7 +62,6 @@ import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.common.OpDef;
 import com.netscape.certsrv.common.ScopeDef;
-import com.netscape.certsrv.dbs.IDBSubsystem;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertificateRepository;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
@@ -357,7 +356,6 @@ public final class CMSAdminServlet extends AdminServlet {
         Enumeration<ISubsystem> e = CMS.getSubsystems();
 
         while (e.hasMoreElements()) {
-            String type = "";
             ISubsystem sys = (ISubsystem) e.nextElement();
 
             //get subsystem type
@@ -386,11 +384,8 @@ public final class CMSAdminServlet extends AdminServlet {
         boolean isCAInstalled = false;
         boolean isRAInstalled = false;
         boolean isKRAInstalled = false;
-        boolean isOCSPInstalled = false;
-        boolean isTKSInstalled = false;
 
         while (e.hasMoreElements()) {
-            String type = "";
             ISubsystem sys = (ISubsystem) e.nextElement();
 
             //get subsystem type
@@ -400,10 +395,6 @@ public final class CMSAdminServlet extends AdminServlet {
                 isRAInstalled = true;
             else if (sys instanceof ICertificateAuthority)
                 isCAInstalled = true;
-            else if (sys instanceof IOCSPAuthority)
-                isOCSPInstalled = true;
-            else if (sys instanceof ITKSAuthority)
-                isTKSInstalled = true;
 
         }
 
@@ -469,10 +460,7 @@ public final class CMSAdminServlet extends AdminServlet {
 
             params.add(Constants.PR_CERT_TRANS, getCertNickname(kraNickname));
         }
-        if (isTKSInstalled) {
-            ITKSAuthority tks = (ITKSAuthority)
-                    CMS.getSubsystem(CMS.SUBSYSTEM_TKS);
-        }
+
         String nickName = CMS.getServerCertNickname();
 
         params.add(Constants.PR_CERT_SERVER, getCertNickname(nickName));
@@ -547,11 +535,8 @@ public final class CMSAdminServlet extends AdminServlet {
             boolean isCAInstalled = false;
             boolean isRAInstalled = false;
             boolean isKRAInstalled = false;
-            boolean isOCSPInstalled = false;
-            boolean isTKSInstalled = false;
 
             while (e.hasMoreElements()) {
-                String type = "";
                 ISubsystem sys = (ISubsystem) e.nextElement();
 
                 //get subsystem type
@@ -561,16 +546,11 @@ public final class CMSAdminServlet extends AdminServlet {
                     isRAInstalled = true;
                 else if (sys instanceof ICertificateAuthority)
                     isCAInstalled = true;
-                else if (sys instanceof IOCSPAuthority)
-                    isOCSPInstalled = true;
-                else if (sys instanceof ITKSAuthority)
-                    isTKSInstalled = true;
             }
 
             ICertificateAuthority ca = null;
             IRegistrationAuthority ra = null;
             IKeyRecoveryAuthority kra = null;
-            ITKSAuthority tks = null;
 
             if (isCAInstalled)
                 ca = (ICertificateAuthority) CMS.getSubsystem(CMS.SUBSYSTEM_CA);
@@ -578,8 +558,6 @@ public final class CMSAdminServlet extends AdminServlet {
                 ra = (IRegistrationAuthority) CMS.getSubsystem(CMS.SUBSYSTEM_RA);
             if (isKRAInstalled)
                 kra = (IKeyRecoveryAuthority) CMS.getSubsystem(CMS.SUBSYSTEM_KRA);
-            if (isTKSInstalled)
-                tks = (ITKSAuthority) CMS.getSubsystem(CMS.SUBSYSTEM_TKS);
 
             boolean isCACert = true;
 
@@ -906,7 +884,7 @@ public final class CMSAdminServlet extends AdminServlet {
 
         }
         if (selectedToken != null && newKeyName != null) {
-            String symKeys = SessionKey.GenMasterKey(selectedToken, newKeyName);
+            SessionKey.GenMasterKey(selectedToken, newKeyName); // check for errors
             CMS.getConfigStore().putString("tks.defaultSlot", selectedToken);
             String masterKeyPrefix = CMS.getConfigStore().getString("tks.master_key_prefix", null);
 
@@ -933,9 +911,6 @@ public final class CMSAdminServlet extends AdminServlet {
 
             if (name.equals(Constants.PR_TOKEN_LIST)) {
                 String selectedToken = req.getParameter(name);
-
-                int count = 0;
-                int keys_found = 0;
 
                 ICryptoSubsystem jssSubSystem = (ICryptoSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
 
@@ -1125,9 +1100,7 @@ public final class CMSAdminServlet extends AdminServlet {
             String certType = Constants.PR_CA_SIGNING_CERT;
             String dir = "";
             String pathname = "";
-            String serverID = "";
             String otherNickname = "";
-            String certSubType = "";
             String keyCurveName = "";
 
             while (enum1.hasMoreElements()) {
@@ -1145,12 +1118,8 @@ public final class CMSAdminServlet extends AdminServlet {
                     certType = value;
                 } else if (key.equals(Constants.PR_SUBJECT_NAME)) {
                     subjectName = value;
-                } else if (key.equals(Constants.PR_SERVER_ID)) {
-                    serverID = value;
                 } else if (key.equals(Constants.PR_NICKNAME)) {
                     otherNickname = value;
-                } else if (key.equals(Constants.PR_CERTIFICATE_SUBTYPE)) {
-                    certSubType = value;
                 } else if (key.equals(Constants.PR_KEY_CURVENAME)) {
                     keyCurveName = value;
                 }
@@ -1495,27 +1464,17 @@ public final class CMSAdminServlet extends AdminServlet {
         try {
             @SuppressWarnings("unchecked")
             Enumeration<String> enum1 = req.getParameterNames();
-            String pkcs = "";
-            String type = "";
             String tokenName = Constants.PR_INTERNAL_TOKEN_NAME;
             String keyType = "RSA";
-            int keyLength = 512;
-            String subjectName = "";
             KeyCertData properties = new KeyCertData();
-            String pathname = "";
 
-            String configPath = "";
             String newtokenname = null;
 
             while (enum1.hasMoreElements()) {
                 String key = (String) enum1.nextElement();
                 String value = req.getParameter(key);
 
-                if (key.equals("pathname")) {
-                    configPath = mConfig.getString("instanceRoot", "")
-                               + File.separator + "conf" + File.separator;
-                    pathname = configPath + value;
-                } else {
+                if (!key.equals("pathname")) {
                     if (key.equals(Constants.PR_TOKEN_NAME))
                         newtokenname = value;
                     properties.put(key, value);
@@ -1526,8 +1485,6 @@ public final class CMSAdminServlet extends AdminServlet {
 
             ICryptoSubsystem jssSubSystem = (ICryptoSubsystem)
                     CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
-            IDBSubsystem dbs = (IDBSubsystem)
-                    CMS.getSubsystem(CMS.SUBSYSTEM_DBS);
             ICertificateAuthority ca = (ICertificateAuthority)
                     CMS.getSubsystem(CMS.SUBSYSTEM_CA);
             ICertificateRepository repository =
@@ -1633,11 +1590,11 @@ public final class CMSAdminServlet extends AdminServlet {
             } else if (properties.getKeyLength() != null) { //new RSA or DSA
                 keyType = properties.getKeyType();
                 String keyLen = properties.getKeyLength();
-                PQGParams pqgParams = null;
 
                 if (keyType.equals("DSA")) {
-                    pqgParams = jssSubSystem.getCAPQG(Integer.parseInt(keyLen),
-                                                      mConfig);
+                    @SuppressWarnings("unused")
+                    PQGParams pqgParams =
+                            jssSubSystem.getCAPQG(Integer.parseInt(keyLen), mConfig); // check for errors
                     //properties.put(Constants.PR_PQGPARAMS, pqgParams);
                 }
                 pair = jssSubSystem.getKeyPair(properties);
@@ -2342,7 +2299,6 @@ public final class CMSAdminServlet extends AdminServlet {
         // to the signed audit log and stored as failures
         try {
             String b64Cert = "";
-            String certType = "";
             String pathname = "";
             String serverRoot = "";
             String serverID = "";
@@ -2358,8 +2314,6 @@ public final class CMSAdminServlet extends AdminServlet {
                 // really should be PR_CERT_CONTENT
                 if (key.equals(Constants.PR_PKCS10))
                     b64Cert = value;
-                else if (key.equals(Constants.RS_ID))
-                    certType = value;
                 else if (key.equals("pathname"))
                     pathname = value;
                 else if (key.equals(Constants.PR_SERVER_ROOT))
@@ -2724,7 +2678,6 @@ public final class CMSAdminServlet extends AdminServlet {
         String nickname = "";
         String serialno = "";
         String issuername = "";
-        Locale locale = super.getLocale(req);
         NameValuePairs pairs = new NameValuePairs();
 
         while (enum1.hasMoreElements()) {
@@ -2888,31 +2841,7 @@ public final class CMSAdminServlet extends AdminServlet {
     private void validateKeyLength(HttpServletRequest req,
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
-        @SuppressWarnings("unchecked")
-        Enumeration<String> enum1 = req.getParameterNames();
-        String keyType = "RSA";
-        String keyLen = "512";
-        String certType = "";
 
-        while (enum1.hasMoreElements()) {
-            String key = (String) enum1.nextElement();
-            String value = req.getParameter(key);
-
-            if (key.equals(Constants.PR_CERTIFICATE_TYPE)) {
-                certType = value;
-            } else if (key.equals(Constants.PR_KEY_TYPE)) {
-                keyType = value;
-            } else if (key.equals(Constants.PR_KEY_LENGTH)) {
-                keyLen = value;
-            }
-        }
-        int keyLength = Integer.parseInt(keyLen);
-        int minKey = mConfig.getInteger(
-                ConfigConstants.PR_RSA_MIN_KEYLENGTH, 512);
-        ICryptoSubsystem jssSubSystem = (ICryptoSubsystem)
-                CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
-
-        // jssSubSystem.checkKeyLength(keyType, keyLength, certType, minKey);
         sendResponse(SUCCESS, null, null, resp);
     }
 
@@ -2979,17 +2908,12 @@ public final class CMSAdminServlet extends AdminServlet {
         Enumeration<String> enum1 = req.getParameterNames();
 
         String nickname = "";
-        String keyType = "RSA";
-        String keyLen = "512";
-        String certType = "";
-        String configDir = "";
 
         while (enum1.hasMoreElements()) {
             String key = (String) enum1.nextElement();
             String value = req.getParameter(key);
 
             if (key.equals(Constants.RS_ID)) {
-                certType = value;
                 nickname = getNickname(value);
                 break;
             }
@@ -3011,10 +2935,6 @@ public final class CMSAdminServlet extends AdminServlet {
         Enumeration<String> enum1 = req.getParameterNames();
 
         String nickname = "";
-        String keyType = "RSA";
-        String keyLen = "512";
-        String certType = "";
-        String configDir = "";
 
         while (enum1.hasMoreElements()) {
             String key = (String) enum1.nextElement();

@@ -45,7 +45,6 @@ import org.mozilla.jss.asn1.OBJECT_IDENTIFIER;
 import org.mozilla.jss.asn1.OCTET_STRING;
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.asn1.SET;
-import org.mozilla.jss.crypto.CryptoStore;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.DigestAlgorithm;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
@@ -153,8 +152,6 @@ public class CMCEnroll {
             } catch (NoSuchAlgorithmException e) {
                 throw new IOException("Internal Error - " + e.toString());
             }
-
-            String hasSki = "true";
 
             BigInteger serialno = signerCert.getSerialNumber();
             byte[] certB = signerCert.getEncoded();
@@ -374,8 +371,6 @@ public class CMCEnroll {
                 Password pass = new Password(pValue.toCharArray());
 
                 token.login(pass);
-                CryptoStore store = token.getCryptoStore();
-                X509Certificate[] list = store.getCertificates();
                 X509Certificate signerCert = null;
 
                 signerCert = cm.findCertByNickname(nValue);
@@ -425,9 +420,10 @@ public class CMCEnroll {
                 asciiBASE64Blob = getCMCBlob(signerCert, cm, nValue, asciiBASE64Blob);
                 // (5) Decode the ASCII BASE 64 blob enclosed in the
                 //     String() object into a BINARY BASE 64 byte[] object
-                byte binaryBASE64Blob[] = null;
 
-                binaryBASE64Blob = com.netscape.osutil.OSUtil.AtoB(asciiBASE64Blob);
+                @SuppressWarnings("unused")
+                byte binaryBASE64Blob[] =
+                        com.netscape.osutil.OSUtil.AtoB(asciiBASE64Blob); // check for errors
 
                 // (6) Finally, print the actual CMCEnroll blob to the
                 //     specified output file

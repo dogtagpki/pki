@@ -42,14 +42,8 @@ public class PasswordChecker implements IPasswordCheck, IConfigPasswordCheck {
 
     public boolean isGoodConfigPassword(String mPassword) {
         if (mPassword == null || mPassword.length() == 0) {
-            EPasswordCheckException e = new EPasswordCheckException(
-                    "Empty Password");
-
             return false;
         } else if (mPassword.length() < MIN_LEN) {
-            EPasswordCheckException e = new EPasswordCheckException(
-                    "Minimium Length is " + MIN_LEN);
-
             return false;
         }
         return true;
@@ -80,14 +74,8 @@ public class PasswordChecker implements IPasswordCheck, IConfigPasswordCheck {
      */
     public boolean isGoodPassword(String mPassword) {
         if (mPassword == null || mPassword.length() == 0) {
-            EPasswordCheckException e = new EPasswordCheckException(
-                    CMS.getUserMessage("CMS_PASSWORD_EMPTY_PASSWORD"));
-
             return false;
         } else if (mPassword.length() < MIN_LEN) {
-            EPasswordCheckException e = new EPasswordCheckException(
-                    CMS.getUserMessage("CMS_PASSWORD_INVALID_LEN", "" + MIN_LEN));
-
             return false;
         }
         return true;

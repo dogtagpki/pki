@@ -88,7 +88,6 @@ public class TKSKnownSessionKey
             EMissingSelfTestException {
         ISubsystem tks = null;
         IConfigStore tksConfig = null;
-        String logMessage = null;
 
         super.initSelfTest(subsystem, instanceName, parameters);
 

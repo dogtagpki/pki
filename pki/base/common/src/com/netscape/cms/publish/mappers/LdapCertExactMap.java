@@ -137,8 +137,6 @@ public class LdapCertExactMap implements ILdapMapper, IExtendedPluginInfo {
             }
         }
         try {
-            boolean hasCert = false;
-            boolean hasSubjectName = false;
             String[] attrs = new String[] { LDAPv3.NO_ATTRS };
 
             log(ILogger.LL_INFO, "Searching for " + subjectDN.toString());

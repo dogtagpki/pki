@@ -78,9 +78,7 @@ public class EmailTemplate implements IEmailTemplate {
 
         /* check if file exists and is accessible */
         if ((!template.exists()) || (!template.canRead()) || (template.isDirectory())) {
-            String error = "Template: " + mTemplateFile + " does not exist or invalid";
-
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_NOTIFY_TEMPLATE_NOT_EXIST"));
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_NOTIFY_TEMPLATE_NOT_EXIST", mTemplateFile));
             return false;
         }
 
@@ -90,9 +88,7 @@ public class EmailTemplate implements IEmailTemplate {
         try {
             input = new FileReader(template);
         } catch (FileNotFoundException e) {
-            String error = "Template: " + mTemplateFile + " not found";
-
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_NOTIFY_TEMPLATE_NOT_FOUND"));
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_NOTIFY_TEMPLATE_NOT_FOUND", mTemplateFile));
 
             return false;
         }
@@ -100,8 +96,6 @@ public class EmailTemplate implements IEmailTemplate {
         /* load template */
         mFileContents = loadFile(input);
         if (mFileContents == null) {
-            String error = "Template: Error loading file into string";
-
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_NOTIFY_TEMPLATE_LOAD_ERROR"));
             return false;
         }
@@ -159,8 +153,6 @@ public class EmailTemplate implements IEmailTemplate {
                 buf.append("\n");
             }
         } catch (IOException e) {
-            String error = "Template: Error loading file";
-
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_NOTIFY_TEMPLATE_LOADING"));
             return null;
         }

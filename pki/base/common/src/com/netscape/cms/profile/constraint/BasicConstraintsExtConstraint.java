@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.util.Locale;
 
 import netscape.security.x509.BasicConstraintsExtension;
-import netscape.security.x509.CertificateExtensions;
 import netscape.security.x509.PKIXExtensions;
 import netscape.security.x509.X509CertInfo;
 
@@ -100,7 +99,6 @@ public class BasicConstraintsExtConstraint extends EnrollConstraint {
      */
     public void validate(IRequest request, X509CertInfo info)
             throws ERejectException {
-        CertificateExtensions exts = null;
 
         try {
             BasicConstraintsExtension ext = (BasicConstraintsExtension)

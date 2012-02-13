@@ -210,7 +210,6 @@ public class ProfileAdminServlet extends AdminServlet {
             throws ServletException, IOException {
         // Get operation type
         String op = req.getParameter(Constants.OP_TYPE);
-        String scope = super.getParameter(req, Constants.OP_SCOPE);
 
         if (op.equals(OpDef.OP_READ)) {
             if (!readAuthorize(req, resp))
@@ -232,7 +231,6 @@ public class ProfileAdminServlet extends AdminServlet {
             throws ServletException, IOException {
         // Get operation type
         String op = req.getParameter(Constants.OP_TYPE);
-        String scope = super.getParameter(req, Constants.OP_SCOPE);
 
         if (op.equals(OpDef.OP_READ)) {
             if (!readAuthorize(req, resp))
@@ -460,8 +458,6 @@ public class ProfileAdminServlet extends AdminServlet {
             String setId = ss.nextToken();
             String pId = ss.nextToken();
 
-            IProfilePolicy policy = null;
-
             try {
                 if (!isValidId(setId)) {
                     sendResponse(ERROR,
@@ -479,7 +475,7 @@ public class ProfileAdminServlet extends AdminServlet {
                             null, resp);
                     return;
                 }
-                policy = profile.createProfilePolicy(setId, pId,
+                profile.createProfilePolicy(setId, pId,
                             defImpl, conImpl);
             } catch (EBaseException e1) {
                 // error
@@ -590,7 +586,6 @@ public class ProfileAdminServlet extends AdminServlet {
                 return;
             }
 
-            IProfileInput input = null;
             @SuppressWarnings("unchecked")
             Enumeration<String> names = req.getParameterNames();
             NameValuePairs nvps = new NameValuePairs();
@@ -608,7 +603,7 @@ public class ProfileAdminServlet extends AdminServlet {
             }
 
             try {
-                input = profile.createProfileInput(inputId, inputImpl, nvps);
+                profile.createProfileInput(inputId, inputImpl, nvps);
             } catch (EBaseException e1) {
                 // error
 
@@ -717,7 +712,6 @@ public class ProfileAdminServlet extends AdminServlet {
                 return;
             }
 
-            IProfileOutput output = null;
             @SuppressWarnings("unchecked")
             Enumeration<String> names = req.getParameterNames();
             NameValuePairs nvps = new NameValuePairs();
@@ -735,7 +729,7 @@ public class ProfileAdminServlet extends AdminServlet {
             }
 
             try {
-                output = profile.createProfileOutput(outputId, outputImpl,
+                profile.createProfileOutput(outputId, outputImpl,
                             nvps);
             } catch (EBaseException e1) {
                 // error
@@ -1207,7 +1201,6 @@ public class ProfileAdminServlet extends AdminServlet {
 
             IProfilePolicy policy = profile.getProfilePolicy(setId, pId);
             IPolicyDefault def = policy.getDefault();
-            IConfigStore defConfig = def.getConfigStore();
 
             @SuppressWarnings("unchecked")
             Enumeration<String> names = req.getParameterNames();
@@ -1345,7 +1338,6 @@ public class ProfileAdminServlet extends AdminServlet {
 
             IProfilePolicy policy = profile.getProfilePolicy(setId, pId);
             IPolicyConstraint con = policy.getConstraint();
-            IConfigStore conConfig = con.getConfigStore();
 
             @SuppressWarnings("unchecked")
             Enumeration<String> names = req.getParameterNames();
@@ -1484,7 +1476,6 @@ public class ProfileAdminServlet extends AdminServlet {
             String pId = ss.nextToken();
             IProfilePolicy policy = profile.getProfilePolicy(setId, pId);
             IPolicyDefault def = policy.getDefault();
-            IConfigStore defConfig = def.getConfigStore();
 
             @SuppressWarnings("unchecked")
             Enumeration<String> names = req.getParameterNames();
@@ -1858,7 +1849,6 @@ public class ProfileAdminServlet extends AdminServlet {
             String pId = ss.nextToken();
             IProfilePolicy policy = profile.getProfilePolicy(setId, pId);
             IPolicyConstraint con = policy.getConstraint();
-            IConfigStore conConfig = con.getConfigStore();
 
             @SuppressWarnings("unchecked")
             Enumeration<String> names = req.getParameterNames();
@@ -2072,9 +2062,7 @@ public class ProfileAdminServlet extends AdminServlet {
             while (policies.hasMoreElements()) {
                 IProfilePolicy policy = (IProfilePolicy) policies.nextElement();
                 IPolicyDefault def = policy.getDefault();
-                IConfigStore defConfig = def.getConfigStore();
                 IPolicyConstraint con = policy.getConstraint();
-                IConfigStore conConfig = con.getConfigStore();
 
                 nvp.add(setId + ":" + policy.getId(),
                         def.getName(getLocale(req)) + ";" +
@@ -2230,13 +2218,6 @@ public class ProfileAdminServlet extends AdminServlet {
 
         while (e.hasMoreElements()) {
             String profileId = e.nextElement();
-            IProfile profile = null;
-
-            try {
-                profile = mProfileSub.getProfile(profileId);
-            } catch (EBaseException e1) {
-                // error
-            }
 
             String status = null;
 
@@ -2480,7 +2461,6 @@ public class ProfileAdminServlet extends AdminServlet {
 
             String impl = req.getParameter("impl");
             String name = req.getParameter("name");
-            String desc = req.getParameter("desc");
             String visible = req.getParameter("visible");
             String auth = req.getParameter("auth");
             String config = null;

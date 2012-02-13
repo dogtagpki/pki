@@ -28,7 +28,6 @@ import netscape.security.x509.GeneralName;
 import netscape.security.x509.GeneralNames;
 import netscape.security.x509.GeneralNamesException;
 import netscape.security.x509.PKIXExtensions;
-import netscape.security.x509.RDN;
 import netscape.security.x509.X509CertInfo;
 
 import com.netscape.certsrv.apps.CMS;
@@ -423,7 +422,6 @@ public class FreshestCRLExtDefault extends EnrollExtDefault {
 
         NameValuePairs pairs = new NameValuePairs();
 
-        RDN rdn = null;
         boolean hasFullName = false;
 
         pairs.add(ENABLE, "true");

@@ -198,7 +198,6 @@ public class DirAuthServlet extends CMSServlet {
 
     private void printError(CMSRequest cmsReq, String errorCode)
             throws EBaseException {
-        IArgBlock httpParams = cmsReq.getHttpParams();
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
         IArgBlock header = CMS.createArgBlock();

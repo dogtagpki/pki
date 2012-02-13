@@ -2352,7 +2352,7 @@ public class LogAdminServlet extends AdminServlet {
                 }
             } else if (key.equals(Constants.PR_DEBUG_LOG_LEVEL)) {
                 try {
-                    int number = Integer.parseInt(value);
+                    Integer.parseInt(value); // check for errors
                     mConfig.putString(Constants.PR_DEBUG_LOG_LEVEL, value);
                 } catch (NumberFormatException e) {
                     CMS.debug("setGeneralConfig: Invalid value for " + Constants.PR_DEBUG_LOG_LEVEL + ": " + value);

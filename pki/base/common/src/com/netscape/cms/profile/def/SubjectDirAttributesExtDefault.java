@@ -217,7 +217,6 @@ public class SubjectDirAttributesExtDefault extends EnrollExtDefault {
 
                 boolean critical = ext.isCritical();
 
-                X500NameAttrMap map = X500NameAttrMap.getDefault();
                 Vector<Attribute> attrV = new Vector<Attribute>();
                 for (int i = 0; i < size; i++) {
                     NameValuePairs nvps = v.elementAt(i);
@@ -511,9 +510,9 @@ class AttributeConfig {
     private static void checkValue(ObjectIdentifier oid, String val)
             throws IOException {
         AVAValueConverter c = X500NameAttrMap.getDefault().getValueConverter(oid);
-        DerValue derval;
 
-        derval = c.getValue(val); // errs encountered will get thrown.
+        @SuppressWarnings("unused")
+        DerValue derval = c.getValue(val); // check for errors
         return;
     }
 

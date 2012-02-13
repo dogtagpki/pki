@@ -251,7 +251,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      * @exception EBaseException failed to retrieve value
      */
     public String getString(String name) throws EBaseException {
-        String str = (String) get(name);
+        String str = get(name);
 
         if (str == null) {
             CMS.traceHashKey(mDebugType, getFullName(name), "<notpresent>");
@@ -629,7 +629,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
      */
     public IConfigStore getSubStore(String name) {
         String fullname = getFullName(name);
-        String reference = (String) mSource.get(fullname);
+        String reference = mSource.get(fullname);
 
         if (reference == null) {
             PropConfigStore ps = new PropConfigStore(fullname, mSource);

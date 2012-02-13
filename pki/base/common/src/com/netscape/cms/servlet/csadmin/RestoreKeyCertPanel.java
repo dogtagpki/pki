@@ -122,7 +122,8 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
         IConfigStore cs = CMS.getConfigStore();
         /* clean up if necessary */
         try {
-            boolean done = cs.getBoolean("preop.restorekeycert.done");
+            @SuppressWarnings("unused")
+            boolean done = cs.getBoolean("preop.restorekeycert.done"); // check for errors
             cs.putBoolean("preop.restorekeycert.done", false);
             cs.commit(false);
         } catch (Exception e) {

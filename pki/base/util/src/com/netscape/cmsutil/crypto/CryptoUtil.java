@@ -328,11 +328,7 @@ public class CryptoUtil {
      * formats a cert request
      */
     public static String reqFormat(String content) {
-        int beginIndex = CERTREQ_BEGIN_HEADING.length();
-        int endIndex = CERTREQ_END_HEADING.length();
-
         String result = CERTREQ_BEGIN_HEADING + "\n";
-        int index = 0;
 
         while (content.length() >= LINE_COUNT) {
             result = result + content.substring(0, LINE_COUNT) + "\n";
@@ -392,11 +388,7 @@ public class CryptoUtil {
         if (content == null || content.length() == 0) {
             return "";
         }
-        int beginIndex = CERT_BEGIN_HEADING.length();
-        int endIndex = CERT_END_HEADING.length();
-
         String result = CERT_BEGIN_HEADING + "\n";
-        int index = 0;
 
         while (content.length() >= LINE_COUNT) {
             result = result + content.substring(0, LINE_COUNT) + "\n";
@@ -997,14 +989,14 @@ public class CryptoUtil {
 
         while (enums.hasMoreElements()) {
             CryptoToken token = (CryptoToken) enums.nextElement();
-            String tokenName = token.getName();
 
             CryptoStore store = token.getCryptoStore();
             org.mozilla.jss.crypto.X509Certificate list[] = store.getCertificates();
 
             for (int i = 0; i < list.length; i++) {
                 try {
-                    PrivateKey key = cm.findPrivKeyByCert(list[i]);
+                    @SuppressWarnings("unused")
+                    PrivateKey key = cm.findPrivKeyByCert(list[i]); // check for errors
                     X509CertImpl impl = null;
 
                     try {

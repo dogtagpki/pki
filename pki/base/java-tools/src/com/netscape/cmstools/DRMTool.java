@@ -2448,7 +2448,6 @@ public class DRMTool {
      */
     private static String output_dn(String record_type,
                                      String line) {
-        String data = null;
         String embedded_cn_data[] = null;
         String embedded_cn_output = null;
         String input = null;
@@ -3955,7 +3954,6 @@ public class DRMTool {
      */
     private static String output_extdata_auth_token_user(String record_type,
                                                           String line) {
-        String data = null;
         String output = null;
 
         try {
@@ -4003,7 +4001,6 @@ public class DRMTool {
      */
     private static String output_extdata_auth_token_user_dn(String record_type,
                                                              String line) {
-        String data = null;
         String output = null;
 
         try {
@@ -4310,7 +4307,6 @@ public class DRMTool {
      * @return true if the DRMTOOL config file is successfully processed
      */
     private static boolean process_drmtool_config_file() {
-        boolean success = false;
         BufferedReader reader = null;
         String line = null;
         String name_value_pair[] = null;

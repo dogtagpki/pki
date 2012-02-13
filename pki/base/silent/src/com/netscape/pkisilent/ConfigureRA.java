@@ -255,7 +255,6 @@ public class ConfigureRA {
         px.prettyprintxml();
 
         sleep_time();
-        String ca_url = "https://" + ca_hostname + ":" + ca_ssl_port;
 
         // CA choice panel
         query_string = "p=4" +
@@ -380,8 +379,6 @@ public class ConfigureRA {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
-
-        String ca_url = "https://" + ca_hostname + ":" + ca_ssl_port;
 
         String query_string = "p=9" +
                     "&sslserver=" +

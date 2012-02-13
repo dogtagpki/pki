@@ -20,11 +20,8 @@ package com.netscape.cms.profile.common;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.common.NameValuePairs;
-import com.netscape.certsrv.profile.IPolicyConstraint;
 import com.netscape.certsrv.profile.IPolicyDefault;
 import com.netscape.certsrv.profile.IProfileEx;
-import com.netscape.certsrv.profile.IProfileInput;
-import com.netscape.certsrv.profile.IProfileOutput;
 import com.netscape.certsrv.profile.IProfilePolicy;
 
 /**
@@ -43,24 +40,16 @@ public class ServerCertCAEnrollProfile extends CAEnrollProfile
     public void populate() throws EBaseException {
         // create inputs
         NameValuePairs inputParams1 = new NameValuePairs();
-        IProfileInput input1 =
-                createProfileInput("i1", "certReqInputImpl", inputParams1);
+        createProfileInput("i1", "certReqInputImpl", inputParams1);
         NameValuePairs inputParams2 = new NameValuePairs();
-        IProfileInput input2 =
-                createProfileInput("i2", "submitterInfoInputImpl", inputParams2);
+        createProfileInput("i2", "submitterInfoInputImpl", inputParams2);
 
         // create outputs
         NameValuePairs outputParams1 = new NameValuePairs();
-        IProfileOutput output1 =
-                createProfileOutput("o1", "certOutputImpl", outputParams1);
+        createProfileOutput("o1", "certOutputImpl", outputParams1);
 
-        IProfilePolicy policy1 =
-                createProfilePolicy("set1", "p1",
+        createProfilePolicy("set1", "p1",
                         "userSubjectNameDefaultImpl", "noConstraintImpl");
-        IPolicyDefault def1 = policy1.getDefault();
-        IConfigStore defConfig1 = def1.getConfigStore();
-        IPolicyConstraint con1 = policy1.getConstraint();
-        IConfigStore conConfig1 = con1.getConfigStore();
 
         IProfilePolicy policy2 =
                 createProfilePolicy("set1", "p2",
@@ -69,8 +58,6 @@ public class ServerCertCAEnrollProfile extends CAEnrollProfile
         IConfigStore defConfig2 = def2.getConfigStore();
         defConfig2.putString("params.range", "180");
         defConfig2.putString("params.startTime", "0");
-        IPolicyConstraint con2 = policy2.getConstraint();
-        IConfigStore conConfig2 = con2.getConfigStore();
 
         IProfilePolicy policy3 =
                 createProfilePolicy("set1", "p3",
@@ -80,8 +67,6 @@ public class ServerCertCAEnrollProfile extends CAEnrollProfile
         defConfig3.putString("params.keyType", "RSA");
         defConfig3.putString("params.keyMinLength", "512");
         defConfig3.putString("params.keyMaxLength", "4096");
-        IPolicyConstraint con3 = policy3.getConstraint();
-        IConfigStore conConfig3 = con3.getConfigStore();
 
         IProfilePolicy policy4 =
                 createProfilePolicy("set1", "p4",
@@ -93,8 +78,6 @@ public class ServerCertCAEnrollProfile extends CAEnrollProfile
                 .putString(
                         "params.signingAlgsAllowed",
                         "SHA1withRSA,SHA256withRSA,SHA512withRSA,MD5withRSA,MD2withRSA,SHA1withEC,SHA256withEC,SHA384withEC,SHA512withEC");
-        IPolicyConstraint con4 = policy4.getConstraint();
-        IConfigStore conConfig4 = con4.getConfigStore();
 
         IProfilePolicy policy5 =
                 createProfilePolicy("set1", "p5",
@@ -111,8 +94,6 @@ public class ServerCertCAEnrollProfile extends CAEnrollProfile
         defConfig5.putString("params.keyUsageKeyCertSign", "false");
         defConfig5.putString("params.keyUsageKeyEncipherment", "true");
         defConfig5.putString("params.keyUsageNonRepudiation", "true");
-        IPolicyConstraint con5 = policy5.getConstraint();
-        IConfigStore conConfig5 = con5.getConfigStore();
 
     }
 

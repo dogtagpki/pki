@@ -1014,7 +1014,7 @@ public abstract class CMSServlet extends HttpServlet {
         Enumeration<String> names = httpParams.elements();
 
         while (names.hasMoreElements()) {
-            String name = (String) names.nextElement();
+            String name = names.nextElement();
             Enumeration<String> params = mDontSaveHttpParams.elements();
             boolean dosave = true;
 
@@ -1049,7 +1049,7 @@ public abstract class CMSServlet extends HttpServlet {
             return null;
         }
         ICertificateRepository certdb =
-                (ICertificateRepository) ((ICertificateAuthority) mAuthority).getCertificateRepository();
+                ((ICertificateAuthority) mAuthority).getCertificateRepository();
 
         if (certdb == null) {
             log(ILogger.LL_WARN, CMS.getLogMessage("CMSGW_CERT_DB_NULL", mAuthority.toString()));
@@ -1104,7 +1104,7 @@ public abstract class CMSServlet extends HttpServlet {
             return null;
         }
         ICertificateRepository certdb =
-                (ICertificateRepository) ((ICertificateAuthority) mAuthority).getCertificateRepository();
+                ((ICertificateAuthority) mAuthority).getCertificateRepository();
 
         if (certdb == null) {
             log(ILogger.LL_WARN, CMS.getLogMessage("CMSGW_CERT_DB_NULL", mAuthority.toString()));
@@ -1443,7 +1443,7 @@ public abstract class CMSServlet extends HttpServlet {
         if (token != null && req != null) {
             Enumeration<String> e = token.getElements();
             while (e.hasMoreElements()) {
-                String n = (String) e.nextElement();
+                String n = e.nextElement();
                 String[] x1 = token.getInStringArray(n);
                 if (x1 != null) {
                     for (int i = 0; i < x1.length; i++) {
@@ -2141,7 +2141,7 @@ public abstract class CMSServlet extends HttpServlet {
      * with the "auditSubjectID()".
      * <P>
      * 
-     * @param id string containing the signed audit log message SubjectID
+     * @param SubjectID string containing the signed audit log message SubjectID
      * @return a delimited string of groups associated
      *         with the "auditSubjectID()"
      */
@@ -2167,7 +2167,7 @@ public abstract class CMSServlet extends HttpServlet {
         StringBuffer membersString = new StringBuffer();
 
         while (groups.hasMoreElements()) {
-            IGroup group = (IGroup) groups.nextElement();
+            IGroup group = groups.nextElement();
 
             if (group.isMember(SubjectID) == true) {
                 if (membersString.length() != 0) {

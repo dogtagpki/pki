@@ -418,9 +418,6 @@ public class RenewalServlet extends CMSServlet {
         // there's no other way to tell
 
         IArgBlock httpParams = cmsReq.getHttpParams();
-        HttpServletRequest httpReq = cmsReq.getHttpReq();
-        String certType = httpParams.getValueAsString(CERT_TYPE, "client");
-        String agent = httpReq.getHeader("user-agent");
 
         if (checkImportCertToNav(cmsReq.getHttpResp(),
                 httpParams, renewed_cert)) {

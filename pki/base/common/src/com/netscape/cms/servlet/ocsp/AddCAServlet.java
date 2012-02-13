@@ -291,7 +291,6 @@ public class AddCAServlet extends CMSServlet {
 
         try {
             ServletOutputStream out = resp.getOutputStream();
-            String error = null;
 
             String xmlOutput = req.getParameter("xml");
             if (xmlOutput != null && xmlOutput.equals("true")) {

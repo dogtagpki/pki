@@ -38,7 +38,6 @@ import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ca.ICMSCRLExtension;
-import com.netscape.certsrv.ca.ICRLIssuingPoint;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.ILogger;
 
@@ -88,7 +87,6 @@ public class CMSIssuingDistributionPointExtension
             boolean critical) {
 
         CMS.debug("in CMSIssuingDistributionPointExtension::getCRLExtension.");
-        ICRLIssuingPoint crlIssuingPoint = (ICRLIssuingPoint) ip;
         IssuingDistributionPointExtension issuingDPointExt = null;
         IssuingDistributionPoint issuingDPoint = new IssuingDistributionPoint();
 

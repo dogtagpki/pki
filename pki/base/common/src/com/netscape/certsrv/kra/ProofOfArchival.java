@@ -282,19 +282,13 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival, Serializable {
             }
 
             // serial number
-            DerOutputStream serialno = new DerOutputStream();
-
             seq.putInteger(new BigInt(mSerialNo));
 
             // subject name
-            DerOutputStream subject = new DerOutputStream();
-
-            (new X500Name(mSubject)).encode(seq);
+            new X500Name(mSubject).encode(seq);
 
             // issuer name
-            DerOutputStream issuer = new DerOutputStream();
-
-            (new X500Name(mIssuer)).encode(seq);
+            new X500Name(mIssuer).encode(seq);
 
             // issue date
             seq.putUTCTime(mDateOfArchival);
@@ -383,8 +377,11 @@ public class ProofOfArchival implements IDBObj, IProofOfArchival, Serializable {
                                 "no signature found"));
                 }
 
-                AlgorithmId algid = AlgorithmId.parse(seq[1]);
-                byte signature[] = seq[2].getBitString();
+                @SuppressWarnings("unused")
+                AlgorithmId algid = AlgorithmId.parse(seq[1]); // consume algid
+
+                @SuppressWarnings("unused")
+                byte signature[] = seq[2].getBitString(); // consume signature
 
                 decodePOA(val, null);
             } else {

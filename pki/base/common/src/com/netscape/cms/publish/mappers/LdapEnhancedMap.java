@@ -192,8 +192,6 @@ public class LdapEnhancedMap
 
         try {
             mPattern = new MapDNPattern(mDnPattern);
-            String[] mReqAttrs = mPattern.getReqAttrs();
-            String[] mCertAttrs = mPattern.getCertAttrs();
         } catch (ELdapException e) {
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("PUBLISH_DN_PATTERN_INIT",

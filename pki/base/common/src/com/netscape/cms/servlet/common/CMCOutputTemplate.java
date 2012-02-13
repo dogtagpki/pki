@@ -548,7 +548,6 @@ public class CMCOutputTemplate {
                         CMS.debug("CMCOutputTemplate: Issuer names are equal");
                         ICertificateRepository repository =
                                 (ICertificateRepository) ca.getCertificateRepository();
-                        X509CertImpl impl = null;
                         try {
                             repository.getX509Certificate(serialno);
                         } catch (EBaseException ee) {
@@ -839,7 +838,6 @@ public class CMCOutputTemplate {
                         return bpid;
                     }
 
-                    byte[] bv = null;
                     String sharedSecret = null;
                     if (tokenClass != null) {
                         sharedSecret = tokenClass.getSharedToken(revokeSerial);

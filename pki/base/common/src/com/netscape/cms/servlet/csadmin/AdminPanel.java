@@ -353,12 +353,9 @@ public class AdminPanel extends WizardPanelBase {
     private void createAdmin(HttpServletRequest request) throws IOException {
         IUGSubsystem system = (IUGSubsystem) (CMS.getSubsystem(IUGSubsystem.ID));
         IConfigStore config = CMS.getConfigStore();
-        String adminName = null;
         String groupName = null;
 
         try {
-            adminName = config.getString(PRE_CONF_ADMIN_NAME,
-                    "Certificate System Administrator");
             groupName = config.getString(PRE_CONF_AGENT_GROUP,
                     "Certificate Manager Agents");
         } catch (Exception e) {

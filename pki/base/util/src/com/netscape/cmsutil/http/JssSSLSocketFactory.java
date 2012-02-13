@@ -23,7 +23,6 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 
 import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 import org.mozilla.jss.ssl.SSLClientCertificateSelectionCallback;
 import org.mozilla.jss.ssl.SSLHandshakeCompletedEvent;

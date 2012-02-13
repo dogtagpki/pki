@@ -162,7 +162,6 @@ public final class Upgrade {
             throws EBaseException {
         boolean isCA = false;
         boolean isRA = false;
-        boolean isKRA = false;
 
         // determine what subsystems do we have?
         IConfigStore cs = c.getSubStore("ca");
@@ -173,10 +172,6 @@ public final class Upgrade {
         cs = c.getSubStore("ra");
         if (cs != null && cs.size() > 0) {
             isRA = true;
-        }
-        cs = c.getSubStore("kra");
-        if (cs != null && cs.size() > 0) {
-            isKRA = true;
         }
 
         Setup.installAuthImpls(c);

@@ -314,8 +314,6 @@ public class UpdateDomainXML extends CMSServlet {
             // update in ldap
 
             LDAPEntry entry = null;
-            ILdapConnFactory connFactory = null;
-            LDAPConnection conn = null;
             String listName = type + "List";
             String cn = host + ":";
 
@@ -432,13 +430,13 @@ public class UpdateDomainXML extends CMSServlet {
 
                     for (int i = 0; i < len; i++) {
                         Node nn = (Node) nodeList.item(i);
-                        Vector v_name = parser.getValuesFromContainer(nn, "SubsystemName");
-                        Vector v_host = parser.getValuesFromContainer(nn, "Host");
-                        Vector v_adminport = parser.getValuesFromContainer(nn, "SecureAdminPort");
+                        Vector<String> v_name = parser.getValuesFromContainer(nn, "SubsystemName");
+                        Vector<String> v_host = parser.getValuesFromContainer(nn, "Host");
+                        Vector<String> v_adminport = parser.getValuesFromContainer(nn, "SecureAdminPort");
                         if ((v_name.elementAt(0).equals(name)) && (v_host.elementAt(0).equals(host))
                                 && (v_adminport.elementAt(0).equals(adminsport))) {
                             Node parent = nn.getParentNode();
-                            Node remNode = parent.removeChild(nn);
+                            parent.removeChild(nn);
                             count--;
                             break;
                         }
@@ -480,7 +478,7 @@ public class UpdateDomainXML extends CMSServlet {
                 } catch (Exception ee) {
                 }
 
-                Node nn2 = n.removeChild(countnode);
+                n.removeChild(countnode);
                 parser.addItemToContainer(n, "SubsystemCount", "" + count);
 
                 // recreate domain.xml

@@ -154,20 +154,17 @@ public class PublisherProcessor implements
                 isEnable = true;
 
             } catch (ClassNotFoundException e) {
-                String errMsg = "PublisherProcessor:: init()-" + e.toString();
-
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_LDAP_PUBLISHER_INIT_FAILED", e.toString()));
                 throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
+
             } catch (IllegalAccessException e) {
-                String errMsg = "PublisherProcessor:: init()-" + e.toString();
-
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_LDAP_PUBLISHER_INIT_FAILED", e.toString()));
                 throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
+
             } catch (InstantiationException e) {
-                String errMsg = "PublisherProcessor: init()-" + e.toString();
-
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_LDAP_PUBLISHER_INIT_FAILED", e.toString()));
                 throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
+
             } catch (Throwable e) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_LDAP_SKIP_PUBLISHER", insName, e.toString()));
                 // Let the server continue if it is a
@@ -241,20 +238,17 @@ public class PublisherProcessor implements
                 mapperInst.init(mConfig);
                 isEnable = true;
             } catch (ClassNotFoundException e) {
-                String errMsg = "PublisherProcessor:: init()-" + e.toString();
-
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_LDAP_PUBLISHER_INIT_FAILED", e.toString()));
                 throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
+
             } catch (IllegalAccessException e) {
-                String errMsg = "PublisherProcessor:: init()-" + e.toString();
-
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_LDAP_PUBLISHER_INIT_FAILED", e.toString()));
                 throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
+
             } catch (InstantiationException e) {
-                String errMsg = "PublisherProcessor: init()-" + e.toString();
-
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_LDAP_PUBLISHER_INIT_FAILED", e.toString()));
                 throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
+
             } catch (Throwable e) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_LDAP_SKIP_MAPPER", insName, e.toString()));
                 // Let the server continue if it is a
@@ -331,20 +325,17 @@ public class PublisherProcessor implements
                 log(ILogger.LL_INFO, "rule instance " +
                         insName + " added");
             } catch (ClassNotFoundException e) {
-                String errMsg = "PublisherProcessor:: init()-" + e.toString();
-
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_LDAP_PUBLISHER_INIT_FAILED", e.toString()));
                 throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
+
             } catch (IllegalAccessException e) {
-                String errMsg = "PublisherProcessor:: init()-" + e.toString();
-
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_LDAP_PUBLISHER_INIT_FAILED", e.toString()));
                 throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
+
             } catch (InstantiationException e) {
-                String errMsg = "PublisherProcessor: init()-" + e.toString();
-
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_LDAP_PUBLISHER_INIT_FAILED", e.toString()));
                 throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
+
             } catch (Throwable e) {
                 if (mConfig == null) {
                     throw new ELdapException(CMS.getUserMessage("CMS_LDAP_FAIL_LOAD_CLASS", className));
@@ -612,7 +603,7 @@ public class PublisherProcessor implements
     public Vector<String> getMapperInstanceParams(String insName) throws
             ELdapException {
         ILdapMapper mapperInst = null;
-        MapperProxy proxy = (MapperProxy) mMapperInsts.get(insName);
+        MapperProxy proxy = mMapperInsts.get(insName);
 
         if (proxy == null) {
             return null;
@@ -629,8 +620,7 @@ public class PublisherProcessor implements
     public Vector<String> getPublisherDefaultParams(String implName) throws
             ELdapException {
         // is this a registered implname?
-        PublisherPlugin plugin = (PublisherPlugin)
-                mPublisherPlugins.get(implName);
+        PublisherPlugin plugin = mPublisherPlugins.get(implName);
 
         if (plugin == null) {
             log(ILogger.LL_FAILURE,
@@ -841,7 +831,7 @@ public class PublisherProcessor implements
                     "Cannot mark cert 0x" + serialNo.toString(16)
                     + " published as " + published
                     + " in the ldap directory. Cert Record not found. Error: "
-                    + e.toString() 
+                    + e
                     + " Don't be alarmed if it's a subordinate ca or clone's ca siging cert. " 
                     + "Otherwise your internal db may be corrupted.");
         }
@@ -903,10 +893,10 @@ public class PublisherProcessor implements
             } catch (Exception e) {
                 // continue publishing even publisher has errors
                 //log(ILogger.LL_WARN, e.toString());
-                CMS.debug("PublisherProcessor::publishCACert returned error: " + e.toString());
+                CMS.debug("PublisherProcessor::publishCACert returned error: " + e);
                 error = true;
                 errorRule = errorRule + " " + rule.getInstanceName() +
-                        " error:" + e.toString();
+                        " error:" + e;
             }
         }
         // set the ldap published flag.
@@ -989,7 +979,6 @@ public class PublisherProcessor implements
      */
     public void publishXCertPair(byte[] pair)
             throws ELdapException {
-        boolean error = false;
         String errorRule = "";
 
         if (!enabled())
@@ -1036,11 +1025,10 @@ public class PublisherProcessor implements
             } catch (Exception e) {
                 // continue publishing even publisher has errors
                 //log(ILogger.LL_WARN, e.toString());
-                error = true;
                 errorRule = errorRule + " " + rule.getInstanceName() +
-                        " error:" + e.toString();
+                        " error:" + e;
 
-                CMS.debug("PublisherProcessor::publishXCertPair: error: " + e.toString());
+                CMS.debug("PublisherProcessor::publishXCertPair: error: " + e);
             }
         }
     }
@@ -1248,7 +1236,7 @@ public class PublisherProcessor implements
                     error = true;
                     errorRule = errorRule + " " + rule.getInstanceName();
 
-                    CMS.debug("PublisherProcessor::publishCRL: error: " + e.toString());
+                    CMS.debug("PublisherProcessor::publishCRL: error: " + e);
                 }
             }
         } catch (ELdapException e) {
@@ -1306,15 +1294,15 @@ public class PublisherProcessor implements
                     }
                 } catch (Exception e) {
                     CMS.debug(
-                            "Error publishing CRL to " + dn + ": " + e.toString());
+                            "Error publishing CRL to " + dn + ": " + e);
                     error = true;
                     errorRule = errorRule + " " + rule.getInstanceName();
-                    CMS.debug("PublisherProcessor::publishCRL: error: " + e.toString());
+                    CMS.debug("PublisherProcessor::publishCRL: error: " + e);
                 }
             }
         } catch (ELdapException e) {
             CMS.debug(
-                    "Error publishing CRL to " + dn + ": " + e.toString());
+                    "Error publishing CRL to " + dn + ": " + e);
             throw e;
         } finally {
             if (conn != null) {

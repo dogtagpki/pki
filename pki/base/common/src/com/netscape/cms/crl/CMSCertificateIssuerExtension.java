@@ -33,7 +33,6 @@ import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ca.ICMSCRLExtension;
-import com.netscape.certsrv.ca.ICRLIssuingPoint;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.ILogger;
 
@@ -70,8 +69,6 @@ public class CMSCertificateIssuerExtension
             boolean critical) {
         CertificateIssuerExtension certIssuerExt = null;
         int numNames = 0;
-
-        ICRLIssuingPoint crlIssuingPoint = (ICRLIssuingPoint) ip;
 
         try {
             numNames = config.getInteger("numNames", 0);

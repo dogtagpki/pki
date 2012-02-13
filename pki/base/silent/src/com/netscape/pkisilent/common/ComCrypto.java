@@ -18,11 +18,7 @@ package com.netscape.pkisilent.common;
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
 import java.security.KeyPair;
 
 import netscape.security.x509.X500Name;
@@ -492,13 +488,6 @@ public class ComCrypto {
     }
 
     public String generateCRMFrequest() {
-        URL url = null;
-        URLConnection conn = null;
-        InputStream is = null;
-        BufferedReader reader = null;
-        boolean success = false;
-        int num = 1;
-        long total_time = 0;
         KeyPair pair = null;
 
         System.out.println("Debug : initialize crypto Manager");
@@ -622,9 +611,6 @@ public class ComCrypto {
 
     public String generateCRMFtransport() {
 
-        boolean success = false;
-        int num = 1;
-        long total_time = 0;
         KeyPair pair = null;
 
         try {

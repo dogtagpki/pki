@@ -141,10 +141,9 @@ public class PKCS10 {
         //
         // Inner sequence:  version, name, key, attributes
         //
-        BigInt serial;
-        DerValue val;
+        @SuppressWarnings("unused")
+        BigInt serial = seq[0].data.getInteger(); // consume serial
 
-        serial = seq[0].data.getInteger();
         /*
         	if (serial.toInt () != 0)
         	    throw new IllegalArgumentException ("not PKCS #10 v1");
@@ -155,8 +154,6 @@ public class PKCS10 {
         byte val1[] = seq[0].data.getDerValue().toByteArray();
         subjectPublicKeyInfo = X509Key.parse(new DerValue(val1));
         PublicKey publicKey = X509Key.parsePublicKey(new DerValue(val1));
-
-        String keystr = subjectPublicKeyInfo.toString();
 
         // Cope with a somewhat common illegal PKCS #10 format
         if (seq[0].data.available() != 0)

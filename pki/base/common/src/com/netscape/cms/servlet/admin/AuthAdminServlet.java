@@ -1204,9 +1204,7 @@ public class AuthAdminServlet extends AdminServlet {
             // only remove from memory
             // cannot shutdown because we don't keep track of whether it's
             // being used. 
-            IAuthManager mgrInst = (IAuthManager) mAuths.get(id);
-
-            mAuths.getInstances().remove((Object) id);
+            mAuths.getInstances().remove(id);
 
             // remove the configuration.
             IConfigStore destStore =

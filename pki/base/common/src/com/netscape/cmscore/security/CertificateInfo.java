@@ -226,7 +226,6 @@ public abstract class CertificateInfo {
         //KeyCertUtil.setOCSPSigning(mKeyPair, exts, mProperties);
         KeyCertUtil.setAuthInfoAccess(mKeyPair, exts, mProperties);
         KeyCertUtil.setOCSPNoCheck(mKeyPair, exts, mProperties);
-        KeyPair caKeyPair = (KeyPair) mProperties.get(Constants.PR_CA_KEYPAIR);
         String aki = mProperties.getAKI();
 
         if ((aki != null) && (aki.equals(Constants.TRUE))) {

@@ -236,7 +236,6 @@ public class ProfileReviewServlet extends ProfileServlet {
         CMS.debug("ProfileReviewServlet: profileSetId=" + profileSetId);
         Enumeration<String> policyIds = (profileSetId != null && profileSetId.length() > 0) ?
                                  profile.getProfilePolicyIds(profileSetId) : null;
-        int count = 0;
         ArgList list = new ArgList();
 
         if (policyIds != null) {
@@ -251,7 +250,6 @@ public class ProfileReviewServlet extends ProfileServlet {
                 //     http parameters
                 handlePolicy(list, response, locale,
                         id, policy, req);
-                count++;
             }
         }
 

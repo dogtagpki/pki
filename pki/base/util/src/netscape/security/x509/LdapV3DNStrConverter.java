@@ -108,8 +108,6 @@ public class LdapV3DNStrConverter extends LdapDNStrConverter {
             throws IOException {
         StringReader dn_reader = new StringReader(dn);
         PushbackReader in = new PushbackReader(dn_reader, 5);
-        Vector<RDN> rdnVector = new Vector<RDN>();
-        RDN[] names;
 
         return parseDN(in, encodingOrder);
     }

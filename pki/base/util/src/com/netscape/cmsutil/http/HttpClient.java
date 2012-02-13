@@ -198,9 +198,6 @@ public class HttpClient {
         //System.out.println(content);
 
         if (args.length >= 4 && args[3].equalsIgnoreCase("keep-alive")) {
-            int len;
-            char[] msgbody;
-
             for (int i = 0; i < 2; i++) {
                 if (i == 1)
                     req.setHeader("Connection", "Close");

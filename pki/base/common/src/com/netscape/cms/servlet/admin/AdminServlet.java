@@ -290,7 +290,6 @@ public class AdminServlet extends HttpServlet {
             IOException {
 
         String auditMessage = null;
-        String auditSubjectID = ILogger.UNIDENTIFIED;
         String auditUID = ILogger.UNIDENTIFIED;
         String authType = "";
 

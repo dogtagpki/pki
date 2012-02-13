@@ -43,7 +43,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IPrettyPrintFormat;
 import com.netscape.certsrv.base.SessionContext;
-import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.tks.ITKSAuthority;
 import com.netscape.cms.servlet.base.CMSServlet;
@@ -753,7 +752,7 @@ public class TokenServlet extends CMSServlet {
 
     private void processDiversifyKey(HttpServletRequest req,
             HttpServletResponse resp) throws EBaseException {
-        byte[] KeySetData, KeysValues, CUID, xCUID;
+        byte[] KeySetData, CUID, xCUID;
         byte[] xkeyInfo, xnewkeyInfo;
         boolean missingParam = false;
         String errorMsg = "";
@@ -825,7 +824,6 @@ public class TokenServlet extends CMSServlet {
             useSoftToken_s = "false";
 
         KeySetData = null;
-        String outputString = null;
         if (!missingParam) {
             xCUID = com.netscape.cmsutil.util.Utils.SpecialDecode(rCUID);
             if (xCUID == null || xCUID.length != 10) {
@@ -892,10 +890,6 @@ public class TokenServlet extends CMSServlet {
                             + ";to newMasterKeyName=" + newSelectedToken + ":" + newKeyNickName);
 
             resp.setContentType("text/html");
-
-            if (KeySetData != null) {
-                outputString = new String(KeySetData);
-            }
         } // ! missingParam
 
         //CMS.debug("TokenServlet:processDiversifyKey " +outputString);
@@ -1093,7 +1087,6 @@ public class TokenServlet extends CMSServlet {
         String value = "";
         String status = "0";
         if (encryptedData != null && encryptedData.length > 0) {
-            String outputString = new String(encryptedData);
             // sending both the pre-encrypted and encrypted data back
             value = "status=0&" + "data=" +
                          com.netscape.cmsutil.util.Utils.SpecialEncode(data) +
@@ -1342,9 +1335,6 @@ public class TokenServlet extends CMSServlet {
      */
     public void service(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        String scope = req.getParameter(Constants.OP_SCOPE);
-        String op = req.getParameter(Constants.OP_TYPE);
-
         super.service(req, resp);
     }
 }

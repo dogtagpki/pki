@@ -344,10 +344,6 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
         if (anon.getFacId() != mConns) {
             // returning a connection not from this factory. 
             log(ILogger.LL_WARN, "returnConn: unknown connection.");
-
-            /* swallow this error but see who's doing it. */
-            ELdapException e =
-                    new ELdapException(CMS.getUserMessage("CMS_LDAP_UNKNOWN_RETURNED_CONN"));
         }
         // check if conn has already been returned.
         for (int i = 0; i < mNumConns; i++) {
@@ -357,8 +353,6 @@ public class LdapAnonConnFactory implements ILdapConnFactory {
                 /* swallow this error but see who's doing it. */
                 log(ILogger.LL_WARN,
                         "returnConn: previously returned connection.");
-                ELdapException e =
-                        new ELdapException(CMS.getUserMessage("CMS_LDAP_BAD_RETURNED_CONN"));
             }
         }
 

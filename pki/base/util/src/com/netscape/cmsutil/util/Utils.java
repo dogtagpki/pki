@@ -60,8 +60,6 @@ public class Utils {
             }
             Process process = Runtime.getRuntime().exec(cmds);
             process.waitFor();
-            BufferedReader pOut = null;
-            String l = null;
 
             if (process.exitValue() == 0) {
                 /**

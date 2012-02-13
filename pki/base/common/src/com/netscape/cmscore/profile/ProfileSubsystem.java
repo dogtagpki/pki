@@ -251,7 +251,7 @@ public class ProfileSubsystem implements IProfileSubsystem {
     public String getProfileEnableBy(String id) {
         if (!isProfileEnable(id))
             return null;
-        IProfile profile = (IProfile) mProfiles.get(id);
+        IProfile profile = mProfiles.get(id);
         String enableBy = null;
 
         try {
@@ -295,11 +295,11 @@ public class ProfileSubsystem implements IProfileSubsystem {
      */
     public IProfile getProfile(String id)
             throws EProfileException {
-        return (IProfile) mProfiles.get(id);
+        return mProfiles.get(id);
     }
 
     public String getProfileClassId(String id) {
-        return (String) mProfileClassIds.get(id);
+        return mProfileClassIds.get(id);
     }
 
     /**

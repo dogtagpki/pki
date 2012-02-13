@@ -640,8 +640,6 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
          * the caller should really check the index is within bound before this
          * but I'll take care of this just in case they are too irresponsible
          */
-        int baseJumpTo = 0;
-
         if (!mInitialized)
             mSize = getSize();
 

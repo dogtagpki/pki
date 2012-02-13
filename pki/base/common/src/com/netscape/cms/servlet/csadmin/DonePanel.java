@@ -368,6 +368,7 @@ public class DonePanel extends WizardPanelBase {
             try {
                 // Fetch the "new" security domain and display it
                 CMS.debug("Dump contents of new Security Domain . . .");
+                @SuppressWarnings("unused")
                 String c = getDomainXML(sd_host, sd_admin_port_int, true);
             } catch (Exception e) {
             }
@@ -422,6 +423,7 @@ public class DonePanel extends WizardPanelBase {
 
                 // Fetch the "updated" security domain and display it
                 CMS.debug("Dump contents of updated Security Domain . . .");
+                @SuppressWarnings("unused")
                 String c = getDomainXML(sd_host, sd_admin_port_int, true);
             } catch (Exception e) {
                 context.put("errorString", "Failed to update the security domain on the domain master.");
@@ -471,12 +473,8 @@ public class DonePanel extends WizardPanelBase {
 
         if (!select.equals("clone")) {
             if (type.equals("CA") || type.equals("KRA")) {
-                String beginRequestNumStr = "";
                 String endRequestNumStr = "";
-                String beginSerialNumStr = "";
                 String endSerialNumStr = "";
-                String requestIncStr = "";
-                String serialIncStr = "";
 
                 try {
                     endRequestNumStr = cs.getString("dbs.endRequestNumber", "");

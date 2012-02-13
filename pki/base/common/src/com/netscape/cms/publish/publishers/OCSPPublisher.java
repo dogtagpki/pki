@@ -95,8 +95,8 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
     /**
      * Returns the current instance parameters.
      */
-    public Vector getInstanceParams() {
-        Vector v = new Vector();
+    public Vector<String> getInstanceParams() {
+        Vector<String> v = new Vector<String>();
         String host = "";
         String port = "";
         String path = "";
@@ -134,8 +134,8 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
     /**
      * Returns the initial default parameters.
      */
-    public Vector getDefaultParams() {
-        Vector v = new Vector();
+    public Vector<String> getDefaultParams() {
+        Vector<String> v = new Vector<String>();
 
         IConfigStore config = CMS.getConfigStore();
         String nickname = "";
@@ -301,7 +301,6 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
                     ILogger.LL_INFO, "OCSPPublisher: start getting response");
             DataInputStream dis = new DataInputStream(socket.getInputStream());
             String nextline;
-            String line = "";
             String error = "";
             boolean status = false;
 

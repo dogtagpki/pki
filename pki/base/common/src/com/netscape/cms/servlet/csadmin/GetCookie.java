@@ -233,7 +233,6 @@ public class GetCookie extends CMSServlet {
                 }
 
                 try {
-                    String sd_url = "https://" + CMS.getEESSLHost() + ":" + CMS.getEESSLPort();
                     if (!url.startsWith("$")) {
                         try {
                             form = getTemplate(mFormPath, httpReq, locale);
@@ -250,7 +249,6 @@ public class GetCookie extends CMSServlet {
                         header.addStringValue("url", url);
                         header.addStringValue("session_id", cookie);
 
-                        EBaseException error = null;
                         try {
                             ServletOutputStream out = httpResp.getOutputStream();
 
@@ -278,7 +276,6 @@ public class GetCookie extends CMSServlet {
     }
 
     private String getGroupName(String uid, String subsystemname) {
-        String groupname = "";
         IUGSubsystem subsystem =
                 (IUGSubsystem) (CMS.getSubsystem(IUGSubsystem.ID));
         if (subsystem.isMemberOf(uid, "Enterprise CA Administrators") &&

@@ -32,7 +32,6 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IExtendedPluginInfo;
-import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.ca.ICMSCRLExtensions;
 import com.netscape.certsrv.ca.ICRLIssuingPoint;
 import com.netscape.certsrv.ca.ICertificateAuthority;
@@ -348,9 +347,6 @@ public class CAAdminServlet extends AdminServlet {
 
                 if ((!template.exists()) || (!template.canRead())
                         || (template.isDirectory())) {
-                    String error =
-                            "Template: " + val + " does not exist or invalid";
-
                     log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_INVALID_PATH"));
 
                     sendResponse(ERROR,
@@ -404,9 +400,6 @@ public class CAAdminServlet extends AdminServlet {
 
                 if ((!template.exists()) || (!template.canRead())
                         || (template.isDirectory())) {
-                    String error =
-                            "Template: " + val + " does not exist or invalid";
-
                     log(ILogger.LL_FAILURE, CMS.getLogMessage("ADMIN_SRVLT_INVALID_PATH"));
 
                     sendResponse(ERROR,
@@ -1535,16 +1528,12 @@ public class CAAdminServlet extends AdminServlet {
             HttpServletResponse resp) throws ServletException,
             IOException, EBaseException {
 
-        ISubsystem eeGateway = null;
-
         /*
          ISubsystem eeGateway = 
          SubsystemRegistry.getInstance().get("eeGateway");
          */
-        IConfigStore eeConfig = null;
 
-        IConfigStore caConfig = mCA.getConfigStore();
-
+        @SuppressWarnings("unchecked")
         Enumeration<String> enum1 = req.getParameterNames();
         boolean restart = false;
 

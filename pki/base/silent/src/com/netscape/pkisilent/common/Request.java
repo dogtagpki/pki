@@ -349,7 +349,6 @@ public class Request extends TestClient {
         String AUTHID = "header.authorityid = ";
         String seqnum = "record.seqNum";
 
-        int size = s.capacity();
         String res = s.toString();
         int ret = 0;
 
@@ -635,7 +634,6 @@ public class Request extends TestClient {
             StringBuffer s = new StringBuffer();
 
             s = con.getPage();
-            String line;
 
             if (debug) {
                 System.out.println(s.toString());
@@ -967,7 +965,6 @@ public class Request extends TestClient {
         seqNumFrom = x.intValue();
 
         Integer y = new Integer(To);
-        int t = y.intValue();
 
         if ((y.intValue() - seqNumFrom) > 50) {
             maxCount = 50;

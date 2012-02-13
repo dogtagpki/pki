@@ -152,9 +152,8 @@ public class PolicySet implements IPolicySet {
      */
     public PolicyResult apply(IRequest req) {
         // If there are no rules, we are done.
-        int cnt;
 
-        if ((cnt = mRules.size()) == 0)
+        if (mRules.size() == 0)
             return PolicyResult.ACCEPTED;
 
         // All policies are applied before returning the result. Hence

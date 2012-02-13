@@ -177,8 +177,11 @@ public class AgentAuthenticatePanel extends WizardPanelBase {
             String pwd = HttpInput.getPassword(request, "__password");
             config.putString("preop.ca.agent.uid", uid);
             config.putString("preop.ca.agent.pwd", pwd);
+
+            /*
             String host = "";
             int httpsport = -1;
+
             try {
                 host = config.getString("preop.ca.hostname");
             } catch (Exception e) {
@@ -195,7 +198,6 @@ public class AgentAuthenticatePanel extends WizardPanelBase {
                 throw new IOException("Missing port");
             }
 
-            /*
                          // Bugzilla Bug #583825 - CC: Obsolete servlets to be removed from
                          //                        web.xml as part of CC interface review
                          boolean authenticated = authenticate(host, httpsport, true,

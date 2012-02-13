@@ -122,7 +122,8 @@ public class CertRequestPanel extends WizardPanelBase {
             if (cert == null)
                 return false;
             try {
-                boolean done = cs.getBoolean("preop.CertRequestPanel.done");
+                @SuppressWarnings("unused")
+                boolean done = cs.getBoolean("preop.CertRequestPanel.done"); // check for errors
                 return true;
             } catch (Exception ee) {
                 if (hardware) {
@@ -219,7 +220,8 @@ public class CertRequestPanel extends WizardPanelBase {
         }
 
         try {
-            boolean done = cs.getBoolean("preop.CertRequestPanel.done");
+            @SuppressWarnings("unused")
+            boolean done = cs.getBoolean("preop.CertRequestPanel.done"); // check for errors
             cs.putBoolean("preop.CertRequestPanel.done", false);
             cs.commit(false);
         } catch (Exception e) {
@@ -486,12 +488,6 @@ public class CertRequestPanel extends WizardPanelBase {
         CMS.debug("CertRequestPanel: in update()");
         boolean hasErr = false;
         IConfigStore config = CMS.getConfigStore();
-
-        String catype = "";
-        try {
-            catype = config.getString("preop.ca.type", "");
-        } catch (Exception e) {
-        }
 
         if (isPanelDone()) {
             context.put("updateStatus", "success");

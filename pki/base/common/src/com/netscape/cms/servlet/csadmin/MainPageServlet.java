@@ -84,7 +84,6 @@ public class MainPageServlet extends CMSServlet {
 
         process(argSet, header, ctx, request, response);
 
-        EBaseException error = null;
         try {
             ServletOutputStream out = response.getOutputStream();
 

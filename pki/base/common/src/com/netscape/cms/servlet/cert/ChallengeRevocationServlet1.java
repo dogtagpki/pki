@@ -148,8 +148,6 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
             throw new ECMSGWException(CMS.getLogMessage("CMSGW_ERROR_DISPLAY_TEMPLATE"));
         }
 
-        EBaseException error = null;
-
         IArgBlock header = CMS.createArgBlock();
         IArgBlock ctx = CMS.createArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, ctx);
@@ -167,7 +165,6 @@ public class ChallengeRevocationServlet1 extends CMSServlet {
         int reasonCode =
                 httpParams.getValueAsInt(REASON_CODE, 0);
         //        header.addIntegerValue("reason", reasonCode);
-        RevocationReason reason = RevocationReason.fromInt(reasonCode);
 
         String comments = req.getParameter(IRequest.REQUESTOR_COMMENTS);
         Date invalidityDate = null;

@@ -142,7 +142,6 @@ public class DisplayCRL extends CMSServlet {
         CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
 
         // Note error is covered in the same template as success.
-        EBaseException error = null;
 
         String crlIssuingPointId = req.getParameter("crlIssuingPoint");
 
@@ -175,8 +174,6 @@ public class DisplayCRL extends CMSServlet {
                          HttpServletResponse resp,
                          String crlIssuingPointId,
                          Locale locale) {
-        boolean updateStatus = true;
-        EBaseException error = null;
         ICRLIssuingPoint crlIP = null;
         X509CRLImpl crl = null;
         boolean clonedCA = false;

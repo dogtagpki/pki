@@ -156,21 +156,19 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
 
                 // register the job
                 mJobs.put(jobName, job);
+
             } catch (ClassNotFoundException e) {
-                String errMsg = "JobsScheduler:: init()-" + e.toString();
-
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_JOBS_INIT_ERROR", e.toString()));
                 throw new EJobsException(CMS.getUserMessage("CMS_JOB_LOAD_CLASS_FAILED", classPath));
+
             } catch (IllegalAccessException e) {
-                String errMsg = "JobsScheduler:: init()-" + e.toString();
-
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_JOBS_INIT_ERROR", e.toString()));
                 throw new EJobsException(CMS.getUserMessage("CMS_JOB_LOAD_CLASS_FAILED", classPath));
+
             } catch (InstantiationException e) {
-                String errMsg = "JobsScheduler: init()-" + e.toString();
-
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_JOBS_INIT_ERROR", e.toString()));
                 throw new EJobsException(CMS.getUserMessage("CMS_JOB_LOAD_CLASS_FAILED", classPath));
+
             } catch (EBaseException e) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_JOBS_INIT_ERROR", e.toString()));
                 throw e;
@@ -237,7 +235,7 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
                 try {
                     Thread.sleep(duration);
                 } catch (InterruptedException e) {
-                    System.out.println(e.toString());
+                    System.out.println(e);
                 }
             }
             // if (duration == 0), it's time
@@ -494,19 +492,19 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSCORE_JOBS_CREATE_NEW", e.toString()));
             if (Debug.ON)
-                Debug.trace("class NOT instantiated: " + e.toString());
+                Debug.trace("class NOT instantiated: " + e);
             throw new EJobsException(CMS.getUserMessage("CMS_JOB_LOAD_CLASS_FAILED", className));
         } catch (ClassNotFoundException e) {
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSCORE_JOBS_CREATE_NEW", e.toString()));
             if (Debug.ON)
-                Debug.trace("class NOT instantiated: " + e.toString());
+                Debug.trace("class NOT instantiated: " + e);
             throw new EJobsException(CMS.getUserMessage("CMS_JOB_LOAD_CLASS_FAILED", className));
         } catch (IllegalAccessException e) {
             log(ILogger.LL_FAILURE,
                     CMS.getLogMessage("CMSCORE_JOBS_CREATE_NEW", e.toString()));
             if (Debug.ON)
-                Debug.trace("class NOT instantiated: " + e.toString());
+                Debug.trace("class NOT instantiated: " + e);
             throw new EJobsException(CMS.getUserMessage("CMS_JOB_LOAD_CLASS_FAILED", className));
         }
     }

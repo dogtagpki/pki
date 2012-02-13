@@ -64,10 +64,7 @@ public class GetSubsystemCert extends CMSServlet {
      * Process the HTTP request.
      */
     protected void process(CMSRequest cmsReq) throws EBaseException {
-        HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
-
-        String outputString = null;
 
         IConfigStore cs = CMS.getConfigStore();
         String nickname = "";

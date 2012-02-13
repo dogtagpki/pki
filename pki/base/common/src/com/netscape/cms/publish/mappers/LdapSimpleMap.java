@@ -138,8 +138,6 @@ public class LdapSimpleMap implements ILdapMapper, IExtendedPluginInfo {
             mDnPattern = DEFAULT_DNPATTERN;
         try {
             mPattern = new MapDNPattern(mDnPattern);
-            String[] mReqAttrs = mPattern.getReqAttrs();
-            String[] mCertAttrs = mPattern.getCertAttrs();
         } catch (ELdapException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("PUBLISH_DN_PATTERN_INIT",
                     dnPattern, e.toString()));

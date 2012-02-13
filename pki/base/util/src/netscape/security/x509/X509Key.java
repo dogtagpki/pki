@@ -30,7 +30,6 @@ import java.security.PublicKey;
 import java.security.Security;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
-import java.util.Properties;
 
 import netscape.security.util.DerOutputStream;
 import netscape.security.util.DerValue;
@@ -185,8 +184,6 @@ public class X509Key implements PublicKey {
          */
         String classname = "";
         try {
-            Properties props;
-            String keytype;
             Provider sunProvider;
 
             sunProvider = Security.getProvider("SUN");

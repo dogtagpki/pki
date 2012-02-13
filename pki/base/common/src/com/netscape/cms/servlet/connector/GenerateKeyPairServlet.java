@@ -33,7 +33,6 @@ import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IPrettyPrintFormat;
-import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
@@ -290,9 +289,6 @@ public class GenerateKeyPairServlet extends CMSServlet {
      */
     public void service(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        String scope = req.getParameter(Constants.OP_SCOPE);
-        String op = req.getParameter(Constants.OP_TYPE);
-
         super.service(req, resp);
 
     }

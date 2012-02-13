@@ -143,7 +143,6 @@ public class SubjectDirectoryAttributesExt extends APolicyRule
 
     public PolicyResult applyCert(IRequest req, X509CertInfo certInfo) {
         CertificateExtensions extensions = null;
-        SubjectDirAttributesExtension subjDirExt = null;
 
         try {
             // get extension and remove if exists.
@@ -413,7 +412,7 @@ class AttributeConfig {
 
         while (n.hasMoreElements()) {
             sb.append(",");
-            sb.append((String) n.nextElement());
+            sb.append(n.nextElement());
         }
         return sb.toString();
     }
@@ -421,9 +420,9 @@ class AttributeConfig {
     private static void checkValue(ObjectIdentifier oid, String val)
             throws IOException {
         AVAValueConverter c = X500NameAttrMap.getDefault().getValueConverter(oid);
-        DerValue derval;
 
-        derval = c.getValue(val); // errs encountered will get thrown.
+        @SuppressWarnings("unused")
+        DerValue derval = c.getValue(val); // check for errors
         return;
     }
 

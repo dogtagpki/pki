@@ -141,11 +141,11 @@ public class KeyCertUtil {
                 DerValue b_der = new DerValue(b);
 
                 while (b_der.data.available() != 0) {
-                    Extension de = new Extension(b_der.data.getDerValue());
+                    new Extension(b_der.data.getDerValue()); // check for errors
                 }
             } catch (IOException e) {
                 try {
-                    Extension de = new Extension(new DerValue(b));
+                    new Extension(new DerValue(b)); // check for errors
                 } catch (IOException ex) {
                     throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_CERT_EXTENSION"));
                 }

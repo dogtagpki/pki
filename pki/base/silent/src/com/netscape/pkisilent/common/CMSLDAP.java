@@ -463,12 +463,10 @@ public class CMSLDAP {
      **/
 
     public boolean TurnOnSSL(String certPrefix, String certName, String sslport) {
-        String dn;
         String CIPHERS =
                 "-rsa_null_md5,+rsa_fips_3des_sha,+rsa_fips_des_sha,+rsa_3des_sha,+rsa_rc4_128_md5,+rsa_des_sha,+rsa_rc2_40_md5,+rsa_rc4_40_md5";
 
         try {
-            boolean found = false;
             int searchScope = LDAPv2.SCOPE_SUB;
             String getAttrs[] = { "nssslactivation" };
 
@@ -507,9 +505,10 @@ public class CMSLDAP {
 
             // conn.delete("cn=RSA,cn=encryption,cn=config"); 		
             try {
-                LDAPSearchResults results = conn.search(
+                conn.search(
                         "cn=RSA,cn=encryption,cn=config", searchScope, null,
-                        getAttrs, false);
+                        getAttrs, false); // check for errors
+
                 LDAPAttribute cn = new LDAPAttribute("cn", "RSA");
                 LDAPAttribute ssltoken = new LDAPAttribute("nsssltoken",
                         "internal (software)");

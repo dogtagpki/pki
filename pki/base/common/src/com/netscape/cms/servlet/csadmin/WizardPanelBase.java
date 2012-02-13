@@ -1088,18 +1088,6 @@ public class WizardPanelBase implements IWizardPanel {
 
             CMS.debug("Getting domain.xml from CA...");
             String c = getDomainXML(hostname, httpsadminport, true);
-            String list = "";
-
-            CMS.debug("Subsystem Type " + type);
-            if (type.equals("CA")) {
-                list = "CAList";
-            } else if (type.equals("KRA")) {
-                list = "KRAList";
-            } else if (type.equals("OCSP")) {
-                list = "OCSPList";
-            } else if (type.equals("TKS")) {
-                list = "TKSList";
-            }
 
             CMS.debug("Getting " + portType + " from Security Domain ...");
             if (!portType.equals("UnSecurePort") &&

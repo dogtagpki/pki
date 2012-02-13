@@ -133,7 +133,6 @@ public final class UGSubsystem implements IUGSubsystem {
 
             mLdapConnFactory = new LdapBoundConnFactory();
             mLdapConnFactory.init(ldapConfig);
-            IConfigStore c = config.getSubStore(PROP_IMPL);
         } catch (EBaseException e) {
             if (CMS.isPreOpMode())
                 return;
@@ -250,16 +249,8 @@ public final class UGSubsystem implements IUGSubsystem {
 
             return (User) e.nextElement();
         } catch (LDAPException e) {
-            String errMsg = "findUser()" + e.toString();
-
-            if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
-                errMsg = "findUser: " + "Internal DB is unavailable";
-            }
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_FIND_USER", e.toString()));
         } catch (ELdapException e) {
-            String errMsg =
-                    "find User: Could not get connection to internaldb. Error " + e;
-
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_INTERNAL_DB", e.toString()));
         } finally {
             if (ldapconn != null)
@@ -307,19 +298,10 @@ public final class UGSubsystem implements IUGSubsystem {
 
             Enumeration<IUser> e = buildUsers(res);
 
-            return (User) e.nextElement();
+            return e.nextElement();
         } catch (LDAPException e) {
-            String errMsg = "findUsersByCert()" + e.toString();
-
-            if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
-                errMsg = "findUsersByCert: " + "Internal DB is unavailable";
-            }
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_FIND_USER_BY_CERT", e.toString()));
         } catch (ELdapException e) {
-            String errMsg =
-                    "find Users By Cert: " +
-                            "Could not get connection to internaldb. Error " + e;
-
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_FIND_USER_BY_CERT", e.toString()));
         } finally {
             if (ldapconn != null)
@@ -349,16 +331,8 @@ public final class UGSubsystem implements IUGSubsystem {
 
             return e;
         } catch (LDAPException e) {
-            String errMsg = "findUsers()" + e.toString();
-
-            if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
-                errMsg = "findUsersByCert: " + "Internal DB is unavailable";
-            }
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_FIND_USERS", e.toString()));
         } catch (ELdapException e) {
-            String errMsg =
-                    "find Users: Could not get connection to internaldb. Error " + e;
-
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_FIND_USERS", e.toString()));
         } finally {
             if (ldapconn != null)
@@ -395,11 +369,6 @@ public final class UGSubsystem implements IUGSubsystem {
 
             return e;
         } catch (LDAPException e) {
-            String errMsg = "listUsers()" + e.toString();
-
-            if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
-                errMsg = "findUsersByCert: " + "Internal DB is unavailable";
-            }
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_LIST_USERS", e.toString()));
         } catch (Exception e) {
             throw new EUsrGrpException(CMS.getUserMessage("CMS_INTERNAL_ERROR"));
@@ -526,10 +495,7 @@ public final class UGSubsystem implements IUGSubsystem {
         if (userdn != null) {
             id.setUserDN(userdn);
         } else { // the impossible
-            String errMsg = "buildUser(): user DN not found: " +
-                    userdn;
-
-            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_BUILD_USER"));
+            log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_BUILD_USER", userdn));
 
             throw new EUsrGrpException(CMS.getUserMessage("CMS_INTERNAL_ERROR"));
         }
@@ -738,9 +704,6 @@ public final class UGSubsystem implements IUGSubsystem {
             ldapconn = getConn();
             ldapconn.add(entry);
         } catch (ELdapException e) {
-            String errMsg =
-                    "add User: Could not get connection to internaldb. Error " + e;
-
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_ADD_USER", e.toString()));
         } finally {
             if (ldapconn != null)
@@ -807,18 +770,9 @@ public final class UGSubsystem implements IUGSubsystem {
                 if (Debug.ON) {
                     e.printStackTrace();
                 }
-                String errMsg = "addUserCert():" + e.toString();
-
-                if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
-                    errMsg = "findUsersByCert: " + "Internal DB is unavailable";
-                }
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_ADD_USER", e.toString()));
                 throw e;
             } catch (ELdapException e) {
-                String errMsg =
-                        "add User Cert: " +
-                                "Could not get connection to internaldb. Error " + e;
-
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_ADD_USER", e.toString()));
             } finally {
                 if (ldapconn != null)
@@ -915,19 +869,9 @@ public final class UGSubsystem implements IUGSubsystem {
                             );
 
                 } catch (LDAPException e) {
-                    String errMsg = "removeUserCert():" + e;
-
-                    if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
-                        errMsg =
-                                "removeUserCert: " + "Internal DB is unavailable";
-                    }
                     log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_REMOVE_USER", e.toString()));
                     throw new EUsrGrpException(CMS.getUserMessage("CMS_USRGRP_MOD_USER_FAIL"));
                 } catch (ELdapException e) {
-                    String errMsg =
-                            "remove User Cert: " +
-                                    "Could not get connection to internaldb. Error " + e;
-
                     log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_REMOVE_USER", e.toString()));
                 } finally {
                     if (ldapconn != null)
@@ -959,18 +903,10 @@ public final class UGSubsystem implements IUGSubsystem {
 
             ldapconn.modify(groupDN, singleChange);
         } catch (LDAPException e) {
-            String errMsg = "removeUserFromGroup()" + e.toString();
-
-            if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
-                errMsg = "removeUser: " + "Internal DB is unavailable";
-            }
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_REMOVE_USER_FROM_GROUP", e.toString()));
 
             throw new EUsrGrpException(CMS.getUserMessage("CMS_USRGRP_REMOVE_USER_FAIL"));
         } catch (ELdapException e) {
-            String errMsg =
-                    "removeUserFromGroup: Could not get connection to internaldb. Error " + e;
-
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_REMOVE_USER_FROM_GROUP", e.toString()));
         } finally {
             if (ldapconn != null)
@@ -1001,18 +937,10 @@ public final class UGSubsystem implements IUGSubsystem {
                     );
 
         } catch (LDAPException e) {
-            String errMsg = "removeUser()" + e.toString();
-
-            if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
-                errMsg = "removeUser: " + "Internal DB is unavailable";
-            }
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_REMOVE_USER", e.toString()));
 
             throw new EUsrGrpException(CMS.getUserMessage("CMS_USRGRP_REMOVE_USER_FAIL"));
         } catch (ELdapException e) {
-            String errMsg =
-                    "remove User: Could not get connection to internaldb. Error " + e;
-
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_REMOVE_USER", e.toString()));
         } finally {
             if (ldapconn != null)
@@ -1164,18 +1092,9 @@ public final class UGSubsystem implements IUGSubsystem {
 
             return buildGroups(res);
         } catch (LDAPException e) {
-            String errMsg =
-                    "findGroups: could not find group " + filter + ". Error " + e;
-
-            if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
-                errMsg = "findGroups: " + "Internal DB is unavailable";
-            }
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_FIND_GROUPS", e.toString()));
             return null;
         } catch (ELdapException e) {
-            String errMsg =
-                    "find Groups: Could not get connection to internaldb. Error " + e;
-
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_FIND_GROUPS", e.toString()));
             return null;
         } finally {
@@ -1189,7 +1108,7 @@ public final class UGSubsystem implements IUGSubsystem {
 
         if (groups == null || !groups.hasMoreElements())
             return null;
-        return (Group) groups.nextElement();
+        return groups.nextElement();
     }
 
     /**
@@ -1217,16 +1136,8 @@ public final class UGSubsystem implements IUGSubsystem {
 
             return buildGroups(res);
         } catch (LDAPException e) {
-            String errMsg = "listGroups()" + e.toString();
-
-            if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
-                errMsg = "listGroups: " + "Internal DB is unavailable";
-            }
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_LIST_GROUPS", e.toString()));
         } catch (ELdapException e) {
-            String errMsg =
-                    "list Groups: Could not get connection to internaldb. Error " + e;
-
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_LIST_GROUPS", e.toString()));
         } finally {
             if (ldapconn != null)
@@ -1445,8 +1356,7 @@ public final class UGSubsystem implements IUGSubsystem {
             // that the filter matched, and so the user correctly
             // authenticated.
             if (res.hasMoreElements()) {
-                // actually read the entry
-                LDAPEntry entry = (LDAPEntry) res.nextElement();
+                res.nextElement(); // consume the entry
                 founduser = true;
             }
             Debug.trace("authorization result: " + founduser);
@@ -1510,18 +1420,10 @@ public final class UGSubsystem implements IUGSubsystem {
             ldapconn = getConn();
             ldapconn.add(entry);
         } catch (LDAPException e) {
-            String errMsg = "addGroup()" + e.toString();
-
-            if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
-                errMsg = "addGroup: " + "Internal DB is unavailable";
-            }
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_ADD_GROUP", e.toString()));
 
             throw new EUsrGrpException(CMS.getUserMessage("CMS_USRGRP_ADD_GROUP_FAIL"));
         } catch (ELdapException e) {
-            String errMsg =
-                    "add Group: Could not get connection to internaldb. Error " + e;
-
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_ADD_GROUP", e.toString()));
             throw new EUsrGrpException(CMS.getUserMessage("CMS_USRGRP_ADD_GROUP_FAIL"));
         } finally {
@@ -1547,19 +1449,10 @@ public final class UGSubsystem implements IUGSubsystem {
             ldapconn = getConn();
             ldapconn.delete("cn=" + name + "," + getGroupBaseDN());
         } catch (LDAPException e) {
-            String errMsg = "removeGroup()" + e.toString();
-
-            if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
-                errMsg = "removeGroup: " + "Internal DB is unavailable";
-            }
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_REMOVE_GROUP", e.toString()));
 
             throw new EUsrGrpException(CMS.getUserMessage("CMS_USRGRP_REMOVE_GROUP_FAIL"));
         } catch (ELdapException e) {
-            String errMsg =
-                    "remove Group: Could not get connection to internaldb. " +
-                            "Error " + e;
-
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_REMOVE_GROUP", e.toString()));
         } finally {
             if (ldapconn != null)
@@ -1612,11 +1505,6 @@ public final class UGSubsystem implements IUGSubsystem {
             ldapconn.modify("cn=" + grp.getGroupID() +
                     "," + getGroupBaseDN(), mod);
         } catch (LDAPException e) {
-            String errMsg = " modifyGroup()" + e.toString();
-
-            if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
-                errMsg = "modifyGroup: " + "Internal DB is unavailable";
-            }
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_MODIFY_GROUP", e.toString()));
 
             throw new EUsrGrpException(CMS.getUserMessage("CMS_USRGRP_MOD_GROUP_FAIL"));
@@ -1671,10 +1559,6 @@ public final class UGSubsystem implements IUGSubsystem {
                 return entry.getDN();
             }
         } catch (ELdapException e) {
-            String errMsg =
-                    "convertUIDtoDN: Could not get connection to internaldb. " +
-                            "Error " + e;
-
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_CONVERT_UID", e.toString()));
         } finally {
             if (ldapconn != null)

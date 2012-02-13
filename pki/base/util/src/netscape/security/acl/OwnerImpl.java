@@ -85,7 +85,7 @@ public class OwnerImpl implements Owner {
         //
         // check if there is atleast 2 members left.
         //
-        Object o = e.nextElement();
+        e.nextElement(); // consume next element
         if (e.hasMoreElements())
             return ownerGroup.removeMember(owner);
         else

@@ -52,7 +52,6 @@ import org.mozilla.jss.asn1.OCTET_STRING;
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.asn1.SET;
 import org.mozilla.jss.asn1.UTF8String;
-import org.mozilla.jss.crypto.CryptoStore;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.DigestAlgorithm;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
@@ -198,7 +197,6 @@ public class CMCRequest {
                             System.out.println("This is not a crmf request. Or this request has an error.");
                             System.exit(1);
                         }
-                        int nummsgs = crmfMsgs.size();
                         certReqMsg = (CertReqMsg) crmfMsgs.elementAt(0);
                         trq = new TaggedRequest(TaggedRequest.CRMF, null,
                                 certReqMsg);
@@ -798,7 +796,6 @@ public class CMCRequest {
         String numRequests = null;
         String dbdir = null, nickname = null;
         String ifilename = null, ofilename = null, password = null, format = null;
-        FileOutputStream outputBlob = null;
         String confirmCertEnable = "false", confirmCertIssuer = null, confirmCertSerial = null;
         String getCertEnable = "false", getCertIssuer = null, getCertSerial = null;
         String dataReturnEnable = "false", dataReturnData = null;
@@ -989,8 +986,6 @@ public class CMCRequest {
             Password pass = new Password(password.toCharArray());
 
             token.login(pass);
-            CryptoStore store = token.getCryptoStore();
-            X509Certificate[] list = store.getCertificates();
             X509Certificate signerCert = null;
 
             signerCert = cm.findCertByNickname(nickname);

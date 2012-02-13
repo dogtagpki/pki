@@ -41,7 +41,6 @@ import org.mozilla.jss.asn1.OCTET_STRING;
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.asn1.SET;
 import org.mozilla.jss.asn1.UTF8String;
-import org.mozilla.jss.crypto.CryptoStore;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.DigestAlgorithm;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
@@ -93,8 +92,6 @@ public class CMCRevoke {
      * Creates a new instance of CMCRevoke.
      */
     public static void main(String[] s) {
-
-        FileOutputStream outputBlob = null;
 
         // default path is "."
         String mPath = ".";
@@ -182,8 +179,6 @@ public class CMCRevoke {
                 Password pass = new Password(hValue.toCharArray());
 
                 token.login(pass);
-                CryptoStore store = token.getCryptoStore();
-                X509Certificate[] list = store.getCertificates();
                 X509Certificate signerCert = null;
 
                 signerCert = cm.findCertByNickname(nValue);
@@ -289,8 +284,6 @@ public class CMCRevoke {
         String asciiBASE64Blob = new String();
 
         try {
-
-            String hasSki = "true";
 
             BigInteger serialno = signerCert.getSerialNumber();
             byte[] certB = signerCert.getEncoded();

@@ -173,7 +173,6 @@ public class HashEnrollServlet extends CMSServlet {
             throws EBaseException {
         IArgBlock httpParams = cmsReq.getHttpParams();
         HttpServletRequest httpReq = cmsReq.getHttpReq();
-        HttpServletResponse httpResp = cmsReq.getHttpResp();
         String certType = null;
 
         String reqHost = httpReq.getRemoteHost();
@@ -231,7 +230,6 @@ public class HashEnrollServlet extends CMSServlet {
 
     private void printError(CMSRequest cmsReq, String errorCode)
             throws EBaseException {
-        IArgBlock httpParams = cmsReq.getHttpParams();
         HttpServletRequest httpReq = cmsReq.getHttpReq();
         HttpServletResponse httpResp = cmsReq.getHttpResp();
         IArgBlock header = CMS.createArgBlock();
@@ -294,7 +292,6 @@ public class HashEnrollServlet extends CMSServlet {
 
         String certAuthEnrollOn =
                 httpParams.getValueAsString("certauthEnroll", null);
-        X509CertInfo new_certInfo = null;
 
         if ((certAuthEnrollOn != null) && (certAuthEnrollOn.equals("on"))) {
             certAuthEnroll = true;
@@ -394,7 +391,6 @@ public class HashEnrollServlet extends CMSServlet {
 
         IAuthToken authToken = mgr.getAuthToken(pageID);
 
-        X509CertInfo authCertInfo = null;
         String authMgr = AuditFormat.NOAUTH;
 
         if (authToken == null) {

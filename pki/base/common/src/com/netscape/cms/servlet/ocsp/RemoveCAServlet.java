@@ -104,8 +104,6 @@ public class RemoveCAServlet extends CMSServlet {
         HttpServletResponse resp = cmsReq.getHttpResp();
         String auditMessage = null;
         String auditSubjectID = auditSubjectID();
-        String auditCA = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
-        String auditCASubjectDN = ILogger.SIGNED_AUDIT_EMPTY_VALUE;
 
         IAuthToken authToken = authenticate(cmsReq);
 
@@ -197,7 +195,6 @@ public class RemoveCAServlet extends CMSServlet {
 
         try {
             ServletOutputStream out = resp.getOutputStream();
-            String error = null;
 
             String xmlOutput = req.getParameter("xml");
             if (xmlOutput != null && xmlOutput.equals("true")) {

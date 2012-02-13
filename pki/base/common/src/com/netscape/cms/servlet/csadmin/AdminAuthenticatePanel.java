@@ -87,7 +87,8 @@ public class AdminAuthenticatePanel extends WizardPanelBase {
         IConfigStore cs = CMS.getConfigStore();
         /* clean up if necessary */
         try {
-            boolean done = cs.getBoolean("preop.AdminAuthenticate.done");
+            @SuppressWarnings("unused")
+            boolean done = cs.getBoolean("preop.AdminAuthenticate.done"); // check for errors
             cs.putBoolean("preop.AdminAuthenticate.done", false);
             cs.commit(false);
         } catch (Exception e) {

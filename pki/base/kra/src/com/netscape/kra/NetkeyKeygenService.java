@@ -301,9 +301,7 @@ public class NetkeyKeygenService implements IService {
             throws EBaseException {
         String auditMessage = null;
         String auditSubjectID = null;
-        String auditRequesterID = "TPSagent";
         String auditArchiveID = ILogger.UNIDENTIFIED;
-        String auditPublicKey = ILogger.UNIDENTIFIED;
         byte[] wrapped_des_key;
 
         byte iv[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };

@@ -192,7 +192,6 @@ public class CRMFPopClient {
     }
 
     public static void main(String args[]) {
-        String USER_PREFIX = "user";
 
         int argsLen = getRealArgsLength(args);
 
@@ -261,8 +260,6 @@ public class CRMFPopClient {
         URLConnection conn = null;
         InputStream is = null;
         BufferedReader reader = null;
-        boolean success = false;
-        int num = 1;
         long total_time = 0;
         KeyPair pair = null;
 
@@ -515,7 +512,6 @@ public class CRMFPopClient {
                 while ((line = reader.readLine()) != null) {
                     System.out.println(line);
                     if (line.equals("CMS Enroll Request Success")) {
-                        success = true;
                         System.out.println("Enrollment Successful: ......");
                         System.out.println("");
                     }

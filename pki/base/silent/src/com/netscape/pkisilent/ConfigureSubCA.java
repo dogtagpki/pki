@@ -297,18 +297,13 @@ public class ConfigureSubCA {
     }
 
     public boolean SecurityDomainLoginPanel() {
-        boolean st = false;
-        HTTPResponse hr = null;
-        ByteArrayInputStream bais = null;
-        ParseXML px = new ParseXML();
-
         String subca_url = "https://" + cs_hostname + ":" + cs_port +
                             "/ca/admin/console/config/wizard" +
                             "?p=5&subsystem=CA";
 
         String query_string = "url=" + URLEncoder.encode(subca_url);
 
-        hr = hc.sslConnect(sd_hostname, sd_admin_port, sd_login_uri, query_string);
+        HTTPResponse hr = hc.sslConnect(sd_hostname, sd_admin_port, sd_login_uri, query_string);
 
         String query_string_1 = "uid=" + sd_admin_name +
                                 "&pwd=" + URLEncoder.encode(sd_admin_password) +
@@ -340,20 +335,14 @@ public class ConfigureSubCA {
     }
 
     public boolean DisplayChainPanel() {
-        boolean st = false;
-        HTTPResponse hr = null;
-        ByteArrayInputStream bais = null;
-        ParseXML px = new ParseXML();
-        String query_string = null;
-
-        query_string = "p=5" + "&op=next" + "&xml=true" +
+        String query_string = "p=5" + "&op=next" + "&xml=true" +
                         "&choice=newsubsystem" +
                         "&subsystemName=" +
                         URLEncoder.encode(subsystem_name) +
                         "&subsystemName=" +
                         URLEncoder.encode(subsystem_name) +
                         "&urls=0";
-        hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
+        hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
         // parse xml
         // bais = new ByteArrayInputStream(hr.getHTML().getBytes());
         // px.parse(bais);
@@ -493,8 +482,6 @@ public class ConfigureSubCA {
         ArrayList<String> cert_list = null;
         ArrayList<String> dn_list = null;
 
-        String domain_url = "https://" + ca_hostname + ":" + ca_ssl_port;
-
         String query_string = "p=11" + "&op=next" + "&xml=true" +
                 "&signing=" +
                 URLEncoder.encode(subca_sign_cert_subject_name) +
@@ -574,14 +561,9 @@ public class ConfigureSubCA {
     }
 
     public boolean CertificatePanel() {
-        boolean st = false;
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
-        ArrayList<String> req_list = null;
-        ArrayList<String> cert_list = null;
-        ArrayList<String> dn_list = null;
-        ArrayList<String> pp_list = null;
 
         String query_string = "p=12" + "&op=next" + "&xml=true" +
                             "&signing=" +
@@ -654,13 +636,10 @@ public class ConfigureSubCA {
     }
 
     public boolean AdminCertReqPanel() {
-        boolean st = false;
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
         String admin_cert_request = null;
-
-        String cert_subject = "CN=" + "subca-" + admin_user;
 
         ComCrypto cCrypt = new ComCrypto(client_certdb_dir,
                                         client_certdb_pwd,
@@ -716,15 +695,12 @@ public class ConfigureSubCA {
 
     public boolean AdminCertImportPanel() {
         boolean st = false;
-        HTTPResponse hr = null;
-        ByteArrayInputStream bais = null;
-        ParseXML px = new ParseXML();
 
         String query_string = "serialNumber=" + admin_serial_number +
                             "&importCert=" + "true" +
                             "";
 
-        hr = hc.sslConnect(cs_hostname, cs_port, admin_uri, query_string);
+        HTTPResponse hr = hc.sslConnect(cs_hostname, cs_port, admin_uri, query_string);
 
         // get response data
         // String cert_to_import = 

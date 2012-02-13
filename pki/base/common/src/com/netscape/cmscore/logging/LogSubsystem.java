@@ -126,17 +126,14 @@ public class LogSubsystem implements ILogSubsystem {
                 // for view from console
 
             } catch (ClassNotFoundException e) {
-                String errMsg = "LogSubsystem:: init()-" + e.toString();
-
                 throw new EBaseException(insName + ":Failed to instantiate class " + className);
+
             } catch (IllegalAccessException e) {
-                String errMsg = "LogSubsystem:: init()-" + e.toString();
-
                 throw new EBaseException(insName + ":Failed to instantiate class " + className);
+
             } catch (InstantiationException e) {
-                String errMsg = "LogSubsystem:: init()-" + e.toString();
-
                 throw new EBaseException(insName + ":Failed to instantiate class " + className);
+
             } catch (Throwable e) {
                 e.printStackTrace();
                 throw new EBaseException(insName

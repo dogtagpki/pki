@@ -20,7 +20,6 @@ package com.netscape.pkisilent;
 
 import java.io.ByteArrayInputStream;
 import java.net.URLEncoder;
-import java.util.ArrayList;
 
 import com.netscape.osutil.OSUtil;
 import com.netscape.pkisilent.argparser.ArgParser;
@@ -221,32 +220,21 @@ public class ConfigureTPS {
     }
 
     public boolean DisplayChainPanel() {
-        boolean st = false;
-        HTTPResponse hr = null;
-        ByteArrayInputStream bais = null;
-        ParseXML px = new ParseXML();
-        String query_string = null;
-
-        query_string = "p=4" + "&op=next" + "&xml=true";
-        hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
+        String query_string = "p=4" + "&op=next" + "&xml=true";
+        hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
 
         return true;
 
     }
 
     public boolean SecurityDomainLoginPanel() {
-        boolean st = false;
-        HTTPResponse hr = null;
-        ByteArrayInputStream bais = null;
-        ParseXML px = new ParseXML();
-
         String tps_url = "https://" + cs_hostname + ":" + cs_port +
                             "/tps/admin/console/config/wizard" +
                             "?p=3&subsystem=TPS";
 
         String query_string = "url=" + URLEncoder.encode(tps_url) + "";
 
-        hr = hc.sslConnect(sd_hostname, sd_admin_port, sd_login_uri, query_string);
+        HTTPResponse hr = hc.sslConnect(sd_hostname, sd_admin_port, sd_login_uri, query_string);
 
         String query_string_1 = "uid=" + sd_admin_name +
                                 "&pwd=" + URLEncoder.encode(sd_admin_password) +
@@ -302,7 +290,6 @@ public class ConfigureTPS {
         px.prettyprintxml();
 
         sleep_time();
-        String ca_url = "https://" + ca_hostname + ":" + ca_ssl_port;
 
         // CA choice panel
         query_string = "p=6" +
@@ -336,8 +323,6 @@ public class ConfigureTPS {
         if (ss_keygen.equalsIgnoreCase("true")) {
             ss_keygen = "keygen";
         }
-
-        String drm_url = "https://" + drm_hostname + ":" + drm_ssl_port;
 
         query_string = "p=8" +
                         "&choice=" + ss_keygen +
@@ -474,12 +459,9 @@ public class ConfigureTPS {
     }
 
     public boolean KeyPanel() {
-        boolean st = false;
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
-        ArrayList<String> friendly_list = null;
-        ArrayList<String> dn_list = null;
 
         String query_string = "p=11" +
                             "&keytype=" + key_type +
@@ -508,16 +490,9 @@ public class ConfigureTPS {
     }
 
     public boolean CertSubjectPanel() {
-        boolean st = false;
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
-        ArrayList<String> req_list = null;
-        ArrayList<String> cert_list = null;
-        ArrayList<String> dn_list = null;
-        ArrayList<String> friendly_list = null;
-
-        String ca_url = "https://" + ca_hostname + ":" + ca_ssl_port;
 
         String query_string = "p=12" +
                     "&sslserver=" +
@@ -549,14 +524,9 @@ public class ConfigureTPS {
     }
 
     public boolean CertificatePanel() {
-        boolean st = false;
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
-        ArrayList<String> req_list = null;
-        ArrayList<String> cert_list = null;
-        ArrayList<String> dn_list = null;
-        ArrayList<String> pp_list = null;
 
         String query_string = "p=13" +
                             "&sslserver=" +

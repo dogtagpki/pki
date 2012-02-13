@@ -221,7 +221,7 @@ public abstract class BasicProfile implements IProfile {
         StringTokenizer input_st = new StringTokenizer(input_list, ",");
 
         while (input_st.hasMoreTokens()) {
-            String input_id = (String) input_st.nextToken();
+            String input_id = input_st.nextToken();
             String inputClassId = inputStore.getString(input_id + "." +
                     PROP_CLASS_ID);
             IPluginInfo inputInfo = mRegistry.getPluginInfo("profileInput",
@@ -251,7 +251,7 @@ public abstract class BasicProfile implements IProfile {
         StringTokenizer output_st = new StringTokenizer(output_list, ",");
 
         while (output_st.hasMoreTokens()) {
-            String output_id = (String) output_st.nextToken();
+            String output_id = output_st.nextToken();
 
             String outputClassId = outputStore.getString(output_id + "." +
                     PROP_CLASS_ID);
@@ -282,7 +282,7 @@ public abstract class BasicProfile implements IProfile {
         StringTokenizer updater_st = new StringTokenizer(updater_list, ",");
 
         while (updater_st.hasMoreTokens()) {
-            String updater_id = (String) updater_st.nextToken();
+            String updater_id = updater_st.nextToken();
 
             String updaterClassId = updaterStore.getString(updater_id + "." +
                     PROP_CLASS_ID);
@@ -313,14 +313,14 @@ public abstract class BasicProfile implements IProfile {
         StringTokenizer st = new StringTokenizer(setlist, ",");
 
         while (st.hasMoreTokens()) {
-            String setId = (String) st.nextToken();
+            String setId = st.nextToken();
 
             IConfigStore policyStore = policySetStore.getSubStore(setId);
             String list = policyStore.getString(PROP_POLICY_LIST, "");
             StringTokenizer st1 = new StringTokenizer(list, ",");
 
             while (st1.hasMoreTokens()) {
-                String id = (String) st1.nextToken();
+                String id = st1.nextToken();
 
                 String defaultRoot = id + "." + PROP_DEFAULT;
                 String defaultClassId = policyStore.getString(defaultRoot + "." +
@@ -350,7 +350,7 @@ public abstract class BasicProfile implements IProfile {
     }
 
     public IProfileUpdater getProfileUpdater(String name) {
-        return (IProfileUpdater) mUpdaters.get(name);
+        return mUpdaters.get(name);
     }
 
     public Enumeration<String> getProfileOutputIds() {
@@ -358,7 +358,7 @@ public abstract class BasicProfile implements IProfile {
     }
 
     public IProfileOutput getProfileOutput(String name) {
-        return (IProfileOutput) mOutputs.get(name);
+        return mOutputs.get(name);
     }
 
     public Enumeration<String> getProfileInputIds() {
@@ -366,7 +366,7 @@ public abstract class BasicProfile implements IProfile {
     }
 
     public IProfileInput getProfileInput(String name) {
-        return (IProfileInput) mInputs.get(name);
+        return mInputs.get(name);
     }
 
     public void addInputName(String name) {
@@ -424,10 +424,9 @@ public abstract class BasicProfile implements IProfile {
             }
 
             int size = policies.size();
-            boolean found = false;
 
             for (int i = 0; i < size; i++) {
-                ProfilePolicy policy = (ProfilePolicy) policies.elementAt(i);
+                ProfilePolicy policy = policies.elementAt(i);
                 String id = policy.getId();
 
                 if (id.equals(policyId)) {
@@ -481,10 +480,9 @@ public abstract class BasicProfile implements IProfile {
                 newlist = newlist.substring(0, newlist.length() - 1);
 
             int size = mInputIds.size();
-            boolean found = false;
 
             for (int i = 0; i < size; i++) {
-                String id = (String) mInputIds.elementAt(i);
+                String id = mInputIds.elementAt(i);
 
                 if (id.equals(inputId)) {
                     mInputIds.removeElementAt(i);
@@ -522,10 +520,9 @@ public abstract class BasicProfile implements IProfile {
                 newlist = newlist.substring(0, newlist.length() - 1);
 
             int size = mOutputIds.size();
-            boolean found = false;
 
             for (int i = 0; i < size; i++) {
-                String id = (String) mOutputIds.elementAt(i);
+                String id = mOutputIds.elementAt(i);
 
                 if (id.equals(outputId)) {
                     mOutputIds.removeElementAt(i);
@@ -621,7 +618,7 @@ public abstract class BasicProfile implements IProfile {
             Enumeration<String> enum1 = nvps.getNames();
 
             while (enum1.hasMoreElements()) {
-                String name = (String) enum1.nextElement();
+                String name = enum1.nextElement();
 
                 outputStore.putString(prefix + "params." + name, nvps.getValue(name));
                 try {
@@ -724,7 +721,7 @@ public abstract class BasicProfile implements IProfile {
             Enumeration<String> enum1 = nvps.getNames();
 
             while (enum1.hasMoreElements()) {
-                String name = (String) enum1.nextElement();
+                String name = enum1.nextElement();
 
                 inputStore.putString(prefix + "params." + name, nvps.getValue(name));
                 try {
@@ -781,7 +778,7 @@ public abstract class BasicProfile implements IProfile {
                 Enumeration<String> keys = mPolicySet.keys();
 
                 while (keys.hasMoreElements()) {
-                    String k = (String) keys.nextElement();
+                    String k = keys.nextElement();
 
                     if (!(setlist.toString()).equals("")) {
                         setlist.append(",");
@@ -836,7 +833,7 @@ public abstract class BasicProfile implements IProfile {
 
         int matches = 0;
         while (st.hasMoreTokens()) {
-            String sId = (String) st.nextToken();
+            String sId = st.nextToken();
 
             //Only search the setId set. Ex: encryptionCertSet
             if (!sId.equals(setId)) {
@@ -854,7 +851,7 @@ public abstract class BasicProfile implements IProfile {
             StringTokenizer st1 = new StringTokenizer(list, ",");
 
             while (st1.hasMoreTokens()) {
-                String curId = (String) st1.nextToken();
+                String curId = st1.nextToken();
 
                 String defaultRoot = curId + "." + PROP_DEFAULT;
                 String curDefaultClassId = null;
@@ -996,7 +993,7 @@ public abstract class BasicProfile implements IProfile {
             return null;
 
         for (int i = 0; i < policies.size(); i++) {
-            ProfilePolicy policy = (ProfilePolicy) policies.elementAt(i);
+            ProfilePolicy policy = policies.elementAt(i);
 
             if (policy.getId().equals(id)) {
                 return policy;
@@ -1060,7 +1057,7 @@ public abstract class BasicProfile implements IProfile {
         Enumeration<String> ids = getProfileInputIds();
 
         while (ids.hasMoreElements()) {
-            String id = (String) ids.nextElement();
+            String id = ids.nextElement();
             IProfileInput input = getProfileInput(id);
 
             input.populate(ctx, request);
@@ -1084,8 +1081,7 @@ public abstract class BasicProfile implements IProfile {
         CMS.debug("BasicProfile: populate() policy setid =" + setId);
 
         for (int i = 0; i < policies.size(); i++) {
-            ProfilePolicy policy = (ProfilePolicy)
-                    policies.elementAt(i);
+            ProfilePolicy policy = policies.elementAt(i);
 
             policy.getDefault().populate(request);
         }
@@ -1102,8 +1098,7 @@ public abstract class BasicProfile implements IProfile {
         Vector<ProfilePolicy> policies = getPolicies(setId);
 
         for (int i = 0; i < policies.size(); i++) {
-            ProfilePolicy policy = (ProfilePolicy)
-                    policies.elementAt(i);
+            ProfilePolicy policy = policies.elementAt(i);
 
             policy.getConstraint().validate(request);
         }
@@ -1129,8 +1124,7 @@ public abstract class BasicProfile implements IProfile {
         Vector<String> v = new Vector<String>();
 
         for (int i = 0; i < policies.size(); i++) {
-            ProfilePolicy policy = (ProfilePolicy)
-                    policies.elementAt(i);
+            ProfilePolicy policy = policies.elementAt(i);
 
             v.addElement(policy.getId());
         }

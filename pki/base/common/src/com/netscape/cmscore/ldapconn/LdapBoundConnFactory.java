@@ -417,19 +417,11 @@ public class LdapBoundConnFactory implements ILdapBoundConnFactory {
 
         if (boundconn.getFacId() != mConns) {
             log(ILogger.LL_WARN, "returnConn: unknown connection.");
-
-            /* swallow this exception but see who's doing it. */
-            ELdapException e =
-                    new ELdapException(CMS.getUserMessage("CMS_LDAP_UNKNOWN_RETURNED_CONN"));
         }
         for (int i = 0; i < mNumConns; i++) {
             if (mConns[i] == conn) {
                 CMS.debug(
                         "returnConn: previously returned connection.");
-
-                /* swallow this exception but see who's doing it */
-                ELdapException e =
-                        new ELdapException(CMS.getUserMessage("CMS_LDAP_BAD_RETURNED_CONN"));
             }
         }
         mConns[mNumConns++] = boundconn;
