@@ -79,8 +79,6 @@ public class SecurityDataRecoveryService implements IService {
     private ITransportKeyUnit mTransportUnit = null;
 
     public static final String ATTR_SERIALNO = "serialNumber";
-    public static final String ATTR_SESS_WRAPPED_DATA = "sessWrappedSecData";
-    public static final String ATTR_PASS_WRAPPED_DATA = "passPhraseWrappedData";
     public static final String ATTR_KEY_RECORD = "keyRecord";
 
     public SecurityDataRecoveryService(IKeyRecoveryAuthority kra) {
@@ -200,7 +198,7 @@ public class SecurityDataRecoveryService implements IService {
                             pass);
                 }
 
-                params.put(ATTR_PASS_WRAPPED_DATA, pbeWrappedData);
+                params.put(IRequest.SECURITY_DATA_PASS_WRAPPED_DATA, pbeWrappedData);
 
             } catch (Exception e) {
                 throw new EBaseException("Can't unwrap pass phase! " + e.toString());
@@ -242,7 +240,7 @@ public class SecurityDataRecoveryService implements IService {
             }
 
             String wrappedKeyData = com.netscape.osutil.OSUtil.BtoA(key_data);
-            params.put(ATTR_SESS_WRAPPED_DATA, wrappedKeyData);
+            params.put(IRequest.SECURITY_DATA_SESS_WRAPPED_DATA, wrappedKeyData);
             params.put(IRequest.SECURITY_DATA_IV_STRING_OUT, ivStr);
 
         }

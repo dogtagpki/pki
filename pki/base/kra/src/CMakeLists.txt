@@ -75,14 +75,17 @@ set(pki-kra_java_SRCS
     com/netscape/kra/KeyRecoveryAuthority.java
     com/netscape/kra/EnrollmentService.java
     com/netscape/kra/RecoveryService.java
+    com/netscape/kra/SecurityDataRecoveryService.java
     com/netscape/kra/TokenKeyRecoveryService.java
     com/netscape/kra/EncryptionUnit.java
     com/netscape/kra/KRAService.java
     com/netscape/kra/NetkeyKeygenService.java
+    com/netscape/kra/SecurityDataService.java
     com/netscape/kra/KRANotify.java
     com/netscape/kra/KRAPolicy.java
     com/netscape/kra/TransportKeyUnit.java
     com/netscape/kra/StorageKeyUnit.java
+    com/netscape/kra/ArchiveOptions.java
 )
 
 

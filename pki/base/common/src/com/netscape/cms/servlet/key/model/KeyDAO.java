@@ -23,8 +23,6 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
 
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import com.netscape.certsrv.apps.CMS;
@@ -37,7 +35,6 @@ import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.request.model.RecoveryRequestData;
-import com.netscape.kra.SecurityDataRecoveryService;
 
 /**
  * @author alee
@@ -116,8 +113,8 @@ public class KeyDAO {
             throw new EBaseException("Can't obtain Volatile requestParams in KeyDAO.getKey!");
         }
 
-        String sessWrappedKeyData = (String) requestParams.get(SecurityDataRecoveryService.ATTR_SESS_WRAPPED_DATA);
-        String passWrappedKeyData = (String) requestParams.get(SecurityDataRecoveryService.ATTR_PASS_WRAPPED_DATA);
+        String sessWrappedKeyData = (String) requestParams.get(IRequest.SECURITY_DATA_SESS_WRAPPED_DATA);
+        String passWrappedKeyData = (String) requestParams.get(IRequest.SECURITY_DATA_PASS_WRAPPED_DATA);
         String nonceData = (String) requestParams.get(IRequest.SECURITY_DATA_IV_STRING_OUT);
 
         if (sessWrappedKeyData != null || passWrappedKeyData != null) {
@@ -164,8 +161,8 @@ public class KeyDAO {
             nonceData = null;
             keyData = new KeyData();
 
-            sessWrappedKeyData = (String) requestParams.get(SecurityDataRecoveryService.ATTR_SESS_WRAPPED_DATA);
-            passWrappedKeyData = (String) requestParams.get(SecurityDataRecoveryService.ATTR_PASS_WRAPPED_DATA);
+            sessWrappedKeyData = (String) requestParams.get(IRequest.SECURITY_DATA_SESS_WRAPPED_DATA);
+            passWrappedKeyData = (String) requestParams.get(IRequest.SECURITY_DATA_PASS_WRAPPED_DATA);
             nonceData = (String) requestParams.get(IRequest.SECURITY_DATA_IV_STRING_OUT);
 
         }

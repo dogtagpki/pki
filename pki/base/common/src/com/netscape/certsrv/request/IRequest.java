@@ -160,6 +160,8 @@ public interface IRequest {
     public static final String SECURITY_DATA_SESS_PASS_PHRASE = "sessionWrappedPassphrase";
     public static final String SECURITY_DATA_IV_STRING_IN = "iv_in";
     public static final String SECURITY_DATA_IV_STRING_OUT = "iv_out";
+    public static final String SECURITY_DATA_SESS_WRAPPED_DATA = "sessWrappedSecData";
+    public static final String SECURITY_DATA_PASS_WRAPPED_DATA = "passPhraseWrappedData";
 
 
     // requestor type values.
