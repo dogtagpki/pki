@@ -27,7 +27,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import com.netscape.osutil.OSUtil;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * CMS Test framework .
@@ -91,7 +91,7 @@ public class PostQuery {
             System.out.println("adminpwd=" + adminPWD);
             // String encoding = new sun.misc.BASE64Encoder().encode(
             //         userPassword.getBytes());
-            String encoding = OSUtil.BtoA(
+            String encoding = Utils.base64encode(
                     userPassword.getBytes());
             HttpURLConnection URLCon = (HttpURLConnection) myUrl.openConnection();
 

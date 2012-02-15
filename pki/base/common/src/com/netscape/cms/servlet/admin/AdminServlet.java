@@ -54,6 +54,7 @@ import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.servlet.base.UserInfo;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * A class represents an administration servlet that
@@ -368,7 +369,7 @@ public class AdminServlet extends HttpServlet {
                     String authToken = req.getHeader(HDR_AUTHORIZATION);
                     String b64s = authToken.substring(
                             authToken.lastIndexOf(' ') + 1);
-                    String authCode = new String(com.netscape.osutil.OSUtil.AtoB(b64s));
+                    String authCode = new String(Utils.base64decode(b64s));
                     String userid = authCode.substring(0,
                             authCode.indexOf(':'));
                     String password = authCode.substring(

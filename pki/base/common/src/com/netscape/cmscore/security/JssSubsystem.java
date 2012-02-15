@@ -99,6 +99,7 @@ import com.netscape.cmscore.cert.CertPrettyPrint;
 import com.netscape.cmscore.cert.CertUtils;
 import com.netscape.cmscore.util.Debug;
 import com.netscape.cmsutil.crypto.CryptoUtil;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * Subsystem for initializing JSS>
@@ -1660,7 +1661,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
             DN dn = new DN(principal.getName());
             BigInteger serialno = cert.getSerialNumber();
             String suffix = "." + System.currentTimeMillis();
-            String b64E = com.netscape.osutil.OSUtil.BtoA(cert.getEncoded());
+            String b64E = Utils.base64encode(cert.getEncoded());
             PrintStream stream = new PrintStream(new FileOutputStream(pathname + suffix));
 
             stream.println("-----BEGIN CERTIFICATE-----");
@@ -2017,7 +2018,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
                 String content = "";
                 String noHeader = CertUtils.stripCertBrackets(b64E);
                 String normalized = CertUtils.normalizeCertStr(noHeader);
-                byte data[] = com.netscape.osutil.OSUtil.AtoB(normalized);
+                byte data[] = Utils.base64decode(normalized);
 
                 ContentInfo ci = (ContentInfo)
                         ASN1Util.decode(ContentInfo.getTemplate(), data);

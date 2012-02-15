@@ -28,6 +28,8 @@ import java.security.cert.CRLException;
 import java.security.cert.CertificateException;
 import java.util.Locale;
 
+import com.netscape.cmsutil.util.Utils;
+
 import netscape.security.util.CrlPrettyPrint;
 import netscape.security.x509.DeltaCRLIndicatorExtension;
 import netscape.security.x509.HoldInstructionExtension;
@@ -154,7 +156,7 @@ public class PrettyPrintCrl {
         // (5) Decode the ASCII BASE 64 CRL enclosed in the
         //     String() object into a BINARY BASE 64 byte[] object
 
-        decodedBASE64Crl = com.netscape.osutil.OSUtil.AtoB(encodedBASE64Crl);
+        decodedBASE64Crl = Utils.base64decode(encodedBASE64Crl);
 
         // (6) Create an X509CRLImpl() object from the BINARY BASE 64
         //     byte[] object

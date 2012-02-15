@@ -59,6 +59,8 @@ import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 import org.mozilla.jss.pkix.primitive.Name;
 import org.mozilla.jss.util.Password;
 
+import com.netscape.cmsutil.util.Utils;
+
 /**
  * Tool for signing a CMC revocation request with an agent's certificate.
  * 
@@ -322,7 +324,7 @@ public class CMCRevoke {
             } catch (NoSuchAlgorithmException ex) {
                 dig = salt.getBytes();
             }
-            String sn = com.netscape.osutil.OSUtil.BtoA(dig);
+            String sn = Utils.base64encode(dig);
 
             TaggedAttribute senderNonce =
                     new TaggedAttribute(new INTEGER(bpid++), OBJECT_IDENTIFIER.id_cmc_senderNonce,
@@ -410,7 +412,7 @@ public class CMCRevoke {
             if (fullEnrollmentReq != null) {
                 // format is PR_REQUEST_CMC
                 fullEnrollmentReq.encode(os);
-                ps.print(com.netscape.osutil.OSUtil.BtoA(os.toByteArray()));
+                ps.print(Utils.base64encode(os.toByteArray()));
                 ////fullEnrollmentReq.print(ps); // no header/trailer
             }
 

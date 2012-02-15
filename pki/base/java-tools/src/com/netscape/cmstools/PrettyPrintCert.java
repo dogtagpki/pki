@@ -27,6 +27,8 @@ import java.io.InputStreamReader;
 import java.security.cert.CertificateException;
 import java.util.Locale;
 
+import com.netscape.cmsutil.util.Utils;
+
 import netscape.security.util.CertPrettyPrint;
 import netscape.security.x509.CertificateSubjectName;
 import netscape.security.x509.RDN;
@@ -171,7 +173,7 @@ public class PrettyPrintCert {
         // (5) Decode the ASCII BASE 64 certificate enclosed in the
         //     String() object into a BINARY BASE 64 byte[] object
 
-        decodedBASE64Cert = com.netscape.osutil.OSUtil.AtoB(encodedBASE64Cert);
+        decodedBASE64Cert = Utils.base64decode(encodedBASE64Cert);
 
         // (6) Create an X509CertImpl() object from the BINARY BASE 64
         //     byte[] object

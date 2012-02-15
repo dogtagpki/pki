@@ -200,7 +200,7 @@ public class HashAuthentication implements IAuthManager, IExtendedPluginInfo {
     public String hashFingerprint(String host, String pageID, String uid) {
         byte[] hash =
                 mSHADigest.digest((SALT + pageID + getSecret(host) + uid).getBytes());
-        String b64E = com.netscape.osutil.OSUtil.BtoA(hash);
+        String b64E = Utils.base64encode(hash);
 
         return "{SHA}" + b64E;
     }

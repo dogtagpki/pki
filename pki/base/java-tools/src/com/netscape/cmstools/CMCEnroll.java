@@ -65,6 +65,8 @@ import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 import org.mozilla.jss.pkix.primitive.Name;
 import org.mozilla.jss.util.Password;
 
+import com.netscape.cmsutil.util.Utils;
+
 /**
  * Tool for signing PKCS #10 , return CMC enrollment request
  * 
@@ -142,7 +144,7 @@ public class CMCEnroll {
             ContentInfo fullEnrollmentReq = null;
 
             try {
-                byte[] decodedBytes = com.netscape.osutil.OSUtil.AtoB(asciiBASE64Blob);
+                byte[] decodedBytes = Utils.base64decode(asciiBASE64Blob);
 
                 pkcs = new PKCS10(decodedBytes);
             } catch (IOException e) {
@@ -199,7 +201,7 @@ public class CMCEnroll {
                 dig = salt.getBytes();
             }
 
-            String sn = com.netscape.osutil.OSUtil.BtoA(dig);
+            String sn = Utils.base64encode(dig);
 
             TaggedAttribute senderNonce = new TaggedAttribute(new
                     INTEGER(bpid++),
@@ -287,7 +289,7 @@ public class CMCEnroll {
             ByteArrayOutputStream os = new ByteArrayOutputStream();
 
             fullEnrollmentReq.encode(os);
-            ps.print(com.netscape.osutil.OSUtil.BtoA(os.toByteArray()));
+            ps.print(Utils.base64encode(os.toByteArray()));
             //fullEnrollmentReq.print(ps); // no header/trailer
             asciiBASE64Blob = bs.toString();
         } catch (Exception e) {
@@ -423,7 +425,7 @@ public class CMCEnroll {
 
                 @SuppressWarnings("unused")
                 byte binaryBASE64Blob[] =
-                        com.netscape.osutil.OSUtil.AtoB(asciiBASE64Blob); // check for errors
+                        Utils.base64decode(asciiBASE64Blob); // check for errors
 
                 // (6) Finally, print the actual CMCEnroll blob to the
                 //     specified output file

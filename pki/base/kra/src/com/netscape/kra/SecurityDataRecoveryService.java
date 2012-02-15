@@ -62,6 +62,7 @@ import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.cms.servlet.request.KeyRequestResource;
 import com.netscape.cmscore.dbs.KeyRecord;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * This implementation services SecurityData Recovery requests.
@@ -128,17 +129,17 @@ public class SecurityDataRecoveryService implements IService {
 
         String transWrappedSessKeyStr = (String) params.get(IRequest.SECURITY_DATA_TRANS_SESS_KEY);
         if (transWrappedSessKeyStr != null) {
-            wrappedSessKey = com.netscape.osutil.OSUtil.AtoB(transWrappedSessKeyStr);
+            wrappedSessKey = Utils.base64decode(transWrappedSessKeyStr);
         }
 
         String sessWrappedPassPhraseStr = (String) params.get(IRequest.SECURITY_DATA_SESS_PASS_PHRASE);
         if (sessWrappedPassPhraseStr != null) {
-            wrappedPassPhrase = com.netscape.osutil.OSUtil.AtoB(sessWrappedPassPhraseStr);
+            wrappedPassPhrase = Utils.base64decode(sessWrappedPassPhraseStr);
         }
 
         String ivInStr = (String) params.get(IRequest.SECURITY_DATA_IV_STRING_IN);
         if (ivInStr != null) {
-            iv_in = com.netscape.osutil.OSUtil.AtoB(ivInStr);
+            iv_in = Utils.base64decode(ivInStr);
         }
 
         if (transWrappedSessKeyStr == null && sessWrappedPassPhraseStr == null) {
@@ -156,7 +157,7 @@ public class SecurityDataRecoveryService implements IService {
             iv = iv_default;
         }
 
-        String ivStr = com.netscape.osutil.OSUtil.BtoA(iv);
+        String ivStr = Utils.base64encode(iv);
 
         KeyRecord keyRecord = (KeyRecord) mStorage.readKeyRecord(serialno);
 
@@ -239,7 +240,7 @@ public class SecurityDataRecoveryService implements IService {
                 }
             }
 
-            String wrappedKeyData = com.netscape.osutil.OSUtil.BtoA(key_data);
+            String wrappedKeyData = Utils.base64encode(key_data);
             params.put(IRequest.SECURITY_DATA_SESS_WRAPPED_DATA, wrappedKeyData);
             params.put(IRequest.SECURITY_DATA_IV_STRING_OUT, ivStr);
 
@@ -375,7 +376,7 @@ public class SecurityDataRecoveryService implements IService {
             ByteArrayOutputStream oStream = new ByteArrayOutputStream();
             cInfo.encode(oStream);
             encoded = oStream.toByteArray();
-            retData = com.netscape.osutil.OSUtil.BtoA(encoded);
+            retData = Utils.base64encode(encoded);
 
         } catch (Exception e) {
             throw new EBaseException("Can't create a PBE wrapped EncryptedContentInfo! " + e.toString());

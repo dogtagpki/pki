@@ -45,6 +45,7 @@ import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
+import com.netscape.cmsutil.util.Utils;
 import com.netscape.cmsutil.xml.XMLObject;
 
 /**
@@ -161,7 +162,7 @@ public class RegisterUser extends CMSServlet {
 
             byte bCert[] = null;
             X509CertImpl cert = null;
-            bCert = (byte[]) (com.netscape.osutil.OSUtil.AtoB(certsString));
+            bCert = Utils.base64decode(certsString);
             cert = new X509CertImpl(bCert);
             certs[0] = (X509Certificate) cert;
 

@@ -55,6 +55,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * Perform the first step in revoking a certificate
@@ -280,7 +281,7 @@ public class RevocationServlet extends CMSServlet {
                 byte[] ba = old_cert.getEncoded();
                 // Do base 64 encoding
 
-                header.addStringValue("b64eCertificate", com.netscape.osutil.OSUtil.BtoA(ba));
+                header.addStringValue("b64eCertificate", Utils.base64encode(ba));
             } catch (CertificateEncodingException e) {
             }
         }

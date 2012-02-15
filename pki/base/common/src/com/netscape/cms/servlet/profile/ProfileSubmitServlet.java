@@ -68,6 +68,7 @@ import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cmsutil.util.Cert;
+import com.netscape.cmsutil.util.Utils;
 import com.netscape.cmsutil.xml.XMLObject;
 
 /**
@@ -1603,7 +1604,7 @@ public class ProfileSubmitServlet extends ProfileServlet {
         if (rawData != null) {
             String base64Data = null;
 
-            base64Data = com.netscape.osutil.OSUtil.BtoA(rawData).trim();
+            base64Data = Utils.base64encode(rawData).trim();
 
             // extract all line separators from the "base64Data"
             StringBuffer sb = new StringBuffer();

@@ -65,6 +65,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * Display detailed information about a certificate
@@ -378,7 +379,7 @@ public class DisplayBySerial extends CMSServlet {
             byte[] ba = cert.getEncoded();
             // Do base 64 encoding
 
-            header.addStringValue("certChainBase64", com.netscape.osutil.OSUtil.BtoA(ba));
+            header.addStringValue("certChainBase64", Utils.base64encode(ba));
             header.addStringValue("serialNumber", seq.toString(16));
 
             /*
@@ -424,7 +425,7 @@ public class DisplayBySerial extends CMSServlet {
                 p7.encodeSignedData(bos, false);
                 byte[] p7Bytes = bos.toByteArray();
 
-                p7Str = com.netscape.osutil.OSUtil.BtoA(p7Bytes);
+                p7Str = Utils.base64encode(p7Bytes);
                 header.addStringValue("pkcs7ChainBase64", p7Str);
             } catch (Exception e) {
                 //p7Str = "PKCS#7 B64 Encoding error - " + e.toString() 

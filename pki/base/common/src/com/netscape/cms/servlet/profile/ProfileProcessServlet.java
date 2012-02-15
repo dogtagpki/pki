@@ -62,6 +62,7 @@ import com.netscape.certsrv.template.ArgSet;
 import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cms.profile.common.ProfilePolicy;
 import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * This servlet approves profile-based request.
@@ -932,7 +933,7 @@ public class ProfileProcessServlet extends ProfileServlet {
         if (rawData != null) {
             String base64Data = null;
 
-            base64Data = com.netscape.osutil.OSUtil.BtoA(rawData).trim();
+            base64Data = Utils.base64encode(rawData).trim();
 
             // extract all line separators from the "base64Data"
             StringBuffer sb = new StringBuffer();

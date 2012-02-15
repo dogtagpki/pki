@@ -19,6 +19,8 @@ package com.netscape.certsrv.base;
 
 import java.io.IOException;
 
+import com.netscape.cmsutil.util.Utils;
+
 import netscape.security.util.DerInputStream;
 import netscape.security.util.DerValue;
 import netscape.security.x509.AlgorithmId;
@@ -197,7 +199,7 @@ public class KeyGenInfo {
     private byte[] base64Decode(String spkac)
             throws IOException {
 
-        return com.netscape.osutil.OSUtil.AtoB(spkac);
+        return Utils.base64decode(spkac);
     }
 
     private void derDecode(byte spkac[])

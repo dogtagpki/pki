@@ -55,6 +55,7 @@ import com.netscape.cmsutil.ocsp.RevokedInfo;
 import com.netscape.cmsutil.ocsp.SingleResponse;
 import com.netscape.cmsutil.ocsp.TBSRequest;
 import com.netscape.cmsutil.ocsp.UnknownInfo;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * This class implements a OCSP client for testing.
@@ -129,7 +130,7 @@ public class OCSPClient {
         dos.flush();
 
         System.out.println("Data Length: " + request_data.length);
-        System.out.println("Data: " + com.netscape.osutil.OSUtil.BtoA(request_data));
+        System.out.println("Data: " + Utils.base64encode(request_data));
 
         InputStream iiss = socket.getInputStream();
         FileOutputStream fof = new FileOutputStream(output);

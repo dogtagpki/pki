@@ -44,6 +44,7 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ca.ICMSCRLExtension;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.ILogger;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * This represents a issuer alternative name extension.
@@ -158,7 +159,7 @@ public class CMSIssuerAlternativeNameExtension
                         } else if (nameType.equalsIgnoreCase(PROP_OTHER_NAME)) {
 
                             try {
-                                byte[] val = com.netscape.osutil.OSUtil.AtoB(name);
+                                byte[] val = Utils.base64decode(name);
                                 DerValue derVal = new DerValue(new ByteArrayInputStream(val));
                                 GeneralName generalName = new GeneralName(derVal);
 

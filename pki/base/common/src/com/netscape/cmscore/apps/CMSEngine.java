@@ -170,7 +170,7 @@ import com.netscape.cmscore.util.Debug;
 import com.netscape.cmscore.util.OsSubsystem;
 import com.netscape.cmsutil.net.ISocketFactory;
 import com.netscape.cmsutil.password.IPasswordStore;
-import com.netscape.osutil.OSUtil;
+import com.netscape.cmsutil.util.Utils;
 
 public class CMSEngine implements ICMSEngine {
     private static final String ID = "MAIN";
@@ -1382,11 +1382,11 @@ public class CMSEngine implements ICMSEngine {
     }
 
     public String BtoA(byte data[]) {
-        return OSUtil.BtoA(data);
+        return Utils.base64encode(data);
     }
 
     public byte[] AtoB(String data) {
-        return OSUtil.AtoB(data);
+        return Utils.base64decode(data);
     }
 
     public String getEncodedCert(X509Certificate cert) {

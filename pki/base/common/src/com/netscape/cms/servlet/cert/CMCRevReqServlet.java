@@ -65,6 +65,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * Revoke a certificate with a CMC-formatted revocation request
@@ -497,7 +498,7 @@ public class CMCRevReqServlet extends CMSServlet {
                     String b64eCert = req.getParameter("b64eCertificate");
 
                     if (b64eCert != null) {
-                        byte[] certBytes = com.netscape.osutil.OSUtil.AtoB(b64eCert);
+                        byte[] certBytes = Utils.base64decode(b64eCert);
                         X509CertImpl cert = new X509CertImpl(certBytes);
                         IArgBlock rarg = CMS.createArgBlock();
 

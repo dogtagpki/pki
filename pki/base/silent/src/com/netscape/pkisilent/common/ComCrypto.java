@@ -58,8 +58,7 @@ import org.mozilla.jss.pkix.primitive.AlgorithmIdentifier;
 import org.mozilla.jss.pkix.primitive.Name;
 import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 import org.mozilla.jss.util.Password;
-
-import com.netscape.osutil.OSUtil;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * CMS Test framework .
@@ -586,7 +585,7 @@ public class ComCrypto {
 
             // BASE64Encoder encoder = new BASE64Encoder(); 
             // String Req1 = encoder.encodeBuffer(encoded);
-            String Req1 = OSUtil.BtoA(encoded);
+            String Req1 = Utils.base64encode(encoded);
 
             // Set CRMF_REQUEST variable 
             CRMF_REQUEST = Req1;
@@ -661,7 +660,7 @@ public class ComCrypto {
             // wrap private key
             // BASE64Decoder decoder = new BASE64Decoder();
             // byte transport[] = decoder.decodeBuffer(transportcert);
-            byte transport[] = OSUtil.AtoB(transportcert);
+            byte transport[] = Utils.base64decode(transportcert);
 
             X509Certificate tcert = manager.importCACertPackage(transport);
 
@@ -749,7 +748,7 @@ public class ComCrypto {
             // BASE64Encoder encoder = new BASE64Encoder();
 
             // CRMF_REQUEST = encoder.encodeBuffer(encoded);
-            CRMF_REQUEST = OSUtil.BtoA(encoded);
+            CRMF_REQUEST = Utils.base64encode(encoded);
 
             System.out.println("Generated crmf request: ...... ");
             System.out.println("");

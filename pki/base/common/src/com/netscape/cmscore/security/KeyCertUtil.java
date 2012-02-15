@@ -114,6 +114,7 @@ import com.netscape.cmscore.dbs.BigIntegerMapper;
 import com.netscape.cmscore.dbs.DateMapper;
 import com.netscape.cmscore.dbs.X509CertImplMapper;
 import com.netscape.cmsutil.crypto.CryptoUtil;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * This class provides all the base methods to generate the key for different
@@ -136,7 +137,7 @@ public class KeyCertUtil {
         if (ext != null) {
             try {
 
-                b = (byte[]) (com.netscape.osutil.OSUtil.AtoB(ext));
+                b = Utils.base64decode(ext);
                 // this b can be "Extension" Or "SEQUENCE OF Extension"
                 DerValue b_der = new DerValue(b);
 
@@ -761,7 +762,7 @@ public class KeyCertUtil {
     public static byte[] convertB64EToByteArray(String b64E)
             throws CertificateException, IOException {
         String str = CertUtils.stripCertBrackets(b64E);
-        byte bCert[] = (byte[]) (com.netscape.osutil.OSUtil.AtoB(str));
+        byte bCert[] = Utils.base64decode(str);
 
         /*
          java.security.cert.X509Certificate cert = 
@@ -804,7 +805,7 @@ public class KeyCertUtil {
         String b64E = properties.getDerExtension();
 
         if (b64E != null) {
-            byte[] b = (byte[]) (com.netscape.osutil.OSUtil.AtoB(b64E));
+            byte[] b = Utils.base64decode(b64E);
 
             // this b can be "Extension" Or "SEQUENCE OF Extension"
             try {

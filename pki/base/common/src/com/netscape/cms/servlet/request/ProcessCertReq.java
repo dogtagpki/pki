@@ -78,6 +78,7 @@ import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * Agent operations on Certificate requests. This servlet is used
@@ -617,7 +618,7 @@ public class ProcessCertReq extends CMSServlet {
                             if (addExts != null && !addExts.trim().equals("")) {
                                 Vector<Extension> extsToBeAdded = new Vector<Extension>();
 
-                                byte[] b = (byte[]) (com.netscape.osutil.OSUtil.AtoB(addExts));
+                                byte[] b = Utils.base64decode(addExts);
 
                                 // this b can be "Extension" Or "SEQUENCE OF Extension"
                                 try {
@@ -1851,7 +1852,7 @@ public class ProcessCertReq extends CMSServlet {
         if (rawData != null) {
             String base64Data = null;
 
-            base64Data = com.netscape.osutil.OSUtil.BtoA(rawData).trim();
+            base64Data = Utils.base64encode(rawData).trim();
 
             // extract all line separators from the "base64Data"
             StringBuffer sb = new StringBuffer();

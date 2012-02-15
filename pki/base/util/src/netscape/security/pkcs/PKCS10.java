@@ -26,6 +26,8 @@ import java.security.Signature;
 import java.security.SignatureException;
 import java.security.cert.CertificateException;
 
+import com.netscape.cmsutil.util.Utils;
+
 import netscape.security.util.BigInt;
 import netscape.security.util.DerInputStream;
 import netscape.security.util.DerOutputStream;
@@ -310,7 +312,7 @@ public class PKCS10 {
             throw new SignatureException("Cert request was not signed");
 
         out.println("-----BEGIN NEW CERTIFICATE REQUEST-----");
-        out.println(com.netscape.osutil.OSUtil.BtoA(certificateRequest));
+        out.println(Utils.base64encode(certificateRequest));
         out.println("-----END NEW CERTIFICATE REQUEST-----");
     }
 

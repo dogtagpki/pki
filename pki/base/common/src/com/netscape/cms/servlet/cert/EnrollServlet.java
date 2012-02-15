@@ -73,6 +73,7 @@ import com.netscape.cms.servlet.processors.CRMFProcessor;
 import com.netscape.cms.servlet.processors.KeyGenProcessor;
 import com.netscape.cms.servlet.processors.PKCS10Processor;
 import com.netscape.cms.servlet.processors.PKIProcessor;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * Submit a Certificate Enrollment request
@@ -1746,7 +1747,7 @@ public class EnrollServlet extends CMSServlet {
         if (rawData != null) {
             String base64Data = null;
 
-            base64Data = com.netscape.osutil.OSUtil.BtoA(rawData).trim();
+            base64Data = Utils.base64encode(rawData).trim();
 
             StringBuffer sb = new StringBuffer();
             // extract all line separators from the "base64Data"

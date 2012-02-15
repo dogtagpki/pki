@@ -45,6 +45,7 @@ import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.cmsutil.util.HMACDigest;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * Generates a 1024-bit RSA key pair in the security database, constructs a
@@ -152,7 +153,7 @@ public class PKCS10Client {
             certRequest.encode(bos);
             byte[] bb = bos.toByteArray();
 
-            String b64E = com.netscape.osutil.OSUtil.BtoA(bb);
+            String b64E = Utils.base64encode(bb);
 
             System.out.println("");
             System.out.println(b64E);

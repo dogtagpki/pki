@@ -62,6 +62,7 @@ import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.common.AuthCredentials;
 import com.netscape.cms.servlet.common.CMCOutputTemplate;
 import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * This servlet submits end-user request into the profile framework.
@@ -256,7 +257,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
             }
         }
 
-        requestB64 = com.netscape.osutil.OSUtil.BtoA(reqbuf);
+        requestB64 = Utils.base64encode(reqbuf);
 
         if (CMS.debugOn()) {
             CMS.debug("Start of ProfileSubmitCMCServlet Input Parameters");
@@ -876,7 +877,7 @@ public class ProfileSubmitCMCServlet extends ProfileServlet {
         if (rawData != null) {
             String base64Data = null;
 
-            base64Data = com.netscape.osutil.OSUtil.BtoA(rawData).trim();
+            base64Data = Utils.base64encode(rawData).trim();
 
             // extract all line separators from the "base64Data"
             StringBuffer sb = new StringBuffer();

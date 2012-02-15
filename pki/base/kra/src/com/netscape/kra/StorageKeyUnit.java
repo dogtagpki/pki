@@ -60,6 +60,7 @@ import com.netscape.certsrv.kra.IShare;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.security.Credential;
 import com.netscape.certsrv.security.IStorageKeyUnit;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * A class represents a storage key unit. Currently, this
@@ -736,9 +737,7 @@ public class StorageKeyUnit extends EncryptionUnit implements
             byte prev[] = preVerify(share);
             byte enc[] = cipher.doFinal(prev);
 
-            // #615387 - cannot use CMS.BtoA because CMS is not present during
-            // configuration
-            return com.netscape.osutil.OSUtil.BtoA(enc).trim();
+            return Utils.base64encode(enc).trim();
         } catch (NoSuchAlgorithmException e) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_KEY_1",
                         e.toString()));

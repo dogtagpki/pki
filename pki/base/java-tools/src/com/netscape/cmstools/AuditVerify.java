@@ -36,6 +36,8 @@ import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.ObjectNotFoundException;
 import org.mozilla.jss.crypto.X509Certificate;
 
+import com.netscape.cmsutil.util.Utils;
+
 /**
  * Tool for verifying signed audit logs
  * 
@@ -52,7 +54,7 @@ public class AuditVerify {
     public static final String CRYPTO_PROVIDER = "Mozilla-JSS";
 
     public static byte[] base64decode(String input) throws Exception {
-        return com.netscape.osutil.OSUtil.AtoB(input);
+        return Utils.base64decode(input);
     }
 
     // We always sign 0x0a as the line separator, regardless of what

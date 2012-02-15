@@ -82,6 +82,7 @@ import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.cmsutil.util.HMACDigest;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * Tool for creating CMC full request
@@ -184,7 +185,7 @@ public class CMCRequest {
             try {
                 for (int k = 0; k < rValue.length; k++) {
                     String asciiBASE64Blob = rValue[k];
-                    byte[] decodedBytes = com.netscape.osutil.OSUtil.AtoB(asciiBASE64Blob);
+                    byte[] decodedBytes = Utils.base64decode(asciiBASE64Blob);
 
                     if (format.equals("crmf")) {
                         ByteArrayInputStream reqBlob =
@@ -291,7 +292,7 @@ public class CMCRequest {
                 ByteArrayOutputStream os = new ByteArrayOutputStream();
 
                 fullEnrollmentReq.encode(os);
-                ps.print(com.netscape.osutil.OSUtil.BtoA(os.toByteArray()));
+                ps.print(Utils.base64encode(os.toByteArray()));
             }
             String asciiBASE64Blob = bs.toString();
 
@@ -754,7 +755,7 @@ public class CMCRequest {
                 dig = salt.getBytes();
             }
 
-            sn = com.netscape.osutil.OSUtil.BtoA(dig);
+            sn = Utils.base64encode(dig);
         }
         byte bb[] = sn.getBytes();
         System.out.println("SenderNonce control: ");

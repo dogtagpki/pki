@@ -32,6 +32,7 @@ import com.netscape.certsrv.dbs.keydb.IKeyRepository;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.cms.servlet.request.KeyRequestResource;
 import com.netscape.cmscore.dbs.KeyRecord;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * This implementation implements SecurityData archival operations.
@@ -87,7 +88,7 @@ public class SecurityDataService implements IService {
         }
         //We need some info from the PKIArchiveOptions wrapped security data
 
-        byte[] encoded = com.netscape.osutil.OSUtil.AtoB(wrappedSecurityData);
+        byte[] encoded = Utils.base64decode(wrappedSecurityData);
 
         ArchiveOptions options = ArchiveOptions.toArchiveOptions(encoded);
 

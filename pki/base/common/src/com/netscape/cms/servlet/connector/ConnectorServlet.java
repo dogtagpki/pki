@@ -71,6 +71,7 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * Connector servlet
@@ -1094,7 +1095,7 @@ public class ConnectorServlet extends CMSServlet {
         if (rawData != null) {
             String base64Data = null;
 
-            base64Data = com.netscape.osutil.OSUtil.BtoA(rawData).trim();
+            base64Data = Utils.base64encode(rawData).trim();
 
             StringBuffer sb = new StringBuffer();
             // extract all line separators from the "base64Data"

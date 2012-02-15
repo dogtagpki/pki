@@ -32,6 +32,7 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.KeyGenInfo;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * This class represents a set of indexed arguments.
@@ -697,7 +698,7 @@ public class ArgBlock implements IArgBlock {
         PKCS10 pkcs10 = null;
 
         try {
-            byte[] decodedBytes = com.netscape.osutil.OSUtil.AtoB(base64Request);
+            byte[] decodedBytes = Utils.base64decode(base64Request);
 
             pkcs10 = new PKCS10(decodedBytes);
         } catch (NoSuchProviderException e) {

@@ -34,6 +34,7 @@ import com.netscape.certsrv.policy.IRenewalPolicy;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 import com.netscape.cms.policy.APolicyRule;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * RenewalValidityConstraints is a default rule for Certificate
@@ -338,7 +339,7 @@ public class RenewalValidityConstraints extends APolicyRule
             sb.append("\n");
             try {
                 byte[] ba = cert.getEncoded();
-                String encodedCert = com.netscape.osutil.OSUtil.BtoA(ba);
+                String encodedCert = Utils.base64encode(ba);
 
                 sb.append(CERT_HEADER + encodedCert + CERT_TRAILER);
             } catch (Exception e) {

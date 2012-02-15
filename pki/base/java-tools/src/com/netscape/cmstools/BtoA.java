@@ -22,6 +22,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import com.netscape.cmsutil.util.Utils;
+
 /**
  * The BtoA class is a utility program designed to "translate" a BINARY
  * BASE 64 encoded blob into an ASCII BASE 64 encoded blob. It assumes
@@ -88,7 +90,7 @@ public class BtoA {
         try {
             byte data[] = new byte[inputBlob.available()];
             inputBlob.read(data);
-            String out = com.netscape.osutil.OSUtil.BtoA(data);
+            String out = Utils.base64encode(data);
             outputBlob.write(out.getBytes());
         } catch (IOException e) {
             System.out.println("BtoA():  Unexpected BASE64 " +

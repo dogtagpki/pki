@@ -42,6 +42,8 @@ import org.mozilla.jss.ssl.SSLHandshakeCompletedListener;
 import org.mozilla.jss.ssl.SSLSocket;
 import org.mozilla.jss.util.Password;
 
+import com.netscape.cmsutil.util.Utils;
+
 /**
  * This class implements a CMC Enroll client for testing.
  * 
@@ -213,7 +215,7 @@ public class HttpClient {
 
         ByteArrayOutputStream bs = new ByteArrayOutputStream();
         PrintStream ps = new PrintStream(bs);
-        ps.print(com.netscape.osutil.OSUtil.BtoA(bout));
+        ps.print(Utils.base64encode(bout));
         System.out.println(bs.toString());
 
         System.out.println("");

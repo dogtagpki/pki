@@ -33,13 +33,13 @@ import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.pkcs12.AuthenticatedSafes;
 import org.mozilla.jss.pkcs12.PFX;
 
-import com.netscape.osutil.OSUtil;
 import com.netscape.pkisilent.argparser.ArgParser;
 import com.netscape.pkisilent.argparser.StringHolder;
 import com.netscape.pkisilent.common.ComCrypto;
 import com.netscape.pkisilent.common.ParseXML;
 import com.netscape.pkisilent.http.HTTPClient;
 import com.netscape.pkisilent.http.HTTPResponse;
+import com.netscape.cmsutil.util.Utils;
 
 public class ConfigureCA {
 
@@ -1035,7 +1035,7 @@ public class ConfigureCA {
                 // Convert a byte array to base64 string
                 // cert_to_import = new sun.misc.BASE64Encoder().encode(
                 //     hr.getResponseData());
-                cert_to_import = OSUtil.BtoA(hr.getResponseData());
+                cert_to_import = Utils.base64encode(hr.getResponseData());
 
                 // Convert base64 string to a byte array
                 // buf = new sun.misc.BASE64Decoder().decodeBuffer(s);

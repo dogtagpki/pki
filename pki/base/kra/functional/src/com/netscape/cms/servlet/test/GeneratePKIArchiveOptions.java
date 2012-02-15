@@ -36,7 +36,7 @@ import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.cmsutil.crypto.CryptoUtil;
-import com.netscape.osutil.OSUtil;
+import com.netscape.cmsutil.util.Utils;
 
 @SuppressWarnings("deprecation")
 public class GeneratePKIArchiveOptions {
@@ -168,7 +168,7 @@ public class GeneratePKIArchiveOptions {
 
         // used for wrapping to send data to DRM
         byte[] tcert = read(transport_file);
-        String transportCert = com.netscape.osutil.OSUtil.BtoA(tcert);
+        String transportCert = Utils.base64encode(tcert);
 
         // Initialize token
         try {
@@ -202,7 +202,7 @@ public class GeneratePKIArchiveOptions {
         if (!passphraseMode) {
             vek = CryptoUtil.generateKey(token, KeyGenAlgorithm.DES3);
             // store vek in file
-            write_file(OSUtil.BtoA(vek.getKeyData()), key_file);
+            write_file(Utils.base64encode(vek.getKeyData()), key_file);
         }
 
         byte[] encoded = null;
@@ -216,7 +216,7 @@ public class GeneratePKIArchiveOptions {
         }
         
         // write encoded to file
-        write_file(OSUtil.BtoA(encoded), out_file);
+        write_file(Utils.base64encode(encoded), out_file);
 
     }
 }

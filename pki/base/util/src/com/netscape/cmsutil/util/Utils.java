@@ -39,7 +39,11 @@ public class Utils {
      * Checks if this is NT.
      */
     public static boolean isNT() {
-        return ((File.separator).equals("\\"));
+        return File.separator.equals("\\");
+    }
+
+    public static boolean isUnix() {
+        return File.separator.equals("/");
     }
 
     public static boolean exec(String cmd) {
@@ -251,11 +255,20 @@ public class Utils {
      * there'll be trouble if the Vector contains something other
      * than just Strings
      */
-    public static String[] getStringArrayFromVector(Vector v) {
+    public static String[] getStringArrayFromVector(Vector<String> v) {
         String s[] = new String[v.size()];
 
         v.copyInto(s);
         return s;
     }
 
+    public static String base64encode(byte[] bytes) {
+        String string = com.netscape.osutil.OSUtil.BtoA(bytes);
+        return string;
+    }
+
+    public static byte[] base64decode(String string) {
+        byte[] bytes = com.netscape.osutil.OSUtil.AtoB(string);
+        return bytes;
+    }
 }

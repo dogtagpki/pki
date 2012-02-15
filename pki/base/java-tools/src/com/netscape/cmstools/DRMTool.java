@@ -65,6 +65,8 @@ import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.pkcs11.PK11PubKey;
 import org.mozilla.jss.util.Password;
 
+import com.netscape.cmsutil.util.Utils;
+
 /**
  * The DRMTool class is a utility program designed to operate on an LDIF file
  * to perform one or more of the following tasks:
@@ -1512,7 +1514,7 @@ public class DRMTool {
 
         // Decode the ASCII BASE 64 certificate enclosed in the
         // String() object into a BINARY BASE 64 byte[] object
-        decodedBASE64Cert = com.netscape.osutil.OSUtil.AtoB(
+        decodedBASE64Cert = Utils.base64decode(
                                 encodedBASE64Cert);
 
         // Create an X509CertImpl() object from
@@ -1842,13 +1844,13 @@ public class DRMTool {
                                                  0);
             if (mDebug) {
                 log("DEBUG: sk = '"
-                        + com.netscape.osutil.OSUtil.BtoA(sk.getEncoded())
+                        + Utils.base64encode(sk.getEncoded())
                         + "' length = '"
                         + sk.getEncoded().length
                         + "'"
                         + NEWLINE, false);
                 log("DEBUG: pri = '"
-                        + com.netscape.osutil.OSUtil.BtoA(pri)
+                        + Utils.base64encode(pri)
                         + "' length = '"
                         + pri.length
                         + "'"
@@ -3703,7 +3705,7 @@ public class DRMTool {
                         // enclosed in the String() object
                         // into a BINARY BASE 64 byte[] object
                         source_wrappedKeyData =
-                                com.netscape.osutil.OSUtil.AtoB(data);
+                                Utils.base64decode(data);
 
                         // rewrap the source wrapped private key data
                         target_wrappedKeyData = rewrap_wrapped_key_data(
@@ -3712,7 +3714,7 @@ public class DRMTool {
                         // Encode the BINARY BASE 64 byte[] object
                         // into an ASCII BASE 64 certificate
                         // enclosed in a String() object
-                        revised_data = com.netscape.osutil.OSUtil.BtoA(
+                        revised_data = Utils.base64encode(
                                            target_wrappedKeyData);
 
                         // Unformat the ASCII BASE 64 certificate
@@ -3777,7 +3779,7 @@ public class DRMTool {
                         // enclosed in the String() object
                         // into a BINARY BASE 64 byte[] object
                         source_wrappedKeyData =
-                                com.netscape.osutil.OSUtil.AtoB(data);
+                                Utils.base64decode(data);
 
                         // rewrap the source wrapped private key data
                         target_wrappedKeyData = rewrap_wrapped_key_data(
@@ -3786,7 +3788,7 @@ public class DRMTool {
                         // Encode the BINARY BASE 64 byte[] object
                         // into an ASCII BASE 64 certificate
                         // enclosed in a String() object
-                        revised_data = com.netscape.osutil.OSUtil.BtoA(
+                        revised_data = Utils.base64encode(
                                            target_wrappedKeyData);
 
                         // Unformat the ASCII BASE 64 certificate

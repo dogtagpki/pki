@@ -60,7 +60,7 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.logging.ILogger;
-import com.netscape.osutil.OSUtil;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * Utility class with assorted methods to check for
@@ -157,7 +157,7 @@ public class CertUtils {
         PKCS10 pkcs10 = null;
 
         try {
-            byte[] decodedBytes = com.netscape.osutil.OSUtil.AtoB(normalized);
+            byte[] decodedBytes = Utils.base64decode(normalized);
 
             pkcs10 = new PKCS10(decodedBytes);
         } catch (Exception e) {
@@ -548,7 +548,7 @@ public class CertUtils {
     public static String toMIME64(X509CertImpl cert) {
         try {
             return "-----BEGIN CERTIFICATE-----\n" +
-                    com.netscape.osutil.OSUtil.BtoA(cert.getEncoded()) +
+                    Utils.base64encode(cert.getEncoded()) +
                     "-----END CERTIFICATE-----\n";
         } catch (CertificateException e) {
         }
@@ -559,7 +559,7 @@ public class CertUtils {
             throws IOException {
         mime64 = stripCertBrackets(mime64.trim());
         String newval = normalizeCertStr(mime64);
-        byte rawPub[] = com.netscape.osutil.OSUtil.AtoB(newval);
+        byte rawPub[] = Utils.base64decode(newval);
         X509Certificate cert = null;
 
         try {
@@ -573,7 +573,7 @@ public class CertUtils {
             throws IOException {
         mime64 = stripCertBrackets(mime64.trim());
         String newval = normalizeCertStr(mime64);
-        byte rawPub[] = com.netscape.osutil.OSUtil.AtoB(newval);
+        byte rawPub[] = Utils.base64decode(newval);
         PKCS7 p7 = null;
 
         try {
@@ -588,7 +588,7 @@ public class CertUtils {
             throws IOException {
         mime64 = stripCRLBrackets(mime64.trim());
         String newval = normalizeCertStr(mime64);
-        byte rawPub[] = com.netscape.osutil.OSUtil.AtoB(newval);
+        byte rawPub[] = Utils.base64decode(newval);
         X509CRL crl = null;
 
         try {
@@ -601,7 +601,7 @@ public class CertUtils {
     public static X509CRL mapCRL1(String mime64)
             throws IOException {
         mime64 = stripCRLBrackets(mime64.trim());
-        byte rawPub[] = OSUtil.AtoB(mime64);
+        byte rawPub[] = Utils.base64decode(mime64);
         X509CRL crl = null;
 
         try {

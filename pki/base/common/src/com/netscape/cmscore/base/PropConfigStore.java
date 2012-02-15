@@ -36,6 +36,7 @@ import com.netscape.certsrv.base.EPropertyNotDefined;
 import com.netscape.certsrv.base.EPropertyNotFound;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISourceConfigStore;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * A class represents a in-memory configuration store.
@@ -342,7 +343,7 @@ public class PropConfigStore implements IConfigStore, Cloneable {
         } else {
             CMS.traceHashKey(mDebugType, getFullName(name),
                     "<bytearray>", "<bytearray>");
-            return com.netscape.osutil.OSUtil.AtoB(str);
+            return Utils.base64decode(str);
         }
     }
 

@@ -56,6 +56,7 @@ import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cmsutil.util.Cert;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * A class representing an administration servlet for
@@ -1045,7 +1046,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             // Base64 decode cert
 
             try {
-                byte bCert[] = (byte[]) (com.netscape.osutil.OSUtil.AtoB(certsString));
+                byte bCert[] = Utils.base64decode(certsString);
                 X509Certificate cert = new X509CertImpl(bCert);
 
                 certs = new X509Certificate[1];
@@ -1056,7 +1057,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
 
                 // could it be a pkcs7 blob?
                 CMS.debug("UsrGrpAdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_IS_PK_BLOB"));
-                byte p7Cert[] = (byte[]) (com.netscape.osutil.OSUtil.AtoB(certsString));
+                byte p7Cert[] = Utils.base64decode(certsString);
 
                 try {
                     CryptoManager manager = CryptoManager.getInstance();

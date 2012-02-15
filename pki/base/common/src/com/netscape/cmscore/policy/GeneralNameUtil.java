@@ -48,6 +48,7 @@ import com.netscape.certsrv.policy.IGeneralNamesAsConstraintsConfig;
 import com.netscape.certsrv.policy.IGeneralNamesConfig;
 import com.netscape.certsrv.policy.ISubjAltNameConfig;
 import com.netscape.cmscore.util.Debug;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * Class that can be used to form general names from configuration file.
@@ -101,7 +102,7 @@ public class GeneralNameUtil implements IGeneralNameUtil {
 
         try {
             if (generalNameChoice.equalsIgnoreCase(GENNAME_CHOICE_OTHERNAME)) {
-                byte[] val = com.netscape.osutil.OSUtil.AtoB(value);
+                byte[] val = Utils.base64decode(value);
 
                 derVal = new DerValue(new ByteArrayInputStream(val));
                 Debug.trace("otherName formed");

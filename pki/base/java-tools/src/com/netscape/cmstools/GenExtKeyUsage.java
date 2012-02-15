@@ -19,6 +19,8 @@ package com.netscape.cmstools;
 
 import java.util.Vector;
 
+import com.netscape.cmsutil.util.Utils;
+
 import netscape.security.util.DerOutputStream;
 import netscape.security.util.DerValue;
 import netscape.security.util.ObjectIdentifier;
@@ -89,7 +91,7 @@ public class GenExtKeyUsage {
 
             // BASE64 encode the whole thing and write it to stdout
 
-            System.out.println(com.netscape.osutil.OSUtil.BtoA(extdos.toByteArray()));
+            System.out.println(Utils.base64encode(extdos.toByteArray()));
 
         } catch (Exception e) {
             e.printStackTrace();

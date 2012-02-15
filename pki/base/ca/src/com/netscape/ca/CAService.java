@@ -91,6 +91,7 @@ import com.netscape.cmscore.dbs.CertRecord;
 import com.netscape.cmscore.dbs.CertificateRepository;
 import com.netscape.cmscore.dbs.RevocationInfo;
 import com.netscape.cmscore.util.Debug;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * Request Service for CertificateAuthority.
@@ -1675,7 +1676,7 @@ class serviceCheckChallenge implements IServant {
     private String hashPassword(String pwd) {
         String salt = "lala123";
         byte[] pwdDigest = mSHADigest.digest((salt + pwd).getBytes());
-        String b64E = com.netscape.osutil.OSUtil.BtoA(pwdDigest);
+        String b64E = Utils.base64encode(pwdDigest);
 
         return "{SHA}" + b64E;
     }

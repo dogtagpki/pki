@@ -68,6 +68,7 @@ import org.mozilla.jss.pkix.primitive.SubjectPublicKeyInfo;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.cmsutil.util.HMACDigest;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * A command-line utility used to generate a Certificate Request Message
@@ -309,7 +310,7 @@ public class CRMFPopClient {
             System.out.println("."); //key pair generated");
 
             // wrap private key
-            byte transport[] = com.netscape.osutil.OSUtil.AtoB(transportCert);
+            byte transport[] = Utils.base64decode(transportCert);
 
             X509Certificate tcert = manager.importCACertPackage(transport);
 
@@ -473,7 +474,7 @@ public class CRMFPopClient {
                 s1.addElement(crmfMsg);
                 byte encoded[] = ASN1Util.encode(s1);
 
-                String Req1 = com.netscape.osutil.OSUtil.BtoA(encoded);
+                String Req1 = Utils.base64encode(encoded);
 
                 if (OUTPUT_CERT_REQ != null) {
                     System.out.println("Generated Cert Request: ...... ");

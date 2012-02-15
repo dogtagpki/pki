@@ -65,6 +65,7 @@ import com.netscape.cmscore.crmf.CRMFParser;
 import com.netscape.cmscore.crmf.PKIArchiveOptionsContainer;
 import com.netscape.kra.ArchiveOptions;
 import com.netscape.cmscore.dbs.KeyRecord;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * A class represents archival request processor. It
@@ -552,7 +553,7 @@ public class EnrollmentService implements IService {
             CMS.debug("EnrollmentService::getPKIArchiveOptions> crmfBlob=" + crmfBlob);
         byte[] crmfBerBlob = null;
 
-        crmfBerBlob = com.netscape.osutil.OSUtil.AtoB(crmfBlob);
+        crmfBerBlob = Utils.base64decode(crmfBlob);
         ByteArrayInputStream crmfBerBlobIn = new
                 ByteArrayInputStream(crmfBerBlob);
         SEQUENCE crmfmsgs = null;

@@ -20,6 +20,8 @@ package com.netscape.cmstools;
 import java.io.ByteArrayOutputStream;
 import java.net.InetAddress;
 
+import com.netscape.cmsutil.util.Utils;
+
 import netscape.security.util.ObjectIdentifier;
 import netscape.security.x509.DNSName;
 import netscape.security.x509.GeneralNameInterface;
@@ -90,7 +92,7 @@ public class GenIssuerAltNameExt {
         ext.encode(os);
 
         System.out.println(
-                com.netscape.osutil.OSUtil.BtoA(os.toByteArray())
+                Utils.base64encode(os.toByteArray())
                 );
     }
 

@@ -21,13 +21,13 @@ package com.netscape.pkisilent;
 import java.io.ByteArrayInputStream;
 import java.net.URLEncoder;
 
-import com.netscape.osutil.OSUtil;
 import com.netscape.pkisilent.argparser.ArgParser;
 import com.netscape.pkisilent.argparser.StringHolder;
 import com.netscape.pkisilent.common.ComCrypto;
 import com.netscape.pkisilent.common.ParseXML;
 import com.netscape.pkisilent.http.HTTPClient;
 import com.netscape.pkisilent.http.HTTPResponse;
+import com.netscape.cmsutil.util.Utils;
 
 public class ConfigureRA {
 
@@ -516,7 +516,7 @@ public class ConfigureRA {
             // cert_to_import = 
             //     new sun.misc.BASE64Encoder().encode(hr.getResponseData());
             cert_to_import =
-                    OSUtil.BtoA(hr.getResponseData());
+                    Utils.base64encode(hr.getResponseData());
 
         } catch (Exception e) {
             System.out.println("ERROR: failed to retrieve cert");

@@ -120,6 +120,7 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.profile.SSLClientCertProvider;
 import com.netscape.cmsutil.scep.CRSPKIMessage;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * This servlet deals with PKCS#10-based certificate requests from
@@ -576,7 +577,7 @@ public class CRSEnrollment extends HttpServlet {
         byte[] response = null;
         String responseData = "";
 
-        decodedPKIMessage = com.netscape.osutil.OSUtil.AtoB(msg);
+        decodedPKIMessage = Utils.base64decode(msg);
 
         try {
             ByteArrayInputStream is = new ByteArrayInputStream(decodedPKIMessage);
@@ -817,7 +818,7 @@ public class CRSEnrollment extends HttpServlet {
         byte[] response = null;
         X509CertImpl cert = null;
 
-        decodedPKIMessage = com.netscape.osutil.OSUtil.AtoB(msg);
+        decodedPKIMessage = Utils.base64decode(msg);
 
         try {
             ByteArrayInputStream is = new ByteArrayInputStream(decodedPKIMessage);
@@ -1787,7 +1788,7 @@ public class CRSEnrollment extends HttpServlet {
     protected String hashPassword(String pwd) {
         String salt = "lala123";
         byte[] pwdDigest = mSHADigest.digest((salt + pwd).getBytes());
-        String b64E = com.netscape.osutil.OSUtil.BtoA(pwdDigest);
+        String b64E = Utils.base64encode(pwdDigest);
         return "{SHA}" + b64E;
     }
 

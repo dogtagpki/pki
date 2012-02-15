@@ -30,6 +30,8 @@ import netscape.security.util.DerOutputStream;
 import netscape.security.util.DerValue;
 import netscape.security.util.ObjectIdentifier;
 
+import com.netscape.cmsutil.util.Utils;
+
 /**
  * This class defines the Certificate Policies Extension.
  * 
@@ -327,7 +329,7 @@ public class CertificatePoliciesExtension extends Extension
                     new CertificatePoliciesExtension(infos);
 
             // BASE64 encode the whole thing and write it to stdout
-            System.out.println(com.netscape.osutil.OSUtil.BtoA(ext.getExtensionValue()));
+            System.out.println(Utils.base64encode(ext.getExtensionValue()));
         } catch (IOException e) {
             System.out.println(e.toString());
         }

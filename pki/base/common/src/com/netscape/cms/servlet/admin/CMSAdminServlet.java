@@ -77,6 +77,7 @@ import com.netscape.certsrv.selftests.ISelfTest;
 import com.netscape.certsrv.selftests.ISelfTestSubsystem;
 import com.netscape.certsrv.tks.ITKSAuthority;
 import com.netscape.cmsutil.util.Cert;
+import com.netscape.cmsutil.util.Utils;
 import com.netscape.symkey.SessionKey;
 
 /**
@@ -2379,7 +2380,7 @@ public final class CMSAdminServlet extends AdminServlet {
             byte[] bCert = null;
 
             try {
-                bCert = (byte[]) (com.netscape.osutil.OSUtil.AtoB(b64Cert));
+                bCert = Utils.base64decode(b64Cert);
             } catch (Exception e) {
                 CMS.debug("CMSAdminServlet: exception: " + e.toString());
             }
@@ -3422,7 +3423,7 @@ public final class CMSAdminServlet extends AdminServlet {
         if (rawData != null) {
             String base64Data = null;
 
-            base64Data = com.netscape.osutil.OSUtil.BtoA(rawData).trim();
+            base64Data = Utils.base64encode(rawData).trim();
 
             // extract all line separators from the "base64Data"
             for (int i = 0; i < base64Data.length(); i++) {

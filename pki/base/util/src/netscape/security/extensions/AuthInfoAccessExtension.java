@@ -28,6 +28,8 @@ import java.security.cert.CertificateException;
 import java.util.Enumeration;
 import java.util.Vector;
 
+import com.netscape.cmsutil.util.Utils;
+
 import netscape.security.util.DerOutputStream;
 import netscape.security.util.DerValue;
 import netscape.security.util.ObjectIdentifier;
@@ -244,7 +246,7 @@ public class AuthInfoAccessExtension extends Extension implements CertAttrSet {
         try {
             aia.encode(os);
 
-            System.out.println(com.netscape.osutil.OSUtil.BtoA(os.toByteArray()));
+            System.out.println(Utils.base64encode(os.toByteArray()));
         } catch (IOException e) {
             System.out.println(e.toString());
         }

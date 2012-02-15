@@ -41,6 +41,8 @@ import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.util.Base64OutputStream;
 import org.mozilla.jss.util.Password;
 
+import com.netscape.cmsutil.util.Utils;
+
 /**
  * Tool for interacting with the PWcache
  * 
@@ -120,7 +122,7 @@ public class PasswordCache {
     }
 
     public static byte[] base64Decode(String s) throws IOException {
-        byte[] d = com.netscape.osutil.OSUtil.AtoB(s);
+        byte[] d = Utils.base64decode(s);
         return d;
     }
 

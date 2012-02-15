@@ -18,6 +18,7 @@ import com.netscape.cms.servlet.request.model.ArchivalRequestData;
 import com.netscape.cms.servlet.request.model.KeyRequestInfo;
 import com.netscape.cms.servlet.request.model.KeyRequestInfos;
 import com.netscape.cms.servlet.request.model.RecoveryRequestData;
+import com.netscape.cmsutil.util.Utils;
 
 public class DRMRestClient {
 
@@ -52,7 +53,7 @@ public class DRMRestClient {
     public KeyRequestInfo archiveSecurityData(byte[] encoded, String clientId, String dataType) {
         // create archival request
         ArchivalRequestData data = new ArchivalRequestData();
-        String req1 = com.netscape.osutil.OSUtil.BtoA(encoded);
+        String req1 = Utils.base64encode(encoded);
         data.setWrappedPrivateData(req1);
         data.setClientId(clientId);
         data.setDataType(dataType);
@@ -81,14 +82,14 @@ public class DRMRestClient {
         RecoveryRequestData data = new RecoveryRequestData();
         data.setKeyId(keyId);
         if (rpwd != null) {
-            data.setSessionWrappedPassphrase(com.netscape.osutil.OSUtil.BtoA(rpwd));
+            data.setSessionWrappedPassphrase(Utils.base64encode(rpwd));
         }
         if (rkey != null) {
-            data.setTransWrappedSessionKey(com.netscape.osutil.OSUtil.BtoA(rkey));
+            data.setTransWrappedSessionKey(Utils.base64encode(rkey));
         }
 
         if (nonceData != null) {
-            data.setNonceData(com.netscape.osutil.OSUtil.BtoA(nonceData));
+            data.setNonceData(Utils.base64encode(nonceData));
         }
 
         KeyRequestInfo info = keyRequestClient.recoverKey(data);
@@ -105,14 +106,14 @@ public class DRMRestClient {
         data.setKeyId(keyId);
         data.setRequestId(requestId);
         if (rkey != null) {
-            data.setTransWrappedSessionKey(com.netscape.osutil.OSUtil.BtoA(rkey));
+            data.setTransWrappedSessionKey(Utils.base64encode(rkey));
         }
         if (rpwd != null) {
-            data.setSessionWrappedPassphrase(com.netscape.osutil.OSUtil.BtoA(rpwd));
+            data.setSessionWrappedPassphrase(Utils.base64encode(rpwd));
         }
 
         if (nonceData != null) {
-            data.setNonceData(com.netscape.osutil.OSUtil.BtoA(nonceData));
+            data.setNonceData(Utils.base64encode(nonceData));
         }
 
         KeyData key = keyClient.retrieveKey(data);

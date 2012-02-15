@@ -44,6 +44,7 @@ import com.netscape.cms.servlet.key.model.KeyDataInfo;
 import com.netscape.cms.servlet.request.KeyRequestResource;
 import com.netscape.cms.servlet.request.model.KeyRequestInfo;
 import com.netscape.cmsutil.crypto.CryptoUtil;
+import com.netscape.cmsutil.util.Utils;
 
 public class DRMTest {
 
@@ -261,17 +262,17 @@ public class DRMTest {
         keyData = client.retrieveKey(keyId, recoveryRequestId, null, wrappedRecoveryKey, ivps.getIV());
         wrappedRecoveredKey = keyData.getWrappedPrivateData();
 
-        ivps_server = new IVParameterSpec(com.netscape.osutil.OSUtil.AtoB(keyData.getNonceData()));
+        ivps_server = new IVParameterSpec(Utils.base64decode(keyData.getNonceData()));
         try {
             recoveredKey = CryptoUtil.unwrapUsingSymmetricKey(token, ivps_server, 
-                    com.netscape.osutil.OSUtil.AtoB(wrappedRecoveredKey),
+                    Utils.base64decode(wrappedRecoveredKey),
                     recoveryKey, EncryptionAlgorithm.DES3_CBC_PAD);
         } catch (Exception e) {
             log("Exception in unwrapping key: " + e.toString());
             e.printStackTrace();
         }
 
-        if (!recoveredKey.equals(com.netscape.osutil.OSUtil.BtoA(vek.getEncoded()))) {
+        if (!recoveredKey.equals(Utils.base64encode(vek.getEncoded()))) {
             log("Error: recovered and archived keys do not match!");
         } else {
             log("Success: recoverd and archived keys match!");
@@ -310,7 +311,7 @@ public class DRMTest {
             e.printStackTrace();
         }
 
-        if (recoveredKey == null || !recoveredKey.equals(com.netscape.osutil.OSUtil.BtoA(vek.getEncoded()))) {
+        if (recoveredKey == null || !recoveredKey.equals(Utils.base64encode(vek.getEncoded()))) {
             log("Error: recovered and archived keys do not match!");
         } else {
             log("Success: recovered and archived keys do match!");
@@ -373,12 +374,12 @@ public class DRMTest {
 
         keyData = client.retrieveKey(keyId, recoveryRequestId, null, wrappedRecoveryKey, ivps.getIV());
         wrappedRecoveredKey = keyData.getWrappedPrivateData();
-        ivps_server = new IVParameterSpec( com.netscape.osutil.OSUtil.AtoB(keyData.getNonceData()));
+        ivps_server = new IVParameterSpec( Utils.base64decode(keyData.getNonceData()));
         try {
             recoveredKey = CryptoUtil.unwrapUsingSymmetricKey(token, ivps_server, 
-                    com.netscape.osutil.OSUtil.AtoB(wrappedRecoveredKey),
+                    Utils.base64decode(wrappedRecoveredKey),
                     recoveryKey, EncryptionAlgorithm.DES3_CBC_PAD);
-            recoveredKey = new String(com.netscape.osutil.OSUtil.AtoB(recoveredKey), "UTF-8");
+            recoveredKey = new String(Utils.base64decode(recoveredKey), "UTF-8");
         } catch (Exception e) {
             log("Exception in unwrapping key: " + e.toString());
             e.printStackTrace();
@@ -405,7 +406,7 @@ public class DRMTest {
         wrappedRecoveredKey = keyData.getWrappedPrivateData();
         try {
             recoveredKey = CryptoUtil.unwrapUsingPassphrase(wrappedRecoveredKey, recoveryPassphrase);
-            recoveredKey = new String(com.netscape.osutil.OSUtil.AtoB(recoveredKey), "UTF-8");
+            recoveredKey = new String(Utils.base64decode(recoveredKey), "UTF-8");
         } catch (Exception e) {
             log("Error: cannot unwrap key using passphrase");
             e.printStackTrace();
@@ -434,7 +435,7 @@ public class DRMTest {
         wrappedRecoveredKey = keyData.getWrappedPrivateData();
         try {
             recoveredKey = CryptoUtil.unwrapUsingPassphrase(wrappedRecoveredKey, recoveryPassphrase);
-            recoveredKey = new String(com.netscape.osutil.OSUtil.AtoB(recoveredKey), "UTF-8");
+            recoveredKey = new String(Utils.base64decode(recoveredKey), "UTF-8");
         } catch (Exception e) {
             log("Error: Can't unwrap recovered key using passphrase");
             e.printStackTrace();

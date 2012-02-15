@@ -31,13 +31,13 @@ import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.pkcs12.AuthenticatedSafes;
 import org.mozilla.jss.pkcs12.PFX;
 
-import com.netscape.osutil.OSUtil;
 import com.netscape.pkisilent.argparser.ArgParser;
 import com.netscape.pkisilent.argparser.StringHolder;
 import com.netscape.pkisilent.common.ComCrypto;
 import com.netscape.pkisilent.common.ParseXML;
 import com.netscape.pkisilent.http.HTTPClient;
 import com.netscape.pkisilent.http.HTTPResponse;
+import com.netscape.cmsutil.util.Utils;
 
 public class ConfigureOCSP {
     public static final String DEFAULT_KEY_TYPE = "RSA";
@@ -676,7 +676,7 @@ public class ConfigureOCSP {
         // String cert_to_import = 
         //         new sun.misc.BASE64Encoder().encode(hr.getResponseData());
         String cert_to_import =
-                OSUtil.BtoA(hr.getResponseData());
+                Utils.base64encode(hr.getResponseData());
         System.out.println("Imported Cert=" + cert_to_import);
 
         ComCrypto cCrypt = new ComCrypto(client_certdb_dir,

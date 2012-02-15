@@ -29,7 +29,7 @@ import netscape.security.x509.X500Name;
 import netscape.security.x509.X509CertImpl;
 import netscape.security.x509.X509CertInfo;
 
-import com.netscape.osutil.OSUtil;
+import com.netscape.cmsutil.util.Utils;
 
 public class Utilities {
 
@@ -305,7 +305,7 @@ public class Utilities {
         try {
             // BASE64Decoder base64 = new BASE64Decoder();
             // byte decodedBASE64Cert[] = base64.decodeBuffer(temp);
-            byte decodedBASE64Cert[] = OSUtil.AtoB(temp);
+            byte decodedBASE64Cert[] = Utils.base64decode(temp);
             X509CertImpl x509_cert = new X509CertImpl(decodedBASE64Cert);
             X509CertInfo certinfo = (X509CertInfo) x509_cert.get("x509.INFO");
 

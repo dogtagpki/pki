@@ -45,6 +45,7 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.ldap.ELdapException;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.publish.ILdapPublisher;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * This publisher writes certificate and CRL into
@@ -368,7 +369,7 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
                     ByteArrayOutputStream os = new ByteArrayOutputStream();
 
                     fos = new FileOutputStream(tempFile);
-                    fos.write(com.netscape.osutil.OSUtil.BtoA(encodedArray).getBytes());
+                    fos.write(Utils.base64encode(encodedArray).getBytes());
                     fos.close();
                     destName = baseName + ".b64";
                     destFile = new File(destName);

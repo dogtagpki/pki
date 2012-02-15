@@ -38,10 +38,10 @@ import org.mozilla.jss.ssl.SSLSocket;
 import org.mozilla.jss.ssl.TestCertApprovalCallback;
 import org.mozilla.jss.ssl.TestClientCertificateSelectionCallback;
 
-import com.netscape.osutil.OSUtil;
 import com.netscape.pkisilent.argparser.ArgParser;
 import com.netscape.pkisilent.argparser.StringHolder;
 import com.netscape.pkisilent.common.ComCrypto;
+import com.netscape.cmsutil.util.Utils;
 
 public class HTTPClient implements SSLCertificateApprovalCallback {
 
@@ -1168,8 +1168,8 @@ public class HTTPClient implements SSLCertificateApprovalCallback {
 
             // String temp = encoder.encodeBuffer((user_id + 
             // 			":" + user_password).getBytes());
-            String temp = OSUtil.BtoA((user_id +
-                        ":" + user_password).getBytes());
+            String temp = Utils.base64encode((user_id +
+                    ":" + user_password).getBytes());
 
             // note: temp already contains \r and \n. 
             // remove \r and \n from the base64 encoded string. 

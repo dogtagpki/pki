@@ -96,6 +96,7 @@ import com.netscape.cms.servlet.common.GenSvcPendingTemplateFiller;
 import com.netscape.cms.servlet.common.GenUnexpectedErrorTemplateFiller;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
 import com.netscape.cms.servlet.common.ServletUtils;
+import com.netscape.cmsutil.util.Utils;
 import com.netscape.cmsutil.xml.XMLObject;
 
 /**
@@ -1563,7 +1564,7 @@ public abstract class CMSServlet extends HttpServlet {
     protected String hashPassword(String pwd) {
         String salt = generateSalt();
         byte[] pwdDigest = mSHADigest.digest((salt + pwd).getBytes());
-        String b64E = com.netscape.osutil.OSUtil.BtoA(pwdDigest);
+        String b64E = Utils.base64encode(pwdDigest);
 
         return "{SHA}" + salt + ";" + b64E;
     }

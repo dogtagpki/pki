@@ -25,6 +25,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import com.netscape.cmsutil.util.Utils;
+
 /**
  * The AtoB class is a utility program designed to "translate" an ASCII
  * BASE 64 encoded blob into a BINARY BASE 64 encoded blob. It assumes
@@ -113,7 +115,7 @@ public class AtoB {
         // (5) Decode the ASCII BASE 64 blob enclosed in the
         //     String() object into a BINARY BASE 64 byte[] object
 
-        binaryBASE64Blob = com.netscape.osutil.OSUtil.AtoB(asciiBASE64Blob);
+        binaryBASE64Blob = Utils.base64decode(asciiBASE64Blob);
 
         // (6) Finally, print the actual AtoB blob to the
         //     specified output file

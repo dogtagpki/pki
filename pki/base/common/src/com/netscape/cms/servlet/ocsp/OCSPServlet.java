@@ -45,6 +45,7 @@ import com.netscape.cmsutil.ocsp.ResponseBytes;
 import com.netscape.cmsutil.ocsp.ResponseData;
 import com.netscape.cmsutil.ocsp.SingleResponse;
 import com.netscape.cmsutil.ocsp.TBSRequest;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * Process OCSP messages, According to RFC 2560
@@ -174,7 +175,7 @@ public class OCSPServlet extends CMSServlet {
                     throw new Exception("OCSPServlet: OCSP request not provided in GET method");
                 }
                 is = new ByteArrayInputStream(
-                        com.netscape.osutil.OSUtil.AtoB(pathInfo.substring(1)));
+                        Utils.base64decode(pathInfo.substring(1)));
             }
 
             // (1) retrieve OCSP request

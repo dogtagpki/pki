@@ -184,7 +184,7 @@ public class PWsdrCache {
     }
 
     public byte[] base64Decode(String s) throws IOException {
-        byte[] d = com.netscape.osutil.OSUtil.AtoB(s);
+        byte[] d = Utils.base64decode(s);
         return d;
     }
 

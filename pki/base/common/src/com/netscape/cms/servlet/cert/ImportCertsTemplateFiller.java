@@ -56,6 +56,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * Set up HTTP response to import certificate into browsers
@@ -352,7 +353,7 @@ public class ImportCertsTemplateFiller implements ICMSTemplateFiller {
 
             certRepContent.encode(certRepOut);
             byte[] certRepBytes = certRepOut.toByteArray();
-            String certRepB64 = com.netscape.osutil.OSUtil.BtoA(certRepBytes);
+            String certRepB64 = Utils.base64encode(certRepBytes);
             // add CR to each return as required by cartman
             BufferedReader certRepB64lines =
                     new BufferedReader(new StringReader(certRepB64));

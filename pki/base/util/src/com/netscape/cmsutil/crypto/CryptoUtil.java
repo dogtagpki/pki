@@ -114,7 +114,7 @@ import org.mozilla.jss.util.Base64OutputStream;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.cmsutil.util.Cert;
-import com.netscape.osutil.OSUtil;
+import com.netscape.cmsutil.util.Utils;
 
 public class CryptoUtil {
 
@@ -132,7 +132,7 @@ public class CryptoUtil {
         try {
             return "-----BEGIN CERTIFICATE-----\n"
                     //  + mEncoder.encodeBuffer(cert.getEncoded())
-                    + OSUtil.BtoA(cert.getEncoded())
+                    + Utils.base64encode(cert.getEncoded())
                     + "-----END CERTIFICATE-----\n";
         } catch (Exception e) {
         }
@@ -319,7 +319,7 @@ public class CryptoUtil {
     public static byte[] base64Decode(String s) throws IOException {
         // BASE64Decoder base64 = new BASE64Decoder();
         // byte[] d = base64.decodeBuffer(s);
-        byte[] d = OSUtil.AtoB(s);
+        byte[] d = Utils.base64decode(s);
 
         return d;
     }
@@ -1155,7 +1155,7 @@ public class CryptoUtil {
         PasswordConverter passConverter = new
                     PasswordConverter();
 
-        byte[] encoded = com.netscape.osutil.OSUtil.AtoB(wrappedRecoveredKey);
+        byte[] encoded = Utils.base64decode(wrappedRecoveredKey);
 
         ByteArrayInputStream inStream = new ByteArrayInputStream(encoded);
         cInfo = (EncryptedContentInfo)
@@ -1163,7 +1163,7 @@ public class CryptoUtil {
 
         byte[] decodedData = cInfo.decrypt(pass, passConverter);
 
-        unwrappedData = com.netscape.osutil.OSUtil.BtoA(decodedData);
+        unwrappedData = Utils.base64encode(decodedData);
 
         return unwrappedData;
     }
@@ -1177,7 +1177,7 @@ public class CryptoUtil {
         Cipher decryptor = token.getCipherContext(alg);
         decryptor.initDecrypt(recoveryKey, IV);
         byte[] unwrappedData = decryptor.doFinal(wrappedRecoveredKey);
-        String unwrappedS = com.netscape.osutil.OSUtil.BtoA(unwrappedData);
+        String unwrappedS = Utils.base64encode(unwrappedData);
 
         return unwrappedS;
     }
@@ -1206,7 +1206,7 @@ public class CryptoUtil {
     public static byte[] wrapSymmetricKey(CryptoManager manager, CryptoToken token, String transportCert,
             SymmetricKey sk) throws CertificateEncodingException, TokenException, NoSuchAlgorithmException,
             InvalidKeyException, InvalidAlgorithmParameterException {
-        byte transport[] = com.netscape.osutil.OSUtil.AtoB(transportCert);
+        byte transport[] = Utils.base64decode(transportCert);
         X509Certificate tcert = manager.importCACertPackage(transport);
         KeyWrapper rsaWrap = token.getKeyWrapper(KeyWrapAlgorithm.RSA);
         rsaWrap.initWrap(tcert.getPublicKey(), null);

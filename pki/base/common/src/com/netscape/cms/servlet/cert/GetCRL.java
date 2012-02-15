@@ -46,6 +46,7 @@ import com.netscape.cms.servlet.common.CMSRequest;
 import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.CMSTemplateParams;
 import com.netscape.cms.servlet.common.ECMSGWException;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * Retrieve CRL for a Certificate Authority
@@ -334,7 +335,7 @@ public class GetCRL extends CMSServlet {
                 } else if (crlDisplayType.equals("base64Encoded")) {
                     try {
                         byte[] ba = crl.getEncoded();
-                        String crlBase64Encoded = com.netscape.osutil.OSUtil.BtoA(ba);
+                        String crlBase64Encoded = Utils.base64encode(ba);
                         int length = crlBase64Encoded.length();
                         int i = 0;
                         int j = 0;
@@ -374,7 +375,7 @@ public class GetCRL extends CMSServlet {
 
                     try {
                         byte[] ba = crl.getEncoded();
-                        String crlBase64Encoded = com.netscape.osutil.OSUtil.BtoA(ba);
+                        String crlBase64Encoded = Utils.base64encode(ba);
                         int length = crlBase64Encoded.length();
                         int i = 0;
                         int j = 0;

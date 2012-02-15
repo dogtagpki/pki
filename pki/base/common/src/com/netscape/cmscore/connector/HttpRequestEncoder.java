@@ -26,6 +26,7 @@ import java.io.OptionalDataException;
 
 import com.netscape.certsrv.connector.IRequestEncoder;
 import com.netscape.cmscore.util.Debug;
+import com.netscape.cmsutil.util.Utils;
 
 /**
  * encodes a request by serializing it.
@@ -40,7 +41,7 @@ public class HttpRequestEncoder implements IRequestEncoder {
 
         os.writeObject(r);
         serial = ba.toByteArray();
-        s = com.netscape.osutil.OSUtil.BtoA(serial);
+        s = Utils.base64encode(serial);
         return s;
     }
 
@@ -51,7 +52,7 @@ public class HttpRequestEncoder implements IRequestEncoder {
 
         try {
 
-            serial = com.netscape.osutil.OSUtil.AtoB(s);
+            serial = Utils.base64decode(s);
             ByteArrayInputStream ba = new ByteArrayInputStream(serial);
             ObjectInputStream is = new ObjectInputStream(ba);
 

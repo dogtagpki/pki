@@ -20,6 +20,8 @@ package com.netscape.cmstools;
 import java.io.FileInputStream;
 import java.io.IOException;
 
+import com.netscape.cmsutil.util.Utils;
+
 import netscape.security.util.DerOutputStream;
 import netscape.security.util.DerValue;
 
@@ -81,7 +83,7 @@ public class ExtJoiner {
             DerOutputStream out = new DerOutputStream();
 
             out.putSequence(exts);
-            System.out.println(com.netscape.osutil.OSUtil.BtoA(out.toByteArray()));
+            System.out.println(Utils.base64encode(out.toByteArray()));
         } catch (IOException e) {
             System.out.println(e.toString());
         }
@@ -97,6 +99,6 @@ public class ExtJoiner {
         } finally {
             fis.close();
         }
-        return com.netscape.osutil.OSUtil.AtoB(new String(data));
+        return Utils.base64decode(new String(data));
     }
 }
