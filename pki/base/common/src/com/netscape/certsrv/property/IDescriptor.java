@@ -39,6 +39,10 @@ public interface IDescriptor {
     public static String STRING_LIST = "string_list";
     public static String KEYGEN_REQUEST = "keygen_request";
     public static String KEYGEN_REQUEST_TYPE = "keygen_request_type";
+    public static String ENC_KEYGEN_REQUEST = "enc_keygen_request";
+    public static String ENC_KEYGEN_REQUEST_TYPE = "enc_keygen_request_type";
+    public static String SIGN_KEYGEN_REQUEST = "sign_keygen_request";
+    public static String SIGN_KEYGEN_REQUEST_TYPE = "sign_keygen_request_type";
     public static String DUAL_KEYGEN_REQUEST = "dual_keygen_request";
     public static String DUAL_KEYGEN_REQUEST_TYPE = "dual_keygen_request_type";
     public static String CERT_REQUEST = "cert_request";
