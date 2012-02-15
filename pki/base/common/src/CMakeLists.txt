@@ -806,6 +806,8 @@ set(pki-cms_java_SRCS
     com/netscape/cms/profile/input/SerialNumRenewInput.java
     com/netscape/cms/profile/input/SubjectNameInput.java
     com/netscape/cms/profile/input/KeyGenInput.java
+    com/netscape/cms/profile/input/SigningKeyGenInput.java
+    com/netscape/cms/profile/input/EncryptionKeyGenInput.java
     com/netscape/cms/profile/input/ImageInput.java
     com/netscape/cms/profile/input/EnrollInput.java
     com/netscape/cms/profile/input/nsNKeyCertReqInput.java
