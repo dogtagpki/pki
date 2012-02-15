@@ -88,7 +88,7 @@ public class CMSEngineDefaultStub implements ICMSEngine {
         return null;
     }
 
-    public int getpid() {
+    public int getPID() {
         return 0;
     }
 

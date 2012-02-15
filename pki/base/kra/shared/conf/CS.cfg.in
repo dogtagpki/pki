@@ -31,6 +31,7 @@ preop.securitydomain.admin_url=https://[PKI_MACHINE_NAME]:9445
 instanceRoot=[PKI_INSTANCE_PATH]
 machineName=[PKI_MACHINE_NAME]
 instanceId=[PKI_INSTANCE_ID]
+pidDir=[PKI_PIDDIR]
 service.machineName=[PKI_MACHINE_NAME]
 service.instanceDir=[PKI_INSTANCE_ROOT]
 service.securePort=[PKI_AGENT_SECURE_PORT]

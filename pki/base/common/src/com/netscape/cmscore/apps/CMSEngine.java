@@ -17,8 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.apps;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
@@ -167,7 +169,6 @@ import com.netscape.cmscore.security.PWsdrCache;
 import com.netscape.cmscore.time.SimpleTimeSource;
 import com.netscape.cmscore.usrgrp.UGSubsystem;
 import com.netscape.cmscore.util.Debug;
-import com.netscape.cmscore.util.OsSubsystem;
 import com.netscape.cmsutil.net.ISocketFactory;
 import com.netscape.cmsutil.password.IPasswordStore;
 import com.netscape.cmsutil.util.Utils;
@@ -182,7 +183,9 @@ public class CMSEngine implements ICMSEngine {
 
     public static final SubsystemRegistry mSSReg = SubsystemRegistry.getInstance();
 
-    public static String instanceDir; /* path to instance <server-root>/cert-<instance-name> */
+    public String instanceDir; /* path to instance <server-root>/cert-<instance-name> */
+    private String instanceId;
+    private int pid;
 
     private IConfigStore mConfig = null;
     private ISubsystem mOwner = null;
@@ -203,8 +206,6 @@ public class CMSEngine implements ICMSEngine {
                     Debug.ID, Debug.getInstance()),
             new SubsystemInfo(LogSubsystem.ID,
                     LogSubsystem.getInstance()),
-            new SubsystemInfo(
-                    OsSubsystem.ID, OsSubsystem.getInstance()),
             new SubsystemInfo(
                     JssSubsystem.ID, JssSubsystem.getInstance()),
             new SubsystemInfo(
@@ -256,6 +257,22 @@ public class CMSEngine implements ICMSEngine {
      * private constructor.
      */
     public CMSEngine() {
+
+        // Shutdown on SIGINT, SIGTERM, or SIGHUP.
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            public void run() {
+                /*LogDoc
+                *
+                * @phase watchdog check
+                */
+                getLogger().log(ILogger.EV_SYSTEM,
+                        ILogger.S_OTHER,
+                        ILogger.LL_INFO,
+                        "OS: Received shutdown signal");
+
+                shutdown();
+            };
+        });
     }
 
     /**
@@ -359,6 +376,7 @@ public class CMSEngine implements ICMSEngine {
         }
 
         instanceDir = config.getString("instanceRoot");
+        instanceId = config.getString("instanceId");
 
         loadDynSubsystems();
 
@@ -958,7 +976,6 @@ public class CMSEngine implements ICMSEngine {
      * @exception EBaseException if any subsystem fails to startup.
      */
     public void startup() throws EBaseException {
-        //OsSubsystem.nativeExit(0);
         startupSubsystems(mStaticSubsystems);
         if (mDynSubsystems != null)
             startupSubsystems(mDynSubsystems);
@@ -1539,7 +1556,7 @@ public class CMSEngine implements ICMSEngine {
         return (File.separator.equals("\\"));
     }
 
-    private static void shutdownHttpServer() {
+    private void shutdownHttpServer() {
 
         try {
             String cmds[] = null;
@@ -1691,8 +1708,31 @@ public class CMSEngine implements ICMSEngine {
         return new PWCBsdr();
     }
 
-    public int getpid() {
-        return OsSubsystem.getpid();
+    public int getPID() {
+        if (pid != 0) return pid;
+
+        BufferedReader bf = null;
+        try {
+            // PID file is be created by wrapper script (e.g. /usr/sbin/tomcat6)
+            String dir = mConfig.getString("pidDir");
+            String name = dir+File.separator+instanceId+".pid";
+
+            if (dir == null) return pid;
+            File file = new File(name);
+            if (!file.exists()) return pid;
+
+            bf = new BufferedReader(new FileReader(file));
+            String value = bf.readLine();
+            pid = Integer.parseInt(value);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+
+        } finally {
+            if (bf != null) try { bf.close(); } catch (Exception e) { e.printStackTrace(); }
+        }
+
+        return pid;
     }
 
     public Date getCurrentDate() {

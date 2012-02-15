@@ -883,7 +883,6 @@ set(pki-cmscore_java_SRCS
     com/netscape/cmscore/util/ExceptionFormatter.java
     com/netscape/cmscore/util/StatsSubsystem.java
     com/netscape/cmscore/util/FileDialogFilter.java
-    com/netscape/cmscore/util/OsSubsystem.java
     com/netscape/cmscore/util/Debug.java
     com/netscape/cmscore/util/UtilResources.java
     com/netscape/cmscore/policy/JavaScriptRequestProxy.java

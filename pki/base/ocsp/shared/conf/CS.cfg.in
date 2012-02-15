@@ -1,6 +1,7 @@
 _000=##
 _001=## Online Certificate Status Protocol (OCSP) Responder Configuration File
 _002=##
+pidDir=[PKI_PIDDIR]
 pkicreate.pki_instance_root=[PKI_INSTANCE_ROOT]
 pkicreate.pki_instance_name=[PKI_INSTANCE_ID]
 pkicreate.subsystem_type=[PKI_SUBSYSTEM_TYPE]

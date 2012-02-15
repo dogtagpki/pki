@@ -21,7 +21,7 @@ import java.io.File;
 
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.cmscore.util.OsSubsystem;
+import com.netscape.cmsutil.util.Utils;
 
 public final class Upgrade {
     public static void perform422to45(IConfigStore c)
@@ -124,7 +124,7 @@ public final class Upgrade {
         c.putString("log.instance.System.type",
                 "system");
 
-        if (!OsSubsystem.isUnix()) {
+        if (Utils.isNT()) {
             c.putString("log.impl.NTEventLog.class",
                     "com.netscape.certsrv.logging.NTEventLog");
 

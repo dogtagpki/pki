@@ -347,8 +347,8 @@ public final class CMS {
      * 
      * @return process id of the server
      */
-    public static int getpid() {
-        return _engine.getpid();
+    public static int getPID() {
+        return _engine.getPID();
     }
 
     /**

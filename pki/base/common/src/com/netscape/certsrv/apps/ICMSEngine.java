@@ -111,7 +111,7 @@ public interface ICMSEngine extends ISubsystem {
      * 
      * @return process id of the server
      */
-    public int getpid();
+    public int getPID();
 
     public void reinit(String id) throws EBaseException;
 

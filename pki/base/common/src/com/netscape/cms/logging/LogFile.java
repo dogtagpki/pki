@@ -184,11 +184,6 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
     private Thread mFlushThread = null;
 
     /**
-     * The current pid for the log entries
-     */
-    protected int mPid = CMS.getpid();
-
-    /**
      * The selected log event types
      */
     protected String mSelectedEventsList = null;
@@ -1105,12 +1100,12 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
         // This should follow the Common Log Format which still needs
         // some work.
         if (ev.getMultiline() == ILogger.L_MULTILINE) {
-            entry = mPid + "." + Thread.currentThread().getName() + " - ["
+            entry = CMS.getPID() + "." + Thread.currentThread().getName() + " - ["
                     + mLogDateFormat.format(mDate) + "] [" +
                     Integer.toString(ev.getSource()) + "] [" + Integer.toString(ev.getLevel())
                     + "] " + prepareMultiline(ev.toString());
         } else {
-            entry = mPid + "." + Thread.currentThread().getName() + " - ["
+            entry = CMS.getPID() + "." + Thread.currentThread().getName() + " - ["
                     + mLogDateFormat.format(mDate) + "] [" +
                     Integer.toString(ev.getSource()) + "] [" + Integer.toString(ev.getLevel())
                     + "] " + ev.toString();
