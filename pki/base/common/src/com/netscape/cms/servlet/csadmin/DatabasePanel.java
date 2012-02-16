@@ -502,10 +502,13 @@ public class DatabasePanel extends WizardPanelBase {
         String baseDN = "";
         String database = "";
         String dn = "";
+        String dbuser = "";
 
         try {
             baseDN = cs.getString("internaldb.basedn");
             database = cs.getString("internaldb.database", "");
+            dbuser = "uid=" + cs.getString("cs.type") + "-" + cs.getString("machineName") + "-"
+                    + cs.getString("service.securePort") + ",ou=people," + baseDN;
         } catch (Exception e) {
             CMS.debug("DatabasePanel populateDB: " + e.toString());
             throw new IOException(
@@ -631,6 +634,11 @@ public class DatabasePanel extends WizardPanelBase {
             } 
             attrs.add(new LDAPAttribute("objectClass", oc3));
             attrs.add(new LDAPAttribute(n, v));
+
+            String dbuserACI = "(targetattr=\"*\")(version 3.0; acl \"Cert Manager access\"; allow (all) userdn=\"ldap:///"
+                    + dbuser + "\";)";
+            CMS.debug("ACI string is ["+ dbuserACI + "]");
+            attrs.add(new LDAPAttribute("aci", dbuserACI));
             LDAPEntry entry = new LDAPEntry(baseDN, attrs);
             conn.add(entry);
         } catch (Exception e) {
@@ -693,6 +701,23 @@ public class DatabasePanel extends WizardPanelBase {
         }
         if (!foundBaseDN) {
             throw new IOException("Failed to find base DN");
+        }
+
+        // add dbuser aci to cn=config
+        String dbuserACI = "(targetattr=\"*\")(version 3.0; acl \"Cert Manager access\"; allow (read) userdn=\"ldap:///"
+                + dbuser + "\";)";
+        CMS.debug("ACI string is [" + dbuserACI + "]");
+        String configDN = "cn=ldbm database,cn=plugins,cn=config";
+        try {
+
+            LDAPAttribute attr = new LDAPAttribute("aci", dbuserACI);
+            LDAPModification mod = new LDAPModification(LDAPModification.ADD, attr);
+            conn.modify(configDN, mod);
+        } catch (LDAPException e) {
+            if (e.getLDAPResultCode() != LDAPException.ATTRIBUTE_OR_VALUE_EXISTS) {
+                e.printStackTrace();
+                throw new IOException("Failed to add aci to " + configDN);
+            }
         }
 
         String select = "";

@@ -284,6 +284,7 @@ public class LDAPSecurityDomainSessionTable
         String pwd = null;
         String binddn = "";
         String security = "";
+        String clientNick = "";
 
         IPasswordStore pwdStore = CMS.getPasswordStore();
 
@@ -301,6 +302,7 @@ public class LDAPSecurityDomainSessionTable
             port = cs.getString("internaldb.ldapconn.port");
             binddn = cs.getString("internaldb.ldapauth.bindDN");
             security = cs.getString("internaldb.ldapconn.secureConn");
+            clientNick = cs.getString("internaldb.ldapauth.clientCertNickname");
         } catch (Exception e) {
             CMS.debug("SecurityDomainSessionTable: getLDAPConn" + e.toString());
             throw new IOException(
@@ -317,9 +319,12 @@ public class LDAPSecurityDomainSessionTable
         }
 
         LDAPConnection conn = null;
-        if (security.equals("true")) {
-          //CMS.debug("SecurityDomainSessionTable getLDAPConn: creating secure (SSL) connection for internal ldap");
-          conn = new LDAPConnection(CMS.getLdapJssSSLSocketFactory());
+        if (!clientNick.equals("")) {
+            CMS.debug("SecurityDomainSessionTable getLDAPConn: creating secure (SSL) client auth connection for internal ldap");
+            conn = new LDAPConnection(CMS.getLdapJssSSLSocketFactory(clientNick));
+        } else if (security.equals("true")) {
+            //CMS.debug("SecurityDomainSessionTable getLDAPConn: creating secure (SSL) connection for internal ldap");
+            conn = new LDAPConnection(CMS.getLdapJssSSLSocketFactory());
         } else {
           //CMS.debug("SecurityDomainSessionTable getLDAPConn: creating non-secure (non-SSL) connection for internal ldap");
           conn = new LDAPConnection();

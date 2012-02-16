@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.csadmin;
 
-
 import org.apache.velocity.Template;
 import org.apache.velocity.servlet.VelocityServlet;
 import org.apache.velocity.app.Velocity;
@@ -35,6 +34,7 @@ import com.netscape.certsrv.ocsp.*;
 import com.netscape.certsrv.logging.*;
 import com.netscape.cmsutil.util.Cert;
 import com.netscape.cmsutil.util.*;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.password.*;
 import netscape.security.x509.*;
 import netscape.ldap.*;
@@ -42,6 +42,8 @@ import java.net.*;
 import java.io.*;
 import java.math.*;
 import java.security.cert.*;
+
+import org.mozilla.jss.CryptoManager;
 import org.w3c.dom.*;
 import java.util.*;
 
@@ -520,6 +522,20 @@ public class DonePanel extends WizardPanelBase {
             }
         }
 
+        String dbuser = null;
+        try {
+            dbuser = cs.getString("cs.type") + "-" + cs.getString("machineName") + "-" + cs.getString("service.securePort");
+            if (! sdtype.equals("new")) {
+                setupDBUser(dbuser);
+            }
+            IUGSubsystem system = (IUGSubsystem) (CMS.getSubsystem(IUGSubsystem.ID));
+            IUser user = system.getUser(dbuser);
+            system.addCertSubjectDN(user);
+        } catch (Exception e) {
+            e.printStackTrace();
+            CMS.debug("Unable to create or update dbuser" + e);
+        }
+
         cs.putInteger("cs.state", 1);
         try {
             // save variables needed for cloning and remove preop
@@ -634,9 +650,65 @@ public class DonePanel extends WizardPanelBase {
         }
     }
 
+    private void setupDBUser(String dbuser) throws CertificateException, EUsrGrpException, LDAPException {
+        IUGSubsystem system =
+                (IUGSubsystem) (CMS.getSubsystem(IUGSubsystem.ID));
 
-    private void updateOCSPConfig(HttpServletResponse response) 
-      throws IOException {
+        String b64 = getSubsystemCert();
+        if (b64 == null) {
+            CMS.debug("DonePanel setupDBUser: failed to fetch subsystem cert");
+            return;
+        }
+
+        IUser user = system.createUser(dbuser);
+        user.setFullName(dbuser);
+        user.setEmail("");
+        user.setPassword("");
+        user.setUserType("agentType");
+        user.setState("1");
+        user.setPhone("");
+        X509CertImpl[] certs = new X509CertImpl[1];
+        certs[0] = new X509CertImpl(CMS.AtoB(b64));
+        user.setX509Certificates(certs);
+        system.addUser(user);
+        CMS.debug("DonePanel setupDBUser: successfully add the user");
+        system.addUserCert(user);
+        CMS.debug("DonePanel setupDBUser: successfully add the user certificate");
+    }
+
+    private String getSubsystemCert() {
+        IConfigStore cs = CMS.getConfigStore();
+        String nickname = "";
+        try {
+            nickname = cs.getString("preop.cert.subsystem.nickname", "");
+            String tokenname = cs.getString("preop.module.token", "");
+            if (!tokenname.equals("internal") && !tokenname.equals("Internal Key Storage Token")
+                    && !tokenname.equals(""))
+                nickname = tokenname + ":" + nickname;
+        } catch (Exception e) {
+        }
+
+        CMS.debug("DonePanel getSubsystemCert: nickname=" + nickname);
+        String s = null;
+        try {
+            CryptoManager cm = CryptoManager.getInstance();
+            org.mozilla.jss.crypto.X509Certificate cert = cm.findCertByNickname(nickname);
+
+            if (cert == null) {
+                CMS.debug("DonePanel getSubsystemCert: subsystem cert is null");
+                return null;
+            }
+
+            byte[] bytes = cert.getEncoded();
+            s = CryptoUtil.normalizeCertStr(CryptoUtil.base64Encode(bytes));
+        } catch (Exception e) {
+            CMS.debug("DonePanel getSubsystemCert: exception: " + e.toString());
+        }
+        return s;
+    }
+
+    private void updateOCSPConfig(HttpServletResponse response)
+            throws IOException {
         IConfigStore config = CMS.getConfigStore();
         String cahost = "";
         int caport = -1;

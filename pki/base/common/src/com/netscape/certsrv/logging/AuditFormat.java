@@ -17,10 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.logging;
 
-
 /**
  * Define audit log message format. Note that the name of this
- * class "AuditFormat" is legacy and  has nothing to do with the signed 
+ * class "AuditFormat" is legacy and has nothing to do with the signed 
  * audit log events format
  *
  * @version $Revision$, $Date$
@@ -104,9 +103,11 @@ public class AuditFormat {
     public static final String ADDUSERGROUPFORMAT =
         "Admin UID: {0} added User UID: {1} to group: {2}";
     public static final String REMOVEUSERGROUPFORMAT =
-        "Admin UID: {0} removed User UID: {1} from group: {2}";
+            "Admin UID: {0} removed User UID: {1} from group: {2}";
+    public static final String ADDCERTSUBJECTDNFORMAT =
+            "Admin UID: {0} added cert subject DN for User UID: {1}. cert DN: {2}";
 
     // LDAP publishing
-    public static final String LDAP_PUBLISHED_FORMAT = 
-        "{0} successfully published serial number: 0x{1} with DN: {2}";
+    public static final String LDAP_PUBLISHED_FORMAT =
+            "{0} successfully published serial number: 0x{1} with DN: {2}";
 }

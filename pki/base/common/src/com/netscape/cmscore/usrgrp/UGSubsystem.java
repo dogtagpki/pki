@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.usrgrp;
 
-
 import java.util.*;
 import java.lang.*;
 import netscape.ldap.*;
@@ -56,7 +55,7 @@ public final class UGSubsystem implements IUGSubsystem {
     protected static final String GROUP_ATTR_VALUE = "groupofuniquenames";
 
     protected static final String LDAP_ATTR_USER_CERT_STRING = "description";
-    //	protected static final String LDAP_ATTR_CERTDN = "seeAlso";
+    protected static final String LDAP_ATTR_CERTDN = "seeAlso";
     protected static final String LDAP_ATTR_USER_CERT = "userCertificate";
 
     protected static final String PROP_BASEDN = "basedn";
@@ -740,27 +739,18 @@ public final class UGSubsystem implements IUGSubsystem {
         LDAPModificationSet addCert = new LDAPModificationSet();
 
         if ((cert = user.getX509Certificates()) != null) {
-            LDAPAttribute attrCertStr = new 
-                LDAPAttribute(LDAP_ATTR_USER_CERT_STRING);
-
-            /*
-             LDAPAttribute attrCertDNStr = new 
-             LDAPAttribute(LDAP_ATTR_CERTDN);
-             */
-            LDAPAttribute attrCertBin = new 
-                LDAPAttribute(LDAP_ATTR_USER_CERT);
+            LDAPAttribute attrCertStr = new LDAPAttribute(LDAP_ATTR_USER_CERT_STRING);
+            LDAPAttribute attrCertBin = new LDAPAttribute(LDAP_ATTR_USER_CERT);
 
             try {
                 attrCertBin.addValue(cert[0].getEncoded());
                 attrCertStr.addValue(getCertificateString(cert[0]));
-                //	attrCertDNStr.addValue(cert[0].getSubjectDN().toString());
             } catch (CertificateEncodingException e) {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_ADD_USER_CERT", e.toString()));
                 throw new EUsrGrpException(CMS.getUserMessage("CMS_USRGRP_USR_CERT_ERROR"));
             }
 
             addCert.add(LDAPModification.ADD, attrCertStr);
-            //addCert.add(LDAPModification.ADD, attrCertDNStr);
             addCert.add(LDAPModification.ADD, attrCertBin);
 
             LDAPConnection ldapconn = null;
@@ -799,6 +789,54 @@ public final class UGSubsystem implements IUGSubsystem {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_ADD_USER", e.toString()));
             } finally {
                 if (ldapconn != null) 
+                    returnConn(ldapconn);
+            }
+        }
+
+        return;
+    }
+
+    public void addCertSubjectDN(IUser identity) throws EUsrGrpException, LDAPException {
+        User user = (User) identity;
+
+        if (user == null) {
+            return;
+        }
+
+        X509Certificate cert[] = null;
+        LDAPModificationSet addCert = new LDAPModificationSet();
+
+        if ((cert = user.getX509Certificates()) != null) {
+            LDAPAttribute attrCertDNStr = new LDAPAttribute(LDAP_ATTR_CERTDN);
+            attrCertDNStr.addValue(cert[0].getSubjectDN().toString());
+            addCert.add(LDAPModification.ADD, attrCertDNStr);
+
+            LDAPConnection ldapconn = null;
+
+            try {
+                ldapconn = getConn();
+                ldapconn.modify("uid=" + user.getUserID() +
+                        "," + getUserBaseDN(), addCert);
+                // for audit log
+                SessionContext sessionContext = SessionContext.getContext();
+                String adminId = (String) sessionContext.get(SessionContext.USER_ID);
+
+                mLogger.log(ILogger.EV_AUDIT, ILogger.S_USRGRP,
+                        AuditFormat.LEVEL, AuditFormat.ADDCERTSUBJECTDNFORMAT,
+                        new Object[] { adminId, user.getUserID(),
+                                cert[0].getSubjectDN().toString()}
+                        );
+
+            } catch (LDAPException e) {
+                if (Debug.ON) {
+                    e.printStackTrace();
+                }
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_ADD_USER", e.toString()));
+                throw e;
+            } catch (ELdapException e) {
+                log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_USRGRP_ADD_USER", e.toString()));
+            } finally {
+                if (ldapconn != null)
                     returnConn(ldapconn);
             }
         }
@@ -846,7 +884,7 @@ public final class UGSubsystem implements IUGSubsystem {
         LDAPAttribute certAttrS = new 
             LDAPAttribute(LDAP_ATTR_USER_CERT_STRING);
 
-        //LDAPAttribute certDNAttrS = new LDAPAttribute(LDAP_ATTR_CERTDN);
+        LDAPAttribute certDNAttrS = new LDAPAttribute(LDAP_ATTR_CERTDN);
 
         int certCount = 0;
 
@@ -864,14 +902,14 @@ public final class UGSubsystem implements IUGSubsystem {
                 try {
                     certAttr.addValue(certs[i].getEncoded());
                     certAttrS.addValue(getCertificateString(certs[i]));
-                    //	certDNAttrS.addValue(certs[i].getSubjectDN().toString());
+                    certDNAttrS.addValue(certs[i].getSubjectDN().toString());
                 } catch (CertificateEncodingException e) {
                     throw new EUsrGrpException(CMS.getUserMessage("CMS_USRGRP_USR_CERT_ERROR"));
                 }
 
                 attrs.add(LDAPModification.DELETE, certAttr);
                 attrs.add(LDAPModification.DELETE, certAttrS);
-                //attrs.add(LDAPModification.DELETE, certDNAttrS);
+                attrs.add(LDAPModification.DELETE, certDNAttrS);
 
                 LDAPConnection ldapconn = null;
 
