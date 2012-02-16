@@ -20,6 +20,7 @@ package com.netscape.cms.servlet.csadmin;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.URLEncoder;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.StringTokenizer;
 
@@ -37,6 +38,7 @@ import netscape.ldap.LDAPModification;
 import netscape.security.x509.X509CertImpl;
 
 import org.apache.velocity.context.Context;
+import org.mozilla.jss.CryptoManager;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.IConfigStore;
@@ -44,10 +46,12 @@ import com.netscape.certsrv.dbs.crldb.ICRLIssuingPointRecord;
 import com.netscape.certsrv.ocsp.IDefStore;
 import com.netscape.certsrv.ocsp.IOCSPAuthority;
 import com.netscape.certsrv.property.PropertySet;
+import com.netscape.certsrv.usrgrp.EUsrGrpException;
 import com.netscape.certsrv.usrgrp.IGroup;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
 import com.netscape.certsrv.usrgrp.IUser;
 import com.netscape.cms.servlet.wizard.WizardServlet;
+import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.password.IPasswordStore;
 import com.netscape.cmsutil.util.Cert;
 import com.netscape.cmsutil.util.Utils;
@@ -525,6 +529,20 @@ public class DonePanel extends WizardPanelBase {
             }
         }
 
+        String dbuser = null;
+        try {
+            dbuser = cs.getString("cs.type") + "-" + cs.getString("machineName") + "-" + cs.getString("service.securePort");
+            if (! sdtype.equals("new")) {
+                setupDBUser(dbuser);
+            }
+            IUGSubsystem system = (IUGSubsystem) (CMS.getSubsystem(IUGSubsystem.ID));
+            IUser user = system.getUser(dbuser);
+            system.addCertSubjectDN(user);
+        } catch (Exception e) {
+            e.printStackTrace();
+            CMS.debug("Unable to create or update dbuser" + e);
+        }
+
         cs.putInteger("cs.state", 1);
         try {
             // save variables needed for cloning and remove preop
@@ -645,6 +663,63 @@ public class DonePanel extends WizardPanelBase {
             }
         } catch (Exception e) {
         }
+    }
+
+    private void setupDBUser(String dbuser) throws CertificateException, EUsrGrpException, LDAPException {
+        IUGSubsystem system =
+                (IUGSubsystem) (CMS.getSubsystem(IUGSubsystem.ID));
+
+        String b64 = getSubsystemCert();
+        if (b64 == null) {
+            CMS.debug("DonePanel setupDBUser: failed to fetch subsystem cert");
+            return;
+        }
+
+        IUser user = system.createUser(dbuser);
+        user.setFullName(dbuser);
+        user.setEmail("");
+        user.setPassword("");
+        user.setUserType("agentType");
+        user.setState("1");
+        user.setPhone("");
+        X509CertImpl[] certs = new X509CertImpl[1];
+        certs[0] = new X509CertImpl(CMS.AtoB(b64));
+        user.setX509Certificates(certs);
+        system.addUser(user);
+        CMS.debug("DonePanel setupDBUser: successfully add the user");
+        system.addUserCert(user);
+        CMS.debug("DonePanel setupDBUser: successfully add the user certificate");
+    }
+
+    private String getSubsystemCert() {
+        IConfigStore cs = CMS.getConfigStore();
+        String nickname = "";
+        try {
+            nickname = cs.getString("preop.cert.subsystem.nickname", "");
+            String tokenname = cs.getString("preop.module.token", "");
+            if (!tokenname.equals("internal") && !tokenname.equals("Internal Key Storage Token")
+                    && !tokenname.equals(""))
+                nickname = tokenname + ":" + nickname;
+        } catch (Exception e) {
+        }
+
+        CMS.debug("DonePanel getSubsystemCert: nickname=" + nickname);
+        String s = null;
+        try {
+            CryptoManager cm = CryptoManager.getInstance();
+            org.mozilla.jss.crypto.X509Certificate cert = cm.findCertByNickname(nickname);
+
+            if (cert == null) {
+                CMS.debug("DonePanel getSubsystemCert: subsystem cert is null");
+                return null;
+            }
+
+            byte[] bytes = cert.getEncoded();
+            s = CryptoUtil.normalizeCertStr(CryptoUtil.base64Encode(bytes));
+        } catch (Exception e) {
+            CMS.debug("DonePanel getSubsystemCert: exception: " + e.toString());
+        }
+        return s;
     }
 
     private void updateOCSPConfig(HttpServletResponse response)

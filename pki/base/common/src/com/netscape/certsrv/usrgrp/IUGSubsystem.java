@@ -80,6 +80,14 @@ public interface IUGSubsystem extends ISubsystem, IUsrGrp {
             LDAPException;
 
     /**
+     * Add a certSubjectDN field to the user
+     * @param identity
+     * @throws EUsrGrpException
+     * @throws LDAPException
+     */
+    public void addCertSubjectDN(IUser identity) throws EUsrGrpException, LDAPException;
+
+    /**
      * Removes a user certificate for a user entry
      * given a user certificate DN (actually, a combination of version,
      * serialNumber, issuerDN, and SubjectDN), and it gets removed
