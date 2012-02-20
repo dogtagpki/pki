@@ -329,7 +329,7 @@ public class LdapEncryptCertPublisher implements ILdapPublisher, IExtendedPlugin
 
         while (vals.hasMoreElements()) {
             val = (byte[]) vals.nextElement();
-            if (Utils.byteArraysAreEqual(val, bval)) {
+            if (PublisherUtils.byteArraysAreEqual(val, bval)) {
                 return true;
             }
         }

@@ -33,7 +33,7 @@ import java.util.Vector;
  * 
  * @version $Revision$, $Date$
  */
-public class Utils {
+public class PublisherUtils {
     public static void checkHost(String hostname) throws UnknownHostException {
         InetAddress.getByName(hostname);
     }

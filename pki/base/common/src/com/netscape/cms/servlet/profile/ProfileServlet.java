@@ -43,7 +43,7 @@ import com.netscape.certsrv.util.IStatsSubsystem;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.base.UserInfo;
 import com.netscape.cms.servlet.common.CMSRequest;
-import com.netscape.cms.servlet.common.Utils;
+import com.netscape.cms.servlet.common.ServletUtils;
 
 /**
  * This servlet is the base class of all profile servlets.
@@ -184,7 +184,7 @@ public class ProfileServlet extends CMSServlet {
         mId = sc.getInitParameter(PROP_ID);
 
         try {
-            mAclMethod = Utils.initializeAuthz(sc, mAuthz, mId);
+            mAclMethod = ServletUtils.initializeAuthz(sc, mAuthz, mId);
         } catch (ServletException e) {
             log(ILogger.LL_FAILURE, e.toString());
             throw e;

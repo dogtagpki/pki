@@ -260,7 +260,7 @@ public class LdapCertSubjPublisher implements ILdapPublisher {
 
                 while (vals.hasMoreElements()) {
                     val = vals.nextElement();
-                    if (Utils.byteArraysAreEqual(certEnc, val)) {
+                    if (PublisherUtils.byteArraysAreEqual(certEnc, val)) {
                         hasCert = true;
                         continue;
                     }

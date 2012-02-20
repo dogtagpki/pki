@@ -303,7 +303,7 @@ public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInf
             val = vals.nextElement();
             if (val.length == 0)
                 continue;
-            if (Utils.byteArraysAreEqual(val, bval)) {
+            if (PublisherUtils.byteArraysAreEqual(val, bval)) {
                 return true;
             }
         }

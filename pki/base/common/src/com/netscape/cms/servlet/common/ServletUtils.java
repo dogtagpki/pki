@@ -32,7 +32,7 @@ import com.netscape.certsrv.base.IConfigStore;
  * 
  * @version $Revision$, $Date$
  */
-public class Utils {
+public class ServletUtils {
 
     public final static String AUTHZ_SRC_LDAP = "ldap";
     public final static String AUTHZ_SRC_TYPE = "sourceType";

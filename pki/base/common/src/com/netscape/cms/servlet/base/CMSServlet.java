@@ -95,7 +95,7 @@ import com.netscape.cms.servlet.common.GenSuccessTemplateFiller;
 import com.netscape.cms.servlet.common.GenSvcPendingTemplateFiller;
 import com.netscape.cms.servlet.common.GenUnexpectedErrorTemplateFiller;
 import com.netscape.cms.servlet.common.ICMSTemplateFiller;
-import com.netscape.cms.servlet.common.Utils;
+import com.netscape.cms.servlet.common.ServletUtils;
 import com.netscape.cmsutil.xml.XMLObject;
 
 /**
@@ -274,7 +274,7 @@ public abstract class CMSServlet extends HttpServlet {
         mId = sc.getInitParameter(PROP_ID);
 
         try {
-            mAclMethod = Utils.initializeAuthz(sc, mAuthz, mId);
+            mAclMethod = ServletUtils.initializeAuthz(sc, mAuthz, mId);
         } catch (ServletException e) {
             log(ILogger.LL_FAILURE, e.toString());
             throw e;

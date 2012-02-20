@@ -420,7 +420,7 @@ set(pki-cms_java_SRCS
     com/netscape/cms/publish/publishers/FileBasedPublisher.java
     com/netscape/cms/publish/publishers/LdapCrlPublisher.java
     com/netscape/cms/publish/publishers/LdapCertificatePairPublisher.java
-    com/netscape/cms/publish/publishers/Utils.java
+    com/netscape/cms/publish/publishers/PublisherUtils.java
     com/netscape/cms/publish/publishers/OCSPPublisher.java
     com/netscape/cms/publish/publishers/LdapCertSubjPublisher.java
     com/netscape/cms/policy/constraints/UniqueSubjectNameConstraints.java
@@ -487,7 +487,7 @@ set(pki-cms_java_SRCS
     com/netscape/cms/servlet/common/CMSRequest.java
     com/netscape/cms/servlet/common/CMSFile.java
     com/netscape/cms/servlet/common/IRawJS.java
-    com/netscape/cms/servlet/common/Utils.java
+    com/netscape/cms/servlet/common/ServletUtils.java
     com/netscape/cms/servlet/common/GenPendingTemplateFiller.java
     com/netscape/cms/servlet/common/CMSGWResources.java
     com/netscape/cms/servlet/common/GenUnexpectedErrorTemplateFiller.java
