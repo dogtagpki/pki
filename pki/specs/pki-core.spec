@@ -7,7 +7,7 @@
 
 Name:             pki-core
 Version:          10.0.0
-Release:          %{?relprefix}1%{?prerel}%{?dist}
+Release:          %{?relprefix}2%{?prerel}%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -34,9 +34,13 @@ BuildRequires:    velocity
 BuildRequires:    xalan-j2
 BuildRequires:    xerces-j2
 BuildRequires:    candlepin-deps >= 0.0.21-1
+%if 0%{?fedora} >= 17
+BuildRequires:    junit
+%else
 %if 0%{?fedora} >= 16
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
 BuildRequires:    jss >= 4.2.6-19.1
+BuildRequires:    junit4
 BuildRequires:    osutil >= 2.0.2
 BuildRequires:    systemd-units
 BuildRequires:    tomcatjss >= 6.0.2
@@ -44,13 +48,16 @@ BuildRequires:    tomcatjss >= 6.0.2
 %if 0%{?fedora} >= 15
 BuildRequires:    jpackage-utils
 BuildRequires:    jss >= 4.2.6-17
+BuildRequires:    junit4
 BuildRequires:    osutil >= 2.0.1
 BuildRequires:    tomcatjss >= 6.0.0
 %else
 BuildRequires:    jpackage-utils
 BuildRequires:    jss >= 4.2.6-17
+BuildRequires:    junit4
 BuildRequires:    osutil
 BuildRequires:    tomcatjss >= 2.0.0
+%endif
 %endif
 %endif
 
@@ -86,31 +93,48 @@ fi;
 Certificate System (CS) is an enterprise software system designed      \
 to manage enterprise Public Key Infrastructure (PKI) deployments.      \
                                                                        \
-PKI Core contains fundamental packages required by Certificate System, \
-and consists of the following components:                              \
+PKI Core contains ALL top-level java-based Tomcat PKI components:      \
                                                                        \
-  * pki-setup                                                          \
-  * pki-symkey                                                         \
-  * pki-native-tools                                                   \
-  * pki-util                                                           \
-  * pki-util-javadoc                                                   \
-  * pki-java-tools                                                     \
-  * pki-java-tools-javadoc                                             \
-  * pki-common                                                         \
-  * pki-common-javadoc                                                 \
-  * pki-selinux                                                        \
   * pki-ca                                                             \
-  * pki-silent                                                         \
+  * pki-kra                                                            \
+  * pki-ocsp                                                           \
+  * pki-tks                                                            \
                                                                        \
-which comprise the following PKI subsystems:                           \
+which comprise the following corresponding PKI subsystems:             \
                                                                        \
   * Certificate Authority (CA)                                         \
+  * Data Recovery Manager (DRM)                                        \
+  * Online Certificate Status Protocol (OCSP) Manager                  \
+  * Token Key Service (TKS)                                            \
                                                                        \
-For deployment purposes, Certificate System requires ONE AND ONLY ONE  \
-of the following "Mutually-Exclusive" PKI Theme packages:              \
+For deployment purposes, PKI Core contains fundamental packages        \
+required by BOTH native-based Apache AND java-based Tomcat             \
+Certificate System instances consisting of the following components:   \
                                                                        \
-  * ipa-pki-theme    (IPA deployments)                                 \
+  * pki-native-tools                                                   \
+  * pki-selinux                                                        \
+  * pki-setup                                                          \
+  * pki-silent (required for IPA deployments; optional otherwise)      \
+                                                                       \
+Additionally, PKI Core contains the following fundamental packages     \
+required ONLY by ALL java-based Tomcat Certificate System instances:   \
+                                                                       \
+  * pki-common                                                         \
+  * pki-java-tools                                                     \
+  * pki-symkey (ONLY required for TKS subsystems)                      \
+  * pki-util                                                           \
+                                                                       \
+PKI Core also includes the following components:                       \
+                                                                       \
+  * pki-common-javadoc                                                 \
+  * pki-java-tools-javadoc                                             \
+  * pki-util-javadoc                                                   \
+                                                                       \
+Finally, for deployment purposes, Certificate System requires ONE AND  \
+ONLY ONE of the following "Mutually-Exclusive" PKI Theme packages:     \
+                                                                       \
   * dogtag-pki-theme (Dogtag Certificate System deployments)           \
+  * ipa-pki-theme    (IPA deployments)                                 \
   * redhat-pki-theme (Red Hat Certificate System deployments)          \
                                                                        \
 %{nil}
@@ -288,7 +312,6 @@ Requires:         jettison
 Requires:         pki-common-theme >= 9.0.0
 Requires:         pki-java-tools = %{version}-%{release}
 Requires:         pki-setup = %{version}-%{release}
-Requires:         pki-symkey = %{version}-%{release}
 Requires:         %{_javadir}/ldapjdk.jar
 Requires:         %{_javadir}/velocity.jar
 Requires:         %{_javadir}/xalan-j2.jar
@@ -413,7 +436,182 @@ The Certificate Authority can be configured as a self-signing Certificate
 Authority, where it is the root CA, or it can act as a subordinate CA,
 where it obtains its own signing certificate from a public CA.
 
-This package is a part of the PKI Core used by the Certificate System.
+This package is one of the top-level java-based Tomcat PKI subsystems
+provided by the PKI Core used by the Certificate System.
+
+%{overview}
+
+
+%package -n       pki-kra
+Summary:          Certificate System - Data Recovery Manager
+Group:            System Environment/Daemons
+
+BuildArch:        noarch
+
+Requires:         java >= 1:1.6.0
+Requires:         pki-kra-theme >= 9.0.0
+Requires:         pki-common = %{version}-%{release}
+Requires:         pki-selinux = %{version}-%{release}
+%if 0%{?fedora} >= 16
+Requires(post):   systemd-units
+Requires(preun):  systemd-units
+Requires(postun): systemd-units
+%else
+%if 0%{?fedora} >= 15
+Requires(post):   chkconfig
+Requires(preun):  chkconfig
+Requires(preun):  initscripts
+Requires(postun): initscripts
+# Details:
+#
+#     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
+#     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
+#
+Requires:         initscripts
+%else 
+Requires(post):   chkconfig
+Requires(preun):  chkconfig
+Requires(preun):  initscripts
+Requires(postun): initscripts
+%endif
+%endif
+
+%description -n   pki-kra
+The Data Recovery Manager (DRM) is an optional PKI subsystem that can act
+as a Key Recovery Authority (KRA).  When configured in conjunction with the
+Certificate Authority (CA), the DRM stores private encryption keys as part of
+the certificate enrollment process.  The key archival mechanism is triggered
+when a user enrolls in the PKI and creates the certificate request.  Using the
+Certificate Request Message Format (CRMF) request format, a request is
+generated for the user's private encryption key.  This key is then stored in
+the DRM which is configured to store keys in an encrypted format that can only
+be decrypted by several agents requesting the key at one time, providing for
+protection of the public encryption keys for the users in the PKI deployment.
+
+Note that the DRM archives encryption keys; it does NOT archive signing keys,
+since such archival would undermine non-repudiation properties of signing keys.
+
+This package is one of the top-level java-based Tomcat PKI subsystems
+provided by the PKI Core used by the Certificate System.
+
+%{overview}
+
+
+%package -n       pki-ocsp
+Summary:          Certificate System - Online Certificate Status Protocol Manager
+Group:            System Environment/Daemons
+
+BuildArch:        noarch
+
+Requires:         java >= 1:1.6.0
+Requires:         pki-ocsp-theme >= 9.0.0
+Requires:         pki-common = %{version}-%{release}
+Requires:         pki-selinux = %{version}-%{release}
+%if 0%{?fedora} >= 16
+Requires(post):   systemd-units
+Requires(preun):  systemd-units
+Requires(postun): systemd-units
+%else
+%if 0%{?fedora} >= 15
+Requires(post):   chkconfig
+Requires(preun):  chkconfig
+Requires(preun):  initscripts
+Requires(postun): initscripts
+# Details:
+#
+#     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
+#     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
+#
+Requires:         initscripts
+%else 
+Requires(post):   chkconfig
+Requires(preun):  chkconfig
+Requires(preun):  initscripts
+Requires(postun): initscripts
+%endif
+%endif
+
+%description -n   pki-ocsp
+The Online Certificate Status Protocol (OCSP) Manager is an optional PKI
+subsystem that can act as a stand-alone OCSP service.  The OCSP Manager
+performs the task of an online certificate validation authority by enabling
+OCSP-compliant clients to do real-time verification of certificates.  Note
+that an online certificate-validation authority is often referred to as an
+OCSP Responder.
+
+Although the Certificate Authority (CA) is already configured with an
+internal OCSP service.  An external OCSP Responder is offered as a separate
+subsystem in case the user wants the OCSP service provided outside of a
+firewall while the CA resides inside of a firewall, or to take the load of
+requests off of the CA.
+
+The OCSP Manager can receive Certificate Revocation Lists (CRLs) from
+multiple CA servers, and clients can query the OCSP Manager for the
+revocation status of certificates issued by all of these CA servers.
+
+When an instance of OCSP Manager is set up with an instance of CA, and
+publishing is set up to this OCSP Manager, CRLs are published to it
+whenever they are issued or updated.
+
+This package is one of the top-level java-based Tomcat PKI subsystems
+provided by the PKI Core used by the Certificate System.
+
+%{overview}
+
+
+%package -n       pki-tks
+Summary:          Certificate System - Token Key Service
+Group:            System Environment/Daemons
+
+BuildArch:        noarch
+
+Requires:         java >= 1:1.6.0
+Requires:         pki-tks-theme >= 9.0.0
+Requires:         pki-common = %{version}-%{release}
+Requires:         pki-selinux = %{version}-%{release}
+Requires:         pki-symkey = %{version}-%{release}
+%if 0%{?fedora} >= 16
+Requires(post):   systemd-units
+Requires(preun):  systemd-units
+Requires(postun): systemd-units
+%else
+%if 0%{?fedora} >= 15
+Requires(post):   chkconfig
+Requires(preun):  chkconfig
+Requires(preun):  initscripts
+Requires(postun): initscripts
+# Details:
+#
+#     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
+#     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
+#
+Requires:         initscripts
+%else 
+Requires(post):   chkconfig
+Requires(preun):  chkconfig
+Requires(preun):  initscripts
+Requires(postun): initscripts
+%endif
+%endif
+
+%description -n   pki-tks
+The Token Key Service (TKS) is an optional PKI subsystem that manages the
+master key(s) and the transport key(s) required to generate and distribute
+keys for hardware tokens.  TKS provides the security between tokens and an
+instance of Token Processing System (TPS), where the security relies upon the
+relationship between the master key and the token keys.  A TPS communicates
+with a TKS over SSL using client authentication.
+
+TKS helps establish a secure channel (signed and encrypted) between the token
+and the TPS, provides proof of presence of the security token during
+enrollment, and supports key changeover when the master key changes on the
+TKS.  Tokens with older keys will get new token keys.
+
+Because of the sensitivity of the data that TKS manages, TKS should be set up
+behind the firewall with restricted access.
+
+This package is one of the top-level java-based Tomcat PKI subsystems
+provided by the PKI Core used by the Certificate System.
 
 %{overview}
 
@@ -494,13 +692,34 @@ echo "D /var/lock/pki 0755 root root -"    >  %{buildroot}%{_sysconfdir}/tmpfile
 echo "D /var/lock/pki/ca 0755 root root -" >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ca.conf
 echo "D /var/run/pki 0755 root root -"     >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ca.conf
 echo "D /var/run/pki/ca 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ca.conf
+# generate 'pki-kra.conf' under the 'tmpfiles.d' directory
+echo "D /var/lock/pki 0755 root root -"     >  %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-kra.conf
+echo "D /var/lock/pki/kra 0755 root root -" >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-kra.conf
+echo "D /var/run/pki 0755 root root -"      >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-kra.conf
+echo "D /var/run/pki/kra 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-kra.conf
+# generate 'pki-ocsp.conf' under the 'tmpfiles.d' directory
+echo "D /var/lock/pki 0755 root root -"      >  %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ocsp.conf
+echo "D /var/lock/pki/ocsp 0755 root root -" >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ocsp.conf
+echo "D /var/run/pki 0755 root root -"       >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ocsp.conf
+echo "D /var/run/pki/ocsp 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-ocsp.conf
+# generate 'pki-tks.conf' under the 'tmpfiles.d' directory
+echo "D /var/lock/pki 0755 root root -"     >  %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tks.conf
+echo "D /var/lock/pki/tks 0755 root root -" >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tks.conf
+echo "D /var/run/pki 0755 root root -"      >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tks.conf
+echo "D /var/run/pki/tks 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfiles.d/pki-tks.conf
 %endif
 
 %if 0%{?fedora} >= 16
 %{__rm} %{buildroot}%{_initrddir}/pki-cad
+%{__rm} %{buildroot}%{_initrddir}/pki-krad
+%{__rm} %{buildroot}%{_initrddir}/pki-ocspd
+%{__rm} %{buildroot}%{_initrddir}/pki-tksd
 %else
 %{__rm} %{buildroot}%{_bindir}/pkicontrol
 %{__rm} -rf %{buildroot}%{_sysconfdir}/systemd/system/pki-cad.target.wants
+%{__rm} -rf %{buildroot}%{_sysconfdir}/systemd/system/pki-krad.target.wants
+%{__rm} -rf %{buildroot}%{_sysconfdir}/systemd/system/pki-ocspd.target.wants
+%{__rm} -rf %{buildroot}%{_sysconfdir}/systemd/system/pki-tksd.target.wants
 %{__rm} -rf %{buildroot}%{_unitdir}
 %endif
 
@@ -532,10 +751,46 @@ fi
 /sbin/chkconfig --add pki-cad || :
 
 
+%post -n pki-kra
+# This adds the proper /etc/rc*.d links for the script
+/sbin/chkconfig --add pki-krad || :
+
+
+%post -n pki-ocsp
+# This adds the proper /etc/rc*.d links for the script
+/sbin/chkconfig --add pki-ocspd || :
+
+
+%post -n pki-tks
+# This adds the proper /etc/rc*.d links for the script
+/sbin/chkconfig --add pki-tksd || :
+
+
 %preun -n pki-ca
 if [ $1 = 0 ] ; then
     /sbin/service pki-cad stop >/dev/null 2>&1
     /sbin/chkconfig --del pki-cad || :
+fi
+
+
+%preun -n pki-kra
+if [ $1 = 0 ] ; then
+    /sbin/service pki-krad stop >/dev/null 2>&1
+    /sbin/chkconfig --del pki-krad || :
+fi
+
+
+%preun -n pki-ocsp
+if [ $1 = 0 ] ; then
+    /sbin/service pki-ocspd stop >/dev/null 2>&1
+    /sbin/chkconfig --del pki-ocspd || :
+fi
+
+
+%preun -n pki-tks
+if [ $1 = 0 ] ; then
+    /sbin/service pki-tksd stop >/dev/null 2>&1
+    /sbin/chkconfig --del pki-tksd || :
 fi
 
 
@@ -544,6 +799,23 @@ if [ "$1" -ge "1" ] ; then
     /sbin/service pki-cad condrestart >/dev/null 2>&1 || :
 fi
 
+
+%postun -n pki-kra
+if [ "$1" -ge "1" ] ; then
+    /sbin/service pki-krad condrestart >/dev/null 2>&1 || :
+fi
+
+
+%postun -n pki-ocsp
+if [ "$1" -ge "1" ] ; then
+    /sbin/service pki-ocspd condrestart >/dev/null 2>&1 || :
+fi
+
+
+%postun -n pki-tks
+if [ "$1" -ge "1" ] ; then
+    /sbin/service pki-tksd condrestart >/dev/null 2>&1 || :
+fi
 %else 
 %post -n pki-ca
 # Attempt to update ALL old "CA" instances to "systemd"
@@ -571,6 +843,88 @@ if [ -d /etc/sysconfig/pki/ca ]; then
 fi
 /bin/systemctl daemon-reload >/dev/null 2>&1 || :
 
+
+%post -n pki-kra
+# Attempt to update ALL old "KRA" instances to "systemd"
+if [ -d /etc/sysconfig/pki/kra ]; then
+    for inst in `ls /etc/sysconfig/pki/kra`; do
+        if [ ! -e "/etc/systemd/system/pki-krad.target.wants/pki-krad@${inst}.service" ]; then
+            ln -s "/lib/systemd/system/pki-krad@.service" \
+                  "/etc/systemd/system/pki-krad.target.wants/pki-krad@${inst}.service"
+            [ -L /var/lib/${inst}/${inst} ] && unlink /var/lib/${inst}/${inst}
+            ln -s /usr/sbin/tomcat6-sysd /var/lib/${inst}/${inst}
+
+            if [ -e /var/run/${inst}.pid ]; then
+                kill -9 `cat /var/run/${inst}.pid` || :
+                rm -f /var/run/${inst}.pid
+                echo "pkicreate.systemd.servicename=pki-krad@${inst}.service" >> \
+                     /var/lib/${inst}/conf/CS.cfg || :
+                /bin/systemctl daemon-reload >/dev/null 2>&1 || :
+                /bin/systemctl restart pki-krad@${inst}.service || :
+            else 
+                echo "pkicreate.systemd.servicename=pki-krad@${inst}.service" >> \
+                     /var/lib/${inst}/conf/CS.cfg || :
+            fi
+        fi
+    done
+fi
+/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+
+
+%post -n pki-ocsp
+# Attempt to update ALL old "OCSP" instances to "systemd"
+if [ -d /etc/sysconfig/pki/ocsp ]; then
+    for inst in `ls /etc/sysconfig/pki/ocsp`; do
+        if [ ! -e "/etc/systemd/system/pki-ocspd.target.wants/pki-ocspd@${inst}.service" ]; then
+            ln -s "/lib/systemd/system/pki-ocspd@.service" \
+                  "/etc/systemd/system/pki-ocspd.target.wants/pki-ocspd@${inst}.service"
+            [ -L /var/lib/${inst}/${inst} ] && unlink /var/lib/${inst}/${inst}
+            ln -s /usr/sbin/tomcat6-sysd /var/lib/${inst}/${inst}
+
+            if [ -e /var/run/${inst}.pid ]; then
+                kill -9 `cat /var/run/${inst}.pid` || :
+                rm -f /var/run/${inst}.pid
+                echo "pkicreate.systemd.servicename=pki-ocspd@${inst}.service" >> \
+                     /var/lib/${inst}/conf/CS.cfg || :
+                /bin/systemctl daemon-reload >/dev/null 2>&1 || :
+                /bin/systemctl restart pki-ocspd@${inst}.service || :
+            else 
+                echo "pkicreate.systemd.servicename=pki-ocspd@${inst}.service" >> \
+                     /var/lib/${inst}/conf/CS.cfg || :
+            fi
+        fi
+    done
+fi
+/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+
+
+%post -n pki-tks
+# Attempt to update ALL old "TKS" instances to "systemd"
+if [ -d /etc/sysconfig/pki/tks ]; then
+    for inst in `ls /etc/sysconfig/pki/tks`; do
+        if [ ! -e "/etc/systemd/system/pki-tksd.target.wants/pki-tksd@${inst}.service" ]; then
+            ln -s "/lib/systemd/system/pki-tksd@.service" \
+                  "/etc/systemd/system/pki-tksd.target.wants/pki-tksd@${inst}.service"
+            [ -L /var/lib/${inst}/${inst} ] && unlink /var/lib/${inst}/${inst}
+            ln -s /usr/sbin/tomcat6-sysd /var/lib/${inst}/${inst}
+
+            if [ -e /var/run/${inst}.pid ]; then
+                kill -9 `cat /var/run/${inst}.pid` || :
+                rm -f /var/run/${inst}.pid
+                echo "pkicreate.systemd.servicename=pki-tksd@${inst}.service" >> \
+                     /var/lib/${inst}/conf/CS.cfg || :
+                /bin/systemctl daemon-reload >/dev/null 2>&1 || :
+                /bin/systemctl restart pki-tksd@${inst}.service || :
+            else 
+                echo "pkicreate.systemd.servicename=pki-tksd@${inst}.service" >> \
+                     /var/lib/${inst}/conf/CS.cfg || :
+            fi
+        fi
+    done
+fi
+/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+
+
 %preun -n pki-ca
 if [ $1 = 0 ] ; then
     /bin/systemctl --no-reload disable pki-cad.target > /dev/null 2>&1 || :
@@ -578,10 +932,52 @@ if [ $1 = 0 ] ; then
 fi
 
 
+%preun -n pki-kra
+if [ $1 = 0 ] ; then
+    /bin/systemctl --no-reload disable pki-krad.target > /dev/null 2>&1 || :
+    /bin/systemctl stop pki-krad.target > /dev/null 2>&1 || :
+fi
+
+
+%preun -n pki-ocsp
+if [ $1 = 0 ] ; then
+    /bin/systemctl --no-reload disable pki-ocspd.target > /dev/null 2>&1 || :
+    /bin/systemctl stop pki-ocspd.target > /dev/null 2>&1 || :
+fi
+
+
+%preun -n pki-tks
+if [ $1 = 0 ] ; then
+    /bin/systemctl --no-reload disable pki-tksd.target > /dev/null 2>&1 || :
+    /bin/systemctl stop pki-tksd.target > /dev/null 2>&1 || :
+fi
+
+
 %postun -n pki-ca
 /bin/systemctl daemon-reload >/dev/null 2>&1 || :
 if [ "$1" -ge "1" ] ; then
     /bin/systemctl try-restart pki-cad.target >/dev/null 2>&1 || :
+fi
+
+
+%postun -n pki-kra
+/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+if [ "$1" -ge "1" ] ; then
+    /bin/systemctl try-restart pki-krad.target >/dev/null 2>&1 || :
+fi
+
+
+%postun -n pki-ocsp
+/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+if [ "$1" -ge "1" ] ; then
+    /bin/systemctl try-restart pki-ocspd.target >/dev/null 2>&1 || :
+fi
+
+
+%postun -n pki-tks
+/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+if [ "$1" -ge "1" ] ; then
+    /bin/systemctl try-restart pki-tksd.target >/dev/null 2>&1 || :
 fi
 %endif
 
@@ -724,6 +1120,90 @@ fi
 %endif
 
 
+%files -n pki-kra
+%defattr(-,root,root,-)
+%doc base/kra/LICENSE
+%if 0%{?fedora} >= 16
+%dir %{_sysconfdir}/systemd/system/pki-krad.target.wants
+%{_unitdir}/pki-krad@.service
+%{_unitdir}/pki-krad.target
+%else 
+%{_initrddir}/pki-krad
+%endif
+%{_javadir}/pki/pki-kra-%{version}.jar
+%{_javadir}/pki/pki-kra.jar
+%dir %{_datadir}/pki/kra
+%{_datadir}/pki/kra/conf/
+%{_datadir}/pki/kra/setup/
+%{_datadir}/pki/kra/webapps/
+%dir %{_localstatedir}/lock/pki/kra
+%dir %{_localstatedir}/run/pki/kra
+%if 0%{?fedora} >= 15
+# Details:
+#
+#     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
+#     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
+#
+%config(noreplace) %{_sysconfdir}/tmpfiles.d/pki-kra.conf
+%endif
+
+
+%files -n pki-ocsp
+%defattr(-,root,root,-)
+%doc base/ocsp/LICENSE
+%if 0%{?fedora} >= 16
+%dir %{_sysconfdir}/systemd/system/pki-ocspd.target.wants
+%{_unitdir}/pki-ocspd@.service
+%{_unitdir}/pki-ocspd.target
+%else 
+%{_initrddir}/pki-ocspd
+%endif
+%{_javadir}/pki/pki-ocsp-%{version}.jar
+%{_javadir}/pki/pki-ocsp.jar
+%dir %{_datadir}/pki/ocsp
+%{_datadir}/pki/ocsp/conf/
+%{_datadir}/pki/ocsp/setup/
+%{_datadir}/pki/ocsp/webapps/
+%dir %{_localstatedir}/lock/pki/ocsp
+%dir %{_localstatedir}/run/pki/ocsp
+%if 0%{?fedora} >= 15
+# Details:
+#
+#     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
+#     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
+#
+%config(noreplace) %{_sysconfdir}/tmpfiles.d/pki-ocsp.conf
+%endif
+
+
+%files -n pki-tks
+%defattr(-,root,root,-)
+%doc base/tks/LICENSE
+%if 0%{?fedora} >= 16
+%dir %{_sysconfdir}/systemd/system/pki-tksd.target.wants
+%{_unitdir}/pki-tksd@.service
+%{_unitdir}/pki-tksd.target
+%else 
+%{_initrddir}/pki-tksd
+%endif
+%{_javadir}/pki/pki-tks-%{version}.jar
+%{_javadir}/pki/pki-tks.jar
+%dir %{_datadir}/pki/tks
+%{_datadir}/pki/tks/conf/
+%{_datadir}/pki/tks/setup/
+%{_datadir}/pki/tks/webapps/
+%dir %{_localstatedir}/lock/pki/tks
+%dir %{_localstatedir}/run/pki/tks
+%if 0%{?fedora} >= 15
+# Details:
+#
+#     * https://fedoraproject.org/wiki/Features/var-run-tmpfs
+#     * https://fedoraproject.org/wiki/Tmpfiles.d_packaging_draft
+#
+%config(noreplace) %{_sysconfdir}/tmpfiles.d/pki-tks.conf
+%endif
+
+
 %files -n pki-silent
 %defattr(-,root,root,-)
 %doc base/silent/LICENSE
@@ -734,6 +1214,12 @@ fi
 
 
 %changelog
+* Mon Feb 20 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-0.2.a1
+- Integrated 'pki-kra' into 'pki-core'
+- Integrated 'pki-ocsp' into 'pki-core'
+- Integrated 'pki-tks' into 'pki-core'
+- Bugzilla Bug #788787 - added 'junit'/'junit4' build-time requirements
+
 * Wed Feb  1 2012 Nathan Kinder <nkinder@redhat.com> 10.0.0-0.1.a1
 - Updated package version number
 

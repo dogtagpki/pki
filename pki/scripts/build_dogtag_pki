@@ -104,10 +104,7 @@ fi
 PKI_COMPOSE_SCRIPTS_DIR="${PKI_PWD}/${PKI_DIR}/${PKI_SCRIPTS_DIR}"
 COMPOSE_DOGTAG_PKI_THEME_PACKAGES="compose_dogtag_pki_theme_packages"
 COMPOSE_PKI_CORE_PACKAGES="compose_pki_core_packages"
-COMPOSE_PKI_KRA_PACKAGES="compose_pki_kra_packages"
-COMPOSE_PKI_OCSP_PACKAGES="compose_pki_ocsp_packages"
 COMPOSE_PKI_RA_PACKAGES="compose_pki_ra_packages"
-COMPOSE_PKI_TKS_PACKAGES="compose_pki_tks_packages"
 COMPOSE_PKI_TPS_PACKAGES="compose_pki_tps_packages"
 COMPOSE_PKI_CONSOLE_PACKAGES="compose_pki_console_packages"
 
@@ -115,10 +112,7 @@ COMPOSE_PKI_CONSOLE_PACKAGES="compose_pki_console_packages"
 PKI_PACKAGES_DIR="${PKI_PWD}/packages"
 PKI_DOGTAG_THEME_PACKAGES_DIR="${PKI_PWD}/packages.dogtag_theme"
 PKI_CORE_PACKAGES_DIR="${PKI_PWD}/packages.core"
-PKI_KRA_PACKAGES_DIR="${PKI_PWD}/packages.kra"
-PKI_OCSP_PACKAGES_DIR="${PKI_PWD}/packages.ocsp"
 PKI_RA_PACKAGES_DIR="${PKI_PWD}/packages.ra"
-PKI_TKS_PACKAGES_DIR="${PKI_PWD}/packages.tks"
 PKI_TPS_PACKAGES_DIR="${PKI_PWD}/packages.tps"
 PKI_CONSOLE_PACKAGES_DIR="${PKI_PWD}/packages.console"
 
@@ -144,19 +138,13 @@ PKI_COMMON=pki-common${RPM_EXT}
 PKI_COMMON_JAVADOC=pki-common-javadoc${RPM_EXT}
 PKI_SELINUX=pki-selinux${RPM_EXT}
 PKI_CA=pki-ca${RPM_EXT}
-PKI_SILENT=pki-silent${RPM_EXT}
-
-# Establish PKI kra package names
 PKI_KRA=pki-kra${RPM_EXT}
-
-# Establish PKI ocsp package names
 PKI_OCSP=pki-ocsp${RPM_EXT}
+PKI_TKS=pki-tks${RPM_EXT}
+PKI_SILENT=pki-silent${RPM_EXT}
 
 # Establish PKI ra package names
 PKI_RA=pki-ra${RPM_EXT}
-
-# Establish PKI tks package names
-PKI_TKS=pki-tks${RPM_EXT}
 
 # Establish PKI tps package names
 PKI_TPS=pki-tps${RPM_EXT}
@@ -168,10 +156,7 @@ PKI_CONSOLE=pki-console${RPM_EXT}
 rm -rf ${PKI_PACKAGES_DIR}
 rm -rf ${PKI_DOGTAG_THEME_PACKAGES_DIR}
 rm -rf ${PKI_CORE_PACKAGES_DIR}
-rm -rf ${PKI_KRA_PACKAGES_DIR}
-rm -rf ${PKI_OCSP_PACKAGES_DIR}
 rm -rf ${PKI_RA_PACKAGES_DIR}
-rm -rf ${PKI_TKS_PACKAGES_DIR}
 rm -rf ${PKI_TPS_PACKAGES_DIR}
 rm -rf ${PKI_CONSOLE_PACKAGES_DIR}
 
@@ -192,33 +177,12 @@ cp -p ${NOARCH}/*.rpm ${PKI_ARCH}/*.rpm ${PKI_CORE_PACKAGES_DIR}/${RPM_DIR}/${CO
 cd ${PKI_CORE_PACKAGES_DIR}/${RPM_DIR}/${COMBINED}
 ${PKI_SUDO} ${YUM_EXE} ${YUM_EXE_OPTIONS} ${PKI_SETUP} ${PKI_SYMKEY} ${PKI_NATIVE_TOOLS} ${PKI_UTIL} ${PKI_UTIL_JAVADOC} ${PKI_JAVA_TOOLS} ${PKI_JAVA_TOOLS_JAVADOC} ${PKI_COMMON} ${PKI_COMMON_JAVADOC} ${PKI_SELINUX} ${PKI_CA} ${PKI_SILENT}
 
-# Compose and install 'pki-kra' packages
-cd ${PKI_PWD}
-${PKI_COMPOSE_SCRIPTS_DIR}/${COMPOSE_PKI_KRA_PACKAGES} rpms
-mv ${PKI_PACKAGES_DIR} ${PKI_KRA_PACKAGES_DIR}
-cd ${PKI_KRA_PACKAGES_DIR}/${RPM_DIR}/${NOARCH}
-${PKI_SUDO} ${YUM_EXE} ${YUM_EXE_OPTIONS} ${PKI_KRA}
-
-# Compose and install 'pki-ocsp' packages
-cd ${PKI_PWD}
-${PKI_COMPOSE_SCRIPTS_DIR}/${COMPOSE_PKI_OCSP_PACKAGES} rpms
-mv ${PKI_PACKAGES_DIR} ${PKI_OCSP_PACKAGES_DIR}
-cd ${PKI_OCSP_PACKAGES_DIR}/${RPM_DIR}/${NOARCH}
-${PKI_SUDO} ${YUM_EXE} ${YUM_EXE_OPTIONS} ${PKI_OCSP}
-
 # Compose and install 'pki-ra' packages
 cd ${PKI_PWD}
 ${PKI_COMPOSE_SCRIPTS_DIR}/${COMPOSE_PKI_RA_PACKAGES} rpms
 mv ${PKI_PACKAGES_DIR} ${PKI_RA_PACKAGES_DIR}
 cd ${PKI_RA_PACKAGES_DIR}/${RPM_DIR}/${NOARCH}
 ${PKI_SUDO} ${YUM_EXE} ${YUM_EXE_OPTIONS} ${PKI_RA}
-
-# Compose and install 'pki-tks' packages
-cd ${PKI_PWD}
-${PKI_COMPOSE_SCRIPTS_DIR}/${COMPOSE_PKI_TKS_PACKAGES} rpms
-mv ${PKI_PACKAGES_DIR} ${PKI_TKS_PACKAGES_DIR}
-cd ${PKI_TKS_PACKAGES_DIR}/${RPM_DIR}/${NOARCH}
-${PKI_SUDO} ${YUM_EXE} ${YUM_EXE_OPTIONS} ${PKI_TKS}
 
 # Compose and install 'pki-tps' packages
 cd ${PKI_PWD}
