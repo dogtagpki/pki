@@ -319,9 +319,9 @@ class CMS61LdifParser
 			//           to "com.netscape.cmscore.dbs.KeyRecord"
 			com.netscape.cmscore.dbs.KeyRecord o =
 			(com.netscape.cmscore.dbs.KeyRecord)obj;
-			Enumeration e = o.getElements();
+			Enumeration<String> e = o.getElements();
 			while (e.hasMoreElements()) {
-				String k = (String)e.nextElement();
+				String k = e.nextElement();
 				Object ob = o.get(k);
 				if (ob != null) {
 				if (ob instanceof java.util.Date) {

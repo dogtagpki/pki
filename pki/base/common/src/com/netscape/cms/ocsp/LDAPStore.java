@@ -748,7 +748,7 @@ class TempCRLIssuingPointRecord implements ICRLIssuingPointRecord {
 
     }
 
-    public Enumeration<Object> getElements() {
+    public Enumeration<String> getElements() {
         return null;
     }
 }

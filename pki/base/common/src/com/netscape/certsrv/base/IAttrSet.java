@@ -66,5 +66,5 @@ public interface IAttrSet extends Serializable {
      * 
      * @return an enumeration of the attribute names.
      */
-    public Enumeration<?> getElements();
+    public Enumeration<String> getElements();
 }

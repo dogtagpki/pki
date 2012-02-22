@@ -17,13 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmscore.policy;
 
-import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.Vector;
 
 import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IAttrSet;
 import com.netscape.certsrv.policy.EPolicyException;
 import com.netscape.certsrv.policy.IExpression;
 import com.netscape.cmscore.util.Debug;
@@ -342,37 +338,5 @@ class PredicateTokenizer {
             else
                 return trimmed;
         }
-    }
-}
-
-class AttributeSet implements IAttrSet {
-    /**
-     *
-     */
-    private static final long serialVersionUID = -3985810281989018413L;
-    Hashtable<String, Object> ht = new Hashtable<String, Object>();
-
-    public AttributeSet() {
-    }
-
-    public void delete(String name)
-            throws EBaseException {
-        Object ob = ht.get(name);
-
-        ht.remove(ob);
-    }
-
-    public Object get(String name)
-            throws EBaseException {
-        return ht.get(name);
-    }
-
-    public void set(String name, Object ob)
-            throws EBaseException {
-        ht.put(name, ob);
-    }
-
-    public Enumeration<Object> getElements() {
-        return ht.elements();
     }
 }

@@ -80,14 +80,14 @@ public class EmailResolverKeys implements IEmailResolverKeys {
     }
 
     /**
-     * returns an enumeration of the keys in this key
+     * returns an enumeration of the key names in this key
      * set. Use the Enumeration methods on the returned object to
      * fetch the elements sequentially.
      * 
      * @return an enumeration of the values in this key set
      * @see java.util.Enumeration
      */
-    public Enumeration<Object> getElements() {
-        return mKeys.elements();
+    public Enumeration<String> getElements() {
+        return mKeys.keys();
     }
 }

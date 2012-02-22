@@ -61,7 +61,7 @@ public class AuthCredentials implements IAuthCredentials {
      * @return the authentication credential for the given name
      */
     public Object get(String name) {
-        return ((Object) authCreds.get(name));
+        return authCreds.get(name);
     }
 
     /**
@@ -76,14 +76,14 @@ public class AuthCredentials implements IAuthCredentials {
     }
 
     /**
-     * Returns an enumeration of the credentials in this credential
+     * Returns an enumeration of the credential names in this credential
      * set. Use the Enumeration methods on the returned object to
      * fetch the elements sequentially.
      * 
-     * @return an enumeration of the values in this credential set
+     * @return an enumeration of the names in this credential set
      */
-    public Enumeration<Object> getElements() {
-        return (authCreds.elements());
+    public Enumeration<String> getElements() {
+        return authCreds.keys();
     }
 
     /**

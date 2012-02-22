@@ -83,15 +83,15 @@ public class AuthCredentials implements IAuthCredentials {
     }
 
     /**
-     * returns an enumeration of the credentials in this credential
+     * returns an enumeration of the credential names in this credential
      * set. Use the Enumeration methods on the returned object to
      * fetch the elements sequentially.
      * 
-     * @return an enumeration of the values in this credential set
+     * @return an enumeration of the names in this credential set
      * @see java.util.Enumeration
      */
-    public Enumeration<Object> getElements() {
-        return authCreds.elements();
+    public Enumeration<String> getElements() {
+        return authCreds.keys();
     }
 
     // Inserted by bskim

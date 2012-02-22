@@ -129,7 +129,7 @@ public class AuthzToken implements IAttrSet {
      * @return Enumeration of all attribute names in this AuthzToken.
      */
     public Enumeration<String> getElements() {
-        return (mAttrs.keys());
+        return mAttrs.keys();
     }
 
     /**
@@ -138,7 +138,7 @@ public class AuthzToken implements IAttrSet {
      * @return Enumeration of all attribute names in this AuthzToken.
      */
     public Enumeration<Object> getVals() {
-        return (mAttrs.elements());
+        return mAttrs.elements();
     }
 
     /**
@@ -149,7 +149,7 @@ public class AuthzToken implements IAttrSet {
      *         this token.
      */
     public String getAuthzManagerInstName() {
-        return ((String) mAttrs.get(TOKEN_AUTHZMGR_INST_NAME));
+        return (String) mAttrs.get(TOKEN_AUTHZMGR_INST_NAME);
     }
 
     /**
@@ -160,7 +160,7 @@ public class AuthzToken implements IAttrSet {
      *         token.
      */
     public String getAuthzManagerImplName() {
-        return ((String) mAttrs.get(TOKEN_AUTHZMGR_IMPL_NAME));
+        return (String) mAttrs.get(TOKEN_AUTHZMGR_IMPL_NAME);
     }
 
     /**
@@ -169,6 +169,6 @@ public class AuthzToken implements IAttrSet {
      * @return The time of authorization
      */
     public Date getAuthzTime() {
-        return ((Date) mAttrs.get(TOKEN_AUTHZTIME));
+        return (Date) mAttrs.get(TOKEN_AUTHZTIME);
     }
 }
