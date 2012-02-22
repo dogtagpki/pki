@@ -16,6 +16,13 @@ find_file(OSUTIL_JAR
         /usr/share/java
 )
 
+find_file(COMMONS_CODEC_JAR
+    NAMES
+        commons-codec.jar
+    PATHS
+        /usr/share/java
+)
+
 find_file(XALAN_JAR
     NAMES
         xalan-j2.jar
@@ -60,7 +67,7 @@ set(pki-tools_java_SRCS
 set(CMAKE_JAVA_INCLUDE_PATH
     ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR}
     ${XALAN_JAR} ${XERCES_JAR}
-    ${JSS_JAR} ${OSUTIL_JAR})
+    ${JSS_JAR} ${OSUTIL_JAR} ${COMMONS_CODEC_JAR})
 
 set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
 

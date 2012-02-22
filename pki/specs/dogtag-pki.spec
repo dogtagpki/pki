@@ -61,6 +61,8 @@ BuildArch:        noarch
 %endif
 %endif
 
+Requires:         apache-commons-codec
+
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL top-level Dogtag PKI support packages
 Requires:         jss >= %{jss_version}
@@ -187,6 +189,9 @@ rm -rf %{buildroot}
 %doc README
 
 %changelog
+* Wed Feb 22 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.2.a1
+- Added dependency on Apache Commons Codec.
+
 * Wed Feb  1 2012 Nathan Kinder <nkinder@redhat.com> 10.0.0-0.1.a1
 - Updated package version number
 

@@ -17,6 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cmsutil.util;
 
+import org.apache.commons.codec.binary.Base64;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
@@ -263,12 +265,12 @@ public class Utils {
     }
 
     public static String base64encode(byte[] bytes) {
-        String string = com.netscape.osutil.OSUtil.BtoA(bytes);
+        String string = new Base64(64).encodeToString(bytes);
         return string;
     }
 
     public static byte[] base64decode(String string) {
-        byte[] bytes = com.netscape.osutil.OSUtil.AtoB(string);
+        byte[] bytes = Base64.decodeBase64(string);
         return bytes;
     }
 }

@@ -83,6 +83,7 @@ $ENV{CLASSPATH} = "/usr/share/java/${PRODUCT}/pki-silent.jar:"
                 . "/usr/share/java/${PRODUCT}/pki-cmsutil.jar:"
                 . "/usr/share/java/${PRODUCT}/pki-tools.jar:"
                 . "/usr/share/java/ldapjdk.jar:"
+                . "/usr/share/java/commons-codec.jar:"
                 . "/usr/share/java/xerces-j2.jar:"
                 . "/usr/share/java/xml-commons-apis.jar:"
                 . "/usr/share/java/xml-commons-resolver.jar:";

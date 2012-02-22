@@ -24,6 +24,13 @@ find_file(OSUTIL_JAR
         ${JAVA_LIB_INSTALL_DIR}
 )
 
+find_file(COMMONS_CODEC_JAR
+    NAMES
+        commons-codec.jar
+    PATHS
+        /usr/share/java
+)
+
 
 # identify java sources
 set(pki-ca_java_SRCS
@@ -42,7 +49,7 @@ set(CMAKE_JAVA_INCLUDE_PATH
     ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR} ${PKI_CMSCORE_JAR}
     ${PKI_CMSUTIL_JAR} ${PKI_NSUTIL_JAR}
     ${LDAPJDK_JAR}
-    ${JSS_JAR} ${OSUTIL_JAR} ${SYMKEY_JAR})
+    ${JSS_JAR} ${OSUTIL_JAR} ${COMMONS_CODEC_JAR} ${SYMKEY_JAR})
 
 
 # set version

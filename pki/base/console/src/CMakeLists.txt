@@ -77,6 +77,13 @@ find_file(OSUTIL_JAR
         /usr/share/java
 )
 
+find_file(COMMONS_CODEC_JAR
+    NAMES
+        commons-codec.jar
+    PATHS
+        /usr/share/java
+)
+
 
 # identify java sources
 set(pki-console_java_SRCS
@@ -648,7 +655,8 @@ set(CMAKE_JAVA_INCLUDE_PATH
     ${MMC_EN_JAR} ${NMCLF_JAR} ${NMCLF_EN_JAR}
     ${PKI_NSUTIL_JAR}
     ${JSS_JAR}
-    ${OSUTIL_JAR})
+    ${OSUTIL_JAR}
+    ${COMMONS_CODEC_JAR})
 
 
 # set version

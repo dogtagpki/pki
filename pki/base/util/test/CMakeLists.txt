@@ -19,7 +19,7 @@ set(pki-util-test_SRCS
 
 set(CMAKE_JAVA_INCLUDE_PATH
     ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR}
-    ${JSS_JAR} ${LDAPJDK_JAR} ${OSUTIL_JAR} ${XALAN_JAR} ${XERCES_JAR}
+    ${JSS_JAR} ${LDAPJDK_JAR} ${OSUTIL_JAR} ${COMMONS_CODEC_JAR} ${XALAN_JAR} ${XERCES_JAR}
     ${PKI_TEST_JAR} ${JUNIT_JAR}
 )
 
@@ -39,7 +39,7 @@ add_junit_test(test-pki-util
     CLASSPATH
         ${pki-util-test_JAR_FILE}
         ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR}
-        ${JSS_JAR} ${LDAPJDK_JAR} ${OSUTIL_JAR}
+        ${JSS_JAR} ${LDAPJDK_JAR} ${OSUTIL_JAR} ${COMMONS_CODEC_JAR}
         ${PKI_TEST_JAR} ${JUNIT_JAR}
     TESTS
         com.netscape.security.util.BMPStringTest

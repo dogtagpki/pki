@@ -24,6 +24,7 @@ BuildRoot:        %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:    cmake
 BuildRequires:    java-devel >= 1:1.6.0
 BuildRequires:    ldapjdk
+BuildRequires:    apache-commons-codec
 BuildRequires:    nspr-devel
 BuildRequires:    nss-devel
 BuildRequires:    openldap-devel
@@ -214,6 +215,7 @@ BuildArch:        noarch
 
 Requires:         java >= 1:1.6.0
 Requires:         ldapjdk
+Requires:         apache-commons-codec
 %if 0%{?fedora} >= 16
 Requires:         jpackage-utils >= 0:1.7.5-10
 Requires:         jss >= 4.2.6-19.1
@@ -1216,6 +1218,9 @@ fi
 
 
 %changelog
+* Wed Feb 23 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.4.a1
+- Added dependency on Apache Commons Codec.
+
 * Wed Feb 22 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-0.3.a1
 - Add '-DSYSTEMD_LIB_INSTALL_DIR' override flag to 'cmake' to address changes
   in fundamental path structure in Fedora 17

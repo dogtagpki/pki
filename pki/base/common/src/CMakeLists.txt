@@ -24,6 +24,13 @@ find_file(OSUTIL_JAR
         /usr/share/java
 )
 
+find_file(COMMONS_CODEC_JAR
+    NAMES
+        commons-codec.jar
+    PATHS
+        /usr/share/java
+)
+
 find_file(SERVLET_JAR
     NAMES
         servlet.jar
@@ -1032,7 +1039,7 @@ set(pki-cmsbundle_RCS
 set(CMAKE_JAVA_INCLUDE_PATH
     ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR}
     ${LDAPJDK_JAR} ${SERVLET_JAR} ${VELOCITY_JAR} ${XALAN_JAR} ${XERCES_JAR}
-    ${JSS_JAR} ${OSUTIL_JAR} ${SYMKEY_JAR} ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR})
+    ${JSS_JAR} ${OSUTIL_JAR} ${COMMONS_CODEC_JAR} ${SYMKEY_JAR} ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR})
 
 set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
 

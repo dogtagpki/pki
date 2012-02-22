@@ -181,6 +181,7 @@ my $jss_jar_base_name             = "jss4.jar";            # CA, KRA, OCSP, TKS
 my $ldapjdk_jar_base_name         = "ldapjdk.jar";         # CA, KRA, OCSP, TKS
 my $pki_nsutil_jar_base_name      = "pki-nsutil.jar";      # CA, KRA, OCSP, TKS
 my $osutil_jar_base_name          = "osutil.jar";          # CA, KRA, OCSP, TKS
+my $commons_codec_jar_base_name   = "commons-codec.jar";   # CA, KRA, OCSP, TKS
 my $symkey_jar_base_name          = "symkey.jar";          # CA, KRA, OCSP, TKS
 my $tomcatjss_jar_base_name       = "tomcatjss.jar";       # CA, KRA, OCSP, TKS
 my $velocity_jar_base_name        = "velocity.jar";        # CA, KRA, OCSP, TKS
@@ -502,6 +503,8 @@ my $pki_nsutil_jar_file_path                     = undef;  # CA, KRA, OCSP, TKS
 my $pki_nsutil_jar_symlink_path                  = undef;  # CA, KRA, OCSP, TKS
 my $osutil_jar_file_path                         = undef;  # CA, KRA, OCSP, TKS
 my $osutil_jar_symlink_path                      = undef;  # CA, KRA, OCSP, TKS
+my $commons_codec_jar_file_path                  = undef;  # CA, KRA, OCSP, TKS
+my $commons_codec_jar_symlink_path               = undef;  # CA, KRA, OCSP, TKS
 my $symkey_jar_file_path                         = undef;  # CA, KRA, OCSP, TKS
 my $symkey_jar_symlink_path                      = undef;  # CA, KRA, OCSP, TKS
 my $tomcatjss_jar_file_path                      = undef;  # CA, KRA, OCSP, TKS
@@ -1838,6 +1841,11 @@ sub initialize_subdirectory_paths
             return 0;
         }
 
+        if (!defined($commons_codec_jar_file_path = find_jar($commons_codec_jar_base_name))) {
+            emit("could not find jar: $commons_codec_jar_base_name", "error");
+            return 0;
+        }
+
         if (!defined($pki_subsystem_jar_file_path = find_jar($pki_subsystem_jar_base_name))) {
             emit("could not find jar: $pki_subsystem_jar_base_name", "error");
             return 0;
@@ -1946,6 +1954,8 @@ sub initialize_subdirectory_paths
                                            . "/" . $pki_nsutil_jar_base_name;
         $osutil_jar_symlink_path           = $webinf_lib_instance_path
                                            . "/" . $osutil_jar_base_name;
+        $commons_codec_jar_symlink_path    = $webinf_lib_instance_path
+                                           . "/" . $commons_codec_jar_base_name;
         $symkey_jar_symlink_path           = $webinf_lib_instance_path
                                            . "/" . $symkey_jar_base_name;
         $pki_subsystem_jar_symlink_path    = $webinf_lib_instance_path
@@ -2963,6 +2973,10 @@ sub process_pki_files_and_symlinks
 
         # create instance symlink to "osutil.jar"
         return 0 if !create_symlink($osutil_jar_symlink_path, $osutil_jar_file_path,
+                                    $pki_user, $pki_group);
+
+        # create instance symlink to "commons_codec.jar"
+        return 0 if !create_symlink($commons_codec_jar_symlink_path, $commons_codec_jar_file_path,
                                     $pki_user, $pki_group);
 
         # create instance symlink to "${subsystem_type}.jar"

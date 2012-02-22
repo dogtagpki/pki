@@ -28,10 +28,10 @@
 	<classpathentry kind="lib" path="/usr/share/candlepin/lib/jaxrs-api-2.2.1.GA.jar"/>
 	<classpathentry kind="lib" path="/usr/share/candlepin/lib/resteasy-jaxrs-2.2.1.GA.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/apache-commons-cli.jar"/>
-        <classpathentry kind="lib" path="/usr/share/java/jakarta-commons-httpclient.jar"/>
-        <classpathentry kind="lib" path="/usr/share/java/apache-commons-logging.jar"/>
-        <classpathentry kind="lib" path="/usr/share/java/commons-codec.jar"/>
-        <classpathentry kind="lib" path="/usr/share/candlepin/lib/jaxb-impl-2.1.12.jar"/>
-        <classpathentry kind="lib" path="/usr/share/candlepin/lib/resteasy-jaxb-provider-2.2.1.GA.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/jakarta-commons-httpclient.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/apache-commons-logging.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/commons-codec.jar"/>
+	<classpathentry kind="lib" path="/usr/share/candlepin/lib/jaxb-impl-2.1.12.jar"/>
+	<classpathentry kind="lib" path="/usr/share/candlepin/lib/resteasy-jaxb-provider-2.2.1.GA.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>
