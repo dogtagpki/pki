@@ -9,5 +9,5 @@ if [ "${PKI_OS}" != "Linux" ]; then
 fi
 
 # For now, check for symkey (legacy package)
-rpm -qa | egrep -i pki-\|osutil\|symkey | sort | cat -n
+rpm -qa | egrep -i pki-\|symkey | sort | cat -n
 

@@ -225,9 +225,8 @@ $ jar-query -s -r -d /usr/share/java/pki -x libgcj `cat ~/pkicore-imports`
 The summary is listed below:
 
 Summary:
-22 Unique Jar's
+21 Unique Jar's
      /usr/lib/jss/jss4-4.2.6.jar
-     /usr/lib/osutil/osutil-2.0.0.jar
      /usr/share/java/commons-codec.jar
      /usr/lib/symkey/symkey-9.0.0.jar
      /usr/share/java/jakarta-taglibs-core-1.1.1.jar
@@ -248,11 +247,10 @@ Summary:
      /usr/share/java/xerces-j2-2.9.0.jar
      /usr/share/java/xml-commons-apis-1.4.01.jar
      /usr/share/java/xml-commons-apis-ext-1.4.01.jar
-16 Unique RPM's
+15 Unique RPM's
      jakarta-taglibs-standard
      jss
      ldapjdk
-     osutil
      apache-commons-codec
      pki-common
      pki-console
@@ -266,13 +264,13 @@ Summary:
      xerces-j2
      xml-commons-apis
 
-What this is telling us is that there are 22 jars which provide all
+What this is telling us is that there are 21 jars which provide all
 the classes needed to satisfy the import statements. However there may
 be some duplicates in the list. Also because of wildcard import
 statements some classes and hence jars may have been included which
 are not actually utilized in the code.
 
-Those 22 jars are provided by the 16 RPM's listed. Once again there
+Those 21 jars are provided by the 15 RPM's listed. Once again there
 may be some class duplication and/or unnecessary RPM's due to
 wildcarding. But this gives a very small manageable list to manually
 pick through and make our choices. For example, one thing we can

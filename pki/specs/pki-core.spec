@@ -42,7 +42,6 @@ BuildRequires:    junit
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
 BuildRequires:    jss >= 4.2.6-19.1
 BuildRequires:    junit4
-BuildRequires:    osutil >= 2.0.2
 BuildRequires:    systemd-units
 BuildRequires:    tomcatjss >= 6.0.2
 %else
@@ -50,13 +49,11 @@ BuildRequires:    tomcatjss >= 6.0.2
 BuildRequires:    jpackage-utils
 BuildRequires:    jss >= 4.2.6-17
 BuildRequires:    junit4
-BuildRequires:    osutil >= 2.0.1
 BuildRequires:    tomcatjss >= 6.0.0
 %else
 BuildRequires:    jpackage-utils
 BuildRequires:    jss >= 4.2.6-17
 BuildRequires:    junit4
-BuildRequires:    osutil
 BuildRequires:    tomcatjss >= 2.0.0
 %endif
 %endif
@@ -227,16 +224,13 @@ Requires:         apache-commons-codec
 %if 0%{?fedora} >= 16
 Requires:         jpackage-utils >= 0:1.7.5-10
 Requires:         jss >= 4.2.6-19.1
-Requires:         osutil >= 2.0.2
 %else
 %if 0%{?fedora} >= 15
 Requires:         jpackage-utils
 Requires:         jss >= 4.2.6-17
-Requires:         osutil >= 2.0.1
 %else
 Requires:         jpackage-utils
 Requires:         jss >= 4.2.6-17
-Requires:         osutil
 %endif
 %endif
 
@@ -1233,6 +1227,9 @@ fi
 
 
 %changelog
+* Wed Feb 29 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.6.a1
+- Removed dependency on OSUtil.
+
 * Tue Feb 28 2012 Ade Lee <alee@redhat.com> 10.0.0-0.5.a1
 - 'pki-selinux'
 -      Added platform-dependent patches for SELinux component

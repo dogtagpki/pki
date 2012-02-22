@@ -16,14 +16,6 @@ find_file(LDAPJDK_JAR
         /usr/share/java
 )
 
-find_file(OSUTIL_JAR
-    NAMES
-        osutil.jar
-    PATHS
-        ${JAVA_LIB_INSTALL_DIR}
-        /usr/share/java
-)
-
 find_file(COMMONS_CODEC_JAR
     NAMES
         commons-codec.jar
@@ -339,21 +331,20 @@ set(pki-cmsutil_java_SRCS
 
 set(CMAKE_JAVA_INCLUDE_PATH
     ${LDAPJDK_JAR} ${XALAN_JAR} ${XERCES_JAR}
-    ${JSS_JAR} ${OSUTIL_JAR} ${COMMONS_CODEC_JAR})
+    ${JSS_JAR} ${COMMONS_CODEC_JAR})
 
 set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
 
 # build pki-nsutil
 set(CMAKE_JAR_CLASSES_PREFIX netscape)
 add_jar(pki-nsutil ${pki-nsutil_java_SRCS})
-add_dependencies(pki-nsutil osutil)
 install_jar(pki-nsutil ${JAVA_JAR_INSTALL_DIR}/pki)
 set(PKI_NSUTIL_JAR ${pki-nsutil_JAR_FILE} CACHE INTERNAL "pki-nsutil jar file")
 
 # build pki-cmsutil
 set(CMAKE_JAR_CLASSES_PREFIX com/netscape/cmsutil)
 add_jar(pki-cmsutil ${pki-cmsutil_java_SRCS})
-add_dependencies(pki-cmsutil osutil pki-nsutil)
+add_dependencies(pki-cmsutil pki-nsutil)
 install_jar(pki-cmsutil ${JAVA_JAR_INSTALL_DIR}/pki)
 set(PKI_CMSUTIL_JAR ${pki-cmsutil_JAR_FILE} CACHE INTERNAL "pki-cmsutil jar file")
 

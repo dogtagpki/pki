@@ -74,15 +74,12 @@ if [ "${OS}" = "Linux" ] ; then
     if [ "${ARCHITECTURE}" = "i386" ] ; then
         LD_LIBRARY_PATH=/usr/lib:/lib
         LD_LIBRARY_PATH=/usr/lib/jss:${LD_LIBRARY_PATH}
-        LD_LIBRARY_PATH=/usr/lib/osutil:${LD_LIBRARY_PATH}
         export LD_LIBRARY_PATH
     elif [ "${ARCHITECTURE}" = "x86_64" ] ; then
         LD_LIBRARY_PATH=/usr/lib:/lib
         LD_LIBRARY_PATH=/usr/lib/jss:${LD_LIBRARY_PATH}
-        LD_LIBRARY_PATH=/usr/lib/osutil:${LD_LIBRARY_PATH}
         LD_LIBRARY_PATH=/usr/lib64:/lib64:${LD_LIBRARY_PATH}
         LD_LIBRARY_PATH=/usr/lib64/jss:${LD_LIBRARY_PATH}
-        LD_LIBRARY_PATH=/usr/lib64/osutil:${LD_LIBRARY_PATH}
         export LD_LIBRARY_PATH
     else
         invalid_architecture "${ARCHITECTURE}"
@@ -134,13 +131,6 @@ if [ "${OS}" = "Linux" ] &&
    [ "${ARCHITECTURE}" = "x86_64" ] ; then
     # Fedora 16+
     CP=/usr/lib64/java/jss4.jar
-fi
-CP=/usr/lib/java/osutil.jar:${CP}
-CP=/usr/lib/java/dirsec/osutil.jar:${CP}
-if [ "${OS}" = "Linux" ] &&
-   [ "${ARCHITECTURE}" = "x86_64" ] ; then
-    # Fedora 16+
-    CP=/usr/lib64/java/osutil.jar:${CP}
 fi
 CP=/usr/share/java/commons-codec.jar:${CP}
 CP=/usr/share/java/ldapjdk.jar:${CP}

@@ -1,7 +1,6 @@
 project(base)
 
 # The order is important!
-#   add_subdirectory(osutil)
 if (APPLICATION_FLAVOR_PKI_CORE)
     add_subdirectory(test)
     add_subdirectory(setup)

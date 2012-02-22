@@ -21,7 +21,6 @@ BuildArch:        noarch
 %define dogtag_pki_theme_version   10.0.0
 %define esc_version                1.1.0
 %define jss_version                4.2.6-21
-%define osutil_version             2.0.2
 %define pki_core_version           10.0.0
 %define pki_kra_version            10.0.0
 %define pki_ocsp_version           10.0.0
@@ -35,7 +34,6 @@ BuildArch:        noarch
 %define dogtag_pki_theme_version   10.0.0
 %define esc_version                1.1.0
 %define jss_version                4.2.6-19.1
-%define osutil_version             2.0.2
 %define pki_core_version           10.0.0
 %define pki_kra_version            10.0.0
 %define pki_ocsp_version           10.0.0
@@ -48,7 +46,6 @@ BuildArch:        noarch
 %define dogtag_pki_theme_version   10.0.0
 %define esc_version                1.1.0
 %define jss_version                4.2.6-17
-%define osutil_version             2.0.0
 %define pki_core_version           10.0.0
 %define pki_kra_version            10.0.0
 %define pki_ocsp_version           10.0.0
@@ -66,7 +63,6 @@ Requires:         apache-commons-codec
 # Make certain that this 'meta' package requires the latest version(s)
 # of ALL top-level Dogtag PKI support packages
 Requires:         jss >= %{jss_version}
-Requires:         osutil >= %{osutil_version}
 Requires:         tomcatjss >= %{tomcatjss_version}
 
 # Make certain that this 'meta' package requires the latest version(s)
@@ -189,6 +185,9 @@ rm -rf %{buildroot}
 %doc README
 
 %changelog
+* Wed Feb 22 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.3.a1
+- Removed dependency on OSUtil.
+
 * Wed Feb 22 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.2.a1
 - Added dependency on Apache Commons Codec.
 

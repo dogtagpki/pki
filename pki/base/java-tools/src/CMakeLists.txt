@@ -8,14 +8,6 @@ find_file(JSS_JAR
         /usr/share/java
 )
 
-find_file(OSUTIL_JAR
-    NAMES
-        osutil.jar
-    PATHS
-        ${JAVA_LIB_INSTALL_DIR}
-        /usr/share/java
-)
-
 find_file(COMMONS_CODEC_JAR
     NAMES
         commons-codec.jar
@@ -67,13 +59,13 @@ set(pki-tools_java_SRCS
 set(CMAKE_JAVA_INCLUDE_PATH
     ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR}
     ${XALAN_JAR} ${XERCES_JAR}
-    ${JSS_JAR} ${OSUTIL_JAR} ${COMMONS_CODEC_JAR})
+    ${JSS_JAR} ${COMMONS_CODEC_JAR})
 
 set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
 
 # build pki-tools
 add_jar(pki-tools ${pki-tools_java_SRCS})
-add_dependencies(pki-tools osutil pki-nsutil pki-cmsutil)
+add_dependencies(pki-tools pki-nsutil pki-cmsutil)
 install(
     FILES
         com/netscape/cmstools/DRMTool.cfg

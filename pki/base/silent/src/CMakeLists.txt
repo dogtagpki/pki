@@ -75,11 +75,11 @@ set(CMAKE_JAVA_INCLUDE_PATH
     ${PKI_CERTSRV_JAR} ${PKI_CMS_JAR}
     ${PKI_CMSUTIL_JAR} ${PKI_NSUTIL_JAR}
     ${LDAPJDK_JAR} ${XERCES_JAR}
-    ${JSS_JAR} ${OSUTIL_JAR} ${COMMONS_CODEC_JAR} ${SYMKEY_JAR})
+    ${JSS_JAR} ${COMMONS_CODEC_JAR} ${SYMKEY_JAR})
 
 set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
 
 add_jar(pki-silent ${pki-silent_java_SRCS})
-add_dependencies(pki-silent osutil symkey pki-cmsutil pki-nsutil pki-certsrv pki-cms)
+add_dependencies(pki-silent symkey pki-cmsutil pki-nsutil pki-certsrv pki-cms)
 install_jar(pki-silent ${JAVA_JAR_INSTALL_DIR}/pki)
 set(PKI_SILENT_JAR ${pki-silent_JAR_FILE} CACHE INTERNAL "pki-silent jar file")

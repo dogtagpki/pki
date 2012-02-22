@@ -51,16 +51,13 @@ chop( $ARCHITECTURE );
 if( $ARCHITECTURE eq "i386" ) {
     $libpath="/usr/lib";
 
-    $ENV{LD_LIBRARY_PATH} = "/usr/lib/osutil:"
-                          . "/usr/lib/jss:"
+    $ENV{LD_LIBRARY_PATH} = "/usr/lib/jss:"
                           . "/usr/lib:/lib";
 } elsif($ARCHITECTURE eq "x86_64") {
     $libpath="/usr/lib64";
 
-    $ENV{LD_LIBRARY_PATH} = "/usr/lib64/osutil:"
-                          . "/usr/lib64/jss:"
+    $ENV{LD_LIBRARY_PATH} = "/usr/lib64/jss:"
                           . "/usr/lib64:/lib64:"
-                          . "/usr/lib/osutil:"
                           . "/usr/lib/jss:"
                           . "/usr/lib:/lib";
 } else {
@@ -90,13 +87,10 @@ $ENV{CLASSPATH} = "/usr/share/java/${PRODUCT}/pki-silent.jar:"
 if( $ARCHITECTURE eq "x86_64" ) {
     $ENV{CLASSPATH} = $ENV{CLASSPATH}
                     . "/usr/lib64/java/jss4.jar:"
-                    . "/usr/lib/java/jss4.jar:"
-                    . "/usr/lib64/java/osutil.jar:"
-                    . "/usr/lib/java/osutil.jar";
+                    . "/usr/lib/java/jss4.jar:";
 } else {
     $ENV{CLASSPATH} = $ENV{CLASSPATH}
-                    . "/usr/lib/java/jss4.jar:"
-                    . "/usr/lib/java/osutil.jar";
+                    . "/usr/lib/java/jss4.jar:";
 }
 
 

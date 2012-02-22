@@ -108,14 +108,7 @@ printf "Processing PKI components present on system . . . "
     # (1) grab all PKI components
     PKI_COMPONENTS=`rpm -qa --queryformat '%{NAME}\n' | grep pki`
 
-    # (2) check for osutil
-    `rpm -q --quiet osutil`
-    OSUTIL_PRESENCE=$?
-    if [ "${OSUTIL_PRESENCE}" = "0" ] ; then
-        PKI_COMPONENTS="${PKI_COMPONENTS} osutil"
-    fi
-
-    # (3) check for symkey (legacy package)
+    # (2) check for symkey (legacy package)
     `rpm -q --quiet symkey`
     SYMKEY_PRESENCE=$?
     if [ "${SYMKEY_PRESENCE}" = "0" ] ; then

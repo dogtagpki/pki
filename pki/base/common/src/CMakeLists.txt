@@ -16,14 +16,6 @@ find_file(LDAPJDK_JAR
         /usr/share/java
 )
 
-find_file(OSUTIL_JAR
-    NAMES
-        osutil.jar
-    PATHS
-        ${JAVA_LIB_INSTALL_DIR}
-        /usr/share/java
-)
-
 find_file(COMMONS_CODEC_JAR
     NAMES
         commons-codec.jar
@@ -1038,21 +1030,21 @@ set(pki-cmsbundle_RCS
 set(CMAKE_JAVA_INCLUDE_PATH
     ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR}
     ${LDAPJDK_JAR} ${SERVLET_JAR} ${VELOCITY_JAR} ${XALAN_JAR} ${XERCES_JAR}
-    ${JSS_JAR} ${OSUTIL_JAR} ${COMMONS_CODEC_JAR} ${SYMKEY_JAR} ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR})
+    ${JSS_JAR} ${COMMONS_CODEC_JAR} ${SYMKEY_JAR} ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR})
 
 set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
 
 # build pki-certsrv
 set(CMAKE_JAR_CLASSES_PREFIX com/netscape/certsrv)
 add_jar(pki-certsrv ${pki-certsrv_java_SRCS})
-add_dependencies(pki-certsrv osutil pki-nsutil pki-cmsutil)
+add_dependencies(pki-certsrv pki-nsutil pki-cmsutil)
 install_jar(pki-certsrv ${JAVA_JAR_INSTALL_DIR}/pki)
 set(PKI_CERTSRV_JAR ${pki-certsrv_JAR_FILE} CACHE INTERNAL "pki-certsrv jar file")
 
 # build pki-cms
 set(CMAKE_JAR_CLASSES_PREFIX com/netscape/cms)
 add_jar(pki-cms ${pki-cms_java_SRCS})
-add_dependencies(pki-cms osutil pki-nsutil pki-cmsutil pki-certsrv)
+add_dependencies(pki-cms pki-nsutil pki-cmsutil pki-certsrv)
 install_jar(pki-cms ${JAVA_JAR_INSTALL_DIR}/pki)
 set(PKI_CMS_JAR ${pki-cms_JAR_FILE} CACHE INTERNAL "pki-cms jar file")
 
@@ -1070,12 +1062,12 @@ add_dependencies(pki-common-${APPLICATION_VERSION}_javadoc pki-cms pki-certsrv)
 # build pki-cmscore
 set(CMAKE_JAR_CLASSES_PREFIX com/netscape/cmscore)
 add_jar(pki-cmscore ${pki-cmscore_java_SRCS})
-add_dependencies(pki-cmscore osutil pki-nsutil pki-cmsutil pki-certsrv pki-cms)
+add_dependencies(pki-cmscore pki-nsutil pki-cmsutil pki-certsrv pki-cms)
 install_jar(pki-cmscore ${JAVA_JAR_INSTALL_DIR}/pki)
 set(PKI_CMSCORE_JAR ${pki-cmscore_JAR_FILE} CACHE INTERNAL "pki-cmscore jar file")
 
 # build pki-cmsbundle
 add_jar(pki-cmsbundle ${pki-cmsbundle_RCS})
-add_dependencies(pki-cmsbundle osutil pki-nsutil pki-cmsutil pki-certsrv pki-cms pki-cmscore)
+add_dependencies(pki-cmsbundle pki-nsutil pki-cmsutil pki-certsrv pki-cms pki-cmscore)
 install_jar(pki-cmsbundle ${JAVA_JAR_INSTALL_DIR}/pki)
 set(PKI_CMSBUNDLE_JAR ${pki-cmsbundle_JAR_FILE} CACHE INTERNAL "pki-cmsbundle jar file")

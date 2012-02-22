@@ -20,7 +20,6 @@
 	<classpathentry kind="lib" path="/usr/share/java/ldapjdk.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/idm-console-nmclf.jar"/>
 	<classpathentry kind="lib" path="/usr/lib64/java/jss4.jar"/>
-	<classpathentry kind="lib" path="/usr/lib64/java/osutil.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/velocity.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/servlet.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/xerces-j2.jar"/>

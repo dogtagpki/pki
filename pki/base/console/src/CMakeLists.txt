@@ -69,14 +69,6 @@ find_file(JSS_JAR
         /usr/share/java
 )
 
-find_file(OSUTIL_JAR
-    NAMES
-        osutil.jar
-    PATHS
-        ${JAVA_LIB_INSTALL_DIR}
-        /usr/share/java
-)
-
 find_file(COMMONS_CODEC_JAR
     NAMES
         commons-codec.jar
@@ -655,7 +647,6 @@ set(CMAKE_JAVA_INCLUDE_PATH
     ${MMC_EN_JAR} ${NMCLF_JAR} ${NMCLF_EN_JAR}
     ${PKI_NSUTIL_JAR}
     ${JSS_JAR}
-    ${OSUTIL_JAR}
     ${COMMONS_CODEC_JAR})
 
 
