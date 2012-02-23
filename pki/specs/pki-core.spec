@@ -7,7 +7,7 @@
 
 Name:             pki-core
 Version:          10.0.0
-Release:          %{?relprefix}2%{?prerel}%{?dist}
+Release:          %{?relprefix}3%{?prerel}%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -148,6 +148,8 @@ Group:            System Environment/Base
 
 BuildArch:        noarch
 
+Requires:         perl(File::Slurp)
+Requires:         perl(XML::LibXML)
 Requires:         perl-Crypt-SSLeay
 Requires:         policycoreutils
 Requires:         openldap-clients
@@ -655,7 +657,7 @@ This package is a part of the PKI Core used by the Certificate System.
 %build
 %{__mkdir_p} build
 cd build
-%cmake -DVAR_INSTALL_DIR:PATH=/var -DBUILD_PKI_CORE:BOOL=ON -DJAVA_LIB_INSTALL_DIR=%{_jnidir} ..
+%cmake -DVAR_INSTALL_DIR:PATH=/var -DBUILD_PKI_CORE:BOOL=ON -DJAVA_LIB_INSTALL_DIR=%{_jnidir} -DSYSTEMD_LIB_INSTALL_DIR=%{_unitdir} ..
 %{__make} VERBOSE=1 %{?_smp_mflags} all
 %{__make} VERBOSE=1 %{?_smp_mflags} test
 
@@ -1214,6 +1216,16 @@ fi
 
 
 %changelog
+* Wed Feb 22 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-0.3.a1
+- Add '-DSYSTEMD_LIB_INSTALL_DIR' override flag to 'cmake' to address changes
+  in fundamental path structure in Fedora 17
+- 'pki-setup'
+-      Hard-code Perl dependencies to protect against bugs such as
+       Bugzilla Bug #772699 - Adapt perl and python fileattrs to
+       changed file 5.10 magics
+- 'pki-selinux'
+-      Bugzilla Bug #795966 - pki-selinux policy is kind of a mess
+
 * Mon Feb 20 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-0.2.a1
 - Integrated 'pki-kra' into 'pki-core'
 - Integrated 'pki-ocsp' into 'pki-core'
