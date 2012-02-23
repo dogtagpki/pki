@@ -1,6 +1,6 @@
 Name:             pki-kra
 Version:          9.0.9
-Release:          1%{?dist}
+Release:          2%{?dist}
 Summary:          Certificate System - Data Recovery Manager
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -122,7 +122,7 @@ Additionally, Certificate System requires ONE AND ONLY ONE of the following
 %build
 %{__mkdir_p} build
 cd build
-%cmake -DVAR_INSTALL_DIR:PATH=/var -DBUILD_PKI_KRA:BOOL=ON -DJAVA_LIB_INSTALL_DIR=%{_jnidir} ..
+%cmake -DVAR_INSTALL_DIR:PATH=/var -DBUILD_PKI_KRA:BOOL=ON -DJAVA_LIB_INSTALL_DIR=%{_jnidir} -DSYSTEMD_LIB_INSTALL_DIR=%{_unitdir} ..
 %{__make} VERBOSE=1 %{?_smp_mflags}
 
 
@@ -238,6 +238,10 @@ fi
 
 
 %changelog
+* Wed Feb 22 2012 Matthew Harmsen <mharmsen@redhat.com> 9.0.9-2
+- Add '-DSYSTEMD_LIB_INSTALL_DIR' override flag to 'cmake' to address changes
+  in fundamental path structure in Fedora 17
+
 * Fri Oct 28 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.9-1
 - Bugzilla Bug #737122 - DRM: during archiving and recovering,
   wrapping unwrapping keys should be done in the token (cfu)
