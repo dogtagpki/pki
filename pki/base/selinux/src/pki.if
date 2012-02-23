@@ -192,6 +192,9 @@ template(`pki_ca_template',`
         #connect to ldap
         corenet_tcp_connect_ldap_port($1_t)
 
+        # tomcat connects to ephemeral ports on shutdown
+        corenet_tcp_connect_all_unreserved_ports($1_t)
+
         optional_policy(`
             #This is broken in selinux-policy we need java_exec defined, Will add to policy
             gen_require(`
