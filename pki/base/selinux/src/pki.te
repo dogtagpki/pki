@@ -1,4 +1,4 @@
-policy_module(pki,1.0.26)
+policy_module(pki,9.0.1)
 
 attribute pki_ca_config;
 attribute pki_ca_executable;
@@ -136,3 +136,197 @@ allow pki_tks_t pki_ocsp_t:process signull;
 #allow httpd_t pki_tks_tomcat_exec_t:process signull;
 #allow httpd_t pki_tks_var_lib_t:process signull;
 
+# start up httpd in pki_tps_t mode
+can_exec(pki_tps_t, httpd_config_t)
+allow pki_tps_t httpd_exec_t:file entrypoint;
+allow pki_tps_t httpd_modules_t:lnk_file read;
+can_exec(pki_tps_t, httpd_suexec_exec_t)
+
+# apache permissions
+apache_exec_modules(pki_tps_t)
+apache_list_modules(pki_tps_t)
+apache_read_config(pki_tps_t)
+
+allow pki_tps_t lib_t:file execute_no_trans;
+
+#fowner needed for chmod
+allow pki_tps_t self:capability { setuid sys_nice setgid dac_override fowner fsetid kill};
+allow pki_tps_t self:process { setsched signal getsched  signull execstack execmem sigkill};
+allow pki_tps_t self:sem all_sem_perms;
+allow pki_tps_t self:tcp_socket create_stream_socket_perms;
+
+# used to serve cgi web pages under /var/lib/pki-tps, formatting, enrollment
+allow pki_tps_t pki_tps_var_lib_t:file {execute execute_no_trans};
+
+ #netlink needed?
+allow pki_tps_t self:netlink_route_socket { write getattr read bind create nlmsg_read };
+
+corecmd_exec_bin(pki_tps_t)
+corecmd_exec_shell(pki_tps_t)
+corecmd_read_bin_symlinks(pki_tps_t)
+corecmd_search_bin(pki_tps_t)
+
+corenet_sendrecv_unlabeled_packets(pki_tps_t)
+corenet_tcp_bind_all_nodes(pki_tps_t)
+corenet_tcp_bind_pki_tps_port(pki_tps_t)
+corenet_tcp_connect_generic_port(pki_tps_t)
+
+# customer may run an ldap server on 389
+corenet_tcp_connect_ldap_port(pki_tps_t)
+
+# connect to other subsystems
+corenet_tcp_connect_pki_ca_port(pki_tps_t)
+corenet_tcp_connect_pki_kra_port(pki_tps_t)
+corenet_tcp_connect_pki_tks_port(pki_tps_t)
+
+corenet_tcp_sendrecv_all_if(pki_tps_t)
+corenet_tcp_sendrecv_all_nodes(pki_tps_t)
+corenet_tcp_sendrecv_all_ports(pki_tps_t)
+corenet_all_recvfrom_unlabeled(pki_tps_t)
+
+dev_read_urand(pki_tps_t)
+files_exec_usr_files(pki_tps_t)
+files_read_usr_symlinks(pki_tps_t)
+files_read_usr_files(pki_tps_t)
+
+#installation and debug uses /tmp
+files_manage_generic_tmp_dirs(pki_tps_t)
+files_manage_generic_tmp_files(pki_tps_t)
+
+kernel_read_kernel_sysctls(pki_tps_t)
+kernel_read_system_state(pki_tps_t)
+
+# need to resolve addresses?
+auth_use_nsswitch(pki_tps_t)
+
+sysnet_read_config(pki_tps_t)
+
+allow httpd_t pki_tps_etc_rw_t:dir search;
+allow httpd_t pki_tps_etc_rw_t:file rw_file_perms;
+allow httpd_t pki_tps_log_t:dir rw_dir_perms;
+allow httpd_t pki_tps_log_t:file manage_file_perms;
+allow httpd_t pki_tps_t:process { signal signull };
+allow httpd_t pki_tps_var_lib_t:dir { getattr search };
+allow httpd_t pki_tps_var_lib_t:lnk_file read;
+allow httpd_t pki_tps_var_lib_t:file read_file_perms;
+
+# why do I need to add this?
+allow httpd_t httpd_config_t:file execute;
+files_exec_usr_files(httpd_t)
+
+# talk to the hsm
+allow pki_tps_t pki_common_dev_t:sock_file write;
+allow pki_tps_t pki_common_dev_t:dir search;
+allow pki_tps_t pki_common_t:dir create_dir_perms;
+manage_files_pattern(pki_tps_t, pki_common_t, pki_common_t)
+can_exec(pki_tps_t, pki_common_t)
+init_stream_connect_script(pki_tps_t)
+
+#allow tps to talk to lunasa hsm
+logging_send_syslog_msg(pki_tps_t)
+
+# allow rpm -q in init scripts
+rpm_exec(pki_tps_t)
+
+# allow writing to the kernel keyring
+allow pki_tps_t self:key { write read };
+
+# new for f14
+apache_exec(pki_tps_t)
+
+ # start up httpd in pki_ra_t mode
+allow pki_ra_t httpd_config_t:file { read getattr execute };
+allow pki_ra_t httpd_exec_t:file entrypoint;
+allow pki_ra_t httpd_modules_t:lnk_file read;
+allow pki_ra_t httpd_suexec_exec_t:file { getattr read execute };
+
+#apache permissions
+apache_read_config(pki_ra_t)
+apache_exec_modules(pki_ra_t)
+apache_list_modules(pki_ra_t)
+
+allow pki_ra_t lib_t:file execute_no_trans;
+
+allow pki_ra_t self:capability { setuid sys_nice setgid dac_override fowner fsetid};
+allow pki_ra_t self:process { setsched getsched signal signull execstack execmem};
+allow pki_ra_t self:sem all_sem_perms;
+allow pki_ra_t self:tcp_socket create_stream_socket_perms;
+
+#RA specific? talking to mysql?
+allow pki_ra_t self:udp_socket { write read create connect };
+allow pki_ra_t self:unix_dgram_socket { write create connect };
+
+# netlink needed?
+allow pki_ra_t self:netlink_route_socket { write getattr read bind create nlmsg_read };
+
+corecmd_exec_bin(pki_ra_t)
+corecmd_exec_shell(pki_ra_t)
+corecmd_read_bin_symlinks(pki_ra_t)
+corecmd_search_bin(pki_ra_t)
+
+corenet_sendrecv_unlabeled_packets(pki_ra_t)
+corenet_tcp_bind_all_nodes(pki_ra_t)
+corenet_tcp_bind_pki_ra_port(pki_ra_t)
+
+corenet_tcp_sendrecv_all_if(pki_ra_t)
+corenet_tcp_sendrecv_all_nodes(pki_ra_t)
+corenet_tcp_sendrecv_all_ports(pki_ra_t)
+corenet_all_recvfrom_unlabeled(pki_ra_t)
+corenet_tcp_connect_generic_port(pki_ra_t)
+
+# talk to other subsystems
+corenet_tcp_connect_pki_ca_port(pki_ra_t)
+
+dev_read_urand(pki_ra_t)
+files_exec_usr_files(pki_ra_t)
+fs_getattr_xattr_fs(pki_ra_t)
+
+# ra writes files to /tmp
+files_manage_generic_tmp_files(pki_ra_t)
+
+kernel_read_kernel_sysctls(pki_ra_t)
+kernel_read_system_state(pki_ra_t)
+
+logging_send_syslog_msg(pki_ra_t)
+
+corenet_tcp_connect_smtp_port(pki_ra_t)
+files_search_spool(pki_ra_t)
+
+#
+# Should be changed to mta_send_mail
+#
+mta_manage_spool(pki_ra_t)
+mta_manage_queue(pki_ra_t)
+mta_read_config(pki_ra_t)
+mta_sendmail_exec(pki_ra_t)
+
+#resolve names?
+auth_use_nsswitch(pki_ra_t)
+
+sysnet_read_config(pki_ra_t)
+
+allow httpd_t pki_ra_etc_rw_t:dir search;
+allow httpd_t pki_ra_etc_rw_t:file rw_file_perms;
+allow httpd_t pki_ra_log_t:dir rw_dir_perms;
+allow httpd_t pki_ra_log_t:file manage_file_perms;
+allow httpd_t pki_ra_t:process { signal signull };
+allow httpd_t pki_ra_var_lib_t:dir { getattr search };
+allow httpd_t pki_ra_var_lib_t:lnk_file read;
+allow httpd_t pki_ra_var_lib_t:file read_file_perms;
+
+# talk to the hsm
+allow pki_ra_t pki_common_dev_t:sock_file write;
+allow pki_ra_t pki_common_dev_t:dir search;
+allow pki_ra_t pki_common_t:dir create_dir_perms;
+manage_files_pattern(pki_ra_t, pki_common_t, pki_common_t)
+can_exec(pki_ra_t, pki_common_t)
+init_stream_connect_script(pki_ra_t)
+
+# allow rpm -q in init scripts
+rpm_exec(pki_ra_t)
+
+# allow writing to the kernel keyring
+allow pki_ra_t self:key { write read };
+
+# new for f14
+apache_exec(pki_ra_t)
