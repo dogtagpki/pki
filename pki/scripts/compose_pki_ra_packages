@@ -39,7 +39,7 @@ PKI_RA_VERSION="10.0.0.a1"
 ##
 
 PKI_SPECS_FILE="${PKI_DIR}/specs/${PKI_RA}.spec"
-PKI_COMPONENT_LIST="test ra"
+PKI_COMPONENT_LIST="ra"
 
 
 ##

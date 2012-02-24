@@ -63,9 +63,15 @@ macro_ensure_out_of_source_build("${PROJECT_NAME} requires an out of source buil
 # add macros
 include(MacroCopyFile)
 include(UseJava)
-include(JUnit)
 
-add_custom_target(test)
+# required for all PKI components EXCEPT IPA_PKI_THEME, PKI_RA, and PKI_TPS
+if (NOT APPLICATION_FLAVOR_IPA_PKI_THEME   AND
+    NOT APPLICATION_FLAVOR_PKI_RA          AND
+    NOT APPLICATION_FLAVOR_PKI_TPS)
+    include(JUnit)
+
+    add_custom_target(test)
+endif ()
 
 # search for libraries
 
