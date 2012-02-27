@@ -118,7 +118,7 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
 
         // register all job plugins
         while (mImpls.hasMoreElements()) {
-            String id = (String) mImpls.nextElement();
+            String id = mImpls.nextElement();
             String pluginPath = c.getString(id + "." + PROP_CLASS);
 
             JobPlugin plugin = new JobPlugin(id, pluginPath);
@@ -131,10 +131,9 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
         Enumeration<String> jobs = c.getSubStoreNames();
 
         while (jobs.hasMoreElements()) {
-            String jobName = (String) jobs.nextElement();
+            String jobName = jobs.nextElement();
             String implName = c.getString(jobName + "." + PROP_PLUGIN);
-            JobPlugin plugin =
-                    (JobPlugin) mJobPlugins.get(implName);
+            JobPlugin plugin = mJobPlugins.get(implName);
 
             if (plugin == null) {
                 log(ILogger.LL_FAILURE,
@@ -145,10 +144,8 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
             String classPath = plugin.getClassPath();
 
             // instantiate and init the job
-            IJob job = null;
-
             try {
-                job = (IJob)
+                IJob job = (IJob)
                         Class.forName(classPath).newInstance();
                 IConfigStore jconfig = c.getSubStore(jobName);
 
@@ -205,7 +202,7 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
             // get time now
             Calendar cal = Calendar.getInstance();
             long rightNow = cal.getTime().getTime();
-            long duration = 0;
+            long duration;
             long second = cal.get(Calendar.SECOND);
 
             if (second != 1) { // scheduler needs adjustment
@@ -238,6 +235,7 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
                     System.out.println(e);
                 }
             }
+
             // if (duration == 0), it's time
 
             // woke up...
@@ -262,10 +260,8 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
              */
             wokeupTime = cal.getTime().getTime();
 
-            IJob job = null;
-
-            for (Enumeration<IJob> e = mJobs.elements(); e.hasMoreElements();) {
-                job = e.nextElement();
+            for (Enumeration<IJob> e = mJobs.elements(); e.hasMoreElements(); ) {
+                IJob job = e.nextElement();
 
                 // is it enabled?
                 IConfigStore cs = job.getConfigStore();
@@ -285,7 +281,7 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
                     //	log(ILogger.LL_INFO, "show time for: "+job.getId());
 
                     // if previous thread still alive, skip
-                    Thread jthread = (Thread) mJobThreads.get(job.getId());
+                    Thread jthread = mJobThreads.get(job.getId());
 
                     if ((jthread == null) || (!jthread.isAlive())) {
                         Thread jobThread = new Thread((Runnable) job, job.getId());
@@ -381,7 +377,7 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
      * @return name of the Jobs Scheduler subsystem
      */
     public String getId() {
-        return (mId);
+        return mId;
     }
 
     /**
@@ -419,24 +415,9 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
      * <P>
      */
     public void shutdown() {
-        mJobPlugins.clear();
-        mJobPlugins = null;
-        mJobs.clear();
-        mJobs = null;
-
-        Enumeration<String> enums = mJobThreads.keys();
-        while (enums.hasMoreElements()) {
-            String id = (String) enums.nextElement();
-            Thread currthread = (Thread) mJobThreads.get(id);
-            //if (currthread != null) 
-            //  currthread.destroy();
+        for (IJob job : mJobs.values()) {
+            job.stop();
         }
-
-        mJobThreads.clear();
-        mJobThreads = null;
-
-        //if (mScheduleThread != null) 
-        //  mScheduleThread.destroy();
     }
 
     /**
@@ -462,7 +443,7 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
             Debug.trace("in getCofigParams()");
 
         // is this a registered implname?
-        JobPlugin plugin = (JobPlugin) mJobPlugins.get(implName);
+        JobPlugin plugin = mJobPlugins.get(implName);
 
         if (plugin == null) {
             log(ILogger.LL_FAILURE,
@@ -477,13 +458,12 @@ public class JobsScheduler implements Runnable, IJobsScheduler {
         // auth manager instantces to avoid instantiation just for this.
 
         // a temporary instance
-        IJob jobInst = null;
         String className = plugin.getClassPath();
 
         if (Debug.ON)
             Debug.trace("className = " + className);
         try {
-            jobInst = (IJob)
+            IJob jobInst = (IJob)
                     Class.forName(className).newInstance();
             if (Debug.ON)
                 Debug.trace("class instantiated");

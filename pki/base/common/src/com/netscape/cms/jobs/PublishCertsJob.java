@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.jobs;
 
-import java.security.cert.X509Certificate;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.Enumeration;
@@ -135,7 +134,7 @@ public class PublishCertsJob extends AJobBase
         }
 
         mReqQ = mCa.getRequestQueue();
-        mRepository = (ICertificateRepository) mCa.getCertificateRepository();
+        mRepository = mCa.getCertificateRepository();
         mPublisherProcessor = mCa.getPublisherProcessor();
 
         // read from the configuration file
@@ -299,7 +298,7 @@ public class PublishCertsJob extends AJobBase
                 try {
                     if ((mPublisherProcessor != null) &&
                             mPublisherProcessor.enabled()) {
-                        mPublisherProcessor.publishCert((X509Certificate) cert, req);
+                        mPublisherProcessor.publishCert(cert, req);
                         if (mSummary == true)
                             buildItemParams(IEmailFormProcessor.TOKEN_STATUS,
                                     STATUS_SUCCESS);
@@ -322,7 +321,7 @@ public class PublishCertsJob extends AJobBase
                 try {
                     if ((mPublisherProcessor != null) &&
                             mPublisherProcessor.enabled()) {
-                        mPublisherProcessor.publishCert((X509Certificate) cert, null);
+                        mPublisherProcessor.publishCert(cert, null);
 
                         if (mSummary == true)
                             buildItemParams(IEmailFormProcessor.TOKEN_STATUS,
@@ -396,6 +395,6 @@ public class PublishCertsJob extends AJobBase
      * @return String array of configuration parameter names.
      */
     public String[] getConfigParams() {
-        return (mConfigParams);
+        return mConfigParams;
     }
 }

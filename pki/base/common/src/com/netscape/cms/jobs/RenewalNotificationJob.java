@@ -275,7 +275,7 @@ public class RenewalNotificationJob
             return;
         }
 
-        mCertDB = (ICertificateRepository) mCA.getCertificateRepository();
+        mCertDB = mCA.getCertificateRepository();
 
         mCron = mConfig.getString(IJobCron.PROP_CRON);
         if (mCron == null) {

@@ -1621,8 +1621,6 @@ public class CMSEngine implements ICMSEngine {
         shutdownSubsystems(mFinalSubsystems);
         shutdownSubsystems(mDynSubsystems);
         shutdownSubsystems(mStaticSubsystems);
-
-        System.exit(0);
     }
 
     /**

@@ -213,6 +213,6 @@ public class RequestInQueueJob extends AJobBase
      * @return String array of configuration parameter names.
      */
     public String[] getConfigParams() {
-        return (mConfigParams);
+        return mConfigParams;
     }
 }

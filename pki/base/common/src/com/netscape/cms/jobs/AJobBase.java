@@ -74,6 +74,8 @@ public abstract class AJobBase implements IJob, Runnable {
     protected Hashtable<String, Object> mContentParams = new Hashtable<String, Object>();
     protected Hashtable<String, Object> mItemParams = new Hashtable<String, Object>();
 
+    boolean stopped;
+
     public AJobBase() {
     }
 
@@ -209,17 +211,17 @@ public abstract class AJobBase implements IJob, Runnable {
 
     protected void buildItemParams(X509CertImpl cert) {
         mItemParams.put(IEmailFormProcessor.TOKEN_SERIAL_NUM,
-                (Object) cert.getSerialNumber().toString());
+                cert.getSerialNumber().toString());
         mItemParams.put(IEmailFormProcessor.TOKEN_HEX_SERIAL_NUM,
-                (Object) cert.getSerialNumber().toString(16));
+                cert.getSerialNumber().toString(16));
         mItemParams.put(IEmailFormProcessor.TOKEN_ISSUER_DN,
-                (Object) cert.getIssuerDN().toString());
+                cert.getIssuerDN().toString());
         mItemParams.put(IEmailFormProcessor.TOKEN_SUBJECT_DN,
-                (Object) cert.getSubjectDN().toString());
+                cert.getSubjectDN().toString());
         mItemParams.put(IEmailFormProcessor.TOKEN_NOT_AFTER,
-                (Object) cert.getNotAfter().toString());
+                cert.getNotAfter().toString());
         mItemParams.put(IEmailFormProcessor.TOKEN_NOT_BEFORE,
-                (Object) cert.getNotBefore().toString());
+                cert.getNotBefore().toString());
         // ... and more
     }
 
@@ -287,5 +289,13 @@ public abstract class AJobBase implements IJob, Runnable {
             return;
         mLogger.log(ILogger.EV_SYSTEM, null, ILogger.S_OTHER,
                 level, mId + ": " + msg, multiline);
+    }
+
+    public void stop() {
+        stopped = true;
+    }
+
+    public boolean isStopped() {
+        return stopped;
     }
 }

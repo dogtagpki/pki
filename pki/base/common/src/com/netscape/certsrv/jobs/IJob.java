@@ -91,4 +91,16 @@ public interface IJob {
      * @return configuration store
      */
     public IConfigStore getConfigStore();
+
+    /**
+     * Request the job to stop gracefully. The job may not stop immediately.
+     */
+    public void stop();
+
+    /**
+     * Check whether the job has been asked to stop. Long running jobs should call
+     * this method occasionally inside the run() method and exit gracefully if it
+     * returns true.
+     */
+    public boolean isStopped();
 }

@@ -245,6 +245,7 @@ public class CertificateRepository extends Repository
             }
             if (mResults != null) {
                 mRetrieveModificationsThread.setResults(mResults);
+                mRetrieveModificationsThread.setDaemon(true);
                 mRetrieveModificationsThread.start();
             }
         }
@@ -254,6 +255,7 @@ public class CertificateRepository extends Repository
             CMS.debug("In setCertStatusUpdateInterval about to create CertStatusUpdateThread ");
             mCertStatusUpdateThread = new CertStatusUpdateThread(this, requestRepo, "CertStatusUpdateThread");
             mCertStatusUpdateThread.setInterval(interval);
+            mCertStatusUpdateThread.setDaemon(true);
             mCertStatusUpdateThread.start();
         } else {
             CMS.debug("In setCertStatusUpdateInterval it thinks the thread is up already ");
@@ -1903,11 +1905,6 @@ public class CertificateRepository extends Repository
     }
 
     public void shutdown() {
-        //if (mCertStatusUpdateThread != null) 
-        //        mCertStatusUpdateThread.destroy();
-
-        //if (mRetrieveModificationsThread != null) 
-        //        mRetrieveModificationsThread.destroy();
     }
 }
 
