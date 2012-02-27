@@ -225,7 +225,7 @@ public class AuthInfoAccessExtDefault extends EnrollExtDefault {
                 }
                 boolean critical = ext.isCritical();
 
-                Vector v = parseRecords(value);
+                Vector<NameValuePairs> v = parseRecords(value);
                 int size = v.size();
 
                 ext = new AuthInfoAccessExtension(critical);
@@ -235,20 +235,18 @@ public class AuthInfoAccessExtDefault extends EnrollExtDefault {
                 String enable = null;
 
                 for (int i = 0; i < size; i++) {
-                    NameValuePairs nvps = (NameValuePairs) v.elementAt(i);
-                    Enumeration<String> names = nvps.getNames();
+                    NameValuePairs nvps = v.elementAt(i);
 
-                    while (names.hasMoreElements()) {
-                        String name1 = names.nextElement();
+                    for (String name1 : nvps.keySet()) {
 
                         if (name1.equals(AD_METHOD)) {
-                            method = nvps.getValue(name1);
+                            method = nvps.get(name1);
                         } else if (name1.equals(AD_LOCATION_TYPE)) {
-                            locationType = nvps.getValue(name1);
+                            locationType = nvps.get(name1);
                         } else if (name1.equals(AD_LOCATION)) {
-                            location = nvps.getValue(name1);
+                            location = nvps.get(name1);
                         } else if (name1.equals(AD_ENABLE)) {
-                            enable = nvps.getValue(name1);
+                            enable = nvps.get(name1);
                         }
                     }
 
@@ -352,18 +350,18 @@ public class AuthInfoAccessExtDefault extends EnrollExtDefault {
                     des = ext.getAccessDescription(i);
                 }
                 if (des == null) {
-                    np.add(AD_METHOD, "");
-                    np.add(AD_LOCATION_TYPE, "");
-                    np.add(AD_LOCATION, "");
-                    np.add(AD_ENABLE, "false");
+                    np.put(AD_METHOD, "");
+                    np.put(AD_LOCATION_TYPE, "");
+                    np.put(AD_LOCATION, "");
+                    np.put(AD_ENABLE, "false");
                 } else {
                     ObjectIdentifier methodOid = des.getMethod();
                     GeneralName gn = des.getLocation();
 
-                    np.add(AD_METHOD, methodOid.toString());
-                    np.add(AD_LOCATION_TYPE, getGeneralNameType(gn));
-                    np.add(AD_LOCATION, getGeneralNameValue(gn));
-                    np.add(AD_ENABLE, "true");
+                    np.put(AD_METHOD, methodOid.toString());
+                    np.put(AD_LOCATION_TYPE, getGeneralNameType(gn));
+                    np.put(AD_LOCATION, getGeneralNameValue(gn));
+                    np.put(AD_ENABLE, "true");
                 }
                 recs.addElement(np);
             }

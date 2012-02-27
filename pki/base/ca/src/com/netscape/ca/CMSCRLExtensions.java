@@ -49,7 +49,6 @@ import com.netscape.certsrv.ca.ICMSCRLExtensions;
 import com.netscape.certsrv.ca.ICRLIssuingPoint;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.common.Constants;
-import com.netscape.certsrv.common.NameValuePair;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.cms.crl.CMSIssuingDistributionPointExtension;
@@ -521,14 +520,14 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
              */
 
             if (mEnabledCRLExtensions.contains(id)) {
-                nvp.add(PROP_ENABLE, Constants.TRUE);
+                nvp.put(PROP_ENABLE, Constants.TRUE);
             } else {
-                nvp.add(PROP_ENABLE, Constants.FALSE);
+                nvp.put(PROP_ENABLE, Constants.FALSE);
             }
             if (mCriticalCRLExtensions.contains(id)) {
-                nvp.add(PROP_CRITICAL, Constants.TRUE);
+                nvp.put(PROP_CRITICAL, Constants.TRUE);
             } else {
-                nvp.add(PROP_CRITICAL, Constants.FALSE);
+                nvp.put(PROP_CRITICAL, Constants.FALSE);
             }
 
             if (mCRLExtensionClassNames.containsKey(id)) {
@@ -563,7 +562,7 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
                         String idName = name.substring(i + 1);
 
                         if (idName != null) {
-                            nvp.add(Constants.PR_CRLEXT_IMPL_NAME, idName);
+                            nvp.put(Constants.PR_CRLEXT_IMPL_NAME, idName);
                         }
                     }
                 }
@@ -574,17 +573,15 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
 
     public void setConfigParams(String id, NameValuePairs nvp, IConfigStore config) {
         ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem(CMS.SUBSYSTEM_CA);
-        String ipId = nvp.getValue("id");
+        String ipId = nvp.get("id");
 
         ICRLIssuingPoint ip = null;
         if (ipId != null && ca != null) {
             ip = ca.getCRLIssuingPoint(ipId);
         }
 
-        for (int i = 0; i < nvp.size(); i++) {
-            NameValuePair p = nvp.elementAt(i);
-            String name = p.getName();
-            String value = p.getValue();
+        for (String name : nvp.keySet()) {
+            String value = nvp.get(name);
 
             if (name.equals(PROP_ENABLE)) {
                 if (!(value.equals(Constants.TRUE) || value.equals(Constants.FALSE))) {
@@ -647,7 +644,7 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
                 if (value.equals(Constants.TRUE) && (issuingDistPointExtEnabled == true)) {
                     if (crlCACertsOnly == false) {
                         CMS.debug(" value = true and CRLCACertsOnly is already false.");
-                        crlIssuingPointPairs.add(Constants.PR_CA_CERTS_ONLY, Constants.TRUE);
+                        crlIssuingPointPairs.put(Constants.PR_CA_CERTS_ONLY, Constants.TRUE);
                         newValue = Constants.TRUE;
                         ip.updateConfig(crlIssuingPointPairs);
                         modifiedCRLConfig = true;
@@ -656,7 +653,7 @@ public class CMSCRLExtensions implements ICMSCRLExtensions {
 
                 //If the CRLCACertsOnly prop is true change it to false to sync.
                 if (value.equals(Constants.FALSE) && (issuingDistPointExtEnabled == true)) {
-                    crlIssuingPointPairs.add(Constants.PR_CA_CERTS_ONLY, Constants.FALSE);
+                    crlIssuingPointPairs.put(Constants.PR_CA_CERTS_ONLY, Constants.FALSE);
                     if (ip != null) {
                         ip.updateConfig(crlIssuingPointPairs);
                         newValue = Constants.FALSE;

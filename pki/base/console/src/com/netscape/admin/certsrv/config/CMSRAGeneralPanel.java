@@ -100,7 +100,7 @@ public class CMSRAGeneralPanel extends CMSBaseTab {
     public void refresh() {
         mModel.progressStart();
         NameValuePairs nvps = new NameValuePairs();
-        nvps.add(Constants.PR_EE_ENABLED, "");
+        nvps.put(Constants.PR_EE_ENABLED, "");
         //nvps.add(Constants.PR_RA_ENABLED, "");
 
         try {
@@ -118,14 +118,13 @@ public class CMSRAGeneralPanel extends CMSBaseTab {
 
     protected void populate(NameValuePairs nvps) {
         Debug.println("RA General Received: "+nvps.toString());
-        for (int i=0; i<nvps.size(); i++) {
-            NameValuePair nvp = nvps.elementAt(i);
-            String name = nvp.getName();
+        for (String name : nvps.keySet()) {
+            String value = nvps.get(name);
             if (name.equals(Constants.PR_EE_ENABLED)) {
-                mEEEnable.setSelected(getBoolean(nvp.getValue()));
+                mEEEnable.setSelected(getBoolean(value));
 /*
             } else if (name.equals(Constants.PR_RA_ENABLED)) {
-                mRAEnable.setSelected(getBoolean(nvp.getValue()));
+                mRAEnable.setSelected(getBoolean(value));
 */
             }
         }
@@ -149,9 +148,9 @@ public class CMSRAGeneralPanel extends CMSBaseTab {
         NameValuePairs nvps = new NameValuePairs();
 
         if (mEEEnable.isSelected())
-            nvps.add(Constants.PR_EE_ENABLED, Constants.TRUE);
+            nvps.put(Constants.PR_EE_ENABLED, Constants.TRUE);
         else
-            nvps.add(Constants.PR_EE_ENABLED, Constants.FALSE);
+            nvps.put(Constants.PR_EE_ENABLED, Constants.FALSE);
 
 /*
         if (mRAEnable.isSelected())

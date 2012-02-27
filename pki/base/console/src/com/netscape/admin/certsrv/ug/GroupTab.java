@@ -20,11 +20,10 @@ package com.netscape.admin.certsrv.ug;
 import com.netscape.admin.certsrv.*;
 import com.netscape.admin.certsrv.connection.*;
 import javax.swing.*;
-import javax.swing.event.*;
 import java.awt.event.*;
 import java.awt.*;
 import java.util.*;
-import com.netscape.management.client.*;
+
 import com.netscape.management.client.util.*;
 import com.netscape.certsrv.common.*;
 
@@ -323,9 +322,8 @@ public class GroupTab extends CMSBaseUGTab {
 
         //parse the data
         Vector store = new Vector();
-        for (Enumeration e = response.getNames(); e.hasMoreElements() ;) {
-            String entry = ((String)e.nextElement()).trim();
-            store.addElement(entry);
+        for (String entry : response.keySet()) {
+            store.addElement(entry.trim());
         }
         
         String[] vals = new String[store.size()];
@@ -334,7 +332,7 @@ public class GroupTab extends CMSBaseUGTab {
         CMSAdminUtil.bubbleSort(vals);
 
         for (int y=0; y< vals.length ; y++) {
-            String value = response.getValue(vals[y]);
+            String value = response.get(vals[y]);
             mDataModel.processData(vals[y],value);
         }
         

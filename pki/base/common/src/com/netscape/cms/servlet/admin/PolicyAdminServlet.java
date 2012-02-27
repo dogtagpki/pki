@@ -298,11 +298,11 @@ public class PolicyAdminServlet extends AdminServlet {
         /* make sure policy rules have 'enable' and 'predicate' */
 
         if (ext_info instanceof IPolicyRule) {
-            if (nvps.getPair(IPolicyRule.PROP_ENABLE) == null) {
-                nvps.add(IPolicyRule.PROP_ENABLE, "boolean;Enable this policy rule");
+            if (nvps.get(IPolicyRule.PROP_ENABLE) == null) {
+                nvps.put(IPolicyRule.PROP_ENABLE, "boolean;Enable this policy rule");
             }
-            if (nvps.getPair(PROP_PREDICATE) == null) {
-                nvps.add(PROP_PREDICATE, "string;Rules describing when this policy should run.");
+            if (nvps.get(PROP_PREDICATE) == null) {
+                nvps.put(PROP_PREDICATE, "string;Rules describing when this policy should run.");
             }
         }
     }
@@ -448,7 +448,7 @@ public class PolicyAdminServlet extends AdminServlet {
                     impl.getClass().getName();
             String desc = impl.getDescription();
 
-            nvp.add(id, className + "," + desc);
+            nvp.put(id, className + "," + desc);
         }
         sendResponse(SUCCESS, null, nvp, resp);
     }
@@ -471,7 +471,7 @@ public class PolicyAdminServlet extends AdminServlet {
             String info = instancesInfo.nextElement();
             int i = info.indexOf(";");
 
-            nvp.add(info.substring(0, i), info.substring(i + 1));
+            nvp.put(info.substring(0, i), info.substring(i + 1));
 
         }
         sendResponse(SUCCESS, null, nvp, resp);
@@ -594,7 +594,7 @@ public class PolicyAdminServlet extends AdminServlet {
             String nv = e.nextElement();
             int index = nv.indexOf("=");
 
-            nvp.add(nv.substring(0, index), nv.substring(index + 1));
+            nvp.put(nv.substring(0, index), nv.substring(index + 1));
         }
         sendResponse(SUCCESS, null, nvp, resp);
     }
@@ -829,7 +829,7 @@ public class PolicyAdminServlet extends AdminServlet {
                 value = "";
             }
 
-            nvp.add(name, value);
+            nvp.put(name, value);
 
         }
         sendResponse(SUCCESS, null, nvp, resp);

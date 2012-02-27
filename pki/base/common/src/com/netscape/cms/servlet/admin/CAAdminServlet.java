@@ -243,10 +243,10 @@ public class CAAdminServlet extends AdminServlet {
                 continue;
             if (name.equals(Constants.PR_ENABLE))
                 continue;
-            params.add(name, rc.getString(name, ""));
+            params.put(name, rc.getString(name, ""));
         }
 
-        params.add(Constants.PR_ENABLE,
+        params.put(Constants.PR_ENABLE,
                 rc.getString(PROP_ENABLED, Constants.FALSE));
         sendResponse(SUCCESS, null, params, resp);
     }
@@ -304,10 +304,10 @@ public class CAAdminServlet extends AdminServlet {
                 continue;
             if (name.equals(Constants.PR_ENABLE))
                 continue;
-            params.add(name, riq.getString(name, ""));
+            params.put(name, riq.getString(name, ""));
         }
 
-        params.add(Constants.PR_ENABLE,
+        params.put(Constants.PR_ENABLE,
                 riq.getString(PROP_ENABLED, Constants.FALSE));
         sendResponse(SUCCESS, null, params, resp);
     }
@@ -462,8 +462,8 @@ public class CAAdminServlet extends AdminServlet {
                 String ipId = ip.getId();
 
                 if (ipId != null && ipId.length() > 0)
-                    params.add(ipId, ip.getDescription());
-                params.add(ipId + "." + Constants.PR_ENABLED,
+                    params.put(ipId, ip.getDescription());
+                params.put(ipId + "." + Constants.PR_ENABLED,
                         (Boolean.valueOf(ip.isCRLIssuingPointEnabled())).toString());
             }
         }
@@ -504,7 +504,7 @@ public class CAAdminServlet extends AdminServlet {
                     if (name.equals(Constants.PR_CLASS))
                         value = ip.getClass().getName();
 
-                    params.add(name, value);
+                    params.put(name, value);
                 }
             }
         }
@@ -552,7 +552,7 @@ public class CAAdminServlet extends AdminServlet {
                 sendResponse(ERROR, "Missing CRL IP name", null, resp);
                 return;
             }
-            params.add(Constants.PR_ID, ipId);
+            params.put(Constants.PR_ID, ipId);
 
             String desc = req.getParameter(Constants.PR_DESCRIPTION);
 
@@ -569,7 +569,7 @@ public class CAAdminServlet extends AdminServlet {
                 sendResponse(ERROR, "Missing CRL IP description", null, resp);
                 return;
             }
-            params.add(Constants.PR_DESCRIPTION, desc);
+            params.put(Constants.PR_DESCRIPTION, desc);
 
             String sEnable = req.getParameter(Constants.PR_ENABLED);
             boolean enable = true;
@@ -577,9 +577,9 @@ public class CAAdminServlet extends AdminServlet {
             if (sEnable != null && sEnable.length() > 0 &&
                     sEnable.equalsIgnoreCase(Constants.FALSE)) {
                 enable = false;
-                params.add(Constants.PR_ENABLED, Constants.FALSE);
+                params.put(Constants.PR_ENABLED, Constants.FALSE);
             } else {
-                params.add(Constants.PR_ENABLED, Constants.TRUE);
+                params.put(Constants.PR_ENABLED, Constants.TRUE);
             }
 
             IConfigStore crlSubStore =
@@ -708,7 +708,7 @@ public class CAAdminServlet extends AdminServlet {
                 sendResponse(ERROR, "Missing CRL IP name", null, resp);
                 return;
             }
-            params.add(Constants.PR_ID, ipId);
+            params.put(Constants.PR_ID, ipId);
 
             String desc = req.getParameter(Constants.PR_DESCRIPTION);
 
@@ -725,7 +725,7 @@ public class CAAdminServlet extends AdminServlet {
                 sendResponse(ERROR, "Missing CRL IP description", null, resp);
                 return;
             }
-            params.add(Constants.PR_DESCRIPTION, desc);
+            params.put(Constants.PR_DESCRIPTION, desc);
 
             String sEnable = req.getParameter(Constants.PR_ENABLED);
             boolean enable = true;
@@ -733,9 +733,9 @@ public class CAAdminServlet extends AdminServlet {
             if (sEnable != null && sEnable.length() > 0 &&
                     sEnable.equalsIgnoreCase(Constants.FALSE)) {
                 enable = false;
-                params.add(Constants.PR_ENABLED, Constants.FALSE);
+                params.put(Constants.PR_ENABLED, Constants.FALSE);
             } else {
-                params.add(Constants.PR_ENABLED, Constants.TRUE);
+                params.put(Constants.PR_ENABLED, Constants.TRUE);
             }
 
             IConfigStore crlSubStore =
@@ -1036,7 +1036,7 @@ public class CAAdminServlet extends AdminServlet {
                         continue;
                     String value = req.getParameter(name);
 
-                    params.add(name, value);
+                    params.put(name, value);
                 }
                 crlExts.setConfigParams(id, params, crlExtSubStore);
                 commit(true);
@@ -1125,7 +1125,7 @@ public class CAAdminServlet extends AdminServlet {
                         crlExtEnabled = crlExtSubStore.getBoolean(name, false);
                     }
                 }
-                params.add(extName, extName + ";visible;" + ((crlExtEnabled) ? "enabled" : "disabled"));
+                params.put(extName, extName + ";visible;" + ((crlExtEnabled) ? "enabled" : "disabled"));
             }
         }
 
@@ -1245,7 +1245,7 @@ public class CAAdminServlet extends AdminServlet {
                     continue;
                 String value = req.getParameter(name);
 
-                params.add(name, value);
+                params.put(name, value);
                 crlSubStore.putString(name, value);
             }
             boolean noRestart = ip.updateConfig(params);
@@ -1334,7 +1334,7 @@ public class CAAdminServlet extends AdminServlet {
                 continue;
             if (name.equals(Constants.PR_ENABLE))
                 continue;
-            params.add(name, crlSubStore.getString(name, ""));
+            params.put(name, crlSubStore.getString(name, ""));
         }
 
         getSigningAlgConfig(params);
@@ -1369,7 +1369,7 @@ public class CAAdminServlet extends AdminServlet {
                 if (name.equals(Constants.OP_TYPE))
                     continue;
 
-                params.add(name, caConnectorConfig.getString(name, ""));
+                params.put(name, caConnectorConfig.getString(name, ""));
             }
         }
         sendResponse(SUCCESS, null, params, resp);
@@ -1488,7 +1488,7 @@ public class CAAdminServlet extends AdminServlet {
         IConfigStore caConfig = mCA.getConfigStore();
 
         value = caConfig.getString(ICertificateAuthority.PROP_ENABLE_PAST_CATIME, "false");
-        params.add(Constants.PR_VALIDITY, value);
+        params.put(Constants.PR_VALIDITY, value);
 
         getSigningAlgConfig(params);
         getSerialConfig(params);
@@ -1498,7 +1498,7 @@ public class CAAdminServlet extends AdminServlet {
     }
 
     private void getSigningAlgConfig(NameValuePairs params) {
-        params.add(Constants.PR_DEFAULT_ALGORITHM,
+        params.put(Constants.PR_DEFAULT_ALGORITHM,
                 mCA.getDefaultAlgorithm());
         String[] algorithms = mCA.getCASigningAlgorithms();
         StringBuffer algorStr = new StringBuffer();
@@ -1511,16 +1511,16 @@ public class CAAdminServlet extends AdminServlet {
                 algorStr.append(algorithms[i]);
             }
         }
-        params.add(Constants.PR_ALL_ALGORITHMS, algorStr.toString());
+        params.put(Constants.PR_ALL_ALGORITHMS, algorStr.toString());
     }
 
     private void getSerialConfig(NameValuePairs params) {
-        params.add(Constants.PR_SERIAL,
+        params.put(Constants.PR_SERIAL,
                 mCA.getStartSerial());
     }
 
     private void getMaxSerialConfig(NameValuePairs params) {
-        params.add(Constants.PR_MAXSERIAL,
+        params.put(Constants.PR_MAXSERIAL,
                 mCA.getMaxSerial());
     }
 

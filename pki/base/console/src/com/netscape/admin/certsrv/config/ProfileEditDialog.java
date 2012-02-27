@@ -21,12 +21,10 @@ import com.netscape.admin.certsrv.*;
 import com.netscape.admin.certsrv.connection.*;
 import javax.swing.*;
 import javax.swing.event.*;
-import javax.swing.table.*;
-import javax.swing.text.*;
 import java.awt.event.*;
 import java.awt.*;
 import java.util.*;
-import com.netscape.management.client.*;
+
 import com.netscape.management.client.util.*;
 import com.netscape.certsrv.common.*;
 
@@ -684,11 +682,11 @@ public class ProfileEditDialog extends CMSBaseConfigDialog
                     mModel.progressStart();
 
                 String instanceName = mPluginName.getText();
-                nvp.add("impl", mImplName.getText());
-                nvp.add("name", mNameField.getText());
-                nvp.add("desc", mDescField.getText());
-                nvp.add("visible", (String)(mVisibleField.getSelectedItem()));
-                nvp.add("auth", mAuthField.getText());
+                nvp.put("impl", mImplName.getText());
+                nvp.put("name", mNameField.getText());
+                nvp.put("desc", mDescField.getText());
+                nvp.put("visible", (String) (mVisibleField.getSelectedItem()));
+                nvp.put("auth", mAuthField.getText());
         //      nvp.add("config", mConfigField.getText());
 
 /*
@@ -719,7 +717,7 @@ public class ProfileEditDialog extends CMSBaseConfigDialog
     private void deletePolicy(String profileId, String policyId) 
       throws EAdminException{
         NameValuePairs nvps = new NameValuePairs();
-        nvps.add("POLICYID", policyId);
+        nvps.put("POLICYID", policyId);
         //mAdminConnection.delete(DestDef.DEST_CA_PROFILE_ADMIN,
         mAdminConnection.delete(mDest,
           ScopeDef.SC_PROFILE_POLICIES, profileId, nvps);
@@ -728,7 +726,7 @@ public class ProfileEditDialog extends CMSBaseConfigDialog
     private void deleteInput(String profileId, String inputId)
       throws EAdminException{
         NameValuePairs nvps = new NameValuePairs();
-        nvps.add("INPUTID", inputId);
+        nvps.put("INPUTID", inputId);
         //mAdminConnection.delete(DestDef.DEST_CA_PROFILE_ADMIN,
         mAdminConnection.delete(mDest,
           ScopeDef.SC_PROFILE_INPUT, profileId, nvps);
@@ -737,7 +735,7 @@ public class ProfileEditDialog extends CMSBaseConfigDialog
     private void deleteOutput(String profileId, String outputId)
       throws EAdminException{
         NameValuePairs nvps = new NameValuePairs();
-        nvps.add("OUTPUTID", outputId);
+        nvps.put("OUTPUTID", outputId);
         //mAdminConnection.delete(DestDef.DEST_CA_PROFILE_ADMIN,
         mAdminConnection.delete(mDest,
           ScopeDef.SC_PROFILE_OUTPUT, profileId, nvps);
@@ -769,17 +767,17 @@ public class ProfileEditDialog extends CMSBaseConfigDialog
         } 
         mModel.progressStop();
 
-            String enable = response.getValue("enable");
+            String enable = response.get("enable");
 
 	    if (response != null) {
         	mPluginName.setEnabled(false); 
                 mPluginName.setBackground(getBackground());
         	mPluginName.setText(name);
-        	mNameField.setText(response.getValue("name"));
-      		mDescField.setText(response.getValue("desc"));
-      		mAuthField.setText(response.getValue("auth"));
-      		mVisibleField.setSelectedItem(response.getValue("visible"));
-      		mImplName.setText(response.getValue("plugin"));
+		mNameField.setText(response.get("name"));
+		mDescField.setText(response.get("desc"));
+		mAuthField.setText(response.get("auth"));
+		mVisibleField.setSelectedItem(response.get("visible"));
+		mImplName.setText(response.get("plugin"));
  //     		mConfigField.setText(response.getValue("config"));
 	    }
             if (enable != null && enable.equals("true")) {
@@ -870,29 +868,27 @@ public class ProfileEditDialog extends CMSBaseConfigDialog
     }
 
     private void populatePolicies(NameValuePairs response, JTable table) {
-        Vector colNames = new Vector();
+        Vector<String> colNames = new Vector<String>();
         colNames.addElement("Set Id");
         colNames.addElement("Id");
         colNames.addElement("Defaults");
         colNames.addElement("Constraints");
-        Vector d = new Vector();
+        Vector<Vector<String>> d = new Vector<Vector<String>>();
 
-        Enumeration e = response.getNames();
-        if (e != null) {
-          for (; e.hasMoreElements() ;) {
-            String entry = ((String)e.nextElement()).trim();
-            String value = response.getValue(entry);
+        for (String entry : response.keySet()) {
+            entry = entry.trim();
+            String value = response.get(entry);
             Debug.println("populatePolicies entry= "+entry);
             Debug.println("populatePolicies value= "+value);
 
             StringTokenizer st = new StringTokenizer(value, ";");
-            String def = (String)st.nextToken();
-            String con = (String)st.nextToken();
-            Vector row = new Vector();
+            String def = st.nextToken();
+            String con = st.nextToken();
+            Vector<String> row = new Vector<String>();
            
             StringTokenizer st1 = new StringTokenizer(entry, ":");
-            String setId = (String)st1.nextToken();
-            String id = (String)st1.nextToken();
+            String setId = st1.nextToken();
+            String id = st1.nextToken();
            
             if (mDefSetId == null) {
               mDefSetId = setId;
@@ -902,7 +898,6 @@ public class ProfileEditDialog extends CMSBaseConfigDialog
             row.addElement(def);
             row.addElement(con);
             d.addElement(row);
-          }
         }
         ProfileEditDataModel model = new ProfileEditDataModel();
         model.setInfo(d, colNames);
@@ -910,21 +905,21 @@ public class ProfileEditDialog extends CMSBaseConfigDialog
     }
 
     private void populateNonPolicy(NameValuePairs response, JTable table) {
-        Vector colNames = new Vector();
+        Vector<String> colNames = new Vector<String>();
         colNames.addElement("Id");
         if (table == mInputTable)
             colNames.addElement("Inputs");
         else if (table == mOutputTable)
             colNames.addElement("Outputs");
-        Vector d = new Vector();
+        Vector<Vector<String>> d = new Vector<Vector<String>>();
 
-        for (Enumeration e = response.getNames(); e.hasMoreElements() ;) {
-            String entry = ((String)e.nextElement()).trim();
-            String value = response.getValue(entry);
-            Debug.println("populateNonPolicy entry= "+entry);
-            Debug.println("populateNonPolicy value= "+value);
+        for (String entry : response.keySet()) {
+            entry = entry.trim();
+            String value = response.get(entry);
+            Debug.println("populateNonPolicy entry= " + entry);
+            Debug.println("populateNonPolicy value= " + value);
 
-            Vector row = new Vector();
+            Vector<String> row = new Vector<String>();
             row.addElement(entry);
             row.addElement(value);
             d.addElement(row);

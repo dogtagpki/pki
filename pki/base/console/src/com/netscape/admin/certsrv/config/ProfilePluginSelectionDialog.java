@@ -20,11 +20,8 @@ package com.netscape.admin.certsrv.config;
 import com.netscape.admin.certsrv.*;
 import com.netscape.admin.certsrv.connection.*;
 import javax.swing.*;
-import javax.swing.event.*;
 import java.awt.event.*;
-import java.awt.*;
-import java.util.*;
-import com.netscape.management.client.*;
+
 import com.netscape.management.client.util.*;
 import com.netscape.certsrv.common.*;
 
@@ -89,7 +86,7 @@ public class ProfilePluginSelectionDialog extends PluginSelectionDialog
             }
             Debug.println(response.toString());
             String id =(String)(((ProfileListDataModel)mDataModel).getObjectValueAt(mList.getSelectedIndex()));
-            response.add(Constants.PR_POLICY_IMPL_NAME,id);
+            response.put(Constants.PR_POLICY_IMPL_NAME, id);
 
             CMSBaseConfigDialog dialog = null;
             if (mExtraDestination == null) {
@@ -160,9 +157,8 @@ public class ProfilePluginSelectionDialog extends PluginSelectionDialog
         String[] classnames = new String[response.size()];
         String[] ids = new String[response.size()];
         int i=0;
-        for (Enumeration e = response.getNames(); e.hasMoreElements() ;) {
-            String id = (String)e.nextElement();
-            String value = response.getValue(id);
+        for (String id : response.keySet()) {
+            String value = response.get(id);
             int pos = value.lastIndexOf(",");
             String className = value.substring(pos+1);
 

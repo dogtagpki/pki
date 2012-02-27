@@ -260,8 +260,8 @@ public class GroupListDialog extends JDialog
         }
 
         //parse the data
-        for (Enumeration e = response.getNames(); e.hasMoreElements() ;) {
-            String entry = ((String)e.nextElement()).trim();
+        for (String entry : response.keySet()) {
+            entry = entry.trim();
             //check if not already in current list
             if (mCurrentGroups.indexOf(entry)== -1)
                 mDataModel.processData(entry);

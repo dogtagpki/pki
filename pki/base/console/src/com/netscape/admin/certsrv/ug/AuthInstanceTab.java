@@ -21,12 +21,7 @@ import com.netscape.admin.certsrv.*;
 import com.netscape.admin.certsrv.connection.*;
 import com.netscape.admin.certsrv.config.*;
 import javax.swing.*;
-import javax.swing.event.*;
-import java.awt.event.*;
-import java.awt.*;
-import java.util.*;
-import com.netscape.management.client.*;
-import com.netscape.management.client.util.*;
+
 import com.netscape.certsrv.common.*;
 
 /**
@@ -117,7 +112,7 @@ public class AuthInstanceTab extends CMSPluginInstanceTab {
         try {
             mConnection.delete(DestDef.DEST_AUTH_ADMIN,
                                ScopeDef.SC_AUTH_MGR_INSTANCE,
-                               data.getValue(RULE_NAME));
+                               data.get(RULE_NAME));
         } catch (EAdminException e) {
             //display error dialog
             showErrorDialog(e.getMessage());
@@ -139,7 +134,7 @@ public class AuthInstanceTab extends CMSPluginInstanceTab {
         NameValuePairs response;
         response = mConnection.read(DestDef.DEST_AUTH_ADMIN,
                                ScopeDef.SC_AUTH_MGR_INSTANCE,
-                               data.getValue(RULE_NAME),
+                               data.get(RULE_NAME),
                                new NameValuePairs());
         return response;
     }

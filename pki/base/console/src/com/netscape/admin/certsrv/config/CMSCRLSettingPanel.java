@@ -286,15 +286,15 @@ public class CMSCRLSettingPanel extends CMSBaseTab {
     public void refresh() {
         _model.progressStart();
         NameValuePairs nvps = new NameValuePairs();
-        nvps.add(Constants.PR_ENABLE_CRL, "");
-        nvps.add(Constants.PR_UPDATE_SCHEMA, "");
-        nvps.add(Constants.PR_EXTENDED_NEXT_UPDATE, "");
-        nvps.add(Constants.PR_UPDATE_ALWAYS, "");
-        nvps.add(Constants.PR_ENABLE_DAILY, "");
-        nvps.add(Constants.PR_DAILY_UPDATES, "");
-        nvps.add(Constants.PR_ENABLE_FREQ, "");
-        nvps.add(Constants.PR_UPDATE_FREQ, "");
-        nvps.add(Constants.PR_GRACE_PERIOD, "");
+        nvps.put(Constants.PR_ENABLE_CRL, "");
+        nvps.put(Constants.PR_UPDATE_SCHEMA, "");
+        nvps.put(Constants.PR_EXTENDED_NEXT_UPDATE, "");
+        nvps.put(Constants.PR_UPDATE_ALWAYS, "");
+        nvps.put(Constants.PR_ENABLE_DAILY, "");
+        nvps.put(Constants.PR_DAILY_UPDATES, "");
+        nvps.put(Constants.PR_ENABLE_FREQ, "");
+        nvps.put(Constants.PR_UPDATE_FREQ, "");
+        nvps.put(Constants.PR_GRACE_PERIOD, "");
 
         try {
             NameValuePairs val = null;
@@ -319,11 +319,8 @@ public class CMSCRLSettingPanel extends CMSBaseTab {
     }
 
     public void populate(NameValuePairs nvps) {
-        String signingAlg = "";
-        for (int i=0; i<nvps.size(); i++) {
-            NameValuePair nvp = nvps.elementAt(i);
-            String name = nvp.getName();            
-            String value = nvp.getValue().trim();
+        for (String name : nvps.keySet()) {
+            String value = nvps.get(name).trim();
             if (name.equals(Constants.PR_ENABLE_CRL)) {
                 mEnableCRL.setSelected(getBoolean(value));
             } else if (name.equals(Constants.PR_UPDATE_SCHEMA)) {
@@ -535,41 +532,41 @@ public class CMSCRLSettingPanel extends CMSBaseTab {
         NameValuePairs nvps = new NameValuePairs();
 
         if (mEnableCRL.isSelected())
-            nvps.add(Constants.PR_ENABLE_CRL, Constants.TRUE);
+            nvps.put(Constants.PR_ENABLE_CRL, Constants.TRUE);
         else
-            nvps.add(Constants.PR_ENABLE_CRL, Constants.FALSE);
+            nvps.put(Constants.PR_ENABLE_CRL, Constants.FALSE);
 
-        nvps.add(Constants.PR_UPDATE_SCHEMA, mCRLGen.getText().trim());
+        nvps.put(Constants.PR_UPDATE_SCHEMA, mCRLGen.getText().trim());
 
         if (mExtendNextUpdate.isSelected())
-            nvps.add(Constants.PR_EXTENDED_NEXT_UPDATE, Constants.TRUE);
+            nvps.put(Constants.PR_EXTENDED_NEXT_UPDATE, Constants.TRUE);
         else
-            nvps.add(Constants.PR_EXTENDED_NEXT_UPDATE, Constants.FALSE);
+            nvps.put(Constants.PR_EXTENDED_NEXT_UPDATE, Constants.FALSE);
 
         if (mAlways.isSelected())
-            nvps.add(Constants.PR_UPDATE_ALWAYS, Constants.TRUE);
+            nvps.put(Constants.PR_UPDATE_ALWAYS, Constants.TRUE);
         else
-            nvps.add(Constants.PR_UPDATE_ALWAYS, Constants.FALSE);
+            nvps.put(Constants.PR_UPDATE_ALWAYS, Constants.FALSE);
 
         if (mDaily.isSelected())
-            nvps.add(Constants.PR_ENABLE_DAILY, Constants.TRUE);
+            nvps.put(Constants.PR_ENABLE_DAILY, Constants.TRUE);
         else
-            nvps.add(Constants.PR_ENABLE_DAILY, Constants.FALSE);
+            nvps.put(Constants.PR_ENABLE_DAILY, Constants.FALSE);
 
         if (timeList != null)
-            nvps.add(Constants.PR_DAILY_UPDATES, timeList);
+            nvps.put(Constants.PR_DAILY_UPDATES, timeList);
         else
-            nvps.add(Constants.PR_DAILY_UPDATES, mDailyAt.getText().trim());
+            nvps.put(Constants.PR_DAILY_UPDATES, mDailyAt.getText().trim());
 
 
         if (mEnableFreq.isSelected())
-            nvps.add(Constants.PR_ENABLE_FREQ, Constants.TRUE);
+            nvps.put(Constants.PR_ENABLE_FREQ, Constants.TRUE);
         else
-            nvps.add(Constants.PR_ENABLE_FREQ, Constants.FALSE);
+            nvps.put(Constants.PR_ENABLE_FREQ, Constants.FALSE);
 
-        nvps.add(Constants.PR_UPDATE_FREQ, mFrequency.getText().trim());
+        nvps.put(Constants.PR_UPDATE_FREQ, mFrequency.getText().trim());
 
-        nvps.add(Constants.PR_GRACE_PERIOD, mGracePeriod.getText().trim());
+        nvps.put(Constants.PR_GRACE_PERIOD, mGracePeriod.getText().trim());
 
 
         _model.progressStart();

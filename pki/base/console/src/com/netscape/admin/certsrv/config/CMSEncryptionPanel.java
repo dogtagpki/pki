@@ -19,20 +19,15 @@ package com.netscape.admin.certsrv.config;
 
 import com.netscape.admin.certsrv.*;
 import com.netscape.management.client.console.*;
-import com.netscape.admin.certsrv.security.*;
 import com.netscape.admin.certsrv.connection.*;
 import com.netscape.certsrv.common.*;
 import java.awt.*;
 import java.util.*;
-import java.io.*;
 import javax.swing.*;
 import java.awt.event.*;
 import javax.swing.border.*;
 import com.netscape.management.client.util.*;
-import com.netscape.management.nmclf.*;
-import javax.swing.plaf.*;
 import com.netscape.admin.certsrv.keycert.*;
-import com.netscape.admin.certsrv.config.install.*;
 import com.netscape.admin.certsrv.managecert.*;
 
 /**
@@ -185,7 +180,7 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
         for (Enumeration e = mCertMapping.keys() ; e.hasMoreElements() ;) {
             CipherEntryData data = 
                 (CipherEntryData)mCertMapping.get(e.nextElement());
-            nvp.add(data.getTagName(),data.getTokenName()+","+data.getCertName());
+            nvp.put(data.getTagName(), data.getTokenName() + "," + data.getCertName());
         }
         
         if (updateCertMap(nvp)) {
@@ -423,20 +418,20 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
     private void setupDataContainer(NameValuePairs response) {
         
         //setup security version flag
-        String version = response.getValue(Constants.PR_CIPHER_VERSION);
+        String version = response.get(Constants.PR_CIPHER_VERSION);
         if ( (version != null) && (version.equals(
             Constants.PR_CIPHER_VERSION_DOMESTIC)) ) {
             mIsDomestic = true;            
         }
         
         //setup fortezza flag
-        String fortezza = response.getValue(Constants.PR_CIPHER_FORTEZZA);
+        String fortezza = response.get(Constants.PR_CIPHER_FORTEZZA);
         if ( (fortezza != null) && (fortezza.equalsIgnoreCase("TRUE")) ){
             mHasFortezza = true;            
         }
         
         //setup cipher preference settings
-        String cipherpref = response.getValue(Constants.PR_CIPHER_PREF);
+        String cipherpref = response.get(Constants.PR_CIPHER_PREF);
         //Debug.println("cipher preference: "+cipherpref);
         if ( (cipherpref != null) && (!cipherpref.trim().equals("")) ) {
             StringTokenizer tokenizer = new StringTokenizer(cipherpref, ",");
@@ -455,7 +450,7 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
         for (Enumeration e = mCertMapping.keys() ; e.hasMoreElements() ;) {
             String name = (String) e.nextElement();
             CipherEntryData data = (CipherEntryData)mCertMapping.get(name);
-            String value = response.getValue(data.getTagName());
+            String value = response.get(data.getTagName());
             if ( (value != null) && (!value.trim().equals("")) ) {
                 StringTokenizer tokenizer = new StringTokenizer(value, ",");
                 try {
@@ -475,7 +470,7 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
         mSelectionIgnore = false;
         
         //setup the token-cert list data table
-        String tokenlist = response.getValue(Constants.PR_TOKEN_LIST);
+        String tokenlist = response.get(Constants.PR_TOKEN_LIST);
         if ( (tokenlist != null) && (!tokenlist.trim().equals("")) ) {
             StringTokenizer tokenizer = new StringTokenizer(tokenlist, ",");
             while (tokenizer.hasMoreTokens()) {
@@ -483,7 +478,7 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
                 Debug.println("Token: "+token);
                 
                 //get the certificate associated with this token
-                String certList = response.getValue(Constants.PR_TOKEN_PREFIX+token);
+                String certList = response.get(Constants.PR_TOKEN_PREFIX + token);
                 Vector certVector = new Vector();
                 if ( (certList != null) && (!certList.trim().equals("")) ) {
                     StringTokenizer tokenizer2 = new StringTokenizer(certList, ",");
@@ -739,15 +734,15 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
     {
         Debug.println("Get Security Information");
         NameValuePairs nvp = new NameValuePairs();
-        nvp.add(Constants.PR_CIPHER_PREF,"");
-        nvp.add(Constants.PR_CIPHER_VERSION,"");
-        nvp.add(Constants.PR_CIPHER_FORTEZZA,"");
-        nvp.add(Constants.PR_TOKEN_LIST,"");
+        nvp.put(Constants.PR_CIPHER_PREF, "");
+        nvp.put(Constants.PR_CIPHER_VERSION, "");
+        nvp.put(Constants.PR_CIPHER_FORTEZZA, "");
+        nvp.put(Constants.PR_TOKEN_LIST, "");
         
         //create installed certificate list data request
         for (Enumeration e = mCertMapping.elements(); e.hasMoreElements() ;) {
             CipherEntryData data = (CipherEntryData)e.nextElement();
-            nvp.add(data.getTagName(),"");
+            nvp.put(data.getTagName(), "");
         }
         
         NameValuePairs response;
@@ -767,7 +762,7 @@ public class CMSEncryptionPanel extends CMSBaseTab  {
         Debug.println("Set Cipher Preference: "+list);
         
         NameValuePairs nvp = new NameValuePairs();
-        nvp.add(Constants.PR_CIPHER_PREF, list);
+        nvp.put(Constants.PR_CIPHER_PREF, list);
         
         //send to server
         try {

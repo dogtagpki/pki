@@ -229,9 +229,9 @@ public class CMSIssuingDistributionPointExtension
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_DIST_POINT_INVALID", e.toString()));
         }
         if (pointType != null && pointType.length() > 0) {
-            nvp.add("pointType", pointType);
+            nvp.put("pointType", pointType);
         } else {
-            nvp.add("pointType", "");
+            nvp.put("pointType", "");
         }
 
         String pointName = null;
@@ -244,9 +244,9 @@ public class CMSIssuingDistributionPointExtension
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_DIST_POINT_INVALID", e.toString()));
         }
         if (pointName != null && pointName.length() > 0) {
-            nvp.add("pointName", pointName);
+            nvp.put("pointName", pointName);
         } else {
-            nvp.add("pointName", "");
+            nvp.put("pointName", "");
         }
 
         String reasons = null;
@@ -257,17 +257,17 @@ public class CMSIssuingDistributionPointExtension
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_INVALID_PROPERTY", PROP_REASONS, e.toString()));
         }
         if (reasons != null && reasons.length() > 0) {
-            nvp.add(PROP_REASONS, reasons);
+            nvp.put(PROP_REASONS, reasons);
         } else {
-            nvp.add(PROP_REASONS, "");
+            nvp.put(PROP_REASONS, "");
         }
 
         try {
             boolean caCertsOnly = config.getBoolean(PROP_CACERTS, false);
 
-            nvp.add(PROP_CACERTS, String.valueOf(caCertsOnly));
+            nvp.put(PROP_CACERTS, String.valueOf(caCertsOnly));
         } catch (EBaseException e) {
-            nvp.add(PROP_CACERTS, "false");
+            nvp.put(PROP_CACERTS, "false");
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_INVALID_PROPERTY", "caCertsOnly", e.toString()));
         }
         // Disable these for now unitl we support them fully

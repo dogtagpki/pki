@@ -306,8 +306,7 @@ public class CMSKernelUILoader implements ISubSystemUILoader {
         }
 
         //update the index
-        for (Enumeration e = response.getNames(); e.hasMoreElements() ;) {
-            String entry = (String)e.nextElement();
+        for (String entry : response.keySet()) {
 			CMSResourceObject node = new CMSResourceObject(entry);
 			node.setCustomPanel(new LogInstancePanel(entry, model));
 			node.setIcon( CMSAdminUtil.getImage(CMSAdminResources.IMAGE_LOGOBJECT));

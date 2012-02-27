@@ -18,12 +18,11 @@
 package com.netscape.admin.certsrv.status;
 
 
-import java.util.*;
 import com.netscape.admin.certsrv.connection.*;
 import com.netscape.admin.certsrv.*;
 import com.netscape.certsrv.common.*;
 import com.netscape.management.client.util.*;
-import javax.swing.event.*;
+
 import java.awt.event.*;
 
 /**
@@ -76,18 +75,18 @@ public class LogInstancePanel extends CMSLogPanel {
 
         //construct NVP
         NameValuePairs config = new NameValuePairs();
-        config.add(Constants.PR_LOG_INSTANCE, mInstanceName);
-        config.add(Constants.PR_LOG_ENTRY,mNoRecord.getText().trim());
-        config.add(Constants.PR_LOG_SOURCE,Integer.toString(mSource.getSelectedIndex()));
-        config.add(Constants.PR_LOG_LEVEL,Integer.toString(mLevel.getSelectedIndex()));
+        config.put(Constants.PR_LOG_INSTANCE, mInstanceName);
+        config.put(Constants.PR_LOG_ENTRY, mNoRecord.getText().trim());
+        config.put(Constants.PR_LOG_SOURCE, Integer.toString(mSource.getSelectedIndex()));
+        config.put(Constants.PR_LOG_LEVEL, Integer.toString(mLevel.getSelectedIndex()));
         if ((mFile.getSelectedIndex()< 0) || (mFile.getSelectedIndex()< 0)) {
-            config.add(Constants.PR_LOG_NAME,Constants.PR_CURRENT_LOG);
+            config.put(Constants.PR_LOG_NAME, Constants.PR_CURRENT_LOG);
             mSelectedFile = mResource.getString("LOGCONTENT_COMBOBOX_FILE_DEFAULT");
         } else {
             String filename = (String) mFile.getSelectedItem();
             if (filename.equalsIgnoreCase(Constants.PR_CURRENT_LOG))
                 filename = Constants.PR_CURRENT_LOG;
-            config.add(Constants.PR_LOG_NAME, filename);
+            config.put(Constants.PR_LOG_NAME, filename);
             mSelectedFile = (String) mFile.getSelectedItem();
         }
         NameValuePairs response;
@@ -107,8 +106,7 @@ public class LogInstancePanel extends CMSLogPanel {
         Debug.println(response.toString());
 
         //update the table
-        for (Enumeration e = response.getNames(); e.hasMoreElements() ;) {
-            String entry = (String)e.nextElement();
+        for (String entry : response.keySet()) {
             mDataModel.processData(entry);
         }
 
@@ -130,7 +128,7 @@ public class LogInstancePanel extends CMSLogPanel {
         mModel.progressStart();
         //construct NVP
         NameValuePairs config = new NameValuePairs();
-        config.add(Constants.PR_LOG_INSTANCE, mInstanceName);
+        config.put(Constants.PR_LOG_INSTANCE, mInstanceName);
         try {
             response = connection.search(DestDef.DEST_LOG_ADMIN,
                                ScopeDef.SC_LOG_ARCH,
@@ -143,8 +141,7 @@ public class LogInstancePanel extends CMSLogPanel {
         }
 
         //update the combo
-        for (Enumeration e = response.getNames(); e.hasMoreElements() ;) {
-            String entry = (String)e.nextElement();
+        for (String entry : response.keySet()) {
             mFile.addItem(entry);
         }
         mModel.progressStop();

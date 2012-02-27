@@ -21,7 +21,6 @@ import java.util.*;
 import javax.swing.*;
 import com.netscape.certsrv.common.*;
 import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
 import com.netscape.admin.certsrv.config.*;
 import com.netscape.management.client.util.Debug;
 
@@ -54,10 +53,10 @@ public class AuthRuleDataModel extends CMSRuleDataModel
         NameValuePairs obj = (NameValuePairs) data;
 
         //XXX NEED TO ADD STUFF
-        v.addElement(new JLabel(obj.getValue(RULE_NAME),
+        v.addElement(new JLabel(obj.get(RULE_NAME),
                     CMSAdminUtil.getImage(CMSAdminResources.IMAGE_AUTH),
                     JLabel.LEFT));
-        v.addElement(obj.getValue(RULE_IMPL));
+        v.addElement(obj.get(RULE_IMPL));
         addRow(v, data);
     }
 

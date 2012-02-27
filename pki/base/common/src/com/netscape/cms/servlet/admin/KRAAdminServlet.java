@@ -180,7 +180,7 @@ public class KRAAdminServlet extends AdminServlet {
         int value = 1;
 
         value = mKRA.getNoOfRequiredAgents();
-        params.add(Constants.PR_NO_OF_REQUIRED_RECOVERY_AGENTS, Integer.toString(value));
+        params.put(Constants.PR_NO_OF_REQUIRED_RECOVERY_AGENTS, Integer.toString(value));
 
         sendResponse(SUCCESS, null, params, resp);
     }

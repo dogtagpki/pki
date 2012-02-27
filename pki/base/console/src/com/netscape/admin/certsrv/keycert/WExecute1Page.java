@@ -18,7 +18,6 @@
 package com.netscape.admin.certsrv.keycert;
 
 import java.awt.*;
-import java.io.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import com.netscape.admin.certsrv.*;
@@ -105,17 +104,15 @@ class WExecute1Page extends WizardBasePanel implements IWizardPanel {
         NameValuePairs nvps = wizardInfo.getNameValuePairs();
         if (wizardInfo.getCertType().equals(Constants.PR_OTHER_CERT) &&
           !wizardInfo.isNewKey()) {
-            nvps.add(Constants.PR_NICKNAME, wizardInfo.getNickname());
+            nvps.put(Constants.PR_NICKNAME, wizardInfo.getNickname());
         }
 
         try {
             NameValuePairs response = connection.process(
               DestDef.DEST_SERVER_ADMIN, ScopeDef.SC_CERT_REQUEST,
               wizardInfo.getCertType(), nvps);
-            for (int i=0; i<response.size(); i++) {
-                NameValuePair nvp = response.elementAt(i);
-                String key = nvp.getName();
-                String value = nvp.getValue();
+            for (String key : response.keySet()) {
+                String value = response.get(key);
                 if (key.equals(Constants.PR_CSR)) {
                     wizardInfo.addEntry(Constants.PR_CSR, value);
                 } else if (key.equals(Constants.PR_CERT_REQUEST_DIR)) {

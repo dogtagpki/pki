@@ -20,11 +20,10 @@ package com.netscape.admin.certsrv.config;
 import com.netscape.admin.certsrv.*;
 import com.netscape.admin.certsrv.connection.*;
 import javax.swing.*;
-import javax.swing.event.*;
 import java.awt.event.*;
 import java.awt.*;
 import java.util.*;
-import com.netscape.management.client.*;
+
 import com.netscape.management.client.util.*;
 import com.netscape.certsrv.common.*;
 
@@ -163,7 +162,7 @@ public class PluginSelectionDialog extends JDialog
             }
             Debug.println(response.toString());
             String id = ((JLabel)mDataModel.elementAt(mList.getSelectedIndex())).getText();
-            response.add(Constants.PR_POLICY_IMPL_NAME,id);
+            response.put(Constants.PR_POLICY_IMPL_NAME, id);
 
             CMSBaseConfigDialog dialog = null;
             if (mExtraDestination == null) {
@@ -338,9 +337,9 @@ public class PluginSelectionDialog extends JDialog
         //parse the data
         String[] vals = new String[response.size()];
         int i=0;
-        for (Enumeration e = response.getNames(); e.hasMoreElements() ;) {
-            vals[i++] = ((String)e.nextElement()).trim();
-			Debug.println("PluginSelectionDialog::update() - adding '"+vals[i-1]+"'");
+        for (String name : response.keySet()) {
+            vals[i++] = name.trim();
+			Debug.println("PluginSelectionDialog::update() - adding '" + vals[i - 1] + "'");
         }
         
         CMSAdminUtil.bubbleSort(vals);

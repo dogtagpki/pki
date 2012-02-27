@@ -510,7 +510,7 @@ public class JobsAdminServlet extends AdminServlet {
 
         NameValuePairs params = new NameValuePairs();
 
-        params.add(Constants.PR_JOBS_IMPL_NAME, implname);
+        params.put(Constants.PR_JOBS_IMPL_NAME, implname);
         sendResponse(SUCCESS, null, params, resp);
         return;
     }
@@ -526,7 +526,7 @@ public class JobsAdminServlet extends AdminServlet {
             String name = e.nextElement();
             JobPlugin value = mJobsSched.getPlugins().get(name);
 
-            params.add(name, value.getClassPath());
+            params.put(name, value.getClassPath());
             //				params.add(name, value.getClassPath()+EDIT);
         }
         sendResponse(SUCCESS, null, params, resp);
@@ -544,9 +544,9 @@ public class JobsAdminServlet extends AdminServlet {
             IJob value = mJobsSched.getInstances().get((Object) name);
 
             //				params.add(name, value.getImplName());
-            params.add(name, value.getImplName() + VISIBLE +
+            params.put(name, value.getImplName() + VISIBLE +
                     (value.isEnabled() ? ENABLED : DISABLED)
-                    );
+            );
         }
         sendResponse(SUCCESS, null, params, resp);
         return;
@@ -691,10 +691,10 @@ public class JobsAdminServlet extends AdminServlet {
         NameValuePairs params = new NameValuePairs();
 
         // implName is always required so always send it.
-        params.add(Constants.PR_JOBS_IMPL_NAME, "");
+        params.put(Constants.PR_JOBS_IMPL_NAME, "");
         if (configParams != null) {
             for (int i = 0; i < configParams.length; i++) {
-                params.add(configParams[i], "");
+                params.put(configParams[i], "");
             }
         }
         sendResponse(0, null, params, resp);
@@ -728,7 +728,7 @@ public class JobsAdminServlet extends AdminServlet {
         String[] configParams = jobInst.getConfigParams();
         NameValuePairs params = new NameValuePairs();
 
-        params.add(Constants.PR_JOBS_IMPL_NAME, jobInst.getImplName());
+        params.put(Constants.PR_JOBS_IMPL_NAME, jobInst.getImplName());
 
         // implName is always required so always send it.
         if (configParams != null) {
@@ -738,9 +738,9 @@ public class JobsAdminServlet extends AdminServlet {
                 String val = (String) config.get(key);
 
                 if (val != null && !val.equals("")) {
-                    params.add(key, val);
+                    params.put(key, val);
                 } else {
-                    params.add(key, "");
+                    params.put(key, "");
                 }
             }
         }
@@ -813,7 +813,7 @@ public class JobsAdminServlet extends AdminServlet {
         NameValuePairs saveParams = new NameValuePairs();
 
         // implName is always required so always include it it.
-        saveParams.add(IJobsScheduler.PROP_PLUGIN,
+        saveParams.put(IJobsScheduler.PROP_PLUGIN,
                 (String) oldConfig.get(IJobsScheduler.PROP_PLUGIN));
         if (oldConfigParms != null) {
             for (int i = 0; i < oldConfigParms.length; i++) {
@@ -821,7 +821,7 @@ public class JobsAdminServlet extends AdminServlet {
                 Object val = oldConfig.get(key);
 
                 if (val != null) {
-                    saveParams.add(key, (String) val);
+                    saveParams.put(key, (String) val);
                 }
             }
         }
@@ -945,11 +945,11 @@ public class JobsAdminServlet extends AdminServlet {
         NameValuePairs params = new NameValuePairs();
         IConfigStore config = mConfig.getSubStore(DestDef.DEST_JOBS_ADMIN);
 
-        params.add(Constants.PR_ENABLE,
+        params.put(Constants.PR_ENABLE,
                 config.getString(IJobsScheduler.PROP_ENABLED,
                         Constants.FALSE));
         // default 1 minute
-        params.add(Constants.PR_JOBS_FREQUENCY,
+        params.put(Constants.PR_JOBS_FREQUENCY,
                 config.getString(IJobsScheduler.PROP_INTERVAL, "1"));
 
         //System.out.println("Send: "+params.toString());
@@ -997,11 +997,8 @@ public class JobsAdminServlet extends AdminServlet {
         store.removeSubStore(id);
         IConfigStore rstore = store.makeSubStore(id);
 
-        Enumeration<String> keys = saveParams.getNames();
-
-        while (keys.hasMoreElements()) {
-            String key = keys.nextElement();
-            String value = saveParams.getValue(key);
+        for (String key : saveParams.keySet()) {
+            String value = saveParams.get(key);
 
             if (!value.equals(""))
                 rstore.put(key, value);

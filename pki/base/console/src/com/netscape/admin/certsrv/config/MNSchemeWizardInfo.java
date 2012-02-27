@@ -17,12 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import java.awt.*;
-import javax.swing.*;
 import com.netscape.admin.certsrv.*;
 import com.netscape.admin.certsrv.connection.*;
 import com.netscape.admin.certsrv.wizard.*;
-import com.netscape.management.client.util.*;
 import com.netscape.certsrv.common.*;
 
 /**
@@ -95,16 +92,16 @@ public class MNSchemeWizardInfo extends WizardInfo {
     public void changeScheme() throws EAdminException {
 
         NameValuePairs param = new NameValuePairs();
-        param.add(Constants.PR_RECOVERY_M, (String)get(Constants.PR_RECOVERY_M));
-        param.add(Constants.PR_RECOVERY_N, (String)get(Constants.PR_RECOVERY_N));
-        param.add(Constants.PR_RECOVERY_AGENT, (String)get(Constants.PR_RECOVERY_AGENT));
-        param.add(Constants.PR_OLD_RECOVERY_AGENT, (String)get(Constants.PR_OLD_RECOVERY_AGENT));
+        param.put(Constants.PR_RECOVERY_M, (String) get(Constants.PR_RECOVERY_M));
+        param.put(Constants.PR_RECOVERY_N, (String) get(Constants.PR_RECOVERY_N));
+        param.put(Constants.PR_RECOVERY_AGENT, (String) get(Constants.PR_RECOVERY_AGENT));
+        param.put(Constants.PR_OLD_RECOVERY_AGENT, (String) get(Constants.PR_OLD_RECOVERY_AGENT));
 
         mConnection.modify(DestDef.DEST_KRA_ADMIN,
                                ScopeDef.SC_MNSCHEME,
                                Constants.RS_ID_CONFIG,
                                param);
 
-        //param.removeAllPairs();
+        //param.clear();
     }
 }

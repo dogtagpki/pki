@@ -21,7 +21,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.security.cert.X509Certificate;
+import java.util.Collection;
 import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
@@ -794,17 +796,17 @@ public class AdminServlet extends HttpServlet {
         StringBuffer buf = new StringBuffer();
 
         if (params != null) {
-            Enumeration<String> e = params.getNames();
+            Collection<String> names = params.keySet();
 
-            if (e.hasMoreElements()) {
-                while (e.hasMoreElements()) {
-                    String name = e.nextElement();
-                    String value = java.net.URLEncoder.encode((String)
-                            params.getValue(name));
+            if (!names.isEmpty()) {
+                for (Iterator<String> i = names.iterator(); i.hasNext(); ) {
+                    String name = i.next();
+                    String value = java.net.URLEncoder.encode(
+                            params.get(name));
 
                     buf.append(java.net.URLEncoder.encode(name) +
                             "=" + value);
-                    if (e.hasMoreElements())
+                    if (i.hasNext())
                         buf.append("&");
                 }
                 byte content[] = buf.toString().getBytes();
@@ -875,7 +877,7 @@ public class AdminServlet extends HttpServlet {
 
             //System.out.println(name);
             //System.out.println(name+","+config.getString(name));
-            params.add(name, config.getString(name));
+            params.put(name, config.getString(name));
         }
         sendResponse(SUCCESS, null, params, resp);
     }
@@ -925,7 +927,7 @@ public class AdminServlet extends HttpServlet {
         while (e.hasMoreElements()) {
             String s = e.nextElement();
 
-            params.add(s, config.getString(s));
+            params.put(s, config.getString(s));
         }
         sendResponse(SUCCESS, null, params, resp);
     }
@@ -1275,7 +1277,7 @@ public class AdminServlet extends HttpServlet {
             String paramName = s[i].substring(0, j);
             String args = s[i].substring(j + 1);
 
-            nvps.add(paramName, args);
+            nvps.put(paramName, args);
         }
         return nvps;
 

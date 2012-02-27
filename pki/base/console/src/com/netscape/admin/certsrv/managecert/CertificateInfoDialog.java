@@ -19,14 +19,10 @@ package com.netscape.admin.certsrv.managecert;
 
 import com.netscape.admin.certsrv.*;
 import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.border.*;
 import java.awt.event.*;
 import java.awt.*;
 import java.util.*;
-import com.netscape.management.client.*;
-import com.netscape.management.client.util.*;
-import javax.swing.table.*;
+
 import com.netscape.admin.certsrv.connection.*;
 import com.netscape.certsrv.common.*;
 
@@ -120,7 +116,7 @@ public class CertificateInfoDialog extends JDialog
 
             NameValuePairs nvps = new NameValuePairs();
             String value = mCertName+";"+mCertDate;
-            nvps.add("certName0", value);
+            nvps.put("certName0", value);
             
             try {
                 mConn.modify(DestDef.DEST_SERVER_ADMIN, ScopeDef.SC_TRUST, 

@@ -20,7 +20,7 @@ package com.netscape.admin.certsrv.connection;
 import java.io.*;
 import java.net.*;
 import java.util.*;
-import java.util.*;
+
 import com.netscape.certsrv.common.*;
 import com.netscape.admin.certsrv.*;
 import com.netscape.management.client.util.*;
@@ -263,9 +263,9 @@ public class AdminConnection {
         request.set(Constants.OP_TYPE, OpDef.OP_ADD);
         request.set(Constants.OP_SCOPE, scope);
         request.set(Constants.RS_ID, id);
-        for (int i = 0; i < pairs.size(); i++) {
-            NameValuePair p = (NameValuePair)pairs.elementAt(i);
-            request.set(p.getName(), p.getValue());
+        for (String name : pairs.keySet()) {
+            String value = pairs.get(name);
+            request.set(name, value);
         }
         Response response = sendRequest(request);
         if (response.getReturnCode() == Response.SUCCESS) {
@@ -319,9 +319,9 @@ public class AdminConnection {
         request.set(Constants.OP_TYPE, OpDef.OP_DELETE);
         request.set(Constants.OP_SCOPE, scope);
         request.set(Constants.RS_ID, id);
-        for (int i = 0; i < pairs.size(); i++) {
-            NameValuePair p = (NameValuePair)pairs.elementAt(i);
-            request.set(p.getName(), p.getValue());
+        for (String name : pairs.keySet()) {
+            String value = pairs.get(name);
+            request.set(name, value);
         }
         Response response = sendRequest(request);
         if (response.getReturnCode() == Response.SUCCESS) {
@@ -413,9 +413,9 @@ public class AdminConnection {
         Request request = new Request(mPath + "/" + dest);
         request.set(Constants.OP_TYPE, OpDef.OP_SEARCH);
         request.set(Constants.OP_SCOPE, scope);
-        for (int i = 0; i < filters.size(); i++) {
-            NameValuePair p = (NameValuePair)filters.elementAt(i);
-            request.set(p.getName(), p.getValue());
+        for (String name : filters.keySet()) {
+            String value = filters.get(name);
+            request.set(name, value);
         }
 
         Response response = sendRequest(request);
@@ -425,7 +425,7 @@ public class AdminConnection {
             Enumeration e = response.getNames();
             while (e.hasMoreElements()) {
                 String n = (String)e.nextElement();
-		        newpairs.add(n, response.get(n));
+		        newpairs.put(n, response.get(n));
             }
             return newpairs;
         }
@@ -465,9 +465,9 @@ public class AdminConnection {
         request.set(Constants.OP_TYPE, OpDef.OP_READ);
         request.set(Constants.OP_SCOPE, scope);
         request.set(Constants.RS_ID, id);
-        for (int i = 0; i < pairs.size(); i++) {
-            NameValuePair p = (NameValuePair)pairs.elementAt(i);
-            request.set(p.getName(), p.getValue());
+        for (String name : pairs.keySet()) {
+            String value = pairs.get(name);
+            request.set(name, value);
         }
 
         Response response = sendRequest(request);
@@ -477,7 +477,7 @@ public class AdminConnection {
             Enumeration e = response.getNames();
             while (e.hasMoreElements()) {
                 String n = (String)e.nextElement();
-		        newpairs.add(n, response.get(n));
+		        newpairs.put(n, response.get(n));
             }
             return newpairs;
         }
@@ -496,9 +496,9 @@ public class AdminConnection {
         request.set(Constants.OP_SCOPE, scope);
         request.set(Constants.RS_ID, id);
 
-        for (int i = 0; i < pairs.size(); i++) {
-            NameValuePair p = (NameValuePair)pairs.elementAt(i);
-            request.set(p.getName(), p.getValue());
+        for (String name : pairs.keySet()) {
+            String value = pairs.get(name);
+            request.set(name, value);
         }
 
         Response response = sendRequest(request, useGET);
@@ -507,7 +507,7 @@ public class AdminConnection {
             Enumeration e = response.getNames();
             while (e.hasMoreElements()) {
                 String n = (String)e.nextElement();
-                newpairs.add(n, response.get(n));
+                newpairs.put(n, response.get(n));
             }
             return newpairs;
         }
@@ -519,9 +519,9 @@ public class AdminConnection {
         Request request = new Request(mPath + "/" + dest);
         request.set(Constants.OP_TYPE, OpDef.OP_VALIDATE);
         request.set(Constants.OP_SCOPE, scope);
-        for (int i = 0; i < pairs.size(); i++) {
-            NameValuePair p = (NameValuePair)pairs.elementAt(i);
-            request.set(p.getName(), p.getValue());
+        for (String name : pairs.keySet()) {
+            String value = pairs.get(name);
+            request.set(name, value);
         }
 
         Response response = sendRequest(request);
@@ -568,9 +568,9 @@ public class AdminConnection {
         request.set(Constants.OP_TYPE, OpDef.OP_MODIFY);
         request.set(Constants.OP_SCOPE, scope);
         request.set(Constants.RS_ID, id);
-        for (int i = 0; i < pairs.size(); i++) {
-            NameValuePair p = (NameValuePair)pairs.elementAt(i);
-            request.set(p.getName(), p.getValue());
+        for (String name : pairs.keySet()) {
+            String value = pairs.get(name);
+            request.set(name, value);
         }
         Response response = sendRequest(request, useGET);
         if (response.getReturnCode() == Response.SUCCESS) {

@@ -18,13 +18,10 @@
 package com.netscape.admin.certsrv.config;
 
 import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
 import com.netscape.certsrv.common.*;
 import com.netscape.management.client.util.*;
-import java.awt.*;
+
 import java.awt.event.*;
-import java.util.*;
-import javax.swing.*;
 
 /**
  * Access Log Setting Tab to be displayed at the right hand side
@@ -66,24 +63,24 @@ public class CMSAccessLogPanel extends CMSBaseLogPanel {
     public void refresh() {
         mModel.progressStart();
         NameValuePairs nvp = new NameValuePairs();
-        nvp.add(Constants.PR_LOG_ENABLED, "");
-        nvp.add(Constants.PR_LOG_LEVEL, "");
-        nvp.add(Constants.PR_LOG_BUFFERSIZE, "");
+        nvp.put(Constants.PR_LOG_ENABLED, "");
+        nvp.put(Constants.PR_LOG_LEVEL, "");
+        nvp.put(Constants.PR_LOG_BUFFERSIZE, "");
         //nvp.add(Constants.PR_LOG_EXPIRED_TIME, "");
         //nvp.add(Constants.PR_LOG_FILENAME, "");
         //nvp.add(Constants.PR_LOG_FLUSHINTERVAL, "");
-        nvp.add(Constants.PR_LOG_MAXFILESIZE, "");
-        nvp.add(Constants.PR_LOG_ROLLEROVER_INTERVAL, "");
+        nvp.put(Constants.PR_LOG_MAXFILESIZE, "");
+        nvp.put(Constants.PR_LOG_ROLLEROVER_INTERVAL, "");
 
         try {
             NameValuePairs val = mAdmin.read(DestDef.DEST_LOG_ADMIN,
               ScopeDef.SC_SYSTEMLOG, Constants.RS_ID_CONFIG, nvp);
             parseVals(val);
             if (mIsNT) {
-                nvp.removeAllPairs();
-                nvp.add(Constants.PR_NT_EVENT_SOURCE, "");
-                nvp.add(Constants.PR_NT_LOG_LEVEL, "");
-                nvp.add(Constants.PR_NT_LOG_ENABLED, "");
+                nvp.clear();
+                nvp.put(Constants.PR_NT_EVENT_SOURCE, "");
+                nvp.put(Constants.PR_NT_LOG_LEVEL, "");
+                nvp.put(Constants.PR_NT_LOG_ENABLED, "");
                 val = mAdmin.read(DestDef.DEST_LOG_ADMIN,
                   ScopeDef.SC_NTSYSTEMLOG, Constants.RS_ID_CONFIG, nvp);
                 parseNTVals(val);
@@ -99,23 +96,23 @@ public class CMSAccessLogPanel extends CMSBaseLogPanel {
     }
 
     private void parseVals(NameValuePairs nvp) {
-        if (nvp.getValue(Constants.PR_LOG_ENABLED).equalsIgnoreCase(
+        if (nvp.get(Constants.PR_LOG_ENABLED).equalsIgnoreCase(
           Constants.TRUE)) 
             activateLog.setSelected(true);
         else
             activateLog.setSelected(false);
-        mLevel = Integer.parseInt(nvp.getValue(Constants.PR_LOG_LEVEL));
-        mlogBufSizTextData = nvp.getValue(Constants.PR_LOG_BUFFERSIZE);
-        mlogMaxSizTextData = nvp.getValue(Constants.PR_LOG_MAXFILESIZE);
+        mLevel = Integer.parseInt(nvp.get(Constants.PR_LOG_LEVEL));
+        mlogBufSizTextData = nvp.get(Constants.PR_LOG_BUFFERSIZE);
+        mlogMaxSizTextData = nvp.get(Constants.PR_LOG_MAXFILESIZE);
         int val = 
-          Integer.parseInt(nvp.getValue(Constants.PR_LOG_ROLLEROVER_INTERVAL));
+          Integer.parseInt(nvp.get(Constants.PR_LOG_ROLLEROVER_INTERVAL));
         mFrequency = getRollOverIndex(val);
     }
 
     private void parseNTVals(NameValuePairs nvp) {
-        mNTLevel = Integer.parseInt(nvp.getValue(Constants.PR_NT_LOG_LEVEL));
-        mSource = nvp.getValue(Constants.PR_NT_EVENT_SOURCE);
-        if (nvp.getValue(Constants.PR_NT_LOG_ENABLED).equalsIgnoreCase(
+        mNTLevel = Integer.parseInt(nvp.get(Constants.PR_NT_LOG_LEVEL));
+        mSource = nvp.get(Constants.PR_NT_EVENT_SOURCE);
+        if (nvp.get(Constants.PR_NT_LOG_ENABLED).equalsIgnoreCase(
           Constants.TRUE))
             mActivateNTLog.setSelected(true);
         else
@@ -152,33 +149,33 @@ public class CMSAccessLogPanel extends CMSBaseLogPanel {
         NameValuePairs nvp = new NameValuePairs();
         mModel.progressStart();
         if (activateLog.isSelected()) 
-            nvp.add(Constants.PR_LOG_ENABLED, Constants.TRUE);
+            nvp.put(Constants.PR_LOG_ENABLED, Constants.TRUE);
         else
-            nvp.add(Constants.PR_LOG_ENABLED, Constants.FALSE);
+            nvp.put(Constants.PR_LOG_ENABLED, Constants.FALSE);
         String str = "" + mLogLevel.getSelectedIndex();
-        nvp.add(Constants.PR_LOG_LEVEL, str);
-        nvp.add(Constants.PR_LOG_BUFFERSIZE, mlogBufSizText.getText().trim());
+        nvp.put(Constants.PR_LOG_LEVEL, str);
+        nvp.put(Constants.PR_LOG_BUFFERSIZE, mlogBufSizText.getText().trim());
         //nvp.add(Constants.PR_LOG_EXPIRED_TIME, "");
         //nvp.add(Constants.PR_LOG_FILENAME, "");
         //nvp.add(Constants.PR_LOG_FLUSHINTERVAL, "");
-        nvp.add(Constants.PR_LOG_MAXFILESIZE, mlogMaxSizText.getText().trim());
+        nvp.put(Constants.PR_LOG_MAXFILESIZE, mlogMaxSizText.getText().trim());
 
         str = "" + getRollOverTime(mlogFQC.getSelectedIndex());
-        nvp.add(Constants.PR_LOG_ROLLEROVER_INTERVAL, str);
+        nvp.put(Constants.PR_LOG_ROLLEROVER_INTERVAL, str);
 
         try {
             mAdmin.modify(DestDef.DEST_LOG_ADMIN,
               ScopeDef.SC_SYSTEMLOG, Constants.RS_ID_CONFIG, nvp);
             if (mIsNT) {
-                nvp.removeAllPairs();
-                nvp.add(Constants.PR_NT_LOG_LEVEL, 
-                  ""+mNTLogLevel.getSelectedIndex());
-                nvp.add(Constants.PR_NT_EVENT_SOURCE, 
-                  mEventSourceText.getText().trim());
+                nvp.clear();
+                nvp.put(Constants.PR_NT_LOG_LEVEL,
+                        "" + mNTLogLevel.getSelectedIndex());
+                nvp.put(Constants.PR_NT_EVENT_SOURCE,
+                        mEventSourceText.getText().trim());
                 if (mActivateNTLog.isSelected())
-                    nvp.add(Constants.PR_NT_LOG_ENABLED, Constants.TRUE);
+                    nvp.put(Constants.PR_NT_LOG_ENABLED, Constants.TRUE);
                 else
-                    nvp.add(Constants.PR_NT_LOG_ENABLED, Constants.FALSE);
+                    nvp.put(Constants.PR_NT_LOG_ENABLED, Constants.FALSE);
                 mAdmin.modify(DestDef.DEST_LOG_ADMIN,
                   ScopeDef.SC_NTSYSTEMLOG, Constants.RS_ID_CONFIG, nvp);
             }

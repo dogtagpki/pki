@@ -20,7 +20,6 @@ package com.netscape.admin.certsrv.config;
 import java.util.*;
 import javax.swing.*;
 import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
 import com.netscape.certsrv.common.*;
 import com.netscape.management.client.util.Debug;
 
@@ -53,19 +52,19 @@ public class PolicyRuleDataModel extends CMSRuleDataModel
         NameValuePairs obj = (NameValuePairs) data;
 
         //XXX NEED TO ADD STUFF
-        if (obj.getValue(RULE_STAT).equalsIgnoreCase("enabled")) {
-            v.addElement(new JLabel(obj.getValue(RULE_NAME),
+        if (obj.get(RULE_STAT).equalsIgnoreCase("enabled")) {
+            v.addElement(new JLabel(obj.get(RULE_NAME),
                     CMSAdminUtil.getImage(CMSAdminResources.IMAGE_RULE),
                     JLabel.LEFT));
             v.addElement(mResource.getString("POLICYRULE_LABEL_ENABLED_LABEL"));       
         } else {
-            v.addElement(new JLabel(obj.getValue(RULE_NAME),
+            v.addElement(new JLabel(obj.get(RULE_NAME),
                     CMSAdminUtil.getImage(CMSAdminResources.IMAGE_RULE_DISABLE),
                     JLabel.LEFT));
             v.addElement(mResource.getString("POLICYRULE_LABEL_DISABLED_LABEL"));
         }
         addRow(v, data);
-        mRules.addElement(obj.getValue(RULE_NAME));
+        mRules.addElement(obj.get(RULE_NAME));
     }
 
 

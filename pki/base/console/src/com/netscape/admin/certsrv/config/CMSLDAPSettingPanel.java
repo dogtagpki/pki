@@ -17,7 +17,6 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import com.netscape.management.client.util.*;
 import com.netscape.admin.certsrv.*;
 import com.netscape.certsrv.common.*;
 import com.netscape.admin.certsrv.connection.*;
@@ -177,14 +176,14 @@ public class CMSLDAPSettingPanel extends CMSBaseTab {
     public void refresh() {
         mModel.progressStart();
         NameValuePairs nvps = new NameValuePairs();
-        nvps.add(Constants.PR_HOST_NAME, "");
-        nvps.add(Constants.PR_LDAP_PORT, "");
+        nvps.put(Constants.PR_HOST_NAME, "");
+        nvps.put(Constants.PR_LDAP_PORT, "");
         //nvps.add(Constants.PR_SECURE_PORT_ENABLED, "");
         //nvps.add(Constants.PR_BASE_DN, "");
-        nvps.add(Constants.PR_BIND_DN, "");
-        nvps.add(Constants.PR_LDAP_VERSION, "");
-        nvps.add(Constants.PR_LDAP_MAX_CONNS, "");
-        nvps.add(Constants.PR_LDAP_MIN_CONNS, "");
+        nvps.put(Constants.PR_BIND_DN, "");
+        nvps.put(Constants.PR_LDAP_VERSION, "");
+        nvps.put(Constants.PR_LDAP_MAX_CONNS, "");
+        nvps.put(Constants.PR_LDAP_MIN_CONNS, "");
 
         try {
             NameValuePairs val = mAdmin.read(mServletName,
@@ -210,13 +209,12 @@ public class CMSLDAPSettingPanel extends CMSBaseTab {
 
     protected void populate(NameValuePairs nvps) {
         String version = "";
-        for (int i=0; i<nvps.size(); i++) {
-            NameValuePair nvp = nvps.elementAt(i);
-            String name = nvp.getName();
+        for (String name : nvps.keySet()) {
+            String value = nvps.get(name);
             if (name.equals(Constants.PR_HOST_NAME)) {
-                mHostNameText.setText(nvp.getValue());
+                mHostNameText.setText(value);
             } else if (name.equals(Constants.PR_LDAP_PORT)) {
-                mPortText.setText(nvp.getValue());
+                mPortText.setText(value);
             } else if (name.equals(Constants.PR_SECURE_PORT_ENABLED)) {
 /*
                 if (nvp.getValue().equals(Constants.TRUE))
@@ -227,18 +225,18 @@ public class CMSLDAPSettingPanel extends CMSBaseTab {
             } else if (name.equals(Constants.PR_BASE_DN)) {
                 //mBaseDNText.setText(nvp.getValue());
             } else if (name.equals(Constants.PR_BIND_DN)) {
-                mBindAsText.setText(nvp.getValue());
+                mBindAsText.setText(value);
             } else if (name.equals(Constants.PR_ENABLE)) {
-                if (nvp.getValue().equals(Constants.TRUE))
+                if (value.equals(Constants.TRUE))
                     mEnable.setSelected(true);
                 else
                     mEnable.setSelected(false);
             } else if (name.equals(Constants.PR_LDAP_VERSION)) {
-                version = nvp.getValue();
+                version = value;
             } else if (name.equals(Constants.PR_LDAP_MIN_CONNS)) {
-                mMinConnsText.setText(nvp.getValue());
+                mMinConnsText.setText(value);
             } else if (name.equals(Constants.PR_LDAP_MAX_CONNS)) {
-                mMaxConnsText.setText(nvp.getValue());
+                mMaxConnsText.setText(value);
             }
 
         }
@@ -301,12 +299,12 @@ public class CMSLDAPSettingPanel extends CMSBaseTab {
         }
 
         NameValuePairs nvps = new NameValuePairs();
-        nvps.add(Constants.PR_HOST_NAME, host);
-        nvps.add(Constants.PR_LDAP_PORT, port);
+        nvps.put(Constants.PR_HOST_NAME, host);
+        nvps.put(Constants.PR_LDAP_PORT, port);
         //nvps.add(Constants.PR_BASE_DN, baseDN);
-        nvps.add(Constants.PR_BIND_DN, bindAs);
-        nvps.add(Constants.PR_LDAP_MAX_CONNS, maxConns);
-        nvps.add(Constants.PR_LDAP_MIN_CONNS, minConns);
+        nvps.put(Constants.PR_BIND_DN, bindAs);
+        nvps.put(Constants.PR_LDAP_MAX_CONNS, maxConns);
+        nvps.put(Constants.PR_LDAP_MIN_CONNS, minConns);
 /*
         nvps.add(Constants.PR_LDAP_VERSION, 
           (String)mVersionBox.getSelectedItem());

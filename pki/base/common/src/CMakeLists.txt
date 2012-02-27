@@ -90,7 +90,6 @@ set(pki-certsrv_java_SRCS
     com/netscape/certsrv/common/ScopeDef.java
     com/netscape/certsrv/common/PrefixDef.java
     com/netscape/certsrv/common/ConfigConstants.java
-    com/netscape/certsrv/common/NameValuePair.java
     com/netscape/certsrv/common/OpDef.java
     com/netscape/certsrv/common/Constants.java
     com/netscape/certsrv/usrgrp/EUsrGrpException.java

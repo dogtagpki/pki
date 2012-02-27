@@ -18,16 +18,12 @@
 package com.netscape.admin.certsrv.config;
 
 import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.config.*;
 import com.netscape.admin.certsrv.connection.*;
 import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.table.*;
-import javax.swing.text.*;
 import java.awt.event.*;
 import java.awt.*;
 import java.util.*;
-import com.netscape.management.client.*;
+
 import com.netscape.management.client.util.*;
 import com.netscape.certsrv.common.*;
 
@@ -106,10 +102,8 @@ public class CRLIPEditor extends JDialog implements ActionListener {
 
     public void showDialog(NameValuePairs values) {
 
-        for (int i=0; i<values.size(); i++) {
-            NameValuePair nvp = values.elementAt(i);
-            String name = nvp.getName();
-            String val = nvp.getValue();
+        for (String name : values.keySet()) {
+            String val = values.get(name);
             if ((mName == null || mName.length() == 0) &&
                 name.equals(Constants.PR_ID)) {
                 mNameText.setText(val);
@@ -284,17 +278,17 @@ public class CRLIPEditor extends JDialog implements ActionListener {
             NameValuePairs nvps = new NameValuePairs();
 
             if (mName != null && mName.length() > 0) {
-                nvps.add(Constants.PR_ID, mName);
+                nvps.put(Constants.PR_ID, mName);
             } else {
-                nvps.add(Constants.PR_ID, mNameText.getText().trim());
+                nvps.put(Constants.PR_ID, mNameText.getText().trim());
             }
 
-            nvps.add(Constants.PR_DESCRIPTION, mDescText.getText().trim());
+            nvps.put(Constants.PR_DESCRIPTION, mDescText.getText().trim());
 
             if (mEnable) {
-                nvps.add(Constants.PR_ENABLED, Constants.TRUE);
+                nvps.put(Constants.PR_ENABLED, Constants.TRUE);
             } else {
-                nvps.add(Constants.PR_ENABLED, Constants.FALSE);
+                nvps.put(Constants.PR_ENABLED, Constants.FALSE);
             }
 
             try {

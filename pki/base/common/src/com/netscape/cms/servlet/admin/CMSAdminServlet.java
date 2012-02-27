@@ -320,9 +320,9 @@ public final class CMSAdminServlet extends AdminServlet {
         NameValuePairs params = new NameValuePairs();
 
         if (File.separator.equals("\\"))
-            params.add(Constants.PR_NT, Constants.TRUE);
+            params.put(Constants.PR_NT, Constants.TRUE);
         else
-            params.add(Constants.PR_NT, Constants.FALSE);
+            params.put(Constants.PR_NT, Constants.FALSE);
 
         sendResponse(SUCCESS, null, params, resp);
     }
@@ -335,7 +335,7 @@ public final class CMSAdminServlet extends AdminServlet {
                 CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
         NameValuePairs params = new NameValuePairs();
 
-        params.add(Constants.PR_TOKEN_LIST, jssSubSystem.getTokenList());
+        params.put(Constants.PR_TOKEN_LIST, jssSubSystem.getTokenList());
 
         sendResponse(SUCCESS, null, params, resp);
     }
@@ -348,7 +348,7 @@ public final class CMSAdminServlet extends AdminServlet {
         ICryptoSubsystem jssSubSystem = (ICryptoSubsystem)
                 CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
 
-        params.add(Constants.PR_ALL_NICKNAMES, jssSubSystem.getAllCerts());
+        params.put(Constants.PR_ALL_NICKNAMES, jssSubSystem.getAllCerts());
 
         sendResponse(SUCCESS, null, params, resp);
     }
@@ -405,10 +405,10 @@ public final class CMSAdminServlet extends AdminServlet {
 
         NameValuePairs params = new NameValuePairs();
 
-        params.add(Constants.PR_CIPHER_VERSION,
+        params.put(Constants.PR_CIPHER_VERSION,
                 jssSubSystem.getCipherVersion());
-        params.add(Constants.PR_CIPHER_FORTEZZA, jssSubSystem.isCipherFortezza());
-        params.add(Constants.PR_CIPHER_PREF, jssSubSystem.getCipherPreferences());
+        params.put(Constants.PR_CIPHER_FORTEZZA, jssSubSystem.isCipherFortezza());
+        params.put(Constants.PR_CIPHER_PREF, jssSubSystem.getCipherPreferences());
 
         String tokenList = jssSubSystem.getTokenList();
 
@@ -426,10 +426,10 @@ public final class CMSAdminServlet extends AdminServlet {
             else
                 tokenNewList = tokenNewList + "," + tokenName;
             tokenName = escapeString(tokenName);
-            params.add(Constants.PR_TOKEN_PREFIX + tokenName, certs);
+            params.put(Constants.PR_TOKEN_PREFIX + tokenName, certs);
         }
 
-        params.add(Constants.PR_TOKEN_LIST, tokenNewList);
+        params.put(Constants.PR_TOKEN_LIST, tokenNewList);
 
         if (isCAInstalled) {
             ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem(CMS.SUBSYSTEM_CA);
@@ -443,7 +443,7 @@ public final class CMSAdminServlet extends AdminServlet {
             String caNickName = signingUnit.getNickname();
 
             //params.add(Constants.PR_CERT_CA, caTokenName+","+caNickName);
-            params.add(Constants.PR_CERT_CA, getCertNickname(caNickName));
+            params.put(Constants.PR_CERT_CA, getCertNickname(caNickName));
         }
 
         if (isRAInstalled) {
@@ -451,7 +451,7 @@ public final class CMSAdminServlet extends AdminServlet {
                     CMS.getSubsystem(CMS.SUBSYSTEM_RA);
             String raNickname = ra.getNickname();
 
-            params.add(Constants.PR_CERT_RA, getCertNickname(raNickname));
+            params.put(Constants.PR_CERT_RA, getCertNickname(raNickname));
         }
 
         if (isKRAInstalled) {
@@ -459,12 +459,12 @@ public final class CMSAdminServlet extends AdminServlet {
                     CMS.getSubsystem(CMS.SUBSYSTEM_KRA);
             String kraNickname = kra.getNickname();
 
-            params.add(Constants.PR_CERT_TRANS, getCertNickname(kraNickname));
+            params.put(Constants.PR_CERT_TRANS, getCertNickname(kraNickname));
         }
 
         String nickName = CMS.getServerCertNickname();
 
-        params.add(Constants.PR_CERT_SERVER, getCertNickname(nickName));
+        params.put(Constants.PR_CERT_SERVER, getCertNickname(nickName));
 
         sendResponse(SUCCESS, null, params, resp);
     }
@@ -795,7 +795,7 @@ public final class CMSAdminServlet extends AdminServlet {
             if (sys instanceof ITKSAuthority)
                 type = Constants.PR_TKS_INSTANCE;
             if (!type.trim().equals(""))
-                params.add(sys.getId(), type);
+                params.put(sys.getId(), type);
         }
 
         sendResponse(SUCCESS, null, params, resp);
@@ -811,25 +811,25 @@ public final class CMSAdminServlet extends AdminServlet {
         IConfigStore cs = CMS.getConfigStore();
         try {
             String installdate = cs.getString(Constants.PR_STAT_INSTALLDATE, "");
-            params.add(Constants.PR_STAT_INSTALLDATE, installdate);
+            params.put(Constants.PR_STAT_INSTALLDATE, installdate);
         } catch (Exception e) {
         }
 
         try {
             String version = cs.getString(Constants.PR_STAT_VERSION, "");
-            params.add(Constants.PR_STAT_VERSION, version);
+            params.put(Constants.PR_STAT_VERSION, version);
         } catch (Exception e) {
         }
 
         try {
             String instanceId = cs.getString(Constants.PR_STAT_INSTANCEID, "");
-            params.add(Constants.PR_STAT_INSTANCEID, instanceId);
+            params.put(Constants.PR_STAT_INSTANCEID, instanceId);
         } catch (Exception e) {
         }
 
-        params.add(Constants.PR_STAT_STARTUP,
+        params.put(Constants.PR_STAT_STARTUP,
                 (new Date(CMS.getStartupTime())).toString());
-        params.add(Constants.PR_STAT_TIME,
+        params.put(Constants.PR_STAT_TIME,
                 (new Date(System.currentTimeMillis())).toString());
         sendResponse(SUCCESS, null, params, resp);
     }
@@ -890,8 +890,8 @@ public final class CMSAdminServlet extends AdminServlet {
             String masterKeyPrefix = CMS.getConfigStore().getString("tks.master_key_prefix", null);
 
             SessionKey.SetDefaultPrefix(masterKeyPrefix);
-            params.add(Constants.PR_KEY_LIST, newKeyName);
-            params.add(Constants.PR_TOKEN_LIST, selectedToken);
+            params.put(Constants.PR_KEY_LIST, newKeyName);
+            params.put(Constants.PR_TOKEN_LIST, selectedToken);
         }
         sendResponse(SUCCESS, null, params, resp);
     }
@@ -937,7 +937,7 @@ public final class CMSAdminServlet extends AdminServlet {
                 }
                 // String symKeys = new String("key1,key2"); 
                 String symKeys = SessionKey.ListSymmetricKeys(selectedToken);
-                params.add(Constants.PR_TOKEN_LIST, symKeys);
+                params.put(Constants.PR_TOKEN_LIST, symKeys);
 
             }
         }
@@ -966,9 +966,9 @@ public final class CMSAdminServlet extends AdminServlet {
             if (name.equals(Constants.OP_SCOPE))
                 continue;
             if (name.equals(Constants.PR_SECURE_PORT_ENABLED))
-                params.add(name, ldapConfig.getString(name, "Constants.FALSE"));
+                params.put(name, ldapConfig.getString(name, "Constants.FALSE"));
             else
-                params.add(name, ldapConfig.getString(name, ""));
+                params.put(name, ldapConfig.getString(name, ""));
         }
         sendResponse(SUCCESS, null, params, resp);
     }
@@ -1006,9 +1006,9 @@ public final class CMSAdminServlet extends AdminServlet {
         IConfigStore dbConfig = mConfig.getSubStore(PROP_SMTP);
         NameValuePairs params = new NameValuePairs();
 
-        params.add(Constants.PR_SERVER_NAME,
+        params.put(Constants.PR_SERVER_NAME,
                 dbConfig.getString("host"));
-        params.add(Constants.PR_PORT,
+        params.put(Constants.PR_PORT,
                 dbConfig.getString("port"));
         sendResponse(SUCCESS, null, params, resp);
     }
@@ -1064,7 +1064,7 @@ public final class CMSAdminServlet extends AdminServlet {
 
         NameValuePairs params = new NameValuePairs();
 
-        params.add(Constants.PR_LOGGED_IN, "" + status);
+        params.put(Constants.PR_LOGGED_IN, "" + status);
 
         sendResponse(SUCCESS, null, params, resp);
     }
@@ -1210,8 +1210,8 @@ public final class CMSAdminServlet extends AdminServlet {
             }
             String certReq = jssSubSystem.getCertRequest(subjectName, keypair);
 
-            params.add(Constants.PR_CSR, certReq);
-            params.add(Constants.PR_CERT_REQUEST_DIR, dir);
+            params.put(Constants.PR_CSR, certReq);
+            params.put(Constants.PR_CERT_REQUEST_DIR, dir);
             PrintStream ps = new PrintStream(new FileOutputStream(pathname));
 
             ps.println(certReq);
@@ -2432,8 +2432,8 @@ public final class CMSAdminServlet extends AdminServlet {
             String content = jssSubSystem.getCertPrettyPrint(b64Cert,
                     super.getLocale(req));
 
-            results.add(Constants.PR_NICKNAME, "FBCA cross-signed cert");
-            results.add(Constants.PR_CERT_CONTENT, content);
+            results.put(Constants.PR_NICKNAME, "FBCA cross-signed cert");
+            results.put(Constants.PR_CERT_CONTENT, content);
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
@@ -2618,8 +2618,8 @@ public final class CMSAdminServlet extends AdminServlet {
                 super.getLocale(req));
 
         if (nickname != null && !nickname.equals(""))
-            results.add(Constants.PR_NICKNAME, nickname);
-        results.add(Constants.PR_CERT_CONTENT, content);
+            results.put(Constants.PR_NICKNAME, nickname);
+        results.put(Constants.PR_CERT_CONTENT, content);
         //results = jssSubSystem.getCertInfo(value);
 
         sendResponse(SUCCESS, null, results, resp);
@@ -2664,7 +2664,7 @@ public final class CMSAdminServlet extends AdminServlet {
 
         String print = jssSubSystem.getCertPrettyPrintAndFingerPrint(nickname,
                 serialno, issuername, locale);
-        pairs.add(nickname, print);
+        pairs.put(nickname, print);
 
         sendResponse(SUCCESS, null, pairs, resp);
     }
@@ -2707,7 +2707,7 @@ public final class CMSAdminServlet extends AdminServlet {
 
         String trustbit = jssSubSystem.getRootCertTrustBit(nickname,
                 serialno, issuername);
-        pairs.add(nickname, trustbit);
+        pairs.put(nickname, trustbit);
 
         sendResponse(SUCCESS, null, pairs, resp);
     }
@@ -2924,7 +2924,7 @@ public final class CMSAdminServlet extends AdminServlet {
                 CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
         String subjectName = jssSubSystem.getSubjectDN(nickname);
 
-        params.add(Constants.PR_SUBJECT_NAME, subjectName);
+        params.put(Constants.PR_SUBJECT_NAME, subjectName);
         sendResponse(SUCCESS, null, params, resp);
     }
 
@@ -2950,7 +2950,7 @@ public final class CMSAdminServlet extends AdminServlet {
                 CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
         String subjectName = jssSubSystem.getSubjectDN(nickname);
 
-        params.add(Constants.PR_SUBJECT_NAME, subjectName);
+        params.put(Constants.PR_SUBJECT_NAME, subjectName);
         sendResponse(SUCCESS, null, params, resp);
     }
 
@@ -3342,9 +3342,9 @@ public final class CMSAdminServlet extends AdminServlet {
             audit(auditMessage);
 
             // notify console of SUCCESS
-            results.add(Constants.PR_RUN_SELFTESTS_ON_DEMAND_CLASS,
+            results.put(Constants.PR_RUN_SELFTESTS_ON_DEMAND_CLASS,
                     CMSAdminServlet.class.getName());
-            results.add(Constants.PR_RUN_SELFTESTS_ON_DEMAND_CONTENT,
+            results.put(Constants.PR_RUN_SELFTESTS_ON_DEMAND_CONTENT,
                     content);
             sendResponse(SUCCESS, null, results, resp);
 

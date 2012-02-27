@@ -18,9 +18,7 @@
 package com.netscape.admin.certsrv.config;
 
 import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
 import com.netscape.admin.certsrv.connection.AdminConnection;
-import com.netscape.management.client.util.*;
 import com.netscape.certsrv.common.*;
 import com.netscape.admin.certsrv.ug.*;
 import javax.swing.*;
@@ -58,7 +56,7 @@ public class CMSKRAPasswdPanel extends CMSBaseUGTab {
     public void refresh() {
         mModel.progressStart();
         NameValuePairs nvps = new NameValuePairs();
-        nvps.add(Constants.PR_RECOVERY_AGENT, "");
+        nvps.put(Constants.PR_RECOVERY_AGENT, "");
 
         try {
             NameValuePairs val = mAdmin.read(DestDef.DEST_KRA_ADMIN,
@@ -74,18 +72,17 @@ public class CMSKRAPasswdPanel extends CMSBaseUGTab {
     }
 
     protected void populate(NameValuePairs nvps) {
-        for (int i=0; i<nvps.size(); i++) {
-            NameValuePair nvp = nvps.elementAt(i);
-            String name = nvp.getName();
+        for (String name : nvps.keySet()) {
+            String value = nvps.get(name);
             if (name.equals(Constants.PR_RECOVERY_AGENT)) {
                 mAgentModel.removeAllElements();
-                updateModel(nvp);
+                updateModel(value);
             }
         }
     }
 
-    private void updateModel(NameValuePair nvp) {
-        String[] uids = getUIDs(nvp.getValue());
+    private void updateModel(String value) {
+        String[] uids = getUIDs(value);
         for (int i=0; i<uids.length; i++) {
             JLabel label = makeJLabel(mUserIcon, uids[i],
               SwingConstants.LEFT);

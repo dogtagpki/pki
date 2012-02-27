@@ -615,15 +615,12 @@ public abstract class BasicProfile implements IProfile {
                     outputInfo.getName(Locale.getDefault()));
             outputStore.putString(prefix + "class_id", outputId);
 
-            Enumeration<String> enum1 = nvps.getNames();
+            for (String name : nvps.keySet()) {
 
-            while (enum1.hasMoreElements()) {
-                String name = enum1.nextElement();
-
-                outputStore.putString(prefix + "params." + name, nvps.getValue(name));
+                outputStore.putString(prefix + "params." + name, nvps.get(name));
                 try {
                     if (output != null) {
-                        output.setConfig(name, nvps.getValue(name));
+                        output.setConfig(name, nvps.get(name));
                     }
                 } catch (EBaseException e) {
                     CMS.debug(e.toString());
@@ -718,15 +715,12 @@ public abstract class BasicProfile implements IProfile {
                     inputInfo.getName(Locale.getDefault()));
             inputStore.putString(prefix + "class_id", inputId);
 
-            Enumeration<String> enum1 = nvps.getNames();
+            for (String name : nvps.keySet()) {
 
-            while (enum1.hasMoreElements()) {
-                String name = enum1.nextElement();
-
-                inputStore.putString(prefix + "params." + name, nvps.getValue(name));
+                inputStore.putString(prefix + "params." + name, nvps.get(name));
                 try {
                     if (input != null) {
-                        input.setConfig(name, nvps.getValue(name));
+                        input.setConfig(name, nvps.get(name));
                     }
                 } catch (EBaseException e) {
                     CMS.debug(e.toString());

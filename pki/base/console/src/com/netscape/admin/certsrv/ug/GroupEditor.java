@@ -24,8 +24,7 @@ import javax.swing.event.*;
 import java.awt.event.*;
 import java.awt.*;
 import java.util.*;
-import javax.swing.table.*;
-import com.netscape.management.client.*;
+
 import com.netscape.management.client.util.*;
 import com.netscape.certsrv.common.*;
 
@@ -203,8 +202,8 @@ public class GroupEditor extends JDialog
                 response = mConnection.search(DestDef.DEST_USER_ADMIN,
                   ScopeDef.SC_USERS, new NameValuePairs());
                 boolean hasNewUser = false;
-                for (Enumeration e = response.getNames(); e.hasMoreElements() ;) {
-                    String entry = ((String)e.nextElement()).trim();
+                for (String entry : response.keySet()) {
+                    entry = entry.trim();
                     if (currentUser.indexOf(entry)== -1)
                         hasNewUser = true;
                 }
@@ -483,9 +482,9 @@ public class GroupEditor extends JDialog
 
         //construct NVP
         NameValuePairs config = new NameValuePairs();
-        config.add(Constants.PR_GROUP_DESC, "");
-        config.add(Constants.PR_GROUP_USER, "");
-        config.add(Constants.PR_GROUP_GROUP, "");
+        config.put(Constants.PR_GROUP_DESC, "");
+        config.put(Constants.PR_GROUP_USER, "");
+        config.put(Constants.PR_GROUP_GROUP, "");
 
         NameValuePairs response;
         response = mConnection.read(DestDef.DEST_GROUP_ADMIN,
@@ -496,12 +495,12 @@ public class GroupEditor extends JDialog
         Debug.println("Received Memebership: "+response.toString());
         //setup the ui
         mGroupNameField.setText(mGroupName);
-        mGroupDescField.setText(response.getValue(Constants.PR_GROUP_DESC));
+        mGroupDescField.setText(response.get(Constants.PR_GROUP_DESC));
 
         //setup the member table
 
         //parse user entry
-        String user = response.getValue(Constants.PR_GROUP_USER).trim();
+        String user = response.get(Constants.PR_GROUP_USER).trim();
         StringTokenizer tokenizer = new StringTokenizer(user, ",");
         while (tokenizer.hasMoreTokens()) {
             String user_str = tokenizer.nextToken().trim();
@@ -515,7 +514,7 @@ public class GroupEditor extends JDialog
 
             //construct NVP
             NameValuePairs config = new NameValuePairs();
-            config.add(Constants.PR_GROUP_DESC, mGroupName);
+            config.put(Constants.PR_GROUP_DESC, mGroupName);
             createUGString(config);
 
             //send request
@@ -530,7 +529,7 @@ public class GroupEditor extends JDialog
 
             //construct NVP
             NameValuePairs config = new NameValuePairs();
-            config.add(Constants.PR_GROUP_DESC, mGroupDescField.getText());
+            config.put(Constants.PR_GROUP_DESC, mGroupDescField.getText());
             createUGString(config);
 
             //send request
@@ -567,7 +566,7 @@ public class GroupEditor extends JDialog
             }
 
         //set parameters
-        config.add(Constants.PR_GROUP_USER, userBuf.toString());
+        config.put(Constants.PR_GROUP_USER, userBuf.toString());
     }
 
     //refresh the table content

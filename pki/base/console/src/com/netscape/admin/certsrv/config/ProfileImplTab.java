@@ -21,11 +21,10 @@ import com.netscape.admin.certsrv.*;
 import com.netscape.admin.certsrv.connection.*;
 import com.netscape.admin.certsrv.ug.*;
 import javax.swing.*;
-import javax.swing.event.*;
 import java.awt.event.*;
 import java.awt.*;
 import java.util.*;
-import com.netscape.management.client.*;
+
 import com.netscape.management.client.util.*;
 import com.netscape.certsrv.common.*;
 
@@ -111,9 +110,9 @@ public class ProfileImplTab extends CMSBaseUGTab {
                     mDataModel.getObjectValueAt(mTable.getSelectedRow());    
             if (mViewer==null)
                 mViewer = new ViewDialog(mModel.getFrame());
-            mViewer.showDialog(obj.getValue(IMPL_NAME),
-                               obj.getValue(IMPL_CLASS),
-                               obj.getValue(IMPL_DESC));
+            mViewer.showDialog(obj.get(IMPL_NAME),
+                               obj.get(IMPL_CLASS),
+                               obj.get(IMPL_DESC));
         }        
         if (e.getSource().equals(mHelp)) {
             helpCallback();
@@ -264,9 +263,9 @@ public class ProfileImplTab extends CMSBaseUGTab {
             mModel.progressStop();
             return;
         }
-        for (Enumeration e = response1.getNames(); e.hasMoreElements() ;) {
-            String entry = ((String)e.nextElement()).trim();
-            response.add(entry+";profile", response1.getValue(entry));
+        for (String entry : response1.keySet()) {
+            entry = entry.trim();
+            response.put(entry + ";profile", response1.get(entry));
         }
         try {
             response2 = mConnection.search(mDestination,
@@ -278,9 +277,9 @@ public class ProfileImplTab extends CMSBaseUGTab {
             mModel.progressStop();
             return;
         }
-        for (Enumeration e = response2.getNames(); e.hasMoreElements() ;) {
-            String entry = ((String)e.nextElement()).trim();
-            response.add(entry+";profileInput", response2.getValue(entry));
+        for (String entry : response2.keySet()) {
+            entry = entry.trim();
+            response.put(entry + ";profileInput", response2.get(entry));
         }
         try {
             response3 = mConnection.search(mDestination,
@@ -292,9 +291,9 @@ public class ProfileImplTab extends CMSBaseUGTab {
             mModel.progressStop();
             return;
         }
-        for (Enumeration e = response3.getNames(); e.hasMoreElements() ;) {
-            String entry = ((String)e.nextElement()).trim();
-            response.add(entry+";profileOutput", response3.getValue(entry));
+        for (String entry : response3.keySet()) {
+            entry = entry.trim();
+            response.put(entry + ";profileOutput", response3.get(entry));
         }
         try {
             response4 = mConnection.search(mDestination,
@@ -306,9 +305,9 @@ public class ProfileImplTab extends CMSBaseUGTab {
             mModel.progressStop();
             return;
         }
-        for (Enumeration e = response4.getNames(); e.hasMoreElements() ;) {
-            String entry = ((String)e.nextElement()).trim();
-            response.add(entry+";defaultPolicy", response4.getValue(entry));
+        for (String entry : response4.keySet()) {
+            entry = entry.trim();
+            response.put(entry + ";defaultPolicy", response4.get(entry));
         }
         try {
             response5 = mConnection.search(mDestination,
@@ -320,27 +319,27 @@ public class ProfileImplTab extends CMSBaseUGTab {
             mModel.progressStop();
             return;
         }
-        for (Enumeration e = response5.getNames(); e.hasMoreElements() ;) {
-            String entry = ((String)e.nextElement()).trim();
-            response.add(entry+";constraintPolicy", response5.getValue(entry));
+        for (String entry : response5.keySet()) {
+            entry = entry.trim();
+            response.put(entry + ";constraintPolicy", response5.get(entry));
         }
 
         //parse the data
         int i=0;
         String[] vals = new String[response.size()];
         Hashtable data = new Hashtable();
-        for (Enumeration e = response.getNames(); e.hasMoreElements() ;) {
-            String entry = ((String)e.nextElement()).trim();
-            String value = response.getValue(entry);
+        for (String entry : response.keySet()) {
+            entry = entry.trim();
+            String value = response.get(entry);
             int x = value.indexOf(",");
             int x_end = value.lastIndexOf(",");
             int y = entry.indexOf(";");
             NameValuePairs obj = new NameValuePairs();
-            obj.add(IMPL_NAME,entry.substring(0,y));
-            obj.add(IMPL_TYPE,entry.substring(y+1));
+            obj.put(IMPL_NAME, entry.substring(0, y));
+            obj.put(IMPL_TYPE, entry.substring(y + 1));
             vals[i++]= entry ;
-            obj.add(IMPL_CLASS, value.substring(0,x));
-            obj.add(IMPL_DESC, value.substring(x+1,x_end));
+            obj.put(IMPL_CLASS, value.substring(0, x));
+            obj.put(IMPL_DESC, value.substring(x + 1, x_end));
             data.put(entry,obj);
         }
         
@@ -367,8 +366,8 @@ public class ProfileImplTab extends CMSBaseUGTab {
         //send comment to server for the removal of user
         try {
             mConnection.delete(mDestination,
-                               obj.getValue(IMPL_TYPE),
-                               obj.getValue(IMPL_NAME));
+                               obj.get(IMPL_TYPE),
+                               obj.get(IMPL_NAME));
         } catch (EAdminException e) {
             //display error dialog
             showErrorDialog(e.getMessage());

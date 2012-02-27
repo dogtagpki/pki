@@ -233,9 +233,7 @@ public class CMSCAUILoader implements ISubSystemUILoader {
         }
 
         if (nvps != null && nvps.size() > 0) {
-            Enumeration names = nvps.getNames();
-            while (names.hasMoreElements()) {
-                String name = (String)names.nextElement();
+            for (String name : nvps.keySet()) {
                 if (name.indexOf('.') == -1) {
                     node = new CMSResourceObject();
                     node.setName(name);

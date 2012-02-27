@@ -19,16 +19,13 @@ package com.netscape.admin.certsrv.config;
 
 import com.netscape.admin.certsrv.*;
 import com.netscape.admin.certsrv.ug.*;
-import com.netscape.admin.certsrv.config.*;
 import com.netscape.admin.certsrv.connection.*;
 import javax.swing.*;
-import javax.swing.event.*;
 import javax.swing.table.*;
-import javax.swing.text.*;
 import java.awt.event.*;
 import java.awt.*;
 import java.util.*;
-import com.netscape.management.client.*;
+
 import com.netscape.management.client.util.*;
 import com.netscape.certsrv.common.*;
 
@@ -111,18 +108,17 @@ public class ConnectorEditor extends JDialog implements ActionListener, MouseLis
         if (response != null) {
             String[] vals = new String[response.size()];
             int i=0;
-            for (Enumeration e = response.getNames(); e.hasMoreElements() ;) {
-                String entry = ((String)e.nextElement()).trim();
-                vals[i++] = entry;
+            for (String entry : response.keySet()) {
+                vals[i++] = entry.trim();
             }
 
             int sindex = 0;
             String snickname = "";
-            CMSAdminUtil.quickSort(vals, 0, response.size()-1);
+            CMSAdminUtil.quickSort(vals, 0, response.size() - 1);
             for (i=0; i<vals.length; i++) {
                 Vector v = new Vector();
                 String entry = vals[i];
-                String value = response.getValue(entry);
+                String value = response.get(entry);
 
                 // look for the comma separator
                 int lastindex = entry.lastIndexOf(",");
@@ -179,17 +175,16 @@ public class ConnectorEditor extends JDialog implements ActionListener, MouseLis
 
         try {
             NameValuePairs nvps = new NameValuePairs();
-            nvps.add(Constants.PR_NICK_NAME, nickname);
-            nvps.add(Constants.PR_SERIAL_NUMBER, serialno);
-            nvps.add(Constants.PR_ISSUER_NAME, issuername);
+            nvps.put(Constants.PR_NICK_NAME, nickname);
+            nvps.put(Constants.PR_SERIAL_NUMBER, serialno);
+            nvps.put(Constants.PR_ISSUER_NAME, issuername);
             NameValuePairs results = mAdmin.process(
               DestDef.DEST_SERVER_ADMIN, ScopeDef.SC_CERT_PRETTY_PRINT,
               Constants.RS_ID_CONFIG, nvps);
             if (nvps.size() <= 0)
                 return;
-            NameValuePair nvp = results.elementAt(0);
-            String name = nvp.getName();
-            String print = nvp.getValue();
+            String name = results.keySet().iterator().next(); // first element
+            String print = results.get(name);
             CertViewDialog certdialog = new CertViewDialog(mParentFrame);
             certdialog.showDialog(nickname, print);
         } catch (EAdminException ex) {
@@ -225,10 +220,8 @@ public class ConnectorEditor extends JDialog implements ActionListener, MouseLis
 
     public void showDialog(NameValuePairs values) {
 
-        for (int i=0; i<values.size(); i++) {
-            NameValuePair nvp = values.elementAt(i);
-            String name = nvp.getName();
-            String val = nvp.getValue();
+        for (String name : values.keySet()) {
+            String val = values.get(name);
             if (name.equals(Constants.PR_HOST)) {
                 mHostText.setText(val);
             } else if (name.equals(Constants.PR_PORT)) {
@@ -568,8 +561,8 @@ public class ConnectorEditor extends JDialog implements ActionListener, MouseLis
             NameValuePairs nvps = new NameValuePairs();
             
             if (mEnable) {
-                nvps.add(Constants.PR_LOCAL, Constants.FALSE);
-                nvps.add(Constants.PR_HOST, mHostText.getText());
+                nvps.put(Constants.PR_LOCAL, Constants.FALSE);
+                nvps.put(Constants.PR_HOST, mHostText.getText());
                 String portStr = mPortText.getText().trim();
                 try {
                     int port = Integer.parseInt(portStr);
@@ -583,7 +576,7 @@ public class ConnectorEditor extends JDialog implements ActionListener, MouseLis
                       "NONINTEGER", CMSAdminUtil.ERROR_MESSAGE);
                     return;
                 }
-                nvps.add(Constants.PR_PORT, portStr);
+                nvps.put(Constants.PR_PORT, portStr);
 
                 String timeoutStr = mTimeoutText.getText().trim();
                 try {
@@ -598,19 +591,19 @@ public class ConnectorEditor extends JDialog implements ActionListener, MouseLis
                       "TIMEOUTNONINTEGER", CMSAdminUtil.ERROR_MESSAGE);
                     return;
                 }
-                nvps.add(Constants.PR_TIMEOUT, timeoutStr);
+                nvps.put(Constants.PR_TIMEOUT, timeoutStr);
                    
                 if (mName.equals("Data Recovery Manager Connector")) {
-                    nvps.add(Constants.PR_URI, "/kra/agent/kra/connector");
+                    nvps.put(Constants.PR_URI, "/kra/agent/kra/connector");
                 } else if (mName.equals("Registration Manager Connector")) {
-                    nvps.add(Constants.PR_URI, "/ra/connector");
+                    nvps.put(Constants.PR_URI, "/ra/connector");
                 } else if (mName.equals("Certificate Manager Connector")) {
-                    nvps.add(Constants.PR_URI, "/ca/connector");
+                    nvps.put(Constants.PR_URI, "/ca/connector");
                 }
-                nvps.add(Constants.PR_NICK_NAME, mNicknameText.getText().trim());
-                nvps.add(Constants.PR_ENABLED, Constants.TRUE);
+                nvps.put(Constants.PR_NICK_NAME, mNicknameText.getText().trim());
+                nvps.put(Constants.PR_ENABLED, Constants.TRUE);
             } else {
-                nvps.add(Constants.PR_ENABLED, Constants.FALSE);
+                nvps.put(Constants.PR_ENABLED, Constants.FALSE);
             }
 
             try {

@@ -260,9 +260,9 @@ public class ACLAdminServlet extends AdminServlet {
             String desc = acl.getDescription();
 
             if (desc == null)
-                params.add(acl.getName(), "");
+                params.put(acl.getName(), "");
             else
-                params.add(acl.getName(), desc);
+                params.put(acl.getName(), desc);
         }
 
         sendResponse(SUCCESS, null, params, resp);
@@ -305,7 +305,7 @@ public class ACLAdminServlet extends AdminServlet {
                 }
             }
 
-            params.add(Constants.PR_ACL_OPS, rights.toString());
+            params.put(Constants.PR_ACL_OPS, rights.toString());
 
             Enumeration<ACLEntry> aclEntryEnum;
             aclEntryEnum = acl.entries();
@@ -323,7 +323,7 @@ public class ACLAdminServlet extends AdminServlet {
                 }
             }
 
-            params.add(Constants.PR_ACI, acis);
+            params.put(Constants.PR_ACI, acis);
 
             sendResponse(SUCCESS, null, params, resp);
             return;
@@ -472,7 +472,7 @@ public class ACLAdminServlet extends AdminServlet {
             IAccessEvaluator evaluator = res.nextElement();
 
             // params.add(evaluator.getType(), evaluator.getDescription());
-            params.add(evaluator.getType(), evaluator.getClass().getName());
+            params.put(evaluator.getType(), evaluator.getClass().getName());
         }
 
         sendResponse(SUCCESS, null, params, resp);
@@ -495,7 +495,7 @@ public class ACLAdminServlet extends AdminServlet {
                 str.append(operators[i]);
             }
 
-            params.add(evaluator.getType(), str.toString());
+            params.put(evaluator.getType(), str.toString());
         }
 
         sendResponse(SUCCESS, null, params, resp);

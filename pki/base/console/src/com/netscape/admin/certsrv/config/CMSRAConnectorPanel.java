@@ -18,15 +18,12 @@
 package com.netscape.admin.certsrv.config;
 
 import com.netscape.admin.certsrv.*;
-import com.netscape.management.client.*;
 import com.netscape.management.client.util.*;
 import com.netscape.certsrv.common.*;
 import com.netscape.admin.certsrv.connection.*;
 import javax.swing.*;
-import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.*;
 
 /**
  * RA Connector Panel
@@ -164,15 +161,15 @@ public class CMSRAConnectorPanel  extends CMSBaseTab
             JFrame frame = mModel.getFrame();
             String name = (String)mList.getSelectedValue();
             NameValuePairs nvps = new NameValuePairs();
-            nvps.add(Constants.PR_ID, "");
-            nvps.add(Constants.PR_HOST, "");
-            nvps.add(Constants.PR_PORT, "");
+            nvps.put(Constants.PR_ID, "");
+            nvps.put(Constants.PR_HOST, "");
+            nvps.put(Constants.PR_PORT, "");
             // Inserted by beomsuk
-            nvps.add(Constants.PR_TIMEOUT, "");
+            nvps.put(Constants.PR_TIMEOUT, "");
             // Insert end
-            nvps.add(Constants.PR_URI, "");
-            nvps.add(Constants.PR_LOCAL, "");
-            nvps.add(Constants.PR_ENABLE, "");
+            nvps.put(Constants.PR_URI, "");
+            nvps.put(Constants.PR_LOCAL, "");
+            nvps.put(Constants.PR_ENABLE, "");
 
             try {
                 NameValuePairs values = mAdmin.read(DestDef.DEST_RA_ADMIN,
@@ -183,7 +180,7 @@ public class CMSRAConnectorPanel  extends CMSBaseTab
  
                 boolean colocated = false;
                 if (name.equals("Data Recovery Manager Connector")) {
-                    String val = values.getValue("id");
+                    String val = values.get("id");
                     if (val != null && val.equals("kra"))
                         colocated = true;
                 }

@@ -18,14 +18,9 @@
 package com.netscape.admin.certsrv;
 
 import java.util.*;
-import java.awt.*;
-import java.awt.event.*;
 import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.border.*;
-import javax.swing.text.*;
+
 import com.netscape.management.client.util.*;
-import com.netscape.management.client.console.*;
 import com.netscape.certsrv.common.*;
 import com.netscape.admin.certsrv.connection.*;
 
@@ -102,7 +97,7 @@ public class CMSServerInfo implements IConnectionListener {
 		
 		// Need to do authentication here
 		NameValuePairs config = new NameValuePairs();
-		config.add(Constants.PR_PING,"");
+		config.put(Constants.PR_PING, "");
 		
 		NameValuePairs response;
 		
@@ -111,7 +106,7 @@ public class CMSServerInfo implements IConnectionListener {
 		            Constants.RS_ID_CONFIG,
 		            config);
 		
-		if (!response.getValue(Constants.PR_PING).equalsIgnoreCase(Constants.TRUE)) {
+		if (!response.get(Constants.PR_PING).equalsIgnoreCase(Constants.TRUE)) {
             Debug.println("Ping failed -> Server off");
 		    throw new EAdminException("PING_FAILED",false);
 	    }

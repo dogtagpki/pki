@@ -168,7 +168,7 @@ public class AuthAdminServlet extends AdminServlet {
                     // no need to authenticate this. if we're alive, return true.
                     NameValuePairs params = new NameValuePairs();
 
-                    params.add(Constants.PR_PING, Constants.TRUE);
+                    params.put(Constants.PR_PING, Constants.TRUE);
                     sendResponse(SUCCESS, null, params, resp);
                     return;
                 } else {
@@ -188,7 +188,7 @@ public class AuthAdminServlet extends AdminServlet {
                     String val = configStore.getString("authType", "pwd");
                     NameValuePairs params = new NameValuePairs();
 
-                    params.add("authType", val);
+                    params.put("authType", val);
                     sendResponse(SUCCESS, null, params, resp);
                     return;
                 }
@@ -856,7 +856,7 @@ public class AuthAdminServlet extends AdminServlet {
 
             NameValuePairs params = new NameValuePairs();
 
-            params.add(Constants.PR_AUTH_IMPL_NAME, implname);
+            params.put(Constants.PR_AUTH_IMPL_NAME, implname);
 
             // store a message in the signed audit log file
             auditMessage = CMS.getLogMessage(
@@ -921,7 +921,7 @@ public class AuthAdminServlet extends AdminServlet {
                     mAuths.getPlugins().get(name);
 
             if (value.isVisible()) {
-                params.add(name, value.getClassPath() + EDIT);
+                params.put(name, value.getClassPath() + EDIT);
             }
         }
         sendResponse(SUCCESS, null, params, resp);
@@ -948,9 +948,9 @@ public class AuthAdminServlet extends AdminServlet {
                     mAuths.getPlugins().get(value.getImplName());
 
             if (!amgrplugin.isVisible()) {
-                params.add(name, value.getImplName() + ";invisible;" + enableStr);
+                params.put(name, value.getImplName() + ";invisible;" + enableStr);
             } else {
-                params.add(name, value.getImplName() + ";visible;" + enableStr);
+                params.put(name, value.getImplName() + ";visible;" + enableStr);
             }
         }
         sendResponse(SUCCESS, null, params, resp);
@@ -1316,10 +1316,10 @@ public class AuthAdminServlet extends AdminServlet {
         NameValuePairs params = new NameValuePairs();
 
         // implName is always required so always send it.
-        params.add(Constants.PR_AUTH_IMPL_NAME, "");
+        params.put(Constants.PR_AUTH_IMPL_NAME, "");
         if (configParams != null) {
             for (int i = 0; i < configParams.length; i++) {
-                params.add(configParams[i], "");
+                params.put(configParams[i], "");
             }
         }
         sendResponse(0, null, params, resp);
@@ -1355,7 +1355,7 @@ public class AuthAdminServlet extends AdminServlet {
         String[] configParams = mgrInst.getConfigParams();
         NameValuePairs params = new NameValuePairs();
 
-        params.add(Constants.PR_AUTH_IMPL_NAME, mgrInst.getImplName());
+        params.put(Constants.PR_AUTH_IMPL_NAME, mgrInst.getImplName());
         // implName is always required so always send it.
         if (configParams != null) {
             for (int i = 0; i < configParams.length; i++) {
@@ -1363,9 +1363,9 @@ public class AuthAdminServlet extends AdminServlet {
                 String val = (String) config.get(key);
 
                 if (val != null) {
-                    params.add(key, val);
+                    params.put(key, val);
                 } else {
-                    params.add(key, "");
+                    params.put(key, "");
                 }
             }
         }
@@ -1501,7 +1501,7 @@ public class AuthAdminServlet extends AdminServlet {
             NameValuePairs saveParams = new NameValuePairs();
 
             // implName is always required so always include it it.
-            saveParams.add(IAuthSubsystem.PROP_PLUGIN,
+            saveParams.put(IAuthSubsystem.PROP_PLUGIN,
                     (String) oldConfig.get(IAuthSubsystem.PROP_PLUGIN));
             if (oldConfigParms != null) {
                 for (int i = 0; i < oldConfigParms.length; i++) {
@@ -1509,7 +1509,7 @@ public class AuthAdminServlet extends AdminServlet {
                     Object val = oldConfig.get(key);
 
                     if (val != null) {
-                        saveParams.add(key, (String) val);
+                        saveParams.put(key, (String) val);
                     }
                 }
             }
@@ -1711,11 +1711,8 @@ public class AuthAdminServlet extends AdminServlet {
         store.removeSubStore(id);
         IConfigStore rstore = store.makeSubStore(id);
 
-        Enumeration<String> keys = saveParams.getNames();
-
-        while (keys.hasMoreElements()) {
-            String key = (String) keys.nextElement();
-            String value = saveParams.getValue(key);
+        for (String key : saveParams.keySet()) {
+            String value = saveParams.get(key);
 
             if (value != null)
                 rstore.put(key, value);

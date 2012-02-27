@@ -355,7 +355,7 @@ public class LogAdminServlet extends AdminServlet {
 
             // not show ntEventlog here
             if (all || (!all && !c.endsWith("NTEventLog")))
-                params.add(name, pName + ";visible");
+                params.put(name, pName + ";visible");
         }
         sendResponse(SUCCESS, null, params, resp);
         return;
@@ -976,7 +976,7 @@ public class LogAdminServlet extends AdminServlet {
 
             NameValuePairs params = new NameValuePairs();
 
-            params.add(Constants.PR_LOG_IMPL_NAME, implname);
+            params.put(Constants.PR_LOG_IMPL_NAME, implname);
 
             // store a message in the signed audit log file
             if (logType.equals(SIGNED_AUDIT_LOG_TYPE)) {
@@ -1054,7 +1054,7 @@ public class LogAdminServlet extends AdminServlet {
                         resp);
                 return;
             }
-            params.add(name, value.getClassPath() + "," + desc);
+            params.put(name, value.getClassPath() + "," + desc);
         }
         sendResponse(SUCCESS, null, params, resp);
         return;
@@ -1569,13 +1569,13 @@ public class LogAdminServlet extends AdminServlet {
             NameValuePairs saveParams = new NameValuePairs();
 
             // implName is always required so always include it it.
-            saveParams.add("pluginName", implname);
+            saveParams.put("pluginName", implname);
             if (oldConfigParms != null) {
                 for (int i = 0; i < oldConfigParms.size(); i++) {
                     String kv = (String) oldConfigParms.elementAt(i);
                     int index = kv.indexOf('=');
 
-                    saveParams.add(kv.substring(0, index),
+                    saveParams.put(kv.substring(0, index),
                             kv.substring(index + 1));
                 }
             }
@@ -2214,16 +2214,16 @@ public class LogAdminServlet extends AdminServlet {
         NameValuePairs params = new NameValuePairs();
 
         // implName is always required so always send it.
-        params.add(Constants.PR_LOG_IMPL_NAME, "");
+        params.put(Constants.PR_LOG_IMPL_NAME, "");
         if (configParams != null) {
             for (int i = 0; i < configParams.size(); i++) {
                 String kv = (String) configParams.elementAt(i);
                 int index = kv.indexOf('=');
 
                 if (index == -1) {
-                    params.add(kv, "");
+                    params.put(kv, "");
                 } else {
-                    params.add(kv.substring(0, index),
+                    params.put(kv.substring(0, index),
                             kv.substring(index + 1));
                 }
             }
@@ -2259,7 +2259,7 @@ public class LogAdminServlet extends AdminServlet {
         Vector<String> configParams = logInst.getInstanceParams();
         NameValuePairs params = new NameValuePairs();
 
-        params.add(Constants.PR_LOG_IMPL_NAME,
+        params.put(Constants.PR_LOG_IMPL_NAME,
                 getLogPluginName(logInst));
         // implName is always required so always send it.
         if (configParams != null) {
@@ -2267,7 +2267,7 @@ public class LogAdminServlet extends AdminServlet {
                 String kv = (String) configParams.elementAt(i);
                 int index = kv.indexOf('=');
 
-                params.add(kv.substring(0, index),
+                params.put(kv.substring(0, index),
                         kv.substring(index + 1));
             }
         }
@@ -2282,11 +2282,8 @@ public class LogAdminServlet extends AdminServlet {
         store.removeSubStore(id);
         IConfigStore rstore = store.makeSubStore(id);
 
-        Enumeration<String> keys = saveParams.getNames();
-
-        while (keys.hasMoreElements()) {
-            String key = (String) keys.nextElement();
-            String value = saveParams.getValue(key);
+        for (String key : saveParams.keySet()) {
+            String value = saveParams.get(key);
 
             if (value != null)
                 rstore.put(key, value);
@@ -2323,10 +2320,10 @@ public class LogAdminServlet extends AdminServlet {
         String value = "false";
 
         value = mConfig.getString(Constants.PR_DEBUG_LOG_ENABLE, "false");
-        params.add(Constants.PR_DEBUG_LOG_ENABLE, value);
+        params.put(Constants.PR_DEBUG_LOG_ENABLE, value);
 
         value = mConfig.getString(Constants.PR_DEBUG_LOG_LEVEL, "0");
-        params.add(Constants.PR_DEBUG_LOG_LEVEL, value);
+        params.put(Constants.PR_DEBUG_LOG_LEVEL, value);
 
         sendResponse(SUCCESS, null, params, resp);
     }

@@ -22,9 +22,8 @@ import java.awt.*;
 import java.awt.event.*;
 import javax.swing.table.*;
 import javax.swing.*;
-import javax.swing.border.*;
+
 import com.netscape.admin.certsrv.*;
-import com.netscape.management.client.util.*;
 import com.netscape.admin.certsrv.connection.*;
 import com.netscape.certsrv.common.*;
 
@@ -85,16 +84,15 @@ public class ManageCertDialog extends JDialog implements ActionListener,
 
         String[] vals = new String[response.size()];
         int i=0;
-        for (Enumeration e = response.getNames(); e.hasMoreElements() ;) {
-            String entry = ((String)e.nextElement()).trim();
-            vals[i++] = entry;
+        for (String entry : response.keySet()) {
+            vals[i++] = entry.trim();
         }
 
         CMSAdminUtil.bubbleSort(vals);
 
         for (i=0; i<vals.length; i++) { 
             String entry = vals[i];
-            String value = response.getValue(entry);
+            String value = response.get(entry);
             addRows(entry, value);
         }
         mTable.getSelectionModel().clearSelection();
@@ -278,9 +276,8 @@ public class ManageCertDialog extends JDialog implements ActionListener,
                   Constants.RS_ID_CONFIG, nvps);
                 if (nvps.size() <= 0)
                     return;
-                NameValuePair nvp = results.elementAt(0);
-                String name = nvp.getName();
-                String print = nvp.getValue();
+                String name = results.keySet().iterator().next(); // first element
+                String print = results.get(name);
                 CertificateInfoDialog dialog = new CertificateInfoDialog(mParent);
                 dialog.showDialog(name, print, getTrustLbl(), getDate(),mConn);
                 refresh();
@@ -339,7 +336,7 @@ public class ManageCertDialog extends JDialog implements ActionListener,
         for (int i=0; i<rows.length; i++) {
             String value = (String)mDataModel.getValueAt(rows[i], 0);
             String date = (String)mDataModel.getValueAt(rows[i], 1);
-            nvps.add(name+i, value+";"+date);
+            nvps.put(name + i, value + ";" + date);
         }
         return nvps;
     }

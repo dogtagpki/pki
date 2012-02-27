@@ -18,7 +18,6 @@
 package com.netscape.admin.certsrv.keycert;
 
 import java.awt.*;
-import java.io.*;
 import javax.swing.*;
 import com.netscape.admin.certsrv.*;
 import com.netscape.admin.certsrv.connection.*;
@@ -112,12 +111,12 @@ class WExecutePage extends WizardBasePanel implements IWizardPanel {
 
         if (wizardInfo.isNewKey()) {
             if (wizardInfo.getHashType() != null) 
-                nvps.add(ConfigConstants.PR_HASH_TYPE, wizardInfo.getHashType());
+                nvps.put(ConfigConstants.PR_HASH_TYPE, wizardInfo.getHashType());
             if (wizardInfo.getSignedByType() != null)
-                nvps.add(ConfigConstants.PR_SIGNEDBY_TYPE, wizardInfo.getSignedByType());
+                nvps.put(ConfigConstants.PR_SIGNEDBY_TYPE, wizardInfo.getSignedByType());
         }
 
-        nvps.add("pathname", dir);
+        nvps.put("pathname", dir);
         try {
             connection.modify(
               DestDef.DEST_SERVER_ADMIN, ScopeDef.SC_ISSUE_IMPORT_CERT,

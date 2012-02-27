@@ -18,16 +18,12 @@
 package com.netscape.admin.certsrv.config;
 
 import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.config.*;
 import com.netscape.admin.certsrv.connection.*;
 import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.table.*;
-import javax.swing.text.*;
 import java.awt.event.*;
 import java.awt.*;
 import java.util.*;
-import com.netscape.management.client.*;
+
 import com.netscape.management.client.util.*;
 import com.netscape.certsrv.common.*;
 
@@ -145,9 +141,9 @@ public class ACLEditDialog extends JDialog
                     else
                         str = str+(String)mDataModel.elementAt(i);
                 }
-                pairs.add(Constants.PR_ACI, str);
-                pairs.add(Constants.PR_ACL_DESC, desc);
-                pairs.add(Constants.PR_ACL_RIGHTS, rights);
+                pairs.put(Constants.PR_ACI, str);
+                pairs.put(Constants.PR_ACL_DESC, desc);
+                pairs.put(Constants.PR_ACL_RIGHTS, rights);
             }
 
             try {
@@ -204,8 +200,8 @@ public class ACLEditDialog extends JDialog
     }
 
     public void showDialog(NameValuePairs data) {
-        String aci = data.getValue(Constants.PR_ACI);
-        mOperations = data.getValue(Constants.PR_ACL_OPS);
+        String aci = data.get(Constants.PR_ACI);
+        mOperations = data.get(Constants.PR_ACL_OPS);
 
         if ((aci != null) && (!aci.trim().equals(""))) {
             StringTokenizer tokenizer = new StringTokenizer(aci, ";");

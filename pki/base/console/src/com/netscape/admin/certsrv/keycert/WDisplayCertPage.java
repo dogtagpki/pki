@@ -20,7 +20,6 @@ package com.netscape.admin.certsrv.keycert;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
-import java.io.*;
 import javax.swing.*;
 import com.netscape.admin.certsrv.*;
 import com.netscape.admin.certsrv.connection.*;
@@ -126,16 +125,16 @@ class WDisplayCertPage extends WizardBasePanel implements IWizardPanel {
         String cert = wizardInfo.getPKCS10();
 
         if (cert == null) {
-            nvps.add(Constants.PR_CERT_FILEPATH, 
-              wizardInfo.getCertFilePath());
+            nvps.put(Constants.PR_CERT_FILEPATH,
+                    wizardInfo.getCertFilePath());
         } else {
-            nvps.add(Constants.PR_PKCS10, wizardInfo.getPKCS10());
+            nvps.put(Constants.PR_PKCS10, wizardInfo.getPKCS10());
         }
 
-        nvps.add(Constants.PR_NICKNAME, mCertNameField.getText().trim());
-        nvps.add("pathname", pathname);
-        nvps.add(Constants.PR_SERVER_ROOT, serverInfo.getServerRoot());
-        nvps.add(Constants.PR_SERVER_ID, serverInfo.getServerId());
+        nvps.put(Constants.PR_NICKNAME, mCertNameField.getText().trim());
+        nvps.put("pathname", pathname);
+        nvps.put(Constants.PR_SERVER_ROOT, serverInfo.getServerRoot());
+        nvps.put(Constants.PR_SERVER_ID, serverInfo.getServerId());
 
         try {
             connection.modify(

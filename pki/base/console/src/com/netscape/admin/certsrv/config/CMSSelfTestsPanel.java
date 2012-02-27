@@ -23,7 +23,6 @@ import com.netscape.certsrv.common.*;
 import com.netscape.management.client.util.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
@@ -147,7 +146,7 @@ public class CMSSelfTestsPanel extends CMSBaseTab
         NameValuePairs nvps = new NameValuePairs();
         NameValuePairs nvps1;
   
-        nvps.add( Constants.PR_RUN_SELFTESTS_ON_DEMAND, Constants.TRUE );
+        nvps.put(Constants.PR_RUN_SELFTESTS_ON_DEMAND, Constants.TRUE);
   
         if( evt.getSource().equals( mOnDemand ) ) {
             Debug.println( "Run self tests on-demand . . ." );
@@ -161,13 +160,14 @@ public class CMSSelfTestsPanel extends CMSBaseTab
                 // show server response
                 String responseClass = "";
                 String response = "";
-                for( int i = 0; i < nvps1.size(); i++ ) {
-                    if( i == 0 ) {
-                        responseClass = nvps1.elementAt( i ).getValue();
+                boolean first = true;
+                for (String name : nvps1.keySet()) {
+                    String value = nvps1.get(name);
+                    if (first) {
+                        first = false;
+                        responseClass = value;
                     } else {
-                        response = response
-                                 + nvps1.elementAt( i ).getValue()
-                                 + "\n";
+                        response = response + value + "\n";
                     }
                 }
 

@@ -18,7 +18,6 @@
 package com.netscape.admin.certsrv.ug;
 
 import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
 import com.netscape.certsrv.common.*;
 import com.netscape.management.client.util.*;
 import java.util.*;
@@ -60,7 +59,7 @@ public class CertDataModel extends CMSContentTableModel
         NameValuePairs obj = (NameValuePairs) data;
 
         //XXX NEED TO CHANGE if we are going to have multi-column table
-        v.addElement(new JLabel(obj.getValue(CERT_NAME),
+        v.addElement(new JLabel(obj.get(CERT_NAME),
             CMSAdminUtil.getImage(CMSAdminResources.IMAGE_CERTICON_SMALL),
             JLabel.LEFT));
         addRow(v, data);
@@ -77,7 +76,7 @@ public class CertDataModel extends CMSContentTableModel
     public String getDataBlob(int row) {
         try {
             NameValuePairs obj = (NameValuePairs)getObjectValueAt(row);
-            return obj.getValue(CERT_DATA);
+            return obj.get(CERT_DATA);
         } catch (Exception e) {
             Debug.println("CertDataModel: getDataBlob()- "+e.toString());
             return "";

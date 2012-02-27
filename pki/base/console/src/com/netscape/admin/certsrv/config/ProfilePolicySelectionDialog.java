@@ -24,7 +24,7 @@ import javax.swing.event.*;
 import java.awt.event.*;
 import java.awt.*;
 import java.util.*;
-import com.netscape.management.client.*;
+
 import com.netscape.management.client.util.*;
 import com.netscape.certsrv.common.*;
 
@@ -460,9 +460,9 @@ public class ProfilePolicySelectionDialog extends JDialog
         //parse the data
         String[] vals = new String[response.size()];
         int i=0;
-        for (Enumeration e = response.getNames(); e.hasMoreElements() ;) {
-            String name = ((String)e.nextElement()).trim();
-            String val = response.getValue(name);
+        for (String name : response.keySet()) {
+            name = name.trim();
+            String val = response.get(name);
             StringTokenizer st = new StringTokenizer(val, ",");
             String className = st.nextToken();
             String desc = st.nextToken();

@@ -126,8 +126,8 @@ public class CMSOCSPGeneralPanel extends CMSBaseTab implements ItemListener {
     public void refresh() {
         mModel.progressStart();
         NameValuePairs nvps = new NameValuePairs();
-        nvps.add(Constants.PR_DEFAULT_ALGORITHM, "");
-        nvps.add(Constants.PR_ALL_ALGORITHMS, "");
+        nvps.put(Constants.PR_DEFAULT_ALGORITHM, "");
+        nvps.put(Constants.PR_ALL_ALGORITHMS, "");
 
         try {
             NameValuePairs val = mAdmin.read(DestDef.DEST_OCSP_ADMIN,
@@ -144,13 +144,12 @@ public class CMSOCSPGeneralPanel extends CMSBaseTab implements ItemListener {
 
     protected void populate(NameValuePairs nvps) {
         String defaultAlgorithm = "";
-        for (int i=0; i<nvps.size(); i++) {
-            NameValuePair nvp = nvps.elementAt(i);
-            String name = nvp.getName();
+        for (String name : nvps.keySet()) {
+            String value = nvps.get(name);
             if (name.equals(Constants.PR_DEFAULT_ALGORITHM)) {
-                defaultAlgorithm = nvp.getValue();
+                defaultAlgorithm = value;
             } else if (name.equals(Constants.PR_ALL_ALGORITHMS)) {
-                initAlgorithmBox(nvp.getValue());
+                initAlgorithmBox(value);
             }
         }
 
@@ -191,8 +190,8 @@ public class CMSOCSPGeneralPanel extends CMSBaseTab implements ItemListener {
     public boolean applyCallback() {
         NameValuePairs nvps = new NameValuePairs();
 
-        nvps.add(Constants.PR_DEFAULT_ALGORITHM, 
-          (String)mAlgorithms.getSelectedItem());
+        nvps.put(Constants.PR_DEFAULT_ALGORITHM,
+                (String) mAlgorithms.getSelectedItem());
 
         mModel.progressStart();
         try {

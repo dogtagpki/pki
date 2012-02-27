@@ -220,19 +220,18 @@ public class SubjectDirAttributesExtDefault extends EnrollExtDefault {
                 Vector<Attribute> attrV = new Vector<Attribute>();
                 for (int i = 0; i < size; i++) {
                     NameValuePairs nvps = v.elementAt(i);
-                    Enumeration<String> names = nvps.getNames();
                     String attrName = null;
                     String attrValue = null;
                     String enable = "false";
-                    while (names.hasMoreElements()) {
-                        String name1 = names.nextElement();
+
+                    for (String name1 : nvps.keySet()) {
 
                         if (name1.equals(ATTR_NAME)) {
-                            attrName = nvps.getValue(name1);
+                            attrName = nvps.get(name1);
                         } else if (name1.equals(ATTR_VALUE)) {
-                            attrValue = nvps.getValue(name1);
+                            attrValue = nvps.get(name1);
                         } else if (name1.equals(ENABLE)) {
-                            enable = nvps.getValue(name1);
+                            enable = nvps.get(name1);
                         }
                     }
 
@@ -316,7 +315,7 @@ public class SubjectDirAttributesExtDefault extends EnrollExtDefault {
 
             while (e.hasMoreElements()) {
                 NameValuePairs pairs = new NameValuePairs();
-                pairs.add(ENABLE, "true");
+                pairs.put(ENABLE, "true");
                 Attribute attr = e.nextElement();
                 CMS.debug("SubjectDirAttributesExtDefault: getValue: attribute=" + attr);
                 ObjectIdentifier oid = attr.getOid();
@@ -325,9 +324,9 @@ public class SubjectDirAttributesExtDefault extends EnrollExtDefault {
                 String vv = map.getName(oid);
 
                 if (vv != null)
-                    pairs.add(ATTR_NAME, vv);
+                    pairs.put(ATTR_NAME, vv);
                 else
-                    pairs.add(ATTR_NAME, oid.toString());
+                    pairs.put(ATTR_NAME, oid.toString());
                 Enumeration<String> v = attr.getValues();
 
                 // just support single value for now
@@ -341,16 +340,16 @@ public class SubjectDirAttributesExtDefault extends EnrollExtDefault {
                     }
                 }
 
-                pairs.add(ATTR_VALUE, ss.toString());
+                pairs.put(ATTR_VALUE, ss.toString());
                 recs.addElement(pairs);
                 i++;
             }
 
             for (; i < num; i++) {
                 NameValuePairs pairs = new NameValuePairs();
-                pairs.add(ENABLE, "false");
-                pairs.add(ATTR_NAME, "GENERATIONQUALIFIER");
-                pairs.add(ATTR_VALUE, "");
+                pairs.put(ENABLE, "false");
+                pairs.put(ATTR_NAME, "GENERATIONQUALIFIER");
+                pairs.put(ATTR_VALUE, "");
                 recs.addElement(pairs);
             }
 

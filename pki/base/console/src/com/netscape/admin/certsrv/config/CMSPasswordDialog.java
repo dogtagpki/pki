@@ -22,7 +22,7 @@ import java.util.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.event.*;
-import javax.swing.border.*;
+
 import com.netscape.admin.certsrv.*;
 import com.netscape.management.client.util.*;
 import com.netscape.certsrv.common.*;
@@ -229,8 +229,8 @@ public class CMSPasswordDialog extends JDialog
             
                
             NameValuePairs nvps = new NameValuePairs();
-            nvps.add(Constants.PR_OLD_AGENT_PWD, oldpassword);
-            nvps.add(Constants.PR_AGENT_PWD, newpassword);
+            nvps.put(Constants.PR_OLD_AGENT_PWD, oldpassword);
+            nvps.put(Constants.PR_AGENT_PWD, newpassword);
 
             try {
                 mAdmin.modify(DestDef.DEST_KRA_ADMIN,

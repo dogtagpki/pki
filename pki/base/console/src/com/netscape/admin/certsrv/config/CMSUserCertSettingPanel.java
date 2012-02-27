@@ -20,8 +20,7 @@ package com.netscape.admin.certsrv.config;
 import com.netscape.admin.certsrv.*;
 import com.netscape.certsrv.common.*;
 import com.netscape.management.client.util.*;
-import javax.swing.*;
-import java.awt.*;
+
 import java.awt.event.*;
 
 /**
@@ -77,8 +76,8 @@ public class CMSUserCertSettingPanel extends CMSCertSettingPanel {
     public void refresh() {
         _model.progressStart();
         NameValuePairs nvp = new NameValuePairs();
-        nvp.add(Constants.PR_MAPPER, "");
-        nvp.add(Constants.PR_PUBLISHER, "");
+        nvp.put(Constants.PR_MAPPER, "");
+        nvp.put(Constants.PR_PUBLISHER, "");
 
         try {
             NameValuePairs val = _admin.read(_servletName,
@@ -142,13 +141,12 @@ public class CMSUserCertSettingPanel extends CMSCertSettingPanel {
     }
 
     private void populate(NameValuePairs nvps) {
-        for (int i=0; i<nvps.size(); i++) {
-            NameValuePair nvp = nvps.elementAt(i);
-            String name = nvp.getName();
+        for (String name : nvps.keySet()) {
+            String value = nvps.get(name);
             if (name.equals(Constants.PR_MAPPER)) {
-                _mapper.setText(nvp.getValue());
+                _mapper.setText(value);
             } else if (name.equals(Constants.PR_PUBLISHER)) {
-                _publisher.setText(nvp.getValue());
+                _publisher.setText(value);
             }
         }
     }

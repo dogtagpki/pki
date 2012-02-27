@@ -17,10 +17,8 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.common;
 
-import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.LinkedHashMap;
 import java.util.StringTokenizer;
-import java.util.Vector;
 
 /**
  * A class represents an ordered list of name
@@ -28,109 +26,14 @@ import java.util.Vector;
  * 
  * @version $Revision$, $Date$
  */
-public class NameValuePairs {
+public class NameValuePairs extends LinkedHashMap<String, String> {
 
-    private Vector<NameValuePair> mPairs = new Vector<NameValuePair>();
-
-    // an index to speed up searching
-    // The key is the name.  The element is the NameValuePair.
-    private Hashtable<String, NameValuePair> index = new Hashtable<String, NameValuePair>();
+    private static final long serialVersionUID = 1494507857048437440L;
 
     /**
      * Constructs name value pairs.
      */
     public NameValuePairs() {
-    }
-
-    /**
-     * Adds a name value pair into this set.
-     * if the name already exist, the value will
-     * be replaced.
-     * 
-     * @param name name
-     * @param value value
-     */
-    public void add(String name, String value) {
-        NameValuePair pair = getPair(name);
-
-        if (pair == null) {
-            pair = new NameValuePair(name, value);
-            mPairs.addElement(pair);
-            index.put(name, pair);
-        } else {
-            pair.setValue(value);
-        }
-    }
-
-    /**
-     * Retrieves name value pair from this set.
-     * 
-     * @param name name
-     * @return name value pair
-     */
-    public NameValuePair getPair(String name) {
-        return (NameValuePair) index.get(name);
-    }
-
-    /**
-     * Returns number of pairs in this set.
-     * 
-     * @return size
-     */
-    public int size() {
-        return mPairs.size();
-    }
-
-    /**
-     * Retrieves name value pairs in specific position.
-     * 
-     * @param pos position of the value
-     * @return name value pair
-     */
-    public NameValuePair elementAt(int pos) {
-        return (NameValuePair) mPairs.elementAt(pos);
-    }
-
-    /**
-     * Removes all name value pairs in this set.
-     */
-    public void removeAllPairs() {
-        mPairs.removeAllElements();
-        index.clear();
-    }
-
-    /**
-     * Retrieves value of the name value pairs that matches
-     * the given name.
-     * 
-     * @param name name
-     * @return value
-     */
-    public String getValue(String name) {
-        NameValuePair p = getPair(name);
-
-        if (p != null) {
-            return p.getValue();
-        }
-        return null;
-    }
-
-    /**
-     * Retrieves a list of names.
-     * 
-     * @return a list of names
-     */
-    public Enumeration<String> getNames() {
-        Vector<String> v = new Vector<String>();
-        int size = mPairs.size();
-
-        for (int i = 0; i < size; i++) {
-            NameValuePair p = (NameValuePair) mPairs.elementAt(i);
-
-            v.addElement(p.getName());
-        }
-        //System.out.println("getNames: "+v.size());
-        return v.elements();
     }
 
     /**
@@ -142,12 +45,13 @@ public class NameValuePairs {
     public String toString() {
         StringBuffer buf = new StringBuffer();
 
-        for (int i = 0; i < mPairs.size(); i++) {
-            NameValuePair p = (NameValuePair) mPairs.elementAt(i);
+        for (String name : keySet()) {
+            String value = get(name);
 
-            buf.append(p.getName() + "=" + p.getValue());
+            buf.append(name + "=" + value);
             buf.append("\n");
         }
+
         return buf.toString();
     }
 
@@ -171,17 +75,8 @@ public class NameValuePairs {
             String n = t.substring(0, i);
             String v = t.substring(i + 1);
 
-            nvp.add(n, v);
+            nvp.put(n, v);
         }
         return true;
-    }
-
-    /**
-     * Returns a list of name value pair object.
-     * 
-     * @return name value objects
-     */
-    public Enumeration<NameValuePair> elements() {
-        return mPairs.elements();
     }
 }

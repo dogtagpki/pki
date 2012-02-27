@@ -21,11 +21,10 @@ import com.netscape.admin.certsrv.*;
 import com.netscape.admin.certsrv.connection.*;
 import com.netscape.admin.certsrv.ug.*;
 import javax.swing.*;
-import javax.swing.event.*;
 import java.awt.event.*;
 import java.awt.*;
 import java.util.*;
-import com.netscape.management.client.*;
+
 import com.netscape.management.client.util.*;
 import com.netscape.certsrv.common.*;
 
@@ -117,9 +116,9 @@ public class PolicyImplTab extends CMSBaseUGTab {
                     mDataModel.getObjectValueAt(mTable.getSelectedRow());    
             if (mViewer==null)
                 mViewer = new ViewDialog(mModel.getFrame());
-            mViewer.showDialog(obj.getValue(IMPL_NAME),
-                               obj.getValue(IMPL_CLASS),
-                               obj.getValue(IMPL_DESC));
+            mViewer.showDialog(obj.get(IMPL_NAME),
+                               obj.get(IMPL_CLASS),
+                               obj.get(IMPL_DESC));
         }        
         if (e.getSource().equals(mHelp)) {
             helpCallback();
@@ -271,16 +270,16 @@ public class PolicyImplTab extends CMSBaseUGTab {
         //parse the data
         int i=0;
         String[] vals = new String[response.size()];
-        Hashtable data = new Hashtable();
-        for (Enumeration e = response.getNames(); e.hasMoreElements() ;) {
-            String entry = ((String)e.nextElement()).trim();
-            String value = response.getValue(entry);
+        Hashtable<String, NameValuePairs> data = new Hashtable<String, NameValuePairs>();
+        for (String entry : response.keySet()) {
+            entry = entry.trim();
+            String value = response.get(entry);
             int x = value.indexOf(",");
             NameValuePairs obj = new NameValuePairs();
-            obj.add(IMPL_NAME,entry);
+            obj.put(IMPL_NAME, entry);
             vals[i++]= entry ;
-            obj.add(IMPL_CLASS, value.substring(0,x));
-            obj.add(IMPL_DESC, value.substring(x+1));
+            obj.put(IMPL_CLASS, value.substring(0, x));
+            obj.put(IMPL_DESC, value.substring(x + 1));
             data.put(entry,obj);
         }
         
@@ -308,7 +307,7 @@ public class PolicyImplTab extends CMSBaseUGTab {
         try {
             mConnection.delete(mDestination,
                                ScopeDef.SC_POLICY_IMPLS,
-                               obj.getValue(IMPL_NAME));
+                               obj.get(IMPL_NAME));
         } catch (EAdminException e) {
             //display error dialog
             showErrorDialog(e.getMessage());

@@ -21,11 +21,10 @@ import com.netscape.admin.certsrv.*;
 import com.netscape.admin.certsrv.connection.*;
 import com.netscape.admin.certsrv.ug.*;
 import javax.swing.*;
-import javax.swing.event.*;
 import java.awt.event.*;
 import java.awt.*;
 import java.util.*;
-import com.netscape.management.client.*;
+
 import com.netscape.management.client.util.*;
 import com.netscape.management.client.console.*;
 import com.netscape.certsrv.common.*;
@@ -123,17 +122,16 @@ public class CACertsTab extends CMSBaseUGTab {
 
             try {
                 NameValuePairs nvps = new NameValuePairs();
-                nvps.add(Constants.PR_NICK_NAME, nickname);
-                nvps.add(Constants.PR_SERIAL_NUMBER, serialno);
-                nvps.add(Constants.PR_ISSUER_NAME, issuername);
+                nvps.put(Constants.PR_NICK_NAME, nickname);
+                nvps.put(Constants.PR_SERIAL_NUMBER, serialno);
+                nvps.put(Constants.PR_ISSUER_NAME, issuername);
                 NameValuePairs results = mConnection.process(
                   DestDef.DEST_SERVER_ADMIN, ScopeDef.SC_CERT_PRETTY_PRINT,
                   Constants.RS_ID_CONFIG, nvps);
                 if (nvps.size() <= 0)
                     return;
-                NameValuePair nvp = results.elementAt(0);
-                String name = nvp.getName();
-                String print = nvp.getValue();
+                String name = results.keySet().iterator().next(); // first element
+                String print = results.get(name);
                 CertViewDialog certdialog = new CertViewDialog(mModel.getFrame());
                 certdialog.showDialog(nickname, print);
             } catch (EAdminException ex) {
@@ -150,17 +148,16 @@ public class CACertsTab extends CMSBaseUGTab {
 
             try {
                 NameValuePairs nvps = new NameValuePairs();
-                nvps.add(Constants.PR_NICK_NAME, nickname);
-                nvps.add(Constants.PR_SERIAL_NUMBER, serialno);
-                nvps.add(Constants.PR_ISSUER_NAME, issuername);
+                nvps.put(Constants.PR_NICK_NAME, nickname);
+                nvps.put(Constants.PR_SERIAL_NUMBER, serialno);
+                nvps.put(Constants.PR_ISSUER_NAME, issuername);
                 NameValuePairs results = mConnection.process(
                   DestDef.DEST_SERVER_ADMIN, ScopeDef.SC_ROOTCERT_TRUSTBIT,
                   Constants.RS_ID_CONFIG, nvps);
                 if (nvps.size() <= 0)
                     return;
-                NameValuePair nvp = results.elementAt(0);
-                String name = nvp.getName();
-                String trust = nvp.getValue();
+                String name = results.keySet().iterator().next(); // first element
+                String trust = results.get(name);
                 int i;
                 String[] params = new String[2];
                 if (trust.equals("U")) {
@@ -174,7 +171,7 @@ public class CACertsTab extends CMSBaseUGTab {
                 }
 
                 if (i == JOptionPane.YES_OPTION) {
-                    nvps.add("trustbit", params[1]);
+                    nvps.put("trustbit", params[1]);
                     mConnection.modify(DestDef.DEST_SERVER_ADMIN, 
                       ScopeDef.SC_ROOTCERT_TRUSTBIT,
                       Constants.RS_ID_CONFIG, nvps);
@@ -333,9 +330,8 @@ public class CACertsTab extends CMSBaseUGTab {
         if (response != null) {
             String[] vals = new String[response.size()];
             int i=0;
-            for (Enumeration e = response.getNames(); e.hasMoreElements() ;) {
-                String entry = ((String)e.nextElement()).trim();
-                vals[i++] = entry;
+            for (String entry : response.keySet()) {
+                vals[i++] = entry.trim();
             }
 
             int sindex = 0;
@@ -344,7 +340,7 @@ public class CACertsTab extends CMSBaseUGTab {
             for (i=0; i<vals.length; i++) {
                 Vector v = new Vector();
                 String entry = vals[i];
-                String value = response.getValue(entry);
+                String value = response.get(entry);
 
                 // look for the comma separator
                 int lastindex = entry.lastIndexOf(",");

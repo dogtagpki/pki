@@ -20,7 +20,6 @@ package com.netscape.admin.certsrv.config;
 import java.util.*;
 import javax.swing.*;
 import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
 import com.netscape.certsrv.common.*;
 
 /**
@@ -58,10 +57,10 @@ public class LogImplDataModel extends CMSContentTableModel
     public void processData(Object data) {
         Vector v = new Vector();
         NameValuePairs obj = (NameValuePairs) data;
-        v.addElement(new JLabel(obj.getValue(IMPL_NAME),
+        v.addElement(new JLabel(obj.get(IMPL_NAME),
             CMSAdminUtil.getImage(CMSAdminResources.IMAGE_RULE_PLUGIN),
             JLabel.LEFT));
-        v.addElement(obj.getValue(IMPL_CLASS));
+        v.addElement(obj.get(IMPL_CLASS));
         //v.addElement(obj.getValue(IMPL_DESC));
         addRow(v, data);
     }

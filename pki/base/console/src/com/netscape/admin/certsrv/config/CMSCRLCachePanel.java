@@ -24,7 +24,6 @@ import com.netscape.admin.certsrv.connection.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.StringTokenizer;
 
 /**
  * Panel Setting CRL Cache
@@ -205,10 +204,10 @@ public class CMSCRLCachePanel extends CMSBaseTab {
     public void refresh() {
         _model.progressStart();
         NameValuePairs nvps = new NameValuePairs();
-        nvps.add(Constants.PR_ENABLE_CACHE, "");
-        nvps.add(Constants.PR_CACHE_FREQ, "");
-        nvps.add(Constants.PR_CACHE_RECOVERY, "");
-        nvps.add(Constants.PR_CACHE_TESTING, "");
+        nvps.put(Constants.PR_ENABLE_CACHE, "");
+        nvps.put(Constants.PR_CACHE_FREQ, "");
+        nvps.put(Constants.PR_CACHE_RECOVERY, "");
+        nvps.put(Constants.PR_CACHE_TESTING, "");
 
         try {
             NameValuePairs val = null;
@@ -233,10 +232,8 @@ public class CMSCRLCachePanel extends CMSBaseTab {
 
     public void populate(NameValuePairs nvps) {
         String signingAlg = "";
-        for (int i=0; i<nvps.size(); i++) {
-            NameValuePair nvp = nvps.elementAt(i);
-            String name = nvp.getName();            
-            String value = nvp.getValue().trim();
+        for (String name : nvps.keySet()) {
+            String value = nvps.get(name).trim();
             if (name.equals(Constants.PR_ENABLE_CACHE)) {
                 mEnableCache.setSelected(getBoolean(value, true));
             } else if (name.equals(Constants.PR_CACHE_FREQ)) {
@@ -276,9 +273,9 @@ public class CMSCRLCachePanel extends CMSBaseTab {
 
 
         if (mEnableCache.isSelected())
-            nvps.add(Constants.PR_ENABLE_CACHE, Constants.TRUE);
+            nvps.put(Constants.PR_ENABLE_CACHE, Constants.TRUE);
         else
-            nvps.add(Constants.PR_ENABLE_CACHE, Constants.FALSE);
+            nvps.put(Constants.PR_ENABLE_CACHE, Constants.FALSE);
 
         cacheFreq = mCacheFreq.getText().trim();
         if (cacheFreq.equals("")) {
@@ -295,18 +292,18 @@ public class CMSCRLCachePanel extends CMSBaseTab {
             showMessageDialog("NUMBERFORMAT");
             return false;
         }
-        nvps.add(Constants.PR_CACHE_FREQ, cacheFreq);
+        nvps.put(Constants.PR_CACHE_FREQ, cacheFreq);
 
 
         if (mEnableCacheRecovery.isSelected())
-            nvps.add(Constants.PR_CACHE_RECOVERY, Constants.TRUE);
+            nvps.put(Constants.PR_CACHE_RECOVERY, Constants.TRUE);
         else
-            nvps.add(Constants.PR_CACHE_RECOVERY, Constants.FALSE);
+            nvps.put(Constants.PR_CACHE_RECOVERY, Constants.FALSE);
 
         if (mEnableCacheTesting.isSelected())
-            nvps.add(Constants.PR_CACHE_TESTING, Constants.TRUE);
+            nvps.put(Constants.PR_CACHE_TESTING, Constants.TRUE);
         else
-            nvps.add(Constants.PR_CACHE_TESTING, Constants.FALSE);
+            nvps.put(Constants.PR_CACHE_TESTING, Constants.FALSE);
 
         _model.progressStart();
 

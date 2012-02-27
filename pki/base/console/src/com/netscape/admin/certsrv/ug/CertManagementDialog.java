@@ -20,11 +20,10 @@ package com.netscape.admin.certsrv.ug;
 import com.netscape.admin.certsrv.*;
 import com.netscape.admin.certsrv.connection.*;
 import javax.swing.*;
-import javax.swing.event.*;
 import java.awt.event.*;
 import java.awt.*;
 import java.util.*;
-import com.netscape.management.client.*;
+
 import com.netscape.management.client.util.*;
 import com.netscape.certsrv.common.*;
 
@@ -298,8 +297,8 @@ public class CertManagementDialog extends JDialog
         String[] vals = new String[response.size()];
         int i=0;
         
-        for (Enumeration e = response.getNames(); e.hasMoreElements() ;) {
-            vals[i++] = ((String)e.nextElement()).trim();
+        for (String entry : response.keySet()) {
+            vals[i++] = entry.trim();
         }
         
         CMSAdminUtil.bubbleSort(vals);
@@ -309,7 +308,7 @@ public class CertManagementDialog extends JDialog
             mDataModel.addElement(new JLabel(str,
                 CMSAdminUtil.getImage(CMSAdminResources.IMAGE_CERTICON_SMALL),
                 JLabel.LEFT));
-            mPPData.addElement(response.getValue(vals[y]));
+            mPPData.addElement(response.get(vals[y]));
         }
         
         return true;
@@ -386,7 +385,7 @@ public class CertManagementDialog extends JDialog
     private void addCert(String B64E) {
         //send comment to server for the removal of user
         NameValuePairs config = new NameValuePairs();
-        config.add(Constants.PR_USER_CERT, cleanupCertData(B64E));
+        config.put(Constants.PR_USER_CERT, cleanupCertData(B64E));
         try {
             mConnection.add(DestDef.DEST_USER_ADMIN,
                             ScopeDef.SC_USER_CERTS,
@@ -423,7 +422,7 @@ public class CertManagementDialog extends JDialog
         String dn = ((JLabel)mDataModel.elementAt(mList.getSelectedIndex())).getText();
         dn = toServerFormat(dn);
         NameValuePairs config = new NameValuePairs();
-        config.add(Constants.PR_USER_CERT,dn);
+        config.put(Constants.PR_USER_CERT, dn);
         
         //send comment to server for the removal of user
         try {

@@ -21,7 +21,6 @@ import java.util.*;
 import javax.swing.*;
 import com.netscape.certsrv.common.*;
 import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
 import com.netscape.management.client.util.*;
 
 /**
@@ -66,13 +65,13 @@ public class MemberDataModel extends CMSContentTableModel
         NameValuePairs rec = (NameValuePairs)data;
 
         Icon icon;
-        icon = (rec.getValue(MEMBER_TYPE).equals(MEMBER_GROUP))?
+        icon = (rec.get(MEMBER_TYPE).equals(MEMBER_GROUP))?
                 CMSAdminUtil.getImage(CMSAdminResources.IMAGE_USERGROUP):
                 CMSAdminUtil.getImage(CMSAdminResources.IMAGE_USER);
 
-        String entry = rec.getValue(MEMBER_NAME);
+        String entry = rec.get(MEMBER_NAME);
         String name = entry;
-        if(rec.getValue(MEMBER_TYPE).equals(MEMBER_GROUP)) {
+        if(rec.get(MEMBER_TYPE).equals(MEMBER_GROUP)) {
             if (entry.startsWith(PrefixDef.PX_SYS))
                 name = entry.substring(PrefixDef.PX_SYS.length());
             else
@@ -101,10 +100,10 @@ public class MemberDataModel extends CMSContentTableModel
     {
         Debug.println("MemberDataModel: removeRow() - start");
         NameValuePairs data = (NameValuePairs)getObjectValueAt(index);
-        if (data.getValue(MEMBER_TYPE).equals(MEMBER_GROUP))
-            mGroups.removeElement(data.getValue(MEMBER_NAME));
+        if (data.get(MEMBER_TYPE).equals(MEMBER_GROUP))
+            mGroups.removeElement(data.get(MEMBER_NAME));
         else
-            mUsers.removeElement(data.getValue(MEMBER_NAME));
+            mUsers.removeElement(data.get(MEMBER_NAME));
         super.removeRow(index);
         Debug.println("MemberDataModel: removeRow() - end");
     }
@@ -118,10 +117,10 @@ public class MemberDataModel extends CMSContentTableModel
         super.addRow(values);
         mObjectContainer.addElement(obj);
         NameValuePairs rec = (NameValuePairs)obj;
-        if (rec.getValue(MEMBER_TYPE).equals(MEMBER_GROUP))
-            mGroups.addElement(rec.getValue(MEMBER_NAME));
+        if (rec.get(MEMBER_TYPE).equals(MEMBER_GROUP))
+            mGroups.addElement(rec.get(MEMBER_NAME));
         else
-            mUsers.addElement(rec.getValue(MEMBER_NAME));
+            mUsers.addElement(rec.get(MEMBER_NAME));
     }
 
     /**

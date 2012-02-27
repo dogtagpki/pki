@@ -24,9 +24,8 @@ import javax.swing.event.*;
 import java.awt.event.*;
 import java.awt.*;
 import java.util.*;
-import com.netscape.management.client.*;
+
 import com.netscape.management.client.util.*;
-import javax.swing.table.*;
 import com.netscape.certsrv.common.*;
 
 /**
@@ -520,11 +519,11 @@ public class UserEditor extends JDialog
 
         //construct NVP
         NameValuePairs config = new NameValuePairs();
-        config.add(Constants.PR_USER_FULLNAME, "");
-        config.add(Constants.PR_USER_EMAIL, "");
-        config.add(Constants.PR_USER_PHONE, "");
-        config.add(Constants.PR_USER_STATE, "");
-        config.add(Constants.PR_USER_GROUP, "");
+        config.put(Constants.PR_USER_FULLNAME, "");
+        config.put(Constants.PR_USER_EMAIL, "");
+        config.put(Constants.PR_USER_PHONE, "");
+        config.put(Constants.PR_USER_STATE, "");
+        config.put(Constants.PR_USER_GROUP, "");
 
         NameValuePairs response;
         response = mConnection.read(DestDef.DEST_USER_ADMIN,
@@ -534,13 +533,13 @@ public class UserEditor extends JDialog
 
         //setup the ui
         mUserNameField.setText(mUserName);
-        mFullNameField.setText(response.getValue(Constants.PR_USER_FULLNAME));
-        mEMailField.setText(response.getValue(Constants.PR_USER_EMAIL));
-        mPhoneField.setText(response.getValue(Constants.PR_USER_PHONE));
-        mStateField.setText(response.getValue(Constants.PR_USER_STATE));
+        mFullNameField.setText(response.get(Constants.PR_USER_FULLNAME));
+        mEMailField.setText(response.get(Constants.PR_USER_EMAIL));
+        mPhoneField.setText(response.get(Constants.PR_USER_PHONE));
+        mStateField.setText(response.get(Constants.PR_USER_STATE));
 
         //parse group entry
-        String userStr = response.getValue(Constants.PR_USER_GROUP);
+        String userStr = response.get(Constants.PR_USER_GROUP);
         if ( (userStr != null) && (!userStr.trim().equals("")) ) {
             StringTokenizer tokenizer = new StringTokenizer(userStr, ",");
             while (tokenizer.hasMoreTokens()) {
@@ -556,8 +555,7 @@ public class UserEditor extends JDialog
           ScopeDef.SC_GROUPS, new NameValuePairs());
         if (mGroupBox.getItemCount() > 0)
             mGroupBox.removeAllItems();
-        for (Enumeration e = response.getNames(); e.hasMoreElements() ;) {
-            String groupname = (String)e.nextElement();
+        for (String groupname : response.keySet()) {
             mGroupBox.addItem(groupname.trim());
         }
 
@@ -568,13 +566,13 @@ public class UserEditor extends JDialog
 
         //construct NVP
         NameValuePairs config = new NameValuePairs();
-        config.add(Constants.PR_USER_FULLNAME, mFullNameField.getText().trim());
-        config.add(Constants.PR_USER_PASSWORD,mPasswordField.getText().trim());
-        config.add(Constants.PR_USER_EMAIL,mEMailField.getText().trim());
-        config.add(Constants.PR_USER_PHONE,mPhoneField.getText().trim());
-        config.add(Constants.PR_USER_STATE,mStateField.getText().trim());
-        config.add(Constants.PR_USER_GROUP,(String)mGroupBox.getSelectedItem());
-        config.add(Constants.PR_USER_TYPE, "");
+        config.put(Constants.PR_USER_FULLNAME, mFullNameField.getText().trim());
+        config.put(Constants.PR_USER_PASSWORD, mPasswordField.getText().trim());
+        config.put(Constants.PR_USER_EMAIL, mEMailField.getText().trim());
+        config.put(Constants.PR_USER_PHONE, mPhoneField.getText().trim());
+        config.put(Constants.PR_USER_STATE, mStateField.getText().trim());
+        config.put(Constants.PR_USER_GROUP, (String) mGroupBox.getSelectedItem());
+        config.put(Constants.PR_USER_TYPE, "");
         //config.add(Constants.PR_USER_CERT,"");
         //createCertEntry(config);
 
@@ -590,12 +588,12 @@ public class UserEditor extends JDialog
 
         //construct NVP
         NameValuePairs config = new NameValuePairs();
-        config.add(Constants.PR_USER_FULLNAME, mFullNameField.getText().trim());
-        config.add(Constants.PR_USER_PASSWORD,mPasswordField.getText().trim());
-        config.add(Constants.PR_USER_EMAIL,mEMailField.getText().trim());
-        config.add(Constants.PR_USER_PHONE,mPhoneField.getText().trim());
-        config.add(Constants.PR_USER_STATE,mStateField.getText().trim());
-        config.add(Constants.PR_USER_TYPE, "");
+        config.put(Constants.PR_USER_FULLNAME, mFullNameField.getText().trim());
+        config.put(Constants.PR_USER_PASSWORD, mPasswordField.getText().trim());
+        config.put(Constants.PR_USER_EMAIL, mEMailField.getText().trim());
+        config.put(Constants.PR_USER_PHONE, mPhoneField.getText().trim());
+        config.put(Constants.PR_USER_STATE, mStateField.getText().trim());
+        config.put(Constants.PR_USER_TYPE, "");
         //createCertEntry(config);
 
         //send request

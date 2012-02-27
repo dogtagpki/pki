@@ -20,7 +20,6 @@ package com.netscape.admin.certsrv.config;
 import java.util.*;
 import javax.swing.*;
 import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
 import com.netscape.certsrv.common.*;
 import com.netscape.management.client.util.Debug;
 
@@ -52,10 +51,10 @@ public class PublisherRuleDataModel extends CMSRuleDataModel
         Vector v = new Vector();
         NameValuePairs obj = (NameValuePairs) data;
 
-        v.addElement(new JLabel(obj.getValue(RULE_NAME),
+        v.addElement(new JLabel(obj.get(RULE_NAME),
                   CMSAdminUtil.getImage(CMSAdminResources.IMAGE_RULE),
                   JLabel.LEFT));
-        v.addElement(obj.getValue(RULE_IMPL));
+        v.addElement(obj.get(RULE_IMPL));
         addRow(v, data);
     }
 

@@ -18,15 +18,10 @@
 package com.netscape.admin.certsrv.config.install;
 
 import java.awt.*;
-import java.util.*;
 import javax.swing.*;
 import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
 import com.netscape.admin.certsrv.wizard.*;
 import com.netscape.certsrv.common.*;
-import com.netscape.admin.certsrv.task.*;
-import com.netscape.management.client.console.*;
-import com.netscape.management.client.util.*;
 
 /**
  * Generate the certificate request
@@ -70,7 +65,7 @@ class WIGenKeyCertReqPage extends WizardBasePanel implements IWizardPanel {
 		NameValuePairs nvps =
 			(NameValuePairs)wizardInfo.get(wizardInfo.ALL_CERT_INFO);
 		if (nvps != null) {
-			str = (String)nvps.getValue(Constants.PR_SKI);
+			str = (String)nvps.get(Constants.PR_SKI);
 			if (str != null && str.equals(ConfigConstants.TRUE)) {
 				mCMC.setEnabled(true);
 				mCMC.setVisible(true);
@@ -171,11 +166,10 @@ class WIGenKeyCertReqPage extends WizardBasePanel implements IWizardPanel {
 
         NameValuePairs nvps = wizardInfo.getAllCertInfo();//extensions
         if (nvps != null)  {
-            for (int i=0; i<nvps.size(); i++) {
-                NameValuePair nvp = (NameValuePair)nvps.elementAt(i);
-
-			    if (nvp.getName()!= null && nvp.getValue()!= null)
-                    rawData = rawData+"&"+nvp.getName()+"="+nvp.getValue();
+            for (String name : nvps.keySet()) {
+                String value = nvps.get(name);
+			    if (name != null && value != null)
+                    rawData = rawData+"&"+name+"="+value;
             }
         }
 

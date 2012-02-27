@@ -19,13 +19,12 @@ package com.netscape.admin.certsrv.ug;
 
 import com.netscape.admin.certsrv.*;
 import com.netscape.admin.certsrv.connection.*;
-import com.netscape.admin.certsrv.config.*;
+
 import javax.swing.*;
-import javax.swing.event.*;
 import java.awt.event.*;
 import java.awt.*;
 import java.util.*;
-import com.netscape.management.client.*;
+
 import com.netscape.management.client.util.*;
 import com.netscape.certsrv.common.*;
 
@@ -232,7 +231,7 @@ public class AuthImplTab extends CMSBaseUGTab {
         if (index >= 0) {
             NameValuePairs nvp =
               (NameValuePairs)mDataModel.getObjectValueAt(index);
-            String type = nvp.getValue(IMPL_TYPE);
+            String type = nvp.get(IMPL_TYPE);
             if (type.equals(Constants.VIEW) || type.equals(Constants.VIEW))
                 mDelete.setEnabled(false);
         }
@@ -264,9 +263,9 @@ public class AuthImplTab extends CMSBaseUGTab {
         int i=0;
         String[] vals = new String[response.size()];
         Hashtable data = new Hashtable();
-        for (Enumeration e = response.getNames(); e.hasMoreElements() ;) {
-            String entry = ((String)e.nextElement()).trim();
-            String value = response.getValue(entry);
+        for (String entry : response.keySet()) {
+            entry = entry.trim();
+            String value = response.get(entry);
 			Debug.println("AuthImplTab.java update(): "+
 						"entry="+entry+
 						"value="+value
@@ -274,34 +273,34 @@ public class AuthImplTab extends CMSBaseUGTab {
             int x = value.indexOf(",");
             int y = value.indexOf(TOKEN);
             NameValuePairs obj = new NameValuePairs();
-            obj.add(IMPL_NAME,entry);
+            obj.put(IMPL_NAME, entry);
 			Debug.println("x="+x);
             if(x != -1) {
 				Debug.println("0 obj.add(IMPL_CLASS,"+value.substring(0,x));
-                obj.add(IMPL_CLASS, value.substring(0,x));
+                obj.put(IMPL_CLASS, value.substring(0, x));
                 if (y == -1) {
 					Debug.println("1 obj.add(IMPL_DESC,"+value.substring(0,x));
-                    obj.add(IMPL_DESC, value.substring(x+1));
+                    obj.put(IMPL_DESC, value.substring(x + 1));
 				}
                 else {
 					Debug.println("1 obj.add(IMPL_DESC,"+value.substring(x+1,y));
-                    obj.add(IMPL_DESC, value.substring(x+1, y));
+                    obj.put(IMPL_DESC, value.substring(x + 1, y));
 				}
             } else {
 				Debug.println(" 2 obj.add(IMPL_CLASS,"+value.substring(0,y));
-                obj.add(IMPL_CLASS, value.substring(0,y));
+                obj.put(IMPL_CLASS, value.substring(0, y));
 				Debug.println(" 2 obj.add(IMPL_DESC,\"\"");
-                obj.add(IMPL_DESC,"");
+                obj.put(IMPL_DESC, "");
             }
 
             String type = "";
 			Debug.println("y="+y);
             if (y == -1) {
                 type = Constants.EDIT;
-                obj.add(IMPL_TYPE, Constants.EDIT);
+                obj.put(IMPL_TYPE, Constants.EDIT);
             } else {
                 type = value.substring(y+1);
-                obj.add(IMPL_TYPE, type);
+                obj.put(IMPL_TYPE, type);
             }
             if (type.equals(Constants.EDIT)) {
                 data.put(entry,obj);
@@ -339,7 +338,7 @@ public class AuthImplTab extends CMSBaseUGTab {
         try {
             mConnection.delete(mDestination,
                                ScopeDef.SC_AUTH_IMPLS,
-                               obj.getValue(IMPL_NAME));
+                               obj.get(IMPL_NAME));
         } catch (EAdminException e) {
             //display error dialog
             showErrorDialog(e.getMessage());

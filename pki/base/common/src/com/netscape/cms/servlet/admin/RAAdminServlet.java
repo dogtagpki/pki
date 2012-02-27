@@ -199,10 +199,10 @@ public class RAAdminServlet extends AdminServlet {
                 continue;
             if (name.equals(Constants.PR_ENABLE))
                 continue;
-            params.add(name, rc.getString(name, ""));
+            params.put(name, rc.getString(name, ""));
         }
 
-        params.add(Constants.PR_ENABLE,
+        params.put(Constants.PR_ENABLE,
                 rc.getString(PROP_ENABLED, Constants.FALSE));
         //System.out.println("Send: "+params.toString());
         sendResponse(SUCCESS, null, params, resp);
@@ -265,10 +265,10 @@ public class RAAdminServlet extends AdminServlet {
                 continue;
             if (name.equals(Constants.PR_ENABLE))
                 continue;
-            params.add(name, riq.getString(name, ""));
+            params.put(name, riq.getString(name, ""));
         }
 
-        params.add(Constants.PR_ENABLE,
+        params.put(Constants.PR_ENABLE,
                 riq.getString(PROP_ENABLED, Constants.FALSE));
         //System.out.println("Send: "+params.toString());
         sendResponse(SUCCESS, null, params, resp);
@@ -423,7 +423,7 @@ public class RAAdminServlet extends AdminServlet {
                 if (name.equals(Constants.OP_TYPE))
                     continue;
 
-                params.add(name, caConnectorConfig.getString(name, ""));
+                params.put(name, caConnectorConfig.getString(name, ""));
             }
         }
         sendResponse(SUCCESS, null, params, resp);

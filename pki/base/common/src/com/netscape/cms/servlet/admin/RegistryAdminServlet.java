@@ -251,7 +251,7 @@ public class RegistryAdminServlet extends AdminServlet {
             String id = impls.nextElement();
             IPluginInfo info = mRegistry.getPluginInfo(scope, id);
 
-            nvp.add(id, info.getClassName() + "," +
+            nvp.put(id, info.getClassName() + "," +
                     info.getDescription(getLocale(req)) + "," + info.getName(getLocale(req)));
         }
 
@@ -289,7 +289,7 @@ public class RegistryAdminServlet extends AdminServlet {
                     if (policyConstraintClass.isApplicable(policyDefaultClass)) {
                         CMS.debug("RegistryAdminServlet: getSUpportedConstraint isApplicable "
                                 + constraintInfo.getClassName());
-                        nvp.add(constraintID,
+                        nvp.put(constraintID,
                                 constraintInfo.getClassName()
                                         + "," +
                                         constraintInfo.getDescription(getLocale(req)) + ","
@@ -352,7 +352,7 @@ public class RegistryAdminServlet extends AdminServlet {
                                             + getNonNull(desc.getDefaultValue());
 
                             CMS.debug("RegistryAdminServlet: getProfileImpl " + value);
-                            nvp.add(name, value);
+                            nvp.put(name, value);
                         } catch (Exception e) {
 
                             CMS.debug("RegistryAdminServlet: getProfileImpl skipped descriptor for " + name);

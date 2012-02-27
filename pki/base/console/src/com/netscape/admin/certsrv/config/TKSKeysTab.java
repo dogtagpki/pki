@@ -17,22 +17,17 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config;
 
-import com.netscape.admin.certsrv.keycert.*;
 import com.netscape.admin.certsrv.*;
 import com.netscape.admin.certsrv.connection.*;
 import com.netscape.admin.certsrv.ug.*;
 import javax.swing.*;
-import javax.swing.event.*;
 import java.awt.event.*;
 import java.awt.*;
 import java.util.*;
-import com.netscape.management.client.*;
+
 import com.netscape.management.client.console.*;
 import com.netscape.management.client.util.*;
 import com.netscape.certsrv.common.*;
-import org.mozilla.jss.*;
-import org.mozilla.jss.pkcs10.*;
-import org.mozilla.jss.crypto.*;
 import org.mozilla.jss.CryptoManager;
 /**
  * User Certs Tab
@@ -239,9 +234,8 @@ public class TKSKeysTab extends CMSBaseUGTab {
 			mToken.removeAllItems();
 			String[] vals = new String[response.size()];
 			int i=0;
-			for (Enumeration e = response.getNames(); e.hasMoreElements() ;) {
-				String entry = ((String)e.nextElement()).trim();
-				vals[i++] = entry;
+            for (String entry : response.keySet()) {
+				vals[i++] = entry.trim();
 			}
         
 			int sindex = 0;
@@ -249,7 +243,7 @@ public class TKSKeysTab extends CMSBaseUGTab {
 			for (i=0; i<vals.length; i++) {
 				Vector v = new Vector();
 				String entry = vals[i];
-				String value = response.getValue(entry);
+				String value = response.get(entry);
 				// look for the comma separator
 				
 				StringTokenizer st = new StringTokenizer(value, ",");
@@ -293,7 +287,7 @@ public class TKSKeysTab extends CMSBaseUGTab {
         NameValuePairs response;
         NameValuePairs request;
         request = new NameValuePairs();
-        request.add(Constants.PR_TOKEN_LIST, (String)mToken.getSelectedItem());
+        request.put(Constants.PR_TOKEN_LIST, (String) mToken.getSelectedItem());
         try {
             response = mConnection.search(mDestination,
               ScopeDef.SC_TKSKEYSLIST, request); 
@@ -311,9 +305,8 @@ public class TKSKeysTab extends CMSBaseUGTab {
         if (response != null) {
             String[] vals = new String[response.size()];
             int i=0;
-            for (Enumeration e = response.getNames(); e.hasMoreElements() ;) {
-                String entry = ((String)e.nextElement()).trim();
-                vals[i++] = entry;
+            for (String entry : response.keySet()) {
+                vals[i++] = entry.trim();
             }
             
             int sindex = 0;
@@ -321,7 +314,7 @@ public class TKSKeysTab extends CMSBaseUGTab {
             for (i=0; i<vals.length; i++) {
                 String entry = vals[i];
                 if (entry.equals(Constants.PR_TOKEN_LIST)) {
-                    String value = response.getValue(entry);
+                    String value = response.get(entry);
                     // look for the comma separator
                     StringTokenizer st = new StringTokenizer(value, ",");
                     int numberOfKeys = 0;

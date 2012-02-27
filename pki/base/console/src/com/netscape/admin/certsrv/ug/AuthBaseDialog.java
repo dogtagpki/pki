@@ -18,16 +18,13 @@
 package com.netscape.admin.certsrv.ug;
 
 import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.config.*;
 import com.netscape.admin.certsrv.connection.*;
 import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.table.*;
 import javax.swing.text.*;
 import java.awt.event.*;
 import java.awt.*;
 import java.util.*;
-import com.netscape.management.client.*;
+
 import com.netscape.management.client.util.*;
 import com.netscape.certsrv.common.*;
 
@@ -90,12 +87,12 @@ public class AuthBaseDialog extends JDialog
         mDataModel.removeAllRows();
         mData = data;
 
-        mImplName.setText(data.getValue(Constants.PR_AUTH_IMPL_NAME));
+        mImplName.setText(data.get(Constants.PR_AUTH_IMPL_NAME));
 
-        for (Enumeration e = data.getNames(); e.hasMoreElements() ;) {
-            String entry = ((String)e.nextElement()).trim();
+        for (String entry : data.keySet()) {
+            entry = entry.trim();
             if (!entry.equals(Constants.PR_AUTH_IMPL_NAME)) {
-                String value = data.getValue(entry);
+                String value = data.get(entry);
                 Vector v = new Vector();
                 v.addElement(entry);
                 v.addElement(value);
@@ -134,10 +131,10 @@ public class AuthBaseDialog extends JDialog
 
     protected NameValuePairs getData() {
         NameValuePairs response = new NameValuePairs();
-        response.add(Constants.PR_AUTH_IMPL_NAME,mImplName.getText());
+        response.put(Constants.PR_AUTH_IMPL_NAME, mImplName.getText());
         for (int i=0; i< mDataModel.getRowCount(); i++) {
-            response.add((String)mDataModel.getValueAt(i,0),
-                         (String)mDataModel.getValueAt(i,1));
+            response.put((String) mDataModel.getValueAt(i, 0),
+                    (String) mDataModel.getValueAt(i, 1));
         }
         return response;
     }

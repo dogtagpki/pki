@@ -200,7 +200,7 @@ public class CMSIssuerAlternativeNameExtension
             log(ILogger.LL_FAILURE, "Invalid numNames property for CRL " +
                     "IssuerAlternativeName extension - " + e);
         }
-        nvp.add("numNames", String.valueOf(numNames));
+        nvp.put("numNames", String.valueOf(numNames));
 
         for (int i = 0; i < numNames; i++) {
             String nameType = null;
@@ -216,9 +216,9 @@ public class CMSIssuerAlternativeNameExtension
             }
 
             if (nameType != null && nameType.length() > 0) {
-                nvp.add("nameType" + i, nameType);
+                nvp.put("nameType" + i, nameType);
             } else {
-                nvp.add("nameType" + i, "");
+                nvp.put("nameType" + i, "");
             }
 
             String name = null;
@@ -234,16 +234,16 @@ public class CMSIssuerAlternativeNameExtension
             }
 
             if (name != null && name.length() > 0) {
-                nvp.add("name" + i, name);
+                nvp.put("name" + i, name);
             } else {
-                nvp.add("name" + i, "");
+                nvp.put("name" + i, "");
             }
         }
 
         if (numNames < 3) {
             for (int i = numNames; i < 3; i++) {
-                nvp.add("nameType" + i, "");
-                nvp.add("name" + i, "");
+                nvp.put("nameType" + i, "");
+                nvp.put("name" + i, "");
             }
         }
     }

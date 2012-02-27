@@ -159,7 +159,7 @@ public class CMSAuthInfoAccessExtension
         } catch (EBaseException e) {
             log(ILogger.LL_FAILURE, CMS.getLogMessage("CRL_CREATE_AIA_INVALID_NUM_ADS", e.toString()));
         }
-        nvp.add(PROP_NUM_ADS, String.valueOf(numberOfAccessDescriptions));
+        nvp.put(PROP_NUM_ADS, String.valueOf(numberOfAccessDescriptions));
 
         for (int i = 0; i < numberOfAccessDescriptions; i++) {
             String accessMethod = null;
@@ -175,9 +175,9 @@ public class CMSAuthInfoAccessExtension
             }
 
             if (accessMethod != null && accessMethod.length() > 0) {
-                nvp.add(PROP_ACCESS_METHOD + i, accessMethod);
+                nvp.put(PROP_ACCESS_METHOD + i, accessMethod);
             } else {
-                nvp.add(PROP_ACCESS_METHOD + i, PROP_ACCESS_METHOD_CAISSUERS);
+                nvp.put(PROP_ACCESS_METHOD + i, PROP_ACCESS_METHOD_CAISSUERS);
             }
 
             try {
@@ -189,9 +189,9 @@ public class CMSAuthInfoAccessExtension
             }
 
             if (accessLocationType != null && accessLocationType.length() > 0) {
-                nvp.add(PROP_ACCESS_LOCATION_TYPE + i, accessLocationType);
+                nvp.put(PROP_ACCESS_LOCATION_TYPE + i, accessLocationType);
             } else {
-                nvp.add(PROP_ACCESS_LOCATION_TYPE + i, PROP_URINAME);
+                nvp.put(PROP_ACCESS_LOCATION_TYPE + i, PROP_URINAME);
             }
 
             try {
@@ -203,14 +203,14 @@ public class CMSAuthInfoAccessExtension
             }
 
             if (accessLocation != null && accessLocation.length() > 0) {
-                nvp.add(PROP_ACCESS_LOCATION + i, accessLocation);
+                nvp.put(PROP_ACCESS_LOCATION + i, accessLocation);
             } else {
                 String hostname = CMS.getEENonSSLHost();
                 String port = CMS.getEENonSSLPort();
                 if (hostname != null && port != null) {
                     accessLocation = "http://" + hostname + ":" + port + "/ca/ee/ca/getCAChain?op=downloadBIN";
                 }
-                nvp.add(PROP_ACCESS_LOCATION + i, accessLocation);
+                nvp.put(PROP_ACCESS_LOCATION + i, accessLocation);
             }
         }
     }

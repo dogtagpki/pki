@@ -23,7 +23,6 @@ import com.netscape.management.client.util.*;
 import com.netscape.management.client.console.*;
 import com.netscape.certsrv.common.*;
 import com.netscape.admin.certsrv.connection.*;
-import java.util.*;
 
 /**
  * Netscape Certificate Server 4.0 UI Framework
@@ -88,7 +87,7 @@ public class CMSUIFramework {
           ScopeDef.SC_PLATFORM, new NameValuePairs());
         if (response == null) 
             throw new EAdminException("PROTOCOL_ERROR",false);
-        if (response.getValue(Constants.PR_NT).equals(Constants.TRUE))
+        if (response.get(Constants.PR_NT).equals(Constants.TRUE))
             return true;
         return false;
     }
@@ -207,9 +206,9 @@ class HTTPSSubSystemLocator implements ISubSystemLocator {
         Debug.println("getInstalledSubSystem() - "+input.toString());
         SubSystemInfo[] subsystems = new SubSystemInfo[input.size()];
         int i =0;
-        for (Enumeration e = input.getNames(); e.hasMoreElements() ;) {
-            String entry = ((String)e.nextElement()).trim();
-            String value = input.getValue(entry);
+        for (String entry : input.keySet()) {
+            entry = entry.trim();
+            String value = input.get(entry);
             subsystems[i] = new SubSystemInfo();
             subsystems[i].mType = value;
             subsystems[i].mNickName = entry;

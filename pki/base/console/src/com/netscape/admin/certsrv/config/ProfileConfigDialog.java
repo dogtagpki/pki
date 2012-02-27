@@ -20,13 +20,10 @@ package com.netscape.admin.certsrv.config;
 import com.netscape.admin.certsrv.*;
 import com.netscape.admin.certsrv.connection.*;
 import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.table.*;
-import javax.swing.text.*;
 import java.awt.event.*;
 import java.awt.*;
 import java.util.*;
-import com.netscape.management.client.*;
+
 import com.netscape.management.client.util.*;
 import com.netscape.certsrv.common.*;
 
@@ -367,11 +364,11 @@ public class ProfileConfigDialog extends CMSBaseConfigDialog
                 if (mModel != null) { mModel.progressStart(); }
 
                 String instanceName = mPluginName.getText();
-                nvp.add("impl", mImplName.getText());
-                nvp.add("name", mNameField.getText());
-                nvp.add("visible", (String)(mVisibleField.getSelectedItem()));
-                nvp.add("auth", mAuthField.getText());
-                nvp.add("desc", mDescField.getText());
+                nvp.put("impl", mImplName.getText());
+                nvp.put("name", mNameField.getText());
+                nvp.put("visible", (String) (mVisibleField.getSelectedItem()));
+                nvp.put("auth", mAuthField.getText());
+                nvp.put("desc", mDescField.getText());
            //     nvp.add("config", mConfigField.getText());
                // mAdminConnection.add(DestDef.DEST_CA_PROFILE_ADMIN, 
                 mAdminConnection.add(mDest,

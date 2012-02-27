@@ -20,10 +20,9 @@ package com.netscape.admin.certsrv.keycert;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
-import java.io.*;
 import javax.swing.*;
 import javax.swing.border.*;
-import javax.swing.event.*;
+
 import com.netscape.admin.certsrv.*;
 import com.netscape.admin.certsrv.connection.*;
 import com.netscape.admin.certsrv.wizard.*;
@@ -235,38 +234,38 @@ class WKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
                 if (mKeyCurveBox.isVisible()) { // ECC
                     wizardInfo.addEntry(Constants.PR_KEY_CURVENAME, 
                       mKeyCurveText.getText().trim());
-                    nvps.add(Constants.PR_KEY_CURVENAME, mKeyCurveText.getText().trim());
+                    nvps.put(Constants.PR_KEY_CURVENAME, mKeyCurveText.getText().trim());
                 } else {
                     wizardInfo.addEntry(Constants.PR_KEY_LENGTH, 
                       mKeyLengthText.getText().trim());
-                    nvps.add(Constants.PR_KEY_LENGTH, mKeyLengthText.getText().trim());
+                    nvps.put(Constants.PR_KEY_LENGTH, mKeyLengthText.getText().trim());
                 }
             } else {
                 if (mKeyCurveBox.isVisible()) { // ECC
                     wizardInfo.addEntry(Constants.PR_KEY_CURVENAME, val.trim());
-                    nvps.add(Constants.PR_KEY_CURVENAME, val.trim());
+                    nvps.put(Constants.PR_KEY_CURVENAME, val.trim());
                 } else {
                     wizardInfo.addEntry(Constants.PR_KEY_LENGTH, val.trim());
-                    nvps.add(Constants.PR_KEY_LENGTH, val.trim());
+                    nvps.put(Constants.PR_KEY_LENGTH, val.trim());
                 }
             }
      
             if (mKeyTypeBox.isVisible()) {
                 wizardInfo.addEntry(Constants.PR_KEY_TYPE,
                   (String)mKeyTypeBox.getSelectedItem());
-                nvps.add(Constants.PR_KEY_TYPE, (String)mKeyTypeBox.getSelectedItem());
+                nvps.put(Constants.PR_KEY_TYPE, (String) mKeyTypeBox.getSelectedItem());
             } else if (mDSAKeyTypeBox.isVisible()) {
                 wizardInfo.addEntry(Constants.PR_KEY_TYPE,
                   (String)mDSAKeyTypeBox.getSelectedItem());
-                nvps.add(Constants.PR_KEY_TYPE, (String)mDSAKeyTypeBox.getSelectedItem());
+                nvps.put(Constants.PR_KEY_TYPE, (String) mDSAKeyTypeBox.getSelectedItem());
             }
         }
 
         startProgressStatus();
 
         String certType = wizardInfo.getCertType();
-        nvps.add(Constants.PR_SUBJECT_NAME, "");
-        nvps.add(Constants.PR_CERTIFICATE_TYPE, certType);
+        nvps.put(Constants.PR_SUBJECT_NAME, "");
+        nvps.put(Constants.PR_CERTIFICATE_TYPE, certType);
 
         try {
             // validate the key length or curvename
@@ -283,7 +282,7 @@ class WKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
 
                 if (mNicknameBox.isVisible()) {
                     String nicknameStr = (String)mNicknameBox.getSelectedItem();
-                    nvps.add(Constants.PR_NICKNAME, nicknameStr);
+                    nvps.put(Constants.PR_NICKNAME, nicknameStr);
                     response = connection.process(
                       DestDef.DEST_SERVER_ADMIN,
                       ScopeDef.SC_SUBJECT_NAME, 
@@ -296,22 +295,21 @@ class WKeyPage extends WizardBasePanel implements IWizardPanel, ItemListener {
                       wizardInfo.getCertType(), nvps);
                 }
 
-                NameValuePair nvp = response.getPair(Constants.PR_SUBJECT_NAME);
-
-                wizardInfo.addEntry(Constants.PR_SUBJECT_NAME, nvp.getValue());
+                String value = response.get(Constants.PR_SUBJECT_NAME);
+                wizardInfo.addEntry(Constants.PR_SUBJECT_NAME, value);
             }
 
             if (mNewKeyBtn.isSelected()) {
                 String tokenName = (String)mTokenBox.getSelectedItem();
                 if (tokenName.equals("internal")) 
                     tokenName = Constants.PR_INTERNAL_TOKEN_NAME;
-                nvps.removeAllPairs();
-                nvps.add(Constants.PR_TOKEN_NAME, tokenName);
+                nvps.clear();
+                nvps.put(Constants.PR_TOKEN_NAME, tokenName);
                 response = connection.process(DestDef.DEST_SERVER_ADMIN,
                   ScopeDef.SC_TOKEN_STATUS, Constants.RS_ID_CONFIG, nvps);
                 
-                NameValuePair result = response.getPair(Constants.PR_LOGGED_IN);
-                wizardInfo.addEntry(Constants.PR_LOGGED_IN, result.getValue()); 
+                String value = response.get(Constants.PR_LOGGED_IN);
+                wizardInfo.addEntry(Constants.PR_LOGGED_IN, value);
                 wizardInfo.addEntry(Constants.PR_TOKEN_NAME, tokenName);
             }
         } catch (EAdminException e) {

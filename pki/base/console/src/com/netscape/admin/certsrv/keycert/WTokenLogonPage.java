@@ -18,15 +18,12 @@
 package com.netscape.admin.certsrv.keycert;
 
 import java.awt.*;
-import java.util.*;
 import javax.swing.*;
-import javax.swing.text.*;
+
 import com.netscape.admin.certsrv.*;
 import com.netscape.admin.certsrv.connection.*;
 import com.netscape.admin.certsrv.wizard.*;
 import com.netscape.certsrv.common.*;
-import com.netscape.admin.certsrv.task.*;
-import com.netscape.management.client.console.*;
 
 /**
  * This panel asks for the user to logon to the keycert token  . 
@@ -99,8 +96,8 @@ class WTokenLogonPage extends WizardBasePanel implements IWizardPanel {
 
         try {
             NameValuePairs nvps = new NameValuePairs();
-            nvps.add(Constants.PR_TOKEN_NAME, tokenname);
-            nvps.add(Constants.PR_TOKEN_PASSWD, pwd);
+            nvps.put(Constants.PR_TOKEN_NAME, tokenname);
+            nvps.put(Constants.PR_TOKEN_PASSWD, pwd);
             connection.modify(DestDef.DEST_SERVER_ADMIN,
               ScopeDef.SC_TOKEN_LOGON, Constants.RS_ID_CONFIG, nvps);
         } catch (EAdminException e) {

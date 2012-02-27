@@ -21,11 +21,10 @@ import com.netscape.admin.certsrv.*;
 import com.netscape.admin.certsrv.connection.*;
 import com.netscape.admin.certsrv.ug.*;
 import javax.swing.*;
-import javax.swing.event.*;
 import java.awt.event.*;
 import java.awt.*;
 import java.util.*;
-import com.netscape.management.client.*;
+
 import com.netscape.management.client.util.*;
 import com.netscape.certsrv.common.*;
 
@@ -148,7 +147,7 @@ public abstract class CMSPluginInstanceTab extends CMSBaseUGTab {
 				
 			dialog.setModel(mModel);
 			dialog.setInstanceScope(mScope);
-            dialog.showDialog(response, data.getValue(RULE_NAME));
+            dialog.showDialog(response, data.get(RULE_NAME));
             
             if(!dialog.isOK()) return;
 
@@ -329,7 +328,7 @@ public abstract class CMSPluginInstanceTab extends CMSBaseUGTab {
         NameValuePairs response;
         NameValuePairs request = new NameValuePairs();
         if (mId != null && mId.length() > 0) {
-            request.add(Constants.PR_ID, mId);
+            request.put(Constants.PR_ID, mId);
         }
 
         try {
@@ -349,22 +348,20 @@ public abstract class CMSPluginInstanceTab extends CMSBaseUGTab {
 
         Debug.println(response.toString());
 
-        Enumeration e = response.getNames();
-        
-        
 		/* 	format of each data element:
 			plugin;visibility;enabled
 				where plugin is the name of the plugin impl
 				visibility is one of {visible,invisible}
 				enabled is one of {enabled,disabled}
 		*/
-        while (e.hasMoreElements()) {
+
+        for (String entry : response.keySet()) {
 			String plugin="";
 			String visibility=null;
 			String enabled=null;
 
-        	String entry = ((String)e.nextElement()).trim();
-            String value = response.getValue(entry);
+            entry = entry.trim();
+            String value = response.get(entry);
 
 			StringTokenizer st = new StringTokenizer(value,";");
 
@@ -382,10 +379,10 @@ Debug.println("xxxxxxx plugin " + plugin);
 			if (visibility != null && visibility.equals("visible")) {
 
                	NameValuePairs data = new NameValuePairs();
-               	data.add(RULE_NAME,entry);
-               	data.add(RULE_IMPL,plugin);
+		data.put(RULE_NAME, entry);
+		data.put(RULE_IMPL, plugin);
 				if (enabled != null) {
-               		data.add(RULE_STAT,enabled);
+			data.put(RULE_STAT, enabled);
 				}
                	mDataModel.processData(data);
 			}
@@ -411,7 +408,7 @@ Debug.println("xxxxxxx plugin " + plugin);
         try {
             mConnection.delete(mDestination,
                                mScope,
-                               data.getValue(RULE_NAME));
+                               data.get(RULE_NAME));
         } catch (EAdminException e) {
             //display error dialog
             showErrorDialog(e.getMessage());
@@ -431,12 +428,12 @@ Debug.println("xxxxxxx plugin " + plugin);
             mDataModel.getObjectValueAt(mTable.getSelectedRow());
         NameValuePairs request = new NameValuePairs();
         if (mId != null && mId.length() > 0) {
-            request.add(mId, "");
+            request.put(mId, "");
         }
             
         NameValuePairs response = mConnection.read(mDestination,
                                                    mScope,
-                                                   data.getValue(RULE_NAME),
+                                                   data.get(RULE_NAME),
                                                    request);
         return response;
     }

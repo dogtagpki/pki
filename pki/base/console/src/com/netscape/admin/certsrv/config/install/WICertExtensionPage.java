@@ -17,18 +17,10 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.config.install;
 
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.border.*;
-import javax.swing.*;
 import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
 import com.netscape.admin.certsrv.wizard.*;
 import com.netscape.certsrv.common.*;
 import com.netscape.admin.certsrv.config.*;
-import com.netscape.management.client.console.*;
-import com.netscape.admin.certsrv.task.*;
-import java.util.*;
 
 /**
  * Certificate Extension for installation wizard.
@@ -87,12 +79,12 @@ class WICertExtensionPage extends WBaseCertExtensionPage implements
         if (ready) {
             NameValuePairs nvps = new NameValuePairs();
 
-            nvps.add(Constants.PR_CERTIFICATE_TYPE, wizardInfo.getCertType());
-            nvps.add(Constants.PR_SUBJECT_NAME, wizardInfo.getSubjectName());
-            nvps.add(Constants.PR_TOKEN_NAME, wizardInfo.getTokenName());
-            nvps.add(Constants.PR_KEY_LENGTH, wizardInfo.getKeyLength());
-            nvps.add(Constants.PR_KEY_TYPE, wizardInfo.getKeyType());
-            nvps.add(Constants.PR_KEY_CURVENAME, wizardInfo.getKeyCurveName());
+            nvps.put(Constants.PR_CERTIFICATE_TYPE, wizardInfo.getCertType());
+            nvps.put(Constants.PR_SUBJECT_NAME, wizardInfo.getSubjectName());
+            nvps.put(Constants.PR_TOKEN_NAME, wizardInfo.getTokenName());
+            nvps.put(Constants.PR_KEY_LENGTH, wizardInfo.getKeyLength());
+            nvps.put(Constants.PR_KEY_TYPE, wizardInfo.getKeyType());
+            nvps.put(Constants.PR_KEY_CURVENAME, wizardInfo.getKeyCurveName());
             addValidityPeriod(wizardInfo, nvps);
 
             if (mBasicCheckBox.isSelected())
@@ -102,16 +94,16 @@ class WICertExtensionPage extends WBaseCertExtensionPage implements
                 addExtendedKey(nvps);
 
             if (mAKICheckBox.isSelected())
-                nvps.add(Constants.PR_AKI, Constants.TRUE);
+                nvps.put(Constants.PR_AKI, Constants.TRUE);
 
             if (mSKICheckBox.isSelected())
-                nvps.add(Constants.PR_SKI, Constants.TRUE);
+                nvps.put(Constants.PR_SKI, Constants.TRUE);
 
             if (mKeyUsageBox.isSelected())
-                nvps.add(Constants.PR_KEY_USAGE, Constants.TRUE);
+                nvps.put(Constants.PR_KEY_USAGE, Constants.TRUE);
 
             if (mMIMECheckBox.isSelected())
-                nvps.add(Constants.PR_DER_EXTENSION, mMIMEText.getText().trim());
+                nvps.put(Constants.PR_DER_EXTENSION, mMIMEText.getText().trim());
 
             wizardInfo.put(wizardInfo.ALL_CERT_INFO, nvps); 
         }
@@ -122,45 +114,45 @@ class WICertExtensionPage extends WBaseCertExtensionPage implements
 
     private void addValidityPeriod(InstallWizardInfo wizardInfo, 
       NameValuePairs nvps) {
-        nvps.add(Constants.PR_BEGIN_YEAR, wizardInfo.getBeginYear());
-        nvps.add(Constants.PR_BEGIN_MONTH, wizardInfo.getBeginMonth());
-        nvps.add(Constants.PR_BEGIN_DATE, wizardInfo.getBeginDate());
-        nvps.add(Constants.PR_BEGIN_HOUR, wizardInfo.getBeginHour());
-        nvps.add(Constants.PR_BEGIN_MIN, wizardInfo.getBeginMin());
-        nvps.add(Constants.PR_BEGIN_SEC, wizardInfo.getBeginSec());
-        nvps.add(Constants.PR_AFTER_YEAR, wizardInfo.getAfterYear());
-        nvps.add(Constants.PR_AFTER_MONTH, wizardInfo.getAfterMonth());
-        nvps.add(Constants.PR_AFTER_DATE, wizardInfo.getAfterDate());
-        nvps.add(Constants.PR_AFTER_HOUR, wizardInfo.getAfterHour());
-        nvps.add(Constants.PR_AFTER_MIN, wizardInfo.getAfterMin());
-        nvps.add(Constants.PR_AFTER_SEC, wizardInfo.getAfterSec());
+        nvps.put(Constants.PR_BEGIN_YEAR, wizardInfo.getBeginYear());
+        nvps.put(Constants.PR_BEGIN_MONTH, wizardInfo.getBeginMonth());
+        nvps.put(Constants.PR_BEGIN_DATE, wizardInfo.getBeginDate());
+        nvps.put(Constants.PR_BEGIN_HOUR, wizardInfo.getBeginHour());
+        nvps.put(Constants.PR_BEGIN_MIN, wizardInfo.getBeginMin());
+        nvps.put(Constants.PR_BEGIN_SEC, wizardInfo.getBeginSec());
+        nvps.put(Constants.PR_AFTER_YEAR, wizardInfo.getAfterYear());
+        nvps.put(Constants.PR_AFTER_MONTH, wizardInfo.getAfterMonth());
+        nvps.put(Constants.PR_AFTER_DATE, wizardInfo.getAfterDate());
+        nvps.put(Constants.PR_AFTER_HOUR, wizardInfo.getAfterHour());
+        nvps.put(Constants.PR_AFTER_MIN, wizardInfo.getAfterMin());
+        nvps.put(Constants.PR_AFTER_SEC, wizardInfo.getAfterSec());
     }
 
     private void addBasicConstraints(NameValuePairs nvps) {
         if (mCACheckBox.isSelected())
-            nvps.add(Constants.PR_IS_CA, Constants.TRUE);
+            nvps.put(Constants.PR_IS_CA, Constants.TRUE);
 
 	if (mCertPathBox.isSelected()) {
             String certLen = mCertPathText.getText().trim();
             if (!certLen.equals(""))
-               nvps.add(Constants.PR_CERT_LEN, certLen);
+               nvps.put(Constants.PR_CERT_LEN, certLen);
 	} else {
 	    // negative number means infinity
-            nvps.add(Constants.PR_CERT_LEN, "-1");
+            nvps.put(Constants.PR_CERT_LEN, "-1");
 	}
     }
 
     private void addExtendedKey(NameValuePairs nvps) {
         if (mSSLClient.isSelected()) 
-            nvps.add(Constants.PR_SSL_CLIENT_BIT, Constants.TRUE);
+            nvps.put(Constants.PR_SSL_CLIENT_BIT, Constants.TRUE);
         if (mSSLServer.isSelected())
-            nvps.add(Constants.PR_SSL_SERVER_BIT, Constants.TRUE);
+            nvps.put(Constants.PR_SSL_SERVER_BIT, Constants.TRUE);
         if (mSSLMail.isSelected())
-            nvps.add(Constants.PR_SSL_MAIL_BIT, Constants.TRUE);
+            nvps.put(Constants.PR_SSL_MAIL_BIT, Constants.TRUE);
         if (mObjectSigning.isSelected())
-            nvps.add(Constants.PR_OBJECT_SIGNING_BIT, Constants.TRUE);
+            nvps.put(Constants.PR_OBJECT_SIGNING_BIT, Constants.TRUE);
         if (mTimeStamping.isSelected())
-            nvps.add(Constants.PR_TIMESTAMPING_BIT, Constants.TRUE);
+            nvps.put(Constants.PR_TIMESTAMPING_BIT, Constants.TRUE);
     }
 
     public void callHelp() {

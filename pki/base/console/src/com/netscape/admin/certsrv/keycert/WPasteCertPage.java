@@ -19,7 +19,6 @@ package com.netscape.admin.certsrv.keycert;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.io.*;
 import javax.swing.*;
 import javax.swing.text.*;
 import com.netscape.admin.certsrv.*;
@@ -102,11 +101,11 @@ class WPasteCertPage extends WizardBasePanel implements IWizardPanel {
         NameValuePairs nvps = new NameValuePairs();
 
         if (mFileBtn.isSelected()) {
-            nvps.add(Constants.PR_CERT_FILEPATH, mCertFilePath);
+            nvps.put(Constants.PR_CERT_FILEPATH, mCertFilePath);
             wizardInfo.setCertFilePath(mCertFilePath);
             wizardInfo.setPKCS10("");
         } else if (mBase64Btn.isSelected()) {
-            nvps.add(Constants.PR_PKCS10, mCertContent);
+            nvps.put(Constants.PR_PKCS10, mCertContent);
             wizardInfo.setPKCS10(mCertContent);
             wizardInfo.setCertFilePath("");
         }
@@ -116,10 +115,8 @@ class WPasteCertPage extends WizardBasePanel implements IWizardPanel {
               DestDef.DEST_SERVER_ADMIN,
               ScopeDef.SC_CERTINFO, wizardInfo.getInstallCertType(), nvps);
             
-            for (int i=0; i<response.size(); i++) {
-                NameValuePair nvp = response.elementAt(i);
-                String name = nvp.getName();
-                String str = nvp.getValue();
+            for (String name : response.keySet()) {
+                String str = response.get(name);
                 wizardInfo.addEntry(name, str);
             }
 /*

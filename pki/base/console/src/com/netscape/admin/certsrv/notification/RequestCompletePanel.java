@@ -19,12 +19,10 @@ package com.netscape.admin.certsrv.notification;
 
 import com.netscape.admin.certsrv.*;
 import com.netscape.certsrv.common.*;
-import com.netscape.management.client.util.*;
 import com.netscape.admin.certsrv.connection.*;
 import com.netscape.admin.certsrv.config.*;
 import javax.swing.*;
 import java.awt.*;
-import java.util.*;
 import java.awt.event.*;
 
 /**
@@ -137,10 +135,10 @@ public class RequestCompletePanel extends CMSBaseTab implements ItemListener {
     public void refresh() {
         mModel.progressStart();
         NameValuePairs nvps = new NameValuePairs();
-		nvps.add(Constants.PR_ENABLE,"");
-        nvps.add(Constants.PR_NOTIFICATION_FORM_NAME, "");
-        nvps.add(Constants.PR_NOTIFICATION_SUBJECT, "");
-        nvps.add(Constants.PR_NOTIFICATION_SENDER, "");
+		nvps.put(Constants.PR_ENABLE, "");
+        nvps.put(Constants.PR_NOTIFICATION_FORM_NAME, "");
+        nvps.put(Constants.PR_NOTIFICATION_SUBJECT, "");
+        nvps.put(Constants.PR_NOTIFICATION_SENDER, "");
 
         try {
             NameValuePairs val = mAdmin.read(mServletName,
@@ -157,20 +155,16 @@ public class RequestCompletePanel extends CMSBaseTab implements ItemListener {
     }
 
     protected void populate(NameValuePairs nvps) {
-        String clientCert = "";
-
-        String version = "";
-        for (int i=0; i<nvps.size(); i++) {
-            NameValuePair nvp = nvps.elementAt(i);
-            String name = nvp.getName();
+        for (String name : nvps.keySet()) {
+            String value = nvps.get(name);
             if (name.equals(Constants.PR_NOTIFICATION_FORM_NAME)) {
-                mEmailFormText.setText(nvp.getValue());
+                mEmailFormText.setText(value);
             } else if (name.equals(Constants.PR_NOTIFICATION_SUBJECT)) {
-                mEmailSubjectText.setText(nvp.getValue());
+                mEmailSubjectText.setText(value);
             } else if (name.equals(Constants.PR_NOTIFICATION_SENDER)) {
-                mSenderEmailText.setText(nvp.getValue());
+                mSenderEmailText.setText(value);
             } else if (name.equals(Constants.PR_ENABLE)) {
-                if (nvp.getValue().equals(Constants.TRUE))
+                if (value.equals(Constants.TRUE))
                     mEnable.setSelected(true);
                 else
                     mEnable.setSelected(false);
@@ -249,14 +243,14 @@ public class RequestCompletePanel extends CMSBaseTab implements ItemListener {
 
         NameValuePairs nvps = new NameValuePairs();
 		if (mEnable.isSelected())
-			nvps.add(Constants.PR_ENABLE,Constants.TRUE);
+			nvps.put(Constants.PR_ENABLE, Constants.TRUE);
 		else
-			nvps.add(Constants.PR_ENABLE,Constants.FALSE);
+			nvps.put(Constants.PR_ENABLE, Constants.FALSE);
 
         if (mEnable.isSelected()){
-            nvps.add(Constants.PR_NOTIFICATION_FORM_NAME, emailForm);
-            nvps.add(Constants.PR_NOTIFICATION_SUBJECT, emailSubject);
-            nvps.add(Constants.PR_NOTIFICATION_SENDER, senderEmail);
+            nvps.put(Constants.PR_NOTIFICATION_FORM_NAME, emailForm);
+            nvps.put(Constants.PR_NOTIFICATION_SUBJECT, emailSubject);
+            nvps.put(Constants.PR_NOTIFICATION_SENDER, senderEmail);
 		}
 
         mModel.progressStart();

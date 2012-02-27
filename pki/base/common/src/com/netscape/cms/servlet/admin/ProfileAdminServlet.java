@@ -387,7 +387,7 @@ public class ProfileAdminServlet extends AdminServlet {
             String id = (String) impls.nextElement();
             IPluginInfo info = mRegistry.getPluginInfo("profile", id);
 
-            nvp.add(id, info.getClassName() + "," +
+            nvp.put(id, info.getClassName() + "," +
                     info.getDescription(getLocale(req)));
         }
         sendResponse(SUCCESS, null, nvp, resp);
@@ -599,7 +599,7 @@ public class ProfileAdminServlet extends AdminServlet {
                     continue;
                 if (name.equals("RS_ID"))
                     continue;
-                nvps.add(name, req.getParameter(name));
+                nvps.put(name, req.getParameter(name));
             }
 
             try {
@@ -725,7 +725,7 @@ public class ProfileAdminServlet extends AdminServlet {
                     continue;
                 if (name.equals("RS_ID"))
                     continue;
-                nvps.add(name, req.getParameter(name));
+                nvps.put(name, req.getParameter(name));
             }
 
             try {
@@ -1968,9 +1968,9 @@ public class ProfileAdminServlet extends AdminServlet {
             IDescriptor desc = rule.getConfigDescriptor(getLocale(req), name);
 
             if (desc == null) {
-                nvp.add(name, ";" + ";" + rule.getConfig(name));
+                nvp.put(name, ";" + ";" + rule.getConfig(name));
             } else {
-                nvp.add(name,
+                nvp.put(name,
                         desc.getSyntax()
                                 + ";" + ";" + getNonNull(desc.getConstraint()) + ";"
                                 + desc.getDescription(getLocale(req)) + ";" + rule.getConfig(name));
@@ -2019,9 +2019,9 @@ public class ProfileAdminServlet extends AdminServlet {
             IDescriptor desc = rule.getConfigDescriptor(getLocale(req), name);
 
             if (desc == null) {
-                nvp.add(name, ";" + rule.getConfig(name));
+                nvp.put(name, ";" + rule.getConfig(name));
             } else {
-                nvp.add(name,
+                nvp.put(name,
                         desc.getSyntax()
                                 + ";" + getNonNull(desc.getConstraint()) + ";" + desc.getDescription(getLocale(req))
                                 + ";" + rule.getConfig(name));
@@ -2064,7 +2064,7 @@ public class ProfileAdminServlet extends AdminServlet {
                 IPolicyDefault def = policy.getDefault();
                 IPolicyConstraint con = policy.getConstraint();
 
-                nvp.add(setId + ":" + policy.getId(),
+                nvp.put(setId + ":" + policy.getId(),
                         def.getName(getLocale(req)) + ";" +
                                 con.getName(getLocale(req)));
             }
@@ -2094,7 +2094,7 @@ public class ProfileAdminServlet extends AdminServlet {
             String outputId = (String) outputs.nextElement();
             IProfileOutput output = profile.getProfileOutput(outputId);
 
-            nvp.add(outputId, output.getName(getLocale(req)));
+            nvp.put(outputId, output.getName(getLocale(req)));
         }
 
         sendResponse(SUCCESS, null, nvp, resp);
@@ -2121,7 +2121,7 @@ public class ProfileAdminServlet extends AdminServlet {
             String inputId = (String) inputs.nextElement();
             IProfileInput input = profile.getProfileInput(inputId);
 
-            nvp.add(inputId, input.getName(getLocale(req)));
+            nvp.put(inputId, input.getName(getLocale(req)));
         }
 
         sendResponse(SUCCESS, null, nvp, resp);
@@ -2156,9 +2156,9 @@ public class ProfileAdminServlet extends AdminServlet {
             IDescriptor desc = profileInput.getConfigDescriptor(
                     getLocale(req), name);
             if (desc == null) {
-                nvp.add(name, ";" + ";" + profileInput.getConfig(name));
+                nvp.put(name, ";" + ";" + profileInput.getConfig(name));
             } else {
-                nvp.add(name, desc.getSyntax() + ";" +
+                nvp.put(name, desc.getSyntax() + ";" +
                         getNonNull(desc.getConstraint()) + ";" +
                         desc.getDescription(getLocale(req)) + ";" +
                         profileInput.getConfig(name));
@@ -2197,9 +2197,9 @@ public class ProfileAdminServlet extends AdminServlet {
             IDescriptor desc = profileOutput.getConfigDescriptor(
                     getLocale(req), name);
             if (desc == null) {
-                nvp.add(name, ";" + ";" + profileOutput.getConfig(name));
+                nvp.put(name, ";" + ";" + profileOutput.getConfig(name));
             } else {
-                nvp.add(name, desc.getSyntax() + ";" +
+                nvp.put(name, desc.getSyntax() + ";" +
                         getNonNull(desc.getConstraint()) + ";" +
                         desc.getDescription(getLocale(req)) + ";" +
                         profileOutput.getConfig(name));
@@ -2228,7 +2228,7 @@ public class ProfileAdminServlet extends AdminServlet {
             }
 
             // mInstanceId + ";visible;" + enabled
-            nvp.add(profileId, profileId + ";visible;" + status);
+            nvp.put(profileId, profileId + ";visible;" + status);
         }
         sendResponse(SUCCESS, null, nvp, resp);
     }
@@ -2250,21 +2250,21 @@ public class ProfileAdminServlet extends AdminServlet {
 
         NameValuePairs nvp = new NameValuePairs();
 
-        nvp.add("name", profile.getName(getLocale(req)));
-        nvp.add("desc", profile.getDescription(getLocale(req)));
-        nvp.add("visible", Boolean.toString(profile.isVisible()));
-        nvp.add("enable", Boolean.toString(
+        nvp.put("name", profile.getName(getLocale(req)));
+        nvp.put("desc", profile.getDescription(getLocale(req)));
+        nvp.put("visible", Boolean.toString(profile.isVisible()));
+        nvp.put("enable", Boolean.toString(
                 mProfileSub.isProfileEnable(id)));
 
         String authid = profile.getAuthenticatorId();
 
         if (authid == null) {
-            nvp.add("auth", "");
+            nvp.put("auth", "");
         } else {
-            nvp.add("auth", authid);
+            nvp.put("auth", authid);
         }
         CMS.debug("ProfileAdminServlet: authid=" + authid);
-        nvp.add("plugin", mProfileSub.getProfileClassId(id));
+        nvp.put("plugin", mProfileSub.getProfileClassId(id));
 
         sendResponse(SUCCESS, null, nvp, resp);
     }

@@ -216,18 +216,16 @@ public class PolicyMappingsExtDefault extends EnrollExtDefault {
                 Vector<CertificatePolicyMap> policyMaps = new Vector<CertificatePolicyMap>();
 
                 for (int i = 0; i < size; i++) {
-                    NameValuePairs nvps = (NameValuePairs) v.elementAt(i);
-                    Enumeration<String> names = nvps.getNames();
+                    NameValuePairs nvps = v.elementAt(i);
 
-                    while (names.hasMoreElements()) {
-                        String name1 = (String) names.nextElement();
+                    for (String name1 : nvps.keySet()) {
 
                         if (name1.equals(ISSUER_POLICY_ID)) {
-                            issuerPolicyId = nvps.getValue(name1);
+                            issuerPolicyId = nvps.get(name1);
                         } else if (name1.equals(SUBJECT_POLICY_ID)) {
-                            subjectPolicyId = nvps.getValue(name1);
+                            subjectPolicyId = nvps.get(name1);
                         } else if (name1.equals(POLICY_ID_ENABLE)) {
-                            enable = nvps.getValue(name1);
+                            enable = nvps.get(name1);
                         }
                     }
 
@@ -327,13 +325,13 @@ public class PolicyMappingsExtDefault extends EnrollExtDefault {
                     CertificatePolicyId i1 = map.getIssuerIdentifier();
                     CertificatePolicyId s1 = map.getSubjectIdentifier();
 
-                    pairs.add(ISSUER_POLICY_ID, i1.getIdentifier().toString());
-                    pairs.add(SUBJECT_POLICY_ID, s1.getIdentifier().toString());
-                    pairs.add(POLICY_ID_ENABLE, "true");
+                    pairs.put(ISSUER_POLICY_ID, i1.getIdentifier().toString());
+                    pairs.put(SUBJECT_POLICY_ID, s1.getIdentifier().toString());
+                    pairs.put(POLICY_ID_ENABLE, "true");
                 } else {
-                    pairs.add(ISSUER_POLICY_ID, "");
-                    pairs.add(SUBJECT_POLICY_ID, "");
-                    pairs.add(POLICY_ID_ENABLE, "false");
+                    pairs.put(ISSUER_POLICY_ID, "");
+                    pairs.put(SUBJECT_POLICY_ID, "");
+                    pairs.put(POLICY_ID_ENABLE, "false");
 
                 }
                 recs.addElement(pairs);

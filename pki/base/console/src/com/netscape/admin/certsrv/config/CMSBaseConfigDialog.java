@@ -20,13 +20,11 @@ package com.netscape.admin.certsrv.config;
 import com.netscape.admin.certsrv.*;
 import com.netscape.admin.certsrv.connection.*;
 import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.table.*;
 import javax.swing.text.*;
 import java.awt.event.*;
 import java.awt.*;
 import java.util.*;
-import com.netscape.management.client.*;
+
 import com.netscape.management.client.util.*;
 import com.netscape.certsrv.common.*;
 
@@ -177,30 +175,25 @@ public class CMSBaseConfigDialog extends JDialog
 	/* if the servlet or rule wasn't capable of handling the new style
 	 * of interface, just return the names from the name/value pairs that
 	 * were passed in 
-	 */
-
-		Enumeration enum1 = oldstyle.elements();
-
-	/* otherwise, for each parameter name, fetch the associated
+	 * otherwise, for each parameter name, fetch the associated
 	 * parameter type from the extendedPluginInfo that the server
 	 * returned
 	 */
-		while (enum1.hasMoreElements()) {
-			NameValuePair pair = (NameValuePair)enum1.nextElement();
-			NameValuePair epiNVPair = (NameValuePair)response.getPair(pair.getName());
-			if (epiNVPair != null) {
-				epis.add(pair.getName(), epiNVPair.getValue(),false);
+		for (String name : oldstyle.keySet()) {
+			String value = response.get(name);
+			if (value != null) {
+				epis.add(name, value,false);
 			}
 			else {
-				epis.add(pair.getName(), "",true);
+				epis.add(name, "",true);
 			}
 		}
 
 
-		String ht = response.getValue("HELP_TOKEN");
+		String ht = response.get("HELP_TOKEN");
 		if (ht != null) epis.setHelpToken(ht); 
 
-		String hs = response.getValue("HELP_TEXT");
+		String hs = response.get("HELP_TEXT");
 		if (hs != null) epis.setHelpSummary(hs); 
 
 		return epis;
@@ -223,11 +216,11 @@ public class CMSBaseConfigDialog extends JDialog
         GridBagConstraints gbc = new GridBagConstraints();
         p.setLayout(gb);
 
-		mRuleName = data.getValue(mImplName_token);
+		mRuleName = data.get(mImplName_token);
 		mEPIs = getExtendedPluginInfo(mRuleName,data);
 
-       	for (Enumeration e = data.getNames(); e.hasMoreElements() ;) {
-           	String entry = ((String)e.nextElement()).trim();
+        for (String entry : data.keySet()) {
+		entry = entry.trim();
 		Debug.println("in CMSBaseConfigDialog.showDialog() entry=" + entry);
            	if (!entry.equals(mImplName_token)) {
 				String labelname = entry;
@@ -238,7 +231,7 @@ public class CMSBaseConfigDialog extends JDialog
 				 */
 
 				JComponent comp = null;
-               	String stringvalue = data.getValue(entry);
+		String stringvalue = data.get(entry);
 				ExtendedPluginInfo epi = mEPIs.get(entry);
 				if (epi == null) {
 					Debug.println("no ExtendedPluginInfo for "+entry);
@@ -485,14 +478,14 @@ public class CMSBaseConfigDialog extends JDialog
 					String password = value;
 					value = "Rule "+mRuleName;
 					if (password != null && password.length() >0) {
-						nvp.add("PASSWORD_CACHE_ADD",value+";"+password);
+						nvp.put("PASSWORD_CACHE_ADD", value + ";" + password);
 					}
 				}
 				
-				nvp.add(paramName,value);
+				nvp.put(paramName, value);
 			}
-			nvp.add(PolicyRuleDataModel.RULE_NAME,mRuleName);
-			nvp.add(mImplName_token,mImplName.getText());
+			nvp.put(PolicyRuleDataModel.RULE_NAME, mRuleName);
+			nvp.put(mImplName_token, mImplName.getText());
 
 			mData = nvp;
 			try {
@@ -502,7 +495,7 @@ public class CMSBaseConfigDialog extends JDialog
 				}
 				else {
                     if (mId != null && mId.length() > 0) {
-                        nvp.add(Constants.PR_ID, mId);
+                        nvp.put(Constants.PR_ID, mId);
                     }
 					mAdminConnection.modify(mDest, mInstanceScope, mRuleName, nvp);
 				}

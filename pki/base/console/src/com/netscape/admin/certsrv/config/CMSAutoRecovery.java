@@ -24,7 +24,7 @@ import javax.swing.*;
 import javax.swing.table.*;
 import javax.swing.text.*;
 import javax.swing.event.*;
-import javax.swing.border.*;
+
 import com.netscape.management.client.util.*;
 import com.netscape.admin.certsrv.connection.*;
 import com.netscape.certsrv.common.*;
@@ -88,8 +88,8 @@ public class CMSAutoRecovery extends JDialog implements ActionListener,
                 return;
             } else { 
                 NameValuePairs nvps = new NameValuePairs();
-                nvps.add(Constants.PR_RECOVERY_AGENT, val);
-                nvps.add(Constants.PR_AUTO_RECOVERY_ON, Constants.TRUE); 
+                nvps.put(Constants.PR_RECOVERY_AGENT, val);
+                nvps.put(Constants.PR_AUTO_RECOVERY_ON, Constants.TRUE);
                   
                 try {
                     mAdmin.modify(DestDef.DEST_KRA_ADMIN,
@@ -216,13 +216,13 @@ public class CMSAutoRecovery extends JDialog implements ActionListener,
     private void createTable() {
   
         NameValuePairs nvps = new NameValuePairs();
-        nvps.add(Constants.PR_RECOVERY_M, "");
+        nvps.put(Constants.PR_RECOVERY_M, "");
 
         int numUsers = 0;
         try {
             NameValuePairs val = mAdmin.read(DestDef.DEST_KRA_ADMIN,
               ScopeDef.SC_RECOVERY, Constants.RS_ID_CONFIG, nvps);
-            String str = val.getValue(Constants.PR_RECOVERY_M);
+            String str = val.get(Constants.PR_RECOVERY_M);
             numUsers = Integer.parseInt(str);
         } catch (EAdminException e) {
             //showErrorDialog(e.toString());

@@ -20,13 +20,10 @@ package com.netscape.admin.certsrv.config;
 import com.netscape.admin.certsrv.*;
 import com.netscape.admin.certsrv.connection.*;
 import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.table.*;
-import javax.swing.text.*;
 import java.awt.event.*;
 import java.awt.*;
 import java.util.*;
-import com.netscape.management.client.*;
+
 import com.netscape.management.client.util.*;
 import com.netscape.certsrv.common.*;
 
@@ -309,8 +306,8 @@ setLabelCellEditor(mTable, 1);
                 }
 
                 for (int i = 0; i < mTable.getRowCount(); i++) {
-                    nvp.add((String)mTable.getValueAt(i,0),
-                      (String)mTable.getValueAt(i,1));
+                    nvp.put((String) mTable.getValueAt(i, 0),
+                            (String) mTable.getValueAt(i, 1));
 	            }
 
                 if (mIsNew) {
@@ -384,11 +381,11 @@ setLabelCellEditor(mTable, 1);
         defcolNames.addElement("Value"); 
         Vector defdata = new Vector(); 
 
-        for (Enumeration e = response.getNames(); e.hasMoreElements() ;) {
-           String entry = ((String)e.nextElement()).trim();
-           String value = response.getValue(entry);
-                  Debug.println("entry= "+entry);
-                  Debug.println("value= "+value); 
+        for (String entry : response.keySet()) {
+           entry = entry.trim();
+           String value = response.get(entry);
+                  Debug.println("entry= " + entry);
+                  Debug.println("value= " + value);
 
   int start_pos = value.indexOf(';');
   int end_pos = value.lastIndexOf(';');
@@ -413,9 +410,9 @@ setLabelCellEditor(mTable, 1);
              mPluginName.setText(profileId);
              mPluginName.setBackground(getBackground());
              mPluginName.setEnabled(false);
-             mNameField.setText(response.getValue("name"));
+             mNameField.setText(response.get("name"));
              if (mIsNew)
-                 mDescField.setText(response.getValue("desc"));
+                 mDescField.setText(response.get("desc"));
 	    }
 
         this.show();

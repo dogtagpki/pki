@@ -230,8 +230,7 @@ public class FreshestCRLExtDefault extends EnrollExtDefault {
                 int i = 0;
 
                 for (; i < size; i++) {
-                    NameValuePairs nvps = (NameValuePairs) v.elementAt(i);
-                    Enumeration<String> names = nvps.getNames();
+                    NameValuePairs nvps = v.elementAt(i);
                     String pointType = null;
                     String pointValue = null;
                     String issuerType = null;
@@ -239,19 +238,18 @@ public class FreshestCRLExtDefault extends EnrollExtDefault {
                     String enable = null;
                     CRLDistributionPoint cdp = new CRLDistributionPoint();
 
-                    while (names.hasMoreElements()) {
-                        String name1 = (String) names.nextElement();
+                    for (String name1 : nvps.keySet()) {
 
                         if (name1.equals(POINT_TYPE)) {
-                            pointType = nvps.getValue(name1);
+                            pointType = nvps.get(name1);
                         } else if (name1.equals(POINT_NAME)) {
-                            pointValue = nvps.getValue(name1);
+                            pointValue = nvps.get(name1);
                         } else if (name1.equals(ISSUER_TYPE)) {
-                            issuerType = nvps.getValue(name1);
+                            issuerType = nvps.get(name1);
                         } else if (name1.equals(ISSUER_NAME)) {
-                            issuerValue = nvps.getValue(name1);
+                            issuerValue = nvps.get(name1);
                         } else if (name1.equals(ENABLE)) {
-                            enable = nvps.getValue(name1);
+                            enable = nvps.get(name1);
                         }
                     }
 
@@ -409,11 +407,11 @@ public class FreshestCRLExtDefault extends EnrollExtDefault {
     protected NameValuePairs buildEmptyGeneralNames() {
         NameValuePairs pairs = new NameValuePairs();
 
-        pairs.add(POINT_TYPE, "");
-        pairs.add(POINT_NAME, "");
-        pairs.add(ISSUER_TYPE, "");
-        pairs.add(ISSUER_NAME, "");
-        pairs.add(ENABLE, "false");
+        pairs.put(POINT_TYPE, "");
+        pairs.put(POINT_NAME, "");
+        pairs.put(ISSUER_TYPE, "");
+        pairs.put(ISSUER_NAME, "");
+        pairs.put(ENABLE, "false");
         return pairs;
     }
 
@@ -424,10 +422,10 @@ public class FreshestCRLExtDefault extends EnrollExtDefault {
 
         boolean hasFullName = false;
 
-        pairs.add(ENABLE, "true");
+        pairs.put(ENABLE, "true");
         if (gns == null) {
-            pairs.add(POINT_TYPE, "");
-            pairs.add(POINT_NAME, "");
+            pairs.put(POINT_TYPE, "");
+            pairs.put(POINT_NAME, "");
         } else {
             GeneralName gn = (GeneralName) gns.elementAt(0);
 
@@ -435,21 +433,21 @@ public class FreshestCRLExtDefault extends EnrollExtDefault {
                 hasFullName = true;
                 int type = gn.getType();
 
-                pairs.add(POINT_TYPE, getGeneralNameType(gn));
-                pairs.add(POINT_NAME, getGeneralNameValue(gn));
+                pairs.put(POINT_TYPE, getGeneralNameType(gn));
+                pairs.put(POINT_NAME, getGeneralNameValue(gn));
             }
         }
 
         if (!hasFullName) {
-            pairs.add(POINT_TYPE, GN_DIRECTORY_NAME);
-            pairs.add(POINT_NAME, "");
+            pairs.put(POINT_TYPE, GN_DIRECTORY_NAME);
+            pairs.put(POINT_NAME, "");
         }
 
         gns = p.getCRLIssuer();
 
         if (gns == null) {
-            pairs.add(ISSUER_TYPE, GN_DIRECTORY_NAME);
-            pairs.add(ISSUER_NAME, "");
+            pairs.put(ISSUER_TYPE, GN_DIRECTORY_NAME);
+            pairs.put(ISSUER_NAME, "");
         } else {
             GeneralName gn = (GeneralName) gns.elementAt(0);
 
@@ -457,8 +455,8 @@ public class FreshestCRLExtDefault extends EnrollExtDefault {
                 hasFullName = true;
                 int type = gn.getType();
 
-                pairs.add(ISSUER_TYPE, getGeneralNameType(gn));
-                pairs.add(ISSUER_NAME, getGeneralNameValue(gn));
+                pairs.put(ISSUER_TYPE, getGeneralNameType(gn));
+                pairs.put(ISSUER_NAME, getGeneralNameValue(gn));
             }
         }
         return pairs;

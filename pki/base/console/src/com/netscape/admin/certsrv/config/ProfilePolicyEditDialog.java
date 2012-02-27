@@ -20,13 +20,11 @@ package com.netscape.admin.certsrv.config;
 import com.netscape.admin.certsrv.*;
 import com.netscape.admin.certsrv.connection.*;
 import javax.swing.*;
-import javax.swing.event.*;
 import javax.swing.table.*;
-import javax.swing.text.*;
 import java.awt.event.*;
 import java.awt.*;
 import java.util.*;
-import com.netscape.management.client.*;
+
 import com.netscape.management.client.util.*;
 import com.netscape.certsrv.common.*;
 
@@ -462,7 +460,7 @@ public class ProfilePolicyEditDialog extends CMSBaseConfigDialog
                 val = (String)(((JComboBox)comp).getSelectedItem());
             }
             String name1 = ((JLabel)(mDefaultTable.getValueAt(i,0))).getText();
-			nvp.add(name1, val);
+			nvp.put(name1, val);
 	        }
 
 
@@ -485,7 +483,7 @@ public class ProfilePolicyEditDialog extends CMSBaseConfigDialog
             }
 
             String name1 = ((JLabel)(mConstraintTable.getValueAt(i,0))).getText();
-            nvp.add(name1, val);
+            nvp.put(name1, val);
 	        }
                 instanceName = mPluginName.getText();
 //DestDef.DEST_CA_PROFILE_ADMIN, 
@@ -582,9 +580,9 @@ public class ProfilePolicyEditDialog extends CMSBaseConfigDialog
         defcolNames.addElement("Value"); 
         Vector defdata = new Vector(); 
 
-        for (Enumeration e = response.getNames(); e.hasMoreElements() ;) {
-           String entry = ((String)e.nextElement()).trim();
-           String value = response.getValue(entry);
+        for (String entry : response.keySet()) {
+           entry = entry.trim();
+           String value = response.get(entry);
                   Debug.println("ProfilePolicyEditDialog entry= "+entry);
                   Debug.println("ProfilePolicyEditDialog value= "+value); 
 
@@ -605,7 +603,7 @@ public class ProfilePolicyEditDialog extends CMSBaseConfigDialog
         	mPluginName.setText(profileId);
 	        mPluginName.setBackground(getBackground());
         	mPluginName.setEnabled(false);
-        	mNameField.setText(response.getValue("name"));
+		mNameField.setText(response.get("name"));
       		mDescField.setText(setid);
 	        mDescField.setBackground(getBackground());
         	mDescField.setEnabled(false);
@@ -633,9 +631,9 @@ public class ProfilePolicyEditDialog extends CMSBaseConfigDialog
         colNames.addElement("Value"); 
         Vector d = new Vector(); 
 
-        for (Enumeration e = response.getNames(); e.hasMoreElements() ;) {
-           String entry = ((String)e.nextElement()).trim();
-           String value = response.getValue(entry);
+        for (String entry : response.keySet()) {
+           entry = entry.trim();
+           String value = response.get(entry);
                   Debug.println("entry= "+entry);
                   Debug.println("value= "+value); 
 

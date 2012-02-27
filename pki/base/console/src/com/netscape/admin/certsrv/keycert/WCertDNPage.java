@@ -17,11 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.admin.certsrv.keycert;
 
-import java.awt.*;
-import java.util.*;
 import javax.swing.*;
 import javax.swing.border.*;
-import javax.swing.event.*;
+
 import com.netscape.admin.certsrv.*;
 import com.netscape.admin.certsrv.connection.*;
 import com.netscape.admin.certsrv.wizard.*;
@@ -62,7 +60,7 @@ class WCertDNPage extends WBaseDNPage implements IWizardPanel {
     public boolean initializePanel(WizardInfo info) {
         CertSetupWizardInfo wizardInfo = (CertSetupWizardInfo)info;
         NameValuePairs nvps = new NameValuePairs();
-        nvps.add(Constants.PR_SUBJECT_NAME, wizardInfo.getSubjectName());
+        nvps.put(Constants.PR_SUBJECT_NAME, wizardInfo.getSubjectName());
         wizardInfo.addEntry(wizardInfo.ALL_INFO, nvps);
 
         if (wizardInfo.getOperationType().equals(wizardInfo.INSTALLTYPE) ||
@@ -133,7 +131,7 @@ class WCertDNPage extends WBaseDNPage implements IWizardPanel {
         AdminConnection connection = wizardInfo.getAdminConnection();
         NameValuePairs nvps = new NameValuePairs();
 
-        nvps.add(Constants.PR_SUBJECT_NAME, str);
+        nvps.put(Constants.PR_SUBJECT_NAME, str);
         wizardInfo.addEntry(Constants.PR_SUBJECT_NAME, str);
 
         try {
@@ -149,13 +147,13 @@ class WCertDNPage extends WBaseDNPage implements IWizardPanel {
         if (wizardInfo.isNewKey()) {
             String type = wizardInfo.getKeyType();
             if (type.equals("ECC")) {
-                nvps.add(Constants.PR_KEY_CURVENAME, wizardInfo.getKeyCurveName());
+                nvps.put(Constants.PR_KEY_CURVENAME, wizardInfo.getKeyCurveName());
             } else {
-                nvps.add(Constants.PR_KEY_LENGTH, wizardInfo.getKeyLength());
+                nvps.put(Constants.PR_KEY_LENGTH, wizardInfo.getKeyLength());
             }
 
-            nvps.add(Constants.PR_KEY_TYPE, type);
-            nvps.add(Constants.PR_TOKEN_NAME, wizardInfo.getTokenName());
+            nvps.put(Constants.PR_KEY_TYPE, type);
+            nvps.put(Constants.PR_TOKEN_NAME, wizardInfo.getTokenName());
         }
 
         wizardInfo.addEntry(wizardInfo.ALL_INFO, nvps);

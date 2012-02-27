@@ -18,14 +18,12 @@
 package com.netscape.admin.certsrv.config;
 
 import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
 import com.netscape.admin.certsrv.connection.AdminConnection;
 import com.netscape.management.client.util.*;
 import com.netscape.certsrv.common.*;
 import com.netscape.admin.certsrv.ug.*;
 import javax.swing.*;
 import java.awt.*;
-import java.util.*;
 import java.awt.event.*;
 
 /**
@@ -82,8 +80,8 @@ public class CMSKRASchemePanel extends CMSBaseUGTab {
     public void refresh() {
         mModel.progressStart();
         NameValuePairs nvps = new NameValuePairs();
-        nvps.add(Constants.PR_RECOVERY_N, "");
-        nvps.add(Constants.PR_RECOVERY_M, "");
+        nvps.put(Constants.PR_RECOVERY_N, "");
+        nvps.put(Constants.PR_RECOVERY_M, "");
 
         try {
             NameValuePairs val = mAdmin.read(DestDef.DEST_KRA_ADMIN,
@@ -99,13 +97,12 @@ public class CMSKRASchemePanel extends CMSBaseUGTab {
     }
 
     protected void populate(NameValuePairs nvps) {
-        for (int i=0; i<nvps.size(); i++) {
-            NameValuePair nvp = nvps.elementAt(i);
-            String name = nvp.getName();
+        for (String name : nvps.keySet()) {
+            String value = nvps.get(name);
             if (name.equals(Constants.PR_RECOVERY_N)) {
-                mAvailAgentLbl.setText(nvp.getValue());
+                mAvailAgentLbl.setText(value);
             } else if (name.equals(Constants.PR_RECOVERY_M)) {
-                mReqAgentLbl.setText(nvp.getValue());
+                mReqAgentLbl.setText(value);
             }
         }
     }

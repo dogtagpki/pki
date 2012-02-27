@@ -147,13 +147,13 @@ public class CMSSNMPPanel extends CMSBaseTab {
     public void refresh() {
         mModel.progressStart();
         NameValuePairs nvps = new NameValuePairs();
-        nvps.add(Constants.PR_SNMP_ENABLED, "");
-        nvps.add(Constants.PR_SNMP_MASTER_HOST, "");
-        nvps.add(Constants.PR_SNMP_MASTER_PORT, "");
-        nvps.add(Constants.PR_SNMP_DESC, "");
-        nvps.add(Constants.PR_SNMP_ORGN, "");
-        nvps.add(Constants.PR_SNMP_LOC, "");
-        nvps.add(Constants.PR_SNMP_CONTACT, "");
+        nvps.put(Constants.PR_SNMP_ENABLED, "");
+        nvps.put(Constants.PR_SNMP_MASTER_HOST, "");
+        nvps.put(Constants.PR_SNMP_MASTER_PORT, "");
+        nvps.put(Constants.PR_SNMP_DESC, "");
+        nvps.put(Constants.PR_SNMP_ORGN, "");
+        nvps.put(Constants.PR_SNMP_LOC, "");
+        nvps.put(Constants.PR_SNMP_CONTACT, "");
 
         try {
             NameValuePairs val = mAdmin.read(DestDef.DEST_SERVER_ADMIN,
@@ -170,23 +170,22 @@ public class CMSSNMPPanel extends CMSBaseTab {
     }
 
     private void populate(NameValuePairs nvps) {
-        for (int i=0; i<nvps.size(); i++) {
-            NameValuePair nvp = nvps.elementAt(i);
-            String name = nvp.getName();
+        for (String name : nvps.keySet()) {
+            String value = nvps.get(name);
             if (name.equals(Constants.PR_SNMP_ENABLED)) {
-                mEnable.setSelected(getBoolean(nvp));                
+                mEnable.setSelected(getBoolean(value));
             } else if (name.equals(Constants.PR_SNMP_MASTER_HOST)) {
-                mHostNameText.setText(nvp.getValue());
+                mHostNameText.setText(value);
             } else if (name.equals(Constants.PR_SNMP_MASTER_PORT)) {
-                mPortText.setText(nvp.getValue());
+                mPortText.setText(value);
             } else if (name.equals(Constants.PR_SNMP_DESC)) {
-                mDescText.setText(nvp.getValue());
+                mDescText.setText(value);
             } else if (name.equals(Constants.PR_SNMP_ORGN)) {
-                mOrgnText.setText(nvp.getValue());
+                mOrgnText.setText(value);
             } else if (name.equals(Constants.PR_SNMP_LOC)) {
-                mLocText.setText(nvp.getValue());
+                mLocText.setText(value);
             } else if (name.equals(Constants.PR_SNMP_CONTACT)) {
-                mContactText.setText(nvp.getValue());
+                mContactText.setText(value);
             }
         }
 
@@ -196,8 +195,8 @@ public class CMSSNMPPanel extends CMSBaseTab {
             enableTextField(false, getBackground());
     }
 
-    public boolean getBoolean(NameValuePair nvp) {
-        if (nvp.getValue().equals(Constants.TRUE))
+    public boolean getBoolean(String value) {
+        if (value.equals(Constants.TRUE))
             return true;
         return false;
     }
@@ -261,16 +260,16 @@ public class CMSSNMPPanel extends CMSBaseTab {
 
         NameValuePairs nvps = new NameValuePairs();
         if (mEnable.isSelected())
-            nvps.add(Constants.PR_SNMP_ENABLED, Constants.TRUE);
+            nvps.put(Constants.PR_SNMP_ENABLED, Constants.TRUE);
         else
-            nvps.add(Constants.PR_SNMP_ENABLED, Constants.FALSE);
+            nvps.put(Constants.PR_SNMP_ENABLED, Constants.FALSE);
 
-        nvps.add(Constants.PR_SNMP_MASTER_HOST, mHostNameText.getText().trim());
-        nvps.add(Constants.PR_SNMP_MASTER_PORT, port);
-        nvps.add(Constants.PR_SNMP_DESC, mDescText.getText().trim()); 
-        nvps.add(Constants.PR_SNMP_ORGN, mOrgnText.getText().trim());
-        nvps.add(Constants.PR_SNMP_LOC, mLocText.getText().trim());
-        nvps.add(Constants.PR_SNMP_CONTACT, mContactText.getText().trim());
+        nvps.put(Constants.PR_SNMP_MASTER_HOST, mHostNameText.getText().trim());
+        nvps.put(Constants.PR_SNMP_MASTER_PORT, port);
+        nvps.put(Constants.PR_SNMP_DESC, mDescText.getText().trim());
+        nvps.put(Constants.PR_SNMP_ORGN, mOrgnText.getText().trim());
+        nvps.put(Constants.PR_SNMP_LOC, mLocText.getText().trim());
+        nvps.put(Constants.PR_SNMP_CONTACT, mContactText.getText().trim());
 
         mModel.progressStart();
         try {

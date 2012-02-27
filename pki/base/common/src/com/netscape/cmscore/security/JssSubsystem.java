@@ -90,7 +90,6 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.common.Constants;
-import com.netscape.certsrv.common.NameValuePair;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.security.ICryptoSubsystem;
@@ -1043,11 +1042,11 @@ public final class JssSubsystem implements ICryptoSubsystem {
             X509CertImpl impl = new X509CertImpl(b);
             NameValuePairs results = new NameValuePairs();
 
-            results.add(Constants.PR_CERT_SUBJECT_NAME, impl.getSubjectDN().getName());
-            results.add(Constants.PR_ISSUER_NAME, impl.getIssuerDN().getName());
-            results.add(Constants.PR_SERIAL_NUMBER, impl.getSerialNumber().toString());
-            results.add(Constants.PR_BEFORE_VALIDDATE, impl.getNotBefore().toString());
-            results.add(Constants.PR_AFTER_VALIDDATE, impl.getNotAfter().toString());
+            results.put(Constants.PR_CERT_SUBJECT_NAME, impl.getSubjectDN().getName());
+            results.put(Constants.PR_ISSUER_NAME, impl.getIssuerDN().getName());
+            results.put(Constants.PR_SERIAL_NUMBER, impl.getSerialNumber().toString());
+            results.put(Constants.PR_BEFORE_VALIDDATE, impl.getNotBefore().toString());
+            results.put(Constants.PR_AFTER_VALIDDATE, impl.getNotAfter().toString());
 
             // fingerprint is using MD5 hash
 
@@ -1202,7 +1201,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
                         }
                         String serialno = impl.getSerialNumber().toString();
                         String issuer = impl.getIssuerDN().toString();
-                        nvps.add(nickname + "," + serialno, issuer);
+                        nvps.put(nickname + "," + serialno, issuer);
                         Debug.trace("getRootCerts: nickname=" + nickname + ", serialno=" +
                                 serialno + ", issuer=" + issuer);
                         continue;
@@ -1265,7 +1264,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
                         }
                         String serialno = impl.getSerialNumber().toString();
                         String issuer = impl.getIssuerDN().toString();
-                        nvps.add(nickname + "," + serialno, issuer);
+                        nvps.put(nickname + "," + serialno, issuer);
                         Debug.trace("getUserCerts: nickname=" + nickname + ", serialno=" +
                                 serialno + ", issuer=" + issuer);
                     } catch (ObjectNotFoundException e) {
@@ -1329,18 +1328,16 @@ public final class JssSubsystem implements ICryptoSubsystem {
                     }
                     Date date = impl.getNotAfter();
                     String dateStr = mFormatter.format(date);
-                    NameValuePair pair = pairs.getPair(nickname);
+                    String vvalue = pairs.get(nickname);
 
                     /* always user cert here*/
                     String certValue = dateStr + "," + "u";
 
-                    if (pair == null)
-                        pairs.add(nickname, certValue);
+                    if (vvalue == null)
+                        pairs.put(nickname, certValue);
                     else {
-                        String vvalue = pair.getValue();
-
                         if (vvalue.endsWith(",u")) {
-                            pair.setValue(vvalue + ";" + certValue);
+                            pairs.put(nickname, vvalue + ";" + certValue);
                         }
                     }
 
@@ -1441,15 +1438,13 @@ public final class JssSubsystem implements ICryptoSubsystem {
                     impl = new X509CertImpl(icert.getEncoded());
                     Date date = impl.getNotAfter();
                     String dateStr = mFormatter.format(date);
-                    NameValuePair pair = pairs.getPair(nickname);
+                    String vvalue = pairs.get(nickname);
                     String certValue = dateStr + "," + trust;
 
-                    if (pair == null)
-                        pairs.add(nickname, certValue);
+                    if (vvalue == null)
+                        pairs.put(nickname, certValue);
                     else {
-                        String vvalue = pair.getValue();
-
-                        pair.setValue(vvalue + ";" + certValue);
+                        pairs.put(nickname, vvalue + ";" + certValue);
                     }
                 } catch (CertificateException e) {
                     log(ILogger.LL_FAILURE,

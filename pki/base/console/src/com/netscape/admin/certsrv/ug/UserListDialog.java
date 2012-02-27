@@ -20,13 +20,11 @@ package com.netscape.admin.certsrv.ug;
 import com.netscape.admin.certsrv.*;
 import com.netscape.admin.certsrv.connection.*;
 import javax.swing.*;
-import javax.swing.event.*;
 import java.awt.event.*;
 import java.awt.*;
 import java.util.*;
-import com.netscape.management.client.*;
+
 import com.netscape.management.client.util.*;
-import javax.swing.table.*;
 import com.netscape.certsrv.common.*;
 
 /**
@@ -317,7 +315,7 @@ public class UserListDialog extends JDialog
         store.copyInto(vals);
 */
 
-       String responseValue = response.getValue("userInfo");
+       String responseValue = response.get("userInfo");
 
        StringTokenizer tokenizer = new StringTokenizer(responseValue, ";");
        StringTokenizer subTokenizer = null;

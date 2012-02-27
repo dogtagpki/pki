@@ -84,9 +84,8 @@ class WInstallOpPage extends WizardBasePanel implements IWizardPanel {
         try {
             NameValuePairs response = connection.search(DestDef.DEST_SERVER_ADMIN,
               ScopeDef.SC_SUBSYSTEM, nvps);
-            for (int i=0; i<response.size(); i++) {
-                NameValuePair nvp = response.elementAt(i);
-                String type = nvp.getValue();
+            for (String name : response.keySet()) {
+                String type = response.get(name);
 
                 if (type.equals(Constants.PR_RA_INSTANCE))
                     mRASigningCert = mResource.getString(

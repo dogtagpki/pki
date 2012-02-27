@@ -18,11 +18,10 @@
 package com.netscape.admin.certsrv.status;
 
 import java.awt.*;
-import java.util.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import com.netscape.admin.certsrv.*;
-import javax.swing.event.*;
+
 import java.awt.event.*;
 import com.netscape.management.client.*;
 import com.netscape.management.client.util.*;
@@ -215,8 +214,8 @@ public class StatusPanel extends CMSBasePanel
 	public void refresh() {
 
 	    NameValuePairs params = new NameValuePairs();
-	    params.add(Constants.PR_STAT_STARTUP,"");
-	    params.add(Constants.PR_STAT_TIME,"");
+	    params.put(Constants.PR_STAT_STARTUP, "");
+	    params.put(Constants.PR_STAT_TIME, "");
 
         NameValuePairs response;
         mModel.progressStart();
@@ -237,11 +236,11 @@ public class StatusPanel extends CMSBasePanel
         Debug.println("StatusPanel: refresh() "+ response.toString());
 
         //populate data
-        mServerName.setText(response.getValue(Constants.PR_STAT_INSTANCEID));
-        mServerVersion.setText(response.getValue(Constants.PR_STAT_VERSION));
-        mInstallDate.setText(response.getValue(Constants.PR_STAT_INSTALLDATE));
-        mServerStart.setText(response.getValue(Constants.PR_STAT_STARTUP));
-        mServerTime.setText(response.getValue(Constants.PR_STAT_TIME));
+        mServerName.setText(response.get(Constants.PR_STAT_INSTANCEID));
+        mServerVersion.setText(response.get(Constants.PR_STAT_VERSION));
+        mInstallDate.setText(response.get(Constants.PR_STAT_INSTALLDATE));
+        mServerStart.setText(response.get(Constants.PR_STAT_STARTUP));
+        mServerTime.setText(response.get(Constants.PR_STAT_TIME));
 	}
 
 }

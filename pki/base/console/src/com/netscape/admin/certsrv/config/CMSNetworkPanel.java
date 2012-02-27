@@ -23,7 +23,6 @@ import com.netscape.certsrv.common.*;
 import com.netscape.management.client.util.*;
 import com.netscape.management.client.console.ConsoleInfo;
 import java.awt.*;
-import java.util.*;
 import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.text.*;
@@ -251,25 +250,25 @@ public class CMSNetworkPanel extends CMSBaseTab {
         } else {
             mModel.progressStart();
             NameValuePairs nvps = new NameValuePairs();
-            nvps.add(Constants.PR_ADMIN_S_PORT, adminSSLPortStr);
-            nvps.add(Constants.PR_GATEWAY_PORT, gatewayPortStr);
-            nvps.add(Constants.PR_AGENT_S_PORT, agentSSLPortStr);
+            nvps.put(Constants.PR_ADMIN_S_PORT, adminSSLPortStr);
+            nvps.put(Constants.PR_GATEWAY_PORT, gatewayPortStr);
+            nvps.put(Constants.PR_AGENT_S_PORT, agentSSLPortStr);
 
             if (mGatewaySSLPortText.isEnabled()) {
-                nvps.add(Constants.PR_GATEWAY_S_PORT, gatewaySSLPortStr);
+                nvps.put(Constants.PR_GATEWAY_S_PORT, gatewaySSLPortStr);
             }
 
             if (mGatewaySSLBacklogText.isEnabled()) {
-                nvps.add(Constants.PR_GATEWAY_S_BACKLOG, gatewaySSLBacklogStr);
+                nvps.put(Constants.PR_GATEWAY_S_BACKLOG, gatewaySSLBacklogStr);
             }
 
             if (mEnable.isSelected()) {
-                nvps.add(Constants.PR_GATEWAY_PORT_ENABLED, Constants.TRUE);
-                nvps.add(Constants.PR_ADMIN_S_BACKLOG, adminSSLBacklogStr);
-                nvps.add(Constants.PR_GATEWAY_BACKLOG, gatewayBacklogStr);
-                nvps.add(Constants.PR_AGENT_S_BACKLOG, agentSSLBacklogStr);
+                nvps.put(Constants.PR_GATEWAY_PORT_ENABLED, Constants.TRUE);
+                nvps.put(Constants.PR_ADMIN_S_BACKLOG, adminSSLBacklogStr);
+                nvps.put(Constants.PR_GATEWAY_BACKLOG, gatewayBacklogStr);
+                nvps.put(Constants.PR_AGENT_S_BACKLOG, agentSSLBacklogStr);
             } else
-                nvps.add(Constants.PR_GATEWAY_PORT_ENABLED, Constants.FALSE);
+                nvps.put(Constants.PR_GATEWAY_PORT_ENABLED, Constants.FALSE);
 
             try {
                 mAdmin.modify(DestDef.DEST_SERVER_ADMIN, ScopeDef.SC_NETWORK,
@@ -312,11 +311,11 @@ public class CMSNetworkPanel extends CMSBaseTab {
     public void refresh() {
         mModel.progressStart();
         NameValuePairs nvps = new NameValuePairs();
-        nvps.add(Constants.PR_ADMIN_S_PORT, "");
-        nvps.add(Constants.PR_AGENT_S_PORT, "");
-        nvps.add(Constants.PR_GATEWAY_S_PORT, "");
-        nvps.add(Constants.PR_GATEWAY_PORT, "");
-        nvps.add(Constants.PR_GATEWAY_PORT_ENABLED, "");
+        nvps.put(Constants.PR_ADMIN_S_PORT, "");
+        nvps.put(Constants.PR_AGENT_S_PORT, "");
+        nvps.put(Constants.PR_GATEWAY_S_PORT, "");
+        nvps.put(Constants.PR_GATEWAY_PORT, "");
+        nvps.put(Constants.PR_GATEWAY_PORT_ENABLED, "");
 
         try {
             NameValuePairs val = mAdmin.read(DestDef.DEST_SERVER_ADMIN,
@@ -344,11 +343,9 @@ public class CMSNetworkPanel extends CMSBaseTab {
     }
 
     private void populate(NameValuePairs nvps) {
-        for (int i=0; i<nvps.size(); i++) {
-            NameValuePair nvp = nvps.elementAt(i);
-            String name = nvp.getName();
-            String str = nvp.getValue();
-            
+        for (String name : nvps.keySet()) {
+            String str = nvps.get(name);
+
             if (name.equals(Constants.PR_GATEWAY_PORT_ENABLED)) {
                 mEnable.setSelected(getBoolean(str));
             } else {

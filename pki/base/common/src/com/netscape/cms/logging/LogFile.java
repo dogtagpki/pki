@@ -1340,7 +1340,7 @@ public class LogFile implements ILogEventListener, IExtendedPluginInfo {
         try {
             entries = readEntry(maxLine, level, source, fName);
             for (int i = 0; i < entries.size(); i++) {
-                params.add(Integer.toString(i) +
+                params.put(Integer.toString(i) +
                         ((LogEntry) entries.elementAt(i)).getEntry(), "");
             }
         } catch (Exception e) {

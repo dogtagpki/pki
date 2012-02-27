@@ -17,111 +17,23 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.certsrv.common;
 
-
-import java.io.*;
-import java.util.*;
-import java.net.*;
-import java.util.*;
-import java.text.*;
-import java.math.*;
-
+import java.util.LinkedHashMap;
+import java.util.StringTokenizer;
 
 /**
- * A class represents an ordered list of name 
+ * A class represents an ordered list of name
  * value pairs.
  *
- * @author thomask
  * @version $Revision$, $Date$
  */
-public class NameValuePairs {
-
-    private Vector mPairs = new Vector();
-
-    // an index to speed up searching
-    // The key is the name.  The element is the NameValuePair.
-    private Hashtable index = new Hashtable();
+public class NameValuePairs extends LinkedHashMap<String, String> {
 
     /**
      * Constructs name value pairs.
-     */	 
+     */
     public NameValuePairs() {
     }
 
-    /**
-     * Adds a name value pair into this set.
-     * if the name already exist, the value will
-     * be replaced.
-     */
-    public void add(String name, String value) {
-        NameValuePair pair = getPair(name);
-
-        if (pair == null) {
-            pair = new NameValuePair(name, value);
-            mPairs.addElement(pair);
-            index.put(name, pair);
-        } else {
-            pair.setValue(value);
-        }
-    }
-
-    /**
-     * Retrieves name value pair from this set.
-     */
-    public NameValuePair getPair(String name) {
-        return (NameValuePair) index.get(name);
-    }
-
-    /**
-     * Returns number of pairs in this set.
-     */
-    public int size() {
-        return mPairs.size();
-    }
-
-    /**
-     * Retrieves name value pairs in specific position.
-     */
-    public NameValuePair elementAt(int pos) {
-        return (NameValuePair) mPairs.elementAt(pos);
-    }
-
-    /**
-     * Removes all name value pairs in this set.
-     */
-    public void removeAllPairs() {
-        mPairs.removeAllElements();
-        index.clear();
-    }
-
-    /**
-     * Retrieves value of the name value pairs that matches
-     * the given name.
-     */
-    public String getValue(String name) {
-        NameValuePair p = getPair(name);
-
-        if (p != null) {
-            return p.getValue();
-        }
-        return null;
-    }
-
-    /**
-     * Retrieves a list of names.
-     */
-    public Enumeration getNames() {
-        Vector v = new Vector();
-        int size = mPairs.size(); 
-
-        for (int i = 0; i < size; i++) { 
-            NameValuePair p = (NameValuePair) mPairs.elementAt(i);
-
-            v.addElement(p.getName());
-        }
-        //System.out.println("getNames: "+v.size());
-        return v.elements();
-    }
-	
     /**
      * Show the content of this name value container as
      * string representation.
@@ -131,15 +43,23 @@ public class NameValuePairs {
     public String toString() {
         StringBuffer buf = new StringBuffer();
 
-        for (int i = 0; i < mPairs.size(); i++) {
-            NameValuePair p = (NameValuePair) mPairs.elementAt(i);
+        for (String name : keySet()) {
+            String value = get(name);
 
-            buf.append(p.getName() + "=" + p.getValue());
+            buf.append(name + "=" + value);
             buf.append("\n");
         }
+
         return buf.toString();
     }
 
+    /**
+     * Parses a string into name value pairs.
+     *
+     * @param s string
+     * @param nvp name value pairs
+     * @return true if successful
+     */
     public static boolean parseInto(String s, NameValuePairs nvp) {
         StringTokenizer st = new StringTokenizer(s, "&");
 
@@ -153,12 +73,8 @@ public class NameValuePairs {
             String n = t.substring(0, i);
             String v = t.substring(i + 1);
 
-            nvp.add(n, v);
-        }	
+            nvp.put(n, v);
+        }
         return true;
     }
-
-    public Enumeration elements() {
-        return mPairs.elements();
-    }
-}    
+}

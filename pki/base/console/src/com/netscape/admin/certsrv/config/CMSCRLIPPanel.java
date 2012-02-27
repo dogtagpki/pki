@@ -24,11 +24,9 @@ import com.netscape.management.client.util.*;
 import com.netscape.certsrv.common.*;
 import com.netscape.admin.certsrv.connection.*;
 import javax.swing.*;
-import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
-import javax.swing.tree.*;
 
 /**
  * CRL IP Panel
@@ -173,10 +171,10 @@ public class CMSCRLIPPanel  extends CMSBaseTab
             String name = ((JLabel)mList.getSelectedValue()).getText();
 						  //(String)mList.getSelectedValue();
             NameValuePairs nvps = new NameValuePairs();
-            nvps.add(Constants.PR_ENABLED, "");
-            nvps.add(Constants.PR_ID, "");
-            nvps.add(Constants.PR_DESCRIPTION, "");
-            nvps.add(Constants.PR_CLASS, "");
+            nvps.put(Constants.PR_ENABLED, "");
+            nvps.put(Constants.PR_ID, "");
+            nvps.put(Constants.PR_DESCRIPTION, "");
+            nvps.put(Constants.PR_CLASS, "");
             try {
                 NameValuePairs values = mAdmin.read(DestDef.DEST_CA_ADMIN,
                                                     ScopeDef.SC_CRLIPS,
@@ -295,15 +293,13 @@ public class CMSCRLIPPanel  extends CMSBaseTab
     //update the UI component using the data retrieved
     private void populate(NameValuePairs nvps) {
 
-        Enumeration names = nvps.getNames();
         mDataModel.removeAllElements();
         mNames.removeAllElements();
-        while (names.hasMoreElements()) {
-            String name = (String)names.nextElement();
+        for (String name : nvps.keySet()) {
             if (name.indexOf('.') == -1) {
                 mNames.addElement(name);
 
-                String enable = nvps.getValue(name+"."+Constants.PR_ENABLED);
+                String enable = nvps.get(name + "." + Constants.PR_ENABLED);
                 if (enable != null && enable.equalsIgnoreCase(Constants.TRUE)) {
                     mDataModel.addElement(new JLabel(name, 
                                           CMSAdminUtil.getImage(CMSAdminResources.IMAGE_RULE),

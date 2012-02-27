@@ -76,10 +76,8 @@ class WWarningExecute1Page extends WizardBasePanel implements IWizardPanel {
             NameValuePairs response = connection.process(
               DestDef.DEST_SERVER_ADMIN, ScopeDef.SC_CERT_REQUEST,
               wizardInfo.getCertType(), nvps);
-            for (int i=0; i<response.size(); i++) {
-                NameValuePair nvp = response.elementAt(i);
-                String key = nvp.getName();
-                String value = nvp.getValue();
+            for (String key : response.keySet()) {
+                String value = response.get(key);
                 if (key.equals(Constants.PR_CSR)) {
                     wizardInfo.addEntry(Constants.PR_CSR, value);
                     break;

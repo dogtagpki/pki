@@ -468,7 +468,7 @@ public class PublisherAdminServlet extends AdminServlet {
             if (name.equals(Constants.PR_CERT_NAMES)) {
                 ICryptoSubsystem jss = (ICryptoSubsystem) CMS.getSubsystem(CMS.SUBSYSTEM_CRYPTO);
 
-                params.add(name, jss.getAllCerts());
+                params.put(name, jss.getAllCerts());
             } else {
                 String value = ldap.getString(name, "");
 
@@ -481,22 +481,22 @@ public class PublisherAdminServlet extends AdminServlet {
                         value = ILdapAuthInfo.PROP_BINDDN_DEFAULT;
                     }
                 }
-                params.add(name, value);
+                params.put(name, value);
             }
         }
-        params.add(Constants.PR_PUBLISHING_ENABLE,
+        params.put(Constants.PR_PUBLISHING_ENABLE,
                 publishcfg.getString(IPublisherProcessor.PROP_ENABLE, Constants.FALSE));
-        params.add(Constants.PR_PUBLISHING_QUEUE_ENABLE,
+        params.put(Constants.PR_PUBLISHING_QUEUE_ENABLE,
                 publishcfg.getString(Constants.PR_PUBLISHING_QUEUE_ENABLE, Constants.TRUE));
-        params.add(Constants.PR_PUBLISHING_QUEUE_THREADS,
+        params.put(Constants.PR_PUBLISHING_QUEUE_THREADS,
                 publishcfg.getString(Constants.PR_PUBLISHING_QUEUE_THREADS, "3"));
-        params.add(Constants.PR_PUBLISHING_QUEUE_PAGE_SIZE,
+        params.put(Constants.PR_PUBLISHING_QUEUE_PAGE_SIZE,
                 publishcfg.getString(Constants.PR_PUBLISHING_QUEUE_PAGE_SIZE, "40"));
-        params.add(Constants.PR_PUBLISHING_QUEUE_PRIORITY,
+        params.put(Constants.PR_PUBLISHING_QUEUE_PRIORITY,
                 publishcfg.getString(Constants.PR_PUBLISHING_QUEUE_PRIORITY, "0"));
-        params.add(Constants.PR_PUBLISHING_QUEUE_STATUS,
+        params.put(Constants.PR_PUBLISHING_QUEUE_STATUS,
                 publishcfg.getString(Constants.PR_PUBLISHING_QUEUE_STATUS, "200"));
-        params.add(Constants.PR_ENABLE,
+        params.put(Constants.PR_ENABLE,
                 ldapcfg.getString(IPublisherProcessor.PROP_ENABLE, Constants.FALSE));
         sendResponse(SUCCESS, null, params, resp);
     }
@@ -694,7 +694,7 @@ public class PublisherAdminServlet extends AdminServlet {
         // test before commit
         if (publishcfg.getBoolean(IPublisherProcessor.PROP_ENABLE) &&
                 ldapcfg.getBoolean(IPublisherProcessor.PROP_ENABLE)) {
-            params.add("title",
+            params.put("title",
                     "You've attempted to configure CMS to connect" +
                             " to a LDAP directory. The connection status is" +
                             " as follows:\n \n");
@@ -725,16 +725,16 @@ public class PublisherAdminServlet extends AdminServlet {
                     conn = new LDAPConnection(CMS.getLdapJssSSLSocketFactory(
                                     certNickName));
                     CMS.debug("Publishing Test certNickName=" + certNickName);
-                    params.add(Constants.PR_CONN_INITED,
+                    params.put(Constants.PR_CONN_INITED,
                             "Create ssl LDAPConnection with certificate: " +
                                     certNickName + dashes(70 - 44 - certNickName.length()) + " Success");
                 } catch (Exception ex) {
-                    params.add(Constants.PR_CONN_INIT_FAIL,
+                    params.put(Constants.PR_CONN_INIT_FAIL,
                             "Create ssl LDAPConnection with certificate: "
                                     +
                                     certNickName + dashes(70 - 44 - certNickName.length()) + " failure\n"
                                     + " exception: " + ex);
-                    params.add(Constants.PR_SAVE_NOT,
+                    params.put(Constants.PR_SAVE_NOT,
                             "\n \nIf the problem is not fixed then LDAP publishing will fail.\n" +
                                     "Do you want to save the configuration anyway?");
                     sendResponse(SUCCESS, null, params, resp);
@@ -742,13 +742,13 @@ public class PublisherAdminServlet extends AdminServlet {
                 }
                 try {
                     conn.connect(host, port);
-                    params.add(Constants.PR_CONN_OK,
+                    params.put(Constants.PR_CONN_OK,
                             "Connect to directory server "
                                     +
                                     host + " at port " + port +
                                     dashes(70 - 37 - host.length() - (Integer.valueOf(port)).toString().length())
                                     + " Success");
-                    params.add(Constants.PR_AUTH_OK,
+                    params.put(Constants.PR_AUTH_OK,
                             "Authentication: SSL client authentication" +
                                     dashes(70 - 41) + " Success" +
                                     "\nBind to the directory as: " + certNickName +
@@ -757,20 +757,20 @@ public class PublisherAdminServlet extends AdminServlet {
                     if (ex.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
                         // need to intercept this because message from LDAP is
                         // "DSA is unavailable" which confuses with DSA PKI.
-                        params.add(Constants.PR_CONN_FAIL,
+                        params.put(Constants.PR_CONN_FAIL,
                                 "Connect to directory server " +
                                         host + " at port " + port +
                                         dashes(70 - 37 - host.length() - (Integer.valueOf(port)).toString().length()) +
                                         " Failure\n" +
                                         " error: server unavailable");
                     } else {
-                        params.add(Constants.PR_CONN_FAIL,
+                        params.put(Constants.PR_CONN_FAIL,
                                 "Connect to directory server " +
                                         host + " at port " + port +
                                         dashes(70 - 37 - host.length() - (Integer.valueOf(port)).toString().length()) +
                                         " Failure");
                     }
-                    params.add(Constants.PR_SAVE_NOT,
+                    params.put(Constants.PR_SAVE_NOT,
                             "\n \nIf the problem is not fixed then " +
                                     "LDAP publishing will fail.\n" +
                                     "Do you want to save the configuration anyway?");
@@ -782,21 +782,21 @@ public class PublisherAdminServlet extends AdminServlet {
                     if (secure) {
                         conn = new LDAPConnection(
                                     CMS.getLdapJssSSLSocketFactory());
-                        params.add(Constants.PR_CONN_INITED,
+                        params.put(Constants.PR_CONN_INITED,
                                 "Create ssl LDAPConnection" +
                                         dashes(70 - 25) + " Success");
                     } else {
                         conn = new LDAPConnection();
-                        params.add(Constants.PR_CONN_INITED,
+                        params.put(Constants.PR_CONN_INITED,
                                 "Create LDAPConnection" +
                                         dashes(70 - 21) + " Success");
                     }
                 } catch (Exception ex) {
-                    params.add(Constants.PR_CONN_INIT_FAIL,
+                    params.put(Constants.PR_CONN_INIT_FAIL,
                             "Create LDAPConnection" +
                                     dashes(70 - 21) + " Failure\n" +
                                     "exception: " + ex);
-                    params.add(Constants.PR_SAVE_NOT,
+                    params.put(Constants.PR_SAVE_NOT,
                             "\n \nIf the problem is not fixed then " +
                                     "LDAP publishing will fail.\n" +
                                     "Do you want to save the configuration anyway?");
@@ -805,7 +805,7 @@ public class PublisherAdminServlet extends AdminServlet {
                 }
                 try {
                     conn.connect(host, port);
-                    params.add(Constants.PR_CONN_OK,
+                    params.put(Constants.PR_CONN_OK,
                             "Connect to directory server "
                                     +
                                     host + " at port " + port +
@@ -815,7 +815,7 @@ public class PublisherAdminServlet extends AdminServlet {
                     if (ex.getLDAPResultCode() == LDAPException.UNAVAILABLE) {
                         // need to intercept this because message from LDAP is
                         // "DSA is unavailable" which confuses with DSA PKI.
-                        params.add(Constants.PR_CONN_FAIL,
+                        params.put(Constants.PR_CONN_FAIL,
                                 "Connect to directory server "
                                         +
                                         host + " at port " + port +
@@ -823,7 +823,7 @@ public class PublisherAdminServlet extends AdminServlet {
                                         + " Failure" +
                                         "\nerror: server unavailable");
                     } else {
-                        params.add(Constants.PR_CONN_FAIL,
+                        params.put(Constants.PR_CONN_FAIL,
                                 "Connect to directory server "
                                         +
                                         host + " at port " + port +
@@ -831,7 +831,7 @@ public class PublisherAdminServlet extends AdminServlet {
                                         + " Failure" +
                                         "\nexception: " + ex);
                     }
-                    params.add(Constants.PR_SAVE_NOT,
+                    params.put(Constants.PR_SAVE_NOT,
                             "\n \nIf the problem is not fixed then " +
                                     "LDAP publishing will fail.\n" +
                                     "Do you want to save the configuration anyway?");
@@ -843,14 +843,14 @@ public class PublisherAdminServlet extends AdminServlet {
                     bindAs = ldap.getSubStore(
                                 ILdapBoundConnFactory.PROP_LDAPAUTHINFO).getString(ILdapAuthInfo.PROP_BINDDN);
                     conn.authenticate(version, bindAs, pwd);
-                    params.add(Constants.PR_AUTH_OK,
+                    params.put(Constants.PR_AUTH_OK,
                             "Authentication: Basic authentication" +
                                     dashes(70 - 36) + " Success" +
                                     "\nBind to the directory as: " + bindAs +
                                     dashes(70 - 26 - bindAs.length()) + " Success");
                 } catch (LDAPException ex) {
                     if (ex.getLDAPResultCode() == LDAPException.NO_SUCH_OBJECT) {
-                        params.add(Constants.PR_AUTH_FAIL,
+                        params.put(Constants.PR_AUTH_FAIL,
                                 "Authentication: Basic authentication" +
                                         dashes(70 - 36) + "Failure" +
                                         "\nBind to the directory as: " + bindAs +
@@ -859,7 +859,7 @@ public class PublisherAdminServlet extends AdminServlet {
                                         "Please correct the value assigned in the" +
                                         " \"Directory manager DN\" field.");
                     } else if (ex.getLDAPResultCode() == LDAPException.INVALID_CREDENTIALS) {
-                        params.add(Constants.PR_AUTH_FAIL,
+                        params.put(Constants.PR_AUTH_FAIL,
                                 "Authentication: Basic authentication" +
                                         dashes(70 - 36) + " Failure" +
                                         "\nBind to the directory as: " + bindAs +
@@ -868,14 +868,14 @@ public class PublisherAdminServlet extends AdminServlet {
                                         "Please correct the value assigned in the" +
                                         " \"Password\" field.");
                     } else {
-                        params.add(Constants.PR_AUTH_FAIL,
+                        params.put(Constants.PR_AUTH_FAIL,
                                 "Authentication: Basic authentication" +
                                         dashes(70 - 36) + " Failure" +
                                         "\nBind to the directory as: " + bindAs +
                                         dashes(70 - 26 - bindAs.length()) +
                                         " Failure");
                     }
-                    params.add(Constants.PR_SAVE_NOT,
+                    params.put(Constants.PR_SAVE_NOT,
                             "\n \nIf the problem is not fixed then " +
                                     "LDAP publishing will fail.\n" +
                                     "Do you want to save the configuration anyway?");
@@ -942,23 +942,23 @@ public class PublisherAdminServlet extends AdminServlet {
                 try {
                     mProcessor.publishCACert(ca.getCACert());
                     CMS.debug("PublisherAdminServlet: " + CMS.getLogMessage("ADMIN_SRVLT_PUB_CA_CERT"));
-                    params.add("publishCA",
+                    params.put("publishCA",
                             "CA certificate is published.");
                 } catch (Exception ex) {
                     // exception not thrown - not seen as a fatal error.
                     log(ILogger.LL_FAILURE,
                             CMS.getLogMessage("ADMIN_SRVLT_NO_PUB_CA_CERT", ex.toString()));
-                    params.add("publishCA",
+                    params.put("publishCA",
                             "Failed to publish CA certificate.");
                     int index = ex.toString().indexOf("Failed to create CA");
 
                     if (index > -1) {
-                        params.add("createError",
+                        params.put("createError",
                                 ex.toString().substring(index));
                     }
                     mProcessor.shutdown();
                     // Do you want to enable LDAP publishing anyway
-                    params.add(Constants.PR_SAVE_NOT,
+                    params.put(Constants.PR_SAVE_NOT,
                             "\n \nIf the problem is not fixed then " +
                                     "the CA certificate won't be published.\n" +
                                     "Do you want to enable LDAP publishing anyway?");
@@ -971,17 +971,17 @@ public class PublisherAdminServlet extends AdminServlet {
                     CMS.debug("PublisherAdminServlet: about to update CRL");
                     ca.publishCRLNow();
                     CMS.debug(CMS.getLogMessage("ADMIN_SRVLT_PUB_CRL"));
-                    params.add("publishCRL",
+                    params.put("publishCRL",
                             "CRL is published.");
                 } catch (Exception ex) {
                     // exception not thrown - not seen as a fatal error.
                     log(ILogger.LL_FAILURE,
                             "Could not publish crl " + ex.toString());
-                    params.add("publishCRL",
+                    params.put("publishCRL",
                             "Failed to publish CRL.");
                     mProcessor.shutdown();
                     // Do you want to enable LDAP publishing anyway
-                    params.add(Constants.PR_SAVE_NOT,
+                    params.put(Constants.PR_SAVE_NOT,
                             "\n \nIf the problem is not fixed then " +
                                     "the CRL won't be published.\n" +
                                     "Do you want to enable LDAP publishing anyway?");
@@ -990,14 +990,14 @@ public class PublisherAdminServlet extends AdminServlet {
                 }
             }
             commit(true);
-            params.add(Constants.PR_SAVE_OK,
+            params.put(Constants.PR_SAVE_OK,
                     "\n \nConfiguration changes are now committed.");
-            params.add("restarted", "Publishing is restarted.");
+            params.put("restarted", "Publishing is restarted.");
         } else {
             commit(true);
-            params.add(Constants.PR_SAVE_OK,
+            params.put(Constants.PR_SAVE_OK,
                     "\n \nConfiguration changes are now committed.");
-            params.add("stopped",
+            params.put("stopped",
                     "Publishing is stopped.");
         }
 
@@ -1236,7 +1236,7 @@ public class PublisherAdminServlet extends AdminServlet {
 
         NameValuePairs params = new NameValuePairs();
 
-        params.add(Constants.PR_MAPPER_IMPL_NAME, implname);
+        params.put(Constants.PR_MAPPER_IMPL_NAME, implname);
         sendResponse(SUCCESS, null, params, resp);
         return;
     }
@@ -1265,7 +1265,7 @@ public class PublisherAdminServlet extends AdminServlet {
                         resp);
                 return;
             }
-            params.add(name, value.getClassPath() + "," + desc);
+            params.put(name, value.getClassPath() + "," + desc);
         }
         sendResponse(SUCCESS, null, params, resp);
         return;
@@ -1292,7 +1292,7 @@ public class PublisherAdminServlet extends AdminServlet {
             String name = e.nextElement();
             ILdapMapper value = mProcessor.getMapperInstance(name);
 
-            params.add(name, getMapperPluginName(value) + ";visible");
+            params.put(name, getMapperPluginName(value) + ";visible");
         }
         sendResponse(SUCCESS, null, params, resp);
         return;
@@ -1427,13 +1427,13 @@ public class PublisherAdminServlet extends AdminServlet {
         NameValuePairs params = new NameValuePairs();
 
         // implName is always required so always send it.
-        params.add(Constants.PR_MAPPER_IMPL_NAME, "");
+        params.put(Constants.PR_MAPPER_IMPL_NAME, "");
         if (configParams != null) {
             for (int i = 0; i < configParams.size(); i++) {
                 String kv = configParams.elementAt(i);
                 int index = kv.indexOf('=');
 
-                params.add(kv.substring(0, index),
+                params.put(kv.substring(0, index),
                         kv.substring(index + 1));
             }
         }
@@ -1468,7 +1468,7 @@ public class PublisherAdminServlet extends AdminServlet {
         Vector<String> configParams = mapperInst.getInstanceParams();
         NameValuePairs params = new NameValuePairs();
 
-        params.add(Constants.PR_MAPPER_IMPL_NAME,
+        params.put(Constants.PR_MAPPER_IMPL_NAME,
                 getMapperPluginName(mapperInst));
         // implName is always required so always send it.
         if (configParams != null) {
@@ -1476,7 +1476,7 @@ public class PublisherAdminServlet extends AdminServlet {
                 String kv = configParams.elementAt(i);
                 int index = kv.indexOf('=');
 
-                params.add(kv.substring(0, index),
+                params.put(kv.substring(0, index),
                         kv.substring(index + 1));
             }
         }
@@ -1534,13 +1534,13 @@ public class PublisherAdminServlet extends AdminServlet {
         NameValuePairs saveParams = new NameValuePairs();
 
         // implName is always required so always include it it.
-        saveParams.add("pluginName", implname);
+        saveParams.put("pluginName", implname);
         if (oldConfigParms != null) {
             for (int i = 0; i < oldConfigParms.size(); i++) {
                 String kv = oldConfigParms.elementAt(i);
                 int index = kv.indexOf('=');
 
-                saveParams.add(kv.substring(0, index),
+                saveParams.put(kv.substring(0, index),
                         kv.substring(index + 1));
             }
         }
@@ -1875,7 +1875,7 @@ public class PublisherAdminServlet extends AdminServlet {
 
         NameValuePairs params = new NameValuePairs();
 
-        params.add(Constants.PR_RULE_IMPL_NAME, implname);
+        params.put(Constants.PR_RULE_IMPL_NAME, implname);
         sendResponse(SUCCESS, null, params, resp);
         return;
     }
@@ -1901,7 +1901,7 @@ public class PublisherAdminServlet extends AdminServlet {
                 desc = lp.getDescription();
             } catch (Exception exp) {
             }
-            params.add(name, value.getClassPath() + "," + desc);
+            params.put(name, value.getClassPath() + "," + desc);
         }
         sendResponse(SUCCESS, null, params, resp);
         return;
@@ -1919,7 +1919,7 @@ public class PublisherAdminServlet extends AdminServlet {
                     mProcessor.getRuleInsts().get((Object) name);
             String enabled = value.enabled() ? "enabled" : "disabled";
 
-            params.add(name, value.getInstanceName() + ";visible;" + enabled);
+            params.put(name, value.getInstanceName() + ";visible;" + enabled);
         }
         sendResponse(SUCCESS, null, params, resp);
         return;
@@ -2062,13 +2062,13 @@ public class PublisherAdminServlet extends AdminServlet {
         NameValuePairs params = new NameValuePairs();
 
         // implName is always required so always send it.
-        params.add(Constants.PR_RULE_IMPL_NAME, "");
+        params.put(Constants.PR_RULE_IMPL_NAME, "");
         if (configParams != null) {
             for (int i = 0; i < configParams.size(); i++) {
                 String kv = (String) configParams.elementAt(i);
                 int index = kv.indexOf('=');
 
-                params.add(kv.substring(0, index),
+                params.put(kv.substring(0, index),
                         kv.substring(index + 1));
             }
         }
@@ -2102,7 +2102,7 @@ public class PublisherAdminServlet extends AdminServlet {
         Vector<String> configParams = ruleInst.getInstanceParams();
         NameValuePairs params = new NameValuePairs();
 
-        params.add(Constants.PR_RULE_IMPL_NAME,
+        params.put(Constants.PR_RULE_IMPL_NAME,
                 getRulePluginName(ruleInst));
         // implName is always required so always send it.
         if (configParams != null) {
@@ -2110,7 +2110,7 @@ public class PublisherAdminServlet extends AdminServlet {
                 String kv = (String) configParams.elementAt(i);
                 int index = kv.indexOf('=');
 
-                params.add(kv.substring(0, index),
+                params.put(kv.substring(0, index),
                         kv.substring(index + 1));
             }
         }
@@ -2167,13 +2167,13 @@ public class PublisherAdminServlet extends AdminServlet {
         NameValuePairs saveParams = new NameValuePairs();
 
         // implName is always required so always include it it.
-        saveParams.add("pluginName", implname);
+        saveParams.put("pluginName", implname);
         if (oldConfigParms != null) {
             for (int i = 0; i < oldConfigParms.size(); i++) {
                 String kv = oldConfigParms.elementAt(i);
                 int index = kv.indexOf('=');
 
-                saveParams.add(kv.substring(0, index),
+                saveParams.put(kv.substring(0, index),
                         kv.substring(index + 1));
             }
         }
@@ -2523,7 +2523,7 @@ public class PublisherAdminServlet extends AdminServlet {
 
         NameValuePairs params = new NameValuePairs();
 
-        params.add(Constants.PR_PUBLISHER_IMPL_NAME, implname);
+        params.put(Constants.PR_PUBLISHER_IMPL_NAME, implname);
         sendResponse(SUCCESS, null, params, resp);
         return;
     }
@@ -2550,7 +2550,7 @@ public class PublisherAdminServlet extends AdminServlet {
                 desc = lp.getDescription();
             } catch (Exception exp) {
             }
-            params.add(name, value.getClassPath() + "," + desc);
+            params.put(name, value.getClassPath() + "," + desc);
         }
         sendResponse(SUCCESS, null, params, resp);
         return;
@@ -2579,7 +2579,7 @@ public class PublisherAdminServlet extends AdminServlet {
 
             if (value == null)
                 continue;
-            params.add(name, getPublisherPluginName(value) + ";visible");
+            params.put(name, getPublisherPluginName(value) + ";visible");
         }
         sendResponse(SUCCESS, null, params, resp);
         return;
@@ -2725,16 +2725,16 @@ public class PublisherAdminServlet extends AdminServlet {
         NameValuePairs params = new NameValuePairs();
 
         // implName is always required so always send it.
-        params.add(Constants.PR_PUBLISHER_IMPL_NAME, "");
+        params.put(Constants.PR_PUBLISHER_IMPL_NAME, "");
         if (configParams != null) {
             for (int i = 0; i < configParams.size(); i++) {
                 String kv = (String) configParams.elementAt(i);
                 int index = kv.indexOf('=');
 
                 if (index == -1) {
-                    params.add(kv, "");
+                    params.put(kv, "");
                 } else {
-                    params.add(kv.substring(0, index),
+                    params.put(kv.substring(0, index),
                             kv.substring(index + 1));
                 }
             }
@@ -2771,7 +2771,7 @@ public class PublisherAdminServlet extends AdminServlet {
         Vector<String> configParams = publisherInst.getInstanceParams();
         NameValuePairs params = new NameValuePairs();
 
-        params.add(Constants.PR_PUBLISHER_IMPL_NAME,
+        params.put(Constants.PR_PUBLISHER_IMPL_NAME,
                 getPublisherPluginName(publisherInst));
         // implName is always required so always send it.
         if (configParams != null) {
@@ -2779,7 +2779,7 @@ public class PublisherAdminServlet extends AdminServlet {
                 String kv = (String) configParams.elementAt(i);
                 int index = kv.indexOf('=');
 
-                params.add(kv.substring(0, index),
+                params.put(kv.substring(0, index),
                         kv.substring(index + 1));
             }
         }
@@ -2848,7 +2848,7 @@ public class PublisherAdminServlet extends AdminServlet {
         String pubType = "";
 
         // implName is always required so always include it it.
-        saveParams.add("pluginName", implname);
+        saveParams.put("pluginName", implname);
         if (oldConfigParms != null) {
             for (int i = 0; i < oldConfigParms.size(); i++) {
                 String kv = (String) oldConfigParms.elementAt(i);
@@ -2860,7 +2860,7 @@ public class PublisherAdminServlet extends AdminServlet {
                         pubType = "crl";
                     }
 
-                    saveParams.add(kv.substring(0, index),
+                    saveParams.put(kv.substring(0, index),
                             kv.substring(index + 1));
                 }
             }
@@ -2876,11 +2876,11 @@ public class PublisherAdminServlet extends AdminServlet {
 
         // get objects added and deleted
         if (pubType.equals("cacert")) {
-            saveParams.add("caObjectClassAdded", instancesConfig.getString(id + ".caObjectClassAdded", ""));
-            saveParams.add("caObjectClassDeleted", instancesConfig.getString(id + ".caObjectClassDeleted", ""));
+            saveParams.put("caObjectClassAdded", instancesConfig.getString(id + ".caObjectClassAdded", ""));
+            saveParams.put("caObjectClassDeleted", instancesConfig.getString(id + ".caObjectClassDeleted", ""));
         } else if (pubType.equals("crl")) {
-            saveParams.add("crlObjectClassAdded", instancesConfig.getString(id + ".crlObjectClassAdded", ""));
-            saveParams.add("crlObjectClassDeleted", instancesConfig.getString(id + ".crlObjectClassDeleted", ""));
+            saveParams.put("crlObjectClassAdded", instancesConfig.getString(id + ".crlObjectClassAdded", ""));
+            saveParams.put("crlObjectClassDeleted", instancesConfig.getString(id + ".crlObjectClassDeleted", ""));
         }
 
         // create new substore.
@@ -3054,9 +3054,9 @@ public class PublisherAdminServlet extends AdminServlet {
         } catch (Exception e) {
         }
 
-        oldOC = saveParams.getValue(objName);
-        oldAdded = saveParams.getValue(objName + "Added");
-        oldDeleted = saveParams.getValue(objName + "Deleted");
+        oldOC = saveParams.get(objName);
+        oldAdded = saveParams.get(objName + "Added");
+        oldDeleted = saveParams.get(objName + "Deleted");
 
         if ((oldOC == null) || (newOC == null))
             return;
@@ -3106,11 +3106,8 @@ public class PublisherAdminServlet extends AdminServlet {
         store.removeSubStore(id);
         IConfigStore rstore = store.makeSubStore(id);
 
-        Enumeration<String> keys = saveParams.getNames();
-
-        while (keys.hasMoreElements()) {
-            String key = keys.nextElement();
-            String value = saveParams.getValue(key);
+        for (String key : saveParams.keySet()) {
+            String value = saveParams.get(key);
 
             if (value != null)
                 rstore.put(key, value);

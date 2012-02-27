@@ -21,7 +21,6 @@ import java.util.*;
 import javax.swing.*;
 import com.netscape.certsrv.common.*;
 import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
 
 /**
  * Auth Plugin Implementation Data model - represents the implementation
@@ -59,13 +58,13 @@ public class AuthImplDataModel extends CMSContentTableModel
     public void processData(Object data) {
         Vector v = new Vector();
         NameValuePairs obj = (NameValuePairs) data;
-        JLabel label = new JLabel(obj.getValue(IMPL_NAME),
+        JLabel label = new JLabel(obj.get(IMPL_NAME),
             CMSAdminUtil.getImage(CMSAdminResources.IMAGE_AUTH_PLUGIN),
             JLabel.LEFT);
-        if(!obj.getValue(IMPL_DESC).trim().equals(""))
-            label.setToolTipText(obj.getValue(IMPL_DESC));
+        if(!obj.get(IMPL_DESC).trim().equals(""))
+            label.setToolTipText(obj.get(IMPL_DESC));
         v.addElement(label);
-        v.addElement(obj.getValue(IMPL_CLASS));
+        v.addElement(obj.get(IMPL_CLASS));
         //v.addElement(obj.getValue(IMPL_DESC));
         addRow(v, data);
     }

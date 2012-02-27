@@ -366,20 +366,18 @@ public class NameConstraintsExtDefault extends EnrollExtDefault {
         Vector<GeneralSubtree> subtrees = new Vector<GeneralSubtree>();
 
         for (int i = 0; i < size; i++) {
-            NameValuePairs nvps = (NameValuePairs) v.elementAt(i);
-            Enumeration<String> names = nvps.getNames();
+            NameValuePairs nvps = v.elementAt(i);
 
-            while (names.hasMoreElements()) {
-                String name1 = (String) names.nextElement();
+            for (String name1 : nvps.keySet()) {
 
                 if (name1.equals(GENERAL_NAME_CHOICE)) {
-                    choice = nvps.getValue(name1);
+                    choice = nvps.get(name1);
                 } else if (name1.equals(GENERAL_NAME_VALUE)) {
-                    val = nvps.getValue(name1);
+                    val = nvps.get(name1);
                 } else if (name1.equals(MIN_VALUE)) {
-                    minS = nvps.getValue(name1);
+                    minS = nvps.get(name1);
                 } else if (name1.equals(MAX_VALUE)) {
-                    maxS = nvps.getValue(name1);
+                    maxS = nvps.get(name1);
                 }
             }
 
@@ -527,11 +525,11 @@ public class NameConstraintsExtDefault extends EnrollExtDefault {
 
             NameValuePairs pairs = new NameValuePairs();
 
-            pairs.add(GENERAL_NAME_CHOICE, type);
-            pairs.add(GENERAL_NAME_VALUE, getGeneralNameValue(gn));
-            pairs.add(MIN_VALUE, Integer.toString(min));
-            pairs.add(MAX_VALUE, Integer.toString(max));
-            pairs.add(ENABLE, "true");
+            pairs.put(GENERAL_NAME_CHOICE, type);
+            pairs.put(GENERAL_NAME_VALUE, getGeneralNameValue(gn));
+            pairs.put(MIN_VALUE, Integer.toString(min));
+            pairs.put(MAX_VALUE, Integer.toString(max));
+            pairs.put(ENABLE, "true");
 
             recs.addElement(pairs);
         }

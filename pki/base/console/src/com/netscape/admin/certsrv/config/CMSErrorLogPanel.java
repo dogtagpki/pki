@@ -18,13 +18,10 @@
 package com.netscape.admin.certsrv.config;
 
 import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
 import com.netscape.certsrv.common.*;
 import com.netscape.management.client.util.*;
-import java.awt.*;
+
 import java.awt.event.*;
-import java.util.*;
-import javax.swing.*;
 
 /**
  * Error Log Setting Tab to be displayed at the right hand side
@@ -67,14 +64,14 @@ public class CMSErrorLogPanel extends CMSBaseLogPanel {
     public void refresh() {
         mModel.progressStart();
         NameValuePairs nvp = new NameValuePairs();
-        nvp.add(Constants.PR_LOG_ENABLED, "");
-        nvp.add(Constants.PR_LOG_LEVEL, "");
-        nvp.add(Constants.PR_LOG_BUFFERSIZE, "");
+        nvp.put(Constants.PR_LOG_ENABLED, "");
+        nvp.put(Constants.PR_LOG_LEVEL, "");
+        nvp.put(Constants.PR_LOG_BUFFERSIZE, "");
         //nvp.add(Constants.PR_LOG_EXPIRED_TIME, "");
         //nvp.add(Constants.PR_LOG_FILENAME, "");
         //nvp.add(Constants.PR_LOG_FLUSHINTERVAL, "");
-        nvp.add(Constants.PR_LOG_MAXFILESIZE, "");
-        nvp.add(Constants.PR_LOG_ROLLEROVER_INTERVAL, "");
+        nvp.put(Constants.PR_LOG_MAXFILESIZE, "");
+        nvp.put(Constants.PR_LOG_ROLLEROVER_INTERVAL, "");
 
         try {
             NameValuePairs val = mAdmin.read(DestDef.DEST_LOG_ADMIN,
@@ -92,16 +89,16 @@ public class CMSErrorLogPanel extends CMSBaseLogPanel {
     }
 
     private void parseVals(NameValuePairs nvp) {
-        if (nvp.getValue(Constants.PR_LOG_ENABLED).equalsIgnoreCase(
+        if (nvp.get(Constants.PR_LOG_ENABLED).equalsIgnoreCase(
             Constants.TRUE)) 
             activateLog.setSelected(true);
         else
             activateLog.setSelected(false);
-        mLevel = Integer.parseInt(nvp.getValue(Constants.PR_LOG_LEVEL));
-        mlogBufSizTextData = nvp.getValue(Constants.PR_LOG_BUFFERSIZE);
-        mlogMaxSizTextData = nvp.getValue(Constants.PR_LOG_MAXFILESIZE);
+        mLevel = Integer.parseInt(nvp.get(Constants.PR_LOG_LEVEL));
+        mlogBufSizTextData = nvp.get(Constants.PR_LOG_BUFFERSIZE);
+        mlogMaxSizTextData = nvp.get(Constants.PR_LOG_MAXFILESIZE);
         int val = 
-          Integer.parseInt(nvp.getValue(Constants.PR_LOG_ROLLEROVER_INTERVAL));
+          Integer.parseInt(nvp.get(Constants.PR_LOG_ROLLEROVER_INTERVAL));
         mFrequency = getRollOverIndex(val);
     }
 
@@ -135,19 +132,19 @@ public class CMSErrorLogPanel extends CMSBaseLogPanel {
         NameValuePairs nvp = new NameValuePairs();
 
         if (activateLog.isSelected())
-            nvp.add(Constants.PR_LOG_ENABLED, Constants.TRUE);
+            nvp.put(Constants.PR_LOG_ENABLED, Constants.TRUE);
         else
-            nvp.add(Constants.PR_LOG_ENABLED, Constants.FALSE);
+            nvp.put(Constants.PR_LOG_ENABLED, Constants.FALSE);
         String str = "" + mLogLevel.getSelectedIndex();
-        nvp.add(Constants.PR_LOG_LEVEL, str);
-        nvp.add(Constants.PR_LOG_BUFFERSIZE, mlogBufSizText.getText().trim());
+        nvp.put(Constants.PR_LOG_LEVEL, str);
+        nvp.put(Constants.PR_LOG_BUFFERSIZE, mlogBufSizText.getText().trim());
         //nvp.add(Constants.PR_LOG_EXPIRED_TIME, "");
         //nvp.add(Constants.PR_LOG_FILENAME, "");
         //nvp.add(Constants.PR_LOG_FLUSHINTERVAL, "");
-        nvp.add(Constants.PR_LOG_MAXFILESIZE, mlogMaxSizText.getText().trim());
+        nvp.put(Constants.PR_LOG_MAXFILESIZE, mlogMaxSizText.getText().trim());
 
         str = "" + getRollOverTime(mlogFQC.getSelectedIndex());
-        nvp.add(Constants.PR_LOG_ROLLEROVER_INTERVAL, str);
+        nvp.put(Constants.PR_LOG_ROLLEROVER_INTERVAL, str);
 
         mModel.progressStart();
         try {

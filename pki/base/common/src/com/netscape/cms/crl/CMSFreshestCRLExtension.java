@@ -157,7 +157,7 @@ public class CMSFreshestCRLExtension
             log(ILogger.LL_FAILURE, "Invalid numPoints property for CRL " +
                     "Freshest CRL extension - " + e);
         }
-        nvp.add(PROP_NUM_POINTS, String.valueOf(numPoints));
+        nvp.put(PROP_NUM_POINTS, String.valueOf(numPoints));
 
         for (int i = 0; i < numPoints; i++) {
             String pointType = null;
@@ -171,9 +171,9 @@ public class CMSFreshestCRLExtension
             }
 
             if (pointType != null && pointType.length() > 0) {
-                nvp.add(PROP_POINTTYPE + i, pointType);
+                nvp.put(PROP_POINTTYPE + i, pointType);
             } else {
-                nvp.add(PROP_POINTTYPE + i, "");
+                nvp.put(PROP_POINTTYPE + i, "");
             }
 
             String pointName = null;
@@ -187,9 +187,9 @@ public class CMSFreshestCRLExtension
             }
 
             if (pointName != null && pointName.length() > 0) {
-                nvp.add(PROP_POINTNAME + i, pointName);
+                nvp.put(PROP_POINTNAME + i, pointName);
             } else {
-                nvp.add(PROP_POINTNAME + i, "");
+                nvp.put(PROP_POINTNAME + i, "");
             }
         }
     }

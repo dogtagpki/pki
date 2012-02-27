@@ -531,34 +531,34 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
         try {
             NameValuePairs params = new NameValuePairs();
 
-            params.add(Constants.PR_OCSPSTORE_IMPL_NAME,
+            params.put(Constants.PR_OCSPSTORE_IMPL_NAME,
                     mConfig.getString("class"));
             int num = mConfig.getInteger(PROP_NUM_CONNS, 0);
 
-            params.add(PROP_NUM_CONNS, Integer.toString(num));
+            params.put(PROP_NUM_CONNS, Integer.toString(num));
             for (int i = 0; i < num; i++) {
-                params.add(PROP_HOST + Integer.toString(i),
+                params.put(PROP_HOST + Integer.toString(i),
                         mConfig.getString(PROP_HOST +
                                 Integer.toString(i), ""));
-                params.add(PROP_PORT + Integer.toString(i),
+                params.put(PROP_PORT + Integer.toString(i),
                         mConfig.getString(PROP_PORT +
                                 Integer.toString(i), "389"));
-                params.add(PROP_BASE_DN + Integer.toString(i),
+                params.put(PROP_BASE_DN + Integer.toString(i),
                         mConfig.getString(PROP_BASE_DN +
                                 Integer.toString(i), ""));
-                params.add(PROP_REFRESH_IN_SEC + Integer.toString(i),
+                params.put(PROP_REFRESH_IN_SEC + Integer.toString(i),
                         mConfig.getString(PROP_REFRESH_IN_SEC +
                                 Integer.toString(i), Integer.toString(DEF_REFRESH_IN_SEC)));
             }
-            params.add(PROP_BY_NAME,
+            params.put(PROP_BY_NAME,
                     mConfig.getString(PROP_BY_NAME, "true"));
-            params.add(PROP_CA_CERT_ATTR,
+            params.put(PROP_CA_CERT_ATTR,
                     mConfig.getString(PROP_CA_CERT_ATTR, DEF_CA_CERT_ATTR));
-            params.add(PROP_CRL_ATTR,
+            params.put(PROP_CRL_ATTR,
                     mConfig.getString(PROP_CRL_ATTR, DEF_CRL_ATTR));
-            params.add(PROP_NOT_FOUND_GOOD,
+            params.put(PROP_NOT_FOUND_GOOD,
                     mConfig.getString(PROP_NOT_FOUND_GOOD, "true"));
-            params.add(PROP_INCLUDE_NEXT_UPDATE,
+            params.put(PROP_INCLUDE_NEXT_UPDATE,
                     mConfig.getString(PROP_INCLUDE_NEXT_UPDATE, "false"));
             return params;
         } catch (Exception e) {
@@ -568,12 +568,9 @@ public class LDAPStore implements IDefStore, IExtendedPluginInfo {
 
     public void setConfigParameters(NameValuePairs pairs)
             throws EBaseException {
-        Enumeration<String> k = pairs.getNames();
 
-        while (k.hasMoreElements()) {
-            String key = k.nextElement();
-
-            mConfig.put(key, pairs.getValue(key));
+        for (String key : pairs.keySet()) {
+            mConfig.put(key, pairs.get(key));
         }
     }
 }

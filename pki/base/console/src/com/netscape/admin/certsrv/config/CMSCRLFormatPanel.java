@@ -220,14 +220,14 @@ public class CMSCRLFormatPanel extends CMSBaseTab {
     public void refresh() {
         _model.progressStart();
         NameValuePairs nvps = new NameValuePairs();
-        nvps.add(Constants.PR_EXTENSIONS, "");
-        nvps.add(Constants.PR_SIGNING_ALGORITHM, "");
-        nvps.add(Constants.PR_INCLUDE_EXPIREDCERTS, "");
-        nvps.add(Constants.PR_INCLUDE_EXPIREDCERTS_ONEEXTRATIME, "");
-        nvps.add(Constants.PR_CA_CERTS_ONLY, "");
-        nvps.add(Constants.PR_PROFILE_CERTS_ONLY, "");
-        nvps.add(Constants.PR_PROFILE_LIST, "");
-        nvps.add(Constants.PR_ENABLE_CACHE, "");
+        nvps.put(Constants.PR_EXTENSIONS, "");
+        nvps.put(Constants.PR_SIGNING_ALGORITHM, "");
+        nvps.put(Constants.PR_INCLUDE_EXPIREDCERTS, "");
+        nvps.put(Constants.PR_INCLUDE_EXPIREDCERTS_ONEEXTRATIME, "");
+        nvps.put(Constants.PR_CA_CERTS_ONLY, "");
+        nvps.put(Constants.PR_PROFILE_CERTS_ONLY, "");
+        nvps.put(Constants.PR_PROFILE_LIST, "");
+        nvps.put(Constants.PR_ENABLE_CACHE, "");
 
         try {
             NameValuePairs val = null;
@@ -259,10 +259,8 @@ public class CMSCRLFormatPanel extends CMSBaseTab {
 
     public void populate(NameValuePairs nvps) {
         String signingAlg = "";
-        for (int i=0; i<nvps.size(); i++) {
-            NameValuePair nvp = nvps.elementAt(i);
-            String name = nvp.getName();            
-            String value = nvp.getValue().trim();
+        for (String name : nvps.keySet()) {
+            String value = nvps.get(name).trim();
             if (name.equals(Constants.PR_EXTENSIONS)) {
                 mEnableExtensions.setSelected(getBoolean(value));
             } else if (name.equals(Constants.PR_SIGNING_ALGORITHM)) {
@@ -328,29 +326,29 @@ public class CMSCRLFormatPanel extends CMSBaseTab {
         NameValuePairs nvps = new NameValuePairs();
 
         if (mEnableExtensions.isSelected())
-            nvps.add(Constants.PR_EXTENSIONS, Constants.TRUE);
+            nvps.put(Constants.PR_EXTENSIONS, Constants.TRUE);
         else
-            nvps.add(Constants.PR_EXTENSIONS, Constants.FALSE);
+            nvps.put(Constants.PR_EXTENSIONS, Constants.FALSE);
  
         if (mEnableExpired.isSelected())
-            nvps.add(Constants.PR_INCLUDE_EXPIREDCERTS, Constants.TRUE);
+            nvps.put(Constants.PR_INCLUDE_EXPIREDCERTS, Constants.TRUE);
         else
-            nvps.add(Constants.PR_INCLUDE_EXPIREDCERTS, Constants.FALSE);
+            nvps.put(Constants.PR_INCLUDE_EXPIREDCERTS, Constants.FALSE);
 
         if (mEnableOneExtraTime.isSelected())
-            nvps.add(Constants.PR_INCLUDE_EXPIREDCERTS_ONEEXTRATIME, Constants.TRUE);
+            nvps.put(Constants.PR_INCLUDE_EXPIREDCERTS_ONEEXTRATIME, Constants.TRUE);
         else
-            nvps.add(Constants.PR_INCLUDE_EXPIREDCERTS_ONEEXTRATIME, Constants.FALSE);
+            nvps.put(Constants.PR_INCLUDE_EXPIREDCERTS_ONEEXTRATIME, Constants.FALSE);
 
         if (mCACertsOnly.isSelected())
-            nvps.add(Constants.PR_CA_CERTS_ONLY, Constants.TRUE);
+            nvps.put(Constants.PR_CA_CERTS_ONLY, Constants.TRUE);
         else
-            nvps.add(Constants.PR_CA_CERTS_ONLY, Constants.FALSE);
+            nvps.put(Constants.PR_CA_CERTS_ONLY, Constants.FALSE);
         
         if (mProfileCertsOnly.isSelected())
-            nvps.add(Constants.PR_PROFILE_CERTS_ONLY, Constants.TRUE);
+            nvps.put(Constants.PR_PROFILE_CERTS_ONLY, Constants.TRUE);
         else
-            nvps.add(Constants.PR_PROFILE_CERTS_ONLY, Constants.FALSE);
+            nvps.put(Constants.PR_PROFILE_CERTS_ONLY, Constants.FALSE);
 
         String profileList = null;
         if (mProfileCertsOnly.isSelected()) {
@@ -365,15 +363,15 @@ public class CMSCRLFormatPanel extends CMSBaseTab {
             }
         }
         if (profileList != null)
-            nvps.add(Constants.PR_PROFILE_LIST, profileList);
+            nvps.put(Constants.PR_PROFILE_LIST, profileList);
         else
-            nvps.add(Constants.PR_PROFILE_LIST, mProfiles.getText().trim());
+            nvps.put(Constants.PR_PROFILE_LIST, mProfiles.getText().trim());
 
 
         int index = mAlgorithms.getSelectedIndex();
 
-        nvps.add(Constants.PR_SIGNING_ALGORITHM,
-            (String)mAlgorithms.getSelectedItem());
+        nvps.put(Constants.PR_SIGNING_ALGORITHM,
+                (String) mAlgorithms.getSelectedItem());
 
         _model.progressStart();
 

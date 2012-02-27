@@ -87,8 +87,8 @@ public class CMSSMTPPanel extends CMSBaseTab {
     public void refresh() {
         mModel.progressStart();
         NameValuePairs nvps = new NameValuePairs();
-        nvps.add(Constants.PR_SERVER_NAME, "");
-        nvps.add(Constants.PR_PORT, "");
+        nvps.put(Constants.PR_SERVER_NAME, "");
+        nvps.put(Constants.PR_PORT, "");
         try {
             NameValuePairs val = mAdmin.read(DestDef.DEST_SERVER_ADMIN,
               ScopeDef.SC_SMTP, Constants.RS_ID_CONFIG, nvps);
@@ -104,13 +104,12 @@ public class CMSSMTPPanel extends CMSBaseTab {
     }
 
     private void populate(NameValuePairs nvps) {
-        for (int i=0; i<nvps.size(); i++) {
-            NameValuePair nvp = nvps.elementAt(i);
-            String name = nvp.getName();
+        for (String name : nvps.keySet()) {
+            String value = nvps.get(name);
             if (name.equals(Constants.PR_SERVER_NAME)) {
-                mServerText.setText(nvp.getValue());
+                mServerText.setText(value);
             } else if (name.equals(Constants.PR_PORT)) {
-                mPortText.setText(nvp.getValue());
+                mPortText.setText(value);
             }
         }
     }
@@ -143,8 +142,8 @@ public class CMSSMTPPanel extends CMSBaseTab {
         }
 
         NameValuePairs nvps = new NameValuePairs();
-        nvps.add(Constants.PR_SERVER_NAME, mServerText.getText().trim());
-        nvps.add(Constants.PR_PORT, port);
+        nvps.put(Constants.PR_SERVER_NAME, mServerText.getText().trim());
+        nvps.put(Constants.PR_PORT, port);
         mModel.progressStart();
         try {
             mAdmin.modify(DestDef.DEST_SERVER_ADMIN,

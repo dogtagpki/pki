@@ -327,7 +327,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             val = "noType";
         NameValuePairs params = new NameValuePairs();
 
-        params.add(Constants.PR_USER_TYPE, val);
+        params.put(Constants.PR_USER_TYPE, val);
         sendResponse(SUCCESS, null, params, resp);
     }
 
@@ -372,7 +372,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
             }
             i++;
         }
-        params.add("userInfo", sb.toString());
+        params.put("userInfo", sb.toString());
 
         sendResponse(SUCCESS, null, params, resp);
     }
@@ -416,10 +416,10 @@ public class UsrGrpAdminServlet extends AdminServlet {
         }
 
         if (user != null) {
-            params.add(Constants.PR_USER_FULLNAME, user.getFullName());
-            params.add(Constants.PR_USER_EMAIL, user.getEmail());
-            params.add(Constants.PR_USER_PHONE, user.getPhone());
-            params.add(Constants.PR_USER_STATE, user.getState());
+            params.put(Constants.PR_USER_FULLNAME, user.getFullName());
+            params.put(Constants.PR_USER_EMAIL, user.getEmail());
+            params.put(Constants.PR_USER_PHONE, user.getPhone());
+            params.put(Constants.PR_USER_STATE, user.getState());
 
             // get list of groups, and get a list of those that this
             //			uid belongs to
@@ -447,7 +447,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                 }
             }
 
-            params.add(Constants.PR_USER_GROUP, grpString.toString());
+            params.put(Constants.PR_USER_GROUP, grpString.toString());
 
             sendResponse(SUCCESS, null, params, resp);
             return;
@@ -516,7 +516,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                 String base64 = CMS.getEncodedCert(certs[i]);
 
                 // pretty print certs
-                params.add(getCertificateString(certs[i]),
+                params.put(getCertificateString(certs[i]),
                         print.toString(clientLocale) + "\n" + base64);
             }
             sendResponse(SUCCESS, null, params, resp);
@@ -567,9 +567,9 @@ public class UsrGrpAdminServlet extends AdminServlet {
             String desc = group.getDescription();
 
             if (desc != null) {
-                params.add(group.getGroupID(), desc);
+                params.put(group.getGroupID(), desc);
             } else {
-                params.add(group.getGroupID(), "");
+                params.put(group.getGroupID(), "");
             }
         }
 
@@ -612,8 +612,8 @@ public class UsrGrpAdminServlet extends AdminServlet {
         if (e.hasMoreElements()) {
             IGroup group = e.nextElement();
 
-            params.add(Constants.PR_GROUP_GROUP, group.getGroupID());
-            params.add(Constants.PR_GROUP_DESC,
+            params.put(Constants.PR_GROUP_GROUP, group.getGroupID());
+            params.put(Constants.PR_GROUP_DESC,
                     group.getDescription());
 
             Enumeration<String> members = group.getMemberNames();
@@ -631,7 +631,7 @@ public class UsrGrpAdminServlet extends AdminServlet {
                 }
             }
 
-            params.add(Constants.PR_GROUP_USER, membersString.toString());
+            params.put(Constants.PR_GROUP_USER, membersString.toString());
 
             sendResponse(SUCCESS, null, params, resp);
             return;

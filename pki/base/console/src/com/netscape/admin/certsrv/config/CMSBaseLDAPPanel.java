@@ -234,24 +234,24 @@ public abstract class CMSBaseLDAPPanel extends CMSBaseTab implements ItemListene
         mModel.progressStart();
         NameValuePairs nvps = new NameValuePairs();
         if (mPublishing)
-            nvps.add(Constants.PR_PUBLISHING_ENABLE,"");
+            nvps.put(Constants.PR_PUBLISHING_ENABLE, "");
         if (mLDAPPublishing)
-            nvps.add(Constants.PR_ENABLE,"");
-        nvps.add(Constants.PR_HOST_NAME, "");
-        nvps.add(Constants.PR_LDAP_PORT, "");
-        nvps.add(Constants.PR_SECURE_PORT_ENABLED, "");
+            nvps.put(Constants.PR_ENABLE, "");
+        nvps.put(Constants.PR_HOST_NAME, "");
+        nvps.put(Constants.PR_LDAP_PORT, "");
+        nvps.put(Constants.PR_SECURE_PORT_ENABLED, "");
         //nvps.add(Constants.PR_BASE_DN, "");
-        nvps.add(Constants.PR_BIND_DN, "");
-        nvps.add(Constants.PR_LDAP_VERSION, "");
-        nvps.add(Constants.PR_AUTH_TYPE, "");
-        nvps.add(Constants.PR_CERT_NAMES, "");
-        nvps.add(Constants.PR_LDAP_CLIENT_CERT, "");
+        nvps.put(Constants.PR_BIND_DN, "");
+        nvps.put(Constants.PR_LDAP_VERSION, "");
+        nvps.put(Constants.PR_AUTH_TYPE, "");
+        nvps.put(Constants.PR_CERT_NAMES, "");
+        nvps.put(Constants.PR_LDAP_CLIENT_CERT, "");
 
-        nvps.add(Constants.PR_PUBLISHING_QUEUE_ENABLE, "");
-        nvps.add(Constants.PR_PUBLISHING_QUEUE_THREADS, "");
-        nvps.add(Constants.PR_PUBLISHING_QUEUE_PAGE_SIZE, "");
-        nvps.add(Constants.PR_PUBLISHING_QUEUE_PRIORITY, "");
-        nvps.add(Constants.PR_PUBLISHING_QUEUE_STATUS, "");
+        nvps.put(Constants.PR_PUBLISHING_QUEUE_ENABLE, "");
+        nvps.put(Constants.PR_PUBLISHING_QUEUE_THREADS, "");
+        nvps.put(Constants.PR_PUBLISHING_QUEUE_PAGE_SIZE, "");
+        nvps.put(Constants.PR_PUBLISHING_QUEUE_PRIORITY, "");
+        nvps.put(Constants.PR_PUBLISHING_QUEUE_STATUS, "");
 
         try {
             NameValuePairs val = mAdmin.read(mServletName,
@@ -280,27 +280,26 @@ public abstract class CMSBaseLDAPPanel extends CMSBaseTab implements ItemListene
         int serverCertIndex = -1;
 
         String version = "";
-        for (int i=0; i<nvps.size(); i++) {
-            NameValuePair nvp = nvps.elementAt(i);
-            String name = nvp.getName();
+        for (String name : nvps.keySet()) {
+            String value = nvps.get(name);
             if (name.equals(Constants.PR_HOST_NAME)) {
-                mHostNameText.setText(nvp.getValue());
+                mHostNameText.setText(value);
             } else if (name.equals(Constants.PR_LDAP_PORT)) {
-                mPortText.setText(nvp.getValue());
+                mPortText.setText(value);
             } else if (name.equals(Constants.PR_SECURE_PORT_ENABLED)) {
-                if (nvp.getValue().equals(Constants.TRUE))
+                if (value.equals(Constants.TRUE))
                     mSecurePort.setSelected(true);
                 else
                     mSecurePort.setSelected(false);
             } else if (name.equals(Constants.PR_BIND_DN)) {
-                mBindAsText.setText(nvp.getValue());
+                mBindAsText.setText(value);
             } else if (name.equals(Constants.PR_PUBLISHING_ENABLE)) {
-                if (nvp.getValue().equals(Constants.TRUE))
+                if (value.equals(Constants.TRUE))
                     mEnablePublishing.setSelected(true);
                 else
                     mEnablePublishing.setSelected(false);
             } else if (name.equals(Constants.PR_PUBLISHING_QUEUE_ENABLE)) {
-                if (nvp.getValue().equals(Constants.TRUE)) {
+                if (value.equals(Constants.TRUE)) {
                     mEnableQueue.setSelected(true);
                     mPublishingQueue = true;
                 } else {
@@ -308,25 +307,25 @@ public abstract class CMSBaseLDAPPanel extends CMSBaseTab implements ItemListene
                     mPublishingQueue = false;
                 }
             } else if (name.equals(Constants.PR_PUBLISHING_QUEUE_THREADS)) {
-                mMaxNumberOfPublishingThreads = nvp.getValue();
+                mMaxNumberOfPublishingThreads = value;
             } else if (name.equals(Constants.PR_PUBLISHING_QUEUE_PAGE_SIZE)) {
-                mPublishingQueuePageSize = nvp.getValue();
+                mPublishingQueuePageSize = value;
             } else if (name.equals(Constants.PR_PUBLISHING_QUEUE_PRIORITY)) {
-                mPublishingQueuePriorityLevel = nvp.getValue();
+                mPublishingQueuePriorityLevel = value;
             } else if (name.equals(Constants.PR_PUBLISHING_QUEUE_STATUS)) {
-                mPublishingQueueStatus = nvp.getValue();
+                mPublishingQueueStatus = value;
             } else if (name.equals(Constants.PR_ENABLE)) {
-                if (nvp.getValue().equals(Constants.TRUE))
+                if (value.equals(Constants.TRUE))
                     mEnable.setSelected(true);
                 else
                     mEnable.setSelected(false);
             } else if (name.equals(Constants.PR_AUTH_TYPE)) {
-                int index = getIndex(nvp.getValue(), AUTHTYPE);
+                int index = getIndex(value, AUTHTYPE);
                 if (index >= 0)
                     mAuthBox.setSelectedIndex(index);
             } else if (name.equals(Constants.PR_CERT_NAMES)) {
                 mCertBox.removeAllItems();
-                String certNames = nvp.getValue();
+                String certNames = value;
                 StringTokenizer tokenizer = new StringTokenizer(certNames,
                   DELIMITER);
                 for (int index=0; tokenizer.hasMoreTokens(); index++) {
@@ -336,9 +335,9 @@ public abstract class CMSBaseLDAPPanel extends CMSBaseTab implements ItemListene
                     mCertBox.addItem(str);
                 }
             } else if (name.equals(Constants.PR_LDAP_CLIENT_CERT)) {
-                clientCert = nvp.getValue();
+                clientCert = value;
             } else if (name.equals(Constants.PR_LDAP_VERSION)) {
-                version = nvp.getValue();
+                version = value;
             }
         }
 
@@ -512,26 +511,26 @@ public abstract class CMSBaseLDAPPanel extends CMSBaseTab implements ItemListene
 
         if (mPublishing) {
             if (mEnablePublishing.isSelected())
-                nvps.add(Constants.PR_PUBLISHING_ENABLE,Constants.TRUE);
+                nvps.put(Constants.PR_PUBLISHING_ENABLE, Constants.TRUE);
             else
-                nvps.add(Constants.PR_PUBLISHING_ENABLE,Constants.FALSE);
+                nvps.put(Constants.PR_PUBLISHING_ENABLE, Constants.FALSE);
 		}
 
         if (mLDAPPublishing) {
             if (mEnable.isSelected())
-                nvps.add(Constants.PR_ENABLE,Constants.TRUE);
+                nvps.put(Constants.PR_ENABLE, Constants.TRUE);
             else
-                nvps.add(Constants.PR_ENABLE,Constants.FALSE);
+                nvps.put(Constants.PR_ENABLE, Constants.FALSE);
         }
 
         if (mEnableQueue.isSelected())
-            nvps.add(Constants.PR_PUBLISHING_QUEUE_ENABLE, Constants.TRUE);
+            nvps.put(Constants.PR_PUBLISHING_QUEUE_ENABLE, Constants.TRUE);
         else
-            nvps.add(Constants.PR_PUBLISHING_QUEUE_ENABLE, Constants.FALSE);
-        nvps.add(Constants.PR_PUBLISHING_QUEUE_THREADS, mMaxNumberOfPublishingThreads);
-        nvps.add(Constants.PR_PUBLISHING_QUEUE_PAGE_SIZE, mPublishingQueuePageSize);
-        nvps.add(Constants.PR_PUBLISHING_QUEUE_PRIORITY, mPublishingQueuePriorityLevel);
-        nvps.add(Constants.PR_PUBLISHING_QUEUE_STATUS, mPublishingQueueStatus);
+            nvps.put(Constants.PR_PUBLISHING_QUEUE_ENABLE, Constants.FALSE);
+        nvps.put(Constants.PR_PUBLISHING_QUEUE_THREADS, mMaxNumberOfPublishingThreads);
+        nvps.put(Constants.PR_PUBLISHING_QUEUE_PAGE_SIZE, mPublishingQueuePageSize);
+        nvps.put(Constants.PR_PUBLISHING_QUEUE_PRIORITY, mPublishingQueuePriorityLevel);
+        nvps.put(Constants.PR_PUBLISHING_QUEUE_STATUS, mPublishingQueueStatus);
 
         if (mEnable.isSelected()) {
             String host = mHostNameText.getText().trim();
@@ -550,21 +549,21 @@ public abstract class CMSBaseLDAPPanel extends CMSBaseTab implements ItemListene
                 showMessageDialog("NUMBERFORMAT");
                 return false;
             }
-            nvps.add(Constants.PR_HOST_NAME, host);
-            nvps.add(Constants.PR_LDAP_PORT, port);
+            nvps.put(Constants.PR_HOST_NAME, host);
+            nvps.put(Constants.PR_LDAP_PORT, port);
 
             if (mSecurePort.isSelected())
-                nvps.add(Constants.PR_SECURE_PORT_ENABLED, Constants.TRUE);
+                nvps.put(Constants.PR_SECURE_PORT_ENABLED, Constants.TRUE);
             else
-                nvps.add(Constants.PR_SECURE_PORT_ENABLED, Constants.FALSE);
+                nvps.put(Constants.PR_SECURE_PORT_ENABLED, Constants.FALSE);
 
             if (mAuthBox.getSelectedIndex() == 0) {
                 if (mPanelName.equals("CALDAPSETTING")) {
-                    nvps.add(Constants.PR_BINDPWD_PROMPT, "CA LDAP Publishing");
+                    nvps.put(Constants.PR_BINDPWD_PROMPT, "CA LDAP Publishing");
                 } else {
-                    nvps.add(Constants.PR_BINDPWD_PROMPT, "RA LDAP Publishing");
+                    nvps.put(Constants.PR_BINDPWD_PROMPT, "RA LDAP Publishing");
                 }
-                nvps.add(Constants.PR_BIND_DN, bindAs);
+                nvps.put(Constants.PR_BIND_DN, bindAs);
                 passwd = mPasswordText.getText();
 
                 if (passwd.equals("")) {
@@ -572,10 +571,10 @@ public abstract class CMSBaseLDAPPanel extends CMSBaseTab implements ItemListene
                     return false;
                 }
            
-                nvps.add(Constants.PR_DIRECTORY_MANAGER_PWD, passwd);
+                nvps.put(Constants.PR_DIRECTORY_MANAGER_PWD, passwd);
             } else {
-                nvps.add(Constants.PR_LDAP_CLIENT_CERT, 
-                  (String)(mCertBox.getSelectedItem()));
+                nvps.put(Constants.PR_LDAP_CLIENT_CERT,
+                        (String) (mCertBox.getSelectedItem()));
             }
 
             int index = mAuthBox.getSelectedIndex();
@@ -585,11 +584,11 @@ public abstract class CMSBaseLDAPPanel extends CMSBaseTab implements ItemListene
                     return false;
                 }
             }
-            nvps.add(Constants.PR_AUTH_TYPE, AUTHTYPE[index]);
-            nvps.add(Constants.PR_LDAP_VERSION, 
-              (String)mVersionBox.getSelectedItem());
+            nvps.put(Constants.PR_AUTH_TYPE, AUTHTYPE[index]);
+            nvps.put(Constants.PR_LDAP_VERSION,
+                    (String) mVersionBox.getSelectedItem());
 
-			// test the connection before save
+            // test the connection before save
 			/*
 			LDAPConnection conn = null;
 			if (mAuthBox.getSelectedIndex() == 1) {
@@ -642,8 +641,8 @@ public abstract class CMSBaseLDAPPanel extends CMSBaseTab implements ItemListene
 								  Constants.RS_ID_CONFIG, nvps, false);
 			// show test report
 			String report = "";
-			for (int i = 0; i<nvps1.size();i++) {
-				report = report + nvps1.elementAt(i).getValue() + "\n";
+            for (String value : nvps1.values()) {
+				report = report + value + "\n";
 			}
 			if (report.indexOf("Fail") == -1) {
 				JOptionPane.showMessageDialog(
@@ -665,8 +664,8 @@ public abstract class CMSBaseLDAPPanel extends CMSBaseTab implements ItemListene
 								  Constants.RS_ID_CONFIG, nvps, false);
 					clearDirtyFlag();
 				} else {
-					nvps.add(Constants.PR_ENABLE, "false");
-					mAdmin.modify(mServletName, ScopeDef.SC_LDAP,
+					nvps.put(Constants.PR_ENABLE, "false");
+                    mAdmin.modify(mServletName, ScopeDef.SC_LDAP,
 								  Constants.RS_ID_CONFIG, nvps, false);
 				}
 			}

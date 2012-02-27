@@ -641,11 +641,9 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
             sb.append("Record #");
             sb.append(i);
             sb.append("\r\n");
-            Enumeration<String> e = pairs.getNames();
 
-            while (e.hasMoreElements()) {
-                String key = e.nextElement();
-                String val = pairs.getValue(key);
+            for (String key : pairs.keySet()) {
+                String val = pairs.get(key);
 
                 sb.append(key);
                 sb.append(":");
@@ -691,9 +689,9 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
                 throw new EPropertyException("Bad Input Format");
             } else {
                 if (pos == (token.length() - 1)) {
-                    nvps.add(token.substring(0, pos), "");
+                    nvps.put(token.substring(0, pos), "");
                 } else {
-                    nvps.add(token.substring(0, pos), token.substring(pos + 1));
+                    nvps.put(token.substring(0, pos), token.substring(pos + 1));
                 }
             }
         }

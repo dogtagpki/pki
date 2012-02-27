@@ -67,15 +67,14 @@ class WIntroPage extends WizardBasePanel implements IWizardPanel {
         startProgressStatus();
         AdminConnection connection = wizardInfo.getAdminConnection();
         NameValuePairs nvps = new NameValuePairs();
-        nvps.add(Constants.PR_TOKEN_LIST, "");
+        nvps.put(Constants.PR_TOKEN_LIST, "");
         try {
             NameValuePairs response = connection.read(DestDef.DEST_SERVER_ADMIN,
               ScopeDef.SC_TOKEN, Constants.RS_ID_CONFIG, nvps);
-            for (int i=0; i<response.size(); i++) {
-                NameValuePair nvp = response.elementAt(i);
-                String name = nvp.getName();
+            for (String name : response.keySet()) {
+                String value = response.get(name);
                 if (name.equals(Constants.PR_TOKEN_LIST))
-                    wizardInfo.addEntry(name, nvp.getValue());
+                    wizardInfo.addEntry(name, value);
             }
         } catch (EAdminException e) {
             //showErrorDialog(e.toString());

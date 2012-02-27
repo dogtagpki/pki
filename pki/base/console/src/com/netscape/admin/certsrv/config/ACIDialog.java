@@ -18,16 +18,12 @@
 package com.netscape.admin.certsrv.config;
 
 import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.config.*;
 import com.netscape.admin.certsrv.connection.*;
 import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.table.*;
-import javax.swing.text.*;
 import java.awt.event.*;
 import java.awt.*;
 import java.util.*;
-import com.netscape.management.client.*;
+
 import com.netscape.management.client.util.*;
 import com.netscape.certsrv.common.*;
 
@@ -250,13 +246,11 @@ public class ACIDialog extends JDialog
     }
 
     private boolean validateSyntax(String str, NameValuePairs nvps) {
-        Enumeration names = nvps.getNames();
-        while (names.hasMoreElements()) {
-            String name = (String)names.nextElement();
+        for (String name : nvps.keySet()) {
             if (str.startsWith(name)) {
                 int len = name.length();
                 String leftover = str.substring(len).trim();
-                String operators = nvps.getValue(name);
+                String operators = nvps.get(name);
                 StringTokenizer st = new StringTokenizer(operators, ",");
                 while (st.hasMoreTokens()) {
                     String token = st.nextToken();

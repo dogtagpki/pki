@@ -18,13 +18,11 @@
 package com.netscape.admin.certsrv.config;
 
 import com.netscape.admin.certsrv.*;
-import com.netscape.management.client.util.*;
 import com.netscape.certsrv.common.*;
 import com.netscape.admin.certsrv.connection.*;
 import com.netscape.admin.certsrv.ug.*;
 import javax.swing.*;
 import java.awt.*;
-import java.util.*;
 import java.awt.event.*;
 
 /**
@@ -143,7 +141,7 @@ public class CMSKRAAutoPanel extends CMSBaseUGTab {
     public void refresh() {
         mModel.progressStart();
         NameValuePairs nvps = new NameValuePairs();
-        nvps.add(Constants.PR_AUTO_RECOVERY_ON, "");
+        nvps.put(Constants.PR_AUTO_RECOVERY_ON, "");
 
         try {
             NameValuePairs val = mAdmin.read(DestDef.DEST_KRA_ADMIN,
@@ -157,11 +155,10 @@ public class CMSKRAAutoPanel extends CMSBaseUGTab {
     }
 
     protected void populate(NameValuePairs nvps) {
-        for (int i=0; i<nvps.size(); i++) {
-            NameValuePair nvp = nvps.elementAt(i);
-            String name = nvp.getName();
+        for (String name : nvps.keySet()) {
+            String value = nvps.get(name);
             if (name.equals(Constants.PR_AUTO_RECOVERY_ON)) {
-                if (nvp.getValue().equals(Constants.TRUE)) {
+                if (value.equals(Constants.TRUE)) {
                     setStatus(true);
                     //mEnableAuto.setText(mDisableLabel);
                     //mEnableAuto.setToolTipText(mDisableTTip);
@@ -198,7 +195,7 @@ public class CMSKRAAutoPanel extends CMSBaseUGTab {
             } else {
                 mModel.progressStart();
                 NameValuePairs nvps = new NameValuePairs();
-                nvps.add(Constants.PR_AUTO_RECOVERY_ON, Constants.FALSE);
+                nvps.put(Constants.PR_AUTO_RECOVERY_ON, Constants.FALSE);
                 try {
                     mAdmin.modify(DestDef.DEST_KRA_ADMIN,
                       ScopeDef.SC_AUTO_RECOVERY, Constants.RS_ID_CONFIG, nvps);

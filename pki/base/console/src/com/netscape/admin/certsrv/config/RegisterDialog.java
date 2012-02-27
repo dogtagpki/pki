@@ -24,9 +24,8 @@ import javax.swing.event.*;
 import java.awt.event.*;
 import java.awt.*;
 import java.util.*;
-import com.netscape.management.client.*;
+
 import com.netscape.management.client.util.*;
-import javax.swing.table.*;
 import com.netscape.certsrv.common.*;
 
 /**
@@ -270,7 +269,7 @@ public class RegisterDialog extends JDialog
 
             //construct NVP
             NameValuePairs config = new NameValuePairs();
-            config.add(Constants.PR_POLICY_CLASS, mClassField.getText());
+            config.put(Constants.PR_POLICY_CLASS, mClassField.getText());
 
             if (mType) {
               mScope=mTypeField.getText();

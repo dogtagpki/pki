@@ -24,8 +24,6 @@ import com.netscape.admin.certsrv.connection.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.*;
-import java.math.*;
 
 /**
  * KRA General Setting
@@ -90,7 +88,7 @@ public class CMSEAGeneralPanel extends CMSBaseTab implements ItemListener {
     public void refresh() {
         mModel.progressStart();
         NameValuePairs nvps = new NameValuePairs();
-        nvps.add(Constants.PR_NO_OF_REQUIRED_RECOVERY_AGENTS, "1");
+        nvps.put(Constants.PR_NO_OF_REQUIRED_RECOVERY_AGENTS, "1");
 
         try {
             NameValuePairs val = mAdmin.read(DestDef.DEST_KRA_ADMIN,
@@ -106,12 +104,10 @@ public class CMSEAGeneralPanel extends CMSBaseTab implements ItemListener {
     }
 
     protected void populate(NameValuePairs nvps) {
-        String defaultAlgorithm = "";
-        for (int i=0; i<nvps.size(); i++) {
-            NameValuePair nvp = nvps.elementAt(i);
-            String name = nvp.getName();
+        for (String name : nvps.keySet()) {
+            String value = nvps.get(name);
             if (name.equals(Constants.PR_NO_OF_REQUIRED_RECOVERY_AGENTS)) {
-                mNumberOfAgentsText.setText(nvp.getValue());
+                mNumberOfAgentsText.setText(value);
             }
         }
     }
@@ -144,8 +140,8 @@ public class CMSEAGeneralPanel extends CMSBaseTab implements ItemListener {
         }
 
         NameValuePairs nvps = new NameValuePairs();
-        nvps.add(Constants.PR_NO_OF_REQUIRED_RECOVERY_AGENTS, 
-          numberOfAgents);
+        nvps.put(Constants.PR_NO_OF_REQUIRED_RECOVERY_AGENTS,
+                numberOfAgents);
 
         mModel.progressStart();
         try {

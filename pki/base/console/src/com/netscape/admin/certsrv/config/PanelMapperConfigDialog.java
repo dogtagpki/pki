@@ -20,13 +20,12 @@ package com.netscape.admin.certsrv.config;
 import com.netscape.admin.certsrv.*;
 import com.netscape.admin.certsrv.connection.*;
 import javax.swing.*;
-import javax.swing.event.*;
 import javax.swing.table.*;
 import javax.swing.text.*;
 import java.awt.event.*;
 import java.awt.*;
 import java.util.*;
-import com.netscape.management.client.*;
+
 import com.netscape.management.client.util.*;
 import com.netscape.certsrv.common.*;
 
@@ -207,8 +206,8 @@ public class PanelMapperConfigDialog extends JDialog
         Debug.println("MapperList: "+response.toString());
         mSelection.removeAllItems();
         
-        for (Enumeration e = response.getNames(); e.hasMoreElements() ;) {
-            mSelection.addItem(((String)e.nextElement()).trim());
+        for (String name : response.keySet()) {
+            mSelection.addItem(name.trim());
         }
         
         mSelection.setSelectedItem(mapperName);
@@ -230,11 +229,11 @@ public class PanelMapperConfigDialog extends JDialog
 
         mDataModel.removeAllRows();
         
-        for (Enumeration e = mData.getNames(); e.hasMoreElements() ;) {
-            String entry = ((String)e.nextElement()).trim();
+        for (String entry : mData.keySet()) {
+            entry = entry.trim();
             if (!entry.equals(Constants.PR_MAPPER)) {
-                String value = mData.getValue(entry);
-                Vector v = new Vector();
+                String value = mData.get(entry);
+                Vector<String> v = new Vector<String>();
                 v.addElement(entry);
                 v.addElement(value);
                 mDataModel.addRow(v);
@@ -369,15 +368,15 @@ public class PanelMapperConfigDialog extends JDialog
     //save the configuration settings for the mapper
     private void saveConfiguration() throws EAdminException {
         NameValuePairs nvp = getData();
-        nvp.add(Constants.PR_MAPPER, (String)mSelection.getSelectedItem());
+        nvp.put(Constants.PR_MAPPER, (String) mSelection.getSelectedItem());
         mConn.modify(mDest, mScope, Constants.RS_ID_CONFIG, nvp);
     }
 
     private NameValuePairs getData() {
         NameValuePairs response = new NameValuePairs();
         for (int i=0; i< mDataModel.getRowCount(); i++) {
-            response.add((String)mDataModel.getValueAt(i,0),
-                         (String)mDataModel.getValueAt(i,1));
+            response.put((String) mDataModel.getValueAt(i, 0),
+                    (String) mDataModel.getValueAt(i, 1));
         }
         return response;
     }

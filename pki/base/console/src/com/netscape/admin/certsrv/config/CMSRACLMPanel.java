@@ -138,12 +138,12 @@ public class CMSRACLMPanel extends CMSBaseTab {
     public void refresh() {
         mModel.progressStart();
         NameValuePairs nvps = new NameValuePairs();
-        nvps.add(Constants.PR_RENEWAL_ENABLED, "");
-        nvps.add(Constants.PR_RENEWAL_VALIDITY, "");
-        nvps.add(Constants.PR_RENEWAL_EMAIL, "");
-        nvps.add(Constants.PR_RENEWAL_EXPIREDNOTIFIEDENABLED, "");
-        nvps.add(Constants.PR_RENEWAL_NUMNOTIFICATION, "");
-        nvps.add(Constants.PR_RENEWAL_INTERVAL, "");
+        nvps.put(Constants.PR_RENEWAL_ENABLED, "");
+        nvps.put(Constants.PR_RENEWAL_VALIDITY, "");
+        nvps.put(Constants.PR_RENEWAL_EMAIL, "");
+        nvps.put(Constants.PR_RENEWAL_EXPIREDNOTIFIEDENABLED, "");
+        nvps.put(Constants.PR_RENEWAL_NUMNOTIFICATION, "");
+        nvps.put(Constants.PR_RENEWAL_INTERVAL, "");
 
         try {
             NameValuePairs val = mAdmin.read(DestDef.DEST_RA_ADMIN,
@@ -162,23 +162,22 @@ public class CMSRACLMPanel extends CMSBaseTab {
     protected void populate(NameValuePairs nvps) {
         boolean renewalEnabled = false;
         boolean notificationEnabled = false;
-        for (int i=0; i<nvps.size(); i++) {
-            NameValuePair nvp = nvps.elementAt(i);
-            String name = nvp.getName();
+        for (String name : nvps.keySet()) {
+            String value = nvps.get(name);
             if (name.equals(Constants.PR_RENEWAL_ENABLED)) {
-                renewalEnabled = getBoolean(nvp.getValue());
+                renewalEnabled = getBoolean(value);
                 mRenewEnable.setSelected(renewalEnabled);
             } else if (name.equals(Constants.PR_RENEWAL_EXPIREDNOTIFIEDENABLED)) {
-                notificationEnabled = getBoolean(nvp.getValue());
+                notificationEnabled = getBoolean(value);
                 mNotifyEnable.setSelected(notificationEnabled);
             } else if (name.equals(Constants.PR_RENEWAL_VALIDITY)) {
-                mValidText.setText(nvp.getValue());                
+                mValidText.setText(value);
             } else if (name.equals(Constants.PR_RENEWAL_EMAIL)) {   
-                mEmailText.setText(nvp.getValue());
+                mEmailText.setText(value);
             } else if (name.equals(Constants.PR_RENEWAL_NUMNOTIFICATION)) {
-                mNotifiedText.setText(nvp.getValue());
+                mNotifiedText.setText(value);
             } else if (name.equals(Constants.PR_RENEWAL_INTERVAL)) {
-                mIntervalText.setText(nvp.getValue());
+                mIntervalText.setText(value);
             }
         }
 
@@ -254,7 +253,7 @@ public class CMSRACLMPanel extends CMSBaseTab {
     public boolean applyCallback() {
         NameValuePairs nvps = new NameValuePairs();
         if (mRenewEnable.isSelected()) {
-            nvps.add(Constants.PR_RENEWAL_ENABLED, Constants.TRUE);
+            nvps.put(Constants.PR_RENEWAL_ENABLED, Constants.TRUE);
             String validStr = mValidText.getText();
             try {
                 int num = Integer.parseInt(validStr);
@@ -262,12 +261,12 @@ public class CMSRACLMPanel extends CMSBaseTab {
                 showMessageDialog("NUMBERFORMAT");
                 return false;
             }
-            nvps.add(Constants.PR_RENEWAL_VALIDITY, validStr);
+            nvps.put(Constants.PR_RENEWAL_VALIDITY, validStr);
         
             if (mNotifyEnable.isSelected()) {
-                nvps.add(Constants.PR_RENEWAL_EXPIREDNOTIFIEDENABLED, 
-                  Constants.TRUE);
-                nvps.add(Constants.PR_RENEWAL_EMAIL, mEmailText.getText());
+                nvps.put(Constants.PR_RENEWAL_EXPIREDNOTIFIEDENABLED,
+                        Constants.TRUE);
+                nvps.put(Constants.PR_RENEWAL_EMAIL, mEmailText.getText());
                 String numStr = mNotifiedText.getText();
                 String intervalStr = mIntervalText.getText();
 
@@ -279,14 +278,14 @@ public class CMSRACLMPanel extends CMSBaseTab {
                     return false;
                 }
 
-                nvps.add(Constants.PR_RENEWAL_NUMNOTIFICATION, numStr);
-                nvps.add(Constants.PR_RENEWAL_INTERVAL, intervalStr);
+                nvps.put(Constants.PR_RENEWAL_NUMNOTIFICATION, numStr);
+                nvps.put(Constants.PR_RENEWAL_INTERVAL, intervalStr);
             } else {
-                nvps.add(Constants.PR_RENEWAL_EXPIREDNOTIFIEDENABLED, 
-                  Constants.FALSE);
+                nvps.put(Constants.PR_RENEWAL_EXPIREDNOTIFIEDENABLED,
+                        Constants.FALSE);
             }
         } else {
-            nvps.add(Constants.PR_RENEWAL_ENABLED, Constants.FALSE);
+            nvps.put(Constants.PR_RENEWAL_ENABLED, Constants.FALSE);
         }
 
         mModel.progressStart();

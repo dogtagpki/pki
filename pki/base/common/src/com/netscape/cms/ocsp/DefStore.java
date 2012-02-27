@@ -798,13 +798,13 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         try {
             NameValuePairs params = new NameValuePairs();
 
-            params.add(Constants.PR_OCSPSTORE_IMPL_NAME,
+            params.put(Constants.PR_OCSPSTORE_IMPL_NAME,
                     mConfig.getString("class"));
-            params.add(PROP_NOT_FOUND_GOOD,
+            params.put(PROP_NOT_FOUND_GOOD,
                     mConfig.getString(PROP_NOT_FOUND_GOOD, "true"));
-            params.add(PROP_BY_NAME,
+            params.put(PROP_BY_NAME,
                     mConfig.getString(PROP_BY_NAME, "true"));
-            params.add(PROP_INCLUDE_NEXT_UPDATE,
+            params.put(PROP_INCLUDE_NEXT_UPDATE,
                     mConfig.getString(PROP_INCLUDE_NEXT_UPDATE, "false"));
             return params;
         } catch (Exception e) {
@@ -814,12 +814,9 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
 
     public void setConfigParameters(NameValuePairs pairs)
             throws EBaseException {
-        Enumeration<String> k = pairs.getNames();
 
-        while (k.hasMoreElements()) {
-            String key = (String) k.nextElement();
-
-            mConfig.put(key, pairs.getValue(key));
+        for (String key : pairs.keySet()) {
+            mConfig.put(key, pairs.get(key));
         }
     }
 

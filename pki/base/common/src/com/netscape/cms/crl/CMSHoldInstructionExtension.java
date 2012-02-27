@@ -123,7 +123,7 @@ public class CMSHoldInstructionExtension
         } else {
             instruction = PROP_INSTR_NONE;
         }
-        nvp.add(PROP_INSTR, instruction);
+        nvp.put(PROP_INSTR, instruction);
     }
 
     public String[] getExtendedPluginInfo(Locale locale) {

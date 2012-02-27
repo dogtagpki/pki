@@ -249,13 +249,13 @@ public class CMSCAGeneralPanel extends CMSBaseTab implements ItemListener {
     public void refresh() {
         mModel.progressStart();
         NameValuePairs nvps = new NameValuePairs();
-        nvps.add(Constants.PR_EE_ENABLED, "");
+        nvps.put(Constants.PR_EE_ENABLED, "");
         //nvps.add(Constants.PR_RA_ENABLED, "");
-        nvps.add(Constants.PR_DEFAULT_ALGORITHM, "");
-        nvps.add(Constants.PR_ALL_ALGORITHMS, "");
-        nvps.add(Constants.PR_SERIAL, "");
-        nvps.add(Constants.PR_MAXSERIAL, "");
-        nvps.add(Constants.PR_VALIDITY, "");
+        nvps.put(Constants.PR_DEFAULT_ALGORITHM, "");
+        nvps.put(Constants.PR_ALL_ALGORITHMS, "");
+        nvps.put(Constants.PR_SERIAL, "");
+        nvps.put(Constants.PR_MAXSERIAL, "");
+        nvps.put(Constants.PR_VALIDITY, "");
 
         try {
             NameValuePairs val = mAdmin.read(DestDef.DEST_CA_ADMIN,
@@ -272,31 +272,30 @@ public class CMSCAGeneralPanel extends CMSBaseTab implements ItemListener {
 
     protected void populate(NameValuePairs nvps) {
         String defaultAlgorithm = "";
-        for (int i=0; i<nvps.size(); i++) {
-            NameValuePair nvp = nvps.elementAt(i);
-            String name = nvp.getName();
+        for (String name : nvps.keySet()) {
+            String value = nvps.get(name);
             if (name.equals(Constants.PR_EE_ENABLED)) {
-                mEEEnable.setSelected(getBoolean(nvp.getValue()));
+                mEEEnable.setSelected(getBoolean(value));
             } else if (name.equals(Constants.PR_OCSP_ENABLED)) {
-                mOCSPEnable.setSelected(getBoolean(nvp.getValue()));
+                mOCSPEnable.setSelected(getBoolean(value));
 /*
             } else if (name.equals(Constants.PR_RA_ENABLED)) {
                 mRAEnable.setSelected(getBoolean(nvp.getValue()));
 */
             } else if (name.equals(Constants.PR_VALIDITY)) {
-                mValidity.setSelected(getBoolean(nvp.getValue()));
+                mValidity.setSelected(getBoolean(value));
             } else if (name.equals(Constants.PR_DEFAULT_ALGORITHM)) {
-                defaultAlgorithm = nvp.getValue();
+                defaultAlgorithm = value;
             } else if (name.equals(Constants.PR_ALL_ALGORITHMS)) {
-                initAlgorithmBox(nvp.getValue());
+                initAlgorithmBox(value);
             } else if (name.equals(Constants.PR_SERIAL)) {
-				String serial = nvp.getValue();
+				String serial = value;
 				if (!serial.equals(""))
 					mSerialNumber.setText(serial);
 				else
 					mSerialNumber.setText("All serial numbers are used");
             } else if (name.equals(Constants.PR_MAXSERIAL)) {
-				String serial = nvp.getValue();
+				String serial = value;
 				if (!serial.equals(""))
 					mMaxSerialNumber.setText(serial);
             }
@@ -340,14 +339,14 @@ public class CMSCAGeneralPanel extends CMSBaseTab implements ItemListener {
         NameValuePairs nvps = new NameValuePairs();
 
         if (mEEEnable.isSelected())
-            nvps.add(Constants.PR_EE_ENABLED, Constants.TRUE);
+            nvps.put(Constants.PR_EE_ENABLED, Constants.TRUE);
         else
-            nvps.add(Constants.PR_EE_ENABLED, Constants.FALSE);
+            nvps.put(Constants.PR_EE_ENABLED, Constants.FALSE);
 
         if (mOCSPEnable.isSelected())
-            nvps.add(Constants.PR_OCSP_ENABLED, Constants.TRUE);
+            nvps.put(Constants.PR_OCSP_ENABLED, Constants.TRUE);
         else
-            nvps.add(Constants.PR_OCSP_ENABLED, Constants.FALSE);
+            nvps.put(Constants.PR_OCSP_ENABLED, Constants.FALSE);
 
 /*
         if (mRAEnable.isSelected())
@@ -357,12 +356,12 @@ public class CMSCAGeneralPanel extends CMSBaseTab implements ItemListener {
 */
 
         if (mValidity.isSelected())
-            nvps.add(Constants.PR_VALIDITY, Constants.TRUE);
+            nvps.put(Constants.PR_VALIDITY, Constants.TRUE);
         else
-            nvps.add(Constants.PR_VALIDITY, Constants.FALSE);
+            nvps.put(Constants.PR_VALIDITY, Constants.FALSE);
 
-        nvps.add(Constants.PR_DEFAULT_ALGORITHM, 
-          (String)mAlgorithms.getSelectedItem());
+        nvps.put(Constants.PR_DEFAULT_ALGORITHM,
+                (String) mAlgorithms.getSelectedItem());
 
         String serial = (String)mSerialNumber.getText().trim();
         try {

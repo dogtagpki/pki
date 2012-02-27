@@ -18,14 +18,10 @@
 package com.netscape.admin.certsrv.config.install;
 
 import java.awt.*;
-import java.util.*;
 import javax.swing.*;
 import com.netscape.admin.certsrv.*;
-import com.netscape.admin.certsrv.connection.*;
 import com.netscape.admin.certsrv.wizard.*;
 import com.netscape.certsrv.common.*;
-import com.netscape.admin.certsrv.task.*;
-import com.netscape.management.client.console.*;
 
 /**
  * Generate the certificate
@@ -85,10 +81,10 @@ class WIGenKeyCertPage extends WizardBasePanel implements IWizardPanel {
             rawData = rawData+"&"+ConfigConstants.PR_DB_PWD+"="+wizardInfo.getInternalDBPasswd();
 
 	if (nvps != null) {
-        	for (int i=0; i<nvps.size(); i++) {
-        	    NameValuePair nvp = (NameValuePair)nvps.elementAt(i);
-                    rawData = rawData+"&"+nvp.getName()+"="+nvp.getValue();
-        	}
+        for (String name : nvps.keySet()) {
+            String value = nvps.get(name);
+            rawData = rawData+"&"+name+"="+value;
+        }
 	}
         
         startProgressStatus();

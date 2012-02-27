@@ -362,7 +362,7 @@ public class OCSPAdminServlet extends AdminServlet {
                     continue;
                 String value = req.getParameter(name);
 
-                params.add(name, value);
+                params.put(name, value);
             }
             store.setConfigParameters(params);
             commit(true);
@@ -432,7 +432,7 @@ public class OCSPAdminServlet extends AdminServlet {
             if (storeName.equals(defStore)) {
                 storeEnabled = true;
             }
-            params.add(storeName, storeName + ";visible;" + ((storeEnabled) ? "enabled" : "disabled"));
+            params.put(storeName, storeName + ";visible;" + ((storeEnabled) ? "enabled" : "disabled"));
         }
         sendResponse(SUCCESS, null, params, resp);
     }
@@ -449,7 +449,7 @@ public class OCSPAdminServlet extends AdminServlet {
     }
 
     private void getSigningAlgConfig(NameValuePairs params) {
-        params.add(Constants.PR_DEFAULT_ALGORITHM,
+        params.put(Constants.PR_DEFAULT_ALGORITHM,
                 mOCSP.getDefaultAlgorithm());
         String[] algorithms = mOCSP.getOCSPSigningAlgorithms();
         StringBuffer algorStr = new StringBuffer();
@@ -461,7 +461,7 @@ public class OCSPAdminServlet extends AdminServlet {
                 algorStr.append(":");
             algorStr.append(algorithms[i]);
         }
-        params.add(Constants.PR_ALL_ALGORITHMS, algorStr.toString());
+        params.put(Constants.PR_ALL_ALGORITHMS, algorStr.toString());
     }
 
     /**

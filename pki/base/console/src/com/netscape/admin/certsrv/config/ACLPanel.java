@@ -202,9 +202,8 @@ public class ACLPanel extends CMSBaseUGTab {
         int i=0;
         String[] vals = new String[response.size()];
 
-        for (Enumeration e = response.getNames(); e.hasMoreElements() ;) {
-            String entry = ((String)e.nextElement()).trim();
-            vals[i++] = entry;
+        for (String entry : response.keySet()) {
+            vals[i++] = entry.trim();
         }
 
         CMSAdminUtil.bubbleSort(vals);
@@ -215,7 +214,7 @@ public class ACLPanel extends CMSBaseUGTab {
             v.addElement(new JLabel(name,
                     CMSAdminUtil.getImage(CMSAdminResources.IMAGE_ACL),
                     JLabel.LEFT));
-            v.addElement(response.getValue(name));
+            v.addElement(response.get(name));
             mDataModel.addRow(v);
         }
 

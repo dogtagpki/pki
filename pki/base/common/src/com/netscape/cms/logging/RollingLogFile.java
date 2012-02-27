@@ -524,7 +524,7 @@ public class RollingLogFile extends LogFile {
 
         files = fileList();
         for (int i = 0; i < files.length; i++) {
-            params.add(files[i], "");
+            params.put(files[i], "");
         }
         return params;
     }

@@ -58,7 +58,6 @@ import com.netscape.certsrv.ca.ICMSCRLExtensions;
 import com.netscape.certsrv.ca.ICRLIssuingPoint;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.common.Constants;
-import com.netscape.certsrv.common.NameValuePair;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.dbs.EDBNotAvailException;
 import com.netscape.certsrv.dbs.IElementProcessor;
@@ -931,10 +930,8 @@ public class CRLIssuingPoint implements ICRLIssuingPoint, Runnable {
             boolean noRestart = true;
             boolean modifiedSchedule = false;
 
-            for (int i = 0; i < params.size(); i++) {
-                NameValuePair p = params.elementAt(i);
-                String name = p.getName();
-                String value = p.getValue();
+            for (String name : params.keySet()) {
+                String value = params.get(name);
 
                 // -- Update Schema --
                 if (name.equals(Constants.PR_ENABLE_CRL)) {
