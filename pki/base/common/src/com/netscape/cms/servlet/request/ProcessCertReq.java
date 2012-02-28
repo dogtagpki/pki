@@ -314,7 +314,7 @@ public class ProcessCertReq extends CMSServlet {
             IRequest r = null;
 
             if (seqNum.compareTo(BigInteger.ONE.negate()) > 0) {
-                r = mQueue.findRequest(new RequestId(seqNum.toString()));
+                r = mQueue.findRequest(new RequestId(seqNum));
             }
 
             if (seqNum.compareTo(BigInteger.ONE.negate()) > 0 && r != null) {
@@ -424,7 +424,7 @@ public class ProcessCertReq extends CMSServlet {
         }
 
         try {
-            IRequest r = mQueue.findRequest(new RequestId(seqNum.toString()));
+            IRequest r = mQueue.findRequest(new RequestId(seqNum));
 
             if (r != null) {
                 // overwrite "auditRequesterID" if and only if "id" != null

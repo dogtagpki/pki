@@ -25,10 +25,11 @@ import javax.ws.rs.core.UriInfo;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.servlet.base.CMSResourceService;
 import com.netscape.cms.servlet.request.model.KeyRequestDAO;
 import com.netscape.cms.servlet.request.model.KeyRequestInfos;
- 
+
 /**
  * @author alee
  *
@@ -42,28 +43,16 @@ public class KeyRequestsResourceService extends CMSResourceService implements Ke
      * Used to generate list of key requests based on the search parameters
      */
     public KeyRequestInfos listRequests(String requestState, String requestType, String clientID,
-                                        String start_s, int pageSize, int maxResults,
-                                        int maxTime) {
+            RequestId start, int pageSize, int maxResults, int maxTime) {
         // auth and authz
         
         // get ldap filter
         String filter = createSearchFilter(requestState, requestType, clientID);
         CMS.debug("listRequests: filter is " + filter);
        
-        
         // get start marker
-        int start = Integer.parseInt(KeyRequestsResource.DEFAULT_START);
-        if (start_s != null) {
-            try {
-                if (start_s.trim().startsWith("0x")) {
-                    start = Integer.parseInt(start_s.trim().substring(2), 16);
-                } else {
-                    start = Integer.parseInt(start_s.trim());
-                }
-            } catch (NumberFormatException e) {
-                CMS.debug("listRequests: NumberformatException: Invalid value for start " + start_s);
-                throw new WebApplicationException(Response.Status.NOT_FOUND);
-            }
+        if (start == null) {
+            start = new RequestId(KeyRequestsResource.DEFAULT_START);
         }
         
         KeyRequestDAO reqDAO = new KeyRequestDAO();

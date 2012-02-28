@@ -42,7 +42,7 @@ public class RequestTest extends CMSBaseTestCase {
         cmsStub = new CMSMemoryStub();
         CMS.setCMSEngine(cmsStub);
 
-        request = new Request(new RequestId("testid"));
+        request = new Request(new RequestId("0xabcdef"));
     }
 
     public void cmsTestTearDown() {

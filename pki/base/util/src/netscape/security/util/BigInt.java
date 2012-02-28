@@ -47,7 +47,7 @@ public final class BigInt {
      *            first. CONSUMED.
      */
     public BigInt(byte[] data) {
-        places = (byte[]) data.clone();
+        places = data.clone();
     }
 
     /**
@@ -154,7 +154,7 @@ public final class BigInt {
             zero[0] = (byte) 0;
             return zero;
         } else {
-            return (byte[]) places.clone();
+            return places.clone();
         }
     }
 

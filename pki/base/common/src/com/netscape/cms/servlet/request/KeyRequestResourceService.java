@@ -18,13 +18,13 @@
 
 package com.netscape.cms.servlet.request;
 
-import javax.ws.rs.PathParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.servlet.base.CMSResourceService;
 import com.netscape.cms.servlet.request.model.ArchivalRequestData;
 import com.netscape.cms.servlet.request.model.KeyRequestDAO;
@@ -43,7 +43,7 @@ public class KeyRequestResourceService extends CMSResourceService implements Key
     /**
      * Used to retrieve key request info for a specific request
      */
-    public KeyRequestInfo getRequestInfo(String id) {
+    public KeyRequestInfo getRequestInfo(RequestId id) {
         // auth and authz
         KeyRequestDAO dao = new KeyRequestDAO();
         KeyRequestInfo info;
@@ -118,8 +118,8 @@ public class KeyRequestResourceService extends CMSResourceService implements Key
         return info;
     }
     
-    public void approveRequest(@PathParam("id") String id) {
-        if ( id == null) {
+    public void approveRequest(RequestId id) {
+        if (id == null) {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
         // auth and authz
@@ -133,8 +133,8 @@ public class KeyRequestResourceService extends CMSResourceService implements Key
         }
     }
     
-    public void rejectRequest(@PathParam("id") String id) {
-        if ( id == null) {
+    public void rejectRequest(RequestId id) {
+        if (id == null) {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
         // auth and authz
@@ -148,8 +148,8 @@ public class KeyRequestResourceService extends CMSResourceService implements Key
         }
     }
          
-    public void cancelRequest(@PathParam("id") String id) {
-        if ( id == null) {
+    public void cancelRequest(RequestId id) {
+        if (id == null) {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
         // auth and authz

@@ -26,6 +26,12 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
+import com.netscape.certsrv.dbs.keydb.KeyId;
+import com.netscape.certsrv.dbs.keydb.KeyIdAdapter;
+import com.netscape.certsrv.request.RequestId;
+import com.netscape.certsrv.request.RequestIdAdapter;
 
 /**
  * @author alee
@@ -42,10 +48,12 @@ public class RecoveryRequestData {
     private static final String NONCE_DATA = "nonceData";
 
     @XmlElement
-    protected String keyId;
+    @XmlJavaTypeAdapter(KeyIdAdapter.class)
+    protected KeyId keyId;
     
     @XmlElement
-    protected String requestId;
+    @XmlJavaTypeAdapter(RequestIdAdapter.class)
+    protected RequestId requestId;
     
     @XmlElement
     protected String transWrappedSessionKey;
@@ -61,8 +69,12 @@ public class RecoveryRequestData {
     }
     
     public RecoveryRequestData(MultivaluedMap<String, String> form) {
-        keyId = form.getFirst(KEY_ID);
-        requestId = form.getFirst(REQUEST_ID);
+        if (form.containsKey(KEY_ID)) {
+            keyId = new KeyId(form.getFirst(KEY_ID));
+        }
+        if (form.containsKey(REQUEST_ID)) {
+            requestId = new RequestId(form.getFirst(REQUEST_ID));
+        }
         transWrappedSessionKey = form.getFirst(TRANS_WRAPPED_SESSION_KEY);
         sessionWrappedPassphrase = form.getFirst(SESSION_WRAPPED_PASSPHRASE);
         nonceData = form.getFirst(NONCE_DATA);
@@ -71,28 +83,28 @@ public class RecoveryRequestData {
     /**
      * @return the keyId
      */
-    public String getKeyId() {
+    public KeyId getKeyId() {
         return keyId;
     }
 
     /**
      * @param keyId the keyId to set
      */
-    public void setKeyId(String keyId) {
+    public void setKeyId(KeyId keyId) {
         this.keyId = keyId;
     }
 
     /**
      * @return the requestId
      */
-    public String getRequestId() {
+    public RequestId getRequestId() {
         return requestId;
     }
 
     /**
      * @param requestId the requestId to set
      */
-    public void setRequestId(String requestId) {
+    public void setRequestId(RequestId requestId) {
         this.requestId = requestId;
     }
 

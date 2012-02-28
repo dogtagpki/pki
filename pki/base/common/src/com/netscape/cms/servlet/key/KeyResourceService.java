@@ -32,8 +32,11 @@ import com.netscape.cms.servlet.request.model.KeyRequestDAO;
 import com.netscape.cms.servlet.request.model.KeyRequestInfo;
 import com.netscape.cms.servlet.request.model.RecoveryRequestData;
 import com.netscape.certsrv.request.IRequest;
+import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.dbs.keydb.KeyId;
+
 /**
  * @author alee
  * 
@@ -50,7 +53,7 @@ public class KeyResourceService extends CMSResourceService implements KeyResourc
      */
     public KeyData retrieveKey(RecoveryRequestData data) {
         // auth and authz
-        String keyId = validateRequest(data);
+        KeyId keyId = validateRequest(data);
         KeyDAO dao = new KeyDAO();
         KeyData keyData;
         try {
@@ -73,10 +76,10 @@ public class KeyResourceService extends CMSResourceService implements KeyResourc
         return retrieveKey(data);
     }
     
-    private String validateRequest(RecoveryRequestData data) {
+    private KeyId validateRequest(RecoveryRequestData data) {
         
         // confirm request exists
-        String reqId = data.getRequestId();
+        RequestId reqId = data.getRequestId();
         if (reqId == null) {
             // log error
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
@@ -120,8 +123,7 @@ public class KeyResourceService extends CMSResourceService implements KeyResourc
             throw new WebApplicationException(Response.Status.UNAUTHORIZED);
         }
         
-        String keyURL = reqInfo.getKeyURL();
-        return keyURL.substring(keyURL.lastIndexOf("/") + 1);
+        return reqInfo.getKeyId();
     }
 
 }

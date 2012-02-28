@@ -23,6 +23,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 
+import com.netscape.certsrv.dbs.keydb.KeyId;
+import com.netscape.certsrv.request.RequestId;
+
 @XmlRootElement(name="SecurityDataRequestInfo")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class KeyRequestInfo {
@@ -79,6 +82,14 @@ public class KeyRequestInfo {
     }
 
     /**
+     * @return the request ID in the requestURL
+     */
+    public RequestId getRequestId() {
+        String id = requestURL.substring(requestURL.lastIndexOf("/") + 1);
+        return new RequestId(id);
+    }
+
+    /**
      * @param requestURL the requestURL to set
      */
     public void setRequestURL(String requestURL) {
@@ -90,6 +101,14 @@ public class KeyRequestInfo {
      */
     public String getKeyURL() {
         return keyURL;
+    }
+
+    /**
+     * @return the key ID in the keyURL
+     */
+    public KeyId getKeyId() {
+        String id = keyURL.substring(keyURL.lastIndexOf("/") + 1);
+        return new KeyId(id);
     }
 
     /**

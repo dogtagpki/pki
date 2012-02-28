@@ -414,7 +414,7 @@ public class QueryReq extends CMSServlet {
                 jumptoend = true; // override  to '99' during search 
             }
 
-            RequestId id = new RequestId(marker.toString());
+            RequestId id = new RequestId(marker);
             IRequestVirtualList list = mQueue.getPagedRequestsByFilter(
                     id,
                     jumptoend,

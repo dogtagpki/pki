@@ -26,6 +26,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlAccessorType;
 
+import com.netscape.certsrv.dbs.keydb.KeyId;
+
 /**
  * @author alee
  *
@@ -56,6 +58,14 @@ public class KeyDataInfo {
      */
     public void setKeyURL(String keyURL) {
         this.keyURL = keyURL;
+    }
+
+    /**
+     * @return the key ID in the keyURL
+     */
+    public KeyId getKeyId() {
+        String id = keyURL.substring(keyURL.lastIndexOf("/") + 1);
+        return new KeyId(id);
     }
 
     /**

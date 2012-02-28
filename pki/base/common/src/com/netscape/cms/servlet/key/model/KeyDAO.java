@@ -30,6 +30,7 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.keydb.IKeyRecord;
 import com.netscape.certsrv.dbs.keydb.IKeyRepository;
+import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
@@ -87,23 +88,22 @@ public class KeyDAO {
         return ret;
     }
     
-    public KeyData getKey(String keyId, RecoveryRequestData data) throws EBaseException {
+    public KeyData getKey(KeyId keyId, RecoveryRequestData data) throws EBaseException {
         KeyData keyData;
-        BigInteger serial = new BigInteger(keyId);
-        
-        String rId = data.getRequestId();
+
+        RequestId rId = data.getRequestId();
 
         String transWrappedSessionKey;
         String sessionWrappedPassphrase;
 
-        IRequest  request = queue.findRequest(new RequestId(rId));
+        IRequest request = queue.findRequest(rId);
 
         if (request == null) {
             return null;
         }
 
      // get wrapped key
-        IKeyRecord rec = repo.readKeyRecord(serial);
+        IKeyRecord rec = repo.readKeyRecord(keyId.toBigInteger());
         if (rec == null) {
             return null;  
         }
@@ -133,7 +133,7 @@ public class KeyDAO {
             sessionWrappedPassphrase = data.getSessionWrappedPassphrase();
             nonceData = data.getNonceData();
 
-            if(transWrappedSessionKey == null) {
+            if (transWrappedSessionKey == null) {
                  //There must be at least a transWrappedSessionKey input provided.
                  //The command AND the request have provided insufficient data, end of the line.
                  throw new EBaseException("Can't retrieve key, insufficient input data!");

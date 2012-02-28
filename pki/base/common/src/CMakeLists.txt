@@ -200,6 +200,8 @@ set(pki-certsrv_java_SRCS
     com/netscape/certsrv/dbs/Modification.java
     com/netscape/certsrv/dbs/EDBNotAvailException.java
     com/netscape/certsrv/dbs/IDBVirtualList.java
+    com/netscape/certsrv/dbs/keydb/KeyId.java
+    com/netscape/certsrv/dbs/keydb/KeyIdAdapter.java
     com/netscape/certsrv/dbs/keydb/KeyState.java
     com/netscape/certsrv/dbs/keydb/IKeyRecord.java
     com/netscape/certsrv/dbs/keydb/IKeyRecordList.java
@@ -301,6 +303,7 @@ set(pki-certsrv_java_SRCS
     com/netscape/certsrv/request/AgentApprovals.java
     com/netscape/certsrv/request/IRequestRecord.java
     com/netscape/certsrv/request/RequestId.java
+    com/netscape/certsrv/request/RequestIdAdapter.java
     com/netscape/certsrv/request/IService.java
     com/netscape/certsrv/request/IRequestListener.java
     com/netscape/certsrv/request/AgentApproval.java

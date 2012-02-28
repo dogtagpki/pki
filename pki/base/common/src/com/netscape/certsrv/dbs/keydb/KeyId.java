@@ -15,30 +15,31 @@
 // (C) 2007 Red Hat, Inc.
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
-package com.netscape.certsrv.request;
+package com.netscape.certsrv.dbs.keydb;
 
 import java.math.BigInteger;
 
 /**
- * The RequestId class represents the identifier for a particular
- * request within a request queue. This identifier may be used to
- * retrieve the request object itself from the request queue.
+ * The KeyId class represents the identifier for a particular
+ * key record. This identifier may be used to retrieve the key record
+ * from the database.
  * <p>
- * 
+ *
+ * @author Endi S. Dewata
  * @version $Revision$ $Date$
  */
-public class RequestId {
+public class KeyId {
 
     protected BigInteger value;
 
     /**
-     * Creates a new RequestId from its string representation.
+     * Creates a new KeyId from its string representation.
      * <p>
-     * 
+     *
      * @param id
      *            a string containing the decimal or hex value for the identifier.
      */
-    public RequestId(String id) {
+    public KeyId(String id) {
         if (id != null) {
             id = id.trim();
             if (id.startsWith("0x")) { // hex
@@ -50,29 +51,29 @@ public class RequestId {
     }
 
     /**
-     * Creates a new RequestId from its BigInteger representation.
+     * Creates a new KeyId from its BigInteger representation.
      * <p>
      *
      * @param id
      *            a BigInteger containing the identifier.
      */
-    public RequestId(BigInteger id) {
+    public KeyId(BigInteger id) {
         value = id;
     }
 
     /**
-     * Creates a new RequestId from its integer representation.
+     * Creates a new KeyId from its integer representation.
      * <p>
      *
      * @param id
      *            an integer containing the identifier.
      */
-    public RequestId(int id) {
+    public KeyId(int id) {
         value = BigInteger.valueOf(id);
     }
 
     /**
-     * Converts the RequestId into its BigInteger representation.
+     * Converts the KeyId into its BigInteger representation.
      * <p>
      *
      * @return
@@ -83,10 +84,10 @@ public class RequestId {
     }
 
     /**
-     * Converts the RequestId into its string representation. The string
+     * Converts the KeyId into its string representation. The string
      * form can be stored in a database (such as the LDAP directory)
      * <p>
-     * 
+     *
      * @return
      *         a string containing the decimal (base 10) value for the identifier.
      */
@@ -110,7 +111,7 @@ public class RequestId {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        RequestId other = (RequestId) obj;
+        KeyId other = (KeyId) obj;
         if (value == null) {
             if (other.value != null)
                 return false;

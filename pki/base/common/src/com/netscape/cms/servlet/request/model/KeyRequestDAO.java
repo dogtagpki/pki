@@ -29,6 +29,7 @@ import javax.ws.rs.core.UriInfo;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
+import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.kra.IKeyRecoveryAuthority;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestList;
@@ -89,7 +90,7 @@ public class KeyRequestDAO {
      * @return collection of key request info
      * @throws EBaseException
      */
-    public KeyRequestInfos listRequests(String filter, int start, int pageSize, int maxResults, int maxTime, 
+    public KeyRequestInfos listRequests(String filter, RequestId start, int pageSize, int maxResults, int maxTime,
             UriInfo uriInfo) throws EBaseException {
         List <KeyRequestInfo> list = new ArrayList<KeyRequestInfo>();
         List <Link> links = new ArrayList<Link>();
@@ -97,8 +98,7 @@ public class KeyRequestDAO {
         int current = 0;
         
         if (isVLVSearch(filter)) {
-            RequestId id = new RequestId(Integer.toString(start));
-            IRequestVirtualList vlvlist = queue.getPagedRequestsByFilter(id, false, filter, 
+            IRequestVirtualList vlvlist = queue.getPagedRequestsByFilter(start, false, filter,
                                                                          pageSize +1 , "requestId");
             totalSize = vlvlist.getSize();
             current = vlvlist.getCurrentIndex();
@@ -120,7 +120,7 @@ public class KeyRequestDAO {
                 return null;
             }
             while (requests.hasMoreElements()) {
-                RequestId rid = (RequestId) requests.nextElement();
+                RequestId rid = requests.nextElement();
                 IRequest request = queue.findRequest(rid);
                 if (request != null) {
                     list.add(createKeyRequestInfo(request, uriInfo));
@@ -168,8 +168,8 @@ public class KeyRequestDAO {
      * @return info for specific request
      * @throws EBaseException 
      */
-    public KeyRequestInfo getRequest(String id, UriInfo uriInfo) throws EBaseException {
-        IRequest request = queue.findRequest(new RequestId(id));
+    public KeyRequestInfo getRequest(RequestId id, UriInfo uriInfo) throws EBaseException {
+        IRequest request = queue.findRequest(id);
         if (request == null) {
             return null;
         }
@@ -189,7 +189,7 @@ public class KeyRequestDAO {
 
         boolean keyExists = doesKeyExist(clientId, "active", uriInfo);
 
-        if(keyExists == true) {
+        if (keyExists == true) {
             throw new EBaseException("Can not archive already active existing key!");
         }
 
@@ -221,7 +221,7 @@ public class KeyRequestDAO {
 
         IRequest request = queue.newRequest(IRequest.SECURITY_DATA_RECOVERY_REQUEST);
 
-        String keyId = data.getKeyId();
+        KeyId keyId = data.getKeyId();
 
         Hashtable<String, Object> requestParams;
         requestParams = kra.createVolatileRequest(request.getRequestId());
@@ -244,27 +244,27 @@ public class KeyRequestDAO {
             requestParams.put(IRequest.SECURITY_DATA_IV_STRING_IN, nonceDataStr);
         }
 
-        request.setExtData(ATTR_SERIALNO,keyId);
+        request.setExtData(ATTR_SERIALNO, keyId.toString());
 
         queue.processRequest(request);
 
         return createKeyRequestInfo(request, uriInfo);
     }
 
-    public void approveRequest(String id) throws EBaseException {
-        IRequest request = queue.findRequest(new RequestId(id));
+    public void approveRequest(RequestId id) throws EBaseException {
+        IRequest request = queue.findRequest(id);
         request.setRequestStatus(RequestStatus.APPROVED);
         queue.updateRequest(request);
     }
     
-    public void rejectRequest(String id) throws EBaseException {
-        IRequest request = queue.findRequest(new RequestId(id));
+    public void rejectRequest(RequestId id) throws EBaseException {
+        IRequest request = queue.findRequest(id);
         request.setRequestStatus(RequestStatus.CANCELED);
         queue.updateRequest(request);
     }
     
-    public void cancelRequest(String id) throws EBaseException {
-        IRequest request = queue.findRequest(new RequestId(id));
+    public void cancelRequest(RequestId id) throws EBaseException {
+        IRequest request = queue.findRequest(id);
         request.setRequestStatus(RequestStatus.REJECTED);
         queue.updateRequest(request);
     }
@@ -276,7 +276,7 @@ public class KeyRequestDAO {
         ret.setRequestStatus(request.getRequestStatus().toString());
         
         Path keyRequestPath = KeyRequestResource.class.getAnnotation(Path.class);
-        String rid = request.getRequestId().toString();
+        RequestId rid = request.getRequestId();
 
         UriBuilder reqBuilder = uriInfo.getBaseUriBuilder();
         reqBuilder.path(keyRequestPath.value() + "/" + rid);

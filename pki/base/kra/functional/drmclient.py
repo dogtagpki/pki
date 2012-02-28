@@ -45,6 +45,9 @@ import base64
 CERT_HEADER = "-----BEGIN NEW CERTIFICATE REQUEST-----"
 CERT_FOOTER = "-----END NEW CERTIFICATE REQUEST-----"
 
+def _(string):
+    return string
+
 def parse_key_request_info_xml(doc):
     '''
     :param doc: The root node of the xml document to parse
@@ -976,12 +979,24 @@ print response
 
 #create recovery request
 key_id = response.keys()[0]
+print key_id
 response = test_kra.submit_recovery_request(key_id)
 print response
 
 # approve recovery request
 request_id = response['request_id']
 test_kra.approve_recovery_request(request_id)
+
+# test invalid request
+print "Testing invalid request ID"
+try:
+    response = test_kra.retrieve_security_data("INVALID")
+    print "Failure: No exception thrown"
+except CertificateOperationError, e:
+    if 'Error in retrieving security data (Bad Request)' == e.error:
+        print "Success: " + e.error
+    else:
+        print "Failure: Wrong error message: " + e.error
 
 # retrieve key
 response = test_kra.retrieve_security_data(request_id)

@@ -5,6 +5,9 @@ import java.util.Iterator;
 
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.client.ProxyFactory;
+
+import com.netscape.certsrv.dbs.keydb.KeyId;
+import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.servlet.admin.SystemCertificateResource;
 import com.netscape.cms.servlet.cert.model.CertificateData;
 import com.netscape.cms.servlet.key.KeyResource;
@@ -45,7 +48,9 @@ public class DRMRestClient {
     }
     
     public Collection<KeyRequestInfo> listRequests(String requestState, String requestType) {
-        KeyRequestInfos infos = keyRequestsClient.listRequests(requestState, requestType, null, "0", 100, 100, 10);
+        KeyRequestInfos infos = keyRequestsClient.listRequests(
+                requestState, requestType, null, new RequestId(0), 100, 100, 10
+        );
         Collection<KeyRequestInfo> list = infos.getRequests();
         return list;
     }
@@ -77,7 +82,7 @@ public class DRMRestClient {
         return null;
     }
     
-    public KeyRequestInfo requestRecovery(String keyId, byte[] rpwd, byte[] rkey, byte[] nonceData) {
+    public KeyRequestInfo requestRecovery(KeyId keyId, byte[] rpwd, byte[] rkey, byte[] nonceData) {
         // create recovery request
         RecoveryRequestData data = new RecoveryRequestData();
         data.setKeyId(keyId);
@@ -96,11 +101,11 @@ public class DRMRestClient {
         return info;
     }
     
-    public void approveRecovery(String recoveryId) {
+    public void approveRecovery(RequestId recoveryId) {
         keyRequestClient.approveRequest(recoveryId);
     }
     
-    public KeyData retrieveKey(String keyId, String requestId, byte[] rpwd, byte[] rkey, byte[] nonceData) {
+    public KeyData retrieveKey(KeyId keyId, RequestId requestId, byte[] rpwd, byte[] rkey, byte[] nonceData) {
         // create recovery request
         RecoveryRequestData data = new RecoveryRequestData();
         data.setKeyId(keyId);

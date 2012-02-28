@@ -38,6 +38,8 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 
+import com.netscape.certsrv.dbs.keydb.KeyId;
+import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.servlet.base.CMSResourceService;
 import com.netscape.cms.servlet.key.model.KeyData;
 import com.netscape.cms.servlet.key.model.KeyDataInfo;
@@ -134,9 +136,9 @@ public class DRMTest {
         String recoveredKey = null;
 
         // various ids used in recovery/archival operations
-        String keyId = null;
+        KeyId keyId = null;
         String clientId = null;
-        String recoveryRequestId = null;
+        RequestId recoveryRequestId = null;
 
         // Variables for data structures from calls
         KeyRequestInfo requestInfo = null;
@@ -218,7 +220,7 @@ public class DRMTest {
             KeyRequestInfo info = client.archiveSecurityData(encoded, clientId, KeyRequestResource.SYMMETRIC_KEY_TYPE);
             log("Archival Results:");
             printRequestInfo(info);
-            keyId = getId(info.getKeyURL());
+            keyId = info.getKeyId();
         } catch (Exception e) {
             log("Exception in archiving symmetric key:" + e.getMessage());
             e.printStackTrace();
@@ -228,7 +230,7 @@ public class DRMTest {
 
         log("Getting key ID for symmetric key");
         keyInfo = client.getKeyData(clientId, "active");
-        String keyId2 = getId(keyInfo.getKeyURL());
+        KeyId keyId2 = keyInfo.getKeyId();
         if (keyId2 == null) {
             log("No archived key found");
         } else {
@@ -247,7 +249,7 @@ public class DRMTest {
             recoveryKey = CryptoUtil.generateKey(token, KeyGenAlgorithm.DES3);
             wrappedRecoveryKey = CryptoUtil.wrapSymmetricKey(manager, token, transportCert, recoveryKey);
             KeyRequestInfo info = client.requestRecovery(keyId, null, wrappedRecoveryKey, ivps.getIV());
-            recoveryRequestId = getId(info.getRequestURL());
+            recoveryRequestId = info.getRequestId();
         } catch (Exception e) {
             log("Exception in recovering symmetric key using session key: " + e.getMessage());
         }
@@ -289,7 +291,7 @@ public class DRMTest {
             wrappedRecoveryKey = CryptoUtil.wrapSymmetricKey(manager, token, transportCert, recoveryKey);
 
             requestInfo = client.requestRecovery(keyId, wrappedRecoveryPassphrase, wrappedRecoveryKey, ivps.getIV());
-            recoveryRequestId = getId(requestInfo.getRequestURL());
+            recoveryRequestId = requestInfo.getRequestId();
         } catch (Exception e) {
             log("Exception in recovering symmetric key using passphrase" + e.toString());
             e.printStackTrace();
@@ -327,7 +329,7 @@ public class DRMTest {
             requestInfo = client.archiveSecurityData(encoded, clientId, KeyRequestResource.PASS_PHRASE_TYPE);
             log("Archival Results:");
             printRequestInfo(requestInfo);
-            keyId = getId(requestInfo.getKeyURL());
+            keyId = requestInfo.getKeyId();
         } catch (Exception e) {
             log("Exception in archiving symmetric key:" + e.toString());
             e.printStackTrace();
@@ -336,7 +338,7 @@ public class DRMTest {
         //Test 13: Get keyId for active passphrase with client ID
         log("Getting key ID for passphrase");
         keyInfo = client.getKeyData(clientId, "active");
-        keyId2 = getId(keyInfo.getKeyURL());
+        keyId2 = keyInfo.getKeyId();
         if (keyId2 == null) {
             log("No archived key found");
         } else {
@@ -360,7 +362,7 @@ public class DRMTest {
             wrappedRecoveryPassphrase = CryptoUtil.wrapPassphrase(token, recoveryPassphrase, ivps, recoveryKey,
                     EncryptionAlgorithm.DES3_CBC_PAD);
             requestInfo = client.requestRecovery(keyId, null, wrappedRecoveryKey, ivps.getIV());
-            recoveryRequestId = getId(requestInfo.getRequestURL());
+            recoveryRequestId = requestInfo.getRequestId();
         } catch (Exception e) {
             log("Exception in recovering passphrase using session key: " + e.getMessage());
         }
@@ -394,7 +396,7 @@ public class DRMTest {
         // Test 17: Submit a recovery request for the passphrase using a passphrase
         log("Submitting a recovery request for the passphrase using a passphrase");
         requestInfo = client.requestRecovery(keyId, wrappedRecoveryPassphrase, wrappedRecoveryKey, ivps.getIV());
-        recoveryRequestId = getId(requestInfo.getRequestURL());
+        recoveryRequestId = requestInfo.getRequestId();
 
         //Test 18: Approve recovery
         log("Approving recovery request: " + recoveryRequestId);
@@ -423,7 +425,7 @@ public class DRMTest {
 
         log("Submitting a recovery request for the passphrase using a passphrase, wait till end to provide recovery data.");
         requestInfo = client.requestRecovery(keyId, null, null, null);
-        recoveryRequestId = getId(requestInfo.getRequestURL());
+        recoveryRequestId = requestInfo.getRequestId();
 
         //Test 21: Approve recovery
         log("Approving recovery request: " + recoveryRequestId);
@@ -451,10 +453,6 @@ public class DRMTest {
     private static void log(String string) {
         // TODO Auto-generated method stub
         System.out.println(string);
-    }
-
-    private static String getId(String link) {
-        return link.substring(link.lastIndexOf("/") + 1);
     }
 
     private static void printRequestInfo(KeyRequestInfo info) {

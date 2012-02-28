@@ -8,6 +8,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
+
+import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.servlet.request.model.ArchivalRequestData;
 import com.netscape.cms.servlet.request.model.KeyRequestInfo;
 import com.netscape.cms.servlet.request.model.RecoveryRequestData;
@@ -24,7 +26,7 @@ public interface KeyRequestResource {
     @GET
     @Path("{id}")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON, MediaType.TEXT_XML })
-    public KeyRequestInfo getRequestInfo(@PathParam("id") String id);
+    public KeyRequestInfo getRequestInfo(@PathParam("id") RequestId id);
 
     // Archiving - used to test integration with a browser
     @POST
@@ -54,14 +56,14 @@ public interface KeyRequestResource {
 
     @POST
     @Path("approve/{id}")
-    public void approveRequest(@PathParam("id") String id);
+    public void approveRequest(@PathParam("id") RequestId id);
 
     @POST
     @Path("reject/{id}")
-    public void rejectRequest(@PathParam("id") String id);
+    public void rejectRequest(@PathParam("id") RequestId id);
 
     @POST
     @Path("cancel/{id}")
-    public void cancelRequest(@PathParam("id") String id);
+    public void cancelRequest(@PathParam("id") RequestId id);
 
 }

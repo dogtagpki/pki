@@ -29,7 +29,7 @@ public class RequestRecordTest extends CMSBaseTestCase {
 
     public void cmsTestSetUp() {
         requestRecord = new RequestRecord();
-        request = new Request(new RequestId("testid"));
+        request = new Request(new RequestId("0xabcdef"));
     }
 
     public void cmsTestTearDown() {

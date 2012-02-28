@@ -52,7 +52,7 @@ public class RequestQueue
         // get the next request Id
         BigInteger next = mRepository.getNextSerialNumber();
 
-        RequestId rid = new RequestId(next.toString());
+        RequestId rid = new RequestId(next);
 
         return rid;
     }
@@ -241,7 +241,7 @@ public class RequestQueue
 
         String filter = "(" + "requeststate" + "=*" + ")";
 
-        RequestId fromId = new RequestId(reqId_upper_bound.toString(10));
+        RequestId fromId = new RequestId(reqId_upper_bound);
 
         CMS.debug("RequestQueue: getLastRequestId: filter " + filter + " fromId " + fromId);
         ListEnumeration recList = (ListEnumeration) getPagedRequestsByFilter(fromId, filter, 5 * -1, "requestId");
