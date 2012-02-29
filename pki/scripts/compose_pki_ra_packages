@@ -100,8 +100,22 @@ rm -f  ${PKI_RA_SRPMS_DIR}/${PKI_RA}-${PKI_RA_VERSION}*.rpm
 cp -p ${PKI_SPECS_FILE} ${PKI_RA_SPECS_DIR}
 
 
-if [ ${USE_PATCH_FILES} -eq 1 ] ; then
-	Retrieve_Source_Tarball_and_Patches ${PKI_SPECS_FILE} ${PKI_PATCHES_DIR} ${PKI_RA_SOURCES_DIR}
+##
+## If specified, copy all Patches from the spec file URL to SOURCES
+##
+
+if [ ${FETCH_PATCH_FILES} -eq 1 ] ; then
+	Fetch_Patch_Files ${PKI_SPECS_FILE} ${PKI_RA_SOURCES_DIR}
+fi
+
+
+##
+## Copy the specified Source Tarball from the spec file URL to SOURCES, or
+## Generate a fresh Source Tarball from the local source
+##
+
+if [ ${FETCH_SOURCE_TARBALL} -eq 1 ] ; then
+	Fetch_Source_Tarball ${PKI_SPECS_FILE} ${PKI_RA_SOURCES_DIR}
 else
 	##
 	## Always start with a new 'pki-ra' staging directory

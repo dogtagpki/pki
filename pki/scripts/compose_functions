@@ -49,9 +49,6 @@ export PKI_BASE_DIR
 PKI_DOGTAG_DIR="${PKI_DIR}/dogtag"
 export PKI_DOGTAG_DIR
 
-PKI_PATCHES_DIR="${PKI_DIR}/patches"
-export PKI_PATCHES_DIR
-
 PKI_FILE_LIST="CMakeLists.txt COPYING CPackConfig.cmake ConfigureChecks.cmake DefineOptions.cmake README cmake_uninstall.cmake.in config.h.cmake"
 export PKI_FILE_LIST
 
@@ -74,40 +71,127 @@ Usage()
 	printf "\n"
 	printf "Usage:  $0 <target>\n\n"
 	printf "        where <target> is one of the following:\n\n"
-	printf "            srpm         - produces tarball, spec, and SRPM\n"
+	printf "            srpm         - copies a spec file from local source,\n"
+	printf "                           generates a tarball from local source, "
+	printf "and\n"
+	printf "                           produces an SRPM\n"
 	printf "                           [suitable for use by 'mock']\n\n"
-	printf "            rpms         - produces tarball, spec, SRPM, and\n"
-	printf "                           RPMS(S)\n"
+	printf "            rpms         - copies a spec file from local source,\n"
+	printf "                           generates a tarball from local source, "
+	printf "and\n"
+	printf "                           produces an SRPM and one or more RPMS\n"
 	printf "                           ${MESSAGE}\n\n"
-	printf "            patched_srpm - copies tarball, patches, and spec\n"
-	printf "                           to produce an SRPM\n"
+	printf "            hybrid_srpm  - copies a spec file from local source,\n"
+	printf "                           generates a tarball from local source,\n"
+	printf "                           fetches patches from the spec's URL, "
+	printf "and\n"
+	printf "                           produces an SRPM\n"
 	printf "                           [suitable for use by 'mock']\n\n"
-	printf "            patched_rpms - copies tarball, patches, and spec\n"
-	printf "                           to produce an SRPM and RPM(s)\n"
+	printf "            hybrid_rpms  - copies a spec file from local source,\n"
+	printf "                           generates a tarball from local source,\n"
+	printf "                           fetches all patches from the spec's URL,"
+	printf " and\n"
+	printf "                           produces an SRPM and one or more RPMS\n"
+	printf "                           ${MESSAGE}\n\n"
+	printf "            patched_srpm - copies a spec file from local source,\n"
+	printf "                           fetches a tarball from the spec's URL,\n"
+	printf "                           fetches all patches from the spec's URL,"
+	printf " and\n"
+	printf "                           produces an SRPM\n"
+	printf "                           [suitable for use by 'mock']\n\n"
+	printf "            patched_rpms - copies a spec file from local source,\n"
+	printf "                           fetches a tarball from the spec's URL,\n"
+	printf "                           fetches all patches from the spec's URL,"
+	printf " and\n"
+	printf "                           produces an SRPM and one or more RPMS\n"
 	printf "                           ${MESSAGE}\n\n"
 }
 
 
 ##
-## Copy Specified Source Tarball and Patches to SOURCES
+## Copy Specified Patches to SOURCES
 ##
-Retrieve_Source_Tarball_and_Patches()
+Fetch_Patch_Files()
 {
-	if [ $# -ne 3 ] ; then
+	if [ $# -ne 2 ] ; then
 		Usage
 		exit 255
 	fi
 
 	SPECFILE=$1
-	PATCHES_DIR=$2
-	TARGET_DIR=$3
+	TARGET_DIR=$2
 
 	if [ ! -f ${SPECFILE} ] ; then
 		printf "ERROR:  '${SPECFILE}' is missing!\n\n"
 		Usage
 		exit 255
-	elif [ ! -d ${PATCHES_DIR} ] ; then
-		printf "ERROR:  '${PATCHES_DIR}' does NOT exist!\n\n"
+	elif [ ! -d ${TARGET_DIR} ] ; then
+		printf "ERROR:  '${TARGET_DIR}' does NOT exist!\n\n"
+		Usage
+		exit 255
+	fi
+
+	component_name_marker="Name"
+	component_version_marker="Version"
+	component_source_marker="Source"
+	component_patch_marker="Patch"
+
+	component_name=""
+	component_version=""
+	component_source=""
+	component_url=""
+	component_patch=""
+
+	exec < ${SPECFILE}
+	while read line; do
+		entry=`echo $line | cut -d: -f 1`
+		if [ "${entry:0:4}" = "${component_name_marker}" ] ; then
+			component_name=`echo $line | cut -d' ' -f 2`
+		elif [ "${entry:0:7}" = "${component_version_marker}" ] ; then
+			component_version=`echo $line | cut -d' ' -f 2`
+		elif [ "${entry:0:6}" = "${component_source_marker}" ] ; then
+			value=`echo $line | cut -d' ' -f 2`
+			component_source=`echo $value | sed -e "s/\%{name}/${component_name}/g" -e "s/\%{version}/${component_version}/g"`
+			component_url=`dirname ${component_source}`
+		elif [ "${entry:0:5}" = "${component_patch_marker}" ] ; then
+            if [ ${component_url} != "" ] ; then
+				value=`echo $line | cut -d' ' -f 2`
+				component_patch=${component_url}"/"`echo $value | sed -e "s/\%{name}/${component_name}/g" -e "s/\%{version}/${component_version}/g"`
+				wget -q -O ${TARGET_DIR}/`basename ${component_patch}` ${component_patch}
+				if [ $? -ne 0 ] ; then
+					printf "ERROR:  Failed to download '${component_patch}'!\n\n"
+					Usage
+					exit 255
+				elif [ ! -f ${TARGET_DIR}/`basename ${component_patch}` ] ; then
+					printf "ERROR:  Failed to save '${TARGET_DIR}/`basename ${component_patch}`'!\n\n"
+					Usage
+					exit 255
+				fi
+			else
+				printf "ERROR:  '${component_source_marker}' MUST be specified PRIOR to '${component_patch_marker}'!\n\n"
+				Usage
+				exit 255
+			fi
+		fi
+	done
+}
+
+
+##
+## Copy Specified Source Tarball to SOURCES
+##
+Fetch_Source_Tarball()
+{
+	if [ $# -ne 2 ] ; then
+		Usage
+		exit 255
+	fi
+
+	SPECFILE=$1
+	TARGET_DIR=$2
+
+	if [ ! -f ${SPECFILE} ] ; then
+		printf "ERROR:  '${SPECFILE}' is missing!\n\n"
 		Usage
 		exit 255
 	elif [ ! -d ${TARGET_DIR} ] ; then
@@ -119,12 +203,10 @@ Retrieve_Source_Tarball_and_Patches()
 	component_name_marker="Name"
 	component_version_marker="Version"
 	component_tarball_marker="Source"
-	component_patch_marker="Patch"
 
 	component_name=""
 	component_version=""
 	component_tarball=""
-	component_patch=""
 
 	exec < ${SPECFILE}
 	while read line; do
@@ -146,21 +228,6 @@ Retrieve_Source_Tarball_and_Patches()
 				Usage
 				exit 255
 			fi
-		elif [ "${entry:0:5}" = "${component_patch_marker}" ] ; then
-			value=`echo $line | cut -d' ' -f 2`
-			component_patch=`echo $value | sed -e "s/\%{name}/${component_name}/g" -e "s/\%{version}/${component_version}/g"`
-			if [ -f ${PATCHES_DIR}/${component_patch} ] ; then
-				cp -p ${PATCHES_DIR}/${component_patch} ${TARGET_DIR}
-				if [ ! -f ${TARGET_DIR}/${component_patch} ] ; then
-					printf "ERROR:  Failed to copy '${component_patch}'!\n\n"
-					Usage
-					exit 255
-				fi
-			else
-				printf "ERROR:  Failed to find '${component_patch}'!\n\n"
-				Usage
-				exit 255
-			fi
 		fi
 	done
 }
@@ -177,16 +244,28 @@ fi
 
 if	[ $1 = "srpm" ] ; then
 	RPMBUILD_CMD="rpmbuild --define \"_topdir \`pwd\`\" -bs"
-	USE_PATCH_FILES=0
+	FETCH_SOURCE_TARBALL=0
+	FETCH_PATCH_FILES=0
+elif [ $1 = "hybrid_srpm" ] ; then
+	RPMBUILD_CMD="rpmbuild --define \"_topdir \`pwd\`\" -bs"
+	FETCH_SOURCE_TARBALL=0
+	FETCH_PATCH_FILES=1
 elif [ $1 = "patched_srpm" ] ; then
 	RPMBUILD_CMD="rpmbuild --define \"_topdir \`pwd\`\" -bs"
-	USE_PATCH_FILES=1
+	FETCH_SOURCE_TARBALL=1
+	FETCH_PATCH_FILES=1
 elif [ $1 = "rpms" ] ; then
 	RPMBUILD_CMD="rpmbuild --define \"_topdir \`pwd\`\" -ba"
-	USE_PATCH_FILES=0
+	FETCH_SOURCE_TARBALL=0
+	FETCH_PATCH_FILES=0
+elif [ $1 = "hybrid_rpms" ] ; then
+	RPMBUILD_CMD="rpmbuild --define \"_topdir \`pwd\`\" -ba"
+	FETCH_SOURCE_TARBALL=0
+	FETCH_PATCH_FILES=1
 elif [ $1 = "patched_rpms" ] ; then
 	RPMBUILD_CMD="rpmbuild --define \"_topdir \`pwd\`\" -ba"
-	USE_PATCH_FILES=1
+	FETCH_SOURCE_TARBALL=1
+	FETCH_PATCH_FILES=1
 else
 	Usage
 	exit 255
