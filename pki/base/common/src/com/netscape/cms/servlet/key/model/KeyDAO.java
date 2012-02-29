@@ -23,6 +23,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
 
+import javax.ws.rs.Path;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import com.netscape.certsrv.apps.CMS;
@@ -34,6 +35,7 @@ import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
+import com.netscape.cms.servlet.key.KeyResource;
 import com.netscape.cms.servlet.request.model.RecoveryRequestData;
 
 /**
@@ -186,12 +188,14 @@ public class KeyDAO {
     
     public KeyDataInfo createKeyDataInfo(IKeyRecord rec, UriInfo uriInfo) throws EBaseException {
         KeyDataInfo ret = new KeyDataInfo();
-        String serial = null;
-        serial = (rec.getSerialNumber()).toString();
-         
+
+        Path keyPath = KeyResource.class.getAnnotation(Path.class);
+        BigInteger serial = rec.getSerialNumber();
+
         UriBuilder keyBuilder = uriInfo.getBaseUriBuilder();
-        keyBuilder.path("/key/" + serial);
+        keyBuilder.path(keyPath.value() + "/" + serial);
         ret.setKeyURL(keyBuilder.build().toString());
+
         return ret;
     }
     

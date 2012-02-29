@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 
+import javax.ws.rs.Path;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
@@ -36,9 +37,11 @@ import com.netscape.certsrv.request.IRequestVirtualList;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.base.model.Link;
+import com.netscape.cms.servlet.key.KeyResource;
 import com.netscape.cms.servlet.key.model.KeyDAO;
 import com.netscape.cms.servlet.key.model.KeyDataInfos;
 import com.netscape.certsrv.profile.IEnrollProfile;
+import com.netscape.cms.servlet.request.KeyRequestResource;
 
 /**
  * @author alee
@@ -272,14 +275,18 @@ public class KeyRequestDAO {
         ret.setRequestType(request.getRequestType());
         ret.setRequestStatus(request.getRequestStatus().toString());
         
+        Path keyRequestPath = KeyRequestResource.class.getAnnotation(Path.class);
         String rid = request.getRequestId().toString();
+
         UriBuilder reqBuilder = uriInfo.getBaseUriBuilder();
-        reqBuilder.path("/keyrequest/" + rid);
+        reqBuilder.path(keyRequestPath.value() + "/" + rid);
         ret.setRequestURL(reqBuilder.build().toString());
         
+        Path keyPath = KeyResource.class.getAnnotation(Path.class);
         String kid = request.getExtDataInString("keyrecord");
+
         UriBuilder keyBuilder = uriInfo.getBaseUriBuilder();
-        keyBuilder.path("/key/" + kid);
+        keyBuilder.path(keyPath.value() + "/" + kid);
         ret.setKeyURL(keyBuilder.build().toString());
         
         return ret;
