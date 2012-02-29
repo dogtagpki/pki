@@ -1,6 +1,6 @@
 Name:             pki-core
 Version:          9.0.16
-Release:          2%{?dist}
+Release:          3%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -47,6 +47,14 @@ BuildRequires:    tomcatjss >= 2.0.0
 %endif
 
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}.tar.gz
+
+%if 0%{?fedora} >= 17
+Patch0:	          %{name}-selinux-Dogtag-9-f17.patch
+%else
+%if 0%{?fedora} >= 16
+Patch0:	          %{name}-selinux-Dogtag-9-f16.patch
+%endif
+%endif
 
 %if 0%{?rhel}
 ExcludeArch:      ppc ppc64 s390 s390x
@@ -441,6 +449,15 @@ This package is a part of the PKI Core used by the Certificate System.
 %setup -q
 
 
+%if 0%{?fedora} >= 17
+%patch0 -p2 -b .p0
+%else
+%if 0%{?fedora} >= 16
+%patch0 -p2 -b .p0
+%endif
+%endif
+
+
 %clean
 %{__rm} -rf %{buildroot}
 
@@ -723,6 +740,12 @@ fi
 
 
 %changelog
+* Tue Feb 28 2012 Ade Lee <alee@redhat.com> 9.0.16-3
+- 'pki-selinux'
+-      Added platform-dependent patches for SELinux component
+-      Bugzilla Bug #739708 - Selinux fix for ephemeral ports (F16)
+-      Bugzilla Bug #795966 - pki-selinux policy is kind of a mess (F17)
+
 * Wed Feb 22 2012 Matthew Harmsen <mharmsen@redhat.com> 9.0.16-2
 - Add '-DSYSTEMD_LIB_INSTALL_DIR' override flag to 'cmake' to address changes
   in fundamental path structure in Fedora 17

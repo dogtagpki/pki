@@ -1,0 +1,35 @@
+diff --git a/pki/base/selinux/src/pki.if b/pki/base/selinux/src/pki.if
+index 0709176..20dfc17 100644
+--- a/pki/base/selinux/src/pki.if
++++ b/pki/base/selinux/src/pki.if
+@@ -206,6 +206,20 @@ template(`pki_ca_template',`
+         optional_policy(`
+             unconfined_domain($1_script_t)
+         ')
++
++        # tomcat6 init scripts do runuser and touch lockfile
++        allow $1_t self:capability { setuid chown setgid fowner audit_write dac_override };
++        allow $1_t self:netlink_audit_socket { nlmsg_relay create read write };
++        consoletype_exec($1_t)
++        fs_read_hugetlbfs_files($1_t)
++        hostname_exec($1_t)
++        kernel_read_kernel_sysctls($1_t)
++
++        # java (mislabeled as lib_t?) calls build_classpath
++        libs_exec_lib_files($1_t)
++
++        selinux_get_enforce_mode($1_t)
++
+ ')
+ 
+ ########################################
+diff --git a/pki/base/selinux/src/pki.te b/pki/base/selinux/src/pki.te
+index 7f6e657..dab02d4 100644
+--- a/pki/base/selinux/src/pki.te
++++ b/pki/base/selinux/src/pki.te
+@@ -1,4 +1,4 @@
+-policy_module(pki,9.0.2)
++policy_module(pki,9.0.3)
+ 
+ attribute pki_ca_config;
+ attribute pki_ca_executable;

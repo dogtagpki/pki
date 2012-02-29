@@ -1,0 +1,23 @@
+diff --git a/pki/base/selinux/src/pki.if b/pki/base/selinux/src/pki.if
+index 0709176..9a35184 100644
+--- a/pki/base/selinux/src/pki.if
++++ b/pki/base/selinux/src/pki.if
+@@ -193,7 +193,7 @@ template(`pki_ca_template',`
+         corenet_tcp_connect_ldap_port($1_t)
+
+         # tomcat connects to ephemeral ports on shutdown
+-        corenet_tcp_connect_all_unreserved_ports($1_t)
++        corenet_tcp_connect_all_ephemeral_ports($1_t)
+
+         optional_policy(`
+             #This is broken in selinux-policy we need java_exec defined, Will add to policy
+diff --git a/pki/base/selinux/src/pki.te b/pki/base/selinux/src/pki.te
+index 7f6e657..dab02d4 100644
+--- a/pki/base/selinux/src/pki.te
++++ b/pki/base/selinux/src/pki.te
+@@ -1,4 +1,4 @@
+-policy_module(pki,9.0.2)
++policy_module(pki,9.0.3)
+
+ attribute pki_ca_config;
+ attribute pki_ca_executable;
