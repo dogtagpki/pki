@@ -431,8 +431,15 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
                         s1.append(",");
                     s1.append("ca.connector.KRA");
                 }
+                
+                s1.append(",internaldb,internaldb.ldapauth,internaldb.ldapconn");
 
-                content = "op=get&names=cloning.token,instanceId,internaldb.basedn,internaldb.ldapauth.password,internaldb.replication.password,internaldb.ldapconn.host,internaldb.ldapconn.port,internaldb.ldapauth.bindDN"+c1.toString()+"&substores="+s1.toString()+"&xmlOutput=true&sessionID="+session_id;
+                content =
+                        "op=get&names=cloning.token,instanceId,internaldb.basedn,internaldb.ldapauth.password,"
+                        + "internaldb.replication.password" + c1.toString()
+                        + "&substores=" + s1.toString()
+                        + "&xmlOutput=true&sessionID="
+                        + session_id;
                 boolean success = updateConfigEntries(master_hostname, master_port, true,
                   "/"+cstype+"/admin/"+cstype+"/getConfigEntries", content, config, response);
                 if (!success) {

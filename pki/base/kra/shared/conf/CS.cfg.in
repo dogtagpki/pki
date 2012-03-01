@@ -224,6 +224,7 @@ preop.internaldb.schema.ldif=/usr/share/[PKI_FLAVOR]/kra/conf/schema.ldif
 preop.internaldb.ldif=/usr/share/[PKI_FLAVOR]/kra/conf/database.ldif
 preop.internaldb.data_ldif=/usr/share/[PKI_FLAVOR]/kra/conf/db.ldif,/usr/share/[PKI_FLAVOR]/kra/conf/acl.ldif
 preop.internaldb.index_ldif=
+preop.internaldb.manager_ldif=/usr/share/[PKI_FLAVOR]/ca/conf/manager.ldif
 preop.internaldb.post_ldif=/usr/share/[PKI_FLAVOR]/kra/conf/index.ldif,/usr/share/[PKI_FLAVOR]/kra/conf/vlv.ldif,/usr/share/[PKI_FLAVOR]/kra/conf/vlvtasks.ldif
 preop.internaldb.wait_dn=cn=index1160527115, cn=index, cn=tasks, cn=config
 internaldb.multipleSuffix.enable=false

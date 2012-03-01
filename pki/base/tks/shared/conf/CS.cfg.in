@@ -179,6 +179,7 @@ preop.internaldb.schema.ldif=/usr/share/[PKI_FLAVOR]/tks/conf/schema.ldif
 preop.internaldb.ldif=/usr/share/[PKI_FLAVOR]/tks/conf/database.ldif
 preop.internaldb.data_ldif=/usr/share/[PKI_FLAVOR]/tks/conf/db.ldif,/usr/share/[PKI_FLAVOR]/tks/conf/acl.ldif
 preop.internaldb.index_ldif=/usr/share/[PKI_FLAVOR]/tks/conf/index.ldif
+preop.internaldb.manager_ldif=/usr/share/[PKI_FLAVOR]/ca/conf/manager.ldif
 preop.internaldb.post_ldif=
 preop.internaldb.wait_dn=
 internaldb.multipleSuffix.enable=false

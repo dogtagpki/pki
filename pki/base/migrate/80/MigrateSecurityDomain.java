@@ -24,6 +24,7 @@ import netscape.ldap.*;
 import java.io.*; 
 import java.util.*;
 import org.w3c.dom.*;
+import java.util.ArrayList;
 
 public class MigrateSecurityDomain {
 
@@ -114,8 +115,15 @@ public class MigrateSecurityDomain {
 
             // add new schema elements
             String importFile = "./schema-add.ldif";
+            ArrayList<String> errors = new ArrayList<String>();
             try {
-                LDAPUtil.importLDIF(conn, importFile);
+                LDAPUtil.importLDIF(conn, importFile, errors);
+                if (! errors.isEmpty()) {
+                    System.out.println("MigrateSecurityDomain: Errors in adding new schema elements:");
+                    for (String error: errors) {
+                        System.out.println(error);
+                    }
+                }
             } catch (Exception e) {
                System.out.println("MigrateSecurityDomain: Error in adding new schema elements");
                System.exit(1);

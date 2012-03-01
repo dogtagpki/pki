@@ -20,9 +20,10 @@ package com.netscape.cmsutil.ldap;
 import netscape.ldap.*;
 import netscape.ldap.util.*;
 import java.io.*;
+import java.util.ArrayList;
 
 public class LDAPUtil {
-    public static void importLDIF(LDAPConnection conn, String filename) throws IOException {
+    public static void importLDIF(LDAPConnection conn, String filename, ArrayList<String> errors) throws IOException {
         LDIF ldif = new LDIF(filename);
         while (true) {
             try {
@@ -43,6 +44,8 @@ public class LDAPUtil {
                     try {
                         conn.add(entry);
                     } catch (LDAPException ee) {
+                        errors.add("LDAPUtil:importLDIF: exception in adding entry " + dn +
+                                ":" + ee.toString() + "\n");
                     }
                } else if (type == LDIFContent.MODIFICATION_CONTENT) {
                     LDIFModifyContent c = (LDIFModifyContent)content;
@@ -50,6 +53,8 @@ public class LDAPUtil {
                     try {
                         conn.modify(dn, mods);
                     } catch (LDAPException ee) {
+                        errors.add("LDAPUtil:importLDIF: exception in modifying entry " + dn +
+                                ":" + ee.toString());
                     }
                 }
             } catch (Exception e) {

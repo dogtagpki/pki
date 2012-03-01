@@ -601,19 +601,11 @@ public class WizardPanelBase implements IWizardPanel {
                             }
                         }
 
-                        if (name.equals("internaldb.ldapconn.host")) {
-                            config.putString("preop.internaldb.master.hostname", v);
-                        } else if (name.equals("internaldb.ldapconn.port")) {
-                            config.putString("preop.internaldb.master.port", v);
-                        } else if (name.equals("internaldb.ldapauth.bindDN")) {
-                            config.putString("preop.internaldb.master.binddn", v);
-                        } else if (name.equals("internaldb.basedn")) {
+                        if (name.equals("internaldb.basedn")) {
                             config.putString(name, v);
-                            config.putString("preop.internaldb.master.basedn", v); 
-                        } else if (name.equals("internaldb.ldapauth.password")) {
-                            config.putString("preop.internaldb.master.bindpwd", v);
-                        } else if (name.equals("internaldb.replication.password")) {
-                            config.putString("preop.internaldb.master.replicationpwd", v);
+                            config.putString("preop.internaldb.master.basedn", v);
+                        } else if (name.startsWith("internaldb")) {
+                            config.putString(name.replaceFirst("internaldb", "preop.internaldb.master"), v);
                         } else if (name.equals("instanceId")) {
                             config.putString("preop.master.instanceId", v);
                         } else if (name.equals("cloning.cert.signing.nickname")) {
@@ -660,6 +652,23 @@ public class WizardPanelBase implements IWizardPanel {
                         } else {
                             config.putString(name, v);
                         }
+                    }
+
+                    // set master ldap password (if it exists) temporarily in password store
+                    // in case it is needed for replication.  Not stored in password.conf.
+                    try {
+                        String master_pwd = config.getString("preop.internaldb.master.ldapauth.password", "");
+                        if (!master_pwd.equals("")) {
+                            config.putString("preop.internaldb.master.ldapauth.bindPWPrompt", "master_internaldb");
+                            String passwordFile = config.getString("passwordFile");
+                            IConfigStore psStore = CMS.createFileConfigStore(passwordFile);
+                            psStore.putString("master_internaldb", master_pwd);
+                            psStore.commit(false);
+                        }
+                    } catch (Exception e) {
+                        CMS.debug("updateConfigEntries: Failed to temporarily store master bindpwd: " + e.toString());
+                        e.printStackTrace();
+                        throw new IOException(e.toString());
                     }
 
                     return true;

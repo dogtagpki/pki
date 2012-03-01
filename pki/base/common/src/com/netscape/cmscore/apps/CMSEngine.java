@@ -261,18 +261,19 @@ public class CMSEngine implements ICMSEngine {
         String secdomain_source = config.getString("securitydomain.source", "memory");
         String secdomain_check_interval = config.getString("securitydomain.checkinterval", "5000");
 
-        if (secdomain_source.equals("ldap")) {
-            mSecurityDomainSessionTable = new LDAPSecurityDomainSessionTable((new Long(flush_timeout)).longValue());
-        } else {
-            mSecurityDomainSessionTable = new SecurityDomainSessionTable((new Long(flush_timeout)).longValue());
-        }
+        if ((state == 1) && (!sd.equals("existing"))) {
+            // check session domain table only if this is a
+            // configured security domain host
 
-        mSDTimer = new Timer();
-        SessionTimer timertask = new SessionTimer(mSecurityDomainSessionTable);
-        if ((state != 1) || (sd.equals("existing"))) {
-            // for non-security domain hosts or if not yet configured, 
-            // do not check session domain table
-        } else {
+            if (secdomain_source.equals("ldap")) {
+                mSecurityDomainSessionTable = new LDAPSecurityDomainSessionTable((new Long(flush_timeout)).longValue());
+            } else {
+                mSecurityDomainSessionTable = new SecurityDomainSessionTable((new Long(flush_timeout)).longValue());
+            }
+
+            mSDTimer = new Timer();
+            SessionTimer timertask = new SessionTimer(mSecurityDomainSessionTable);
+
             mSDTimer.schedule(timertask, 5, (new Long(secdomain_check_interval)).longValue());
         }
 
