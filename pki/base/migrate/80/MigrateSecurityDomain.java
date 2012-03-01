@@ -18,6 +18,7 @@
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Vector;
 
 import netscape.ldap.LDAPAttribute;
@@ -120,8 +121,15 @@ public class MigrateSecurityDomain {
 
             // add new schema elements
             String importFile = "./schema-add.ldif";
+            ArrayList<String> errors = new ArrayList<String>();
             try {
-                LDAPUtil.importLDIF(conn, importFile);
+                LDAPUtil.importLDIF(conn, importFile, errors);
+                if (! errors.isEmpty()) {
+                    System.out.println("MigrateSecurityDomain: Errors in adding new schema elements:");
+                    for (String error: errors) {
+                        System.out.println(error);
+                    }
+                }
             } catch (Exception e) {
                 System.out.println("MigrateSecurityDomain: Error in adding new schema elements");
                 System.exit(1);
