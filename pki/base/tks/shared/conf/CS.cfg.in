@@ -34,6 +34,7 @@ tks.cert.sslserver.certusage=SSLServer
 tks.cert.subsystem.certusage=SSLClient
 tks.cert.audit_signing.certusage=ObjectSigner
 preop.cert.list=sslserver,subsystem,audit_signing
+preop.cert.rsalist=audit_signing
 preop.cert.sslserver.enable=true
 preop.cert.subsystem.enable=true
 preop.cert.audit_signing.enable=true

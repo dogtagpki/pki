@@ -43,6 +43,7 @@ preop.configModules.count=3
 preop.module.token=Internal Key Storage Token
 ocsp.cert.list=signing,sslserver,subsystem,audit_signing
 preop.cert.list=signing,sslserver,subsystem,audit_signing
+preop.cert.rsalist=audit_signing
 ocsp.cert.signing.certusage=StatusResponder
 ocsp.cert.sslserver.certusage=SSLServer
 ocsp.cert.subsystem.certusage=SSLClient

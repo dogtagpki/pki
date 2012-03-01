@@ -49,6 +49,7 @@ kra.cert.sslserver.certusage=SSLServer
 kra.cert.subsystem.certusage=SSLClient
 kra.cert.audit_signing.certusage=ObjectSigner
 preop.cert.list=transport,storage,sslserver,subsystem,audit_signing
+preop.cert.rsalist=transport,storage,audit_signing
 preop.cert.transport.enable=true
 preop.cert.storage.enable=true
 preop.cert.sslserver.enable=true
