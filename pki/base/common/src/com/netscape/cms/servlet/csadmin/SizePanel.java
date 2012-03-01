@@ -143,6 +143,8 @@ public class SizePanel extends WizardPanelBase {
             // same token for now
             String token = config.getString(PRE_CONF_CA_TOKEN);
             String certTags = config.getString("preop.cert.list");
+            String rsaCertTags = config.getString("preop.cert.rsalist", "");
+            context.put("rsaTags", rsaCertTags);
             StringTokenizer st = new StringTokenizer(certTags, ",");
             mShowSigning = false;
 

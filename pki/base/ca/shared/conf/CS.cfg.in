@@ -58,6 +58,7 @@ ca.cert.sslserver.certusage=SSLServer
 ca.cert.subsystem.certusage=SSLClient
 ca.cert.audit_signing.certusage=ObjectSigner
 preop.cert.list=signing,ocsp_signing,sslserver,subsystem,audit_signing
+preop.cert.rsalist=audit_signing
 preop.cert.signing.enable=true
 preop.cert.ocsp_signing.enable=true
 preop.cert.sslserver.enable=true

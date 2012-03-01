@@ -35,6 +35,13 @@ var rsalist="${rsalist}";
 var ecclist="${ecclist}"; 
 var curvelist="${curvelist}";
 var displaycurvelist = "${displaycurvelist}";
+var rsaTags = "${rsaTags}";
+var additionalMessage = "";
+if (rsaTags.length > 0) {
+  additionalMessage = (rsaTags.indexOf(",") != -1)?
+    "<p><b>IMPORTANT:</b> <i>Currently, the Audit Log Signing, Transport, and Storage functionality <b>ONLY</b> support RSA keys.  Users that require ECC keys <b>MUST</b> first select the ECC key type and then verify on the Advanced tab that RSA keys are selected for the Audit Log Signing Certificate, Transport Certificate, and Storage Certificate. All other keys can be ECC.</i>":
+    "<p><b>IMPORTANT:</b> <i>Currently, the Audit Log Signing functionality <b>ONLY</b> supports RSA keys.  Users that require ECC keys <b>MUST</b> first select the ECC key type and then verify on the Advanced tab that an RSA key is selected for the Audit Log Signing Certificate. All other keys can be ECC.</i>";
+}
 
 function myOnLoad() {
    var form = document.forms[0];
@@ -143,7 +150,7 @@ function setAlgOptions(keyType, certTag)
   } else {
     algSelect = document.forms[0].elements[certTag + '_keyalgorithm'];
   }
-  if (algSelect == undefined) {
+  if (typeof(algSelect) == "undefined") {
     return;
   }
   algSelect.options.length=0;
@@ -178,6 +185,9 @@ function setSigningAlgOptions(keyType, certTag)
     algSelect = document.forms[0].elements['signingalgorithm'];
   } else {
     algSelect = document.forms[0].elements[certTag + '_signingalgorithm'];
+  }
+  if (typeof(algSelect) == "undefined") {
+    return;
   }
   algSelect.options.length=0;
   if (keyType == "rsa") {
@@ -229,6 +239,17 @@ function toggleAllKeyCurves(keyType)
   }
 }
 
+function indexOfTag(tag)
+{
+  var index = rsaTags.indexOf(tag);
+  if (index > 0) {
+    if (rsaTags.charAt(index-1) != ',') {
+      index = -1;
+    }
+  }
+  return index;
+}
+
 function keyTypeChange(certTag)
 {
   var form = document.forms[0];
@@ -237,13 +258,18 @@ function keyTypeChange(certTag)
     keyTypeSelect = document.forms[0].elements['keytype'];
     for (var i = 0; i < form.length; i++) {
       var name = form[i].name;
-      if (name.indexOf('_keytype') != -1) {
-        form.elements[name].selectedIndex = keyTypeSelect.selectedIndex;
+      var k = name.indexOf('_keytype');
+      if (k != -1) {
+        var tag = name.substring(0, k);
+        if ((keyTypeSelect.value.indexOf('ecc') != -1) &&
+            (indexOfTag(tag) == -1)) {
+          form.elements[name].selectedIndex = keyTypeSelect.selectedIndex;
+          setAlgOptions(keyTypeSelect.value, tag);
+          setSigningAlgOptions(keyTypeSelect.value, tag);
+          toggleKeyCurve(keyTypeSelect.value, tag);
+        }
       }
     }
-    setAllAlgOptions(keyTypeSelect.value);
-    setAllSigningAlgOptions(keyTypeSelect.value);
-    toggleAllKeyCurves(keyTypeSelect.value);
   } else {
       keyTypeSelect = document.forms[0].elements[certTag + '_keytype'];
       toggleKeyCurve(keyTypeSelect.value, certTag);
@@ -337,7 +363,11 @@ function displayCurveList()
 }
   
 </SCRIPT>
-Select the key pair type(s), associated key pair size(s) or curve name(s), and signature algorithm(s) from the pulldown menus.  <font color="red">Currently, the Audit Log Signing functionality only supports RSA keys.  Users that require ECC keys must select the Advanced tab, and specify RSA keys for the Audit Log Signing Certificate.  All other keys can be ECC.  </font><a href="javascript:toggle_details();">[Details]</a>
+Select the key pair type(s), associated key pair size(s) or curve name(s), and signature algorithm(s) from the pulldown menus.  
+<SCRIPT type="text/JavaScript">
+document.write(additionalMessage);
+</SCRIPT>
+  <a href="javascript:toggle_details();">[Details]</a>
 <SCRIPT type="text/JavaScript">
 function toggle_details()
 {
