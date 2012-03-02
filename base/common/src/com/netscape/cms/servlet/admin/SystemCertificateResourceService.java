@@ -21,8 +21,6 @@ package com.netscape.cms.servlet.admin;
 import java.security.cert.CertificateEncodingException;
 
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 
 import com.netscape.certsrv.apps.CMS;
@@ -38,9 +36,6 @@ import com.netscape.cms.servlet.cert.model.CertificateData;
  * 
  */
 public class SystemCertificateResourceService extends CMSResourceService implements SystemCertificateResource {
-
-    @Context
-    Request request;
 
     /**
      * Used to retrieve the transport certificate
@@ -74,7 +69,7 @@ public class SystemCertificateResourceService extends CMSResourceService impleme
             e.printStackTrace();
             throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
         }
-        return sendConditionalGetResponse(DEFAULT_LONG_CACHE_LIFETIME, cert, request);
+        return sendConditionalGetResponse(DEFAULT_LONG_CACHE_LIFETIME, cert);
     }
 
 }

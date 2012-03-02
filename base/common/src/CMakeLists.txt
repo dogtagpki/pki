@@ -579,6 +579,7 @@ set(pki-cms_java_SRCS
     com/netscape/cms/servlet/base/IndexServlet.java
     com/netscape/cms/servlet/base/UserInfo.java
     com/netscape/cms/servlet/base/PortsServlet.java
+    com/netscape/cms/servlet/base/CMSException.java
     com/netscape/cms/servlet/base/CMSResourceService.java
     com/netscape/cms/servlet/base/CMSServlet.java
     com/netscape/cms/servlet/base/CMSStartServlet.java
@@ -664,6 +665,7 @@ set(pki-cms_java_SRCS
     com/netscape/cms/servlet/request/IReqParser.java
     com/netscape/cms/servlet/request/ReqParser.java
     com/netscape/cms/servlet/request/QueryReq.java
+    com/netscape/cms/servlet/request/RequestNotFoundException.java
     com/netscape/cms/servlet/request/SearchReqs.java
     com/netscape/cms/servlet/request/ProcessCertReq.java
     com/netscape/cms/servlet/request/CertReqParser.java

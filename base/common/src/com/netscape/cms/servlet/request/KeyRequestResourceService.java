@@ -19,27 +19,24 @@
 package com.netscape.cms.servlet.request;
 
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
+
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.request.RequestId;
+import com.netscape.cms.servlet.base.CMSException;
 import com.netscape.cms.servlet.base.CMSResourceService;
 import com.netscape.cms.servlet.request.model.ArchivalRequestData;
 import com.netscape.cms.servlet.request.model.KeyRequestDAO;
 import com.netscape.cms.servlet.request.model.KeyRequestInfo;
 import com.netscape.cms.servlet.request.model.RecoveryRequestData;
- 
+
 /**
  * @author alee
- * 
+ *
  */
 public class KeyRequestResourceService extends CMSResourceService implements KeyRequestResource {
 
-    @Context
-    UriInfo uriInfo;
-    
     /**
      * Used to retrieve key request info for a specific request
      */
@@ -52,15 +49,15 @@ public class KeyRequestResourceService extends CMSResourceService implements Key
         } catch (EBaseException e) {
             // log error
             e.printStackTrace();
-            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+            throw new CMSException(e.getMessage(), e);
         }
         if (info == null) {
             // request does not exist
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
+            throw new RequestNotFoundException(id);
         }
         return info;
     }
-    
+
     // Archiving - used to test integration with a browser
     public KeyRequestInfo archiveKey(MultivaluedMap<String, String> form) {
         ArchivalRequestData data = new ArchivalRequestData(form);
@@ -88,7 +85,7 @@ public class KeyRequestResourceService extends CMSResourceService implements Key
         }
         return info;
     }
-    
+
     //Recovery - used to test integration with a browser
     public KeyRequestInfo recoverKey(MultivaluedMap<String, String> form) {
         RecoveryRequestData data = new RecoveryRequestData(form);
@@ -117,7 +114,7 @@ public class KeyRequestResourceService extends CMSResourceService implements Key
         }
         return info;
     }
-    
+
     public void approveRequest(RequestId id) {
         if (id == null) {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
@@ -132,7 +129,7 @@ public class KeyRequestResourceService extends CMSResourceService implements Key
             throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     public void rejectRequest(RequestId id) {
         if (id == null) {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
@@ -147,7 +144,7 @@ public class KeyRequestResourceService extends CMSResourceService implements Key
             throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
-         
+
     public void cancelRequest(RequestId id) {
         if (id == null) {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);

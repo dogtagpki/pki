@@ -19,9 +19,7 @@
 package com.netscape.cms.servlet.request;
 
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
@@ -36,9 +34,6 @@ import com.netscape.cmsutil.ldap.LDAPUtil;
  *
  */
 public class KeyRequestsResourceService extends CMSResourceService implements KeyRequestsResource{
-
-    @Context
-    UriInfo uriInfo;
 
     /**
      * Used to generate list of key requests based on the search parameters

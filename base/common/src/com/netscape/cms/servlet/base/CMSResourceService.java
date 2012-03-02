@@ -20,9 +20,11 @@ package com.netscape.cms.servlet.base;
 import java.security.cert.CertificateEncodingException;
 
 import javax.ws.rs.core.CacheControl;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.core.Response.ResponseBuilder;
 
 import com.netscape.certsrv.apps.CMS;
@@ -35,13 +37,24 @@ import com.netscape.cms.servlet.cert.model.CertificateData;
  * 
  */
 public class CMSResourceService {
+
     public static final String HEADER = "-----BEGIN NEW CERTIFICATE REQUEST-----";
     public static final String TRAILER = "-----END NEW CERTIFICATE REQUEST-----";
 
     // caching parameters
-    protected static final int DEFAULT_LONG_CACHE_LIFETIME = 1000;
+    public static final int DEFAULT_LONG_CACHE_LIFETIME = 1000;
 
-    protected Response sendConditionalGetResponse(int ctime, Object object, Request request) {
+    @Context
+    protected UriInfo uriInfo;
+
+    @Context
+    protected Request request;
+
+    public Response createOKResponse(Object object) {
+        return Response.ok(object).build();
+    }
+
+    public Response sendConditionalGetResponse(int ctime, Object object) {
         CacheControl cc = new CacheControl();
         cc.setMaxAge(ctime);
         EntityTag tag = new EntityTag(Integer.toString(object.hashCode()));

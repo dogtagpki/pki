@@ -20,10 +20,8 @@ package com.netscape.cms.servlet.key;
 
 
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 
 import com.netscape.cms.servlet.base.CMSResourceService;
 import com.netscape.cms.servlet.key.model.KeyDAO;
@@ -42,9 +40,6 @@ import com.netscape.certsrv.dbs.keydb.KeyId;
  * 
  */
 public class KeyResourceService extends CMSResourceService implements KeyResource{
-    
-    @Context
-    UriInfo uriInfo;
     
     /**
      * Used to retrieve a key

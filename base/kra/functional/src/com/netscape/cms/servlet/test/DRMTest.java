@@ -17,12 +17,17 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.test;
 
-import java.net.MalformedURLException;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Random;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.PosixParser;
 import org.mozilla.jss.CryptoManager;
 import org.mozilla.jss.crypto.AlreadyInitializedException;
 import org.mozilla.jss.crypto.CryptoToken;
@@ -32,19 +37,13 @@ import org.mozilla.jss.crypto.KeyGenAlgorithm;
 import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.util.Password;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-import org.apache.commons.cli.PosixParser;
-
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.servlet.base.CMSResourceService;
 import com.netscape.cms.servlet.key.model.KeyData;
 import com.netscape.cms.servlet.key.model.KeyDataInfo;
 import com.netscape.cms.servlet.request.KeyRequestResource;
+import com.netscape.cms.servlet.request.RequestNotFoundException;
 import com.netscape.cms.servlet.request.model.KeyRequestInfo;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 import com.netscape.cmsutil.util.Utils;
@@ -102,18 +101,18 @@ public class DRMTest {
             if (cmd.hasOption("d")) {
                 db_dir = cmd.getOptionValue("d");
             }
-            
+
             if (cmd.hasOption("s")) {
                 if(cmd.getOptionValue("s") != null && cmd.getOptionValue("s").equals("true")) {
                     protocol = "https";
                 }
             }
-            
+
             if (cmd.hasOption("c")) {
                 String nick = cmd.getOptionValue("c");
-                
+
                 if (nick != null && protocol.equals("https")) {
-                    clientCertNickname = nick;    
+                    clientCertNickname = nick;
                 }
             }
 
@@ -123,7 +122,7 @@ public class DRMTest {
         }
 
         // used for crypto operations
-        byte iv[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 }; 
+        byte iv[] = { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1 };
         IVParameterSpec ivps = null;
         IVParameterSpec ivps_server = null;
 
@@ -168,7 +167,7 @@ public class DRMTest {
         try {
             CryptoManager.initialize(db_dir);
         } catch (AlreadyInitializedException e) {
-            // it is ok if it is already initialized 
+            // it is ok if it is already initialized
         } catch (Exception e) {
             log("INITIALIZATION ERROR: " + e.toString());
             System.exit(1);
@@ -192,15 +191,14 @@ public class DRMTest {
         }
 
         // Set base URI and get client
-        
-        
+
+
         String baseUri = protocol + "://" + host + ":" + port + "/kra/pki";
         DRMRestClient client;
         try {
             client = new DRMRestClient(baseUri, clientCertNickname);
-        } catch (MalformedURLException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
             return;
         }
 
@@ -294,7 +292,7 @@ public class DRMTest {
 
         ivps_server = new IVParameterSpec(Utils.base64decode(keyData.getNonceData()));
         try {
-            recoveredKey = CryptoUtil.unwrapUsingSymmetricKey(token, ivps_server, 
+            recoveredKey = CryptoUtil.unwrapUsingSymmetricKey(token, ivps_server,
                     Utils.base64decode(wrappedRecoveredKey),
                     recoveryKey, EncryptionAlgorithm.DES3_CBC_PAD);
         } catch (Exception e) {
@@ -406,7 +404,7 @@ public class DRMTest {
         wrappedRecoveredKey = keyData.getWrappedPrivateData();
         ivps_server = new IVParameterSpec( Utils.base64decode(keyData.getNonceData()));
         try {
-            recoveredKey = CryptoUtil.unwrapUsingSymmetricKey(token, ivps_server, 
+            recoveredKey = CryptoUtil.unwrapUsingSymmetricKey(token, ivps_server,
                     Utils.base64decode(wrappedRecoveredKey),
                     recoveryKey, EncryptionAlgorithm.DES3_CBC_PAD);
             recoveredKey = new String(Utils.base64decode(recoveredKey), "UTF-8");
@@ -475,6 +473,16 @@ public class DRMTest {
             log("Error: recovered and archived passphrases do not match!");
         } else {
             log("Success: recovered and archived passphrases do match!");
+        }
+
+        // Test 23: Get non-existent request
+        RequestId requestId = new RequestId("0xabcdef");
+        log("Getting non-existent request: " + requestId.toHexString());
+        try {
+            client.getRequest(requestId);
+            log("Error: getting non-existent request does not throw an exception");
+        } catch (RequestNotFoundException e) {
+            log("Success: getting non-existent request throws an exception: "+e.getMessage()+" ("+e.getRequestId().toHexString()+")");
         }
     }
 

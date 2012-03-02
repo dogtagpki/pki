@@ -18,6 +18,7 @@
 	<classpathentry kind="lib" path="/usr/share/java/apache-commons-cli.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/apache-commons-logging.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/commons-codec.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/commons-httpclient.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/idm-console-base.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/idm-console-mcc.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/idm-console-nmclf.jar"/>
@@ -26,6 +27,8 @@
 	<classpathentry kind="lib" path="/usr/share/java/junit4.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/ldapjdk.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/glassfish-jaxb/jaxb-impl.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/httpcomponents/httpclient.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/httpcomponents/httpcore.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/resteasy/jaxrs-api.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/resteasy/resteasy-jaxb-provider.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/resteasy/resteasy-jaxrs.jar"/>

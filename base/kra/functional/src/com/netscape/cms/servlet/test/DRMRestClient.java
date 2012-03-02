@@ -2,9 +2,9 @@ package com.netscape.cms.servlet.test;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.MalformedURLException;
 import java.net.Socket;
-import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -18,9 +18,14 @@ import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 import org.jboss.resteasy.client.ClientExecutor;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.client.ProxyFactory;
+import org.jboss.resteasy.client.core.executors.ApacheHttpClientExecutor;
+import org.jboss.resteasy.spi.ResteasyProviderFactory;
+import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
+import org.mozilla.jss.ssl.SSLClientCertificateSelectionCallback;
+import org.mozilla.jss.ssl.SSLSocket;
+
 import com.netscape.certsrv.dbs.keydb.KeyId;
 import com.netscape.certsrv.request.RequestId;
-import org.jboss.resteasy.client.core.executors.ApacheHttpClientExecutor;
 import com.netscape.cms.servlet.admin.SystemCertificateResource;
 import com.netscape.cms.servlet.cert.model.CertificateData;
 import com.netscape.cms.servlet.key.KeyResource;
@@ -36,10 +41,6 @@ import com.netscape.cms.servlet.request.model.KeyRequestInfos;
 import com.netscape.cms.servlet.request.model.RecoveryRequestData;
 import com.netscape.cmsutil.util.Utils;
 
-import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
-import org.mozilla.jss.ssl.SSLClientCertificateSelectionCallback;
-import org.mozilla.jss.ssl.SSLSocket;
-
 public class DRMRestClient {
 
     // Callback to approve or deny returned SSL server certs
@@ -47,7 +48,7 @@ public class DRMRestClient {
     // ToDO: Look into taking this JSS http client code and move it into
     // its own class to be used by possible future clients.
     private class ServerCertApprovalCB implements SSLCertificateApprovalCallback {
-        
+
         public boolean approve(org.mozilla.jss.crypto.X509Certificate servercert,
                 SSLCertificateApprovalCallback.ValidityStatus status) {
 
@@ -81,7 +82,7 @@ public class DRMRestClient {
                         reason == SSLCertificateApprovalCallback.ValidityStatus.BAD_CERT_DOMAIN) {
 
                     //Allow these two since we haven't necessarily installed the CA cert for trust
-                    // and we are choosing "localhost" as the host for this client. 
+                    // and we are choosing "localhost" as the host for this client.
 
                     return true;
 
@@ -93,91 +94,95 @@ public class DRMRestClient {
             return false;
         }
     }
-    
+
     private  class JSSProtocolSocketFactory implements ProtocolSocketFactory {
 
         @Override
         public Socket createSocket(String host, int port) throws IOException, UnknownHostException {
-            
+
             SSLSocket sock = createJSSSocket(host,port, null, 0, null);
-            return (Socket) sock;
+            return sock;
         }
 
         @Override
         public Socket createSocket(String host, int port, InetAddress clientHost, int clientPort) throws IOException,
                 UnknownHostException {
-            
+
             SSLSocket sock = createJSSSocket(host,port, clientHost, clientPort, null);
-            return (Socket) sock;
+            return sock;
         }
 
         @Override
         public Socket createSocket(String host, int port, InetAddress localAddress, int localPort, HttpConnectionParams params)
                 throws IOException, UnknownHostException, ConnectTimeoutException {
-            
+
            SSLSocket sock = createJSSSocket(host, port, localAddress, localPort, null);
-           return (Socket) sock;
+           return sock;
         }
     }
 
-    private SSLSocket createJSSSocket(String host, int port, InetAddress localAddress, 
+    private SSLSocket createJSSSocket(String host, int port, InetAddress localAddress,
             int localPort, SSLClientCertificateSelectionCallback clientCertSelectionCallback)
             throws IOException, UnknownHostException, ConnectTimeoutException {
-        
+
         SSLSocket sock = new SSLSocket(InetAddress.getByName(host),
                 port,
                 localAddress,
                 localPort,
                 new ServerCertApprovalCB(),
                 null);
-        
+
         if(sock != null && clientCertNickname != null) {
             sock.setClientCertNickname(clientCertNickname);
         }
-        
+
         return  sock;
-        
+
     }
     private KeyResource keyClient;
     private KeysResource keysClient;
     private KeyRequestsResource keyRequestsClient;
     private KeyRequestResource keyRequestClient;
     private SystemCertificateResource systemCertClient;
-    
+
     private String clientCertNickname = null;
-    
-    public DRMRestClient(String baseUri, String clientCertNick) throws MalformedURLException {
-        
+
+    public DRMRestClient(String baseUri, String clientCertNick) throws URISyntaxException {
+
         // For SSL we are assuming the caller has already intialized JSS and has
         // a valid CryptoManager and CryptoToken
         // optional clientCertNickname is provided for use if required.
-        
-        
-        URL url = new URL(baseUri);
-        
-        String protocol = url.getProtocol();
-        int port = url.getPort();
-        
+
+
+        URI uri = new URI(baseUri);
+
+        String protocol = uri.getScheme();
+        int port = uri.getPort();
+
         clientCertNickname = null;
         if(protocol != null && protocol.equals("https")) {
             if (clientCertNick != null) {
                 clientCertNickname = clientCertNick;
-            } 
-            
-            Protocol.registerProtocol("https", 
+            }
+
+            Protocol.registerProtocol("https",
                 new Protocol(protocol, new JSSProtocolSocketFactory(), port));
         }
-        
+
         HttpClient httpclient = new HttpClient();
         ClientExecutor executor = new ApacheHttpClientExecutor(httpclient);
 
-        systemCertClient = ProxyFactory.create(SystemCertificateResource.class, baseUri, executor);
-        keyRequestsClient = ProxyFactory.create(KeyRequestsResource.class, baseUri, executor);
-        keyRequestClient = ProxyFactory.create(KeyRequestResource.class, baseUri, executor);
-        keysClient = ProxyFactory.create(KeysResource.class, baseUri, executor);
-        keyClient = ProxyFactory.create(KeyResource.class, baseUri, executor);
+        ResteasyProviderFactory providerFactory = ResteasyProviderFactory.getInstance();
+        providerFactory.addClientErrorInterceptor(new DRMErrorInterceptor());
+
+        systemCertClient = ProxyFactory.create(SystemCertificateResource.class, uri, executor, providerFactory);
+        keyRequestsClient = ProxyFactory.create(KeyRequestsResource.class, uri, executor, providerFactory);
+        keyRequestClient = ProxyFactory.create(KeyRequestResource.class, uri, executor, providerFactory);
+        keysClient = ProxyFactory.create(KeysResource.class, uri, executor, providerFactory);
+        keyClient = ProxyFactory.create(KeyResource.class, uri, executor, providerFactory);
+        keyClient = ProxyFactory.create(KeyResource.class, uri, executor, providerFactory);
     }
-    
+
     public String getTransportCert() {
         @SuppressWarnings("unchecked")
         ClientResponse<CertificateData> response = (ClientResponse<CertificateData>) systemCertClient.getTransportCert();
@@ -185,7 +190,7 @@ public class DRMRestClient {
         String transportCert = certData.getB64();
         return transportCert;
     }
-    
+
     public Collection<KeyRequestInfo> listRequests(String requestState, String requestType) {
         KeyRequestInfos infos = keyRequestsClient.listRequests(
                 requestState, requestType, null, new RequestId(0), 100, 100, 10
@@ -193,7 +198,7 @@ public class DRMRestClient {
         Collection<KeyRequestInfo> list = infos.getRequests();
         return list;
     }
-    
+
     public KeyRequestInfo archiveSecurityData(byte[] encoded, String clientId, String dataType) {
         // create archival request
         ArchivalRequestData data = new ArchivalRequestData();
@@ -205,7 +210,7 @@ public class DRMRestClient {
         KeyRequestInfo info = keyRequestClient.archiveKey(data);
         return info;
     }
-    
+
     public KeyDataInfo getKeyData(String clientId, String status) {
         KeyDataInfos infos = keysClient.listKeys(clientId, status, 100, 10);
         Collection<KeyDataInfo> list = infos.getKeyInfos();
@@ -220,7 +225,7 @@ public class DRMRestClient {
         }
         return null;
     }
-    
+
     public KeyRequestInfo requestRecovery(KeyId keyId, byte[] rpwd, byte[] rkey, byte[] nonceData) {
         // create recovery request
         RecoveryRequestData data = new RecoveryRequestData();
@@ -239,11 +244,11 @@ public class DRMRestClient {
         KeyRequestInfo info = keyRequestClient.recoverKey(data);
         return info;
     }
-    
+
     public void approveRecovery(RequestId recoveryId) {
         keyRequestClient.approveRequest(recoveryId);
     }
-    
+
     public KeyData retrieveKey(KeyId keyId, RequestId requestId, byte[] rpwd, byte[] rkey, byte[] nonceData) {
         // create recovery request
         RecoveryRequestData data = new RecoveryRequestData();
@@ -262,5 +267,9 @@ public class DRMRestClient {
 
         KeyData key = keyClient.retrieveKey(data);
         return key;
+    }
+
+    public KeyRequestInfo getRequest(RequestId id) {
+        return keyRequestClient.getRequestInfo(id);
     }
 }

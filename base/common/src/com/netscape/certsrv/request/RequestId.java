@@ -94,6 +94,17 @@ public class RequestId {
         return value.toString();
     }
 
+    /**
+     * Converts the RequestId into its hex string representation. The string
+     * form can be stored in a database (such as the LDAP directory)
+     *
+     * @return
+     *         a string containing the hex (base 16) value for the identifier.
+     */
+    public String toHexString() {
+        return "0x"+value.toString(16);
+    }
+
     @Override
     public int hashCode() {
         final int prime = 31;
