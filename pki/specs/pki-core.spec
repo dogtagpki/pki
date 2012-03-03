@@ -14,7 +14,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.0
-Release:          %{?relprefix}6%{?prerel}%{?dist}
+Release:          %{?relprefix}7%{?prerel}%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -68,13 +68,8 @@ BuildRequires:    tomcatjss >= 2.0.0
 
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}%{?prerel}.tar.gz
 
-%if 0%{?fedora} >= 17
-Patch0:	          %{name}-selinux-f17.patch
-%else
-%if 0%{?fedora} >= 16
 Patch0:	          %{name}-selinux-f16.patch
-%endif
-%endif
+Patch1:	          %{name}-selinux-f17.patch
 
 %if 0%{?rhel}
 ExcludeArch:      ppc ppc64 s390 s390x
@@ -687,10 +682,10 @@ This package is a part of the PKI Core used by the Certificate System.
 %setup -q -n %{name}-%{version}%{?prerel}
 
 %if 0%{?fedora} >= 17
-%patch0 -p2 -b .p0
+%patch0 -p2 -b .f17
 %else
 %if 0%{?fedora} >= 16
-%patch0 -p2 -b .p0
+%patch0 -p2 -b .f16
 %endif
 %endif
 
@@ -1294,6 +1289,11 @@ fi
 
 
 %changelog
+* Fri Mar  2 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-0.7.a1
+- For 'mock' purposes, removed platform-specific logic from around
+  the 'patch' files so that ALL 'patch' files will be included in
+  the SRPM.
+
 * Wed Feb 29 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.6.a1
 - Removed dependency on OSUtil.
 
