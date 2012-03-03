@@ -1,6 +1,6 @@
 Name:             pki-core
 Version:          9.0.16
-Release:          3%{?dist}
+Release:          4%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -48,13 +48,8 @@ BuildRequires:    tomcatjss >= 2.0.0
 
 Source0:          http://pki.fedoraproject.org/pki/sources/%{name}/%{name}-%{version}.tar.gz
 
-%if 0%{?fedora} >= 17
-Patch0:	          %{name}-selinux-Dogtag-9-f17.patch
-%else
-%if 0%{?fedora} >= 16
 Patch0:	          %{name}-selinux-Dogtag-9-f16.patch
-%endif
-%endif
+Patch1:	          %{name}-selinux-Dogtag-9-f17.patch
 
 %if 0%{?rhel}
 ExcludeArch:      ppc ppc64 s390 s390x
@@ -450,10 +445,10 @@ This package is a part of the PKI Core used by the Certificate System.
 
 
 %if 0%{?fedora} >= 17
-%patch0 -p2 -b .p0
+%patch0 -p2 -b .f17
 %else
 %if 0%{?fedora} >= 16
-%patch0 -p2 -b .p0
+%patch0 -p2 -b .f16
 %endif
 %endif
 
@@ -740,6 +735,11 @@ fi
 
 
 %changelog
+* Fri Mar  2 2012 Matthew Harmsen <mharmsen@redhat.com> 9.0.16-4
+- For 'mock' purposes, removed platform-specific logic from around
+  the 'patch' files so that ALL 'patch' files will be included in
+  the SRPM.
+
 * Tue Feb 28 2012 Ade Lee <alee@redhat.com> 9.0.16-3
 - 'pki-selinux'
 -      Added platform-dependent patches for SELinux component
