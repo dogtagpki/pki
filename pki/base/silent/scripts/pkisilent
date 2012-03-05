@@ -99,7 +99,11 @@ if( $ARCHITECTURE eq "x86_64" ) {
 ##      based upon the preset LD_LIBRARY_PATH and CP environment variables.  ##
 ###############################################################################
 
-my $output = `java -cp $ENV{CLASSPATH} com.netscape.pkisilent.PKISilent @ARGV`;
+my @args = ();
+foreach (@ARGV) {
+    push(@args, quotemeta($_));
+}
+my $output = `java -cp $ENV{CLASSPATH} com.netscape.pkisilent.PKISilent @args`;
 my $status = $?;
 
 print "#######################################################################\n";
