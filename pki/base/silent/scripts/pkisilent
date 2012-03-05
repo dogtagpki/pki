@@ -104,7 +104,11 @@ if( $ARCHITECTURE eq "x86_64" ) {
 ##      based upon the preset LD_LIBRARY_PATH and CP environment variables.  ##
 ###############################################################################
 
-my $output = `java -cp $ENV{CLASSPATH} @ARGV`;
+my @args = ();
+foreach (@ARGV) {
+    push(@args, quotemeta($_));
+}
+my $output = `java -cp $ENV{CLASSPATH} @args`;
 my $status = $?;
 
 print "#######################################################################\n";
