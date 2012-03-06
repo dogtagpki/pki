@@ -558,10 +558,6 @@ my $random      = undef;
 # Linux specific variables
 my $setup_base_subsystem_dir         = "setup";
 my $setup_subsystem_path             = undef;
-my $setup_config_instance_file_path  = undef;
-my $setup_config_subsystem_file_path = undef;
-my $setup_config_area                = undef;
-my $setup_config_name                = undef;
 my $tomcat6_initscript_path          = undef;
 my $tomcat6_instance_config_path     = undef;
 my $root_user                        = undef;
@@ -580,10 +576,6 @@ my $pki_instance_systemd_service_name  = undef;
 ##############################################################
 
 if ($^O eq "linux") {
-    # Linux required desktop files
-    $setup_config_area = "/usr/share/applications";
-    $setup_config_name = "config.desktop";
-
     if (is_Fedora() && (fedora_release() >= 16)) {
         $use_systemd = 1;
     }
@@ -1607,11 +1599,6 @@ sub initialize_subdirectory_paths
     ## Initialize subdirectory paths (subsystem independent)
     $pki_cfg_subsystem_file_path      = $conf_subsystem_path
                                       . "/" . $pki_cfg_base_name;
-    $setup_config_instance_file_path  = $setup_config_area
-                                      . "/" . $pki_instance_name
-                                      . "-" . $setup_config_name;
-    $setup_config_subsystem_file_path = $setup_subsystem_path
-                                      . "/" . $setup_config_name;
 
     ## Initialize subdirectory paths (CA subsystems)
     if ($subsystem_type eq $CA) {
@@ -2564,15 +2551,6 @@ LoadModule nss_module  /opt/fortitude/modules.local/libmodnss.so
                                        \%slot_hash);
     return 0 if !set_file_props($pki_cfg_instance_file_path,
                                 $default_file_permissions, $pki_user, $pki_group);
-
-    if ($^O eq "linux") {
-        # process "config.desktop" template
-        return 0 if !process_file_template("setup_config",
-                                           $setup_config_subsystem_file_path,
-                                           $setup_config_instance_file_path,
-                                           \%slot_hash);
-        }
-
 
     ## Process registry instance template
     return 0 if !process_file_template("pki_registry_template",
