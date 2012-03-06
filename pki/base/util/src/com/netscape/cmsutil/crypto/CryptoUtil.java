@@ -99,6 +99,7 @@ import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.crypto.SymmetricKey;
 import org.mozilla.jss.crypto.TokenException;
 import org.mozilla.jss.crypto.X509Certificate;
+import org.mozilla.jss.pkcs11.PK11ECPublicKey;
 import org.mozilla.jss.pkcs12.PasswordConverter;
 import org.mozilla.jss.pkcs7.EncryptedContentInfo;
 import org.mozilla.jss.pkix.crmf.CertReqMsg;
@@ -579,6 +580,9 @@ public class CryptoUtil {
             xKey = new netscape.security.provider.RSAPublicKey(
                     new BigInt(rsaKey.getModulus()),
                     new BigInt(rsaKey.getPublicExponent()));
+        } else if (pubk instanceof PK11ECPublicKey) {
+            byte encoded[] = pubk.getEncoded();
+            xKey = CryptoUtil.getPublicX509ECCKey(encoded);
         } else {
             // Assert.assert(pubk instanceof DSAPublicKey);
             DSAPublicKey dsaKey = (DSAPublicKey) pubk;
