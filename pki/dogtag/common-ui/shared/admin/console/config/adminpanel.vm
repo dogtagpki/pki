@@ -35,13 +35,18 @@ function performPanel() {
     var dn = "cn=" + name + ",uid=admin,e="+email+",o="+o;
     document.forms[0].subject.value = dn;
     var keyGenAlg = "rsa-dual-use";
+    var keyParams = null;
+    if (document.forms[0].keytype.value == 'ecc') {
+        keyGenAlg = "ec-dual-use";
+        keyParams = "curve=nistp256"
+    }
 
     if (navigator.appName == "Netscape" &&
       typeof(crypto.version) != "undefined") {
 
         crmfObject = crypto.generateCRMFRequest(
           dn, "regToken", "authenticator", null,
-          "setCRMFRequest();", 1024, null, keyGenAlg);
+          "setCRMFRequest();", 2048, keyParams, keyGenAlg);
     } else {
         Send_OnClick();
     }
@@ -203,6 +208,10 @@ The administrator is a privileged user who manages this subsystem. Please enter 
 <input type="hidden" name="uid" value="admin" />
 <input type="hidden" name="securitydomain" value="$securityDomain" />
 <input type="hidden" name="subject" value="cn=x" />
+      </tr>
+      <tr>
+        <th>Key Type:</th>
+        <td><select name="keytype"><option value="rsa">RSA</option><option value="ecc">ECC</option></select></td>
       </tr>
     </table>
                                                                                      <div align="right">
