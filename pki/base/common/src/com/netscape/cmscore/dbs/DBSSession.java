@@ -404,6 +404,21 @@ public class DBSSession implements IDBSSession {
         }
     }
 
+    public void abandon(LDAPSearchResults results) throws EBaseException {
+        try {
+            mConn.abandon(results);
+
+        } catch (LDAPException e) {
+            if (e.getLDAPResultCode() == LDAPException.UNAVAILABLE)
+                throw new EDBNotAvailException(
+                        CMS.getUserMessage("CMS_DBS_INTERNAL_DIR_UNAVAILABLE"));
+            // XXX error handling, should not raise exception if
+            // entry not found
+            throw new EDBException(CMS.getUserMessage("CMS_DBS_LDAP_OP_FAILURE",
+                        e.toString()));
+        }
+    }
+
     /**
      * Retrieves a list of objects.
      */

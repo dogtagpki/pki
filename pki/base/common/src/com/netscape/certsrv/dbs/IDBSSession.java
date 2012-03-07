@@ -177,6 +177,8 @@ public interface IDBSSession {
     public LDAPSearchResults persistentSearch(String base, String filter,
             String attrs[]) throws EBaseException;
 
+    public void abandon(LDAPSearchResults results) throws EBaseException;
+
     /**
      * Retrieves a list of objects.
      * 

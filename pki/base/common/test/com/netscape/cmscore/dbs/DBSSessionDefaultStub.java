@@ -64,6 +64,9 @@ public class DBSSessionDefaultStub implements IDBSSession {
         return null;
     }
 
+    public void abandon(LDAPSearchResults results) throws EBaseException {
+    }
+
     public <T> IDBVirtualList<T> createVirtualList(String base, String filter, String attrs[], String sortKey, int pageSize)
             throws EBaseException {
         return null;

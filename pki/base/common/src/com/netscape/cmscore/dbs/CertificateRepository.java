@@ -25,10 +25,13 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 
 import netscape.ldap.LDAPAttributeSet;
 import netscape.ldap.LDAPEntry;
-import netscape.ldap.LDAPException;
 import netscape.ldap.LDAPSearchResults;
 import netscape.security.x509.CertificateValidity;
 import netscape.security.x509.RevokedCertImpl;
@@ -46,6 +49,7 @@ import com.netscape.certsrv.dbs.IDBSSession;
 import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.dbs.IDBSubsystem;
 import com.netscape.certsrv.dbs.IDBVirtualList;
+import com.netscape.certsrv.dbs.IElementProcessor;
 import com.netscape.certsrv.dbs.Modification;
 import com.netscape.certsrv.dbs.ModificationSet;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
@@ -80,6 +84,11 @@ public class CertificateRepository extends Repository
 
     private int mTransitMaxRecords = 1000000;
     private int mTransitRecordPageSize = 200;
+
+    CertStatusUpdateTask certStatusUpdateTask;
+    RetrieveModificationsTask retrieveModificationsTask;
+
+    IRepository requestRepository;
 
     /**
      * Constructs a certificate repository.
@@ -216,76 +225,93 @@ public class CertificateRepository extends Repository
      * 0 - disable
      * >0 - enable
      */
-    public CertStatusUpdateThread mCertStatusUpdateThread = null;
-    public RetrieveModificationsThread mRetrieveModificationsThread = null;
+    public void setCertStatusUpdateInterval(IRepository requestRepository, int interval, boolean listenToCloneModifications) {
 
-    public void setCertStatusUpdateInterval(IRepository requestRepo, int interval, boolean listenToCloneModifications) {
         CMS.debug("In setCertStatusUpdateInterval " + interval);
+
+        this.requestRepository = requestRepository;
+
         if (interval == 0) {
-            CMS.debug("In setCertStatusUpdateInterval interval = 0" + interval);
-            if (mCertStatusUpdateThread != null) {
-                mCertStatusUpdateThread.stop();
+            CMS.debug("In setCertStatusUpdateInterval interval = 0");
+            if (certStatusUpdateTask != null) {
+                certStatusUpdateTask.stop();
             }
-            if (mRetrieveModificationsThread != null) {
-                mRetrieveModificationsThread.stop();
+            if (retrieveModificationsTask != null) {
+                retrieveModificationsTask.stop();
             }
             return;
         }
 
-        CMS.debug("In setCertStatusUpdateInterval  listenToCloneModifications=" + listenToCloneModifications +
-                  "  mRetrieveModificationsThread=" + mRetrieveModificationsThread);
-        if (listenToCloneModifications && mRetrieveModificationsThread == null) {
-            CMS.debug("In setCertStatusUpdateInterval about to create RetrieveModificationsThread");
-            mRetrieveModificationsThread = new RetrieveModificationsThread(this, "RetrieveModificationsThread");
-            LDAPSearchResults mResults = null;
+        CMS.debug("In setCertStatusUpdateInterval  listenToCloneModifications=" + listenToCloneModifications);
+
+        if (listenToCloneModifications) {
+            CMS.debug("In setCertStatusUpdateInterval listening to modifications");
             try {
-                mResults = startSearchForModifiedCertificateRecords();
-            } catch (Exception e) {
-                mResults = null;
-            }
-            if (mResults != null) {
-                mRetrieveModificationsThread.setResults(mResults);
-                mRetrieveModificationsThread.setDaemon(true);
-                mRetrieveModificationsThread.start();
+                retrieveModificationsTask = new RetrieveModificationsTask(this);
+                retrieveModificationsTask.start();
+            } catch (EBaseException e) {
+                retrieveModificationsTask = null;
+                e.printStackTrace();
             }
         }
 
-        CMS.debug("In setCertStatusUpdateInterval  mCertStatusUpdateThread " + mCertStatusUpdateThread);
-        if (mCertStatusUpdateThread == null) {
-            CMS.debug("In setCertStatusUpdateInterval about to create CertStatusUpdateThread ");
-            mCertStatusUpdateThread = new CertStatusUpdateThread(this, requestRepo, "CertStatusUpdateThread");
-            mCertStatusUpdateThread.setInterval(interval);
-            mCertStatusUpdateThread.setDaemon(true);
-            mCertStatusUpdateThread.start();
-        } else {
-            CMS.debug("In setCertStatusUpdateInterval it thinks the thread is up already ");
-            mCertStatusUpdateThread.setInterval(interval);
-            // dont do anything if we have a thread running already
-        }
+        CMS.debug("In setCertStatusUpdateInterval scheduling cert status update every " + interval + " seconds.");
+        certStatusUpdateTask = new CertStatusUpdateTask(this, interval);
+        certStatusUpdateTask.start();
     }
 
     /**
-     * Blocking method.
+     * This method blocks when another thread (such as the CRL Update) is running
      */
-    public void updateCertStatus() throws EBaseException {
+    public synchronized void updateCertStatus() {
 
         CMS.debug("In updateCertStatus()");
 
-        CMS.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                CMS.getLogMessage("CMSCORE_DBS_START_VALID_SEARCH"));
-        transitInvalidCertificates();
-        CMS.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                CMS.getLogMessage("CMSCORE_DBS_FINISH_VALID_SEARCH"));
-        CMS.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                CMS.getLogMessage("CMSCORE_DBS_START_EXPIRED_SEARCH"));
-        transitValidCertificates();
-        CMS.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                CMS.getLogMessage("CMSCORE_DBS_FINISH_EXPIRED_SEARCH"));
-        CMS.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                CMS.getLogMessage("CMSCORE_DBS_START_REVOKED_EXPIRED_SEARCH"));
-        transitRevokedExpiredCertificates();
-        CMS.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
-                CMS.getLogMessage("CMSCORE_DBS_FINISH_REVOKED_EXPIRED_SEARCH"));
+        try {
+            CMS.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
+                    CMS.getLogMessage("CMSCORE_DBS_START_VALID_SEARCH"));
+            transitInvalidCertificates();
+            CMS.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
+                    CMS.getLogMessage("CMSCORE_DBS_FINISH_VALID_SEARCH"));
+
+            CMS.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
+                    CMS.getLogMessage("CMSCORE_DBS_START_EXPIRED_SEARCH"));
+            transitValidCertificates();
+            CMS.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
+                    CMS.getLogMessage("CMSCORE_DBS_FINISH_EXPIRED_SEARCH"));
+
+            CMS.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
+                    CMS.getLogMessage("CMSCORE_DBS_START_REVOKED_EXPIRED_SEARCH"));
+            transitRevokedExpiredCertificates();
+            CMS.getLogger().log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
+                    CMS.getLogMessage("CMSCORE_DBS_FINISH_REVOKED_EXPIRED_SEARCH"));
+
+            CMS.debug("Starting cert checkRanges");
+            checkRanges();
+            CMS.debug("cert checkRanges done");
+
+            CMS.debug("Starting request checkRanges");
+            requestRepository.checkRanges();
+            CMS.debug("request checkRanges done");
+
+        } catch (Exception e) {
+            CMS.debug("updateCertStatus done: " + e.toString());
+        }
+    }
+
+    public synchronized void processRevokedCerts(IElementProcessor p, String filter, int pageSize)
+            throws EBaseException {
+
+        CMS.debug("Starting processRevokedCerts (entered lock)");
+        ICertRecordList list = findCertRecordsInList(filter,
+                new String[] { ICertRecord.ATTR_ID, ICertRecord.ATTR_REVO_INFO, "objectclass" },
+                "serialno",
+                pageSize);
+
+        int totalSize = list.getSize();
+
+        list.processCertRecords(0, totalSize - 1, p);
+        CMS.debug("processRevokedCerts done");
     }
 
     /**
@@ -1789,23 +1815,19 @@ public class CertificateRepository extends Repository
         return e;
     }
 
-    private LDAPSearchResults startSearchForModifiedCertificateRecords()
-            throws EBaseException {
-        CMS.debug("startSearchForModifiedCertificateRecords");
-        LDAPSearchResults r = null;
-        IDBSSession s = mDBService.createSession();
+    LDAPSearchResults searchForModifiedCertificateRecords(IDBSSession session) {
+        CMS.debug("searchForModifiedCertificateRecords");
+        LDAPSearchResults results = null;
 
         String filter = "(" + CertRecord.ATTR_CERT_STATUS + "=*)";
         try {
-            r = s.persistentSearch(getDN(), filter, null);
-            CMS.debug("startSearchForModifiedCertificateRecords  persistentSearch started");
+            results = session.persistentSearch(getDN(), filter, null);
+
         } catch (Exception e) {
             CMS.debug("startSearchForModifiedCertificateRecords  persistentSearch Exception=" + e);
-            r = null;
-            if (s != null)
-                s.close();
         }
-        return r;
+
+        return results;
     }
 
     public void getModifications(LDAPEntry entry) {
@@ -1905,91 +1927,106 @@ public class CertificateRepository extends Repository
     }
 
     public void shutdown() {
-    }
-}
+        if (certStatusUpdateTask != null) {
+            certStatusUpdateTask.stop();
+        }
 
-class CertStatusUpdateThread extends Thread {
-    CertificateRepository _cr = null;
-    IRepository _rr = null;
-    int _interval;
-
-    CertStatusUpdateThread(CertificateRepository cr, IRepository rr, String name) {
-        super(name);
-        CMS.debug("new CertStatusUpdateThread");
-        //setName(name);
-
-        _cr = cr;
-        _rr = rr;
-    }
-
-    public void setInterval(int interval) {
-        _interval = interval;
-    }
-
-    public void run() {
-        CMS.debug("Inside run method of CertStatusUpdateThread");
-
-        while (true) {
-            try {
-                // block the update while another thread
-                // (such as the CRL Update) is running
-                CMS.debug("About to start updateCertStatus");
-                synchronized (_cr.mCertStatusUpdateThread) {
-                    CMS.debug("Starting updateCertStatus (entered lock)");
-                    _cr.updateCertStatus();
-                    CMS.debug("updateCertStatus done");
-
-                    CMS.debug("Starting cert checkRanges");
-                    _cr.checkRanges();
-                    CMS.debug("cert checkRanges done");
-
-                    CMS.debug("Starting request checkRanges");
-                    _rr.checkRanges();
-                    CMS.debug("request checkRanges done");
-                }
-
-            } catch (Exception e) {
-                CMS.debug("updateCertStatus done: " + e.toString());
-            }
-            try {
-                sleep(_interval * 1000);
-            } catch (InterruptedException e) {
-            }
+        if (retrieveModificationsTask != null) {
+            retrieveModificationsTask.stop();
         }
     }
 }
 
-class RetrieveModificationsThread extends Thread {
-    CertificateRepository _cr = null;
-    LDAPSearchResults _results = null;
+class CertStatusUpdateTask implements Runnable {
 
-    RetrieveModificationsThread(CertificateRepository cr, String name) {
-        super(name);
-        CMS.debug("new RetrieveModificationsThread");
-        //setName(name);
+    CertificateRepository repository;
+    int interval;
 
-        _cr = cr;
+    ScheduledExecutorService executorService;
+
+    public CertStatusUpdateTask(CertificateRepository repository, int interval) {
+        this.repository = repository;
+        this.interval = interval;
     }
 
-    public void setResults(LDAPSearchResults results) {
-        _results = results;
+    public void start() {
+        // schedule task to run immediately and repeat after specified interval
+        executorService = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
+            public Thread newThread(Runnable r) {
+                return new Thread(r, "CertStatusUpdateTask");
+            }
+        });
+        executorService.scheduleWithFixedDelay(this, 0, interval, TimeUnit.SECONDS);
+    }
+
+    public void run() {
+        repository.updateCertStatus();
+    }
+
+    public void stop() {
+        // shutdown executorService without interrupting running task
+        if (executorService != null) executorService.shutdown();
+    }
+}
+
+class RetrieveModificationsTask implements Runnable {
+
+    CertificateRepository repository;
+
+    IDBSSession session;
+    LDAPSearchResults results;
+
+    ScheduledExecutorService executorService;
+
+    public RetrieveModificationsTask(CertificateRepository repository) {
+        this.repository = repository;
+    }
+
+    public void start() throws EBaseException {
+        // start persistent search
+        try {
+            session = repository.getDBSubsystem().createSession();
+            results = repository.searchForModifiedCertificateRecords(session);
+        } catch (EBaseException e) {
+            stop(); // avoid leaks
+            throw e;
+        }
+
+        // schedule task to run immediately and repeat without delay
+        executorService = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
+            public Thread newThread(Runnable r) {
+                return new Thread(r, "RetrieveModificationsTask");
+            }
+        });
+        executorService.scheduleWithFixedDelay(this, 0, 1, TimeUnit.MICROSECONDS);
     }
 
     public void run() {
         CMS.debug("Inside run method of RetrieveModificationsThread");
 
-        if (_results != null) {
-            try {
-                while (_results.hasMoreElements()) {
-                    LDAPEntry entry = _results.next();
-                    _cr.getModifications(entry);
-                }
-            } catch (LDAPException e) {
-                CMS.debug("LDAPException: " + e.toString());
+        try {
+            // results.hasMoreElements() will block until next element becomes available
+            // or return false if the search is abandoned or connection is closed
+            if (results.hasMoreElements()) {
+                LDAPEntry entry = results.next();
+                repository.getModifications(entry);
             }
-        } else {
-            CMS.debug("_results are null");
+        } catch (Exception e) {
+            CMS.debug("Exception: " + e.toString());
         }
         CMS.debug("Done with run method of RetrieveModificationsThread");
+    }
+
+    public void stop() {
+        if (executorService != null) executorService.shutdown();
+
+        if (session != null) {
+            // closing the session doesn't actually close the connection,
+            // so the search needs to be abandoned explicitly
+            if (results != null) try { session.abandon(results); } catch (Exception e) { e.printStackTrace(); }
+
+            // close session
+            try { session.close(); } catch (Exception e) { e.printStackTrace(); }
+        }
     }
 }
