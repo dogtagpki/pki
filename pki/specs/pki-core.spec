@@ -7,7 +7,7 @@
 
 Name:             pki-core
 Version:          10.0.0
-Release:          %{?relprefix}7%{?prerel}%{?dist}
+Release:          %{?relprefix}8%{?prerel}%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -722,6 +722,9 @@ echo "D /var/run/pki/tks 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfil
 %{__rm} %{buildroot}%{_initrddir}/pki-krad
 %{__rm} %{buildroot}%{_initrddir}/pki-ocspd
 %{__rm} %{buildroot}%{_initrddir}/pki-tksd
+# Create symlink to the pki-jndi-realm jar
+mkdir -p %{buildroot}%{_javadir}/tomcat6
+ln -s -f %{_javadir}/pki/pki-jndi-realm.jar %{buildroot}%{_javadir}/tomcat6/pki-jndi-realm.jar
 %else
 %{__rm} %{buildroot}%{_bindir}/pkicontrol
 %{__rm} -rf %{buildroot}%{_sysconfdir}/systemd/system/pki-cad.target.wants
@@ -932,7 +935,6 @@ if [ -d /etc/sysconfig/pki/tks ]; then
 fi
 /bin/systemctl daemon-reload >/dev/null 2>&1 || :
 
-
 %preun -n pki-ca
 if [ $1 = 0 ] ; then
     /bin/systemctl --no-reload disable pki-cad.target > /dev/null 2>&1 || :
@@ -1084,6 +1086,15 @@ fi
 %{_javadir}/pki/pki-cmsbundle.jar
 %{_javadir}/pki/pki-cmscore-%{version}.jar
 %{_javadir}/pki/pki-cmscore.jar
+
+%if 0%{?fedora} >= 16
+# Create symlink to the pki-jndi-realm jar
+%{_javadir}/tomcat6/pki-jndi-realm.jar
+%endif
+
+%{_javadir}/pki/pki-jndi-realm-%{version}.jar
+%{_javadir}/pki/pki-jndi-realm.jar
+
 %{_datadir}/pki/setup/
 
 %files -n pki-common-javadoc
@@ -1222,6 +1233,12 @@ fi
 
 
 %changelog
+
+* Fri Mar 09 2018 Jack Magne <jmagne@redhat.com> 10.0.0-5.a1
+- Added support for pki-jndi-realm in tomcat6 in pki-common
+  and pki-kra.
+- Ticket #69.
+
 * Fri Mar  2 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-0.7.a1
 - For 'mock' purposes, removed platform-specific logic from around
   the 'patch' files so that ALL 'patch' files will be included in

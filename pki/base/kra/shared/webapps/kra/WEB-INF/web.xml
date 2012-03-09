@@ -1034,5 +1034,82 @@
    <session-config>
         <session-timeout>30</session-timeout>
    </session-config>
-</web-app>
 
+<!-- Default login configuration uses form-based authentication -->
+<!-- Security Constraint for agent access to the Security Data Rest Interface -->
+
+<!-- Uncomment to activate PKIJNDI realm as in conf/server.xml -->
+<!--
+<security-constraint>
+   <display-name>KRA Top Level Constraint</display-name>
+   <web-resource-collection>
+      <web-resource-name>KRA Protected Area</web-resource-name>
+         <url-pattern>/pki/*
+         </url-pattern>
+      </web-resource-collection>
+   <user-data-constraint>
+        <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+    </user-data-constraint>
+   <auth-constraint>
+      <role-name>*</role-name>
+   </auth-constraint>
+</security-constraint>
+-->
+
+<!-- Security Constraint to deny certain http methods for key/retrieve -->
+<!-- Uncomment to activate PKIJNDI realm as in conf/server.xml -->
+<!--
+<security-constraint>
+<display-name>Key forbidden</display-name>
+<web-resource-collection>
+  <web-resource-name>Key forbidden</web-resource-name>
+      <url-pattern>/pki/key/retrieve</url-pattern>
+  <http-method>GET</http-method>
+  <http-method>PUT</http-method>
+  <http-method>DELETE</http-method>
+</web-resource-collection>
+<auth-constraint/>
+</security-constraint>
+-->
+
+<!-- Security Constraint to deny certain http methods for keyrequest/* -->
+<!-- Uncomment to activate PKIJNDI realm as in conf/server.xml -->
+
+<!--
+<security-constraint>
+<display-name>KeyRequest forbidden</display-name>
+<web-resource-collection>
+  <web-resource-name>KeyRequest forbidden</web-resource-name>
+      <url-pattern>/pki/keyrequest/archive</url-pattern>
+      <url-pattern>/pki/keyrequest/recover</url-pattern>
+      <url-pattern>/pki/keyrequest/approve/*</url-pattern>
+      <url-pattern>/pki/keyrequest/reject/*</url-pattern>
+      <url-pattern>/pki/keyrequest/cancel/*</url-pattern>
+  <http-method>GET</http-method>
+  <http-method>PUT</http-method>
+  <http-method>DELETE</http-method>
+</web-resource-collection>
+<auth-constraint/>
+</security-constraint>
+-->
+
+
+<!-- Customized SSL Client auth login config 
+      uncomment to activate PKIJNDI realm as in conf/server.xml 
+-->
+
+<!--
+
+<login-config>
+   <realm-name>PKIJNDIRealm</realm-name> 
+   <auth-method>CLIENT-CERT</auth-method>
+   <realm-name>Client Cert Protected Area</realm-name>
+</login-config>
+
+<security-role>
+   <role-name>*</role-name>
+</security-role>
+
+-->
+
+</web-app>

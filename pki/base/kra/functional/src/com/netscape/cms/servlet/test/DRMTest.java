@@ -17,6 +17,7 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.servlet.test;
 
+import java.net.MalformedURLException;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Iterator;
@@ -61,6 +62,8 @@ public class DRMTest {
         String port = null;
         String token_pwd = null;
         String db_dir = "./";
+        String protocol = "http";
+        String clientCertNickname = "KRA Administrator of Instance pki-kra's SjcRedhat Domain ID";
 
         // parse command line arguments
         Options options = new Options();
@@ -68,6 +71,8 @@ public class DRMTest {
         options.addOption("p", true, "Port of the DRM");
         options.addOption("w", true, "Token password");
         options.addOption("d", true, "Directory for tokendb");
+        options.addOption("s", true, "Attempt Optional Secure SSL connection");
+        options.addOption("c", true, "Optional SSL Client cert Nickname");
 
         try {
             CommandLineParser parser = new PosixParser();
@@ -96,6 +101,20 @@ public class DRMTest {
 
             if (cmd.hasOption("d")) {
                 db_dir = cmd.getOptionValue("d");
+            }
+            
+            if (cmd.hasOption("s")) {
+                if(cmd.getOptionValue("s") != null && cmd.getOptionValue("s").equals("true")) {
+                    protocol = "https";
+                }
+            }
+            
+            if (cmd.hasOption("c")) {
+                String nick = cmd.getOptionValue("c");
+                
+                if (nick != null && protocol.equals("https")) {
+                    clientCertNickname = nick;    
+                }
             }
 
         } catch (ParseException e) {
@@ -173,8 +192,17 @@ public class DRMTest {
         }
 
         // Set base URI and get client
-        String baseUri = "http://" + host + ":" + port + "/kra/pki";
-        DRMRestClient client = new DRMRestClient(baseUri);
+        
+        
+        String baseUri = protocol + "://" + host + ":" + port + "/kra/pki";
+        DRMRestClient client;
+        try {
+            client = new DRMRestClient(baseUri, clientCertNickname);
+        } catch (MalformedURLException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+            return;
+        }
 
         // Test 1: Get transport certificate from DRM
         transportCert = client.getTransportCert();

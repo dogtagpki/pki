@@ -23,6 +23,13 @@ find_file(COMMONS_CODEC_JAR
         /usr/share/java
 )
 
+find_file(TOMCAT_CATALINA_JAR
+    NAMES
+        catalina.jar
+    PATHS
+        /usr/share/java/tomcat6
+)
+
 find_file(SERVLET_JAR
     NAMES
         servlet.jar
@@ -1024,6 +1031,12 @@ set(pki-cmscore_java_SRCS
     com/netscape/cmscore/time/SimpleTimeSource.java
 )
 
+set(pki-jndi-realm_SRCS
+   com/netscape/cmscore/realm/PKIJNDIRealm.java
+   com/netscape/cmscore/realm/ACLEntry.java
+   com/netscape/cmscore/realm/ACL.java
+)
+
 set(pki-cmsbundle_RCS
     LogMessages.properties
     UserMessages.properties
@@ -1032,7 +1045,7 @@ set(pki-cmsbundle_RCS
 set(CMAKE_JAVA_INCLUDE_PATH
     ${PKI_NSUTIL_JAR} ${PKI_CMSUTIL_JAR}
     ${LDAPJDK_JAR} ${SERVLET_JAR} ${VELOCITY_JAR} ${XALAN_JAR} ${XERCES_JAR}
-    ${JSS_JAR} ${COMMONS_CODEC_JAR} ${SYMKEY_JAR} ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR})
+    ${JSS_JAR} ${COMMONS_CODEC_JAR} ${TOMCAT_CATALINA_JAR} ${SYMKEY_JAR} ${JAXRS_API_JAR} ${RESTEASY_JAXRS_JAR})
 
 set(CMAKE_JAVA_TARGET_VERSION ${APPLICATION_VERSION})
 
@@ -1073,3 +1086,10 @@ add_jar(pki-cmsbundle ${pki-cmsbundle_RCS})
 add_dependencies(pki-cmsbundle pki-nsutil pki-cmsutil pki-certsrv pki-cms pki-cmscore)
 install_jar(pki-cmsbundle ${JAVA_JAR_INSTALL_DIR}/pki)
 set(PKI_CMSBUNDLE_JAR ${pki-cmsbundle_JAR_FILE} CACHE INTERNAL "pki-cmsbundle jar file")
+
+# build pki jndi realm
+set(CMAKE_JAR_CLASSES_PREFIX com/netscape/cmscore/realm)
+add_jar(pki-jndi-realm ${pki-jndi-realm_SRCS})
+install_jar(pki-jndi-realm ${JAVA_JAR_INSTALL_DIR}/pki)
+set(PKI_JNDI_REALM_JAR ${pki-jndi-realm_JAR_FILE} CACHE INTERNAL "pki-jndi-realm jar file")
+
