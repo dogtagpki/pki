@@ -213,6 +213,22 @@ public class CertReqParser extends ReqParser {
                     String parami = 
                         IRequest.SERVER_ATTRS + LB + String.valueOf(saCounter++) + RB;
 
+                    if (name.equalsIgnoreCase(IRequest.ISSUED_CERTS) && mDetails &&
+                        (req.getRequestStatus().toString().equals(RequestStatus.COMPLETE_STRING) ||
+                            req.getRequestType().equals(IRequest.GETREVOCATIONINFO_REQUEST))) {
+                        X509CertImpl issuedCert[] =
+                            req.getExtDataInCertArray(IRequest.ISSUED_CERTS);
+                        if (issuedCert != null && issuedCert[0] != null) {
+                            val = "<pre>"+CMS.getCertPrettyPrint(issuedCert[0]).toString(l)+"</pre>";
+                        }
+                    } else if (name.equalsIgnoreCase(IRequest.CERT_INFO) && mDetails) {
+                        X509CertInfo[] certInfo =
+                            req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
+                        if (certInfo != null && certInfo[0] != null) {
+                            val = "<pre>"+certInfo[0].toString()+"</pre>";
+                        }
+                    }
+
                     valstr = expandValue(prefix + parami + ".value", val);
                     String rawJS = "new Object;\n\r" +
                         prefix + parami + ".name=\"" +

@@ -1,5 +1,5 @@
 Name:             dogtag-pki-theme
-Version:          9.0.9
+Version:          9.0.11
 Release:          1%{?dist}
 Summary:          Certificate System - Dogtag PKI Theme Components
 URL:              http://pki.fedoraproject.org/
@@ -350,6 +350,40 @@ chmod 755 %{buildroot}%{_datadir}/pki/tps-ui/cgi-bin/sow/cfg.pl
 
 
 %changelog
+* Fri Mar  9 2012 Matthew Harmsen <mharmsen@redhat.com> 9.0.11-1
+- Bugzilla Bug #796006 - Get DOGTAG_9_BRANCH GIT repository in-sync
+  with DOGTAG_9_BRANCH SVN repository . . .
+- 'dogtag-pki-ca-theme'
+-      Bugzilla Bug #768138 - Make sure that paging works correctly in CA
+       and DRM
+-      Bugzilla Bug #703608 - Enrollment Profile template Javascript code
+       problem for handling non-dual ECC
+- 'dogtag-pki-common-theme'
+-      Bugzilla Bug #787806 - RSA should be default selection for transport
+       key till "ECC phase 4" is implemented
+-      Bugzilla Bug #784387 - Configuration wizard does not provide option
+       to issue ECC credentials for admin during ECC CA configuration.
+- 'dogtag-pki-console-theme'
+- 'dogtag-pki-kra-theme'
+-      Bugzilla Bug #768138 - Make sure that paging works correctly in CA
+       and DRM
+- 'dogtag-pki-ocsp-theme'
+- 'dogtag-pki-ra-theme'
+- 'dogtag-pki-tks-theme'
+- 'dogtag-pki-tps-theme'
+
+* Thu Jan  5 2012 Matthew Harmsen <mharmsen@redhat.com> 9.0.10-1
+- 'dogtag-pki-ca-theme'
+-      Bugzilla Bug #747381 - After the migration (7.1->8.1) CA agent page
+       displays admin cert request with authtime attribute twice
+- 'dogtag-pki-common-theme'
+- 'dogtag-pki-console-theme'
+- 'dogtag-pki-kra-theme'
+- 'dogtag-pki-ocsp-theme'
+- 'dogtag-pki-ra-theme'
+- 'dogtag-pki-tks-theme'
+- 'dogtag-pki-tps-theme'
+
 * Thu Sep 22 2011 Andrew Wnuk <awnuk@redhat.com> 9.0.9-1
 - 'dogtag-pki-ca-theme'
 -      Bugzilla Bug #737423 - Ability to view migrated policy requests

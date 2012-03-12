@@ -1013,7 +1013,15 @@ function renderRequestAttrs()
 	if (result.header.AUTH_TOKEN.length > 0) {
 		document.writeln("");
 		for (var k = 0; k < result.header.AUTH_TOKEN.length; k++) {
-			renderNameAndValue("AUTH_TOKEN."+result.header.AUTH_TOKEN[k].name+":", result.header.AUTH_TOKEN[k].value);
+			if (result.header.AUTH_TOKEN[k].name == 'authtime') {
+				renderNameAndValue("AUTH_TOKEN."+result.header.AUTH_TOKEN[k].name+":",
+					new Date(parseInt(result.header.AUTH_TOKEN[k].value)));
+			} else if (result.header.AUTH_TOKEN[k].name == 'authTime') {
+				continue;
+			} else {
+				renderNameAndValue("AUTH_TOKEN."+result.header.AUTH_TOKEN[k].name+":",
+					result.header.AUTH_TOKEN[k].value);
+			}
 		}
 	}
 	if (result.header.SERVER_ATTRS.length > 0) {

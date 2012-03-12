@@ -1,6 +1,6 @@
 Name:             pki-kra
-Version:          9.0.9
-Release:          2%{?dist}
+Version:          9.0.10
+Release:          1%{?dist}
 Summary:          Certificate System - Data Recovery Manager
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -22,8 +22,8 @@ BuildRequires:    nss-devel
 %if 0%{?fedora} >= 16
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
 BuildRequires:    jss >= 4.2.6-19.1
-BuildRequires:    pki-common >= 9.0.15
-BuildRequires:    pki-util >= 9.0.15
+BuildRequires:    pki-common >= 9.0.18
+BuildRequires:    pki-util >= 9.0.18
 BuildRequires:    systemd-units
 %else
 BuildRequires:    jpackage-utils
@@ -35,8 +35,8 @@ BuildRequires:    pki-util
 Requires:         java >= 1:1.6.0
 Requires:         pki-kra-theme >= 9.0.0
 %if 0%{?fedora} >= 16
-Requires:         pki-common >= 9.0.15
-Requires:         pki-selinux >= 9.0.15
+Requires:         pki-common >= 9.0.18
+Requires:         pki-selinux >= 9.0.18
 Requires(post):   systemd-units
 Requires(preun):  systemd-units
 Requires(postun): systemd-units
@@ -238,6 +238,12 @@ fi
 
 
 %changelog
+* Fri Mar  9 2012 Matthew Harmsen <mharmsen@redhat.com> 9.0.10-1
+- Bugzilla Bug #796006 - Get DOGTAG_9_BRANCH GIT repository in-sync
+  with DOGTAG_9_BRANCH SVN repository . . .
+- Bugzilla Bug #787806 - RSA should be default selection for transport
+  key till "ECC phase 4" is implemented
+
 * Wed Feb 22 2012 Matthew Harmsen <mharmsen@redhat.com> 9.0.9-2
 - Add '-DSYSTEMD_LIB_INSTALL_DIR' override flag to 'cmake' to address changes
   in fundamental path structure in Fedora 17

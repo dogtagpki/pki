@@ -1311,7 +1311,7 @@ pkisilent ConfigureCA \
 #	-ca_server_cert_subject_name "${ca_server_cert_subject_name}" \
 #	-ca_audit_signing_cert_subject_name \
 #	"${ca_audit_signing_cert_subject_name}" \
-#       -external $ca_external} \
+#       -external ${ca_external} \
 #       -ext_ca_cert_file ${ca_ext_cert_file} \
 #       -ext_ca_cert_chain_file ${ca_ext_cert_chain_file} \
 #	| tee ${pki_silent_ca_log}

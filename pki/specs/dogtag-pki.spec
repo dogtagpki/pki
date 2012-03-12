@@ -1,7 +1,7 @@
 Summary:          Dogtag Public Key Infrastructure (PKI) Suite
 Name:             dogtag-pki
 Version:          9.0.0
-Release:          8%{?dist}
+Release:          10%{?dist}
 # The entire source code is GPLv2 except for 'pki-tps' which is LGPLv2
 License:          GPLv2 and LGPLv2
 URL:              http://pki.fedoraproject.org/
@@ -11,43 +11,43 @@ BuildArch:        noarch
 
 # Establish MINIMUM package versions based upon platform
 %if 0%{?fedora} >= 17
-%define dogtag_pki_theme_version   9.0.9
+%define dogtag_pki_theme_version   9.0.11
 %define esc_version                1.1.0
 %define jss_version                4.2.6-21
 %define osutil_version             2.0.2
-%define pki_core_version           9.0.16
-%define pki_kra_version            9.0.9
-%define pki_ocsp_version           9.0.8
+%define pki_core_version           9.0.18
+%define pki_kra_version            9.0.10
+%define pki_ocsp_version           9.0.9
 %define pki_ra_version             9.0.4
-%define pki_tks_version            9.0.8
+%define pki_tks_version            9.0.9
 %define pki_tps_version            9.0.7
 %define pki_console_version        9.0.5
 %define tomcatjss_version          6.0.2
 %else
 %if 0%{?fedora} >= 16
-%define dogtag_pki_theme_version   9.0.9
+%define dogtag_pki_theme_version   9.0.11
 %define esc_version                1.1.0
 %define jss_version                4.2.6-19.1
 %define osutil_version             2.0.2
-%define pki_core_version           9.0.15
-%define pki_kra_version            9.0.8
-%define pki_ocsp_version           9.0.7
+%define pki_core_version           9.0.18
+%define pki_kra_version            9.0.10
+%define pki_ocsp_version           9.0.9
 %define pki_ra_version             9.0.4
-%define pki_tks_version            9.0.7
+%define pki_tks_version            9.0.9
 %define pki_tps_version            9.0.7
 %define pki_console_version        9.0.5
 %define tomcatjss_version          6.0.2
 %else
 %if 0%{?fedora} >= 15
-%define dogtag_pki_theme_version   9.0.0
+%define dogtag_pki_theme_version   9.0.11
 %define esc_version                1.1.0
 %define jss_version                4.2.6-17
 %define osutil_version             2.0.1
-%define pki_core_version           9.0.0
-%define pki_kra_version            9.0.0
-%define pki_ocsp_version           9.0.0
+%define pki_core_version           9.0.18
+%define pki_kra_version            9.0.10
+%define pki_ocsp_version           9.0.9
 %define pki_ra_version             9.0.0
-%define pki_tks_version            9.0.0
+%define pki_tks_version            9.0.9
 %define pki_tps_version            9.0.0
 %define pki_console_version        9.0.0
 %define tomcatjss_version          6.0.0
@@ -194,6 +194,16 @@ rm -rf %{buildroot}
 %doc README
 
 %changelog
+* Fri Mar  9 2012 Matthew Harmsen <mharmsen@redhat.com> 9.0.10-1
+- Bugzilla Bug #796006 - Get DOGTAG_9_BRANCH GIT repository in-sync
+  with DOGTAG_9_BRANCH SVN repository . . .
+
+* Thu Jan  5 2012 Matthew Harmsen <mharmsen@redhat.com> 9.0.9-1
+- Bugzilla Bug #737761 - Update Dogtag Packages for Fedora 16
+  (Update minimum packages to account for NSS bug change in
+   Bugzilla Bug #771357 - sslget does not work after FEDORA-2011-17400
+   update, breaking FreeIPA install)
+
 * Fri Oct 28 2011 Matthew Harmsen <mharmsen@redhat.com> 9.0.8-1
 - Bugzilla Bug #749927 - Java class conflicts using Java 7 in Fedora 17
   (rawhide) . . .
