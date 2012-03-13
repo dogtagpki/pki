@@ -1,0 +1,174 @@
+#!/usr/bin/python -t
+# Authors:
+#     Matthew Harmsen <mharmsen@redhat.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; version 2 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+# Copyright (C) 2011 Red Hat, Inc.
+# All rights reserved.
+#
+
+# System Imports
+import sys
+if not hasattr(sys, "hexversion") or sys.hexversion < 0x020700f0:
+    print "Python version %s.%s.%s is too old." % sys.version_info[:3]
+    print "Please upgrade to at least Python 2.7.0." 
+    sys.exit(1)
+try:
+    import argparse
+    import logging
+    import os
+    import pprint
+    from pki.deployment import pkiconfig as config
+    from pki.deployment import pkihelper
+    from pki.deployment import pkilogging
+    from pki.deployment import pkimessages as log
+except ImportError:
+    print >> sys.stderr, """\
+There was a problem importing one of the required Python modules. The
+error was:
+
+    %s
+""" % sys.exc_value
+    sys.exit(1)
+
+
+# PKI Deployment Functions
+def main(argv):
+    "main entry point"
+
+    # Only run this program as "root".
+    if not os.geteuid() == 0:
+        sys.exit("'%s' must be run as root!" % argv[0])
+
+    # Set the umask
+    os.umask(config.PKI_DEPLOYMENT_DEFAULT_UMASK)
+
+    # Initialize 'pretty print' for objects
+    pp = pprint.PrettyPrinter(indent=4)
+
+    # Read and process command-line arguments.
+    pkihelper.process_command_line_arguments(argv)
+
+    # Enable 'pkispawn' logging.
+    rv = 0
+    if not config.pki_update_flag:
+        pki_deployment_begin = log.PKISPAWN_BEGIN_MESSAGE_2
+        pki_deployment_end = log.PKISPAWN_END_MESSAGE_2
+        config.pki_log_dir = config.pki_root_prefix +\
+                             config.PKISPAWN_LOG_PATH
+        config.pki_log_name = config.PKISPAWN_LOG_PREFIX +\
+                              config.pki_subsystem.lower() +\
+                              config.PKISPAWN_LOG_SUFFIX
+        rv = pkilogging.enable_pki_logger(config.pki_log_dir,
+                                          config.pki_log_name,
+                                          config.pki_log_level,
+                                          config.pki_console_log_level,
+                                          config.PKISPAWN_LOGGER)
+    else:
+        pki_deployment_begin = log.PKIRESPAWN_BEGIN_MESSAGE_2
+        pki_deployment_end = log.PKIRESPAWN_END_MESSAGE_2
+        config.pki_log_dir = config.pki_root_prefix +\
+                             config.PKIRESPAWN_LOG_PATH
+        config.pki_log_name = config.PKIRESPAWN_LOG_PREFIX +\
+                              config.pki_subsystem.lower() +\
+                              config.PKIRESPAWN_LOG_SUFFIX
+        rv = pkilogging.enable_pki_logger(config.pki_log_dir,
+                                          config.pki_log_name,
+                                          config.pki_log_level,
+                                          config.pki_console_log_level,
+                                          config.PKIRESPAWN_LOGGER)
+    if rv != OSError:
+        config.pki_log = rv
+    else:
+        print log.PKI_UNABLE_TO_CREATE_LOG_DIRECTORY_1 % config.pki_log_dir
+        sys.exit(1)
+
+    # Read the specified PKI configuration file.
+    rv = pkihelper.read_pki_configuration_file()
+    if rv != 0:
+        config.pki_log.error(PKI_UNABLE_TO_PARSE_1, rv)
+        sys.exit(1)
+    else:
+        config.pki_log.debug(log.PKI_DICTIONARY_COMMON)
+        config.pki_log.debug(pp.pformat(config.pki_common_dict))
+        config.pki_log.debug(log.PKI_DICTIONARY_WEB_SERVER)
+        config.pki_log.debug(pp.pformat(config.pki_web_server_dict))
+        config.pki_log.debug(log.PKI_DICTIONARY_SUBSYSTEM)
+        config.pki_log.debug(pp.pformat(config.pki_subsystem_dict))
+
+    # Override PKI configuration file values with 'custom' command-line values.
+    if not config.pki_instance_name is None:
+        config.pki_common_dict['pki_instance_name'] =\
+            config.pki_instance_name
+    if not config.pki_http_port is None:
+        config.pki_web_server_dict['pki_http_port'] =\
+            config.pki_http_port
+    if not config.pki_https_port is None:
+        config.pki_web_server_dict['pki_https_port'] =\
+            config.pki_https_port
+    if not config.pki_ajp_port is None:
+        config.pki_web_server_dict['pki_ajp_port'] =\
+            config.pki_ajp_port
+    config.pki_log.debug(log.PKI_DICTIONARY_COMMON)
+    config.pki_log.debug(pp.pformat(config.pki_common_dict))
+    config.pki_log.debug(log.PKI_DICTIONARY_WEB_SERVER)
+    config.pki_log.debug(pp.pformat(config.pki_web_server_dict))
+    config.pki_log.debug(log.PKI_DICTIONARY_SUBSYSTEM)
+    config.pki_log.debug(pp.pformat(config.pki_subsystem_dict))
+
+    # Combine the various sectional dictionaries into a PKI master dictionary
+    pkihelper.create_pki_master_dictionary()
+    config.pki_log.debug(log.PKI_DICTIONARY_MASTER)
+    config.pki_log.debug(pp.pformat(config.pki_master_dict))
+
+    # Install and configure the specified PKI subsystem.
+    pki_scriptlets_path = config.pki_root_prefix +\
+                          config.PKISPAWN_PATH +\
+                          "/" + config.pki_subsystem.lower()
+    if not os.path.exists(pki_scriptlets_path) or\
+       not os.path.isdir(pki_scriptlets_path):
+        config.pki_log.error(log.PKI_DIRECTORY_MISSING_OR_NOT_A_DIRECTORY_1,
+                             pki_scriptlets_path)
+        sys.exit(1)
+    pki_subsystem_scriptlets = os.listdir(pki_scriptlets_path)
+    pki_subsystem_scriptlets.sort()
+
+    # Process the various "scriptlets" for the specified PKI subsystem.
+    rv = 0
+    config.pki_log.info(pki_deployment_begin,
+                        config.pki_subsystem,
+                        config.pki_master_dict['pki_instance_name'])
+    for pki_scriptlet in pki_subsystem_scriptlets:
+        scriptlet = __import__(config.PKI_DEPLOYMENT_SCRIPTLETS_MODULE +\
+                               '.' + pki_scriptlet[5:],
+                               fromlist = [pki_scriptlet[5:]])
+        instance = scriptlet.PkiScriptlet()
+        if not config.pki_update_flag:
+            rv = instance.spawn()
+        else:
+            rv = instance.respawn()
+        if rv != 0:
+            sys.exit(1)
+    config.pki_log.info(pki_deployment_end,
+                        config.pki_subsystem,
+                        config.pki_master_dict['pki_instance_name'])
+    config.pki_log.debug(log.PKI_DICTIONARY_MASTER)
+    config.pki_log.debug(pp.pformat(config.pki_master_dict))
+
+
+# PKI Deployment Entry Point
+if __name__ == "__main__":
+    main(sys.argv)
+

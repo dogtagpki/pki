@@ -5,9 +5,16 @@
 # also need the relprefix field for a pre-release e.g. .0 - also comment out for official release
 %global relprefix 0.
 
+%if ! (0%{?fedora} > 12 || 0%{?rhel} > 5)
+%{!?python_sitelib: %global python_sitelib %(%{__python} -c "from
+distutils.sysconfig import get_python_lib; print(get_python_lib())")}
+%{!?python_sitearch: %global python_sitearch %(%{__python} -c "from
+distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
+%endif
+
 Name:             pki-core
 Version:          10.0.0
-Release:          %{?relprefix}8%{?prerel}%{?dist}
+Release:          %{?relprefix}9%{?prerel}%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -96,6 +103,17 @@ to manage enterprise Public Key Infrastructure (PKI) deployments.      \
                                                                        \
 PKI Core contains ALL top-level java-based Tomcat PKI components:      \
                                                                        \
+  * pki-deploy                                                         \
+  * pki-setup                                                          \
+  * pki-symkey                                                         \
+  * pki-native-tools                                                   \
+  * pki-util                                                           \
+  * pki-util-javadoc                                                   \
+  * pki-java-tools                                                     \
+  * pki-java-tools-javadoc                                             \
+  * pki-common                                                         \
+  * pki-common-javadoc                                                 \
+  * pki-selinux                                                        \
   * pki-ca                                                             \
   * pki-kra                                                            \
   * pki-ocsp                                                           \
@@ -141,6 +159,20 @@ ONLY ONE of the following "Mutually-Exclusive" PKI Theme packages:     \
 %{nil}
 
 %description %{overview}
+
+
+%package -n       pki-deploy
+Summary:          Certificate System - PKI Instance Deployment Scripts
+Group:            System Environment/Base
+
+BuildArch:        noarch
+
+%description -n   pki-deploy
+PKI deployment scripts are used to create and remove instances from PKI deployments.
+
+This package is a part of the PKI Core used by the Certificate System.
+
+%{overview}
 
 
 %package -n       pki-setup
@@ -312,6 +344,7 @@ Requires:         javassist
 Requires:         jettison
 Requires:         pki-common-theme >= 9.0.0
 Requires:         pki-java-tools = %{version}-%{release}
+Requires:         pki-deploy = %{version}-%{release}
 Requires:         pki-setup = %{version}-%{release}
 Requires:         %{_javadir}/ldapjdk.jar
 Requires:         %{_javadir}/velocity.jar
@@ -992,6 +1025,40 @@ fi
 %endif
 
 
+%files -n pki-deploy
+%defattr(-,root,root,-)
+%doc base/deploy/LICENSE
+%{_bindir}/pkispawn
+%{_bindir}/pkidestroy
+#%{_bindir}/pki-setup-proxy
+%dir %{python_sitelib}/pki
+%{python_sitelib}/pki/_*
+%{python_sitelib}/pki/deployment/
+%dir %{_datadir}/pki
+%dir %{_datadir}/pki/deployment
+%{_datadir}/pki/deployment/config/
+%dir %{_datadir}/pki/deployment/spawn
+%{_datadir}/pki/deployment/spawn/ca/
+%{_datadir}/pki/deployment/spawn/kra/
+%{_datadir}/pki/deployment/spawn/ocsp/
+%{_datadir}/pki/deployment/spawn/ra/
+%{_datadir}/pki/deployment/spawn/tks/
+%{_datadir}/pki/deployment/spawn/tps/
+%dir %{_datadir}/pki/deployment/destroy
+%{_datadir}/pki/deployment/destroy/ca/
+%{_datadir}/pki/deployment/destroy/kra/
+%{_datadir}/pki/deployment/destroy/ocsp/
+%{_datadir}/pki/deployment/destroy/ra/
+%{_datadir}/pki/deployment/destroy/tks/
+%{_datadir}/pki/deployment/destroy/tps/
+#%dir %{_localstatedir}/lock/pki
+#%dir %{_localstatedir}/run/pki
+#%if 0%{?fedora} >= 16
+#%{_bindir}/pkicontrol
+#%endif
+#%{_javadir}/resteasy-jettison-provider-2.3-RC1.jar
+
+
 %files -n pki-setup
 %defattr(-,root,root,-)
 %doc base/setup/LICENSE
@@ -1233,8 +1300,11 @@ fi
 
 
 %changelog
+* Mon Mar 12 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-9.a1
+- Initial attempt at PKI deployment framework described in
+  'http://pki.fedoraproject.org/wiki/PKI_Instance_Deployment'.
 
-* Fri Mar 09 2018 Jack Magne <jmagne@redhat.com> 10.0.0-5.a1
+* Fri Mar 09 2012 Jack Magne <jmagne@redhat.com> 10.0.0-8.a1
 - Added support for pki-jndi-realm in tomcat6 in pki-common
   and pki-kra.
 - Ticket #69.
