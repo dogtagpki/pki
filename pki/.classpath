@@ -2,9 +2,9 @@
 <classpath>
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/ca/src"/>
 	<classpathentry kind="src" path="base/test/src"/>
-	<classpathentry kind="src" path="base/util/test"/>
-	<classpathentry kind="src" path="base/common/test"/>
-	<classpathentry kind="src" path="base/common/src"/>
+	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/util/test"/>
+	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/common/test"/>
+	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/common/src"/>
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/java-tools/src"/>
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/kra/src"/>
 	<classpathentry kind="src" path="base/migrate/80"/>
