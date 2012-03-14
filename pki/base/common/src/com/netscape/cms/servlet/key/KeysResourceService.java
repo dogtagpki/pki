@@ -30,6 +30,7 @@ import com.netscape.certsrv.base.EBaseException;
 import com.netscape.cms.servlet.base.CMSResourceService;
 import com.netscape.cms.servlet.key.model.KeyDAO;
 import com.netscape.cms.servlet.key.model.KeyDataInfos;
+import com.netscape.cmsutil.ldap.LDAPUtil;
 
 /**
  * @author alee
@@ -71,12 +72,12 @@ public class KeysResourceService extends CMSResourceService implements KeysResou
         }
         
         if (status != null) {
-            filter += "(status=" + status + ")";
+            filter += "(status=" + LDAPUtil.escape(status) + ")";
             matches ++;
         }
         
         if (clientID != null) {
-            filter += "(clientID=" + clientID + ")";
+            filter += "(clientID=" + LDAPUtil.escape(clientID) + ")";
             matches ++;
         }
         

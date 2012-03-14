@@ -33,6 +33,32 @@ import netscape.ldap.util.LDIFModifyContent;
 import netscape.ldap.util.LDIFRecord;
 
 public class LDAPUtil {
+
+    // special chars are *, (, ), \, null
+    public static String SPECIAL_CHARS = "*()\\\000";
+
+    /**
+     * This method escapes special characters for LDAP filter (RFC 4515).
+     * Each special character will be replaced by a backslash followed by
+     * 2-digit hex of the ASCII code.
+     *
+     * @param string string to escape
+     * @return escaped string
+     */
+    public static String escape(String string) {
+        StringBuilder sb = new StringBuilder();
+        for (char c : string.toCharArray()) {
+            if (SPECIAL_CHARS.indexOf(c) >= 0) {
+                sb.append('\\');
+                if (c < 0x10) sb.append('0'); // make sure it's 2-digit
+                sb.append(Integer.toHexString(c));
+            } else {
+                sb.append(c);
+            }
+        }
+        return sb.toString();
+    }
+
     public static void importLDIF(LDAPConnection conn, String filename, ArrayList<String> errors) throws IOException {
         LDIF ldif = new LDIF(filename);
         while (true) {

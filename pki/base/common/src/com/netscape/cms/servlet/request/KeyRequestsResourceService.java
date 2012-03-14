@@ -29,6 +29,7 @@ import com.netscape.certsrv.request.RequestId;
 import com.netscape.cms.servlet.base.CMSResourceService;
 import com.netscape.cms.servlet.request.model.KeyRequestDAO;
 import com.netscape.cms.servlet.request.model.KeyRequestInfos;
+import com.netscape.cmsutil.ldap.LDAPUtil;
 
 /**
  * @author alee
@@ -77,17 +78,17 @@ public class KeyRequestsResourceService extends CMSResourceService implements Ke
         }
         
         if (requestState != null) {
-            filter += "(requeststate=" + requestState + ")";
+            filter += "(requeststate=" + LDAPUtil.escape(requestState) + ")";
             matches ++;
         }
         
         if (requestType != null) {
-            filter += "(requesttype=" + requestType + ")";
+            filter += "(requesttype=" + LDAPUtil.escape(requestType) + ")";
             matches ++;
         }
         
         if (clientID != null) {
-            filter += "(clientID=" + clientID + ")";
+            filter += "(clientID=" + LDAPUtil.escape(clientID) + ")";
             matches ++;
         }
         
