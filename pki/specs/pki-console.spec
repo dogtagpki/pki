@@ -7,7 +7,7 @@
 
 Name:             pki-console
 Version:          10.0.0
-Release:          %{?relprefix}2%{?prerel}%{?dist}
+Release:          %{?relprefix}3%{?prerel}%{?dist}
 Summary:          Certificate System - PKI Console
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -26,17 +26,16 @@ BuildRequires:    nss-devel
 %if 0%{?fedora} >= 17
 BuildRequires:    junit
 %else
+BuildRequires:    junit4
+%endif
 %if 0%{?fedora} >= 16
 BuildRequires:    jpackage-utils >= 1.7.5-10
 BuildRequires:    jss >= 4.2.6-19.1
-BuildRequires:    junit4
 BuildRequires:    pki-util >= 9.0.15
 %else
 BuildRequires:    jpackage-utils
 BuildRequires:    jss >= 4.2.6-17
-BuildRequires:    junit4
 BuildRequires:    pki-util
-%endif
 %endif
 
 Requires:         idm-console-framework
@@ -97,6 +96,9 @@ cd build
 
 
 %changelog
+* Wed Mar 14 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-0.3.a1
+- Corrected 'junit' dependency check
+
 * Wed Feb 22 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-0.2.a1
 - Bugzilla Bug #788787 - added 'junit'/'junit4' build-time requirements
 

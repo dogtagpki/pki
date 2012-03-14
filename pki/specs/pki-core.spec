@@ -14,7 +14,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.0
-Release:          %{?relprefix}9%{?prerel}%{?dist}
+Release:          %{?relprefix}10%{?prerel}%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -45,24 +45,22 @@ BuildRequires:    candlepin-deps >= 0.0.21-1
 %if 0%{?fedora} >= 17
 BuildRequires:    junit
 %else
+BuildRequires:    junit4
+%endif
 %if 0%{?fedora} >= 16
 BuildRequires:    jpackage-utils >= 0:1.7.5-10
 BuildRequires:    jss >= 4.2.6-19.1
-BuildRequires:    junit4
 BuildRequires:    systemd-units
 BuildRequires:    tomcatjss >= 6.0.2
 %else
 %if 0%{?fedora} >= 15
 BuildRequires:    jpackage-utils
 BuildRequires:    jss >= 4.2.6-17
-BuildRequires:    junit4
 BuildRequires:    tomcatjss >= 6.0.0
 %else
 BuildRequires:    jpackage-utils
 BuildRequires:    jss >= 4.2.6-17
-BuildRequires:    junit4
 BuildRequires:    tomcatjss >= 2.0.0
-%endif
 %endif
 %endif
 
@@ -1300,11 +1298,14 @@ fi
 
 
 %changelog
-* Mon Mar 12 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-9.a1
+* Wed Mar 14 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-0.10.a1
+- Corrected 'junit' dependency check
+
+* Mon Mar 12 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-0.9.a1
 - Initial attempt at PKI deployment framework described in
   'http://pki.fedoraproject.org/wiki/PKI_Instance_Deployment'.
 
-* Fri Mar 09 2012 Jack Magne <jmagne@redhat.com> 10.0.0-8.a1
+* Fri Mar 09 2012 Jack Magne <jmagne@redhat.com> 10.0.0-0.8.a1
 - Added support for pki-jndi-realm in tomcat6 in pki-common
   and pki-kra.
 - Ticket #69.
