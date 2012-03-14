@@ -83,14 +83,14 @@ public class PortalEnroll extends DirBasedAuthentication {
 
     // contains all nested superiors' required attrs in the form of a
     //	vector of "required" attributes in Enumeration
-    Vector mRequiredAttrs = null;
+    Vector<Enumeration<String>> mRequiredAttrs = null;
 
     // contains all nested superiors' optional attrs in the form of a
     //	vector of "optional" attributes in Enumeration
-    Vector mOptionalAttrs = null;
+    Vector<Enumeration<String>> mOptionalAttrs = null;
 
     // contains all the objclasses, including superiors and itself
-    Vector mObjClasses = null;
+    Vector<String> mObjClasses = null;
 
     /* Holds configuration parameters accepted by this implementation.
      * This list is passed to the configuration console so configuration
@@ -324,15 +324,15 @@ public class PortalEnroll extends DirBasedAuthentication {
         String dn = "uid=" + uid + "," + mBaseDN;
 
         /* Specify the attributes of the entry */
-        Vector objectclass_values = null;
+        Vector<String> objectclass_values = null;
 
         LDAPAttributeSet attrs = new LDAPAttributeSet();
         LDAPAttribute attr = new LDAPAttribute("objectclass");
 
         // initialized to new
-        mRequiredAttrs = new Vector();
-        mOptionalAttrs = new Vector();
-        mObjClasses = new Vector();
+        mRequiredAttrs = new Vector<Enumeration<String>>();
+        mOptionalAttrs = new Vector<Enumeration<String>>();
+        mObjClasses = new Vector<String>();
 
         LDAPSchema dirSchema = null;
 
@@ -431,6 +431,7 @@ public class PortalEnroll extends DirBasedAuthentication {
      *  should build up
      *  mRequiredAttrs, mOptionalAttrs, and mObjClasses when returned
      */
+    @SuppressWarnings("unchecked")
     public void initLdapAttrs(LDAPSchema dirSchema, String oclass) {
         CMS.debug("PortalEnroll: in initLdapAttrsAttrs");
         mObjClasses.addElement(oclass);

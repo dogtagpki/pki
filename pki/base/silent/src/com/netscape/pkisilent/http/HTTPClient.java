@@ -1081,7 +1081,6 @@ public class HTTPClient implements SSLCertificateApprovalCallback {
     public static void main(String args[]) {
         HTTPClient hc = new HTTPClient();
         HTTPResponse hr = null;
-        byte[] responseData = null;
 
         // parse args
         StringHolder x_hostname = new StringHolder();
@@ -1207,8 +1206,6 @@ public class HTTPClient implements SSLCertificateApprovalCallback {
         }
 
         // collect and print response
-
-        responseData = hr.getResponseData();
 
         if (hr.getStatusCode() == 200)
             System.out.println("Response from Host:" + cs_hostname + " OK");

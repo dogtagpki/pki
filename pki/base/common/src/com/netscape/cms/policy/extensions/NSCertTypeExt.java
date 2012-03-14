@@ -159,7 +159,6 @@ public class NSCertTypeExt extends APolicyRule
      */
     public PolicyResult apply(IRequest req) {
         CMS.debug("NSCertTypeExt: Impl: " + NAME + ", Instance: " + getInstanceName() + "::apply()");
-        PolicyResult res = PolicyResult.ACCEPTED;
 
         X509CertInfo[] ci =
                 req.getExtDataInCertInfoArray(IRequest.CERT_INFO);

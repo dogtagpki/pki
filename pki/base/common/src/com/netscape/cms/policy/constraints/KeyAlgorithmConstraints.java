@@ -58,7 +58,7 @@ public class KeyAlgorithmConstraints extends APolicyRule
     private final static String[] supportedAlgorithms =
         { "RSA", "DSA", "DH" };
 
-    private final static Vector defConfParams = new Vector();
+    private final static Vector<String> defConfParams = new Vector<String>();
 
     static {
         defConfParams.addElement(PROP_ALGORITHMS + "=" +
@@ -219,7 +219,7 @@ public class KeyAlgorithmConstraints extends APolicyRule
      * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getDefaultParams() {
+    public Vector<String> getDefaultParams() {
         return defConfParams;
     }
 }

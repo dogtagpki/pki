@@ -27,7 +27,6 @@ import netscape.security.x509.RevokedCertificate;
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.dbs.EDBException;
-import com.netscape.certsrv.dbs.IDBRegistry;
 import com.netscape.certsrv.dbs.IDBSSession;
 import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.dbs.IDBSubsystem;
@@ -59,26 +58,24 @@ public class CRLRepository extends Repository implements ICRLRepository {
         mBaseDN = baseDN;
         mDBService = dbService;
 
-        IDBRegistry reg = dbService.getRegistry();
-
-        /**
-         * String crlRecordOC[] = new String[1];
-         * crlRecordOC[0] = Schema.LDAP_OC_CRL_RECORD;
-         * reg.registerObjectClass(CRLIssuingPointRecord.class.getName(),
-         * crlRecordOC);
-         * reg.registerAttribute(ICRLIssuingPointRecord.ATTR_ID, new
-         * StringMapper(Schema.LDAP_ATTR_CRL_ID));
-         * reg.registerAttribute(ICRLIssuingPointRecord.ATTR_CRL_NUMBER, new
-         * BigIntegerMapper(Schema.LDAP_ATTR_CRL_NUMBER));
-         * reg.registerAttribute(ICRLIssuingPointRecord.ATTR_CRL_SIZE, new
-         * LongMapper(Schema.LDAP_ATTR_CRL_SIZE));
-         * reg.registerAttribute(ICRLIssuingPointRecord.ATTR_THIS_UPDATE, new
-         * DateMapper(Schema.LDAP_ATTR_THIS_UPDATE));
-         * reg.registerAttribute(ICRLIssuingPointRecord.ATTR_NEXT_UPDATE, new
-         * DateMapper(Schema.LDAP_ATTR_NEXT_UPDATE));
-         * reg.registerAttribute(ICRLIssuingPointRecord.ATTR_CRL, new
-         * ByteArrayMapper(Schema.LDAP_ATTR_CRL));
-         **/
+        /*
+        DBRegistry reg = dbService.getRegistry();
+        String crlRecordOC[] = new String[1];
+        crlRecordOC[0] = Schema.LDAP_OC_CRL_RECORD;
+        reg.registerObjectClass(CRLIssuingPointRecord.class.getName(), crlRecordOC);
+        reg.registerAttribute(ICRLIssuingPointRecord.ATTR_ID,
+                new StringMapper(Schema.LDAP_ATTR_CRL_ID));
+        reg.registerAttribute(ICRLIssuingPointRecord.ATTR_CRL_NUMBER,
+                new BigIntegerMapper(Schema.LDAP_ATTR_CRL_NUMBER));
+        reg.registerAttribute(ICRLIssuingPointRecord.ATTR_CRL_SIZE,
+                new LongMapper(Schema.LDAP_ATTR_CRL_SIZE));
+        reg.registerAttribute(ICRLIssuingPointRecord.ATTR_THIS_UPDATE,
+                new DateMapper(Schema.LDAP_ATTR_THIS_UPDATE));
+        reg.registerAttribute(ICRLIssuingPointRecord.ATTR_NEXT_UPDATE,
+                new DateMapper(Schema.LDAP_ATTR_NEXT_UPDATE));
+        reg.registerAttribute(ICRLIssuingPointRecord.ATTR_CRL,
+                new ByteArrayMapper(Schema.LDAP_ATTR_CRL));
+        */
     }
 
     /**

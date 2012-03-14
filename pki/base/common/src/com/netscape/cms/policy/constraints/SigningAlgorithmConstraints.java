@@ -62,7 +62,7 @@ public class SigningAlgorithmConstraints extends APolicyRule
     IAuthority mAuthority = null;
     private final static String PROP_ALGORITHMS = "algorithms";
 
-    private final static Vector defConfParams = new Vector();
+    private final static Vector<String> defConfParams = new Vector<String>();
 
     static {
         StringBuffer sb = new StringBuffer();
@@ -120,7 +120,7 @@ public class SigningAlgorithmConstraints extends APolicyRule
             if (algNames != null) {
                 // parse alg names into Vector
                 StringTokenizer tok = new StringTokenizer(algNames, ",");
-                Vector algs = new Vector();
+                Vector<String> algs = new Vector<String>();
 
                 while (tok.hasMoreTokens()) {
                     algs.addElement(tok.nextToken().trim());
@@ -211,7 +211,7 @@ public class SigningAlgorithmConstraints extends APolicyRule
         int i, j, goodSize;
 
         // validate the currently-allowed algorithms
-        Vector goodAlgs = new Vector();
+        Vector<String> goodAlgs = new Vector<String>();
 
         for (i = 0; i < mAllowedAlgs.length; i++) {
             for (j = 0; j < allowed.length; j++) {
@@ -324,8 +324,8 @@ public class SigningAlgorithmConstraints extends APolicyRule
      * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getInstanceParams() {
-        Vector confParams = new Vector();
+    public Vector<String> getInstanceParams() {
+        Vector<String> confParams = new Vector<String>();
         StringBuffer sb = new StringBuffer();
 
         for (int i = 0; i < mConfigAlgs.length; i++) {
@@ -343,7 +343,7 @@ public class SigningAlgorithmConstraints extends APolicyRule
      * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getDefaultParams() {
+    public Vector<String> getDefaultParams() {
         StringBuffer sb = new StringBuffer();
         sb.append(PROP_ALGORITHMS);
         sb.append("=");

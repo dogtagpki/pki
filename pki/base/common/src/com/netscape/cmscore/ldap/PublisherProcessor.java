@@ -49,7 +49,6 @@ import com.netscape.certsrv.publish.ILdapPublisher;
 import com.netscape.certsrv.publish.ILdapRule;
 import com.netscape.certsrv.publish.IPublisherProcessor;
 import com.netscape.certsrv.publish.IXcertPublisherProcessor;
-import com.netscape.certsrv.publish.LdapCertMapResult;
 import com.netscape.certsrv.publish.MapperPlugin;
 import com.netscape.certsrv.publish.MapperProxy;
 import com.netscape.certsrv.publish.PublisherPlugin;
@@ -786,7 +785,6 @@ public class PublisherProcessor implements
             ruleInst = (ILdapRule)
                     Class.forName(className).newInstance();
             Vector<String> v = ruleInst.getInstanceParams();
-            IConfigStore rc = ruleInst.getConfigStore();
 
             return v;
         } catch (InstantiationException e) {
@@ -1324,8 +1322,6 @@ public class PublisherProcessor implements
             Object dirdn = null;
 
             if (mapper != null) {
-                LdapCertMapResult result = null;
-
                 if (mLdapConnModule != null) {
                     try {
                         conn = mLdapConnModule.getConn();
@@ -1394,8 +1390,6 @@ public class PublisherProcessor implements
             String dirdn = null;
 
             if (mapper != null) {
-                LdapCertMapResult result = null;
-
                 if (mLdapConnModule != null) {
                     conn = mLdapConnModule.getConn();
                 }
@@ -1439,8 +1433,6 @@ public class PublisherProcessor implements
             String dirdn = null;
 
             if (mapper != null) {
-                LdapCertMapResult result = null;
-
                 if (mLdapConnModule != null) {
                     conn = mLdapConnModule.getConn();
                 }

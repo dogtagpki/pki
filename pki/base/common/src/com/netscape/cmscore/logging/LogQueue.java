@@ -34,7 +34,7 @@ import com.netscape.certsrv.logging.ILogQueue;
 public class LogQueue implements ILogQueue {
 
     private static LogQueue mLogQueue = new LogQueue();
-    protected Vector mListeners = null;
+    protected Vector<ILogEventListener> mListeners = null;
 
     /**
      * Constructs a log queue.
@@ -52,7 +52,7 @@ public class LogQueue implements ILogQueue {
      * 
      */
     public void init() {
-        mListeners = new Vector();
+        mListeners = new Vector<ILogEventListener>();
 
     }
 

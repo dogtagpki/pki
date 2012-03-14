@@ -151,9 +151,7 @@ public class PWCBsdr implements PasswordCallback {
 
                 if (pw != null) {
                     CMS.debug("non-null password returned in first attempt");
-                    String tmp = new String(pw.getCharCopy());
-
-                    return (pw);
+                    return pw;
                 } else { /* password not found */
                     // we don't want caller to do getPasswordAgain,    for now
                     log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_SECURITY_THROW_CALLBACK"));

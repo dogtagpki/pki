@@ -140,8 +140,6 @@ public class CMCResponse {
                                 System.out.println("   OtherInfo type: PEND");
                                 PendInfo pi = oi.getPendInfo();
                                 if (pi.getPendTime() != null) {
-                                    byte[] bp = pi.getPendToken().toByteArray();
-                                    String pt = new String(bp);
                                     String datePattern = "dd/MMM/yyyy:HH:mm:ss z";
                                     SimpleDateFormat dateFormat = new SimpleDateFormat(datePattern);
                                     Date d = pi.getPendTime().toDate();

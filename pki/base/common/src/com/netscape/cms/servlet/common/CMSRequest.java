@@ -252,7 +252,7 @@ public class CMSRequest {
     }
 
     // policy errors; set on rejection or possibly deferral. 
-    public Vector getPolicyMessages() {
+    public Vector<String> getPolicyMessages() {
         if (mRequest != null) {
             return mRequest.getExtDataInStringVector(IRequest.ERRORS);
         }

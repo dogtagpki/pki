@@ -157,8 +157,6 @@ public class GrantRecovery extends CMSServlet {
         IArgBlock fixed = CMS.createArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
 
-        int seq = -1;
-
         String agentID = authToken.getInString("uid");
         if (CMS.getConfigStore().getBoolean("kra.keySplitting")) {
             agentID = req.getParameter("agentID");

@@ -255,7 +255,6 @@ public class GetCAChain extends CMSServlet {
             HttpServletResponse httpResp,
             CMSRequest cmsReq)
             throws EBaseException {
-        String outputString = null;
 
         CertificateChain certChain =
                 ((ICertAuthority) mAuthority).getCACertChain();

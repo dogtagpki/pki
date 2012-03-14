@@ -19,7 +19,6 @@ package com.netscape.cms.servlet.key;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.netscape.certsrv.apps.CMS;
@@ -76,7 +75,6 @@ public class DisplayTransport extends CMSServlet {
      */
     public void process(CMSRequest cmsReq) throws EBaseException {
 
-        HttpServletRequest req = cmsReq.getHttpReq();
         HttpServletResponse resp = cmsReq.getHttpResp();
 
         IAuthToken authToken = authenticate(cmsReq);

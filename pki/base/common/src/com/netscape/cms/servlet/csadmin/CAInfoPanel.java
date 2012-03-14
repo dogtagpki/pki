@@ -154,7 +154,7 @@ public class CAInfoPanel extends WizardPanelBase {
         */
 
         CMS.debug("CAInfoPanel: Ready to get url");
-        Vector v = getUrlListFromSecurityDomain(cs, cstype, portType);
+        Vector<String> v = getUrlListFromSecurityDomain(cs, cstype, portType);
         v.addElement("External CA");
         StringBuffer list = new StringBuffer();
         int size = v.size();

@@ -577,7 +577,7 @@ public class DoUnrevoke extends CMSServlet {
         String serialNumString = req.getParameter("serialNumber");
 
         StringTokenizer snList = new StringTokenizer(serialNumString, " ");
-        Vector biList = new Vector();
+        Vector<BigInteger> biList = new Vector<BigInteger>();
         while (snList.hasMoreTokens()) {
             String snStr = snList.nextToken();
             if (snStr != null) {

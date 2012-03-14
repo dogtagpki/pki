@@ -45,7 +45,7 @@ public class ConfigHSMServlet extends ConfigBaseServlet {
     private static final long serialVersionUID = -330521231753992202L;
     private CryptoManager mCryptoManager = null;
     private Vector<Module> mSupportedModules = null;
-    private Vector mOtherModules = null;
+    private Vector<Module> mOtherModules = null;
     private String mDefaultTok = null;
     private Hashtable<String, PK11Module> mCurrModTable = new Hashtable<String, PK11Module>();
 
@@ -80,7 +80,7 @@ public class ConfigHSMServlet extends ConfigBaseServlet {
     public void loadOtherModules() {
         Enumeration<PK11Module> m = mCurrModTable.elements();
 
-        mOtherModules = new Vector();
+        mOtherModules = new Vector<Module>();
         while (m.hasMoreElements()) {
             PK11Module mod = m.nextElement();
             Enumeration<Module> s = mSupportedModules.elements();
@@ -102,7 +102,7 @@ public class ConfigHSMServlet extends ConfigBaseServlet {
 
                 loadModTokens(module, mod);
                 module.setFound(true);
-                mOtherModules.addElement((Object) module);
+                mOtherModules.addElement(module);
                 break;
             }
         }// while

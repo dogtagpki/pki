@@ -158,7 +158,7 @@ class RDNPattern {
     private void parse(PushbackReader in)
             throws EAuthException {
         //System.out.println("_________ begin rdn _________");
-        Vector avaPatterns = new Vector();
+        Vector<AVAPattern> avaPatterns = new Vector<AVAPattern>();
         AVAPattern avaPattern = null;
         int lastChar;
 
@@ -188,7 +188,7 @@ class RDNPattern {
         mAVAPatterns = new AVAPattern[avaPatterns.size()];
         avaPatterns.copyInto(mAVAPatterns);
 
-        Vector ldapAttrs = new Vector();
+        Vector<String> ldapAttrs = new Vector<String>();
 
         for (int i = 0; i < mAVAPatterns.length; i++) {
             String avaAttr = mAVAPatterns[i].getLdapAttr();

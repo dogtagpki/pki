@@ -340,7 +340,7 @@ public class AuthInfoAccessExtDefault extends EnrollExtDefault {
             int num = getNumAds();
 
             CMS.debug("AuthInfoAccess num=" + num);
-            Vector recs = new Vector();
+            Vector<NameValuePairs> recs = new Vector<NameValuePairs>();
 
             for (int i = 0; i < num; i++) {
                 NameValuePairs np = new NameValuePairs();
@@ -375,7 +375,6 @@ public class AuthInfoAccessExtDefault extends EnrollExtDefault {
 
     public String getText(Locale locale) {
         StringBuffer ads = new StringBuffer();
-        String numAds = getConfig(CONFIG_NUM_ADS);
         int num = getNumAds();
 
         for (int i = 0; i < num; i++) {

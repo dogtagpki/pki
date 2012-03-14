@@ -656,7 +656,6 @@ public abstract class AAclAuthz {
     }
 
     public Vector<String> getNodes(String resourceID) {
-        Enumeration<String> parents = getTargetNames();
         Vector<String> v = new Vector<String>();
 
         if (resourceID != null && !resourceID.equals("")) {

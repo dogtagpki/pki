@@ -1424,8 +1424,6 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
             nc = mConfig.getSubStore(PROP_NOTIFY_SUBSTORE);
             if (nc != null && nc.size() > 0) {
                 // Initialize Request In Queue notification listener
-                IConfigStore rq = nc.getSubStore(PROP_REQ_IN_Q_SUBSTORE);
-
                 String requestInQListenerClassName =
                         nc.getString("certificateIssuedListenerClassName",
                                 "com.netscape.cms.listeners.RequestInQListener");
@@ -1662,13 +1660,11 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         }
 
         byte rawData[] = cert.getPublicKey().getEncoded();
-        String key = null;
 
         // convert "rawData" into "base64Data"
         if (rawData != null) {
-            String base64Data = null;
-
-            base64Data = CMS.BtoA(rawData).trim();
+            String base64Data = CMS.BtoA(rawData).trim();
+            String key = "";
 
             // extract all line separators from the "base64Data"
             for (int i = 0; i < base64Data.length(); i++) {
@@ -1676,6 +1672,8 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
                     key += base64Data.substring(i, i);
                 }
             }
+
+            return key;
         }
 
         return ILogger.SIGNED_AUDIT_EMPTY_VALUE;

@@ -33,7 +33,6 @@ import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IPrettyPrintFormat;
-import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.cms.servlet.base.CMSServlet;
@@ -179,8 +178,6 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
             missingParam = true;
         }
 
-        String selectedToken = null;
-
         if (!missingParam) {
             thisreq = queue.newRequest(IRequest.NETKEY_KEYRECOVERY_REQUEST);
 
@@ -212,7 +209,6 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
 
         resp.setContentType("text/html");
 
-        String outputString = "";
         String wrappedPrivKeyString = "";
         String publicKeyString = "";
         String ivString = "";
@@ -327,22 +323,4 @@ public class TokenKeyRecoveryServlet extends CMSServlet {
         // end Netkey functions
 
     }
-
-    /**
-     * XXX remember to check peer SSL cert and get RA id later
-     * 
-     * Serves HTTP admin request.
-     * 
-     * @param req HTTP request
-     * @param resp HTTP response
-     */
-    public void service(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
-        String scope = req.getParameter(Constants.OP_SCOPE);
-        String op = req.getParameter(Constants.OP_TYPE);
-
-        super.service(req, resp);
-
-    }
-
 }

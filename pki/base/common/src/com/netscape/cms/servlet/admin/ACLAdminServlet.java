@@ -20,7 +20,6 @@ package com.netscape.cms.servlet.admin;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.Locale;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -34,7 +33,6 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authorization.IAuthzManager;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.SessionContext;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
 import com.netscape.certsrv.common.OpDef;
@@ -42,7 +40,6 @@ import com.netscape.certsrv.common.ScopeDef;
 import com.netscape.certsrv.evaluators.IAccessEvaluator;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.usrgrp.IUGSubsystem;
-import com.netscape.certsrv.usrgrp.IUser;
 
 /**
  * Manage Access Control List configuration
@@ -119,28 +116,11 @@ public class ACLAdminServlet extends AdminServlet {
             return;
         }
 
-        Locale clientLocale = super.getLocale(req);
-
         try {
             super.authenticate(req);
         } catch (IOException e) {
             log(ILogger.LL_SECURITY, CMS.getLogMessage("ADMIN_SRVLT_FAIL_AUTHS"));
             sendResponse(ERROR, CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_AUTHS_FAILED"),
-                    null, resp);
-            return;
-        }
-
-        IUser user = null;
-
-        try {
-            SessionContext mSC = SessionContext.getContext();
-
-            user = (IUser)
-                    mSC.get(SessionContext.USER);
-        } catch (Exception e) {
-            log(ILogger.LL_FAILURE, e.toString());
-            sendResponse(ERROR,
-                    CMS.getUserMessage(getLocale(req), "CMS_ADMIN_SRVLT_PERFORM_FAILED"),
                     null, resp);
             return;
         }

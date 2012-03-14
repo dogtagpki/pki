@@ -81,7 +81,7 @@ public class DefaultRevocation extends APolicyRule
      * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getInstanceParams() {
+    public Vector<String> getInstanceParams() {
         return null;
     }
 
@@ -90,7 +90,7 @@ public class DefaultRevocation extends APolicyRule
      * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getDefaultParams() {
+    public Vector<String> getDefaultParams() {
         return null;
     }
 

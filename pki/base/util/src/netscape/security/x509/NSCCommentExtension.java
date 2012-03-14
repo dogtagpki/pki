@@ -65,9 +65,9 @@ public class NSCCommentExtension extends Extension
     // Encode this extension value
     private void encodeThis() throws IOException {
         DerOutputStream os = new DerOutputStream();
-        DerOutputStream tmp = new DerOutputStream();
 
         os.putIA5String(mComment);
+        // DerOutputStream tmp = new DerOutputStream();
         // os.write(DerValue.tag_Sequence,tmp);
         extensionValue = os.toByteArray();
     }

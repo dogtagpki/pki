@@ -837,7 +837,6 @@ public class CAService implements ICAService, IService {
             try {
 
                 CMS.debug("doUTF8 true, updating subject.");
-                CertificateSubjectName sName = (CertificateSubjectName) certi.get(X509CertInfo.SUBJECT);
 
                 String subject = certi.get(X509CertInfo.SUBJECT).toString();
 
@@ -987,20 +986,7 @@ public class CAService implements ICAService, IService {
                     CMS.getUserMessage("CMS_CA_CANT_FIND_CERT_SERIAL",
                             "0x" + serialno.toString(16)));
         }
-        RevocationInfo revInfo = (RevocationInfo) certRec.getRevocationInfo();
-        CRLExtensions exts = null;
-        CRLReasonExtension reasonext = null;
 
-        if (revInfo != null)
-            exts = revInfo.getCRLEntryExtensions();
-        if (exts != null) {
-            try {
-                reasonext = (CRLReasonExtension)
-                        exts.get(CRLReasonExtension.NAME);
-            } catch (X509ExtensionException e) {
-                // this means no crl reason extension set.
-            }
-        }
         // allow revoking certs that are on hold.
         String certStatus = certRec.getStatus();
 

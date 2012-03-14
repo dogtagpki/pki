@@ -379,7 +379,6 @@ public abstract class EnrollProfile extends BasicProfile
             org.mozilla.jss.pkix.cms.SignedData cmcFullReq = 
                 (org.mozilla.jss.pkix.cms.SignedData) cmcReq.getInterpretedContent();
             org.mozilla.jss.pkix.cms.EncapsulatedContentInfo ci = cmcFullReq.getContentInfo();
-            OBJECT_IDENTIFIER id = ci.getContentType();
             OCTET_STRING content = ci.getContent();
 
             ByteArrayInputStream s = new ByteArrayInputStream(content.toByteArray());
@@ -1158,7 +1157,9 @@ public abstract class EnrollProfile extends BasicProfile
 
             /* get SPKAC Algorithm & Signature */
             DerValue derSPKACContent[] = derIn.getSequence(3);
+            @SuppressWarnings("unused")
             AlgorithmId mAlgId = AlgorithmId.parse(derSPKACContent[1]);
+            @SuppressWarnings("unused")
             byte mSignature[] = derSPKACContent[2].getBitString();
 
             /* get PKAC SPKI & Challenge */
@@ -1167,9 +1168,11 @@ public abstract class EnrollProfile extends BasicProfile
             derIn = new DerInputStream(mPKAC);
             DerValue derPKACContent[] = derIn.getSequence(2);
 
+            @SuppressWarnings("unused")
             DerValue mDerSPKI = derPKACContent[0];
             X509Key mSPKI = X509Key.parse(derPKACContent[0]);
 
+            @SuppressWarnings("unused")
             String mChallenge;
             DerValue mDerChallenge = derPKACContent[1];
 

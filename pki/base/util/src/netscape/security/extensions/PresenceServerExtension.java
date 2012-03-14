@@ -312,6 +312,8 @@ public class PresenceServerExtension extends Extension implements CertAttrSet {
         fos.close();
 
         Extension ext1 = new Extension(new DerValue(dos.toByteArray()));
+
+        @SuppressWarnings("unused")
         PresenceServerExtension ext2 = new PresenceServerExtension(
                 new Boolean(false), ext1.getExtensionValue());
 

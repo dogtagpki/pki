@@ -150,13 +150,13 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
     ////////////////////////////////////
 
     /* Vector of extendedPluginInfo strings */
-    protected static Vector mExtendedPluginInfo = null;
+    protected static Vector<String> mExtendedPluginInfo = null;
     //public static final String AGENT_AUTHMGR_ID = "agentAuthMgr";
     //public static final String AGENT_PLUGIN_ID = "agentAuthPlugin";
 
     /* actual help messages */
     static {
-        mExtendedPluginInfo = new Vector();
+        mExtendedPluginInfo = new Vector<String>();
 
         mExtendedPluginInfo
                 .add(IExtendedPluginInfo.HELP_TEXT +

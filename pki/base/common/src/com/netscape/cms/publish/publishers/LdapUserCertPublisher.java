@@ -79,15 +79,15 @@ public class LdapUserCertPublisher implements ILdapPublisher, IExtendedPluginInf
 
     }
 
-    public Vector getInstanceParams() {
-        Vector v = new Vector();
+    public Vector<String> getInstanceParams() {
+        Vector<String> v = new Vector<String>();
 
         v.addElement("certAttr=" + mCertAttr);
         return v;
     }
 
-    public Vector getDefaultParams() {
-        Vector v = new Vector();
+    public Vector<String> getDefaultParams() {
+        Vector<String> v = new Vector<String>();
 
         v.addElement("certAttr=" + mCertAttr);
         return v;

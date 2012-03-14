@@ -435,8 +435,6 @@ public class QueryReq extends CMSServlet {
             header.addIntegerValue(OUT_TOTALCOUNT, totalCount);
             header.addIntegerValue(OUT_CURRENTCOUNT, list.getSize());
 
-            int numEntries = list.getSize() - list.getCurrentIndex();
-
             Vector<IRequest> v = fetchRecords(list, maxCount);
             v = normalizeOrder(v);
             trim(v, id);

@@ -550,12 +550,6 @@ public abstract class BasicProfile implements IProfile {
 
     throws EProfileException {
         IConfigStore outputStore = mConfig.getSubStore("output");
-        String output_list = null;
-
-        try {
-            output_list = outputStore.getString(PROP_OUTPUT_LIST, "");
-        } catch (Exception ee) {
-        }
 
         IPluginInfo outputInfo = mRegistry.getPluginInfo("profileOutput",
                 outputId);
@@ -649,13 +643,6 @@ public abstract class BasicProfile implements IProfile {
             NameValuePairs nvps, boolean createConfig)
             throws EProfileException {
         IConfigStore inputStore = mConfig.getSubStore("input");
-
-        String input_list = null;
-
-        try {
-            input_list = inputStore.getString(PROP_INPUT_LIST, "");
-        } catch (Exception ee) {
-        }
 
         IPluginInfo inputInfo = mRegistry.getPluginInfo("profileInput",
                 inputId);
@@ -854,14 +841,6 @@ public abstract class BasicProfile implements IProfile {
                             PROP_CLASS_ID);
                 } catch (Exception e) {
                     CMS.debug("WARNING, can't get default plugin id!");
-                }
-
-                String constraintRoot = curId + "." + PROP_CONSTRAINT;
-                String curConstraintClassId = null;
-                try {
-                    curConstraintClassId = pStore.getString(constraintRoot + "." + PROP_CLASS_ID);
-                } catch (Exception e) {
-                    CMS.debug("WARNING, can't get constraint plugin id!");
                 }
 
                 //Disallow duplicate defaults  with the following exceptions:

@@ -35,7 +35,7 @@ public class LogEntry {
     private String mDetail;
     private String mDate;
     private String mTime;
-    private Vector mRow;
+    private Vector<String> mRow;
 
     private final String DATE_PATTERN = "dd/MMM/yyyy:HH:mm:ss z";
 
@@ -54,7 +54,7 @@ public class LogEntry {
      * return a vector of the segments of the entry
      */
 
-    public Vector parse() throws ParseException {
+    public Vector<String> parse() throws ParseException {
         int x = mEntry.indexOf("[");
 
         if (x == -1)
@@ -86,7 +86,7 @@ public class LogEntry {
 
         mDetail = temp.substring(x + 2);
 
-        Vector row = new Vector();
+        Vector<String> row = new Vector<String>();
 
         row.addElement(mSource);
         row.addElement(mLevel);
@@ -119,7 +119,7 @@ public class LogEntry {
         return mTime;
     }
 
-    public Vector getRow() {
+    public Vector<String> getRow() {
         return mRow;
     }
 

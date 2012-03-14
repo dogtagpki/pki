@@ -23,7 +23,6 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.StringTokenizer;
-import java.util.Vector;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.base.EBaseException;
@@ -194,13 +193,6 @@ public class RenewalNotificationJob
     private long mPostMS = 0;
     private int mMaxNotifyCount = 1;
     private String[] mProfileId = null;
-
-    /* Vector of extendedPluginInfo strings */
-    protected static Vector mExtendedPluginInfo = null;
-
-    static {
-        mExtendedPluginInfo = new Vector();
-    };
 
     /**
      * class constructor

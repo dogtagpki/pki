@@ -434,8 +434,6 @@ public class CRLDistributionPointsExtDefault extends EnrollExtDefault {
             if (ext == null)
                 return "";
 
-            StringBuffer sb = new StringBuffer();
-
             Vector<NameValuePairs> recs = new Vector<NameValuePairs>();
             int num = getNumPoints();
 
@@ -497,7 +495,6 @@ public class CRLDistributionPointsExtDefault extends EnrollExtDefault {
 
             if (gn != null) {
                 hasFullName = true;
-                int type = gn.getType();
 
                 pairs.put(POINT_TYPE, getGeneralNameType(gn));
                 pairs.put(POINT_NAME, getGeneralNameValue(gn));
@@ -528,7 +525,6 @@ public class CRLDistributionPointsExtDefault extends EnrollExtDefault {
 
             if (gn != null) {
                 hasFullName = true;
-                int type = gn.getType();
 
                 pairs.put(ISSUER_TYPE, getGeneralNameType(gn));
                 pairs.put(ISSUER_NAME, getGeneralNameValue(gn));

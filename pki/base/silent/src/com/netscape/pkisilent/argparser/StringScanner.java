@@ -372,7 +372,6 @@ class StringScanner {
         char c;
         // parse [-][0-9]*[.][0-9]*[eE][-][0-9]*
         boolean hasDigits = false;
-        boolean signed;
         double value = 0;
 
         skipWhiteSpace();
@@ -380,7 +379,7 @@ class StringScanner {
             exception = new StringScanException("end of input");
         } else {
             if ((c = buf[idx]) == '-' || c == '+') {
-                signed = true;
+                // signed
                 idx++;
             }
             if (matchDigits()) {
@@ -402,7 +401,7 @@ class StringScanner {
                 if ((c = buf[idx]) == 'e' || c == 'E') {
                     idx++;
                     if ((c = buf[idx]) == '-' || c == '+') {
-                        signed = true;
+                        // signed
                         idx++;
                     }
                     if (buf[idx] < '0' || buf[idx] > '9') {

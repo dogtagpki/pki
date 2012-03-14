@@ -485,7 +485,6 @@ public class KeyCertUtil {
             SEQUENCE seq = (SEQUENCE) ASN1Util.decode(outerSeq, pubkBytes);
 
             BIT_STRING bs = (BIT_STRING) seq.elementAt(1);
-            byte[] bits = bs.getBits();
             ByteArrayInputStream bitstream = new ByteArrayInputStream(bs.getBits());
             ASN1Header wrapper = new ASN1Header(bitstream);
             byte[] valBytes = new byte[(int) wrapper.getContentLength()];

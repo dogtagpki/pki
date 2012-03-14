@@ -145,7 +145,7 @@ public class ProcessReq extends CMSServlet {
         String doAssign = null;
         EBaseException error = null;
 
-        CMSTemplate form = null, errorForm = null;
+        CMSTemplate form = null;
         Locale[] locale = new Locale[1];
 
         try {
@@ -214,7 +214,6 @@ public class ProcessReq extends CMSServlet {
                 if (xmlOutput != null && xmlOutput.equals("true")) {
                     outputXML(resp, argSet);
                 } else {
-                    String output = form.getOutput(argSet);
                     resp.setContentType("text/html");
                     form.renderOutput(out, argSet);
                     cmsReq.setStatus(CMSRequest.SUCCESS);

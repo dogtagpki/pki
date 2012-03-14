@@ -1112,7 +1112,6 @@ public class CRSEnrollment extends HttpServlet {
         KeyWrapper kw;
         Cipher cip;
         EncryptionAlgorithm ea;
-        boolean errorInRequest = false;
 
         // Unwrap the session key with the Cert server key
         try {

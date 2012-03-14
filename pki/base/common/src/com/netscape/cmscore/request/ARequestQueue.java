@@ -902,7 +902,6 @@ class Request
         return true;
     }
 
-    @SuppressWarnings("unchecked")
     public boolean setExtData(String key, Hashtable<String, String> value) {
         if (!(isValidExtDataKey(key) && isValidExtDataHashtableValue(value))) {
             return false;

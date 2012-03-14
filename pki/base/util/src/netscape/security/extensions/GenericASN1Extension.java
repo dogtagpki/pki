@@ -73,9 +73,9 @@ public class GenericASN1Extension extends Extension
      * get, set, delete methods of Certificate, x509 type.
      */
     private String name;
-    public static String OID = null;
+    public String OID = null;
     public static Hashtable<String, String> mConfig = null;
-    public static String pattern = null;
+    public String pattern = null;
     private int index = 0;
 
     // Encode this value
@@ -325,7 +325,7 @@ public class GenericASN1Extension extends Extension
      * Return the OID of this attribute.
      */
     public String getOID() {
-        return (OID);
+        return OID;
     }
 
     /**

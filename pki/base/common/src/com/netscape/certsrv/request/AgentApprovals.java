@@ -127,14 +127,14 @@ public class AgentApprovals
      * @param stringVector The vector of strings to translate
      * @return the AgentApprovals instance or null if it can't be translated.
      */
-    public static AgentApprovals fromStringVector(Vector stringVector) {
+    public static AgentApprovals fromStringVector(Vector<String> stringVector) {
         if (stringVector == null) {
             return null;
         }
         AgentApprovals approvals = new AgentApprovals();
         for (int i = 0; i < stringVector.size(); i++) {
             try {
-                String approvalString = (String) stringVector.get(i);
+                String approvalString = stringVector.get(i);
                 String[] parts = approvalString.split(";", 2);
                 if (parts.length != 2) {
                     return null;

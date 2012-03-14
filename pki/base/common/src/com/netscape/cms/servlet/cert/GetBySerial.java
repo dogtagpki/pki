@@ -122,8 +122,6 @@ public class GetBySerial extends CMSServlet {
      * @param cmsReq the object holding the request and response information
      */
     public void process(CMSRequest cmsReq) throws EBaseException {
-        int serialNumber = -1;
-        boolean noError = true;
 
         HttpServletRequest req = cmsReq.getHttpReq();
         HttpServletResponse response = cmsReq.getHttpResp();

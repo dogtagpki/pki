@@ -1535,8 +1535,6 @@ public class CertificateRepository extends Repository
     public ICertRecordList getInvalidCertsByNotBeforeDate(Date date, int pageSize)
             throws EBaseException {
 
-        Date rightNow = CMS.getCurrentDate();
-
         ICertRecordList list = null;
         IDBSSession s = mDBService.createSession();
 

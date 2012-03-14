@@ -66,7 +66,7 @@ public class ConfigRootCAServlet extends ConfigBaseServlet {
         }
     }
 
-    public Vector getProfiles() {
+    public Vector<CertInfoProfile> getProfiles() {
         IConfigStore config = CMS.getConfigStore();
         String instancePath = "";
 
@@ -75,7 +75,7 @@ public class ConfigRootCAServlet extends ConfigBaseServlet {
         } catch (EBaseException e) {
         }
         String p[] = { "caCert.profile" };
-        Vector profiles = new Vector();
+        Vector<CertInfoProfile> profiles = new Vector<CertInfoProfile>();
 
         for (int i = 0; i < p.length; i++) {
             try {
@@ -102,7 +102,7 @@ public class ConfigRootCAServlet extends ConfigBaseServlet {
         if (profile == null) {
             profile = "caCert.profile";
         }
-        Vector profiles = getProfiles();
+        Vector<CertInfoProfile> profiles = getProfiles();
 
         context.put("status", "display");
         context.put("profiles", profiles);
@@ -122,7 +122,7 @@ public class ConfigRootCAServlet extends ConfigBaseServlet {
         }
         context.put("status", "update");
         context.put("error", "");
-        Vector profiles = getProfiles();
+        Vector<CertInfoProfile> profiles = getProfiles();
 
         context.put("profiles", profiles);
         context.put("selected_profile_id", profile);

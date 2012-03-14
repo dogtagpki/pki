@@ -50,7 +50,7 @@ public class FileAsString {
     private void readFile()
             throws IOException {
         BufferedReader br = createBufferedReader(mFilename);
-        StringBuffer buf = new StringBuffer("");
+        StringBuffer buf = new StringBuffer();
         int bytesread = 0;
 
         do {
@@ -60,7 +60,6 @@ public class FileAsString {
             if (bytesread > 0) {
                 buf.append(cbuf, 0, bytesread);
             }
-            String s = new String(buf);
         } while (bytesread != -1);
         br.close();
 

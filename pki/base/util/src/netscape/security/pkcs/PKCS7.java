@@ -336,7 +336,7 @@ public class PKCS7 {
     public SignerInfo[] verify(byte[] bytes)
             throws NoSuchAlgorithmException, SignatureException {
 
-        Vector intResult = new Vector();
+        Vector<SignerInfo> intResult = new Vector<SignerInfo>();
         for (int i = 0; i < signerInfos.length; i++) {
 
             SignerInfo signerInfo = verify(signerInfos[i], bytes);

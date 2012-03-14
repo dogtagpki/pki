@@ -103,7 +103,6 @@ public class HttpPKIMessage implements IHttpPKIMessage {
         reqStatus = r.getRequestStatus().toString();
         CMS.debug("HttpPKMessage.toRequest: requestStatus=" + reqStatus);
 
-        int len = RequestTransfer.getTransferAttributes(r).length;
         String key;
         Object value;
         Enumeration<Object> enum1 = mNameVals.elements();

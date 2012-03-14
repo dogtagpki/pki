@@ -47,7 +47,6 @@ import com.netscape.cmsutil.ocsp.CertStatus;
 import com.netscape.cmsutil.ocsp.GoodInfo;
 import com.netscape.cmsutil.ocsp.OCSPRequest;
 import com.netscape.cmsutil.ocsp.OCSPResponse;
-import com.netscape.cmsutil.ocsp.OCSPResponseStatus;
 import com.netscape.cmsutil.ocsp.Request;
 import com.netscape.cmsutil.ocsp.ResponseBytes;
 import com.netscape.cmsutil.ocsp.ResponseData;
@@ -168,7 +167,6 @@ public class OCSPClient {
                         new FileInputStream(output));
         OCSPResponse resp = (OCSPResponse)
                 OCSPResponse.getTemplate().decode(fis);
-        OCSPResponseStatus status = resp.getResponseStatus();
         ResponseBytes bytes = resp.getResponseBytes();
         BasicOCSPResponse basic = (BasicOCSPResponse)
                 BasicOCSPResponse.getTemplate().decode(

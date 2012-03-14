@@ -272,8 +272,8 @@ public class RecoveryService implements IService {
             if (statsSub != null) {
                 statsSub.startTiming("unwrap_key");
             }
-            PrivateKey privateKey = mKRA.getStorageKeyUnit().unwrap(
-                    keyRecord.getPrivateKeyData(), null);
+            mKRA.getStorageKeyUnit().unwrap(
+                    keyRecord.getPrivateKeyData(), null); // throw exception on error
             if (statsSub != null) {
                 statsSub.endTiming("unwrap_key");
             }

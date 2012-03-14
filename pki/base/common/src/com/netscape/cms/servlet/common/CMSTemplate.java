@@ -155,7 +155,6 @@ public class CMSTemplate extends CMSFile {
         Enumeration<String> e = null;
         Enumeration<IArgBlock> q = null;
         IArgBlock r = null;
-        boolean headerBlock = false, fixedBlock = false, queryBlock = false;
         CMSTemplateParams data = (CMSTemplateParams) input;
         HTTPOutputStreamWriter http_out = null;
 
@@ -191,7 +190,6 @@ public class CMSTemplate extends CMSFile {
             if (r != null) {
                 e = r.elements();
                 while (e.hasMoreElements()) {
-                    headerBlock = true;
                     String n = e.nextElement();
                     Object v = r.getValue(n);
 
@@ -204,7 +202,6 @@ public class CMSTemplate extends CMSFile {
             if (r != null) {
                 e = r.elements();
                 while (e.hasMoreElements()) {
-                    fixedBlock = true;
                     String n = e.nextElement();
                     Object v = r.getValue(n);
 
@@ -215,7 +212,6 @@ public class CMSTemplate extends CMSFile {
             // Output the query data
             q = data.queryRecords();
             if (q != null && q.hasMoreElements()) {
-                queryBlock = true;
                 out.println("var recordCount = 0;");
                 out.println("var record;");
                 while (q.hasMoreElements()) {

@@ -473,7 +473,6 @@ public class EnrollServlet extends CMSServlet {
                 (ICertRecordList) mCa.getCertificateRepository().findCertRecordsInList(filter, null, 10);
         int size = list.getSize();
         Enumeration<ICertRecord> en = list.getCertRecords(0, size - 1);
-        boolean gotEncCert = false;
 
         CMS.debug("EnrollServlet: signing cert filter " + filter);
 
@@ -989,14 +988,9 @@ public class EnrollServlet extends CMSServlet {
                     SUBJECT_KEYGEN_INFO, null);
             PKCS10 pkcs10 = null;
 
-            String certType = null;
-
-            //
-            String test = httpParams.getValueAsString("certNickname", null);
-
             // support Enterprise 3.5.1 server where CERT_TYPE=csrCertType
             // instead of certType
-            certType = httpParams.getValueAsString(OLD_CERT_TYPE, null);
+            String certType = httpParams.getValueAsString(OLD_CERT_TYPE, null);
             CMS.debug("EnrollServlet: certType " + certType);
 
             if (certType == null) {

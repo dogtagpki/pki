@@ -291,7 +291,7 @@ public class DoRevoke extends CMSServlet {
                 if (authToken != null) {
 
                     String serialNumber = req.getParameter("serialNumber");
-                    X509CertImpl sslCert = (X509CertImpl) getSSLClientCertificate(req);
+                    getSSLClientCertificate(req); // throw exception on error
 
                     if (serialNumber != null) {
                         eeSerialNumber = serialNumber;

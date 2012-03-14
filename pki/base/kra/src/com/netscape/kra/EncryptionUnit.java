@@ -85,7 +85,6 @@ public abstract class EncryptionUnit implements IEncryptionUnit {
             throws EBaseException {
         try {
             CMS.debug("EncryptionUnit.encryptInternalPrivate");
-            CryptoToken token = getToken();
             CryptoToken internalToken = getInternalToken();
 
             // (1) generate session key

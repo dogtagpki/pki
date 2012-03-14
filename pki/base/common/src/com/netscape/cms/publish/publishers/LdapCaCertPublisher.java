@@ -93,16 +93,16 @@ public class LdapCaCertPublisher
         return "LdapCaCertPublisher";
     }
 
-    public Vector getInstanceParams() {
-        Vector v = new Vector();
+    public Vector<String> getInstanceParams() {
+        Vector<String> v = new Vector<String>();
 
         v.addElement("caCertAttr=" + mCaCertAttr);
         v.addElement("caObjectClass=" + mCaObjectclass);
         return v;
     }
 
-    public Vector getDefaultParams() {
-        Vector v = new Vector();
+    public Vector<String> getDefaultParams() {
+        Vector<String> v = new Vector<String>();
 
         v.addElement("caCertAttr=" + mCaCertAttr);
         v.addElement("caObjectClass=" + mCaObjectclass);

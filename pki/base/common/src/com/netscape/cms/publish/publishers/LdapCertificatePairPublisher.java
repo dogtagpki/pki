@@ -91,20 +91,20 @@ public class LdapCertificatePairPublisher
         return "LdapCertificatePairPublisher";
     }
 
-    public Vector getInstanceParams() {
-        Vector v = new Vector();
+    public Vector<String> getInstanceParams() {
+        Vector<String> v = new Vector<String>();
 
         v.addElement("crossCertPairAttr=" + mCrossCertPairAttr);
         v.addElement("caObjectClass=" + mCaObjectclass);
         return v;
     }
 
-    public Vector getInstanceParamsWithExtras() {
+    public Vector<String> getInstanceParamsWithExtras() {
         return getInstanceParams();
     }
 
-    public Vector getDefaultParams() {
-        Vector v = new Vector();
+    public Vector<String> getDefaultParams() {
+        Vector<String> v = new Vector<String>();
 
         v.addElement("crossCertPairAttr=" + mCrossCertPairAttr);
         v.addElement("caObjectClass=" + mCaObjectclass);

@@ -259,11 +259,9 @@ public class DonePanel extends WizardPanelBase {
 
         // update security domain
         String sdtype = "";
-        String instanceName = "";
         String subsystemName = "";
         try {
             sdtype = cs.getString("securitydomain.select", "");
-            instanceName = cs.getString("instanceId", "");
             subsystemName = cs.getString("preop.subsystem.name", "");
         } catch (Exception e) {
         }
@@ -727,20 +725,15 @@ public class DonePanel extends WizardPanelBase {
         IConfigStore config = CMS.getConfigStore();
         String cahost = "";
         int caport = -1;
-        String sdhost = "";
-        int sdport = -1;
 
         try {
             cahost = config.getString("preop.ca.hostname", "");
             caport = config.getInteger("preop.ca.httpsport", -1);
-            sdhost = config.getString("securitydomain.host", "");
-            sdport = config.getInteger("securitydomain.httpseeport", -1);
         } catch (Exception e) {
         }
 
         String ocsphost = CMS.getAgentHost();
         int ocspport = Integer.parseInt(CMS.getAgentPort());
-        int ocspagentport = Integer.parseInt(CMS.getAgentPort());
         String session_id = CMS.getConfigSDSessionId();
         String content = "xmlOutput=true&sessionID=" + session_id + "&ocsp_host=" + ocsphost + "&ocsp_port=" + ocspport;
 

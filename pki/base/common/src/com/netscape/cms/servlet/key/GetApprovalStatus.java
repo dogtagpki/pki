@@ -133,7 +133,6 @@ public class GetApprovalStatus extends CMSServlet {
         IArgBlock header = CMS.createArgBlock();
         IArgBlock fixed = CMS.createArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
-        int seq = -1;
         int rComplete = 0;
 
         // get status and populate argSet

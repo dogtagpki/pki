@@ -126,7 +126,7 @@ public class PublisherUtils {
      * there'll be trouble if the Vector contains something other
      * than just Strings
      */
-    public static String[] getStringArrayFromVector(Vector v) {
+    public static String[] getStringArrayFromVector(Vector<String> v) {
         String s[] = new String[v.size()];
 
         v.copyInto(s);

@@ -335,7 +335,7 @@ public class SubjectInfoAccessExtDefault extends EnrollExtDefault {
             int num = getNumAds();
 
             CMS.debug("SubjectInfoAccess num=" + num);
-            Vector recs = new Vector();
+            Vector<NameValuePairs> recs = new Vector<NameValuePairs>();
 
             for (int i = 0; i < num; i++) {
                 NameValuePairs np = new NameValuePairs();
@@ -370,7 +370,6 @@ public class SubjectInfoAccessExtDefault extends EnrollExtDefault {
 
     public String getText(Locale locale) {
         StringBuffer ads = new StringBuffer();
-        String numAds = getConfig(CONFIG_NUM_ADS);
         int num = getNumAds();
 
         for (int i = 0; i < num; i++) {

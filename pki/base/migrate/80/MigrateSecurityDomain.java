@@ -187,10 +187,10 @@ public class MigrateSecurityDomain {
                 NodeList nodeList = doc.getElementsByTagName(type);
                 int len = nodeList.getLength();
                 for (int i = 0; i < len; i++) {
-                    Vector v_clone = parser.getValuesFromContainer(nodeList.item(i), "Clone");
-                    Vector v_name = parser.getValuesFromContainer(nodeList.item(i), "SubsystemName");
-                    Vector v_host = parser.getValuesFromContainer(nodeList.item(i), "Host");
-                    Vector v_port = parser.getValuesFromContainer(nodeList.item(i), "SecurePort");
+                    Vector<String> v_clone = parser.getValuesFromContainer(nodeList.item(i), "Clone");
+                    Vector<String> v_name = parser.getValuesFromContainer(nodeList.item(i), "SubsystemName");
+                    Vector<String> v_host = parser.getValuesFromContainer(nodeList.item(i), "Host");
+                    Vector<String> v_port = parser.getValuesFromContainer(nodeList.item(i), "SecurePort");
 
                     String cn = (String) v_host.elementAt(0) + ":" + (String) v_port.elementAt(0);
                     String dn = "cn=" + cn + ",cn=" + type + "List,ou=Security Domain," + basedn;

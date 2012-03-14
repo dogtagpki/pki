@@ -210,7 +210,6 @@ public class BasicConstraintsExt extends APolicyRule
      * @return The policy result object.
      */
     public PolicyResult apply(IRequest req) {
-        PolicyResult res = PolicyResult.ACCEPTED;
 
         // get cert info.
         X509CertInfo[] ci =

@@ -148,14 +148,14 @@ public abstract class APolicyRule implements IPolicyRule {
      * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public abstract Vector getInstanceParams();
+    public abstract Vector<String> getInstanceParams();
 
     /**
      * Return default parameters for a policy implementation.
      * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public abstract Vector getDefaultParams();
+    public abstract Vector<String> getDefaultParams();
 
     public void setError(IRequest req, String format, Object[] params) {
         setPolicyException(req, format, params);
@@ -178,9 +178,9 @@ public abstract class APolicyRule implements IPolicyRule {
     }
 
     public void setPolicyException(IRequest req, EBaseException ex) {
-        Vector ev = req.getExtDataInStringVector(IRequest.ERRORS);
+        Vector<String> ev = req.getExtDataInStringVector(IRequest.ERRORS);
         if (ev == null) {
-            ev = new Vector();
+            ev = new Vector<String>();
         }
         ev.addElement(ex.toString());
         req.setExtData(IRequest.ERRORS, ev);
@@ -235,9 +235,9 @@ public abstract class APolicyRule implements IPolicyRule {
         else
             ex = new EPolicyException(format, params);
 
-        Vector ev = req.getExtDataInStringVector(IRequest.ERRORS);
+        Vector<String> ev = req.getExtDataInStringVector(IRequest.ERRORS);
         if (ev == null) {
-            ev = new Vector();
+            ev = new Vector<String>();
         }
         ev.addElement(ex.toString());
         req.setExtData(IRequest.ERRORS, ev);

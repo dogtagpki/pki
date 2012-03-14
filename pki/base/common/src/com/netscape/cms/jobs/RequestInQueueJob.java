@@ -33,7 +33,6 @@ import com.netscape.certsrv.jobs.IJobsScheduler;
 import com.netscape.certsrv.notification.IEmailFormProcessor;
 import com.netscape.certsrv.request.IRequestList;
 import com.netscape.certsrv.request.IRequestQueue;
-import com.netscape.certsrv.request.RequestId;
 import com.netscape.certsrv.request.RequestStatus;
 
 /**
@@ -171,7 +170,7 @@ public class RequestInQueueJob extends AJobBase
                 mReqQ.listRequestsByStatus(RequestStatus.PENDING);
 
         while (list != null && list.hasMoreElements()) {
-            RequestId rid = list.nextRequestId();
+            list.nextRequestId();
 
             /*  This is way too slow
              // get request from request id

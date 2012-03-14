@@ -27,7 +27,6 @@ import java.util.Vector;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -51,7 +50,6 @@ import com.netscape.certsrv.request.IRequestQueue;
 import com.netscape.certsrv.request.RequestStatus;
 import com.netscape.cms.servlet.base.CMSServlet;
 import com.netscape.cms.servlet.common.CMSRequest;
-import com.netscape.cms.servlet.common.CMSTemplate;
 import com.netscape.cms.servlet.common.ECMSGWException;
 
 /**
@@ -125,8 +123,6 @@ public class DoUnrevokeTPS extends CMSServlet {
         BigInteger[] serialNumbers;
         EBaseException error = null;
 
-        CMSTemplate form = null;
-
         Locale[] locale = new Locale[1];
 
         /*
@@ -195,8 +191,6 @@ public class DoUnrevokeTPS extends CMSServlet {
         }
 
         try {
-            ServletOutputStream out = resp.getOutputStream();
-
             if (error == null) {
                 o_status = "status=0";
                 errorString = "error=";
@@ -530,7 +524,7 @@ public class DoUnrevokeTPS extends CMSServlet {
         String serialNumString = req.getParameter("serialNumber");
 
         StringTokenizer snList = new StringTokenizer(serialNumString, " ");
-        Vector biList = new Vector();
+        Vector<BigInteger> biList = new Vector<BigInteger>();
         while (snList.hasMoreTokens()) {
             String snStr = snList.nextToken();
             if (snStr != null) {

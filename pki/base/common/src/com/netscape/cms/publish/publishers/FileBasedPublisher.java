@@ -181,7 +181,6 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
     public void init(IConfigStore config) {
         mConfig = config;
         String dir = null;
-        String ext = null;
 
         try {
             dir = mConfig.getString(PROP_DIR, null);
@@ -365,8 +364,6 @@ public class FileBasedPublisher implements ILdapPublisher, IExtendedPluginInfo {
                 if (mB64Attr == true) {
                     if (encodedArray == null)
                         encodedArray = crl.getEncoded();
-
-                    ByteArrayOutputStream os = new ByteArrayOutputStream();
 
                     fos = new FileOutputStream(tempFile);
                     fos.write(Utils.base64encode(encodedArray).getBytes());

@@ -263,6 +263,7 @@ public class DBSSession implements IDBSSession {
         return search(base, filter, null);
     }
 
+    @SuppressWarnings("unchecked")
     public IDBSearchResults search(String base, String filter, int maxSize)
             throws EBaseException {
         try {
@@ -290,6 +291,7 @@ public class DBSSession implements IDBSSession {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public IDBSearchResults search(String base, String filter, int maxSize, int timeLimit)
             throws EBaseException {
         try {
@@ -322,6 +324,7 @@ public class DBSSession implements IDBSSession {
      * Retrieves a list of object that satifies the given
      * filter.
      */
+    @SuppressWarnings("unchecked")
     public IDBSearchResults search(String base, String filter,
             String attrs[]) throws EBaseException {
         try {
@@ -458,13 +461,13 @@ public class DBSSession implements IDBSSession {
     /**
      * Retrieves a list of objects.
      */
-    public IDBVirtualList<?> createVirtualList(String base, String filter,
+    public IDBVirtualList<Object> createVirtualList(String base, String filter,
             String attrs[], String sortKey, int pageSize) throws EBaseException {
         return new DBVirtualList<Object>(mDBSystem.getRegistry(), mConn, base,
                 filter, attrs, sortKey, pageSize);
     }
 
-    public IDBVirtualList<?> createVirtualList(String base, String filter,
+    public IDBVirtualList<Object> createVirtualList(String base, String filter,
             String attrs[], String startFrom, String sortKey, int pageSize) throws EBaseException {
         return new DBVirtualList<Object>(mDBSystem.getRegistry(), mConn, base,
                 filter, attrs, startFrom, sortKey, pageSize);

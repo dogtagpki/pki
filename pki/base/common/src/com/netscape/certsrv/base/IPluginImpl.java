@@ -84,7 +84,7 @@ public interface IPluginImpl {
      * @return nvPairs A Vector of name/value pairs. Each name/value
      *         pair is constructed as a String in name=value format.
      */
-    public Vector getInstanceParams();
+    public Vector<String> getInstanceParams();
 
     /**
      * Retrieves a list of configuration parameter names.
@@ -99,6 +99,6 @@ public interface IPluginImpl {
      * @return nvPairs A Vector of name/value pairs. Each name/value
      *         pair is constructed as a String in name=value.
      */
-    public Vector getDefaultParams();
+    public Vector<String> getDefaultParams();
 
 }

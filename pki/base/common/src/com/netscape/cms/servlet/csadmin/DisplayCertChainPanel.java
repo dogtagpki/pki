@@ -136,7 +136,7 @@ public class DisplayCertChainPanel extends WizardPanelBase {
         }
 
         int size = 0;
-        Vector v = new Vector();
+        Vector<String> v = new Vector<String>();
 
         if (!certchain_size.equals("")) {
             try {

@@ -122,8 +122,8 @@ public class XMLObject {
         return null;
     }
 
-    public Vector getAllValues(String tagname) {
-        Vector v = new Vector();
+    public Vector<String> getAllValues(String tagname) {
+        Vector<String> v = new Vector<String>();
         NodeList nodes = mDoc.getElementsByTagName(tagname);
         for (int i = 0; i < nodes.getLength(); i++) {
             Node n = nodes.item(i);

@@ -20,7 +20,6 @@ package com.netscape.cmscore.authentication;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Vector;
 
 import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthToken;
@@ -80,7 +79,6 @@ public class ChallengePhraseAuthentication implements IAuthManager {
     private ICertUserLocator mCULocator = null;
     private ILogger mLogger = CMS.getLogger();
     private String mRequestor = null;
-    private Vector mID = null;
     private MessageDigest mSHADigest = null;
 
     // request attributes hacks 

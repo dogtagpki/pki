@@ -154,8 +154,6 @@ public class GrantAsyncRecovery extends CMSServlet {
         IArgBlock fixed = CMS.createArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
 
-        int seq = -1;
-
         String agentID = authToken.getInString("uid");
         CMS.debug("GrantAsyncRecovery: process() agent uid=" + agentID);
         CMS.debug("GrantAsyncRecovery: process() request id=" + req.getParameter("reqID"));

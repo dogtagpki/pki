@@ -109,7 +109,7 @@ public class HttpInput {
             throws IOException {
         String v = getString(request, name);
         try {
-            URL u = new URL(v);
+            new URL(v); // throw exception on error
         } catch (Exception e) {
             throw new IOException("Invalid URL " + v);
         }

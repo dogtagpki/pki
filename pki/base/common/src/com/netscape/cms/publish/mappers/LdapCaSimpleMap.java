@@ -264,11 +264,6 @@ public class LdapCaSimpleMap implements ILdapMapper, IExtendedPluginInfo {
                 "organizationalPerson",
                 "inetOrgPerson" };
 
-        String oOc[] = { "top",
-                "organization" };
-        String oiOc[] = { "top",
-                "organizationalunit" };
-
         DN dnobj = new DN(dn);
         String attrval[] = dnobj.explodeDN(true);
 

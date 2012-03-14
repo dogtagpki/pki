@@ -631,7 +631,6 @@ public class CMCOutputTemplate {
                         IRequestQueue queue = ca.getRequestQueue();
                         IRequest r = queue.findRequest(new RequestId(requestId));
                         if (r != null) {
-                            Integer result = r.getExtDataInInteger(IRequest.RESULT);
                             RequestStatus status = r.getRequestStatus();
                             if (status.equals(RequestStatus.PENDING)) {
                                 pending_bpids.addElement(reqId);

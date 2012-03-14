@@ -160,7 +160,7 @@ public class DisplayBySerial extends CMSServlet {
             }
 
             serialNumber = getSerialNumber(req);
-            ICertRecord rec = getCertRecord(serialNumber, certType);
+            getCertRecord(serialNumber, certType); //throw exception on error
 
             if (certType[0].equalsIgnoreCase("x509")) {
                 form = getTemplate(mForm1Path, req, locale);
@@ -230,7 +230,7 @@ public class DisplayBySerial extends CMSServlet {
         String certType[] = new String[1];
 
         try {
-            ICertRecord rec = getCertRecord(seq, certType);
+            getCertRecord(seq, certType); // throw exception on error
 
             if (certType[0].equalsIgnoreCase("x509")) {
                 processX509(argSet, header, seq, req, resp, locale);

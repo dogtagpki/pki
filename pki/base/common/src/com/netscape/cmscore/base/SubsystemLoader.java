@@ -37,8 +37,8 @@ public class SubsystemLoader {
     private static final String PROP_CLASSNAME = "class";
     private static final String PROP_ID = "id";
 
-    public static Vector load(IConfigStore config) throws EBaseException {
-        Vector v = new Vector();
+    public static Vector<ISubsystem> load(IConfigStore config) throws EBaseException {
+        Vector<ISubsystem> v = new Vector<ISubsystem>();
 
         // load a list of installable subsystems (services)
         for (int i = 0;; i++) {

@@ -39,7 +39,7 @@ import com.netscape.cms.servlet.wizard.WizardServlet;
 import com.netscape.cmsutil.crypto.CryptoUtil;
 
 public class CertPrettyPrintPanel extends WizardPanelBase {
-    private Vector mCerts = null;
+    private Vector<Cert> mCerts = null;
 
     public CertPrettyPrintPanel() {
     }
@@ -124,7 +124,7 @@ public class CertPrettyPrintPanel extends WizardPanelBase {
         context.put("title", "Certificates Pretty Print");
 
         try {
-            mCerts = new Vector();
+            mCerts = new Vector<Cert>();
 
             IConfigStore config = CMS.getConfigStore();
 

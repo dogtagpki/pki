@@ -68,8 +68,6 @@ public class LdapPredicateParser {
         // The first token cannot be an operator. We are not dealing with
         // reverse-polish notation.
         String token = pt.nextToken();
-        boolean opANDSeen;
-        boolean opORSeen;
 
         if (getOP(token) != EXPRESSION) {
             if (Debug.ON)
@@ -78,7 +76,7 @@ public class LdapPredicateParser {
         }
         ILdapExpression current = parseExpression(token);
         boolean malformed = false;
-        Vector expSet = new Vector();
+        Vector<ILdapExpression> expSet = new Vector<ILdapExpression>();
         int prevType = EXPRESSION;
 
         while (pt.hasMoreTokens()) {
@@ -156,7 +154,7 @@ public class LdapPredicateParser {
         if (commaIndex < 0)
             return LdapSimpleExpression.parse(input);
         int currentIndex = 0;
-        Vector expVector = new Vector();
+        Vector<LdapSimpleExpression> expVector = new Vector<LdapSimpleExpression>();
 
         while (commaIndex > 0) {
             LdapSimpleExpression exp = (LdapSimpleExpression)

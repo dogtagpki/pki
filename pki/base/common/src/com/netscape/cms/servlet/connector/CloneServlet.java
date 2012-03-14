@@ -27,7 +27,6 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
 import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -100,8 +99,6 @@ public class CloneServlet extends CMSServlet {
             throw new IOException(
                     "CMS server is not ready to serve.");
 
-        ServletContext servletContext = mConfig.getServletContext();
-
         CMSRequest cmsRequest = newCMSRequest();
 
         // set argblock
@@ -125,8 +122,6 @@ public class CloneServlet extends CMSServlet {
         int len = -1;
         IPKIMessage msg = null;
         IPKIMessage replymsg = null;
-        IRequest r = null;
-        IRequest reply = null;
 
         // NOTE must read all bufer before redoing handshake for 
         // ssl client auth for client auth to work.
@@ -310,7 +305,6 @@ public class CloneServlet extends CMSServlet {
             String source, String sourceUserId, IPKIMessage msg, IAuthToken token)
             throws EBaseException {
         IPKIMessage replymsg = null;
-        IRequest r = null;
         IRequestQueue queue = mAuthority.getRequestQueue();
         String srcid = source + ":" + msg.getReqId();
 

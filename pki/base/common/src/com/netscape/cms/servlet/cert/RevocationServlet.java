@@ -149,7 +149,6 @@ public class RevocationServlet extends CMSServlet {
 
         BigInteger old_serial_no = null;
         X509CertImpl old_cert = null;
-        String revokeAll = null;
 
         CMSTemplate form = null;
         Locale[] locale = new Locale[1];

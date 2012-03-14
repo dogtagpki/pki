@@ -382,7 +382,6 @@ public class SubjectAltNameExtDefault extends EnrollExtDefault {
      */
     public String getText(Locale locale) {
         StringBuffer sb = new StringBuffer();
-        String numGNs = getConfig(CONFIG_NUM_GNS);
         int num = getNumGNs();
 
         for (int i = 0; i < num; i++) {

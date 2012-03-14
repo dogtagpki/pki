@@ -122,7 +122,6 @@ public class ImportTransportCert extends CMSServlet {
 
         IConfigStore cs = CMS.getConfigStore();
 
-        String name = httpReq.getParameter("name");
         String certsString = httpReq.getParameter("certificate");
 
         try {

@@ -491,7 +491,6 @@ public class OCSPAdminServlet extends AdminServlet {
         try {
             @SuppressWarnings("unchecked")
             Enumeration<String> enum1 = req.getParameterNames();
-            boolean restart = false;
 
             while (enum1.hasMoreElements()) {
                 String key = (String) enum1.nextElement();

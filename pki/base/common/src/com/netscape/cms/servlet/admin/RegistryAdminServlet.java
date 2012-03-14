@@ -155,7 +155,6 @@ public class RegistryAdminServlet extends AdminServlet {
             throws ServletException, IOException {
         // Get operation type
         String op = req.getParameter(Constants.OP_TYPE);
-        String scope = req.getParameter(Constants.OP_SCOPE);
 
         if (op.equals(OpDef.OP_SEARCH)) {
             if (!readAuthorize(req, resp))

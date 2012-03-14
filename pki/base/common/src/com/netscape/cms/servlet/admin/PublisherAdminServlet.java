@@ -372,7 +372,6 @@ public class PublisherAdminServlet extends AdminServlet {
 
         if (implType.equals(Constants.PR_EXT_PLUGIN_IMPLTYPE_PUBLISHRULE)) {
             IPublisherProcessor p_processor = mProcessor;
-            RulePlugin plugin = p_processor.getRulePlugins().get(implName);
 
             // Should get the registered rules from processor
             // instead of plugin
@@ -1324,10 +1323,7 @@ public class PublisherAdminServlet extends AdminServlet {
         // only remove from memory
         // cannot shutdown because we don't keep track of whether it's
         // being used. 
-        ILdapMapper mapperInst = (ILdapMapper)
-                mProcessor.getMapperInstance(id);
-
-        mProcessor.getMapperInsts().remove((Object) id);
+        mProcessor.getMapperInsts().remove(id);
 
         // remove the configuration.
         IConfigStore destStore =
@@ -2019,10 +2015,7 @@ public class PublisherAdminServlet extends AdminServlet {
         // only remove from memory
         // cannot shutdown because we don't keep track of whether it's
         // being used. 
-        ILdapRule ruleInst = (ILdapRule)
-                mProcessor.getRuleInsts().get(id);
-
-        mProcessor.getRuleInsts().remove((Object) id);
+        mProcessor.getRuleInsts().remove(id);
 
         // remove the configuration.
         IConfigStore destStore =
@@ -2674,9 +2667,7 @@ public class PublisherAdminServlet extends AdminServlet {
         // only remove from memory
         // cannot shutdown because we don't keep track of whether it's
         // being used. 
-        ILdapPublisher publisherInst = mProcessor.getPublisherInstance(id);
-
-        mProcessor.getPublisherInsts().remove((Object) id);
+        mProcessor.getPublisherInsts().remove(id);
 
         // remove the configuration.
         IConfigStore destStore =

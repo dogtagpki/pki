@@ -93,12 +93,7 @@ public class GetCookie extends CMSServlet {
 
         CMS.debug("GetCookie start");
         IAuthToken authToken = null;
-        int sessionMaxAge = SESSION_MAX_AGE;
         IConfigStore cs = CMS.getConfigStore();
-        try {
-            sessionMaxAge = cs.getInteger("sessionMaxAge", SESSION_MAX_AGE);
-        } catch (Exception e) {
-        }
 
         IArgBlock header = CMS.createArgBlock();
         IArgBlock ctx = CMS.createArgBlock();

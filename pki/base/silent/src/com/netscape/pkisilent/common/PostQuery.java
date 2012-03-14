@@ -83,7 +83,6 @@ public class PostQuery {
 
         try {
 
-            BufferedReader mbufferedReader = null;
             URL myUrl = new URL(URLString);
             String userPassword = adminID + ":" + adminPWD;
 
@@ -107,8 +106,6 @@ public class PostQuery {
             DataOutputStream os = new DataOutputStream(URLCon.getOutputStream());
 
             System.out.println("Query: " + postQuery);
-
-            int querylength = postQuery.length();
 
             os.writeBytes(postQuery);
             os.flush();

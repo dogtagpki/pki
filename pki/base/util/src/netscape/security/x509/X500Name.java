@@ -148,7 +148,6 @@ public class X500Name implements Principal, GeneralNameInterface {
             String country) throws IOException {
         DirStrConverter dirStrConverter = new DirStrConverter();
         PrintableConverter printableConverter = new PrintableConverter();
-        DerValue val;
         AVA[] assertion = new AVA[1]; // array is cloned in constructors.
         int i = 4;
 
@@ -194,7 +193,6 @@ public class X500Name implements Principal, GeneralNameInterface {
             String country) throws IOException {
         DirStrConverter dirStrConverter = new DirStrConverter();
         PrintableConverter printableConverter = new PrintableConverter();
-        DerValue val;
         AVA[] assertion = new AVA[1]; // array is cloned in constructors.
         int i = 6;
 

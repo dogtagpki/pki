@@ -931,7 +931,6 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
             statsSub.startTiming("signing");
         }
 
-        long startTime = CMS.getCurrentDate().getTime();
         try {
             DerOutputStream out = new DerOutputStream();
             DerOutputStream tmp = new DerOutputStream();
@@ -1006,7 +1005,6 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
             statsSub.startTiming("signing");
         }
 
-        long startTime = CMS.getCurrentDate().getTime();
         try {
             DerOutputStream out = new DerOutputStream();
             DerOutputStream tmp = new DerOutputStream();
@@ -1328,7 +1326,7 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
         Long l = Long.valueOf(file.length());
         byte[] b = new byte[l.intValue()];
         FileInputStream in = new FileInputStream(path);
-        int num = in.read(b);
+        in.read(b);
         in.close();
 
         return b;
@@ -1589,8 +1587,6 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
                 }
 
                 // Initialize Request In Queue notification listener
-                IConfigStore rq = nc.getSubStore(PROP_REQ_IN_Q_SUBSTORE);
-
                 String requestInQListenerClassName =
                         nc.getString("certificateIssuedListenerClassName",
                                 "com.netscape.cms.listeners.RequestInQListener");
@@ -1602,9 +1598,6 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
                     log(ILogger.LL_FAILURE,
                             CMS.getLogMessage("CMSCORE_CA_CA_REGISTER_REQ_LISTENER", requestInQListenerClassName));
                 }
-
-                // Initialize extra listeners
-                IConfigStore mListenerConfig = null;
 
             } else {
                 log(ILogger.LL_FAILURE, CMS.getLogMessage("CMSCORE_CA_CA_NOTIFY_NONE"));
@@ -1703,7 +1696,6 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
                     "initializing crl issue point " + issuePointId);
             IConfigStore issuePointConfig = null;
             String issuePointClassName = null;
-            @SuppressWarnings("unchecked")
             Class<CRLIssuingPoint> issuePointClass = null;
             CRLIssuingPoint issuePoint = null;
 

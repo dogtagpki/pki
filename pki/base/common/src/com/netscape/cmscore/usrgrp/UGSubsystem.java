@@ -1511,7 +1511,6 @@ public final class UGSubsystem implements IUGSubsystem {
         try {
             LDAPAttribute attrMembers = new LDAPAttribute("uniquemember");
             LDAPModificationSet mod = new LDAPModificationSet();
-            String st = null;
 
             String desc = grp.getDescription();
 

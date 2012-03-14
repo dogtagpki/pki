@@ -159,7 +159,6 @@ public class KeyUsageExt extends APolicyRule
      * @return The policy result object.
      */
     public PolicyResult apply(IRequest req) {
-        PolicyResult res = PolicyResult.ACCEPTED;
 
         X509CertInfo[] ci =
                 req.getExtDataInCertInfoArray(IRequest.CERT_INFO);

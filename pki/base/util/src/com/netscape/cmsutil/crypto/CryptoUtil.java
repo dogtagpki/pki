@@ -965,7 +965,6 @@ public class CryptoUtil {
 
         while (enums.hasMoreElements()) {
             CryptoToken token = enums.nextElement();
-            String tokenName = token.getName();
             CryptoStore store = token.getCryptoStore();
             PrivateKey keys[] = store.getPrivateKeys();
 

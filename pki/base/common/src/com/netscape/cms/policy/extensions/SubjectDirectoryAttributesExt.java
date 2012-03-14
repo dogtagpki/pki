@@ -123,7 +123,6 @@ public class SubjectDirectoryAttributesExt extends APolicyRule
     }
 
     public PolicyResult apply(IRequest req) {
-        PolicyResult res = PolicyResult.ACCEPTED;
         X509CertInfo[] ci =
                 req.getExtDataInCertInfoArray(IRequest.CERT_INFO);
 

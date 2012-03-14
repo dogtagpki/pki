@@ -739,7 +739,6 @@ public class WizardPanelBase implements IWizardPanel {
                     cs.putString("preop.cookie", cookie);
                     return true;
                 } else {
-                    String error = parser.getValue("Error");
                     return false;
                 }
             } catch (Exception e) {
@@ -990,15 +989,15 @@ public class WizardPanelBase implements IWizardPanel {
 
             int len = nodeList.getLength();
             for (int i = 0; i < len; i++) {
-                Vector v_hostname =
+                Vector<String> v_hostname =
                         parser.getValuesFromContainer(nodeList.item(i),
                                                       "Host");
 
-                Vector v_https_admin_port =
+                Vector<String> v_https_admin_port =
                         parser.getValuesFromContainer(nodeList.item(i),
                                                       "SecureAdminPort");
 
-                Vector v_domain_mgr =
+                Vector<String> v_domain_mgr =
                         parser.getValuesFromContainer(nodeList.item(i),
                                                       "DomainManager");
 
@@ -1014,10 +1013,10 @@ public class WizardPanelBase implements IWizardPanel {
         return dm.equalsIgnoreCase("true");
     }
 
-    public Vector getMasterUrlListFromSecurityDomain(IConfigStore config,
+    public Vector<String> getMasterUrlListFromSecurityDomain(IConfigStore config,
                                                       String type,
                                                       String portType) {
-        Vector v = new Vector();
+        Vector<String> v = new Vector<String>();
 
         try {
             String hostname = config.getString("securitydomain.host");
@@ -1025,18 +1024,8 @@ public class WizardPanelBase implements IWizardPanel {
 
             CMS.debug("Getting domain.xml from CA...");
             String c = getDomainXML(hostname, httpsadminport, true);
-            String list = "";
 
             CMS.debug("Type " + type);
-            if (type.equals("CA")) {
-                list = "CAList";
-            } else if (type.equals("KRA")) {
-                list = "KRAList";
-            } else if (type.equals("OCSP")) {
-                list = "OCSPList";
-            } else if (type.equals("TKS")) {
-                list = "TKSList";
-            }
 
             CMS.debug("Getting " + portType + " from Security Domain ...");
             if (!portType.equals("UnSecurePort") &&
@@ -1061,16 +1050,16 @@ public class WizardPanelBase implements IWizardPanel {
 
             CMS.debug("Len " + len);
             for (int i = 0; i < len; i++) {
-                Vector v_clone = parser.getValuesFromContainer(nodeList.item(i),
+                Vector<String> v_clone = parser.getValuesFromContainer(nodeList.item(i),
                         "Clone");
                 String clone = (String) v_clone.elementAt(0);
                 if (clone.equalsIgnoreCase("true"))
                     continue;
-                Vector v_name = parser.getValuesFromContainer(nodeList.item(i),
+                Vector<String> v_name = parser.getValuesFromContainer(nodeList.item(i),
                         "SubsystemName");
-                Vector v_host = parser.getValuesFromContainer(nodeList.item(i),
+                Vector<String> v_host = parser.getValuesFromContainer(nodeList.item(i),
                         "Host");
-                Vector v_port = parser.getValuesFromContainer(nodeList.item(i),
+                Vector<String> v_port = parser.getValuesFromContainer(nodeList.item(i),
                         portType);
 
                 v.addElement(v_name.elementAt(0)
@@ -1179,15 +1168,15 @@ public class WizardPanelBase implements IWizardPanel {
 
             int len = nodeList.getLength();
             for (int i = 0; i < len; i++) {
-                Vector v_hostname =
+                Vector<String> v_hostname =
                         parser.getValuesFromContainer(nodeList.item(i),
                                                       "Host");
 
-                Vector v_https_ee_port =
+                Vector<String> v_https_ee_port =
                         parser.getValuesFromContainer(nodeList.item(i),
                                                       "SecurePort");
 
-                Vector v_https_admin_port =
+                Vector<String> v_https_admin_port =
                         parser.getValuesFromContainer(nodeList.item(i),
                                                       "SecureAdminPort");
 
@@ -1234,11 +1223,11 @@ public class WizardPanelBase implements IWizardPanel {
 
             int len = nodeList.getLength();
             for (int i = 0; i < len; i++) {
-                Vector v_admin_port =
+                Vector<String> v_admin_port =
                         parser.getValuesFromContainer(nodeList.item(i),
                                                       "SecureAdminPort");
 
-                Vector v_port = null;
+                Vector<String> v_port = null;
                 if (portType.equals("UnSecurePort")) {
                     v_port = parser.getValuesFromContainer(nodeList.item(i),
                                                             "UnSecurePort");

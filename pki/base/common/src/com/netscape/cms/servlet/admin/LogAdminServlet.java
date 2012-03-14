@@ -339,7 +339,6 @@ public class LogAdminServlet extends AdminServlet {
             IOException, EBaseException {
 
         NameValuePairs params = new NameValuePairs();
-        String insts = null;
         Enumeration<String> e = mSys.getLogInsts().keys();
 
         for (; e.hasMoreElements();) {
@@ -1148,10 +1147,7 @@ public class LogAdminServlet extends AdminServlet {
             // only remove from memory
             // cannot shutdown because we don't keep track of whether it's
             // being used. 
-            ILogEventListener logInst = (ILogEventListener)
-                    mSys.getLogInstance(id);
-
-            mSys.getLogInsts().remove((Object) id);
+            mSys.getLogInsts().remove(id);
 
             // remove the configuration.
             IConfigStore destStore =
@@ -1453,7 +1449,6 @@ public class LogAdminServlet extends AdminServlet {
         // to the signed audit log and stored as failures
         try {
             String id = req.getParameter(Constants.RS_ID);
-            String type = "";
 
             // if this "required" parameter is not present,
             // always log messages to the signed audit log
@@ -1670,10 +1665,6 @@ public class LogAdminServlet extends AdminServlet {
                             val = Integer.toString(60 * 60 * 24 * 365);
                     }
 
-                    if (key.equals(Constants.PR_LOG_TYPE)) {
-                        type = val;
-                    }
-
                     if (val != null) {
                         if (key.equals("fileName")) {
                             String origVal = substore.getString(key);
@@ -1771,6 +1762,7 @@ public class LogAdminServlet extends AdminServlet {
             // Instantiate an object for new implementation
 
             String className = plugin.getClassPath();
+            @SuppressWarnings("unused")
             ILogEventListener newMgrInst = null;
 
             try {

@@ -35,7 +35,7 @@ public class TransferProtocolClient extends NetworkClient {
      * Array of strings (usually 1 entry) for the last reply
      * from the server.
      */
-    protected Vector serverResponse = new Vector(1);
+    protected Vector<String> serverResponse = new Vector<String>(1);
 
     /** code for last reply */
     protected int lastReplyCode;
@@ -112,7 +112,7 @@ public class TransferProtocolClient extends NetworkClient {
     }
 
     /** Returns all server response strings. */
-    public Vector getResponseStrings() {
+    public Vector<String> getResponseStrings() {
         return serverResponse;
     }
 

@@ -98,7 +98,7 @@ public class ProfileSubsystem implements IProfileSubsystem {
             String configPath = subStore.getString(PROP_CONFIG);
 
             CMS.debug("Start Profile Creation - " + id + " " + classid + " " + info.getClassName());
-            IProfile profile = createProfile(id, classid, info.getClassName(),
+            createProfile(id, classid, info.getClassName(),
                     configPath);
 
             CMS.debug("Done Profile Creation - " + id);

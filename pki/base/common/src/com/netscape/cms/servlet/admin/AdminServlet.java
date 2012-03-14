@@ -354,10 +354,6 @@ public class AdminServlet extends HttpServlet {
             SessionContext sc = SessionContext.getContext();
             IAuthToken token = null;
 
-            // a kludge for the desperately pinging console
-            String scope = req.getParameter(Constants.OP_SCOPE);
-            String op = req.getParameter(Constants.OP_TYPE);
-
             log(ILogger.LL_DEBUG, CMS.getLogMessage("ADMIN_SRVLT_ABOUT_AUTH",
                     mServletID));
             try {

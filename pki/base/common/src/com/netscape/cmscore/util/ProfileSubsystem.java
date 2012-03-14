@@ -165,12 +165,12 @@ public class ProfileSubsystem extends Frame implements ISubsystem, Runnable {
 
     public void updateThreadPanel() {
         Thread currentThread = Thread.currentThread();
-        Vector data = new Vector();
+        Vector<Vector<String>> data = new Vector<Vector<String>>();
         Thread threads[] = new Thread[100];
         int numThreads = Thread.enumerate(threads);
 
         for (int i = 0; i < numThreads; i++) {
-            Vector row = new Vector();
+            Vector<String> row = new Vector<String>();
 
             row.addElement(threads[i].getName());
             row.addElement(threads[i].getThreadGroup().getName());
@@ -185,7 +185,7 @@ public class ProfileSubsystem extends Frame implements ISubsystem, Runnable {
             data.addElement(row);
         }
 
-        Vector colNames = new Vector();
+        Vector<String> colNames = new Vector<String>();
 
         colNames.addElement("Name");
         colNames.addElement("Group");
@@ -220,13 +220,13 @@ class ThreadTableModel extends AbstractTableModel {
      *
      */
     private static final long serialVersionUID = -6977965542104110870L;
-    Vector rowData;
-    Vector columnNames;
+    Vector<Vector<String>> rowData;
+    Vector<String> columnNames;
 
     public ThreadTableModel() {
     }
 
-    public void setInfo(Vector _rowData, Vector _columnNames) {
+    public void setInfo(Vector<Vector<String>> _rowData, Vector<String> _columnNames) {
         rowData = _rowData;
         columnNames = _columnNames;
     }
@@ -243,16 +243,16 @@ class ThreadTableModel extends AbstractTableModel {
         return columnNames.size();
     }
 
-    public Object getValueAt(int row, int column) {
-        return ((Vector) rowData.elementAt(row)).elementAt(column);
+    public String getValueAt(int row, int column) {
+        return rowData.elementAt(row).elementAt(column);
     }
 
     public boolean isCellEditable(int row, int column) {
         return false;
     }
 
-    public void setValueAt(Object value, int row, int column) {
-        ((Vector) rowData.elementAt(row)).setElementAt(value, column);
+    public void setValueAt(String value, int row, int column) {
+        rowData.elementAt(row).setElementAt(value, column);
         fireTableCellUpdated(row, column);
     }
 }

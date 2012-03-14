@@ -177,7 +177,7 @@ public class Extension implements Serializable {
 
         byte[] dup = new byte[extensionValue.length];
         System.arraycopy(extensionValue, 0, dup, 0, dup.length);
-        return (dup);
+        return dup;
     }
 
     public void setExtensionValue(byte value[]) {

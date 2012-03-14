@@ -67,7 +67,6 @@ import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IArgBlock;
 import com.netscape.certsrv.base.IConfigStore;
-import com.netscape.certsrv.base.KeyGenInfo;
 import com.netscape.certsrv.ca.ICertificateAuthority;
 import com.netscape.certsrv.dbs.certdb.ICertRecord;
 import com.netscape.certsrv.dbs.certdb.ICertRecordList;
@@ -413,18 +412,9 @@ public class HashEnrollServlet extends CMSServlet {
             // }
         }
 
-        // fill certInfo from input types: keygen, cmc, pkcs10 or crmf
-        KeyGenInfo keyGenInfo =
-                httpParams.getValueAsKeyGenInfo(SUBJECT_KEYGEN_INFO, null);
-
-        String certType = null;
-
-        //
-        String test = httpParams.getValueAsString("certNickname", null);
-
         // support Enterprise 3.5.1 server where CERT_TYPE=csrCertType
         // instead of certType
-        certType = httpParams.getValueAsString(OLD_CERT_TYPE, null);
+        String certType = httpParams.getValueAsString(OLD_CERT_TYPE, null);
         if (certType == null) {
             certType = httpParams.getValueAsString(CERT_TYPE, "client");
         } else {

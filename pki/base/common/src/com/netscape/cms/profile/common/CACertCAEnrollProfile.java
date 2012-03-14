@@ -49,8 +49,7 @@ public class CACertCAEnrollProfile extends CAEnrollProfile
         createProfileOutput("o1", "certOutputImpl", outputParams1);
 
         // create policies
-        IProfilePolicy policy1 =
-                createProfilePolicy("set1", "p1",
+        createProfilePolicy("set1", "p1",
                         "userSubjectNameDefaultImpl", "noConstraintImpl");
 
         IProfilePolicy policy2 =

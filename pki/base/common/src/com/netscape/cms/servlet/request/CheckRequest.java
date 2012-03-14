@@ -148,7 +148,7 @@ public class CheckRequest extends CMSServlet {
      */
     public void process(CMSRequest cmsReq) throws EBaseException {
         CMS.debug("checkRequest: in process!");
-        SET transIds = null, rNonces = null, sNonces = null;
+        SET transIds = null, sNonces = null;
         boolean isCMCReq = false;
         INTEGER bodyPartId = null;
 
@@ -252,7 +252,7 @@ public class CheckRequest extends CMSServlet {
                     } else if (type.equals(OBJECT_IDENTIFIER.id_cmc_transactionId)) {
                         transIds = taggedAttr.getValues();
                     } else if (type.equals(OBJECT_IDENTIFIER.id_cmc_recipientNonce)) {
-                        rNonces = taggedAttr.getValues();
+                        // recipient nonce
                     } else if (type.equals(OBJECT_IDENTIFIER.id_cmc_senderNonce)) {
                         sNonces = taggedAttr.getValues();
                     }

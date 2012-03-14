@@ -198,7 +198,6 @@ public class PKCS12Export {
 
         String pwdfile = null;
         String dir = null;
-        String snickname = null;
         String pk12pwdfile = null;
         String pk12output = null;
         for (int i = 0; i < args.length; i++) {
@@ -207,7 +206,7 @@ public class PKCS12Export {
             } else if (args[i].equals("-p")) {
                 pwdfile = args[i + 1];
             } else if (args[i].equals("-s")) {
-                snickname = args[i + 1];
+                // snickname = args[i + 1];
             } else if (args[i].equals("-w")) {
                 pk12pwdfile = args[i + 1];
             } else if (args[i].equals("-o")) {

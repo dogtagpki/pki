@@ -155,7 +155,6 @@ public class GetAsyncPk12 extends CMSServlet {
         IArgBlock header = CMS.createArgBlock();
         IArgBlock fixed = CMS.createArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
-        int seq = -1;
 
         // get status and populate argSet
         try {

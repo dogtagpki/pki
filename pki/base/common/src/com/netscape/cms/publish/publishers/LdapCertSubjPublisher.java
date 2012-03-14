@@ -74,16 +74,16 @@ public class LdapCertSubjPublisher implements ILdapPublisher {
         return "LdapCertSubjPublisher";
     }
 
-    public Vector getInstanceParams() {
-        Vector v = new Vector();
+    public Vector<String> getInstanceParams() {
+        Vector<String> v = new Vector<String>();
 
         v.addElement("certAttr=" + mCertAttr);
         v.addElement("subjectNameAttr=" + mSubjNameAttr);
         return v;
     }
 
-    public Vector getDefaultParams() {
-        Vector v = new Vector();
+    public Vector<String> getDefaultParams() {
+        Vector<String> v = new Vector<String>();
 
         v.addElement("certAttr=" + mCertAttr);
         v.addElement("subjectNameAttr=" + mSubjNameAttr);

@@ -63,7 +63,6 @@ public class FileDialogFilter implements FilenameFilter {
      */
     boolean searchPattern(String fileName, String filter) {
         int filterCursor = 0;
-        int fileNameCursor = 0;
 
         int filterChar = filter.charAt(filterCursor);
 

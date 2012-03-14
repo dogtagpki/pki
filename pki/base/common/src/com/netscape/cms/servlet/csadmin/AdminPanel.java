@@ -149,10 +149,8 @@ public class AdminPanel extends WizardPanelBase {
         String info = "";
         context.put("import", "true");
 
-        String subsystemtype = "";
         try {
             type = cs.getString("preop.ca.type", "");
-            subsystemtype = cs.getString("cs.type", "");
         } catch (Exception e) {
         }
 
@@ -254,12 +252,10 @@ public class AdminPanel extends WizardPanelBase {
 
         String type = "";
         String subsystemtype = "";
-        String security_domain_type = "";
         String selected_hierarchy = "";
         try {
             type = config.getString(PRE_CA_TYPE, "");
             subsystemtype = config.getString("cs.type", "");
-            security_domain_type = config.getString("securitydomain.select", "");
             selected_hierarchy = config.getString("preop.hierarchy.select", "");
         } catch (Exception e) {
         }
@@ -277,7 +273,6 @@ public class AdminPanel extends WizardPanelBase {
         String name = HttpInput.getName(request, "name");
 
         CMS.debug("AdminPanel update: email address = " + email);
-        String pwd = HttpInput.getPassword(request, "__pwd");
 
         config.putString("preop.admin.uid", uid);
         config.putString("preop.admin.email", email);
@@ -455,14 +450,6 @@ public class AdminPanel extends WizardPanelBase {
     private void submitRequest(String ca_hostname, int ca_port, HttpServletRequest request,
             HttpServletResponse response, Context context) throws IOException {
         IConfigStore config = CMS.getConfigStore();
-        String sd_hostname = null;
-        int sd_port = -1;
-
-        try {
-            sd_hostname = config.getString("securitydomain.host", "");
-            sd_port = config.getInteger("securitydomain.httpseeport");
-        } catch (Exception e) {
-        }
 
         String profileId = HttpInput.getID(request, "profileId");
         if (profileId == null) {

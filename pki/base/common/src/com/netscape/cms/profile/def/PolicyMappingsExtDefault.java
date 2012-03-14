@@ -310,9 +310,6 @@ public class PolicyMappingsExtDefault extends EnrollExtDefault {
 
             Enumeration<CertificatePolicyMap> maps = ext.getMappings();
 
-            int num = 0;
-            StringBuffer sb = new StringBuffer();
-
             Vector<NameValuePairs> recs = new Vector<NameValuePairs>();
 
             for (int i = 0; i < num_mappings; i++) {
@@ -346,7 +343,6 @@ public class PolicyMappingsExtDefault extends EnrollExtDefault {
 
     public String getText(Locale locale) {
         StringBuffer sb = new StringBuffer();
-        String numMappings = getConfig(CONFIG_NUM_POLICY_MAPPINGS);
         int num = getNumMappings();
 
         for (int i = 0; i < num; i++) {

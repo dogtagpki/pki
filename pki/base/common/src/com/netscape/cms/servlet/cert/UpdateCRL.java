@@ -121,7 +121,6 @@ public class UpdateCRL extends CMSServlet {
             statsSub.startTiming("crl", true /* main action */);
         }
 
-        long startTime = CMS.getCurrentDate().getTime();
         IAuthToken authToken = authenticate(cmsReq);
         AuthzToken authzToken = null;
 

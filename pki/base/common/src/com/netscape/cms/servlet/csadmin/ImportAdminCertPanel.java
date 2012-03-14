@@ -97,11 +97,9 @@ public class ImportAdminCertPanel extends WizardPanelBase {
         IConfigStore cs = CMS.getConfigStore();
 
         String type = "";
-        String subsystemtype = "";
 
         try {
             type = cs.getString("preop.ca.type", "");
-            subsystemtype = cs.getString("cs.type", "");
         } catch (Exception e) {
         }
 
@@ -188,13 +186,11 @@ public class ImportAdminCertPanel extends WizardPanelBase {
 
         String type = "";
         String subsystemtype = "";
-        String security_domain_type = "";
         String selected_hierarchy = "";
 
         try {
             type = cs.getString("preop.ca.type", "");
             subsystemtype = cs.getString("cs.type", "");
-            security_domain_type = cs.getString("securitydomain.select", "");
             selected_hierarchy = cs.getString("preop.hierarchy.select", "");
         } catch (Exception e) {
         }

@@ -60,6 +60,7 @@ public class BaseServlet extends VelocityServlet {
 
     public void outputHttpParameters(HttpServletRequest httpReq) {
         CMS.debug("BaseServlet:service() uri = " + httpReq.getRequestURI());
+        @SuppressWarnings("unchecked")
         Enumeration<String> paramNames = httpReq.getParameterNames();
 
         while (paramNames.hasMoreElements()) {

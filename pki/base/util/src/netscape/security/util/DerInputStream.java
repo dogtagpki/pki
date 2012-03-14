@@ -314,7 +314,7 @@ public class DerInputStream {
         /*
          * Pull values out of the stream.
          */
-        Vector vec = new Vector(startLen);
+        Vector<DerValue> vec = new Vector<DerValue>(startLen);
         DerValue value;
 
         do {

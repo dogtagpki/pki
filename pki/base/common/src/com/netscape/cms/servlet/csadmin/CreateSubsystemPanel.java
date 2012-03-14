@@ -100,7 +100,6 @@ public class CreateSubsystemPanel extends WizardPanelBase {
         }
 
         String errorString = "";
-        String url = "";
 
         if (isPanelDone()) {
             try {
@@ -145,7 +144,7 @@ public class CreateSubsystemPanel extends WizardPanelBase {
         } catch (EBaseException e) {
         }
 
-        Vector v = getUrlListFromSecurityDomain(config, cstype, "SecurePort");
+        Vector<String> v = getUrlListFromSecurityDomain(config, cstype, "SecurePort");
 
         StringBuffer list = new StringBuffer();
         int size = v.size();

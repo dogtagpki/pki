@@ -182,7 +182,6 @@ public class SearchReqs extends CMSServlet {
             return;
         }
 
-        String revokeAll = null;
         EBaseException error = null;
         int maxResults = -1;
         int timeLimit = -1;

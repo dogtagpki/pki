@@ -413,11 +413,9 @@ class CertPolicy {
                         mNameDot + PROP_NOTICE_REF_ORG, msg));
 
         // if a policy id is not null check that it is a valid OID.
-        ObjectIdentifier policyId = null;
 
         if (mPolicyId != null)
-            policyId = CMS.checkOID(
-                        mNameDot + PROP_POLICY_IDENTIFIER, mPolicyId);
+            CMS.checkOID(mNameDot + PROP_POLICY_IDENTIFIER, mPolicyId);
 
         // if enabled, form CertificatePolicyInfo to be encoded in
         // extension. Policy ids should be all set.

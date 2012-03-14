@@ -165,7 +165,6 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
 
             try {
                 String s = config.getString("preop.pk12.path", "");
-                String type = config.getString("preop.subsystem.select", "");
                 context.put("path", s);
             } catch (Exception e) {
                 CMS.debug(e.toString());
@@ -265,8 +264,8 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
             if (verifypfx) {
                 CMS.debug("RestoreKeyCertPanel verify the PFX.");
                 AuthenticatedSafes safes = pfx.getAuthSafes();
-                Vector pkeyinfo_collection = new Vector();
-                Vector cert_collection = new Vector();
+                Vector<Vector<Object>> pkeyinfo_collection = new Vector<Vector<Object>>();
+                Vector<Vector<Object>> cert_collection = new Vector<Vector<Object>>();
                 for (int i = 0; i < safes.getSize(); i++) {
                     try {
                         SEQUENCE scontent = safes.getSafeContentsAt(null, i);
@@ -276,9 +275,8 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
                             if (oid.equals(SafeBag.PKCS8_SHROUDED_KEY_BAG)) {
                                 EncryptedPrivateKeyInfo privkeyinfo =
                                         (EncryptedPrivateKeyInfo) bag.getInterpretedBagContent();
-                                PasswordConverter passConverter = new PasswordConverter();
                                 PrivateKeyInfo pkeyinfo = privkeyinfo.decrypt(password, new PasswordConverter());
-                                Vector pkeyinfo_v = new Vector();
+                                Vector<Object> pkeyinfo_v = new Vector<Object>();
                                 pkeyinfo_v.addElement(pkeyinfo);
                                 SET bagAttrs = bag.getBagAttributes();
                                 for (int k = 0; k < bagAttrs.size(); k++) {
@@ -288,7 +286,7 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
                                         SET val = attrs.getValues();
                                         ANY ss = (ANY) val.elementAt(0);
                                         ByteArrayInputStream bbis = new ByteArrayInputStream(ss.getEncoded());
-                                        BMPString sss = (BMPString) (new BMPString.Template()).decode(bbis);
+                                        BMPString sss = (BMPString) new BMPString.Template().decode(bbis);
                                         String s = sss.toString();
                                         pkeyinfo_v.addElement(s);
                                     }
@@ -298,7 +296,7 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
                                 CertBag cbag = (CertBag) bag.getInterpretedBagContent();
                                 OCTET_STRING str = (OCTET_STRING) cbag.getInterpretedCert();
                                 byte[] x509cert = str.toByteArray();
-                                Vector cert_v = new Vector();
+                                Vector<Object> cert_v = new Vector<Object>();
                                 cert_v.addElement(x509cert);
                                 SET bagAttrs = bag.getBagAttributes();
 
@@ -374,14 +372,10 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
             cstype = toLowerCaseSubsystemType(cstype);
 
             String session_id = CMS.getConfigSDSessionId();
-            String sd_hostname = "";
-            int sd_port = -1;
             String master_hostname = "";
             int master_port = -1;
             int master_ee_port = -1;
             try {
-                sd_hostname = config.getString("securitydomain.host", "");
-                sd_port = config.getInteger("securitydomain.httpsadminport", -1);
                 master_hostname = config.getString("preop.master.hostname", "");
                 master_port = config.getInteger("preop.master.httpsadminport", -1);
                 master_ee_port = config.getInteger("preop.master.httpsport", -1);
@@ -527,8 +521,8 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
         return org.mozilla.jss.crypto.PrivateKey.Type.RSA;
     }
 
-    private void importkeycert(Vector pkeyinfo_collection,
-            Vector cert_collection) throws IOException {
+    private void importkeycert(Vector<Vector<Object>> pkeyinfo_collection,
+            Vector<Vector<Object>> cert_collection) throws IOException {
         CryptoManager cm = null;
         try {
             cm = CryptoManager.getInstance();
@@ -540,7 +534,7 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
 
         for (int i = 0; i < pkeyinfo_collection.size(); i++) {
             try {
-                Vector pkeyinfo_v = (Vector) pkeyinfo_collection.elementAt(i);
+                Vector<Object> pkeyinfo_v = pkeyinfo_collection.elementAt(i);
                 PrivateKeyInfo pkeyinfo = (PrivateKeyInfo) pkeyinfo_v.elementAt(0);
                 String nickname = (String) pkeyinfo_v.elementAt(1);
                 byte[] x509cert = getX509Cert(nickname, cert_collection);
@@ -569,8 +563,7 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
 
                 KeyWrapper wrapper = token.getKeyWrapper(KeyWrapAlgorithm.DES3_CBC_PAD);
                 wrapper.initUnwrap(sk, param);
-                org.mozilla.jss.crypto.PrivateKey pp =
-                        wrapper.unwrapPrivate(encpkey, getPrivateKeyType(publickey), publickey);
+                wrapper.unwrapPrivate(encpkey, getPrivateKeyType(publickey), publickey);
 
             } catch (Exception e) {
                 CMS.debug("RestoreKeyCertPanel importkeycert: Exception=" + e.toString());
@@ -579,7 +572,7 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
 
         for (int i = 0; i < cert_collection.size(); i++) {
             try {
-                Vector cert_v = (Vector) cert_collection.elementAt(i);
+                Vector<Object> cert_v = cert_collection.elementAt(i);
                 byte[] cert = (byte[]) cert_v.elementAt(0);
                 if (cert_v.size() > 1) {
                     String name = (String) cert_v.elementAt(1);
@@ -658,10 +651,10 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
         return null;
     }
 
-    private byte[] getX509Cert(String nickname, Vector cert_collection)
+    private byte[] getX509Cert(String nickname, Vector<Vector<Object>> cert_collection)
             throws IOException {
         for (int i = 0; i < cert_collection.size(); i++) {
-            Vector v = (Vector) cert_collection.elementAt(i);
+            Vector<Object> v = cert_collection.elementAt(i);
             byte[] b = (byte[]) v.elementAt(0);
             X509CertImpl impl = null;
             try {
@@ -703,8 +696,7 @@ public class RestoreKeyCertPanel extends WizardPanelBase {
                 if (token.equals("sslserver"))
                     continue;
                 String tokenname = config.getString("preop.module.token", "");
-                CryptoToken tok = cm.getTokenByName(tokenname);
-                CryptoStore store = tok.getCryptoStore();
+                cm.getTokenByName(tokenname); // throw exception if token doesn't exist
                 String name1 = "preop.master." + token + ".nickname";
                 String nickname = config.getString(name1, "");
                 if (!tokenname.equals("Internal Key Storage Token") &&

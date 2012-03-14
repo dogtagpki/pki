@@ -170,7 +170,7 @@ public class HttpConnector implements IConnector {
                 r.setExtData(IRequest.ERROR,
                         new EBaseException(CMS.getUserMessage("CMS_BASE_REMOTE_AUTHORITY_ERROR")));
                 // XXX overload svcerrors for now. 
-                Vector policyErrors = r.getExtDataInStringVector(IRequest.ERRORS);
+                Vector<String> policyErrors = r.getExtDataInStringVector(IRequest.ERRORS);
 
                 if (policyErrors != null && policyErrors.size() > 0) {
                     r.setExtData(IRequest.SVCERRORS, policyErrors);

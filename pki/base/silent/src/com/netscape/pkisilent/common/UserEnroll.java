@@ -502,7 +502,6 @@ public class UserEnroll extends TestClient {
     public static void main(String args[]) {
         // Exit Status - (0) for error/Fail
         // - requestId Pass
-        boolean st;
 
         UserEnroll e = new UserEnroll("jupiter2", "1027",
                 "E=test,cn=test,uid=test", "test", "test", "test", "t1", "t",

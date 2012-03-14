@@ -23,7 +23,6 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.util.Enumeration;
 import java.util.Vector;
 
 import org.mozilla.jss.CryptoManager;
@@ -77,16 +76,9 @@ public class Con2Agent implements SSLClientCertificateSelectionCallback,
     }
 
     public String select(@SuppressWarnings("rawtypes") Vector nicknames) {
-        Enumeration<?> e = nicknames.elements();
 
         System.out.println("nicknames size = " + nicknames.size());
-        int i = 0;
-
-        while (e.hasMoreElements()) {
-            String s = (String) e.nextElement();
-
-            i++;
-        }
+        int i = nicknames.size();
 
         if (i > 0) {
             return (String) nicknames.elementAt(0);
@@ -165,8 +157,6 @@ public class Con2Agent implements SSLClientCertificateSelectionCallback,
     // Submit requests 
 
     public boolean Send() {
-        boolean st = false;
-
         try {
 
             if (!loginCertDB()) {
@@ -235,7 +225,7 @@ public class Con2Agent implements SSLClientCertificateSelectionCallback,
 
     private boolean loginCertDB() {
         CryptoManager manager;
-        Password pass1 = null, pass2 = null;
+        Password pass1 = null;
 
         try {
             System.out.println("Step 1: Initializing CryptoManager");
@@ -281,8 +271,6 @@ public class Con2Agent implements SSLClientCertificateSelectionCallback,
     }
 
     public boolean Send_withGET() {
-
-        boolean st = false;
 
         try {
 

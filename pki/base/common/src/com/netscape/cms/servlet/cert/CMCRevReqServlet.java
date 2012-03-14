@@ -200,7 +200,6 @@ public class CMCRevReqServlet extends CMSServlet {
         if (authToken != null) {
             reasonCode = authToken.getInInteger(REASON_CODE);
         }
-        RevocationReason reason = RevocationReason.fromInt(reasonCode.intValue());
 
         String comments = "";
         Date invalidityDate = null;

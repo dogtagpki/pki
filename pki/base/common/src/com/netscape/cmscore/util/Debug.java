@@ -40,15 +40,15 @@ public class Debug
        so I create a thread-local DateFormatter for each thread
      */
     private static String DATE_PATTERN = "dd/MMM/yyyy:HH:mm:ss";
-    private static ThreadLocal mFormatObject = new ThreadLocal() {
-        protected synchronized Object initialValue() {
+    private static ThreadLocal<SimpleDateFormat> mFormatObject = new ThreadLocal<SimpleDateFormat>() {
+        protected synchronized SimpleDateFormat initialValue() {
             return new SimpleDateFormat(DATE_PATTERN);
         }
     };
 
     /* the dateformatter should be accessed with this function */
     private static SimpleDateFormat getDateFormatter() {
-        return ((SimpleDateFormat) (mFormatObject.get()));
+        return mFormatObject.get();
     }
 
     public static final boolean ON = false;

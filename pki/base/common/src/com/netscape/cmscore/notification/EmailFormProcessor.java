@@ -193,7 +193,6 @@ public class EmailFormProcessor implements IEmailFormProcessor {
                 // -- for bug 382162, don't remove the following line, in
                 //	 case John changes his mind for the better
                 //				mContent.add(TOK_PREFIX+t);
-                int tl = token_keys.length;
 
                 for (int i = 0; i < token_keys.length; i++) {
                     if (t.startsWith(token_keys[i])) {

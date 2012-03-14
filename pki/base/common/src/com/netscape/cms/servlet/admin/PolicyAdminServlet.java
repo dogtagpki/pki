@@ -465,7 +465,6 @@ public class PolicyAdminServlet extends AdminServlet {
 
         // Assemble name value pairs
         NameValuePairs nvp = new NameValuePairs();
-        String instName, rest;
 
         while (instancesInfo.hasMoreElements()) {
             String info = instancesInfo.nextElement();

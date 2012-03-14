@@ -64,7 +64,7 @@ public class DSAKeyConstraints extends APolicyRule
     private final static String PROP_MIN_SIZE = "minSize";
     private final static String PROP_MAX_SIZE = "maxSize";
 
-    private final static Vector defConfParams = new Vector();
+    private final static Vector<String> defConfParams = new Vector<String>();
 
     private IConfigStore mConfig = null;
 
@@ -193,9 +193,6 @@ public class DSAKeyConstraints extends APolicyRule
 
                 if (keyParams == null) {
                     // key parameters could not be parsed.
-                    Object[] params = new Object[] {
-                            getInstanceName(), String.valueOf(i + 1) };
-
                     setError(req,
                             CMS.getUserMessage("CMS_POLICY_NO_KEY_PARAMS", getInstanceName(), String.valueOf(i + 1)),
                             "");
@@ -232,8 +229,8 @@ public class DSAKeyConstraints extends APolicyRule
      * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getInstanceParams() {
-        Vector confParams = new Vector();
+    public Vector<String> getInstanceParams() {
+        Vector<String> confParams = new Vector<String>();
 
         try {
             confParams.addElement(PROP_MIN_SIZE + "=" + mConfig.getInteger(PROP_MIN_SIZE, DEF_MIN_SIZE));
@@ -249,7 +246,7 @@ public class DSAKeyConstraints extends APolicyRule
      * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getDefaultParams() {
+    public Vector<String> getDefaultParams() {
         return defConfParams;
     }
 }

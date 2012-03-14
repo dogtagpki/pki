@@ -72,285 +72,285 @@ public class KeyConstraint extends EnrollConstraint {
             "sect131r1", "sect131r2"
     };
 
-    private final static HashMap<String, Vector> ecOIDs = new HashMap<String, Vector>();
+    private final static HashMap<String, Vector<String>> ecOIDs = new HashMap<String, Vector<String>>();
     static {
-        ecOIDs.put("1.2.840.10045.3.1.7", new Vector() {
+        ecOIDs.put("1.2.840.10045.3.1.7", new Vector<String>() {
             {
                 add("nistp256");
                 add("secp256r1");
             }
         });
-        ecOIDs.put("1.3.132.0.34", new Vector() {
+        ecOIDs.put("1.3.132.0.34", new Vector<String>() {
             {
                 add("nistp384");
                 add("secp384r1");
             }
         });
-        ecOIDs.put("1.3.132.0.35", new Vector() {
+        ecOIDs.put("1.3.132.0.35", new Vector<String>() {
             {
                 add("nistp521");
                 add("secp521r1");
             }
         });
-        ecOIDs.put("1.3.132.0.1", new Vector() {
+        ecOIDs.put("1.3.132.0.1", new Vector<String>() {
             {
                 add("sect163k1");
                 add("nistk163");
             }
         });
-        ecOIDs.put("1.3.132.0.2", new Vector() {
+        ecOIDs.put("1.3.132.0.2", new Vector<String>() {
             {
                 add("sect163r1");
             }
         });
-        ecOIDs.put("1.3.132.0.15", new Vector() {
+        ecOIDs.put("1.3.132.0.15", new Vector<String>() {
             {
                 add("sect163r2");
                 add("nistb163");
             }
         });
-        ecOIDs.put("1.3.132.0.24", new Vector() {
+        ecOIDs.put("1.3.132.0.24", new Vector<String>() {
             {
                 add("sect193r1");
             }
         });
-        ecOIDs.put("1.3.132.0.25", new Vector() {
+        ecOIDs.put("1.3.132.0.25", new Vector<String>() {
             {
                 add("sect193r2");
             }
         });
-        ecOIDs.put("1.3.132.0.26", new Vector() {
+        ecOIDs.put("1.3.132.0.26", new Vector<String>() {
             {
                 add("sect233k1");
                 add("nistk233");
             }
         });
-        ecOIDs.put("1.3.132.0.27", new Vector() {
+        ecOIDs.put("1.3.132.0.27", new Vector<String>() {
             {
                 add("sect233r1");
                 add("nistb233");
             }
         });
-        ecOIDs.put("1.3.132.0.3", new Vector() {
+        ecOIDs.put("1.3.132.0.3", new Vector<String>() {
             {
                 add("sect239k1");
             }
         });
-        ecOIDs.put("1.3.132.0.16", new Vector() {
+        ecOIDs.put("1.3.132.0.16", new Vector<String>() {
             {
                 add("sect283k1");
                 add("nistk283");
             }
         });
-        ecOIDs.put("1.3.132.0.17", new Vector() {
+        ecOIDs.put("1.3.132.0.17", new Vector<String>() {
             {
                 add("sect283r1");
                 add("nistb283");
             }
         });
-        ecOIDs.put("1.3.132.0.36", new Vector() {
+        ecOIDs.put("1.3.132.0.36", new Vector<String>() {
             {
                 add("sect409k1");
                 add("nistk409");
             }
         });
-        ecOIDs.put("1.3.132.0.37", new Vector() {
+        ecOIDs.put("1.3.132.0.37", new Vector<String>() {
             {
                 add("sect409r1");
                 add("nistb409");
             }
         });
-        ecOIDs.put("1.3.132.0.38", new Vector() {
+        ecOIDs.put("1.3.132.0.38", new Vector<String>() {
             {
                 add("sect571k1");
                 add("nistk571");
             }
         });
-        ecOIDs.put("1.3.132.0.39", new Vector() {
+        ecOIDs.put("1.3.132.0.39", new Vector<String>() {
             {
                 add("sect571r1");
                 add("nistb571");
             }
         });
-        ecOIDs.put("1.3.132.0.9", new Vector() {
+        ecOIDs.put("1.3.132.0.9", new Vector<String>() {
             {
                 add("secp160k1");
             }
         });
-        ecOIDs.put("1.3.132.0.8", new Vector() {
+        ecOIDs.put("1.3.132.0.8", new Vector<String>() {
             {
                 add("secp160r1");
             }
         });
-        ecOIDs.put("1.3.132.0.30", new Vector() {
+        ecOIDs.put("1.3.132.0.30", new Vector<String>() {
             {
                 add("secp160r2");
             }
         });
-        ecOIDs.put("1.3.132.0.31", new Vector() {
+        ecOIDs.put("1.3.132.0.31", new Vector<String>() {
             {
                 add("secp192k1");
             }
         });
-        ecOIDs.put("1.2.840.10045.3.1.1", new Vector() {
+        ecOIDs.put("1.2.840.10045.3.1.1", new Vector<String>() {
             {
                 add("secp192r1");
                 add("nistp192");
                 add("prime192v1");
             }
         });
-        ecOIDs.put("1.3.132.0.32", new Vector() {
+        ecOIDs.put("1.3.132.0.32", new Vector<String>() {
             {
                 add("secp224k1");
             }
         });
-        ecOIDs.put("1.3.132.0.33", new Vector() {
+        ecOIDs.put("1.3.132.0.33", new Vector<String>() {
             {
                 add("secp224r1");
                 add("nistp224");
             }
         });
-        ecOIDs.put("1.3.132.0.10", new Vector() {
+        ecOIDs.put("1.3.132.0.10", new Vector<String>() {
             {
                 add("secp256k1");
             }
         });
-        ecOIDs.put("1.2.840.10045.3.1.2", new Vector() {
+        ecOIDs.put("1.2.840.10045.3.1.2", new Vector<String>() {
             {
                 add("prime192v2");
             }
         });
-        ecOIDs.put("1.2.840.10045.3.1.3", new Vector() {
+        ecOIDs.put("1.2.840.10045.3.1.3", new Vector<String>() {
             {
                 add("prime192v3");
             }
         });
-        ecOIDs.put("1.2.840.10045.3.1.4", new Vector() {
+        ecOIDs.put("1.2.840.10045.3.1.4", new Vector<String>() {
             {
                 add("prime239v1");
             }
         });
-        ecOIDs.put("1.2.840.10045.3.1.5", new Vector() {
+        ecOIDs.put("1.2.840.10045.3.1.5", new Vector<String>() {
             {
                 add("prime239v2");
             }
         });
-        ecOIDs.put("1.2.840.10045.3.1.6", new Vector() {
+        ecOIDs.put("1.2.840.10045.3.1.6", new Vector<String>() {
             {
                 add("prime239v3");
             }
         });
-        ecOIDs.put("1.2.840.10045.3.0.1", new Vector() {
+        ecOIDs.put("1.2.840.10045.3.0.1", new Vector<String>() {
             {
                 add("c2pnb163v1");
             }
         });
-        ecOIDs.put("1.2.840.10045.3.0.2", new Vector() {
+        ecOIDs.put("1.2.840.10045.3.0.2", new Vector<String>() {
             {
                 add("c2pnb163v2");
             }
         });
-        ecOIDs.put("1.2.840.10045.3.0.3", new Vector() {
+        ecOIDs.put("1.2.840.10045.3.0.3", new Vector<String>() {
             {
                 add("c2pnb163v3");
             }
         });
-        ecOIDs.put("1.2.840.10045.3.0.4", new Vector() {
+        ecOIDs.put("1.2.840.10045.3.0.4", new Vector<String>() {
             {
                 add("c2pnb176v1");
             }
         });
-        ecOIDs.put("1.2.840.10045.3.0.5", new Vector() {
+        ecOIDs.put("1.2.840.10045.3.0.5", new Vector<String>() {
             {
                 add("c2tnb191v1");
             }
         });
-        ecOIDs.put("1.2.840.10045.3.0.6", new Vector() {
+        ecOIDs.put("1.2.840.10045.3.0.6", new Vector<String>() {
             {
                 add("c2tnb191v2");
             }
         });
-        ecOIDs.put("1.2.840.10045.3.0.7", new Vector() {
+        ecOIDs.put("1.2.840.10045.3.0.7", new Vector<String>() {
             {
                 add("c2tnb191v3");
             }
         });
-        ecOIDs.put("1.2.840.10045.3.0.10", new Vector() {
+        ecOIDs.put("1.2.840.10045.3.0.10", new Vector<String>() {
             {
                 add("c2pnb208w1");
             }
         });
-        ecOIDs.put("1.2.840.10045.3.0.11", new Vector() {
+        ecOIDs.put("1.2.840.10045.3.0.11", new Vector<String>() {
             {
                 add("c2tnb239v1");
             }
         });
-        ecOIDs.put("1.2.840.10045.3.0.12", new Vector() {
+        ecOIDs.put("1.2.840.10045.3.0.12", new Vector<String>() {
             {
                 add("c2tnb239v2");
             }
         });
-        ecOIDs.put("1.2.840.10045.3.0.13", new Vector() {
+        ecOIDs.put("1.2.840.10045.3.0.13", new Vector<String>() {
             {
                 add("c2tnb239v3");
             }
         });
-        ecOIDs.put("1.2.840.10045.3.0.16", new Vector() {
+        ecOIDs.put("1.2.840.10045.3.0.16", new Vector<String>() {
             {
                 add("c2pnb272w1");
             }
         });
-        ecOIDs.put("1.2.840.10045.3.0.17", new Vector() {
+        ecOIDs.put("1.2.840.10045.3.0.17", new Vector<String>() {
             {
                 add("c2pnb304w1");
             }
         });
-        ecOIDs.put("1.2.840.10045.3.0.19", new Vector() {
+        ecOIDs.put("1.2.840.10045.3.0.19", new Vector<String>() {
             {
                 add("c2pnb368w1");
             }
         });
-        ecOIDs.put("1.2.840.10045.3.0.20", new Vector() {
+        ecOIDs.put("1.2.840.10045.3.0.20", new Vector<String>() {
             {
                 add("c2tnb431r1");
             }
         });
-        ecOIDs.put("1.3.132.0.6", new Vector() {
+        ecOIDs.put("1.3.132.0.6", new Vector<String>() {
             {
                 add("secp112r1");
             }
         });
-        ecOIDs.put("1.3.132.0.7", new Vector() {
+        ecOIDs.put("1.3.132.0.7", new Vector<String>() {
             {
                 add("secp112r2");
             }
         });
-        ecOIDs.put("1.3.132.0.28", new Vector() {
+        ecOIDs.put("1.3.132.0.28", new Vector<String>() {
             {
                 add("secp128r1");
             }
         });
-        ecOIDs.put("1.3.132.0.29", new Vector() {
+        ecOIDs.put("1.3.132.0.29", new Vector<String>() {
             {
                 add("secp128r2");
             }
         });
-        ecOIDs.put("1.3.132.0.4", new Vector() {
+        ecOIDs.put("1.3.132.0.4", new Vector<String>() {
             {
                 add("sect113r1");
             }
         });
-        ecOIDs.put("1.3.132.0.5", new Vector() {
+        ecOIDs.put("1.3.132.0.5", new Vector<String>() {
             {
                 add("sect113r2");
             }
         });
-        ecOIDs.put("1.3.132.0.22", new Vector() {
+        ecOIDs.put("1.3.132.0.22", new Vector<String>() {
             {
                 add("sect131r1");
             }
         });
-        ecOIDs.put("1.3.132.0.23", new Vector() {
+        ecOIDs.put("1.3.132.0.23", new Vector<String>() {
             {
                 add("sect131r2");
             }
@@ -422,7 +422,6 @@ public class KeyConstraint extends EnrollConstraint {
             }
 
             int keySize = 0;
-            String ecCurve = "";
 
             if (alg.equals("RSA")) {
                 keySize = getRSAKeyLen(key);
@@ -468,7 +467,7 @@ public class KeyConstraint extends EnrollConstraint {
                 }
 
                 CMS.debug("EC key OID: " + params);
-                Vector vect = ecOIDs.get(params);
+                Vector<String> vect = ecOIDs.get(params);
 
                 boolean curveFound = false;
 

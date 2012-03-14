@@ -176,8 +176,8 @@ public class SubCANameConstraints extends APolicyRule implements IEnrollmentPoli
      * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getInstanceParams() {
-        Vector v = new Vector();
+    public Vector<String> getInstanceParams() {
+        Vector<String> v = new Vector<String>();
 
         return v;
     }
@@ -187,8 +187,8 @@ public class SubCANameConstraints extends APolicyRule implements IEnrollmentPoli
      * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getDefaultParams() {
-        Vector v = new Vector();
+    public Vector<String> getDefaultParams() {
+        Vector<String> v = new Vector<String>();
 
         return v;
     }

@@ -31,7 +31,6 @@ import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.authority.IAuthority;
 import com.netscape.certsrv.authorization.AuthzToken;
 import com.netscape.certsrv.base.EBaseException;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.base.IPrettyPrintFormat;
 import com.netscape.certsrv.logging.ILogger;
 import com.netscape.certsrv.request.IRequest;
@@ -110,7 +109,6 @@ public class GenerateKeyPairServlet extends CMSServlet {
         IRequestQueue queue = mAuthority.getRequestQueue();
         IRequest thisreq = null;
 
-        IConfigStore sconfig = CMS.getConfigStore();
         boolean missingParam = false;
         String status = "0";
 
@@ -146,8 +144,6 @@ public class GenerateKeyPairServlet extends CMSServlet {
             CMS.debug("GenerateKeyPairServlet: processServerSideKeygen(): missing key archival flag 'archive' ,default to true");
             rArchive = "true";
         }
-
-        String selectedToken = null;
 
         if (!missingParam) {
             thisreq = queue.newRequest(IRequest.NETKEY_KEYGEN_REQUEST);

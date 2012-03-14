@@ -526,6 +526,7 @@ public class DBSubsystem implements IDBSubsystem {
      * applications can use. Optionally, check the integrity
      * of the database.
      */
+    @SuppressWarnings("unchecked")
     public void init(ISubsystem owner, IConfigStore config)
             throws EBaseException {
 

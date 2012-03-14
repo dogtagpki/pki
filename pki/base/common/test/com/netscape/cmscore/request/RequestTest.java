@@ -91,7 +91,6 @@ public class RequestTest extends CMSBaseTestCase {
         assertFalse(request.setExtData("key", (String) null));
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     public void testVerifyValidExtDataHashtable() {
         Hashtable<String, String> valueHash = new Hashtable<String, String>();
 

@@ -34,7 +34,6 @@ import java.net.SocketException;
 import java.util.StringTokenizer;
 
 import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.crypto.CryptoStore;
 import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.X509Certificate;
 import org.mozilla.jss.ssl.SSLHandshakeCompletedEvent;
@@ -145,7 +144,6 @@ public class HttpClient {
                     CryptoToken token = cm.getInternalKeyStorageToken();
                     Password pass = new Password(password.toCharArray());
                     token.login(pass);
-                    CryptoStore store = token.getCryptoStore();
                     X509Certificate cert = cm.findCertByNickname(nickname);
                     if (cert == null)
                         System.out.println("client cert is null");

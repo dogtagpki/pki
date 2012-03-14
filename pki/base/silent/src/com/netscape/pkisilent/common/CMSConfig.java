@@ -558,8 +558,8 @@ public class CMSConfig extends ServerInfo {
         }
 
         CMSConfig s = new CMSConfig(args[0]);
-        boolean secureC = false;
 
+        // boolean secureC = false;
         // s.EnableDirEnrollment(secureC);	
         s.saveCMSConfig();
 

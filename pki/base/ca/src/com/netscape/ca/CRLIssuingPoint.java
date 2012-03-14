@@ -3029,7 +3029,6 @@ class CertRecProcessor implements IElementProcessor {
             onlySomeReasons = issuingDistributionPoint.getOnlySomeReasons();
 
         boolean applyReasonMatch = false;
-        boolean reasonMatch = true;
 
         if (onlySomeReasons != null) {
             applyReasonMatch = !onlySomeReasons.toString().equals("0000000");

@@ -31,7 +31,6 @@ import java.security.cert.X509Certificate;
 import java.util.Enumeration;
 
 import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -135,8 +134,6 @@ public class ConnectorServlet extends CMSServlet {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse resp = (HttpServletResponse) response;
 
-        ServletContext servletContext = mConfig.getServletContext();
-
         CMSRequest cmsRequest = newCMSRequest();
 
         // set argblock
@@ -160,8 +157,6 @@ public class ConnectorServlet extends CMSServlet {
         int len = -1;
         IPKIMessage msg = null;
         IPKIMessage replymsg = null;
-        IRequest r = null;
-        IRequest reply = null;
 
         // NOTE must read all bufer before redoing handshake for 
         // ssl client auth for client auth to work.
@@ -462,7 +457,6 @@ public class ConnectorServlet extends CMSServlet {
         IPKIMessage replymsg = null;
 
         try {
-            IRequest r = null;
             IRequestQueue queue = mAuthority.getRequestQueue();
             String srcid = source + ":" + msg.getReqId();
 

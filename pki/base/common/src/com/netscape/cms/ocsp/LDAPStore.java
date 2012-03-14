@@ -696,10 +696,6 @@ class TempCRLIssuingPointRecord implements ICRLIssuingPointRecord {
         return null;
     }
 
-    public Vector getSplitTimes() {
-        return null;
-    }
-
     public int isCRLIssuingPointInitialized() {
         return 1;
     }

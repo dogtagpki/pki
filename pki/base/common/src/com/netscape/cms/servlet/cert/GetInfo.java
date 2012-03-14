@@ -314,7 +314,7 @@ public class GetInfo extends CMSServlet {
 
                         if (crlSplits.length() > 0)
                             crlSplits.append("+");
-                        Vector splits = ip.getSplitTimes();
+                        Vector<Long> splits = ip.getSplitTimes();
 
                         for (int i = 0; i < splits.size(); i++) {
                             crlSplits.append(splits.elementAt(i));

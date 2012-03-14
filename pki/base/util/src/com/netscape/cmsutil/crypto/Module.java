@@ -28,20 +28,20 @@ public class Module {
     private String mUserFriendlyName = "";
     private String mImagePath = "";
     // a Vector of Tokens
-    private Vector mTokens = null;
+    private Vector<Token> mTokens = null;
     private boolean mFound = false;
 
     public Module(String name, String printName) {
         mCommonName = name;
         mUserFriendlyName = printName;
-        mTokens = new Vector();
+        mTokens = new Vector<Token>();
     }
 
     public Module(String name, String printName, String image) {
         mCommonName = name;
         mUserFriendlyName = printName;
         mImagePath = image;
-        mTokens = new Vector();
+        mTokens = new Vector<Token>();
     }
 
     public void addToken(CryptoToken t) {
@@ -69,7 +69,7 @@ public class Module {
         mFound = isFound;
     }
 
-    public Vector getTokens() {
+    public Vector<Token> getTokens() {
         return mTokens;
     }
 }

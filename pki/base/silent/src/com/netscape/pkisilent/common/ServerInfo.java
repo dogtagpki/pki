@@ -177,18 +177,6 @@ public class ServerInfo {
             String s = in.readLine();
 
             while (s != null) {
-                // <SSLPARAMS servercertnickname="Server-Cert cert-firefly"
-                int index = s.indexOf("servercertnickname");
-
-                if (index >= 0) {
-                    String str = s.substring(index + 20);
-                    StringTokenizer tokenizer = new StringTokenizer(str, "\"");
-
-                    if (tokenizer.hasMoreElements()) {
-                        String mServerCertNickname = tokenizer.nextToken();
-                    }
-                }
-
                 // <LS id="agent" ip="0.0.0.0" port="8101" security="on"
                 // acceptorthreads="1" blocking="no">
                 if (s.startsWith("<LS id=")) {
@@ -213,7 +201,7 @@ public class ServerInfo {
                         }
 
                         if (index1 != 5 && index2 == IP && !token.equals(" ip=")) {
-                            String ip = token;
+                            // token contains the ip value
                         } else if (index2 == PORT && !token.equals(" port=")) {
 
                             switch (index1) {

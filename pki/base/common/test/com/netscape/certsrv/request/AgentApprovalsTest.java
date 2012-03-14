@@ -61,19 +61,19 @@ public class AgentApprovalsTest extends CMSBaseTestCase {
         assertEquals(approval3.getDate(), approval.getDate());
 
         // test bad data
-        stringVector = new Vector();
+        stringVector = new Vector<String>();
         stringVector.add("foo");
         assertNull(AgentApprovals.fromStringVector(stringVector));
 
-        stringVector = new Vector();
+        stringVector = new Vector<String>();
         stringVector.add(";foo");
         assertNull(AgentApprovals.fromStringVector(stringVector));
 
-        stringVector = new Vector();
+        stringVector = new Vector<String>();
         stringVector.add("bar;foo");
         assertNull(AgentApprovals.fromStringVector(stringVector));
 
-        stringVector = new Vector();
+        stringVector = new Vector<String>();
         stringVector.add("00123b;foo");
         assertNull(AgentApprovals.fromStringVector(stringVector));
 

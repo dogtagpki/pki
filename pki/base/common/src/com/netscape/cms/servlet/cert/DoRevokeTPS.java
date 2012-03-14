@@ -27,7 +27,6 @@ import java.math.BigInteger;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -254,8 +253,6 @@ public class DoRevokeTPS extends CMSServlet {
         }
 
         try {
-            ServletOutputStream out = resp.getOutputStream();
-
             if (!authorized) {
                 o_status = "status=3";
                 errorString = "error=unauthorized";
@@ -684,19 +681,6 @@ public class DoRevokeTPS extends CMSServlet {
 
                 if (mPublisherProcessor != null && mPublisherProcessor.ldapEnabled()) {
                     header.addStringValue("dirEnabled", "yes");
-                    Integer[] ldapPublishStatus =
-                            revReq.getExtDataInIntegerArray("ldapPublishStatus");
-                    int certsToUpdate = 0;
-                    int certsUpdated = 0;
-
-                    if (ldapPublishStatus != null) {
-                        certsToUpdate = ldapPublishStatus.length;
-                        for (int i = 0; i < certsToUpdate; i++) {
-                            if (ldapPublishStatus[i] == IRequest.RES_SUCCESS) {
-                                certsUpdated++;
-                            }
-                        }
-                    }
 
                     // add crl publishing status. 
                     String publError =

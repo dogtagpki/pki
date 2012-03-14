@@ -275,7 +275,7 @@ public class ProcessCertReq extends CMSServlet {
         IArgBlock fixed = CMS.createArgBlock();
         CMSTemplateParams argSet = new CMSTemplateParams(header, fixed);
 
-        CMSTemplate form = null, errorForm = null;
+        CMSTemplate form = null;
         Locale[] locale = new Locale[1];
 
         try {
@@ -342,7 +342,6 @@ public class ProcessCertReq extends CMSServlet {
                 if (xmlOutput != null && xmlOutput.equals("true")) {
                     outputXML(resp, argSet);
                 } else {
-                    String output = form.getOutput(argSet);
                     resp.setContentType("text/html");
                     form.renderOutput(out, argSet);
                     cmsReq.setStatus(CMSRequest.SUCCESS);
@@ -1002,19 +1001,15 @@ public class ProcessCertReq extends CMSServlet {
                         }
 
                         // grant trusted manager or agent privileges  
-                        Object grantError = null;
-
                         try {
                             int res = grant_privileges(
                                     cmsReq, r, issuedCerts, header);
 
                             if (res != 0) {
                                 header.addStringValue(GRANT_ERROR, "SUCCESS");
-                                grantError = "SUCCESS";
                             }
                         } catch (EBaseException e) {
                             header.addStringValue(GRANT_ERROR, e.toString());
-                            grantError = e;
                         }
 
                         // if this is a RA, show the certificate right away

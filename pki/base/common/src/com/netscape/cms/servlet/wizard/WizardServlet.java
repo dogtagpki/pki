@@ -418,6 +418,7 @@ public class WizardServlet extends VelocityServlet {
 
     public void outputHttpParameters(HttpServletRequest httpReq) {
         CMS.debug("WizardServlet:service() uri = " + httpReq.getRequestURI());
+        @SuppressWarnings("unchecked")
         Enumeration<String> paramNames = httpReq.getParameterNames();
         while (paramNames.hasMoreElements()) {
             String pn = paramNames.nextElement();

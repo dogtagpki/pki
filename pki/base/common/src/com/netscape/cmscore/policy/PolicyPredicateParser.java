@@ -68,8 +68,6 @@ public class PolicyPredicateParser {
         // The first token cannot be an operator. We are not dealing with
         // reverse-polish notation.
         String token = pt.nextToken();
-        boolean opANDSeen;
-        boolean opORSeen;
 
         if (getOP(token) != EXPRESSION) {
             if (Debug.ON)
@@ -78,7 +76,7 @@ public class PolicyPredicateParser {
         }
         IExpression current = parseExpression(token);
         boolean malformed = false;
-        Vector expSet = new Vector();
+        Vector<IExpression> expSet = new Vector<IExpression>();
         int prevType = EXPRESSION;
 
         while (pt.hasMoreTokens()) {
@@ -156,7 +154,7 @@ public class PolicyPredicateParser {
         if (commaIndex < 0)
             return SimpleExpression.parse(input);
         int currentIndex = 0;
-        Vector expVector = new Vector();
+        Vector<SimpleExpression> expVector = new Vector<SimpleExpression>();
 
         while (commaIndex > 0) {
             SimpleExpression exp = (SimpleExpression)

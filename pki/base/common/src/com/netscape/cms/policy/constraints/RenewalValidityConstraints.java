@@ -74,7 +74,7 @@ public class RenewalValidityConstraints extends APolicyRule
     public static final String CERT_HEADER = "-----BEGIN CERTIFICATE-----\n";
     public static final String CERT_TRAILER = "-----END CERTIFICATE-----\n";
 
-    private final static Vector defConfParams = new Vector();
+    private final static Vector<String> defConfParams = new Vector<String>();
 
     static {
         defConfParams.addElement(PROP_MIN_VALIDITY + "=" +
@@ -281,8 +281,8 @@ public class RenewalValidityConstraints extends APolicyRule
      * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getInstanceParams() {
-        Vector confParams = new Vector();
+    public Vector<String> getInstanceParams() {
+        Vector<String> confParams = new Vector<String>();
 
         confParams.addElement(PROP_MIN_VALIDITY + "=" +
                 mMinValidity / DAYS_TO_MS_FACTOR);
@@ -298,7 +298,7 @@ public class RenewalValidityConstraints extends APolicyRule
      * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getDefaultParams() {
+    public Vector<String> getDefaultParams() {
         return defConfParams;
     }
 

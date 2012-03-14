@@ -396,7 +396,6 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
         int pos = name.indexOf(':');
         if (pos == -1)
             return false;
-        String nameType = name.substring(0, pos).trim();
         String nameValue = name.substring(pos + 1).trim();
         if (nameValue.equals(""))
             return false;
@@ -480,7 +479,7 @@ public abstract class EnrollDefault implements IPolicyDefault, ICertInfoPolicyDe
         if (nameType.equalsIgnoreCase("OIDName")) {
             try {
                 // check if OID
-                ObjectIdentifier oid = new ObjectIdentifier(nameValue);
+                new ObjectIdentifier(nameValue);
             } catch (Exception e) {
                 return null;
             }

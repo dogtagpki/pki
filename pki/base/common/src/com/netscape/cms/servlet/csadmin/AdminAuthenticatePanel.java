@@ -27,8 +27,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.velocity.context.Context;
 import org.mozilla.jss.CryptoManager;
-import org.mozilla.jss.crypto.CryptoStore;
-import org.mozilla.jss.crypto.CryptoToken;
 import org.mozilla.jss.crypto.X509Certificate;
 
 import com.netscape.certsrv.apps.CMS;
@@ -310,8 +308,7 @@ public class AdminAuthenticatePanel extends WizardPanelBase {
             while (st.hasMoreTokens()) {
                 String token = st.nextToken();
                 String tokenname = config.getString("preop.module.token", "");
-                CryptoToken tok = cm.getTokenByName(tokenname);
-                CryptoStore store = tok.getCryptoStore();
+                cm.getTokenByName(tokenname); // throw exception on error
                 String name1 = "preop.master." + token + ".nickname";
                 String nickname = config.getString(name1, "");
                 if (!tokenname.equals("Internal Key Storage Token") &&

@@ -34,7 +34,6 @@ import com.netscape.certsrv.apps.CMS;
 import com.netscape.certsrv.authentication.AuthMgrPlugin;
 import com.netscape.certsrv.authentication.IAuthManager;
 import com.netscape.certsrv.authentication.IAuthSubsystem;
-import com.netscape.certsrv.authentication.IAuthToken;
 import com.netscape.certsrv.base.EBaseException;
 import com.netscape.certsrv.base.IConfigStore;
 
@@ -200,7 +199,7 @@ public class DynamicVariablesServlet extends CMSServlet {
 
         if (mAuthMgr != null) {
             try {
-                IAuthToken token = authenticate(httpReq);
+                authenticate(httpReq);
             } catch (EBaseException e) {
                 mServletCtx.log(CMS.getLogMessage("CMSGW_FILE_NO_ACCESS", e.toString()));
                 httpResp.sendError(HttpServletResponse.SC_FORBIDDEN);

@@ -127,7 +127,6 @@ public class ParseXML {
     // returns an arraylist of values for the corresponding tag
 
     public ArrayList<String> constructValueList(String first, String second) {
-        String temp = null;
         ArrayList<String> al = new ArrayList<String>();
 
         try {

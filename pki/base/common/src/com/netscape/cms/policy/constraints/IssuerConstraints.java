@@ -193,8 +193,8 @@ public class IssuerConstraints extends APolicyRule
      * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getInstanceParams() {
-        Vector confParams = new Vector();
+    public Vector<String> getInstanceParams() {
+        Vector<String> confParams = new Vector<String>();
 
         confParams.addElement(PROP_ISSUER_DN + "=" +
                 mIssuerDNString);
@@ -206,8 +206,8 @@ public class IssuerConstraints extends APolicyRule
      * 
      * @return nvPairs A Vector of name/value pairs.
      */
-    public Vector getDefaultParams() {
-        Vector defParams = new Vector();
+    public Vector<String> getDefaultParams() {
+        Vector<String> defParams = new Vector<String>();
 
         defParams.addElement(PROP_ISSUER_DN + "=");
         return defParams;

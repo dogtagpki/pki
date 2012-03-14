@@ -91,13 +91,13 @@ public class NoMap implements ILdapMapper, IExtendedPluginInfo {
         return "NoMap";
     }
 
-    public Vector getDefaultParams() {
-        Vector v = new Vector();
+    public Vector<String> getDefaultParams() {
+        Vector<String> v = new Vector<String>();
         return v;
     }
 
-    public Vector getInstanceParams() {
-        Vector v = new Vector();
+    public Vector<String> getInstanceParams() {
+        Vector<String> v = new Vector<String>();
         return v;
     }
 

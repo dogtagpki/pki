@@ -83,15 +83,15 @@ public class LdapCrlIssuerCompsMap
         return "LdapCrlIssuerCompsMap";
     }
 
-    public Vector getDefaultParams() {
-        Vector v = super.getDefaultParams();
+    public Vector<String> getDefaultParams() {
+        Vector<String> v = super.getDefaultParams();
 
         //v.addElement("crlAttr=" + LdapCrlPublisher.LDAP_CRL_ATTR);
         return v;
     }
 
-    public Vector getInstanceParams() {
-        Vector v = super.getInstanceParams();
+    public Vector<String> getInstanceParams() {
+        Vector<String> v = super.getInstanceParams();
 
         return v;
     }

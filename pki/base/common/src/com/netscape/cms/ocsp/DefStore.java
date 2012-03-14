@@ -45,7 +45,6 @@ import com.netscape.certsrv.base.IExtendedPluginInfo;
 import com.netscape.certsrv.base.ISubsystem;
 import com.netscape.certsrv.common.Constants;
 import com.netscape.certsrv.common.NameValuePairs;
-import com.netscape.certsrv.dbs.IDBRegistry;
 import com.netscape.certsrv.dbs.IDBSSession;
 import com.netscape.certsrv.dbs.IDBSearchResults;
 import com.netscape.certsrv.dbs.IDBSubsystem;
@@ -160,9 +159,6 @@ public class DefStore implements IDefStore, IExtendedPluginInfo {
         // is too old or not
         mIncludeNextUpdate = mConfig.getBoolean(PROP_INCLUDE_NEXT_UPDATE,
                     false);
-
-        // should move this into DBSubsystem ....
-        IDBRegistry reg = mDBService.getRegistry();
 
         // init web gateway.
         initWebGateway();

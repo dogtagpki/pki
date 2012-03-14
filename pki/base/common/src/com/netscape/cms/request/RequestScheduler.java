@@ -31,7 +31,7 @@ import com.netscape.certsrv.request.IRequestScheduler;
  * @version $Revision$, $Date$
  */
 public class RequestScheduler implements IRequestScheduler {
-    private Vector mRequestThreads = new Vector();
+    private Vector<Thread> mRequestThreads = new Vector<Thread>();
 
     /**
      * Request entered the request queue processing.

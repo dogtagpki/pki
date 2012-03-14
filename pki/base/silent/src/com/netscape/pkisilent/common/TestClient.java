@@ -468,7 +468,6 @@ public class TestClient implements SSLCertificateApprovalCallback {
     public String getFreePort(String s) {
         Integer x = new Integer(s);
         int p = x.intValue();
-        boolean st = true;
 
         // if p = 0, then the serversocket constructor get a free port by itself
         p = 0;
@@ -756,10 +755,10 @@ public class TestClient implements SSLCertificateApprovalCallback {
          *************************************************************
          */
 
-        String TransportCert =
+        /*
+         String TransportCert =
                 "MIICJTCCAY6gAwIBAgIBBTANBgkqhkiG9w0BAQQFADBDMRswGQYDVQQKExJhY2NlcHRhY25ldGVzdDEwMjQxFzAVBgNVBAsTDmFjY2VwdGFuY2V0ZXN0MQswCQYDVQQDEwJjYTAeFw0wMzA0MTgyMjMwMDhaFw0wNDA0MTcxMDI2MDhaMDkxETAPBgNVBAoTCHRlc3QxMDI0MRcwFQYDVQQLEw5hY2NlcHRhbmNldGVzdDELMAkGA1UEAxMCcmEwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAN6sQ3mSU8mL6i6gTZIXDLzOZPhYOkQLpnJjit5hcPZ0JMn0CQVXo4QjKN1xvuZv8qVlZoQw9czmzp/knTa0sCDgFKd0r+u0TnLeZkJMSimgFnma9CnChlaDHnBd8Beu4vyaHmo7rJ0xA4etn7HjhmKbaQZOcv/aP0SW9JXRga7ZAgMBAAGjMzAxMA4GA1UdDwEB/wQEAwIFIDAfBgNVHSMEGDAWgBSC3fsQHb7fddr2vL0UdkM2dAmUWzANBgkqhkiG9w0BAQQFAAOBgQBkAGbgd9HIqwoLKAr+V6bj9oWesDmDH80gPPxj10qyWSQYIs8PofOs/75yGS9nxhydtgSMFoBgCPdroUI31kZQQlFzxtudGoKD+5MWSXho79XzPwpjheOBYgpX6ch+L4tMLFDpqeraB1yZESO5EEeKm20DGVBOKVWxHhddO1BenA==";
 
-        /*
          CRMFClient	CrmfClient = new CRMFClient(s.GetHostName(),s.GetEEPort());
          CrmfClient.setDBInfo(t.GetClientCertDB(),t.GetClientCertDBPW());
          CrmfClient.setTransportCert(TransportCert);

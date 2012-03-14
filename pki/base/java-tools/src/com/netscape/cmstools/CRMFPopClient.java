@@ -29,7 +29,6 @@ import java.net.URLEncoder;
 import java.security.KeyPair;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Date;
 
 import netscape.security.x509.X500Name;
 
@@ -261,7 +260,6 @@ public class CRMFPopClient {
         URLConnection conn = null;
         InputStream is = null;
         BufferedReader reader = null;
-        long total_time = 0;
         KeyPair pair = null;
 
         boolean foundTransport = false;
@@ -419,7 +417,6 @@ public class CRMFPopClient {
                 certReq.encode(bo);
                 byte[] toBeVerified = bo.toByteArray();
 
-                byte popdata[] = ASN1Util.encode(certReq);
                 byte signature[];
 
                 System.out.println("."); //CertRequest encoded");
@@ -505,7 +502,6 @@ public class CRMFPopClient {
                 System.out.println("--------------------");
                 System.out.println("");
 
-                long start_time = (new Date()).getTime();
                 conn = url.openConnection();
                 is = conn.getInputStream();
                 reader = new BufferedReader(new InputStreamReader(is));
@@ -517,8 +513,7 @@ public class CRMFPopClient {
                         System.out.println("");
                     }
                 } /* while */
-                long end_time = (new Date()).getTime();
-                total_time += (end_time - start_time);
+
             } catch (Exception e) {
                 System.out.println("WARNING: " + e.toString());
                 e.printStackTrace();

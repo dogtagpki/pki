@@ -21,7 +21,6 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Locale;
-import java.util.Vector;
 
 import netscape.security.x509.X509CertImpl;
 
@@ -85,12 +84,6 @@ public class PublishCertsJob extends AJobBase
                     "summary.senderEmail",
                     "summary.recipientEmail"
         };
-
-    /* Vector of extendedPluginInfo strings */
-    protected static Vector mExtendedPluginInfo = null;
-    static {
-        mExtendedPluginInfo = new Vector();
-    };
 
     public String[] getExtendedPluginInfo(Locale locale) {
         String s[] = {
@@ -217,7 +210,6 @@ public class PublishCertsJob extends AJobBase
             if (rec == null)
                 break;
             X509CertImpl cert = rec.getCertificate();
-            Date notBefore = cert.getNotBefore();
             Date notAfter = cert.getNotAfter();
 
             // skip CA certs

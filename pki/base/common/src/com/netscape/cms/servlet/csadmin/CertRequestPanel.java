@@ -145,11 +145,9 @@ public class CertRequestPanel extends WizardPanelBase {
 
     public void cleanUp() throws IOException {
         IConfigStore cs = CMS.getConfigStore();
-        String select = "";
         String list = "";
         String tokenname = "";
         try {
-            select = cs.getString("preop.subsystem.select", "");
             list = cs.getString("preop.cert.list", "");
             tokenname = cs.getString("preop.module.token", "");
         } catch (Exception e) {

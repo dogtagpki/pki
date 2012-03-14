@@ -477,7 +477,6 @@ public class ProfileSubmitServlet extends ProfileServlet {
             statsSub.startTiming("enrollment", true /* main action */);
         }
 
-        long startTime = CMS.getCurrentDate().getTime();
         Locale locale = getLocale(request);
         ArgSet args = new ArgSet();
 
@@ -750,8 +749,8 @@ public class ProfileSubmitServlet extends ProfileServlet {
                             if (origReq != null) {
                                 CMS.debug("ProfileSubmitServlet: renewal: found original enrollment request id:" + rid);
                                 // debug: print the extData keys
-                                Enumeration<String> en = origReq.getExtDataKeys();
                                 /*
+                                Enumeration<String> en = origReq.getExtDataKeys();
                                                                 CMS.debug("ProfileSubmitServlet: renewal: origRequest extdata key print BEGINS");
                                                                 while (en.hasMoreElements()) {
                                                                   String next = (String) en.nextElement();

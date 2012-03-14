@@ -287,7 +287,7 @@ public class NamePanel extends WizardPanelBase {
         }
 
         CMS.debug("NamePanel: Ready to get SSL EE HTTPS urls");
-        Vector v = getUrlListFromSecurityDomain(config, "CA", "SecurePort");
+        Vector<String> v = getUrlListFromSecurityDomain(config, "CA", "SecurePort");
         v.addElement("External CA");
         StringBuffer list = new StringBuffer();
         int size = v.size();
@@ -782,14 +782,12 @@ public class NamePanel extends WizardPanelBase {
 
         //if no hselect, then not CA
         if (hselect.equals("") || hselect.equals("join")) {
-            String select = null;
             String url = getURL(request, config);
 
             URL urlx = null;
 
             if (url.equals("External CA")) {
                 CMS.debug("NamePanel: external CA selected");
-                select = "otherca";
                 config.putString("preop.ca.type", "otherca");
                 if (subsystem != null) {
                     config.putString(PCERT_PREFIX + "signing.type", "remote");
@@ -801,7 +799,6 @@ public class NamePanel extends WizardPanelBase {
                 CMS.debug("NamePanel: update: this is the external CA.");
             } else {
                 CMS.debug("NamePanel: local CA selected");
-                select = "sdca";
                 // parse URL (CA1 - https://...)
                 url = url.substring(url.indexOf("https"));
                 config.putString("preop.ca.url", url);
@@ -833,7 +830,6 @@ public class NamePanel extends WizardPanelBase {
             while (c.hasMoreElements()) {
                 Cert cert = c.nextElement();
                 String ct = cert.getCertTag();
-                String tokenname = cert.getTokenname();
                 boolean enable = config.getBoolean(PCERT_PREFIX + ct + ".enable", true);
                 if (!enable)
                     continue;
