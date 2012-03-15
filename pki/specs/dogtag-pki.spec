@@ -56,7 +56,6 @@ BuildArch:        noarch
 %define tomcatjss_version          2.0.0
 %endif
 %endif
-%endif
 
 Requires:         apache-commons-codec
 
