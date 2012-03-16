@@ -1,5 +1,5 @@
 Name:             pki-core
-Version:          9.0.18
+Version:          9.0.19
 Release:          1%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
@@ -445,7 +445,7 @@ This package is a part of the PKI Core used by the Certificate System.
 
 
 %if 0%{?fedora} >= 17
-%patch0 -p2 -b .f17
+%patch1 -p2 -b .f17
 %else
 %if 0%{?fedora} >= 16
 %patch0 -p2 -b .f16
@@ -506,6 +506,19 @@ echo "D /var/run/pki/ca 0755 root root -"  >> %{buildroot}%{_sysconfdir}/tmpfile
 %{__rm} -rf %{buildroot}%{_unitdir}
 %endif
 
+# tomcat6 has changed how TOMCAT_LOG is used.
+# Need to adjust accordingly
+# This macro will be executed in the postinstall scripts
+%define fix_tomcat_log() (                                                   \
+if [ -d /etc/sysconfig/pki/%i ]; then                                        \
+  for F in `find /etc/sysconfig/pki/%1 -type f`; do                          \
+    instance=`basename $F`                                                   \
+    if [ -f /etc/sysconfig/$instance ]; then                                 \
+        sed -i -e 's/catalina.out/tomcat-initd.log/' /etc/sysconfig/$instance \
+    fi                                                                       \
+  done                                                                       \
+fi                                                                           \
+)
 
 %pre -n pki-selinux
 %saveFileContext targeted
@@ -532,7 +545,7 @@ fi
 %post -n pki-ca 
 # This adds the proper /etc/rc*.d links for the script
 /sbin/chkconfig --add pki-cad || :
-
+%fix_tomcat_log ca
 
 %preun -n pki-ca
 if [ $1 = 0 ] ; then
@@ -572,6 +585,7 @@ if [ -d /etc/sysconfig/pki/ca ]; then
     done
 fi
 /bin/systemctl daemon-reload >/dev/null 2>&1 || :
+%fix_tomcat_log ca
 
 %preun -n pki-ca
 if [ $1 = 0 ] ; then
@@ -735,6 +749,10 @@ fi
 
 
 %changelog
+* Fri Mar 16 2012 Ade Lee <alee@redhat.com> 9.0.19-1
+- BZ 802396 - Change location of TOMCAT_LOG to match tomcat6 changes
+- Corrected patch selected for selinux f17 rules
+
 * Fri Mar  9 2012 Matthew Harmsen <mharmsen@redhat.com> 9.0.18-1
 - Bugzilla Bug #796006 - Get DOGTAG_9_BRANCH GIT repository in-sync
   with DOGTAG_9_BRANCH SVN repository . . .
