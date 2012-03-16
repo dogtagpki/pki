@@ -14,7 +14,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.0
-Release:          %{?relprefix}10%{?prerel}%{?dist}
+Release:          %{?relprefix}11%{?prerel}%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -680,7 +680,7 @@ This package is a part of the PKI Core used by the Certificate System.
 %setup -q -n %{name}-%{version}%{?prerel}
 
 %if 0%{?fedora} >= 17
-%patch0 -p2 -b .f17
+%patch1 -p2 -b .f17
 %else
 %if 0%{?fedora} >= 16
 %patch0 -p2 -b .f16
@@ -765,6 +765,19 @@ ln -s -f %{_javadir}/pki/pki-jndi-realm.jar %{buildroot}%{_javadir}/tomcat6/pki-
 %{__rm} -rf %{buildroot}%{_unitdir}
 %endif
 
+# tomcat6 has changed how TOMCAT_LOG is used.
+# Need to adjust accordingly
+# This macro will be executed in the postinstall scripts
+%define fix_tomcat_log() (                                                   \
+if [ -d /etc/sysconfig/pki/%i ]; then                                        \
+  for F in `find /etc/sysconfig/pki/%1 -type f`; do                          \
+    instance=`basename $F`                                                   \
+    if [ -f /etc/sysconfig/$instance ]; then                                 \
+        sed -i -e 's/catalina.out/tomcat-initd.log/' /etc/sysconfig/$instance \
+    fi                                                                       \
+  done                                                                       \
+fi                                                                           \
+)
 
 %pre -n pki-selinux
 %saveFileContext targeted
@@ -791,21 +804,22 @@ fi
 %post -n pki-ca 
 # This adds the proper /etc/rc*.d links for the script
 /sbin/chkconfig --add pki-cad || :
-
+%fix_tomcat_log ca
 
 %post -n pki-kra
 # This adds the proper /etc/rc*.d links for the script
 /sbin/chkconfig --add pki-krad || :
-
+%fix_tomcat_log kra
 
 %post -n pki-ocsp
 # This adds the proper /etc/rc*.d links for the script
 /sbin/chkconfig --add pki-ocspd || :
-
+%fix_tomcat_log ocsp
 
 %post -n pki-tks
 # This adds the proper /etc/rc*.d links for the script
 /sbin/chkconfig --add pki-tksd || :
+%fix_tomcat_log tks
 
 
 %preun -n pki-ca
@@ -884,6 +898,7 @@ if [ -d /etc/sysconfig/pki/ca ]; then
     done
 fi
 /bin/systemctl daemon-reload >/dev/null 2>&1 || :
+%fix_tomcat_log ca
 
 
 %post -n pki-kra
@@ -911,6 +926,7 @@ if [ -d /etc/sysconfig/pki/kra ]; then
     done
 fi
 /bin/systemctl daemon-reload >/dev/null 2>&1 || :
+%fix_tomcat_log kra
 
 
 %post -n pki-ocsp
@@ -938,6 +954,7 @@ if [ -d /etc/sysconfig/pki/ocsp ]; then
     done
 fi
 /bin/systemctl daemon-reload >/dev/null 2>&1 || :
+%fix_tomcat_log ocsp
 
 
 %post -n pki-tks
@@ -965,6 +982,7 @@ if [ -d /etc/sysconfig/pki/tks ]; then
     done
 fi
 /bin/systemctl daemon-reload >/dev/null 2>&1 || :
+%fix_tomcat_log tks
 
 %preun -n pki-ca
 if [ $1 = 0 ] ; then
@@ -1021,7 +1039,6 @@ if [ "$1" -ge "1" ] ; then
     /bin/systemctl try-restart pki-tksd.target >/dev/null 2>&1 || :
 fi
 %endif
-
 
 %files -n pki-deploy
 %defattr(-,root,root,-)
@@ -1298,6 +1315,10 @@ fi
 
 
 %changelog
+* Fri Mar 16 2012 Ade Lee <alee@redhat.com> 10.0.0-0.11.a1
+- BZ 802396 - Change location of TOMCAT_LOG to match tomcat6 changes
+- Corrected patch selected for selinux f17 rules
+
 * Wed Mar 14 2012 Matthew Harmsen <mharmsen@redhat.com> 10.0.0-0.10.a1
 - Corrected 'junit' dependency check
 
