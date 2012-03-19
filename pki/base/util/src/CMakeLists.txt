@@ -187,10 +187,8 @@ set(pki-nsutil_java_SRCS
     netscape/security/provider/DSAPrivateKey.java
     netscape/security/provider/DSAParameters.java
     netscape/security/provider/DSAPublicKey.java
-    netscape/security/provider/SystemIdentity.java
     netscape/security/provider/RSAPublicKey.java
     netscape/security/provider/SHA.java
-    netscape/security/provider/SystemSigner.java
     netscape/security/provider/MD5.java
     netscape/security/provider/DSAParameterGenerator.java
     netscape/security/provider/CMS.java
