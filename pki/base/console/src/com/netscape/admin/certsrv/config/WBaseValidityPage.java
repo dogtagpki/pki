@@ -174,12 +174,12 @@ January 2038.
         //DateFormat dateFormat = DataFormat.getDateTimeInstance(
         //  DateFormat.FULL,DateFormat.MEDIUM);
 
-		Date nowDate = new Date();
-		
-        Date afterDate = new Date(nowDate.getYear()+5, nowDate.getMonth(),
-          nowDate.getDate());
-     
-        mBYear = new JTextField(""+(nowDate.getYear()+1900));
+        Calendar nowDate = Calendar.getInstance();
+
+        Calendar afterDate = (Calendar)nowDate.clone();
+        afterDate.add(Calendar.YEAR, 5);
+
+        mBYear = new JTextField(""+nowDate.get(Calendar.YEAR));
         mBYear.setColumns(4);
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.WEST;
@@ -188,11 +188,11 @@ January 2038.
           COMPONENT_SPACE);
         add(mBYear, gbc);
         
-        mBMonth = new JTextField(""+(nowDate.getMonth()+1));
+        mBMonth = new JTextField(""+(nowDate.get(Calendar.MONTH)+1));
         mBMonth.setColumns(3);
         add(mBMonth, gbc);
 
-        mBDay = new JTextField(""+nowDate.getDate());
+        mBDay = new JTextField(""+nowDate.get(Calendar.DAY_OF_MONTH));
         mBDay.setColumns(3);
         add(mBDay, gbc);
 
@@ -217,7 +217,7 @@ January 2038.
           COMPONENT_SPACE, COMPONENT_SPACE);
         add(expireLbl, gbc);
 
-        mEYear = new JTextField(""+(afterDate.getYear()+1900));
+        mEYear = new JTextField(""+afterDate.get(Calendar.YEAR));
         mEYear.setColumns(4);
         CMSAdminUtil.resetGBC(gbc);
         gbc.anchor = gbc.WEST;
@@ -226,11 +226,11 @@ January 2038.
           COMPONENT_SPACE);
         add(mEYear, gbc);
 
-        mEMonth = new JTextField(""+(afterDate.getMonth()+1));
+        mEMonth = new JTextField(""+(afterDate.get(Calendar.MONTH)+1));
         mEMonth.setColumns(3);
         add(mEMonth, gbc);
 
-        mEDay = new JTextField(""+afterDate.getDate());
+        mEDay = new JTextField(""+afterDate.get(Calendar.DAY_OF_MONTH));
         mEDay.setColumns(3);
         add(mEDay, gbc);
 
