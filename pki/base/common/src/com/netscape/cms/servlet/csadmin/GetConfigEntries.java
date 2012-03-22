@@ -18,6 +18,7 @@
 package com.netscape.cms.servlet.csadmin;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.util.Enumeration;
 import java.util.Locale;
 import java.util.StringTokenizer;
@@ -50,7 +51,6 @@ public class GetConfigEntries extends CMSServlet {
      */
     private static final long serialVersionUID = -7418561215631752315L;
     private final static String SUCCESS = "0";
-    private final static String FAILED = "1";
     private final static String AUTH_FAILURE = "2";
 
     public GetConfigEntries() {
@@ -146,6 +146,9 @@ public class GetConfigEntries extends CMSServlet {
                     String name = name1 + "." + enum1.nextElement();
                     try {
                         String value = config.getString(name);
+                        if (value.equals("localhost")) {
+                            value = config.getString("machineName", InetAddress.getLocalHost().getHostName());
+                        }
                         Node container = xmlObj.createContainer(root, "Config");
                         xmlObj.addItemToContainer(container, "name", name);
                         xmlObj.addItemToContainer(container, "value", value);
@@ -166,7 +169,7 @@ public class GetConfigEntries extends CMSServlet {
                     value = config.getString(name);
                     CMS.debug("Retrieving config value=" + value);
                     if (value.equals("localhost"))
-                        value = config.getString("machineName", "");
+                        value = config.getString("machineName", InetAddress.getLocalHost().getHostName());
                 } catch (Exception ee) {
                     if (name.equals("internaldb.ldapauth.password")) {
                         value = getLDAPPassword();

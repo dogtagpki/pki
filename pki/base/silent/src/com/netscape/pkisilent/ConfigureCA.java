@@ -93,7 +93,6 @@ public class ConfigureCA {
     public static String base_dn = null;
     public static String db_name = null;
     public static String secure_conn = null;
-    public static String clone_start_tls = null;
     public static String remove_data = null;
 
     public static String key_type = null;
@@ -179,6 +178,9 @@ public class ConfigureCA {
     public static String clone_uri = null;
     public static String clone_p12_passwd = null;
     public static String clone_p12_file = null;
+    public static String clone_master_port = null;
+    public static String clone_replica_port = null;
+    public static String clone_replication_security = null;
 
     //for correct selection of CA to be cloned
     public static String urls;
@@ -477,15 +479,17 @@ public class ConfigureCA {
             HTTPResponse hr = null;
 
             String query_string = "p=9" + "&op=next" + "&xml=true" + "&host="
-                    + URLEncoder.encode(ldap_host) + "&port="
-                    + URLEncoder.encode(ldap_port) + "&binddn="
-                    + URLEncoder.encode(bind_dn) + "&__bindpwd="
-                    + URLEncoder.encode(bind_password) + "&basedn="
-                    + URLEncoder.encode(base_dn) + "&database="
-                    + URLEncoder.encode(db_name) + "&display="
-                    + URLEncoder.encode("$displayStr")
+                    + URLEncoder.encode(ldap_host,"UTF-8") + "&port="
+                    + URLEncoder.encode(ldap_port,"UTF-8") + "&binddn="
+                    + URLEncoder.encode(bind_dn, "UTF-8") + "&__bindpwd="
+                    + URLEncoder.encode(bind_password, "UTF-8") + "&basedn="
+                    + URLEncoder.encode(base_dn, "UTF-8") + "&database="
+                    + URLEncoder.encode(db_name, "UTF-8") + "&display="
+                    + URLEncoder.encode("$displayStr", "UTF-8")
                     + (secure_conn.equals("true") ? "&secureConn=on" : "")
-                    + (clone_start_tls.equals("true") ? "&cloneStartTLS=on" : "")
+                    + "&masterReplicationPort=" + URLEncoder.encode(clone_master_port, "UTF-8")
+                    + "&cloneReplicationPort=" + URLEncoder.encode(clone_replica_port, "UTF-8")
+                    + "&replicationSecurity=" + URLEncoder.encode(clone_replication_security, "UTF-8")
                     + (remove_data.equals("true") ? "&removeData=true" : "");
 
             hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
@@ -1335,7 +1339,6 @@ public class ConfigureCA {
         StringHolder x_base_dn = new StringHolder();
         StringHolder x_db_name = new StringHolder();
         StringHolder x_secure_conn = new StringHolder();
-        StringHolder x_clone_start_tls = new StringHolder();
         StringHolder x_remove_data = new StringHolder();
 
         // key properties (defaults)
@@ -1406,6 +1409,9 @@ public class ConfigureCA {
         StringHolder x_clone_uri = new StringHolder();
         StringHolder x_clone_p12_file = new StringHolder();
         StringHolder x_clone_p12_passwd = new StringHolder();
+        StringHolder x_clone_master_port = new StringHolder();
+        StringHolder x_clone_replica_port = new StringHolder();
+        StringHolder x_clone_replication_security = new StringHolder();
 
         //security domain
         StringHolder x_sd_hostname = new StringHolder();
@@ -1447,9 +1453,6 @@ public class ConfigureCA {
         parser.addOption("-secure_conn %s #use ldaps port (optional, default is false)", x_secure_conn);
         parser.addOption("-remove_data %s #remove existing data under base_dn (optional, default is false) ",
                 x_remove_data);
-        parser.addOption(
-                "-clone_start_tls %s #use startTLS for cloning replication agreement (optional, default is false)",
-                x_clone_start_tls);
 
         // key and algorithm options (default)
         parser.addOption("-key_type %s #Key type [RSA,ECC] (optional, default is RSA)", x_key_type);
@@ -1554,6 +1557,14 @@ public class ConfigureCA {
         parser.addOption("-clone_p12_password %s #Password for pk12 file (optional, required if -clone=true)",
                 x_clone_p12_passwd);
 
+        // replication agreement options
+        parser.addOption("-clone_master_port %s #Master Port to be used in replication agreement (optional)",
+                x_clone_master_port);
+        parser.addOption("-clone_replica_port %s #Replica Port to be used in replication agreement (optional)",
+                x_clone_replica_port);
+        parser.addOption("-clone_replication_security %s #Type of security in replication agreement (optional)",
+                x_clone_replication_security);
+
         parser.addOption("-sd_hostname %s #Security Domain Hostname (optional, required if -clone=true)", x_sd_hostname);
         parser.addOption("-sd_ssl_port %s #Security Domain SSL EE port (optional, required if -clone=true)",
                 x_sd_ssl_port);
@@ -1598,7 +1609,6 @@ public class ConfigureCA {
         db_name = x_db_name.value;
         secure_conn = set_default(x_secure_conn.value, "false");
         remove_data = set_default(x_remove_data.value, "false");
-        clone_start_tls = set_default(x_clone_start_tls.value, "false");
 
         key_type = set_default(x_key_type.value, DEFAULT_KEY_TYPE);
         signing_key_type = set_default(x_signing_key_type.value, key_type);
@@ -1662,6 +1672,9 @@ public class ConfigureCA {
         clone_uri = x_clone_uri.value;
         clone_p12_file = x_clone_p12_file.value;
         clone_p12_passwd = x_clone_p12_passwd.value;
+        clone_master_port = set_default(x_clone_master_port.value, "");
+        clone_replica_port = set_default(x_clone_replica_port.value, "");
+        clone_replication_security = set_default(x_clone_replication_security.value, "None");
 
         sd_hostname = x_sd_hostname.value;
         sd_ssl_port = x_sd_ssl_port.value;

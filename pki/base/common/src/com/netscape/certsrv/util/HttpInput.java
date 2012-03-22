@@ -86,8 +86,7 @@ public class HttpInput {
         return v;
     }
 
-    public static String getString(HttpServletRequest request, String name)
-            throws IOException {
+    public static String getString(HttpServletRequest request, String name) {
         String val = request.getParameter(name);
         return val;
     }
@@ -102,8 +101,7 @@ public class HttpInput {
         return val;
     }
 
-    public static String getLdapDatabase(HttpServletRequest request, String name)
-            throws IOException {
+    public static String getLdapDatabase(HttpServletRequest request, String name) {
         return getString(request, name);
     }
 
@@ -118,13 +116,11 @@ public class HttpInput {
         return v;
     }
 
-    public static String getUID(HttpServletRequest request, String name)
-            throws IOException {
+    public static String getUID(HttpServletRequest request, String name) {
         return getString(request, name);
     }
 
-    public static String getPassword(HttpServletRequest request, String name)
-            throws IOException {
+    public static String getPassword(HttpServletRequest request, String name) {
         return getString(request, name);
     }
 
@@ -199,48 +195,39 @@ public class HttpInput {
         return v;
     }
 
-    public static String getID(HttpServletRequest request, String name)
-            throws IOException {
+    public static String getID(HttpServletRequest request, String name) {
         return getString(request, name);
     }
 
-    public static String getName(HttpServletRequest request, String name)
-            throws IOException {
+    public static String getName(HttpServletRequest request, String name) {
         return getString(request, name);
     }
 
-    public static String getCertRequest(HttpServletRequest request, String name)
-            throws IOException {
+    public static String getCertRequest(HttpServletRequest request, String name) {
         return getString(request, name);
     }
 
-    public static String getCertChain(HttpServletRequest request, String name)
-            throws IOException {
+    public static String getCertChain(HttpServletRequest request, String name) {
         return getString(request, name);
     }
 
-    public static String getCert(HttpServletRequest request, String name)
-            throws IOException {
+    public static String getCert(HttpServletRequest request, String name) {
         return getString(request, name);
     }
 
-    public static String getNickname(HttpServletRequest request, String name)
-            throws IOException {
+    public static String getNickname(HttpServletRequest request, String name) {
         return getString(request, name);
     }
 
-    public static String getHostname(HttpServletRequest request, String name)
-            throws IOException {
+    public static String getHostname(HttpServletRequest request, String name) {
         return getString(request, name);
     }
 
-    public static String getTokenName(HttpServletRequest request, String name)
-            throws IOException {
+    public static String getTokenName(HttpServletRequest request, String name) {
         return getString(request, name);
     }
 
-    public static String getReplicationAgreementName(HttpServletRequest request, String name)
-            throws IOException {
+    public static String getReplicationAgreementName(HttpServletRequest request, String name) {
         return getString(request, name);
     }
 
@@ -253,8 +240,7 @@ public class HttpInput {
         return v;
     }
 
-    public static String getDomainName(HttpServletRequest request, String name)
-            throws IOException {
+    public static String getDomainName(HttpServletRequest request, String name) {
         return getString(request, name);
     }
 

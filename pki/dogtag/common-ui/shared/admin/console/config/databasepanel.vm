@@ -43,7 +43,8 @@ function toggle_details()
 Each instance needs access to a Fedora Directory Server instance to store requests and records. Each PKI instance may create its own associated internal database, or may share an existing internal database. To share an existing internal database instance, a PKI instance would only need to establish a unique distinguished name (DN) using the field entitled <b>Base DN</b> and a unique database name using the field entitled <b>Database</b>. 
 #if ($clone == "clone")
 <p>
-If the replication between the masters and clones occurs on the non-SSL port, it is still possible to require the replication to be SSL encrypted by selecting <b> Use StartTLS with replication agreements</b> below.  In order for this operation to be successful, the database instances must be SSL enabled before continuing beyond this panel.
+<p>
+Replication agreements between the master and clone database instances may be customized.  If no master and replication ports are provided, then replication will occur on the same ports used by the Certificate Sever instances to communicate with the directory server.  If these ports are LDAPS ports, then the replication traffic will be SSL encrypted.  It is still possible to require the replication traffic to be SSL encrypted on the non-SSL port by selecting TLS for Replication Security.  In order for this operation to be successful though, the database instances must be SSL enabled before continuing beyond this panel.
 #end
 </div>
 <p>
@@ -64,8 +65,8 @@ If the replication between the masters and clones occurs on the non-SSL port, it
         <th>Port:</th>
                                 
         <td><input type="text" size="40" name="port" value="$portStr" />  
-<input type="CHECKBOX" NAME="secureConn">SSL
-</td>
+            <input type="CHECKBOX" NAME="secureConn">SSL
+        </td>
       </tr>       
       <tr>
         <th>Base DN:</th>
@@ -90,12 +91,40 @@ If the replication between the masters and clones occurs on the non-SSL port, it
         <td><input type="password" size="40" name="__bindpwd" value="$bindpwd" autocomplete="off" /></td>
       </tr>
     </table>
-        <input type="hidden" name="display" value=$displayStr />
- 
-#if ($clone == "clone") 
-      <input type="CHECKBOX" NAME="cloneStartTLS"/>Use StartTLS with replication agreements.<p>
-#end 
-<input type="CHECKBOX" NAME="removeData">Remove the existing data from the <b>Base DN</b> shown above.<p>
+    <input type="hidden" name="display" value=$displayStr />
+    <input type="CHECKBOX" NAME="removeData">Remove the existing data from the <b>Base DN</b> shown above.<p>
+
+#if ($clone == "clone")
+
+    #set ($check_none="")
+    #set ($check_tls="")
+    #set ($check_ssl="")
+    #if ($replicationSecurity == "TLS") #set ($check_tls="CHECKED")
+    #elseif ($replicationSecurity == "SSL") #set ($check_ssl="CHECKED")
+    #else #set ($check_none="CHECKED") #end
+
+    <table class="details" >
+      <tr><th>Replication Details</th></tr>
+      <tr>
+        <th>Master Replication Port:</th>
+        <td><input type="text" size="40" name="masterReplicationPort" value="$masterReplicationPort" /></td>
+      </tr>
+
+      <tr>
+        <th>Clone Replication Port:</th>
+        <td><input type="text" size="40" name="cloneReplicationPort" value="$cloneReplicationPort" /></td>
+      </tr>
+
+      <tr>
+        <th>Replication Security:</th>
+        <td>
+            <input type="radio" name="replicationSecurity" value="None" $check_none />None</input>
+            <input type="radio" name="replicationSecurity" value="TLS"  $check_tls  />TLS</input>
+            <input type="radio" name="replicationSecurity" value="SSL"  $check_ssl  />SSL</input>
+        </td>
+      </tr>
+      <p>
+#end
 
     <div align="right">
       <hr />

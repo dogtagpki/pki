@@ -32,7 +32,6 @@ import org.mozilla.jss.util.IncorrectPasswordException;
 import org.mozilla.jss.util.Password;
 
 import com.netscape.certsrv.apps.CMS;
-import com.netscape.certsrv.base.IConfigStore;
 import com.netscape.certsrv.property.Descriptor;
 import com.netscape.certsrv.property.IDescriptor;
 import com.netscape.certsrv.property.PropertySet;
@@ -97,10 +96,7 @@ public class ConfigHSMLoginPanel extends WizardPanelBase {
 
         // get token selected to be logged in
         String tokName = null;
-        try {
-            tokName = HttpInput.getTokenName(request, "SecToken");
-        } catch (IOException e) {
-        }
+        tokName = HttpInput.getTokenName(request, "SecToken");
 
         if (tokName != null) {
             CMS.debug("ConfigHSMLoginPanel: selected token name= " + tokName);
@@ -213,16 +209,6 @@ public class ConfigHSMLoginPanel extends WizardPanelBase {
     public void update(HttpServletRequest request,
             HttpServletResponse response,
             Context context) {
-
-        IConfigStore cs = CMS.getConfigStore();
-        String select = "";
-        try {
-            select = cs.getString("preop.subsystem.select", "");
-        } catch (Exception e) {
-        }
-
-        //        if (select.equals("clone"))
-        //           return;
 
         CMS.debug("ConfigHSMLoginPanel: in update()");
 

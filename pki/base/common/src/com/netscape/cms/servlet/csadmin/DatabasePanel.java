@@ -67,11 +67,7 @@ public class DatabasePanel extends WizardPanelBase {
     private static final String HOST = "localhost";
     private static final String CLONE_HOST = "Enter FQDN here";
     private static final String PORT = "389";
-    private static final String BASEDN = "o=netscapeCertificateServer";
     private static final String BINDDN = "cn=Directory Manager";
-    private static final String DATABASE = "csRoot";
-    private static final String MASTER_AGREEMENT = "masteragreement-";
-    private static final String CLONE_AGREEMENT = "cloneagreement-";
 
     private WizardServlet mServlet = null;
 
@@ -170,7 +166,10 @@ public class DatabasePanel extends WizardPanelBase {
         String database = null;
         String errorString = "";
         String secure = "false";
-        String cloneStartTLS = "false";
+        String masterReplicationPort = "";
+        String cloneReplicationPort = "";
+        String replicationSecurity = "";
+
         try {
             @SuppressWarnings("unused")
             String s = cs.getString("preop.database.removeData"); // check whether it's first time
@@ -192,7 +191,9 @@ public class DatabasePanel extends WizardPanelBase {
                 binddn = cs.getString("internaldb.ldapauth.bindDN", "");
                 database = cs.getString("internaldb.database", "");
                 secure = cs.getString("internaldb.ldapconn.secureConn", "");
-                cloneStartTLS = cs.getString("internaldb.ldapconn.cloneStartTLS", "");
+                replicationSecurity = cs.getString("internaldb.ldapconn.replicationSecurity", "None");
+                masterReplicationPort = cs.getString("internaldb.ldapconn.masterReplicationPort", "");
+                cloneReplicationPort = cs.getString("internaldb.ldapconn.cloneReplicationPort", "");
                 errorString = cs.getString("preop.database.errorString", "");
             } catch (Exception e) {
                 CMS.debug("DatabasePanel display: " + e.toString());
@@ -247,7 +248,9 @@ public class DatabasePanel extends WizardPanelBase {
         context.put("bindpwd", bindpwd);
         context.put("database", database);
         context.put("secureConn", (secure.equals("true") ? "on" : "off"));
-        context.put("cloneStartTLS", (cloneStartTLS.equals("true") ? "on" : "off"));
+        context.put("masterReplicationPort", masterReplicationPort);
+        context.put("cloneReplicationPort", cloneReplicationPort);
+        context.put("replicationSecurity", replicationSecurity);
         context.put("panel", "admin/console/config/databasepanel.vm");
         context.put("errorString", errorString);
     }
@@ -261,12 +264,119 @@ public class DatabasePanel extends WizardPanelBase {
         } catch (Exception e) {
         }
         context.put("clone", select);
-        context.put("hostname", request.getParameter("host"));
-        context.put("portStr", request.getParameter("port"));
-        context.put("basedn", request.getParameter("basedn"));
-        context.put("binddn", request.getParameter("binddn"));
-        context.put("bindpwd", request.getParameter("__bindpwd"));
-        context.put("database", request.getParameter("database"));
+        context.put("hostname", (request.getParameter("host") != null) ? request.getParameter("host") : "");
+        context.put("portStr", (request.getParameter("port") != null) ? request.getParameter("port") : "");
+        context.put("basedn", (request.getParameter("basedn") != null) ? request.getParameter("basedn") : "");
+        context.put("binddn", (request.getParameter("binddn") != null) ? request.getParameter("binddn") : "");
+        context.put("bindpwd", (request.getParameter("__bindpwd") != null) ?
+                request.getParameter("__bindpwd"): "");
+        context.put("database", (request.getParameter("database") != null) ?
+                request.getParameter("database") : "");
+        context.put("masterReplicationPort", (request.getParameter("masterReplicationPort") != null) ?
+                request.getParameter("masterReplicationPort"): "");
+        context.put("cloneReplicationPort", (request.getParameter("cloneReplicationPort") != null) ?
+                request.getParameter("cloneReplicationPort"): "");
+        context.put("replicationSecurity", (request.getParameter("replicationSecurity") != null) ?
+                request.getParameter("replicationSecurity"): "None");
+    }
+
+    /**
+     * Parses and validates the parameters in the request.
+     */
+    public void parseParameters(HttpServletRequest request,
+            HttpServletResponse response, Context context) throws IOException {
+        IConfigStore cs = CMS.getConfigStore();
+
+        String select = "";
+        try {
+            select = cs.getString("preop.subsystem.select", "");
+        } catch (Exception e) {
+        }
+
+        String hostname = HttpInput.getHostname(request, "host");
+        if (hostname == null || hostname.length() == 0) {
+            throw new IOException("hostname is empty string");
+        }
+        context.put("hostname", hostname);
+
+        // this validates that port is an integer
+        String portStr = HttpInput.getPortNumber(request, "port");
+        context.put("portStr", portStr);
+
+        String basedn = HttpInput.getDN(request, "basedn");
+        if (basedn == null || basedn.length() == 0) {
+            throw new IOException("basedn is empty string");
+        }
+        context.put("basedn", basedn);
+
+        String binddn = HttpInput.getDN(request, "binddn");
+        if (binddn == null || binddn.length() == 0) {
+            throw new IOException("binddn is empty string");
+        }
+        context.put("binddn", binddn);
+
+        String database = HttpInput.getLdapDatabase(request, "database");
+        if (database == null || database.length() == 0) {
+            throw new IOException("Database is empty string");
+        }
+        context.put("database", database);
+
+        String bindpwd = HttpInput.getPassword(request, "__bindpwd");
+        if (bindpwd == null || bindpwd.length() == 0) {
+            throw new IOException("Bind password is empty string");
+        }
+        context.put("bindpwd", bindpwd);
+
+        String secure = HttpInput.getCheckbox(request, "secureConn");
+        context.put("secureConn", secure);
+
+        String masterReplicationPort = HttpInput.getString(request, "masterReplicationPort");
+        if (masterReplicationPort != null && masterReplicationPort.length() > 0) {
+            try {
+                Integer.parseInt(masterReplicationPort); // check for errors
+            } catch (NumberFormatException e) {
+                throw new IOException("Master replication port is invalid");
+            }
+        }
+        context.put("masterReplicationPort", masterReplicationPort);
+
+        String cloneReplicationPort = HttpInput.getString(request, "cloneReplicationPort");
+        if (cloneReplicationPort != null && cloneReplicationPort.length() > 0) {
+            try {
+                Integer.parseInt(cloneReplicationPort); // check for errors
+            } catch (Exception e) {
+                throw new IOException("Clone replication port is invalid");
+            }
+        }
+        context.put("cloneReplicationPort", cloneReplicationPort);
+
+        String replicationSecurity = HttpInput.getString(request, "replicationSecurity");
+        context.put("replicationSecurity", replicationSecurity);
+
+        if (select.equals("clone")) {
+            String masterhost = "";
+            String masterport = "";
+            String masterbasedn = "";
+            String realhostname = "";
+            try {
+                masterhost = cs.getString("preop.internaldb.master.ldapconn.host", "");
+                masterport = cs.getString("preop.internaldb.master.ldapconn.port", "");
+                masterbasedn = cs.getString("preop.internaldb.master.basedn", "");
+                realhostname = cs.getString("machineName", "");
+            } catch (Exception e) {
+            }
+
+            if (masterhost.equals(realhostname) && masterport.equals(portStr)) {
+                throw new IOException("Master and clone must not share the same internal database");
+            }
+
+            if (!masterbasedn.equals(basedn)) {
+                throw new IOException("Master and clone should have the same base DN");
+            }
+        }
+
+        context.put("errorString", "");
+        cs.putString("preop.database.errorString", "");
     }
 
     /**
@@ -285,110 +395,13 @@ public class DatabasePanel extends WizardPanelBase {
             context.put("firsttime", "true");
         }
 
-        String hostname = HttpInput.getHostname(request, "host");
-        context.put("hostname", hostname);
-
-        String portStr = HttpInput.getPortNumber(request, "port");
-        context.put("portStr", portStr);
-
-        String basedn = HttpInput.getDN(request, "basedn");
-        context.put("basedn", basedn);
-
-        String binddn = HttpInput.getDN(request, "binddn");
-        context.put("binddn", binddn);
-
-        String database = HttpInput.getLdapDatabase(request, "database");
-        context.put("database", database);
-
-        String bindpwd = HttpInput.getPassword(request, "__bindpwd");
-        context.put("bindpwd", bindpwd);
-
-        String secure = HttpInput.getCheckbox(request, "secureConn");
-        context.put("secureConn", secure);
-
-        String cloneStartTLS = HttpInput.getCheckbox(request, "cloneStartTLS");
-        context.put("cloneStartTLS", cloneStartTLS);
-
-        String select = "";
         try {
-            select = cs.getString("preop.subsystem.select", "");
-        } catch (Exception e) {
-        }
-
-        if (select.equals("clone")) {
-            String masterhost = "";
-            String masterport = "";
-            String masterbasedn = "";
-            try {
-                masterhost = cs.getString("preop.internaldb.master.ldapconn.host", "");
-                masterport = cs.getString("preop.internaldb.master.ldapconn.port", "");
-                masterbasedn = cs.getString("preop.internaldb.master.basedn", "");
-            } catch (Exception e) {
-            }
-
-            //get the real host name
-            String realhostname = "";
-            if (hostname.equals("localhost")) {
-                try {
-                    realhostname = cs.getString("machineName", "");
-                } catch (Exception ee) {
-                }
-            }
-            if (masterhost.equals(realhostname) && masterport.equals(portStr)) {
-                context.put("updateStatus", "validate-failure");
-                throw new IOException("Master and clone must not share the same internal database");
-            }
-
-            if (!masterbasedn.equals(basedn)) {
-                context.put("updateStatus", "validate-failure");
-                throw new IOException("Master and clone should have the same base DN");
-            }
-        }
-
-        if (hostname == null || hostname.length() == 0) {
-            cs.putString("preop.database.errorString", "Host is empty string");
+            parseParameters(request, response, context);
+        } catch (IOException e) {
+            context.put("errorString", e.getMessage());
+            cs.putString("preop.database.errorString", e.getMessage());
             context.put("updateStatus", "validate-failure");
-            throw new IOException("Host is empty string");
-        }
-
-        if (portStr != null && portStr.length() > 0) {
-            try {
-                Integer.parseInt(portStr); // check for errors
-            } catch (Exception e) {
-                cs.putString("preop.database.errorString", "Port is invalid");
-                context.put("updateStatus", "validate-failure");
-                throw new IOException("Port is invalid");
-            }
-        } else {
-            cs.putString("preop.database.errorString", "Port is empty string");
-            context.put("updateStatus", "validate-failure");
-            throw new IOException("Port is empty string");
-        }
-
-        if (basedn == null || basedn.length() == 0) {
-            cs.putString("preop.database.errorString", "Base DN is empty string");
-            context.put("updateStatus", "validate-failure");
-            throw new IOException("Base DN is empty string");
-        }
-
-        if (binddn == null || binddn.length() == 0) {
-            cs.putString("preop.database.errorString", "Bind DN is empty string");
-            context.put("updateStatus", "validate-failure");
-            throw new IOException("Bind DN is empty string");
-        }
-
-        if (database == null || database.length() == 0) {
-            cs.putString("preop.database.errorString",
-                    "Database is empty string");
-            context.put("updateStatus", "validate-failure");
-            throw new IOException("Database is empty string");
-        }
-
-        if (bindpwd == null || bindpwd.length() == 0) {
-            cs.putString("preop.database.errorString",
-                    "Bind password is empty string");
-            context.put("updateStatus", "validate-failure");
-            throw new IOException("Bind password is empty string");
+            throw e;
         }
 
         context.put("errorString", "");
@@ -737,8 +750,6 @@ public class DatabasePanel extends WizardPanelBase {
         } else {
             // data will be replicated from the master to the clone
             // so clone does not need the data
-            //
-
             importLDIFS("preop.internaldb.schema.ldif", conn);
             importLDIFS("preop.internaldb.ldif", conn);
             importLDIFS("preop.internaldb.data_ldif", conn);
@@ -885,6 +896,7 @@ public class DatabasePanel extends WizardPanelBase {
         }
     }
 
+
     /**
      * Commit parameter changes
      */
@@ -905,29 +917,63 @@ public class DatabasePanel extends WizardPanelBase {
         String hostname1 = "";
         String portStr1 = "";
         String database1 = "";
+        String masterPortStr = "";
 
         try {
             hostname1 = cs.getString("internaldb.ldapconn.host", "");
             portStr1 = cs.getString("internaldb.ldapconn.port", "");
             database1 = cs.getString("internaldb.database", "");
+            masterPortStr = cs.getString("preop.internaldb.master.ldapconn.port", "0");
         } catch (Exception e) {
         }
 
-        String hostname2 = HttpInput.getHostname(request, "host");
-        String portStr2 = HttpInput.getPortNumber(request, "port");
-        String database2 = HttpInput.getLdapDatabase(request, "database");
-        String basedn2 = HttpInput.getDN(request, "basedn");
+        try {
+            parseParameters(request, response, context);
+        } catch (IOException e) {
+            context.put("errorString", e.getMessage());
+            cs.putString("preop.database.errorString", e.getMessage());
+            context.put("updateStatus", "validate-failure");
+            throw e;
+        }
+
+        String hostname2 = (String) context.get("hostname");
+        String portStr2 = (String) context.get("portStr");
+        String database2 = (String) context.get("database");
+        String basedn2 = (String) context.get("basedn");
+        String binddn = (String) context.get("binddn");
+        String secure = (String) context.get("secureConn");
+        String masterReplicationPortStr = (String) context.get("masterReplicationPort");
+        String cloneReplicationPortStr = (String) context.get("cloneReplicationPort");
 
         cs.putString("internaldb.ldapconn.host", hostname2);
         cs.putString("internaldb.ldapconn.port", portStr2);
-        cs.putString("internaldb.basedn", basedn2);
-        String binddn = HttpInput.getDN(request, "binddn");
-        cs.putString("internaldb.ldapauth.bindDN", binddn);
         cs.putString("internaldb.database", database2);
-        String secure = HttpInput.getCheckbox(request, "secureConn");
+        cs.putString("internaldb.basedn", basedn2);
+        cs.putString("internaldb.ldapauth.bindDN", binddn);
         cs.putString("internaldb.ldapconn.secureConn", (secure.equals("on") ? "true" : "false"));
-        String cloneStartTLS = HttpInput.getCheckbox(request, "cloneStartTLS");
-        cs.putString("internaldb.ldapconn.cloneStartTLS", (cloneStartTLS.equals("on") ? "true" : "false"));
+
+        int masterReplicationPort = 0;
+        if ((masterReplicationPortStr == null) || (masterReplicationPortStr.length() == 0)) {
+            masterReplicationPortStr = masterPortStr;
+        }
+        masterReplicationPort = Integer.parseInt(masterReplicationPortStr);
+        cs.putString("internaldb.ldapconn.masterReplicationPort", masterReplicationPortStr);
+
+        int cloneReplicationPort = 0;
+        int port = Integer.parseInt(portStr2);
+        if ((cloneReplicationPortStr == null) || (cloneReplicationPortStr.length() == 0)) {
+            cloneReplicationPortStr = portStr2;
+        }
+        cloneReplicationPort = Integer.parseInt(cloneReplicationPortStr);
+        cs.putString("internaldb.ldapconn.cloneReplicationPort", cloneReplicationPortStr);
+
+        String replicationSecurity = HttpInput.getString(request, "replicationSecurity");
+        if ((cloneReplicationPort == port) && (secure.equals("true"))) {
+            replicationSecurity = "SSL";
+        } else if (replicationSecurity == null) {
+            replicationSecurity = "None";
+        }
+        cs.putString("internaldb.ldapconn.replicationSecurity", replicationSecurity);
 
         String remove = HttpInput.getID(request, "removeData");
         if (isPanelDone() && (remove == null || remove.equals(""))) {
@@ -1054,8 +1100,8 @@ public class DatabasePanel extends WizardPanelBase {
         // setup replication after indexes have been created
         if (select.equals("clone")) {
             CMS.debug("Start setting up replication.");
-            setupReplication(request, context, (secure.equals("on") ? "true" : "false"), (cloneStartTLS.equals("on")
-                    ? "true" : "false"));
+            setupReplication(request, context, (secure.equals("on") ? "true" : "false"),
+                    replicationSecurity, masterReplicationPort, cloneReplicationPort);
             CMS.debug("Finish setting up replication.");
 
             try {
@@ -1084,7 +1130,9 @@ public class DatabasePanel extends WizardPanelBase {
     }
 
     private void setupReplication(HttpServletRequest request,
-                  Context context, String secure, String cloneStartTLS) throws IOException {
+                  Context context, String secure, String replicationSecurity,
+                  int masterReplicationPort, int cloneReplicationPort)
+            throws IOException {
         IConfigStore cs = CMS.getConfigStore();
 
         String cstype = "";
@@ -1138,18 +1186,14 @@ public class DatabasePanel extends WizardPanelBase {
         }
 
         String master_hostname = "";
-        int master_port = -1;
         String master_replicationpwd = "";
         String replica_hostname = "";
-        int replica_port = -1;
         String replica_replicationpwd = "";
 
         try {
             master_hostname = cs.getString("preop.internaldb.master.ldapconn.host", "");
-            master_port = cs.getInteger("preop.internaldb.master.ldapconn.port", -1);
             master_replicationpwd = cs.getString("preop.internaldb.master.replication.password", "");
             replica_hostname = cs.getString("internaldb.ldapconn.host", "");
-            replica_port = cs.getInteger("internaldb.ldapconn.port", -1);
             replica_replicationpwd = cs.getString("preop.internaldb.replicationpwd", "");
         } catch (Exception e) {
         }
@@ -1187,12 +1231,12 @@ public class DatabasePanel extends WizardPanelBase {
             CMS.debug("DatabasePanel setupReplication: Finished enabling replication");
 
             createReplicationAgreement(replicadn, masterConn, masterAgreementName,
-                    replica_hostname, replica_port, replica_replicationpwd, basedn, cloneBindUser, secure,
-                    cloneStartTLS);
+                    replica_hostname, cloneReplicationPort, replica_replicationpwd, basedn,
+                    cloneBindUser, secure, replicationSecurity);
 
             createReplicationAgreement(replicadn, replicaConn, cloneAgreementName,
-                    master_hostname, master_port, master_replicationpwd, basedn, masterBindUser, secure,
-                    cloneStartTLS);
+                    master_hostname, masterReplicationPort, master_replicationpwd, basedn,
+                    masterBindUser, secure, replicationSecurity);
 
             // initialize consumer
             initializeConsumer(replicadn, masterConn, masterAgreementName);
@@ -1353,7 +1397,7 @@ public class DatabasePanel extends WizardPanelBase {
 
     private void createReplicationAgreement(String replicadn,
             LDAPConnection conn, String name, String replicahost, int replicaport,
-            String replicapwd, String basedn, String bindUser, String secure, String cloneStartTLS)
+            String replicapwd, String basedn, String bindUser, String secure, String replicationSecurity)
             throws LDAPException {
         String dn = "cn=" + name + "," + replicadn;
         CMS.debug("DatabasePanel createReplicationAgreement: dn: " + dn);
@@ -1367,15 +1411,16 @@ public class DatabasePanel extends WizardPanelBase {
             attrs.add(new LDAPAttribute("cn", name));
             attrs.add(new LDAPAttribute("nsDS5ReplicaRoot", basedn));
             attrs.add(new LDAPAttribute("nsDS5ReplicaHost", replicahost));
+
             attrs.add(new LDAPAttribute("nsDS5ReplicaPort", "" + replicaport));
             attrs.add(new LDAPAttribute("nsDS5ReplicaBindDN",
                     "cn=" + bindUser + ",ou=csusers,cn=config"));
             attrs.add(new LDAPAttribute("nsDS5ReplicaBindMethod", "Simple"));
             attrs.add(new LDAPAttribute("nsds5replicacredentials", replicapwd));
 
-            if (secure.equals("true")) {
+            if (replicationSecurity.equals("SSL")) {
                 attrs.add(new LDAPAttribute("nsDS5ReplicaTransportInfo", "SSL"));
-            } else if (cloneStartTLS.equals("true")) {
+            } else if (replicationSecurity.equals("TLS")) {
                 attrs.add(new LDAPAttribute("nsDS5ReplicaTransportInfo", "TLS"));
             }
 
