@@ -24,6 +24,7 @@ import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 
@@ -224,7 +225,7 @@ public class ConfigureDRM {
         return st;
     }
 
-    public boolean TokenChoicePanel() {
+    public boolean TokenChoicePanel() throws UnsupportedEncodingException {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -235,7 +236,7 @@ public class ConfigureDRM {
         if (token_name.equalsIgnoreCase("internal")) {
             query_string = "p=1" + "&op=next" + "&xml=true" +
                            "&choice=" +
-                           URLEncoder.encode("Internal Key Storage Token");
+                           URLEncoder.encode("Internal Key Storage Token", "UTF-8");
             hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
 
             // parse xml
@@ -246,9 +247,9 @@ public class ConfigureDRM {
             // login to hsm first
             query_string = "p=2" + "&op=next" + "&xml=true" +
                             "&uTokName=" +
-                            URLEncoder.encode(token_name) +
+                            URLEncoder.encode(token_name, "UTF-8") +
                             "&__uPasswd=" +
-                            URLEncoder.encode(token_pwd);
+                            URLEncoder.encode(token_pwd, "UTF-8");
             hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
 
             // parse xml
@@ -259,7 +260,7 @@ public class ConfigureDRM {
             // choice with token name now
             query_string = "p=1" + "&op=next" + "&xml=true" +
                            "&choice=" +
-                           URLEncoder.encode(token_name);
+                           URLEncoder.encode(token_name, "UTF-8");
             hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
 
             // parse xml
@@ -271,7 +272,7 @@ public class ConfigureDRM {
         return true;
     }
 
-    public boolean DomainPanel() {
+    public boolean DomainPanel() throws UnsupportedEncodingException {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -279,7 +280,7 @@ public class ConfigureDRM {
         String domain_url = "https://" + sd_hostname + ":" + sd_admin_port;
 
         String query_string = "sdomainURL=" +
-                            URLEncoder.encode(domain_url) +
+                            URLEncoder.encode(domain_url, "UTF-8") +
                             "&choice=existingdomain" +
                             "&p=3" +
                             "&op=next" +
@@ -312,13 +313,13 @@ public class ConfigureDRM {
                             "/kra/admin/console/config/wizard" +
                             "?p=5&subsystem=KRA";
 
-            String query_string = "url=" + URLEncoder.encode(kra_url);
+            String query_string = "url=" + URLEncoder.encode(kra_url, "UTF-8");
 
             hr = hc.sslConnect(sd_hostname, sd_admin_port, sd_login_uri, query_string);
 
             String query_string_1 = "uid=" + sd_admin_name +
-                                "&pwd=" + URLEncoder.encode(sd_admin_password) +
-                                "&url=" + URLEncoder.encode(kra_url);
+                                "&pwd=" + URLEncoder.encode(sd_admin_password, "UTF-8") +
+                                "&url=" + URLEncoder.encode(kra_url, "UTF-8");
 
             hr = hc.sslConnect(sd_hostname, sd_admin_port, sd_get_cookie_uri,
                         query_string_1);
@@ -362,7 +363,7 @@ public class ConfigureDRM {
         }
     }
 
-    public boolean SubsystemPanel() {
+    public boolean SubsystemPanel() throws UnsupportedEncodingException {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -370,11 +371,11 @@ public class ConfigureDRM {
         if (!clone) {
             query_string = "p=5" + "&op=next" + "&xml=true"
                     + "&choice=newsubsystem" + "&subsystemName="
-                    + URLEncoder.encode(subsystem_name);
+                    + URLEncoder.encode(subsystem_name, "UTF-8");
         } else {
             query_string = "p=5" + "&op=next" + "&xml=true"
                     + "&choice=clonesubsystem" + "&subsystemName="
-                    + URLEncoder.encode(subsystem_name)
+                    + URLEncoder.encode(subsystem_name, "UTF-8")
                     + "&urls=" + urls;
         }
 
@@ -394,8 +395,8 @@ public class ConfigureDRM {
             ParseXML px = new ParseXML();
 
             String query_string = "p=6" + "&op=next" + "&xml=true"
-                    + "&__password=" + URLEncoder.encode(clone_p12_passwd)
-                    + "&path=" + URLEncoder.encode(clone_p12_file) + "";
+                    + "&__password=" + URLEncoder.encode(clone_p12_passwd, "UTF-8")
+                    + "&path=" + URLEncoder.encode(clone_p12_file, "UTF-8") + "";
 
             hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
 
@@ -525,7 +526,7 @@ public class ConfigureDRM {
         return true;
     }
 
-    public boolean CertSubjectPanel() {
+    public boolean CertSubjectPanel() throws UnsupportedEncodingException {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -539,23 +540,23 @@ public class ConfigureDRM {
         if (!clone) {
             query_string = "p=9" + "&op=next" + "&xml=true" +
                     "&subsystem=" +
-                    URLEncoder.encode(drm_subsystem_cert_subject_name) +
+                    URLEncoder.encode(drm_subsystem_cert_subject_name, "UTF-8") +
                     "&transport=" +
-                    URLEncoder.encode(drm_transport_cert_subject_name) +
+                    URLEncoder.encode(drm_transport_cert_subject_name, "UTF-8") +
                     "&storage=" +
-                    URLEncoder.encode(drm_storage_cert_subject_name) +
+                    URLEncoder.encode(drm_storage_cert_subject_name, "UTF-8") +
                     "&sslserver=" +
-                    URLEncoder.encode(drm_server_cert_subject_name) +
+                    URLEncoder.encode(drm_server_cert_subject_name, "UTF-8") +
                     "&audit_signing=" +
-                    URLEncoder.encode(drm_audit_signing_cert_subject_name) +
+                    URLEncoder.encode(drm_audit_signing_cert_subject_name, "UTF-8") +
                     "&urls=" +
-                    URLEncoder.encode(domain_url);
+                    URLEncoder.encode(domain_url, "UTF-8");
         } else {
             query_string = "p=9" + "&op=next" + "&xml=true" +
                     "&sslserver=" +
-                    URLEncoder.encode(drm_server_cert_subject_name) +
+                    URLEncoder.encode(drm_server_cert_subject_name, "UTF-8") +
                     "&urls=" +
-                    URLEncoder.encode(domain_url);
+                    URLEncoder.encode(domain_url, "UTF-8");
         }
 
         hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
@@ -595,26 +596,26 @@ public class ConfigureDRM {
         return true;
     }
 
-    public boolean CertificatePanel() {
+    public boolean CertificatePanel() throws UnsupportedEncodingException {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
 
         String query_string = "p=10" + "&op=next" + "&xml=true" +
                             "&subsystem=" +
-                            URLEncoder.encode(drm_subsystem_cert_cert) +
+                            URLEncoder.encode(drm_subsystem_cert_cert, "UTF-8") +
                             "&subsystem_cc=" +
                             "&transport=" +
-                            URLEncoder.encode(drm_transport_cert_cert) +
+                            URLEncoder.encode(drm_transport_cert_cert, "UTF-8") +
                             "&transport_cc=" +
                             "&storage=" +
-                            URLEncoder.encode(drm_storage_cert_cert) +
+                            URLEncoder.encode(drm_storage_cert_cert, "UTF-8") +
                             "&storage_cc=" +
                             "&sslserver=" +
-                            URLEncoder.encode(server_cert_cert) +
+                            URLEncoder.encode(server_cert_cert, "UTF-8") +
                             "&sslserver_cc=" +
                             "&audit_signing=" +
-                            URLEncoder.encode(drm_audit_signing_cert_cert) +
+                            URLEncoder.encode(drm_audit_signing_cert_cert, "UTF-8") +
                             "&audit_signing_cc=";
 
         hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
@@ -627,15 +628,15 @@ public class ConfigureDRM {
         return true;
     }
 
-    public boolean BackupPanel() {
+    public boolean BackupPanel() throws UnsupportedEncodingException {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
 
         String query_string = "p=11" + "&op=next" + "&xml=true" +
                             "&choice=backupkey" +
-                            "&__pwd=" + URLEncoder.encode(backup_pwd) +
-                            "&__pwdagain=" + URLEncoder.encode(backup_pwd);
+                            "&__pwd=" + URLEncoder.encode(backup_pwd, "UTF-8") +
+                            "&__pwdagain=" + URLEncoder.encode(backup_pwd, "UTF-8");
 
         hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
 
@@ -706,7 +707,7 @@ public class ConfigureDRM {
         return true;
     }
 
-    public boolean AdminCertReqPanel() {
+    public boolean AdminCertReqPanel() throws UnsupportedEncodingException {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -736,19 +737,19 @@ public class ConfigureDRM {
                             "&cert_request_type=" + "crmf" +
                             "&uid=" + admin_user +
                             "&name=" + admin_user +
-                            "&__pwd=" + URLEncoder.encode(admin_password) +
-                            "&__admin_password_again=" + URLEncoder.encode(admin_password) +
+                            "&__pwd=" + URLEncoder.encode(admin_password, "UTF-8") +
+                            "&__admin_password_again=" + URLEncoder.encode(admin_password, "UTF-8") +
                             "&profileId=" + "caAdminCert" +
                             "&email=" +
-                            URLEncoder.encode(admin_email) +
+                            URLEncoder.encode(admin_email, "UTF-8") +
                             "&cert_request=" +
-                            URLEncoder.encode(admin_cert_request) +
+                            URLEncoder.encode(admin_cert_request, "UTF-8") +
                             "&subject=" +
-                            URLEncoder.encode(agent_cert_subject) +
+                            URLEncoder.encode(agent_cert_subject, "UTF-8") +
                             "&clone=new" +
                             "&import=true" +
                             "&securitydomain=" +
-                            URLEncoder.encode(domain_name);
+                            URLEncoder.encode(domain_name, "UTF-8");
 
         hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
 
@@ -800,14 +801,14 @@ public class ConfigureDRM {
         return true;
     }
 
-    public boolean UpdateDomainPanel() {
+    public boolean UpdateDomainPanel() throws UnsupportedEncodingException {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
 
         String query_string = "p=14" + "&op=next" + "&xml=true" +
-                            "&caHost=" + URLEncoder.encode(sd_hostname) +
-                            "&caPort=" + URLEncoder.encode(sd_agent_port);
+                            "&caHost=" + URLEncoder.encode(sd_hostname, "UTF-8") +
+                            "&caPort=" + URLEncoder.encode(sd_agent_port, "UTF-8");
 
         hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
 
@@ -819,7 +820,7 @@ public class ConfigureDRM {
         return true;
     }
 
-    public boolean ConfigureDRMInstance() {
+    public boolean ConfigureDRMInstance() throws UnsupportedEncodingException {
         // 0. login to cert db
         ComCrypto cCrypt = new ComCrypto(client_certdb_dir,
                                         client_certdb_pwd,
@@ -980,7 +981,7 @@ public class ConfigureDRM {
         }
     }
 
-    public static void main(String args[]) {
+    public static void main(String args[]) throws UnsupportedEncodingException {
         ConfigureDRM ca = new ConfigureDRM();
 
         // set variables

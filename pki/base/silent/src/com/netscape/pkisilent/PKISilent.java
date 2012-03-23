@@ -22,7 +22,7 @@ public class PKISilent {
 
     static Class<?>[] classes = { ConfigureCA.class, ConfigureDRM.class,
             ConfigureOCSP.class, ConfigureRA.class, ConfigureSubCA.class,
-            ConfigureTKS.class, ConfigureTPS.class, CreateInstance.class, };
+            ConfigureTKS.class, ConfigureTPS.class, };
 
     public static final void main(String[] args) {
         HashMap<String, Method> classMap = new HashMap<String, Method>();

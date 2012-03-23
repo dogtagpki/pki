@@ -267,7 +267,7 @@ public class ConfigureCA {
             // Software Token
             if (token_name.equalsIgnoreCase("internal")) {
                 query_string = "p=1" + "&op=next" + "&xml=true" + "&choice="
-                        + URLEncoder.encode("Internal Key Storage Token") + "";
+                        + URLEncoder.encode("Internal Key Storage Token", "UTF-8") + "";
                 hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
                 if (!checkStatus(hr, "updateStatus", SUCCESS, "TokenChoicePanel()")) {
                     return false;
@@ -276,8 +276,8 @@ public class ConfigureCA {
             else {
                 // login to hsm first
                 query_string = "p=2" + "&op=next" + "&xml=true" + "&uTokName="
-                        + URLEncoder.encode(token_name) + "&__uPasswd="
-                        + URLEncoder.encode(token_pwd) + "";
+                        + URLEncoder.encode(token_name, "UTF-8") + "&__uPasswd="
+                        + URLEncoder.encode(token_pwd, "UTF-8") + "";
                 hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
                 if (!checkStatus(hr, "updateStatus", SUCCESS, "TokenChoicePanel()")) {
                     return false;
@@ -285,7 +285,7 @@ public class ConfigureCA {
 
                 // choice with token name now
                 query_string = "p=1" + "&op=next" + "&xml=true" + "&choice="
-                        + URLEncoder.encode(token_name) + "";
+                        + URLEncoder.encode(token_name, "UTF-8") + "";
                 hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
                 if (!checkStatus(hr, "updateStatus", SUCCESS, "TokenChoicePanel()")) {
                     return false;
@@ -306,12 +306,12 @@ public class ConfigureCA {
             String query_string = null;
 
             if (!clone) {
-                query_string = "sdomainURL=" + URLEncoder.encode(domain_url)
-                        + "&sdomainName=" + URLEncoder.encode(domain_name)
+                query_string = "sdomainURL=" + URLEncoder.encode(domain_url, "UTF-8")
+                        + "&sdomainName=" + URLEncoder.encode(domain_name, "UTF-8")
                         + "&choice=newdomain" + "&p=3" + "&op=next" + "&xml=true";
             } else {
                 domain_url = "https://" + sd_hostname + ":" + sd_admin_port;
-                query_string = "sdomainURL=" + URLEncoder.encode(domain_url)
+                query_string = "sdomainURL=" + URLEncoder.encode(domain_url, "UTF-8")
                         + "&sdomainName="
                         + "&choice=existingdomain" + "&p=3" + "&op=next" + "&xml=true";
             }
@@ -348,12 +348,12 @@ public class ConfigureCA {
             String subca_url = "https://" + cs_hostname + ":" + cs_port +
                     "/ca/admin/console/config/wizard" + "?p=5&subsystem=CA";
 
-            String query_string = "url=" + URLEncoder.encode(subca_url);
+            String query_string = "url=" + URLEncoder.encode(subca_url, "UTF-8");
 
             hr = hc.sslConnect(sd_hostname, sd_admin_port, sd_login_uri, query_string);
 
-            String query_string_1 = "uid=" + sd_admin_name + "&pwd=" + URLEncoder.encode(sd_admin_password) +
-                                    "&url=" + URLEncoder.encode(subca_url);
+            String query_string_1 = "uid=" + sd_admin_name + "&pwd=" + URLEncoder.encode(sd_admin_password, "UTF-8") +
+                                    "&url=" + URLEncoder.encode(subca_url, "UTF-8");
 
             hr = hc.sslConnect(sd_hostname, sd_admin_port, sd_get_cookie_uri,
                                                 query_string_1);
@@ -397,11 +397,11 @@ public class ConfigureCA {
             if (!clone) {
                 query_string = "p=5" + "&op=next" + "&xml=true"
                         + "&choice=newsubsystem" + "&subsystemName="
-                        + URLEncoder.encode(subsystem_name);
+                        + URLEncoder.encode(subsystem_name, "UTF-8");
             } else {
                 query_string = "p=5" + "&op=next" + "&xml=true"
                         + "&choice=clonesubsystem" + "&subsystemName="
-                        + URLEncoder.encode(subsystem_name)
+                        + URLEncoder.encode(subsystem_name, "UTF-8")
                         + "&urls=" + urls + "";
             }
 
@@ -433,8 +433,8 @@ public class ConfigureCA {
             HTTPResponse hr = null;
 
             String query_string = "p=7" + "&op=next" + "&xml=true"
-                    + "&__password=" + URLEncoder.encode(clone_p12_passwd)
-                    + "&path=" + URLEncoder.encode(clone_p12_file) + "";
+                    + "&__password=" + URLEncoder.encode(clone_p12_passwd, "UTF-8")
+                    + "&path=" + URLEncoder.encode(clone_p12_file, "UTF-8") + "";
 
             hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
             if (!checkStatus(hr, "updateStatus", SUCCESS, "RestoreKeyCertPanel()")) {
@@ -607,16 +607,16 @@ public class ConfigureCA {
 
             if (!clone) {
                 query_string = "p=11" + "&op=next" + "&xml=true" + "&subsystem="
-                        + URLEncoder.encode(ca_subsystem_cert_subject_name)
+                        + URLEncoder.encode(ca_subsystem_cert_subject_name, "UTF-8")
                         + "&ocsp_signing="
-                        + URLEncoder.encode(ca_ocsp_cert_subject_name) + "&signing="
-                        + URLEncoder.encode(ca_sign_cert_subject_name) + "&sslserver="
-                        + URLEncoder.encode(ca_server_cert_subject_name) + "&audit_signing="
-                        + URLEncoder.encode(ca_audit_signing_cert_subject_name) + "&urls=0"
+                        + URLEncoder.encode(ca_ocsp_cert_subject_name, "UTF-8") + "&signing="
+                        + URLEncoder.encode(ca_sign_cert_subject_name, "UTF-8") + "&sslserver="
+                        + URLEncoder.encode(ca_server_cert_subject_name, "UTF-8") + "&audit_signing="
+                        + URLEncoder.encode(ca_audit_signing_cert_subject_name, "UTF-8") + "&urls=0"
                         + "";
             } else {
                 query_string = "p=11" + "&op=next" + "&xml=true" + "&sslserver="
-                        + URLEncoder.encode(ca_server_cert_subject_name) + "&urls=0"
+                        + URLEncoder.encode(ca_server_cert_subject_name, "UTF-8") + "&urls=0"
                         + "";
             }
 
@@ -744,13 +744,13 @@ public class ConfigureCA {
             HTTPResponse hr = null;
 
             String query_string = "p=12" + "&op=next" + "&xml=true" + "&subsystem="
-                    + URLEncoder.encode(ca_subsystem_cert_cert) + "&subsystem_cc="
-                    + "&ocsp_signing=" + URLEncoder.encode(ocsp_cert_cert)
+                    + URLEncoder.encode(ca_subsystem_cert_cert, "UTF-8") + "&subsystem_cc="
+                    + "&ocsp_signing=" + URLEncoder.encode(ocsp_cert_cert, "UTF-8")
                     + "&ocsp_signing_cc=" + "&signing="
-                    + URLEncoder.encode(ca_cert_cert) + "&signing_cc="
-                    + "&audit_signing=" + URLEncoder.encode(ca_audit_signing_cert_cert)
+                    + URLEncoder.encode(ca_cert_cert, "UTF-8") + "&signing_cc="
+                    + "&audit_signing=" + URLEncoder.encode(ca_audit_signing_cert_cert, "UTF-8")
                     + "&audit_signing_cc="
-                    + "&sslserver=" + URLEncoder.encode(server_cert_cert)
+                    + "&sslserver=" + URLEncoder.encode(server_cert_cert, "UTF-8")
                     + "&sslserver_cc=" + "";
 
             hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
@@ -778,14 +778,14 @@ public class ConfigureCA {
             String genString = "...certificate be generated internally...";
 
             String query_string = "p=12" + "&op=apply" + "&xml=true" + "&subsystem="
-                    + URLEncoder.encode(genString) + "&subsystem_cc="
-                    + "&ocsp_signing=" + URLEncoder.encode(genString)
+                    + URLEncoder.encode(genString, "UTF-8") + "&subsystem_cc="
+                    + "&ocsp_signing=" + URLEncoder.encode(genString, "UTF-8")
                     + "&ocsp_signing_cc=" + "&signing="
-                    + URLEncoder.encode(ca_cert_cert) + "&signing_cc="
-                    + URLEncoder.encode(signing_cc)
-                    + "&audit_signing=" + URLEncoder.encode(genString)
+                    + URLEncoder.encode(ca_cert_cert, "UTF-8") + "&signing_cc="
+                    + URLEncoder.encode(signing_cc, "UTF-8")
+                    + "&audit_signing=" + URLEncoder.encode(genString, "UTF-8")
                     + "&audit_signing_cc="
-                    + "&sslserver=" + URLEncoder.encode(genString)
+                    + "&sslserver=" + URLEncoder.encode(genString, "UTF-8")
                     + "&sslserver_cc=" + "";
 
             hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
@@ -866,8 +866,8 @@ public class ConfigureCA {
 
             if (save_p12.equalsIgnoreCase("true")) {
                 String query_string = "p=13" + "&op=next" + "&xml=true"
-                        + "&choice=backupkey" + "&__pwd=" + URLEncoder.encode(backup_pwd)
-                        + "&__pwdagain=" + URLEncoder.encode(backup_pwd);
+                        + "&choice=backupkey" + "&__pwd=" + URLEncoder.encode(backup_pwd, "UTF-8")
+                        + "&__pwdagain=" + URLEncoder.encode(backup_pwd, "UTF-8");
 
                 hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
                 if (!checkStatus(hr, "updateStatus", SUCCESS, "BackupPanel()")) {
@@ -990,14 +990,14 @@ public class ConfigureCA {
 
             String query_string = "p=16" + "&op=next" + "&xml=true"
                     + "&cert_request_type=" + "crmf" + "&uid=" + admin_user
-                    + "&name=" + admin_user + "&__pwd=" + URLEncoder.encode(admin_password)
-                    + "&__admin_password_again=" + URLEncoder.encode(admin_password) + "&profileId="
-                    + "caAdminCert" + "&email=" + URLEncoder.encode(admin_email)
-                    + "&cert_request=" + URLEncoder.encode(admin_cert_request)
-                    + "&subject=" + URLEncoder.encode(agent_cert_subject)
+                    + "&name=" + admin_user + "&__pwd=" + URLEncoder.encode(admin_password, "UTF-8")
+                    + "&__admin_password_again=" + URLEncoder.encode(admin_password, "UTF-8") + "&profileId="
+                    + "caAdminCert" + "&email=" + URLEncoder.encode(admin_email, "UTF-8")
+                    + "&cert_request=" + URLEncoder.encode(admin_cert_request, "UTF-8")
+                    + "&subject=" + URLEncoder.encode(agent_cert_subject, "UTF-8")
                     + "&clone=new"
                     + "&import=true" + "&securitydomain="
-                    + URLEncoder.encode(domain_name) + "";
+                    + URLEncoder.encode(domain_name, "UTF-8") + "";
 
             hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
             if (!checkStatus(hr, "updateStatus", SUCCESS, "AdminCertReqPanel()")) {
@@ -1079,7 +1079,7 @@ public class ConfigureCA {
             ParseXML px = new ParseXML();
 
             String query_string = "p=17" + "&op=next" + "&xml=true" + "&caHost="
-                    + URLEncoder.encode("/") + "&caPort=" + URLEncoder.encode("/")
+                    + URLEncoder.encode("/", "UTF-8") + "&caPort=" + URLEncoder.encode("/", "UTF-8")
                     + "";
 
             hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
@@ -1381,7 +1381,6 @@ public class ConfigureCA {
         StringHolder x_backup_fname = new StringHolder();
 
         // separate key size for agent cert
-
         StringHolder x_agent_key_size = new StringHolder();
         StringHolder x_agent_key_type = new StringHolder();
         StringHolder x_agent_cert_subject = new StringHolder();

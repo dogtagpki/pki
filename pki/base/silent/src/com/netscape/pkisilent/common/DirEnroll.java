@@ -23,6 +23,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -123,7 +124,7 @@ public class DirEnroll extends TestClient {
         Authenticator = s;
     }
 
-    public boolean enroll_load() {
+    public boolean enroll_load() throws UnsupportedEncodingException {
         buildquery();
         return (Send());
     }
@@ -356,7 +357,7 @@ public class DirEnroll extends TestClient {
 
     }
 
-    private void buildquery() {
+    private void buildquery() throws UnsupportedEncodingException {
 
         StringBuffer queryStrBuf = new StringBuffer();
 
@@ -374,9 +375,9 @@ public class DirEnroll extends TestClient {
             queryStrBuf.append("&authenticator=UserDirEnrollment");
             queryStrBuf.append("&requestFormat=keygen");
             queryStrBuf.append("&uid=");
-            queryStrBuf.append(URLEncoder.encode(UID));
+            queryStrBuf.append(URLEncoder.encode(UID, "UTF-8"));
             queryStrBuf.append("&pwd=");
-            queryStrBuf.append(URLEncoder.encode(PWD));
+            queryStrBuf.append(URLEncoder.encode(PWD, "UTF-8"));
             queryStrBuf.append("&email=true");
             queryStrBuf.append("&cryptprovider=1");
 
@@ -386,9 +387,9 @@ public class DirEnroll extends TestClient {
             queryStrBuf.append("&authenticator=PortalEnrollment");
             queryStrBuf.append("&requestFormat=keygen");
             queryStrBuf.append("&uid=");
-            queryStrBuf.append(URLEncoder.encode(UID));
+            queryStrBuf.append(URLEncoder.encode(UID, "UTF-8"));
             queryStrBuf.append("&userPassword=");
-            queryStrBuf.append(URLEncoder.encode(PWD));
+            queryStrBuf.append(URLEncoder.encode(PWD, "UTF-8"));
             GN = "test";
             SN = "test";
             CN = "test";
@@ -397,21 +398,21 @@ public class DirEnroll extends TestClient {
             O = "aol";
             L = "MV";
             queryStrBuf.append("&givenname=");
-            queryStrBuf.append(URLEncoder.encode(GN));
+            queryStrBuf.append(URLEncoder.encode(GN, "UTF-8"));
 
             queryStrBuf.append("&sn=");
-            queryStrBuf.append(URLEncoder.encode(SN));
+            queryStrBuf.append(URLEncoder.encode(SN, "UTF-8"));
             queryStrBuf.append("&cn=");
-            queryStrBuf.append(URLEncoder.encode(CN));
+            queryStrBuf.append(URLEncoder.encode(CN, "UTF-8"));
 
             queryStrBuf.append("&mail=");
-            queryStrBuf.append(URLEncoder.encode(MAIL));
+            queryStrBuf.append(URLEncoder.encode(MAIL, "UTF-8"));
             queryStrBuf.append("&ou=");
-            queryStrBuf.append(URLEncoder.encode(OU));
+            queryStrBuf.append(URLEncoder.encode(OU, "UTF-8"));
             queryStrBuf.append("&o=");
-            queryStrBuf.append(URLEncoder.encode(O));
+            queryStrBuf.append(URLEncoder.encode(O, "UTF-8"));
             queryStrBuf.append("&l=");
-            queryStrBuf.append(URLEncoder.encode(L));
+            queryStrBuf.append(URLEncoder.encode(L, "UTF-8"));
 
             queryStrBuf.append("&email=true");
 
@@ -421,15 +422,15 @@ public class DirEnroll extends TestClient {
             queryStrBuf.append("&authenticator=NISAuth");
             queryStrBuf.append("&requestFormat=keygen");
             queryStrBuf.append("&uid=");
-            queryStrBuf.append(URLEncoder.encode(UID));
+            queryStrBuf.append(URLEncoder.encode(UID, "UTF-8"));
             queryStrBuf.append("&pwd=");
-            queryStrBuf.append(URLEncoder.encode(PWD));
+            queryStrBuf.append(URLEncoder.encode(PWD, "UTF-8"));
             queryStrBuf.append("&email=true");
 
         }
 
         queryStrBuf.append("&pkcs10Request=");
-        queryStrBuf.append(URLEncoder.encode(pkcs10request));
+        queryStrBuf.append(URLEncoder.encode(pkcs10request, "UTF-8"));
         query = queryStrBuf.toString();
 
         System.out.println(query);

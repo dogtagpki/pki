@@ -24,6 +24,7 @@ import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 
@@ -93,7 +94,6 @@ public class ConfigureOCSP {
     public static String base_dn = null;
     public static String db_name = null;
     public static String secure_conn = null;
-    public static String clone_start_tls = null;
     public static String remove_data = null;
 
     public static String key_type = null;
@@ -206,7 +206,7 @@ public class ConfigureOCSP {
         return st;
     }
 
-    public boolean TokenChoicePanel() {
+    public boolean TokenChoicePanel() throws UnsupportedEncodingException {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -216,9 +216,7 @@ public class ConfigureOCSP {
         // Software Token
         if (token_name.equalsIgnoreCase("internal")) {
             query_string = "p=1" + "&op=next" + "&xml=true" +
-                            "&choice=" +
-                    URLEncoder.encode("Internal Key Storage Token") +
-                                "";
+                            "&choice=" + URLEncoder.encode("Internal Key Storage Token", "UTF-8");
             hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
             // parse xml
             bais = new ByteArrayInputStream(hr.getHTML().getBytes());
@@ -230,10 +228,9 @@ public class ConfigureOCSP {
             // login to hsm first
             query_string = "p=2" + "&op=next" + "&xml=true" +
                             "&uTokName=" +
-                            URLEncoder.encode(token_name) +
+                            URLEncoder.encode(token_name, "UTF-8") +
                             "&__uPasswd=" +
-                            URLEncoder.encode(token_pwd) +
-                            "";
+                            URLEncoder.encode(token_pwd, "UTF-8");
             hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
             // parse xml
             bais = new ByteArrayInputStream(hr.getHTML().getBytes());
@@ -243,8 +240,7 @@ public class ConfigureOCSP {
             // choice with token name now
             query_string = "p=1" + "&op=next" + "&xml=true" +
                             "&choice=" +
-                            URLEncoder.encode(token_name) +
-                            "";
+                            URLEncoder.encode(token_name, "UTF-8");
             hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
             // parse xml
             bais = new ByteArrayInputStream(hr.getHTML().getBytes());
@@ -255,7 +251,7 @@ public class ConfigureOCSP {
         return true;
     }
 
-    public boolean DomainPanel() {
+    public boolean DomainPanel() throws UnsupportedEncodingException {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -263,7 +259,7 @@ public class ConfigureOCSP {
         String domain_url = "https://" + sd_hostname + ":" + sd_admin_port;
 
         String query_string = "sdomainURL=" +
-                            URLEncoder.encode(domain_url) +
+                            URLEncoder.encode(domain_url, "UTF-8") +
                             "&choice=existingdomain" +
                             "&p=3" +
                             "&op=next" +
@@ -294,20 +290,20 @@ public class ConfigureOCSP {
 
     }
 
-    public boolean SecurityDomainLoginPanel() {
+    public boolean SecurityDomainLoginPanel() throws UnsupportedEncodingException {
         HTTPResponse hr = null;
 
         String ocsp_url = "https://" + cs_hostname + ":" + cs_port +
                             "/ocsp/admin/console/config/wizard" +
                             "?p=5&subsystem=OCSP";
 
-        String query_string = "url=" + URLEncoder.encode(ocsp_url);
+        String query_string = "url=" + URLEncoder.encode(ocsp_url, "UTF-8");
 
         hr = hc.sslConnect(sd_hostname, sd_admin_port, sd_login_uri, query_string);
 
         String query_string_1 = "uid=" + sd_admin_name +
-                                "&pwd=" + URLEncoder.encode(sd_admin_password) +
-                                "&url=" + URLEncoder.encode(ocsp_url);
+                                "&pwd=" + URLEncoder.encode(sd_admin_password, "UTF-8") +
+                                "&url=" + URLEncoder.encode(ocsp_url, "UTF-8");
 
         hr = hc.sslConnect(sd_hostname, sd_admin_port, sd_get_cookie_uri,
                         query_string_1);
@@ -330,23 +326,18 @@ public class ConfigureOCSP {
         hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri,
                         query_string_2);
 
-        // parse xml
-        // bais = new ByteArrayInputStream(hr.getHTML().getBytes());
-        // px.parse(bais);
-        // px.prettyprintxml();
-
         return true;
 
     }
 
-    public boolean SubsystemPanel() {
+    public boolean SubsystemPanel() throws UnsupportedEncodingException {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
 
         String query_string = "p=5" + "&op=next" + "&xml=true" +
                         "&subsystemName=" +
-                        URLEncoder.encode(subsystem_name) +
+                        URLEncoder.encode(subsystem_name, "UTF-8") +
                         "&choice=newsubsystem";
 
         hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
@@ -358,21 +349,20 @@ public class ConfigureOCSP {
         return true;
     }
 
-    public boolean LdapConnectionPanel() {
+    public boolean LdapConnectionPanel() throws UnsupportedEncodingException {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
 
         String query_string = "p=7" + "&op=next" + "&xml=true" +
-                                "&host=" + URLEncoder.encode(ldap_host) +
-                                "&port=" + URLEncoder.encode(ldap_port) +
-                                "&binddn=" + URLEncoder.encode(bind_dn) +
-                                "&__bindpwd=" + URLEncoder.encode(bind_password) +
-                                "&basedn=" + URLEncoder.encode(base_dn) +
-                                "&database=" + URLEncoder.encode(db_name) +
-                                "&display=" + URLEncoder.encode("$displayStr") +
+                                "&host=" + URLEncoder.encode(ldap_host, "UTF-8") +
+                                "&port=" + URLEncoder.encode(ldap_port, "UTF-8") +
+                                "&binddn=" + URLEncoder.encode(bind_dn, "UTF-8") +
+                                "&__bindpwd=" + URLEncoder.encode(bind_password, "UTF-8") +
+                                "&basedn=" + URLEncoder.encode(base_dn, "UTF-8") +
+                                "&database=" + URLEncoder.encode(db_name, "UTF-8") +
+                                "&display=" + URLEncoder.encode("$displayStr", "UTF-8") +
                                 (secure_conn.equals("true") ? "&secureConn=on" : "") +
-                                (clone_start_tls.equals("true") ? "&cloneStartTLS=on" : "") +
                                 (remove_data.equals("true") ? "&removeData=true" : "");
 
         hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
@@ -447,7 +437,7 @@ public class ConfigureOCSP {
         return true;
     }
 
-    public boolean CertSubjectPanel() {
+    public boolean CertSubjectPanel() throws UnsupportedEncodingException {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -459,15 +449,15 @@ public class ConfigureOCSP {
 
         String query_string = "p=9" + "&op=next" + "&xml=true" +
                 "&subsystem=" +
-                URLEncoder.encode(ocsp_subsystem_cert_subject_name) +
+                URLEncoder.encode(ocsp_subsystem_cert_subject_name, "UTF-8") +
                 "&signing=" +
-                URLEncoder.encode(ocsp_sign_cert_subject_name) +
+                URLEncoder.encode(ocsp_sign_cert_subject_name, "UTF-8") +
                 "&sslserver=" +
-                URLEncoder.encode(ocsp_server_cert_subject_name) +
+                URLEncoder.encode(ocsp_server_cert_subject_name, "UTF-8") +
                 "&audit_signing=" +
-                URLEncoder.encode(ocsp_audit_signing_cert_subject_name) +
+                URLEncoder.encode(ocsp_audit_signing_cert_subject_name, "UTF-8") +
                 "&urls=" +
-                URLEncoder.encode(domain_url) +
+                URLEncoder.encode(domain_url, "UTF-8") +
                 "";
 
         hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
@@ -504,25 +494,24 @@ public class ConfigureOCSP {
         return true;
     }
 
-    public boolean CertificatePanel() {
+    public boolean CertificatePanel() throws UnsupportedEncodingException {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
 
         String query_string = "p=10" + "&op=next" + "&xml=true" +
                             "&subsystem=" +
-                            URLEncoder.encode(ocsp_subsystem_cert_cert) +
+                            URLEncoder.encode(ocsp_subsystem_cert_cert, "UTF-8") +
                             "&subsystem_cc=" +
                             "&signing=" +
-                            URLEncoder.encode(ocsp_signing_cert_cert) +
+                            URLEncoder.encode(ocsp_signing_cert_cert, "UTF-8") +
                             "&signing_cc=" +
                             "&sslserver=" +
-                            URLEncoder.encode(server_cert_cert) +
+                            URLEncoder.encode(server_cert_cert, "UTF-8") +
                             "&sslserver_cc=" +
                             "&audit_signing=" +
-                            URLEncoder.encode(ocsp_audit_signing_cert_cert) +
-                            "&audit_signing_cc=" +
-                            "";
+                            URLEncoder.encode(ocsp_audit_signing_cert_cert, "UTF-8") +
+                            "&audit_signing_cc=";
 
         hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
 
@@ -537,15 +526,15 @@ public class ConfigureOCSP {
         return true;
     }
 
-    public boolean BackupPanel() {
+    public boolean BackupPanel() throws UnsupportedEncodingException {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
 
         String query_string = "p=11" + "&op=next" + "&xml=true" +
                             "&choice=backupkey" +
-                            "&__pwd=" + URLEncoder.encode(backup_pwd) +
-                            "&__pwdagain=" + URLEncoder.encode(backup_pwd);
+                            "&__pwd=" + URLEncoder.encode(backup_pwd, "UTF-8") +
+                            "&__pwdagain=" + URLEncoder.encode(backup_pwd, "UTF-8");
 
         hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
 
@@ -605,7 +594,7 @@ public class ConfigureOCSP {
         return true;
     }
 
-    public boolean AdminCertReqPanel() {
+    public boolean AdminCertReqPanel() throws UnsupportedEncodingException {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -635,20 +624,19 @@ public class ConfigureOCSP {
                             "&cert_request_type=" + "crmf" +
                             "&uid=" + admin_user +
                             "&name=" + admin_user +
-                            "&__pwd=" + URLEncoder.encode(admin_password) +
-                            "&__admin_password_again=" + URLEncoder.encode(admin_password) +
+                            "&__pwd=" + URLEncoder.encode(admin_password, "UTF-8") +
+                            "&__admin_password_again=" + URLEncoder.encode(admin_password, "UTF-8") +
                             "&profileId=" + "caAdminCert" +
                             "&email=" +
-                            URLEncoder.encode(admin_email) +
+                            URLEncoder.encode(admin_email, "UTF-8") +
                             "&cert_request=" +
-                            URLEncoder.encode(admin_cert_request) +
+                            URLEncoder.encode(admin_cert_request, "UTF-8") +
                             "&subject=" +
-                            URLEncoder.encode(agent_cert_subject) +
+                            URLEncoder.encode(agent_cert_subject, "UTF-8") +
                             "&clone=new" +
                             "&import=true" +
                             "&securitydomain=" +
-                            URLEncoder.encode(domain_name) +
-                            "";
+                            URLEncoder.encode(domain_name, "UTF-8");
 
         hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
 
@@ -701,15 +689,14 @@ public class ConfigureOCSP {
         return true;
     }
 
-    public boolean UpdateDomainPanel() {
+    public boolean UpdateDomainPanel() throws UnsupportedEncodingException {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
 
         String query_string = "p=14" + "&op=next" + "&xml=true" +
-                            "&caHost=" + URLEncoder.encode(sd_hostname) +
-                            "&caPort=" + URLEncoder.encode(sd_agent_port) +
-                            "";
+                            "&caHost=" + URLEncoder.encode(sd_hostname, "UTF-8") +
+                            "&caPort=" + URLEncoder.encode(sd_agent_port, "UTF-8");
 
         hr = hc.sslConnect(cs_hostname, cs_port, wizard_uri, query_string);
 
@@ -721,7 +708,7 @@ public class ConfigureOCSP {
         return true;
     }
 
-    public boolean ConfigureOCSPInstance() {
+    public boolean ConfigureOCSPInstance() throws UnsupportedEncodingException {
         // 0. login to cert db
         ComCrypto cCrypt = new ComCrypto(client_certdb_dir,
                                         client_certdb_pwd,
@@ -867,7 +854,7 @@ public class ConfigureOCSP {
         }
     }
 
-    public static void main(String args[]) {
+    public static void main(String args[]) throws UnsupportedEncodingException {
         ConfigureOCSP ca = new ConfigureOCSP();
 
         // set variables
@@ -903,7 +890,6 @@ public class ConfigureOCSP {
         StringHolder x_base_dn = new StringHolder();
         StringHolder x_db_name = new StringHolder();
         StringHolder x_secure_conn = new StringHolder();
-        StringHolder x_clone_start_tls = new StringHolder();
         StringHolder x_remove_data = new StringHolder();
 
         // key properties (defaults)
@@ -1013,9 +999,6 @@ public class ConfigureOCSP {
         parser.addOption("-secure_conn %s #use ldaps port (optional, default is false)", x_secure_conn);
         parser.addOption("-remove_data %s #remove existing data under base_dn (optional, default is false) ",
                 x_remove_data);
-        parser.addOption(
-                "-clone_start_tls %s #use startTLS for cloning replication agreement (optional, default is false)",
-                x_clone_start_tls);
 
         // key and algorithm options (default)
         parser.addOption("-key_type %s #Key type [RSA,ECC] (optional, default is RSA)", x_key_type);
@@ -1139,7 +1122,6 @@ public class ConfigureOCSP {
         db_name = x_db_name.value;
         secure_conn = set_default(x_secure_conn.value, "false");
         remove_data = set_default(x_remove_data.value, "false");
-        clone_start_tls = set_default(x_clone_start_tls.value, "false");
 
         key_type = set_default(x_key_type.value, DEFAULT_KEY_TYPE);
         signing_key_type = set_default(x_signing_key_type.value, key_type);

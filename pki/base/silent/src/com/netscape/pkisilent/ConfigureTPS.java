@@ -19,6 +19,7 @@ package com.netscape.pkisilent;
 // --- END COPYRIGHT BLOCK ---
 
 import java.io.ByteArrayInputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
 import com.netscape.pkisilent.argparser.ArgParser;
@@ -193,8 +194,7 @@ public class ConfigureTPS {
         return st;
     }
 
-    public boolean DomainPanel() {
-        boolean st = false;
+    public boolean DomainPanel() throws UnsupportedEncodingException {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -204,7 +204,7 @@ public class ConfigureTPS {
         String query_string = "p=3" +
                             "&choice=existingdomain" +
                             "&sdomainURL=" +
-                            URLEncoder.encode(domain_url) +
+                            URLEncoder.encode(domain_url, "UTF-8") +
                             "&op=next" +
                             "&xml=true";
 
@@ -227,18 +227,18 @@ public class ConfigureTPS {
 
     }
 
-    public boolean SecurityDomainLoginPanel() {
+    public boolean SecurityDomainLoginPanel() throws UnsupportedEncodingException {
         String tps_url = "https://" + cs_hostname + ":" + cs_port +
                             "/tps/admin/console/config/wizard" +
                             "?p=3&subsystem=TPS";
 
-        String query_string = "url=" + URLEncoder.encode(tps_url) + "";
+        String query_string = "url=" + URLEncoder.encode(tps_url, "UTF-8") + "";
 
         HTTPResponse hr = hc.sslConnect(sd_hostname, sd_admin_port, sd_login_uri, query_string);
 
         String query_string_1 = "uid=" + sd_admin_name +
-                                "&pwd=" + URLEncoder.encode(sd_admin_password) +
-                                "&url=" + URLEncoder.encode(tps_url) +
+                                "&pwd=" + URLEncoder.encode(sd_admin_password, "UTF-8") +
+                                "&url=" + URLEncoder.encode(tps_url, "UTF-8") +
                                 "";
 
         hr = hc.sslConnect(sd_hostname, sd_admin_port, sd_get_cookie_uri,
@@ -269,8 +269,7 @@ public class ConfigureTPS {
 
     }
 
-    public boolean SubsystemPanel() {
-        boolean st = false;
+    public boolean SubsystemPanel() throws UnsupportedEncodingException {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -279,7 +278,7 @@ public class ConfigureTPS {
         String query_string = "p=5" +
                         "&choice=newsubsystem" +
                         "&subsystemName=" +
-                        URLEncoder.encode(subsystem_name) +
+                        URLEncoder.encode(subsystem_name, "UTF-8") +
                         "&op=next" +
                         "&xml=true";
 
@@ -304,8 +303,6 @@ public class ConfigureTPS {
         px.prettyprintxml();
 
         sleep_time();
-        // TKS choice panel
-        String tks_url = "https://" + tks_hostname + ":" + tks_ssl_port;
         query_string = "p=7" +
                         "&urls=0" +
                         "&op=next" +
@@ -339,20 +336,18 @@ public class ConfigureTPS {
         return true;
     }
 
-    public boolean LdapAuthConnectionPanel() {
-        // auth db 
-        boolean st = false;
+    public boolean LdapAuthConnectionPanel() throws UnsupportedEncodingException {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
 
         String query_string = "p=9" +
                         "&host=" +
-                        URLEncoder.encode(ldap_auth_host) +
+                        URLEncoder.encode(ldap_auth_host, "UTF-8") +
                         "&port=" +
-                        URLEncoder.encode(ldap_auth_port) +
+                        URLEncoder.encode(ldap_auth_port, "UTF-8") +
                         "&basedn=" +
-                        URLEncoder.encode(ldap_auth_base_dn) +
+                        URLEncoder.encode(ldap_auth_base_dn, "UTF-8") +
                         "&op=next" +
                         "&xml=true";
 
@@ -366,27 +361,25 @@ public class ConfigureTPS {
         return true;
     }
 
-    public boolean LdapConnectionPanel() {
-        boolean st = false;
+    public boolean LdapConnectionPanel() throws UnsupportedEncodingException {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
 
         String query_string = "p=10" +
                         "&host=" +
-                        URLEncoder.encode(ldap_host) +
+                        URLEncoder.encode(ldap_host, "UTF-8") +
                         "&port=" +
-                        URLEncoder.encode(ldap_port) +
+                        URLEncoder.encode(ldap_port, "UTF-8") +
                         "&binddn=" +
-                        URLEncoder.encode(bind_dn) +
+                        URLEncoder.encode(bind_dn, "UTF-8") +
                         "&__bindpwd=" +
-                        URLEncoder.encode(bind_password) +
+                        URLEncoder.encode(bind_password, "UTF-8") +
                         "&basedn=" +
-                        URLEncoder.encode(base_dn) +
+                        URLEncoder.encode(base_dn, "UTF-8") +
                         "&database=" +
-                        URLEncoder.encode(db_name) +
+                        URLEncoder.encode(db_name, "UTF-8") +
                         "&display=" +
-                        URLEncoder.encode("") +
                         "&op=next" +
                         "&xml=true";
 
@@ -400,8 +393,7 @@ public class ConfigureTPS {
         return true;
     }
 
-    public boolean TokenChoicePanel() {
-        boolean st = false;
+    public boolean TokenChoicePanel() throws UnsupportedEncodingException {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -413,7 +405,7 @@ public class ConfigureTPS {
         if (token_name.equalsIgnoreCase("internal")) {
             query_string = "p=1" +
                             "&choice=" +
-                            URLEncoder.encode("NSS Certificate DB") +
+                            URLEncoder.encode("NSS Certificate DB", "UTF-8") +
                             "&op=next" +
                             "&xml=true";
 
@@ -428,9 +420,9 @@ public class ConfigureTPS {
             // login to hsm first
             query_string = "p=2" +
                             "&uTokName=" +
-                            URLEncoder.encode(token_name) +
+                            URLEncoder.encode(token_name, "UTF-8") +
                             "&__uPasswd=" +
-                            URLEncoder.encode(token_pwd) +
+                            URLEncoder.encode(token_pwd, "UTF-8") +
                             "&op=next" +
                             "&xml=true";
 
@@ -443,7 +435,7 @@ public class ConfigureTPS {
             // choice with token name now
             query_string = "p=1" +
                             "&choice=" +
-                            URLEncoder.encode(token_name) +
+                            URLEncoder.encode(token_name, "UTF-8") +
                             "&op=next" +
                             "&xml=true";
 
@@ -489,24 +481,24 @@ public class ConfigureTPS {
         return true;
     }
 
-    public boolean CertSubjectPanel() {
+    public boolean CertSubjectPanel() throws UnsupportedEncodingException {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
 
         String query_string = "p=12" +
                     "&sslserver=" +
-                    URLEncoder.encode(tps_server_cert_subject_name) +
+                    URLEncoder.encode(tps_server_cert_subject_name, "UTF-8") +
                     "&sslserver_nick=" +
-                    URLEncoder.encode(tps_server_cert_nickname) +
+                    URLEncoder.encode(tps_server_cert_nickname, "UTF-8") +
                     "&subsystem=" +
-                    URLEncoder.encode(tps_subsystem_cert_subject_name) +
+                    URLEncoder.encode(tps_subsystem_cert_subject_name, "UTF-8") +
                     "&subsystem_nick=" +
-                    URLEncoder.encode(tps_subsystem_cert_nickname) +
+                    URLEncoder.encode(tps_subsystem_cert_nickname, "UTF-8") +
                     "&audit_signing=" +
-                    URLEncoder.encode(tps_audit_signing_cert_subject_name) +
+                    URLEncoder.encode(tps_audit_signing_cert_subject_name, "UTF-8") +
                     "&audit_signing_nick=" +
-                    URLEncoder.encode(tps_audit_signing_cert_nickname) +
+                    URLEncoder.encode(tps_audit_signing_cert_nickname, "UTF-8") +
                     "&urls=0" +
                     "&op=next" +
                     "&xml=true";
@@ -548,8 +540,7 @@ public class ConfigureTPS {
         return true;
     }
 
-    public boolean AdminCertReqPanel() {
-        boolean st = false;
+    public boolean AdminCertReqPanel() throws UnsupportedEncodingException {
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
         ParseXML px = new ParseXML();
@@ -580,13 +571,13 @@ public class ConfigureTPS {
         String query_string = "p=14" +
                             "&uid=" + admin_user +
                             "&name=" +
-                            URLEncoder.encode("TPS Administrator") +
+                            URLEncoder.encode("TPS Administrator", "UTF-8") +
                             "&email=" +
-                            URLEncoder.encode(admin_email) +
-                            "&__pwd=" + URLEncoder.encode(admin_password) +
-                            "&__admin_password_again=" + URLEncoder.encode(admin_password) +
+                            URLEncoder.encode(admin_email, "UTF-8") +
+                            "&__pwd=" + URLEncoder.encode(admin_password, "UTF-8") +
+                            "&__admin_password_again=" + URLEncoder.encode(admin_password, "UTF-8") +
                             "&cert_request=" +
-                            URLEncoder.encode(admin_cert_request) +
+                            URLEncoder.encode(admin_cert_request, "UTF-8") +
                             "&display=0" +
                             "&profileId=" + "caAdminCert" +
                             "&cert_request_type=" + "crmf" +
@@ -594,11 +585,11 @@ public class ConfigureTPS {
                             "&uid=" + admin_user +
                             "&clone=0" +
                             "&securitydomain=" +
-                            URLEncoder.encode(domain_name) +
+                            URLEncoder.encode(domain_name, "UTF-8") +
                             "&subject=" +
-                            URLEncoder.encode(agent_cert_subject) +
+                            URLEncoder.encode(agent_cert_subject, "UTF-8") +
                             "&requestor_name=" +
-                            URLEncoder.encode(requestor_name) +
+                            URLEncoder.encode(requestor_name, "UTF-8") +
                             "&sessionID=" + tps_session_id +
                             "&auth_hostname=" + ca_hostname +
                             "&auth_port=" + ca_ssl_port +
@@ -617,7 +608,7 @@ public class ConfigureTPS {
         return true;
     }
 
-    public boolean AdminCertImportPanel() {
+    public boolean AdminCertImportPanel() throws UnsupportedEncodingException {
         boolean st = false;
         HTTPResponse hr = null;
         ByteArrayInputStream bais = null;
@@ -670,7 +661,7 @@ public class ConfigureTPS {
         String query_string_1 = "p=15" +
                             "&serialNumber=" + admin_serial_number +
                             "&caHost=" +
-                            URLEncoder.encode(ca_hostname) +
+                            URLEncoder.encode(ca_hostname, "UTF-8") +
                             "&caPort=" + ca_admin_port +
                             "&op=next" +
                             "&xml=true";
@@ -685,7 +676,7 @@ public class ConfigureTPS {
         return true;
     }
 
-    public boolean ConfigureTPSInstance() {
+    public boolean ConfigureTPSInstance() throws UnsupportedEncodingException {
         // 0. login to cert db
         ComCrypto cCrypt = new ComCrypto(client_certdb_dir,
                                         client_certdb_pwd,
@@ -807,7 +798,7 @@ public class ConfigureTPS {
         return true;
     }
 
-    public static void main(String args[]) {
+    public static void main(String args[]) throws UnsupportedEncodingException {
         ConfigureTPS ca = new ConfigureTPS();
 
         // set variables

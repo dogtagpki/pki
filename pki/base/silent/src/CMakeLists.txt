@@ -47,7 +47,6 @@ set(pki-silent_java_SRCS
      com/netscape/pkisilent/http/CertSelection.java
      com/netscape/pkisilent/common/Request.java
      com/netscape/pkisilent/common/CertificateRecord.java
-     com/netscape/pkisilent/common/CMSInstance.java
      com/netscape/pkisilent/common/Utilities.java
      com/netscape/pkisilent/common/ComCrypto.java
      com/netscape/pkisilent/common/BaseState.java
@@ -55,7 +54,6 @@ set(pki-silent_java_SRCS
      com/netscape/pkisilent/common/CMSConfig.java
      com/netscape/pkisilent/common/PostQuery.java
      com/netscape/pkisilent/common/ServerInfo.java
-     com/netscape/pkisilent/common/AutoInstaller.java
      com/netscape/pkisilent/common/UserEnroll.java
      com/netscape/pkisilent/common/ParseXML.java
      com/netscape/pkisilent/common/CMSProperties.java
@@ -64,7 +62,6 @@ set(pki-silent_java_SRCS
      com/netscape/pkisilent/common/TestClient.java
      com/netscape/pkisilent/common/CMSTask.java
      com/netscape/pkisilent/ConfigureOCSP.java
-     com/netscape/pkisilent/CreateInstance.java
      com/netscape/pkisilent/ConfigureRA.java
      com/netscape/pkisilent/ConfigureSubCA.java
      com/netscape/pkisilent/ConfigureDRM.java
