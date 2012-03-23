@@ -14,7 +14,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.0
-Release:          %{?relprefix}11%{?prerel}%{?dist}
+Release:          %{?relprefix}12%{?prerel}%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -694,7 +694,12 @@ This package is a part of the PKI Core used by the Certificate System.
 %build
 %{__mkdir_p} build
 cd build
-%cmake -DVAR_INSTALL_DIR:PATH=/var -DBUILD_PKI_CORE:BOOL=ON -DJAVA_LIB_INSTALL_DIR=%{_jnidir} -DSYSTEMD_LIB_INSTALL_DIR=%{_unitdir} ..
+%cmake -DVAR_INSTALL_DIR:PATH=/var \
+	-DBUILD_PKI_CORE:BOOL=ON \
+	-DJAVA_LIB_INSTALL_DIR=%{_jnidir} \
+	-DSYSTEMD_LIB_INSTALL_DIR=%{_unitdir} \
+	%{?_without_javadoc:-DWITH_JAVADOC:BOOL=OFF} \
+	..
 %{__make} VERBOSE=1 %{?_smp_mflags} all
 %{__make} VERBOSE=1 %{?_smp_mflags} test
 
@@ -1120,9 +1125,11 @@ fi
 %{_javadir}/pki/pki-nsutil-%{version}.jar
 %{_javadir}/pki/pki-nsutil.jar
 
+%if %{?_without_javadoc:0}%{!?_without_javadoc:1}
 %files -n pki-util-javadoc
 %defattr(-,root,root,-)
 %{_javadocdir}/pki-util-%{version}/
+%endif
 
 
 %files -n pki-java-tools
@@ -1152,10 +1159,11 @@ fi
 %{_javadir}/pki/pki-tools.jar
 %{_datadir}/pki/java-tools/
 
+%if %{?_without_javadoc:0}%{!?_without_javadoc:1}
 %files -n pki-java-tools-javadoc
 %defattr(-,root,root,-)
 %{_javadocdir}/pki-java-tools-%{version}/
-
+%endif
 
 %files -n pki-common
 %defattr(-,root,root,-)
@@ -1179,10 +1187,11 @@ fi
 
 %{_datadir}/pki/setup/
 
+%if %{?_without_javadoc:0}%{!?_without_javadoc:1}
 %files -n pki-common-javadoc
 %defattr(-,root,root,-)
 %{_javadocdir}/pki-common-%{version}/
-
+%endif
 
 %files -n pki-selinux
 %defattr(-,root,root,-)
@@ -1315,6 +1324,9 @@ fi
 
 
 %changelog
+* Fri Mar 23 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.12.a1
+- Added option to build without Javadoc
+
 * Fri Mar 16 2012 Ade Lee <alee@redhat.com> 10.0.0-0.11.a1
 - BZ 802396 - Change location of TOMCAT_LOG to match tomcat6 changes
 - Corrected patch selected for selinux f17 rules

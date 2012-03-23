@@ -1063,16 +1063,18 @@ add_dependencies(pki-cms pki-nsutil pki-cmsutil pki-certsrv)
 install_jar(pki-cms ${JAVA_JAR_INSTALL_DIR}/pki)
 set(PKI_CMS_JAR ${pki-cms_JAR_FILE} CACHE INTERNAL "pki-cms jar file")
 
-create_javadoc(pki-common-${APPLICATION_VERSION}
-    FILES ${pki-cms_java_SRCS} ${pki-certsrv_java_SRCS}
-    CLASSPATH ${CMAKE_JAVA_INCLUDE_PATH} ${pki-certsrv_JAR_FILE}
-    WINDOWTITLE "pki-common"
-    DOCTITLE "<h1>pki-common</h1>"
-    AUTHOR TRUE
-    USE TRUE
-    VERSION TRUE
-)
-add_dependencies(pki-common-${APPLICATION_VERSION}_javadoc pki-cms pki-certsrv)
+if(WITH_JAVADOC)
+    create_javadoc(pki-common-${APPLICATION_VERSION}
+        FILES ${pki-cms_java_SRCS} ${pki-certsrv_java_SRCS}
+        CLASSPATH ${CMAKE_JAVA_INCLUDE_PATH} ${pki-certsrv_JAR_FILE}
+        WINDOWTITLE "pki-common"
+        DOCTITLE "<h1>pki-common</h1>"
+        AUTHOR TRUE
+        USE TRUE
+        VERSION TRUE
+    )
+    add_dependencies(pki-common-${APPLICATION_VERSION}_javadoc pki-cms pki-certsrv)
+endif(WITH_JAVADOC)
 
 # build pki-cmscore
 set(CMAKE_JAR_CLASSES_PREFIX com/netscape/cmscore)

@@ -346,24 +346,25 @@ add_dependencies(pki-cmsutil pki-nsutil)
 install_jar(pki-cmsutil ${JAVA_JAR_INSTALL_DIR}/pki)
 set(PKI_CMSUTIL_JAR ${pki-cmsutil_JAR_FILE} CACHE INTERNAL "pki-cmsutil jar file")
 
-create_javadoc(pki-util-${APPLICATION_VERSION}
-    PACKAGES com.netscape.cmsutil.crypto
-             com.netscape.cmsutil.http
-             com.netscape.cmsutil.ldap
-             com.netscape.cmsutil.net
-             com.netscape.cmsutil.ocsp
-             com.netscape.cmsutil.password
-             com.netscape.cmsutil.radius
-             com.netscape.cmsutil.scep
-             com.netscape.cmsutil.util
-             com.netscape.cmsutil.xml
-    SOURCEPATH ${CMAKE_CURRENT_SOURCE_DIR}
-    CLASSPATH ${CMAKE_JAVA_INCLUDE_PATH}
-    WINDOWTITLE "pki-util"
-    WINDOWTITLE "pki-util"
-    DOCTITLE "<h1>dogtag</h1>"
-    AUTHOR TRUE
-    USE TRUE
-    VERSION TRUE
-)
-add_dependencies(pki-util-${APPLICATION_VERSION}_javadoc pki-cmsutil)
+if(WITH_JAVADOC)
+    create_javadoc(pki-util-${APPLICATION_VERSION}
+        PACKAGES com.netscape.cmsutil.crypto
+                 com.netscape.cmsutil.http
+                 com.netscape.cmsutil.ldap
+                 com.netscape.cmsutil.net
+                 com.netscape.cmsutil.ocsp
+                 com.netscape.cmsutil.password
+                 com.netscape.cmsutil.radius
+                 com.netscape.cmsutil.scep
+                 com.netscape.cmsutil.util
+                 com.netscape.cmsutil.xml
+        SOURCEPATH ${CMAKE_CURRENT_SOURCE_DIR}
+        CLASSPATH ${CMAKE_JAVA_INCLUDE_PATH}
+        WINDOWTITLE "pki-util"
+        DOCTITLE "<h1>dogtag</h1>"
+        AUTHOR TRUE
+        USE TRUE
+        VERSION TRUE
+    )
+    add_dependencies(pki-util-${APPLICATION_VERSION}_javadoc pki-cmsutil)
+endif(WITH_JAVADOC)

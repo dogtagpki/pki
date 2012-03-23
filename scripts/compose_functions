@@ -69,7 +69,7 @@ export PKI_DOGTAG_MANIFEST
 Usage()
 {
 	printf "\n"
-	printf "Usage:  $0 <target>\n\n"
+	printf "Usage:  $0 [options] <target>\n\n"
 	printf "        where <target> is one of the following:\n\n"
 	printf "            srpm         - copies a spec file from local source,\n"
 	printf "                           generates a tarball from local source, "
@@ -105,6 +105,8 @@ Usage()
 	printf " and\n"
 	printf "                           produces an SRPM and one or more RPMS\n"
 	printf "                           ${MESSAGE}\n\n"
+	printf "Options:\n"
+	printf "  --without-javadoc        do not build Javadoc RPMS\n\n"
 }
 
 
@@ -237,33 +239,50 @@ Fetch_Source_Tarball()
 ## Check for command line argument validity
 ##
 
+GETOPT=`getopt -o '' -l without-javadoc -n "$0" -- "$@"`
+
+if [ $? != 0 ] ; then
+    Usage
+    exit 255
+fi
+
+eval set -- "$GETOPT"
+
+while true ; do
+    case "$1" in
+        --without-javadoc) JAVADOC="--without javadoc" ; shift ;;
+        --) shift ; break ;;
+        *) echo "$0: unrecognized option '$1'" 1>&2 ; exit 255 ;;
+    esac
+done
+
 if [ $# -ne 1 ] ; then
 	Usage
 	exit 255
 fi
 
 if	[ $1 = "srpm" ] ; then
-	RPMBUILD_CMD="rpmbuild --define \"_topdir \`pwd\`\" -bs"
+	RPMBUILD_CMD="rpmbuild --define \"_topdir \`pwd\`\" $JAVADOC -bs"
 	FETCH_SOURCE_TARBALL=0
 	FETCH_PATCH_FILES=0
 elif [ $1 = "hybrid_srpm" ] ; then
-	RPMBUILD_CMD="rpmbuild --define \"_topdir \`pwd\`\" -bs"
+	RPMBUILD_CMD="rpmbuild --define \"_topdir \`pwd\`\" $JAVADOC -bs"
 	FETCH_SOURCE_TARBALL=0
 	FETCH_PATCH_FILES=1
 elif [ $1 = "patched_srpm" ] ; then
-	RPMBUILD_CMD="rpmbuild --define \"_topdir \`pwd\`\" -bs"
+	RPMBUILD_CMD="rpmbuild --define \"_topdir \`pwd\`\" $JAVADOC -bs"
 	FETCH_SOURCE_TARBALL=1
 	FETCH_PATCH_FILES=1
 elif [ $1 = "rpms" ] ; then
-	RPMBUILD_CMD="rpmbuild --define \"_topdir \`pwd\`\" -ba"
+	RPMBUILD_CMD="rpmbuild --define \"_topdir \`pwd\`\" $JAVADOC -ba"
 	FETCH_SOURCE_TARBALL=0
 	FETCH_PATCH_FILES=0
 elif [ $1 = "hybrid_rpms" ] ; then
-	RPMBUILD_CMD="rpmbuild --define \"_topdir \`pwd\`\" -ba"
+	RPMBUILD_CMD="rpmbuild --define \"_topdir \`pwd\`\" $JAVADOC -ba"
 	FETCH_SOURCE_TARBALL=0
 	FETCH_PATCH_FILES=1
 elif [ $1 = "patched_rpms" ] ; then
-	RPMBUILD_CMD="rpmbuild --define \"_topdir \`pwd\`\" -ba"
+	RPMBUILD_CMD="rpmbuild --define \"_topdir \`pwd\`\" $JAVADOC -ba"
 	FETCH_SOURCE_TARBALL=1
 	FETCH_PATCH_FILES=1
 else
@@ -271,5 +290,3 @@ else
 	exit 255
 fi
 export RPMBUILD_CMD
-
-

@@ -75,13 +75,15 @@ install(
 install_jar(pki-tools ${JAVA_JAR_INSTALL_DIR}/pki)
 set(PKI_TOOLS_JAR ${pki-tools_JAR_FILE} CACHE INTERNAL "pki-tools jar file")
 
-create_javadoc(pki-java-tools-${APPLICATION_VERSION}
-    FILES ${pki-tools_java_SRCS}
-    CLASSPATH ${CMAKE_JAVA_INCLUDE_PATH}
-    WINDOWTITLE "pki-java-tools"
-    DOCTITLE "<h1>pki-java-tools</h1>"
-    AUTHOR TRUE
-    USE TRUE
-    VERSION TRUE
-)
-add_dependencies(pki-java-tools-${APPLICATION_VERSION}_javadoc pki-tools)
+if(WITH_JAVADOC)
+    create_javadoc(pki-java-tools-${APPLICATION_VERSION}
+        FILES ${pki-tools_java_SRCS}
+        CLASSPATH ${CMAKE_JAVA_INCLUDE_PATH}
+        WINDOWTITLE "pki-java-tools"
+        DOCTITLE "<h1>pki-java-tools</h1>"
+        AUTHOR TRUE
+        USE TRUE
+        VERSION TRUE
+    )
+    add_dependencies(pki-java-tools-${APPLICATION_VERSION}_javadoc pki-tools)
+endif(WITH_JAVADOC)
