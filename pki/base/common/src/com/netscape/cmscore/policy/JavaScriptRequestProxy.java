@@ -21,6 +21,11 @@ import com.netscape.certsrv.policy.IPolicyRule;
 import com.netscape.certsrv.request.IRequest;
 import com.netscape.certsrv.request.PolicyResult;
 
+/**
+ *
+ * @deprecated
+ *
+ */
 public class JavaScriptRequestProxy {
     IRequest req;
 

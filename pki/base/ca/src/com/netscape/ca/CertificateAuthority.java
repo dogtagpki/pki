@@ -268,6 +268,9 @@ public class CertificateAuthority implements ICertificateAuthority, ICertAuthori
         return mCRLPublisher;
     }
 
+    /**
+     * @deprecated
+     */
     public IPolicyProcessor getPolicyProcessor() {
         return mPolicy.getPolicyProcessor();
     }

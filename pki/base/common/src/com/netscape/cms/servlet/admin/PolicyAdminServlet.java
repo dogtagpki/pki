@@ -50,6 +50,7 @@ import com.netscape.certsrv.ra.IRegistrationAuthority;
  * for registering an instance of this with the remote
  * administration subsystem.
  * 
+ * @deprecated
  * @version $Revision$, $Date$
  */
 public class PolicyAdminServlet extends AdminServlet {

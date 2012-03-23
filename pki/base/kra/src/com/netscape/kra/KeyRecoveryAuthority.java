@@ -178,6 +178,9 @@ public class KeyRecoveryAuthority implements IAuthority, IKeyService, IKeyRecove
         mId = id;
     }
 
+    /**
+     * @deprecated
+     */
     public IPolicyProcessor getPolicyProcessor() {
         return mPolicy.getPolicyProcessor();
     }

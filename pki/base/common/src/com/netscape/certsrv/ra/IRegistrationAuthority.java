@@ -69,7 +69,7 @@ public interface IRegistrationAuthority extends ISubsystem {
 
     /**
      * Retrieves the policy processor of this registration authority.
-     * 
+     * @deprecated
      * @return RA's policy processor
      */
     public IPolicyProcessor getPolicyProcessor();

@@ -23,6 +23,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -153,7 +154,7 @@ public class UserEnroll extends TestClient {
         certType = ct;
     }
 
-    public boolean enroll_load() {
+    public boolean enroll_load() throws UnsupportedEncodingException {
         buildquery();
         setStatusString("");
         return (Send());
@@ -297,7 +298,7 @@ public class UserEnroll extends TestClient {
 
     }
 
-    private void buildquery() {
+    private void buildquery() throws UnsupportedEncodingException {
 
         StringBuffer queryStrBuf = new StringBuffer();
 
@@ -324,10 +325,10 @@ public class UserEnroll extends TestClient {
             if (requestorName.length() > 0) {
                 queryStrBuf.append("&csrRequestorName=");
             }
-            queryStrBuf.append(URLEncoder.encode(requestorName));
+            queryStrBuf.append(URLEncoder.encode(requestorName, "UTF-8"));
             if (requestorEmail.length() > 0) {
                 queryStrBuf.append("&csrRequestorEmail=");
-                queryStrBuf.append(URLEncoder.encode(requestorEmail));
+                queryStrBuf.append(URLEncoder.encode(requestorEmail, "UTF-8"));
                 queryStrBuf.append("&email=true");
 
             } else {
@@ -336,11 +337,11 @@ public class UserEnroll extends TestClient {
 
             if (requestorPhone.length() > 0) {
                 queryStrBuf.append("&csrRequestorPhone=");
-                queryStrBuf.append(URLEncoder.encode(requestorPhone));
+                queryStrBuf.append(URLEncoder.encode(requestorPhone, "UTF-8"));
             }
             if (requestorComments.length() > 0) {
                 queryStrBuf.append("&csrRequestorComments=");
-                queryStrBuf.append(URLEncoder.encode(requestorComments));
+                queryStrBuf.append(URLEncoder.encode(requestorComments, "UTF-8"));
             }
             System.out.println("buidlquery client E ");
             if (E.length() > 0) {
@@ -364,7 +365,7 @@ public class UserEnroll extends TestClient {
             // if(C.length() >0) {	queryStrBuf.append("&C=");queryStrBuf.append(C);}
             System.out.println("buidlquery client dn ");
             queryStrBuf.append("&subject=");
-            queryStrBuf.append(URLEncoder.encode(DN));
+            queryStrBuf.append(URLEncoder.encode(DN, "UTF-8"));
         }
 
         if (certType.equals("ra")) {
@@ -405,7 +406,7 @@ public class UserEnroll extends TestClient {
         }
 
         queryStrBuf.append("&pkcs10Request=");
-        queryStrBuf.append(URLEncoder.encode(pkcs10request));
+        queryStrBuf.append(URLEncoder.encode(pkcs10request, "UTF-8"));
         System.out.println("before converting bug to string ");
         query = queryStrBuf.toString();
 

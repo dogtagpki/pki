@@ -18,6 +18,7 @@ package com.netscape.pkisilent.common;
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Calendar;
 import java.util.Date;
@@ -153,9 +154,10 @@ public class Request extends TestClient {
      * 
      * @param fromrequest number
      * @param endrequestnumber.
+     * @throws UnsupportedEncodingException
      */
 
-    public Vector<String> ListPendingRequests(String fromRequestNumber, String toRequestNumber) {
+    public Vector<String> ListPendingRequests(String fromRequestNumber, String toRequestNumber) throws UnsupportedEncodingException {
         reqState = "showWaiting";
         reqType = "enrollment";
         approveseqnumFrom = fromRequestNumber;
@@ -169,9 +171,10 @@ public class Request extends TestClient {
      * 
      * @param fromrequest number
      * @param endrequestnumber.
+     * @throws UnsupportedEncodingException
      */
 
-    public Vector<String> ListAllRequests(String fromRequestNumber, String toRequestNumber) {
+    public Vector<String> ListAllRequests(String fromRequestNumber, String toRequestNumber) throws UnsupportedEncodingException {
         reqState = "showAll";
         reqType = "enrollment";
         approveseqnumFrom = fromRequestNumber;
@@ -184,9 +187,10 @@ public class Request extends TestClient {
      * Approve pending enrollment request. Takes parameters RequestNumber
      * 
      * @param request number
+     * @throws UnsupportedEncodingException
      */
 
-    public int ApproveRequests(String requestNumber) {
+    public int ApproveRequests(String requestNumber) throws UnsupportedEncodingException {
         reqState = "showWaiting";
         reqType = "enrollment";
         approveseqnum = requestNumber;
@@ -205,9 +209,10 @@ public class Request extends TestClient {
      * Approve profile based pending enrollment request. Takes parameters RequestNumber
      * 
      * @param request number
+     * @throws UnsupportedEncodingException
      */
 
-    public int ApproveProfileRequests(String RequestNumber) {
+    public int ApproveProfileRequests(String RequestNumber) throws UnsupportedEncodingException {
 
         approveseqnum = RequestNumber;
         approveseqnumFrom = RequestNumber;
@@ -223,7 +228,7 @@ public class Request extends TestClient {
 
     }
 
-    public boolean Approve_cadualcert_Profile_Request(String RequestNumber, String name) {
+    public boolean Approve_cadualcert_Profile_Request(String RequestNumber, String name) throws UnsupportedEncodingException {
 
         approveseqnum = RequestNumber;
         approveseqnumFrom = RequestNumber;
@@ -252,9 +257,10 @@ public class Request extends TestClient {
      * Reject profile based pending enrollment request. Takes parameters RequestNumber
      * 
      * @param request number
+     * @throws UnsupportedEncodingException
      */
 
-    public int RejectProfileRequests(String RequestNumber) {
+    public int RejectProfileRequests(String RequestNumber) throws UnsupportedEncodingException {
 
         approveseqnum = RequestNumber;
         approveseqnumFrom = RequestNumber;
@@ -274,9 +280,10 @@ public class Request extends TestClient {
      * Cancel profile based pending enrollment request. Takes parameters RequestNumber
      * 
      * @param request number
+     * @throws UnsupportedEncodingException
      */
 
-    public int CancelProfileRequests(String RequestNumber) {
+    public int CancelProfileRequests(String RequestNumber) throws UnsupportedEncodingException {
 
         approveseqnum = RequestNumber;
         approveseqnumFrom = RequestNumber;
@@ -678,7 +685,7 @@ public class Request extends TestClient {
         return st;
     }
 
-    private void buildquery() {
+    private void buildquery() throws UnsupportedEncodingException {
 
         if (reqtype == 1) { // req type = list
             ACTION_STRING = "/" + agenttype + ACTION_LISTREQUEST;
@@ -711,9 +718,9 @@ public class Request extends TestClient {
             query = "seqNum=" + approveseqnum;
             query += "&toDo=accept";
             if (subjectdn != null) {
-                query += "&subject=" + URLEncoder.encode(subjectdn);
+                query += "&subject=" + URLEncoder.encode(subjectdn, "UTF-8");
             } else if (subject != null) {
-                query += "&subject=" + URLEncoder.encode(subject);
+                query += "&subject=" + URLEncoder.encode(subject, "UTF-8");
             }
 
             if (csrRequestorName != null) {
@@ -776,7 +783,7 @@ public class Request extends TestClient {
             query = "requestId=" + approveseqnum;
             query += "&name="
                     + URLEncoder.encode(
-                            "UID=test,E=test,CN=test,OU=netscape,O=aol");
+                            "UID=test,E=test,CN=test,OU=netscape,O=aol", "UTF-8");
             query += "&keyUsageCritical=true";
             query += "&keyUsageDigitalSignature=true";
             query += "&keyUsageNonRepudiation=true";
@@ -800,7 +807,7 @@ public class Request extends TestClient {
 
             query += "&subAltNameExtCritical=false";
             query += "&subjAltNames=RFC822Name:"
-                    + URLEncoder.encode(" thomasknscp@aol.com");
+                    + URLEncoder.encode(" thomasknscp@aol.com", "UTF-8");
             query += "&signingAlg=MD5withRSA";
 
             query += "&submit=submit";
@@ -864,7 +871,7 @@ public class Request extends TestClient {
                     + ":" + end.get(Calendar.SECOND);
 
             query = "requestId=" + approveseqnum + "&name="
-                    + URLEncoder.encode(cadualcert_name) + "&notBefore=" + nb
+                    + URLEncoder.encode(cadualcert_name, "UTF-8") + "&notBefore=" + nb
                     + "&notAfter=" + nat + "&authInfoAccessCritical=false"
                     + "&authInfoAccessGeneralNames=" + "&keyUsageCritical=true"
                     + "&keyUsageDigitalSignature=false"
@@ -958,7 +965,7 @@ public class Request extends TestClient {
 
     }
 
-    private boolean listRequest(String from, String To) {
+    private boolean listRequest(String from, String To) throws UnsupportedEncodingException {
 
         Integer x = new Integer(from);
 
@@ -980,7 +987,7 @@ public class Request extends TestClient {
         return (Send());
     }
 
-    private boolean approveRequest() {
+    private boolean approveRequest() throws UnsupportedEncodingException {
 
         boolean st = true;
 
@@ -1059,9 +1066,10 @@ public class Request extends TestClient {
 
     /**
      * Use this method when you need to use properties file.
+     * @throws UnsupportedEncodingException
      */
 
-    public int processRequest() {
+    public int processRequest() throws UnsupportedEncodingException {
         if (propfileName != null) {
             readProperties();
         }
@@ -1112,7 +1120,12 @@ public class Request extends TestClient {
 
         Request t = new Request(args[0]);
 
-        st = t.processRequest();
+        try {
+            st = t.processRequest();
+        } catch (UnsupportedEncodingException e) {
+            System.out.println(e);
+            e.printStackTrace();
+        }
         if (st == -1) {
             System.exit(0);
         } else {

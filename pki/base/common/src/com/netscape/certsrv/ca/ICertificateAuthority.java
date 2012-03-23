@@ -125,7 +125,7 @@ public interface ICertificateAuthority extends ISubsystem {
 
     /**
      * Retrieves the policy processor of this certificate authority.
-     * 
+     * @deprecated
      * @return CA's policy processor
      */
     public IPolicyProcessor getPolicyProcessor();

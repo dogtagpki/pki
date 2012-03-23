@@ -53,6 +53,7 @@ import com.netscape.cmsutil.util.Utils;
 /**
  * Class that can be used to form general names from configuration file.
  * Used by policies and extension commands.
+ * @deprecated
  */
 public class GeneralNameUtil implements IGeneralNameUtil {
 

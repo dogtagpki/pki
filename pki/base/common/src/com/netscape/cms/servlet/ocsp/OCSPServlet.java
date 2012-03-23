@@ -21,6 +21,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
 import javax.servlet.ServletConfig;
@@ -124,7 +125,12 @@ public class OCSPServlet extends CMSServlet {
         CMS.debug("RequestURI=" + httpReq.getRequestURI());
         String pathInfo = httpReq.getPathInfo();
         if (pathInfo != null && pathInfo.indexOf('%') != -1) {
-            pathInfo = URLDecoder.decode(pathInfo);
+            try {
+                pathInfo = URLDecoder.decode(pathInfo, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+                throw new EBaseException("OCSPServlet: Unsupported encoding" + e);
+            }
         }
         CMS.debug("PathInfo=" + pathInfo);
 

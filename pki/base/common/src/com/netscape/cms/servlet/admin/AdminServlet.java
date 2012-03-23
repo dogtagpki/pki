@@ -798,9 +798,9 @@ public class AdminServlet extends HttpServlet {
                 for (Iterator<String> i = names.iterator(); i.hasNext(); ) {
                     String name = i.next();
                     String value = java.net.URLEncoder.encode(
-                            params.get(name));
+                            params.get(name), "UTF-8");
 
-                    buf.append(java.net.URLEncoder.encode(name) +
+                    buf.append(java.net.URLEncoder.encode(name, "UTF-8") +
                             "=" + value);
                     if (i.hasNext())
                         buf.append("&");

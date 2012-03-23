@@ -485,7 +485,7 @@ public class CRMFPopClient {
                         return;
                 }
 
-                String Req = URLEncoder.encode(Req1);
+                String Req = URLEncoder.encode(Req1, "UTF-8");
 
                 // post PKCS10 
 

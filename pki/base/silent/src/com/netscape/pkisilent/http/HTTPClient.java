@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.URLDecoder;
@@ -1078,7 +1079,7 @@ public class HTTPClient implements SSLCertificateApprovalCallback {
         return true;
     }
 
-    public static void main(String args[]) {
+    public static void main(String args[]) throws UnsupportedEncodingException {
         HTTPClient hc = new HTTPClient();
         HTTPResponse hr = null;
 
@@ -1217,7 +1218,7 @@ public class HTTPClient implements SSLCertificateApprovalCallback {
 
         String responseValue = null;
         if (decode.equalsIgnoreCase("true"))
-            responseValue = URLDecoder.decode(hr.getHTML());
+            responseValue = URLDecoder.decode(hr.getHTML(), "UTF-8");
         else
             responseValue = hr.getHTML();
 

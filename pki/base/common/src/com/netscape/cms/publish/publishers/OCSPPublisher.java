@@ -237,9 +237,9 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
 
             StringBuffer query = new StringBuffer();
             query.append("crl=");
-            query.append(URLEncoder.encode("-----BEGIN CERTIFICATE REVOCATION LIST-----\n"));
-            query.append(URLEncoder.encode(CMS.BtoA(crl.getEncoded())));
-            query.append(URLEncoder.encode("\n-----END CERTIFICATE REVOCATION LIST-----"));
+            query.append(URLEncoder.encode("-----BEGIN CERTIFICATE REVOCATION LIST-----\n", "UTF-8"));
+            query.append(URLEncoder.encode(CMS.BtoA(crl.getEncoded()), "UTF-8"));
+            query.append(URLEncoder.encode("\n-----END CERTIFICATE REVOCATION LIST-----", "UTF-8"));
             query.append("&noui=true");
 
             Socket socket = null;

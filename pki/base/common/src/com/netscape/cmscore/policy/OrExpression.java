@@ -27,6 +27,7 @@ import com.netscape.certsrv.request.IRequest;
  * 
  * Expressions are used as predicates for policy selection.
  * 
+ * @deprecated
  * @author kanda
  * @version $Revision$, $Date$
  */

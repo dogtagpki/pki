@@ -849,7 +849,7 @@ public class DonePanel extends WizardPanelBase {
                             + "&ca.connector.KRA.port="
                             + ownagentsport
                             + "&ca.connector.KRA.transportCert="
-                            + URLEncoder.encode(transportCert)
+                            + URLEncoder.encode(transportCert, "UTF-8")
                             + "&sessionID="
                             + session_id;
 
