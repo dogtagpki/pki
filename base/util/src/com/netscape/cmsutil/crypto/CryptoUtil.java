@@ -406,7 +406,7 @@ public class CryptoUtil {
 
     /**
      * strips out the begin and end certificate brackets
-     * 
+     *
      * @param s the string potentially bracketed with
      *            "-----BEGIN CERTIFICATE-----" and "-----END CERTIFICATE-----"
      * @return string without the brackets
@@ -744,8 +744,7 @@ public class CryptoUtil {
         certInfo.set(X509CertInfo.ALGORITHM_ID,
                 new CertificateAlgorithmId(aid));
 
-        org.mozilla.jss.crypto.PrivateKey priKey =
-                (org.mozilla.jss.crypto.PrivateKey) privateKey;
+        org.mozilla.jss.crypto.PrivateKey priKey = privateKey;
         CryptoToken token = priKey.getOwningToken();
 
         DerOutputStream tmp = new DerOutputStream();
@@ -991,7 +990,7 @@ public class CryptoUtil {
         Enumeration<CryptoToken> enums = cm.getAllTokens();
 
         while (enums.hasMoreElements()) {
-            CryptoToken token = (CryptoToken) enums.nextElement();
+            CryptoToken token = enums.nextElement();
 
             CryptoStore store = token.getCryptoStore();
             org.mozilla.jss.crypto.X509Certificate list[] = store.getCertificates();
@@ -1141,7 +1140,7 @@ public class CryptoUtil {
 
         return certs;
     }
-    
+
     @SuppressWarnings("deprecation")
     public static String unwrapUsingPassphrase(String wrappedRecoveredKey, String recoveryPassphrase)
             throws IOException, InvalidBERException, InvalidKeyException, IllegalStateException,
@@ -1205,7 +1204,6 @@ public class CryptoUtil {
         return wrappedPassphrase;
     }
 
-    @SuppressWarnings("deprecation")
     public static byte[] wrapSymmetricKey(CryptoManager manager, CryptoToken token, String transportCert,
             SymmetricKey sk) throws CertificateEncodingException, TokenException, NoSuchAlgorithmException,
             InvalidKeyException, InvalidAlgorithmParameterException {
@@ -1258,7 +1256,7 @@ public class CryptoUtil {
 
         encoded = oStream.toByteArray();
         ByteArrayInputStream inStream = new ByteArrayInputStream(encoded);
-        
+
         @SuppressWarnings("unused")
         PKIArchiveOptions options = (PKIArchiveOptions)
                   (new PKIArchiveOptions.Template()).decode(inStream);
@@ -1268,7 +1266,7 @@ public class CryptoUtil {
 }
 
 // START ENABLE_ECC
-// This following can be removed when JSS with ECC capability 
+// This following can be removed when JSS with ECC capability
 // is integrated.
 class CryptoAlgorithm extends Algorithm {
     protected CryptoAlgorithm(int oidIndex, String name) {

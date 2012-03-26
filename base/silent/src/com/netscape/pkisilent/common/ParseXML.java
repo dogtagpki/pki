@@ -26,11 +26,13 @@ import java.util.ArrayList;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.apache.xml.serialize.OutputFormat;
-import org.apache.xml.serialize.XMLSerializer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.bootstrap.DOMImplementationRegistry;
+import org.w3c.dom.ls.DOMImplementationLS;
+import org.w3c.dom.ls.LSOutput;
+import org.w3c.dom.ls.LSSerializer;
 
 public class ParseXML {
     Document dom = null;
@@ -99,14 +101,17 @@ public class ParseXML {
     public void prettyprintxml() {
         try {
             // Serialize the document
-            OutputFormat format = new OutputFormat(dom);
+            DOMImplementationRegistry registry = DOMImplementationRegistry.newInstance();
+            DOMImplementationLS impl = (DOMImplementationLS)registry.getDOMImplementation("LS");
 
-            format.setLineWidth(65);
-            format.setIndenting(true);
-            format.setIndent(2);
-            XMLSerializer serializer = new XMLSerializer(System.out, format);
+            LSSerializer writer = impl.createLSSerializer();
+            writer.getDomConfig().setParameter("format-pretty-print", Boolean.TRUE);
 
-            serializer.serialize(dom);
+            LSOutput output = impl.createLSOutput();
+            output.setByteStream(System.out);
+
+            writer.write(dom, output);
+
         } catch (Exception e) {
         }
     }
