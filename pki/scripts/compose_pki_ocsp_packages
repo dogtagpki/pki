@@ -31,7 +31,7 @@ PKI_PWD=`pwd`
 ##
 
 PKI_OCSP="pki-ocsp"
-PKI_OCSP_VERSION="9.0.9"
+PKI_OCSP_VERSION="9.0.10"
 
 
 ##
