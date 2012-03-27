@@ -64,16 +64,16 @@ find_file(XERCES_JAR
 
 find_file(JAXRS_API_JAR
     NAMES
-        jaxrs-api-2.2.1.GA.jar
+        jaxrs-api.jar
     PATHS
-        /usr/share/candlepin/lib
+        /usr/share/java/resteasy
 )
 
 find_file(RESTEASY_JAXRS_JAR
     NAMES
-        resteasy-jaxrs-2.2.1.GA.jar
+        resteasy-jaxrs.jar
     PATHS
-        /usr/share/candlepin/lib
+        /usr/share/java/resteasy
 )
 
 set(pki-certsrv_java_SRCS

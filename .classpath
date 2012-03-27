@@ -15,24 +15,26 @@
 	<classpathentry excluding="**/CMakeLists.txt" kind="src" path="base/silent/src"/>
 	<classpathentry kind="src" path="base/kra/functional/src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="/usr/share/java/idm-console-mcc.jar"/>
-	<classpathentry kind="lib" path="/usr/share/java/idm-console-base.jar"/>
-	<classpathentry kind="lib" path="/usr/share/java/ldapjdk.jar"/>
-	<classpathentry kind="lib" path="/usr/share/java/idm-console-nmclf.jar"/>
-	<classpathentry kind="lib" path="/usr/lib64/java/jss4.jar"/>
-	<classpathentry kind="lib" path="/usr/share/java/velocity.jar"/>
-	<classpathentry kind="lib" path="/usr/share/java/servlet.jar"/>
-	<classpathentry kind="lib" path="/usr/share/java/xerces-j2.jar"/>
-	<classpathentry kind="lib" path="/usr/share/java/junit4.jar"/>
-	<classpathentry kind="lib" path="/usr/share/candlepin/lib/jaxrs-api-2.2.1.GA.jar"/>
-	<classpathentry kind="lib" path="/usr/share/candlepin/lib/resteasy-jaxrs-2.2.1.GA.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/apache-commons-cli.jar"/>
-	<classpathentry kind="lib" path="/usr/share/java/jakarta-commons-httpclient.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/apache-commons-logging.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/commons-codec.jar"/>
-	<classpathentry kind="lib" path="/usr/share/candlepin/lib/jaxb-impl-2.1.12.jar"/>
-	<classpathentry kind="lib" path="/usr/share/candlepin/lib/resteasy-jaxb-provider-2.2.1.GA.jar"/>
-	<classpathentry kind="lib" path="/usr/share/tomcat6/lib/catalina.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/idm-console-base.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/idm-console-mcc.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/idm-console-nmclf.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/jakarta-commons-httpclient.jar"/>
+	<classpathentry kind="lib" path="/usr/lib64/java/jss4.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/junit4.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/ldapjdk.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/glassfish-jaxb/jaxb-impl.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/resteasy/jaxrs-api.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/resteasy/resteasy-jaxb-provider.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/resteasy/resteasy-jaxrs.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/resteasy/resteasy-jettison-provider.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/scannotation.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/servlet.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/velocity.jar"/>
+	<classpathentry kind="lib" path="/usr/share/java/xerces-j2.jar"/>
 	<classpathentry kind="lib" path="/usr/share/java/xml-commons-apis.jar"/>
+	<classpathentry kind="lib" path="/usr/share/tomcat6/lib/catalina.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

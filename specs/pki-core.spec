@@ -14,7 +14,7 @@ distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:             pki-core
 Version:          10.0.0
-Release:          %{?relprefix}12%{?prerel}%{?dist}
+Release:          %{?relprefix}13%{?prerel}%{?dist}
 Summary:          Certificate System - PKI Core Components
 URL:              http://pki.fedoraproject.org/
 License:          GPLv2
@@ -41,8 +41,8 @@ BuildRequires:    selinux-policy-devel
 BuildRequires:    velocity
 BuildRequires:    xalan-j2
 BuildRequires:    xerces-j2
-BuildRequires:    candlepin-deps >= 0.0.21-1
 %if 0%{?fedora} >= 17
+BuildRequires:    resteasy >= 2.3.2-1
 BuildRequires:    junit
 %else
 BuildRequires:    junit4
@@ -337,7 +337,6 @@ Group:            System Environment/Base
 BuildArch:        noarch
 
 Requires:         java >= 1:1.6.0
-Requires:         candlepin-deps >= 0.0.21-1
 Requires:         javassist
 Requires:         jettison
 Requires:         pki-common-theme >= 9.0.0
@@ -352,6 +351,9 @@ Requires:         %{_javadir}/xerces-j2.jar
 Requires:         %{_javadir}/xml-commons-apis.jar
 Requires:         %{_javadir}/xml-commons-resolver.jar
 Requires:         velocity
+%if 0%{?fedora} >= 17
+Requires:         resteasy >= 2.3.2-1
+%endif
 %if 0%{?fedora} >= 16
 Requires:         apache-commons-lang
 Requires:         apache-commons-logging
@@ -1076,7 +1078,6 @@ fi
 #%if 0%{?fedora} >= 16
 #%{_bindir}/pkicontrol
 #%endif
-#%{_javadir}/resteasy-jettison-provider-2.3-RC1.jar
 
 
 %files -n pki-setup
@@ -1095,7 +1096,6 @@ fi
 %if 0%{?fedora} >= 16
 %{_bindir}/pkicontrol
 %endif
-%{_javadir}/resteasy-jettison-provider-2.3-RC1.jar
 
 
 %files -n pki-symkey
@@ -1324,6 +1324,9 @@ fi
 
 
 %changelog
+* Fri Mar 27 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.13.a1
+- Replaced candlepin-deps with resteasy
+
 * Fri Mar 23 2012 Endi S. Dewata <edewata@redhat.com> 10.0.0-0.12.a1
 - Added option to build without Javadoc
 

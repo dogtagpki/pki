@@ -187,13 +187,13 @@ my $velocity_jar_base_name        = "velocity.jar";        # CA, KRA, OCSP, TKS
 my $xerces_jar_base_name          = "xerces-j2.jar";       # CA, KRA, OCSP, TKS
 
 # resteasy jars
-my $javassist_jar_base_name       = "javassist-3.9.0.GA.jar";                      # CA, KRA, OCSP, TKS
-my $jaxrs_api_jar_base_name       = "jaxrs-api-2.2.1.GA.jar";                      # CA, KRA, OCSP, TKS
-my $resteasy_jaxb_provider_jar_base_name = "resteasy-jaxb-provider-2.2.1.GA.jar";  # CA, KRA, OCSP, TKS
-my $resteasy_jaxrs_jar_base_name  = "resteasy-jaxrs-2.2.1.GA.jar";                 # CA, KRA, OCSP, TKS
-my $scannotation_jar_base_name    = "scannotation-1.0.2.jar";                      # CA, KRA, OCSP, TKS
+my $javassist_jar_base_name       = "javassist.jar";                               # CA, KRA, OCSP, TKS
+my $jaxrs_api_jar_base_name       = "jaxrs-api.jar";                               # CA, KRA, OCSP, TKS
+my $resteasy_jaxb_provider_jar_base_name = "resteasy-jaxb-provider.jar";           # CA, KRA, OCSP, TKS
+my $resteasy_jaxrs_jar_base_name  = "resteasy-jaxrs.jar";                          # CA, KRA, OCSP, TKS
+my $scannotation_jar_base_name    = "scannotation.jar";                            # CA, KRA, OCSP, TKS
 my $jettison_jar_base_name        = "jettison.jar";                                # CA, KRA, OCSP, TKS
-my $resteasy_jettison_provider_jar_base_name = "resteasy-jettison-provider-2.3-RC1.jar"; # CA, KRA, OCSP, TKS
+my $resteasy_jettison_provider_jar_base_name = "resteasy-jettison-provider.jar";   # CA, KRA, OCSP, TKS
 
 my $apache_commons_collections_jar_base_name  = "apache-commons-collections.jar";
 my $jakarta_commons_collections_jar_base_name = "jakarta-commons-collections.jar";
