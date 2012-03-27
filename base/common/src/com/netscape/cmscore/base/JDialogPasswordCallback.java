@@ -142,10 +142,7 @@ public class JDialogPasswordCallback implements PasswordCallback {
             public void actionPerformed(ActionEvent e) {
                 //input = (JPasswordField)e.getSource();
 
-                // XXX!!! Change to char[] in JDK 1.2
-                String pwString = pwField.getText();
-
-                pwHolder.password = new Password(pwString.toCharArray());
+                pwHolder.password = new Password(pwField.getPassword());
                 pwHolder.cancelled = false;
                 f.dispose();
             }
