@@ -17,8 +17,9 @@
 // --- END COPYRIGHT BLOCK ---
 package com.netscape.cms.publish.publishers;
 
-import java.io.DataInputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
@@ -44,7 +45,7 @@ import com.netscape.cmsutil.http.JssSSLSocketFactory;
 /**
  * This publisher writes certificate and CRL into
  * a directory.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
@@ -202,7 +203,7 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
 
     /**
      * Publishs a object to the ldap directory.
-     * 
+     *
      * @param conn a Ldap connection
      *            (null if LDAP publishing is not enabled)
      * @param dn dn of the ldap entry to publish cert
@@ -299,7 +300,7 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
             // Read the response
             mLogger.log(ILogger.EV_SYSTEM, ILogger.S_OTHER,
                     ILogger.LL_INFO, "OCSPPublisher: start getting response");
-            DataInputStream dis = new DataInputStream(socket.getInputStream());
+            BufferedReader dis = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             String nextline;
             String error = "";
             boolean status = false;
@@ -340,7 +341,7 @@ public class OCSPPublisher implements ILdapPublisher, IExtendedPluginInfo {
 
     /**
      * Unpublishs a object to the ldap directory.
-     * 
+     *
      * @param conn the Ldap connection
      *            (null if LDAP publishing is not enabled)
      * @param dn dn of the ldap entry to unpublish cert

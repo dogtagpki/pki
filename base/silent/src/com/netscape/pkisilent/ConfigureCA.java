@@ -21,7 +21,6 @@ package com.netscape.pkisilent;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
@@ -33,13 +32,13 @@ import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.pkcs12.AuthenticatedSafes;
 import org.mozilla.jss.pkcs12.PFX;
 
+import com.netscape.cmsutil.util.Utils;
 import com.netscape.pkisilent.argparser.ArgParser;
 import com.netscape.pkisilent.argparser.StringHolder;
 import com.netscape.pkisilent.common.ComCrypto;
 import com.netscape.pkisilent.common.ParseXML;
 import com.netscape.pkisilent.http.HTTPClient;
 import com.netscape.pkisilent.http.HTTPResponse;
-import com.netscape.cmsutil.util.Utils;
 
 public class ConfigureCA {
 
@@ -75,7 +74,7 @@ public class ConfigureCA {
     public static String sd_admin_name = null;
     public static String sd_admin_password = null;
 
-    // Login Panel 
+    // Login Panel
     public static String pin = null;
 
     public static String domain_name = null;
@@ -159,7 +158,7 @@ public class ConfigureCA {
     public static String ca_audit_signing_cert_pp = null;
     public static String ca_audit_signing_cert_cert = null;
 
-    // names 
+    // names
     public static String ca_sign_cert_subject_name = null;
     public static String ca_subsystem_cert_subject_name = null;
     public static String ca_ocsp_cert_subject_name = null;
@@ -666,17 +665,18 @@ public class ConfigureCA {
                     try {
                         ca_cert_cert = "";
                         FileInputStream fis = new FileInputStream(ext_ca_cert_file);
-                        DataInputStream in = new DataInputStream(fis);
-                        while (in.available() != 0) {
-                            ca_cert_cert += in.readLine();
+                        BufferedReader in = new BufferedReader(new InputStreamReader(fis));
+                        String line;
+                        while ((line = in.readLine()) != null) {
+                            ca_cert_cert += line;
                         }
                         in.close();
 
                         signing_cc = "";
                         fis = new FileInputStream(ext_ca_cert_chain_file);
-                        in = new DataInputStream(fis);
-                        while (in.available() != 0) {
-                            signing_cc += in.readLine();
+                        in = new BufferedReader(new InputStreamReader(fis));
+                        while ((line = in.readLine()) != null) {
+                            signing_cc += line;
                         }
                         in.close();
                         return true;
@@ -712,7 +712,7 @@ public class ConfigureCA {
                 }
             }
 
-            // print out subject names	
+            // print out subject names
             System.out.println("ca_cert_name=" + ca_sign_cert_subject_name);
             System.out.println("ocsp_cert_name=" + ca_ocsp_cert_subject_name);
             System.out.println(
@@ -1331,7 +1331,7 @@ public class ConfigureCA {
         StringHolder x_admin_email = new StringHolder();
         StringHolder x_admin_password = new StringHolder();
 
-        // ldap 
+        // ldap
         StringHolder x_ldap_host = new StringHolder();
         StringHolder x_ldap_port = new StringHolder();
         StringHolder x_bind_dn = new StringHolder();

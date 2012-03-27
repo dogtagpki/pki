@@ -18,8 +18,9 @@ package com.netscape.pkisilent.common;
 // All rights reserved.
 // --- END COPYRIGHT BLOCK ---
 
-import java.io.DataInputStream;
+import java.io.BufferedReader;
 import java.io.FileInputStream;
+import java.io.InputStreamReader;
 
 import netscape.security.x509.CertificateSerialNumber;
 import netscape.security.x509.CertificateSubjectName;
@@ -165,10 +166,10 @@ public class Utilities {
 
         try {
             FileInputStream fis = new FileInputStream(filename);
-            DataInputStream in = new DataInputStream(fis);
+            BufferedReader in = new BufferedReader(new InputStreamReader(fis));
 
-            while (in.available() != 0) {
-                String temp = in.readLine();
+            String temp;
+            while ((temp = in.readLine()) != null) {
 
                 if (temp.equalsIgnoreCase("-----BEGIN CERTIFICATE-----")
                         || temp.equalsIgnoreCase("-----END CERTIFICATE-----")) {
@@ -190,11 +191,10 @@ public class Utilities {
 
         try {
             FileInputStream fis = new FileInputStream(filename);
-            DataInputStream in = new DataInputStream(fis);
+            BufferedReader in = new BufferedReader(new InputStreamReader(fis));
 
-            while (in.available() != 0) {
-                String temp = in.readLine();
-
+            String temp;
+            while ((temp = in.readLine()) != null) {
                 tempBuffer.append(temp);
             }
             return tempBuffer.toString();
@@ -216,11 +216,10 @@ public class Utilities {
 
         try {
             FileInputStream fis = new FileInputStream(filename);
-            DataInputStream in = new DataInputStream(fis);
+            BufferedReader in = new BufferedReader(new InputStreamReader(fis));
 
-            while (in.available() != 0) {
-                String temp = in.readLine();
-
+            String temp;
+            while ((temp = in.readLine()) != null) {
                 tempBuffer.append(temp);
             }
 
@@ -243,11 +242,10 @@ public class Utilities {
 
         try {
             FileInputStream fis = new FileInputStream(filename);
-            DataInputStream in = new DataInputStream(fis);
+            BufferedReader in = new BufferedReader(new InputStreamReader(fis));
 
-            while (in.available() != 0) {
-                String temp = in.readLine();
-
+            String temp;
+            while ((temp = in.readLine()) != null) {
                 tempBuffer.append(temp);
             }
 
@@ -267,7 +265,7 @@ public class Utilities {
         String result = "";
 
         for (int i = 0; i < data.length; i++) {
-            String s = Integer.toHexString((int) (0xff & data[i]));
+            String s = Integer.toHexString(0xff & data[i]);
 
             if (s.length() == 1) {
                 s = "0" + s;
@@ -314,7 +312,7 @@ public class Utilities {
                     certinfo.get(X509CertInfo.SERIAL_NUMBER);
             SerialNumber sn = (SerialNumber) csn.get("NUMBER");
 
-            // just adding serialnumber for add. 
+            // just adding serialnumber for add.
             // we can add mode here like subject name, extensions,issuer to this record.
             cr.serialNumber = sn.getNumber().toString().trim();
 
