@@ -43,7 +43,7 @@ import com.netscape.certsrv.base.ISubsystem;
  * can be loaded into cert server kernel to perform
  * run time system profiling.
  * <P>
- * 
+ *
  * @author thomask
  * @version $Revision$, $Date$
  */
@@ -90,7 +90,7 @@ public class ProfileSubsystem extends Frame implements ISubsystem, Runnable {
      * Note that individual subsystem should be initialized in a separated thread if it has dependency on the
      * initialization of other subsystems.
      * <P>
-     * 
+     *
      * @param owner owner of this subsystem
      * @param config configuration store
      */
@@ -103,7 +103,7 @@ public class ProfileSubsystem extends Frame implements ISubsystem, Runnable {
 
         mTextArea = new TextArea();
         //    mTextArea.setSize(500, 180);
-        //mGC = new JButton("GC"); 
+        //mGC = new JButton("GC");
         //  pane.setLayout(new GridLayout(2, 1));
         pane.add(mTextArea);
         //  pane.add(mGC);
@@ -277,7 +277,7 @@ class ThreadTableEvent extends MouseAdapter {
 
                 field.setEditable(false);
 
-                // get stack trace 
+                // get stack trace
                 Thread threads[] = new Thread[100];
                 int numThreads = Thread.enumerate(threads);
 
@@ -304,7 +304,7 @@ class ThreadTableEvent extends MouseAdapter {
                 dialog.setVisible(true);
 
                 dialog.setContentPane(pane);
-                dialog.show();
+                dialog.setVisible(true);
             }
         }
     }

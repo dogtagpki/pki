@@ -231,7 +231,7 @@ public class JDialogPasswordCallback implements PasswordCallback {
         // toFront seems to cause the dialog to go blank on unix!
         //d.toFront();
 
-        d.show();
+        d.setVisible(true);
 
         ///////////////////////////////////////////////////
         // Return results
