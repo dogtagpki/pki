@@ -20,7 +20,6 @@ package com.netscape.cms.servlet.processors;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.PublicKey;
@@ -43,7 +42,6 @@ import org.mozilla.jss.asn1.OCTET_STRING;
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.asn1.SET;
 import org.mozilla.jss.crypto.DigestAlgorithm;
-import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.pkcs10.CertificationRequest;
 import org.mozilla.jss.pkcs11.PK11PubKey;
 import org.mozilla.jss.pkix.cert.Certificate;
@@ -74,7 +72,7 @@ import com.netscape.cms.servlet.common.ECMSGWException;
 /**
  * Process CMC messages according to RFC 2797
  * See http://www.ietf.org/rfc/rfc2797.txt
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class CMCProcessor extends PKIProcessor {
@@ -228,13 +226,13 @@ public class CMCProcessor extends PKIProcessor {
                         sis.elementAt(i);
 
                 String name = si.getDigestAlgorithm().toString();
-                byte[] digest = (byte[]) digs.get(name);
+                byte[] digest = digs.get(name);
 
                 if (digest == null) {
                     MessageDigest md = MessageDigest.getInstance(name);
                     ByteArrayOutputStream ostream = new ByteArrayOutputStream();
 
-                    pkiData.encode((OutputStream) ostream);
+                    pkiData.encode(ostream);
                     digest = md.digest(ostream.toByteArray());
 
                 }
@@ -282,19 +280,7 @@ public class CMCProcessor extends PKIProcessor {
                         si.verify(digest, id);
                     } else {
                         PublicKey signKey = cert.getPublicKey();
-                        PrivateKey.Type keyType = null;
-                        String alg = signKey.getAlgorithm();
-
-                        if (alg.equals("RSA")) {
-                            keyType = PrivateKey.RSA;
-                        } else if (alg.equals("DSA")) {
-                            keyType = PrivateKey.DSA;
-                        } else {
-                        }
-                        PK11PubKey pubK =
-                                PK11PubKey.fromRaw(keyType,
-                                        ((X509Key) signKey).getKey());
-
+                        PK11PubKey pubK = PK11PubKey.fromSPKI(((X509Key) signKey).getKey());
                         si.verify(digest, id, pubK);
                     }
 
@@ -322,19 +308,7 @@ public class CMCProcessor extends PKIProcessor {
                         throw new ECMSGWException(CMS.getUserMessage("CMS_GW_CMC_ERROR",
                                 "SubjectKeyIdentifier in SignerInfo does not match any publicKey in the request."));
                     } else {
-                        PrivateKey.Type keyType = null;
-                        String alg = signKey.getAlgorithm();
-
-                        if (alg.equals("RSA")) {
-                            keyType = PrivateKey.RSA;
-                        } else if (alg.equals("DSA")) {
-                            keyType = PrivateKey.DSA;
-                        } else {
-                        }
-                        PK11PubKey pubK = PK11PubKey.fromRaw(
-                                keyType,
-                                ((X509Key) signKey).getKey());
-
+                        PK11PubKey pubK = PK11PubKey.fromSPKI(((X509Key) signKey).getKey());
                         si.verify(digest, id, pubK);
                     }
                 }
@@ -362,7 +336,7 @@ public class CMCProcessor extends PKIProcessor {
                     for (int j = 0; j < numVals; j++) {
                         ANY val = (ANY)
                                 values.elementAt(j);
-                        INTEGER transId = (INTEGER) ((ANY) val).decodeWith(
+                        INTEGER transId = (INTEGER) val.decodeWith(
                                 INTEGER.getTemplate());
 
                         if (transId != null) {
@@ -380,7 +354,7 @@ public class CMCProcessor extends PKIProcessor {
                         ANY val = (ANY)
                                 values.elementAt(j);
                         OCTET_STRING nonce = (OCTET_STRING)
-                                ((ANY) val).decodeWith(OCTET_STRING.getTemplate());
+                                val.decodeWith(OCTET_STRING.getTemplate());
 
                         if (nonce != null) {
                             vals[j] = new String(nonce.toByteArray());

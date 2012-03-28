@@ -53,7 +53,6 @@ import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.asn1.SET;
 import org.mozilla.jss.asn1.UTF8String;
 import org.mozilla.jss.crypto.DigestAlgorithm;
-import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.crypto.SignatureAlgorithm;
 import org.mozilla.jss.pkcs11.PK11PubKey;
 import org.mozilla.jss.pkix.cert.Certificate;
@@ -93,7 +92,7 @@ import com.netscape.certsrv.request.RequestStatus;
 
 /**
  * Utility CMCOutputTemplate
- * 
+ *
  * @version $ $, $Date$
  */
 public class CMCOutputTemplate {
@@ -420,7 +419,7 @@ public class CMCOutputTemplate {
 
             ByteArrayOutputStream ostream = new ByteArrayOutputStream();
 
-            respBody.encode((OutputStream) ostream);
+            respBody.encode(ostream);
             digest = msgDigest.digest(ostream.toByteArray());
 
             SignerInfo signInfo = new
@@ -532,7 +531,7 @@ public class CMCOutputTemplate {
                     CMCCertId cmcCertId =
                             (CMCCertId) (ASN1Util.decode(CMCCertId.getTemplate(),
                                     ASN1Util.encode(values.elementAt(0))));
-                    BigInteger serialno = (BigInteger) (cmcCertId.getSerial());
+                    BigInteger serialno = cmcCertId.getSerial();
                     SEQUENCE issuers = cmcCertId.getIssuer();
                     //ANY issuer = (ANY)issuers.elementAt(0);
                     ANY issuer =
@@ -546,8 +545,7 @@ public class CMCOutputTemplate {
                     boolean confirmAccepted = false;
                     if (n.toString().equalsIgnoreCase(caName.toString())) {
                         CMS.debug("CMCOutputTemplate: Issuer names are equal");
-                        ICertificateRepository repository =
-                                (ICertificateRepository) ca.getCertificateRepository();
+                        ICertificateRepository repository = ca.getCertificateRepository();
                         try {
                             repository.getX509Certificate(serialno);
                         } catch (EBaseException ee) {
@@ -590,8 +588,8 @@ public class CMCOutputTemplate {
                 GetCert getCert =
                         (GetCert) (ASN1Util.decode(GetCert.getTemplate(),
                                 ASN1Util.encode(vals.elementAt(0))));
-                BigInteger serialno = (BigInteger) (getCert.getSerialNumber());
-                ANY issuer = (ANY) getCert.getIssuer();
+                BigInteger serialno = getCert.getSerialNumber();
+                ANY issuer = getCert.getIssuer();
                 byte b[] = issuer.getEncoded();
                 X500Name n = new X500Name(b);
                 ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem("ca");
@@ -601,7 +599,7 @@ public class CMCOutputTemplate {
                     throw new EBaseException("Certificate is not found");
                 }
                 ICertificateRepository repository =
-                        (ICertificateRepository) ca.getCertificateRepository();
+                        ca.getCertificateRepository();
                 X509CertImpl impl = repository.getX509Certificate(serialno);
                 byte[] bin = impl.getEncoded();
                 Certificate.Template certTemplate = new Certificate.Template();
@@ -795,7 +793,7 @@ public class CMCOutputTemplate {
                     }
 
                     revoke = true;
-                    // check shared secret 
+                    // check shared secret
                 } else {
                     ISharedToken tokenClass = null;
                     boolean sharedSecretFound = true;
@@ -878,7 +876,7 @@ public class CMCOutputTemplate {
 
                 if (revoke) {
                     ICertificateAuthority ca = (ICertificateAuthority) CMS.getSubsystem("ca");
-                    ICertificateRepository repository = (ICertificateRepository) ca.getCertificateRepository();
+                    ICertificateRepository repository = ca.getCertificateRepository();
                     ICertRecord record = null;
                     try {
                         record = repository.readCertificateRecord(revokeSerial);
@@ -1060,7 +1058,7 @@ public class CMCOutputTemplate {
                 if (digest == null) {
                     MessageDigest md = MessageDigest.getInstance(name);
                     ByteArrayOutputStream ostream = new ByteArrayOutputStream();
-                    revRequest.encode((OutputStream) ostream);
+                    revRequest.encode(ostream);
                     digest = md.digest(ostream.toByteArray());
                 }
                 SignerIdentifier sid = si.getSignerIdentifier();
@@ -1092,11 +1090,7 @@ public class CMCOutputTemplate {
 
                     if (cert != null) {
                         PublicKey pbKey = cert.getPublicKey();
-                        String type = ((X509Key) pbKey).getAlgorithm();
-                        PrivateKey.Type kType = PrivateKey.RSA;
-                        if (type.equals("DSA"))
-                            kType = PrivateKey.DSA;
-                        PK11PubKey pubK = PK11PubKey.fromRaw(kType, ((X509Key) pbKey).getKey());
+                        PK11PubKey pubK = PK11PubKey.fromSPKI(((X509Key) pbKey).getKey());
                         si.verify(digest, ci.getContentType(), pubK);
                         return true;
                     }

@@ -28,7 +28,6 @@ package com.netscape.cms.authentication;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.PublicKey;
@@ -52,7 +51,6 @@ import org.mozilla.jss.asn1.OCTET_STRING;
 import org.mozilla.jss.asn1.SEQUENCE;
 import org.mozilla.jss.asn1.SET;
 import org.mozilla.jss.crypto.DigestAlgorithm;
-import org.mozilla.jss.crypto.PrivateKey;
 import org.mozilla.jss.pkcs10.CertificationRequest;
 import org.mozilla.jss.pkcs11.PK11PubKey;
 import org.mozilla.jss.pkix.cert.Certificate;
@@ -100,7 +98,7 @@ import com.netscape.cmsutil.util.Utils;
 /**
  * UID/CMC authentication plug-in
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
@@ -198,7 +196,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
     /**
      * Initializes the CMCAuth authentication plug-in.
      * <p>
-     * 
+     *
      * @param name The name for this authentication plug-in instance.
      * @param implName The name of the authentication plug-in.
      * @param config - The configuration store for this instance.
@@ -217,12 +215,12 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
      * Authenticates user by their CMC;
      * resulting AuthToken sets a TOKEN_SUBJECT for the subject name.
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CMC_SIGNED_REQUEST_SIG_VERIFY used when CMC (agent-pre-signed) cert
      * requests or revocation requests are submitted and signature is verified
      * </ul>
-     * 
+     *
      * @param authCred Authentication credentials, CRED_UID and CRED_CMC.
      * @return an AuthToken
      * @exception com.netscape.certsrv.authentication.EMissingCredential
@@ -246,7 +244,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
         try {
             // get the CMC.
 
-            Object argblock = (Object) (authCred.getArgBlock());
+            Object argblock = authCred.getArgBlock();
             Object returnVal = null;
             if (argblock == null) {
                 returnVal = authCred.get("cert_request");
@@ -682,7 +680,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
      * The list is passed to the configuration console so instances of
      * this implementation can be configured through the console.
      * <p>
-     * 
+     *
      * @return String array of configuration parameter names.
      */
     public String[] getConfigParams() {
@@ -693,7 +691,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
      * gets the configuration substore used by this authentication
      * plug-in
      * <p>
-     * 
+     *
      * @return configuration store
      */
     public IConfigStore getConfigStore() {
@@ -717,7 +715,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
     /**
      * get the list of required credentials.
      * <p>
-     * 
+     *
      * @return list of required credentials as strings.
      */
     public String[] getRequiredCreds() {
@@ -737,7 +735,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
     /**
      * Activate the help system.
      * <p>
-     * 
+     *
      * @return help messages
      */
     public String[] getExtendedPluginInfo() {
@@ -758,7 +756,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
     /**
      * Logs a message for this class in the system log file.
      * <p>
-     * 
+     *
      * @param level The log level.
      * @param msg The message to log.
      * @see com.netscape.certsrv.logging.ILogger
@@ -807,13 +805,13 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
                 org.mozilla.jss.pkix.cms.SignerInfo si = (org.mozilla.jss.pkix.cms.SignerInfo) sis.elementAt(i);
 
                 String name = si.getDigestAlgorithm().toString();
-                byte[] digest = (byte[]) digs.get(name);
+                byte[] digest = digs.get(name);
 
                 if (digest == null) {
                     MessageDigest md = MessageDigest.getInstance(name);
                     ByteArrayOutputStream ostream = new ByteArrayOutputStream();
 
-                    pkiData.encode((OutputStream) ostream);
+                    pkiData.encode(ostream);
                     digest = md.digest(ostream.toByteArray());
 
                 }
@@ -862,15 +860,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
                             si.verify(digest, id);
                         } else {
                             PublicKey signKey = cert.getPublicKey();
-                            PrivateKey.Type keyType = null;
-                            String alg = signKey.getAlgorithm();
-
-                            if (alg.equals("RSA")) {
-                                keyType = PrivateKey.RSA;
-                            } else if (alg.equals("DSA")) {
-                                keyType = PrivateKey.DSA;
-                            }
-                            PK11PubKey pubK = PK11PubKey.fromRaw(keyType, ((X509Key) signKey).getKey());
+                            PK11PubKey pubK = PK11PubKey.fromSPKI(((X509Key) signKey).getKey());
 
                             CMS.debug("CMCAuth: verifying signature with public key");
                             si.verify(digest, id, pubK);
@@ -891,7 +881,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
 
                         IAuthToken tempToken = agentAuth.authenticate(agentCred);
                         netscape.security.x509.X500Name tempPrincipal = (X500Name) x509Certs[0].getSubjectDN();
-                        String CN = (String) tempPrincipal.getCommonName();//tempToken.get("userid");
+                        String CN = tempPrincipal.getCommonName(); //tempToken.get("userid");
 
                         BigInteger agentCertSerial = x509Certs[0].getSerialNumber();
                         authToken.set(IAuthManager.CRED_SSL_CLIENT_CERT, agentCertSerial.toString());
@@ -905,7 +895,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
                     // find from certDB
                     si.verify(digest, id);
 
-                } // 
+                } //
             }
         } catch (InvalidBERException e) {
             CMS.debug("CMCAuth: " + e.toString());
@@ -914,7 +904,7 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
         } catch (Exception e) {
             throw new EInvalidCredentials(CMS.getUserMessage("CMS_AUTHENTICATION_INVALID_CREDENTIAL"));
         }
-        return (IAuthToken) null;
+        return null;
 
     }
 
@@ -979,10 +969,10 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
 
     /**
      * Signed Audit Log
-     * 
+     *
      * This method is called to store messages to the signed audit log.
      * <P>
-     * 
+     *
      * @param msg signed audit log message
      */
     private void audit(String msg) {
@@ -1002,11 +992,11 @@ public class CMCAuth implements IAuthManager, IExtendedPluginInfo,
 
     /**
      * Signed Audit Log Subject ID
-     * 
+     *
      * This method is called to obtain the "SubjectID" for
      * a signed audit log message.
      * <P>
-     * 
+     *
      * @return id string containing the signed audit log message SubjectID
      */
     private String auditSubjectID() {
