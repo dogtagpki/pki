@@ -41,7 +41,7 @@ public class LdapBoundConnection extends LDAPConnection {
      *
      */
     private static final long serialVersionUID = -2242077674357271559L;
-    // LDAPConnection calls authenticate so must set this for first 
+    // LDAPConnection calls authenticate so must set this for first
     // authenticate call.
     private boolean mAuthenticated = false;
 
@@ -58,9 +58,9 @@ public class LdapBoundConnection extends LDAPConnection {
                         new LdapJssSSLSocketFactory(authInfo.getParms()[0]) :
                         (connInfo.getSecure() ? new LdapJssSSLSocketFactory() : null));
 
-        // Set option to automatically follow referrals. 
-        // Use the same credentials to follow referrals; this is the easiest 
-        // thing to do without any complicated configuration using 
+        // Set option to automatically follow referrals.
+        // Use the same credentials to follow referrals; this is the easiest
+        // thing to do without any complicated configuration using
         // different hosts.
         // If client auth is used don't have dn and pw to follow referrals.
 
@@ -158,24 +158,7 @@ public class LdapBoundConnection extends LDAPConnection {
     /**
      * Overrides same method in LDAPConnection to do prevent re-authentication.
      */
-    public void authenticate(String dn, String mech, String packageName,
-            Properties props, Object getter)
-            throws LDAPException {
-
-        /**
-         * if (mAuthenticated) {
-         * throw new RuntimeException(
-         * "this LdapBoundConnection already authenticated: auth(mech)");
-         * }
-         **/
-        super.authenticate(dn, mech, packageName, props, getter);
-        mAuthenticated = true;
-    }
-
-    /**
-     * Overrides same method in LDAPConnection to do prevent re-authentication.
-     */
-    public void authenticate(String dn, String mechs[], String packageName,
+    public void authenticate(String dn, String mechs[],
             Properties props, Object getter)
             throws LDAPException {
 
@@ -185,7 +168,7 @@ public class LdapBoundConnection extends LDAPConnection {
          * "this LdapBoundConnection is already authenticated: auth(mechs)");
          * }
          **/
-        super.authenticate(dn, mechs, packageName, props, getter);
+        super.authenticate(dn, mechs, props, getter);
         mAuthenticated = true;
     }
 
