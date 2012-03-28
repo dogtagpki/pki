@@ -63,7 +63,7 @@ import com.netscape.certsrv.logging.ILogger;
  * A class represents a certificate repository. It
  * stores all the issued certificate.
  * <P>
- * 
+ *
  * @author thomask
  * @author kanda
  * @version $Revision$, $Date$
@@ -232,14 +232,16 @@ public class CertificateRepository extends Repository
 
         this.requestRepository = requestRepository;
 
+        // stop running tasks
+        if (certStatusUpdateTask != null) {
+            certStatusUpdateTask.stop();
+        }
+        if (retrieveModificationsTask != null) {
+            retrieveModificationsTask.stop();
+        }
+
         if (interval == 0) {
             CMS.debug("In setCertStatusUpdateInterval interval = 0");
-            if (certStatusUpdateTask != null) {
-                certStatusUpdateTask.stop();
-            }
-            if (retrieveModificationsTask != null) {
-                retrieveModificationsTask.stop();
-            }
             return;
         }
 
@@ -342,7 +344,7 @@ public class CertificateRepository extends Repository
      * record contains four parts: certificate, meta-attributes,
      * issue information and reovcation information.
      * <P>
-     * 
+     *
      * @param cert X.509 certificate
      * @exception EBaseException failed to add new certificate to
      *                the repository
@@ -370,7 +372,7 @@ public class CertificateRepository extends Repository
                 record.set(CertRecord.ATTR_ISSUED_BY, uid);
             }
 
-            // Check validity of this certificate. If it is not invalid, 
+            // Check validity of this certificate. If it is not invalid,
             // mark it so. We will have a thread to transit the status
             // from INVALID to VALID.
             X509CertImpl x509cert = (X509CertImpl) record.get(
@@ -397,7 +399,7 @@ public class CertificateRepository extends Repository
      * Used by the Clone Master (CLA) to add a revoked certificate
      * record to the repository.
      * <p>
-     * 
+     *
      * @param record a CertRecord
      * @exception EBaseException failed to add new certificate to
      *                the repository
@@ -805,7 +807,7 @@ public class CertificateRepository extends Repository
 
     /**
      * Returns a list of X509CertImp that satisfies the filter.
-     * 
+     *
      * @deprecated replaced by <code>findCertificatesInList</code>
      */
     public Enumeration<Object> findCertRecs(String filter)
@@ -881,7 +883,7 @@ public class CertificateRepository extends Repository
     /**
      * Finds certificate records. Here is a list of filter
      * attribute can be used:
-     * 
+     *
      * <pre>
      *   certRecordId
      *   certMetaInfo
@@ -892,10 +894,10 @@ public class CertificateRepository extends Repository
      *   x509Cert.notAfter
      *   x509Cert.subject
      * </pre>
-     * 
+     *
      * The filter should follow RFC1558 LDAP filter syntax.
      * For example,
-     * 
+     *
      * <pre>
      *   (&(certRecordId=5)(x509Cert.notBefore=934398398))
      * </pre>
@@ -1119,7 +1121,7 @@ public class CertificateRepository extends Repository
     /**
      * Gets all valid and unexpired certificates pertaining
      * to a subject DN.
-     * 
+     *
      * @param subjectDN The distinguished name of the subject.
      * @param validityType The type of certificates to get.
      * @return An array of certificates.
@@ -1214,7 +1216,7 @@ public class CertificateRepository extends Repository
 
     /**
      * Retrives all valid certificates excluding ones already revoked.
-     * 
+     *
      * @param from The starting point of the serial number range.
      * @param to The ending point of the serial number range.
      */
@@ -1310,7 +1312,7 @@ public class CertificateRepository extends Repository
     /**
      * Retrives all valid not published certificates
      * excluding ones already revoked.
-     * 
+     *
      * @param from The starting point of the serial number range.
      * @param to The ending point of the serial number range.
      */
@@ -1391,7 +1393,7 @@ public class CertificateRepository extends Repository
 
     /**
      * Retrives all expired certificates.
-     * 
+     *
      * @param from The starting point of the serial number range.
      * @param to The ending point of the serial number range.
      */
@@ -1458,7 +1460,7 @@ public class CertificateRepository extends Repository
 
     /**
      * Retrives all expired published certificates.
-     * 
+     *
      * @param from The starting point of the serial number range.
      * @param to The ending point of the serial number range.
      */
@@ -1632,7 +1634,7 @@ public class CertificateRepository extends Repository
 
     /**
      * Retrieves all revoked certificates in the serial number range.
-     * 
+     *
      * @param from The starting point of the serial number range.
      * @param to The ending point of the serial number range.
      */
@@ -1693,7 +1695,7 @@ public class CertificateRepository extends Repository
 
     /**
      * Retrieves all revoked publishedcertificates in the serial number range.
-     * 
+     *
      * @param from The starting point of the serial number range.
      * @param to The ending point of the serial number range.
      */
@@ -1876,7 +1878,7 @@ public class CertificateRepository extends Repository
     /**
      * Checks if the presented certificate belongs to the repository
      * and is revoked.
-     * 
+     *
      * @param cert certificate to verify.
      * @return RevocationInfo if the presented certificate is revoked otherwise null.
      */

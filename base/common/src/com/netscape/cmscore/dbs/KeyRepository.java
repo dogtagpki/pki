@@ -22,6 +22,10 @@ import java.security.PublicKey;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.Vector;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 
 import netscape.security.x509.X500Name;
 
@@ -43,14 +47,16 @@ import com.netscape.certsrv.dbs.repository.IRepository;
  * A class represents a Key repository. This is the container of
  * archived keys.
  * <P>
- * 
+ *
  * @author thomask
  * @version $Revision$, $Date$
  */
 public class KeyRepository extends Repository implements IKeyRepository {
 
-    public KeyStatusUpdateThread mKeyStatusUpdateThread = null;
-    protected IDBSubsystem mDBService = null;
+    public KeyStatusUpdateTask mKeyStatusUpdateTask;
+    protected IDBSubsystem mDBService;
+
+    IRepository requestRepository;
 
     /**
      * Internal constants
@@ -61,7 +67,7 @@ public class KeyRepository extends Repository implements IKeyRepository {
      * Constructs a key repository. It checks if the key repository
      * does exist. If not, it creates the repository.
      * <P>
-     * 
+     *
      * @param service db service
      * @exception EBaseException failed to setup key repository
      */
@@ -146,26 +152,44 @@ public class KeyRepository extends Repository implements IKeyRepository {
     }
 
     public void setKeyStatusUpdateInterval(IRepository requestRepo, int interval) {
+
         CMS.debug("In setKeyStatusUpdateInterval " + interval);
+
+        this.requestRepository = requestRepo;
+
+        // stop running task
+        if (mKeyStatusUpdateTask != null) {
+            mKeyStatusUpdateTask.stop();
+        }
+
         // don't run the thread if serial management is disabled.
-        if ((interval == 0) || (!mDBService.getEnableSerialMgmt())) {
-            CMS.debug("In setKeyStatusUpdateInterval interval = 0" + interval);
-            if (mKeyStatusUpdateThread != null) {
-                mKeyStatusUpdateThread.stop();
-            }
+        if (interval == 0 || !mDBService.getEnableSerialMgmt()) {
+            CMS.debug("In setKeyStatusUpdateInterval interval = 0");
             return;
         }
 
-        CMS.debug("In setKeyStatusUpdateInterval  mKeyStatusUpdateThread " + mKeyStatusUpdateThread);
-        if (mKeyStatusUpdateThread == null) {
-            CMS.debug("In setKeyStatusUpdateInterval about to create KeyStatusUpdateThread ");
-            mKeyStatusUpdateThread = new KeyStatusUpdateThread(this, requestRepo, "KeyStatusUpdateThread");
-            mKeyStatusUpdateThread.setInterval(interval);
-            mKeyStatusUpdateThread.start();
-        } else {
-            CMS.debug("In setKeyStatusUpdateInterval it thinks the thread is up already ");
-            mKeyStatusUpdateThread.setInterval(interval);
-            // dont do anything if we have a thread running already
+        CMS.debug("In setKeyStatusUpdateInterval scheduling key status update every " + interval + " seconds.");
+        mKeyStatusUpdateTask = new KeyStatusUpdateTask(this, interval);
+        mKeyStatusUpdateTask.start();
+    }
+
+    /**
+     * This method blocks when another thread is running
+     */
+    public synchronized void updateKeyStatus() {
+        try {
+            CMS.debug("About to start checkRanges");
+
+            CMS.debug("Starting key checkRanges");
+            checkRanges();
+            CMS.debug("key checkRanges done");
+
+            CMS.debug("Starting request checkRanges");
+            requestRepository.checkRanges();
+            CMS.debug("request checkRanges done");
+
+        } catch (Exception e) {
+            CMS.debug("key checkRanges done: " + e.toString());
         }
     }
 
@@ -198,7 +222,7 @@ public class KeyRepository extends Repository implements IKeyRepository {
     /**
      * Archives a key to the repository.
      * <P>
-     * 
+     *
      * @param record key record
      * @exception EBaseException failed to archive key
      */
@@ -220,7 +244,7 @@ public class KeyRepository extends Repository implements IKeyRepository {
     /**
      * Recovers an archived key by serial number.
      * <P>
-     * 
+     *
      * @param serialNo serial number
      * @return key record
      * @exception EBaseException failed to recover key
@@ -246,7 +270,7 @@ public class KeyRepository extends Repository implements IKeyRepository {
     /**
      * Recovers an archived key by owner name.
      * <P>
-     * 
+     *
      * @param ownerName owner name
      * @return key record
      * @exception EBaseException failed to recover key
@@ -368,7 +392,7 @@ public class KeyRepository extends Repository implements IKeyRepository {
         String result = "";
 
         for (int i = 0; i < data.length; i++) {
-            result = result + "\\" + Integer.toHexString((int) data[i]);
+            result = result + "\\" + Integer.toHexString(data[i]);
         }
         return result;
     }
@@ -534,53 +558,40 @@ public class KeyRepository extends Repository implements IKeyRepository {
     }
 
     public void shutdown() {
-        //if (mKeyStatusUpdateThread != null) 
-        //        mKeyStatusUpdateThread.destroy();
+        if (mKeyStatusUpdateTask != null) {
+            mKeyStatusUpdateTask.stop();
+        }
     }
 
 }
 
-class KeyStatusUpdateThread extends Thread {
-    KeyRepository _kr = null;
-    IRepository _rr = null;
-    int _interval;
+class KeyStatusUpdateTask implements Runnable {
+    KeyRepository repository;
+    int interval;
 
-    KeyStatusUpdateThread(KeyRepository kr, IRepository rr, String name) {
-        super(name);
-        CMS.debug("new KeyStatusUpdateThread");
+    ScheduledExecutorService executorService;
 
-        _kr = kr;
-        _rr = rr;
+    public KeyStatusUpdateTask(KeyRepository repository, int interval) {
+        this.repository = repository;
+        this.interval = interval;
     }
 
-    public void setInterval(int interval) {
-        _interval = interval;
+    public void start() {
+        // schedule task to run immediately and repeat after specified interval
+        executorService = Executors.newSingleThreadScheduledExecutor(new ThreadFactory() {
+            public Thread newThread(Runnable r) {
+                return new Thread(r, "KeyStatusUpdateTask");
+            }
+        });
+        executorService.scheduleWithFixedDelay(this, 0, interval, TimeUnit.SECONDS);
     }
 
     public void run() {
-        CMS.debug("Inside run method of KeyStatusUpdateThread");
+        repository.updateKeyStatus();
+    }
 
-        while (true) {
-            try {
-                // block the update while another thread
-                // (such as the CRL Update) is running
-                CMS.debug("About to start checkRanges");
-                synchronized (_kr.mKeyStatusUpdateThread) {
-                    CMS.debug("Starting key checkRanges");
-                    _kr.checkRanges();
-                    CMS.debug("key checkRanges done");
-
-                    CMS.debug("Starting request checkRanges");
-                    _rr.checkRanges();
-                    CMS.debug("request checkRanges done");
-                }
-            } catch (Exception e) {
-                CMS.debug("key checkRanges done");
-            }
-            try {
-                sleep(_interval * 1000);
-            } catch (InterruptedException e) {
-            }
-        }
+    public void stop() {
+        // shutdown executorService without interrupting running task
+        if (executorService != null) executorService.shutdown();
     }
 }
