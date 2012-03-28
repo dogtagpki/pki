@@ -11,14 +11,13 @@ import java.util.Enumeration;
 import java.util.Iterator;
 
 import org.apache.commons.httpclient.ConnectTimeoutException;
-import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.params.HttpConnectionParams;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 import org.jboss.resteasy.client.ClientExecutor;
 import org.jboss.resteasy.client.ClientResponse;
 import org.jboss.resteasy.client.ProxyFactory;
-import org.jboss.resteasy.client.core.executors.ApacheHttpClientExecutor;
+import org.jboss.resteasy.client.core.executors.ApacheHttpClient4Executor;
 import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.mozilla.jss.ssl.SSLCertificateApprovalCallback;
 import org.mozilla.jss.ssl.SSLClientCertificateSelectionCallback;
@@ -169,8 +168,7 @@ public class DRMRestClient {
                 new Protocol(protocol, new JSSProtocolSocketFactory(), port));
         }
 
-        HttpClient httpclient = new HttpClient();
-        ClientExecutor executor = new ApacheHttpClientExecutor(httpclient);
+        ClientExecutor executor = new ApacheHttpClient4Executor();
 
         ResteasyProviderFactory providerFactory = ResteasyProviderFactory.getInstance();
         providerFactory.addClientErrorInterceptor(new DRMErrorInterceptor());

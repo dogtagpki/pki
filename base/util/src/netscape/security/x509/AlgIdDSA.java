@@ -31,14 +31,14 @@ import netscape.security.util.DerValue;
  * by using different algorithm parameters <em>P, Q, G</em>. It uses the
  * NIST/IETF standard DER encoding. These are used to implement the Digital
  * Signature Standard (DSS), FIPS 186.
- * 
+ *
  * <P>
  * <em><b>NOTE:</b>  At this time, DSS/DSA Algorithm IDs must always
  * include these parameters.  Use of DSS/DSA in modes where parameters are
  * either implicit (e.g. a default applicable to a site or a larger scope),
  * or are derived from some Certificate Authority's DSS certificate, is
  * not currently supported. </em>
- * 
+ *
  * @version 1.31
  * @author David Brownell
  */
@@ -67,14 +67,6 @@ public final class AlgIdDSA extends AlgorithmId implements DSAParams {
         return g;
     }
 
-    /**
-     * Default constructor. The OID and parameters must be
-     * deserialized before this algorithm ID is used.
-     */
-    // XXX deprecated for general use
-    public AlgIdDSA() {
-    }
-
     AlgIdDSA(DerValue val) throws IOException {
         super(val.getOID());
     }
@@ -90,7 +82,7 @@ public final class AlgIdDSA extends AlgorithmId implements DSAParams {
      * Constructs a DSS/DSA Algorithm ID from unsigned integers that
      * define the algorithm parameters. Those integers are encoded
      * as big-endian byte arrays.
-     * 
+     *
      * @param p the DSS/DSA paramter "P"
      * @param q the DSS/DSA paramter "Q"
      * @param g the DSS/DSA paramter "G"
@@ -104,7 +96,7 @@ public final class AlgIdDSA extends AlgorithmId implements DSAParams {
 
     /**
      * Constructs a DSS/DSA Algorithm ID from numeric parameters.
-     * 
+     *
      * @param p the DSS/DSA paramter "P"
      * @param q the DSS/DSA paramter "Q"
      * @param g the DSS/DSA paramter "G"
