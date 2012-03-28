@@ -116,7 +116,7 @@ public class ProfileSubsystem extends Frame implements ISubsystem, Runnable {
         updateThreadPanel();
         mThreadTable = new JTable(mThreadModel);
         // table.setEditable(false);
-        mThreads = JTable.createScrollPaneForTable(mThreadTable);
+        mThreads = new JScrollPane(mThreadTable);
         tabPane.addTab("Threads", mThreads);
 
         mThreadTable.addMouseListener(new ThreadTableEvent(mThreadTable));
