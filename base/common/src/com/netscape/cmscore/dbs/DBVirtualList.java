@@ -40,7 +40,7 @@ import com.netscape.certsrv.logging.ILogger;
 /**
  * A class represents a virtual list of search results.
  * Note that this class must be used with DS4.0.
- * 
+ *
  * @author thomask
  * @author mzhao
  * @version $Revision$, $Date$
@@ -79,7 +79,7 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
      * Constructs a virtual list.
      * Be sure to setPageSize() later if your pageSize is not the default 10
      * Be sure to setSortKey() before fetchs
-     * 
+     *
      * param registry the registry of attribute mappers
      * param c the ldap connection. It has to be version 3 and upper
      * param base the base distinguished name to search from
@@ -106,7 +106,7 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
     /**
      * Constructs a virtual list.
      * Be sure to setPageSize() later if your pageSize is not the default 10
-     * 
+     *
      * param registry the registry of attribute mappers
      * param c the ldap connection. It has to be version 3 and upper
      * param base the base distinguished name to search from
@@ -137,7 +137,7 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
     /**
      * Constructs a virtual list.
      * Be sure to setPageSize() later if your pageSize is not the default 10
-     * 
+     *
      * param registry the registry of attribute mappers
      * param c the ldap connection. It has to be version 3 and upper
      * param base the base distinguished name to search from
@@ -166,7 +166,7 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
 
     /**
      * Constructs a virtual list.
-     * 
+     *
      * param registry the registry of attribute mappers
      * param c the ldap connection. It has to be version 3 and upper
      * param base the base distinguished name to search from
@@ -200,7 +200,7 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
 
     /**
      * Constructs a virtual list.
-     * 
+     *
      * param registry the registry of attribute mappers
      * param c the ldap connection. It has to be version 3 and upper
      * param base the base distinguished name to search from
@@ -271,7 +271,7 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
      * that is three times as large as the number of visible entries.
      * That way, you can scroll up/down several items(up to a page-full)
      * without refetching entries from the directory.
-     * 
+     *
      * @param size the page size
      */
     public void setPageSize(int size) {
@@ -289,7 +289,7 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
 
     /**
      * set the sort key
-     * 
+     *
      * @param sortKey the attribute to sort by
      */
     public void setSortKey(String sortKey) throws EBaseException {
@@ -301,7 +301,7 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
 
     /**
      * set the sort key
-     * 
+     *
      * @param sortKey the attributes to sort by
      */
     public void setSortKey(String[] sortKeys) throws EBaseException {
@@ -433,11 +433,11 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
 
                 /*
                  LDAPv2.SCOPE_BASE:
-                 (search only the base DN) 
+                 (search only the base DN)
                  LDAPv2.SCOPE_ONE:
-                 (search only entries under the base DN) 
+                 (search only entries under the base DN)
                  LDAPv2.SCOPE_SUB:
-                 (search the base DN and all entries within its subtree) 
+                 (search the base DN and all entries within its subtree)
                  */
                 result = mConn.search(mBase,
                             LDAPConnection.SCOPE_ONE, ldapFilter, ldapAttrs,
@@ -515,8 +515,16 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
 
             // Check if we have a control returned
             LDAPControl[] c = mConn.getResponseControls();
-            LDAPVirtualListResponse nextCont =
-                    LDAPVirtualListResponse.parseResponse(c);
+            LDAPVirtualListResponse nextCont = null;
+
+            if (c != null) {
+                for (LDAPControl control : c) {
+                    if (control instanceof LDAPVirtualListResponse) {
+                        nextCont = (LDAPVirtualListResponse)control;
+                        break;
+                    }
+                }
+            }
 
             if (nextCont != null) {
                 mSelectedIndex = nextCont.getFirstPosition() - 1;
@@ -550,7 +558,7 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
      * some preceding entries)
      * Recommend to call getSize() before getElementAt() or getElements()
      * since you'd better check if the index is out of bound first.
-     * 
+     *
      * @param first the index of the first entry of the page you want to fetch
      */
     public boolean getPage(int first) {
@@ -578,8 +586,16 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
 
         // Check if we have a control returned
         LDAPControl[] c = mConn.getResponseControls();
-        LDAPVirtualListResponse nextCont =
-                LDAPVirtualListResponse.parseResponse(c);
+        LDAPVirtualListResponse nextCont = null;
+
+        if (c != null) {
+            for (LDAPControl control : c) {
+                if (control instanceof LDAPVirtualListResponse) {
+                    nextCont = (LDAPVirtualListResponse)control;
+                    break;
+                }
+            }
+        }
 
         if (nextCont != null) {
             mSelectedIndex = nextCont.getFirstPosition() - 1;
@@ -611,7 +627,7 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
      * of an entry.
      * If no entries match, the one just before(or after, if none before)
      * will be returned as mSelectedIndex
-     * 
+     *
      * @param text the prefix of the first entry of the page you want to fetch
      */
     public boolean getPage(String text) {
@@ -631,7 +647,7 @@ public class DBVirtualList<E> implements IDBVirtualList<E> {
      * since you'd better check if the index is out of bound first.
      * If the index is out of range of the virtual list, an exception will be thrown
      * and return null
-     * 
+     *
      * @param index the index of the element to fetch
      */
     public E getElementAt(int index) {
