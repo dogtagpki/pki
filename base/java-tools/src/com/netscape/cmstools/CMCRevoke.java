@@ -21,7 +21,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.PrintStream;
 import java.math.BigInteger;
 import java.security.MessageDigest;
@@ -63,9 +62,9 @@ import com.netscape.cmsutil.util.Utils;
 
 /**
  * Tool for signing a CMC revocation request with an agent's certificate.
- * 
+ *
  * <P>
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class CMCRevoke {
@@ -199,7 +198,7 @@ public class CMCRevoke {
     /**
      * printout CMC revoke request in Base64 encoding to a file CMCRevoke.out
      * <P>
-     * 
+     *
      * @param asciiBASE64Blob the ascii string of the request
      */
     static void printCMCRevokeRequest(String asciiBASE64Blob) {
@@ -238,7 +237,7 @@ public class CMCRevoke {
     /**
      * getCertificate find the certicate inside the token by its nickname.
      * <P>
-     * 
+     *
      * @param manager the CrytoManager
      * @param tokenname the name of the token. it's set to "internal".
      * @param nickname the nickname of the certificate inside the token.
@@ -271,7 +270,7 @@ public class CMCRevoke {
     /**
      * createRevokeReq create and return the revocation request.
      * <P>
-     * 
+     *
      * @param signerCert the certificate of the authorized signer of the CMC revocation request.
      * @param manager the crypto manger.
      * @param nValue the nickname of the certificate inside the token.
@@ -340,12 +339,12 @@ public class CMCRevoke {
                             new INTEGER(sValue),
                             //org.mozilla.jss.pkix.cmmf.RevRequest.unspecified,
                             new ENUMERATED((new Integer(mValue)).longValue()),
-                            //new GeneralizedTime(new Date(lValue)),
+                            null,
                             new OCTET_STRING(hValue.getBytes()),
                             new UTF8String(cValue.toCharArray()));
             //byte[] encoded = ASN1Util.encode(lRevokeRequest);
             //org.mozilla.jss.asn1.ASN1Template template = new  org.mozilla.jss.pkix.cmmf.RevRequest.Template();
-            //org.mozilla.jss.pkix.cmmf.RevRequest revRequest = (org.mozilla.jss.pkix.cmmf.RevRequest) 
+            //org.mozilla.jss.pkix.cmmf.RevRequest revRequest = (org.mozilla.jss.pkix.cmmf.RevRequest)
             //                                                               template.decode(new java.io.ByteArrayInputStream(
             //                                                               encoded));
 
@@ -376,7 +375,7 @@ public class CMCRevoke {
 
                 ByteArrayOutputStream ostream = new ByteArrayOutputStream();
 
-                pkidata.encode((OutputStream) ostream);
+                pkidata.encode(ostream);
                 digest = SHADigest.digest(ostream.toByteArray());
             } catch (NoSuchAlgorithmException e) {
             }
