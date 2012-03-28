@@ -84,7 +84,7 @@ import com.netscape.cmsutil.util.Utils;
  * Agent operations on Certificate requests. This servlet is used
  * by an Agent to approve, reject, reassign, or change a certificate
  * request.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class ProcessCertReq extends CMSServlet {
@@ -190,7 +190,7 @@ public class ProcessCertReq extends CMSServlet {
     /**
      * initialize the servlet. This servlet uses the template file
      * "processCertReq.template" to process the response.
-     * 
+     *
      * @param sc servlet configuration, read from the web.xml file
      */
     public void init(ServletConfig sc) throws ServletException {
@@ -219,7 +219,7 @@ public class ProcessCertReq extends CMSServlet {
 
             mParser = CertReqParser.DETAIL_PARSER;
 
-            // override success and error templates to null - 
+            // override success and error templates to null -
             // handle templates locally.
             mTemplates.remove(CMSRequest.SUCCESS);
 
@@ -255,7 +255,7 @@ public class ProcessCertReq extends CMSServlet {
      * <li>http.param addExts base-64, DER encoded Extension or SEQUENCE OF Extensions to add to certificate
      * <li>http.param pathLenConstraint integer path length constraint to use in BasicConstraint extension if applicable
      * </ul>
-     * 
+     *
      * @param cmsReq the object holding the request and response information
      */
     public void process(CMSRequest cmsReq) throws EBaseException {
@@ -364,21 +364,21 @@ public class ProcessCertReq extends CMSServlet {
      * Process X509 certificate enrollment request and send request information
      * to the caller.
      * <P>
-     * 
+     *
      * (Certificate Request - an "agent" cert request for "cloning")
      * <P>
-     * 
+     *
      * (Certificate Request Processed - either a manual "agent" non-profile based cert acceptance, a manual "agent"
      * non-profile based cert cancellation, or a manual "agent" non-profile based cert rejection)
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_NON_PROFILE_CERT_REQUEST used when a non-profile cert request is made
      * (before approval process)
      * <li>signed.audit LOGGING_SIGNED_AUDIT_CERT_REQUEST_PROCESSED used when a certificate request has just been
      * through the approval process
      * </ul>
-     * 
+     *
      * @param cmsReq a certificate enrollment request
      * @param argSet CMS template parameters
      * @param header argument block
@@ -535,7 +535,7 @@ public class ProcessCertReq extends CMSServlet {
 
                             if (!(algId.getName().equals(signatureAlgorithm))) {
                                 alterationCounter++;
-                                AlgorithmId newAlgId = AlgorithmId.getAlgorithmId(signatureAlgorithm);
+                                AlgorithmId newAlgId = AlgorithmId.get(signatureAlgorithm);
 
                                 certInfo[i].set(X509CertInfo.ALGORITHM_ID,
                                         new CertificateAlgorithmId(newAlgId));
@@ -590,7 +590,7 @@ public class ProcessCertReq extends CMSServlet {
                                 }
                             }
                             if (validityChanged) {
-                                // this set() trigger this rebuild of internal 
+                                // this set() trigger this rebuild of internal
                                 // raw der encoding cache of X509CertInfo.
                                 // Otherwise, the above change wont have effect.
                                 certInfo[i].set(X509CertInfo.VALIDITY, certValidity);
@@ -640,7 +640,7 @@ public class ProcessCertReq extends CMSServlet {
                                         certInfo[i].set(X509CertInfo.EXTENSIONS, extensions);
                                     }
                                     for (int j = 0; j < extsToBeAdded.size(); j++) {
-                                        Extension theExt = (Extension) extsToBeAdded.elementAt(j);
+                                        Extension theExt = extsToBeAdded.elementAt(j);
 
                                         extensions.set(theExt.getExtensionId().toString(), theExt);
                                     }
@@ -683,8 +683,7 @@ public class ProcessCertReq extends CMSServlet {
                                                         new BasicConstraintsExtension(isCA.booleanValue(), pathLen);
 
                                                 extensions.delete(BasicConstraintsExtension.NAME);
-                                                extensions.set(BasicConstraintsExtension.NAME,
-                                                        (Extension) bcExt0);
+                                                extensions.set(BasicConstraintsExtension.NAME, bcExt0);
                                                 alterationCounter++;
                                             }
                                         }
@@ -791,7 +790,7 @@ public class ProcessCertReq extends CMSServlet {
                                     }
                                 }
 
-                                // this set() trigger this rebuild of internal 
+                                // this set() trigger this rebuild of internal
                                 // raw der encoding cache of X509CertInfo.
                                 // Otherwise, the above change wont have effect.
                                 certInfo[i].set(X509CertInfo.EXTENSIONS, extensions);
@@ -913,12 +912,12 @@ public class ProcessCertReq extends CMSServlet {
                         X509CertImpl issuedCerts[] =
                                 r.getExtDataInCertArray(IRequest.ISSUED_CERTS);
 
-                        // return potentially more than one certificates. 
+                        // return potentially more than one certificates.
                         if (issuedCerts != null) {
                             long endTime = CMS.getCurrentDate().getTime();
                             StringBuffer sbuf = new StringBuffer();
 
-                            //header.addBigIntegerValue("serialNumber", 
+                            //header.addBigIntegerValue("serialNumber",
                             //issuedCerts[0].getSerialNumber(),16);
                             for (int i = 0; i < issuedCerts.length; i++) {
                                 if (i != 0)
@@ -1000,7 +999,7 @@ public class ProcessCertReq extends CMSServlet {
                             audit(auditMessage);
                         }
 
-                        // grant trusted manager or agent privileges  
+                        // grant trusted manager or agent privileges
                         try {
                             int res = grant_privileges(
                                     cmsReq, r, issuedCerts, header);
@@ -1016,10 +1015,10 @@ public class ProcessCertReq extends CMSServlet {
                         // since ther is no cert database.
                         /*
                          if (mAuthority instanceof RegistrationAuthority) {
-                         Object[] results = 
+                         Object[] results =
                          new Object[] { issuedCerts, grantError };
                          cmsReq.setResult(results);
-                         renderTemplate(cmsReq, 
+                         renderTemplate(cmsReq,
                          mReqCompletedTemplate, REQ_COMPLETED_FILLER);
 
                          return;
@@ -1039,7 +1038,7 @@ public class ProcessCertReq extends CMSServlet {
                          "authorityid", mAuthority.getId());
                          header.addStringValue("serviceURL", scheme +"://"+
                          req.getServerName() + ":"+
-                         req.getServerPort() + 
+                         req.getServerPort() +
                          req.getRequestURI());
                          */
 
@@ -1255,7 +1254,7 @@ public class ProcessCertReq extends CMSServlet {
                 }
             }
 
-            // add authority names to know what privileges can be requested.	
+            // add authority names to know what privileges can be requested.
             if (CMS.getSubsystem("kra") != null)
                 header.addStringValue("localkra", "yes");
             if (CMS.getSubsystem("ca") != null)
@@ -1664,7 +1663,7 @@ public class ProcessCertReq extends CMSServlet {
             }
         }
 
-        String uid = (String) httpParams.getValueAsString(GRANT_UID, null);
+        String uid = httpParams.getValueAsString(GRANT_UID, null);
 
         if (uid == null || uid.length() == 0) {
             throw new ECMSGWException(CMS.getUserMessage("CMS_GW_MISSING_GRANT_UID"));
@@ -1780,11 +1779,11 @@ public class ProcessCertReq extends CMSServlet {
 
     /**
      * Signed Audit Log Info Name
-     * 
+     *
      * This method is called to obtain the "InfoName" for
      * a signed audit log message.
      * <P>
-     * 
+     *
      * @param type signed audit log request processing type
      * @return id string containing the signed audit log message InfoName
      */
@@ -1815,11 +1814,11 @@ public class ProcessCertReq extends CMSServlet {
 
     /**
      * Signed Audit Log Info Certificate Value
-     * 
+     *
      * This method is called to obtain the certificate from the passed in
      * "X509CertImpl" for a signed audit log message.
      * <P>
-     * 
+     *
      * @param x509cert an X509CertImpl
      * @return cert string containing the certificate
      */

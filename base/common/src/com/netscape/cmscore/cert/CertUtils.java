@@ -66,7 +66,7 @@ import com.netscape.cmsutil.util.Utils;
  * Utility class with assorted methods to check for
  * smime pairs, determining the type of cert - signature
  * or encryption ..etc.
- * 
+ *
  * @author kanda
  * @version $Revision$, $Date$
  */
@@ -172,8 +172,7 @@ public class CertUtils {
             if (info == null) {
                 throw new EBaseException(CMS.getUserMessage("CMS_BASE_INVALID_OPERATION"));
             }
-            X509Key key = new X509Key(AlgorithmId.getAlgorithmId(
-                        "RSAEncryption"), encoded);
+            X509Key key = new X509Key(AlgorithmId.get("RSAEncryption"), encoded);
 
             info.set(X509CertInfo.KEY, key);
         } catch (Exception e) {
@@ -191,7 +190,7 @@ public class CertUtils {
             info.set(X509CertInfo.SERIAL_NUMBER, new
                     CertificateSerialNumber(serialno));
             info.set(X509CertInfo.ALGORITHM_ID, new
-                    CertificateAlgorithmId(AlgorithmId.getAlgorithmId(alg)));
+                    CertificateAlgorithmId(AlgorithmId.get(alg)));
             info.set(X509CertInfo.ISSUER, new
                     CertificateIssuerName(new X500Name(issuerName)));
             info.set(X509CertInfo.VALIDITY, new
@@ -398,9 +397,9 @@ public class CertUtils {
 
     /**
      * Returns the index of the given cert in an array of certs.
-     * 
+     *
      * Assumptions: The certs are issued by the same CA
-     * 
+     *
      * @param certArray The array of certs.
      * @param givenCert The certificate we are lokking for in the array.
      * @return -1 if not found or the index of the given cert in the array.
@@ -421,9 +420,9 @@ public class CertUtils {
     /**
      * Returns the most recently issued signing certificate from an
      * an array of certs.
-     * 
+     *
      * Assumptions: The certs are issued by the same CA
-     * 
+     *
      * @param certArray The array of certs.
      * @param givenCert The certificate we are lokking for in the array.
      * @return null if there is no recent cert or the most recent cert.
@@ -643,7 +642,7 @@ public class CertUtils {
 
     /**
      * strips out the begin and end certificate brackets
-     * 
+     *
      * @param s the string potentially bracketed with
      *            "-----BEGIN CERTIFICATE-----" and "-----END CERTIFICATE-----"
      * @return string without the brackets
@@ -670,7 +669,7 @@ public class CertUtils {
     /**
      * Returns a string that represents a cert's fingerprint.
      * The fingerprint is a MD5 digest of the DER encoded certificate.
-     * 
+     *
      * @param cert Certificate to get the fingerprint of.
      * @return a String that represents the cert's fingerprint.
      */
@@ -693,16 +692,16 @@ public class CertUtils {
      * MD5, MD2 and SHA1 hashes.
      * A certificate's fingerprint is a hash digest of the DER encoded
      * certificate.
-     * 
+     *
      * @param cert Certificate to get the fingerprints of.
      * @return a String with fingerprints using the MD5, MD2 and SHA1 hashes.
      *         For example,
-     * 
+     *
      *         <pre>
      * MD2:   78:7E:D1:F9:3E:AF:50:18:68:A7:29:50:C3:21:1F:71
-     * 
+     *
      * MD5:   0E:89:91:AC:40:50:F7:BE:6E:7B:39:4F:56:73:75:75
-     * 
+     *
      * SHA1:  DC:D9:F7:AF:E2:83:10:B2:F7:0A:77:E8:50:E2:F7:D1:15:9A:9D:00
      * </pre>
      */
@@ -731,16 +730,16 @@ public class CertUtils {
      * MD5, MD2 and SHA1 hashes.
      * A certificate's fingerprint is a hash digest of the DER encoded
      * certificate.
-     * 
+     *
      * @param cert Certificate to get the fingerprints of.
      * @return a String with fingerprints using the MD5, MD2 and SHA1 hashes.
      *         For example,
-     * 
+     *
      *         <pre>
      * MD2:   78:7E:D1:F9:3E:AF:50:18:68:A7:29:50:C3:21:1F:71
-     * 
+     *
      * MD5:   0E:89:91:AC:40:50:F7:BE:6E:7B:39:4F:56:73:75:75
-     * 
+     *
      * SHA1:  DC:D9:F7:AF:E2:83:10:B2:F7:0A:77:E8:50:E2:F7:D1:15:9A:9D:00
      * </pre>
      */
@@ -764,7 +763,7 @@ public class CertUtils {
     /**
      * Check if a object identifier in string form is valid,
      * that is a string in the form n.n.n.n and der encode and decode-able.
-     * 
+     *
      * @param attrName attribute name (from the configuration file)
      * @param value object identifier string.
      */
@@ -1083,7 +1082,7 @@ public class CertUtils {
     /**
      * Signed Audit Log
      * This method is called to store messages to the signed audit log.
-     * 
+     *
      * @param msg signed audit log message
      */
     private static void audit(String msg) {

@@ -100,7 +100,7 @@ import com.netscape.cmsutil.util.HMACDigest;
 
 /**
  * This class implements a generic enrollment profile.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public abstract class EnrollProfile extends BasicProfile
@@ -167,7 +167,7 @@ public abstract class EnrollProfile extends BasicProfile
                 num_requests = msgs.length;
         }
 
-        // only 1 request for renewal 
+        // only 1 request for renewal
         if ((is_renewal != null) && (is_renewal.equals("true"))) {
             num_requests = 1;
             String renewal_seq_num_str = ctx.get(CTX_RENEWAL_SEQ_NUM);
@@ -229,8 +229,7 @@ public abstract class EnrollProfile extends BasicProfile
             info.set(X509CertInfo.VALIDITY,
                     new CertificateValidity(new Date(), new Date()));
             info.set(X509CertInfo.ALGORITHM_ID,
-                    new CertificateAlgorithmId(
-                            AlgorithmId.getAlgorithmId("MD5withRSA")));
+                    new CertificateAlgorithmId(AlgorithmId.get("MD5withRSA")));
 
             // add default extension container
             info.set(X509CertInfo.EXTENSIONS,
@@ -281,7 +280,7 @@ public abstract class EnrollProfile extends BasicProfile
         Enumeration<String> setIds = getProfilePolicySetIds();
 
         while (setIds.hasMoreElements()) {
-            String setId = (String) setIds.nextElement();
+            String setId = setIds.nextElement();
 
             if (count == seq_no) {
                 return setId;
@@ -323,8 +322,7 @@ public abstract class EnrollProfile extends BasicProfile
         //   }
         // }
 
-        IAuthority authority = (IAuthority)
-                getAuthority();
+        IAuthority authority = getAuthority();
         IRequestQueue queue = authority.getRequestQueue();
 
         // this profile queues request that is authenticated
@@ -376,7 +374,7 @@ public abstract class EnrollProfile extends BasicProfile
 
             org.mozilla.jss.pkix.cms.ContentInfo cmcReq = (org.mozilla.jss.pkix.cms.ContentInfo)
                     org.mozilla.jss.pkix.cms.ContentInfo.getTemplate().decode(cmcBlobIn);
-            org.mozilla.jss.pkix.cms.SignedData cmcFullReq = 
+            org.mozilla.jss.pkix.cms.SignedData cmcFullReq =
                 (org.mozilla.jss.pkix.cms.SignedData) cmcReq.getInterpretedContent();
             org.mozilla.jss.pkix.cms.EncapsulatedContentInfo ci = cmcFullReq.getContentInfo();
             OCTET_STRING content = ci.getContent();
@@ -1056,8 +1054,7 @@ public abstract class EnrollProfile extends BasicProfile
 
             PKCS10Attributes p10Attrs = pkcs10.getAttributes();
             if (p10Attrs != null) {
-                PKCS10Attribute p10Attr = (PKCS10Attribute)
-                        (p10Attrs.getAttribute(CertificateExtensions.NAME));
+                PKCS10Attribute p10Attr = p10Attrs.getAttribute(CertificateExtensions.NAME);
                 if (p10Attr != null && p10Attr.getAttributeId().equals(
                         PKCS9Attribute.EXTENSION_REQUEST_OID)) {
                     CMS.debug("Found PKCS10 extension");
@@ -1237,16 +1234,16 @@ public abstract class EnrollProfile extends BasicProfile
     /**
      * Populate input
      * <P>
-     * 
+     *
      * (either all "agent" profile cert requests NOT made through a connector, or all "EE" profile cert requests NOT
      * made through a connector)
      * <P>
-     * 
+     *
      * <ul>
      * <li>signed.audit LOGGING_SIGNED_AUDIT_PROFILE_CERT_REQUEST used when a profile cert request is made (before
      * approval process)
      * </ul>
-     * 
+     *
      * @param ctx profile context
      * @param request the certificate request
      * @exception EProfileException an error related to this profile has
@@ -1357,12 +1354,12 @@ public abstract class EnrollProfile extends BasicProfile
 
     /**
      * Signed Audit Log Requester ID
-     * 
+     *
      * This method is inherited by all extended "EnrollProfile"s,
      * and is called to obtain the "RequesterID" for
      * a signed audit log message.
      * <P>
-     * 
+     *
      * @param request the actual request
      * @return id string containing the signed audit log message RequesterID
      */
@@ -1388,12 +1385,12 @@ public abstract class EnrollProfile extends BasicProfile
 
     /**
      * Signed Audit Log Profile ID
-     * 
+     *
      * This method is inherited by all extended "EnrollProfile"s,
      * and is called to obtain the "ProfileID" for
      * a signed audit log message.
      * <P>
-     * 
+     *
      * @return id string containing the signed audit log message ProfileID
      */
     protected String auditProfileID() {

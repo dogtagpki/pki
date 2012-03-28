@@ -65,14 +65,13 @@ public class CertInfo extends X509CertInfo {
             SERIALIZE_SERIALNO =
                     new CertificateSerialNumber(new BigInteger("0"));
             SERIALIZE_ALGOR =
-                    new CertificateAlgorithmId(
-                            AlgorithmId.getAlgorithmId("MD5withRSA"));
+                    new CertificateAlgorithmId(AlgorithmId.get("MD5withRSA"));
         } catch (IOException e) {
-            // should never happen. If does, system is hosed. 
+            // should never happen. If does, system is hosed.
             System.out.println("**** Impossible Error encountered ****");
             throw new RuntimeException(e.toString());
         } catch (NoSuchAlgorithmException e) {
-            // should never happen. If does, system is hosed. 
+            // should never happen. If does, system is hosed.
             System.out.println("**** Impossible Error encountered ****");
             throw new RuntimeException(e.toString());
         }
@@ -111,7 +110,7 @@ public class CertInfo extends X509CertInfo {
                 certinfo.set(X509CertInfo.SUBJECT, SERIALIZE_SUBJECT);
             }
             // key is set later in the request.
-        } // these exceptions shouldn't happen here unless the 
+        } // these exceptions shouldn't happen here unless the
           // whole process is hosed.
         catch (CertificateException e) {
         } catch (IOException e) {

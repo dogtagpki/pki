@@ -63,7 +63,6 @@ import netscape.security.x509.AlgIdDSA;
 import netscape.security.x509.AlgorithmId;
 import netscape.security.x509.AuthorityKeyIdentifierExtension;
 import netscape.security.x509.BasicConstraintsExtension;
-import netscape.security.x509.CertAttrSet;
 import netscape.security.x509.CertificateAlgorithmId;
 import netscape.security.x509.CertificateExtensions;
 import netscape.security.x509.Extension;
@@ -119,7 +118,7 @@ import com.netscape.cmsutil.util.Utils;
 /**
  * This class provides all the base methods to generate the key for different
  * kinds of certificates.
- * 
+ *
  * @author Christine Ho
  * @version $Revision$, $Date$
  */
@@ -162,7 +161,7 @@ public class KeyCertUtil {
         int num = 0;
 
         while (tokens.hasMoreElements()) {
-            CryptoToken c = (CryptoToken) tokens.nextElement();
+            CryptoToken c = tokens.nextElement();
 
             if (num++ == 0)
                 tokenList = tokenList + c.getName();
@@ -333,7 +332,7 @@ public class KeyCertUtil {
                     return new AlgIdDSA(P, Q, G);
                 }
             }
-            return AlgorithmId.getAlgorithmId(algname);
+            return AlgorithmId.get(algname);
         } catch (NoSuchAlgorithmException e) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_ALG_NOT_SUPPORTED"));
         }
@@ -603,7 +602,7 @@ public class KeyCertUtil {
         if (exts != null) {
             PKCS10Attribute attr = new
                     PKCS10Attribute(PKCS9Attribute.EXTENSION_REQUEST_OID,
-                            (CertAttrSet) exts);
+                            exts);
             PKCS10Attributes attrs = new PKCS10Attributes();
 
             attrs.setAttribute(attr.getAttributeValue().getName(), attr);
@@ -764,7 +763,7 @@ public class KeyCertUtil {
         byte bCert[] = Utils.base64decode(str);
 
         /*
-         java.security.cert.X509Certificate cert = 
+         java.security.cert.X509Certificate cert =
          java.security.cert.X509Certificate.getInstance(bCert);
          return cert;
          */

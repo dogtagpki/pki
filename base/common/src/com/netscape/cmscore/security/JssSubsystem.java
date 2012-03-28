@@ -103,7 +103,7 @@ import com.netscape.cmsutil.util.Utils;
 /**
  * Subsystem for initializing JSS>
  * <P>
- * 
+ *
  * @version $Revision$ $Date$
  */
 public final class JssSubsystem implements ICryptoSubsystem {
@@ -137,7 +137,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
     // May 01, 1999 01:55:55.
     private static SimpleDateFormat mFormatter = new SimpleDateFormat("MMMMM dd, yyyy HH:mm:ss");
 
-    // SSL related variables. 
+    // SSL related variables.
 
     private IConfigStore mSSLConfig = null;
 
@@ -367,9 +367,9 @@ public final class JssSubsystem implements ICryptoSubsystem {
     }
 
     public String isCipherFortezza() throws EBaseException {
-        // we always display fortezza suites. 
-        // too much work to display tokens/certs corresponding to the 
-        // suites. 
+        // we always display fortezza suites.
+        // too much work to display tokens/certs corresponding to the
+        // suites.
         return "true";
     }
 
@@ -396,10 +396,10 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
     /**
      * Initialize SSL cipher suites from config file.
-     * 
+     *
      */
     private void initSSL() throws EBaseException {
-        // JSS will AND what is set and what is allowed by export policy 
+        // JSS will AND what is set and what is allowed by export policy
         // so we can set what is requested.
 
         try {
@@ -415,7 +415,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
         if (Debug.ON)
             Debug.trace("configured ssl cipher prefs is " + sslCiphers);
 
-        // first, disable all ciphers, since JSS defaults to all-enabled 
+        // first, disable all ciphers, since JSS defaults to all-enabled
         for (int i = mJSSCipherSuites.length - 1; i >= 0; i--) {
             try {
                 SSLSocket.setCipherPreferenceDefault(mJSSCipherSuites[i],
@@ -436,7 +436,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
             }
             while (ciphers.hasMoreTokens()) {
                 String cipher = ciphers.nextToken();
-                Integer sslcipher = (Integer) mCipherNames.get(cipher);
+                Integer sslcipher = mCipherNames.get(cipher);
 
                 if (sslcipher != null) {
                     String msg = "setting ssl cipher " + cipher;
@@ -749,7 +749,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
                     return new AlgIdDSA(P, Q, G);
                 }
             }
-            return AlgorithmId.getAlgorithmId(algname);
+            return AlgorithmId.get(algname);
         } catch (NoSuchAlgorithmException e) {
             throw new EBaseException(CMS.getUserMessage("CMS_BASE_ALG_NOT_SUPPORTED", ""));
         }
@@ -1099,7 +1099,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
         }
         try {
             if (mNicknameMapCertsTable != null) {
-                X509Certificate[] certs = (X509Certificate[]) mNicknameMapCertsTable.get(nickname);
+                X509Certificate[] certs = mNicknameMapCertsTable.get(nickname);
 
                 if (certs == null) {
                     EBaseException e = new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_NOT_FOUND"));
@@ -1164,7 +1164,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
             Hashtable<String, Vector<X509Certificate>> vecTable = new Hashtable<String, Vector<X509Certificate>>();
 
             while (enums.hasMoreElements()) {
-                CryptoToken token = (CryptoToken) enums.nextElement();
+                CryptoToken token = enums.nextElement();
                 String tokenName = token.getName();
 
                 CryptoStore store = token.getCryptoStore();
@@ -1186,7 +1186,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
                         try {
                             Vector<X509Certificate> v;
-                            if (vecTable.containsKey((Object) nickname) == true) {
+                            if (vecTable.containsKey(nickname) == true) {
                                 v = vecTable.get(nickname);
                             } else {
                                 v = new Vector<X509Certificate>();
@@ -1213,11 +1213,11 @@ public final class JssSubsystem implements ICryptoSubsystem {
                 Enumeration<String> elms = vecTable.keys();
 
                 while (elms.hasMoreElements()) {
-                    String key = (String) elms.nextElement();
-                    Vector<X509Certificate> v = vecTable.get((Object) key);
+                    String key = elms.nextElement();
+                    Vector<X509Certificate> v = vecTable.get(key);
                     X509Certificate[] a = new X509Certificate[v.size()];
 
-                    v.copyInto((Object[]) a);
+                    v.copyInto(a);
                     mNicknameMapCertsTable.put(key, a);
                 }
             }
@@ -1237,7 +1237,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
             Enumeration<CryptoToken> enums = mCryptoManager.getAllTokens();
 
             while (enums.hasMoreElements()) {
-                CryptoToken token = (CryptoToken) enums.nextElement();
+                CryptoToken token = enums.nextElement();
                 String tokenName = token.getName();
 
                 CryptoStore store = token.getCryptoStore();
@@ -1305,7 +1305,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
             Enumeration<CryptoToken> enums = mCryptoManager.getAllTokens();
 
             while (enums.hasMoreElements()) {
-                CryptoToken token = (CryptoToken) enums.nextElement();
+                CryptoToken token = enums.nextElement();
 
                 CryptoStore store = token.getCryptoStore();
                 X509Certificate[] list = store.getCertificates();
@@ -1388,7 +1388,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
             /* build a table of our own */
             Vector<X509Certificate> v;
 
-            if (vecTable.containsKey((Object) nickname) == true) {
+            if (vecTable.containsKey(nickname) == true) {
                 v = vecTable.get(nickname);
             } else {
                 v = new Vector<X509Certificate>();
@@ -1401,19 +1401,19 @@ public final class JssSubsystem implements ICryptoSubsystem {
         Enumeration<String> elms = vecTable.keys();
 
         while (elms.hasMoreElements()) {
-            String key = (String) elms.nextElement();
-            Vector<X509Certificate> v = vecTable.get((Object) key);
+            String key = elms.nextElement();
+            Vector<X509Certificate> v = vecTable.get(key);
             X509Certificate[] a = new X509Certificate[v.size()];
 
-            v.copyInto((Object[]) a);
+            v.copyInto(a);
             mNicknameMapCertsTable.put(key, a);
         }
 
         Enumeration<String> keys = mNicknameMapCertsTable.keys();
 
         while (keys.hasMoreElements()) {
-            String nickname = (String) keys.nextElement();
-            X509Certificate[] value = (X509Certificate[]) mNicknameMapCertsTable.get(nickname);
+            String nickname = keys.nextElement();
+            X509Certificate[] value = mNicknameMapCertsTable.get(nickname);
 
             for (int i = 0; i < value.length; i++) {
                 InternalCertificate icert = null;
@@ -1462,7 +1462,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
             EBaseException {
         try {
             if (mNicknameMapCertsTable != null) {
-                X509Certificate[] certs = (X509Certificate[]) mNicknameMapCertsTable.get(nickname);
+                X509Certificate[] certs = mNicknameMapCertsTable.get(nickname);
 
                 if (certs == null) {
                     EBaseException e = new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_NOT_FOUND"));
@@ -1505,7 +1505,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
     /**
      * Delete the CA certificate from the perm database.
-     * 
+     *
      * @param nickname The nickname of the CA certificate.
      * @param notAfterTime The notAfter of the certificate. It is possible to get multiple
      *            certificates under the same nickname. If one of the certificates match the notAfterTime,
@@ -1515,7 +1515,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
     public void deleteCACert(String nickname, String notAfterTime) throws EBaseException {
         try {
             if (mNicknameMapCertsTable != null) {
-                X509Certificate[] certs = (X509Certificate[]) mNicknameMapCertsTable.get(nickname);
+                X509Certificate[] certs = mNicknameMapCertsTable.get(nickname);
 
                 if (certs == null) {
                     EBaseException e = new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_NOT_FOUND"));
@@ -1566,7 +1566,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
     /**
      * Delete any certificate from the any token.
-     * 
+     *
      * @param nickname The nickname of the certificate.
      * @param notAfterTime The notAfter of the certificate. It is possible to get multiple
      *            certificates under the same nickname. If one of the certificates match the notAfterTime,
@@ -1581,13 +1581,13 @@ public final class JssSubsystem implements ICryptoSubsystem {
         try {
             if (mNicknameMapCertsTable != null) {
                 certs =
-                        (X509Certificate[]) mNicknameMapCertsTable.get(nickname);
+                        mNicknameMapCertsTable.get(nickname);
             }
 
             if (certs == null) {
                 if (mNicknameMapUserCertsTable != null) {
                     certs =
-                            (X509Certificate[]) mNicknameMapUserCertsTable.get(nickname);
+                            mNicknameMapUserCertsTable.get(nickname);
                     if (certs != null) {
                         CMS.debug("in mNicknameMapUserCertsTable, isUserCert is true");
                         isUserCert = true;
@@ -1956,7 +1956,7 @@ public final class JssSubsystem implements ICryptoSubsystem {
 
             if ((certs == null || certs.length == 0) &&
                     mNicknameMapCertsTable != null) {
-                certs = (X509Certificate[]) mNicknameMapCertsTable.get(nickname);
+                certs = mNicknameMapCertsTable.get(nickname);
             }
             if (certs == null) {
                 EBaseException e = new EBaseException(CMS.getUserMessage("CMS_BASE_CERT_NOT_FOUND"));

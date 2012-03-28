@@ -35,19 +35,19 @@ import netscape.security.util.ObjectIdentifier;
  * are used when this runtime environment has no special knowledge of the
  * algorithm type, and may also be used in other cases. Equivalence is
  * defined according to OID and (where relevant) parameters.
- * 
+ *
  * <P>
  * Subclasses may be used, for example when when the algorithm ID has associated parameters which some code (e.g. code
  * using public keys) needs to have parsed. Two examples of such algorithms are Diffie-Hellman key exchange, and the
  * Digital Signature Standard Algorithm (DSS/DSA).
- * 
+ *
  * <P>
  * The OID constants defined in this class correspond to some widely used algorithms, for which conventional string
  * names have been defined. This class is not a general repository for OIDs, or for such string names. Note that the
  * mappings between algorithm IDs and algorithm names is not one-to-one.
- * 
+ *
  * @version 1.70
- * 
+ *
  * @author David Brownell
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
@@ -77,19 +77,6 @@ public class AlgorithmId implements Serializable, DerEncoder {
 
     protected String paramsString = null;
 
-    /**
-     * Returns one of the algorithm IDs most commonly associated
-     * with this algorithm name.
-     * 
-     * @param algname the name being used
-     * @deprecated use the short get form of this method.
-     * @exception NoSuchAlgorithmException on error.
-     */
-    public static AlgorithmId getAlgorithmId(String algname)
-            throws NoSuchAlgorithmException {
-        return get(algname);
-    }
-
     public AlgorithmParameters getParameters() {
         return this.algParams;
     }
@@ -106,7 +93,7 @@ public class AlgorithmId implements Serializable, DerEncoder {
     /**
      * Returns one of the algorithm IDs most commonly associated
      * with this algorithm name.
-     * 
+     *
      * @param algname the name being used
      * @exception NoSuchAlgorithmException on error.
      */
@@ -124,7 +111,7 @@ public class AlgorithmId implements Serializable, DerEncoder {
      * Parse (unmarshal) an ID from a DER sequence input value. This form
      * parsing might be used when expanding a value which has already been
      * partially unmarshaled as a set or sequence member.
-     * 
+     *
      * @exception IOException on error.
      * @param val the input value, which contains the algid and, if
      *            there are any parameters, those parameters.
@@ -163,7 +150,7 @@ public class AlgorithmId implements Serializable, DerEncoder {
             alg.decodeParams();
 
         /*
-         * Set the raw params string in case  
+         * Set the raw params string in case
          * higher level code might want the info
         */
 
@@ -185,7 +172,7 @@ public class AlgorithmId implements Serializable, DerEncoder {
 
     /**
      * Constructs a parameterless algorithm ID.
-     * 
+     *
      * @param oid the identifier for the algorithm
      */
     public AlgorithmId(ObjectIdentifier oid) {
@@ -203,7 +190,7 @@ public class AlgorithmId implements Serializable, DerEncoder {
     /**
      * Constructs an algorithm ID which will be initialized
      * separately, for example by deserialization.
-     * 
+     *
      * @deprecated use one of the other constructors.
      */
     public AlgorithmId() {
@@ -236,10 +223,10 @@ public class AlgorithmId implements Serializable, DerEncoder {
     /**
      * DER encode this object onto an output stream.
      * Implements the <code>DerEncoder</code> interface.
-     * 
+     *
      * @param out
      *            the output stream on which to write the DER encoding.
-     * 
+     *
      * @exception IOException on encoding error.
      */
     public void derEncode(OutputStream out) throws IOException {
@@ -459,7 +446,7 @@ public class AlgorithmId implements Serializable, DerEncoder {
     /**
      * Returns the DER encoded parameter, which can then be
      * used to initialize java.security.AlgorithmParamters.
-     * 
+     *
      * @return DER encoded parameters, or null not present.
      */
     public byte[] getEncodedParams() throws IOException {
@@ -502,7 +489,7 @@ public class AlgorithmId implements Serializable, DerEncoder {
      * Compares this AlgorithmID to another. If algorithm parameters are
      * available, they are compared. Otherwise, just the object IDs
      * for the algorithm are compared.
-     * 
+     *
      * @param other preferably an AlgorithmId, else an ObjectIdentifier
      */
     public boolean equals(Object other) {

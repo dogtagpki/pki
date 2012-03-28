@@ -37,7 +37,7 @@ import com.netscape.certsrv.request.IRequest;
  * This class implements an enrollment default policy
  * that populates a signing algorithm
  * into the certificate template.
- * 
+ *
  * @version $Revision$, $Date$
  */
 public class SigningAlgDefault extends EnrollDefault {
@@ -121,7 +121,7 @@ public class SigningAlgDefault extends EnrollDefault {
             try {
                 info.set(X509CertInfo.ALGORITHM_ID,
                         new CertificateAlgorithmId(
-                                AlgorithmId.getAlgorithmId(value)));
+                                AlgorithmId.get(value)));
             } catch (Exception e) {
                 CMS.debug("SigningAlgDefault: setValue " + e.toString());
                 throw new EPropertyException(CMS.getUserMessage(
@@ -174,8 +174,7 @@ public class SigningAlgDefault extends EnrollDefault {
             throws EProfileException {
         try {
             info.set(X509CertInfo.ALGORITHM_ID,
-                    new CertificateAlgorithmId(
-                            AlgorithmId.getAlgorithmId(getSigningAlg())));
+                    new CertificateAlgorithmId(AlgorithmId.get(getSigningAlg())));
         } catch (Exception e) {
             CMS.debug("SigningAlgDefault: populate " + e.toString());
         }
