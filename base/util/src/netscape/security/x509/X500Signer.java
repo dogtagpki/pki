@@ -20,7 +20,6 @@ package netscape.security.x509;
 import java.security.NoSuchAlgorithmException;
 import java.security.Signature;
 import java.security.SignatureException;
-import java.security.Signer;
 
 /**
  * This class provides a binding between a Signature object and an
@@ -41,11 +40,13 @@ import java.security.Signer;
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  */
-public final class X500Signer extends Signer {
-    /**
-     *
-     */
+public final class X500Signer {
+
     private static final long serialVersionUID = -3148659822293810158L;
+
+    private Signature sig;
+    private X500Name agent; // XXX should be X509CertChain
+    private AlgorithmId algid;
 
     /**
      * Called for each chunk of the data being signed. That
@@ -98,7 +99,6 @@ public final class X500Signer extends Signer {
         this.agent = agent;
 
         try {
-            this.algid = AlgorithmId.get(sig.getAlgorithm());
             String alg = sig.getAlgorithm();
             if (alg.equals("DSA")) {
                 alg = "SHA1withDSA";
@@ -109,8 +109,4 @@ public final class X500Signer extends Signer {
             throw new RuntimeException("internal error! " + e.getMessage());
         }
     }
-
-    private Signature sig;
-    private X500Name agent; // XXX should be X509CertChain
-    private AlgorithmId algid;
 }
