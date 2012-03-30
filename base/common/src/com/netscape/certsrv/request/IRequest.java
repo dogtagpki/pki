@@ -750,14 +750,7 @@ public interface IRequest {
     public CertificateSubjectName getExtDataInCertSubjectName(String key);
 
     /**
-     * This method returns an IAttrSet wrapper for the IRequest.
-     * Use of this method is strongly discouraged. It provides extremely
-     * limited functionality, and is only provided for the two places IRequest
-     * is being used as such in the code. If you are considering using this
-     * method, please don't.
-     * 
      * @return IAttrSet wrapper with basic "get" functionality.
-     * @deprecated
      */
     public IAttrSet asIAttrSet();
 
