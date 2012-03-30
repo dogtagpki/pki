@@ -49,6 +49,7 @@ public class ConfigHSMServlet extends ConfigBaseServlet {
     private String mDefaultTok = null;
     private Hashtable<String, PK11Module> mCurrModTable = new Hashtable<String, PK11Module>();
 
+    @SuppressWarnings("deprecation")
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
     }

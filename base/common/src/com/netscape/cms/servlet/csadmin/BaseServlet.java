@@ -29,6 +29,7 @@ import org.apache.velocity.servlet.VelocityServlet;
 
 import com.netscape.certsrv.apps.CMS;
 
+@SuppressWarnings("deprecation")
 public class BaseServlet extends VelocityServlet {
 
     /**

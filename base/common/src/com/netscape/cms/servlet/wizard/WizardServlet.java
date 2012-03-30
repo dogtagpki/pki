@@ -45,6 +45,7 @@ import com.netscape.cmsutil.crypto.Module;
  * wizard?op=menu
  * return menu options
  */
+@SuppressWarnings("deprecation")
 public class WizardServlet extends VelocityServlet {
 
     /**
